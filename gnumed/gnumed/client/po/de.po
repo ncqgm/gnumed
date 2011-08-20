@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-08-18 10:35+CEST\n"
-"PO-Revision-Date: 2011-08-18 10:58+0100\n"
+"POT-Creation-Date: 2011-08-21 00:28+CEST\n"
+"PO-Revision-Date: 2011-08-21 00:48+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -162,12 +162,11 @@ msgstr "soap_Procedere"
 msgid "soap_Administrative"
 msgstr "soap_Verwaltung"
 
-#, fuzzy
 msgid ""
 "%s: %s by %.8s (v%s)\n"
 "%s"
 msgstr ""
-"%s: %s von %.8s\n"
+"%s: %s von %.8s (v%s)\n"
 "%s"
 
 msgid "modified entry"
@@ -185,7 +184,6 @@ msgstr "Grunderkrankung: %s"
 msgid "episode     : %s"
 msgstr "Episode    : %s"
 
-#, fuzzy
 msgid ""
 "Medical problems: %(problems)s\n"
 "Total encounters: %(encounters)s\n"
@@ -205,7 +203,7 @@ msgstr ""
 "Testergebnisse: %(results)s\n"
 "Krankenhausaufenthalte: %(stays)s\n"
 "Maßnahmen: %(procedures)s\n"
-"Impfungen: %(vaccinations)s\n"
+"Impfungen: %(vaccinations)s"
 
 msgid ""
 "EMR Statistics\n"
@@ -298,14 +296,14 @@ msgid "Starting patient encounter"
 msgstr "beginne Arzt-Patienten-Kontakt"
 
 msgid ""
-"Address #%(pk_adr)s\n"
+"Address [#%(pk_adr)s]\n"
 " Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
 " Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
-"Adresse #(pk_adr)s\n"
+"Adresse [#(pk_adr)s]\n"
 " Straße: %(street)s [#%(pk_street)s]%(notes_street)s\n"
 " Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Ort: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
@@ -519,17 +517,14 @@ msgstr "PDF-Datei kann nicht geöffnet werden."
 msgid "Error running gnuplot. Cannot plot data."
 msgstr "Fehler mit gnuplot. Kann Meßwerte nicht darstellen."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot extract fields from PDF form template."
-msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."
+msgstr "Fehler mit pdftk. Kann Felder nicht aus PDF-Formular extrahieren."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot fill in PDF form template."
-msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."
+msgstr "Fehler mit pdftk. Kann PDF-Formular nicht befüllen."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
-msgstr "Fehler mit pdflatex. Kann LaTeX template nicht in PDF umwandeln."
+msgstr "Fehler mit pdftk. Kann PDF-Formular nicht versiegeln."
 
 msgid "Medication history"
 msgstr "Medikamentenhistorie"
@@ -567,6 +562,9 @@ msgstr "Zusätzliche Angaben"
 
 msgid "Substance"
 msgstr "Stoff"
+
+msgid "Advice"
+msgstr "Hinweis"
 
 msgid "Brand"
 msgstr "Handelsname"
@@ -1903,9 +1901,6 @@ msgstr "Dauer"
 msgid "Aim"
 msgstr "Ziel"
 
-msgid "Advice"
-msgstr "Hinweis"
-
 msgid "Inactive"
 msgstr "Inaktive"
 
@@ -2040,9 +2035,8 @@ msgstr ""
 msgid "Run the query and present the results below."
 msgstr "Den Befehl ausführen und die Ergebnisse unten anzeigen."
 
-#, fuzzy
 msgid "Visualize data from two numeric columns of the result list below."
-msgstr "Ergebnisdaten aus der unten gezeigten Liste grafisch darstellen."
+msgstr "Zwei numerische Spalten des Suchergebnisses grafisch darstellen."
 
 msgid "Clear all fields."
 msgstr "Alle Felder löschen."
@@ -2345,9 +2339,8 @@ msgstr "Pflichtfeld: Wählen Sie den Verwandtschaftsgrad zwischen Patient und An
 msgid "Required: Enter or select the name of the condition the relative suffered from."
 msgstr "Pflichtfeld: Geben Sie die Erkrankung des Angehörigen ein."
 
-#, fuzzy
 msgid "Select codes relevant to this family history items."
-msgstr "Ein Kommentar zu dieser Familienanamnese."
+msgstr "Wählen Sie die für diese Familienanamnese relevanten Codes."
 
 msgid "Optional: Age of onset of the condition in the relative."
 msgstr "Beginn der Erkrankung beim Angehörigen."
@@ -2481,11 +2474,9 @@ msgstr "Suche"
 msgid "Select the type of address here."
 msgstr "Wählen Sie die Art der Adresse."
 
-#, fuzzy
 msgid "The category under which to store this address."
-msgstr "Der Dokumententyp, unter welchem Dokumente gespeichert werden sollen, die mit dieser Vorlage erzeugt wurden."
+msgstr "Die Kategorie, welche dieser Adresse zugeordnet werden soll."
 
-#, fuzzy
 msgid ""
 "Here you can enter a postal code or street name fragment to search for an existing address.\n"
 "\n"
@@ -2493,20 +2484,18 @@ msgid ""
 "\n"
 "You can also just enter the relevant information into the corresponding fields without searching for an existing address."
 msgstr ""
-"Hier können Sie anhand von PLZ oder Straßenname nach einer existierenden Adresse suchen. Daraus werden dann die Felder unten vorbelegt.\n"
+"Hier können Sie anhand von PLZ oder Straßenname nach einer existierenden Adresse suchen.\n"
 "\n"
-"Diese Adresse - oder eine aus unten geänderten Feldern neu angelegte - wird alsdie \"Heimatadresse\" der Person gespeichert.\n"
+"Daraus werden die Felder unten befüllt, welche Sie zum Anlegen einer neuen Adresse auch bearbeiten können.\n"
 "\n"
 "Sie können auch einfach die relevanten Adressdaten in die passenden Felder eingeben, ohne nach einer existierenden Adresse zu suchen."
 
-#, fuzzy
 msgid "Enter any additional street level instructions and notes, such as postal box or driving directions."
 msgstr "Geben Sie Zusatzangaben zur Straße ein, etwa Postfachstandort oder Richtungsangaben."
 
 msgid "Enter the house number for this address."
 msgstr "Geben sie die Hausnummer zu dieser Adresse ein."
 
-#, fuzzy
 msgid "Enter the subunit / apartment / room / level / entrance for this address."
 msgstr "Geben Sie Eingang, Appartment, Wohneinheit, Raum, Stockwerk o.ä. zu dieser Adresse ein."
 
@@ -3008,6 +2997,11 @@ msgid ""
 "\n"
 "Note that you can also select cells, rows, or columns manually within the table."
 msgstr ""
+"Meßwerte anhand der Optionen zur linken markieren.\n"
+"\n"
+"Hierdurch werden bestehende Markierungen aufgehoben.\n"
+"\n"
+"Sie können in der Tabelle natürlich auch manuell Zellen, Zeilen oder Spalten markieren."
 
 msgid "Invoke actions on the selected measurements."
 msgstr "Bestimmte Aufgaben mit den markierten Ergebnisse erledigen."
@@ -3122,20 +3116,17 @@ msgstr "Zielepisode"
 msgid "The episode you want to move the displayed narrative to."
 msgstr "Die Episode, der die angezeigten Karteieinträge zugeordnet werden sollen."
 
-msgid "Is manually formatted"
-msgstr "Ist handformatiert"
+msgid "Do not reformat text"
+msgstr "Text nicht umformatieren"
 
 msgid "Generic multi line text entry dialog"
 msgstr "allgemeiner Texteingabedialog"
 
 msgid ""
-"Check this if the text you entered is already manually pre-formatted, valid text in the sense of the target format.\n"
+"Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n"
 "\n"
-"Typically you would leave this unchecked so that GNUmed verifies that your input is suitably formatted for the intended purpose. However, sometimes you may want to enter, say, raw LaTeX. In this case you can check this to prevent GNUmed from mangling your text."
+"Use this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."
 msgstr ""
-"Hier markieren, wenn der eingegebene Text schon handformatiert für das Zielformat ist.\n"
-"\n"
-"Normalerweise lassen Sie diese Markierung weg, sodaß GNUmed den Text passend formatiert. Manchmal möchte man aber handformatierten Text eingeben, z.B. LaTeX-Code. In diesem Falle markieren Sie hier, damit GNUmed den Eingabetext nicht nachformatiert."
 
 msgid "Required: lastname (family name)"
 msgstr "Pflichtfeld: Nachname (Familienname)"
@@ -3171,12 +3162,13 @@ msgstr ""
 "\n"
 "Sie können auch einfach die relevanten Adressdaten in die passenden Felder eingeben, ohne nach einer existierenden Adresse zu suchen."
 
-#, fuzzy
 msgid ""
 "Primary address: zip/postal code\n"
 "\n"
 "Use '?' if unknown."
-msgstr "Hauptwohnsitz: Postleitzahl"
+msgstr ""
+"Hauptwohnsitz: Postleitzahl\n"
+"Verwenden Sie '?' für unbekannte Postleitzahlen."
 
 msgid "Primary address: name of street"
 msgstr "Hauptwohnsitz: Straßenname"
@@ -3193,13 +3185,11 @@ msgstr "Hauptwohnsitz: Land/Staat/Kanton"
 msgid "Primary address: country of residence"
 msgstr "Hauptwohnsitz: Land/Staat"
 
-#, fuzzy
 msgid "The type of the primary communication channel."
-msgstr "Wählen Sie den Typ des Kommunikationskanals."
+msgstr "Der Typ des primären Kommunikationskanals."
 
-#, fuzzy
 msgid "Primary communication channel."
-msgstr "Einen Kommunikationskanal entfernen"
+msgstr "Primärer Kommunikationskanal."
 
 msgid "Choose the provider the patient considers his or her primary provider in this praxis."
 msgstr "Wählen Sie den Arzt, den der Patient als Primärarzt in dieser Praxis gewählt hat."
@@ -3253,7 +3243,7 @@ msgid "Other"
 msgstr "Andere"
 
 msgid "In-praxis primary"
-msgstr ""
+msgstr "Praxis-Primarärzt"
 
 msgid "External ID"
 msgstr "Externe ID"
@@ -3261,41 +3251,35 @@ msgstr "Externe ID"
 msgid "Occupation"
 msgstr "Beruf"
 
-#, fuzzy
-msgid "Select an address for this organizational unit."
-msgstr "Zeige Abteilungen."
+msgid "Search for matches among existing addresses and [Save] a selection, or [Add] a new address."
+msgstr "Suche nach der Adresse unter den existierenden Adressen und [Speichere] die Zuordnung oder füge eine neue Adresse hinzu."
 
-msgid "Connect the selected address with the organisational unit."
-msgstr ""
+msgid "Connect the selected address with the organizational unit."
+msgstr "Die gewählte Adresse der Abteilung zuordnen."
 
-msgid "Add a new address."
-msgstr "Neue Adresse hinzufügen."
+msgid "Add a new address and connect it to the selected organizational unit."
+msgstr "Eine neue Adresse anlegen und der gewählten Abteilung zuordnen."
 
 msgid "Manage all known addresses (can be slow)."
-msgstr ""
+msgstr "Bekannte Adressen verwalten (kann langsam sein)."
 
-#, fuzzy
 msgid "The organization this unit belongs to."
-msgstr "Name der Organisation."
+msgstr "Die Organisation zu der die Abteilung gehört."
 
-#, fuzzy
 msgid "The name of the organizational unit."
-msgstr "Zeige Abteilungen."
+msgstr "Die Bezeichnung der Abteilung."
 
-#, fuzzy
 msgid "The category of the organizational unit."
-msgstr "Zeige Abteilungen."
+msgstr "Die Kategorie der Abteilung."
 
 msgid "Organization"
 msgstr "Organisation"
 
-#, fuzzy
 msgid "The name of the organization."
-msgstr "Der Name des Labors/der Meßfirma."
+msgstr "Die Bezeichnung der Organisation."
 
-#, fuzzy
-msgid "Managing Organizations."
-msgstr "Zeige Organisationen."
+msgid "Managing Organizations and their units."
+msgstr "Organisationen und deren Abteilungen verwalten."
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Der zugehörige Patient kann durch Doppelklick einer Zeile aktiviert werden."
@@ -3337,6 +3321,11 @@ msgid ""
 " - contact details of significant others\n"
 " - where to find documents on DNR decisions"
 msgstr ""
+"Notizen für Notfälle bei diesem Patienten.\n"
+"\n"
+"Beispiele:\n"
+" - Kontaktinformationen über Angehörige\n"
+" - Aufbewahrungsorte von Vollmachten und Verfügungen"
 
 msgid "Reload details from the database."
 msgstr "Details erneut aus der Datenbank laden."
@@ -3348,7 +3337,7 @@ msgid "Emergency notes"
 msgstr "Notfallhinweise"
 
 msgid "In-praxis primary doc"
-msgstr ""
+msgstr "Praxis-Primärarzt"
 
 msgid "Schock index"
 msgstr "Schockindex"
@@ -5027,9 +5016,8 @@ msgstr "Die Option <%s> auf <Nein> setzen."
 msgid "Abort the dialog and do not change the current setting."
 msgstr "Die Auswahl beenden und die jetzige Einstellung belassen."
 
-#, fuzzy
 msgid "Coded terms known to GNUmed (may take a while to load)."
-msgstr "Die GNUmed bekannten codierten Worte."
+msgstr "Die GNUmed bekannten codierten Termini (das Laden kann dauern)."
 
 msgid "Showing coded terms."
 msgstr "Codierte Worte zeigen."
@@ -5049,13 +5037,12 @@ msgstr "Ausdruck"
 msgid "Select one or more codes that apply."
 msgstr "Wählen Sie einen oder mehrere Codes, die zutreffen."
 
-#, fuzzy
 msgid ""
 "\n"
 "This lists the communication channel types known to GNUmed.\n"
 msgstr ""
 "\n"
-"Diese Medikamentenbestandteile sind derzeit in GNUmed hinterlegt.\n"
+"Diese Typen von Kommunikationskanälen sind in GNUmed hinterlegt.\n"
 
 msgid "Managing communication types ..."
 msgstr "Verwalte Kommunikationstypen ..."
@@ -5081,13 +5068,12 @@ msgstr "Einen Kommunikationskanal hinzufügen"
 msgid "Editing communications channel"
 msgstr "Einen Kommunikationskanal ändern"
 
-#, fuzzy
 msgid ""
 "Are you sure this communication channel\n"
 "can no longer be used ?"
 msgstr ""
-"Sind Sie sicher, daß dieser Patient nicht\n"
-"mehr auf diesem Weg erreicht werden kann?"
+"Sind Sie sicher, daß dieser Kommunikationskanal\n"
+"nicht länger verwendet werden kann?"
 
 msgid "Removing communication channel"
 msgstr "Einen Kommunikationskanal entfernen"
@@ -5269,13 +5255,13 @@ msgid "not unicode()able"
 msgstr "nicht unicode()ierbar"
 
 msgid "installing data packs"
-msgstr ""
+msgstr "installiere Datenpakete"
 
 msgid "Lacking permissions to install data pack."
-msgstr ""
+msgstr "Fehlende Rechte für die Datenpaketinstallation."
 
 msgid "Installing data pack"
-msgstr ""
+msgstr "Installiere Datenpaket"
 
 msgid ""
 "Cannot validate data pack.\n"
@@ -5307,7 +5293,7 @@ msgid ""
 msgstr ""
 
 msgid "Unpacking data pack"
-msgstr ""
+msgstr "Entpacke Datenpaket"
 
 msgid ""
 "Installation of data pack failed.\n"
@@ -5334,13 +5320,13 @@ msgid "Showing data packs."
 msgstr "Zeige Datenpakete."
 
 msgid "Data pack"
-msgstr ""
+msgstr "Datenpaket"
 
 msgid "max DB"
-msgstr ""
+msgstr "max.DB"
 
 msgid "min DB"
-msgstr ""
+msgstr "min.DB"
 
 msgid "Source"
 msgstr "Quelle"
@@ -5638,7 +5624,7 @@ msgid " (confidential !)"
 msgstr " (vertraulich !)"
 
 msgid "Emergency data and primary provider saved."
-msgstr ""
+msgstr "Notfallinformationen und Primärarzt gespeichert."
 
 msgid "Adding new person"
 msgstr "Neue Person hinzufügen"
@@ -5841,9 +5827,8 @@ msgstr "Dokumente"
 msgid "Select the episode under which to file the document ..."
 msgstr "Wählen Sie die Episode, der das Dokument zugeordnet werden soll ..."
 
-#, fuzzy
 msgid "Imported new document from %s."
-msgstr "Neues Dokument [%s] eingelesen."
+msgstr "Neues Dokument aus [%s] eingelesen."
 
 msgid "Enter a comment on the document."
 msgstr "Geben Sie einen Kommentar zu diesem Dokument ein."
@@ -5894,9 +5879,8 @@ msgstr "Dokumente anders klassifizieren"
 msgid "Select the document type."
 msgstr "Wählen Sie den Dokumententyp."
 
-#, fuzzy
 msgid "Cannot create document type without name."
-msgstr "Kann keine Episode ohne Bezeichnung anlegen."
+msgstr "Kann Dokumententyp ohne Bezeichnung nicht anlegen."
 
 msgid "who"
 msgstr "wer"
@@ -5926,9 +5910,8 @@ msgstr ""
 "Kann Episode [%s] nicht eröffnen\n"
 " [%s]"
 
-#, fuzzy
 msgid "Editing document properties"
-msgstr "Eigenschaften des Dokuments editieren"
+msgstr "Eigenschaften des Dokuments bearbeiten"
 
 msgid "Cannot change document type to [%s]."
 msgstr "Kann Dokumententyp nicht in [%s] ändern."
@@ -5960,9 +5943,8 @@ msgid ""
 " %s"
 msgstr ""
 
-#, fuzzy
 msgid "Editing document part properties"
-msgstr "Eigenschaften des Dokuments editieren"
+msgstr "Eigenschaften des Dokumententeils bearbeiten"
 
 msgid "Error saving part properties."
 msgstr "Fehler beim Speichern der Teileigenschaften."
@@ -6134,7 +6116,6 @@ msgstr "Kann Dokumentenbeschreibung nicht hinzufügen."
 msgid "Error setting \"reviewed\" status of new document."
 msgstr "Fehler beim Abzeichnen des neuen Dokuments."
 
-#, fuzzy
 msgid "Successfully saved the new document."
 msgstr "Neues Dokument erfolgreich gespeichert."
 
@@ -7516,9 +7497,8 @@ msgstr "Primärarzt"
 msgid "Select the primary doctor to fall back to for patients without one."
 msgstr "Wählen Sie den Primärarzt aus, der für Patienten ohne einen solchen angenommen werden soll."
 
-#, fuzzy
 msgid "Edit before patient change"
-msgstr "Bei Patientenwechsel editieren"
+msgstr "Vor Patientenwechsel bearbeiten"
 
 #, fuzzy
 msgid "Edit encounter details before change of patient."
@@ -7573,11 +7553,10 @@ msgid "Manage various lists of master data."
 msgstr "Listen mit Stammdaten verwalten."
 
 msgid "Install data packs"
-msgstr ""
+msgstr "Datenpakete installieren"
 
-#, fuzzy
 msgid "Install reference data from data packs."
-msgstr "ATC-Referenzdaten installieren."
+msgstr "Referenzdatenpakete installieren."
 
 msgid "Install ATC reference data."
 msgstr "ATC-Referenzdaten installieren."
@@ -7696,9 +7675,8 @@ msgstr "Eine Grunderkrankung der Eigenanamnese des aktiven Patienten hinzufügen
 msgid "&Episode"
 msgstr "&Episode"
 
-#, fuzzy
 msgid "Add an episode of illness to the EMR of the active patient"
-msgstr "Zusammenfassung der Kartei des aktiven Patienten zeigen"
+msgstr "Der Karteikarte des aktiven Patienten eine Krankheitsepisode hinzufügen"
 
 msgid "&Medication"
 msgstr "&Medikamente"
@@ -9159,6 +9137,12 @@ msgstr "Vorlage fehlt"
 msgid "invalid gender mapping layout: [%s]"
 msgstr "ungültiges Format für geschlechtsabhängiges Mapping: [%s]"
 
+msgid "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+msgstr "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+
+msgid "no address for type [%s]"
+msgstr "keine Adresse für Typ [%s]"
+
 msgid "no street for address type [%s]"
 msgstr "keine Straße für Adresstyp [%s]"
 
@@ -9170,6 +9154,18 @@ msgstr "kein Ort für Adresstyp [%s]"
 
 msgid "no postcode for address type [%s]"
 msgstr "keine PLZ für Adresstyp [%s]"
+
+msgid "no region for address type [%s]"
+msgstr "keine Region für Adresstyp [%s]"
+
+msgid "no country for address type [%s]"
+msgstr "kein Land für Adresstyp [%s]"
+
+msgid "no URL for comm channel [%s]"
+msgstr "kein Wert für Komm.kanal [%s]"
+
+msgid "no external ID [%s] by [%s]"
+msgstr "keine externe ID [%s] von [%s]"
 
 msgid "unknown current medication table formatting style"
 msgstr "unbekannter Stil für die Medikamententabelle"
@@ -10447,7 +10443,7 @@ msgid "Visual progress note source"
 msgstr "Quelle für Bildnotiz"
 
 msgid "From which source do you want to pick the image template ?"
-msgstr ""
+msgstr "Aus welcher Quelle soll die Bildvorlage geholt werden ?"
 
 msgid "Database"
 msgstr "Datenbank"
@@ -10459,7 +10455,7 @@ msgid "Files in the filesystem."
 msgstr "Dateien im Dateisystem."
 
 msgid "Image capture devices (scanners, cameras, etc)"
-msgstr ""
+msgstr "Bildquellen (Scanner, Kameras, usw)"
 
 msgid "Cannot export visual progress note template for [%s]."
 msgstr "Kann Bildnotiz-Vorlage [%s] nicht exportieren."
@@ -10527,23 +10523,17 @@ msgstr "Bildnotizen"
 msgid "Created: %s"
 msgstr "Erzeugt: %s"
 
-#, fuzzy
 msgid "Adding new organizational unit"
-msgstr "Zeige Abteilungen."
+msgstr "Neue Abteilung hinzufügen"
 
-#, fuzzy
 msgid "Editing organizational unit"
-msgstr "Zeige Abteilungen."
+msgstr "Bearbeite Abteilung"
 
-#, fuzzy
 msgid "Select an organizational unit."
-msgstr "Zeige Abteilungen."
+msgstr "Wählen Sie eine Abteilung."
 
-#, fuzzy
 msgid "Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed."
-msgstr ""
-"\n"
-"In GNUmed registrierte Teile (Niederlassungen, Abteilungen, Filialen, ...) von Einrichtungen.\n"
+msgstr "In GNUmed registrierte Teile (Niederlassungen, Abteilungen, Filialen, ...) von Einrichtungen."
 
 msgid "Organizational Unit"
 msgstr "Abteilung"
@@ -10551,30 +10541,38 @@ msgstr "Abteilung"
 msgid "Unit Category"
 msgstr "Kategorie (Abteilung)"
 
+msgid "Units of: %s"
+msgstr "Abteilg.von:"
+
+msgid "<no organization selected>"
+msgstr "<keine Organisation gewählt>"
+
+msgid "<no unit selected>"
+msgstr "<keine Abteilung gewählt>"
+
+msgid "Invalid address selection."
+msgstr "Ungültige Adresswahl."
+
 msgid "Adding new address"
 msgstr "Neue Adresse hinzufügen"
 
-#, fuzzy
 msgid "Adding new organization"
-msgstr "Neue Übersetzung hinzufügen"
+msgstr "Neue Einrichtung hinzufügen"
 
-#, fuzzy
 msgid "Editing organization"
-msgstr "Übersetzung bearbeiten"
+msgstr "Bearbeite Einrichtung"
 
-#, fuzzy
 msgid "Select an organization."
-msgstr "Zeige Organisationen."
+msgstr "Wählen Sie eine Einrichtung."
 
-#, fuzzy
 msgid "Select an organizational category."
-msgstr "Zeige Abteilungen."
+msgstr "Wählen Sie eine Kategorie für die Einrichtung."
 
-#, fuzzy
 msgid "Organizations registered in GNUmed."
-msgstr ""
-"\n"
-"In GNUmed registrierte Organisationen.\n"
+msgstr "In GNUmed registrierte Einrichtungen."
+
+msgid "Communication channels"
+msgstr "Kommunikationskanal"
 
 msgid "Refresh from database"
 msgstr "Neu laden"
@@ -10788,7 +10786,6 @@ msgid ""
 "%s"
 msgstr "kann Patienten [%s] (%s/%s) nicht aktivieren"
 
-#, fuzzy
 msgid ""
 "To search for a person, type any of:                   \n"
 "\n"
@@ -10809,10 +10806,10 @@ msgid ""
 msgstr ""
 "Zum Suchen geben Sie ein:                            \n"
 "\n"
-" - Teile von Vor- und/oder Nachname\n"
-" - Geburtsdatum (kann mit '$' oder '*' beginnen)\n"
+" - Teile von Vor- und/oder Nachnamen\n"
 " - GNUmed-Patientennummer (kann mit '#' beginnen)\n"
 " - eine andere ID der Person\n"
+" - Geburtsdatum (kann mit '$' oder '*' beginnen)\n"
 "\n"
 "Starten Sie die Suche mit <ENTER>\n"
 "\n"
@@ -10907,7 +10904,7 @@ msgid "Your chart has been accessed by %s."
 msgstr "Ihre Karteikarte wurde von %s aufgerufen."
 
 msgid "Staff member %s has been notified of your chart access."
-msgstr ""
+msgstr "Mitarbeiter %s wurde über die Akteneinsicht benachrichtigt."
 
 msgid "%(pat)s turns %(age)s on %(month)s %(day)s ! (today is %(month_now)s %(day_now)s)"
 msgstr "%(pat)s wird am %(day)s. %(month)s %(age)s Jahre alt ! (Heute ist der %(day_now)s. %(month_now)s.)"
@@ -11049,12 +11046,14 @@ msgstr "Wählen Sie eine Adresse anhand von Postleitzahl oder Straße."
 msgid "Select the type of address."
 msgstr "Wählen Sie den Typ der Adresse."
 
-#, fuzzy
 msgid ""
 "Type or select a zip code (postcode).\n"
 "\n"
 "Use e.g. '?' if unknown."
-msgstr "Tippen oder wählen Sie eine Postleitzahl."
+msgstr ""
+"Tippen oder wählen Sie eine Postleitzahl.\n"
+"\n"
+"Falls unbekannt, geben Sie '?' ein."
 
 msgid "Type or select a street."
 msgstr "Tippen oder wählen Sie eine Straße."
@@ -11387,15 +11386,15 @@ msgstr "Diese Nachricht kann nicht bearbeitet werden. Sie ist künstlich."
 msgid "This message is already visible to all providers."
 msgstr "Diese Nachricht ging schon an alle Mitarbeiter."
 
-#, fuzzy
 msgid ""
 "There is a message about patient [%s].\n"
 "\n"
 "However, I cannot find that\n"
 "patient in the GNUmed database."
 msgstr ""
-"Es sollen unbewertete Dokumente für den Patienten [%s]\n"
-"existieren. Dieser Patient kann aber nicht in der\n"
+"Es existiert eine Nachricht zum Patienten [%s]\n"
+"\n"
+"Dieser Patient kann jedoch nicht in der\n"
 "GNUmed-Datenbank gefunden werden."
 
 msgid ""
@@ -12451,6 +12450,29 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Is manually formatted"
+#~ msgstr "Ist handformatiert"
+
+#~ msgid ""
+#~ "Check this if the text you entered is already manually pre-formatted, "
+#~ "valid text in the sense of the target format.\n"
+#~ "\n"
+#~ "Typically you would leave this unchecked so that GNUmed verifies that "
+#~ "your input is suitably formatted for the intended purpose. However, "
+#~ "sometimes you may want to enter, say, raw LaTeX. In this case you can "
+#~ "check this to prevent GNUmed from mangling your text."
+#~ msgstr ""
+#~ "Hier markieren, wenn der eingegebene Text schon handformatiert für das "
+#~ "Zielformat ist.\n"
+#~ "\n"
+#~ "Normalerweise lassen Sie diese Markierung weg, sodaß GNUmed den Text "
+#~ "passend formatiert. Manchmal möchte man aber handformatierten Text "
+#~ "eingeben, z.B. LaTeX-Code. In diesem Falle markieren Sie hier, damit "
+#~ "GNUmed den Eingabetext nicht nachformatiert."
+
+#~ msgid "Add a new address."
+#~ msgstr "Neue Adresse hinzufügen."
+
 #~ msgid "Org must be saved before adding persons"
 #~ msgstr "Org muß vor dem Anlegen von Personen gespeichert werden"
 
@@ -12663,9 +12685,6 @@ msgstr "erstmals"
 
 #~ msgid "Choose temporary directory ..."
 #~ msgstr "Arbeitsverzeichnis wählen ..."
-
-#~ msgid "Organizations"
-#~ msgstr "Organisationen"
 
 #~ msgid "category"
 #~ msgstr "Kategorie"
@@ -12951,9 +12970,6 @@ msgstr "erstmals"
 
 #~ msgid "Refresh"
 #~ msgstr "Auffrischen"
-
-#~ msgid "= selected =>"
-#~ msgstr "= markierte =>"
 
 #~ msgid "= all =>"
 #~ msgstr "= alle =>"
@@ -14720,6 +14736,3 @@ msgstr "erstmals"
 #~ "Episode nötig.\n"
 #~ "Bitte eine neue Bezeichnung tippen oder eine existierende Episode aus der "
 #~ "Liste wählen."
-
-#~ msgid "episode: %s"
-#~ msgstr "Episode: %s"

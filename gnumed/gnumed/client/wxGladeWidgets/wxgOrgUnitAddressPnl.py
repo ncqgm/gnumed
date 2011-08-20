@@ -17,7 +17,7 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgOrgUnitAddressPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._LBL_message = wx.StaticText(self, -1, "")
+        self._LBL_message = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
         self._PRW_address_searcher = cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_save_picked_address = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
         self._BTN_add_new_address = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
@@ -36,9 +36,9 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._LBL_message.Hide()
         self._PRW_address_searcher.SetToolTipString(_("Search for matches among existing addresses and [Save] a selection, or [Add] a new address."))
-        self._BTN_save_picked_address.SetToolTipString(_("Connect the selected address with the organisational unit."))
+        self._BTN_save_picked_address.SetToolTipString(_("Connect the selected address with the organizational unit."))
         self._BTN_save_picked_address.Enable(False)
-        self._BTN_add_new_address.SetToolTipString(_("Add a new address."))
+        self._BTN_add_new_address.SetToolTipString(_("Add a new address and connect it to the selected organizational unit."))
         self._BTN_manage_addresses.SetToolTipString(_("Manage all known addresses (can be slow)."))
         # end wxGlade
 
@@ -47,7 +47,7 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_address_search = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LBL_message, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(self._LBL_message, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_searcher = wx.StaticText(self, -1, _("Address"))
         __szr_address_search.Add(__lbl_searcher, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_address_search.Add(self._PRW_address_searcher, 1, wx.ALIGN_CENTER_VERTICAL, 5)

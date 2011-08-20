@@ -32,7 +32,7 @@ class wxgOrganizationManagerDlg(wx.Dialog):
 
     def __set_properties(self):
         # begin wxGlade: wxgOrganizationManagerDlg.__set_properties
-        self.SetTitle(_("Managing Organizations."))
+        self.SetTitle(_("Managing Organizations and their units."))
         self.SetSize((875, 519))
         # end wxGlade
 
@@ -42,9 +42,13 @@ class wxgOrganizationManagerDlg(wx.Dialog):
         __szr_units = wx.BoxSizer(wx.HORIZONTAL)
         __szr_unit_details = wx.BoxSizer(wx.VERTICAL)
         __szr_main.Add(self._PNL_orgs, 1, wx.ALL|wx.EXPAND, 5)
-        __szr_units.Add(self._PNL_units, 2, wx.ALL|wx.EXPAND, 5)
-        __szr_unit_details.Add(self._PNL_address, 1, wx.EXPAND, 0)
-        __szr_unit_details.Add(self._PNL_comms, 2, wx.EXPAND, 0)
+        __szr_units.Add(self._PNL_units, 2, wx.LEFT|wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        __lbl_pusher = wx.StaticText(self, -1, "")
+        __szr_unit_details.Add(__lbl_pusher, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
+        __hline_middle = wx.StaticLine(self, -1)
+        __szr_unit_details.Add(__hline_middle, 0, wx.BOTTOM|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 20)
+        __szr_unit_details.Add(self._PNL_address, 1, wx.LEFT|wx.EXPAND, 5)
+        __szr_unit_details.Add(self._PNL_comms, 2, wx.LEFT|wx.EXPAND, 1)
         __szr_units.Add(__szr_unit_details, 3, wx.RIGHT|wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
         __szr_main.Add(__szr_units, 1, wx.EXPAND, 0)
         self.SetSizer(__szr_main)

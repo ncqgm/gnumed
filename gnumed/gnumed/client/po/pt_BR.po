@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-08-18 10:36+CEST\n"
+"POT-Creation-Date: 2011-08-21 00:29+CEST\n"
 "PO-Revision-Date: 2011-01-27 20:44+0000\n"
 "Last-Translator: Rudinei Weschenfelder <rudinei.ti@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -300,7 +300,7 @@ msgid "Starting patient encounter"
 msgstr "Iniciando Consulta do Paciente"
 
 msgid ""
-"Address #%(pk_adr)s\n"
+"Address [#%(pk_adr)s]\n"
 " Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
@@ -576,6 +576,9 @@ msgstr "Notas adicionais"
 
 msgid "Substance"
 msgstr "Substância"
+
+msgid "Advice"
+msgstr ""
 
 msgid "Brand"
 msgstr "Marca"
@@ -1193,7 +1196,6 @@ msgstr ""
 msgid "Error running hook [%s] script."
 msgstr "Erro ao executar o script de hook [%s]"
 
-#, fuzzy
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Traduza isso ou o i18n não funcionará de maneira correta !"
 
@@ -1998,9 +2000,6 @@ msgid "Duration"
 msgstr ""
 
 msgid "Aim"
-msgstr ""
-
-msgid "Advice"
 msgstr ""
 
 msgid "Inactive"
@@ -3331,20 +3330,18 @@ msgstr "Episódio Selecionado."
 msgid "The episode you want to move the displayed narrative to."
 msgstr "O episódio para o qual você quer mover a desccrição."
 
-msgid "Is manually formatted"
+msgid "Do not reformat text"
 msgstr ""
 
 msgid "Generic multi line text entry dialog"
 msgstr "Generic multi line text entry dialog"
 
 msgid ""
-"Check this if the text you entered is already manually pre-formatted, valid "
-"text in the sense of the target format.\n"
+"Leave this unchecked so that GNUmed can check for characters that need "
+"escaping or transforming.\n"
 "\n"
-"Typically you would leave this unchecked so that GNUmed verifies that your "
-"input is suitably formatted for the intended purpose. However, sometimes you "
-"may want to enter, say, raw LaTeX. In this case you can check this to "
-"prevent GNUmed from mangling your text."
+"Use this option when you have put in raw formatting, like HTML or LaTeX, "
+"that you are confident should be left untouched."
 msgstr ""
 
 msgid "Required: lastname (family name)"
@@ -3477,15 +3474,17 @@ msgstr ""
 msgid "Occupation"
 msgstr "Profissão"
 
-msgid "Select an address for this organizational unit."
-msgstr ""
-
-msgid "Connect the selected address with the organisational unit."
+msgid ""
+"Search for matches among existing addresses and [Save] a selection, or [Add] "
+"a new address."
 msgstr ""
 
 #, fuzzy
-msgid "Add a new address."
-msgstr "Adicionando novo endereço"
+msgid "Connect the selected address with the organizational unit."
+msgstr "A marca do medicamento que o paciente está tomando."
+
+msgid "Add a new address and connect it to the selected organizational unit."
+msgstr ""
 
 msgid "Manage all known addresses (can be slow)."
 msgstr ""
@@ -3508,7 +3507,7 @@ msgid "The name of the organization."
 msgstr "A marca do medicamento que o paciente está tomando."
 
 #, fuzzy
-msgid "Managing Organizations."
+msgid "Managing Organizations and their units."
 msgstr "Administrar as descrições."
 
 msgid "Activate the respective patient by double-clicking a row."
@@ -9172,6 +9171,13 @@ msgstr ""
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
+msgid ""
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+msgstr ""
+
+msgid "no address for type [%s]"
+msgstr ""
+
 msgid "no street for address type [%s]"
 msgstr ""
 
@@ -9182,6 +9188,18 @@ msgid "no location for address type [%s]"
 msgstr ""
 
 msgid "no postcode for address type [%s]"
+msgstr ""
+
+msgid "no region for address type [%s]"
+msgstr ""
+
+msgid "no country for address type [%s]"
+msgstr ""
+
+msgid "no URL for comm channel [%s]"
+msgstr ""
+
+msgid "no external ID [%s] by [%s]"
 msgstr ""
 
 msgid "unknown current medication table formatting style"
@@ -10421,6 +10439,21 @@ msgstr ""
 msgid "Unit Category"
 msgstr ""
 
+msgid "Units of: %s"
+msgstr ""
+
+#, fuzzy
+msgid "<no organization selected>"
+msgstr "Editando a profissão"
+
+#, fuzzy
+msgid "<no unit selected>"
+msgstr "= selected =>"
+
+#, fuzzy
+msgid "Invalid address selection."
+msgstr "Cancelar seleção de pessoa."
+
 msgid "Adding new address"
 msgstr "Adicionando novo endereço"
 
@@ -10441,6 +10474,10 @@ msgstr ""
 
 msgid "Organizations registered in GNUmed."
 msgstr ""
+
+#, fuzzy
+msgid "Communication channels"
+msgstr "Removendo canal de comunicações."
 
 msgid "Refresh from database"
 msgstr ""
@@ -12123,6 +12160,10 @@ msgstr "Quantidade"
 msgid "First Date"
 msgstr "Primeira Data"
 
+#, fuzzy
+#~ msgid "Add a new address."
+#~ msgstr "Adicionando novo endereço"
+
 #~ msgid "Org must be saved before adding persons"
 #~ msgstr "Org deve ser salvo antes de adicionar pessoas"
 
@@ -12347,9 +12388,6 @@ msgstr "Primeira Data"
 
 #~ msgid "Do something with the two lists below."
 #~ msgstr "Manipule as listas abaixo."
-
-#~ msgid "= selected =>"
-#~ msgstr "= selected =>"
 
 #~ msgid "= all =>"
 #~ msgstr "= all =>"

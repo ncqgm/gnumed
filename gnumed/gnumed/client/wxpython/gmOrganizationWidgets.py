@@ -154,22 +154,25 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def __refresh(self):
 
+		msg_template = _('Units of: %s')
+
 		if self.__org is None:
-			self.message = None
 			self._BTN_add.Enable(False)
+			self._BTN_edit.Enable(False)
+			self._BTN_remove.Enable(False)
+			pk = None
+			self.message = msg_template % _('<no organization selected>')
 			if self.__show_none_if_no_org:
 				self._LCTRL_items.set_string_items(items = None)
 				return
-			pk = None
 		else:
-			pk = self.__org['pk_org']
-			self.message = u'%s %s%s%s' % (
-				self.__org['l10n_category'],
-				gmTools.u_left_double_angle_quote,
-				self.__org['organization'],
-				gmTools.u_right_double_angle_quote
-			)
 			self._BTN_add.Enable(True)
+			pk = self.__org['pk_org']
+			org_str = u'%s (%s)' % (
+				self.__org['organization'],
+				self.__org['l10n_category']
+			)
+			self.message = msg_template % org_str
 
 		units = gmOrganization.get_org_units(order_by = 'unit, l10n_unit_category', org = pk)
 		items = [ [
@@ -319,27 +322,38 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 
 		wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl.__init__(self, *args, **kwargs)
 
+		self.__searcher_active_colour = self._PRW_address_searcher.GetBackgroundColour()
 		self.__unit = None
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __refresh(self):
 		if self.__unit is None:
-			self.message = None
+			self.message = _('<no unit selected>')
 			self._PRW_address_searcher.SetText(u'', None)
 			self._PRW_address_searcher.Enable(False)
+			self._PRW_address_searcher.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 			self._BTN_save_picked_address.Enable(False)
 			self._BTN_add_new_address.Enable(False)
 		else:
-			self.message = u'%s %s%s%s' % (
-				self.__unit['l10n_unit_category'],
-				gmTools.u_left_double_angle_quote,
+			if self.__unit['l10n_unit_category'] is None:
+				cat = u''
+				left_delim = u''
+				right_delim = u''
+			else:
+				cat = u'%s ' % self.__unit['l10n_unit_category']
+				left_delim = gmTools.u_left_double_angle_quote
+				right_delim = gmTools.u_right_double_angle_quote
+			self.message = u'%s%s%s%s' % (
+				cat,
+				left_delim,
 				self.__unit['unit'],
-				gmTools.u_right_double_angle_quote
+				right_delim
 			)
 			self._PRW_address_searcher.Enable(True)
 			self._PRW_address_searcher.address = self.__unit['pk_address']
 			self._PRW_address_searcher.Enable(True)
+			self._PRW_address_searcher.SetBackgroundColour(self.__searcher_active_colour)
 			self._BTN_save_picked_address.Enable(True)
 			self._BTN_add_new_address.Enable(True)
 	#--------------------------------------------------------
@@ -609,8 +623,8 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# external API
 	#--------------------------------------------------------
 	def refresh(self, lctrl=None):
-		orgs = gmOrganization.get_orgs(order_by = 'l10n_category, organization')
-		items = [ [o['l10n_category'], o['organization'], o['pk_org']] for o in orgs ]
+		orgs = gmOrganization.get_orgs(order_by = 'organization, l10n_category')
+		items = [ [o['organization'], o['l10n_category'], o['pk_org']] for o in orgs ]
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(orgs)
 	#--------------------------------------------------------
@@ -632,7 +646,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_items.SetToolTipString(_('Organizations registered in GNUmed.'))
-		self._LCTRL_items.set_columns(columns = [_('Category'), _('Organization'), u'#'])
+		self._LCTRL_items.set_columns(columns = [_('Organization'), _('Category'), u'#'])
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 #============================================================
 from Gnumed.wxGladeWidgets import wxgOrganizationManagerDlg
@@ -648,6 +662,7 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 		self._PNL_address.type_is_editable = False
 		self._PNL_orgs.select_callback = self._on_org_selected
 		self._PNL_units.select_callback = self._on_unit_selected
+		self._PNL_comms.message = _('Communication channels')
 
 		# FIXME: find proper button
 		#self._PNL_units.MoveAfterInTabOrder(self._PNL_orgs._BTN_)
@@ -664,6 +679,10 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 	def _on_unit_selected(self, item):
 		self._PNL_address.unit = item
 		self._PNL_comms.channel_owner = item
+		if item is None:
+			self._PNL_comms._BTN_add.Enable(False)
+		else:
+			self._PNL_comms._BTN_add.Enable(True)
 #============================================================
 # main
 #------------------------------------------------------------

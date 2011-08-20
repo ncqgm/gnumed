@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-08-18 10:35+CEST\n"
+"POT-Creation-Date: 2011-08-21 00:28+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -276,7 +276,7 @@ msgid "Starting patient encounter"
 msgstr "Αρχή της αντιμετώπισης του ασθενούς"
 
 msgid ""
-"Address #%(pk_adr)s\n"
+"Address [#%(pk_adr)s]\n"
 " Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
@@ -552,6 +552,9 @@ msgstr "Επιπλέον σημειώσεις"
 
 msgid "Substance"
 msgstr "Ουσία"
+
+msgid "Advice"
+msgstr "Συμβουλή"
 
 msgid "Brand"
 msgstr "Μάρκα"
@@ -1157,7 +1160,6 @@ msgstr ""
 msgid "Error running hook [%s] script."
 msgstr ""
 
-#, fuzzy
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Μεταφράστε το ή το i18n δεν θα λειτουργήσει σωστά !"
 
@@ -1978,9 +1980,6 @@ msgstr "Διάρκεια"
 
 msgid "Aim"
 msgstr "Σκοπός"
-
-msgid "Advice"
-msgstr "Συμβουλή"
 
 msgid "Inactive"
 msgstr "Ανενεργό"
@@ -3241,20 +3240,18 @@ msgstr ""
 msgid "The episode you want to move the displayed narrative to."
 msgstr ""
 
-msgid "Is manually formatted"
+msgid "Do not reformat text"
 msgstr ""
 
 msgid "Generic multi line text entry dialog"
 msgstr ""
 
 msgid ""
-"Check this if the text you entered is already manually pre-formatted, valid "
-"text in the sense of the target format.\n"
+"Leave this unchecked so that GNUmed can check for characters that need "
+"escaping or transforming.\n"
 "\n"
-"Typically you would leave this unchecked so that GNUmed verifies that your "
-"input is suitably formatted for the intended purpose. However, sometimes you "
-"may want to enter, say, raw LaTeX. In this case you can check this to "
-"prevent GNUmed from mangling your text."
+"Use this option when you have put in raw formatting, like HTML or LaTeX, "
+"that you are confident should be left untouched."
 msgstr ""
 
 msgid "Required: lastname (family name)"
@@ -3383,15 +3380,17 @@ msgstr ""
 msgid "Occupation"
 msgstr "Επάγγελμα"
 
-msgid "Select an address for this organizational unit."
-msgstr ""
-
-msgid "Connect the selected address with the organisational unit."
+msgid ""
+"Search for matches among existing addresses and [Save] a selection, or [Add] "
+"a new address."
 msgstr ""
 
 #, fuzzy
-msgid "Add a new address."
-msgstr "Προσθήκη ενός νέου αντικειμένου στην παρακάτω λίστα."
+msgid "Connect the selected address with the organizational unit."
+msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
+
+msgid "Add a new address and connect it to the selected organizational unit."
+msgstr ""
 
 msgid "Manage all known addresses (can be slow)."
 msgstr ""
@@ -3414,7 +3413,7 @@ msgid "The name of the organization."
 msgstr "Η εμπορική ονομασία του σκευάσματος."
 
 #, fuzzy
-msgid "Managing Organizations."
+msgid "Managing Organizations and their units."
 msgstr "Εμφάνισε  Οργανώσεις"
 
 msgid "Activate the respective patient by double-clicking a row."
@@ -8630,6 +8629,13 @@ msgstr ""
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
+msgid ""
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+msgstr ""
+
+msgid "no address for type [%s]"
+msgstr ""
+
 msgid "no street for address type [%s]"
 msgstr ""
 
@@ -8640,6 +8646,18 @@ msgid "no location for address type [%s]"
 msgstr ""
 
 msgid "no postcode for address type [%s]"
+msgstr ""
+
+msgid "no region for address type [%s]"
+msgstr ""
+
+msgid "no country for address type [%s]"
+msgstr ""
+
+msgid "no URL for comm channel [%s]"
+msgstr ""
+
+msgid "no external ID [%s] by [%s]"
 msgstr ""
 
 msgid "unknown current medication table formatting style"
@@ -9879,6 +9897,19 @@ msgstr ""
 msgid "Unit Category"
 msgstr "Κατηγορία"
 
+msgid "Units of: %s"
+msgstr ""
+
+#, fuzzy
+msgid "<no organization selected>"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+msgid "<no unit selected>"
+msgstr ""
+
+msgid "Invalid address selection."
+msgstr ""
+
 msgid "Adding new address"
 msgstr ""
 
@@ -9897,6 +9928,9 @@ msgid "Select an organizational category."
 msgstr ""
 
 msgid "Organizations registered in GNUmed."
+msgstr ""
+
+msgid "Communication channels"
 msgstr ""
 
 msgid "Refresh from database"
@@ -11569,6 +11603,10 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#, fuzzy
+#~ msgid "Add a new address."
+#~ msgstr "Προσθήκη ενός νέου αντικειμένου στην παρακάτω λίστα."
 
 #~ msgid "Date of death"
 #~ msgstr "Ημερομηνία θανάτου"

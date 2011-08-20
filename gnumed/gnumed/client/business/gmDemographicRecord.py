@@ -354,7 +354,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 			'code_country': self._payload[self._idx['code_country']]
 		}
 		txt = _(
-			'Address #%(pk_adr)s\n'
+			'Address [#%(pk_adr)s]\n'
 			' Street: %(street)s [#%(pk_street)s]%(notes_street)s\n'
 			' Number: %(number)s%(subunit)s%(notes_subunit)s\n'
 			' Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n'

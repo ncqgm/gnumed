@@ -162,10 +162,10 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			pk_org_unit = self.pk_obj
 		)
 	#--------------------------------------------------------
-	def link_address(id_type=None, address=None):
+	def link_address(self, id_type=None, address=None):
 		self.address = address
 	#--------------------------------------------------------
-	def unlink_address(address=None, pk_address=None):
+	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the org unit.
 
 		The address itself stays in the database.
