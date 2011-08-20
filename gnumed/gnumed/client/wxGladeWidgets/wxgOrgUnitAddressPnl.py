@@ -35,7 +35,7 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgOrgUnitAddressPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._LBL_message.Hide()
-        self._PRW_address_searcher.SetToolTipString(_("Select an address for this organizational unit."))
+        self._PRW_address_searcher.SetToolTipString(_("Search for matches among existing addresses and [Save] a selection, or [Add] a new address."))
         self._BTN_save_picked_address.SetToolTipString(_("Connect the selected address with the organisational unit."))
         self._BTN_save_picked_address.Enable(False)
         self._BTN_add_new_address.SetToolTipString(_("Add a new address."))

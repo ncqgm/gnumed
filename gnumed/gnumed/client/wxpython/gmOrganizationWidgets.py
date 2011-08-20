@@ -16,6 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.business import gmOrganization
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
@@ -155,6 +156,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		if self.__org is None:
 			self.message = None
+			self._BTN_add.Enable(False)
 			if self.__show_none_if_no_org:
 				self._LCTRL_items.set_string_items(items = None)
 				return
@@ -167,6 +169,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				self.__org['organization'],
 				gmTools.u_right_double_angle_quote
 			)
+			self._BTN_add.Enable(True)
 
 		units = gmOrganization.get_org_units(order_by = 'unit, l10n_unit_category', org = pk)
 		items = [ [
@@ -343,6 +346,15 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_save_picked_address_button_pressed(self, event):
+		if self._PRW_address_searcher.GetData() is None:
+			if self._PRW_address_searcher.GetValue().strip() != u'':
+				gmDispatcher.send(signal = 'statustext', msg = _('Invalid address selection.'))
+				self._PRW_address_searcher.display_as_valid(False)
+				self._PRW_address_searcher.SetFocus()
+				return
+
+		self._PRW_address_searcher.display_as_valid(True)
+
 		self.__unit['pk_address'] = self._PRW_address_searcher.GetData()
 		self.__unit.save()
 		self.__refresh()
@@ -640,6 +652,7 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 		# FIXME: find proper button
 		#self._PNL_units.MoveAfterInTabOrder(self._PNL_orgs._BTN_)
 
+		self._on_org_selected(None)
 		self._PNL_orgs._LCTRL_items.SetFocus()
 	#--------------------------------------------------------
 	# event handlers
