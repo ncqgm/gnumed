@@ -60,7 +60,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmPersonContactWidgets.cAddressPhraseWheel" name="_PRW_address" base="EditTextCtrl">
+                <object class="gmAddressWidgets.cAddressPhraseWheel" name="_PRW_address" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                     <tooltip>Optional: The address this communication channel is associated with.</tooltip>
                     <disabled>1</disabled>

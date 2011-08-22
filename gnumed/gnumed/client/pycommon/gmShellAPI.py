@@ -118,19 +118,20 @@ def detect_external_binary(binary=None):
 		return (True, full_path)
 
 	# maybe we can be a bit smart about Windows ?
-	# try .exe (but not if already .bat or .exe)
-	if not (binary.endswith('.exe') or binary.endswith('.bat')):
-		_log.debug('re-testing with [.exe] appended')
-		exe_binary = binary + r'.exe'
-		found_dot_exe_binary, full_path = detect_external_binary(binary = exe_binary)
-		if found_dot_exe_binary:
-			return (True, full_path)
-		# not found with .exe, so try .bat:
-		_log.debug('re-testing with [.bat] appended')
-		bat_binary = binary + r'.bat'
-		found_bat_binary, full_path = detect_external_binary(binary = bat_binary)
-		if found_bat_binary:
-			return (True, full_path)
+	if os.name == 'nt':
+		# try .exe (but not if already .bat or .exe)
+		if not (binary.endswith('.exe') or binary.endswith('.bat')):
+			_log.debug('re-testing with [.exe] appended')
+			exe_binary = binary + r'.exe'
+			found_dot_exe_binary, full_path = detect_external_binary(binary = exe_binary)
+			if found_dot_exe_binary:
+				return (True, full_path)
+			# not found with .exe, so try .bat:
+			_log.debug('re-testing with [.bat] appended')
+			bat_binary = binary + r'.bat'
+			found_bat_binary, full_path = detect_external_binary(binary = bat_binary)
+			if found_bat_binary:
+				return (True, full_path)
 
 	return (False, None)
 #===========================================================================
@@ -269,8 +270,8 @@ if __name__ == '__main__':
 	def test_is_executable_by_wine():
 		print is_executable_by_wine(cmd = sys.argv[2])
 	#---------------------------------------------------------
-	test_run_command_in_shell()
-	#test_detect_external_binary()
+	#test_run_command_in_shell()
+	test_detect_external_binary()
 	#test_is_cmd_in_path()
 	#test_is_executable_by_wine()
 

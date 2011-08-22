@@ -184,8 +184,8 @@ class cPhraseWheelBase(wx.TextCtrl):
 			kwargs['style'] = wx.TE_PROCESS_TAB
 		super(cPhraseWheelBase, self).__init__(parent, id, **kwargs)
 
+		self.__my_startup_color = self.GetBackgroundColour()
 		self.__non_edit_font = self.GetFont()
-		self.__color_valid = self.GetBackgroundColour()
 		global color_prw_valid
 		if color_prw_valid is None:
 			color_prw_valid = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW)
@@ -240,11 +240,20 @@ class cPhraseWheelBase(wx.TextCtrl):
 	#--------------------------------------------------------
 	def display_as_valid(self, valid=None):
 		if valid is True:
-			self.SetBackgroundColour(self.__color_valid)
+			self.SetBackgroundColour(self.__my_startup_color)
 		elif valid is False:
 			self.SetBackgroundColour(color_prw_invalid)
 		else:
 			raise ValueError(u'<valid> must be True or False')
+		self.Refresh()
+	#--------------------------------------------------------
+	def display_as_disabled(self, disabled=None):
+		if disabled is True:
+			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		elif disabled is False:
+			self.SetBackgroundColour(color_prw_valid)
+		else:
+			raise ValueError(u'<disabled> must be True or False')
 		self.Refresh()
 	#--------------------------------------------------------
 	# callback API

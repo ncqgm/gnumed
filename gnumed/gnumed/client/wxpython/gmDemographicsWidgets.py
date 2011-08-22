@@ -1552,7 +1552,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 
-		adr = self._PRW_address_searcher.get_address()
+		adr = self._PRW_address_searcher.address
 		if adr is None:
 			return True
 
@@ -2120,13 +2120,6 @@ if __name__ == "__main__":
 		app.SetWidget(cPersonNameEAPnl, name = activate_patient().get_active_name())
 		app.MainLoop()
 	#--------------------------------------------------------
-	def test_pat_contacts_pnl():
-		app = wx.PyWidgetTester(size = (600, 400))
-		widget = cPersonContactsManagerPnl(app.frame, -1)
-		widget.identity = activate_patient()
-		app.frame.Show(True)
-		app.MainLoop()
-	#--------------------------------------------------------
 	def test_cPersonDemographicsEditorNb():
 		app = wx.PyWidgetTester(size = (600, 400))
 		widget = cPersonDemographicsEditorNb(app.frame, -1)
@@ -2157,12 +2150,6 @@ if __name__ == "__main__":
 
 		# phrasewheels
 #		test_organizer_pnl()
-
-		# contacts related widgets
-		#test_address_ea_pnl()
-		#test_person_adrs_pnl()
-		#test_person_comms_pnl()
-		#test_pat_contacts_pnl()
 
 		# identity related widgets
 		#test_person_names_pnl()

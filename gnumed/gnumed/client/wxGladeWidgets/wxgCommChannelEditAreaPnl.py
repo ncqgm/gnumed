@@ -7,7 +7,7 @@ import wx
 class wxgCommChannelEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmAddressWidgets
         from Gnumed.wxpython import gmContactWidgets
 
         # begin wxGlade: wxgCommChannelEditAreaPnl.__init__
@@ -15,7 +15,7 @@ class wxgCommChannelEditAreaPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PRW_type = gmContactWidgets.cCommChannelTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_url = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_address = gmPersonContactWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_address = gmAddressWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_confidential = wx.CheckBox(self, -1, _("Confidential"))
 
         self.__set_properties()

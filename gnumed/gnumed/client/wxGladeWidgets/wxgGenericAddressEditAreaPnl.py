@@ -12,24 +12,24 @@ import wx
 class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmAddressWidgets
 
         # begin wxGlade: wxgGenericAddressEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LBL_type = wx.StaticText(self, -1, _("Type"))
-        self._PRW_type = gmPersonContactWidgets.cAddressTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_type = gmAddressWidgets.cAddressTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._LBL_search = wx.StaticText(self, -1, _("Search"))
-        self._PRW_address_searcher = gmPersonContactWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_zip = gmPersonContactWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_address_searcher = gmAddressWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_zip = gmAddressWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_street = gmAddressWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes_street = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_number = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_subunit = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_urb = gmPersonContactWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_suburb = gmPersonContactWidgets.cSuburbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_state = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_urb = gmAddressWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_suburb = gmAddressWidgets.cSuburbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_state = gmAddressWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_country = gmAddressWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_notes_subunit = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()

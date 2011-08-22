@@ -13,8 +13,8 @@ class wxgNewPatientEAPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmDemographicsWidgets
-        from Gnumed.wxpython import gmPersonContactWidgets
         from Gnumed.wxpython import gmContactWidgets
+        from Gnumed.wxpython import gmAddressWidgets
         from Gnumed.wxpython import gmDateTimeInput
         from Gnumed.wxpython import gmProviderInboxWidgets
 
@@ -28,13 +28,13 @@ class wxgNewPatientEAPnl(wx.Panel):
         self._PRW_gender = gmDemographicsWidgets.cGenderSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_nickname = gmDemographicsWidgets.cNicknamePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_title = gmDemographicsWidgets.cTitlePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_address_searcher = gmPersonContactWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_zip = gmPersonContactWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_street = gmPersonContactWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_address_searcher = gmAddressWidgets.cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_zip = gmAddressWidgets.cZipcodePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_street = gmAddressWidgets.cStreetPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_number = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_urb = gmPersonContactWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_region = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_urb = gmAddressWidgets.cUrbPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_region = gmAddressWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_country = gmAddressWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_channel_type = gmContactWidgets.cCommChannelTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_phone = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_primary_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)

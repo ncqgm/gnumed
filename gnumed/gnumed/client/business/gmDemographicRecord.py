@@ -385,60 +385,6 @@ def address_exists(country=None, state=None, urb=None, postcode=None, street=Non
 
 	return rows[0][0]
 #------------------------------------------------------------
-def old_address_exists(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
-	where_parts = [
-		u'code_country = %(country)s',
-		u'code_state = %(state)s',
-		u'urb = %(urb)s',
-		u'postcode = %(postcode)s',
-		u'street = %(street)s',
-		u'number = %(number)s'
-	]
-
-	if suburb is None:
-		where_parts.append(u"suburb IS %(suburb)s")
-	else:
-		where_parts.append(u"suburb = %(suburb)s")
-
-	if notes_street is None:
-		where_parts.append(u"notes_street IS %(notes_street)s")
-	else:
-		where_parts.append(u"notes_street = %(notes_street)s")
-
-	if subunit is None:
-		where_parts.append(u"subunit IS %(subunit)s")
-	else:
-		where_parts.append(u"subunit = %(subunit)s")
-
-	if notes_subunit is None:
-		where_parts.append(u"notes_subunit IS %(notes_subunit)s")
-	else:
-		where_parts.append(u"notes_subunit = %(notes_subunit)s")
-
-	cmd = u"SELECT pk_address FROM dem.v_address WHERE %s" % u" AND ".join(where_parts)
-	data = {
-		'country': country,
-		'state': state,
-		'urb': urb,
-		'suburb': suburb,
-		'postcode': postcode,
-		'street': street,
-		'notes_street': notes_street,
-		'number': number,
-		'subunit': subunit,
-		'notes_subunit': notes_subunit
-	}
-
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': data}])
-
-	if len(rows) == 0:
-		_log.debug('address does not exist yet')
-		for key, val in data.items():
-			_log.debug('%s: %s', key, val)
-		return None
-
-	return rows[0][0]
-#------------------------------------------------------------
 def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
 
 	if suburb is not None:
@@ -491,9 +437,21 @@ SELECT dem.create_address (
 
 	return adr
 #------------------------------------------------------------
-def delete_address(address=None):
-	cmd = u"delete from dem.address where id=%s"
-	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': [address['pk_address']]}])
+def delete_address(pk_address=None):
+	cmd = u"""
+		DELETE FROM dem.address
+		WHERE
+			id = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1 FROM dem.org_unit WHERE fk_address = %(pk)s LIMIT 1
+					UNION
+				SELECT 1 FROM dem.lnk_identity2comm WHERE fk_address = %(pk)s LIMIT 1
+					UNION
+				SELECT 1 FROM dem.lnk_person_org_address WHERE fk_address = %(pk)s LIMIT 1
+			)
+		"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
 #------------------------------------------------------------
 def get_address_types(identity=None):
@@ -990,7 +948,7 @@ if __name__ == "__main__":
 		print "created new address with subunit", su
 		print address
 		print address.format()
-		print "deleted address:", delete_address(address)
+		print "deleted address:", delete_address(pk_address = address['pk_address'])
 	#--------------------------------------------------------
 	def test_get_countries():
 		for c in get_countries():

@@ -12,16 +12,16 @@ import wx
 class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython.gmPersonContactWidgets import cAddressPhraseWheel
+        from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
 
         # begin wxGlade: wxgOrgUnitAddressPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LBL_message = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
         self._PRW_address_searcher = cAddressPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._BTN_save_picked_address = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
-        self._BTN_add_new_address = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
-        self._BTN_manage_addresses = wx.Button(self, -1, _("Manage"), style=wx.BU_EXACTFIT)
+        self._BTN_save_picked_address = wx.Button(self, -1, _("&Link"), style=wx.BU_EXACTFIT)
+        self._BTN_add_new_address = wx.Button(self, -1, _("Link &new"), style=wx.BU_EXACTFIT)
+        self._BTN_manage_addresses = wx.Button(self, -1, _("Browse"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -35,11 +35,11 @@ class wxgOrgUnitAddressPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgOrgUnitAddressPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._LBL_message.Hide()
-        self._PRW_address_searcher.SetToolTipString(_("Search for matches among existing addresses and [Save] a selection, or [Add] a new address."))
-        self._BTN_save_picked_address.SetToolTipString(_("Connect the selected address with the organizational unit."))
+        self._PRW_address_searcher.SetToolTipString(_("Search for matches among existing addresses and [Link] a selection, or [Link (a) new] address."))
+        self._BTN_save_picked_address.SetToolTipString(_("Link the selected address with the organizational unit."))
         self._BTN_save_picked_address.Enable(False)
-        self._BTN_add_new_address.SetToolTipString(_("Add a new address and connect it to the selected organizational unit."))
-        self._BTN_manage_addresses.SetToolTipString(_("Manage all known addresses (can be slow)."))
+        self._BTN_add_new_address.SetToolTipString(_("Enter a new address and link it to the organizational unit."))
+        self._BTN_manage_addresses.SetToolTipString(_("Browse all known addresses (loading can be slow)."))
         # end wxGlade
 
     def __do_layout(self):

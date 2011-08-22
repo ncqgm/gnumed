@@ -72,6 +72,7 @@ from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython import gmContactWidgets
+from Gnumed.wxpython import gmAddressWidgets
 
 
 try:
@@ -1552,10 +1553,10 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_cfg_default_region(self, evt):
-		gmPersonContactWidgets.configure_default_region()
+		gmAddressWidgets.configure_default_region()
 	#----------------------------------------------
 	def __on_cfg_default_country(self, evt):
-		gmPersonContactWidgets.configure_default_country()
+		gmAddressWidgets.configure_default_country()
 	#----------------------------------------------
 	def __on_configure_dob_reminder_proximity(self, evt):
 
@@ -2041,7 +2042,7 @@ class gmTopLevelFrame(wx.Frame):
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,
-			'provinces': gmPersonContactWidgets.manage_provinces,
+			'provinces': gmAddressWidgets.manage_provinces,
 			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
 			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
@@ -2051,7 +2052,7 @@ class gmTopLevelFrame(wx.Frame):
 			'vaccines': gmVaccWidgets.manage_vaccines,
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
-			'adr': gmPersonContactWidgets.manage_addresses,
+			'adr': gmAddressWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types

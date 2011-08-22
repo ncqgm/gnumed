@@ -14,7 +14,6 @@ class wxgOrganizationManagerDlg(wx.Dialog):
 
         from Gnumed.wxpython.gmOrganizationWidgets import cOrganizationsManagerPnl
         from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitsManagerPnl
-        from Gnumed.wxpython.gmPersonContactWidgets import cAddressEditAreaPnl
         from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitAddressPnl
         from Gnumed.wxpython.gmContactWidgets import cCommChannelsManagerPnl
 

@@ -22,6 +22,8 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmAddressWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.organization')
@@ -322,7 +324,6 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 
 		wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl.__init__(self, *args, **kwargs)
 
-		self.__searcher_active_colour = self._PRW_address_searcher.GetBackgroundColour()
 		self.__unit = None
 	#--------------------------------------------------------
 	# internal helpers
@@ -332,7 +333,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 			self.message = _('<no unit selected>')
 			self._PRW_address_searcher.SetText(u'', None)
 			self._PRW_address_searcher.Enable(False)
-			self._PRW_address_searcher.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			self._PRW_address_searcher.display_as_disabled(True)
 			self._BTN_save_picked_address.Enable(False)
 			self._BTN_add_new_address.Enable(False)
 		else:
@@ -353,7 +354,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 			self._PRW_address_searcher.Enable(True)
 			self._PRW_address_searcher.address = self.__unit['pk_address']
 			self._PRW_address_searcher.Enable(True)
-			self._PRW_address_searcher.SetBackgroundColour(self.__searcher_active_colour)
+			self._PRW_address_searcher.display_as_disabled(False)
 			self._BTN_save_picked_address.Enable(True)
 			self._BTN_add_new_address.Enable(True)
 	#--------------------------------------------------------
@@ -374,7 +375,7 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		self.__refresh()
 	#--------------------------------------------------------
 	def _on_add_new_address_button_pressed(self, event):
-		ea = gmPersonContactWidgets.cAddressEditAreaPnl(self, -1)
+		ea = gmAddressWidgets.cAddressEditAreaPnl(self, -1)
 		ea.address_holder = self.__unit
 		ea.type_is_editable = False
 		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
@@ -385,7 +386,26 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		return True
 	#--------------------------------------------------------
 	def _on_manage_addresses_button_pressed(self, event):
-		gmPersonContactWidgets.manage_addresses(parent = self)
+		picked_address = gmAddressWidgets.manage_addresses(parent = self)
+		if picked_address is None:
+			return
+
+		question = u'%s\n\n  %s\n' % (
+			_('Link the following address to the organizational unit ?'),
+			u'\n  '.join(picked_address.format())
+		)
+
+		link_it = gmGuiHelpers.gm_show_question (
+			title = _('Linking selected address'),
+			question = question
+		)
+		if not link_it:
+			return
+
+		self._PRW_address_searcher.address = picked_address['pk_address']
+		self._PRW_address_searcher.display_as_valid(True)
+		self.__unit['pk_address'] = self._PRW_address_searcher.GetData()
+		self.__unit.save()
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

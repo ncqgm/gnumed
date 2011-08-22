@@ -33,8 +33,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#-------------------------------------------------
 	def MenuInfo(self):
-		#return ('emr_show', _('Topical &tree'))
-		return ('emr', _('Topical &tree'))
+		return ('emr', _('EMR &Tree (topical)'))
 	#-------------------------------------------------
 	def can_receive_focus(self):
 		# need patient

@@ -452,18 +452,18 @@ def gm_show_warning(aMessage=None, aTitle=None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False):
+def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False, question=None, title=None):
 	if cancel_button:
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
 		style = wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
 
-	dlg = wx.MessageDialog (
-		None,
-		aMessage,
-		aTitle,
-		style
-	)
+	if question is None:
+		question = aMessage
+	if title is None:
+		title = aTitle
+
+	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
