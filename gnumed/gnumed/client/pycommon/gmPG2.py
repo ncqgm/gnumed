@@ -135,6 +135,7 @@ map_client_branch2required_db_version = {
 	u'0.7': 13,
 	u'0.8': 14,
 	u'0.9': 15,
+	u'1.0': 16,
 	u'1.1': 16
 }
 
