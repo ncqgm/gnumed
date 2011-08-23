@@ -67,6 +67,7 @@ IMRROVED: waiting list: keep selection on item when moving it within the list [t
 IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thanks J.Busser]
 IMPROVED: DOB related identity handling
 IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
+IMPROVED: during connect check whether database was properly bootstrapped
 
 ------------------------------------------------
 # rel-0-9-patches

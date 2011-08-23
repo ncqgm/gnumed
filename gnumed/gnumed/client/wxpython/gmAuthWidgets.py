@@ -195,6 +195,26 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmPG2.set_default_login(login = login)
 		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
+		seems_bootstrapped = gmPG2.schema_exists(schema = 'gm')
+		if not seems_bootstrapped:
+			_log.error('schema [gm] does not exist - database not bootstrapped ?')
+			msg = _(
+				'The database you connected to does not seem\n'
+				'to have been boostrapped properly.\n'
+				'\n'
+				'Make sure you have run the GNUmed database\n'
+				'bootstrapper tool to create a new database.\n'
+				'\n'
+				'Further help can be found on the website at\n'
+				'\n'
+				'  http://wiki.gnumed.de\n'
+				'\n'
+				'or on the GNUmed mailing list.'
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Verifying database'))
+			connected = False
+			break
+
 		compatible = gmPG2.database_schema_compatible(version = expected_version)
 		if compatible or not require_version:
 			dlg.panel.save_state()

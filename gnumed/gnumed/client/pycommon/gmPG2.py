@@ -569,6 +569,12 @@ where
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
 #------------------------------------------------------------------------
+def schema_exists(link_obj=None, schema=u'gm'):
+	cmd = u"""SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
+	args = {'schema': schema}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+#------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
 	cmd = u"""
@@ -2117,6 +2123,10 @@ if __name__ == "__main__":
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		print rows
 	#--------------------------------------------------------------------
+	def test_schema_exists():
+		print schema_exists()
+
+	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
 	#test_get_connection()
@@ -2133,6 +2143,7 @@ if __name__ == "__main__":
 	#test_get_foreign_key_details()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	test_run_query()
+	#test_run_query()
+	test_schema_exists()
 
 # ======================================================================
