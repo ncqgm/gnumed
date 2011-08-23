@@ -15,17 +15,6 @@ else
 	git clone git://gitorious.org/gnumed/gnumed.git
 fi
 
-
-
-
-# CVS
-#rsync -qar --delete rsync://cvs.sv.gnu.org/sources/gnumed/ .
-#if test "$?" != "0" ; then
-#	echo "Rsyncing VCS tree failed. Aborting."
-#	exit 1
-#fi
-
-
 date > timestamp.txt
 
 cd ..
