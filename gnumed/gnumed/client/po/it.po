@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-21 00:28+CEST\n"
+"POT-Creation-Date: 2011-08-23 11:42+CEST\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -3465,19 +3465,29 @@ msgstr "ID esterno"
 msgid "Occupation"
 msgstr "Occupazione"
 
+msgid "&Link"
+msgstr ""
+
+msgid "Link &new"
+msgstr ""
+
+msgid "Browse"
+msgstr ""
+
 msgid ""
-"Search for matches among existing addresses and [Save] a selection, or [Add] "
-"a new address."
+"Search for matches among existing addresses and [Link] a selection, or [Link "
+"(a) new] address."
 msgstr ""
 
 #, fuzzy
-msgid "Connect the selected address with the organizational unit."
+msgid "Link the selected address with the organizational unit."
 msgstr "La marca del farmaco che il paziente sta assumendo."
 
-msgid "Add a new address and connect it to the selected organizational unit."
-msgstr ""
+#, fuzzy
+msgid "Enter a new address and link it to the organizational unit."
+msgstr "La marca del farmaco che il paziente sta assumendo."
 
-msgid "Manage all known addresses (can be slow)."
+msgid "Browse all known addresses (loading can be slow)."
 msgstr ""
 
 msgid "The organization this unit belongs to."
@@ -4819,6 +4829,115 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid "Select the default country for new persons.\n"
+msgstr ""
+
+msgid "Type or select a country."
+msgstr "Scrivi o seleziona un paese"
+
+msgid "Select the default region/province/state/territory for new persons.\n"
+msgstr ""
+
+msgid "Adding province"
+msgstr "Aggiungi provincia"
+
+msgid "Editing province"
+msgstr "Modifica provincia"
+
+msgid ""
+"Are you sure you want to delete this province ?\n"
+"\n"
+"Deletion will only work if this province is not\n"
+"yet in use in any patient addresses."
+msgstr ""
+
+msgid ""
+"Also delete any towns/cities/villages known\n"
+"to be situated in this state as long as\n"
+"no patients are recorded to live there."
+msgstr ""
+
+msgid "Deleting province"
+msgstr "Cancella provincia"
+
+msgid "delete related townships"
+msgstr "eliminare i comuni collegati"
+
+msgid "Delete province and possibly related townships."
+msgstr "Elimina provincia e comuni possibilmente correlati."
+
+msgid "Yes, delete"
+msgstr "Sì, cancella"
+
+msgid "No, do NOT delete anything."
+msgstr "No, non eliminare nulla."
+
+msgid ""
+"\n"
+"This list shows the provinces known to GNUmed.\n"
+"\n"
+"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
+"\"county\", \"region\", \"territory\", or some such term.\n"
+"\n"
+"Select the province you want to edit !\n"
+msgstr ""
+
+msgid "Editing provinces ..."
+msgstr "Modifica province ..."
+
+msgid "Type or select a state/region/province/territory."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Type or select a zip code (postcode).\n"
+"\n"
+"Use e.g. '?' if unknown."
+msgstr "Scrivi o seleziona un codice postale"
+
+msgid "Type or select a street."
+msgstr "Scrivi o seleziona una via"
+
+msgid "Type or select the suburb."
+msgstr "Scrivi o seleziona un sobborgo"
+
+msgid "Type or select a city/town/village/dwelling."
+msgstr "Scrivi o seleziona una città/villaggio/residenza"
+
+msgid "Street info"
+msgstr "Informazioni stradali"
+
+msgid "Subunit"
+msgstr "Sottounità"
+
+msgid "Suburb"
+msgstr "Sobborgo"
+
+msgid "Showing addresses registered in GNUmed."
+msgstr ""
+
+msgid ""
+"Cannot save address.\n"
+"\n"
+"Does the state [%s]\n"
+"exist in country [%s] ?"
+msgstr ""
+
+msgid "Saving address"
+msgstr "Salva indirizzo"
+
+msgid "Address details must be filled in completely or not at all."
+msgstr "indirizzo che deve essere riempito completamente o non affatto."
+
+msgid "Saving contact data"
+msgstr "Salvataggio dei dati del contatto"
+
+msgid "Select the type of address."
+msgstr "Seleziona il tipo d'indirizzo"
+
+msgid "Select an address by postcode or street name."
+msgstr "Selezionare un indirizzo per Cap o per nome della via."
+
 msgid "Creating new allergy not allowed."
 msgstr "Non è permesso creare una nuova allergia"
 
@@ -4930,6 +5049,23 @@ msgid ""
 "fix them. Do not rely on this database to work properly\n"
 "in all cases !"
 msgstr ""
+
+msgid ""
+"The database you connected to does not seem\n"
+"to have been boostrapped properly.\n"
+"\n"
+"Make sure you have run the GNUmed database\n"
+"bootstrapper tool to create a new database.\n"
+"\n"
+"Further help can be found on the website at\n"
+"\n"
+"  http://wiki.gnumed.de\n"
+"\n"
+"or on the GNUmed mailing list."
+msgstr ""
+
+msgid "Verifying database"
+msgstr "Verifico database"
 
 msgid "Verifying database version"
 msgstr "Verifica versione database"
@@ -5750,9 +5886,6 @@ msgstr "Campi obbligatori"
 msgid "This field must contain an item selected from the dropdown list."
 msgstr ""
 
-msgid "Saving address"
-msgstr "Salva indirizzo"
-
 msgid ""
 "Cannot save this address.\n"
 "\n"
@@ -6479,9 +6612,6 @@ msgstr "Cancellazione episodio"
 
 msgid "Delete the episode if possible (it must be completely empty)."
 msgstr "Cancella l'episodio se possibile (dev'essere completamente vuoto)."
-
-msgid "Yes, delete"
-msgstr "Sì, cancella"
 
 msgid "Cancel and do NOT delete the episode."
 msgstr "Annulla e NON cancellare l'episodio."
@@ -7591,10 +7721,10 @@ msgstr "Episodio"
 msgid "Add an episode of illness to the EMR of the active patient"
 msgstr "Incomincia una nuova consultazione per il paziente attivo."
 
-msgid "&Medication"
+msgid "Add medication / substance use entry."
 msgstr ""
 
-msgid "Add medication / substance use entry."
+msgid "&Medication"
 msgstr ""
 
 msgid "&Allergies"
@@ -8532,9 +8662,6 @@ msgstr "Controllo i permessi d'accesso"
 
 msgid "Database <%s> on <%s>"
 msgstr ""
-
-msgid "Verifying database"
-msgstr "Verifico database"
 
 msgid "Connect"
 msgstr ""
@@ -10094,6 +10221,14 @@ msgid "Adding new address"
 msgstr "Aggiungi il nuovo indirizzo"
 
 #, fuzzy
+msgid "Link the following address to the organizational unit ?"
+msgstr "La marca del farmaco che il paziente sta assumendo."
+
+#, fuzzy
+msgid "Linking selected address"
+msgstr "un indirizzo deve essere selezionato"
+
+#, fuzzy
 msgid "Adding new organization"
 msgstr "Aggiungo nuovo paziente"
 
@@ -10384,74 +10519,6 @@ msgstr "Ricerca pazienti..."
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "Select the default country for new persons.\n"
-msgstr ""
-
-msgid "Type or select a country."
-msgstr "Scrivi o seleziona un paese"
-
-msgid "Select the default region/province/state/territory for new persons.\n"
-msgstr ""
-
-msgid "Adding province"
-msgstr "Aggiungi provincia"
-
-msgid "Editing province"
-msgstr "Modifica provincia"
-
-msgid ""
-"Are you sure you want to delete this province ?\n"
-"\n"
-"Deletion will only work if this province is not\n"
-"yet in use in any patient addresses."
-msgstr ""
-
-msgid ""
-"Also delete any towns/cities/villages known\n"
-"to be situated in this state as long as\n"
-"no patients are recorded to live there."
-msgstr ""
-
-msgid "Deleting province"
-msgstr "Cancella provincia"
-
-msgid "delete related townships"
-msgstr "eliminare i comuni collegati"
-
-msgid "Delete province and possibly related townships."
-msgstr "Elimina provincia e comuni possibilmente correlati."
-
-msgid "No, do NOT delete anything."
-msgstr "No, non eliminare nulla."
-
-msgid ""
-"\n"
-"This list shows the provinces known to GNUmed.\n"
-"\n"
-"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
-"\"county\", \"region\", \"territory\", or some such term.\n"
-"\n"
-"Select the province you want to edit !\n"
-msgstr ""
-
-msgid "Editing provinces ..."
-msgstr "Modifica province ..."
-
-msgid "Type or select a state/region/province/territory."
-msgstr ""
-
-msgid "Street info"
-msgstr "Informazioni stradali"
-
-msgid "Subunit"
-msgstr "Sottounità"
-
-msgid "Suburb"
-msgstr "Sobborgo"
-
-msgid "Showing addresses registered in GNUmed."
-msgstr ""
-
 msgid "List of known addresses."
 msgstr "Elenco degli indirizzi conosciuti."
 
@@ -10469,41 +10536,6 @@ msgstr ""
 
 msgid "Removing address"
 msgstr "Rimuovi l'indirizzo"
-
-msgid ""
-"Cannot save address.\n"
-"\n"
-"Does the state [%s]\n"
-"exist in country [%s] ?"
-msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr "indirizzo che deve essere riempito completamente o non affatto."
-
-msgid "Saving contact data"
-msgstr "Salvataggio dei dati del contatto"
-
-msgid "Select an address by postcode or street name."
-msgstr "Selezionare un indirizzo per Cap o per nome della via."
-
-msgid "Select the type of address."
-msgstr "Seleziona il tipo d'indirizzo"
-
-#, fuzzy
-msgid ""
-"Type or select a zip code (postcode).\n"
-"\n"
-"Use e.g. '?' if unknown."
-msgstr "Scrivi o seleziona un codice postale"
-
-msgid "Type or select a street."
-msgstr "Scrivi o seleziona una via"
-
-msgid "Type or select the suburb."
-msgstr "Scrivi o seleziona un sobborgo"
-
-msgid "Type or select a city/town/village/dwelling."
-msgstr "Scrivi o seleziona una città/villaggio/residenza"
 
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
@@ -11397,9 +11429,6 @@ msgstr "Rapporto pre-formattato"
 msgid "Medication"
 msgstr "Medicazione"
 
-msgid "Current &medication"
-msgstr "&medicazione attuale"
-
 msgid "Reports"
 msgstr "Rapporti"
 
@@ -11460,14 +11489,14 @@ msgstr ""
 msgid "EMR tree"
 msgstr "Albero medico"
 
-msgid "Topical &tree"
-msgstr "Albero attuale"
+msgid "EMR &Tree (topical)"
+msgstr ""
 
 msgid "EMR journal"
 msgstr "giornale medico"
 
-msgid "Chronological &journal"
-msgstr "Giornale &Cronologico"
+msgid "EMR &Journal (chronological)"
+msgstr ""
 
 msgid "Template Plugin"
 msgstr ""
@@ -11499,8 +11528,9 @@ msgstr "Manuale &utente (locale)"
 msgid "Measurements"
 msgstr "Misurazioni"
 
-msgid "&Measurements overview"
-msgstr "&Misurazioni, panoramica"
+#, fuzzy
+msgid "&Measurements"
+msgstr "Misurazioni"
 
 msgid "progress notes (sash)"
 msgstr "progressi, note (fascia)"
@@ -11544,8 +11574,9 @@ msgstr "Allega documenti"
 msgid "&Attach documents"
 msgstr "&Allega documenti"
 
-msgid "&Documents review"
-msgstr "&Recensione documenti"
+#, fuzzy
+msgid "&Documents"
+msgstr "Documenti"
 
 msgid "&Notes"
 msgstr "&Note"
@@ -11803,6 +11834,21 @@ msgstr "Quantità"
 
 msgid "First Date"
 msgstr "Prima Data"
+
+#~ msgid "Current &medication"
+#~ msgstr "&medicazione attuale"
+
+#~ msgid "Topical &tree"
+#~ msgstr "Albero attuale"
+
+#~ msgid "Chronological &journal"
+#~ msgstr "Giornale &Cronologico"
+
+#~ msgid "&Measurements overview"
+#~ msgstr "&Misurazioni, panoramica"
+
+#~ msgid "&Documents review"
+#~ msgstr "&Recensione documenti"
 
 #, fuzzy
 #~ msgid "Add a new address."

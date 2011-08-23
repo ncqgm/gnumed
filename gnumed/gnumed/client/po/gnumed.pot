@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-08-21 00:29+CEST\n"
+"POT-Creation-Date: 2011-08-23 11:43+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3012,16 +3012,25 @@ msgstr ""
 msgid "Occupation"
 msgstr ""
 
-msgid "Search for matches among existing addresses and [Save] a selection, or [Add] a new address."
+msgid "&Link"
 msgstr ""
 
-msgid "Connect the selected address with the organizational unit."
+msgid "Link &new"
 msgstr ""
 
-msgid "Add a new address and connect it to the selected organizational unit."
+msgid "Browse"
 msgstr ""
 
-msgid "Manage all known addresses (can be slow)."
+msgid "Search for matches among existing addresses and [Link] a selection, or [Link (a) new] address."
+msgstr ""
+
+msgid "Link the selected address with the organizational unit."
+msgstr ""
+
+msgid "Enter a new address and link it to the organizational unit."
+msgstr ""
+
+msgid "Browse all known addresses (loading can be slow)."
 msgstr ""
 
 msgid "The organization this unit belongs to."
@@ -4280,6 +4289,116 @@ msgid ""
 "%s"
 msgstr ""
 
+msgid ""
+"Select the default country for new persons.\n"
+msgstr ""
+
+msgid "Type or select a country."
+msgstr ""
+
+msgid ""
+"Select the default region/province/state/territory for new persons.\n"
+msgstr ""
+
+msgid "Adding province"
+msgstr ""
+
+msgid "Editing province"
+msgstr ""
+
+msgid ""
+"Are you sure you want to delete this province ?\n"
+"\n"
+"Deletion will only work if this province is not\n"
+"yet in use in any patient addresses."
+msgstr ""
+
+msgid ""
+"Also delete any towns/cities/villages known\n"
+"to be situated in this state as long as\n"
+"no patients are recorded to live there."
+msgstr ""
+
+msgid "Deleting province"
+msgstr ""
+
+msgid "delete related townships"
+msgstr ""
+
+msgid "Delete province and possibly related townships."
+msgstr ""
+
+msgid "Yes, delete"
+msgstr ""
+
+msgid "No, do NOT delete anything."
+msgstr ""
+
+msgid ""
+"\n"
+"This list shows the provinces known to GNUmed.\n"
+"\n"
+"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
+"\"county\", \"region\", \"territory\", or some such term.\n"
+"\n"
+"Select the province you want to edit !\n"
+msgstr ""
+
+msgid "Editing provinces ..."
+msgstr ""
+
+msgid "Type or select a state/region/province/territory."
+msgstr ""
+
+msgid ""
+"Type or select a zip code (postcode).\n"
+"\n"
+"Use e.g. '?' if unknown."
+msgstr ""
+
+msgid "Type or select a street."
+msgstr ""
+
+msgid "Type or select the suburb."
+msgstr ""
+
+msgid "Type or select a city/town/village/dwelling."
+msgstr ""
+
+msgid "Street info"
+msgstr ""
+
+msgid "Subunit"
+msgstr ""
+
+msgid "Suburb"
+msgstr ""
+
+msgid "Showing addresses registered in GNUmed."
+msgstr ""
+
+msgid ""
+"Cannot save address.\n"
+"\n"
+"Does the state [%s]\n"
+"exist in country [%s] ?"
+msgstr ""
+
+msgid "Saving address"
+msgstr ""
+
+msgid "Address details must be filled in completely or not at all."
+msgstr ""
+
+msgid "Saving contact data"
+msgstr ""
+
+msgid "Select the type of address."
+msgstr ""
+
+msgid "Select an address by postcode or street name."
+msgstr ""
+
 msgid "Creating new allergy not allowed."
 msgstr ""
 
@@ -4384,6 +4503,23 @@ msgid ""
 "There may be schema related errors. Please report and/or\n"
 "fix them. Do not rely on this database to work properly\n"
 "in all cases !"
+msgstr ""
+
+msgid ""
+"The database you connected to does not seem\n"
+"to have been boostrapped properly.\n"
+"\n"
+"Make sure you have run the GNUmed database\n"
+"bootstrapper tool to create a new database.\n"
+"\n"
+"Further help can be found on the website at\n"
+"\n"
+"  http://wiki.gnumed.de\n"
+"\n"
+"or on the GNUmed mailing list."
+msgstr ""
+
+msgid "Verifying database"
 msgstr ""
 
 msgid "Verifying database version"
@@ -5143,9 +5279,6 @@ msgstr ""
 msgid "This field must contain an item selected from the dropdown list."
 msgstr ""
 
-msgid "Saving address"
-msgstr ""
-
 msgid ""
 "Cannot save this address.\n"
 "\n"
@@ -5853,9 +5986,6 @@ msgid "Deleting episode"
 msgstr ""
 
 msgid "Delete the episode if possible (it must be completely empty)."
-msgstr ""
-
-msgid "Yes, delete"
 msgstr ""
 
 msgid "Cancel and do NOT delete the episode."
@@ -6933,10 +7063,10 @@ msgstr ""
 msgid "Add an episode of illness to the EMR of the active patient"
 msgstr ""
 
-msgid "&Medication"
+msgid "Add medication / substance use entry."
 msgstr ""
 
-msgid "Add medication / substance use entry."
+msgid "&Medication"
 msgstr ""
 
 msgid "&Allergies"
@@ -7836,9 +7966,6 @@ msgid "Checking access permissions"
 msgstr ""
 
 msgid "Database <%s> on <%s>"
-msgstr ""
-
-msgid "Verifying database"
 msgstr ""
 
 msgid "Connect"
@@ -9409,6 +9536,12 @@ msgstr ""
 msgid "Adding new address"
 msgstr ""
 
+msgid "Link the following address to the organizational unit ?"
+msgstr ""
+
+msgid "Linking selected address"
+msgstr ""
+
 msgid "Adding new organization"
 msgstr ""
 
@@ -9686,76 +9819,6 @@ msgstr ""
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid ""
-"Select the default country for new persons.\n"
-msgstr ""
-
-msgid "Type or select a country."
-msgstr ""
-
-msgid ""
-"Select the default region/province/state/territory for new persons.\n"
-msgstr ""
-
-msgid "Adding province"
-msgstr ""
-
-msgid "Editing province"
-msgstr ""
-
-msgid ""
-"Are you sure you want to delete this province ?\n"
-"\n"
-"Deletion will only work if this province is not\n"
-"yet in use in any patient addresses."
-msgstr ""
-
-msgid ""
-"Also delete any towns/cities/villages known\n"
-"to be situated in this state as long as\n"
-"no patients are recorded to live there."
-msgstr ""
-
-msgid "Deleting province"
-msgstr ""
-
-msgid "delete related townships"
-msgstr ""
-
-msgid "Delete province and possibly related townships."
-msgstr ""
-
-msgid "No, do NOT delete anything."
-msgstr ""
-
-msgid ""
-"\n"
-"This list shows the provinces known to GNUmed.\n"
-"\n"
-"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
-"\"county\", \"region\", \"territory\", or some such term.\n"
-"\n"
-"Select the province you want to edit !\n"
-msgstr ""
-
-msgid "Editing provinces ..."
-msgstr ""
-
-msgid "Type or select a state/region/province/territory."
-msgstr ""
-
-msgid "Street info"
-msgstr ""
-
-msgid "Subunit"
-msgstr ""
-
-msgid "Suburb"
-msgstr ""
-
-msgid "Showing addresses registered in GNUmed."
-msgstr ""
-
 msgid "List of known addresses."
 msgstr ""
 
@@ -9772,40 +9835,6 @@ msgid ""
 msgstr ""
 
 msgid "Removing address"
-msgstr ""
-
-msgid ""
-"Cannot save address.\n"
-"\n"
-"Does the state [%s]\n"
-"exist in country [%s] ?"
-msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr ""
-
-msgid "Saving contact data"
-msgstr ""
-
-msgid "Select an address by postcode or street name."
-msgstr ""
-
-msgid "Select the type of address."
-msgstr ""
-
-msgid ""
-"Type or select a zip code (postcode).\n"
-"\n"
-"Use e.g. '?' if unknown."
-msgstr ""
-
-msgid "Type or select a street."
-msgstr ""
-
-msgid "Type or select the suburb."
-msgstr ""
-
-msgid "Type or select a city/town/village/dwelling."
 msgstr ""
 
 msgid "You must select a value from the picklist or type an exact match."
@@ -10685,9 +10714,6 @@ msgstr ""
 msgid "Medication"
 msgstr ""
 
-msgid "Current &medication"
-msgstr ""
-
 msgid "Reports"
 msgstr ""
 
@@ -10745,13 +10771,13 @@ msgstr ""
 msgid "EMR tree"
 msgstr ""
 
-msgid "Topical &tree"
+msgid "EMR &Tree (topical)"
 msgstr ""
 
 msgid "EMR journal"
 msgstr ""
 
-msgid "Chronological &journal"
+msgid "EMR &Journal (chronological)"
 msgstr ""
 
 msgid "Template Plugin"
@@ -10784,7 +10810,7 @@ msgstr ""
 msgid "Measurements"
 msgstr ""
 
-msgid "&Measurements overview"
+msgid "&Measurements"
 msgstr ""
 
 msgid "progress notes (sash)"
@@ -10829,7 +10855,7 @@ msgstr ""
 msgid "&Attach documents"
 msgstr ""
 
-msgid "&Documents review"
+msgid "&Documents"
 msgstr ""
 
 msgid "&Notes"
