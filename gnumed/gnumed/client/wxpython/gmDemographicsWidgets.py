@@ -1480,7 +1480,7 @@ def create_new_person(parent=None, activate=False):
 	else:
 		countries = gmDemographicRecord.get_country_for_region(region = def_region)
 		if len(countries) == 1:
-			def_country = countries[0]['l10n_country']
+			def_country = countries[0]['code_country']
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -1545,7 +1545,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 #		self._PRW_external_id_type.selection_only = True
 
 		if self.default_country is not None:
-			self._PRW_country.SetText(value = self.default_country)
+			match = self._PRW_country._data2match(data = self.default_country)
+			if match is not None:
+				self._PRW_country.SetText(value = match['field_label'], data = match['data'])
 
 		if self.default_region is not None:
 			self._PRW_region.SetText(value = self.default_region)
@@ -1563,7 +1565,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return False
 	#----------------------------------------------------------------
 	def __set_fields_from_address_searcher(self):
-		adr = self._PRW_address_searcher.get_address()
+		adr = self._PRW_address_searcher.address
 		if adr is None:
 			return True
 
@@ -1759,8 +1761,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_adress_searcher(self):
-		adr = self._PRW_address_searcher.get_address()
-		if adr is None:
+		if self._PRW_address_searcher.address is None:
 			return True
 
 		wx.CallAfter(self.__set_fields_from_address_searcher)

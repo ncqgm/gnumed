@@ -4644,13 +4644,13 @@ msgstr ""
 "%s"
 
 msgid "Select the default country for new persons.\n"
-msgstr "Wählen Sie das Heimatland für neue Personen vor.\n"
+msgstr "Treffen Sie eine Vorauswahl für das Heimatland neuer Personen.\n"
 
 msgid "Type or select a country."
 msgstr "Tippen oder wählen Sie ein Land/einen Staat."
 
 msgid "Select the default region/province/state/territory for new persons.\n"
-msgstr "Wählen Sie das Bundesland für neue Personen vor.\n"
+msgstr "Treffen Sie eine Vorauswahl für das Bundesland neuer Personen.\n"
 
 msgid "Adding province"
 msgstr "Bundesland hinzufügen"
@@ -11451,7 +11451,7 @@ msgid "message"
 msgstr "Nachricht"
 
 msgid "virtual message"
-msgstr "künstliche Nachricht"
+msgstr "Systemnachricht"
 
 msgid "everyone"
 msgstr "jeder"
@@ -11466,7 +11466,7 @@ msgid "Problem removing message from Inbox."
 msgstr "Problem beim Löschen der Nachricht aus dem Posteingang."
 
 msgid "This message cannot be edited because it is virtual."
-msgstr "Diese Nachricht kann nicht bearbeitet werden. Sie ist künstlich."
+msgstr "Systemnachrichten können nicht bearbeitet werden."
 
 msgid "This message is already visible to all providers."
 msgstr "Diese Nachricht ging schon an alle Mitarbeiter."
