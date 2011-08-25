@@ -443,13 +443,13 @@ def delete_address(pk_address=None):
 		WHERE
 			id = %(pk)s
 				AND
-			NOT EXISTS (
+			NOT EXISTS ((
 				SELECT 1 FROM dem.org_unit WHERE fk_address = %(pk)s LIMIT 1
-					UNION
+					) UNION (
 				SELECT 1 FROM dem.lnk_identity2comm WHERE fk_address = %(pk)s LIMIT 1
-					UNION
-				SELECT 1 FROM dem.lnk_person_org_address WHERE fk_address = %(pk)s LIMIT 1
-			)
+					) UNION (
+				SELECT 1 FROM dem.lnk_person_org_address WHERE id_address = %(pk)s LIMIT 1
+			))
 		"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
