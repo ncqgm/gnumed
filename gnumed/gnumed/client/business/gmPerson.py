@@ -21,7 +21,10 @@ from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
-from Gnumed.business import gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmXdtMappings
+from Gnumed.business import gmProviderInbox
 from Gnumed.business.gmDocuments import cDocumentFolder
 
 
@@ -912,9 +915,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	# occupations API
 	#--------------------------------------------------------
 	def get_occupations(self):
-		cmd = u"select * from dem.v_person_jobs where pk_identity=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return rows
+		return gmDemographicRecord.get_occupations(pk_identity = self.pk_obj)
 	#--------------------------------------------------------
 	def link_occupation(self, occupation=None, activities=None):
 		"""Link an occupation with a patient, creating the occupation if it does not exists.

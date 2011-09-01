@@ -35,6 +35,18 @@ except NameError:
 	_ = lambda x:x
 
 #============================================================
+# occupation handling
+#------------------------------------------------------------
+def get_occupations(pk_identity=None):
+	cmd = u"""
+		SELECT *
+		FROM dem.v_person_jobs
+		WHERE pk_identity = %(pk)s
+		ORDER BY l10n_occupation
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_identity}}])
+	return rows
+#============================================================
 # text+image tags
 #------------------------------------------------------------
 _SQL_get_tag_image = u"SELECT * FROM ref.v_tag_images_no_data WHERE %s"
