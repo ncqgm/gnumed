@@ -6,14 +6,17 @@ __version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-import logging, datetime as pydt
+import sys
+import logging
+import datetime as pydt
 
 
 import wx
 
 
-from Gnumed.pycommon import gmDispatcher, gmExceptions
-from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg, wxgGenericEditAreaDlg2
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.ui')
@@ -173,6 +176,9 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if not self._valid_for_save():
 			return False
 
+		# remove messages about previous invalid save attempts
+		gmDispatcher.send(signal = 'statustext', msg = u'')
+
 		if self.__mode in ['new', 'new_from_existing']:
 			if self._save_as_new():
 				self.mode = 'edit'
@@ -218,6 +224,8 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
 		ctrl.Refresh()
 #====================================================================
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg2
+
 class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
 
@@ -361,6 +369,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
 #====================================================================
 # DEPRECATED:
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
+
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 	"""Dialog for parenting edit area with save/clear/cancel"""
 
@@ -441,7 +451,7 @@ class cEditAreaPopup(wx.Dialog):
 		edit_area = None
 	):
 		if not isinstance(edit_area, cEditArea2):
-			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
+			raise TypeError('<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area))
 		wx.Dialog.__init__(self, parent, id, title, pos, size, style, name)
 		self.__wxID_BTN_SAVE = wx.NewId()
 		self.__wxID_BTN_RESET = wx.NewId()

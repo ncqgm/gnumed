@@ -335,33 +335,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self):
-		data = {
-			'pk_adr': self._payload[self._idx['pk_address']],
-			'street': self._payload[self._idx['street']],
-			'pk_street': self._payload[self._idx['pk_street']],
-			'notes_street': gmTools.coalesce(self._payload[self._idx['notes_street']], u'', u' %s'),
-			'number': self._payload[self._idx['number']],
-			'subunit': gmTools.coalesce(self._payload[self._idx['subunit']], u'', u' %s'),
-			'notes_subunit': gmTools.coalesce(self._payload[self._idx['notes_subunit']], u'', u' (%s)'),
-			'zip': self._payload[self._idx['postcode']],
-			'urb': self._payload[self._idx['urb']],
-			'pk_urb': self._payload[self._idx['pk_urb']],
-			'suburb': gmTools.coalesce(self._payload[self._idx['suburb']], u'', u' (%s)'),
-			'l10n_state': self._payload[self._idx['l10n_state']],
-			'pk_state': self._payload[self._idx['pk_state']],
-			'code_state': self._payload[self._idx['code_state']],
-			'l10n_country': self._payload[self._idx['l10n_country']],
-			'code_country': self._payload[self._idx['code_country']]
-		}
-		txt = _(
-			'Address [#%(pk_adr)s]\n'
-			' Street: %(street)s [#%(pk_street)s]%(notes_street)s\n'
-			' Number: %(number)s%(subunit)s%(notes_subunit)s\n'
-			' Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n'
-			' Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n'
-			' Country: %(l10n_country)s, %(code_country)s'
-		) % data
-		return txt.split('\n')
+		return format_address(address = self)
 #------------------------------------------------------------
 def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
@@ -454,6 +428,32 @@ def delete_address(pk_address=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
 #------------------------------------------------------------
+def format_address(address=None):
+	data = {
+		'pk_adr': address['pk_address'],
+		'street': address['street'],
+		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'number': address['number'],
+		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'zip': address['postcode'],
+		'urb': address['urb'],
+		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'l10n_state': address['l10n_state'],
+		'code_state': address['code_state'],
+		'l10n_country': address['l10n_country'],
+		'code_country': address['code_country']
+	}
+	txt = _(
+		'Address [#%(pk_adr)s]\n'
+		' Street: %(street)s%(notes_street)s\n'
+		' Number: %(number)s%(subunit)s%(notes_subunit)s\n'
+		' Location: %(zip)s %(urb)s%(suburb)s\n'
+		' Region: %(l10n_state)s, %(code_state)s\n'
+		' Country: %(l10n_country)s, %(code_country)s'
+	) % data
+	return txt.split('\n')
+#------------------------------------------------------------
 def get_address_types(identity=None):
 	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
@@ -489,6 +489,11 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 	#---------------------------------------------------------------
 	def get_identities(self, same_lastname=False):
 		pass
+	#--------------------------------------------------------
+	def format(self):
+		txt = format_address(address = self)
+		txt.append(_(' Type: %s') % self._payload[self._idx['l10n_address_type']])
+		return txt
 #===================================================================
 # communication channels API
 #-------------------------------------------------------------------
