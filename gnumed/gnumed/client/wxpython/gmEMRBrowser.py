@@ -17,9 +17,15 @@ import wx
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmPersonSearch
-from Gnumed.wxpython import gmGuiHelpers, gmEMRStructWidgets, gmSOAPWidgets
-from Gnumed.wxpython import gmAllergyWidgets, gmNarrativeWidgets, gmPatSearchWidgets
-from Gnumed.wxpython import gmDemographicsWidgets, gmVaccWidgets
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmSOAPWidgets
+from Gnumed.wxpython import gmAllergyWidgets
+from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmVaccWidgets
+from Gnumed.wxpython import gmFamilyHistoryWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -353,12 +359,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__document_allergy)
 
 		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
-
-		menu_id = wx.NewId()
-		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
-		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage family history')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_family_history)
 
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage hospitalizations')))
@@ -367,6 +369,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage occupation')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_occupation)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage procedures')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_procedures)
+
+		menu_id = wx.NewId()
+		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage vaccinations')))
+		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__manage_vaccinations)
 
 		self.__root_context_popup.AppendSeparator()
 
@@ -552,6 +562,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __manage_procedures(self, event):
 		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+	#--------------------------------------------------------
+	def __manage_family_history(self, event):
+		gmFamilyHistoryWidgets.manage_family_history(parent = self)
 	#--------------------------------------------------------
 	def __manage_hospital_stays(self, event):
 		gmEMRStructWidgets.manage_hospital_stays(parent = self)

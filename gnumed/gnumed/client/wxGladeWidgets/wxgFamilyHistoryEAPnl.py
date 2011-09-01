@@ -78,7 +78,7 @@ class wxgFamilyHistoryEAPnl(wx.ScrolledWindow):
         __lbl_died_of_this = wx.StaticText(self, -1, _("Caused death ?"))
         _gszr_main.Add(__lbl_died_of_this, 0, wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_death.Add(self._PRW_died_of_this, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __lbl_death = wx.StaticText(self, -1, _("Age of death:"))
+        __lbl_death = wx.StaticText(self, -1, _("Age at death:"))
         __szr_death.Add(__lbl_death, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_death.Add(self._PRW_age_of_death, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         _gszr_main.Add(__szr_death, 1, wx.EXPAND, 0)
