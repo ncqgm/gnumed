@@ -791,12 +791,11 @@ class gmTopLevelFrame(wx.Frame):
 		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
 
-		ID_CONTRIBUTORS = wx.NewId()
-		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
-		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
-
 		item = help_menu.Append(-1, _('About database'), _('Show information about the current database.'))
 		self.Bind(wx.EVT_MENU, self.__on_about_database, item)
+
+		item = help_menu.Append(-1, _('About contributors'), _('Show GNUmed contributors'))
+		self.Bind(wx.EVT_MENU, self.__on_show_contributors, item)
 
 		help_menu.AppendSeparator()
 

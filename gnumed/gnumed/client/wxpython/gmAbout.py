@@ -31,6 +31,8 @@ class ScrollTxtWin (wx.Window):
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
 	name_list = [
+		u'Dr Horst Herb',
+		u'Karsten Hilbert',
 		u'Dr Gerardo Arnaez',
 		u'Dr Hilmar Berger',
 		u'Michael Bonert',
@@ -122,7 +124,7 @@ class AboutFrame (wx.Frame):
 		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
-		admins_txt=wx.StaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
+		admins_txt=wx.StaticText(self, -1, "")
 		admins_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(admins_txt, 0, wx.ALIGN_CENTRE)
 
@@ -176,7 +178,7 @@ James Busser, MD
 
  - test results handling
  - documentation would be nothing without him
- - encouragment
+ - encouragement, testing, bug reporting
  - testing on MacOSX
 
 == F ===========================================
