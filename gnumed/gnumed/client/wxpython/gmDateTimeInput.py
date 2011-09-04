@@ -112,7 +112,6 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		intv = self.GetData()
-		print intv
 		if intv is None:
 			return u''
 		return gmDateTime.format_interval (

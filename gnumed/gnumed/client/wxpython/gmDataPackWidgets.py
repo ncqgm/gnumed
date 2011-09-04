@@ -31,6 +31,9 @@ _cfg = gmCfg2.gmCfgData()
 #================================================================
 def install_data_pack(data_pack=None):
 
+	if data_pack is None:
+		return False
+
 	_log.info('attempting installation of data pack: %s', data_pack['name'])
 
 	gm_dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('installing data packs'))
