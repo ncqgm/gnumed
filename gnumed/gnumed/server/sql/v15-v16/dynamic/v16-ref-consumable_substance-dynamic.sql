@@ -26,6 +26,16 @@ alter table ref.consumable_substance
 		check (amount >= 0);
 
 -- --------------------------------------------------------------
+-- table constraints
+\unset ON_ERROR_STOP
+alter table ref.consumable_substance drop constraint ref_consumable_uniq_subst_amount_unit cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.consumable_substance
+	add constraint ref_consumable_uniq_subst_amount_unit
+		unique(upper(description), amount, unit);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v16-ref-consumable_substance-dynamic.sql', 'Revision: v16');
 
 -- ==============================================================

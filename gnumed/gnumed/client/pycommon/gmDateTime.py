@@ -1306,8 +1306,8 @@ def str2pydt_matches(str2parse=None, patterns=None):
 				tzinfo = gmCurrentLocalTimezone
 			)
 			matches.append ({
-				'data': mxdt2py_dt(date),
-				'label': date.strftime('%Y-%m-%d')
+				'data': date,
+				'label': pydt_strftime(date, format = '%Y-%m-%d', accuracy = acc_days)
 			})
 		except AttributeError:
 			# strptime() only available starting with Python 2.5

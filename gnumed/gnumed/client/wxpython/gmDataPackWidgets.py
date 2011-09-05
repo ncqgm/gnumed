@@ -184,10 +184,11 @@ def load_data_packs_list():
 			continue
 
 		db_max = _cfg.get(pack_group, u'maximum database version', source_order = [('data-packs', 'return')])
+		if db_max is None:
+			db_max = sys.maxint
 		converted, db_max = gmTools.input2int (
 			db_max,
-			# max version must be at least db_min:
-			db_min
+			db_min		# max version must be at least db_min
 		)
 		if not converted:
 			_log.error('cannot convert maximum database version [%s]', db_max)
@@ -235,7 +236,7 @@ def manage_data_packs(parent=None):
 		can_return_empty = False,
 		ignore_OK_button = True,
 		left_extra_button = (
-			_('Install'),
+			_('&Install'),
 			_('Install the selected data pack'),
 			install_data_pack
 		),
