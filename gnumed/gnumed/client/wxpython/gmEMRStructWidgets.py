@@ -614,7 +614,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def _refresh_as_new(self):
 		self._PRW_hospital.SetText(value = u'')
 		self._PRW_episode.SetText(value = u'')
-		self._PRW_admission.SetText(data = pydt.datetime.now())
+		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
