@@ -1168,7 +1168,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return u'??'
 
 		if dob > gmDateTime.pydt_now_here():
-			return _('problem: DOB in the future')
+			return _('invalid age: DOB in the future')
 
 		death = self['deceased']
 
@@ -1178,7 +1178,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			)
 
 		if dob > death:
-			return _('problem: DOB after death')
+			return _('invalid age: DOB after death')
 
 		return u'%s%s' % (
 			gmTools.u_latin_cross,
