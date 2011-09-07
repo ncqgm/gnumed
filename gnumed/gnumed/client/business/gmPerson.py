@@ -17,7 +17,9 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
-from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
@@ -1145,17 +1147,21 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		if dob is None:
 			return u'??'
 
-		if self['deceased'] is None:
-#			return gmDateTime.format_interval_medically (
-#				pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
-#			)
+		if dob > gmDateTime.pydt_now_here():
+			return _('problem: DOB in the future')
+
+		death = self['deceased']
+
+		if death is None:
 			return gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age(start = dob)
 			)
 
+		if dob > death:
+			return _('problem: DOB after death')
+
 		return u'%s%s' % (
 			gmTools.u_latin_cross,
-#			gmDateTime.format_interval_medically(self['deceased'] - dob)
 			gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age (
 					start = dob,

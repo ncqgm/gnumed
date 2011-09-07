@@ -466,7 +466,7 @@ def calculate_apparent_age(start=None, end=None):
 		end = pyDT.datetime.now(gmCurrentLocalTimezone)
 
 	if end < start:
-		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> %s' % (end, start))
+		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> (%s)' % (end, start))
 
 	if end == start:
 		years = months = days = hours = minutes = seconds = 0

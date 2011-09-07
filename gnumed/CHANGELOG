@@ -9,6 +9,7 @@
 	0.9.10
 
 FIX: include latest GPL v2.0 license text from FSF [thanks Ankur]
+FIX: gracefully handle invalid DOB (future, DOB > DOD) [thanks Wim]
 
 IMPROVED: substance intake table: "amount per unit" = "Strength", not "Dose" [thanks J.Busser]
 
