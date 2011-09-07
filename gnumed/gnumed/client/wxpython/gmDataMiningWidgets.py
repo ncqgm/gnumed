@@ -391,7 +391,17 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._LCTRL_result.patient_key = None
 
 		# FIXME: make configurable
-		query = u'select * from (' + query + u'\n) as real_query limit 1024'
+		query = u"""
+			SELECT *
+			FROM (
+				%s
+			) AS user_query
+			LIMIT 1001
+		""" % query
+
+		# placeholder for pk_current_patient
+		#xxxxxxxxxxxxxxxxxxxxxx
+
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
@@ -422,6 +432,21 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			return True
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Found %s results.') % len(rows))
+
+		if len(rows) == 1001:
+			gmGuiHelpers.gm_show_info (
+				aMessage = _(
+					'This query returned at least 1001 results.\n'
+					'\n'
+					'GNUmed will only show the first 1000 rows.\n'
+					'\n'
+					'You may want to narrow down the WHERE conditions\n'
+					'or use LIMIT and OFFSET to batchwise go through\n'
+					'all the matching rows.'
+				),
+				aTitle = _('Report Generator')
+			)
+		rows = rows[:-1]		# make it true :-)
 
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query

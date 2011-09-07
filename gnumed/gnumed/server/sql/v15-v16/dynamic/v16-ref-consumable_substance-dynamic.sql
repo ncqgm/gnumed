@@ -33,7 +33,7 @@ alter table ref.consumable_substance drop constraint ref_consumable_uniq_subst_a
 
 alter table ref.consumable_substance
 	add constraint ref_consumable_uniq_subst_amount_unit
-		unique(upper(description), amount, unit);
+		unique(description, amount, unit);
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v16-ref-consumable_substance-dynamic.sql', 'Revision: v16');
