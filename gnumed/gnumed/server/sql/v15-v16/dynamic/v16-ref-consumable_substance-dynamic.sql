@@ -36,6 +36,12 @@ alter table ref.consumable_substance
 		unique(description, amount, unit);
 
 -- --------------------------------------------------------------
+update ref.consumable_substance set
+	description = 'Chlordiazepoxide'
+where
+	description = 'Chlodiazepoxide';
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v16-ref-consumable_substance-dynamic.sql', 'Revision: v16');
 
 -- ==============================================================

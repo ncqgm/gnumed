@@ -383,25 +383,53 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		self._BTN_visualize.Enable(False)
 
-		query = self._TCTRL_query.GetValue().strip().strip(';')
-		if query == u'':
+		user_query = self._TCTRL_query.GetValue().strip().strip(';')
+		if user_query == u'':
 			return True
+
+		# FIXME: make LIMIT configurable
+		limit = u'1001'
+
+		wrapper_query = u"""
+			SELECT *
+			FROM (
+				%%s
+			) AS user_query
+			LIMIT %s
+		""" % limit
+
+		# does user want to insert current patient ID ?
+		patient_id_token = u'$<ID_active_patient>$'
+		if user_query.find(patient_id_token) != -1:
+			# she does, but is it possible ?
+			curr_pat = gmPerson.gmCurrentPatient()
+			if not curr_pat.connected:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _(
+						'This query requires a patient to be\n'
+						'active in the client.\n'
+						'\n'
+						'Please activate the patient you are interested\n'
+						'in and re-run the query.\n'
+					),
+					aTitle = _('Active patient query')
+				)
+				return False
+			wrapper_query = u"""
+				SELECT
+					%s AS pk_patient,
+					*
+				FROM (
+					%%s
+				) AS user_query
+				LIMIT %s
+			""" % (str(curr_pat.ID), limit)
+			user_query = user_query.replace(patient_id_token, str(curr_pat.ID))
 
 		self._LCTRL_result.set_columns()
 		self._LCTRL_result.patient_key = None
 
-		# FIXME: make configurable
-		query = u"""
-			SELECT *
-			FROM (
-				%s
-			) AS user_query
-			LIMIT 1001
-		""" % query
-
-		# placeholder for pk_current_patient
-		#xxxxxxxxxxxxxxxxxxxxxx
-
+		query = wrapper_query % user_query
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
@@ -417,7 +445,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
 				rows.append([line])
 			rows.append([u''])
-			for line in query.split('\n'):
+			for line in user_query.split('\n'):
 				rows.append([line])
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
@@ -446,7 +474,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 				),
 				aTitle = _('Report Generator')
 			)
-		rows = rows[:-1]		# make it true :-)
+			rows = rows[:-1]		# make it true :-)
 
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query

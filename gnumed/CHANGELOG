@@ -36,6 +36,7 @@ NEW: placeholder $<adr_country::type::length>$
 NEW: placeholder $<patient_comm::type::length>$
 NEW: placeholder $<external_id::type//issuer::length>$
 NEW: placeholder $<primary_praxis_provider>$
+NEW: report generator placeholder $<ID_active_patient>$
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title

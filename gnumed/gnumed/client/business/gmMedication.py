@@ -1417,7 +1417,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_query1 = u"""
 		SELECT
 			pk::text,
-			(description || ' ' || amount || unit) as subst
+			(description || ' ' || amount || ' ' || unit) as subst
 		FROM ref.consumable_substance
 		WHERE description %(fragment_condition)s
 		ORDER BY subst
@@ -1425,7 +1425,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_query2 = u"""
 		SELECT
 			pk::text,
-			(description || ' ' || amount || unit) as subst
+			(description || ' ' || amount || ' ' || unit) as subst
 		FROM ref.consumable_substance
 		WHERE
 			%(fragment_condition)s
