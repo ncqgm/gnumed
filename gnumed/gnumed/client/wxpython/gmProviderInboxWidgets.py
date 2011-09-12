@@ -971,6 +971,11 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		# build menu
 		menu = wx.Menu(title = _('Inbox Message Actions:'))
 
+		if self.__focussed_msg['pk_patient'] is not None:
+			ID = wx.NewId()
+			menu.AppendItem(wx.MenuItem(menu, ID, _('Activate patient')))
+			wx.EVT_MENU(menu, ID, self._on_goto_patient)
+
 		if not self.__focussed_msg['is_virtual']:
 			# - delete message
 			ID = wx.NewId()
@@ -1042,6 +1047,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		return tt
 	#--------------------------------------------------------
 	# item handlers
+	#--------------------------------------------------------
+	def _on_goto_patient(self, evt):
+		return self._goto_patient(pk_patient = self.__focussed_msg['pk_patient'])
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
 		if self.__focussed_msg['is_virtual']:

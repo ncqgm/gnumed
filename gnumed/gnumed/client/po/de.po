@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-08-23 11:42+CEST\n"
-"PO-Revision-Date: 2011-08-23 11:54+0100\n"
+"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"PO-Revision-Date: 2011-09-11 16:49+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -258,6 +258,9 @@ msgstr "unbekannte Reaktion"
 msgid "Family History"
 msgstr "Familienanamnese"
 
+msgid "Occupations"
+msgstr "Berufe"
+
 msgid "Vaccinations"
 msgstr "Impfungen"
 
@@ -297,18 +300,21 @@ msgstr "beginne Arzt-Patienten-Kontakt"
 
 msgid ""
 "Address [#%(pk_adr)s]\n"
-" Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
+" Street: %(street)s%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
-" Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
-"Address [#%(pk_adr)s]\n"
-" Straße: %(street)s [#%(pk_street)s]%(notes_street)s\n"
+"Addresse [#%(pk_adr)s]\n"
+" Straße: %(street)s%(notes_street)s\n"
 " Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Ort: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
-" Land: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n"
+" Ort: %(zip)s %(urb)s%(suburb)s\n"
+" Land: %(l10n_state)s, %(code_state)s\n"
 " Staat: %(l10n_country)s, %(code_country)s"
+
+msgid " Type: %s"
+msgstr " Typ: %s"
 
 msgid "Battery:"
 msgstr "Batterie:"
@@ -667,6 +673,12 @@ msgstr "<country> darf nicht leer sein"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
+
+msgid "invalid age: DOB in the future"
+msgstr "ungültiges Alter: Geburtsdatum in der Zukunft"
+
+msgid "invalid age: DOB after death"
+msgstr "ungültiges Alter: Geburtsdatum nach Tod"
 
 msgid "Mr"
 msgstr "Herr"
@@ -2379,8 +2391,8 @@ msgstr "Beginn (Alter)"
 msgid "Caused death ?"
 msgstr "Todesursache ?"
 
-msgid "Age of death:"
-msgstr "Sterbealter"
+msgid "Age at death:"
+msgstr "Sterbealter:"
 
 msgid "Person's name"
 msgstr "Name der Person"
@@ -3176,6 +3188,9 @@ msgstr "Hauptwohnsitz: Straßenname"
 
 msgid "Primary address: number"
 msgstr "Hauptwohnsitz: Hausnummer"
+
+msgid "Primary address: unit within the number (appt. / room / etc)."
+msgstr "Primäradresse: Untereinheit innerhalb dieser Hausnumer (Wohnung, Raum, etc)."
 
 msgid "Primary address: city/town/village/dwelling/..."
 msgstr "Hauptwohnsitz: Ort"
@@ -4615,9 +4630,6 @@ msgstr "Freie eMedicine"
 msgid "Version %s brought to you by"
 msgstr "Version %s präsentiert von"
 
-msgid "Drs Horst Herb && Karsten Hilbert"
-msgstr "Dres Horst Herb && Karsten Hilbert"
-
 msgid "Please visit http://www.gnumed.org"
 msgstr "Siehe auch http://www.gnumed.org"
 
@@ -5400,6 +5412,22 @@ msgstr "GNUmed-Analyse"
 msgid "Error plotting data."
 msgstr "Fehler beim Darstellen der Daten."
 
+msgid ""
+"This query requires a patient to be\n"
+"active in the client.\n"
+"\n"
+"Please activate the patient you are interested\n"
+"in and re-run the query.\n"
+msgstr ""
+"Für diese Abfrage muß ein Patient\n"
+"in GNUmed aktiviert sein.\n"
+"\n"
+"Bitte aktivieren Sie den Patienten\n"
+"von Interesse und starten Sie erneut.\n"
+
+msgid "Active patient query"
+msgstr "Abfrage zum aktiven Patienten"
+
 msgid "Error"
 msgstr "Fehler"
 
@@ -5417,6 +5445,26 @@ msgstr "Diese Analyse erbrachte keine Ergebnisse."
 
 msgid "Found %s results."
 msgstr "%s Ergebnisse gefunden."
+
+msgid ""
+"This query returned at least 1001 results.\n"
+"\n"
+"GNUmed will only show the first 1000 rows.\n"
+"\n"
+"You may want to narrow down the WHERE conditions\n"
+"or use LIMIT and OFFSET to batchwise go through\n"
+"all the matching rows."
+msgstr ""
+"Diese Abfrage hat mehr also 1001 Ergebniszeilen.\n"
+"\n"
+"GNUmed wird nur die ersten 1000 Zeilen zeigen.\n"
+"\n"
+"Sie sollten die Abfragekriterien genauer angeben\n"
+"oder LIMIT und OFFSET verwenden, um stückweise\n"
+"alle Ergebnisse anzuzeigen."
+
+msgid "Report Generator"
+msgstr "Analysator"
 
 msgid "not unicode()able"
 msgstr "nicht unicode()ierbar"
@@ -5512,6 +5560,21 @@ msgstr ""
 "  Name: %s\n"
 "  URL: %s\n"
 
+msgid ""
+"Please enter the URL under which to load\n"
+"the list of available data packs.\n"
+"\n"
+"The default URL is:\n"
+"\n"
+" [%s]\n"
+msgstr ""
+"Geben Sie die URL ein, von welcher die Liste\n"
+"verfügbarer Datenpakete geladen werden kann.\n"
+"\n"
+"Die GNUmed-Standard-URL ist:\n"
+"\n"
+" [%s]\n"
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr "Zur Installation in diese v%s-Datenbank verfügbare Datenpakete.\n"
 
@@ -5530,11 +5593,17 @@ msgstr "min.DB"
 msgid "Source"
 msgstr "Quelle"
 
-msgid "Install"
-msgstr "Installieren"
+msgid "&Install"
+msgstr "&Installieren"
 
 msgid "Install the selected data pack"
 msgstr "Gewähltes Datenpaket installieren"
+
+msgid "&Configure"
+msgstr "&Konfigurieren"
+
+msgid "Configure the data packs list source"
+msgstr "Einstellen der Quelle für die Liste der Datenpakete"
 
 msgid "Pick a date ..."
 msgstr "Wählen Sie ein Datum ..."
@@ -6636,17 +6705,20 @@ msgstr "Episode anlegen"
 msgid "Manage allergies"
 msgstr "Allergien verwalten"
 
-msgid "Manage vaccinations"
-msgstr "Impfungen verwalten"
-
-msgid "Manage procedures"
-msgstr "Maßnahmen verwalten"
+msgid "Manage family history"
+msgstr "Familienanamnese verwalten"
 
 msgid "Manage hospitalizations"
 msgstr "Krankenhausaufenthalte verwalten"
 
 msgid "Manage occupation"
 msgstr "Beruf verwalten"
+
+msgid "Manage procedures"
+msgstr "Maßnahmen verwalten"
+
+msgid "Manage vaccinations"
+msgstr "Impfungen verwalten"
 
 msgid "Open EMR to ..."
 msgstr "Karteikarte entfalten auf ..."
@@ -7760,12 +7832,6 @@ msgstr "ATC-Referenzdaten installieren."
 msgid "Update ATC"
 msgstr "ATC-Update"
 
-msgid "Download and install LOINC reference data."
-msgstr "LOINC-Referenzdaten laden und installieren."
-
-msgid "Update LOINC"
-msgstr "LOINC-Update"
-
 msgid "Create fake vaccines"
 msgstr "Pseudo-Impfstoffe anlegen"
 
@@ -8111,17 +8177,17 @@ msgstr "Fehlersuche ..."
 msgid "About GNUmed"
 msgstr "Über GNUmed"
 
-msgid "show GNUmed contributors"
-msgstr "GNUmed-Helfer zeigen"
-
-msgid "GNUmed contributors"
-msgstr "GNUmed-Helfer"
-
 msgid "About database"
 msgstr "Über die Datenbank"
 
 msgid "Show information about the current database."
 msgstr "Informationen über die Datenbank anzeigen."
+
+msgid "About contributors"
+msgstr "Über GNUmed-Helfer"
+
+msgid "Show GNUmed contributors"
+msgstr "GNUmed-Helfer zeigen"
 
 msgid "Raise plugin [%s]."
 msgstr "Modul [%s] zeigen."
@@ -8188,6 +8254,9 @@ msgstr ""
 
 msgid "About database and server"
 msgstr "Über Datenbank und Server"
+
+msgid "GNUmed contributors"
+msgstr "GNUmed-Helfer"
 
 msgid ""
 "This will send a notification about database downtime\n"
@@ -11126,8 +11195,8 @@ msgstr "<Patientensuche gesperrt>"
 msgid "<type here to search patient>"
 msgstr "<hier Patienten suchen>"
 
-msgid "List of known addresses."
-msgstr "Liste der bekannten Adressen."
+msgid "List of addresses related to this person."
+msgstr "Liste der Adressen dieser Person."
 
 msgid "Editing address"
 msgstr "Adresse bearbeiten"
@@ -12532,6 +12601,18 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Drs Horst Herb && Karsten Hilbert"
+#~ msgstr "Dres Horst Herb && Karsten Hilbert"
+
+#~ msgid "Download and install LOINC reference data."
+#~ msgstr "LOINC-Referenzdaten laden und installieren."
+
+#~ msgid "Update LOINC"
+#~ msgstr "LOINC-Update"
+
+#~ msgid "List of known addresses."
+#~ msgstr "Liste der bekannten Adressen."
+
 #~ msgid "Current &medication"
 #~ msgstr "Derzeitige Medikation"
 
@@ -13915,9 +13996,6 @@ msgstr "erstmals"
 
 #~ msgid "Email report"
 #~ msgstr "Bericht mailen"
-
-#~ msgid "Occupations"
-#~ msgstr "Berufe"
 
 #~ msgid "Cannot update patient phone number."
 #~ msgstr "Kann Telefonnummer des Patienten nicht aktualisieren."

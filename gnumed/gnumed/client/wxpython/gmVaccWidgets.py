@@ -559,7 +559,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _refresh_as_new(self):
 		self._PRW_brand.SetText(value = u'', data = None, suppress_smarts = True)
 		self._PRW_route.SetText(value = u'intramuscular')
-		self._CHBOX_live.SetValue(False)
+		self._CHBOX_live.SetValue(True)
 		self._CHBOX_fake.SetValue(False)
 		self._PNL_indications.clear_all()
 		self._PRW_atc.SetText(value = u'', data = None, suppress_smarts = True)

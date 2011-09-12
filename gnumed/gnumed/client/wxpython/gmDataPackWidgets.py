@@ -24,10 +24,15 @@ from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
+
+
+default_dpl_url = u'http://www.gnumed.de/downloads/data/data-packs.conf'
+dpl_url_option = u'horstspace.data_packs.url'
 #================================================================
 def install_data_pack(data_pack=None):
 
@@ -140,10 +145,10 @@ def load_data_packs_list():
 
 	dbcfg = gmCfg.cCfgSQL()
 	dpl_url = dbcfg.get2 (
-		option = u'horstspace.data_packs.url',
+		option = dpl_url_option,
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
-		default = u'http://www.gnumed.de/downloads/data/data-packs.conf'
+		default = default_dpl_url
 	)
 
 	items = []
@@ -219,6 +224,28 @@ def manage_data_packs(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	#--------------------------------------------
+	def validate_url(url):
+		return True, url
+	#--------------------------------------------
+	def configure_dpl_url(item):
+		gmCfgWidgets.configure_string_option (
+			parent = parent,
+			message = _(
+				'Please enter the URL under which to load\n'
+				'the list of available data packs.\n'
+				'\n'
+				'The default URL is:\n'
+				'\n'
+				' [%s]\n'
+			) % default_dpl_url,
+			option = dpl_url_option,
+			bias = u'workplace',
+			default_value = default_dpl_url,
+			validator = validate_url
+		)
+	#--------------------------------------------
+
 	items, data = load_data_packs_list()
 
 	gmListWidgets.get_choices_from_list (
@@ -241,7 +268,11 @@ def manage_data_packs(parent=None):
 			install_data_pack
 		),
 #		middle_extra_button=None,
-#		right_extra_button=None			# configure
+		right_extra_button = (
+			_('&Configure'),
+			_('Configure the data packs list source'),
+			configure_dpl_url
+		)
 	)
 
 #================================================================
