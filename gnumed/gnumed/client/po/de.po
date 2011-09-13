@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
-"PO-Revision-Date: 2011-09-11 16:49+0100\n"
+"POT-Creation-Date: 2011-09-13 12:58+CEST\n"
+"PO-Revision-Date: 2011-09-13 12:59+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -592,6 +592,12 @@ msgstr "Medikament"
 
 msgid "units"
 msgstr "Einheiten"
+
+msgid "Unit: %s (%s)"
+msgstr "Abteilg.: %s (%s)"
+
+msgid "Organization: %s (%s)"
+msgstr "Organisation: %s (%s)"
 
 msgid "inhouse lab"
 msgstr "praxisinternes Labor"
@@ -2937,6 +2943,12 @@ msgstr "oder"
 msgid "Group"
 msgstr "Gruppe"
 
+msgid "&Manage orgs"
+msgstr "Org. &verwalten"
+
+msgid "Manage all organizations."
+msgstr "Organisationen verwalten."
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -2949,8 +2961,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr "Ein Kommentar zu diesem Labor."
 
-msgid "Lab name"
-msgstr "Laborname"
+msgid "Org.Unit"
+msgstr "Abteilg."
 
 msgid "Contact"
 msgstr "Kontakt"
@@ -5469,8 +5481,42 @@ msgstr "Analysator"
 msgid "not unicode()able"
 msgstr "nicht unicode()ierbar"
 
-msgid "installing data packs"
-msgstr "installiere Datenpakete"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+"GNUmed-Datenpakete werden bereitgestellt\n"
+"\n"
+"OHNE JEDE GARANTIE\n"
+"\n"
+"hinsichtlich des Inhalts.\n"
+"\n"
+"Obwohl Datenpakete mit größtmöglicher Sorgfalt er-\n"
+"stellt wurden, müssen Sie trotzdem aufmerksam Um-\n"
+"sicht, Sachverstand und die gebotene Vorsicht walten\n"
+"lassen, um patientengerecht zu behandeln.\n"
+"\n"
+"Drücken Sie [Ja], um diese Bedingungen zu akzeptieren.\n"
+"\n"
+"Drücken Sie [Nein], um die Paketinstallation abzubrechen.\n"
+
+msgid "Terms of Data Pack Use"
+msgstr "Bedingungen für Datenpakete"
+
+msgid "installing data pack"
+msgstr "Datenpaket installieren"
 
 msgid "Lacking permissions to install data pack."
 msgstr "Fehlende Rechte für die Datenpaketinstallation."
@@ -9814,9 +9860,6 @@ msgstr "Meßmethoden hinzufügen"
 msgid "Editing measurement type"
 msgstr "Meßmethode bearbeiten"
 
-msgid "in-house"
-msgstr "praxisintern"
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr "Kann die Meßmethode [%s (%s)] nicht löschen, da sie in Benutzung ist."
 
@@ -9847,9 +9890,6 @@ msgstr "generisch / praxisintern"
 msgid "Select the type of measurement."
 msgstr "Wählen Sie den Typ der Messung."
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr "Der Name des Labors/der Meßfirma."
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr "Wählen Sie die Einheit für Menge oder Meßergebnis."
 
@@ -9873,6 +9913,9 @@ msgstr ""
 
 msgid "Showing diagnostic orgs."
 msgstr "Zeige Laboreinträge."
+
+msgid "The name of the path lab/diagnostic organisation."
+msgstr "Der Name des Labors/der Meßfirma."
 
 msgid ""
 "\n"
@@ -10802,7 +10845,7 @@ msgid "Unit Category"
 msgstr "Kategorie (Abteilung)"
 
 msgid "Units of: %s"
-msgstr "Abteilg.von:"
+msgstr "Abteilg.von: %s"
 
 msgid "<no organization selected>"
 msgstr "<keine Organisation gewählt>"
@@ -11515,6 +11558,9 @@ msgstr ""
 
 msgid "Inbox Message Actions:"
 msgstr "Posteingangs-Aktionen:"
+
+msgid "Activate patient"
+msgstr "Patient aufrufen"
 
 msgid "message"
 msgstr "Nachricht"
@@ -12600,6 +12646,15 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "&Manage organizations"
+#~ msgstr "Organisationen &verwalten"
+
+#~ msgid "Lab name"
+#~ msgstr "Laborname"
+
+#~ msgid "in-house"
+#~ msgstr "praxisintern"
 
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Dres Horst Herb && Karsten Hilbert"
@@ -13906,9 +13961,6 @@ msgstr "erstmals"
 
 #~ msgid "Register new patient"
 #~ msgstr "Neuen Patienten anlegen"
-
-#~ msgid "Deactivate patient"
-#~ msgstr "Patient inaktivieren."
 
 #~ msgid "free-standing episodes"
 #~ msgstr "Nicht zugeordnete Episoden"

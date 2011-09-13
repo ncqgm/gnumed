@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
+from Gnumed.business import gmOrganization
 
 
 _log = logging.getLogger('gm.lab')
@@ -38,39 +39,80 @@ gmDispatcher.connect(_on_test_result_modified, u'test_result_mod_db')
 #============================================================
 class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test org/lab."""
-
-	_cmd_fetch_payload = u"""SELECT *, xmin FROM clin.test_org WHERE pk = %s"""
-
+	_cmd_fetch_payload = u"""SELECT * FROM clin.v_test_orgs WHERE pk_test_org = %s"""
 	_cmds_store_payload = [
 		u"""UPDATE clin.test_org SET
-				internal_name = gm.nullify_empty_string(%(internal_name)s),
-				contact = gm.nullify_empty_string(%(contact)s),
+				fk_org_unit = %(pk_org_unit)s,
+				contact = gm.nullify_empty_string(%(test_org_contact)s),
 				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
-				pk = %(pk)s
+				pk = %(pk_test_org)s
 					AND
-				xmin = %(xmin)s
+				xmin = %(xmin_test_org)s
 			RETURNING
-				xmin
+				xmin AS xmin_test_org
 		"""
 	]
-
 	_updatable_fields = [
-		u'internal_name',
-		u'contact',
+		u'pk_org_unit',
+		u'test_org_contact',
 		u'comment'
 	]
 #------------------------------------------------------------
-def create_test_org(name=None):
-	cmd = u'insert into clin.test_org (internal_name) values (%(name)s) returning pk'
-	args = {'name': name.strip()}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	return cTestOrg(aPK_obj = rows[0]['pk'])
+def create_test_org(name=None, comment=None, pk_org_unit=None):
+
+	if name is None:
+		name = _('inhouse lab')
+		comment = _('auto-generated')
+
+	# get org unit
+	if pk_org_unit is None:
+		org = gmOrganization.org_exists(organization = name)
+		if org is None:
+			org = gmOrganization.create_org (
+				organization = name,
+				category = u'Laboratory'
+			)
+		org_unit = gmOrganization.create_org_unit (
+			pk_organization = org['pk_org'],
+			unit = name
+		)
+		pk_org_unit = org_unit['pk_org_unit']
+
+	# test org exists ?
+	args = {'pk_unit': pk_org_unit}
+	cmd = u'SELECT pk_test_org FROM clin.v_test_orgs WHERE pk_org_unit = %(pk_unit)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	if len(rows) == 0:
+		cmd = u'INSERT INTO clin.test_org (fk_org_unit) VALUES (%(pk_unit)s) RETURNING pk'
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+	test_org = cTestOrg(aPK_obj = rows[0][0])
+	if comment is not None:
+		comment = comment.strip()
+	test_org['comment'] = comment
+	test_org.save()
+
+	return test_org
 #------------------------------------------------------------
-def get_test_orgs(order_by=u'internal_name'):
-	cmd = u'select *, xmin from clin.test_org order by %s' % order_by
+def delete_test_org(test_org=None):
+	args = {'pk': test_org}
+	cmd = u"""
+		DELETE FROM clin.test_org
+		WHERE
+			pk = %(pk)s
+				AND
+			NOT EXISTS (SELECT 1 FROM clin.lab_request WHERE fk_test_org = %(pk)s LIMIT 1)
+				AND
+			NOT EXISTS (SELECT 1 FROM clin.test_type WHERE fk_test_org = %(pk)s LIMIT 1)
+	"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#------------------------------------------------------------
+def get_test_orgs(order_by=u'unit'):
+	cmd = u'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cTestOrg(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
+	return [ cTestOrg(row = {'pk_field': 'pk_test_org', 'data': r, 'idx': idx}) for r in rows ]
 #============================================================
 class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one meta test type under which actual test types can be aggregated."""
@@ -148,20 +190,20 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		'pk_test_org'
 	]
 	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-
-		# find fk_test_org from name
-		if (attribute == 'fk_test_org') and (value is not None):
-			try:
-				int(value)
-			except:
-				cmd = u"select pk from clin.test_org where internal_name = %(val)s"
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'val': value}}])
-				if len(rows) == 0:
-					raise ValueError('[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute))
-				value = rows[0][0]
-
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+#	def __setitem__(self, attribute, value):
+#
+#		# find fk_test_org from name
+#		if (attribute == 'fk_test_org') and (value is not None):
+#			try:
+#				int(value)
+#			except:
+#				cmd = u"select pk from clin.test_org where internal _name = %(val)s"
+#				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'val': value}}])
+#				if len(rows) == 0:
+#					raise ValueError('[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute))
+#				value = rows[0][0]
+#
+#		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def _get_in_use(self):
 		cmd = u'select exists(select 1 from clin.test_result where fk_type = %(pk_type)s)'
@@ -184,13 +226,13 @@ def find_measurement_type(lab=None, abbrev=None, name=None):
 		where_snippets = []
 
 		if lab is None:
-			where_snippets.append('pk_test_org is null')
+			where_snippets.append('pk_test_org IS NULL')
 		else:
 			try:
 				int(lab)
 				where_snippets.append('pk_test_org = %(lab)s')
 			except (TypeError, ValueError):
-				where_snippets.append('pk_test_org = (select pk from clin.test_org where internal_name = %(lab)s)')
+				where_snippets.append('pk_test_org = (SELECT pk_test_org FROM clin.v_test_orgs WHERE unit = %(lab)s)')
 
 		if abbrev is not None:
 			where_snippets.append('abbrev = %(abbrev)s')
@@ -237,7 +279,7 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 
 	# lab
 	if lab is None:
-		lab = create_measurement_org()
+		lab = create_test_org()['pk_test_org']
 
 	cols.append('fk_test_org')
 	try:
@@ -245,7 +287,7 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 		val_snippets.append('%(lab)s')
 	except:
 		vals['lab'] = lab
-		val_snippets.append('(select pk from clin.test_org where internal_name = %(lab)s)')
+		val_snippets.append('(SELECT pk_test_org FROM clin.v_test_orgs WHERE unit = %(lab)s)')
 
 	# code
 	cols.append('abbrev')
@@ -273,35 +315,6 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 	ttype = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
 
 	return ttype
-#------------------------------------------------------------
-def create_measurement_org(name=None, comment=None):
-
-	if name is None:
-		name = _('inhouse lab')
-		comment = _('auto-generated')
-
-	cmd = u'select * from clin.test_org where internal_name = %(name)s'
-	if comment is not None:
-		comment = comment.strip()
-	args = {'name': name, 'cmt': comment}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-
-	if len(rows) == 0:
-		queries = [
-			{'cmd': u'insert into clin.test_org (fk_org, internal_name, comment) values (null, %(name)s, %(cmt)s)', 'args': args},
-			{'cmd': u"select currval(pg_get_serial_sequence('clin.test_org', 'pk')) as pk"}
-		]
-	else:
-		# use 1st result only, ignore if more than one
-		args['pk'] = rows[0]['pk']
-		queries = [
-			{'cmd': u'update clin.test_org set comment = %(cmt)s where pk = %(pk)s', 'args': args},
-			{'cmd': u'select %(pk)s as pk', 'args': args}
-		]
-
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
-
-	return rows[0]['pk']
 #============================================================
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
@@ -1086,7 +1099,7 @@ def create_lab_request(lab=None, req_id=None, pat_id=None, encounter_id=None, ep
 	if type(lab) is types.IntType:
 		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, %s, %s)"
 	else:
-		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_name=%s), %s)"
+		cmd = "insert into lab_request (fk_encounter, fk_episode, fk_test_org, request_id) values (%s, %s, (select pk from test_org where internal_OBSOLETE_name=%s), %s)"
 	queries.append((cmd, [encounter_id, episode_id, str(lab), req_id]))
 	cmd = "select currval('lab_request_pk_seq')"
 	queries.append((cmd, []))
@@ -1207,7 +1220,6 @@ def get_pending_requests(limit=250):
 def get_next_request_ID(lab=None, incrementor_func=None):
 	"""Get logically next request ID for given lab.
 
-	- lab either test_org PK or test_org.internal_name
 	- incrementor_func:
 	  - if not supplied the next ID is guessed
 	  - if supplied it is applied to the most recently used ID

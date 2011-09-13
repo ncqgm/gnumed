@@ -119,7 +119,7 @@ class cLabReviewGrid(wx.Grid):
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
-			select pk, internal_name
+			select pk, internal_OBSOLETE_name
 			from test_org
 			"""
 		mp = gmMatchProvider.cMatchProvider_SQL2([query])
@@ -515,7 +515,7 @@ class cLabJournalNB(wx.Notebook):
 	#------------------------------------------------------------------------
 	def __get_labname(self, data):
 		# FIXME: eventually, this will be done via a cOrg value object class
-		query= """select internal_name from test_org where pk=%s"""
+		query= """select internal_OBSOLETE_name from test_org where pk=%s"""
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
 

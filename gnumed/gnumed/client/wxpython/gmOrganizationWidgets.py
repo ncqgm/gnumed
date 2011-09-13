@@ -55,7 +55,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			SELECT
 				pk_org_unit
 					AS data,
-				unit || ' (' || l10n_unit_category || '): ' || organization || ' (' || l10n_organization_category || ')'
+				unit || coalesce(' (' || l10n_unit_category || ')', '') || ': ' || organization || ' (' || l10n_organization_category || ')'
 					AS list_label,
 				unit || ' (' || organization || ')'
 					AS field_label
@@ -69,7 +69,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			SELECT
 				pk_org_unit
 					AS data,
-				l10n_unit_category || ' "' || unit || '": ' || organization || ' (' || l10n_organization_category || ')'
+				coalesce(l10n_unit_category || ' ', '') || '"' || unit || '": ' || organization || ' (' || l10n_organization_category || ')'
 					AS list_label,
 				unit || ' (' || organization || ')'
 					AS field_label
@@ -85,7 +85,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			SELECT
 				pk_org_unit
 					AS data,
-				organization || ': ' || unit || ' (' || l10n_unit_category || ')'
+				organization || ': ' || unit || coalesce(' (' || l10n_unit_category || ')', '')
 					AS list_label,
 				unit || ' (' || organization || ')'
 					AS field_label
@@ -104,7 +104,19 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.SetToolTipString(_("Select an organizational unit."))
 		self.matcher = mp
-
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		unit = self._data2instance()
+		if unit is None:
+			return None
+		return u'\n'.join(unit.format(with_address = True))
+	#--------------------------------------------------------
+	def _data2instance(self):
+		if self.GetData() is None:
+			return None
+		return gmOrganization.cOrgUnit(aPK_obj = self.GetData())
 #============================================================
 class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing organizational units."""

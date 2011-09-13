@@ -49,10 +49,7 @@ select
 			, ''
 		)
 		|| _('Responsible clinician: ')
-			|| vtr.responsible_reviewer -- || E'\n'
---		|| _('Episode "')
---			|| vtr.episode || '"'
---			|| coalesce(_(' in health issue "') || vtr.health_issue || '"', '')
+			|| vtr.responsible_reviewer
 		), 'faulty clin.v_test_results_journal definition'
 	)	as narrative,
 	vtr.pk_encounter

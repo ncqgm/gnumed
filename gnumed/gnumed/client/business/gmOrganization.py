@@ -42,15 +42,37 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_category_org'
 	]
 #------------------------------------------------------------
+def org_exists(organization=None, category=None):
+	args = {'desc': organization, 'cat': category}
+
+	if isinstance(category, basestring):
+		cat_part = u'fk_category = (SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	elif category is None:
+		cat_part = u'True'
+	else:
+		cat_part = u'fk_category = %(cat)s'
+
+	cmd = u'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) > 0:
+		return cOrg(aPK_obj = rows[0][0])
+
+	return None
+#------------------------------------------------------------
 def create_org(organization=None, category=None):
 
-	args = {'desc': organization, 'cat': category}
-	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk'
-	if isinstance(category, basestring):
-		cmd = cmd % u'(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
-	else:
-		cmd = cmd % u'%(cat)s'
+	org = org_exists(organization, category)
+	if org is not None:
+		return org
 
+	args = {'desc': organization, 'cat': category}
+
+	if isinstance(category, basestring):
+		cat_part = u'(SELECT pk FROM dem.org_category WHERE description = %(cat)s)'
+	else:
+		cat_part = u'%(cat)s'
+
+	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
 	return cOrg(aPK_obj = rows[0][0])
@@ -162,6 +184,8 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			pk_org_unit = self.pk_obj
 		)
 	#--------------------------------------------------------
+	# address API
+	#--------------------------------------------------------
 	def link_address(self, id_type=None, address=None):
 		self.address = address
 	#--------------------------------------------------------
@@ -172,6 +196,23 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		The address can be either cAdress or cPatientAdress.
 		"""
 		self.address = None
+	#--------------------------------------------------------
+	def format(self, with_address=False, with_org=True):
+		lines = []
+		lines.append(_('Unit: %s (%s)') % (
+			self._payload[self._idx['unit']],
+			self._payload[self._idx['l10n_unit_category']]
+		))
+		if with_org:
+			lines.append(_('Organization: %s (%s)') % (
+				self._payload[self._idx['organization']],
+				self._payload[self._idx['l10n_organization_category']]
+			))
+		if with_address:
+			adr = self.address
+			if adr is not None:
+				lines.extend(adr.format())
+		return lines
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -189,6 +230,14 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 def create_org_unit(pk_organization=None, unit=None):
 
 	args = {'desc': unit, 'pk_org': pk_organization}
+
+	# exists ?
+	cmd = u'SELECT pk FROM dem.org_unit WHERE description = %(desc)s AND fk_org = %(pk_org)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) > 0:
+		return cOrgUnit(aPK_obj = rows[0][0])
+
+	# no, create
 	cmd = u'INSERT INTO dem.org_unit (description, fk_org) VALUES (%(desc)s, %(pk_org)s) RETURNING pk'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 

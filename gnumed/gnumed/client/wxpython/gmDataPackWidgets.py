@@ -41,7 +41,28 @@ def install_data_pack(data_pack=None):
 
 	_log.info('attempting installation of data pack: %s', data_pack['name'])
 
-	gm_dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('installing data packs'))
+	msg = _(
+		'Note that GNUmed data packs are provided\n'
+		'\n'
+		'WITHOUT ANY GUARANTEE WHATSOEVER\n'
+		'\n'
+		'regarding their content.\n'
+		'\n'
+		'Despite data packs having been prepared with the\n'
+		'utmost care you must still vigilantly apply caution,\n'
+		'common sense, and due diligence to make sure you\n'
+		'render appropriate care to your patients.\n'
+		'\n'
+		'Press [Yes] to declare agreement with this precaution.\n'
+		'\n'
+		'Press [No] to abort installation of the data pack.\n'
+	)
+	go_ahead = gmGuiHelpers.gm_show_question(msg, _('Terms of Data Pack Use'))
+	if not go_ahead:
+		_log.info('user did not agree to terms of data pack use')
+		return True
+
+	gm_dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('installing data pack'))
 	if gm_dbo_conn is None:
 		msg = _('Lacking permissions to install data pack.')
 		gmGuiHelpers.gm_show_error(msg, _('Installing data pack'))
@@ -244,10 +265,13 @@ def manage_data_packs(parent=None):
 			default_value = default_dpl_url,
 			validator = validate_url
 		)
+		return True
 	#--------------------------------------------
-
-	items, data = load_data_packs_list()
-
+	def refresh(lctrl):
+		items, data = load_data_packs_list()
+		lctrl.set_string_items(items)
+		lctrl.set_data(data)
+	#--------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _(
@@ -257,11 +281,10 @@ def manage_data_packs(parent=None):
 		),
 		caption = _('Showing data packs.'),
 		columns = [ _('Data pack'), _('min DB'), _('max DB'), _('Source') ],
-		choices = items,
-		data = data,
 		single_selection = True,
 		can_return_empty = False,
 		ignore_OK_button = True,
+		refresh_callback = refresh,
 		left_extra_button = (
 			_('&Install'),
 			_('Install the selected data pack'),
