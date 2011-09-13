@@ -84,7 +84,8 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('List of known addresses.'))
+		self.__static_tooltip_part = _('List of addresses related to this person.')
+		self._LCTRL_items.item_tooltip_callback = self._calculate_tooltip
 		self._LCTRL_items.set_columns(columns = [
 			_('Type'),
 			_('Street'),
@@ -136,6 +137,13 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			return False
 		self.__identity.unlink_address(address = address)
 		return True
+	#--------------------------------------------------------
+	def _calculate_tooltip(self, address):
+		tt = u'\n'.join(address.format())
+		tt += u'\n'
+		tt += u'%s\n' % (gmTools.u_box_horiz_single * 40)
+		tt += self.__static_tooltip_part
+		return tt
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

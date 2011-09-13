@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-08-23 11:42+CEST\n"
+"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -244,6 +244,10 @@ msgstr "onbekende reactie"
 msgid "Family History"
 msgstr "medische geschiedenis"
 
+#, fuzzy
+msgid "Occupations"
+msgstr "Beroep"
+
 msgid "Vaccinations"
 msgstr "Vaccinaties"
 
@@ -283,12 +287,16 @@ msgstr "Begin ontmoeting met patiënt"
 
 msgid ""
 "Address [#%(pk_adr)s]\n"
-" Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
+" Street: %(street)s%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
-" Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+
+#, fuzzy
+msgid " Type: %s"
+msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
 msgid "Battery:"
@@ -703,6 +711,14 @@ msgstr "Dit veld mag niet leeg zijn."
 #, fuzzy
 msgid "Cannot merge active patient into another patient."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "invalid age: DOB in the future"
+msgstr "Aandoening gediagnosticeerd in de toekomst."
+
+#, fuzzy
+msgid "invalid age: DOB after death"
+msgstr "naam, geboortedatum"
 
 msgid "Mr"
 msgstr "Dhr"
@@ -2620,7 +2636,7 @@ msgid "Caused death ?"
 msgstr "Veroorzaakte de dood"
 
 #, fuzzy
-msgid "Age of death:"
+msgid "Age at death:"
 msgstr "Geboortedatum"
 
 #, fuzzy
@@ -3545,6 +3561,9 @@ msgstr "huisadres: straatnaam"
 #, fuzzy
 msgid "Primary address: number"
 msgstr "huisadres: huisnummer"
+
+msgid "Primary address: unit within the number (appt. / room / etc)."
+msgstr ""
 
 #, fuzzy
 msgid "Primary address: city/town/village/dwelling/..."
@@ -5155,9 +5174,6 @@ msgstr "Free eMedicine"
 msgid "Version %s brought to you by"
 msgstr "Versie %s, u aangeboden door"
 
-msgid "Drs Horst Herb && Karsten Hilbert"
-msgstr "Drs Horst Herb && Karsten Hilbert"
-
 msgid "Please visit http://www.gnumed.org"
 msgstr "Kijk alstublieft op http://www.gnumed.org"
 
@@ -5961,6 +5977,18 @@ msgstr "GNUmed rapportresultaten:"
 msgid "Error plotting data."
 msgstr "Fout bij het opslaan van ingevoerde gegevens."
 
+msgid ""
+"This query requires a patient to be\n"
+"active in the client.\n"
+"\n"
+"Please activate the patient you are interested\n"
+"in and re-run the query.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Active patient query"
+msgstr "Aktieve patient"
+
 msgid "Error"
 msgstr "Fout"
 
@@ -5981,6 +6009,20 @@ msgid "Found %s results."
 msgstr ""
 " %s testuitslagen\n"
 "\n"
+
+msgid ""
+"This query returned at least 1001 results.\n"
+"\n"
+"GNUmed will only show the first 1000 rows.\n"
+"\n"
+"You may want to narrow down the WHERE conditions\n"
+"or use LIMIT and OFFSET to batchwise go through\n"
+"all the matching rows."
+msgstr ""
+
+#, fuzzy
+msgid "Report Generator"
+msgstr "Rapportgenerator"
 
 msgid "not unicode()able"
 msgstr ""
@@ -6045,6 +6087,15 @@ msgid ""
 "  URL: %s\n"
 msgstr ""
 
+msgid ""
+"Please enter the URL under which to load\n"
+"the list of available data packs.\n"
+"\n"
+"The default URL is:\n"
+"\n"
+" [%s]\n"
+msgstr ""
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr ""
 
@@ -6064,12 +6115,20 @@ msgstr ""
 msgid "Source"
 msgstr "Bron"
 
-msgid "Install"
+msgid "&Install"
 msgstr ""
 
 #, fuzzy
 msgid "Install the selected data pack"
 msgstr "verwijder onderdeel"
+
+#, fuzzy
+msgid "&Configure"
+msgstr "Instellingen"
+
+#, fuzzy
+msgid "Configure the data packs list source"
+msgstr "Configureer de databasetaal"
 
 msgid "Pick a date ..."
 msgstr ""
@@ -7238,12 +7297,8 @@ msgid "Manage allergies"
 msgstr "Allergieën bewerken"
 
 #, fuzzy
-msgid "Manage vaccinations"
-msgstr "Kan vaccin %s niet opslaan."
-
-#, fuzzy
-msgid "Manage procedures"
-msgstr "Kan laboratoriumverzoek niet opslaan"
+msgid "Manage family history"
+msgstr "Allergieën bewerken"
 
 #, fuzzy
 msgid "Manage hospitalizations"
@@ -7252,6 +7307,14 @@ msgstr "Beschrijving van de Parameter"
 #, fuzzy
 msgid "Manage occupation"
 msgstr "beroep"
+
+#, fuzzy
+msgid "Manage procedures"
+msgstr "Kan laboratoriumverzoek niet opslaan"
+
+#, fuzzy
+msgid "Manage vaccinations"
+msgstr "Kan vaccin %s niet opslaan."
 
 msgid "Open EMR to ..."
 msgstr "EMD openen op ..."
@@ -8444,13 +8507,6 @@ msgstr ""
 msgid "Update ATC"
 msgstr "Bijwerken"
 
-msgid "Download and install LOINC reference data."
-msgstr ""
-
-#, fuzzy
-msgid "Update LOINC"
-msgstr "Bijwerken"
-
 #, fuzzy
 msgid "Create fake vaccines"
 msgstr "Nieuwe patiënt."
@@ -8853,17 +8909,19 @@ msgstr "Debuggen..."
 msgid "About GNUmed"
 msgstr "Over GNUmed"
 
-msgid "show GNUmed contributors"
-msgstr "Toon wie heeft bijgedragen aan GNUmed"
-
-msgid "GNUmed contributors"
-msgstr "Bijgedragen aan GNUmed"
-
 msgid "About database"
 msgstr "Over de database"
 
 msgid "Show information about the current database."
 msgstr "Toon informatie over de huidige database."
+
+#, fuzzy
+msgid "About contributors"
+msgstr "Bijgedragen aan GNUmed"
+
+#, fuzzy
+msgid "Show GNUmed contributors"
+msgstr "Toon wie heeft bijgedragen aan GNUmed"
 
 #, fuzzy
 msgid "Raise plugin [%s]."
@@ -8929,6 +8987,9 @@ msgstr ""
 #, fuzzy
 msgid "About database and server"
 msgstr "Over de database"
+
+msgid "GNUmed contributors"
+msgstr "Bijgedragen aan GNUmed"
 
 msgid ""
 "This will send a notification about database downtime\n"
@@ -11936,8 +11997,9 @@ msgstr "Patiënt zoeken ..."
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "List of known addresses."
-msgstr "Lijst van bekende adressen."
+#, fuzzy
+msgid "List of addresses related to this person."
+msgstr "Verplaats gegevens naar andere episode"
 
 msgid "Editing address"
 msgstr "Adres wijzigen"
@@ -13378,6 +13440,16 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "Drs Horst Herb && Karsten Hilbert"
+#~ msgstr "Drs Horst Herb && Karsten Hilbert"
+
+#, fuzzy
+#~ msgid "Update LOINC"
+#~ msgstr "Bijwerken"
+
+#~ msgid "List of known addresses."
+#~ msgstr "Lijst van bekende adressen."
 
 #~ msgid "Current &medication"
 #~ msgstr "Huidige &medicatie"

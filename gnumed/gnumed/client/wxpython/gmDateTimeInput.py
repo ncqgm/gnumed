@@ -112,7 +112,6 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		intv = self.GetData()
-		print intv
 		if intv is None:
 			return u''
 		return gmDateTime.format_interval (
@@ -245,20 +244,24 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 		items = []
 		for match in matches:
 			if match['data'] is None:
-				list_label = match['label']
-				data = None
-			else:
-				data = match['data'].replace (
-					hour = 11,
-					minute = 11,
-					second = 11,
-					microsecond = 111111
-				)
-				list_label = gmDateTime.pydt_strftime (
-					data,
-					format = '%A, %d. %B %Y (%x)',
-					accuracy = gmDateTime.acc_days
-				)
+				items.append ({
+					'data': None,
+					'field_label': match['label'],
+					'list_label': match['label']
+				})
+				continue
+
+			data = match['data'].replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				microsecond = 111111
+			)
+			list_label = gmDateTime.pydt_strftime (
+				data,
+				format = '%A, %d. %B %Y (%x)',
+				accuracy = gmDateTime.acc_days
+			)
 			items.append ({
 				'data': data,
 				'field_label': match['label'],

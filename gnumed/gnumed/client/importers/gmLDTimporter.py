@@ -124,6 +124,7 @@ class cLDTImporter:
 	# internal helpers
 	#-----------------------------------------------------------
 	def _verify_8300(self, a_line, field_data):
+		# FIXME: internal_name is no more
 		cmd = "select exists(select pk from test_org where internal_name=%s)"
 		status = gmPG.run_ro_query('historica', cmd, None, field_data)
 		if status is None:

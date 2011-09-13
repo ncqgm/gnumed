@@ -1480,7 +1480,7 @@ def create_new_person(parent=None, activate=False):
 	else:
 		countries = gmDemographicRecord.get_country_for_region(region = def_region)
 		if len(countries) == 1:
-			def_country = countries[0]['l10n_country']
+			def_country = countries[0]['code_country']
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -1545,7 +1545,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 #		self._PRW_external_id_type.selection_only = True
 
 		if self.default_country is not None:
-			self._PRW_country.SetText(value = self.default_country)
+			match = self._PRW_country._data2match(data = self.default_country)
+			if match is not None:
+				self._PRW_country.SetText(value = match['field_label'], data = match['data'])
 
 		if self.default_region is not None:
 			self._PRW_region.SetText(value = self.default_region)
@@ -1563,7 +1565,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return False
 	#----------------------------------------------------------------
 	def __set_fields_from_address_searcher(self):
-		adr = self._PRW_address_searcher.get_address()
+		adr = self._PRW_address_searcher.address
 		if adr is None:
 			return True
 
@@ -1573,6 +1575,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
 
 		self._TCTRL_number.SetValue(adr['number'])
+		self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], u''))
 
 		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
 		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
@@ -1695,6 +1698,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		# invalidate address searcher when any field edited
 		self._PRW_street.add_callback_on_lose_focus(self._invalidate_address_searcher)
 		wx.EVT_KILL_FOCUS(self._TCTRL_number, self._invalidate_address_searcher)
+		wx.EVT_KILL_FOCUS(self._TCTRL_unit, self._invalidate_address_searcher)
 		self._PRW_urb.add_callback_on_lose_focus(self._invalidate_address_searcher)
 		self._PRW_region.add_callback_on_lose_focus(self._invalidate_address_searcher)
 
@@ -1747,10 +1751,10 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		mapping = [
 			(self._PRW_street, 'street'),
 			(self._TCTRL_number, 'number'),
+			(self._TCTRL_unit, 'subunit'),
 			(self._PRW_urb, 'urb'),
 			(self._PRW_region, 'l10n_state')
 		]
-
 		# loop through fields and invalidate address searcher if different
 		for ctrl, field in mapping:
 			if self.__perhaps_invalidate_address_searcher(ctrl, field):
@@ -1759,8 +1763,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		return True
 	#----------------------------------------------------------------
 	def _on_leaving_adress_searcher(self):
-		adr = self._PRW_address_searcher.get_address()
-		if adr is None:
+		if self._PRW_address_searcher.address is None:
 			return True
 
 		wx.CallAfter(self.__set_fields_from_address_searcher)
@@ -1819,10 +1822,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					postcode = self._PRW_zip.GetValue().strip(),
 					urb = self._PRW_urb.GetValue().strip(),
 					state = self._PRW_region.GetData(),
-					country = self._PRW_country.GetData()
+					country = self._PRW_country.GetData(),
+					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), u'')
 				)
 			except gmPG2.dbapi.InternalError:
 				_log.debug('number: >>%s<<', self._TCTRL_number.GetValue().strip())
+				_log.debug('(sub)unit: >>%s<<', self._TCTRL_unit.GetValue().strip())
 				_log.debug('street: >>%s<<', self._PRW_street.GetValue().strip())
 				_log.debug('postcode: >>%s<<', self._PRW_zip.GetValue().strip())
 				_log.debug('urb: >>%s<<', self._PRW_urb.GetValue().strip())

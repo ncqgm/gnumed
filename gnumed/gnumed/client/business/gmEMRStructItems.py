@@ -1987,7 +1987,15 @@ def create_encounter_type(description=None, l10n_description=None):
 	return {'description': description, 'l10n_description': l10n_description}
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"select _(description) as l10n_description, description from clin.encounter_type"
+	cmd = u"""
+		SELECT
+			_(description) AS l10n_description,
+			description
+		FROM
+			clin.encounter_type
+		ORDER BY
+			l10n_description
+	"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #-----------------------------------------------------------

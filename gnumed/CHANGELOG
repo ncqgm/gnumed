@@ -36,6 +36,8 @@ NEW: placeholder $<adr_country::type::length>$
 NEW: placeholder $<patient_comm::type::length>$
 NEW: placeholder $<external_id::type//issuer::length>$
 NEW: placeholder $<primary_praxis_provider>$
+NEW: report generator placeholder $<ID_active_patient>$
+NEW: bleeding score: HEMORR²HAGES
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
@@ -76,6 +78,7 @@ IMPROVED: during connect check whether database was properly bootstrapped
 	0.9.10
 
 FIX: include latest GPL v2.0 license text from FSF [thanks Ankur]
+FIX: gracefully handle invalid DOB (future, DOB > DOD) [thanks Wim]
 
 IMPROVED: substance intake table: "amount per unit" = "Strength", not "Dose" [thanks J.Busser]
 

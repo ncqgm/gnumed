@@ -255,6 +255,9 @@ default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
+	# FIXME: How to generate and send mails: a step by step tutorial
+	# FIXME: http://groups.google.com/group/comp.lang.python/browse_thread/thread/e0793c1007361398/
+	# FIXME: google for aspineux blog
 
 	if message is None:
 		return False

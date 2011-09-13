@@ -24,16 +24,45 @@ from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
 _cfg = gmCfg2.gmCfgData()
+
+
+default_dpl_url = u'http://www.gnumed.de/downloads/data/data-packs.conf'
+dpl_url_option = u'horstspace.data_packs.url'
 #================================================================
 def install_data_pack(data_pack=None):
 
+	if data_pack is None:
+		return False
+
 	_log.info('attempting installation of data pack: %s', data_pack['name'])
 
-	gm_dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('installing data packs'))
+	msg = _(
+		'Note that GNUmed data packs are provided\n'
+		'\n'
+		'WITHOUT ANY GUARANTEE WHATSOEVER\n'
+		'\n'
+		'regarding their content.\n'
+		'\n'
+		'Despite data packs having been prepared with the\n'
+		'utmost care you must still vigilantly apply caution,\n'
+		'common sense, and due diligence to make sure you\n'
+		'render appropriate care to your patients.\n'
+		'\n'
+		'Press [Yes] to declare agreement with this precaution.\n'
+		'\n'
+		'Press [No] to abort installation of the data pack.\n'
+	)
+	go_ahead = gmGuiHelpers.gm_show_question(msg, _('Terms of Data Pack Use'))
+	if not go_ahead:
+		_log.info('user did not agree to terms of data pack use')
+		return True
+
+	gm_dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('installing data pack'))
 	if gm_dbo_conn is None:
 		msg = _('Lacking permissions to install data pack.')
 		gmGuiHelpers.gm_show_error(msg, _('Installing data pack'))
@@ -137,10 +166,10 @@ def load_data_packs_list():
 
 	dbcfg = gmCfg.cCfgSQL()
 	dpl_url = dbcfg.get2 (
-		option = u'horstspace.data_packs.url',
+		option = dpl_url_option,
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
-		default = u'http://www.gnumed.de/downloads/data/data-packs.conf'
+		default = default_dpl_url
 	)
 
 	items = []
@@ -181,10 +210,11 @@ def load_data_packs_list():
 			continue
 
 		db_max = _cfg.get(pack_group, u'maximum database version', source_order = [('data-packs', 'return')])
+		if db_max is None:
+			db_max = sys.maxint
 		converted, db_max = gmTools.input2int (
 			db_max,
-			# max version must be at least db_min:
-			db_min
+			db_min		# max version must be at least db_min
 		)
 		if not converted:
 			_log.error('cannot convert maximum database version [%s]', db_max)
@@ -215,8 +245,33 @@ def manage_data_packs(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	items, data = load_data_packs_list()
-
+	#--------------------------------------------
+	def validate_url(url):
+		return True, url
+	#--------------------------------------------
+	def configure_dpl_url(item):
+		gmCfgWidgets.configure_string_option (
+			parent = parent,
+			message = _(
+				'Please enter the URL under which to load\n'
+				'the list of available data packs.\n'
+				'\n'
+				'The default URL is:\n'
+				'\n'
+				' [%s]\n'
+			) % default_dpl_url,
+			option = dpl_url_option,
+			bias = u'workplace',
+			default_value = default_dpl_url,
+			validator = validate_url
+		)
+		return True
+	#--------------------------------------------
+	def refresh(lctrl):
+		items, data = load_data_packs_list()
+		lctrl.set_string_items(items)
+		lctrl.set_data(data)
+	#--------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _(
@@ -226,18 +281,21 @@ def manage_data_packs(parent=None):
 		),
 		caption = _('Showing data packs.'),
 		columns = [ _('Data pack'), _('min DB'), _('max DB'), _('Source') ],
-		choices = items,
-		data = data,
 		single_selection = True,
 		can_return_empty = False,
 		ignore_OK_button = True,
+		refresh_callback = refresh,
 		left_extra_button = (
-			_('Install'),
+			_('&Install'),
 			_('Install the selected data pack'),
 			install_data_pack
 		),
 #		middle_extra_button=None,
-#		right_extra_button=None			# configure
+		right_extra_button = (
+			_('&Configure'),
+			_('Configure the data packs list source'),
+			configure_dpl_url
+		)
 	)
 
 #================================================================

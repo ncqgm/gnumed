@@ -377,8 +377,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
 
 	_SQL_data2match:
-		SQL to retrieve a match by primary key wherein
-		the only argument is 'pk'
+		SQL to retrieve a match by, say, primary key
+		wherein the only argument is 'pk'
 	"""
 	def __init__(self, queries = None, context = None):
 

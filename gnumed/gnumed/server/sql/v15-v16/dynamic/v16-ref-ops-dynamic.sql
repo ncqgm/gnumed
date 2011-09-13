@@ -23,4 +23,7 @@ create trigger tr_del_ref_code_tbl_check_backlink
 		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------
+grant select on ref.ops to group "gm-public";
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v16-ref-ops-dynamic.sql', '16.0');

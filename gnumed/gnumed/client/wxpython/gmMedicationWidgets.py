@@ -1458,7 +1458,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			if brand['components'] is not None:
 				self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
 				tt = u'%s:\n\n- %s' % (
-					self.data['brand'],
+					brand['brand'],
 					u'\n- '.join(brand['components'])
 				)
 				self._TCTRL_brand_ingredients.SetToolTipString(tt)

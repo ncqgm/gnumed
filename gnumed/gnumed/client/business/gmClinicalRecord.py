@@ -41,6 +41,7 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools, gmDateTime
+
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmClinNarrative
@@ -48,6 +49,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
+from Gnumed.business.gmDemographicRecord import get_occupations
 
 
 _log = logging.getLogger('gm.emr')
@@ -814,20 +816,27 @@ order by
 		txt += u'\n'
 		txt += _('Family History')
 		txt += u'\n'
-
 		fhx = self.get_family_history()
 		for f in fhx:
 			txt += u'%s\n' % f.format(left_margin = 1)
 
 		txt += u'\n'
+		txt += _('Occupations')
+		txt += u'\n'
+		jobs = get_occupations(pk_identity = self.pk_patient)
+		for job in jobs:
+			txt += u' %s%s\n' % (
+				job['l10n_occupation'],
+				gmTools.coalesce(job['activities'], u'', u': %s')
+			)
+
+		txt += u'\n'
 		txt += _('Vaccinations')
 		txt += u'\n'
-
 		vaccs = self.get_latest_vaccinations()
 		inds = sorted(vaccs.keys())
 		for ind in inds:
 			ind_count, vacc = vaccs[ind]
-
 			if dob is None:
 				age_given = u''
 			else:
@@ -835,7 +844,6 @@ order by
 					start = dob,
 					end = vacc['date_given']
 				))
-
 			txt += u' %s (%s%s): %s%s (%s %s%s%s)\n' % (
 				ind,
 				gmTools.u_sum,

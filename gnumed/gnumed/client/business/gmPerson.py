@@ -17,11 +17,16 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
-from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
-from Gnumed.business import gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmXdtMappings
+from Gnumed.business import gmProviderInbox
 from Gnumed.business.gmDocuments import cDocumentFolder
 
 
@@ -912,9 +917,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	# occupations API
 	#--------------------------------------------------------
 	def get_occupations(self):
-		cmd = u"select * from dem.v_person_jobs where pk_identity=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return rows
+		return gmDemographicRecord.get_occupations(pk_identity = self.pk_obj)
 	#--------------------------------------------------------
 	def link_occupation(self, occupation=None, activities=None):
 		"""Link an occupation with a patient, creating the occupation if it does not exists.
@@ -1164,10 +1167,18 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		if dob is None:
 			return u'??'
 
-		if self['deceased'] is None:
+		if dob > gmDateTime.pydt_now_here():
+			return _('invalid age: DOB in the future')
+
+		death = self['deceased']
+
+		if death is None:
 			return gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age(start = dob)
 			)
+
+		if dob > death:
+			return _('invalid age: DOB after death')
 
 		return u'%s%s' % (
 			gmTools.u_latin_cross,

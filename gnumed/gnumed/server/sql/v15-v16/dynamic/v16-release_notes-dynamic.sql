@@ -18,10 +18,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.0.rc1 (database v16.rc1)',
-	'GNUmed 1.0.rc1 Release Notes:
+	'Release Notes for GNUmed 1.0.rc2 (database v16.rc2)',
+	'GNUmed 1.0.rc2 Release Notes:
 
-	1.0.rc1
+	1.0.rc2
 
 NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
@@ -51,6 +51,8 @@ NEW: placeholder $<adr_country::type::length>$
 NEW: placeholder $<patient_comm::type::length>$
 NEW: placeholder $<external_id::type//issuer::length>$
 NEW: placeholder $<primary_praxis_provider>$
+NEW: report generator placeholder $<ID_active_patient>$
+NEW: bleeding score: HEMORR²HAGES
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
@@ -84,7 +86,7 @@ IMPROVED: DOB related identity handling
 IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
 
-	16.0.rc1
+	16.0.rc2
 
 IMPROVED: backup script and config file comments [thanks J.Busser]
 IMPROVED: restore script: properly set data file permissions [thanks S.Reus]

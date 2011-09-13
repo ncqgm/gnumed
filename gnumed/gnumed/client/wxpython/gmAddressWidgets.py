@@ -44,7 +44,7 @@ def configure_default_country(parent=None):
 		bias = 'user',
 		choices = [ (c['l10n_country'], c['code']) for c in countries ],
 		columns = [_('Country'), _('Code')],
-		data = [ c['name'] for c in countries ]
+		data = [ c['code'] for c in countries ]
 	)
 #============================================================
 class cCountryPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -131,6 +131,16 @@ FROM (
 ORDER BY rank, list_label
 LIMIT 25"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=context)
+		mp._SQL_data2match = u"""
+			SELECT
+				code AS data,
+				_(name) AS field_label,
+				code || ': ' || _(name) || ' (' || name || ')' AS list_label,
+				5 AS rank
+			FROM dem.country
+			WHERE
+				code = %(pk)s
+		"""
 		mp.setThresholds(2, 5, 9)
 		self.matcher = mp
 
@@ -601,6 +611,9 @@ def manage_addresses(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
+	def calculate_tooltip(address):
+		return u'\n'.join(address.format())
+	#------------------------------------------------------------
 	def delete(address):
 		return gmDemographicRecord.delete_address(pk_address = address['pk_address'])
 	#------------------------------------------------------------
@@ -641,7 +654,8 @@ def manage_addresses(parent=None):
 		columns = cols,
 		single_selection = True,
 		refresh_callback = refresh,
-		delete_callback = delete
+		delete_callback = delete,
+		list_tooltip_callback = calculate_tooltip
 	)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl

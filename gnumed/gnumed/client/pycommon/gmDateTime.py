@@ -477,7 +477,7 @@ def calculate_apparent_age(start=None, end=None):
 		end = pyDT.datetime.now(gmCurrentLocalTimezone)
 
 	if end < start:
-		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> %s' % (end, start))
+		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> (%s)' % (end, start))
 
 	if end == start:
 		years = months = days = hours = minutes = seconds = 0
@@ -1306,8 +1306,8 @@ def str2pydt_matches(str2parse=None, patterns=None):
 				tzinfo = gmCurrentLocalTimezone
 			)
 			matches.append ({
-				'data': mxdt2py_dt(date),
-				'label': date.strftime('%Y-%m-%d')
+				'data': date,
+				'label': pydt_strftime(date, format = '%Y-%m-%d', accuracy = acc_days)
 			})
 		except AttributeError:
 			# strptime() only available starting with Python 2.5

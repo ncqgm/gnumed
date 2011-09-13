@@ -467,8 +467,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
-		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
-		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
+#		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
+#		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
@@ -660,7 +660,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of Ginkgo CADx / OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -791,12 +791,11 @@ class gmTopLevelFrame(wx.Frame):
 		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
 
-		ID_CONTRIBUTORS = wx.NewId()
-		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
-		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
-
 		item = help_menu.Append(-1, _('About database'), _('Show information about the current database.'))
 		self.Bind(wx.EVT_MENU, self.__on_about_database, item)
+
+		item = help_menu.Append(-1, _('About contributors'), _('Show GNUmed contributors'))
+		self.Bind(wx.EVT_MENU, self.__on_show_contributors, item)
 
 		help_menu.AppendSeparator()
 
@@ -2649,8 +2648,8 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_edit_gmdbowner_password(self, evt):
 		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
-	def __on_update_loinc(self, evt):
-		gmMeasurementWidgets.update_loinc_reference_data()
+#	def __on_update_loinc(self, evt):
+#		gmMeasurementWidgets.update_loinc_reference_data()
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()

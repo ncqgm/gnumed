@@ -1083,8 +1083,8 @@ class database:
 		file.close()
 
 		# import auditing schema
-		psql = gmPsql.Psql (self.conn)
-		if psql.run (tmpfile) != 0:
+		psql = gmPsql.Psql(self.conn)
+		if psql.run(tmpfile) != 0:
 			_log.error("cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
@@ -1125,7 +1125,7 @@ class database:
 		file.close()
 
 		# import notification schema
-		psql = gmPsql.Psql (self.conn)
+		psql = gmPsql.Psql(self.conn)
 		if psql.run(tmpfile) != 0:
 			_log.error("cannot import notification schema definition for database [%s]" % (self.name))
 			return None

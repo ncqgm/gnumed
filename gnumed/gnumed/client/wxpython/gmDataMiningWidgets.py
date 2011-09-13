@@ -148,7 +148,16 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u'select distinct on (label) cmd, label from cfg.report_query where label %(fragment_condition)s or cmd %(fragment_condition)s']
+			queries = [u"""
+				SELECT DISTINCT ON (label)
+					cmd,
+					label
+				FROM cfg.report_query
+				WHERE
+					label %(fragment_condition)s
+						OR
+					cmd %(fragment_condition)s
+			"""]
 		)
 		mp.setThresholds(2,3,5)
 		self._PRW_report_name.matcher = mp
@@ -374,15 +383,53 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		self._BTN_visualize.Enable(False)
 
-		query = self._TCTRL_query.GetValue().strip().strip(';')
-		if query == u'':
+		user_query = self._TCTRL_query.GetValue().strip().strip(';')
+		if user_query == u'':
 			return True
+
+		# FIXME: make LIMIT configurable
+		limit = u'1001'
+
+		wrapper_query = u"""
+			SELECT *
+			FROM (
+				%%s
+			) AS user_query
+			LIMIT %s
+		""" % limit
+
+		# does user want to insert current patient ID ?
+		patient_id_token = u'$<ID_active_patient>$'
+		if user_query.find(patient_id_token) != -1:
+			# she does, but is it possible ?
+			curr_pat = gmPerson.gmCurrentPatient()
+			if not curr_pat.connected:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _(
+						'This query requires a patient to be\n'
+						'active in the client.\n'
+						'\n'
+						'Please activate the patient you are interested\n'
+						'in and re-run the query.\n'
+					),
+					aTitle = _('Active patient query')
+				)
+				return False
+			wrapper_query = u"""
+				SELECT
+					%s AS pk_patient,
+					*
+				FROM (
+					%%s
+				) AS user_query
+				LIMIT %s
+			""" % (str(curr_pat.ID), limit)
+			user_query = user_query.replace(patient_id_token, str(curr_pat.ID))
 
 		self._LCTRL_result.set_columns()
 		self._LCTRL_result.patient_key = None
 
-		# FIXME: make configurable
-		query = u'select * from (' + query + u'\n) as real_query limit 1024'
+		query = wrapper_query % user_query
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
@@ -398,7 +445,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
 				rows.append([line])
 			rows.append([u''])
-			for line in query.split('\n'):
+			for line in user_query.split('\n'):
 				rows.append([line])
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
@@ -414,6 +461,21 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Found %s results.') % len(rows))
 
+		if len(rows) == 1001:
+			gmGuiHelpers.gm_show_info (
+				aMessage = _(
+					'This query returned at least 1001 results.\n'
+					'\n'
+					'GNUmed will only show the first 1000 rows.\n'
+					'\n'
+					'You may want to narrow down the WHERE conditions\n'
+					'or use LIMIT and OFFSET to batchwise go through\n'
+					'all the matching rows.'
+				),
+				aTitle = _('Report Generator')
+			)
+			rows = rows[:-1]		# make it true :-)
+
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query
 		cols = [ (value, key) for key, value in idx.items() ]
@@ -421,13 +483,20 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		cols = [ pair[1] for pair in cols ]
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
-			label = unicode(gmTools.coalesce(row[0], u''))
+			try:
+				label = unicode(gmTools.coalesce(row[0], u'')).replace('\n', '<LF>').replace('\r', '<CR>')
+			except UnicodeDecodeError:
+				label = _('not unicode()able')
+			if len(label) > 150:
+				label = label[:150] + gmTools.u_ellipsis
 			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
 				try:
-					label = unicode(gmTools.coalesce(row[col_idx], u''))
+					label = unicode(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
 				except UnicodeDecodeError:
 					label = _('not unicode()able')
+				if len(label) > 150:
+					label = label[:150] + gmTools.u_ellipsis
 				self._LCTRL_result.SetStringItem (
 					index = row_num,
 					col = col_idx,

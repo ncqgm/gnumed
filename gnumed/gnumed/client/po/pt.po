@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-08-23 11:43+CEST\n"
+"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -259,6 +259,10 @@ msgstr "reação desconhecida"
 msgid "Family History"
 msgstr ""
 
+#, fuzzy
+msgid "Occupations"
+msgstr "Profissão"
+
 msgid "Vaccinations"
 msgstr "Vacinas"
 
@@ -298,12 +302,16 @@ msgstr "Inicio de consulta"
 
 msgid ""
 "Address [#%(pk_adr)s]\n"
-" Street: %(street)s [#%(pk_street)s]%(notes_street)s\n"
+" Street: %(street)s%(notes_street)s\n"
 " Number: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Location: %(zip)s %(urb)s%(suburb)s [#%(pk_urb)s]\n"
-" Region: %(l10n_state)s, %(code_state)s [#%(pk_state)s]\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+
+#, fuzzy
+msgid " Type: %s"
+msgstr "Tipo:"
 
 msgid "Battery:"
 msgstr "Bateria:"
@@ -682,6 +690,13 @@ msgstr "<country> não pode ser vazio"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Não é possível fundir informação do paciente activo com outro"
+
+#, fuzzy
+msgid "invalid age: DOB in the future"
+msgstr "Condição diagnosticada no futuro."
+
+msgid "invalid age: DOB after death"
+msgstr ""
 
 msgid "Mr"
 msgstr "Sr"
@@ -2504,7 +2519,7 @@ msgid "Caused death ?"
 msgstr "Causou o Óbito"
 
 #, fuzzy
-msgid "Age of death:"
+msgid "Age at death:"
 msgstr "data de nascimento/óbito"
 
 #, fuzzy
@@ -3388,6 +3403,9 @@ msgid "Primary address: name of street"
 msgstr ""
 
 msgid "Primary address: number"
+msgstr ""
+
+msgid "Primary address: unit within the number (appt. / room / etc)."
 msgstr ""
 
 msgid "Primary address: city/town/village/dwelling/..."
@@ -4912,9 +4930,6 @@ msgstr "eMedicina Gratuita"
 msgid "Version %s brought to you by"
 msgstr "Versões %s trazidas a você por:"
 
-msgid "Drs Horst Herb && Karsten Hilbert"
-msgstr "Drs Horst Herb && Karsten Hilbert"
-
 msgid "Please visit http://www.gnumed.org"
 msgstr "Favor visitar  http://www.gnumed.org"
 
@@ -5687,6 +5702,18 @@ msgstr ""
 msgid "Error plotting data."
 msgstr ""
 
+msgid ""
+"This query requires a patient to be\n"
+"active in the client.\n"
+"\n"
+"Please activate the patient you are interested\n"
+"in and re-run the query.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Active patient query"
+msgstr "Mover o paciente para cima."
+
 msgid "Error"
 msgstr "Erro"
 
@@ -5704,6 +5731,20 @@ msgstr "Não foram retornados dados para esse relatório."
 
 msgid "Found %s results."
 msgstr ""
+
+msgid ""
+"This query returned at least 1001 results.\n"
+"\n"
+"GNUmed will only show the first 1000 rows.\n"
+"\n"
+"You may want to narrow down the WHERE conditions\n"
+"or use LIMIT and OFFSET to batchwise go through\n"
+"all the matching rows."
+msgstr ""
+
+#, fuzzy
+msgid "Report Generator"
+msgstr "&gerador relatórios"
 
 msgid "not unicode()able"
 msgstr ""
@@ -5768,6 +5809,15 @@ msgid ""
 "  URL: %s\n"
 msgstr ""
 
+msgid ""
+"Please enter the URL under which to load\n"
+"the list of available data packs.\n"
+"\n"
+"The default URL is:\n"
+"\n"
+" [%s]\n"
+msgstr ""
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr ""
 
@@ -5786,12 +5836,20 @@ msgstr ""
 msgid "Source"
 msgstr ""
 
-msgid "Install"
+msgid "&Install"
 msgstr ""
 
 #, fuzzy
 msgid "Install the selected data pack"
 msgstr "Editar o item selecionado."
+
+#, fuzzy
+msgid "&Configure"
+msgstr "Configuração"
+
+#, fuzzy
+msgid "Configure the data packs list source"
+msgstr "Configure o idioma do Banco de Dados"
 
 msgid "Pick a date ..."
 msgstr ""
@@ -6776,16 +6834,19 @@ msgstr "Episódio Selecionado."
 msgid "Manage allergies"
 msgstr ""
 
-msgid "Manage vaccinations"
-msgstr ""
-
-msgid "Manage procedures"
+msgid "Manage family history"
 msgstr ""
 
 msgid "Manage hospitalizations"
 msgstr ""
 
 msgid "Manage occupation"
+msgstr ""
+
+msgid "Manage procedures"
+msgstr ""
+
+msgid "Manage vaccinations"
 msgstr ""
 
 msgid "Open EMR to ..."
@@ -7888,12 +7949,6 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
-msgid "Download and install LOINC reference data."
-msgstr ""
-
-msgid "Update LOINC"
-msgstr ""
-
 msgid "Create fake vaccines"
 msgstr ""
 
@@ -8261,17 +8316,19 @@ msgstr "Console de Erros ..."
 msgid "About GNUmed"
 msgstr "Sobre GNUmed"
 
-msgid "show GNUmed contributors"
-msgstr "mostrar os contribuidores do GNUmed"
-
-msgid "GNUmed contributors"
-msgstr "Contribuem para o GNUmed"
-
 msgid "About database"
 msgstr "Sobre Banco de Dados"
 
 msgid "Show information about the current database."
 msgstr "Mostra informações sobre o banco de dados atual."
+
+#, fuzzy
+msgid "About contributors"
+msgstr "Contribuem para o GNUmed"
+
+#, fuzzy
+msgid "Show GNUmed contributors"
+msgstr "mostrar os contribuidores do GNUmed"
 
 msgid "Raise plugin [%s]."
 msgstr ""
@@ -8335,6 +8392,9 @@ msgstr ""
 
 msgid "About database and server"
 msgstr ""
+
+msgid "GNUmed contributors"
+msgstr "Contribuem para o GNUmed"
 
 msgid ""
 "This will send a notification about database downtime\n"
@@ -10878,8 +10938,9 @@ msgstr ""
 msgid "<type here to search patient>"
 msgstr ""
 
-msgid "List of known addresses."
-msgstr "Lista de endereços conhecidos."
+#, fuzzy
+msgid "List of addresses related to this person."
+msgstr "Mover dados para outro episódio"
 
 msgid "Editing address"
 msgstr "Editando endereço"
@@ -12197,6 +12258,12 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#~ msgid "Drs Horst Herb && Karsten Hilbert"
+#~ msgstr "Drs Horst Herb && Karsten Hilbert"
+
+#~ msgid "List of known addresses."
+#~ msgstr "Lista de endereços conhecidos."
 
 #~ msgid "Current &medication"
 #~ msgstr "&Medicação corrente"
