@@ -205,7 +205,7 @@ def manage_vaccines(parent=None):
 			),
 			v['preparation'],
 			u'%s (%s)' % (v['route_abbreviation'], v['route_description']),
-			gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u''),
+			gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u'', u'?'),
 			gmTools.coalesce(v['atc_code'], u''),
 			u'%s%s' % (
 				gmTools.coalesce(v['min_age'], u'?'),
@@ -500,7 +500,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		)
 
 		data['pk_route'] = self._PRW_route.GetData()
-		data['is_live'] = self._CHBOX_live.GetValue()
+#		data['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
 			data['min_age'] = gmDateTime.str2interval(val)
@@ -543,7 +543,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		self.data.set_indications(indications = self._PNL_indications.selected_indications)
 
 		self.data['pk_route'] = self._PRW_route.GetData()
-		self.data['is_live'] = self._CHBOX_live.GetValue()
+#		self.data['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
 			self.data['min_age'] = gmDateTime.str2interval(val)

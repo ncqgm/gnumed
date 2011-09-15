@@ -38,6 +38,7 @@ NEW: placeholder $<external_id::type//issuer::length>$
 NEW: placeholder $<primary_praxis_provider>$
 NEW: report generator placeholder $<ID_active_patient>$
 NEW: bleeding score: HEMORR²HAGES
+NEW: vaccination indication "influenza (H3N2)"
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
