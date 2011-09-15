@@ -1143,7 +1143,7 @@ msgid "Error running hook [%s] script."
 msgstr ""
 
 msgid "Translate this or i18n into <en_EN> will not work properly !"
-msgstr ""
+msgstr "Translate this or i18n into <en_CA> will not work properly !"
 
 msgid "[%s] is not a readable file"
 msgstr ""
