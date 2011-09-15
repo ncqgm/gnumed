@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -28,6 +28,9 @@ msgid ""
 "\n"
 "Please consult the error log for all the gory details !"
 msgstr ""
+"\n"
+"\n"
+"Si prega di consultare il log di errore per tutti i dettagli !"
 
 msgid "generic error message"
 msgstr "messaggio d'errore generico"
@@ -128,10 +131,10 @@ msgid "ERROR: unknown allergy state [%s]"
 msgstr "ERRORE: stato allergico sconosciuto [%s]"
 
 msgid "Cannot run [arriba] !"
-msgstr ""
+msgstr "Impossibile eseguire [arriba] !"
 
 msgid "No [arriba] result found in [%s]."
-msgstr ""
+msgstr "Nessun risultato [arriba] trovato in [%s]."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "manichino-senza-bisogno-di-tradurre-ma-fare-epydoc-felice"
@@ -269,7 +272,7 @@ msgid "Occupations"
 msgstr "Occupazione"
 
 msgid "Vaccinations"
-msgstr ""
+msgstr "Vaccinazioni"
 
 msgid "allergies/intolerances"
 msgstr "allergie/intolleranze"
@@ -429,7 +432,7 @@ msgid "Procedures performed: %s"
 msgstr "Interventi effettuati: %s"
 
 msgid "Family History: %s"
-msgstr ""
+msgstr "Storia familiare: %s"
 
 msgid "Documents: %s"
 msgstr "Documenti: %s"
@@ -438,7 +441,7 @@ msgid "Measurements and Results: %s"
 msgstr "Analisi e risultati: %s"
 
 msgid "Vaccinations:"
-msgstr ""
+msgstr "Vaccinazioni:"
 
 msgid "Unattributed episodes"
 msgstr "Casi non attribuiti"
@@ -497,7 +500,7 @@ msgid "Problem"
 msgstr "Problema"
 
 msgid "Health issue"
-msgstr ""
+msgstr "Problema di salute"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  il tuo tempo: %s - %s  (@%s = %s%s)\n"
@@ -509,10 +512,10 @@ msgid "Documents:"
 msgstr "Documenti:"
 
 msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
+msgstr "%s altri episodi accennati duranti questi incontri:"
 
 msgid " (ongoing)"
-msgstr ""
+msgstr " in corso"
 
 msgid "Episode"
 msgstr "Episodio"
@@ -526,13 +529,13 @@ msgstr ""
 "in PDF."
 
 msgid "Sandboxed PDF output file cannot be moved."
-msgstr ""
+msgstr "Il file PDF in isolamento non può essere spostato"
 
 msgid "PDF output file cannot be opened."
 msgstr "Impossibile aprire il file PDF ottenuto."
 
 msgid "Error running gnuplot. Cannot plot data."
-msgstr ""
+msgstr "Errore nell'esecuzione di gnuplot. Impossibile mostrare i dati."
 
 #, fuzzy
 msgid "Error running pdftk. Cannot extract fields from PDF form template."
@@ -553,15 +556,17 @@ msgstr ""
 "in PDF."
 
 msgid "Medication history"
-msgstr ""
+msgstr "Storico dei medicamenti"
 
 msgid ""
 "\n"
 " Take: %s"
 msgstr ""
+"\n"
+" Prendi: %s"
 
 msgid "Take: %s"
-msgstr ""
+msgstr "Prendi: %s"
 
 msgid "copy"
 msgstr ""
@@ -582,7 +587,7 @@ msgid "?ongoing"
 msgstr "?in corso"
 
 msgid "Additional notes"
-msgstr ""
+msgstr "Note aggiuntive"
 
 msgid "Substance"
 msgstr "Sostanza"
@@ -597,19 +602,25 @@ msgid "Strength"
 msgstr "Forza"
 
 msgid "Medication list"
-msgstr ""
+msgstr "Lista farmaci"
 
 msgid "ordered by brand"
-msgstr ""
+msgstr "classificati per brand"
 
 msgid "Regimen"
-msgstr ""
+msgstr "Regime"
 
 msgid "Drug"
 msgstr "Farmaco"
 
 msgid "units"
 msgstr "unità"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
 
 msgid "inhouse lab"
 msgstr "laboratorio interno"
@@ -633,13 +644,13 @@ msgid "   unreviewed"
 msgstr "   non controllato"
 
 msgid "unknown test results output format [%s]"
-msgstr ""
+msgstr "formato dei risultati dell'esame sconosciuto [%s]"
 
 msgid "No test results to format."
-msgstr ""
+msgstr "Nessun risultato d'esame da formattare."
 
 msgid "Test results"
-msgstr ""
+msgstr "Risultati del test"
 
 msgid "GNUmed test results export for Gnuplot plotting"
 msgstr ""
@@ -674,28 +685,28 @@ msgid "external patient source (name, gender, date of birth)"
 msgstr "provenienza esterna del paziente (nome, genere, data di nascita)"
 
 msgid "<name> cannot be empty"
-msgstr ""
+msgstr "<nome> non può essere vuoto"
 
 msgid "<issuer> cannot be empty"
-msgstr ""
+msgstr "<issuer> non può essere vuoto"
 
 msgid "<channel> cannot be empty"
-msgstr ""
+msgstr "<canale> non può essere vuoto"
 
 msgid "<number> cannot be empty"
-msgstr ""
+msgstr "<numero> non può essere vuoto"
 
 msgid "<street> cannot be empty"
-msgstr ""
+msgstr "<strada> non può essere vuoto"
 
 msgid "<urb> cannot be empty"
-msgstr ""
+msgstr "<urb> non può essere vuoto"
 
 msgid "<zip> cannot be empty"
-msgstr ""
+msgstr "<cap> non può essere vuoto"
 
 msgid "<country> cannot be empty"
-msgstr ""
+msgstr "<paese> non può essere vuoto"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Non posso inserire il paziente attivo in un altro paziente."
@@ -771,16 +782,16 @@ msgid "full name"
 msgstr "nome completo"
 
 msgid "vaccine"
-msgstr ""
+msgstr "vaccino"
 
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
 
 msgid "No vaccinations to format."
-msgstr ""
+msgstr "Nessuna vaccinazione da cancellare."
 
 msgid "Latest vaccinations"
-msgstr ""
+msgstr "Ultime vaccinazioni"
 
 msgid "per target condition"
 msgstr ""
@@ -1669,13 +1680,13 @@ msgid "Preparation"
 msgstr "Preparazione"
 
 msgid "Components"
-msgstr ""
+msgstr "Componenti"
 
 msgid "ATC code"
 msgstr ""
 
 msgid "External code"
-msgstr ""
+msgstr "Codice esterno"
 
 msgid "Type:"
 msgstr "Tipo:"
@@ -1834,6 +1845,14 @@ msgid ""
 "\n"
 "Also known as the Reason For Encounter/Visit (RFE)."
 msgstr ""
+"Ciò documenta perchè è avvenuto l'incontro.\n"
+"\n"
+"Può essere dovuto ad una richiesta del paziente o può essere motivato da "
+"altre ragioni. Spesso raccolte presso la reception e inserite come "
+"commentonella lista d'attesa. Potrebbe essere solamente una richiesta di "
+"delega per cui il paziente si trova qui.\n"
+"\n"
+"Anche conosciuto come Motivo Dell'Incontro/Visita (RFE)."
 
 msgid ""
 "This summarizes the outcome/assessment of the consultation from the doctors "
@@ -1873,7 +1892,7 @@ msgid "Request"
 msgstr "Richiesta"
 
 msgid "device1"
-msgstr ""
+msgstr "device1"
 
 msgid "Summary"
 msgstr "Riassunto"
@@ -1925,10 +1944,10 @@ msgid ""
 msgstr ""
 
 msgid "Enter the amount of substance."
-msgstr ""
+msgstr "Inserire la quantità della sostanza."
 
 msgid "Amount"
-msgstr ""
+msgstr "Quantità"
 
 msgid "Unit:"
 msgstr "Unità:"
@@ -2131,7 +2150,7 @@ msgid ""
 msgstr ""
 
 msgid "Report an Adverse Drug Reaction."
-msgstr ""
+msgstr "Riporta un effetto collaterale del farmaco."
 
 msgid "Print the medication list."
 msgstr "Stampa la lista di farmaci."
@@ -2224,7 +2243,7 @@ msgid "Original string as found in the database. Usually in English."
 msgstr ""
 
 msgid "Enter your translation here."
-msgstr ""
+msgstr "Inserire la vostra traduzione qui."
 
 msgid ""
 "Enter the language code here. You need either the two letter or the four "
@@ -2233,7 +2252,7 @@ msgid ""
 msgstr ""
 
 msgid "String"
-msgstr ""
+msgstr "Stringa"
 
 msgid "Translation"
 msgstr "Traduzione"
@@ -2269,7 +2288,7 @@ msgid "This lists the available document types."
 msgstr "Questo elenca i tipi di documento disponibili"
 
 msgid "The document type, usually in English."
-msgstr ""
+msgstr "Il tipo di documento, di solito in inglese."
 
 msgid "The document type in the local language."
 msgstr "Il tipo di documento nella lingua locale."
@@ -2339,6 +2358,10 @@ msgid ""
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Attivare utente selezionato.\n"
+"\n"
+"E' necessario conoscere la password amministratore per il database GNUmed "
+"<gm-dbo>."
 
 msgid ""
 "Deactivate selected user.\n"
@@ -2346,6 +2369,10 @@ msgid ""
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Disattivare utente selezionato.\n"
+"\n"
+"E' necessario conoscere la password amministratore per il database GNUmed "
+"<gm-dbo>."
 
 msgid ""
 "Entirely remove the GNUmed user (including the database account).\n"
@@ -2367,7 +2394,7 @@ msgid "edit encounter details"
 msgstr "modifica dettagli dell'appuntamento"
 
 msgid "Edit the details for the encounter below:"
-msgstr ""
+msgstr "Modificare i dettagli per l'incontro di seguito:"
 
 msgid ""
 "Enter the Reason For Encounter here. This is the patient's initial request "
@@ -3134,6 +3161,12 @@ msgstr "o"
 msgid "Group"
 msgstr "Gruppo"
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3143,8 +3176,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr "Un commento su questo laboratorio."
 
-msgid "Lab name"
-msgstr "Nome Laboratorio"
+msgid "Org.Unit"
+msgstr ""
 
 msgid "Contact"
 msgstr "Contatto"
@@ -5562,7 +5595,27 @@ msgstr "Generatore Rapporti"
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -9399,9 +9452,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9430,9 +9480,6 @@ msgstr "laboratorio in studio"
 msgid "Select the type of measurement."
 msgstr "Seleziona il tipo di misurazione."
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9452,6 +9499,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10871,6 +10921,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -11367,10 +11420,10 @@ msgid "Head Office"
 msgstr ""
 
 msgid "Organisation"
-msgstr ""
+msgstr "Organizzazione"
 
 msgid "Employees"
-msgstr ""
+msgstr "Impiegati"
 
 msgid "Category/Email"
 msgstr ""
@@ -11379,28 +11432,28 @@ msgid "Phone"
 msgstr "Telefono"
 
 msgid "Office"
-msgstr ""
+msgstr "Ufficio"
 
 msgid "Zip"
 msgstr ""
 
 msgid "User1"
-msgstr ""
+msgstr "Utente1"
 
 msgid "User2"
-msgstr ""
+msgstr "Utente2"
 
 msgid "User3"
-msgstr ""
+msgstr "Utente3"
 
 msgid "Fax"
-msgstr ""
+msgstr "Fax"
 
 msgid "Email"
 msgstr ""
 
 msgid "Internet"
-msgstr ""
+msgstr "Internet"
 
 msgid "Mobile"
 msgstr ""
@@ -11409,7 +11462,7 @@ msgid "Memo"
 msgstr ""
 
 msgid " Postal Address "
-msgstr ""
+msgstr " Indirizzo Postale "
 
 msgid "occupation"
 msgstr ""
@@ -11452,7 +11505,7 @@ msgid "Add an Organisation"
 msgstr ""
 
 msgid "Save Record"
-msgstr ""
+msgstr "Salva Record"
 
 msgid "Add Branch or Department"
 msgstr "Aggiungi Branca o Dipartimento"
@@ -11895,6 +11948,9 @@ msgstr "Quantità"
 
 msgid "First Date"
 msgstr "Prima Data"
+
+#~ msgid "Lab name"
+#~ msgstr "Nome Laboratorio"
 
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Dott. Hors Herb e Karsten Hilbert"

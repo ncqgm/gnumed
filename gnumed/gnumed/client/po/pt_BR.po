@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
+"POT-Creation-Date: 2011-09-15 13:03+CEST\n"
 "PO-Revision-Date: 2011-01-27 20:44+0000\n"
 "Last-Translator: Rudinei Weschenfelder <rudinei.ti@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -427,7 +427,7 @@ msgid "Procedures performed: %s"
 msgstr "Procedimentos realizados: %s"
 
 msgid "Family History: %s"
-msgstr ""
+msgstr "Histórico Familiar: %s"
 
 msgid "Documents: %s"
 msgstr "Documentos: %s"
@@ -551,7 +551,7 @@ msgstr ""
 "LaTeX."
 
 msgid "Medication history"
-msgstr ""
+msgstr "Histórico de medicações"
 
 msgid ""
 "\n"
@@ -608,6 +608,13 @@ msgstr "Medicamento"
 
 msgid "units"
 msgstr "unidades"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+#, fuzzy
+msgid "Organization: %s (%s)"
+msgstr "Consultas: %s (%s - %s):"
 
 msgid "inhouse lab"
 msgstr "laboratório próprio"
@@ -1103,16 +1110,16 @@ msgid "%d. of %s (last month): a %s"
 msgstr ""
 
 msgid "in %d day(s): %s"
-msgstr ""
+msgstr "em %d dia(s): %s"
 
 msgid "%d day(s) ago: %s"
-msgstr ""
+msgstr "%d dia(s) atrás: %s"
 
 msgid "in %d week(s): %s"
-msgstr ""
+msgstr "em %d semana(s): %s"
 
 msgid "%d week(s) ago: %s"
-msgstr ""
+msgstr "%d semana(s) atrás: %s"
 
 msgid "%s (%s this year)"
 msgstr "%s (%s desse ano)"
@@ -1136,10 +1143,10 @@ msgid "hdwmy (single character date offset triggers)"
 msgstr "hdwmy (single character date offset triggers)"
 
 msgid "in %d hour(s): %s"
-msgstr ""
+msgstr "em %d hora(s): %s"
 
 msgid "%d hour(s) ago: %s"
-msgstr ""
+msgstr "%d hora(s) atrás: %s"
 
 msgid "in %d month(s): %s"
 msgstr ""
@@ -1148,10 +1155,10 @@ msgid "%d month(s) ago: %s"
 msgstr ""
 
 msgid "in %d year(s): %s"
-msgstr ""
+msgstr "em %d ano(s): %s"
 
 msgid "%d year(s) ago: %s"
-msgstr ""
+msgstr "%d ano(s) atrás: %s"
 
 msgid "in %d hour(s) - %s"
 msgstr "em %d hora(s) - %s"
@@ -1637,7 +1644,7 @@ msgid "Fake brand"
 msgstr "Marca falsa"
 
 msgid "&Manage"
-msgstr ""
+msgstr "&Gerenciar"
 
 msgid "Mark as a fake (not really existing) brand."
 msgstr "Marcar como uma marca falsa (não existente realmente)."
@@ -1673,13 +1680,13 @@ msgid "Preparation"
 msgstr ""
 
 msgid "Components"
-msgstr ""
+msgstr "Componentes"
 
 msgid "ATC code"
 msgstr ""
 
 msgid "External code"
-msgstr ""
+msgstr "Código externo"
 
 msgid "Type:"
 msgstr "Tipo:"
@@ -1900,7 +1907,7 @@ msgid "Enter the amount of substance."
 msgstr "Digite a quantidade de substância."
 
 msgid "Amount"
-msgstr ""
+msgstr "Quantidade"
 
 msgid "Unit:"
 msgstr "Unidade:"
@@ -1913,13 +1920,13 @@ msgid "Brands"
 msgstr "Marca"
 
 msgid "... or ..."
-msgstr ""
+msgstr "... ou ..."
 
 msgid "Unbranded substance"
-msgstr ""
+msgstr "Substância sem marca"
 
 msgid "Manage"
-msgstr ""
+msgstr "Gerenciar"
 
 msgid "Approved of"
 msgstr "Aprovado de"
@@ -1975,7 +1982,7 @@ msgid "Whether this substance is taken by advice."
 msgstr ""
 
 msgid "When was intake of this substance discontinued ?"
-msgstr ""
+msgstr "Quando foi descontinuada a ingestão desta substância?"
 
 msgid "Press if discontinuation was as planned."
 msgstr "Pressione se a interrupção foi como o planejado."
@@ -1991,22 +1998,24 @@ msgstr ""
 
 msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
-msgstr ""
+msgstr "Se esta substância é para ser tomada pelo resto da vida do paciente."
 
 msgid "The episode this substance is taken under."
 msgstr ""
 
 msgid "The aim of consuming this substance."
-msgstr ""
+msgstr "O objetivo do consumo desta substância."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
+"Quaisquer anotações clínicas, comentários ou instruções sobre o consumo "
+"dessa substância."
 
 msgid "Started"
 msgstr "Começou"
 
 msgid "Discontinued"
-msgstr ""
+msgstr "Descontinuado"
 
 msgid "Schedule"
 msgstr ""
@@ -2015,7 +2024,7 @@ msgid "Duration"
 msgstr ""
 
 msgid "Aim"
-msgstr ""
+msgstr "Objetivo"
 
 msgid "Inactive"
 msgstr ""
@@ -2030,7 +2039,7 @@ msgid "Info"
 msgstr ""
 
 msgid "Kidney"
-msgstr ""
+msgstr "Rim"
 
 msgid "&Interactions?"
 msgstr ""
@@ -2066,13 +2075,13 @@ msgid ""
 msgstr ""
 
 msgid "Add a substance."
-msgstr ""
+msgstr "Adicionar uma substância."
 
 msgid "Edit the selected substance intake entry."
 msgstr ""
 
 msgid "Remove a substance from the list."
-msgstr ""
+msgstr "Remover uma substância da lista."
 
 msgid "Discontinue selected entry due to an allergy or intolerance."
 msgstr ""
@@ -2101,13 +2110,13 @@ msgid "Report an Adverse Drug Reaction."
 msgstr ""
 
 msgid "Print the medication list."
-msgstr ""
+msgstr "Imprimir a lista de medicações."
 
 msgid "Sort by:"
-msgstr ""
+msgstr "Ordenar por:"
 
 msgid "Include:"
-msgstr ""
+msgstr "Incluir:"
 
 msgid "Run"
 msgstr "Executar"
@@ -2210,7 +2219,7 @@ msgid "String"
 msgstr ""
 
 msgid "Translation"
-msgstr ""
+msgstr "Tradução"
 
 msgid "Language"
 msgstr "Idioma"
@@ -3128,6 +3137,14 @@ msgstr "ou"
 msgid "Group"
 msgstr "Grupo"
 
+#, fuzzy
+msgid "&Manage orgs"
+msgstr "editar alergias"
+
+#, fuzzy
+msgid "Manage all organizations."
+msgstr "Digite ou selecione a profissão"
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3137,8 +3154,9 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr ""
 
-msgid "Lab name"
-msgstr ""
+#, fuzzy
+msgid "Org.Unit"
+msgstr "Unidade:"
 
 msgid "Contact"
 msgstr ""
@@ -5752,8 +5770,29 @@ msgstr "Relatório não retornou dados."
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
 msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+#, fuzzy
+msgid "installing data pack"
+msgstr "Verificando a versão do banco de dados"
 
 msgid "Lacking permissions to install data pack."
 msgstr ""
@@ -9754,9 +9793,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9785,9 +9821,6 @@ msgstr "laboratório próprio"
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9807,6 +9840,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -11239,6 +11275,10 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+#, fuzzy
+msgid "Activate patient"
+msgstr "Paciente ativo"
+
 msgid "message"
 msgstr ""
 
@@ -12577,9 +12617,6 @@ msgstr "Primeira Data"
 
 #~ msgid "create health issue"
 #~ msgstr "criar questão de saúde"
-
-#~ msgid "manage allergies"
-#~ msgstr "editar alergias"
 
 #~ msgid "OOo templates"
 #~ msgstr "Modelos OOo"

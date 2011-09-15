@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 msgid "programmer forgot to specify error message"
-msgstr ""
+msgstr "missatge d'error no especificat pel programador"
 
 msgid ""
 "\n"
@@ -21,19 +21,19 @@ msgid ""
 msgstr ""
 
 msgid "generic error message"
-msgstr ""
+msgstr "missatge d'error genèric"
 
 msgid "programmer forgot to specify info message"
-msgstr ""
+msgstr "el programador no va especificar el missatge d'informació"
 
 msgid "generic info message"
-msgstr ""
+msgstr "missatge d'inforamció genèric"
 
 msgid "programmer forgot to specify warning"
-msgstr ""
+msgstr "el programador no va especificar el missatge d'alerta"
 
 msgid "generic warning message"
-msgstr ""
+msgstr "missatge d'alerta genèric"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -139,7 +139,7 @@ msgid "%s: encounter (%s)"
 msgstr ""
 
 msgid "health issue: %s"
-msgstr ""
+msgstr "Assumpte mèdic:"
 
 msgid "episode     : %s"
 msgstr "episodi : %s"
@@ -162,7 +162,7 @@ msgid ""
 msgstr ""
 
 msgid " %s known problems. Clinically relevant thereof:\n"
-msgstr ""
+msgstr " problemes coneguts. Dels que són rellevants:\n"
 
 msgid " %s known problems\n"
 msgstr " %s problemes coneguts\n"
@@ -174,19 +174,19 @@ msgid "inactive"
 msgstr ""
 
 msgid " %s encounters from %s to %s\n"
-msgstr ""
+msgstr " visites desde %s fins %s\n"
 
 msgid " %s active medications\n"
-msgstr ""
+msgstr " medicació actual\n"
 
 msgid " %s documents\n"
 msgstr " %s documents\n"
 
 msgid " %s test results\n"
-msgstr ""
+msgstr " resultats de la prova\n"
 
 msgid " %s hospital stays\n"
-msgstr ""
+msgstr " estades hospitalàries\n"
 
 msgid ""
 " %s performed procedures\n"
@@ -200,7 +200,7 @@ msgstr ""
 "\n"
 
 msgid " (last confirmed %s)"
-msgstr ""
+msgstr " (confirmat per última vegada )"
 
 msgid "unknown reaction"
 msgstr "reacció desconeguda"
@@ -213,7 +213,7 @@ msgid "Occupations"
 msgstr "Opcions"
 
 msgid "Vaccinations"
-msgstr ""
+msgstr "Vacunacions"
 
 msgid "allergies/intolerances"
 msgstr "al·lèrgies/intoleràncies"
@@ -251,49 +251,49 @@ msgid " Type: %s"
 msgstr ""
 
 msgid "Battery:"
-msgstr ""
+msgstr "Bateria:"
 
 msgid "Device(%s):"
-msgstr ""
+msgstr "Dispostiu:"
 
 msgid "Implanted:"
-msgstr ""
+msgstr "Implantat"
 
 msgid "Impedance:"
-msgstr ""
+msgstr "Impedància"
 
 msgid "Sensing:"
 msgstr ""
 
 msgid "Threshold"
-msgstr ""
+msgstr "Llindar"
 
 msgid "last check:"
-msgstr ""
+msgstr "última comprovació:"
 
 msgid "part"
 msgstr "part"
 
 msgid "A: Sign"
-msgstr ""
+msgstr "A: Signes"
 
 msgid "B: Cluster of signs"
-msgstr ""
+msgstr "B: Agrupació de signes"
 
 msgid "C: Syndromic diagnosis"
-msgstr ""
+msgstr "C: Diagnosis sindròmica"
 
 msgid "D: Scientific diagnosis"
-msgstr ""
+msgstr "D: Diagnosi científica"
 
 msgid "<%s>: unknown diagnostic certainty classification"
 msgstr ""
 
 msgid "bilateral"
-msgstr ""
+msgstr "bilateral"
 
 msgid "left"
-msgstr ""
+msgstr "esquerre"
 
 msgid "right"
 msgstr "dreta"
@@ -302,7 +302,7 @@ msgid "Clinical data generated during encounters under this health issue:"
 msgstr ""
 
 msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr ""
+msgstr "Assumpte Mèdic %s%s%s%s [#%s]"
 
 msgid " ***** CONFIDENTIAL *****"
 msgstr " ***** CONFIDENCIAL *****"
@@ -311,7 +311,7 @@ msgid " contributed to death of patient"
 msgstr " contribuí a la mort del pacient"
 
 msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr ""
+msgstr " Creat durant la visita:"
 
 msgid " Noted at age: %s"
 msgstr ""
@@ -326,10 +326,10 @@ msgid "clinically relevant"
 msgstr "clinicament rellevant"
 
 msgid "Error retrieving episodes for this health issue."
-msgstr ""
+msgstr "Error recuperant episodis per aquest assumpte mèdic."
 
 msgid "There are no episodes for this health issue."
-msgstr ""
+msgstr "No hi ha episodis per aquest assumpte mèdic."
 
 msgid "Episodes: %s (most recent: %s%s%s)"
 msgstr ""
@@ -341,19 +341,19 @@ msgid "ongoing"
 msgstr "en curs"
 
 msgid "No encounters found for this health issue."
-msgstr ""
+msgstr "No s'han trobat visites per aquest assumpte mèdic"
 
 msgid "Encounters: %s (%s - %s):"
-msgstr ""
+msgstr "Visites: %s (%s - %s):"
 
 msgid " Most recent: %s - %s"
 msgstr " Més recent: %s - %s"
 
 msgid "Active medications: %s"
-msgstr ""
+msgstr "Medicació actual:"
 
 msgid "Hospital stays: %s"
-msgstr ""
+msgstr "Estades hospitalàries"
 
 msgid "Procedures performed: %s"
 msgstr ""
@@ -365,14 +365,14 @@ msgid "Documents: %s"
 msgstr "Documents: %s"
 
 msgid "Measurements and Results: %s"
-msgstr ""
+msgstr "Medicions i Resultats:"
 
 #, fuzzy
 msgid "Vaccinations:"
 msgstr "Vacunació"
 
 msgid "Unattributed episodes"
-msgstr ""
+msgstr "Episodis no atribuïts"
 
 #, fuzzy
 msgid "Clinical data generated during encounters within this episode:"
@@ -390,10 +390,10 @@ msgid " Duration: %s (%s - %s)"
 msgstr "Pacient:  , No:\n"
 
 msgid "finished"
-msgstr ""
+msgstr "finalitzat"
 
 msgid "Error retrieving encounters for this episode."
-msgstr ""
+msgstr "Error recuperant visities d'aquest episodi."
 
 msgid "There are no encounters for this episode."
 msgstr "No hi ha entrades per aquest episodi"
@@ -420,7 +420,7 @@ msgid "Progress notes in most recent encounter:"
 msgstr ""
 
 msgid "Measurements and Results:"
-msgstr ""
+msgstr "Medicions i Resultats:"
 
 msgid "Problem"
 msgstr ""
@@ -451,7 +451,7 @@ msgid "error with placeholder [%s]"
 msgstr ""
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
-msgstr ""
+msgstr "Error executant pdflatex. No pot transformar la plantilla LaTex en PDF"
 
 msgid "Sandboxed PDF output file cannot be moved."
 msgstr ""
@@ -489,23 +489,23 @@ msgid "data"
 msgstr ""
 
 msgid "long-term"
-msgstr ""
+msgstr "llarg-termini"
 
 msgid "short-term"
-msgstr ""
+msgstr "curt-termini"
 
 msgid "?short-term"
-msgstr ""
+msgstr "?curt-termini"
 
 msgid "?ongoing"
-msgstr ""
+msgstr "?encurs"
 
 #, fuzzy
 msgid "Additional notes"
 msgstr "Annotacions clíniques"
 
 msgid "Substance"
-msgstr ""
+msgstr "Substància"
 
 msgid "Advice"
 msgstr ""
@@ -523,16 +523,22 @@ msgid "ordered by brand"
 msgstr ""
 
 msgid "Regimen"
-msgstr ""
+msgstr "Règim"
 
 msgid "Drug"
 msgstr ""
 
 msgid "units"
+msgstr "unitats"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
 msgstr ""
 
 msgid "inhouse lab"
-msgstr ""
+msgstr "laboratori intern"
 
 msgid "auto-generated"
 msgstr ""
@@ -544,10 +550,10 @@ msgid "   MTA: %s"
 msgstr ""
 
 msgid "abnormal and relevant"
-msgstr ""
+msgstr "anormal i rellevant"
 
 msgid "normal but relevant"
-msgstr ""
+msgstr "normal però rellevant"
 
 msgid "   unreviewed"
 msgstr ""
@@ -576,7 +582,7 @@ msgstr ""
 "La petició de laboratori ja existeix però pertany a un pacient diferent"
 
 msgid "Verify which patient this lab request really belongs to."
-msgstr ""
+msgstr "Verifica a quin pacient pertany realment aquesta petició de laboratori"
 
 msgid ""
 "lab [%s], request ID [%s], expected link with patient [%s], currently linked "
@@ -584,13 +590,13 @@ msgid ""
 msgstr ""
 
 msgid "need lab request when inserting lab result"
-msgstr ""
+msgstr "necessita la petició de laboratori quan s'hi incerti els resultats"
 
 msgid "error retrieving unreviewed lab results"
-msgstr ""
+msgstr "error recuperant els resultats de laboratori no revisats"
 
 msgid "external patient source (name, gender, date of birth)"
-msgstr ""
+msgstr "font externa al pacient (nom, gènere i data naixença)"
 
 msgid "<name> cannot be empty"
 msgstr ""
@@ -650,7 +656,7 @@ msgid "last name"
 msgstr "Cognom"
 
 msgid "any name part"
-msgstr ""
+msgstr "qualsevol part del nom"
 
 msgid "name: first-last"
 msgstr "nom: nom-cognom"
@@ -668,7 +674,7 @@ msgid "names: last-first, date of birth"
 msgstr "noms: cognom-nom, data de naixença"
 
 msgid "names: last-first, dob"
-msgstr ""
+msgstr "nom: cognoms-nom, DN"
 
 msgid "name, date of birth"
 msgstr "nom, data de naixença"
@@ -689,7 +695,7 @@ msgid "full name"
 msgstr "Nom complet"
 
 msgid "vaccine"
-msgstr ""
+msgstr "vacuna"
 
 #, fuzzy
 msgid "unknown vaccinations output format [%s]"
@@ -713,7 +719,7 @@ msgid "Last given"
 msgstr "Cognom"
 
 msgid "Vaccine"
-msgstr ""
+msgstr "Vacuna"
 
 msgid "Lot \\#"
 msgstr ""
@@ -742,10 +748,10 @@ msgid "Comment"
 msgstr "Comentari"
 
 msgid "internal error, check log"
-msgstr ""
+msgstr "error intern, comprova el registre"
 
 msgid "consistency error, check log"
-msgstr ""
+msgstr "error de consistència, comprova el registre"
 
 msgid "ERROR: list of vaccinations not supplied"
 msgstr "ERROR: no s'ha documentat el llistat de vacunes"
@@ -813,7 +819,7 @@ msgid "Connect to GNUmed"
 msgstr "Connectat a GNUmed"
 
 msgid "Proceed and try to connect to the newly started GNUmed client."
-msgstr ""
+msgstr "Continua i prova de connectar al nou client de GNUmed que s'ha iniciat"
 
 msgid "Abort"
 msgstr "Interromp"
@@ -842,7 +848,7 @@ msgstr "Laboratori"
 msgid ""
 "Error retrieving encounters for episode\n"
 "%s"
-msgstr ""
+msgstr "Error recuperant les visites per l'episodi"
 
 msgid ""
 "%sEpisode \"%s\" [%s]\n"
@@ -866,7 +872,7 @@ msgid "Administrative"
 msgstr "Administratiu"
 
 msgid "Encounter"
-msgstr ""
+msgstr "Visita"
 
 msgid ""
 "An error occurred while retrieving a text\n"
@@ -920,7 +926,7 @@ msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
 msgid "** DOB unknown **"
-msgstr ""
+msgstr "** Data de Naixença desconeguda **"
 
 msgid "interval_format_tag::years::y"
 msgstr ""
@@ -935,40 +941,40 @@ msgid "interval_format_tag::days::d"
 msgstr ""
 
 msgid "y::year_abbreviation"
-msgstr ""
+msgstr "y::abreviatura_any"
 
 msgid "m::month_abbreviation"
-msgstr ""
+msgstr "m::abreviatura_mes"
 
 msgid "mo::month_only_abbreviation"
-msgstr ""
+msgstr "mo::abreviatura_només_mes"
 
 msgid "w::week_abbreviation"
-msgstr ""
+msgstr "w::abreviatura_setmana"
 
 msgid "d::day_abbreviation"
-msgstr ""
+msgstr "d::abreviatura_dia"
 
 msgid "h::hour_abbreviation"
-msgstr ""
+msgstr "h::abreviatura_hora"
 
 msgid "s::second_abbreviation"
-msgstr ""
+msgstr "s::abreviatura_segons"
 
 msgid "yYaA_keys_year"
-msgstr ""
+msgstr "yYaA_claus_any"
 
 msgid "mM_keys_month"
-msgstr ""
+msgstr "mM_claus_mes"
 
 msgid "wW_keys_week"
-msgstr ""
+msgstr "wW_claus_setmana"
 
 msgid "dD_keys_day"
-msgstr ""
+msgstr "dD_claus_dia"
 
 msgid "hH_keys_hour"
-msgstr ""
+msgstr "hH_claus_hora"
 
 msgid "ndmy (single character date triggers)"
 msgstr ""
@@ -977,7 +983,7 @@ msgid "right now (%s, %s)"
 msgstr ""
 
 msgid "today (%s)"
-msgstr ""
+msgstr "avui"
 
 msgid "tomorrow (%s)"
 msgstr "demà"
@@ -1028,10 +1034,10 @@ msgid "%s this week (%s of %s)"
 msgstr ""
 
 msgid "%s next week (%s of %s)"
-msgstr ""
+msgstr "%s la setmana que ve (%s of %s)"
 
 msgid "%s last week (%s of %s)"
-msgstr ""
+msgstr "%s la setmana passada (%s of %s)"
 
 msgid "hdwmy (single character date offset triggers)"
 msgstr ""
@@ -1143,6 +1149,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"No hi ha informació de la versió disponible desde:\n"
+"\n"
+"%s"
 
 msgid ""
 "A new version of GNUmed is available.\n"
@@ -1152,10 +1161,10 @@ msgstr ""
 "\n"
 
 msgid " Your current version: \"%s\"\n"
-msgstr ""
+msgstr " La teva versió actual: \"%s\"\n"
 
 msgid " New version: \"%s\""
-msgstr ""
+msgstr " Nova versió: \"%s\""
 
 msgid " - bug fixes only\n"
 msgstr ""
@@ -1182,6 +1191,9 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"Informació de la versió carregada desde:\n"
+"\n"
+" %s"
 
 msgid ""
 "Cannot connect to configuration database with:\n"
@@ -1196,10 +1208,10 @@ msgid ""
 msgstr ""
 
 msgid "SQL: %s"
-msgstr ""
+msgstr "SQL: %s"
 
 msgid "cannot connect to service [%s]"
-msgstr ""
+msgstr "no es pot connectar al servei [%s]"
 
 msgid "Cannot connect to database without login information!"
 msgstr "No es pot connectar a la base de dades sense registre"
@@ -1211,10 +1223,10 @@ msgid "Can't connect to database without login information!"
 msgstr "No es pot connectar a la base de dades sense registre"
 
 msgid " option [%s]: %s"
-msgstr ""
+msgstr " opció [%s]: %s"
 
 msgid "  risk: %s"
-msgstr ""
+msgstr "  risc: %s"
 
 msgid "1 Byte"
 msgstr "1 Byte"
@@ -1251,10 +1263,10 @@ msgid "Enlist"
 msgstr ""
 
 msgid "Cancel"
-msgstr ""
+msgstr "Cancel·la"
 
 msgid "Enlist person as GNUmed user"
-msgstr ""
+msgstr "Ennlista la persona com a usuari/a de GNUmed"
 
 msgid ""
 "A short alias identifying the GNUmed user. It is used in the clinical record "
@@ -1294,7 +1306,7 @@ msgid ""
 msgstr ""
 
 msgid "Cancel this dialog, do not enlist new GNUmed user."
-msgstr ""
+msgstr "Cancel·la-ho, no allistis un nou usuari de GNUmed"
 
 msgid "The currently selected patient is:"
 msgstr "L'actual pacient seleccionat és:"
@@ -1309,7 +1321,7 @@ msgid "Account"
 msgstr "Compte"
 
 msgid "Password"
-msgstr ""
+msgstr "Contrasenya"
 
 msgid "Password, again"
 msgstr "Contrasenya, altre cop"
@@ -1318,7 +1330,7 @@ msgid "Admin password"
 msgstr "Contrasenya de l'administrador"
 
 msgid "Edit Allergy/Intolerance"
-msgstr ""
+msgstr "Edita Al·lèrgies/Intoleràncies"
 
 msgid "Save the allergy/intolerance in the database."
 msgstr "Guardi les al·lèrgies/intoleràncies a la base de dades."
@@ -1327,13 +1339,13 @@ msgid "Clear all fields or reset to database values."
 msgstr "Esborri tots els camps o restableixi als valors de la base de dades."
 
 msgid "Cancel editing the allergy/intolerance."
-msgstr ""
+msgstr "Cancel·la l'edició de les al·lèrgies/intoleràncies"
 
 msgid "&Tolerates others in class"
 msgstr ""
 
 msgid "&Allergy"
-msgstr ""
+msgstr "&Al·lèrgia"
 
 msgid "&Sensitivity"
 msgstr ""
@@ -1391,7 +1403,7 @@ msgid "Trigger"
 msgstr ""
 
 msgid "Brand Name"
-msgstr ""
+msgstr "Nom comercial"
 
 msgid "Generics"
 msgstr "Genèrics"
@@ -1403,7 +1415,7 @@ msgid "Reaction Type"
 msgstr "Tipus de reacció"
 
 msgid "Allergy details"
-msgstr ""
+msgstr "Detalls de l'al·lèrgia"
 
 msgid "Allergy state"
 msgstr ""
@@ -1418,10 +1430,10 @@ msgid "Unknown"
 msgstr "Es desconeix"
 
 msgid "No known allergies"
-msgstr ""
+msgstr "Al·lèrgies no conegudes"
 
 msgid "Has allergies"
-msgstr ""
+msgstr "Té al·lèrgies"
 
 msgid "&Update / Con&firm"
 msgstr ""
@@ -1441,7 +1453,7 @@ msgid ""
 msgstr ""
 
 msgid "Select this if the patient has no known allergies."
-msgstr ""
+msgstr "Selecciona-ho si el pacient no té al·lèrgies"
 
 msgid "Select this if the patient has known allergies."
 msgstr ""
@@ -1471,16 +1483,16 @@ msgid "Delete the allergy selected in the list from the database."
 msgstr "Suprimeix aquesta al·lèrgia de la llista de la base de dades"
 
 msgid "Currently:"
-msgstr ""
+msgstr "Actualment:"
 
 msgid "Last confirmed:"
-msgstr ""
+msgstr "Confirmat per última:"
 
 msgid "Set to:"
 msgstr ""
 
 msgid "Comment:"
-msgstr ""
+msgstr "Comentaris:"
 
 msgid "Fake brand"
 msgstr ""
@@ -2886,6 +2898,12 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -2895,7 +2913,7 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr ""
 
-msgid "Lab name"
+msgid "Org.Unit"
 msgstr ""
 
 msgid "Contact"
@@ -5259,7 +5277,27 @@ msgstr ""
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -6822,7 +6860,7 @@ msgid "Significant"
 msgstr ""
 
 msgid "Ok"
-msgstr ""
+msgstr "D'acord"
 
 msgid "Missing GNUmed module"
 msgstr ""
@@ -9020,9 +9058,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9050,9 +9085,6 @@ msgstr ""
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9072,6 +9104,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10471,6 +10506,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -11409,13 +11447,13 @@ msgid "Save All Items no print"
 msgstr ""
 
 msgid "Change Font"
-msgstr ""
+msgstr "Canvia el tipus de lletra"
 
 msgid "Save list layout"
 msgstr ""
 
 msgid "Help"
-msgstr ""
+msgstr "Ajuda"
 
 msgid "Exit"
 msgstr ""

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -30,6 +30,9 @@ msgid ""
 "\n"
 "Please consult the error log for all the gory details !"
 msgstr ""
+"\n"
+"\n"
+"Veuillez consulter le journal d'erreurs pour de plus amples informations !"
 
 msgid "generic error message"
 msgstr "Message d'erreur générique"
@@ -138,10 +141,10 @@ msgid "ERROR: unknown allergy state [%s]"
 msgstr "ERREUR: état des allergies inconnu [%s]"
 
 msgid "Cannot run [arriba] !"
-msgstr ""
+msgstr "Impossible d'exécuter [arriba] !"
 
 msgid "No [arriba] result found in [%s]."
-msgstr ""
+msgstr "Pas de résultat [arriba] trouvé dans [%s]."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -429,7 +432,7 @@ msgid "Procedures performed: %s"
 msgstr "Procédures effectuées: %s"
 
 msgid "Family History: %s"
-msgstr ""
+msgstr "Antécédants familiaux"
 
 msgid "Documents: %s"
 msgstr "Documents: %s"
@@ -494,10 +497,10 @@ msgid "Measurements and Results:"
 msgstr "Mesures et résultats:"
 
 msgid "Problem"
-msgstr ""
+msgstr "Problème"
 
 msgid "Health issue"
-msgstr ""
+msgstr "épisode de santé"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  votre temps: %s - %s (@%s = %s%s)\n"
@@ -509,10 +512,10 @@ msgid "Documents:"
 msgstr "Documents:"
 
 msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
+msgstr "%s autres épisodes mentionnés pendant cette rencontre :"
 
 msgid " (ongoing)"
-msgstr ""
+msgstr " (en cours)"
 
 msgid "Episode"
 msgstr "Épisode"
@@ -526,7 +529,7 @@ msgstr ""
 "PDF."
 
 msgid "Sandboxed PDF output file cannot be moved."
-msgstr ""
+msgstr "Le fichier PDF ne peut pas être déplacé."
 
 msgid "PDF output file cannot be opened."
 msgstr "Le fichier PDF généré ne peut pas être ouvert."
@@ -553,15 +556,17 @@ msgstr ""
 "PDF."
 
 msgid "Medication history"
-msgstr ""
+msgstr "Historique des traitements"
 
 msgid ""
 "\n"
 " Take: %s"
 msgstr ""
+"\n"
+" Prendre : %s"
 
 msgid "Take: %s"
-msgstr ""
+msgstr "Prenez : %s"
 
 msgid "copy"
 msgstr ""
@@ -579,7 +584,7 @@ msgid "?short-term"
 msgstr "?long-terme"
 
 msgid "?ongoing"
-msgstr ""
+msgstr "?encours"
 
 msgid "Additional notes"
 msgstr "Notes additionnelles"
@@ -600,16 +605,22 @@ msgid "Medication list"
 msgstr "Liste de la médication"
 
 msgid "ordered by brand"
-msgstr ""
+msgstr "classé par nom commercial"
 
 msgid "Regimen"
-msgstr ""
+msgstr "Régime"
 
 msgid "Drug"
 msgstr "Molécule"
 
 msgid "units"
 msgstr "unités"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
 
 msgid "inhouse lab"
 msgstr "Laboratoire interne"
@@ -648,6 +659,8 @@ msgid ""
 "blank line inserted to allow for discontinued line drawing for same-day "
 "values"
 msgstr ""
+"ligne vide ajoutée pour permettre l'affichage de lignes discontinues dans "
+"les valeurs d'une même journée"
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr ""
@@ -733,7 +746,7 @@ msgid "last name"
 msgstr "Nom de Famille"
 
 msgid "any name part"
-msgstr ""
+msgstr "n'importe quelle partie du nom"
 
 msgid "name: first-last"
 msgstr "nom : prénom-nom"
@@ -790,7 +803,7 @@ msgid "Target"
 msgstr "Cible"
 
 msgid "Last given"
-msgstr ""
+msgstr "Dernier spécifié"
 
 msgid "Vaccine"
 msgstr "Vaccination"
@@ -806,6 +819,9 @@ msgid ""
 "\"lan: this vaccination was administered in the practice or copied from "
 "trustworthy records."
 msgstr ""
+"\"A\"ction : cette vaccination a été rappelée par le patient.\" \"R"
+"\"éaction : cette vaccination a été effectuée au cours de la consultation ou "
+"renouvelée à partir de recommandations dignes de confiance."
 
 msgid ""
 "Total number of vaccinations recorded for the corresponding target condition."
@@ -887,6 +903,14 @@ msgid ""
 "with the login procedure. Once GNUmed has started\n"
 "up successfully switch back to this window.\n"
 msgstr ""
+"Un nouveau client GNUmed a été démarré car aucun autre\n"
+"client en cours d'exécution n'a été trouvé. Vous devez\n"
+"maintenant entrer votre nom d'utilisateur dans\n"
+"la fenêtre d'authentification comme d'habitude.\n"
+"\n"
+"Basculez vers la fenêtre d'authentification de GNUmed\n"
+"et authentifiez-vous. Une fois le client démarré,\n"
+"revenez à cette fenêtre.\n"
 
 msgid "Connect to GNUmed"
 msgstr "Se connecter à GNUmed"
@@ -1008,6 +1032,8 @@ msgstr "résultat de test inconnu [%s]"
 
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
+"[%s:%s] : échec de la mise à jour de la ligne (aucun retour). Ligne en cours "
+"d'utilisation ?"
 
 msgid "** DOB unknown **"
 msgstr "** DATE DE NAISSANCE inconnue **"
@@ -1076,34 +1102,34 @@ msgid "yesterday (%s)"
 msgstr "hier (%s)"
 
 msgid "%s-%s-%s: a %s last month"
-msgstr ""
+msgstr "%s-%s-%s : un %s le mois dernier"
 
 msgid "%s-%s-%s: a %s this month"
-msgstr ""
+msgstr "%s-%s-%s : un %s ce mois-ci"
 
 msgid "%s-%s-%s: a %s next month"
-msgstr ""
+msgstr "%s-%s-%s : un %s le mois prochain"
 
 msgid "%d. of %s (this month): a %s"
-msgstr ""
+msgstr "%d. de %s (ce mois-ci): un %s"
 
 msgid "%d. of %s (next month): a %s"
-msgstr ""
+msgstr "%d. de %s (le mois prochain): un %s"
 
 msgid "%d. of %s (last month): a %s"
-msgstr ""
+msgstr "%d. de %s (de mois dernier): un %s"
 
 msgid "in %d day(s): %s"
-msgstr ""
+msgstr "dans %d jour(s) : %s"
 
 msgid "%d day(s) ago: %s"
-msgstr ""
+msgstr "il y a %d jour(s) : %s"
 
 msgid "in %d week(s): %s"
-msgstr ""
+msgstr "dans %d semaine(s) :%s"
 
 msgid "%d week(s) ago: %s"
-msgstr ""
+msgstr "il y a %d semaine(s) : %s"
 
 msgid "%s (%s this year)"
 msgstr "%s (%s cette année)"
@@ -1127,22 +1153,22 @@ msgid "hdwmy (single character date offset triggers)"
 msgstr "hjsma"
 
 msgid "in %d hour(s): %s"
-msgstr ""
+msgstr "dans %d heure(s) : %s"
 
 msgid "%d hour(s) ago: %s"
-msgstr ""
+msgstr "il y a %d heure(s) : %s"
 
 msgid "in %d month(s): %s"
-msgstr ""
+msgstr "dans %d mois : %s"
 
 msgid "%d month(s) ago: %s"
-msgstr ""
+msgstr "il y a %d mois : %s"
 
 msgid "in %d year(s): %s"
-msgstr ""
+msgstr "dans %d an(s) : %s"
 
 msgid "%d year(s) ago: %s"
-msgstr ""
+msgstr "il y a %d an(s) : %s"
 
 msgid "in %d hour(s) - %s"
 msgstr "dans %d heure(s) - %s"
@@ -1200,7 +1226,7 @@ msgstr ""
 "\"600\"): [%s]"
 
 msgid "Error running hook [%s] script."
-msgstr ""
+msgstr "Erreur de lancement du script [%s]."
 
 msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Traduire ceci ou l'intertionalisation ne fonctionnera proprement!"
@@ -1467,7 +1493,7 @@ msgid "Cancel editing the allergy/intolerance."
 msgstr "Annuler l'édition de l'allergie/intolérance."
 
 msgid "&Tolerates others in class"
-msgstr ""
+msgstr "&Tolère d'autres dans la classe"
 
 msgid "&Allergy"
 msgstr "&Allergie"
@@ -1512,7 +1538,7 @@ msgstr ""
 "et non à toute la classe de médicaments."
 
 msgid "Displays drug classe(s) along with their ATC code."
-msgstr ""
+msgstr "Affiche les classes thérapeutiques avec leur code ATC."
 
 msgid ""
 "Document signs and symptoms. If reaction is to a drug also document time of "
@@ -1532,6 +1558,8 @@ msgid ""
 "Check this if this allergy/intolerance is known to exist for sure as opposed "
 "to suspected."
 msgstr ""
+"Cochez cette case si l'allergie/intolérance est avérée (par opposition à "
+"suspectée)."
 
 msgid "Date Noted"
 msgstr "Date noté"
@@ -1561,7 +1589,7 @@ msgid "<current allergy state>"
 msgstr "<état des allergies>"
 
 msgid "<last confirmed>"
-msgstr ""
+msgstr "<dernier confirmé>"
 
 msgid "Unknown"
 msgstr "Inconnu"
@@ -1637,22 +1665,22 @@ msgid "Last confirmed:"
 msgstr "Dernier confirmé:"
 
 msgid "Set to:"
-msgstr ""
+msgstr "commence à :"
 
 msgid "Comment:"
 msgstr "Commentaires"
 
 msgid "Fake brand"
-msgstr ""
+msgstr "Nom commercial factice"
 
 msgid "&Manage"
-msgstr ""
+msgstr "&Gérer"
 
 msgid "Mark as a fake (not really existing) brand."
-msgstr ""
+msgstr "Marquer le nom commercial comme factice (n'existe pas réellement)."
 
 msgid "Manage the components of this drug."
-msgstr ""
+msgstr "Gérer les composants du médicament."
 
 msgid ""
 "An external code for this drug.\n"
@@ -1664,9 +1692,16 @@ msgid ""
 "from display and making it available when passing this drug to external "
 "applications."
 msgstr ""
+"Un code externe pour ce médicament.\n"
+"\n"
+"Dans la plupart des cas, ou bien un identifiant national du médicament ou "
+"bien sa référence dans une base de données externe.\n"
+"\n"
+"Dans tous les cas, GNUmed ne fera jamais rien d'autre que d'afficher ce code "
+"et de permettre son utilisation dans des applications externes."
 
 msgid "The type of the external code of this drug, if any."
-msgstr ""
+msgstr "Le type du code externe de ce médicament, s'il existe."
 
 msgid "Brand name"
 msgstr "Nom commun"
@@ -1678,13 +1713,13 @@ msgid "Components"
 msgstr "Composants"
 
 msgid "ATC code"
-msgstr ""
+msgstr "Code ATC"
 
 msgid "External code"
 msgstr "Code externe"
 
 msgid "Type:"
-msgstr ""
+msgstr "Type :"
 
 msgid "Previous Encounters"
 msgstr "Rencontres précédentes"
@@ -1839,12 +1874,22 @@ msgid ""
 "\n"
 "Also known as the Reason For Encounter/Visit (RFE)."
 msgstr ""
+"Ceci précise pourquoi la consultation a lieu.\n"
+"\n"
+"Cela peut être lié à une demande du patient ou à toute autre raison. Souvent "
+"notée à l'accueil et reportée dans un commentaire sur la liste d'attente. "
+"Peut parfois se résumer à un acte de présence.\n"
+"\n"
+"Connu aussi sous la dénomination Motif De Consultation/Visite (MDC)."
 
 msgid ""
 "This summarizes the outcome/assessment of the consultation from the doctors "
 "point of view. Note that this summary spans all the problems discussed "
 "during this encounter."
 msgstr ""
+"Ceci récapitule les résultats de la consultation du point de vue médecin. À "
+"noter que ce résumé énumère tous les problèmes abordés lors de la "
+"consultation."
 
 msgid "Save encounter details and all progress notes."
 msgstr "Sauvegarder les détails de la rencontre et les notes en progession."
@@ -1861,6 +1906,10 @@ msgid ""
 "There is a configuration item on whether to allow several new-episode "
 "editors at once."
 msgstr ""
+"Ajouter une nouvelle note.\n"
+"\n"
+"Il existe une option de configuration pour permettre plusieurs ajouts "
+"simuttanés."
 
 msgid "Clear the editor for the displayed progress note."
 msgstr "Effaçer les notes de progression affichées"
@@ -1959,7 +2008,7 @@ msgid "Unbranded substance"
 msgstr "Ajouter une substance."
 
 msgid "Manage"
-msgstr ""
+msgstr "Gérer"
 
 msgid "Approved of"
 msgstr "Approuvé"
@@ -2005,7 +2054,7 @@ msgid ""
 msgstr ""
 
 msgid "The preparation or form of the substance."
-msgstr ""
+msgstr "Préparation ou forme pharmaceutique de la substance."
 
 msgid "When was this substance started to be consumed."
 msgstr "Quand cette substance a commencée à être consommée."
@@ -2014,7 +2063,7 @@ msgid "Whether this substance is taken by advice."
 msgstr "Si cette substance est prise par avis"
 
 msgid "When was intake of this substance discontinued ?"
-msgstr ""
+msgstr "Quand la prise de ce traitement a été arrêtée ?"
 
 msgid "Press if discontinuation was as planned."
 msgstr "Appuyez si la cessation a été planifiée comme prévue."
@@ -2026,20 +2075,22 @@ msgid "The schedule for taking this substance."
 msgstr ""
 
 msgid "How long is this substance supposed to be taken."
-msgstr ""
+msgstr "Durée recommandée d'utilisation"
 
 msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
-msgstr ""
+msgstr "Si ce traitement doit être pris à vie ou pas."
 
 msgid "The episode this substance is taken under."
 msgstr "Période pendant laquelle cette substance est consommée."
 
 msgid "The aim of consuming this substance."
-msgstr ""
+msgstr "Le but du traitement."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
+"Toute information clinique, commentaire ou instruction pour la prise de ce "
+"traitement."
 
 msgid "Started"
 msgstr "Démarré"
@@ -2096,23 +2147,28 @@ msgid ""
 "Whether to show inactive substances, too, or only those which are assumed to "
 "currently be active."
 msgstr ""
+"Montrer également les substances inactives, ou bien uniquement les "
+"substances considérées actives à ce jour."
 
 msgid ""
 "Whether to show all substances or only those the intake of which is approved "
 "of."
 msgstr ""
+"Montrer toutes les substances, ou bien uniquement celles dont la prise est "
+"approuvée."
 
 msgid "Add a substance."
 msgstr "Ajouter une substance."
 
 msgid "Edit the selected substance intake entry."
-msgstr ""
+msgstr "Modifier la prise du traitement sélectionné."
 
 msgid "Remove a substance from the list."
 msgstr "Enlever une substance de la liste"
 
 msgid "Discontinue selected entry due to an allergy or intolerance."
 msgstr ""
+"Arrêter le traitement sélectionné pour cause d'allergie ou d'intolérance."
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
@@ -2138,12 +2194,16 @@ msgid ""
 "- the selected lines\n"
 "- a copy of the most recent prescription"
 msgstr ""
+"Écrire l'ordonnance sur la base :\n"
+"\n"
+"- des lignes sélectionnées\n"
+"- de la dernière ordonnance délivrée"
 
 msgid "Report an Adverse Drug Reaction."
 msgstr "Signaler un effet indésirable."
 
 msgid "Print the medication list."
-msgstr ""
+msgstr "Imprimer la liste des médicaments."
 
 msgid "Sort by:"
 msgstr "Trier par:"
@@ -2176,6 +2236,8 @@ msgid ""
 "If you want to save this query into the database for later use you must "
 "provide a descriptive label for it here."
 msgstr ""
+"Si vous voulez réutiliser cette requête plus tard, donnez-en un label "
+"descriptif ici"
 
 msgid ""
 "Enter the SQL commands to run here. It doesn't matter whether or not you "
@@ -2187,6 +2249,14 @@ msgid ""
 "- you can include a column named \"pk_patient\" to make the result rows "
 "activate the corresponding patient on double-clicking"
 msgstr ""
+"Entrez la commande SQL a lancer ici. Ça ne change rien que vous mettiez ou "
+"non la ponctuation \";\".\n"
+"\n"
+"À noter que :\n"
+"- la requête se déroule sur une transaction en lecture seule\n"
+"- la liste des résultates sera limitée aux 1000 premieres lignes\n"
+"- vous pouvez inclure un nom de colonne \"pk_patient\" pour lier les lignes "
+"de résultats au patient correspondant par double-clic."
 
 msgid "Run the query and present the results below."
 msgstr "Exécuter la requête et afficher les résultats ci-dessous"
@@ -2199,10 +2269,10 @@ msgid "Clear all fields."
 msgstr "Effacer tous les champs"
 
 msgid "Save the report definition."
-msgstr ""
+msgstr "Enregistrer la définition du rapport."
 
 msgid "Delete this report definition."
-msgstr ""
+msgstr "Supprimer cette définition de rapport."
 
 msgid ""
 "Contribute this report definition to the GNUmed community. The report name "
@@ -2213,9 +2283,17 @@ msgid ""
 "You may want to be careful about the SQL itself as it just might contain "
 "bits of sensitive data in, say, the WHERE conditions."
 msgstr ""
+"Faire partager ce rapport à la communauté GNUmed. Le nom du rapport et la "
+"requète SQL seront envoyées sur la liste de diffusion.\n"
+"\n"
+"Les données du patient ne risquent PAS d'être diffusées.\n"
+"\n"
+"Vous devriez être attentif à la requète SQL elle-même, car elle peut "
+"contenir quelques informations sensibles, par exemple dans les conditions "
+"WHERE."
 
 msgid "Show the database schema definition in your web browser."
-msgstr ""
+msgstr "Montrer le shéma de base de donnée dans votre navigateur internet."
 
 msgid "Report"
 msgstr "Rapport"
@@ -2231,6 +2309,8 @@ msgstr ""
 
 msgid "Original string as found in the database. Usually in English."
 msgstr ""
+"Texte originel tel que trouvé dans la base de donnée. Généralement en "
+"anglais."
 
 msgid "Enter your translation here."
 msgstr ""
@@ -2242,13 +2322,13 @@ msgid ""
 msgstr ""
 
 msgid "String"
-msgstr ""
+msgstr "Chaîne de caractères"
 
 msgid "Translation"
-msgstr ""
+msgstr "Traduction"
 
 msgid "Language"
-msgstr ""
+msgstr "Langue"
 
 msgid ""
 "The numeric amount of substance per dose in brand.\n"
@@ -2258,9 +2338,16 @@ msgid ""
 "- 10mg/ampulla: amount = 10, unit = mg(/ampulla)\n"
 "- 5mg/ml solution: amount = 5, unit = mg/ml"
 msgstr ""
+"La valeur numérique de la quantité de l'élément par unité pour cette "
+"présentation :\n"
+"\n"
+"Exemples :\n"
+"- 100 mg par comprimé : quantité = 100, unité = mg(/comprimé)\n"
+"- 10 mg/ampoule : quantité = 10, unité = mg(/ampoule)\n"
+"- 5 mg/ml de solution : quantité = 5, unité = mg/ml"
 
 msgid "Unit"
-msgstr ""
+msgstr "Unité"
 
 msgid "Edit Document Types"
 msgstr "Modifier les Types de Documents"
@@ -2275,52 +2362,58 @@ msgid "&Close"
 msgstr "&Fermer"
 
 msgid "This lists the available document types."
-msgstr ""
+msgstr "Liste des différents types de documents supportés."
 
 msgid "The document type, usually in English."
-msgstr ""
+msgstr "Le type de document, généralement en anglais."
 
 msgid "The document type in the local language."
-msgstr ""
+msgstr "Le type de document dans votre langue."
 
 msgid "Change translation of selected document type for your local language."
 msgstr ""
+"Changer la traduction du type de document sélectionné pour votre langue."
 
 msgid "Add above input as a new document type."
-msgstr ""
+msgstr "Ajouter le texte ci-dessus comme un nouveau type de document."
 
 msgid ""
 "Delete selected document type. Note that you can only delete document types "
 "that are not in use."
 msgstr ""
+"Supprimer le type de document sélectionné. À noter que vous pouvez seulement "
+"supprimer les types de documents qui ne sont pas utilisés."
 
 msgid ""
 "Change the type of all documents currently having the selected document type."
 msgstr ""
+"Modifier le type de tout les documents ayant le type actuellement "
+"sélectionné."
 
 msgid "Type (English)"
-msgstr ""
+msgstr "Type (en anglais)"
 
 msgid "Local language"
-msgstr ""
+msgstr "Langue locale"
 
 msgid "Activate"
-msgstr ""
+msgstr "Activer"
 
 msgid "Deactivate"
-msgstr ""
+msgstr "Désactiver"
 
 msgid "Close"
 msgstr "Fermer"
 
 msgid "Edit staff list"
-msgstr ""
+msgstr "Modifier la liste du personnel"
 
 msgid "The list of currently existing GNUmed users."
 msgstr "La liste des utilisateurs enregistrés de GNUmed"
 
 msgid "Short alias for the GNUmed user. Must be unique for this system."
 msgstr ""
+"Alias court pour l'utilisateur GNUmed. Doit être unique pour cette instance."
 
 msgid ""
 "The database account for this GNUmed user. Note that you cannot change your "
@@ -2330,7 +2423,7 @@ msgstr ""
 "que vous ne pouvez pas changer votre *propre* compte d'accès."
 
 msgid "A short comment on this GNUmed user."
-msgstr ""
+msgstr "Un commentaire court à propos de cet utilisateur GNUmed."
 
 msgid ""
 "Save modified user details.\n"
@@ -2338,6 +2431,10 @@ msgid ""
 "You will need to know the password for the GNUmed database administrator <gm-"
 "dbo>."
 msgstr ""
+"Enregistrer les modifications.\n"
+"\n"
+"Il vous faut le mot de passe d'administration de la base de données GNUmed "
+"<gm-dbo>."
 
 msgid ""
 "Activate selected user.\n"
@@ -2364,16 +2461,16 @@ msgid ""
 msgstr ""
 
 msgid "Close this dialog."
-msgstr ""
+msgstr "Fermer cette boîte de dialogue."
 
 msgid "Name"
 msgstr "Nom"
 
 msgid "edit encounter details"
-msgstr ""
+msgstr "modifer les détails de la consultation"
 
 msgid "Edit the details for the encounter below:"
-msgstr ""
+msgstr "Modifiez les détails de consultation ci-dessous :"
 
 msgid ""
 "Enter the Reason For Encounter here. This is the patient's initial request "
@@ -2406,10 +2503,10 @@ msgid "Purpose"
 msgstr ""
 
 msgid "Codes"
-msgstr ""
+msgstr "Codes"
 
 msgid "Required: A name for this encounter type in your local language."
-msgstr ""
+msgstr "Requis : un nom pour ce type de consultation dans votre langue."
 
 msgid ""
 "Optional: A system-wide description for this encounter type. If you leave "
@@ -2420,15 +2517,22 @@ msgid ""
 "can have the system description translated into their language and still use "
 "the same encounter type."
 msgstr ""
+"Optionel : une description pour ce type de consultation dans l'ensemble du "
+"système. Si vous laissez ce champ libre, le nom traduit sera utilisé.\n"
+"\n"
+"C'est utile pour choisir un terme anglais mais ça n'est pas nécessaire. Un "
+"avantage d'utiliser une description pour l'ensemble du système est que "
+"plusieurs personne peuvent l'avoir dans leur propre langue et pourtant "
+"utiliser le même type de consultation."
 
 msgid "Local name"
-msgstr ""
+msgstr "Nom local"
 
 msgid "Encounter type"
-msgstr ""
+msgstr "Type de consultation"
 
 msgid "Closed"
-msgstr ""
+msgstr "Fermé"
 
 msgid ""
 "Select the health issue this episode belongs to.\n"
@@ -2440,16 +2544,22 @@ msgid ""
 "Type or select the description for this episode. It should be a summary for "
 "the episode of illness."
 msgstr ""
+"Écrivez ou choisissez une description de cet épisode. Cela devrait être un "
+"résumé de l'épisode morbide."
 
 msgid ""
 "The diagnostic classification or grading of this episode.\n"
 "\n"
 "This documents how certain one is about this episode being a true diagnosis."
 msgstr ""
+"La classification diagnostique ou le stade pour cet épisode.\n"
+"\n"
+"Ceci indique à quel point le diagnostic de l'épisode est certain."
 
 msgid ""
 "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr ""
+"Si cette case est cochée, l'épisode est terminé. Sinon il est toujours actif."
 
 #, fuzzy
 msgid "The current status of this episode."
@@ -2460,7 +2570,7 @@ msgid "Codes relevant to this episode."
 msgstr "Il n'y a pas de rencontres pour cette période."
 
 msgid "Patient"
-msgstr ""
+msgstr "Patient"
 
 msgid "Nest under"
 msgstr ""
@@ -2478,33 +2588,37 @@ msgid ""
 msgstr "Taille/poids actuels"
 
 msgid "Enter the actual ID (number, identifier, ...) here."
-msgstr ""
+msgstr "Indiquez l'identifiant actuel ici (nombre, identifiant, ...)."
 
 msgid "Enter a comment on this external ID."
-msgstr ""
+msgstr "Entrez un commentaire sur cet identifiant externe."
 
 msgid "ID Type"
-msgstr ""
+msgstr "Type d'identifiant"
 
 msgid "Issuer"
-msgstr ""
+msgstr "Émetteur"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
 "this relative."
 msgstr ""
+"Requis : entrez ou sélectionnez le type de relation entre le patient et ce "
+"parent."
 
 msgid ""
 "Required: Enter or select the name of the condition the relative suffered "
 "from."
 msgstr ""
+"Requis : entrez ou sélectionnez le nom de la condition dont le parent "
+"souffrait."
 
 #, fuzzy
 msgid "Select codes relevant to this family history items."
 msgstr "Commentaire sur l'état des allergies."
 
 msgid "Optional: Age of onset of the condition in the relative."
-msgstr ""
+msgstr "Optionnel : âge du début de la condition chez le parent."
 
 #, fuzzy
 msgid ""
@@ -2521,6 +2635,8 @@ msgid ""
 "\n"
 "If blank: Will be added to an unattributed episode \"Family History\"."
 msgstr ""
+"Optionnel : L'épisode pour lequel cet historique familial est important ou "
+"durant lequel il a été découvert."
 
 #, fuzzy
 msgid "Optional: Enter the name of the relative."
@@ -2561,10 +2677,10 @@ msgid "Date of birth:"
 msgstr "Date de naissance"
 
 msgid "edit form template details"
-msgstr ""
+msgstr "modifier le modèle de formulaire"
 
 msgid "&Template"
-msgstr ""
+msgstr "&Modèle"
 
 #, fuzzy
 msgid "Export"
@@ -2574,7 +2690,7 @@ msgid "Gnuplot"
 msgstr "Gnuplot"
 
 msgid "Image editor"
-msgstr ""
+msgstr "Éditeur d'images"
 
 msgid "LaTeX"
 msgstr "LaTeX"
@@ -2586,10 +2702,10 @@ msgid "PDF form editor"
 msgstr ""
 
 msgid "A long, descriptive name for this form template."
-msgstr ""
+msgstr "Un nom descriptif pour ce modéle de formulaire."
 
 msgid "A short, catchy name for this template."
-msgstr ""
+msgstr "Un nom court, facile à retenir, pour ce modèle."
 
 msgid ""
 "External version information such as the exact version/release/revision of a "
@@ -2597,7 +2713,7 @@ msgid ""
 msgstr ""
 
 msgid "The type of this template. The intended use case for this template."
-msgstr ""
+msgstr "Le type de ce modèle. L'utilisation type prévue pour ce modèle."
 
 msgid ""
 "The document type under which to store forms generated from this template."
@@ -2608,39 +2724,43 @@ msgid ""
 "that matters to some form engines. Most of the time this should already be "
 "set correctly when the template data is imported initially."
 msgstr ""
+"Nom de fichier d'exemple. Surtout utilisé pour dériver une extention de "
+"fichier adéquate puisque cela est important pour certaines machines. La "
+"pluspart du temps ceci devrait déjà avoir une valeur correcte lors de "
+"l'import initial des données du modèle."
 
 msgid "Load template data from a file."
-msgstr ""
+msgstr "Charger les données du modèle à partir d'un fichier."
 
 msgid "Export the form template into a file."
-msgstr ""
+msgstr "Sauvegarder le modèle de formulaire dans un fichier."
 
 msgid "The form engine this template must be processed with."
-msgstr ""
+msgstr "Le moteur de formulaire avec lequel ce modèle doit être utilisé."
 
 msgid "Mark this checkbox if you want this template to be active in GNUmed."
-msgstr ""
+msgstr "Cocher cette case si vous vouler activer ce modèle dans GNUmed."
 
 msgid "Version:"
-msgstr ""
+msgstr "Version :"
 
 msgid "Template type"
-msgstr ""
+msgstr "Type de modèle"
 
 msgid "Document type"
-msgstr ""
+msgstr "Type de  document"
 
 msgid "Filename"
-msgstr ""
+msgstr "Nom de Fichier"
 
 msgid "Options"
-msgstr ""
+msgstr "Options"
 
 msgid "Processed by:"
 msgstr ""
 
 msgid "Last modified:"
-msgstr ""
+msgstr "Dernière modification :"
 
 msgid "by:"
 msgstr "par :"
@@ -2649,7 +2769,7 @@ msgid "Search"
 msgstr "Chercher"
 
 msgid "Select the type of address here."
-msgstr ""
+msgstr "Choisissez le type d'adresse ici."
 
 msgid "The category under which to store this address."
 msgstr ""
@@ -2683,7 +2803,7 @@ msgstr ""
 "direction routière."
 
 msgid "Enter the house number for this address."
-msgstr ""
+msgstr "Indiquez le numéro dans la voie."
 
 msgid ""
 "Enter the subunit / apartment / room / level / entrance for this address."
@@ -2693,6 +2813,8 @@ msgid ""
 "Enter any additional notes and comments on this address which didn't fit "
 "anywhere else."
 msgstr ""
+"Indiquez toute note ou remarque pour cette adresse qui ne trouve pas de "
+"place ailleurs."
 
 msgid "Zip code"
 msgstr "Code postal"
@@ -2705,52 +2827,56 @@ msgid "... Notes"
 msgstr "Notes"
 
 msgid "Number"
-msgstr ""
+msgstr "Numéro"
 
 msgid "Town"
 msgstr "Ville"
 
 msgid "Suburb:"
-msgstr ""
+msgstr "Arrondissement"
 
 msgid "State"
-msgstr ""
+msgstr "État"
 
 msgid "Country"
-msgstr ""
+msgstr "Pays"
 
 msgid "GNUmed  generic EditArea dialog"
-msgstr ""
+msgstr "Dialogue générique Edition d'adresse GNUmed"
 
 msgid "Save the entered data into the database."
-msgstr ""
+msgstr "Sauvegarder les informations fournies dans la base de données."
 
 msgid "Cancel editing the data and discard changes."
-msgstr ""
+msgstr "Annuler l'édition et abandonner les modifications."
 
 msgid "left extra"
-msgstr ""
+msgstr "Ce qui reste en trop"
 
 msgid "Add &another"
-msgstr ""
+msgstr "Ajouter un &autre"
 
 msgid "Lala !"
-msgstr ""
+msgstr "Lala !"
 
 msgid "GNUmed generic EditArea dialog"
 msgstr ""
 
 msgid "Save the entered data into the database and close the dialog."
 msgstr ""
+"Enregistrer les informations saisies dans la base de données et fermer la "
+"fenêtre."
 
 msgid "Programmer forgot tooltip for left extra button."
 msgstr ""
 
 msgid "Save data into database and clear fields for another value."
 msgstr ""
+"Enregistrer les informations dans la base de données et vider les champs "
+"pour un nouvel enregistrement."
 
 msgid "Reset all fields to their previous values."
-msgstr ""
+msgstr "Réinitialiser les champs à leur value initiale."
 
 msgid ""
 "Press me !\n"
@@ -2759,25 +2885,25 @@ msgid ""
 msgstr ""
 
 msgid "Edit"
-msgstr ""
+msgstr "Édition"
 
 msgid "Add a new item to the list."
-msgstr ""
+msgstr "Ajouter un nouvel objet à la liste."
 
 msgid "Edit the selected item."
-msgstr ""
+msgstr "Modifier l'objet sélectionné."
 
 msgid "Remove the selected item(s) from the list."
-msgstr ""
+msgstr "Supprimer le(s) objet(s) sélectionné(s) de la liste."
 
 msgid "1"
-msgstr ""
+msgstr "1"
 
 msgid "2"
-msgstr ""
+msgstr "2"
 
 msgid "3"
-msgstr ""
+msgstr "3"
 
 msgid ""
 "Select the items you want to work on.\n"
@@ -2786,15 +2912,20 @@ msgid ""
 "dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-"
 "shift> or <ctrl-alt>) while clicking."
 msgstr ""
+"Choisissez les objets sur lesquels vous voulez travailler.\n"
+"\n"
+"Une sélection discontinue peut être obtenue, selon votre plateforme, en "
+"appuyant sur une touche spéciale (<ctrl>, etc.) ou une combinaison de "
+"touches (<ctrl-shift>, <ctrl-alt>, etc.) pendant que vous cliquez."
 
 msgid "Act on the items selected in the above list."
-msgstr ""
+msgstr "Agir sur les objets sélectionnés dans la liste ci-dessus."
 
 msgid "Cancel this dialog."
-msgstr ""
+msgstr "Annuler cette boîte de dialogue."
 
 msgid "Add a new item to the list above."
-msgstr ""
+msgstr "Ajouter un nouvel objet à la liste ci-dessus."
 
 msgid "Edit the (first or only) item selected in the list above."
 msgstr ""
@@ -2802,9 +2933,11 @@ msgstr ""
 msgid ""
 "Delete - if possible - the (first or only) item selected in the list above."
 msgstr ""
+"Supprimer - si possible - le premier (ou le seul) objet sélectionné dans la "
+"liste ci-dessus."
 
 msgid "Database welcome message editor"
-msgstr ""
+msgstr "Éditeur de message d'accueil pour la base de données."
 
 msgid ""
 "Below you can edit the database welcome message shown at startup\n"
@@ -2812,82 +2945,98 @@ msgid ""
 "\n"
 "To disable that popup leave the message empty."
 msgstr ""
+"Ci-dessous, vous pouvez modifier le message d'accueil de la base de données "
+"affiché au démarrage\n"
+"qui vous permet d'identifier la base de données à laquelle vous êtes "
+"connecté.\n"
+"\n"
+"Pour désactiver cette fenêtre, laissez le message vide."
 
 msgid "Active"
 msgstr "Actif"
 
 msgid "Relevant"
-msgstr ""
+msgstr "Pertinent"
 
 msgid "Caused death"
-msgstr ""
+msgstr "A causé la mort"
 
 msgid ""
 "Enter the condition (health issue/past history item) here. Keep it short but "
 "precise."
 msgstr ""
+"Indiquez les antécédents (problèmes de santé/événement passé) ici. Soyez "
+"court mais précis."
 
 msgid ""
 "Here you can add arbitrary text which will be used for sorting health issues "
 "in the tree."
 msgstr ""
+"Ici vous pouvez ajouter un texte libre qui sera utilisé pour trier les "
+"problèmes de santé dans l'arborescence."
 
 msgid ""
 "Enter the age in years when this condition was diagnosed. Setting this will "
 "adjust the \"in the year\" field accordingly."
 msgstr ""
+"Indiquez l'âge en années au moment du diagnostic. Définir ce champ ajustera "
+"le champ \"dans l'année\" en conséquence."
 
 msgid ""
 "Enter the year when this condition was diagnosed. Setting this will adjust "
 "the \"at age\" field accordingly."
 msgstr ""
+"Indiquez l'année du diagnostic. Définir ce champ ajustera le champ \"à l'âge "
+"de\" en conséquence."
 
 #, fuzzy
 msgid "The current status of the issue."
 msgstr "Le patient actuellement sélectionné est :"
 
 msgid "Check if this is an active, ongoing problem."
-msgstr ""
+msgstr "Cochez si c'est un problème actif, en cours."
 
 msgid "Check if this is a clinically relevant problem."
-msgstr ""
+msgstr "Cochez si c'est un problème cliniquement significatif."
 
 msgid ""
 "Check if this condition is to be kept confidential and not disclosed to "
 "anyone else."
 msgstr ""
+"Cochez si cet état doit rester confidentiel et ne doit pas être communiqué à "
+"quiconque d'autre."
 
 msgid "Check if this condition contributed to causing death of the patient."
-msgstr ""
+msgstr "Cochez si cet élément a contribué à la mort du patient."
 
 msgid "Grouping:"
-msgstr ""
+msgstr "Groupement :"
 
 msgid "When Noted"
-msgstr ""
+msgstr "Quand spécifié"
 
 msgid "Age:"
-msgstr ""
+msgstr "Âge :"
 
 msgid "Or year:"
-msgstr ""
+msgstr "Ou année :"
 
 msgid "Mandatory: Which hospital the patient was admitted to."
-msgstr ""
+msgstr "Obligatoire : quel hôpital a admis le patient ?"
 
 msgid ""
 "Mandatory: The episode (reason, condition) because of which the patient was "
 "admitted."
-msgstr ""
+msgstr "Obligatoire : le motif (cause, état) d'admission du patient."
 
 msgid "Mandatory: When was the patient admitted ?"
-msgstr ""
+msgstr "Obligatoire : quand le patient a-t-il été admis ?"
 
 msgid "Optional: When was the Patient discharged ?"
-msgstr ""
+msgstr "Optionnel : quand le patient est-il sorti ?"
 
 msgid "Hospital"
-msgstr ""
+msgstr "Hôpital"
 
 msgid "Admitted"
 msgstr "Admission"
@@ -2908,7 +3057,7 @@ msgid "Born"
 msgstr "Naissance"
 
 msgid "Deceased"
-msgstr ""
+msgstr "Décédé"
 
 msgid "Gender"
 msgstr "Sexe"
@@ -2917,10 +3066,10 @@ msgid "Ethnicity"
 msgstr "Ethnie"
 
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 msgid "&Myself … or:"
-msgstr ""
+msgstr "&Moi-même ... ou :"
 
 msgid "&Active … or:"
 msgstr ""
@@ -2935,32 +3084,32 @@ msgid "Low"
 msgstr ""
 
 msgid "What this message is about."
-msgstr ""
+msgstr "Objet de ce message."
 
 msgid "The message type."
-msgstr ""
+msgstr "Type de message."
 
 msgid "Check if this message should (also) be sent to yourself."
-msgstr ""
+msgstr "Cochez si le message doit (aussi) vous être envoyé."
 
 msgid "Whom to (also) send this message to."
-msgstr ""
+msgstr "À qui (aussi) envoyer ce message."
 
 #, fuzzy
 msgid "Check this if this is about the active patient."
 msgstr "Cochez s'il s'agit d'un virus vivant atténué."
 
 msgid "A longer text detailing the message, if needed."
-msgstr ""
+msgstr "Un texte descriptif du message, si nécessaire."
 
 msgid "Normal (standard) urgency of message."
-msgstr ""
+msgstr "Message de priorité normale (standard)."
 
 msgid "Higher than normal (standard) urgency of message."
-msgstr ""
+msgstr "Message de priorité haute."
 
 msgid "Lower than normal (standard) urgency of message."
-msgstr ""
+msgstr "Message de priorité basse."
 
 #, fuzzy
 msgid "Subject"
@@ -2973,16 +3122,16 @@ msgid "Audience"
 msgstr ""
 
 msgid "Message"
-msgstr ""
+msgstr "Message"
 
 msgid "Urgency"
-msgstr ""
+msgstr "Priorité"
 
 msgid "Please select a health issue:"
-msgstr ""
+msgstr "Veuillez sélectionner un problème de santé."
 
 msgid "OK"
-msgstr ""
+msgstr "Valider"
 
 msgid "Health issue selector"
 msgstr ""
@@ -2991,28 +3140,28 @@ msgid "label_1"
 msgstr ""
 
 msgid ">>>"
-msgstr ""
+msgstr ">>>"
 
 msgid "<<<"
-msgstr ""
+msgstr "<<<"
 
 msgid "Move selected items from left to right."
-msgstr ""
+msgstr "Déplacer les objets sélectionnés de la gauche vers la droite."
 
 msgid "Move selected items from right to left."
-msgstr ""
+msgstr "Déplacer les objets sélectionnés de la droite vers la gauche."
 
 msgid "Cancel picking items."
-msgstr ""
+msgstr "Annuler la sélection d'objets."
 
 msgid "&Sign as:"
-msgstr ""
+msgstr "&Signer en tant que :"
 
 msgid "&Abnormal"
-msgstr ""
+msgstr "&Anormal"
 
 msgid "&Relevant"
-msgstr ""
+msgstr "&Significatif"
 
 msgid "The type of measurement or test this result is about."
 msgstr "Le type de mesure ou de test correspondant à ce résultat."
@@ -3040,17 +3189,21 @@ msgid ""
 "When was this result actually obtained. Usually the same or between the time "
 "for \"sample taken\" and \"result reported\"."
 msgstr ""
+"Date d'obtention du résultat. Habituellement la même  ou entre la \"date de "
+"prélèvement\" et la \"date de transmission\""
 
 msgid ""
 "A technical comment on the result.\n"
 "Usually by the entering Medical Technical Assistant."
 msgstr ""
+"Un commentaire technique sur le résultat.\n"
+"Habituellement précisé par le technicien de laboratoire."
 
 msgid "The doctor in charge who will have to assess and sign off this result."
 msgstr "Le médecin qui devra valider et signer le résultat."
 
 msgid "The medical problem this test results pertains to."
-msgstr ""
+msgstr "Le problème médical auquel le résultat se rapporte."
 
 msgid ""
 "A clinical assessment of the measurement.\n"
@@ -3063,46 +3216,47 @@ msgid "Check if you want to save a review."
 msgstr ""
 
 msgid "Check if this result is technically abnormal."
-msgstr ""
+msgstr "Cochez si ce résultat est techniquement anormal."
 
 msgid "Check if this result is clinically relevant."
-msgstr ""
+msgstr "Cochez si ce résultat est cliniquement significatif."
 
 msgid "A comment on this review."
 msgstr ""
 
 msgid "The lower bound of the range of technically normal values."
-msgstr ""
+msgstr "La valeur inférieure de la fourchette de normalité technique."
 
 msgid "The upper bound of the range of technically normal values."
-msgstr ""
+msgstr "La valeur supérieure de la fourchette de normalité technique."
 
 msgid "An alphanumeric range of technically normal values."
-msgstr ""
+msgstr "Une fourchette de normalité technique alphanumérique."
 
 msgid "The lower bound of the target range for this test in this patient."
-msgstr ""
+msgstr "La valeur inférieure de la fourchette visée pour ce patient à ce test."
 
 msgid "An alphanumeric target range for this test in this patient."
 msgstr ""
+"Une valeur alphanumérique de la fourchette visée pour ce patient à ce test."
 
 msgid "The reference group the normal range for this value pertains to."
-msgstr ""
+msgstr "Le groupe témoin auquel la fouchette de normalité réfère."
 
 msgid "Measurement details"
 msgstr ""
 
 msgid "Test"
-msgstr ""
+msgstr "Test"
 
 msgid "LOINC"
 msgstr ""
 
 msgid "Units"
-msgstr ""
+msgstr "Unités"
 
 msgid "Indicator"
-msgstr ""
+msgstr "Indicateur"
 
 msgid "Date"
 msgstr "Date"
@@ -3120,15 +3274,21 @@ msgid "Review"
 msgstr ""
 
 msgid "Reference information"
-msgstr ""
+msgstr "Information de référence"
 
 msgid "--"
-msgstr ""
+msgstr "--"
 
 msgid "or"
 msgstr "ou"
 
 msgid "Group"
+msgstr "Groupe"
+
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
 msgstr ""
 
 msgid ""
@@ -3136,54 +3296,64 @@ msgid ""
 "\n"
 "This will be shown in the tooltip of test results originating from this lab."
 msgstr ""
+"Un moyen de contacter ce laboratoire, idéalement un contact direct avec un "
+"clinicien.\n"
+"\n"
+"Il sera affiché dans l'infobulle des résultats du test de ce laboratoire."
 
 msgid "A comment on this lab."
-msgstr ""
+msgstr "Un commentaire sur ce laboratoire."
 
-msgid "Lab name"
+msgid "Org.Unit"
 msgstr ""
 
 msgid "Contact"
-msgstr ""
+msgstr "Contact"
 
 msgid "A descriptive name for this test type."
-msgstr ""
+msgstr "Un nom descriptif pour ce type de test."
 
 msgid "An abbreviation for the name of this test type."
-msgstr ""
+msgstr "Une abréviation pour le nom de ce type de test."
 
 msgid ""
 "The base unit to convert results from different labs into when comparing "
 "time series."
 msgstr ""
+"Unité de base permetant de convertir les résultats de différents "
+"laboratoires lors de la comparaison des séries chronologiques."
 
 msgid "The LOINC code corresponding to this test type."
-msgstr ""
+msgstr "Code LOINC correspondant à ce type de test."
 
 msgid ""
 "A comment on this test type, e.g. pertaining to typical context information."
 msgstr ""
+"Un commentaire sur ce type de test. Par exemple : rapport à un contexte "
+"clinique typique."
 
 msgid "The path lab/diagnostic organisation reporting on this test."
 msgstr ""
+"Le laboratoire de pathologie ou l'organisation diagnostique produisant ce "
+"résultat à ce test."
 
 msgid "A comment on the organisation performing this measurement."
-msgstr ""
+msgstr "Un commentaire sur l'organisation qui effectue la mesure."
 
 msgid "Abbreviation"
-msgstr ""
+msgstr "Abréviation"
 
 msgid "&Your unsigned"
-msgstr ""
+msgstr "&Vos tests non signés"
 
 msgid "&All unsigned"
-msgstr ""
+msgstr "&Tous les tests non signés"
 
 msgid "&Select"
 msgstr "&Selectionner"
 
 msgid "&Actions ... "
-msgstr ""
+msgstr "&Actions ... "
 
 #, fuzzy
 msgid "Add measurments."
@@ -3193,9 +3363,11 @@ msgid ""
 "Apply selection to those unsigned results for which you are to take "
 "responsibility."
 msgstr ""
+"Appliquer la sélection aux résultats non-signés dont vous vous portez "
+"garants."
 
 msgid "Apply selection to all unsigned results."
-msgstr ""
+msgstr "Appliquer la sélection à tous les résultats non-signés."
 
 msgid ""
 "Select results according to your choice on the left.\n"
@@ -3207,78 +3379,96 @@ msgid ""
 msgstr ""
 
 msgid "Invoke actions on the selected measurements."
-msgstr ""
+msgstr "Agir sur les mesures sélectionnées"
 
 msgid "Clinically relevant"
-msgstr ""
+msgstr "Cliniquement significatif"
 
 msgid "Technically abnormal"
-msgstr ""
+msgstr "Techniquement anormal"
 
 msgid "... test results listing goes here ..."
-msgstr ""
+msgstr "... la liste des résultats aux tests vient ici ..."
 
 msgid "Leave as is"
-msgstr ""
+msgstr "Laisser comme tel"
 
 msgid "&Normal"
-msgstr ""
+msgstr "&Normal"
 
 msgid "A&bnormal"
-msgstr ""
+msgstr "A&normal"
 
 msgid "Not relevant"
-msgstr ""
+msgstr "Non significatif"
 
 msgid "&Take responsibility"
-msgstr ""
+msgstr "&Prendre la responsabilité"
 
 msgid "Signing off test results"
-msgstr ""
+msgstr "Signer les résultats"
 
 msgid ""
 "Select this if you want to agree with the current decision on technical "
 "abnormality of the results."
 msgstr ""
+"Sélectionnez ici si vous approuvez la décision actuelle d'anormalité "
+"technique des résultats."
 
 msgid ""
 "Select this if you think the selected results are normal regardless of what "
 "the result provider said."
 msgstr ""
+"Sélectionnez ici si vous pensez que les résultats sélectionnés sont normaux "
+"malgré l'avis du fournisseur."
 
 msgid ""
 "Select this if you think the selected results are technically abnormal - "
 "regardless of what the result provider said."
 msgstr ""
+"Sélectionnez ici si vous pensez que les résultats sélectionnés sont "
+"techniquement anormaux malgré l'avis du fournisseur."
 
 msgid ""
 "Select this if you want to agree with the current decision on clinical "
 "relevance of the results."
 msgstr ""
+"Sélectionnez ici si vous approuvez la décision de résultats cliniquement "
+"significatifs."
 
 msgid ""
 "Select this if you think the selected results are clinically not significant."
 msgstr ""
+"Sélectionnez ici si vous pensez que les résultats sélectionnés ne sont pas "
+"cliniquement significatifs."
 
 msgid ""
 "Select this if you think the selected results are cliniccally significant."
 msgstr ""
+"Sélectionnez ici si vous pensez que les résultats sélectionnés sont "
+"cliniquement significatifs."
 
 msgid ""
 "Enter a comment on this review. Only available if the review applies to a "
 "single result only."
 msgstr ""
+"Indiquez un commentaire sur cette vérification. Possible uniquement si la "
+"vérification ne concerne qu'un seul résultat."
 
 msgid ""
 "Check this to take over responsibility for initiating action on these "
 "results."
 msgstr ""
+"Cochez pour prendre la responsabilité de commencer une action sur la base de "
+"ces résultats."
 
 msgid "Sign off test results and save review status for all selected results."
 msgstr ""
+"Signer les résultats et valider les vérifications pour tous les résultats "
+"sélectionnés."
 
 msgid "Cancel and discard review, that is, do NOT sign off results."
-msgstr ""
+msgstr "Abandonner la vérification, c'est-à-dire SANS signer les résultats."
 
 msgid ""
 "This signing applies to ALL results currently selected in the viewer.\n"
@@ -3286,54 +3476,60 @@ msgid ""
 "If you want to change the scope of the sign-off\n"
 "you need to narrow or widen the selection of results."
 msgstr ""
+"Cette signature s'applique à TOUS les résultats actuellement sélectionnés "
+"dans le visualisateur.\n"
+"\n"
+"Si vous voulez changer le champ d'application de la signature\n"
+"vous devez réduire ou élargir la sélection de résultats."
 
 msgid "Keep *this* patient"
-msgstr ""
+msgstr "Conserver *ce* patient"
 
 msgid "Merge"
-msgstr ""
+msgstr "Fusionner"
 
 msgid "Merging patients"
-msgstr ""
+msgstr "Fusionner les patients"
 
 msgid "Select this if you want to keep this patient."
-msgstr ""
+msgstr "Choisissez ceci si vous voulez conserver ce patient."
 
 msgid "Details of the patients to merge:"
-msgstr ""
+msgstr "Détails des patients à fusionner :"
 
 msgid "Move"
-msgstr ""
+msgstr "Déplacer"
 
 msgid "Moving narrative to another episode"
-msgstr ""
+msgstr "Déplacer le texte vers un autre épisode"
 
 msgid "Select the episode you want to move the narrative to."
-msgstr ""
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
 
 msgid "Move the narrative from the source to the target episode."
-msgstr ""
+msgstr "Déplace le texte de l'épisode source vers l'épisode cible."
 
 msgid "Cancel moving the narrative entries and leave them where they are."
 msgstr ""
+"Annuler le déplacement du texte et le laisser où il se situe actuellement."
 
 msgid "Source episode"
-msgstr ""
+msgstr "Épisode source"
 
 msgid "The episode the displayed narrative currently belongs to."
-msgstr ""
+msgstr "L'épisode auquel le texte affiché est rattaché actuellement."
 
 msgid "Target episode"
-msgstr ""
+msgstr "Épisode cible"
 
 msgid "The episode you want to move the displayed narrative to."
-msgstr ""
+msgstr "L'épisode vers lequel vous voulez déplacer le texte affiché."
 
 msgid "Do not reformat text"
 msgstr ""
 
 msgid "Generic multi line text entry dialog"
-msgstr ""
+msgstr "Boîte de dialogue de saisie de texte multi-lignes générique"
 
 msgid ""
 "Leave this unchecked so that GNUmed can check for characters that need "
@@ -3347,10 +3543,10 @@ msgid "Required: lastname (family name)"
 msgstr "Requis : Nom de famille"
 
 msgid "Required: surname/first name/given name"
-msgstr ""
+msgstr "Requis : nom de famille/prénom"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
-msgstr ""
+msgstr "Recommandé : Date de naissance. Selon votre fuseau horaire."
 
 msgid "Optional: the time of birth if known"
 msgstr "Optionnel : l'heure de naissance si connue"
@@ -3362,12 +3558,17 @@ msgid ""
 "Optional: nickname (alias, preferred name, call name, warrior name, artist "
 "name, pseudonym)"
 msgstr ""
+"Optionnel : surnom (alias, préférence, nom de guerre, nom d'artiste, "
+"pseudonyme)"
 
 msgid ""
 "Optional: title (academic or honorary). Note that a title applies to a "
 "person, not to a particular name of that person (it will be kept even if the "
 "name changes)."
 msgstr ""
+"Optionnel : titre (académique ou honorifique). Notez que ce titre s'applique "
+"à une personne et pas à un nom particulier de cette personne (il sera "
+"conservé même si le nom change)."
 
 msgid ""
 "Here you can enter a postal code or street name to search for an existing "
@@ -3397,10 +3598,10 @@ msgid "Primary address: unit within the number (appt. / room / etc)."
 msgstr ""
 
 msgid "Primary address: city/town/village/dwelling/..."
-msgstr ""
+msgstr "Adresse principale : ville/bourg/village/lieu-dit/..."
 
 msgid "Primary address: state/province/county/..."
-msgstr ""
+msgstr "Adresse principale : département/état/province/..."
 
 msgid "Primary address: country of residence"
 msgstr "Adresse principale : pays de résidence"
@@ -3416,12 +3617,14 @@ msgid ""
 "Choose the provider the patient considers his or her primary provider in "
 "this praxis."
 msgstr ""
+"Selectionnez le fournisseur que le patient considère comme sont fourniseur "
+"principal dans cette pratique."
 
 msgid "The type of the external ID (selection only)."
-msgstr ""
+msgstr "Type de l'identifiant externe (sélection uniquement)."
 
 msgid "The value of the external ID."
-msgstr ""
+msgstr "Valeur de l'identifiant externe."
 
 msgid "The current occupation."
 msgstr "Le travail actuel."
@@ -3430,7 +3633,7 @@ msgid "A comment on this person."
 msgstr "Un commentaire sur cette personne."
 
 msgid "Basic demographics"
-msgstr ""
+msgstr "Démographie basique"
 
 msgid "Identity"
 msgstr "Identité"
@@ -3445,7 +3648,7 @@ msgid "Date of birth"
 msgstr "Date de naissance"
 
 msgid "Time:"
-msgstr ""
+msgstr "Durée :"
 
 msgid "Nick name"
 msgstr "Surnom"
@@ -3458,19 +3661,19 @@ msgid "Postal code"
 msgstr "Code postal"
 
 msgid "Place"
-msgstr ""
+msgstr "Lieu"
 
 msgid "Region"
 msgstr "Région"
 
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 msgid "In-praxis primary"
 msgstr ""
 
 msgid "External ID"
-msgstr ""
+msgstr "Identifiant externe"
 
 msgid "Occupation"
 msgstr "Activité"
@@ -3524,22 +3727,23 @@ msgid "Managing Organizations and their units."
 msgstr "Ajouter une Organisation"
 
 msgid "Activate the respective patient by double-clicking a row."
-msgstr ""
+msgstr "Activez le patient correspondant en double-cliquant sur une ligne."
 
 msgid "Save the identity details."
-msgstr ""
+msgstr "Enregistrer les informations personnelles."
 
 msgid "Reload identity from the database."
-msgstr ""
+msgstr "Recharger les informations depuis la base de données."
 
 msgid "Active name"
-msgstr ""
+msgstr "Nom courant"
 
 msgid "Enter a comment relevant to this name (such as \"before marriage\")."
 msgstr ""
+"Indiquez un commentaire correspondant à ce nom (comme \"avant mariage\")."
 
 msgid "Check this to make this the currently active name."
-msgstr ""
+msgstr "Cochez pour en faire le nom courant actuel."
 
 msgid "First name"
 msgstr "Prénom"
@@ -3551,7 +3755,7 @@ msgid ""
 msgstr ""
 
 msgid "Make the emergency contact the active patient."
-msgstr ""
+msgstr "Voir la fiche de la personne à contacter en cas d'urgence."
 
 msgid ""
 "Notes relevant to emergency situations regarding this patient.\n"
@@ -3575,7 +3779,7 @@ msgid "In-praxis primary doc"
 msgstr ""
 
 msgid "Schock index"
-msgstr ""
+msgstr "Indice de choc"
 
 msgid "<SI>"
 msgstr ""
@@ -3584,7 +3788,7 @@ msgid "rhythmic"
 msgstr ""
 
 msgid "arrhythmic"
-msgstr ""
+msgstr "arythmie"
 
 msgid "°C"
 msgstr "°C"
@@ -3602,7 +3806,7 @@ msgid "<last weight>"
 msgstr ""
 
 msgid "<BMI>"
-msgstr ""
+msgstr "<IMC>"
 
 msgid "<last waist>"
 msgstr ""
@@ -3616,6 +3820,10 @@ msgid ""
 "  0.4-0.7 = normal\n"
 "  >1 = critical"
 msgstr ""
+"IdC = FC / PA (syst)\n"
+"\n"
+"  0,4 - 0,7 = normal\n"
+"  > 1 = critique"
 
 msgid "RR measured on the right arm."
 msgstr "TA mesurée sur le bras droit."
@@ -3635,12 +3843,20 @@ msgid ""
 " forehead\n"
 " tympanic"
 msgstr ""
+"Température corporelle périphérique :\n"
+" axillaire\n"
+" orale\n"
+" frontale\n"
+" auriculaire"
 
 msgid ""
 "\"Core\" body temperature:\n"
 " rectal\n"
 " intravascular"
 msgstr ""
+"Température corporelle centrale :\n"
+" rectale\n"
+" intravasculaire"
 
 msgid "Respiration rate."
 msgstr "Fréquence respiratoire."
@@ -3664,6 +3880,11 @@ msgid ""
 " <500: kg\n"
 " >500: g"
 msgstr ""
+"Poids actuel en grammes ou kilogrammes.\n"
+"\n"
+"La limite est 500g :\n"
+" < 500g : g\n"
+" > 500g : kg"
 
 msgid "Current waist circumference in cm."
 msgstr "Tour de taille en cm."
@@ -3681,7 +3902,7 @@ msgid "RR right"
 msgstr "TA droite"
 
 msgid "Pulse"
-msgstr ""
+msgstr "FC"
 
 msgid "/min"
 msgstr "/min"
@@ -3696,37 +3917,37 @@ msgid "(rectal)"
 msgstr "(rectale)"
 
 msgid "Resp"
-msgstr ""
+msgstr "FR"
 
 msgid "Figure"
-msgstr ""
+msgstr "Figure"
 
 msgid "Height"
-msgstr ""
+msgstr "Taille"
 
 msgid "cm"
 msgstr "cm"
 
 msgid "Weight"
-msgstr ""
+msgstr "Poids"
 
 msgid "g or kg"
 msgstr "g ou kg"
 
 msgid "Waist"
-msgstr ""
+msgstr "Tour de taille"
 
 msgid "Ongoing"
-msgstr ""
+msgstr "En cours"
 
 msgid "+"
 msgstr "+"
 
 msgid "The actual procedure performed on the patient."
-msgstr ""
+msgstr "La procédure en cours."
 
 msgid "When did this procedure take place ?"
-msgstr ""
+msgstr "Quand cette procédure a-t-elle eu lieu ?"
 
 msgid ""
 "When did this procedure end ?\n"
@@ -3734,6 +3955,9 @@ msgid ""
 "Leave empty for ongoing or \"one-off\" procedures without a significant "
 "duration."
 msgstr ""
+"Quand cette procédure s'est-t-elle terminée ? \n"
+"\n"
+"Laisser vide pour les procédures en cours ou sans durée significative."
 
 msgid "Select if procedure is ongoing (say, desensibilization)."
 msgstr ""
@@ -3743,45 +3967,53 @@ msgid ""
 "\n"
 "Mutually exclusive with \"Hospital stay\". Requires \"Episode\"."
 msgstr ""
+"La localisation (cabinet, clinique, ...) où cette procédure a été réalisée.\n"
+"\n"
+"Mutuellement exclusif avec un \"Séjour hospitalier\". Nécéssite un \"Episode"
+"\"."
 
 msgid ""
 "The episode this procedure was performed under.\n"
 "\n"
 "Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
 msgstr ""
+"L'épisode pour lequel cette procéduire a eu lieu.\n"
+"\n"
+"Mutuellement exclusif avec un \"Séjour hospitalier\". Nécéssite une "
+"\"Localisation\"."
 
 msgid "During which hospital stay was this procedure performed."
-msgstr ""
+msgstr "Pendant quel séjour hospitalier cette procédure a été réalisée."
 
 msgid "Add a hospital stay."
-msgstr ""
+msgstr "Ajouter un séjour hospitalier"
 
 msgid "Codes relevant to this procedure."
-msgstr ""
+msgstr "Codes spécifiques à cette procédure."
 
 msgid "Procedure"
-msgstr ""
+msgstr "Procédure"
 
 msgid "End"
-msgstr ""
+msgstr "Terminé"
 
 msgid "Location"
-msgstr ""
+msgstr "Localisation"
 
 msgid "and Episode"
-msgstr ""
+msgstr "et Episode"
 
 msgid "Hospital stay"
 msgstr "Hospitalisation"
 
 msgid "Programmer must override this text."
-msgstr ""
+msgstr "Les programmeurs doivent réécrire ce texte."
 
 msgid "All"
-msgstr ""
+msgstr "Tous"
 
 msgid "Active-patient related"
-msgstr ""
+msgstr "En lien avec le patient courant"
 
 msgid "&Add"
 msgstr "&Ajouter"
@@ -3790,35 +4022,35 @@ msgid "Show all your messages."
 msgstr "Montre tous vos messages."
 
 msgid "Show those of your messages which are related to the active patient."
-msgstr ""
+msgstr "Afficher vos messages en lien avec le patient courant."
 
 #, fuzzy
 msgid "Add a new message."
 msgstr "Ajouter une substance."
 
 msgid "This shows the entirety of the selected message in your Inbox."
-msgstr ""
+msgstr "Affiche tous les messages sélectionnés dans votre boîte de réception."
 
 msgid "Show messages:"
-msgstr ""
+msgstr "Afficher les messages :"
 
 msgid "A code for this province."
-msgstr ""
+msgstr "Un code pour cette région."
 
 msgid "Province"
-msgstr ""
+msgstr "Région."
 
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 msgid "To"
-msgstr ""
+msgstr "À"
 
 msgid "Form"
-msgstr ""
+msgstr "Formulaire"
 
 msgid "Clinical Notes"
-msgstr ""
+msgstr "Informations cliniques"
 
 msgid "Instructions"
 msgstr "Instructions"
@@ -3827,25 +4059,25 @@ msgid "Urgent"
 msgstr "Urgent"
 
 msgid "With Sample"
-msgstr ""
+msgstr "Avec Echantillon"
 
 msgid "Print"
 msgstr "Imprimer"
 
 msgid "Your review"
-msgstr ""
+msgstr "Votre examen"
 
 msgid "Reviews by others"
-msgstr ""
+msgstr "Examens faits par d'autres"
 
 msgid "(you are/are not the primary reviewer)"
-msgstr ""
+msgstr "(vous êtes/n'êtes pas le principal examinateur)"
 
 msgid "review document"
-msgstr ""
+msgstr "Document d'examen"
 
 msgid "technically abnormal"
-msgstr ""
+msgstr "anormalité technique"
 
 msgid "take over responsibility"
 msgstr "prendre la responsabilité"
@@ -3854,18 +4086,20 @@ msgid "sign all pages"
 msgstr "Signer toutes les pages"
 
 msgid "Edit document properties"
-msgstr ""
+msgstr "Modifier les propriétés du document"
 
 msgid ""
 "Shows the episode associated with this document. Select another one or type "
 "in a new episode name to associate a different one."
 msgstr ""
+"Affiche l'épisode associé au document. Choisissez-en un autre ou inscrivez "
+"le nom d'un nouvel épisode pour l'associer à un autre."
 
 msgid "Enter the date of creation of the document."
 msgstr "Indiquer la date de création du document."
 
 msgid "Enter the ID by which this document is referenced externally."
-msgstr ""
+msgstr "Indiquez l'identifiant de référence externe du document."
 
 msgid ""
 "An example file name for this document type.\n"
@@ -3873,6 +4107,11 @@ msgid ""
 "Mainly used to derive a file name extension during export for operating "
 "systems which need that to guesstimate the viewer."
 msgstr ""
+"Un nom de fichier d'exemple pour ce type de document.\n"
+"\n"
+"Principalement utilisé pour établir l'extension du fichier lors de l'export "
+"vers des systèmes d'exploitations qui en ont besoin pour déterminer le "
+"visualisateur à lancer."
 
 msgid ""
 "The sequence index or page number. If invoked from a document instead of a "
@@ -3891,29 +4130,35 @@ msgid ""
 msgstr ""
 
 msgid "Check this if you want to edit your review."
-msgstr ""
+msgstr "Cocher si vous voulez modifier votre examen."
 
 msgid ""
 "Does this document inform on a state of the patient's health that is "
 "technically abnormal ?"
 msgstr ""
+"Ce document informe-t-il sur un état de santé du patient qui est "
+"techniquement anormal ?"
 
 msgid ""
 "Check this if you intend to take over responsibility for this document and "
 "not just review it."
 msgstr ""
+"Cocher ici si vous prenez la responsablilité pour ce document et non juste "
+"pour son examen."
 
 msgid "Is this document clinically relevant."
-msgstr ""
+msgstr "Ce document est-il cliniquement significatif ?"
 
 msgid "Apply review to entire document rather than just this part or page."
 msgstr ""
+"Appliquer la vérification au document entier plutôt qu'à cette partie ou "
+"page."
 
 msgid "Save your review."
-msgstr ""
+msgstr "Enregister votre examen."
 
 msgid "Cancel this review."
-msgstr ""
+msgstr "Annuler cet examen."
 
 msgid "Reference"
 msgstr "Référence"
@@ -3922,60 +4167,67 @@ msgid ""
 "The original filename (if any). Only editable if invoked from a single part "
 "of the document."
 msgstr ""
+"Nom de fichier original (si il existe). Seulement éditable si invoqué à "
+"partir d'une seule partie du document."
 
 msgid "Seq #"
-msgstr ""
+msgstr "Séquence n°"
 
 msgid "Document Properties"
 msgstr "Propriétés du document"
 
 msgid "Parts"
-msgstr ""
+msgstr "Parties"
 
 msgid "Part Sources"
 msgstr ""
 
 msgid "&Scan page(s)"
-msgstr ""
+msgstr "&Scanner des pages"
 
 msgid "Pick &file(s)"
-msgstr ""
+msgstr "Sélectionner des &fichiers"
 
 msgid "Intended reviewer:"
-msgstr ""
+msgstr "Valideur prévu :"
 
 msgid "&review and sign"
-msgstr ""
+msgstr "&Valider et signer"
 
 msgid "&technically abnormal"
-msgstr ""
+msgstr "&Techniquement anormal"
 
 msgid "&clinically relevant"
-msgstr ""
+msgstr "&cliniquement significatif"
 
 msgid "Show part"
 msgstr ""
 
 msgid "Remove part"
-msgstr ""
+msgstr "Supprimer une partie"
 
 msgid "Discard"
-msgstr ""
+msgstr "Abandonner"
 
 msgid ""
 "Acquire a page from an image source (scanner, camera). This may bring up an "
 "intermediate dialog. It uses Sane (Linux) or TWAIN (Windows)."
 msgstr ""
+"Acquisition depuis une source d'images (scanner, appareil photo). Une "
+"fenêtre intermédiaire peut apparaître. Utilise Sane (Linux) ou TWAIN "
+"(Windows)."
 
 msgid ""
 "Add a file from the filesystem as a new part. Shows a file selector dialog."
 msgstr ""
+"Ajouter un fichier comme nouvel partie. Affiche un dialogue de sélection de "
+"fichier"
 
 msgid "Required: The primary episode this document is to be listed under."
 msgstr ""
 
 msgid "Required: The type of this document."
-msgstr ""
+msgstr "Requis : type de ce document."
 
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
@@ -4058,7 +4310,7 @@ msgid "Cancel person selection."
 msgstr ""
 
 msgid "age"
-msgstr ""
+msgstr "âge"
 
 msgid "review status"
 msgstr ""
@@ -4143,7 +4395,7 @@ msgid "Save &under"
 msgstr "Sauvegarder l'enregistrement"
 
 msgid "&Image"
-msgstr ""
+msgstr "&Image"
 
 msgid "Save &all"
 msgstr ""
@@ -4242,7 +4494,7 @@ msgid ""
 msgstr ""
 
 msgid "Sign"
-msgstr ""
+msgstr "Signature"
 
 msgid ""
 "Required: A short signature for this staff member such as the concatenated "
@@ -4279,16 +4531,16 @@ msgid "Tag name"
 msgstr ""
 
 msgid "File name"
-msgstr ""
+msgstr "Nom du fichier"
 
 msgid "Image"
-msgstr ""
+msgstr "Image"
 
 msgid "&Me only"
 msgstr ""
 
 msgid "&All users"
-msgstr ""
+msgstr "&Tout le monde"
 
 msgid ""
 "The keyword you want to trigger this text expansion.\n"
@@ -5539,7 +5791,27 @@ msgstr "&Générateur de rapports"
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -7552,7 +7824,7 @@ msgid "Select the template for printing a medication list."
 msgstr ""
 
 msgid "Primary doctor"
-msgstr ""
+msgstr "Médecin traitant"
 
 msgid "Select the primary doctor to fall back to for patients without one."
 msgstr ""
@@ -9325,9 +9597,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9356,9 +9625,6 @@ msgstr "Laboratoire interne"
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9378,6 +9644,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10783,6 +11052,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -10863,19 +11135,19 @@ msgid "dismiss popup and throw away data"
 msgstr ""
 
 msgid " Save "
-msgstr ""
+msgstr " Sauvegarder "
 
 msgid " Delete "
-msgstr ""
+msgstr " Effacer "
 
 msgid " New "
-msgstr ""
+msgstr " Nouveau "
 
 msgid "Enter vaccination given"
-msgstr ""
+msgstr "Saisir la vaccination effectuée"
 
 msgid "Unsaved progress note"
-msgstr ""
+msgstr "Note de progrès non sauvegardée"
 
 msgid ""
 "This progress note has not been saved yet.\n"
@@ -10883,9 +11155,13 @@ msgid ""
 "Do you want to save it or discard it ?\n"
 "\n"
 msgstr ""
+"Cette note de progrès n'a pas encore été sauvegardée.\n"
+"\n"
+"Voulez-vous la sauvegarder ou vous en débarrasser ?\n"
+"\n"
 
 msgid "Save this progress note"
-msgstr ""
+msgstr "Sauvegarder cette note de progrès"
 
 msgid "Discard this progress note"
 msgstr ""
@@ -10904,30 +11180,33 @@ msgid "Save progress note into medical record and close this editor."
 msgstr ""
 
 msgid "Clear this progress note editor."
-msgstr ""
+msgstr "Effacter cet éditeur de note de progrès."
 
 msgid ""
 "Discard progress note and close this editor. You will loose any data already "
 "typed into this editor !"
 msgstr ""
+"Se débarrasser de cette note et fermer cet éditeur. Vous perdrez toutes les "
+"données déjà saisies dans cet éditeur !"
 
 msgid "Problem saving progress note: duplicate information ?"
 msgstr ""
+"Problème durant la sauvegarde de la note de progrès: information dupliquée ?"
 
 msgid "label missing"
-msgstr ""
+msgstr "étiquette manquante"
 
 msgid "soap cat missing"
 msgstr ""
 
 msgid "Enter a descriptive name for this new problem:"
-msgstr ""
+msgstr "Saisir un nom descriptif pour ce nouveau problème :"
 
 msgid "Error saving progress note."
-msgstr ""
+msgstr "Problème lors de la sauvegarde de la note de progrès."
 
 msgid "Error saving embedded data."
-msgstr ""
+msgstr "Problème lors de la sauvegarde des données embarquées."
 
 msgid "Visit Purpose"
 msgstr ""
@@ -10951,7 +11230,7 @@ msgid "discard clinical note"
 msgstr "Abandon note clinique"
 
 msgid "clinical progress note"
-msgstr ""
+msgstr "note de progrès clinique"
 
 msgid "Latin"
 msgstr "Latin"
@@ -11004,7 +11283,7 @@ msgid " Cancel "
 msgstr " Annuler "
 
 msgid "DB account"
-msgstr ""
+msgstr "compte de base de données"
 
 msgid "can login"
 msgstr "peut se connecter"
@@ -11034,11 +11313,16 @@ msgid ""
 "  %s \"%s\" %s\n"
 "  born: %s"
 msgstr ""
+"\n"
+"  %s \"%s\" %s\n"
+"  né le : %s"
 
 msgid ""
 "Password entries do not match. Please type in the passwords again to rule "
 "out typos."
 msgstr ""
+"Les mots de passe entrés ne correspondent pas. Veuillez les entrer à nouveau "
+"pour exclure toute erreur de frappe."
 
 msgid "Adding GNUmed user"
 msgstr "Ajout d'un utilisateur GNUmed"
@@ -11071,7 +11355,7 @@ msgstr ""
 "qu'un seul utilisateur GNUmed par compte de base de donnée.\n"
 
 msgid "Caveat"
-msgstr ""
+msgstr "Avertissement"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
@@ -11090,9 +11374,12 @@ msgid ""
 "\n"
 "Conditions preventable by vaccination as currently known to GNUmed.\n"
 msgstr ""
+"\n"
+"Maladies pouvant être prévenues par la vaccination actuellement connues par "
+"GNUmed.\n"
 
 msgid "Showing vaccination preventable conditions."
-msgstr ""
+msgstr "Maladies pouvant être prévenues par la vaccination affichées."
 
 msgid "ATCs: multi-condition vaccines"
 msgstr ""
@@ -11113,6 +11400,11 @@ msgid ""
 "\n"
 "It is probably documented in a vaccination."
 msgstr ""
+"Impossible de supprimer le vaccin\n"
+"\n"
+" %s - %s (#%s)\n"
+"\n"
+"Il est probablement documenté dans un vaccination."
 
 msgid "Deleting vaccine"
 msgstr "Supprimer le vaccin"
@@ -11125,10 +11417,10 @@ msgstr ""
 "Les vaccins actuellement connus par GNUmed.\n"
 
 msgid "Showing vaccines."
-msgstr ""
+msgstr "Vaccins affichés."
 
 msgid "Enter or select the batch/lot number of the vaccine used."
-msgstr ""
+msgstr "Saisir ou sélectionner le numéro de lot du vaccin utilisé."
 
 msgid "Saving vaccine"
 msgstr "Enregistrer le vaccin"
@@ -11146,6 +11438,17 @@ msgid ""
 "conditions in each patient this vaccine was\n"
 "used in to document a vaccination with.\n"
 msgstr ""
+"Ce vaccin a déjà été utilisé :\n"
+"\n"
+" \"%s\"\n"
+" (%s)\n"
+"\n"
+"Êtes-vous absolument certain\n"
+"de vouloir modifier ce vaccin ?\n"
+"\n"
+"Ceci modifiera le nom du vaccin et/ou les conditions\n"
+"cible de chacun des patients pour lequel ce vaccin a été\n"
+"utilisé précédemment.\n"
 
 msgid "Adding new vaccinations"
 msgstr "Ajouter de nouvelles vaccinations"
@@ -11164,13 +11467,13 @@ msgid "Showing vaccinations."
 msgstr "Montrer les vaccinations."
 
 msgid "Intended to protect from"
-msgstr ""
+msgstr "Utilisé pour protéger de"
 
 msgid "Open a browser showing vaccination schedules."
 msgstr "Ouvrir le calendrier vaccinal dans un navigateur."
 
 msgid "Vaccination Plans"
-msgstr ""
+msgstr "Plans de vaccination"
 
 msgid "prevention"
 msgstr "prévention"
@@ -11512,7 +11815,7 @@ msgid "EMR &Journal (chronological)"
 msgstr ""
 
 msgid "Template Plugin"
-msgstr ""
+msgstr "Module externe de modèle"
 
 msgid "Show &ExamplePlugin"
 msgstr ""
@@ -11549,7 +11852,7 @@ msgid "progress notes (sash)"
 msgstr ""
 
 msgid "progress notes"
-msgstr ""
+msgstr "notes de progrès"
 
 msgid "Demographics"
 msgstr "Informations démographiques"
@@ -11558,7 +11861,7 @@ msgid "&Demographics"
 msgstr "Démographie"
 
 msgid "Progress notes"
-msgstr ""
+msgstr "Notes de progrès"
 
 msgid "Inbox"
 msgstr "Boîte de reception"
@@ -11789,7 +12092,7 @@ msgid "Recall Details"
 msgstr "Détails des rappels"
 
 msgid "icon_talking_head"
-msgstr ""
+msgstr "icon_talking_head"
 
 msgid "     REFERRALS     "
 msgstr "     RÉFÉRENCES     "

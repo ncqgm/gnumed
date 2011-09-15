@@ -1,6 +1,6 @@
 #/bin/sh
 
-LANG_LIST="ca de el es fr it nb nl pl pt pt_BR ru"
+LANG_LIST="ca de el en_CA es fr it nb nl pl pt pt_BR ru sr"
 
 for CURR_LANG in ${LANG_LIST} ; do
 

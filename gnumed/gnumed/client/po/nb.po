@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -544,6 +544,13 @@ msgstr ""
 
 msgid "units"
 msgstr ""
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+#, fuzzy
+msgid "Organization: %s (%s)"
+msgstr "Vaksinasjon"
 
 msgid "inhouse lab"
 msgstr ""
@@ -2889,6 +2896,14 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+#, fuzzy
+msgid "&Manage orgs"
+msgstr "har allergier"
+
+#, fuzzy
+msgid "Manage all organizations."
+msgstr "Vaksinasjon"
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -2899,9 +2914,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr "ukjent allergistatus"
 
-#, fuzzy
-msgid "Lab name"
-msgstr "etternavn"
+msgid "Org.Unit"
+msgstr ""
 
 msgid "Contact"
 msgstr ""
@@ -5260,8 +5274,29 @@ msgstr ""
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
 msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+#, fuzzy
+msgid "installing data pack"
+msgstr "Vaksinasjon"
 
 msgid "Lacking permissions to install data pack."
 msgstr ""
@@ -9029,9 +9064,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9059,9 +9091,6 @@ msgstr ""
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9081,6 +9110,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10482,6 +10514,10 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+#, fuzzy
+msgid "Activate patient"
+msgstr "aktiv"
+
 msgid "message"
 msgstr ""
 
@@ -11497,6 +11533,10 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "Lab name"
+#~ msgstr "etternavn"
 
 #, fuzzy
 #~ msgid "&Documents review"
