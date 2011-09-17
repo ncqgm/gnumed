@@ -46,11 +46,6 @@ END;';
 comment on function ref.trf_upd_ref_code_tbl_check_backlink() is
 	'When updating any child of ref.coding_system_root check whether its row is being used in any clin.lnk_code2item_root child.';
 
--- apply this to child tables:
--- UPDATE
---create trigger tr_upd_ref_code_tbl_check_backlink
---	before update on ref.xxx
---		for each row execute procedure ref.trf_upd_ref_code_tbl_check_backlink();
 
 -- DELETE
 \unset ON_ERROR_STOP
@@ -84,9 +79,20 @@ comment on function ref.trf_del_ref_code_tbl_check_backlink() is
 	'When deleting from any child of ref.coding_system_root check whether its row is being used in any clin.lnk_code2item_root child.';
 
 -- apply this to child tables:
+--
+--\unset ON_ERROR_STOP
+--drop trigger tr_upd_ref_code_tbl_check_backlink on ref.xxxxx;
+--drop trigger tr_del_ref_code_tbl_check_backlink on ref.xxxxx;
+--\set ON_ERROR_STOP 1
+--
+-- UPDATE
+--create trigger tr_upd_ref_code_tbl_check_backlink
+--	before update on ref.xxxxx
+--		for each row execute procedure ref.trf_upd_ref_code_tbl_check_backlink();
+
 -- DELETE
 --create trigger tr_del_ref_code_tbl_check_backlink
---	before update on ref.xxx
+--	before update on ref.xxxxx
 --		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------

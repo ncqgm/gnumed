@@ -474,6 +474,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
+					if self.print_queries:
+						print "invalid ctxt key:", context_key
 
 			cmd = query % where_fragments
 
