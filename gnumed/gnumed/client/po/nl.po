@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
+"POT-Creation-Date: 2011-09-17 12:24+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -3549,7 +3549,7 @@ msgid "Required: lastname (family name)"
 msgstr "Benodigd: achternaam"
 
 #, fuzzy
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr "Benodigd: voornaam"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -11022,9 +11022,8 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr "reactie niet genoteerd"
 
-#, fuzzy
-msgid "Cannot save substance intake. Invalid or missing essential input."
-msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+msgid "Input incomplete/invalid for saving as substance intake."
+msgstr ""
 
 #, fuzzy
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -13497,6 +13496,10 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#, fuzzy
+#~ msgid "Cannot save substance intake. Invalid or missing essential input."
+#~ msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
 
 #, fuzzy
 #~ msgid "Lab name"

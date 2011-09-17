@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
+"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -3542,7 +3542,8 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Requis : Nom de famille"
 
-msgid "Required: surname/first name/given name"
+#, fuzzy
+msgid "Required: first name/given name"
 msgstr "Requis : nom de famille/prénom"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -9918,7 +9919,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."

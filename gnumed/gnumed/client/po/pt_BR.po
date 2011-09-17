@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-15 13:59+CEST\n"
+"POT-Creation-Date: 2011-09-17 12:24+CEST\n"
 "PO-Revision-Date: 2011-06-19 16:42-0300\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -3443,8 +3443,9 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Necessário: sobrenome"
 
-msgid "Required: surname/first name/given name"
-msgstr ""
+#, fuzzy
+msgid "Required: first name/given name"
+msgstr "Necessário: nome"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr ""
@@ -10181,7 +10182,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -12445,9 +12446,6 @@ msgstr "Primeira Data"
 
 #~ msgid "Cannot parse <%s> into proper timestamp."
 #~ msgstr "Não é possível formatar <%s> para uma data válida."
-
-#~ msgid "Required: surname/given name/first name"
-#~ msgstr "Necessário: nome"
 
 #~ msgid ""
 #~ "Required: date of birth, if unknown or aliasing wanted then invent one"

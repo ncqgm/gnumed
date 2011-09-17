@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
+"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -3386,8 +3386,9 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Obbligatorio: cognome"
 
-msgid "Required: surname/first name/given name"
-msgstr ""
+#, fuzzy
+msgid "Required: first name/given name"
+msgstr "Obbligatorio: soprannome/nome dato"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr ""
@@ -9773,7 +9774,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 #, fuzzy
@@ -12000,9 +12001,6 @@ msgstr "Prima Data"
 
 #~ msgid "Registering new person"
 #~ msgstr "Registrazione di nuova persona"
-
-#~ msgid "Required: surname/given name/first name"
-#~ msgstr "Obbligatorio: soprannome/nome dato"
 
 #~ msgid "Required: gender of patient"
 #~ msgstr "Obbligatorio: sesso del paziente"

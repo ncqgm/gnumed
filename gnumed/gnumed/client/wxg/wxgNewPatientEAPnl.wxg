@@ -151,7 +151,7 @@
                         <option>0</option>
                         <object class="gmDemographicsWidgets.cFirstnamePhraseWheel" name="_PRW_firstnames" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Required: surname/first name/given name</tooltip>
+                            <tooltip>Required: first name/given name</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

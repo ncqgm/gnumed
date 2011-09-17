@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-15 13:34+CEST\n"
+"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -3605,7 +3605,8 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Apellido REQUERIDO"
 
-msgid "Required: surname/first name/given name"
+#, fuzzy
+msgid "Required: first name/given name"
 msgstr "Nombre REQUERIDO"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -11094,9 +11095,8 @@ msgstr "se presume"
 msgid "reaction not recorded"
 msgstr "Reacción no doumentada"
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
-"No puedo guardar la sustancia tomada. Infomación inváilda o insuficiente."
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
 msgstr "No puedo agregar duplicado de medicación (eventualmente inactiva)."
@@ -13595,6 +13595,10 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "Cannot save substance intake. Invalid or missing essential input."
+#~ msgstr ""
+#~ "No puedo guardar la sustancia tomada. Infomación inváilda o insuficiente."
 
 #~ msgid "Lab name"
 #~ msgstr "Nombre del Laboratorio"

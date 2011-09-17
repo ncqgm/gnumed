@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-09-15 12:55+CEST\n"
-"PO-Revision-Date: 2011-09-15 13:41+0100\n"
+"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"PO-Revision-Date: 2011-09-17 12:29+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -3156,7 +3156,7 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Pflichtfeld: Nachname (Familienname)"
 
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr "Pflichtfeld: Vorname"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -10233,8 +10233,8 @@ msgstr "vermutet"
 msgid "reaction not recorded"
 msgstr "Reaktion nicht dokumentiert"
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
-msgstr "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende Informationen."
+msgid "Input incomplete/invalid for saving as substance intake."
+msgstr "Unvollständige/ungültige Daten zum Speichern als Substanzeinnahme."
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
 msgstr "Kann kein Duplikat einer (evtl. inaktiven) Medikation eintragen."
@@ -12646,6 +12646,11 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Cannot save substance intake. Invalid or missing essential input."
+#~ msgstr ""
+#~ "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende "
+#~ "Informationen."
 
 #~ msgid "&Manage organizations"
 #~ msgstr "Organisationen &verwalten"

@@ -52,7 +52,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         # begin wxGlade: wxgNewPatientEAPnl.__set_properties
         self._PRW_lastname.SetToolTipString(_("Required: lastname (family name)"))
         self._PRW_lastname.SetFocus()
-        self._PRW_firstnames.SetToolTipString(_("Required: surname/first name/given name"))
+        self._PRW_firstnames.SetToolTipString(_("Required: first name/given name"))
         self._PRW_dob.SetToolTipString(_("Recommended: Date of birth. Your current time zone applies."))
         self._TCTRL_tob.SetToolTipString(_("Optional: the time of birth if known"))
         self._PRW_gender.SetToolTipString(_("Required: gender"))

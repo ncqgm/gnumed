@@ -1245,7 +1245,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				self._DP_discontinued.display_as_valid(True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance intake. Invalid or missing essential input.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
 
 		return validity
 	#----------------------------------------------------------------
