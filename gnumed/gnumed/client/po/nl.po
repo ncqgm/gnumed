@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-17 12:24+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2829,14 +2829,14 @@ msgstr "Notitie"
 msgid "Number"
 msgstr "Nummer"
 
-msgid "Town"
-msgstr "Plaats"
+msgid "Place"
+msgstr "Locatie"
 
 msgid "Suburb:"
 msgstr "Voorstad:"
 
-msgid "State"
-msgstr "Provincie"
+msgid "Region"
+msgstr "Regio"
 
 msgid "Country"
 msgstr "Land"
@@ -3672,12 +3672,6 @@ msgstr "huisadres: land"
 
 msgid "Postal code"
 msgstr "Postcode"
-
-msgid "Place"
-msgstr "Locatie"
-
-msgid "Region"
-msgstr "Regio"
 
 #, fuzzy
 msgid "Other"
@@ -12962,6 +12956,9 @@ msgstr "Telefoon"
 msgid "Office"
 msgstr "Kantoor"
 
+msgid "State"
+msgstr "Provincie"
+
 msgid "Zip"
 msgstr "Postcode"
 
@@ -13496,6 +13493,9 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "Town"
+#~ msgstr "Plaats"
 
 #, fuzzy
 #~ msgid "Cannot save substance intake. Invalid or missing essential input."

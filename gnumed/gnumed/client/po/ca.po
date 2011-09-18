@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:36+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -2476,14 +2476,14 @@ msgstr ""
 msgid "Number"
 msgstr "Número"
 
-msgid "Town"
-msgstr "Població"
+msgid "Place"
+msgstr ""
 
 msgid "Suburb:"
 msgstr "Barri:"
 
-msgid "State"
-msgstr "Província/Vagueria"
+msgid "Region"
+msgstr ""
 
 msgid "Country"
 msgstr "País"
@@ -3224,12 +3224,6 @@ msgid "Primary (home) address / contact"
 msgstr ""
 
 msgid "Postal code"
-msgstr ""
-
-msgid "Place"
-msgstr ""
-
-msgid "Region"
 msgstr ""
 
 msgid "Other"
@@ -11021,6 +11015,9 @@ msgstr ""
 msgid "Office"
 msgstr ""
 
+msgid "State"
+msgstr "Província/Vagueria"
+
 msgid "Zip"
 msgstr ""
 
@@ -11526,6 +11523,9 @@ msgstr "Quantitat"
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid "Town"
+#~ msgstr "Població"
 
 #, fuzzy
 #~ msgid "Add a new address."

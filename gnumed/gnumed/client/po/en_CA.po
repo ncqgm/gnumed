@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -2495,13 +2495,13 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-msgid "Town"
+msgid "Place"
 msgstr ""
 
 msgid "Suburb:"
 msgstr ""
 
-msgid "State"
+msgid "Region"
 msgstr ""
 
 msgid "Country"
@@ -3236,12 +3236,6 @@ msgid "Primary (home) address / contact"
 msgstr ""
 
 msgid "Postal code"
-msgstr ""
-
-msgid "Place"
-msgstr ""
-
-msgid "Region"
 msgstr ""
 
 msgid "Other"
@@ -10961,6 +10955,9 @@ msgid "Phone"
 msgstr ""
 
 msgid "Office"
+msgstr ""
+
+msgid "State"
 msgstr ""
 
 msgid "Zip"

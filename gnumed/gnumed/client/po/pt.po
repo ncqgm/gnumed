@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-17 12:24+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -2689,13 +2689,13 @@ msgstr "Notas"
 msgid "Number"
 msgstr "Número"
 
-msgid "Town"
-msgstr "Cidade"
+msgid "Place"
+msgstr "Lugar"
 
 msgid "Suburb:"
 msgstr "Bairro:"
 
-msgid "State"
+msgid "Region"
 msgstr "Estado"
 
 msgid "Country"
@@ -3482,12 +3482,6 @@ msgstr "endereço principal: país"
 
 msgid "Postal code"
 msgstr "CEP"
-
-msgid "Place"
-msgstr "Lugar"
-
-msgid "Region"
-msgstr "Estado"
 
 msgid "Other"
 msgstr ""
@@ -11776,6 +11770,9 @@ msgstr "Telefone"
 msgid "Office"
 msgstr "Escritório"
 
+msgid "State"
+msgstr "Estado"
+
 msgid "Zip"
 msgstr "Código postal"
 
@@ -12291,6 +12288,9 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#~ msgid "Town"
+#~ msgstr "Cidade"
 
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Drs Horst Herb && Karsten Hilbert"

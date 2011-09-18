@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-09-17 12:24+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:38+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2328,13 +2328,13 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-msgid "Town"
+msgid "Place"
 msgstr ""
 
 msgid "Suburb:"
 msgstr ""
 
-msgid "State"
+msgid "Region"
 msgstr ""
 
 msgid "Country"
@@ -3019,12 +3019,6 @@ msgid "Primary (home) address / contact"
 msgstr ""
 
 msgid "Postal code"
-msgstr ""
-
-msgid "Place"
-msgstr ""
-
-msgid "Region"
 msgstr ""
 
 msgid "Other"
@@ -10687,6 +10681,9 @@ msgid "Phone"
 msgstr ""
 
 msgid "Office"
+msgstr ""
+
+msgid "State"
 msgstr ""
 
 msgid "Zip"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2887,14 +2887,14 @@ msgstr "Notas"
 msgid "Number"
 msgstr "Número"
 
-msgid "Town"
-msgstr "Ciudad"
+msgid "Place"
+msgstr "Lugar"
 
 msgid "Suburb:"
 msgstr "Suburbio"
 
-msgid "State"
-msgstr "Estado"
+msgid "Region"
+msgstr "Región"
 
 msgid "Country"
 msgstr "País"
@@ -3726,12 +3726,6 @@ msgstr "Direccion primaria (opcional)"
 
 msgid "Postal code"
 msgstr "Código postal"
-
-msgid "Place"
-msgstr "Lugar"
-
-msgid "Region"
-msgstr "Región"
 
 msgid "Other"
 msgstr "Otros"
@@ -13077,6 +13071,9 @@ msgstr "Teléfono"
 msgid "Office"
 msgstr "Oficina"
 
+msgid "State"
+msgstr "Estado"
+
 msgid "Zip"
 msgstr "CP"
 
@@ -13595,6 +13592,9 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "Town"
+#~ msgstr "Ciudad"
 
 #~ msgid "Cannot save substance intake. Invalid or missing essential input."
 #~ msgstr ""

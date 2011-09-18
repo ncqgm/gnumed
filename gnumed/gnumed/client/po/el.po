@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -2652,14 +2652,14 @@ msgstr "Σημειώσεις"
 msgid "Number"
 msgstr "Νούμερο"
 
-msgid "Town"
-msgstr "Πόλη"
+msgid "Place"
+msgstr "Τόπος"
 
 msgid "Suburb:"
 msgstr "Συνοικία"
 
-msgid "State"
-msgstr "Πολιτεία"
+msgid "Region"
+msgstr "Περιοχή"
 
 msgid "Country"
 msgstr "Χώρα"
@@ -3400,12 +3400,6 @@ msgstr ""
 
 msgid "Postal code"
 msgstr "Ταχυδρομικός κώδικας"
-
-msgid "Place"
-msgstr "Τόπος"
-
-msgid "Region"
-msgstr "Περιοχή"
 
 msgid "Other"
 msgstr "Άλλα"
@@ -11228,6 +11222,9 @@ msgstr "Τηλέφωνο"
 msgid "Office"
 msgstr "Γραφείο"
 
+msgid "State"
+msgstr "Πολιτεία"
+
 msgid "Zip"
 msgstr "Τ.Κ."
 
@@ -11733,6 +11730,9 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "Town"
+#~ msgstr "Πόλη"
 
 #~ msgid "Lab name"
 #~ msgstr "Όνομα εργαστηρίου"

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-17 12:23+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -2730,14 +2730,14 @@ msgstr "Note"
 msgid "Number"
 msgstr "Numero"
 
-msgid "Town"
-msgstr "Città"
+msgid "Place"
+msgstr "Posto"
 
 msgid "Suburb:"
 msgstr "Sobborgo:"
 
-msgid "State"
-msgstr "Stato"
+msgid "Region"
+msgstr "Regione"
 
 msgid "Country"
 msgstr "Nazione"
@@ -3498,12 +3498,6 @@ msgstr "Indirizzo principale (casa) (opzionale)"
 
 msgid "Postal code"
 msgstr "Codice postale"
-
-msgid "Place"
-msgstr "Posto"
-
-msgid "Region"
-msgstr "Regione"
 
 msgid "Other"
 msgstr "Altro"
@@ -11435,6 +11429,9 @@ msgstr "Telefono"
 msgid "Office"
 msgstr "Ufficio"
 
+msgid "State"
+msgstr "Stato"
+
 msgid "Zip"
 msgstr ""
 
@@ -11949,6 +11946,9 @@ msgstr "Quantità"
 
 msgid "First Date"
 msgstr "Prima Data"
+
+#~ msgid "Town"
+#~ msgstr "Città"
 
 #~ msgid "Lab name"
 #~ msgstr "Nome Laboratorio"
