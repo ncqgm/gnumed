@@ -1634,9 +1634,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_zip,
 			self._PRW_street,
 			self._PRW_urb,
-			self._PRW_type,
-			self._PRW_region,
-			self._PRW_country
+			self._PRW_type
+#			, self._PRW_region,
+#			self._PRW_country
 		)
 		no_of_filled_fields = 0
 
