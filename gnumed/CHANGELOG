@@ -71,6 +71,7 @@ IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thank
 IMPROVED: DOB related identity handling
 IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
+IMPROVED: new patient EA: include address type selection
 
 ------------------------------------------------
 # rel-0-9-patches
