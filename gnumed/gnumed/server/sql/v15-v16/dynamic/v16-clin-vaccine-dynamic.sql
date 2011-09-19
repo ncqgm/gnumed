@@ -8,25 +8,34 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-alter table clin.vaccine
-	alter column is_live
-		set default true;
-
--- --------------------------------------------------------------
--- .fk_brand/id_route
-\unset ON_ERROR_STOP
-alter table clin.vaccine drop constraint clin_vaccine_sane_brand_route cascade;
-\set ON_ERROR_STOP 1
-
-alter table clin.vaccine
-	add constraint clin_vaccine_uniq_brand_route
-		unique (fk_brand, id_route);
-
--- --------------------------------------------------------------
 -- .is_live
 alter table clin.vaccine
 	alter column is_live
 		drop not null;
+
+alter table clin.vaccine
+	alter column is_live
+		set default null;
+
+-- --------------------------------------------------------------
+-- .id_route
+alter table clin.vaccine
+	alter column id_route
+		drop not null;
+
+alter table clin.vaccine
+	alter column id_route
+		set default null;
+
+-- --------------------------------------------------------------
+-- .fk_brand
+\unset ON_ERROR_STOP
+alter table clin.vaccine drop constraint clin_vaccine_uniq_brand cascade;
+\set ON_ERROR_STOP 1
+
+alter table clin.vaccine
+	add constraint clin_vaccine_uniq_brand
+		unique (fk_brand);
 
 -- --------------------------------------------------------------
 -- adjust vaccination routes

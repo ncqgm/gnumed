@@ -204,8 +204,8 @@ def manage_vaccines(parent=None):
 				)
 			),
 			v['preparation'],
-			u'%s (%s)' % (v['route_abbreviation'], v['route_description']),
-			gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u'', u'?'),
+			#u'%s (%s)' % (v['route_abbreviation'], v['route_description']),
+			#gmTools.bool2subst(v['is_live'], gmTools.u_checkmark_thin, u'', u'?'),
 			gmTools.coalesce(v['atc_code'], u''),
 			u'%s%s' % (
 				gmTools.coalesce(v['min_age'], u'?'),
@@ -220,7 +220,8 @@ def manage_vaccines(parent=None):
 		parent = parent,
 		msg = _('\nThe vaccines currently known to GNUmed.\n'),
 		caption = _('Showing vaccines.'),
-		columns = [ u'#', _('Brand'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
+		#columns = [ u'#', _('Brand'), _('Preparation'), _(u'Route'), _('Live'), _('ATC'), _('Age range'), _('Comment') ],
+		columns = [ u'#', _('Brand'), _('Preparation'), _('ATC'), _('Age range'), _('Comment') ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
@@ -499,7 +500,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 			indications = self._PNL_indications.selected_indications
 		)
 
-		data['pk_route'] = self._PRW_route.GetData()
+#		data['pk_route'] = self._PRW_route.GetData()
 #		data['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
@@ -542,7 +543,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		# the validator already asked for changes so just do it
 		self.data.set_indications(indications = self._PNL_indications.selected_indications)
 
-		self.data['pk_route'] = self._PRW_route.GetData()
+#		self.data['pk_route'] = self._PRW_route.GetData()
 #		self.data['is_live'] = self._CHBOX_live.GetValue()
 		val = self._PRW_age_min.GetValue().strip()
 		if val != u'':
@@ -559,7 +560,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _refresh_as_new(self):
 		self._PRW_brand.SetText(value = u'', data = None, suppress_smarts = True)
 		self._PRW_route.SetText(value = u'intramuscular')
-		self._CHBOX_live.SetValue(True)
+#		self._CHBOX_live.SetValue(True)
 		self._CHBOX_fake.SetValue(False)
 		self._PNL_indications.clear_all()
 		self._PRW_atc.SetText(value = u'', data = None, suppress_smarts = True)
@@ -571,8 +572,8 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_brand.SetText(value = self.data['vaccine'], data = self.data['pk_brand'])
-		self._PRW_route.SetText(value = self.data['route_description'], data = self.data['pk_route'])
-		self._CHBOX_live.SetValue(self.data['is_live'])
+#		self._PRW_route.SetText(value = self.data['route_description'], data = self.data['pk_route'])
+#		self._CHBOX_live.SetValue(self.data['is_live'])
 		self._CHBOX_fake.SetValue(self.data['is_fake_vaccine'])
 		self._PNL_indications.select(self.data['indications'])
 		self._PRW_atc.SetText(value = self.data['atc_code'], data = self.data['atc_code'])
