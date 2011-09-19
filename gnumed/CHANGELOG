@@ -38,6 +38,7 @@ NEW: placeholder $<external_id::type//issuer::length>$
 NEW: placeholder $<primary_praxis_provider>$
 NEW: report generator placeholder $<ID_active_patient>$
 NEW: bleeding score: HEMORR²HAGES
+NEW: vaccination indication "influenza (H3N2)"
 
 IMPROVED: substance intake EA: one line with tooltip for components info field
 IMPROVED: substance intake EA: field naming and title
@@ -70,6 +71,7 @@ IMPROVED: inbox: goto-patient as default action if pk_patient is not NULL [thank
 IMPROVED: DOB related identity handling
 IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
+IMPROVED: new patient EA: include address type selection
 
 ------------------------------------------------
 # rel-0-9-patches

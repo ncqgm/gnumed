@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-09-13 12:58+CEST\n"
-"PO-Revision-Date: 2011-09-13 12:59+0100\n"
+"POT-Creation-Date: 2011-09-18 11:36+CEST\n"
+"PO-Revision-Date: 2011-09-18 11:45+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -2530,13 +2530,13 @@ msgstr "... Notizen"
 msgid "Number"
 msgstr "Nummer"
 
-msgid "Town"
+msgid "Place"
 msgstr "Ort"
 
 msgid "Suburb:"
 msgstr "Ortsteil:"
 
-msgid "State"
+msgid "Region"
 msgstr "Bundesland"
 
 msgid "Country"
@@ -3156,7 +3156,7 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Pflichtfeld: Nachname (Familienname)"
 
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr "Pflichtfeld: Vorname"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -3260,12 +3260,6 @@ msgstr "Haupt-/Heimatwohnsitz / -kontakt"
 
 msgid "Postal code"
 msgstr "PLZ"
-
-msgid "Place"
-msgstr "Ort"
-
-msgid "Region"
-msgstr "Bundesland"
 
 msgid "Other"
 msgstr "Andere"
@@ -10233,8 +10227,8 @@ msgstr "vermutet"
 msgid "reaction not recorded"
 msgstr "Reaktion nicht dokumentiert"
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
-msgstr "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende Informationen."
+msgid "Input incomplete/invalid for saving as substance intake."
+msgstr "Unvollständige/ungültige Daten zum Speichern als Substanzeinnahme."
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
 msgstr "Kann kein Duplikat einer (evtl. inaktiven) Medikation eintragen."
@@ -12135,6 +12129,9 @@ msgstr "Telefon"
 msgid "Office"
 msgstr "Praxis"
 
+msgid "State"
+msgstr "Bundesland"
+
 msgid "Zip"
 msgstr "PLZ"
 
@@ -12646,6 +12643,14 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Town"
+#~ msgstr "Ort"
+
+#~ msgid "Cannot save substance intake. Invalid or missing essential input."
+#~ msgstr ""
+#~ "Kann Substanzeinnahme nicht speichern. Es fehlen grundlegende "
+#~ "Informationen."
 
 #~ msgid "&Manage organizations"
 #~ msgstr "Organisationen &verwalten"

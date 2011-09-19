@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-09-11 16:09+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -91,6 +91,16 @@ msgid ""
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
+"Αδύνατον να συνδεθώ με τη βάση δεδομένων\n"
+"\n"
+"%s\n"
+"\n"
+"Παρακαλώ προσπαθείστε ξανά με τα απαιτούμενα δικαιώματα ή ακυρώστε\n"
+"\n"
+"Επίσης ίσως χρειάζεται να ελέγξετε την ρύθμιση πιστοποίησης του πελάτη\n"
+"της  PostgreSQL στο αρχείο pg_hba.conf. Για λεπτομέρειες δείτε:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid "Connecting to backend"
 msgstr ""
@@ -241,13 +251,13 @@ msgstr ""
 "\n"
 
 msgid " (last confirmed %s)"
-msgstr ""
+msgstr " (τελευταία επιβεβαίωση %s)"
 
 msgid "unknown reaction"
 msgstr "Άγνωστη αντίδραση"
 
 msgid "Family History"
-msgstr ""
+msgstr "Οικογενειακό Ιστορικό"
 
 #, fuzzy
 msgid "Occupations"
@@ -477,7 +487,7 @@ msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
-msgstr ""
+msgstr "αλλαγή θερινής - χειμερινής ώρας είναι ενεργή"
 
 msgid "Documents:"
 msgstr "Αρχεία:"
@@ -486,7 +496,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 msgid " (ongoing)"
-msgstr ""
+msgstr " (εξερχόμενο)"
 
 msgid "Episode"
 msgstr "Επεισόδιο"
@@ -527,7 +537,7 @@ msgstr ""
 "LaTeX σε PDF."
 
 msgid "Medication history"
-msgstr ""
+msgstr "Ιατρικό Ιστορικό"
 
 msgid ""
 "\n"
@@ -538,10 +548,10 @@ msgid "Take: %s"
 msgstr ""
 
 msgid "copy"
-msgstr ""
+msgstr "αντιγραφή"
 
 msgid "data"
-msgstr ""
+msgstr "δεδομένα"
 
 msgid "long-term"
 msgstr "μακροπρόθεσμο"
@@ -585,6 +595,12 @@ msgstr "Φάρμακο"
 msgid "units"
 msgstr "μονάδες"
 
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
+
 msgid "inhouse lab"
 msgstr "εσωτερικό εργαστήριο"
 
@@ -592,7 +608,7 @@ msgid "auto-generated"
 msgstr "αυτόματη-δημιουργία"
 
 msgid "   Doc: %s"
-msgstr ""
+msgstr "   Έγγραφο: %s"
 
 msgid "   MTA: %s"
 msgstr ""
@@ -970,7 +986,7 @@ msgid "Narrative"
 msgstr "Αφηγηματικά"
 
 msgid "Exported: %s\n"
-msgstr ""
+msgstr "Εξήχθηκε: %s\n"
 
 msgid ""
 "Help requested\n"
@@ -1074,10 +1090,10 @@ msgid "%d day(s) ago: %s"
 msgstr ""
 
 msgid "in %d week(s): %s"
-msgstr ""
+msgstr "σε %d εβδομάδα(ες): %s"
 
 msgid "%d week(s) ago: %s"
-msgstr ""
+msgstr "πριν από %d  εβδομάδα(ες): %s"
 
 msgid "%s (%s this year)"
 msgstr "%s (%s αυτό το έτος)"
@@ -1101,16 +1117,16 @@ msgid "hdwmy (single character date offset triggers)"
 msgstr ""
 
 msgid "in %d hour(s): %s"
-msgstr ""
+msgstr "σε %d ώρα(ες): %s"
 
 msgid "%d hour(s) ago: %s"
-msgstr ""
+msgstr "πριν από %d ώρα(ες): %s"
 
 msgid "in %d month(s): %s"
-msgstr ""
+msgstr "σε %d  μήνα(ες): %s"
 
 msgid "%d month(s) ago: %s"
-msgstr ""
+msgstr "πριν από %d  μήνα(ες): %s"
 
 msgid "in %d year(s): %s"
 msgstr ""
@@ -2366,7 +2382,7 @@ msgstr ""
 "τύπο συνεδρίας."
 
 msgid "Local name"
-msgstr ""
+msgstr "Τοπικό όνομα"
 
 msgid "Encounter type"
 msgstr "Τύπος συνεδρίας"
@@ -2636,14 +2652,14 @@ msgstr "Σημειώσεις"
 msgid "Number"
 msgstr "Νούμερο"
 
-msgid "Town"
-msgstr "Πόλη"
+msgid "Place"
+msgstr "Τόπος"
 
 msgid "Suburb:"
 msgstr "Συνοικία"
 
-msgid "State"
-msgstr "Πολιτεία"
+msgid "Region"
+msgstr "Περιοχή"
 
 msgid "Country"
 msgstr "Χώρα"
@@ -3056,6 +3072,12 @@ msgstr "ή"
 msgid "Group"
 msgstr "Ομάδα"
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3065,8 +3087,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr ""
 
-msgid "Lab name"
-msgstr "Όνομα εργαστηρίου"
+msgid "Org.Unit"
+msgstr ""
 
 msgid "Contact"
 msgstr "Επαφή"
@@ -3105,7 +3127,7 @@ msgid "&All unsigned"
 msgstr ""
 
 msgid "&Select"
-msgstr ""
+msgstr "&Επιλογή"
 
 msgid "&Actions ... "
 msgstr ""
@@ -3271,7 +3293,7 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr ""
 
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr ""
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -3368,7 +3390,7 @@ msgid "Date of birth"
 msgstr "Ημερομηνία γέννησης"
 
 msgid "Time:"
-msgstr ""
+msgstr "Ώρα:"
 
 msgid "Nick name"
 msgstr "Ψευδώνυμο"
@@ -3378,12 +3400,6 @@ msgstr ""
 
 msgid "Postal code"
 msgstr "Ταχυδρομικός κώδικας"
-
-msgid "Place"
-msgstr "Τόπος"
-
-msgid "Region"
-msgstr ""
 
 msgid "Other"
 msgstr "Άλλα"
@@ -4257,7 +4273,7 @@ msgid "Keep running"
 msgstr "Συνέχιση εκτέλεσης"
 
 msgid "Close GNUmed"
-msgstr ""
+msgstr "Έξοδος GNUmed"
 
 msgid "View log"
 msgstr "Προβολή  καταγραφής"
@@ -4525,7 +4541,7 @@ msgid "Varicella zoster (shingles)"
 msgstr ""
 
 msgid "Coxiella burnetii (Q fever)"
-msgstr ""
+msgstr "Coxiella burnetii (πυρετός Q)"
 
 msgid "Tick-borne meningoencephalitis"
 msgstr ""
@@ -4564,7 +4580,7 @@ msgid "<--GI-->"
 msgstr ""
 
 msgid "Other:"
-msgstr ""
+msgstr "Άλλο:"
 
 msgid "Live"
 msgstr ""
@@ -4611,7 +4627,7 @@ msgid "Age range"
 msgstr "Ηλικιακό φάσμα"
 
 msgid "→"
-msgstr ""
+msgstr "→"
 
 msgid "Template"
 msgstr "Πρότυπο"
@@ -4858,7 +4874,7 @@ msgid ""
 msgstr ""
 
 msgid "Saving address"
-msgstr ""
+msgstr "Αποθήκευση διεύθυνσης"
 
 msgid "Address details must be filled in completely or not at all."
 msgstr ""
@@ -4903,7 +4919,7 @@ msgid ""
 msgstr ""
 
 msgid "ALLERGIES"
-msgstr ""
+msgstr "ΑΛΛΕΡΓΙΕΣ"
 
 msgid "Allergy and Sensitivity - Summary"
 msgstr ""
@@ -5441,7 +5457,27 @@ msgstr "&Γεννήτρια Αναφορών"
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -5585,7 +5621,7 @@ msgid "Go to www.openclipart.org for images."
 msgstr ""
 
 msgid "WWW"
-msgstr ""
+msgstr "WWW"
 
 msgid "Must pick an image file for a new tag."
 msgstr ""
@@ -5741,7 +5777,7 @@ msgid "Clone and &edit"
 msgstr ""
 
 msgid "Adding new name"
-msgstr ""
+msgstr "Προσθήκη νέου ονόματος"
 
 msgid "Cloning name"
 msgstr ""
@@ -5761,7 +5797,7 @@ msgid ""
 msgstr ""
 
 msgid "Deleting name"
-msgstr ""
+msgstr "Διαγραφή ονόματος"
 
 msgid "ID type"
 msgstr ""
@@ -5806,7 +5842,7 @@ msgid ""
 msgstr ""
 
 msgid "Required fields"
-msgstr ""
+msgstr "Απαιτούμενα πεδία"
 
 msgid "This field must contain an item selected from the dropdown list."
 msgstr ""
@@ -5845,7 +5881,7 @@ msgid "Elderly"
 msgstr "Ηλικιωμένος"
 
 msgid "Population"
-msgstr ""
+msgstr "Πληθυσμός"
 
 msgid "Distribution"
 msgstr "Διανομή"
@@ -6612,10 +6648,10 @@ msgid "Editing performed procedures ..."
 msgstr ""
 
 msgid "Where"
-msgstr ""
+msgstr "Που"
 
 msgid "When"
-msgstr ""
+msgstr "Πότε"
 
 msgid "Adding a procedure"
 msgstr ""
@@ -6962,7 +6998,7 @@ msgid "significant"
 msgstr ""
 
 msgid "Specialty"
-msgstr ""
+msgstr "Ειδικότητα"
 
 msgid "Text"
 msgstr "Κείμενο"
@@ -7063,10 +7099,10 @@ msgid ""
 msgstr ""
 
 msgid "Yes, send the bug report."
-msgstr ""
+msgstr "Ναι, στείλε αναφορά σφάλματος."
 
 msgid "No, do not send the bug report."
-msgstr ""
+msgstr "Όχι, μην στέλνεις αναφορά σφάλματος."
 
 msgid "include log file in bug report"
 msgstr ""
@@ -7235,7 +7271,7 @@ msgid "Check for new releases of the GNUmed client."
 msgstr ""
 
 msgid "Check for updates"
-msgstr ""
+msgstr "Έλεγχος ενημερώσεων"
 
 msgid "Announce database maintenance downtime to all connected clients."
 msgstr ""
@@ -7346,13 +7382,13 @@ msgid "Configure the default province/region/state for person creation."
 msgstr ""
 
 msgid "Default region"
-msgstr ""
+msgstr "Προεπιλεγμένη περιοχή"
 
 msgid "Configure the default country for person creation."
 msgstr ""
 
 msgid "Default country"
-msgstr ""
+msgstr "Προεπιλεγμένη χώρα"
 
 msgid "Person ..."
 msgstr ""
@@ -7486,7 +7522,7 @@ msgid "Episode ..."
 msgstr ""
 
 msgid "EMR ..."
-msgstr ""
+msgstr "EMR ..."
 
 msgid "Preferences ..."
 msgstr "Παραπομπές ..."
@@ -7670,7 +7706,7 @@ msgid "Manage family history."
 msgstr ""
 
 msgid "&Add / Edit ..."
-msgstr ""
+msgstr "&Προσθήκη / Επεξεργασία ..."
 
 msgid "Start a new encounter for the active patient right now."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
@@ -7790,7 +7826,7 @@ msgid "Go to the User Manual on the web."
 msgstr ""
 
 msgid "User manual (www)"
-msgstr ""
+msgstr "Εγχειρίδιο χρήστη (www)"
 
 msgid "Menu reference (www)"
 msgstr ""
@@ -8382,7 +8418,7 @@ msgid "Vaccination targets (conditions known to be preventable by vaccination)"
 msgstr ""
 
 msgid "Vaccines"
-msgstr ""
+msgstr "Εμβόλια"
 
 msgid "Workplace profiles (which plugins to load)"
 msgstr ""
@@ -8517,7 +8553,7 @@ msgid "no patient"
 msgstr ""
 
 msgid "GNUmed client"
-msgstr ""
+msgstr "Πελάτης GNUmed"
 
 msgid "GNUmed stdout/stderr window"
 msgstr ""
@@ -8564,7 +8600,7 @@ msgid "Checking configuration files"
 msgstr ""
 
 msgid "GNUmed startup"
-msgstr ""
+msgstr "Έναρξη GNUmed"
 
 msgid ""
 "There is no language selected in the database for user [%s].\n"
@@ -8708,7 +8744,7 @@ msgid "noticed when"
 msgstr ""
 
 msgid "problem"
-msgstr ""
+msgstr "πρόβλημα"
 
 msgid "solution"
 msgstr ""
@@ -8726,7 +8762,7 @@ msgid "facility"
 msgstr ""
 
 msgid "analysis"
-msgstr ""
+msgstr "ανάλυση"
 
 msgid "result"
 msgstr "αποτέλεσμα"
@@ -9001,7 +9037,7 @@ msgid " Conversion unit: %s\n"
 msgstr ""
 
 msgid " Comment: %s\n"
-msgstr ""
+msgstr " Σχόλιο: %s\n"
 
 msgid "Test type:\n"
 msgstr ""
@@ -9092,7 +9128,7 @@ msgid "Material: %s\n"
 msgstr ""
 
 msgid "Details: %s\n"
-msgstr ""
+msgstr "Λεπτομέρειες: %s\n"
 
 msgid "not yet"
 msgstr ""
@@ -9199,9 +9235,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9230,9 +9263,6 @@ msgstr "εσωτερικό εργαστήριο"
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9252,6 +9282,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -9415,7 +9448,7 @@ msgid "Managing components of a drug ..."
 msgstr ""
 
 msgid "in use"
-msgstr ""
+msgstr "σε χρήση"
 
 msgid "not in use"
 msgstr ""
@@ -9533,7 +9566,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 #, fuzzy
@@ -10005,7 +10038,7 @@ msgid "List of templates in the database."
 msgstr ""
 
 msgid "Files in the filesystem."
-msgstr ""
+msgstr "Αρχεία στο σύστημα αρχείων."
 
 msgid "Image capture devices (scanners, cameras, etc)"
 msgstr ""
@@ -10226,7 +10259,7 @@ msgid "DOB"
 msgstr ""
 
 msgid "last visit"
-msgstr ""
+msgstr "τελευταία επίσκεψη"
 
 msgid "found via"
 msgstr ""
@@ -10674,6 +10707,9 @@ msgid ""
 msgstr ""
 
 msgid "Inbox Message Actions:"
+msgstr ""
+
+msgid "Activate patient"
 msgstr ""
 
 msgid "message"
@@ -11186,6 +11222,9 @@ msgstr "Τηλέφωνο"
 msgid "Office"
 msgstr "Γραφείο"
 
+msgid "State"
+msgstr "Πολιτεία"
+
 msgid "Zip"
 msgstr "Τ.Κ."
 
@@ -11691,6 +11730,12 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "Town"
+#~ msgstr "Πόλη"
+
+#~ msgid "Lab name"
+#~ msgstr "Όνομα εργαστηρίου"
 
 #~ msgid "Topical &tree"
 #~ msgstr "Θεματικό &δέντρο"

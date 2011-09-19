@@ -1634,8 +1634,9 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_zip,
 			self._PRW_street,
 			self._PRW_urb,
-			self._PRW_region,
-			self._PRW_country
+			self._PRW_type
+#			, self._PRW_region,
+#			self._PRW_country
 		)
 		no_of_filled_fields = 0
 
@@ -1667,6 +1668,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		# FIXME: they must also contain an *acceptable combination* which
 		# FIXME: can only be tested against the database itself ...
 		strict_fields = (
+			self._PRW_type,
 			self._PRW_region,
 			self._PRW_country
 		)
@@ -1811,6 +1813,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		name.save()
 
 		# address
+		# if we reach this the address cannot be completely empty
 		is_valid = self.__address_valid_for_save(empty_address_is_valid = False)
 		if is_valid is True:
 			# because we currently only check for non-emptiness
@@ -1823,7 +1826,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					urb = self._PRW_urb.GetValue().strip(),
 					state = self._PRW_region.GetData(),
 					country = self._PRW_country.GetData(),
-					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), u'')
+					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), u''),
+					id_type = self._PRW_type.GetData()
 				)
 			except gmPG2.dbapi.InternalError:
 				_log.debug('number: >>%s<<', self._TCTRL_number.GetValue().strip())

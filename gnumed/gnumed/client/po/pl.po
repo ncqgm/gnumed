@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -612,6 +612,12 @@ msgid "Drug"
 msgstr "Lek"
 
 msgid "units"
+msgstr ""
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
 msgstr ""
 
 msgid "inhouse lab"
@@ -2613,14 +2619,14 @@ msgstr ""
 msgid "Number"
 msgstr "Numer"
 
-msgid "Town"
-msgstr "Miejscowość"
+msgid "Place"
+msgstr ""
 
 msgid "Suburb:"
 msgstr "Dzielnica"
 
-msgid "State"
-msgstr "Województwo"
+msgid "Region"
+msgstr ""
 
 msgid "Country"
 msgstr "Kraj"
@@ -3048,6 +3054,12 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3057,7 +3069,7 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr ""
 
-msgid "Lab name"
+msgid "Org.Unit"
 msgstr ""
 
 msgid "Contact"
@@ -3266,7 +3278,7 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr ""
 
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr ""
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -3375,12 +3387,6 @@ msgid "Primary (home) address / contact"
 msgstr ""
 
 msgid "Postal code"
-msgstr ""
-
-msgid "Place"
-msgstr ""
-
-msgid "Region"
 msgstr ""
 
 msgid "Other"
@@ -5449,7 +5455,27 @@ msgstr ""
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -9277,9 +9303,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr "Zmień typy dokumentów"
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9308,9 +9331,6 @@ msgstr "ogólna informacja"
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9330,6 +9350,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -9601,7 +9624,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -10756,6 +10779,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -11266,6 +11292,9 @@ msgstr ""
 msgid "Office"
 msgstr ""
 
+msgid "State"
+msgstr "Województwo"
+
 msgid "Zip"
 msgstr ""
 
@@ -11772,6 +11801,9 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid "Town"
+#~ msgstr "Miejscowość"
 
 #, fuzzy
 #~ msgid "Add a new address."

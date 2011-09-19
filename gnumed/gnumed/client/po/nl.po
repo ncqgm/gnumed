@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -60,6 +60,19 @@ msgid ""
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
+"Kan geen verbinding maken met de database:\n"
+"\n"
+"%S\n"
+"\n"
+"Weet je zeker dat er een lokale database geïnstalleerd is?\n"
+"\n"
+"Probeer het nogmaals met juiste inloggegevens of annuleer.\n"
+"\n"
+"Mogelijk dient u de authenticatie gegevens in pg_hba.conf \n"
+"van uw PostgreSQL client te controleren. voor meer informatie\n"
+"ga naar:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -74,6 +87,17 @@ msgid ""
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
+"Kan geen verbinding maken met de database:\n"
+"\n"
+"%S\n"
+"\n"
+"Probeer het nogmaals met juiste inloggegevens of annuleer.\n"
+"\n"
+"Mogelijk dient u de authenticatie gegevens in pg_hba.conf\n"
+"van uw PostgreSQL client te controleren. voor meer informatie\n"
+"ga naar:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid "Connecting to backend"
 msgstr "Verbinden met backend"
@@ -112,7 +136,7 @@ msgid "Cannot run [arriba] !"
 msgstr "Kan episode [%s] niet beginnen."
 
 msgid "No [arriba] result found in [%s]."
-msgstr ""
+msgstr "Geen [arriba] resultaat gevonden in [%s]."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "dummy-hoeft-niet-vertaald-te-worden-maar-maakt-epydoc-blij"
@@ -209,7 +233,7 @@ msgid " %s encounters from %s to %s\n"
 msgstr " %s bezoeken van %s aan %s\n"
 
 msgid " %s active medications\n"
-msgstr ""
+msgstr " %s actieve medicatie\n"
 
 msgid " %s documents\n"
 msgstr " %s documenten\n"
@@ -221,12 +245,14 @@ msgstr ""
 "\n"
 
 msgid " %s hospital stays\n"
-msgstr ""
+msgstr " %s ziekenhuisopnames\n"
 
 msgid ""
 " %s performed procedures\n"
 "\n"
 msgstr ""
+" %s uitgevoerde behandelingen\n"
+"\n"
 
 #, fuzzy
 msgid "Allergies and Intolerances\n"
@@ -235,7 +261,7 @@ msgstr ""
 "\n"
 
 msgid " (last confirmed %s)"
-msgstr ""
+msgstr " (laatst bevestigd %s)"
 
 msgid "unknown reaction"
 msgstr "onbekende reactie"
@@ -318,7 +344,7 @@ msgid "Sensing:"
 msgstr "Sensatie"
 
 msgid "Threshold"
-msgstr ""
+msgstr "Drempelwaarde"
 
 #, fuzzy
 msgid "last check:"
@@ -332,13 +358,13 @@ msgid "A: Sign"
 msgstr "Ondertekenen"
 
 msgid "B: Cluster of signs"
-msgstr ""
+msgstr "B: Groep van tekens"
 
 msgid "C: Syndromic diagnosis"
-msgstr ""
+msgstr "C: Syndroom diagnose"
 
 msgid "D: Scientific diagnosis"
-msgstr ""
+msgstr "D: Wetenschappelijke diagnose"
 
 msgid "<%s>: unknown diagnostic certainty classification"
 msgstr ""
@@ -413,10 +439,10 @@ msgid "Active medications: %s"
 msgstr "Huidige gezondheidsprobleem \"%s\""
 
 msgid "Hospital stays: %s"
-msgstr ""
+msgstr "Ziekenhuisopnames: %s"
 
 msgid "Procedures performed: %s"
-msgstr ""
+msgstr "Uitgevoerde behandelingen: %s"
 
 msgid "Family History: %s"
 msgstr ""
@@ -477,7 +503,7 @@ msgid "AOE"
 msgstr "Consultsamenvatting"
 
 msgid " ... %s skipped ..."
-msgstr ""
+msgstr " ... %s overgeslagen ..."
 
 msgid "Progress notes in most recent encounter:"
 msgstr "Voortgangsrapport van laatste ontmoetingen:"
@@ -517,12 +543,13 @@ msgstr "onbekende plaatsvuller: <%s>"
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
 msgstr ""
+"Fout tijdens laden pdflatex. Kan LaTeX template niet omzetten naar PDF."
 
 msgid "Sandboxed PDF output file cannot be moved."
 msgstr ""
 
 msgid "PDF output file cannot be opened."
-msgstr ""
+msgstr "PDF bestand kan niet geopend worden"
 
 msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
@@ -557,13 +584,13 @@ msgid "data"
 msgstr ""
 
 msgid "long-term"
-msgstr ""
+msgstr "Lange termijn"
 
 msgid "short-term"
-msgstr ""
+msgstr "korte termijn"
 
 msgid "?short-term"
-msgstr ""
+msgstr "?korte termijn"
 
 #, fuzzy
 msgid "?ongoing"
@@ -592,7 +619,7 @@ msgid "Medication list"
 msgstr "Indicatie"
 
 msgid "ordered by brand"
-msgstr ""
+msgstr "geordend naar merk"
 
 #, fuzzy
 msgid "Regimen"
@@ -605,12 +632,18 @@ msgstr "Geneesmiddel"
 msgid "units"
 msgstr "Eenheden"
 
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
+
 #, fuzzy
 msgid "inhouse lab"
 msgstr "intern laboratorium"
 
 msgid "auto-generated"
-msgstr ""
+msgstr "automatisch gegenereerd"
 
 msgid "   Doc: %s"
 msgstr "   Doc: %s"
@@ -1042,7 +1075,7 @@ msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
 msgid "** DOB unknown **"
-msgstr ""
+msgstr "** DOB onbekend **"
 
 msgid "interval_format_tag::years::y"
 msgstr ""
@@ -1257,7 +1290,7 @@ msgid "Translate this or i18n into <en_EN> will not work properly !"
 msgstr "Vertaal dit of i18n zal niet goed werken!"
 
 msgid "[%s] is not a readable file"
-msgstr ""
+msgstr "[%s] is geen leesbaar bestand"
 
 msgid ""
 "Unable to display the file:\n"
@@ -1379,7 +1412,7 @@ msgid "Can't connect to database without login information!"
 msgstr "Kan niet verbinden met database zonder login informatie!"
 
 msgid " option [%s]: %s"
-msgstr ""
+msgstr " optie [%s]: %s"
 
 #, fuzzy
 msgid "  risk: %s"
@@ -2796,14 +2829,14 @@ msgstr "Notitie"
 msgid "Number"
 msgstr "Nummer"
 
-msgid "Town"
-msgstr "Plaats"
+msgid "Place"
+msgstr "Locatie"
 
 msgid "Suburb:"
 msgstr "Voorstad:"
 
-msgid "State"
-msgstr "Provincie"
+msgid "Region"
+msgstr "Regio"
 
 msgid "Country"
 msgstr "Land"
@@ -3261,6 +3294,12 @@ msgstr "of"
 msgid "Group"
 msgstr "Groep"
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3271,9 +3310,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr "Een aantekening bij deze patiënt."
 
-#, fuzzy
-msgid "Lab name"
-msgstr "Achternaam"
+msgid "Org.Unit"
+msgstr ""
 
 #, fuzzy
 msgid "Contact"
@@ -3511,7 +3549,7 @@ msgid "Required: lastname (family name)"
 msgstr "Benodigd: achternaam"
 
 #, fuzzy
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr "Benodigd: voornaam"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -3634,12 +3672,6 @@ msgstr "huisadres: land"
 
 msgid "Postal code"
 msgstr "Postcode"
-
-msgid "Place"
-msgstr "Locatie"
-
-msgid "Region"
-msgstr "Regio"
 
 #, fuzzy
 msgid "Other"
@@ -6027,7 +6059,27 @@ msgstr "Rapportgenerator"
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -10595,10 +10647,6 @@ msgid "Editing measurement type"
 msgstr "Meting bewerken"
 
 #, fuzzy
-msgid "in-house"
-msgstr "intern laboratorium"
-
-#, fuzzy
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 "Kan documenttype\n"
@@ -10632,9 +10680,6 @@ msgstr "intern laboratorium"
 msgid "Select the type of measurement."
 msgstr "Selecteer het soort meting."
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 #, fuzzy
 msgid "Select the desired unit for the amount or measurement."
 msgstr "Selecteer de grootheid van de testuitslag."
@@ -10656,6 +10701,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10968,9 +11016,8 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr "reactie niet genoteerd"
 
-#, fuzzy
-msgid "Cannot save substance intake. Invalid or missing essential input."
-msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+msgid "Input incomplete/invalid for saving as substance intake."
+msgstr ""
 
 #, fuzzy
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -12327,6 +12374,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr "Postvak In Berichten menu"
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr "bericht"
 
@@ -12906,6 +12956,9 @@ msgstr "Telefoon"
 msgid "Office"
 msgstr "Kantoor"
 
+msgid "State"
+msgstr "Provincie"
+
 msgid "Zip"
 msgstr "Postcode"
 
@@ -13440,6 +13493,21 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "Town"
+#~ msgstr "Plaats"
+
+#, fuzzy
+#~ msgid "Cannot save substance intake. Invalid or missing essential input."
+#~ msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+
+#, fuzzy
+#~ msgid "Lab name"
+#~ msgstr "Achternaam"
+
+#, fuzzy
+#~ msgid "in-house"
+#~ msgstr "intern laboratorium"
 
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Drs Horst Herb && Karsten Hilbert"

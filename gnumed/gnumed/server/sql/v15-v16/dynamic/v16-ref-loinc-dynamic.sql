@@ -8,6 +8,12 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop trigger tr_upd_ref_code_tbl_check_backlink on ref.loinc;
+drop trigger tr_del_ref_code_tbl_check_backlink on ref.loinc;
+\set ON_ERROR_STOP 1
+
+
 -- UPDATE
 create trigger tr_upd_ref_code_tbl_check_backlink
 	before update on ref.loinc

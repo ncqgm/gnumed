@@ -127,11 +127,11 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.__mode = 'new'
 		self.__data = None
 		self.successful_save_msg = None
-		self._refresh_as_new()
 		self.__tctrl_validity_colors = {
 			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
 			False: 'pink'
 		}
+		self._refresh_as_new()
 	#----------------------------------------------------------------
 	def _get_mode(self):
 		return self.__mode

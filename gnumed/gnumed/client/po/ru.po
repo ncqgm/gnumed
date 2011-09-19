@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:38+CEST\n"
 "PO-Revision-Date: 2010-01-09 12:56+0000\n"
 "Last-Translator: arempel <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -19,28 +19,31 @@ msgstr ""
 "X-Generator: Launchpad (build Unknown)\n"
 
 msgid "programmer forgot to specify error message"
-msgstr ""
+msgstr "программист забыл указать сообщение об ошибке"
 
 msgid ""
 "\n"
 "\n"
 "Please consult the error log for all the gory details !"
 msgstr ""
+"\n"
+"\n"
+"Пожалуйста, обратитесь к журналу ошибок за горькой правдой!"
 
 msgid "generic error message"
-msgstr ""
+msgstr "общее сообщение об ошибке"
 
 msgid "programmer forgot to specify info message"
-msgstr ""
+msgstr "программист забыл указать информационное сообщение"
 
 msgid "generic info message"
-msgstr ""
+msgstr "общее информационное сообщение"
 
 msgid "programmer forgot to specify warning"
-msgstr ""
+msgstr "программист забыл указать предупреждение"
 
 msgid "generic warning message"
-msgstr ""
+msgstr "общее предупреждающее сообщение"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -57,6 +60,20 @@ msgid ""
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
+"Невозможно соединиться с базой данных:\n"
+"\n"
+"%s\n"
+"\n"
+"Вы уверены, что локальная база данных установлена?\n"
+"\n"
+"Пожалуйста, повторите попытку, указав точную информацию или отмените "
+"операцию.\n"
+"\n"
+"Возможно Вам также необходимо проверить конфигурацию\n"
+"аутентификации клиентов PostgreSQL в файле pg_hba.conf.\n"
+"Подробнее см.:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -71,9 +88,22 @@ msgid ""
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 msgstr ""
+"Невозможно соединиться с базой данных:\n"
+"\n"
+"%s\n"
+"\n"
+"Вы уверены, что локальная база данных установлена?\n"
+"\n"
+"Пожалуйста, повторите попытку, указав точную информацию или отмените "
+"операцию.\n"
+"Возможно Вам также необходимо проверить конфигурацию\n"
+"аутентификации клиентов PostgreSQL в файле pg_hba.conf.\n"
+"Подробнее см.:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid "Connecting to backend"
-msgstr ""
+msgstr "Подключение к источнику данных"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -82,6 +112,10 @@ msgid ""
 "\n"
 "Please retry another backend / user / password combination !\n"
 msgstr ""
+"Невозможно соединиться с базой данных!\n"
+"%s\n"
+"Пожалуйста, попробуйте использовать другую комбинацию\n"
+"источника данных / имени / пароля!\n"
 
 #, fuzzy
 msgid "unknown allergy state"
@@ -99,13 +133,13 @@ msgid "ERROR: unknown allergy state [%s]"
 msgstr "ОШИБКА: неизвестный аллергический статус [%s]"
 
 msgid "Cannot run [arriba] !"
-msgstr ""
+msgstr "Не могу запустить [arriba] !"
 
 msgid "No [arriba] result found in [%s]."
-msgstr ""
+msgstr "[arriba] результатов не найдено в [%s]."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
-msgstr ""
+msgstr "Пустышка-не-переводишка-но-делающая-epydoc-счастливой"
 
 msgid "soap_S"
 msgstr "soap_S"
@@ -120,19 +154,19 @@ msgid "soap_P"
 msgstr "soap_P"
 
 msgid "soap_Subjective"
-msgstr ""
+msgstr "soap_Subjective"
 
 msgid "soap_Objective"
-msgstr ""
+msgstr "soap_Objective"
 
 msgid "soap_Assessment"
-msgstr ""
+msgstr "soap_Assessment"
 
 msgid "soap_Plan"
-msgstr ""
+msgstr "soap_Plan"
 
 msgid "soap_Administrative"
-msgstr ""
+msgstr "soap_Administrative"
 
 msgid ""
 "%s: %s by %.8s (v%s)\n"
@@ -198,7 +232,7 @@ msgid " %s encounters from %s to %s\n"
 msgstr " %s визитов из %s к %s\n"
 
 msgid " %s active medications\n"
-msgstr ""
+msgstr " %s активное лечение\n"
 
 msgid " %s documents\n"
 msgstr " %s документов\n"
@@ -210,12 +244,14 @@ msgstr ""
 "\n"
 
 msgid " %s hospital stays\n"
-msgstr ""
+msgstr " %s находится в стационаре\n"
 
 msgid ""
 " %s performed procedures\n"
 "\n"
 msgstr ""
+" %s выполненные процедуры\n"
+"\n"
 
 #, fuzzy
 msgid "Allergies and Intolerances\n"
@@ -224,7 +260,7 @@ msgstr ""
 "\n"
 
 msgid " (last confirmed %s)"
-msgstr ""
+msgstr " (последнее подтверждённое %s)"
 
 msgid "unknown reaction"
 msgstr "неизвестная реакция"
@@ -237,7 +273,7 @@ msgid "Occupations"
 msgstr "нет описания"
 
 msgid "Vaccinations"
-msgstr ""
+msgstr "Вакцинации"
 
 msgid "allergies/intolerances"
 msgstr "Реакции гиперчувствительности/индивидуальной непереносимости"
@@ -255,6 +291,17 @@ msgid ""
 "Do you want to continue that consultation\n"
 "or do you want to start a new one ?\n"
 msgstr ""
+"%s\n"
+"\n"
+"Диаграммы этого пациента была разработана только недавно:\n"
+"\n"
+" %s %s - %s (%s)\n"
+"\n"
+" Запрос: %s\n"
+" Вывод: %s\n"
+"\n"
+"Хотите ли вы продолжить эту консультацию\n"
+"Или вы хотите, начать новую?\n"
 
 msgid "none given"
 msgstr "не предоставлено"
@@ -276,22 +323,22 @@ msgid " Type: %s"
 msgstr "Случаи: %s"
 
 msgid "Battery:"
-msgstr ""
+msgstr "Батарея:"
 
 msgid "Device(%s):"
-msgstr ""
+msgstr "Устройство(%s):"
 
 msgid "Implanted:"
-msgstr ""
+msgstr "имплантированный:"
 
 msgid "Impedance:"
-msgstr ""
+msgstr "Импеданс (сопротивление)"
 
 msgid "Sensing:"
-msgstr ""
+msgstr "Чувствительность:"
 
 msgid "Threshold"
-msgstr ""
+msgstr "Порог"
 
 #, fuzzy
 msgid "last check:"
@@ -301,28 +348,28 @@ msgid "part"
 msgstr "часть"
 
 msgid "A: Sign"
-msgstr ""
+msgstr "Симптом"
 
 msgid "B: Cluster of signs"
-msgstr ""
+msgstr "Группа симптомов"
 
 msgid "C: Syndromic diagnosis"
-msgstr ""
+msgstr "C: Предварительный(Симптоматический) диагноз"
 
 msgid "D: Scientific diagnosis"
-msgstr ""
+msgstr "D: Окончательный диагноз"
 
 msgid "<%s>: unknown diagnostic certainty classification"
-msgstr ""
+msgstr "<%s>: неизвестная классификация диагностической точности"
 
 msgid "bilateral"
-msgstr ""
+msgstr "двухсторонний (-яя, -ее)"
 
 msgid "left"
-msgstr ""
+msgstr "Левый"
 
 msgid "right"
-msgstr ""
+msgstr "Правый"
 
 #, fuzzy
 msgid "Clinical data generated during encounters under this health issue:"
@@ -346,7 +393,7 @@ msgid " Noted at age: %s"
 msgstr " Записан в возрасте: %s"
 
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 msgid "not clinically relevant"
 msgstr "клинически не значимо"
@@ -384,10 +431,10 @@ msgid "Active medications: %s"
 msgstr "Текущая жалоба \"%s\""
 
 msgid "Hospital stays: %s"
-msgstr ""
+msgstr "Находится в стационаре: %s"
 
 msgid "Procedures performed: %s"
-msgstr ""
+msgstr "Назначеные процедуры: %s"
 
 msgid "Family History: %s"
 msgstr ""
@@ -400,10 +447,10 @@ msgid "Measurements and Results: %s"
 msgstr "Измерения и результаты"
 
 msgid "Vaccinations:"
-msgstr ""
+msgstr "Прививки/Вакцинации"
 
 msgid "Unattributed episodes"
-msgstr ""
+msgstr "Эпизоды без аттрибутов"
 
 #, fuzzy
 msgid "Clinical data generated during encounters within this episode:"
@@ -438,7 +485,7 @@ msgid "%s encounter(s) (%s - %s):"
 msgstr "Приемы: %s (%s - %s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
-msgstr ""
+msgstr "Последние три (из %s) приемов врача (%s - %s):"
 
 msgid "RFE"
 msgstr ""
@@ -447,7 +494,7 @@ msgid "AOE"
 msgstr ""
 
 msgid " ... %s skipped ..."
-msgstr ""
+msgstr " ... %s пропущено ..."
 
 msgid "Progress notes in most recent encounter:"
 msgstr "Отметки об улучшениях за плследние посещения"
@@ -456,7 +503,7 @@ msgid "Measurements and Results:"
 msgstr "Измерения и результаты"
 
 msgid "Problem"
-msgstr ""
+msgstr "Проблема"
 
 #, fuzzy
 msgid "Health issue"
@@ -482,19 +529,19 @@ msgid "Episode"
 msgstr ""
 
 msgid "error with placeholder [%s]"
-msgstr ""
+msgstr "ошибка с заполнителем [%s]"
 
 msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
-msgstr ""
+msgstr "Ошибка запуска pdflatex: Невозможно конвертировать LaTeX в PDF."
 
 msgid "Sandboxed PDF output file cannot be moved."
-msgstr ""
+msgstr "История медикаментов"
 
 msgid "PDF output file cannot be opened."
-msgstr ""
+msgstr "Невозможно открыть файл вывода PDF."
 
 msgid "Error running gnuplot. Cannot plot data."
-msgstr ""
+msgstr "Невозможно запустить gnuplot. Невозможно отобразить данные."
 
 msgid "Error running pdftk. Cannot extract fields from PDF form template."
 msgstr ""
@@ -506,7 +553,7 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 
 msgid "Medication history"
-msgstr ""
+msgstr "Принимать процентный"
 
 #, fuzzy
 msgid ""
@@ -524,20 +571,20 @@ msgid "data"
 msgstr ""
 
 msgid "long-term"
-msgstr ""
+msgstr "долгосрочный"
 
 msgid "short-term"
-msgstr ""
+msgstr "краткосрочный"
 
 msgid "?short-term"
-msgstr ""
+msgstr "?краткосрочный"
 
 #, fuzzy
 msgid "?ongoing"
 msgstr "продолжающийся"
 
 msgid "Additional notes"
-msgstr ""
+msgstr "Дополнительные заметки"
 
 msgid "Substance"
 msgstr ""
@@ -546,34 +593,40 @@ msgid "Advice"
 msgstr ""
 
 msgid "Brand"
-msgstr ""
+msgstr "Производитель"
 
 msgid "Strength"
-msgstr ""
+msgstr "Сила"
 
 msgid "Medication list"
-msgstr ""
+msgstr "Список лечебных назначений"
 
 msgid "ordered by brand"
-msgstr ""
+msgstr "отсортировано по брендам"
 
 msgid "Regimen"
-msgstr ""
+msgstr "Режим/Диета"
 
 msgid "Drug"
-msgstr ""
+msgstr "Препараты"
 
 msgid "units"
+msgstr "ЕД"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
 msgstr ""
 
 msgid "inhouse lab"
-msgstr ""
+msgstr "собственная лаборатория"
 
 msgid "auto-generated"
-msgstr ""
+msgstr "автоматически созданный"
 
 msgid "   Doc: %s"
-msgstr ""
+msgstr "   Док.: %s"
 
 msgid "   MTA: %s"
 msgstr ""
@@ -587,7 +640,7 @@ msgid "normal but relevant"
 msgstr "не соотвествующий"
 
 msgid "   unreviewed"
-msgstr ""
+msgstr "   непросмотренные"
 
 msgid "unknown test results output format [%s]"
 msgstr ""
@@ -611,12 +664,14 @@ msgid ""
 "blank line inserted to allow for discontinued line drawing for same-day "
 "values"
 msgstr ""
+"пустая строка вставляется для прекращения рисования линии в тот же день"
 
 msgid "The lab request already exists but belongs to a different patient."
 msgstr "Направление на анализ уже выписано для другого пациента"
 
 msgid "Verify which patient this lab request really belongs to."
 msgstr ""
+"Проверьте, какому пациенту принадлежит это направление в действительности."
 
 msgid ""
 "lab [%s], request ID [%s], expected link with patient [%s], currently linked "
@@ -629,37 +684,37 @@ msgid "need lab request when inserting lab result"
 msgstr "результату анализа должно соответствовать направление"
 
 msgid "error retrieving unreviewed lab results"
-msgstr ""
+msgstr "ошибка получения непросмотренных лабораторных анализов"
 
 msgid "external patient source (name, gender, date of birth)"
 msgstr "другие свойства пациента (имя, пол, дата рождения)"
 
 msgid "<name> cannot be empty"
-msgstr ""
+msgstr "<имя> не может быть пустым"
 
 msgid "<issuer> cannot be empty"
 msgstr ""
 
 msgid "<channel> cannot be empty"
-msgstr ""
+msgstr "<канал> не может быть пустым"
 
 msgid "<number> cannot be empty"
-msgstr ""
+msgstr "<номер> не может быть пустым"
 
 msgid "<street> cannot be empty"
-msgstr ""
+msgstr "<улица> не может быть пустым"
 
 msgid "<urb> cannot be empty"
 msgstr ""
 
 msgid "<zip> cannot be empty"
-msgstr ""
+msgstr "<индекс> не может быть пустым"
 
 msgid "<country> cannot be empty"
-msgstr ""
+msgstr "<страна> не может быть пустой"
 
 msgid "Cannot merge active patient into another patient."
-msgstr ""
+msgstr "Невозможно объединить активного пациента с другим пациентом."
 
 msgid "invalid age: DOB in the future"
 msgstr ""
@@ -669,10 +724,10 @@ msgid "invalid age: DOB after death"
 msgstr "дата рождения/смерти"
 
 msgid "Mr"
-msgstr ""
+msgstr "Гражданин"
 
 msgid "Mrs"
-msgstr ""
+msgstr "Гражданка"
 
 msgid "internal patient ID"
 msgstr "внутренний идентификатор пациента"
@@ -711,7 +766,7 @@ msgid "names: last-first, date of birth"
 msgstr "имена: фамилия-имя, дата рождения"
 
 msgid "names: last-first, dob"
-msgstr ""
+msgstr "ФИО, фамилия сперва, день рождения"
 
 msgid "name, date of birth"
 msgstr "имя, дата рождения"
@@ -732,7 +787,7 @@ msgid "full name"
 msgstr "полное имя"
 
 msgid "vaccine"
-msgstr ""
+msgstr "вакцина"
 
 msgid "unknown vaccinations output format [%s]"
 msgstr ""
@@ -750,7 +805,7 @@ msgid "per target condition"
 msgstr "Начать прием"
 
 msgid "Target"
-msgstr ""
+msgstr "Результат"
 
 #, fuzzy
 msgid "Last given"
@@ -836,10 +891,10 @@ msgid "corrected result"
 msgstr "скорректированный результат"
 
 msgid "missing, reported later"
-msgstr ""
+msgstr "отсутсвует, будет сообщено позже"
 
 msgid "gm_ctl_client: starting slave GNUmed client"
-msgstr ""
+msgstr "gm_ctl_client: запуск вторичного GNUmed клиента"
 
 msgid ""
 "A GNUmed slave client has been started because\n"
@@ -969,7 +1024,7 @@ msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
 msgid "** DOB unknown **"
-msgstr ""
+msgstr "** День рождения неизвестен**"
 
 msgid "interval_format_tag::years::y"
 msgstr ""
@@ -2509,13 +2564,13 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-msgid "Town"
+msgid "Place"
 msgstr ""
 
 msgid "Suburb:"
 msgstr ""
 
-msgid "State"
+msgid "Region"
 msgstr ""
 
 msgid "Country"
@@ -2929,6 +2984,12 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -2939,9 +3000,8 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr "неизвестный аллергический статус"
 
-#, fuzzy
-msgid "Lab name"
-msgstr "фамилия"
+msgid "Org.Unit"
+msgstr ""
 
 msgid "Contact"
 msgstr ""
@@ -3147,7 +3207,7 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr ""
 
-msgid "Required: surname/first name/given name"
+msgid "Required: first name/given name"
 msgstr ""
 
 msgid "Recommended: Date of birth. Your current time zone applies."
@@ -3253,12 +3313,6 @@ msgid "Primary (home) address / contact"
 msgstr ""
 
 msgid "Postal code"
-msgstr ""
-
-msgid "Place"
-msgstr ""
-
-msgid "Region"
 msgstr ""
 
 msgid "Other"
@@ -5318,7 +5372,27 @@ msgstr ""
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -9121,9 +9195,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9151,9 +9222,6 @@ msgstr ""
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9173,6 +9241,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -9450,7 +9521,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -10594,6 +10665,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -11107,6 +11181,9 @@ msgstr ""
 msgid "Office"
 msgstr ""
 
+msgid "State"
+msgstr ""
+
 msgid "Zip"
 msgstr ""
 
@@ -11567,13 +11644,13 @@ msgid "Requests generated this consultation"
 msgstr ""
 
 msgid "Request summary"
-msgstr ""
+msgstr "Сводка запросов"
 
 msgid "icon_blood_sample"
 msgstr ""
 
 msgid "Scratch Pad"
-msgstr ""
+msgstr "Блокнот"
 
 msgid "Recalls/Reviews"
 msgstr ""
@@ -11585,13 +11662,13 @@ msgid "Recall or Review"
 msgstr ""
 
 msgid "Prescriptions"
-msgstr ""
+msgstr "Предписания"
 
 msgid "Requests"
-msgstr ""
+msgstr "Запросы"
 
 msgid "Referrals"
-msgstr ""
+msgstr "Направления"
 
 msgid "Recalls and Reviews"
 msgstr ""
@@ -11603,16 +11680,20 @@ msgid "Dose"
 msgstr ""
 
 msgid "Last Date"
-msgstr ""
+msgstr "Последний раз"
 
 msgid "Prescribed For"
-msgstr ""
+msgstr "Прописано для"
 
 msgid "Quantity"
-msgstr ""
+msgstr "Количество"
 
 msgid "First Date"
-msgstr ""
+msgstr "Первая дата"
+
+#, fuzzy
+#~ msgid "Lab name"
+#~ msgstr "фамилия"
 
 #, fuzzy
 #~ msgid "&Documents review"

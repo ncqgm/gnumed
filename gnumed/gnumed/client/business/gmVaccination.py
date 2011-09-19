@@ -40,8 +40,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.vaccine SET
-				id_route = %(pk_route)s,
-				is_live = %(is_live)s,
+				--id_route = %(pk_route)s,
+				--is_live = %(is_live)s,
 				min_age = %(min_age)s,
 				max_age = %(max_age)s,
 				comment = gm.nullify_empty_string(%(comment)s),
@@ -56,8 +56,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	_updatable_fields = [
-		u'pk_route',
-		u'is_live',
+		#u'pk_route',
+		#u'is_live',
 		u'min_age',
 		u'max_age',
 		u'comment',

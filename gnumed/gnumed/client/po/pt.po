@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-11 16:10+CEST\n"
+"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -601,6 +601,12 @@ msgstr "Medicamento"
 
 msgid "units"
 msgstr "unidades"
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
 
 msgid "inhouse lab"
 msgstr "laboratório interno"
@@ -2683,13 +2689,13 @@ msgstr "Notas"
 msgid "Number"
 msgstr "Número"
 
-msgid "Town"
-msgstr "Cidade"
+msgid "Place"
+msgstr "Lugar"
 
 msgid "Suburb:"
 msgstr "Bairro:"
 
-msgid "State"
+msgid "Region"
 msgstr "Estado"
 
 msgid "Country"
@@ -3125,6 +3131,12 @@ msgstr "ou"
 msgid "Group"
 msgstr "Grupo"
 
+msgid "&Manage orgs"
+msgstr ""
+
+msgid "Manage all organizations."
+msgstr ""
+
 msgid ""
 "A way of contacting this lab, ideally a direct clinical contact.\n"
 "\n"
@@ -3134,7 +3146,7 @@ msgstr ""
 msgid "A comment on this lab."
 msgstr ""
 
-msgid "Lab name"
+msgid "Org.Unit"
 msgstr ""
 
 msgid "Contact"
@@ -3358,8 +3370,9 @@ msgstr ""
 msgid "Required: lastname (family name)"
 msgstr "Necessário: sobrenome"
 
-msgid "Required: surname/first name/given name"
-msgstr ""
+#, fuzzy
+msgid "Required: first name/given name"
+msgstr "Necessário: nome"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr ""
@@ -3469,12 +3482,6 @@ msgstr "endereço principal: país"
 
 msgid "Postal code"
 msgstr "CEP"
-
-msgid "Place"
-msgstr "Lugar"
-
-msgid "Region"
-msgstr "Estado"
 
 msgid "Other"
 msgstr ""
@@ -5749,7 +5756,27 @@ msgstr "&gerador relatórios"
 msgid "not unicode()able"
 msgstr ""
 
-msgid "installing data packs"
+msgid ""
+"Note that GNUmed data packs are provided\n"
+"\n"
+"WITHOUT ANY GUARANTEE WHATSOEVER\n"
+"\n"
+"regarding their content.\n"
+"\n"
+"Despite data packs having been prepared with the\n"
+"utmost care you must still vigilantly apply caution,\n"
+"common sense, and due diligence to make sure you\n"
+"render appropriate care to your patients.\n"
+"\n"
+"Press [Yes] to declare agreement with this precaution.\n"
+"\n"
+"Press [No] to abort installation of the data pack.\n"
+msgstr ""
+
+msgid "Terms of Data Pack Use"
+msgstr ""
+
+msgid "installing data pack"
 msgstr ""
 
 msgid "Lacking permissions to install data pack."
@@ -9748,9 +9775,6 @@ msgstr ""
 msgid "Editing measurement type"
 msgstr ""
 
-msgid "in-house"
-msgstr ""
-
 msgid "Cannot delete measurement type [%s (%s)] because it is in use."
 msgstr ""
 
@@ -9779,9 +9803,6 @@ msgstr "laboratório interno"
 msgid "Select the type of measurement."
 msgstr ""
 
-msgid "The name of the path lab/diagnostic organisation."
-msgstr ""
-
 msgid "Select the desired unit for the amount or measurement."
 msgstr ""
 
@@ -9801,6 +9822,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing diagnostic orgs."
+msgstr ""
+
+msgid "The name of the path lab/diagnostic organisation."
 msgstr ""
 
 msgid ""
@@ -10073,7 +10097,7 @@ msgstr ""
 msgid "reaction not recorded"
 msgstr ""
 
-msgid "Cannot save substance intake. Invalid or missing essential input."
+msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -11233,6 +11257,9 @@ msgstr ""
 msgid "Inbox Message Actions:"
 msgstr ""
 
+msgid "Activate patient"
+msgstr ""
+
 msgid "message"
 msgstr ""
 
@@ -11742,6 +11769,9 @@ msgstr "Telefone"
 
 msgid "Office"
 msgstr "Escritório"
+
+msgid "State"
+msgstr "Estado"
 
 msgid "Zip"
 msgstr "Código postal"
@@ -12259,6 +12289,9 @@ msgstr "Quantidade"
 msgid "First Date"
 msgstr "1ª data"
 
+#~ msgid "Town"
+#~ msgstr "Cidade"
+
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Drs Horst Herb && Karsten Hilbert"
 
@@ -12289,9 +12322,6 @@ msgstr "1ª data"
 
 #~ msgid "Cannot parse <%s> into proper timestamp."
 #~ msgstr "Não é possível formatar <%s> para uma data válida."
-
-#~ msgid "Required: surname/given name/first name"
-#~ msgstr "Necessário: nome"
 
 #~ msgid ""
 #~ "Required: date of birth, if unknown or aliasing wanted then invent one"
