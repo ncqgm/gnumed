@@ -1184,7 +1184,16 @@ class gmBundle:
 			_log.error("Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		if float(gmPG2.postgresql_version) < float(required_version):
+		converted, pg_ver = gmTools.input2decimal(gmPG2.postgresql_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			return None
+		converted, req_version = gmTools.input2decimal(required_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			_log.error('required: %s', required_version)
+			return None
+		if pg_ver < req_version:
 			_log.error("Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 

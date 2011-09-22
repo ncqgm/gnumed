@@ -1411,7 +1411,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		curs = conn.cursor()
 		curs.execute("""
 			SELECT
-				substring(setting, '^\d{1,2}\.\d{1,2}')::numeric AS version
+				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
 			FROM
 				pg_settings
 			WHERE
