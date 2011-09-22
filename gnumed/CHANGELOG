@@ -782,6 +782,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v15
 ------------------------------------------------
 
+	15.11
+
+FIX: trf_do_not_substance_if_taken_by_patient() on ref.consumable_substance
+
 	15.10
 
 FIX: cannot restore --single-transaction because CREATE DATABASE does not transact [thanks S.Reus]

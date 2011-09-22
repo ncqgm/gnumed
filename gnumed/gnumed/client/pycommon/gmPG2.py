@@ -1387,7 +1387,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		curs = conn.cursor()
 		curs.execute ("""
 			select
-				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
+				substring(setting, '^\d{1,2}\.\d{1,2}')::numeric AS version
 			from pg_settings
 			where name='server_version'"""
 		)
