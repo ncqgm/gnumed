@@ -5,6 +5,7 @@
 #
 # usage:
 #  fixup-db.sh XX <quiet>
+#		XX: the database version to upgrade, such as 15
 #
 # prerequisites:
 #  fixup_db-vX.conf must exist
@@ -34,8 +35,8 @@ if test ! -f $CONF ; then
 	echo "ERROR: does not exist. Aborting."
 	echo "========================================="
 	echo ""
-	echo "USAGE: $0 x"
-	echo "   x   - database version to fix"
+	echo "USAGE: $0 xx"
+	echo "   xx   - database version to fix"
 	exit
 fi ;
 
