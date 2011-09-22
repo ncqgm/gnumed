@@ -1385,12 +1385,14 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
-		curs.execute ("""
-			select
-				substring(setting, '^\d{1,2}\.\d{1,2}')::numeric AS version
-			from pg_settings
-			where name='server_version'"""
-		)
+		curs.execute("""
+			SELECT
+				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
+			FROM
+				pg_settings
+			WHERE
+				name = 'server_version'
+		""")
 		postgresql_version = curs.fetchone()['version']
 		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
 		try:
