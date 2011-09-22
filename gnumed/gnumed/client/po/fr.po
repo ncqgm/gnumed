@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
+"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -2176,7 +2176,8 @@ msgstr ""
 "disponible."
 
 msgid ""
-"Show information on handling of drugs in presence of renal insufficiency."
+"Show <www.dosing.de> information on handling of drugs / the selected drug in "
+"the presence of renal insufficiency."
 msgstr ""
 
 msgid ""
@@ -2829,8 +2830,9 @@ msgstr "Notes"
 msgid "Number"
 msgstr "Numéro"
 
-msgid "Place"
-msgstr "Lieu"
+#, fuzzy
+msgid "Community"
+msgstr "commentaire"
 
 msgid "Suburb:"
 msgstr "Arrondissement"
@@ -3655,7 +3657,7 @@ msgid "Nick name"
 msgstr "Surnom"
 
 #, fuzzy
-msgid "Primary (home) address / contact"
+msgid "Primary address / contact"
 msgstr "Adresse principale/de résidence: nom de la rue"
 
 msgid "Postal code"
@@ -4891,10 +4893,13 @@ msgstr ""
 msgid "Other:"
 msgstr ""
 
+msgid "Fake"
+msgstr ""
+
 msgid "Live"
 msgstr ""
 
-msgid "Fake"
+msgid "Whether this is an actual brand or a generic, fake vaccine."
 msgstr ""
 
 msgid ""
@@ -4905,9 +4910,6 @@ msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Cochez s'il s'agit d'un virus vivant atténué."
-
-msgid "Whether this is an actual brand or a generic, fake vaccine."
-msgstr ""
 
 msgid "The ATC for this vaccine."
 msgstr ""
@@ -5995,6 +5997,9 @@ msgstr ""
 
 msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr ""
+
+msgid "Place"
+msgstr "Lieu"
 
 msgid "Start"
 msgstr ""

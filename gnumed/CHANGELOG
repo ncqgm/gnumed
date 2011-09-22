@@ -72,6 +72,7 @@ IMPROVED: DOB related identity handling
 IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
 IMPROVED: new patient EA: include address type selection
+IMPROVED: behaviour of [kidney] button in substance intake grid
 
 ------------------------------------------------
 # rel-0-9-patches
@@ -861,10 +862,15 @@ IMPROVED: restore script: use "-o pipefail" to detect complex pipe failures
 
 NEW: clin.remove_old_empty_encounters()
 NEW: dem.remove_person(integer)
+NEW: several medication related data packs [thanks J.Busser]
 
 ------------------------------------------------
 # gnumed_v15
 ------------------------------------------------
+
+	15.11
+
+FIX: trf_do_not_substance_if_taken_by_patient() on ref.consumable_substance
 
 	15.10
 

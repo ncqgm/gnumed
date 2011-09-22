@@ -93,7 +93,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Number'),
 			_('Subunit'),
 			_('Postal code'),
-			_('Place'),
+			_('Community'),
 			_('Suburb'),
 			_('Region'),
 			_('Country'),

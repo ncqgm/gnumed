@@ -642,7 +642,7 @@ def manage_addresses(parent=None):
 		_('Number'),
 		_('Subunit'),
 		_('Postal code'),
-		_('Place'),
+		_('Community'),
 		_('Suburb'),
 		_('Region'),
 		_('Country'),

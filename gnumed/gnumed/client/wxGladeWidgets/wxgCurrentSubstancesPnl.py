@@ -67,7 +67,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
         self._BTN_allergy.SetToolTipString(_("Discontinue selected entry due to an allergy or intolerance."))
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
-        self._BTN_kidneys.SetToolTipString(_("Show information on handling of drugs in presence of renal insufficiency."))
+        self._BTN_kidneys.SetToolTipString(_("Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_rx.SetToolTipString(_("Write a prescription based on either of\n\n- the selected lines\n- a copy of the most recent prescription"))
         self._BTN_adr.SetToolTipString(_("Report an Adverse Drug Reaction."))

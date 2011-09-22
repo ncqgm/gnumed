@@ -27,6 +27,13 @@ alter table clin.vaccine
 	alter column id_route
 		set default null;
 
+
+\unset ON_ERROR_STOP
+drop index idx_c_vaccine_id_route cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_c_vaccine_id_route on clin.vaccine(id_route);
+
 -- --------------------------------------------------------------
 -- .fk_brand
 \unset ON_ERROR_STOP

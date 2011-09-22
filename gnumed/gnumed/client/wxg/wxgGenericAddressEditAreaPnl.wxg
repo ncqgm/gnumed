@@ -157,7 +157,7 @@
                 <object class="wxStaticText" name="__LBL_urb" base="EditStaticText">
                     <foreground>#ff0000</foreground>
                     <attribute>0</attribute>
-                    <label>Place</label>
+                    <label>Community</label>
                 </object>
             </object>
             <object class="sizeritem">

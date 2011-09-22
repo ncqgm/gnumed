@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-18 11:37+CEST\n"
+"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -2194,8 +2194,10 @@ msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 "Mostrar informacion detallada de la substancia selecionada si esta disponible"
 
+#, fuzzy
 msgid ""
-"Show information on handling of drugs in presence of renal insufficiency."
+"Show <www.dosing.de> information on handling of drugs / the selected drug in "
+"the presence of renal insufficiency."
 msgstr ""
 "Muestra información acerca del manejo de medicinas en caso de insuficiencia "
 "renal."
@@ -2887,8 +2889,9 @@ msgstr "Notas"
 msgid "Number"
 msgstr "Número"
 
-msgid "Place"
-msgstr "Lugar"
+#, fuzzy
+msgid "Community"
+msgstr "Comentario"
 
 msgid "Suburb:"
 msgstr "Suburbio"
@@ -3721,7 +3724,7 @@ msgid "Nick name"
 msgstr "Seudonimo"
 
 #, fuzzy
-msgid "Primary (home) address / contact"
+msgid "Primary address / contact"
 msgstr "Direccion primaria (opcional)"
 
 msgid "Postal code"
@@ -5078,11 +5081,14 @@ msgstr "<--GI-->"
 msgid "Other:"
 msgstr "Otro:"
 
+msgid "Fake"
+msgstr "Falso"
+
 msgid "Live"
 msgstr "Vivo"
 
-msgid "Fake"
-msgstr "Falso"
+msgid "Whether this is an actual brand or a generic, fake vaccine."
+msgstr "Si esto es una marca de fábrica real o una vacuna genérica, falsa."
 
 msgid ""
 "The route by which this vaccine is to be administered.\n"
@@ -5095,9 +5101,6 @@ msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Marcar si es una vacuna viva atenuada"
-
-msgid "Whether this is an actual brand or a generic, fake vaccine."
-msgstr "Si esto es una marca de fábrica real o una vacuna genérica, falsa."
 
 msgid "The ATC for this vaccine."
 msgstr "Clasificación QTA (Química, Terapéutica, Anatómica) para esta vacuna."
@@ -6423,6 +6426,9 @@ msgstr "KOrganizer no está instalado"
 
 msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr "No se puede acceder al archivo de transferencia de KOrganizer [%s]"
+
+msgid "Place"
+msgstr "Lugar"
 
 msgid "Start"
 msgstr "Inicio"

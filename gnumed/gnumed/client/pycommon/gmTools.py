@@ -73,7 +73,7 @@ u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
 u_replacement_character = u'\ufffd'
-
+u_link_symbol = u'\u1f517'
 
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
@@ -1040,6 +1040,9 @@ second line\n
 	def test_md5():
 		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
+	def test_unicode():
+		print u_link_symbol * 10
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1052,8 +1055,9 @@ second line\n
 	#test_size2str()
 	#test_wrap()
 	#test_input2decimal()
-	test_input2int()
+	#test_input2int()
 	#test_unwrap()
 	#test_md5()
+	test_unicode()
 
 #===========================================================================

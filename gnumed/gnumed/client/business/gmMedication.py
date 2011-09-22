@@ -81,7 +81,7 @@ def drug2renal_insufficiency_url(search_term=None):
 	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
 	#url = url_template % u'+OR+'.join(terms)
 
-	url_template = u'http://www.google.de/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
+	url_template = u'http://www.google.com/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
 	url = url_template % u'+OR+'.join(terms)
 
 	_log.debug(u'renal insufficiency URL: %s', url)
@@ -1305,7 +1305,7 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 					WHERE
 						fk_drug_component IS NOT NULL
 							AND
-						fk_drug_component = (
+						fk_drug_component IN (
 							SELECT r_ls2b.pk
 							FROM ref.lnk_substance2brand r_ls2b
 							WHERE fk_substance = %(pk)s
@@ -2029,7 +2029,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def set_substances_as_components(self, substances=None):
 
-		if self._payload[self._idx['is_in_use']]:
+		if self.is_in_use_by_patients:
 			return False
 
 		args = {'brand': self._payload[self._idx['pk_brand']]}
@@ -2155,6 +2155,28 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_vaccine = property(_get_is_vaccine, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_in_use_by_patients(self):
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM clin.substance_intake
+				WHERE
+					fk_drug_component IS NOT NULL
+						AND
+					fk_drug_component IN (
+						SELECT r_ls2b.pk
+						FROM ref.lnk_substance2brand r_ls2b
+						WHERE fk_brand = %(pk)s
+					)
+				LIMIT 1
+			)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
 #------------------------------------------------------------
 def get_branded_drugs():
 	cmd = u'SELECT pk FROM ref.branded_drug ORDER BY description'
@@ -2327,6 +2349,8 @@ if __name__ == "__main__":
 		for s in get_consumable_substances():
 			print s
 	#--------------------------------------------------------
+	def test_drug2renal_insufficiency_url():
+		drug2renal_insufficiency_url(search_term = 'Metoprolol')
 	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
@@ -2337,7 +2361,7 @@ if __name__ == "__main__":
 	#test_mmi_import_drugs()
 
 	# FreeDiams
-	test_fd_switch_to()
+	#test_fd_switch_to()
 	#test_fd_show_interactions()
 
 	# generic
@@ -2345,4 +2369,6 @@ if __name__ == "__main__":
 	#test_create_substance_intake()
 	#test_show_components()
 	#test_get_consumable_substances()
+
+	test_drug2renal_insufficiency_url()
 #============================================================
