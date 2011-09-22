@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-09-18 11:38+CEST\n"
+"POT-Creation-Date: 2011-09-22 13:10+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1830,7 +1830,7 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
-msgid "Show information on handling of drugs in presence of renal insufficiency."
+msgid "Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."
 msgstr ""
 
 msgid ""
@@ -2328,7 +2328,7 @@ msgstr ""
 msgid "Number"
 msgstr ""
 
-msgid "Place"
+msgid "Community"
 msgstr ""
 
 msgid "Suburb:"
@@ -3015,7 +3015,7 @@ msgstr ""
 msgid "Nick name"
 msgstr ""
 
-msgid "Primary (home) address / contact"
+msgid "Primary address / contact"
 msgstr ""
 
 msgid "Postal code"
@@ -4112,10 +4112,13 @@ msgstr ""
 msgid "Other:"
 msgstr ""
 
+msgid "Fake"
+msgstr ""
+
 msgid "Live"
 msgstr ""
 
-msgid "Fake"
+msgid "Whether this is an actual brand or a generic, fake vaccine."
 msgstr ""
 
 msgid ""
@@ -4125,9 +4128,6 @@ msgid ""
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
-msgstr ""
-
-msgid "Whether this is an actual brand or a generic, fake vaccine."
 msgstr ""
 
 msgid "The ATC for this vaccine."
@@ -5179,6 +5179,9 @@ msgid "KOrganizer is not installed."
 msgstr ""
 
 msgid "Cannot access KOrganizer transfer file [%s]"
+msgstr ""
+
+msgid "Place"
 msgstr ""
 
 msgid "Start"

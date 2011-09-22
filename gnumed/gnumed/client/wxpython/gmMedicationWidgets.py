@@ -716,7 +716,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 def manage_components_of_branded_drug(parent=None, brand=None):
 
 	if brand is not None:
-		if brand['is_in_use']:
+		if brand.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Managing components of a drug'),
 				aMessage = _(
@@ -789,7 +789,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 		tt += u'\n'
 		tt += u'%s%s%s\n' % (
 			gmTools.bool2subst(brand.is_vaccine, u'%s, ' % _('Vaccine'), u''),
-			u'%s, ' % gmTools.bool2subst(brand['is_in_use'], _('in use'), _('not in use')),
+			u'%s, ' % gmTools.bool2subst(brand.is_in_use_by_patients, _('in use'), _('not in use')),
 			gmTools.bool2subst(brand['is_fake_brand'], _('fake'), u'')
 		)
 		tt += gmTools.coalesce(brand['atc'], u'', _('ATC: %s\n'))
@@ -873,7 +873,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 #------------------------------------------------------------
 def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
 	if branded_drug is not None:
-		if branded_drug['is_in_use']:
+		if branded_drug.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Editing drug'),
 				aMessage = _(
@@ -929,7 +929,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 	def _valid_for_save(self):
 
 		if self.data is not None:
-			if self.data['is_in_use']:
+			if self.data.is_in_use_by_patients:
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug brand. It is in use.'), beep = True)
 				return False
 
@@ -2055,17 +2055,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			drug_db.show_info_on_drug(substance_intake = intake)
 	#------------------------------------------------------------
 	def show_renal_insufficiency_info(self):
-
-		if len(self.__row_data) == 0:
-			return
-
-		sel_rows = self.get_selected_rows()
-
-		if len(sel_rows) != 1:
-			return
+		search_term = None
+		if len(self.__row_data) > 0:
+			sel_rows = self.get_selected_rows()
+			if len(sel_rows) == 1:
+				search_term = self.get_selected_data()[0]
 
 		webbrowser.open (
-			url = gmMedication.drug2renal_insufficiency_url(search_term = self.get_selected_data()[0]),
+			url = gmMedication.drug2renal_insufficiency_url(search_term = search_term),
 			new = False,
 			autoraise = True
 		)

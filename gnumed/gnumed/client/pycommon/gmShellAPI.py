@@ -216,8 +216,14 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 	_log.debug('dumped core: %s', os.WCOREDUMP(ret_val))
 	_log.debug('stopped by signal: %s', os.WIFSIGNALED(ret_val))
 	if os.WIFSIGNALED(ret_val):
-		_log.debug('STOP signal was: [%s]', os.STOPSIG(ret_val))
-		_log.debug('TERM signal was: [%s]', os.TERMSIG(ret_val))
+		try:
+			_log.debug('STOP signal was: [%s]', os.WSTOPSIG(ret_val))
+		except AttributeError:
+			_log.debug('platform does not support os.WSTOPSIG()')
+		try:
+			_log.debug('TERM signal was: [%s]', os.WTERMSIG(ret_val))
+		except AttributeError:
+			_log.debug('platform does not support os.WTERMSIG()')
 
 	return exited_normally
 #===========================================================================

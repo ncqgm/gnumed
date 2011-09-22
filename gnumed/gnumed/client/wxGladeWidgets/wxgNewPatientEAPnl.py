@@ -156,7 +156,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         __szr_number_details.Add(__lbl_unit, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_number_details.Add(self._TCTRL_unit, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(__szr_number_details, 1, wx.EXPAND, 0)
-        __lbl_urb = wx.StaticText(self, -1, _("Place"))
+        __lbl_urb = wx.StaticText(self, -1, _("Community"))
         __lbl_urb.SetForegroundColour(wx.Colour(255, 127, 0))
         __fgsizer_details.Add(__lbl_urb, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._PRW_urb, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

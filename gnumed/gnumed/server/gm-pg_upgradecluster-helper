@@ -1,0 +1,70 @@
+#!/bin/sh
+
+#==============================================================
+#
+# This script modifies the GNUmed databases such that an
+# upgrade using Debian's <pg_upgradecluster> may succeed.
+#
+# Drop this file into /etc/postgresql-common/pg_upgradecluster.d/
+#
+# Note that pg_upgradecluster will run this as user <postgres>.
+#
+# author: Karsten Hilbert
+# license: GPL v2 or later
+#==============================================================
+
+DB_VERSIONS="2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+# read data from pg_upgradecluster API
+OLD_VER="$1"
+CLUSTER_NAME="$2"
+NEW_VER="$3"
+PHASE="$4"
+
+# appropriate phase ?
+if test "${PHASE}" = "init" ; then
+	echo " - removing readonly attribute from GNUmed databases..."
+	ACTION="off"
+elif test "${PHASE}" = "finish" ; then
+	echo " - re-adding readonly attribute to GNUmed databases..."
+	ACTION="on"
+else
+	echo "INVALID pg_upgrade PHASE: <${PHASE}>";
+	exit 1;
+fi
+
+# setup files
+TS=`date +%Y-%m-%d-%H-%M-%S`
+SQL_FILE="/tmp/gm-pg_upgradecluster-helper-readonly_${ACTION}-${TS}.sql"
+LOG_FILE="/tmp/gm-pg_upgradecluster-helper-readonly_${ACTION}-${TS}.log"
+
+# create SQL script
+echo "\\unset ON_ERROR_STOP" > ${SQL_FILE}
+for DB_VER in ${DB_VERSIONS} ; do
+	echo "" >> ${SQL_FILE}
+	echo "BEGIN;" >> ${SQL_FILE}
+	echo "ALTER DATABASE \"gnumed_v${DB_VER}\" SET default_transaction_read_only TO ${ACTION};" >> ${SQL_FILE}
+	echo "END;" >> ${SQL_FILE}
+done
+
+# get port of OLD cluster as suggested by pg_upgradecluster maintainer
+CMD="use PgCommon; \$p = get_cluster_port \"${OLD_VER}\", \"${CLUSTER_NAME}\"; print \"\$p\\n\""
+PORT=`perl -I/usr/share/postgresql-common/ -e "$CMD"`
+
+# run SQL script against OLD cluster
+echo "Accessing port: ${PORT}" > ${LOG_FILE} 2>&1
+psql -p ${PORT} -f ${SQL_FILE} >> ${LOG_FILE} 2>&1
+
+# also run it against NEW cluster on finish
+if test "${PHASE}" = "finish" ; then
+	CMD="use PgCommon; \$p = get_cluster_port \"${NEW_VER}\", \"${CLUSTER_NAME}\"; print \"\$p\\n\""
+	PORT=`perl -I/usr/share/postgresql-common/ -e "$CMD"`
+	echo "Accessing port: ${PORT}" >> ${LOG_FILE} 2>&1
+	psql -p ${PORT} -f ${SQL_FILE} >> ${LOG_FILE} 2>&1;
+fi
+
+exit 0

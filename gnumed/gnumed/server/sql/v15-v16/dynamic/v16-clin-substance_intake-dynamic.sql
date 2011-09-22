@@ -10,6 +10,13 @@ set check_function_bodies to 'on';
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index idx_c_subst_int_fk_drug_comp cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_c_subst_int_fk_drug_comp on clin.substance_intake(fk_drug_component);
+
+-- --------------------------------------------------------------
 -- trigger
 -- --------------------------------------------------------------
 

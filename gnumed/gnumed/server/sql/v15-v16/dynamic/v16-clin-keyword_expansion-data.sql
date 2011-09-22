@@ -18,8 +18,8 @@ insert into clin.keyword_expansion (
 ) values (
 	null,
 	'score-HEMORR²HAGES',
-'Blutungsrisiko unter OAK
----------------------------------
+'HEMORR²HAGES: Blutungsrisiko unter OAK
+--------------------------------------
 Am Heart J. 2006 Mar;151(3):713-9.
 
 1 H epatische oder Nierenerkrankung
@@ -33,7 +33,7 @@ Am Heart J. 2006 Mar;151(3):713-9.
 1 G enetische Faktoren
 1 E xzessives Sturzrisiko
 1 S Schlaganfall in der Anamnese
----------------------------------
+--------------------------------------
 Summe   Rate großer Blutungen
         pro 100 Patientenjahre
  0          1.9

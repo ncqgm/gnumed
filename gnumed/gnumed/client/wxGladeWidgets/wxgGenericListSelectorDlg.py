@@ -16,7 +16,7 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.NO_BORDER)
         self._BTN_ok = wx.Button(self, wx.ID_OK, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-        self._BTN_new = wx.Button(self, wx.ID_NEW, "", style=wx.BU_EXACTFIT)
+        self._BTN_new = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
         self._BTN_edit = wx.Button(self, -1, _("&Edit"), style=wx.BU_EXACTFIT)
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
         self._BTN_extra_left = wx.Button(self, -1, _("1"), style=wx.BU_EXACTFIT)

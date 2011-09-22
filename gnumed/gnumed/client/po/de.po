@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-09-18 11:36+CEST\n"
-"PO-Revision-Date: 2011-09-18 11:45+0100\n"
+"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
+"PO-Revision-Date: 2011-09-22 13:12+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -1975,8 +1975,8 @@ msgstr "Den gewählten Eintrag wegen einer Allergie oder Unverträglichkeit been
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Fachinformationen zur markierten Substanz anzeigen, sofern verfügbar."
 
-msgid "Show information on handling of drugs in presence of renal insufficiency."
-msgstr "Zeige Informationen zur Medikamentengabe bei Niereninsuffienz."
+msgid "Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."
+msgstr "Zeige Informationen auf <www.dosing.de> zur Gabe von Medikamenten (des gewählten Medikaments) bei Niereninsuffienz."
 
 msgid ""
 "Check for interactions between selected drugs.\n"
@@ -2530,8 +2530,8 @@ msgstr "... Notizen"
 msgid "Number"
 msgstr "Nummer"
 
-msgid "Place"
-msgstr "Ort"
+msgid "Community"
+msgstr "Wohnort"
 
 msgid "Suburb:"
 msgstr "Ortsteil:"
@@ -3255,8 +3255,8 @@ msgstr "Zeit:"
 msgid "Nick name"
 msgstr "Spitzname"
 
-msgid "Primary (home) address / contact"
-msgstr "Haupt-/Heimatwohnsitz / -kontakt"
+msgid "Primary address / contact"
+msgstr "Hauptwohnsitz und -kontakt"
 
 msgid "Postal code"
 msgstr "PLZ"
@@ -4443,11 +4443,14 @@ msgstr "←Magen-Darm→"
 msgid "Other:"
 msgstr "Sonstige:"
 
+msgid "Fake"
+msgstr "unecht"
+
 msgid "Live"
 msgstr "Lebendimpfstoff"
 
-msgid "Fake"
-msgstr "unecht"
+msgid "Whether this is an actual brand or a generic, fake vaccine."
+msgstr "Handelt es sich um einen echten Impfstoff oder und einen generischen, erfundenen ?"
 
 msgid ""
 "The route by which this vaccine is to be administered.\n"
@@ -4460,9 +4463,6 @@ msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Handelt es sich um einen Lebendimpfstoff ?"
-
-msgid "Whether this is an actual brand or a generic, fake vaccine."
-msgstr "Handelt es sich um einen echten Impfstoff oder und einen generischen, erfundenen ?"
 
 msgid "The ATC for this vaccine."
 msgstr "Der ATC für diesen Impfstoff."
@@ -5738,6 +5738,9 @@ msgstr "KOrganizer ist nicht installiert."
 
 msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr "Kann Transferdatei [%s] für KOrganizer nicht öffnen."
+
+msgid "Place"
+msgstr "Ort"
 
 msgid "Start"
 msgstr "Beginn"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-18 11:38+CEST\n"
+"POT-Creation-Date: 2011-09-22 13:10+CEST\n"
 "PO-Revision-Date: 2011-06-19 16:42-0300\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -2123,8 +2123,10 @@ msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 "Mostrar informações detalhadas da substância selecionada se disponível. "
 
+#, fuzzy
 msgid ""
-"Show information on handling of drugs in presence of renal insufficiency."
+"Show <www.dosing.de> information on handling of drugs / the selected drug in "
+"the presence of renal insufficiency."
 msgstr ""
 "Mostrar informações sobre manejo de substâncias na presença de insuficiência "
 "renal. "
@@ -2758,8 +2760,9 @@ msgstr "Notas"
 msgid "Number"
 msgstr "Número"
 
-msgid "Place"
-msgstr "Lugar"
+#, fuzzy
+msgid "Community"
+msgstr "Comentário"
 
 msgid "Suburb:"
 msgstr "Bairro:"
@@ -3550,7 +3553,7 @@ msgid "Nick name"
 msgstr "Apelido para o sistema"
 
 #, fuzzy
-msgid "Primary (home) address / contact"
+msgid "Primary address / contact"
 msgstr "endereço principal: país"
 
 msgid "Postal code"
@@ -4817,10 +4820,13 @@ msgstr ""
 msgid "Other:"
 msgstr ""
 
+msgid "Fake"
+msgstr ""
+
 msgid "Live"
 msgstr ""
 
-msgid "Fake"
+msgid "Whether this is an actual brand or a generic, fake vaccine."
 msgstr ""
 
 msgid ""
@@ -4830,9 +4836,6 @@ msgid ""
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
-msgstr ""
-
-msgid "Whether this is an actual brand or a generic, fake vaccine."
 msgstr ""
 
 msgid "The ATC for this vaccine."
@@ -6041,6 +6044,9 @@ msgstr "KOrganizer não está instalado."
 
 msgid "Cannot access KOrganizer transfer file [%s]"
 msgstr "Não é possível acessar o arquivo de transferência do KOrganizer [%s]"
+
+msgid "Place"
+msgstr "Lugar"
 
 msgid "Start"
 msgstr "Começo"

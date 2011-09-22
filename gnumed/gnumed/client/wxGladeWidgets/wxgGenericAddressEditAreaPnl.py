@@ -77,7 +77,7 @@ class wxgGenericAddressEditAreaPnl(wx.ScrolledWindow):
         _szr_number.Add(__LBL_subunit, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
         _szr_number.Add(self._TCTRL_subunit, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(_szr_number, 1, wx.EXPAND, 0)
-        __LBL_urb = wx.StaticText(self, -1, _("Place"))
+        __LBL_urb = wx.StaticText(self, -1, _("Community"))
         __LBL_urb.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__LBL_urb, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_urb.Add(self._PRW_urb, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
