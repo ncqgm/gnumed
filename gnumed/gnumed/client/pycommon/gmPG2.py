@@ -105,7 +105,7 @@ known_schema_hashes = {
 	13: 'fab7c1ae408a6530c47f9b5111a0841e',
 	14: 'e170d543f067d1ea60bfe9076b1560cf',
 	15: '70012ff960b77ecdff4981c94b5b55b6',
-	16: 'abb9a15dc0b9d20bc293c8fb4c3ee209'
+	16: '39383285103b3a1b0b609ad1f0360dd7'
 }
 
 map_schema_hash2version = {
@@ -123,7 +123,7 @@ map_schema_hash2version = {
 	'fab7c1ae408a6530c47f9b5111a0841e': 13,
 	'e170d543f067d1ea60bfe9076b1560cf': 14,
 	'70012ff960b77ecdff4981c94b5b55b6': 15,
-	'abb9a15dc0b9d20bc293c8fb4c3ee209': 16
+	'39383285103b3a1b0b609ad1f0360dd7': 16
 }
 
 map_client_branch2required_db_version = {
@@ -481,6 +481,10 @@ def get_schema_version(link_obj=None):
 def get_schema_structure(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def get_schema_hash(link_obj=None):
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
+	return rows[0]['md5']
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
 	cmd = u"""
@@ -1411,7 +1415,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		curs = conn.cursor()
 		curs.execute("""
 			SELECT
-				substring(setting, '^\d{1,2}\.\d{1,2}')::numeric AS version
+				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
 			FROM
 				pg_settings
 			WHERE

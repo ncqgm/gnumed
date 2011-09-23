@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmSurgery
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
@@ -130,6 +131,27 @@ def install_data_pack(data_pack=None):
 		installed = gmNetworkTools.install_data_pack(data_pack, gm_dbo_conn)
 	finally:
 		wx.EndBusyCursor()
+
+	# check schema hash
+	db_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')]
+	if not gmPG2.database_schema_compatible(version = db_version):
+		if db_version != 0:
+			msg = _(
+				'Installation of data pack failed because\n'
+				'it attempted to modify the database layout.\n'
+				'\n'
+				'  name: %s\n'
+				'  URL: %s\n'
+				'  local: %s\n'
+				'\n'
+				'You will need to contact your administrator.'
+			) % (
+				data_pack['name'],
+				data_pack['pack_url'],
+				data_pack['local_archive']
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Installing data pack'))
+			return False
 
 	if not installed:
 		msg = _(
