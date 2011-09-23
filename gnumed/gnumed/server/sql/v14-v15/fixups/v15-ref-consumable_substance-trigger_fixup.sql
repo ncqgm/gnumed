@@ -24,9 +24,10 @@ create or replace function ref.trf_do_not_update_substance_if_taken_by_patient()
 DECLARE
 	_msg text;
 BEGIN
-	if OLD.description = NEW.description then
+	-- allow for case insensitive non-changes
+	if upper(OLD.description) = upper(NEW.description) then
 		if OLD.amount = NEW.amount then
-			if OLD.unit = NEW.unit then
+			if upper(OLD.unit) = upper(NEW.unit) then
 				return NEW;
 			end if;
 		end if;
@@ -64,7 +65,7 @@ BEGIN
 END;';
 
 comment on function ref.trf_do_not_update_substance_if_taken_by_patient() is
-'If this substance is taken by any patient do not modify it (description, amount, unit).';
+'If this substance is taken by any patient do not modify description, amount, or unit (case changes allowed).';
 
 create trigger tr_do_not_update_substance_if_taken_by_patient
 	before update
