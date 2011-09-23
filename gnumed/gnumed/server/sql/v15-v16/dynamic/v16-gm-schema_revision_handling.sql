@@ -42,7 +42,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.udt_name || ''\n'';
+			|| _row.udt_name || E''\n'';
 	end loop;
 	return _total;
 end;
