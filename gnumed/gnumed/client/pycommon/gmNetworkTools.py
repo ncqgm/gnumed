@@ -89,7 +89,11 @@ def install_data_pack(data_pack=None, conn=None):
 	from Gnumed.pycommon import gmPsql
 	psql = gmPsql.Psql(conn)
 	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
-	return (psql.run(sql_script) == 0)
+	if psql.run(sql_script) == 0:
+		return True
+
+	_log.error('error installing data pack: %s', data_pack)
+	return False
 #===========================================================================
 def download_data_pack_old(url, target_dir=None):
 

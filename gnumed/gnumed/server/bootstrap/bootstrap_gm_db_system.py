@@ -999,6 +999,7 @@ class database:
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
 			print_msg("    ... skipped (devel version)")
+			_log.info('result schema hash: %s', gmPG2.get_schema_hash(link_obj = self.conn))
 			_log.warning('testing/development only, not failing due to invalid target database identity hash')
 			return True
 		converted, version = gmTools.input2int(target_version.lstrip('v'), 2)
