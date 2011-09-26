@@ -294,6 +294,16 @@ def manage_data_packs(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(data)
 	#--------------------------------------------
+	lb_tt = _(
+		'Install the selected data pack.\n'
+		'\n'
+		'This can take quite a while depending on\n'
+		'the amount of data to be installed.\n'
+		'\n'
+		'GNUmed will block until installation is\n'
+		'complete and eventually inform you of\n'
+		'success or failure.'
+	)
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _(
@@ -309,7 +319,7 @@ def manage_data_packs(parent=None):
 		refresh_callback = refresh,
 		left_extra_button = (
 			_('&Install'),
-			_('Install the selected data pack'),
+			lb_tt,
 			install_data_pack
 		),
 #		middle_extra_button=None,

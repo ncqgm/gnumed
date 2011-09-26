@@ -459,7 +459,7 @@ def format_address(address=None):
 	txt = _(
 		'Address [#%(pk_adr)s]\n'
 		' Street: %(street)s%(notes_street)s\n'
-		' Number: %(number)s%(subunit)s%(notes_subunit)s\n'
+		' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
 		' Location: %(zip)s %(urb)s%(suburb)s\n'
 		' Region: %(l10n_state)s, %(code_state)s\n'
 		' Country: %(l10n_country)s, %(code_country)s'

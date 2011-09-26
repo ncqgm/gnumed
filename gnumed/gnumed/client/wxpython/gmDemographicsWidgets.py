@@ -1821,11 +1821,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov
+		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 		new_identity.save()
-
-		name = new_identity.get_active_name()
-		name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-		name.save()
 
 		# address
 		# if we reach this the address cannot be completely empty
