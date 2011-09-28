@@ -32,9 +32,9 @@ class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
         self._TCTRL_rfe.SetToolTipString(_("Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."))
-        self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter."))
+        self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
         self._TCTRL_aoe.SetToolTipString(_("Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."))
-        self._PRW_aoe_codes.SetToolTipString(_("Codes relevant to the Assessment of Encounter."))
+        self._PRW_aoe_codes.SetToolTipString(_("Codes relevant to the Assessment of Encounter\nseparated by \";\"."))
         # end wxGlade
 
     def __do_layout(self):

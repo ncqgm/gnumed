@@ -137,7 +137,7 @@
                         <option>0</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_rfe_codes" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Codes relevant to the Reason for Encounter.</tooltip>
+                            <tooltip>Codes relevant to the Reason for Encounter\nseparated by ";".</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">
@@ -173,7 +173,7 @@
                         <option>0</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_aoe_codes" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Codes relevant to the Assessment of Encounter.</tooltip>
+                            <tooltip>Codes relevant to the Assessment of Encounter\nseparated by ";".</tooltip>
                         </object>
                     </object>
                 </object>

@@ -48,7 +48,7 @@
                         <option>3</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_Soap_codes" base="EditTextCtrl">
                             <style>wxTE_READONLY|wxNO_BORDER</style>
-                            <tooltip>Codes linked to this Subjective.</tooltip>
+                            <tooltip>Codes relevant to this Subjective\nseparated by ";".</tooltip>
                             <disabled>1</disabled>
                         </object>
                     </object>
@@ -102,7 +102,7 @@
                         <option>3</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_sOap_codes" base="EditTextCtrl">
                             <style>wxTE_READONLY|wxNO_BORDER</style>
-                            <tooltip>Codes linked to this Objective.</tooltip>
+                            <tooltip>Codes relevant to this Objective\nseparated by ";".</tooltip>
                             <disabled>1</disabled>
                         </object>
                     </object>
@@ -156,7 +156,7 @@
                         <option>3</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_soAp_codes" base="EditTextCtrl">
                             <style>wxTE_READONLY|wxNO_BORDER</style>
-                            <tooltip>Codes linked to this Assessment.</tooltip>
+                            <tooltip>Codes relevant to this Assessment\nseparated by ";".</tooltip>
                             <disabled>1</disabled>
                         </object>
                     </object>
@@ -210,7 +210,7 @@
                         <option>3</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_soaP_codes" base="EditTextCtrl">
                             <style>wxTE_READONLY|wxNO_BORDER</style>
-                            <tooltip>Codes linked to this Plan.</tooltip>
+                            <tooltip>Codes relevant to this Plan\nseparated by ";".</tooltip>
                             <disabled>1</disabled>
                         </object>
                     </object>
@@ -281,7 +281,7 @@
                         <option>3</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_episode_codes" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Codes linked to this episode.</tooltip>
+                            <tooltip>Codes relevant to this episode\nseparated by ";".</tooltip>
                         </object>
                     </object>
                 </object>

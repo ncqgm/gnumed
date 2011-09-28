@@ -35,7 +35,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._PRW_certainty.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
         self._TCTRL_status.SetToolTipString(_("The current status of this episode."))
-        self._PRW_codes.SetToolTipString(_("Codes relevant to this episode."))
+        self._PRW_codes.SetToolTipString(_("Codes relevant to this episode\nseparated by \";\"."))
         # end wxGlade
 
     def __do_layout(self):
