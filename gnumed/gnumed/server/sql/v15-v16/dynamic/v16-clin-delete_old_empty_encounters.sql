@@ -48,8 +48,6 @@ BEGIN
 			AND
 		NOT EXISTS (SELECT 1 FROM clin.health_issue WHERE fk_encounter = clin.encounter.pk)
 			AND
-		NOT EXISTS (SELECT 1 FROM clin.operation WHERE fk_encounter = clin.encounter.pk)
-			AND
 		NOT EXISTS (SELECT 1 FROM clin.allergy_state WHERE fk_encounter = clin.encounter.pk)
 	;
 

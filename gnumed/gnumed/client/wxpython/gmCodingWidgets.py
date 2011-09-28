@@ -85,7 +85,7 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 				SELECT
 					pk_generic_code
 						AS data,
-					(code || ' (' || coding_system || '): ' || term || ' (' || version || ' - ' || lang || ')')
+					(code || ' (' || coding_system || '): ' || term || ' (' || version || coalesce(' - ' || lang, '') || ')')
 						AS list_label,
 					code AS
 						field_label
