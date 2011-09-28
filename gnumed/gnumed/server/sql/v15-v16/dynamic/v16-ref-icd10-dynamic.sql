@@ -57,6 +57,28 @@ alter table ref.icd10
 		check (gm.is_null_or_non_empty_string(aux_code) is True);
 
 -- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop index idx_ref_icd10_fk_data_src cascade;
+drop index idx_ref_icd10_code_unique_per_system cascade;
+drop index idx_ref_icd10_term_unique_per_system cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_ref_icd10_fk_data_src on ref.icd10(fk_data_source);
+create unique index idx_ref_icd10_code_unique_per_system on ref.icd10(fk_data_source, lower(code));
+create unique index idx_ref_icd10_term_unique_per_system on ref.icd10(fk_data_source, lower(code), lower(term));
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+alter table ref.icd10 drop constraint atc_fk_data_source_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table ref.icd10
+	add foreign key (fk_data_source)
+		references ref.data_source(pk)
+		on update cascade
+		on delete restrict;
+
+-- --------------------------------------------------------------
 grant select on ref.icd10 to group "gm-public";
 
 -- --------------------------------------------------------------
