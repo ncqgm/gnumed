@@ -1296,9 +1296,39 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			if another_object[field] is None:
 				return False
 
-			#if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S %Z') != another_object[field].strftime('%Y-%m-%d %H:%M:%S %Z'):
+			# compares at minute granularity
 			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M') != another_object[field].strftime('%Y-%m-%d %H:%M'):
 				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
+				return False
+
+		# compare codes
+		# 1) RFE
+		if another_object['pk_generic_codes_rfe'] is None:
+			if self._payload[self._idx['pk_generic_codes_rfe']] is not None:
+				return False
+		if another_object['pk_generic_codes_rfe'] is not None:
+			if self._payload[self._idx['pk_generic_codes_rfe']] is None:
+				return False
+		if (
+			(another_object['pk_generic_codes_rfe'] is None)
+				and
+			(self._payload[self._idx['pk_generic_codes_rfe']] is None)
+		) is False:
+			if set(another_object['pk_generic_codes_rfe']) != set(self._payload[self._idx['pk_generic_codes_rfe']]):
+				return False
+		# 2) AOE
+		if another_object['pk_generic_codes_aoe'] is None:
+			if self._payload[self._idx['pk_generic_codes_aoe']] is not None:
+				return False
+		if another_object['pk_generic_codes_aoe'] is not None:
+			if self._payload[self._idx['pk_generic_codes_aoe']] is None:
+				return False
+		if (
+			(another_object['pk_generic_codes_aoe'] is None)
+				and
+			(self._payload[self._idx['pk_generic_codes_aoe']] is None)
+		) is False:
+			if set(another_object['pk_generic_codes_aoe']) != set(self._payload[self._idx['pk_generic_codes_aoe']]):
 				return False
 
 		return True
@@ -1840,6 +1870,7 @@ WHERE
 			return
 		# run it all in one transaction
 		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
 		return
 
 	generic_codes_rfe = property(_get_generic_codes_rfe, _set_generic_codes_rfe)
@@ -1877,6 +1908,7 @@ WHERE
 			return
 		# run it all in one transaction
 		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
 		return
 
 	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
