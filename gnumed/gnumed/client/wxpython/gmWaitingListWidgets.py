@@ -27,6 +27,7 @@ from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPatSearchWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -294,14 +295,14 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(set_active_patient, patient = pat)
+		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
-		wx.CallAfter(set_active_patient, patient = pat)
+		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activateplus_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
@@ -309,7 +310,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			return
 		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
-		wx.CallAfter(set_active_patient, patient = pat)
+		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
 
