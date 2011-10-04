@@ -437,15 +437,6 @@ where
 	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 
-		if comment is not None:
-			comment = comment.strip()
-
-		if ((technically_abnormal is None) and
-			(clinically_relevant is None) and
-			(comment is None) and
-			(make_me_responsible is False)):
-				return True
-
 		# FIXME: this is not concurrency safe
 		if self._payload[self._idx['reviewed']]:
 			self.__change_existing_review (
@@ -454,6 +445,14 @@ where
 				comment = comment
 			)
 		else:
+			# do not sign off unreviewed results if
+			# NOTHING AT ALL is known about them
+			if technically_abnormal is None:
+				if clinically_relevant is None:
+					comment = gmTools.none_if(comment, u'', strip_string = True)
+					if comment is None:
+						if make_me_responsible is False:
+							return True
 			self.__set_new_review (
 				technically_abnormal = technically_abnormal,
 				clinically_relevant = clinically_relevant,
@@ -461,12 +460,13 @@ where
 			)
 
 		if make_me_responsible is True:
-			cmd = u"select pk from dem.staff where db_user = current_user"
+			cmd = u"SELECT pk FROM dem.staff WHERE db_user = current_user"
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 			self['pk_intended_reviewer'] = rows[0][0]
 			self.save_payload()
-		else:
-			self.refetch_payload()
+			return
+
+		self.refetch_payload()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -488,16 +488,16 @@ where
 			clinically_relevant = technically_abnormal
 
 		cmd = u"""
-insert into clin.reviewed_test_results (
+INSERT INTO clin.reviewed_test_results (
 	fk_reviewed_row,
 	is_technically_abnormal,
 	clinically_relevant,
 	comment
-) values (
+) VALUES (
 	%(pk)s,
 	%(abnormal)s,
 	%(relevant)s,
-	%(cmt)s
+	gm.nullify_empty_string(%(cmt)s)
 )"""
 		args = {
 			'pk': self._payload[self._idx['pk_test_result']],
@@ -511,32 +511,31 @@ insert into clin.reviewed_test_results (
 	def __change_existing_review(self, technically_abnormal=None, clinically_relevant=None, comment=None):
 		"""Change a review on a row.
 
-			- if technically abnormal/clinically relevant/comment are
-			  None (or empty) they are not set
+			- if technically abnormal/clinically relevant are
+			  None they are not set
 		"""
 		args = {
 			'pk_row': self._payload[self._idx['pk_test_result']],
 			'abnormal': technically_abnormal,
-			'relevant': clinically_relevant
+			'relevant': clinically_relevant,
+			'cmt': comment
 		}
 
-		set_parts = []
+		set_parts = [
+			u'fk_reviewer = (SELECT pk FROM dem.staff WHERE db_user = current_user)',
+			u'comment = gm.nullify_empty_string(%(cmt)s)'
+		]
 
 		if technically_abnormal is not None:
 			set_parts.append(u'is_technically_abnormal = %(abnormal)s')
 
 		if clinically_relevant is not None:
-			set_parts.append(u'clinically_relevant= %(relevant)s')
-
-		if comment is not None:
-			set_parts.append('comment = %(cmt)s')
-			args['cmt'] = comment
+			set_parts.append(u'clinically_relevant = %(relevant)s')
 
 		cmd = u"""
-update clin.reviewed_test_results set
-	fk_reviewer = (select pk from dem.staff where db_user = current_user),
+UPDATE clin.reviewed_test_results SET
 	%s
-where
+WHERE
 	fk_reviewed_row = %%(pk_row)s
 """ % u',\n	'.join(set_parts)
 

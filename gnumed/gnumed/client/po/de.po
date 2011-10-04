@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
-"PO-Revision-Date: 2011-09-22 13:12+0100\n"
+"POT-Creation-Date: 2011-10-04 13:31+CEST\n"
+"PO-Revision-Date: 2011-10-04 13:40+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -301,7 +301,7 @@ msgstr "beginne Arzt-Patienten-Kontakt"
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
-" Number: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
@@ -2243,14 +2243,22 @@ msgstr "Ändern Sie die Details der Konsultation:"
 msgid "Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."
 msgstr "Geben Sie die Beratungsursache ein. Hier handelt es sich um das der Konsultation zugrundeliegende Problem des Patienten."
 
-msgid "Codes relevant to the Reason for Encounter."
-msgstr "Codes für diese Beratungsursache."
+msgid ""
+"Codes relevant to the Reason for Encounter\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Beratungsursache,\n"
+"abgetrennt mittels \";\"."
 
 msgid "Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."
 msgstr "Geben Sie die Zusammenfassung zur Konsultation ein. Es handelt sich um Ihre krankeitsübergreifende Gesamtzusammenfassung."
 
-msgid "Codes relevant to the Assessment of Encounter."
-msgstr "Codes für dieses Beratungsergebnis."
+msgid ""
+"Codes relevant to the Assessment of Encounter\n"
+"separated by \";\"."
+msgstr ""
+"Codes für dieses Beratungsergebnis,\n"
+"abgetrennt mittels \";\"."
 
 msgid "Patient:"
 msgstr "Patient:"
@@ -2262,7 +2270,7 @@ msgid "Ended"
 msgstr "Ende"
 
 msgid "Purpose"
-msgstr "Ber.Ursache"
+msgstr "Beratungsursache"
 
 msgid "Codes"
 msgstr "Codes"
@@ -2315,8 +2323,12 @@ msgstr "Wenn dieses Feld markiert ist, ist die Episode beendet. Ansonsten dauert
 msgid "The current status of this episode."
 msgstr "Der Istzustand der/eine Zusammenfassung zu dieser Episode."
 
-msgid "Codes relevant to this episode."
-msgstr "Codes für diese Episode."
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Episode,\n"
+"abgetrennt mittels \";\"."
 
 msgid "Patient"
 msgstr "Patient"
@@ -2666,6 +2678,13 @@ msgstr "Geben Sie das Jahr der Diagnosestellung ein. Das Feld \"Alter\" wird ent
 
 msgid "The current status of the issue."
 msgstr "Der Istzustand der/eine Zusammenfassung zu dieser Grunderkrankung."
+
+msgid ""
+"Codes relevant to this health issue\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Grunderkrankung,\n"
+"abgetrennt mittels \";\"."
 
 msgid "Check if this is an active, ongoing problem."
 msgstr "Setzen Sie ein Häkchen, wenn es sich um eine aktive, andauernde Grunderkrankung handelt."
@@ -3175,17 +3194,13 @@ msgid "Optional: title (academic or honorary). Note that a title applies to a pe
 msgstr "Optional: Titel (akademisch oder ehrenhalber). Ein Titel bezieht sich auf eine Person, nicht nur auf einen bestimmten Namen (der Titel wird somit beibehalten, auch wenn sich der Name ändert)."
 
 msgid ""
-"Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n"
+"Optional address search: enter a postal code or street name to select a pre-existing address to auto-fill the fields below.\n"
 "\n"
-"That address - or a new address created from any modifications below - will be used as the person's \"home\" address.\n"
-"\n"
-"You can also just enter the relevant information into the corresponding fields without searching for an existing address."
+"By editing the fields you can create a new address as needed."
 msgstr ""
-"Hier können Sie anhand von PLZ oder Straßenname nach einer existierenden Adresse suchen. Daraus werden dann die Felder unten vorbelegt.\n"
+"Adress-Suche: Geben Sie Postleitzahl oder Straßennamen ein, um die Felder unten aus einer existierenden Adresse zu befüllen.\n"
 "\n"
-"Diese Adresse - oder eine aus unten geänderten Feldern neu angelegte - wird alsdie \"Heimatadresse\" der Person gespeichert.\n"
-"\n"
-"Sie können auch einfach die relevanten Adressdaten in die passenden Felder eingeben, ohne nach einer existierenden Adresse zu suchen."
+"Durch Ändern der Felder können Sie bei Bedarf eine neue Adresse anlegen."
 
 msgid ""
 "Primary address: zip/postal code\n"
@@ -3255,7 +3270,7 @@ msgstr "Zeit:"
 msgid "Nick name"
 msgstr "Spitzname"
 
-msgid "Primary address / contact"
+msgid "Primary address and contact"
 msgstr "Hauptwohnsitz und -kontakt"
 
 msgid "Postal code"
@@ -3882,20 +3897,33 @@ msgstr "Sortiere Dokumente nach"
 msgid "Episode summary"
 msgstr "Episodenzusammenfassung"
 
-msgid "Codes linked to this Subjective."
-msgstr "Codes zu dieser Anamnese."
+msgid ""
+"Codes relevant to this Subjective\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Anamnese,\n"
+"abgetrennt mittels \";\"."
 
-msgid "Codes linked to this Objective."
-msgstr "Codes zu diesem Befund."
+msgid ""
+"Codes relevant to this Objective\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Befunde,\n"
+"abgetrennt mittels \";\"."
 
-msgid "Codes linked to this Assessment."
-msgstr "Codes zu dieser Bewertung/Beurteilung/Einschätzung/Diagnose."
+msgid ""
+"Codes relevant to this Assessment\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diese Bewertung,\n"
+"abgetrennt mittels \";\"."
 
-msgid "Codes linked to this Plan."
-msgstr "Codes zu diesem Procedure."
-
-msgid "Codes linked to this episode."
-msgstr "Codes zu dieser Episode."
+msgid ""
+"Codes relevant to this Plan\n"
+"separated by \";\"."
+msgstr ""
+"Codes für diesen Plan,\n"
+"abgetrennt mittels \";\"."
 
 msgid "Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to."
 msgstr "Hier können Sie die Zusammenfassung (den Status) der Episode bearbeiten, zu welcher diese Verlaufsnotiz gehört."
@@ -3947,12 +3975,6 @@ msgstr "Grunderkrankungen zeigen, die als medizinisch nicht relevant markiert si
 
 msgid "This shows the list of active problems, They include open episodes as well as active health issues."
 msgstr "Die Liste der aktiven Probleme. Diese umfassen die laufenden Episoden und die aktiven Grunderkrankungen."
-
-msgid "Enter codes relevant to this Reason for Encounter."
-msgstr "Wählen Sie die für diese Beratungsursache relevanten Codes."
-
-msgid "Enter codes relevant to this Outcome of Encounter."
-msgstr "Wählen Sie die für dieses Beratungsergebnis relevanten Codes."
 
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr "Die angezeigte Verlaufsnotiz unter dem aktuellen Kontakt speichern."
@@ -5571,6 +5593,25 @@ msgid "Unpacking data pack"
 msgstr "Entpacke Datenpaket"
 
 msgid ""
+"Installation of data pack failed because\n"
+"it attempted to modify the database layout.\n"
+"\n"
+"  name: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"You will need to contact your administrator."
+msgstr ""
+"Kann Datenpaket nicht installieren,\n"
+"weil es die Datenbank verändern will.\n"
+"\n"
+"  Name: %s\n"
+"  URL: %s\n"
+"  lokal: %s\n"
+"\n"
+"Sie müssen Ihren Systemverwalter benachrichtigen."
+
+msgid ""
 "Installation of data pack failed.\n"
 "\n"
 "  name: %s\n"
@@ -5615,6 +5656,25 @@ msgstr ""
 "\n"
 " [%s]\n"
 
+msgid ""
+"Install the selected data pack.\n"
+"\n"
+"This can take quite a while depending on\n"
+"the amount of data to be installed.\n"
+"\n"
+"GNUmed will block until installation is\n"
+"complete and eventually inform you of\n"
+"success or failure."
+msgstr ""
+"Installieren des gewählten Datenpakets.\n"
+"\n"
+"Abhängig von der zu installierenden Datenmenge\n"
+"kann dies einige Zeit in Anspruch nehmen.\n"
+"\n"
+"GNUmed blockiert, bis die Installation ab-\n"
+"geschlossen ist und meldet schlußendlich\n"
+"Erfolg oder Mißerfolg."
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr "Zur Installation in diese v%s-Datenbank verfügbare Datenpakete.\n"
 
@@ -5635,9 +5695,6 @@ msgstr "Quelle"
 
 msgid "&Install"
 msgstr "&Installieren"
-
-msgid "Install the selected data pack"
-msgstr "Gewähltes Datenpaket installieren"
 
 msgid "&Configure"
 msgstr "&Konfigurieren"
@@ -6966,7 +7023,7 @@ msgid "Continue the existing recent encounter."
 msgstr "Die existierende Konsultation von neulich fortsetzen."
 
 msgid "Start a new encounter. The existing one will be closed."
-msgstr "Einen neuen Kontakt beginnen."
+msgstr "Einen neuen Kontakt anlegen. Der aktive Kontakt endet."
 
 msgid "Start new"
 msgstr "Neubeginn"
@@ -7953,24 +8010,6 @@ msgstr "Stammdaten der aktiven Person als GDT-Datei exportieren."
 msgid "Export to GDT"
 msgstr "Als GDT exportieren"
 
-msgid "Show a high-level summary of the EMR."
-msgstr "Eine grobe Zusammenfassung der Karteikarte zeigen."
-
-msgid "Show as ..."
-msgstr "Zeige als ..."
-
-msgid "Search for data in the EMR of the active patient"
-msgstr "Kartei des aktiven Patienten durchsuchen"
-
-msgid "Search this EMR"
-msgstr "Diese Kartei durchsuchen"
-
-msgid "Search all EMRs"
-msgstr "Karteikarten durchsuchen"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Karteikarten aller Patienten durchsuchen"
-
 msgid "&Past history (health issue / PMH)"
 msgstr "&Grunderkrankung (Eigenanamnese)"
 
@@ -8013,17 +8052,17 @@ msgstr "&Maßnahmen"
 msgid "Manage procedures performed on the patient."
 msgstr "Verwalten der Maßnahmen für diesen Patienten."
 
-msgid "&Measurement(s)"
-msgstr "&Meßwert(e)"
-
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr "Meßergebnisse für den aktiven Patienten erfassen."
 
-msgid "&Vaccination(s)"
-msgstr "&Impfung(en)"
+msgid "&Measurements"
+msgstr "&Meßwerte"
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr "Impfungen für den aktiven Patienten erfassen."
+
+msgid "&Vaccinations"
+msgstr "Impfungen"
 
 msgid "&Family history (FHx)"
 msgstr "&Familienanamnese"
@@ -8031,20 +8070,38 @@ msgstr "&Familienanamnese"
 msgid "Manage family history."
 msgstr "Familienanamnese verwalten."
 
-msgid "&Add / Edit ..."
-msgstr "Hinzufügen/Bearbeiten ..."
-
-msgid "Start a new encounter for the active patient right now."
-msgstr "Sofort einen neuen Kontakt für den aktiven Patienten beginnen."
-
-msgid "Start new encounter"
-msgstr "Neuen Kontakt beginnen"
-
-msgid "&Encounters list"
-msgstr "Liste der &Konsultationen"
+msgid "&Encounters"
+msgstr "&Konsultationen"
 
 msgid "List all encounters including empty ones."
 msgstr "Alle Kontakte (einschließlich leere) auflisten."
+
+msgid "&Add / Edit ..."
+msgstr "Hinzufügen/Bearbeiten ..."
+
+msgid "Search for data in the EMR of the active patient"
+msgstr "Kartei des aktiven Patienten durchsuchen"
+
+msgid "Search this EMR"
+msgstr "Diese Kartei durchsuchen"
+
+msgid "Search all EMRs"
+msgstr "Alle Karteien durchsuchen"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Karteikarten aller Patienten durchsuchen"
+
+msgid "Start a new encounter for the active patient right now."
+msgstr "Jetzt einen neuen Kontakt für den aktiven Patienten anlegen."
+
+msgid "Start new encounter"
+msgstr "Neuen Kontakt anlegen"
+
+msgid "Show a high-level statistic summary of the EMR."
+msgstr "Eine grobe Statistik der Karteikarte zeigen."
+
+msgid "Statistics"
+msgstr "Statistik"
 
 msgid "Text document"
 msgstr "Textdatei"
@@ -12342,9 +12399,6 @@ msgstr "&Handbuch (lokal)"
 msgid "Measurements"
 msgstr "Meßwerte"
 
-msgid "&Measurements"
-msgstr "&Meßwerte"
-
 msgid "progress notes (sash)"
 msgstr "Verlaufsnotizen (Sash)"
 
@@ -12392,9 +12446,6 @@ msgstr "&Dokumente"
 
 msgid "&Notes"
 msgstr "&Einträge"
-
-msgid "&Vaccinations"
-msgstr "Impfungen"
 
 msgid "Waiting list"
 msgstr "Warteliste"
@@ -12646,6 +12697,61 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid ""
+#~ "Here you can enter a postal code or street name to search for an existing "
+#~ "address from which the fields below will be pre-filled.\n"
+#~ "\n"
+#~ "That address - or a new address created from any modifications below - "
+#~ "will be used as the person's \"home\" address.\n"
+#~ "\n"
+#~ "You can also just enter the relevant information into the corresponding "
+#~ "fields without searching for an existing address."
+#~ msgstr ""
+#~ "Hier können Sie anhand von PLZ oder Straßenname nach einer existierenden "
+#~ "Adresse suchen. Daraus werden dann die Felder unten vorbelegt.\n"
+#~ "\n"
+#~ "Diese Adresse - oder eine aus unten geänderten Feldern neu angelegte - "
+#~ "wird alsdie \"Heimatadresse\" der Person gespeichert.\n"
+#~ "\n"
+#~ "Sie können auch einfach die relevanten Adressdaten in die passenden "
+#~ "Felder eingeben, ohne nach einer existierenden Adresse zu suchen."
+
+#~ msgid "Codes linked to this Subjective."
+#~ msgstr "Codes zu dieser Anamnese."
+
+#~ msgid "Codes linked to this Objective."
+#~ msgstr "Codes zu diesem Befund."
+
+#~ msgid "Codes linked to this Assessment."
+#~ msgstr "Codes zu dieser Bewertung/Beurteilung/Einschätzung/Diagnose."
+
+#~ msgid "Codes linked to this Plan."
+#~ msgstr "Codes zu diesem Procedure."
+
+#~ msgid "Codes linked to this episode."
+#~ msgstr "Codes zu dieser Episode."
+
+#~ msgid "Enter codes relevant to this Reason for Encounter."
+#~ msgstr "Wählen Sie die für diese Beratungsursache relevanten Codes."
+
+#~ msgid "Enter codes relevant to this Outcome of Encounter."
+#~ msgstr "Wählen Sie die für dieses Beratungsergebnis relevanten Codes."
+
+#~ msgid "Install the selected data pack"
+#~ msgstr "Gewähltes Datenpaket installieren"
+
+#~ msgid "Show as ..."
+#~ msgstr "Zeige als ..."
+
+#~ msgid "&Measurement(s)"
+#~ msgstr "&Meßwert(e)"
+
+#~ msgid "&Vaccination(s)"
+#~ msgstr "&Impfung(en)"
+
+#~ msgid "&Encounters list"
+#~ msgstr "Liste der &Konsultationen"
 
 #~ msgid "Town"
 #~ msgstr "Ort"

@@ -121,17 +121,19 @@ def detect_external_binary(binary=None):
 	if os.name == 'nt':
 		# try .exe (but not if already .bat or .exe)
 		if not (binary.endswith('.exe') or binary.endswith('.bat')):
-			_log.debug('re-testing with [.exe] appended')
 			exe_binary = binary + r'.exe'
+			_log.debug('re-testing as %s', exe_binary)
 			found_dot_exe_binary, full_path = detect_external_binary(binary = exe_binary)
 			if found_dot_exe_binary:
 				return (True, full_path)
 			# not found with .exe, so try .bat:
-			_log.debug('re-testing with [.bat] appended')
 			bat_binary = binary + r'.bat'
+			_log.debug('re-testing as %s', bat_binary)
 			found_bat_binary, full_path = detect_external_binary(binary = bat_binary)
 			if found_bat_binary:
 				return (True, full_path)
+	else:
+		_log.debug('not running under Windows, not testing .exe/.bat')
 
 	return (False, None)
 #===========================================================================

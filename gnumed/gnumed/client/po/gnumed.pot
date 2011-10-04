@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-09-22 13:10+CEST\n"
+"POT-Creation-Date: 2011-10-04 13:31+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -249,7 +249,7 @@ msgstr ""
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
-" Number: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
@@ -2060,13 +2060,17 @@ msgstr ""
 msgid "Enter the Reason For Encounter here. This is the patient's initial request or purpose of visit which led to the encounter."
 msgstr ""
 
-msgid "Codes relevant to the Reason for Encounter."
+msgid ""
+"Codes relevant to the Reason for Encounter\n"
+"separated by \";\"."
 msgstr ""
 
 msgid "Enter the Encounter Summary here. This is your final assessment of the total encounter across all relevant episodes."
 msgstr ""
 
-msgid "Codes relevant to the Assessment of Encounter."
+msgid ""
+"Codes relevant to the Assessment of Encounter\n"
+"separated by \";\"."
 msgstr ""
 
 msgid "Patient:"
@@ -2123,7 +2127,9 @@ msgstr ""
 msgid "The current status of this episode."
 msgstr ""
 
-msgid "Codes relevant to this episode."
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
 msgstr ""
 
 msgid "Patient"
@@ -2453,6 +2459,11 @@ msgid "Enter the year when this condition was diagnosed. Setting this will adjus
 msgstr ""
 
 msgid "The current status of the issue."
+msgstr ""
+
+msgid ""
+"Codes relevant to this health issue\n"
+"separated by \";\"."
 msgstr ""
 
 msgid "Check if this is an active, ongoing problem."
@@ -2942,11 +2953,9 @@ msgid "Optional: title (academic or honorary). Note that a title applies to a pe
 msgstr ""
 
 msgid ""
-"Here you can enter a postal code or street name to search for an existing address from which the fields below will be pre-filled.\n"
+"Optional address search: enter a postal code or street name to select a pre-existing address to auto-fill the fields below.\n"
 "\n"
-"That address - or a new address created from any modifications below - will be used as the person's \"home\" address.\n"
-"\n"
-"You can also just enter the relevant information into the corresponding fields without searching for an existing address."
+"By editing the fields you can create a new address as needed."
 msgstr ""
 
 msgid ""
@@ -3015,7 +3024,7 @@ msgstr ""
 msgid "Nick name"
 msgstr ""
 
-msgid "Primary address / contact"
+msgid "Primary address and contact"
 msgstr ""
 
 msgid "Postal code"
@@ -3594,19 +3603,24 @@ msgstr ""
 msgid "Episode summary"
 msgstr ""
 
-msgid "Codes linked to this Subjective."
+msgid ""
+"Codes relevant to this Subjective\n"
+"separated by \";\"."
 msgstr ""
 
-msgid "Codes linked to this Objective."
+msgid ""
+"Codes relevant to this Objective\n"
+"separated by \";\"."
 msgstr ""
 
-msgid "Codes linked to this Assessment."
+msgid ""
+"Codes relevant to this Assessment\n"
+"separated by \";\"."
 msgstr ""
 
-msgid "Codes linked to this Plan."
-msgstr ""
-
-msgid "Codes linked to this episode."
+msgid ""
+"Codes relevant to this Plan\n"
+"separated by \";\"."
 msgstr ""
 
 msgid "Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to."
@@ -3658,12 +3672,6 @@ msgid "Show issues marked clinically NOT relevant."
 msgstr ""
 
 msgid "This shows the list of active problems, They include open episodes as well as active health issues."
-msgstr ""
-
-msgid "Enter codes relevant to this Reason for Encounter."
-msgstr ""
-
-msgid "Enter codes relevant to this Outcome of Encounter."
 msgstr ""
 
 msgid "Save the currently displayed progress note under the current encounter."
@@ -5036,6 +5044,17 @@ msgid "Unpacking data pack"
 msgstr ""
 
 msgid ""
+"Installation of data pack failed because\n"
+"it attempted to modify the database layout.\n"
+"\n"
+"  name: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"You will need to contact your administrator."
+msgstr ""
+
+msgid ""
 "Installation of data pack failed.\n"
 "\n"
 "  name: %s\n"
@@ -5063,6 +5082,17 @@ msgid ""
 msgstr ""
 
 msgid ""
+"Install the selected data pack.\n"
+"\n"
+"This can take quite a while depending on\n"
+"the amount of data to be installed.\n"
+"\n"
+"GNUmed will block until installation is\n"
+"complete and eventually inform you of\n"
+"success or failure."
+msgstr ""
+
+msgid ""
 "Data packs available for installation into this v%s database.\n"
 msgstr ""
 
@@ -5082,9 +5112,6 @@ msgid "Source"
 msgstr ""
 
 msgid "&Install"
-msgstr ""
-
-msgid "Install the selected data pack"
 msgstr ""
 
 msgid "&Configure"
@@ -7110,24 +7137,6 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
-msgid "Show a high-level summary of the EMR."
-msgstr ""
-
-msgid "Show as ..."
-msgstr ""
-
-msgid "Search for data in the EMR of the active patient"
-msgstr ""
-
-msgid "Search this EMR"
-msgstr ""
-
-msgid "Search all EMRs"
-msgstr ""
-
-msgid "Search for data across the EMRs of all patients"
-msgstr ""
-
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
@@ -7170,16 +7179,16 @@ msgstr ""
 msgid "Manage procedures performed on the patient."
 msgstr ""
 
-msgid "&Measurement(s)"
-msgstr ""
-
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr ""
 
-msgid "&Vaccination(s)"
+msgid "&Measurements"
 msgstr ""
 
 msgid "Add (a) vaccination(s) for the current patient."
+msgstr ""
+
+msgid "&Vaccinations"
 msgstr ""
 
 msgid "&Family history (FHx)"
@@ -7188,7 +7197,25 @@ msgstr ""
 msgid "Manage family history."
 msgstr ""
 
+msgid "&Encounters"
+msgstr ""
+
+msgid "List all encounters including empty ones."
+msgstr ""
+
 msgid "&Add / Edit ..."
+msgstr ""
+
+msgid "Search for data in the EMR of the active patient"
+msgstr ""
+
+msgid "Search this EMR"
+msgstr ""
+
+msgid "Search all EMRs"
+msgstr ""
+
+msgid "Search for data across the EMRs of all patients"
 msgstr ""
 
 msgid "Start a new encounter for the active patient right now."
@@ -7197,10 +7224,10 @@ msgstr ""
 msgid "Start new encounter"
 msgstr ""
 
-msgid "&Encounters list"
+msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "List all encounters including empty ones."
+msgid "Statistics"
 msgstr ""
 
 msgid "Text document"
@@ -10893,9 +10920,6 @@ msgstr ""
 msgid "Measurements"
 msgstr ""
 
-msgid "&Measurements"
-msgstr ""
-
 msgid "progress notes (sash)"
 msgstr ""
 
@@ -10942,9 +10966,6 @@ msgid "&Documents"
 msgstr ""
 
 msgid "&Notes"
-msgstr ""
-
-msgid "&Vaccinations"
 msgstr ""
 
 msgid "Waiting list"

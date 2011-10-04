@@ -73,6 +73,7 @@ IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
 IMPROVED: new patient EA: include address type selection
 IMPROVED: behaviour of [kidney] button in substance intake grid
+IMPROVED: new patient EA: saner address search / address fields interaction
 
 ------------------------------------------------
 # rel-0-9-patches

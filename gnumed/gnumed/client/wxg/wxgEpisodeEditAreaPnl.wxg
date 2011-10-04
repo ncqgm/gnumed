@@ -141,7 +141,7 @@
                         <option>0</option>
                         <object class="cGenericCodesPhraseWheel" name="_PRW_codes" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Codes relevant to this episode.</tooltip>
+                            <tooltip>Codes relevant to this episode\nseparated by ";".</tooltip>
                         </object>
                     </object>
                 </object>

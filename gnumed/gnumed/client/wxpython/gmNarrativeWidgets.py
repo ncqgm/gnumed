@@ -736,6 +736,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		enc.save_payload()
 
+		enc.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
+		enc.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
+
 		return True
 	#--------------------------------------------------------
 	# internal helpers
@@ -813,7 +816,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._PRW_encounter_start.SetText(suppress_smarts = True)
 		self._PRW_encounter_end.SetText(suppress_smarts = True)
 		self._TCTRL_rfe.SetValue(u'')
+		self._PRW_rfe_codes.SetText(suppress_smarts = True)
 		self._TCTRL_aoe.SetValue(u'')
+		self._PRW_aoe_codes.SetText(suppress_smarts = True)
 
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.add_editor()
@@ -1064,7 +1069,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
 			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
 			'pk_location': enc['pk_location'],
-			'pk_patient': enc['pk_patient']
+			'pk_patient': enc['pk_patient'],
+			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
+			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData()
 		}
 
 		if self._PRW_encounter_start.GetData() is None:
@@ -1111,11 +1118,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_current_encounter_modified)
-		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_current_encounter_modified)
+		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
+		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
 
 		# synchronous signals
 		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -1181,6 +1188,11 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
 		wx.CallAfter(self._schedule_data_reget)
+	#--------------------------------------------------------
+	def _on_encounter_code_modified(self):
+		emr = self.__pat.get_emr()
+		emr.active_encounter.refetch_payload()
+		wx.CallAfter(self.__refresh_encounter)
 	#--------------------------------------------------------
 	def _on_current_encounter_modified(self):
 		wx.CallAfter(self.__refresh_encounter)
@@ -1688,6 +1700,9 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		# new episode (standalone=unassociated or new-in-issue)
 		if (self.problem is None) or (self.problem['type'] == 'issue'):
 			episode = self.__create_new_episode(emr = emr, episode_name_candidates = episode_name_candidates)
+			# user cancelled
+			if episode is None:
+				return False
 		# existing episode
 		else:
 			episode = emr.problem2episode(self.problem)

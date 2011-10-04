@@ -1027,7 +1027,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 
 		data = self.__identity.add_name(first, last, active)
 
-		old_nick = self.data['preferred']
+		old_nick = self.__identity['active_name']['preferred']
 		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
 		if active:
 			data['preferred'] = gmTools.coalesce(new_nick, old_nick)
@@ -1574,9 +1574,6 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_street.SetText(value = adr['street'], data = adr['street'])
 		self._PRW_street.set_context(context = u'zip', val = adr['postcode'])
 
-		self._TCTRL_number.SetValue(adr['number'])
-		self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], u''))
-
 		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
 		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
 
@@ -1635,8 +1632,6 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_street,
 			self._PRW_urb,
 			self._PRW_type
-#			, self._PRW_region,
-#			self._PRW_country
 		)
 		no_of_filled_fields = 0
 
@@ -1699,8 +1694,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		# invalidate address searcher when any field edited
 		self._PRW_street.add_callback_on_lose_focus(self._invalidate_address_searcher)
-		wx.EVT_KILL_FOCUS(self._TCTRL_number, self._invalidate_address_searcher)
-		wx.EVT_KILL_FOCUS(self._TCTRL_unit, self._invalidate_address_searcher)
+		wx.EVT_KILL_FOCUS(self._TCTRL_number, self._on_leaving_number)
+		wx.EVT_KILL_FOCUS(self._TCTRL_unit, self._on_leaving_unit)
 		self._PRW_urb.add_callback_on_lose_focus(self._invalidate_address_searcher)
 		self._PRW_region.add_callback_on_lose_focus(self._invalidate_address_searcher)
 
@@ -1749,11 +1744,31 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		return True
 	#----------------------------------------------------------------
+	def _on_leaving_number(self, evt):
+		if self._TCTRL_number.GetValue().strip() == u'':
+			adr = self._PRW_address_searcher.address
+			if adr is None:
+				return True
+			self._TCTRL_number.SetValue(adr['number'])
+			return True
+
+		self.__perhaps_invalidate_address_searcher(self._TCTRL_number, 'number')
+		return True
+	#----------------------------------------------------------------
+	def _on_leaving_unit(self, evt):
+		if self._TCTRL_unit.GetValue().strip() == u'':
+			adr = self._PRW_address_searcher.address
+			if adr is None:
+				return True
+			self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], u''))
+			return True
+
+		self.__perhaps_invalidate_address_searcher(self._TCTRL_numbunit, 'subunit')
+		return True
+	#----------------------------------------------------------------
 	def _invalidate_address_searcher(self, *args, **kwargs):
 		mapping = [
 			(self._PRW_street, 'street'),
-			(self._TCTRL_number, 'number'),
-			(self._TCTRL_unit, 'subunit'),
 			(self._PRW_urb, 'urb'),
 			(self._PRW_region, 'l10n_state')
 		]
@@ -1806,11 +1821,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov
+		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 		new_identity.save()
-
-		name = new_identity.get_active_name()
-		name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
-		name.save()
 
 		# address
 		# if we reach this the address cannot be completely empty

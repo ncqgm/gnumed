@@ -37,15 +37,15 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgSoapNoteExpandoEditAreaPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._PRW_Soap_codes.SetToolTipString(_("Codes linked to this Subjective."))
+        self._PRW_Soap_codes.SetToolTipString(_("Codes relevant to this Subjective\nseparated by \";\"."))
         self._PRW_Soap_codes.Enable(False)
-        self._PRW_sOap_codes.SetToolTipString(_("Codes linked to this Objective."))
+        self._PRW_sOap_codes.SetToolTipString(_("Codes relevant to this Objective\nseparated by \";\"."))
         self._PRW_sOap_codes.Enable(False)
-        self._PRW_soAp_codes.SetToolTipString(_("Codes linked to this Assessment."))
+        self._PRW_soAp_codes.SetToolTipString(_("Codes relevant to this Assessment\nseparated by \";\"."))
         self._PRW_soAp_codes.Enable(False)
-        self._PRW_soaP_codes.SetToolTipString(_("Codes linked to this Plan."))
+        self._PRW_soaP_codes.SetToolTipString(_("Codes relevant to this Plan\nseparated by \";\"."))
         self._PRW_soaP_codes.Enable(False)
-        self._PRW_episode_codes.SetToolTipString(_("Codes linked to this episode."))
+        self._PRW_episode_codes.SetToolTipString(_("Codes relevant to this episode\nseparated by \";\"."))
         self._TCTRL_episode_summary.SetToolTipString(_("Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to."))
         # end wxGlade
 

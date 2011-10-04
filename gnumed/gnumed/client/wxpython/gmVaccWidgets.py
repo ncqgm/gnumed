@@ -126,7 +126,10 @@ class cVaccinationIndicationsPnl(wxgVaccinationIndicationsPnl.wxgVaccinationIndi
 	#------------------------------------------------------------------
 	def select(self, indications=None):
 		for indication in indications:
-			self.__indication2field[indication].SetValue(True)
+			try:
+				self.__indication2field[indication].SetValue(True)
+			except KeyError:
+				pass
 	#------------------------------------------------------------------
 	def _get_selected_indications(self):
 		indications = []

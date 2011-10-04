@@ -47,6 +47,7 @@ class wxgHealthIssueEditAreaPnl(wx.ScrolledWindow):
         self._PRW_age_noted.SetToolTipString(_("Enter the age in years when this condition was diagnosed. Setting this will adjust the \"in the year\" field accordingly."))
         self._PRW_year_noted.SetToolTipString(_("Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."))
         self._TCTRL_status.SetToolTipString(_("The current status of the issue."))
+        self._PRW_codes.SetToolTipString(_("Codes relevant to this health issue\nseparated by \";\"."))
         self._TCTRL_code_details.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._ChBOX_active.SetToolTipString(_("Check if this is an active, ongoing problem."))
         self._ChBOX_relevant.SetToolTipString(_("Check if this is a clinically relevant problem."))
