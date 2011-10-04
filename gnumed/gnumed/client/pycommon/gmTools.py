@@ -477,9 +477,15 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 		false_return = false_str
 	)
 #---------------------------------------------------------------------------
-def none_if(value=None, none_equivalent=None):
+def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
-	if value == none_equivalent:
+	if value is None:
+		return None
+	if strip_string:
+		stripped = value.strip()
+	else:
+		stripped = value
+	if stripped == none_equivalent:
 		return None
 	return value
 #---------------------------------------------------------------------------
