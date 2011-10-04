@@ -537,22 +537,6 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "EMR" ---------------------------
 		menu_emr = wx.Menu()
 
-		# - EMR / Show as /
-		menu_emr_show = wx.Menu()
-
-		item = menu_emr_show.Append(-1, _('Summary'), _('Show a high-level summary of the EMR.'))
-		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
-
-		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
-		self.__gb['main.emr_showmenu'] = menu_emr_show
-
-		# - EMR /
-		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
-		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
-
-		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
-		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
-
 		# -- EMR / Add, Edit
 		menu_emr_edit = wx.Menu()
 
@@ -577,24 +561,39 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
 
-		item = menu_emr_edit.Append(-1, _('&Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
 
-		item = menu_emr_edit.Append(-1, _('&Vaccination(s)'), _('Add (a) vaccination(s) for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Vaccinations'), _('Add (a) vaccination(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
 
 		item = menu_emr_edit.Append(-1, _('&Family history (FHx)'), _('Manage family history.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_fhx, item)
 
+		item = menu_emr_edit.Append(-1, _('&Encounters'), _('List all encounters including empty ones.'))
+		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
-		# -- EMR /
+		# - EMR /
+		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
+
+		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
+		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 
 		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
 		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
-		item = menu_emr.Append(-1, _('&Encounters list'), _('List all encounters including empty ones.'))
-		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+#		# - EMR / Show as /
+#		menu_emr_show = wx.Menu()
+
+#		item = menu_emr_show.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
+		item = menu_emr.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
+
+#		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
+#		self.__gb['main.emr_showmenu'] = menu_emr_show
 
 		menu_emr.AppendSeparator()
 
