@@ -2262,7 +2262,7 @@ msgid "Ended"
 msgstr "Ende"
 
 msgid "Purpose"
-msgstr "Ber.Ursache"
+msgstr "Beratungsursache"
 
 msgid "Codes"
 msgstr "Codes"
