@@ -25,7 +25,27 @@ create trigger tr_del_ref_code_tbl_check_backlink
 		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------
--- remove DUPEs
+-- make sure we've got an ATC data source
+insert into ref.data_source (
+	name_long,
+	name_short,
+	version,
+	source
+) select
+	'Anatomical Therapeutic Chemical Classification 1/2009 Deutschland',
+	'ATC',
+	'2009-01-DE',
+	'http://www.dimdi.de'
+ where not exists (
+	select 1 from ref.data_source where
+		name_long = 'Anatomical Therapeutic Chemical Classification 1/2009 Deutschland'
+			and
+		name_short = 'ATC'
+			and
+		version = '2009-01-DE'
+);
+
+-- remove dupes
 delete from ref.atc
 where pk not in (
 	select max(ra2.pk)
@@ -34,6 +54,20 @@ where pk not in (
 		ra2.fk_data_source,
 		ra2.code,
 		ra2.term
+);
+
+-- ensure fk_data_source points to an ATC entry
+update ref.loinc set
+	fk_data_source = (
+		select ref.data_source.pk
+		from ref.data_source
+		where
+			name_long = 'Anatomical Therapeutic Chemical Classification 1/2009 Deutschland'
+				and
+			name_short = 'ATC'
+				and
+			version = '2009-01-DE'
+		limit 1
 );
 
 -- --------------------------------------------------------------

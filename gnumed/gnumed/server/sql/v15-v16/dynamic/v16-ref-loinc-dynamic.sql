@@ -8,6 +8,52 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- make sure we've got a LOINC data source
+insert into ref.data_source (
+	name_long,
+	name_short,
+	version,
+	source
+) select
+	'LOINC® (Logical Observation Identifiers Names and Codes)',
+	'LOINC',
+	'2.26',
+	'http://loinc.org'
+ where not exists (
+	select 1 from ref.data_source where
+		name_long = 'LOINC® (Logical Observation Identifiers Names and Codes)'
+			and
+		name_short = 'LOINC'
+			and
+		version = '2.26'
+);
+
+-- remove dupes
+delete from ref.loinc
+where ref.loinc.pk not in (
+	select max(rl2.pk)
+	from ref.loinc rl2
+	group by
+		rl2.fk_data_source,
+		rl2.code,
+		rl2.term
+);
+
+-- ensure fk_data_source points to a LOINC entry
+update ref.loinc set
+	fk_data_source = (
+		select ref.data_source.pk
+		from ref.data_source
+		where
+			name_long = 'LOINC® (Logical Observation Identifiers Names and Codes)'
+				and
+			name_short = 'LOINC'
+				and
+			version = '2.26'
+		limit 1
+);
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop trigger tr_upd_ref_code_tbl_check_backlink on ref.loinc;
 drop trigger tr_del_ref_code_tbl_check_backlink on ref.loinc;
@@ -47,6 +93,4 @@ alter table ref.loinc
 		on delete restrict;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v16-ref-loinc-dynamic.sql', '1.0');
-
--- ==============================================================
+select gm.log_script_insertion('v16-ref-loinc-dynamic.sql', '16.0');

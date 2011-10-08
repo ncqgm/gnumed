@@ -12,7 +12,8 @@
 -- dem.lnk_org_unit2comm
 
 \unset ON_ERROR_STOP
-alter table dem.org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey1 cascade;
 \set ON_ERROR_STOP 1
 
 -- .fk_org_unit
@@ -27,7 +28,8 @@ alter table dem.lnk_org_unit2comm
 -- dem.lnk_org_unit2ext_id
 
 \unset ON_ERROR_STOP
-alter table dem.org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey1 cascade;
 \set ON_ERROR_STOP 1
 
 -- .fk_org_unit

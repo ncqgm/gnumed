@@ -343,7 +343,7 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_loinc_split():
-		split_LOINCDBTXT(input_fname = sys.argv[2])
+		print split_LOINCDBTXT(input_fname = sys.argv[2])
 	#--------------------------------------------------------
 	def test_loinc_import():
 		loinc_import(version = '2.26')
@@ -352,8 +352,8 @@ if __name__ == "__main__":
 		term = loinc2term(sys.argv[2])
 		print sys.argv[2], '->', term
 	#--------------------------------------------------------
-	#test_loinc_split()
+	test_loinc_split()
 	#test_loinc_import()
-	test_loinc2term()
+	#test_loinc2term()
 
 #============================================================

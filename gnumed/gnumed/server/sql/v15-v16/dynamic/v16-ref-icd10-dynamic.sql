@@ -35,7 +35,7 @@ comment on column ref.icd10.star_code is
 
 
 \unset ON_ERROR_STOP
-alter table ref.icd10 drop contraint ref_icd10_sane_star_code cascade;
+alter table ref.icd10 drop constraint ref_icd10_sane_star_code cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.icd10
@@ -49,7 +49,7 @@ comment on column ref.icd10.aux_code is
 
 
 \unset ON_ERROR_STOP
-alter table ref.icd10 drop contraint ref_icd10_sane_aux_code cascade;
+alter table ref.icd10 drop constraint ref_icd10_sane_aux_code cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.icd10
