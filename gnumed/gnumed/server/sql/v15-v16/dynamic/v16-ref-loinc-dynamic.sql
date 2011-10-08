@@ -37,7 +37,7 @@ create unique index idx_ref_loinc_term_unique_per_system on ref.loinc(fk_data_so
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.loinc drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.loinc drop constraint loinc_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.loinc

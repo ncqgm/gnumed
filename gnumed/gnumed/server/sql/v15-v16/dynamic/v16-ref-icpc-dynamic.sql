@@ -37,7 +37,7 @@ create unique index idx_ref_icpc_term_unique_per_system on ref.icpc(fk_data_sour
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.icpc drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.icpc drop constraint icpc_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.icpc

@@ -69,7 +69,7 @@ create unique index idx_ref_icd10_term_unique_per_system on ref.icd10(fk_data_so
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.icd10 drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.icd10 drop constraint icd10_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.icd10
