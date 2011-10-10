@@ -726,7 +726,6 @@ class cLaTeXForm(cFormEngine):
 			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
 			# 2) and replace them
 			for placeholder in placeholders_in_line:
-				#line = line.replace(placeholder, self._texify_string(data_source[placeholder]))
 				try:
 					val = data_source[placeholder]
 				except:

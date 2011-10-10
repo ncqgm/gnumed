@@ -16,12 +16,24 @@ drop index idx_dem_address_id_street cascade;
 drop index idx_dem_street_id_urb cascade;
 drop index idx_dem_urb_id_state cascade;
 drop index idx_dem_state_country_code cascade;
+
+alter table dem.urb drop constraint urb_id_state_postcode_name_key cascade;
+drop index idx_dem_urb_id_state_postcode_name cascade;
+
+alter table dem.state drop constraint state_code_country_key cascade;
+drop index idx_dem_state_code_country cascade;
+
+alter table dem.street drop constraint street_id_urb_name_postcode_key cascade;
+drop index idx_dem_street_id_urb_name_postcode cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_dem_address_id_street on dem.address(id_street);
 create index idx_dem_street_id_urb on dem.street(id_urb);
 create index idx_dem_urb_id_state on dem.urb(id_state);
 create index idx_dem_state_country_code on dem.state(country);
+create unique index idx_dem_urb_id_state_postcode_name on dem.urb(id_state, lower(postcode), lower(name));
+create unique index idx_dem_state_code_country on dem.state(lower(code), country);
+create unique index idx_dem_street_id_urb_name_postcode on dem.street(id_urb, lower(name), lower(postcode));
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP

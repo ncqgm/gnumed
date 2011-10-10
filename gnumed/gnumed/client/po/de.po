@@ -11269,7 +11269,7 @@ msgstr ""
 "Bedenken Sie, daß alle Karteizugriffe aufgezeichnet und\n"
 "daß %s%s überden Zugriff informiert wird, wenn Sie fortfahren.\n"
 "\n"
-"Wollen Sie nach wie vor diese Kartei aufrufen ?"
+"Wollen Sie dennoch diese Kartei aufrufen ?"
 
 msgid "Privacy notice"
 msgstr "Datenschutzhinweis"
