@@ -956,22 +956,24 @@ def _check_for_provider_chart_access(patient=None):
 			curr_prov['firstnames'],
 			curr_prov['lastnames']
 		)
-		gmProviderInbox.create_inbox_message (
-			message_type = _('Privacy notice'),
-			subject = _('Your chart has been accessed by %s.') % prov,
-			patient = patient.ID,
-			staff = patient.staff_id
-		)
 		pat = u'%s%s %s' % (
 			gmTools.coalesce(patient['title'], u'', u'%s '),
 			patient['firstnames'],
 			patient['lastnames']
 		)
+		# notify the staff member
 		gmProviderInbox.create_inbox_message (
+			staff = patient.staff_id,
 			message_type = _('Privacy notice'),
-			subject = _('Staff member %s has been notified of your chart access.') % pat,
-			patient = patient.ID,
-			staff = curr_prov['pk_staff']
+			subject = _('Your chart has been accessed by %s.') % prov,
+			patient = patient.ID
+		)
+		# notify /me about the staff member notification
+		gmProviderInbox.create_inbox_message (
+			staff = curr_prov['pk_staff'],
+			message_type = _('Privacy notice'),
+			subject = _('Staff member %s has been notified of your chart access.') % pat
+			#, patient = patient.ID
 		)
 
 	return proceed

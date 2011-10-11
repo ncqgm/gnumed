@@ -404,8 +404,8 @@ class gmOOoConnector(gmBorg.cBorg):
 		pipe_name = "uno-gm2lo-%s" % str(random.random())[2:]
 		_log.debug('pipe name: %s', pipe_name)
 
-		#self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
-		self.ooo_start_cmd = '%s -invisible -norestore -accept="pipe,name=%s;urp"' % (
+		#self.ooo_start_cmd = '%s -invisible -norestore -accept="pipe,name=%s;urp"' % (
+		self.ooo_start_cmd = '%s --norestore --accept="pipe,name=%s;urp" &' % (
 			writer_binary,
 			pipe_name
 		)
@@ -726,15 +726,14 @@ class cLaTeXForm(cFormEngine):
 			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
 			# 2) and replace them
 			for placeholder in placeholders_in_line:
-				#line = line.replace(placeholder, self._texify_string(data_source[placeholder]))
 				try:
 					val = data_source[placeholder]
 				except:
 					_log.exception(val)
-					val = _('error with placeholder [%s]') % placeholder
+					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
 
 				if val is None:
-					val = _('error with placeholder [%s]') % placeholder
+					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
 
 				line = line.replace(placeholder, val)
 

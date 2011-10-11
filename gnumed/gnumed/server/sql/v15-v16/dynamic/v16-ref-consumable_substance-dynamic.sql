@@ -41,7 +41,17 @@ update ref.consumable_substance set
 where
 	description = 'Chlodiazepoxide';
 
--- --------------------------------------------------------------
-select gm.log_script_insertion('v16-ref-consumable_substance-dynamic.sql', 'Revision: v16');
 
--- ==============================================================
+update ref.consumable_substance set
+	description = 'Enalapril Maleate'
+where
+	description = 'Enalpril Maleate';
+
+
+update ref.consumable_substance set
+	description = 'Acabose'
+where
+	description = 'Acarbose';
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v16-ref-consumable_substance-dynamic.sql', '16.0');

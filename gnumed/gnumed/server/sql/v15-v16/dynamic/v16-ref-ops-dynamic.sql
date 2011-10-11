@@ -41,7 +41,7 @@ create unique index idx_ref_ops_term_unique_per_system on ref.ops(fk_data_source
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.ops drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.ops drop constraint ops_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.ops

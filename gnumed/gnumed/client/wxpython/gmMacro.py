@@ -1242,12 +1242,13 @@ if __name__ == '__main__':
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
-			#u'patient_comm::homephone::1234',
+			u'patient_comm::homephone::1234',
 			#u'patient_address::home//::1234',
 			#u'adr_region::home::1234',
 			#u'adr_country::home::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
-			u'primary_praxis_provider'
+			#u'primary_praxis_provider',
+			#u'current_provider'
 		]
 
 		handler = gmPlaceholderHandler()

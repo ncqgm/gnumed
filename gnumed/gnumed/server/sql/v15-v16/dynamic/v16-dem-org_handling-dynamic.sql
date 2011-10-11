@@ -12,7 +12,8 @@
 -- dem.lnk_org_unit2comm
 
 \unset ON_ERROR_STOP
-alter table dem.org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2comm_fk_org_unit_fkey1 cascade;
 \set ON_ERROR_STOP 1
 
 -- .fk_org_unit
@@ -27,7 +28,8 @@ alter table dem.lnk_org_unit2comm
 -- dem.lnk_org_unit2ext_id
 
 \unset ON_ERROR_STOP
-alter table dem.org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey cascade;
+alter table dem.lnk_org_unit2comm drop constraint lnk_org_unit2ext_id_fk_org_unit_fkey1 cascade;
 \set ON_ERROR_STOP 1
 
 -- .fk_org_unit
@@ -54,7 +56,13 @@ where
 	fk_category = (select pk from dem.org_category where description = 'Government')
 ;
 
--- --------------------------------------------------------------
-select gm.log_script_insertion('v16-dem-org_handling-dynamic.sql', 'v16');
 
--- ==============================================================
+\unset ON_ERROR_STOP
+alter table dem.org_category drop constraint org_category_description_key cascade;
+drop index idx_dem_org_category_description cascade;
+\set ON_ERROR_STOP 1
+
+create unique index idx_dem_org_category_description on dem.org_category(lower(description));
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v16-dem-org_handling-dynamic.sql', '16.0');

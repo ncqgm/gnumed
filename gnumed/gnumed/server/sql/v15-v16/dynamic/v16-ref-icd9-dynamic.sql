@@ -41,7 +41,7 @@ create unique index idx_ref_icd9_term_unique_per_system on ref.icd9(fk_data_sour
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.icd9 drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.icd9 drop constraint icd9_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.icd9

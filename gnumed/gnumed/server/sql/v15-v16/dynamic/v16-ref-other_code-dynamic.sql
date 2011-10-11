@@ -41,7 +41,7 @@ create unique index idx_ref_other_code_term_unique_per_system on ref.other_code(
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-alter table ref.other_code drop constraint atc_fk_data_source_fkey cascade;
+alter table ref.other_code drop constraint other_code_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.other_code
