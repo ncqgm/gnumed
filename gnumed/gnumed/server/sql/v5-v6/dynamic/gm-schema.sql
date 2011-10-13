@@ -1,7 +1,5 @@
 -- =============================================
 -- project: GNUmed
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v5-v6/dynamic/gm-schema.sql,v $
--- $Id: gm-schema.sql,v 1.3 2007-05-08 11:18:45 ncq Exp $
 -- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
@@ -43,7 +41,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.udt_name || ''\n'';
+			|| _row.udt_name || E''\n'';
 	end loop;
 	return _total;
 end;
@@ -79,7 +77,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.udt_name || ''\n'';
+			|| _row.udt_name || E''\n'';
 	end loop;
 	return _total;
 end;
@@ -150,18 +148,3 @@ grant usage on schema gm to group "gm-doctors";
 select gm.log_script_insertion('$RCSfile: gm-schema.sql,v $', '$Revision: 1.3 $');
 
 -- =============================================
--- $Log: gm-schema.sql,v $
--- Revision 1.3  2007-05-08 11:18:45  ncq
--- - add missing grant on schema gm
---
--- Revision 1.2  2007/05/07 16:45:54  ncq
--- - fix missing schema qual
---
--- Revision 1.1  2007/05/07 16:25:45  ncq
--- - start putting a bunch of database maintenance related stuff into
---   its own schema so we come clean of using "public" which will
---   enable us to drop "public" from the identity hash function which
---   in turn will allow us to gracefully deal with pgaccess clobbering
---   "public"
---
---

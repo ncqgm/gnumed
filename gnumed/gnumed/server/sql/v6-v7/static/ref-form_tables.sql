@@ -6,12 +6,8 @@
 --
 -- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
--- 
+--
 -- ==============================================================
--- $Id: ref-form_tables.sql,v 1.8 2007-09-01 23:34:54 ncq Exp $
--- $Revision: 1.8 $
-
--- --------------------------------------------------------------
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
@@ -69,7 +65,7 @@ select
 	revision,
 	engine,
 	in_use,
-	decode(replace(template, '\\', '\\\\'), 'escape')
+	decode(replace(template, E'\\', E'\\\\'), 'escape')
 from public.form_defs;
 
 drop table public.form_defs cascade;
@@ -86,35 +82,3 @@ alter table public.form_fields add foreign key (fk_form) references ref.paperwor
 select gm.log_script_insertion('$RCSfile: ref-form_tables.sql,v $', '$Revision: 1.8 $');
 
 -- ==============================================================
--- $Log: ref-form_tables.sql,v $
--- Revision 1.8  2007-09-01 23:34:54  ncq
--- - cleanup
---
--- Revision 1.7  2007/08/31 14:31:04  ncq
--- - set engine default to the currently only sane value "O"
--- - default data to NULL
---
--- Revision 1.6  2007/08/29 14:47:17  ncq
--- - revision -> external_version
--- - add gnumed_revision
--- - fix UNIQUE constraints
--- - add foreign key to public.form_fields
---
--- Revision 1.5  2007/08/20 14:38:42  ncq
--- - public.form_defs -> ref.paperwork_templates, move full data
--- - rename cols
---
--- Revision 1.4  2007/08/13 22:07:50  ncq
--- - add ref.form_defs.filename
---
--- Revision 1.3  2007/08/12 00:19:23  ncq
--- - add document_type field
---
--- Revision 1.2  2007/07/22 09:29:53  ncq
--- - need to adjust ref.form_types sequences
--- - drop audit table of ref.form_defs, too
---
--- Revision 1.1  2007/07/18 14:28:23  ncq
--- - we are now really getting into forms handling
---
---

@@ -1,7 +1,5 @@
 -- =============================================
 -- project: GNUmed
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/v7-v8/dynamic/v8-gm-schema_revision_handling.sql,v $
--- $Id: v8-gm-schema_revision_handling.sql,v 1.1 2007-11-07 22:50:55 ncq Exp $
 -- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
@@ -36,7 +34,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.udt_name || ''\n'';
+			|| _row.udt_name || E''\n'';
 	end loop;
 	return _total;
 end;
@@ -88,8 +86,3 @@ end;
 select gm.log_script_insertion('$RCSfile: v8-gm-schema_revision_handling.sql,v $', '$Revision: 1.1 $');
 
 -- =============================================
--- $Log: v8-gm-schema_revision_handling.sql,v $
--- Revision 1.1  2007-11-07 22:50:55  ncq
--- - sort concat bei bytea'ed md5
---
---
