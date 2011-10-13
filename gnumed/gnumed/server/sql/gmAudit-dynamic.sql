@@ -1,8 +1,6 @@
 -- GNUmed auditing functionality
 -- ===================================================================
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmAudit-dynamic.sql,v $
--- $Revision: 1.8 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- ===================================================================
@@ -66,7 +64,7 @@ BEGIN
 		relnamespace = (select oid from pg_namespace where nspname = _relnamespace)
 	;
 	if not found then
-		tmp := _relnamespace || \'.\' || _relname;
+		tmp := _relnamespace || ''.'' || _relname;
 		raise exception ''audit.add_table_for_audit: Table [%] does not exist.'', tmp;
 		return false;
 	end if;
@@ -93,7 +91,7 @@ create or replace function audit.add_table_for_audit(name)
 	language SQL
 	security definer
 	as '
-select audit.add_table_for_audit(\'public\', $1);';
+select audit.add_table_for_audit(''public'', $1);';
 
 comment on function audit.add_table_for_audit(name) is
 	'sanity-checking convenience function for marking tables
@@ -163,30 +161,3 @@ delete from gm_schema_revision where filename = '$RCSfile: gmAudit-dynamic.sql,v
 insert into gm_schema_revision (filename, version) values ('$RCSfile: gmAudit-dynamic.sql,v $', '$Revision: 1.8 $');
 
 -- ===================================================================
--- $Log: gmAudit-dynamic.sql,v $
--- Revision 1.8  2006-01-07 14:20:54  ncq
--- - appropriate grants ...
---
--- Revision 1.7  2006/01/06 10:04:16  ncq
--- - move add_table_for_audit() into audit schema
---
--- Revision 1.6  2006/01/05 16:04:37  ncq
--- - move auditing to its own schema "audit"
---
--- Revision 1.5  2005/12/04 09:36:52  ncq
--- - need to use explicit and old style of logging script insertion
---   due to early running in upgrade process
---
--- Revision 1.4  2005/11/29 19:04:51  ncq
--- - must use *old* log_script_insertion
---
--- Revision 1.3  2005/11/25 15:01:05  ncq
--- - better factor out dynamic stuff
---
--- Revision 1.2  2005/10/24 19:06:51  ncq
--- - missing ";"
--- - wrong column for pg_namespace
---
--- Revision 1.1  2005/10/24 17:56:33  ncq
--- - factor out re-runnables for auditing
---
