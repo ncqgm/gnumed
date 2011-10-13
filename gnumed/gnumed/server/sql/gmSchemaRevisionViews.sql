@@ -1,7 +1,5 @@
 -- =============================================
 -- project: GNUmed
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmSchemaRevisionViews.sql,v $
--- $Id: gmSchemaRevisionViews.sql,v 1.6 2006-06-18 13:30:32 ncq Exp $
 -- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
@@ -48,7 +46,7 @@ begin
 			|| _row.table_schema || ''.''
 			|| _row.table_name || ''.''
 			|| _row.column_name || ''::''
-			|| _row.udt_name || ''\n'';
+			|| _row.udt_name || E''\n'';
 	end loop;
 	return _total;
 end;
@@ -80,24 +78,3 @@ GRANT SELECT on
 TO group "gm-public";
 
 -- =============================================
--- $Log: gmSchemaRevisionViews.sql,v $
--- Revision 1.6  2006-06-18 13:30:32  ncq
--- - gm_concat_table_structure() must be SECURITY DEFINER
---
--- Revision 1.5  2006/01/13 14:36:09  ncq
--- - need to "order by md5(yadda yadda)" to avoid locale related ordering
---   differences thereby vorgaukling schema differences
---
--- Revision 1.4  2006/01/11 13:30:42  ncq
--- - update schema check function
---
--- Revision 1.3  2005/12/04 09:45:36  ncq
--- - just a silly one-line comment
---
--- Revision 1.2  2005/10/24 19:28:37  ncq
--- - move drop function ... to update*.sql
---
--- Revision 1.1  2005/09/19 16:15:28  ncq
--- - factor out re-doable stuff
---
---
