@@ -122,6 +122,19 @@ class cGenericCodesPhraseWheel(gmPhraseWheel.cMultiPhraseWheel):
 		self.selection_only = False			# not sure yet how this fares with multi-phrase input
 		self.SetToolTipString(_('Select one or more codes that apply.'))
 		self.matcher = mp
+
+		self.add_callback_on_lose_focus(callback = self.__on_losing_focus)
+	#------------------------------------------------------------
+	def __on_losing_focus(self):
+		self._adjust_data_after_text_update()
+		if self.GetValue().strip() == u'':
+			return
+
+		if len(self.data) != len(self.displayed_strings):
+			self.display_as_valid(valid = False, partially_invalid = True)
+			return
+
+		self.display_as_valid(valid = True)
 	#------------------------------------------------------------
 	def _get_data_tooltip(self):
 		if len(self.data) == 0:
