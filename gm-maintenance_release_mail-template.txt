@@ -49,7 +49,7 @@ Database installation / upgrade:
 
  Related information is found here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/ServerUpgrade
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
 
 
 Please download, install, and report problems !
