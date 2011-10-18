@@ -6,6 +6,10 @@
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.11
+
+IMPROVED: add SQL reports to find duplicate streets/urbs/regions
+
 	0.9.10
 
 FIX: include latest GPL v2.0 license text from FSF [thanks Ankur]
