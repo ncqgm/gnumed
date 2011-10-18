@@ -789,6 +789,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	15.11
 
 FIX: trf_do_not_substance_if_taken_by_patient() on ref.consumable_substance
+FIX: missing E in front of escape-syntax strings in SQL bootstrap files
 
 	15.10
 
