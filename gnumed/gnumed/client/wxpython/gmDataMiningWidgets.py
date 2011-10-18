@@ -179,9 +179,12 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	def add_filenames(self, filenames):
 		# act on first file only
 		fname = filenames[0]
+		_log.debug('importing SQL from <%s>', fname)
 		# act on text files only
 		mime_type = gmMimeLib.guess_mimetype(fname)
+		_log.debug('mime type: %s', mime_type)
 		if not mime_type.startswith('text/'):
+			_log.debug('not a text file')
 			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
 			return False
 		# act on "small" files only
