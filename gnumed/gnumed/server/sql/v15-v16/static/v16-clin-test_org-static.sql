@@ -8,6 +8,13 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+alter table dem.org
+	add column fk_data_source integer;
+
+alter table audit.log_org
+	add column fk_data_source integer;
+
+-- --------------------------------------------------------------
 -- create orgs from test_org
 insert into dem.org (
 	description,

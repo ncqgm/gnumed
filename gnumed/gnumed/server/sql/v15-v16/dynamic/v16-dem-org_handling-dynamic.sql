@@ -9,6 +9,25 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- dem.org.fk_data_source
+comment on column dem.org.fk_data_source is 'Source of the organization data.';
+
+\unset ON_ERROR_STOP
+alter table dem.org drop constraint org_fk_data_source_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table dem.org
+	add foreign key (fk_data_source)
+		references ref.data_source(pk)
+		on update cascade
+		on delete restrict
+;
+
+alter table dem.org
+	alter column fk_data_source
+		set default null;
+
+-- --------------------------------------------------------------
 -- dem.lnk_org_unit2comm
 
 \unset ON_ERROR_STOP
