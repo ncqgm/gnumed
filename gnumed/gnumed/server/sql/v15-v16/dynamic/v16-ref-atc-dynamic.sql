@@ -57,7 +57,7 @@ where pk not in (
 );
 
 -- ensure fk_data_source points to an ATC entry
-update ref.loinc set
+update ref.atc set
 	fk_data_source = (
 		select ref.data_source.pk
 		from ref.data_source
