@@ -51,7 +51,7 @@ where pk not in (
 	select max(ra2.pk)
 	from ref.atc ra2
 	group by
-		ra2.fk_data_source,
+--		ra2.fk_data_source,
 		ra2.code,
 		ra2.term
 );
@@ -68,7 +68,15 @@ update ref.loinc set
 				and
 			version = '2009-01-DE'
 		limit 1
-);
+	)
+where
+	fk_data_source not in (
+		select pk
+		from ref.data_source
+		where
+			name_short like '%ATC%'
+	)
+;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP

@@ -34,7 +34,7 @@ where ref.loinc.pk not in (
 	select max(rl2.pk)
 	from ref.loinc rl2
 	group by
-		rl2.fk_data_source,
+--		rl2.fk_data_source,
 		rl2.code,
 		rl2.term
 );
@@ -51,7 +51,15 @@ update ref.loinc set
 				and
 			version = '2.26'
 		limit 1
-);
+	)
+where
+	fk_data_source not in (
+		select pk
+		from ref.data_source
+		where
+			name_short like '%LOINC%'
+	)
+;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
