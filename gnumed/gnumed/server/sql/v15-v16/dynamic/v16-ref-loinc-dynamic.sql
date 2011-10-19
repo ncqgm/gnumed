@@ -8,6 +8,16 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- remove those which have been orphaned by the old
+-- LOINC updater w/ respect to .fk_data_source
+delete from ref.loinc r_l where not exists (
+	select 1 from ref.data_source r_ds
+	where
+		r_ds.pk = r_l.fk_data_source
+			and
+		r_ds.name_short like '%LOINC%'
+);
+
 -- make sure we've got a LOINC data source
 insert into ref.data_source (
 	name_long,

@@ -25,6 +25,16 @@ create trigger tr_del_ref_code_tbl_check_backlink
 		for each row execute procedure ref.trf_del_ref_code_tbl_check_backlink();
 
 -- --------------------------------------------------------------
+-- remove those which have been orphaned by the old
+-- ATC updater w/ respect to .fk_data_source
+delete from ref.atc r_a where not exists (
+	select 1 from ref.data_source r_ds
+	where
+		r_ds.pk = r_a.fk_data_source
+			and
+		r_ds.name_short like '%ATC%'
+);
+
 -- make sure we've got an ATC data source
 insert into ref.data_source (
 	name_long,
@@ -53,7 +63,7 @@ where pk not in (
 	group by
 --		ra2.fk_data_source,
 		ra2.code,
-		ra2.term
+		lower(ra2.term)
 );
 
 -- ensure fk_data_source points to an ATC entry
