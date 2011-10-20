@@ -131,9 +131,9 @@ def create_vaccine(pk_brand=None, brand_name=None, indications=None):
 			preparation = prep,
 			return_existing = True
 		)
-		drug['atc_code'] = u'J07'
+		drug['atc'] = u'J07'
 		drug.save()
-		pk_brand = drug['pk']
+		pk_brand = drug['pk_brand']
 
 	cmd = u'INSERT INTO clin.vaccine (fk_brand) values (%(pk_brand)s) RETURNING pk'
 	queries = [{'cmd': cmd, 'args': {'pk_brand': pk_brand}}]

@@ -371,6 +371,7 @@ class cFileDropTarget(wx.FileDropTarget):
 	def __init__(self, target):
 		wx.FileDropTarget.__init__(self)
 		self.target = target
+		_log.debug('setting up [%s] as file drop target', target)
 	#-----------------------------------------------
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)

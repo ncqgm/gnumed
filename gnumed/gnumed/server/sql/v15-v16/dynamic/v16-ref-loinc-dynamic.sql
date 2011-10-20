@@ -8,6 +8,16 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- remove those which have been orphaned by the old
+-- LOINC updater w/ respect to .fk_data_source
+delete from ref.loinc r_l where not exists (
+	select 1 from ref.data_source r_ds
+	where
+		r_ds.pk = r_l.fk_data_source
+			and
+		r_ds.name_short like '%LOINC%'
+);
+
 -- make sure we've got a LOINC data source
 insert into ref.data_source (
 	name_long,
@@ -34,7 +44,7 @@ where ref.loinc.pk not in (
 	select max(rl2.pk)
 	from ref.loinc rl2
 	group by
-		rl2.fk_data_source,
+--		rl2.fk_data_source,
 		rl2.code,
 		rl2.term
 );
@@ -51,7 +61,15 @@ update ref.loinc set
 				and
 			version = '2.26'
 		limit 1
-);
+	)
+where
+	fk_data_source not in (
+		select pk
+		from ref.data_source
+		where
+			name_short like '%LOINC%'
+	)
+;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP

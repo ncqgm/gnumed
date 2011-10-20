@@ -58,8 +58,8 @@ def drug2renal_insufficiency_url(search_term=None):
 	names = []
 
 	if isinstance(search_term, cBrandedDrug):
-		if search_term['atc_code'] is not None:
-			terms.append(search_term['atc_code'])
+		if search_term['atc'] is not None:
+			terms.append(search_term['atc'])
 
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
@@ -1060,8 +1060,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			new_drugs.append(drug)
 
 			# update fields
-			drug['is_fake'] = False
-			drug['atc_code'] = entry['atc']
+			drug['is_fake_brand'] = False
+			drug['atc'] = entry['atc']
 			drug['external_code_type'] = u'DE-PZN'
 			drug['external_code'] = entry['pzn']
 			drug['fk_data_source'] = data_src_pk

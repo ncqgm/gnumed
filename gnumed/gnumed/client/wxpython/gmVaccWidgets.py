@@ -382,24 +382,24 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	#----------------------------------------------------------------
 	def __init_ui(self):
 
-		# route
-		query = u"""
-			SELECT DISTINCT ON (abbreviation)
-				id,
-				abbreviation || ' (' || _(description) || ')'
-			FROM
-				clin.vacc_route
-			WHERE
-				abbreviation %(fragment_condition)s
-					OR
-				description %(fragment_condition)s
-			ORDER BY
-				abbreviation
-		"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 3)
-		self._PRW_route.matcher = mp
-		self._PRW_route.selection_only = True
+#		# route
+#		query = u"""
+#			SELECT DISTINCT ON (abbreviation)
+#				id,
+#				abbreviation || ' (' || _(description) || ')'
+#			FROM
+#				clin.vacc_route
+#			WHERE
+#				abbreviation %(fragment_condition)s
+#					OR
+#				description %(fragment_condition)s
+#			ORDER BY
+#				abbreviation
+#		"""
+#		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+#		mp.setThresholds(1, 2, 3)
+#		self._PRW_route.matcher = mp
+#		self._PRW_route.selection_only = True
 
 		#self._PRW_age_min = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 		#self._PRW_age_max = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -419,11 +419,11 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		else:
 			self._PRW_brand.display_as_valid(True)
 
-		if self._PRW_route.GetData() is None:
-			has_errors = True
-			self._PRW_route.display_as_valid(False)
-		else:
-			self._PRW_route.display_as_valid(True)
+#		if self._PRW_route.GetData() is None:
+#			has_errors = True
+#			self._PRW_route.display_as_valid(False)
+#		else:
+#			self._PRW_route.display_as_valid(True)
 
 		if not self._PNL_indications.has_selection:
 			has_errors = True
@@ -518,11 +518,11 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 		data.save()
 
 		drug = data.brand
-		drug['is_fake'] = self._CHBOX_fake.GetValue()
+		drug['is_fake_brand'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != u'J07':
-				drug['atc_code'] = val.strip()
+				drug['atc'] = val.strip()
 		drug.save()
 
 		# must be done very late or else the property access
@@ -535,12 +535,12 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	def _save_as_update(self):
 
 		drug = self.data.brand
-		drug['description'] = self._PRW_brand.GetValue().strip()
-		drug['is_fake'] = self._CHBOX_fake.GetValue()
+		drug['brand'] = self._PRW_brand.GetValue().strip()
+		drug['is_fake_brand'] = self._CHBOX_fake.GetValue()
 		val = self._PRW_atc.GetData()
 		if val is not None:
 			if val != u'J07':
-				drug['atc_code'] = val.strip()
+				drug['atc'] = val.strip()
 		drug.save()
 
 		# the validator already asked for changes so just do it
@@ -562,7 +562,7 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_brand.SetText(value = u'', data = None, suppress_smarts = True)
-		self._PRW_route.SetText(value = u'intramuscular')
+#		self._PRW_route.SetText(value = u'intramuscular')
 #		self._CHBOX_live.SetValue(True)
 		self._CHBOX_fake.SetValue(False)
 		self._PNL_indications.clear_all()

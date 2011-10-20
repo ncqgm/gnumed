@@ -32,6 +32,7 @@ _log = logging.getLogger('macosx')
 
 
 color_prw_invalid = 'pink'
+color_prw_partially_invalid = 'yellow'
 color_prw_valid = None				# this is used by code outside this module
 
 #default_phrase_separators = r'[;/|]+'
@@ -238,11 +239,14 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		return True
 	#--------------------------------------------------------
-	def display_as_valid(self, valid=None):
+	def display_as_valid(self, valid=None, partially_invalid=False):
 		if valid is True:
 			self.SetBackgroundColour(self.__my_startup_color)
 		elif valid is False:
-			self.SetBackgroundColour(color_prw_invalid)
+			if partially_invalid:
+				self.SetBackgroundColour(color_prw_partially_invalid)
+			else:
+				self.SetBackgroundColour(color_prw_invalid)
 		else:
 			raise ValueError(u'<valid> must be True or False')
 		self.Refresh()
@@ -1167,11 +1171,10 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 	#---------------------------------------------------------
 	def _adjust_data_after_text_update(self):
 		# the textctrl display must already be set properly
-		displayed_labels = [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) ]
 		new_data = {}
 		# this way of looping automatically removes stale
 		# data for labels which are no longer displayed
-		for displayed_label in displayed_labels:
+		for displayed_label in self.displayed_strings:
 			try:
 				new_data[displayed_label] = self._data[displayed_label]
 			except KeyError:
@@ -1272,7 +1275,11 @@ class cMultiPhraseWheel(cPhraseWheelBase):
 		return self.__phrase_separators.pattern
 
 	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
+	#--------------------------------------------------------
+	def _get_displayed_strings(self):
+		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != u'' ]
 
+	displayed_strings = property(_get_displayed_strings, lambda x:x)
 #============================================================
 # main
 #------------------------------------------------------------
