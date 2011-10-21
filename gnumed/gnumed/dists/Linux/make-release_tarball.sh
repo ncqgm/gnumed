@@ -144,7 +144,7 @@ cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
 
 # bitmaps
 mkdir -p ./gnumed-client.$CLIENTREV/client/bitmaps/
-cp -R ./gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gnumed.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gnumedlogo.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/empty-face-in-bust.png ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/serpent.png ./gnumed-client.$CLIENTREV/client/bitmaps/
