@@ -169,6 +169,7 @@ cp -R ../../client/connectors/gm_ctl_client.* ./gnumed-client.$CLIENTREV/client/
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/gm-from-vcs.conf ./gnumed-client.$CLIENTREV/client/doc/gnumed.conf.example
 cp -R ../../client/doc/hook_script_example.py ./gnumed-client.$CLIENTREV/client/doc/hook_script_example.py
+cp -R ../../client/doc/data-packs.conf.example ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/gnumed.1
 cp -R ../../client/doc/man-pages/gm-print_doc.1 ./gnumed-client.$CLIENTREV/client/doc/gm-print_doc.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/gm_ctl_client.1
