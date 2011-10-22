@@ -29,7 +29,7 @@ queries = [
 	("select count(1) from blobs.doc_obj", "Objects")
 ]
 
-fname = u'fingerprint.log'
+fname = u'gm_db-%s-fingerprint.log' % database
 #==============================================================
 outfile = open(fname, 'wb')
 
@@ -44,6 +44,12 @@ for cmd, label in queries:
 	curs.execute(cmd)
 	rows = curs.fetchall()
 	outfile.write("%15s: %s\n" % (label, rows[0][0]))
+
+if len(sys.argv) > 3:
+	if sys.argv[3] == '--with-dump':
+		curs.execute('select gm.concat_table_structure()')
+		rows = curs.fetchall()
+		outfile.write("\n%s\n" % rows[0][0])
 
 curs.close()
 conn.rollback()

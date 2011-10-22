@@ -736,7 +736,7 @@ class database:
 				_log.error('invalid template database definition: %s', template_version)
 				return False
 			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
-				_log.error('invalid template database')
+				_log.error('invalid [%s] schema structure in GNUmed template database [%s]', template_version, self.template_db)
 				return False
 
 		# check for target database
