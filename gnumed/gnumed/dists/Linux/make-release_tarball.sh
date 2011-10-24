@@ -368,6 +368,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/test-data
 cp -R ../../server/sql/test-data/*.sql ./gnumed-client.$CLIENTREV/server/sql/test-data
 
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3
+cp ../../server/sql/v2-v3/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v2-v3
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/dynamic
 cp -R ../../server/sql/v2-v3/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v2-v3/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/static
@@ -376,6 +377,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v2-v3/superuser
 cp -R ../../server/sql/v2-v3/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v2-v3/superuser
 
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4
+cp ../../server/sql/v3-v4/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v3-v4
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/dynamic
 cp -R ../../server/sql/v3-v4/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v3-v4/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/static
@@ -384,6 +386,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v3-v4/superuser
 cp -R ../../server/sql/v3-v4/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v3-v4/superuser
 
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5
+cp ../../server/sql/v4-v5/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v4-v5
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5/dynamic
 cp -R ../../server/sql/v4-v5/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v4-v5/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v4-v5/static
@@ -395,6 +398,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v5-v6/static
 
+cp ../../server/sql/v5-v6/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v5-v6
 cp -R ../../server/sql/v5-v6/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v5-v6/dynamic
 cp -R ../../server/sql/v5-v6/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v5-v6/static
 
@@ -405,6 +409,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v6-v7/python
 
+cp ../../server/sql/v6-v7/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v6-v7
 cp -R ../../server/sql/v6-v7/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v6-v7/dynamic
 cp -R ../../server/sql/v6-v7/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v6-v7/static
 cp -R ../../server/sql/v6-v7/data/* ./gnumed-client.$CLIENTREV/server/sql/v6-v7/data
@@ -415,6 +420,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v7-v8/static
 
+cp ../../server/sql/v7-v8/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v7-v8
 cp -R ../../server/sql/v7-v8/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v7-v8/dynamic
 cp -R ../../server/sql/v7-v8/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v7-v8/static
 
@@ -423,6 +429,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v8-v9/static
 
+cp ../../server/sql/v8-v9/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v8-v9
 cp -R ../../server/sql/v8-v9/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v8-v9/dynamic
 cp -R ../../server/sql/v8-v9/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v8-v9/static
 
@@ -433,6 +440,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v9-v10/fixups
 
+cp ../../server/sql/v9-v10/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v9-v10
 cp -R ../../server/sql/v9-v10/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/dynamic
 cp -R ../../server/sql/v9-v10/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/static
 cp -R ../../server/sql/v9-v10/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v9-v10/superuser
@@ -445,6 +453,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v10-v11/fixups
 
+cp ../../server/sql/v10-v11/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v10-v11
 cp -R ../../server/sql/v10-v11/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/dynamic
 cp -R ../../server/sql/v10-v11/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/static
 cp -R ../../server/sql/v10-v11/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v10-v11/superuser
@@ -458,6 +467,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v11-v12/python
 
+cp ../../server/sql/v11-v12/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v11-v12
 cp -R ../../server/sql/v11-v12/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/dynamic
 cp -R ../../server/sql/v11-v12/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/static
 cp -R ../../server/sql/v11-v12/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v11-v12/superuser
@@ -473,6 +483,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/python
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v12-v13/fixups
 
+cp ../../server/sql/v12-v13/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v12-v13
 cp -R ../../server/sql/v12-v13/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/dynamic
 cp -R ../../server/sql/v12-v13/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/static
 #cp -R ../../server/sql/v12-v13/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v12-v13/superuser
@@ -489,6 +500,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/python
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v13-v14/fixups
 
+cp ../../server/sql/v13-v14/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v13-v14
 cp -R ../../server/sql/v13-v14/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/dynamic
 cp -R ../../server/sql/v13-v14/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/static
 #cp -R ../../server/sql/v13-v14/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v13-v14/superuser
@@ -505,6 +517,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/python
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v14-v15/fixups
 
+cp ../../server/sql/v14-v15/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v14-v15
 cp -R ../../server/sql/v14-v15/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/dynamic
 cp -R ../../server/sql/v14-v15/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/static
 #cp -R ../../server/sql/v14-v15/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v14-v15/superuser
@@ -521,6 +534,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/python
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
 
+cp ../../server/sql/v15-v16/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v15-v16
 cp -R ../../server/sql/v15-v16/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/dynamic
 cp -R ../../server/sql/v15-v16/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/static
 #cp -R ../../server/sql/v15-v16/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/superuser
