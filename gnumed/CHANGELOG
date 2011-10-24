@@ -869,6 +869,7 @@ IMPROVED: database fingerprinter can now dump schema structure, too
 NEW: clin.remove_old_empty_encounters()
 NEW: dem.remove_person(integer)
 NEW: several medication related data packs [thanks J.Busser]
+NEW: add database schema fingerprint logs to server files
 
 ------------------------------------------------
 # gnumed_v15
