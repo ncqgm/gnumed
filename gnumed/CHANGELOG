@@ -875,6 +875,10 @@ NEW: add database schema fingerprint logs to server files
 # gnumed_v15
 ------------------------------------------------
 
+	15.12
+
+FIX: clin.trf_sanity_check_enc_vs_issue_on_epi() [thanks S.Reus]
+
 	15.11
 
 FIX: trf_do_not_substance_if_taken_by_patient() on ref.consumable_substance
