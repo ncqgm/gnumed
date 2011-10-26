@@ -17,8 +17,8 @@ database = sys.argv[1]
 passwd = sys.argv[2]
 dsn = u'dbname=%s user=gm-dbo password=%s' % (database, passwd)
 queries = [
+	("select md5(gm.concat_table_structure())", "Schema hash"),
 	("select pg_size_pretty(pg_database_size('%s'))" % database, "Size"),
-	("select md5(gm.concat_table_structure())", "Hash"),
 	("select count(1) from dem.identity", "Patients"),
 	("select count(1) from clin.encounter", "Contacts"),
 	("select count(1) from clin.episode", "Episodes"),
