@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
+"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -314,7 +314,7 @@ msgstr "Begin ontmoeting met patiënt"
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
-" Number: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
@@ -2481,7 +2481,9 @@ msgstr ""
 "leidde tot het consult."
 
 #, fuzzy
-msgid "Codes relevant to the Reason for Encounter."
+msgid ""
+"Codes relevant to the Reason for Encounter\n"
+"separated by \";\"."
 msgstr "Ontmoeting"
 
 #, fuzzy
@@ -2493,7 +2495,9 @@ msgstr ""
 "beoordeling van  de ontmoeting/ consult."
 
 #, fuzzy
-msgid "Codes relevant to the Assessment of Encounter."
+msgid ""
+"Codes relevant to the Assessment of Encounter\n"
+"separated by \";\"."
 msgstr "Conclusie"
 
 #, fuzzy
@@ -2575,7 +2579,9 @@ msgid "The current status of this episode."
 msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 #, fuzzy
-msgid "Codes relevant to this episode."
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
 msgstr "Verplaats gegevens naar andere episode"
 
 msgid "Patient"
@@ -2987,6 +2993,12 @@ msgstr ""
 #, fuzzy
 msgid "The current status of the issue."
 msgstr "Er zijn geen ontmoetingen voor deze episode."
+
+#, fuzzy
+msgid ""
+"Codes relevant to this health issue\n"
+"separated by \";\"."
+msgstr "Verplaats gegevens naar andere episode"
 
 msgid "Check if this is an active, ongoing problem."
 msgstr "Vink dit aan als dit een actief, nog steeds bestaand probleem is."
@@ -3577,14 +3589,10 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Here you can enter a postal code or street name to search for an existing "
-"address from which the fields below will be pre-filled.\n"
+"Optional address search: enter a postal code or street name to select a pre-"
+"existing address to auto-fill the fields below.\n"
 "\n"
-"That address - or a new address created from any modifications below - will "
-"be used as the person's \"home\" address.\n"
-"\n"
-"You can also just enter the relevant information into the corresponding "
-"fields without searching for an existing address."
+"By editing the fields you can create a new address as needed."
 msgstr ""
 
 #, fuzzy
@@ -3669,7 +3677,7 @@ msgid "Nick name"
 msgstr "Bijnaam"
 
 #, fuzzy
-msgid "Primary address / contact"
+msgid "Primary address and contact"
 msgstr "huisadres: land"
 
 msgid "Postal code"
@@ -4370,21 +4378,29 @@ msgstr "Sorteer documenten op"
 msgid "Episode summary"
 msgstr "Episode %s"
 
-msgid "Codes linked to this Subjective."
-msgstr ""
-
-msgid "Codes linked to this Objective."
-msgstr ""
-
-msgid "Codes linked to this Assessment."
-msgstr ""
-
-msgid "Codes linked to this Plan."
-msgstr ""
+#, fuzzy
+msgid ""
+"Codes relevant to this Subjective\n"
+"separated by \";\"."
+msgstr "Verplaats gegevens naar andere episode"
 
 #, fuzzy
-msgid "Codes linked to this episode."
+msgid ""
+"Codes relevant to this Objective\n"
+"separated by \";\"."
 msgstr "Verplaats gegevens naar andere episode"
+
+#, fuzzy
+msgid ""
+"Codes relevant to this Assessment\n"
+"separated by \";\"."
+msgstr "Conclusie"
+
+#, fuzzy
+msgid ""
+"Codes relevant to this Plan\n"
+"separated by \";\"."
+msgstr "Kan laboratoriumverzoek niet opslaan"
 
 msgid ""
 "Here you can modify the cumulative summary (status) of the episode this SOAP "
@@ -4447,14 +4463,6 @@ msgid ""
 "This shows the list of active problems, They include open episodes as well "
 "as active health issues."
 msgstr ""
-
-#, fuzzy
-msgid "Enter codes relevant to this Reason for Encounter."
-msgstr "Geef een relevant commentaar op deze naam (zoals: \"voor huwelijk\")."
-
-#, fuzzy
-msgid "Enter codes relevant to this Outcome of Encounter."
-msgstr "Geef een relevant commentaar op deze naam (zoals: \"voor huwelijk\")."
 
 #, fuzzy
 msgid "Save the currently displayed progress note under the current encounter."
@@ -6124,6 +6132,17 @@ msgid "Unpacking data pack"
 msgstr ""
 
 msgid ""
+"Installation of data pack failed because\n"
+"it attempted to modify the database layout.\n"
+"\n"
+"  name: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"You will need to contact your administrator."
+msgstr ""
+
+msgid ""
 "Installation of data pack failed.\n"
 "\n"
 "  name: %s\n"
@@ -6150,6 +6169,17 @@ msgid ""
 " [%s]\n"
 msgstr ""
 
+msgid ""
+"Install the selected data pack.\n"
+"\n"
+"This can take quite a while depending on\n"
+"the amount of data to be installed.\n"
+"\n"
+"GNUmed will block until installation is\n"
+"complete and eventually inform you of\n"
+"success or failure."
+msgstr ""
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr ""
 
@@ -6171,10 +6201,6 @@ msgstr "Bron"
 
 msgid "&Install"
 msgstr ""
-
-#, fuzzy
-msgid "Install the selected data pack"
-msgstr "verwijder onderdeel"
 
 #, fuzzy
 msgid "&Configure"
@@ -8661,26 +8687,6 @@ msgstr ""
 msgid "Export to GDT"
 msgstr "Exporteer naar GDT"
 
-msgid "Show a high-level summary of the EMR."
-msgstr ""
-
-msgid "Show as ..."
-msgstr "Toon als..."
-
-msgid "Search for data in the EMR of the active patient"
-msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
-
-#, fuzzy
-msgid "Search this EMR"
-msgstr "Tekst zoeken in het gehele EMD"
-
-msgid "Search all EMRs"
-msgstr ""
-
-#, fuzzy
-msgid "Search for data across the EMRs of all patients"
-msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
-
 #, fuzzy
 msgid "&Past history (health issue / PMH)"
 msgstr "&Vorige geschiedenis (fundamenteel gezondheidsprobleem)"
@@ -8735,20 +8741,19 @@ msgstr "&Provincies"
 msgid "Manage procedures performed on the patient."
 msgstr "voeg een nieuw verzoek toe voor actieve patiënt"
 
-#, fuzzy
-msgid "&Measurement(s)"
-msgstr "Metingen"
-
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr "Voeg meetresultaten toe aan de huidige patiënt."
 
 #, fuzzy
-msgid "&Vaccination(s)"
-msgstr "&Vaccinaties"
+msgid "&Measurements"
+msgstr "Metingen"
 
 #, fuzzy
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr "Voeg meetresultaten toe aan de huidige patiënt."
+
+msgid "&Vaccinations"
+msgstr "&Vaccinaties"
 
 msgid "&Family history (FHx)"
 msgstr ""
@@ -8757,8 +8762,29 @@ msgstr ""
 msgid "Manage family history."
 msgstr "Allergieën bewerken"
 
+#, fuzzy
+msgid "&Encounters"
+msgstr "Ontmoeting"
+
+msgid "List all encounters including empty ones."
+msgstr ""
+
 msgid "&Add / Edit ..."
 msgstr ""
+
+msgid "Search for data in the EMR of the active patient"
+msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
+
+#, fuzzy
+msgid "Search this EMR"
+msgstr "Tekst zoeken in het gehele EMD"
+
+msgid "Search all EMRs"
+msgstr ""
+
+#, fuzzy
+msgid "Search for data across the EMRs of all patients"
+msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 
 msgid "Start a new encounter for the active patient right now."
 msgstr "Begin nu een nieuwe ontmoeting voor de actieve patiënt."
@@ -8766,12 +8792,14 @@ msgstr "Begin nu een nieuwe ontmoeting voor de actieve patiënt."
 msgid "Start new encounter"
 msgstr "Begin nieuwe ontmoeting"
 
-#, fuzzy
-msgid "&Encounters list"
-msgstr "&Ontmoetingstypen"
-
-msgid "List all encounters including empty ones."
+msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
+
+#, fuzzy
+msgid "Statistics"
+msgstr ""
+"EMD statistieken\n"
+"\n"
 
 msgid "Text document"
 msgstr "Tekstdocument"
@@ -13182,10 +13210,6 @@ msgstr "Gebruikers&handleiding (locaal)"
 msgid "Measurements"
 msgstr "Metingen"
 
-#, fuzzy
-msgid "&Measurements"
-msgstr "Metingen"
-
 msgid "progress notes (sash)"
 msgstr "voortgangsrapport (sash)"
 
@@ -13240,9 +13264,6 @@ msgstr "Documenten"
 #, fuzzy
 msgid "&Notes"
 msgstr "Notitie"
-
-msgid "&Vaccinations"
-msgstr "&Vaccinaties"
 
 msgid "Waiting list"
 msgstr ""
@@ -13498,6 +13519,39 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#, fuzzy
+#~ msgid "Codes linked to this episode."
+#~ msgstr "Verplaats gegevens naar andere episode"
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Reason for Encounter."
+#~ msgstr ""
+#~ "Geef een relevant commentaar op deze naam (zoals: \"voor huwelijk\")."
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Outcome of Encounter."
+#~ msgstr ""
+#~ "Geef een relevant commentaar op deze naam (zoals: \"voor huwelijk\")."
+
+#, fuzzy
+#~ msgid "Install the selected data pack"
+#~ msgstr "verwijder onderdeel"
+
+#~ msgid "Show as ..."
+#~ msgstr "Toon als..."
+
+#, fuzzy
+#~ msgid "&Measurement(s)"
+#~ msgstr "Metingen"
+
+#, fuzzy
+#~ msgid "&Vaccination(s)"
+#~ msgstr "&Vaccinaties"
+
+#, fuzzy
+#~ msgid "&Encounters list"
+#~ msgstr "&Ontmoetingstypen"
 
 #~ msgid "Town"
 #~ msgstr "Plaats"

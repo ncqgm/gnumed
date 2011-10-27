@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
+"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -307,10 +307,11 @@ msgstr "no se ha dado ninguna"
 msgid "Starting patient encounter"
 msgstr "Iniciando la entrevista del paciente"
 
+#, fuzzy
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
-" Number: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
@@ -618,10 +619,10 @@ msgid "units"
 msgstr "unidades"
 
 msgid "Unit: %s (%s)"
-msgstr ""
+msgstr "Sección: %s (%s)"
 
 msgid "Organization: %s (%s)"
-msgstr ""
+msgstr "Organización: %s (%s)"
 
 msgid "inhouse lab"
 msgstr "Laboratorio local"
@@ -2521,7 +2522,9 @@ msgstr ""
 "paciente que lleva al encuentro."
 
 #, fuzzy
-msgid "Codes relevant to the Reason for Encounter."
+msgid ""
+"Codes relevant to the Reason for Encounter\n"
+"separated by \";\"."
 msgstr ""
 "Para que se encuentra aquí el paciente. Debe haber una razón para este "
 "encuentro."
@@ -2535,7 +2538,9 @@ msgstr ""
 "resumen del encuentro."
 
 #, fuzzy
-msgid "Codes relevant to the Assessment of Encounter."
+msgid ""
+"Codes relevant to the Assessment of Encounter\n"
+"separated by \";\"."
 msgstr "Seleccione el tipo de encuentro"
 
 msgid "Patient:"
@@ -2618,7 +2623,9 @@ msgid "The current status of this episode."
 msgstr "El status actual o resumen de este episodio"
 
 #, fuzzy
-msgid "Codes relevant to this episode."
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
 msgstr "Mover datos a otro episodio"
 
 msgid "Patient"
@@ -3052,6 +3059,12 @@ msgstr ""
 #, fuzzy
 msgid "The current status of the issue."
 msgstr "El status actual o resumen de este episodio"
+
+#, fuzzy
+msgid ""
+"Codes relevant to this health issue\n"
+"separated by \";\"."
+msgstr "Mover datos a otro episodio"
 
 msgid "Check if this is an active, ongoing problem."
 msgstr "Seleccione si es un problema activo, sucediendo"
@@ -3635,18 +3648,16 @@ msgstr ""
 "un nombre particular de la persona (se mantendrá incluso si cambia el nombre)"
 
 msgid ""
-"Here you can enter a postal code or street name to search for an existing "
-"address from which the fields below will be pre-filled.\n"
+"Optional address search: enter a postal code or street name to select a pre-"
+"existing address to auto-fill the fields below.\n"
 "\n"
-"That address - or a new address created from any modifications below - will "
-"be used as the person's \"home\" address.\n"
-"\n"
-"You can also just enter the relevant information into the corresponding "
-"fields without searching for an existing address."
+"By editing the fields you can create a new address as needed."
 msgstr ""
-"Aquí puede introducir el código postal o nombre de la calle para buscar "
-"alguna dirección existente de la que los campos a continuación se  llenarán "
-"parcialmente"
+"Búsqueda adicional de dirección: entre un código postal o un nombre de calle "
+"para seleccionar una dirección preexistente a fin de auto-completar los "
+"campos más abajo.\n"
+"\n"
+"Editando estos campos puedes crear una nueva dirección a voluntad."
 
 #, fuzzy
 msgid ""
@@ -3724,7 +3735,7 @@ msgid "Nick name"
 msgstr "Seudonimo"
 
 #, fuzzy
-msgid "Primary address / contact"
+msgid "Primary address and contact"
 msgstr "Direccion primaria (opcional)"
 
 msgid "Postal code"
@@ -4434,21 +4445,29 @@ msgstr "Ordenar documentos por"
 msgid "Episode summary"
 msgstr "Episodio %s"
 
-msgid "Codes linked to this Subjective."
-msgstr "Códigos relacionados con esta anamensis (subjetivo)."
-
-msgid "Codes linked to this Objective."
-msgstr "Códigos relacionados con este hallazgo (objetivo)."
-
-msgid "Codes linked to this Assessment."
-msgstr "Códigos relacionados con esta evaluación (apreciación)."
-
-msgid "Codes linked to this Plan."
-msgstr "Códigos relacionados con este procedimiento."
+#, fuzzy
+msgid ""
+"Codes relevant to this Subjective\n"
+"separated by \";\"."
+msgstr "Mover datos a otro episodio"
 
 #, fuzzy
-msgid "Codes linked to this episode."
+msgid ""
+"Codes relevant to this Objective\n"
+"separated by \";\"."
 msgstr "Mover datos a otro episodio"
+
+#, fuzzy
+msgid ""
+"Codes relevant to this Assessment\n"
+"separated by \";\"."
+msgstr "Seleccione el tipo de encuentro"
+
+#, fuzzy
+msgid ""
+"Codes relevant to this Plan\n"
+"separated by \";\"."
+msgstr "No se puede grabar el procedimiento."
 
 #, fuzzy
 msgid ""
@@ -4516,16 +4535,6 @@ msgid ""
 msgstr ""
 "Muestra la lista de los problemas activos, Estos incluyen episodios abiertos "
 "asi como cuestiones de salud activas"
-
-#, fuzzy
-msgid "Enter codes relevant to this Reason for Encounter."
-msgstr ""
-"Entre un comentario relevante a este nombre (como \"antes de casado\")."
-
-#, fuzzy
-msgid "Enter codes relevant to this Outcome of Encounter."
-msgstr ""
-"Entre un comentario relevante a este nombre (como \"antes de casado\")."
 
 #, fuzzy
 msgid "Save the currently displayed progress note under the current encounter."
@@ -6252,6 +6261,26 @@ msgstr ""
 msgid "Unpacking data pack"
 msgstr "Desempaquetando paquete de datos"
 
+#, fuzzy
+msgid ""
+"Installation of data pack failed because\n"
+"it attempted to modify the database layout.\n"
+"\n"
+"  name: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"You will need to contact your administrator."
+msgstr ""
+"La instalación del paquete de datos falló.\n"
+"\n"
+"  nombre: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"Usted puede querer tratar de descargar nuevamente\n"
+"o puede necesitar contactar a su administrador."
+
 msgid ""
 "Installation of data pack failed.\n"
 "\n"
@@ -6297,6 +6326,25 @@ msgstr ""
 "\n"
 " [%s]\n"
 
+msgid ""
+"Install the selected data pack.\n"
+"\n"
+"This can take quite a while depending on\n"
+"the amount of data to be installed.\n"
+"\n"
+"GNUmed will block until installation is\n"
+"complete and eventually inform you of\n"
+"success or failure."
+msgstr ""
+"Instale el paquete de datos seleccionado.\n"
+"\n"
+"Esto puede tomar un buen rato dependiendo de\n"
+"la cantidad de datos a ser instalados.\n"
+"\n"
+"GNUmed se bloqueará hasta que la instalación sea\n"
+"completada y eventualmente te informará del\n"
+"éxito o fracaso."
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr ""
 "Paquetes de datos disponibles para instalación para esta base de datos v%s.\n"
@@ -6318,10 +6366,6 @@ msgstr "Fuente"
 
 msgid "&Install"
 msgstr "&Instalar"
-
-#, fuzzy
-msgid "Install the selected data pack"
-msgstr "Editar el item seleccionado."
 
 #, fuzzy
 msgid "&Configure"
@@ -8730,24 +8774,6 @@ msgstr "Exporte demografía de la persona actualmente activa en un archivo GDT."
 msgid "Export to GDT"
 msgstr "Exporte a GDT"
 
-msgid "Show a high-level summary of the EMR."
-msgstr "Mostrar resumen a granel del RME."
-
-msgid "Show as ..."
-msgstr "Mostrar como ..."
-
-msgid "Search for data in the EMR of the active patient"
-msgstr "Busque datos en el RME del paciente activo"
-
-msgid "Search this EMR"
-msgstr "Revise este RME"
-
-msgid "Search all EMRs"
-msgstr "Revise todos los RME"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Busque datos entre los RMEs de todos los pacientes"
-
 msgid "&Past history (health issue / PMH)"
 msgstr "Historial &pasado (problemas de salud)"
 
@@ -8795,17 +8821,18 @@ msgstr "&Procedimientos"
 msgid "Manage procedures performed on the patient."
 msgstr "Maneja procedimientos llevados a cabo en el paciente."
 
-msgid "&Measurement(s)"
-msgstr "&Medicion(es)"
-
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr "Agrega (un) resultado(s) de medición para el paciente activo."
 
-msgid "&Vaccination(s)"
-msgstr "&Vacunaciones"
+#, fuzzy
+msgid "&Measurements"
+msgstr "Examenes"
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr "Agrega (una) vacunación(es) para el paciente activo."
+
+msgid "&Vaccinations"
+msgstr "&Vacunaciones"
 
 msgid "&Family history (FHx)"
 msgstr "Historial &Familiar"
@@ -8814,8 +8841,27 @@ msgstr "Historial &Familiar"
 msgid "Manage family history."
 msgstr "Historial de medicamentos"
 
+#, fuzzy
+msgid "&Encounters"
+msgstr "&Encuentro"
+
+msgid "List all encounters including empty ones."
+msgstr "Lista todas las citas inluyendo las vacías."
+
 msgid "&Add / Edit ..."
 msgstr "&Agrega / Edita ..."
+
+msgid "Search for data in the EMR of the active patient"
+msgstr "Busque datos en el RME del paciente activo"
+
+msgid "Search this EMR"
+msgstr "Revise este RME"
+
+msgid "Search all EMRs"
+msgstr "Revise todos los RME"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Busque datos entre los RMEs de todos los pacientes"
 
 msgid "Start a new encounter for the active patient right now."
 msgstr "Comienza una nueva cita para el paciente activo ahora mismo."
@@ -8823,11 +8869,15 @@ msgstr "Comienza una nueva cita para el paciente activo ahora mismo."
 msgid "Start new encounter"
 msgstr "Comienza nueva cita"
 
-msgid "&Encounters list"
-msgstr "Lista de &citas"
+#, fuzzy
+msgid "Show a high-level statistic summary of the EMR."
+msgstr "Mostrar resumen a granel del RME."
 
-msgid "List all encounters including empty ones."
-msgstr "Lista todas las citas inluyendo las vacías."
+#, fuzzy
+msgid "Statistics"
+msgstr ""
+"Estadisticas de la Historia Clínica\n"
+"\n"
 
 msgid "Text document"
 msgstr "Documento de texto"
@@ -11097,6 +11147,8 @@ msgstr "Reacción no doumentada"
 
 msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
+"Datos ingresados incompletos/inválidos para guardarlos como ingesta de "
+"sustancia."
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
 msgstr "No puedo agregar duplicado de medicación (eventualmente inactiva)."
@@ -13292,10 +13344,6 @@ msgstr "&Manual de Usuario"
 msgid "Measurements"
 msgstr "Examenes"
 
-#, fuzzy
-msgid "&Measurements"
-msgstr "Examenes"
-
 msgid "progress notes (sash)"
 msgstr "notas de progreso (sash)"
 
@@ -13344,9 +13392,6 @@ msgstr "Informes"
 
 msgid "&Notes"
 msgstr "&Notas"
-
-msgid "&Vaccinations"
-msgstr "&Vacunaciones"
 
 msgid "Waiting list"
 msgstr "Lista de espera"
@@ -13598,6 +13643,62 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid ""
+#~ "Here you can enter a postal code or street name to search for an existing "
+#~ "address from which the fields below will be pre-filled.\n"
+#~ "\n"
+#~ "That address - or a new address created from any modifications below - "
+#~ "will be used as the person's \"home\" address.\n"
+#~ "\n"
+#~ "You can also just enter the relevant information into the corresponding "
+#~ "fields without searching for an existing address."
+#~ msgstr ""
+#~ "Aquí puede introducir el código postal o nombre de la calle para buscar "
+#~ "alguna dirección existente de la que los campos a continuación se  "
+#~ "llenarán parcialmente"
+
+#~ msgid "Codes linked to this Subjective."
+#~ msgstr "Códigos relacionados con esta anamensis (subjetivo)."
+
+#~ msgid "Codes linked to this Objective."
+#~ msgstr "Códigos relacionados con este hallazgo (objetivo)."
+
+#~ msgid "Codes linked to this Assessment."
+#~ msgstr "Códigos relacionados con esta evaluación (apreciación)."
+
+#~ msgid "Codes linked to this Plan."
+#~ msgstr "Códigos relacionados con este procedimiento."
+
+#, fuzzy
+#~ msgid "Codes linked to this episode."
+#~ msgstr "Mover datos a otro episodio"
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Reason for Encounter."
+#~ msgstr ""
+#~ "Entre un comentario relevante a este nombre (como \"antes de casado\")."
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Outcome of Encounter."
+#~ msgstr ""
+#~ "Entre un comentario relevante a este nombre (como \"antes de casado\")."
+
+#, fuzzy
+#~ msgid "Install the selected data pack"
+#~ msgstr "Editar el item seleccionado."
+
+#~ msgid "Show as ..."
+#~ msgstr "Mostrar como ..."
+
+#~ msgid "&Measurement(s)"
+#~ msgstr "&Medicion(es)"
+
+#~ msgid "&Vaccination(s)"
+#~ msgstr "&Vacunaciones"
+
+#~ msgid "&Encounters list"
+#~ msgstr "Lista de &citas"
 
 #~ msgid "Town"
 #~ msgstr "Ciudad"

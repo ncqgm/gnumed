@@ -6,7 +6,7 @@
 # rel-1-1-patches
 ------------------------------------------------
 
-	1.1.rc1
+	1.1.0
 
 NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
@@ -865,6 +865,7 @@ IMPROVED: backup script and config file comments [thanks J.Busser]
 IMPROVED: restore script: properly set data file permissions [thanks S.Reus]
 IMPROVED: restore script: use "-o pipefail" to detect complex pipe failures
 IMPROVED: database fingerprinter can now dump schema structure, too
+IMPROVED: restore script: make sure <postgres> can access work dir sub dir
 
 NEW: clin.remove_old_empty_encounters()
 NEW: dem.remove_person(integer)
@@ -874,6 +875,10 @@ NEW: add database schema fingerprint logs to server files
 ------------------------------------------------
 # gnumed_v15
 ------------------------------------------------
+
+	15.12
+
+FIX: clin.trf_sanity_check_enc_vs_issue_on_epi() [thanks S.Reus]
 
 	15.11
 

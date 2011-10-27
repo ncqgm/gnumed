@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-09-22 13:09+CEST\n"
+"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -103,7 +103,7 @@ msgstr ""
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
 
 msgid "Connecting to backend"
-msgstr ""
+msgstr "Σύνδεση στο σύστημα υποστήριξης"
 
 msgid ""
 "Unable to connect to database:\n"
@@ -112,6 +112,12 @@ msgid ""
 "\n"
 "Please retry another backend / user / password combination !\n"
 msgstr ""
+"Δεν είναι δυνατή η σύνδεση με βάση δεδομένων:\n"
+"\n"
+"%s\n"
+"\n"
+"Παρακαλούμε προσπαθήστε ξανά σε άλλο σύστημα υποστήριξης/ χρήστη / κωδικό "
+"πρόσβασης συνδυασμό!\n"
 
 msgid "unknown allergy state"
 msgstr "Άγνωστη αλλεργική κατάσταση"
@@ -120,19 +126,19 @@ msgid "no known allergies"
 msgstr "Χωρίς γνωστές αλλεργίες"
 
 msgid "*does* have allergies"
-msgstr ""
+msgstr "*έχει* αλλεργίες"
 
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "ΣΦΑΛΜΑ: άγνωστη αλλεργική κατάσταση [%s]"
 
 msgid "Cannot run [arriba] !"
-msgstr ""
+msgstr "Δεν μπορεί να τρέξει [Arriba]!"
 
 msgid "No [arriba] result found in [%s]."
-msgstr ""
+msgstr "Αριθ. [Arriba] βρέθηκε αποτέλεσμα στις [% s]."
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
-msgstr ""
+msgstr "εικονική-δεν χρειαζετε -να-μετάφραση-αλλά-but-make-epydoc-happy"
 
 msgid "soap_S"
 msgstr ""
@@ -165,6 +171,8 @@ msgid ""
 "%s: %s by %.8s (v%s)\n"
 "%s"
 msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
 
 msgid "modified entry"
 msgstr "τροποποιημένη καταχώρηση"
@@ -292,11 +300,17 @@ msgstr "Αρχή της αντιμετώπισης του ασθενούς"
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
-" Number: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+"Διεύθυνση [#%(pk_adr)s] \n"
+" Οδός: %(street)s%(notes_street)s\n"
+" Αριθμός / Μονάδα:: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Τοποθεσία:%(zip)s %(urb)s%(suburb)s\n"
+" Περιοχή: %(l10n_state)s, %(code_state)s\n"
+" Χώρα: %(l10n_country)s, %(code_country)s"
 
 #, fuzzy
 msgid " Type: %s"
@@ -315,7 +329,7 @@ msgid "Impedance:"
 msgstr "Αντίσταση"
 
 msgid "Sensing:"
-msgstr ""
+msgstr "Τηλεπισκόπηση:"
 
 msgid "Threshold"
 msgstr "Κατώφλι"
@@ -392,7 +406,7 @@ msgid "closed"
 msgstr "έχει κλείσει"
 
 msgid "ongoing"
-msgstr ""
+msgstr "συνεχιζόμενες"
 
 msgid "No encounters found for this health issue."
 msgstr "Δεν βρέθηκαν συνεδρίες για αυτό το θέμα υγείας."
@@ -410,10 +424,10 @@ msgid "Hospital stays: %s"
 msgstr "Ενδονοσοκομειακές διαμονές:%s"
 
 msgid "Procedures performed: %s"
-msgstr ""
+msgstr "Οι διαδικασίες που εκτελούνται:% s"
 
 msgid "Family History: %s"
-msgstr ""
+msgstr "Οικογενειακό Ιστορικό: %s"
 
 msgid "Documents: %s"
 msgstr "Αρχεία:%s"
@@ -466,7 +480,7 @@ msgid "RFE"
 msgstr ""
 
 msgid "AOE"
-msgstr ""
+msgstr "AOE"
 
 msgid " ... %s skipped ..."
 msgstr " ...%s παραλείφθηκε ..."
@@ -510,13 +524,14 @@ msgstr ""
 "LaTeX σε PDF."
 
 msgid "Sandboxed PDF output file cannot be moved."
-msgstr ""
+msgstr "Το Sandboxed PDF αρχείο εξαγωγής δεν μπορεί να μετακινηθεί."
 
 msgid "PDF output file cannot be opened."
 msgstr "Το αποτέλεσμα PDF δεν μπορεί να ανοίξει."
 
 msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
+"Σφάλμα στο  τρέξιμοτου  gnuplot. Δεν είναι δυνατή η πλοκή των δεδομένων."
 
 #, fuzzy
 msgid "Error running pdftk. Cannot extract fields from PDF form template."
@@ -599,7 +614,7 @@ msgid "Unit: %s (%s)"
 msgstr ""
 
 msgid "Organization: %s (%s)"
-msgstr ""
+msgstr "Ογανισμός: %s (%s)"
 
 msgid "inhouse lab"
 msgstr "εσωτερικό εργαστήριο"
@@ -611,7 +626,7 @@ msgid "   Doc: %s"
 msgstr "   Έγγραφο: %s"
 
 msgid "   MTA: %s"
-msgstr ""
+msgstr "   MTA: %s"
 
 msgid "abnormal and relevant"
 msgstr "ανώμαλο και συναφή"
@@ -632,7 +647,7 @@ msgid "Test results"
 msgstr "Αποτελέσματα της εξέτασης"
 
 msgid "GNUmed test results export for Gnuplot plotting"
-msgstr ""
+msgstr "GNUmed εξαγωγή αποτελέσματα των δοκιμών για gnuplot σχεδιάζονται"
 
 msgid ""
 "blank line inserted to allow for discontinued line drawing for same-day "
@@ -654,9 +669,10 @@ msgstr ""
 
 msgid "need lab request when inserting lab result"
 msgstr ""
+"χρειάζεται αίτημα εργαστηρίου κατά την εισαγωγή αποτελεσμάτων εργαστηρίου"
 
 msgid "error retrieving unreviewed lab results"
-msgstr ""
+msgstr "σφάλμα κατά την ανάκτηση μη ελεγμένων αποτελεσμάτων εργαστηρίου"
 
 msgid "external patient source (name, gender, date of birth)"
 msgstr "εξωτερική πηγή ασθενούς (όνομα, φύλο, ημερομηνία γέννησης)"
@@ -677,7 +693,7 @@ msgid "<street> cannot be empty"
 msgstr "<οδός>δεν μπορεί να είναι κενό"
 
 msgid "<urb> cannot be empty"
-msgstr ""
+msgstr "<urb> δεν μπορεί να είναι κενό"
 
 msgid "<zip> cannot be empty"
 msgstr "<Τ.Κ> δεν μπορεί να είναι κενό"
@@ -998,6 +1014,7 @@ msgstr ""
 
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
+"[%s:%s]: γραμμή δεν ενημερώνεται (τίποτα δεν επιστρέφεται), γραμμή σε χρήση;"
 
 msgid "** DOB unknown **"
 msgstr ""
@@ -1084,10 +1101,10 @@ msgid "%d. of %s (last month): a %s"
 msgstr ""
 
 msgid "in %d day(s): %s"
-msgstr ""
+msgstr "σε %d μέρα(ες): %s"
 
 msgid "%d day(s) ago: %s"
-msgstr ""
+msgstr "%d μέρα(ες) πριν : %s"
 
 msgid "in %d week(s): %s"
 msgstr "σε %d εβδομάδα(ες): %s"
@@ -1129,7 +1146,7 @@ msgid "%d month(s) ago: %s"
 msgstr "πριν από %d  μήνα(ες): %s"
 
 msgid "in %d year(s): %s"
-msgstr ""
+msgstr "σε %d χρόνο(ια): %s"
 
 msgid "%d year(s) ago: %s"
 msgstr ""
@@ -1165,7 +1182,7 @@ msgid "%d year(s) ago - %s"
 msgstr "%d χρόνο(ια) πριν -%s"
 
 msgid "%d. of %s (this month) - a %s"
-msgstr ""
+msgstr "%d. αυτού  %s (του μήνα) - a %s"
 
 msgid "%d. of %s (next month) - a %s"
 msgstr ""
@@ -2329,7 +2346,9 @@ msgstr ""
 "ασθενούς που οδήγησε στην συνεδρία."
 
 #, fuzzy
-msgid "Codes relevant to the Reason for Encounter."
+msgid ""
+"Codes relevant to the Reason for Encounter\n"
+"separated by \";\"."
 msgstr "Επέλεξε τον τύπο της συνεδρίας."
 
 #, fuzzy
@@ -2341,7 +2360,9 @@ msgstr ""
 "της περίληψης της συνεδρίας."
 
 #, fuzzy
-msgid "Codes relevant to the Assessment of Encounter."
+msgid ""
+"Codes relevant to the Assessment of Encounter\n"
+"separated by \";\"."
 msgstr "Επέλεξε τον τύπο της συνεδρίας."
 
 msgid "Patient:"
@@ -2417,7 +2438,9 @@ msgid "The current status of this episode."
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 #, fuzzy
-msgid "Codes relevant to this episode."
+msgid ""
+"Codes relevant to this episode\n"
+"separated by \";\"."
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 msgid "Patient"
@@ -2792,6 +2815,12 @@ msgstr ""
 #, fuzzy
 msgid "The current status of the issue."
 msgstr "Η εμπορική ονομασία του σκευάσματος."
+
+#, fuzzy
+msgid ""
+"Codes relevant to this health issue\n"
+"separated by \";\"."
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 msgid "Check if this is an active, ongoing problem."
 msgstr ""
@@ -3319,14 +3348,10 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Here you can enter a postal code or street name to search for an existing "
-"address from which the fields below will be pre-filled.\n"
+"Optional address search: enter a postal code or street name to select a pre-"
+"existing address to auto-fill the fields below.\n"
 "\n"
-"That address - or a new address created from any modifications below - will "
-"be used as the person's \"home\" address.\n"
-"\n"
-"You can also just enter the relevant information into the corresponding "
-"fields without searching for an existing address."
+"By editing the fields you can create a new address as needed."
 msgstr ""
 
 msgid ""
@@ -3397,7 +3422,7 @@ msgstr "Ώρα:"
 msgid "Nick name"
 msgstr "Ψευδώνυμο"
 
-msgid "Primary address / contact"
+msgid "Primary address and contact"
 msgstr ""
 
 msgid "Postal code"
@@ -4022,20 +4047,29 @@ msgstr ""
 msgid "Episode summary"
 msgstr "Επεισόδιο"
 
-msgid "Codes linked to this Subjective."
-msgstr ""
+#, fuzzy
+msgid ""
+"Codes relevant to this Subjective\n"
+"separated by \";\"."
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
-msgid "Codes linked to this Objective."
-msgstr ""
+#, fuzzy
+msgid ""
+"Codes relevant to this Objective\n"
+"separated by \";\"."
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
-msgid "Codes linked to this Assessment."
-msgstr ""
+#, fuzzy
+msgid ""
+"Codes relevant to this Assessment\n"
+"separated by \";\"."
+msgstr "Επέλεξε τον τύπο της συνεδρίας."
 
-msgid "Codes linked to this Plan."
-msgstr ""
-
-msgid "Codes linked to this episode."
-msgstr ""
+#, fuzzy
+msgid ""
+"Codes relevant to this Plan\n"
+"separated by \";\"."
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 msgid ""
 "Here you can modify the cumulative summary (status) of the episode this SOAP "
@@ -4099,14 +4133,6 @@ msgid ""
 "This shows the list of active problems, They include open episodes as well "
 "as active health issues."
 msgstr ""
-
-#, fuzzy
-msgid "Enter codes relevant to this Reason for Encounter."
-msgstr "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
-
-#, fuzzy
-msgid "Enter codes relevant to this Outcome of Encounter."
-msgstr "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
 
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr ""
@@ -5521,6 +5547,17 @@ msgid "Unpacking data pack"
 msgstr ""
 
 msgid ""
+"Installation of data pack failed because\n"
+"it attempted to modify the database layout.\n"
+"\n"
+"  name: %s\n"
+"  URL: %s\n"
+"  local: %s\n"
+"\n"
+"You will need to contact your administrator."
+msgstr ""
+
+msgid ""
 "Installation of data pack failed.\n"
 "\n"
 "  name: %s\n"
@@ -5547,6 +5584,17 @@ msgid ""
 " [%s]\n"
 msgstr ""
 
+msgid ""
+"Install the selected data pack.\n"
+"\n"
+"This can take quite a while depending on\n"
+"the amount of data to be installed.\n"
+"\n"
+"GNUmed will block until installation is\n"
+"complete and eventually inform you of\n"
+"success or failure."
+msgstr ""
+
 msgid "Data packs available for installation into this v%s database.\n"
 msgstr ""
 
@@ -5567,10 +5615,6 @@ msgstr "Πηγή"
 
 msgid "&Install"
 msgstr ""
-
-#, fuzzy
-msgid "Install the selected data pack"
-msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 #, fuzzy
 msgid "&Configure"
@@ -7628,24 +7672,6 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
-msgid "Show a high-level summary of the EMR."
-msgstr ""
-
-msgid "Show as ..."
-msgstr "Εμφάνιση ως ..."
-
-msgid "Search for data in the EMR of the active patient"
-msgstr ""
-
-msgid "Search this EMR"
-msgstr "Αναζήτηση αυτού του ΗΙΦ"
-
-msgid "Search all EMRs"
-msgstr "Αναζήτηση όλων των ΗΙΦ"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
-
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
@@ -7692,17 +7718,18 @@ msgstr ""
 msgid "Manage procedures performed on the patient."
 msgstr ""
 
-msgid "&Measurement(s)"
-msgstr ""
-
 msgid "Add (a) measurement result(s) for the current patient."
 msgstr ""
 
-msgid "&Vaccination(s)"
-msgstr ""
+#, fuzzy
+msgid "&Measurements"
+msgstr "Μετρήσεις"
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr ""
+
+msgid "&Vaccinations"
+msgstr "&Εμβολιασμοί"
 
 msgid "&Family history (FHx)"
 msgstr ""
@@ -7710,8 +7737,27 @@ msgstr ""
 msgid "Manage family history."
 msgstr ""
 
+#, fuzzy
+msgid "&Encounters"
+msgstr "&Συνεδρία"
+
+msgid "List all encounters including empty ones."
+msgstr ""
+
 msgid "&Add / Edit ..."
 msgstr "&Προσθήκη / Επεξεργασία ..."
+
+msgid "Search for data in the EMR of the active patient"
+msgstr ""
+
+msgid "Search this EMR"
+msgstr "Αναζήτηση αυτού του ΗΙΦ"
+
+msgid "Search all EMRs"
+msgstr "Αναζήτηση όλων των ΗΙΦ"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
 
 msgid "Start a new encounter for the active patient right now."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
@@ -7719,11 +7765,14 @@ msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθε
 msgid "Start new encounter"
 msgstr ""
 
-msgid "&Encounters list"
-msgstr "&Λίστα συνεδριών"
-
-msgid "List all encounters including empty ones."
+msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
+
+#, fuzzy
+msgid "Statistics"
+msgstr ""
+"Στατιστικά ΗΙΦ\n"
+"\n"
 
 msgid "Text document"
 msgstr "Έγγραφο κειμένου"
@@ -11436,10 +11485,6 @@ msgstr "Χρήστης &χειροκίνητο"
 msgid "Measurements"
 msgstr "Μετρήσεις"
 
-#, fuzzy
-msgid "&Measurements"
-msgstr "Μετρήσεις"
-
 msgid "progress notes (sash)"
 msgstr ""
 
@@ -11488,9 +11533,6 @@ msgstr "Έγγραφα"
 
 msgid "&Notes"
 msgstr "&Σημειώσεις"
-
-msgid "&Vaccinations"
-msgstr "&Εμβολιασμοί"
 
 msgid "Waiting list"
 msgstr "Λίστα αναμονής"
@@ -11735,6 +11777,26 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Reason for Encounter."
+#~ msgstr ""
+#~ "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
+
+#, fuzzy
+#~ msgid "Enter codes relevant to this Outcome of Encounter."
+#~ msgstr ""
+#~ "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
+
+#, fuzzy
+#~ msgid "Install the selected data pack"
+#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#~ msgid "Show as ..."
+#~ msgstr "Εμφάνιση ως ..."
+
+#~ msgid "&Encounters list"
+#~ msgstr "&Λίστα συνεδριών"
 
 #~ msgid "Town"
 #~ msgstr "Πόλη"
