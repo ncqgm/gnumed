@@ -72,6 +72,7 @@ if test $? -ne 0 ; then
 	echo "    ERROR: Cannot create workspace. Aborting."
 	exit 1
 fi
+chmod +rx ${WORK_DIR}
 cd ${WORK_DIR}
 
 

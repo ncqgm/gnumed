@@ -865,6 +865,7 @@ IMPROVED: backup script and config file comments [thanks J.Busser]
 IMPROVED: restore script: properly set data file permissions [thanks S.Reus]
 IMPROVED: restore script: use "-o pipefail" to detect complex pipe failures
 IMPROVED: database fingerprinter can now dump schema structure, too
+IMPROVED: restore script: make sure <postgres> can access work dir sub dir
 
 NEW: clin.remove_old_empty_encounters()
 NEW: dem.remove_person(integer)
