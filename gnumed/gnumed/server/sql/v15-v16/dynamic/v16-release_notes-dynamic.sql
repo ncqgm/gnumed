@@ -18,10 +18,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.0.rc4 (database v16.rc4)',
-	'GNUmed 1.0.rc4 Release Notes:
+	'Release Notes for GNUmed 1.1.0 (database v16.0)',
+	'GNUmed 1.1.0 Release Notes:
 
-	1.0.rc4
+	1.1.0
 
 NEW: use os.startfile() for printing where available
 NEW: PDF printing via Acrobat Reader/gsprint.exe/os.startfile/IEx/MacPreview
@@ -88,16 +88,20 @@ IMPROVED: new patient EA: include in-praxis primary provider [thanks J.Busser]
 IMPROVED: during connect check whether database was properly bootstrapped
 IMPROVED: new patient EA: include address type selection
 IMPROVED: behaviour of [kidney] button in substance intake grid
+IMPROVED: new patient EA: saner address search / address fields interaction
 
-	16.0.rc4
+	16.0
 
 IMPROVED: backup script and config file comments [thanks J.Busser]
 IMPROVED: restore script: properly set data file permissions [thanks S.Reus]
 IMPROVED: restore script: use "-o pipefail" to detect complex pipe failures
+IMPROVED: database fingerprinter can now dump schema structure, too
+IMPROVED: restore script: make sure <postgres> can access work dir sub dir
 
 NEW: clin.remove_old_empty_encounters()
 NEW: dem.remove_person(integer)
 NEW: several medication related data packs [thanks J.Busser]
+NEW: add database schema fingerprint logs to server files
 ');
 
 -- --------------------------------------------------------------
