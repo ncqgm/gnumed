@@ -871,6 +871,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	16.1
 
 FIX: add back clin.v_narrative4search [thanks J.Busser]
+FIX: remove stray ";" from org contact numbers report SQL [thanks J.Busser]
 
 IMPROVED: do not log now-invalid RCS metadata anymore during bootstrapping
 
