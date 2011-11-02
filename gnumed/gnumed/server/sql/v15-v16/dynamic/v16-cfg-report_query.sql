@@ -80,7 +80,7 @@ FROM dem.org d_o
 WHERE
 	position(LOWER(''NAME_PART_TO_FIND'') in LOWER(d_o.description)) > 0
 ORDER BY
-	d_o.description;
+	d_o.description
 ;');
 
 -- --------------------------------------------------------------
