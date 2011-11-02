@@ -1407,8 +1407,6 @@ def handle_cfg():
 	"""Bootstrap the source 'file' in _cfg."""
 
 	_log.info('config file: %s', _cfg.source_files['file'])
-	_log.info('SCM path: %s', cfg_get("revision control", "file"))
-	_log.info('file version: %s', cfg_get("revision control", "version"))
 
 	become_pg_demon_user()
 
