@@ -1944,7 +1944,11 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 			) values (
 				%(pat)s,
 				-1,
-				coalesce((select pk from clin.encounter_type where description = %(typ)s), 0)
+				coalesce (
+					(select pk from clin.encounter_type where description = %(typ)s),
+					-- pick the first available
+					(select pk from clin.encounter_type limit 1)
+				)
 			) RETURNING pk"""
 	args = {'pat': fk_patient, 'typ': enc_type}
 	queries.append({'cmd': cmd, 'args': args})

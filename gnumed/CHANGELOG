@@ -6,6 +6,14 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.1
+
+FIX: more robust clock value formatting
+FIX: when configured encounter type not available pick first rather than pk=0 one
+
+IMPROVED: log gmI18N.get_encoding() result
+IMPROVED: encounter type phrasewheel formatting
+
 	1.1.0
 
 NEW: use os.startfile() for printing where available

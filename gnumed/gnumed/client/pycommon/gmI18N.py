@@ -196,6 +196,8 @@ def __log_locale_settings(message=None):
 					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
 	except:
 		_log.exception('this OS does not support nl_langinfo')
+
+	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
 #---------------------------------------------------------------------------
 def _translate_protected(term):
 	"""This wraps _().

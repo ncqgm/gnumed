@@ -2800,8 +2800,8 @@ class gmTopLevelFrame(wx.Frame):
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%c', t).decode(gmI18N.get_encoding())
-		self.SetStatusText(st,1)
+		st = time.strftime('%c', t).decode(gmI18N.get_encoding(), 'replace')
+		self.SetStatusText(st, 1)
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
