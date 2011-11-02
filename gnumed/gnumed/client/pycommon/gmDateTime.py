@@ -253,7 +253,7 @@ def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
 		encoding = gmI18N.get_encoding()
 
 	try:
-		return dt.strftime(format).decode(encoding)
+		return dt.strftime(format).decode(encoding, 'replace')
 	except ValueError:
 		_log.exception('Python cannot strftime() this <datetime>')
 

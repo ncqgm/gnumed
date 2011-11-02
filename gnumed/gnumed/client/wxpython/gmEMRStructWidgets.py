@@ -797,30 +797,30 @@ class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""
-select pk, l10n_description from (
-	select distinct on (pk) * from (
-		(select
-			pk,
-			_(description) as l10n_description,
-			1 as rank
-		from
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (data) *
+	FROM (
+		SELECT
+			pk AS data,
+			_(description) AS field_label,
+			case
+				when _(description) = description then _(description)
+				else _(description) || ' (' || description || ')'
+			end AS list_label
+		FROM
 			clin.encounter_type
-		where
+		WHERE
 			_(description) %(fragment_condition)s
-
-		) union all (
-
-		select
-			pk,
-			_(description) as l10n_description,
-			2 as rank
-		from
-			clin.encounter_type
-		where
+				OR
 			description %(fragment_condition)s
-		)
-	) as q_distinct_pk
-) as q_ordered order by rank, l10n_description
+	) AS q_distinct_pk
+) AS q_ordered
+ORDER BY
+	list_label
 """			]
 		)
 		mp.setThresholds(2, 4, 6)
