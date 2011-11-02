@@ -10,6 +10,7 @@
 
 FIX: more robust clock value formatting
 FIX: when configured encounter type not available pick first rather than pk=0 one
+FIX: failure to properly search for "kir;" [thanks J.Busser]
 
 IMPROVED: log gmI18N.get_encoding() result
 IMPROVED: encounter type phrasewheel formatting

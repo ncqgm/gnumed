@@ -162,6 +162,8 @@ class cPatientSearcher_SQL:
 		"""Compose queries if search term seems unambigous."""
 		queries = []
 
+		raw = raw.rstrip(u',').rstrip(u';')
+
 		# "<digits>" - GNUmed patient PK or DOB
 		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
 			_log.debug("[%s]: a PK or DOB" % raw)
@@ -356,13 +358,13 @@ SELECT DISTINCT ON (pk_identity) * from (
 		if len(queries) > 0:
 			return queries
 
+		# no we don't
 		_log.debug('[%s]: not a search term with a "suggestive" structure' % search_term)
 
-		# no we don't
-		queries = []
-
-		# replace Umlauts
+		search_term = search_term.strip(u',').strip(u';')
 		normalized = self._normalize_soundalikes(search_term)
+
+		queries = []
 
 		# "<CHARS>" - single name part
 		# yes, I know, this is culture specific (did you read the docs ?)
@@ -397,6 +399,9 @@ SELECT DISTINCT ON (pk_identity) * from (
 
 		# try to split on (major) part separators
 		parts_list = regex.split(u",|;", normalized)
+
+		# ignore empty parts
+		parts_list = [ p.strip() for p in parts_list if p.strip() != u'' ]
 
 		# only one "major" part ? (i.e. no ",;" ?)
 		if len(parts_list) == 1:
