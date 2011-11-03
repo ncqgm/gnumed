@@ -49,6 +49,9 @@ def __ignore_dead_objects_from_async(t, v, tb):
 	if t != wx._core.PyDeadObjectError:
 		return False
 
+	try: wx.EndBusyCursor()
+	except: pass
+
 	# try to ignore those, they come about from doing
 	# async work in wx as Robin tells us
 	_log2.warning('continuing and hoping for the best')
@@ -70,6 +73,9 @@ def __handle_import_error(t, v, tb):
 
 	if t != exceptions.ImportError:
 		return False
+
+	try: wx.EndBusyCursor()
+	except: pass
 
 	_log2.error('module [%s] not installed', v)
 	gmGuiHelpers.gm_show_error (
@@ -132,6 +138,8 @@ def __handle_lost_db_connection(t, v, tb):
 
 	_log2.error('lost connection')
 	gmLog2.log_stack_trace()
+	try: wx.EndBusyCursor()
+	except: pass
 	gmLog2.flush()
 	gmGuiHelpers.gm_show_error (
 		aTitle = _('Lost connection'),
@@ -153,10 +161,6 @@ def handle_uncaught_exception_wx(t, v, tb):
 
 	if __handle_ctrl_c(t, v, tb):
 		return
-
-	# careful: MSW does reference counting on Begin/End* :-(
-	try: wx.EndBusyCursor()
-	except: pass
 
 	if __handle_exceptions_on_shutdown(t, v, tb):
 		return
@@ -180,6 +184,12 @@ def handle_uncaught_exception_wx(t, v, tb):
 		return
 
 	gmLog2.log_stack_trace()
+
+	# only do this here or else we can invalidate the stack trace
+	# by Windows throwing an exception ... |-(
+	# careful: MSW does reference counting on Begin/End* :-(
+	try: wx.EndBusyCursor()
+	except: pass
 
 	name = os.path.basename(_logfile_name)
 	name, ext = os.path.splitext(name)
