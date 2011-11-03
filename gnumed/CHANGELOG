@@ -16,6 +16,7 @@ FIX: faulty use of wxSizer.Detach() [thanks Stepanyuk]
 IMPROVED: log gmI18N.get_encoding() result
 IMPROVED: encounter type phrasewheel formatting
 IMPROVED: slightly better wx.EndBusyCursor() placement in exception handler
+IMPROVED: formatting of staff match provider items [thanks J.Busser]
 
 	1.1.0
 

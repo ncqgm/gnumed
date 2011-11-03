@@ -1483,8 +1483,8 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 			queries = [
 				u"""SELECT
 						pk_staff AS data,
-						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')' AS list_label,
-						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')' AS field_label
+						short_alias || ' (' || coalesce(title, '') || ' ' || firstnames || ' ' || lastnames || ')' AS list_label,
+						short_alias || ' (' || coalesce(title, '') || ' ' || firstnames || ' ' || lastnames || ')' AS field_label
 					FROM dem.v_staff
 					WHERE
 						is_active AND (
