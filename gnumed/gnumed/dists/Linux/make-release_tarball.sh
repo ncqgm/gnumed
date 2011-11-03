@@ -3,10 +3,10 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-CLIENTREV="1.1.0"
+CLIENTREV="1.1.1"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="16.0"
+SRVREV="16.1"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 FILES_REMOVE=\
@@ -532,7 +532,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/static
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/superuser
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
 
 cp ../../server/sql/v15-v16/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v15-v16
 cp -R ../../server/sql/v15-v16/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/dynamic
@@ -540,7 +540,7 @@ cp -R ../../server/sql/v15-v16/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 #cp -R ../../server/sql/v15-v16/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/superuser
 cp -R ../../server/sql/v15-v16/data/* ./gnumed-client.$CLIENTREV/server/sql/v15-v16/data
 cp -R ../../server/sql/v15-v16/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v15-v16/python
-#cp -R ../../server/sql/v15-v16/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
+cp -R ../../server/sql/v15-v16/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
 
 #----------------------------------
 # weed out unnecessary stuff
