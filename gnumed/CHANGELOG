@@ -879,6 +879,7 @@ FIX: add back clin.v_narrative4search [thanks J.Busser]
 FIX: remove stray ";" from org contact numbers report SQL [thanks J.Busser]
 
 IMPROVED: do not log now-invalid RCS metadata anymore during bootstrapping
+IMPROVED: docs for Debian's pg_upgrade helper script
 
 	16.0
 

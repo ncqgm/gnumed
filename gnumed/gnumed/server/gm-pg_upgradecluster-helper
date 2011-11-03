@@ -6,6 +6,8 @@
 # upgrade using Debian's <pg_upgradecluster> may succeed.
 #
 # Drop this file into /etc/postgresql-common/pg_upgradecluster.d/
+# if you are using a postgresql-common package < v122 on Debian
+# and want to upgrade your cluster using <pg_upgradecluster>.
 #
 # Note that pg_upgradecluster will run this as user <postgres>.
 #
