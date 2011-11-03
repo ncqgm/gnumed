@@ -18,6 +18,7 @@ IMPROVED: encounter type phrasewheel formatting
 IMPROVED: slightly better wx.EndBusyCursor() placement in exception handler
 IMPROVED: formatting of staff match provider items [thanks J.Busser]
 IMPROVED: by default show inactive substances in grid
+IMPROVED: add improved icon XPM
 
 	1.1.0
 

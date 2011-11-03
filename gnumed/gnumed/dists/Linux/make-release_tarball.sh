@@ -152,6 +152,7 @@ cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.png ./gnumed-client.$CLIENTRE
 cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.ico ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.svg ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xcf ./gnumed-client.$CLIENTREV/client/bitmaps/
+cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 
 # business
 mkdir -p ./gnumed-client.$CLIENTREV/client/business/
