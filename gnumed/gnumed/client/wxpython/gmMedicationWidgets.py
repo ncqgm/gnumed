@@ -1790,7 +1790,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_cell_0 = None
 		self.__grouping_mode = u'episode'
 		self.__filter_show_unapproved = True
-		self.__filter_show_inactive = False
+		self.__filter_show_inactive = True
 
 		self.__grouping2col_labels = {
 			u'episode': [
