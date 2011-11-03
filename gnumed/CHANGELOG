@@ -17,6 +17,7 @@ IMPROVED: log gmI18N.get_encoding() result
 IMPROVED: encounter type phrasewheel formatting
 IMPROVED: slightly better wx.EndBusyCursor() placement in exception handler
 IMPROVED: formatting of staff match provider items [thanks J.Busser]
+IMPROVED: by default show inactive substances in grid
 
 	1.1.0
 
