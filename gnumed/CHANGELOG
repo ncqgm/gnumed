@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.2
+
+IMPROVED: confirm removing patients from the waiting list [thanks J.Busser]
+
 	1.1.1
 
 FIX: more robust clock value formatting
