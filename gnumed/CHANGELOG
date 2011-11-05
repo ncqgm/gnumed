@@ -8,6 +8,8 @@
 
 	1.1.2
 
+FIX: faulty access to _TCTRL_unit in patient creation widgets [thanks J.Busser]
+
 IMPROVED: confirm removing patients from the waiting list [thanks J.Busser]
 IMPROVED: remove misleading "There are no encounters for this episode." [thanks J.Busser]
 
