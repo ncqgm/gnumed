@@ -28,6 +28,7 @@ from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
@@ -334,8 +335,35 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		dlg.Destroy()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
-		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
+		item = self._LCTRL_patients.get_selected_item_data(only_one = True)
 		if item is None:
+			return
+		question = _(
+			'Are you sure you want to remove\n'
+			'\n'
+			' %s, %s (%s)\n'
+			' born %s\n'
+			'\n'
+			'from the waiting list ?'
+		) % (
+			item['lastnames'],
+			item['firstnames'],
+			item['l10n_gender'],
+			gmTools.coalesce (
+				gmTools.coalesce (
+					item['dob'],
+					u'',
+					function_initial = ('strftime', '%d %b %Y')
+				),
+				u'',
+				function_initial = ('decode', gmI18N.get_encoding())
+			)
+		)
+		do_delete = gmGuiHelpers.gm_show_question (
+			title = _('Delete waiting list entry'),
+			question = question
+		)
+		if not do_delete:
 			return
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
 	#--------------------------------------------------------
