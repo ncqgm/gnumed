@@ -1765,7 +1765,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._TCTRL_unit.SetValue(gmTools.coalesce(adr['subunit'], u''))
 			return True
 
-		self.__perhaps_invalidate_address_searcher(self._TCTRL_numbunit, 'subunit')
+		self.__perhaps_invalidate_address_searcher(self._TCTRL_unit, 'subunit')
 		return True
 	#----------------------------------------------------------------
 	def _invalidate_address_searcher(self, *args, **kwargs):
