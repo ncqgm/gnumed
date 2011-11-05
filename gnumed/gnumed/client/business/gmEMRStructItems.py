@@ -934,7 +934,8 @@ from (
 		if encs is None:
 			lines.append(_('Error retrieving encounters for this episode.'))
 		elif len(encs) == 0:
-			lines.append(_('There are no encounters for this episode.'))
+			#lines.append(_('There are no encounters for this episode.'))
+			pass
 		else:
 			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
