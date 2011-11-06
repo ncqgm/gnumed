@@ -338,11 +338,15 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		item = self._LCTRL_patients.get_selected_item_data(only_one = True)
 		if item is None:
 			return
+		cmt = gmTools.coalesce(item['comment'], u'').split('\n')[0].strip()[:40]
+		if cmt != u'':
+			cmt += u'\n'
 		question = _(
 			'Are you sure you want to remove\n'
 			'\n'
 			' %s, %s (%s)\n'
-			' born %s\n'
+			' born: %s\n'
+			' %s'
 			'\n'
 			'from the waiting list ?'
 		) % (
@@ -357,7 +361,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				),
 				u'',
 				function_initial = ('decode', gmI18N.get_encoding())
-			)
+			),
+			cmt
 		)
 		do_delete = gmGuiHelpers.gm_show_question (
 			title = _('Delete waiting list entry'),
