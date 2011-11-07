@@ -26,6 +26,7 @@ if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" -l postgres | grep -q -e
 fi
 
 cd ${GM_SERVER_DIR}
+export GM_LOG_BASE
 ./bootstrap-latest.sh
 
 #==============================================================
