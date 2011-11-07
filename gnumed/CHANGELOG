@@ -880,11 +880,14 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v16
 ------------------------------------------------
 
+	16.2
+
+FIX: properly export GM_LOG_BASE in scripts [thanks Debian]
+
 	16.1
 
 FIX: add back clin.v_narrative4search [thanks J.Busser]
 FIX: remove stray ";" from org contact numbers report SQL [thanks J.Busser]
-FIX: properly export GM_LOG_BASE in scripts [thanks Debian]
 
 IMPROVED: do not log now-invalid RCS metadata anymore during bootstrapping
 IMPROVED: docs for Debian's pg_upgrade helper script
