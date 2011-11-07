@@ -18,30 +18,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.1 (database v16.1)',
-	'GNUmed 1.1.1 Release Notes:
+	'Release Notes for GNUmed 1.1.2 (database v16.2)',
+	'GNUmed 1.1.2 Release Notes:
 
-	1.1.1
+	1.1.2
 
-FIX: more robust clock value formatting
-FIX: when configured encounter type not available pick first rather than pk=0 one
-FIX: failure to properly search for "kir;" [thanks J.Busser]
-FIX: faulty use of wxSizer.Detach() [thanks Stepanyuk]
+FIX: faulty access to _TCTRL_unit in patient creation widgets [thanks J.Busser]
 
-IMPROVED: log gmI18N.get_encoding() result
-IMPROVED: encounter type phrasewheel formatting
-IMPROVED: slightly better wx.EndBusyCursor() placement in exception handler
-IMPROVED: formatting of staff match provider items [thanks J.Busser]
-IMPROVED: by default show inactive substances in grid
-IMPROVED: add improved icon XPM
+IMPROVED: confirm removing patients from the waiting list [thanks J.Busser]
+IMPROVED: remove misleading "There are no encounters for this episode." [thanks J.Busser]
 
-	16.1
+	16.2
 
-FIX: add back clin.v_narrative4search [thanks J.Busser]
-FIX: remove stray ";" from org contact numbers report SQL [thanks J.Busser]
-
-IMPROVED: do not log now-invalid RCS metadata anymore during bootstrapping
-IMPROVED: docs for Debian''s pg_upgrade helper script
+FIX: properly export GM_LOG_BASE in scripts [thanks Debian]
 ');
 
 -- --------------------------------------------------------------
