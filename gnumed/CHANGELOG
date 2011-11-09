@@ -880,6 +880,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v16
 ------------------------------------------------
 
+	16.3
+
+FIX: failure to create gm-staff group role when bootstrapping in a virgin PostgreSQL [thanks Debian]
+
+IMPROVED: robustify GNUmed related PostgreSQL roles management
+
 	16.2
 
 FIX: properly export GM_LOG_BASE in scripts [thanks Debian]
