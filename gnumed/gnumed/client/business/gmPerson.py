@@ -386,6 +386,11 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	inbox = property(_get_inbox, _set_inbox)
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
+
+	identity = property(_get_identity, lambda x:x)
 #============================================================
 def set_current_provider_to_logged_on_user():
 	gmCurrentProvider(provider = cStaff())

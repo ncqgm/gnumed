@@ -1,3 +1,4 @@
+#  coding: utf8
 """GNUmed macro primitives.
 
 This module implements functions a macro can legally use.
@@ -86,26 +87,27 @@ known_variant_placeholders = [
 	u'adr_region',
 	u'adr_country',
 
-	u'patient_comm',			# args: comm channel type as per database
-	u'external_id',				# args: <type of ID>//<issuer of ID>
-	u'gender_mapper',			# "args" holds: <value when person is male> // <is female> // <is other>
-								#				eg. "male//female//other"
-								#				or: "Lieber Patient//Liebe Patientin"
-	u'current_meds',			# "args" holds: line template
-	u'current_meds_table',		# "args" holds: format, options
-								#				currently only "latex"
-	u'current_meds_notes',		# "args" holds: format, options
-	u'lab_table',				# "args" holds: format (currently "latex" only)
-	u'latest_vaccs_table',		# "args" holds: format, options
-	u'today',					# "args" holds: strftime format
-	u'tex_escape',				# "args" holds: string to escape
-	u'allergies',				# "args" holds: line template, one allergy per line
-	u'allergy_list',			# "args" holds: template per allergy, allergies on one line
-	u'problems',				# "args" holds: line template, one problem per line
-	u'name',					# "args" holds: template for name parts arrangement
-	u'free_text',				# show a dialog for entering some free text
-	u'soap_for_encounters',		# "args" holds: soap cats // strftime date format
-	u'encounter_list'			# "args" holds: per-encounter template, each ends up on one line
+	u'patient_comm',						# args: comm channel type as per database
+	u'external_id',							# args: <type of ID>//<issuer of ID>
+	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
+											#				eg. "male//female//other"
+											#				or: "Lieber Patient//Liebe Patientin"
+	u'current_meds',						# "args" holds: line template
+	u'current_meds_table',					# "args" holds: format, options
+											#				currently only "latex"
+	u'current_meds_notes',					# "args" holds: format, options
+	u'lab_table',							# "args" holds: format (currently "latex" only)
+	u'latest_vaccs_table',					# "args" holds: format, options
+	u'today',								# "args" holds: strftime format
+	u'tex_escape',							# "args" holds: string to escape
+	u'allergies',							# "args" holds: line template, one allergy per line
+	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
+	u'problems',							# "args" holds: line template, one problem per line
+	u'name',								# "args" holds: template for name parts arrangement
+	u'free_text',							# show a dialog for entering some free text
+	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
+	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
+	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -651,6 +653,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(comms) == 0:
 			return _('no URL for comm channel [%s]') % data
 		return comms[0]['url']
+	#--------------------------------------------------------
+	def _get_variant_current_provider_external_id(self, data=u''):
+		data_parts = data.split(u'//')
+		if len(data_parts) < 2:
+			return None
+
+		id_type = data_parts[0].strip()
+		if id_type == u'':
+			return None
+
+		issuer = data_parts[1].strip()
+		if issuer == u'':
+			return None
+
+		prov = gmPerson.gmCurrentProvider()
+		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
+
+		if len(ids) == 0:
+			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+
+		return ids[0]['value']
 	#--------------------------------------------------------
 	def _get_variant_external_id(self, data=u''):
 		data_parts = data.split(u'//')
@@ -1242,13 +1265,15 @@ if __name__ == '__main__':
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
-			u'patient_comm::homephone::1234',
+			#u'patient_comm::homephone::1234',
 			#u'patient_address::home//::1234',
 			#u'adr_region::home::1234',
 			#u'adr_country::home::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'primary_praxis_provider',
-			#u'current_provider'
+			#u'current_provider',
+			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
+			u'current_provider_external_id::LANR//LÄK::1234'
 		]
 
 		handler = gmPlaceholderHandler()
