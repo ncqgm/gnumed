@@ -18,19 +18,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.2 (database v16.2)',
-	'GNUmed 1.1.2 Release Notes:
+	'Release Notes for GNUmed 1.1.3 (database v16.3)',
+	'GNUmed 1.1.3 Release Notes:
 
-	1.1.2
+	1.1.3
 
-FIX: faulty access to _TCTRL_unit in patient creation widgets [thanks J.Busser]
+FIX: phrasewheel exception on test types without .code [thanks J.Busser]
 
-IMPROVED: confirm removing patients from the waiting list [thanks J.Busser]
-IMPROVED: remove misleading "There are no encounters for this episode." [thanks J.Busser]
+	16.3
 
-	16.2
+FIX: failure to create gm-staff group role when bootstrapping in a virgin PostgreSQL [thanks Debian]
 
-FIX: properly export GM_LOG_BASE in scripts [thanks Debian]
+IMPROVED: robustify GNUmed related PostgreSQL roles management
 ');
 
 -- --------------------------------------------------------------
