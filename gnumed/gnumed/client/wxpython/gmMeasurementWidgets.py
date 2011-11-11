@@ -1647,7 +1647,7 @@ SELECT DISTINCT ON (field_label)
 	AS field_label,
 	name_tt
 		|| ' ('
-		|| code_tt || ', '
+		|| coalesce(code_tt || ', ', '')
 		|| abbrev_tt || ', '
 		|| coalesce(abbrev_meta || ': ' || name_meta || ', ', '')
 		|| coalesce (
