@@ -2280,6 +2280,17 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 #-----------------------------------------------------------
+def get_latest_patient_hospital_stay(patient=None):
+	queries = [{
+		# this assumes non-overarching stays
+		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
+		'args': {'pat': patient}
+	}]
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
+#-----------------------------------------------------------
 def get_patient_hospital_stays(patient=None):
 
 	queries = [{
@@ -2364,7 +2375,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			else:
 				end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
 
-		line = u'%s%s%s, %s: %s' % (
+		line = u'%s%s%s (%s): %s' % (
 			(u' ' * left_margin),
 			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
 			end,
@@ -2461,6 +2472,18 @@ def get_performed_procedures(patient=None):
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+#-----------------------------------------------------------
+def get_latest_performed_procedure(patient=None):
+	queries = [
+		{
+		'cmd': u'select * from clin.v_pat_procedures where pk_patient = %(pat)s order by clin_when DESC LIMIT 1',
+		'args': {'pat': patient}
+		}
+	]
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPerformedProcedure(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_procedure'})
 #-----------------------------------------------------------
 def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
 

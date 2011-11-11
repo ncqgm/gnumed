@@ -238,6 +238,9 @@ SELECT fk_encounter from
 
 		return procs
 	#--------------------------------------------------------
+	def get_latest_performed_procedure(self):
+		return gmEMRStructItems.get_latest_performed_procedure(patient = self.pk_patient)
+	#--------------------------------------------------------
 	def add_performed_procedure(self, episode=None, location=None, hospital_stay=None, procedure=None):
 		return gmEMRStructItems.create_performed_procedure (
 			encounter = self.current_encounter['pk_encounter'],
@@ -260,6 +263,9 @@ SELECT fk_encounter from
 			stays = filter(lambda s: s['pk_health_issue'] in issues, stays)
 
 		return stays
+	#--------------------------------------------------------
+	def get_latest_hospital_stay(self):
+		return gmEMRStructItems.get_latest_patient_hospital_stay(patient = self.pk_patient)
 	#--------------------------------------------------------
 	def add_hospital_stay(self, episode=None):
 		return gmEMRStructItems.create_hospital_stay (
@@ -774,9 +780,9 @@ order by
 		last = self.get_last_encounter()
 		probs = self.get_problems()
 
-		txt = _('EMR Statistics\n\n')
+		txt = u''
 		if len(probs) > 0:
-			txt += _(' %s known problems. Clinically relevant thereof:\n') % stats['problems']
+			txt += _(' %s known problems, clinically relevant thereof:\n') % stats['problems']
 		else:
 			txt += _(' %s known problems\n') % stats['problems']
 		for prob in probs:
@@ -795,10 +801,19 @@ order by
 		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n') % stats['results']
-		txt += _(' %s hospital stays\n') % stats['stays']
+		txt += _(' %s hospital stays') % stats['stays']
+		if stats['stays'] == 0:
+			txt += u'\n'
+		else:
+			txt += _(', most recently:\n%s\n') % self.get_latest_hospital_stay().format(left_margin = 3)
 		# FIXME: perhaps only count "ongoing ones"
-		txt += _(' %s performed procedures\n\n') % stats['procedures']
+		txt += _(' %s performed procedures') % stats['procedures']
+		if stats['procedures'] == 0:
+			txt += u'\n'
+		else:
+			txt += _(', most recently:\n%s\n') % self.get_latest_performed_procedure().format(left_margin = 3)
 
+		txt += u'\n'
 		txt += _('Allergies and Intolerances\n')
 
 		allg_state = self.allergy_state
