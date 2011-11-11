@@ -85,6 +85,7 @@ echo_msg "1) applying fixes to database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Fixing \"gnumed_v${VER}\" did not finish successfully."
+	read
 	exit 1
 fi
 

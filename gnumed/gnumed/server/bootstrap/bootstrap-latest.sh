@@ -80,6 +80,7 @@ CONF="bootstrap-latest.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully. Aborting."
+	read
 	exit 1
 fi
 
