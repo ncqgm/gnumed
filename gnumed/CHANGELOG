@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.3
+
+FIX: phrasewheel exception on test types without .code [thanks J.Busser]
+
 	1.1.2
 
 FIX: faulty access to _TCTRL_unit in patient creation widgets [thanks J.Busser]
