@@ -17,6 +17,7 @@ IMPROVED: EMR browser: whole-chart synopsis
 	1.1.4
 
 IMPROVED: placeholder $<current_provider_external_id::type//issuer::length>$
+IMPROVED: staff list editor: disable non-functional [Delete] button [thanks J.Busser]
 
 	1.1.3
 
