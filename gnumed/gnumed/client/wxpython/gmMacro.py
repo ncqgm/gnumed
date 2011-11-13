@@ -27,6 +27,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmMedication
 from Gnumed.business import gmPathLab
@@ -292,7 +293,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return tmp
 	#--------------------------------------------------------
 	def _get_current_provider(self):
-		prov = gmPerson.gmCurrentProvider()
+		prov = gmStaff.gmCurrentProvider()
 
 		title = gmTools.coalesce (
 			prov['title'],
@@ -667,7 +668,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if issuer == u'':
 			return None
 
-		prov = gmPerson.gmCurrentProvider()
+		prov = gmStaff.gmCurrentProvider()
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
@@ -1279,7 +1280,7 @@ if __name__ == '__main__':
 		handler = gmPlaceholderHandler()
 		handler.debug = True
 
-		gmPerson.set_current_provider_to_logged_on_user()
+		gmStaff.set_current_provider_to_logged_on_user()
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return

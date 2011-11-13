@@ -18,6 +18,8 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 
+from Gnumed.business import gmStaff
+
 #============================================================
 # description
 #------------------------------------------------------------
@@ -163,8 +165,7 @@ def create_inbox_item_type(message_type=None, category=u'clinical'):
 class cProviderInbox:
 	def __init__(self, provider_id=None):
 		if provider_id is None:
-			from Gnumed.business import gmPerson
-			self.__provider_id = gmPerson.gmCurrentProvider()['pk_staff']
+			self.__provider_id = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
@@ -202,10 +203,9 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	from Gnumed.business import gmPerson
 	#---------------------------------------
 	def test_inbox():
-		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		inbox = cProviderInbox()
 		for msg in inbox.messages:
 			print msg

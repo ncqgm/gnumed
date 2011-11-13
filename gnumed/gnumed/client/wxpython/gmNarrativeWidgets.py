@@ -198,7 +198,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		notes = emr.get_clin_narrative (
 			encounters = encounters,
 			episodes = episodes,
-			providers = [ gmPerson.gmCurrentProvider()['short_alias'] ]
+			providers = [ gmStaff.gmCurrentProvider()['short_alias'] ]
 		)
 		lctrl.set_string_items(items = [
 			[	narr['date'].strftime('%x %H:%M'),
@@ -216,7 +216,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 			'\n'
 			' This list shows the progress notes by %s.\n'
 			'\n'
-		) % gmPerson.gmCurrentProvider()['short_alias'],
+		) % gmStaff.gmCurrentProvider()['short_alias'],
 		columns = [_('when'), _('type'), _('entry')],
 		single_selection = True,
 		can_return_empty = False,

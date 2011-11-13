@@ -308,151 +308,6 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 
 	description = property(_get_description, lambda x:x)
 #============================================================
-class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_staff WHERE pk_staff = %s"
-	_cmds_store_payload = [
-		u"""UPDATE dem.staff SET
-				fk_role = %(pk_role)s,
-				short_alias = %(short_alias)s,
-				comment = gm.nullify_empty_string(%(comment)s),
-				is_active = %(is_active)s,
-				db_user = %(db_user)s
-			WHERE
-				pk = %(pk_staff)s
-					AND
-				xmin = %(xmin_staff)s
-			RETURNING
-				xmin AS xmin_staff"""
-	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		# by default get staff corresponding to CURRENT_USER
-		if (aPK_obj is None) and (row is None):
-			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
-			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-			except:
-				_log.exception('cannot instantiate staff instance')
-				gmLog2.log_stack_trace()
-				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
-			if len(rows) == 0:
-				raise ValueError('no staff record for database account CURRENT_USER')
-			row = {
-				'pk_field': 'pk_staff',
-				'idx': idx,
-				'data': rows[0]
-			}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
-		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
-
-		# are we SELF ?
-		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
-
-		self.__inbox = None
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		if attribute == 'db_user':
-			if self.__is_current_user:
-				_log.debug('will not modify database account association of CURRENT_USER staff member')
-				return
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-	#--------------------------------------------------------
-	def _get_db_lang(self):
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
-				'args': {'usr': self._payload[self._idx['db_user']]}
-			}]
-		)
-		return rows[0][0]
-
-	def _set_db_lang(self, language):
-		if not gmPG2.set_user_language(language = language):
-			raise ValueError (
-				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
-			)
-		return
-
-	database_language = property(_get_db_lang, _set_db_lang)
-	#--------------------------------------------------------
-	def _get_inbox(self):
-		if self.__inbox is None:
-			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
-		return self.__inbox
-
-	def _set_inbox(self, inbox):
-		return
-
-	inbox = property(_get_inbox, _set_inbox)
-	#--------------------------------------------------------
-	def _get_identity(self):
-		return cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
-
-	identity = property(_get_identity, lambda x:x)
-#============================================================
-def set_current_provider_to_logged_on_user():
-	gmCurrentProvider(provider = cStaff())
-#============================================================
-class gmCurrentProvider(gmBorg.cBorg):
-	"""Staff member Borg to hold currently logged on provider.
-
-	There may be many instances of this but they all share state.
-	"""
-	def __init__(self, provider=None):
-		"""Change or get currently logged on provider.
-
-		provider:
-		* None: get copy of current instance
-		* cStaff instance: change logged on provider (role)
-		"""
-		# make sure we do have a provider pointer
-		try:
-			self.provider
-		except AttributeError:
-			self.provider = gmNull.cNull()
-
-		# user wants copy of currently logged on provider
-		if provider is None:
-			return None
-
-		# must be cStaff instance, then
-		if not isinstance(provider, cStaff):
-			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
-
-		# same ID, no change needed
-		if self.provider['pk_staff'] == provider['pk_staff']:
-			return None
-
-		# first invocation
-		if isinstance(self.provider, gmNull.cNull):
-			self.provider = provider
-			return None
-
-		# user wants different provider
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
-
-	#--------------------------------------------------------
-	def get_staff(self):
-		return self.provider
-	#--------------------------------------------------------
-	# __getitem__ handling
-	#--------------------------------------------------------
-	def __getitem__(self, aVar):
-		"""Return any attribute if known how to retrieve it by proxy.
-		"""
-		return self.provider[aVar]
-	#--------------------------------------------------------
-	# __s/getattr__ handling
-	#--------------------------------------------------------
-	def __getattr__(self, attribute):
-		if attribute == 'provider':			# so we can __init__ ourselves
-			raise AttributeError
-		if not isinstance(self.provider, gmNull.cNull):
-			return getattr(self.provider, attribute)
-#		raise AttributeError
-#============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
 	_cmds_store_payload = [
@@ -1244,18 +1099,6 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
 #============================================================
-class cStaffMember(cIdentity):
-	"""Represents a staff member which is a person.
-
-	- a specializing subclass of cIdentity turning it into a staff member
-	"""
-	def __init__(self, identity = None):
-		cIdentity.__init__(self, identity=identity)
-		self.__db_cache = {}
-	#--------------------------------------------------------
-	def get_inbox(self):
-		return gmProviderInbox.cProviderInbox(provider_id = self.ID)
-#============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
 
@@ -1639,22 +1482,6 @@ def map_firstnames2gender(firstnames=None):
 
 	return rows[0][0]
 #============================================================
-def get_staff_list(active_only=False):
-	if active_only:
-		cmd = u"SELECT * FROM dem.v_staff WHERE is_active ORDER BY can_login DESC, short_alias ASC"
-	else:
-		cmd = u"SELECT * FROM dem.v_staff ORDER BY can_login desc, is_active desc, short_alias ASC"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-	staff_list = []
-	for row in rows:
-		obj_row = {
-			'idx': idx,
-			'data': row,
-			'pk_field': 'pk_staff'
-		}
-		staff_list.append(cStaff(row=obj_row))
-	return staff_list
-#============================================================
 def get_persons_from_pks(pks=None):
 	return [ cIdentity(aPK_obj = pk) for pk in pks ]
 #============================================================
@@ -1720,25 +1547,6 @@ if __name__ == '__main__':
 		for key in dto.keys():
 			print key
 	#--------------------------------------------------------
-	def test_staff():
-		staff = cStaff()
-		print staff
-		print staff.inbox
-		print staff.inbox.messages
-	#--------------------------------------------------------
-	def test_current_provider():
-		staff = cStaff()
-		provider = gmCurrentProvider(provider = staff)
-		print provider
-		print provider.inbox
-		print provider.inbox.messages
-		print provider.database_language
-		tmp = provider.database_language
-		provider.database_language = None
-		print provider.database_language
-		provider.database_language = tmp
-		print provider.database_language
-	#--------------------------------------------------------
 	def test_identity():
 		# create patient
 		print '\n\nCreating identity...'
@@ -1795,9 +1603,7 @@ if __name__ == '__main__':
 	#test_identity()
 	#test_set_active_pat()
 	#test_search_by_dto()
-	#test_staff()
-	test_current_provider()
-	#test_name()
+	test_name()
 
 	#map_gender2salutation('m')
 	# module functions

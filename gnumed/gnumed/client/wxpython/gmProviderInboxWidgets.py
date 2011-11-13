@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmProviderInbox
 
@@ -212,7 +213,7 @@ def configure_fallback_primary_provider(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	staff = gmPerson.get_staff_list()
+	staff = gmStaff.get_staff_list()
 	choices = [ [
 			s[u'short_alias'],
 			u'%s%s %s' % (
@@ -659,7 +660,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 
 		receiver = None
 		if self._CHBOX_send_to_me.IsChecked():
-			receiver = gmPerson.gmCurrentProvider()['pk_staff']
+			receiver = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			if self._PRW_receiver.GetData() is not None:
 				receiver = self._PRW_receiver.GetData()
@@ -690,7 +691,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self.data['pk_type'] = self._PRW_type.GetData(can_create = True)
 
 		if self._CHBOX_send_to_me.IsChecked():
-			self.data['pk_staff'] = gmPerson.gmCurrentProvider()['pk_staff']
+			self.data['pk_staff'] = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			self.data['pk_staff'] = self._PRW_receiver.GetData()
 
@@ -719,7 +720,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self._PRW_type.SetText(value = u'', data = None)
 		self._CHBOX_send_to_me.SetValue(True)
 		self._PRW_receiver.Enable(False)
-		self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+		self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		self._TCTRL_message.SetValue(u'')
 		self._RBTN_normal.SetValue(True)
 		self._RBTN_high.SetValue(False)
@@ -746,13 +747,13 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], u''))
 		self._PRW_type.SetData(data = self.data['pk_type'])
 
-		curr_prov = gmPerson.gmCurrentProvider()
+		curr_prov = gmStaff.gmCurrentProvider()
 		curr_pat = gmPerson.gmCurrentPatient()
 
 		if curr_prov['pk_staff'] == self.data['pk_staff']:
 			self._CHBOX_send_to_me.SetValue(True)
 			self._PRW_receiver.Enable(False)
-			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+			self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		else:
 			self._CHBOX_send_to_me.SetValue(False)
 			self._PRW_receiver.Enable(True)
@@ -804,7 +805,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 	def _on_send_to_me_checked(self, event):
 		if self._CHBOX_send_to_me.IsChecked():
 			self._PRW_receiver.Enable(False)
-			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+			self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		else:
 			self._PRW_receiver.Enable(True)
 			self._PRW_receiver.SetText(value = u'', data = None)
@@ -837,7 +838,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.provider = gmPerson.gmCurrentProvider()
+		self.provider = gmStaff.gmCurrentProvider()
 		self.filter_mode = 'all'
 		self.__init_ui()
 

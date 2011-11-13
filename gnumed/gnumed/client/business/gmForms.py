@@ -35,6 +35,7 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSurgery
 
@@ -1554,7 +1555,7 @@ if __name__ == '__main__':
 			return
 		gmPerson.set_active_patient(patient = pat)
 
-		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 
 		path = os.path.abspath(sys.argv[2])
 		form = cLaTeXForm(template_file = path)
@@ -1572,7 +1573,7 @@ if __name__ == '__main__':
 			return
 		gmPerson.set_active_patient(patient = pat)
 
-		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 
 		path = os.path.abspath(sys.argv[2])
 		form = cLaPDFForm(template_file = path)

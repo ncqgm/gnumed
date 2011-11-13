@@ -53,6 +53,7 @@ from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmArriba
+from Gnumed.business import gmStaff
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -3046,7 +3047,7 @@ class gmApp(wx.App):
 		# check account <-> staff member association
 		try:
 			global _provider
-			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+			_provider = gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		except ValueError:
 			account = gmPG2.get_current_user()
 			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)

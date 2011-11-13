@@ -14,7 +14,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
 from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2
-from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
+from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
 from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
@@ -2085,7 +2085,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		if drug_db is None:
 			return
 
-		drug_db.reviewer = gmPerson.gmCurrentProvider()
+		drug_db.reviewer = gmStaff.gmCurrentProvider()
 		update_substance_intake_list_from_prescription (
 			parent = self,
 			prescribed_drugs = drug_db.prescribe(),

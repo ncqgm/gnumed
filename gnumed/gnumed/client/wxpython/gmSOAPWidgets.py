@@ -16,7 +16,7 @@ import wx
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -818,7 +818,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		# set up clinical context in progress note
 		encounter = emr.active_encounter
-		staff_id = gmPerson.gmCurrentProvider()['pk_staff']
+		staff_id = gmStaff.gmCurrentProvider()['pk_staff']
 		clin_ctx = {
 			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
 			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
