@@ -391,6 +391,96 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
+#------------------------------------------------------------
+def create_staff(conn=None, db_account=None, password=None, identity=None, short_alias=None):
+	args = {
+		'pg_usr': db_account,
+		'pwd': password,
+		'person_id': identity,
+		'sig': short_alias,
+		'gm_role_name': u'doctor'
+	}
+
+	queries = [
+		{'cmd': u'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
+		{'cmd': u"""
+			INSERT INTO dem.staff
+				(fk_identity, fk_role, db_user, short_alias)
+			VALUES (
+				%(person_id)s,
+				(SELECT pk FROM dem.staff_role WHERE name = %(gm_role_name)s),
+				%(pg_usr)s,
+				%(sig)s
+			)""",
+		 'args': args
+		}
+	]
+
+	try:
+		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+	except gmPG2.dbapi.IntegrityError, e:
+		if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
+			msg = _(
+				'Cannot add GNUmed user.\n'
+				'\n'
+				'The database account [%s] is already listed as a\n'
+				'GNUmed user. There can only be one GNUmed user\n'
+				'for each database account.\n'
+			) % db_account
+			return False, msg
+		raise
+
+	return True, None
+#------------------------------------------------------------
+def delete_staff(conn=None, pk_staff=None):
+	queries = [{'cmd': u'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
+	try:
+		rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+	except gmPG2.dbapi.IntegrityError, e:
+		if e.pgcode == gmPG2.sql_error_codes.FOREIGN_KEY_VIOLATION:		# 23503  foreign_key_violation
+			msg = _(
+				'Cannot delete GNUmed staff member because the\n'
+				'database still contains data linked to it.\n'
+				'\n'
+				'The account was deactivated instead.'
+			)
+			deactivate_staff(conn = conn, pk_staff = pk_staff)
+			return False, msg
+		raise
+
+	return True, None
+#------------------------------------------------------------
+def activate_staff(conn=None, pk_staff=None):
+	# 1) activate staff entry
+	staff = cStaff(aPK_obj = pk_staff)
+	staff['is_active'] = True
+	staff.save_payload(conn=conn)				# FIXME: error handling
+
+	# 2) enable database account login
+	rowx, idx = gmPG2.run_rw_queries (
+		link_obj = conn,
+		# password does not matter because PG account must already exist
+		queries = [{'cmd': u'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
+		end_tx = True
+	)
+
+	return True
+#------------------------------------------------------------
+def deactivate_staff(conn=None, pk_staff=None):
+
+	# 1) inactivate staff entry
+	staff = cStaff(aPK_obj = pk_staff)
+	staff['is_active'] = False
+	staff.save_payload(conn = conn)				# FIXME: error handling
+
+	# 2) disable database account login
+	rows, idx = gmPG2.run_rw_queries (
+		link_obj = conn,
+		queries = [{'cmd': u'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
+		end_tx = True
+	)
+
+	return True
 #============================================================
 def set_current_provider_to_logged_on_user():
 	gmCurrentProvider(provider = cStaff())
@@ -1243,18 +1333,6 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
-#============================================================
-class cStaffMember(cIdentity):
-	"""Represents a staff member which is a person.
-
-	- a specializing subclass of cIdentity turning it into a staff member
-	"""
-	def __init__(self, identity = None):
-		cIdentity.__init__(self, identity=identity)
-		self.__db_cache = {}
-	#--------------------------------------------------------
-	def get_inbox(self):
-		return gmProviderInbox.cProviderInbox(provider_id = self.ID)
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
