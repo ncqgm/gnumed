@@ -521,7 +521,7 @@ else:
 		def GetWidget (self, parent):
 			# get current workplace name
 			workplace = gmSurgery.gmCurrentPractice().active_workplace
-			currUser = gmPerson.gmCurrentProvider()['db_user']
+			currUser = gmStaff.gmCurrentProvider()['db_user']
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
 			return self._widget
@@ -532,7 +532,7 @@ else:
 	def Setup(parent):
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
-		currUser = gmPerson.gmCurrentProvider()['db_user']
+		currUser = gmStaff.gmCurrentProvider()['db_user']
 		workplace = gmSurgery.gmCurrentPractice().active_workplace
 		return gmConfigEditorPanel(parent,currUser,workplace)
 

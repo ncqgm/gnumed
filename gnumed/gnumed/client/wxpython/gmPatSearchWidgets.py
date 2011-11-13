@@ -25,6 +25,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
 from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmKVK
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmCA_MSVA
@@ -917,13 +918,13 @@ def _check_for_provider_chart_access(patient=None):
 	if patient is None:
 		return True
 
-	curr_prov = gmPerson.gmCurrentProvider()
+	curr_prov = gmStaff.gmCurrentProvider()
 
 	# can view my own chart
 	if patient.ID == curr_prov['pk_identity']:
 		return True
 
-	if patient.ID not in [ s['pk_identity'] for s in gmPerson.get_staff_list() ]:
+	if patient.ID not in [ s['pk_identity'] for s in gmStaff.get_staff_list() ]:
 		return True
 
 	proceed = gmGuiHelpers.gm_show_question (

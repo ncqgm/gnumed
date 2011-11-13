@@ -15,6 +15,7 @@ import wx, wx.grid, wx.lib.hyperlink
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmLOINC
@@ -1208,7 +1209,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		else:
 			self._DPRW_evaluated.SetData(data =	None)
 		self._TCTRL_note_test_org.SetValue(u'')
-		self._PRW_intended_reviewer.SetData(gmPerson.gmCurrentProvider()['pk_staff'])
+		self._PRW_intended_reviewer.SetData(gmStaff.gmCurrentProvider()['pk_staff'])
 		self._PRW_problem.SetData()
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)

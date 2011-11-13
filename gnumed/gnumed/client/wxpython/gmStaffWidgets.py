@@ -9,6 +9,7 @@ import wx
 
 from Gnumed.pycommon import gmTools, gmI18N
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
 
@@ -35,7 +36,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		lbl_login = {True: _('can login'), False: _('can not login')}
 
 		self._LCTRL_staff.DeleteAllItems()
-		staff_list = gmPerson.get_staff_list()
+		staff_list = gmStaff.get_staff_list()
 		pos = len(staff_list) + 1
 		for staff in staff_list:
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
@@ -84,7 +85,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._btn_activate.Enable(True)
 		# fill editor
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff = gmStaff.cStaff(aPK_obj=pk_staff)
 		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
 		self._TCTRL_alias.SetValue(staff['short_alias'])
 		self._TCTRL_account.SetValue(staff['db_user'])
@@ -106,7 +107,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Activating GNUmed user.'))
 		if conn is None:
 			return False
-		gmPerson.activate_staff(conn = conn, pk_staff = pk_staff)
+		gmStaff.activate_staff(conn = conn, pk_staff = pk_staff)
 		conn.close()
 		self.__init_ui_data()
 		return True
@@ -116,7 +117,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Deactivating GNUmed user.'))
 		if conn is None:
 			return False
-		gmPerson.deactivate_staff(conn = conn, pk_staff = pk_staff)
+		gmStaff.deactivate_staff(conn = conn, pk_staff = pk_staff)
 		conn.close()
 		self.__init_ui_data()
 		return True
@@ -126,7 +127,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Removing GNUmed user.'))
 		if conn is None:
 			return False
-		success, msg = gmPerson.delete_staff(conn = conn, pk_staff = pk_staff)
+		success, msg = gmStaff.delete_staff(conn = conn, pk_staff = pk_staff)
 		conn.close()
 		self.__init_ui_data()
 		if not success:
@@ -141,7 +142,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if conn is None:
 			return False
 
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff = gmStaff.cStaff(aPK_obj=pk_staff)
 		staff['short_alias'] = self._TCTRL_alias.GetValue()
 		staff['db_user'] = self._TCTRL_account.GetValue()
 		staff['comment'] = self._TCTRL_comment.GetValue()
@@ -214,7 +215,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			return False
 
 		# create new user
-		success, msg = gmPerson.create_staff (
+		success, msg = gmStaff.create_staff (
 			conn = conn,
 			db_account = self._TXT_account.GetValue(),
 			password = self._TXT_password.GetValue(),

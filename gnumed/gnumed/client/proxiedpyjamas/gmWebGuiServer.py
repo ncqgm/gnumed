@@ -22,8 +22,10 @@ from Gnumed.pycommon.gmBusinessDBObject import jsonclasshintify
 from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmPersonSearch
+
 
 #try:
 #   _('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -406,7 +408,7 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         return jsonclasshintify(messages)
 
     def get_provider_inbox_data(self):
-        self.provider = gmPerson.gmCurrentProvider(provider=gmPerson.cStaff())
+        self.provider = gmStaff.gmCurrentProvider(provider=gmStaff.cStaff())
         inbox = gmProviderInbox.cProviderInbox()
         self.__msgs = inbox.messages
         return jsonclasshintify(inbox.messages)

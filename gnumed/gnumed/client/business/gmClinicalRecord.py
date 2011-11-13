@@ -90,10 +90,10 @@ class cClinicalRecord(object):
 		args = {'todo': u'patient [%s]' % aPKey}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
-		from Gnumed.business import gmSurgery, gmPerson
+		from Gnumed.business import gmSurgery, gmStaff
 		global _me
 		if _me is None:
-			_me = gmPerson.gmCurrentProvider()
+			_me = gmStaff.gmCurrentProvider()
 		global _here
 		if _here is None:
 			_here = gmSurgery.gmCurrentPractice()
@@ -2064,7 +2064,6 @@ order by clin_when desc, pk_episode, unified_name"""
 			type = type['pk_test_type']
 
 		if intended_reviewer is None:
-			from Gnumed.business import gmPerson
 			intended_reviewer = _me['pk_staff']
 
 		tr = gmPathLab.create_test_result (

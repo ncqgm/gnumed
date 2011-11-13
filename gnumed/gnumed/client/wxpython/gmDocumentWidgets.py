@@ -17,6 +17,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmSurgery
@@ -511,7 +512,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 
-		me = gmPerson.gmCurrentProvider()
+		me = gmStaff.gmCurrentProvider()
 		if self.__part['pk_intended_reviewer'] == me['pk_staff']:
 			msg = _('(you are the primary reviewer)')
 		else:
@@ -608,7 +609,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 
 		# 2) handle review
 		if self._ChBOX_review.GetValue():
-			provider = gmPerson.gmCurrentProvider()
+			provider = gmStaff.gmCurrentProvider()
 			abnormal = self._ChBOX_abnormal.GetValue()
 			relevant = self._ChBOX_relevant.GetValue()
 			msg = None
@@ -785,7 +786,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._PRW_doc_comment.SetText('')
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
-		me = gmPerson.gmCurrentProvider()
+		me = gmStaff.gmCurrentProvider()
 		self._PhWheel_reviewer.SetText (
 			value = u'%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
