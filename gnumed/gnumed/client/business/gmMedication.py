@@ -671,10 +671,15 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		atc_sens = [
 			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'sensitivity'))
 		]
-		inn_allgs = [ a['allergene'] for a in allgs if a['type'] == u'allergy' ]
-		inn_sens = [ a['allergene'] for a in allgs if a['type'] == u'sensitivity' ]
+		inn_allgs = [
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'allergy'))
+		]
+		inn_sens = [
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'sensitivity'))
+		]
 		# this is rather fragile: FreeDiams won't know what type of UID this is
 		# (but it will assume it is of the type of the drug database in use)
+		# but eventually FreeDiams puts all drugs into one database :-)
 		uid_allgs = [
 			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'allergy'))
 		]

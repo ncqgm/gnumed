@@ -6,6 +6,10 @@
 # rel-0-9-patches
 ------------------------------------------------
 
+	0.9.12
+
+FIX: exception with INN based FreeDiams interaction check
+
 	0.9.11
 
 IMPROVED: add SQL reports to find duplicate streets/urbs/regions
