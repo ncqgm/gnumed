@@ -83,7 +83,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	#--------------------------------------------------------
 	def _on_listitem_selected(self, evt):
 		self._btn_save.Enable(True)
-		self._btn_delete.Enable(True)
+		#self._btn_delete.Enable(True)
 		self._btn_deactivate.Enable(True)
 		self._btn_activate.Enable(True)
 		# fill editor
