@@ -11,6 +11,7 @@
 NEW: staff management: implement deletion
 
 IMPROVED: EMR browser: whole-chart synopsis
+IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-1-patches
