@@ -34,7 +34,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         self._PRW_description.SetToolTipString(_("Type or select the description for this episode. It should be a summary for the episode of illness."))
         self._PRW_certainty.SetToolTipString(_("The diagnostic classification or grading of this episode.\n\nThis documents how certain one is about this episode being a true diagnosis."))
         self._CHBOX_closed.SetToolTipString(_("If this box is checked the episode is over. If not it is currently ongoing."))
-        self._TCTRL_status.SetToolTipString(_("The current status of this episode."))
+        self._TCTRL_status.SetToolTipString(_("A summary of the state of this episode."))
         self._PRW_codes.SetToolTipString(_("Codes relevant to this episode\nseparated by \";\"."))
         # end wxGlade
 
@@ -58,7 +58,7 @@ class wxgEpisodeEditAreaPnl(wx.ScrolledWindow):
         __szr_status.Add(self._PRW_certainty, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 15)
         __szr_status.Add(self._CHBOX_closed, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(__szr_status, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_status = wx.StaticText(self, -1, _("Current\nstatus"))
+        __lbl_status = wx.StaticText(self, -1, _("Synopsis"))
         __gzsr_details.Add(__lbl_status, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __gzsr_details.Add(self._TCTRL_status, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_codes = wx.StaticText(self, -1, _("Codes"))
