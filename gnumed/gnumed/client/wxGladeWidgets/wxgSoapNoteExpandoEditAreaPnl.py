@@ -26,7 +26,7 @@ class wxgSoapNoteExpandoEditAreaPnl(wx.ScrolledWindow):
         self._PRW_soaP_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_soaP = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
         self._PNL_visual_soap = cVisualSoapPresenterPnl(self, -1, style=wx.NO_BORDER)
-        self._LBL_summary = wx.StaticText(self, -1, _("Episode summary"))
+        self._LBL_summary = wx.StaticText(self, -1, _("Episode synopsis"))
         self._PRW_episode_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_episode_summary = cSoapLineTextCtrl(self, -1, "", style=wx.TE_WORDWRAP|wx.NO_BORDER)
 

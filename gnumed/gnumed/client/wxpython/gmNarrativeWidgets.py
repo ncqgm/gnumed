@@ -1574,7 +1574,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		expando text ctrl
 	visual progress notes
 		panel with images
-	Episode summary:			Codes:
+	Episode synopsis:			Codes:
 		text ctrl
 
 	- knows the problem this edit area is about
@@ -1615,7 +1615,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 	def refresh_summary(self):
 		self._TCTRL_episode_summary.SetValue(u'')
 		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
-		self._LBL_summary.SetLabel(_('Episode summary'))
+		self._LBL_summary.SetLabel(_('Episode synopsis'))
 
 		# new problem ?
 		if self.problem is None:
@@ -1626,7 +1626,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			return
 
 		# episode-level problem
-		caption = _(u'Summary (%s)') % (
+		caption = _(u'Synopsis (%s)') % (
 			gmDateTime.pydt_strftime (
 				self.problem['modified_when'],
 				format = '%B %Y',
@@ -1665,7 +1665,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.soap_fields:
 			field.SetValue(u'')
 		self._TCTRL_episode_summary.SetValue(u'')
-		self._LBL_summary.SetLabel(_('Episode summary'))
+		self._LBL_summary.SetLabel(_('Episode synopsis'))
 		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
 		self._PNL_visual_soap.clear()
 	#--------------------------------------------------------

@@ -254,7 +254,7 @@
                         <option>1</option>
                         <object class="wxStaticText" name="_LBL_summary" base="EditStaticText">
                             <attribute>1</attribute>
-                            <label>Episode summary</label>
+                            <label>Episode synopsis</label>
                         </object>
                     </object>
                     <object class="sizeritem">
