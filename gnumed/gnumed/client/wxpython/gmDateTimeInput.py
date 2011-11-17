@@ -628,8 +628,11 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		if date is None:
 			return False
 
-		self.SetValue(value = date.format_accurately(accuracy = self.display_accuracy))
-		self.data = date
+		self.SetText (
+			value = date.format_accurately(accuracy = self.display_accuracy),
+			data = date,
+			suppress_smarts = True
+		)
 
 		return True
 #==================================================
