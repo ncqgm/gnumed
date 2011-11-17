@@ -197,26 +197,38 @@ class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [u"""
-select *
-from (
-	select distinct on (comment) *
-	from (
-		-- keyed by doc type
-		select comment, comment as pk, 1 as rank
-		from blobs.doc_med
-		where
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (field_label) *
+	FROM (
+		-- constrained by doc type
+		SELECT
+			comment AS data,
+			comment AS field_label,
+			comment AS list_label,
+			1 AS rank
+		FROM blobs.doc_med
+		WHERE
 			comment %(fragment_condition)s
 			%(ctxt_doc_type)s
 
-		union all
+		UNION ALL
 
-		select comment, comment as pk, 2 as rank
-		from blobs.doc_med
-		where comment %(fragment_condition)s
-	) as q_union
-) as q_distinct
-order by rank, comment
-limit 25"""],
+		SELECT
+			comment AS data,
+			comment AS field_label,
+			comment AS list_label,
+			2 AS rank
+		FROM blobs.doc_med
+		WHERE
+			comment %(fragment_condition)s
+	) AS q_union
+) AS q_distinct
+ORDER BY rank, list_label
+LIMIT 25"""],
 			context = context
 		)
 		mp.setThresholds(3, 5, 7)
@@ -398,7 +410,11 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""SELECT * FROM ((
+u"""SELECT
+	data,
+	field_label,
+	list_label
+FROM ((
 	SELECT
 		pk_doc_type AS data,
 		l10n_type AS field_label,
@@ -421,7 +437,7 @@ u"""SELECT * FROM ((
 			AND
 		l10n_type %(fragment_condition)s
 )) AS q1
-ORDER BY q1.rank, q1.field_label"""]
+ORDER BY q1.rank, q1.list_label"""]
 			)
 		mp.setThresholds(2, 4, 6)
 

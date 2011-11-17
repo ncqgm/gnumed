@@ -8,6 +8,8 @@
 
 	1.1.4
 
+FIX: document comment phrasewheel exception [thanks S.Reus]
+
 IMPROVED: placeholder $<current_provider_external_id::type//issuer::length>$
 IMPROVED: staff list editor: disable non-functional [Delete] button [thanks J.Busser]
 IMPROVED: episode/issue EA: "Synopsis" field label/tooltip [thanks J.Busser]
