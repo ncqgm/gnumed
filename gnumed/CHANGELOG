@@ -10,6 +10,8 @@
 
 FIX: document comment phrasewheel exception [thanks S.Reus]
 FIX: exception in fuzzy timestamp PRW when not actively selecting from dropdown [thanks S.Reus]
+FIX: exception in date input prw when not actively selecting from dropdown [thanks S.Reus]
+FIX: exception on using "n" -> "now" in date input PRW
 
 IMPROVED: placeholder $<current_provider_external_id::type//issuer::length>$
 IMPROVED: staff list editor: disable non-functional [Delete] button [thanks J.Busser]

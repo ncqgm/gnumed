@@ -762,11 +762,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._PRW_encounter_start.add_callback_on_lose_focus(callback = self._on_encounter_start_lost_focus)
 	#--------------------------------------------------------
 	def _on_encounter_start_lost_focus(self):
-		start = self._PRW_encounter_start.GetData().get_pydt()
+		start = self._PRW_encounter_start.GetData()
 		if start is None:
 			return
+		start = start.get_pydt()
 
-		end = self._PRW_encounter_end.GetData().get_pydt()
+		end = self._PRW_encounter_end.GetData()
 		if end is None:
 			fts = gmDateTime.cFuzzyTimestamp (
 				timestamp = start,
@@ -774,6 +775,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			)
 			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 			return
+		end = end.get_pydt()
 
 		if start > end:
 			end = end.replace (
