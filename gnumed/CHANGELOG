@@ -20,6 +20,7 @@ IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
 	1.1.4
 
 FIX: document comment phrasewheel exception [thanks S.Reus]
+FIX: exception in fuzzy timestamp PRW when not actively selecting from dropdown [thanks S.Reus]
 
 IMPROVED: placeholder $<current_provider_external_id::type//issuer::length>$
 IMPROVED: staff list editor: disable non-functional [Delete] button [thanks J.Busser]
