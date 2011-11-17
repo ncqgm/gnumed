@@ -773,7 +773,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	# right now
 	if str2parse == trigger_chars[0]:
 		return [{
-			'data': mxtd2py_dt(now),
+			'data': mxdt2py_dt(now),
 			'label': _('right now (%s, %s)') % (now.strftime('%A').decode(enc), now)
 		}]
 
