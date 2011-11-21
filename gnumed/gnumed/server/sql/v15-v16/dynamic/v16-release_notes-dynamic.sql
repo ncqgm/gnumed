@@ -18,18 +18,24 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.3 (database v16.3)',
-	'GNUmed 1.1.3 Release Notes:
+	'Release Notes for GNUmed 1.1.4 (database v16.4)',
+	'GNUmed 1.1.4 Release Notes:
 
-	1.1.3
+	1.1.4
 
-FIX: phrasewheel exception on test types without .code [thanks J.Busser]
+FIX: document comment phrasewheel exception [thanks S.Reus]
+FIX: exception in fuzzy timestamp PRW when not actively selecting from dropdown [thanks S.Reus]
+FIX: exception in date input prw when not actively selecting from dropdown [thanks S.Reus]
+FIX: exception on using "n" -> "now" in date input PRW
+FIX: failure to properly propagate changes to the current encounter [thanks J.Busser]
 
-	16.3
+IMPROVED: placeholder $<current_provider_external_id::type//issuer::length>$
+IMPROVED: staff list editor: disable non-functional [Delete] button [thanks J.Busser]
+IMPROVED: episode/issue EA: "Synopsis" field label/tooltip [thanks J.Busser]
 
-FIX: failure to create gm-staff group role when bootstrapping in a virgin PostgreSQL [thanks Debian]
+	16.4
 
-IMPROVED: robustify GNUmed related PostgreSQL roles management
+IMPROVED: make i18n._() check language "generic" before returning untranslated string
 ');
 
 -- --------------------------------------------------------------
