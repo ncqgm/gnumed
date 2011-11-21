@@ -166,9 +166,12 @@ class cBusinessDBObject(object):
 	<_cmds_store_payload>
 		- one or multiple "update ... set ... where xmin_* = ..." statements
 		  which actually update the database from the data in self._payload,
-		- the last query must refetch the XMIN values needed to detect
+		- the last query must refetch at least the XMIN values needed to detect
 		  concurrent updates, their field names had better be the same as
-		  in _cmd_fetch_payload
+		  in _cmd_fetch_payload,
+		- when subclasses tend to live a while after save_payload() was
+		  called and they support computed fields (say, _(some_column)
+		  you need to return *all* columns (see cEncounter)
 
 	<_updatable_fields>
 		- a list of fields available for update via object['field']
