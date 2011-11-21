@@ -1206,17 +1206,19 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
 	_cmds_store_payload = [
-		u"""update clin.encounter set
+		u"""UPDATE clin.encounter SET
 				started = %(started)s,
 				last_affirmed = %(last_affirmed)s,
 				fk_location = %(pk_location)s,
 				fk_type = %(pk_type)s,
 				reason_for_encounter = gm.nullify_empty_string(%(reason_for_encounter)s),
 				assessment_of_encounter = gm.nullify_empty_string(%(assessment_of_encounter)s)
-			where
-				pk = %(pk_encounter)s and
-				xmin = %(xmin_encounter)s""",
-		u"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
+			WHERE
+				pk = %(pk_encounter)s AND
+				xmin = %(xmin_encounter)s
+			""",
+		# need to return all fields so we can survive in-place upgrades
+		u"""select * from clin.v_pat_encounters where pk_encounter = %(pk_encounter)s"""
 	]
 	_updatable_fields = [
 		'started',

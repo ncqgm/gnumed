@@ -151,6 +151,7 @@ SELECT fk_encounter from
 		return True
 	#--------------------------------------------------------
 	def db_callback_encounter_mod_db(self, **kwds):
+
 		# get the current encounter as an extra instance
 		# from the database to check for changes
 		curr_enc_in_db = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
