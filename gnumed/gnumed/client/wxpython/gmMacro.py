@@ -109,6 +109,7 @@ known_variant_placeholders = [
 	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
+	u'primary_praxis_provider_external_id'	# args: <type of ID>//<issuer of ID>
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -669,6 +670,30 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return None
 
 		prov = gmStaff.gmCurrentProvider()
+		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
+
+		if len(ids) == 0:
+			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+
+		return ids[0]['value']
+	#--------------------------------------------------------
+	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
+		data_parts = data.split(u'//')
+		if len(data_parts) < 2:
+			return None
+
+		id_type = data_parts[0].strip()
+		if id_type == u'':
+			return None
+
+		issuer = data_parts[1].strip()
+		if issuer == u'':
+			return None
+
+		prov = self.pat.primary_provider
+		if prov is None:
+			return _('no primary in-praxis provider')
+
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
@@ -1274,7 +1299,8 @@ if __name__ == '__main__':
 			#u'primary_praxis_provider',
 			#u'current_provider',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
-			u'current_provider_external_id::LANR//LÄK::1234'
+			#u'current_provider_external_id::LANR//LÄK::1234'
+			u'primary_praxis_provider_external_id::LANR//LÄK::1234'
 		]
 
 		handler = gmPlaceholderHandler()
