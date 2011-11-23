@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.5
+
+IMPROVED: placeholder $<primary_praxis_provider_external_id::type//issuer::length>$
+
 	1.1.4
 
 FIX: document comment phrasewheel exception [thanks S.Reus]
