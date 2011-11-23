@@ -1084,7 +1084,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None
-		return cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
+		from Gnumed.business import gmStaff
+		return gmStaff.cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
 
 	primary_provider = property(_get_primary_provider, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1394,14 +1395,14 @@ def set_active_patient(patient=None, forced_reload=False):
 		pat = patient
 	elif isinstance(patient, cIdentity):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
-	elif isinstance(patient, cStaff):
-		pat = cPatient(aPK_obj=patient['pk_identity'])
+#	elif isinstance(patient, cStaff):
+#		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, gmCurrentPatient):
 		pat = patient.patient
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cStaff, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+		raise ValueError('<patient> must be either -1, cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
 
 	# attempt to switch
 	try:
@@ -1524,9 +1525,9 @@ if __name__ == '__main__':
 		print pat['dob']
 		#pat['dob'] = 'test'
 
-		staff = cStaff()
-		print "setting active patient with", staff
-		set_active_patient(patient=staff)
+#		staff = cStaff()
+#		print "setting active patient with", staff
+#		set_active_patient(patient=staff)
 
 		print "setting active patient with -1"
 		set_active_patient(patient=-1)

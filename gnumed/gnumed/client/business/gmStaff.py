@@ -102,7 +102,8 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	inbox = property(_get_inbox, _set_inbox)
 	#--------------------------------------------------------
 	def _get_identity(self):
-		return cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
+		from Gnumed.business import gmPerson
+		return gmPerson.cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
 #============================================================
