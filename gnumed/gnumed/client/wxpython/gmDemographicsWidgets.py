@@ -1917,8 +1917,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 class cPersonDemographicsEditorNb(wx.Notebook):
 	"""Notebook displaying demographics editing pages:
 
+		- Identity (as per Jim/Rogerio 12/2011)
 		- Contacts (addresses, phone numbers, etc)
-		- Identity
 		- Social network (significant others, GP, etc)
 
 	Does NOT act on/listen to the current patient.
@@ -1953,15 +1953,6 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 	def __do_layout(self):
 		"""Build patient edition notebook pages."""
 
-		# contacts page
-		new_page = gmPersonContactWidgets.cPersonContactsManagerPnl(self, -1)
-		new_page.identity = self.__identity
-		self.AddPage (
-			page = new_page,
-			text = _('Contacts'),
-			select = True
-		)
-
 		# identity page
 		new_page = cPersonIdentityManagerPnl(self, -1)
 		new_page.identity = self.__identity
@@ -1969,6 +1960,15 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 			page = new_page,
 			text = _('Identity'),
 			select = False
+		)
+
+		# contacts page
+		new_page = gmPersonContactWidgets.cPersonContactsManagerPnl(self, -1)
+		new_page.identity = self.__identity
+		self.AddPage (
+			page = new_page,
+			text = _('Contacts'),
+			select = True
 		)
 
 		# social network page
