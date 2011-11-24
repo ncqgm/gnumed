@@ -1288,12 +1288,27 @@ class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
-				select distinct on (description) description, description, 1
-				from clin.episode
-				where description %(fragment_condition)s
-				order by description
-				limit 30"""
+			queries = [
+u"""
+SELECT DISTINCT ON (description)
+	description
+		AS data,
+	description
+		AS field_label,
+	description || ' ('
+	|| CASE
+		WHEN is_open IS TRUE THEN _('ongoing')
+		ELSE _('closed')
+	   END
+	|| ')'
+		AS list_label
+FROM
+	clin.episode
+WHERE
+	description %(fragment_condition)s
+ORDER BY description
+LIMIT 30
+"""
 			]
 		)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
@@ -1640,23 +1655,41 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
-			queries = [u"""
-(select pk_health_issue, description, 1
-	from clin.v_health_issues where
-		is_active is true and
-		description %(fragment_condition)s and
+			queries = [
+u"""
+SELECT
+	data,
+	field_label,
+	list_label
+FROM ((
+	SELECT
+		pk_health_issue AS data,
+		description AS field_label,
+		description AS list_label
+	FROM clin.v_health_issues
+	WHERE
+		is_active IS true
+			AND
+		description %(fragment_condition)s
+			AND
 		%(ctxt_pat)s
-	order by description)
 
-union
+	) UNION (
 
-(select pk_health_issue, description || _(' (inactive)'), 2
-	from clin.v_health_issues where
-		is_active is false and
-		description %(fragment_condition)s and
+	SELECT
+		pk_health_issue AS data,
+		description AS field_label,
+		description || _(' (inactive)') AS list_label
+	FROM clin.v_health_issues
+	WHERE
+		is_active IS false
+			AND
+		description %(fragment_condition)s
+			AND
 		%(ctxt_pat)s
-	order by description)"""
-			],
+)) AS union_query
+ORDER BY
+	list_label"""],
 			context = ctxt
 		)
 

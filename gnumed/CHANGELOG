@@ -21,6 +21,7 @@ IMPROVED: demographics: notebook tab order
 	1.1.5
 
 FIX: properly review partless documents [thanks J.Busser]
+FIX: exception in episode name selection PRW [thanks S.Reus]
 
 IMPROVED: placeholder $<primary_praxis_provider_external_id::type//issuer::length>$
 IMPROVED: robustify browsing URLs against external problems [thanks Sergio]
