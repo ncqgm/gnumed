@@ -1,6 +1,5 @@
 """Widgets dealing with patient demographics."""
 #============================================================
-__version__ = "$Revision: 1.175 $"
 __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -10,7 +9,6 @@ import sys
 import codecs
 import re as regex
 import logging
-import webbrowser
 import os
 
 
@@ -31,6 +29,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPersonSearch
@@ -92,16 +91,8 @@ def manage_tag_images(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
 	def go_to_openclipart_org(tag_image):
-		webbrowser.open (
-			url = u'http://www.openclipart.org',
-			new = False,
-			autoraise = True
-		)
-		webbrowser.open (
-			url = u'http://www.google.com',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = u'http://www.openclipart.org')
+		gmNetworkTools.open_url_in_browser(url = u'http://www.google.com')
 		return True
 	#------------------------------------------------------------
 	def edit(tag_image=None):

@@ -9,11 +9,10 @@ query generators. However, there's always the fallback
 generator.
 """
 #============================================================
-__version__ = "$Revision: 1.132 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
 
-import sys, os.path, glob, datetime as pyDT, re as regex, logging, webbrowser
+import sys, os.path, glob, datetime as pyDT, re as regex, logging
 
 
 import wx
@@ -23,7 +22,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmDispatcher, gmPG2, gmI18N, gmCfg, gmTools
-from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2
+from Gnumed.pycommon import gmDateTime, gmMatchProvider, gmCfg2, gmNetworkTools
 from Gnumed.business import gmPerson
 from Gnumed.business import gmKVK
 from Gnumed.business import gmSurgery
@@ -35,7 +34,6 @@ from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
 
 
 _log = logging.getLogger('gm.person')
-_log.info(__version__)
 
 _cfg = gmCfg2.gmCfgData()
 
@@ -77,11 +75,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 
 		if patient2merge['lastnames'] == u'Kirk':
 			if _cfg.get(option = 'debug'):
-				webbrowser.open (
-					url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg',
-					new = False,
-					autoraise = True
-				)
+				gmNetworkTools.open_url_in_browser(url = 'http://en.wikipedia.org/wiki/File:Picard_as_Locutus.jpg')
 				gmGuiHelpers.gm_show_info(_('\n\nYou will be assimilated.\n\n'), _('The Borg'))
 				return
 			else:

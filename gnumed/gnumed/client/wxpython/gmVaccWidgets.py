@@ -9,7 +9,7 @@ __version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import sys, time, logging, webbrowser
+import sys, time, logging
 
 
 import wx
@@ -18,7 +18,7 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider, gmTools, gmI18N
-from Gnumed.pycommon import gmCfg, gmDateTime
+from Gnumed.pycommon import gmCfg, gmDateTime, gmNetworkTools
 from Gnumed.business import gmPerson, gmVaccination, gmSurgery
 from Gnumed.wxpython import gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
 from Gnumed.wxpython import gmEditArea, gmListWidgets
@@ -634,11 +634,7 @@ def manage_vaccinations(parent=None):
 			default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
 		)
 
-		webbrowser.open (
-			url = url,
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = url)
 		return False
 	#------------------------------------------------------------
 	def edit(vaccination=None):
@@ -946,8 +942,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 				workplace = gmSurgery.gmCurrentPractice().active_workplace,
 				bias = u'user'
 			)
-
-		webbrowser.open(url = url, new = False, autoraise = True)
+		gmNetworkTools.open_url_in_browser(url = url)
 	#----------------------------------------------------------------
 	def _on_add_vaccine_button_pressed(self, event):
 		edit_vaccine(parent = self, vaccine = None, single_entry = False)

@@ -9,7 +9,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 
 # stdlib
-import sys, os, fileinput, webbrowser, logging
+import sys, os, fileinput, logging
 
 
 # 3rd party
@@ -19,7 +19,7 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
+from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N, gmNetworkTools
 from Gnumed.business import gmPerson, gmDataMining, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
@@ -294,9 +294,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
-		# new=2: Python 2.5: open new tab
 		# will block when called in text mode (that is, from a terminal, too !)
-		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=2, autoraise=1)
+		gmNetworkTools.open_url_in_browser(url = u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema')
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()

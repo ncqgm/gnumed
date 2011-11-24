@@ -4,7 +4,7 @@
 __version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path, webbrowser, decimal
+import logging, sys, os.path, decimal
 
 
 import wx, wx.grid
@@ -13,7 +13,7 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2
+from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2, gmNetworkTools
 from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
 from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
@@ -2060,12 +2060,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			sel_rows = self.get_selected_rows()
 			if len(sel_rows) == 1:
 				search_term = self.get_selected_data()[0]
-
-		webbrowser.open (
-			url = gmMedication.drug2renal_insufficiency_url(search_term = search_term),
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
 	#------------------------------------------------------------
 	def report_ADR(self):
 
@@ -2077,8 +2072,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			bias = u'user',
 			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
-
-		webbrowser.open(url = url, new = False, autoraise = True)
+		gmNetworkTools.open_url_in_browser(url = url)
 	#------------------------------------------------------------
 	def prescribe(self):
 		drug_db = get_drug_database()

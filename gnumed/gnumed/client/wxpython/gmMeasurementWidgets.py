@@ -5,7 +5,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os, webbrowser, subprocess, codecs
+import sys, logging, datetime as pyDT, decimal, os, subprocess, codecs
 import os.path
 
 
@@ -114,11 +114,7 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	url = url % {'search_term': measurement_type}
 
-	webbrowser.open (
-		url = url,
-		new = False,
-		autoraise = True
-	)
+	gmNetworkTools.open_url_in_browser(url = url)
 #----------------------------------------------------------------
 def edit_measurement(parent=None, measurement=None, single_entry=False):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)

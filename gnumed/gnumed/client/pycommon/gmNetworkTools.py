@@ -17,6 +17,7 @@ import mimetypes
 import mimetools
 import StringIO
 import zipfile
+import webbrowser
 
 
 # GNUmed libs
@@ -29,6 +30,18 @@ from Gnumed.pycommon import gmCfg2
 
 
 _log = logging.getLogger('gm.net')
+
+#===========================================================================
+# browser access
+#---------------------------------------------------------------------------
+def open_url_in_browser(url, new=2, autoraise=True, *args, **kwargs):
+	# url, new=0, autoraise=True
+	try:
+		webbrowser.open(url, *args, new = new, autoraise = autoraise, **kwargs)
+	except (webbrowser.Error, OSError):
+		_log.exception('error calling browser')
+		return False
+	return True
 #===========================================================================
 def download_file(url, filename=None, suffix=None):
 
@@ -46,6 +59,8 @@ def download_file(url, filename=None, suffix=None):
 	_log.debug(u'%s' % headers)
 	return dl_name
 #===========================================================================
+# data pack handling
+#---------------------------------------------------------------------------
 def download_data_packs_list(url, filename=None):
 	return download_file(url, filename = filename, suffix = 'conf')
 #---------------------------------------------------------------------------
@@ -94,7 +109,7 @@ def install_data_pack(data_pack=None, conn=None):
 
 	_log.error('error installing data pack: %s', data_pack)
 	return False
-#===========================================================================
+#---------------------------------------------------------------------------
 def download_data_pack_old(url, target_dir=None):
 
 	if target_dir is None:
@@ -126,6 +141,8 @@ def download_data_pack_old(url, target_dir=None):
 	_log.error('download failed')
 	return False, None
 #===========================================================================
+# client update handling
+#---------------------------------------------------------------------------
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
 	"""Check for new releases at <url>.
 
@@ -254,6 +271,8 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
+# mail handling
+#---------------------------------------------------------------------------
 default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
@@ -386,8 +405,14 @@ This is a test mail from the gmTools.py module.
 		unzip_dir = unzip_data_pack(dl_name)
 		print "unzipped into", unzip_dir
 	#-----------------------------------------------------------------------
+	def test_browser():
+		success = open_url_in_browser(sys.argv[2])
+		print success
+		open_url_in_browser(sys.argv[2], abc=222)
+	#-----------------------------------------------------------------------
 	#test_check_for_update()
 	#test_send_mail()
-	test_dl_data_pack()
+	#test_dl_data_pack()
+	test_browser()
 
 #===========================================================================
