@@ -8,6 +8,8 @@
 
 	1.1.5
 
+FIX: properly review partless documents [thanks J.Busser]
+
 IMPROVED: placeholder $<primary_praxis_provider_external_id::type//issuer::length>$
 
 	1.1.4

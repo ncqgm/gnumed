@@ -479,7 +479,10 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self.__reviewing_doc = False
 		elif isinstance(part, gmDocuments.cDocument):
 			self.__doc = part
-			self.__part = self.__doc.parts[0]
+			if len(self.__doc.parts) == 0:
+				self.__part = None
+			else:
+				self.__part = self.__doc.parts[0]
 			self.__reviewing_doc = True
 		else:
 			raise ValueError('<part> must be gmDocuments.cDocument or gmDocuments.cDocumentPart instance, got <%s>' % type(part))
@@ -491,20 +494,20 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init_ui_data(self):
 		# FIXME: fix this
 		# associated episode (add " " to avoid popping up pick list)
-		self._PhWheel_episode.SetText('%s ' % self.__part['episode'], self.__part['pk_episode'])
-		self._PhWheel_doc_type.SetText(value = self.__part['l10n_type'], data = self.__part['pk_type'])
+		self._PhWheel_episode.SetText('%s ' % self.__doc['episode'], self.__doc['pk_episode'])
+		self._PhWheel_doc_type.SetText(value = self.__doc['l10n_type'], data = self.__doc['pk_type'])
 		self._PhWheel_doc_type.add_callback_on_set_focus(self._on_doc_type_gets_focus)
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
 		if self.__reviewing_doc:
-			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
-			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__doc['comment'], ''))
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__doc['pk_type'])
 		else:
 			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
 
-		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
+		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__doc['clin_when'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
-		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
+		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__doc['ext_ref'], ''))
 		if self.__reviewing_doc:
 			self._TCTRL_filename.Enable(False)
 			self._SPINCTRL_seq_idx.Enable(False)
@@ -527,28 +530,36 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 
-		me = gmPerson.gmCurrentProvider()
-		if self.__part['pk_intended_reviewer'] == me['pk_staff']:
-			msg = _('(you are the primary reviewer)')
+		if self.__part is None:
+			self._ChBOX_review.SetValue(False)
+			self._ChBOX_review.Enable(False)
+			self._ChBOX_abnormal.Enable(False)
+			self._ChBOX_relevant.Enable(False)
+			self._ChBOX_sign_all_pages.Enable(False)
 		else:
-			msg = _('(someone else is the primary reviewer)')
-		self._TCTRL_responsible.SetValue(msg)
+			me = gmPerson.gmCurrentProvider()
+			if self.__part['pk_intended_reviewer'] == me['pk_staff']:
+				msg = _('(you are the primary reviewer)')
+			else:
+				msg = _('(someone else is the primary reviewer)')
+			self._TCTRL_responsible.SetValue(msg)
+			# init my review if any
+			if self.__part['reviewed_by_you']:
+				revs = self.__part.get_reviews()
+				for rev in revs:
+					if rev['is_your_review']:
+						self._ChBOX_abnormal.SetValue(bool(rev[2]))
+						self._ChBOX_relevant.SetValue(bool(rev[3]))
+						break
 
-		# init my review if any
-		if self.__part['reviewed_by_you']:
-			revs = self.__part.get_reviews()
-			for rev in revs:
-				if rev['is_your_review']:
-					self._ChBOX_abnormal.SetValue(bool(rev[2]))
-					self._ChBOX_relevant.SetValue(bool(rev[3]))
-					break
-
-		self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
+			self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
 
 		return True
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
+		if self.__part is None:
+			return True
 		revs = self.__part.get_reviews()		# FIXME: this is ugly as sin, it should be dicts, not lists
 		if len(revs) == 0:
 			return True
