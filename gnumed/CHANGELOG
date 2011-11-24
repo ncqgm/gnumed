@@ -906,6 +906,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v16
 ------------------------------------------------
 
+	16.5
+
+FIX: inability to store document descriptions > 1/3 of a PG buffer page [thanks J.Busser]
+
 	16.4
 
 IMPROVED: make i18n._() check language "generic" before returning untranslated string
