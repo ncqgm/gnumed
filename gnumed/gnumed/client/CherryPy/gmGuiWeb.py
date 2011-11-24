@@ -20,7 +20,7 @@ except ImportError:
 
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2, re as regex
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, shutil, logging, urllib2, re as regex
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks

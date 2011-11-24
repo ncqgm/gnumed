@@ -9,7 +9,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import re, sys, time, os, cPickle, zlib, locale, os.path
-import datetime as pyDT, webbrowser, shutil, logging, urllib2
+import datetime as pyDT, shutil, logging, urllib2
 
 # json-rpc
 from jsonserver import SimpleForkingJSONRPCServer, CloseConnection

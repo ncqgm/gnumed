@@ -17,7 +17,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
 import sys, time, os, locale, os.path, datetime as pyDT
-import webbrowser, shutil, logging, urllib2, subprocess, glob
+import shutil, logging, urllib2, subprocess, glob
 
 
 # 3rd party libs
@@ -48,7 +48,7 @@ if (version < 28) or ('unicode' not in wx.PlatformInfo):
 # GNUmed libs
 from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N
 from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
+from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2, gmNetworkTools
 
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
 from Gnumed.business import gmVaccination
@@ -2210,21 +2210,13 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'],
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
 		gmMedicationWidgets.jump_to_drug_database()
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
-		webbrowser.open (
-			url = 'http://www.kompendium.ch',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = u'http://www.kompendium.ch')
 	#----------------------------------------------
 	# Office
 	#----------------------------------------------
@@ -2280,32 +2272,16 @@ class gmTopLevelFrame(wx.Frame):
 		wx.lib.inspection.InspectionTool().Show()
 	#----------------------------------------------
 	def __on_display_bugtracker(self, evt):
-		webbrowser.open (
-			url = 'https://bugs.launchpad.net/gnumed/',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'https://bugs.launchpad.net/gnumed/')
 	#----------------------------------------------
 	def __on_display_wiki(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de')
 	#----------------------------------------------
 	def __on_display_user_manual_online(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual')
 	#----------------------------------------------
 	def __on_menu_reference(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
