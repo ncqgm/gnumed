@@ -72,10 +72,10 @@ class cMainTopPanel(wx.Panel):
 
 		# create rows
 		# - top row
-		# .--------------------------------------.
-		# | details | patient  | age | allergies |
-		# | button  | selector |     |           |
-		# `--------------------------------------'
+		# .----------------------------.
+		# | patient  | age | allergies |
+		# | selector |     |           |
+		# `----------------------------'
 		self.szr_top_row = wx.BoxSizer(wx.HORIZONTAL)
 
 		#  - details button
