@@ -687,16 +687,35 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 				e['pk_encounter']
 			] for e in encs
 		]
-
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = encs)
+		active_pk = emr.active_encounter['pk_encounter']
+		for idx in range(len(encs)):
+			e = encs[idx]
+			if e['pk_encounter'] == active_pk:
+				lctrl.SetItemTextColour(idx, col=wx.NamedColour('RED'))
 	#--------------------
 	def new():
-		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID)
+		cfg_db = gmCfg.cCfgSQL()
+		# FIXME: look for MRU/MCU encounter type config here
+		enc_type = cfg_db.get2 (
+			option = u'encounter.default_type',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = u'in surgery'
+		)
+		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID, enc_type = enc_type)
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
 	def edit(enc=None):
 		return edit_encounter(parent = parent, encounter = enc)
+	#--------------------
+	def edit_active(enc=None):
+		return edit_encounter(parent = parent, encounter = emr.active_encounter)
+	#--------------------
+	def start_new(enc=None):
+		start_new_encounter(emr = emr)
+		return True
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
@@ -708,7 +727,9 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = new,
-		ignore_OK_button = ignore_OK_button
+		ignore_OK_button = ignore_OK_button,
+		left_extra_button = (_('Edit active'), _('Edit the active encounter'), edit_active),
+		middle_extra_button = (_('Start new'), _('Start new active encounter for the current patient.'), start_new)
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
