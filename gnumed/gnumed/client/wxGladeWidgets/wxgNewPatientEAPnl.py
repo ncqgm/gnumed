@@ -137,7 +137,7 @@ class wxgNewPatientEAPnl(wx.Panel):
         __szr_address.Add(__lbl_address_heading, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_address.Add((20, 20), 1, wx.EXPAND, 0)
         __fgsizer_details.Add(__szr_address, 1, wx.EXPAND, 0)
-        __lbl_address = wx.StaticText(self, -1, _("Search"))
+        __lbl_address = wx.StaticText(self, -1, _("Search existing"))
         __fgsizer_details.Add(__lbl_address, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __fgsizer_details.Add(self._PRW_address_searcher, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_zip = wx.StaticText(self, -1, _("Postal code"))
