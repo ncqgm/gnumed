@@ -995,13 +995,33 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_encounter_type.Refresh()
 
-		if (not self._PRW_start.is_valid_timestamp()) or (self._PRW_start.GetValue().strip() == u''):
+		# start
+		if self._PRW_start.GetValue().strip() == u'':
+			self._PRW_start.SetBackgroundColour('pink')
+			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
 			return False
+		if not self._PRW_start.is_valid_timestamp():
+			self._PRW_start.SetBackgroundColour('pink')
+			self._PRW_start.Refresh()
+			self._PRW_start.SetFocus()
+			return False
+		self._PRW_start.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_start.Refresh()
 
-		if (not self._PRW_end.is_valid_timestamp()) or (self._PRW_end.GetValue().strip() == u''):
+		# last_affirmed
+		if self._PRW_end.GetValue().strip() == u'':
+			self._PRW_end.SetBackgroundColour('pink')
+			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
 			return False
+		if not self._PRW_end.is_valid_timestamp():
+			self._PRW_end.SetBackgroundColour('pink')
+			self._PRW_end.Refresh()
+			self._PRW_end.SetFocus()
+			return False
+		self._PRW_end.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_end.Refresh()
 
 		return True
 	#--------------------------------------------------------
