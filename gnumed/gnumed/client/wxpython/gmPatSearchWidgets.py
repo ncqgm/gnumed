@@ -927,7 +927,7 @@ def _check_for_provider_chart_access(patient=None):
 			'You have selected the chart of a member of staff,\n'
 			'for whom privacy is especially important:\n'
 			'\n'
-			'  %s (%s)\n'
+			'  %s, %s\n'
 			'\n'
 			'This may be OK depending on circumstances.\n'
 			'\n'
