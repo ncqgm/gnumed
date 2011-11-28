@@ -20,6 +20,11 @@ IMPROVED: encounter list: [Start new], [Edit active], show active in red
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.6
+
+IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
+IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
+
 	1.1.5
 
 FIX: properly review partless documents [thanks J.Busser]

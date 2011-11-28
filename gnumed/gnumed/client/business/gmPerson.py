@@ -415,6 +415,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------
+	def _get_gender_symbol(self):
+		return map_gender2symbol[self._payload[self._idx['gender']]]
+
+	gender_symbol = property(_get_gender_symbol, lambda x:x)
+	#--------------------------------------------------------
 	def get_active_name(self):
 		for name in self.get_names():
 			if name['active_name'] is True:
@@ -449,20 +454,20 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		)
 	#--------------------------------------------------------
 	def get_description_gender(self):
-		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)') % {
 			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s'),
-			'sex': map_gender2salutation(self._payload[self._idx['gender']]),
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'"),
+			'sex': self.gender_symbol
 		}
 	#--------------------------------------------------------
 	def get_description(self):
-		return '%(last)s,%(title)s %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s') % {
 			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s'),
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'")
 		}
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
