@@ -161,15 +161,13 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.SetItemHasChildren(root_item, True)
 		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
 		if self.__pat['deceased'] is None:
-			self.__root_tooltip += u' %s  %s (%s)\n\n' % (
-				gmPerson.map_gender2symbol[self.__pat['gender']],
+			self.__root_tooltip += u' %s (%s)\n\n' % (
 				self.__pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
 				self.__pat['medical_age']
 			)
 		else:
-			template = u' %s  %s - %s (%s)\n\n'
+			template = u' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
-				gmPerson.map_gender2symbol[self.__pat['gender']],
 				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
 				self.__pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
 				self.__pat['medical_age']
