@@ -35,9 +35,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._CHBOX_irrelevant_issues = wx.CheckBox(self.__splitter_left_top_pnl, -1, _("Non-relevant issues"))
         self._LCTRL_active_problems = gmListWidgets.cReportListCtrl(self.__splitter_left_top_pnl, -1, style=wx.LC_REPORT|wx.NO_BORDER)
         self._TCTRL_recent_notes = wx.TextCtrl(self.__splitter_left_bottom_pnl, -1, _("In this area GNUmed will place the notes of the\nprevious encounter as well as notes by other\nstaff for the current encounter.\n\nNote that this may change depending on which\nactive problem is selected in the editor below."), style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PRW_encounter_type = cEncounterTypePhraseWheel(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
-        self._PRW_encounter_start = cFuzzyTimestampInput(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
-        self._PRW_encounter_end = cFuzzyTimestampInput(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_rfe = wx.TextCtrl(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
         self._PRW_rfe_codes = cGenericCodesPhraseWheel(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
         self._TCTRL_aoe = wx.TextCtrl(self.__splitter_main_right_pnl, -1, "", style=wx.NO_BORDER)
@@ -49,7 +46,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_save_note = wx.Button(self.__splitter_main_right_pnl, -1, _("&Save"), style=wx.BU_EXACTFIT)
         self._BTN_save_note_under = wx.Button(self.__splitter_main_right_pnl, -1, _("Save &under"), style=wx.BU_EXACTFIT)
         self._BTN_image = wx.Button(self.__splitter_main_right_pnl, -1, _("&Image"), style=wx.BU_EXACTFIT)
-        self._BTN_new_encounter = wx.Button(self.__splitter_main_right_pnl, -1, _("New"), style=wx.BU_EXACTFIT)
         self._BTN_save_encounter = wx.Button(self.__splitter_main_right_pnl, -1, _("Save"), style=wx.BU_EXACTFIT)
         self._BTN_save_all = wx.Button(self.__splitter_main_right_pnl, -1, _("Save &all"), style=wx.BU_EXACTFIT)
 
@@ -68,7 +64,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_save_note_button_pressed, self._BTN_save_note)
         self.Bind(wx.EVT_BUTTON, self._on_save_note_under_button_pressed, self._BTN_save_note_under)
         self.Bind(wx.EVT_BUTTON, self._on_image_button_pressed, self._BTN_image)
-        self.Bind(wx.EVT_BUTTON, self._on_new_encounter_button_pressed, self._BTN_new_encounter)
         self.Bind(wx.EVT_BUTTON, self._on_save_encounter_button_pressed, self._BTN_save_encounter)
         self.Bind(wx.EVT_BUTTON, self._on_save_all_button_pressed, self._BTN_save_all)
         # end wxGlade
@@ -79,9 +74,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._CHBOX_irrelevant_issues.SetToolTipString(_("Show issues marked clinically NOT relevant."))
         self._LCTRL_active_problems.SetToolTipString(_("This shows the list of active problems, They include open episodes as well as active health issues."))
         self._TCTRL_recent_notes.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_3DFACE))
-        self._PRW_encounter_type.SetToolTipString(_("Select the type of encounter."))
-        self._PRW_encounter_start.SetToolTipString(_("Date and time when the current (!) encounter started."))
-        self._PRW_encounter_end.SetToolTipString(_("Date and time when the current (!) encounter ends."))
         self._TCTRL_rfe.SetToolTipString(_("Also known as the Reason For Encounter/Visit (RFE).\n\nOptionally captures why the consultation takes place.\n\nIt may be due to a patient request or it may be prompted by other reasons. Often initially collected at the front desk and put into a waiting list comment. May turn out to just be a proxy request for why the patient really is here."))
         self._PRW_rfe_codes.SetToolTipString(_("Codes relevant to the Reason for Encounter\nseparated by \";\"."))
         self._TCTRL_aoe.SetToolTipString(_("Also known as the Assessment of Encounter/Visit (AOE)\n\nOptionally summarizes the outcome/assessment of the consultation from the doctors point of view.\n\nNote that this summary spans all the problems discussed during this encounter."))
@@ -92,7 +84,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_save_note.SetToolTipString(_("Save the currently displayed progress note under the current encounter."))
         self._BTN_save_note_under.SetToolTipString(_("Save the currently displayed note into an encounter selected from a list of encounters."))
         self._BTN_image.SetToolTipString(_("Add a visual progress note for this episode."))
-        self._BTN_new_encounter.SetToolTipString(_("Start a new encounter. If there are any changes to the current encounter you will be asked whether to save them."))
         self._BTN_save_encounter.SetToolTipString(_("Save the encounter details."))
         self._BTN_save_all.SetToolTipString(_("Save encounter details and all progress notes."))
         # end wxGlade
@@ -102,10 +93,9 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __szr_main = wx.BoxSizer(wx.HORIZONTAL)
         __szr_right = wx.StaticBoxSizer(self.__szr_right_staticbox, wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __gszr_encounter_details = wx.FlexGridSizer(3, 2, 2, 5)
+        __gszr_encounter_details = wx.FlexGridSizer(2, 2, 2, 5)
         __szr_aoe = wx.BoxSizer(wx.HORIZONTAL)
         __szr_rfe_details = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_encounter_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_left = wx.BoxSizer(wx.HORIZONTAL)
         _SZR_recent_notes = wx.StaticBoxSizer(self._SZR_recent_notes_staticbox, wx.VERTICAL)
         _SZR_problem_list = wx.StaticBoxSizer(self._SZR_problem_list_staticbox, wx.VERTICAL)
@@ -123,14 +113,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         self._splitter_left.SplitHorizontally(self.__splitter_left_top_pnl, self.__splitter_left_bottom_pnl)
         __szr_left.Add(self._splitter_left, 1, wx.EXPAND, 0)
         self.__splitter_main_left_pnl.SetSizer(__szr_left)
-        __lbl_encounter_details = wx.StaticText(self.__splitter_main_right_pnl, -1, _("Encounter"))
-        __gszr_encounter_details.Add(__lbl_encounter_details, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_encounter_details.Add(self._PRW_encounter_type, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_encounter_details.Add(self._PRW_encounter_start, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __lbl_until = wx.StaticText(self.__splitter_main_right_pnl, -1, _("until"))
-        __szr_encounter_details.Add(__lbl_until, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_encounter_details.Add(self._PRW_encounter_end, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
-        __gszr_encounter_details.Add(__szr_encounter_details, 1, wx.EXPAND, 0)
         __lbl_rfe = wx.StaticText(self.__splitter_main_right_pnl, -1, _("Purpose"))
         __gszr_encounter_details.Add(__lbl_rfe, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_rfe_details.Add(self._TCTRL_rfe, 2, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -160,7 +142,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
         __szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
         __lbl_encounter = wx.StaticText(self.__splitter_main_right_pnl, -1, _("Encounter:"))
         __szr_buttons.Add(__lbl_encounter, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add(self._BTN_new_encounter, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add(self._BTN_save_encounter, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add((1, 1), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_save_all, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
@@ -198,10 +179,6 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
     def _on_problem_activated(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
         print "Event handler `_on_problem_activated' not implemented"
-        event.Skip()
-
-    def _on_new_encounter_button_pressed(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>
-        print "Event handler `_on_new_encounter_button_pressed' not implemented"
         event.Skip()
 
     def _on_problem_selected(self, event): # wxGlade: wxgSoapPluginPnl.<event_handler>

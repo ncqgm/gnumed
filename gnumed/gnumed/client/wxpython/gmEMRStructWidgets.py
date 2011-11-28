@@ -1125,7 +1125,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		self._TCTRL_encounter.SetValue(enc.format(with_docs = False, with_tests = False, fancy_header = False, with_vaccinations = False, with_family_history = False).strip('\n'))
 		self._TCTRL_encounter.SetToolTipString (
 			_('The active encounter of the current patient:\n\n%s') %
-				enc.format(with_docs = False, with_tests = False, fancy_header = True, with_vaccinations = False, with_rfe_aoe = True, with_family_history = False)
+				enc.format(with_docs = False, with_tests = False, fancy_header = True, with_vaccinations = False, with_rfe_aoe = True, with_family_history = False).strip('\n')
 		)
 		self._BTN_new.Enable(True)
 		self._BTN_list.Enable(True)
