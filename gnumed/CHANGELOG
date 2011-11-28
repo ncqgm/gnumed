@@ -8,6 +8,8 @@
 
 	1.1.6
 
+FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
+
 IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
 IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
 
