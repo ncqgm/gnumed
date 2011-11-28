@@ -160,8 +160,9 @@ SELECT fk_encounter from
 		# have got the same transaction ID so there's no change
 		# in the database, there could be a local change in
 		# the active encounter but that doesn't matter
-		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-			return True
+		# THIS DOES NOT WORK
+#		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
+#			return True
 
 		# there must have been a change to the active encounter
 		# committed to the database from elsewhere,

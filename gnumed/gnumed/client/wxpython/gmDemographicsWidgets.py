@@ -2086,7 +2086,6 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
-		print "_on_post_patient_selection: scheduled"
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
