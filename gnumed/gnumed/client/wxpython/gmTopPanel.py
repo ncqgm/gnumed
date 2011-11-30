@@ -141,13 +141,13 @@ class cMainTopPanel(wx.Panel):
 		# (holds most of the buttons)
 		self.szr_bottom_row = wx.BoxSizer(wx.HORIZONTAL)
 		self._PNL_tags = gmDemographicsWidgets.cImageTagPresenterPnl(self, -1)
-		self.szr_bottom_row.Add(self._PNL_tags, 2, wx.GROW, 0)
+		self.szr_bottom_row.Add(self._PNL_tags, 2, wx.ALIGN_CENTER_VERTICAL, 0)
 
 		# spacer
 		self.szr_bottom_row.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
 
 		pnl_enc = gmEMRStructWidgets.cActiveEncounterPnl(self, -1)
-		self.szr_bottom_row.Add(pnl_enc, 1, wx.GROW, 0)
+		self.szr_bottom_row.Add(pnl_enc, 1, wx.ALIGN_CENTER_VERTICAL, 0)
 
 #		self.pnl_bottom_row = wx.Panel(self, -1)
 #		self.szr_bottom_row.Add(self.pnl_bottom_row, 6, wx.GROW, 0)

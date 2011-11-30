@@ -12,7 +12,7 @@ import wx
 class wxgActiveEncounterPnl(wx.Panel):
     def __init__(self, *args, **kwds):
         # begin wxGlade: wxgActiveEncounterPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.SIMPLE_BORDER|wx.TAB_TRAVERSAL
         wx.Panel.__init__(self, *args, **kwds)
         self._TCTRL_encounter = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._BTN_new = wx.Button(self, -1, _("&N"), style=wx.BU_EXACTFIT)
@@ -36,9 +36,9 @@ class wxgActiveEncounterPnl(wx.Panel):
     def __do_layout(self):
         # begin wxGlade: wxgActiveEncounterPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._TCTRL_encounter, 2, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_main.Add(self._BTN_new, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_main.Add(self._BTN_list, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(self._TCTRL_encounter, 2, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 1)
+        __szr_main.Add(self._BTN_new, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 1)
+        __szr_main.Add(self._BTN_list, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 1)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
