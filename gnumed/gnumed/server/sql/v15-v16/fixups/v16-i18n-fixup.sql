@@ -27,13 +27,18 @@ BEGIN
 		select into trans_str trans from i18n.translations where lang = regexp_replace(_lang, ''_.*$'', '''') and orig = _orig;
 
 		if not found then
-			-- check "generic" dummy translation used to work around accentuation problems
-			select into trans_str trans from i18n.translations where lang = ''generic'' and orig = _orig;
-
-			if not found then
-				return _orig;
-			end if;
+			return _orig;
 		end if;
+
+--		if not found then
+--			-- check "generic" dummy translation used to work around accentuation problems
+--			select into trans_str trans from i18n.translations where lang = ''generic'' and orig = _orig;
+--
+--			if not found then
+--				return _orig;
+--			end if;
+--		end if;
+
 	end if;
 
 	return trans_str;
@@ -44,12 +49,11 @@ comment on function i18n._(text, text) is
 'will return either the translation into <lang>::text
  (2nd argument) for the current user or the input,
  created in public schema for easy access,
- will fallback to "xx" if xx_XX does not exist,
- if *that* does not exist it will fallback to "generic"';
+ will fallback to "xx" if xx_XX does not exist';
 
 select _('brother');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v16-i18n-fixup.sql', '16.4');
+select gm.log_script_insertion('v16-i18n-fixup.sql', '16.6');
 
 -- ==============================================================

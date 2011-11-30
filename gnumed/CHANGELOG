@@ -940,6 +940,8 @@ IMPROVED: await <ENTER> before "exit 1" in bootstrap shell scripts [thanks Andre
 
 	16.6
 
+FIX: remove faulty i18n-fixup ("generic" tx target doesn't work as expected) [thanks J.Busser]
+
 IMPROVED: robustify log directory setting in bootstrapper scripts [thanks S.Hilbert]
 
 	16.5
