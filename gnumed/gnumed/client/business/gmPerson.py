@@ -429,14 +429,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return None
 	#--------------------------------------------------------
 	def get_names(self):
-		cmd = u"select * from dem.v_person_names where pk_identity = %(pk_pat)s"
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': cmd,
-				'args': {'pk_pat': self._payload[self._idx['pk_identity']]}
-			}],
-			get_col_idx = True
-		)
+		cmd = u"""
+			SELECT *
+			FROM dem.v_person_names
+			WHERE pk_identity = %(pk_pat)s
+			ORDER BY active_name DESC, lastnames, firstnames
+		"""
+		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
 			# no names registered for patient
