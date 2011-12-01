@@ -24,6 +24,9 @@ IMPROVED: encounter list: [Start new], [Edit active], show active in red
 
 	1.1.6
 
+FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
+FIX: faulty search query for persons w/o a title [thanks J.Busser]
+
 IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
 IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
 
