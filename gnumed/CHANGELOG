@@ -31,6 +31,7 @@ FIX: failure to verify substance intake duration [thanks vbanait]
 IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
 IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
 IMPROVED: demographics: protect against deletion of active name [thanks J.Busser]
+IMPROVED: gracefully fail attempts to duplicate drug component intake [thanks S.Hilbert]
 
 	1.1.5
 

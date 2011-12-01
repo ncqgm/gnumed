@@ -1194,6 +1194,15 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		has_component = (self._PRW_component.GetData() is not None)
 		has_substance = (self._PRW_substance.GetValue().strip() != u'')
 
+		self._PRW_component.display_as_valid(True)
+
+		# cannot enter duplicate components
+		if has_component:
+			emr = gmPerson.gmCurrentPatient().get_emr()
+			if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
+				self._PRW_component.display_as_valid(False)
+				validity = False
+
 		# must have either brand or substance
 		if (has_component is False) and (has_substance is False):
 			self._PRW_substance.display_as_valid(False)
@@ -1201,7 +1210,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			validity = False
 		else:
 			self._PRW_substance.display_as_valid(True)
-			self._PRW_component.display_as_valid(True)
 
 		# brands already have a preparation, so only required for substances
 		if not has_component:
