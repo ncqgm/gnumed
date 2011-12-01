@@ -1169,6 +1169,10 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot delete the only name of a person.'), beep = True)
 			return False
 
+		if name['active_name']:
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot delete the active name of a person.'), beep = True)
+			return False
+
 		go_ahead = gmGuiHelpers.gm_show_question (
 			_(	'It is often advisable to keep old names around and\n'
 				'just create a new "currently active" name.\n'
