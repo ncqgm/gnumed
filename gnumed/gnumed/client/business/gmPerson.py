@@ -415,6 +415,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------
+	def _get_gender_symbol(self):
+		return map_gender2symbol[self._payload[self._idx['gender']]]
+
+	gender_symbol = property(_get_gender_symbol, lambda x:x)
+	#--------------------------------------------------------
 	def get_active_name(self):
 		for name in self.get_names():
 			if name['active_name'] is True:
@@ -424,14 +429,14 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return None
 	#--------------------------------------------------------
 	def get_names(self):
-		cmd = u"select * from dem.v_person_names where pk_identity = %(pk_pat)s"
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': cmd,
-				'args': {'pk_pat': self._payload[self._idx['pk_identity']]}
-			}],
-			get_col_idx = True
-		)
+		cmd = u"""
+			SELECT *
+			FROM dem.v_person_names
+			WHERE pk_identity = %(pk_pat)s
+			ORDER BY active_name DESC, lastnames, firstnames
+		"""
+		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
 			# no names registered for patient
@@ -449,20 +454,20 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		)
 	#--------------------------------------------------------
 	def get_description_gender(self):
-		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)') % {
 			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s'),
-			'sex': map_gender2salutation(self._payload[self._idx['gender']]),
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'"),
+			'sex': self.gender_symbol
 		}
 	#--------------------------------------------------------
 	def get_description(self):
-		return '%(last)s,%(title)s %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s') % {
 			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s'),
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'")
 		}
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
@@ -1123,6 +1128,14 @@ class cPatient(cIdentity):
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
+#		attempt = 1
+#		got_lock = self.__emr_access_lock.acquire(False)
+#		while not got_lock:
+#			if attempt == 100:			# 100 x 500ms -> 50 seconds timeout
+#				raise AttributeError('cannot access EMR')
+#			attempt += 1
+#			time.sleep(0.5)				# 500ms
+#			got_lock = self.__emr_access_lock.acquire(False)
 		if not self.__emr_access_lock.acquire(False):
 			raise AttributeError('cannot access EMR')
 		try:

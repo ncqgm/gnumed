@@ -720,9 +720,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		emr = self.__pat.get_emr()
 		enc = emr.active_encounter
 
-		enc['pk_type'] = self._PRW_encounter_type.GetData()
-		enc['started'] = self._PRW_encounter_start.GetData().get_pydt()
-		enc['last_affirmed'] = self._PRW_encounter_end.GetData().get_pydt()
 		rfe = self._TCTRL_rfe.GetValue().strip()
 		if len(rfe) == 0:
 			enc['reason_for_encounter'] = None
@@ -758,8 +755,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		self._NB_soap_editors.DeleteAllPages()
 		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
-
-		self._PRW_encounter_start.add_callback_on_lose_focus(callback = self._on_encounter_start_lost_focus)
 	#--------------------------------------------------------
 	def _on_encounter_start_lost_focus(self):
 		start = self._PRW_encounter_start.GetData()
@@ -814,9 +809,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._TCTRL_recent_notes.SetValue(u'')
 		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on selected problem'))
 
-		self._PRW_encounter_type.SetText(suppress_smarts = True)
-		self._PRW_encounter_start.SetText(suppress_smarts = True)
-		self._PRW_encounter_end.SetText(suppress_smarts = True)
 		self._TCTRL_rfe.SetValue(u'')
 		self._PRW_rfe_codes.SetText(suppress_smarts = True)
 		self._TCTRL_aoe.SetValue(u'')
@@ -1030,19 +1022,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		emr = self.__pat.get_emr()
 		enc = emr.active_encounter
-		self._PRW_encounter_type.SetText(value = enc['l10n_type'], data = enc['pk_type'])
-
-		fts = gmDateTime.cFuzzyTimestamp (
-			timestamp = enc['started'],
-			accuracy = gmDateTime.acc_minutes
-		)
-		self._PRW_encounter_start.SetText(fts.format_accurately(), data = fts)
-
-		fts = gmDateTime.cFuzzyTimestamp (
-			timestamp = enc['last_affirmed'],
-			accuracy = gmDateTime.acc_minutes
-		)
-		self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
 
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
 		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
@@ -1052,9 +1031,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
 		self._PRW_aoe_codes.SetText(val, data)
 
-		self._PRW_encounter_type.Refresh()
-		self._PRW_encounter_start.Refresh()
-		self._PRW_encounter_end.Refresh()
 		self._TCTRL_rfe.Refresh()
 		self._PRW_rfe_codes.Refresh()
 		self._TCTRL_aoe.Refresh()
@@ -1067,47 +1043,20 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		enc = emr.active_encounter
 
 		data = {
-			'pk_type': self._PRW_encounter_type.GetData(),
+			'pk_type': enc['pk_type'],
 			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
 			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
 			'pk_location': enc['pk_location'],
 			'pk_patient': enc['pk_patient'],
 			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
-			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData()
+			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData(),
+			'started': enc['started'],
+			'last_affirmed': enc['last_affirmed']
 		}
-
-		if self._PRW_encounter_start.GetData() is None:
-			data['started'] = None
-		else:
-			data['started'] = self._PRW_encounter_start.GetData().get_pydt()
-
-		if self._PRW_encounter_end.GetData() is None:
-			data['last_affirmed'] = None
-		else:
-			data['last_affirmed'] = self._PRW_encounter_end.GetData().get_pydt()
 
 		return not enc.same_payload(another_object = data)
 	#--------------------------------------------------------
 	def __encounter_valid_for_save(self):
-
-		found_error = False
-
-		if self._PRW_encounter_type.GetData() is None:
-			found_error = True
-			msg = _('Cannot save encounter: missing type.')
-
-		if self._PRW_encounter_start.GetData() is None:
-			found_error = True
-			msg = _('Cannot save encounter: missing start time.')
-
-		if self._PRW_encounter_end.GetData() is None:
-			found_error = True
-			msg = _('Cannot save encounter: missing end time.')
-
-		if found_error:
-			gmDispatcher.send(signal = 'statustext', msg = msg, beep = True)
-			return False
-
 		return True
 	#--------------------------------------------------------
 	# event handling
@@ -1321,30 +1270,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_save_encounter_button_pressed(self, event):
 		self.save_encounter()
 		event.Skip()
-	#--------------------------------------------------------
-	def _on_new_encounter_button_pressed(self, event):
-
-		if self.__encounter_modified():
-			do_save_enc = gmGuiHelpers.gm_show_question (
-				aMessage = _(
-					'You have modified the details\n'
-					'of the current encounter.\n'
-					'\n'
-					'Do you want to save those changes ?'
-				),
-				aTitle = _('Starting new encounter')
-			)
-			if do_save_enc:
-				if not self.save_encounter():
-					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
-					return False
-
-		emr = self.__pat.get_emr()
-		gmDispatcher.send(signal = u'statustext', msg = _('Started new encounter for active patient.'), beep = True)
-
-		event.Skip()
-
-		wx.CallAfter(gmEMRStructWidgets.start_new_encounter, emr = emr)
 	#--------------------------------------------------------
 	# other buttons
 	#--------------------------------------------------------

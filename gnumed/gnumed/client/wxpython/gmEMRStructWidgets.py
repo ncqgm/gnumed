@@ -1102,6 +1102,66 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgActiveEncounterPnl
+
+class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgActiveEncounterPnl.wxgActiveEncounterPnl.__init__(self, *args, **kwargs)
+		self.__register_events()
+		self.refresh()
+	#------------------------------------------------------------
+	def clear(self):
+		self._TCTRL_encounter.SetValue(u'')
+		self._TCTRL_encounter.SetToolTipString(u'')
+		self._BTN_new.Enable(False)
+		self._BTN_list.Enable(False)
+	#------------------------------------------------------------
+	def refresh(self):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			self.clear()
+			return
+
+		enc = pat.get_emr().active_encounter
+		self._TCTRL_encounter.SetValue(enc.format(with_docs = False, with_tests = False, fancy_header = False, with_vaccinations = False, with_family_history = False).strip('\n'))
+		self._TCTRL_encounter.SetToolTipString (
+			_('The active encounter of the current patient:\n\n%s') %
+				enc.format(with_docs = False, with_tests = False, fancy_header = True, with_vaccinations = False, with_rfe_aoe = True, with_family_history = False).strip('\n')
+		)
+		self._BTN_new.Enable(True)
+		self._BTN_list.Enable(True)
+	#------------------------------------------------------------
+	def __register_events(self):
+		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
+
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_clear)
+		# this would throw an exception due to concurrency issues:
+		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._schedule_refresh)
+	#------------------------------------------------------------
+	# event handler
+	#------------------------------------------------------------
+	def _schedule_clear(self):
+		wx.CallAfter(self.clear)
+	#------------------------------------------------------------
+	def _schedule_refresh(self, *args, **kwargs):
+		wx.CallAfter(self.refresh)
+		return True
+	#------------------------------------------------------------
+	def _on_ldclick(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		edit_encounter(encounter = pat.get_emr().active_encounter)
+	#------------------------------------------------------------
+	def _on_new_button_pressed(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		start_new_encounter(emr = pat.get_emr())
+	#------------------------------------------------------------
+	def _on_list_button_pressed(self, event):
+		select_encounters()
 #================================================================
 # episode related widgets/functions
 #----------------------------------------------------------------

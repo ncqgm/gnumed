@@ -160,8 +160,9 @@ SELECT fk_encounter from
 		# have got the same transaction ID so there's no change
 		# in the database, there could be a local change in
 		# the active encounter but that doesn't matter
-		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
-			return True
+		# THIS DOES NOT WORK
+#		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
+#			return True
 
 		# there must have been a change to the active encounter
 		# committed to the database from elsewhere,
@@ -874,7 +875,7 @@ order by
 
 		return txt
 	#--------------------------------------------------------
-	# allergy API
+	# API: allergy
 	#--------------------------------------------------------
  	def get_allergies(self, remove_sensitivities=False, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
 		"""Retrieves patient allergy items.
@@ -1015,7 +1016,7 @@ WHERE
 
 	allergy_state = property(_get_allergy_state, _set_allergy_state)
 	#--------------------------------------------------------
-	# episodes API
+	# API: episodes
 	#--------------------------------------------------------
 	def get_episodes(self, id_list=None, issues=None, open_status=None):
 		"""Fetches from backend patient episodes.
@@ -1132,7 +1133,7 @@ WHERE
 	def episode2problem(self, episode=None):
 		return gmEMRStructItems.episode2problem(episode=episode)
 	#--------------------------------------------------------
-	# problems API
+	# API: problems
 	#--------------------------------------------------------
 	def get_problems(self, episodes=None, issues=None, include_closed_episodes=False, include_irrelevant_issues=False):
 		"""Retrieve a patient's problems.
@@ -1211,7 +1212,7 @@ WHERE
 	def reclass_problem(self, problem):
 		return gmEMRStructItems.reclass_problem(problem = problem)
 	#--------------------------------------------------------
-	# health issues API
+	# API: health issues
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
 
@@ -1289,7 +1290,13 @@ WHERE
 			preparation = preparation
 		)
 	#--------------------------------------------------------
-	# vaccinations API
+	def substance_intake_exists(self, pk_component=None):
+		return gmMedication.substance_intake_exists (
+			pk_component = pk_component,
+			pk_identity = self.pk_patient
+		)
+	#--------------------------------------------------------
+	# API: vaccinations
 	#--------------------------------------------------------
 	def add_vaccination(self, episode=None, vaccine=None, batch_no=None):
 		return gmVaccination.create_vaccination (
@@ -1991,7 +1998,7 @@ LIMIT 2
 
 		return True
 	#------------------------------------------------------------------
-	# measurements API
+	# API: measurements
 	#------------------------------------------------------------------
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 	def get_test_types_for_results(self):

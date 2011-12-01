@@ -1690,10 +1690,18 @@ WHERE
 				del codes
 
 		else:
+			now = gmDateTime.pydt_now_here()
+			if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
+				start = u'%s %s' % (
+					_('today'),
+					self._payload[self._idx['started_original_tz']].strftime('%H:%M')
+				)
+			else:
+				start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
 			lines.append(u'%s%s: %s - %s%s' % (
 				u' ' * left_margin,
 				self._payload[self._idx['l10n_type']],
-				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
+				start,
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
 			))

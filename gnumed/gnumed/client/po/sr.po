@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-10-27 12:35+CEST\n"
+"POT-Creation-Date: 2011-11-30 23:35+CET\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -191,14 +191,8 @@ msgid ""
 "Vaccinations: %(vaccinations)s"
 msgstr ""
 
-msgid ""
-"EMR Statistics\n"
-"\n"
-msgstr ""
-"ЕМР Статистика\n"
-"\n"
-
-msgid " %s known problems. Clinically relevant thereof:\n"
+#, fuzzy
+msgid " %s known problems, clinically relevant thereof:\n"
 msgstr " %s познатих проблема. Од тога клинички релевантних:\n"
 
 msgid " %s known problems\n"
@@ -222,12 +216,18 @@ msgstr " %s докумената\n"
 msgid " %s test results\n"
 msgstr " %s резултати теста\n"
 
-msgid " %s hospital stays\n"
+#, fuzzy
+msgid " %s hospital stays"
 msgstr " %s боравака у болници\n"
 
+#, fuzzy
 msgid ""
-" %s performed procedures\n"
-"\n"
+", most recently:\n"
+"%s\n"
+msgstr " Најскорији: %s - %s"
+
+#, fuzzy
+msgid " %s performed procedures"
 msgstr ""
 " %s извршених захвата\n"
 "\n"
@@ -426,9 +426,6 @@ msgstr "завршено"
 msgid "Error retrieving encounters for this episode."
 msgstr ""
 
-msgid "There are no encounters for this episode."
-msgstr ""
-
 msgid "Last worked on: %s\n"
 msgstr ""
 
@@ -464,6 +461,10 @@ msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
 msgstr ""
+
+#, fuzzy
+msgid "today"
+msgstr "данас (%s)"
 
 msgid "Documents:"
 msgstr "Документа:"
@@ -648,6 +649,12 @@ msgstr "<zip> не може бити празно"
 msgid "<country> cannot be empty"
 msgstr "<country> не може бити празно"
 
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
 msgid "Cannot merge active patient into another patient."
 msgstr ""
 
@@ -719,6 +726,21 @@ msgstr "датум рођења/смрти"
 
 msgid "full name"
 msgstr "пуно име"
+
+msgid ""
+"Cannot add GNUmed user.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"GNUmed user. There can only be one GNUmed user\n"
+"for each database account.\n"
+msgstr ""
+
+msgid ""
+"Cannot delete GNUmed staff member because the\n"
+"database still contains data linked to it.\n"
+"\n"
+"The account was deactivated instead."
+msgstr ""
 
 msgid "vaccine"
 msgstr "вакцина"
@@ -870,6 +892,9 @@ msgstr "Лабораторија"
 msgid ""
 "Error retrieving encounters for episode\n"
 "%s"
+msgstr ""
+
+msgid "There are no encounters for this episode."
 msgstr ""
 
 msgid ""
@@ -1264,6 +1289,21 @@ msgstr ""
 msgid ""
 "Check this if you want GNUmed to remember your decision and not ask you "
 "again."
+msgstr ""
+
+msgid "&N"
+msgstr ""
+
+msgid "&L"
+msgstr ""
+
+msgid "The encounter."
+msgstr ""
+
+msgid "Start a new encounter for the active patient."
+msgstr ""
+
+msgid "List all encounters."
 msgstr ""
 
 msgid "Data of current patient to be displayed here."
@@ -2241,7 +2281,7 @@ msgid ""
 "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr ""
 
-msgid "The current status of this episode."
+msgid "A summary of the state of this episode."
 msgstr ""
 
 msgid ""
@@ -2261,9 +2301,7 @@ msgstr ""
 msgid "Certainty"
 msgstr ""
 
-msgid ""
-"Current\n"
-"status"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
@@ -2607,7 +2645,7 @@ msgid ""
 "the \"at age\" field accordingly."
 msgstr ""
 
-msgid "The current status of the issue."
+msgid "A summary of the state of this issue."
 msgstr ""
 
 msgid ""
@@ -3211,6 +3249,9 @@ msgid "Nick name"
 msgstr ""
 
 msgid "Primary address and contact"
+msgstr ""
+
+msgid "Search existing"
 msgstr ""
 
 msgid "Postal code"
@@ -3819,7 +3860,7 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
-msgid "Episode summary"
+msgid "Episode synopsis"
 msgstr ""
 
 msgid ""
@@ -3897,6 +3938,27 @@ msgid ""
 "as active health issues."
 msgstr ""
 
+msgid ""
+"Also known as the Reason For Encounter/Visit (RFE).\n"
+"\n"
+"Optionally captures why the consultation takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. "
+"Often initially collected at the front desk and put into a waiting list "
+"comment. May turn out to just be a proxy request for why the patient really "
+"is here."
+msgstr ""
+
+msgid ""
+"Also known as the Assessment of Encounter/Visit (AOE)\n"
+"\n"
+"Optionally summarizes the outcome/assessment of the consultation from the "
+"doctors point of view.\n"
+"\n"
+"Note that this summary spans all the problems discussed during this "
+"encounter."
+msgstr ""
+
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr ""
 
@@ -3915,9 +3977,6 @@ msgid "Notelet:"
 msgstr ""
 
 msgid "Encounter:"
-msgstr ""
-
-msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
@@ -6527,6 +6586,20 @@ msgstr ""
 msgid "Reason for Encounter"
 msgstr ""
 
+#, fuzzy
+msgid "Edit active"
+msgstr "неактиван"
+
+msgid "Edit the active encounter"
+msgstr ""
+
+#, fuzzy
+msgid "Start new active encounter for the current patient."
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
+
+msgid "Start new"
+msgstr ""
+
 msgid "Continue"
 msgstr ""
 
@@ -6534,9 +6607,6 @@ msgid "Continue the existing recent encounter."
 msgstr ""
 
 msgid "Start a new encounter. The existing one will be closed."
-msgstr ""
-
-msgid "Start new"
 msgstr ""
 
 msgid "Cannot delete encounter type [%s]. It is in use."
@@ -6555,6 +6625,13 @@ msgstr ""
 
 msgid "Editing local encounter type name"
 msgstr ""
+
+#, fuzzy
+msgid ""
+"The active encounter of the current patient:\n"
+"\n"
+"%s"
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 msgid "Adding a new episode"
 msgstr ""
@@ -8666,6 +8743,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "no primary in-praxis provider"
+msgstr ""
+
 msgid "unknown current medication table formatting style"
 msgstr ""
 
@@ -9677,15 +9757,6 @@ msgstr ""
 msgid "Most recent notes on %s%s%s"
 msgstr ""
 
-msgid "Cannot save encounter: missing type."
-msgstr ""
-
-msgid "Cannot save encounter: missing start time."
-msgstr ""
-
-msgid "Cannot save encounter: missing end time."
-msgstr ""
-
 msgid "Cannot save all editors. Some were kept open."
 msgstr ""
 
@@ -9697,22 +9768,6 @@ msgid ""
 msgstr ""
 
 msgid "opening progress note editor"
-msgstr ""
-
-msgid ""
-"You have modified the details\n"
-"of the current encounter.\n"
-"\n"
-"Do you want to save those changes ?"
-msgstr ""
-
-msgid "Starting new encounter"
-msgstr ""
-
-msgid "Error saving current encounter."
-msgstr ""
-
-msgid "Started new encounter for active patient."
 msgstr ""
 
 msgid "new problem"
@@ -9732,7 +9787,7 @@ msgstr ""
 msgid "Unsaved progress notes"
 msgstr ""
 
-msgid "Summary (%s)"
+msgid "Synopsis (%s)"
 msgstr ""
 
 msgid "Enter a short working name for this new problem:"
@@ -10134,7 +10189,7 @@ msgid ""
 "You have selected the chart of a member of staff,\n"
 "for whom privacy is especially important:\n"
 "\n"
-"  %s (%s)\n"
+"  %s, %s\n"
 "\n"
 "This may be OK depending on circumstances.\n"
 "\n"
@@ -10677,6 +10732,12 @@ msgstr ""
 msgid "Deactivating GNUmed user."
 msgstr ""
 
+msgid "Removing GNUmed user."
+msgstr ""
+
+msgid "Removing GNUmed user"
+msgstr ""
+
 msgid "Modifying GNUmed user."
 msgstr ""
 
@@ -10708,14 +10769,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid ""
-"Cannot add GNUmed user.\n"
-"\n"
-"The database account [%s] is already listed as a\n"
-"GNUmed user. There can only be one GNUmed user\n"
-"for each database account.\n"
 msgstr ""
 
 msgid "Caveat"
@@ -10891,6 +10944,18 @@ msgid "(%s patients)"
 msgstr ""
 
 msgid "Cannot add waiting list entry: No patient selected."
+msgstr ""
+
+msgid ""
+"Are you sure you want to remove\n"
+"\n"
+" %s, %s (%s)\n"
+" born: %s\n"
+" %s\n"
+"from the waiting list ?"
+msgstr ""
+
+msgid "Delete waiting list entry"
 msgstr ""
 
 msgid "AU Vacc"
@@ -11471,6 +11536,13 @@ msgstr "Количина"
 
 msgid "First Date"
 msgstr "Први датум"
+
+#~ msgid ""
+#~ "EMR Statistics\n"
+#~ "\n"
+#~ msgstr ""
+#~ "ЕМР Статистика\n"
+#~ "\n"
 
 #~ msgid "&Vaccination(s)"
 #~ msgstr "&Вакцинација(е)"

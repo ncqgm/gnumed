@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
+"POT-Creation-Date: 2011-11-30 23:34+CET\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -203,14 +203,8 @@ msgstr ""
 "Procedimentos: %(procedures)s\n"
 "Vacinas: %(vaccinations)s\n"
 
-msgid ""
-"EMR Statistics\n"
-"\n"
-msgstr ""
-"Estatisticas EMR\n"
-"\n"
-
-msgid " %s known problems. Clinically relevant thereof:\n"
+#, fuzzy
+msgid " %s known problems, clinically relevant thereof:\n"
 msgstr " %s Patologias conhecidas. Relevantes do ponto de vista Clínico:\n"
 
 msgid " %s known problems\n"
@@ -234,12 +228,18 @@ msgstr " %s documentos\n"
 msgid " %s test results\n"
 msgstr " %s Resultados dos testes\n"
 
-msgid " %s hospital stays\n"
+#, fuzzy
+msgid " %s hospital stays"
 msgstr " %s Hospitalizações\n"
 
+#, fuzzy
 msgid ""
-" %s performed procedures\n"
-"\n"
+", most recently:\n"
+"%s\n"
+msgstr " Mais recente: %s - %s"
+
+#, fuzzy
+msgid " %s performed procedures"
 msgstr ""
 " %s Procedimentos efectuados\n"
 "\n"
@@ -460,9 +460,6 @@ msgstr "terminado"
 msgid "Error retrieving encounters for this episode."
 msgstr "Error retrieving encounters for this episode."
 
-msgid "There are no encounters for this episode."
-msgstr "There are no encounters for this episode."
-
 msgid "Last worked on: %s\n"
 msgstr "Última consulta a: %s\n"
 
@@ -499,6 +496,10 @@ msgstr "  Seu horário: %s - %s (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
 msgstr "hora de verão activa"
+
+#, fuzzy
+msgid "today"
+msgstr "hoje (%s)"
 
 msgid "Documents:"
 msgstr "Documentos:"
@@ -694,6 +695,12 @@ msgstr "<zip> não pode ser vazio"
 msgid "<country> cannot be empty"
 msgstr "<country> não pode ser vazio"
 
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
 msgid "Cannot merge active patient into another patient."
 msgstr "Não é possível fundir informação do paciente activo com outro"
 
@@ -766,6 +773,21 @@ msgstr "data de nascimento/óbito"
 
 msgid "full name"
 msgstr "nome completo"
+
+msgid ""
+"Cannot add GNUmed user.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"GNUmed user. There can only be one GNUmed user\n"
+"for each database account.\n"
+msgstr ""
+
+msgid ""
+"Cannot delete GNUmed staff member because the\n"
+"database still contains data linked to it.\n"
+"\n"
+"The account was deactivated instead."
+msgstr ""
 
 msgid "vaccine"
 msgstr "vacina"
@@ -931,6 +953,9 @@ msgid ""
 msgstr ""
 "Erro ao obter consultas para esse episódio\n"
 "%s"
+
+msgid "There are no encounters for this episode."
+msgstr "There are no encounters for this episode."
 
 msgid ""
 "%sEpisode \"%s\" [%s]\n"
@@ -1368,6 +1393,26 @@ msgid ""
 msgstr ""
 "Seleccione aqui se deesejar que o GNUmed memorize esta decisão e não volte a "
 "efectuar a pergunta."
+
+#, fuzzy
+msgid "&N"
+msgstr "&Novo"
+
+#, fuzzy
+msgid "&L"
+msgstr "E"
+
+#, fuzzy
+msgid "The encounter."
+msgstr "Consulta"
+
+#, fuzzy
+msgid "Start a new encounter for the active patient."
+msgstr "Iniciado nova consulta para o paciente ativo."
+
+#, fuzzy
+msgid "List all encounters."
+msgstr "%s: consulta (%s)"
 
 msgid "Data of current patient to be displayed here."
 msgstr "Dados do paciente corrente deverão ser mostrados aqui."
@@ -2435,7 +2480,7 @@ msgstr ""
 "Se essa caixa estiver marcada o episódio acabou. Se não ele ainda está ativo."
 
 #, fuzzy
-msgid "The current status of this episode."
+msgid "A summary of the state of this episode."
 msgstr "There are no encounters for this episode."
 
 #, fuzzy
@@ -2456,11 +2501,8 @@ msgstr "Desccrição"
 msgid "Certainty"
 msgstr "Certamente"
 
-#, fuzzy
-msgid ""
-"Current\n"
-"status"
-msgstr "Atual altura/peso"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr "Digite o ID (número, identificador, etc.) aqui."
@@ -2846,7 +2888,7 @@ msgstr ""
 "ajustará o campo \"idade\"."
 
 #, fuzzy
-msgid "The current status of the issue."
+msgid "A summary of the state of this issue."
 msgstr "O paciente correntemente seleccionado é:"
 
 #, fuzzy
@@ -3489,6 +3531,9 @@ msgstr "Apelido"
 #, fuzzy
 msgid "Primary address and contact"
 msgstr "endereço principal: país"
+
+msgid "Search existing"
+msgstr ""
 
 msgid "Postal code"
 msgstr "CEP"
@@ -4142,7 +4187,7 @@ msgid "Sort documents by"
 msgstr "Organizar documentos por"
 
 #, fuzzy
-msgid "Episode summary"
+msgid "Episode synopsis"
 msgstr "Episódio %s"
 
 #, fuzzy
@@ -4234,6 +4279,40 @@ msgstr ""
 "os problemas de saúde ativos."
 
 #, fuzzy
+msgid ""
+"Also known as the Reason For Encounter/Visit (RFE).\n"
+"\n"
+"Optionally captures why the consultation takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. "
+"Often initially collected at the front desk and put into a waiting list "
+"comment. May turn out to just be a proxy request for why the patient really "
+"is here."
+msgstr ""
+"Documenta o porquê da consulta.\n"
+"\n"
+"Pode ser devido a uma busca direta de um paciente ou pode ter sido "
+"necessária por outras razões. Normalmente essa razão é coletada na recepção "
+"e colocada nos comentários da lista de espera. Não é necessariamente a real "
+"razão pela consulta do paciente.\n"
+"\n"
+"Também chamada de Motivo da Consulta."
+
+#, fuzzy
+msgid ""
+"Also known as the Assessment of Encounter/Visit (AOE)\n"
+"\n"
+"Optionally summarizes the outcome/assessment of the consultation from the "
+"doctors point of view.\n"
+"\n"
+"Note that this summary spans all the problems discussed during this "
+"encounter."
+msgstr ""
+"Resumo da definição ou da avaliação da consulta do ponto de vista médico. "
+"Repare que esse resumo inclui todos os problemas discutidos durante essa "
+"consulta."
+
+#, fuzzy
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr "Salvar a Nota de Evolução atual."
 
@@ -4253,9 +4332,6 @@ msgid "Notelet:"
 msgstr ""
 
 msgid "Encounter:"
-msgstr ""
-
-msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
@@ -7103,6 +7179,21 @@ msgstr ""
 msgid "Reason for Encounter"
 msgstr ""
 
+#, fuzzy
+msgid "Edit active"
+msgstr "inactivo"
+
+#, fuzzy
+msgid "Edit the active encounter"
+msgstr "Editar os detalhes da consulta abaixo:"
+
+#, fuzzy
+msgid "Start new active encounter for the current patient."
+msgstr "Iniciado nova consulta para o paciente ativo."
+
+msgid "Start new"
+msgstr "Iniciar Nova"
+
 msgid "Continue"
 msgstr "Continue"
 
@@ -7111,9 +7202,6 @@ msgstr "Continue a consulta recente já existente."
 
 msgid "Start a new encounter. The existing one will be closed."
 msgstr "Iniciar nova consulta. A anterior já existente será fechada."
-
-msgid "Start new"
-msgstr "Iniciar Nova"
 
 msgid "Cannot delete encounter type [%s]. It is in use."
 msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
@@ -7133,6 +7221,13 @@ msgstr "Adicionando novo tipo de consulta"
 
 msgid "Editing local encounter type name"
 msgstr ""
+
+#, fuzzy
+msgid ""
+"The active encounter of the current patient:\n"
+"\n"
+"%s"
+msgstr "Escrever uma carta para o paciente atual."
 
 msgid "Adding a new episode"
 msgstr ""
@@ -9454,6 +9549,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "no primary in-praxis provider"
+msgstr ""
+
 msgid "unknown current medication table formatting style"
 msgstr ""
 
@@ -10482,15 +10580,6 @@ msgstr ""
 msgid "Most recent notes on %s%s%s"
 msgstr ""
 
-msgid "Cannot save encounter: missing type."
-msgstr "Não foi possível salvar a consulta: tipo não foi deinido"
-
-msgid "Cannot save encounter: missing start time."
-msgstr "Não é possível salvar a consulta: horário de início não fornecido."
-
-msgid "Cannot save encounter: missing end time."
-msgstr "Não foi possível salvar a consulta: tempo não fornecido"
-
 msgid "Cannot save all editors. Some were kept open."
 msgstr ""
 
@@ -10503,22 +10592,6 @@ msgstr ""
 
 msgid "opening progress note editor"
 msgstr ""
-
-msgid ""
-"You have modified the details\n"
-"of the current encounter.\n"
-"\n"
-"Do you want to save those changes ?"
-msgstr ""
-
-msgid "Starting new encounter"
-msgstr "Iniciando nova Consulta"
-
-msgid "Error saving current encounter."
-msgstr "Erro ao salvar a Consulta atual."
-
-msgid "Started new encounter for active patient."
-msgstr "Iniciada nova consulta para o paciente ativo."
 
 msgid "new problem"
 msgstr ""
@@ -10537,9 +10610,8 @@ msgstr ""
 msgid "Unsaved progress notes"
 msgstr ""
 
-#, fuzzy
-msgid "Summary (%s)"
-msgstr "Resumo"
+msgid "Synopsis (%s)"
+msgstr ""
 
 msgid "Enter a short working name for this new problem:"
 msgstr ""
@@ -10964,7 +11036,7 @@ msgid ""
 "You have selected the chart of a member of staff,\n"
 "for whom privacy is especially important:\n"
 "\n"
-"  %s (%s)\n"
+"  %s, %s\n"
 "\n"
 "This may be OK depending on circumstances.\n"
 "\n"
@@ -11518,6 +11590,14 @@ msgstr ""
 msgid "Deactivating GNUmed user."
 msgstr ""
 
+#, fuzzy
+msgid "Removing GNUmed user."
+msgstr "Fala o Módulo GNUmed"
+
+#, fuzzy
+msgid "Removing GNUmed user"
+msgstr "Fala o Módulo GNUmed"
+
 msgid "Modifying GNUmed user."
 msgstr ""
 
@@ -11549,14 +11629,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid ""
-"Cannot add GNUmed user.\n"
-"\n"
-"The database account [%s] is already listed as a\n"
-"GNUmed user. There can only be one GNUmed user\n"
-"for each database account.\n"
 msgstr ""
 
 msgid "Caveat"
@@ -11725,6 +11797,21 @@ msgid "(%s patients)"
 msgstr "(%s pacientes)"
 
 msgid "Cannot add waiting list entry: No patient selected."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Are you sure you want to remove\n"
+"\n"
+" %s, %s (%s)\n"
+" born: %s\n"
+" %s\n"
+"from the waiting list ?"
+msgstr ""
+"Você realmente quer apagar esse\n"
+"ID externo do paciente?\n"
+
+msgid "Delete waiting list entry"
 msgstr ""
 
 msgid "AU Vacc"
@@ -12317,6 +12404,41 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#~ msgid ""
+#~ "EMR Statistics\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Estatisticas EMR\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Current\n"
+#~ "status"
+#~ msgstr "Atual altura/peso"
+
+#~ msgid "Cannot save encounter: missing type."
+#~ msgstr "Não foi possível salvar a consulta: tipo não foi deinido"
+
+#~ msgid "Cannot save encounter: missing start time."
+#~ msgstr "Não é possível salvar a consulta: horário de início não fornecido."
+
+#~ msgid "Cannot save encounter: missing end time."
+#~ msgstr "Não foi possível salvar a consulta: tempo não fornecido"
+
+#~ msgid "Starting new encounter"
+#~ msgstr "Iniciando nova Consulta"
+
+#~ msgid "Error saving current encounter."
+#~ msgstr "Erro ao salvar a Consulta atual."
+
+#~ msgid "Started new encounter for active patient."
+#~ msgstr "Iniciada nova consulta para o paciente ativo."
+
+#, fuzzy
+#~ msgid "Summary (%s)"
+#~ msgstr "Resumo"
 
 #, fuzzy
 #~ msgid "Codes linked to this episode."

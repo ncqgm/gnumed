@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
+"POT-Creation-Date: 2011-11-30 23:34+CET\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -210,14 +210,8 @@ msgstr ""
 "Ricoveri ospedalieri: %(stays)s\n"
 "Procedure: %(procedures)s\n"
 
-msgid ""
-"EMR Statistics\n"
-"\n"
-msgstr ""
-"Statistiche EMR\n"
-"\n"
-
-msgid " %s known problems. Clinically relevant thereof:\n"
+#, fuzzy
+msgid " %s known problems, clinically relevant thereof:\n"
 msgstr " %s problemi noti. Di rilievo tra questi:\n"
 
 msgid " %s known problems\n"
@@ -241,12 +235,18 @@ msgstr " %s documenti\n"
 msgid " %s test results\n"
 msgstr " %s risultati dei test\n"
 
-msgid " %s hospital stays\n"
+#, fuzzy
+msgid " %s hospital stays"
 msgstr " %s ricoveri ospedalieri\n"
 
+#, fuzzy
 msgid ""
-" %s performed procedures\n"
-"\n"
+", most recently:\n"
+"%s\n"
+msgstr " Più recente: %s%s%s"
+
+#, fuzzy
+msgid " %s performed procedures"
 msgstr ""
 " %s interventi effettuati\n"
 "\n"
@@ -468,9 +468,6 @@ msgstr "finito"
 msgid "Error retrieving encounters for this episode."
 msgstr "Errore nel ritrovare gli appuntamenti per questo caso"
 
-msgid "There are no encounters for this episode."
-msgstr "Non ci sono appuntamenti per questo caso"
-
 msgid "Last worked on: %s\n"
 msgstr "Ultima modifica il: %s\n"
 
@@ -507,6 +504,10 @@ msgstr "  il tuo tempo: %s - %s  (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
 msgstr "ora legale in vigore"
+
+#, fuzzy
+msgid "today"
+msgstr "oggi (%s)"
 
 msgid "Documents:"
 msgstr "Documenti:"
@@ -708,6 +709,12 @@ msgstr "<cap> non può essere vuoto"
 msgid "<country> cannot be empty"
 msgstr "<paese> non può essere vuoto"
 
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
 msgid "Cannot merge active patient into another patient."
 msgstr "Non posso inserire il paziente attivo in un altro paziente."
 
@@ -780,6 +787,21 @@ msgstr "data di nascita/morte"
 
 msgid "full name"
 msgstr "nome completo"
+
+msgid ""
+"Cannot add GNUmed user.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"GNUmed user. There can only be one GNUmed user\n"
+"for each database account.\n"
+msgstr ""
+
+msgid ""
+"Cannot delete GNUmed staff member because the\n"
+"database still contains data linked to it.\n"
+"\n"
+"The account was deactivated instead."
+msgstr ""
 
 msgid "vaccine"
 msgstr "vaccino"
@@ -940,6 +962,9 @@ msgid ""
 "Error retrieving encounters for episode\n"
 "%s"
 msgstr "Errore nel ritrovare gli appuntamenti per l'episodio"
+
+msgid "There are no encounters for this episode."
+msgstr "Non ci sono appuntamenti per questo caso"
 
 msgid ""
 "%sEpisode \"%s\" [%s]\n"
@@ -1375,6 +1400,26 @@ msgid ""
 "again."
 msgstr ""
 "Segna se vuoi che GNUmed ricordi la tua decisione e non lo chieda di nuovo."
+
+#, fuzzy
+msgid "&N"
+msgstr "&Nuovo"
+
+#, fuzzy
+msgid "&L"
+msgstr "S"
+
+#, fuzzy
+msgid "The encounter."
+msgstr "Spostare gli incontri"
+
+#, fuzzy
+msgid "Start a new encounter for the active patient."
+msgstr "Incomincia una nuova consultazione per il paziente attivo."
+
+#, fuzzy
+msgid "List all encounters."
+msgstr "%s: appuntamento (%s)"
 
 msgid "Data of current patient to be displayed here."
 msgstr "Dati paziente attuale da mostrare qui."
@@ -2487,7 +2532,7 @@ msgstr ""
 "attualmente in corso."
 
 #, fuzzy
-msgid "The current status of this episode."
+msgid "A summary of the state of this episode."
 msgstr "Non ci sono appuntamenti per questo caso"
 
 #, fuzzy
@@ -2508,11 +2553,8 @@ msgstr "Descrizione"
 msgid "Certainty"
 msgstr "Certezza"
 
-#, fuzzy
-msgid ""
-"Current\n"
-"status"
-msgstr "status"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr "Inserisci l'ID attuale (numero, identificatore, ...) qui."
@@ -2884,7 +2926,7 @@ msgstr ""
 "si aggiornerà il campo \"all'età\" di conseguenza."
 
 #, fuzzy
-msgid "The current status of the issue."
+msgid "A summary of the state of this issue."
 msgstr "Il paziente attualmente selezionato è:"
 
 #, fuzzy
@@ -3506,6 +3548,10 @@ msgstr "Soprannome"
 msgid "Primary address and contact"
 msgstr "Indirizzo principale (casa) (opzionale)"
 
+#, fuzzy
+msgid "Search existing"
+msgstr "Risultati cercati"
+
 msgid "Postal code"
 msgstr "Codice postale"
 
@@ -4123,7 +4169,7 @@ msgid "Sort documents by"
 msgstr "Ordina documenti per"
 
 #, fuzzy
-msgid "Episode summary"
+msgid "Episode synopsis"
 msgstr "Episodio %s"
 
 #, fuzzy
@@ -4208,6 +4254,40 @@ msgid ""
 msgstr ""
 
 #, fuzzy
+msgid ""
+"Also known as the Reason For Encounter/Visit (RFE).\n"
+"\n"
+"Optionally captures why the consultation takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. "
+"Often initially collected at the front desk and put into a waiting list "
+"comment. May turn out to just be a proxy request for why the patient really "
+"is here."
+msgstr ""
+"Ciò documenta perchè è avvenuto l'incontro.\n"
+"\n"
+"Può essere dovuto ad una richiesta del paziente o può essere motivato da "
+"altre ragioni. Spesso raccolte presso la reception e inserite come "
+"commentonella lista d'attesa. Potrebbe essere solamente una richiesta di "
+"delega per cui il paziente si trova qui.\n"
+"\n"
+"Anche conosciuto come Motivo Dell'Incontro/Visita (RFE)."
+
+#, fuzzy
+msgid ""
+"Also known as the Assessment of Encounter/Visit (AOE)\n"
+"\n"
+"Optionally summarizes the outcome/assessment of the consultation from the "
+"doctors point of view.\n"
+"\n"
+"Note that this summary spans all the problems discussed during this "
+"encounter."
+msgstr ""
+"Questo riassume il risultato / valutazione della consultazione, dal punto di "
+"vista medico. Si noti che questa sintesi abbraccia tutti i problemi discussi "
+"durante questo incontro."
+
+#, fuzzy
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr "Salva le note di progressione attualmente visualizzate."
 
@@ -4228,9 +4308,6 @@ msgstr ""
 
 msgid "Encounter:"
 msgstr "Incontro:"
-
-msgid "Synopsis"
-msgstr ""
 
 msgid "Journal"
 msgstr "Giornale"
@@ -6922,6 +6999,21 @@ msgstr ""
 msgid "Reason for Encounter"
 msgstr ""
 
+#, fuzzy
+msgid "Edit active"
+msgstr "non attivo"
+
+#, fuzzy
+msgid "Edit the active encounter"
+msgstr "Modificare i dettagli per l'incontro di seguito:"
+
+#, fuzzy
+msgid "Start new active encounter for the current patient."
+msgstr "Incomincia una nuova consultazione per il paziente attivo."
+
+msgid "Start new"
+msgstr "Incomincia nuovo"
+
 msgid "Continue"
 msgstr "Continua"
 
@@ -6930,9 +7022,6 @@ msgstr ""
 
 msgid "Start a new encounter. The existing one will be closed."
 msgstr ""
-
-msgid "Start new"
-msgstr "Incomincia nuovo"
 
 msgid "Cannot delete encounter type [%s]. It is in use."
 msgstr ""
@@ -6950,6 +7039,13 @@ msgstr ""
 
 msgid "Editing local encounter type name"
 msgstr ""
+
+#, fuzzy
+msgid ""
+"The active encounter of the current patient:\n"
+"\n"
+"%s"
+msgstr "Scrivi una lettere per il paziente corrente."
 
 msgid "Adding a new episode"
 msgstr ""
@@ -9121,6 +9217,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "no primary in-praxis provider"
+msgstr ""
+
 msgid "unknown current medication table formatting style"
 msgstr ""
 
@@ -10149,15 +10248,6 @@ msgstr ""
 msgid "Most recent notes on %s%s%s"
 msgstr ""
 
-msgid "Cannot save encounter: missing type."
-msgstr ""
-
-msgid "Cannot save encounter: missing start time."
-msgstr ""
-
-msgid "Cannot save encounter: missing end time."
-msgstr ""
-
 msgid "Cannot save all editors. Some were kept open."
 msgstr ""
 
@@ -10169,22 +10259,6 @@ msgid ""
 msgstr ""
 
 msgid "opening progress note editor"
-msgstr ""
-
-msgid ""
-"You have modified the details\n"
-"of the current encounter.\n"
-"\n"
-"Do you want to save those changes ?"
-msgstr ""
-
-msgid "Starting new encounter"
-msgstr ""
-
-msgid "Error saving current encounter."
-msgstr ""
-
-msgid "Started new encounter for active patient."
 msgstr ""
 
 msgid "new problem"
@@ -10204,9 +10278,8 @@ msgstr ""
 msgid "Unsaved progress notes"
 msgstr ""
 
-#, fuzzy
-msgid "Summary (%s)"
-msgstr "Riassunto"
+msgid "Synopsis (%s)"
+msgstr ""
 
 msgid "Enter a short working name for this new problem:"
 msgstr ""
@@ -10627,7 +10700,7 @@ msgid ""
 "You have selected the chart of a member of staff,\n"
 "for whom privacy is especially important:\n"
 "\n"
-"  %s (%s)\n"
+"  %s, %s\n"
 "\n"
 "This may be OK depending on circumstances.\n"
 "\n"
@@ -11180,6 +11253,14 @@ msgstr ""
 msgid "Deactivating GNUmed user."
 msgstr ""
 
+#, fuzzy
+msgid "Removing GNUmed user."
+msgstr "Modulo GNUmed mancante"
+
+#, fuzzy
+msgid "Removing GNUmed user"
+msgstr "Modulo GNUmed mancante"
+
 msgid "Modifying GNUmed user."
 msgstr ""
 
@@ -11211,14 +11292,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid ""
-"Cannot add GNUmed user.\n"
-"\n"
-"The database account [%s] is already listed as a\n"
-"GNUmed user. There can only be one GNUmed user\n"
-"for each database account.\n"
 msgstr ""
 
 msgid "Caveat"
@@ -11387,6 +11460,19 @@ msgstr ""
 
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
+
+msgid ""
+"Are you sure you want to remove\n"
+"\n"
+" %s, %s (%s)\n"
+" born: %s\n"
+" %s\n"
+"from the waiting list ?"
+msgstr ""
+
+#, fuzzy
+msgid "Delete waiting list entry"
+msgstr "Elimino i risultati del test"
 
 msgid "AU Vacc"
 msgstr ""
@@ -11978,6 +12064,23 @@ msgstr "Quantità"
 msgid "First Date"
 msgstr "Prima Data"
 
+#~ msgid ""
+#~ "EMR Statistics\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Statistiche EMR\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Current\n"
+#~ "status"
+#~ msgstr "status"
+
+#, fuzzy
+#~ msgid "Summary (%s)"
+#~ msgstr "Riassunto"
+
 #, fuzzy
 #~ msgid "Codes linked to this episode."
 #~ msgstr "Sposta i dati a un altro episodio"
@@ -12293,9 +12396,6 @@ msgstr "Prima Data"
 #~ msgid " Status: %s, %s"
 #~ msgstr " Status: %s, %s"
 
-#~ msgid " Most recent: %s%s%s"
-#~ msgstr " Più recente: %s%s%s"
-
 #~ msgid "abnormal"
 #~ msgstr "abnorme"
 
@@ -12545,9 +12645,6 @@ msgstr "Prima Data"
 #~ "\n"
 #~ "Risultati cercati:\n"
 #~ "%s\n"
-
-#~ msgid "search results"
-#~ msgstr "Risultati cercati"
 
 #~ msgid "Select the unit of the test result."
 #~ msgstr "Seleziona l'unità del risultato del test."
