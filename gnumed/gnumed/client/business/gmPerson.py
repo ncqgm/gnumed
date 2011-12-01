@@ -1128,6 +1128,14 @@ class cPatient(cIdentity):
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
+#		attempt = 1
+#		got_lock = self.__emr_access_lock.acquire(False)
+#		while not got_lock:
+#			if attempt == 100:			# 100 x 500ms -> 50 seconds timeout
+#				raise AttributeError('cannot access EMR')
+#			attempt += 1
+#			time.sleep(0.5)				# 500ms
+#			got_lock = self.__emr_access_lock.acquire(False)
 		if not self.__emr_access_lock.acquire(False):
 			raise AttributeError('cannot access EMR')
 		try:

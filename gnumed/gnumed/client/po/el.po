@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-10-27 12:34+CEST\n"
+"POT-Creation-Date: 2011-11-30 23:34+CET\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -211,14 +211,8 @@ msgstr ""
 "Διαδικασίες:% (διαδικασίες) s\n"
 "Εμβολιασμοί:% (εμβολιασμοί) s\n"
 
-msgid ""
-"EMR Statistics\n"
-"\n"
-msgstr ""
-"Στατιστικά ΗΙΦ\n"
-"\n"
-
-msgid " %s known problems. Clinically relevant thereof:\n"
+#, fuzzy
+msgid " %s known problems, clinically relevant thereof:\n"
 msgstr " %s γνωστά προβλήματα. Κλινικώς συναφή με\n"
 
 msgid " %s known problems\n"
@@ -242,12 +236,18 @@ msgstr " %s Αρχείο\n"
 msgid " %s test results\n"
 msgstr " %s αποτελέσματα εξετάσεων\n"
 
-msgid " %s hospital stays\n"
+#, fuzzy
+msgid " %s hospital stays"
 msgstr " %S Ενδονοσοκομειακές παραμονές\n"
 
+#, fuzzy
 msgid ""
-" %s performed procedures\n"
-"\n"
+", most recently:\n"
+"%s\n"
+msgstr " Πιο πρόσφατο:%s-%s"
+
+#, fuzzy
+msgid " %s performed procedures"
 msgstr ""
 " %s εκτελεσμένες επεμβάσεις\n"
 "\n"
@@ -463,9 +463,6 @@ msgstr "ολοκληρώθηκε"
 msgid "Error retrieving encounters for this episode."
 msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
 
-msgid "There are no encounters for this episode."
-msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
-
 msgid "Last worked on: %s\n"
 msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
 
@@ -502,6 +499,10 @@ msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
 
 msgid "daylight savings time in effect"
 msgstr "αλλαγή θερινής - χειμερινής ώρας είναι ενεργή"
+
+#, fuzzy
+msgid "today"
+msgstr "σήμερα(%s)"
 
 msgid "Documents:"
 msgstr "Αρχεία:"
@@ -701,6 +702,12 @@ msgstr "<Τ.Κ> δεν μπορεί να είναι κενό"
 msgid "<country> cannot be empty"
 msgstr "<χώρα> δεν μπορεί να είναι κενό"
 
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
 msgid "Cannot merge active patient into another patient."
 msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού ασθενή σε άλλον ασθενή."
 
@@ -772,6 +779,21 @@ msgstr "ημερομηνία γέννησης/θανάτου"
 
 msgid "full name"
 msgstr "πλήρες όνομα"
+
+msgid ""
+"Cannot add GNUmed user.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"GNUmed user. There can only be one GNUmed user\n"
+"for each database account.\n"
+msgstr ""
+
+msgid ""
+"Cannot delete GNUmed staff member because the\n"
+"database still contains data linked to it.\n"
+"\n"
+"The account was deactivated instead."
+msgstr ""
 
 msgid "vaccine"
 msgstr "εμβόλιο"
@@ -930,6 +952,9 @@ msgid ""
 msgstr ""
 "Σφάλμα κατά την ανάκτηση συνεδριών για το επεισόδιο\n"
 "%s"
+
+msgid "There are no encounters for this episode."
+msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 msgid ""
 "%sEpisode \"%s\" [%s]\n"
@@ -1342,6 +1367,25 @@ msgid ""
 "Check this if you want GNUmed to remember your decision and not ask you "
 "again."
 msgstr ""
+
+#, fuzzy
+msgid "&N"
+msgstr "&Νέο"
+
+msgid "&L"
+msgstr ""
+
+#, fuzzy
+msgid "The encounter."
+msgstr "Συνεδρία"
+
+#, fuzzy
+msgid "Start a new encounter for the active patient."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, fuzzy
+msgid "List all encounters."
+msgstr "%s: συνεδρία (%s)"
 
 msgid "Data of current patient to be displayed here."
 msgstr "Τα δεδομένα των σημερινών ασθενών πρέπει να εμφανίστούν εδώ."
@@ -2434,7 +2478,7 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "The current status of this episode."
+msgid "A summary of the state of this episode."
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
 #, fuzzy
@@ -2455,11 +2499,8 @@ msgstr "Περιγραφή"
 msgid "Certainty"
 msgstr ""
 
-#, fuzzy
-msgid ""
-"Current\n"
-"status"
-msgstr "κατάσταση"
+msgid "Synopsis"
+msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
 msgstr ""
@@ -2813,7 +2854,7 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "The current status of the issue."
+msgid "A summary of the state of this issue."
 msgstr "Η εμπορική ονομασία του σκευάσματος."
 
 #, fuzzy
@@ -3424,6 +3465,10 @@ msgstr "Ψευδώνυμο"
 
 msgid "Primary address and contact"
 msgstr ""
+
+#, fuzzy
+msgid "Search existing"
+msgstr "Αποτελέσματα αναζήτησης"
 
 msgid "Postal code"
 msgstr "Ταχυδρομικός κώδικας"
@@ -4044,7 +4089,7 @@ msgid "Sort documents by"
 msgstr ""
 
 #, fuzzy
-msgid "Episode summary"
+msgid "Episode synopsis"
 msgstr "Επεισόδιο"
 
 #, fuzzy
@@ -4134,6 +4179,41 @@ msgid ""
 "as active health issues."
 msgstr ""
 
+#, fuzzy
+msgid ""
+"Also known as the Reason For Encounter/Visit (RFE).\n"
+"\n"
+"Optionally captures why the consultation takes place.\n"
+"\n"
+"It may be due to a patient request or it may be prompted by other reasons. "
+"Often initially collected at the front desk and put into a waiting list "
+"comment. May turn out to just be a proxy request for why the patient really "
+"is here."
+msgstr ""
+"Αυτό το αρχείο ρωτά γιατί η συνεδρία αυτή έγινε.\n"
+"\n"
+"Μπορεί να οφείλεται σε αίτημα  ασθενούς ή μπορεί να ζητηθεί για άλλους "
+"λόγους. Συχνά συλλέγεται αρχικώς από τη υποδοχή και θα τεθεί ως σχόλιο σε "
+"μια λίστα αναμονής. Μπορεί να αποδειχθεί ότι είναι μόνο μια αίτηση "
+"διαμεσολάβησης ως προς τους πραγματικούς λόγους για τους οποίους ο ασθενής "
+"είναι εδώ.\n"
+"\n"
+"Επιπλέον είναι γνωστή ή η Αιτία για την Συνεδρία/Επίσκεψη(RFE)."
+
+#, fuzzy
+msgid ""
+"Also known as the Assessment of Encounter/Visit (AOE)\n"
+"\n"
+"Optionally summarizes the outcome/assessment of the consultation from the "
+"doctors point of view.\n"
+"\n"
+"Note that this summary spans all the problems discussed during this "
+"encounter."
+msgstr ""
+"Αυτό συνοψίζει τα αποτελέσματα/αξιολόγηση τις σύσκεψης από την ιατρική "
+"οπτική γωνία. Σημειώστε ότι αυτό καλύπτει συνοπτικά όλα τα προβλήματα που "
+"συζητήθηκαν κατά τη διάρκεια αυτής της συνάντησης."
+
 msgid "Save the currently displayed progress note under the current encounter."
 msgstr ""
 
@@ -4153,9 +4233,6 @@ msgstr ""
 
 msgid "Encounter:"
 msgstr "Συνεδρία:"
-
-msgid "Synopsis"
-msgstr ""
 
 msgid "Journal"
 msgstr ""
@@ -6783,6 +6860,21 @@ msgstr "Κενό"
 msgid "Reason for Encounter"
 msgstr ""
 
+#, fuzzy
+msgid "Edit active"
+msgstr "ανενεργό"
+
+#, fuzzy
+msgid "Edit the active encounter"
+msgstr "Επεξεργασία λεπτομερειών της συνεδρίας παρακάτω:"
+
+#, fuzzy
+msgid "Start new active encounter for the current patient."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+msgid "Start new"
+msgstr "Άρχισε νέο"
+
 msgid "Continue"
 msgstr "Συνέχεια"
 
@@ -6791,9 +6883,6 @@ msgstr ""
 
 msgid "Start a new encounter. The existing one will be closed."
 msgstr "Αρχή νέας συνεδρίας. Η υπάρχουσα θα κλείσει."
-
-msgid "Start new"
-msgstr "Άρχισε νέο"
 
 msgid "Cannot delete encounter type [%s]. It is in use."
 msgstr ""
@@ -6811,6 +6900,15 @@ msgstr ""
 
 msgid "Editing local encounter type name"
 msgstr ""
+
+#, fuzzy
+msgid ""
+"The active encounter of the current patient:\n"
+"\n"
+"%s"
+msgstr ""
+"\n"
+"Παρακάτω βρείτε τις σχετικές συνεδρίες του ασθενούς.\n"
 
 msgid "Adding a new episode"
 msgstr ""
@@ -8933,6 +9031,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "no primary in-praxis provider"
+msgstr ""
+
 msgid "unknown current medication table formatting style"
 msgstr "άγνωστη διαμόρφωση του πίνακα της τρέχουσας φαρμακευτικής αγωγής"
 
@@ -9971,15 +10072,6 @@ msgstr ""
 msgid "Most recent notes on %s%s%s"
 msgstr ""
 
-msgid "Cannot save encounter: missing type."
-msgstr ""
-
-msgid "Cannot save encounter: missing start time."
-msgstr ""
-
-msgid "Cannot save encounter: missing end time."
-msgstr ""
-
 msgid "Cannot save all editors. Some were kept open."
 msgstr ""
 
@@ -9991,22 +10083,6 @@ msgid ""
 msgstr ""
 
 msgid "opening progress note editor"
-msgstr ""
-
-msgid ""
-"You have modified the details\n"
-"of the current encounter.\n"
-"\n"
-"Do you want to save those changes ?"
-msgstr ""
-
-msgid "Starting new encounter"
-msgstr "Έναρξη νέας συνεδρίας"
-
-msgid "Error saving current encounter."
-msgstr ""
-
-msgid "Started new encounter for active patient."
 msgstr ""
 
 msgid "new problem"
@@ -10026,9 +10102,8 @@ msgstr ""
 msgid "Unsaved progress notes"
 msgstr ""
 
-#, fuzzy
-msgid "Summary (%s)"
-msgstr "Περίληψη"
+msgid "Synopsis (%s)"
+msgstr ""
 
 msgid "Enter a short working name for this new problem:"
 msgstr ""
@@ -10438,7 +10513,7 @@ msgid ""
 "You have selected the chart of a member of staff,\n"
 "for whom privacy is especially important:\n"
 "\n"
-"  %s (%s)\n"
+"  %s, %s\n"
 "\n"
 "This may be OK depending on circumstances.\n"
 "\n"
@@ -10989,6 +11064,14 @@ msgstr ""
 msgid "Deactivating GNUmed user."
 msgstr ""
 
+#, fuzzy
+msgid "Removing GNUmed user."
+msgstr "Κατατάσσω το πρόσωπο ως χρήστη του GNUmed"
+
+#, fuzzy
+msgid "Removing GNUmed user"
+msgstr "Κατατάσσω το πρόσωπο ως χρήστη του GNUmed"
+
 msgid "Modifying GNUmed user."
 msgstr ""
 
@@ -11020,14 +11103,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid ""
-"Cannot add GNUmed user.\n"
-"\n"
-"The database account [%s] is already listed as a\n"
-"GNUmed user. There can only be one GNUmed user\n"
-"for each database account.\n"
 msgstr ""
 
 msgid "Caveat"
@@ -11195,6 +11270,18 @@ msgid "(%s patients)"
 msgstr ""
 
 msgid "Cannot add waiting list entry: No patient selected."
+msgstr ""
+
+msgid ""
+"Are you sure you want to remove\n"
+"\n"
+" %s, %s (%s)\n"
+" born: %s\n"
+" %s\n"
+"from the waiting list ?"
+msgstr ""
+
+msgid "Delete waiting list entry"
 msgstr ""
 
 msgid "AU Vacc"
@@ -11777,6 +11864,26 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid ""
+#~ "EMR Statistics\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Στατιστικά ΗΙΦ\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Current\n"
+#~ "status"
+#~ msgstr "κατάσταση"
+
+#~ msgid "Starting new encounter"
+#~ msgstr "Έναρξη νέας συνεδρίας"
+
+#, fuzzy
+#~ msgid "Summary (%s)"
+#~ msgstr "Περίληψη"
 
 #, fuzzy
 #~ msgid "Enter codes relevant to this Reason for Encounter."

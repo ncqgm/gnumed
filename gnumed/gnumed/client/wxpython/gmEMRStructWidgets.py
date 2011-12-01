@@ -1112,13 +1112,16 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		self.__register_events()
 		self.refresh()
 	#------------------------------------------------------------
+	def clear(self):
+		self._TCTRL_encounter.SetValue(u'')
+		self._TCTRL_encounter.SetToolTipString(u'')
+		self._BTN_new.Enable(False)
+		self._BTN_list.Enable(False)
+	#------------------------------------------------------------
 	def refresh(self):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			self._TCTRL_encounter.SetValue(u'')
-			self._TCTRL_encounter.SetToolTipString(u'')
-			self._BTN_new.Enable(False)
-			self._BTN_list.Enable(False)
+			self.clear()
 			return
 
 		enc = pat.get_emr().active_encounter
@@ -1133,15 +1136,19 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 	def __register_events(self):
 		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
 
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_refresh)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_clear)
+		# this would throw an exception due to concurrency issues:
+		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._schedule_refresh)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._schedule_refresh)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._schedule_refresh)
 	#------------------------------------------------------------
 	# event handler
 	#------------------------------------------------------------
-	def _schedule_refresh(self):
+	def _schedule_clear(self):
+		wx.CallAfter(self.clear)
+	#------------------------------------------------------------
+	def _schedule_refresh(self, *args, **kwargs):
 		wx.CallAfter(self.refresh)
 		return True
 	#------------------------------------------------------------
