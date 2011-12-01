@@ -18,21 +18,25 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.5 (database v16.5)',
-	'GNUmed 1.1.5 Release Notes:
+	'Release Notes for GNUmed 1.1.6 (database v16.6)',
+	'GNUmed 1.1.6 Release Notes:
 
-	1.1.5
+	1.1.6
 
-FIX: properly review partless documents [thanks J.Busser]
-FIX: exception in episode name selection PRW [thanks S.Reus]
-FIX: improper validity check in encounter EA [thanks S.Reus]
+FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
+FIX: faulty search query for persons w/o a title [thanks J.Busser]
+FIX: failure to verify substance intake duration [thanks vbanait]
 
-IMPROVED: placeholder $<primary_praxis_provider_external_id::type//issuer::length>$
-IMPROVED: robustify browsing URLs against external problems [thanks Sergio]
+IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
+IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
+IMPROVED: demographics: protect against deletion of active name [thanks J.Busser]
+IMPROVED: gracefully fail attempts to duplicate drug component intake [thanks S.Hilbert]
 
-	16.5
+	16.6
 
-FIX: inability to store document descriptions > 1/3 of a PG buffer page [thanks J.Busser]
+FIX: remove faulty i18n-fixup ("generic" tx target does not work as expected) [thanks J.Busser]
+
+IMPROVED: robustify log directory setting in bootstrapper scripts [thanks S.Hilbert]
 ');
 
 -- --------------------------------------------------------------
