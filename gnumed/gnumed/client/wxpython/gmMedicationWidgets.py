@@ -1219,18 +1219,14 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self._PRW_episode.display_as_valid(True)
 
-#		# huh ?
-#		if self._CHBOX_approved.IsChecked() is True:
-#			self._PRW_duration.display_as_valid(True)
-#		else:
-#			if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
-#				self._PRW_duration.display_as_valid(True)
-#			else:
-#				if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
-#					self._PRW_duration.display_as_valid(False)
-#					validity = False
-#				else:
-#					self._PRW_duration.display_as_valid(True)
+		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+			self._PRW_duration.display_as_valid(True)
+		else:
+			if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
+				self._PRW_duration.display_as_valid(False)
+				validity = False
+			else:
+				self._PRW_duration.display_as_valid(True)
 
 		# end must be > start if at all
 		end = self._DP_discontinued.GetData()
