@@ -1679,6 +1679,22 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
+def substance_intake_exists(pk_component=None, pk_identity=None):
+	args = {'comp': pk_component, 'pat': pk_identity}
+	cmd = u"""
+SELECT exists (
+	SELECT 1 FROM clin.substance_intake
+	WHERE
+		fk_drug_component = %(comp)s
+			AND
+		fk_encounter IN (
+			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
+		)
+	LIMIT 1
+)"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+#------------------------------------------------------------
 def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None):
 
 	args = {
