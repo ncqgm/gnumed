@@ -947,6 +947,24 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
+		if validity is True:
+			if len(self.__component_substances) == 0:
+				wants_empty = gmGuiHelpers.gm_show_question (
+					title = _('Checking brand data'),
+					question = _(
+						'You have not selected any substances\n'
+						'as drug components.\n'
+						'\n'
+						'Without components you will not be able to\n'
+						'use this drug for documenting patient care.\n'
+						'\n'
+						'Are you sure you want to save\n'
+						'it without components ?'
+					)
+				)
+				if not wants_empty:
+					validity = False
+
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
 
