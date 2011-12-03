@@ -798,20 +798,21 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			tt += u'- %s' % u'\n- '.join(brand['components'])
 		return tt
 	#------------------------------------------------------------
-	def edit(brand=None):
-		if brand.is_vaccine:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Editing medication'),
-				aMessage = _(
-					'Cannot edit the medication\n'
-					'\n'
-					' "%s" (%s)\n'
-					'\n'
-					'because it is a vaccine. Please edit it\n'
-					'from the vaccine management section !\n'
-				) % (brand['brand'], brand['preparation'])
-			)
-			return False
+	def edit(brand):
+		if brand is not None:
+			if brand.is_vaccine:
+				gmGuiHelpers.gm_show_info (
+					aTitle = _('Editing medication'),
+					aMessage = _(
+						'Cannot edit the medication\n'
+						'\n'
+						' "%s" (%s)\n'
+						'\n'
+						'because it is a vaccine. Please edit it\n'
+						'from the vaccine management section !\n'
+					) % (brand['brand'], brand['preparation'])
+				)
+				return False
 
 		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = True)
 	#------------------------------------------------------------

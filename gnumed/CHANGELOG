@@ -10,6 +10,8 @@
 
 IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
 
+FIX: do not check .is_vaccine against None [thanks J.Busser]
+
 	1.1.6
 
 FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
