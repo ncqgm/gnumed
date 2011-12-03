@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.7
+
+IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
+
 	1.1.6
 
 FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
