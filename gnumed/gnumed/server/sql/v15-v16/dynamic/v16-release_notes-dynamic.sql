@@ -18,25 +18,16 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.6 (database v16.6)',
-	'GNUmed 1.1.6 Release Notes:
+	'Release Notes for GNUmed 1.1.7 (database v16.7)',
+	'GNUmed 1.1.7 Release Notes:
 
-	1.1.6
+	1.1.7
 
-FIX: missing check for substance intake end date in the future [thanks S.Hilbert]
-FIX: faulty search query for persons w/o a title [thanks J.Busser]
-FIX: failure to verify substance intake duration [thanks vbanait]
+IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
 
-IMPROVED: description w/ gender formatting [thanks J.Busser/Liz]
-IMPROVED: EMR tree browser: remove redundant gender from root item tooltip
-IMPROVED: demographics: protect against deletion of active name [thanks J.Busser]
-IMPROVED: gracefully fail attempts to duplicate drug component intake [thanks S.Hilbert]
-
-	16.6
-
-FIX: remove faulty i18n-fixup ("generic" tx target does not work as expected) [thanks J.Busser]
-
-IMPROVED: robustify log directory setting in bootstrapper scripts [thanks S.Hilbert]
+FIX: do not check .is_vaccine against None [thanks J.Busser]
+FIX: failure to access drug database on reconfiguration of invalid preselect [thanks J.Busser]
+FIX: inability to edit a drug component intake [thanks S.Hilbert]
 ');
 
 -- --------------------------------------------------------------
