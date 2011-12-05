@@ -948,6 +948,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	17.0
 
 IMPROVED: await <ENTER> before "exit 1" in bootstrap shell scripts [thanks Andreas]
+IMRPOVED: gm.log_script_insertion() now logs script name in gm.access_log
 
 ------------------------------------------------
 # gnumed_v16
