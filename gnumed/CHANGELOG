@@ -17,6 +17,7 @@ IMPROVED: SOAP plugin: RFE/AOE fields only
 IMPROVED: demographics: notebook tab order
 IMPROVED: encounter list: [Add] uses configured default encounter type [thanks J.Busser]
 IMPROVED: encounter list: [Start new], [Edit active], show active in red
+IMPROVED: log data pack insertion in the database [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-1-patches

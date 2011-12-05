@@ -105,6 +105,10 @@ def install_data_pack(data_pack=None, conn=None):
 	psql = gmPsql.Psql(conn)
 	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
 	if psql.run(sql_script) == 0:
+		curs = conn.cursor()
+		curs.execute(u'select gm.log_script_insertion(%(name)s, %(ver)s)', {'name': data_pack['pack_url'], 'ver': u'current'})
+		curs.close()
+		conn.commit()
 		return True
 
 	_log.error('error installing data pack: %s', data_pack)
