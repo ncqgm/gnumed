@@ -950,6 +950,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			self._PRW_preparation.display_as_valid(True)
 
 		if validity is True:
+			self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 			if len(self.__component_substances) == 0:
 				wants_empty = gmGuiHelpers.gm_show_question (
 					title = _('Checking brand data'),
@@ -966,6 +967,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 				)
 				if not wants_empty:
 					validity = False
+					self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
@@ -1069,18 +1071,27 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 			SELECT
-				pk,
+				pk
+					AS data,
 				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
-					AS brand
+					AS list_label,
+				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+					AS field_label
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
-			ORDER BY brand
+			ORDER BY list_label
 			LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The brand name of the drug.'))
+		self.SetToolTipString(_(
+			'The brand name of the drug.\n'
+			'\n'
+			'Note: a brand name will need to be linked to\n'
+			'one or more components before it can be used,\n'
+			'except in the case of fake (generic) vaccines.'
+		))
 		self.matcher = mp
 		self.selection_only = False
 
