@@ -1216,12 +1216,13 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_component.display_as_valid(True)
 
-		# cannot enter duplicate components
-		if has_component:
-			emr = gmPerson.gmCurrentPatient().get_emr()
-			if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
-				self._PRW_component.display_as_valid(False)
-				validity = False
+		# cannot add duplicate components
+		if self.mode == 'new':
+			if has_component:
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
+					self._PRW_component.display_as_valid(False)
+					validity = False
 
 		# must have either brand or substance
 		if (has_component is False) and (has_substance is False):

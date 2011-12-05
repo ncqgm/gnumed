@@ -28,6 +28,7 @@ IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
 
 FIX: do not check .is_vaccine against None [thanks J.Busser]
 FIX: failure to access drug database on reconfiguration of invalid preselect [thanks J.Busser]
+FIX: inability to edit a drug component intake [thanks S.Hilbert]
 
 	1.1.6
 
