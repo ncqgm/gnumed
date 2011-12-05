@@ -80,6 +80,7 @@ def get_drug_database(parent = None):
 		)
 		if default_db is None:
 			return None
+		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 
 	pat = gmPerson.gmCurrentPatient()
 	if pat.connected:
