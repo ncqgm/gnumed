@@ -277,8 +277,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v16/gnumed-schema.html
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v16/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v17/gnumed-schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v17/gnumed-schema-no_audit.dot
 cd -
 
 
@@ -543,6 +543,23 @@ cp -R ../../server/sql/v15-v16/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v15-v16/data/* ./gnumed-client.$CLIENTREV/server/sql/v15-v16/data
 cp -R ../../server/sql/v15-v16/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v15-v16/python
 cp -R ../../server/sql/v15-v16/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v15-v16/fixups
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/static
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/data
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v16-v17/fixups
+
+cp ../../server/sql/v16-v17/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v16-v17
+cp -R ../../server/sql/v16-v17/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/dynamic
+cp -R ../../server/sql/v16-v17/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/static
+#cp -R ../../server/sql/v16-v17/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/superuser
+#cp -R ../../server/sql/v16-v17/data/* ./gnumed-client.$CLIENTREV/server/sql/v16-v17/data
+#cp -R ../../server/sql/v16-v17/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v16-v17/python
+#cp -R ../../server/sql/v16-v17/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/fixups
 
 #----------------------------------
 # weed out unnecessary stuff

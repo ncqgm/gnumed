@@ -80,6 +80,7 @@ def get_drug_database(parent = None):
 		)
 		if default_db is None:
 			return None
+		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 
 	pat = gmPerson.gmCurrentPatient()
 	if pat.connected:
@@ -798,20 +799,21 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			tt += u'- %s' % u'\n- '.join(brand['components'])
 		return tt
 	#------------------------------------------------------------
-	def edit(brand=None):
-		if brand.is_vaccine:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Editing medication'),
-				aMessage = _(
-					'Cannot edit the medication\n'
-					'\n'
-					' "%s" (%s)\n'
-					'\n'
-					'because it is a vaccine. Please edit it\n'
-					'from the vaccine management section !\n'
-				) % (brand['brand'], brand['preparation'])
-			)
-			return False
+	def edit(brand):
+		if brand is not None:
+			if brand.is_vaccine:
+				gmGuiHelpers.gm_show_info (
+					aTitle = _('Editing medication'),
+					aMessage = _(
+						'Cannot edit the medication\n'
+						'\n'
+						' "%s" (%s)\n'
+						'\n'
+						'because it is a vaccine. Please edit it\n'
+						'from the vaccine management section !\n'
+					) % (brand['brand'], brand['preparation'])
+				)
+				return False
 
 		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = True)
 	#------------------------------------------------------------
@@ -947,6 +949,26 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
+		if validity is True:
+			self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			if len(self.__component_substances) == 0:
+				wants_empty = gmGuiHelpers.gm_show_question (
+					title = _('Checking brand data'),
+					question = _(
+						'You have not selected any substances\n'
+						'as drug components.\n'
+						'\n'
+						'Without components you will not be able to\n'
+						'use this drug for documenting patient care.\n'
+						'\n'
+						'Are you sure you want to save\n'
+						'it without components ?'
+					)
+				)
+				if not wants_empty:
+					validity = False
+					self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
+
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
 
@@ -1049,18 +1071,27 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 			SELECT
-				pk,
+				pk
+					AS data,
 				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
-					AS brand
+					AS list_label,
+				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+					AS field_label
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
-			ORDER BY brand
+			ORDER BY list_label
 			LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The brand name of the drug.'))
+		self.SetToolTipString(_(
+			'The brand name of the drug.\n'
+			'\n'
+			'Note: a brand name will need to be linked to\n'
+			'one or more components before it can be used,\n'
+			'except in the case of fake (generic) vaccines.'
+		))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -1196,12 +1227,13 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_component.display_as_valid(True)
 
-		# cannot enter duplicate components
-		if has_component:
-			emr = gmPerson.gmCurrentPatient().get_emr()
-			if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
-				self._PRW_component.display_as_valid(False)
-				validity = False
+		# cannot add duplicate components
+		if self.mode == 'new':
+			if has_component:
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
+					self._PRW_component.display_as_valid(False)
+					validity = False
 
 		# must have either brand or substance
 		if (has_component is False) and (has_substance is False):

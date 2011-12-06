@@ -37,7 +37,7 @@ class wxgBrandedDrugEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgBrandedDrugEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._CHBOX_is_fake.SetForegroundColour(wx.Colour(255, 127, 0))
-        self._CHBOX_is_fake.SetToolTipString(_("Mark as a fake (not really existing) brand."))
+        self._CHBOX_is_fake.SetToolTipString(_("Mark as a fake: use if brand does not commercially exist and you want to create a \"generic\" brand."))
         self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._BTN_manage_components.SetToolTipString(_("Manage the components of this drug."))
         self._TCTRL_external_code.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
