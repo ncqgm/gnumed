@@ -2944,7 +2944,7 @@ class gmApp(wx.App):
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
-		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
+		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):

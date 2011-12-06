@@ -60,8 +60,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		# create the "top row"
 		#---------------------
 		# important patient data is always displayed there
-		# - top panel with toolbars
-		self.top_panel = gmTopPanel.cMainTopPanel(self, -1)
+		self.top_panel = gmTopPanel.cTopPnl(self, -1)
 		self.__gb['horstspace.top_panel'] = self.top_panel
 		self.__load_plugins()
 
