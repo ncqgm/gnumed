@@ -629,6 +629,38 @@ def input2int(initial=None, minval=None, maxval=None):
 
 	return True, int_val
 #---------------------------------------------------------------------------
+def strip_leading_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[0].strip(eol).strip() != u'':
+			break
+		lines = lines[1:]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
+#---------------------------------------------------------------------------
+def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[-1].strip(eol).strip() != u'':
+			break
+		lines = lines[:-1]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
+#---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line

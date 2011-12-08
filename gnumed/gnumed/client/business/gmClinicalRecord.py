@@ -254,9 +254,9 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	# API: hospital stays
 	#--------------------------------------------------------
-	def get_hospital_stays(self, episodes=None, issues=None):
+	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
 
-		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient)
+		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
 
 		if episodes is not None:
 			stays = filter(lambda s: s['pk_episode'] in episodes, stays)
@@ -1157,7 +1157,7 @@ WHERE
 
 		args = {'pat': self.pk_patient}
 
-		cmd = u"""SELECT pk_health_issue, pk_episode FROM clin.v_problem_list WHERE pk_patient = %(pat)s"""
+		cmd = u"""SELECT pk_health_issue, pk_episode FROM clin.v_problem_list WHERE pk_patient = %(pat)s ORDER BY problem"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		# Instantiate problem items

@@ -1057,6 +1057,10 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				raise ValueError('<item_tooltip> callback is not a callable: %s' % callback)
 		self.__item_tooltip_callback = callback
 
+	# the callback must be a function which takes a single argument
+	# the argument is the data for the item the tooltip is on
+	# the callback must return None if no item tooltip is to be shown
+	# otherwise it must return a string (possibly with \n)
 	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)
 #================================================================
 # main

@@ -277,7 +277,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
-	def format(self, left_margin=0, patient=None):
+	def format (self, left_margin=0, patient=None,
+		with_summary=True,
+		with_codes=True,
+		with_episodes=True,
+		with_encounters=True,
+		with_medications=True,
+		with_hospital_stays=True,
+		with_procedures=True,
+		with_family_history=True,
+		with_documents=True,
+		with_tests=True,
+		with_vaccinations=True
+	):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
@@ -334,154 +346,164 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			)
 		))
 
-		if self._payload[self._idx['summary']] is not None:
-			lines.append(u'')
-			lines.append(gmTools.wrap (
-				text = self._payload[self._idx['summary']],
-				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  '
-			))
+		if with_summary:
+			if self._payload[self._idx['summary']] is not None:
+				lines.append(u'')
+				lines.append(gmTools.wrap (
+					text = self._payload[self._idx['summary']],
+					width = 60,
+					initial_indent = u'  ',
+					subsequent_indent = u'  '
+				))
 
-		# codes
-		codes = self.generic_codes
-		if len(codes) > 0:
-			lines.append(u'')
-		for c in codes:
-			lines.append(u' %s: %s (%s - %s)' % (
-				c['code'],
-				c['term'],
-				c['name_short'],
-				c['version']
-			))
-		del codes
+		# codes ?
+		if with_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				lines.append(u'')
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			del codes
 
 		lines.append(u'')
 
 		emr = patient.get_emr()
 
 		# episodes
-		epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
-		if epis is None:
-			lines.append(_('Error retrieving episodes for this health issue.'))
-		elif len(epis) == 0:
-			lines.append(_('There are no episodes for this health issue.'))
-		else:
-			lines.append (
-				_('Episodes: %s (most recent: %s%s%s)') % (
-					len(epis),
-					gmTools.u_left_double_angle_quote,
-					emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
-					gmTools.u_right_double_angle_quote
+		if with_episodes:
+			epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
+			if epis is None:
+				lines.append(_('Error retrieving episodes for this health issue.'))
+			elif len(epis) == 0:
+				lines.append(_('There are no episodes for this health issue.'))
+			else:
+				lines.append (
+					_('Episodes: %s (most recent: %s%s%s)') % (
+						len(epis),
+						gmTools.u_left_double_angle_quote,
+						emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
+						gmTools.u_right_double_angle_quote
+					)
 				)
-			)
-			for epi in epis:
-				lines.append(u' \u00BB%s\u00AB (%s)' % (
-					epi['description'],
-					gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
-				))
-
-		lines.append('')
+				for epi in epis:
+					lines.append(u' \u00BB%s\u00AB (%s)' % (
+						epi['description'],
+						gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
+					))
+			lines.append('')
 
 		# encounters
-		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
-		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
+		if with_encounters:
+			first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
+			last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
 
-		if first_encounter is None or last_encounter is None:
-			lines.append(_('No encounters found for this health issue.'))
-		else:
-			encs = emr.get_encounters(issues = [self._payload[self._idx['pk_health_issue']]])
-			lines.append(_('Encounters: %s (%s - %s):') % (
-				len(encs),
-				first_encounter['started_original_tz'].strftime('%m/%Y'),
-				last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
-			))
-			lines.append(_(' Most recent: %s - %s') % (
-				last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-				last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
-			))
+			if first_encounter is None or last_encounter is None:
+				lines.append(_('No encounters found for this health issue.'))
+			else:
+				encs = emr.get_encounters(issues = [self._payload[self._idx['pk_health_issue']]])
+				lines.append(_('Encounters: %s (%s - %s):') % (
+					len(encs),
+					first_encounter['started_original_tz'].strftime('%m/%Y'),
+					last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
+				))
+				lines.append(_(' Most recent: %s - %s') % (
+					last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
+				))
 
 		# medications
-		meds = emr.get_current_substance_intake (
-			issues = [ self._payload[self._idx['pk_health_issue']] ],
-			order_by = u'is_currently_active, started, substance'
-		)
-
-		if len(meds) > 0:
-			lines.append(u'')
-			lines.append(_('Active medications: %s') % len(meds))
-		for m in meds:
-			lines.append(m.format(left_margin = (left_margin + 1)))
-		del meds
+		if with_medications:
+			meds = emr.get_current_substance_intake (
+				issues = [ self._payload[self._idx['pk_health_issue']] ],
+				order_by = u'is_currently_active, started, substance'
+			)
+			if len(meds) > 0:
+				lines.append(u'')
+				lines.append(_('Active medications: %s') % len(meds))
+			for m in meds:
+				lines.append(m.format(left_margin = (left_margin + 1)))
+			del meds
 
 		# hospital stays
-		stays = emr.get_hospital_stays (
-			issues = [ self._payload[self._idx['pk_health_issue']] ]
-		)
-		if len(stays) > 0:
-			lines.append(u'')
-			lines.append(_('Hospital stays: %s') % len(stays))
-		for s in stays:
-			lines.append(s.format(left_margin = (left_margin + 1)))
-		del stays
+		if with_hospital_stays:
+			stays = emr.get_hospital_stays (
+				issues = [ self._payload[self._idx['pk_health_issue']] ]
+			)
+			if len(stays) > 0:
+				lines.append(u'')
+				lines.append(_('Hospital stays: %s') % len(stays))
+			for s in stays:
+				lines.append(s.format(left_margin = (left_margin + 1)))
+			del stays
 
 		# procedures
-		procs = emr.get_performed_procedures (
-			issues = [ self._payload[self._idx['pk_health_issue']] ]
-		)
-		if len(procs) > 0:
-			lines.append(u'')
-			lines.append(_('Procedures performed: %s') % len(procs))
-		for p in procs:
-			lines.append(p.format(left_margin = (left_margin + 1)))
-		del procs
+		if with_procedures:
+			procs = emr.get_performed_procedures (
+				issues = [ self._payload[self._idx['pk_health_issue']] ]
+			)
+			if len(procs) > 0:
+				lines.append(u'')
+				lines.append(_('Procedures performed: %s') % len(procs))
+			for p in procs:
+				lines.append(p.format(left_margin = (left_margin + 1)))
+			del procs
 
 		# family history
-		fhx = emr.get_family_history(issues = [ self._payload[self._idx['pk_health_issue']] ])
-		if len(fhx) > 0:
-			lines.append(u'')
-			lines.append(_('Family History: %s') % len(fhx))
-		for f in fhx:
-			lines.append(f.format (
-				left_margin = (left_margin + 1),
-				include_episode = True,
-				include_comment = True,
-				include_codes = False
-			))
-		del fhx
+		if with_family_history:
+			fhx = emr.get_family_history(issues = [ self._payload[self._idx['pk_health_issue']] ])
+			if len(fhx) > 0:
+				lines.append(u'')
+				lines.append(_('Family History: %s') % len(fhx))
+			for f in fhx:
+				lines.append(f.format (
+					left_margin = (left_margin + 1),
+					include_episode = True,
+					include_comment = True,
+					include_codes = False
+				))
+			del fhx
 
 		epis = self.get_episodes()
 		if len(epis) > 0:
 			epi_pks = [ e['pk_episode'] for e in epis ]
 
 			# documents
-			doc_folder = patient.get_document_folder()
-			docs = doc_folder.get_documents(episodes = epi_pks)
-			if len(docs) > 0:
-				lines.append(u'')
-				lines.append(_('Documents: %s') % len(docs))
-			del docs
+			if with_documents:
+				doc_folder = patient.get_document_folder()
+				docs = doc_folder.get_documents(episodes = epi_pks)
+				if len(docs) > 0:
+					lines.append(u'')
+					lines.append(_('Documents: %s') % len(docs))
+				del docs
 
 			# test results
-			tests = emr.get_test_results_by_date(episodes = epi_pks)
-			if len(tests) > 0:
-				lines.append(u'')
-				lines.append(_('Measurements and Results: %s') % len(tests))
-			del tests
+			if with_tests:
+				tests = emr.get_test_results_by_date(episodes = epi_pks)
+				if len(tests) > 0:
+					lines.append(u'')
+					lines.append(_('Measurements and Results: %s') % len(tests))
+				del tests
 
 			# vaccinations
-			vaccs = emr.get_vaccinations(episodes = epi_pks)
-			if len(vaccs) > 0:
-				lines.append(u'')
-				lines.append(_('Vaccinations:'))
-			for vacc in vaccs:
-				lines.extend(vacc.format(with_reaction = True))
-			del vaccs
+			if with_vaccinations:
+				vaccs = emr.get_vaccinations(episodes = epi_pks)
+				if len(vaccs) > 0:
+					lines.append(u'')
+					lines.append(_('Vaccinations:'))
+				for vacc in vaccs:
+					lines.extend(vacc.format(with_reaction = True))
+				del vaccs
 
 		del epis
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	# properties
@@ -847,7 +869,18 @@ from (
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
-	def format(self, left_margin=0, patient=None):
+	def format(self, left_margin=0, patient=None,
+		with_summary=True,
+		with_codes=True,
+		with_encounters=True,
+		with_documents=True,
+		with_hospital_stays=True,
+		with_procedures=True,
+		with_family_history=True,
+		with_tests=True,
+		with_vaccinations=True,
+		with_health_issue=False
+	):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
@@ -905,187 +938,197 @@ from (
 			)
 		))
 
-		if self._payload[self._idx['summary']] is not None:
-			lines.append(u'')
-			lines.append(gmTools.wrap (
-					text = self._payload[self._idx['summary']],
-					width = 60,
-					initial_indent = u'  ',
-					subsequent_indent = u'  '
+		if with_health_issue:
+			lines.append(u' ' + _('Health issue') + u': %s' % gmTools.coalesce (
+				self._payload[self._idx['health_issue']],
+				_('none associated')
+			))
+
+		if with_summary:
+			if self._payload[self._idx['summary']] is not None:
+				lines.append(u'')
+				lines.append(gmTools.wrap (
+						text = self._payload[self._idx['summary']],
+						width = 60,
+						initial_indent = u'  ',
+						subsequent_indent = u'  '
+					)
 				)
-			)
 
 		# codes
-		codes = self.generic_codes
-		if len(codes) > 0:
-			lines.append(u'')
-		for c in codes:
-			lines.append(u' %s: %s (%s - %s)' % (
-				c['code'],
-				c['term'],
-				c['name_short'],
-				c['version']
-			))
-		del codes
+		if with_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				lines.append(u'')
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			del codes
 
 		lines.append(u'')
 
 		# encounters
-		if encs is None:
-			lines.append(_('Error retrieving encounters for this episode.'))
-		elif len(encs) == 0:
-			#lines.append(_('There are no encounters for this episode.'))
-			pass
-		else:
-			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
-
-			if len(encs) < 4:
-				line = _('%s encounter(s) (%s - %s):')
+		if with_encounters:
+			if encs is None:
+				lines.append(_('Error retrieving encounters for this episode.'))
+			elif len(encs) == 0:
+				#lines.append(_('There are no encounters for this episode.'))
+				pass
 			else:
-				line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
-			lines.append(line % (
-				len(encs),
-				first_encounter['started'].strftime('%m/%Y'),
-				last_encounter['last_affirmed'].strftime('%m/%Y')
-			))
+				lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
-			lines.append(u' %s - %s (%s):%s' % (
-				first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-				first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
-				first_encounter['l10n_type'],
-				gmTools.coalesce (
-					first_encounter['assessment_of_encounter'],
-					gmTools.coalesce (
-						first_encounter['reason_for_encounter'],
-						u'',
-						u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
-					),
-					u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
-				)
-			))
+				if len(encs) < 4:
+					line = _('%s encounter(s) (%s - %s):')
+				else:
+					line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
+				lines.append(line % (
+					len(encs),
+					first_encounter['started'].strftime('%m/%Y'),
+					last_encounter['last_affirmed'].strftime('%m/%Y')
+				))
 
-			if len(encs) > 4:
-				lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
-
-			for enc in encs[1:][-3:]:
 				lines.append(u' %s - %s (%s):%s' % (
-					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-					enc['last_affirmed_original_tz'].strftime('%H:%M'),
-					enc['l10n_type'],
+					first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
+					first_encounter['l10n_type'],
 					gmTools.coalesce (
-						enc['assessment_of_encounter'],
+						first_encounter['assessment_of_encounter'],
 						gmTools.coalesce (
-							enc['reason_for_encounter'],
+							first_encounter['reason_for_encounter'],
 							u'',
 							u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
 						),
 						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
 					)
 				))
-			del encs
 
-		# spell out last encounter
-		if last_encounter is not None:
-			lines.append('')
-			lines.append(_('Progress notes in most recent encounter:'))
-			lines.extend(last_encounter.format_soap (
-				episodes = [ self._payload[self._idx['pk_episode']] ],
-				left_margin = left_margin,
-				soap_cats = 'soap',
-				emr = emr
-			))
+				if len(encs) > 4:
+					lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
+
+				for enc in encs[1:][-3:]:
+					lines.append(u' %s - %s (%s):%s' % (
+						enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+						enc['last_affirmed_original_tz'].strftime('%H:%M'),
+						enc['l10n_type'],
+						gmTools.coalesce (
+							enc['assessment_of_encounter'],
+							gmTools.coalesce (
+								enc['reason_for_encounter'],
+								u'',
+								u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+							),
+							u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+						)
+					))
+				del encs
+
+			# spell out last encounter
+			if last_encounter is not None:
+				lines.append('')
+				lines.append(_('Progress notes in most recent encounter:'))
+				lines.extend(last_encounter.format_soap (
+					episodes = [ self._payload[self._idx['pk_episode']] ],
+					left_margin = left_margin,
+					soap_cats = 'soap',
+					emr = emr
+				))
 
 		# documents
-		doc_folder = patient.get_document_folder()
-		docs = doc_folder.get_documents (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
-
-		if len(docs) > 0:
-			lines.append('')
-			lines.append(_('Documents: %s') % len(docs))
-
-		for d in docs:
-			lines.append(u' %s %s:%s%s' % (
-				d['clin_when'].strftime('%Y-%m-%d'),
-				d['l10n_type'],
-				gmTools.coalesce(d['comment'], u'', u' "%s"'),
-				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-			))
-		del docs
+		if with_documents:
+			doc_folder = patient.get_document_folder()
+			docs = doc_folder.get_documents (
+				episodes = [ self._payload[self._idx['pk_episode']] ]
+			)
+			if len(docs) > 0:
+				lines.append('')
+				lines.append(_('Documents: %s') % len(docs))
+			for d in docs:
+				lines.append(u' %s %s:%s%s' % (
+					d['clin_when'].strftime('%Y-%m-%d'),
+					d['l10n_type'],
+					gmTools.coalesce(d['comment'], u'', u' "%s"'),
+					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+				))
+			del docs
 
 		# hospital stays
-		stays = emr.get_hospital_stays(episodes = [ self._payload[self._idx['pk_episode']] ])
-		if len(stays) > 0:
-			lines.append('')
-			lines.append(_('Hospital stays: %s') % len(stays))
-		for s in stays:
-			lines.append(s.format(left_margin = (left_margin + 1)))
-		del stays
+		if with_hospital_stays:
+			stays = emr.get_hospital_stays(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(stays) > 0:
+				lines.append('')
+				lines.append(_('Hospital stays: %s') % len(stays))
+			for s in stays:
+				lines.append(s.format(left_margin = (left_margin + 1)))
+			del stays
 
 		# procedures
-		procs = emr.get_performed_procedures(episodes = [ self._payload[self._idx['pk_episode']] ])
-		if len(procs) > 0:
-			lines.append(u'')
-			lines.append(_('Procedures performed: %s') % len(procs))
-		for p in procs:
-			lines.append(p.format (
-				left_margin = (left_margin + 1),
-				include_episode = False,
-				include_codes = True
-			))
-		del procs
+		if with_procedures:
+			procs = emr.get_performed_procedures(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(procs) > 0:
+				lines.append(u'')
+				lines.append(_('Procedures performed: %s') % len(procs))
+			for p in procs:
+				lines.append(p.format (
+					left_margin = (left_margin + 1),
+					include_episode = False,
+					include_codes = True
+				))
+			del procs
 
 		# family history
-		fhx = emr.get_family_history(episodes = [ self._payload[self._idx['pk_episode']] ])
-		if len(fhx) > 0:
-			lines.append(u'')
-			lines.append(_('Family History: %s') % len(fhx))
-		for f in fhx:
-			lines.append(f.format (
-				left_margin = (left_margin + 1),
-				include_episode = False,
-				include_comment = True,
-				include_codes = True
-			))
-		del fhx
+		if with_family_history:
+			fhx = emr.get_family_history(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(fhx) > 0:
+				lines.append(u'')
+				lines.append(_('Family History: %s') % len(fhx))
+			for f in fhx:
+				lines.append(f.format (
+					left_margin = (left_margin + 1),
+					include_episode = False,
+					include_comment = True,
+					include_codes = True
+				))
+			del fhx
 
 		# test results
-		tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
-
-		if len(tests) > 0:
-			lines.append('')
-			lines.append(_('Measurements and Results:'))
-
-		for t in tests:
-			lines.extend(t.format (
-				with_review = False,
-				with_comments = False,
-				date_format = '%Y-%m-%d'
-			))
-		del tests
+		if with_tests:
+			tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(tests) > 0:
+				lines.append('')
+				lines.append(_('Measurements and Results:'))
+			for t in tests:
+				lines.extend(t.format (
+					with_review = False,
+					with_comments = False,
+					date_format = '%Y-%m-%d'
+				))
+			del tests
 
 		# vaccinations
-		vaccs = emr.get_vaccinations (
-			episodes = [ self._payload[self._idx['pk_episode']] ],
-			order_by = u'date_given DESC, vaccine'
-		)
-
-		if len(vaccs) > 0:
-			lines.append(u'')
-			lines.append(_('Vaccinations:'))
-
-		for vacc in vaccs:
-			lines.extend(vacc.format (
-				with_indications = True,
-				with_comment = True,
-				with_reaction = True,
-				date_format = '%Y-%m-%d'
-			))
-		del vaccs
+		if with_vaccinations:
+			vaccs = emr.get_vaccinations (
+				episodes = [ self._payload[self._idx['pk_episode']] ],
+				order_by = u'date_given DESC, vaccine'
+			)
+			if len(vaccs) > 0:
+				lines.append(u'')
+				lines.append(_('Vaccinations:'))
+			for vacc in vaccs:
+				lines.extend(vacc.format (
+					with_indications = True,
+					with_comment = True,
+					with_reaction = True,
+					date_format = '%Y-%m-%d'
+				))
+			del vaccs
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	# properties
@@ -2274,14 +2317,14 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
 
 		if self._payload[self._idx['discharge']] is not None:
-			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y %b %d').decode(gmI18N.get_encoding())
+			discharge = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y %b %d').decode(gmI18N.get_encoding())
 		else:
-			dis = u''
+			discharge = u''
 
 		line = u'%s%s%s%s: %s%s%s' % (
 			u' ' * left_margin,
 			self._payload[self._idx['admission']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
-			dis,
+			discharge,
 			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['episode']],
@@ -2301,13 +2344,25 @@ def get_latest_patient_hospital_stay(patient=None):
 		return None
 	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
 #-----------------------------------------------------------
-def get_patient_hospital_stays(patient=None):
+def get_patient_hospital_stays(patient=None, ongoing_only=False):
+	args = {'pat': patient}
+	if ongoing_only:
+		cmd = u"""
+			SELECT *
+			FROM clin.v_pat_hospital_stays
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				discharge is NULL
+			ORDER BY admission"""
+	else:
+		cmd = u"""
+			SELECT *
+			FROM clin.v_pat_hospital_stays
+			WHERE pk_patient = %(pat)s
+			ORDER BY admission"""
 
-	queries = [{
-		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission',
-		'args': {'pat': patient}
-	}]
-
+	queries = [{'cmd': cmd, 'args': args}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
 	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]

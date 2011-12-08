@@ -303,7 +303,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 				map_gender2salutation(self._payload[self._idx['gender']])
 			),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' "%s"', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'", u'%s')
 		}
 
 	description = property(_get_description, lambda x:x)
@@ -421,21 +421,28 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	gender_symbol = property(_get_gender_symbol, lambda x:x)
 	#--------------------------------------------------------
 	def get_active_name(self):
-		for name in self.get_names():
-			if name['active_name'] is True:
-				return name
+		names = self.get_names(active_only = True)
+		if len(names) == 0:
+			_log.error('cannot retrieve active name for patient [%s]', self._payload[self._idx['pk_identity']])
+			return None
+		return names[0]
 
-		_log.error('cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
-		return None
+	active_name = property(get_active_name, lambda x:x)
 	#--------------------------------------------------------
-	def get_names(self):
+	def get_names(self, active_only=False, exclude_active=False):
+
+		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		where_parts = [u'pk_identity = %(pk_pat)s']
+		if active_only:
+			where_parts.append(u'active_name is True')
+		if exclude_active:
+			where_parts.append(u'active_name is False')
 		cmd = u"""
 			SELECT *
 			FROM dem.v_person_names
-			WHERE pk_identity = %(pk_pat)s
+			WHERE %s
 			ORDER BY active_name DESC, lastnames, firstnames
-		"""
-		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		""" % u' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
@@ -660,6 +667,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows
+
+	external_ids = property(get_external_ids, lambda x:x)
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
 		cmd = u"""
