@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.8
+
+FIX: exception on accessing diagnostic certainty phrasewheel [thanks J.Busser]
+
 	1.1.7
 
 IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]

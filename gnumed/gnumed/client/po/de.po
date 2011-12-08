@@ -7642,7 +7642,7 @@ msgid "Yes: + / ! / 1"
 msgstr "Ja: + / ! / 1 / y"
 
 msgid "No: - / 0"
-msgstr "No: - / 0"
+msgstr "Nein: - / 0"
 
 msgid "Unknown: ?"
 msgstr "Unbekannt: ?"

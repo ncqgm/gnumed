@@ -2136,10 +2136,10 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_FixedList (
 			aSeq = [
-				{'data': u'A', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
-				{'data': u'B', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
-				{'data': u'C', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
-				{'data': u'D', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
+				{'data': u'A', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
+				{'data': u'B', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
+				{'data': u'C', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
+				{'data': u'D', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
 			]
 		)
 		mp.setThresholds(1, 2, 4)
