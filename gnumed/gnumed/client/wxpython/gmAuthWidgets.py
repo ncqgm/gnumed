@@ -741,21 +741,28 @@ class cLoginPanel(wx.Panel):
 		wx.MessageBox(_(
 """GNUmed main login screen
 
-USER:
- name of the GNUmed user
-PASSWORD
- password for this user
+Welcome to the GNUmed client. Shown are the current
+"Workplace" and (version).
 
-button OK:
- proceed with login
-button OPTIONS:
- set advanced options
-button CANCEL:
- abort login and quit GNUmed client
-button HELP:
- this help screen
+You may select to log into a public database with username
+and password {any-doc, any-doc}. Any other database
+(including a local one) must first be separately installed
+before you can log in.
 
-For assistance on using GNUmed please contact:
+For assistance on using GNUmed please consult the wiki:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual
+
+and to install a local database see:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+
+For more help than the above, please contact:
+
+ GNUmed Development List <gnumed-bugs@gnu.org>
+
+For local assistance please contact:
+
  %s""") % praxis.helpdesk)
 
 	#----------------------------
