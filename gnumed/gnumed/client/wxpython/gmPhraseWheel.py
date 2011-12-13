@@ -705,7 +705,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# check value against final_regex if any given
 		if self.__final_regex.match(self.GetValue().strip()) is None:
-			wx.lib.pubsub.Publisher().sendMessage (
+			wx.lib.pubsub.Publisher.sendMessage (
 				topic = 'statustext',
 				data = {'msg': self.final_regex_error_msg}
 			)
@@ -1101,7 +1101,7 @@ class cPhraseWheel(cPhraseWheelBase):
 
 		# no exact match found
 		if self.selection_only:
-			wx.lib.pubsub.Publisher().sendMessage (
+			wx.lib.pubsub.Publisher.sendMessage (
 				topic = 'statustext',
 				data = {'msg': self.selection_only_error_msg}
 			)
