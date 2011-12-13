@@ -28,6 +28,7 @@ if not hasattr(sys, 'frozen'):
 
 try:
 	import wx
+	from wx.lib.pubsub import setupv1
 	import wx.lib.pubsub
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
