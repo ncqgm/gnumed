@@ -16,17 +16,15 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
-
+from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmEMRStructItems
-
-#from Gnumed.wxpython import gmListWidgets
-#from Gnumed.wxpython import gmEditArea
-#from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.business import gmFamilyHistory
+from Gnumed.business import gmVaccination
 from Gnumed.wxpython import gmRegetMixin
-#from Gnumed.wxpython import gmAddressWidgets
-#from Gnumed.wxpython import gmGuiHelpers
+
 
 _log = logging.getLogger('gm.patient')
 #============================================================
@@ -52,11 +50,19 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_contacts.set_columns(columns = [u''])
 		self._LCTRL_contacts.item_tooltip_callback = self._calc_contacts_list_item_tooltip
+
+		self._LCTRL_meds.set_columns(columns = [u''])
+		self._LCTRL_meds.item_tooltip_callback = self._calc_meds_list_item_tooltip
+
+		self._LCTRL_history.set_columns(columns = [u''])
+		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		self._LCTRL_identity.set_string_items()
 		self._LCTRL_problems.set_string_items()
 		self._LCTRL_contacts.set_string_items()
+		self._LCTRL_meds.set_string_items()
+		self._LCTRL_history.set_string_items()
 	#-----------------------------------------------------
 	# event handling
 	#-----------------------------------------------------
@@ -79,6 +85,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+
+		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'hospital_stay_mod_db', receiver = self._on_post_patient_selection)
 		#gmDispatcher.connect(signal = u'family_history_mod_db', receiver = self._on_post_patient_selection)
@@ -112,12 +120,149 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if not pat.connected:
 			self.__reset_ui_content()
 			return True
+
 		self.__refresh_identity(patient = pat)
-		self.__refresh_problems(patient = pat)
 		self.__refresh_contacts(patient = pat)
+
+		self.__refresh_problems(patient = pat)
+		self.__refresh_meds(patient = pat)
+		self.__refresh_history(patient = pat)
+
 		return True
 	#-----------------------------------------------------
 	# internal helpers
+	#-----------------------------------------------------
+	def __refresh_history(self, patient=None):
+		emr = patient.get_emr()
+
+		list_items = []
+		list_data = []
+
+		issues = [
+			i for i in emr.get_health_issues()
+			if ((i['clinically_relevant'] is False) or (i['is_active'] is False))
+		]
+		for issue in issues:
+			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
+			if last_encounter is None:
+				last = issue['modified_when'].strftime('%m/%Y')
+			else:
+				last = last_encounter['last_affirmed'].strftime('%m/%Y')
+			list_items.append(u'%s %s' % (last, issue['description']))
+			list_data.append(issue)
+		del issues
+
+		fhxs = emr.get_family_history()
+		for fhx in fhxs:
+			list_items.append(u'%s: %s%s' % (
+				fhx['l10n_relation'],
+				fhx['condition'],
+				gmTools.coalesce(fhx['age_noted'], u'', u' (@ %s)')
+			))
+			list_data.append(fhx)
+		del fhxs
+
+		stays = emr.get_hospital_stays()
+		for stay in stays:
+			if stay['discharge'] is not None:
+				discharge = u''
+			else:
+				discharge = gmTools.u_ellipsis
+			list_items.append(u'%s%s %s: %s' % (
+				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b %d'),
+				discharge,
+				stay['hospital'],
+				stay['episode']
+			))
+			list_data.append(stay)
+		del stays
+
+		procs = emr.get_performed_procedures()
+		for proc in procs:
+			list_items.append(u'%s%s %s' % (
+				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b %d'),
+				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, u'', u''),
+				proc['performed_procedure']
+			))
+			list_data.append(proc)
+		del procs
+
+		vaccs = emr.get_latest_vaccinations()
+		for ind, tmp in vaccs.items():
+			tmp, vacc = tmp
+			list_items.append(u'%s %s' % (
+				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b %d'),
+				ind
+			))
+			list_data.append(vacc)
+		del vaccs
+
+		self._LCTRL_history.set_string_items(items = list_items)
+		self._LCTRL_history.set_data(data = list_data)
+	#-----------------------------------------------------
+	def _calc_history_list_item_tooltip(self, data):
+
+		if isinstance(data, gmEMRStructItems.cHealthIssue):
+			return data.format (
+				patient = gmPerson.gmCurrentPatient(),
+				with_medications = False,
+				with_hospital_stays = False,
+				with_procedures = False,
+				with_family_history = False,
+				with_documents = False,
+				with_tests = False,
+				with_vaccinations = False
+			).strip(u'\n')
+
+		if isinstance(data, gmFamilyHistory.cFamilyHistory):
+			return data.format(include_episode = True, include_comment = True)
+
+		if isinstance(data, gmEMRStructItems.cHospitalStay):
+			return data.format()
+
+		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+			return data.format(include_episode = True)
+
+		if isinstance(data, gmVaccination.cVaccination):
+			return u'\n'.join(data.format (
+				with_indications = True,
+				with_comment = True,
+				with_reaction = True,
+				date_format = '%Y %b %d'
+			))
+
+		return None
+	#-----------------------------------------------------
+	def __refresh_meds(self, patient=None):
+		emr = patient.get_emr()
+		list_items = []
+		meds = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
+		for med in meds:
+			list_items.append(_('%s %s %s%s') % (
+				med['substance'],
+				med['amount'],
+				med['unit'],
+				gmTools.coalesce (
+					med['schedule'],
+					u'',
+					u': %s'
+				)
+			))
+		self._LCTRL_meds.set_string_items(items = list_items)
+		self._LCTRL_meds.set_data(data = meds)
+	#-----------------------------------------------------
+	def _calc_meds_list_item_tooltip(self, data):
+		emr = gmPerson.gmCurrentPatient().get_emr()
+		atcs = []
+		if data['atc_substance'] is not None:
+			atcs.append(data['atc_substance'])
+#		if data['atc_brand'] is not None:
+#			atcs.append(data['atc_brand'])
+#		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],), brand = data['brand'])
+		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],))
+		if allg is False:
+			allg = None
+		return data.format(one_line = False, allergy = allg)
 	#-----------------------------------------------------
 	def __refresh_contacts(self, patient=None):
 		emr = patient.get_emr()
@@ -154,6 +299,20 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 			list_data.append(comm)
 
+		ident = patient.emergency_contact_in_database
+		if ident is not None:
+			list_items.append(_('emergency: %s') % ident['description_gender'])
+			list_data.append(ident)
+
+		if patient['emergency_contact'] is not None:
+			list_items.append(_('emergency: %s') % patient['emergency_contact'].split(u'\n')[0])
+			list_data.append(patient['emergency_contact'])
+
+		provider = patient.primary_provider
+		if provider is not None:
+			list_items.append(_('in-praxis: %s') % provider.identity['description_gender'])
+			list_data.append(provider)
+
 		self._LCTRL_contacts.set_string_items(items = list_items)
 		self._LCTRL_contacts.set_data(data = list_data)
 		if is_in_hospital:
@@ -172,6 +331,38 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				data['is_confidential'],
 				_('*** CONFIDENTIAL ***'),
 				None
+			)
+
+		if isinstance(data, gmPerson.cIdentity):
+			return u'%s\n\n%s' % (
+				data['description_gender'],
+				u'\n'.join([
+					u'%s: %s%s' % (
+						c['l10n_comm_type'],
+						c['url'],
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+					)
+					for c in data.get_comm_channels()
+				])
+			)
+
+		if isinstance(data, basestring):
+			return data
+
+		if isinstance(data, gmStaff.cStaff):
+			ident = data.identity
+			return u'%s: %s\n\n%s%s' % (
+				data['short_alias'],
+				ident['description_gender'],
+				u'\n'.join([
+					u'%s: %s%s' % (
+						c['l10n_comm_type'],
+						c['url'],
+						gmTools.bool2subst(c['is_confidential'], _(' (confidential !)'), u'', u'')
+					)
+					for c in ident.get_comm_channels()
+				]),
+				gmTools.coalesce(data['comment'], u'', u'\n\n%s')
 			)
 
 		return None

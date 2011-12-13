@@ -1556,7 +1556,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y-%m-%d'):
+	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None):
+		if one_line:
+			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
+
+		return self.format_as_multiple_lines(left_margin = left_margin, date_format = date_format, allergy = allergy)
+	#--------------------------------------------------------
+	def format_as_one_line(self, left_margin=0, date_format='%Y %B %d'):
 
 		if self._payload[self._idx['duration']] is None:
 			duration = gmTools.bool2subst (
@@ -1584,6 +1590,104 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		return line
+	#--------------------------------------------------------
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None):
+
+		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
+			gmTools.bool2subst (
+				boolean = self._payload[self._idx['is_currently_active']],
+				true_return = gmTools.bool2subst (
+					boolean = self._payload[self._idx['seems_inactive']],
+					true_return = _('active, needs check'),
+					false_return = _('active'),
+					none_return = _('assumed active')
+				),
+				false_return = _('inactive')
+			),
+			gmTools.bool2subst (
+				boolean = self._payload[self._idx['intake_is_approved_of']],
+				true_return = _('approved'),
+				false_return = _('unapproved')
+			),
+			self._payload[self._idx['pk_substance_intake']]
+		)
+
+		if allergy is not None:
+			certainty = gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'))
+			txt += u'\n'
+			txt += u' !! ---- Cave ---- !!\n'
+			txt += u' %s (%s): %s (%s)\n' % (
+				allergy['l10n_type'],
+				certainty,
+				allergy['descriptor'],
+				gmTools.coalesce(allergy['reaction'], u'')[:40]
+			)
+			txt += u'\n'
+
+		txt += u' ' + _('Substance: %s   [#%s]\n') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']])
+		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['preparation']]
+		txt += u' ' + _('Amount per dose: %s %s') % (self._payload[self._idx['amount']], self._payload[self._idx['unit']])
+		if self.ddd is not None:
+			txt += u' (DDD: %s %s)' % (self.ddd['ddd'], self.ddd['unit'])
+		txt += u'\n'
+		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', _(' ATC (substance): %s\n'))
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce (
+			self._payload[self._idx['brand']],
+			u'',
+			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
+		)
+		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce(self._payload[self._idx['schedule']], u'', _(' Regimen: %s\n'))
+
+		if self._payload[self._idx['is_long_term']]:
+			duration = u' %s %s' % (gmTools.u_right_arrow, gmTools.u_infinity)
+		else:
+			if self._payload[self._idx['duration']] is None:
+				duration = u''
+			else:
+				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
+
+		txt += _(' Started %s%s%s\n') % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['started']],
+				format = date_format,
+				accuracy = gmDateTime.acc_days
+			),
+			duration,
+			gmTools.bool2subst(self._payload[self._idx['is_long_term']], _(' (long-term)'), _(' (short-term)'), u'')
+		)
+
+		if self._payload[self._idx['discontinued']] is not None:
+			txt += _(' Discontinued %s\n') % (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['discontinued']],
+					format = date_format,
+					accuracy = gmDateTime.acc_days
+				)
+			)
+			txt += _(' Reason: %s\n') % self._payload[self._idx['discontinue_reason']]
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce(self._payload[self._idx['aim']], u'', _(' Aim: %s\n'))
+		txt += gmTools.coalesce(self._payload[self._idx['episode']], u'', _(' Episode: %s\n'))
+		txt += gmTools.coalesce(self._payload[self._idx['notes']], u'', _(' Advice: %s\n'))
+
+		txt += u'\n'
+
+		txt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+			'row_ver': self._payload[self._idx['row_version']],
+			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
+			'mod_by': self._payload[self._idx['modified_by']]
+		}
+
+		return txt
 	#--------------------------------------------------------
 	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
 		allg = gmAllergy.create_allergy (

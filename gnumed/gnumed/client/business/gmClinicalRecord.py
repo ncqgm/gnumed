@@ -1221,7 +1221,7 @@ WHERE
 		issues = []
 		for row in rows:
 			r = {'idx': idx, 'data': row, 'pk_field': 'pk_health_issue'}
-			issues.append(gmEMRStructItems.cHealthIssue(row=r))
+			issues.append(gmEMRStructItems.cHealthIssue(row = r))
 
 		if id_list is None:
 			return issues
