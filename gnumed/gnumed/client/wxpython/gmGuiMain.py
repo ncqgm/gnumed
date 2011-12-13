@@ -827,7 +827,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
 
-		wx.lib.pubsub.Publisher().subscribe(listener = self._on_set_statustext_pubsub, topic = 'statustext')
+		wx.lib.pubsub.Publisher.subscribe(listener = self._on_set_statustext_pubsub, topic = 'statustext')
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
@@ -2981,10 +2981,10 @@ class gmApp(wx.App):
 		if _cfg.get(option = 'debug'):
 			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
 			_log.debug('connected old signal monitor')
-			wx.lib.pubsub.Publisher().subscribe(listener = self._signal_debugging_monitor_pubsub)
+			wx.lib.pubsub.Publisher.subscribe(listener = self._signal_debugging_monitor_pubsub)
 			_log.debug('connected wx.lib.pubsub based signal monitor for all topics')
 
-#			wx.lib.pubsub.Publisher().subscribe (
+#			wx.lib.pubsub.Publisher.subscribe (
 #				listener = self._signal_debugging_monitor_pubsub,
 #				topic = wx.lib.pubsub.getStrAllTopics()					# does not exist anymore in later versions of pubsub
 #			)
@@ -3340,7 +3340,7 @@ def main():
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
-		wx.lib.pubsub.Publisher().subscribe (
+		wx.lib.pubsub.Publisher.subscribe (
 			listener = _signal_debugging_monitor_pubsub
 #			, topic = wx.lib.pubsub.getStrAllTopics()				# not available in some implementations
 		)
