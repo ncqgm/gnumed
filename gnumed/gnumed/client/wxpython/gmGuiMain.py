@@ -2987,6 +2987,7 @@ class gmApp(wx.App):
 #			wx.lib.pubsub.Publisher.subscribe (
 #				listener = self._signal_debugging_monitor_pubsub,
 #				topic = wx.lib.pubsub.getStrAllTopics()					# does not exist anymore in later versions of pubsub
+#				, topic = pub.ALL_TOPICS								# v3
 #			)
 	#----------------------------------------------
 	def __check_for_updates(self):
@@ -3343,6 +3344,7 @@ def main():
 		wx.lib.pubsub.Publisher.subscribe (
 			listener = _signal_debugging_monitor_pubsub
 #			, topic = wx.lib.pubsub.getStrAllTopics()				# not available in some implementations
+#			, topic = pub.ALL_TOPICS								# v3
 		)
 		_log.debug('wx.lib.pubsub signal monitor activated')
 

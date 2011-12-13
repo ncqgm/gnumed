@@ -427,15 +427,15 @@ gmSECTION_RECALLS = 12
 
 richards_blue = wx.Colour(0,0,131)
 richards_aqua = wx.Colour(0,194,197)
-richards_dark_gray = wx.Color(131,129,131)
-richards_light_gray = wx.Color(255,255,255)
-richards_coloured_gray = wx.Color(131,129,131)
+richards_dark_gray = wx.Colour(131,129,131)
+richards_light_gray = wx.Colour(255,255,255)
+richards_coloured_gray = wx.Colour(131,129,131)
 
 
 CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wx.SpinCtrl', 'gmPhraseWheel', 'wx.ComboBox'] 
 
 def _decorate_editarea_field(widget):
-	widget.SetForegroundColour(wx.Color(255, 0, 0))
+	widget.SetForegroundColour(wx.Colour(255, 0, 0))
 	widget.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 #====================================================================
 class cEditAreaPopup(wx.Dialog):
@@ -538,7 +538,7 @@ class cEditArea2(wx.Panel):
 			size = size,
 			style = style | wx.TAB_TRAVERSAL
 		)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		self.data = None		# a placeholder for opaque data
 		self.fields = {}
@@ -703,7 +703,7 @@ class cEditArea2(wx.Panel):
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
-#				field.SetBackgroundColour(wx.Color(222,222,222))
+#				field.SetBackgroundColour(wx.Colour(222,222,222))
 				szr_line.Add(field, weight, wx.EXPAND)
 			szr_main_fgrid.Add(szr_line, flag=wx.GROW | wx.ALIGN_LEFT)
 
@@ -785,7 +785,7 @@ class cEditArea(wx.Panel):
 
 		# init main background panel
 		wx.Panel.__init__(self, parent, id, pos=pos, size=size, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		self.data = None
 		self.fields = {}
@@ -874,7 +874,7 @@ class cEditArea(wx.Panel):
 		return hszr_prompts
 	#----------------------------------------------------------------
 	def __generate_fields(self):
-		self.fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
+		self.fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
 		# rows, cols, hgap, vgap
 		vszr = wx.BoxSizer(wx.VERTICAL)
 		lines = self.fields.keys()
@@ -1136,7 +1136,7 @@ class gmEditArea(cEditArea):
 	def __make_editing_area(self):
 		# make edit fields
 		fields_pnl = wx.Panel(self, -1, wx.DefaultPosition, wx.DefaultSize, style = wx.RAISED_BORDER | wx.TAB_TRAVERSAL)
-		fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
+		fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
 		# rows, cols, hgap, vgap
 		gszr = wx.GridSizer(len(_prompt_defs[self._type]), 1, 2, 2)
 
@@ -1831,7 +1831,7 @@ class gmPnlEditAreaPrompts(wx.Panel):
 class EditTextBoxes(wx.Panel):
 	def __init__(self, parent, id, editareaprompts, section):
 		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize,style = wx.RAISED_BORDER | wx.TAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 		self.parent = parent
 		# rows, cols, hgap, vgap
 		self.gszr = wx.GridSizer(len(editareaprompts), 1, 2, 2)
@@ -1932,7 +1932,7 @@ class EditArea(wx.Panel):
 		_log.warning('***** old style EditArea instantiated, please convert *****')
 
 		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, style = wx.NO_BORDER)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		# make prompts
 		prompts = gmPnlEditAreaPrompts(self, -1, line_labels)
@@ -2116,7 +2116,7 @@ class EditArea(wx.Panel):
 #	        elif section == gmSECTION_MEASUREMENTS:
 #		      self.combo_measurement_type = wx.ComboBox(self, ID_MEASUREMENT_TYPE, "", wx.DefaultPosition,wx.DefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wx.CB_DROPDOWN)
 #		      self.combo_measurement_type.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_measurement_type.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_measurement_type.SetForegroundColour(wx.Colour(255,0,0))
 #		      self.txt_measurement_value = cEditAreaField(self,ID_MEASUREMENT_VALUE,wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_txt_measurement_date = cEditAreaField(self,ID_MEASUREMENT_DATE,wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_txt_measurement_comment = cEditAreaField(self,ID_MEASUREMENT_COMMENT,wx.DefaultPosition,wx.DefaultSize)
@@ -2219,7 +2219,7 @@ class EditArea(wx.Panel):
 #		      self.gszr.AddSizer(self.sizer_line10,0,wx.EXPAND)                   #e.g check boxes to include medications etc
 #		      self.gszr.Add(self.sizer_line11,0,wx.EXPAND)                       #e.g check boxes to include active problems etc
 		      #self.spacer = wxWindow(self,-1,wx.DefaultPosition,wx.DefaultSize)
-		      #self.spacer.SetBackgroundColour(wx.Color(255,255,255))
+		      #self.spacer.SetBackgroundColour(wx.Colour(255,255,255))
 #		      self.sizer_line12.Add(5,0,6)
 		      #self.sizer_line12.Add(self.spacer,6,wx.EXPAND)
 #		      self.sizer_line12.Add(self.btnpreview,1,wx.EXPAND|wxALL,2)
@@ -2231,15 +2231,15 @@ class EditArea(wx.Panel):
 		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
 #		      self.combo_tosee = wx.ComboBox(self, ID_RECALLS_TOSEE, "", wx.DefaultPosition,wx.DefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wx.CB_READONLY ) #wx.CB_DROPDOWN)
 #		      self.combo_tosee.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_tosee.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_tosee.SetForegroundColour(wx.Colour(255,0,0))
 		      #FIXME defaults need to be loaded from database
 #		      self.combo_recall_method = wx.ComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wx.DefaultPosition,wx.DefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wx.CB_READONLY )
 #		      self.combo_recall_method.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_recall_method.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_recall_method.SetForegroundColour(wx.Colour(255,0,0))
 		      #FIXME defaults need to be loaded from database
  #                     self.combo_apptlength = wx.ComboBox(self, ID_RECALLS_APPNTLENGTH, "", wx.DefaultPosition,wx.DefaultSize, ['brief','standard','long','prolonged'], wx.CB_READONLY )
 #		      self.combo_apptlength.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_apptlength.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_apptlength.SetForegroundColour(wx.Colour(255,0,0))
 #		      self.txt_recall_for = cEditAreaField(self,ID_RECALLS_TXT_FOR, wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_recall_due = cEditAreaField(self,ID_RECALLS_TXT_DATEDUE, wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_recall_addtext = cEditAreaField(self,ID_RECALLS_TXT_ADDTEXT,wx.DefaultPosition,wx.DefaultSize)
