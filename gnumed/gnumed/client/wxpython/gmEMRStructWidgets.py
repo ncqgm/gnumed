@@ -287,7 +287,7 @@ limit 25
 			self._PRW_hospital_stay.display_as_valid(True)
 			self._PRW_location.display_as_valid(True)
 
-		wxps.Publisher().sendMessage (
+		wxps.Publisher.sendMessage (
 			topic = 'statustext',
 			data = {'msg': _('Cannot save procedure.'), 'beep': True}
 		)
@@ -563,7 +563,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
 			valid = False
-			wxps.Publisher().sendMessage (
+			wxps.Publisher.sendMessage (
 				topic = 'statustext',
 				data = {'msg': _('Missing admission data. Cannot save hospital stay.'), 'beep': True}
 			)
@@ -573,7 +573,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 				if not self._PRW_discharge.date > self._PRW_admission.date:
 					valid = False
 					self._PRW_discharge.display_as_valid(False)
-					wxps.Publisher().sendMessage (
+					wxps.Publisher.sendMessage (
 						topic = 'statustext',
 						data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
 					)
@@ -581,7 +581,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
-			wxps.Publisher().sendMessage (
+			wxps.Publisher.sendMessage (
 				topic = 'statustext',
 				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
 			)

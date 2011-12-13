@@ -9,6 +9,7 @@
 	1.1.8
 
 FIX: exception on accessing diagnostic certainty phrasewheel [thanks J.Busser]
+FIX: cannot pack with pyInstaller due to pubsub v1 API [thanks S.Hilbert]
 
 	1.1.7
 
