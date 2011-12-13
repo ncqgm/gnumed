@@ -517,7 +517,8 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 				fk_address = %(pk_address)s,
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
-				is_confidential = %(is_confidential)s
+				is_confidential = %(is_confidential)s,
+				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
 				pk = %(pk_lnk_identity2comm)s
 					AND
@@ -530,7 +531,8 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 		'pk_address',
 		'url',
 		'comm_type',
-		'is_confidential'
+		'is_confidential',
+		'comment'
 	]
 #-------------------------------------------------------------------
 class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):

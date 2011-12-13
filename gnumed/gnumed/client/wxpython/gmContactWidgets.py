@@ -162,6 +162,9 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot save (duplicate ?) communications channel.'), beep = True)
 			return False
 
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data.save()
+
 		self.data = data
 		return True
 	#----------------------------------------------------------------
@@ -173,6 +176,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		if url != u'':
 			self.data['url'] = url
 		self.data['is_confidential'] = self._CHBOX_confidential.GetValue()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
 
 		self.data.save()
 		return True
@@ -182,6 +186,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		self._TCTRL_url.SetValue(u'')
 		#self._PRW_address.SetText(value = u'', data = None)
 		self._CHBOX_confidential.SetValue(False)
+		self._TCTRL_comment.SetValue(u'')
 
 		self._PRW_type.SetFocus()
 	#----------------------------------------------------------------
@@ -193,6 +198,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		self._TCTRL_url.SetValue(self.data['url'])
 		#self._PRW_address.SetData(data = self.data['pk_address'])
 		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
+		self._TCTRL_comment.SetValue(self.data['comment'])
 
 		self._TCTRL_url.SetFocus()
 #------------------------------------------------------------
@@ -225,7 +231,12 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		comms = self.__channel_owner.get_comm_channels()
 		self._LCTRL_items.set_string_items (
-			items = [ [ gmTools.bool2str(c['is_confidential'], u'X', u''), c['l10n_comm_type'], c['url'] ] for c in comms ]
+			items = [ [
+				gmTools.bool2str(c['is_confidential'], u'X', u''),
+				c['l10n_comm_type'],
+				c['url'],
+				c['comment']
+			] for c in comms ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = comms)
@@ -237,7 +248,8 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self._LCTRL_items.set_columns(columns = [
 			_('confidential'),
 			_('Type'),
-			_('Value')
+			_('Value'),
+			_('Comment')
 		])
 	#--------------------------------------------------------
 	def _add_comm(self):

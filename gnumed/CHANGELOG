@@ -19,6 +19,7 @@ IMPROVED: encounter list: [Add] uses configured default encounter type [thanks J
 IMPROVED: encounter list: [Start new], [Edit active], show active in red
 IMPROVED: log data pack insertion in the database [thanks J.Busser]
 IMPROVED: top panel: redo in wxGlade
+IMPROVED: comm channels: support a comment [suggested by J.Busser]
 
 ------------------------------------------------
 # rel-1-1-patches
