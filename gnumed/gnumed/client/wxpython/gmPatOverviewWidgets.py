@@ -24,6 +24,8 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
 from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmEditArea
 
 
 _log = logging.getLogger('gm.patient')
@@ -44,6 +46,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def __init_ui(self):
 		self._LCTRL_identity.set_columns(columns = [u''])
 		self._LCTRL_identity.item_tooltip_callback = self._calc_identity_item_tooltip
+		self._LCTRL_identity.activate_callback = self._on_identity_item_activated
 
 		self._LCTRL_problems.set_columns(columns = [u''])
 		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
@@ -458,6 +461,30 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data['issuer'],
 			gmTools.coalesce(data['comment'], u'', u'\n\n%s')
 		)
+	#-----------------------------------------------------
+	def _on_identity_item_activated(self, event):
+		data = self._LCTRL_identity.get_selected_item_data(only_one = True)
+		if data is None:
+			return
+
+		# <ctrl> down ?
+		if wx.GetKeyState(wx.WXK_CONTROL):
+			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+			return
+
+		if isinstance(data, gmPerson.cPersonName):
+			ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
+			dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+			dlg.SetTitle(_('Cloning name'))
+			dlg.ShowModal()
+			return
+
+		ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = data)
+		ea.identity = gmPerson.gmCurrentPatient()
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg.SetTitle(_('Editing external ID'))
+		dlg.ShowModal()
+		return
 #============================================================
 # main
 #------------------------------------------------------------
