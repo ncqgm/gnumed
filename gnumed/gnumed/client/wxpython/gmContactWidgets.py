@@ -96,6 +96,17 @@ ORDER BY
 		self.selection_only = True
 
 #================================================================
+def edit_comm_channel(parent=None, comm_channel=None, channel_owner=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	ea = cCommChannelEditAreaPnl(parent, -1, comm_channel = comm_channel)
+	ea.channel_owner = channel_owner
+	dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(_('Editing communications channel'))
+	if dlg.ShowModal() == wx.ID_OK:
+		return True
+	return False
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgCommChannelEditAreaPnl
 
 class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPnl, gmEditArea.cGenericEditAreaMixin):

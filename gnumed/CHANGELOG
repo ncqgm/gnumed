@@ -10,6 +10,7 @@
 
 NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
+NEW: patient overview plugin
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

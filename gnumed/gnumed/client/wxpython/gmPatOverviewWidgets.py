@@ -17,15 +17,22 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
+
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
+
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmContactWidgets
+from Gnumed.wxpython import gmMedicationWidgets
 from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmFamilyHistoryWidgets
+from Gnumed.wxpython import gmVaccWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -48,14 +55,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_identity.item_tooltip_callback = self._calc_identity_item_tooltip
 		self._LCTRL_identity.activate_callback = self._on_identity_item_activated
 
-		self._LCTRL_problems.set_columns(columns = [u''])
-		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
-
 		self._LCTRL_contacts.set_columns(columns = [u''])
 		self._LCTRL_contacts.item_tooltip_callback = self._calc_contacts_list_item_tooltip
+		self._LCTRL_contacts.activate_callback = self._on_contacts_item_activated
+
+		self._LCTRL_problems.set_columns(columns = [u''])
+		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
+		self._LCTRL_problems.activate_callback = self._on_problem_activated
 
 		self._LCTRL_meds.set_columns(columns = [u''])
 		self._LCTRL_meds.item_tooltip_callback = self._calc_meds_list_item_tooltip
+		self._LCTRL_meds.activate_callback = self._on_meds_item_activated
 
 		self._LCTRL_history.set_columns(columns = [u''])
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
@@ -92,8 +102,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'hospital_stay_mod_db', receiver = self._on_post_patient_selection)
-		#gmDispatcher.connect(signal = u'family_history_mod_db', receiver = self._on_post_patient_selection)
-
+		gmDispatcher.connect(signal = u'family_history_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'procedure_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'vacc_mod_db', receiver = self._on_post_patient_selection)
 
 #		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 #		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
@@ -236,6 +247,49 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		return None
 	#-----------------------------------------------------
+	def _on_history_item_activated(self, event):
+		data = self._LCTRL_history.get_selected_item_data(only_one = True)
+		if data is None:
+			return
+
+		# <ctrl> down ?
+		if wx.GetKeyState(wx.WXK_CONTROL):
+			if isinstance(data, gmEMRStructItems.cHealthIssue):
+				gmEMRStructWidgets.edit_health_issue(parent = self, issue = data)
+				return
+			if isinstance(data, gmFamilyHistory.cFamilyHistory):
+				FamilyHistoryWidgets.edit_family_history(parent = self, family_history = data)
+				return
+			if isinstance(data, gmEMRStructItems.cHospitalStay):
+				gmEMRStructWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
+				return
+			if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+				gmEMRStructWidgets.edit_procedure(parent = self, procedure = data)
+				return
+			if isinstance(data, gmVaccination.cVaccination):
+				gmVaccWidgets.edit_vaccination(parent = self, vaccination = data, single_entry = True)
+				return
+			return
+
+		if isinstance(data, gmEMRStructItems.cHealthIssue):
+			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmEMRBrowserPlugin')
+			return
+		if isinstance(data, gmFamilyHistory.cFamilyHistory):
+			FamilyHistoryWidgets.manage_family_history(parent = self)
+			return
+		if isinstance(data, gmEMRStructItems.cHospitalStay):
+			gmEMRStructWidgets.manage_hospital_stays(parent = self)
+			return
+		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
+			gmEMRStructWidgets.manage_performed_procedures(parent = self)
+			return
+		if isinstance(data, gmVaccination.cVaccination):
+			gmVaccWidgets.manage_vaccinations(parent = self)
+			return
+
+		return
+	#-----------------------------------------------------
+	#-----------------------------------------------------
 	def __refresh_meds(self, patient=None):
 		emr = patient.get_emr()
 		list_items = []
@@ -266,6 +320,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if allg is False:
 			allg = None
 		return data.format(one_line = False, allergy = allg)
+	#-----------------------------------------------------
+	def _on_meds_item_activated(self, event):
+		data = self._LCTRL_meds.get_selected_item_data(only_one = True)
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
+				return
+
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')
+	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_contacts(self, patient=None):
 		emr = patient.get_emr()
@@ -370,6 +435,27 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		return None
 	#-----------------------------------------------------
+	def _on_contacts_item_activated(self, event):
+		data = self._LCTRL_contacts.get_selected_item_data(only_one = True)
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				if isinstance(data, gmEMRStructItems.cHospitalStay):
+					gmEMRStructWidgets.edit_hospital_stay(parent = self, hospital_stay = data)
+					return
+				if isinstance(data, gmDemographicRecord.cPatientAddress):
+					pass
+				if isinstance(data, gmDemographicRecord.cCommChannel):
+					gmContactWidgets.edit_comm_channel(parent = self, comm_channel = data, channel_owner = gmPerson.gmCurrentPatient())
+					return
+				if isinstance(data, gmPerson.cIdentity):
+					pass
+				if isinstance(data, gmStaff.cStaff):
+					pass
+
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+	#-----------------------------------------------------
+	#-----------------------------------------------------
 	def __refresh_problems(self, patient=None):
 		emr = patient.get_emr()
 
@@ -435,6 +521,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		return None
 	#-----------------------------------------------------
+	def _on_problem_activated(self, event):
+		data = self._LCTRL_problems.get_selected_item_data(only_one = True)
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if data['type'] == 'issue':
+					gmEMRStructWidgets.edit_health_issue(parent = self, issue = emr.problem2issue(data))
+					return
+				if data['type'] == 'episode':
+					gmEMRStructWidgets.edit_episode(parent = self, episode = emr.problem2episode(data))
+					return
+
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmEMRBrowserPlugin')
+	#-----------------------------------------------------
+	#-----------------------------------------------------
 	def __refresh_identity(self, patient=None):
 		# names (.comment -> tooltip)
 		names = patient.get_names(exclude_active = True)
@@ -464,27 +566,25 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _on_identity_item_activated(self, event):
 		data = self._LCTRL_identity.get_selected_item_data(only_one = True)
-		if data is None:
-			return
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				# name item
+				if isinstance(data, gmPerson.cPersonName):
+					ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
+					dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+					dlg.SetTitle(_('Cloning name'))
+					dlg.ShowModal()
+					return
+				# external ID item
+				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = data)
+				ea.identity = gmPerson.gmCurrentPatient()
+				dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+				dlg.SetTitle(_('Editing external ID'))
+				dlg.ShowModal()
+				return
 
-		# <ctrl> down ?
-		if wx.GetKeyState(wx.WXK_CONTROL):
-			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
-			return
-
-		if isinstance(data, gmPerson.cPersonName):
-			ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
-			dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-			dlg.SetTitle(_('Cloning name'))
-			dlg.ShowModal()
-			return
-
-		ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = data)
-		ea.identity = gmPerson.gmCurrentPatient()
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.SetTitle(_('Editing external ID'))
-		dlg.ShowModal()
-		return
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 #============================================================
 # main
 #------------------------------------------------------------
