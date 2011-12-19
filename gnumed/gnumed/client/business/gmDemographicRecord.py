@@ -514,7 +514,7 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.lnk_identity2comm SET
-				fk_address = %(pk_address)s,
+				--fk_address = %(pk_address)s,
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
 				is_confidential = %(is_confidential)s,
@@ -528,7 +528,7 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		'pk_address',
+		#'pk_address',
 		'url',
 		'comm_type',
 		'is_confidential',

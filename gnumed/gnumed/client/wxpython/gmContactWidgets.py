@@ -131,10 +131,9 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		if data is not None:
 			self.mode = 'edit'
 
-		self.__init_ui()
+		#self.__init_ui()
 	#----------------------------------------------------------------
-	def __init_ui(self):
-		self._PRW_address.Disable()
+	#def __init_ui(self):
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -195,7 +194,6 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 	def _refresh_as_new(self):
 		self._PRW_type.SetText(u'')
 		self._TCTRL_url.SetValue(u'')
-		#self._PRW_address.SetText(value = u'', data = None)
 		self._CHBOX_confidential.SetValue(False)
 		self._TCTRL_comment.SetValue(u'')
 
@@ -207,7 +205,6 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 	def _refresh_from_existing(self):
 		self._PRW_type.SetText(self.data['l10n_comm_type'])
 		self._TCTRL_url.SetValue(self.data['url'])
-		#self._PRW_address.SetData(data = self.data['pk_address'])
 		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
 		self._TCTRL_comment.SetValue(self.data['comment'])
 
@@ -246,7 +243,7 @@ class cCommChannelsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				gmTools.bool2str(c['is_confidential'], u'X', u''),
 				c['l10n_comm_type'],
 				c['url'],
-				c['comment']
+				gmTools.coalesce(c['comment'], u'')
 			] for c in comms ]
 		)
 		self._LCTRL_items.set_column_widths()
