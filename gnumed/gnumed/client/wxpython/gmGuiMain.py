@@ -1528,7 +1528,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		dbcfg.set (
-			option = u'patient_search.plugin_to_raise_after_startup',
+			option = u'horstspace.plugin_to_raise_after_startup',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			value = plugin
 		)
@@ -1631,7 +1631,7 @@ class gmTopLevelFrame(wx.Frame):
 			option = u'patient_search.plugin_to_raise_after_search',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user'
-		), u'gmEMRBrowserPlugin')
+		), u'gmPatientOverviewPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
 		except ValueError:

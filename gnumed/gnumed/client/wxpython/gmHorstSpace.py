@@ -142,7 +142,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			option = u'patient_search.plugin_to_raise_after_search',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = u'user',
-			default = u'gmEMRBrowserPlugin'
+			default = u'gmPatientOverviewPlugin'
 		)
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = default_plugin)
 	#----------------------------------------------
