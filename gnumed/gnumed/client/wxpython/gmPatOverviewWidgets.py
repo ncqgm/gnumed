@@ -93,6 +93,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'comm_channel_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'job_mod_db', receiver = self._on_post_patient_selection)
 		# no signal for external IDs yet
 		# no signal for address yet
 
@@ -548,10 +549,18 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			} for n in names
 		]
 		data = names
+
 		# IDs (.issuer & .comment -> tooltip)
 		ids = patient.external_ids
-		items.extend([ u'%(name)s: %(value)s' % i for i in ids ])
-		data.extend(ids)
+		for i in ids:
+			items.append(u'%(name)s: %(value)s' % i)
+			data.append({'id': i})
+
+		# occupation
+		jobs = patient.get_occupations()
+		for j in jobs:
+			items.append(_('job: %s') % j['l10n_occupation'])
+			data.append({'job': j})
 
 		self._LCTRL_identity.set_string_items(items = items)
 		self._LCTRL_identity.set_data(data = data)
@@ -559,30 +568,45 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_identity_item_tooltip(self, data):
 		if isinstance(data, gmPerson.cPersonName):
 			return data['comment']
-		return u'issued by: %s%s' % (
-			data['issuer'],
-			gmTools.coalesce(data['comment'], u'', u'\n\n%s')
-		)
+		if isinstance(data, type({})):
+			key = data.keys()[0]
+			val = data[key]
+			if key == 'id':
+				return _('issued by: %s%s') % (
+					val['issuer'],
+					gmTools.coalesce(val['comment'], u'', u'\n\n%s')
+				)
+			if key == 'job':
+				if val['activities'] is None:
+					return None
+				return _('Activities:\n\n%s') % val['activities']
+
+		return None
 	#-----------------------------------------------------
 	def _on_identity_item_activated(self, event):
 		data = self._LCTRL_identity.get_selected_item_data(only_one = True)
 		if data is not None:
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
-				# name item
 				if isinstance(data, gmPerson.cPersonName):
 					ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
 					dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 					dlg.SetTitle(_('Cloning name'))
 					dlg.ShowModal()
 					return
-				# external ID item
-				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = data)
-				ea.identity = gmPerson.gmCurrentPatient()
-				dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-				dlg.SetTitle(_('Editing external ID'))
-				dlg.ShowModal()
-				return
+				if isinstance(data, type({})):
+					key = data.keys()[0]
+					val = data[key]
+					if key == 'id':
+						ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)
+						ea.identity = gmPerson.gmCurrentPatient()
+						dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+						dlg.SetTitle(_('Editing external ID'))
+						dlg.ShowModal()
+						return
+					if key == 'job':
+						gmDemographicsWidgets.edit_occupation()
+						return
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 #============================================================
