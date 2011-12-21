@@ -804,7 +804,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		# -----------------------------
-		self._PhWheel_episode.SetText('')
+		self._PhWheel_episode.SetText(value = _('other documents'), suppress_smarts = True)
 		self._PhWheel_doc_type.SetText('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
@@ -831,6 +831,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# the list holding our page files
 		self._LBOX_doc_pages.Clear()
 		self.acquired_pages = []
+
+		self._PhWheel_doc_type.SetFocus()
 	#--------------------------------------------------------
 	def __reload_LBOX_doc_pages(self):
 		self._LBOX_doc_pages.Clear()
