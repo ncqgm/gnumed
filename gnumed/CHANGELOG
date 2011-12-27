@@ -11,6 +11,8 @@
 FIX: exception on accessing diagnostic certainty phrasewheel [thanks J.Busser]
 FIX: cannot pack with pyInstaller due to pubsub v1 API [thanks S.Hilbert]
 
+IMPROVED: try robustifying wx.lib.pubsub listener facing pyInstaller damage [thanks MM]
+
 	1.1.7
 
 IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
