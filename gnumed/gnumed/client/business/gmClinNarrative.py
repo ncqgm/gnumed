@@ -24,29 +24,30 @@ _log.info(__version__)
 
 
 soap_cat2l10n = {
-	's': _('soap_S').replace(u'soap_', u''),
-	'o': _('soap_O').replace(u'soap_', u''),
-	'a': _('soap_A').replace(u'soap_', u''),
-	'p': _('soap_P').replace(u'soap_', u''),
-	#None: _('soap_ADMIN').replace(u'soap_', u'')
+	u's': _('soap_S').replace(u'soap_', u''),
+	u'o': _('soap_O').replace(u'soap_', u''),
+	u'a': _('soap_A').replace(u'soap_', u''),
+	u'p': _('soap_P').replace(u'soap_', u''),
+	u'u': u'?',
 	None: gmTools.u_ellipsis,
 	u'': gmTools.u_ellipsis
 }
 
 soap_cat2l10n_str = {
-	's': _('soap_Subjective').replace(u'soap_', u''),
-	'o': _('soap_Objective').replace(u'soap_', u''),
-	'a': _('soap_Assessment').replace(u'soap_', u''),
-	'p': _('soap_Plan').replace(u'soap_', u''),
+	u's': _('soap_Subjective').replace(u'soap_', u''),
+	u'o': _('soap_Objective').replace(u'soap_', u''),
+	u'a': _('soap_Assessment').replace(u'soap_', u''),
+	u'p': _('soap_Plan').replace(u'soap_', u''),
+	u'u': _('soap_Unspecified').replace(u'soap_', u''),
 	None: _('soap_Administrative').replace(u'soap_', u'')
 }
 
 l10n2soap_cat = {
-	_('soap_S').replace(u'soap_', u''): 's',
-	_('soap_O').replace(u'soap_', u''): 'o',
-	_('soap_A').replace(u'soap_', u''): 'a',
-	_('soap_P').replace(u'soap_', u''): 'p',
-	#_('soap_ADMIN').replace(u'soap_', u''): None
+	_('soap_S').replace(u'soap_', u''): u's',
+	_('soap_O').replace(u'soap_', u''): u'o',
+	_('soap_A').replace(u'soap_', u''): u'a',
+	_('soap_P').replace(u'soap_', u''): u'p',
+	u'?': u'u',
 	gmTools.u_ellipsis: None
 }
 

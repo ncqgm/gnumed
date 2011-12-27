@@ -12,6 +12,7 @@ NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
 NEW: patient overview plugin
 NEW: reports to find recent encounters [thanks J.Busser]
+NEW: marginal support for soapU category
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -956,6 +957,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 
 	17.0
+
+NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
 
 IMPROVED: await <ENTER> before "exit 1" in bootstrap shell scripts [thanks Andreas]
 IMRPOVED: gm.log_script_insertion() now logs script name in gm.access_log
