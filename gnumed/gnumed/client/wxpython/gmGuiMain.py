@@ -2937,7 +2937,7 @@ class gmApp(wx.App):
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
-	def _signal_debugging_monitor_pubsub(self, msg):
+	def _signal_debugging_monitor_pubsub(self, msg, **kwargs):
 		print "wx.lib.pubsub message:"
 		print msg.topic
 		print msg.data

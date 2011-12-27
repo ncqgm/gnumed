@@ -959,10 +959,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	17.0
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
+NEW: i18n.untranslate()
 
 IMPROVED: await <ENTER> before "exit 1" in bootstrap shell scripts [thanks Andreas]
 IMRPOVED: gm.log_script_insertion() now logs script name in gm.access_log
 IMPROVED: prevent active name from being deleted/deactivated at DB level
+IMPROVED: constraints on i18n.translations
 
 ------------------------------------------------
 # gnumed_v16
