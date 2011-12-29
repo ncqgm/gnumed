@@ -255,15 +255,11 @@ SELECT fk_encounter from
 	# API: hospital stays
 	#--------------------------------------------------------
 	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
-
 		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
-
 		if episodes is not None:
 			stays = filter(lambda s: s['pk_episode'] in episodes, stays)
-
 		if issues is not None:
 			stays = filter(lambda s: s['pk_health_issue'] in issues, stays)
-
 		return stays
 	#--------------------------------------------------------
 	def get_latest_hospital_stay(self):
@@ -274,6 +270,18 @@ SELECT fk_encounter from
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode
 		)
+	#--------------------------------------------------------
+	def get_hospital_stay_stats_by_hospital(self):
+		cmd = u"""
+			SELECT hospital, count(1) AS frequency
+			FROM clin.v_pat_hospital_stays
+			WHERE pk_patient = %(pat)s
+			GROUP BY hospital
+			ORDER BY frequency DESC
+		"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return rows
 	#--------------------------------------------------------
 	# API: narrative
 	#--------------------------------------------------------
@@ -1869,13 +1877,12 @@ WHERE
 		return filtered_encounters
 	#--------------------------------------------------------
 	def get_first_encounter(self, issue_id=None, episode_id=None):
-		"""Retrieves first encounter for a particular issue and/or episode
+		"""Retrieves first encounter for a particular issue and/or episode.
 
 		issue_id - First encounter associated health issue
 		episode - First encounter associated episode
 		"""
 		# FIXME: use direct query
-
 		if issue_id is None:
 			issues = None
 		else:
@@ -1893,7 +1900,7 @@ WHERE
 		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[0]
-	#--------------------------------------------------------		
+	#--------------------------------------------------------
 	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves last encounter for a concrete issue and/or episode
 
@@ -1919,6 +1926,18 @@ WHERE
 		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
+	#------------------------------------------------------------------
+	def get_encounter_stats_by_type(self):
+		cmd = u"""
+			SELECT l10n_type, count(1) AS frequency
+			FROM clin.v_pat_encounters
+			WHERE pk_patient = %(pat)s
+			GROUP BY l10n_type
+			ORDER BY frequency DESC
+		"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return rows
 	#------------------------------------------------------------------
 	def get_last_but_one_encounter(self, issue_id=None, episode_id=None):
 

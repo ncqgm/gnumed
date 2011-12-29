@@ -655,6 +655,9 @@ def edit_encounter(parent=None, encounter=None):
 	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
+def manage_encounters(**kwargs):
+	return select_encounters(**kwargs)
+
 def select_encounters(parent=None, patient=None, single_selection=True, encounters=None, ignore_OK_button=False):
 
 	if patient is None:

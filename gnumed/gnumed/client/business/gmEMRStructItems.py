@@ -1815,6 +1815,7 @@ WHERE
 
 		# test results
 		if with_tests:
+			emr = patient.get_emr()
 			tests = emr.get_test_results_by_date (
 				episodes = episodes,
 				encounter = self._payload[self._idx['pk_encounter']]
@@ -1830,6 +1831,7 @@ WHERE
 
 		# vaccinations
 		if with_vaccinations:
+			emr = patient.get_emr()
 			vaccs = emr.get_vaccinations (
 				episodes = episodes,
 				encounters = [ self._payload[self._idx['pk_encounter']] ],

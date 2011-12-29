@@ -751,7 +751,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				(select coalesce((max(list_position) + 1), 1) from clin.waiting_list)
 			)"""
 		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment, 'area': zone}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose=True)
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose = True)
+	#--------------------------------------------------------
+	def get_waiting_list_entry(self):
+		cmd = u"""SELECT * FROM clin.v_waiting_list WHERE pk_identity = %(pat)s"""
+		args = {'pat': self.ID}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 

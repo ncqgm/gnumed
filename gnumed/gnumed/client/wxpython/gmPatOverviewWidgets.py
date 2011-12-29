@@ -59,6 +59,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_contacts.item_tooltip_callback = self._calc_contacts_list_item_tooltip
 		self._LCTRL_contacts.activate_callback = self._on_contacts_item_activated
 
+		self._LCTRL_encounters.set_columns(columns = [u''])
+		self._LCTRL_encounters.item_tooltip_callback = self._calc_encounters_list_item_tooltip
+		self._LCTRL_encounters.activate_callback = self._on_encounter_activated
+
 		self._LCTRL_problems.set_columns(columns = [u''])
 		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
 		self._LCTRL_problems.activate_callback = self._on_problem_activated
@@ -72,8 +76,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		self._LCTRL_identity.set_string_items()
-		self._LCTRL_problems.set_string_items()
 		self._LCTRL_contacts.set_string_items()
+		self._LCTRL_encounters.set_string_items()
+
+		self._LCTRL_problems.set_string_items()
 		self._LCTRL_meds.set_string_items()
 		self._LCTRL_history.set_string_items()
 	#-----------------------------------------------------
@@ -138,6 +144,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self.__refresh_identity(patient = pat)
 		self.__refresh_contacts(patient = pat)
+		self.__refresh_encounters(patient = pat)
 
 		self.__refresh_problems(patient = pat)
 		self.__refresh_meds(patient = pat)
@@ -146,6 +153,110 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		return True
 	#-----------------------------------------------------
 	# internal helpers
+	#-----------------------------------------------------
+	def __refresh_encounters(self, patient=None):
+		emr = patient.get_emr()
+
+		list_items = []
+		list_data = []
+
+		is_waiting = False
+		wlist = patient.get_waiting_list_entry()
+		if len(wlist) > 0:
+			is_waiting = True
+			w = wlist[0]
+			list_items.append(_('Currently in waiting list [%s]') % w['waiting_zone'])
+			list_data.append({'wlist': gmTools.coalesce(w['comment'], None)})
+
+		first = emr.get_first_encounter()
+		if first is not None:
+			list_items.append (
+				_('first: %s, %s') % (
+					gmDateTime.pydt_strftime (
+						first['started'],
+						format = '%Y %b %d',
+						accuracy = gmDateTime.acc_days
+					),
+					first['l10n_type']
+				)
+			)
+			list_data.append(first)
+
+		last = emr.get_last_encounter()
+		if last is not None:
+			list_items.append (
+				_('last: %s, %s') % (
+					gmDateTime.pydt_strftime (
+						first['started'],
+						format = '%Y %b %d',
+						accuracy = gmDateTime.acc_days
+					),
+					first['l10n_type']
+				)
+			)
+			list_data.append(last)
+
+		encs = emr.get_encounter_stats_by_type()
+		for enc in encs:
+			item = u'%s x %s' % (enc['frequency'], enc['l10n_type'])
+			list_items.append(item)
+			list_data.append(item)
+
+		stays = emr.get_hospital_stay_stats_by_hospital()
+		for stay in stays:
+			item = u'%s x %s' % (
+				stay['frequency'],
+				stay['hospital']
+			)
+			list_items.append(item)
+			list_data.append({'stay': item})
+
+		self._LCTRL_encounters.set_string_items(items = list_items)
+		self._LCTRL_encounters.set_data(data = list_data)
+		if is_waiting:
+			self._LCTRL_encounters.SetItemTextColour(0, wx.NamedColour('RED'))
+	#-----------------------------------------------------
+	def _calc_encounters_list_item_tooltip(self, data):
+		emr = gmPerson.gmCurrentPatient().get_emr()
+
+		if isinstance(data, gmEMRStructItems.cEncounter):
+			return data.format (
+				with_vaccinations = False,
+				with_tests = False,
+				with_docs = False,
+				with_co_encountlet_hints = True,
+				with_rfe_aoe = True
+			)
+
+		if type(data) == type({}):
+			key, val = data.items()[0]
+			if key == 'wlist':
+				return val
+			if key == 'stay':
+				return None
+
+		return data
+	#-----------------------------------------------------
+	def _on_encounter_activated(self, event):
+		data = self._LCTRL_encounters.get_selected_item_data(only_one = True)
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				if isinstance(data, gmEMRStructItems.cEncounter):
+					gmEMRStructWidgets.edit_encounter(parent = self, encounter = data)
+					return
+
+		if type(data) == type({}):
+			key, val = data.items()[0]
+			if key == 'wlist':
+				wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmWaitingListPlugin')
+				return
+			if key == 'stay':
+				wx.CallAfter(gmEMRStructWidgets.manage_hospital_stays, parent = self)
+				return
+
+		wx.CallAfter(gmEMRStructWidgets.manage_encounters, parent = self, ignore_OK_button = False)
+	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_history(self, patient=None):
 		emr = patient.get_emr()
