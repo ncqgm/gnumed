@@ -37,7 +37,7 @@ _log = logging.getLogger('gm.net')
 def open_url_in_browser(url, new=2, autoraise=True, *args, **kwargs):
 	# url, new=0, autoraise=True
 	try:
-		webbrowser.open(url, *args, new = new, autoraise = autoraise, **kwargs)
+		webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
 	except (webbrowser.Error, OSError):
 		_log.exception('error calling browser')
 		return False
