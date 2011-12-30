@@ -18,16 +18,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.7 (database v16.7)',
-	'GNUmed 1.1.7 Release Notes:
+	'Release Notes for GNUmed 1.1.8 (database v16.8)',
+	'GNUmed 1.1.8 Release Notes:
 
-	1.1.7
+	1.1.8
 
-IMPROVED: warn on saving branded drugs w/o components [thanks vbanait]
+FIX: exception on accessing diagnostic certainty phrasewheel [thanks J.Busser]
+FIX: cannot pack with pyInstaller due to pubsub v1 API [thanks S.Hilbert]
 
-FIX: do not check .is_vaccine against None [thanks J.Busser]
-FIX: failure to access drug database on reconfiguration of invalid preselect [thanks J.Busser]
-FIX: inability to edit a drug component intake [thanks S.Hilbert]
+IMPROVED: try robustifying wx.lib.pubsub listener facing pyInstaller damage [thanks MM]
+IMPROVED: make opening URLs work better with Python 2.6 [thanks MM]
+IMPROVED: detection of connection loss
 ');
 
 -- --------------------------------------------------------------
