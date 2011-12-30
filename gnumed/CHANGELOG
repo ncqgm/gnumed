@@ -36,6 +36,7 @@ FIX: cannot pack with pyInstaller due to pubsub v1 API [thanks S.Hilbert]
 
 IMPROVED: try robustifying wx.lib.pubsub listener facing pyInstaller damage [thanks MM]
 IMPROVED: make opening URLs work better with Python 2.6 [thanks MM]
+IMPROVED: detection of connection loss
 
 	1.1.7
 

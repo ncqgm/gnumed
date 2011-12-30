@@ -123,7 +123,15 @@ def __handle_lost_db_connection(t, v, tb):
 		conn_lost = (
 			('erver' in msg)
 				and
-			(('term' in msg) or ('abnorm' in msg) or ('end' in msg))
+			(
+				('term' in msg)
+					or
+				('abnorm' in msg)
+					or
+				('end' in msg)
+					or
+				('oute' in msg)
+			)
 		)
 
 	if t == gmPG2.dbapi.InterfaceError:
