@@ -252,13 +252,11 @@ cp -R ../../client/wxpython/gui/*.py ./gnumed-client.$CLIENTREV/client/wxpython/
 # current User Manual
 echo "picking up GNUmed User Manual from the web"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/user-manual/
-wget -v http://wiki.gnumed.de/bin/view/Gnumed/PublishManual		#http://wiki.gnumed.de/bin/publish/Gnumed
-rm -vf PublishManual*
-wget -v -O ./gnumed-client.$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/Gnumed.zip
+wget -v -O ./gnumed-client.$CLIENTREV/client/doc/user-manual/GNUmed-User-Manual.zip http://wiki.gnumed.de/pub/publish/Gnumed.zip
 cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 unzip GNUmed-User-Manual.zip
 rm -vf Release-02.html
-ln -s GnumedManual.html index.html
+ln -s Gnumed/GnumedManual.html index.html
 rm -vf GNUmed-User-Manual.zip
 cd -
 
