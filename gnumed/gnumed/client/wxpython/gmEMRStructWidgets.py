@@ -17,7 +17,6 @@ import sys, re, datetime as pydt, logging, time
 
 # 3rd party
 import wx
-import wx.lib.pubsub as wxps
 
 
 # GNUmed
@@ -287,10 +286,7 @@ limit 25
 			self._PRW_hospital_stay.display_as_valid(True)
 			self._PRW_location.display_as_valid(True)
 
-		wxps.Publisher.sendMessage (
-			topic = 'statustext',
-			data = {'msg': _('Cannot save procedure.'), 'beep': True}
-		)
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot save procedure.'), beep = True)
 
 		return (has_errors is False)
 	#----------------------------------------------------------------
@@ -563,28 +559,19 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
 			valid = False
-			wxps.Publisher.sendMessage (
-				topic = 'statustext',
-				data = {'msg': _('Missing admission data. Cannot save hospital stay.'), 'beep': True}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospital stay.'), beep = True)
 
 		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
 			if self._PRW_discharge.date is not None:
 				if not self._PRW_discharge.date > self._PRW_admission.date:
 					valid = False
 					self._PRW_discharge.display_as_valid(False)
-					wxps.Publisher.sendMessage (
-						topic = 'statustext',
-						data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
-					)
+					gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), beep = True)
 
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
-			wxps.Publisher.sendMessage (
-				topic = 'statustext',
-				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), beep = True)
 
 		return (valid is True)
 	#----------------------------------------------------------------

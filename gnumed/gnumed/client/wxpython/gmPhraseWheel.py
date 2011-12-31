@@ -18,13 +18,13 @@ import string, types, time, sys, re as regex, os.path
 # 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
-import wx.lib.pubsub
 
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
 
 
 import logging
@@ -705,10 +705,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		# check value against final_regex if any given
 		if self.__final_regex.match(self.GetValue().strip()) is None:
-			wx.lib.pubsub.Publisher.sendMessage (
-				topic = 'statustext',
-				data = {'msg': self.final_regex_error_msg}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = self.final_regex_error_msg)
 			is_valid = False
 
 		self.display_as_valid(valid = is_valid)
@@ -1101,10 +1098,7 @@ class cPhraseWheel(cPhraseWheelBase):
 
 		# no exact match found
 		if self.selection_only:
-			wx.lib.pubsub.Publisher.sendMessage (
-				topic = 'statustext',
-				data = {'msg': self.selection_only_error_msg}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = self.selection_only_error_msg)
 			is_valid = False
 			return False
 
