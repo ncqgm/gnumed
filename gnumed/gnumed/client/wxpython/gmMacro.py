@@ -125,13 +125,18 @@ default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
-	"""Replaces placeholders in forms, fields, etc.
+	"""Returns values for placeholders.
 
 	- patient related placeholders operate on the currently active patient
 	- is passed to the forms handling code, for example
 
-	Note that this cannot be called from a non-gui thread unless
-	wrapped in wx.CallAfter().
+	Return values when .debug is False:
+	- errors with placeholders return None
+	- placeholders failing to resolve to a value return an empty string
+
+	Return values when .debug is True:
+	- errors with placeholders return an error string
+	- placeholders failing to resolve to a value return a warning string
 
 	There are currently two types of placeholders:
 
@@ -144,6 +149,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		- they are parsed into placeholder, data, and maximum length
 		- the length is optional
 		- data is passed to the handler
+
+	Note that this cannot be called from a non-gui thread unless
+	wrapped in wx.CallAfter().
 	"""
 	def __init__(self, *args, **kwargs):
 
@@ -588,7 +596,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		adrs = self.pat.get_addresses(address_type = adr_type)
 		if len(adrs) == 0:
-			return _('no address for type [%s]') % adr_type
+			if self.debug:
+				return _('no address for type [%s]') % adr_type
+			return u''
 
 		adr = adrs[0]
 		data = {
@@ -617,107 +627,129 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_adr_street(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
-			return _('no street for address type [%s]') % data
+			if self.debug:
+				return _('no street for address type [%s]') % data
+			return u''
 		return adrs[0]['street']
 	#--------------------------------------------------------
 	def _get_variant_adr_number(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
-			return _('no number for address type [%s]') % data
+			if self.debug:
+				return _('no number for address type [%s]') % data
+			return u''
 		return adrs[0]['number']
 	#--------------------------------------------------------
 	def _get_variant_adr_location(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type=data)
 		if len(adrs) == 0:
-			return _('no location for address type [%s]') % data
+			if self.debug:
+				return _('no location for address type [%s]') % data
+			return u''
 		return adrs[0]['urb']
 	#--------------------------------------------------------
 	def _get_variant_adr_postcode(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type = data)
 		if len(adrs) == 0:
-			return _('no postcode for address type [%s]') % data
+			if self.debug:
+				return _('no postcode for address type [%s]') % data
+			return u''
 		return adrs[0]['postcode']
 	#--------------------------------------------------------
 	def _get_variant_adr_region(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type = data)
 		if len(adrs) == 0:
-			return _('no region for address type [%s]') % data
+			if self.debug:
+				return _('no region for address type [%s]') % data
+			return u''
 		return adrs[0]['l10n_state']
 	#--------------------------------------------------------
 	def _get_variant_adr_country(self, data=u'?'):
 		adrs = self.pat.get_addresses(address_type = data)
 		if len(adrs) == 0:
-			return _('no country for address type [%s]') % data
+			if self.debug:
+				return _('no country for address type [%s]') % data
+			return u''
 		return adrs[0]['l10n_country']
 	#--------------------------------------------------------
 	def _get_variant_patient_comm(self, data=u'?'):
 		comms = self.pat.get_comm_channels(comm_medium = data)
 		if len(comms) == 0:
-			return _('no URL for comm channel [%s]') % data
+			if self.debug:
+				return _('no URL for comm channel [%s]') % data
+			return u''
 		return comms[0]['url']
 	#--------------------------------------------------------
 	def _get_variant_current_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return None
+			return u'current provider external ID: template is missing'
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return None
+			return u'current provider external ID: type is missing'
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return None
+			return u'current provider external ID: issuer is missing'
 
 		prov = gmStaff.gmCurrentProvider()
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
-			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			if self.debug:
+				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			return u''
 
 		return ids[0]['value']
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return None
+			return u'primary in-praxis provider external ID: template is missing'
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return None
+			return u'primary in-praxis provider external ID: type is missing'
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return None
+			return u'primary in-praxis provider external ID: issuer is missing'
 
 		prov = self.pat.primary_provider
 		if prov is None:
-			return _('no primary in-praxis provider')
+			if self.debug:
+				return _('no primary in-praxis provider')
+			return u''
 
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
-			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			if self.debug:
+				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			return u''
 
 		return ids[0]['value']
 	#--------------------------------------------------------
 	def _get_variant_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return None
+			return u'patient external ID: template is missing'
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return None
+			return u'patient external ID: type is missing'
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return None
+			return u'patient external ID: issuer is missing'
 
 		ids = self.pat.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
-			return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			if self.debug:
+				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+			return u''
 
 		return ids[0]['value']
 	#--------------------------------------------------------
@@ -765,7 +797,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				table_type = u'by-brand'
 			)
 
-		_log.error('no known current medications table formatting style in [%]', data)
+		_log.error('no known current medications table formatting style in [%s]', data)
 		return _('unknown current medication table formatting style')
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
@@ -779,7 +811,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				table_type = u'by-brand'
 			)
 
-		_log.error('no known current medications notes formatting style in [%]', data)
+		_log.error('no known current medications notes formatting style in [%s]', data)
 		return _('unknown current medication notes formatting style')
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
@@ -847,7 +879,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if decision != wx.ID_SAVE:
 			dlg.Destroy()
-			return _('Text input cancelled by user.')
+			if self.debug:
+				return _('Text input cancelled by user.')
+			return u''
 
 		text = dlg.value.strip()
 		if dlg.is_user_formatted:
