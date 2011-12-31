@@ -18,8 +18,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.8 (database v16.8)',
-	'GNUmed 1.1.8 Release Notes:
+	'Release Notes for GNUmed 1.1.9 (database v16.9)',
+	'GNUmed 1.1.9 Release Notes:
+
+	1.1.9
+
+FIX: completely rip out wx.lib.pubsub use
 
 	1.1.8
 
