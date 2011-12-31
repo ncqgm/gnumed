@@ -156,6 +156,19 @@ class cDocumentFolder:
 			encounter = encounter
 		)
 	#--------------------------------------------------------
+	def get_unsigned_documents(self):
+		args = {'pat': self.pk_patient}
+		cmd = _sql_fetch_document_fields % u"""
+
+
+
+		-- all document parts of a patient
+		SELECT pk AS pk_obj from blobs.doc_obj WHERE fk_doc IN (
+			-- all documents of a patient
+			SELECT pk_doc FROM blobs.v_doc_med WHERE pk_patient = %(pat)s
+		)
+		"""
+	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, episodes=None, encounter=None):
 		"""Return list of documents."""
 

@@ -73,6 +73,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_history.set_columns(columns = [u''])
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
+
+		self._LCTRL_documents.set_columns(columns = [u''])
+		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		self._LCTRL_identity.set_string_items()
@@ -82,6 +85,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_problems.set_string_items()
 		self._LCTRL_meds.set_string_items()
 		self._LCTRL_history.set_string_items()
+
+		self._LCTRL_documents.set_string_items()
 	#-----------------------------------------------------
 	# event handling
 	#-----------------------------------------------------
@@ -114,7 +119,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'vacc_mod_db', receiver = self._on_post_patient_selection)
 
 #		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
-#		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_post_patient_selection)
 #		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 #		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 #		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
@@ -150,9 +155,19 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self.__refresh_meds(patient = pat)
 		self.__refresh_history(patient = pat)
 
+		self.__refresh_documents(patient = pat)
+
 		return True
 	#-----------------------------------------------------
 	# internal helpers
+	#-----------------------------------------------------
+	def __refresh_documents(self, patient=None):
+
+	#-----------------------------------------------------
+
+	#-----------------------------------------------------
+
+	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_encounters(self, patient=None):
 		emr = patient.get_emr()
