@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.9
+
+FIX: completely rip out wx.lib.pubsub use
+
 	1.1.8
 
 FIX: exception on accessing diagnostic certainty phrasewheel [thanks J.Busser]

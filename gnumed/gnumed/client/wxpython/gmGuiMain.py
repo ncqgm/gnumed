@@ -28,7 +28,6 @@ if not hasattr(sys, 'frozen'):
 
 try:
 	import wx
-	import wx.lib.pubsub
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -825,8 +824,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
-
-		wx.lib.pubsub.Publisher.subscribe(listener = self._on_set_statustext_pubsub, topic = 'statustext')
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
@@ -2935,11 +2932,6 @@ class gmApp(wx.App):
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
-	def _signal_debugging_monitor_pubsub(self, msg, **kwargs):
-		print "wx.lib.pubsub message:"
-		print msg.topic
-		print msg.data
-	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
@@ -2979,14 +2971,7 @@ class gmApp(wx.App):
 
 		if _cfg.get(option = 'debug'):
 			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
-			_log.debug('connected old signal monitor')
-			wx.lib.pubsub.Publisher.subscribe(listener = self._signal_debugging_monitor_pubsub)
-			_log.debug('connected wx.lib.pubsub based signal monitor for all topics')
-
-#			wx.lib.pubsub.Publisher.subscribe (
-#				listener = self._signal_debugging_monitor_pubsub,
-#				topic = wx.lib.pubsub.getStrAllTopics()					# does not exist anymore in later versions of pubsub
-#			)
+			_log.debug('connected signal monitor')
 	#----------------------------------------------
 	def __check_for_updates(self):
 
@@ -3325,25 +3310,12 @@ def _signal_debugging_monitor(*args, **kwargs):
 		# careful because of possibly limited console output encoding
 		try: print '    [%s]: %s' % (key, kwargs[key])
 		except: print 'cannot print signal information'
-#------------------------------------------------------------------------------
-def _signal_debugging_monitor_pubsub(msg):
-	# careful because of possibly limited console output encoding
-	try:
-		print '==> received wx.lib.pubsub message: "%s"' % msg.topic
-		print '    data: %s' % msg.data
-		print msg
-	except: print 'problem printing pubsub message information'
 #==============================================================================
 def main():
 
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
-		wx.lib.pubsub.Publisher.subscribe (
-			listener = _signal_debugging_monitor_pubsub
-#			, topic = wx.lib.pubsub.getStrAllTopics()				# not available in some implementations
-		)
-		_log.debug('wx.lib.pubsub signal monitor activated')
 
 	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
