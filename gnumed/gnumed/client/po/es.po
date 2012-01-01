@@ -11958,7 +11958,7 @@ msgid ""
 "\n"
 "Right-click for context menu."
 msgstr ""
-"Foto del paciente (%S).\n"
+"Foto del paciente (%s).\n"
 "\n"
 "Click-derecho para el menú contextual."
 
