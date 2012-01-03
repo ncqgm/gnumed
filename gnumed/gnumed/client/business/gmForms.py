@@ -222,7 +222,9 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 	def instantiate(self):
 		fname = self.export_to_file()
 		engine = form_engines[self._payload[self._idx['engine']]]
-		return engine(template_file = fname)
+		form = engine(template_file = fname)
+		form.template = self
+		return form
 #============================================================
 def get_form_template(name_long=None, external_version=None):
 	cmd = u'select pk from ref.paperwork_templates where name_long = %(lname)s and external_version = %(ver)s'
@@ -717,6 +719,11 @@ class cLaTeXForm(cFormEngine):
 		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
 		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
+		# inject placeholder values
+		data_source.add_placeholder(u'form_name_long', self.template['name_long'])
+		data_source.add_placeholder(u'form_name_short', self.template['name_short'])
+		data_source.add_placeholder(u'form_version', self.template['external_version'])
+
 		for line in template_file:
 
 			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
@@ -742,6 +749,11 @@ class cLaTeXForm(cFormEngine):
 
 		instance_file.close()
 		template_file.close()
+
+		# remove temporary placeholders
+		data_source.remove_placeholder(u'form_name_long', self.template['name_long'])
+		data_source.remove_placeholder(u'form_name_short', self.template['name_short'])
+		data_source.remove_placeholder(u'form_version', self.template['external_version'])
 
 		return
 	#--------------------------------------------------------

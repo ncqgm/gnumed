@@ -13,6 +13,7 @@ NEW: top panel: display active encounter area
 NEW: patient overview plugin
 NEW: reports to find recent encounters [thanks J.Busser]
 NEW: marginal support for soapU category
+NEW: placeholders form_name_long/form_name_short/form_version
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

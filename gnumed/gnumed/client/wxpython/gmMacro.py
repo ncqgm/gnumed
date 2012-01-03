@@ -64,6 +64,16 @@ known_placeholders = [
 ]
 
 
+# values for those placeholders must be injected from the outside before using them,
+# in use they must conform to the "placeholder::::length" syntax,
+# as long as they resolve to None they return themselves
+_injectable_placeholders = {
+	u'form_name_long': None,
+	u'form_name_short': None,
+	u'form_version': None
+}
+
+
 # those must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 known_variant_placeholders = [
 	u'soap',
@@ -138,11 +148,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	- errors with placeholders return an error string
 	- placeholders failing to resolve to a value return a warning string
 
-	There are currently two types of placeholders:
+	There are several types of placeholders:
 
 	simple static placeholders
 		- those are listed in known_placeholders
 		- they are used as-is
+
+	extended static placeholders
+		- those are, effectively, static placeholders
+		  with a maximum length attached (after "::::")
+
+	injectable placeholders
+		- they must be set up befor use by add_placeholder()
+		- they should be removed after use by remove_placeholder()
+		- the syntax is like extended static placeholders
+		- they are listed in _injectable_placeholders
 
 	variant placeholders
 		- those are listed in known_variant_placeholders
@@ -159,6 +179,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.debug = False
 
 		self.invalid_placeholder_template = _('invalid placeholder [%s]')
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def add_placeholder(self, key=None, value=None):
+		_injectable_placeholders[key]
+		_injectable_placeholders[key] = value
+	#--------------------------------------------------------
+	def remove_placeholder(self, key=None):
+		_injectable_placeholders[key]
+		_injectable_placeholders[key] = None
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -188,6 +218,27 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# simple static placeholder ?
 		if placeholder in known_placeholders:
 			return getattr(self, placeholder)
+
+		# injectable placeholder ?
+		parts = placeholder.split('::::', 1)
+		if len(parts) == 2:
+			name, lng = parts
+			unknown_injectable = False
+			try:
+				val = _injectable_placeholders[name]
+			except KeyError:
+				unknown_injectable = True
+			except:
+				_log.exception('placeholder handling error: %s', original_placeholder)
+				if self.debug:
+					return self.invalid_placeholder_template % original_placeholder
+				return None
+			if not unknown_injectable:
+				if val is None:
+					if self.debug:
+						return u'injectable placeholder [%s]: no value available' % name
+					return placeholder
+				return val[:int(lng)]
 
 		# extended static placeholder ?
 		parts = placeholder.split('::::', 1)
@@ -1334,7 +1385,10 @@ if __name__ == '__main__':
 			#u'current_provider',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
-			u'primary_praxis_provider_external_id::LANR//LÄK::1234'
+			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
+			u'form_name_long::::1234',
+			u'form_name_long::::5',
+			u'form_version::::5'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1348,8 +1402,10 @@ if __name__ == '__main__':
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))
+		handler.add_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print u'%s => %s' % (ph, handler[ph])
+		handler.remove_placeholder('form_name_long')
 	#--------------------------------------------------------
 
 	#test_placeholders()
