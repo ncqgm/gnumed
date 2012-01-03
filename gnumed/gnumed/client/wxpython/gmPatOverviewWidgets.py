@@ -166,20 +166,41 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def __refresh_documents(self, patient=None):
 		doc_folder = patient.get_document_folder()
-		docs = doc_folder.get_unsigned_documents()
 
 		list_items = []
 		list_data = []
 
+		docs = doc_folder.get_unsigned_documents()
+		no_of_unsigned = len(docs)
 		for doc in docs:
+			list_items.append(u'%s %s (%s)' % (
+				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),
+				doc['l10n_type'],
+				gmTools.u_writing_hand
+			))
+			list_data.append(doc)
+
+		docs = doc_folder.get_documents(order_by = u'ORDER BY clin_when DESC', exclude_unsigned = True)
+		for doc in docs[:5]:
 			list_items.append(u'%s %s' % (
 				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),
 				doc['l10n_type']
 			))
 			list_data.append(doc)
+		if len(docs) > 5:
+			list_items.append(_('%s %s more not shown %s') % (
+				gmTools.u_ellipsis,
+				len(docs) - 5,
+				gmTools.u_ellipsis
+			))
+			list_data.append(u'')
 
 		self._LCTRL_documents.set_string_items(items = list_items)
 		self._LCTRL_documents.set_data(data = list_data)
+
+		if no_of_unsigned > 0:
+			for idx in range(no_of_unsigned):
+				self._LCTRL_documents.SetItemTextColour(idx, wx.NamedColour('RED'))
 	#-----------------------------------------------------
 	def _calc_documents_list_item_tooltip(self, data):
 		emr = gmPerson.gmCurrentPatient().get_emr()
@@ -196,13 +217,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
 				if isinstance(data, gmDocuments.cDocument):
-					gmDocumentWidgets.review_document(parent = self, document = data)
-					return
-			else:
-				if isinstance(data, gmDocuments.cDocument):
 					if len(data.parts) > 0:
 						gmDocumentWidgets.display_document_part(parent = self, part = data.parts[0])
-						return
+					else:
+						gmDocumentWidgets.review_document(parent = self, document = data)
+					return
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs')
 		return

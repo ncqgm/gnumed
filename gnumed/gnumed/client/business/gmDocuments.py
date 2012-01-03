@@ -170,16 +170,13 @@ class cDocumentFolder:
 				WHERE
 					pk_patient = %(pat)s
 						AND
-					NOT EXISTS (
-						SELECT 1 FROM blobs.reviewed_doc_objs
-						WHERE fk_reviewed_row = b_vo.pk_obj
-					)
+					reviewed IS FALSE
 			)
 			ORDER BY clin_when DESC"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 	#--------------------------------------------------------
-	def get_documents(self, doc_type=None, episodes=None, encounter=None):
+	def get_documents(self, doc_type=None, episodes=None, encounter=None, order_by=None, exclude_unsigned=False):
 		"""Return list of documents."""
 
 		args = {
@@ -203,7 +200,13 @@ class cDocumentFolder:
 		if encounter is not None:
 			where_parts.append(u'pk_encounter = %(enc)s')
 
-		cmd = u"%s\nORDER BY clin_when" % (_sql_fetch_document_fields % u' AND '.join(where_parts))
+		if exclude_unsigned:
+			where_parts.append(u'pk_doc IN (SELECT b_vo.pk_doc FROM blobs.v_obj4doc_no_data b_vo WHERE b_vo.pk_patient = %(pat)s AND b_vo.reviewed IS TRUE)')
+
+		if order_by is None:
+			order_by = u'ORDER BY clin_when'
+
+		cmd = u"%s\n%s" % (_sql_fetch_document_fields % u' AND '.join(where_parts), order_by)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]

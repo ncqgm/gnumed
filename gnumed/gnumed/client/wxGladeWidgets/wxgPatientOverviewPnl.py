@@ -75,7 +75,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
         __lbl_measurements = wx.StaticText(self, -1, _("Measurements:"))
         __szr_right.Add(__lbl_measurements, 0, wx.BOTTOM|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_right.Add(self._LCTRL_results, 2, wx.BOTTOM|wx.EXPAND, 5)
-        __lbl_documents = wx.StaticText(self, -1, _("Unsigned documents:"))
+        __lbl_documents = wx.StaticText(self, -1, _("Documents:"))
         __szr_right.Add(__lbl_documents, 0, wx.BOTTOM|wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_right.Add(self._LCTRL_documents, 1, wx.EXPAND, 5)
         __szr_main.Add(__szr_right, 1, wx.EXPAND, 0)
