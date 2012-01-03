@@ -13,7 +13,12 @@ from pprint import pprint
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmBusinessDBObject, gmPG2, gmTools, gmMimeLib
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmDateTime
 
 
 _log = logging.getLogger('gm.docs')
@@ -159,15 +164,20 @@ class cDocumentFolder:
 	def get_unsigned_documents(self):
 		args = {'pat': self.pk_patient}
 		cmd = _sql_fetch_document_fields % u"""
-
-
-
-		-- all document parts of a patient
-		SELECT pk AS pk_obj from blobs.doc_obj WHERE fk_doc IN (
-			-- all documents of a patient
-			SELECT pk_doc FROM blobs.v_doc_med WHERE pk_patient = %(pat)s
-		)
-		"""
+			pk_doc IN (
+				SELECT DISTINCT ON (b_vo.pk_doc) b_vo.pk_doc
+				FROM blobs.v_obj4doc_no_data b_vo
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					NOT EXISTS (
+						SELECT 1 FROM blobs.reviewed_doc_objs
+						WHERE fk_reviewed_row = b_vo.pk_obj
+					)
+			)
+			ORDER BY clin_when DESC"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 	#--------------------------------------------------------
 	def get_documents(self, doc_type=None, episodes=None, encounter=None):
 		"""Return list of documents."""
@@ -384,17 +394,17 @@ where
 		return True, ''
 #============================================================
 _sql_fetch_document_fields = u"""
-	SELECT
-		*,
-	COALESCE (
-		(SELECT array_agg(seq_idx) FROM blobs.doc_obj b_do WHERE b_do.fk_doc = b_vdm.pk_doc),
-		ARRAY[]::integer[]
-	)
-		AS seq_idx_list
-	FROM
-		blobs.v_doc_med b_vdm
-	WHERE
-		%s
+		SELECT
+			*,
+		COALESCE (
+			(SELECT array_agg(seq_idx) FROM blobs.doc_obj b_do WHERE b_do.fk_doc = b_vdm.pk_doc),
+			ARRAY[]::integer[]
+		)
+			AS seq_idx_list
+		FROM
+			blobs.v_doc_med b_vdm
+		WHERE
+			%s
 """
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
@@ -567,6 +577,30 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				_log.error(str(data))
 				return False
 		return True
+	#--------------------------------------------------------
+	def format(self):
+		part_count = len(self._payload[self._idx['seq_idx_list']])
+		if part_count == 1:
+			parts = _('1 part')
+		else:
+			parts = _('%s parts') % part_count
+		txt = _(
+			'%s (%s)   #%s\n'
+			'\n'
+			' Created: %s\n'
+			' Episode: %s\n'
+			'%s'
+			'%s'
+		) % (
+			self._payload[self._idx['l10n_type']],
+			parts,
+			self._payload[self._idx['pk_doc']],
+			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %B %d', accuracy = gmDateTime.acc_days),
+			self._payload[self._idx['episode']],
+			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
+			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
+		)
+		return txt
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None):
 	"""Returns new document instance or raises an exception.

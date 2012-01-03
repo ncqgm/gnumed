@@ -24,6 +24,7 @@ from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
+from Gnumed.business import gmDocuments
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -33,6 +34,7 @@ from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmVaccWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -76,6 +78,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_documents.set_columns(columns = [u''])
 		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
+		self._LCTRL_documents.activate_callback = self._on_document_activated
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		self._LCTRL_identity.set_string_items()
@@ -162,11 +165,47 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	# internal helpers
 	#-----------------------------------------------------
 	def __refresh_documents(self, patient=None):
+		doc_folder = patient.get_document_folder()
+		docs = doc_folder.get_unsigned_documents()
 
+		list_items = []
+		list_data = []
+
+		for doc in docs:
+			list_items.append(u'%s %s' % (
+				gmDateTime.pydt_strftime(doc['clin_when'], format = '%m/%Y', accuracy = gmDateTime.acc_months),
+				doc['l10n_type']
+			))
+			list_data.append(doc)
+
+		self._LCTRL_documents.set_string_items(items = list_items)
+		self._LCTRL_documents.set_data(data = list_data)
 	#-----------------------------------------------------
+	def _calc_documents_list_item_tooltip(self, data):
+		emr = gmPerson.gmCurrentPatient().get_emr()
 
+		if isinstance(data, gmDocuments.cDocument):
+			return data.format()
+
+		return None
 	#-----------------------------------------------------
+	def _on_document_activated(self, event):
+		data = self._LCTRL_documents.get_selected_item_data(only_one = True)
 
+		if data is not None:
+			# <ctrl> down ?
+			if wx.GetKeyState(wx.WXK_CONTROL):
+				if isinstance(data, gmDocuments.cDocument):
+					gmDocumentWidgets.review_document(parent = self, document = data)
+					return
+			else:
+				if isinstance(data, gmDocuments.cDocument):
+					if len(data.parts) > 0:
+						gmDocumentWidgets.display_document_part(parent = self, part = data.parts[0])
+						return
+
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs')
+		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_encounters(self, patient=None):

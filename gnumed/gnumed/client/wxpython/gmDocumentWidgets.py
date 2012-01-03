@@ -247,7 +247,6 @@ def manage_document_types(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	#dlg = gmDocumentWidgets.cEditDocumentTypesDlg(parent = self, id=-1)
 	dlg = cEditDocumentTypesDlg(parent = parent)
 	dlg.ShowModal()
 #============================================================
@@ -464,6 +463,22 @@ ORDER BY q1.rank, q1.list_label"""]
 				data = pk
 			)
 #============================================================
+# document review widgets
+#============================================================
+def review_document_part(parent=None, part=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	dlg = cReviewDocPartDlg (
+		parent = parent,
+		id = -1,
+		part = part
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+#------------------------------------------------------------
+def review_document(parent=None, document=None):
+	return review_document_part(parent = parent, part = document)
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
 
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
@@ -1226,6 +1241,82 @@ off this message in the GNUmed configuration.""") % ref
 		else:
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
+#============================================================
+def display_document_part(parent=None, part=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# sanity check
+	if part['size'] == 0:
+		_log.debug('cannot display part [%s] - 0 bytes', part['pk_obj'])
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Document part does not seem to exist in database !'),
+			aTitle = _('showing document')
+		)
+		return None
+
+	wx.BeginBusyCursor()
+	cfg = gmCfg.cCfgSQL()
+
+	# determine database export chunk size
+	chunksize = int(
+	cfg.get2 (
+		option = "horstspace.blob_export_chunk_size",
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = 2048
+	))
+
+	# shall we force blocking during view ?
+	block_during_view = bool( cfg.get2 (
+		option = 'horstspace.document_viewer.block_during_view',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = None
+	))
+
+	wx.EndBusyCursor()
+
+	# display it
+	successful, msg = part.display_via_mime (
+		chunksize = chunksize,
+		block = block_during_view
+	)
+	if not successful:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot display document part:\n%s') % msg,
+			aTitle = _('showing document')
+		)
+		return None
+
+	# handle review after display
+	# 0: never
+	# 1: always
+	# 2: if no review by myself exists yet
+	# 3: if no review at all exists yet
+	# 4: if no review by responsible reviewer
+	review_after_display = int(cfg.get2 (
+		option = 'horstspace.document_viewer.review_after_display',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = 3
+	))
+	if review_after_display == 1:			# always review
+		review_document_part(parent = parent, part = part)
+	elif review_after_display == 2:			# review if no review by me exists
+		review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
+		if len(review_by_me) == 0:
+			review_document_part(parent = parent, part = part)
+	elif review_after_display == 3:
+		if len(part.get_reviews()) == 0:
+			review_document_part(parent = parent, part = part)
+	elif review_after_display == 4:
+		reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+		if len(reviewed_by_responsible) == 0:
+			review_document_part(parent = parent, part = part)
+
+	return True
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
 

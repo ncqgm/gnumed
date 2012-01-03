@@ -13,6 +13,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython.gmListWidgets import cReportListCtrl
+        from Gnumed.wxpython import gmDateTimeInput
 
         # begin wxGlade: wxgPatientOverviewPnl.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
