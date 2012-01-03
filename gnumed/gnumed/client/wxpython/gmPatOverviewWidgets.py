@@ -25,6 +25,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -53,6 +54,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
+		# left
 		self._LCTRL_identity.set_columns(columns = [u''])
 		self._LCTRL_identity.item_tooltip_callback = self._calc_identity_item_tooltip
 		self._LCTRL_identity.activate_callback = self._on_identity_item_activated
@@ -65,6 +67,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_encounters.item_tooltip_callback = self._calc_encounters_list_item_tooltip
 		self._LCTRL_encounters.activate_callback = self._on_encounter_activated
 
+		# middle
 		self._LCTRL_problems.set_columns(columns = [u''])
 		self._LCTRL_problems.item_tooltip_callback = self._calc_problem_list_item_tooltip
 		self._LCTRL_problems.activate_callback = self._on_problem_activated
@@ -75,6 +78,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_history.set_columns(columns = [u''])
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
+		self._LCTRL_history.activate_callback = self._on_history_item_activated
+
+		# right
+		self._LCTRL_inbox.set_columns(columns = [u''])
+		self._LCTRL_inbox.item_tooltip_callback = self._calc_inbox_item_tooltip
+		self._LCTRL_inbox.activate_callback = self._on_inbox_item_activated
 
 		self._LCTRL_documents.set_columns(columns = [u''])
 		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
@@ -89,6 +98,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_meds.set_string_items()
 		self._LCTRL_history.set_string_items()
 
+		self._LCTRL_inbox.set_string_items()
 		self._LCTRL_documents.set_string_items()
 	#-----------------------------------------------------
 	# event handling
@@ -110,8 +120,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'job_mod_db', receiver = self._on_post_patient_selection)
 		# no signal for external IDs yet
 		# no signal for address yet
+#		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
+#		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
+#		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
+#		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
+
 
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
+#		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._on_post_patient_selection)
@@ -121,12 +137,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'procedure_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'vacc_mod_db', receiver = self._on_post_patient_selection)
 
-#		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_post_patient_selection)
-#		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-#		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-#		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-#		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
 
 		# synchronous signals
 #		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -158,11 +170,44 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self.__refresh_meds(patient = pat)
 		self.__refresh_history(patient = pat)
 
+		self.__refresh_inbox(patient = pat)
 		self.__refresh_documents(patient = pat)
 
 		return True
 	#-----------------------------------------------------
 	# internal helpers
+	#-----------------------------------------------------
+	def __refresh_inbox(self, patient=None):
+		list_items = []
+		list_data = []
+
+		for msg in patient.messages:
+			list_items.append(u'%s%s' % (
+				msg['l10n_type'],
+				gmTools.coalesce(msg['comment'], u'', u': %s')
+			))
+			list_data.append(msg)
+
+		self._LCTRL_inbox.set_string_items(items = list_items)
+		self._LCTRL_inbox.set_data(data = list_data)
+	#-----------------------------------------------------
+	def _calc_inbox_item_tooltip(self, data):
+		if isinstance(data, gmProviderInbox.cInboxMessage):
+			return data.format()
+
+		return None
+	#-----------------------------------------------------
+	def _on_inbox_item_activated(self, event):
+#		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
+#
+#		if data is not None:
+#			# <ctrl> down ?
+#			if wx.GetKeyState(wx.WXK_CONTROL):
+#				if isinstance(data, gmProviderInbox.cInboxMessage):
+#					xxxxxxxxx
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+		return
+	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_documents(self, patient=None):
 		doc_folder = patient.get_document_folder()

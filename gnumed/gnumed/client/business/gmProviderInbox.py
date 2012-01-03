@@ -17,6 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmStaff
 
@@ -56,6 +57,47 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_patient',
 		u'ufk_context'
 	]
+	#------------------------------------------------------------
+	def format(self):
+		tt = u'%s: %s%s\n' % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['received_when']],
+				format = '%A, %Y %B %d, %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			),
+			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
+			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], u'', u' #%s ')
+		)
+
+		tt += u'%s: %s\n' % (
+			self._payload[self._idx['l10n_category']],
+			self._payload[self._idx['l10n_type']]
+		)
+
+		tt += u'%s %s %s\n' % (
+			self._payload[self._idx['modified_by']],
+			gmTools.u_right_arrow,
+			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
+		)
+
+		tt += u'\n%s%s%s\n\n' % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['comment']],
+			gmTools.u_right_double_angle_quote
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['pk_patient']],
+			u'',
+			u'%s\n\n' % _('Patient #%s')
+		)
+
+		if self._payload[self._idx['data']] is not None:
+			tt += self._payload[self._idx['data']][:150]
+			if len(self._payload[self._idx['data']]) > 150:
+				tt += gmTools.u_ellipsis
+
+		return tt
 #------------------------------------------------------------
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
 

@@ -1011,41 +1011,42 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		edit_inbox_message(parent = self, message = None, single_entry = False)
 	#--------------------------------------------------------
 	def _get_msg_tooltip(self, msg):
-		tt = u'%s: %s%s\n' % (
-			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
-			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
-			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
-		)
-
-		tt += u'%s: %s\n' % (
-			msg['l10n_category'],
-			msg['l10n_type']
-		)
-
-		tt += u'%s %s %s\n' % (
-			msg['modified_by'],
-			gmTools.u_right_arrow,
-			gmTools.coalesce(msg['provider'], _('everyone'))
-		)
-
-		tt += u'\n%s%s%s\n\n' % (
-			gmTools.u_left_double_angle_quote,
-			msg['comment'],
-			gmTools.u_right_double_angle_quote
-		)
-
-		tt += gmTools.coalesce (
-			msg['pk_patient'],
-			u'',
-			u'%s\n\n' % _('Patient #%s')
-		)
-
-		if msg['data'] is not None:
-			tt += msg['data'][:150]
-			if len(msg['data']) > 150:
-				tt += gmTools.u_ellipsis
-
-		return tt
+		return msg.format()
+#		tt = u'%s: %s%s\n' % (
+#			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
+#			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
+#			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
+#		)
+#
+#		tt += u'%s: %s\n' % (
+#			msg['l10n_category'],
+#			msg['l10n_type']
+#		)
+#
+#		tt += u'%s %s %s\n' % (
+#			msg['modified_by'],
+#			gmTools.u_right_arrow,
+#			gmTools.coalesce(msg['provider'], _('everyone'))
+#		)
+#
+#		tt += u'\n%s%s%s\n\n' % (
+#			gmTools.u_left_double_angle_quote,
+#			msg['comment'],
+#			gmTools.u_right_double_angle_quote
+#		)
+#
+#		tt += gmTools.coalesce (
+#			msg['pk_patient'],
+#			u'',
+#			u'%s\n\n' % _('Patient #%s')
+#		)
+#
+#		if msg['data'] is not None:
+#			tt += msg['data'][:150]
+#			if len(msg['data']) > 150:
+#				tt += gmTools.u_ellipsis
+#
+#		return tt
 	#--------------------------------------------------------
 	# item handlers
 	#--------------------------------------------------------
