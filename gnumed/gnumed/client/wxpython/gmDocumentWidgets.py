@@ -1340,6 +1340,11 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_episode.SetValue(True)
 	#--------------------------------------------------------
+	def _on_sort_by_issue_selected(self, event):
+		self._doc_tree.sort_mode = 'issue'
+		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_issue.SetValue(True)
+	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
@@ -1353,7 +1358,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 	This acts on the current patient.
 	"""
-	_sort_modes = ['age', 'review', 'episode', 'type']
+	_sort_modes = ['age', 'review', 'episode', 'type', 'issue']
 	_root_node_labels = None
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -1370,6 +1375,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			'age': tmp % _('most recent on top'),
 			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
+			'issue': tmp % _('sorted by health issue'),
 			'type': tmp % _('sorted by type')
 		}
 
@@ -1603,6 +1609,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 					self.SetItemPyData(intermediate_nodes[doc['l10n_type']], None)
 					self.SetItemHasChildren(intermediate_nodes[doc['l10n_type']], True)
 				parent = intermediate_nodes[doc['l10n_type']]
+			elif self.__sort_mode == 'issue':
+				lbl = doc['health_issue']
+				if not intermediate_nodes.has_key(lbl):
+					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
+					self.SetItemBold(intermediate_nodes[lbl], bold = True)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
+				parent = intermediate_nodes[lbl]
 			else:
 				parent = self.root
 
@@ -1651,7 +1665,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME: apply expansion state if available or else ...
 		# FIXME: ... uncollapse to default state
 		self.Expand(self.root)
-		if self.__sort_mode in ['episode', 'type']:
+		if self.__sort_mode in ['episode', 'type', 'issue']:
 			for key in intermediate_nodes.keys():
 				self.Expand(intermediate_nodes[key])
 
@@ -1701,6 +1715,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				if data1['episode'] < data2['episode']:
 					return -1
 				if data1['episode'] == data2['episode']:
+					# inner sort: reverse by date
+					if data1[date_field] > data2[date_field]:
+						return -1
+					if data1[date_field] == data2[date_field]:
+						return 0
+					return 1
+				return 1
+
+			elif self.__sort_mode == 'issue':
+				if data1['health_issue'] < data2['health_issue']:
+					return -1
+				if data1['health_issue'] == data2['health_issue']:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
 						return -1
@@ -1900,17 +1926,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-#		# get export directory for temporary files
-#		tmp_dir = gmTools.coalesce (
-#			cfg.get2 (
-#				option = "horstspace.tmp_dir",
-#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#				bias = 'workplace'
-#			),
-#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-#		)
-#		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(
 		cfg.get2 (
@@ -2007,17 +2022,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-#		# get export directory for temporary files
-#		tmp_dir = gmTools.coalesce (
-#			cfg.get2 (
-#				option = "horstspace.tmp_dir",
-#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#				bias = 'workplace'
-#			),
-#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-#		)
-#		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -2105,17 +2109,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-#		# get export directory for temporary files
-#		tmp_dir = gmTools.coalesce (
-#			cfg.get2 (
-#				option = "horstspace.tmp_dir",
-#				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-#				bias = 'workplace'
-#			),
-#			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-#		)
-#		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -2124,10 +2117,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			default = default_chunksize
 		))
 
-		part_files = self.__curr_node_data.export_parts_to_files (
-#			export_dir = tmp_dir,
-			chunksize = chunksize
-		)
+		part_files = self.__curr_node_data.export_parts_to_files(chunksize = chunksize)
 
 		cmd = external_cmd + u' ' + u' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (

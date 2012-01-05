@@ -14,6 +14,7 @@ NEW: patient overview plugin
 NEW: reports to find recent encounters [thanks J.Busser]
 NEW: marginal support for soapU category
 NEW: placeholders form_name_long/form_name_short/form_version
+NEW: document tree: sort mode "by health issue"
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
