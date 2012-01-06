@@ -720,9 +720,9 @@ class cLaTeXForm(cFormEngine):
 		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
 		# inject placeholder values
-		data_source.add_placeholder(u'form_name_long', self.template['name_long'])
-		data_source.add_placeholder(u'form_name_short', self.template['name_short'])
-		data_source.add_placeholder(u'form_version', self.template['external_version'])
+		data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+		data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+		data_source.set_placeholder(u'form_version', self.template['external_version'])
 
 		for line in template_file:
 
@@ -751,9 +751,9 @@ class cLaTeXForm(cFormEngine):
 		template_file.close()
 
 		# remove temporary placeholders
-		data_source.remove_placeholder(u'form_name_long', self.template['name_long'])
-		data_source.remove_placeholder(u'form_name_short', self.template['name_short'])
-		data_source.remove_placeholder(u'form_version', self.template['external_version'])
+		data_source.unset_placeholder(u'form_name_long', self.template['name_long'])
+		data_source.unset_placeholder(u'form_name_short', self.template['name_short'])
+		data_source.unset_placeholder(u'form_version', self.template['external_version'])
 
 		return
 	#--------------------------------------------------------

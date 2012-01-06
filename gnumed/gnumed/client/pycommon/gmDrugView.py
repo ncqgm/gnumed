@@ -1,3 +1,10 @@
+
+print "this is currently not used"
+
+import sys
+sys.exit()
+
+
 #========================================================
 import sys, string, re, types
 

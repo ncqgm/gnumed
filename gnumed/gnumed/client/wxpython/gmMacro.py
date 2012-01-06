@@ -159,8 +159,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		  with a maximum length attached (after "::::")
 
 	injectable placeholders
-		- they must be set up befor use by add_placeholder()
-		- they should be removed after use by remove_placeholder()
+		- they must be set up before use by set_placeholder()
+		- they should be removed after use by unset_placeholder()
 		- the syntax is like extended static placeholders
 		- they are listed in _injectable_placeholders
 
@@ -182,11 +182,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def add_placeholder(self, key=None, value=None):
+	def set_placeholder(self, key=None, value=None):
 		_injectable_placeholders[key]
 		_injectable_placeholders[key] = value
 	#--------------------------------------------------------
-	def remove_placeholder(self, key=None):
+	def unset_placeholder(self, key=None):
 		_injectable_placeholders[key]
 		_injectable_placeholders[key] = None
 	#--------------------------------------------------------
@@ -833,9 +833,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			order_by = u'brand, substance'
 		)
 
-		# FIXME: we should be dealing with translating None to u'' here
-
-		return u'\n'.join([ data % m for m in current_meds ])
+		return u'\n'.join([ data % m.fields_as_dict(date_format = '%Y %B %d') for m in current_meds ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
 
@@ -1386,9 +1384,10 @@ if __name__ == '__main__':
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
 			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
-			u'form_name_long::::1234',
-			u'form_name_long::::5',
-			u'form_version::::5'
+			#u'form_name_long::::1234',
+			#u'form_name_long::::5',
+			#u'form_version::::5',
+			u'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s <==\\n::250>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1402,10 +1401,11 @@ if __name__ == '__main__':
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))
-		handler.add_placeholder('form_name_long', 'ein Testformular')
+		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
-			print u'%s => %s' % (ph, handler[ph])
-		handler.remove_placeholder('form_name_long')
+			print ph
+			print ' => %s' % handler[ph]
+		#handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
 
 	#test_placeholders()

@@ -1,3 +1,9 @@
+
+print "this is currently not used"
+
+import sys
+sys.exit()
+
 #############################################################################
 #
 # gmDrugObject - Object hiding all drug related backend communication

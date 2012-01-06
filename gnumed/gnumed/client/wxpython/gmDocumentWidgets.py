@@ -1595,7 +1595,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				lbl = doc['episode']				# it'd be nice to also show the issue but we don't have that
+				lbl = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
 				if not intermediate_nodes.has_key(lbl):
 					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
 					self.SetItemBold(intermediate_nodes[lbl], bold = True)
@@ -1603,14 +1603,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 					self.SetItemHasChildren(intermediate_nodes[lbl], True)
 				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'type':
-				if not intermediate_nodes.has_key(doc['l10n_type']):
-					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
-					self.SetItemBold(intermediate_nodes[doc['l10n_type']], bold = True)
-					self.SetItemPyData(intermediate_nodes[doc['l10n_type']], None)
-					self.SetItemHasChildren(intermediate_nodes[doc['l10n_type']], True)
-				parent = intermediate_nodes[doc['l10n_type']]
+				lbl = doc['l10n_type']
+				if not intermediate_nodes.has_key(lbl):
+					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
+					self.SetItemBold(intermediate_nodes[lbl], bold = True)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
+				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'issue':
-				lbl = doc['health_issue']
+				if doc['health_issue'] is None:
+					lbl = _('Unattributed episode: %s') % doc['episode']
+				else:
+					lbl = doc['health_issue']
 				if not intermediate_nodes.has_key(lbl):
 					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
 					self.SetItemBold(intermediate_nodes[lbl], bold = True)

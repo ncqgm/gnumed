@@ -441,6 +441,29 @@ def delete_xxx(xxx=None):
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
+	def fields_as_dict(self, date_format='%c'):
+		data = {}
+		for field in self._idx.keys():
+			val = self._payload[self._idx[field]]
+			if val is None:
+				data[field] = u''
+				continue
+			if isinstance(val, datetime.datetime):
+				try:
+					data[field] = val.strftime(date_format).decode('utf8', 'replace')
+				except ValueError:
+					data[field] = val.isoformat()
+				continue
+			try:
+				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+			except TypeError:
+				try:
+					data[field] = unicode(val)
+				except (UnicodeDecodeError, TypeError):
+					val = '%s' % str(val)
+					data[field] = val.decode('utf8', 'replace')
+		return data
+	#--------------------------------------------------------
 	def get_patient(self):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
@@ -642,12 +665,13 @@ if __name__ == '__main__':
 
 	data = {
 		'pk_field': 'bogus_pk',
-		'idx': {'bogus_pk': 0, 'bogus_field': 1},
-		'data': [-1, 'bogus_data']
+		'idx': {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2},
+		'data': [-1, 'bogus_data', datetime.datetime.now()]
 	}
 	obj = cTestObj(row=data)
 	#print obj['wrong_field']
 	#print jsonclasshintify(obj)
-	obj['wrong_field'] = 1
+	#obj['wrong_field'] = 1
+	print obj.fields_as_dict()
 
 #============================================================
