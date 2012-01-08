@@ -26,6 +26,7 @@ IMPROVED: log data pack insertion in the database [thanks J.Busser]
 IMPROVED: top panel: redo in wxGlade
 IMPROVED: comm channels: support a comment [suggested by J.Busser]
 IMPROVED: document input plugin: workflow adjustments
+IMPROVED: signalling of attempt to duplicate drug component intake
 
 ------------------------------------------------
 # rel-1-1-patches
