@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.10
+
+IMPROVED: arriba now at version 2.4.1
+
 	1.1.9
 
 FIX: completely rip out wx.lib.pubsub use
