@@ -1783,19 +1783,28 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_identity=None):
-	args = {'comp': pk_component, 'pat': pk_identity}
-	cmd = u"""
-SELECT exists (
-	SELECT 1 FROM clin.substance_intake
-	WHERE
-		fk_drug_component = %(comp)s
-			AND
+def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None):
+	args = {'comp': pk_component, 'subst': pk_substance, 'pat': pk_identity}
+
+	where_clause = u"""
 		fk_encounter IN (
 			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
 		)
+			AND
+		"""
+
+	if pk_substance is not None:
+		where_clause += u'fk_substance = %(subst)s'
+	if pk_component is not None:
+		where_clause += u'fk_drug_component = %(comp)s'
+
+	cmd = u"""SELECT exists (
+	SELECT 1 FROM clin.substance_intake
+	WHERE
+		%s
 	LIMIT 1
-)"""
+	)""" % where_clause
+
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 #------------------------------------------------------------

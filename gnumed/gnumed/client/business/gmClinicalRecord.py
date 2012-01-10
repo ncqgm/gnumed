@@ -1298,9 +1298,10 @@ WHERE
 			preparation = preparation
 		)
 	#--------------------------------------------------------
-	def substance_intake_exists(self, pk_component=None):
+	def substance_intake_exists(self, pk_component=None, pk_substance=None):
 		return gmMedication.substance_intake_exists (
 			pk_component = pk_component,
+			pk_substance = pk_substance,
 			pk_identity = self.pk_patient
 		)
 	#--------------------------------------------------------

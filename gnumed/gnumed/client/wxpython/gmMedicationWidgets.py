@@ -1229,21 +1229,33 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# cannot add duplicate components
 		if self.mode == 'new':
+			msg = _(
+				'The patient is already taking\n'
+				'\n'
+				' %s\n'
+				'\n'
+				'You will want to adjust the schedule\n'
+				'rather than document the intake twice.'
+			)
+			title = _('Adding substance intake entry')
 			if has_component:
 				emr = gmPerson.gmCurrentPatient().get_emr()
 				if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
 					gmGuiHelpers.gm_show_warning (
-						aTitle = _('Adding substance intake entry'),
-						aMessage = _(
-							'The patient is already taking\n'
-							'\n'
-							' %s\n'
-							'\n'
-							'You will want to adjust the schedule\n'
-							'rather than document the intake twice.'
-						) % self._PRW_component.GetValue().strip()
+						aTitle = title,
+						aMessage = msg % self._PRW_component.GetValue().strip()
 					)
 					self._PRW_component.display_as_valid(False)
+					validity = False
+			pk_substance = self._PRW_substance.GetData()
+			if pk_substance is not None:
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if emr.substance_intake_exists(pk_substance = pk_substance):
+					gmGuiHelpers.gm_show_warning (
+						aTitle = title,
+						aMessage = msg % self._PRW_substance.GetValue().strip()
+					)
+					self._PRW_substance.display_as_valid(False)
 					validity = False
 
 		# must have either brand or substance
