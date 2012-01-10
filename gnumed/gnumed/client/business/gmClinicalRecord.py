@@ -271,15 +271,21 @@ SELECT fk_encounter from
 			episode = episode
 		)
 	#--------------------------------------------------------
-	def get_hospital_stay_stats_by_hospital(self):
+	def get_hospital_stay_stats_by_hospital(self, cover_period=None):
+		args = {'pat': self.pk_patient, 'range': cover_period}
+		where_parts = [u'pk_patient = %(pat)s']
+		if cover_period is not None:
+			where_parts.append(u'discharge > (now() - %(range)s)')
+
 		cmd = u"""
 			SELECT hospital, count(1) AS frequency
 			FROM clin.v_pat_hospital_stays
-			WHERE pk_patient = %(pat)s
+			WHERE
+				%s
 			GROUP BY hospital
 			ORDER BY frequency DESC
-		"""
-		args = {'pat': self.pk_patient}
+		""" % u' AND '.join(where_parts)
+
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return rows
 	#--------------------------------------------------------
@@ -1928,15 +1934,20 @@ WHERE
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
 	#------------------------------------------------------------------
-	def get_encounter_stats_by_type(self):
+	def get_encounter_stats_by_type(self, cover_period=None):
+		args = {'pat': self.pk_patient, 'range': cover_period}
+		where_parts = [u'pk_patient = %(pat)s']
+		if cover_period is not None:
+			where_parts.append(u'last_affirmed > now() - %(range)s')
+
 		cmd = u"""
 			SELECT l10n_type, count(1) AS frequency
 			FROM clin.v_pat_encounters
-			WHERE pk_patient = %(pat)s
+			WHERE
+				%s
 			GROUP BY l10n_type
 			ORDER BY frequency DESC
-		"""
-		args = {'pat': self.pk_patient}
+		""" % u' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return rows
 	#------------------------------------------------------------------

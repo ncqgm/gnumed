@@ -93,6 +93,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_identity.set_string_items()
 		self._LCTRL_contacts.set_string_items()
 		self._LCTRL_encounters.set_string_items()
+		self._PRW_encounter_range.SetText(value = u'', data = None)
 
 		self._LCTRL_problems.set_string_items()
 		self._LCTRL_meds.set_string_items()
@@ -144,6 +145,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 #		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
 #		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 
+		self._PRW_encounter_range.add_callback_on_selection(callback = self._on_encounter_range_selected)
+	#--------------------------------------------------------
+	def _on_encounter_range_selected(self, data):
+		wx.CallAfter(self.__refresh_encounters, patient = gmPerson.gmCurrentPatient())
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self._schedule_data_reget)
@@ -273,6 +278,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_encounters(self, patient=None):
+
+		cover_period = self._PRW_encounter_range.GetData()
+		if cover_period is None:
+			if self._PRW_encounter_range.GetValue().strip() != u'':
+				return
+
 		emr = patient.get_emr()
 
 		list_items = []
@@ -314,13 +325,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			)
 			list_data.append(last)
 
-		encs = emr.get_encounter_stats_by_type()
+		encs = emr.get_encounter_stats_by_type(cover_period = cover_period)
 		for enc in encs:
 			item = u'%s x %s' % (enc['frequency'], enc['l10n_type'])
 			list_items.append(item)
 			list_data.append(item)
 
-		stays = emr.get_hospital_stay_stats_by_hospital()
+		stays = emr.get_hospital_stay_stats_by_hospital(cover_period = cover_period)
 		for stay in stays:
 			item = u'%s x %s' % (
 				stay['frequency'],
