@@ -170,30 +170,39 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 	# FIXME: command should be checked for shell exploits
 	command = command.strip()
 
-	# what the following hack does is this: the user indicated
-	# whether she wants non-blocking external display of files
-	# - the real way to go about this is to have a non-blocking command
-	#   in the line in the mailcap file for the relevant mime types
-	# - as non-blocking may not be desirable when *not* displaying
-	#   files from within GNUmed the really right way would be to
-	#   add a "test" clause to the non-blocking mailcap entry which
-	#   yields true if and only if GNUmed is running
-	# - however, this is cumbersome at best and not supported in
-	#   some mailcap implementations
-	# - so we allow the user to attempt some control over the process
-	#   from within GNUmed by setting a configuration option
-	# - leaving it None means to use the mailcap default or whatever
-	#   was specified in the command itself
-	# - True means: tack " &" onto the shell command if necessary
-	# - False means: remove " &" from the shell command if its there
-	# - all this, of course, only works in shells which support
-	#   detaching jobs with " &" (so, most POSIX shells)
-	if blocking is True:
-		if command[-2:] == ' &':
-			command = command[:-2]
-	elif blocking is False:
-		if command[-2:] != ' &':
-			command += ' &'
+	if os.name == 'nt':
+		# http://stackoverflow.com/questions/893203/bat-files-nonblocking-run-launch
+		if blocking is False:
+			if not command.startswith('start '):
+				command = 'start /B %s' % command
+		elif blocking is True:
+			if not command.startswith('start '):
+				command = 'start /WAIT /B %s' % command
+	else:
+		# what the following hack does is this: the user indicated
+		# whether she wants non-blocking external display of files
+		# - the real way to go about this is to have a non-blocking command
+		#   in the line in the mailcap file for the relevant mime types
+		# - as non-blocking may not be desirable when *not* displaying
+		#   files from within GNUmed the really right way would be to
+		#   add a "test" clause to the non-blocking mailcap entry which
+		#   yields true if and only if GNUmed is running
+		# - however, this is cumbersome at best and not supported in
+		#   some mailcap implementations
+		# - so we allow the user to attempt some control over the process
+		#   from within GNUmed by setting a configuration option
+		# - leaving it None means to use the mailcap default or whatever
+		#   was specified in the command itself
+		# - True means: tack " &" onto the shell command if necessary
+		# - False means: remove " &" from the shell command if its there
+		# - all this, of course, only works in shells which support
+		#   detaching jobs with " &" (so, most POSIX shells)
+		if blocking is True:
+			if command[-2:] == ' &':
+				command = command[:-2]
+		elif blocking is False:
+			if command[-2:] != ' &':
+				command += ' &'
 
 	_log.info('running shell command >>>%s<<<', command)
 	# FIXME: use subprocess.Popen()
@@ -265,7 +274,7 @@ if __name__ == '__main__':
 	def test_run_command_in_shell():
 		print "-------------------------------------"
 		print "running:", sys.argv[2]
-		if run_command_in_shell(command=sys.argv[2], blocking=True):
+		if run_command_in_shell(command=sys.argv[2], blocking=False):
 			print "-------------------------------------"
 			print "success"
 		else:
@@ -278,8 +287,8 @@ if __name__ == '__main__':
 	def test_is_executable_by_wine():
 		print is_executable_by_wine(cmd = sys.argv[2])
 	#---------------------------------------------------------
-	#test_run_command_in_shell()
-	test_detect_external_binary()
+	test_run_command_in_shell()
+	#test_detect_external_binary()
 	#test_is_cmd_in_path()
 	#test_is_executable_by_wine()
 
