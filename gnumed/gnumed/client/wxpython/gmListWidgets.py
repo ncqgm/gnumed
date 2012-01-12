@@ -677,6 +677,8 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def get_picks(self):
 		return self._LCTRL_right.get_item_data()
+
+	picks = property(get_picks, lambda x:x)
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------

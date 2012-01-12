@@ -10,9 +10,6 @@ import sys, copy, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-#	from Gnumed.pycommon import 		#, gmDateTime, gmLog2
-#	gmDateTime.init()
-#	gmI18N.activate_locale()
 from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools
 from Gnumed.business import gmMedication
 
@@ -21,13 +18,19 @@ _log = logging.getLogger('gm.vaccination')
 _log.info(__version__)
 
 #============================================================
-def get_indications(order_by=None):
-	cmd = u'SELECT * from clin.vacc_indication'
+def get_indications(order_by=None, pk_indications=None):
+	cmd = u'SELECT *, _(description) AS l10n_description FROM clin.vacc_indication'
+	args = {}
+
+	if pk_indications is not None:
+		if len(pk_indications) != 0:
+			cmd += u' WHERE id IN %(pks)s'
+			args['pks'] = tuple(pk_indications)
 
 	if order_by is not None:
-		cmd = u'%s ORDER BY %s' % (cmd, order_by)
+		cmd += u' ORDER BY %s' % order_by
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	return rows
 #============================================================
@@ -64,6 +67,9 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_brand'
 	]
 	#--------------------------------------------------------
+	def get_indications(self):
+		return get_indications(order_by = 'l10n_description', pk_indications = self._payload[self._idx['pk_indications']])
+
 	def set_indications(self, indications=None, pk_indications=None):
 		queries = [{
 			'cmd': u'DELETE FROM clin.lnk_vaccine2inds WHERE fk_vaccine = %(pk_vacc)s',
@@ -105,6 +111,8 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()
+
+	indications = property(get_indications, lambda x:x)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -121,7 +129,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 
 	is_in_use = property(_get_is_in_use, lambda x:x)
 #------------------------------------------------------------
-def create_vaccine(pk_brand=None, brand_name=None, indications=None):
+def create_vaccine(pk_brand=None, brand_name=None, indications=None, pk_indications=None):
 
 	if pk_brand is None:
 		prep = _('vaccine')
@@ -138,23 +146,38 @@ def create_vaccine(pk_brand=None, brand_name=None, indications=None):
 	cmd = u'INSERT INTO clin.vaccine (fk_brand) values (%(pk_brand)s) RETURNING pk'
 	queries = [{'cmd': cmd, 'args': {'pk_brand': pk_brand}}]
 
-	for indication in indications:
-		cmd = u"""
-			INSERT INTO clin.lnk_vaccine2inds (
-				fk_vaccine,
-				fk_indication
-			) VALUES (
-				currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
-				(SELECT id
-				 FROM clin.vacc_indication
-				 WHERE
-					lower(description) = lower(%(ind)s)
-				 LIMIT 1
+
+	if pk_indications is None:
+		for indication in indications:
+			cmd = u"""
+				INSERT INTO clin.lnk_vaccine2inds (
+					fk_vaccine,
+					fk_indication
+				) VALUES (
+					currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
+					(SELECT id
+					 FROM clin.vacc_indication
+					 WHERE
+						lower(description) = lower(%(ind)s)
+					 LIMIT 1
+					)
 				)
-			)
-			RETURNING fk_vaccine
-		"""
-		queries.append({'cmd': cmd, 'args': {'ind': indication}})
+				RETURNING fk_vaccine
+			"""
+			queries.append({'cmd': cmd, 'args': {'ind': indication}})
+	else:
+		for pk_indication in pk_indications:
+			cmd = u"""
+				INSERT INTO clin.lnk_vaccine2inds (
+					fk_vaccine,
+					fk_indication
+				) VALUES (
+					currval(pg_get_serial_sequence('clin.vaccine', 'pk')),
+					%(pk_ind)s
+				)
+				RETURNING fk_vaccine
+			"""
+			queries.append({'cmd': cmd, 'args': {'pk_ind': pk_indication}})
 
 	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = False, return_data = True)
 
