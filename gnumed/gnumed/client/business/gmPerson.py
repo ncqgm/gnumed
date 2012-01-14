@@ -1163,6 +1163,8 @@ class cPatient(cIdentity):
 		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
+
+	emr = property(get_emr, lambda x:x)
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:

@@ -445,11 +445,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if result != wx.ID_YES:
 			return
 
-		try:
-			gmEMRStructItems.delete_episode(episode = self.__curr_node_data)
-		except gmExceptions.DatabaseObjectInUseError:
+		if not gmEMRStructItems.delete_episode(episode = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
-			return
 	#--------------------------------------------------------
 	# encounter level
 	#--------------------------------------------------------
@@ -633,7 +630,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __export_encounter_for_medistar(self, evt):
 		gmNarrativeWidgets.export_narrative_for_medistar_import (
 			parent = self,
-			soap_cats = u'soap',
+			soap_cats = u'soapu',
 			encounter = self.__curr_node_data
 		)
 	#--------------------------------------------------------

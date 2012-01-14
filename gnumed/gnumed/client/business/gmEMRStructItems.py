@@ -1033,7 +1033,7 @@ from (
 				lines.extend(last_encounter.format_soap (
 					episodes = [ self._payload[self._idx['pk_episode']] ],
 					left_margin = left_margin,
-					soap_cats = 'soap',
+					soap_cats = 'soapu',
 					emr = emr
 				))
 
@@ -1225,12 +1225,16 @@ def delete_episode(episode=None):
 	else:
 		pk = int(episode)
 
+	cmd = u'DELETE FROM clin.episode WHERE pk = %(pk)s'
+
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
-		_log.exception('cannot delete episode')
-		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
+		_log.exception('cannot delete episode, it is in use')
+		return False
+
+	return True
 #-----------------------------------------------------------
 def episode2problem(episode=None, allow_closed=False):
 	return cProblem (
@@ -1425,7 +1429,7 @@ select exists (
 
 		cats = []
 		for cat in soap_cats:
-			if cat in u'soap':
+			if cat in u'soapu':
 				cats.append(cat)
 				continue
 			if cat == u' ':
@@ -1556,7 +1560,7 @@ WHERE
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 	#--------------------------------------------------------
-	def format_soap(self, episodes=None, left_margin=0, soap_cats='soap', emr=None, issues=None):
+	def format_soap(self, episodes=None, left_margin=0, soap_cats='soapu', emr=None, issues=None):
 
 		lines = []
 		for soap_cat in soap_cats:
@@ -1609,7 +1613,7 @@ WHERE
 				and
 			(self._payload[self._idx['assessment_of_encounter']] is None)
 				and
-			(self.has_soap_narrative(soap_cats = u'soap') is False)
+			(self.has_soap_narrative(soap_cats = u'soapu') is False)
 		)
 		if nothing2format:
 			return u''
@@ -1793,7 +1797,7 @@ WHERE
 			lines.extend(self.format_soap (
 				episodes = episodes,
 				left_margin = left_margin,
-				soap_cats = 'soap',
+				soap_cats = 'soapu',
 				emr = emr,
 				issues = issues
 			))

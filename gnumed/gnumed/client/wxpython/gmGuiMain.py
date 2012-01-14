@@ -2528,7 +2528,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_export_for_medistar(self, event):
 		gmNarrativeWidgets.export_narrative_for_medistar_import (
 			parent = self,
-			soap_cats = u'soap',
+			soap_cats = u'soapu',
 			encounter = None			# IOW, the current one
 		)
 	#----------------------------------------------
