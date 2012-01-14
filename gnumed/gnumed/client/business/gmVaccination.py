@@ -295,6 +295,11 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
 
 		return lines
+	#--------------------------------------------------------
+	def _get_vaccine(self):
+		return cVaccine(aPK_obj = self._payload[self._idx['pk_vaccine']])
+
+	vaccine = property(_get_vaccine, lambda x:x)
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
 

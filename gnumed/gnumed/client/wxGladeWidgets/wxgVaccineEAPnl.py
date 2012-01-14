@@ -14,7 +14,6 @@ class wxgVaccineEAPnl(wx.ScrolledWindow):
 
         from Gnumed.wxpython import gmMedicationWidgets
         from Gnumed.wxpython import gmPhraseWheel
-        from Gnumed.wxpython.gmVaccWidgets import cVaccinationIndicationsPnl
 
         # begin wxGlade: wxgVaccineEAPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL

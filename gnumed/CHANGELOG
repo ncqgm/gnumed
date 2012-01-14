@@ -28,6 +28,7 @@ IMPROVED: top panel: redo in wxGlade
 IMPROVED: comm channels: support a comment [suggested by J.Busser]
 IMPROVED: document input plugin: workflow adjustments
 IMPROVED: signalling of attempt to duplicate drug component intake
+IMPROVED: vaccinations: two-list item picker to pick indications rather than checkbox forest
 
 ------------------------------------------------
 # rel-1-1-patches
