@@ -714,7 +714,7 @@ class cEmrExport:
             None: _('Administrative')
         }
         eol_w_margin = '\n' + (' ' * (left_margin+3))
-        for soap_cat in 'soap':
+        for soap_cat in 'soapu':
             soap_cat_narratives = emr.get_clin_narrative (
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
@@ -1067,7 +1067,7 @@ class cMedistarSOAPExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soap', export_to_import_file=False):
+	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soapu', export_to_import_file=False):
 		if not self.__pat.connected:
 			return (False, 'no active patient')
 
@@ -1106,12 +1106,12 @@ class cMedistarSOAPExporter:
 
 		return (status, filename)
 	#--------------------------------------------------------
-	def export(self, target, encounter=None, soap_cats=u'soap'):
+	def export(self, target, encounter=None, soap_cats=u'soapu'):
 		return self.__export(target, encounter = encounter, soap_cats = soap_cats)
 	#--------------------------------------------------------
 	# interal API
 	#--------------------------------------------------------
-	def __export(self, target=None, encounter=None, soap_cats=u'soap'):
+	def __export(self, target=None, encounter=None, soap_cats=u'soapu'):
 		# get data
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in soap_cats:

@@ -359,7 +359,7 @@ def search_narrative_in_emr(parent=None, patient=None):
 
 	return True
 #------------------------------------------------------------
-def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encounter=None):
+def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encounter=None):
 
 	# sanity checks
 	pat = gmPerson.gmCurrentPatient()
@@ -405,7 +405,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soap', encount
 	successful, fname = exporter.export_to_file (
 		filename = fname,
 		encounter = encounter,
-		soap_cats = u'soap',
+		soap_cats = u'soapu',
 		export_to_import_file = True
 	)
 	if not successful:
@@ -450,7 +450,7 @@ def select_narrative_from_episodes_new(parent=None, soap_cats=None):
 				'\n This is the narrative (type %s) for the chosen episodes.\n'
 				'\n'
 				' Now, mark the entries you want to include in your report.\n'
-			) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soap')) ])
+			) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
 		)
 #		selection_idxs = []
 #		for idx in range(len(narr_for_epi)):
@@ -591,7 +591,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				msg = _(
 					'\n This is the narrative (type %s) for the chosen episodes.\n\n'
 					' Now, mark the entries you want to include in your report.\n'
-				) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soap')) ])
+				) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
 			)
 			selection_idxs = []
 			for idx in range(len(all_narr)):
@@ -893,7 +893,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			)
 
 		tmp = emr.active_encounter.format_soap (
-			soap_cats = 'soap',
+			soap_cats = 'soapu',
 			emr = emr,
 			issues = [ problem['pk_health_issue'] ],
 		)
@@ -943,7 +943,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 					)
 
 		tmp = emr.active_encounter.format_soap (
-			soap_cats = 'soap',
+			soap_cats = 'soapu',
 			emr = emr,
 			issues = [ problem['pk_health_issue'] ],
 		)
@@ -2335,243 +2335,224 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 			discard_unmodified = True
 		)
 #============================================================
-#from Gnumed.wxGladeWidgets import wxgVisualSoapPnl
+from Gnumed.wxGladeWidgets import wxgSimpleSoapPluginPnl
 
-#class cVisualSoapPnl(wxgVisualSoapPnl.wxgVisualSoapPnl):
-#
-#	def __init__(self, *args, **kwargs):
-#
-#		wxgVisualSoapPnl.wxgVisualSoapPnl.__init__(self, *args, **kwargs)
-#
-#		# dummy episode to hold images
-#		self.default_episode_name = _('visual progress notes')
-#	#--------------------------------------------------------
-#	# external API
-#	#--------------------------------------------------------
-#	def clear(self):
-#		self._PRW_template.SetText(value = u'', data = None)
-#		self._LCTRL_visual_soaps.set_columns([_('Sketches')])
-#		self._LCTRL_visual_soaps.set_string_items()
-#
-#		self.show_image_and_metadata()
-#	#--------------------------------------------------------
-#	def refresh(self, patient=None, encounter=None):
-#
-#		self.clear()
-#
-#		if patient is None:
-#			patient = gmPerson.gmCurrentPatient()
-#
-#		if not patient.connected:
-#			return
-#
-#		emr = patient.get_emr()
-#		if encounter is None:
-#			encounter = emr.active_encounter
-#
-#		folder = patient.get_document_folder()
-#		soap_docs = folder.get_documents (
-#			doc_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
-#			encounter = encounter['pk_encounter']
-#		)
-#
-#		if len(soap_docs) == 0:
-#			self._BTN_delete.Enable(False)
-#			return
-#
-#		self._LCTRL_visual_soaps.set_string_items ([
-#			u'%s%s%s' % (
-#				gmTools.coalesce(sd['comment'], u'', u'%s\n'),
-#				gmTools.coalesce(sd['ext_ref'], u'', u'%s\n'),
-#				sd['episode']
-#			) for sd in soap_docs
-#		])
-#		self._LCTRL_visual_soaps.set_data(soap_docs)
-#
-#		self._BTN_delete.Enable(True)
-#	#--------------------------------------------------------
-#	def show_image_and_metadata(self, doc=None):
-#
-#		if doc is None:
-#			self._IMG_soap.SetBitmap(wx.NullBitmap)
-#			self._PRW_episode.SetText()
-#			#self._PRW_comment.SetText(value = u'', data = None)
-#			self._PRW_comment.SetValue(u'')
-#			return
-#
-#		parts = doc.parts
-#		if len(parts) == 0:
-#			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
-#			return
-#
-#		fname = parts[0].export_to_file()
-#		if fname is None:
-#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note to file.'))
-#			return
-#
-#		img_data = None
-#		rescaled_width = 300
-#		try:
-#			img_data = wx.Image(fname, wx.BITMAP_TYPE_ANY)
-#			current_width = img_data.GetWidth()
-#			current_height = img_data.GetHeight()
-#			rescaled_height = (rescaled_width * current_height) / current_width
-#			img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
-#			bmp_data = wx.BitmapFromImage(img_data)
-#		except:
-#			_log.exception('cannot load visual progress note from [%s]', fname)
-#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot load visual progress note from [%s].') % fname)
-#			del img_data
-#			return
-#
-#		del img_data
-#		self._IMG_soap.SetBitmap(bmp_data)
-#
-#		self._PRW_episode.SetText(value = doc['episode'], data = doc['pk_episode'])
-#		if doc['comment'] is not None:
-#			self._PRW_comment.SetValue(doc['comment'].strip())
-#	#--------------------------------------------------------
-#	# event handlers
-#	#--------------------------------------------------------
-#	def _on_visual_soap_selected(self, event):
-#
-#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-#		self.show_image_and_metadata(doc = doc)
-#		if doc is None:
-#			return
-#
-#		self._BTN_delete.Enable(True)
-#	#--------------------------------------------------------
-#	def _on_visual_soap_deselected(self, event):
-#		self._BTN_delete.Enable(False)
-#	#--------------------------------------------------------
-#	def _on_visual_soap_activated(self, event):
-#
-#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-#		if doc is None:
-#			self.show_image_and_metadata()
-#			return
-#
-#		parts = doc.parts
-#		if len(parts) == 0:
-#			gmDispatcher.send(signal = u'statustext', msg = _('No images in visual progress note.'))
-#			return
-#
-#		edit_visual_progress_note(doc_part = parts[0], discard_unmodified = True)
-#		self.show_image_and_metadata(doc = doc)
-#
-#		self._BTN_delete.Enable(True)
-#	#--------------------------------------------------------
-#	def _on_from_template_button_pressed(self, event):
-#
-#		template = self._PRW_template.GetData(as_instance = True)
-#		if template is None:
-#			return
-#
-#		filename = template.export_to_file()
-#		if filename is None:
-#			gmDispatcher.send(signal = u'statustext', msg = _('Cannot export visual progress note template for [%s].') % template['name_long'])
-#			return
-#
-#		episode = self._PRW_episode.GetData(as_instance = True)
-#		if episode is None:
-#			episode = self._PRW_episode.GetValue().strip()
-#			if episode == u'':
-#				episode = self.default_episode_name
-#
-#		# do not store note if not modified -- change if users complain
-#		doc = edit_visual_progress_note(filename = filename, episode = episode, discard_unmodified = True)
-#		if doc is None:
-#			return
-#
-#		if self._PRW_comment.GetValue().strip() == u'':
-#			doc['comment'] = template['instance_type']
-#		else:
-#			doc['comment'] = self._PRW_comment.GetValue().strip()
-#
-#		doc.save()
-#		self.show_image_and_metadata(doc = doc)
-#	#--------------------------------------------------------
-#	def _on_from_file_button_pressed(self, event):
-#
-#		dlg = wx.FileDialog (
-#			parent = self,
-#			message = _('Choose a visual progress note template file'),
-#			defaultDir = os.path.expanduser('~'),
-#			defaultFile = '',
-#			#wildcard = "%s (*)|*|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-#			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
-#		)
-#		result = dlg.ShowModal()
-#		if result == wx.ID_CANCEL:
-#			dlg.Destroy()
-#			return
-#
-#		full_filename = dlg.GetPath()
-#		dlg.Hide()
-#		dlg.Destroy()
-#
-#		# create a copy of the picked file -- don't modify the original
-#		ext = os.path.splitext(full_filename)[1]
-#		tmp_name = gmTools.get_unique_filename(suffix = ext)
-#		_log.debug('visual progress note from file: [%s] -> [%s]', full_filename, tmp_name)
-#		shutil.copy2(full_filename, tmp_name)
-#
-#		episode = self._PRW_episode.GetData(as_instance = True)
-#		if episode is None:
-#			episode = self._PRW_episode.GetValue().strip()
-#			if episode == u'':
-#				episode = self.default_episode_name
-#
-#		# always store note even if unmodified as we
-#		# may simply want to store a clinical photograph
-#		doc = edit_visual_progress_note(filename = tmp_name, episode = episode, discard_unmodified = False)
-#		if self._PRW_comment.GetValue().strip() == u'':
-#			# use filename as default comment (w/o extension)
-#			doc['comment'] = os.path.splitext(os.path.split(full_filename)[1])[0]
-#		else:
-#			doc['comment'] = self._PRW_comment.GetValue().strip()
-#		doc.save()
-#		self.show_image_and_metadata(doc = doc)
-#
-#		try:
-#			os.remove(tmp_name)
-#		except StandardError:
-#			_log.exception('cannot remove [%s]', tmp_name)
-#
-#		remove_original = gmGuiHelpers.gm_show_question (
-#			_(
-#				'Do you want to delete the original file\n'
-#				'\n'
-#				' [%s]\n'
-#				'\n'
-#				'from your computer ?'
-#			) % full_filename,
-#			_('Saving visual progress note ...')
-#		)
-#		if remove_original:
-#			try:
-#				os.remove(full_filename)
-#			except StandardError:
-#				_log.exception('cannot remove [%s]', full_filename)
-#	#--------------------------------------------------------
-#	def _on_delete_button_pressed(self, event):
-#
-#		doc = self._LCTRL_visual_soaps.get_selected_item_data(only_one = True)
-#		if doc is None:
-#			self.show_image_and_metadata()
-#			return
-#
-#		delete_it = gmGuiHelpers.gm_show_question (
-#			aMessage = _('Are you sure you want to delete the visual progress note ?'),
-#			aTitle = _('Deleting visual progress note')
-#		)
-#		if delete_it is True:
-#			gmDocuments.delete_document (
-#				document_id = doc['pk_doc'],
-#				encounter_id = doc['pk_encounter']
-#			)
-#		self.show_image_and_metadata()
+class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
+	def __init__(self, *args, **kwargs):
+
+		wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+
+		self.__pat = gmPerson.gmCurrentPatient()
+		self.__problem = None
+		self.__init_ui()
+		self.__register_interests()
+	#-----------------------------------------------------
+	# internal API
+	#-----------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_problems.set_columns(columns = [_('Problem list')])
+		self._LCTRL_problems.activate_callback = self._on_problem_activated
+		self._LCTRL_problems.item_tooltip_callback = self._on_get_problem_tooltip
+
+		self._splitter_main.SetSashGravity(0.5)
+		splitter_width = self._splitter_main.GetSizeTuple()[0]
+		self._splitter_main.SetSashPosition(splitter_width / 2, True)
+	#-----------------------------------------------------
+	def __reset_ui(self):
+		self._LCTRL_problems.set_string_items()
+		self._TCTRL_soap_problem.SetValue(u'')
+		self._TCTRL_soap.SetValue(u'')
+		self._CHBOX_filter_by_problem.SetLabel(_('&Filter by problem'))
+		self._TCTRL_journal.SetValue(u'')
+	#-----------------------------------------------------
+	def __save_soap(self):
+		if not self.__pat.connected:
+			return None
+
+		if self.__problem is None:
+			return None
+
+		saved = self.__pat.emr.add_clin_narrative (
+			note = self._TCTRL_soap.GetValue().strip(),
+			soap_cat = u'u',
+			episode = self.__problem
+		)
+
+		if saved is None:
+			return False
+
+		self._TCTRL_soap.SetValue(u'')
+		self.__refresh_journal()
+		return True
+	#-----------------------------------------------------
+	def __perhaps_save_soap(self):
+		if self._TCTRL_soap.GetValue().strip() == u'':
+			return True
+		save_it = gmGuiHelpers.gm_show_question (
+			title = _('Saving SOAP note'),
+			question = _('Do you want to save the SOAP note ?')
+		)
+		if save_it:
+			return self.__save_soap()
+		return False
+	#-----------------------------------------------------
+	def __refresh_problem_list(self):
+		self._LCTRL_problems.set_string_items()
+		emr = self.__pat.get_emr()
+		epis = emr.get_episodes(open_status = True)
+		if len(epis) > 0:
+			self._LCTRL_problems.set_string_items(items = [ u'%s%s' % (
+				e['description'],
+				gmTools.coalesce(e['health_issue'], u'', u' (%s)')
+			) for e in epis ])
+			self._LCTRL_problems.set_data(epis)
+	#-----------------------------------------------------
+	def __refresh_journal(self):
+		self._TCTRL_journal.SetValue(u'')
+		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
+
+		if epi is not None:
+			self._CHBOX_filter_by_problem.SetLabel(_('&Filter by problem %s%s%s') % (
+				gmTools.u_left_double_angle_quote,
+				epi['description'],
+				gmTools.u_right_double_angle_quote
+			))
+			self._CHBOX_filter_by_problem.Refresh()
+
+		if not self._CHBOX_filter_by_problem.IsChecked():
+			self._TCTRL_journal.SetValue(self.__pat.emr.format_summary(dob = self.__pat['dob']))
+			return
+
+		if epi is None:
+			return
+
+		self._TCTRL_journal.SetValue(epi.format_as_journal())
+	#-----------------------------------------------------
+	# event handling
+	#-----------------------------------------------------
+	def __register_interests(self):
+		"""Configure enabled event signals."""
+		# client internal signals
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+
+		# synchronous signals
+		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
+	#-----------------------------------------------------
+	def _pre_selection_callback(self):
+		"""Another patient is about to be activated.
+
+		Patient change will not proceed before this returns True.
+		"""
+		if not self.__pat.connected:
+			return True
+		self.__perhaps_save_soap()
+		self.__problem = None
+		return True
+	#-----------------------------------------------------
+	def _pre_exit_callback(self):
+		"""The client is about to be shut down.
+
+		Shutdown will not proceed before this returns.
+		"""
+		if not self.__pat.connected:
+			return
+		if not self.__save_soap():
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save SimpleNotes SOAP note.'), beep = True)
+		return
+	#-----------------------------------------------------
+	def _on_pre_patient_selection(self):
+		wx.CallAfter(self.__reset_ui)
+	#-----------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self._schedule_data_reget)
+	#-----------------------------------------------------
+	def _on_episode_issue_mod_db(self):
+		wx.CallAfter(self._schedule_data_reget)
+	#-----------------------------------------------------
+	def _on_problem_activated(self, event):
+		self.__perhaps_save_soap()
+		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
+		self._TCTRL_soap_problem.SetValue(_('Progress note: %s%s') % (
+			epi['description'],
+			gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+		))
+		self.__problem = epi
+		self._TCTRL_soap.SetValue(u'')
+	#-----------------------------------------------------
+	def _on_get_problem_tooltip(self, episode):
+		return episode.format (
+			patient = self.__pat,
+			with_summary = False,
+			with_codes = True,
+			with_encounters = False,
+			with_documents = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_health_issue = True
+		)
+	#-----------------------------------------------------
+	def _on_list_item_selected(self, event):
+		event.Skip()
+		self.__refresh_journal()
+	#-----------------------------------------------------
+	def _on_filter_by_problem_checked(self, event):
+		event.Skip()
+		self.__refresh_journal()
+	#-----------------------------------------------------
+	def _on_add_problem_button_pressed(self, event):
+		event.Skip()
+		epi_name = wx.GetTextFromUser (
+			_('Please enter a name for the new problem:'),
+			caption = _('Adding a problem'),
+			parent = self
+		).strip()
+		if epi_name == u'':
+			return
+		self.__pat.emr.add_episode (
+			episode_name = epi_name,
+			pk_health_issue = None,
+			is_open = True
+		)
+	#-----------------------------------------------------
+	def _on_edit_problem_button_pressed(self, event):
+		event.Skip()
+		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
+		if epi is None:
+			return
+		gmEMRStructWidgets.edit_episode(parent = self, episode = epi)
+	#-----------------------------------------------------
+	def _on_delete_problem_button_pressed(self, event):
+		event.Skip()
+		epi = self._LCTRL_problems.get_selected_item_data(only_one = True)
+		if epi is None:
+			return
+		if not gmEMRStructItems.delete_episode(episode = epi):
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete problem. There is still clinical data recorded for it.'))
+	#-----------------------------------------------------
+	def _on_save_soap_button_pressed(self, event):
+		event.Skip()
+		self.__save_soap()
+	#-----------------------------------------------------
+	def _on_clear_soap_button_pressed(self, event):
+		event.Skip()
+		self._TCTRL_soap.SetValue(u'')
+	#-----------------------------------------------------
+	# reget-on-paint mixin API
+	#-----------------------------------------------------
+	def _populate_with_data(self):
+		self.__refresh_problem_list()
+		self.__refresh_journal()
+		self._TCTRL_soap.SetValue(u'')
+		return True
+
 #============================================================
 # main
 #------------------------------------------------------------

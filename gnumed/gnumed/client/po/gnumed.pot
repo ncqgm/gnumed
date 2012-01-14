@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-01-10 20:51+CET\n"
+"POT-Creation-Date: 2012-01-14 12:10+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3794,6 +3794,36 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
+msgid "&Delete"
+msgstr ""
+
+msgid "&Save"
+msgstr ""
+
+msgid "&Filter by problem"
+msgstr ""
+
+msgid "Add a problem to the problem list."
+msgstr ""
+
+msgid "Edit the selected problem."
+msgstr ""
+
+msgid "Delete the selected problem (only possible as long as there are no SOAP notes for it)."
+msgstr ""
+
+msgid "Enter your SOAP note here."
+msgstr ""
+
+msgid "Save the current SOAP note."
+msgstr ""
+
+msgid "Clear the SOAP note."
+msgstr ""
+
+msgid "Check this if you want to filter the journal by the problem selected on the left."
+msgstr ""
+
 msgid "Episode synopsis"
 msgstr ""
 
@@ -3845,9 +3875,6 @@ msgid ""
 "\n"
 "Note that this may change depending on which\n"
 "active problem is selected in the editor below."
-msgstr ""
-
-msgid "&Save"
 msgstr ""
 
 msgid "Save &under"
@@ -4375,33 +4402,6 @@ msgid "Age range"
 msgstr ""
 
 msgid "\342\206\222"
-msgstr ""
-
-msgid "Template"
-msgstr ""
-
-msgid "File"
-msgstr ""
-
-msgid "Enter a short comment on this visual progress note."
-msgstr ""
-
-msgid "Select a visual progress note template."
-msgstr ""
-
-msgid "Add a new visual progress note from the template selected above."
-msgstr ""
-
-msgid "Add a new visual progress note from an image file."
-msgstr ""
-
-msgid "This list shows the visual progress notes for this encounter."
-msgstr ""
-
-msgid "Delete this visual progress note."
-msgstr ""
-
-msgid "Episode:"
 msgstr ""
 
 msgid "Waiting list details for this patient."
@@ -6994,6 +6994,9 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr ""
 
+msgid "Template"
+msgstr ""
+
 msgid "You must select a template file before saving."
 msgstr ""
 
@@ -8989,9 +8992,6 @@ msgstr ""
 msgid "Export to &clipboard"
 msgstr ""
 
-msgid "&Delete"
-msgstr ""
-
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -9727,6 +9727,9 @@ msgstr ""
 msgid "List of templates in the database."
 msgstr ""
 
+msgid "File"
+msgstr ""
+
 msgid "Files in the filesystem."
 msgstr ""
 
@@ -9779,6 +9782,33 @@ msgid "visual progress notes"
 msgstr ""
 
 msgid "Created: %s"
+msgstr ""
+
+msgid "Problem list"
+msgstr ""
+
+msgid "Saving SOAP note"
+msgstr ""
+
+msgid "Do you want to save the SOAP note ?"
+msgstr ""
+
+msgid "&Filter by problem %s%s%s"
+msgstr ""
+
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr ""
+
+msgid "Progress note: %s%s"
+msgstr ""
+
+msgid "Please enter a name for the new problem:"
+msgstr ""
+
+msgid "Adding a problem"
+msgstr ""
+
+msgid "Cannot delete problem. There is still clinical data recorded for it."
 msgstr ""
 
 msgid "Adding new organizational unit"
@@ -11183,6 +11213,12 @@ msgid "&Attach documents"
 msgstr ""
 
 msgid "&Documents"
+msgstr ""
+
+msgid "SimpleNotes"
+msgstr ""
+
+msgid "&SimpleNotes"
 msgstr ""
 
 msgid "&Notes"

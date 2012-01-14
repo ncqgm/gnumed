@@ -57,6 +57,7 @@ known_placeholders = [
 	'soap_o',
 	'soap_a',
 	'soap_p',
+	'soap_u',
 	u'client_version',
 	u'current_provider',
 	u'primary_praxis_provider',			# primary provider for current patient in this praxis
@@ -78,10 +79,10 @@ _injectable_placeholders = {
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "args" holds: categories//template
-								# 	categories: string with 'soap '; ' ' == None == admin
+								# 	categories: string with 'soapu '; ' ' == None == admin
 								#	template:	u'something %s something'		(do not include // in template !)
 	u'emr_journal',				# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
-								#	categories:	   string with any of "s", "o", "a", "p", " ";
+								#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
 								#				   (" " == None == admin category)
 								#	template:	   something %s something else
 								#				   (Do not include // in the template !)
@@ -325,6 +326,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_soap_p(self):
 		return self._get_variant_soap(data = u'p')
 	#--------------------------------------------------------
+	def _get_soap_u(self):
+		return self._get_variant_soap(data = u'u')
+	#--------------------------------------------------------
 	def _get_soap_admin(self):
 		return self._get_variant_soap(soap_cats = None)
 	#--------------------------------------------------------
@@ -398,6 +402,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	soap_o = property(_get_soap_o, _setter_noop)
 	soap_a = property(_get_soap_a, _setter_noop)
 	soap_p = property(_get_soap_p, _setter_noop)
+	soap_u = property(_get_soap_u, _setter_noop)
 	soap_admin = property(_get_soap_admin, _setter_noop)
 
 	allergy_state = property(_get_allergy_state, _setter_noop)
@@ -470,7 +475,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_emr_journal(self, data=None):
 		# default: all categories, neutral template
-		cats = list(u'soap')
+		cats = list(u'soapu')
 		cats.append(None)
 		template = u'%s'
 		interactive = True
@@ -490,7 +495,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				cats.append(c)
 			# '' -> SOAP + None
 			if cats == u'':
-				cats = list(u'soap').append(None)
+				cats = list(u'soapu').append(None)
 
 			# part[1]: template
 			if len(data_parts) > 1:
@@ -548,7 +553,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_soap(self, data=None):
 
 		# default: all categories, neutral template
-		cats = list(u'soap')
+		cats = list(u'soapu')
 		cats.append(None)
 		template = u'%s'
 
@@ -564,7 +569,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				cats.append(cat)
 			# '' -> SOAP + None
 			if cats == u'':
-				cats = list(u'soap')
+				cats = list(u'soapu')
 				cats.append(None)
 
 			# part[1]: template
@@ -1369,7 +1374,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			#u'emr_journal::soap //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::',
+			#u'emr_journal::soapu //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
