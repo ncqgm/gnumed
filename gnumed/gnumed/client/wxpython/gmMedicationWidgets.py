@@ -1847,13 +1847,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_row = None
 		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
-		self.__grouping_mode = u'episode'
+		self.__grouping_mode = u'issue'
 		self.__filter_show_unapproved = True
 		self.__filter_show_inactive = True
 
 		self.__grouping2col_labels = {
-			u'episode': [
-				_('Episode'),
+			u'issue': [
+				_('Health issue'),
 				_('Substance'),
 				_('Strength'),
 				_('Schedule'),
@@ -1869,12 +1869,23 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Strength'),
 				_('Started'),
 				_('Duration / Until'),
+				_('Health issue'),
+				_('Advice')
+			],
+			u'episode': [
 				_('Episode'),
+				_('Substance'),
+				_('Strength'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration / Until'),
+				_('Brand'),
 				_('Advice')
 			]
 		}
 
 		self.__grouping2order_by_clauses = {
+			u'issue': u'pk_health_issue nulls first, substance, started',
 			u'episode': u'pk_health_issue nulls first, episode, substance, started',
 			u'brand': u'brand nulls last, substance, started'
 		}
@@ -2025,6 +2036,46 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						brand = gmTools.coalesce(med['brand'], u'')
 				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
 
+			elif self.__grouping_mode == u'issue':
+				if med['pk_health_issue'] is None:
+					self.__prev_cell_0 = None
+					issue = u'%s%s' % (
+						gmTools.u_diameter,
+						gmTools.coalesce(med['episode'], u'', u' (%s)')
+					)
+				else:
+					if self.__prev_cell_0 == med['health_issue']:
+						issue = u''
+					else:
+						self.__prev_cell_0 = med['health_issue']
+						issue = med['health_issue']
+				self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
+
+				self.SetCellValue(row_idx, 1, med['substance'])
+				self.SetCellValue(row_idx, 2, u'%s%s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+
+				if med['is_long_term']:
+					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+				else:
+					if med['discontinued'] is None:
+						if med['duration'] is None:
+							self.SetCellValue(row_idx, 5, u'')
+						else:
+							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+					else:
+						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
+
+				if med['pk_brand'] is None:
+					brand = u''
+				else:
+					if med['fake_brand']:
+						brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
+					else:
+						brand = gmTools.coalesce(med['brand'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+
 			elif self.__grouping_mode == u'brand':
 
 				if med['pk_brand'] is None:
@@ -2057,11 +2108,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					else:
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
-				if med['pk_episode'] is None:
-					epi = u''
+				if med['pk_health_issue'] is None:
+					issue = u'%s%s' % (
+						gmTools.u_diameter,
+						gmTools.coalesce(med['episode'], u'', u' (%s)')
+					)
 				else:
-					epi = gmTools.coalesce(med['episode'], u'')
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = epi, width = 40))
+					issue = gmTools.coalesce(med['health_issue'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = issue, width = 40))
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
@@ -2302,6 +2356,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += gmTools.coalesce(entry['aim'], u'', _(' Aim: %s\n'))
 		tt += gmTools.coalesce(entry['episode'], u'', _(' Episode: %s\n'))
+		tt += gmTools.coalesce(entry['health_issue'], u'', _(' Health issue: %s\n'))
 		tt += gmTools.coalesce(entry['notes'], u'', _(' Advice: %s\n'))
 
 		tt += u'\n'
@@ -2465,6 +2520,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
+	#--------------------------------------------------------
+	def _on_issue_grouping_selected(self, event):
+		self._grid_substances.grouping_mode = 'issue'
 	#--------------------------------------------------------
 	def _on_episode_grouping_selected(self, event):
 		self._grid_substances.grouping_mode = 'episode'
