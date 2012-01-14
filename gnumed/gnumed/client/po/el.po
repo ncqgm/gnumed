@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2011-11-30 23:34+CET\n"
+"POT-Creation-Date: 2012-01-14 12:09+CET\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -162,6 +162,9 @@ msgid "soap_Assessment"
 msgstr ""
 
 msgid "soap_Plan"
+msgstr ""
+
+msgid "soap_Unspecified"
 msgstr ""
 
 msgid "soap_Administrative"
@@ -340,6 +343,25 @@ msgstr "τελευταίος έλεγχος:"
 msgid "part"
 msgstr "μέρος"
 
+#, fuzzy
+msgid "1 part"
+msgstr "μέρος"
+
+#, fuzzy
+msgid "%s parts"
+msgstr "μέρος"
+
+msgid ""
+"%s (%s)   #%s\n"
+"\n"
+" Created: %s\n"
+" Episode: %s\n"
+"%s%s"
+msgstr ""
+
+msgid " External reference: %s\n"
+msgstr ""
+
 msgid "A: Sign"
 msgstr "Α: Σημεία"
 
@@ -460,6 +482,12 @@ msgstr "Συνεδρίες: %s (%s - %s):"
 msgid "finished"
 msgstr "ολοκληρώθηκε"
 
+msgid "Health issue"
+msgstr "Θέμα υγείας"
+
+msgid "none associated"
+msgstr ""
+
 msgid "Error retrieving encounters for this episode."
 msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών για αυτό το επεισόδιο."
 
@@ -490,9 +518,6 @@ msgstr "Μετρήσεις και Αποτελέσματα:"
 
 msgid "Problem"
 msgstr "Πρόβλημα"
-
-msgid "Health issue"
-msgstr "Θέμα υγείας"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
@@ -579,6 +604,75 @@ msgid "?short-term"
 msgstr "?βραχυπρόθεσμο"
 
 msgid "?ongoing"
+msgstr ""
+
+msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
+msgstr ""
+
+msgid "active, needs check"
+msgstr ""
+
+msgid "assumed active"
+msgstr ""
+
+msgid "approved"
+msgstr "εγκεκριμένο"
+
+msgid "unapproved"
+msgstr "χωρίς έγκριση"
+
+msgid "definite"
+msgstr ""
+
+msgid "suspected"
+msgstr ""
+
+msgid "Substance: %s   [#%s]\n"
+msgstr ""
+
+msgid "Preparation: %s\n"
+msgstr ""
+
+msgid "Amount per dose: %s %s"
+msgstr ""
+
+msgid " ATC (substance): %s\n"
+msgstr ""
+
+msgid " Brand name: %%s   [#%s]\n"
+msgstr ""
+
+msgid " ATC (brand): %s\n"
+msgstr ""
+
+msgid " Regimen: %s\n"
+msgstr ""
+
+msgid " Started %s%s%s\n"
+msgstr ""
+
+msgid " (long-term)"
+msgstr ""
+
+msgid " (short-term)"
+msgstr ""
+
+msgid " Discontinued %s\n"
+msgstr ""
+
+msgid " Reason: %s\n"
+msgstr " Αιτία: %s\n"
+
+msgid " Aim: %s\n"
+msgstr ""
+
+msgid " Episode: %s\n"
+msgstr ""
+
+msgid " Advice: %s\n"
+msgstr ""
+
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 msgid "Additional notes"
@@ -779,6 +873,21 @@ msgstr "ημερομηνία γέννησης/θανάτου"
 
 msgid "full name"
 msgstr "πλήρες όνομα"
+
+msgid "message"
+msgstr "μήνυμα"
+
+#, fuzzy
+msgid "virtual message"
+msgstr "μήνυμα"
+
+#, fuzzy
+msgid "everyone"
+msgstr "ποτέ"
+
+#, fuzzy
+msgid "Patient #%s"
+msgstr "Ασθενής"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -1650,7 +1759,9 @@ msgstr ""
 msgid "&Manage"
 msgstr "&Διαχείριση"
 
-msgid "Mark as a fake (not really existing) brand."
+msgid ""
+"Mark as a fake: use if brand does not commercially exist and you want to "
+"create a \"generic\" brand."
 msgstr ""
 
 msgid "Manage the components of this drug."
@@ -1912,7 +2023,7 @@ msgstr "Εμπιστευτικό"
 msgid "Enter the address or number for this communications channel here."
 msgstr ""
 
-msgid "Optional: The address this communication channel is associated with."
+msgid "A comment on this communications channel."
 msgstr ""
 
 msgid ""
@@ -1924,9 +2035,6 @@ msgstr "Κανάλι"
 
 msgid "Value"
 msgstr "Τιμή"
-
-msgid "Address"
-msgstr "Διεύθυνση"
 
 msgid ""
 "Enter the name of the consumable substance.\n"
@@ -3510,6 +3618,9 @@ msgstr "Η εμπορική ονομασία του φάρμακου που λα
 msgid "Browse all known addresses (loading can be slow)."
 msgstr ""
 
+msgid "Address"
+msgstr "Διεύθυνση"
+
 msgid "The organization this unit belongs to."
 msgstr ""
 
@@ -3533,6 +3644,40 @@ msgstr "Εμφάνισε  Οργανώσεις"
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
+
+#, fuzzy
+msgid "Identity:"
+msgstr "Ταυτότητα"
+
+#, fuzzy
+msgid "Contacts:"
+msgstr "Επαφές"
+
+#, fuzzy
+msgid "Encounters / admissions (last"
+msgstr "&Λίστα συνεδριών"
+
+msgid "):"
+msgstr ""
+
+#, fuzzy
+msgid "Active Problems:"
+msgstr "Πρόβλημα"
+
+#, fuzzy
+msgid "Current meds and substances:"
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
+
+#, fuzzy
+msgid "History:"
+msgstr "Οικογενειακό Ιστορικό"
+
+msgid "Inbox / Scratch pad:"
+msgstr ""
+
+#, fuzzy
+msgid "Measurements:"
+msgstr "Μετρήσεις"
 
 msgid "Save the identity details."
 msgstr ""
@@ -3981,21 +4126,21 @@ msgid ""
 "Add a file from the filesystem as a new part. Shows a file selector dialog."
 msgstr ""
 
-msgid "Required: The primary episode this document is to be listed under."
+msgid "Required: The type of this document."
 msgstr ""
 
-msgid "Required: The type of this document."
+msgid ""
+"The date when the medical information described in the document was "
+"produced. This is free text so you can add approximate dates, too, such as "
+"3/2004 where appropriate."
+msgstr ""
+
+msgid "Required: The primary episode this document is to be listed under."
 msgstr ""
 
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
 "idea of the content and source of the document."
-msgstr ""
-
-msgid ""
-"Required: The date when the medical information described in the document "
-"was produced. This is free text so you can add approximate dates, too, such "
-"as 3/2004 where appropriate."
 msgstr ""
 
 msgid ""
@@ -4037,11 +4182,20 @@ msgstr ""
 msgid "Start over (discards current data)."
 msgstr ""
 
+#, fuzzy
+msgid "Document type:"
+msgstr "Τύπος εγγράφου"
+
+#, fuzzy
+msgid "Date document created:"
+msgstr "Ημερομηνία δημιουργίας:"
+
 msgid "Associate to episode:"
 msgstr ""
 
-msgid "Date of creation:"
-msgstr "Ημερομηνία δημιουργίας:"
+#, fuzzy
+msgid "Comment / Identification:"
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
 
 msgid "Please select a person from the list below."
 msgstr ""
@@ -4070,6 +4224,10 @@ msgstr ""
 msgid "episode"
 msgstr ""
 
+#, fuzzy
+msgid "health issue"
+msgstr "Θέμα υγείας"
+
 msgid "type"
 msgstr "τύπος"
 
@@ -4082,10 +4240,50 @@ msgstr ""
 msgid "Sort documents by the episode they belong to."
 msgstr ""
 
+msgid "Sort documents by the health issue they belong to."
+msgstr ""
+
 msgid "Sort documents by their type."
 msgstr ""
 
 msgid "Sort documents by"
+msgstr ""
+
+msgid "&Delete"
+msgstr "&Διαγραφή"
+
+msgid "&Save"
+msgstr "&Αποθήκευση"
+
+#, fuzzy
+msgid "&Filter by problem"
+msgstr "Φιλτράρισμα κατά:"
+
+#, fuzzy
+msgid "Add a problem to the problem list."
+msgstr "Προσθήκη ενός νέου αντικειμένου στην παρακάτω λίστα."
+
+#, fuzzy
+msgid "Edit the selected problem."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid ""
+"Delete the selected problem (only possible as long as there are no SOAP "
+"notes for it)."
+msgstr ""
+
+msgid "Enter your SOAP note here."
+msgstr ""
+
+msgid "Save the current SOAP note."
+msgstr ""
+
+msgid "Clear the SOAP note."
+msgstr ""
+
+msgid ""
+"Check this if you want to filter the journal by the problem selected on the "
+"left."
 msgstr ""
 
 #, fuzzy
@@ -4154,9 +4352,6 @@ msgstr ""
 "\n"
 "Σημειώστε ότι αυτό μπορεί να αλλάξει ανάλογα με το ποιο\n"
 "ενεργό πρόβλημα έχει επιλεγεί στο πρόγραμμα επεξεργασίας παρακάτω."
-
-msgid "&Save"
-msgstr "&Αποθήκευση"
 
 #, fuzzy
 msgid "Save &under"
@@ -4366,6 +4561,9 @@ msgid "Expand to"
 msgstr "Ανάπτυξη σε"
 
 msgid "Scope"
+msgstr ""
+
+msgid "Caveat"
 msgstr ""
 
 msgid "Details"
@@ -4734,33 +4932,6 @@ msgstr "Ηλικιακό φάσμα"
 msgid "→"
 msgstr "→"
 
-msgid "Template"
-msgstr "Πρότυπο"
-
-msgid "File"
-msgstr "Αρχείο"
-
-msgid "Enter a short comment on this visual progress note."
-msgstr ""
-
-msgid "Select a visual progress note template."
-msgstr ""
-
-msgid "Add a new visual progress note from the template selected above."
-msgstr ""
-
-msgid "Add a new visual progress note from an image file."
-msgstr ""
-
-msgid "This list shows the visual progress notes for this encounter."
-msgstr ""
-
-msgid "Delete this visual progress note."
-msgstr ""
-
-msgid "Episode:"
-msgstr ""
-
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -5005,9 +5176,6 @@ msgstr ""
 msgid "invalid allergy state [%s]"
 msgstr ""
 
-msgid "definite"
-msgstr ""
-
 msgid ""
 "Cannot set allergy state to <unknown> because there are allergies stored for "
 "this patient."
@@ -5208,21 +5376,28 @@ msgstr ""
 msgid ""
 "GNUmed main login screen\n"
 "\n"
-"USER:\n"
-" name of the GNUmed user\n"
-"PASSWORD\n"
-" password for this user\n"
+"Welcome to the GNUmed client. Shown are the current\n"
+"\"Workplace\" and (version).\n"
 "\n"
-"button OK:\n"
-" proceed with login\n"
-"button OPTIONS:\n"
-" set advanced options\n"
-"button CANCEL:\n"
-" abort login and quit GNUmed client\n"
-"button HELP:\n"
-" this help screen\n"
+"You may select to log into a public database with username\n"
+"and password {any-doc, any-doc}. Any other database\n"
+"(including a local one) must first be separately installed\n"
+"before you can log in.\n"
 "\n"
-"For assistance on using GNUmed please contact:\n"
+"For assistance on using GNUmed please consult the wiki:\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
+"\n"
+"and to install a local database see:\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
+"\n"
+"For more help than the above, please contact:\n"
+"\n"
+" GNUmed Development List <gnumed-bugs@gnu.org>\n"
+"\n"
+"For local assistance please contact:\n"
+"\n"
 " %s"
 msgstr ""
 
@@ -5360,7 +5535,10 @@ msgstr "Σύστημα"
 msgid "Select the type of communications channel."
 msgstr ""
 
-msgid "Cannot save communications channel."
+msgid "Editing communications channel"
+msgstr ""
+
+msgid "Cannot save (duplicate ?) communications channel."
 msgstr ""
 
 msgid "List of known communication channels."
@@ -5370,9 +5548,6 @@ msgid "confidential"
 msgstr "εμπιστευτικό"
 
 msgid "Adding new communications channel"
-msgstr ""
-
-msgid "Editing communications channel"
 msgstr ""
 
 msgid ""
@@ -5911,6 +6086,10 @@ msgstr ""
 msgid "Cannot delete the only name of a person."
 msgstr ""
 
+#, fuzzy
+msgid "Cannot delete the active name of a person."
+msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού ασθενή σε άλλον ασθενή."
+
 msgid ""
 "It is often advisable to keep old names around and\n"
 "just create a new \"currently active\" name.\n"
@@ -6263,6 +6442,10 @@ msgstr ""
 msgid "Extracting files from folder [%s] ..."
 msgstr ""
 
+#, fuzzy
+msgid "other documents"
+msgstr "Επισύναψη αρχείων"
+
 msgid "part %s: %s"
 msgstr "μέρος %s: %s"
 
@@ -6403,6 +6586,12 @@ msgstr "Αποθήκευση εγγράφου"
 msgid "Successfully saved new document."
 msgstr ""
 
+msgid "Document part does not seem to exist in database !"
+msgstr ""
+
+msgid "showing document"
+msgstr ""
+
 msgid "available documents (%s)"
 msgstr ""
 
@@ -6414,6 +6603,10 @@ msgstr ""
 
 msgid "sorted by episode"
 msgstr ""
+
+#, fuzzy
+msgid "sorted by health issue"
+msgstr "Θέμα υγείας"
 
 msgid "sorted by type"
 msgstr ""
@@ -6481,16 +6674,14 @@ msgstr ""
 msgid "%s%7s %s:%s (%s part(s)%s)"
 msgstr ""
 
+#, fuzzy
+msgid "Unattributed episode: %s"
+msgstr "Μη καθορισμένα επεισόδια"
+
 msgid "part %2s"
 msgstr ""
 
 msgid "Activate as current photo"
-msgstr ""
-
-msgid "Document part does not seem to exist in database !"
-msgstr ""
-
-msgid "showing document"
 msgstr ""
 
 msgid ""
@@ -7381,6 +7572,9 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr ""
+
+msgid "Template"
+msgstr "Πρότυπο"
 
 msgid "You must select a template file before saving."
 msgstr ""
@@ -9372,9 +9566,6 @@ msgstr "Εξαγωγή σε &αρχείο"
 msgid "Export to &clipboard"
 msgstr "Εξαγωγή στο &πρόχειρο"
 
-msgid "&Delete"
-msgstr "&Διαγραφή"
-
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 
@@ -9679,11 +9870,31 @@ msgstr ""
 msgid "Cannot edit drug brand. It is in use."
 msgstr ""
 
+#, fuzzy
+msgid "Checking brand data"
+msgstr "Έλεγχος ενημερώσεων"
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
+msgstr ""
+
 msgid "Cannot save branded drug. Invalid or missing essential input."
 msgstr ""
 
-msgid "The brand name of the drug."
-msgstr "Η εμπορική ονομασία του σκευάσματος."
+msgid ""
+"The brand name of the drug.\n"
+"\n"
+"Note: a brand name will need to be linked to\n"
+"one or more components before it can be used,\n"
+"except in the case of fake (generic) vaccines."
+msgstr ""
 
 msgid "discontinued due to allergy or intolerance"
 msgstr ""
@@ -9715,11 +9926,21 @@ msgstr ""
 msgid "Comment (%s): %%s\n"
 msgstr ""
 
-msgid "suspected"
-msgstr ""
-
 msgid "reaction not recorded"
 msgstr ""
+
+msgid ""
+"The patient is already taking\n"
+"\n"
+" %s\n"
+"\n"
+"You will want to adjust the schedule\n"
+"rather than document the intake twice."
+msgstr ""
+
+#, fuzzy
+msgid "Adding substance intake entry"
+msgstr "Πρόσθεση καταγραφής της χρήσης μιας φαρμακευτικής αγωγής/ουσίας."
 
 msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
@@ -9823,67 +10044,7 @@ msgstr ""
 msgid "Cannot create allergy from more than one substance at once."
 msgstr ""
 
-msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr ""
-
-msgid "active, needs check"
-msgstr ""
-
-msgid "assumed active"
-msgstr ""
-
-msgid "approved"
-msgstr "εγκεκριμένο"
-
-msgid "unapproved"
-msgstr "χωρίς έγκριση"
-
-msgid "Substance: %s   [#%s]\n"
-msgstr ""
-
-msgid "Preparation: %s\n"
-msgstr ""
-
 msgid "Amount per dose: %s%s"
-msgstr ""
-
-msgid " ATC (substance): %s\n"
-msgstr ""
-
-msgid " Brand name: %%s   [#%s]\n"
-msgstr ""
-
-msgid " ATC (brand): %s\n"
-msgstr ""
-
-msgid " Regimen: %s\n"
-msgstr ""
-
-msgid " Started %s%s%s\n"
-msgstr ""
-
-msgid " (long-term)"
-msgstr ""
-
-msgid " (short-term)"
-msgstr ""
-
-msgid " Discontinued %s\n"
-msgstr ""
-
-msgid " Reason: %s\n"
-msgstr " Αιτία: %s\n"
-
-msgid " Aim: %s\n"
-msgstr ""
-
-msgid " Episode: %s\n"
-msgstr ""
-
-msgid " Advice: %s\n"
-msgstr ""
-
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 msgid "Cannot move progress notes. No active patient."
@@ -10166,6 +10327,9 @@ msgstr "&Βάση δεδομένων"
 msgid "List of templates in the database."
 msgstr ""
 
+msgid "File"
+msgstr "Αρχείο"
+
 msgid "Files in the filesystem."
 msgstr "Αρχεία στο σύστημα αρχείων."
 
@@ -10218,6 +10382,37 @@ msgid "visual progress notes"
 msgstr ""
 
 msgid "Created: %s"
+msgstr ""
+
+#, fuzzy
+msgid "Problem list"
+msgstr "Πρόβλημα"
+
+msgid "Saving SOAP note"
+msgstr ""
+
+msgid "Do you want to save the SOAP note ?"
+msgstr ""
+
+msgid "&Filter by problem %s%s%s"
+msgstr ""
+
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr ""
+
+#, fuzzy
+msgid "Progress note: %s%s"
+msgstr "Σημειώσεις προόδου"
+
+#, fuzzy
+msgid "Please enter a name for the new problem:"
+msgstr "Παρακαλώ δώστε τον κωδικό πρόσβασης σας:"
+
+#, fuzzy
+msgid "Adding a problem"
+msgstr "πρόβλημα"
+
+msgid "Cannot delete problem. There is still clinical data recorded for it."
 msgstr ""
 
 msgid "Adding new organizational unit"
@@ -10285,14 +10480,61 @@ msgstr ""
 msgid "Communication channels"
 msgstr ""
 
-msgid "Refresh from database"
+msgid "%s %s more not shown %s"
 msgstr ""
 
-msgid "Acquire from imaging device"
+msgid "Currently in waiting list [%s]"
 msgstr ""
 
-msgid "Import from file"
-msgstr "Εισαγωγή από αρχείο"
+#, fuzzy
+msgid "first: %s, %s"
+msgstr "μέρος %s: %s"
+
+#, fuzzy
+msgid "last: %s, %s"
+msgstr "μέρος %s: %s"
+
+#, fuzzy
+msgid "%s %s %s%s"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+msgid "** Currently hospitalized: %s **"
+msgstr ""
+
+msgid ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+msgstr ""
+
+#, fuzzy
+msgid "emergency: %s"
+msgstr "σημειώσεις προόδου"
+
+#, fuzzy
+msgid "in-praxis: %s"
+msgstr "  κίνδυνος:%s"
+
+#, fuzzy
+msgid "*** CONFIDENTIAL ***"
+msgstr " ****ΕΜΠΙΣΤΕΥΤΙΚΟ****"
+
+msgid "aka: %(last)s, %(first)s%(nick)s"
+msgstr ""
+
+#, fuzzy
+msgid "job: %s"
+msgstr "Εργαστήριο: %s\n"
+
+msgid "issued by: %s%s"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Activities:\n"
+"\n"
+"%s"
+msgstr "Φάρμακα με ενεργό ρόλο: %s"
 
 msgid "No active patient."
 msgstr ""
@@ -10312,6 +10554,15 @@ msgstr ""
 
 msgid "Patient photo could not be acquired from source."
 msgstr ""
+
+msgid "Refresh from database"
+msgstr ""
+
+msgid "Acquire from imaging device"
+msgstr ""
+
+msgid "Import from file"
+msgstr "Εισαγωγή από αρχείο"
 
 msgid "Administration"
 msgstr "Διαχείριση"
@@ -10841,21 +11092,6 @@ msgstr ""
 msgid "Activate patient"
 msgstr ""
 
-msgid "message"
-msgstr "μήνυμα"
-
-#, fuzzy
-msgid "virtual message"
-msgstr "μήνυμα"
-
-#, fuzzy
-msgid "everyone"
-msgstr "ποτέ"
-
-#, fuzzy
-msgid "Patient #%s"
-msgstr "Ασθενής"
-
 msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
 msgstr ""
@@ -11103,9 +11339,6 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
-msgstr ""
-
-msgid "Caveat"
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
@@ -11587,6 +11820,12 @@ msgstr "&Δημογραφικά"
 msgid "Progress notes"
 msgstr "Σημειώσεις προόδου"
 
+msgid "Overview"
+msgstr ""
+
+msgid "&Overview"
+msgstr ""
+
 msgid "Inbox"
 msgstr "Εισερχόμενα"
 
@@ -11617,6 +11856,14 @@ msgstr "&Επισύναψη αρχείων"
 #, fuzzy
 msgid "&Documents"
 msgstr "Έγγραφα"
+
+#, fuzzy
+msgid "SimpleNotes"
+msgstr "Σημειώσεις"
+
+#, fuzzy
+msgid "&SimpleNotes"
+msgstr "&Σημειώσεις"
 
 msgid "&Notes"
 msgstr "&Σημειώσεις"
@@ -11865,6 +12112,9 @@ msgstr "Ποσότητα"
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
 
+#~ msgid "The brand name of the drug."
+#~ msgstr "Η εμπορική ονομασία του σκευάσματος."
+
 #~ msgid ""
 #~ "EMR Statistics\n"
 #~ "\n"
@@ -11901,9 +12151,6 @@ msgstr "Πρώτη Μέρα"
 
 #~ msgid "Show as ..."
 #~ msgstr "Εμφάνιση ως ..."
-
-#~ msgid "&Encounters list"
-#~ msgstr "&Λίστα συνεδριών"
 
 #~ msgid "Town"
 #~ msgstr "Πόλη"

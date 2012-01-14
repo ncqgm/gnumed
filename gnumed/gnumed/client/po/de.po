@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-01-10 20:51+CET\n"
-"PO-Revision-Date: 2012-01-10 21:15+0100\n"
+"POT-Creation-Date: 2012-01-14 12:09+CET\n"
+"PO-Revision-Date: 2012-01-14 12:22+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -1723,7 +1723,7 @@ msgid "&Manage"
 msgstr "&Verwalten"
 
 msgid "Mark as a fake: use if brand does not commercially exist and you want to create a \"generic\" brand."
-msgstr ""
+msgstr "Markiere als unecht: nützlich, um ein Produkt als nicht tatsächlich existent zu markieren oder um ein generisches Produkt anzulegen."
 
 msgid "Manage the components of this drug."
 msgstr "Die Wirkstoffe in diesem Medikament verwalten."
@@ -4085,6 +4085,36 @@ msgstr "Sortiere Dokumente nach ihrem Typ."
 msgid "Sort documents by"
 msgstr "Sortiere Dokumente nach"
 
+msgid "&Delete"
+msgstr "&Löschen"
+
+msgid "&Save"
+msgstr "&Speichern"
+
+msgid "&Filter by problem"
+msgstr "&Filtern anhand des Problems"
+
+msgid "Add a problem to the problem list."
+msgstr "Eine Problem hinzufügen."
+
+msgid "Edit the selected problem."
+msgstr "Das markierte Problem bearbeiten."
+
+msgid "Delete the selected problem (only possible as long as there are no SOAP notes for it)."
+msgstr "Das markierte Problem löschen (nur möglich, wenn es dazu keine Karteieinträge gibt)."
+
+msgid "Enter your SOAP note here."
+msgstr "Geben Sie hier die Verlaufsnotiz ein."
+
+msgid "Save the current SOAP note."
+msgstr "Die Verlaufsnotiz speichern."
+
+msgid "Clear the SOAP note."
+msgstr "Die Verlaufsnotiz verwerfen."
+
+msgid "Check this if you want to filter the journal by the problem selected on the left."
+msgstr "Ankreuzen, wenn das Journal anhand des links gewählten Problems gefiltert werden soll."
+
 msgid "Episode synopsis"
 msgstr "Episodensynopse"
 
@@ -4145,9 +4175,6 @@ msgid ""
 "Note that this may change depending on which\n"
 "active problem is selected in the editor below."
 msgstr ""
-
-msgid "&Save"
-msgstr "&Speichern"
 
 msgid "Save &under"
 msgstr "Speichern unter"
@@ -4733,33 +4760,6 @@ msgstr "Altersbereich"
 
 msgid "→"
 msgstr ""
-
-msgid "Template"
-msgstr "Vorlage"
-
-msgid "File"
-msgstr "Datei"
-
-msgid "Enter a short comment on this visual progress note."
-msgstr "Geben Sie einen Kommentar zu dieser Bildnotiz ein."
-
-msgid "Select a visual progress note template."
-msgstr "Wählen Sie eine Vorlage für eine Bildnotiz."
-
-msgid "Add a new visual progress note from the template selected above."
-msgstr "Eine neue Bildnotiz aus der oben gewählten Vorlage erzeugen."
-
-msgid "Add a new visual progress note from an image file."
-msgstr "Eine neue Bildnotiz aus einer Bilddatei erzeugen."
-
-msgid "This list shows the visual progress notes for this encounter."
-msgstr "Diese Liste zeigt die Bildnotizen dieses Kontakts."
-
-msgid "Delete this visual progress note."
-msgstr "Diese Bildnotiz löschen."
-
-msgid "Episode:"
-msgstr "Episode:"
 
 msgid "Waiting list details for this patient."
 msgstr "Wartelisteneintrag für diesen Patienten."
@@ -7859,6 +7859,9 @@ msgstr ""
 msgid "Select letter or form template."
 msgstr "Die Brief- oder Formularvorlage wählen."
 
+msgid "Template"
+msgstr "Vorlage"
+
 msgid "You must select a template file before saving."
 msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
@@ -10132,9 +10135,6 @@ msgstr "In &Datei exportieren"
 msgid "Export to &clipboard"
 msgstr "In die &Zwischenablage kopieren"
 
-msgid "&Delete"
-msgstr "&Löschen"
-
 msgid "%s results selected. Too many to list individually."
 msgstr "%s Ergebnisse markiert. Zu viele, um alle einzeln anzuzeigen."
 
@@ -10983,6 +10983,9 @@ msgstr "Datenbank"
 msgid "List of templates in the database."
 msgstr "Liste der Vorlagen in der Datenbank."
 
+msgid "File"
+msgstr "Datei"
+
 msgid "Files in the filesystem."
 msgstr "Dateien im Dateisystem."
 
@@ -11054,6 +11057,33 @@ msgstr "Bildnotizen"
 
 msgid "Created: %s"
 msgstr "Erzeugt: %s"
+
+msgid "Problem list"
+msgstr "Liste der Probleme"
+
+msgid "Saving SOAP note"
+msgstr "speichere Verlaufsnotiz"
+
+msgid "Do you want to save the SOAP note ?"
+msgstr "Wollen Sie die Verlaufsnotiz speichern ?"
+
+msgid "&Filter by problem %s%s%s"
+msgstr "&Filtern anhand des Problems %s%s%s"
+
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr "Kann SimpleNotes-Verlaufsnotiz nicht speichern."
+
+msgid "Progress note: %s%s"
+msgstr "Verlaufsnotiz: %s%s"
+
+msgid "Please enter a name for the new problem:"
+msgstr "Geben Sie dem neuen Problem einen aussagekräftigen Namen:"
+
+msgid "Adding a problem"
+msgstr "Ein Problem hinzufügen"
+
+msgid "Cannot delete problem. There is still clinical data recorded for it."
+msgstr "Kann das Problem nicht löschen. Es enthält Karteieinträge."
 
 msgid "Adding new organizational unit"
 msgstr "Neue Abteilung hinzufügen"
@@ -12670,6 +12700,12 @@ msgstr "&Dokumente hinzufügen"
 msgid "&Documents"
 msgstr "&Dokumente"
 
+msgid "SimpleNotes"
+msgstr ""
+
+msgid "&SimpleNotes"
+msgstr ""
+
 msgid "&Notes"
 msgstr "&Einträge"
 
@@ -12923,6 +12959,27 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Enter a short comment on this visual progress note."
+#~ msgstr "Geben Sie einen Kommentar zu dieser Bildnotiz ein."
+
+#~ msgid "Select a visual progress note template."
+#~ msgstr "Wählen Sie eine Vorlage für eine Bildnotiz."
+
+#~ msgid "Add a new visual progress note from the template selected above."
+#~ msgstr "Eine neue Bildnotiz aus der oben gewählten Vorlage erzeugen."
+
+#~ msgid "Add a new visual progress note from an image file."
+#~ msgstr "Eine neue Bildnotiz aus einer Bilddatei erzeugen."
+
+#~ msgid "This list shows the visual progress notes for this encounter."
+#~ msgstr "Diese Liste zeigt die Bildnotizen dieses Kontakts."
+
+#~ msgid "Delete this visual progress note."
+#~ msgstr "Diese Bildnotiz löschen."
+
+#~ msgid "Episode:"
+#~ msgstr "Episode:"
 
 #~ msgid "Mark as a fake (not really existing) brand."
 #~ msgstr "Als Pseudoprodukt markieren."
@@ -14066,9 +14123,6 @@ msgstr "erstmals"
 
 #~ msgid "Saving text disabled."
 #~ msgstr "Textspeicherung abgestellt."
-
-#~ msgid "Cannot save text."
-#~ msgstr "Kann Text nicht speichern."
 
 #~ msgid "Enslaved GNUmed [%s%s.%s@%s] %s"
 #~ msgstr "GNUmed ferngesteuert [%s%s.%s@%s] %s"

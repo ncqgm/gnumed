@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-30 23:34+CET\n"
+"POT-Creation-Date: 2012-01-14 12:09+CET\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -162,6 +162,10 @@ msgstr "Apreciativo"
 
 msgid "soap_Plan"
 msgstr "soap_Plan"
+
+#, fuzzy
+msgid "soap_Unspecified"
+msgstr "soap_Objetivo"
 
 msgid "soap_Administrative"
 msgstr "soap_Administrativo"
@@ -351,6 +355,25 @@ msgstr "ultima revision:"
 msgid "part"
 msgstr "parte"
 
+#, fuzzy
+msgid "1 part"
+msgstr "parte"
+
+#, fuzzy
+msgid "%s parts"
+msgstr "(%s pacientes)"
+
+msgid ""
+"%s (%s)   #%s\n"
+"\n"
+" Created: %s\n"
+" Episode: %s\n"
+"%s%s"
+msgstr ""
+
+msgid " External reference: %s\n"
+msgstr ""
+
 msgid "A: Sign"
 msgstr "A:Signo"
 
@@ -471,6 +494,12 @@ msgstr "Citas: %s (%s - %s):"
 msgid "finished"
 msgstr "finalizado"
 
+msgid "Health issue"
+msgstr "Problema de salud"
+
+msgid "none associated"
+msgstr ""
+
 msgid "Error retrieving encounters for this episode."
 msgstr "Error al solicitar las citas para este episodio"
 
@@ -501,9 +530,6 @@ msgstr "Examenes y resultados"
 
 msgid "Problem"
 msgstr "Problema"
-
-msgid "Health issue"
-msgstr "Problema de salud"
 
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  su tiempo: %s - %s  (@%s = %s%s)\n"
@@ -588,6 +614,76 @@ msgstr "?corto plazo"
 
 msgid "?ongoing"
 msgstr "?en marcha"
+
+msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
+msgstr "Uso de la sustancia (%s, %s) [#%s]                     \n"
+
+msgid "active, needs check"
+msgstr "activo, precisa ser revisado"
+
+msgid "assumed active"
+msgstr "presuntamente activo"
+
+msgid "approved"
+msgstr "aprobado"
+
+msgid "unapproved"
+msgstr "no aprobado"
+
+msgid "definite"
+msgstr "definido"
+
+msgid "suspected"
+msgstr "se presume"
+
+msgid "Substance: %s   [#%s]\n"
+msgstr "Sustancia: %s [#%s]\n"
+
+msgid "Preparation: %s\n"
+msgstr "Dosificación: %s\n"
+
+#, fuzzy
+msgid "Amount per dose: %s %s"
+msgstr "Cantidad por dosis: %s%s"
+
+msgid " ATC (substance): %s\n"
+msgstr " ATQ (principio activo): %s\n"
+
+msgid " Brand name: %%s   [#%s]\n"
+msgstr " Marca comercial: %%s [#%s]\n"
+
+msgid " ATC (brand): %s\n"
+msgstr " ATQ (marca): %s\n"
+
+msgid " Regimen: %s\n"
+msgstr " Régimen\n"
+
+msgid " Started %s%s%s\n"
+msgstr " Comenzó %s%s%s\n"
+
+msgid " (long-term)"
+msgstr " (largo plazo)"
+
+msgid " (short-term)"
+msgstr " (corto plazo)"
+
+msgid " Discontinued %s\n"
+msgstr " Terminó %s\n"
+
+msgid " Reason: %s\n"
+msgstr " Razón: %s\n"
+
+msgid " Aim: %s\n"
+msgstr " Objetivo: %s\n"
+
+msgid " Episode: %s\n"
+msgstr " Episodio: %s\n"
+
+msgid " Advice: %s\n"
+msgstr " Indicación: %s\n"
+
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr "Revisión: #%(row_ver)s, %(mod_when)s hasta %(mod_by)s."
 
 msgid "Additional notes"
 msgstr "Notas adicionales"
@@ -794,6 +890,20 @@ msgstr "fecha de nacimiento/defunción"
 
 msgid "full name"
 msgstr "nombre completo"
+
+msgid "message"
+msgstr "mensaje"
+
+#, fuzzy
+msgid "virtual message"
+msgstr "mensaje"
+
+msgid "everyone"
+msgstr "todos"
+
+#, fuzzy
+msgid "Patient #%s"
+msgstr "Paciente"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -1724,8 +1834,10 @@ msgstr "marca de fábrica falsa"
 msgid "&Manage"
 msgstr "&Gestionar"
 
-msgid "Mark as a fake (not really existing) brand."
-msgstr "Marca como marca de fábrica (no realmente existente) falsa."
+msgid ""
+"Mark as a fake: use if brand does not commercially exist and you want to "
+"create a \"generic\" brand."
+msgstr ""
 
 msgid "Manage the components of this drug."
 msgstr "Maneje los componentes de esta droga."
@@ -1994,8 +2106,8 @@ msgid "Enter the address or number for this communications channel here."
 msgstr "Ingrese la dirección o número para este canal de comunicación aquí."
 
 #, fuzzy
-msgid "Optional: The address this communication channel is associated with."
-msgstr "Ingrese la dirección o número para este canal de comunicación aquí."
+msgid "A comment on this communications channel."
+msgstr "No se puede guardar el canal de comunicaciones."
 
 msgid ""
 "Check this if the communications channel is to be treated confidentially."
@@ -2007,9 +2119,6 @@ msgstr "Canal"
 
 msgid "Value"
 msgstr "Valor"
-
-msgid "Address"
-msgstr "Dirección"
 
 msgid ""
 "Enter the name of the consumable substance.\n"
@@ -3832,6 +3941,9 @@ msgstr "El valor de ID externo"
 msgid "Browse all known addresses (loading can be slow)."
 msgstr "Navegue por todas las direcciones conocidas (carga puede ser lenta)."
 
+msgid "Address"
+msgstr "Dirección"
+
 msgid "The organization this unit belongs to."
 msgstr "La organización a la cual pertenece esta unidad."
 
@@ -3855,6 +3967,41 @@ msgstr "Añadir Organización"
 
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Activar el paciente haciendo doble click."
+
+#, fuzzy
+msgid "Identity:"
+msgstr "Identidad"
+
+#, fuzzy
+msgid "Contacts:"
+msgstr "Contactos"
+
+#, fuzzy
+msgid "Encounters / admissions (last"
+msgstr "Lista de &citas"
+
+msgid "):"
+msgstr ""
+
+#, fuzzy
+msgid "Active Problems:"
+msgstr "Problemas Activos"
+
+#, fuzzy
+msgid "Current meds and substances:"
+msgstr "Principio activo"
+
+#, fuzzy
+msgid "History:"
+msgstr "Anamnesis"
+
+#, fuzzy
+msgid "Inbox / Scratch pad:"
+msgstr "Bloc de Notas"
+
+#, fuzzy
+msgid "Measurements:"
+msgstr "Examenes"
 
 msgid "Save the identity details."
 msgstr "Guardar los detalles de identidad."
@@ -4369,11 +4516,21 @@ msgstr ""
 "Añadir un archivo desde el sistema de ficheros como parte nueva. Muestra un "
 "cuadro de diálogo de selección de archivos."
 
-msgid "Required: The primary episode this document is to be listed under."
-msgstr "Requerido: El episodio primario en que este documento debe enlistarse."
-
 msgid "Required: The type of this document."
 msgstr "Requereido: el tipo de documento"
+
+#, fuzzy
+msgid ""
+"The date when the medical information described in the document was "
+"produced. This is free text so you can add approximate dates, too, such as "
+"3/2004 where appropriate."
+msgstr ""
+"Requerido: La fecha cuando la informacion medica descrita en este documento "
+"fue producida. Este es un texto libre asi que puede agregar fechas "
+"aproximadas."
+
+msgid "Required: The primary episode this document is to be listed under."
+msgstr "Requerido: El episodio primario en que este documento debe enlistarse."
 
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
@@ -4381,15 +4538,6 @@ msgid ""
 msgstr ""
 "Opcional: Un comentario corto de identificando el documento. Los buenos "
 "comentarios dan una idea de el contenido y la fuente del documento."
-
-msgid ""
-"Required: The date when the medical information described in the document "
-"was produced. This is free text so you can add approximate dates, too, such "
-"as 3/2004 where appropriate."
-msgstr ""
-"Requerido: La fecha cuando la informacion medica descrita en este documento "
-"fue producida. Este es un texto libre asi que puede agregar fechas "
-"aproximadas."
 
 msgid ""
 "Required: Enter the provider who will be notified about the new document so "
@@ -4441,11 +4589,20 @@ msgstr "Salvar el documento terminado"
 msgid "Start over (discards current data)."
 msgstr "Volver a empezar (descartar datos actuales)"
 
+#, fuzzy
+msgid "Document type:"
+msgstr "Tipo de documento"
+
+#, fuzzy
+msgid "Date document created:"
+msgstr "Fecha de creación"
+
 msgid "Associate to episode:"
 msgstr "Asociar al episodio"
 
-msgid "Date of creation:"
-msgstr "Fecha de creación"
+#, fuzzy
+msgid "Comment / Identification:"
+msgstr "Medicación actual"
 
 msgid "Please select a person from the list below."
 msgstr "Seleccione un paciente de la lista"
@@ -4474,6 +4631,10 @@ msgstr "revisar estado"
 msgid "episode"
 msgstr "episodio"
 
+#, fuzzy
+msgid "health issue"
+msgstr "Problema de salud"
+
 msgid "type"
 msgstr "tipo"
 
@@ -4486,11 +4647,57 @@ msgstr "Ordenar los documentos sin revisar al principio del árbol"
 msgid "Sort documents by the episode they belong to."
 msgstr "Ordenar documentos por el episodio al que pertenecen"
 
+#, fuzzy
+msgid "Sort documents by the health issue they belong to."
+msgstr "Ordenar documentos por el episodio al que pertenecen"
+
 msgid "Sort documents by their type."
 msgstr "Ordenar documentos por tipo."
 
 msgid "Sort documents by"
 msgstr "Ordenar documentos por"
+
+msgid "&Delete"
+msgstr "&Borrar"
+
+msgid "&Save"
+msgstr "&Guardar"
+
+#, fuzzy
+msgid "&Filter by problem"
+msgstr "Filtrado por:"
+
+#, fuzzy
+msgid "Add a problem to the problem list."
+msgstr "Agregar un item a la lista."
+
+#, fuzzy
+msgid "Edit the selected problem."
+msgstr "Editar el item seleccionado."
+
+msgid ""
+"Delete the selected problem (only possible as long as there are no SOAP "
+"notes for it)."
+msgstr ""
+
+#, fuzzy
+msgid "Enter your SOAP note here."
+msgstr "Incorpore su traducción aquí."
+
+#, fuzzy
+msgid "Save the current SOAP note."
+msgstr "Guarde la nota de los progresos que se muestra actualmente."
+
+msgid "Clear the SOAP note."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Check this if you want to filter the journal by the problem selected on the "
+"left."
+msgstr ""
+"Seleccione si esta de acuerdo con la decisión de la relevancia clínica de "
+"los resultados."
 
 #, fuzzy
 msgid "Episode synopsis"
@@ -4560,9 +4767,6 @@ msgstr ""
 "\n"
 "Los datos pueden cambiar dependiendo de cual problema\n"
 "se encuentre seleccionado  en el editor abajo."
-
-msgid "&Save"
-msgstr "&Guardar"
 
 #, fuzzy
 msgid "Save &under"
@@ -4804,6 +5008,9 @@ msgstr "Espander a"
 
 msgid "Scope"
 msgstr "Ámbito"
+
+msgid "Caveat"
+msgstr "Advertencia"
 
 msgid "Details"
 msgstr "Detalles"
@@ -5224,34 +5431,6 @@ msgstr "Rango de edad"
 msgid "→"
 msgstr "→"
 
-msgid "Template"
-msgstr "Plantilla"
-
-msgid "File"
-msgstr "Archivo"
-
-msgid "Enter a short comment on this visual progress note."
-msgstr "Ingrese un comentario breve de esta nota visual de progreso."
-
-msgid "Select a visual progress note template."
-msgstr "Seleccione una plantilla de nota visual de progreso"
-
-msgid "Add a new visual progress note from the template selected above."
-msgstr ""
-"Agregue una nota visual de progreso de la plantilla seleccionada arriba."
-
-msgid "Add a new visual progress note from an image file."
-msgstr "Agregar una nueva nota visual desde un archivo de imagen."
-
-msgid "This list shows the visual progress notes for this encounter."
-msgstr "Muestra las notas visuales de progreso para este encuentro."
-
-msgid "Delete this visual progress note."
-msgstr "Borrar esta nota visual de progreso"
-
-msgid "Episode:"
-msgstr "Episodio:"
-
 msgid "Waiting list details for this patient."
 msgstr "Esperando lista de  detalles para este paciente"
 
@@ -5541,9 +5720,6 @@ msgstr "<estado de la alergia no preguntado>"
 msgid "invalid allergy state [%s]"
 msgstr "estado de la alergia invalido [%s]"
 
-msgid "definite"
-msgstr "definido"
-
 msgid ""
 "Cannot set allergy state to <unknown> because there are allergies stored for "
 "this patient."
@@ -5827,41 +6003,30 @@ msgstr "Ayuda de la ventana de inicio de sesión"
 msgid ""
 "GNUmed main login screen\n"
 "\n"
-"USER:\n"
-" name of the GNUmed user\n"
-"PASSWORD\n"
-" password for this user\n"
+"Welcome to the GNUmed client. Shown are the current\n"
+"\"Workplace\" and (version).\n"
 "\n"
-"button OK:\n"
-" proceed with login\n"
-"button OPTIONS:\n"
-" set advanced options\n"
-"button CANCEL:\n"
-" abort login and quit GNUmed client\n"
-"button HELP:\n"
-" this help screen\n"
+"You may select to log into a public database with username\n"
+"and password {any-doc, any-doc}. Any other database\n"
+"(including a local one) must first be separately installed\n"
+"before you can log in.\n"
 "\n"
-"For assistance on using GNUmed please contact:\n"
+"For assistance on using GNUmed please consult the wiki:\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
+"\n"
+"and to install a local database see:\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
+"\n"
+"For more help than the above, please contact:\n"
+"\n"
+" GNUmed Development List <gnumed-bugs@gnu.org>\n"
+"\n"
+"For local assistance please contact:\n"
+"\n"
 " %s"
 msgstr ""
-"GNUmed login\n"
-"\n"
-"USUARIO:\n"
-" nombre del usuario GNUmed\n"
-"PASSWORD\n"
-" el password para este usuario\n"
-"\n"
-"Boton OK:\n"
-" proceder al login\n"
-"boton OPCIONES:\n"
-" selecionar opciones avanzadas\n"
-"boton CANCELAR:\n"
-" abortar login y quitar el cliente GNUmed\n"
-"boton AYUDA:\n"
-" esta pantalla de ayuda\n"
-"\n"
-"Para asistencia por favor contacte a:\n"
-" %s"
 
 msgid "Dialog was cancelled by user"
 msgstr "El usuario ha cerrado la ventana de diálogo"
@@ -6006,7 +6171,11 @@ msgstr "ordenado por tipo"
 msgid "Select the type of communications channel."
 msgstr "Elija el tipo de canal de comunicaciones."
 
-msgid "Cannot save communications channel."
+msgid "Editing communications channel"
+msgstr "Editando canal de comunicaciones"
+
+#, fuzzy
+msgid "Cannot save (duplicate ?) communications channel."
 msgstr "No se puede guardar el canal de comunicaciones."
 
 msgid "List of known communication channels."
@@ -6017,9 +6186,6 @@ msgstr "confidencial"
 
 msgid "Adding new communications channel"
 msgstr "Añadiendo un nuevo canal de comunicaciones"
-
-msgid "Editing communications channel"
-msgstr "Editando canal de comunicaciones"
 
 #, fuzzy
 msgid ""
@@ -6711,6 +6877,10 @@ msgstr "Copiando nombre"
 msgid "Cannot delete the only name of a person."
 msgstr "No se puede borrar el nombre único de una persona."
 
+#, fuzzy
+msgid "Cannot delete the active name of a person."
+msgstr "No se puede borrar el nombre único de una persona."
+
 msgid ""
 "It is often advisable to keep old names around and\n"
 "just create a new \"currently active\" name.\n"
@@ -7120,6 +7290,10 @@ msgstr "No se pueden aceptar nuevos documentos. No hay paciente activo."
 msgid "Extracting files from folder [%s] ..."
 msgstr "Extrayendo archivos de la carpeta [%s] ..."
 
+#, fuzzy
+msgid "other documents"
+msgstr "Adjuntar documentos"
+
 msgid "part %s: %s"
 msgstr "parte %s: %s"
 
@@ -7301,6 +7475,12 @@ msgstr "guardando documento"
 msgid "Successfully saved new document."
 msgstr "Se guardó con éxito el nuevo documento"
 
+msgid "Document part does not seem to exist in database !"
+msgstr "¡Parte de documento parece no existir en la base de datos!"
+
+msgid "showing document"
+msgstr "mostrando informe"
+
 msgid "available documents (%s)"
 msgstr "documentos disponibles (%s)"
 
@@ -7312,6 +7492,10 @@ msgstr "más reciente arriba"
 
 msgid "sorted by episode"
 msgstr "ordenado por episodio"
+
+#, fuzzy
+msgid "sorted by health issue"
+msgstr "Cree un problema de salud"
 
 msgid "sorted by type"
 msgstr "ordenado por tipo"
@@ -7379,17 +7563,15 @@ msgstr "obteniendo lista de informes"
 msgid "%s%7s %s:%s (%s part(s)%s)"
 msgstr "%s%7s %s:%s (%s parte(s)%s)"
 
+#, fuzzy
+msgid "Unattributed episode: %s"
+msgstr "Episodios sin causa aparente"
+
 msgid "part %2s"
 msgstr "parte %2s"
 
 msgid "Activate as current photo"
 msgstr "Activar como fotografía actual"
-
-msgid "Document part does not seem to exist in database !"
-msgstr "¡Parte de documento parece no existir en la base de datos!"
-
-msgid "showing document"
-msgstr "mostrando informe"
 
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
@@ -8464,6 +8646,9 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr "Elija plantilla de carta o formulario."
+
+msgid "Template"
+msgstr "Plantilla"
 
 msgid "You must select a template file before saving."
 msgstr "Debe elegir un archivo de plantilla antes de guardar."
@@ -10837,9 +11022,6 @@ msgstr "Exporte a &archivo"
 msgid "Export to &clipboard"
 msgstr "Exporte a &block de notas"
 
-msgid "&Delete"
-msgstr "&Borrar"
-
 msgid "%s results selected. Too many to list individually."
 msgstr ""
 "%s resultados seleccionados. Demasiados para listarlos individualmente."
@@ -11195,13 +11377,33 @@ msgstr "Edito marca de medicamento"
 msgid "Cannot edit drug brand. It is in use."
 msgstr "No puedo editar marca de medicamento. Está en uso."
 
+#, fuzzy
+msgid "Checking brand data"
+msgstr "Verificar actualizaciones del cliente"
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
+msgstr ""
+
 msgid "Cannot save branded drug. Invalid or missing essential input."
 msgstr ""
 "No puedo guardar la marca de medicamento. Ingreso de datos inválido o "
 "insuficientes."
 
-msgid "The brand name of the drug."
-msgstr "El nombre de la marca del medicamento."
+msgid ""
+"The brand name of the drug.\n"
+"\n"
+"Note: a brand name will need to be linked to\n"
+"one or more components before it can be used,\n"
+"except in the case of fake (generic) vaccines."
+msgstr ""
 
 msgid "discontinued due to allergy or intolerance"
 msgstr "descontinuado por alergia o intolerancia"
@@ -11243,11 +11445,21 @@ msgstr "%s, confirmado por última vez %s\n"
 msgid "Comment (%s): %%s\n"
 msgstr "Comentario (%s): %%s\n"
 
-msgid "suspected"
-msgstr "se presume"
-
 msgid "reaction not recorded"
 msgstr "Reacción no doumentada"
+
+msgid ""
+"The patient is already taking\n"
+"\n"
+" %s\n"
+"\n"
+"You will want to adjust the schedule\n"
+"rather than document the intake twice."
+msgstr ""
+
+#, fuzzy
+msgid "Adding substance intake entry"
+msgstr "¿Elimino ahora el ingreso de medicación?"
 
 msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
@@ -11358,68 +11570,8 @@ msgstr "No puedo borrar más de una sustancia a la vez."
 msgid "Cannot create allergy from more than one substance at once."
 msgstr "No puedo crear una alergia a partir de más de una sustancia a la vez."
 
-msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr "Uso de la sustancia (%s, %s) [#%s]                     \n"
-
-msgid "active, needs check"
-msgstr "activo, precisa ser revisado"
-
-msgid "assumed active"
-msgstr "presuntamente activo"
-
-msgid "approved"
-msgstr "aprobado"
-
-msgid "unapproved"
-msgstr "no aprobado"
-
-msgid "Substance: %s   [#%s]\n"
-msgstr "Sustancia: %s [#%s]\n"
-
-msgid "Preparation: %s\n"
-msgstr "Dosificación: %s\n"
-
 msgid "Amount per dose: %s%s"
 msgstr "Cantidad por dosis: %s%s"
-
-msgid " ATC (substance): %s\n"
-msgstr " ATQ (principio activo): %s\n"
-
-msgid " Brand name: %%s   [#%s]\n"
-msgstr " Marca comercial: %%s [#%s]\n"
-
-msgid " ATC (brand): %s\n"
-msgstr " ATQ (marca): %s\n"
-
-msgid " Regimen: %s\n"
-msgstr " Régimen\n"
-
-msgid " Started %s%s%s\n"
-msgstr " Comenzó %s%s%s\n"
-
-msgid " (long-term)"
-msgstr " (largo plazo)"
-
-msgid " (short-term)"
-msgstr " (corto plazo)"
-
-msgid " Discontinued %s\n"
-msgstr " Terminó %s\n"
-
-msgid " Reason: %s\n"
-msgstr " Razón: %s\n"
-
-msgid " Aim: %s\n"
-msgstr " Objetivo: %s\n"
-
-msgid " Episode: %s\n"
-msgstr " Episodio: %s\n"
-
-msgid " Advice: %s\n"
-msgstr " Indicación: %s\n"
-
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revisión: #%(row_ver)s, %(mod_when)s hasta %(mod_by)s."
 
 msgid "Cannot move progress notes. No active patient."
 msgstr "No puedo mover notas de progreso. No existe paciente activo."
@@ -11761,6 +11913,9 @@ msgstr "Base de datos..."
 msgid "List of templates in the database."
 msgstr "Guardar los datos seleccionados en la base de datos."
 
+msgid "File"
+msgstr "Archivo"
+
 msgid "Files in the filesystem."
 msgstr "Archivos en el sistema de archivos"
 
@@ -11834,6 +11989,45 @@ msgid "Created: %s"
 msgstr "Creada: %s"
 
 #, fuzzy
+msgid "Problem list"
+msgstr "Problema"
+
+#, fuzzy
+msgid "Saving SOAP note"
+msgstr "guardando nota de progreso"
+
+#, fuzzy
+msgid "Do you want to save the SOAP note ?"
+msgstr ""
+"¿Realmente quiere eliminar esta\n"
+"ID externa del paciente?"
+
+msgid "&Filter by problem %s%s%s"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr "No puedo guardar el número de solicitud."
+
+#, fuzzy
+msgid "Progress note: %s%s"
+msgstr "Notas de progreso"
+
+#, fuzzy
+msgid "Please enter a name for the new problem:"
+msgstr "Introduzca un nombre descriptivo para este nuevo problema:"
+
+#, fuzzy
+msgid "Adding a problem"
+msgstr "Añadiendo un procedimiento"
+
+#, fuzzy
+msgid "Cannot delete problem. There is still clinical data recorded for it."
+msgstr ""
+"No se puede borrar el episodio. Hay datos clínicos críticos registrados para "
+"él."
+
+#, fuzzy
 msgid "Adding new organizational unit"
 msgstr "Añadiendo un nuevo canal de comunicaciones"
 
@@ -11905,14 +12099,65 @@ msgstr "Organizaciones registradas en GNUmed."
 msgid "Communication channels"
 msgstr "Eliminando canal de comunicaciones"
 
-msgid "Refresh from database"
-msgstr "Recargar desde base de datos"
+msgid "%s %s more not shown %s"
+msgstr ""
 
-msgid "Acquire from imaging device"
-msgstr "Adquirir desde dispositivos de imagen"
+msgid "Currently in waiting list [%s]"
+msgstr ""
 
-msgid "Import from file"
-msgstr "Importar desde un archivo"
+#, fuzzy
+msgid "first: %s, %s"
+msgstr "Sección: %s (%s)"
+
+#, fuzzy
+msgid "last: %s, %s"
+msgstr "parte %s: %s"
+
+#, fuzzy
+msgid "%s %s %s%s"
+msgstr " %s: %s%s%s"
+
+msgid "** Currently hospitalized: %s **"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+msgstr ""
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+
+#, fuzzy
+msgid "emergency: %s"
+msgstr "Contacto de la emergencia"
+
+#, fuzzy
+msgid "in-praxis: %s"
+msgstr "  riesgo: %s"
+
+#, fuzzy
+msgid "*** CONFIDENTIAL ***"
+msgstr ""
+"*** CONFIDENCIAL ***\n"
+"\n"
+
+#, fuzzy
+msgid "aka: %(last)s, %(first)s%(nick)s"
+msgstr "El RME de %(lastnames)s, %(firstnames)s"
+
+#, fuzzy
+msgid "job: %s"
+msgstr "Lab: %s\n"
+
+#, fuzzy
+msgid "issued by: %s%s"
+msgstr "expedido por"
+
+#, fuzzy
+msgid ""
+"Activities:\n"
+"\n"
+"%s"
+msgstr "Medicamentos activos: %s"
 
 msgid "No active patient."
 msgstr "No hay paciente activo."
@@ -11940,6 +12185,15 @@ msgstr "Adquiriendo foto"
 
 msgid "Patient photo could not be acquired from source."
 msgstr "La foto del paciente no pudo ser adquirida desde la fuente."
+
+msgid "Refresh from database"
+msgstr "Recargar desde base de datos"
+
+msgid "Acquire from imaging device"
+msgstr "Adquirir desde dispositivos de imagen"
+
+msgid "Import from file"
+msgstr "Importar desde un archivo"
 
 msgid "Administration"
 msgstr "Administración"
@@ -12615,20 +12869,6 @@ msgstr "Acciones de bandeja de entrada:"
 msgid "Activate patient"
 msgstr "Activar paciente"
 
-msgid "message"
-msgstr "mensaje"
-
-#, fuzzy
-msgid "virtual message"
-msgstr "mensaje"
-
-msgid "everyone"
-msgstr "todos"
-
-#, fuzzy
-msgid "Patient #%s"
-msgstr "Paciente"
-
 msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
 msgstr ""
@@ -12916,9 +13156,6 @@ msgstr ""
 
 msgid "Enlisting person as user."
 msgstr "Enlistando paciente como usuario"
-
-msgid "Caveat"
-msgstr "Advertencia"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
@@ -13446,6 +13683,14 @@ msgstr "Datos &Demográficos"
 msgid "Progress notes"
 msgstr "Notas de progreso"
 
+#, fuzzy
+msgid "Overview"
+msgstr "Revisión"
+
+#, fuzzy
+msgid "&Overview"
+msgstr "Revisión"
+
 msgid "Inbox"
 msgstr "Bandeja de Entrada"
 
@@ -13476,6 +13721,14 @@ msgstr "&Adjunte documentos"
 #, fuzzy
 msgid "&Documents"
 msgstr "Informes"
+
+#, fuzzy
+msgid "SimpleNotes"
+msgstr "Notas"
+
+#, fuzzy
+msgid "&SimpleNotes"
+msgstr "&Notas"
 
 msgid "&Notes"
 msgstr "&Notas"
@@ -13731,6 +13984,77 @@ msgstr "Cantidad"
 msgid "First Date"
 msgstr "Primera cita"
 
+#~ msgid "Mark as a fake (not really existing) brand."
+#~ msgstr "Marca como marca de fábrica (no realmente existente) falsa."
+
+#, fuzzy
+#~ msgid "Optional: The address this communication channel is associated with."
+#~ msgstr "Ingrese la dirección o número para este canal de comunicación aquí."
+
+#~ msgid "Enter a short comment on this visual progress note."
+#~ msgstr "Ingrese un comentario breve de esta nota visual de progreso."
+
+#~ msgid "Select a visual progress note template."
+#~ msgstr "Seleccione una plantilla de nota visual de progreso"
+
+#~ msgid "Add a new visual progress note from the template selected above."
+#~ msgstr ""
+#~ "Agregue una nota visual de progreso de la plantilla seleccionada arriba."
+
+#~ msgid "Add a new visual progress note from an image file."
+#~ msgstr "Agregar una nueva nota visual desde un archivo de imagen."
+
+#~ msgid "This list shows the visual progress notes for this encounter."
+#~ msgstr "Muestra las notas visuales de progreso para este encuentro."
+
+#~ msgid "Delete this visual progress note."
+#~ msgstr "Borrar esta nota visual de progreso"
+
+#~ msgid "Episode:"
+#~ msgstr "Episodio:"
+
+#~ msgid ""
+#~ "GNUmed main login screen\n"
+#~ "\n"
+#~ "USER:\n"
+#~ " name of the GNUmed user\n"
+#~ "PASSWORD\n"
+#~ " password for this user\n"
+#~ "\n"
+#~ "button OK:\n"
+#~ " proceed with login\n"
+#~ "button OPTIONS:\n"
+#~ " set advanced options\n"
+#~ "button CANCEL:\n"
+#~ " abort login and quit GNUmed client\n"
+#~ "button HELP:\n"
+#~ " this help screen\n"
+#~ "\n"
+#~ "For assistance on using GNUmed please contact:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "GNUmed login\n"
+#~ "\n"
+#~ "USUARIO:\n"
+#~ " nombre del usuario GNUmed\n"
+#~ "PASSWORD\n"
+#~ " el password para este usuario\n"
+#~ "\n"
+#~ "Boton OK:\n"
+#~ " proceder al login\n"
+#~ "boton OPCIONES:\n"
+#~ " selecionar opciones avanzadas\n"
+#~ "boton CANCELAR:\n"
+#~ " abortar login y quitar el cliente GNUmed\n"
+#~ "boton AYUDA:\n"
+#~ " esta pantalla de ayuda\n"
+#~ "\n"
+#~ "Para asistencia por favor contacte a:\n"
+#~ " %s"
+
+#~ msgid "The brand name of the drug."
+#~ msgstr "El nombre de la marca del medicamento."
+
 #~ msgid ""
 #~ "EMR Statistics\n"
 #~ "\n"
@@ -13830,9 +14154,6 @@ msgstr "Primera cita"
 #~ msgid "&Vaccination(s)"
 #~ msgstr "&Vacunaciones"
 
-#~ msgid "&Encounters list"
-#~ msgstr "Lista de &citas"
-
 #~ msgid "Town"
 #~ msgstr "Ciudad"
 
@@ -13877,9 +14198,6 @@ msgstr "Primera cita"
 #~ msgstr ""
 #~ "Nombre, relación, y detalles del contacto para que persona notifique en "
 #~ "caso de urgencia/apuro serio."
-
-#~ msgid "issued by"
-#~ msgstr "expedido por"
 
 #~ msgid "Registering new person"
 #~ msgstr "Registrando paciente nuevo"
