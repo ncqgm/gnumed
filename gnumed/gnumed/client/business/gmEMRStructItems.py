@@ -491,7 +491,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 			# vaccinations
 			if with_vaccinations:
-				vaccs = emr.get_vaccinations(episodes = epi_pks)
+				vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = u'date_given, vaccine')
 				if len(vaccs) > 0:
 					lines.append(u'')
 					lines.append(_('Vaccinations:'))

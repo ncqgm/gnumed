@@ -3798,7 +3798,7 @@ msgid "All"
 msgstr "Alle"
 
 msgid "Active-patient related"
-msgstr "des aktiven Patienten"
+msgstr "über aktiven Patienten"
 
 msgid "&Add"
 msgstr "&Hinzufügen"
