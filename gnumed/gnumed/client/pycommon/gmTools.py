@@ -9,6 +9,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
 import decimal
 import cPickle, zlib
+import xml.sax.saxutils as xml_tools
 
 
 # GNUmed libs
@@ -710,10 +711,14 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
-
-	text = text.replace(u'&', u'&amp;')
-
-	return text
+	return xml_tools.escape (
+		text,
+		entities = {
+			u'&': u'&amp;'
+		}
+	)
+#	text = text.replace(u'&', u'&amp;')
+#	return text
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None):
 	"""check for special LaTeX characters and transform them"""

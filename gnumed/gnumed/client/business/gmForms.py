@@ -22,6 +22,9 @@ import shlex
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
@@ -45,21 +48,23 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P', u'A']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
 	u'L': 'LaTeX',
 	u'I': 'Image editor',
 	u'G': 'Gnuplot script',
-	u'P': 'PDF forms'
+	u'P': 'PDF forms',
+	u'A': 'AbiWord'
 }
 
 form_engine_template_wildcards = {
 	u'O': u'*.o?t',
 	u'L': u'*.tex',
 	u'G': u'*.gpl',
-	u'P': u'*.pdf'
+	u'P': u'*.pdf',
+	u'A': u'*.abw'
 }
 
 # is filled in further below after each engine is defined
@@ -535,8 +540,8 @@ class cOOoLetter(object):
 			try:
 				val = handler[placeholder_instance.String]
 			except:
-				_log.exception(val)
 				val = _('error with placeholder [%s]') % placeholder_instance.String
+				_log.exception(val)
 
 			if val is None:
 				val = _('error with placeholder [%s]') % placeholder_instance.String
@@ -605,6 +610,7 @@ class cFormEngine(object):
 	"""Ancestor for forms."""
 
 	def __init__(self, template_file=None):
+		self.template = None
 		self.template_filename = template_file
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
@@ -695,11 +701,91 @@ class cOOoForm(cFormEngine):
 	def __init__(self, template_file=None):
 		super(self.__class__, self).__init__(template_file = template_file)
 
-
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
 			ext = r'.odt'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
+
+#================================================================
+# AbiWord template forms
+#----------------------------------------------------------------
+class cAbiWordForm(cFormEngine):
+	"""A forms engine wrapping AbiWord."""
+
+	placeholder_regex = r'\$&lt;.+?&gt;\$'
+
+	def __init__(self, template_file=None):
+
+		super(cAbiWordForm, self).__init__(template_file = template_file)
+
+		# detect abiword
+		found, self.abiword_binary = gmShellAPI.detect_external_binary(binary = r'abiword')
+		if not found:
+			raise ImportError('<abiword(.exe)> not found')
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+		# should *actually* properly parse the XML
+
+		path, ext = os.path.splitext(self.template_filename)
+		if ext in [r'', r'.']:
+			ext = r'.abw'
+		self.instance_filename = r'%s-instance%s' % (path, ext)
+
+		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
+		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
+
+		if self.template is not None:
+			# inject placeholder values
+			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		for line in template_file:
+
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+				instance_file.write(line)
+				continue
+
+			# 1) find placeholders in this line
+			placeholders_in_line = regex.findall(cAbiWordForm.placeholder_regex, line, regex.IGNORECASE)
+			# 2) and replace them
+			for placeholder in placeholders_in_line:
+				try:
+					val = data_source[placeholder.replace(u'&lt;', u'<').replace(u'&gt;', u'>')]
+				except:
+					val = _('error with placeholder [%s]') % gmTools.xml_escape_string(placeholder)
+					_log.exception(val)
+
+				if val is None:
+					val = _('error with placeholder [%s]') % gmTools.xml_escape_string(placeholder)
+
+				line = line.replace(placeholder, val)
+
+			instance_file.write(line)
+
+		instance_file.close()
+		template_file.close()
+
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
+
+		return
+	#--------------------------------------------------------
+	def edit(self):
+		enc = sys.getfilesystemencoding()
+		cmd = (r'%s %s' % (self.abiword_binary, self.instance_filename.encode(enc))).encode(enc)
+		result = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
+		self.re_editable_filenames = []
+		return result
+	#--------------------------------------------------------
+	def generate_output(self, instance_file=None, format=None):
+		self.final_output_filenames = [self.instance_filename]
+		return self.instance_filename
+#----------------------------------------------------------------
+form_engines[u'A'] = cAbiWordForm
 
 #================================================================
 # LaTeX template forms
@@ -719,10 +805,11 @@ class cLaTeXForm(cFormEngine):
 		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
 		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
-		# inject placeholder values
-		data_source.set_placeholder(u'form_name_long', self.template['name_long'])
-		data_source.set_placeholder(u'form_name_short', self.template['name_short'])
-		data_source.set_placeholder(u'form_version', self.template['external_version'])
+		if self.template is not None:
+			# inject placeholder values
+			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+			data_source.set_placeholder(u'form_version', self.template['external_version'])
 
 		for line in template_file:
 
@@ -737,8 +824,8 @@ class cLaTeXForm(cFormEngine):
 				try:
 					val = data_source[placeholder]
 				except:
-					_log.exception(val)
 					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
+					_log.exception(val)
 
 				if val is None:
 					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
@@ -750,10 +837,11 @@ class cLaTeXForm(cFormEngine):
 		instance_file.close()
 		template_file.close()
 
-		# remove temporary placeholders
-		data_source.unset_placeholder(u'form_name_long', self.template['name_long'])
-		data_source.unset_placeholder(u'form_name_short', self.template['name_short'])
-		data_source.unset_placeholder(u'form_version', self.template['external_version'])
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
 
 		return
 	#--------------------------------------------------------
@@ -778,7 +866,7 @@ class cLaTeXForm(cFormEngine):
 
 		return result
 	#--------------------------------------------------------
-	def generate_output(self, instance_file = None, format=None):
+	def generate_output(self, instance_file=None, format=None):
 
 		if instance_file is None:
 			instance_file = self.instance_filename
@@ -1470,9 +1558,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N, gmDateTime
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
+	from Gnumed.pycommon import gmDateTime
 	gmDateTime.init()
 
 	#--------------------------------------------------------
@@ -1588,7 +1674,7 @@ if __name__ == '__main__':
 		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 
 		path = os.path.abspath(sys.argv[2])
-		form = cLaPDFForm(template_file = path)
+		form = cPDFForm(template_file = path)
 
 		from Gnumed.wxpython import gmMacro
 		ph = gmMacro.gmPlaceholderHandler()
@@ -1596,6 +1682,25 @@ if __name__ == '__main__':
 		instance_file = form.substitute_placeholders(data_source = ph)
 		pdf_name = form.generate_output(instance_file = instance_file)
 		print "final PDF file is:", pdf_name
+	#--------------------------------------------------------
+	def test_abiword_form():
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			return
+		gmPerson.set_active_patient(patient = pat)
+
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
+
+		path = os.path.abspath(sys.argv[2])
+		form = cAbiWordForm(template_file = path)
+
+		from Gnumed.wxpython import gmMacro
+		ph = gmMacro.gmPlaceholderHandler()
+		ph.debug = True
+		instance_file = form.substitute_placeholders(data_source = ph)
+		form.edit()
+		final_name = form.generate_output(instance_file = instance_file)
+		print "final file is:", final_name
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	# now run the tests
@@ -1613,6 +1718,7 @@ if __name__ == '__main__':
 	#test_cFormTemplate()
 	#set_template_from_file()
 	#test_latex_form()
-	test_pdf_form()
+	#test_pdf_form()
+	test_abiword_form()
 
 #============================================================

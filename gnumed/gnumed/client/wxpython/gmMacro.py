@@ -390,6 +390,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
 
+	#--------------------------------------------------------
+
 	# placeholders
 	lastname = property(_get_lastname, _setter_noop)
 	firstname = property(_get_firstname, _setter_noop)
