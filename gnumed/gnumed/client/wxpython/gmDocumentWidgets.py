@@ -1489,6 +1489,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		self.__doc_context_menu.AppendSeparator()
 
+		item = self.__doc_context_menu.Append(-1, _('Add parts'))
+		self.Bind(wx.EVT_MENU, self.__add_part, item)
+
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Print all parts'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__print_doc)
@@ -2154,6 +2157,20 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __mail_doc(self, evt):
 		self.__process_doc(action = u'mail', l10n_action = _('mail'))
+	#--------------------------------------------------------
+	def __add_part(self, evt):
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Choose a file'),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = '',
+			wildcard = "%s (*)|*|PNGs (*.png)|*.png|PDFs (*.pdf)|*.pdf|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
+		dlg.Destroy()
 	#--------------------------------------------------------
 	def __access_external_original(self, evt):
 

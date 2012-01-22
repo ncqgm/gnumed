@@ -18,6 +18,7 @@ NEW: document tree: sort mode "by health issue"
 NEW: SimpleNotes plugin
 NEW: current medication plugin: sort mode "by health issue"
 NEW: AbiWord based document templates
+NEW: document tree: add parts via document context menu
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
