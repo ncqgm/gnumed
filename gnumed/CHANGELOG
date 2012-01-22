@@ -41,6 +41,8 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 
 IMPROVED: arriba now at version 2.4.1
 IMPROVED: support non-blocking external apps on Windows [thanks S.Hilbert]
+IMPROVED: offline docs [thanks S.Hilbert]
+IMPROVED: russian translation [thanks YvLy]
 
 	1.1.9
 

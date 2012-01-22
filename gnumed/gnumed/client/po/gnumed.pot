@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-01-14 12:10+CET\n"
+"POT-Creation-Date: 2012-01-23 00:06+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -599,6 +599,10 @@ msgstr ""
 
 msgid ""
 " Episode: %s\n"
+msgstr ""
+
+msgid ""
+" Health issue: %s\n"
 msgstr ""
 
 msgid ""
@@ -1951,13 +1955,16 @@ msgstr ""
 msgid "ADR"
 msgstr ""
 
-msgid "Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."
+msgid "Sort entries by the \"health issue\" for which they are taken, then \"substance\", then \"started\"."
 msgstr ""
 
 msgid ""
 "Sort entries by \"brand\", then \"substance\", then \"started\".\n"
 "\n"
 "Thus each substance will only appear once unless it is really taken in more than one preparation."
+msgstr ""
+
+msgid "Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."
 msgstr ""
 
 msgid "Whether to show inactive substances, too, or only those which are assumed to currently be active."
@@ -2371,6 +2378,9 @@ msgid "&Template"
 msgstr ""
 
 msgid "Export"
+msgstr ""
+
+msgid "AbiWord"
 msgstr ""
 
 msgid "Gnuplot"
@@ -4150,6 +4160,9 @@ msgstr ""
 msgid "Add a vaccine to GNUmed."
 msgstr ""
 
+msgid "Select the indications this vaccination was given against."
+msgstr ""
+
 msgid "The batch number of the vaccine."
 msgstr ""
 
@@ -4198,165 +4211,6 @@ msgstr ""
 msgid "Given by"
 msgstr ""
 
-msgid "Tetanus"
-msgstr ""
-
-msgid "Measles"
-msgstr ""
-
-msgid "Diphtheria"
-msgstr ""
-
-msgid "Mumps"
-msgstr ""
-
-msgid "Influenza"
-msgstr ""
-
-msgid "A"
-msgstr ""
-
-msgid "C"
-msgstr ""
-
-msgid "Hep A"
-msgstr ""
-
-msgid "Pertussis"
-msgstr ""
-
-msgid "Rubella"
-msgstr ""
-
-msgid "Pneumococc"
-msgstr ""
-
-msgid "W"
-msgstr ""
-
-msgid "Y"
-msgstr ""
-
-msgid "Cholera"
-msgstr ""
-
-msgid "Poliomyelitis"
-msgstr ""
-
-msgid "Varicella"
-msgstr ""
-
-msgid "Cox (Q)"
-msgstr ""
-
-msgid "Tick Encep"
-msgstr ""
-
-msgid "Typhoid"
-msgstr ""
-
-msgid "HiB"
-msgstr ""
-
-msgid "H1N1"
-msgstr ""
-
-msgid "Jap B"
-msgstr ""
-
-msgid "Rotavirus"
-msgstr ""
-
-msgid "Hep B"
-msgstr ""
-
-msgid "HPV"
-msgstr ""
-
-msgid "Tuberculosis"
-msgstr ""
-
-msgid "Rabies"
-msgstr ""
-
-msgid "Yellow fever"
-msgstr ""
-
-msgid "Anthrax"
-msgstr ""
-
-msgid "Plague"
-msgstr ""
-
-msgid "Smallpox"
-msgstr ""
-
-msgid "Regardless of childhood/adult toxoid content."
-msgstr ""
-
-msgid "Seasonal influenza"
-msgstr ""
-
-msgid "Meningococcus A"
-msgstr ""
-
-msgid "Meningococcus C"
-msgstr ""
-
-msgid "Pneumococcus"
-msgstr ""
-
-msgid "Meningococcus W"
-msgstr ""
-
-msgid "Meningococcus Y"
-msgstr ""
-
-msgid "Varicella zoster (shingles)"
-msgstr ""
-
-msgid "Coxiella burnetii (Q fever)"
-msgstr ""
-
-msgid "Tick-borne meningoencephalitis"
-msgstr ""
-
-msgid "Salmonella typhi (typhoid)"
-msgstr ""
-
-msgid "HiB: Haemophilus influenzae B"
-msgstr ""
-
-msgid "H1N1 influenza"
-msgstr ""
-
-msgid "Japanese B encephalitis"
-msgstr ""
-
-msgid "Human papilloma virus"
-msgstr ""
-
-msgid "Bacillus anthracis"
-msgstr ""
-
-msgid "Yersinia pestis"
-msgstr ""
-
-msgid "Variola virus"
-msgstr ""
-
-msgid "<--Resp-->"
-msgstr ""
-
-msgid "<--Neuro-->"
-msgstr ""
-
-msgid "<--GI-->"
-msgstr ""
-
-msgid "Other:"
-msgstr ""
-
 msgid "Fake"
 msgstr ""
 
@@ -4373,6 +4227,9 @@ msgid ""
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
+msgstr ""
+
+msgid "Manage the indications for this vaccine."
 msgstr ""
 
 msgid "The ATC for this vaccine."
@@ -6081,6 +5938,9 @@ msgid "Mail part"
 msgstr ""
 
 msgid "Document Actions:"
+msgstr ""
+
+msgid "Add parts"
 msgstr ""
 
 msgid "Print all parts"
@@ -10728,6 +10588,12 @@ msgstr ""
 msgid "ATCs: single-condition vaccines"
 msgstr ""
 
+msgid "Pick the relevant indications."
+msgstr ""
+
+msgid "Known indications"
+msgstr ""
+
 msgid "Adding new vaccine"
 msgstr ""
 
@@ -10773,6 +10639,15 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
+msgid "You must select at least one indication."
+msgstr ""
+
+msgid "Pick the diseases this vaccine protects against."
+msgstr ""
+
+msgid "This vaccine"
+msgstr ""
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -10797,6 +10672,12 @@ msgid "Vaccination Plans"
 msgstr ""
 
 msgid "prevention"
+msgstr ""
+
+msgid "Saving vaccination"
+msgstr ""
+
+msgid "Pick the diseases this vaccination was given against."
 msgstr ""
 
 msgid "  IMMUNISATIONS  "
