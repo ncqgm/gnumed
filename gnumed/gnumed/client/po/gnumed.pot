@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2011-10-27 12:37+CEST\n"
+"POT-Creation-Date: 2012-01-23 00:00+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -399,9 +399,6 @@ msgstr ""
 msgid "Error retrieving encounters for this episode."
 msgstr ""
 
-msgid "There are no encounters for this episode."
-msgstr ""
-
 msgid ""
 "Last worked on: %s\n"
 msgstr ""
@@ -617,6 +614,12 @@ msgid "<zip> cannot be empty"
 msgstr ""
 
 msgid "<country> cannot be empty"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
 msgstr ""
 
 msgid "Cannot merge active patient into another patient."
@@ -838,6 +841,9 @@ msgstr ""
 msgid ""
 "Error retrieving encounters for episode\n"
 "%s"
+msgstr ""
+
+msgid "There are no encounters for this episode."
 msgstr ""
 
 msgid ""
@@ -2124,7 +2130,7 @@ msgstr ""
 msgid "If this box is checked the episode is over. If not it is currently ongoing."
 msgstr ""
 
-msgid "The current status of this episode."
+msgid "A summary of the state of this episode."
 msgstr ""
 
 msgid ""
@@ -2144,9 +2150,7 @@ msgstr ""
 msgid "Certainty"
 msgstr ""
 
-msgid ""
-"Current\n"
-"status"
+msgid "Synopsis"
 msgstr ""
 
 msgid "Enter the actual ID (number, identifier, ...) here."
@@ -2458,7 +2462,7 @@ msgstr ""
 msgid "Enter the year when this condition was diagnosed. Setting this will adjust the \"at age\" field accordingly."
 msgstr ""
 
-msgid "The current status of the issue."
+msgid "A summary of the state of this issue."
 msgstr ""
 
 msgid ""
@@ -3690,9 +3694,6 @@ msgid "Notelet:"
 msgstr ""
 
 msgid "Encounter:"
-msgstr ""
-
-msgid "Synopsis"
 msgstr ""
 
 msgid "Journal"
@@ -5323,6 +5324,9 @@ msgid "Cloning name"
 msgstr ""
 
 msgid "Cannot delete the only name of a person."
+msgstr ""
+
+msgid "Cannot delete the active name of a person."
 msgstr ""
 
 msgid ""
@@ -8376,6 +8380,9 @@ msgstr ""
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
+msgid "no primary in-praxis provider"
+msgstr ""
+
 msgid "unknown current medication table formatting style"
 msgstr ""
 
@@ -9040,6 +9047,20 @@ msgid "Editing drug brand"
 msgstr ""
 
 msgid "Cannot edit drug brand. It is in use."
+msgstr ""
+
+msgid "Checking brand data"
+msgstr ""
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
 msgstr ""
 
 msgid "Cannot save branded drug. Invalid or missing essential input."
@@ -10632,6 +10653,18 @@ msgid "(%s patients)"
 msgstr ""
 
 msgid "Cannot add waiting list entry: No patient selected."
+msgstr ""
+
+msgid ""
+"Are you sure you want to remove\n"
+"\n"
+" %s, %s (%s)\n"
+" born: %s\n"
+" %s\n"
+"from the waiting list ?"
+msgstr ""
+
+msgid "Delete waiting list entry"
 msgstr ""
 
 msgid "AU Vacc"
