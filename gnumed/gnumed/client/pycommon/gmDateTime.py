@@ -480,8 +480,7 @@ def calculate_apparent_age(start=None, end=None):
 		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> (%s)' % (end, start))
 
 	if end == start:
-		years = months = days = hours = minutes = seconds = 0
-		return (years, months, days, hours, minutes, seconds)
+		return (0, 0, 0, 0, 0, 0)
 
 	# years
 	years = end.year - start.year
@@ -491,7 +490,10 @@ def calculate_apparent_age(start=None, end=None):
 
 	# months
 	if end.month == start.month:
-		months = 0
+		if end < start:
+			months = 11
+		else:
+			months = 0
 	else:
 		months = end.month - start.month
 		if months < 0:
@@ -505,7 +507,10 @@ def calculate_apparent_age(start=None, end=None):
 
 	# days
 	if end.day == start.day:
-		days = 0
+		if end < start:
+			days = gregorian_month_length[start.month] - 1
+		else:
+			days = 0
 	else:
 		days = end.day - start.day
 		if days < 0:
@@ -2193,6 +2198,11 @@ if __name__ == '__main__':
 
 		start = pydt_now_here().replace(year = 2009).replace(month = 7, day = 21)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		print "-------"
+		start = pydt_now_here().replace(year = 2011).replace(month = 1).replace(day = 23).replace(hour = 12).replace(minute = 11)
+		print calculate_apparent_age(start = start)
+		print format_apparent_age_medically(calculate_apparent_age(start = start))
 	#-------------------------------------------------
 	def test_str2pydt():
 		print "testing function str2pydt_matches"
@@ -2233,8 +2243,8 @@ if __name__ == '__main__':
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	#test_calculate_apparent_age()
-	test_str2pydt()
+	test_calculate_apparent_age()
+	#test_str2pydt()
 	#test_pydt_strftime()
 
 #===========================================================================
