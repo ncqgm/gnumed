@@ -44,6 +44,8 @@ IMPROVED: support non-blocking external apps on Windows [thanks S.Hilbert]
 IMPROVED: offline docs [thanks S.Hilbert]
 IMPROVED: russian translation [thanks YvLy]
 
+FIX: bug in calculating apparent age when patient is born later today
+
 	1.1.9
 
 FIX: completely rip out wx.lib.pubsub use
