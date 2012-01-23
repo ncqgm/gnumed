@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.11
+
+IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
+
 	1.1.10
 
 IMPROVED: arriba now at version 2.4.1
