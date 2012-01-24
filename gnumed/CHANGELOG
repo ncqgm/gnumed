@@ -40,6 +40,7 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 	1.1.11
 
 IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
+IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
 
 	1.1.10
 
