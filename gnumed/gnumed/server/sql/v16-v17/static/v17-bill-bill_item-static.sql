@@ -6,23 +6,23 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 alter table bill.bill_item
 	add column fk_billable integer;
 
 alter table bill.bill_item
-	add column fk_encounter_to_bill integer;
-
-alter table bill.bill_item
 	add column unit_count integer;
 
 alter table bill.bill_item
-	add column amount_multiplier integer;
+	add column amount_multiplier numeric;
 
 alter table bill.bill_item
 	rename column amount_to_bill to net_amount_per_unit;
+
+alter table bill.bill_item
+	rename column fk_encounter to fk_encounter_to_bill;
 
 alter table bill.bill_item
 	drop column code;
