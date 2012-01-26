@@ -260,8 +260,8 @@ cd ./gnumed-client.$CLIENTREV/client/doc/user-manual/
 wget -v -O ./GNUmed-User-Manual.tgz http://wiki.gnumed.de/pub/publish/tgz.tgz
 tar -xzf GNUmed-User-Manual.tgz
 rm -vf Release-02.html
-ln -s Gnumed/GnumedManual.html index.html
-rm -vf GNUmed-User-Manual.zip
+ln -s GnumedManual.html Gnumed/index.html
+rm -vf GNUmed-User-Manual.tgz
 cd -
 
 
