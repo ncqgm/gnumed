@@ -52,7 +52,7 @@ alter table bill.bill_item
 
 -- .net_amount_per_unit
 comment on column bill.bill_item.net_amount_per_unit is
-	'How much to charge for one unit of this bill item. If NULL use .fk_billable.charge_amount.';
+	'How much to charge for one unit of this bill item. If NULL use .fk_billable.amount.';
 
 
 -- .currency
@@ -64,13 +64,20 @@ comment on column bill.bill_item.currency is
 
 
 -- .fk_billable
+comment on column bill.bill_item.fk_billable is
+	'Links to the billable item this bill item stands for.';
+
+alter table bill.bill_item
+	alter column fk_billable
+		set not null;
+
 \unset ON_ERROR_STOP
-alter table bill.bill_item drop constraint billable_fk_billable_fkey cascade;
+alter table bill.bill_item drop constraint bill_item_fk_billable_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table bill.bill_item
 	add foreign key (fk_billable)
-		references ref.data_source(pk)
+		references ref.billable(pk)
 		on update cascade
 		on delete restrict;
 
@@ -80,6 +87,28 @@ drop index idx_bill_bill_item_fk_billable cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_bill_bill_item_fk_billable on bill.bill_item(fk_billable);
+
+
+-- .fk_bill
+comment on column bill.bill_item.fk_bill is
+	'Links to the bill this bill item is on if any.';
+
+\unset ON_ERROR_STOP
+alter table bill.bill_item drop constraint bill_item_fk_bill_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill_item
+	add foreign key (fk_bill)
+		references bill.bill(pk)
+		on update cascade
+		on delete restrict;
+
+
+\unset ON_ERROR_STOP
+drop index idx_bill_bill_item_fk_bill cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_bill_bill_item_fk_bill on bill.bill_item(fk_bill);
 
 
 -- .unit_count

@@ -39,6 +39,10 @@ alter table ref.billable drop constraint billable_fk_data_source_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table ref.billable
+	alter column fk_data_source
+		set not null;
+
+alter table ref.billable
 	add foreign key (fk_data_source)
 		references ref.data_source(pk)
 		on update cascade

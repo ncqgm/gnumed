@@ -13,6 +13,9 @@ alter table bill.bill_item
 	add column fk_billable integer;
 
 alter table bill.bill_item
+	add column fk_bill integer;
+
+alter table bill.bill_item
 	add column unit_count integer;
 
 alter table bill.bill_item
