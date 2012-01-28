@@ -39,6 +39,8 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 
 	1.1.11
 
+FIX: proper quoting of "start" args on Windows [thanks S.Hilbert]
+
 IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
 IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
 
