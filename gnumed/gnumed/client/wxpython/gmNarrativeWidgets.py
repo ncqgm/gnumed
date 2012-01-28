@@ -1743,7 +1743,11 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			y_expando = expando.GetPositionTuple()[1]
 			h_expando = expando.GetSizeTuple()[1]
 			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
-			y_cursor = int(round((float(line_cursor) / expando.NumberOfLines) * h_expando))
+			if expando.NumberOfLines == 0:
+				no_of_lines = 1
+			else:
+				no_of_lines = expando.NumberOfLines
+			y_cursor = int(round((float(line_cursor) / no_of_lines) * h_expando))
 			y_desired_visible = y_expando + y_cursor
 
 			y_view = self.ViewStart[1]
