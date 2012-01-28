@@ -82,6 +82,7 @@ except NameError:
 _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
+_original_wxEndBusyCursor = None
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
@@ -3311,11 +3312,24 @@ def _signal_debugging_monitor(*args, **kwargs):
 		try: print '    [%s]: %s' % (key, kwargs[key])
 		except: print 'cannot print signal information'
 #==============================================================================
+def _safe_wxEndBusyCursor():
+	try: _original_wxEndBusyCursor()
+	except wx.PyAssertionError: pass
+#------------------------------------------------------------------------------
+def setup_safe_wxEndBusyCursor():
+	# monkey patch wxPython, needed on Windows ...
+	print "monkey patching wx.EndBusyCursor"
+	global _original_wxEndBusyCursor
+	_original_wxEndBusyCursor = wx.EndBusyCursor
+	wx.EndBusyCursor = _safe_wxEndBusyCursor
+#==============================================================================
 def main():
 
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
+
+	setup_safe_wxEndBusyCursor()
 
 	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
