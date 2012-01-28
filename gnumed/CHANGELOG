@@ -44,6 +44,7 @@ FIX: exception on expando resizing when it holds 0 lines
 
 IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
 IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
+IMPROVED: ignore wx.Begin/EndBusyCursor refcounting
 
 	1.1.10
 
