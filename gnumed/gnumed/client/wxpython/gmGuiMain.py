@@ -16,7 +16,7 @@ __author__  = "H. Herb <hherb@gnumed.net>,\
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, locale, os.path, datetime as pyDT
+import sys, time, os, os.path, datetime as pyDT
 import shutil, logging, urllib2, subprocess, glob
 
 
@@ -3318,11 +3318,11 @@ def _safe_wxEndBusyCursor():
 	except wx.PyAssertionError: pass
 #------------------------------------------------------------------------------
 def setup_safe_wxEndBusyCursor():
-	# monkey patch wxPython, needed on Windows ...
-	print "monkey patching wx.EndBusyCursor"
-	global _original_wxEndBusyCursor
-	_original_wxEndBusyCursor = wx.EndBusyCursor
-	wx.EndBusyCursor = _safe_wxEndBusyCursor
+	if os.name == 'nt':
+		print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
+		global _original_wxEndBusyCursor
+		_original_wxEndBusyCursor = wx.EndBusyCursor
+		wx.EndBusyCursor = _safe_wxEndBusyCursor
 #==============================================================================
 def main():
 

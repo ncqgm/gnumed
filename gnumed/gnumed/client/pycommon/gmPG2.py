@@ -647,7 +647,8 @@ def export_translations_from_database(filename=None):
 	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
 	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
 	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
-	tx_file.write(u'set default_transaction_read_only to off\n\n')
+	tx_file.write(u'set default_transaction_read_only to off;\n\n')
+	tx_file.write(u"set client_encoding to 'utf-8';\n\n")
 	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
 
 	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
