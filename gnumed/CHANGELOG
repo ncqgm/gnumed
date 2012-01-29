@@ -960,6 +960,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v16
 ------------------------------------------------
 
+	16.11
+
+IMPROVED: add Russian DB string translations [thanks anon]
+
 	16.6
 
 FIX: remove faulty i18n-fixup ("generic" tx target doesn't work as expected) [thanks J.Busser]
