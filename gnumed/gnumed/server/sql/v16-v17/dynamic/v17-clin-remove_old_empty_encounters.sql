@@ -51,7 +51,7 @@ BEGIN
 		NOT EXISTS (SELECT 1 FROM clin.allergy_state WHERE fk_encounter = clin.encounter.pk)
 		-- new:
 			AND
-		NOT EXISTS (SELECT 1 FROM bill.bill_item WHERE fk_encounter_to_bill = clin.encounter.pk)
+		NOT EXISTS (SELECT 1 FROM bill.bill_item WHERE fk_encounter = clin.encounter.pk)
 	;
 
 	return true;

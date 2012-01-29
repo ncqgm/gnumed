@@ -25,9 +25,6 @@ alter table bill.bill_item
 	rename column amount_to_bill to net_amount_per_unit;
 
 alter table bill.bill_item
-	rename column fk_encounter to fk_encounter_to_bill;
-
-alter table bill.bill_item
 	drop column code;
 
 alter table bill.bill_item

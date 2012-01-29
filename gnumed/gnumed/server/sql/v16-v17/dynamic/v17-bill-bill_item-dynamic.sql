@@ -42,6 +42,7 @@ comment on column bill.bill_item.description is
 
 \unset ON_ERROR_STOP
 alter table bill.bill_item drop constraint desc_not_empty;
+alter table bill.bill_item drop constraint sane_receiver;
 alter table bill.bill_item drop constraint bill_bill_item_sane_desc;
 \set ON_ERROR_STOP 1
 
@@ -54,10 +55,18 @@ alter table bill.bill_item
 comment on column bill.bill_item.net_amount_per_unit is
 	'How much to charge for one unit of this bill item. If NULL use .fk_billable.amount.';
 
+alter table bill.bill_item
+	alter column net_amount_per_unit
+		set default null;
+
 
 -- .currency
 comment on column bill.bill_item.currency is
 	'Which currency to charge in. Must not be NULL if .net_amount_per_unit is not NULL.';
+
+alter table bill.bill_item
+	alter column currency
+		set default null;
 
 
 -- .status
@@ -83,7 +92,7 @@ alter table bill.bill_item
 
 
 \unset ON_ERROR_STOP
-drop index idx_bill_bill_item_fk_billable cascade;
+drop index bill.idx_bill_bill_item_fk_billable cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_bill_bill_item_fk_billable on bill.bill_item(fk_billable);
@@ -105,7 +114,7 @@ alter table bill.bill_item
 
 
 \unset ON_ERROR_STOP
-drop index idx_bill_bill_item_fk_bill cascade;
+drop index bill.idx_bill_bill_item_fk_bill cascade;
 \set ON_ERROR_STOP 1
 
 create index idx_bill_bill_item_fk_bill on bill.bill_item(fk_bill);
@@ -151,6 +160,85 @@ alter table bill.bill_item drop constraint bill_bill_item_sane_multiplier;
 alter table bill.bill_item
 	add constraint bill_bill_item_sane_multiplier check
 		(amount_multiplier > 0);
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view bill.v_bill_items cascade;
+\set ON_ERROR_STOP 1
+
+create or replace view bill.v_bill_items AS
+
+SELECT
+	b_bi.pk
+		AS pk_bill_item,
+	r_b.code
+		AS billable_code,
+	r_b.term
+		AS billable_description,
+	b_bi.description
+		AS item_detail,
+	coalesce(b_bi.date_to_bill, c_enc.started)
+		AS date_to_bill,
+	coalesce(b_bi.net_amount_per_unit, r_b.amount)
+		AS net_amount_per_unit,
+	b_bi.unit_count,
+	b_bi.amount_multiplier,
+	coalesce(b_bi.net_amount_per_unit, r_b.amount) * r_b.vat_multiplier
+		AS vat,
+	(coalesce(b_bi.net_amount_per_unit, r_b.amount) * b_bi.amount_multiplier * b_bi.unit_count) + (coalesce(b_bi.net_amount_per_unit, r_b.amount) * r_b.vat_multiplier)
+		AS final_amount,
+	coalesce(b_bi.currency, r_b.currency)
+		AS currency,
+	b_bi.status,
+	r_b.amount
+		AS billable_amount,
+	r_b.vat_multiplier,
+	r_b.currency
+		AS billable_currency,
+	r_b.comment
+		AS billable_comment,
+	r_b.active
+		AS billable_active,
+	r_b.discountable
+		AS billable_discountable,
+	r_ds.name_long
+		AS catalog_long,
+	r_ds.name_short
+		AS catalog_short,
+	r_ds.version
+		AS catalog_version,
+	r_ds.lang
+		AS catalog_language,
+
+	c_enc.fk_patient
+		AS pk_patient,
+	c_enc.fk_type
+		AS pk_encounter_type,
+	b_bi.fk_provider
+		AS pk_provider,
+	b_bi.fk_encounter
+		AS pk_encounter_to_bill,
+	b_bi.fk_bill
+		AS pk_bill,
+	r_b.pk
+		AS pk_billable,
+	r_b.fk_data_source
+		AS pk_data_source
+FROM
+	bill.bill_item b_bi
+		inner join ref.billable r_b on (b_bi.fk_billable = r_b.pk)
+			left join ref.data_source r_ds on (r_b.fk_data_source = r_ds.pk)
+				left join clin.encounter c_enc on (b_bi.fk_encounter = c_enc.pk)
+;
+
+grant select on
+	bill.v_bill_items
+to group "gm-doctors";
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+INSERT INTO bill.bill_item (fk_provider, fk_encounter, description, fk_billable) values (1, 1, 'Reiseberatung', 1);
+\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill_item-dynamic.sql', '17.0');

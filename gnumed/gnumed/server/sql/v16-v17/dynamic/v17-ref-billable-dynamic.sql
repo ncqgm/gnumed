@@ -124,4 +124,58 @@ alter table ref.billable
 		set default False;
 
 -- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view ref.v_billables cascade;
+\set ON_ERROR_STOP 1
+
+create or replace view ref.v_billables as
+
+SELECT
+	r_b.pk
+		AS pk_billable,
+	r_b.code
+		AS billable_code,
+	r_b.term
+		AS billable_description,
+	r_b.amount
+		AS raw_amount,
+	r_b.amount + (r_b.amount * r_b.vat_multiplier)
+		AS amount_with_vat,
+	r_b.currency
+		AS currency,
+	r_b.comment,
+	r_b.vat_multiplier,
+	r_b.active,
+	r_b.discountable,
+	r_ds.name_long
+		AS catalog_long,
+	r_ds.name_short
+		AS catalog_short,
+	r_ds.version
+		AS catalog_version,
+	r_ds.lang
+		AS catalog_language,
+
+	r_b.fk_data_source
+		AS pk_data_source,
+	r_b.pk_coding_system
+		AS pk_coding_system_root
+FROM
+	ref.billable r_b
+		LEFT JOIN ref.data_source r_ds ON (r_b.fk_data_source = r_ds.pk)
+;
+
+grant select on
+	ref.v_billables
+to group "gm-public";
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+INSERT INTO ref.data_source (name_long, name_short, version, source) values ('Gebührenordnung für Ärzte', 'GOÄ', '1996', 'BÄK');
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 25, 'EUR', 0.19);
+\set ON_ERROR_STOP 1
+
+
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-billable-dynamic.sql', '17.0');
