@@ -51,6 +51,24 @@ alter table bill.bill
 		set default NULL;
 
 -- --------------------------------------------------------------
+-- .fk_receiver_identity
+comment on column bill.bill.fk_receiver_identity is 'link to the receiver as a GNUmed identity, if known';
+
+alter table bill.bill
+	alter column fk_receiver_identity
+		set default NULL;
+
+\unset ON_ERROR_STOP
+alter table bill.bill.fk_receiver_identity drop constraint bill_fk_receiver_identity_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill
+	add foreign key (fk_receiver_identity)
+		references dem.identity(pk)
+		on update cascade
+		on delete restrict;
+
+-- --------------------------------------------------------------
 -- .receiver_address
 comment on column bill.bill.receiver_address is 'the address of the receiver of the invoice, retrieved at close time';
 
@@ -78,6 +96,8 @@ SELECT
 	b_b.pk
 		as pk_bill,
 	b_b.receiver_address,
+	b_b.fk_receiver_identity
+		as pk_receiver_identity,
 	-- assumes that all bill_items have the same currency
 	(select sum(final_amount) from bill.v_bill_items where pk_bill = b_b.pk)
 		as total_amount,

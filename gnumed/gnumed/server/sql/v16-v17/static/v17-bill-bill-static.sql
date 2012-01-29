@@ -11,13 +11,9 @@
 -- --------------------------------------------------------------
 create table bill.bill (
 	pk serial primary key,
-	-- NOT the receiver of the bill, the patient were invoicing for
-	-- not needed because of bill.bill_item.fk_bill <-> bill.bill_item.fk_encounter -> .fk_patient
-	--fk_identity integer,
 	payment_method text,
 	close_date timestamp with time zone,
-	-- violates Single Source of Truth:
-	--total_amount numeric(8,2), -- filled during close
+	fk_receiver_identity integer,
 	receiver_address text -- this is the address of the receiver of the bill, retrieved at close time
 ) inherits (audit.audit_fields);
 
