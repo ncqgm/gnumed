@@ -1174,6 +1174,8 @@ class cPatient(cIdentity):
 
 		self.__db_cache['document folder'] = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
+
+	document_folder = property(get_document_folder, lambda x:x)
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.

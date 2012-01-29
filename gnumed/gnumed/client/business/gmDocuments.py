@@ -221,21 +221,25 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = _sql_fetch_document_part_fields % u"pk_obj = %s"
 	_cmds_store_payload = [
-		u"""update blobs.doc_obj set
+		u"""UPDATE blobs.doc_obj SET
 				seq_idx = %(seq_idx)s,
 				comment = gm.nullify_empty_string(%(obj_comment)s),
 				filename = gm.nullify_empty_string(%(filename)s),
-				fk_intended_reviewer = %(pk_intended_reviewer)s
-			where
-				pk=%(pk_obj)s and
-				xmin=%(xmin_doc_obj)s""",
-		u"""select xmin_doc_obj from blobs.v_obj4doc_no_data where pk_obj = %(pk_obj)s"""
+				fk_intended_reviewer = %(pk_intended_reviewer)s,
+				fk_doc = %(pk_doc)s
+			WHERE
+				pk = %(pk_obj)s
+					AND
+				xmin = %(xmin_doc_obj)s
+			RETURNING
+				xmin AS xmin_doc_obj"""
 	]
 	_updatable_fields = [
 		'seq_idx',
 		'obj_comment',
 		'pk_intended_reviewer',
-		'filename'
+		'filename',
+		'pk_doc'
 	]
 	#--------------------------------------------------------
 	# retrieve data
@@ -395,6 +399,13 @@ where
 			return False, msg
 
 		return True, ''
+
+#------------------------------------------------------------
+def delete_document_part(part_pk=None, encounter_pk=None):
+	cmd = u"select blobs.delete_document_part(%(pk)s, %(enc)s)"
+	args = {'pk': part_pk, 'enc': encounter_pk}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return
 #============================================================
 _sql_fetch_document_fields = u"""
 		SELECT

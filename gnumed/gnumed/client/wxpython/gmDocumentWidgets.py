@@ -1318,6 +1318,52 @@ def display_document_part(parent=None, part=None):
 
 	return True
 #============================================================
+def manage_documents(parent=None, msg=None):
+
+	pat = gmPerson.gmCurrentPatient()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------------------
+	def edit(document=None):
+		return
+		#return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+	#--------------------------------------------------------
+	def delete(document):
+		return
+#		if substance.is_in_use_by_patients:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
+#			return False
+#
+#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		docs = pat.document_folder.get_documents()
+		items = [ [
+			gmDateTime.pydt_strftime(d['clin_when'], u'%Y-%m-%d', accuracy = gmDateTime.acc_days),
+			d['l10n_type'],
+			gmTools.coalesce(d['comment'], u''),
+			gmTools.coalesce(d['ext_ref'], u''),
+			d['pk_doc']
+		] for d in docs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(docs)
+	#------------------------------------------------------------
+	if msg is None:
+		msg = _('Document list for this patient.')
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing documents.'),
+		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), u'#'],
+		single_selection = True,
+		#new_callback = edit,
+		#edit_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+		#,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+	)
+#============================================================
 from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
 
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
@@ -1465,6 +1511,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(self.__part_context_menu, ID, self.__review_curr_part)
 
 		self.__part_context_menu.AppendSeparator()
+
+		item = self.__part_context_menu.Append(-1, _('Delete part'))
+		self.Bind(wx.EVT_MENU, self.__delete_part, item)
+
+		item = self.__part_context_menu.Append(-1, _('Move part'))
+		self.Bind(wx.EVT_MENU, self.__move_part, item)
 
 		ID = wx.NewId()
 		self.__part_context_menu.Append(ID, _('Print part'))
@@ -1901,7 +1953,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
 	#--------------------------------------------------------
 	def __handle_part_context(self):
-
 		# make active patient photograph
 		if self.__curr_node_data['type'] == 'patient photograph':
 			ID = wx.NewId()
@@ -1952,7 +2003,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# display it
 		successful, msg = part.display_via_mime (
-#			tmpdir = tmp_dir,
 			chunksize = chunksize,
 			block = block_during_view
 		)
@@ -2002,6 +2052,49 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		dlg.ShowModal()
 		dlg.Destroy()
+	#--------------------------------------------------------
+	def __move_part(self, evt):
+		target_doc = manage_documents (
+			parent = self,
+			msg = _('\nSelect the document into which to move the selected part !\n')
+		)
+		if target_doc is None:
+			return
+		self.__curr_node_data['pk_doc'] = target_doc['pk_doc']
+		self.__curr_node_data.save()
+	#--------------------------------------------------------
+	def __delete_part(self, evt):
+		delete_it = gmGuiHelpers.gm_show_question (
+			cancel_button = True,
+			title = _('Deleting document part'),
+			question = _(
+				'Are you sure you want to delete the %s part #%s\n'
+				'\n'
+				'%s'
+				'from the following document\n'
+				'\n'
+				' %s (%s)\n'
+				'%s'
+				'\n'
+				'Really delete ?\n'
+				'\n'
+				'(this action cannot be reversed)'
+			) % (
+				gmTools.size2str(self.__curr_node_data['size']),
+				self.__curr_node_data['seq_idx'],
+				gmTools.coalesce(self.__curr_node_data['obj_comment'], u'', u' "%s"\n\n'),
+				self.__curr_node_data['l10n_type'],
+				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d', accuracy = gmDateTime.acc_days),
+				gmTools.coalesce(self.__curr_node_data['doc_comment'], u'', u' "%s"\n')
+			)
+		)
+		if not delete_it:
+			return
+
+		gmDocuments.delete_document_part (
+			part_pk = self.__curr_node_data['pk_obj'],
+			encounter_pk = gmPerson.gmCurrentPatient().emr.active_encounter['pk_encounter']
+		)
 	#--------------------------------------------------------
 	def __process_part(self, action=None, l10n_action=None):
 
@@ -2064,7 +2157,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				_('Processing document part: %s') % l10n_action
 			)
 	#--------------------------------------------------------
-	# FIXME: icons in the plugin toolbar
 	def __print_part(self, evt):
 		self.__process_part(action = u'print', l10n_action = _('print'))
 	#--------------------------------------------------------
