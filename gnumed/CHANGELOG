@@ -42,6 +42,7 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 
 FIX: proper quoting of "start" args on Windows [thanks S.Hilbert]
 FIX: exception on expando resizing when it holds 0 lines
+FIX: exception on adding a second/third brand [thanks Vaibhav]
 
 IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
 IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
