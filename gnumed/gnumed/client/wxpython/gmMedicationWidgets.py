@@ -1055,7 +1055,11 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def _on_manage_components_button_pressed(self, event):
 		event.Skip()
-		OKed, substs = manage_components_of_branded_drug(parent = self, brand = self.data)
+		if self.mode == 'new_from_existing':
+			brand = None
+		else:
+			brand = self.data
+		OKed, substs = manage_components_of_branded_drug(parent = self, brand = brand)
 		if OKed is True:
 			self.__component_substances = substs
 			comps = u''
