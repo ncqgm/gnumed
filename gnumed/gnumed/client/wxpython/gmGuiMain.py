@@ -16,7 +16,7 @@ __author__  = "H. Herb <hherb@gnumed.net>,\
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, locale, os.path, datetime as pyDT
+import sys, time, os, os.path, datetime as pyDT
 import shutil, logging, urllib2, subprocess, glob
 
 
@@ -83,6 +83,7 @@ except NameError:
 _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
+_original_wxEndBusyCursor = None
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
@@ -3312,11 +3313,24 @@ def _signal_debugging_monitor(*args, **kwargs):
 		try: print '    [%s]: %s' % (key, kwargs[key])
 		except: print 'cannot print signal information'
 #==============================================================================
+def _safe_wxEndBusyCursor():
+	try: _original_wxEndBusyCursor()
+	except wx.PyAssertionError: pass
+#------------------------------------------------------------------------------
+def setup_safe_wxEndBusyCursor():
+	if os.name == 'nt':
+		print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
+		global _original_wxEndBusyCursor
+		_original_wxEndBusyCursor = wx.EndBusyCursor
+		wx.EndBusyCursor = _safe_wxEndBusyCursor
+#==============================================================================
 def main():
 
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
+
+	setup_safe_wxEndBusyCursor()
 
 	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application

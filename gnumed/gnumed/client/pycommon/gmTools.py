@@ -447,7 +447,7 @@ _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
 #---------------------------------------------------------------------------
-def size2str(size=0, template='%s'):
+def size2str(size=0, template=u'%s'):
 	if size == 1:
 		return template % _('1 Byte')
 	if size < 10 * _kB:

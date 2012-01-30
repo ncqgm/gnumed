@@ -18,6 +18,8 @@ NEW: document tree: sort mode "by health issue"
 NEW: SimpleNotes plugin
 NEW: current medication plugin: sort mode "by health issue"
 NEW: AbiWord based document templates
+NEW: document tree: add parts via document context menu
+NEW: document tree: delete/move document parts via part context menu
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -36,10 +38,24 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.11
+
+FIX: proper quoting of "start" args on Windows [thanks S.Hilbert]
+FIX: exception on expando resizing when it holds 0 lines
+
+IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
+IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
+IMPROVED: ignore wx.Begin/EndBusyCursor refcounting
+IMPROVED: PRWs now know about <ENTER> on Windows [thanks S.Hilbert]
+
 	1.1.10
 
 IMPROVED: arriba now at version 2.4.1
 IMPROVED: support non-blocking external apps on Windows [thanks S.Hilbert]
+IMPROVED: offline docs [thanks S.Hilbert]
+IMPROVED: russian translation [thanks YvLy]
+
+FIX: bug in calculating apparent age when patient is born later today
 
 	1.1.9
 
@@ -990,6 +1006,10 @@ IMPROVED: constraints on i18n.translations
 ------------------------------------------------
 # gnumed_v16
 ------------------------------------------------
+
+	16.11
+
+IMPROVED: add Russian DB string translations [thanks anon]
 
 	16.6
 

@@ -180,9 +180,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self._on_modified_callbacks = []
 
 		try:
-			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB
+			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER
 		except KeyError:
-			kwargs['style'] = wx.TE_PROCESS_TAB
+			kwargs['style'] = wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER
 		super(cPhraseWheelBase, self).__init__(parent, id, **kwargs)
 
 		self.__my_startup_color = self.GetBackgroundColour()
