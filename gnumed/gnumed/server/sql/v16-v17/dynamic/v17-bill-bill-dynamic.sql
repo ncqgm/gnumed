@@ -27,6 +27,19 @@ grant usage on
 to group "gm-public";
 
 -- --------------------------------------------------------------
+-- .invoice_id
+comment on column bill.bill.invoice_id is 'the ID of the bill';
+
+\unset ON_ERROR_STOP
+alter table bill.bill drop constraint bill_bill_sane_invoice_id;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill
+	add constraint bill_bill_sane_invoice_id check (
+		gm.is_null_or_blank_string(invoice_id) is False
+	);
+
+-- --------------------------------------------------------------
 -- .payment_method
 comment on column bill.bill.payment_method is 'the method the customer is supposed to pay by';
 
@@ -95,6 +108,7 @@ create or replace view bill.v_bills as
 SELECT
 	b_b.pk
 		as pk_bill,
+	b_b.invoice_id,
 	b_b.receiver_address,
 	b_b.fk_receiver_identity
 		as pk_receiver_identity,
@@ -122,9 +136,76 @@ grant select on bill.v_bills to group "gm-doctors";
 
 
 \unset ON_ERROR_STOP
-insert into bill.bill (receiver_address) values ('Federation Health Fund');
+insert into bill.bill (invoice_id, receiver_address, close_date) values ('GNUmed@Enterprise / 2012 / 1', 'Star Fleet Health Fund', now() - '1 week'::interval);
 update bill.bill_item set fk_bill = currval('bill.bill_item_pk_seq') where fk_bill is NULL and description = 'Reiseberatung';
 \set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view bill.v_export4accounting cascade;
+\set ON_ERROR_STOP 1
+
+create or replace view bill.v_export4accounting as
+
+select
+	me.account,
+	me.pk_bill,
+	me.fk_identity,
+	me.value_date,
+	me.amount,
+	'Rg. '::text || me.invoice_id
+		|| ' vom '::text || me.value_date
+		|| ', KdNr. '::text || coalesce(me.fk_identity::text, '<?>')
+	as description
+from (
+	WITH invoice AS (
+		SELECT
+			b_vb.pk_bill,
+			b_vb.invoice_id,
+			b_vb.pk_receiver_identity
+				AS fk_identity,
+			b_vb.total_amount,
+			b_vb.currency,
+			b_vb.close_date::date
+				AS close_date
+		FROM
+			bill.v_bills b_vb
+		WHERE
+			b_vb.close_date IS NOT NULL
+	)
+		SELECT
+			invoice.pk_bill,
+			'Income'::text
+				AS account,
+			invoice.invoice_id,
+			invoice.fk_identity,
+			invoice.close_date
+				AS value_date,
+			- invoice.total_amount
+				AS amount,
+			invoice.currency
+		  FROM invoice
+
+		UNION ALL
+
+		SELECT
+			invoice.pk_bill,
+			'Debitor '::text || coalesce(invoice.fk_identity::text, '<?>')
+				as account,
+			invoice.invoice_id,
+			invoice.fk_identity,
+			invoice.close_date
+				AS value_date,
+			invoice.total_amount
+				as amount,
+			invoice.currency
+		  FROM invoice
+) as me;
+
+
+GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-staff";
+GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-doctors";
+GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-dbo";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill-dynamic.sql', '17.0');
