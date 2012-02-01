@@ -6,6 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
+set check_function_bodies to on;
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
@@ -148,64 +149,109 @@ drop view bill.v_export4accounting cascade;
 create or replace view bill.v_export4accounting as
 
 select
-	me.account,
-	me.pk_bill,
-	me.fk_identity,
-	me.value_date,
-	me.amount,
+	me.*,
 	'Rg. '::text || me.invoice_id
 		|| ' vom '::text || me.value_date
-		|| ', KdNr. '::text || coalesce(me.fk_identity::text, '<?>')
+		|| ', KdNr. '::text || coalesce(me.pk_receiver_identity::text, '<?>')
 	as description
 from (
-	WITH invoice AS (
 		SELECT
 			b_vb.pk_bill,
+			'Income'::text
+				AS account,
 			b_vb.invoice_id,
-			b_vb.pk_receiver_identity
-				AS fk_identity,
-			b_vb.total_amount,
-			b_vb.currency,
-			b_vb.close_date::date
-				AS close_date
+			b_vb.pk_receiver_identity,
+			b_vb.close_date
+				AS value_date,
+			- b_vb.total_amount
+				AS amount,
+			b_vb.currency
 		FROM
 			bill.v_bills b_vb
 		WHERE
-			b_vb.close_date IS NOT NULL
-	)
-		SELECT
-			invoice.pk_bill,
-			'Income'::text
-				AS account,
-			invoice.invoice_id,
-			invoice.fk_identity,
-			invoice.close_date
-				AS value_date,
-			- invoice.total_amount
-				AS amount,
-			invoice.currency
-		  FROM invoice
+			b_vb.close_date is not NULL
 
 		UNION ALL
 
 		SELECT
-			invoice.pk_bill,
-			'Debitor '::text || coalesce(invoice.fk_identity::text, '<?>')
+			b_vb.pk_bill,
+			'Debitor '::text || coalesce(b_vb.pk_receiver_identity::text, '<?>')
 				as account,
-			invoice.invoice_id,
-			invoice.fk_identity,
-			invoice.close_date
+			b_vb.invoice_id,
+			b_vb.pk_receiver_identity,
+			b_vb.close_date
 				AS value_date,
-			invoice.total_amount
+			b_vb.total_amount
 				as amount,
-			invoice.currency
-		  FROM invoice
+			b_vb.currency
+		FROM
+			bill.v_bills b_vb
+		WHERE
+			b_vb.close_date is not NULL
 ) as me;
 
 
 GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-staff";
 GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-doctors";
 GRANT SELECT ON TABLE bill.v_export4accounting TO "gm-dbo";
+
+-- --------------------------------------------------------------
+create or replace function bill.get_bill_receiver_identity(integer)
+	returns integer
+	LANGUAGE SQL
+	AS '
+select
+	value
+from (
+	select
+		id.pk_id,
+		id.value::integer
+	from
+		dem.v_external_ids4identity id
+			join dem.identity d_i on (id.value = d_i.pk::text)
+	where
+		id.pk_type = 18		-- xxxxxxxxxxxx
+			and
+		id.pk_identity = $1
+
+	union all
+
+	select
+		0,
+		$1
+) me
+order by pk_id desc
+limit 1;';
+
+-- --------------------------------------------------------------
+create or replace function bill.get_invoice_address(integer)
+	returns text
+	LANGUAGE SQL
+	AS '
+select label1_3::text
+from (
+	select
+		(lastnames || '', '' || firstnames || E''\n''
+			|| street || '' '' || number || coalesce(subunit, '''') || E''\n''
+			|| code_country || ''-'' || postcode || '' '' || urb
+		) as label1_3,
+		address_type
+	from
+		dem.v_pat_addresses
+	where
+		pk_identity = $1
+
+	union all
+
+	select
+		lastnames || '', '' || firstnames || E''\n'' || ''in Praxis'',
+		''zzz''
+	from
+		dem.v_basic_person
+	where pk_identity = $1
+) me
+order by address_type = ''bill'' desc
+limit 1;';
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill-dynamic.sql', '17.0');
