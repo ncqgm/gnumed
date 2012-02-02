@@ -159,6 +159,8 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 	<blocking>
 		This will make the code *block* until the shell command exits.
 		It will likely only work on UNIX shells where "cmd &" makes sense.
+
+	http://stackoverflow.com/questions/35817/how-to-escape-os-system-calls-in-python
 	"""
 	if acceptable_return_codes is None:
 		acceptable_return_codes = [0]
@@ -175,9 +177,9 @@ def run_command_in_shell(command=None, blocking=False, acceptable_return_codes=N
 		if blocking is False:
 			if not command.startswith('start '):
 				command = 'start /B "%s"' % command
-		elif blocking is True:
-			if not command.startswith('start '):
-				command = 'start /WAIT /B "%s"' % command
+#		elif blocking is True:
+#			if not command.startswith('start '):
+#				command = 'start /WAIT /B "%s"' % command
 	else:
 		# what the following hack does is this: the user indicated
 		# whether she wants non-blocking external display of files
