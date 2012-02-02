@@ -49,6 +49,7 @@ IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
 IMPROVED: ignore wx.Begin/EndBusyCursor refcounting
 IMPROVED: PRWs now know about <ENTER> on Windows [thanks S.Hilbert]
 IMPROVED: grey out arriba menu item if not detected [thanks S.Hilbert]
+IMPROVED: pre-final editing of LaTeX forms [thanks M.Angermann]
 
 	1.1.10
 
