@@ -353,6 +353,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
 		cmd = r'%s %s' % (self.path_to_binary, args)
+		if os.name == 'nt':
+			blocking = True
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
@@ -999,6 +1001,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		if cmd is None:
 			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
 
+		if os.name == 'nt':
+			blocking = True
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the MMI drug database')
 			# apparently on the first call MMI does not
@@ -1116,7 +1120,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		bdt_file.close()
 
-		self.switch_to_frontend(blocking = False)
+		self.switch_to_frontend(blocking = True)
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
 		self.switch_to_frontend(blocking = True)
@@ -2425,7 +2429,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_mmi_switch_to():
 		mmi = cGelbeListeWineInterface()
-		mmi.switch_to_frontend(blocking = False)
+		mmi.switch_to_frontend(blocking = True)
 	#--------------------------------------------------------
 	def test_mmi_let_user_select_drugs():
 		mmi = cGelbeListeWineInterface()

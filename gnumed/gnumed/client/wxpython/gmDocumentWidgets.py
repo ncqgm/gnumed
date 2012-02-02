@@ -5,6 +5,7 @@ __version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path
+import os
 import sys
 import re as regex
 import logging
@@ -2136,9 +2137,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 
 		cmd = u'%s %s' % (external_cmd, part_file)
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -2218,10 +2223,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		part_files = self.__curr_node_data.export_parts_to_files(chunksize = chunksize)
 
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		cmd = external_cmd + u' ' + u' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -2289,9 +2298,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		cmd = u'%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
