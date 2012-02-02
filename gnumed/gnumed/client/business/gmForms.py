@@ -758,7 +758,19 @@ class cLaTeXForm(cFormEngine):
 				break
 
 		if editor_cmd is None:
-			editor_cmd = u'sensible-editor %s' % self.instance_filename
+			# LaTeX code is text: also consider text *viewers*
+			# since pretty much any of them will be an editor as well
+			for mimetype in mimetypes:
+				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
+				if editor_cmd is not None:
+					break
+
+		# last resort
+		if editor_cmd is None:
+			if os.name == 'nt':
+				editor_cmd = u'notepad.exe %s' % self.instance_filename
+			else:
+				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
 		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
