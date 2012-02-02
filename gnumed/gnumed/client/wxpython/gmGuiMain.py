@@ -393,8 +393,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
-		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
+#		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
+#		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
 
 		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
@@ -673,8 +673,14 @@ class gmTopLevelFrame(wx.Frame):
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
 
-		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
-		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
+		ID_DICOM_VIEWER = wx.NewId()
+		self.menu_tools.Append(ID_DICOM_VIEWER, u'arriba', _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_arriba)
+		if not gmShellAPI.detect_external_binary(binary = 'arriba')[0]:
+			_log.info('<arriba> not found, disabling "arriba" menu item')
+			self.menu_tools.Enable(id = ID_DICOM_VIEWER, enable = False)
+#		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+#		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
 
 		self.menu_tools.AppendSeparator()
 
@@ -2080,13 +2086,13 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
-			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
+			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking = False)
 			return
 
 		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
-				gmShellAPI.run_command_in_shell(cmd, blocking=False)
+				gmShellAPI.run_command_in_shell(cmd, blocking = False)
 				return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
@@ -2283,7 +2289,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
 		if found:
-			gmShellAPI.run_command_in_shell(cmd, blocking=False)
+			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
 		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
 	#----------------------------------------------
