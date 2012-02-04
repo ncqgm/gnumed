@@ -38,6 +38,10 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.12
+
+IMPROVED: robustify os.startfile() use [thanks S.Hilbert]
+
 	1.1.11
 
 FIX: proper quoting of "start" args on Windows [thanks S.Hilbert]
