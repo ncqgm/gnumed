@@ -159,7 +159,10 @@ SELECT
 	r_b.fk_data_source
 		AS pk_data_source,
 	r_b.pk_coding_system
-		AS pk_coding_system_root
+		AS pk_coding_system_root,
+
+	r_b.xmin
+		AS xmin_billable
 FROM
 	ref.billable r_b
 		LEFT JOIN ref.data_source r_ds ON (r_b.fk_data_source = r_ds.pk)

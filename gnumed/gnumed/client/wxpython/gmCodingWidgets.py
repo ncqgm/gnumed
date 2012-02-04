@@ -27,6 +27,45 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 #================================================================
+def browse_data_sources(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		srcs = gmCoding.get_data_sources()
+		items = [ [
+			u'%s (%s): %s' % (
+				s['name_short'],
+				gmTools.coalesce(s['lang'], u'?'),
+				s['version']
+			),
+			s['name_long'].split(u'\n')[0].split(u'\r')[0],
+			s['source'].split(u'\n')[0].split(u'\r')[0],
+			gmTools.coalesce(s['description'], u'').split(u'\n')[0].split(u'\r')[0],
+			s['pk']
+		] for s in srcs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(srcs)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('Sources of reference data registered in GNUmed.'),
+		caption = _('Showing data sources'),
+		columns = [ _('Sytem'), _('Name'), _('Source'), _('Description'), '#' ],
+		single_selection = True,
+		can_return_empty = False,
+		ignore_OK_button = True,
+		refresh_callback = refresh
+#		edit_callback=None,
+#		new_callback=None,
+#		delete_callback=None,
+#		left_extra_button=None,
+#		middle_extra_button=None,
+#		right_extra_button=None
+	)
+
+#================================================================
 def browse_coded_terms(parent=None, coding_systems=None, languages=None):
 
 	if parent is None:

@@ -105,6 +105,12 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 
 	return rows
 #============================================================
+def get_data_sources(order_by=u'name_long, lang, version'):
+	cmd = u'SELECT * FROM ref.data_source ORDER BY %s' % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	return rows
+
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":

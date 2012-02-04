@@ -210,7 +210,7 @@ from (
 		dem.v_external_ids4identity id
 			join dem.identity d_i on (id.value = d_i.pk::text)
 	where
-		id.pk_type = 18		-- xxxxxxxxxxxx
+		id.pk_type = (select pk from dem.enum_ext_id_types where name = ''bill receiver'' and issuer = ''GNUmed'')
 			and
 		id.pk_identity = $1
 
@@ -220,38 +220,14 @@ from (
 		0,
 		$1
 ) me
-order by pk_id desc
 limit 1;';
+
+select dem.add_external_id_type('bill receiver', 'GNUmed');
 
 -- --------------------------------------------------------------
-create or replace function bill.get_invoice_address(integer)
-	returns text
-	LANGUAGE SQL
-	AS '
-select label1_3::text
-from (
-	select
-		(lastnames || '', '' || firstnames || E''\n''
-			|| street || '' '' || number || coalesce(subunit, '''') || E''\n''
-			|| code_country || ''-'' || postcode || '' '' || urb
-		) as label1_3,
-		address_type
-	from
-		dem.v_pat_addresses
-	where
-		pk_identity = $1
-
-	union all
-
-	select
-		lastnames || '', '' || firstnames || E''\n'' || ''in Praxis'',
-		''zzz''
-	from
-		dem.v_basic_person
-	where pk_identity = $1
-) me
-order by address_type = ''bill'' desc
-limit 1;';
+\unset ON_ERROR_STOP
+insert into dem.address_type (name) values ('billing');
+\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill-dynamic.sql', '17.0');

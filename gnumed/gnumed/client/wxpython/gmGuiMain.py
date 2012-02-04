@@ -73,6 +73,7 @@ from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
+from Gnumed.wxpython import gmBillingWidgets
 
 
 try:
@@ -1994,6 +1995,7 @@ class gmTopLevelFrame(wx.Frame):
 		# this is how it is sorted
 		master_data_lists = [
 			'adr',
+			'billables',
 			'drugs',
 			'codes',
 			'communication_channel_types',
@@ -2009,6 +2011,7 @@ class gmTopLevelFrame(wx.Frame):
 			'patient_tags',
 			'provinces',
 			'db_translations',
+			'ref_data_sources',
 			'test_types',
 			'vacc_indications',
 			'vaccines',
@@ -2035,7 +2038,9 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
-			'substances': _('Consumable substances')
+			'substances': _('Consumable substances'),
+			'billables': _('Billable items'),
+			'ref_data_sources': _('Reference data sources')
 		}
 
 		map_list2handler = {
@@ -2058,7 +2063,9 @@ class gmTopLevelFrame(wx.Frame):
 			'adr': gmAddressWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
-			'communication_channel_types': gmContactWidgets.manage_comm_channel_types
+			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
+			'billables': gmBillingWidgets.manage_billables,
+			'ref_data_sources': gmCodingWidgets.browse_data_sources
 		}
 
 		#---------------------------------
