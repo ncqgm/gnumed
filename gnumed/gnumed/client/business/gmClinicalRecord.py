@@ -1623,8 +1623,10 @@ WHERE
 
 		# set the currently active encounter and announce that change
 		if encounter['started'].strftime('%Y-%m-%d %H:%M') == encounter['last_affirmed'].strftime('%Y-%m-%d %H:%M'):
-			encounter['last_affirmed'] = gmDateTime.pydt_now_here()		# this will trigger an "encounter_mod_db"
-			encounter.save()
+			now = gmDateTime.pydt_now_here()
+			if now > encounter['started']:
+				encounter['last_affirmed'] = now		# this will trigger an "encounter_mod_db"
+				encounter.save()
 		self.__encounter = encounter
 		gmDispatcher.send(u'current_encounter_switched')
 
