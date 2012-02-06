@@ -41,8 +41,11 @@ IMPROVED: vaccinations: two-list item picker to pick indications rather than che
 
 	1.1.12
 
+FIX: exception with certain invalid placeholders [thanks S.Reus]
+
 IMPROVED: robustify os.startfile() use [thanks S.Hilbert]
 IMPROVED: robustify auto-setting of encounter.last_affirmed
+IMPROVED: robustify validity checks of cFuzzyTimestampInput [thanks S.Reus]
 
 	1.1.11
 
