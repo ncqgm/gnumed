@@ -997,12 +997,12 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._PRW_start.Refresh()
 
 		# last_affirmed
-		if self._PRW_end.GetValue().strip() == u'':
-			self._PRW_end.SetBackgroundColour('pink')
-			self._PRW_end.Refresh()
-			self._PRW_end.SetFocus()
-			return False
-		if not self._PRW_end.is_valid_timestamp():
+#		if self._PRW_end.GetValue().strip() == u'':
+#			self._PRW_end.SetBackgroundColour('pink')
+#			self._PRW_end.Refresh()
+#			self._PRW_end.SetFocus()
+#			return False
+		if not self._PRW_end.is_valid_timestamp(empty_is_valid = False):
 			self._PRW_end.SetBackgroundColour('pink')
 			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
