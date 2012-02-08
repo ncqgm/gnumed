@@ -896,6 +896,7 @@ def __single_slash2py_dt(str2parse):
 	str2parse = str2parse.strip()
 
 	now = mxDT.now()
+	enc = gmI18N.get_encoding()
 
 	# 5/1999
 	if regex.match(r"^\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}$", str2parse, flags = regex.LOCALE | regex.UNICODE):
