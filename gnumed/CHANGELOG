@@ -10,10 +10,12 @@
 
 FIX: exception with certain invalid placeholders [thanks S.Reus]
 FIX: add missing encoding detection [thanks Andrew]
+FIX: broken health issue creation from its PRW [thanks S.Reus]
 
 IMPROVED: robustify os.startfile() use [thanks S.Hilbert]
 IMPROVED: robustify auto-setting of encounter.last_affirmed
 IMPROVED: robustify validity checks of cFuzzyTimestampInput [thanks S.Reus]
+IMPROVED: overly eager page number collision check [thanks S.Hilbert]
 
 	1.1.11
 

@@ -659,21 +659,22 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
 			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
-			if new_idx in self.__doc['seq_idx_list']:
-				msg = _(
-					'Cannot set page number to [%s] because\n'
-					'another page with this number exists.\n'
-					'\n'
-					'Page numbers in use:\n'
-					'\n'
-					' %s'
-				) % (
-					new_idx,
-					self.__doc['seq_idx_list']
-				)
-				gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
-			else:
-				self.__part['seq_idx'] = new_idx
+			if self.__part['seq_idx'] != new_idx:
+				if new_idx in self.__doc['seq_idx_list']:
+					msg = _(
+						'Cannot set page number to [%s] because\n'
+						'another page with this number exists.\n'
+						'\n'
+						'Page numbers in use:\n'
+						'\n'
+						' %s'
+					) % (
+						new_idx,
+						self.__doc['seq_idx_list']
+					)
+					gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
+				else:
+					self.__part['seq_idx'] = new_idx
 			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
