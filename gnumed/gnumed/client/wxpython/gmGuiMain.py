@@ -3331,11 +3331,15 @@ def _safe_wxEndBusyCursor():
 	except wx.PyAssertionError: pass
 #------------------------------------------------------------------------------
 def setup_safe_wxEndBusyCursor():
-	if os.name == 'nt':
-		print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
-		global _original_wxEndBusyCursor
-		_original_wxEndBusyCursor = wx.EndBusyCursor
-		wx.EndBusyCursor = _safe_wxEndBusyCursor
+	# monkey patch wxPython, needed on Windows ...
+	if os.name != 'nt':
+		return
+	print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
+	global _original_wxEndBusyCursor
+	_original_wxEndBusyCursor = wx.EndBusyCursor
+	wx.EndBusyCursor = _safe_wxEndBusyCursor
+	_log.debug('monkey patched wx.EndBusyCursor:')
+	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
 #==============================================================================
 def main():
 

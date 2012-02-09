@@ -1816,24 +1816,31 @@ ORDER BY
 		self.set_context('pat', self.__patient_id)
 		return True
 	#--------------------------------------------------------
-	def GetData(self, can_create=False, is_open=False):
-		if self.data is None:
-			if can_create:
-				issue_name = self.GetValue().strip()
+	def _create_data(self):
+		issue_name = self.GetValue().strip()
+		if issue_name == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create health issue without name.'), beep = True)
+			_log.debug('cannot create health issue without name')
+			return
 
-				if self.use_current_patient:
-					pat = gmPerson.gmCurrentPatient()
-				else:
-					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
-				emr = pat.get_emr()
+		if self.use_current_patient:
+			pat = gmPerson.gmCurrentPatient()
+		else:
+			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
-				issue = emr.add_health_issue(issue_name = issue_name)
-				if issue is None:
-					self.data = None
-				else:
-					self.data = issue['pk_health_issue']
+		emr = pat.get_emr()
+		issue = emr.add_health_issue(issue_name = issue_name)
 
-		return gmPhraseWheel.cPhraseWheel.GetData(self)
+		if issue is None:
+			self.data = {}
+		else:
+			self.SetText (
+				value = issue_name,
+				data = issue['pk_health_issue']
+			)
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
