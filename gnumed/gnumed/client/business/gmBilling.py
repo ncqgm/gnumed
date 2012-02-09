@@ -8,7 +8,6 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 import logging
-#import codecs
 
 
 if __name__ == '__main__':
@@ -21,24 +20,7 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.bill')
 
 #============================================================
-#class cChargeItemGroup(gmBusinessDBObject.cBusinessDBObject):
-#	"""An Charge Item Group
-#	"""
-#	_cmd_fetch_payload = u"select *, xmin from bill.ci_category where pk=%s"
-#	_cmds_store_payload = [
-#		u"""update bill.ci_category set
-#				description=%(description)s
-#			where
-#				pk=%(pk)s and
-#				xmin=%(xmin)s""",
-#		]
-#
-#	_updatable_fields = [
-#		'description',
-#	]
-#
-#============================================================
-_SQL_get_billable_fields = u"""SELECT * FROM ref.v_billables WHERE %s"""
+_SQL_get_billable_fields = u"SELECT * FROM ref.v_billables WHERE %s"
 
 class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	"""Items which can be billed to patients."""
@@ -54,8 +36,10 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 			WHERE
 				pk = %(pk_billabs)s
 					AND
-				xmin = %(xmin_billable)s"""
-		]
+				xmin = %(xmin_billable)s
+			RETURNING
+				xmin AS xmin_billable
+		"""]
 
 	_updatable_fields = [
 		'billable_description',
@@ -81,37 +65,50 @@ def get_billables(active_only=True, order_by=None):
 	return [ cBillable(row = {'data': r, 'idx': idx, 'pk_field': 'pk_billable'}) for r in rows ]
 
 #============================================================
-#def create_charge_item_group(description=None):
-#	"""Creates a new charge_item_group
-#
-#		description
-#	"""
-#	queries = [
-#		{'cmd': u"insert into bill.ci_category (description) values (%s) returning pk",
-#		 'args': [description or u'' ]
-#		},
-#	]
-#	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
-#
-#	new = cChargeItemGroup(aPK_obj = rows[0][0])
-#	return (True, new)
-#
-#
-#def create_charge_item(description=None):
-#	"""Creates a new charge_item
-#
-#		description
-#		category - category
-#	"""
-#	queries = [
-#		{'cmd': u"insert into ref.billable (description) values (%s) returning pk",
-#		 'args': [description or u'' ]
-#		},
-#	]
-#	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
-#
-#	new = cBillable(aPK_obj = rows[0][0])
-#	return (True, new)
+_SQL_fetch_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
+
+class cBillItem(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = _SQL_fetch_bill_item_fields % u"pk_bill_item = %s"
+	_cmds_store_payload = [
+		u"""UPDATE bill.bill_item SET
+				fk_provider = %(pk_provider)s,
+				fk_encounter = %(pk_encounter_to_bill)s,
+				date_to_bill = %(date_to_bill)s,
+				description = gm.nullify_empty_string(%(item_detail)s),
+				net_amount_per_unit = %(net_amount_per_unit)s,
+				currency = gm.nullify_empty_string(%(currency)s),
+				status = %(status)s,
+				fk_bill = %(pk_bill)s,
+				unit_count = %(unit_count)s,
+				amount_multiplier = %(amount_multiplier)s
+			WHERE
+				pk = %(pk_bill_item)s
+					AND
+				xmin = %(xmin_bill_item)s
+			RETURNING
+				xmin AS xmin_bill_item
+		"""]
+
+	_updatable_fields = [
+		'pk_provider',
+		'pk_encounter_to_bill',
+		'date_to_bill',
+		'item_detail',
+		'net_amount_per_unit',
+		'currency',
+		'status',
+		'pk_bill',
+		'unit_count',
+		'amount_multiplier'
+	]
+
+#------------------------------------------------------------
+def get_bill_items(pk_patient=None):
+	cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s"
+	args = {'pat': pk_patient}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
 
 #============================================================
 # main
@@ -132,8 +129,7 @@ if __name__ == "__main__":
 ##	gmDateTime.init()
 
 	def test_me():
-		print "\test"
-		print	"--------------"
+		print "--------------"
 		me = cBillable(aPK_obj=1)
 		fields = me.get_fields()
 		for field in fields:

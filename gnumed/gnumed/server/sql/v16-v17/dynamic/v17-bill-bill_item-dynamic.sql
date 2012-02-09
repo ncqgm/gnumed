@@ -223,7 +223,10 @@ SELECT
 	r_b.pk
 		AS pk_billable,
 	r_b.fk_data_source
-		AS pk_data_source
+		AS pk_data_source,
+
+	b_bi.xmin
+		AS xmin_bill_item
 FROM
 	bill.bill_item b_bi
 		inner join ref.billable r_b on (b_bi.fk_billable = r_b.pk)
@@ -237,8 +240,11 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-INSERT INTO bill.bill_item (fk_provider, fk_encounter, description, fk_billable) values (1, 1, 'Reiseberatung', 1);
+INSERT INTO bill.bill_item (fk_provider, fk_encounter, description, fk_billable, amount_multiplier) values (1, 1, 'Reiseberatung', 1, 2.3);
 \set ON_ERROR_STOP 1
+
+
+grant usage on schema bill to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill_item-dynamic.sql', '17.0');
