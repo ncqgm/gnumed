@@ -17,25 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.11 (database v16.11)',
-	'GNUmed 1.1.11 Release Notes:
+	'Release Notes for GNUmed 1.1.12 (database v16.12)',
+	'GNUmed 1.1.12 Release Notes:
 
-	1.1.11
+	1.1.12
 
-FIX: proper quoting of "start" args on Windows [thanks S.Hilbert]
-FIX: exception on expando resizing when it holds 0 lines
-FIX: exception on adding a second/third brand [thanks Vaibhav]
+FIX: exception with certain invalid placeholders [thanks S.Reus]
+FIX: add missing encoding detection [thanks Andrew]
+FIX: broken health issue creation from its PRW [thanks S.Reus]
 
-IMPROVED: remove unneeded documentation tarball [thanks A.Tille]
-IMPROVED: better index.html in tarballed documentation [thanks A.Tille]
-IMPROVED: ignore wx.Begin/EndBusyCursor refcounting
-IMPROVED: PRWs now know about <ENTER> on Windows [thanks S.Hilbert]
-IMPROVED: grey out arriba menu item if not detected [thanks S.Hilbert]
-IMPROVED: pre-final editing of LaTeX forms [thanks M.Angermann]
-
-	16.11
-
-IMPROVED: add Russian DB string translations [thanks anon]
+IMPROVED: robustify os.startfile() use [thanks S.Hilbert]
+IMPROVED: robustify auto-setting of encounter.last_affirmed
+IMPROVED: robustify validity checks of cFuzzyTimestampInput [thanks S.Reus]
+IMPROVED: overly eager page number collision check [thanks S.Hilbert]
 ');
 
 -- --------------------------------------------------------------
