@@ -1,10 +1,11 @@
 # -*- coding: utf8 -*-
 """Billing code.
 
-license: GPL v2 or later
+Copyright: authors
 """
 #============================================================
-__author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__author__ = "Nico Latzer <nl@mnet-online.de>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys
 import logging
@@ -46,7 +47,43 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 		'raw_amount',
 		'vat_multiplier',
 	]
+	#--------------------------------------------------------
+	def format(self):
+		txt = u'%s                                    [#%s]\n\n' % (
+			gmTools.bool2subst (
+				self._payload[self._idx['active']],
+				_('Active billable item'),
+				_('Inactive billable item')
+			),
+			self._payload[self._idx['pk_billable']]
+		)
+		txt += u' %s: %s\n' % (
+			self._payload[self._idx['billable_code']],
+			self._payload[self._idx['billable_description']]
+		)
+		txt += _(' %s %s + %s%% VAT = %s %s\n') % (
+			self._payload[self._idx['raw_amount']],
+			self._payload[self._idx['currency']],
+			self._payload[self._idx['vat_multiplier']] * 100,
+			self._payload[self._idx['amount_with_vat']],
+			self._payload[self._idx['currency']]
+		)
+		txt += u' %s %s%s (%s)' % (
+			self._payload[self._idx['catalog_short']],
+			self._payload[self._idx['catalog_version']],
+			gmTools.coalesce(self._payload[self._idx['catalog_language']], u'', ' - %s'),
+			self._payload[self._idx['catalog_long']]
+		)
+		txt += gmTools.coalesce(self._payload[self._idx['comment']], u'', u'\n %s')
 
+		return txt
+	#--------------------------------------------------------
+	def _get_is_in_use(self):
+		cmd = u'SELECT EXISTS(SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s LIMIT 1)'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self._payload[self._idx['pk_billable']]}}])
+		return rows[0][0]
+
+	is_in_use = property(_get_is_in_use, lambda x:x)
 #------------------------------------------------------------
 def get_billables(active_only=True, order_by=None):
 
@@ -63,7 +100,19 @@ def get_billables(active_only=True, order_by=None):
 	cmd = (_SQL_get_billable_fields % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cBillable(row = {'data': r, 'idx': idx, 'pk_field': 'pk_billable'}) for r in rows ]
-
+#------------------------------------------------------------
+def delete_billable(pk_billable=None):
+	cmd = u"""
+		DELETE FROM ref.billable
+		WHERE
+			pk = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1 FROM bill.bill_item WHERE fk_billable = %(pk)s
+			)
+	"""
+	args = {'pk': pk_billable}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 _SQL_fetch_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
 
@@ -97,19 +146,55 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		'item_detail',
 		'net_amount_per_unit',
 		'currency',
-		'status',
 		'pk_bill',
 		'unit_count',
 		'amount_multiplier'
 	]
-
+	#--------------------------------------------------------
+	def format(self):
+		return u'%s' % self
 #------------------------------------------------------------
-def get_bill_items(pk_patient=None):
-	cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s"
+def get_bill_items(pk_patient=None, non_invoiced_only=False):
+	if non_invoiced_only:
+		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s AND pk_bill IS NULL"
+	else:
+		cmd = _SQL_fetch_bill_item_fields % u"pk_patient = %(pat)s"
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
+#------------------------------------------------------------
+def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 
+	billable = cBillable(aPK_obj = pk_billable)
+	cmd = u"""
+		INSERT INTO bill.bill_item (
+			fk_provider,
+			fk_encounter,
+			net_amount_per_unit,
+			currency,
+			fk_billable
+		) VALUES (
+			%(staff)s,
+			%(enc)s,
+			%(val)s,
+			%(curr)s,
+			%(billable)s
+		)
+		RETURNING pk"""
+	args = {
+		'staff': pk_staff,
+		'enc': pk_encounter,
+		'val': billable['raw_amount'],
+		'curr': billable['currency'],
+		'billable': pk_billable
+	}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	return cBillItem(aPK_obj = rows[0][0])
+#------------------------------------------------------------
+def delete_bill_item(pk_bill_item=None):
+	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
+	args = {'pk': pk_bill_item}
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
 # main
 #------------------------------------------------------------
