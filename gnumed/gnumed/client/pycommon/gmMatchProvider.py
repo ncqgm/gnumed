@@ -369,16 +369,19 @@ class cMatchProvider_SQL2(cMatchProvider):
 	queries:
 		- a list of unicode strings
 		- each string is a query
-		- each string must contain: "... where <column> %(fragment_condition)s ..."
-		- each string can contain in the where clause: "... %(<context_key>)s ..."
-		- each query must return (data, label)
+		- each string must contain: "... WHERE <column> %(fragment_condition)s ..."
+		- each string can contain in the where clause: "... %(<ctxt_key1>)s ..."
+		- each query must return (data, list_label, field_label)
 
-	context definitions to be used in the queries
-	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
+	context definitions to be used in the queries, example:
+		{'ctxt_key1': {'where_part': 'AND country = %(country)s', 'placeholder': 'country'}}
+
+	client code using .set_context() must use the 'placeholder':
+		<phrasewheel>/<match provider>.set_context('country', 'Germany')
 
 	_SQL_data2match:
 		SQL to retrieve a match by, say, primary key
-		wherein the only argument is 'pk'
+		wherein the only keyword argument is 'pk'
 	"""
 	def __init__(self, queries = None, context = None):
 

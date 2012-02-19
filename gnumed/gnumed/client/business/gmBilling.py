@@ -123,11 +123,10 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 		u"""UPDATE bill.bill_item SET
 				fk_provider = %(pk_provider)s,
 				fk_encounter = %(pk_encounter_to_bill)s,
-				date_to_bill = %(date_to_bill)s,
+				date_to_bill = %(raw_date_to_bill)s,
 				description = gm.nullify_empty_string(%(item_detail)s),
 				net_amount_per_unit = %(net_amount_per_unit)s,
 				currency = gm.nullify_empty_string(%(currency)s),
-				status = %(status)s,
 				fk_bill = %(pk_bill)s,
 				unit_count = %(unit_count)s,
 				amount_multiplier = %(amount_multiplier)s
@@ -142,7 +141,7 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'pk_provider',
 		'pk_encounter_to_bill',
-		'date_to_bill',
+		'raw_date_to_bill',
 		'item_detail',
 		'net_amount_per_unit',
 		'currency',
@@ -153,6 +152,11 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self):
 		return u'%s' % self
+	#--------------------------------------------------------
+	def _get_is_in_use(self):
+		return self._payload[self._idx['pk_bill']] is not None
+
+	is_in_use = property(_get_is_in_use, lambda x:x)
 #------------------------------------------------------------
 def get_bill_items(pk_patient=None, non_invoiced_only=False):
 	if non_invoiced_only:

@@ -445,7 +445,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					microsecond = 111111
 				)
 			val = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
-			super(self.__class__, self).SetText(value = val, data = data)
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = val, data = data)
 	#--------------------------------------------------------
 	def GetData(self):
 		if len(self._data) == 0:

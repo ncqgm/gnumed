@@ -239,6 +239,12 @@ class cPhraseWheelBase(wx.TextCtrl):
 
 		return True
 	#--------------------------------------------------------
+	def set_from_instance(self, instance):
+		raise NotImplementedError('[%s]: set_from_instance()' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def set_from_pk(self, pk):
+		raise NotImplementedError('[%s]: set_from_pk()' % self.__class__.__name__)
+	#--------------------------------------------------------
 	def display_as_valid(self, valid=None, partially_invalid=False):
 		if valid is True:
 			self.SetBackgroundColour(self.__my_startup_color)

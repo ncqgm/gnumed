@@ -88,6 +88,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
+
+		# remove when implemented:
+		return False
+
 		# save the data as a new instance
 		data = gmXXXX.create_xxxx()
 
@@ -104,6 +108,10 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
+
+		# remove when implemented:
+		return False
+
 		# update self.data and save the changes
 		self.data[''] = self._TCTRL_xxx.GetValue().strip()
 		self.data[''] = self._PRW_xxx.GetData()

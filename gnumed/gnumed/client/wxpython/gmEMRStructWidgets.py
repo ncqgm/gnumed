@@ -795,6 +795,75 @@ def edit_encounter_type(parent=None, encounter_type=None):
 		return True
 	return False
 #----------------------------------------------------------------
+class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+		cmd = u"""
+			SELECT DISTINCT ON (data)
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				to_char(started, 'YYYY-MM-DD') %(fragment_condition)s
+					OR
+				l10n_type %(fragment_condition)s
+					OR
+				type %(fragment_condition)s
+				%(ctxt_patient)s
+			ORDER BY
+				list_label
+			LIMIT
+				30
+		"""
+		context = {'ctxt_patient': {
+			'where_part': u'AND pk_patient = %(patient)s',
+			'placeholder': u'patient'
+		}}
+
+		self.matcher = gmMatchProvider.cMatchProvider_SQL2(queries = [cmd], context = context)
+		self.matcher._SQL_data2match = u"""
+			SELECT
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				pk_encounter = %(pk)s
+		"""
+		self.matcher.setThresholds(1, 3, 5)
+		self.selection_only = True
+		# outside code MUST bind this to a patient
+		self.set_context(context = 'patient', val = None)
+	#--------------------------------------------------------
+	def set_from_instance(self, instance):
+		val = u'%s: %s' % (
+			gmDateTime.pydt_strftime(instance['started'], '%Y %b %d'),
+			instance['l10n_type']
+		)
+		self.SetText(value = val, data = instance['pk_encounter'])
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self._data.values()[0]['data'])
+		return enc.format (
+			with_docs = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_family_history = False
+		)
+#----------------------------------------------------------------
 class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of encounter type.
 

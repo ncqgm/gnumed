@@ -199,12 +199,14 @@ SELECT
 	b_bi.net_amount_per_unit,
 	b_bi.unit_count,
 	b_bi.amount_multiplier,
-	b_bi.net_amount_per_unit * r_b.vat_multiplier
+	b_bi.unit_count * (
+		(b_bi.net_amount_per_unit * b_bi.amount_multiplier)
+	)	AS final_amount,
+	b_bi.net_amount_per_unit * b_bi.amount_multiplier * r_b.vat_multiplier * b_bi.unit_count
 		AS vat,
-	(b_bi.net_amount_per_unit * b_bi.amount_multiplier * b_bi.unit_count) + (b_bi.net_amount_per_unit * r_b.vat_multiplier)
-		AS final_amount,
 	b_bi.currency,
-	b_bi.status,
+	b_bi.date_to_bill
+		AS raw_date_to_bill,
 	r_b.amount
 		AS billable_amount,
 	r_b.vat_multiplier,
