@@ -801,7 +801,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
 		cmd = u"""
-			SELECT DISTINCT ON (data)
+			SELECT -- DISTINCT ON (data)
 				pk_encounter
 					AS data,
 				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
