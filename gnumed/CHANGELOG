@@ -21,6 +21,7 @@ NEW: AbiWord based document templates
 NEW: document tree: add parts via document context menu
 NEW: document tree: delete/move document parts via part context menu
 NEW: browse reference data sources
+NEW: importer for "Clinica" EMR databases
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

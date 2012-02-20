@@ -1,16 +1,14 @@
 #------------------------------------------------
 # Clinica -> GNUmed-SQL exporter
 #
-# SQLite3 database:
-#
-# CREATE TABLE config (id INTEGER PRIMARY KEY, key TEXT, value TEXT);
-# CREATE TABLE doctors (surname TEXT, ID INTEGER PRIMARY KEY, phone TEXT, mobile TEXT, given_name TEXT);
+# SQLite3 database
 #
 # http://pysqlite.googlecode.com/svn/doc/sqlite3.html
 #
 #------------------------------------------------
 
 import sys
+import os
 import logging
 import pysqlite2.dbapi2 as sqlite
 
@@ -29,6 +27,8 @@ _log = logging.getLogger('gm-clinica')
 
 
 gender_map = {'MALE': 'm', 'FEMALE': 'f'}
+Clinica_encounter_type = u'[Clinica] encounter'
+Clinica_episode = u'[Clinica] episode'
 #------------------------------------------------
 def create_visit_sql(pk_patient, clinica_db):
 	# CREATE TABLE visits (subsequent_checks TEXT, systemic_therapy TEXT, ID INTEGER PRIMARY KEY, laboratory_exam TEXT, diagnosis TEXT, histopathology TEXT, anamnesis TEXT, date TEXT, patient INTEGER, physical_examination TEXT, topical_therapy TEXT);
@@ -37,17 +37,32 @@ def create_visit_sql(pk_patient, clinica_db):
 	cmd = u'SELECT * FROM visits WHERE patient = %s' % pk_patient
 	curs.execute(cmd)
 	keys = [ r[0] for r in curs.description ]
-	row = dict(zip(keys, curs.fetchone()))
-	if row is not None:
-		# create "import" encounter
-		# create "import" episode
-		#print "creating encounter"
-		pass
-	while row is not None:
-		# create visit encounter
+	row = curs.fetchone()
 
-		# loop over SOAP:
-		print u"""INSERT INTO clin.clin_narrative (soap_cat, clin_when, fk_encounter, fk_episode, narrative) VALUES ('s', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));""" % (
+	if row is None:
+		print u'-- no visits for patient'
+		return
+
+	row = dict(zip(keys, row))
+	row['date'] = u'%s-%s-%s:%s.%s' % (
+		row['date'][:4],
+		row['date'][5:7],
+		row['date'][8:13],
+		row['date'][14:16],
+		row['date'][17:]
+	)
+	print u'-- visit encounter'
+	print u"INSERT INTO clin.encounter (fk_patient, fk_type, started, last_affirmed) VALUES (currval('dem.identity_pk_seq'), (SELECT pk FROM clin.encounter_type WHERE description = '%s' LIMIT 1), '%s'::timestamp with time zone, '%s'::timestamp with time zone + '1m'::interval);" % (
+		Clinica_encounter_type,
+		row['date'],
+		row['date']
+	)
+	print u'-- import episode'
+	print u"INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (NULL, '%s', True, currval('clin.encounter_pk_seq'));" % Clinica_episode
+
+	while row is not None:
+		print u'-- visit SOAP'
+		print u"INSERT INTO clin.clin_narrative (soap_cat, clin_when, narrative, fk_encounter, fk_episode) VALUES ('s', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));" % (
 			row['date'],
 			row['anamnesis']
 		)
@@ -56,11 +71,11 @@ def create_visit_sql(pk_patient, clinica_db):
 			row['laboratory_exam'],
 			row['histopathology']
 		)
-		print u"""INSERT INTO clin.clin_narrative (soap_cat, clin_when, fk_encounter, fk_episode, narrative) VALUES ('o', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));""" % (
+		print u"INSERT INTO clin.clin_narrative (soap_cat, clin_when, narrative, fk_encounter, fk_episode) VALUES ('o', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));" % (
 			row['date'],
 			sOap
 		)
-		print u"""INSERT INTO clin.clin_narrative (soap_cat, clin_when, fk_encounter, fk_episode, narrative) VALUES ('a', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));""" % (
+		print u"INSERT INTO clin.clin_narrative (soap_cat, clin_when, narrative, fk_encounter, fk_episode) VALUES ('a', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));" % (
 			row['date'],
 			row['diagnosis']
 		)
@@ -69,12 +84,20 @@ def create_visit_sql(pk_patient, clinica_db):
 			row['systemic_therapy'],
 			row['subsequent_checks']
 		)
-		print u"""INSERT INTO clin.clin_narrative (soap_cat, clin_when, fk_encounter, fk_episode, narrative) VALUES ('p', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));""" % (
+		print u"INSERT INTO clin.clin_narrative (soap_cat, clin_when, narrative, fk_encounter, fk_episode) VALUES ('p', '%s'::timestamp with time zone, E'%s', currval('clin.encounter_pk_seq'), currval('clin.episode_pk_seq'));" % (
 			row['date'],
 			soaP
 		)
 
 		row = curs.fetchone()
+		if row is not None:
+			row['date'] = u'%s-%s-%s:%s.%s' % (
+				row['date'][:4],
+				row['date'][5:7],
+				row['date'][8:13],
+				row['date'][14:16],
+				row['date'][17:]
+			)
 #------------------------------------------------
 def sanitize_patient_row(row):
 	# CREATE TABLE patients (gender TEXT, doctor INTEGER, surname TEXT, ID INTEGER PRIMARY KEY, identification_code TEXT, phone TEXT, given_name TEXT, birth_date TEXT, residence_address TEXT);
@@ -120,6 +143,13 @@ def sanitize_patient_row(row):
 		none_equivalents = [None, u''],
 		function_initial = ('strip', None)
 	)
+	row['birth_date'] = u'%s-%s-%s:%s.%s' % (
+		row['birth_date'][:4],
+		row['birth_date'][5:7],
+		row['birth_date'][8:13],
+		row['birth_date'][14:16],
+		row['birth_date'][17:]
+	)
 
 	row['residence_address'] = gmTools.coalesce (
 		row['residence_address'],
@@ -130,37 +160,46 @@ def sanitize_patient_row(row):
 
 	return row
 #------------------------------------------------
-def create_gnumed_import_sql():
+def create_gnumed_import_sql(filename):
 	# CREATE TABLE patients (gender TEXT, doctor INTEGER, surname TEXT, ID INTEGER PRIMARY KEY, identification_code TEXT, phone TEXT, given_name TEXT, birth_date TEXT, residence_address TEXT);
 
-	print "begin;"
+	print u''
+	print u'set default_transaction_read_only to off;'
+	print u''
+	print u"begin;"
+	print u''
 
 	now = gmDateTime.pydt_now_here().isoformat()
 
-	clinica_db = sqlite.connect(database = sys.argv[1])
+	clinica_db = sqlite.connect(database = filename)
 	curs = clinica_db.cursor()
 	cmd = u'select * from patients'
 	curs.execute(cmd)
 	keys = [ r[0] for r in curs.description ]
-	row = dict(zip(keys, curs.fetchone()))
-	if row is not None:
-		row = sanitize_patient_row(row)
-		u"""
-		INSERT INTO clin.encounter_type (description) SELECT '' WHERE NOT EXISTS(SELECT xxxxxxxxxx)
-		"""
-		# ensure encounter type available
+	row = curs.fetchone()
+
+	if row is None:
+		print "-- no patients in database"
+		return
+
+	row = sanitize_patient_row(dict(zip(keys, row)))
+	print u'-- import-related encounter type'
+	print u"INSERT INTO clin.encounter_type (description) SELECT '%s' WHERE NOT EXISTS (SELECT 1 FROM clin.encounter_type WHERE description = '%s' LIMIT 1);" % (
+		Clinica_encounter_type,
+		Clinica_encounter_type
+	)
 
 	while row is not None:
 		print u''
 		print u'-- next patient'
-		print u"""INSERT INTO dem.identity (gender, dob, comment) VALUES ('%s', NULL, 'Clinica import @ %s');""" % (
+		print u"INSERT INTO dem.identity (gender, dob, comment) VALUES ('%s', NULL, 'Clinica import @ %s');" % (
 			row['gender'],
 			now
 		)
 		if row['birth_date'] is not None:
 			if row['birth_date'].strip() != u'':
 				print u"""UPDATE dem.identity SET dob = '%s'::timestamp with time zone WHERE pk = currval('dem.identity_pk_seq');""" % row['birth_date']
-		print u"""SELECT dem.add_name(currval('dem.identity_pk_seq'), '%s', '%s', True);""" % (
+		print u"""SELECT dem.add_name(currval('dem.identity_pk_seq')::integer, '%s'::text, '%s'::text, True);""" % (
 			row['given_name'],
 			row['surname']
 		)
@@ -168,18 +207,29 @@ def create_gnumed_import_sql():
 		if row['identification_code'] is not None:
 			print u"""INSERT INTO dem.lnk_identity2ext_id (id_identity, external_id, fk_origin) VALUES (currval('dem.identity_pk_seq'), '%s', dem.add_external_id_type('Clinica-external ID', 'Clinica EMR'));""" % row['identification_code']
 		if row['phone'] is not None:
-			print u"""INSERT INTO dem.lnk_identity2phone (fk_identity, url, fk_type) VALUES (currval('dem.identity_pk_seq'), '%s', dem.create_comm_type('homephone'));""" % row['phone']
+			print u"""INSERT INTO dem.lnk_identity2comm (fk_identity, url, fk_type) VALUES (currval('dem.identity_pk_seq'), '%s', dem.create_comm_type('homephone'));""" % row['phone']
 		if row['residence_address'] is not None:
-			print u"""INSERT INTO dem.lnk_identity2phone (fk_identity, url, fk_type) VALUES (currval('dem.identity_pk_seq'), '%s', dem.create_comm_type('Clinica address'));""" % row['residence_address']
+			print u"""INSERT INTO dem.lnk_identity2comm (fk_identity, url, fk_type) VALUES (currval('dem.identity_pk_seq'), '%s', dem.create_comm_type('Clinica address'));""" % row['residence_address']
 
 		create_visit_sql(row['ID'], clinica_db)
 
-		row = sanitize_patient_row(dict(zip(keys, curs.fetchone())))
+		row = curs.fetchone()
+		if row is not None:
+			row = sanitize_patient_row(dict(zip(keys, row)))
 
-	print ''
-	print 'commit;'
+	print u''
+	print u'-- comment this out when you are ready to *really* run the data import:'
+	print u'rollback;'
+	print u''
+	print u'commit;'
 #------------------------------------------------
 gmDateTime.init()
 gmI18N.activate_locale()
 gmI18N.install_domain(domain = 'gnumed')
-create_gnumed_import_sql()
+try:
+	filename = sys.argv[1]
+	print u'-- exporting from DB file:', sys.argv[1]
+except IndexError:
+	filename = os.path.expanduser('~/.config/clinica/clinica.db')
+	print u'-- exporting from Clinica default DB:', filename
+create_gnumed_import_sql(filename)
