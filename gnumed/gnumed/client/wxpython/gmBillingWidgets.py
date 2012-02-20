@@ -133,6 +133,80 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#------------------------------------------------------------
 	def set_from_pk(self, pk):
 		self.set_from_instance(gmBilling.cBillable(aPK_obj = pk))
+
+#================================================================
+# per-patient bill related widgets
+#----------------------------------------------------------------
+def manage_bills(parent=None, pk_patient=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if pk_patient is None:
+		pk_patient = gmPerson.gmCurrentPatient().ID
+	#------------------------------------------------------------
+	# edit
+	#------------------------------------------------------------
+	def create_invoice(bill):
+		if bill is None:
+			return
+		print "should create invoice from bill:"
+		print bill
+	#------------------------------------------------------------
+	def show_pdf(bill):
+		if bill is None:
+			return
+		print "should find PDF and display it for bill:"
+		print bill
+	#------------------------------------------------------------
+	def delete(bill):
+		do_it = gmGuiHelpers.gm_show_question (
+			question = _('Do you truly want to irrevocably delete this bill ?'),
+			title = _('Delete bill')
+		)
+		if not do_it:
+			return False
+		return gmBillling.delete_bill(pk_bill = bill['pk_bill'])
+	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		bills = gmBilling.get_bills(pk_patient = pk_patient)
+		items = [ [
+			gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d'),
+			b['invoice_id'],
+			u'%s %s' % (b['total_amount'], b['currency']),
+			b['pk_bill']
+		] for b in bills ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(bills)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		#msg = msg,
+		caption = _('Showing bills.'),
+		columns = [_('Close date'), _('Invoice ID'), _('Value'), u'#'],
+		single_selection = True,
+		#new_callback = edit,
+		#edit_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		left_extra_button = (
+			_('Create invoice'),
+			_('Create PDF invoice from bill'),
+			create_invoice
+		),
+		middle_extra_button = (
+			_('Show PDF'),
+			_('Show the corresponding invoice PDF'),
+			show_pdf
+		),
+		list_tooltip_callback = get_tooltip
+	)
+
 #================================================================
 # per-patient bill items related widgets
 #----------------------------------------------------------------
@@ -282,22 +356,26 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Encounter'),
 			u'#'
 		])
+#		self.left_extra_button = (
+#			_('Select pending'),
+#			_('Select non-invoiced - pending - items.'),
+#			self._select_pending_items
+#		)
 		self.left_extra_button = (
-			_('Select pending'),
-			_('Select non-invoiced - pending - items.'),
-			self._select_pending_items
-		)
-		self.middle_extra_button = (
 			_('Invoice selected'),
 			_('Create invoice from selected items.'),
 			self._invoice_selected_items
+		)
+		self.middle_extra_button = (
+			_('Browse bills'),
+			_('Browse bills of this patient.'),
+			self._browse_bills
 		)
 		self.right_extra_button = (
 			_('Browse billables'),
 			_('Browse list of billables.'),
 			self._browse_billables
 		)
-
 	#--------------------------------------------------------
 	def _add_item(self):
 		return edit_bill_item(parent = self, bill_item = None, single_entry = False)
@@ -333,6 +411,9 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	def _browse_billables(self, item):
 		manage_billables(parent = self)
 		return False
+	#--------------------------------------------------------
+	def _browse_bills(self, item):
+		manage_bills(parent = self, pk_patient = self.__identity.ID)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

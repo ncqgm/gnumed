@@ -16,11 +16,15 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 
 
 _log = logging.getLogger('gm.bill')
 
 #============================================================
+# billables
+#------------------------------------------------------------
+
 _SQL_get_billable_fields = u"SELECT * FROM ref.v_billables WHERE %s"
 
 class cBillable(gmBusinessDBObject.cBusinessDBObject):
@@ -114,6 +118,8 @@ def delete_billable(pk_billable=None):
 	args = {'pk': pk_billable}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #============================================================
+# bill items
+#------------------------------------------------------------
 _SQL_fetch_bill_item_fields = u"SELECT * FROM bill.v_bill_items WHERE %s"
 
 class cBillItem(gmBusinessDBObject.cBusinessDBObject):
@@ -199,6 +205,120 @@ def delete_bill_item(pk_bill_item=None):
 	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
 	args = {'pk': pk_bill_item}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+#============================================================
+# bills
+#------------------------------------------------------------
+_SQL_get_bill_fields = u"""SELECT * FROM bill.v_bills WHERE %s"""
+
+class cBill(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a bill"""
+
+	_cmd_fetch_payload = _SQL_get_bill_fields % u"pk_bill = %s"
+	_cmds_store_payload = [
+		u"""
+			UPDATE bill.bill SET
+				invoice_id = gm.nullify_empty_string(%(invoice_id)s),
+				fk_receiver_identity = %(pk_receiver_identity)s,
+				close_date = %(close_date)s,
+				receiver_address = gm.nullify_empty_string(%(receiver_address)s)
+			WHERE
+				pk = %(pk_bill)s
+					AND
+				xmin = %(xmin_bill)s
+			RETURNING
+				pk as pk_bill,
+				xmin as xmin_bill
+		"""
+	]
+	_updatable_fields = [
+		u'invoice_id',
+		u'pk_receiver_identity',
+		u'close_date',
+		u'receiver_address'
+	]
+	#--------------------------------------------------------
+	def format(self):
+		txt = u'%s %s%s%s                       [#%s]\n' % (
+			gmTools.bool2subst (
+				(self._payload[self._idx['close_date']] is None),
+				_('Open bill'),
+				_('Closed bill')
+			),
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['invoice_id']],
+			gmTools.u_right_double_angle_quote,
+			self._payload[self._idx['pk_bill']]
+		)
+		txt += gmTools.coalesce (
+			self._payload[self._idx['close_date']],
+			u'',
+			_(' Closed: %s\n'),
+			function_initial = ('strftime', '%Y %b %d')
+		)
+
+		txt += _(' Bill value: %s %s\n') % (
+			self._payload[self._idx['total_amount']],
+			self._payload[self._idx['currency']]
+		)
+		txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
+		txt += _(' Patient: %s\n') % self._payload[self._idx['pk_patient']]
+		txt += gmTools.coalesce (
+			self._payload[self._idx['pk_receiver_identity']],
+			u'',
+			_(' Receiver: %s\n')
+		)
+		txt += _(' Receiver address:\n  %s') % self._payload[self._idx['receiver_address']]
+
+		return txt
+#------------------------------------------------------------
+def get_bills(order_by=None, pk_patient=None):
+
+	args = {'pat': pk_patient}
+	where_parts = [u'true']
+
+	if pk_patient is not None:
+		where_parts.append(u'pk_patient = %(pat)s')
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u' ORDER BY %s' % order_by
+
+	cmd = (_SQL_get_bill_fields % u' AND '.join(where_parts)) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
+#------------------------------------------------------------
+def create_bill(invoice_id=None, receiver_address=None):
+	args = {
+		u'id': invoice_id,
+		u'adr': receiver_address
+	}
+	cmd = u"""
+		INSERT INTO bill.bill' (
+			invoice_id,
+			receiver_address
+		) VALUES (
+			gm.nullify_empty_string(%(invoice_id)s),
+			gm.nullify_empty_string(%(receiver_address)s)
+		)
+		RETURNING pk
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cBill(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_bill(pk_bill=None):
+	args = {'pk': pk_bill}
+	cmd = u"DELETE FROM bill.bill WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+#------------------------------------------------------------
+def get_bill_receiver(pk_patient=None):
+	pass
+#------------------------------------------------------------
+def get_billing_address(pk_patient=None):
+	pass
 #============================================================
 # main
 #------------------------------------------------------------

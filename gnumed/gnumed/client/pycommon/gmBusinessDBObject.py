@@ -218,6 +218,10 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 		u'xxx',
 		u'xxx'
 	]
+	#--------------------------------------------------------
+	def format(self):
+		return u'%s' % self
+
 #------------------------------------------------------------
 def get_XXX(order_by=None):
 	if order_by is None:
@@ -467,6 +471,9 @@ def delete_xxx(xxx=None):
 	def get_patient(self):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
+	#--------------------------------------------------------
+	def format(self):
+		return u'%s' % self
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False):
 		"""Fetch field values from backend.

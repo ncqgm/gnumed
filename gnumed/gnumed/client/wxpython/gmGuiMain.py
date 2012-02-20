@@ -533,8 +533,11 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_person.AppendSeparator()
 
-		item = menu_person.Append(-1, _('Billed items'), _('Show billed items.'))
+		item = menu_person.Append(-1, _('Billed items'), _('Show items to be billed to the active patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_billed_items, item)
+
+		item = menu_person.Append(-1, _('Bills'), _('Show bills of the active patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_bills, item)
 
 		menu_person.AppendSeparator()
 
@@ -2610,6 +2613,13 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show items billed to patient. No active patient.'))
 			return False
 		gmBillingWidgets.manage_bill_items(parent = self, pk_patient = curr_pat.ID)
+	#----------------------------------------------
+	def __on_show_bills(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show bills for patient. No active patient.'))
+			return False
+		gmBillingWidgets.manage_bills(parent = self, pk_patient = curr_pat.ID)
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)

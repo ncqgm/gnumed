@@ -119,7 +119,7 @@ SELECT
 	-- assumes that all bill_items have the same currency
 	(select currency from bill.v_bill_items where pk_bill = b_b.pk limit 1)
 		as currency,
-	b_b.payment_method,
+	--b_b.payment_method,
 	b_b.close_date,
 	-- assumes all bill items point to encounters of one patient
 	(select fk_patient from clin.encounter where clin.encounter.pk = (
@@ -128,7 +128,9 @@ SELECT
 	(select array_agg(bill.bill_item.pk) from bill.bill_item where fk_bill = b_b.pk)
 		as pk_bill_items,
 	(select array_agg(bill.v_bill_items.currency) from bill.v_bill_items where pk_bill = b_b.pk limit 1)
-		as item_currencies
+		as item_currencies,
+	b_b.xmin
+		as xmin_bill
 FROM
 	bill.bill b_b
 ;
@@ -137,7 +139,7 @@ grant select on bill.v_bills to group "gm-doctors";
 
 
 \unset ON_ERROR_STOP
-insert into bill.bill (invoice_id, receiver_address, close_date) values ('GNUmed@Enterprise / 2012 / 1', 'Star Fleet Health Fund', now() - '1 week'::interval);
+insert into bill.bill (invoice_id, receiver_address, close_date) values ('GNUmed@Enterprise-2012-1', 'Starfleet Health Fund', now() - '1 week'::interval);
 update bill.bill_item set fk_bill = currval('bill.bill_item_pk_seq') where fk_bill is NULL and description = 'Reiseberatung';
 \set ON_ERROR_STOP 1
 
