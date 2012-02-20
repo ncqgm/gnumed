@@ -445,7 +445,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 					microsecond = 111111
 				)
 			val = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
-			super(self.__class__, self).SetText(value = val, data = data)
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = val, data = data)
 	#--------------------------------------------------------
 	def GetData(self):
 		if len(self._data) == 0:
@@ -566,14 +566,14 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 	# internal helpers
 	#--------------------------------------------------------
 	def __text2timestamp(self, val=None):
-
 		if val is None:
-			val = self.GetValue().strip()
-
+			val = self.GetValue()
+		val = val.strip()
+		if val == u'':
+			return None
 		success, matches = self.matcher.getMatchesByPhrase(val)
 		if len(matches) == 1:
 			return matches[0]['data']
-
 		return None
 	#--------------------------------------------------------
 	# phrasewheel internal API
@@ -616,13 +616,15 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(accuracy = self.display_accuracy), data = data)
 	#--------------------------------------------------------
-	def is_valid_timestamp(self):
+	def is_valid_timestamp(self, empty_is_valid=True):
 		if self.data is not None:
 			return True
 
 		# skip empty value
 		if self.GetValue().strip() == u'':
-			return True
+			if empty_is_valid:
+				return True
+			return False
 
 		date = self.__text2timestamp()
 		if date is None:

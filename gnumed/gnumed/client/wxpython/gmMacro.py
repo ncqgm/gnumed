@@ -255,9 +255,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# variable placeholders
 		parts = placeholder.split('::')
+
+		if len(parts) == 1:
+			_log.warning('invalid placeholder layout: %s', original_placeholder)
+			if self.debug:
+				return self.invalid_placeholder_template % original_placeholder
+			return None
+
 		if len(parts) == 2:
 			name, data = parts
 			lng = None
+
 		if len(parts) == 3:
 			name, data, lng = parts
 			try:
@@ -265,6 +273,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			except (TypeError, ValueError):
 				_log.error('placeholder length definition error: %s, discarding length: >%s<', original_placeholder, lng)
 				lng = None
+
 		if len(parts) > 3:
 			_log.warning('invalid placeholder layout: %s', original_placeholder)
 			if self.debug:

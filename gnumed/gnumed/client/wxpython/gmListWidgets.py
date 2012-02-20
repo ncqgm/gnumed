@@ -487,6 +487,10 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
 
 		self.__select_callback = None			# called when an item is selected, data of topmost selected item passed in
+
+		self.left_extra_button = None
+		self.middle_extra_button = None
+		self.right_extra_button = None
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -574,6 +578,54 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		finally:
 			wx.EndBusyCursor()
 	#------------------------------------------------------------
+	def _on_left_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__left_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
+	def _on_middle_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__middle_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
+	def _on_right_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__right_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
 	def _get_new_callback(self):
@@ -612,6 +664,60 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.Layout()
 
 	message = property(_get_message, _set_message)
+	#------------------------------------------------------------
+	def _set_left_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_left.Enable(False)
+			self._BTN_extra_left.Hide()
+			self.__left_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
+		self.__left_extra_button_callback = callback
+		self._BTN_extra_left.SetLabel(label)
+		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.Enable(True)
+		self._BTN_extra_left.Show()
+
+	left_extra_button = property(lambda x:x, _set_left_extra_button)
+	#------------------------------------------------------------
+	def _set_middle_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_middle.Enable(False)
+			self._BTN_extra_middle.Hide()
+			self.__middle_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
+		self.__middle_extra_button_callback = callback
+		self._BTN_extra_middle.SetLabel(label)
+		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.Enable(True)
+		self._BTN_extra_middle.Show()
+
+	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
+	#------------------------------------------------------------
+	def _set_right_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_right.Enable(False)
+			self._BTN_extra_right.Hide()
+			self.__right_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
+		self.__right_extra_button_callback = callback
+		self._BTN_extra_right.SetLabel(label)
+		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.Enable(True)
+		self._BTN_extra_right.Show()
+
+	right_extra_button = property(lambda x:x, _set_right_extra_button)
 #================================================================
 from Gnumed.wxGladeWidgets import wxgItemPickerDlg
 

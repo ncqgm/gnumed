@@ -795,6 +795,75 @@ def edit_encounter_type(parent=None, encounter_type=None):
 		return True
 	return False
 #----------------------------------------------------------------
+class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+		cmd = u"""
+			SELECT -- DISTINCT ON (data)
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				to_char(started, 'YYYY-MM-DD') %(fragment_condition)s
+					OR
+				l10n_type %(fragment_condition)s
+					OR
+				type %(fragment_condition)s
+				%(ctxt_patient)s
+			ORDER BY
+				list_label
+			LIMIT
+				30
+		"""
+		context = {'ctxt_patient': {
+			'where_part': u'AND pk_patient = %(patient)s',
+			'placeholder': u'patient'
+		}}
+
+		self.matcher = gmMatchProvider.cMatchProvider_SQL2(queries = [cmd], context = context)
+		self.matcher._SQL_data2match = u"""
+			SELECT
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				pk_encounter = %(pk)s
+		"""
+		self.matcher.setThresholds(1, 3, 5)
+		self.selection_only = True
+		# outside code MUST bind this to a patient
+		self.set_context(context = 'patient', val = None)
+	#--------------------------------------------------------
+	def set_from_instance(self, instance):
+		val = u'%s: %s' % (
+			gmDateTime.pydt_strftime(instance['started'], '%Y %b %d'),
+			instance['l10n_type']
+		)
+		self.SetText(value = val, data = instance['pk_encounter'])
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self._data.values()[0]['data'])
+		return enc.format (
+			with_docs = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_family_history = False
+		)
+#----------------------------------------------------------------
 class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of encounter type.
 
@@ -1021,12 +1090,12 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._PRW_start.Refresh()
 
 		# last_affirmed
-		if self._PRW_end.GetValue().strip() == u'':
-			self._PRW_end.SetBackgroundColour('pink')
-			self._PRW_end.Refresh()
-			self._PRW_end.SetFocus()
-			return False
-		if not self._PRW_end.is_valid_timestamp():
+#		if self._PRW_end.GetValue().strip() == u'':
+#			self._PRW_end.SetBackgroundColour('pink')
+#			self._PRW_end.Refresh()
+#			self._PRW_end.SetFocus()
+#			return False
+		if not self._PRW_end.is_valid_timestamp(empty_is_valid = False):
 			self._PRW_end.SetBackgroundColour('pink')
 			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
@@ -1816,24 +1885,31 @@ ORDER BY
 		self.set_context('pat', self.__patient_id)
 		return True
 	#--------------------------------------------------------
-	def GetData(self, can_create=False, is_open=False):
-		if self.data is None:
-			if can_create:
-				issue_name = self.GetValue().strip()
+	def _create_data(self):
+		issue_name = self.GetValue().strip()
+		if issue_name == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create health issue without name.'), beep = True)
+			_log.debug('cannot create health issue without name')
+			return
 
-				if self.use_current_patient:
-					pat = gmPerson.gmCurrentPatient()
-				else:
-					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
-				emr = pat.get_emr()
+		if self.use_current_patient:
+			pat = gmPerson.gmCurrentPatient()
+		else:
+			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
-				issue = emr.add_health_issue(issue_name = issue_name)
-				if issue is None:
-					self.data = None
-				else:
-					self.data = issue['pk_health_issue']
+		emr = pat.get_emr()
+		issue = emr.add_health_issue(issue_name = issue_name)
 
-		return gmPhraseWheel.cPhraseWheel.GetData(self)
+		if issue is None:
+			self.data = {}
+		else:
+			self.SetText (
+				value = issue_name,
+				data = issue['pk_health_issue']
+			)
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

@@ -10,13 +10,16 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmListWidgets
 
         # begin wxGlade: wxgGenericListManagerPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._LBL_message = wx.StaticText(self, -1, "", style=wx.ALIGN_CENTRE)
-        self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.LC_HRULES|wx.NO_BORDER)
+        self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_HRULES | wx.NO_BORDER)
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
-        self._BTN_edit = wx.Button(self, -1, _("Edit"))
+        self._BTN_edit = wx.Button(self, -1, _("&Edit"))
         self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "")
+        self._BTN_extra_left = wx.Button(self, -1, _("left extra"), style=wx.BU_EXACTFIT)
+        self._BTN_extra_middle = wx.Button(self, -1, _("middle extra"), style=wx.BU_EXACTFIT)
+        self._BTN_extra_right = wx.Button(self, -1, _("right extra"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -28,6 +31,9 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_remove_button_pressed, self._BTN_remove)
+        self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
+        self.Bind(wx.EVT_BUTTON, self._on_middle_extra_button_pressed, self._BTN_extra_middle)
+        self.Bind(wx.EVT_BUTTON, self._on_right_extra_button_pressed, self._BTN_extra_right)
         # end wxGlade
 
     def __set_properties(self):
@@ -39,22 +45,32 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
         self._BTN_edit.Enable(False)
         self._BTN_remove.SetToolTipString(_("Remove the selected item(s) from the list."))
         self._BTN_remove.Enable(False)
+        self._BTN_extra_left.Enable(False)
+        self._BTN_extra_left.Hide()
+        self._BTN_extra_middle.Enable(False)
+        self._BTN_extra_middle.Hide()
+        self._BTN_extra_right.Enable(False)
+        self._BTN_extra_right.Hide()
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgGenericListManagerPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._LBL_message, 0, wx.BOTTOM|wx.EXPAND, 3)
+        __szr_main.Add(self._LBL_message, 0, wx.BOTTOM | wx.EXPAND, 3)
         __szr_main.Add(self._LCTRL_items, 1, wx.EXPAND, 0)
-        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_add, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_edit, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_remove, 0, 0, 0)
-        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 3)
+        __szr_buttons.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_add, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_remove, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add(self._BTN_extra_left, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_extra_middle, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_extra_right, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP | wx.EXPAND, 3)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
@@ -85,6 +101,18 @@ class wxgGenericListManagerPnl(wx.ScrolledWindow):
 
     def _on_list_item_focused(self, event): # wxGlade: wxgGenericListManagerPnl.<event_handler>
         print "Event handler `_on_list_item_focused' not implemented"
+        event.Skip()
+
+    def _on_left_extra_button_pressed(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>
+        print "Event handler `_on_left_extra_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_middle_extra_button_pressed(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>
+        print "Event handler `_on_middle_extra_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_right_extra_button_pressed(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>
+        print "Event handler `_on_right_extra_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgGenericListManagerPnl

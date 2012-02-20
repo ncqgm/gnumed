@@ -256,7 +256,12 @@ def _print_files_by_os_startfile(filenames=None):
 	_log.debug('printing [%s]', filenames)
 
 	for filename in filenames:
-		os.startfile(filename, 'print')
+		fname = os.path.normcase(os.path.normpath(filename))
+		_log.debug('%s -> %s', filename, fname)
+		try:
+			os.startfile(fname, 'print')
+		except OSError:
+			_log.exception('cannot os.startfile()')
 
 	return True
 #-----------------------------------------------------------------------

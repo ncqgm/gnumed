@@ -35,6 +35,10 @@ alter table bill.bill_item
 	alter column date_to_bill
 		drop not null;
 
+alter table bill.bill_item
+	alter column date_to_bill
+		drop default;
+
 
 -- .description
 comment on column bill.bill_item.description is
@@ -53,11 +57,15 @@ alter table bill.bill_item
 
 -- .net_amount_per_unit
 comment on column bill.bill_item.net_amount_per_unit is
-	'How much to charge for one unit of this bill item. If NULL use .fk_billable.amount.';
+	'How much to charge for one unit of this bill item.';
 
 alter table bill.bill_item
 	alter column net_amount_per_unit
-		set default null;
+		set not null;
+
+alter table bill.bill_item
+	alter column net_amount_per_unit
+		set default 0;
 
 
 -- .currency
@@ -66,7 +74,16 @@ comment on column bill.bill_item.currency is
 
 alter table bill.bill_item
 	alter column currency
-		set default null;
+		set not null;
+
+\unset ON_ERROR_STOP
+alter table bill.bill_item drop constraint currency_not_empty_if_amount;
+alter table bill.bill_item drop constraint bill_bill_item_sane_currency;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill_item
+	add constraint bill_bill_item_sane_currency check
+		(gm.is_null_or_blank_string(currency) is false);
 
 
 -- .status
@@ -179,17 +196,17 @@ SELECT
 		AS item_detail,
 	coalesce(b_bi.date_to_bill, c_enc.started)
 		AS date_to_bill,
-	coalesce(b_bi.net_amount_per_unit, r_b.amount)
-		AS net_amount_per_unit,
+	b_bi.net_amount_per_unit,
 	b_bi.unit_count,
 	b_bi.amount_multiplier,
-	coalesce(b_bi.net_amount_per_unit, r_b.amount) * r_b.vat_multiplier
+	b_bi.unit_count * (
+		(b_bi.net_amount_per_unit * b_bi.amount_multiplier)
+	)	AS final_amount,
+	b_bi.net_amount_per_unit * b_bi.amount_multiplier * r_b.vat_multiplier * b_bi.unit_count
 		AS vat,
-	(coalesce(b_bi.net_amount_per_unit, r_b.amount) * b_bi.amount_multiplier * b_bi.unit_count) + (coalesce(b_bi.net_amount_per_unit, r_b.amount) * r_b.vat_multiplier)
-		AS final_amount,
-	coalesce(b_bi.currency, r_b.currency)
-		AS currency,
-	b_bi.status,
+	b_bi.currency,
+	b_bi.date_to_bill
+		AS raw_date_to_bill,
 	r_b.amount
 		AS billable_amount,
 	r_b.vat_multiplier,
@@ -223,7 +240,10 @@ SELECT
 	r_b.pk
 		AS pk_billable,
 	r_b.fk_data_source
-		AS pk_data_source
+		AS pk_data_source,
+
+	b_bi.xmin
+		AS xmin_bill_item
 FROM
 	bill.bill_item b_bi
 		inner join ref.billable r_b on (b_bi.fk_billable = r_b.pk)
@@ -237,8 +257,27 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
-INSERT INTO bill.bill_item (fk_provider, fk_encounter, description, fk_billable) values (1, 1, 'Reiseberatung', 1);
+INSERT INTO bill.bill_item (
+	fk_provider,
+	fk_encounter,
+	description,
+	fk_billable,
+	net_amount_per_unit,
+	amount_multiplier,
+	currency
+) values (
+	1,
+	1,
+	'Reiseberatung',
+	1,
+	25,
+	2.3,
+	'EUR'
+);
 \set ON_ERROR_STOP 1
+
+
+grant usage on schema bill to group "gm-doctors";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill_item-dynamic.sql', '17.0');

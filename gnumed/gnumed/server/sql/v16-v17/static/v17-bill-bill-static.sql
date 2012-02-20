@@ -11,6 +11,7 @@
 -- --------------------------------------------------------------
 create table bill.bill (
 	pk serial primary key,
+	invoice_id text,
 	payment_method text,
 	close_date timestamp with time zone,
 	fk_receiver_identity integer,

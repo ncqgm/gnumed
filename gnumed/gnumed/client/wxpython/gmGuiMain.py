@@ -73,6 +73,7 @@ from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
+from Gnumed.wxpython import gmBillingWidgets
 
 
 try:
@@ -394,8 +395,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
-		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
+#		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
+#		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
 
 		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
@@ -529,6 +530,14 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_person.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
+
+		menu_person.AppendSeparator()
+
+		item = menu_person.Append(-1, _('Billed items'), _('Show items to be billed to the active patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_billed_items, item)
+
+		item = menu_person.Append(-1, _('Bills'), _('Show bills of the active patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_bills, item)
 
 		menu_person.AppendSeparator()
 
@@ -674,8 +683,14 @@ class gmTopLevelFrame(wx.Frame):
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
 
-		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
-		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
+		ID_DICOM_VIEWER = wx.NewId()
+		self.menu_tools.Append(ID_DICOM_VIEWER, u'arriba', _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_arriba)
+		if not gmShellAPI.detect_external_binary(binary = 'arriba')[0]:
+			_log.info('<arriba> not found, disabling "arriba" menu item')
+			self.menu_tools.Enable(id = ID_DICOM_VIEWER, enable = False)
+#		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+#		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
 
 		self.menu_tools.AppendSeparator()
 
@@ -1988,6 +2003,7 @@ class gmTopLevelFrame(wx.Frame):
 		# this is how it is sorted
 		master_data_lists = [
 			'adr',
+			'billables',
 			'drugs',
 			'codes',
 			'communication_channel_types',
@@ -2003,6 +2019,7 @@ class gmTopLevelFrame(wx.Frame):
 			'patient_tags',
 			'provinces',
 			'db_translations',
+			'ref_data_sources',
 			'test_types',
 			'vacc_indications',
 			'vaccines',
@@ -2029,7 +2046,9 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
 			'vaccines': _('Vaccines'),
 			'workplaces': _('Workplace profiles (which plugins to load)'),
-			'substances': _('Consumable substances')
+			'substances': _('Consumable substances'),
+			'billables': _('Billable items'),
+			'ref_data_sources': _('Reference data sources')
 		}
 
 		map_list2handler = {
@@ -2052,7 +2071,9 @@ class gmTopLevelFrame(wx.Frame):
 			'adr': gmAddressWidgets.manage_addresses,
 			'substances': gmMedicationWidgets.manage_consumable_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
-			'communication_channel_types': gmContactWidgets.manage_comm_channel_types
+			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
+			'billables': gmBillingWidgets.manage_billables,
+			'ref_data_sources': gmCodingWidgets.browse_data_sources
 		}
 
 		#---------------------------------
@@ -2081,13 +2102,13 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
-			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
+			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking = False)
 			return
 
 		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
-				gmShellAPI.run_command_in_shell(cmd, blocking=False)
+				gmShellAPI.run_command_in_shell(cmd, blocking = False)
 				return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
@@ -2284,7 +2305,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
 		if found:
-			gmShellAPI.run_command_in_shell(cmd, blocking=False)
+			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
 		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
 	#----------------------------------------------
@@ -2585,6 +2606,20 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
+	#----------------------------------------------
+	def __on_show_billed_items(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show items billed to patient. No active patient.'))
+			return False
+		gmBillingWidgets.manage_bill_items(parent = self, pk_patient = curr_pat.ID)
+	#----------------------------------------------
+	def __on_show_bills(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show bills for patient. No active patient.'))
+			return False
+		gmBillingWidgets.manage_bills(parent = self, pk_patient = curr_pat.ID)
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
@@ -3318,11 +3353,15 @@ def _safe_wxEndBusyCursor():
 	except wx.PyAssertionError: pass
 #------------------------------------------------------------------------------
 def setup_safe_wxEndBusyCursor():
-	if os.name == 'nt':
-		print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
-		global _original_wxEndBusyCursor
-		_original_wxEndBusyCursor = wx.EndBusyCursor
-		wx.EndBusyCursor = _safe_wxEndBusyCursor
+	# monkey patch wxPython, needed on Windows ...
+	if os.name != 'nt':
+		return
+	print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
+	global _original_wxEndBusyCursor
+	_original_wxEndBusyCursor = wx.EndBusyCursor
+	wx.EndBusyCursor = _safe_wxEndBusyCursor
+	_log.debug('monkey patched wx.EndBusyCursor:')
+	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
 #==============================================================================
 def main():
 

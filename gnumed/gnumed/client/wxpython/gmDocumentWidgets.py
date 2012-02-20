@@ -5,6 +5,7 @@ __version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path
+import os
 import sys
 import re as regex
 import logging
@@ -674,21 +675,22 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
 			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
-			if new_idx in self.__doc['seq_idx_list']:
-				msg = _(
-					'Cannot set page number to [%s] because\n'
-					'another page with this number exists.\n'
-					'\n'
-					'Page numbers in use:\n'
-					'\n'
-					' %s'
-				) % (
-					new_idx,
-					self.__doc['seq_idx_list']
-				)
-				gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
-			else:
-				self.__part['seq_idx'] = new_idx
+			if self.__part['seq_idx'] != new_idx:
+				if new_idx in self.__doc['seq_idx_list']:
+					msg = _(
+						'Cannot set page number to [%s] because\n'
+						'another page with this number exists.\n'
+						'\n'
+						'Page numbers in use:\n'
+						'\n'
+						' %s'
+					) % (
+						new_idx,
+						self.__doc['seq_idx_list']
+					)
+					gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
+				else:
+					self.__part['seq_idx'] = new_idx
 			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
@@ -2136,9 +2138,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 
 		cmd = u'%s %s' % (external_cmd, part_file)
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -2218,10 +2224,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		part_files = self.__curr_node_data.export_parts_to_files(chunksize = chunksize)
 
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		cmd = external_cmd + u' ' + u' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -2289,9 +2299,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		cmd = u'%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
