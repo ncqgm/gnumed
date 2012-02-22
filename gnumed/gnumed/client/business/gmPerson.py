@@ -314,6 +314,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		u"""UPDATE dem.identity SET
 				gender = %(gender)s,
 				dob = %(dob)s,
+				dob_is_estimated = %(dob_is_estimated)s,
 				tob = %(tob)s,
 				cob = gm.nullify_empty_string(%(cob)s),
 				title = gm.nullify_empty_string(%(title)s),
@@ -344,7 +345,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		'emergency_contact',
 		'pk_emergency_contact',
 		'pk_primary_provider',
-		'comment'
+		'comment',
+		'dob_is_estimated'
 	]
 	#--------------------------------------------------------
 	def _get_ID(self):
@@ -451,14 +453,6 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
-	#--------------------------------------------------------
-	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
-		return gmDateTime.format_dob (
-			self._payload[self._idx['dob']],
-			format = format,
-			encoding = encoding,
-			none_string = none_string
-		)
 	#--------------------------------------------------------
 	def get_description_gender(self):
 		return _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)') % {
@@ -1041,6 +1035,15 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
+	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
+		return gmDateTime.format_dob (
+			self._payload[self._idx['dob']],
+			format = format,
+			encoding = encoding,
+			none_string = none_string,
+			dob_is_estimated = self._payload[self._idx['dob_is_estimated']]
+		)
+	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
 
@@ -1053,15 +1056,27 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		death = self['deceased']
 
 		if death is None:
-			return gmDateTime.format_apparent_age_medically (
-				age = gmDateTime.calculate_apparent_age(start = dob)
+			return u'%s%s' % (
+				gmTools.bool2subst (
+					self._payload[self._idx['dob_is_estimated']],
+					gmTools.u_almost_equal_to,
+					u''
+				),
+				gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = dob)
+				)
 			)
 
 		if dob > death:
 			return _('invalid age: DOB after death')
 
-		return u'%s%s' % (
+		return u'%s%s%s' % (
 			gmTools.u_latin_cross,
+			gmTools.bool2subst (
+				self._payload[self._idx['dob_is_estimated']],
+				gmTools.u_almost_equal_to,
+				u''
+			),
 			gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age (
 					start = dob,

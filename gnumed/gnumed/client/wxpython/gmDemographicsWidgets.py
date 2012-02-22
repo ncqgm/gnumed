@@ -10,6 +10,7 @@ import codecs
 import re as regex
 import logging
 import os
+import datetime as pydt
 
 
 import wx
@@ -500,7 +501,7 @@ def disable_identity(identity=None):
 			identity['firstnames'],
 			identity['lastnames'],
 			identity['gender'],
-			identity['dob'],
+			identity.get_formatted_dob(),
 			gmTools.bool2subst (
 				identity.is_patient,
 				_('This patient DID receive care.'),
@@ -854,6 +855,25 @@ def _validate_dob_field(dob_prw):
 	# empty DOB field
 	dob_prw.display_as_valid(False)
 	return True
+
+#------------------------------------------------------------
+def _validate_tob_field(ctrl):
+
+	val = ctrl.GetValue().strip()
+
+	if val == u'':
+		return True
+
+	converted, hours = gmTools.input2int(val[:2], 0, 23)
+	if not converted:
+		return False
+
+	converted, minutes = gmTools.input2int(val[3:5], 0, 59)
+	if not converted:
+		return False
+
+	return True
+
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgIdentityEAPnl
 
@@ -1610,8 +1630,12 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		if not _validate_dob_field(self._PRW_dob):
 			error = True
 
-		# TOB validation if non-empty
-#		if self._TCTRL_tob.GetValue().strip() != u'':
+		# TOB validation
+		if _validate_tob_field(self._TCTRL_tob):
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = True)
+		else:
+			error = True
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
 
 		return (not error)
 	#----------------------------------------------------------------
@@ -1812,9 +1836,13 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		)
 		_log.debug('identity created: %s' % new_identity)
 
+		new_identity['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
+		val = self._TCTRL_tob.GetValue().strip()
+		if val != u'':
+			new_identity['tob'] = pydt.time(int(val[:2]), int(val[3:5]))
 		new_identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip())
 		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
-		#TOB
+
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov

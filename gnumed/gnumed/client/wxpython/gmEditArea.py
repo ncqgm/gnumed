@@ -225,8 +225,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 	#----------------------------------------------------------------
 	def display_tctrl_as_valid(self, tctrl=None, valid=None):
-		tctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
-		tctrl.Refresh()
+		self.display_ctrl_as_valid(self, ctrl = tctrl, valid = valid)
 	#----------------------------------------------------------------
 	def display_ctrl_as_valid(self, ctrl=None, valid=None):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
@@ -1325,81 +1324,6 @@ class gmEditArea(cEditArea):
 				pass
 		return values
 #====================================================================
-class gmFamilyHxEditArea(gmEditArea):
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'family history')
-		except gmExceptions.ConstructorError:
-			_log.exceptions('cannot instantiate family Hx edit area')
-			raise
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.debug("making family Hx lines")
-		lines = []
-		self.input_fields = {}
-		# line 1
-		# FIXME: put patient search widget here, too ...
-		# add button "make active patient"
-		self.input_fields['name'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		self.input_fields['DOB'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lbl_dob = self._make_prompt(parent, _(" Date of Birth "), richards_blue)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['name'], 4, wx.EXPAND)
-		szr.Add(lbl_dob, 2, wx.EXPAND)
-		szr.Add(self.input_fields['DOB'], 4, wx.EXPAND)
-		lines.append(szr)
-		# line 2
-		# FIXME: keep relationship attachments permamently ! (may need to make new patient ...)
-		# FIXME: learning phrasewheel attached to list loaded from backend
-		self.input_fields['relationship'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['relationship'], 4, wx.EXPAND)
-		lines.append(szr)
-		# line 3
-		self.input_fields['condition'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		self.cb_condition_confidential = wx.CheckBox(parent, -1, _("confidental"), wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['condition'], 6, wx.EXPAND)
-		szr.Add(self.cb_condition_confidential, 0, wx.EXPAND)
-		lines.append(szr)
-		# line 4
-		self.input_fields['comment'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lines.append(self.input_fields['comment'])
-		# line 5
-		lbl_onset = self._make_prompt(parent, _(" age onset "), richards_blue)
-		self.input_fields['age onset'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		#    FIXME: combo box ...
-		lbl_caused_death = self._make_prompt(parent, _(" caused death "), richards_blue)
-		self.input_fields['caused death'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lbl_aod = self._make_prompt(parent, _(" age died "), richards_blue)
-		self.input_fields['AOD'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(lbl_onset, 0, wx.EXPAND)
-		szr.Add(self.input_fields['age onset'], 1,wx.EXPAND)
-		szr.Add(lbl_caused_death, 0, wx.EXPAND)
-		szr.Add(self.input_fields['caused death'], 2,wx.EXPAND)
-		szr.Add(lbl_aod, 0, wx.EXPAND)
-		szr.Add(self.input_fields['AOD'], 1, wx.EXPAND)
-		szr.Add(2, 2, 8)
-		lines.append(szr)
-		# line 6
-		self.input_fields['progress notes'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lines.append(self.input_fields['progress notes'])
-		# line 8
-		self.Btn_next_condition = wx.Button(parent, -1, _("Next Condition"))
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.AddSpacer(10, 0, 0)
-		szr.Add(self.Btn_next_condition, 0, wx.EXPAND | wx.ALL, 1)
-		szr.Add(2, 1, 5)
-		szr.Add(self._make_standard_buttons(parent), 0, wx.EXPAND)
-		lines.append(szr)
-
-		return lines
-
-	def _save_data(self):
-		return 1
-
-#====================================================================
 class gmPastHistoryEditArea(gmEditArea):
 
 	def __init__(self, parent, id):
@@ -1440,7 +1364,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			widget = self.fld_age_noted,
 			weight = 2
 		)
-		
+
 		# line 2
 		self.fld_laterality_none= wx.RadioButton(parent, -1, _("N/A"))
 		self.fld_laterality_left= wx.RadioButton(parent, -1, _("L"))

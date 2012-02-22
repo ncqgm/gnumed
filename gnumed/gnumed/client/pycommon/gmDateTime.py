@@ -239,13 +239,17 @@ def mxdt2py_dt(mxDateTime):
 		)
 		raise
 #===========================================================================
-def format_dob(dob, format='%x', encoding=None, none_string=None):
+def format_dob(dob, format='%x', encoding=None, none_string=None, dob_is_estimated=False):
 	if dob is None:
 		if none_string is None:
 			return _('** DOB unknown **')
 		return none_string
 
-	return pydt_strftime(dob, format = format, encoding = encoding, accuracy = acc_days)
+	dob_txt = pydt_strftime(dob, format = format, encoding = encoding, accuracy = acc_days)
+	if dob_is_estimated:
+		return u'%s%s' % (u'\u2248', dob_txt)
+
+	return dob_txt
 #---------------------------------------------------------------------------
 def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
 
