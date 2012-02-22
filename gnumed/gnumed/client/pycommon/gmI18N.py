@@ -77,7 +77,7 @@ __orig_tag__ = u'Translate this or i18n into <en_EN> will not work properly !'
 # **********************************************************
 
 # Q: I can't use non-ascii characters in labels and menus.
-# A: This can happen if your Python's sytem encoding is ascii and
+# A: This can happen if your Python's system encoding is ASCII and
 #    wxPython is non-unicode. Edit/create the file sitecustomize.py
 #    (should be somewhere in your PYTHONPATH), and put these magic lines:
 #

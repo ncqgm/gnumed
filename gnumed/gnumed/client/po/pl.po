@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-01-14 12:10+CET\n"
+"POT-Creation-Date: 2012-02-22 13:10+CET\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -134,6 +134,45 @@ msgstr "Nie można uruchomić [arriba]!"
 
 msgid "No [arriba] result found in [%s]."
 msgstr "Brak wyników dla zapytania „[arriba]” w [%s]."
+
+#, fuzzy
+msgid "Active billable item"
+msgstr " %s znanych problemów\n"
+
+msgid "Inactive billable item"
+msgstr ""
+
+msgid " %s %s + %s%% VAT = %s %s\n"
+msgstr ""
+
+msgid "Open bill"
+msgstr ""
+
+#, fuzzy
+msgid "Closed bill"
+msgstr "nowy epizod"
+
+#, fuzzy
+msgid " Closed: %s\n"
+msgstr "Epizod"
+
+msgid " Bill value: %s %s\n"
+msgstr ""
+
+msgid " Items billed: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid " Patient: %s\n"
+msgstr " Twoja wersja: \"%s\"\n"
+
+msgid " Receiver: %s\n"
+msgstr ""
+
+msgid ""
+" Receiver address:\n"
+"  %s"
+msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "dummy-nie-ma-potrzeby-tłumaczenia-jednak-uszczęśliwi-epydoc"
@@ -675,6 +714,10 @@ msgstr ""
 msgid " Episode: %s\n"
 msgstr "Epizod"
 
+#, fuzzy
+msgid " Health issue: %s\n"
+msgstr "problem zdrowotny: %s"
+
 msgid " Advice: %s\n"
 msgstr ""
 
@@ -1131,6 +1174,14 @@ msgstr ""
 msgid ""
 "Help requested\n"
 "--------------"
+msgstr ""
+
+msgid "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
+msgstr ""
+
+msgid ""
+"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
+"%s"
 msgstr ""
 
 msgid "unknown test status [%s]"
@@ -1749,6 +1800,85 @@ msgstr ""
 msgid "Comment:"
 msgstr ""
 
+msgid "EUR"
+msgstr ""
+
+msgid "The billable from which to create the bill item."
+msgstr ""
+
+msgid "The encounter this item belongs to (or was created under)."
+msgstr ""
+
+msgid ""
+"Optional: Pick the date at which to bill this item. If this is left blank "
+"the bill will show the date of the corresponding encounter."
+msgstr ""
+
+msgid "How many units of the item are to be charged."
+msgstr ""
+
+msgid "Base amount w/o VAT."
+msgstr ""
+
+msgid ""
+"The factor by which to multiply the base amount. Normally 1.\n"
+"\n"
+" 0: complimentary items\n"
+" >1: increases\n"
+" <1: rebates\n"
+" <0:  credit notes"
+msgstr ""
+
+msgid "Optional: An item-specific comment to be put on the bill."
+msgstr ""
+
+msgid "Item"
+msgstr ""
+
+msgid "Charge Date"
+msgstr ""
+
+msgid "No of Units"
+msgstr ""
+
+msgid "Value"
+msgstr "Wartość"
+
+msgid "Factor"
+msgstr ""
+
+msgid "Show non-invoiced only"
+msgstr ""
+
+msgid "&Insert"
+msgstr ""
+
+msgid "Add billing item"
+msgstr ""
+
+msgid ""
+"Select - by code or part of the description - a billable item to add to the "
+"patient."
+msgstr ""
+
+msgid "Modify the factor to apply to the item price."
+msgstr ""
+
+msgid ""
+"Optional: Add a short patient specific comment on this item. Will be shown "
+"on the bill."
+msgstr ""
+
+#, fuzzy
+msgid "Add the selected billing item to the patient."
+msgstr "Działaj na elementach wybranych z powyższej listy."
+
+msgid "Item:"
+msgstr ""
+
+msgid "Factor:"
+msgstr ""
+
 msgid "Fake brand"
 msgstr ""
 
@@ -1972,9 +2102,6 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-msgid "Value"
-msgstr "Wartość"
-
 msgid ""
 "Enter the name of the consumable substance.\n"
 "\n"
@@ -2134,8 +2261,8 @@ msgid "ADR"
 msgstr ""
 
 msgid ""
-"Sort entries by \"health issue\" and \"episode\" for which they are taken, "
-"then \"substance\", then \"started\"."
+"Sort entries by the \"health issue\" for which they are taken, then "
+"\"substance\", then \"started\"."
 msgstr ""
 
 msgid ""
@@ -2143,6 +2270,11 @@ msgid ""
 "\n"
 "Thus each substance will only appear once unless it is really taken in more "
 "than one preparation."
+msgstr ""
+
+msgid ""
+"Sort entries by \"health issue\" and \"episode\" for which they are taken, "
+"then \"substance\", then \"started\"."
 msgstr ""
 
 msgid ""
@@ -2635,6 +2767,9 @@ msgstr "Szablon"
 msgid "Export"
 msgstr ""
 
+msgid "AbiWord"
+msgstr ""
+
 msgid "Gnuplot"
 msgstr ""
 
@@ -2830,8 +2965,12 @@ msgid ""
 "(This will NOT endanger any data.)"
 msgstr ""
 
-msgid "Edit"
+msgid "middle extra"
 msgstr ""
+
+#, fuzzy
+msgid "right extra"
+msgstr "prawy"
 
 msgid "Add a new item to the list."
 msgstr ""
@@ -4635,6 +4774,9 @@ msgstr ""
 msgid "Add a vaccine to GNUmed."
 msgstr ""
 
+msgid "Select the indications this vaccination was given against."
+msgstr ""
+
 msgid "The batch number of the vaccine."
 msgstr ""
 
@@ -4683,165 +4825,6 @@ msgstr ""
 msgid "Given by"
 msgstr ""
 
-msgid "Tetanus"
-msgstr ""
-
-msgid "Measles"
-msgstr ""
-
-msgid "Diphtheria"
-msgstr ""
-
-msgid "Mumps"
-msgstr ""
-
-msgid "Influenza"
-msgstr ""
-
-msgid "A"
-msgstr ""
-
-msgid "C"
-msgstr ""
-
-msgid "Hep A"
-msgstr ""
-
-msgid "Pertussis"
-msgstr ""
-
-msgid "Rubella"
-msgstr ""
-
-msgid "Pneumococc"
-msgstr ""
-
-msgid "W"
-msgstr ""
-
-msgid "Y"
-msgstr ""
-
-msgid "Cholera"
-msgstr ""
-
-msgid "Poliomyelitis"
-msgstr ""
-
-msgid "Varicella"
-msgstr ""
-
-msgid "Cox (Q)"
-msgstr ""
-
-msgid "Tick Encep"
-msgstr ""
-
-msgid "Typhoid"
-msgstr ""
-
-msgid "HiB"
-msgstr ""
-
-msgid "H1N1"
-msgstr ""
-
-msgid "Jap B"
-msgstr ""
-
-msgid "Rotavirus"
-msgstr ""
-
-msgid "Hep B"
-msgstr ""
-
-msgid "HPV"
-msgstr ""
-
-msgid "Tuberculosis"
-msgstr ""
-
-msgid "Rabies"
-msgstr ""
-
-msgid "Yellow fever"
-msgstr ""
-
-msgid "Anthrax"
-msgstr ""
-
-msgid "Plague"
-msgstr ""
-
-msgid "Smallpox"
-msgstr ""
-
-msgid "Regardless of childhood/adult toxoid content."
-msgstr ""
-
-msgid "Seasonal influenza"
-msgstr ""
-
-msgid "Meningococcus A"
-msgstr ""
-
-msgid "Meningococcus C"
-msgstr ""
-
-msgid "Pneumococcus"
-msgstr ""
-
-msgid "Meningococcus W"
-msgstr ""
-
-msgid "Meningococcus Y"
-msgstr ""
-
-msgid "Varicella zoster (shingles)"
-msgstr ""
-
-msgid "Coxiella burnetii (Q fever)"
-msgstr ""
-
-msgid "Tick-borne meningoencephalitis"
-msgstr ""
-
-msgid "Salmonella typhi (typhoid)"
-msgstr ""
-
-msgid "HiB: Haemophilus influenzae B"
-msgstr ""
-
-msgid "H1N1 influenza"
-msgstr ""
-
-msgid "Japanese B encephalitis"
-msgstr ""
-
-msgid "Human papilloma virus"
-msgstr ""
-
-msgid "Bacillus anthracis"
-msgstr ""
-
-msgid "Yersinia pestis"
-msgstr ""
-
-msgid "Variola virus"
-msgstr ""
-
-msgid "<--Resp-->"
-msgstr ""
-
-msgid "<--Neuro-->"
-msgstr ""
-
-msgid "<--GI-->"
-msgstr ""
-
-msgid "Other:"
-msgstr ""
-
 msgid "Fake"
 msgstr ""
 
@@ -4858,6 +4841,9 @@ msgid ""
 msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
+msgstr ""
+
+msgid "Manage the indications for this vaccine."
 msgstr ""
 
 msgid "The ATC for this vaccine."
@@ -5406,6 +5392,179 @@ msgstr ""
 msgid "&Reset"
 msgstr ""
 
+msgid "#Units"
+msgstr ""
+
+msgid "Charge Item"
+msgstr ""
+
+#, fuzzy
+msgid "Encounter #"
+msgstr "%s: spotkanie (%s)"
+
+msgid "Catalog"
+msgstr ""
+
+msgid "Inv #"
+msgstr ""
+
+msgid "No pending lines so nothing was assigned"
+msgstr ""
+
+msgid "Cant insert new Billing Record - No Charge Item"
+msgstr ""
+
+msgid "Cant insert new Billing Record - Invalid Qty float"
+msgstr ""
+
+msgid "Billing Record: confirm deletion"
+msgstr ""
+
+#, fuzzy
+msgid "Billrec Actions:"
+msgstr "Szczepienia:"
+
+#, fuzzy
+msgid "Edit corresponding Encounter"
+msgstr "zaczynam spotkanie z pacjentem"
+
+msgid "Show Invoice"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Edit Bill Rec"
+msgstr ""
+
+msgid ""
+"Did *NOT* save your changes. Mostly due to someone has changed this Record "
+"meanwhile. Please close this Dialog and try it again."
+msgstr ""
+
+#, fuzzy
+msgid "Problem wigh updating"
+msgstr "Problem"
+
+msgid "Cannot delete this billable item. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the items for billing registered with GNUmed.\n"
+msgstr ""
+
+msgid "Showing billable items."
+msgstr ""
+
+#, fuzzy
+msgid "Do you truly want to irrevocably delete this bill ?"
+msgstr ""
+"Czy jesteś pewny, że chcesz usunąć ten epizod?\n"
+" \"%s\"\n"
+
+#, fuzzy
+msgid "Delete bill"
+msgstr "Usuń"
+
+msgid "Showing bills."
+msgstr ""
+
+#, fuzzy
+msgid "Close date"
+msgstr "nowy epizod"
+
+msgid "Invoice ID"
+msgstr ""
+
+#, fuzzy
+msgid "Create invoice"
+msgstr "Epizod docelowy"
+
+msgid "Create PDF invoice from bill"
+msgstr ""
+
+msgid "Show PDF"
+msgstr ""
+
+msgid "Show the corresponding invoice PDF"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot edit already invoiced bill item."
+msgstr "Nie można dodać problemu zdrowotnego. Brak aktywnego pacjenta."
+
+#, fuzzy
+msgid "Adding new bill item"
+msgstr "Dodawanie nowego epizodu"
+
+#, fuzzy
+msgid "Editing bill item"
+msgstr "Dodawanie nowego epizodu"
+
+#, fuzzy
+msgid "Cannot delete already invoiced bill items."
+msgstr "Nie można dodać problemu zdrowotnego. Brak aktywnego pacjenta."
+
+msgid "Showing bill items."
+msgstr ""
+
+#, fuzzy
+msgid "Count"
+msgstr "Kraj"
+
+msgid "VAT"
+msgstr ""
+
+msgid "Charge date"
+msgstr ""
+
+msgid "Count x (Value x Factor)"
+msgstr ""
+
+msgid "Invoice"
+msgstr ""
+
+msgid "Invoice selected"
+msgstr ""
+
+#, fuzzy
+msgid "Create invoice from selected items."
+msgstr "Brak danych opisowych dla wybranych epizodów."
+
+msgid "Browse bills"
+msgstr ""
+
+msgid "Browse bills of this patient."
+msgstr ""
+
+msgid "Browse billables"
+msgstr ""
+
+msgid "Browse list of billables."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Do you really want to delete this\n"
+"bill item from the patient ?"
+msgstr ""
+"Czy jesteś pewny, że chcesz usunąć ten epizod?\n"
+" \"%s\"\n"
+
+#, fuzzy
+msgid "Deleting bill item"
+msgstr "Usuwanie problemu zdrowotnego"
+
+msgid ""
+"\"Factor\" must be a number\n"
+"\n"
+"Cannot insert bill item."
+msgstr ""
+
+msgid "Inserting bill item"
+msgstr ""
+
 msgid "Your client (%s) is up to date."
 msgstr ""
 
@@ -5459,6 +5618,19 @@ msgstr ""
 msgid "Abort the dialog and do not change the current setting."
 msgstr ""
 
+msgid "Sources of reference data registered in GNUmed."
+msgstr ""
+
+#, fuzzy
+msgid "Showing data sources"
+msgstr "Wybieranie problemu zdrowotnego"
+
+msgid "System"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
 msgid "Coded terms known to GNUmed (may take a while to load)."
 msgstr ""
 
@@ -5466,9 +5638,6 @@ msgid "Showing coded terms."
 msgstr ""
 
 msgid "Coding system details"
-msgstr ""
-
-msgid "System"
 msgstr ""
 
 msgid "Version"
@@ -5822,9 +5991,6 @@ msgid "max DB"
 msgstr ""
 
 msgid "min DB"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "&Install"
@@ -6569,6 +6735,21 @@ msgstr ""
 msgid "showing document"
 msgstr ""
 
+#, fuzzy
+msgid "Document list for this patient."
+msgstr "Wprowadź opis tego zewnętrznego identyfikatora."
+
+#, fuzzy
+msgid "Showing documents."
+msgstr "Usuwanie epizodu"
+
+#, fuzzy
+msgid "Generated"
+msgstr "utworzony automatycznie"
+
+msgid "Ref #"
+msgstr ""
+
 msgid "available documents (%s)"
 msgstr ""
 
@@ -6601,6 +6782,14 @@ msgstr ""
 msgid "%s Sign/Edit properties"
 msgstr ""
 
+#, fuzzy
+msgid "Delete part"
+msgstr "Usuń"
+
+#, fuzzy
+msgid "Move part"
+msgstr "część"
+
 msgid "Print part"
 msgstr ""
 
@@ -6613,6 +6802,10 @@ msgstr ""
 #, fuzzy
 msgid "Document Actions:"
 msgstr "Dokumenty:"
+
+#, fuzzy
+msgid "Add parts"
+msgstr "część"
 
 msgid "Print all parts"
 msgstr ""
@@ -6662,6 +6855,28 @@ msgid "part %2s"
 msgstr ""
 
 msgid "Activate as current photo"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the document into which to move the selected part !\n"
+msgstr "Wybierz epizod, do którego chcesz przenieść opis."
+
+#, fuzzy
+msgid "Deleting document part"
+msgstr "Usuwanie epizodu"
+
+msgid ""
+"Are you sure you want to delete the %s part #%s\n"
+"\n"
+"%sfrom the following document\n"
+"\n"
+" %s (%s)\n"
+"%s\n"
+"Really delete ?\n"
+"\n"
+"(this action cannot be reversed)"
 msgstr ""
 
 msgid ""
@@ -7210,6 +7425,10 @@ msgstr "istotne"
 
 msgid "fatal"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot create health issue without name."
+msgstr "NIe można zapisać epizodu bez nazwy."
 
 msgid ""
 "Cannot create new health issue:\n"
@@ -7787,12 +8006,6 @@ msgstr "Wybieranie problemu zdrowotnego"
 msgid "Drug data source"
 msgstr ""
 
-msgid "FreeDiams path"
-msgstr ""
-
-msgid "Set the path for the FreeDiams binary."
-msgstr ""
-
 msgid "ADR URL"
 msgstr ""
 
@@ -7980,6 +8193,20 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
+msgid "Billed items"
+msgstr ""
+
+#, fuzzy
+msgid "Show items to be billed to the active patient."
+msgstr "Wybierz epizod, do którego chcesz przenieść opis."
+
+msgid "Bills"
+msgstr ""
+
+#, fuzzy
+msgid "Show bills of the active patient."
+msgstr "Wybierz epizod, do którego chcesz przenieść opis."
+
 #, fuzzy
 msgid "&Past history (health issue / PMH)"
 msgstr "Proszę wybrać problem zdrowotny:"
@@ -8137,9 +8364,6 @@ msgid "Acute coronary syndrome/stroke risk assessment."
 msgstr ""
 
 msgid "MI/stroke risk"
-msgstr ""
-
-msgid "arriba"
 msgstr ""
 
 msgid "arriba: cardiovascular risk assessment (%s)."
@@ -8789,6 +9013,13 @@ msgstr ""
 msgid "Consumable substances"
 msgstr ""
 
+msgid "Billable items"
+msgstr ""
+
+#, fuzzy
+msgid "Reference data sources"
+msgstr "Wybieranie problemu zdrowotnego"
+
 msgid "Master data management"
 msgstr ""
 
@@ -8900,6 +9131,14 @@ msgstr ""
 
 msgid "Exported demographics to GDT file [%s]."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot show items billed to patient. No active patient."
+msgstr "Nie można załadować danych opisowych. Brak aktywnego pacjenta."
+
+#, fuzzy
+msgid "Cannot show bills for patient. No active patient."
+msgstr "Nie można załadować danych opisowych. Brak aktywnego pacjenta."
 
 msgid "Cannot add staff member. No active patient."
 msgstr ""
@@ -11402,6 +11641,13 @@ msgstr ""
 msgid "ATCs: single-condition vaccines"
 msgstr ""
 
+msgid "Pick the relevant indications."
+msgstr ""
+
+#, fuzzy
+msgid "Known indications"
+msgstr "nieznana reakcja"
+
 msgid "Adding new vaccine"
 msgstr ""
 
@@ -11447,6 +11693,17 @@ msgid ""
 "used in to document a vaccination with.\n"
 msgstr ""
 
+#, fuzzy
+msgid "You must select at least one indication."
+msgstr "Musisz wybrać epizod, w ramach którego ten dokument ma być zapisany."
+
+msgid "Pick the diseases this vaccine protects against."
+msgstr ""
+
+#, fuzzy
+msgid "This vaccine"
+msgstr "Szczepionka"
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -11471,6 +11728,13 @@ msgid "Vaccination Plans"
 msgstr ""
 
 msgid "prevention"
+msgstr ""
+
+#, fuzzy
+msgid "Saving vaccination"
+msgstr "Szczepienie"
+
+msgid "Pick the diseases this vaccination was given against."
 msgstr ""
 
 msgid "  IMMUNISATIONS  "
@@ -11563,6 +11827,9 @@ msgid "maintain vaccination history"
 msgstr ""
 
 msgid "Allergies"
+msgstr ""
+
+msgid "Billing"
 msgstr ""
 
 msgid "Cardiac Devices"

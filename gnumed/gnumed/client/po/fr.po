@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-14 12:09+CET\n"
+"POT-Creation-Date: 2012-02-22 13:09+CET\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -145,6 +145,46 @@ msgstr "Impossible d'exécuter [arriba] !"
 
 msgid "No [arriba] result found in [%s]."
 msgstr "Pas de résultat [arriba] trouvé dans [%s]."
+
+#, fuzzy
+msgid "Active billable item"
+msgstr "Problemes actifs"
+
+msgid "Inactive billable item"
+msgstr ""
+
+msgid " %s %s + %s%% VAT = %s %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Open bill"
+msgstr "Ouvrir un fichier"
+
+#, fuzzy
+msgid "Closed bill"
+msgstr "Fermé"
+
+#, fuzzy
+msgid " Closed: %s\n"
+msgstr "Fermé"
+
+msgid " Bill value: %s %s\n"
+msgstr ""
+
+msgid " Items billed: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid " Patient: %s\n"
+msgstr "Patient :"
+
+msgid " Receiver: %s\n"
+msgstr ""
+
+msgid ""
+" Receiver address:\n"
+"  %s"
+msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -691,6 +731,10 @@ msgstr ""
 msgid " Episode: %s\n"
 msgstr ""
 
+#, fuzzy
+msgid " Health issue: %s\n"
+msgstr "Problème de santé: %s"
+
 msgid " Advice: %s\n"
 msgstr ""
 
@@ -1179,6 +1223,14 @@ msgid ""
 "Help requested\n"
 "--------------"
 msgstr "Aide demandé"
+
+msgid "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
+msgstr ""
+
+msgid ""
+"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
+"%s"
+msgstr ""
 
 msgid "unknown test status [%s]"
 msgstr "résultat de test inconnu [%s]"
@@ -1842,6 +1894,90 @@ msgstr "commence à :"
 msgid "Comment:"
 msgstr "Commentaires"
 
+#, fuzzy
+msgid "EUR"
+msgstr "URL"
+
+msgid "The billable from which to create the bill item."
+msgstr ""
+
+msgid "The encounter this item belongs to (or was created under)."
+msgstr ""
+
+msgid ""
+"Optional: Pick the date at which to bill this item. If this is left blank "
+"the bill will show the date of the corresponding encounter."
+msgstr ""
+
+msgid "How many units of the item are to be charged."
+msgstr ""
+
+msgid "Base amount w/o VAT."
+msgstr ""
+
+msgid ""
+"The factor by which to multiply the base amount. Normally 1.\n"
+"\n"
+" 0: complimentary items\n"
+" >1: increases\n"
+" <1: rebates\n"
+" <0:  credit notes"
+msgstr ""
+
+msgid "Optional: An item-specific comment to be put on the bill."
+msgstr ""
+
+#, fuzzy
+msgid "Item"
+msgstr "Editer un élement"
+
+#, fuzzy
+msgid "Charge Date"
+msgstr "Dernière date"
+
+#, fuzzy
+msgid "No of Units"
+msgstr "Unités"
+
+msgid "Value"
+msgstr "Valeur"
+
+msgid "Factor"
+msgstr ""
+
+msgid "Show non-invoiced only"
+msgstr ""
+
+#, fuzzy
+msgid "&Insert"
+msgstr "&Installer"
+
+msgid "Add billing item"
+msgstr ""
+
+msgid ""
+"Select - by code or part of the description - a billable item to add to the "
+"patient."
+msgstr ""
+
+msgid "Modify the factor to apply to the item price."
+msgstr ""
+
+msgid ""
+"Optional: Add a short patient specific comment on this item. Will be shown "
+"on the bill."
+msgstr ""
+
+#, fuzzy
+msgid "Add the selected billing item to the patient."
+msgstr "Supprimer le(s) objet(s) sélectionné(s) de la liste."
+
+msgid "Item:"
+msgstr ""
+
+msgid "Factor:"
+msgstr ""
+
 msgid "Fake brand"
 msgstr "Nom commercial factice"
 
@@ -2131,9 +2267,6 @@ msgstr ""
 msgid "Channel"
 msgstr "Canal"
 
-msgid "Value"
-msgstr "Valeur"
-
 msgid ""
 "Enter the name of the consumable substance.\n"
 "\n"
@@ -2302,9 +2435,10 @@ msgstr ""
 msgid "ADR"
 msgstr "Effets indésirables"
 
+#, fuzzy
 msgid ""
-"Sort entries by \"health issue\" and \"episode\" for which they are taken, "
-"then \"substance\", then \"started\"."
+"Sort entries by the \"health issue\" for which they are taken, then "
+"\"substance\", then \"started\"."
 msgstr ""
 "Trier la liste par \"problème de santé\" et \"épisode\" pour lesquels ils "
 "sont pris, puis par \"substance\" et \"commencé\"."
@@ -2315,6 +2449,13 @@ msgid ""
 "Thus each substance will only appear once unless it is really taken in more "
 "than one preparation."
 msgstr "s"
+
+msgid ""
+"Sort entries by \"health issue\" and \"episode\" for which they are taken, "
+"then \"substance\", then \"started\"."
+msgstr ""
+"Trier la liste par \"problème de santé\" et \"épisode\" pour lesquels ils "
+"sont pris, puis par \"substance\" et \"commencé\"."
 
 msgid ""
 "Whether to show inactive substances, too, or only those which are assumed to "
@@ -2886,6 +3027,9 @@ msgstr "&Modèle"
 msgid "Export"
 msgstr "Rapport"
 
+msgid "AbiWord"
+msgstr ""
+
 msgid "Gnuplot"
 msgstr "Gnuplot"
 
@@ -3092,8 +3236,13 @@ msgstr ""
 "\n"
 "(Ceci ne va PAS mettre en péril vos données.)"
 
-msgid "Edit"
-msgstr "Édition"
+#, fuzzy
+msgid "middle extra"
+msgstr "Ce qui reste en trop"
+
+#, fuzzy
+msgid "right extra"
+msgstr "Ce qui reste en trop"
 
 msgid "Add a new item to the list."
 msgstr "Ajouter un nouvel objet à la liste."
@@ -5038,6 +5187,9 @@ msgstr ""
 msgid "Add a vaccine to GNUmed."
 msgstr "Ajouter un vaccin à GNUmed."
 
+msgid "Select the indications this vaccination was given against."
+msgstr ""
+
 msgid "The batch number of the vaccine."
 msgstr ""
 
@@ -5091,165 +5243,6 @@ msgstr ""
 msgid "Given by"
 msgstr ""
 
-msgid "Tetanus"
-msgstr "Tétanos"
-
-msgid "Measles"
-msgstr "Rubéole"
-
-msgid "Diphtheria"
-msgstr "Diphtérie"
-
-msgid "Mumps"
-msgstr "Oreillons"
-
-msgid "Influenza"
-msgstr ""
-
-msgid "A"
-msgstr "A"
-
-msgid "C"
-msgstr "C"
-
-msgid "Hep A"
-msgstr "Hépatite A"
-
-msgid "Pertussis"
-msgstr ""
-
-msgid "Rubella"
-msgstr "Rubéole"
-
-msgid "Pneumococc"
-msgstr "Pneumocoque"
-
-msgid "W"
-msgstr ""
-
-msgid "Y"
-msgstr ""
-
-msgid "Cholera"
-msgstr "Choléra"
-
-msgid "Poliomyelitis"
-msgstr "Polyomyélite"
-
-msgid "Varicella"
-msgstr "Varicelle"
-
-msgid "Cox (Q)"
-msgstr ""
-
-msgid "Tick Encep"
-msgstr ""
-
-msgid "Typhoid"
-msgstr "Typhoïde"
-
-msgid "HiB"
-msgstr "HiB"
-
-msgid "H1N1"
-msgstr "H1N1"
-
-msgid "Jap B"
-msgstr ""
-
-msgid "Rotavirus"
-msgstr "Rotavirus"
-
-msgid "Hep B"
-msgstr "Hépatite B"
-
-msgid "HPV"
-msgstr "HPV"
-
-msgid "Tuberculosis"
-msgstr "Tuberculose"
-
-msgid "Rabies"
-msgstr "Rage"
-
-msgid "Yellow fever"
-msgstr "Fièvre jaune"
-
-msgid "Anthrax"
-msgstr ""
-
-msgid "Plague"
-msgstr "Peste"
-
-msgid "Smallpox"
-msgstr "Variole"
-
-msgid "Regardless of childhood/adult toxoid content."
-msgstr ""
-
-msgid "Seasonal influenza"
-msgstr ""
-
-msgid "Meningococcus A"
-msgstr "Méningocoque A"
-
-msgid "Meningococcus C"
-msgstr "Méningocoque C"
-
-msgid "Pneumococcus"
-msgstr "Pneumocoque"
-
-msgid "Meningococcus W"
-msgstr "Méningocoque W"
-
-msgid "Meningococcus Y"
-msgstr "Méningocoque Y"
-
-msgid "Varicella zoster (shingles)"
-msgstr ""
-
-msgid "Coxiella burnetii (Q fever)"
-msgstr ""
-
-msgid "Tick-borne meningoencephalitis"
-msgstr ""
-
-msgid "Salmonella typhi (typhoid)"
-msgstr ""
-
-msgid "HiB: Haemophilus influenzae B"
-msgstr "HiB : Haemophilus influenzae B"
-
-msgid "H1N1 influenza"
-msgstr ""
-
-msgid "Japanese B encephalitis"
-msgstr ""
-
-msgid "Human papilloma virus"
-msgstr ""
-
-msgid "Bacillus anthracis"
-msgstr ""
-
-msgid "Yersinia pestis"
-msgstr ""
-
-msgid "Variola virus"
-msgstr "Virus de la variole"
-
-msgid "<--Resp-->"
-msgstr ""
-
-msgid "<--Neuro-->"
-msgstr ""
-
-msgid "<--GI-->"
-msgstr ""
-
-msgid "Other:"
-msgstr "Autre :"
-
 msgid "Fake"
 msgstr ""
 
@@ -5267,6 +5260,10 @@ msgstr ""
 
 msgid "Check if this is a live attenuated vaccine."
 msgstr "Cochez s'il s'agit d'un virus vivant atténué."
+
+#, fuzzy
+msgid "Manage the indications for this vaccine."
+msgstr "Indiquer tout effet indésirable lié au vaccin."
 
 msgid "The ATC for this vaccine."
 msgstr ""
@@ -5829,6 +5826,182 @@ msgstr "Calculateur d'IMC"
 msgid "&Reset"
 msgstr "&Remise à zéro"
 
+#, fuzzy
+msgid "#Units"
+msgstr "Unités"
+
+msgid "Charge Item"
+msgstr ""
+
+#, fuzzy
+msgid "Encounter #"
+msgstr "Rencontre"
+
+msgid "Catalog"
+msgstr ""
+
+msgid "Inv #"
+msgstr ""
+
+msgid "No pending lines so nothing was assigned"
+msgstr ""
+
+msgid "Cant insert new Billing Record - No Charge Item"
+msgstr ""
+
+msgid "Cant insert new Billing Record - Invalid Qty float"
+msgstr ""
+
+msgid "Billing Record: confirm deletion"
+msgstr ""
+
+#, fuzzy
+msgid "Billrec Actions:"
+msgstr "Directions"
+
+#, fuzzy
+msgid "Edit corresponding Encounter"
+msgstr "Sélectionnez le type de visite"
+
+msgid "Show Invoice"
+msgstr ""
+
+msgid "Edit"
+msgstr "Édition"
+
+msgid "Edit Bill Rec"
+msgstr ""
+
+msgid ""
+"Did *NOT* save your changes. Mostly due to someone has changed this Record "
+"meanwhile. Please close this Dialog and try it again."
+msgstr ""
+
+#, fuzzy
+msgid "Problem wigh updating"
+msgstr "Problème"
+
+msgid "Cannot delete this billable item. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the items for billing registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing billable items."
+msgstr "Vaccins affichés."
+
+msgid "Do you truly want to irrevocably delete this bill ?"
+msgstr ""
+
+#, fuzzy
+msgid "Delete bill"
+msgstr " Effacer "
+
+#, fuzzy
+msgid "Showing bills."
+msgstr "Vaccins affichés."
+
+#, fuzzy
+msgid "Close date"
+msgstr "Fermé"
+
+msgid "Invoice ID"
+msgstr ""
+
+#, fuzzy
+msgid "Create invoice"
+msgstr "Trier par: période"
+
+msgid "Create PDF invoice from bill"
+msgstr ""
+
+#, fuzzy
+msgid "Show PDF"
+msgstr "Afficher"
+
+#, fuzzy
+msgid "Show the corresponding invoice PDF"
+msgstr "Sélectionnez le type de visite"
+
+msgid "Cannot edit already invoiced bill item."
+msgstr ""
+
+#, fuzzy
+msgid "Adding new bill item"
+msgstr "Ajouter un nouveau vaccin"
+
+#, fuzzy
+msgid "Editing bill item"
+msgstr "Maintient des antécédents de vaccination"
+
+msgid "Cannot delete already invoiced bill items."
+msgstr ""
+
+#, fuzzy
+msgid "Showing bill items."
+msgstr "Vaccins affichés."
+
+#, fuzzy
+msgid "Count"
+msgstr "Pays"
+
+msgid "VAT"
+msgstr ""
+
+#, fuzzy
+msgid "Charge date"
+msgstr "Echéance"
+
+msgid "Count x (Value x Factor)"
+msgstr ""
+
+msgid "Invoice"
+msgstr ""
+
+msgid "Invoice selected"
+msgstr ""
+
+#, fuzzy
+msgid "Create invoice from selected items."
+msgstr "Modifier l'objet sélectionné."
+
+#, fuzzy
+msgid "Browse bills"
+msgstr "NavigateurMedicaments"
+
+#, fuzzy
+msgid "Browse bills of this patient."
+msgstr ""
+"\n"
+"Compléter l'historique des vaccinations de ce patient.\n"
+
+msgid "Browse billables"
+msgstr ""
+
+msgid "Browse list of billables."
+msgstr ""
+
+msgid ""
+"Do you really want to delete this\n"
+"bill item from the patient ?"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting bill item"
+msgstr "Effacer tous les éléments"
+
+msgid ""
+"\"Factor\" must be a number\n"
+"\n"
+"Cannot insert bill item."
+msgstr ""
+
+msgid "Inserting bill item"
+msgstr ""
+
 msgid "Your client (%s) is up to date."
 msgstr ""
 
@@ -5879,6 +6052,19 @@ msgstr ""
 msgid "Abort the dialog and do not change the current setting."
 msgstr ""
 
+msgid "Sources of reference data registered in GNUmed."
+msgstr ""
+
+#, fuzzy
+msgid "Showing data sources"
+msgstr "Montrer les vaccinations."
+
+msgid "System"
+msgstr "Système"
+
+msgid "Source"
+msgstr "Source"
+
 msgid "Coded terms known to GNUmed (may take a while to load)."
 msgstr ""
 
@@ -5887,9 +6073,6 @@ msgstr ""
 
 msgid "Coding system details"
 msgstr ""
-
-msgid "System"
-msgstr "Système"
 
 msgid "Version"
 msgstr "Version"
@@ -6249,9 +6432,6 @@ msgstr ""
 
 msgid "min DB"
 msgstr ""
-
-msgid "Source"
-msgstr "Source"
 
 msgid "&Install"
 msgstr "&Installer"
@@ -6984,6 +7164,23 @@ msgstr ""
 msgid "showing document"
 msgstr ""
 
+#, fuzzy
+msgid "Document list for this patient."
+msgstr ""
+"\n"
+"Compléter l'historique des vaccinations de ce patient.\n"
+
+#, fuzzy
+msgid "Showing documents."
+msgstr "sauvegarder le document"
+
+#, fuzzy
+msgid "Generated"
+msgstr "auto-généré"
+
+msgid "Ref #"
+msgstr ""
+
 msgid "available documents (%s)"
 msgstr ""
 
@@ -7016,6 +7213,14 @@ msgstr ""
 msgid "%s Sign/Edit properties"
 msgstr ""
 
+#, fuzzy
+msgid "Delete part"
+msgstr " Effacer "
+
+#, fuzzy
+msgid "Move part"
+msgstr "Supprimer une partie"
+
 msgid "Print part"
 msgstr ""
 
@@ -7028,6 +7233,10 @@ msgstr ""
 #, fuzzy
 msgid "Document Actions:"
 msgstr "Documents:"
+
+#, fuzzy
+msgid "Add parts"
+msgstr "(%s patients)"
 
 msgid "Print all parts"
 msgstr ""
@@ -7074,6 +7283,28 @@ msgid "part %2s"
 msgstr ""
 
 msgid "Activate as current photo"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the document into which to move the selected part !\n"
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
+
+#, fuzzy
+msgid "Deleting document part"
+msgstr "Chargement de la liste document"
+
+msgid ""
+"Are you sure you want to delete the %s part #%s\n"
+"\n"
+"%sfrom the following document\n"
+"\n"
+" %s (%s)\n"
+"%s\n"
+"Really delete ?\n"
+"\n"
+"(this action cannot be reversed)"
 msgstr ""
 
 msgid ""
@@ -7591,6 +7822,10 @@ msgstr "pertinente"
 
 msgid "fatal"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot create health issue without name."
+msgstr "Impossible d'indexer les documents sans un fichier de configuration"
 
 msgid ""
 "Cannot create new health issue:\n"
@@ -8177,12 +8412,6 @@ msgstr ""
 msgid "Drug data source"
 msgstr ""
 
-msgid "FreeDiams path"
-msgstr "Chemin vers FreeDiams"
-
-msgid "Set the path for the FreeDiams binary."
-msgstr "Définir le chemin vers l'exécutable FreeDiams."
-
 msgid "ADR URL"
 msgstr ""
 
@@ -8371,6 +8600,20 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
+msgid "Billed items"
+msgstr ""
+
+#, fuzzy
+msgid "Show items to be billed to the active patient."
+msgstr "Afficher vos messages en lien avec le patient courant."
+
+msgid "Bills"
+msgstr ""
+
+#, fuzzy
+msgid "Show bills of the active patient."
+msgstr "Cochez s'il s'agit d'un virus vivant atténué."
+
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
@@ -8527,9 +8770,6 @@ msgid "Acute coronary syndrome/stroke risk assessment."
 msgstr ""
 
 msgid "MI/stroke risk"
-msgstr ""
-
-msgid "arriba"
 msgstr ""
 
 msgid "arriba: cardiovascular risk assessment (%s)."
@@ -9180,6 +9420,13 @@ msgstr ""
 msgid "Consumable substances"
 msgstr ""
 
+msgid "Billable items"
+msgstr ""
+
+#, fuzzy
+msgid "Reference data sources"
+msgstr "Information de référence"
+
 msgid "Master data management"
 msgstr ""
 
@@ -9289,6 +9536,14 @@ msgstr ""
 
 msgid "Exported demographics to GDT file [%s]."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot show items billed to patient. No active patient."
+msgstr "Impossible de lister les rencontres. Aucun patient actif."
+
+#, fuzzy
+msgid "Cannot show bills for patient. No active patient."
+msgstr "Impossible de lister les rencontres. Aucun patient actif."
 
 msgid "Cannot add staff member. No active patient."
 msgstr ""
@@ -11799,6 +12054,14 @@ msgstr ""
 msgid "ATCs: single-condition vaccines"
 msgstr ""
 
+#, fuzzy
+msgid "Pick the relevant indications."
+msgstr "Imprimer la liste des médicaments."
+
+#, fuzzy
+msgid "Known indications"
+msgstr "Indications"
+
 msgid "Adding new vaccine"
 msgstr "Ajouter un nouveau vaccin"
 
@@ -11862,6 +12125,17 @@ msgstr ""
 "cible de chacun des patients pour lequel ce vaccin a été\n"
 "utilisé précédemment.\n"
 
+#, fuzzy
+msgid "You must select at least one indication."
+msgstr "Vous devez sélectionner un formulaire et le type"
+
+msgid "Pick the diseases this vaccine protects against."
+msgstr ""
+
+#, fuzzy
+msgid "This vaccine"
+msgstr "vaccin"
+
 msgid "Adding new vaccinations"
 msgstr "Ajouter de nouvelles vaccinations"
 
@@ -11889,6 +12163,13 @@ msgstr "Plans de vaccination"
 
 msgid "prevention"
 msgstr "prévention"
+
+#, fuzzy
+msgid "Saving vaccination"
+msgstr "Montrer les vaccinations."
+
+msgid "Pick the diseases this vaccination was given against."
+msgstr ""
 
 msgid "  IMMUNISATIONS  "
 msgstr "  IMMUNISATIONS  "
@@ -11977,6 +12258,9 @@ msgstr "Maintient des antécédents de vaccination"
 
 msgid "Allergies"
 msgstr "Allergies"
+
+msgid "Billing"
+msgstr ""
 
 msgid "Cardiac Devices"
 msgstr "Dispositifs cardiaques"
@@ -12587,6 +12871,105 @@ msgstr "Quantité"
 msgid "First Date"
 msgstr "Date de début"
 
+#~ msgid "Tetanus"
+#~ msgstr "Tétanos"
+
+#~ msgid "Measles"
+#~ msgstr "Rubéole"
+
+#~ msgid "Diphtheria"
+#~ msgstr "Diphtérie"
+
+#~ msgid "Mumps"
+#~ msgstr "Oreillons"
+
+#~ msgid "A"
+#~ msgstr "A"
+
+#~ msgid "C"
+#~ msgstr "C"
+
+#~ msgid "Hep A"
+#~ msgstr "Hépatite A"
+
+#~ msgid "Rubella"
+#~ msgstr "Rubéole"
+
+#~ msgid "Pneumococc"
+#~ msgstr "Pneumocoque"
+
+#~ msgid "Cholera"
+#~ msgstr "Choléra"
+
+#~ msgid "Poliomyelitis"
+#~ msgstr "Polyomyélite"
+
+#~ msgid "Varicella"
+#~ msgstr "Varicelle"
+
+#~ msgid "Typhoid"
+#~ msgstr "Typhoïde"
+
+#~ msgid "HiB"
+#~ msgstr "HiB"
+
+#~ msgid "H1N1"
+#~ msgstr "H1N1"
+
+#~ msgid "Rotavirus"
+#~ msgstr "Rotavirus"
+
+#~ msgid "Hep B"
+#~ msgstr "Hépatite B"
+
+#~ msgid "HPV"
+#~ msgstr "HPV"
+
+#~ msgid "Tuberculosis"
+#~ msgstr "Tuberculose"
+
+#~ msgid "Rabies"
+#~ msgstr "Rage"
+
+#~ msgid "Yellow fever"
+#~ msgstr "Fièvre jaune"
+
+#~ msgid "Plague"
+#~ msgstr "Peste"
+
+#~ msgid "Smallpox"
+#~ msgstr "Variole"
+
+#~ msgid "Meningococcus A"
+#~ msgstr "Méningocoque A"
+
+#~ msgid "Meningococcus C"
+#~ msgstr "Méningocoque C"
+
+#~ msgid "Pneumococcus"
+#~ msgstr "Pneumocoque"
+
+#~ msgid "Meningococcus W"
+#~ msgstr "Méningocoque W"
+
+#~ msgid "Meningococcus Y"
+#~ msgstr "Méningocoque Y"
+
+#~ msgid "HiB: Haemophilus influenzae B"
+#~ msgstr "HiB : Haemophilus influenzae B"
+
+#~ msgid "Variola virus"
+#~ msgstr "Virus de la variole"
+
+#~ msgid "Other:"
+#~ msgstr "Autre :"
+
+#~ msgid "FreeDiams path"
+#~ msgstr "Chemin vers FreeDiams"
+
+#~ msgid "Set the path for the FreeDiams binary."
+#~ msgstr "Définir le chemin vers l'exécutable FreeDiams."
+
 #~ msgid "Mark as a fake (not really existing) brand."
 #~ msgstr "Marquer le nom commercial comme factice (n'existe pas réellement)."
 
@@ -13114,9 +13497,6 @@ msgstr "Date de début"
 #~ "\n"
 #~ "Consulter le fichier log d'erreurs pour plus de détails."
 
-#~ msgid "Open File"
-#~ msgstr "Ouvrir un fichier"
-
 #~ msgid "&Undo"
 #~ msgstr "&Défaire"
 
@@ -13474,9 +13854,6 @@ msgstr "Date de début"
 
 #~ msgid "Future LNMP"
 #~ msgstr "LNMP future"
-
-#~ msgid "Due date"
-#~ msgstr "Echéance"
 
 #~ msgid "Cannot import gmMimeLib.py !"
 #~ msgstr "Impossible d'importer gmMimeLib.py !"
