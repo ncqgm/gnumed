@@ -37,6 +37,7 @@ __gender_list = None
 __gender_idx = None
 
 __gender2salutation_map = None
+__gender2string_map = None
 
 #============================================================
 # FIXME: make this work as a mapping type, too
@@ -421,6 +422,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return map_gender2symbol[self._payload[self._idx['gender']]]
 
 	gender_symbol = property(_get_gender_symbol, lambda x:x)
+	#--------------------------------------------------------
+	def _get_gender_string(self):
+		return map_gender2string(gender = self._payload[self._idx['gender']])
+
+	gender_string = property(_get_gender_string, lambda x:x)
 	#--------------------------------------------------------
 	def get_active_name(self):
 		names = self.get_names(active_only = True)
@@ -1493,6 +1499,26 @@ map_gender2symbol = {
 #	'h': u'\u2642\u2640'
 }
 #------------------------------------------------------------
+def map_gender2string(gender=None):
+	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable string."""
+
+	global __gender2string_map
+
+	if __gender2string_map is None:
+		genders, idx = get_gender_list()
+		__gender2string_map = {
+			'm': _('male'),
+			'f': _('female'),
+			'tf': u'',
+			'tm': u'',
+			'h': u''
+		}
+		for g in genders:
+			__gender2string_map[g[idx['l10n_tag']]] = g[idx['l10n_label']]
+			__gender2string_map[g[idx['tag']]] = g[idx['l10n_label']]
+
+	return __gender2string_map[gender]
+#------------------------------------------------------------
 def map_gender2salutation(gender=None):
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
 
@@ -1647,18 +1673,21 @@ if __name__ == '__main__':
 			print name.description
 			print '  ', name
 	#--------------------------------------------------------
+	def test_gender_list():
+		genders, idx = get_gender_list()
+		print "\n\nRetrieving gender enum (tag, label, weight):"
+		for gender in genders:
+			print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
 	#test_search_by_dto()
-	test_name()
+	#test_name()
+	test_gender_list()
 
 	#map_gender2salutation('m')
 	# module functions
-	#genders, idx = get_gender_list()
-	#print "\n\nRetrieving gender enum (tag, label, weight):"	
-	#for gender in genders:
-	#	print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 
 	#comms = get_comm_list()
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms

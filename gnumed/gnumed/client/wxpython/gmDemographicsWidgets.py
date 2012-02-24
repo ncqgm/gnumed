@@ -915,6 +915,13 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			if not _validate_dob_field(self._PRW_dob):
 				has_error = True
 
+		# TOB validation
+		if _validate_tob_field(self._TCTRL_tob):
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = True)
+		else:
+			has_error = True
+			self.display_ctrl_as_valid(ctrl = self._TCTRL_tob, valid = False)
+
 		if not self._PRW_dod.is_valid_timestamp(allow_empty = True):
 			gmDispatcher.send(signal = u'statustext', msg = _('Invalid date of death.'))
 			self._PRW_dod.SetFocus()
@@ -934,7 +941,12 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 			self.data['dob'] = None
 		else:
 			self.data['dob'] = self._PRW_dob.GetData()
-
+		self.data['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
+		val = self._TCTRL_tob.GetValue().strip()
+		if val == u'':
+			self.data['tob'] = None
+		else:
+			self.data['tob'] = pydt.time(int(val[:2]), int(val[3:5]))
 		self.data['gender'] = self._PRW_gender.GetData()
 		self.data['title'] = gmTools.none_if(self._PRW_title.GetValue().strip(), u'')
 		self.data['deceased'] = self._PRW_dod.GetData()
@@ -957,10 +969,15 @@ class cIdentityEAPnl(wxgIdentityEAPnl.wxgIdentityEAPnl, gmEditArea.cGenericEditA
 		else:
 			val = gmDateTime.pydt_strftime (
 				self.data['dob'],
-				format = '%Y-%m-%d %H:%M',
+				format = '%Y-%m-%d',
 				accuracy = gmDateTime.acc_minutes
 			)
 		self._PRW_dob.SetText(value = val, data = self.data['dob'])
+		self._CHBOX_estimated_dob.SetValue(self.data['dob_is_estimated'])
+		if self.data['tob'] is None:
+			self._TCTRL_tob.SetValue(u'')
+		else:
+			self._TCTRL_tob.SetValue(self.data['tob'].strftime('%H:%M'))
 		if self.data['deceased'] is None:
 			val = u''
 		else:

@@ -93,12 +93,22 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_age_label(self):
 
+		tt = _('Gender: %s (%s) - %s\n') % (
+			self.curr_pat.gender_symbol,
+			self.curr_pat['gender'],
+			self.curr_pat.gender_string
+		)
+		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
+
 		if self.curr_pat['deceased'] is None:
 
 			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
 				template = _('%s  %s (%s today !)')
+				tt += _("\nToday is the patient's birtday !\n\n")
 			else:
 				template = u'%s  %s (%s)'
+
+			tt += _('Age: %s\n') % self.curr_pat['medical_age']
 
 			# FIXME: if the age is below, say, 2 hours we should fire
 			# a timer here that updates the age in increments of 1 minute ... :-)
@@ -116,6 +126,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		else:
 
+			tt += _('Died: %s\n') % self.curr_pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding())
+			tt += _('At age: %s\n') % self.curr_pat['medical_age']
+
 			template = u'%s  %s - %s (%s)'
 			age = template % (
 				gmPerson.map_gender2symbol[self.curr_pat['gender']],
@@ -124,7 +137,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				self.curr_pat['medical_age']
 			)
 
+		if self.curr_pat['dob_is_estimated']:
+			tt += _(' (date of birth and age are estimated)\n')
+
 		self._LBL_age.SetLabel(age)
+		self._LBL_age.SetToolTipString(tt)
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
