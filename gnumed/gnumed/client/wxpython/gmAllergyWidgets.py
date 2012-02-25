@@ -335,6 +335,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self._LCTRL_allergies.deselect_selected_item()
 		self._PNL_edit_area.clear()
 		self._BTN_delete.Enable(False)
+		self._LBL_message.SetLabel(_('Input new allergy item:'))
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -356,8 +357,9 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		if allergy is None:
 			return
-		self._PNL_edit_area.refresh(allergy=allergy)
+		self._PNL_edit_area.refresh(allergy = allergy)
 		self._BTN_delete.Enable(True)
+		self._LBL_message.SetLabel(_('Edit the selected allergy item:'))
 	#--------------------------------------------------------
 	def _on_confirm_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()

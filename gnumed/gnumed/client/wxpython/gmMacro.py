@@ -1385,7 +1385,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			#u'emr_journal::soapu //%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//30::',
+			u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
@@ -1403,7 +1403,7 @@ if __name__ == '__main__':
 			#u'form_name_long::::1234',
 			#u'form_name_long::::5',
 			#u'form_version::::5',
-			u'$<current_meds::==> %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s <==\\n::250>$'
+			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1420,7 +1420,8 @@ if __name__ == '__main__':
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print ph
-			print ' => %s' % handler[ph]
+			print "result:"
+			print '%s' % handler[ph]
 		#handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
 
