@@ -467,10 +467,29 @@ class cZipcodePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 		# FIXME: add possible context
-		query = u"""
-			(SELECT distinct postcode, postcode FROM dem.street WHERE postcode %(fragment_condition)s limit 20)
-				UNION
-			(SELECT distinct postcode, postcode FROM dem.urb WHERE postcode %(fragment_condition)s limit 20)"""
+		query = u"""(
+			SELECT DISTINCT ON (list_label)
+				postcode AS data,
+				postcode || ' (' || name || ')' AS list_label,
+				postcode AS field_label
+			FROM dem.street
+			WHERE
+				postcode %(fragment_condition)s
+			ORDER BY list_label
+			LIMIT 20
+
+		) UNION (
+
+			SELECT DISTINCT ON (list_label)
+				postcode AS data,
+				postcode || ' (' || name || ')' AS list_label,
+				postcode AS field_label
+			FROM dem.urb
+			WHERE
+				postcode %(fragment_condition)s
+			ORDER BY list_label
+			LIMIT 20
+		)"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(2, 3, 15)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)

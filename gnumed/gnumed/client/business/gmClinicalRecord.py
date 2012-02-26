@@ -946,8 +946,8 @@ order by
 			encounter_id = self.current_encounter['pk_encounter']
 
 		if episode_id is None:
-			issue = self.add_health_issue(issue_name = _('allergies/intolerances'))
-			epi = self.add_episode(episode_name = allergene, pk_health_issue = issue['pk_health_issue'])
+			issue = self.add_health_issue(issue_name = _('Allergies/Intolerances'))
+			epi = self.add_episode(episode_name = _('Allergy detail: %s') % allergene, pk_health_issue = issue['pk_health_issue'])
 			episode_id = epi['pk_episode']
 
 		new_allergy = gmAllergy.create_allergy (
