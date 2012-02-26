@@ -32,4 +32,26 @@ comment on column ref.paperwork_templates.engine is
 ;
 
 -- --------------------------------------------------------------
+
+delete from ref.paperwork_templates where name_long = 'Vaccination history (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'Medical statement'),
+	'Vacc Hx (GMd)',
+	'Vaccination history (GNUmed default)',
+	'17.0',
+	'L',
+	'vaccination-hx.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-paperwork_templates.sql', '17.0');

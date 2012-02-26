@@ -23,6 +23,7 @@ NEW: document tree: delete/move document parts via part context menu
 NEW: browse reference data sources
 NEW: importer for "Clinica" EMR databases
 NEW: support estimated date of birth
+NEW: placeholder <vaccination_history> and LaTeX form template
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

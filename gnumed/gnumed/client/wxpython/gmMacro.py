@@ -110,6 +110,7 @@ known_variant_placeholders = [
 	u'current_meds_notes',					# "args" holds: format, options
 	u'lab_table',							# "args" holds: format (currently "latex" only)
 	u'latest_vaccs_table',					# "args" holds: format, options
+	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
 	u'today',								# "args" holds: strftime format
 	u'tex_escape',							# "args" holds: string to escape
 	u'allergies',							# "args" holds: line template, one allergy per line
@@ -906,6 +907,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		_log.error('no known vaccinations table formatting style in [%s]', data)
 		return _('unknown vaccinations table formatting style [%s]') % data
 	#--------------------------------------------------------
+	def _get_variant_vaccination_history(self, data=None):
+		options = data.split('//')
+		template = options[0]
+		if len(options) > 1:
+			date_format = options[1]
+		else:
+			date_format = u'%Y %B %d'
+
+		emr = self.pat.get_emr()
+		vaccs = emr.get_vaccinations(order_by = u'date_given DESC, vaccine')
+
+		return u'\n'.join([ template % v.fields_as_dict(date_format = date_format) for v in vaccs ])
+	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
 		if data is None:
@@ -1385,7 +1399,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
+			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
@@ -1403,7 +1417,8 @@ if __name__ == '__main__':
 			#u'form_name_long::::1234',
 			#u'form_name_long::::5',
 			#u'form_version::::5',
-			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$'
+			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
+			u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 		]
 
 		handler = gmPlaceholderHandler()

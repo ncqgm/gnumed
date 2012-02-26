@@ -56,7 +56,5 @@ BEGIN
 	return True;
 END;';
 
-revoke delete on blobs.doc_obj from "gm-doctors";
-
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-blobs-delete_document_part.sql', '17.0');
