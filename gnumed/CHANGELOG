@@ -24,6 +24,7 @@ NEW: browse reference data sources
 NEW: importer for "Clinica" EMR databases
 NEW: support estimated date of birth
 NEW: placeholder <vaccination_history> and LaTeX form template
+NEW: PDF-Formular "Vorsorgevollmacht" [thanks Bundesministerium f. Justiz]
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

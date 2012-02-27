@@ -32,7 +32,6 @@ comment on column ref.paperwork_templates.engine is
 ;
 
 -- --------------------------------------------------------------
-
 delete from ref.paperwork_templates where name_long = 'Vaccination history (GNUmed default)';
 
 insert into ref.paperwork_templates (
@@ -50,6 +49,29 @@ insert into ref.paperwork_templates (
 	'17.0',
 	'L',
 	'vaccination-hx.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'Vorsorgevollmacht (Bundesministerium für Justiz, Deutschland)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'pdf form'),
+	'other form',
+	'Vorsorgevollmacht (D:BMJ)',
+	'Vorsorgevollmacht (Bundesministerium für Justiz, Deutschland)',
+	'11/2009',
+	'P',
+	'vorsorgevollmacht-bmj.pdf',
 	'real template missing'::bytea
 );
 

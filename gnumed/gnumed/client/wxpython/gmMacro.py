@@ -1290,9 +1290,9 @@ if __name__ == '__main__':
 #			'date_of_birth'
 		]
 
-		tests = [
-			'$<latest_vaccs_table::latex>$'
-		]
+#		tests = [
+#			'$<latest_vaccs_table::latex>$'
+#		]
 
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
@@ -1418,7 +1418,8 @@ if __name__ == '__main__':
 			#u'form_name_long::::5',
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
-			u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
+			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
+			u'$<date_of_birth::%Y %B %d::20>$',
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1441,10 +1442,10 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 
 	#test_placeholders()
-	#test_new_variant_placeholders()
+	test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
-	test_placeholder()
+	#test_placeholder()
 
 #=====================================================================
 
