@@ -39,6 +39,7 @@ IMPROVED: document input plugin: workflow adjustments
 IMPROVED: signalling of attempt to duplicate drug component intake
 IMPROVED: vaccinations: two-list item picker to pick indications rather than checkbox forest
 IMPROVED: allergy manager workflow [thanks J.Busser]
+IMPROVED: address related placeholders: let user select if no value available for type
 
 ------------------------------------------------
 # rel-1-1-patches

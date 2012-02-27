@@ -40,6 +40,7 @@ from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -652,40 +653,31 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		data_parts = data.split(u'//')
 
-		if data_parts[0].strip() == u'':
-			adr_type = u'home'
-		else:
-			adr_type = data_parts[0]
+		# address type
+		adr_type = data_parts[0].strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no address for type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		adr = self.pat.get_addresses(address_type = adr_type)[0]
 
+		# formatting template
 		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
 		if len(data_parts) > 1:
 			if data_parts[1].strip() != u'':
 				template = data_parts[1]
 
-		adrs = self.pat.get_addresses(address_type = adr_type)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no address for type [%s]') % adr_type
-			return u''
-
-		adr = adrs[0]
-		data = {
-			'street': adr['street'],
-			'notes_street': gmTools.coalesce(adr['notes_street'], u''),
-			'postcode': adr['postcode'],
-			'number': adr['number'],
-			'subunit': gmTools.coalesce(adr['subunit'], u''),
-			'notes_subunit': gmTools.coalesce(adr['notes_subunit'], u''),
-			'urb': adr['urb'],
-			'suburb': gmTools.coalesce(adr['suburb'], u''),
-			'l10n_state': adr['l10n_state'],
-			'l10n_country': adr['l10n_country'],
-			'code_state': adr['code_state'],
-			'code_country': adr['code_country']
-		}
-
 		try:
-			return template % data
+			return template % adr.fields_as_dict()
 		except StandardError:
 			_log.exception('error formatting address')
 			_log.error('template: %s', template)
@@ -693,52 +685,106 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return None
 	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type=data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no street for address type [%s]') % data
-			return u''
-		return adrs[0]['street']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no street for address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['street']
 	#--------------------------------------------------------
 	def _get_variant_adr_number(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type=data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no number for address type [%s]') % data
-			return u''
-		return adrs[0]['number']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no number for address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['number']
 	#--------------------------------------------------------
 	def _get_variant_adr_location(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type=data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no location for address type [%s]') % data
-			return u''
-		return adrs[0]['urb']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no location for address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['urb']
 	#--------------------------------------------------------
 	def _get_variant_adr_postcode(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type = data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no postcode for address type [%s]') % data
-			return u''
-		return adrs[0]['postcode']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no postcode for address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['postcode']
 	#--------------------------------------------------------
 	def _get_variant_adr_region(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type = data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no region for address type [%s]') % data
-			return u''
-		return adrs[0]['l10n_state']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no region for address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_state']
 	#--------------------------------------------------------
 	def _get_variant_adr_country(self, data=u'?'):
-		adrs = self.pat.get_addresses(address_type = data)
-		if len(adrs) == 0:
-			if self.debug:
-				return _('no country for address type [%s]') % data
-			return u''
-		return adrs[0]['l10n_country']
+		adr_type = data.strip()
+		orig_type = adr_type
+		if adr_type != u'':
+			adrs = self.pat.get_addresses(address_type = adr_type)
+			if len(adrs) == 0:
+				_log.warning('no country for old men / address type [%s]', adr_type)
+				adr_type = u''
+		if adr_type == u'':
+			_log.debug('asking user for address type')
+			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			if adr_type is None:
+				if self.debug:
+					return _('no address type replacement selected')
+				return u''
+		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_country']
 	#--------------------------------------------------------
 	def _get_variant_patient_comm(self, data=u'?'):
 		comms = self.pat.get_comm_channels(comm_medium = data)
@@ -976,7 +1022,46 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-
+	def __let_user_select_address_type(self, missing=None):
+		addresses = self.pat.get_addresses()
+		if len(addresses) == 0:
+			return None
+		msg = _(
+			'There is no [%s] address registered with this patient.\n\n'
+			'Please select the address you would like to use instead:'
+		) % missing
+		choices = [
+			[
+				a['l10n_address_type'],
+				u'%s %s%s, %s %s, %s' % (
+					a['street'],
+					a['number'],
+					gmTools.coalesce(a['subunit'], u'', u'/%s'),
+					a['postcode'],
+					a['urb'],
+					a['l10n_country']
+				)
+			]
+		for a in addresses ]
+		#--------------------------
+		def calculate_tooltip(adr):
+			return u'\n'.join(adr.format())
+		#--------------------------
+		adr = gmListWidgets.get_choices_from_list (
+			msg = msg,
+			caption = _('Selecting address by type'),
+			columns = [_('Type'), _('Address')],
+			choices = choices,
+			data = addresses,
+			single_selection = True,
+			list_tooltip_callback = calculate_tooltip
+		)
+		if adr is None:
+			return None
+		return adr['address_type']
+	#--------------------------------------------------------
+	def __let_user_select_comm_type(self, missing=None):
+		pass
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
@@ -1405,7 +1490,7 @@ if __name__ == '__main__':
 			#u'soap_a',,
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
-			#u'patient_address::home//::1234',
+			u'$<patient_address::work::1234>$',
 			#u'adr_region::home::1234',
 			#u'adr_country::home::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
@@ -1419,7 +1504,7 @@ if __name__ == '__main__':
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
-			u'$<date_of_birth::%Y %B %d::20>$',
+			#u'$<date_of_birth::%Y %B %d::20>$',
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1442,10 +1527,10 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 
 	#test_placeholders()
-	test_new_variant_placeholders()
+	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
-	#test_placeholder()
+	test_placeholder()
 
 #=====================================================================
 

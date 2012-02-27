@@ -620,6 +620,44 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('Type or select a city/town/village/dwelling.'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.matcher = mp
+#============================================================
+# address type related widgets
+#============================================================
+class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+SELECT id, type FROM ((
+	SELECT id, _(name) AS type, 1 AS rank
+	FROM dem.address_type
+	WHERE _(name) %(fragment_condition)s
+) UNION (
+	SELECT id, name AS type, 2 AS rank
+	FROM dem.address_type
+	WHERE name %(fragment_condition)s
+)) AS ur
+order by
+	ur.rank, ur.type
+"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		mp.word_separators = u'[ \t]+'
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the type of address.'))
+#		self.capitalisation_mode = gmTools.CAPS_FIRST
+		self.selection_only = True
+	#--------------------------------------------------------
+#	def GetData(self, can_create=False):
+#		if self.data is None:
+#			if can_create:
+#				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
+#		return self.data
 
 #============================================================
 # address phrasewheels and widgets
@@ -906,43 +944,6 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		self.refresh()
 
 	address = property(_get_address, _set_address)
-
-#============================================================
-class cAddressTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = u"""
-SELECT id, type FROM ((
-	SELECT id, _(name) AS type, 1 AS rank
-	FROM dem.address_type
-	WHERE _(name) %(fragment_condition)s
-) UNION (
-	SELECT id, name AS type, 2 AS rank
-	FROM dem.address_type
-	WHERE name %(fragment_condition)s
-)) AS ur
-order by
-	ur.rank, ur.type
-"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		mp.word_separators = u'[ \t]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.matcher = mp
-		self.SetToolTipString(_('Select the type of address.'))
-#		self.capitalisation_mode = gmTools.CAPS_FIRST
-		self.selection_only = True
-	#--------------------------------------------------------
-#	def GetData(self, can_create=False):
-#		if self.data is None:
-#			if can_create:
-#				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
-#		return self.data
 
 #============================================================
 class cAddressMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
