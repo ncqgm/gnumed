@@ -1,3 +1,4 @@
+# coding: utf8
 #==============================================================
 # GNUmed database schema change script
 #
