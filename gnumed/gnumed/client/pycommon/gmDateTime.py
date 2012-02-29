@@ -460,12 +460,33 @@ def format_interval_medically(interval=None):
 		return '0:%02d' % int(minutes)
 	return "%s.%ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
+def is_leap_year(year):
+	# year is multiple of 4 ?
+	div, remainder = divmod(year, 4)
+	# no -> not a leap year
+	if remainder > 0:
+		return False
+
+	# year is a multiple of 100 ?
+	div, remainder = divmod(year, 100)
+	# no -> IS a leap year
+	if remainder > 0:
+		return True
+
+	# year is a multiple of 400 ?
+	div, remainder = divmod(year, 400)
+	# yes -> IS a leap year
+	if remainder == 0:
+		return True
+
+	return False
+#---------------------------------------------------------------------------
 def calculate_apparent_age(start=None, end=None):
 	"""The result of this is a tuple (years, ..., seconds) as one would
-	'expect' a date to look like, that is, simple differences between
-	the fields.
+	'expect' an age to look like, that is, simple differences between
+	the fields:
 
-	No need for 100/400 years leap days rule	because 2000 WAS a leap year.
+		(years, months, days, hours, minutes, seconds)
 
 	This does not take into account time zones which may
 	shift the result by one day.
@@ -481,6 +502,12 @@ def calculate_apparent_age(start=None, end=None):
 
 	if end == start:
 		return (0, 0, 0, 0, 0, 0)
+
+	# steer clear of leap years
+	if end.month == 2:
+		if end.day == 29:
+			if not is_leap_year(start.year):
+				end = end.replace(day = 28)
 
 	# years
 	years = end.year - start.year
@@ -2185,23 +2212,45 @@ if __name__ == '__main__':
 		print "fts.get_pydt():", fts.get_pydt()
 	#-------------------------------------------------
 	def test_calculate_apparent_age():
-		start = pydt_now_here().replace(year = 1974).replace(month = 10).replace(day = 23)
+		# test leap year glitches
+		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 27)
+		print "start is leap year: 29.2.2000"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
+		print "end is leap year: 29.2.2012"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
+		print "start is leap year: 29.2.2000"
+		print "end is leap year: 29.2.2012"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		print "leap year tests worked"
+
+		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 
-		start = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 13)
+		start = pydt_now_here().replace(month = 3).replace(day = 13).replace(year = 1979)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 
-		start = pydt_now_here().replace(year = 1979).replace(month = 2, day = 2)
-		end = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 31)
+		start = pydt_now_here().replace(month = 2, day = 2).replace(year = 1979)
+		end = pydt_now_here().replace(month = 3).replace(day = 31).replace(year = 1979)
 		print calculate_apparent_age(start = start, end = end)
 
-		start = pydt_now_here().replace(year = 2009).replace(month = 7, day = 21)
+		start = pydt_now_here().replace(month = 7, day = 21).replace(year = 2009)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 
 		print "-------"
-		start = pydt_now_here().replace(year = 2011).replace(month = 1).replace(day = 23).replace(hour = 12).replace(minute = 11)
+		start = pydt_now_here().replace(month = 1).replace(day = 23).replace(hour = 12).replace(minute = 11).replace(year = 2011)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 	#-------------------------------------------------
@@ -2231,6 +2280,10 @@ if __name__ == '__main__':
 		print pydt_strftime(dt, accuracy = acc_minutes)
 		print pydt_strftime(dt, accuracy = acc_seconds)
 	#-------------------------------------------------
+	def test_is_leap_year():
+		for year in range(1995, 2017):
+			print year, "leaps:", is_leap_year(year)
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2244,8 +2297,9 @@ if __name__ == '__main__':
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	test_calculate_apparent_age()
 	#test_str2pydt()
 	#test_pydt_strftime()
+	test_calculate_apparent_age()
+	#test_is_leap_year()
 
 #===========================================================================
