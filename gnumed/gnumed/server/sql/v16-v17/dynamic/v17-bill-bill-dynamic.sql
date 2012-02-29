@@ -33,12 +33,17 @@ comment on column bill.bill.invoice_id is 'the ID of the bill';
 
 \unset ON_ERROR_STOP
 alter table bill.bill drop constraint bill_bill_sane_invoice_id;
+alter table bill.bill drop constraint bill_bill_uniq_invoice_id cascade;
 \set ON_ERROR_STOP 1
 
 alter table bill.bill
 	add constraint bill_bill_sane_invoice_id check (
 		gm.is_null_or_blank_string(invoice_id) is False
 	);
+
+alter table bill.bill
+	add constraint bill_bill_uniq_invoice_id
+		unique(invoice_id);
 
 -- --------------------------------------------------------------
 -- .payment_method
