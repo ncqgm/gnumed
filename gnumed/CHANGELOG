@@ -45,6 +45,10 @@ IMPROVED: address related placeholders: let user select if no value available fo
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.13
+
+FIX: apparent-age calculation bug on Feb 29th if DOB is non-leap year [thanks M.Angermann]
+
 	1.1.12
 
 FIX: exception with certain invalid placeholders [thanks S.Reus]
