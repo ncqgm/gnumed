@@ -186,7 +186,23 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_items = []
 		list_data = []
 
+		due_messages = patient.due_messages
+		no_of_dues = len(due_messages)
+		for msg in due_messages:
+			list_items.append(_('due (%s): %s') % (
+				#gmDateTime.pydt_strftime(msg['due_date'], '%Y-%m-%d', accuracy = gmDateTime.acc_days),
+				gmDateTime.format_interval_medically(msg['interval_due']),
+				gmTools.coalesce(msg['comment'], u'?')
+			))
+			list_data.append(msg)
+
 		for msg in patient.messages:
+			# already displayed above ?
+			if msg['is_due']:
+				continue
+			# not relevant anymore ?
+			if msg['is_expired']:
+				continue
 			list_items.append(u'%s%s' % (
 				msg['l10n_type'],
 				gmTools.coalesce(msg['comment'], u'', u': %s')
@@ -195,6 +211,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
+
+		if no_of_dues > 0:
+			for idx in range(no_of_dues):
+				self._LCTRL_inbox.SetItemTextColour(idx, wx.NamedColour('RED'))
 	#-----------------------------------------------------
 	def _calc_inbox_item_tooltip(self, data):
 		if isinstance(data, gmProviderInbox.cInboxMessage):

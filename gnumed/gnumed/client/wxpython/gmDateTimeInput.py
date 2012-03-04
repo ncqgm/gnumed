@@ -436,16 +436,8 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def SetData(self, data=None):
 		if data is None:
 			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
-		else:
-			if isinstance(data, gmDateTime.cFuzzyTimestamp):
-				data = data.timestamp.replace (
-					hour = 11,
-					minute = 11,
-					second = 11,
-					microsecond = 111111
-				)
-			val = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
-			gmPhraseWheel.cPhraseWheel.SetText(self, value = val, data = data)
+			return
+		self.SetText(data = data)
 	#--------------------------------------------------------
 	def GetData(self):
 		if len(self._data) == 0:

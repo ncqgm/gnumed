@@ -404,41 +404,39 @@ def format_interval_medically(interval=None):
 
 	This isn't mathematically correct but close enough for display.
 	"""
-	# FIXME: i18n for abbrevs
-
 	# more than 1 year ?
 	if interval.days > 363:
 		years, days = divmod(interval.days, 364)
 		leap_days, tmp = divmod(years, 4)
 		months, day = divmod((days + leap_days), 30.33)
 		if int(months) == 0:
-			return "%sy" % int(years)
-		return "%sy %sm" % (int(years), int(months))
+			return u"%s%s" % (int(years), _('interval_format_tag::years::y')[-1:])
+		return u"%s%s %s%s" % (int(years), _('interval_format_tag::years::y')[-1:], int(months), _('interval_format_tag::months::m')[-1:])
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
 		months, days = divmod(interval.days, 30.33)
 		weeks, days = divmod(days, 7)
 		if int(weeks + days) == 0:
-			result = '%smo' % int(months)
+			result = u'%smo' % int(months)
 		else:
-			result = '%sm' % int(months)
+			result = u'%s%s' % (int(months), _('interval_format_tag::months::m')[-1:])
 		if int(weeks) != 0:
-			result += ' %sw' % int(weeks)
+			result += u' %s%s' % (int(weeks), _('interval_format_tag::weeks::w')[-1:])
 		if int(days) != 0:
-			result += ' %sd' % int(days)
+			result += u' %s%s' % (int(days), _('interval_format_tag::days::d')[-1:])
 		return result
 
 	# between 7 and 30 days ?
 	if interval.days > 7:
-		return "%sd" % interval.days
+		return u"%s%s" % (interval.days, _('interval_format_tag::days::d')[-1:])
 
 	# between 1 and 7 days ?
 	if interval.days > 0:
 		hours, seconds = divmod(interval.seconds, 3600)
 		if hours == 0:
-			return '%sd' % interval.days
-		return "%sd (%sh)" % (interval.days, int(hours))
+			return '%s%s' % (interval.days, _('interval_format_tag::days::d')[-1:])
+		return "%s%s (%sh)" % (interval.days, _('interval_format_tag::days::d')[-1:], int(hours))
 
 	# between 5 hours and 1 day
 	if interval.seconds > (5*3600):

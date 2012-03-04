@@ -19,6 +19,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -576,6 +577,46 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 			data = gmProviderInbox.create_inbox_item_type(message_type = val)
 		)
 #====================================================================
+def _display_clinical_reminders():
+	wx.CallAfter(__display_clinical_reminders)
+
+def __display_clinical_reminders():
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.connected:
+		return
+	for msg in pat.due_messages:
+		if msg['expiry_date'] is None:
+			exp = u''
+		else:
+			exp = _('(expires %s)') % gmDateTime.pydt_strftime (
+				msg['expiry_date'],
+				'%Y %b %d',
+				accuracy = gmDateTime.acc_days
+			)
+		txt = _(
+			'Patient: %s\n'
+			'By: %s\n'
+			'Due: %s - since %s %s\n'
+			'%s'
+			'%s'
+		) % (
+			pat['description_gender'],
+			msg['modified_by'],
+			gmDateTime.format_interval_medically(msg['interval_due']),
+			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d', accuracy = gmDateTime.acc_days),
+			exp,
+			gmTools.coalesce(msg['comment'], u'', u'\n%s\n'),
+			gmTools.coalesce(msg['data'], u'', u'\n%s\n')
+		)
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Clinical reminder'),
+			aMessage = txt
+		)
+	return
+
+gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
+
+#====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 
 class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.cGenericEditAreaMixin):
@@ -674,6 +715,12 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 
 		msg['data'] = self._TCTRL_message.GetValue().strip()
 
+		if self._PRW_due.is_valid_timestamp():
+			msg['due_date'] = self._PRW_due.date
+
+		if self._PRW_expiry.is_valid_timestamp():
+			msg['expiry_date'] = self._PRW_expiry.date
+
 		if self._RBTN_normal.GetValue() is True:
 			msg['importance'] = 0
 		elif self._RBTN_high.GetValue() is True:
@@ -705,6 +752,12 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			else:
 				self.data['pk_patient'] = self._PRW_patient.person.ID
 
+		if self._PRW_due.is_valid_timestamp():
+			self.data['due_date'] = self._PRW_due.date
+
+		if self._PRW_expiry.is_valid_timestamp():
+			self.data['expiry_date'] = self._PRW_expiry.date
+
 		if self._RBTN_normal.GetValue() is True:
 			self.data['importance'] = 0
 		elif self._RBTN_high.GetValue() is True:
@@ -722,6 +775,8 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self._PRW_receiver.Enable(False)
 		self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		self._TCTRL_message.SetValue(u'')
+		self._PRW_due.SetText(data = None)
+		self._PRW_expiry.SetText(data = None)
 		self._RBTN_normal.SetValue(True)
 		self._RBTN_high.SetValue(False)
 		self._RBTN_low.SetValue(False)
@@ -782,6 +837,9 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 				self._PRW_patient.person = None
 			else:
 				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+
+		self._PRW_due.SetText(data = self.data['due_date'])
+		self._PRW_expiry.SetText(data = self.data['expiry_date'])
 
 		self._RBTN_normal.SetValue(False)
 		self._RBTN_high.SetValue(False)

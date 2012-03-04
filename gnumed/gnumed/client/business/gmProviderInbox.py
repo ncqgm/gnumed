@@ -38,7 +38,9 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				data = gm.nullify_empty_string(%(data)s),
 				importance = %(importance)s,
 				fk_patient = %(pk_patient)s,
-				ufk_context = %(pk_context)s
+				ufk_context = %(pk_context)s,
+				due_date = %(due_date)s,
+				expiry_date = %(expiry_date)s
 			WHERE
 				pk = %(pk_inbox_message)s
 					AND
@@ -55,7 +57,9 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'data',
 		u'importance',
 		u'pk_patient',
-		u'ufk_context'
+		u'ufk_context',
+		u'due_date',
+		u'expiry_date'
 	]
 	#------------------------------------------------------------
 	def format(self):
@@ -92,12 +96,47 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			u'%s\n\n' % _('Patient #%s')
 		)
 
+		tt += gmTools.coalesce (
+			self._payload[self._idx['due_date']],
+			u'',
+			_('Due: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['expiry_date']],
+			u'',
+			_('Expiry: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
 		if self._payload[self._idx['data']] is not None:
 			tt += self._payload[self._idx['data']][:150]
 			if len(self._payload[self._idx['data']]) > 150:
 				tt += gmTools.u_ellipsis
 
 		return tt
+#------------------------------------------------------------
+def get_due_messages(pk_patient=None, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
+
+	args = {'pat': pk_patient}
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u'is_due IS TRUE'
+	]
+
+	cmd = u"SELECT *, now() - due_date AS interval_due FROM dem.v_message_inbox WHERE %s" % (
+		order_by % u' AND '.join(where_parts)
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
 #------------------------------------------------------------
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
 
@@ -259,8 +298,13 @@ if __name__ == '__main__':
 	def test_create_type():
 		print create_inbox_item_type(message_type = 'test')
 	#---------------------------------------
+	def test_due():
+		for msg in get_due_messages(pk_patient = 12):
+			print msg.format()
+	#---------------------------------------
 	#test_inbox()
 	#test_msg()
-	test_create_type()
+	#test_create_type()
+	test_due()
 
 #============================================================

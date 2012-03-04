@@ -5,8 +5,8 @@
 -- Author: Karsten Hilbert
 --
 -- ==============================================================
-set default_transaction_read_only to off;
---\set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
+\set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
 delete from cfg.report_query where label = 'encounters: recently created or modified by the current user';
@@ -46,6 +46,29 @@ FROM
 ORDER BY
 	pk_encounter, modified_when DESC
 ;');
+
+-- --------------------------------------------------------------
+delete from cfg.report_query where label = 'reminders: list due ones across all patients';
+insert into cfg.report_query (label, cmd) values (
+	'reminders: list due ones across all patients',
+'SELECT
+	person.lastnames || '', '' || person.firstnames || coalesce('' ('' || person.preferred || '')'', '''') as patient,
+	person.l10n_gender,
+	person.dob,
+	inbox.*,
+	person.deceased,
+	person.comment,
+	person.emergency_contact
+FROM
+	dem.v_message_inbox inbox
+		join
+	dem.v_basic_person person
+		on
+	(person.pk_identity = inbox.pk_patient)
+WHERE
+	is_due
+;');
+
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-cfg-report_query.sql', '17.0');

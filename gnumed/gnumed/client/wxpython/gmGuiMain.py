@@ -589,9 +589,6 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
 
-		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
-		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
-
 		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
 		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
@@ -651,6 +648,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		# -- menu "Tools" -------------------------
 		self.menu_tools = wx.Menu()
+
+		item = self.menu_tools.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
+		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 
 		ID_DICOM_VIEWER = wx.NewId()
 		viewer = _('no viewer installed')
