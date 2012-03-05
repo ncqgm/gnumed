@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-02-22 13:09+CET\n"
+"POT-Creation-Date: 2012-03-05 15:28+CET\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -259,8 +259,12 @@ msgstr ""
 msgid "Vaccinations"
 msgstr ""
 
-msgid "allergies/intolerances"
+#, fuzzy
+msgid "Allergies/Intolerances"
 msgstr "allergies/intolerances"
+
+msgid "Allergy detail: %s"
+msgstr ""
 
 msgid ""
 "%s\n"
@@ -781,6 +785,12 @@ msgstr ""
 msgid "invalid age: DOB after death"
 msgstr ""
 
+msgid "male"
+msgstr "male"
+
+msgid "female"
+msgstr "female"
+
 msgid "Mr"
 msgstr "Mr"
 
@@ -855,6 +865,14 @@ msgstr ""
 
 msgid "Patient #%s"
 msgstr ""
+
+#, fuzzy
+msgid "Due: %s\n"
+msgstr "Documents: %s"
+
+#, fuzzy
+msgid "Expiry: %s\n"
+msgstr "Exported: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -937,12 +955,6 @@ msgstr "vacc -> ind error: %s"
 
 msgid "unknown gender"
 msgstr "unknown gender"
-
-msgid "male"
-msgstr "male"
-
-msgid "female"
-msgstr "female"
 
 msgid "child"
 msgstr "child"
@@ -1582,8 +1594,11 @@ msgstr "&Sensitivity"
 msgid "&Definite"
 msgstr "&Definite"
 
-msgid "Since when do we know about this allergy. Mostly \"today\"."
-msgstr "Since when do we know about this allergy. Mostly \"today\"."
+msgid ""
+"When did the patient notice onset of the reaction.\n"
+"\n"
+"If unknown use the date when it was reported to you."
+msgstr ""
 
 msgid ""
 "What is reported to be the trigger for the reaction. Can be\n"
@@ -1629,8 +1644,8 @@ msgstr ""
 "Check this if this allergy/intolerance is known to exist for sure as opposed "
 "to suspected."
 
-msgid "Date Noted"
-msgstr "Date Noted"
+msgid "Onset"
+msgstr ""
 
 msgid "Trigger"
 msgstr "Trigger"
@@ -1645,12 +1660,6 @@ msgid "Drug Classes"
 msgstr ""
 
 msgid "Reaction Type"
-msgstr ""
-
-msgid "Allergy details"
-msgstr ""
-
-msgid "Allergy state"
 msgstr ""
 
 msgid "<current allergy state>"
@@ -1669,6 +1678,16 @@ msgid "Has allergies"
 msgstr ""
 
 msgid "&Update / Con&firm"
+msgstr ""
+
+msgid "Allergy state"
+msgstr ""
+
+msgid ""
+"Input new allergy, or select from among existing allergy items to edit them:"
+msgstr ""
+
+msgid "Allergy details"
 msgstr ""
 
 msgid "Allergy Manager"
@@ -1697,9 +1716,6 @@ msgstr ""
 msgid "Save and confirm the allergy state."
 msgstr ""
 
-msgid "Close the dialag. Will discard unsaved data."
-msgstr ""
-
 msgid "Lists the allergies known for this patient if any."
 msgstr ""
 
@@ -1712,6 +1728,9 @@ msgid "Clear the fields of the edit area. Will discard unsaved data."
 msgstr ""
 
 msgid "Delete the allergy selected in the list from the database."
+msgstr ""
+
+msgid "Close the dialag. Will discard unsaved data."
 msgstr ""
 
 msgid "Currently:"
@@ -2647,10 +2666,7 @@ msgstr ""
 msgid "edit form template details"
 msgstr ""
 
-msgid "&Template"
-msgstr ""
-
-msgid "Export"
+msgid "Save the form template definition."
 msgstr ""
 
 msgid "AbiWord"
@@ -2671,6 +2687,12 @@ msgstr ""
 msgid "PDF form editor"
 msgstr ""
 
+msgid "&Load"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -2689,6 +2711,12 @@ msgid ""
 "The document type under which to store forms generated from this template."
 msgstr ""
 
+msgid "The form engine this template must be processed with."
+msgstr ""
+
+msgid "Mark this checkbox if you want this template to be active in GNUmed."
+msgstr ""
+
 msgid ""
 "Examplary filename. Mainly used for deriving a suitable file extension since "
 "that matters to some form engines. Most of the time this should already be "
@@ -2701,12 +2729,6 @@ msgstr ""
 msgid "Export the form template into a file."
 msgstr ""
 
-msgid "The form engine this template must be processed with."
-msgstr ""
-
-msgid "Mark this checkbox if you want this template to be active in GNUmed."
-msgstr ""
-
 msgid "Version:"
 msgstr ""
 
@@ -2716,13 +2738,13 @@ msgstr ""
 msgid "Document type"
 msgstr ""
 
-msgid "Filename"
-msgstr ""
-
 msgid "Options"
 msgstr ""
 
 msgid "Processed by:"
+msgstr ""
+
+msgid "Template"
 msgstr ""
 
 msgid "Last modified:"
@@ -2975,7 +2997,17 @@ msgstr ""
 msgid "Discharged"
 msgstr ""
 
+msgid "≈"
+msgstr ""
+
 msgid "The date of birth for this person."
+msgstr ""
+
+msgid ""
+"Check this if the date of birth is estimated rather than known precisely."
+msgstr ""
+
+msgid "The time of birth if known."
 msgstr ""
 
 msgid "The date of death."
@@ -2985,6 +3017,9 @@ msgid "A free-text comment on this person."
 msgstr ""
 
 msgid "Born"
+msgstr ""
+
+msgid "Time:"
 msgstr ""
 
 msgid "Deceased"
@@ -3032,6 +3067,12 @@ msgstr ""
 msgid "A longer text detailing the message, if needed."
 msgstr ""
 
+msgid "Optional: Pick a date when this message is due to be acted on."
+msgstr ""
+
+msgid "Optional: Pick a date when this message will no longer be relevant."
+msgstr ""
+
 msgid "Normal (standard) urgency of message."
 msgstr ""
 
@@ -3051,6 +3092,12 @@ msgid "Audience"
 msgstr ""
 
 msgid "Message"
+msgstr ""
+
+msgid "Due"
+msgstr ""
+
+msgid "Expires"
 msgstr ""
 
 msgid "Urgency"
@@ -3420,6 +3467,9 @@ msgid ""
 "that you are confident should be left untouched."
 msgstr ""
 
+msgid "Estimated"
+msgstr ""
+
 msgid "Required: lastname (family name)"
 msgstr ""
 
@@ -3427,6 +3477,9 @@ msgid "Required: first name/given name"
 msgstr ""
 
 msgid "Recommended: Date of birth. Your current time zone applies."
+msgstr ""
+
+msgid "Check if the DOB is estimated rather than known precisely."
 msgstr ""
 
 msgid "Optional: the time of birth if known"
@@ -3513,9 +3566,6 @@ msgid "First name(s)"
 msgstr ""
 
 msgid "Date of birth"
-msgstr ""
-
-msgid "Time:"
 msgstr ""
 
 msgid "Nick name"
@@ -3611,7 +3661,7 @@ msgstr "Measurements and Results:"
 msgid "History:"
 msgstr ""
 
-msgid "Inbox / Scratch pad:"
+msgid "Reminders:"
 msgstr ""
 
 #, fuzzy
@@ -4003,6 +4053,9 @@ msgid "Cancel this review."
 msgstr ""
 
 msgid "Reference"
+msgstr ""
+
+msgid "Filename"
 msgstr ""
 
 msgid ""
@@ -4462,7 +4515,13 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
+msgid "<age>"
+msgstr ""
+
 msgid "Caveat"
+msgstr ""
+
+msgid "The age."
 msgstr ""
 
 msgid "Details"
@@ -4876,6 +4935,9 @@ msgstr ""
 msgid "Type or select a city/town/village/dwelling."
 msgstr ""
 
+msgid "Select the type of address."
+msgstr ""
+
 msgid "Street info"
 msgstr ""
 
@@ -4904,9 +4966,6 @@ msgstr ""
 msgid "Saving contact data"
 msgstr ""
 
-msgid "Select the type of address."
-msgstr ""
-
 msgid "Select an address by postcode or street name."
 msgstr ""
 
@@ -4920,6 +4979,13 @@ msgid "<allergy state unasked>"
 msgstr ""
 
 msgid "invalid allergy state [%s]"
+msgstr ""
+
+#, fuzzy
+msgid "Input new allergy item:"
+msgstr "no known allergies"
+
+msgid "Edit the selected allergy item:"
 msgstr ""
 
 msgid ""
@@ -5194,58 +5260,6 @@ msgstr ""
 msgid "&Reset"
 msgstr ""
 
-msgid "#Units"
-msgstr ""
-
-msgid "Charge Item"
-msgstr ""
-
-#, fuzzy
-msgid "Encounter #"
-msgstr "Encounter"
-
-msgid "Catalog"
-msgstr ""
-
-msgid "Inv #"
-msgstr ""
-
-msgid "No pending lines so nothing was assigned"
-msgstr ""
-
-msgid "Cant insert new Billing Record - No Charge Item"
-msgstr ""
-
-msgid "Cant insert new Billing Record - Invalid Qty float"
-msgstr ""
-
-msgid "Billing Record: confirm deletion"
-msgstr ""
-
-msgid "Billrec Actions:"
-msgstr ""
-
-#, fuzzy
-msgid "Edit corresponding Encounter"
-msgstr "Starting patient encounter"
-
-msgid "Show Invoice"
-msgstr ""
-
-msgid "Edit"
-msgstr ""
-
-msgid "Edit Bill Rec"
-msgstr ""
-
-msgid ""
-"Did *NOT* save your changes. Mostly due to someone has changed this Record "
-"meanwhile. Please close this Dialog and try it again."
-msgstr ""
-
-msgid "Problem wigh updating"
-msgstr ""
-
 msgid "Cannot delete this billable item. It is in use."
 msgstr ""
 
@@ -5255,6 +5269,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing billable items."
+msgstr ""
+
+msgid "Catalog"
 msgstr ""
 
 msgid "Do you truly want to irrevocably delete this bill ?"
@@ -5973,14 +5990,12 @@ msgstr ""
 msgid "Preferred Name"
 msgstr ""
 
-msgid "Clone and &edit"
-msgstr ""
-
 msgid "Adding new name"
 msgstr ""
 
-msgid "Cloning name"
-msgstr ""
+#, fuzzy
+msgid "Editing name"
+msgstr "first name"
 
 msgid "Cannot delete the only name of a person."
 msgstr ""
@@ -7219,24 +7234,6 @@ msgstr ""
 msgid "initialize input fields for new entry"
 msgstr ""
 
-msgid " Date of Birth "
-msgstr ""
-
-msgid "confidental"
-msgstr ""
-
-msgid " age onset "
-msgstr ""
-
-msgid " caused death "
-msgstr ""
-
-msgid " age died "
-msgstr ""
-
-msgid "Next Condition"
-msgstr ""
-
 msgid "Laterality"
 msgstr ""
 
@@ -7498,9 +7495,6 @@ msgid ""
 msgstr ""
 
 msgid "Select letter or form template."
-msgstr ""
-
-msgid "Template"
 msgstr ""
 
 msgid "You must select a template file before saving."
@@ -7974,12 +7968,6 @@ msgstr ""
 msgid "Search this EMR"
 msgstr ""
 
-msgid "Search all EMRs"
-msgstr ""
-
-msgid "Search for data across the EMRs of all patients"
-msgstr ""
-
 msgid "Start a new encounter for the active patient right now."
 msgstr ""
 
@@ -8027,6 +8015,12 @@ msgid "Write a letter for the current patient."
 msgstr ""
 
 msgid "&Correspondence"
+msgstr ""
+
+msgid "Search all EMRs"
+msgstr ""
+
+msgid "Search for data across the EMRs of all patients"
 msgstr ""
 
 msgid "no viewer installed"
@@ -9130,29 +9124,11 @@ msgstr ""
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
+msgid "no address type replacement selected"
+msgstr ""
+
 msgid ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
-msgstr ""
-
-msgid "no address for type [%s]"
-msgstr ""
-
-msgid "no street for address type [%s]"
-msgstr ""
-
-msgid "no number for address type [%s]"
-msgstr ""
-
-msgid "no location for address type [%s]"
-msgstr ""
-
-msgid "no postcode for address type [%s]"
-msgstr ""
-
-msgid "no region for address type [%s]"
-msgstr ""
-
-msgid "no country for address type [%s]"
 msgstr ""
 
 msgid "no URL for comm channel [%s]"
@@ -9189,6 +9165,15 @@ msgid ""
 msgstr ""
 
 msgid "Text input cancelled by user."
+msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+msgid "Selecting address by type"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -10375,6 +10360,9 @@ msgstr ""
 msgid "Communication channels"
 msgstr ""
 
+msgid "due (%s): %s"
+msgstr ""
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -10420,6 +10408,9 @@ msgid ""
 "Activities:\n"
 "\n"
 "%s"
+msgstr ""
+
+msgid "Cloning name"
 msgstr ""
 
 msgid "No active patient."
@@ -10746,9 +10737,6 @@ msgstr ""
 msgid "18 Week Ultrasound Scan"
 msgstr ""
 
-msgid "Due"
-msgstr ""
-
 msgid "Ultrasound Scan - Revised EDC"
 msgstr ""
 
@@ -10931,6 +10919,20 @@ msgstr ""
 msgid "Select a message type."
 msgstr ""
 
+msgid "(expires %s)"
+msgstr ""
+
+msgid ""
+"Patient: %s\n"
+"By: %s\n"
+"Due: %s - since %s %s\n"
+"%s%s"
+msgstr ""
+
+#, fuzzy
+msgid "Clinical reminder"
+msgstr "clinically relevant"
+
 msgid "Adding new inbox message"
 msgstr ""
 
@@ -10970,6 +10972,9 @@ msgid "Inbox Message Actions:"
 msgstr ""
 
 msgid "Activate patient"
+msgstr ""
+
+msgid "Edit"
 msgstr ""
 
 msgid ""
@@ -11222,7 +11227,36 @@ msgstr ""
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+#, fuzzy
+msgid "Gender: %s (%s) - %s\n"
+msgstr "Encounters: %s (%s - %s):"
+
+#, fuzzy
+msgid "Born: %s\n"
+msgstr "Exported: %s\n"
+
 msgid "%s  %s (%s today !)"
+msgstr ""
+
+msgid ""
+"\n"
+"Today is the patient's birtday !\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Age: %s\n"
+msgstr "Exported: %s\n"
+
+#, fuzzy
+msgid "Died: %s\n"
+msgstr "Exported: %s\n"
+
+#, fuzzy
+msgid "At age: %s\n"
+msgstr "Patient: %s (%s), No: %s\n"
+
+msgid " (date of birth and age are estimated)\n"
 msgstr ""
 
 msgid "last confirmed %s\n"
@@ -12010,6 +12044,20 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid "Since when do we know about this allergy. Mostly \"today\"."
+#~ msgstr "Since when do we know about this allergy. Mostly \"today\"."
+
+#~ msgid "Date Noted"
+#~ msgstr "Date Noted"
+
+#, fuzzy
+#~ msgid "Encounter #"
+#~ msgstr "Encounter"
+
+#, fuzzy
+#~ msgid "Edit corresponding Encounter"
+#~ msgstr "Starting patient encounter"
 
 #~ msgid ""
 #~ "EMR Statistics\n"

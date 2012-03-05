@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-02-22 13:09+CET\n"
+"POT-Creation-Date: 2012-03-05 15:28+CET\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -317,8 +317,13 @@ msgstr "Επάγγελμα"
 msgid "Vaccinations"
 msgstr "Εμβολιασμοί"
 
-msgid "allergies/intolerances"
+#, fuzzy
+msgid "Allergies/Intolerances"
 msgstr "αλλεργίες/δυσανεξίες"
+
+#, fuzzy
+msgid "Allergy detail: %s"
+msgstr "Λεπτομέριες αλλεργίας"
 
 msgid ""
 "%s\n"
@@ -855,6 +860,12 @@ msgstr ""
 msgid "invalid age: DOB after death"
 msgstr ""
 
+msgid "male"
+msgstr "άνδρας"
+
+msgid "female"
+msgstr "γυναίκα"
+
 msgid "Mr"
 msgstr "Κύριος"
 
@@ -932,6 +943,14 @@ msgstr "ποτέ"
 #, fuzzy
 msgid "Patient #%s"
 msgstr "Ασθενής"
+
+#, fuzzy
+msgid "Due: %s\n"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Expiry: %s\n"
+msgstr "Εξήχθηκε: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -1016,12 +1035,6 @@ msgstr ""
 
 msgid "unknown gender"
 msgstr "άγνωστο γένος"
-
-msgid "male"
-msgstr "άνδρας"
-
-msgid "female"
-msgstr "γυναίκα"
 
 msgid "child"
 msgstr "παιδί"
@@ -1651,7 +1664,10 @@ msgstr "&Ευαισθησία"
 msgid "&Definite"
 msgstr "&Προσδιορισμένο"
 
-msgid "Since when do we know about this allergy. Mostly \"today\"."
+msgid ""
+"When did the patient notice onset of the reaction.\n"
+"\n"
+"If unknown use the date when it was reported to you."
 msgstr ""
 
 msgid ""
@@ -1705,7 +1721,7 @@ msgstr ""
 "Επιλέξτε αυτό αν αυτή η αλλεργία / δυσανεξία είναι γνωστό ότι υπάρχει στα "
 "σίγουρα, σε αντίθεση με μια υποψία."
 
-msgid "Date Noted"
+msgid "Onset"
 msgstr ""
 
 msgid "Trigger"
@@ -1722,12 +1738,6 @@ msgstr ""
 
 msgid "Reaction Type"
 msgstr "Τύπος αντίδρασης"
-
-msgid "Allergy details"
-msgstr "Λεπτομέριες αλλεργίας"
-
-msgid "Allergy state"
-msgstr "Αλλεργική κατάσταση"
 
 msgid "<current allergy state>"
 msgstr "<τρέχουσα αλλεργική κατάσταση>"
@@ -1746,6 +1756,16 @@ msgstr "Έχει αλλεργίες"
 
 msgid "&Update / Con&firm"
 msgstr ""
+
+msgid "Allergy state"
+msgstr "Αλλεργική κατάσταση"
+
+msgid ""
+"Input new allergy, or select from among existing allergy items to edit them:"
+msgstr ""
+
+msgid "Allergy details"
+msgstr "Λεπτομέριες αλλεργίας"
 
 msgid "Allergy Manager"
 msgstr "Διαχειριστής αλλεργιών"
@@ -1776,9 +1796,6 @@ msgstr "Σχόλιο για την αλλεργική κατάσταση."
 msgid "Save and confirm the allergy state."
 msgstr "Αποθηκεύστε και να επιβεβαιώστε την αλλεργική κατάσταση."
 
-msgid "Close the dialag. Will discard unsaved data."
-msgstr ""
-
 msgid "Lists the allergies known for this patient if any."
 msgstr "Λίστα γνωστών αλλεργιών για αυτό την ασθενή εάν υπάρχουν."
 
@@ -1792,6 +1809,9 @@ msgstr ""
 
 msgid "Delete the allergy selected in the list from the database."
 msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
+
+msgid "Close the dialag. Will discard unsaved data."
+msgstr ""
 
 msgid "Currently:"
 msgstr ""
@@ -2830,12 +2850,8 @@ msgstr "Ημερομηνία γέννησης"
 msgid "edit form template details"
 msgstr ""
 
-msgid "&Template"
-msgstr "&Πρότυπο"
-
-#, fuzzy
-msgid "Export"
-msgstr "Αναφορά"
+msgid "Save the form template definition."
+msgstr ""
 
 msgid "AbiWord"
 msgstr ""
@@ -2855,6 +2871,13 @@ msgstr "OpenOffice"
 msgid "PDF form editor"
 msgstr ""
 
+msgid "&Load"
+msgstr ""
+
+#, fuzzy
+msgid "Export"
+msgstr "Αναφορά"
+
 msgid "A long, descriptive name for this form template."
 msgstr ""
 
@@ -2873,6 +2896,12 @@ msgid ""
 "The document type under which to store forms generated from this template."
 msgstr ""
 
+msgid "The form engine this template must be processed with."
+msgstr ""
+
+msgid "Mark this checkbox if you want this template to be active in GNUmed."
+msgstr ""
+
 msgid ""
 "Examplary filename. Mainly used for deriving a suitable file extension since "
 "that matters to some form engines. Most of the time this should already be "
@@ -2885,12 +2914,6 @@ msgstr ""
 msgid "Export the form template into a file."
 msgstr ""
 
-msgid "The form engine this template must be processed with."
-msgstr ""
-
-msgid "Mark this checkbox if you want this template to be active in GNUmed."
-msgstr ""
-
 msgid "Version:"
 msgstr "Έκδοση"
 
@@ -2900,14 +2923,14 @@ msgstr "Τύπος προτύπου"
 msgid "Document type"
 msgstr "Τύπος εγγράφου"
 
-msgid "Filename"
-msgstr "Όνομα αρχείου"
-
 msgid "Options"
 msgstr "Επιλογές"
 
 msgid "Processed by:"
 msgstr ""
+
+msgid "Template"
+msgstr "Πρότυπο"
 
 msgid "Last modified:"
 msgstr "Τελευταία τροποποίηση:"
@@ -3164,8 +3187,19 @@ msgstr ""
 msgid "Discharged"
 msgstr ""
 
+msgid "≈"
+msgstr ""
+
 msgid "The date of birth for this person."
 msgstr ""
+
+msgid ""
+"Check this if the date of birth is estimated rather than known precisely."
+msgstr ""
+
+#, fuzzy
+msgid "The time of birth if known."
+msgstr "Η εμπορική ονομασία του σκευάσματος."
 
 msgid "The date of death."
 msgstr ""
@@ -3175,6 +3209,9 @@ msgstr ""
 
 msgid "Born"
 msgstr "Γέννηση"
+
+msgid "Time:"
+msgstr "Ώρα:"
 
 msgid "Deceased"
 msgstr ""
@@ -3222,6 +3259,12 @@ msgstr ""
 msgid "A longer text detailing the message, if needed."
 msgstr ""
 
+msgid "Optional: Pick a date when this message is due to be acted on."
+msgstr ""
+
+msgid "Optional: Pick a date when this message will no longer be relevant."
+msgstr ""
+
 msgid "Normal (standard) urgency of message."
 msgstr ""
 
@@ -3245,6 +3288,12 @@ msgstr "Ακολουθία"
 #, fuzzy
 msgid "Message"
 msgstr "μήνυμα"
+
+msgid "Due"
+msgstr ""
+
+msgid "Expires"
+msgstr ""
 
 msgid "Urgency"
 msgstr ""
@@ -3614,6 +3663,9 @@ msgid ""
 "that you are confident should be left untouched."
 msgstr ""
 
+msgid "Estimated"
+msgstr ""
+
 msgid "Required: lastname (family name)"
 msgstr ""
 
@@ -3621,6 +3673,9 @@ msgid "Required: first name/given name"
 msgstr ""
 
 msgid "Recommended: Date of birth. Your current time zone applies."
+msgstr ""
+
+msgid "Check if the DOB is estimated rather than known precisely."
 msgstr ""
 
 msgid "Optional: the time of birth if known"
@@ -3708,9 +3763,6 @@ msgstr "Όνομα(τα)"
 
 msgid "Date of birth"
 msgstr "Ημερομηνία γέννησης"
-
-msgid "Time:"
-msgstr "Ώρα:"
 
 msgid "Nick name"
 msgstr "Ψευδώνυμο"
@@ -3816,8 +3868,9 @@ msgstr "Τρέχουσα φαρμακευτική αγωγή"
 msgid "History:"
 msgstr "Οικογενειακό Ιστορικό"
 
-msgid "Inbox / Scratch pad:"
-msgstr ""
+#, fuzzy
+msgid "Reminders:"
+msgstr "Γένος"
 
 #, fuzzy
 msgid "Measurements:"
@@ -4216,6 +4269,9 @@ msgstr ""
 
 msgid "Reference"
 msgstr "Παραπομπή"
+
+msgid "Filename"
+msgstr "Όνομα αρχείου"
 
 msgid ""
 "The original filename (if any). Only editable if invoked from a single part "
@@ -4707,8 +4763,15 @@ msgstr "Ανάπτυξη σε"
 msgid "Scope"
 msgstr ""
 
+msgid "<age>"
+msgstr ""
+
 msgid "Caveat"
 msgstr ""
+
+#, fuzzy
+msgid "The age."
+msgstr "Τύπος προτύπου"
 
 msgid "Details"
 msgstr "Λεπτομέρειες"
@@ -5121,6 +5184,9 @@ msgstr ""
 msgid "Type or select a city/town/village/dwelling."
 msgstr ""
 
+msgid "Select the type of address."
+msgstr ""
+
 msgid "Street info"
 msgstr ""
 
@@ -5149,9 +5215,6 @@ msgstr ""
 msgid "Saving contact data"
 msgstr ""
 
-msgid "Select the type of address."
-msgstr ""
-
 msgid "Select an address by postcode or street name."
 msgstr ""
 
@@ -5166,6 +5229,14 @@ msgstr ""
 
 msgid "invalid allergy state [%s]"
 msgstr ""
+
+#, fuzzy
+msgid "Input new allergy item:"
+msgstr "Άγνωστη αλλεργική κατάσταση"
+
+#, fuzzy
+msgid "Edit the selected allergy item:"
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 msgid ""
 "Cannot set allergy state to <unknown> because there are allergies stored for "
@@ -5439,61 +5510,6 @@ msgstr "Υπολογιστής ΔΜΣ"
 msgid "&Reset"
 msgstr "&Επαναφορά"
 
-#, fuzzy
-msgid "#Units"
-msgstr "Μονάδες"
-
-msgid "Charge Item"
-msgstr ""
-
-#, fuzzy
-msgid "Encounter #"
-msgstr "Συνεδρία"
-
-msgid "Catalog"
-msgstr ""
-
-msgid "Inv #"
-msgstr ""
-
-msgid "No pending lines so nothing was assigned"
-msgstr ""
-
-msgid "Cant insert new Billing Record - No Charge Item"
-msgstr ""
-
-msgid "Cant insert new Billing Record - Invalid Qty float"
-msgstr ""
-
-msgid "Billing Record: confirm deletion"
-msgstr ""
-
-#, fuzzy
-msgid "Billrec Actions:"
-msgstr "Κατευθύνσεις"
-
-#, fuzzy
-msgid "Edit corresponding Encounter"
-msgstr "Επέλεξε τον τύπο της συνεδρίας."
-
-msgid "Show Invoice"
-msgstr ""
-
-msgid "Edit"
-msgstr "Επεξεργασία"
-
-msgid "Edit Bill Rec"
-msgstr ""
-
-msgid ""
-"Did *NOT* save your changes. Mostly due to someone has changed this Record "
-"meanwhile. Please close this Dialog and try it again."
-msgstr ""
-
-#, fuzzy
-msgid "Problem wigh updating"
-msgstr "Πρόβλημα"
-
 msgid "Cannot delete this billable item. It is in use."
 msgstr ""
 
@@ -5503,6 +5519,9 @@ msgid ""
 msgstr ""
 
 msgid "Showing billable items."
+msgstr ""
+
+msgid "Catalog"
 msgstr ""
 
 msgid "Do you truly want to irrevocably delete this bill ?"
@@ -6238,14 +6257,12 @@ msgstr "Όνομα(τα)"
 msgid "Preferred Name"
 msgstr ""
 
-msgid "Clone and &edit"
-msgstr ""
-
 msgid "Adding new name"
 msgstr "Προσθήκη νέου ονόματος"
 
-msgid "Cloning name"
-msgstr ""
+#, fuzzy
+msgid "Editing name"
+msgstr "Διαγραφή ονόματος"
 
 msgid "Cannot delete the only name of a person."
 msgstr ""
@@ -7504,24 +7521,6 @@ msgstr ""
 msgid "initialize input fields for new entry"
 msgstr ""
 
-msgid " Date of Birth "
-msgstr " Ημερομηνία Γέννησης "
-
-msgid "confidental"
-msgstr ""
-
-msgid " age onset "
-msgstr ""
-
-msgid " caused death "
-msgstr ""
-
-msgid " age died "
-msgstr ""
-
-msgid "Next Condition"
-msgstr ""
-
 msgid "Laterality"
 msgstr ""
 
@@ -7786,9 +7785,6 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr ""
-
-msgid "Template"
-msgstr "Πρότυπο"
 
 msgid "You must select a template file before saving."
 msgstr ""
@@ -8267,12 +8263,6 @@ msgstr ""
 msgid "Search this EMR"
 msgstr "Αναζήτηση αυτού του ΗΙΦ"
 
-msgid "Search all EMRs"
-msgstr "Αναζήτηση όλων των ΗΙΦ"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
-
 msgid "Start a new encounter for the active patient right now."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
@@ -8321,6 +8311,12 @@ msgstr ""
 
 msgid "&Correspondence"
 msgstr "&Αλληλογραφία"
+
+msgid "Search all EMRs"
+msgstr "Αναζήτηση όλων των ΗΙΦ"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Αναζήτηση δεδομένων ανάμεσα στους ΗΙΦ όλων των ασθενών"
 
 msgid "no viewer installed"
 msgstr ""
@@ -9427,29 +9423,11 @@ msgstr ""
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
+msgid "no address type replacement selected"
+msgstr ""
+
 msgid ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
-msgstr ""
-
-msgid "no address for type [%s]"
-msgstr ""
-
-msgid "no street for address type [%s]"
-msgstr ""
-
-msgid "no number for address type [%s]"
-msgstr ""
-
-msgid "no location for address type [%s]"
-msgstr ""
-
-msgid "no postcode for address type [%s]"
-msgstr ""
-
-msgid "no region for address type [%s]"
-msgstr ""
-
-msgid "no country for address type [%s]"
 msgstr ""
 
 msgid "no URL for comm channel [%s]"
@@ -9488,6 +9466,16 @@ msgstr ""
 
 msgid "Text input cancelled by user."
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Διαγραφή μηνύματος"
 
 msgid "attach rejected, already serving a client"
 msgstr ""
@@ -10713,6 +10701,10 @@ msgstr ""
 msgid "Communication channels"
 msgstr ""
 
+#, fuzzy
+msgid "due (%s): %s"
+msgstr "σε %d μέρα(ες): %s"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -10768,6 +10760,9 @@ msgid ""
 "\n"
 "%s"
 msgstr "Φάρμακα με ενεργό ρόλο: %s"
+
+msgid "Cloning name"
+msgstr ""
 
 msgid "No active patient."
 msgstr ""
@@ -11096,9 +11091,6 @@ msgstr ""
 msgid "18 Week Ultrasound Scan"
 msgstr ""
 
-msgid "Due"
-msgstr ""
-
 msgid "Ultrasound Scan - Revised EDC"
 msgstr ""
 
@@ -11282,6 +11274,20 @@ msgstr ""
 msgid "Select a message type."
 msgstr "Διαγραφή μηνύματος"
 
+msgid "(expires %s)"
+msgstr ""
+
+msgid ""
+"Patient: %s\n"
+"By: %s\n"
+"Due: %s - since %s %s\n"
+"%s%s"
+msgstr ""
+
+#, fuzzy
+msgid "Clinical reminder"
+msgstr "Κλινικές λεπτομέρειες"
+
 #, fuzzy
 msgid "Adding new inbox message"
 msgstr "Μήνυμα γενικής πληροφορίας"
@@ -11324,6 +11330,9 @@ msgstr ""
 
 msgid "Activate patient"
 msgstr ""
+
+msgid "Edit"
+msgstr "Επεξεργασία"
 
 msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
@@ -11577,7 +11586,36 @@ msgstr ""
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+#, fuzzy
+msgid "Gender: %s (%s) - %s\n"
+msgstr "Συνεδρίες: %s (%s - %s):"
+
+#, fuzzy
+msgid "Born: %s\n"
+msgstr " Κωδικός: %s\n"
+
 msgid "%s  %s (%s today !)"
+msgstr ""
+
+msgid ""
+"\n"
+"Today is the patient's birtday !\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Age: %s\n"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Died: %s\n"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "At age: %s\n"
+msgstr "Ημερομηνία: %s\n"
+
+msgid " (date of birth and age are estimated)\n"
 msgstr ""
 
 msgid "last confirmed %s\n"
@@ -12373,6 +12411,32 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "&Template"
+#~ msgstr "&Πρότυπο"
+
+#, fuzzy
+#~ msgid "#Units"
+#~ msgstr "Μονάδες"
+
+#, fuzzy
+#~ msgid "Encounter #"
+#~ msgstr "Συνεδρία"
+
+#, fuzzy
+#~ msgid "Billrec Actions:"
+#~ msgstr "Κατευθύνσεις"
+
+#, fuzzy
+#~ msgid "Edit corresponding Encounter"
+#~ msgstr "Επέλεξε τον τύπο της συνεδρίας."
+
+#, fuzzy
+#~ msgid "Problem wigh updating"
+#~ msgstr "Πρόβλημα"
+
+#~ msgid " Date of Birth "
+#~ msgstr " Ημερομηνία Γέννησης "
 
 #~ msgid "Tetanus"
 #~ msgstr "Τέτανος"

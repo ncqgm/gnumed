@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-22 13:09+CET\n"
+"POT-Creation-Date: 2012-03-05 15:29+CET\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -318,8 +318,13 @@ msgstr "Ocupación"
 msgid "Vaccinations"
 msgstr "Vacunaciones"
 
-msgid "allergies/intolerances"
+#, fuzzy
+msgid "Allergies/Intolerances"
 msgstr "alergias/intolerancias"
+
+#, fuzzy
+msgid "Allergy detail: %s"
+msgstr "Detalle de Alergias"
 
 msgid ""
 "%s\n"
@@ -873,6 +878,12 @@ msgstr "edad inválida: fecha de nacimiento en el futuro"
 msgid "invalid age: DOB after death"
 msgstr "Fecha de fallecimiento no válida."
 
+msgid "male"
+msgstr "hombre"
+
+msgid "female"
+msgstr "hembra"
+
 msgid "Mr"
 msgstr "Señor"
 
@@ -949,6 +960,14 @@ msgstr "todos"
 #, fuzzy
 msgid "Patient #%s"
 msgstr "Paciente"
+
+#, fuzzy
+msgid "Due: %s\n"
+msgstr "Fecha: %s\n"
+
+#, fuzzy
+msgid "Expiry: %s\n"
+msgstr "Exportado: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -1040,12 +1059,6 @@ msgstr "vacc -> ind error: %s"
 
 msgid "unknown gender"
 msgstr "género desconocido"
-
-msgid "male"
-msgstr "hombre"
-
-msgid "female"
-msgstr "hembra"
 
 msgid "child"
 msgstr "niño/a"
@@ -1721,8 +1734,11 @@ msgstr "&Sensiblilidad"
 msgid "&Definite"
 msgstr "&definito"
 
-msgid "Since when do we know about this allergy. Mostly \"today\"."
-msgstr "Desde cuando sabemos sobre esta alergia. Mayormente \"hoy\"."
+msgid ""
+"When did the patient notice onset of the reaction.\n"
+"\n"
+"If unknown use the date when it was reported to you."
+msgstr ""
 
 msgid ""
 "What is reported to be the trigger for the reaction. Can be\n"
@@ -1777,8 +1793,8 @@ msgstr ""
 "Marque ésto si esta alergia/intolerancia es de existencia confirmada y no "
 "solo sospechada."
 
-msgid "Date Noted"
-msgstr "Cita registrada"
+msgid "Onset"
+msgstr ""
 
 msgid "Trigger"
 msgstr "Desencadenante"
@@ -1794,12 +1810,6 @@ msgstr "Clases de drogas"
 
 msgid "Reaction Type"
 msgstr "Tipo de reacción"
-
-msgid "Allergy details"
-msgstr "Detalle de Alergias"
-
-msgid "Allergy state"
-msgstr "Estado de la alergia"
 
 msgid "<current allergy state>"
 msgstr "<estado actual de la alergia>"
@@ -1819,6 +1829,16 @@ msgstr "Tiene alergias"
 #, fuzzy
 msgid "&Update / Con&firm"
 msgstr "Con&firmar"
+
+msgid "Allergy state"
+msgstr "Estado de la alergia"
+
+msgid ""
+"Input new allergy, or select from among existing allergy items to edit them:"
+msgstr ""
+
+msgid "Allergy details"
+msgstr "Detalle de Alergias"
 
 msgid "Allergy Manager"
 msgstr "Administrador de Alergias"
@@ -1848,9 +1868,6 @@ msgstr "Comentario de estado de la alergia"
 msgid "Save and confirm the allergy state."
 msgstr "Guarde y confirme el estado de la alergia"
 
-msgid "Close the dialag. Will discard unsaved data."
-msgstr "Cerrar el diálogo. Descartará datos no guardados."
-
 msgid "Lists the allergies known for this patient if any."
 msgstr "Lista las alergias conocidas para este paciente, si existen."
 
@@ -1868,6 +1885,9 @@ msgstr ""
 
 msgid "Delete the allergy selected in the list from the database."
 msgstr "Borra la alergia seleccionada en la lista de la base de datos."
+
+msgid "Close the dialag. Will discard unsaved data."
+msgstr "Cerrar el diálogo. Descartará datos no guardados."
 
 msgid "Currently:"
 msgstr "Actualmente:"
@@ -3040,12 +3060,9 @@ msgstr "Fecha de nacimiento"
 msgid "edit form template details"
 msgstr "Editar los detalles de la plantilla"
 
-msgid "&Template"
-msgstr "&Plantilla"
-
 #, fuzzy
-msgid "Export"
-msgstr "Reporte"
+msgid "Save the form template definition."
+msgstr "Guardar la definicion del reporte."
 
 msgid "AbiWord"
 msgstr ""
@@ -3064,6 +3081,14 @@ msgstr "OpenOffice"
 
 msgid "PDF form editor"
 msgstr "Editor PDF"
+
+#, fuzzy
+msgid "&Load"
+msgstr "Cargar Nuevo"
+
+#, fuzzy
+msgid "Export"
+msgstr "Reporte"
 
 msgid "A long, descriptive name for this form template."
 msgstr "Un nombre clara y descriptiva para esta plantilla."
@@ -3088,6 +3113,14 @@ msgstr ""
 "El tipo de documento del cual se guardaran las formas generadas por esta "
 "plantilla"
 
+msgid "The form engine this template must be processed with."
+msgstr "El motor de formas con que esta plantilla debe ser procesado."
+
+msgid "Mark this checkbox if you want this template to be active in GNUmed."
+msgstr ""
+"Seleccione esta casilla si desea que esta plantilla este disponible en "
+"GNUmed."
+
 msgid ""
 "Examplary filename. Mainly used for deriving a suitable file extension since "
 "that matters to some form engines. Most of the time this should already be "
@@ -3105,14 +3138,6 @@ msgstr "Cargar los datos de plantilla de un archivo."
 msgid "Export the form template into a file."
 msgstr "Editar los detalles de la plantilla"
 
-msgid "The form engine this template must be processed with."
-msgstr "El motor de formas con que esta plantilla debe ser procesado."
-
-msgid "Mark this checkbox if you want this template to be active in GNUmed."
-msgstr ""
-"Seleccione esta casilla si desea que esta plantilla este disponible en "
-"GNUmed."
-
 msgid "Version:"
 msgstr "Versión:"
 
@@ -3122,14 +3147,14 @@ msgstr "Tipo de plantilla"
 msgid "Document type"
 msgstr "Tipo de documento"
 
-msgid "Filename"
-msgstr "Nombre de Archivo"
-
 msgid "Options"
 msgstr "Opciones"
 
 msgid "Processed by:"
 msgstr "Procesado por:"
+
+msgid "Template"
+msgstr "Plantilla"
 
 msgid "Last modified:"
 msgstr "Última modificación:"
@@ -3424,8 +3449,19 @@ msgstr "Admitido"
 msgid "Discharged"
 msgstr "Dado de alta"
 
+msgid "≈"
+msgstr ""
+
 msgid "The date of birth for this person."
 msgstr "La fecha de nacimiento de esta persona."
+
+msgid ""
+"Check this if the date of birth is estimated rather than known precisely."
+msgstr ""
+
+#, fuzzy
+msgid "The time of birth if known."
+msgstr "Hora de nacimiento OPCIONAL si se conoce"
 
 msgid "The date of death."
 msgstr "La fecha de fallecimiento."
@@ -3435,6 +3471,9 @@ msgstr "Un comentario de texto sobre esta persona."
 
 msgid "Born"
 msgstr "Nacido"
+
+msgid "Time:"
+msgstr "Hora:"
 
 msgid "Deceased"
 msgstr "Fallecido"
@@ -3483,6 +3522,12 @@ msgstr "Marcar si es una vacuna viva atenuada"
 msgid "A longer text detailing the message, if needed."
 msgstr "Un detalle de texto más largo, de ser necesario."
 
+msgid "Optional: Pick a date when this message is due to be acted on."
+msgstr ""
+
+msgid "Optional: Pick a date when this message will no longer be relevant."
+msgstr ""
+
 msgid "Normal (standard) urgency of message."
 msgstr "Urgencia normal (estándar) del mensaje."
 
@@ -3506,6 +3551,12 @@ msgstr "Secuencia"
 #, fuzzy
 msgid "Message"
 msgstr "mensaje"
+
+msgid "Due"
+msgstr "Pendiente"
+
+msgid "Expires"
+msgstr ""
 
 msgid "Urgency"
 msgstr "Urgencia"
@@ -3925,6 +3976,9 @@ msgstr ""
 "Use esta opción cuando haya ingresado formato en bruto, como HTML o LaTeX, "
 "que usted confiadamente pueda dejar inalterado."
 
+msgid "Estimated"
+msgstr ""
+
 msgid "Required: lastname (family name)"
 msgstr "Apellido REQUERIDO"
 
@@ -3934,6 +3988,9 @@ msgstr "Nombre REQUERIDO"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr "Se recomienda: fecha de nacimiento. Su zona horaria aplica."
+
+msgid "Check if the DOB is estimated rather than known precisely."
+msgstr ""
 
 msgid "Optional: the time of birth if known"
 msgstr "Hora de nacimiento OPCIONAL si se conoce"
@@ -4034,9 +4091,6 @@ msgstr "Nombre(s)"
 
 msgid "Date of birth"
 msgstr "Fecha de nacimiento"
-
-msgid "Time:"
-msgstr "Hora:"
 
 msgid "Nick name"
 msgstr "Seudonimo"
@@ -4147,8 +4201,8 @@ msgid "History:"
 msgstr "Anamnesis"
 
 #, fuzzy
-msgid "Inbox / Scratch pad:"
-msgstr "Bloc de Notas"
+msgid "Reminders:"
+msgstr "Género"
 
 #, fuzzy
 msgid "Measurements:"
@@ -4607,6 +4661,9 @@ msgstr "Cancelar la revision"
 
 msgid "Reference"
 msgstr "Referencia"
+
+msgid "Filename"
+msgstr "Nombre de Archivo"
 
 msgid ""
 "The original filename (if any). Only editable if invoked from a single part "
@@ -5160,8 +5217,15 @@ msgstr "Espander a"
 msgid "Scope"
 msgstr "Ámbito"
 
+msgid "<age>"
+msgstr ""
+
 msgid "Caveat"
 msgstr "Advertencia"
+
+#, fuzzy
+msgid "The age."
+msgstr "Tipo de plantilla"
 
 msgid "Details"
 msgstr "Detalles"
@@ -5667,6 +5731,9 @@ msgstr "Escriba o seleccione el barrio."
 msgid "Type or select a city/town/village/dwelling."
 msgstr "Escriba o seleccione una ciudad / pueblo / vivienda"
 
+msgid "Select the type of address."
+msgstr "Elija el tipo de dirección"
+
 msgid "Street info"
 msgstr "Información de calle"
 
@@ -5701,9 +5768,6 @@ msgstr ""
 msgid "Saving contact data"
 msgstr "Guardando datos de contacto"
 
-msgid "Select the type of address."
-msgstr "Elija el tipo de dirección"
-
 msgid "Select an address by postcode or street name."
 msgstr "Elegir una dirección por código postal o nombre de la calle."
 
@@ -5718,6 +5782,14 @@ msgstr "<estado de la alergia no preguntado>"
 
 msgid "invalid allergy state [%s]"
 msgstr "estado de la alergia invalido [%s]"
+
+#, fuzzy
+msgid "Input new allergy item:"
+msgstr "estado alérgico desconocido"
+
+#, fuzzy
+msgid "Edit the selected allergy item:"
+msgstr "Editar el item seleccionado."
 
 msgid ""
 "Cannot set allergy state to <unknown> because there are allergies stored for "
@@ -6077,63 +6149,6 @@ msgid "&Reset"
 msgstr "&Nuevo"
 
 #, fuzzy
-msgid "#Units"
-msgstr "Unidades"
-
-msgid "Charge Item"
-msgstr ""
-
-#, fuzzy
-msgid "Encounter #"
-msgstr "Cita"
-
-#, fuzzy
-msgid "Catalog"
-msgstr "fatal"
-
-msgid "Inv #"
-msgstr ""
-
-msgid "No pending lines so nothing was assigned"
-msgstr ""
-
-msgid "Cant insert new Billing Record - No Charge Item"
-msgstr ""
-
-msgid "Cant insert new Billing Record - Invalid Qty float"
-msgstr ""
-
-msgid "Billing Record: confirm deletion"
-msgstr ""
-
-#, fuzzy
-msgid "Billrec Actions:"
-msgstr "Directivas"
-
-#, fuzzy
-msgid "Edit corresponding Encounter"
-msgstr "Editando encuentro respectivo"
-
-#, fuzzy
-msgid "Show Invoice"
-msgstr "Muestre archivo de registro"
-
-msgid "Edit"
-msgstr "Editar"
-
-msgid "Edit Bill Rec"
-msgstr ""
-
-msgid ""
-"Did *NOT* save your changes. Mostly due to someone has changed this Record "
-"meanwhile. Please close this Dialog and try it again."
-msgstr ""
-
-#, fuzzy
-msgid "Problem wigh updating"
-msgstr "Problema"
-
-#, fuzzy
 msgid "Cannot delete this billable item. It is in use."
 msgstr "No se puede eliminar esta etiqueta. Está en uso."
 
@@ -6148,6 +6163,10 @@ msgstr ""
 #, fuzzy
 msgid "Showing billable items."
 msgstr "Mostrando términos de código."
+
+#, fuzzy
+msgid "Catalog"
+msgstr "fatal"
 
 #, fuzzy
 msgid "Do you truly want to irrevocably delete this bill ?"
@@ -7061,14 +7080,11 @@ msgstr "Nombre(s) (de pila)"
 msgid "Preferred Name"
 msgstr "Nombre de Elección"
 
-msgid "Clone and &edit"
-msgstr "Copie y &edite"
-
 msgid "Adding new name"
 msgstr "Añadiendo nuevo nombre"
 
-msgid "Cloning name"
-msgstr "Copiando nombre"
+msgid "Editing name"
+msgstr "Editando nombre"
 
 msgid "Cannot delete the only name of a person."
 msgstr "No se puede borrar el nombre único de una persona."
@@ -8548,24 +8564,6 @@ msgstr "Entrada no válida"
 msgid "initialize input fields for new entry"
 msgstr "reiniciar los campos para una nueva entrada"
 
-msgid " Date of Birth "
-msgstr " Fecha de Nacimiento "
-
-msgid "confidental"
-msgstr "confidencial"
-
-msgid " age onset "
-msgstr " comienzo "
-
-msgid " caused death "
-msgstr " causa de fallecimiento "
-
-msgid " age died "
-msgstr " edad de fallecimiento "
-
-msgid "Next Condition"
-msgstr "Siguiente Condición"
-
 msgid "Laterality"
 msgstr "Lateralidad"
 
@@ -8898,9 +8896,6 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr "Elija plantilla de carta o formulario."
-
-msgid "Template"
-msgstr "Plantilla"
 
 msgid "You must select a template file before saving."
 msgstr "Debe elegir un archivo de plantilla antes de guardar."
@@ -9403,12 +9398,6 @@ msgstr "Busque datos en el RME del paciente activo"
 msgid "Search this EMR"
 msgstr "Revise este RME"
 
-msgid "Search all EMRs"
-msgstr "Revise todos los RME"
-
-msgid "Search for data across the EMRs of all patients"
-msgstr "Busque datos entre los RMEs de todos los pacientes"
-
 msgid "Start a new encounter for the active patient right now."
 msgstr "Comienza una nueva cita para el paciente activo ahora mismo."
 
@@ -9462,6 +9451,12 @@ msgstr "Escribe una carta para el paciente activo."
 
 msgid "&Correspondence"
 msgstr "&Correspondencia"
+
+msgid "Search all EMRs"
+msgstr "Revise todos los RME"
+
+msgid "Search for data across the EMRs of all patients"
+msgstr "Busque datos entre los RMEs de todos los pacientes"
 
 msgid "no viewer installed"
 msgstr "no hay visor instalado"
@@ -10884,31 +10879,14 @@ msgstr "falta plantilla"
 msgid "invalid gender mapping layout: [%s]"
 msgstr "formato de mapeo de sexo inválido: [%s]"
 
+#, fuzzy
+msgid "no address type replacement selected"
+msgstr "No se ha elegido ninguna plantilla de documentos"
+
 msgid ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
 msgstr ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
-
-msgid "no address for type [%s]"
-msgstr "no hay dirección para tipo [%s]"
-
-msgid "no street for address type [%s]"
-msgstr "no hay calle para tipo [%s]"
-
-msgid "no number for address type [%s]"
-msgstr "no hay número para tipo [%s]"
-
-msgid "no location for address type [%s]"
-msgstr "no hay localidad para tipo de dirección [%s]"
-
-msgid "no postcode for address type [%s]"
-msgstr "no hay código postal para tipo de dirección [%s]"
-
-msgid "no region for address type [%s]"
-msgstr "no hay región para tipo de dirección [%s]"
-
-msgid "no country for address type [%s]"
-msgstr "no hay país para tipo de dirección [%s]"
 
 msgid "no URL for comm channel [%s]"
 msgstr "no hay URL para canal de comunicación [%s]"
@@ -10950,6 +10928,16 @@ msgstr ""
 #, fuzzy
 msgid "Text input cancelled by user."
 msgstr "El usuario ha cerrado la ventana de diálogo"
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Elija el tipo de documento"
 
 msgid "attach rejected, already serving a client"
 msgstr "conexión rechazada, ya existe una"
@@ -12371,6 +12359,10 @@ msgstr "Organizaciones registradas en GNUmed."
 msgid "Communication channels"
 msgstr "Eliminando canal de comunicaciones"
 
+#, fuzzy
+msgid "due (%s): %s"
+msgstr "Comentario (%s): %%s"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -12430,6 +12422,9 @@ msgid ""
 "\n"
 "%s"
 msgstr "Medicamentos activos: %s"
+
+msgid "Cloning name"
+msgstr "Copiando nombre"
 
 msgid "No active patient."
 msgstr "No hay paciente activo."
@@ -12880,9 +12875,6 @@ msgstr "Fecha de parto"
 msgid "18 Week Ultrasound Scan"
 msgstr "Ecografía de la semana 18"
 
-msgid "Due"
-msgstr "Pendiente"
-
 msgid "Ultrasound Scan - Revised EDC"
 msgstr "Ecografía - Revisada EDC"
 
@@ -13090,6 +13082,27 @@ msgstr "Clonar el lugar de trabajo seleccionado"
 msgid "Select a message type."
 msgstr "Elija el tipo de documento"
 
+msgid "(expires %s)"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Patient: %s\n"
+"By: %s\n"
+"Due: %s - since %s %s\n"
+"%s%s"
+msgstr ""
+"\n"
+"%s\n"
+"Paciente: %s%s\n"
+"%sUrgencia: %s\n"
+"Tiempo: %s\n"
+"%s"
+
+#, fuzzy
+msgid "Clinical reminder"
+msgstr "Detalles clinicos"
+
 #, fuzzy
 msgid "Adding new inbox message"
 msgstr "Añadiendo nuevo nombre"
@@ -13140,6 +13153,9 @@ msgstr "Acciones de bandeja de entrada:"
 
 msgid "Activate patient"
 msgstr "Activar paciente"
+
+msgid "Edit"
+msgstr "Editar"
 
 msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
@@ -13433,8 +13449,37 @@ msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 "No puedo activar el Administrdor de Alergias. No existe paciente activo."
 
+#, fuzzy
+msgid "Gender: %s (%s) - %s\n"
+msgstr "Citas: %s (%s - %s):"
+
+#, fuzzy
+msgid "Born: %s\n"
+msgstr "&Zona:"
+
 msgid "%s  %s (%s today !)"
 msgstr "%s %s (¡%s de edad hoy!)"
+
+msgid ""
+"\n"
+"Today is the patient's birtday !\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Age: %s\n"
+msgstr "ATC: %s\n"
+
+#, fuzzy
+msgid "Died: %s\n"
+msgstr "Fecha: %s\n"
+
+#, fuzzy
+msgid "At age: %s\n"
+msgstr "Fecha: %s\n"
+
+msgid " (date of birth and age are estimated)\n"
+msgstr ""
 
 msgid "last confirmed %s\n"
 msgstr "último confirmado %s\n"
@@ -14285,6 +14330,85 @@ msgstr "Cantidad"
 msgid "First Date"
 msgstr "Primera cita"
 
+#~ msgid "Since when do we know about this allergy. Mostly \"today\"."
+#~ msgstr "Desde cuando sabemos sobre esta alergia. Mayormente \"hoy\"."
+
+#~ msgid "Date Noted"
+#~ msgstr "Cita registrada"
+
+#~ msgid "&Template"
+#~ msgstr "&Plantilla"
+
+#, fuzzy
+#~ msgid "Inbox / Scratch pad:"
+#~ msgstr "Bloc de Notas"
+
+#, fuzzy
+#~ msgid "#Units"
+#~ msgstr "Unidades"
+
+#, fuzzy
+#~ msgid "Encounter #"
+#~ msgstr "Cita"
+
+#, fuzzy
+#~ msgid "Billrec Actions:"
+#~ msgstr "Directivas"
+
+#, fuzzy
+#~ msgid "Edit corresponding Encounter"
+#~ msgstr "Editando encuentro respectivo"
+
+#, fuzzy
+#~ msgid "Show Invoice"
+#~ msgstr "Muestre archivo de registro"
+
+#, fuzzy
+#~ msgid "Problem wigh updating"
+#~ msgstr "Problema"
+
+#~ msgid "Clone and &edit"
+#~ msgstr "Copie y &edite"
+
+#~ msgid " Date of Birth "
+#~ msgstr " Fecha de Nacimiento "
+
+#~ msgid "confidental"
+#~ msgstr "confidencial"
+
+#~ msgid " age onset "
+#~ msgstr " comienzo "
+
+#~ msgid " caused death "
+#~ msgstr " causa de fallecimiento "
+
+#~ msgid " age died "
+#~ msgstr " edad de fallecimiento "
+
+#~ msgid "Next Condition"
+#~ msgstr "Siguiente Condición"
+
+#~ msgid "no address for type [%s]"
+#~ msgstr "no hay dirección para tipo [%s]"
+
+#~ msgid "no street for address type [%s]"
+#~ msgstr "no hay calle para tipo [%s]"
+
+#~ msgid "no number for address type [%s]"
+#~ msgstr "no hay número para tipo [%s]"
+
+#~ msgid "no location for address type [%s]"
+#~ msgstr "no hay localidad para tipo de dirección [%s]"
+
+#~ msgid "no postcode for address type [%s]"
+#~ msgstr "no hay código postal para tipo de dirección [%s]"
+
+#~ msgid "no region for address type [%s]"
+#~ msgstr "no hay región para tipo de dirección [%s]"
+
+#~ msgid "no country for address type [%s]"
+#~ msgstr "no hay país para tipo de dirección [%s]"
+
 #~ msgid "Tetanus"
 #~ msgstr "Tétanos"
 
@@ -14836,9 +14960,6 @@ msgstr "Primera cita"
 #~ msgid "Delete the (first or only) item selected in the list above."
 #~ msgstr "Borrar el (primero o unico) item seleccionado de la lista."
 
-#~ msgid "Editing name"
-#~ msgstr "Editando nombre"
-
 #~ msgid "Social Network"
 #~ msgstr "Red Social"
 
@@ -15274,9 +15395,6 @@ msgstr "Primera cita"
 
 #~ msgid "in surgery"
 #~ msgstr "en cirugía"
-
-#~ msgid "Load New"
-#~ msgstr "Cargar Nuevo"
 
 #~ msgid ""
 #~ "------------------------------------------------------------------------------\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-02-22 13:10+CET\n"
+"POT-Creation-Date: 2012-03-05 15:29+CET\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -322,8 +322,13 @@ msgstr "Beroep"
 msgid "Vaccinations"
 msgstr "Vaccinaties"
 
-msgid "allergies/intolerances"
+#, fuzzy
+msgid "Allergies/Intolerances"
 msgstr "allergieën/ intolleranties"
+
+#, fuzzy
+msgid "Allergy detail: %s"
+msgstr "Allergieën"
 
 msgid ""
 "%s\n"
@@ -909,6 +914,12 @@ msgstr "Aandoening gediagnosticeerd in de toekomst."
 msgid "invalid age: DOB after death"
 msgstr "naam, geboortedatum"
 
+msgid "male"
+msgstr "man"
+
+msgid "female"
+msgstr "vrouw"
+
 msgid "Mr"
 msgstr "Dhr"
 
@@ -986,6 +997,14 @@ msgstr "Eigenaar"
 #, fuzzy
 msgid "Patient #%s"
 msgstr "Patiënt"
+
+#, fuzzy
+msgid "Due: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Expiry: %s\n"
+msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
 msgid ""
@@ -1081,12 +1100,6 @@ msgstr "vacc -> ind fout: %s"
 
 msgid "unknown gender"
 msgstr "onbekend geslacht"
-
-msgid "male"
-msgstr "man"
-
-msgid "female"
-msgstr "vrouw"
 
 msgid "child"
 msgstr "kind"
@@ -1783,8 +1796,11 @@ msgstr "&Gevoeligheid"
 msgid "&Definite"
 msgstr "&Zeker"
 
-msgid "Since when do we know about this allergy. Mostly \"today\"."
-msgstr "Sinds wanneer weten we van deze allergie. Meestal \"vandaag ."
+msgid ""
+"When did the patient notice onset of the reaction.\n"
+"\n"
+"If unknown use the date when it was reported to you."
+msgstr ""
 
 msgid ""
 "What is reported to be the trigger for the reaction. Can be\n"
@@ -1838,8 +1854,8 @@ msgstr ""
 "Selecteer dit als deze allergie/ intollerantie vaststaat en niet alleen "
 "vermoed wordt."
 
-msgid "Date Noted"
-msgstr "Datum Geobserveerd."
+msgid "Onset"
+msgstr ""
 
 msgid "Trigger"
 msgstr "Trigger"
@@ -1855,14 +1871,6 @@ msgstr "Medicijn categorie"
 
 msgid "Reaction Type"
 msgstr "Reactie Soort"
-
-#, fuzzy
-msgid "Allergy details"
-msgstr "Allergieën"
-
-#, fuzzy
-msgid "Allergy state"
-msgstr "allergische toestand"
 
 #, fuzzy
 msgid "<current allergy state>"
@@ -1885,6 +1893,18 @@ msgstr "Allergieën bewerken"
 
 msgid "&Update / Con&firm"
 msgstr ""
+
+#, fuzzy
+msgid "Allergy state"
+msgstr "allergische toestand"
+
+msgid ""
+"Input new allergy, or select from among existing allergy items to edit them:"
+msgstr ""
+
+#, fuzzy
+msgid "Allergy details"
+msgstr "Allergieën"
 
 msgid "Allergy Manager"
 msgstr "Allergiën Manager"
@@ -1916,9 +1936,6 @@ msgstr "Een aantekening bij deze patiënt."
 msgid "Save and confirm the allergy state."
 msgstr ""
 
-msgid "Close the dialag. Will discard unsaved data."
-msgstr "Sluit het venster. Dit zal onopgeslagen data wissen."
-
 msgid "Lists the allergies known for this patient if any."
 msgstr "Noteer de bekende allergiën van deze patiënt."
 
@@ -1935,6 +1952,9 @@ msgstr ""
 
 msgid "Delete the allergy selected in the list from the database."
 msgstr "Verwijder de allergie geselecteerd in de lijst van de database."
+
+msgid "Close the dialag. Will discard unsaved data."
+msgstr "Sluit het venster. Dit zal onopgeslagen data wissen."
 
 msgid "Currently:"
 msgstr ""
@@ -2994,12 +3014,9 @@ msgstr "Geboortedatum"
 msgid "edit form template details"
 msgstr "Wijzig formuliersjabloon detais."
 
-msgid "&Template"
-msgstr "&Template"
-
 #, fuzzy
-msgid "Export"
-msgstr "Rapport"
+msgid "Save the form template definition."
+msgstr "Bewaar de rapportdefinitie."
 
 msgid "AbiWord"
 msgstr ""
@@ -3018,6 +3035,13 @@ msgstr "OpenOffice"
 
 msgid "PDF form editor"
 msgstr ""
+
+msgid "&Load"
+msgstr ""
+
+#, fuzzy
+msgid "Export"
+msgstr "Rapport"
 
 msgid "A long, descriptive name for this form template."
 msgstr "Een langere, beschrijvende naam voor dit template."
@@ -3042,6 +3066,12 @@ msgstr ""
 "The documenttype waaronder forumulieren te bewaren die gegenereerd zijn met "
 "dit sjabloon."
 
+msgid "The form engine this template must be processed with."
+msgstr ""
+
+msgid "Mark this checkbox if you want this template to be active in GNUmed."
+msgstr "Vink dit aan als u wilt dat dit sjabloon actief is in GNUmed."
+
 msgid ""
 "Examplary filename. Mainly used for deriving a suitable file extension since "
 "that matters to some form engines. Most of the time this should already be "
@@ -3058,12 +3088,6 @@ msgstr "Template gegevens ophalen uit een bestand."
 msgid "Export the form template into a file."
 msgstr "Exporteer het EMD van de actieve patiënt in een tekstbestand"
 
-msgid "The form engine this template must be processed with."
-msgstr ""
-
-msgid "Mark this checkbox if you want this template to be active in GNUmed."
-msgstr "Vink dit aan als u wilt dat dit sjabloon actief is in GNUmed."
-
 msgid "Version:"
 msgstr "Versie:"
 
@@ -3073,14 +3097,14 @@ msgstr "Sjabloontype"
 msgid "Document type"
 msgstr "Documenttype"
 
-msgid "Filename"
-msgstr "Bestandsnaam"
-
 msgid "Options"
 msgstr "Voorkeuren"
 
 msgid "Processed by:"
 msgstr "Bewerkt door:"
+
+msgid "Template"
+msgstr "Sjabloon"
 
 msgid "Last modified:"
 msgstr "Laatst gewijzigd:"
@@ -3367,8 +3391,19 @@ msgstr "Beheer"
 msgid "Discharged"
 msgstr "Verwerpen"
 
+msgid "≈"
+msgstr ""
+
 #, fuzzy
 msgid "The date of birth for this person."
+msgstr "Er zijn geen ontmoetingen voor deze episode."
+
+msgid ""
+"Check this if the date of birth is estimated rather than known precisely."
+msgstr ""
+
+#, fuzzy
+msgid "The time of birth if known."
 msgstr "Er zijn geen ontmoetingen voor deze episode."
 
 #, fuzzy
@@ -3382,6 +3417,10 @@ msgstr "Een aantekening bij deze patiënt."
 #, fuzzy
 msgid "Born"
 msgstr "of"
+
+#, fuzzy
+msgid "Time:"
+msgstr "Titel"
 
 msgid "Deceased"
 msgstr ""
@@ -3430,6 +3469,12 @@ msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 msgid "A longer text detailing the message, if needed."
 msgstr ""
 
+msgid "Optional: Pick a date when this message is due to be acted on."
+msgstr ""
+
+msgid "Optional: Pick a date when this message will no longer be relevant."
+msgstr ""
+
 msgid "Normal (standard) urgency of message."
 msgstr ""
 
@@ -3453,6 +3498,12 @@ msgstr "Volgorde"
 #, fuzzy
 msgid "Message"
 msgstr "bericht"
+
+msgid "Due"
+msgstr "Uitgerekend op"
+
+msgid "Expires"
+msgstr ""
 
 #, fuzzy
 msgid "Urgency"
@@ -3871,6 +3922,9 @@ msgid ""
 "that you are confident should be left untouched."
 msgstr ""
 
+msgid "Estimated"
+msgstr ""
+
 msgid "Required: lastname (family name)"
 msgstr "Benodigd: achternaam"
 
@@ -3879,6 +3933,9 @@ msgid "Required: first name/given name"
 msgstr "Benodigd: voornaam"
 
 msgid "Recommended: Date of birth. Your current time zone applies."
+msgstr ""
+
+msgid "Check if the DOB is estimated rather than known precisely."
 msgstr ""
 
 msgid "Optional: the time of birth if known"
@@ -3980,10 +4037,6 @@ msgstr "Voornaam(en)"
 
 msgid "Date of birth"
 msgstr "Geboortedatum"
-
-#, fuzzy
-msgid "Time:"
-msgstr "Titel"
 
 msgid "Nick name"
 msgstr "Bijnaam"
@@ -4097,8 +4150,8 @@ msgid "History:"
 msgstr "Geschiedenis opgemaakt"
 
 #, fuzzy
-msgid "Inbox / Scratch pad:"
-msgstr "Kladblok"
+msgid "Reminders:"
+msgstr "Geslacht"
 
 #, fuzzy
 msgid "Measurements:"
@@ -4542,6 +4595,9 @@ msgstr "Annuleer deze beoordeling."
 
 msgid "Reference"
 msgstr "Verwijzing"
+
+msgid "Filename"
+msgstr "Bestandsnaam"
 
 msgid ""
 "The original filename (if any). Only editable if invoked from a single part "
@@ -5080,8 +5136,15 @@ msgstr "Uitvouwen naar"
 msgid "Scope"
 msgstr "Bereik"
 
+msgid "<age>"
+msgstr ""
+
 msgid "Caveat"
 msgstr "Caveat"
+
+#, fuzzy
+msgid "The age."
+msgstr "Sjabloontype"
 
 msgid "Details"
 msgstr "Bijzonderheden"
@@ -5575,6 +5638,9 @@ msgstr "Typ of selecteer een deelgemeente."
 msgid "Type or select a city/town/village/dwelling."
 msgstr "Typ of selecteer een stad/dorp/gemeente"
 
+msgid "Select the type of address."
+msgstr "Selecteer het soort adres."
+
 msgid "Street info"
 msgstr "Straat"
 
@@ -5604,9 +5670,6 @@ msgstr "Adresgegevens moeten volledig worden ingevuld of helemaal niet."
 msgid "Saving contact data"
 msgstr "Contactgegevens bewaren"
 
-msgid "Select the type of address."
-msgstr "Selecteer het soort adres."
-
 msgid "Select an address by postcode or street name."
 msgstr "Selecteer een adres op postcode of straatnaam"
 
@@ -5623,6 +5686,14 @@ msgstr "allergische toestand"
 #, fuzzy
 msgid "invalid allergy state [%s]"
 msgstr "FOUT: onbekende allergiestatus [%s]"
+
+#, fuzzy
+msgid "Input new allergy item:"
+msgstr "onbekende allergiestatus"
+
+#, fuzzy
+msgid "Edit the selected allergy item:"
+msgstr "Bewerk het geselecteerde item."
 
 #, fuzzy
 msgid ""
@@ -5967,63 +6038,6 @@ msgid "&Reset"
 msgstr "&Resetten"
 
 #, fuzzy
-msgid "#Units"
-msgstr "Eenheden"
-
-msgid "Charge Item"
-msgstr ""
-
-#, fuzzy
-msgid "Encounter #"
-msgstr "Ontmoeting"
-
-#, fuzzy
-msgid "Catalog"
-msgstr "dodelijk"
-
-msgid "Inv #"
-msgstr ""
-
-msgid "No pending lines so nothing was assigned"
-msgstr ""
-
-msgid "Cant insert new Billing Record - No Charge Item"
-msgstr ""
-
-msgid "Cant insert new Billing Record - Invalid Qty float"
-msgstr ""
-
-msgid "Billing Record: confirm deletion"
-msgstr ""
-
-#, fuzzy
-msgid "Billrec Actions:"
-msgstr "Aanwijzingen"
-
-#, fuzzy
-msgid "Edit corresponding Encounter"
-msgstr "Bewerk overeenkomstig consult"
-
-#, fuzzy
-msgid "Show Invoice"
-msgstr "logboek bestanden"
-
-msgid "Edit"
-msgstr "Bewerken"
-
-msgid "Edit Bill Rec"
-msgstr ""
-
-msgid ""
-"Did *NOT* save your changes. Mostly due to someone has changed this Record "
-"meanwhile. Please close this Dialog and try it again."
-msgstr ""
-
-#, fuzzy
-msgid "Problem wigh updating"
-msgstr "Probleem"
-
-#, fuzzy
 msgid "Cannot delete this billable item. It is in use."
 msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
 
@@ -6036,6 +6050,10 @@ msgstr "Lijst met momenteel bestaande stafleden."
 #, fuzzy
 msgid "Showing billable items."
 msgstr "Meting bewerken"
+
+#, fuzzy
+msgid "Catalog"
+msgstr "dodelijk"
 
 #, fuzzy
 msgid "Do you truly want to irrevocably delete this bill ?"
@@ -6869,15 +6887,12 @@ msgstr "Voornaam(en)"
 msgid "Preferred Name"
 msgstr "Roepnaam"
 
-msgid "Clone and &edit"
-msgstr ""
-
 msgid "Adding new name"
 msgstr "Nieuwe naam toegoegen"
 
 #, fuzzy
-msgid "Cloning name"
-msgstr "Naam verwijderen"
+msgid "Editing name"
+msgstr "Naam bewerken"
 
 #, fuzzy
 msgid "Cannot delete the only name of a person."
@@ -8410,24 +8425,6 @@ msgstr "Ongeldige invoer"
 msgid "initialize input fields for new entry"
 msgstr "Invoervelden voorbereiden op nieuwe invoer"
 
-msgid " Date of Birth "
-msgstr " geboortedatum "
-
-msgid "confidental"
-msgstr "vertrouwelijk"
-
-msgid " age onset "
-msgstr " beginleeftijd "
-
-msgid " caused death "
-msgstr " veroorzaakte de dood "
-
-msgid " age died "
-msgstr " leeftijd gestorven "
-
-msgid "Next Condition"
-msgstr "Volgende aandoening"
-
 msgid "Laterality"
 msgstr "Lateraliteit"
 
@@ -8764,9 +8761,6 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr "Kies brief of formuliersjabloon."
-
-msgid "Template"
-msgstr "Sjabloon"
 
 msgid "You must select a template file before saving."
 msgstr "U moet een sjabloonbestand selecteren voordat u opslaat."
@@ -9305,13 +9299,6 @@ msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 msgid "Search this EMR"
 msgstr "Tekst zoeken in het gehele EMD"
 
-msgid "Search all EMRs"
-msgstr ""
-
-#, fuzzy
-msgid "Search for data across the EMRs of all patients"
-msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
-
 msgid "Start a new encounter for the active patient right now."
 msgstr "Begin nu een nieuwe ontmoeting voor de actieve patiënt."
 
@@ -9364,6 +9351,13 @@ msgstr "Schrijf een brief voor de huidige patiënt."
 
 msgid "&Correspondence"
 msgstr "&Correspondentie"
+
+msgid "Search all EMRs"
+msgstr ""
+
+#, fuzzy
+msgid "Search for data across the EMRs of all patients"
+msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
 
 msgid "no viewer installed"
 msgstr "geen viewer geïnstalleerd"
@@ -10779,29 +10773,11 @@ msgstr "missend label"
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
 
+msgid "no address type replacement selected"
+msgstr ""
+
 msgid ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
-msgstr ""
-
-msgid "no address for type [%s]"
-msgstr ""
-
-msgid "no street for address type [%s]"
-msgstr ""
-
-msgid "no number for address type [%s]"
-msgstr ""
-
-msgid "no location for address type [%s]"
-msgstr ""
-
-msgid "no postcode for address type [%s]"
-msgstr ""
-
-msgid "no region for address type [%s]"
-msgstr ""
-
-msgid "no country for address type [%s]"
 msgstr ""
 
 msgid "no URL for comm channel [%s]"
@@ -10842,6 +10818,16 @@ msgstr ""
 #, fuzzy
 msgid "Text input cancelled by user."
 msgstr "Dialoog geannuleerd door gebruiker"
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "verwijderen documenttype"
 
 msgid "attach rejected, already serving a client"
 msgstr "Bijlage geweigerd, al bezig met een frontend"
@@ -12252,6 +12238,10 @@ msgstr ""
 msgid "Communication channels"
 msgstr "Communicatiekanaal verwijderen"
 
+#, fuzzy
+msgid "due (%s): %s"
+msgstr "Documenten: %s"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -12309,6 +12299,10 @@ msgid ""
 "\n"
 "%s"
 msgstr "Huidige gezondheidsprobleem \"%s\""
+
+#, fuzzy
+msgid "Cloning name"
+msgstr "Naam verwijderen"
 
 msgid "No active patient."
 msgstr "Geen actieve patiënt"
@@ -12718,9 +12712,6 @@ msgstr ""
 msgid "18 Week Ultrasound Scan"
 msgstr "18 weken echoscopie"
 
-msgid "Due"
-msgstr "Uitgerekend op"
-
 msgid "Ultrasound Scan - Revised EDC"
 msgstr ""
 
@@ -12930,6 +12921,20 @@ msgstr "verwijder onderdeel"
 msgid "Select a message type."
 msgstr "verwijderen documenttype"
 
+msgid "(expires %s)"
+msgstr ""
+
+msgid ""
+"Patient: %s\n"
+"By: %s\n"
+"Due: %s - since %s %s\n"
+"%s%s"
+msgstr ""
+
+#, fuzzy
+msgid "Clinical reminder"
+msgstr "Klinische aantekeningen"
+
 #, fuzzy
 msgid "Adding new inbox message"
 msgstr "Nieuwe naam toegoegen"
@@ -12975,6 +12980,9 @@ msgstr "Postvak In Berichten menu"
 
 msgid "Activate patient"
 msgstr ""
+
+msgid "Edit"
+msgstr "Bewerken"
 
 msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
@@ -13265,8 +13273,37 @@ msgstr "Patiënt inschrijven als staf."
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kan allergieorganisator niet activeren. Geen actieve patiënt."
 
+#, fuzzy
+msgid "Gender: %s (%s) - %s\n"
+msgstr "Ontmoetingen: %s (%s - %s):"
+
+#, fuzzy
+msgid "Born: %s\n"
+msgstr "Episodes: %s"
+
 msgid "%s  %s (%s today !)"
 msgstr "%s %s (%s today !)"
+
+msgid ""
+"\n"
+"Today is the patient's birtday !\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Age: %s\n"
+msgstr "   MTA: %s"
+
+#, fuzzy
+msgid "Died: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "At age: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+msgid " (date of birth and age are estimated)\n"
+msgstr ""
 
 #, fuzzy
 msgid "last confirmed %s\n"
@@ -14123,6 +14160,61 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "Since when do we know about this allergy. Mostly \"today\"."
+#~ msgstr "Sinds wanneer weten we van deze allergie. Meestal \"vandaag ."
+
+#~ msgid "Date Noted"
+#~ msgstr "Datum Geobserveerd."
+
+#~ msgid "&Template"
+#~ msgstr "&Template"
+
+#, fuzzy
+#~ msgid "Inbox / Scratch pad:"
+#~ msgstr "Kladblok"
+
+#, fuzzy
+#~ msgid "#Units"
+#~ msgstr "Eenheden"
+
+#, fuzzy
+#~ msgid "Encounter #"
+#~ msgstr "Ontmoeting"
+
+#, fuzzy
+#~ msgid "Billrec Actions:"
+#~ msgstr "Aanwijzingen"
+
+#, fuzzy
+#~ msgid "Edit corresponding Encounter"
+#~ msgstr "Bewerk overeenkomstig consult"
+
+#, fuzzy
+#~ msgid "Show Invoice"
+#~ msgstr "logboek bestanden"
+
+#, fuzzy
+#~ msgid "Problem wigh updating"
+#~ msgstr "Probleem"
+
+#~ msgid " Date of Birth "
+#~ msgstr " geboortedatum "
+
+#~ msgid "confidental"
+#~ msgstr "vertrouwelijk"
+
+#~ msgid " age onset "
+#~ msgstr " beginleeftijd "
+
+#~ msgid " caused death "
+#~ msgstr " veroorzaakte de dood "
+
+#~ msgid " age died "
+#~ msgstr " leeftijd gestorven "
+
+#~ msgid "Next Condition"
+#~ msgstr "Volgende aandoening"
 
 #, fuzzy
 #~ msgid "Measles"
