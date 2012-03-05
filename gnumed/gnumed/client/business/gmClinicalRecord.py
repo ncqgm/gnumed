@@ -2031,7 +2031,35 @@ LIMIT 2
 
 		return True
 	#------------------------------------------------------------------
-	# API: measurements
+	# API: measurements / test results
+	#------------------------------------------------------------------
+	def get_most_recent_result(self):
+		cmd = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE pk_patient = %(pat)s
+			ORDER BY clin_when DESC
+			LIMIT 1"""
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		return gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+	#------------------------------------------------------------------
+	def get_unsigned_results(self, order_by=None):
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'ORDER BY %s' % order_by
+		cmd = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				reviewed IS FALSE
+			%s""" % order_by
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 	#------------------------------------------------------------------
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
 	def get_test_types_for_results(self):
@@ -2338,6 +2366,10 @@ if __name__ == "__main__":
 			print u'%(date)s  %(modified_by)s  %(soap_cat)s  %(narrative)s' % journal_line
 			print ""
 	#-----------------------------------------
+	def test_get_most_recent():
+		emr = cClinicalRecord(aPKey=12)
+		print emr.get_most_recent_result()
+	#-----------------------------------------
 	#test_allergy_state()
 	#test_is_allergic_to()
 
@@ -2352,7 +2384,8 @@ if __name__ == "__main__":
 	#test_get_most_recent_episode()
 	#test_get_almost_recent_encounter()
 	#test_get_meds()
-	test_get_as_journal()
+	#test_get_as_journal()
+	test_get_most_recent()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

@@ -85,6 +85,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_inbox.item_tooltip_callback = self._calc_inbox_item_tooltip
 		self._LCTRL_inbox.activate_callback = self._on_inbox_item_activated
 
+		self._LCTRL_results.set_columns(columns = [u''])
+		self._LCTRL_results.item_tooltip_callback = self._calc_results_list_item_tooltip
+		self._LCTRL_results.activate_callback = self._on_result_activated
+
 		self._LCTRL_documents.set_columns(columns = [u''])
 		self._LCTRL_documents.item_tooltip_callback = self._calc_documents_list_item_tooltip
 		self._LCTRL_documents.activate_callback = self._on_document_activated
@@ -100,6 +104,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_history.set_string_items()
 
 		self._LCTRL_inbox.set_string_items()
+		self._LCTRL_results.set_string_items()
 		self._LCTRL_documents.set_string_items()
 	#-----------------------------------------------------
 	# event handling
@@ -114,21 +119,16 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		# database change signals
-		# maybe make this update identity field only
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'comm_channel_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'job_mod_db', receiver = self._on_post_patient_selection)
 		# no signal for external IDs yet
 		# no signal for address yet
-#		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-#		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-#		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-#		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
-
+		#gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
+		#gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
-#		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._on_post_patient_selection)
@@ -139,6 +139,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'vacc_mod_db', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
@@ -176,11 +178,80 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self.__refresh_history(patient = pat)
 
 		self.__refresh_inbox(patient = pat)
+		self.__refresh_results(patient = pat)
 		self.__refresh_documents(patient = pat)
 
 		return True
 	#-----------------------------------------------------
 	# internal helpers
+	#-----------------------------------------------------
+	def __refresh_results(self, patient=None):
+		list_items = []
+		list_data = []
+
+		emr = patient.get_emr()
+		most_recent = emr.get_most_recent_result()
+		if most_recent is None:
+			return
+
+		list_items.append(_('Latest: %s ago (%s %s %s %s%s)') % (
+			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
+			most_recent['unified_abbrev'],
+			most_recent['unified_val'],
+			most_recent['val_unit'],
+			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' %s'),
+			gmTools.bool2subst(most_recent['reviewed'], u'', u' %s' % gmTools.u_writing_hand)
+		))
+		list_data.append(most_recent)
+		most_recent_needs_red = False
+		if most_recent['is_technically_abnormal'] is True:
+			if most_recent['is_clinically_relevant']:
+				most_recent_needs_red = True
+		else:
+			if most_recent['abnormality_indicator'] not in [None, u'']:
+				most_recent_needs_red = True
+
+		unsigned = emr.get_unsigned_results(order_by = u"(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
+		no_of_reds = 0
+		for result in unsigned:
+			if result['pk_test_result'] == most_recent['pk_test_result']:
+				continue
+			if result['abnormality_indicator'] is not None:
+				if result['abnormality_indicator'].strip() != u'':
+					no_of_reds += 1
+			list_items.append(_('%s %s %s %s (%s ago, %s)') % (
+				result['unified_abbrev'],
+				result['unified_val'],
+				result['val_unit'],
+				gmTools.coalesce(result['abnormality_indicator'], u'', u' %s'),
+				gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - result['clin_when']),
+				gmTools.u_writing_hand
+			))
+			list_data.append(result)
+
+		self._LCTRL_results.set_string_items(items = list_items)
+		self._LCTRL_results.set_data(data = list_data)
+
+		if most_recent_needs_red:
+			self._LCTRL_results.SetItemTextColour(0, wx.NamedColour('RED'))
+		if no_of_reds > 0:
+			for idx in range(1, no_of_reds + 1):
+				self._LCTRL_results.SetItemTextColour(idx, wx.NamedColour('RED'))
+	#-----------------------------------------------------
+	def _calc_results_list_item_tooltip(self, data):
+		return u'\n'.join(data.format())
+	#-----------------------------------------------------
+	def _on_result_activated(self, event):
+#		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
+#
+#		if data is not None:
+#			# <ctrl> down ?
+#			if wx.GetKeyState(wx.WXK_CONTROL):
+#				if isinstance(data, gmProviderInbox.cInboxMessage):
+#					xxxxxxxxx
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
+		return
+	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_inbox(self, patient=None):
 		list_items = []
@@ -190,7 +261,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		no_of_dues = len(due_messages)
 		for msg in due_messages:
 			list_items.append(_('due (%s): %s') % (
-				#gmDateTime.pydt_strftime(msg['due_date'], '%Y-%m-%d', accuracy = gmDateTime.acc_days),
 				gmDateTime.format_interval_medically(msg['interval_due']),
 				gmTools.coalesce(msg['comment'], u'?')
 			))
