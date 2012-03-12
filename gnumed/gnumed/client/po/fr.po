@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -146,6 +146,9 @@ msgstr "Ouvrir un fichier"
 msgid "Closed bill"
 msgstr "Fermé"
 
+msgid " Invoice ID: %s\n"
+msgstr ""
+
 #, fuzzy
 msgid " Closed: %s\n"
 msgstr "Fermé"
@@ -161,11 +164,6 @@ msgid " Patient: %s\n"
 msgstr "Patient :"
 
 msgid " Receiver: %s\n"
-msgstr ""
-
-msgid ""
-" Receiver address:\n"
-"  %s"
 msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -308,6 +306,9 @@ msgstr "Activité"
 
 msgid "Vaccinations"
 msgstr "Vaccinations"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -5958,7 +5959,7 @@ msgstr ""
 msgid "Charge date"
 msgstr "Echéance"
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -5995,6 +5996,28 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Effacer tous les éléments"
+
+#, fuzzy
+msgid "Checking invoice items"
+msgstr "Annuler la sélection d'objets."
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Effacer tous les éléments"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -9887,16 +9910,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr "Dialog a été annulé par l'utilisateur"
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "Sélectionner une adresse par code postal ou nom de rue."
-
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -11105,6 +11118,14 @@ msgid "Communication channels"
 msgstr "Effectuer les modifications"
 
 #, fuzzy
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "  votre temps: %s - %s (@%s = %s%s)\n"
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr "%s %s (%s aujourd'hui !)"
+
+#, fuzzy
 msgid "due (%s): %s"
 msgstr "Commentaire (%s): %%s"
 
@@ -11427,6 +11448,16 @@ msgstr ""
 
 msgid "<type here to search patient>"
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Sélectionner une adresse par code postal ou nom de rue."
 
 #, fuzzy
 msgid "List of addresses related to this person."

@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-03-05 15:28+CET\n"
-"PO-Revision-Date: 2012-03-05 16:00+0100\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
+"PO-Revision-Date: 2012-03-12 23:13+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -147,6 +147,9 @@ msgstr "Offene Rechnung"
 msgid "Closed bill"
 msgstr "Gestellte Rechnung"
 
+msgid " Invoice ID: %s\n"
+msgstr " Rechnungsnummer: %s\n"
+
 msgid " Closed: %s\n"
 msgstr " Gestellt: %s\n"
 
@@ -157,17 +160,10 @@ msgid " Items billed: %s\n"
 msgstr " Positionen: %s\n"
 
 msgid " Patient: %s\n"
-msgstr " Patient %s\n"
+msgstr " Patient: %s\n"
 
 msgid " Receiver: %s\n"
 msgstr " Empfänger: %s\n"
-
-msgid ""
-" Receiver address:\n"
-"  %s"
-msgstr ""
-" Empfängeradresse:\n"
-"  %s"
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
@@ -300,6 +296,9 @@ msgstr "Berufe"
 msgid "Vaccinations"
 msgstr "Impfungen"
 
+msgid "%s ago"
+msgstr "vor %s"
+
 msgid "Allergies/Intolerances"
 msgstr "Allergien/Unverträglichkeiten"
 
@@ -345,7 +344,7 @@ msgid ""
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
-"Addresse [#%(pk_adr)s]\n"
+"Adresse [#%(pk_adr)s]\n"
 " Straße: %(street)s%(notes_street)s\n"
 " Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Ort: %(zip)s %(urb)s%(suburb)s\n"
@@ -5497,7 +5496,7 @@ msgid "Showing bills."
 msgstr "Zeige Rechnungen."
 
 msgid "Close date"
-msgstr "Rechnungsdatum"
+msgstr "Abschlußdatum"
 
 msgid "Invoice ID"
 msgstr "Rechnungsnummer"
@@ -5538,8 +5537,8 @@ msgstr "USt."
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
-msgstr "Anzahl * (Wert * Hebesatz)"
+msgid "Count x Value x Factor"
+msgstr "Anzahl * Wert * Hebesatz"
 
 msgid "Invoice"
 msgstr "Rechnung"
@@ -5551,7 +5550,7 @@ msgid "Create invoice from selected items."
 msgstr "Aus den gewählten GNr eine Rechnung erzeugen."
 
 msgid "Browse bills"
-msgstr "Rechnung durchblättern"
+msgstr "Rechnungen durchblättern"
 
 msgid "Browse bills of this patient."
 msgstr "Rechnungen dieses Patienten durchblättern."
@@ -5571,6 +5570,34 @@ msgstr ""
 
 msgid "Deleting bill item"
 msgstr "Lösche abgerechnete Position"
+
+msgid "Checking invoice items"
+msgstr "Prüfe Rechnungspositionen"
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+"Diese GNr steht bereits auf einer Rechnung:\n"
+"\n"
+"%s\n"
+"\n"
+"Kann sie auf keine zweite Rechnung setzen."
+
+msgid "Creating bill"
+msgstr "Stelle Rechnung zusammen"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
+"Kann keinen Rechnungsbeleg erzeugen.\n"
+"\n"
+"Die Empfängeradresse fehlt."
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -6949,7 +6976,7 @@ msgid "Generated"
 msgstr "Erstellt"
 
 msgid "Ref #"
-msgstr ""
+msgstr "Ref-No"
 
 msgid "available documents (%s)"
 msgstr "archivierte Dokumente (%s)"
@@ -10036,18 +10063,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr "Texteingabe vom Benutzer abgebrochen."
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-"Für diesen Patienten ist keine [%s]-Adresse bekannt.\n"
-"\n"
-"Wählen Sie die Adresse, die stattdessen verwendet werden soll:"
-
-msgid "Selecting address by type"
-msgstr "Adresse nach Typ auswählen"
-
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
 
@@ -11413,6 +11428,12 @@ msgstr "In GNUmed registrierte Einrichtungen."
 msgid "Communication channels"
 msgstr "Kommunikationskanal"
 
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "Zuletzt: vor %s (%s %s %s %s%s)"
+
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr "%s %s %s %s (vor %s, %s)"
+
 msgid "due (%s): %s"
 msgstr "fällig (%s): %s"
 
@@ -11822,6 +11843,18 @@ msgstr "<Patientensuche gesperrt>"
 
 msgid "<type here to search patient>"
 msgstr "<hier Patienten suchen>"
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+"Für diesen Patienten ist keine [%s]-Adresse bekannt.\n"
+"\n"
+"Wählen Sie die Adresse, die stattdessen verwendet werden soll:"
+
+msgid "Selecting address by type"
+msgstr "Adresse nach Typ auswählen"
 
 msgid "List of addresses related to this person."
 msgstr "Liste der Adressen dieser Person."
@@ -13304,6 +13337,13 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid ""
+#~ " Receiver address:\n"
+#~ "  %s"
+#~ msgstr ""
+#~ " Empfängeradresse:\n"
+#~ "  %s"
 
 #~ msgid "Since when do we know about this allergy. Mostly \"today\"."
 #~ msgstr "Seit wann ist diese Allergie bekannt. Zumeist \"heute\"."

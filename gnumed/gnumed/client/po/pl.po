@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:10+CET\n"
 "PO-Revision-Date: 2009-11-12 08:53+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -152,6 +152,9 @@ msgstr ""
 msgid "Closed bill"
 msgstr "nowy epizod"
 
+msgid " Invoice ID: %s\n"
+msgstr ""
+
 #, fuzzy
 msgid " Closed: %s\n"
 msgstr "Epizod"
@@ -167,11 +170,6 @@ msgid " Patient: %s\n"
 msgstr " Twoja wersja: \"%s\"\n"
 
 msgid " Receiver: %s\n"
-msgstr ""
-
-msgid ""
-" Receiver address:\n"
-"  %s"
 msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -319,6 +317,9 @@ msgstr "Szczepienia"
 
 msgid "Vaccinations"
 msgstr "Szczepienia"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -5539,7 +5540,7 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -5575,6 +5576,27 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Usuwanie problemu zdrowotnego"
+
+msgid "Checking invoice items"
+msgstr ""
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Usuwanie problemu zdrowotnego"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -9493,16 +9515,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr ""
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "To wyświetla listę dostępnych typów dokumentów."
-
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -10735,6 +10747,15 @@ msgstr ""
 msgid "Communication channels"
 msgstr ""
 
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr ""
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr ""
+"%s:%s przez %.8s\n"
+"%s"
+
 msgid "due (%s): %s"
 msgstr ""
 
@@ -11059,6 +11080,16 @@ msgstr ""
 
 msgid "<type here to search patient>"
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "To wyświetla listę dostępnych typów dokumentów."
 
 #, fuzzy
 msgid "List of addresses related to this person."

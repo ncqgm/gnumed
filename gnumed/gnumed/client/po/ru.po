@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:10+CET\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -151,6 +151,10 @@ msgid "Closed bill"
 msgstr "Закрыть"
 
 #, fuzzy
+msgid " Invoice ID: %s\n"
+msgstr " Консультация: %s\n"
+
+#, fuzzy
 msgid " Closed: %s\n"
 msgstr " Код: %s\n"
 
@@ -167,11 +171,6 @@ msgstr "Пациент #%s"
 #, fuzzy
 msgid " Receiver: %s\n"
 msgstr " Режим: %s\n"
-
-msgid ""
-" Receiver address:\n"
-"  %s"
-msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "Пустышка-не-переводишка-но-делающая-epydoc-счастливой"
@@ -303,6 +302,9 @@ msgstr "Род занятий"
 
 msgid "Vaccinations"
 msgstr "Прививки"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -6155,7 +6157,7 @@ msgstr "ATC"
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -6194,6 +6196,28 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Удалить все элементы"
+
+#, fuzzy
+msgid "Checking invoice items"
+msgstr "Регистрация обновления клиента"
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Удалить все элементы"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -10785,16 +10809,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr "Ввод текста отменен пользователем."
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "Выберите тип сообщения."
-
 msgid "attach rejected, already serving a client"
 msgstr "присоединение отклонено, пациент уже обслужен"
 
@@ -12206,6 +12220,14 @@ msgid "Communication channels"
 msgstr "Каналы связи"
 
 #, fuzzy
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "  текущее время: %s - %s  (@%s = %s%s)\n"
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr "%s%7s %s:%s (%s часть(и)%s)"
+
+#, fuzzy
 msgid "due (%s): %s"
 msgstr "Комментарий (%s): %%s"
 
@@ -12623,6 +12645,16 @@ msgstr "<поиск пациента заблокирован>"
 
 msgid "<type here to search patient>"
 msgstr "<введите здесь поиск пациента>"
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Выберите тип сообщения."
 
 msgid "List of addresses related to this person."
 msgstr "Список адресов, связанных с этой персоной."

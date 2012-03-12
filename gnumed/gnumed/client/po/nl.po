@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -156,6 +156,10 @@ msgid "Closed bill"
 msgstr "Gesloten"
 
 #, fuzzy
+msgid " Invoice ID: %s\n"
+msgstr "Episodes: %s"
+
+#, fuzzy
 msgid " Closed: %s\n"
 msgstr "Episodes: %s"
 
@@ -174,11 +178,6 @@ msgid " Receiver: %s\n"
 msgstr ""
 "%s Laatst gezien: %s\n"
 "\n"
-
-msgid ""
-" Receiver address:\n"
-"  %s"
-msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "dummy-hoeft-niet-vertaald-te-worden-maar-maakt-epydoc-blij"
@@ -321,6 +320,9 @@ msgstr "Beroep"
 
 msgid "Vaccinations"
 msgstr "Vaccinaties"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -6120,7 +6122,7 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -6159,6 +6161,28 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Alle items verwijderen"
+
+#, fuzzy
+msgid "Checking invoice items"
+msgstr "Controleren voor frontend updates"
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Alle items verwijderen"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -10819,16 +10843,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr "Dialoog geannuleerd door gebruiker"
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "verwijderen documenttype"
-
 msgid "attach rejected, already serving a client"
 msgstr "Bijlage geweigerd, al bezig met een frontend"
 
@@ -12239,6 +12253,14 @@ msgid "Communication channels"
 msgstr "Communicatiekanaal verwijderen"
 
 #, fuzzy
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, fuzzy
 msgid "due (%s): %s"
 msgstr "Documenten: %s"
 
@@ -12636,6 +12658,16 @@ msgstr "Patiënt zoeken ..."
 
 msgid "<type here to search patient>"
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "verwijderen documenttype"
 
 #, fuzzy
 msgid "List of addresses related to this person."

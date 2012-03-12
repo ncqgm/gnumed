@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
 "PO-Revision-Date: 2010-09-14 19:01+0000\n"
 "Last-Translator: ido <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -153,6 +153,9 @@ msgstr ""
 msgid "Closed bill"
 msgstr "Chiusa"
 
+msgid " Invoice ID: %s\n"
+msgstr ""
+
 #, fuzzy
 msgid " Closed: %s\n"
 msgstr "Chiusa"
@@ -168,11 +171,6 @@ msgid " Patient: %s\n"
 msgstr "Paziente"
 
 msgid " Receiver: %s\n"
-msgstr ""
-
-msgid ""
-" Receiver address:\n"
-"  %s"
 msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -316,6 +314,9 @@ msgstr "Occupazione"
 
 msgid "Vaccinations"
 msgstr "Vaccinazioni"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -5681,7 +5682,7 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -5719,6 +5720,28 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Elimina tutti gli Elementi"
+
+#, fuzzy
+msgid "Checking invoice items"
+msgstr "Controllo se ci sono aggiornamenti per il client"
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Elimina tutti gli Elementi"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -9656,16 +9679,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr ""
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "Riassegnazione tipo di documento"
-
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -10891,6 +10904,14 @@ msgstr ""
 msgid "Communication channels"
 msgstr "Rimuovo il canale di comunicazione"
 
+#, fuzzy
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "  il tuo tempo: %s - %s  (@%s = %s%s)\n"
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr "%s%7s %s: %s (%s parte(i), %s)"
+
 msgid "due (%s): %s"
 msgstr ""
 
@@ -11220,6 +11241,16 @@ msgstr "Ricerca pazienti..."
 
 msgid "<type here to search patient>"
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Riassegnazione tipo di documento"
 
 #, fuzzy
 msgid "List of addresses related to this person."
@@ -13287,9 +13318,6 @@ msgstr "Prima Data"
 
 #~ msgid "Export to disk"
 #~ msgstr "Esporta sul disco"
-
-#~ msgid "%s%7s %s: %s (%s part(s), %s)"
-#~ msgstr "%s%7s %s: %s (%s parte(i), %s)"
 
 #~ msgid ""
 #~ "Error searching documents for patient\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-03-05 15:28+CET\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -155,6 +155,10 @@ msgid "Closed bill"
 msgstr "Κλείσιμο"
 
 #, fuzzy
+msgid " Invoice ID: %s\n"
+msgstr " Κωδικός: %s\n"
+
+#, fuzzy
 msgid " Closed: %s\n"
 msgstr " Κωδικός: %s\n"
 
@@ -171,11 +175,6 @@ msgstr "Ασθενής"
 #, fuzzy
 msgid " Receiver: %s\n"
 msgstr " Αιτία: %s\n"
-
-msgid ""
-" Receiver address:\n"
-"  %s"
-msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr "εικονική-δεν χρειαζετε -να-μετάφραση-αλλά-but-make-epydoc-happy"
@@ -316,6 +315,9 @@ msgstr "Επάγγελμα"
 
 msgid "Vaccinations"
 msgstr "Εμβολιασμοί"
+
+msgid "%s ago"
+msgstr ""
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -5582,7 +5584,7 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -5615,6 +5617,27 @@ msgstr ""
 #, fuzzy
 msgid "Deleting bill item"
 msgstr "Διαγραφή ονόματος"
+
+msgid "Checking invoice items"
+msgstr ""
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Creating bill"
+msgstr "Διαγραφή ονόματος"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -9467,16 +9490,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr ""
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-#, fuzzy
-msgid "Selecting address by type"
-msgstr "Διαγραφή μηνύματος"
-
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -10702,6 +10715,16 @@ msgid "Communication channels"
 msgstr ""
 
 #, fuzzy
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
+
+#, fuzzy
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+#, fuzzy
 msgid "due (%s): %s"
 msgstr "σε %d μέρα(ες): %s"
 
@@ -11026,6 +11049,16 @@ msgstr ""
 
 msgid "<type here to search patient>"
 msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address by type"
+msgstr "Διαγραφή μηνύματος"
 
 #, fuzzy
 msgid "List of addresses related to this person."

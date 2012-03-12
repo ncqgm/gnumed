@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-05 15:29+CET\n"
+"POT-Creation-Date: 2012-03-12 23:09+CET\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -120,6 +120,10 @@ msgid "Closed bill"
 msgstr ""
 
 #, fuzzy
+msgid " Invoice ID: %s\n"
+msgstr "   Dok: %s"
+
+#, fuzzy
 msgid " Closed: %s\n"
 msgstr "   Dok: %s"
 
@@ -136,11 +140,6 @@ msgstr "Dokumenter: %s"
 #, fuzzy
 msgid " Receiver: %s\n"
 msgstr "Dokumenter: %s"
-
-msgid ""
-" Receiver address:\n"
-"  %s"
-msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
@@ -268,6 +267,9 @@ msgid "Occupations"
 msgstr "Vaksinasjon"
 
 msgid "Vaccinations"
+msgstr ""
+
+msgid "%s ago"
 msgstr ""
 
 #, fuzzy
@@ -5332,7 +5334,7 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x (Value x Factor)"
+msgid "Count x Value x Factor"
 msgstr ""
 
 msgid "Invoice"
@@ -5362,6 +5364,26 @@ msgid ""
 msgstr ""
 
 msgid "Deleting bill item"
+msgstr ""
+
+msgid "Checking invoice items"
+msgstr ""
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+msgid "Creating bill"
+msgstr ""
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
 msgstr ""
 
 msgid ""
@@ -9191,15 +9213,6 @@ msgstr ""
 msgid "Text input cancelled by user."
 msgstr ""
 
-msgid ""
-"There is no [%s] address registered with this patient.\n"
-"\n"
-"Please select the address you would like to use instead:"
-msgstr ""
-
-msgid "Selecting address by type"
-msgstr ""
-
 msgid "attach rejected, already serving a client"
 msgstr ""
 
@@ -10412,6 +10425,12 @@ msgstr ""
 msgid "Communication channels"
 msgstr ""
 
+msgid "Latest: %s ago (%s %s %s %s%s)"
+msgstr ""
+
+msgid "%s %s %s %s (%s ago, %s)"
+msgstr ""
+
 #, fuzzy
 msgid "due (%s): %s"
 msgstr "Dokumenter: %s"
@@ -10730,6 +10749,15 @@ msgid "<patient search locked>"
 msgstr ""
 
 msgid "<type here to search patient>"
+msgstr ""
+
+msgid ""
+"There is no [%s] address registered with this patient.\n"
+"\n"
+"Please select the address you would like to use instead:"
+msgstr ""
+
+msgid "Selecting address by type"
 msgstr ""
 
 #, fuzzy
