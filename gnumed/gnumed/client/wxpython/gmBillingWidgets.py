@@ -16,6 +16,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmPG2
 #gmI18N, gmPrinting, gmCfg2, gmNetworkTools
 
 from Gnumed.business import gmBilling
@@ -28,6 +29,7 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmPersonContactWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -175,12 +177,24 @@ def manage_bills(parent=None, pk_patient=None):
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		bills = gmBilling.get_bills(pk_patient = pk_patient)
-		items = [ [
-			gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d'),
-			b['invoice_id'],
-			u'%s %s' % (b['total_amount'], b['currency']),
-			b['pk_bill']
-		] for b in bills ]
+		items = []
+		for b in bills:
+			if b['close_date'] is None:
+				close_date = u''
+			else:
+				close_date = gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d')
+			items.append([
+				close_date,
+				b['invoice_id'],
+				u'%s %s' % (b['total_amount'], b['currency']),
+				b['pk_bill']
+			])
+#		items = [ [
+#			gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d'),
+#			b['invoice_id'],
+#			u'%s %s' % (b['total_amount'], b['currency']),
+#			b['pk_bill']
+#		] for b in bills ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
 	#------------------------------------------------------------
@@ -327,7 +341,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				b['vat_multiplier'] * 100
 			),
 			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
-			u'%s x (%s x %s)' % (
+			u'%s x %s x %s' % (
 				b['unit_count'],
 				b['net_amount_per_unit'],
 				b['amount_multiplier']
@@ -351,7 +365,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Value'),
 			_('VAT'),
 			_('Catalog'),
-			_('Count x (Value x Factor)'),
+			_('Count x Value x Factor'),
 			_('Invoice'),
 			_('Encounter'),
 			u'#'
@@ -404,9 +418,56 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		bill_items = self._LCTRL_items.get_selected_item_data()
 		if len(bill_items) == 0:
 			return
-		print "XXXXXXXXXXXXXXX"
-		print "should be creating a bill and writing an invoice for it now"
-		print "XXXXXXXXXXXXXXX"
+
+		# any item already invoiced ?
+		for item in bill_items:
+			if item['pk_bill'] is not None:
+				gmGuiHelpers.gm_show_warning (
+					aTitle = _('Checking invoice items'),
+					aMessage = _(
+						'This item is already invoiced:\n'
+						'\n'
+						'%s\n'
+						'\n'
+						'Cannot put it on a second bill.'
+					) % item.format()
+				)
+				return
+
+		# create bill
+		bill = gmBilling.create_bill(invoice_id = gmBilling.get_invoice_id(pk_patient = self.__identity.ID))
+		adrs = self.__identity.get_addresses(address_type = u'billing')
+		if len(adrs) == 0:
+			adr = gmPersonContactWidgets.select_address(missing = u'billing', person = self.__identity)
+			if adr is not None:
+				bill['pk_receiver_address'] = adr['pk_lnk_person_org_address']
+		else:
+			bill['pk_receiver_address'] = adrs[0]['pk_lnk_person_org_address']
+		bill.save()
+
+		conn = gmPG2.get_connection(readonly = False)
+
+		# add items
+		for item in bill_items:
+			item['pk_bill'] = bill['pk_bill']
+			item.save(conn = conn)
+
+		conn.commit()
+
+		# cannot create invoice if no receiver address
+		if bill['pk_receiver_address'] is None:
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Creating bill'),
+				aMessage = _(
+					'Cannot create invoice from bill.\n'
+					'\n'
+					'There is no receiver address.'
+				)
+			)
+			return
+
+		# find 
+
 	#--------------------------------------------------------
 	def _browse_billables(self, item):
 		manage_billables(parent = self)

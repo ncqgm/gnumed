@@ -46,22 +46,6 @@ alter table bill.bill
 		unique(invoice_id);
 
 -- --------------------------------------------------------------
--- .payment_method
-comment on column bill.bill.payment_method is 'the method the customer is supposed to pay by';
-
-alter table bill.bill
-	alter column payment_method
-		set default 'cash'::text;
-
-\unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_bill_sane_pay_method;
-\set ON_ERROR_STOP 1
-
-alter table bill.bill
-	add constraint bill_bill_sane_pay_method check
-		(gm.is_null_or_blank_string(payment_method) is False);
-
--- --------------------------------------------------------------
 -- .close_date
 comment on column bill.bill.close_date is 'cannot add further bill_items after this date if not NULL';
 
@@ -78,7 +62,7 @@ alter table bill.bill
 		set default NULL;
 
 \unset ON_ERROR_STOP
-alter table bill.bill.fk_receiver_identity drop constraint bill_fk_receiver_identity_fkey cascade;
+alter table bill.bill drop constraint bill_fk_receiver_identity_fkey cascade;
 \set ON_ERROR_STOP 1
 
 alter table bill.bill
@@ -88,20 +72,29 @@ alter table bill.bill
 		on delete restrict;
 
 -- --------------------------------------------------------------
--- .receiver_address
-comment on column bill.bill.receiver_address is 'the address of the receiver of the invoice, retrieved at close time';
+-- .fk_receiver_address
+comment on column bill.bill.fk_receiver_address is 'links the address of the receiver of the invoice';
 
 \unset ON_ERROR_STOP
-alter table bill.bill drop constraint bill_bill_sane_recv_adr;
+alter table bill.bill drop constraint bill_fk_receiver_address_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill
+	add foreign key (fk_receiver_address)
+		references dem.lnk_person_org_address(id)
+		on update cascade
+		on delete restrict;
+
+
+\unset ON_ERROR_STOP
+alter table bill.bill drop constraint bill_bill_sane_recv_adr cascade;
 \set ON_ERROR_STOP 1
 
 alter table bill.bill
 	add constraint bill_bill_sane_recv_adr check (
-		(close_date is NULL)
-		-- nice but not safe:
-		--or (close_date > now())
+		(fk_receiver_address is not null)
 			or
-		(gm.is_null_or_blank_string(receiver_address) is False)
+		(close_date is NULL)
 	);
 
 -- --------------------------------------------------------------
@@ -115,7 +108,6 @@ SELECT
 	b_b.pk
 		as pk_bill,
 	b_b.invoice_id,
-	b_b.receiver_address,
 	b_b.fk_receiver_identity
 		as pk_receiver_identity,
 	-- assumes that all bill_items have the same currency
@@ -124,8 +116,9 @@ SELECT
 	-- assumes that all bill_items have the same currency
 	(select currency from bill.v_bill_items where pk_bill = b_b.pk limit 1)
 		as currency,
-	--b_b.payment_method,
 	b_b.close_date,
+	b_b.fk_receiver_address
+		as pk_receiver_address,
 	-- assumes all bill items point to encounters of one patient
 	(select fk_patient from clin.encounter where clin.encounter.pk = (
 		select fk_encounter from bill.bill_item where fk_bill = b_b.pk limit 1
@@ -232,9 +225,13 @@ limit 1;';
 select dem.add_external_id_type('bill receiver', 'GNUmed');
 
 -- --------------------------------------------------------------
+select setval('dem.address_type_id_seq', (select count(1) from dem.address_type));
+
 \unset ON_ERROR_STOP
 insert into dem.address_type (name) values ('billing');
 \set ON_ERROR_STOP 1
+
+select i18n.upd_tx('de', 'billing', 'Rechnungsanschrift');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill-dynamic.sql', '17.0');

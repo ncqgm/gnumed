@@ -17,6 +17,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
+from Gnumed.business import gmDemographicRecord
 
 
 _log = logging.getLogger('gm.bill')
@@ -221,7 +222,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				invoice_id = gm.nullify_empty_string(%(invoice_id)s),
 				fk_receiver_identity = %(pk_receiver_identity)s,
 				close_date = %(close_date)s,
-				receiver_address = gm.nullify_empty_string(%(receiver_address)s)
+				fk_receiver_address = %(pk_receiver_address)s
 			WHERE
 				pk = %(pk_bill)s
 					AND
@@ -235,21 +236,19 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		u'invoice_id',
 		u'pk_receiver_identity',
 		u'close_date',
-		u'receiver_address'
+		u'pk_receiver_address'
 	]
 	#--------------------------------------------------------
 	def format(self):
-		txt = u'%s %s%s%s                       [#%s]\n' % (
+		txt = u'%s                       [#%s]\n' % (
 			gmTools.bool2subst (
 				(self._payload[self._idx['close_date']] is None),
 				_('Open bill'),
 				_('Closed bill')
 			),
-			gmTools.u_left_double_angle_quote,
-			self._payload[self._idx['invoice_id']],
-			gmTools.u_right_double_angle_quote,
 			self._payload[self._idx['pk_bill']]
 		)
+		txt += _(' Invoice ID: %s\n') % self._payload[self._idx['invoice_id']]
 		txt += gmTools.coalesce (
 			self._payload[self._idx['close_date']],
 			u'',
@@ -268,7 +267,10 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			u'',
 			_(' Receiver: %s\n')
 		)
-		txt += _(' Receiver address:\n  %s') % self._payload[self._idx['receiver_address']]
+		if self._payload[self._idx['pk_receiver_address']] is not None:
+			txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
+			#txt += gmDemographicRecord.cPatientAddress(aPK_obj = self._payload[self._idx['pk_receiver_address']]).format()
+		#txt += _(' Receiver address:\n  %s') % self._payload[self._idx['receiver_address']]
 
 		return txt
 #------------------------------------------------------------
@@ -289,22 +291,15 @@ def get_bills(order_by=None, pk_patient=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
 #------------------------------------------------------------
-def create_bill(invoice_id=None, receiver_address=None):
-	args = {
-		u'id': invoice_id,
-		u'adr': receiver_address
-	}
+def create_bill(conn=None, invoice_id=None):
+
+	args = {u'inv_id': invoice_id}
 	cmd = u"""
-		INSERT INTO bill.bill' (
-			invoice_id,
-			receiver_address
-		) VALUES (
-			gm.nullify_empty_string(%(invoice_id)s),
-			gm.nullify_empty_string(%(receiver_address)s)
-		)
+		INSERT INTO bill.bill (invoice_id)
+		VALUES (gm.nullify_empty_string(%(inv_id)s))
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cBill(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
@@ -317,8 +312,14 @@ def delete_bill(pk_bill=None):
 def get_bill_receiver(pk_patient=None):
 	pass
 #------------------------------------------------------------
-def get_billing_address(pk_patient=None):
-	pass
+def get_invoice_id(pk_patient=None):
+	return u'%s / #%s' % (
+		gmDateTime.pydt_strftime (
+			gmDateTime.pydt_now_here(),
+			'%Y-%m-%d / %H%M%S'
+		),
+		pk_patient
+	)
 #============================================================
 # main
 #------------------------------------------------------------

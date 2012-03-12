@@ -38,6 +38,7 @@ from Gnumed.business import gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmListWidgets
@@ -663,11 +664,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
-			if adr_type is None:
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		adr = self.pat.get_addresses(address_type = adr_type)[0]
 
 		# formatting template
@@ -694,11 +696,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['street']
 	#--------------------------------------------------------
 	def _get_variant_adr_number(self, data=u'?'):
@@ -711,11 +714,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['number']
 	#--------------------------------------------------------
 	def _get_variant_adr_location(self, data=u'?'):
@@ -728,11 +732,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['urb']
 	#--------------------------------------------------------
 	def _get_variant_adr_postcode(self, data=u'?'):
@@ -745,11 +750,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['postcode']
 	#--------------------------------------------------------
 	def _get_variant_adr_region(self, data=u'?'):
@@ -762,11 +768,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_state']
 	#--------------------------------------------------------
 	def _get_variant_adr_country(self, data=u'?'):
@@ -779,11 +786,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				adr_type = u''
 		if adr_type == u'':
 			_log.debug('asking user for address type')
-			adr_type = self.__let_user_select_address_type(missing = orig_type)
+			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
 			if adr_type is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
+			adr_type = adr['address_type']
 		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_country']
 	#--------------------------------------------------------
 	def _get_variant_patient_comm(self, data=u'?'):
@@ -1021,44 +1029,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return text
 	#--------------------------------------------------------
 	# internal helpers
-	#--------------------------------------------------------
-	def __let_user_select_address_type(self, missing=None):
-		addresses = self.pat.get_addresses()
-		if len(addresses) == 0:
-			return None
-		msg = _(
-			'There is no [%s] address registered with this patient.\n\n'
-			'Please select the address you would like to use instead:'
-		) % missing
-		choices = [
-			[
-				a['l10n_address_type'],
-				u'%s %s%s, %s %s, %s' % (
-					a['street'],
-					a['number'],
-					gmTools.coalesce(a['subunit'], u'', u'/%s'),
-					a['postcode'],
-					a['urb'],
-					a['l10n_country']
-				)
-			]
-		for a in addresses ]
-		#--------------------------
-		def calculate_tooltip(adr):
-			return u'\n'.join(adr.format())
-		#--------------------------
-		adr = gmListWidgets.get_choices_from_list (
-			msg = msg,
-			caption = _('Selecting address by type'),
-			columns = [_('Type'), _('Address')],
-			choices = choices,
-			data = addresses,
-			single_selection = True,
-			list_tooltip_callback = calculate_tooltip
-		)
-		if adr is None:
-			return None
-		return adr['address_type']
 	#--------------------------------------------------------
 	def __let_user_select_comm_type(self, missing=None):
 		pass

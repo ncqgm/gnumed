@@ -892,21 +892,19 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	# contacts API
 	#--------------------------------------------------------
 	def get_addresses(self, address_type=None):
-		cmd = u"select * from dem.v_pat_addresses where pk_identity=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx=True)
-		addresses = []
-		for r in rows:
-			addresses.append(gmDemographicRecord.cPatientAddress(row={'idx': idx, 'data': r, 'pk_field': 'pk_address'}))
 
-		filtered = addresses
-
+		cmd = u"SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s"
+		args = {'pat': self.pk_obj}
 		if address_type is not None:
-			filtered = []
-			for adr in addresses:
-				if adr['address_type'] == address_type:
-					filtered.append(adr)
+			cmd = cmd + u" AND address_type = %(typ)s"
+			args['typ'] = address_type
 
-		return filtered
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		return [
+			gmDemographicRecord.cPatientAddress(row = {'idx': idx, 'data': r, 'pk_field': 'pk_address'})
+			for r in rows
+		]
 	#--------------------------------------------------------
 	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
 		"""Link an address with a patient, creating the address if it does not exists.

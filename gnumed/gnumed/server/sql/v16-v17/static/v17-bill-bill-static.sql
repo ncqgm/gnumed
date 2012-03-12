@@ -12,10 +12,9 @@
 create table bill.bill (
 	pk serial primary key,
 	invoice_id text,
-	payment_method text,
 	close_date timestamp with time zone,
 	fk_receiver_identity integer,
-	receiver_address text -- this is the address of the receiver of the bill, retrieved at close time
+	fk_receiver_address integer
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------

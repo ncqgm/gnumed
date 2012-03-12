@@ -31,6 +31,44 @@ except NameError:
 	_ = lambda x:x
 
 #============================================================
+def select_address(missing=None, person=None):
+
+	#--------------------------
+	def calculate_tooltip(adr):
+		return u'\n'.join(adr.format())
+	#--------------------------
+	addresses = person.get_addresses()
+	if len(addresses) == 0:
+		return None
+
+	msg = _(
+		'There is no [%s] address registered with this patient.\n\n'
+		'Please select the address you would like to use instead:'
+	) % missing
+	choices = [
+		[
+			a['l10n_address_type'],
+			u'%s %s%s, %s %s, %s' % (
+				a['street'],
+				a['number'],
+				gmTools.coalesce(a['subunit'], u'', u'/%s'),
+				a['postcode'],
+				a['urb'],
+				a['l10n_country']
+			)
+		]
+	for a in addresses ]
+
+	return gmListWidgets.get_choices_from_list (
+		msg = msg,
+		caption = _('Selecting address by type'),
+		columns = [_('Type'), _('Address')],
+		choices = choices,
+		data = addresses,
+		single_selection = True,
+		list_tooltip_callback = calculate_tooltip
+	)
+#============================================================
 class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's addresses.
 

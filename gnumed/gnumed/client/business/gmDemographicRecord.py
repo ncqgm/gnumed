@@ -483,6 +483,14 @@ def get_addresses(order_by=None):
 	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': u'pk_address'}) for r in rows ]
 
 #===================================================================
+def get_patient_address(pk_patient_address=None):
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
+	args = {'pk': pk_patient_address}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+#-------------------------------------------------------------------
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
