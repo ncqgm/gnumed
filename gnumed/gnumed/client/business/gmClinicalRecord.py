@@ -875,11 +875,13 @@ order by
 					start = dob,
 					end = vacc['date_given']
 				))
+			since = _('%s ago') % gmDateTime.format_interval_medically(vacc['interval_since_given'])
 			txt += u' %s (%s%s): %s%s (%s %s%s%s)\n' % (
 				ind,
 				gmTools.u_sum,
 				ind_count,
-				vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
+				#vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
+				since,
 				age_given,
 				vacc['vaccine'],
 				gmTools.u_left_double_angle_quote,
