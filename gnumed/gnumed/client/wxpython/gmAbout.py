@@ -171,6 +171,14 @@ class cContributorsDlg(wx.Dialog):
 'the user name.\n'
 '%s'
 ) % u"""
+== A ===========================================
+
+Marc Angermann, MD
+ Germany
+
+ - Rechnungsvorlage
+ - bug reports
+
 == B ===========================================
 
 James Busser, MD
@@ -211,6 +219,11 @@ John Jaarsveld, MD
  - Dutch l10n
 
 == L ===========================================
+
+Nico Latzer
+ Germany
+
+ - invoice handling code
 
 Steffi Leibner, Leipzig
  Germany
