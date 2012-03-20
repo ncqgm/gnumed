@@ -758,6 +758,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		args = {'pat': self.ID}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows
+
+	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 

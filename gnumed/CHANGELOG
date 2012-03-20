@@ -41,7 +41,8 @@ IMPROVED: signalling of attempt to duplicate drug component intake
 IMPROVED: vaccinations: two-list item picker to pick indications rather than checkbox forest
 IMPROVED: allergy manager workflow [thanks J.Busser]
 IMPROVED: address related placeholders: let user select if no value available for type
-IMPROVED: vaccinations: in EMR root not show how long ago it was given
+IMPROVED: vaccinations: in EMR root show how long ago it was given
+IMPROVED: waiting list: on activating patient set RFE if empty but waiting list has comment
 
 ------------------------------------------------
 # rel-1-1-patches
