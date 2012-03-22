@@ -835,6 +835,7 @@ class cLaTeXForm(cFormEngine):
 			instance_file.write(line)
 
 		instance_file.close()
+		self.re_editable_filenames = [self.instance_filename]
 		template_file.close()
 
 		if self.template is not None:

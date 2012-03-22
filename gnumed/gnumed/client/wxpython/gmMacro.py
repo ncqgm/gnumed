@@ -123,7 +123,10 @@ known_variant_placeholders = [
 	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
-	u'primary_praxis_provider_external_id'	# args: <type of ID>//<issuer of ID>
+	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
+
+	u'bill',								# args: template for string replacement
+	u'bill_item'							# args: template for string replacement
 ]
 
 default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
@@ -183,6 +186,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.debug = False
 
 		self.invalid_placeholder_template = _('invalid placeholder [%s]')
+
+		self.__cache = {}
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -697,7 +702,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -715,7 +720,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -733,7 +738,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -751,7 +756,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -769,7 +774,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -787,7 +792,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if adr_type == u'':
 			_log.debug('asking user for address type')
 			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr_type is None:
+			if adr is None:
 				if self.debug:
 					return _('no address type replacement selected')
 				return u''
@@ -1027,6 +1032,34 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return gmTools.tex_escape_string(text = text)
 
 		return text
+	#--------------------------------------------------------
+	def _get_variant_bill(self, data=None):
+		try:
+			bill = self.__cache['bill']
+		except KeyError:
+			from Gnumed.wxpython import gmBillingWidgets
+			bill = gmBillingWidgets.manage_bills(pk_patient = self.pat.ID)
+			if bill is None:
+				if self.debug:
+					return _('no bill selected')
+				return u''
+			self.__cache['bill'] = bill
+
+		return data % bill.fields_as_dict(date_format = '%Y %B %d')
+	#--------------------------------------------------------
+	def _get_variant_bill_item(self, data=None):
+		try:
+			bill = self.__cache['bill']
+		except KeyError:
+			from Gnumed.wxpython import gmBillingWidgets
+			bill = gmBillingWidgets.manage_bills(pk_patient = self.pat.ID)
+			if bill is None:
+				if self.debug:
+					return _('no bill selected')
+				return u''
+			self.__cache['bill'] = bill
+
+		return u'\n'.join([ data % i.fields_as_dict(date_format = '%Y %B %d') for i in bill.bill_items ])
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------

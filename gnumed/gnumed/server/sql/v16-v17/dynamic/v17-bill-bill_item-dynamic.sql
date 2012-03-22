@@ -199,10 +199,9 @@ SELECT
 	b_bi.net_amount_per_unit,
 	b_bi.unit_count,
 	b_bi.amount_multiplier,
-	b_bi.unit_count * (
-		(b_bi.net_amount_per_unit * b_bi.amount_multiplier)
-	)	AS final_amount,
-	b_bi.net_amount_per_unit * b_bi.amount_multiplier * r_b.vat_multiplier * b_bi.unit_count
+	b_bi.unit_count * b_bi.net_amount_per_unit * b_bi.amount_multiplier
+		AS total_amount,
+	b_bi.unit_count * b_bi.net_amount_per_unit * b_bi.amount_multiplier * r_b.vat_multiplier
 		AS vat,
 	b_bi.currency,
 	b_bi.date_to_bill
@@ -272,7 +271,7 @@ INSERT INTO bill.bill_item (
 	1,
 	25,
 	2.3,
-	'EUR'
+	E'\u20AC'
 );
 \set ON_ERROR_STOP 1
 

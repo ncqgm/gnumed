@@ -18,10 +18,11 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmDemographicRecord
-
+from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.bill')
 
+INVOICE_DOCUMENT_TYPE = u'invoice'
 #============================================================
 # billables
 #------------------------------------------------------------
@@ -217,11 +218,11 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = _SQL_get_bill_fields % u"pk_bill = %s"
 	_cmds_store_payload = [
-		u"""
-			UPDATE bill.bill SET
+		u"""UPDATE bill.bill SET
 				invoice_id = gm.nullify_empty_string(%(invoice_id)s),
-				fk_receiver_identity = %(pk_receiver_identity)s,
 				close_date = %(close_date)s,
+				apply_vat = %(apply_vat)s,
+				fk_receiver_identity = %(pk_receiver_identity)s,
 				fk_receiver_address = %(pk_receiver_address)s
 			WHERE
 				pk = %(pk_bill)s
@@ -236,6 +237,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		u'invoice_id',
 		u'pk_receiver_identity',
 		u'close_date',
+		u'apply_vat',
 		u'pk_receiver_address'
 	]
 	#--------------------------------------------------------
@@ -249,19 +251,31 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['pk_bill']]
 		)
 		txt += _(' Invoice ID: %s\n') % self._payload[self._idx['invoice_id']]
-		txt += gmTools.coalesce (
-			self._payload[self._idx['close_date']],
-			u'',
-			_(' Closed: %s\n'),
-			function_initial = ('strftime', '%Y %b %d')
-		)
-
+		if self._payload[self._idx['close_date']] is not None:
+			txt += _(' Closed: %s\n') % gmDateTime.pydt_strftime (
+				self._payload[self._idx['close_date']],
+				'%Y %b %d',
+				accuracy = gmDateTime.acc_days
+			)
 		txt += _(' Bill value: %s %s\n') % (
 			self._payload[self._idx['total_amount']],
 			self._payload[self._idx['currency']]
 		)
+		if self._payload[self._idx['apply_vat']]:
+			txt += _(' VAT: %s%% %s %s %s\n') % (
+				self._payload[self._idx['percent_vat']],
+				gmTools.u_corresponds_to,
+				self._payload[self._idx['total_vat']],
+				self._payload[self._idx['currency']]
+			)
+			txt += _(' Value + VAT: %s %s\n') % (
+				self._payload[self._idx['total_amount_with_vat']],
+				self._payload[self._idx['currency']]
+			)
+		else:
+			txt += _(' VAT: does not apply\n')
 		txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
-		txt += _(' Patient: %s\n') % self._payload[self._idx['pk_patient']]
+		txt += _(' Patient: #%s\n') % self._payload[self._idx['pk_patient']]
 		txt += gmTools.coalesce (
 			self._payload[self._idx['pk_receiver_identity']],
 			u'',
@@ -269,10 +283,38 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if self._payload[self._idx['pk_receiver_address']] is not None:
 			txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
-			#txt += gmDemographicRecord.cPatientAddress(aPK_obj = self._payload[self._idx['pk_receiver_address']]).format()
-		#txt += _(' Receiver address:\n  %s') % self._payload[self._idx['receiver_address']]
 
 		return txt
+	#--------------------------------------------------------
+	def add_items(self, items=None):
+		"""Requires no pending changes within the bill itself."""
+		# should check for item consistency first
+		conn = gmPG2.get_connection(readonly = False)
+		for item in items:
+			item['pk_bill'] = self._payload[self._idx['pk_bill']]
+			item.save(conn = conn)
+		conn.commit()
+		self.refetch_payload()		# make sure aggregates are re-filled from view
+	#--------------------------------------------------------
+	def _get_bill_items(self):
+		return [ cBillItem(aPK_obj = pk) for pk in self._payload[self._idx['pk_bill_items']] ]
+
+	bill_items = property(_get_bill_items, lambda x:x)
+	#--------------------------------------------------------
+	def _get_invoice(self):
+		invoices = gmDocuments.search_for_documents (
+			patient_id = self._payload[self._idx['pk_patient']],
+			type_id = gmDocuments.get_document_type_pk(document_type = INVOICE_DOCUMENT_TYPE),
+			# this *should* make it unique:
+			external_reference = self._payload[self._idx['invoice_id']]
+		)
+		if len(invoices) == 0:
+			return None
+		if len(invoices) == 1:
+			return invoices[0]
+		raise EnvironmentError('there is more than one invoice PDF for this bill')
+
+	invoice = property(_get_invoice, lambda x:x)
 #------------------------------------------------------------
 def get_bills(order_by=None, pk_patient=None):
 
@@ -313,12 +355,12 @@ def get_bill_receiver(pk_patient=None):
 	pass
 #------------------------------------------------------------
 def get_invoice_id(pk_patient=None):
-	return u'%s / #%s' % (
+	return u'GM%s / %s' % (
+		pk_patient,
 		gmDateTime.pydt_strftime (
 			gmDateTime.pydt_now_here(),
 			'%Y-%m-%d / %H%M%S'
-		),
-		pk_patient
+		)
 	)
 #============================================================
 # main

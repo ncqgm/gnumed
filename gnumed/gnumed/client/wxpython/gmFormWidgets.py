@@ -30,7 +30,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template
-	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note', 'invoice'])
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
 		return None

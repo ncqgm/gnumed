@@ -77,7 +77,7 @@ comment on column ref.billable.currency is 'The currency .amount is in.';
 
 alter table ref.billable
 	alter column currency
-		set default 'EUR';
+		set default E'\u20AC';
 
 alter table ref.billable
 	add constraint ref_billable_sane_currency check
@@ -175,7 +175,7 @@ to group "gm-public";
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 INSERT INTO ref.data_source (name_long, name_short, version, source) values ('Gebührenordnung für Ärzte', 'GOÄ', '1996', 'BÄK');
-INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 25, 'EUR', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 25, E'\u20AC', 0.19);
 \set ON_ERROR_STOP 1
 
 

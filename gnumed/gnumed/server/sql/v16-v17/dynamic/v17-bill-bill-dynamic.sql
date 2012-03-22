@@ -54,6 +54,17 @@ alter table bill.bill
 		set default NULL;
 
 -- --------------------------------------------------------------
+comment on column bill.bill.apply_vat is 'whether or not to apply VAT on the invoice';
+
+alter table bill.bill
+	alter column apply_vat
+		set default True;
+
+alter table bill.bill
+	alter column apply_vat
+		set not NULL;
+
+-- --------------------------------------------------------------
 -- .fk_receiver_identity
 comment on column bill.bill.fk_receiver_identity is 'link to the receiver as a GNUmed identity, if known';
 
@@ -111,22 +122,30 @@ SELECT
 	b_b.fk_receiver_identity
 		as pk_receiver_identity,
 	-- assumes that all bill_items have the same currency
-	(select sum(final_amount) from bill.v_bill_items where pk_bill = b_b.pk)
+	(select round(sum(total_amount), 2) from bill.v_bill_items where pk_bill = b_b.pk)
 		as total_amount,
+	(select round(sum(vat), 2) from bill.v_bill_items where pk_bill = b_b.pk)
+		as total_vat,
+	(select round(sum(total_amount + vat), 2) from bill.v_bill_items where pk_bill = b_b.pk)
+		as total_amount_with_vat,
+	-- assumes that all bill_items have the same VAT
+	(select vat_multiplier * 100 from bill.v_bill_items where pk_bill = b_b.pk limit 1)
+		as percent_vat,
 	-- assumes that all bill_items have the same currency
 	(select currency from bill.v_bill_items where pk_bill = b_b.pk limit 1)
 		as currency,
 	b_b.close_date,
+	b_b.apply_vat,
 	b_b.fk_receiver_address
 		as pk_receiver_address,
 	-- assumes all bill items point to encounters of one patient
 	(select fk_patient from clin.encounter where clin.encounter.pk = (
 		select fk_encounter from bill.bill_item where fk_bill = b_b.pk limit 1
 	))	as pk_patient,
-	(select array_agg(bill.bill_item.pk) from bill.bill_item where fk_bill = b_b.pk)
+	(select array_agg(b_vbi.pk_bill_item order by b_vbi.date_to_bill) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
 		as pk_bill_items,
-	(select array_agg(bill.v_bill_items.currency) from bill.v_bill_items where pk_bill = b_b.pk limit 1)
-		as item_currencies,
+--	(select array_agg(bill.v_bill_items.currency) from bill.v_bill_items where pk_bill = b_b.pk limit 1)
+--		as item_currencies,
 	b_b.xmin
 		as xmin_bill
 FROM
@@ -137,7 +156,7 @@ grant select on bill.v_bills to group "gm-doctors";
 
 
 \unset ON_ERROR_STOP
-insert into bill.bill (invoice_id, receiver_address, close_date) values ('GNUmed@Enterprise-2012-1', 'Starfleet Health Fund', now() - '1 week'::interval);
+insert into bill.bill (invoice_id) values ('GNUmed@Enterprise-2012-1');
 update bill.bill_item set fk_bill = currval('bill.bill_item_pk_seq') where fk_bill is NULL and description = 'Reiseberatung';
 \set ON_ERROR_STOP 1
 

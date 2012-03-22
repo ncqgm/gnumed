@@ -17,12 +17,15 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPG2
-#gmI18N, gmPrinting, gmCfg2, gmNetworkTools
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmPrinting
 
 from Gnumed.business import gmBilling
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-# gmSurgery
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmForms
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmRegetMixin
@@ -30,6 +33,8 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmMacro
+from Gnumed.wxpython import gmFormWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -47,7 +52,7 @@ def manage_billables(parent=None):
 		if billable.is_in_use:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this billable item. It is in use.'), beep = True)
 			return False
-		return gmBillling.delete_billable(pk_billable = billable['pk_billable'])
+		return gmBilling.delete_billable(pk_billable = billable['pk_billable'])
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
@@ -84,6 +89,7 @@ def manage_billables(parent=None):
 		#	_('Browse billing catalogs on the web'),
 		#	browse_catalogs
 		#)
+		# middle_extra: data packs
 		, list_tooltip_callback = get_tooltip
 	)
 
@@ -139,6 +145,232 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 #================================================================
 # per-patient bill related widgets
 #----------------------------------------------------------------
+def configure_invoice_template(parent=None, with_vat=True):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		template_types = ['invoice']
+	)
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
+		return None
+
+	if template['engine'] != u'L':
+		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
+		return None
+
+	if with_vat:
+		option = u'form_templates.invoice_with_vat'
+	else:
+		option = u'form_templates.invoice_no_vat'
+
+	dbcfg = gmCfg.cCfgSQL()
+	dbcfg.set (
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		option = option,
+		value = u'%s - %s' % (template['name_long'], template['external_version'])
+	)
+
+	return template
+#----------------------------------------------------------------
+def get_invoice_template(parent=None, with_vat=True):
+
+	dbcfg = gmCfg.cCfgSQL()
+	if with_vat:
+		option = u'form_templates.invoice_with_vat'
+	else:
+		option = u'form_templates.invoice_no_vat'
+
+	template = dbcfg.get2 (
+		option = option,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user'
+	)
+
+	if template is None:
+		template = configure_invoice_template(parent = parent, with_vat = with_vat)
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no invoice template configured.'),
+				aTitle = _('Getting invoice template')
+			)
+			return None
+	else:
+		try:
+			name, ver = template.split(u' - ')
+		except:
+			_log.exception('problem splitting invoice template name [%s]', template)
+			gmDispatcher.send(signal = 'statustext', msg = _('Problem loading invoice template.'), beep = True)
+			return None
+		template = gmForms.get_form_template(name_long = name, external_version = ver)
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot load invoice template [%s - %s]') % (name, ver),
+				aTitle = _('Getting invoice template')
+			)
+			return None
+
+	return template
+#----------------------------------------------------------------
+def create_bill_from_items(bill_items=None):
+
+	if len(bill_items) == 0:
+		return None
+
+	item = bill_items[0]
+	currency = item['currency']
+	vat = item['vat_multiplier']
+	pat = item['pk_patient']
+
+	# check item consistency
+	has_errors = False
+	for item in bill_items:
+		if	(item['currency'] != currency) or (
+			 item['vat_multiplier'] != vat) or (
+			 item['pk_patient'] != pat
+			):
+			msg = _(
+				'All items to be included with a bill must\n'
+				'coincide on currency, VAT, and patient.\n'
+				'\n'
+				'This item does not:\n'
+				'\n'
+				'%s\n'
+			) % item.format()
+			has_errors = True
+
+		if item['pk_bill'] is not None:
+			msg = _(
+				'This item is already invoiced:\n'
+				'\n'
+				'%s\n'
+				'\n'
+				'Cannot put it on a second bill.'
+			) % item.format()
+			has_errors = True
+
+		if has_errors:
+			gmGuiHelpers.gm_show_warning(aTitle = _('Checking invoice items'), aMessage = msg)
+			return None
+
+	# create bill
+	bill = gmBilling.create_bill(invoice_id = gmBilling.get_invoice_id(pk_patient = pat))
+	identity = gmPerson.cIdentity(aPK_obj = pat)
+	adrs = identity.get_addresses(address_type = u'billing')
+	if len(adrs) == 0:
+		adr = gmPersonContactWidgets.select_address(missing = u'billing', person = identity)
+		if adr is None:
+			_log.warning('cannot find/did not select any bill receiver address')
+		else:
+			bill['pk_receiver_address'] = adr['pk_lnk_person_org_address']
+	else:
+		bill['pk_receiver_address'] = adrs[0]['pk_lnk_person_org_address']
+	bill.save()
+	_log.info('created bill [%s]', bill['invoice_id'])
+
+	# add items
+	bill.add_items(items = bill_items)
+
+	# FIXME:
+	#edit_bill(bill)
+
+	return bill
+#----------------------------------------------------------------
+def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True):
+
+	if None in [ bill['close_date'], bill['pk_receiver_address'] ]:
+		# FIXME:
+		#edit_bill(bill)
+		# cannot invoice open bills
+		if bill['close_date'] is None:
+			_log.error('cannot create invoice from bill, bill not closed')
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Creating invoice'),
+				aMessage = _(
+					'Cannot create invoice from bill.\n'
+					'\n'
+					'The bill is not closed.'
+				)
+			)
+			return None
+		# cannot create invoice if no receiver address
+		if bill['pk_receiver_address'] is None:
+			_log.error('cannot create invoice from bill, lacking receiver address')
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Creating invoice'),
+				aMessage = _(
+					'Cannot create invoice from bill.\n'
+					'\n'
+					'There is no receiver address.'
+				)
+			)
+			return None
+
+	# find template
+	template = get_invoice_template(parent = parent, with_vat = bill['apply_vat'])
+	if template is None:
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Creating invoice'),
+			aMessage = _(
+				'Cannot create invoice from bill\n'
+				'without an invoice template.'
+			)
+		)
+		return None
+
+	# process template
+	try:
+		invoice = template.instantiate()
+	except KeyError:
+		_log.exception('cannot instantiate invoice template [%s]', template)
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Invalid invoice template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aTitle = _('Printing medication list')
+		)
+		return False
+
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	invoice.substitute_placeholders(data_source = ph)
+	pdf_name = invoice.generate_output()
+	if pdf_name is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error generating invoice PDF.'),
+			aTitle = _('Creating invoice')
+		)
+		return False
+
+	# keep a copy
+	if keep_a_copy:
+		files2import = []
+		files2import.extend(invoice.final_output_filenames)
+		files2import.extend(invoice.re_editable_filenames)
+		gmDispatcher.send (
+			signal = u'import_document_from_files',
+			filenames = files2import,
+			document_type = template['instance_type'],
+			review_as_normal = True,
+			reference = bill['invoice_id']
+		)
+
+	if not print_it:
+		return True
+
+	# print template
+	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'invoice')
+	if not printed:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing the invoice.'),
+			aTitle = _('Printing invoice')
+		)
+		return True
+
+	return True
+#----------------------------------------------------------------
 def manage_bills(parent=None, pk_patient=None):
 
 	if parent is None:
@@ -147,19 +379,32 @@ def manage_bills(parent=None, pk_patient=None):
 	if pk_patient is None:
 		pk_patient = gmPerson.gmCurrentPatient().ID
 	#------------------------------------------------------------
-	# edit
-	#------------------------------------------------------------
-	def create_invoice(bill):
-		if bill is None:
-			return
-		print "should create invoice from bill:"
-		print bill
-	#------------------------------------------------------------
 	def show_pdf(bill):
 		if bill is None:
 			return
-		print "should find PDF and display it for bill:"
-		print bill
+		# find invoice
+		invoice = bill.invoice
+		if invoice is not None:
+			success, msg = invoice.parts[-1].display_via_mime()
+			if not success:
+				gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Displaying invoice'))
+			return
+		# create it ?
+		create_it = gmGuiHelpers.gm_show_question (
+			title = _('Displaying invoice'),
+			question = _(
+				'Cannot find an existing\n'
+				'invoice PDF for this bill.\n'
+				'\n'
+				'Do you want to create one ?'
+			),
+		)
+		if not create_it:
+			return
+		create_invoice_from_bill(parent = parent, bill = bill, print_it = True, keep_a_copy = True)
+	#------------------------------------------------------------
+	def edit(bill):
+		pass
 	#------------------------------------------------------------
 	def delete(bill):
 		do_it = gmGuiHelpers.gm_show_question (
@@ -168,7 +413,7 @@ def manage_bills(parent=None, pk_patient=None):
 		)
 		if not do_it:
 			return False
-		return gmBillling.delete_bill(pk_bill = bill['pk_bill'])
+		return gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
@@ -189,16 +434,10 @@ def manage_bills(parent=None, pk_patient=None):
 				u'%s %s' % (b['total_amount'], b['currency']),
 				b['pk_bill']
 			])
-#		items = [ [
-#			gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d'),
-#			b['invoice_id'],
-#			u'%s %s' % (b['total_amount'], b['currency']),
-#			b['pk_bill']
-#		] for b in bills ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
 	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
+	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		#msg = msg,
 		caption = _('Showing bills.'),
@@ -208,14 +447,9 @@ def manage_bills(parent=None, pk_patient=None):
 		#edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
-		left_extra_button = (
-			_('Create invoice'),
-			_('Create PDF invoice from bill'),
-			create_invoice
-		),
 		middle_extra_button = (
-			_('Show PDF'),
-			_('Show the corresponding invoice PDF'),
+			u'PDF',
+			_('Create if necessary, and show the corresponding invoice PDF'),
 			show_pdf
 		),
 		list_tooltip_callback = get_tooltip
@@ -263,11 +497,13 @@ def manage_bill_items(parent=None, pk_patient=None):
 			gmDateTime.pydt_strftime(b['date_to_bill'], '%x', accuracy = gmDateTime.acc_days),
 			b['unit_count'],
 			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
-			u'%s %s (%s x %sx%s)' % (
-				b['final_amount'],
+			u'%s %s (%s %s %s%s%s)' % (
+				b['total_amount'],
 				b['currency'],
 				b['unit_count'],
+				gmTools.u_multiply,
 				b['net_amount_per_unit'],
+				gmTools.u_multiply,
 				b['amount_multiplier']
 			),
 			u'%s %s (%s%%)' % (
@@ -332,7 +568,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			b['unit_count'],
 			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
 			u'%s %s' % (
-				b['final_amount'],
+				b['total_amount'],
 				b['currency']
 			),
 			u'%s %s (%s%%)' % (
@@ -341,9 +577,11 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				b['vat_multiplier'] * 100
 			),
 			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
-			u'%s x %s x %s' % (
+			u'%s %s %s %s %s' % (
 				b['unit_count'],
+				gmTools.u_multiply,
 				b['net_amount_per_unit'],
+				gmTools.u_multiply,
 				b['amount_multiplier']
 			),
 			gmTools.coalesce(b['pk_bill'], gmTools.u_diameter),
@@ -365,28 +603,28 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Value'),
 			_('VAT'),
 			_('Catalog'),
-			_('Count x Value x Factor'),
+			_('Count %s Value %s Factor') % (gmTools.u_multiply, gmTools.u_multiply),
 			_('Invoice'),
 			_('Encounter'),
 			u'#'
 		])
 #		self.left_extra_button = (
 #			_('Select pending'),
-#			_('Select non-invoiced - pending - items.'),
+#			_('Select non-invoiced (pending) items.'),
 #			self._select_pending_items
 #		)
 		self.left_extra_button = (
-			_('Invoice selected'),
+			_('Invoice selected items'),
 			_('Create invoice from selected items.'),
 			self._invoice_selected_items
 		)
 		self.middle_extra_button = (
-			_('Browse bills'),
+			_('Bills'),
 			_('Browse bills of this patient.'),
 			self._browse_bills
 		)
 		self.right_extra_button = (
-			_('Browse billables'),
+			_('Billables'),
 			_('Browse list of billables.'),
 			self._browse_billables
 		)
@@ -416,58 +654,22 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _invoice_selected_items(self, item):
 		bill_items = self._LCTRL_items.get_selected_item_data()
-		if len(bill_items) == 0:
+		bill = create_bill_from_items(bill_items)
+		if bill is None:
 			return
-
-		# any item already invoiced ?
-		for item in bill_items:
-			if item['pk_bill'] is not None:
-				gmGuiHelpers.gm_show_warning (
-					aTitle = _('Checking invoice items'),
-					aMessage = _(
-						'This item is already invoiced:\n'
-						'\n'
-						'%s\n'
-						'\n'
-						'Cannot put it on a second bill.'
-					) % item.format()
-				)
-				return
-
-		# create bill
-		bill = gmBilling.create_bill(invoice_id = gmBilling.get_invoice_id(pk_patient = self.__identity.ID))
-		adrs = self.__identity.get_addresses(address_type = u'billing')
-		if len(adrs) == 0:
-			adr = gmPersonContactWidgets.select_address(missing = u'billing', person = self.__identity)
-			if adr is not None:
-				bill['pk_receiver_address'] = adr['pk_lnk_person_org_address']
-		else:
-			bill['pk_receiver_address'] = adrs[0]['pk_lnk_person_org_address']
-		bill.save()
-
-		conn = gmPG2.get_connection(readonly = False)
-
-		# add items
-		for item in bill_items:
-			item['pk_bill'] = bill['pk_bill']
-			item.save(conn = conn)
-
-		conn.commit()
-
-		# cannot create invoice if no receiver address
 		if bill['pk_receiver_address'] is None:
-			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Creating bill'),
+			gmGuiHelpers.gm_show_error (
 				aMessage = _(
-					'Cannot create invoice from bill.\n'
+					'Cannot create invoice.\n'
 					'\n'
-					'There is no receiver address.'
-				)
+					'No receiver address selected.'
+				),
+				aTitle = _('Creating invoice')
 			)
-			return
-
-		# find 
-
+		if bill['close_date'] is None:
+			bill['close_date'] = gmDateTime.pydt_now_here()
+			bill.save()
+		create_invoice_from_bill(parent = self, bill = bill, print_it = True, keep_a_copy = True)
 	#--------------------------------------------------------
 	def _browse_billables(self, item):
 		manage_billables(parent = self)
@@ -622,7 +824,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 		self._PRW_date.SetData()
 		self._TCTRL_count.SetValue(u'1')
 		self._TCTRL_amount.SetValue(u'')
-		self._LBL_currency.SetLabel(_("EUR"))
+		self._LBL_currency.SetLabel(gmTools.u_euro)
 		self._TCTRL_factor.SetValue(u'1')
 		self._TCTRL_comment.SetValue(u'')
 
@@ -660,6 +862,8 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 		wx.CallAfter(self._TCTRL_amount.SetValue, val)
 
 #============================================================
+# a plugin for billing
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgBillingPluginPnl
 
 class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
@@ -758,5 +962,5 @@ if __name__ == '__main__':
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 600))
 	#app.SetWidget(cATCPhraseWheel, -1)
-	app.SetWidget(cSubstancePhraseWheel, -1)
+	#app.SetWidget(cSubstancePhraseWheel, -1)
 	app.MainLoop()

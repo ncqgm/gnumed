@@ -7,8 +7,6 @@ __version__ = "$Revision: 1.118 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, os, shutil, os.path, types, time, logging
-from cStringIO import StringIO
-from pprint import pprint
 
 
 if __name__ == '__main__':
@@ -642,27 +640,23 @@ def create_document(document_type=None, encounter=None, episode=None):
 	doc = cDocument(aPK_obj = rows[0][0])
 	return doc
 #------------------------------------------------------------
-def search_for_document(patient_id=None, type_id=None):
-	"""Searches for documents with the given patient and type ID.
-
-	No type ID returns all documents for the patient.
-	"""
-	# sanity checks
+def search_for_documents(patient_id=None, type_id=None, external_reference=None):
+	"""Searches for documents with the given patient and type ID."""
 	if patient_id is None:
 		raise ValueError('need patient id to search for document')
 
-	args = {'pat_id': patient_id, 'type_id': type_id}
-	if type_id is None:
-		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s"
-	else:
-		cmd = u"SELECT pk_doc from blobs.v_doc_med WHERE pk_patient = %(pat_id)s and pk_type = %(type_id)s"
+	args = {'pat_id': patient_id, 'type_id': type_id, 'ref': external_reference}
+	where_parts = [u'pk_patient = %(pat_id)s']
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if type_id is not None:
+		where_parts.append(u'pk_type = %(type_id)s')
 
-	docs = []
-	for row in rows:
-		docs.append(cDocument(row[0]))
-	return docs
+	if external_reference is not None:
+		where_parts.append(u'ext_ref = %(ref)s')
+
+	cmd = _sql_fetch_document_fields % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):
 	# will cascade to doc_obj and doc_desc
@@ -731,7 +725,6 @@ class cDocumentType(gmBusinessDBObject.cBusinessDBObject):
 			return False
 
 		return self.refetch_payload()
-
 #------------------------------------------------------------
 def get_document_types():
 	rows, idx = gmPG2.run_ro_queries (
@@ -740,13 +733,23 @@ def get_document_types():
 	)
 	doc_types = []
 	for row in rows:
-		row_def = {
-			'pk_field': 'pk_doc_type',
-			'idx': idx,
-			'data': row
-		}
+		row_def = {'pk_field': 'pk_doc_type', 'idx': idx, 'data': row}
 		doc_types.append(cDocumentType(row = row_def))
 	return doc_types
+#------------------------------------------------------------
+def get_document_type_pk(document_type=None):
+	args = {'typ': document_type.strip()}
+
+	cmd = u'SELECT pk FROM blobs.doc_type WHERE name = %(typ)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) == 0:
+		cmd = u'SELECT pk FROM blobs.doc_type WHERE _(name) = %(typ)s'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if len(rows) == 0:
+		return None
+
+	return rows[0]['pk']
 #------------------------------------------------------------
 def create_document_type(document_type=None):
 	# check for potential dupes:
@@ -755,13 +758,9 @@ def create_document_type(document_type=None):
 		queries = [{'cmd': cmd, 'args': [document_type]}]
 	)
 	if len(rows) == 0:
-		cmd1 = u"insert into blobs.doc_type (name) values (%s)"
-		cmd2 = u"select currval('blobs.doc_type_pk_seq')"
+		cmd1 = u"INSERT INTO blobs.doc_type (name) VALUES (%s) RETURNING pk"
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [
-				{'cmd': cmd1, 'args': [document_type]},
-				{'cmd': cmd2}
-			],
+			queries = [{'cmd': cmd1, 'args': [document_type]}],
 			return_data = True
 		)
 	return cDocumentType(aPK_obj = rows[0][0])
@@ -831,7 +830,7 @@ if __name__ == '__main__':
 		print "testing document import"
 		print "-----------------------"
 
-		docs = search_for_document(patient_id=12)
+		docs = search_for_documents(patient_id=12)
 		doc = docs[0]
 		print "adding to doc:", doc
 

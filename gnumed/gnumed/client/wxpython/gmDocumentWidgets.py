@@ -133,7 +133,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		review_as_normal = review_as_normal
 	)
 #----------------------
-def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -169,6 +169,9 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		encounter = emr.active_encounter['pk_encounter'],
 		episode = episode['pk_episode']
 	)
+	if reference is not None:
+		doc['ext_ref'] = reference
+		doc.save()
 	doc.add_parts_from_files(files = filenames)
 
 	if review_as_normal:

@@ -76,4 +76,50 @@ insert into ref.paperwork_templates (
 );
 
 -- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'Privatrechnung mit USt. (GNUmed-Vorgabe Deutschland)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'invoice'),
+	'invoice',
+	'PKV-Rg (D, mit USt.)',
+	'Privatrechnung mit USt. (GNUmed-Vorgabe Deutschland)',
+	'17.0',
+	'L',
+	'privatrechnung.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'Privatrechnung ohne USt. (GNUmed-Vorgabe Deutschland)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'invoice'),
+	'invoice',
+	'PKV-Rg (D, ohne USt.)',
+	'Privatrechnung ohne USt. (GNUmed-Vorgabe Deutschland)',
+	'17.0',
+	'L',
+	'privatrechnung.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-paperwork_templates.sql', '17.0');

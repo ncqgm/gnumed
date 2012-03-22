@@ -13,6 +13,7 @@ create table bill.bill (
 	pk serial primary key,
 	invoice_id text,
 	close_date timestamp with time zone,
+	apply_vat boolean,
 	fk_receiver_identity integer,
 	fk_receiver_address integer
 ) inherits (audit.audit_fields);

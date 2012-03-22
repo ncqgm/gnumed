@@ -134,7 +134,7 @@ class cPatientPicture(wx.StaticBitmap):
 	#-----------------------------------------------------------------
 	def __import_pic_into_db(self, fname=None):
 
-		docs = gmDocuments.search_for_document(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
+		docs = gmDocuments.search_for_documents(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
 		if len(docs) == 0:
 			emr = self.__pat.get_emr()
 			epi = emr.add_episode(episode_name=_('Administration'))

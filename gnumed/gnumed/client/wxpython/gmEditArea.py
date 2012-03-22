@@ -225,7 +225,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 	#----------------------------------------------------------------
 	def display_tctrl_as_valid(self, tctrl=None, valid=None):
-		self.display_ctrl_as_valid(self, ctrl = tctrl, valid = valid)
+		self.display_ctrl_as_valid(ctrl = tctrl, valid = valid)
 	#----------------------------------------------------------------
 	def display_ctrl_as_valid(self, ctrl=None, valid=None):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])

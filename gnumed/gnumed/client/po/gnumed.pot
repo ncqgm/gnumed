@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-03-12 23:10+CET\n"
+"POT-Creation-Date: 2012-03-22 14:03+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -127,11 +127,23 @@ msgid ""
 msgstr ""
 
 msgid ""
+" VAT: %s%% %s %s %s\n"
+msgstr ""
+
+msgid ""
+" Value + VAT: %s %s\n"
+msgstr ""
+
+msgid ""
+" VAT: does not apply\n"
+msgstr ""
+
+msgid ""
 " Items billed: %s\n"
 msgstr ""
 
 msgid ""
-" Patient: %s\n"
+" Patient: #%s\n"
 msgstr ""
 
 msgid ""
@@ -4967,6 +4979,86 @@ msgstr ""
 msgid "Catalog"
 msgstr ""
 
+msgid "No invoice template configured."
+msgstr ""
+
+msgid "There is no invoice template configured."
+msgstr ""
+
+msgid "Getting invoice template"
+msgstr ""
+
+msgid "Problem loading invoice template."
+msgstr ""
+
+msgid "Cannot load invoice template [%s - %s]"
+msgstr ""
+
+msgid ""
+"All items to be included with a bill must\n"
+"coincide on currency, VAT, and patient.\n"
+"\n"
+"This item does not:\n"
+"\n"
+"%s\n"
+msgstr ""
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+msgid "Checking invoice items"
+msgstr ""
+
+msgid "Creating invoice"
+msgstr ""
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"The bill is not closed."
+msgstr ""
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
+
+msgid ""
+"Cannot create invoice from bill\n"
+"without an invoice template."
+msgstr ""
+
+msgid "Invalid invoice template [%s - %s (%s)]"
+msgstr ""
+
+msgid "Printing medication list"
+msgstr ""
+
+msgid "Error generating invoice PDF."
+msgstr ""
+
+msgid "Error printing the invoice."
+msgstr ""
+
+msgid "Printing invoice"
+msgstr ""
+
+msgid "Displaying invoice"
+msgstr ""
+
+msgid ""
+"Cannot find an existing\n"
+"invoice PDF for this bill.\n"
+"\n"
+"Do you want to create one ?"
+msgstr ""
+
 msgid "Do you truly want to irrevocably delete this bill ?"
 msgstr ""
 
@@ -4982,16 +5074,7 @@ msgstr ""
 msgid "Invoice ID"
 msgstr ""
 
-msgid "Create invoice"
-msgstr ""
-
-msgid "Create PDF invoice from bill"
-msgstr ""
-
-msgid "Show PDF"
-msgstr ""
-
-msgid "Show the corresponding invoice PDF"
+msgid "Create if necessary, and show the corresponding invoice PDF"
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."
@@ -5018,25 +5101,25 @@ msgstr ""
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x Value x Factor"
+msgid "Count %s Value %s Factor"
 msgstr ""
 
 msgid "Invoice"
 msgstr ""
 
-msgid "Invoice selected"
+msgid "Invoice selected items"
 msgstr ""
 
 msgid "Create invoice from selected items."
 msgstr ""
 
-msgid "Browse bills"
+msgid "Bills"
 msgstr ""
 
 msgid "Browse bills of this patient."
 msgstr ""
 
-msgid "Browse billables"
+msgid "Billables"
 msgstr ""
 
 msgid "Browse list of billables."
@@ -5050,24 +5133,10 @@ msgstr ""
 msgid "Deleting bill item"
 msgstr ""
 
-msgid "Checking invoice items"
-msgstr ""
-
 msgid ""
-"This item is already invoiced:\n"
+"Cannot create invoice.\n"
 "\n"
-"%s\n"
-"\n"
-"Cannot put it on a second bill."
-msgstr ""
-
-msgid "Creating bill"
-msgstr ""
-
-msgid ""
-"Cannot create invoice from bill.\n"
-"\n"
-"There is no receiver address."
+"No receiver address selected."
 msgstr ""
 
 msgid ""
@@ -7573,12 +7642,6 @@ msgstr ""
 msgid "Show items to be billed to the active patient."
 msgstr ""
 
-msgid "Bills"
-msgstr ""
-
-msgid "Show bills of the active patient."
-msgstr ""
-
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
@@ -8485,9 +8548,6 @@ msgstr ""
 msgid "Cannot show items billed to patient. No active patient."
 msgstr ""
 
-msgid "Cannot show bills for patient. No active patient."
-msgstr ""
-
 msgid "Cannot add staff member. No active patient."
 msgstr ""
 
@@ -8837,6 +8897,9 @@ msgid ""
 msgstr ""
 
 msgid "Text input cancelled by user."
+msgstr ""
+
+msgid "no bill selected"
 msgstr ""
 
 msgid "attach rejected, already serving a client"
@@ -9590,9 +9653,6 @@ msgid "No medication list template configured."
 msgstr ""
 
 msgid "There is no medication list template configured."
-msgstr ""
-
-msgid "Printing medication list"
 msgstr ""
 
 msgid "Problem loading medication list template."
