@@ -330,6 +330,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			self._PNL_ea.refresh()
 	#--------------------------------------------------------
 	def _on_lucky_button_pressed(self, evt):
+		from Gnumed.wxpython import gmGuiHelpers
 		gmGuiHelpers.gm_show_info (
 			_(	'Today is your lucky day !\n'
 				'\n'

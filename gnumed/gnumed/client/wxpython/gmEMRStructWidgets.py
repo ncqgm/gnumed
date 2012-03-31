@@ -988,7 +988,7 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
 			return False
-		if not self._PRW_start.is_valid_timestamp():
+		if not self._PRW_start.is_valid_timestamp(empty_is_valid = False):
 			self._PRW_start.SetBackgroundColour('pink')
 			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
