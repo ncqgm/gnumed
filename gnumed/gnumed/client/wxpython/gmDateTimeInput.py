@@ -609,7 +609,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(accuracy = self.display_accuracy), data = data)
 	#--------------------------------------------------------
 	def is_valid_timestamp(self, empty_is_valid=True):
-		if self.data is not None:
+		if self.GetData() is not None:
 			return True
 
 		# skip empty value

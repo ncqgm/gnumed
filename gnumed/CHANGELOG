@@ -51,6 +51,8 @@ IMPROVED: waiting list: on activating patient set RFE if empty but waiting list 
 	1.1.13
 
 FIX: apparent-age calculation bug on Feb 29th if DOB is non-leap year [thanks M.Angermann]
+FIX: cFuzzyTimestampInput.is_valid_timestamp() manifesting in encounter EA [thanks J.Busser]
+FIX: fix Easter Egg
 
 	1.1.12
 
