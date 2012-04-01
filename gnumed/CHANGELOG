@@ -52,8 +52,9 @@ IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 	1.1.13
 
 FIX: apparent-age calculation bug on Feb 29th if DOB is non-leap year [thanks M.Angermann]
-FIX: cFuzzyTimestampInput.is_valid_timestamp() manifesting in encounter EA [thanks J.Busser]
-FIX: fix Easter Egg
+FIX: cFuzzyTimestampInput.is_valid_timestamp() error seen in encounter EA [thanks J.Busser]
+FIX: Easter Egg Exception
+FIX: [Save under] in SOAP editor would fail [thanks J.Busser]
 
 	1.1.12
 
