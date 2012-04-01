@@ -1289,15 +1289,13 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_save_note_under_button_pressed(self, event):
-		encounters = gmEMRStructWidgets.select_encounters (
+		encounter = gmEMRStructWidgets.select_encounters (
 			parent = self,
 			patient = self.__pat,
 			single_selection = True
 		)
-		# cancelled:
-		if encounters is None:
-			return
-		if len(encounters) == 0:
+		# cancelled or None selected:
+		if encounter is None:
 			return
 
 		emr = self.__pat.get_emr()
