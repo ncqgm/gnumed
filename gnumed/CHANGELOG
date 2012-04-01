@@ -43,6 +43,7 @@ IMPROVED: allergy manager workflow [thanks J.Busser]
 IMPROVED: address related placeholders: let user select if no value available for type
 IMPROVED: vaccinations: in EMR root show how long ago it was given
 IMPROVED: waiting list: on activating patient set RFE if empty but waiting list has comment
+IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-1-patches

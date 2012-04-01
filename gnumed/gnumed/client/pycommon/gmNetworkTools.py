@@ -147,6 +147,43 @@ def download_data_pack_old(url, target_dir=None):
 #===========================================================================
 # client update handling
 #---------------------------------------------------------------------------
+def compare_versions(left_version, right_version):
+	"""
+	 0: left == right
+	-1: left < right
+	 1: left > right
+	"""
+	if left_version == right_version:
+		_log.debug('same version: [%s] = [%s]', left_version, right_version)
+		return 0
+
+	left_parts = left_version.split('.')
+	right_parts = right_version.split('.')
+
+	tmp, left_major = gmTools.input2decimal(u'%s.%s' % (left_parts[0], left_parts[1]))
+	tmp, right_major = gmTools.input2decimal(u'%s.%s' % (right_parts[0], right_parts[1]))
+
+	if left_major < right_major:
+		_log.debug('left version [%s] < right version [%s]: major part', left_version, right_version)
+		return -1
+
+	if left_major > right_major:
+		_log.debug('left version [%s] > right version [%s]: major part', left_version, right_version)
+		return 1
+
+	tmp, left_part3 = gmTools.input2decimal(left_parts[2].replace('rc', '0.'))
+	tmp, right_part3 = gmTools.input2decimal(right_parts[2].replace('rc', '0.'))
+
+	if left_part3 < right_part3:
+		_log.debug('left version [%s] < right version [%s]: minor part', left_version, right_version)
+		return -1
+
+	if left_part3 > right_part3:
+		_log.debug('left version [%s] > right version [%s]: minor part', left_version, right_version)
+		return 1
+
+	return 0
+#---------------------------------------------------------------------------
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
 	"""Check for new releases at <url>.
 
@@ -155,6 +192,10 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	False: up to date
 	None: don't know
 	"""
+	if current_version == u'GIT HEAD':
+		_log.debug('GIT HEAD always up to date')
+		return (False, None)
+
 	try:
 		remote_file = wget.urlopen(url)
 	except (wget.URLError, ValueError, OSError):
@@ -203,22 +244,23 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	# up to date ?
 	if consider_latest_branch:
 		_log.debug('latest branch taken into account')
-		if current_version >= latest_release_on_latest_branch:
-			_log.debug('up to date: current version >= latest version on latest branch')
-			return (False, None)
 		if latest_release_on_latest_branch is None:
-			if current_version >= latest_release_on_current_branch:
+			if compare_versions(latest_release_on_current_branch, current_version) in [-1, 0]:
 				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
+				return (False, None)
+		else:
+			if compare_versions(latest_release_on_latest_branch, current_version) in [-1, 0]:
+				_log.debug('up to date: current version >= latest version on latest branch')
 				return (False, None)
 	else:
 		_log.debug('latest branch not taken into account')
-		if current_version >= latest_release_on_current_branch:
+		if compare_versions(latest_release_on_current_branch, current_version) in [-1, 0]:
 			_log.debug('up to date: current version >= latest version on current branch')
 			return (False, None)
 
 	new_release_on_current_branch_available = (
 		(latest_release_on_current_branch is not None) and
-		(latest_release_on_current_branch > current_version)
+		(compare_versions(latest_release_on_current_branch, current_version) == 1)
 	)
 	_log.info('%snew release on current branch available', gmTools.bool2str(new_release_on_current_branch_available, '', 'no '))
 
@@ -228,7 +270,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		(
 			(latest_branch > current_branch) or (
 				(latest_branch == current_branch) and
-				(latest_release_on_latest_branch > current_version)
+				(compare_versions(latest_release_on_latest_branch, current_version) == 1)
 			)
 		)
 	)
