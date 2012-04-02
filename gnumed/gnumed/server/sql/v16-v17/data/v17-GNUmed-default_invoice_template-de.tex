@@ -6,9 +6,13 @@
 \usepackage{textcomp}
 
 \begin{document}
+
+\footnotetext {\tiny \href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Dokumentenvorlage: $<form_name_long::::40>$ $<form_version::::20>$}
+
 \newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}
 \setkomavar{fromname}{\large Dr.med. Leonard McCoy}
-\setkomavar{fromaddress}{FA für Allgemeinmedizin\\Am Sternentor 17, 94413 Houston}
+\setkomavar{fromaddress}{FA für Allgemeinmedizin\\Am Sternentor 17, 94413 Houston\\USt-Id-Nr.: DE 123456789}
 \setkomavar{fromphone}{01\,555666}
 \setkomavar{fromemail}{pille@enterprise.ship}
 \setkomavar{frombank}{Bankverbindung: Starship Trust\\KTO 000\,00\,00\,000\\BLZ 000\,000\,00\\IBAN xxxxxxxxxxxxxxxx}
@@ -31,14 +35,17 @@ hiermit erlaube ich mir, folgende von mir erbrachte Leistungen in Rechnung zu st
 \begin{flushright}
 \begin{tabular}{llp{7cm}ccr}
 \hline
-Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag ($<bill::%(currency)s::>$) \\
+%Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag ($<bill::%(currency)s::>$) \\
+Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag (\EUR) \\
 \hline
 $<bill_item:: %(date_to_bill)s & %(billable_code)s & {\footnotesize %(billable_description)s, %(item_detail)s } & %(unit_count)s / %(amount_multiplier)s & %(total_amount)s \\::>$
 \hline
- & & Summe & & $<bill::%(total_amount)s::>$ \\
- & & $<bill::%(percent_vat)s::>$\% USt. & & $<bill::%(total_vat)s::>$ \\
+ & & Summe (netto) & & $<bill::%(total_amount)s::>$ \\
+ & & $<bill::%(percent_vat)s::>$\% Umsatzsteuer & & $<bill::%(total_vat)s::>$ \\
 \hline
- & & \textbf{Rechnungsendbetrag} & & \textbf{$<bill::%(total_amount_with_vat)s::>$} \\
+ & & \textbf{Rechnungsendbetrag (brutto)} & & \textbf{$<bill::%(total_amount_with_vat)s::>$} \\
+\hline
+\hline
 \end{tabular}
 \end{flushright}
 

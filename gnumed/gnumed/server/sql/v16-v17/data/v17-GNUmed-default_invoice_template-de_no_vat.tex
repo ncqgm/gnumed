@@ -6,6 +6,10 @@
 \usepackage{textcomp}
 
 \begin{document}
+
+\footnotetext {\tiny \href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Dokumentenvorlage: $<form_name_long::::40>$ $<form_version::::20>$}
+
 \newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}
 \setkomavar{fromname}{\large Dr.med. Leonard McCoy}
 \setkomavar{fromaddress}{FA für Allgemeinmedizin\\Am Sternentor 17, 94413 Houston}
@@ -31,11 +35,14 @@ hiermit erlaube ich mir, folgende von mir erbrachte Leistungen in Rechnung zu st
 \begin{flushright}
 \begin{tabular}{llp{7cm}ccr}
 \hline
-Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag ($<bill::%(currency)s::>$) \\
+%Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag ($<bill::%(currency)s::>$) \\
+Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag (\EUR) \\
 \hline
 $<bill_item:: %(date_to_bill)s & %(billable_code)s & {\footnotesize %(billable_description)s, %(item_detail)s } & %(unit_count)s / %(amount_multiplier)s & %(total_amount)s \\::>$
 \hline
  & & \textbf{Rechnungsendbetrag} & & \textbf{$<bill::%(total_amount)s::>$} \\
+\hline
+\hline
 \end{tabular}
 \end{flushright}
 

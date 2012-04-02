@@ -109,6 +109,20 @@ alter table bill.bill
 	);
 
 -- --------------------------------------------------------------
+-- .fk_doc
+comment on column bill.bill.fk_doc is 'links to the document which contains the invoice PDF';
+
+\unset ON_ERROR_STOP
+alter table bill.bill drop constraint bill_fk_doc_fkey cascade;
+\set ON_ERROR_STOP 1
+
+alter table bill.bill
+	add foreign key (fk_doc)
+		references blobs.doc_med(pk)
+		on update cascade
+		on delete restrict;
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view bill.v_bills cascade;
 \set ON_ERROR_STOP 1
@@ -138,14 +152,18 @@ SELECT
 	b_b.apply_vat,
 	b_b.fk_receiver_address
 		as pk_receiver_address,
-	-- assumes all bill items point to encounters of one patient
+	b_b.fk_doc
+		as pk_doc,
+	-- assumes all bill items point to encounters of one and the same patient
 	(select fk_patient from clin.encounter where clin.encounter.pk = (
 		select fk_encounter from bill.bill_item where fk_bill = b_b.pk limit 1
 	))	as pk_patient,
-	(select array_agg(b_vbi.pk_bill_item order by b_vbi.date_to_bill) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
+	-- not supported by PG < 9.0
+--	(select array_agg(b_vbi.pk_bill_item order by b_vbi.date_to_bill) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
+--	(select array_agg(b_vbi.pk_bill_item) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
+	-- however, we can do this:
+	(select array_agg(pk_bill_item) from (select b_vbi.pk_bill_item from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk order by b_vbi.date_to_bill) as sorted_values)
 		as pk_bill_items,
---	(select array_agg(bill.v_bill_items.currency) from bill.v_bill_items where pk_bill = b_b.pk limit 1)
---		as item_currencies,
 	b_b.xmin
 		as xmin_bill
 FROM
@@ -242,6 +260,7 @@ from (
 limit 1;';
 
 select dem.add_external_id_type('bill receiver', 'GNUmed');
+select i18n.upd_tx('de', 'bill receiver', 'Rechnungsempfänger');
 
 -- --------------------------------------------------------------
 select setval('dem.address_type_id_seq', (select count(1) from dem.address_type));

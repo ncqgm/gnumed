@@ -15,7 +15,8 @@ create table bill.bill (
 	close_date timestamp with time zone,
 	apply_vat boolean,
 	fk_receiver_identity integer,
-	fk_receiver_address integer
+	fk_receiver_address integer,
+	fk_doc integer
 ) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
