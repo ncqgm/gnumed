@@ -346,7 +346,9 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		'lat_lon_address'
 	]
 	#--------------------------------------------------------
-	def format(self):
+	def format(self, single_line=False):
+		if single_line:
+			return format_address_single_line(address = self)
 		return format_address(address = self)
 #------------------------------------------------------------
 def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
@@ -440,6 +442,24 @@ def delete_address(pk_address=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
 #------------------------------------------------------------
+def format_address_single_line(address=None):
+	data = {
+		'pk_adr': address['pk_address'],
+		'street': address['street'],
+		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'number': address['number'],
+		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'zip': address['postcode'],
+		'urb': address['urb'],
+		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'l10n_state': address['l10n_state'],
+		'code_state': address['code_state'],
+		'l10n_country': address['l10n_country'],
+		'code_country': address['code_country']
+	}
+	return _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s') % data
+#------------------------------------------------------------
 def format_address(address=None):
 	data = {
 		'pk_adr': address['pk_address'],
@@ -481,11 +501,34 @@ def get_addresses(order_by=None):
 	cmd = u"SELECT * FROM dem.v_address %s" % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': u'pk_address'}) for r in rows ]
+#------------------------------------------------------------
+def get_address_from_patient_address_pk(pk_patient_address=None):
+	cmd = u"""
+		SELECT * FROM dem.v_address WHERE
+			pk_address = (
+				SELECT id_address
+				FROM dem.lnk_person_org_address
+				WHERE id = %(pk_pat_adr)s
+			)
+	"""
+	args = {'pk_pat_adr': pk_patient_address}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
 
 #===================================================================
 def get_patient_address(pk_patient_address=None):
 	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
 	args = {'pk': pk_patient_address}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+#-------------------------------------------------------------------
+def get_patient_address_by_type(pk_patient=None, adr_type=None):
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND address_type = %(typ)s'
+	args = {'pat': pk_patient, 'typ': adr_type}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
 		return None
@@ -510,7 +553,9 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 	def get_identities(self, same_lastname=False):
 		pass
 	#--------------------------------------------------------
-	def format(self):
+	def format(self, single_line=False):
+		if single_line:
+			return format_address_single_line(address = self)
 		txt = format_address(address = self)
 		txt.append(_(' Type: %s') % self._payload[self._idx['l10n_address_type']])
 		return txt
@@ -1000,15 +1045,18 @@ if __name__ == "__main__":
 		print tag
 		print get_tag_images()
 	#--------------------------------------------------------
-
+	def test_get_billing_address():
+		print get_billing_address(pk_patient = 12)
+	#--------------------------------------------------------
 	#gmPG2.get_connection()
 
 	#test_address_exists()
-	test_create_address()
+	#test_create_address()
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
 	#test_tag_images()
+	test_get_billing_address()
 
 	sys.exit()
 #============================================================

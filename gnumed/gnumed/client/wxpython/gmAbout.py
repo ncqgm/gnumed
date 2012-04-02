@@ -92,7 +92,7 @@ class AboutFrame (wx.Frame):
 	"""
 	About GNUmed
 	"""
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???'):
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???', debug=False):
 		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
 		self.SetIcon(gmTools.get_icon(wx = wx))
@@ -120,7 +120,14 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
-		ver_txt=wx.StaticText(self, -1, _("Version %s brought to you by") % version)
+		ver_txt=wx.StaticText (
+			self,
+			-1,
+			_('Version %s%s brought to you by') % (
+				version,
+				gmTools.bool2subst(debug, u' (%s)' % _('debug'), u'')
+			)
+		)
 		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
