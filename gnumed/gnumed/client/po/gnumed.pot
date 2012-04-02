@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-03-22 14:03+CET\n"
+"POT-Creation-Date: 2012-04-02 15:52+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -143,11 +143,18 @@ msgid ""
 msgstr ""
 
 msgid ""
+" Invoice: %s\n"
+msgstr ""
+
+msgid "not available"
+msgstr ""
+
+msgid ""
 " Patient: #%s\n"
 msgstr ""
 
 msgid ""
-" Receiver: %s\n"
+" Receiver: #%s\n"
 msgstr ""
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -302,6 +309,9 @@ msgid "none given"
 msgstr ""
 
 msgid "Starting patient encounter"
+msgstr ""
+
+msgid "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s"
 msgstr ""
 
 msgid ""
@@ -1688,6 +1698,59 @@ msgstr ""
 msgid "Comment:"
 msgstr ""
 
+msgid "&Select"
+msgstr ""
+
+msgid "&VAT applies"
+msgstr ""
+
+msgid "Remove &items"
+msgstr ""
+
+msgid ""
+"The invoice ID.\n"
+"\n"
+"Note that in most jurisdictions this must be a unique entity.\n"
+"\n"
+"GNUmed will create one for you."
+msgstr ""
+
+msgid ""
+"The close date of the bill.\n"
+"\n"
+"When a bill is closed items shall not be added to it anymore."
+msgstr ""
+
+msgid "Where to send the bill."
+msgstr ""
+
+msgid "Select the address where to send the bill."
+msgstr ""
+
+msgid "The total value of this bill without VAT applied."
+msgstr ""
+
+msgid "Select here whether or not to apply VAT when creating an invoice for this bill."
+msgstr ""
+
+msgid "The total value of this bill after VAT has been applied."
+msgstr ""
+
+msgid "Remove items from the bill."
+msgstr ""
+
+msgid "Invoice ID"
+msgstr ""
+
+msgid "Close date"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
 msgid "EUR"
 msgstr ""
 
@@ -1725,9 +1788,6 @@ msgid "Charge Date"
 msgstr ""
 
 msgid "No of Units"
-msgstr ""
-
-msgid "Value"
 msgstr ""
 
 msgid "Factor"
@@ -3123,9 +3183,6 @@ msgstr ""
 msgid "&All unsigned"
 msgstr ""
 
-msgid "&Select"
-msgstr ""
-
 msgid "&Actions ... "
 msgstr ""
 
@@ -3403,9 +3460,6 @@ msgid "Enter a new address and link it to the organizational unit."
 msgstr ""
 
 msgid "Browse all known addresses (loading can be slow)."
-msgstr ""
-
-msgid "Address"
 msgstr ""
 
 msgid "The organization this unit belongs to."
@@ -4552,7 +4606,10 @@ msgstr ""
 msgid "Free eMedicine"
 msgstr ""
 
-msgid "Version %s brought to you by"
+msgid "Version %s%s brought to you by"
+msgstr ""
+
+msgid "debug"
 msgstr ""
 
 msgid "Please visit http://www.gnumed.org"
@@ -4994,6 +5051,12 @@ msgstr ""
 msgid "Cannot load invoice template [%s - %s]"
 msgstr ""
 
+msgid "Adding new bill"
+msgstr ""
+
+msgid "Editing bill"
+msgstr ""
+
 msgid ""
 "All items to be included with a bill must\n"
 "coincide on currency, VAT, and patient.\n"
@@ -5065,16 +5128,28 @@ msgstr ""
 msgid "Delete bill"
 msgstr ""
 
+msgid ""
+"There exists a PDF invoice for this bill.\n"
+"\n"
+"Do you want to also delete that PDF invoice ?"
+msgstr ""
+
+msgid "<open>"
+msgstr ""
+
+msgid "%s %s (with %s%% VAT)"
+msgstr ""
+
 msgid "Showing bills."
 msgstr ""
 
-msgid "Close date"
-msgstr ""
-
-msgid "Invoice ID"
-msgstr ""
-
 msgid "Create if necessary, and show the corresponding invoice PDF"
+msgstr ""
+
+msgid "&VAT applies (%s%%)"
+msgstr ""
+
+msgid "billing"
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."
@@ -6745,8 +6820,7 @@ msgid "Cannot list encounters. No active patient."
 msgstr ""
 
 msgid ""
-"\n"
-"Below find the relevant encounters of the patient.\n"
+"The patient's encounters.\n"
 msgstr ""
 
 msgid "Encounters ..."
@@ -7480,6 +7554,18 @@ msgstr ""
 msgid "External tools ..."
 msgstr ""
 
+msgid "Invoice template (no VAT)"
+msgstr ""
+
+msgid "Select the template for printing an invoice without VAT."
+msgstr ""
+
+msgid "Invoice template (with VAT)"
+msgstr ""
+
+msgid "Select the template for printing an invoice with VAT."
+msgstr ""
+
 msgid "Medication list template"
 msgstr ""
 
@@ -7535,6 +7621,9 @@ msgid "Episode ..."
 msgstr ""
 
 msgid "EMR ..."
+msgstr ""
+
+msgid "Billing ..."
 msgstr ""
 
 msgid "Preferences ..."
