@@ -17,19 +17,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.12 (database v16.12)',
-	'GNUmed 1.1.12 Release Notes:
+	'Release Notes for GNUmed 1.1.13 (database v16.13)',
+	'GNUmed 1.1.13 Release Notes:
 
-	1.1.12
+	1.1.13
 
-FIX: exception with certain invalid placeholders [thanks S.Reus]
-FIX: add missing encoding detection [thanks Andrew]
-FIX: broken health issue creation from its PRW [thanks S.Reus]
-
-IMPROVED: robustify os.startfile() use [thanks S.Hilbert]
-IMPROVED: robustify auto-setting of encounter.last_affirmed
-IMPROVED: robustify validity checks of cFuzzyTimestampInput [thanks S.Reus]
-IMPROVED: overly eager page number collision check [thanks S.Hilbert]
+FIX: apparent-age calculation bug on Feb 29th if DOB is non-leap year [thanks M.Angermann]
+FIX: cFuzzyTimestampInput.is_valid_timestamp() error seen in encounter EA [thanks J.Busser]
+FIX: Easter Egg Exception
+FIX: [Save under] in SOAP editor would fail [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
