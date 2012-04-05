@@ -143,8 +143,8 @@ def list_configuration(parent=None):
 	#---------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('This list shows all configuration settings from the database.'),
-		caption = _('Showing configuration'),
+		msg = _('All configured options currently in the database.'),
+		caption = _('All configured options'),
 		columns = [ _('User'), _('Workplace'), _('Option'), _('Value'), _('Type'), _('Description') ],
 		refresh_callback = refresh,
 		delete_callback = delete,

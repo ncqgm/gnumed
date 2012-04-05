@@ -429,14 +429,14 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append(m.format(left_margin = (left_margin + 1)))
 			del meds
 
-		# hospital stays
+		# hospitalizations
 		if with_hospital_stays:
 			stays = emr.get_hospital_stays (
 				issues = [ self._payload[self._idx['pk_health_issue']] ]
 			)
 			if len(stays) > 0:
 				lines.append(u'')
-				lines.append(_('Hospital stays: %s') % len(stays))
+				lines.append(_('Hospitalizations: %s') % len(stays))
 			for s in stays:
 				lines.append(s.format(left_margin = (left_margin + 1)))
 			del stays
@@ -1055,12 +1055,12 @@ from (
 				))
 			del docs
 
-		# hospital stays
+		# hospitalizations
 		if with_hospital_stays:
 			stays = emr.get_hospital_stays(episodes = [ self._payload[self._idx['pk_episode']] ])
 			if len(stays) > 0:
 				lines.append('')
-				lines.append(_('Hospital stays: %s') % len(stays))
+				lines.append(_('Hospitalizations: %s') % len(stays))
 			for s in stays:
 				lines.append(s.format(left_margin = (left_margin + 1)))
 			del stays

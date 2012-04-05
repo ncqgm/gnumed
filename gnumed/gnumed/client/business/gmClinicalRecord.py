@@ -252,7 +252,7 @@ SELECT fk_encounter from
 			procedure = procedure
 		)
 	#--------------------------------------------------------
-	# API: hospital stays
+	# API: hospitalizations
 	#--------------------------------------------------------
 	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
 		stays = gmEMRStructItems.get_patient_hospital_stays(patient = self.pk_patient, ongoing_only = ongoing_only)
@@ -784,7 +784,7 @@ order by
 			'Active medications: %(active_drugs)s\n'
 			'Documents: %(documents)s\n'
 			'Test results: %(results)s\n'
-			'Hospital stays: %(stays)s\n'
+			'Hospitalizations: %(stays)s\n'
 			'Procedures: %(procedures)s\n'
 			'Vaccinations: %(vaccinations)s'
 		) % self.get_statistics()
@@ -817,7 +817,7 @@ order by
 		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
 		txt += _(' %s test results\n') % stats['results']
-		txt += _(' %s hospital stays') % stats['stays']
+		txt += _(' %s hospitalizations') % stats['stays']
 		if stats['stays'] == 0:
 			txt += u'\n'
 		else:

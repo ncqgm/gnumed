@@ -431,7 +431,7 @@ limit 25
 			self._DPRW_end.is_valid_timestamp()
 		event.Skip()
 #================================================================
-# hospital stay related widgets/functions
+# hospitalizations related widgets/functions
 #----------------------------------------------------------------
 def manage_hospital_stays(parent=None):
 
@@ -449,7 +449,7 @@ def manage_hospital_stays(parent=None):
 			return True
 		gmDispatcher.send (
 			signal = u'statustext',
-			msg = _('Cannot delete hospital stay.'),
+			msg = _('Cannot delete hospitalization.'),
 			beep = True
 		)
 		return False
@@ -469,8 +469,8 @@ def manage_hospital_stays(parent=None):
 	#-----------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nSelect the hospital stay you want to edit !\n'),
-		caption = _('Editing hospital stays ...'),
+		msg = _("The patient's hospitalizations:\n"),
+		caption = _('Editing hospitalizations ...'),
 		columns = [_('Admission'), _('Discharge'), _('Reason'), _('Hospital')],
 		single_selection = True,
 		edit_callback = edit,
@@ -485,7 +485,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
-	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
+	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospitalization'), _('Editing a hospitalization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -493,8 +493,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	return False
 #----------------------------------------------------------------
 class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Phrasewheel to allow selection of a hospital stay.
-	"""
+	"""Phrasewheel to allow selection of a hospitalization."""
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
@@ -559,19 +558,19 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
 			valid = False
-			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospital stay.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospitalization.'), beep = True)
 
 		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
 			if self._PRW_discharge.date is not None:
 				if not self._PRW_discharge.date > self._PRW_admission.date:
 					valid = False
 					self._PRW_discharge.display_as_valid(False)
-					gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), beep = True)
+					gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
 
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
 
 		return (valid is True)
 	#----------------------------------------------------------------
@@ -709,7 +708,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nBelow find the relevant encounters of the patient.\n'),
+		msg = _("The patient's encounters.\n"),
 		caption = _('Encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
 		can_return_empty = False,

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-04-02 15:52+CEST\n"
+"POT-Creation-Date: 2012-04-05 10:34+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -217,7 +217,7 @@ msgid ""
 "Active medications: %(active_drugs)s\n"
 "Documents: %(documents)s\n"
 "Test results: %(results)s\n"
-"Hospital stays: %(stays)s\n"
+"Hospitalizations: %(stays)s\n"
 "Procedures: %(procedures)s\n"
 "Vaccinations: %(vaccinations)s"
 msgstr ""
@@ -252,7 +252,7 @@ msgid ""
 " %s test results\n"
 msgstr ""
 
-msgid " %s hospital stays"
+msgid " %s hospitalizations"
 msgstr ""
 
 msgid ""
@@ -446,7 +446,7 @@ msgstr ""
 msgid "Active medications: %s"
 msgstr ""
 
-msgid "Hospital stays: %s"
+msgid "Hospitalizations: %s"
 msgstr ""
 
 msgid "Procedures performed: %s"
@@ -3720,19 +3720,19 @@ msgstr ""
 msgid ""
 "The location (praxis, clinic, ...) this procedure was performed at.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Episode\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Episode\"."
 msgstr ""
 
 msgid ""
 "The episode this procedure was performed under.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Location\"."
 msgstr ""
 
-msgid "During which hospital stay was this procedure performed."
+msgid "During which hospitalization was this procedure performed."
 msgstr ""
 
-msgid "Add a hospital stay."
+msgid "Add a hospitalization."
 msgstr ""
 
 msgid "Codes relevant to this procedure."
@@ -3750,7 +3750,7 @@ msgstr ""
 msgid "and Episode"
 msgstr ""
 
-msgid "Hospital stay"
+msgid "Hospitalization"
 msgstr ""
 
 msgid "Programmer must override this text."
@@ -5241,10 +5241,10 @@ msgstr ""
 msgid "Cannot connect as database owner. Unable to delete option."
 msgstr ""
 
-msgid "This list shows all configuration settings from the database."
+msgid "All configured options currently in the database."
 msgstr ""
 
-msgid "Showing configuration"
+msgid "All configured options"
 msgstr ""
 
 msgid "Option"
@@ -6770,15 +6770,14 @@ msgstr ""
 msgid "Cannot save procedure."
 msgstr ""
 
-msgid "Cannot delete hospital stay."
+msgid "Cannot delete hospitalization."
 msgstr ""
 
 msgid ""
-"\n"
-"Select the hospital stay you want to edit !\n"
+"The patient's hospitalizations:\n"
 msgstr ""
 
-msgid "Editing hospital stays ..."
+msgid "Editing hospitalizations ..."
 msgstr ""
 
 msgid "Admission"
@@ -6790,19 +6789,19 @@ msgstr ""
 msgid "Reason"
 msgstr ""
 
-msgid "Adding a hospital stay"
+msgid "Adding a hospitalization"
 msgstr ""
 
-msgid "Editing a hospital stay"
+msgid "Editing a hospitalization"
 msgstr ""
 
-msgid "Missing admission data. Cannot save hospital stay."
+msgid "Missing admission data. Cannot save hospitalization."
 msgstr ""
 
-msgid "Discharge date must be empty or later than admission. Cannot save hospital stay."
+msgid "Discharge date must be empty or later than admission. Cannot save hospitalization."
 msgstr ""
 
-msgid "Must select an episode or enter a name for a new one. Cannot save hospital stay."
+msgid "Must select an episode or enter a name for a new one. Cannot save hospitalization."
 msgstr ""
 
 msgid "Started a new encounter for the active patient."
@@ -7374,10 +7373,10 @@ msgstr ""
 msgid "Announce downtime"
 msgstr ""
 
-msgid "List all configuration items stored in the database."
+msgid "All options"
 msgstr ""
 
-msgid "List configuration"
+msgid "List all options as configured in the database."
 msgstr ""
 
 msgid "Configure the database language"
@@ -7764,7 +7763,7 @@ msgstr ""
 msgid "&Hospitalizations"
 msgstr ""
 
-msgid "Manage hospital stays."
+msgid "Manage hospitalizations."
 msgstr ""
 
 msgid "&Procedures"
@@ -8589,7 +8588,7 @@ msgstr ""
 msgid "Cannot manage performed procedures. No active patient."
 msgstr ""
 
-msgid "Cannot manage hospital stays. No active patient."
+msgid "Cannot manage hospitalizations. No active patient."
 msgstr ""
 
 msgid "Cannot edit occupation. No active patient."

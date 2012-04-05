@@ -199,6 +199,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		_injectable_placeholders[key]
 		_injectable_placeholders[key] = None
 	#--------------------------------------------------------
+	def set_cache_value(self, key=None, value=None):
+		self.__cache[key] = value
+	#--------------------------------------------------------
+	def unset_cache_value(self, key=None):
+		del self.__cache[key]
+	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
 	def __getitem__(self, placeholder):
@@ -1038,7 +1044,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			bill = self.__cache['bill']
 		except KeyError:
 			from Gnumed.wxpython import gmBillingWidgets
-			bill = gmBillingWidgets.manage_bills(pk_patient = self.pat.ID)
+			bill = gmBillingWidgets.manage_bills(patient = self.pat)
 			if bill is None:
 				if self.debug:
 					return _('no bill selected')
@@ -1052,7 +1058,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			bill = self.__cache['bill']
 		except KeyError:
 			from Gnumed.wxpython import gmBillingWidgets
-			bill = gmBillingWidgets.manage_bills(pk_patient = self.pat.ID)
+			bill = gmBillingWidgets.manage_bills(patient = self.pat)
 			if bill is None:
 				if self.debug:
 					return _('no bill selected')
@@ -1493,7 +1499,7 @@ if __name__ == '__main__':
 			#u'soap_a',,
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
-			u'$<patient_address::work::1234>$',
+			#u'$<patient_address::work::1234>$',
 			#u'adr_region::home::1234',
 			#u'adr_country::home::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
@@ -1502,8 +1508,9 @@ if __name__ == '__main__':
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
 			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
-			#u'form_name_long::::1234',
-			#u'form_name_long::::5',
+			u'form_name_long::::1234',
+			u'form_name_long::::5',
+			u'form_name_long::::',
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
@@ -1521,12 +1528,12 @@ if __name__ == '__main__':
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))
-		#handler.set_placeholder('form_name_long', 'ein Testformular')
+		handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print ph
 			print "result:"
 			print '%s' % handler[ph]
-		#handler.unset_placeholder('form_name_long')
+		handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
 
 	#test_placeholders()

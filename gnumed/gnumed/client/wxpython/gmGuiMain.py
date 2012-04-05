@@ -270,7 +270,7 @@ class gmTopLevelFrame(wx.Frame):
 		# GNUmed / Preferences
 		menu_config = wx.Menu()
 
-		item = menu_config.Append(-1, _('List configuration'), _('List all configuration items stored in the database.'))
+		item = menu_config.Append(-1, _('All options'), _('List all options as configured in the database.'))
 		self.Bind(wx.EVT_MENU, self.__on_list_configuration, item)
 
 		# GNUmed / Preferences / Database
@@ -412,6 +412,15 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
+		# -- submenu gnumed / config / billing
+		menu_cfg_bill = wx.Menu()
+
+		item = menu_cfg_bill.Append(-1, _('Invoice template (no VAT)'), _('Select the template for printing an invoice without VAT.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_no_vat, item)
+
+		item = menu_cfg_bill.Append(-1, _('Invoice template (with VAT)'), _('Select the template for printing an invoice with VAT.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_with_vat, item)
+
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
 
@@ -454,7 +463,9 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
 		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ...'), menu_cfg_episode)
+
 		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
+		menu_config.AppendMenu(wx.NewId(), _('Billing ...'), menu_cfg_bill)
 		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
 
 		# -- submenu gnumed / master data
@@ -562,7 +573,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_occupation, item)
 
-		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospital stays.'))
+		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospitalizations.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
@@ -1081,7 +1092,8 @@ class gmTopLevelFrame(wx.Frame):
 			_("About GNUmed"),
 			size=wx.Size(350, 300),
 			style = wx.MAXIMIZE_BOX,
-			version = _cfg.get(option = 'client_version')
+			version = _cfg.get(option = 'client_version'),
+			debug = _cfg.get(option = 'debug')
 		)
 		gmAbout.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = gmAbout
@@ -1669,6 +1681,14 @@ class gmTopLevelFrame(wx.Frame):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			value = plugin
 		)
+	#----------------------------------------------
+	# submenu GNUmed / config / billing
+	#----------------------------------------------
+	def __on_cfg_invoice_template_no_vat(self, evt):
+		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = False)
+	#----------------------------------------------
+	def __on_cfg_invoice_template_with_vat(self, evt):
+		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = True)
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
@@ -2434,7 +2454,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_hospital_stays(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospital stays. No active patient.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospitalizations. No active patient.'))
 			return False
 		gmEMRStructWidgets.manage_hospital_stays(parent = self)
 		evt.Skip()

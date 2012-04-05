@@ -47,10 +47,10 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self._DPRW_date.SetToolTipString(_("When did this procedure take place ?"))
         self._DPRW_end.SetToolTipString(_("When did this procedure end ?\n\nLeave empty for ongoing or \"one-off\" procedures without a significant duration."))
         self._CHBOX_ongoing.SetToolTipString(_("Select if procedure is ongoing (say, desensibilization)."))
-        self._PRW_location.SetToolTipString(_("The location (praxis, clinic, ...) this procedure was performed at.\n\nMutually exclusive with \"Hospital stay\". Requires \"Episode\"."))
-        self._PRW_episode.SetToolTipString(_("The episode this procedure was performed under.\n\nMutually exclusive with \"Hospital stay\". Requires \"Location\"."))
-        self._PRW_hospital_stay.SetToolTipString(_("During which hospital stay was this procedure performed."))
-        self._BTN_add_stay.SetToolTipString(_("Add a hospital stay."))
+        self._PRW_location.SetToolTipString(_("The location (praxis, clinic, ...) this procedure was performed at.\n\nMutually exclusive with \"Hospitalization\". Requires \"Episode\"."))
+        self._PRW_episode.SetToolTipString(_("The episode this procedure was performed under.\n\nMutually exclusive with \"Hospitalization\". Requires \"Location\"."))
+        self._PRW_hospital_stay.SetToolTipString(_("During which hospitalization was this procedure performed."))
+        self._BTN_add_stay.SetToolTipString(_("Add a hospitalization."))
         self._PRW_codes.SetToolTipString(_("Codes relevant to this procedure."))
         # end wxGlade
 
@@ -85,7 +85,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         __lbl_or = wx.StaticText(self, -1, _("... or ..."))
         _gszr_main.Add(__lbl_or, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self.static_line_2, 0, wx.LEFT|wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 20)
-        __lbl_stay = wx.StaticText(self, -1, _("Hospital stay"))
+        __lbl_stay = wx.StaticText(self, -1, _("Hospitalization"))
         __lbl_stay.SetForegroundColour(wx.Colour(255, 127, 0))
         _gszr_main.Add(__lbl_stay, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_stay.Add(self._PRW_hospital_stay, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
