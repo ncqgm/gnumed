@@ -22,8 +22,8 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
         self._LCTRL_contacts = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
         self._PRW_encounter_range = gmDateTimeInput.cIntervalPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._LCTRL_encounters = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
-        self._LCTRL_problems = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
         self._LCTRL_meds = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
+        self._LCTRL_problems = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
         self._LCTRL_history = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
         self._LCTRL_inbox = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
         self._LCTRL_results = cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.LC_NO_HEADER | wx.SIMPLE_BORDER)
@@ -36,6 +36,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgPatientOverviewPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))
         # end wxGlade
 
     def __do_layout(self):
@@ -59,12 +60,12 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
         __szr_left.Add(__szr_encounters, 0, wx.BOTTOM | wx.EXPAND, 3)
         __szr_left.Add(self._LCTRL_encounters, 1, wx.EXPAND, 5)
         __szr_main.Add(__szr_left, 1, wx.RIGHT | wx.EXPAND, 5)
-        __lbl_problem_list = wx.StaticText(self, -1, _("Active Problems:"))
-        __szr_middle.Add(__lbl_problem_list, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_middle.Add(self._LCTRL_problems, 2, wx.BOTTOM | wx.EXPAND, 5)
         __lbl_meds = wx.StaticText(self, -1, _("Current meds and substances:"))
         __szr_middle.Add(__lbl_meds, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_middle.Add(self._LCTRL_meds, 2, wx.BOTTOM | wx.EXPAND, 5)
+        __lbl_problem_list = wx.StaticText(self, -1, _("Active Problems:"))
+        __szr_middle.Add(__lbl_problem_list, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_middle.Add(self._LCTRL_problems, 2, wx.BOTTOM | wx.EXPAND, 5)
         __lbl_history = wx.StaticText(self, -1, _("History:"))
         __szr_middle.Add(__lbl_history, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_middle.Add(self._LCTRL_history, 3, wx.EXPAND, 5)

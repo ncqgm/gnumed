@@ -1584,6 +1584,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 
 		if self.default_region is not None:
 			self._PRW_region.SetText(value = self.default_region)
+
+		self._PRW_type.SetText(value = u'home')
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 

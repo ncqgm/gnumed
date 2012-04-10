@@ -1702,7 +1702,9 @@ WHERE
 			WHERE
 				pk_patient = %s
 					and
-				last_affirmed > (now() - %s::interval)"""
+				last_affirmed > (now() - %s::interval)
+			ORDER BY
+				last_affirmed DESC"""
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:
@@ -1743,7 +1745,9 @@ WHERE
 			WHERE
 				pk_patient=%s
 					AND
-				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)"""
+				last_affirmed BETWEEN (now() - %s::interval) AND (now() - %s::interval)
+			ORDER BY
+				last_affirmed DESC"""
 		enc_rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient, max_ttl, min_ttl]}])
 		# none found
 		if len(enc_rows) == 0:

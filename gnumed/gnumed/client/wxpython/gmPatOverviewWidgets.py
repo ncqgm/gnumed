@@ -678,16 +678,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		adrs = patient.get_addresses()
 		for adr in adrs:
-			list_items.append(_('%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s') % {
-				'typ': adr['l10n_address_type'],
-				'street': adr['street'],
-				'no': adr['number'],
-				'sub': gmTools.coalesce(adr['subunit'], u'', u'/%s'),
-				'zip': adr['postcode'],
-				'urb': adr['urb'],
-				'cstate': adr['code_state'],
-				'ccountry': adr['code_country']
-			})
+			list_items.append(adr.format(single_line = True, verbose = False, show_type = True))
 			list_data.append(adr)
 
 		comms = patient.get_comm_channels()

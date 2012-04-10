@@ -346,10 +346,10 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		'lat_lon_address'
 	]
 	#--------------------------------------------------------
-	def format(self, single_line=False):
+	def format(self, single_line=False, verbose=False):
 		if single_line:
-			return format_address_single_line(address = self)
-		return format_address(address = self)
+			return format_address_single_line(address = self, show_type = False, verbose = verbose)
+		return format_address(address = self, show_type = False)
 #------------------------------------------------------------
 def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
@@ -442,7 +442,7 @@ def delete_address(pk_address=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
 #------------------------------------------------------------
-def format_address_single_line(address=None):
+def format_address_single_line(address=None, verbose=False, show_type=False):
 	data = {
 		'pk_adr': address['pk_address'],
 		'street': address['street'],
@@ -458,9 +458,23 @@ def format_address_single_line(address=None):
 		'l10n_country': address['l10n_country'],
 		'code_country': address['code_country']
 	}
-	return _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s') % data
+	if show_type:
+		data['type'] = address['l10n_address_type']
+
+	if verbose:
+		if show_type:
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+		else:
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+	else:
+		if show_type:
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+		else:
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+
+	return template % data
 #------------------------------------------------------------
-def format_address(address=None):
+def format_address(address=None, show_type=False):
 	data = {
 		'pk_adr': address['pk_address'],
 		'street': address['street'],
@@ -476,14 +490,26 @@ def format_address(address=None):
 		'l10n_country': address['l10n_country'],
 		'code_country': address['code_country']
 	}
-	txt = _(
-		'Address [#%(pk_adr)s]\n'
-		' Street: %(street)s%(notes_street)s\n'
-		' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
-		' Location: %(zip)s %(urb)s%(suburb)s\n'
-		' Region: %(l10n_state)s, %(code_state)s\n'
-		' Country: %(l10n_country)s, %(code_country)s'
-	) % data
+	if show_type:
+		data['type'] = address['l10n_address_type']
+		template = _(
+			'Address (%(type)s) [#%(pk_adr)s]\n'
+			' Street: %(street)s%(notes_street)s\n'
+			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
+			' Location: %(zip)s %(urb)s%(suburb)s\n'
+			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Country: %(l10n_country)s, %(code_country)s'
+		)
+	else:
+		template = _(
+			'Address [#%(pk_adr)s]\n'
+			' Street: %(street)s%(notes_street)s\n'
+			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
+			' Location: %(zip)s %(urb)s%(suburb)s\n'
+			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Country: %(l10n_country)s, %(code_country)s'
+		)
+	txt = template % data
 	return txt.split('\n')
 #------------------------------------------------------------
 def get_address_types(identity=None):
@@ -553,11 +579,11 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 	def get_identities(self, same_lastname=False):
 		pass
 	#--------------------------------------------------------
-	def format(self, single_line=False):
+	def format(self, single_line=False, verbose=False, show_type=True):
 		if single_line:
-			return format_address_single_line(address = self)
-		txt = format_address(address = self)
-		txt.append(_(' Type: %s') % self._payload[self._idx['l10n_address_type']])
+			return format_address_single_line(address = self, verbose = verbose, show_type = show_type)
+		txt = format_address(address = self, show_type = show_type)
+		#txt.append(_(' Type: %s') % self._payload[self._idx['l10n_address_type']])
 		return txt
 #===================================================================
 # communication channels API
