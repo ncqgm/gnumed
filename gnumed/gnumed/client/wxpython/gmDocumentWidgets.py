@@ -623,7 +623,9 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self.__doc['pk_type'] = doc_type
 		if self.__reviewing_doc:
 			self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
-		self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
+		# FIXME: a rather crude way of error checking:
+		if self._PhWheel_doc_date.GetData() is not None:
+			self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
 		success, data = self.__doc.save_payload()
