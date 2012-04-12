@@ -346,7 +346,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		'lat_lon_address'
 	]
 	#--------------------------------------------------------
-	def format(self, single_line=False, verbose=False):
+	def format(self, single_line=False, verbose=False, show_type=False):
 		if single_line:
 			return format_address_single_line(address = self, show_type = False, verbose = verbose)
 		return format_address(address = self, show_type = False)
@@ -583,7 +583,6 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 		if single_line:
 			return format_address_single_line(address = self, verbose = verbose, show_type = show_type)
 		txt = format_address(address = self, show_type = show_type)
-		#txt.append(_(' Type: %s') % self._payload[self._idx['l10n_address_type']])
 		return txt
 #===================================================================
 # communication channels API
@@ -1072,7 +1071,7 @@ if __name__ == "__main__":
 		print get_tag_images()
 	#--------------------------------------------------------
 	def test_get_billing_address():
-		print get_billing_address(pk_patient = 12)
+		print get_patient_address_by_type(pk_patient = 12, adr_type = u'billing')
 	#--------------------------------------------------------
 	#gmPG2.get_connection()
 

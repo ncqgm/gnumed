@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-04-05 10:34+CEST\n"
+"POT-Creation-Date: 2012-04-12 19:20+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -311,7 +311,25 @@ msgstr ""
 msgid "Starting patient encounter"
 msgstr ""
 
+msgid "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
 msgid "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid ""
+"Address (%(type)s) [#%(pk_adr)s]\n"
+" Street: %(street)s%(notes_street)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
+" Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
 msgid ""
@@ -321,9 +339,6 @@ msgid ""
 " Location: %(zip)s %(urb)s%(suburb)s\n"
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
-msgstr ""
-
-msgid " Type: %s"
 msgstr ""
 
 msgid "Battery:"
@@ -1704,9 +1719,6 @@ msgstr ""
 msgid "&VAT applies"
 msgstr ""
 
-msgid "Remove &items"
-msgstr ""
-
 msgid ""
 "The invoice ID.\n"
 "\n"
@@ -1734,9 +1746,6 @@ msgid "Select here whether or not to apply VAT when creating an invoice for this
 msgstr ""
 
 msgid "The total value of this bill after VAT has been applied."
-msgstr ""
-
-msgid "Remove items from the bill."
 msgstr ""
 
 msgid "Invoice ID"
@@ -3495,10 +3504,10 @@ msgstr ""
 msgid "):"
 msgstr ""
 
-msgid "Active Problems:"
+msgid "Current meds and substances:"
 msgstr ""
 
-msgid "Current meds and substances:"
+msgid "Active Problems:"
 msgstr ""
 
 msgid "History:"
@@ -5112,6 +5121,65 @@ msgstr ""
 msgid "Printing invoice"
 msgstr ""
 
+msgid "Deleting bill"
+msgstr ""
+
+msgid ""
+"When deleting the bill [%s]\n"
+"do you want to keep its items (effectively \"unbilling\" them)\n"
+"or do you want to also delete the bill items from the patient ?\n"
+msgstr ""
+
+msgid "Delete + keep"
+msgstr ""
+
+msgid "Delete the bill but keep (\"unbill\") its items."
+msgstr ""
+
+msgid "Delete all"
+msgstr ""
+
+msgid "Delete both the bill and its items from the patient."
+msgstr ""
+
+msgid "Also remove invoice PDF"
+msgstr ""
+
+msgid "Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore)."
+msgstr ""
+
+msgid ""
+"Select the items you want to remove from bill [%s]:\n"
+msgstr ""
+
+msgid "Removing items from bill"
+msgstr ""
+
+msgid "Count"
+msgstr ""
+
+msgid "VAT"
+msgstr ""
+
+msgid ""
+"%s items selected from bill [%s]\n"
+"\n"
+"Do you want to only remove the selected items\n"
+"from the bill (\"unbill\" them) or do you want\n"
+"to delete them entirely from the patient ?\n"
+"\n"
+"Note that neither action is reversible."
+msgstr ""
+
+msgid "\"Unbill\""
+msgstr ""
+
+msgid "Only \"unbill\" items (remove from bill but do not delete from patient)."
+msgstr ""
+
+msgid "Completely delete items from the patient."
+msgstr ""
+
 msgid "Displaying invoice"
 msgstr ""
 
@@ -5122,16 +5190,10 @@ msgid ""
 "Do you want to create one ?"
 msgstr ""
 
-msgid "Do you truly want to irrevocably delete this bill ?"
-msgstr ""
-
-msgid "Delete bill"
-msgstr ""
-
 msgid ""
-"There exists a PDF invoice for this bill.\n"
+"There is no pre-configured billing address.\n"
 "\n"
-"Do you want to also delete that PDF invoice ?"
+"Select the address you want to send the bill to."
 msgstr ""
 
 msgid "<open>"
@@ -5144,6 +5206,12 @@ msgid "Showing bills."
 msgstr ""
 
 msgid "Create if necessary, and show the corresponding invoice PDF"
+msgstr ""
+
+msgid "Unbill"
+msgstr ""
+
+msgid "Select and remove items from a bill."
 msgstr ""
 
 msgid "&VAT applies (%s%%)"
@@ -5165,12 +5233,6 @@ msgid "Cannot delete already invoiced bill items."
 msgstr ""
 
 msgid "Showing bill items."
-msgstr ""
-
-msgid "Count"
-msgstr ""
-
-msgid "VAT"
 msgstr ""
 
 msgid "Charge date"
@@ -7724,12 +7786,6 @@ msgstr ""
 msgid "Export to GDT"
 msgstr ""
 
-msgid "Billed items"
-msgstr ""
-
-msgid "Show items to be billed to the active patient."
-msgstr ""
-
 msgid "&Past history (health issue / PMH)"
 msgstr ""
 
@@ -8631,9 +8687,6 @@ msgid "Cannot export patient as GDT. No active patient."
 msgstr ""
 
 msgid "Exported demographics to GDT file [%s]."
-msgstr ""
-
-msgid "Cannot show items billed to patient. No active patient."
 msgstr ""
 
 msgid "Cannot add staff member. No active patient."
@@ -10232,9 +10285,6 @@ msgstr ""
 msgid "** Currently hospitalized: %s **"
 msgstr ""
 
-msgid "%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
-msgstr ""
-
 msgid "emergency: %s"
 msgstr ""
 
@@ -10773,14 +10823,14 @@ msgstr ""
 msgid "Select a message type."
 msgstr ""
 
-msgid "(expires %s)"
+msgid " - expires %s"
 msgstr ""
 
 msgid ""
+"Due for %s (since %s%s):\n"
+"%s%s\n"
 "Patient: %s\n"
-"By: %s\n"
-"Due: %s - since %s %s\n"
-"%s%s"
+"Reminder by: %s"
 msgstr ""
 
 msgid "Clinical reminder"

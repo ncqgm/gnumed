@@ -588,25 +588,26 @@ def __display_clinical_reminders():
 		if msg['expiry_date'] is None:
 			exp = u''
 		else:
-			exp = _('(expires %s)') % gmDateTime.pydt_strftime (
+			exp = _(' - expires %s') % gmDateTime.pydt_strftime (
 				msg['expiry_date'],
 				'%Y %b %d',
 				accuracy = gmDateTime.acc_days
 			)
 		txt = _(
+			'Due for %s (since %s%s):\n'
+			'%s'
+			'%s'
+			'\n'
 			'Patient: %s\n'
-			'By: %s\n'
-			'Due: %s - since %s %s\n'
-			'%s'
-			'%s'
+			'Reminder by: %s'
 		) % (
-			pat['description_gender'],
-			msg['modified_by'],
 			gmDateTime.format_interval_medically(msg['interval_due']),
 			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d', accuracy = gmDateTime.acc_days),
 			exp,
 			gmTools.coalesce(msg['comment'], u'', u'\n%s\n'),
-			gmTools.coalesce(msg['data'], u'', u'\n%s\n')
+			gmTools.coalesce(msg['data'], u'', u'\n%s\n'),
+			pat['description_gender'],
+			msg['modified_by']
 		)
 		gmGuiHelpers.gm_show_warning (
 			aTitle = _('Clinical reminder'),

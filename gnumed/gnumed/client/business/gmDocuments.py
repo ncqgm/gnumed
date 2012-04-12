@@ -659,11 +659,14 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None)
 	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):
-	# will cascade to doc_obj and doc_desc
-	cmd = u"select blobs.delete_document(%(pk)s, %(enc)s)"
+	# cascades to doc_obj and doc_desc but not bill.bill
+	cmd = u"SELECT blobs.delete_document(%(pk)s, %(enc)s)"
 	args = {'pk': document_id, 'enc': encounter_id}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-	return
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	if not rows[0][0]:
+		_log.error('cannot delete document [%s]', document_id)
+		return False
+	return True
 #------------------------------------------------------------
 def reclassify_documents_by_type(original_type=None, target_type=None):
 

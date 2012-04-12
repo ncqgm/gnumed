@@ -26,7 +26,6 @@ INVOICE_DOCUMENT_TYPE = u'invoice'
 #============================================================
 # billables
 #------------------------------------------------------------
-
 _SQL_get_billable_fields = u"SELECT * FROM ref.v_billables WHERE %s"
 
 class cBillable(gmBusinessDBObject.cBusinessDBObject):
@@ -223,7 +222,8 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				close_date = %(close_date)s,
 				apply_vat = %(apply_vat)s,
 				fk_receiver_identity = %(pk_receiver_identity)s,
-				fk_receiver_address = %(pk_receiver_address)s
+				fk_receiver_address = %(pk_receiver_address)s,
+				fk_doc = %(pk_doc)s
 			WHERE
 				pk = %(pk_bill)s
 					AND
@@ -238,7 +238,8 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_receiver_identity',
 		u'close_date',
 		u'apply_vat',
-		u'pk_receiver_address'
+		u'pk_receiver_address',
+		u'pk_doc'
 	]
 	#--------------------------------------------------------
 	def format(self):
@@ -275,11 +276,18 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			txt += _(' VAT: does not apply\n')
 		txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
+		txt += _(' Invoice: %s\n') % (
+			gmTools.bool2subst (
+				self._payload[self._idx['pk_doc']] is None,
+				_('not available'),
+				u'#%s' % self._payload[self._idx['pk_doc']]
+			)
+		)
 		txt += _(' Patient: #%s\n') % self._payload[self._idx['pk_patient']]
 		txt += gmTools.coalesce (
 			self._payload[self._idx['pk_receiver_identity']],
 			u'',
-			_(' Receiver: %s\n')
+			_(' Receiver: #%s\n')
 		)
 		if self._payload[self._idx['pk_receiver_address']] is not None:
 			txt += u'\n '.join(gmDemographicRecord.get_patient_address(pk_patient_address = self._payload[self._idx['pk_receiver_address']]).format())
@@ -302,19 +310,37 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 	bill_items = property(_get_bill_items, lambda x:x)
 	#--------------------------------------------------------
 	def _get_invoice(self):
-		invoices = gmDocuments.search_for_documents (
-			patient_id = self._payload[self._idx['pk_patient']],
-			type_id = gmDocuments.get_document_type_pk(document_type = INVOICE_DOCUMENT_TYPE),
-			# this *should* make it unique:
-			external_reference = self._payload[self._idx['invoice_id']]
-		)
-		if len(invoices) == 0:
+		if self._payload[self._idx['pk_doc']] is None:
 			return None
-		if len(invoices) == 1:
-			return invoices[0]
-		raise EnvironmentError('there is more than one invoice PDF for this bill')
+		return gmDocuments.cDocument(aPK_obj = self._payload[self._idx['pk_doc']])
 
 	invoice = property(_get_invoice, lambda x:x)
+	#--------------------------------------------------------
+	def _get_address(self):
+		if self._payload[self._idx['pk_receiver_address']] is None:
+			return None
+		return gmDemographicRecord.get_address_from_patient_address_pk (
+			pk_patient_address = self._payload[self._idx['pk_receiver_address']]
+		)
+
+	address = property(_get_address, lambda x:x)
+	#--------------------------------------------------------
+	def _get_default_address(self):
+		return gmDemographicRecord.get_patient_address_by_type (
+			pk_patient = self._payload[self._idx['pk_patient']],
+			adr_type = u'billing'
+		)
+
+	default_address = property(_get_default_address, lambda x:x)
+	#--------------------------------------------------------
+	def set_missing_address_from_default(self):
+		if self._payload[self._idx['pk_receiver_address']] is not None:
+			return True
+		adr = self.default_address
+		if adr is None:
+			return False
+		self['pk_receiver_address'] = adr['pk_lnk_person_org_address']
+		return self.save_payload()
 #------------------------------------------------------------
 def get_bills(order_by=None, pk_patient=None):
 
@@ -380,6 +406,11 @@ if __name__ == "__main__":
 #	gmI18N.activate_locale()
 ##	gmDateTime.init()
 
+	def test_default_address():
+		bills = get_bills(pk_patient = 12)
+		first_bill = bills[0]
+		print first_bill.default_address
+
 	def test_me():
 		print "--------------"
 		me = cBillable(aPK_obj=1)
@@ -388,5 +419,6 @@ if __name__ == "__main__":
 			print field, ':', me[field]
 		print "updatable:", me.get_updatable_fields()
 		#me['vat']=4; me.store_payload()
-
-	test_me()
+	#--------------------------------------------------
+	#test_me()
+	test_default_address()

@@ -26,6 +26,7 @@ from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmForms
+from Gnumed.business import gmDemographicRecord
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmRegetMixin
@@ -35,6 +36,7 @@ from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmFormWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -143,7 +145,7 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.set_from_instance(gmBilling.cBillable(aPK_obj = pk))
 
 #================================================================
-# per-patient bill related widgets
+# invoice related widgets
 #----------------------------------------------------------------
 def configure_invoice_template(parent=None, with_vat=True):
 
@@ -215,6 +217,26 @@ def get_invoice_template(parent=None, with_vat=True):
 			return None
 
 	return template
+
+#================================================================
+# per-patient bill related widgets
+#----------------------------------------------------------------
+def edit_bill(parent=None, bill=None, single_entry=False):
+
+	if bill is None:
+		# manually creating bills is not yet supported
+		return
+
+	ea = cBillEAPnl(parent = parent, id = -1)
+	ea.data = bill
+	ea.mode = gmTools.coalesce(bill, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
+	dlg.SetTitle(gmTools.coalesce(bill, _('Adding new bill'), _('Editing bill')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
 #----------------------------------------------------------------
 def create_bill_from_items(bill_items=None):
 
@@ -259,32 +281,16 @@ def create_bill_from_items(bill_items=None):
 
 	# create bill
 	bill = gmBilling.create_bill(invoice_id = gmBilling.get_invoice_id(pk_patient = pat))
-	identity = gmPerson.cIdentity(aPK_obj = pat)
-	adrs = identity.get_addresses(address_type = u'billing')
-	if len(adrs) == 0:
-		adr = gmPersonContactWidgets.select_address(missing = u'billing', person = identity)
-		if adr is None:
-			_log.warning('cannot find/did not select any bill receiver address')
-		else:
-			bill['pk_receiver_address'] = adr['pk_lnk_person_org_address']
-	else:
-		bill['pk_receiver_address'] = adrs[0]['pk_lnk_person_org_address']
-	bill.save()
 	_log.info('created bill [%s]', bill['invoice_id'])
-
-	# add items
 	bill.add_items(items = bill_items)
-
-	# FIXME:
-	#edit_bill(bill)
+	bill.set_missing_address_from_default()
 
 	return bill
 #----------------------------------------------------------------
 def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True):
 
 	if None in [ bill['close_date'], bill['pk_receiver_address'] ]:
-		# FIXME:
-		#edit_bill(bill)
+		edit_bill(parent = parent, bill = bill, single_entry = True)
 		# cannot invoice open bills
 		if bill['close_date'] is None:
 			_log.error('cannot create invoice from bill, bill not closed')
@@ -296,7 +302,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 					'The bill is not closed.'
 				)
 			)
-			return None
+			return False
 		# cannot create invoice if no receiver address
 		if bill['pk_receiver_address'] is None:
 			_log.error('cannot create invoice from bill, lacking receiver address')
@@ -308,7 +314,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 					'There is no receiver address.'
 				)
 			)
-			return None
+			return False
 
 	# find template
 	template = get_invoice_template(parent = parent, with_vat = bill['apply_vat'])
@@ -320,7 +326,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 				'without an invoice template.'
 			)
 		)
-		return None
+		return False
 
 	# process template
 	try:
@@ -335,7 +341,9 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
+	ph.set_cache_value('bill', bill)
 	invoice.substitute_placeholders(data_source = ph)
+	ph.unset_cache_value('bill')
 	pdf_name = invoice.generate_output()
 	if pdf_name is None:
 		gmGuiHelpers.gm_show_error (
@@ -349,13 +357,15 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		files2import = []
 		files2import.extend(invoice.final_output_filenames)
 		files2import.extend(invoice.re_editable_filenames)
-		gmDispatcher.send (
-			signal = u'import_document_from_files',
+		doc = gmDocumentWidgets.save_files_as_new_document (
+			parent = parent,
 			filenames = files2import,
 			document_type = template['instance_type'],
 			review_as_normal = True,
 			reference = bill['invoice_id']
 		)
+		bill['pk_doc'] = doc['pk_doc']
+		bill.save()
 
 	if not print_it:
 		return True
@@ -370,25 +380,177 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 		return True
 
 	return True
+
 #----------------------------------------------------------------
-def manage_bills(parent=None, pk_patient=None):
+def delete_bill(parent=None, bill=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	if pk_patient is None:
-		pk_patient = gmPerson.gmCurrentPatient().ID
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Deleting bill'),
+		question = _(
+			'When deleting the bill [%s]\n'
+			'do you want to keep its items (effectively \"unbilling\" them)\n'
+			'or do you want to also delete the bill items from the patient ?\n'
+		) % bill['invoice_id'],
+		button_defs = [
+			{'label': _('Delete + keep'), 'tooltip': _('Delete the bill but keep ("unbill") its items.'), 'default': True},
+			{'label': _('Delete all'), 'tooltip': _('Delete both the bill and its items from the patient.')}
+		],
+		show_checkbox = True,
+		checkbox_msg = _('Also remove invoice PDF'),
+		checkbox_tooltip = _('Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+	)
+	button_pressed = dlg.ShowModal()
+	delete_invoice = dlg.checkbox_is_checked()
+	dlg.Destroy()
+
+	if button_pressed == wx.ID_CANCEL:
+		return False
+
+	if button_pressed == wx.ID_YES:
+		for item in bill.bill_items:
+			item['pk_bill'] = None
+			item.save()
+
+	if button_pressed == wx.ID_NO:
+		for item in bill.bill_items:
+			item['pk_bill'] = None
+			item.save()
+			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
+
+	if delete_invoice:
+		if bill['pk_doc'] is not None:
+			gmDocuments.delete_document (
+				document_id = bill['pk_doc'],
+				encounter_id = gmPerson.cPatient(aPK_obj = bill['pk_patient']).emr.active_encounter['pk_encounter']
+			)
+
+	return gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+
+#----------------------------------------------------------------
+def remove_items_from_bill(parent=None, bill=None):
+
+	list_data = bill.bill_items
+	if len(list_data) == 0:
+		return False
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	list_items = [ [
+		gmDateTime.pydt_strftime(b['date_to_bill'], '%x', accuracy = gmDateTime.acc_days),
+		b['unit_count'],
+		u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
+		u'%s %s (%s %s %s%s%s)' % (
+			b['total_amount'],
+			b['currency'],
+			b['unit_count'],
+			gmTools.u_multiply,
+			b['net_amount_per_unit'],
+			gmTools.u_multiply,
+			b['amount_multiplier']
+		),
+		u'%s %s (%s%%)' % (
+			b['vat'],
+			b['currency'],
+			b['vat_multiplier'] * 100
+		),
+		u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
+		b['pk_bill_item']
+	] for b in list_data ]
+
+	msg = _('Select the items you want to remove from bill [%s]:\n') % bill['invoice_id']
+	items2remove = gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Removing items from bill'),
+		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), u'#'],
+		single_selection = False,
+		choices = list_items,
+		data = list_data
+	)
+
+	if items2remove is None:
+		return False
+
+	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
+		parent,
+		-1,
+		caption = _('Removing items from bill'),
+		question = _(
+			'%s items selected from bill [%s]\n'
+			'\n'
+			'Do you want to only remove the selected items\n'
+			'from the bill ("unbill" them) or do you want\n'
+			'to delete them entirely from the patient ?\n'
+			'\n'
+			'Note that neither action is reversible.'
+		) % (
+			len(items2remove),
+			bill['invoice_id']
+		),
+		button_defs = [
+			{'label': _('"Unbill"'), 'tooltip': _('Only "unbill" items (remove from bill but do not delete from patient).'), 'default': True},
+			{'label': _('Delete'), 'tooltip': _('Completely delete items from the patient.')}
+		],
+		show_checkbox = True,
+		checkbox_msg = _('Also remove invoice PDF'),
+		checkbox_tooltip = _('Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore).')
+	)
+	button_pressed = dlg.ShowModal()
+	delete_invoice = dlg.checkbox_is_checked()
+	dlg.Destroy()
+
+	if button_pressed == wx.ID_CANCEL:
+		return False
+
+	# remember this because unlinking/deleting the items
+	# will remove the patient PK from the bill
+	pk_patient = bill['pk_patient']
+
+	for item in items2remove:
+		item['pk_bill'] = None
+		item.save()
+		if button_pressed == wx.ID_NO:
+			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
+
+	if delete_invoice:
+		if bill['pk_doc'] is not None:
+			gmDocuments.delete_document (
+				document_id = bill['pk_doc'],
+				encounter_id = gmPerson.cPatient(aPK_obj = pk_patient).emr.active_encounter['pk_encounter']
+			)
+
+	# delete bill, too, if empty
+	if len(bill.bill_items) == 0:
+		gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+
+	return True
+#----------------------------------------------------------------
+def manage_bills(parent=None, patient=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if patient is None:
+		patient = gmPerson.gmCurrentPatient()
 	#------------------------------------------------------------
 	def show_pdf(bill):
 		if bill is None:
-			return
+			return False
+
 		# find invoice
 		invoice = bill.invoice
 		if invoice is not None:
 			success, msg = invoice.parts[-1].display_via_mime()
 			if not success:
 				gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Displaying invoice'))
-			return
+			return False
+
 		# create it ?
 		create_it = gmGuiHelpers.gm_show_question (
 			title = _('Displaying invoice'),
@@ -400,20 +562,35 @@ def manage_bills(parent=None, pk_patient=None):
 			),
 		)
 		if not create_it:
-			return
-		create_invoice_from_bill(parent = parent, bill = bill, print_it = True, keep_a_copy = True)
+			return False
+
+		# prepare invoicing
+		if not bill.set_missing_address_from_default():
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Creating invoice'),
+				aMessage = _(
+					'There is no pre-configured billing address.\n'
+					'\n'
+					'Select the address you want to send the bill to.'
+				)
+			)
+			edit_bill(parent = parent, bill = bill, single_entry = True)
+			if bill['pk_receiver_address'] is None:
+				return False
+		if bill['close_date'] is None:
+			bill['close_date'] = gmDateTime.pydt_now_here()
+			bill.save()
+
+		return create_invoice_from_bill(parent = parent, bill = bill, print_it = True, keep_a_copy = True)
 	#------------------------------------------------------------
 	def edit(bill):
-		pass
+		return edit_bill(parent = parent, bill = bill, single_entry = True)
 	#------------------------------------------------------------
 	def delete(bill):
-		do_it = gmGuiHelpers.gm_show_question (
-			question = _('Do you truly want to irrevocably delete this bill ?'),
-			title = _('Delete bill')
-		)
-		if not do_it:
-			return False
-		return gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+		return delete_bill(parent = parent, bill = bill)
+	#------------------------------------------------------------
+	def remove_items(bill):
+		return remove_items_from_bill(parent = parent, bill = bill)
 	#------------------------------------------------------------
 	def get_tooltip(item):
 		if item is None:
@@ -421,30 +598,31 @@ def manage_bills(parent=None, pk_patient=None):
 		return item.format()
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		bills = gmBilling.get_bills(pk_patient = pk_patient)
+		bills = gmBilling.get_bills(pk_patient = patient.ID)
 		items = []
 		for b in bills:
 			if b['close_date'] is None:
-				close_date = u''
+				close_date = _('<open>')
 			else:
 				close_date = gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d')
 			items.append([
 				close_date,
 				b['invoice_id'],
-				u'%s %s' % (b['total_amount'], b['currency']),
-				b['pk_bill']
+				gmTools.bool2subst (
+					b['apply_vat'],
+					_('%s %s (with %s%% VAT)') % (b['total_amount_with_vat'], b['currency'], b['percent_vat']),
+					u'%s %s' % (b['total_amount'], b['currency'])
+				)
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
 	#------------------------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		#msg = msg,
 		caption = _('Showing bills.'),
-		columns = [_('Close date'), _('Invoice ID'), _('Value'), u'#'],
+		columns = [_('Close date'), _('Invoice ID'), _('Value')],
 		single_selection = True,
-		#new_callback = edit,
-		#edit_callback = edit,
+		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
 		middle_extra_button = (
@@ -452,8 +630,124 @@ def manage_bills(parent=None, pk_patient=None):
 			_('Create if necessary, and show the corresponding invoice PDF'),
 			show_pdf
 		),
+		right_extra_button = (
+			_('Unbill'),
+			_('Select and remove items from a bill.'),
+			remove_items
+		),
 		list_tooltip_callback = get_tooltip
 	)
+
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgBillEAPnl
+
+class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['bill']
+			del kwargs['bill']
+		except KeyError:
+			data = None
+
+		wxgBillEAPnl.wxgBillEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+#		self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		# flag but do not count as wrong
+		if not self._PRW_close_date.is_valid_timestamp(allow_empty = False):
+			self._PRW_close_date.SetFocus()
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		# not intended to be used
+		return False
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['close_date'] = self._PRW_close_date.GetData()
+		self.data['apply_vat'] = self._CHBOX_vat_applies.GetValue()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		pass # not used
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_invoice_id.SetValue(self.data['invoice_id'])
+		self._PRW_close_date.SetText(data = self.data['close_date'])
+
+		self.data.set_missing_address_from_default()
+		if self.data['pk_receiver_address'] is None:
+			self._TCTRL_address.SetValue(u'')
+		else:
+			adr = self.data.address
+			self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
+
+		self._TCTRL_value.SetValue(u'%s %s' % (
+			self.data['total_amount'],
+			self.data['currency']
+		))
+		self._CHBOX_vat_applies.SetValue(self.data['apply_vat'])
+		self._CHBOX_vat_applies.SetLabel(_('&VAT applies (%s%%)') % self.data['percent_vat'])
+		if self.data['apply_vat']:
+			self._TCTRL_value_with_vat.SetValue(u'%s %s %s %s %s %s %s' % (
+				gmTools.u_corresponds_to,
+				self.data['total_vat'],
+				self.data['currency'],
+				gmTools.u_right_arrow,
+				gmTools.u_sum,
+				self.data['total_amount_with_vat'],
+				self.data['currency']
+			))
+		else:
+			self._TCTRL_value_with_vat.SetValue(u'')
+
+		self._PRW_close_date.SetFocus()
+	#----------------------------------------------------------------
+	# event handling
+	#----------------------------------------------------------------
+	def _on_vat_applies_box_checked(self, event):
+		if self._CHBOX_vat_applies.GetValue():
+			self._TCTRL_value_with_vat.SetValue(u'%s %s %s %s %s %s %s' % (
+				gmTools.u_corresponds_to,
+				self.data['total_vat'],
+				self.data['currency'],
+				gmTools.u_right_arrow,
+				gmTools.u_sum,
+				self.data['total_amount_with_vat'],
+				self.data['currency']
+			))
+			return
+		self._TCTRL_value_with_vat.SetValue(u'')
+	#----------------------------------------------------------------
+	def _on_select_address_button_pressed(self, event):
+		adr = gmPersonContactWidgets.select_address (
+			missing = _('billing'),
+			person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+		)
+		if adr is None:
+			return
+		self.data['pk_receiver_address'] = adr['pk_lnk_person_org_address']
+		self.data.save()
+		self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
 
 #================================================================
 # per-patient bill items related widgets
@@ -666,6 +960,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 				),
 				aTitle = _('Creating invoice')
 			)
+			return
 		if bill['close_date'] is None:
 			bill['close_date'] = gmDateTime.pydt_now_here()
 			bill.save()
@@ -676,7 +971,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		return False
 	#--------------------------------------------------------
 	def _browse_bills(self, item):
-		manage_bills(parent = self, pk_patient = self.__identity.ID)
+		manage_bills(parent = self, patient = self.__identity)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

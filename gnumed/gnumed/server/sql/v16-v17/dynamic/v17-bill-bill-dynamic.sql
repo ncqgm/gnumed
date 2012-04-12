@@ -120,7 +120,7 @@ alter table bill.bill
 	add foreign key (fk_doc)
 		references blobs.doc_med(pk)
 		on update cascade
-		on delete restrict;
+		on delete set null;
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -160,7 +160,6 @@ SELECT
 	))	as pk_patient,
 	-- not supported by PG < 9.0
 --	(select array_agg(b_vbi.pk_bill_item order by b_vbi.date_to_bill) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
---	(select array_agg(b_vbi.pk_bill_item) from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk)
 	-- however, we can do this:
 	(select array_agg(pk_bill_item) from (select b_vbi.pk_bill_item from bill.v_bill_items b_vbi where b_vbi.pk_bill = b_b.pk order by b_vbi.date_to_bill) as sorted_values)
 		as pk_bill_items,
@@ -270,6 +269,7 @@ insert into dem.address_type (name) values ('billing');
 \set ON_ERROR_STOP 1
 
 select i18n.upd_tx('de', 'billing', 'Rechnungsanschrift');
+select i18n.upd_tx('de', 'invoice', 'Rechnungsbeleg');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-bill-bill-dynamic.sql', '17.0');

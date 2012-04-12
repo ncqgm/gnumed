@@ -544,11 +544,6 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_person.AppendSeparator()
 
-		item = menu_person.Append(-1, _('Billed items'), _('Show items to be billed to the active patient.'))
-		self.Bind(wx.EVT_MENU, self.__on_show_billed_items, item)
-
-		menu_person.AppendSeparator()
-
 		self.mainmenu.Append(menu_person, '&Person')
 		self.__gb['main.patientmenu'] = menu_person
 
@@ -2622,13 +2617,6 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
-	#----------------------------------------------
-	def __on_show_billed_items(self, event):
-		curr_pat = gmPerson.gmCurrentPatient()
-		if not curr_pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot show items billed to patient. No active patient.'))
-			return False
-		gmBillingWidgets.manage_bill_items(parent = self, pk_patient = curr_pat.ID)
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)

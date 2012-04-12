@@ -127,15 +127,40 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		caption = kwargs['caption']
 		question = kwargs['question']
 		button_defs = kwargs['button_defs'][:3]
-
 		del kwargs['caption']
 		del kwargs['question']
 		del kwargs['button_defs']
+
+		try:
+			show_checkbox = kwargs['show_checkbox']
+			del kwargs['show_checkbox']
+		except KeyError:
+			show_checkbox = False
+
+		try:
+			checkbox_msg = kwargs['checkbox_msg']
+			del kwargs['checkbox_msg']
+		except KeyError:
+			checkbox_msg = None
+
+		try:
+			checkbox_tooltip = kwargs['checkbox_tooltip']
+			del kwargs['checkbox_tooltip']
+		except KeyError:
+			checkbox_tooltip = None
 
 		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
 		self.SetTitle(title = caption)
 		self._LBL_question.SetLabel(label = question)
+
+		if not show_checkbox:
+			self._CHBOX_dont_ask_again.Hide()
+		else:
+			if checkbox_msg is not None:
+				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
+			if checkbox_tooltip is not None:
+				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
 		for idx in range(len(button_defs)):
@@ -149,6 +174,9 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 				pass
 
 		self.Fit()
+	#--------------------------------------------------------
+	def checkbox_is_checked(self):
+		return self._CHBOX_dont_ask_again.IsChecked()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------

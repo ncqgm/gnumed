@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-03-12 23:09+CET\n"
-"PO-Revision-Date: 2012-03-12 23:13+0100\n"
+"POT-Creation-Date: 2012-04-12 19:19+CEST\n"
+"PO-Revision-Date: 2012-04-12 19:40+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -145,7 +145,7 @@ msgid "Open bill"
 msgstr "Offene Rechnung"
 
 msgid "Closed bill"
-msgstr "Gestellte Rechnung"
+msgstr "Abgeschlossene Rechnung"
 
 msgid " Invoice ID: %s\n"
 msgstr " Rechnungsnummer: %s\n"
@@ -156,14 +156,29 @@ msgstr " Gestellt: %s\n"
 msgid " Bill value: %s %s\n"
 msgstr " Rechnungswert: %s %s\n"
 
+msgid " VAT: %s%% %s %s %s\n"
+msgstr " USt.: %s%% %s %s %s\n"
+
+msgid " Value + VAT: %s %s\n"
+msgstr " Wert mit USt.: %s %s\n"
+
+msgid " VAT: does not apply\n"
+msgstr " USt.: nicht zutreffend\n"
+
 msgid " Items billed: %s\n"
 msgstr " Positionen: %s\n"
 
-msgid " Patient: %s\n"
-msgstr " Patient: %s\n"
+msgid " Invoice: %s\n"
+msgstr " Rechnungsbeleg: %s\n"
 
-msgid " Receiver: %s\n"
-msgstr " Empfänger: %s\n"
+msgid "not available"
+msgstr "nicht verfügbar"
+
+msgid " Patient: #%s\n"
+msgstr " Patient: #%s\n"
+
+msgid " Receiver: #%s\n"
+msgstr " Empfänger: #%s\n"
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
 msgstr ""
@@ -227,7 +242,7 @@ msgid ""
 "Active medications: %(active_drugs)s\n"
 "Documents: %(documents)s\n"
 "Test results: %(results)s\n"
-"Hospital stays: %(stays)s\n"
+"Hospitalizations: %(stays)s\n"
 "Procedures: %(procedures)s\n"
 "Vaccinations: %(vaccinations)s"
 msgstr ""
@@ -265,8 +280,8 @@ msgstr " %s Dokumente\n"
 msgid " %s test results\n"
 msgstr " %s Testergebnisse\n"
 
-msgid " %s hospital stays"
-msgstr " %s Krankenhausaufenthalt(e)"
+msgid " %s hospitalizations"
+msgstr " %s Krankenhausaufenthalte"
 
 msgid ""
 ", most recently:\n"
@@ -336,6 +351,33 @@ msgstr "nicht angegeben"
 msgid "Starting patient encounter"
 msgstr "beginne Arzt-Patienten-Kontakt"
 
+msgid "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid ""
+"Address (%(type)s) [#%(pk_adr)s]\n"
+" Street: %(street)s%(notes_street)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
+" Country: %(l10n_country)s, %(code_country)s"
+msgstr ""
+"Adresse (%(type)s)       [#%(pk_adr)s]\n"
+" Straße: %(street)s%(notes_street)s\n"
+" Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Ort: %(zip)s %(urb)s%(suburb)s\n"
+" Land: %(l10n_state)s, %(code_state)s\n"
+" Staat: %(l10n_country)s, %(code_country)s"
+
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
@@ -350,9 +392,6 @@ msgstr ""
 " Ort: %(zip)s %(urb)s%(suburb)s\n"
 " Land: %(l10n_state)s, %(code_state)s\n"
 " Staat: %(l10n_country)s, %(code_country)s"
-
-msgid " Type: %s"
-msgstr " Typ: %s"
 
 msgid "Battery:"
 msgstr "Batterie:"
@@ -478,7 +517,7 @@ msgstr " Zuletzt: %s - %s"
 msgid "Active medications: %s"
 msgstr "Aktive Medikamente: %s"
 
-msgid "Hospital stays: %s"
+msgid "Hospitalizations: %s"
 msgstr "Krankenhausaufenthalte: %s"
 
 msgid "Procedures performed: %s"
@@ -1808,6 +1847,58 @@ msgstr "Setzen auf:"
 msgid "Comment:"
 msgstr "Kommentar:"
 
+msgid "&Select"
+msgstr "&Auswahl"
+
+msgid "&VAT applies"
+msgstr "&USt. anwenden"
+
+msgid ""
+"The invoice ID.\n"
+"\n"
+"Note that in most jurisdictions this must be a unique entity.\n"
+"\n"
+"GNUmed will create one for you."
+msgstr ""
+"Die Rechnungsnummer.\n"
+"\n"
+"In den meisten Finanzgerichtsbarkeiten muß diese einmalig sein.\n"
+"\n"
+"GNUmed erzeugt eine geeignete Nummer."
+
+msgid ""
+"The close date of the bill.\n"
+"\n"
+"When a bill is closed items shall not be added to it anymore."
+msgstr ""
+
+msgid "Where to send the bill."
+msgstr "Wo die Rechnung hingesandt werden soll."
+
+msgid "Select the address where to send the bill."
+msgstr "Wählen Sie die Adresse des Rechnungsempfängers aus."
+
+msgid "The total value of this bill without VAT applied."
+msgstr "Der Gesamtwert der Rechnung ohne USt."
+
+msgid "Select here whether or not to apply VAT when creating an invoice for this bill."
+msgstr "Hier auswählen, ob beim Erzeugen eines Rechnungsbelegs die USt. berücksichtigt werden soll."
+
+msgid "The total value of this bill after VAT has been applied."
+msgstr "Der Gesamtwert der Rechnung inklusive USt."
+
+msgid "Invoice ID"
+msgstr "Rechnungsnummer"
+
+msgid "Close date"
+msgstr "Abschlußdatum"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Value"
+msgstr "Wert"
+
 msgid "EUR"
 msgstr "EUR"
 
@@ -1852,9 +1943,6 @@ msgstr "Rechnungsdatum"
 
 msgid "No of Units"
 msgstr "Anzahl"
-
-msgid "Value"
-msgstr "Wert"
 
 msgid "Factor"
 msgstr "Faktor"
@@ -3365,9 +3453,6 @@ msgstr "&Meine unsignierten"
 msgid "&All unsigned"
 msgstr "&Alle unsignierten"
 
-msgid "&Select"
-msgstr "&Auswahl"
-
 msgid "&Actions ... "
 msgstr "Aufgaben ..."
 
@@ -3664,9 +3749,6 @@ msgstr "Eine neue Adresse anlegen und der gewählten Abteilung zuordnen."
 msgid "Browse all known addresses (loading can be slow)."
 msgstr "Bekannte Adressen sichten (kann langsam sein)."
 
-msgid "Address"
-msgstr "Adresse"
-
 msgid "The organization this unit belongs to."
 msgstr "Die Organisation zu der die Abteilung gehört."
 
@@ -3700,11 +3782,11 @@ msgstr "Konsultationen / Einweisungen ("
 msgid "):"
 msgstr "zurück):"
 
-msgid "Active Problems:"
-msgstr "Aktive Probleme:"
-
 msgid "Current meds and substances:"
 msgstr "Medikation und Substanzgebrauch:"
+
+msgid "Active Problems:"
+msgstr "Aktive Probleme:"
 
 msgid "History:"
 msgstr "Anamnese:"
@@ -3958,7 +4040,7 @@ msgstr "Markieren, wenn die Maßnahme andauert (z.B. Desensibilisierung)."
 msgid ""
 "The location (praxis, clinic, ...) this procedure was performed at.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Episode\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Episode\"."
 msgstr ""
 "Der Ort (Praxis, Klinik, ...), wo diese Maßnahme durchgeführt wurde.\n"
 "\n"
@@ -3967,16 +4049,16 @@ msgstr ""
 msgid ""
 "The episode this procedure was performed under.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Location\"."
 msgstr ""
 "Die Episode, innerhalb welcher diese Maßnahme durchgeführt wurde.\n"
 "\n"
 "Schließt sich aus mit \"Krankenhausaufenthalt\". Erfordert \"Ort\"."
 
-msgid "During which hospital stay was this procedure performed."
+msgid "During which hospitalization was this procedure performed."
 msgstr "Während welches Krankenhausaufenthaltes diese Maßnahme stattfand."
 
-msgid "Add a hospital stay."
+msgid "Add a hospitalization."
 msgstr "Einen Krankenhausaufenthalt hinzufügen."
 
 msgid "Codes relevant to this procedure."
@@ -3994,7 +4076,7 @@ msgstr "Ort"
 msgid "and Episode"
 msgstr "und Episode"
 
-msgid "Hospital stay"
+msgid "Hospitalization"
 msgstr "Krankenhausaufenthalt"
 
 msgid "Programmer must override this text."
@@ -4934,8 +5016,11 @@ msgstr "Monty die Python && die FSF präsentieren"
 msgid "Free eMedicine"
 msgstr "Freie eMedicine"
 
-msgid "Version %s brought to you by"
-msgstr "Version %s präsentiert von"
+msgid "Version %s%s brought to you by"
+msgstr "Version %s%s präsentiert von"
+
+msgid "debug"
+msgstr ""
 
 msgid "Please visit http://www.gnumed.org"
 msgstr "Siehe auch http://www.gnumed.org"
@@ -5486,32 +5571,202 @@ msgstr "Zeige Gebührenordnungspositionen."
 msgid "Catalog"
 msgstr "Katalog"
 
-msgid "Do you truly want to irrevocably delete this bill ?"
-msgstr "Wollen Sie diese Rechnung wirklich löschen ?"
+msgid "No invoice template configured."
+msgstr "Keine Druckvorlage für Rechnungen voreingestellt."
 
-msgid "Delete bill"
+msgid "There is no invoice template configured."
+msgstr "Es ist keine Druckvorlagen für Rechnungen eingestellt."
+
+msgid "Getting invoice template"
+msgstr "Lade Rechnungsvorlage"
+
+msgid "Problem loading invoice template."
+msgstr "Problem beim Laden der Druckvorlage für die Rechnung."
+
+msgid "Cannot load invoice template [%s - %s]"
+msgstr "Kann Vorlage [%s - %s] für Rechnung nicht laden"
+
+msgid "Adding new bill"
+msgstr "Neue Rechnung anlegen"
+
+msgid "Editing bill"
+msgstr "Rechnung bearbeiten"
+
+msgid ""
+"All items to be included with a bill must\n"
+"coincide on currency, VAT, and patient.\n"
+"\n"
+"This item does not:\n"
+"\n"
+"%s\n"
+msgstr ""
+"Alle Positionen einer Rechnung müssen in\n"
+"Währung, USt-Satz und Patient übereinstimmen.\n"
+"\n"
+"Diese Position weicht von den anderen ab:\n"
+"\n"
+"%s\n"
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+"Diese GNr steht bereits auf einer Rechnung:\n"
+"\n"
+"%s\n"
+"\n"
+"Kann sie auf keine zweite Rechnung setzen."
+
+msgid "Checking invoice items"
+msgstr "Prüfe Rechnungspositionen"
+
+msgid "Creating invoice"
+msgstr "Rechnungsbeleg erzeugen"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"The bill is not closed."
+msgstr ""
+"Kann keinen Rechnungsbeleg erzeugen.\n"
+"\n"
+"Die Rechnung ist nicht abgeschlossen."
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
+"Kann keinen Rechnungsbeleg erzeugen.\n"
+"\n"
+"Die Empfängeradresse fehlt."
+
+msgid ""
+"Cannot create invoice from bill\n"
+"without an invoice template."
+msgstr ""
+"Kann ohne Druckvorlagen für die Rechnung\n"
+"keinen Rechnungsbeleg erzeugen."
+
+msgid "Invalid invoice template [%s - %s (%s)]"
+msgstr "Unbrauchbare Vorlage für die Rechnung [%s - %s (%s)]"
+
+msgid "Printing medication list"
+msgstr "Drucken der Medikamentenliste"
+
+msgid "Error generating invoice PDF."
+msgstr "Fehler beim Erzeugen des Rechnungsbelegs."
+
+msgid "Error printing the invoice."
+msgstr "Fehler beim Drucken der Rechnung."
+
+msgid "Printing invoice"
+msgstr "Rechnung drucken"
+
+msgid "Deleting bill"
 msgstr "Rechnung löschen"
+
+msgid ""
+"When deleting the bill [%s]\n"
+"do you want to keep its items (effectively \"unbilling\" them)\n"
+"or do you want to also delete the bill items from the patient ?\n"
+msgstr ""
+
+msgid "Delete + keep"
+msgstr ""
+
+msgid "Delete the bill but keep (\"unbill\") its items."
+msgstr "Die Rechnung löschen, aber die Posten nur von der Rechnung nehmen."
+
+msgid "Delete all"
+msgstr "Alles löschen"
+
+msgid "Delete both the bill and its items from the patient."
+msgstr "Sowohl die Rechnung als auch deren Posten vollständig löschen."
+
+msgid "Also remove invoice PDF"
+msgstr "PDF-Rechnungsbeleg auch löschen"
+
+msgid "Also remove the invoice PDF from the document archive (because it will not correspond to the bill anymore)."
+msgstr "Den PDF-Rechnungsbeleg ebenfalls aus dem Dokumentenarchiv löschen (weil er nicht mehr mit der Rechnung übereinstimmen wird)."
+
+msgid "Select the items you want to remove from bill [%s]:\n"
+msgstr "Wählen Sie die Posten der Rechnung [%s], die storniert werden sollen:\n"
+
+msgid "Removing items from bill"
+msgstr "Rechnungsposten entfernen"
+
+msgid "Count"
+msgstr "Anzahl"
+
+msgid "VAT"
+msgstr "USt."
+
+msgid ""
+"%s items selected from bill [%s]\n"
+"\n"
+"Do you want to only remove the selected items\n"
+"from the bill (\"unbill\" them) or do you want\n"
+"to delete them entirely from the patient ?\n"
+"\n"
+"Note that neither action is reversible."
+msgstr ""
+
+msgid "\"Unbill\""
+msgstr ""
+
+msgid "Only \"unbill\" items (remove from bill but do not delete from patient)."
+msgstr ""
+
+msgid "Completely delete items from the patient."
+msgstr "Rechnungsposten komplett löschen."
+
+msgid "Displaying invoice"
+msgstr "Rechnung anzeigen"
+
+msgid ""
+"Cannot find an existing\n"
+"invoice PDF for this bill.\n"
+"\n"
+"Do you want to create one ?"
+msgstr ""
+"Es scheint kein Rechnungsbeleg (PDF)\n"
+"für diese Rechnung zu geben.\n"
+"\n"
+"Neuen Beleg erzeugen ?"
+
+msgid ""
+"There is no pre-configured billing address.\n"
+"\n"
+"Select the address you want to send the bill to."
+msgstr ""
+
+msgid "<open>"
+msgstr "<offen>"
+
+msgid "%s %s (with %s%% VAT)"
+msgstr " %s %s (inkl %s%% USt)"
 
 msgid "Showing bills."
 msgstr "Zeige Rechnungen."
 
-msgid "Close date"
-msgstr "Abschlußdatum"
+msgid "Create if necessary, and show the corresponding invoice PDF"
+msgstr "Zugehörigen PDF-Rechnungsbeleg (ggf erzeugen und) anzeigen"
 
-msgid "Invoice ID"
-msgstr "Rechnungsnummer"
+msgid "Unbill"
+msgstr "Stornieren"
 
-msgid "Create invoice"
-msgstr "Rechnungsbeleg erzeugen"
+msgid "Select and remove items from a bill."
+msgstr "Rechnungsposten wählen und stornieren."
 
-msgid "Create PDF invoice from bill"
-msgstr "Erstelle PDF-Datei zur Rechnung"
+msgid "&VAT applies (%s%%)"
+msgstr "&USt. anwenden (%s%%)"
 
-msgid "Show PDF"
-msgstr "PDF zeigen"
-
-msgid "Show the corresponding invoice PDF"
-msgstr "Den zugehörigen Rechnungsbeleg (PDF) zeigen"
+msgid "billing"
+msgstr "Abrechnung"
 
 msgid "Cannot edit already invoiced bill item."
 msgstr "Bereits in Rechnung gestellte GNr kann nicht mehr bearbeitet werden."
@@ -5528,35 +5783,29 @@ msgstr "Bereits in Rechnung gestellte GNr kann nicht mehr gelöscht werden."
 msgid "Showing bill items."
 msgstr "Zeige abgerechnete GNr."
 
-msgid "Count"
-msgstr "Anzahl"
-
-msgid "VAT"
-msgstr "USt."
-
 msgid "Charge date"
-msgstr ""
+msgstr "Datum"
 
-msgid "Count x Value x Factor"
-msgstr "Anzahl * Wert * Hebesatz"
+msgid "Count %s Value %s Factor"
+msgstr "Anzahl %s Wert %s Hebesatz"
 
 msgid "Invoice"
 msgstr "Rechnung"
 
-msgid "Invoice selected"
-msgstr "Ausgewählte abrechnen"
+msgid "Invoice selected items"
+msgstr "Rg. über Auswahl"
 
 msgid "Create invoice from selected items."
 msgstr "Aus den gewählten GNr eine Rechnung erzeugen."
 
-msgid "Browse bills"
-msgstr "Rechnungen durchblättern"
+msgid "Bills"
+msgstr "Rechnungen"
 
 msgid "Browse bills of this patient."
 msgstr "Rechnungen dieses Patienten durchblättern."
 
-msgid "Browse billables"
-msgstr "GNr durchblättern"
+msgid "Billables"
+msgstr "GO-Positionen"
 
 msgid "Browse list of billables."
 msgstr "Eine Liste der Abrechnungsziffern durchblättern"
@@ -5571,33 +5820,14 @@ msgstr ""
 msgid "Deleting bill item"
 msgstr "Lösche abgerechnete Position"
 
-msgid "Checking invoice items"
-msgstr "Prüfe Rechnungspositionen"
-
 msgid ""
-"This item is already invoiced:\n"
+"Cannot create invoice.\n"
 "\n"
-"%s\n"
-"\n"
-"Cannot put it on a second bill."
-msgstr ""
-"Diese GNr steht bereits auf einer Rechnung:\n"
-"\n"
-"%s\n"
-"\n"
-"Kann sie auf keine zweite Rechnung setzen."
-
-msgid "Creating bill"
-msgstr "Stelle Rechnung zusammen"
-
-msgid ""
-"Cannot create invoice from bill.\n"
-"\n"
-"There is no receiver address."
+"No receiver address selected."
 msgstr ""
 "Kann keinen Rechnungsbeleg erzeugen.\n"
 "\n"
-"Die Empfängeradresse fehlt."
+"Keine Empfängeradresse gewählt."
 
 msgid ""
 "\"Factor\" must be a number\n"
@@ -5629,11 +5859,11 @@ msgstr "(GNUmed legt Einstellungen bei Bedarf neu an.)"
 msgid "Cannot connect as database owner. Unable to delete option."
 msgstr "Kann Einstellung nicht löschen, da keine Verbindung zur Datenbank als Datenbankbesitzer besteht."
 
-msgid "This list shows all configuration settings from the database."
-msgstr "Diese Liste zeigt alle Konfigurationseinstellungen aus der Datenbank."
+msgid "All configured options currently in the database."
+msgstr "Alle derzeitigen Einstellungen aus der Datenbank."
 
-msgid "Showing configuration"
-msgstr "Konfiguration zeigen"
+msgid "All configured options"
+msgstr "Alle Einstellungen"
 
 msgid "Option"
 msgstr "Einstellung"
@@ -7447,17 +7677,13 @@ msgstr "Maßnahme bearbeiten"
 msgid "Cannot save procedure."
 msgstr "Kann Maßnahme nicht speichern."
 
-msgid "Cannot delete hospital stay."
+msgid "Cannot delete hospitalization."
 msgstr "Kann Krankenhausaufenthalt nicht löschen."
 
-msgid ""
-"\n"
-"Select the hospital stay you want to edit !\n"
-msgstr ""
-"\n"
-"Wählen Sie den Krankenhausaufenthalt, den Sie bearbeiten wollen !\n"
+msgid "The patient's hospitalizations:\n"
+msgstr "Die Krankenhausaufenthalten des Patienten:\n"
 
-msgid "Editing hospital stays ..."
+msgid "Editing hospitalizations ..."
 msgstr "Bearbeite Krankenhausaufenthalte ..."
 
 msgid "Admission"
@@ -7469,19 +7695,19 @@ msgstr "Entlassung"
 msgid "Reason"
 msgstr "Grund"
 
-msgid "Adding a hospital stay"
+msgid "Adding a hospitalization"
 msgstr "Einen Krankenhausaufenthalt hinzufügen"
 
-msgid "Editing a hospital stay"
+msgid "Editing a hospitalization"
 msgstr "Einen Krankenhausaufenthalt bearbeiten"
 
-msgid "Missing admission data. Cannot save hospital stay."
+msgid "Missing admission data. Cannot save hospitalization."
 msgstr "Einweisungsdatum fehlt. Kann Einweisung nicht speichern."
 
-msgid "Discharge date must be empty or later than admission. Cannot save hospital stay."
+msgid "Discharge date must be empty or later than admission. Cannot save hospitalization."
 msgstr "Entlassungsdatum muß leer bleiben oder nach dem Einweisungsdatum liegen. Kann Einweisung nicht speichern."
 
-msgid "Must select an episode or enter a name for a new one. Cannot save hospital stay."
+msgid "Must select an episode or enter a name for a new one. Cannot save hospitalization."
 msgstr "Eine Episode muß ausgewählt oder eine Bezeichnung für eine neue gewählt werden. Kann KH-Aufenthalt nicht speichern."
 
 msgid "Started a new encounter for the active patient."
@@ -7500,12 +7726,8 @@ msgstr "Neuer Kontakt begonnen"
 msgid "Cannot list encounters. No active patient."
 msgstr "Kann Kontakte nicht auflisten. Kein Patient aktiv."
 
-msgid ""
-"\n"
-"Below find the relevant encounters of the patient.\n"
-msgstr ""
-"\n"
-"Untenstehend sind die relevanten Kontakte des Patienten aufgeführt.\n"
+msgid "The patient's encounters.\n"
+msgstr "Die Kontakte des Patienten.\n"
 
 msgid "Encounters ..."
 msgstr "Konsultationen ..."
@@ -8174,11 +8396,11 @@ msgstr "Wartungsbedingte Datenbankabschaltung allen verbundenen GNUmed-Programme
 msgid "Announce downtime"
 msgstr "Wartung ankündigen"
 
-msgid "List all configuration items stored in the database."
-msgstr "Komplette Konfiguration aus der Datenbank zeigen."
+msgid "All options"
+msgstr "Alle Einstellungen"
 
-msgid "List configuration"
-msgstr "Konfiguration zeigen"
+msgid "List all options as configured in the database."
+msgstr "Komplette Konfiguration aus der Datenbank auflisten."
 
 msgid "Configure the database language"
 msgstr "Einstellen der Datenbanksprache"
@@ -8354,6 +8576,18 @@ msgstr "Editor für Bildnotizen"
 msgid "External tools ..."
 msgstr "Externe Werkzeuge"
 
+msgid "Invoice template (no VAT)"
+msgstr "Rechnungsvorlage (ohne USt.)"
+
+msgid "Select the template for printing an invoice without VAT."
+msgstr "Wählen Sie die Druckvorlage für eine Rechnung ohne USt."
+
+msgid "Invoice template (with VAT)"
+msgstr "Rechnungsvorlagen (mit USt.)"
+
+msgid "Select the template for printing an invoice with VAT."
+msgstr "Wählen Sie die Druckvorlage für eine Rechnung mit USt."
+
 msgid "Medication list template"
 msgstr "Vorlage für Medikamentenliste"
 
@@ -8410,6 +8644,9 @@ msgstr "Episode ..."
 
 msgid "EMR ..."
 msgstr "Karteikarte ..."
+
+msgid "Billing ..."
+msgstr "Abrechnung ..."
 
 msgid "Preferences ..."
 msgstr "Konfiguration ..."
@@ -8510,18 +8747,6 @@ msgstr "Stammdaten der aktiven Person als GDT-Datei exportieren."
 msgid "Export to GDT"
 msgstr "Als GDT exportieren"
 
-msgid "Billed items"
-msgstr "Abgerechnete GNr."
-
-msgid "Show items to be billed to the active patient."
-msgstr "Beim aktiven Patienten abgerechnete GNr. zeigen."
-
-msgid "Bills"
-msgstr "Rechnungen"
-
-msgid "Show bills of the active patient."
-msgstr "Rechnungen des aktiven Patienten zeigen."
-
 msgid "&Past history (health issue / PMH)"
 msgstr "&Grunderkrankung (Eigenanamnese)"
 
@@ -8555,7 +8780,7 @@ msgstr "Berufsangaben für den aktiven Patienten bearbeiten."
 msgid "&Hospitalizations"
 msgstr "Krankenhausaufenthalte"
 
-msgid "Manage hospital stays."
+msgid "Manage hospitalizations."
 msgstr "Krankenhausaufenthalte verwalten."
 
 msgid "&Procedures"
@@ -9610,7 +9835,7 @@ msgstr "Kann Allergie nicht eintragen. Kein Patient aktiv."
 msgid "Cannot manage performed procedures. No active patient."
 msgstr "Kann Maßnahmen nicht verwalten. Kein Patient aktiv."
 
-msgid "Cannot manage hospital stays. No active patient."
+msgid "Cannot manage hospitalizations. No active patient."
 msgstr "Kann Krankenhausaufenthalte nicht verwalten. Kein Patient aktiv."
 
 msgid "Cannot edit occupation. No active patient."
@@ -9654,12 +9879,6 @@ msgstr "Kann Patient nicht als GDT exportieren. Kein Patient aktiv."
 
 msgid "Exported demographics to GDT file [%s]."
 msgstr "Stammdaten wurden in GDT-Datei [%s] geschrieben."
-
-msgid "Cannot show items billed to patient. No active patient."
-msgstr "Kann keine abgerechneten GNr. zeigen. Kein Patient aktiv."
-
-msgid "Cannot show bills for patient. No active patient."
-msgstr "Kann Rechnungen nicht anzeigen. Kein Patient aktiv."
 
 msgid "Cannot add staff member. No active patient."
 msgstr "Kann Mitarbeiter nicht anlegen. Kein Patient aktiv."
@@ -10062,6 +10281,9 @@ msgstr ""
 
 msgid "Text input cancelled by user."
 msgstr "Texteingabe vom Benutzer abgebrochen."
+
+msgid "no bill selected"
+msgstr "keine Rechnung gewählt"
 
 msgid "attach rejected, already serving a client"
 msgstr "Verbindung abgewiesen, es besteht bereits eine andere"
@@ -10888,9 +11110,6 @@ msgstr "Keine Druckvorlage für die Medikamentenliste voreingestellt."
 msgid "There is no medication list template configured."
 msgstr "Es ist keine Druckvorlagen für die Medikamentenliste eingestellt."
 
-msgid "Printing medication list"
-msgstr "Drucken der Medikamentenliste"
-
 msgid "Problem loading medication list template."
 msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
 
@@ -11454,9 +11673,6 @@ msgstr "%s %s %s%s"
 
 msgid "** Currently hospitalized: %s **"
 msgstr "** Derzeit im Krankenhaus: %s **"
-
-msgid "%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
-msgstr ""
 
 msgid "emergency: %s"
 msgstr "Notfall: %s"
@@ -12128,19 +12344,19 @@ msgstr "Den gewählten Arbeitsplatz clonen"
 msgid "Select a message type."
 msgstr "Wählen Sie den Nachrichtentyp."
 
-msgid "(expires %s)"
-msgstr "(verfällt %s)"
+msgid " - expires %s"
+msgstr " - verfällt %s"
 
 msgid ""
+"Due for %s (since %s%s):\n"
+"%s%s\n"
 "Patient: %s\n"
-"By: %s\n"
-"Due: %s - since %s %s\n"
-"%s%s"
+"Reminder by: %s"
 msgstr ""
+"Fällig seit %s (%s%s):\n"
+"%s%s\n"
 "Patient: %s\n"
-"Von: %s\n"
-"Fällig: %s - seit %s %s\n"
-"%s%s"
+"Erinnerung von: %s"
 
 msgid "Clinical reminder"
 msgstr "Klinische Erinnerung"
@@ -13338,6 +13554,108 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid " %s hospital stays"
+#~ msgstr " %s Krankenhausaufenthalt(e)"
+
+#~ msgid " Type: %s"
+#~ msgstr " Typ: %s"
+
+#~ msgid "Hospital stays: %s"
+#~ msgstr "Krankenhausaufenthalte: %s"
+
+#, fuzzy
+#~ msgid "Remove &items"
+#~ msgstr "Teil entfernen"
+
+#~ msgid "Hospital stay"
+#~ msgstr "Krankenhausaufenthalt"
+
+#~ msgid "Do you truly want to irrevocably delete this bill ?"
+#~ msgstr "Wollen Sie diese Rechnung wirklich löschen ?"
+
+#, fuzzy
+#~ msgid ""
+#~ "There exists a PDF invoice for this bill.\n"
+#~ "\n"
+#~ "Do you want to also delete that PDF invoice ?"
+#~ msgstr ""
+#~ "Es scheint kein Rechnungsbeleg (PDF)\n"
+#~ "für diese Rechnung zu geben.\n"
+#~ "\n"
+#~ "Neuen Beleg erzeugen ?"
+
+#~ msgid "This list shows all configuration settings from the database."
+#~ msgstr ""
+#~ "Diese Liste zeigt alle Konfigurationseinstellungen aus der Datenbank."
+
+#~ msgid "Showing configuration"
+#~ msgstr "Konfiguration zeigen"
+
+#~ msgid ""
+#~ "\n"
+#~ "Select the hospital stay you want to edit !\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Wählen Sie den Krankenhausaufenthalt, den Sie bearbeiten wollen !\n"
+
+#~ msgid "List configuration"
+#~ msgstr "Konfiguration zeigen"
+
+#~ msgid "Billed items"
+#~ msgstr "Abgerechnete GNr."
+
+#~ msgid "Show items to be billed to the active patient."
+#~ msgstr "Beim aktiven Patienten abgerechnete GNr. zeigen."
+
+#~ msgid "Manage hospital stays."
+#~ msgstr "Krankenhausaufenthalte verwalten."
+
+#~ msgid "Cannot show items billed to patient. No active patient."
+#~ msgstr "Kann keine abgerechneten GNr. zeigen. Kein Patient aktiv."
+
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "By: %s\n"
+#~ "Due: %s - since %s %s\n"
+#~ "%s%s"
+#~ msgstr ""
+#~ "Patient: %s\n"
+#~ "Von: %s\n"
+#~ "Fällig: %s - seit %s %s\n"
+#~ "%s%s"
+
+#~ msgid ""
+#~ "\n"
+#~ "Below find the relevant encounters of the patient.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Untenstehend sind die relevanten Kontakte des Patienten aufgeführt.\n"
+
+#, fuzzy
+#~ msgid "  %s Value: %s %s\n"
+#~ msgstr " Rechnungswert: %s %s\n"
+
+#~ msgid "Browse bills"
+#~ msgstr "Rechnungen durchblättern"
+
+#~ msgid "Browse billables"
+#~ msgstr "GNr durchblättern"
+
+#~ msgid "Create PDF invoice from bill"
+#~ msgstr "Erstelle PDF-Datei zur Rechnung"
+
+#~ msgid "Show PDF"
+#~ msgstr "PDF zeigen"
+
+#~ msgid "Creating bill"
+#~ msgstr "Stelle Rechnung zusammen"
+
+#~ msgid "Show bills of the active patient."
+#~ msgstr "Rechnungen des aktiven Patienten zeigen."
+
+#~ msgid "Cannot show bills for patient. No active patient."
+#~ msgstr "Kann Rechnungen nicht anzeigen. Kein Patient aktiv."
+
 #~ msgid ""
 #~ " Receiver address:\n"
 #~ "  %s"
@@ -14275,9 +14593,6 @@ msgstr "erstmals"
 #~ "<F2>\n"
 #~ " - Liste der extern verfügbaren Patienten\n"
 
-#~ msgid "no comment available"
-#~ msgstr "kein Kommentar verfügbar"
-
 #~ msgid "IFAP command"
 #~ msgstr "IFAP-Aufruf"
 
@@ -14343,9 +14658,6 @@ msgstr "erstmals"
 
 #~ msgid "Slave %s:%s"
 #~ msgstr "Sklave %s:%s"
-
-#~ msgid "All patients"
-#~ msgstr "Alle patient"
 
 #~ msgid "Filter to:"
 #~ msgstr "Filtern auf:"
@@ -15395,9 +15707,6 @@ msgstr "erstmals"
 #~ msgid "Last renamed"
 #~ msgstr "Zuletzt umbenannt"
 
-#~ msgid "Is open"
-#~ msgstr "aktiv"
-
 #~ msgid "Select and episode and %s"
 #~ msgstr "EIne Episode wählen und %s"
 
@@ -15609,9 +15918,6 @@ msgstr "erstmals"
 #~ "\n"
 #~ "[%s]\n"
 #~ "umbenennen."
-
-#~ msgid "Error renaming episode ..."
-#~ msgstr "Fehler beim Umbenennen der Episode ..."
 
 #~ msgid "%Y-%m-%d"
 #~ msgstr "%Y-%m-%d"

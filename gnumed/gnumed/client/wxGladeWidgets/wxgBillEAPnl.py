@@ -24,14 +24,12 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         self._TCTRL_value = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY | wx.NO_BORDER)
         self._CHBOX_vat_applies = wx.CheckBox(self, -1, _("&VAT applies"))
         self._TCTRL_value_with_vat = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY | wx.NO_BORDER)
-        self._BTN_remove_items = wx.Button(self, -1, _("Remove &items"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
 
         self.Bind(wx.EVT_BUTTON, self._on_select_address_button_pressed, self._BTN_select_address)
         self.Bind(wx.EVT_CHECKBOX, self._on_vat_applies_box_checked, self._CHBOX_vat_applies)
-        self.Bind(wx.EVT_BUTTON, self._on_remove_items_button_pressed, self._BTN_remove_items)
         # end wxGlade
 
     def __set_properties(self):
@@ -48,7 +46,6 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         self._CHBOX_vat_applies.SetToolTipString(_("Select here whether or not to apply VAT when creating an invoice for this bill."))
         self._TCTRL_value_with_vat.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_value_with_vat.SetToolTipString(_("The total value of this bill after VAT has been applied."))
-        self._BTN_remove_items.SetToolTipString(_("Remove items from the bill."))
         # end wxGlade
 
     def __do_layout(self):
@@ -72,10 +69,9 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         _gszr_main.Add(__szr_address_details, 1, wx.EXPAND, 0)
         __lbl_value = wx.StaticText(self, -1, _("Value"))
         _gszr_main.Add(__lbl_value, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_value_details.Add(self._TCTRL_value, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_value_details.Add(self._TCTRL_value, 0, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_value_details.Add(self._CHBOX_vat_applies, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_value_details.Add(self._TCTRL_value_with_vat, 2, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_value_details.Add(self._BTN_remove_items, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_value_details.Add(self._TCTRL_value_with_vat, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
         _gszr_main.Add(__szr_value_details, 1, wx.EXPAND, 0)
         self.SetSizer(_gszr_main)
         _gszr_main.Fit(self)
@@ -84,10 +80,6 @@ class wxgBillEAPnl(wx.ScrolledWindow):
 
     def _on_vat_applies_box_checked(self, event):  # wxGlade: wxgBillEAPnl.<event_handler>
         print "Event handler `_on_vat_applies_box_checked' not implemented!"
-        event.Skip()
-
-    def _on_remove_items_button_pressed(self, event):  # wxGlade: wxgBillEAPnl.<event_handler>
-        print "Event handler `_on_remove_items_button_pressed' not implemented"
         event.Skip()
 
     def _on_select_address_button_pressed(self, event):  # wxGlade: wxgBillEAPnl.<event_handler>

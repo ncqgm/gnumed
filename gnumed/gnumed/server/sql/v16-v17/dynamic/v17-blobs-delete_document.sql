@@ -27,14 +27,6 @@ DECLARE
 	_obj_row record;
 	tmp text;
 BEGIN
-	-- explicitely do not cascade to bill.bill.fk_doc
-	perform 1 from bill.bill where fk_doc = _pk_doc;
-	if FOUND then
-		--tmp := ''cannot delete document (pk='' || _pk_doc || '') because it is the invoice for an existing bill'';
-		--raise NOTICE ''%'', tmp;
-		return False;
-	end if;
-
 	select * into _doc_row from blobs.doc_med where pk = _pk_doc;
 
 	_del_note := _(''Deletion of document'') || E'':\n''
@@ -62,6 +54,8 @@ BEGIN
 
 	-- should auto-cascade:
 	--delete from blobs.doc_obj where fk_doc = _pk_doc;
+	-- should auto-NULL:
+	--bill.bill.fk_doc
 	delete from blobs.doc_med where pk = _pk_doc;
 
 	return True;
