@@ -644,7 +644,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
 
-		# -- menu "paperwork" ---------------------
+		# -- menu "Paperwork" ---------------------
 		menu_paperwork = wx.Menu()
 
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
@@ -740,6 +740,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_display_audit_trail, item)
 
 		self.menu_office.AppendSeparator()
+
+		item = self.menu_office.Append(-1, _('List bills'), _('List all bills across all patients.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_all_bills, item)
 
 		self.mainmenu.Append(self.menu_office, _('&Office'))
 		self.__gb['main.officemenu'] = self.menu_office
@@ -2283,6 +2286,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_display_audit_trail(self, evt):
 		gmProviderInboxWidgets.show_audit_trail(parent = self)
 		evt.Skip()
+	#----------------------------------------------
+	def __on_show_all_bills(self, evt):
+		gmBillingWidgets.manage_bills(parent = self)
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------
