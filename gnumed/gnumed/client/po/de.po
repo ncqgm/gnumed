@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-04-12 19:19+CEST\n"
-"PO-Revision-Date: 2012-04-12 19:40+0100\n"
+"POT-Creation-Date: 2012-04-16 13:53+CEST\n"
+"PO-Revision-Date: 2012-04-16 14:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -140,6 +140,37 @@ msgstr "Inaktive GNr."
 
 msgid " %s %s + %s%% VAT = %s %s\n"
 msgstr " %s %s + %s%% USt = %s %s\n"
+
+msgid "Open item"
+msgstr " Offener Posten"
+
+msgid "Billed item"
+msgstr " Abgerechneter Posten"
+
+msgid " Details: %s\n"
+msgstr " Details: %s\n"
+
+msgid " %s of units: %s\n"
+msgstr " Anzahl (%s): %s\n"
+
+msgid " Amount per unit: %s %s (%s %s per catalog)\n"
+msgstr " Wert pro Ansatz: %s %s (%s %s per GO)\n"
+
+msgid " Amount multiplier: %s\n"
+msgstr " Multiplikator: %s\n"
+
+msgid " VAT would be: %s%% %s %s %s\n"
+msgstr " USt. wäre: %s%% %s %s %s\n"
+
+msgid " Charge date: %s"
+msgstr " Leistungsdatum: %s"
+
+msgid ""
+"\n"
+" On bill: %s"
+msgstr ""
+"\n"
+" Auf Rechnung: %s"
 
 msgid "Open bill"
 msgstr "Offene Rechnung"
@@ -1871,6 +1902,9 @@ msgid ""
 "\n"
 "When a bill is closed items shall not be added to it anymore."
 msgstr ""
+"Das Rechnungsdatum.\n"
+"\n"
+"Wenn eine Rechnung erstellt wurde, sollen keine Posten mehr hinzugefügt werden."
 
 msgid "Where to send the bill."
 msgstr "Wo die Rechnung hingesandt werden soll."
@@ -5571,6 +5605,18 @@ msgstr "Zeige Gebührenordnungspositionen."
 msgid "Catalog"
 msgstr "Katalog"
 
+msgid "Data packs"
+msgstr "Datenpakete"
+
+msgid "Browse and install billing catalog (schedule of fees) data packs"
+msgstr "Durchsuchen/Installieren von Datenpaketen mit Gebührenordnungen"
+
+msgid "Catalogs (WWW)"
+msgstr "Geb.Ordnungen (WWW)"
+
+msgid "Browse billing catalogs (schedules of fees) on the web"
+msgstr "Durchsuchen von Gebührenordnungen im Web"
+
 msgid "No invoice template configured."
 msgstr "Keine Druckvorlage für Rechnungen voreingestellt."
 
@@ -5674,9 +5720,12 @@ msgid ""
 "do you want to keep its items (effectively \"unbilling\" them)\n"
 "or do you want to also delete the bill items from the patient ?\n"
 msgstr ""
+"Sollen beim Löschen der Rechnung [%s]\n"
+"die Rechnungspositionen in offene Posten umgewandelt (storniert)\n"
+"werden oder sollen die Positionen komplett gelöscht werden ?\n"
 
 msgid "Delete + keep"
-msgstr ""
+msgstr "Stornieren/Erhalten"
 
 msgid "Delete the bill but keep (\"unbill\") its items."
 msgstr "Die Rechnung löschen, aber die Posten nur von der Rechnung nehmen."
@@ -5714,12 +5763,19 @@ msgid ""
 "\n"
 "Note that neither action is reversible."
 msgstr ""
+"%s Posten von Rechnung [%s] markiert\n"
+"\n"
+"Wollen Sie diese Posten lediglich stornieren\n"
+"oder wollen Sie die Posten auch komplett aus\n"
+"der Patientenabrechnung löschen ?\n"
+"\n"
+"Beides kann nicht rückgängig gemacht werden."
 
 msgid "\"Unbill\""
-msgstr ""
+msgstr "\"Stornieren\""
 
 msgid "Only \"unbill\" items (remove from bill but do not delete from patient)."
-msgstr ""
+msgstr "Posten nur stornieren (von der Rechnung nehmen, aber nicht beim Patienten löschen)."
 
 msgid "Completely delete items from the patient."
 msgstr "Rechnungsposten komplett löschen."
@@ -5733,8 +5789,8 @@ msgid ""
 "\n"
 "Do you want to create one ?"
 msgstr ""
-"Es scheint kein Rechnungsbeleg (PDF)\n"
-"für diese Rechnung zu geben.\n"
+"Es scheint keinen Rechnungsbeleg\n"
+"(PDF) für diese Rechnung zu geben.\n"
 "\n"
 "Neuen Beleg erzeugen ?"
 
@@ -5743,6 +5799,9 @@ msgid ""
 "\n"
 "Select the address you want to send the bill to."
 msgstr ""
+"Beim Patienten ist keine Rechnungsadresse hinterlegt.\n"
+"\n"
+"Wählen Sie die Zustelladresse für diese Rechnung."
 
 msgid "<open>"
 msgstr "<offen>"
@@ -8588,6 +8647,12 @@ msgstr "Rechnungsvorlagen (mit USt.)"
 msgid "Select the template for printing an invoice with VAT."
 msgstr "Wählen Sie die Druckvorlage für eine Rechnung mit USt."
 
+msgid "Catalogs URL"
+msgstr "URL für Geb.Ordnungen"
+
+msgid "URL for billing catalogs (schedules of fees)."
+msgstr "URL für Gebührenordnungen."
+
 msgid "Medication list template"
 msgstr "Vorlage für Medikamentenliste"
 
@@ -9399,6 +9464,19 @@ msgstr ""
 "ein voreingestelltes Modul aktivieren.\n"
 "\n"
 "Wählen Sie hier dieses Modul aus:"
+
+msgid ""
+"GNUmed will use this URL to let you browse\n"
+"billing catalogs (schedules of fees).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+"GNUmed öffnet mit dieser Adresse eine Webseite, auf der\n"
+"Sie Gebührenordnungen durchblättern können.\n"
+"\n"
+"Sie können das Feld leerlassen. Wenn Sie eine URL\n"
+"eingeben wollen, muß diese momentan erreichbar sein."
 
 msgid "Select the default type for new encounters.\n"
 msgstr "Wählen Sie den Standardtyp für neue Arzt-Patienten-Begegnungen.\n"
@@ -13554,6 +13632,13 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#, fuzzy
+#~ msgid "%s (%s %s%s)         [#%s]\n"
+#~ msgstr "Episode %s%s%s   [#%s]"
+
+#~ msgid " %s: %s\n"
+#~ msgstr " %s: %s\n"
+
 #~ msgid " %s hospital stays"
 #~ msgstr " %s Krankenhausaufenthalt(e)"
 
@@ -13600,9 +13685,6 @@ msgstr "erstmals"
 
 #~ msgid "List configuration"
 #~ msgstr "Konfiguration zeigen"
-
-#~ msgid "Billed items"
-#~ msgstr "Abgerechnete GNr."
 
 #~ msgid "Show items to be billed to the active patient."
 #~ msgstr "Beim aktiven Patienten abgerechnete GNr. zeigen."

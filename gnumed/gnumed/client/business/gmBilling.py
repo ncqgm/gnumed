@@ -158,7 +158,74 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self):
-		return u'%s' % self
+		txt = u'%s (%s %s%s)         [#%s]\n' % (
+			gmTools.bool2subst(
+				self._payload[self._idx['pk_bill']] is None,
+				_('Open item'),
+				_('Billed item'),
+			),
+			self._payload[self._idx['catalog_short']],
+			self._payload[self._idx['catalog_version']],
+			gmTools.coalesce(self._payload[self._idx['catalog_language']], u'', ' - %s'),
+			self._payload[self._idx['pk_bill_item']]
+		)
+		txt += u' %s: %s\n' % (
+			self._payload[self._idx['billable_code']],
+			self._payload[self._idx['billable_description']]
+		)
+		txt += gmTools.coalesce (
+			self._payload[self._idx['billable_comment']],
+			u'',
+			u'  (%s)\n',
+		)
+		txt += gmTools.coalesce (
+			self._payload[self._idx['item_detail']],
+			u'',
+			_(' Details: %s\n'),
+		)
+
+		txt += u'\n'
+		txt += _(' %s of units: %s\n') % (
+			gmTools.u_numero,
+			self._payload[self._idx['unit_count']]
+		)
+		txt += _(' Amount per unit: %s %s (%s %s per catalog)\n') % (
+			self._payload[self._idx['net_amount_per_unit']],
+			self._payload[self._idx['currency']],
+			self._payload[self._idx['billable_amount']],
+			self._payload[self._idx['billable_currency']]
+		)
+		txt += _(' Amount multiplier: %s\n') % self._payload[self._idx['amount_multiplier']]
+		txt += _(' VAT would be: %s%% %s %s %s\n') % (
+			self._payload[self._idx['vat_multiplier']] * 100,
+			gmTools.u_corresponds_to,
+			self._payload[self._idx['vat']],
+			self._payload[self._idx['currency']]
+		)
+
+		txt += u'\n'
+		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
+			self._payload[self._idx['date_to_bill']],
+			'%Y %b %d',
+			accuracy = gmDateTime.acc_days
+		)
+		bill = self.bill
+		if bill is not None:
+			txt += _('\n On bill: %s') % bill['invoice_id']
+
+		return txt
+	#--------------------------------------------------------
+	def _get_billable(self):
+		return cBillable(aPK_obj = self._payload[self._idx['pk_billable']])
+
+	billable = property(_get_billable, lambda x:x)
+	#--------------------------------------------------------
+	def _get_bill(self):
+		if self._payload[self._idx['pk_bill']] is None:
+			return None
+		return cBill(aPK_obj = self._payload[self._idx['pk_bill']])
+
+	bill = property(_get_bill, lambda x:x)
 	#--------------------------------------------------------
 	def _get_is_in_use(self):
 		return self._payload[self._idx['pk_bill']] is not None

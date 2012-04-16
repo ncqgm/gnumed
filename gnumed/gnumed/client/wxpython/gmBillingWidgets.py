@@ -19,6 +19,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmPrinting
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmBilling
 from Gnumed.business import gmPerson
@@ -37,6 +38,7 @@ from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmDataPackWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -74,6 +76,21 @@ def manage_billables(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(billables)
 	#------------------------------------------------------------
+	def manage_data_packs(billable):
+		gmDataPackWidgets.manage_data_packs(parent = parent)
+		return True
+	#------------------------------------------------------------
+	def browse_catalogs(billable):
+		dbcfg = gmCfg.cCfgSQL()
+		url = dbcfg.get2 (
+			option = 'external.urls.schedules_of_fees',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = 'user',
+			default = u'http://www.e-bis.de/goae/defaultFrame.htm'
+		)
+		gmNetworkTools.open_url_in_browser(url = url)
+		return False
+	#------------------------------------------------------------
 	msg = _('\nThese are the items for billing registered with GNUmed.\n')
 
 	gmListWidgets.get_choices_from_list (
@@ -85,14 +102,18 @@ def manage_billables(parent=None):
 		#new_callback = edit,
 		#edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
-		#, right_extra_button = (
-		#	_('Catalogs (WWW)'),
-		#	_('Browse billing catalogs on the web'),
-		#	browse_catalogs
-		#)
-		# middle_extra: data packs
-		, list_tooltip_callback = get_tooltip
+		refresh_callback = refresh,
+		middle_extra_button = (
+			_('Data packs'),
+			_('Browse and install billing catalog (schedule of fees) data packs'),
+			manage_data_packs
+		),
+		right_extra_button = (
+			_('Catalogs (WWW)'),
+			_('Browse billing catalogs (schedules of fees) on the web'),
+			browse_catalogs
+		),
+		list_tooltip_callback = get_tooltip
 	)
 
 #================================================================
@@ -388,8 +409,7 @@ def delete_bill(parent=None, bill=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
-		parent,
-		-1,
+		parent,	-1,
 		caption = _('Deleting bill'),
 		question = _(
 			'When deleting the bill [%s]\n'
@@ -433,6 +453,9 @@ def delete_bill(parent=None, bill=None):
 
 #----------------------------------------------------------------
 def remove_items_from_bill(parent=None, bill=None):
+
+	if bill is None:
+		return False
 
 	list_data = bill.bill_items
 	if len(list_data) == 0:
@@ -478,8 +501,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		return False
 
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
-		parent,
-		-1,
+		parent,	-1,
 		caption = _('Removing items from bill'),
 		question = _(
 			'%s items selected from bill [%s]\n'
@@ -785,6 +807,11 @@ def manage_bill_items(parent=None, pk_patient=None):
 		gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
 		return True
 	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
 	def refresh(lctrl):
 		b_items = gmBilling.get_bill_items(pk_patient = pk_patient)
 		items = [ [
@@ -820,7 +847,8 @@ def manage_bill_items(parent=None, pk_patient=None):
 		new_callback = edit,
 		edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip
 	)
 
 #------------------------------------------------------------
@@ -902,6 +930,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Encounter'),
 			u'#'
 		])
+		self._LCTRL_items.item_tooltip_callback = self._get_item_tooltip
 #		self.left_extra_button = (
 #			_('Select pending'),
 #			_('Select non-invoiced (pending) items.'),
@@ -942,6 +971,11 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			return False
 		gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
 		return True
+	#--------------------------------------------------------
+	def _get_item_tooltip(self, item):
+		if item is None:
+			return None
+		return item.format()
 	#--------------------------------------------------------
 	def _select_pending_items(self, item):
 		pass

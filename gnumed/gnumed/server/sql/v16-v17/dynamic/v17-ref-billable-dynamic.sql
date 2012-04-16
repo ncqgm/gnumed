@@ -175,10 +175,14 @@ to group "gm-public";
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 INSERT INTO ref.data_source (name_long, name_short, version, source) values ('Gebührenordnung für Ärzte', 'GOÄ', '1996', 'BÄK');
-INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 25, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 4.66, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('5', 'symptombezogene Untersuchung', currval('ref.data_source_pk_seq'), 4.66, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('A', 'Zuschlag, außerhalb der Sprechstunde', currval('ref.data_source_pk_seq'), 4.08, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('B', 'Zuschlag, außerhalb der Sprechstunde, 20-22 o. 6-8 Uhr', currval('ref.data_source_pk_seq'), 10.49, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('C', 'Zuschlag, 22-6 Uhr', currval('ref.data_source_pk_seq'), 18.65, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('D', 'Zuschlag, Samstag, Sonntag, Feiertag', currval('ref.data_source_pk_seq'), 12.82, E'\u20AC', 0.19);
+INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('K1', 'Zuschlag, Untersuchung, Kinder bis vollendetes 4.LJ', currval('ref.data_source_pk_seq'), 6.99, E'\u20AC', 0.19);
 \set ON_ERROR_STOP 1
-
-
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-billable-dynamic.sql', '17.0');

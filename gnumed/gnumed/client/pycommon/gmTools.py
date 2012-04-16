@@ -46,6 +46,7 @@ u_three_quarters = u'\u00BE'
 u_multiply = u'\u00D7'						# x
 u_ellipsis = u'\u2026'						# ...
 u_euro = u'\u20AC'							# EURO sign
+u_numero = u'\u2116'						# No. / # sign
 u_down_left_arrow = u'\u21B5'				# <-'
 u_left_arrow = u'\u2190'					# <--
 u_right_arrow = u'\u2192'					# -->

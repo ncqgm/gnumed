@@ -421,6 +421,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_bill.Append(-1, _('Invoice template (with VAT)'), _('Select the template for printing an invoice with VAT.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_with_vat, item)
 
+		item = menu_cfg_bill.Append(-1, _('Catalogs URL'), _('URL for billing catalogs (schedules of fees).'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_billing_catalogs_url, item)
+
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
 
@@ -1684,6 +1687,33 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_invoice_template_with_vat(self, evt):
 		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = True)
+	#----------------------------------------------
+	def __on_configure_billing_catalogs_url(self, evt):
+		german_default = u'http://www.e-bis.de/goae/defaultFrame.htm'
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, german_default
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return True, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to let you browse\n'
+				'billing catalogs (schedules of fees).\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.schedules_of_fees',
+			bias = 'user',
+			default_value = german_default,
+			validator = is_valid
+		)
 	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------

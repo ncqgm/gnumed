@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-04-12 19:20+CEST\n"
+"POT-Creation-Date: 2012-04-16 13:54+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,6 +106,40 @@ msgstr ""
 
 msgid ""
 " %s %s + %s%% VAT = %s %s\n"
+msgstr ""
+
+msgid "Open item"
+msgstr ""
+
+msgid "Billed item"
+msgstr ""
+
+msgid ""
+" Details: %s\n"
+msgstr ""
+
+msgid ""
+" %s of units: %s\n"
+msgstr ""
+
+msgid ""
+" Amount per unit: %s %s (%s %s per catalog)\n"
+msgstr ""
+
+msgid ""
+" Amount multiplier: %s\n"
+msgstr ""
+
+msgid ""
+" VAT would be: %s%% %s %s %s\n"
+msgstr ""
+
+msgid " Charge date: %s"
+msgstr ""
+
+msgid ""
+"\n"
+" On bill: %s"
 msgstr ""
 
 msgid "Open bill"
@@ -5045,6 +5079,18 @@ msgstr ""
 msgid "Catalog"
 msgstr ""
 
+msgid "Data packs"
+msgstr ""
+
+msgid "Browse and install billing catalog (schedule of fees) data packs"
+msgstr ""
+
+msgid "Catalogs (WWW)"
+msgstr ""
+
+msgid "Browse billing catalogs (schedules of fees) on the web"
+msgstr ""
+
 msgid "No invoice template configured."
 msgstr ""
 
@@ -7627,6 +7673,12 @@ msgstr ""
 msgid "Select the template for printing an invoice with VAT."
 msgstr ""
 
+msgid "Catalogs URL"
+msgstr ""
+
+msgid "URL for billing catalogs (schedules of fees)."
+msgstr ""
+
 msgid "Medication list template"
 msgstr ""
 
@@ -8318,6 +8370,14 @@ msgid ""
 "be told to switch to a specific plugin.\n"
 "\n"
 "Select the desired plugin below:"
+msgstr ""
+
+msgid ""
+"GNUmed will use this URL to let you browse\n"
+"billing catalogs (schedules of fees).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
 msgstr ""
 
 msgid ""

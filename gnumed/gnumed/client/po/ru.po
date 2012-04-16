@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-03-12 23:10+CET\n"
+"POT-Creation-Date: 2012-04-16 13:54+CEST\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -143,6 +143,42 @@ msgstr ""
 msgid " %s %s + %s%% VAT = %s %s\n"
 msgstr ""
 
+#, fuzzy
+msgid "Open item"
+msgstr "OpenOffice"
+
+msgid "Billed item"
+msgstr ""
+
+#, fuzzy
+msgid " Details: %s\n"
+msgstr "Сведения: %s\n"
+
+#, fuzzy
+msgid " %s of units: %s\n"
+msgstr " Преобразование единиц измерения: %s\n"
+
+msgid " Amount per unit: %s %s (%s %s per catalog)\n"
+msgstr ""
+
+#, fuzzy
+msgid " Amount multiplier: %s\n"
+msgstr "Содержание в дозе: %s%s"
+
+#, fuzzy
+msgid " VAT would be: %s%% %s %s %s\n"
+msgstr " Имя: %s (%s)%s #%s\n"
+
+#, fuzzy
+msgid " Charge date: %s"
+msgstr "Дата УЗИ"
+
+#, fuzzy
+msgid ""
+"\n"
+" On bill: %s"
+msgstr "  риск: %s"
+
 msgid "Open bill"
 msgstr ""
 
@@ -161,15 +197,33 @@ msgstr " Код: %s\n"
 msgid " Bill value: %s %s\n"
 msgstr ""
 
+#, fuzzy
+msgid " VAT: %s%% %s %s %s\n"
+msgstr " Имя: %s (%s)%s #%s\n"
+
+msgid " Value + VAT: %s %s\n"
+msgstr ""
+
+msgid " VAT: does not apply\n"
+msgstr ""
+
 msgid " Items billed: %s\n"
 msgstr ""
 
 #, fuzzy
-msgid " Patient: %s\n"
+msgid " Invoice: %s\n"
+msgstr " Консультация: %s\n"
+
+#, fuzzy
+msgid "not available"
+msgstr "Нет доступных лабораторных данных."
+
+#, fuzzy
+msgid " Patient: #%s\n"
 msgstr "Пациент #%s"
 
 #, fuzzy
-msgid " Receiver: %s\n"
+msgid " Receiver: #%s\n"
 msgstr " Режим: %s\n"
 
 msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
@@ -227,6 +281,7 @@ msgstr "заболевание: %s"
 msgid "episode     : %s"
 msgstr "эпизод : %s"
 
+#, fuzzy
 msgid ""
 "Medical problems: %(problems)s\n"
 "Total encounters: %(encounters)s\n"
@@ -234,7 +289,7 @@ msgid ""
 "Active medications: %(active_drugs)s\n"
 "Documents: %(documents)s\n"
 "Test results: %(results)s\n"
-"Hospital stays: %(stays)s\n"
+"Hospitalizations: %(stays)s\n"
 "Procedures: %(procedures)s\n"
 "Vaccinations: %(vaccinations)s"
 msgstr ""
@@ -272,8 +327,9 @@ msgstr " %s документов\n"
 msgid " %s test results\n"
 msgstr " %s результатов анализов\n"
 
-msgid " %s hospital stays"
-msgstr " %s пребываний в стационаре"
+#, fuzzy
+msgid " %s hospitalizations"
+msgstr "&Hospitalizations"
 
 msgid ""
 ", most recently:\n"
@@ -345,6 +401,50 @@ msgstr "не предоставлено"
 msgid "Starting patient encounter"
 msgstr "Начало приема пациента"
 
+#, fuzzy
+msgid ""
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
+msgstr ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+
+#, fuzzy
+msgid ""
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
+"s, %(code_country)s"
+msgstr ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+
+#, fuzzy
+msgid ""
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(code_country)s"
+msgstr ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+
+#, fuzzy
+msgid ""
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(code_country)s"
+msgstr ""
+"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
+
+#, fuzzy
+msgid ""
+"Address (%(type)s) [#%(pk_adr)s]\n"
+" Street: %(street)s%(notes_street)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
+" Country: %(l10n_country)s, %(code_country)s"
+msgstr ""
+"Адрес [#%(pk_adr)s]\n"
+"Улица: %(street)s%(notes_street)s\n"
+"Номер/Корпус: %(number)s%(subunit)s%(notes_subunit)s\n"
+"Расположение: %(zip)s %(urb)s%(suburb)s\n"
+"Регион: %(l10n_state)s, %(code_state)s\n"
+"Страна: %(l10n_country)s, %(code_country)s"
+
 msgid ""
 "Address [#%(pk_adr)s]\n"
 " Street: %(street)s%(notes_street)s\n"
@@ -359,9 +459,6 @@ msgstr ""
 "Расположение: %(zip)s %(urb)s%(suburb)s\n"
 "Регион: %(l10n_state)s, %(code_state)s\n"
 "Страна: %(l10n_country)s, %(code_country)s"
-
-msgid " Type: %s"
-msgstr " Введите: %s"
 
 msgid "Battery:"
 msgstr "Батарея:"
@@ -489,8 +586,9 @@ msgstr " Самое последнее: %s - %s"
 msgid "Active medications: %s"
 msgstr "Активные случаи лечения: %s"
 
-msgid "Hospital stays: %s"
-msgstr "Находится в стационаре: %s"
+#, fuzzy
+msgid "Hospitalizations: %s"
+msgstr "&Hospitalizations"
 
 msgid "Procedures performed: %s"
 msgstr "Назначеные процедуры: %s"
@@ -1867,6 +1965,57 @@ msgstr "Установите на:"
 msgid "Comment:"
 msgstr "Комментарий"
 
+msgid "&Select"
+msgstr "&Select"
+
+msgid "&VAT applies"
+msgstr ""
+
+msgid ""
+"The invoice ID.\n"
+"\n"
+"Note that in most jurisdictions this must be a unique entity.\n"
+"\n"
+"GNUmed will create one for you."
+msgstr ""
+
+msgid ""
+"The close date of the bill.\n"
+"\n"
+"When a bill is closed items shall not be added to it anymore."
+msgstr ""
+
+msgid "Where to send the bill."
+msgstr ""
+
+#, fuzzy
+msgid "Select the address where to send the bill."
+msgstr "Здесь выбирите тип адреса."
+
+msgid "The total value of this bill without VAT applied."
+msgstr ""
+
+msgid ""
+"Select here whether or not to apply VAT when creating an invoice for this "
+"bill."
+msgstr ""
+
+msgid "The total value of this bill after VAT has been applied."
+msgstr ""
+
+msgid "Invoice ID"
+msgstr ""
+
+#, fuzzy
+msgid "Close date"
+msgstr "Закрыть"
+
+msgid "Address"
+msgstr "Адрес"
+
+msgid "Value"
+msgstr "Значение"
+
 #, fuzzy
 msgid "EUR"
 msgstr "URL"
@@ -1912,9 +2061,6 @@ msgstr "Дата УЗИ"
 #, fuzzy
 msgid "No of Units"
 msgstr "Единицы измерения"
-
-msgid "Value"
-msgstr "Значение"
 
 msgid "Factor"
 msgstr ""
@@ -3709,9 +3855,6 @@ msgstr "Неподписанный &Your"
 msgid "&All unsigned"
 msgstr "Неподписанный &All"
 
-msgid "&Select"
-msgstr "&Select"
-
 msgid "&Actions ... "
 msgstr "&Actions ... "
 
@@ -4075,9 +4218,6 @@ msgstr "Введите новый адрес и свяжите с организ
 msgid "Browse all known addresses (loading can be slow)."
 msgstr "Обзор всех известных адресов (загрузка может быть медленной)."
 
-msgid "Address"
-msgstr "Адрес"
-
 msgid "The organization this unit belongs to."
 msgstr "Организация, которой принадлежит это организационное подразделение."
 
@@ -4111,11 +4251,11 @@ msgstr "Обращения или госпитализации (последне
 msgid "):"
 msgstr "):"
 
-msgid "Active Problems:"
-msgstr "Имеющиеся проблемы:"
-
 msgid "Current meds and substances:"
 msgstr "Принимаемые лекарства и вещества:"
+
+msgid "Active Problems:"
+msgstr "Имеющиеся проблемы:"
 
 msgid "History:"
 msgstr "История болезни:"
@@ -4372,29 +4512,33 @@ msgstr ""
 "Отметьте, если процедура продолжается (допустим, десенсибилизирующая "
 "терапия)."
 
+#, fuzzy
 msgid ""
 "The location (praxis, clinic, ...) this procedure was performed at.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Episode\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Episode\"."
 msgstr ""
 "Место выполнения этой процедуры (частный прием, клиника ...).\n"
 "\n"
 "Взаимно исключено при \"пребывании в стационаре\". Только при \"эпизоде\"."
 
+#, fuzzy
 msgid ""
 "The episode this procedure was performed under.\n"
 "\n"
-"Mutually exclusive with \"Hospital stay\". Requires \"Location\"."
+"Mutually exclusive with \"Hospitalization\". Requires \"Location\"."
 msgstr ""
 "Для какого эпизода была выполнена эта процедура.\n"
 "\n"
 "Взаимно исключено при \"пребывании в стационаре\". Только при "
 "\"местоположении\"."
 
-msgid "During which hospital stay was this procedure performed."
+#, fuzzy
+msgid "During which hospitalization was this procedure performed."
 msgstr "При какой госпитализации была выполнена эта процедура."
 
-msgid "Add a hospital stay."
+#, fuzzy
+msgid "Add a hospitalization."
 msgstr "Добавьте госпитализацию."
 
 msgid "Codes relevant to this procedure."
@@ -4412,8 +4556,9 @@ msgstr "Место проведения"
 msgid "and Episode"
 msgstr "и эпизод"
 
-msgid "Hospital stay"
-msgstr "Госпитализация"
+#, fuzzy
+msgid "Hospitalization"
+msgstr "&Hospitalizations"
 
 msgid "Programmer must override this text."
 msgstr "Программист должен аннулировать этот текст."
@@ -5512,8 +5657,12 @@ msgstr "Змея Monty && существующий FSF"
 msgid "Free eMedicine"
 msgstr "Свободный eMedicine"
 
-msgid "Version %s brought to you by"
+#, fuzzy
+msgid "Version %s%s brought to you by"
 msgstr "Версия %s обеспечена через"
+
+msgid "debug"
+msgstr ""
 
 msgid "Please visit http://www.gnumed.org"
 msgstr "Посетите http://www.gnumed.org"
@@ -6093,38 +6242,221 @@ msgid "Catalog"
 msgstr "фатальное"
 
 #, fuzzy
-msgid "Do you truly want to irrevocably delete this bill ?"
-msgstr "Действительно нужно удалить эту опцию?"
+msgid "Data packs"
+msgstr "Пакет данных"
+
+msgid "Browse and install billing catalog (schedule of fees) data packs"
+msgstr ""
 
 #, fuzzy
-msgid "Delete bill"
+msgid "Catalogs (WWW)"
+msgstr "фатальное"
+
+msgid "Browse billing catalogs (schedules of fees) on the web"
+msgstr ""
+
+#, fuzzy
+msgid "No invoice template configured."
+msgstr "Шаблон списка лекарств не настроен."
+
+#, fuzzy
+msgid "There is no invoice template configured."
+msgstr "Отсутствует настройка шаблона для списка лекарств."
+
+#, fuzzy
+msgid "Getting invoice template"
+msgstr "Регистрация обновления клиента"
+
+#, fuzzy
+msgid "Problem loading invoice template."
+msgstr "Проблема загрузки шаблона для списка лекарств."
+
+#, fuzzy
+msgid "Cannot load invoice template [%s - %s]"
+msgstr "Невозможно загрузить шаблон для списка лекарств [%s - %s]"
+
+#, fuzzy
+msgid "Adding new bill"
+msgstr "Добавление нового тэга"
+
+#, fuzzy
+msgid "Editing bill"
+msgstr "Редактировани семейного анамнеза."
+
+msgid ""
+"All items to be included with a bill must\n"
+"coincide on currency, VAT, and patient.\n"
+"\n"
+"This item does not:\n"
+"\n"
+"%s\n"
+msgstr ""
+
+msgid ""
+"This item is already invoiced:\n"
+"\n"
+"%s\n"
+"\n"
+"Cannot put it on a second bill."
+msgstr ""
+
+#, fuzzy
+msgid "Checking invoice items"
+msgstr "Регистрация обновления клиента"
+
+#, fuzzy
+msgid "Creating invoice"
+msgstr "Создать новое"
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"The bill is not closed."
+msgstr ""
+
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"There is no receiver address."
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Cannot create invoice from bill\n"
+"without an invoice template."
+msgstr "Невозможно создать эпизод без имени."
+
+#, fuzzy
+msgid "Invalid invoice template [%s - %s (%s)]"
+msgstr "Неправильный шаблон для списка лекарств [%s - %s (%s)]"
+
+msgid "Printing medication list"
+msgstr "Список лекарств для печати."
+
+#, fuzzy
+msgid "Error generating invoice PDF."
+msgstr "Ошибка создания списка лекарств."
+
+#, fuzzy
+msgid "Error printing the invoice."
+msgstr "Ошибка печати списка лекарств."
+
+#, fuzzy
+msgid "Printing invoice"
+msgstr "Печатаемый документ"
+
+#, fuzzy
+msgid "Deleting bill"
+msgstr "Удалить все элементы"
+
+msgid ""
+"When deleting the bill [%s]\n"
+"do you want to keep its items (effectively \"unbilling\" them)\n"
+"or do you want to also delete the bill items from the patient ?\n"
+msgstr ""
+
+#, fuzzy
+msgid "Delete + keep"
+msgstr "удаляемая часть"
+
+msgid "Delete the bill but keep (\"unbill\") its items."
+msgstr ""
+
+#, fuzzy
+msgid "Delete all"
 msgstr " Удалить "
+
+#, fuzzy
+msgid "Delete both the bill and its items from the patient."
+msgstr "Добавить активного пациента в список ожидания."
+
+#, fuzzy
+msgid "Also remove invoice PDF"
+msgstr "Ошибка создания списка лекарств."
+
+msgid ""
+"Also remove the invoice PDF from the document archive (because it will not "
+"correspond to the bill anymore)."
+msgstr ""
+
+#, fuzzy
+msgid "Select the items you want to remove from bill [%s]:\n"
+msgstr "Выберите список для управления:"
+
+msgid "Removing items from bill"
+msgstr ""
+
+#, fuzzy
+msgid "Count"
+msgstr "Страна"
+
+#, fuzzy
+msgid "VAT"
+msgstr "ATC"
+
+msgid ""
+"%s items selected from bill [%s]\n"
+"\n"
+"Do you want to only remove the selected items\n"
+"from the bill (\"unbill\" them) or do you want\n"
+"to delete them entirely from the patient ?\n"
+"\n"
+"Note that neither action is reversible."
+msgstr ""
+
+msgid "\"Unbill\""
+msgstr ""
+
+msgid ""
+"Only \"unbill\" items (remove from bill but do not delete from patient)."
+msgstr ""
+
+#, fuzzy
+msgid "Completely delete items from the patient."
+msgstr "Удаление выбранного пункта(в) из списка."
+
+#, fuzzy
+msgid "Displaying invoice"
+msgstr "отображаемая часть"
+
+msgid ""
+"Cannot find an existing\n"
+"invoice PDF for this bill.\n"
+"\n"
+"Do you want to create one ?"
+msgstr ""
+
+msgid ""
+"There is no pre-configured billing address.\n"
+"\n"
+"Select the address you want to send the bill to."
+msgstr ""
+
+msgid "<open>"
+msgstr ""
+
+msgid "%s %s (with %s%% VAT)"
+msgstr ""
 
 #, fuzzy
 msgid "Showing bills."
 msgstr "Отображение вакцин."
 
 #, fuzzy
-msgid "Close date"
-msgstr "Закрыть"
-
-msgid "Invoice ID"
-msgstr ""
-
-#, fuzzy
-msgid "Create invoice"
-msgstr "Создать новое"
-
-msgid "Create PDF invoice from bill"
-msgstr ""
-
-#, fuzzy
-msgid "Show PDF"
-msgstr "Показать:"
-
-#, fuzzy
-msgid "Show the corresponding invoice PDF"
+msgid "Create if necessary, and show the corresponding invoice PDF"
 msgstr "Выбор соответствующего обращения"
+
+msgid "Unbill"
+msgstr ""
+
+msgid "Select and remove items from a bill."
+msgstr ""
+
+msgid "&VAT applies (%s%%)"
+msgstr ""
+
+msgid "billing"
+msgstr ""
 
 #, fuzzy
 msgid "Cannot edit already invoiced bill item."
@@ -6146,40 +6478,31 @@ msgstr "Невозможно удалить пункт семейного ана
 msgid "Showing bill items."
 msgstr "Отображение кодированных терминов."
 
-#, fuzzy
-msgid "Count"
-msgstr "Страна"
-
-#, fuzzy
-msgid "VAT"
-msgstr "ATC"
-
 msgid "Charge date"
 msgstr ""
 
-msgid "Count x Value x Factor"
+msgid "Count %s Value %s Factor"
 msgstr ""
 
 msgid "Invoice"
 msgstr ""
 
 #, fuzzy
-msgid "Invoice selected"
+msgid "Invoice selected items"
 msgstr "<не выбрана единица>"
 
 #, fuzzy
 msgid "Create invoice from selected items."
 msgstr "Для выбранных эпизодов нет доступной текстовой части."
 
-#, fuzzy
-msgid "Browse bills"
-msgstr "Обзор"
+msgid "Bills"
+msgstr ""
 
 #, fuzzy
 msgid "Browse bills of this patient."
 msgstr "Семейный анамнез этого пациента."
 
-msgid "Browse billables"
+msgid "Billables"
 msgstr ""
 
 msgid "Browse list of billables."
@@ -6197,26 +6520,10 @@ msgstr ""
 msgid "Deleting bill item"
 msgstr "Удалить все элементы"
 
-#, fuzzy
-msgid "Checking invoice items"
-msgstr "Регистрация обновления клиента"
-
 msgid ""
-"This item is already invoiced:\n"
+"Cannot create invoice.\n"
 "\n"
-"%s\n"
-"\n"
-"Cannot put it on a second bill."
-msgstr ""
-
-#, fuzzy
-msgid "Creating bill"
-msgstr "Удалить все элементы"
-
-msgid ""
-"Cannot create invoice from bill.\n"
-"\n"
-"There is no receiver address."
+"No receiver address selected."
 msgstr ""
 
 msgid ""
@@ -6247,13 +6554,13 @@ msgid "Cannot connect as database owner. Unable to delete option."
 msgstr ""
 "Невозможно подключится как владелец базы данных. Невозможно удалить опцию."
 
-msgid "This list shows all configuration settings from the database."
-msgstr ""
-"Этот список показывает все конфигурационные параметры настройки этой базы "
-"данных."
+#, fuzzy
+msgid "All configured options currently in the database."
+msgstr "Перечисляет все конфигурационные пункты, сохраненные в базе данных."
 
-msgid "Showing configuration"
-msgstr "Отображение конфигурации"
+#, fuzzy
+msgid "All configured options"
+msgstr "Конфигурационные опции"
 
 msgid "Option"
 msgstr "Опция"
@@ -8106,17 +8413,16 @@ msgstr "Редактирование процедуры"
 msgid "Cannot save procedure."
 msgstr "Невозможно сохранить процедуру."
 
-msgid "Cannot delete hospital stay."
+#, fuzzy
+msgid "Cannot delete hospitalization."
 msgstr "Невозможно удалить пребывание в стационаре."
 
-msgid ""
-"\n"
-"Select the hospital stay you want to edit !\n"
-msgstr ""
-"\n"
-"Выберите нужное пребывание в стационаре для редактирования!\n"
+#, fuzzy
+msgid "The patient's hospitalizations:\n"
+msgstr "Управление госпитализациями"
 
-msgid "Editing hospital stays ..."
+#, fuzzy
+msgid "Editing hospitalizations ..."
 msgstr "Редактирование пребывания в стационаре ..."
 
 msgid "Admission"
@@ -8128,26 +8434,31 @@ msgstr "Выписать"
 msgid "Reason"
 msgstr "Причина"
 
-msgid "Adding a hospital stay"
+#, fuzzy
+msgid "Adding a hospitalization"
 msgstr "Добавление пребывания в стационаре"
 
-msgid "Editing a hospital stay"
+#, fuzzy
+msgid "Editing a hospitalization"
 msgstr "Редактирование пребывания в стационаре"
 
-msgid "Missing admission data. Cannot save hospital stay."
+#, fuzzy
+msgid "Missing admission data. Cannot save hospitalization."
 msgstr ""
 "Пропущены данные поступления. Невозможно сохранить пребывание в стационаре."
 
+#, fuzzy
 msgid ""
-"Discharge date must be empty or later than admission. Cannot save hospital "
-"stay."
+"Discharge date must be empty or later than admission. Cannot save "
+"hospitalization."
 msgstr ""
 "Данные по выписке должны быть пустыми или позже поступления. Невозможно "
 "сохранить пребывание в стационаре."
 
+#, fuzzy
 msgid ""
-"Must select an episode or enter a name for a new one. Cannot save hospital "
-"stay."
+"Must select an episode or enter a name for a new one. Cannot save "
+"hospitalization."
 msgstr ""
 "Обязательно выберите эпизод или введите имя для нового. Невозможно сохранить "
 "пребывание в стационаре."
@@ -8168,12 +8479,9 @@ msgstr "Запуск нового обращения"
 msgid "Cannot list encounters. No active patient."
 msgstr "Невозможно перечислить обращения. Нет активного пациента."
 
-msgid ""
-"\n"
-"Below find the relevant encounters of the patient.\n"
-msgstr ""
-"\n"
-"Ниже найдите соответствующие обращения этого пациента.\n"
+#, fuzzy
+msgid "The patient's encounters.\n"
+msgstr "Обращение"
 
 msgid "Encounters ..."
 msgstr "Обращения ..."
@@ -8847,11 +9155,13 @@ msgstr ""
 msgid "Announce downtime"
 msgstr "Объявить во время простоя"
 
-msgid "List all configuration items stored in the database."
-msgstr "Перечисляет все конфигурационные пункты, сохраненные в базе данных."
+#, fuzzy
+msgid "All options"
+msgstr "Опции"
 
-msgid "List configuration"
-msgstr "Перечисление конфигурации"
+#, fuzzy
+msgid "List all options as configured in the database."
+msgstr "Перечисляет все конфигурационные пункты, сохраненные в базе данных."
 
 msgid "Configure the database language"
 msgstr "Конфигурировать язык базы данных"
@@ -9032,6 +9342,29 @@ msgstr "Visual SOAP editor"
 msgid "External tools ..."
 msgstr "Внешние инструменты ..."
 
+#, fuzzy
+msgid "Invoice template (no VAT)"
+msgstr "Регистрация обновления клиента"
+
+#, fuzzy
+msgid "Select the template for printing an invoice without VAT."
+msgstr "Выбирите шаблон для вывода списка лекарств."
+
+#, fuzzy
+msgid "Invoice template (with VAT)"
+msgstr "<не выбрана единица>"
+
+#, fuzzy
+msgid "Select the template for printing an invoice with VAT."
+msgstr "Выбирите шаблон для вывода списка лекарств."
+
+#, fuzzy
+msgid "Catalogs URL"
+msgstr "фатальное"
+
+msgid "URL for billing catalogs (schedules of fees)."
+msgstr ""
+
 msgid "Medication list template"
 msgstr "Шаблон списка лекарств"
 
@@ -9091,6 +9424,9 @@ msgstr "Эпизод ..."
 
 msgid "EMR ..."
 msgstr "EMR ..."
+
+msgid "Billing ..."
+msgstr ""
 
 msgid "Preferences ..."
 msgstr "Предпочтения ..."
@@ -9192,20 +9528,6 @@ msgstr ""
 msgid "Export to GDT"
 msgstr "Экспорт в GDT"
 
-msgid "Billed items"
-msgstr ""
-
-#, fuzzy
-msgid "Show items to be billed to the active patient."
-msgstr "Показывает сообщения, относящиеся к активному пациенту."
-
-msgid "Bills"
-msgstr ""
-
-#, fuzzy
-msgid "Show bills of the active patient."
-msgstr "Поиск данных в EMR активного пациента"
-
 msgid "&Past history (health issue / PMH)"
 msgstr "&Past анамнез (заболевание или PMH)"
 
@@ -9243,8 +9565,9 @@ msgstr "Редактировать сведения о роде занятия �
 msgid "&Hospitalizations"
 msgstr "&Hospitalizations"
 
-msgid "Manage hospital stays."
-msgstr "Управляет пребыванием в стационаре."
+#, fuzzy
+msgid "Manage hospitalizations."
+msgstr "Управление госпитализациями"
 
 msgid "&Procedures"
 msgstr "&Procedures"
@@ -9894,6 +10217,20 @@ msgstr ""
 "\n"
 "Выберите необходимый плагин ниже:"
 
+#, fuzzy
+msgid ""
+"GNUmed will use this URL to let you browse\n"
+"billing catalogs (schedules of fees).\n"
+"\n"
+"You can leave this empty but to set it to a specific\n"
+"address the URL must be accessible now."
+msgstr ""
+"GNUmed будет использовать этот URL для доступа\n"
+"к странице, показывающей схемы вакцинации.\n"
+"\n"
+"Можете оставить его пустым, но для установки на\n"
+"определенный адрес, URL должен быть доступен сейчас."
+
 msgid "Select the default type for new encounters.\n"
 msgstr "Выберите тип по умолчанию для новых обращений.\n"
 
@@ -10340,7 +10677,8 @@ msgstr "Невозможно добавить аллергию. Нет акти�
 msgid "Cannot manage performed procedures. No active patient."
 msgstr "Невозможна регистрация выполненных процедур. Нет активного пациента."
 
-msgid "Cannot manage hospital stays. No active patient."
+#, fuzzy
+msgid "Cannot manage hospitalizations. No active patient."
 msgstr ""
 "Невозможна регистрация пребывания в стационаре. Нет активного пациента."
 
@@ -10385,14 +10723,6 @@ msgstr "Невозможно экспортировать пациента ка�
 
 msgid "Exported demographics to GDT file [%s]."
 msgstr "Демографические сведения экспортированы в файл GDT [%s]."
-
-#, fuzzy
-msgid "Cannot show items billed to patient. No active patient."
-msgstr "Невозможно записать письмо. Нет активного пациента."
-
-#, fuzzy
-msgid "Cannot show bills for patient. No active patient."
-msgstr "Невозможно редактировать род занятий. Нет активного пациента."
 
 msgid "Cannot add staff member. No active patient."
 msgstr "Невозможно добавить сотрудника. Нет активного пациента."
@@ -10808,6 +11138,10 @@ msgstr ""
 
 msgid "Text input cancelled by user."
 msgstr "Ввод текста отменен пользователем."
+
+#, fuzzy
+msgid "no bill selected"
+msgstr "<не выбрана единица>"
 
 msgid "attach rejected, already serving a client"
 msgstr "присоединение отклонено, пациент уже обслужен"
@@ -11664,9 +11998,6 @@ msgstr "Шаблон списка лекарств не настроен."
 msgid "There is no medication list template configured."
 msgstr "Отсутствует настройка шаблона для списка лекарств."
 
-msgid "Printing medication list"
-msgstr "Список лекарств для печати."
-
 msgid "Problem loading medication list template."
 msgstr "Проблема загрузки шаблона для списка лекарств."
 
@@ -12248,11 +12579,6 @@ msgstr "%s %s %s%s"
 
 msgid "** Currently hospitalized: %s **"
 msgstr "** В настоящее время госпитализировано: %s **"
-
-msgid ""
-"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
-msgstr ""
-"%(typ)s: %(street)s %(no)s%(sub)s, %(zip)s %(urb)s, %(cstate)s, %(ccountry)s"
 
 msgid "emergency: %s"
 msgstr "срочность: %s"
@@ -12936,22 +13262,15 @@ msgstr "Клонировать выбранную рабочую область.
 msgid "Select a message type."
 msgstr "Выберите тип сообщения."
 
-msgid "(expires %s)"
+msgid " - expires %s"
 msgstr ""
 
-#, fuzzy
 msgid ""
+"Due for %s (since %s%s):\n"
+"%s%s\n"
 "Patient: %s\n"
-"By: %s\n"
-"Due: %s - since %s %s\n"
-"%s%s"
+"Reminder by: %s"
 msgstr ""
-"\n"
-"%s\n"
-"Пациент: %s%s\n"
-"%sUrgency: %s\n"
-"Время: %s\n"
-"%s"
 
 #, fuzzy
 msgid "Clinical reminder"
@@ -14173,6 +14492,100 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#, fuzzy
+#~ msgid "%s (%s %s%s)         [#%s]\n"
+#~ msgstr "Обострение %s%s%s [#%s]"
+
+#, fuzzy
+#~ msgid " %s: %s\n"
+#~ msgstr "часть %s: %s"
+
+#~ msgid " %s hospital stays"
+#~ msgstr " %s пребываний в стационаре"
+
+#~ msgid " Type: %s"
+#~ msgstr " Введите: %s"
+
+#~ msgid "Hospital stays: %s"
+#~ msgstr "Находится в стационаре: %s"
+
+#~ msgid "Hospital stay"
+#~ msgstr "Госпитализация"
+
+#, fuzzy
+#~ msgid "Do you truly want to irrevocably delete this bill ?"
+#~ msgstr "Действительно нужно удалить эту опцию?"
+
+#~ msgid "This list shows all configuration settings from the database."
+#~ msgstr ""
+#~ "Этот список показывает все конфигурационные параметры настройки этой базы "
+#~ "данных."
+
+#~ msgid "Showing configuration"
+#~ msgstr "Отображение конфигурации"
+
+#~ msgid ""
+#~ "\n"
+#~ "Select the hospital stay you want to edit !\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Выберите нужное пребывание в стационаре для редактирования!\n"
+
+#~ msgid ""
+#~ "\n"
+#~ "Below find the relevant encounters of the patient.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Ниже найдите соответствующие обращения этого пациента.\n"
+
+#~ msgid "List configuration"
+#~ msgstr "Перечисление конфигурации"
+
+#, fuzzy
+#~ msgid "Show items to be billed to the active patient."
+#~ msgstr "Показывает сообщения, относящиеся к активному пациенту."
+
+#~ msgid "Manage hospital stays."
+#~ msgstr "Управляет пребыванием в стационаре."
+
+#, fuzzy
+#~ msgid "Cannot show items billed to patient. No active patient."
+#~ msgstr "Невозможно записать письмо. Нет активного пациента."
+
+#, fuzzy
+#~ msgid ""
+#~ "Patient: %s\n"
+#~ "By: %s\n"
+#~ "Due: %s - since %s %s\n"
+#~ "%s%s"
+#~ msgstr ""
+#~ "\n"
+#~ "%s\n"
+#~ "Пациент: %s%s\n"
+#~ "%sUrgency: %s\n"
+#~ "Время: %s\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Show PDF"
+#~ msgstr "Показать:"
+
+#, fuzzy
+#~ msgid "Browse bills"
+#~ msgstr "Обзор"
+
+#, fuzzy
+#~ msgid "Creating bill"
+#~ msgstr "Удалить все элементы"
+
+#, fuzzy
+#~ msgid "Show bills of the active patient."
+#~ msgstr "Поиск данных в EMR активного пациента"
+
+#, fuzzy
+#~ msgid "Cannot show bills for patient. No active patient."
+#~ msgstr "Невозможно редактировать род занятий. Нет активного пациента."
 
 #~ msgid "Since when do we know about this allergy. Mostly \"today\"."
 #~ msgstr "С момента установления этой аллергии. Чаще всего \"сегодня\"."
