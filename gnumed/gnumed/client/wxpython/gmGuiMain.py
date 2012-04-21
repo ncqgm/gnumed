@@ -1858,16 +1858,16 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = wx.TextEntryDialog (
 			parent = self,
 			message = _(
-				'This email address will be used when GNUmed\n'
-				'is sending email on your behalf such as when\n'
-				'reporting bugs or when you choose to contribute\n'
-				'reference material to the GNUmed community.\n'
+				'If you want the GNUmed developers to be able to\n'
+				'contact you directly - rather than via the public\n'
+				'mailing list only - you can enter your preferred\n'
+				'email address here.\n'
 				'\n'
-				'The developers will then be able to get back to you\n'
-				'directly with advice. Otherwise you would have to\n'
-				'follow the mailing list discussion for help.\n'
+				'This address will then be included with bug reports\n'
+				'or contributions to the GNUmed community you may\n'
+				'choose to send from within the GNUmed client.\n'
 				'\n'
-				'Leave this blank if you wish to stay anonymous.'
+				'Leave this blank if you wish to stay anonymous.\n'
 			),
 			caption = _('Please enter your email address.'),
 			defaultValue = gmTools.coalesce(email, u''),

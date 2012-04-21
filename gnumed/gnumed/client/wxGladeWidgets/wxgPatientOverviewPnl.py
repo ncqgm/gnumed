@@ -36,6 +36,7 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgPatientOverviewPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._PRW_encounter_range.SetToolTipString(_("Here you can enter an interval (extending backwards from \"now\") within which to show health care activity."))
         self._LCTRL_problems.SetBackgroundColour(wx.Colour(255, 238, 180))
         # end wxGlade
 
@@ -52,10 +53,13 @@ class wxgPatientOverviewPnl(wx.ScrolledWindow):
         __lbl_contacts = wx.StaticText(self, -1, _("Contacts:"))
         __szr_left.Add(__lbl_contacts, 0, wx.BOTTOM | wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_left.Add(self._LCTRL_contacts, 1, wx.BOTTOM | wx.EXPAND, 5)
-        __lbl_encounters = wx.StaticText(self, -1, _("Encounters / admissions (last"))
-        __szr_encounters.Add(__lbl_encounters, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
+        __lbl_encounters = wx.StaticText(self, -1, _("Activity:"))
+        __szr_encounters.Add(__lbl_encounters, 0, wx.ALIGN_CENTER_VERTICAL, 2)
+        __szr_encounters.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_activity_limit = wx.StaticText(self, -1, _("(limit to last:"))
+        __szr_encounters.Add(__lbl_activity_limit, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_encounters.Add(self._PRW_encounter_range, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 2)
-        __lbl_closing_brace = wx.StaticText(self, -1, _("):"))
+        __lbl_closing_brace = wx.StaticText(self, -1, _(")"))
         __szr_encounters.Add(__lbl_closing_brace, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_left.Add(__szr_encounters, 0, wx.BOTTOM | wx.EXPAND, 3)
         __szr_left.Add(self._LCTRL_encounters, 1, wx.EXPAND, 5)
