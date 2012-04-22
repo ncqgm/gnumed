@@ -39,6 +39,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmTextExpansionWidgets
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -1919,50 +1920,27 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 
 		caret_pos, line_no = self.PositionToXY(self.InsertionPoint)
 		line = self.GetLineText(line_no)
-		word = self.__keyword_separators.split(line[:caret_pos])[-1]
+		keyword = self.__keyword_separators.split(line[:caret_pos])[-1]
 
 		if (
 			(not explicit_expansion)
 				and
-			(word != u'$$steffi')			# Easter Egg ;-)
+			(keyword != u'$$steffi')			# Easter Egg ;-)
 				and
-			(word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ])
+			(keyword not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ])
 		):
 			evt.Skip()
 			return
 
-		start = self.InsertionPoint - len(word)
-		wx.CallAfter(self.replace_keyword_with_expansion, word, start, explicit_expansion)
+		start = self.InsertionPoint - len(keyword)
+		wx.CallAfter(self.replace_keyword_with_expansion, keyword, start, explicit_expansion)
 
 		evt.Skip()
 		return
 	#------------------------------------------------
 	def replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
 
-		if show_list:
-			candidates = gmPG2.get_keyword_expansion_candidates(keyword = keyword)
-			if len(candidates) == 0:
-				return
-			if len(candidates) == 1:
-				keyword = candidates[0]
-			else:
-				keyword = gmListWidgets.get_choices_from_list (
-					parent = self,
-					msg = _(
-						'Several macros match the keyword [%s].\n'
-						'\n'
-						'Please select the expansion you want to happen.'
-					) % keyword,
-					caption = _('Selecting text macro'),
-					choices = candidates,
-					columns = [_('Keyword')],
-					single_selection = True,
-					can_return_empty = False
-				)
-				if keyword is None:
-					return
-
-		expansion = gmPG2.expand_keyword(keyword = keyword)
+		expansion = gmTextExpansionWidgets.expand_keyword(parent = self, keyword = keyword, show_list = show_list)
 
 		if expansion is None:
 			return
