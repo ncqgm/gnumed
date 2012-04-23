@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-04-21 10:33+CEST\n"
-"PO-Revision-Date: 2012-04-21 10:38+0100\n"
+"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"PO-Revision-Date: 2012-04-23 18:32+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -4699,6 +4699,25 @@ msgstr "Erweiterung"
 
 msgid "Scope"
 msgstr "Gültigkeit"
+
+msgid "Filling in text expansion"
+msgstr "Befüllen eines Textmakros"
+
+msgid "Finish filling in text macro."
+msgstr "Befüllung des Textmakros vollenden."
+
+msgid "Go to the next fill-in position."
+msgstr "Zur nächsten Ersetzungsposition gehen."
+
+msgid "Cancel filling in the text expansion."
+msgstr "Befüllung des Textmakros abbrechen."
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
+msgstr ""
+"\n"
+"Geben Sie einen passenden Wert ein.\n"
 
 msgid "<age>"
 msgstr "<Alter>"
@@ -11534,18 +11553,6 @@ msgstr ""
 "\n"
 " \"%s\""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-"Mehrere Textbausteine passen zum Schlüsselwort [%s].\n"
-"\n"
-"Wählen Sie den gewünschten Baustein aus."
-
-msgid "Selecting text macro"
-msgstr "Textmakro wählen"
-
 msgid "You need to actually set an editor."
 msgstr "Sie müssen auch wirklich einen Editor auswählen."
 
@@ -12268,40 +12275,6 @@ msgstr "Woche"
 msgid "weeks"
 msgstr "Wochen"
 
-msgid "Cannot save text expansion without keyword."
-msgstr "Kann Textmakro ohne Schlüsselwort nicht speichern."
-
-msgid "Cannot save text expansion without expansion text."
-msgstr "Kann Textmakro ohne Makrotext nicht speichern."
-
-msgid "___copy"
-msgstr "___Kopie"
-
-msgid "Adding text expansion"
-msgstr "Textmakro hinzufügen"
-
-msgid "Editing text expansion \"%s\""
-msgstr "Bearbeiten des Textmakros \"%s\""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-"\n"
-"Wählen Sie das Textmakro, welches Sie bearbeiten wollen !\n"
-
-msgid "Editing keyword-based text expansions ..."
-msgstr "Bearbeiten der Textmakros ..."
-
-msgid "Owner"
-msgstr "Besitzer"
-
-msgid "Private"
-msgstr "Privat"
-
-msgid "Public"
-msgstr "Öffentlich"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -12780,6 +12753,52 @@ msgstr ""
 
 msgid "Enlisting person as user."
 msgstr "Aktuelle Person als GNUmed-Nutzer aufnehmen."
+
+msgid "Cannot save text expansion without keyword."
+msgstr "Kann Textmakro ohne Schlüsselwort nicht speichern."
+
+msgid "Cannot save text expansion without expansion text."
+msgstr "Kann Textmakro ohne Makrotext nicht speichern."
+
+msgid "___copy"
+msgstr "___Kopie"
+
+msgid "Adding text expansion"
+msgstr "Textmakro hinzufügen"
+
+msgid "Editing text expansion \"%s\""
+msgstr "Bearbeiten des Textmakros \"%s\""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"Wählen Sie das Textmakro, welches Sie bearbeiten wollen !\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Bearbeiten der Textmakros ..."
+
+msgid "Owner"
+msgstr "Besitzer"
+
+msgid "Private"
+msgstr "Privat"
+
+msgid "Public"
+msgstr "Öffentlich"
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+"Mehrere Textbausteine passen zum Schlüsselwort [%s].\n"
+"\n"
+"Wählen Sie den gewünschten Baustein aus."
+
+msgid "Selecting text macro"
+msgstr "Textmakro wählen"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kann Allergiemanager nicht aufrufen. Kein Patient aktiv."

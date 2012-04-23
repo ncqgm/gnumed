@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-04-21 10:33+CEST\n"
+"POT-Creation-Date: 2012-04-23 18:27+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4341,6 +4341,23 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Filling in text expansion"
+msgstr ""
+
+msgid "Finish filling in text macro."
+msgstr ""
+
+msgid "Go to the next fill-in position."
+msgstr ""
+
+msgid "Cancel filling in the text expansion."
+msgstr ""
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
 msgstr ""
 
 msgid "<age>"
@@ -10153,15 +10170,6 @@ msgid ""
 " \"%s\""
 msgstr ""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-
-msgid "Selecting text macro"
-msgstr ""
-
 msgid "You need to actually set an editor."
 msgstr ""
 
@@ -10750,38 +10758,6 @@ msgstr ""
 msgid "weeks"
 msgstr ""
 
-msgid "Cannot save text expansion without keyword."
-msgstr ""
-
-msgid "Cannot save text expansion without expansion text."
-msgstr ""
-
-msgid "___copy"
-msgstr ""
-
-msgid "Adding text expansion"
-msgstr ""
-
-msgid "Editing text expansion \"%s\""
-msgstr ""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-
-msgid "Editing keyword-based text expansions ..."
-msgstr ""
-
-msgid "Owner"
-msgstr ""
-
-msgid "Private"
-msgstr ""
-
-msgid "Public"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -11195,6 +11171,47 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
+msgstr ""
+
+msgid "Cannot save text expansion without keyword."
+msgstr ""
+
+msgid "Cannot save text expansion without expansion text."
+msgstr ""
+
+msgid "___copy"
+msgstr ""
+
+msgid "Adding text expansion"
+msgstr ""
+
+msgid "Editing text expansion \"%s\""
+msgstr ""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+
+msgid "Editing keyword-based text expansions ..."
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Public"
+msgstr ""
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+
+msgid "Selecting text macro"
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
