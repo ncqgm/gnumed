@@ -173,6 +173,8 @@ grant select on
 to group "gm-public";
 
 -- --------------------------------------------------------------
+set standard_conforming_strings to on;
+
 \unset ON_ERROR_STOP
 INSERT INTO ref.data_source (name_long, name_short, version, source) values ('Gebührenordnung für Ärzte', 'GOÄ', '1996', 'BÄK');
 INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('1', 'Beratung, auch telefonisch', currval('ref.data_source_pk_seq'), 4.66, U&'\20AC', 0.19);
@@ -183,6 +185,8 @@ INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_mult
 INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('D', 'Zuschlag, Samstag, Sonntag, Feiertag', currval('ref.data_source_pk_seq'), 12.82, U&'\20AC', 0.19);
 INSERT INTO ref.billable (code, term, fk_data_source, amount, currency, vat_multiplier) values ('K1', 'Zuschlag, Untersuchung, Kinder bis vollendetes 4.LJ', currval('ref.data_source_pk_seq'), 6.99, U&'\20AC', 0.19);
 \set ON_ERROR_STOP 1
+
+reset standard_conforming_strings;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v17-ref-billable-dynamic.sql', '17.0');
