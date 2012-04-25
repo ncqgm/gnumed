@@ -2,6 +2,7 @@
 """
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
 import logging
 import sys
@@ -558,8 +559,6 @@ def manage_bills(parent=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	if patient is None:
-		patient = gmPerson.gmCurrentPatient()
 	#------------------------------------------------------------
 	def show_pdf(bill):
 		if bill is None:
@@ -620,7 +619,10 @@ def manage_bills(parent=None, patient=None):
 		return item.format()
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		bills = gmBilling.get_bills(pk_patient = patient.ID)
+		if patient is None:
+			bills = gmBilling.get_bills()
+		else:
+			bills = gmBilling.get_bills(pk_patient = patient.ID)
 		items = []
 		for b in bills:
 			if b['close_date'] is None:

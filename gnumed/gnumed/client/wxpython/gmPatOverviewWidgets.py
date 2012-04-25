@@ -262,7 +262,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		due_messages = patient.due_messages
 		no_of_dues = len(due_messages)
 		for msg in due_messages:
-			list_items.append(_('due (%s): %s') % (
+			list_items.append(_('due %s: %s') % (
 				gmDateTime.format_interval_medically(msg['interval_due']),
 				gmTools.coalesce(msg['comment'], u'?')
 			))
@@ -537,7 +537,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		vaccs = emr.get_latest_vaccinations()
 		for ind, tmp in vaccs.items():
 			tmp, vacc = tmp
-			list_items.append(u'%s %s' % (
+			list_items.append(_('%s Vacc: %s') % (
 				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b %d'),
 				ind
 			))

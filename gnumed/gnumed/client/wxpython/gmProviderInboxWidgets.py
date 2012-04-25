@@ -1,7 +1,6 @@
 """GNUmed provider inbox handling widgets.
 """
 #================================================================
-__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -39,175 +38,12 @@ from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 _indicator = {
 	-1: '',
 	0: '',
 	1: '*!!*'
 }
-#============================================================
-from Gnumed.wxGladeWidgets import wxgTextExpansionEditAreaPnl
-
-class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
-
-	def __init__(self, *args, **kwds):
-
-		try:
-			data = kwds['keyword']
-			del kwds['keyword']
-		except KeyError:
-			data = None
-
-		wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl.__init__(self, *args, **kwds)
-		gmEditArea.cGenericEditAreaMixin.__init__(self)
-
-		self.mode = 'new'
-		self.data = data
-		if data is not None:
-			self.mode = 'edit'
-
-		#self.__init_ui()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def __init_ui(self, keyword=None):
-
-		if keyword is not None:
-			self.data = keyword
-	#----------------------------------------------------------------
-	# generic Edit Area mixin API
-	#----------------------------------------------------------------
-	def _valid_for_save(self):
-		validity = True
-
-		if self._TCTRL_keyword.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)
-
-		if self._TCTRL_expansion.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = True)
-
-		return validity
-	#----------------------------------------------------------------
-	def _save_as_new(self):
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		saved = gmPG2.add_text_expansion (
-			keyword = kwd,
-			expansion = self._TCTRL_expansion.GetValue(),
-			public = self._RBTN_public.GetValue()
-		)
-		if not saved:
-			return False
-
-		self.data = kwd
-		return True
-	#----------------------------------------------------------------
-	def _save_as_update(self):
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		gmPG2.edit_text_expansion (
-			keyword = kwd,
-			expansion = self._TCTRL_expansion.GetValue()
-		)
-		self.data = kwd
-		return True
-	#----------------------------------------------------------------
-	def _refresh_as_new(self):
-		self._TCTRL_keyword.SetValue(u'')
-		self._TCTRL_keyword.Enable(True)
-		self._TCTRL_expansion.SetValue(u'')
-		self._TCTRL_expansion.Enable(False)
-		self._RBTN_public.Enable(True)
-		self._RBTN_private.Enable(True)
-		self._RBTN_public.SetValue(1)
-
-		self._TCTRL_keyword.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		self._TCTRL_keyword.SetValue(u'%s%s' % (self.data, _(u'___copy')))
-		self._TCTRL_keyword.Enable(True)
-		expansion = gmPG2.expand_keyword(keyword = self.data)
-		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-		self._TCTRL_expansion.Enable(True)
-		self._RBTN_public.Enable(True)
-		self._RBTN_private.Enable(True)
-		self._RBTN_public.SetValue(1)
-
-		self._TCTRL_keyword.SetFocus()
-	#----------------------------------------------------------------
-	def _refresh_from_existing(self):
-		self._TCTRL_keyword.SetValue(self.data)
-		self._TCTRL_keyword.Enable(False)
-		expansion = gmPG2.expand_keyword(keyword = self.data)
-		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-		self._TCTRL_expansion.Enable(True)
-		self._RBTN_public.Enable(False)
-		self._RBTN_private.Enable(False)
-
-		self._TCTRL_expansion.SetFocus()
-	#----------------------------------------------------------------
-	# event handling
-	#----------------------------------------------------------------
-	def __register_interests(self):
-		self._TCTRL_keyword.Bind(wx.EVT_TEXT, self._on_keyword_modified)
-	#----------------------------------------------------------------
-	def _on_keyword_modified(self, evt):
-		if self._TCTRL_keyword.GetValue().strip() == u'':
-			self._TCTRL_expansion.Enable(False)
-		else:
-			self._TCTRL_expansion.Enable(True)
-#============================================================
-def configure_keyword_text_expansion(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#----------------------
-	def delete(keyword=None):
-		gmPG2.delete_text_expansion(keyword = keyword)
-		return True
-	#----------------------
-	def edit(keyword=None):
-		ea = cTextExpansionEditAreaPnl(parent, -1, keyword = keyword)
-		dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
-		dlg.SetTitle (
-			gmTools.coalesce(keyword, _('Adding text expansion'), _('Editing text expansion "%s"'))
-		)
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-
-		return False
-	#----------------------
-	def refresh(lctrl=None):
-		kwds = [ [
-				r[0],
-				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-				r[3]
-			] for r in gmPG2.get_text_expansion_keywords()
-		]
-		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
-		lctrl.set_string_items(kwds)
-		lctrl.set_data(data)
-	#----------------------
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nSelect the keyword you want to edit !\n'),
-		caption = _('Editing keyword-based text expansions ...'),
-		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
-		single_selection = True,
-		edit_callback = edit,
-		new_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh
-	)
 #============================================================
 def configure_fallback_primary_provider(parent=None):
 

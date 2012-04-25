@@ -62,6 +62,7 @@ import logging
 import signal
 import os.path
 import shutil
+import stat
 
 
 # do not run as module
@@ -171,8 +172,7 @@ def setup_python_path():
 	if not u'--local-import' in sys.argv:
 		return
 
-	print "GNUmed startup: Running from local source tree."
-	print "-----------------------------------------------"
+	print "Running from local source tree ..."
 
 	local_python_base_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
@@ -190,6 +190,62 @@ def setup_python_path():
 
 	print "Adjusting PYTHONPATH ..."
 	sys.path.insert(0, local_python_base_dir)
+#==========================================================
+def setup_local_repo_path():
+
+	local_repo_path = os.path.expanduser(os.path.join (
+		'~',
+		'.gnumed',
+		'local_code',
+		str(current_client_branch)
+	))
+	local_wxGladeWidgets_path = os.path.join(local_repo_path, 'Gnumed', 'wxGladeWidgets')
+
+	if not os.path.exists(local_wxGladeWidgets_path):
+		_log.debug('[%s] not found', local_wxGladeWidgets_path)
+		_log.info('local wxGlade widgets repository not available')
+		return
+
+	_log.info('local wxGlade widgets repository found:')
+	_log.info(local_wxGladeWidgets_path)
+
+	if not os.access(local_wxGladeWidgets_path, os.R_OK):
+		_log.error('invalid repo: no read access')
+		return
+
+	all_entries = os.listdir(os.path.join(local_repo_path, 'Gnumed'))
+	_log.debug('repo base contains: %s', all_entries)
+	all_entries.remove('wxGladeWidgets')
+	try:
+		all_entries.remove('__init__.py')
+	except ValueError:
+		_log.error('invalid repo: lacking __init__.py')
+		return
+	try:
+		all_entries.remove('__init__.pyc')
+	except ValueError:
+		pass
+
+	if len(all_entries) > 0:
+		_log.error('insecure repo: additional files or directories found')
+		return
+
+	# repo must be 0700 (rwx------)
+	stat_val = os.stat(local_wxGladeWidgets_path)
+	_log.debug('repo stat(): %s', stat_val)
+	perms = stat.S_IMODE(stat_val.st_mode)
+	_log.debug('repo permissions: %s (octal: %s)', perms, oct(perms))
+	if perms != 448:				# octal 0700
+		if os.name in ['nt']:
+			_log.warning('this platform does not support os.stat() permission checking')
+		else:
+			_log.error('insecure repo: permissions not 0600')
+			return
+
+	print "Activating local wxGlade widgets repository ..."
+	sys.path.insert(0, local_repo_path)
+	_log.debug('sys.path with repo:')
+	_log.debug(sys.path)
 #==========================================================
 def setup_logging():
 	try:
@@ -520,6 +576,7 @@ log_startup_info()
 setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
+setup_local_repo_path()
 
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 setup_locale()

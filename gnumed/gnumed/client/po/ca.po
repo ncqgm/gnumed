@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2012-04-16 13:52+CEST\n"
+"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -3753,16 +3753,25 @@ msgstr "Vacunació"
 msgid "Activate the respective patient by double-clicking a row."
 msgstr ""
 
+msgid ""
+"Here you can enter an interval (extending backwards from \"now\") within "
+"which to show health care activity."
+msgstr ""
+
 msgid "Identity:"
 msgstr ""
 
 msgid "Contacts:"
 msgstr ""
 
-msgid "Encounters / admissions (last"
+#, fuzzy
+msgid "Activity:"
+msgstr "Medicació actual:"
+
+msgid "(limit to last:"
 msgstr ""
 
-msgid "):"
+msgid ")"
 msgstr ""
 
 #, fuzzy
@@ -4648,6 +4657,23 @@ msgid "Expand to"
 msgstr ""
 
 msgid "Scope"
+msgstr ""
+
+msgid "Filling in text expansion"
+msgstr ""
+
+msgid "Finish filling in text macro."
+msgstr ""
+
+msgid "Go to the next fill-in position."
+msgstr ""
+
+msgid "Cancel filling in the text expansion."
+msgstr ""
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
 msgstr ""
 
 msgid "<age>"
@@ -8434,6 +8460,13 @@ msgstr ""
 msgid "Display database audit trail."
 msgstr ""
 
+msgid "List all bills across all patients."
+msgstr ""
+
+#, fuzzy
+msgid "List bills"
+msgstr "Descripció"
+
 msgid "&Office"
 msgstr ""
 
@@ -8865,16 +8898,16 @@ msgid ""
 msgstr ""
 
 msgid ""
-"This email address will be used when GNUmed\n"
-"is sending email on your behalf such as when\n"
-"reporting bugs or when you choose to contribute\n"
-"reference material to the GNUmed community.\n"
+"If you want the GNUmed developers to be able to\n"
+"contact you directly - rather than via the public\n"
+"mailing list only - you can enter your preferred\n"
+"email address here.\n"
 "\n"
-"The developers will then be able to get back to you\n"
-"directly with advice. Otherwise you would have to\n"
-"follow the mailing list discussion for help.\n"
+"This address will then be included with bug reports\n"
+"or contributions to the GNUmed community you may\n"
+"choose to send from within the GNUmed client.\n"
 "\n"
-"Leave this blank if you wish to stay anonymous."
+"Leave this blank if you wish to stay anonymous.\n"
 msgstr ""
 
 msgid "Please enter your email address."
@@ -10544,15 +10577,6 @@ msgid ""
 " \"%s\""
 msgstr ""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-
-msgid "Selecting text macro"
-msgstr ""
-
 msgid "You need to actually set an editor."
 msgstr ""
 
@@ -10740,8 +10764,9 @@ msgstr ""
 msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s la setmana passada (%s of %s)"
 
-msgid "due (%s): %s"
-msgstr ""
+#, fuzzy
+msgid "due %s: %s"
+msgstr "  risc: %s"
 
 msgid "%s %s more not shown %s"
 msgstr ""
@@ -10754,6 +10779,10 @@ msgstr ""
 
 msgid "last: %s, %s"
 msgstr ""
+
+#, fuzzy
+msgid "%s Vacc: %s"
+msgstr "  risc: %s"
 
 msgid "%s %s %s%s"
 msgstr ""
@@ -11156,38 +11185,6 @@ msgid "week"
 msgstr ""
 
 msgid "weeks"
-msgstr ""
-
-msgid "Cannot save text expansion without keyword."
-msgstr ""
-
-msgid "Cannot save text expansion without expansion text."
-msgstr ""
-
-msgid "___copy"
-msgstr ""
-
-msgid "Adding text expansion"
-msgstr ""
-
-msgid "Editing text expansion \"%s\""
-msgstr ""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-
-msgid "Editing keyword-based text expansions ..."
-msgstr ""
-
-msgid "Owner"
-msgstr ""
-
-msgid "Private"
-msgstr ""
-
-msgid "Public"
 msgstr ""
 
 msgid ""
@@ -11612,6 +11609,47 @@ msgid ""
 msgstr ""
 
 msgid "Enlisting person as user."
+msgstr ""
+
+msgid "Cannot save text expansion without keyword."
+msgstr ""
+
+msgid "Cannot save text expansion without expansion text."
+msgstr ""
+
+msgid "___copy"
+msgstr ""
+
+msgid "Adding text expansion"
+msgstr ""
+
+msgid "Editing text expansion \"%s\""
+msgstr ""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+
+msgid "Editing keyword-based text expansions ..."
+msgstr ""
+
+msgid "Owner"
+msgstr ""
+
+msgid "Private"
+msgstr ""
+
+msgid "Public"
+msgstr ""
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+
+msgid "Selecting text macro"
 msgstr ""
 
 msgid "Cannot activate Allergy Manager. No active patient."
@@ -12445,10 +12483,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "%s (%s %s%s)         [#%s]\n"
 #~ msgstr "episodi : %s"
-
-#, fuzzy
-#~ msgid " %s: %s\n"
-#~ msgstr "  risc: %s"
 
 #, fuzzy
 #~ msgid "Show items to be billed to the active patient."

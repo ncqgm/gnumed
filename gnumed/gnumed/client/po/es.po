@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-16 13:53+CEST\n"
+"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -4313,6 +4313,11 @@ msgstr "Añadir Organización"
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Activar el paciente haciendo doble click."
 
+msgid ""
+"Here you can enter an interval (extending backwards from \"now\") within "
+"which to show health care activity."
+msgstr ""
+
 #, fuzzy
 msgid "Identity:"
 msgstr "Identidad"
@@ -4322,10 +4327,13 @@ msgid "Contacts:"
 msgstr "Contactos"
 
 #, fuzzy
-msgid "Encounters / admissions (last"
-msgstr "Lista de &citas"
+msgid "Activity:"
+msgstr "Activar"
 
-msgid "):"
+msgid "(limit to last:"
+msgstr ""
+
+msgid ")"
 msgstr ""
 
 #, fuzzy
@@ -5361,6 +5369,26 @@ msgstr "Espander a"
 
 msgid "Scope"
 msgstr "Ámbito"
+
+#, fuzzy
+msgid "Filling in text expansion"
+msgstr "Agragando expansión de texto"
+
+#, fuzzy
+msgid "Finish filling in text macro."
+msgstr "Agragando expansión de texto"
+
+msgid "Go to the next fill-in position."
+msgstr ""
+
+#, fuzzy
+msgid "Cancel filling in the text expansion."
+msgstr "Agragando expansión de texto"
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
+msgstr ""
 
 msgid "<age>"
 msgstr ""
@@ -9863,6 +9891,13 @@ msgstr "Auditoría"
 msgid "Display database audit trail."
 msgstr "Muestre la auditoría de la base de datos."
 
+msgid "List all bills across all patients."
+msgstr ""
+
+#, fuzzy
+msgid "List bills"
+msgstr "Navegador de Medicamentos"
+
 msgid "&Office"
 msgstr "&Oficina"
 
@@ -10474,27 +10509,17 @@ msgstr ""
 "Ingrese el período máximo de inactividad en DÍAS:"
 
 msgid ""
-"This email address will be used when GNUmed\n"
-"is sending email on your behalf such as when\n"
-"reporting bugs or when you choose to contribute\n"
-"reference material to the GNUmed community.\n"
+"If you want the GNUmed developers to be able to\n"
+"contact you directly - rather than via the public\n"
+"mailing list only - you can enter your preferred\n"
+"email address here.\n"
 "\n"
-"The developers will then be able to get back to you\n"
-"directly with advice. Otherwise you would have to\n"
-"follow the mailing list discussion for help.\n"
+"This address will then be included with bug reports\n"
+"or contributions to the GNUmed community you may\n"
+"choose to send from within the GNUmed client.\n"
 "\n"
-"Leave this blank if you wish to stay anonymous."
+"Leave this blank if you wish to stay anonymous.\n"
 msgstr ""
-"Esta dirección de correo electrónico será usada cuando GNUmed\n"
-"esté enviando un correo electrónico a su nombre tal como\n"
-"cuando informe de errores o cuando usted elija contribuir con\n"
-"material referencial a la comunidad GNUmed.\n"
-"\n"
-"Los desarrolladores podrán entonces volver a usted directamente\n"
-"con consejo. De otra forma, usted tendría que seguir la discusión\n"
-"en la lista de correo para conseguir ayuda.\n"
-"\n"
-"Deje esto en blanco se se desea mantener anónimo."
 
 msgid "Please enter your email address."
 msgstr "Por favor, ingrese su dirección de correo electrónico."
@@ -12467,18 +12492,6 @@ msgstr ""
 "\n"
 " \"%s\""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-"Variadas macros coinciden con le palabra clave [%s].\n"
-"\n"
-"Por favor, seleccione la expansión que desea."
-
-msgid "Selecting text macro"
-msgstr "Seleccionando macro de texto"
-
 msgid "You need to actually set an editor."
 msgstr "Necestia realmente seleccionar un editor."
 
@@ -12712,7 +12725,7 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s%7s %s:%s (%s parte(s)%s)"
 
 #, fuzzy
-msgid "due (%s): %s"
+msgid "due %s: %s"
 msgstr "Comentario (%s): %%s"
 
 msgid "%s %s more not shown %s"
@@ -12727,6 +12740,10 @@ msgstr "Sección: %s (%s)"
 
 #, fuzzy
 msgid "last: %s, %s"
+msgstr "parte %s: %s"
+
+#, fuzzy
+msgid "%s Vacc: %s"
 msgstr "parte %s: %s"
 
 #, fuzzy
@@ -13265,40 +13282,6 @@ msgstr "semana"
 msgid "weeks"
 msgstr "semanas"
 
-msgid "Cannot save text expansion without keyword."
-msgstr "No puedo guardar la expansión de texto sin contraseña."
-
-msgid "Cannot save text expansion without expansion text."
-msgstr "No puedo guardar la expansión de texto sin texto expandido."
-
-msgid "___copy"
-msgstr "___copia"
-
-msgid "Adding text expansion"
-msgstr "Agragando expansión de texto"
-
-msgid "Editing text expansion \"%s\""
-msgstr "Editando expansión de texto \"%s\""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-"\n"
-"¡Seleccione la macro de texto que desea editar!\n"
-
-msgid "Editing keyword-based text expansions ..."
-msgstr "Editando macros de texto ..."
-
-msgid "Owner"
-msgstr "Dueño"
-
-msgid "Private"
-msgstr "Privado"
-
-msgid "Public"
-msgstr "Público"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -13793,6 +13776,52 @@ msgstr ""
 
 msgid "Enlisting person as user."
 msgstr "Enlistando paciente como usuario"
+
+msgid "Cannot save text expansion without keyword."
+msgstr "No puedo guardar la expansión de texto sin contraseña."
+
+msgid "Cannot save text expansion without expansion text."
+msgstr "No puedo guardar la expansión de texto sin texto expandido."
+
+msgid "___copy"
+msgstr "___copia"
+
+msgid "Adding text expansion"
+msgstr "Agragando expansión de texto"
+
+msgid "Editing text expansion \"%s\""
+msgstr "Editando expansión de texto \"%s\""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"¡Seleccione la macro de texto que desea editar!\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Editando macros de texto ..."
+
+msgid "Owner"
+msgstr "Dueño"
+
+msgid "Private"
+msgstr "Privado"
+
+msgid "Public"
+msgstr "Público"
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+"Variadas macros coinciden con le palabra clave [%s].\n"
+"\n"
+"Por favor, seleccione la expansión que desea."
+
+msgid "Selecting text macro"
+msgstr "Seleccionando macro de texto"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
@@ -14680,12 +14709,35 @@ msgid "First Date"
 msgstr "Primera cita"
 
 #, fuzzy
-#~ msgid "%s (%s %s%s)         [#%s]\n"
-#~ msgstr "Episodio %s%s%s (%s%s) [#%s]\n"
+#~ msgid "Encounters / admissions (last"
+#~ msgstr "Lista de &citas"
+
+#~ msgid ""
+#~ "This email address will be used when GNUmed\n"
+#~ "is sending email on your behalf such as when\n"
+#~ "reporting bugs or when you choose to contribute\n"
+#~ "reference material to the GNUmed community.\n"
+#~ "\n"
+#~ "The developers will then be able to get back to you\n"
+#~ "directly with advice. Otherwise you would have to\n"
+#~ "follow the mailing list discussion for help.\n"
+#~ "\n"
+#~ "Leave this blank if you wish to stay anonymous."
+#~ msgstr ""
+#~ "Esta dirección de correo electrónico será usada cuando GNUmed\n"
+#~ "esté enviando un correo electrónico a su nombre tal como\n"
+#~ "cuando informe de errores o cuando usted elija contribuir con\n"
+#~ "material referencial a la comunidad GNUmed.\n"
+#~ "\n"
+#~ "Los desarrolladores podrán entonces volver a usted directamente\n"
+#~ "con consejo. De otra forma, usted tendría que seguir la discusión\n"
+#~ "en la lista de correo para conseguir ayuda.\n"
+#~ "\n"
+#~ "Deje esto en blanco se se desea mantener anónimo."
 
 #, fuzzy
-#~ msgid " %s: %s\n"
-#~ msgstr "parte %s: %s"
+#~ msgid "%s (%s %s%s)         [#%s]\n"
+#~ msgstr "Episodio %s%s%s (%s%s) [#%s]\n"
 
 #, fuzzy
 #~ msgid " %s hospital stays"
@@ -14758,10 +14810,6 @@ msgstr "Primera cita"
 #, fuzzy
 #~ msgid "Show PDF"
 #~ msgstr "Mostrar"
-
-#, fuzzy
-#~ msgid "Browse bills"
-#~ msgstr "Navegador de Medicamentos"
 
 #, fuzzy
 #~ msgid "Creating bill"

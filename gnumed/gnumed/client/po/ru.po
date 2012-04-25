@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-16 13:54+CEST\n"
+"POT-Creation-Date: 2012-04-23 18:27+CEST\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -4239,16 +4239,26 @@ msgstr "Управление организациями и их подразде
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Активируйте соответствующего пациента двойным кликом по строке."
 
+msgid ""
+"Here you can enter an interval (extending backwards from \"now\") within "
+"which to show health care activity."
+msgstr ""
+
 msgid "Identity:"
 msgstr "Идентификация:"
 
 msgid "Contacts:"
 msgstr "Контактные данные:"
 
-msgid "Encounters / admissions (last"
-msgstr "Обращения или госпитализации (последнее"
+#, fuzzy
+msgid "Activity:"
+msgstr "Включить"
 
-msgid "):"
+msgid "(limit to last:"
+msgstr ""
+
+#, fuzzy
+msgid ")"
 msgstr "):"
 
 msgid "Current meds and substances:"
@@ -5274,6 +5284,26 @@ msgstr "Действовать в"
 
 msgid "Scope"
 msgstr "Область действия"
+
+#, fuzzy
+msgid "Filling in text expansion"
+msgstr "Добавление текстового расширения"
+
+#, fuzzy
+msgid "Finish filling in text macro."
+msgstr "Добавление текстового расширения"
+
+msgid "Go to the next fill-in position."
+msgstr ""
+
+#, fuzzy
+msgid "Cancel filling in the text expansion."
+msgstr "Добавление текстового расширения"
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
+msgstr ""
 
 msgid "<age>"
 msgstr ""
@@ -9720,6 +9750,13 @@ msgstr "Аудиторский след"
 msgid "Display database audit trail."
 msgstr "Отображает аудиторский след в базе данных."
 
+msgid "List all bills across all patients."
+msgstr ""
+
+#, fuzzy
+msgid "List bills"
+msgstr "Обзор"
+
 msgid "&Office"
 msgstr "&Office"
 
@@ -10336,27 +10373,17 @@ msgstr ""
 "Введите максимум бездействия эпизода в ДНЯХ:"
 
 msgid ""
-"This email address will be used when GNUmed\n"
-"is sending email on your behalf such as when\n"
-"reporting bugs or when you choose to contribute\n"
-"reference material to the GNUmed community.\n"
+"If you want the GNUmed developers to be able to\n"
+"contact you directly - rather than via the public\n"
+"mailing list only - you can enter your preferred\n"
+"email address here.\n"
 "\n"
-"The developers will then be able to get back to you\n"
-"directly with advice. Otherwise you would have to\n"
-"follow the mailing list discussion for help.\n"
+"This address will then be included with bug reports\n"
+"or contributions to the GNUmed community you may\n"
+"choose to send from within the GNUmed client.\n"
 "\n"
-"Leave this blank if you wish to stay anonymous."
+"Leave this blank if you wish to stay anonymous.\n"
 msgstr ""
-"Этот адрес электронной почты будет использоваться,\n"
-"при отправке GNUmed от вашего имени сообщений, таких\n"
-"как сообщения об ошибках или при выборе внесения\n"
-"ссылочных материалов для сообщества GNUmed.\n"
-"\n"
-"Разработчики затем смогут обратиться непосредственно\n"
-"к вам с советом. В противном случае для помощи придется\n"
-"следить за ходом обсуждения списка рассылки.\n"
-"\n"
-"Оставьте это поле пустым, если хотите остаться анонимным."
 
 msgid "Please enter your email address."
 msgstr "Введите адрес электронной почты."
@@ -12336,18 +12363,6 @@ msgstr ""
 "\n"
 " \"%s\""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-"Некоторые макросы соответствуют ключевому слову [%s].\n"
-"\n"
-"Выберите расширение, нужное для совершения."
-
-msgid "Selecting text macro"
-msgstr "Выбор текстового макроса"
-
 msgid "You need to actually set an editor."
 msgstr "Действительно нужно установить редактор."
 
@@ -12559,7 +12574,7 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s%7s %s:%s (%s часть(и)%s)"
 
 #, fuzzy
-msgid "due (%s): %s"
+msgid "due %s: %s"
 msgstr "Комментарий (%s): %%s"
 
 msgid "%s %s more not shown %s"
@@ -12573,6 +12588,10 @@ msgstr "первый: %s, %s"
 
 msgid "last: %s, %s"
 msgstr "последний: %s, %s"
+
+#, fuzzy
+msgid "%s Vacc: %s"
+msgstr "часть %s: %s"
 
 msgid "%s %s %s%s"
 msgstr "%s %s %s%s"
@@ -13089,40 +13108,6 @@ msgstr "неделя"
 msgid "weeks"
 msgstr "недели"
 
-msgid "Cannot save text expansion without keyword."
-msgstr "Невозможно сохранить текстовое расширение без ключевого слова."
-
-msgid "Cannot save text expansion without expansion text."
-msgstr "Невозможно сохранить текстовое расширение без расширенного текста."
-
-msgid "___copy"
-msgstr "___copy"
-
-msgid "Adding text expansion"
-msgstr "Добавление текстового расширения"
-
-msgid "Editing text expansion \"%s\""
-msgstr "Редактировани текстового расширения \"%s\""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-"\n"
-"Выберите ключевое слово, которое нужно редактировать!\n"
-
-msgid "Editing keyword-based text expansions ..."
-msgstr "Редактирование текстового расширения на основе ключевого слова ..."
-
-msgid "Owner"
-msgstr "Владелец"
-
-msgid "Private"
-msgstr "Конфиденциальное"
-
-msgid "Public"
-msgstr "Общедоступное"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -13611,6 +13596,52 @@ msgstr ""
 
 msgid "Enlisting person as user."
 msgstr "Зарегистрировать персону как пользователь."
+
+msgid "Cannot save text expansion without keyword."
+msgstr "Невозможно сохранить текстовое расширение без ключевого слова."
+
+msgid "Cannot save text expansion without expansion text."
+msgstr "Невозможно сохранить текстовое расширение без расширенного текста."
+
+msgid "___copy"
+msgstr "___copy"
+
+msgid "Adding text expansion"
+msgstr "Добавление текстового расширения"
+
+msgid "Editing text expansion \"%s\""
+msgstr "Редактировани текстового расширения \"%s\""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"Выберите ключевое слово, которое нужно редактировать!\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Редактирование текстового расширения на основе ключевого слова ..."
+
+msgid "Owner"
+msgstr "Владелец"
+
+msgid "Private"
+msgstr "Конфиденциальное"
+
+msgid "Public"
+msgstr "Общедоступное"
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+"Некоторые макросы соответствуют ключевому слову [%s].\n"
+"\n"
+"Выберите расширение, нужное для совершения."
+
+msgid "Selecting text macro"
+msgstr "Выбор текстового макроса"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Невозможно активировать менеджер по аллергии. Нет активного пациента."
@@ -14493,13 +14524,35 @@ msgstr "Количество"
 msgid "First Date"
 msgstr "Первый раз"
 
+#~ msgid "Encounters / admissions (last"
+#~ msgstr "Обращения или госпитализации (последнее"
+
+#~ msgid ""
+#~ "This email address will be used when GNUmed\n"
+#~ "is sending email on your behalf such as when\n"
+#~ "reporting bugs or when you choose to contribute\n"
+#~ "reference material to the GNUmed community.\n"
+#~ "\n"
+#~ "The developers will then be able to get back to you\n"
+#~ "directly with advice. Otherwise you would have to\n"
+#~ "follow the mailing list discussion for help.\n"
+#~ "\n"
+#~ "Leave this blank if you wish to stay anonymous."
+#~ msgstr ""
+#~ "Этот адрес электронной почты будет использоваться,\n"
+#~ "при отправке GNUmed от вашего имени сообщений, таких\n"
+#~ "как сообщения об ошибках или при выборе внесения\n"
+#~ "ссылочных материалов для сообщества GNUmed.\n"
+#~ "\n"
+#~ "Разработчики затем смогут обратиться непосредственно\n"
+#~ "к вам с советом. В противном случае для помощи придется\n"
+#~ "следить за ходом обсуждения списка рассылки.\n"
+#~ "\n"
+#~ "Оставьте это поле пустым, если хотите остаться анонимным."
+
 #, fuzzy
 #~ msgid "%s (%s %s%s)         [#%s]\n"
 #~ msgstr "Обострение %s%s%s [#%s]"
-
-#, fuzzy
-#~ msgid " %s: %s\n"
-#~ msgstr "часть %s: %s"
 
 #~ msgid " %s hospital stays"
 #~ msgstr " %s пребываний в стационаре"
@@ -14570,10 +14623,6 @@ msgstr "Первый раз"
 #, fuzzy
 #~ msgid "Show PDF"
 #~ msgstr "Показать:"
-
-#, fuzzy
-#~ msgid "Browse bills"
-#~ msgstr "Обзор"
 
 #, fuzzy
 #~ msgid "Creating bill"

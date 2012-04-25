@@ -255,6 +255,8 @@ grant select on
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
+set standard_conforming_strings to on;
+
 \unset ON_ERROR_STOP
 INSERT INTO bill.bill_item (
 	fk_provider,
@@ -271,10 +273,11 @@ INSERT INTO bill.bill_item (
 	1,
 	25,
 	2.3,
-	E'\u20AC'
+	U&'\20AC'
 );
 \set ON_ERROR_STOP 1
 
+reset standard_conforming_strings;
 
 grant usage on schema bill to group "gm-doctors";
 

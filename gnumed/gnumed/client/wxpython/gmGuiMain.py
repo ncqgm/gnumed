@@ -74,6 +74,7 @@ from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmBillingWidgets
+from Gnumed.wxpython import gmTextExpansionWidgets
 
 
 try:
@@ -644,7 +645,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_emr, _("&EMR"))
 		self.__gb['main.emrmenu'] = menu_emr
 
-		# -- menu "paperwork" ---------------------
+		# -- menu "Paperwork" ---------------------
 		menu_paperwork = wx.Menu()
 
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
@@ -740,6 +741,9 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_display_audit_trail, item)
 
 		self.menu_office.AppendSeparator()
+
+		item = self.menu_office.Append(-1, _('List bills'), _('List all bills across all patients.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_all_bills, item)
 
 		self.mainmenu.Append(self.menu_office, _('&Office'))
 		self.__gb['main.officemenu'] = self.menu_office
@@ -1855,16 +1859,16 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = wx.TextEntryDialog (
 			parent = self,
 			message = _(
-				'This email address will be used when GNUmed\n'
-				'is sending email on your behalf such as when\n'
-				'reporting bugs or when you choose to contribute\n'
-				'reference material to the GNUmed community.\n'
+				'If you want the GNUmed developers to be able to\n'
+				'contact you directly - rather than via the public\n'
+				'mailing list only - you can enter your preferred\n'
+				'email address here.\n'
 				'\n'
-				'The developers will then be able to get back to you\n'
-				'directly with advice. Otherwise you would have to\n'
-				'follow the mailing list discussion for help.\n'
+				'This address will then be included with bug reports\n'
+				'or contributions to the GNUmed community you may\n'
+				'choose to send from within the GNUmed client.\n'
 				'\n'
-				'Leave this blank if you wish to stay anonymous.'
+				'Leave this blank if you wish to stay anonymous.\n'
 			),
 			caption = _('Please enter your email address.'),
 			defaultValue = gmTools.coalesce(email, u''),
@@ -2095,7 +2099,7 @@ class gmTopLevelFrame(wx.Frame):
 		map_list2handler = {
 			'form_templates': gmFormWidgets.manage_form_templates,
 			'doc_types': gmDocumentWidgets.manage_document_types,
-			'text_expansions': gmProviderInboxWidgets.configure_keyword_text_expansion,
+			'text_expansions': gmTextExpansionWidgets.configure_keyword_text_expansion,
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,
@@ -2283,6 +2287,9 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_display_audit_trail(self, evt):
 		gmProviderInboxWidgets.show_audit_trail(parent = self)
 		evt.Skip()
+	#----------------------------------------------
+	def __on_show_all_bills(self, evt):
+		gmBillingWidgets.manage_bills(parent = self)
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------

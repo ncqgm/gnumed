@@ -837,7 +837,7 @@ def expand_keyword(keyword = None):
 	if keyword == u'$$steffi':
 		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
-	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
+	cmd = u"""SELECT expansion FROM clin.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:

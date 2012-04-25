@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-16 13:53+CEST\n"
+"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -4245,6 +4245,11 @@ msgstr "instellingen bewaren"
 msgid "Activate the respective patient by double-clicking a row."
 msgstr "Activeer de respectivelijke patient door een rij te dubbelklikken."
 
+msgid ""
+"Here you can enter an interval (extending backwards from \"now\") within "
+"which to show health care activity."
+msgstr ""
+
 #, fuzzy
 msgid "Identity:"
 msgstr "Identiteit"
@@ -4254,10 +4259,13 @@ msgid "Contacts:"
 msgstr "Contactpersonen"
 
 #, fuzzy
-msgid "Encounters / admissions (last"
-msgstr "&Ontmoetingstypen"
+msgid "Activity:"
+msgstr "Activeren"
 
-msgid "):"
+msgid "(limit to last:"
+msgstr ""
+
+msgid ")"
 msgstr ""
 
 #, fuzzy
@@ -5260,6 +5268,26 @@ msgstr "Uitvouwen naar"
 
 msgid "Scope"
 msgstr "Bereik"
+
+#, fuzzy
+msgid "Filling in text expansion"
+msgstr "Tekstuitbreiding toevoegen"
+
+#, fuzzy
+msgid "Finish filling in text macro."
+msgstr "Tekstuitbreiding toevoegen"
+
+msgid "Go to the next fill-in position."
+msgstr ""
+
+#, fuzzy
+msgid "Cancel filling in the text expansion."
+msgstr "Tekstuitbreiding toevoegen"
+
+msgid ""
+"\n"
+"Please fill in an appropriate value below.\n"
+msgstr ""
 
 msgid "<age>"
 msgstr ""
@@ -9737,6 +9765,13 @@ msgstr "Details bewerken"
 msgid "Display database audit trail."
 msgstr ""
 
+msgid "List all bills across all patients."
+msgstr ""
+
+#, fuzzy
+msgid "List bills"
+msgstr "GeneesmiddelenBladeraar"
+
 msgid "&Office"
 msgstr "&Kantoor"
 
@@ -10313,27 +10348,17 @@ msgstr ""
 "Geef de maximale rusttijd in DAGEN in:"
 
 msgid ""
-"This email address will be used when GNUmed\n"
-"is sending email on your behalf such as when\n"
-"reporting bugs or when you choose to contribute\n"
-"reference material to the GNUmed community.\n"
+"If you want the GNUmed developers to be able to\n"
+"contact you directly - rather than via the public\n"
+"mailing list only - you can enter your preferred\n"
+"email address here.\n"
 "\n"
-"The developers will then be able to get back to you\n"
-"directly with advice. Otherwise you would have to\n"
-"follow the mailing list discussion for help.\n"
+"This address will then be included with bug reports\n"
+"or contributions to the GNUmed community you may\n"
+"choose to send from within the GNUmed client.\n"
 "\n"
-"Leave this blank if you wish to stay anonymous."
+"Leave this blank if you wish to stay anonymous.\n"
 msgstr ""
-"Dit emailadres wordt gebruikt als GNUmed namens u\n"
-"email verstuurd zoals bij het rapporteren van bugs of\n"
-"als u referentiemateriaal wilt bijdragen aan de GNUmed\n"
-"gemeenschap.\n"
-"\n"
-"De ontwikkelaars zijn dan in staat om direct met u \n"
-"contact op te nemen voor advies. Anders moet u de \n"
-"mailinglijstdiscussie volgen voor hulp.\n"
-"\n"
-"Laat dit leeg als u anoniem wilt blijven."
 
 msgid "Please enter your email address."
 msgstr "Voer uw emailadres in."
@@ -12324,16 +12349,6 @@ msgid ""
 " \"%s\""
 msgstr ""
 
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-
-#, fuzzy
-msgid "Selecting text macro"
-msgstr "Testresultaten selecteren"
-
 msgid "You need to actually set an editor."
 msgstr ""
 
@@ -12555,7 +12570,7 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, fuzzy
-msgid "due (%s): %s"
+msgid "due %s: %s"
 msgstr "Documenten: %s"
 
 msgid "%s %s more not shown %s"
@@ -12571,6 +12586,10 @@ msgstr "prik: %s, %s, %s"
 #, fuzzy
 msgid "last: %s, %s"
 msgstr "prik: %s, %s, %s"
+
+#, fuzzy
+msgid "%s Vacc: %s"
+msgstr "part %2s"
 
 #, fuzzy
 msgid "%s %s %s%s"
@@ -13067,41 +13086,6 @@ msgstr "week"
 msgid "weeks"
 msgstr "weken"
 
-msgid "Cannot save text expansion without keyword."
-msgstr "Kan tekstuitbreiding niet opslaan zonder sleutelwoord."
-
-msgid "Cannot save text expansion without expansion text."
-msgstr "Kan tekstuitbreiding niet opslaan zonder uitbreidingstekst."
-
-msgid "___copy"
-msgstr ""
-
-#, fuzzy
-msgid "Adding text expansion"
-msgstr "Tekstuitbreiding toevoegen"
-
-msgid "Editing text expansion \"%s\""
-msgstr "Wijzigen van tekstuitbreiding \"%s\""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-"\n"
-"Selecteer het sleutelwoord dat u wilt bewerken!\n"
-
-msgid "Editing keyword-based text expansions ..."
-msgstr "Bewerken van op sleutelwoord gebaseerde tekstuitbreidingen ..."
-
-msgid "Owner"
-msgstr "Eigenaar"
-
-msgid "Private"
-msgstr "Privé"
-
-msgid "Public"
-msgstr "Openbaar"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -13591,6 +13575,51 @@ msgstr ""
 #, fuzzy
 msgid "Enlisting person as user."
 msgstr "Patiënt inschrijven als staf."
+
+msgid "Cannot save text expansion without keyword."
+msgstr "Kan tekstuitbreiding niet opslaan zonder sleutelwoord."
+
+msgid "Cannot save text expansion without expansion text."
+msgstr "Kan tekstuitbreiding niet opslaan zonder uitbreidingstekst."
+
+msgid "___copy"
+msgstr ""
+
+#, fuzzy
+msgid "Adding text expansion"
+msgstr "Tekstuitbreiding toevoegen"
+
+msgid "Editing text expansion \"%s\""
+msgstr "Wijzigen van tekstuitbreiding \"%s\""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+"\n"
+"Selecteer het sleutelwoord dat u wilt bewerken!\n"
+
+msgid "Editing keyword-based text expansions ..."
+msgstr "Bewerken van op sleutelwoord gebaseerde tekstuitbreidingen ..."
+
+msgid "Owner"
+msgstr "Eigenaar"
+
+msgid "Private"
+msgstr "Privé"
+
+msgid "Public"
+msgstr "Openbaar"
+
+msgid ""
+"Several macros match the keyword [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+
+#, fuzzy
+msgid "Selecting text macro"
+msgstr "Testresultaten selecteren"
 
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr "Kan allergieorganisator niet activeren. Geen actieve patiënt."
@@ -14484,12 +14513,35 @@ msgid "First Date"
 msgstr "Eerste Datum"
 
 #, fuzzy
-#~ msgid "%s (%s %s%s)         [#%s]\n"
-#~ msgstr "Episode %s%s%s (%s) [#%s]\n"
+#~ msgid "Encounters / admissions (last"
+#~ msgstr "&Ontmoetingstypen"
+
+#~ msgid ""
+#~ "This email address will be used when GNUmed\n"
+#~ "is sending email on your behalf such as when\n"
+#~ "reporting bugs or when you choose to contribute\n"
+#~ "reference material to the GNUmed community.\n"
+#~ "\n"
+#~ "The developers will then be able to get back to you\n"
+#~ "directly with advice. Otherwise you would have to\n"
+#~ "follow the mailing list discussion for help.\n"
+#~ "\n"
+#~ "Leave this blank if you wish to stay anonymous."
+#~ msgstr ""
+#~ "Dit emailadres wordt gebruikt als GNUmed namens u\n"
+#~ "email verstuurd zoals bij het rapporteren van bugs of\n"
+#~ "als u referentiemateriaal wilt bijdragen aan de GNUmed\n"
+#~ "gemeenschap.\n"
+#~ "\n"
+#~ "De ontwikkelaars zijn dan in staat om direct met u \n"
+#~ "contact op te nemen voor advies. Anders moet u de \n"
+#~ "mailinglijstdiscussie volgen voor hulp.\n"
+#~ "\n"
+#~ "Laat dit leeg als u anoniem wilt blijven."
 
 #, fuzzy
-#~ msgid " %s: %s\n"
-#~ msgstr "part %2s"
+#~ msgid "%s (%s %s%s)         [#%s]\n"
+#~ msgstr "Episode %s%s%s (%s) [#%s]\n"
 
 #, fuzzy
 #~ msgid " %s hospital stays"
@@ -14541,10 +14593,6 @@ msgstr "Eerste Datum"
 #, fuzzy
 #~ msgid "Cannot show items billed to patient. No active patient."
 #~ msgstr "Kan geen brief schrijven. Geen actieve patiënt."
-
-#, fuzzy
-#~ msgid "Browse bills"
-#~ msgstr "GeneesmiddelenBladeraar"
 
 #, fuzzy
 #~ msgid "Creating bill"
