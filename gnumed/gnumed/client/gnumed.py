@@ -174,8 +174,7 @@ def setup_python_path():
 	if not u'--local-import' in sys.argv:
 		return
 
-	print "GNUmed startup: Running from local source tree."
-	print "-----------------------------------------------"
+	print "Running from local source tree ..."
 
 	local_python_base_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
@@ -217,7 +216,7 @@ def setup_local_repo_path():
 		return
 
 	all_entries = os.listdir(os.path.join(local_repo_path, 'Gnumed'))
-	_log.debug('repository base contains: %s', all_entries)
+	_log.debug('repo base contains: %s', all_entries)
 	all_entries.remove('wxGladeWidgets')
 	try:
 		all_entries.remove('__init__.py')
@@ -245,11 +244,9 @@ def setup_local_repo_path():
 			_log.error('insecure repo: permissions not 0600')
 			return
 
-	print "GNUmed startup: activating local wxGlade widgets repository"
-	print "GNUmed startup:", local_wxGladeWidgets_path
-
+	print "Activating local wxGlade widgets repository ..."
 	sys.path.insert(0, local_repo_path)
-	_log.debug('sys.path is now:')
+	_log.debug('sys.path with repo:')
 	_log.debug(sys.path)
 #==========================================================
 def setup_logging():

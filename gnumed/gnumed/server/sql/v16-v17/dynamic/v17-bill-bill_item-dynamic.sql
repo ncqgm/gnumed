@@ -271,7 +271,7 @@ INSERT INTO bill.bill_item (
 	1,
 	25,
 	2.3,
-	E'\u20AC'
+	U&'\20AC'
 );
 \set ON_ERROR_STOP 1
 
