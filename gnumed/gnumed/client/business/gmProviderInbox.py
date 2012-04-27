@@ -150,9 +150,9 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'pk_staff in (%(staff)s, NULL)')
+			where_parts.append(u'pk_staff IN (%(staff)s, NULL) OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		else:
-			where_parts.append(u'pk_staff = %(staff)s')
+			where_parts.append(u'pk_staff = %(staff)s OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:

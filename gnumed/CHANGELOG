@@ -47,6 +47,7 @@ IMPROVED: vaccinations: in EMR root show how long ago it was given
 IMPROVED: waiting list: on activating patient set RFE if empty but waiting list has comment
 IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 IMPROVED: keyword-based text expansion macros: let user fill in values
+IMPROVED: message inbox: include messages *by* the active provider, too
 
 ------------------------------------------------
 # rel-1-1-patches
