@@ -858,6 +858,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__widths = None
 		self.__data = None
 		self.__activate_callback = None
+		self.__rightclick_callback = None
 
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.__item_tooltip_callback = None
@@ -1059,6 +1060,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
 	#------------------------------------------------------------
+	def _on_list_item_rightclicked(self, event):
+		event.Skip()
+		if self.__rightclick_callback is not None:
+			self.__rightclick_callback(event)
+	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
 		"""Update tooltip on mouse motion.
 
@@ -1157,6 +1163,20 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__activate_callback = callback
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
+	#------------------------------------------------------------
+	def _get_rightclick_callback(self):
+		return self.__rightclick_callback
+
+	def _set_rightclick_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_RIGHT_CLICK)
+		else:
+			if not callable(callback):
+				raise ValueError('<rightclick> callback is not a callable: %s' % callback)
+			self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
+		self.__rightclick_callback = callback
+
+	rightclick_callback = property(_get_rightclick_callback, _set_rightclick_callback)
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
 		if callback is not None:
