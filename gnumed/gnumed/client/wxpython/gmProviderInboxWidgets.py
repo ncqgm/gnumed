@@ -19,6 +19,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -35,6 +36,7 @@ from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmDataPackWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -416,6 +418,8 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 def _display_clinical_reminders():
 	wx.CallAfter(__display_clinical_reminders)
 
+gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
+
 def __display_clinical_reminders():
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -449,10 +453,27 @@ def __display_clinical_reminders():
 			aTitle = _('Clinical reminder'),
 			aMessage = txt
 		)
+	for hint in pat.dynamic_hints:
+		txt = u'%s\n\n          %s' % (
+			gmTools.wrap(hint['hint'], width = 50, initial_indent = u' ', subsequent_indent = u' '),
+			hint['source']
+		)
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,
+			-1,
+			caption = _('Clinical hint'),
+			question = txt,
+			button_defs = [
+				{'label': _('OK'), 'tooltip': _('OK'), 'default': True},
+				{'label': _('More info'), 'tooltip': _('Go to [%s]') % hint['url']}
+			]
+		)
+		button = dlg.ShowModal()
+		dlg.Destroy()
+		if button == wx.ID_NO:
+			gmNetworkTools.open_url_in_browser(hint['url'], autoraise = False)
+
 	return
-
-gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
-
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 
@@ -1086,6 +1107,62 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wx.CallAfter(gmVaccWidgets.manage_vaccinations)
 
 		return True
+#============================================================
+def browse_dynamic_hints(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
+	def switch_activation(item):
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Switching clinical hint activation'))
+		if conn is None:
+			return False
+		item['is_active'] = not item['is_active']
+		return item.save(conn = conn)
+	#------------------------------------------------------------
+	def manage_data_packs(item):
+		gmDataPackWidgets.manage_data_packs(parent = parent)
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		hints = gmProviderInbox.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
+		items = [ [
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			h['source'][:30],
+			h['hint'][:60],
+			gmTools.coalesce(h['url'], u'')[:60],
+			h['lang'],
+			h['query'][:25],
+			h['pk']
+		] for h in hints ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(hints)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nDynamic hints registered with GNUmed.\n'),
+		caption = _('Showing dynamic hints.'),
+		columns = [ _('Active'), _('Source'), _('Hint'), u'URL', _('Language'), u'SQL', u'#' ],
+		single_selection = True,
+		refresh_callback = refresh,
+		left_extra_button = (
+			_('(De)-Activate'),
+			_('Switch activation of the selected hint'),
+			switch_activation
+		),
+		right_extra_button = (
+			_('Data packs'),
+			_('Browse and install clinical hints data packs'),
+			manage_data_packs
+		),
+		list_tooltip_callback = get_tooltip
+	)
+
 #============================================================
 if __name__ == '__main__':
 

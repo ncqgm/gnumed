@@ -281,6 +281,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 			list_data.append(msg)
 
+		for hint in patient.dynamic_hints:
+			list_items.append(hint['hint'])
+			list_data.append(hint)
+
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
 
@@ -291,6 +295,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_inbox_item_tooltip(self, data):
 		if isinstance(data, gmProviderInbox.cInboxMessage):
 			return data.format()
+
+		if isinstance(data, gmProviderInbox.cDynamicHint):
+			return u'%s\n\n%s          %s' % (
+				gmTools.wrap(data['hint'], width = 50),
+				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
+				data['source']
+			)
 
 		return None
 	#-----------------------------------------------------
