@@ -29,6 +29,7 @@ NEW: active clinical reminders with due/expiry date
 NEW: basic billing functionality
 NEW: support for locally overriding wxGlade based widgets
 NEW: dynamic clinical hints
+NEW: placeholders <adr_subunit> and <adr_suburb>
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

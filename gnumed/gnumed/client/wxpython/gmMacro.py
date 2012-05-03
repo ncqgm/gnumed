@@ -96,7 +96,9 @@ known_variant_placeholders = [
 	u'patient_address',			# "args": <type of address>//<optional formatting template>
 	u'adr_street',				# "args" holds: type of address
 	u'adr_number',
+	u'adr_subunit',
 	u'adr_location',
+	u'adr_suburb',
 	u'adr_postcode',
 	u'adr_region',
 	u'adr_country',
@@ -697,113 +699,56 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return None
 	#--------------------------------------------------------
+	def __get_variant_adr_part(self, data=u'?', part=None):
+		requested_type = data.strip()
+		cache_key = 'adr-type-%s' % requested_type
+		try:
+			type2use = self.__cache[cache_key]
+			_log.debug('cache hit (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
+		except KeyError:
+			type2use = requested_type
+			if type2use != u'':
+				adrs = self.pat.get_addresses(address_type = type2use)
+				if len(adrs) == 0:
+					_log.warning('no address of type [%s] for <%s> field extraction', requested_type, part)
+					type2use = u''
+			if type2use == u'':
+				_log.debug('asking user for replacement address type')
+				adr = gmPersonContactWidgets.select_address(missing = requested_type, person = self.pat)
+				if adr is None:
+					_log.debug('no replacement selected')
+					if self.debug:
+						return _('no address type replacement selected')
+					return u''
+				type2use = adr['address_type']
+				self.__cache[cache_key] = type2use
+				_log.debug('caching (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
+
+		return self.pat.get_addresses(address_type = type2use)[0][part]
+	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no street for address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['street']
+		return self.__get_variant_adr_part(data = data, part = 'street')
 	#--------------------------------------------------------
 	def _get_variant_adr_number(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no number for address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['number']
+		return self.__get_variant_adr_part(data = data, part = 'number')
+	#--------------------------------------------------------
+	def _get_variant_adr_subunit(self, data=u'?'):
+		return self.__get_variant_adr_part(data = data, part = 'subunit')
 	#--------------------------------------------------------
 	def _get_variant_adr_location(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no location for address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['urb']
+		return self.__get_variant_adr_part(data = data, part = 'urb')
+	#--------------------------------------------------------
+	def _get_variant_adr_suburb(self, data=u'?'):
+		return self.__get_variant_adr_part(data = data, part = 'suburb')
 	#--------------------------------------------------------
 	def _get_variant_adr_postcode(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no postcode for address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['postcode']
+		return self.__get_variant_adr_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
 	def _get_variant_adr_region(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no region for address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_state']
+		return self.__get_variant_adr_part(data = data, part = 'l10n_state')
 	#--------------------------------------------------------
 	def _get_variant_adr_country(self, data=u'?'):
-		adr_type = data.strip()
-		orig_type = adr_type
-		if adr_type != u'':
-			adrs = self.pat.get_addresses(address_type = adr_type)
-			if len(adrs) == 0:
-				_log.warning('no country for old men / address type [%s]', adr_type)
-				adr_type = u''
-		if adr_type == u'':
-			_log.debug('asking user for address type')
-			adr = gmPersonContactWidgets.select_address(missing = orig_type, person = self.pat)
-			if adr is None:
-				if self.debug:
-					return _('no address type replacement selected')
-				return u''
-			adr_type = adr['address_type']
-		return self.pat.get_addresses(address_type = adr_type)[0]['l10n_country']
+		return self.__get_variant_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
 	def _get_variant_patient_comm(self, data=u'?'):
 		comms = self.pat.get_comm_channels(comm_medium = data)
@@ -1500,17 +1445,19 @@ if __name__ == '__main__':
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
-			#u'adr_region::home::1234',
-			#u'adr_country::home::1234',
+			u'adr_region::home::1234',
+			u'adr_country::fehlt::1234',
+			u'adr_subunit::fehlt::1234',
+			u'adr_suburb::fehlt-auch::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'primary_praxis_provider',
 			#u'current_provider',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
 			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
-			u'form_name_long::::1234',
-			u'form_name_long::::5',
-			u'form_name_long::::',
+			#u'form_name_long::::1234',
+			#u'form_name_long::::5',
+			#u'form_name_long::::',
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
@@ -1528,12 +1475,12 @@ if __name__ == '__main__':
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))
-		handler.set_placeholder('form_name_long', 'ein Testformular')
+		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print ph
 			print "result:"
 			print '%s' % handler[ph]
-		handler.unset_placeholder('form_name_long')
+		#handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
 
 	#test_placeholders()
