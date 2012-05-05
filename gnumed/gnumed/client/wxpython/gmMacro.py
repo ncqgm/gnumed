@@ -68,7 +68,7 @@ known_placeholders = [
 
 
 # values for those placeholders must be injected from the outside before using them,
-# in use they must conform to the "placeholder::::length" syntax,
+# in use they must conform to the "placeholder::::max length" syntax,
 # as long as they resolve to None they return themselves
 _injectable_placeholders = {
 	u'form_name_long': None,

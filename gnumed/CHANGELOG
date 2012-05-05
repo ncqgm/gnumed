@@ -50,6 +50,7 @@ IMPROVED: waiting list: on activating patient set RFE if empty but waiting list 
 IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 IMPROVED: keyword-based text expansion macros: let user fill in values
 IMPROVED: message inbox: include messages *by* the active provider, too
+IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
 
 ------------------------------------------------
 # rel-1-1-patches
