@@ -582,6 +582,17 @@ cd gnumed-client.$CLIENTREV
 ln -sT client Gnumed
 cd ..
 tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
+
+md5sum $CLIENTARCH > $CLIENTARCH.md5
+echo "" >> $CLIENTARCH.md5
+echo "Verify this MD5 sum by running:" >> $CLIENTARCH.md5
+echo " md5sum $CLIENTARCH" >> $CLIENTARCH.md5
+
+sha512sum $CLIENTARCH > $CLIENTARCH.sha512
+echo "" >> $CLIENTARCH.sha512
+echo "Verify this SHA512 sum by running:" >> $CLIENTARCH.sha512
+echo " sha512sum $CLIENTARCH" >> $CLIENTARCH.sha512
+
 # - server
 mv gnumed-client.$CLIENTREV gnumed-server.$SRVREV
 cd gnumed-server.$SRVREV
@@ -590,9 +601,18 @@ ln -sT server Gnumed
 cd ..
 tar -czf $SRVARCH ./gnumed-server.$SRVREV/server/ ./gnumed-server.$SRVREV/Gnumed
 
+md5sum $SRVARCH > $SRVARCH.md5
+echo "" >> $SRVARCH.md5
+echo "Verify this MD5 sum by running:" >> $SRVARCH.md5
+echo " md5sum $SRVARCH" >> $SRVARCH.md5
+
+sha512sum $SRVARCH > $SRVARCH.sha512
+echo "" >> $SRVARCH.sha512
+echo "Verify this SHA512 sum by running:" >> $SRVARCH.sha512
+echo " sha512sum $SRVARCH" >> $SRVARCH.sha512
+
 
 # cleanup
 rm -R ./gnumed-server.$SRVREV/
 
 echo "include schema docs"
-
