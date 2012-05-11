@@ -47,12 +47,14 @@ def configure_drug_data_source(parent=None):
 def get_drug_database(parent = None):
 	dbcfg = gmCfg.cCfgSQL()
 
+	# load from option
 	default_db = dbcfg.get2 (
 		option = 'external.drug_data.default_source',
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace'
 	)
 
+	# not configured -> try to configure
 	if default_db is None:
 		gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
 		configure_drug_data_source(parent = parent)
@@ -61,6 +63,7 @@ def get_drug_database(parent = None):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
+		# still not configured -> return
 		if default_db is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('There is no default drug database configured.'),
@@ -68,19 +71,26 @@ def get_drug_database(parent = None):
 			)
 			return None
 
+	# now it MUST be configured (either newly or previously)
+	# but also *validly* ?
 	try:
 		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 	except KeyError:
+		# not valid
 		_log.error('faulty default drug data source configuration: %s', default_db)
+		# try to configure
 		configure_drug_data_source(parent = parent)
 		default_db = dbcfg.get2 (
 			option = 'external.drug_data.default_source',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
-		if default_db is None:
+		# deconfigured or aborted (and thusly still misconfigured) ?
+		try:
+			drug_db = gmMedication.drug_data_source_interfaces[default_db]()
+		except KeyError:
+			_log.error('still faulty default drug data source configuration: %s', default_db)
 			return None
-		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 
 	pat = gmPerson.gmCurrentPatient()
 	if pat.connected:
