@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.rc2 (database v17.rc2)',
-	'GNUmed 1.2.rc2 Release Notes:
+	'Release Notes for GNUmed 1.2.rc3 (database v17.rc3)',
+	'GNUmed 1.2.rc3 Release Notes:
 
-	1.2.rc2
+	1.2.rc3
 
 NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
@@ -42,6 +42,8 @@ NEW: PDF-Formular "Vorsorgevollmacht" [thanks Bundesministerium f. Justiz]
 NEW: active clinical reminders with due/expiry date
 NEW: basic billing functionality
 NEW: support for locally overriding wxGlade based widgets
+NEW: dynamic clinical hints
+NEW: placeholders <adr_subunit> and <adr_suburb>
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -61,8 +63,13 @@ IMPROVED: vaccinations: in EMR root show how long ago it was given
 IMPROVED: waiting list: on activating patient set RFE if empty but waiting list has comment
 IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 IMPROVED: keyword-based text expansion macros: let user fill in values
+IMPROVED: message inbox: include messages *by* the active provider, too
+IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
+IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
+IMPROVED: branded drug EA: jump to manage-substances
+IMPROVED: placeholders: current_meds_table/current_meds_notes
 
-	17.rc2
+	17.rc3
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
 NEW: i18n.untranslate()
