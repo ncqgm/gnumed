@@ -2015,7 +2015,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex += u'\n'
 	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|X|l|X|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\\\ \n' % (_('Substance'), _('Brand'), _('Strength'), _('Advice'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\\\ \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'%s\n'
 	tex += u'\n'
@@ -2031,13 +2031,13 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	# create lines
 	lines = []
 	for med in current_meds:
-		lines.append(u'%s%s %s & %s%s & %s \\\\ \n \\hline \n' % (
+		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\\\ \n \\hline \n' % (
 			med['substance'],
-			gmTools.coalesce(med['brand'], u'', u' {\\scriptsize (%s)}'),
 			med['preparation'],
+			gmTools.coalesce(med['brand'], u'', u': {\\tiny %s}'),
 			med['amount'],
 			med['unit'],
-			gmTools.coalesce(med['notes'], u'', u'{\\scriptsize %s}')
+			gmTools.coalesce(med['aim'], u'', u'{\\scriptsize %s}')
 		))
 
 	return tex % u' \n'.join(lines)
@@ -2049,7 +2049,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	tex += u'\n'
 	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen'))
+	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen / Advice'))
 	tex += u'\\hline\n'
 	tex += u'\n'
 	tex += u'\\hline\n'
@@ -2071,20 +2071,22 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
+			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		line_data[identifier]['strengths'].append(u'%s%s' % (med['amount'], med['unit'].strip()))
+		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med['unit'].strip()))
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
-		if med['aim'] not in line_data[identifier]['aims']:
-			line_data[identifier]['aims'].append(med['aim'])
+		if med['notes'] is not None:
+			if med['notes'] not in line_data[identifier]['notes']:
+				line_data[identifier]['notes'].append(med['notes'])
 
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s & %s \\\\'
-	line2_template = u' & {\\scriptsize %s\\par} \\\\'
+	line1_template = u'%s %s             & %s \\\\'
+	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\\\'
+	line3_template = u'                  & {\\scriptsize %s\\par} \\\\'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -2101,20 +2103,14 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		))
 
 		strengths = u'/'.join(line_data[identifier]['strengths'])
-		if strengths == u'':
-			template = u' & {\\scriptsize %s\\par} \\\\'
-			for aim in line_data[identifier]['aims']:
-				lines.append(template % aim)
+		if len(line_data[identifier]['notes']) == 0:
+			first_note = u''
 		else:
-			if len(line_data[identifier]['aims']) == 0:
-				template = u'%s & \\\\'
-				lines.append(template % strengths)
-			else:
-				template = u'%s & {\\scriptsize %s\\par} \\\\'
-				lines.append(template % (strengths, line_data[identifier]['aims'][0]))
-				template = u' & {\\scriptsize %s\\par} \\\\'
-				for aim in line_data[identifier]['aims'][1:]:
-					lines.append(template % aim)
+			first_note = line_data[identifier]['notes'][0]
+		lines.append(line2_template % (strengths, first_note))
+		if len(line_data[identifier]['notes']) > 1:
+			for note in line_data[identifier]['notes'][1:]:
+				lines.append(line3_template % note)
 
 		lines.append(u'\\hline')
 
