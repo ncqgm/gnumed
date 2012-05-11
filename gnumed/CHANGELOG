@@ -10,6 +10,7 @@
 
 FIX: missing pre-save date verification in document properties editor [thanks J.Busser]
 FIX: exception on procedure start > end [thanks J.Busser]
+FIX: corner case of faulty drug database selection [thanks J.Busser]
 
 	1.1.13
 
