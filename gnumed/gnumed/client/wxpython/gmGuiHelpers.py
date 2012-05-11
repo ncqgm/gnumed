@@ -245,6 +245,8 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._TCTRL_data.SetValue(data)
 			self.Layout()
 			self.Refresh()
+
+		self._TCTRL_text.SetFocus()
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

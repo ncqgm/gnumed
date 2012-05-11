@@ -28,6 +28,8 @@ NEW: PDF-Formular "Vorsorgevollmacht" [thanks Bundesministerium f. Justiz]
 NEW: active clinical reminders with due/expiry date
 NEW: basic billing functionality
 NEW: support for locally overriding wxGlade based widgets
+NEW: dynamic clinical hints
+NEW: placeholders <adr_subunit> and <adr_suburb>
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -47,6 +49,11 @@ IMPROVED: vaccinations: in EMR root show how long ago it was given
 IMPROVED: waiting list: on activating patient set RFE if empty but waiting list has comment
 IMPROVED: client upgrade check: version comparison glitch [thanks J.Busser]
 IMPROVED: keyword-based text expansion macros: let user fill in values
+IMPROVED: message inbox: include messages *by* the active provider, too
+IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
+IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
+IMPROVED: branded drug EA: jump to manage-substances
+IMPROVED: placeholders: current_meds_table/current_meds_notes
 
 ------------------------------------------------
 # rel-1-1-patches
@@ -55,6 +62,8 @@ IMPROVED: keyword-based text expansion macros: let user fill in values
 	1.1.14
 
 FIX: missing pre-save date verification in document properties editor [thanks J.Busser]
+FIX: exception on procedure start > end [thanks J.Busser]
+FIX: corner case of faulty drug database selection [thanks J.Busser]
 
 	1.1.13
 

@@ -1124,6 +1124,11 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
+	def _get_dynamic_hints(self):
+		return gmProviderInbox.get_hints_for_patient(pk_identity = self._payload[self._idx['pk_identity']])
+
+	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
+	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None

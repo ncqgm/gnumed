@@ -106,7 +106,7 @@ known_schema_hashes = {
 	14: 'e170d543f067d1ea60bfe9076b1560cf',
 	15: '70012ff960b77ecdff4981c94b5b55b6',
 	16: '0bcf44ca22c479b52976e5eda1de8161',
-	17: 'f70d49d7c4fa739f2b3925b8254b8b78'
+	17: 'bf11f18a59119171aeb0191171702a4f'
 }
 
 map_schema_hash2version = {
@@ -125,7 +125,7 @@ map_schema_hash2version = {
 	'e170d543f067d1ea60bfe9076b1560cf': 14,
 	'70012ff960b77ecdff4981c94b5b55b6': 15,
 	'0bcf44ca22c479b52976e5eda1de8161': 16,
-	'f70d49d7c4fa739f2b3925b8254b8b78': 17
+	'bf11f18a59119171aeb0191171702a4f': 17
 }
 
 map_client_branch2required_db_version = {

@@ -242,11 +242,11 @@ limit 25
 		else:
 			self._DPRW_date.display_as_valid(True)
 
+		start = self._DPRW_date.GetData()
 		end = self._DPRW_end.GetData()
 		self._DPRW_end.display_as_valid(True)
 		if end is not None:
 			end = end.get_pydt()
-			start = self._DPRW_end.GetData()
 			if start is not None:
 				start = start.get_pydt()
 				if end < start:

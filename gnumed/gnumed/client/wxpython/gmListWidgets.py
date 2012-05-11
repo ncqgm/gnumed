@@ -12,7 +12,6 @@ TODO:
 	http://trac.flipturn.org/browser/trunk/peppy/lib/column_autosize.py
 """
 #================================================================
-__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
@@ -740,6 +739,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+		self.__extra_button_callback = None
 
 		self._LCTRL_left.SetFocus()
 	#------------------------------------------------------------
@@ -785,6 +785,24 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		return self._LCTRL_right.get_item_data()
 
 	picks = property(get_picks, lambda x:x)
+	#------------------------------------------------------------
+	def _set_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra.Enable(False)
+			self._BTN_extra.Hide()
+			self.__extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<extra button> callback is not a callable: %s' % callback)
+		self.__extra_button_callback = callback
+		self._BTN_extra.SetLabel(label)
+		self._BTN_extra.SetToolTipString(tooltip)
+		self._BTN_extra.Enable(True)
+		self._BTN_extra.Show()
+
+	extra_button = property(lambda x:x, _set_extra_button)
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -839,6 +857,23 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def _on_button_right2left_pressed(self, event):
 		self.__remove_selected_picks()
+	#------------------------------------------------------------
+	def _on_extra_button_pressed(self, event):
+		self.__extra_button_callback()
+#		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+#		if not self.__left_extra_button_callback(item_data):
+#			self._LCTRL_items.SetFocus()
+#			return
+#		if self.refresh_callback is None:
+#			self._LCTRL_items.SetFocus()
+#			return
+#		wx.BeginBusyCursor()
+#		try:
+#			self.refresh_callback(lctrl = self._LCTRL_items)
+#		finally:
+#			wx.EndBusyCursor()
+#		self._LCTRL_items.set_column_widths()
+#		self._LCTRL_items.SetFocus()
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -859,6 +894,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__widths = None
 		self.__data = None
 		self.__activate_callback = None
+		self.__rightclick_callback = None
 
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.__item_tooltip_callback = None
@@ -1060,6 +1096,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
 	#------------------------------------------------------------
+	def _on_list_item_rightclicked(self, event):
+		event.Skip()
+		if self.__rightclick_callback is not None:
+			self.__rightclick_callback(event)
+	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
 		"""Update tooltip on mouse motion.
 
@@ -1158,6 +1199,20 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__activate_callback = callback
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
+	#------------------------------------------------------------
+	def _get_rightclick_callback(self):
+		return self.__rightclick_callback
+
+	def _set_rightclick_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_RIGHT_CLICK)
+		else:
+			if not callable(callback):
+				raise ValueError('<rightclick> callback is not a callable: %s' % callback)
+			self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
+		self.__rightclick_callback = callback
+
+	rightclick_callback = property(_get_rightclick_callback, _set_rightclick_callback)
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
 		if callback is not None:

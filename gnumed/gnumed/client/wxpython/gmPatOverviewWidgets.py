@@ -36,6 +36,7 @@ from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.patient')
@@ -80,7 +81,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_history.item_tooltip_callback = self._calc_history_list_item_tooltip
 		self._LCTRL_history.activate_callback = self._on_history_item_activated
 
-		# right
+		# right hand side
 		self._LCTRL_inbox.set_columns(columns = [u''])
 		self._LCTRL_inbox.item_tooltip_callback = self._calc_inbox_item_tooltip
 		self._LCTRL_inbox.activate_callback = self._on_inbox_item_activated
@@ -281,6 +282,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 			list_data.append(msg)
 
+		for hint in patient.dynamic_hints:
+			list_items.append(hint['hint'])
+			list_data.append(hint)
+
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
 
@@ -292,17 +297,40 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmProviderInbox.cInboxMessage):
 			return data.format()
 
+		if isinstance(data, gmProviderInbox.cDynamicHint):
+			return u'%s\n\n%s          %s' % (
+				gmTools.wrap(data['hint'], width = 50),
+				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
+				data['source']
+			)
+
 		return None
 	#-----------------------------------------------------
 	def _on_inbox_item_activated(self, event):
-#		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
-#
-#		if data is not None:
-#			# <ctrl> down ?
-#			if wx.GetKeyState(wx.WXK_CONTROL):
-#				if isinstance(data, gmProviderInbox.cInboxMessage):
-#					xxxxxxxxx
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+
+		# <ctrl> down ?
+		if not wx.GetKeyState(wx.WXK_CONTROL):
+			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+			return
+
+		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
+
+		if data is None:
+			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+			return
+
+		if not isinstance(data, gmProviderInbox.cInboxMessage):
+			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+			return
+
+		delete_it = gmGuiHelpers.gm_show_question (
+			question = _('Do you really want to\ndelete this inbox message ?'),
+			title = _('Deleting inbox message')
+		)
+		if not delete_it:
+			return
+
+		gmProviderInbox.delete_inbox_message(inbox_message = data['pk_inbox_message'])
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------

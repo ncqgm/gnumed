@@ -2050,6 +2050,7 @@ class gmTopLevelFrame(wx.Frame):
 			'adr',
 			'billables',
 			'drugs',
+			'hints',
 			'codes',
 			'communication_channel_types',
 			'substances_in_brands',
@@ -2074,6 +2075,7 @@ class gmTopLevelFrame(wx.Frame):
 		master_data_list_names = {
 			'adr': _('Addresses (likely slow)'),
 			'drugs': _('Branded drugs (as marketed)'),
+			'hints': _('Clinical hints'),
 			'codes': _('Codes and their respective terms'),
 			'communication_channel_types': _('Communication channel types'),
 			'substances_in_brands': _('Components of branded drugs (substances in brands)'),
@@ -2118,7 +2120,8 @@ class gmTopLevelFrame(wx.Frame):
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
 			'billables': gmBillingWidgets.manage_billables,
-			'ref_data_sources': gmCodingWidgets.browse_data_sources
+			'ref_data_sources': gmCodingWidgets.browse_data_sources,
+			'hints': gmProviderInboxWidgets.browse_dynamic_hints,
 		}
 
 		#---------------------------------

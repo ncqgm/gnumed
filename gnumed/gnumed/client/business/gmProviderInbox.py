@@ -150,9 +150,9 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'pk_staff in (%(staff)s, NULL)')
+			where_parts.append(u'pk_staff IN (%(staff)s, NULL) OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		else:
-			where_parts.append(u'pk_staff = %(staff)s')
+			where_parts.append(u'pk_staff = %(staff)s OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
@@ -241,7 +241,7 @@ def create_inbox_item_type(message_type=None, category=u'clinical'):
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return rows[0]['pk']
-#============================================================
+
 #============================================================
 class cProviderInbox:
 	def __init__(self, provider_id=None):
@@ -270,6 +270,102 @@ class cProviderInbox:
 		return
 
 	messages = property(_get_messages, _set_messages)
+
+#============================================================
+# dynamic hints API
+#------------------------------------------------------------
+_SQL_get_dynamic_hints = u"SELECT *, xmin AS xmin_auto_hint FROM ref.auto_hint WHERE %s"
+
+class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents dynamic hints to be run against the database."""
+
+	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk = %s"
+	_cmds_store_payload = [
+		u"""UPDATE ref.auto_hint SET
+				is_active = %(is_active)s
+			WHERE
+				pk = %(pk)s
+					AND
+				xmin = %(xmin_auto_hint)s
+			RETURNING
+				pk,
+				xmin AS xmin_auto_hint
+		"""
+	]
+	_updatable_fields = [
+		u'is_active'
+	]
+	#--------------------------------------------------------
+	def format(self):
+		txt = u'%s               [#%s]\n' % (
+			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
+			self._payload[self._idx['pk']]
+		)
+		txt += u'\n'
+		txt += _('Source: %s\n') % self._payload[self._idx['source']]
+		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap (
+			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			width = 50,
+			initial_indent = u' ',
+			subsequent_indent = u' '
+		)
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		return txt
+
+#------------------------------------------------------------
+def get_dynamic_hints(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_dynamic_hints % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+#------------------------------------------------------------
+#def create_xxx(xxx=None, xxx=None):
+#
+#	args = {
+#		u'xxx': xxx,
+#		u'xxx': xxx
+#	}
+#	cmd = u"""
+#		INSERT INTO xxx.xxx (
+#			xxx,
+#			xxx,
+#			xxx
+#		) VALUES (
+#			%(xxx)s,
+#			%(xxx)s,
+#			gm.nullify_empty_string(%(xxx)s)
+#		)
+#		RETURNING pk
+#	"""
+#	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+#
+#	return cDynamicHint(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+#def delete_xxx(xxx=None):
+#	args = {'pk': xxx}
+#	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
+#	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#	return True
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+def get_hints_for_patient(pk_identity=None):
+	conn = gmPG2.get_connection()
+	curs = conn.cursor()
+	curs.callproc('clin.get_hints_for_patient', [pk_identity])
+	rows = curs.fetchall()
+	idx = gmPG2.get_col_indices(curs)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
 #============================================================
 if __name__ == '__main__':
 
@@ -302,9 +398,14 @@ if __name__ == '__main__':
 		for msg in get_due_messages(pk_patient = 12):
 			print msg.format()
 	#---------------------------------------
+	def test_auto_hints():
+		for row in get_dynamic_hints(pk_identity = 13):
+			print row
+	#---------------------------------------
 	#test_inbox()
 	#test_msg()
 	#test_create_type()
-	test_due()
+	#test_due()
+	test_auto_hints()
 
 #============================================================
