@@ -17,15 +17,14 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.13 (database v16.13)',
-	'GNUmed 1.1.13 Release Notes:
+	'Release Notes for GNUmed 1.1.14 (database v16.14)',
+	'GNUmed 1.1.14 Release Notes:
 
-	1.1.13
+	1.1.14
 
-FIX: apparent-age calculation bug on Feb 29th if DOB is non-leap year [thanks M.Angermann]
-FIX: cFuzzyTimestampInput.is_valid_timestamp() error seen in encounter EA [thanks J.Busser]
-FIX: Easter Egg Exception
-FIX: [Save under] in SOAP editor would fail [thanks J.Busser]
+FIX: missing pre-save date verification in document properties editor [thanks J.Busser]
+FIX: exception on procedure start > end [thanks J.Busser]
+FIX: corner case of faulty drug database selection [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
