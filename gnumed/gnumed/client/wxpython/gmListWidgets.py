@@ -739,6 +739,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+		self.__extra_button_callback = None
 
 		self._LCTRL_left.SetFocus()
 	#------------------------------------------------------------
@@ -784,6 +785,24 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		return self._LCTRL_right.get_item_data()
 
 	picks = property(get_picks, lambda x:x)
+	#------------------------------------------------------------
+	def _set_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra.Enable(False)
+			self._BTN_extra.Hide()
+			self.__extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<extra button> callback is not a callable: %s' % callback)
+		self.__extra_button_callback = callback
+		self._BTN_extra.SetLabel(label)
+		self._BTN_extra.SetToolTipString(tooltip)
+		self._BTN_extra.Enable(True)
+		self._BTN_extra.Show()
+
+	extra_button = property(lambda x:x, _set_extra_button)
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -838,6 +857,23 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def _on_button_right2left_pressed(self, event):
 		self.__remove_selected_picks()
+	#------------------------------------------------------------
+	def _on_extra_button_pressed(self, event):
+		self.__extra_button_callback()
+#		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+#		if not self.__left_extra_button_callback(item_data):
+#			self._LCTRL_items.SetFocus()
+#			return
+#		if self.refresh_callback is None:
+#			self._LCTRL_items.SetFocus()
+#			return
+#		wx.BeginBusyCursor()
+#		try:
+#			self.refresh_callback(lctrl = self._LCTRL_items)
+#		finally:
+#			wx.EndBusyCursor()
+#		self._LCTRL_items.set_column_widths()
+#		self._LCTRL_items.SetFocus()
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 

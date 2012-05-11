@@ -52,6 +52,7 @@ IMPROVED: keyword-based text expansion macros: let user fill in values
 IMPROVED: message inbox: include messages *by* the active provider, too
 IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
 IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
+IMPROVED: branded drug EA: jump to manage-substances
 
 ------------------------------------------------
 # rel-1-1-patches

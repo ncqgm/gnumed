@@ -733,6 +733,9 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#--------------------------------------------------------
+#	def manage_substances():
+#		pass
+	#--------------------------------------------------------
 	if brand is None:
 		msg = _('Pick the substances which are components of this drug.')
 		right_col = _('Components of drug')
@@ -760,6 +763,11 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 	picker.set_columns(['Substances'], [right_col])
 	picker.set_choices(choices = choices, data = substs)
 	picker.set_picks(picks = picks, data = comp_substs)
+#	picker.extra_button = (
+#		_('Substances'),
+#		_('Manage list of consumable substances'),
+#		manage_substances
+#	)
 
 	btn_pressed = picker.ShowModal()
 	substs = picker.get_picks()
@@ -874,6 +882,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 
 #------------------------------------------------------------
 def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
+
 	if branded_drug is not None:
 		if branded_drug.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
@@ -888,11 +897,22 @@ def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
 			)
 			return False
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------
+	def manage_substances(drug):
+		manage_consumable_substances(parent = parent)
+	#--------------------------------------------
 	ea = cBrandedDrugEAPnl(parent = parent, id = -1)
 	ea.data = branded_drug
 	ea.mode = gmTools.coalesce(branded_drug, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(branded_drug, _('Adding new drug brand'), _('Editing drug brand')))
+	dlg.left_extra_button = (
+		_('Substances'),
+		_('Manage consumable substances'),
+		manage_substances
+	)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True

@@ -802,15 +802,12 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def __import_fd2gm_file_as_drugs_0_6_0(self, fd2gm_xml=None, pk_data_source=None):
 
-#		db_def = fd2gm_xml.find('DrugsDatabaseName')
-#		db_id = db_def.text.strip()
 #		drug_id_name = db_def.attrib['drugUidName']
 		fd_xml_prescriptions = fd2gm_xml.findall('FullPrescription/Prescription')
 
 		self.__imported_drugs = []
 		for fd_xml_prescription in fd_xml_prescriptions:
 			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
-			#drug_uid = fd_xml_prescription.find('Drug_UID').text.strip()
 			drug_uid = fd_xml_prescription.find('Drug').attrib['u1'].strip()
 			#drug_uid_name = fd_xml_prescription.find('Drug_UID_Name').text.strip()
 			drug_uid_name = u'<%s>' % drug_db
@@ -845,14 +842,16 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 				data = {}
 
-				amount = regex.match(r'\d+[.,]{0,1}\d*', fd_xml_comp.attrib['strength'].strip())
+				xml_strength = fd_xml_comp.attrib['strength'].strip()
+				amount = regex.match(r'^\d+[.,]{0,1}\d*', xml_strength)
 				if amount is None:
 					amount = 99999
 				else:
 					amount = amount.group()
 				data['amount'] = amount
 
-				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', fd_xml_comp.attrib['strength'].strip()).strip()
+				#unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', xml_strength).strip()
+				unit = (xml_strength[len(amount):]).strip()
 				if unit == u'':
 					unit = u'*?*'
 				data['unit'] = unit
