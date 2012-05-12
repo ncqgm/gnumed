@@ -54,6 +54,7 @@ IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
 IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
 IMPROVED: branded drug EA: jump to manage-substances
 IMPROVED: placeholders: current_meds_table/current_meds_notes
+IMPROVED: default medication list template layout
 
 ------------------------------------------------
 # rel-1-1-patches

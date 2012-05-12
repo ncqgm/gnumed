@@ -2010,17 +2010,14 @@ def delete_substance_intake(substance=None):
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex =  u'\n{\\small\n'
-	tex += u'\\noindent %s\n' % _('Additional notes')
+	tex  = u'\n\\noindent %s\n' % _('Additional notes')
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|X|l|X|p{7.5cm}|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|l|>{\\RaggedRight}X|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\\\ \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabularx}\n'
-	tex += u'}\n'
+	tex += u'\\end{tabularx}\n\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -2031,31 +2028,37 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	# create lines
 	lines = []
 	for med in current_meds:
-		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\\\ \n \\hline \n' % (
-			med['substance'],
-			med['preparation'],
-			gmTools.coalesce(med['brand'], u'', u': {\\tiny %s}'),
+		if med['brand'] is None:
+			brand = u''
+		else:
+			brand = u': {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
+		if med['aim'] is None:
+			aim = u''
+		else:
+			aim = u'{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
+		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
+			gmTools.tex_escape_string(med['substance']),
+			gmTools.tex_escape_string(med['preparation']),
+			brand,
 			med['amount'],
-			med['unit'],
-			gmTools.coalesce(med['aim'], u'', u'{\\scriptsize %s}')
+			gmTools.tex_escape_string(med['unit']),
+			aim
 		))
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 
 #------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
 	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|>{\\RaggedRight}X|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen / Advice'))
+	tex += u'%s & %s \\tabularnewline \n' % (_('Drug'), _('Regimen / Advice'))
 	tex += u'\\hline\n'
-	tex += u'\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabular}\n'
+	tex += u'\\end{tabularx}\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -2084,9 +2087,9 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s             & %s \\\\'
-	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\\\'
-	line3_template = u'                  & {\\scriptsize %s\\par} \\\\'
+	line1_template = u'%s %s             & %s \\tabularnewline'
+	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\tabularnewline'
+	line3_template = u'                  & {\\scriptsize %s\\par} \\tabularnewline'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -2097,24 +2100,24 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		already_seen.append(identifier)
 
 		lines.append (line1_template % (
-			line_data[identifier]['brand'],
-			line_data[identifier]['preparation'],
-			line_data[identifier]['schedule']
+			gmTools.tex_escape_string(line_data[identifier]['brand']),
+			gmTools.tex_escape_string(line_data[identifier]['preparation']),
+			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
 
-		strengths = u'/'.join(line_data[identifier]['strengths'])
+		strengths = gmTools.tex_escape_string(u' / '.join(line_data[identifier]['strengths']))
 		if len(line_data[identifier]['notes']) == 0:
 			first_note = u''
 		else:
-			first_note = line_data[identifier]['notes'][0]
+			first_note = gmTools.tex_escape_string(line_data[identifier]['notes'][0])
 		lines.append(line2_template % (strengths, first_note))
 		if len(line_data[identifier]['notes']) > 1:
 			for note in line_data[identifier]['notes'][1:]:
-				lines.append(line3_template % note)
+				lines.append(line3_template % gmTools.tex_escape_string(note))
 
 		lines.append(u'\\hline')
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 #============================================================
 _SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'
 
