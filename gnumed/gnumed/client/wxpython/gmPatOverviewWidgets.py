@@ -651,7 +651,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
+#	def dummy(self):
 	def __refresh_meds(self, patient=None):
+		# list by single substance:
 		emr = patient.get_emr()
 		list_items = []
 		meds = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
@@ -668,6 +670,43 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 		self._LCTRL_meds.set_string_items(items = list_items)
 		self._LCTRL_meds.set_data(data = meds)
+	#---------------
+#	def __refresh_meds(self, patient=None):
+	def dummy(self):
+		# list by brand or substance:
+		emr = patient.get_emr()
+		intakes = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
+
+		list_items = []
+		multi_brands_already_seen = []
+		for intake in intakes:
+			brand = intake.containing_drug
+			if brand is None or len(brand['pk_components']) == 1:
+				list_items.append(_('%s %s %s%s') % (
+					intake['substance'],
+					intake['amount'],
+					intake['unit'],
+					gmTools.coalesce (
+						intake['schedule'],
+						u'',
+						u': %s'
+					)
+				))
+			else:
+				if intake['brand'] in multi_brands_already_seen:
+					continue
+				multi_brands_already_seen.append(intake['brand'])
+				list_items.append(_('%s %s%s') % (
+					intake['brand'],
+					brand['preparation'],
+					gmTools.coalesce (
+						intake['schedule'],
+						u'',
+						u': %s'
+					)
+				))
+		self._LCTRL_meds.set_string_items(items = list_items)
+		self._LCTRL_meds.set_data(data = intakes)
 	#-----------------------------------------------------
 	def _calc_meds_list_item_tooltip(self, data):
 		emr = gmPerson.gmCurrentPatient().get_emr()
@@ -680,7 +719,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],))
 		if allg is False:
 			allg = None
-		return data.format(one_line = False, allergy = allg)
+		return data.format(one_line = False, allergy = allg, show_all_brand_components = True)
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
 		data = self._LCTRL_meds.get_selected_item_data(only_one = True)

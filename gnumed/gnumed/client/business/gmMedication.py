@@ -1697,11 +1697,16 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None):
+	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None, show_all_brand_components=False):
 		if one_line:
 			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines(left_margin = left_margin, date_format = date_format, allergy = allergy)
+		return self.format_as_multiple_lines (
+			left_margin = left_margin,
+			date_format = date_format,
+			allergy = allergy,
+			show_all_brand_components = show_all_brand_components
+		)
 	#--------------------------------------------------------
 	def format_as_one_line(self, left_margin=0, date_format='%Y %B %d'):
 
@@ -1732,7 +1737,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
-	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None):
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None, show_all_brand_components=False):
 
 		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -1781,6 +1786,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
 		)
 		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
+		if show_all_brand_components:
+			brand = self.containing_drug
+			if len(brand['pk_substances']) > 1:
+				for comp in brand['components']:
+					if comp.startswith(self._payload[self._idx['substance']] + u'::'):
+						continue
+					txt += _('  Other component: %s\n') % comp
 
 		txt += u'\n'
 
