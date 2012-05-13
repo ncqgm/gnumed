@@ -431,16 +431,16 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			)
 			list_data.append(first)
 
-		last = emr.get_last_encounter()
+		last = emr.get_last_but_one_encounter()
 		if last is not None:
 			list_items.append (
 				_('last: %s, %s') % (
 					gmDateTime.pydt_strftime (
-						first['started'],
+						last['started'],
 						format = '%Y %b %d',
 						accuracy = gmDateTime.acc_days
 					),
-					first['l10n_type']
+					last['l10n_type']
 				)
 			)
 			list_data.append(last)
