@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.rc3 (database v17.rc3)',
-	'GNUmed 1.2.rc3 Release Notes:
+	'Release Notes for GNUmed 1.2.rc4 (database v17.rc4)',
+	'GNUmed 1.2.rc4 Release Notes:
 
-	1.2.rc3
+	1.2.rc4
 
 NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
@@ -68,8 +68,9 @@ IMPROVED: FreeDiams interface: support 0.6.0 style XML file API
 IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
 IMPROVED: branded drug EA: jump to manage-substances
 IMPROVED: placeholders: current_meds_table/current_meds_notes
+IMPROVED: default medication list template layout
 
-	17.rc3
+	17.rc4
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
 NEW: i18n.untranslate()
