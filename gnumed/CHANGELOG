@@ -60,6 +60,10 @@ IMPROVED: default medication list template layout
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.15
+
+FIX: exception on removing components from branded drug [thanks S.Hilbert]
+
 	1.1.14
 
 FIX: missing pre-save date verification in document properties editor [thanks J.Busser]

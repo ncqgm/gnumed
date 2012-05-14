@@ -2319,12 +2319,40 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		if self.is_in_use_by_patients:
 			return False
 
+		pk_substances2keep = [ s['pk'] for s in substances ]
 		args = {'brand': self._payload[self._idx['pk_brand']]}
+		queries = []
 
-		queries = [{'cmd': u"DELETE FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s", 'args': args}]
-		cmd = u'INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance) VALUES (%%(brand)s, %s)'
-		for s in substances:
-			queries.append({'cmd': cmd % s['pk'], 'args': args})
+		# INSERT those which are not there yet
+		cmd = u"""
+			INSERT INTO ref.lnk_substance2brand (
+				fk_brand,
+				fk_substance
+			)
+			SELECT
+				%(brand)s,
+				%(subst)s
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM ref.lnk_substance2brand
+				WHERE
+					fk_brand = %(brand)s
+						AND
+					fk_substance = %(subst)s
+			)"""
+		for pk in pk_substances2keep:
+			args['subst'] = pk
+			queries.append({'cmd': cmd, 'args': args})
+
+		# DELETE those that don't belong anymore
+		args['substances2keep'] = tuple(pk_substances2keep)
+		cmd = u"""
+			DELETE FROM ref.lnk_substance2brand
+			WHERE
+				fk_brand = %(brand)s
+					AND
+				fk_substance NOT IN %(substances2keep)s"""
+		queries.append({'cmd': cmd, 'args': args})
 
 		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()
