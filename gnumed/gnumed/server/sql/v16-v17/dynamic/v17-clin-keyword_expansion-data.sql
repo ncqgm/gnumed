@@ -47,6 +47,65 @@ Bewertung: Summe = $<Summe eintragen>$'
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v17-clin-keyword_expansion-data.sql', '17.0');
+delete from clin.keyword_expansion where keyword = 'score-Gulich-StrepA_Tonsillitis';
 
--- ==============================================================
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-Gulich-StrepA_Tonsillitis',
+'Gulich-Score: likelihood of GABHS in sore throat
+------------------------------------------------
+Gulich M, Triebel T, Zeitler H-P; Eur J Gen Pract 2002;8:58-62.
+
+Most accurate if
+- onset: 1 day to 1 week ago
+- age: 16 to 76 years
+
+$<0: (lymphoid) granulations | 1: reddish | 2: deeply red>$: throat mucosa (0: (lymphoid) granulations | 1: reddish | 2: deeply red)
+$<0: normal | 1: infected/slightly reddish | 2: deeply red>$: uvula (0: normal | 1: infected/slightly reddish | 2: deeply red)
+$<0: normal | 1: infected/slightly reddish | 2: deeply red>$: soft palate (0: normal | 1: infected/slightly reddish | 2: deeply red)
+$<0: normal/removed | 1: reddish/swollen | 2: exsudate>$: tonsils (0: normal/removed | 1: reddish/swollen | 2: exsudate)
+-------------------------------
+Sum: $<Enter sum !>$
+
+Sum < 4: 91% GABHS negative
+Sum 4-5: near-patient CRP
+	CRP < 35mg/L: 89% GABHS negative
+	CRP > 35mg/L: 89% GABHS positive
+Sum > 5: 81% GAHBS positive
+');
+
+-- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-Marburg-CHD_in_chest_pain';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-Marburg-CHD_in_chest_pain',
+'CHD as reason for chest pain in Primary Care
+--------------------------------------------
+CMAJ 2010. DOI:10.1503/cmaj.100212
+
+$<Enter 0 or 1 !>$: Age/sex (female > 64, male > 54)
+$<Enter 0 or 1 !>$: Known clinical vascular disease¹
+$<Enter 0 or 1 !>$: Pain worse on exertion
+$<Enter 0 or 1 !>$: Pain *NOT* reproducible by palpation
+$<Enter 0 or 1 !>$: Patient assumes pain is of cardiac origin
+
+Sum: $<Enter sum !>$ (>2 points: positive for CHD)
+
+¹coronary heart disease, occlusive vascular
+ disease, cerebrovascular disease
+
+In acute/emergency situations also take into
+account vital signs and symptoms !
+');
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v17-clin-keyword_expansion-data.sql', '17.0');
