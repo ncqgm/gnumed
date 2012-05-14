@@ -1697,11 +1697,16 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None):
+	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None, show_all_brand_components=False):
 		if one_line:
 			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines(left_margin = left_margin, date_format = date_format, allergy = allergy)
+		return self.format_as_multiple_lines (
+			left_margin = left_margin,
+			date_format = date_format,
+			allergy = allergy,
+			show_all_brand_components = show_all_brand_components
+		)
 	#--------------------------------------------------------
 	def format_as_one_line(self, left_margin=0, date_format='%Y %B %d'):
 
@@ -1732,7 +1737,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
-	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None):
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None, show_all_brand_components=False):
 
 		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (
@@ -1781,6 +1786,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
 		)
 		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
+		if show_all_brand_components:
+			brand = self.containing_drug
+			if len(brand['pk_substances']) > 1:
+				for comp in brand['components']:
+					if comp.startswith(self._payload[self._idx['substance']] + u'::'):
+						continue
+					txt += _('  Other component: %s\n') % comp
 
 		txt += u'\n'
 
@@ -2010,17 +2022,14 @@ def delete_substance_intake(substance=None):
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex =  u'\n{\\small\n'
-	tex += u'\\noindent %s\n' % _('Additional notes')
+	tex  = u'\n\\noindent %s\n' % _('Additional notes')
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|X|l|X|p{7.5cm}|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|l|>{\\RaggedRight}X|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s {\\scriptsize (%s)} & %s & %s \\\\ \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabularx}\n'
-	tex += u'}\n'
+	tex += u'\\end{tabularx}\n\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -2031,31 +2040,37 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	# create lines
 	lines = []
 	for med in current_meds:
-		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\\\ \n \\hline \n' % (
-			med['substance'],
-			med['preparation'],
-			gmTools.coalesce(med['brand'], u'', u': {\\tiny %s}'),
+		if med['brand'] is None:
+			brand = u''
+		else:
+			brand = u': {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
+		if med['aim'] is None:
+			aim = u''
+		else:
+			aim = u'{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
+		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
+			gmTools.tex_escape_string(med['substance']),
+			gmTools.tex_escape_string(med['preparation']),
+			brand,
 			med['amount'],
-			med['unit'],
-			gmTools.coalesce(med['aim'], u'', u'{\\scriptsize %s}')
+			gmTools.tex_escape_string(med['unit']),
+			aim
 		))
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 
 #------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
 	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|>{\\RaggedRight}X|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen / Advice'))
+	tex += u'%s & %s \\tabularnewline \n' % (_('Drug'), _('Regimen / Advice'))
 	tex += u'\\hline\n'
-	tex += u'\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabular}\n'
+	tex += u'\\end{tabularx}\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -2084,9 +2099,9 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s             & %s \\\\'
-	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\\\'
-	line3_template = u'                  & {\\scriptsize %s\\par} \\\\'
+	line1_template = u'%s %s             & %s \\tabularnewline'
+	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\tabularnewline'
+	line3_template = u'                  & {\\scriptsize %s\\par} \\tabularnewline'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -2097,24 +2112,24 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		already_seen.append(identifier)
 
 		lines.append (line1_template % (
-			line_data[identifier]['brand'],
-			line_data[identifier]['preparation'],
-			line_data[identifier]['schedule']
+			gmTools.tex_escape_string(line_data[identifier]['brand']),
+			gmTools.tex_escape_string(line_data[identifier]['preparation']),
+			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
 
-		strengths = u'/'.join(line_data[identifier]['strengths'])
+		strengths = gmTools.tex_escape_string(u' / '.join(line_data[identifier]['strengths']))
 		if len(line_data[identifier]['notes']) == 0:
 			first_note = u''
 		else:
-			first_note = line_data[identifier]['notes'][0]
+			first_note = gmTools.tex_escape_string(line_data[identifier]['notes'][0])
 		lines.append(line2_template % (strengths, first_note))
 		if len(line_data[identifier]['notes']) > 1:
 			for note in line_data[identifier]['notes'][1:]:
-				lines.append(line3_template % note)
+				lines.append(line3_template % gmTools.tex_escape_string(note))
 
 		lines.append(u'\\hline')
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 #============================================================
 _SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'
 
@@ -2304,12 +2319,40 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		if self.is_in_use_by_patients:
 			return False
 
+		pk_substances2keep = [ s['pk'] for s in substances ]
 		args = {'brand': self._payload[self._idx['pk_brand']]}
+		queries = []
 
-		queries = [{'cmd': u"DELETE FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s", 'args': args}]
-		cmd = u'INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance) VALUES (%%(brand)s, %s)'
-		for s in substances:
-			queries.append({'cmd': cmd % s['pk'], 'args': args})
+		# INSERT those which are not there yet
+		cmd = u"""
+			INSERT INTO ref.lnk_substance2brand (
+				fk_brand,
+				fk_substance
+			)
+			SELECT
+				%(brand)s,
+				%(subst)s
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM ref.lnk_substance2brand
+				WHERE
+					fk_brand = %(brand)s
+						AND
+					fk_substance = %(subst)s
+			)"""
+		for pk in pk_substances2keep:
+			args['subst'] = pk
+			queries.append({'cmd': cmd, 'args': args})
+
+		# DELETE those that don't belong anymore
+		args['substances2keep'] = tuple(pk_substances2keep)
+		cmd = u"""
+			DELETE FROM ref.lnk_substance2brand
+			WHERE
+				fk_brand = %(brand)s
+					AND
+				fk_substance NOT IN %(substances2keep)s"""
+		queries.append({'cmd': cmd, 'args': args})
 
 		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()

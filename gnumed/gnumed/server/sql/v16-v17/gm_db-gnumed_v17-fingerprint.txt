@@ -1,10 +1,10 @@
 Fingerprinting GNUmed database ...
 
            Name: gnumed_v17
-    Schema hash: f70d49d7c4fa739f2b3925b8254b8b78
+    Schema hash: 00ddbe543fb6a5565582baf31d9b594e
            Size: 45 MB
        Patients: 15
-       Contacts: 8
+       Contacts: 7
        Episodes: 5
          Issues: 2
         Results: 5
@@ -67,6 +67,7 @@ blobs.reviewed_doc_objs.row_version::int4
 clin.test_result.pk::int4
 clin.vaccination.pk::int4
 clin.vacc_indication.description::text
+ref.auto_hint.source::text
 clin.vaccination_schedule.modified_by::name
 ref.branded_drug.fk_data_source::int4
 clin.clin_root_item.narrative::text
@@ -80,6 +81,7 @@ ref.form_types.pk::int4
 dem.address.aux_street::text
 blobs.doc_type.name::text
 clin.vaccination_definition.min_age_due::interval
+ref.auto_hint.pk::int4
 clin.lab_request.fk_encounter::int4
 clin.soap_cat_ranks.soap_cat::bpchar
 ref.ops.requires_laterality::bool
@@ -91,6 +93,7 @@ ref.loinc.species::text
 clin.family_history.soap_cat::text
 bill.bill_item.row_version::int4
 clin.review_root.fk_reviewer::int4
+ref.auto_hint.is_active::bool
 ref.paperwork_templates.pk::int4
 cfg.config.db::int4
 ref.billable.pk_coding_system::int4
@@ -330,6 +333,7 @@ clin.incoming_data_unmatchable.fk_patient_candidates::_int4
 dem.inbox_item_category.row_version::int4
 cfg.db_logon_banner.singularizer::bool
 cfg.config.ddb::int4
+ref.auto_hint.url::text
 clin.review_root.is_technically_abnormal::bool
 clin.lnk_code2aoe.fk_generic_code::int4
 clin.lnk_vaccination_course2schedule.pk::int4
@@ -438,6 +442,7 @@ dem.enum_ext_id_types.name::text
 cfg.cfg_item.cookie::text
 dem.lnk_org_unit2ext_id.external_id::text
 clin.incoming_data_unmatched.external_data_id::text
+ref.auto_hint.query::text
 blobs.doc_obj.filename::text
 clin.clin_root_item.pk_item::int4
 clin.vacc_indication.id::int4
@@ -728,6 +733,7 @@ clin.lab_request.lab_request_id::text
 dem.state.name::text
 clin.vaccination_course_constraint.modified_when::timestamptz
 dem.lnk_org_unit2comm.pk_audit::int4
+ref.auto_hint.lang::text
 bill.bill_item.fk_bill::int4
 clin.fhx_relation_type.pk_audit::int4
 ref.loinc.naa_ccr_id::text
@@ -897,6 +903,7 @@ clin.lnk_substance2episode.fk_episode::int4
 ref.icpc.inclusions::text
 dem.lnk_person2relative.row_version::int4
 ref.billable.code::text
+ref.auto_hint.hint::text
 clin.clin_aux_note.modified_by::name
 clin.review_root.clinically_relevant::bool
 clin.encounter.started::timestamptz
@@ -946,6 +953,7 @@ dem.names.comment::text
 clin.lab_request.fk_requestor::int4
 clin.family_history.name_relative::text
 dem.country.code::bpchar
+ref.auto_hint.pk_audit::int4
 ref.loinc_staging.related_names_1_old::text
 blobs.doc_med.pk_audit::int4
 i18n.keys.orig::text
@@ -1009,6 +1017,7 @@ clin.lnk_constraint2vacc_course.pk_audit::int4
 ref.loinc.pk_coding_system::int4
 dem.org.fk_category::int4
 clin.form_instances.modified_when::timestamptz
+ref.auto_hint.modified_by::name
 clin.test_result.pk_item::int4
 ref.loinc.short_name::text
 blobs.doc_med.fk_type::int4
@@ -1023,6 +1032,7 @@ dem.inbox_item_type.modified_when::timestamptz
 clin.substance_intake.discontinue_reason::text
 clin.episode.pk_audit::int4
 ref.other_code.code::text
+ref.auto_hint.row_version::int4
 bill.bill_item.fk_provider::int4
 bill.bill_item.pk::int4
 clin.lnk_code2item_root.fk_item::int4
@@ -1060,6 +1070,7 @@ dem.address_type.name::text
 clin.clin_aux_note.fk_episode::int4
 clin.form_instances.fk_encounter::int4
 clin.vaccination_schedule.row_version::int4
+ref.auto_hint.modified_when::timestamptz
 cfg.cfg_item.owner::name
 clin.test_result.note_test_org::text
 dem.lnk_org_unit2comm.pk::int4
