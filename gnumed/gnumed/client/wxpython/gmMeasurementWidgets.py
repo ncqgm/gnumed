@@ -56,14 +56,18 @@ def update_loinc_reference_data():
 	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
 
 	# download
-	downloaded, loinc_dir = gmNetworkTools.download_data_pack(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip')
-	if not downloaded:
+	loinc_zip = gmNetworkTools.download_file(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip', suffix = '.zip')
+	if loinc_zip is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (
 			aTitle = _('Downloading LOINC'),
 			aMessage = _('Error downloading the latest LOINC data.\n')
 		)
 		return False
+
+	_log.debug('downloaded zipped LOINC data into [%s]', loinc_zip)
+
+	loinc_dir = gmNetworkTools.unzip_data_pack(filename = loinc_zip)
 
 	# split master data file
 	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = os.path.join(loinc_dir, 'LOINCDB.TXT'))
