@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -799,6 +799,10 @@ msgstr " Marca comercial: %%s [#%s]\n"
 msgid " ATC (brand): %s\n"
 msgstr " ATQ (marca): %s\n"
 
+#, fuzzy
+msgid "  Other component: %s\n"
+msgstr "Digite comentario: %s\n"
+
 msgid " Regimen: %s\n"
 msgstr " Régimen\n"
 
@@ -839,8 +843,8 @@ msgstr "Notas adicionales"
 msgid "Substance"
 msgstr "Sustancia"
 
-msgid "Advice"
-msgstr "Consejo"
+msgid "Aim"
+msgstr "Propósito"
 
 msgid "Brand"
 msgstr "Marca"
@@ -854,7 +858,8 @@ msgstr "Lista de medicación"
 msgid "ordered by brand"
 msgstr "ordenado por marca"
 
-msgid "Regimen"
+#, fuzzy
+msgid "Regimen / Advice"
 msgstr "Régimen"
 
 msgid "Drug"
@@ -1066,6 +1071,21 @@ msgstr "Fecha: %s\n"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Exportado: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Problemas activos"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "guardar nota clínica en RME"
+
+msgid "Source: %s\n"
+msgstr "Fuente: %s\n"
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Lenguaje"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2583,8 +2603,8 @@ msgstr "Horario"
 msgid "Duration"
 msgstr "Duración"
 
-msgid "Aim"
-msgstr "Propósito"
+msgid "Advice"
+msgstr "Consejo"
 
 msgid "Inactive"
 msgstr "Inactivo"
@@ -3719,11 +3739,15 @@ msgstr "Seleccionador de problema medico:"
 msgid "label_1"
 msgstr "label_1"
 
-msgid ">>>"
-msgstr ">>>"
+msgid "→"
+msgstr "→"
 
-msgid "<<<"
-msgstr "<<<"
+#, fuzzy
+msgid "←"
+msgstr "→"
+
+msgid "Extra"
+msgstr ""
 
 msgid "Move selected items from left to right."
 msgstr "Desplaza los elementos seleccionados de izquierda a derecha."
@@ -5664,9 +5688,6 @@ msgstr "QTA"
 msgid "Age range"
 msgstr "Rango de edad"
 
-msgid "→"
-msgstr "→"
-
 msgid "Waiting list details for this patient."
 msgstr "Esperando lista de  detalles para este paciente"
 
@@ -7261,6 +7282,32 @@ msgstr "Imagen no encontrada"
 
 msgid "Updating tag with image"
 msgstr "Actualizando etiqueta con imagen"
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Seleccionando paciente"
+
+#, fuzzy
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+"¿Realmente quiere eliminar esta\n"
+"ID externa del paciente?"
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Etiquetas de pacientes"
+
+#, fuzzy
+msgid "Tag"
+msgstr "edad"
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "Administrar alergias"
 
 msgid "&Edit comment"
 msgstr "&Editar comentario"
@@ -9608,6 +9655,14 @@ msgstr "Instalar datos referenciales QTA."
 msgid "Update ATC"
 msgstr "Actualizar QTA"
 
+#, fuzzy
+msgid "Download and install LOINC reference data."
+msgstr "Instalar datos referenciales QTA."
+
+#, fuzzy
+msgid "Update LOINC"
+msgstr "Actualizar QTA"
+
 msgid "Create fake vaccines"
 msgstr "Cree vacunas falsas"
 
@@ -10715,6 +10770,10 @@ msgstr "Direcciones (lento)"
 msgid "Branded drugs (as marketed)"
 msgstr "Medicamentos de marca (productos)"
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Notas Clínicas"
+
 msgid "Codes and their respective terms"
 msgstr "Códigos y sus respectivos nombres"
 
@@ -11269,6 +11328,14 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr "no hay URL para canal de comunicación [%s]"
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr "Un comentario sobre este paciente."
+
+#, fuzzy
+msgid "no patient tags selected for inclusion"
+msgstr "No hay resultados elegidos para eliminar."
+
 msgid "no external ID [%s] by [%s]"
 msgstr "no hay identificador externo [%s] de [%s]"
 
@@ -11486,9 +11553,6 @@ msgstr "Tipo: \"%(name)s\" (%(code)s) [#%(pk_type)s]\n"
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Resultados: %(val)s%(unit)s%(ind)s [#%(pk_result)s]\n"
-
-msgid "Source: %s\n"
-msgstr "Fuente: %s\n"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr "%.1f %% del límite inferior normal"
@@ -12005,6 +12069,13 @@ msgstr "Agrego nuevo medicamento"
 
 msgid "Editing drug brand"
 msgstr "Edito marca de medicamento"
+
+msgid "Substances"
+msgstr "Sustancias"
+
+#, fuzzy
+msgid "Manage consumable substances"
+msgstr "Mostrando sustancias (principios activos)."
 
 msgid "Cannot edit drug brand. It is in use."
 msgstr "No puedo editar marca de medicamento. Está en uso."
@@ -12728,6 +12799,18 @@ msgstr "%s%7s %s:%s (%s parte(s)%s)"
 msgid "due %s: %s"
 msgstr "Comentario (%s): %%s"
 
+#, fuzzy
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+"¿Realmente quiere eliminar esta\n"
+"ID externa del paciente?"
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Editando un episodio"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -12748,6 +12831,10 @@ msgstr "parte %s: %s"
 
 #, fuzzy
 msgid "%s %s %s%s"
+msgstr " %s: %s%s%s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr " %s: %s%s%s"
 
 msgid "** Currently hospitalized: %s **"
@@ -13436,6 +13523,18 @@ msgid "Clinical reminder"
 msgstr "Detalles clinicos"
 
 #, fuzzy
+msgid "Clinical hint"
+msgstr "Clínica"
+
+#, fuzzy
+msgid "Go to [%s]"
+msgstr " opcion [%s]: %s"
+
+#, fuzzy
+msgid "More info"
+msgstr "Información de calle"
+
+#, fuzzy
 msgid "Adding new inbox message"
 msgstr "Añadiendo nuevo nombre"
 
@@ -13541,6 +13640,36 @@ msgstr ""
 "Aparentemente hay vacunaciones en conflicto\n"
 "acerca del paciente [%s]. SIn embargo, no puedo\n"
 "encontrarlo en la base de datos GNUmed."
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Editando una estancia hospitalaria"
+
+#, fuzzy
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+"\n"
+"Etiquetas con imágenes registradas en GNUmed.\n"
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Mostrnado vacunas."
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Desactivar"
+
+#, fuzzy
+msgid "Switch activation of the selected hint"
+msgstr "Invocar acciones a los examenes selecionados"
+
+msgid "Browse and install clinical hints data packs"
+msgstr ""
 
 msgid "No action configured for keyword [%s]."
 msgstr "Ninguna acción configurada para contraseña [%s]."
@@ -14708,6 +14837,12 @@ msgstr "Cantidad"
 msgid "First Date"
 msgstr "Primera cita"
 
+#~ msgid ">>>"
+#~ msgstr ">>>"
+
+#~ msgid "<<<"
+#~ msgstr "<<<"
+
 #, fuzzy
 #~ msgid "Encounters / admissions (last"
 #~ msgstr "Lista de &citas"
@@ -15467,9 +15602,6 @@ msgstr "Primera cita"
 
 #~ msgid "&Encounter types"
 #~ msgstr "Tipos de &Encuentros"
-
-#~ msgid "Substances"
-#~ msgstr "Sustancias"
 
 #~ msgid "Drugs"
 #~ msgstr "Medicamentos"

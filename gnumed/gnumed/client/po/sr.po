@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-23 18:27+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:30+CEST\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -714,6 +714,9 @@ msgstr ""
 msgid " ATC (brand): %s\n"
 msgstr ""
 
+msgid "  Other component: %s\n"
+msgstr ""
+
 msgid " Regimen: %s\n"
 msgstr ""
 
@@ -754,7 +757,7 @@ msgstr "Додатне белешке"
 msgid "Substance"
 msgstr "Супстанца"
 
-msgid "Advice"
+msgid "Aim"
 msgstr ""
 
 msgid "Brand"
@@ -769,7 +772,7 @@ msgstr "Листа лекова"
 msgid "ordered by brand"
 msgstr ""
 
-msgid "Regimen"
+msgid "Regimen / Advice"
 msgstr ""
 
 msgid "Drug"
@@ -968,6 +971,21 @@ msgstr "Документа: %s"
 
 msgid "Expiry: %s\n"
 msgstr ""
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Активни проблеми"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "клинички нерелевантно"
+
+msgid "Source: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2264,7 +2282,7 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Aim"
+msgid "Advice"
 msgstr ""
 
 msgid "Inactive"
@@ -3208,10 +3226,13 @@ msgstr ""
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
+msgid "→"
 msgstr ""
 
-msgid "<<<"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid "Move selected items from left to right."
@@ -4852,9 +4873,6 @@ msgstr ""
 msgid "Age range"
 msgstr ""
 
-msgid "→"
-msgstr ""
-
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -6146,6 +6164,28 @@ msgstr ""
 
 msgid "Updating tag with image"
 msgstr ""
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Брисање вакцине"
+
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Приказивање вакцина."
+
+msgid "Tag"
+msgstr ""
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "Уреди вакцинације"
 
 msgid "&Edit comment"
 msgstr ""
@@ -8116,6 +8156,12 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Update LOINC"
+msgstr ""
+
 msgid "Create fake vaccines"
 msgstr "Направи лажне вакцине"
 
@@ -8957,6 +9003,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "клинички релевантно"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -9448,6 +9498,15 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
+
+msgid "no patient tags selected for inclusion"
+msgstr ""
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -9641,9 +9700,6 @@ msgid "Type: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "Source: %s\n"
 msgstr ""
 
 msgid "%.1f %% of the normal lower limit"
@@ -10081,6 +10137,13 @@ msgid "Adding new drug brand"
 msgstr ""
 
 msgid "Editing drug brand"
+msgstr ""
+
+#, fuzzy
+msgid "Substances"
+msgstr "Супстанца"
+
+msgid "Manage consumable substances"
 msgstr ""
 
 msgid "Cannot edit drug brand. It is in use."
@@ -10669,6 +10732,15 @@ msgstr ""
 msgid "due %s: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "генеричка порука за обавештење"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -10686,6 +10758,9 @@ msgid "%s Vacc: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid "%s %s %s%s"
+msgstr ""
+
+msgid "%s %s%s"
 msgstr ""
 
 msgid "** Currently hospitalized: %s **"
@@ -11217,6 +11292,16 @@ msgstr ""
 msgid "Clinical reminder"
 msgstr "клинички релевантно"
 
+#, fuzzy
+msgid "Clinical hint"
+msgstr "клинички релевантно"
+
+msgid "Go to [%s]"
+msgstr ""
+
+msgid "More info"
+msgstr ""
+
 msgid "Adding new inbox message"
 msgstr ""
 
@@ -11297,6 +11382,31 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
+msgstr ""
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Уређивање вакцинације"
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Приказивање вакцина."
+
+msgid "Hint"
+msgstr ""
+
+msgid "(De)-Activate"
+msgstr ""
+
+msgid "Switch activation of the selected hint"
+msgstr ""
+
+msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "No action configured for keyword [%s]."

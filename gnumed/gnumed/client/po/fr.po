@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2010-08-06 18:35+0000\n"
 "Last-Translator: Jean-Philippe LIOT <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -783,6 +783,9 @@ msgstr ""
 msgid " ATC (brand): %s\n"
 msgstr ""
 
+msgid "  Other component: %s\n"
+msgstr ""
+
 msgid " Regimen: %s\n"
 msgstr ""
 
@@ -823,8 +826,8 @@ msgstr "Notes additionnelles"
 msgid "Substance"
 msgstr "Substance"
 
-msgid "Advice"
-msgstr "Conseil"
+msgid "Aim"
+msgstr "Objectifs"
 
 msgid "Brand"
 msgstr "Marque"
@@ -838,7 +841,8 @@ msgstr "Liste de la médication"
 msgid "ordered by brand"
 msgstr "classé par nom commercial"
 
-msgid "Regimen"
+#, fuzzy
+msgid "Regimen / Advice"
 msgstr "Régime"
 
 msgid "Drug"
@@ -1047,6 +1051,21 @@ msgstr "Exporté: %s\n"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Exporté: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Problemes actifs"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "sauvegarde des notes cliniques dans l'EMR"
+
+msgid "Source: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Langue"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2548,8 +2567,8 @@ msgstr "Calendrier"
 msgid "Duration"
 msgstr "Durée"
 
-msgid "Aim"
-msgstr "Objectifs"
+msgid "Advice"
+msgstr "Conseil"
 
 msgid "Inactive"
 msgstr "Inactif"
@@ -3673,11 +3692,15 @@ msgstr "Sélecteur de problèmes de santé"
 msgid "label_1"
 msgstr "champ_1"
 
-msgid ">>>"
-msgstr ">>>"
+msgid "→"
+msgstr "→"
 
-msgid "<<<"
-msgstr "<<<"
+#, fuzzy
+msgid "←"
+msgstr "→"
+
+msgid "Extra"
+msgstr ""
 
 msgid "Move selected items from left to right."
 msgstr "Déplacer les objets sélectionnés de la gauche vers la droite."
@@ -5499,9 +5522,6 @@ msgstr ""
 msgid "Age range"
 msgstr ""
 
-msgid "→"
-msgstr "→"
-
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -6846,6 +6866,30 @@ msgstr "Impossible de trouver l'image"
 
 msgid "Updating tag with image"
 msgstr ""
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Supprimer le vaccin"
+
+#, fuzzy
+msgid "Do you really want to delete this patient tag ?"
+msgstr "Choisissez ceci si vous voulez conserver ce patient."
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Patient :"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Fusionner les patients"
+
+#, fuzzy
+msgid "Tag"
+msgstr "âge"
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "aucun commentaire disponible"
 
 msgid "&Edit comment"
 msgstr ""
@@ -8865,6 +8909,12 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Update LOINC"
+msgstr ""
+
 msgid "Create fake vaccines"
 msgstr ""
 
@@ -9713,6 +9763,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Informations cliniques"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -10211,6 +10265,15 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr ""
+"\n"
+"Compléter l'historique des vaccinations de ce patient.\n"
+
+msgid "no patient tags selected for inclusion"
+msgstr ""
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -10408,9 +10471,6 @@ msgid "Type: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "Source: %s\n"
 msgstr ""
 
 msgid "%.1f %% of the normal lower limit"
@@ -10850,6 +10910,13 @@ msgid "Adding new drug brand"
 msgstr ""
 
 msgid "Editing drug brand"
+msgstr ""
+
+#, fuzzy
+msgid "Substances"
+msgstr "Substance"
+
+msgid "Manage consumable substances"
 msgstr ""
 
 msgid "Cannot edit drug brand. It is in use."
@@ -11458,6 +11525,15 @@ msgstr "%s %s (%s aujourd'hui !)"
 msgid "due %s: %s"
 msgstr "Commentaire (%s): %%s"
 
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Message d'information générique"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -11478,6 +11554,10 @@ msgstr "Fermé"
 
 #, fuzzy
 msgid "%s %s %s%s"
+msgstr " Status: %s, %s%s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr " Status: %s, %s%s"
 
 msgid "** Currently hospitalized: %s **"
@@ -12019,6 +12099,18 @@ msgid "Clinical reminder"
 msgstr "Informations cliniques"
 
 #, fuzzy
+msgid "Clinical hint"
+msgstr "Clinique"
+
+#, fuzzy
+msgid "Go to [%s]"
+msgstr " option [%s]: %s"
+
+#, fuzzy
+msgid "More info"
+msgstr "Information sur la rue"
+
+#, fuzzy
 msgid "Adding new inbox message"
 msgstr "Message d'information générique"
 
@@ -12110,6 +12202,33 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
+msgstr ""
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Modifier la vaccination"
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Vaccins affichés."
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Désactiver"
+
+#, fuzzy
+msgid "Switch activation of the selected hint"
+msgstr "Agir sur les mesures sélectionnées"
+
+msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "No action configured for keyword [%s]."
@@ -13261,6 +13380,12 @@ msgstr "Quantité"
 
 msgid "First Date"
 msgstr "Date de début"
+
+#~ msgid ">>>"
+#~ msgstr ">>>"
+
+#~ msgid "<<<"
+#~ msgstr "<<<"
 
 #, fuzzy
 #~ msgid "Encounters / admissions (last"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-23 18:27+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2011-06-19 16:42-0300\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -776,6 +776,9 @@ msgstr ""
 msgid " ATC (brand): %s\n"
 msgstr ""
 
+msgid "  Other component: %s\n"
+msgstr ""
+
 msgid " Regimen: %s\n"
 msgstr ""
 
@@ -816,8 +819,8 @@ msgstr "Notas adicionais"
 msgid "Substance"
 msgstr "Substância"
 
-msgid "Advice"
-msgstr "Orientações"
+msgid "Aim"
+msgstr "Objetivo"
 
 msgid "Brand"
 msgstr "Marca"
@@ -831,7 +834,8 @@ msgstr "Lista de medicamentos"
 msgid "ordered by brand"
 msgstr "ordenado por marca"
 
-msgid "Regimen"
+#, fuzzy
+msgid "Regimen / Advice"
 msgstr "Posologia"
 
 msgid "Drug"
@@ -1039,6 +1043,21 @@ msgstr "Local"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Exportado: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Problemas Ativos"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "não relevante clinicamente"
+
+msgid "Source: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Idioma"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2483,8 +2502,8 @@ msgstr "Posologia"
 msgid "Duration"
 msgstr "Duração "
 
-msgid "Aim"
-msgstr "Objetivo"
+msgid "Advice"
+msgstr "Orientações"
 
 msgid "Inactive"
 msgstr "Inativo"
@@ -3550,10 +3569,13 @@ msgstr "Seletor de Problema de Saúde"
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
+msgid "→"
 msgstr ""
 
-msgid "<<<"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid "Move selected items from left to right."
@@ -5364,9 +5386,6 @@ msgstr ""
 msgid "Age range"
 msgstr ""
 
-msgid "→"
-msgstr ""
-
 msgid "Waiting list details for this patient."
 msgstr "Detalhes da fila de espera para esse paciente."
 
@@ -6810,6 +6829,32 @@ msgstr "Criando um novo problema de saúde ..."
 
 msgid "Updating tag with image"
 msgstr ""
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Selecionando paciente"
+
+#, fuzzy
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+"Você realmente quer apagar esse\n"
+"ID externo do paciente?"
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Agrupar pacientes"
+
+#, fuzzy
+msgid "Tag"
+msgstr "idade"
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "editar alergias"
 
 msgid "&Edit comment"
 msgstr ""
@@ -8945,6 +8990,13 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+#, fuzzy
+msgid "Update LOINC"
+msgstr "Atualizar"
+
 msgid "Create fake vaccines"
 msgstr ""
 
@@ -9898,6 +9950,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Anotações Clínicas"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -10393,6 +10449,13 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr "Um comentário sobre esse paciente."
+
+msgid "no patient tags selected for inclusion"
+msgstr ""
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -10589,9 +10652,6 @@ msgid "Type: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "Source: %s\n"
 msgstr ""
 
 msgid "%.1f %% of the normal lower limit"
@@ -11032,6 +11092,13 @@ msgstr ""
 
 msgid "Editing drug brand"
 msgstr ""
+
+msgid "Substances"
+msgstr "Substâncias"
+
+#, fuzzy
+msgid "Manage consumable substances"
+msgstr "Editar as substâncias consumíveis."
 
 msgid "Cannot edit drug brand. It is in use."
 msgstr ""
@@ -11669,6 +11736,18 @@ msgstr ""
 msgid "due %s: %s"
 msgstr "Comentário: %s"
 
+#, fuzzy
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+"Você realmente quer apagar esse\n"
+"ID externo do paciente?"
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Editando nome"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -11689,6 +11768,10 @@ msgstr "Fechado"
 
 #, fuzzy
 msgid "%s %s %s%s"
+msgstr " Estado: %s, %s%s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr " Estado: %s, %s%s"
 
 msgid "** Currently hospitalized: %s **"
@@ -12235,6 +12318,18 @@ msgid "Clinical reminder"
 msgstr "Contexto Clínico"
 
 #, fuzzy
+msgid "Clinical hint"
+msgstr "Anotações Clínicas"
+
+#, fuzzy
+msgid "Go to [%s]"
+msgstr " opção [%s]: %s"
+
+#, fuzzy
+msgid "More info"
+msgstr "Informação da rua"
+
+#, fuzzy
 msgid "Adding new inbox message"
 msgstr "Adicionando novo nome"
 
@@ -12317,6 +12412,33 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
+msgstr ""
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Editando a profissão"
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Apagando documento"
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Desativar"
+
+#, fuzzy
+msgid "Switch activation of the selected hint"
+msgstr "Agir nos resultados selecionados"
+
+msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "No action configured for keyword [%s]."
@@ -13614,9 +13736,6 @@ msgstr "Primeira Data"
 #~ msgid "Manage drug brands."
 #~ msgstr "Editar os nomes Comerciais"
 
-#~ msgid "Manage consumable substances."
-#~ msgstr "Editar as substâncias consumíveis."
-
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Descontinuada devido a alergia / intolerância ? "
 
@@ -13903,9 +14022,6 @@ msgstr "Primeira Data"
 #~ msgid "create health issue"
 #~ msgstr "criar questão de saúde"
 
-#~ msgid "manage allergies"
-#~ msgstr "editar alergias"
-
 #~ msgid "OOo templates"
 #~ msgstr "Modelos OOo"
 
@@ -14009,9 +14125,6 @@ msgstr "Primeira Data"
 
 #~ msgid "Editing encounter types ..."
 #~ msgstr "Editando tipos de consultas..."
-
-#~ msgid "Update"
-#~ msgstr "Atualizar"
 
 #~ msgid "Restore"
 #~ msgstr "Restaurar"
@@ -14628,9 +14741,6 @@ msgstr "Primeira Data"
 #~ "Resultados do teste:% (results) s\n"
 #~ "Internamentos hospitalares:% (stay) s\n"
 #~ "Procedimentos:% (procedures) s\n"
-
-#~ msgid "Substances"
-#~ msgstr "Substâncias"
 
 #~ msgid ""
 #~ "Get substances from an external drug database.\n"

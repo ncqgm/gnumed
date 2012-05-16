@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -693,6 +693,9 @@ msgstr ""
 msgid " ATC (brand): %s\n"
 msgstr ""
 
+msgid "  Other component: %s\n"
+msgstr ""
+
 msgid " Regimen: %s\n"
 msgstr ""
 
@@ -733,7 +736,7 @@ msgstr ""
 msgid "Substance"
 msgstr ""
 
-msgid "Advice"
+msgid "Aim"
 msgstr ""
 
 msgid "Brand"
@@ -748,7 +751,7 @@ msgstr ""
 msgid "ordered by brand"
 msgstr ""
 
-msgid "Regimen"
+msgid "Regimen / Advice"
 msgstr ""
 
 msgid "Drug"
@@ -950,6 +953,21 @@ msgstr "Documents: %s"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Exported: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "not clinically relevant"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "not clinically relevant"
+
+msgid "Source: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Patient: %s (%s), No: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2296,7 +2314,7 @@ msgstr ""
 msgid "Duration"
 msgstr ""
 
-msgid "Aim"
+msgid "Advice"
 msgstr ""
 
 msgid "Inactive"
@@ -3239,10 +3257,13 @@ msgstr ""
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
+msgid "→"
 msgstr ""
 
-msgid "<<<"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid "Move selected items from left to right."
@@ -4877,9 +4898,6 @@ msgstr ""
 msgid "Age range"
 msgstr ""
 
-msgid "→"
-msgstr ""
-
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -6157,6 +6175,27 @@ msgid "Creating tag with image"
 msgstr ""
 
 msgid "Updating tag with image"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "external patient ID"
+
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Patient: %s (%s), No: %s\n"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr " %s documents\n"
+
+msgid "Tag"
+msgstr ""
+
+msgid "Manage available tags."
 msgstr ""
 
 msgid "&Edit comment"
@@ -8124,6 +8163,12 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Update LOINC"
+msgstr ""
+
 msgid "Create fake vaccines"
 msgstr ""
 
@@ -8965,6 +9010,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "clinically relevant"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -9455,6 +9504,12 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+msgid "no tags for this patient"
+msgstr ""
+
+msgid "no patient tags selected for inclusion"
+msgstr ""
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -9648,9 +9703,6 @@ msgid "Type: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
 msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "Source: %s\n"
 msgstr ""
 
 msgid "%.1f %% of the normal lower limit"
@@ -10088,6 +10140,12 @@ msgid "Adding new drug brand"
 msgstr ""
 
 msgid "Editing drug brand"
+msgstr ""
+
+msgid "Substances"
+msgstr ""
+
+msgid "Manage consumable substances"
 msgstr ""
 
 msgid "Cannot edit drug brand. It is in use."
@@ -10675,6 +10733,14 @@ msgstr "%s this week (%s of %s)"
 msgid "due %s: %s"
 msgstr "Exported: %s\n"
 
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+
+msgid "Deleting inbox message"
+msgstr ""
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -10692,6 +10758,9 @@ msgid "%s Vacc: %s"
 msgstr "Exported: %s\n"
 
 msgid "%s %s %s%s"
+msgstr ""
+
+msgid "%s %s%s"
 msgstr ""
 
 msgid "** Currently hospitalized: %s **"
@@ -11222,6 +11291,16 @@ msgstr ""
 msgid "Clinical reminder"
 msgstr "clinically relevant"
 
+#, fuzzy
+msgid "Clinical hint"
+msgstr "clinically relevant"
+
+msgid "Go to [%s]"
+msgstr ""
+
+msgid "More info"
+msgstr ""
+
 msgid "Adding new inbox message"
 msgstr ""
 
@@ -11302,6 +11381,30 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
+msgstr ""
+
+msgid "Switching clinical hint activation"
+msgstr ""
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr " %s documents\n"
+
+msgid "Hint"
+msgstr ""
+
+msgid "(De)-Activate"
+msgstr ""
+
+msgid "Switch activation of the selected hint"
+msgstr ""
+
+msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "No action configured for keyword [%s]."

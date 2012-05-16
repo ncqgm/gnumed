@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-23 18:27+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:30+CEST\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -775,6 +775,10 @@ msgstr " Патентованное название: %%s [#%s]\n"
 msgid " ATC (brand): %s\n"
 msgstr " ATC (патентованный): %s\n"
 
+#, fuzzy
+msgid "  Other component: %s\n"
+msgstr "Комментарий о типе: %s\n"
+
 msgid " Regimen: %s\n"
 msgstr " Режим: %s\n"
 
@@ -815,8 +819,8 @@ msgstr "Дополнительные заметки"
 msgid "Substance"
 msgstr "Вещество"
 
-msgid "Advice"
-msgstr "Консультация"
+msgid "Aim"
+msgstr "Цель"
 
 msgid "Brand"
 msgstr "Производитель"
@@ -830,7 +834,8 @@ msgstr "Лист назначений"
 msgid "ordered by brand"
 msgstr "отсортировано по брендам"
 
-msgid "Regimen"
+#, fuzzy
+msgid "Regimen / Advice"
 msgstr "Режим/Диета"
 
 msgid "Drug"
@@ -1035,6 +1040,21 @@ msgstr "Дата:%s\n"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Экспортированный: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Текущие заболевания"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "сохранить клиническую запись в EMR"
+
+msgid "Source: %s\n"
+msgstr "Источник:%s\n"
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Язык"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2541,8 +2561,8 @@ msgstr "Запланировано"
 msgid "Duration"
 msgstr "Продолжительность"
 
-msgid "Aim"
-msgstr "Цель"
+msgid "Advice"
+msgstr "Консультация"
 
 msgid "Inactive"
 msgstr "Выключен"
@@ -3641,11 +3661,15 @@ msgstr "Переключатель заболевания"
 msgid "label_1"
 msgstr "label_1"
 
-msgid ">>>"
-msgstr ">>>"
+msgid "→"
+msgstr "→"
 
-msgid "<<<"
-msgstr "<<<"
+#, fuzzy
+msgid "←"
+msgstr "→"
+
+msgid "Extra"
+msgstr ""
 
 msgid "Move selected items from left to right."
 msgstr "Перемещает выбранный пункт слева направо."
@@ -5568,9 +5592,6 @@ msgstr "ATC"
 msgid "Age range"
 msgstr "Возрастная категория"
 
-msgid "→"
-msgstr "→"
-
 msgid "Waiting list details for this patient."
 msgstr "Сведения из списка ожидания для этого пациента."
 
@@ -7177,6 +7198,30 @@ msgstr "Создание тэга с изображением"
 
 msgid "Updating tag with image"
 msgstr "Обновление тэга с изображением"
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Выбор пациента"
+
+#, fuzzy
+msgid "Do you really want to delete this patient tag ?"
+msgstr "Действительно нужно удалить эту опцию?"
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Пациент #%s"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Тэги пациента"
+
+#, fuzzy
+msgid "Tag"
+msgstr "возраст"
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "Управление аллергиями"
 
 msgid "&Edit comment"
 msgstr "Комментарий &Edit"
@@ -9479,6 +9524,14 @@ msgstr "Установленные ссылочные данные ATC"
 msgid "Update ATC"
 msgstr "Обновление ATC"
 
+#, fuzzy
+msgid "Download and install LOINC reference data."
+msgstr "Установленные ссылочные данные ATC"
+
+#, fuzzy
+msgid "Update LOINC"
+msgstr "Обновление ATC"
+
 msgid "Create fake vaccines"
 msgstr "Вызвать поддельные вакцины"
 
@@ -10580,6 +10633,10 @@ msgstr "Адреса (вероятно медленно)"
 msgid "Branded drugs (as marketed)"
 msgstr "Патентованные препараты (как отмечено)"
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Медицинские записи"
+
 msgid "Codes and their respective terms"
 msgstr "Коды и их соответствующие условия"
 
@@ -11130,6 +11187,14 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr "для канала связи [%s] не существует URL"
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr "Сведения из списка ожидания для этого пациента."
+
+#, fuzzy
+msgid "no patient tags selected for inclusion"
+msgstr "Нет результатов, выделенных для удаления."
+
 msgid "no external ID [%s] by [%s]"
 msgstr "нет внешнего ID [%s] через [%s]"
 
@@ -11348,9 +11413,6 @@ msgstr "Введите:\"%(name)s\" (%(code)s) [#%(pk_type)s]\n"
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Результат: %(val)s%(unit)s%(ind)s [#%(pk_result)s]\n"
-
-msgid "Source: %s\n"
-msgstr "Источник:%s\n"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr "%.1f %% от нижней границы нормы"
@@ -11867,6 +11929,14 @@ msgstr "Добавление нового патентированного пр�
 
 msgid "Editing drug brand"
 msgstr "Редактирование патентированного препарата"
+
+#, fuzzy
+msgid "Substances"
+msgstr "Вещество"
+
+#, fuzzy
+msgid "Manage consumable substances"
+msgstr "Отображение веществ для применения."
 
 msgid "Cannot edit drug brand. It is in use."
 msgstr ""
@@ -12577,6 +12647,16 @@ msgstr "%s%7s %s:%s (%s часть(и)%s)"
 msgid "due %s: %s"
 msgstr "Комментарий (%s): %%s"
 
+#, fuzzy
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr "Действительно нужно удалить эту опцию?"
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Редактирование почтового сообщения"
+
 msgid "%s %s more not shown %s"
 msgstr "%s %s более не указано %s"
 
@@ -12594,6 +12674,10 @@ msgid "%s Vacc: %s"
 msgstr "часть %s: %s"
 
 msgid "%s %s %s%s"
+msgstr "%s %s %s%s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr "%s %s %s%s"
 
 msgid "** Currently hospitalized: %s **"
@@ -13261,6 +13345,18 @@ msgstr ""
 msgid "Clinical reminder"
 msgstr "Клинические особенности"
 
+#, fuzzy
+msgid "Clinical hint"
+msgstr "Клинический"
+
+#, fuzzy
+msgid "Go to [%s]"
+msgstr " опция [%s]: %s"
+
+#, fuzzy
+msgid "More info"
+msgstr "Информация об улице"
+
 msgid "Adding new inbox message"
 msgstr "Добавление нового почтового сообщения"
 
@@ -13364,6 +13460,36 @@ msgstr ""
 "Возможно, имеются противоречивые вакцинации\n"
 "для пациента [%s]. Однако, я не могу найти этого\n"
 "пациента в базе данных GNUmed."
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Редактирование пребывания в стационаре"
+
+#, fuzzy
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+"\n"
+"Тэги с изображениями, зарегистрированные в GNUmed.\n"
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Отображение вакцин."
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Отключить"
+
+#, fuzzy
+msgid "Switch activation of the selected hint"
+msgstr "Вызывает работу с выбранными исследованиями."
+
+msgid "Browse and install clinical hints data packs"
+msgstr ""
 
 msgid "No action configured for keyword [%s]."
 msgstr "Для ключевого слова [%s] отсутствует действующая настройка."
@@ -14523,6 +14649,12 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#~ msgid ">>>"
+#~ msgstr ">>>"
+
+#~ msgid "<<<"
+#~ msgstr "<<<"
 
 #~ msgid "Encounters / admissions (last"
 #~ msgstr "Обращения или госпитализации (последнее"
