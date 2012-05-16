@@ -518,6 +518,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {u'pat': self.ID}}], get_col_idx = True)
 
 		return [ gmDemographicRecord.cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
+
+	tags = property(get_tags, lambda x:x)
 	#--------------------------------------------------------
 	def add_tag(self, tag):
 		args = {
