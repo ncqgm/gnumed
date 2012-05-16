@@ -484,8 +484,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
-#		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
-#		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
+		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
+		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
 		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
 		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
@@ -2694,8 +2694,8 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_edit_gmdbowner_password(self, evt):
 		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
-#	def __on_update_loinc(self, evt):
-#		gmMeasurementWidgets.update_loinc_reference_data()
+	def __on_update_loinc(self, evt):
+		gmMeasurementWidgets.update_loinc_reference_data()
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()

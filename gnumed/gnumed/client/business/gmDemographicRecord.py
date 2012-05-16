@@ -1068,7 +1068,7 @@ if __name__ == "__main__":
 	def test_tag_images():
 		tag = cTagImage(aPK_obj = 1)
 		print tag
-		print get_tag_images()
+		#print get_tag_images()
 	#--------------------------------------------------------
 	def test_get_billing_address():
 		print get_patient_address_by_type(pk_patient = 12, adr_type = u'billing')
@@ -1080,8 +1080,8 @@ if __name__ == "__main__":
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
-	#test_tag_images()
-	test_get_billing_address()
+	test_tag_images()
+	#test_get_billing_address()
 
 	sys.exit()
 #============================================================

@@ -583,7 +583,7 @@ def manage_vaccinations(parent=None):
 			option = 'external.urls.vaccination_plans',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
-			default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+			default = u'http://www.bundesaerztekammer.de/downloads/STIKOEmpf2011.pdf'
 		)
 
 		gmNetworkTools.open_url_in_browser(url = url)

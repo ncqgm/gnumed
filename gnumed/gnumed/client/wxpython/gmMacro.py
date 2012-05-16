@@ -42,6 +42,7 @@ from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmDemographicsWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -104,6 +105,8 @@ known_variant_placeholders = [
 	u'adr_country',
 
 	u'patient_comm',						# args: comm channel type as per database
+	u'patient_tags',						# "args" holds: <template>//<separator>
+#	u'patient_tags_table',					# "args" holds: no args
 	u'external_id',							# args: <type of ID>//<issuer of ID>
 	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
 											#				eg. "male//female//other"
@@ -757,6 +760,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return _('no URL for comm channel [%s]') % data
 			return u''
 		return comms[0]['url']
+	#--------------------------------------------------------
+	def _get_variant_patient_tags(self, data=u'%s//\\n'):
+		if len(self.pat.tags) == 0:
+			if self.debug:
+				return _('no tags for this patient') % data
+			return u''
+
+		tags = gmDemographicsWidgets.select_patient_tags(patient = self.pat)
+
+		if tags is None:
+			if self.debug:
+				return _('no patient tags selected for inclusion') % data
+			return u''
+
+		template, separator = data.split('//', 2)
+
+		return separator.join([ template % t.fields_as_dict() for t in tags ])
+#	#--------------------------------------------------------
+#	def _get_variant_patient_tags_table(self, data=u'?'):
+#		pass
 	#--------------------------------------------------------
 	def _get_variant_current_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
@@ -1445,10 +1468,10 @@ if __name__ == '__main__':
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
-			u'adr_region::home::1234',
-			u'adr_country::fehlt::1234',
-			u'adr_subunit::fehlt::1234',
-			u'adr_suburb::fehlt-auch::1234',
+			#u'adr_region::home::1234',
+			#u'adr_country::fehlt::1234',
+			#u'adr_subunit::fehlt::1234',
+			#u'adr_suburb::fehlt-auch::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'primary_praxis_provider',
 			#u'current_provider',
@@ -1462,6 +1485,7 @@ if __name__ == '__main__':
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
+			u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
 		]
 
 		handler = gmPlaceholderHandler()

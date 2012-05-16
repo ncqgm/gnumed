@@ -30,6 +30,7 @@ NEW: basic billing functionality
 NEW: support for locally overriding wxGlade based widgets
 NEW: dynamic clinical hints
 NEW: placeholders <adr_subunit> and <adr_suburb>
+NEW: placeholder <patient_tags>
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]

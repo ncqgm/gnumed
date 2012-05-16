@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
-"PO-Revision-Date: 2012-04-23 18:32+0100\n"
+"POT-Creation-Date: 2012-05-16 13:28+CEST\n"
+"PO-Revision-Date: 2012-05-16 14:49+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -735,6 +735,9 @@ msgstr " Handelsname: %%s   [#%s]\n"
 msgid " ATC (brand): %s\n"
 msgstr " ATC (Handelsname): %s\n"
 
+msgid "  Other component: %s\n"
+msgstr "  Weiterer Bestandteil: %s\n"
+
 msgid " Regimen: %s\n"
 msgstr " Einnahmeplan: %s\n"
 
@@ -774,8 +777,8 @@ msgstr "Zusätzliche Angaben"
 msgid "Substance"
 msgstr "Stoff"
 
-msgid "Advice"
-msgstr "Hinweis"
+msgid "Aim"
+msgstr "Ziel"
 
 msgid "Brand"
 msgstr "Handelsname"
@@ -789,8 +792,8 @@ msgstr "Medikamentenliste"
 msgid "ordered by brand"
 msgstr "nach Handelsnamen geordnet"
 
-msgid "Regimen"
-msgstr "Plan"
+msgid "Regimen / Advice"
+msgstr "Einnahme / Hinweis"
 
 msgid "Drug"
 msgstr "Medikament"
@@ -983,6 +986,18 @@ msgstr "Fällig: %s\n"
 
 msgid "Expiry: %s\n"
 msgstr "Verfällt: %s\n"
+
+msgid "Active clinical hint"
+msgstr "Aktiver klinischer Tip"
+
+msgid "Inactive clinical hint"
+msgstr "Inaktiver klinischer Tip"
+
+msgid "Source: %s\n"
+msgstr "Quelle: %s\n"
+
+msgid "Language: %s\n"
+msgstr "Sprache: %s\n"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2354,8 +2369,8 @@ msgstr "Plan"
 msgid "Duration"
 msgstr "Dauer"
 
-msgid "Aim"
-msgstr "Ziel"
+msgid "Advice"
+msgstr "Hinweis"
 
 msgid "Inactive"
 msgstr "Inaktive"
@@ -3295,10 +3310,13 @@ msgstr "Wahl einer Grunderkrankung"
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
+msgid "→"
 msgstr ""
 
-msgid "<<<"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 msgid "Move selected items from left to right."
@@ -4961,9 +4979,6 @@ msgstr "ATC"
 msgid "Age range"
 msgstr "Altersbereich"
 
-msgid "→"
-msgstr ""
-
 msgid "Waiting list details for this patient."
 msgstr "Wartelisteneintrag für diesen Patienten."
 
@@ -6521,6 +6536,24 @@ msgstr "Lege Markierung mit Minibild an"
 
 msgid "Updating tag with image"
 msgstr "Frische Minibild-Markierung auf"
+
+msgid "Deleting patient tag"
+msgstr "Lösche Patientensymbol"
+
+msgid "Do you really want to delete this patient tag ?"
+msgstr "Wollen Sie dieses Symbol wirklich beim Patienten entfernen ?"
+
+msgid "Tags of patient: %s\n"
+msgstr "Symbole des Patienten: %s\n"
+
+msgid "Showing patient tags"
+msgstr "Zeige Patientensymbole"
+
+msgid "Tag"
+msgstr "Symbol"
+
+msgid "Manage available tags."
+msgstr "Verfügbare Symbole verwalten"
 
 msgid "&Edit comment"
 msgstr "Kommentar &bearbeiten"
@@ -8759,6 +8792,12 @@ msgstr "ATC-Referenzdaten installieren."
 msgid "Update ATC"
 msgstr "ATC-Update"
 
+msgid "Download and install LOINC reference data."
+msgstr "LOINC-Referenzdaten laden und installieren."
+
+msgid "Update LOINC"
+msgstr "LOINC-Update"
+
 msgid "Create fake vaccines"
 msgstr "Pseudo-Impfstoffe anlegen"
 
@@ -9822,6 +9861,9 @@ msgstr "Adressen (langsam)"
 msgid "Branded drugs (as marketed)"
 msgstr "Medikamente (Produkte)"
 
+msgid "Clinical hints"
+msgstr "Klinische Hinweise"
+
 msgid "Codes and their respective terms"
 msgstr "Codes und dazugehörige Termini"
 
@@ -10356,6 +10398,12 @@ msgstr "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_coun
 msgid "no URL for comm channel [%s]"
 msgstr "kein Wert für Komm.kanal [%s]"
 
+msgid "no tags for this patient"
+msgstr "Keine Symbole bei diesem Patienten"
+
+msgid "no patient tags selected for inclusion"
+msgstr "Keine Symbole dieses Patienten markiert"
+
 msgid "no external ID [%s] by [%s]"
 msgstr "keine externe ID [%s] von [%s]"
 
@@ -10568,9 +10616,6 @@ msgstr "Messung: \"%(name)s\" (%(code)s)  [#%(pk_type)s]\n"
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Ergebnis: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-
-msgid "Source: %s\n"
-msgstr "Quelle: %s\n"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr "%.1f %% des unteren Normalwerts"
@@ -11067,6 +11112,12 @@ msgstr "Füge neues Medikament hinzu"
 
 msgid "Editing drug brand"
 msgstr "Bearbeite Medikament"
+
+msgid "Substances"
+msgstr "Substanzen"
+
+msgid "Manage consumable substances"
+msgstr "Wirkstoffe verwalten"
 
 msgid "Cannot edit drug brand. It is in use."
 msgstr "Kann Medikament nicht verändern. Es ist in Benutzung."
@@ -11754,6 +11805,16 @@ msgstr "%s %s %s %s (vor %s, %s)"
 msgid "due %s: %s"
 msgstr "fällig %s: %s"
 
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+"Wollen Sie diese Nachricht\n"
+"wirklich löschen ?"
+
+msgid "Deleting inbox message"
+msgstr "Lösche Nachricht"
+
 msgid "%s %s more not shown %s"
 msgstr "%s %s weitere nicht dargestellt %s"
 
@@ -11771,6 +11832,9 @@ msgstr "%s Impfg: %s"
 
 msgid "%s %s %s%s"
 msgstr "%s %s %s%s"
+
+msgid "%s %s%s"
+msgstr "%s %s%s"
 
 msgid "** Currently hospitalized: %s **"
 msgstr "** Derzeit im Krankenhaus: %s **"
@@ -12428,6 +12492,15 @@ msgstr ""
 msgid "Clinical reminder"
 msgstr "Klinische Erinnerung"
 
+msgid "Clinical hint"
+msgstr "Klinischer Tip"
+
+msgid "Go to [%s]"
+msgstr "Zu [%s] gehen"
+
+msgid "More info"
+msgstr "Weitere Info"
+
 msgid "Adding new inbox message"
 msgstr "Neue Nachricht erzeugen"
 
@@ -12529,6 +12602,31 @@ msgstr ""
 "Es sollen kollidierende Impfungen für den Patienten [%s]\n"
 "existieren. Dieser Patient kann aber nicht in der\n"
 "GNUmed-Datenbank gefunden werden."
+
+msgid "Switching clinical hint activation"
+msgstr "Aktivzustand des klinischen Tips umschalten"
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+"\n"
+"In GNUmed registrierte dynamische Hinweise.\n"
+
+msgid "Showing dynamic hints."
+msgstr "Zeige dynamische Hinweise."
+
+msgid "Hint"
+msgstr "Tip"
+
+msgid "(De)-Activate"
+msgstr "(De-)aktivieren"
+
+msgid "Switch activation of the selected hint"
+msgstr "Aktivierung des gewählten Tips umschalten"
+
+msgid "Browse and install clinical hints data packs"
+msgstr "Durchsuchen/Installieren von Datenpaketen mit klinischen Tips"
 
 msgid "No action configured for keyword [%s]."
 msgstr "Keine Aktion für Schlüsselwort [%s] eingestellt."
@@ -14220,12 +14318,6 @@ msgstr "erstmals"
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Dres Horst Herb && Karsten Hilbert"
 
-#~ msgid "Download and install LOINC reference data."
-#~ msgstr "LOINC-Referenzdaten laden und installieren."
-
-#~ msgid "Update LOINC"
-#~ msgstr "LOINC-Update"
-
 #~ msgid "List of known addresses."
 #~ msgstr "Liste der bekannten Adressen."
 
@@ -14456,9 +14548,6 @@ msgstr "erstmals"
 #~ msgid "Manage drug brands."
 #~ msgstr "Medikamente verwalten."
 
-#~ msgid "Manage consumable substances."
-#~ msgstr "Wirkstoffe verwalten."
-
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Beendigung wegen Allergie/Unverträglichkeit ?"
 
@@ -14550,9 +14639,6 @@ msgstr "erstmals"
 
 #~ msgid "Manage substances in use."
 #~ msgstr "Substanzen (Wirkstoffe) verwalten."
-
-#~ msgid "Substances"
-#~ msgstr "Substanzen"
 
 #~ msgid "Drugs"
 #~ msgstr "Medikamente"

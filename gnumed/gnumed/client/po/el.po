@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -777,6 +777,10 @@ msgstr ""
 msgid " ATC (brand): %s\n"
 msgstr ""
 
+#, fuzzy
+msgid "  Other component: %s\n"
+msgstr " Σχόλιο: %s\n"
+
 msgid " Regimen: %s\n"
 msgstr ""
 
@@ -817,8 +821,8 @@ msgstr "Επιπλέον σημειώσεις"
 msgid "Substance"
 msgstr "Ουσία"
 
-msgid "Advice"
-msgstr "Συμβουλή"
+msgid "Aim"
+msgstr "Σκοπός"
 
 msgid "Brand"
 msgstr "Μάρκα"
@@ -832,7 +836,8 @@ msgstr "Λίστα φαρμάκων"
 msgid "ordered by brand"
 msgstr "ταξινόμηση ανά μάρκα"
 
-msgid "Regimen"
+#, fuzzy
+msgid "Regimen / Advice"
 msgstr "Αγωγή"
 
 msgid "Drug"
@@ -1038,6 +1043,21 @@ msgstr "Ημερομηνία: %s\n"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Εξήχθηκε: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Πρόβλημα"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "αποθήκευση κλινικής σημείωσης στον ΗΙΦ"
+
+msgid "Source: %s\n"
+msgstr "Προέλευση:%s\n"
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Γλώσσα"
 
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -2463,8 +2483,8 @@ msgstr "Προγραμματισμός"
 msgid "Duration"
 msgstr "Διάρκεια"
 
-msgid "Aim"
-msgstr "Σκοπός"
+msgid "Advice"
+msgstr "Συμβουλή"
 
 msgid "Inactive"
 msgstr "Ανενεργό"
@@ -3444,10 +3464,14 @@ msgstr ""
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
-msgstr ""
+msgid "→"
+msgstr "→"
 
-msgid "<<<"
+#, fuzzy
+msgid "←"
+msgstr "→"
+
+msgid "Extra"
 msgstr ""
 
 msgid "Move selected items from left to right."
@@ -5137,9 +5161,6 @@ msgstr ""
 msgid "Age range"
 msgstr "Ηλικιακό φάσμα"
 
-msgid "→"
-msgstr "→"
-
 msgid "Waiting list details for this patient."
 msgstr ""
 
@@ -6450,6 +6471,28 @@ msgid "Creating tag with image"
 msgstr ""
 
 msgid "Updating tag with image"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Διαγραφή φαρμακευτικής αγωγής"
+
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Ασθενής"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Tag"
+msgstr "ηλικία"
+
+msgid "Manage available tags."
 msgstr ""
 
 msgid "&Edit comment"
@@ -8450,6 +8493,12 @@ msgstr ""
 msgid "Update ATC"
 msgstr ""
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+msgid "Update LOINC"
+msgstr ""
+
 msgid "Create fake vaccines"
 msgstr ""
 
@@ -9294,6 +9343,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Κλινικές σημειώσεις"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -9787,6 +9840,13 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr "Κράτα *αυτόν* τον ασθενή"
+
+msgid "no patient tags selected for inclusion"
+msgstr ""
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -9983,9 +10043,6 @@ msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
-
-msgid "Source: %s\n"
-msgstr "Προέλευση:%s\n"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
@@ -10434,6 +10491,13 @@ msgid "Adding new drug brand"
 msgstr ""
 
 msgid "Editing drug brand"
+msgstr ""
+
+#, fuzzy
+msgid "Substances"
+msgstr "Ουσία"
+
+msgid "Manage consumable substances"
 msgstr ""
 
 msgid "Cannot edit drug brand. It is in use."
@@ -11051,6 +11115,15 @@ msgstr ""
 msgid "due %s: %s"
 msgstr "σε %d μέρα(ες): %s"
 
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Μήνυμα γενικής πληροφορίας"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -11071,6 +11144,12 @@ msgstr "μέρος %s: %s"
 
 #, fuzzy
 msgid "%s %s %s%s"
+msgstr ""
+"%s: %s από  %.8s (v%s)\n"
+"%s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
@@ -11613,6 +11692,16 @@ msgid "Clinical reminder"
 msgstr "Κλινικές λεπτομέρειες"
 
 #, fuzzy
+msgid "Clinical hint"
+msgstr "Κλινικά"
+
+msgid "Go to [%s]"
+msgstr ""
+
+msgid "More info"
+msgstr ""
+
+#, fuzzy
 msgid "Adding new inbox message"
 msgstr "Μήνυμα γενικής πληροφορίας"
 
@@ -11694,6 +11783,32 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
+msgstr ""
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Αποθήκευση εγγράφου"
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Απενεργοποίησε"
+
+msgid "Switch activation of the selected hint"
+msgstr ""
+
+msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "No action configured for keyword [%s]."

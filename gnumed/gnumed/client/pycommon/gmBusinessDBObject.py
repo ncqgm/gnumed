@@ -445,12 +445,16 @@ def delete_xxx(xxx=None):
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%c'):
+	def fields_as_dict(self, date_format='%c', none_string=u''):
 		data = {}
 		for field in self._idx.keys():
+			# FIXME: harden against BYTEA fields
+			#if type(self._payload[self._idx[field]]) == ...
+			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
+			#	continue
 			val = self._payload[self._idx[field]]
 			if val is None:
-				data[field] = u''
+				data[field] = none_string
 				continue
 			if isinstance(val, datetime.datetime):
 				try:

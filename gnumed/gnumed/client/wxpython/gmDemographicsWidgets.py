@@ -93,7 +93,9 @@ def manage_tag_images(parent=None):
 	#------------------------------------------------------------
 	def go_to_openclipart_org(tag_image):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.openclipart.org')
-		gmNetworkTools.open_url_in_browser(url = u'http://www.google.com')
+		gmNetworkTools.open_url_in_browser(url = u'http://commons.wikimedia.org/wiki/Category:Symbols_of_disabilities')
+		gmNetworkTools.open_url_in_browser(url = u'http://www.duckduckgo.com')
+		gmNetworkTools.open_url_in_browser(url = u'http://images.google.com')
 		return True
 	#------------------------------------------------------------
 	def edit(tag_image=None):
@@ -265,6 +267,48 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		fdir, fname = os.path.split(self.__selected_image_file)
 		self._TCTRL_filename.SetValue(fname)
 
+#============================================================
+def select_patient_tags(parent=None, patient=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------------------
+	def refresh(lctrl):
+		tags = patient.tags
+		items = [ [
+			t['l10n_description'],
+			gmTools.coalesce(t['comment'], u'')
+		] for t in tags ]
+		lctrl.set_string_items(items)
+		#lctrl.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		lctrl.set_data(tags)
+	#--------------------------------------------------------
+	def delete(tag):
+		do_delete = gmGuiHelpers.gm_show_question (
+			title = _('Deleting patient tag'),
+			question = _('Do you really want to delete this patient tag ?')
+		)
+		if not do_delete:
+			return False
+		patient.remove_tag(tag = tag['pk_identity_tag'])
+		return True
+	#--------------------------------------------------------
+	def manage_available_tags(tag):
+		manage_tag_images(parent = parent)
+		return False
+	#--------------------------------------------------------
+	msg = _('Tags of patient: %s\n') % patient['description_gender']
+
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing patient tags'),
+		columns = [_('Tag'), _('Comment')],
+		single_selection = False,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		left_extra_button = (_('Manage'), _('Manage available tags.'), manage_available_tags)
+	)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPresenterPnl
 

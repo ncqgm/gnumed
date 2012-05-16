@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-04-23 18:26+CEST\n"
+"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
 "PO-Revision-Date: 2010-03-23 13:54+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -792,6 +792,10 @@ msgid " ATC (brand): %s\n"
 msgstr ""
 
 #, fuzzy
+msgid "  Other component: %s\n"
+msgstr "Documenten: %s"
+
+#, fuzzy
 msgid " Regimen: %s\n"
 msgstr ""
 "%s Laatst gezien: %s\n"
@@ -839,9 +843,8 @@ msgstr "Klinische aantekeningen"
 msgid "Substance"
 msgstr "Stof"
 
-#, fuzzy
-msgid "Advice"
-msgstr "Apparaat"
+msgid "Aim"
+msgstr ""
 
 #, fuzzy
 msgid "Brand"
@@ -858,7 +861,7 @@ msgid "ordered by brand"
 msgstr "geordend naar merk"
 
 #, fuzzy
-msgid "Regimen"
+msgid "Regimen / Advice"
 msgstr "Regio"
 
 msgid "Drug"
@@ -1086,6 +1089,22 @@ msgstr "Geexporteerd: %s\n"
 #, fuzzy
 msgid "Expiry: %s\n"
 msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Actieve problemen"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "sla klinische notitie op in EMD"
+
+#, fuzzy
+msgid "Source: %s\n"
+msgstr "Bron"
+
+#, fuzzy
+msgid "Language: %s\n"
+msgstr "Taal"
 
 #, fuzzy
 msgid ""
@@ -2565,8 +2584,9 @@ msgstr "Actieve Schema"
 msgid "Duration"
 msgstr "Operatie"
 
-msgid "Aim"
-msgstr ""
+#, fuzzy
+msgid "Advice"
+msgstr "Apparaat"
 
 #, fuzzy
 msgid "Inactive"
@@ -3650,10 +3670,13 @@ msgstr "Gezondheidsprobleem selecter"
 msgid "label_1"
 msgstr ""
 
-msgid ">>>"
+msgid "→"
 msgstr ""
 
-msgid "<<<"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
 msgstr ""
 
 #, fuzzy
@@ -5550,9 +5573,6 @@ msgstr ""
 msgid "Age range"
 msgstr "bereik"
 
-msgid "→"
-msgstr ""
-
 #, fuzzy
 msgid "Waiting list details for this patient."
 msgstr "Bewerk details van het beroep voor de huidige patiënt."
@@ -7061,6 +7081,32 @@ msgstr "Meting bewerken"
 #, fuzzy
 msgid "Updating tag with image"
 msgstr "Meting bewerken"
+
+#, fuzzy
+msgid "Deleting patient tag"
+msgstr "Patiënt selecteren"
+
+#, fuzzy
+msgid "Do you really want to delete this patient tag ?"
+msgstr ""
+"Weet u zeker dat u dit BSN\n"
+"van deze patiënt wilt verwijderen?"
+
+#, fuzzy
+msgid "Tags of patient: %s\n"
+msgstr "Patiënt"
+
+#, fuzzy
+msgid "Showing patient tags"
+msgstr "Patiëntendetails"
+
+#, fuzzy
+msgid "Tag"
+msgstr "leeftijd"
+
+#, fuzzy
+msgid "Manage available tags."
+msgstr "Allergieën bewerken"
 
 #, fuzzy
 msgid "&Edit comment"
@@ -9455,6 +9501,13 @@ msgstr ""
 msgid "Update ATC"
 msgstr "Bijwerken"
 
+msgid "Download and install LOINC reference data."
+msgstr ""
+
+#, fuzzy
+msgid "Update LOINC"
+msgstr "Bijwerken"
+
 #, fuzzy
 msgid "Create fake vaccines"
 msgstr "Nieuwe patiënt."
@@ -10554,6 +10607,10 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
+#, fuzzy
+msgid "Clinical hints"
+msgstr "Klinische aantekeningen"
+
 msgid "Codes and their respective terms"
 msgstr ""
 
@@ -11126,6 +11183,14 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+#, fuzzy
+msgid "no tags for this patient"
+msgstr "Een aantekening bij deze patiënt."
+
+#, fuzzy
+msgid "no patient tags selected for inclusion"
+msgstr "Geen uitslagen geselecteerd voor verwijdering."
+
 msgid "no external ID [%s] by [%s]"
 msgstr ""
 
@@ -11351,10 +11416,6 @@ msgstr ""
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
-
-#, fuzzy
-msgid "Source: %s\n"
-msgstr "Bron"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
@@ -11856,6 +11917,14 @@ msgstr "Nieuwe patiënt toevoegen"
 #, fuzzy
 msgid "Editing drug brand"
 msgstr "opslaan voortgangsrapport"
+
+#, fuzzy
+msgid "Substances"
+msgstr "Stof"
+
+#, fuzzy
+msgid "Manage consumable substances"
+msgstr "Meting bewerken"
 
 #, fuzzy
 msgid "Cannot edit drug brand. It is in use."
@@ -12573,6 +12642,18 @@ msgstr "%s%7s %s: %s (%s part(s), %s)"
 msgid "due %s: %s"
 msgstr "Documenten: %s"
 
+#, fuzzy
+msgid ""
+"Do you really want to\n"
+"delete this inbox message ?"
+msgstr ""
+"Weet u zeker dat u dit BSN\n"
+"van deze patiënt wilt verwijderen?"
+
+#, fuzzy
+msgid "Deleting inbox message"
+msgstr "Naam bewerken"
+
 msgid "%s %s more not shown %s"
 msgstr ""
 
@@ -12593,6 +12674,10 @@ msgstr "part %2s"
 
 #, fuzzy
 msgid "%s %s %s%s"
+msgstr "prik: %s, %s, %s"
+
+#, fuzzy
+msgid "%s %s%s"
 msgstr "prik: %s, %s, %s"
 
 msgid "** Currently hospitalized: %s **"
@@ -13242,6 +13327,18 @@ msgid "Clinical reminder"
 msgstr "Klinische aantekeningen"
 
 #, fuzzy
+msgid "Clinical hint"
+msgstr "Klinisch"
+
+#, fuzzy
+msgid "Go to [%s]"
+msgstr " optie [%s]: %s"
+
+#, fuzzy
+msgid "More info"
+msgstr "Straat"
+
+#, fuzzy
 msgid "Adding new inbox message"
 msgstr "Nieuwe naam toegoegen"
 
@@ -13340,6 +13437,34 @@ msgid ""
 msgstr ""
 "Schijnbaar zijn er onbeoordeelde documenten voor patiënt [%s]. Echter, ik "
 "kan deze patiënt niet vinden in de GNUmed database."
+
+#, fuzzy
+msgid "Switching clinical hint activation"
+msgstr "Wijzigen beroep"
+
+#, fuzzy
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr "Lijst met momenteel bestaande stafleden."
+
+#, fuzzy
+msgid "Showing dynamic hints."
+msgstr "Meting bewerken"
+
+msgid "Hint"
+msgstr ""
+
+#, fuzzy
+msgid "(De)-Activate"
+msgstr "Deactiveren"
+
+#, fuzzy
+msgid "Switch activation of the selected hint"
+msgstr "Onderneem actie naar aanleiding van de geselecteerde metingen."
+
+msgid "Browse and install clinical hints data packs"
+msgstr ""
 
 msgid "No action configured for keyword [%s]."
 msgstr "Geen aktie ingesteld voor sleutelwoord [%s]."
@@ -14826,10 +14951,6 @@ msgstr "Eerste Datum"
 #~ msgid "Drs Horst Herb && Karsten Hilbert"
 #~ msgstr "Drs Horst Herb && Karsten Hilbert"
 
-#, fuzzy
-#~ msgid "Update LOINC"
-#~ msgstr "Bijwerken"
-
 #~ msgid "List of known addresses."
 #~ msgstr "Lijst van bekende adressen."
 
@@ -15085,10 +15206,6 @@ msgstr "Eerste Datum"
 
 #~ msgid "&Provinces"
 #~ msgstr "&Provincies"
-
-#, fuzzy
-#~ msgid "Substances"
-#~ msgstr "Stof"
 
 #, fuzzy
 #~ msgid "Drugs"

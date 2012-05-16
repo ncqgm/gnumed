@@ -73,6 +73,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
         self._BTN_kidneys.SetToolTipString(_("Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
+        self._BTN_rx.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
         self._BTN_rx.SetToolTipString(_("Write a prescription based on either of\n\n- the selected lines\n- a copy of the most recent prescription"))
         self._BTN_adr.SetToolTipString(_("Report an Adverse Drug Reaction."))
         self._BTN_print.SetToolTipString(_("Print the medication list."))
