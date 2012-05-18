@@ -1786,7 +1786,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
 		)
 		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
-		if show_all_brand_components:
+		if show_all_brand_components and (self._payload[self._idx['pk_brand']] is not None):
 			brand = self.containing_drug
 			if len(brand['pk_substances']) > 1:
 				for comp in brand['components']:

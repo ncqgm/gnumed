@@ -1761,6 +1761,37 @@ def edit_health_issue(parent=None, issue=None):
 		return True
 	return False
 #----------------------------------------------------------------
+def select_health_issues(parent=None, emr=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def refresh(lctrl):
+		issues = emr.get_health_issues()
+		items = [
+			[
+				gmTools.bool2subst(i['is_confidential'], _('CONFIDENTIAL'), u'', u''),
+				i['description'],
+				gmTools.bool2subst(i['clinically_relevant'], _('relevant'), u'', u''),
+				gmTools.bool2subst(i['is_active'], _('active'), u'', u''),
+				gmTools.bool2subst(i['is_cause_of_death'], _('fatal'), u'', u'')
+			] for i in issues
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = issues)
+	#-----------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the health issues !\n'),
+		caption = _('Showing health issues ...'),
+		columns = [u'', _('Health issue'), u'', u'', u''],
+		single_selection = False,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+	)
+#----------------------------------------------------------------
 class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
 	# FIXME: support pre-selection

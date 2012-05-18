@@ -454,7 +454,8 @@ def __display_clinical_reminders():
 			aMessage = txt
 		)
 	for hint in pat.dynamic_hints:
-		txt = u'%s\n\n          %s' % (
+		txt = u'%s\n\n%s\n\n          %s' % (
+			hint['title'],
 			gmTools.wrap(hint['hint'], width = 50, initial_indent = u' ', subsequent_indent = u' '),
 			hint['source']
 		)
@@ -1133,11 +1134,11 @@ def browse_dynamic_hints(parent=None):
 		hints = gmProviderInbox.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
 		items = [ [
 			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			h['title'],
 			h['source'][:30],
 			h['hint'][:60],
 			gmTools.coalesce(h['url'], u'')[:60],
 			h['lang'],
-			h['query'][:25],
 			h['pk']
 		] for h in hints ]
 		lctrl.set_string_items(items)
@@ -1147,7 +1148,7 @@ def browse_dynamic_hints(parent=None):
 		parent = parent,
 		msg = _('\nDynamic hints registered with GNUmed.\n'),
 		caption = _('Showing dynamic hints.'),
-		columns = [ _('Active'), _('Source'), _('Hint'), u'URL', _('Language'), u'SQL', u'#' ],
+		columns = [ _('Active'), _('Title'), _('Source'), _('Hint'), u'URL', _('Language'), u'#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		left_extra_button = (

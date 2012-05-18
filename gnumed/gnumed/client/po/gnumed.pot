@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-05-16 13:30+CEST\n"
+"POT-Creation-Date: 2012-05-17 22:17+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7137,13 +7137,24 @@ msgstr ""
 msgid "Editing a health issue"
 msgstr ""
 
-msgid "Select the health issues you are interested in ..."
+msgid "CONFIDENTIAL"
 msgstr ""
 
 msgid "relevant"
 msgstr ""
 
 msgid "fatal"
+msgstr ""
+
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr ""
+
+msgid "Showing health issues ..."
+msgstr ""
+
+msgid "Select the health issues you are interested in ..."
 msgstr ""
 
 msgid "Cannot create health issue without name."
@@ -9164,6 +9175,12 @@ msgid "unknown test results table formatting style [%s]"
 msgstr ""
 
 msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
+msgid "PHX: Invalid placeholder options."
+msgstr ""
+
+msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
 msgid "generic text"

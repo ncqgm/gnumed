@@ -302,6 +302,7 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['pk']]
 		)
 		txt += u'\n'
+		txt += u'%s\n\n' % self._payload[self._idx['title']]
 		txt += _('Source: %s\n') % self._payload[self._idx['source']]
 		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
 		txt += u'\n'

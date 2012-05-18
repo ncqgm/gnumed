@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-05-16 13:28+CEST\n"
-"PO-Revision-Date: 2012-05-16 14:49+0100\n"
+"POT-Creation-Date: 2012-05-17 22:17+CEST\n"
+"PO-Revision-Date: 2012-05-17 22:21+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -4444,7 +4444,7 @@ msgid "&Filter by problem"
 msgstr "&Filtern anhand des Problems"
 
 msgid "Add a problem to the problem list."
-msgstr "Eine Problem hinzufügen."
+msgstr "Ein Problem hinzufügen."
 
 msgid "Edit the selected problem."
 msgstr "Das markierte Problem bearbeiten."
@@ -8022,14 +8022,27 @@ msgstr "Eine Grunderkrankung hinzufügen"
 msgid "Editing a health issue"
 msgstr "Grunderkrankung bearbeiten"
 
-msgid "Select the health issues you are interested in ..."
-msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
+msgid "CONFIDENTIAL"
+msgstr "VERTRAULICH"
 
 msgid "relevant"
 msgstr "relevant"
 
 msgid "fatal"
 msgstr "terminal"
+
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr ""
+"\n"
+"Wählen Sie die Grunderkrankungen !\n"
+
+msgid "Showing health issues ..."
+msgstr "Zeige Grunderkrankungen ..."
+
+msgid "Select the health issues you are interested in ..."
+msgstr "Wählen Sie die Grunderkrankungen, die von Interesse sind ..."
 
 msgid "Cannot create health issue without name."
 msgstr "Kann keine Grunderkrankung ohne Bezeichnung anlegen."
@@ -10421,6 +10434,12 @@ msgstr "unbekannter Meßwerttabellenstil [%s]"
 
 msgid "unknown vaccinations table formatting style [%s]"
 msgstr "unbekannter Impftabellenstil [%s]"
+
+msgid "PHX: Invalid placeholder options."
+msgstr "PHX: ungültige Platzhalteroptionen."
+
+msgid "no PHX for this patient (available or selected)"
+msgstr "keine PHX für den Patienten (verfügbar oder ausgewählt)"
 
 msgid "generic text"
 msgstr "Freitext"
@@ -16194,9 +16213,6 @@ msgstr "erstmals"
 
 #~ msgid "rename health issue"
 #~ msgstr "Grunderkrankung umbenennen"
-
-#~ msgid "Renaming health issue ..."
-#~ msgstr "Grunderkrankung umbenennen ..."
 
 #~ msgid ""
 #~ "Cannot rename health issue from\n"
