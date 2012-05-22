@@ -32,6 +32,7 @@ NEW: dynamic clinical hints
 NEW: placeholders <adr_subunit> and <adr_suburb>
 NEW: placeholder <patient_tags>
 NEW: placeholder <PHX>
+NEW: link qtdrugs.org from Medication plugin and substance intake EA
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -57,6 +58,7 @@ IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
 IMPROVED: branded drug EA: jump to manage-substances
 IMPROVED: placeholders: current_meds_table/current_meds_notes
 IMPROVED: default medication list template layout
+IMPROVED: substance intake EA usability
 
 ------------------------------------------------
 # rel-1-1-patches

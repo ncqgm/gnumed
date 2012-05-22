@@ -682,6 +682,9 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('A drug component with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmMedication.cDrugComponent(aPK_obj = self.GetData(as_instance = False, can_create = False))
 #============================================================
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -721,6 +724,10 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
+
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmMedication.cConsumableSubstance(aPK_obj = self.GetData(as_instance = False, can_create = False))
 #============================================================
 # branded drugs widgets
 #------------------------------------------------------------
@@ -1585,6 +1592,21 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	def _on_manage_substances_button_pressed(self, event):
 		manage_consumable_substances(parent = self)
 	#----------------------------------------------------------------
+	def _on_heart_button_pressed(self, event):
+		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
+	#----------------------------------------------------------------
+	def _on_kidneys_button_pressed(self, event):
+		if self._PRW_component.GetData() is not None:
+			search_term = self._PRW_component.GetData(as_instance = True)
+		elif self._PRW_substance.GetData() is not None:
+			search_term = self._PRW_substance.GetData(as_instance = True)
+		elif self._PRW_component.GetValue().strip() != u'':
+			search_term = self._PRW_component.GetValue().strip()
+		else:
+			search_term = self._PRW_substance.GetValue().strip()
+
+		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
+	#----------------------------------------------------------------
 	def _on_discontinued_as_planned_button_pressed(self, event):
 
 		now = gmDateTime.pydt_now_here()
@@ -2209,6 +2231,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				search_term = self.get_selected_data()[0]
 		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
 	#------------------------------------------------------------
+	def show_cardiac_info(self):
+		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
+	#------------------------------------------------------------
 	def report_ADR(self):
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -2578,6 +2603,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_button_kidneys_pressed(self, event):
 		self._grid_substances.show_renal_insufficiency_info()
+	#--------------------------------------------------------
+	def _on_button_heart_pressed(self, event):
+		self._grid_substances.show_cardiac_info()
 	#--------------------------------------------------------
 	def _on_adr_button_pressed(self, event):
 		self._grid_substances.report_ADR()

@@ -658,28 +658,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
-#	def dummy(self):
 	def __refresh_meds(self, patient=None):
-		# list by single substance:
-		emr = patient.get_emr()
-		list_items = []
-		meds = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
-		for med in meds:
-			list_items.append(_('%s %s %s%s') % (
-				med['substance'],
-				med['amount'],
-				med['unit'],
-				gmTools.coalesce (
-					med['schedule'],
-					u'',
-					u': %s'
-				)
-			))
-		self._LCTRL_meds.set_string_items(items = list_items)
-		self._LCTRL_meds.set_data(data = meds)
-	#---------------
-#	def __refresh_meds(self, patient=None):
-	def dummy(self):
 		# list by brand or substance:
 		emr = patient.get_emr()
 		intakes = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')

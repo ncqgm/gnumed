@@ -2118,7 +2118,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			return None
 
 	if u'%(img)s' in cmd:
-		cmd % {u'img': filename}
+		cmd = cmd % {u'img': filename}
 	else:
 		cmd = u'%s %s' % (cmd, filename)
 
