@@ -196,9 +196,10 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 				if enc is not None:
 					label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
-			try: self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
-			except:
-				_log.exception('cannot set match_type field')
+			try:
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
+			except KeyError:
+				_log.warning('cannot set match_type field')
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = u'??')
 
 		for col in range(len(self.__cols)):
