@@ -222,8 +222,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		can_return_empty = False,
 		edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh,
-		ignore_OK_button = True
+		refresh_callback = refresh
 	)
 #------------------------------------------------------------
 def search_narrative_across_emrs(parent=None):
