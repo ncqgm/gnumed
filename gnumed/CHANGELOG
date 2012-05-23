@@ -59,6 +59,8 @@ IMPROVED: branded drug EA: jump to manage-substances
 IMPROVED: placeholders: current_meds_table/current_meds_notes
 IMPROVED: default medication list template layout
 IMPROVED: substance intake EA usability
+IMPROVED: status line cleanup [thanks J.Busser]
+IMPROVED: document signing display [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-1-patches

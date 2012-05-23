@@ -762,6 +762,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 
+		item = help_menu.Append(-1, _('&Clear status line'), _('Clear out the status line.'))
+		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
+
 		menu_debugging = wx.Menu()
 
 		ID_SCREENSHOT = wx.NewId()
@@ -1001,6 +1004,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
 		self.__update_window_title()
+		gmDispatcher.send(signal = 'statustext', msg = u'')
 		try:
 			gmHooks.run_hook_script(hook = u'post_patient_activation')
 		except:
@@ -2366,6 +2370,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_clear_status_line(self, evt):
+		gmDispatcher.send(signal = 'statustext', msg = u'')
 	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()

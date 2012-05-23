@@ -24,6 +24,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSurgery
