@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
+"POT-Creation-Date: 2012-05-23 12:14+CEST\n"
 "PO-Revision-Date: 2011-01-10 15:32+0000\n"
 "Last-Translator: giorgos vagionis <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
@@ -2382,6 +2382,13 @@ msgstr "Μάρκα"
 msgid "... or ..."
 msgstr "... ή ..."
 
+msgid "♥"
+msgstr ""
+
+#, fuzzy
+msgid "Kidneys"
+msgstr "Νεφρός"
+
 msgid "Unbranded substance"
 msgstr ""
 
@@ -2392,14 +2399,14 @@ msgstr "&Διαχείριση"
 msgid "Approved of"
 msgstr "Εγκρίθηκε από"
 
+msgid "Long-term"
+msgstr "Μακροχρόνια"
+
 msgid "Per plan"
 msgstr "Βάσει σχεδίου"
 
 msgid "... Reason"
 msgstr "...αιτία"
-
-msgid "Long-term"
-msgstr "Μακροχρόνια"
 
 msgid ""
 "A component of a drug brand the patient is taking.\n"
@@ -2419,6 +2426,12 @@ msgstr ""
 
 msgid "The active ingredients of this brand."
 msgstr "Η ενεργός ουσία για αυτό το σκεύασμα."
+
+msgid "Show cardiac information relevant to substance selection."
+msgstr ""
+
+msgid "Show renal insufficiency information related to substance selection."
+msgstr ""
 
 msgid ""
 "The non-branded medication or non-medication substance, with optional "
@@ -2442,14 +2455,8 @@ msgstr "Πότε η ουσία άρχισε να καταναλώνετε."
 msgid "Whether this substance is taken by advice."
 msgstr "Εάν αυτή η ουσία λαμβάνετε από συμβουλή."
 
-msgid "When was intake of this substance discontinued ?"
-msgstr "Πότε η λήψη της ουσίας διακόπηκε ;"
-
-msgid "Press if discontinuation was as planned."
-msgstr "Πίεσε εάν η διακοπή ήταν προγραμματισμένη."
-
-msgid "Reason for discontinuation."
-msgstr "Λόγος διακοπής."
+msgid "The episode this substance is taken under."
+msgstr ""
 
 msgid "The schedule for taking this substance."
 msgstr "Το πρόγραμμα πρόσληψης αυτής της ουσίας."
@@ -2461,9 +2468,6 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Εάν αυτή η ουσία θα λαμβάνεται για το υπόλοιπο της ζωής του ασθενούς."
 
-msgid "The episode this substance is taken under."
-msgstr ""
-
 msgid "The aim of consuming this substance."
 msgstr "Ο σκοπός της χρήσης αυτής της ουσίας."
 
@@ -2471,11 +2475,17 @@ msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 "Κάθε κλινική σημείωση, σχόλια, ή οδηγίες για την λήψη αυτής της ουσίας."
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Πότε η λήψη της ουσίας διακόπηκε ;"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Πίεσε εάν η διακοπή ήταν προγραμματισμένη."
+
+msgid "Reason for discontinuation."
+msgstr "Λόγος διακοπής."
+
 msgid "Started"
 msgstr "Ξεκίνησε"
-
-msgid "Discontinued"
-msgstr "Διακόπηκε"
 
 msgid "Schedule"
 msgstr "Προγραμματισμός"
@@ -2485,6 +2495,9 @@ msgstr "Διάρκεια"
 
 msgid "Advice"
 msgstr "Συμβουλή"
+
+msgid "Discontinued"
+msgstr "Διακόπηκε"
 
 msgid "Inactive"
 msgstr "Ανενεργό"
@@ -2550,6 +2563,11 @@ msgid "Discontinue selected entry due to an allergy or intolerance."
 msgstr ""
 
 msgid "Show in-depth information on the selected substance if available."
+msgstr ""
+
+msgid ""
+"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
+"in the presence of long Qt duration."
 msgstr ""
 
 msgid ""
@@ -6938,7 +6956,7 @@ msgstr "σχόλιο"
 msgid "(you are the primary reviewer)"
 msgstr ""
 
-msgid "(someone else is the primary reviewer)"
+msgid "(someone else is the intended reviewer: %s)"
 msgstr ""
 
 msgid ""
@@ -7799,13 +7817,27 @@ msgstr ""
 msgid "Editing a health issue"
 msgstr ""
 
-msgid "Select the health issues you are interested in ..."
-msgstr ""
+#, fuzzy
+msgid "CONFIDENTIAL"
+msgstr " ****ΕΜΠΙΣΤΕΥΤΙΚΟ****"
 
 msgid "relevant"
 msgstr "συναφής"
 
 msgid "fatal"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr "θέμα υγείας:%s"
+
+#, fuzzy
+msgid "Showing health issues ..."
+msgstr "Θέμα υγείας"
+
+msgid "Select the health issues you are interested in ..."
 msgstr ""
 
 msgid "Cannot create health issue without name."
@@ -8795,6 +8827,12 @@ msgid "Menu reference (www)"
 msgstr ""
 
 msgid "View the reference for menu items on the web."
+msgstr ""
+
+msgid "&Clear status line"
+msgstr ""
+
+msgid "Clear out the status line."
 msgstr ""
 
 msgid "Save a screenshot of this GNUmed client."
@@ -9863,6 +9901,12 @@ msgid "unknown test results table formatting style [%s]"
 msgstr ""
 
 msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
+msgid "PHX: Invalid placeholder options."
+msgstr ""
+
+msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
 #, fuzzy

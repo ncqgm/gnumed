@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-05-17 22:17+CEST\n"
-"PO-Revision-Date: 2012-05-17 22:21+0100\n"
+"POT-Creation-Date: 2012-05-23 12:14+CEST\n"
+"PO-Revision-Date: 2012-05-23 12:18+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -2270,6 +2270,12 @@ msgstr "Medikamente"
 msgid "... or ..."
 msgstr "... oder ..."
 
+msgid "♥"
+msgstr ""
+
+msgid "Kidneys"
+msgstr "Niere"
+
 msgid "Unbranded substance"
 msgstr "Substanz"
 
@@ -2279,14 +2285,14 @@ msgstr "Verwalten"
 msgid "Approved of"
 msgstr "Gebilligt"
 
+msgid "Long-term"
+msgstr "Langzeit"
+
 msgid "Per plan"
 msgstr "Planmäßig"
 
 msgid "... Reason"
 msgstr "... Grund"
-
-msgid "Long-term"
-msgstr "Langzeit"
 
 msgid ""
 "A component of a drug brand the patient is taking.\n"
@@ -2309,6 +2315,12 @@ msgstr ""
 msgid "The active ingredients of this brand."
 msgstr "Die aktiven Wirkstoffe dieses Medikaments."
 
+msgid "Show cardiac information relevant to substance selection."
+msgstr "Kardiologische Fachinformationen zeigen, die für die Substanzwahl relevant sind."
+
+msgid "Show renal insufficiency information related to substance selection."
+msgstr "Nephrologische Fachinformationen zeigen, die für die Substanzwahl relevant sind."
+
 msgid "The non-branded medication or non-medication substance, with optional strength."
 msgstr "Die Substanz (Wirkstoff oder sonstige), optional mit Dosisangabe."
 
@@ -2330,14 +2342,8 @@ msgstr "Seit wann wird diese Substanz konsumiert."
 msgid "Whether this substance is taken by advice."
 msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
 
-msgid "When was intake of this substance discontinued ?"
-msgstr "Wann wurde die Einnahme dieser Substanz beendet ?"
-
-msgid "Press if discontinuation was as planned."
-msgstr "Einnahmeende auf plangemäßes Datum setzen."
-
-msgid "Reason for discontinuation."
-msgstr "Grund der Beendigung"
+msgid "The episode this substance is taken under."
+msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
 
 msgid "The schedule for taking this substance."
 msgstr "Der Einnahmeplan für diese Substanz."
@@ -2348,20 +2354,23 @@ msgstr "Wie lange soll diese Substanz genommen werden."
 msgid "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Ob es sich um ein Dauermedikament handelt."
 
-msgid "The episode this substance is taken under."
-msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
-
 msgid "The aim of consuming this substance."
 msgstr "Das Ziel des Gebrauchs dieser Substanz."
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr "Kommentare oder Hinweise zur Einnahme dieser Substanz."
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Wann wurde die Einnahme dieser Substanz beendet ?"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Einnahmeende auf plangemäßes Datum setzen."
+
+msgid "Reason for discontinuation."
+msgstr "Grund der Beendigung"
+
 msgid "Started"
 msgstr "Beginn"
-
-msgid "Discontinued"
-msgstr "Beendet"
 
 msgid "Schedule"
 msgstr "Plan"
@@ -2371,6 +2380,9 @@ msgstr "Dauer"
 
 msgid "Advice"
 msgstr "Hinweis"
+
+msgid "Discontinued"
+msgstr "Beendet"
 
 msgid "Inactive"
 msgstr "Inaktive"
@@ -2431,6 +2443,9 @@ msgstr "Den gewählten Eintrag wegen einer Allergie oder Unverträglichkeit been
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Fachinformationen zur markierten Substanz anzeigen, sofern verfügbar."
+
+msgid "Show <www.qtdrugs.org> information on handling of drugs / the selected drug in the presence of long Qt duration."
+msgstr "Zeige Informationen auf <qtdrugs.org> zur Gabe von Medikamenten (des gewählten Medikaments) bei langer QT-Dauer."
 
 msgid "Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."
 msgstr "Zeige Informationen auf <www.dosing.de> zur Gabe von Medikamenten (des gewählten Medikaments) bei Niereninsuffienz."
@@ -7053,8 +7068,8 @@ msgstr "Kommentar"
 msgid "(you are the primary reviewer)"
 msgstr "(sie sind der Verantwortliche)"
 
-msgid "(someone else is the primary reviewer)"
-msgstr "(jemand anders ist verantwortlich)"
+msgid "(someone else is the intended reviewer: %s)"
+msgstr "(jemand anderes ist verantwortlich: %s)"
 
 msgid ""
 "Cannot create episode\n"
@@ -9092,6 +9107,12 @@ msgstr "Hilfe zu Menüpunkten (WWW)"
 
 msgid "View the reference for menu items on the web."
 msgstr "Die Hilfe zu Menüpunkten im Web aufrufen."
+
+msgid "&Clear status line"
+msgstr "&Statuszeile leeren"
+
+msgid "Clear out the status line."
+msgstr "Die Statuszeile leeren."
 
 msgid "Save a screenshot of this GNUmed client."
 msgstr "Ein Bildschirmphoto des Programms erstellen."
@@ -15250,9 +15271,6 @@ msgstr "erstmals"
 
 #~ msgid "&Run query"
 #~ msgstr "Ab&frage starten"
-
-#~ msgid "&Clear query"
-#~ msgstr "Abfage &löschen"
 
 #~ msgid "Tables in database  /  Feedback"
 #~ msgstr "Tabellen in Datenbank  /  Rückmeldung"
