@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-05-23 12:15+CEST\n"
+"POT-Creation-Date: 2012-05-31 22:27+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -1086,13 +1086,14 @@ msgstr "Vacina"
 msgid "Lot \\#"
 msgstr "Lote \\#"
 
-msgid "S/P"
-msgstr "S/P"
+msgid "SoaP"
+msgstr ""
 
+#, fuzzy
 msgid ""
-"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
-"\"lan: this vaccination was administered in the practice or copied from "
-"trustworthy records."
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
 msgstr ""
 "S/P -- \"S\"ubjetivo: essa vacina foi lembrada pelo paciente. \"P\"lano: "
 "essa vacina foi administrada no serviço e foi copiada de registros "
@@ -13488,6 +13489,9 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#~ msgid "S/P"
+#~ msgstr "S/P"
 
 #, fuzzy
 #~ msgid "%s (%s %s%s)         [#%s]\n"

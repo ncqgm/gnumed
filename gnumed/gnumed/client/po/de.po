@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-05-23 12:14+CEST\n"
-"PO-Revision-Date: 2012-05-23 12:18+0100\n"
+"POT-Creation-Date: 2012-05-31 22:27+CEST\n"
+"PO-Revision-Date: 2012-05-31 22:36+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -1050,11 +1050,11 @@ msgstr "Impfstoff"
 msgid "Lot \\#"
 msgstr "Charge"
 
-msgid "S/P"
+msgid "SoaP"
 msgstr "A/T"
 
-msgid "S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P\"lan: this vaccination was administered in the practice or copied from trustworthy records."
-msgstr "A/T -- \"A\"namnese: diese Impfung berichtete der Patient aus dem Gedächtnis. \"T\"herapie: diese Impfung wurde hier in der Praxis verabreicht oder vertrauenswürdigen Unterlagen entnommen."
+msgid "SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: vaccination was administered in the practice or copied from trustworthy records."
+msgstr "A/T -- \"A\"namnese: Impfung durch Patient erinnert. \"T\"herapie: Impfung in dieser Praxis erfolgt oder vertrauenswürdigen Unterlagen entnommen."
 
 msgid "Total number of vaccinations recorded for the corresponding target condition."
 msgstr "Gesamtzahl dokumentierter Impfungen für das jeweilige Impfziel."
@@ -13804,6 +13804,9 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "S/P"
+#~ msgstr "A/T"
 
 #~ msgid ""
 #~ "This email address will be used when GNUmed\n"
