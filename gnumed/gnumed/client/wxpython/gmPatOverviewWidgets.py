@@ -155,7 +155,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		wx.CallAfter(self.__refresh_encounters, patient = gmPerson.gmCurrentPatient())
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
+		# only empty out here, do NOT access the patient
+		# or else we will access the old patient while it
+		# may not be valid anymore ...
+		wx.CallAfter(self.__reset_ui_content)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self._schedule_data_reget)

@@ -3016,6 +3016,7 @@ class gmApp(wx.App):
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
+		#gmPerson.set_emr_access_spinner(func = gmEMRStructWidgets.emr_access_spinner)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------

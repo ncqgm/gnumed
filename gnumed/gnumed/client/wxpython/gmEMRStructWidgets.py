@@ -7,7 +7,6 @@
 	and Karsten <Karsten.Hilbert@gmx.net>.
 """
 #================================================================
-__version__ = "$Revision: 1.114 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -25,12 +24,25 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+#================================================================
+# EMR access helper functions
+#----------------------------------------------------------------
+def emr_access_spinner(time2spin=0):
+	"""Spin time in seconds."""
+	if time2spin == 0:
+		return
+	sleep_time = 0.1
+	total_rounds = int(time2spin / sleep_time)
+	if total_rounds < 1:
+		return
+	rounds = 0
+	while rounds < total_rounds:
+		wx.Yield()
+		time.sleep(sleep_time)
+		rounds += 1
 #================================================================
 # performed procedure related widgets/functions
 #----------------------------------------------------------------
@@ -908,6 +920,8 @@ ORDER BY
 		self.selection_only = True
 		self.picklist_delay = 50
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
+
 class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
@@ -1956,6 +1970,8 @@ ORDER BY
 			self.set_context('pat', patient.ID)
 		return True
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+
 class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 
 	def __init__(self, *args, **kwargs):
