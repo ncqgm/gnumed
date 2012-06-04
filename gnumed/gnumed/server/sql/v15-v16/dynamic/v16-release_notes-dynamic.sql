@@ -17,14 +17,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.14 (database v16.14)',
-	'GNUmed 1.1.14 Release Notes:
+	'Release Notes for GNUmed 1.1.15 (database v16.15)',
+	'GNUmed 1.1.15 Release Notes:
 
-	1.1.14
+	1.1.15
 
-FIX: missing pre-save date verification in document properties editor [thanks J.Busser]
-FIX: exception on procedure start > end [thanks J.Busser]
-FIX: corner case of faulty drug database selection [thanks J.Busser]
+FIX: exception on removing components from branded drug [thanks S.Hilbert]
+
+IMPROVED: bring back [OK] button on editing progress notes [thanks J.Busser]
+IMPROVED: patient search trying to pin down merge issue
 ');
 
 -- --------------------------------------------------------------
