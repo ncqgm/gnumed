@@ -54,6 +54,10 @@ def drug2renal_insufficiency_url(search_term=None):
 	if search_term is None:
 		return u'http://www.dosing.de'
 
+	if isinstance(search_term, basestring):
+		if search_term.strip() == u'':
+			return u'http://www.dosing.de'
+
 	terms = []
 	names = []
 
@@ -67,6 +71,18 @@ def drug2renal_insufficiency_url(search_term=None):
 			terms.append(search_term['atc_brand'])
 		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
+
+	elif isinstance(search_term, cDrugComponent):
+		names.append(search_term['substance'])
+		if search_term['atc_brand'] is not None:
+			terms.append(search_term['atc_brand'])
+		if search_term['atc_substance'] is not None:
+			terms.append(search_term['atc_substance'])
+
+	elif isinstance(search_term, cConsumableSubstance):
+		names.append(search_term['description'])
+		if search_term['atc_code'] is not None:
+			terms.append(search_term['atc_code'])
 
 	elif search_term is not None:
 		names.append(u'%s' % search_term)
@@ -1786,7 +1802,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
 		)
 		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
-		if show_all_brand_components:
+		if show_all_brand_components and (self._payload[self._idx['pk_brand']] is not None):
 			brand = self.containing_drug
 			if len(brand['pk_substances']) > 1:
 				for comp in brand['components']:

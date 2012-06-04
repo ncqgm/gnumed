@@ -108,4 +108,37 @@ account vital signs and symptoms !
 ');
 
 -- --------------------------------------------------------------
+delete from clin.keyword_expansion where keyword = 'score-CAGE-Alkoholkonsum';
+
+insert into clin.keyword_expansion (
+	fk_staff,
+	keyword,
+	expansion
+) values (
+	null,
+	'score-CAGE-Alkoholkonsum',
+'CAGE: Risikobewertung von Alkoholkonsum
+---------------------------------------
+JAMA 1984. DOI:10.1001/jama.1984.03350140051025 / PMID 6471323
+https://en.wikipedia.org/wiki/CAGE_questionnaire
+
+ $<1 oder 0>$ C-onsum: Hatten Sie schon einmal das Gefühl,
+   daß Sie Ihren Alkoholkonsum reduzieren sollten ? (C-ut down)
+ $<1 oder 0>$ A-ndere: Hat es sie schon aufgeregt, wenn andere
+   Leute Ihr Trinkverhalten kritisieren ? (A-nnoyance)
+ $<1 oder 0>$ G-ewissen: Hatten Sie wegen Ihres Alkohol-
+   konsums schon einmal Gewissensbisse ? (G-uilty)
+ $<1 oder 0>$ E-rwachen: Haben Sie morgens nach dem Erwachen
+   schon als Erstes Alkohol getrunken, um Ihre Nerven zu
+   beruhigen oder den Kater loszuwerden ? (E-ye opener)
+
+Summe: $<Bitte zusammenrechnen !>$
+
+Wahrscheinlichkeit, daß Alkoholmißbrauch vorliegt:
+ 1: 62%
+ 2: 89%
+>2: 99%
+');
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v17-clin-keyword_expansion-data.sql', '17.0');

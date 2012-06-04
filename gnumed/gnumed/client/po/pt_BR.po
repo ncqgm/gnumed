@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
+"POT-Creation-Date: 2012-05-31 22:28+CEST\n"
 "PO-Revision-Date: 2011-06-19 16:42-0300\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -1101,13 +1101,14 @@ msgstr "Vacina"
 msgid "Lot \\#"
 msgstr "Lote \\#"
 
-msgid "S/P"
-msgstr "S/P"
+msgid "SoaP"
+msgstr ""
 
+#, fuzzy
 msgid ""
-"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
-"\"lan: this vaccination was administered in the practice or copied from "
-"trustworthy records."
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
 msgstr ""
 "S/P -- \"S\"ubjetivo: essa vacina foi lembrada pelo paciente. \"P\"lano: "
 "essa vacina foi administrada no serviço e foi copiada de registros "
@@ -2400,6 +2401,13 @@ msgstr "Marca"
 msgid "... or ..."
 msgstr "... ou ..."
 
+msgid "♥"
+msgstr ""
+
+#, fuzzy
+msgid "Kidneys"
+msgstr "Rim"
+
 #, fuzzy
 msgid "Unbranded substance"
 msgstr "Adicionar uma substância"
@@ -2411,14 +2419,14 @@ msgstr "&Editar"
 msgid "Approved of"
 msgstr "Aprovado de"
 
+msgid "Long-term"
+msgstr "Uso contínuo"
+
 msgid "Per plan"
 msgstr "Conforme Plano"
 
 msgid "... Reason"
 msgstr "... Motivo"
-
-msgid "Long-term"
-msgstr "Uso contínuo"
 
 msgid ""
 "A component of a drug brand the patient is taking.\n"
@@ -2438,6 +2446,16 @@ msgstr ""
 
 msgid "The active ingredients of this brand."
 msgstr "Os ingredientes ativos da marca."
+
+#, fuzzy
+msgid "Show cardiac information relevant to substance selection."
+msgstr ""
+"Mostrar informações detalhadas da substância selecionada se disponível. "
+
+#, fuzzy
+msgid "Show renal insufficiency information related to substance selection."
+msgstr ""
+"Mostrar informações detalhadas da substância selecionada se disponível. "
 
 msgid ""
 "The non-branded medication or non-medication substance, with optional "
@@ -2461,14 +2479,8 @@ msgstr "Quando foi que a substância começou a ser consumida."
 msgid "Whether this substance is taken by advice."
 msgstr "Se essa substância está sendo usada sob supervisão."
 
-msgid "When was intake of this substance discontinued ?"
-msgstr "Quando que essa substância foi descontinuada ?"
-
-msgid "Press if discontinuation was as planned."
-msgstr "Pressione se a interrupção foi como o planejado."
-
-msgid "Reason for discontinuation."
-msgstr "Motivo da interrupção."
+msgid "The episode this substance is taken under."
+msgstr "O episódio ao qual essa substância está relacionada. "
 
 msgid "The schedule for taking this substance."
 msgstr "A posologia para essa substância. "
@@ -2480,9 +2492,6 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Se essa substância deve ser usada para o resto da vida do paciente. "
 
-msgid "The episode this substance is taken under."
-msgstr "O episódio ao qual essa substância está relacionada. "
-
 msgid "The aim of consuming this substance."
 msgstr "O objetivo do uso dessa substância. "
 
@@ -2490,11 +2499,17 @@ msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 "Qualquer orientação, advertência ou comentário sobre o uso dessa substância. "
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Quando que essa substância foi descontinuada ?"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Pressione se a interrupção foi como o planejado."
+
+msgid "Reason for discontinuation."
+msgstr "Motivo da interrupção."
+
 msgid "Started"
 msgstr "Começou"
-
-msgid "Discontinued"
-msgstr "Discontinuado"
 
 msgid "Schedule"
 msgstr "Posologia"
@@ -2504,6 +2519,9 @@ msgstr "Duração "
 
 msgid "Advice"
 msgstr "Orientações"
+
+msgid "Discontinued"
+msgstr "Discontinuado"
 
 msgid "Inactive"
 msgstr "Inativo"
@@ -2584,6 +2602,14 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 "Mostrar informações detalhadas da substância selecionada se disponível. "
+
+#, fuzzy
+msgid ""
+"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
+"in the presence of long Qt duration."
+msgstr ""
+"Mostrar informações sobre manejo de substâncias na presença de insuficiência "
+"renal. "
 
 #, fuzzy
 msgid ""
@@ -7319,7 +7345,7 @@ msgstr ""
 msgid "(you are the primary reviewer)"
 msgstr ""
 
-msgid "(someone else is the primary reviewer)"
+msgid "(someone else is the intended reviewer: %s)"
 msgstr ""
 
 msgid ""
@@ -8225,14 +8251,28 @@ msgstr "Adicionando novo problema de saúde"
 msgid "Editing a health issue"
 msgstr "Editando um problema de saúde"
 
-msgid "Select the health issues you are interested in ..."
-msgstr "Selecione os problemas de saúde nos quais está interessado ..."
+#, fuzzy
+msgid "CONFIDENTIAL"
+msgstr " ***** CONFIDENCIAL *****"
 
 msgid "relevant"
 msgstr "relevante"
 
 msgid "fatal"
 msgstr "fatal"
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr "Selecionar problema de saúde"
+
+#, fuzzy
+msgid "Showing health issues ..."
+msgstr "Selecionar problema de saúde"
+
+msgid "Select the health issues you are interested in ..."
+msgstr "Selecione os problemas de saúde nos quais está interessado ..."
 
 #, fuzzy
 msgid "Cannot create health issue without name."
@@ -9305,6 +9345,12 @@ msgstr "Referência do menu (www)"
 
 msgid "View the reference for menu items on the web."
 msgstr "Veja a referência para os itens do menu na internet."
+
+msgid "&Clear status line"
+msgstr ""
+
+msgid "Clear out the status line."
+msgstr ""
 
 msgid "Save a screenshot of this GNUmed client."
 msgstr "Salvar uma screenshot (imagem da tela atual) desse cliente GNUmed."
@@ -10473,6 +10519,13 @@ msgstr ""
 
 msgid "unknown vaccinations table formatting style [%s]"
 msgstr ""
+
+msgid "PHX: Invalid placeholder options."
+msgstr ""
+
+#, fuzzy
+msgid "no PHX for this patient (available or selected)"
+msgstr "Mover descrição para outro episódio"
 
 #, fuzzy
 msgid "generic text"
@@ -13525,6 +13578,9 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid "S/P"
+#~ msgstr "S/P"
 
 #, fuzzy
 #~ msgid "%s (%s %s%s)         [#%s]\n"

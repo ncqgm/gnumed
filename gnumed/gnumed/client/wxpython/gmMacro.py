@@ -68,8 +68,8 @@ known_placeholders = [
 ]
 
 
-# values for those placeholders must be injected from the outside before using them,
-# in use they must conform to the "placeholder::::max length" syntax,
+# values for the following placeholders must be injected from the outside before
+# using them, in use they must conform to the "placeholder::::max length" syntax,
 # as long as they resolve to None they return themselves
 _injectable_placeholders = {
 	u'form_name_long': None,
@@ -78,7 +78,7 @@ _injectable_placeholders = {
 }
 
 
-# those must satisfy the pattern "$<name::args::(optional) max string length>$" when used
+# the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 known_variant_placeholders = [
 	u'soap',
 	u'progress_notes',			# "args" holds: categories//template
@@ -105,7 +105,7 @@ known_variant_placeholders = [
 	u'adr_country',
 
 	u'patient_comm',						# args: comm channel type as per database
-	u'patient_tags',						# "args" holds: <template>//<separator>
+	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
 	u'external_id',							# args: <type of ID>//<issuer of ID>
 	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
@@ -123,6 +123,7 @@ known_variant_placeholders = [
 	u'allergies',							# "args" holds: line template, one allergy per line
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
+	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
 	u'name',								# "args" holds: template for name parts arrangement
 	u'free_text',							# show a dialog for entering some free text
 	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
@@ -764,7 +765,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_patient_tags(self, data=u'%s//\\n'):
 		if len(self.pat.tags) == 0:
 			if self.debug:
-				return _('no tags for this patient') % data
+				return _('no tags for this patient')
 			return u''
 
 		tags = gmDemographicsWidgets.select_patient_tags(patient = self.pat)
@@ -952,6 +953,43 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		vaccs = emr.get_vaccinations(order_by = u'date_given DESC, vaccine')
 
 		return u'\n'.join([ template % v.fields_as_dict(date_format = date_format) for v in vaccs ])
+	#--------------------------------------------------------
+	def _get_variant_PHX(self, data=None):
+
+		if data is None:
+			if self.debug:
+				_log.error('PHX: missing placeholder arguments')
+				return _('PHX: Invalid placeholder options.')
+			return u''
+
+		_log.debug('arguments: %s', data)
+
+		data_parts = data.split(u'//')
+		template = u'%s'
+		separator = u'\n'
+		date_format = '%Y %B %d'
+		esc_style = None
+		try:
+			template = data_parts[0]
+			separator = data_parts[1]
+			date_format = data_parts[2]
+			esc_style = data_parts[3]
+		except IndexError:
+			pass
+
+		phxs = gmEMRStructWidgets.select_health_issues(emr = self.pat.emr)
+		if phxs is None:
+			if self.debug:
+				return _('no PHX for this patient (available or selected)')
+			return u''
+
+		return separator.join ([
+			template % phx.fields_as_dict (
+				date_format = date_format,
+				escape_style = esc_style,
+				bool_strings = (_('yes'), _('no'))
+			) for phx in phxs
+		])
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
@@ -1485,7 +1523,8 @@ if __name__ == '__main__':
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
-			u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
+			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
+			u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
 		]
 
 		handler = gmPlaceholderHandler()

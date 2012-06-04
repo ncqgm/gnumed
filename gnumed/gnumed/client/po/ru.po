@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-05-16 13:30+CEST\n"
+"POT-Creation-Date: 2012-05-31 22:28+CEST\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -1107,13 +1107,14 @@ msgstr "Вакцина"
 msgid "Lot \\#"
 msgstr "Партия \\#"
 
-msgid "S/P"
-msgstr "S/P"
+msgid "SoaP"
+msgstr ""
 
+#, fuzzy
 msgid ""
-"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
-"\"lan: this vaccination was administered in the practice or copied from "
-"trustworthy records."
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
 msgstr ""
 "S/P --\"S\"ubjective: эту вакцинацию пациент помнит. \"P\"lan: эта "
 "вакцинация назначена практически или скопирована из достоверных записей."
@@ -2445,6 +2446,13 @@ msgstr "Фирмы"
 msgid "... or ..."
 msgstr "... или ..."
 
+msgid "♥"
+msgstr ""
+
+#, fuzzy
+msgid "Kidneys"
+msgstr "Почка"
+
 msgid "Unbranded substance"
 msgstr "Непатентованное вещество"
 
@@ -2454,14 +2462,14 @@ msgstr "Редактор"
 msgid "Approved of"
 msgstr "Принять"
 
+msgid "Long-term"
+msgstr "Долгосрочный"
+
 msgid "Per plan"
 msgstr "По плану"
 
 msgid "... Reason"
 msgstr "... Причина"
-
-msgid "Long-term"
-msgstr "Долгосрочный"
 
 msgid ""
 "A component of a drug brand the patient is taking.\n"
@@ -2492,6 +2500,14 @@ msgstr ""
 msgid "The active ingredients of this brand."
 msgstr "Действующее вещество этой марки."
 
+#, fuzzy
+msgid "Show cardiac information relevant to substance selection."
+msgstr "Показать подробную информацию по выбранному веществу, если имеется."
+
+#, fuzzy
+msgid "Show renal insufficiency information related to substance selection."
+msgstr "Показать подробную информацию по выбранному веществу, если имеется."
+
 msgid ""
 "The non-branded medication or non-medication substance, with optional "
 "strength."
@@ -2519,14 +2535,8 @@ msgstr "Когда был начат прием этого вещества."
 msgid "Whether this substance is taken by advice."
 msgstr "Принималось ли вещество по рекомендации."
 
-msgid "When was intake of this substance discontinued ?"
-msgstr "Когда прекращен прием этого вещества ?"
-
-msgid "Press if discontinuation was as planned."
-msgstr "Отметьте, если прекращение было запланировано."
-
-msgid "Reason for discontinuation."
-msgstr "Причина прекращения."
+msgid "The episode this substance is taken under."
+msgstr "Принималось ли вещество в этом эпизоде."
 
 msgid "The schedule for taking this substance."
 msgstr "Частота приема этого вещества."
@@ -2538,9 +2548,6 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr "Принималось ли это вещество с целью отдыха."
 
-msgid "The episode this substance is taken under."
-msgstr "Принималось ли вещество в этом эпизоде."
-
 msgid "The aim of consuming this substance."
 msgstr "Цель употребления этого вещества."
 
@@ -2549,11 +2556,17 @@ msgstr ""
 "Любые медицинские записи, комментарии или инструкции по употреблению этого "
 "вещества."
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Когда прекращен прием этого вещества ?"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Отметьте, если прекращение было запланировано."
+
+msgid "Reason for discontinuation."
+msgstr "Причина прекращения."
+
 msgid "Started"
 msgstr "Начато"
-
-msgid "Discontinued"
-msgstr "Прекращено"
 
 msgid "Schedule"
 msgstr "Запланировано"
@@ -2563,6 +2576,9 @@ msgstr "Продолжительность"
 
 msgid "Advice"
 msgstr "Консультация"
+
+msgid "Discontinued"
+msgstr "Прекращено"
 
 msgid "Inactive"
 msgstr "Выключен"
@@ -2643,6 +2659,14 @@ msgstr "Прервать выбранную запись, относящуюся
 
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Показать подробную информацию по выбранному веществу, если имеется."
+
+#, fuzzy
+msgid ""
+"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
+"in the presence of long Qt duration."
+msgstr ""
+"Паказать информацию <www.dosing.de> по применению препаратов или выбранному "
+"препарату при почечной недостаточности."
 
 msgid ""
 "Show <www.dosing.de> information on handling of drugs / the selected drug in "
@@ -7735,7 +7759,8 @@ msgstr "комментарий"
 msgid "(you are the primary reviewer)"
 msgstr "(вы являетесь основным рецензентом)"
 
-msgid "(someone else is the primary reviewer)"
+#, fuzzy
+msgid "(someone else is the intended reviewer: %s)"
 msgstr "(кто-то еще является основным рецензентом)"
 
 msgid ""
@@ -8732,14 +8757,28 @@ msgstr "Добавление нового заболевания"
 msgid "Editing a health issue"
 msgstr "Редактирование заболевания"
 
-msgid "Select the health issues you are interested in ..."
-msgstr "Выберите интересующие заболевания ..."
+#, fuzzy
+msgid "CONFIDENTIAL"
+msgstr "*** КОНФИДЕНЦИАЛЬНО ***"
 
 msgid "relevant"
 msgstr "значимое"
 
 msgid "fatal"
 msgstr "фатальное"
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr "Выбор заболевания"
+
+#, fuzzy
+msgid "Showing health issues ..."
+msgstr "Выбор заболевания"
+
+msgid "Select the health issues you are interested in ..."
+msgstr "Выберите интересующие заболевания ..."
 
 #, fuzzy
 msgid "Cannot create health issue without name."
@@ -9830,6 +9869,13 @@ msgstr "Меню ссылок (www)"
 
 msgid "View the reference for menu items on the web."
 msgstr "Отображает ссылки в интернет для пунктов меню."
+
+msgid "&Clear status line"
+msgstr ""
+
+#, fuzzy
+msgid "Clear out the status line."
+msgstr "Очистить примечание SOAP."
 
 msgid "Save a screenshot of this GNUmed client."
 msgstr "Сохраняет скриншот этого клиента GNUmed."
@@ -11212,6 +11258,14 @@ msgstr "неизвестный стиль форматирования табл�
 
 msgid "unknown vaccinations table formatting style [%s]"
 msgstr "неизвестный стиль форматирования таблицы вакцинаций [%s]"
+
+#, fuzzy
+msgid "PHX: Invalid placeholder options."
+msgstr "недопустимая вставка [%s]"
+
+#, fuzzy
+msgid "no PHX for this patient (available or selected)"
+msgstr "Нет доступной текстовой части для выбранного эпизода."
 
 msgid "generic text"
 msgstr "текст дженерика"
@@ -14649,6 +14703,9 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#~ msgid "S/P"
+#~ msgstr "S/P"
 
 #~ msgid ">>>"
 #~ msgstr ">>>"

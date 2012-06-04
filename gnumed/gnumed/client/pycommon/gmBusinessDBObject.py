@@ -135,6 +135,7 @@ import sys, copy, types, inspect, logging, datetime
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmPG2
+from Gnumed.pycommon.gmTools import tex_escape_string
 
 
 _log = logging.getLogger('gm.db')
@@ -445,7 +446,11 @@ def delete_xxx(xxx=None):
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%c', none_string=u''):
+	def fields_as_dict(self, date_format='%c', none_string=u'', escape_style=None, bool_strings=None):
+		if bool_strings is None:
+			bools = {True: u'true', False: u'false'}
+		else:
+			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
 		for field in self._idx.keys():
 			# FIXME: harden against BYTEA fields
@@ -456,11 +461,16 @@ def delete_xxx(xxx=None):
 			if val is None:
 				data[field] = none_string
 				continue
+			if isinstance(val, bool):
+				data[field] = bools[val]
+				continue
 			if isinstance(val, datetime.datetime):
 				try:
 					data[field] = val.strftime(date_format).decode('utf8', 'replace')
 				except ValueError:
 					data[field] = val.isoformat()
+				if escape_style in [u'latex', u'tex']:
+					data[field] = tex_escape_string(data[field])
 				continue
 			try:
 				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
@@ -470,6 +480,9 @@ def delete_xxx(xxx=None):
 				except (UnicodeDecodeError, TypeError):
 					val = '%s' % str(val)
 					data[field] = val.decode('utf8', 'replace')
+			if escape_style in [u'latex', u'tex']:
+				data[field] = tex_escape_string(data[field])
+
 		return data
 	#--------------------------------------------------------
 	def get_patient(self):

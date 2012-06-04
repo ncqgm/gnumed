@@ -1149,6 +1149,22 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
+
+#============================================================
+# helper functions
+#------------------------------------------------------------
+#_spin_on_emr_access = None
+#
+#def set_emr_access_spinner(func=None):
+#	if not callable(func):
+#		_log.error('[%] not callable, not setting _spin_on_emr_access', func)
+#		return False
+#
+#	_log.debug('setting _spin_on_emr_access to [%s]', func)
+#
+#	global _spin_on_emr_access
+#	_spin_on_emr_access = func
+
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -1173,24 +1189,17 @@ class cPatient(cIdentity):
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
 	def get_emr(self):
-#		attempt = 1
-#		got_lock = self.__emr_access_lock.acquire(False)
-#		while not got_lock:
-#			if attempt == 100:			# 100 x 500ms -> 50 seconds timeout
-#				raise AttributeError('cannot access EMR')
-#			attempt += 1
-#			time.sleep(0.5)				# 500ms
-#			got_lock = self.__emr_access_lock.acquire(False)
 		if not self.__emr_access_lock.acquire(False):
-			raise AttributeError('cannot access EMR')
+			# maybe something slow is happening on the machine
+			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
+			time.sleep(0.5)
+			if not self.__emr_access_lock.acquire(False):
+				_log.debug('still failed to acquire EMR access lock, aborting')
+				raise AttributeError('cannot lock access to EMR')
 		try:
-			emr = self.__db_cache['clinical record']
-			self.__emr_access_lock.release()
-			return emr
+			self.__db_cache['clinical record']
 		except KeyError:
-			pass
-
-		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
 

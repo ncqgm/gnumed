@@ -12,6 +12,7 @@
 create table ref.auto_hint (
 	pk serial primary key,
 	query text,
+	title text,
 	hint text,
 	url text,
 	is_active boolean,

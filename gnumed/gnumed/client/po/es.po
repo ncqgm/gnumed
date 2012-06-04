@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-16 13:29+CEST\n"
+"POT-Creation-Date: 2012-05-31 22:27+CEST\n"
 "PO-Revision-Date: 2010-08-06 19:26+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1134,13 +1134,14 @@ msgstr "Vacuna"
 msgid "Lot \\#"
 msgstr "Lote \\#"
 
-msgid "S/P"
-msgstr "Estado post"
+msgid "SoaP"
+msgstr ""
 
+#, fuzzy
 msgid ""
-"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
-"\"lan: this vaccination was administered in the practice or copied from "
-"trustworthy records."
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
 msgstr ""
 "S/P -- \"S\"ubjetivo: el paciente recuerda esta vacuna. \"P\"lan: esta "
 "vacuna fue administrada en la práctica o se copió de registros fiables."
@@ -2482,6 +2483,13 @@ msgstr "Marca"
 msgid "... or ..."
 msgstr "... o ..."
 
+msgid "♥"
+msgstr ""
+
+#, fuzzy
+msgid "Kidneys"
+msgstr "Riñón"
+
 #, fuzzy
 msgid "Unbranded substance"
 msgstr "Agregar substancia."
@@ -2492,14 +2500,14 @@ msgstr "Gestionar"
 msgid "Approved of"
 msgstr "Aprovado de"
 
+msgid "Long-term"
+msgstr "Largo plazo"
+
 msgid "Per plan"
 msgstr "Por plan"
 
 msgid "... Reason"
 msgstr "...Razón"
-
-msgid "Long-term"
-msgstr "Largo plazo"
 
 msgid ""
 "A component of a drug brand the patient is taking.\n"
@@ -2532,6 +2540,16 @@ msgstr ""
 msgid "The active ingredients of this brand."
 msgstr "Los ingredientes activos de esta marca."
 
+#, fuzzy
+msgid "Show cardiac information relevant to substance selection."
+msgstr ""
+"Mostrar informacion detallada de la substancia selecionada si esta disponible"
+
+#, fuzzy
+msgid "Show renal insufficiency information related to substance selection."
+msgstr ""
+"Mostrar informacion detallada de la substancia selecionada si esta disponible"
+
 msgid ""
 "The non-branded medication or non-medication substance, with optional "
 "strength."
@@ -2560,14 +2578,8 @@ msgstr "Cuando se empezo a consumir esta substancia"
 msgid "Whether this substance is taken by advice."
 msgstr "Cuando esta substancia es tomada por recomendacion."
 
-msgid "When was intake of this substance discontinued ?"
-msgstr "Cuando se dejo de consumir esta substancia?"
-
-msgid "Press if discontinuation was as planned."
-msgstr "Presione si se descuontinuo como estaba planeado."
-
-msgid "Reason for discontinuation."
-msgstr "Razon del descontinuo"
+msgid "The episode this substance is taken under."
+msgstr "El episodio de esta sustancia es tomada en virtud."
 
 msgid "The schedule for taking this substance."
 msgstr "El horario para la toma de esta substancia."
@@ -2581,9 +2593,6 @@ msgstr ""
 "Ya sea que esta sustancia debe ser tomada por el resto de la vida del "
 "paciente."
 
-msgid "The episode this substance is taken under."
-msgstr "El episodio de esta sustancia es tomada en virtud."
-
 msgid "The aim of consuming this substance."
 msgstr "El objetivo del consumo de esta substancia."
 
@@ -2591,11 +2600,17 @@ msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 "Notas clinicas, comentarios, o instrucciones para la toma de esta substancia"
 
+msgid "When was intake of this substance discontinued ?"
+msgstr "Cuando se dejo de consumir esta substancia?"
+
+msgid "Press if discontinuation was as planned."
+msgstr "Presione si se descuontinuo como estaba planeado."
+
+msgid "Reason for discontinuation."
+msgstr "Razon del descontinuo"
+
 msgid "Started"
 msgstr "Iniciado"
-
-msgid "Discontinued"
-msgstr "Discontinuado"
 
 msgid "Schedule"
 msgstr "Horario"
@@ -2605,6 +2620,9 @@ msgstr "Duración"
 
 msgid "Advice"
 msgstr "Consejo"
+
+msgid "Discontinued"
+msgstr "Discontinuado"
 
 msgid "Inactive"
 msgstr "Inactivo"
@@ -2682,6 +2700,14 @@ msgstr ""
 msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 "Mostrar informacion detallada de la substancia selecionada si esta disponible"
+
+#, fuzzy
+msgid ""
+"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
+"in the presence of long Qt duration."
+msgstr ""
+"Muestra información acerca del manejo de medicinas en caso de insuficiencia "
+"renal."
 
 #, fuzzy
 msgid ""
@@ -7822,7 +7848,8 @@ msgstr "comentar"
 msgid "(you are the primary reviewer)"
 msgstr "(usted es el revisor principal)"
 
-msgid "(someone else is the primary reviewer)"
+#, fuzzy
+msgid "(someone else is the intended reviewer: %s)"
 msgstr "(otra persona es el revisor principal)"
 
 msgid ""
@@ -8848,14 +8875,30 @@ msgstr "Agregando un nuevo problema de salud."
 msgid "Editing a health issue"
 msgstr "Editando un problema de salud"
 
-msgid "Select the health issues you are interested in ..."
-msgstr "Seleccione el problema de salud en que está interesado/a ..."
+#, fuzzy
+msgid "CONFIDENTIAL"
+msgstr ""
+"*** CONFIDENCIAL ***\n"
+"\n"
 
 msgid "relevant"
 msgstr "relevante"
 
 msgid "fatal"
 msgstr "fatal"
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr "Selecciono problema de salud"
+
+#, fuzzy
+msgid "Showing health issues ..."
+msgstr "Selecciono problema de salud"
+
+msgid "Select the health issues you are interested in ..."
+msgstr "Seleccione el problema de salud en que está interesado/a ..."
 
 #, fuzzy
 msgid "Cannot create health issue without name."
@@ -9973,6 +10016,13 @@ msgstr "Ayuda del Menú (www)"
 
 msgid "View the reference for menu items on the web."
 msgstr "Vea la ayuda de los ítemes del menú en la red."
+
+#, fuzzy
+msgid "&Clear status line"
+msgstr "&Limpiar consulta"
+
+msgid "Clear out the status line."
+msgstr ""
 
 msgid "Save a screenshot of this GNUmed client."
 msgstr "Guarde una captura de pantalla de este cliente GNUmed."
@@ -11353,6 +11403,14 @@ msgstr "estilo de formato de tablas de resultado de exámenes desconocido [%s]"
 
 msgid "unknown vaccinations table formatting style [%s]"
 msgstr "estilo de formato de tabla de vacunaciones deconocido [%s]"
+
+#, fuzzy
+msgid "PHX: Invalid placeholder options."
+msgstr "marcador de posición [%s] inválido"
+
+#, fuzzy
+msgid "no PHX for this patient (available or selected)"
+msgstr "Mover narrativa a otro episodio."
 
 #, fuzzy
 msgid "generic text"
@@ -14837,6 +14895,9 @@ msgstr "Cantidad"
 msgid "First Date"
 msgstr "Primera cita"
 
+#~ msgid "S/P"
+#~ msgstr "Estado post"
+
 #~ msgid ">>>"
 #~ msgstr ">>>"
 
@@ -15659,9 +15720,6 @@ msgstr "Primera cita"
 
 #~ msgid "ERROR: cannot retrieve vaccinated indications"
 #~ msgstr "ERROR: no ha sido posible obtener información sobre vacunaciones"
-
-#~ msgid "&Clear query"
-#~ msgstr "&Limpiar consulta"
 
 #~ msgid "simple EMR text viewer"
 #~ msgstr "sencillo visor en modo texto del RME"

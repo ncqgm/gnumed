@@ -609,8 +609,12 @@ echo "" >> $SRVARCH.sha512
 echo "Verify this SHA512 sum by running:" >> $SRVARCH.sha512
 echo " sha512sum $SRVARCH" >> $SRVARCH.sha512
 
-
 # cleanup
 rm -R ./gnumed-server.$SRVREV/
 
 echo "include schema docs"
+
+# upload
+scp $CLIENTARCH $CLIENTARCH.md5 $CLIENTARCH.sha512 $SRVARCH $SRVARCH.md5 $SRVARCH.sha512 www.gnumed.de:
+
+# post announcement ?

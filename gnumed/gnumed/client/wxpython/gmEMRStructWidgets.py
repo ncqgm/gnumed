@@ -7,7 +7,6 @@
 	and Karsten <Karsten.Hilbert@gmx.net>.
 """
 #================================================================
-__version__ = "$Revision: 1.114 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -25,12 +24,25 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+#================================================================
+# EMR access helper functions
+#----------------------------------------------------------------
+def emr_access_spinner(time2spin=0):
+	"""Spin time in seconds."""
+	if time2spin == 0:
+		return
+	sleep_time = 0.1
+	total_rounds = int(time2spin / sleep_time)
+	if total_rounds < 1:
+		return
+	rounds = 0
+	while rounds < total_rounds:
+		wx.Yield()
+		time.sleep(sleep_time)
+		rounds += 1
 #================================================================
 # performed procedure related widgets/functions
 #----------------------------------------------------------------
@@ -908,6 +920,8 @@ ORDER BY
 		self.selection_only = True
 		self.picklist_delay = 50
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
+
 class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
@@ -1761,6 +1775,37 @@ def edit_health_issue(parent=None, issue=None):
 		return True
 	return False
 #----------------------------------------------------------------
+def select_health_issues(parent=None, emr=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def refresh(lctrl):
+		issues = emr.get_health_issues()
+		items = [
+			[
+				gmTools.bool2subst(i['is_confidential'], _('CONFIDENTIAL'), u'', u''),
+				i['description'],
+				gmTools.bool2subst(i['clinically_relevant'], _('relevant'), u'', u''),
+				gmTools.bool2subst(i['is_active'], _('active'), u'', u''),
+				gmTools.bool2subst(i['is_cause_of_death'], _('fatal'), u'', u'')
+			] for i in issues
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = issues)
+	#-----------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the health issues !\n'),
+		caption = _('Showing health issues ...'),
+		columns = [u'', _('Health issue'), u'', u'', u''],
+		single_selection = False,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+	)
+#----------------------------------------------------------------
 class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
 	# FIXME: support pre-selection
@@ -1925,6 +1970,8 @@ ORDER BY
 			self.set_context('pat', patient.ID)
 		return True
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+
 class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 
 	def __init__(self, *args, **kwargs):

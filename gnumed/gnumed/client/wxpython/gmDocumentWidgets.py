@@ -561,7 +561,8 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			if self.__part['pk_intended_reviewer'] == me['pk_staff']:
 				msg = _('(you are the primary reviewer)')
 			else:
-				msg = _('(someone else is the primary reviewer)')
+				other = gmStaff.cStaff(aPK_obj = self.__part['pk_intended_reviewer'])
+				msg = _('(someone else is the intended reviewer: %s)') % other['short_alias']
 			self._TCTRL_responsible.SetValue(msg)
 			# init my review if any
 			if self.__part['reviewed_by_you']:

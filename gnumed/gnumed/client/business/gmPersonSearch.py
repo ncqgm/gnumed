@@ -172,15 +172,22 @@ class cPatientSearcher_SQL:
 				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
-			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
-				'args': [_('date of birth'), tmp.replace(',', '.')]
-			})
+			if len(tmp) > 7:	# DOB needs at least 8 digits
+				queries.append ({
+					'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+					'args': [_('date of birth'), tmp.replace(',', '.')]
+				})
 			queries.append ({
 				'cmd': u"""
-					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
-					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
-					ORDER BY lastnames, firstnames, dob""",
+					SELECT vba.*, %s::text AS match_type
+					FROM
+						dem.lnk_identity2ext_id li2ext_id,
+						dem.v_basic_person vba
+					WHERE
+						vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
+					ORDER BY
+						lastnames, firstnames, dob
+				""",
 				'args': [_('external patient ID'), tmp]
 			})
 			return queries

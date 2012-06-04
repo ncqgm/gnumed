@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2012-05-16 13:28+CEST\n"
+"POT-Creation-Date: 2012-05-31 22:26+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -1009,13 +1009,13 @@ msgstr "Vacuna"
 msgid "Lot \\#"
 msgstr ""
 
-msgid "S/P"
+msgid "SoaP"
 msgstr ""
 
 msgid ""
-"S/P -- \"S\"ubjective: this vaccination was remembered by the patient. \"P"
-"\"lan: this vaccination was administered in the practice or copied from "
-"trustworthy records."
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
 msgstr ""
 
 msgid ""
@@ -2188,6 +2188,12 @@ msgstr ""
 msgid "... or ..."
 msgstr ""
 
+msgid "♥"
+msgstr ""
+
+msgid "Kidneys"
+msgstr ""
+
 msgid "Unbranded substance"
 msgstr ""
 
@@ -2197,13 +2203,13 @@ msgstr ""
 msgid "Approved of"
 msgstr ""
 
+msgid "Long-term"
+msgstr ""
+
 msgid "Per plan"
 msgstr ""
 
 msgid "... Reason"
-msgstr ""
-
-msgid "Long-term"
 msgstr ""
 
 msgid ""
@@ -2223,6 +2229,12 @@ msgid ""
 msgstr ""
 
 msgid "The active ingredients of this brand."
+msgstr ""
+
+msgid "Show cardiac information relevant to substance selection."
+msgstr ""
+
+msgid "Show renal insufficiency information related to substance selection."
 msgstr ""
 
 msgid ""
@@ -2246,13 +2258,7 @@ msgstr ""
 msgid "Whether this substance is taken by advice."
 msgstr ""
 
-msgid "When was intake of this substance discontinued ?"
-msgstr ""
-
-msgid "Press if discontinuation was as planned."
-msgstr ""
-
-msgid "Reason for discontinuation."
+msgid "The episode this substance is taken under."
 msgstr ""
 
 msgid "The schedule for taking this substance."
@@ -2265,19 +2271,22 @@ msgid ""
 "Whether this substance is to be taken for the rest of the patient's life."
 msgstr ""
 
-msgid "The episode this substance is taken under."
-msgstr ""
-
 msgid "The aim of consuming this substance."
 msgstr ""
 
 msgid "Any clinical notes, comments, or instructions on this substance intake."
 msgstr ""
 
-msgid "Started"
+msgid "When was intake of this substance discontinued ?"
 msgstr ""
 
-msgid "Discontinued"
+msgid "Press if discontinuation was as planned."
+msgstr ""
+
+msgid "Reason for discontinuation."
+msgstr ""
+
+msgid "Started"
 msgstr ""
 
 msgid "Schedule"
@@ -2287,6 +2296,9 @@ msgid "Duration"
 msgstr ""
 
 msgid "Advice"
+msgstr ""
+
+msgid "Discontinued"
 msgstr ""
 
 msgid "Inactive"
@@ -2353,6 +2365,11 @@ msgid "Discontinue selected entry due to an allergy or intolerance."
 msgstr ""
 
 msgid "Show in-depth information on the selected substance if available."
+msgstr ""
+
+msgid ""
+"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
+"in the presence of long Qt duration."
 msgstr ""
 
 msgid ""
@@ -6688,7 +6705,7 @@ msgstr ""
 msgid "(you are the primary reviewer)"
 msgstr ""
 
-msgid "(someone else is the primary reviewer)"
+msgid "(someone else is the intended reviewer: %s)"
 msgstr ""
 
 msgid ""
@@ -7545,13 +7562,27 @@ msgstr ""
 msgid "Editing a health issue"
 msgstr ""
 
-msgid "Select the health issues you are interested in ..."
-msgstr ""
+#, fuzzy
+msgid "CONFIDENTIAL"
+msgstr " ***** CONFIDENCIAL *****"
 
 msgid "relevant"
 msgstr "rellevant"
 
 msgid "fatal"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+"Select the health issues !\n"
+msgstr "Sisuplau, seleccioni un assumpte mèdic."
+
+#, fuzzy
+msgid "Showing health issues ..."
+msgstr "Sisuplau, seleccioni un assumpte mèdic."
+
+msgid "Select the health issues you are interested in ..."
 msgstr ""
 
 #, fuzzy
@@ -8533,6 +8564,12 @@ msgid "Menu reference (www)"
 msgstr ""
 
 msgid "View the reference for menu items on the web."
+msgstr ""
+
+msgid "&Clear status line"
+msgstr ""
+
+msgid "Clear out the status line."
 msgstr ""
 
 msgid "Save a screenshot of this GNUmed client."
@@ -9606,6 +9643,12 @@ msgid "unknown test results table formatting style [%s]"
 msgstr "estat de la prova desconegut [%s]"
 
 msgid "unknown vaccinations table formatting style [%s]"
+msgstr ""
+
+msgid "PHX: Invalid placeholder options."
+msgstr ""
+
+msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
 #, fuzzy

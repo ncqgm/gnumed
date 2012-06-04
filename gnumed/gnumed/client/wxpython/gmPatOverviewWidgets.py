@@ -17,6 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -154,7 +155,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		wx.CallAfter(self.__refresh_encounters, patient = gmPerson.gmCurrentPatient())
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
+		# only empty out here, do NOT access the patient
+		# or else we will access the old patient while it
+		# may not be valid anymore ...
+		wx.CallAfter(self.__reset_ui_content)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self._schedule_data_reget)
@@ -283,7 +287,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_data.append(msg)
 
 		for hint in patient.dynamic_hints:
-			list_items.append(hint['hint'])
+			list_items.append(hint['title'])
 			list_data.append(hint)
 
 		self._LCTRL_inbox.set_string_items(items = list_items)
@@ -298,7 +302,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data.format()
 
 		if isinstance(data, gmProviderInbox.cDynamicHint):
-			return u'%s\n\n%s          %s' % (
+			return u'%s\n\n%s\n\n%s          %s' % (
+				data['title'],
 				gmTools.wrap(data['hint'], width = 50),
 				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
 				data['source']
@@ -308,12 +313,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _on_inbox_item_activated(self, event):
 
+		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
+
+		if isinstance(data, gmProviderInbox.cDynamicHint):
+			if data['url'] is not None:
+				gmNetworkTools.open_url_in_browser(data['url'])
+			return
+
 		# <ctrl> down ?
 		if not wx.GetKeyState(wx.WXK_CONTROL):
 			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
 			return
-
-		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
 
 		if data is None:
 			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
@@ -651,28 +661,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
-#	def dummy(self):
 	def __refresh_meds(self, patient=None):
-		# list by single substance:
-		emr = patient.get_emr()
-		list_items = []
-		meds = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
-		for med in meds:
-			list_items.append(_('%s %s %s%s') % (
-				med['substance'],
-				med['amount'],
-				med['unit'],
-				gmTools.coalesce (
-					med['schedule'],
-					u'',
-					u': %s'
-				)
-			))
-		self._LCTRL_meds.set_string_items(items = list_items)
-		self._LCTRL_meds.set_data(data = meds)
-	#---------------
-#	def __refresh_meds(self, patient=None):
-	def dummy(self):
 		# list by brand or substance:
 		emr = patient.get_emr()
 		intakes = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')

@@ -24,6 +24,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmSurgery
@@ -223,8 +224,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		can_return_empty = False,
 		edit_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh,
-		ignore_OK_button = True
+		refresh_callback = refresh
 	)
 #------------------------------------------------------------
 def search_narrative_across_emrs(parent=None):
@@ -2118,7 +2118,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 			return None
 
 	if u'%(img)s' in cmd:
-		cmd % {u'img': filename}
+		cmd = cmd % {u'img': filename}
 	else:
 		cmd = u'%s %s' % (cmd, filename)
 

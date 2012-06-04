@@ -366,7 +366,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 		_('Last given'),
 		_('Vaccine'),
 		_('Lot \#'),
-		_('S/P'),
+		_('SoaP'),
 		gmTools.u_sum
 	)
 	tex += u'\\hline\n'
@@ -377,7 +377,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 	tex += u'\\end{tabular}\n'
 	tex += u'\n'
 	tex += u'\\addtocounter{footnote}{-1} \n'
-	tex += u'\\footnotetext{%s} \n' % _('S/P -- "S"ubjective: this vaccination was remembered by the patient. "P"lan: this vaccination was administered in the practice or copied from trustworthy records.')
+	tex += u'\\footnotetext{%s} \n' % _('SoaP -- "S"ubjective: vaccination was remembered by patient. "P"lan: vaccination was administered in the practice or copied from trustworthy records.')
 	tex += u'\\addtocounter{footnote}{1} \n'
 	tex += u'\\footnotetext{%s -- %s} \n' % (gmTools.u_sum, _('Total number of vaccinations recorded for the corresponding target condition.'))
 	tex += u'\n'

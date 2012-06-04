@@ -29,6 +29,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
         self._BTN_allergy = wx.Button(self, -1, _("Allergy"), style=wx.BU_EXACTFIT)
         self._BTN_info = wx.Button(self, -1, _("Info"), style=wx.BU_EXACTFIT)
+        self._BTN_heart = wx.Button(self, -1, _(u"♥"), style=wx.BU_EXACTFIT)
         self._BTN_kidneys = wx.Button(self, -1, _("Kidney"), style=wx.BU_EXACTFIT)
         self._BTN_interactions = wx.Button(self, -1, _("&Interactions?"), style=wx.BU_EXACTFIT)
         self._BTN_rx = wx.Button(self, -1, _(u"℞"), style=wx.BU_EXACTFIT)
@@ -48,6 +49,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
         self.Bind(wx.EVT_BUTTON, self._on_allergy_button_pressed, self._BTN_allergy)
         self.Bind(wx.EVT_BUTTON, self._on_info_button_pressed, self._BTN_info)
+        self.Bind(wx.EVT_BUTTON, self._on_button_heart_pressed, self._BTN_heart)
         self.Bind(wx.EVT_BUTTON, self._on_button_kidneys_pressed, self._BTN_kidneys)
         self.Bind(wx.EVT_BUTTON, self._on_interactions_button_pressed, self._BTN_interactions)
         self.Bind(wx.EVT_BUTTON, self._on_rx_button_pressed, self._BTN_rx)
@@ -71,6 +73,8 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_delete.SetToolTipString(_("Remove a substance from the list."))
         self._BTN_allergy.SetToolTipString(_("Discontinue selected entry due to an allergy or intolerance."))
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
+        self._BTN_heart.SetFont(wx.Font(13, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
+        self._BTN_heart.SetToolTipString(_("Show <www.qtdrugs.org> information on handling of drugs / the selected drug in the presence of long Qt duration."))
         self._BTN_kidneys.SetToolTipString(_("Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_rx.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
@@ -107,6 +111,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_buttons.Add(self._BTN_allergy, 0, wx.RIGHT | wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_info, 0, wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_heart, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_kidneys, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_interactions, 0, wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
@@ -177,6 +182,10 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
 
     def _on_issue_grouping_selected(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
         print "Event handler `_on_issue_grouping_selected' not implemented"
+        event.Skip()
+
+    def _on_button_heart_pressed(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler `_on_button_heart_pressed' not implemented"
         event.Skip()
 
 # end of class wxgCurrentSubstancesPnl
