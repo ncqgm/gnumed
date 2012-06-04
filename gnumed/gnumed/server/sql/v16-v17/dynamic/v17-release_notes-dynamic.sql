@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.rc4 (database v17.rc4)',
-	'GNUmed 1.2.rc4 Release Notes:
+	'Release Notes for GNUmed 1.2.rc5 (database v17.rc5)',
+	'GNUmed 1.2.rc5 Release Notes:
 
-	1.2.rc4
+	1.2.rc5
 
 NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
@@ -44,6 +44,10 @@ NEW: basic billing functionality
 NEW: support for locally overriding wxGlade based widgets
 NEW: dynamic clinical hints
 NEW: placeholders <adr_subunit> and <adr_suburb>
+NEW: placeholder <patient_tags>
+NEW: placeholder <PHX>
+NEW: link qtdrugs.org from Medication plugin and substance intake EA
+NEW: CAGE score on screening for risk of alcohol abuse
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
@@ -69,8 +73,12 @@ IMPROVED: provide md5/sha512 sums for release tarballs [thanks A.Wachtleben]
 IMPROVED: branded drug EA: jump to manage-substances
 IMPROVED: placeholders: current_meds_table/current_meds_notes
 IMPROVED: default medication list template layout
+IMPROVED: substance intake EA usability
+IMPROVED: status line cleanup [thanks J.Busser]
+IMPROVED: document signing display [thanks J.Busser]
+IMPROVED: "latest vaccinations" template
 
-	17.rc4
+	17.rc5
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
 NEW: i18n.untranslate()
