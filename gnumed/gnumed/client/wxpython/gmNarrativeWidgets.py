@@ -1728,6 +1728,10 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.soap_fields:
 			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
 		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_episode_summary, self._TCTRL_episode_summary.GetId(), self._on_expando_needs_layout)
+		gmDispatcher.connect(signal = u'doc_page_mod_db', receiver = self._refresh_visual_soap)
+	#--------------------------------------------------------
+	def _refresh_visual_soap(self):
+		wx.CallAfter(self.refresh_visual_soap)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -2184,6 +2188,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 					return
 
 	if doc_part is not None:
+		_log.debug('updating visual progress note')
 		doc_part.update_data_from_file(fname = filename)
 		doc_part.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 		return None
@@ -2199,7 +2204,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		filename = filename,
 		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 		episode = episode,
-		unlock_patient = True
+		unlock_patient = False
 	)
 	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 
