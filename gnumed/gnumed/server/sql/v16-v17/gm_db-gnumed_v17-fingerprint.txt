@@ -1,7 +1,7 @@
 Fingerprinting GNUmed database ...
 
            Name: gnumed_v17
-    Schema hash: 00ddbe543fb6a5565582baf31d9b594e
+    Schema hash: 161428ee97a00e3bf56168c3a15b7b50
            Size: 45 MB
        Patients: 15
        Contacts: 7
@@ -840,6 +840,7 @@ clin.test_result.modified_by::name
 ref.code_thesaurus_root.synonym::text
 clin.health_issue.pk::int4
 ref.loinc_staging.formula::text
+ref.auto_hint.title::text
 clin.episode.diagnostic_certainty_classification::text
 clin.waiting_list.fk_patient::int4
 ref.loinc_staging.reference::text
