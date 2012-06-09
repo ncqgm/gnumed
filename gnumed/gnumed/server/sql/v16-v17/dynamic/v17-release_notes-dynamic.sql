@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.rc5 (database v17.rc5)',
-	'GNUmed 1.2.rc5 Release Notes:
+	'Release Notes for GNUmed 1.2.0 (database v17.0)',
+	'GNUmed 1.2.0 Release Notes:
 
-	1.2.rc5
+	1.2.0
 
 NEW: staff management: implement deletion
 NEW: top panel: display active encounter area
@@ -79,7 +79,7 @@ IMPROVED: status line cleanup [thanks J.Busser]
 IMPROVED: document signing display [thanks J.Busser]
 IMPROVED: "latest vaccinations" template
 
-	17.rc5
+	17.0
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
 NEW: i18n.untranslate()
