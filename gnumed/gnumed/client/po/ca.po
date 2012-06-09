@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
-"POT-Creation-Date: 2012-05-31 22:26+CEST\n"
+"POT-Creation-Date: 2012-06-09 21:20+CEST\n"
 "PO-Revision-Date: 2010-03-30 11:11+0000\n"
 "Last-Translator: ilitch <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"

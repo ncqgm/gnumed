@@ -309,7 +309,7 @@ order by
 			return False
 
 		gmPG2.file2bytea (
-			query = u"UPDATE blobs.doc_obj SET data=%(data)s::bytea WHERE pk=%(pk)s",
+			query = u"UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s",
 			filename = fname,
 			args = {'pk': self.pk_obj}
 		)

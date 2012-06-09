@@ -34,6 +34,7 @@ NEW: placeholder <patient_tags>
 NEW: placeholder <PHX>
 NEW: link qtdrugs.org from Medication plugin and substance intake EA
 NEW: CAGE score on screening for risk of alcohol abuse
+NEW: AutoHotKey script on abdominal pain [thanks V.Banait]
 
 IMPROVED: EMR browser: whole-chart synopsis
 IMPROVED: SOAP plugin: encounter field tooltips [thanks J.Busser]
