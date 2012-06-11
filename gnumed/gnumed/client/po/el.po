@@ -2,21 +2,22 @@
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the gnumed package.
 # Giorgos Vagionis <giorgos1971@gmail.com>, 2011.
+# Efstathios Iosifidis <diamond_gr@freemail.gr>, 2011.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-06-09 21:20+CEST\n"
-"PO-Revision-Date: 2011-01-10 15:32+0000\n"
-"Last-Translator: giorgos vagionis <Unknown>\n"
-"Language-Team: Greek <el@li.org>\n"
+"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"PO-Revision-Date: 2012-06-01 01:24+0000\n"
+"Last-Translator: ncq <Unknown>\n"
+"Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-02-07 15:33+0000\n"
-"X-Generator: Launchpad (build 12335)\n"
+"X-Launchpad-Export-Date: 2012-06-09 20:36+0000\n"
+"X-Generator: Launchpad (build 15376)\n"
 "X-Poedit-Country: GREECE\n"
 "X-Poedit-Language: Greek\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -31,14 +32,14 @@ msgid ""
 msgstr ""
 "\n"
 "\n"
-"Παρακαλούμε συμβουλευτείτε το αρχείο καταγραφής σφαλμάτων για όλες τις "
+"Παρακαλούμε συμβουλευθείτε το αρχείο καταγραφής σφαλμάτων για όλες τις "
 "αιματοβαμμένες λεπτομέρειες!"
 
 msgid "generic error message"
 msgstr "Μήνυμα γενικού σφάλματος"
 
 msgid "programmer forgot to specify info message"
-msgstr "ο προγραμματιστής ξέχασε να καθορίσει το μήνυμα πληροφορίας"
+msgstr "ο προγραμματιστής ξέχασε να διευκρινίσει το μήνυμα πληροφοριών"
 
 msgid "generic info message"
 msgstr "Μήνυμα γενικής πληροφορίας"
@@ -132,20 +133,19 @@ msgid "ERROR: unknown allergy state [%s]"
 msgstr "ΣΦΑΛΜΑ: άγνωστη αλλεργική κατάσταση [%s]"
 
 msgid "Cannot run [arriba] !"
-msgstr "Δεν μπορεί να τρέξει [Arriba]!"
+msgstr "Δεν μπορεί να τρέξει το [Arriba]!"
 
 msgid "No [arriba] result found in [%s]."
-msgstr "Αριθ. [Arriba] βρέθηκε αποτέλεσμα στις [% s]."
+msgstr "Δεν βρέθηκε κανένα αποτέλεσμα από το [arriba] στο [%s]."
 
-#, fuzzy
 msgid "Active billable item"
-msgstr "Πρόβλημα"
+msgstr "Ενεργή χρεώσιμη καταχώρηση"
 
 msgid "Inactive billable item"
-msgstr ""
+msgstr "Ανανεργή χρεώσιμη καταχώρηση"
 
 msgid " %s %s + %s%% VAT = %s %s\n"
-msgstr ""
+msgstr " %s %s + %s%% ΦΠΑ = %s %s\n"
 
 #, fuzzy
 msgid "Open item"
@@ -193,9 +193,8 @@ msgstr "Κλείσιμο"
 msgid " Invoice ID: %s\n"
 msgstr " Κωδικός: %s\n"
 
-#, fuzzy
 msgid " Closed: %s\n"
-msgstr " Κωδικός: %s\n"
+msgstr " Έκλεισε: %s\n"
 
 msgid " Bill value: %s %s\n"
 msgstr ""
@@ -346,11 +345,8 @@ msgstr ""
 " %s εκτελεσμένες επεμβάσεις\n"
 "\n"
 
-#, fuzzy
 msgid "Allergies and Intolerances\n"
-msgstr ""
-"Αλλεργίες και δυσανεξίες\n"
-"\n"
+msgstr "Αλλεργίες και δυσανεξίες\n"
 
 msgid " (last confirmed %s)"
 msgstr " (τελευταία επιβεβαίωση %s)"
@@ -361,9 +357,8 @@ msgstr "Άγνωστη αντίδραση"
 msgid "Family History"
 msgstr "Οικογενειακό Ιστορικό"
 
-#, fuzzy
 msgid "Occupations"
-msgstr "Επάγγελμα"
+msgstr "Απασχολήσεις"
 
 msgid "Vaccinations"
 msgstr "Εμβολιασμοί"
@@ -505,9 +500,8 @@ msgstr "C: Συνδρομική διάγνωση"
 msgid "D: Scientific diagnosis"
 msgstr "D: Επιστημονική διάγνωση"
 
-#, fuzzy
 msgid "<%s>: unknown diagnostic certainty classification"
-msgstr "%s άγνωστη ασφαλής διαγνωστική ταξινόμηση"
+msgstr "<% s>: άγνωστη διαγνωστικά βεβαιότητα  ταξινόμησης"
 
 msgid "bilateral"
 msgstr "αμφίπλευρη"
@@ -518,9 +512,10 @@ msgstr "αριστερά"
 msgid "right"
 msgstr "δεξιά"
 
-#, fuzzy
 msgid "Clinical data generated during encounters under this health issue:"
-msgstr "Δεν βρέθηκαν συνεδρίες για αυτό το θέμα υγείας."
+msgstr ""
+"Κλινικά ευρήματα κατά τη διάρκεια προηγούμενων επισκέψεων αναφορικά με το εν "
+"λόγω θέμα υγείας:"
 
 msgid "Health Issue %s%s%s%s   [#%s]"
 msgstr "Θέμα υγείας %s%s%s%s[#%s]"
@@ -595,21 +590,18 @@ msgstr "Εμβολιασμοί:"
 msgid "Unattributed episodes"
 msgstr "Μη καθορισμένα επεισόδια"
 
-#, fuzzy
 msgid "Clinical data generated during encounters within this episode:"
-msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
+msgstr ""
+"Κλινικά ευρήματα κατά τη διάρκεια επισκέψεων εν μέσω αυτού του περιστατικού:"
 
-#, fuzzy
 msgid "Episode %s%s%s   [#%s]"
-msgstr "Επεισόδιο %s%s%s (%s%s) [#%s]\n"
+msgstr "Επεισόδια %s%s%s [#%s]"
 
-#, fuzzy
 msgid "Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Δημιουργήθηκε κατά την διάρκεια της συνεδρίας:%s(%s - %s) [#%s]"
+msgstr "RFE"
 
-#, fuzzy
 msgid " Duration: %s (%s - %s)"
-msgstr "Συνεδρίες: %s (%s - %s):"
+msgstr " Διάρκεια: %s (%s - %s)"
 
 msgid "finished"
 msgstr "ολοκληρώθηκε"
@@ -626,9 +618,8 @@ msgstr "Σφάλμα κατά την ανάκτηση των συνεδριών 
 msgid "Last worked on: %s\n"
 msgstr "Εργάστηκε για τελευταία φορά στις:%s\n"
 
-#, fuzzy
 msgid "%s encounter(s) (%s - %s):"
-msgstr "Συνεδρίες: %s (%s - %s):"
+msgstr "%s αντιμετωπίσετε(s) (% s -% s):"
 
 msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
 msgstr "1η και (μέχρι 3) πιο πρόσφατες (από %s) συνεδρίες  (%s - %s):"
@@ -691,23 +682,19 @@ msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
 "Σφάλμα στο  τρέξιμοτου  gnuplot. Δεν είναι δυνατή η πλοκή των δεδομένων."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot extract fields from PDF form template."
 msgstr ""
-"Λάθος στην εκτέλεση του pdflatex. Δεν είναι δυνατή η μετατροπή του προτύπου "
-"LaTeX σε PDF."
+"Σφάλμα προσπέλασης pdftk. Δεν μπορούν να εξαχθούν πεδία από το πρότυπο "
+"φόρμας PDF."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
-"Λάθος στην εκτέλεση του pdflatex. Δεν είναι δυνατή η μετατροπή του προτύπου "
-"LaTeX σε PDF."
+"Σφάλμα προσπέλασης pdftk. Δεν μπορούν να εισαχθούν δεδομένα στο πρότυπο "
+"φόρμας PDF."
 
-#, fuzzy
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
-"Λάθος στην εκτέλεση του pdflatex. Δεν είναι δυνατή η μετατροπή του προτύπου "
-"LaTeX σε PDF."
+"Σφάλμα τρέξιμο pdftk. Δεν μπορεί  απευθείαςς να  συμπληρωθεί σε μορφή PDF."
 
 msgid "Medication history"
 msgstr "Ιατρικό Ιστορικό"
@@ -3015,9 +3002,8 @@ msgstr "Ημερομηνία θανάτου"
 msgid "Person's name"
 msgstr "όνομα"
 
-#, fuzzy
 msgid "Date of birth:"
-msgstr "Ημερομηνία γέννησης"
+msgstr "Ημερομηνία γέννησης:"
 
 msgid "edit form template details"
 msgstr ""
@@ -3446,9 +3432,8 @@ msgstr ""
 msgid "Lower than normal (standard) urgency of message."
 msgstr ""
 
-#, fuzzy
 msgid "Subject"
-msgstr "Υποκειμενικό"
+msgstr "Θέμα"
 
 msgid "Category"
 msgstr "Κατηγορία"
@@ -3457,9 +3442,8 @@ msgstr "Κατηγορία"
 msgid "Audience"
 msgstr "Ακολουθία"
 
-#, fuzzy
 msgid "Message"
-msgstr "μήνυμα"
+msgstr "Μήνυμα"
 
 msgid "Due"
 msgstr ""
@@ -8217,9 +8201,8 @@ msgstr ""
 msgid "Unknown: ?"
 msgstr "'Αγνωστο"
 
-#, fuzzy
 msgid "unknown"
-msgstr "'Αγνωστο"
+msgstr "άγνωστο"
 
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr ""
@@ -9909,9 +9892,8 @@ msgstr ""
 msgid "no PHX for this patient (available or selected)"
 msgstr ""
 
-#, fuzzy
 msgid "generic text"
-msgstr "Γενικό όνομα"
+msgstr "γενικό κείμενο"
 
 msgid "Replacing <free_text> placeholder"
 msgstr ""
@@ -10985,9 +10967,8 @@ msgstr "σημειώσεις προόδου"
 msgid "From which source do you want to pick the image template ?"
 msgstr ""
 
-#, fuzzy
 msgid "Database"
-msgstr "&Βάση δεδομένων"
+msgstr "Βάση δεδομένων"
 
 msgid "List of templates in the database."
 msgstr ""
@@ -12935,271 +12916,3 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
-
-#, fuzzy
-#~ msgid "Encounters / admissions (last"
-#~ msgstr "&Λίστα συνεδριών"
-
-#, fuzzy
-#~ msgid "%s (%s %s%s)         [#%s]\n"
-#~ msgstr "Επεισόδιο %s%s%s (%s%s) [#%s]\n"
-
-#, fuzzy
-#~ msgid " Type: %s"
-#~ msgstr "Τύπος:"
-
-#~ msgid ""
-#~ "\n"
-#~ "Below find the relevant encounters of the patient.\n"
-#~ msgstr ""
-#~ "\n"
-#~ "Παρακάτω βρείτε τις σχετικές συνεδρίες του ασθενούς.\n"
-
-#, fuzzy
-#~ msgid "Show items to be billed to the active patient."
-#~ msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
-
-#, fuzzy
-#~ msgid "Cannot show items billed to patient. No active patient."
-#~ msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
-
-#, fuzzy
-#~ msgid "Creating bill"
-#~ msgstr "Διαγραφή ονόματος"
-
-#, fuzzy
-#~ msgid "Show bills of the active patient."
-#~ msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
-
-#, fuzzy
-#~ msgid "Cannot show bills for patient. No active patient."
-#~ msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
-
-#~ msgid "&Template"
-#~ msgstr "&Πρότυπο"
-
-#, fuzzy
-#~ msgid "#Units"
-#~ msgstr "Μονάδες"
-
-#, fuzzy
-#~ msgid "Encounter #"
-#~ msgstr "Συνεδρία"
-
-#, fuzzy
-#~ msgid "Billrec Actions:"
-#~ msgstr "Κατευθύνσεις"
-
-#, fuzzy
-#~ msgid "Edit corresponding Encounter"
-#~ msgstr "Επέλεξε τον τύπο της συνεδρίας."
-
-#, fuzzy
-#~ msgid "Problem wigh updating"
-#~ msgstr "Πρόβλημα"
-
-#~ msgid " Date of Birth "
-#~ msgstr " Ημερομηνία Γέννησης "
-
-#~ msgid "Tetanus"
-#~ msgstr "Τέτανος"
-
-#~ msgid "Measles"
-#~ msgstr "Ιλαρά"
-
-#~ msgid "Diphtheria"
-#~ msgstr "Διφθερίτιδα"
-
-#~ msgid "Mumps"
-#~ msgstr "Παρωτίτιδα"
-
-#~ msgid "Influenza"
-#~ msgstr "Γρίπη"
-
-#~ msgid "A"
-#~ msgstr "Α"
-
-#~ msgid "C"
-#~ msgstr "C"
-
-#~ msgid "Pertussis"
-#~ msgstr "Κοκκύτης"
-
-#~ msgid "Pneumococc"
-#~ msgstr "Πνευμονόκοκκος"
-
-#~ msgid "Cholera"
-#~ msgstr "Χολέρα"
-
-#~ msgid "Poliomyelitis"
-#~ msgstr "Πολιομυελίτιδα"
-
-#~ msgid "H1N1"
-#~ msgstr "H1N1"
-
-#~ msgid "Tuberculosis"
-#~ msgstr "Φυματίωση"
-
-#~ msgid "Anthrax"
-#~ msgstr "Άνθρακας"
-
-#~ msgid "Coxiella burnetii (Q fever)"
-#~ msgstr "Coxiella burnetii (πυρετός Q)"
-
-#~ msgid "H1N1 influenza"
-#~ msgstr "H1N1 γρίπη"
-
-#~ msgid "Other:"
-#~ msgstr "Άλλο:"
-
-#~ msgid "The brand name of the drug."
-#~ msgstr "Η εμπορική ονομασία του σκευάσματος."
-
-#~ msgid ""
-#~ "EMR Statistics\n"
-#~ "\n"
-#~ msgstr ""
-#~ "Στατιστικά ΗΙΦ\n"
-#~ "\n"
-
-#, fuzzy
-#~ msgid ""
-#~ "Current\n"
-#~ "status"
-#~ msgstr "κατάσταση"
-
-#~ msgid "Starting new encounter"
-#~ msgstr "Έναρξη νέας συνεδρίας"
-
-#, fuzzy
-#~ msgid "Summary (%s)"
-#~ msgstr "Περίληψη"
-
-#, fuzzy
-#~ msgid "Enter codes relevant to this Reason for Encounter."
-#~ msgstr ""
-#~ "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
-
-#, fuzzy
-#~ msgid "Enter codes relevant to this Outcome of Encounter."
-#~ msgstr ""
-#~ "Εισάγετε ένα σχετικό σχόλιο με αυτό το όνομα (όπως \"πριν τον γάμο\")."
-
-#, fuzzy
-#~ msgid "Install the selected data pack"
-#~ msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
-
-#~ msgid "Show as ..."
-#~ msgstr "Εμφάνιση ως ..."
-
-#~ msgid "Town"
-#~ msgstr "Πόλη"
-
-#~ msgid "Lab name"
-#~ msgstr "Όνομα εργαστηρίου"
-
-#~ msgid "Topical &tree"
-#~ msgstr "Θεματικό &δέντρο"
-
-#~ msgid "Chronological &journal"
-#~ msgstr "Χρονολογικά &ημερολόγιο"
-
-#~ msgid "&Measurements overview"
-#~ msgstr "&Επισκόπηση μετρήσεων"
-
-#~ msgid "&Documents review"
-#~ msgstr "&Αναθεώρηση εγγράφων"
-
-#, fuzzy
-#~ msgid "Add a new address."
-#~ msgstr "Προσθήκη ενός νέου αντικειμένου στην παρακάτω λίστα."
-
-#~ msgid "Date of death"
-#~ msgstr "Ημερομηνία θανάτου"
-
-#~ msgid ""
-#~ "Cannot add address for the new patient.\n"
-#~ "You must either enter all of the address fields or\n"
-#~ "none at all. The relevant fields are marked in yellow.\n"
-#~ "\n"
-#~ "You will need to add the address details in the\n"
-#~ "demographics module."
-#~ msgstr ""
-#~ "Δεν μπορεί να προστεθεί η διεύθυνση του νέου ασθενούς.\n"
-#~ "Πρέπει είτε να εισαγάγετε όλα τα πεδία των διευθύνσεων ή\n"
-#~ "δεν θα καταγραφούν καθόλου. Τα σχετικά πεδία που σημειώνονται με κίτρινο "
-#~ "χρώμα.\n"
-#~ "\n"
-#~ "Θα χρειαστεί να προσθέσετε τα στοιχεία της διεύθυνσης στη\n"
-#~ "δημογραφική ενότητα."
-
-#~ msgid "Tips and hints"
-#~ msgstr "Συμβουλές και Υποδείξεις"
-
-#~ msgid ""
-#~ "In this area GNUmed will place hints and tips\n"
-#~ "related to the current progress note and patient.\n"
-#~ "\n"
-#~ "Those hints will be derived from a variety of\n"
-#~ "sources such as classifications (ICD, ...), expert\n"
-#~ "systems (EGADDS), online resources (Google\n"
-#~ "and friends), drug databases, etc.\n"
-#~ "\n"
-#~ "Eventually, those hints will be active in that you\n"
-#~ "can click on them and be taken to the relevant\n"
-#~ "information/an appropriate action be performed."
-#~ msgstr ""
-#~ "Σε αυτήν την περιοχή το GNUmed θα τοποθετεί τις οδηγίες και συμβουλές\n"
-#~ "που σχετίζονται με την τρέχουσα σημείωση προόδου και τον ασθενή.\n"
-#~ "\n"
-#~ "Αυτές οι συμβουλές θα πρέπει να προέρχονται από μια ποικιλία\n"
-#~ "πηγών, όπως ταξινομήσεις (ICD, ...), εξειδικευμένα\n"
-#~ "συστήματα, διαδικτυακούς πόρους (Google\n"
-#~ "και φίλοι), φαρμακευτικές βάσεις δεδομένων, κλπ.\n"
-#~ "\n"
-#~ "Εν τέλει, οι υποδείξεις θα δραστηριοποιούνται σε ότι μπορείτε\n"
-#~ "να κάνετε κλικ πάνω τους για να ληφθεί μια συναφή\n"
-#~ "πληροφορία / μια κατάλληλη δράση να εκτελεστεί."
-
-#~ msgid "... summary"
-#~ msgstr "... σύνοψη"
-
-#~ msgid "EMR Menu"
-#~ msgstr "Μενού ΗΙΦ"
-
-#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-#~ msgstr "Δημιουργήθηκε κατά την συνεδρία: %s (%s - %s)   [#%s]\n"
-
-#~ msgid "Discontinuation due to allergy/intolerance ?"
-#~ msgstr "Διακοπή για αλλεργία/δυσανεξία ;"
-
-#~ msgid "category"
-#~ msgstr "κατηγορία"
-
-#~ msgid ""
-#~ "Get brand(s) from an external drug database.\n"
-#~ "\n"
-#~ "Note that if you select more than one only the first will be available "
-#~ "for further editing right away."
-#~ msgstr ""
-#~ "Λήψη εμπορικού ονόματος από μια εξωτερική βάση δεδομένων φαρμάκων.\n"
-#~ "\n"
-#~ "Σημειώστε ότι αν επιλέξετε περισσότερα από ένα μόνο το πρώτο θα είναι "
-#~ "διαθέσιμο για περαιτέρω επεξεργασία αμέσως."
-
-#~ msgid ""
-#~ "Get substances from an external drug database.\n"
-#~ "\n"
-#~ "Note that if you select more than one substance only the first one will "
-#~ "be available for further editing right away."
-#~ msgstr ""
-#~ "Λήψη ενεργού ουσίας από μια εξωτερική βάση δεδομένων φαρμάκων.\n"
-#~ "\n"
-#~ "Σημειώστε ότι αν επιλέξετε περισσότερες από ένα μόνο η πρώτη θα είναι "
-#~ "διαθέσιμη για περαιτέρω επεξεργασία αμέσως."
-
-#~ msgid "The amount of substance per dose."
-#~ msgstr "Το ποσό της ουσίας ανά δόση."
-
-#~ msgid "Social Network"
-#~ msgstr "Κοινωνικό δίκτυο"

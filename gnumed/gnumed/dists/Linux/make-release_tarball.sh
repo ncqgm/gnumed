@@ -203,6 +203,8 @@ cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/ru_RU.po ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/sv.po ./gnumed-client.$CLIENTREV/client/po
 
 cd ../../client/po/
 ./create-gnumed_mo.sh ca
@@ -217,8 +219,11 @@ cd ../../client/po/
 ./create-gnumed_mo.sh pt
 ./create-gnumed_mo.sh pt_BR
 ./create-gnumed_mo.sh ru
+./create-gnumed_mo.sh ru_RU
+./create-gnumed_mo.sh sv
 cd -
 
+cp -R ../../client/po/ca-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/el-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
@@ -230,6 +235,8 @@ cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/ru_RU-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
+cp -R ../../client/po/sv-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 
 
 # pycommon
