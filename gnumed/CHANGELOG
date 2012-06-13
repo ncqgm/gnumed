@@ -73,6 +73,10 @@ IMPROVED: "latest vaccinations" template
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.16
+
+FIX: FreeDiams XML file API access
+
 	1.1.15
 
 FIX: exception on removing components from branded drug [thanks S.Hilbert]
