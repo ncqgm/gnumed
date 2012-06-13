@@ -550,19 +550,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>False</IsTextual>
-			<DrugName>%s</DrugName>
-			<Drug_UID>%s</Drug_UID>
-			<Drug_UID_type>%s</Drug_UID_type>		<!-- not yet supported by FreeDiams -->
+			<Drug u1="%s" u2="" old="%s" u3="" db="%s">		<!-- "old" needs to be the same as "u1" if not known -->
+				<DrugName>%s</DrugName>						<!-- just for identification when reading XML files -->
+			</Drug>
 		</Prescription>"""
 
 		last_db_id = u'CA_HCDPD'
 		for intake in intakes_pooled_by_brand.values():
 			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_brand'].replace(u'FreeDiams::', u'').split(u'::')[0])
 			drug_snippets.append(drug_snippet % (
-				gmTools.xml_escape_string(text = intake['brand'].strip()),
 				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
-				last_db_id
+				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
+				last_db_id,
+				gmTools.xml_escape_string(text = intake['brand'].strip())
 			))
 
 		# process non-FD drugs
@@ -580,19 +580,27 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del non_fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>True</IsTextual>
-			<TextualDrugName>%s</TextualDrugName>
+			<Drug u1="-1" u2="" old="" u3="" db="">
+				<DrugName>%s</DrugName>
+			</Drug>
+			<Dose Note="%s" IsTextual="true" IsAld="false"/>
 		</Prescription>"""
+#				<DrugUidName></DrugUidName>
+#				<DrugForm></DrugForm>
+#				<DrugRoute></DrugRoute>
+#				<DrugStrength/>
 
 		for intake in non_fd_substance_intakes:
-			drug_name = u'%s %s%s (%s)%s' % (
+			drug_name = u'%s %s%s (%s)' % (
 				intake['substance'],
 				intake['amount'],
 				intake['unit'],
-				intake['preparation'],
-				gmTools.coalesce(intake['schedule'], u'', _('\n Take: %s'))
+				intake['preparation']
 			)
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], u''))
+			))
 
 		intakes_pooled_by_brand = {}
 		for intake in non_fd_brand_intakes:
@@ -610,28 +618,23 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					comp['amount'],
 					comp['unit']
 			)
-			if comps[0]['schedule'] is not None:
-				drug_name += gmTools.coalesce(comps[0]['schedule'], u'', _('Take: %s'))
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(comps[0]['schedule'], u''))
+			))
 
 		# assemble XML file
 		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
-
+<!DOCTYPE FreeMedForms>
 <FreeDiams>
-	<DrugsDatabaseName>%s</DrugsDatabaseName>
-	<FullPrescription version="0.5.0">
-
+	<FullPrescription version="0.7.2">
 		%s
-
 	</FullPrescription>
 </FreeDiams>
 """
 
 		xml_file = codecs.open(self.__fd2gm_filename, 'wb', 'utf8')
-		xml_file.write(xml % (
-			last_db_id,
-			u'\n\t\t'.join(drug_snippets)
-		))
+		xml_file.write(xml % u'\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
 		return True
@@ -811,7 +814,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		xml_version = fd2gm_xml.find('FullPrescription').attrib['version']
 		_log.debug('fd2gm file version: %s', xml_version)
 
-		if xml_version == '0.6.0':
+		if xml_version in ['0.6.0', '0.7.2']:
 			return self.__import_fd2gm_file_as_drugs_0_6_0(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
 
 		return self.__import_fd2gm_file_as_drugs_0_5(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
