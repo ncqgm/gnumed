@@ -826,13 +826,13 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		self.__imported_drugs = []
 		for fd_xml_prescription in fd_xml_prescriptions:
-			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
 			drug_uid = fd_xml_prescription.find('Drug').attrib['u1'].strip()
-			#drug_uid_name = fd_xml_prescription.find('Drug_UID_Name').text.strip()
-			drug_uid_name = u'<%s>' % drug_db
 			if drug_uid == u'-1':
 				_log.debug('skipping textual drug')
-				continue		# it's a TextualDrug, skip it
+				continue
+			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
+			drug_uid_name = fd_xml_prescription.find('Drug/DrugUidName').text.strip()
+			#drug_uid_name = u'<%s>' % drug_db
 			drug_name = fd_xml_prescription.find('Drug/DrugName').text.replace(', )', ')').strip()
 			drug_form = fd_xml_prescription.find('Drug/DrugForm').text.strip()
 #			drug_atc = fd_xml_prescription.find('DrugATC')
