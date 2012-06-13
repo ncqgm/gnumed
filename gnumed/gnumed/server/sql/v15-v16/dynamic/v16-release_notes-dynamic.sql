@@ -17,15 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.15 (database v16.15)',
-	'GNUmed 1.1.15 Release Notes:
+	'Release Notes for GNUmed 1.1.16 (database v16.16)',
+	'GNUmed 1.1.16 Release Notes:
 
-	1.1.15
+	1.1.16
 
-FIX: exception on removing components from branded drug [thanks S.Hilbert]
-
-IMPROVED: bring back [OK] button on editing progress notes [thanks J.Busser]
-IMPROVED: patient search trying to pin down merge issue
+FIX: FreeDiams XML file API access
 ');
 
 -- --------------------------------------------------------------
