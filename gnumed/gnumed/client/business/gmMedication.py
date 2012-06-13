@@ -282,7 +282,7 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	version = u'FreeDiams v0.5.4 interface'
+	version = u'FreeDiams interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%Y/%m/%d'
 
@@ -409,6 +409,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			r'/usr/bin/freediams',
 			r'freediams',
 			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'C:\Program Files (x86)\FreeDiams\freediams.exe',
 			r'C:\Program Files\FreeDiams\freediams.exe',
 			r'c:\programs\freediams\freediams.exe',
 			r'freediams.exe'
@@ -533,19 +534,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>False</IsTextual>
-			<DrugName>%s</DrugName>
-			<Drug_UID>%s</Drug_UID>
-			<Drug_UID_type>%s</Drug_UID_type>		<!-- not yet supported by FreeDiams -->
+			<Drug u1="%s" u2="" old="%s" u3="" db="%s">		<!-- "old" needs to be the same as "u1" if not known -->
+				<DrugName>%s</DrugName>						<!-- just for identification when reading XML files -->
+			</Drug>
 		</Prescription>"""
 
 		last_db_id = u'CA_HCDPD'
 		for intake in intakes_pooled_by_brand.values():
 			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_brand'].replace(u'FreeDiams::', u'').split(u'::')[0])
 			drug_snippets.append(drug_snippet % (
-				gmTools.xml_escape_string(text = intake['brand'].strip()),
 				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
-				last_db_id
+				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
+				last_db_id,
+				gmTools.xml_escape_string(text = intake['brand'].strip())
 			))
 
 		# process non-FD drugs
@@ -563,19 +564,27 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del non_fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>True</IsTextual>
-			<TextualDrugName>%s</TextualDrugName>
+			<Drug u1="-1" u2="" old="" u3="" db="">
+				<DrugName>%s</DrugName>
+			</Drug>
+			<Dose Note="%s" IsTextual="true" IsAld="false"/>
 		</Prescription>"""
+#				<DrugUidName></DrugUidName>
+#				<DrugForm></DrugForm>
+#				<DrugRoute></DrugRoute>
+#				<DrugStrength/>
 
 		for intake in non_fd_substance_intakes:
-			drug_name = u'%s %s%s (%s)%s' % (
+			drug_name = u'%s %s%s (%s)' % (
 				intake['substance'],
 				intake['amount'],
 				intake['unit'],
-				intake['preparation'],
-				gmTools.coalesce(intake['schedule'], u'', _('\n Take: %s'))
+				intake['preparation']
 			)
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], u''))
+			))
 
 		intakes_pooled_by_brand = {}
 		for intake in non_fd_brand_intakes:
@@ -593,28 +602,23 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					comp['amount'],
 					comp['unit']
 			)
-			if comps[0]['schedule'] is not None:
-				drug_name += gmTools.coalesce(comps[0]['schedule'], u'', _('Take: %s'))
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(comps[0]['schedule'], u''))
+			))
 
 		# assemble XML file
 		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
-
+<!DOCTYPE FreeMedForms>
 <FreeDiams>
-	<DrugsDatabaseName>%s</DrugsDatabaseName>
-	<FullPrescription version="0.5.0">
-
+	<FullPrescription version="0.7.2">
 		%s
-
 	</FullPrescription>
 </FreeDiams>
 """
 
 		xml_file = codecs.open(self.__fd2gm_filename, 'wb', 'utf8')
-		xml_file.write(xml % (
-			last_db_id,
-			u'\n\t\t'.join(drug_snippets)
-		))
+		xml_file.write(xml % u'\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
 		return True
@@ -791,6 +795,142 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		data_src_pk = self.create_data_source_entry()
 
+		xml_version = fd2gm_xml.find('FullPrescription').attrib['version']
+		_log.debug('fd2gm file version: %s', xml_version)
+
+		if xml_version in ['0.6.0', '0.7.2']:
+			return self.__import_fd2gm_file_as_drugs_0_6_0(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
+
+		return self.__import_fd2gm_file_as_drugs_0_5(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
+	#--------------------------------------------------------
+	def __import_fd2gm_file_as_drugs_0_6_0(self, fd2gm_xml=None, pk_data_source=None):
+
+#		drug_id_name = db_def.attrib['drugUidName']
+		fd_xml_prescriptions = fd2gm_xml.findall('FullPrescription/Prescription')
+
+		self.__imported_drugs = []
+		for fd_xml_prescription in fd_xml_prescriptions:
+			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
+			drug_uid = fd_xml_prescription.find('Drug').attrib['u1'].strip()
+			#drug_uid_name = fd_xml_prescription.find('Drug_UID_Name').text.strip()
+			drug_uid_name = u'<%s>' % drug_db
+			if drug_uid == u'-1':
+				_log.debug('skipping textual drug')
+				continue		# it's a TextualDrug, skip it
+			drug_name = fd_xml_prescription.find('Drug/DrugName').text.replace(', )', ')').strip()
+			drug_form = fd_xml_prescription.find('Drug/DrugForm').text.strip()
+#			drug_atc = fd_xml_prescription.find('DrugATC')
+#			if drug_atc is None:
+#				drug_atc = u''
+#			else:
+#				if drug_atc.text is None:
+#					drug_atc = u''
+#				else:
+#					drug_atc = drug_atc.text.strip()
+
+			# create new branded drug
+			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			self.__imported_drugs.append(new_drug)
+			new_drug['is_fake_brand'] = False
+#			new_drug['atc'] = drug_atc
+			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (drug_db, drug_uid_name)
+			new_drug['external_code'] = drug_uid
+			new_drug['pk_data_source'] = pk_data_source
+			new_drug.save()
+
+			# parse XML for composition records
+			fd_xml_components = fd_xml_prescription.getiterator('Composition')
+			comp_data = {}
+			for fd_xml_comp in fd_xml_components:
+
+				data = {}
+
+				xml_strength = fd_xml_comp.attrib['strength'].strip()
+				amount = regex.match(r'^\d+[.,]{0,1}\d*', xml_strength)
+				if amount is None:
+					amount = 99999
+				else:
+					amount = amount.group()
+				data['amount'] = amount
+
+				#unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', xml_strength).strip()
+				unit = (xml_strength[len(amount):]).strip()
+				if unit == u'':
+					unit = u'*?*'
+				data['unit'] = unit
+
+				# hopefully, FreeDiams gets their act together, eventually:
+				atc = regex.match(r'[A-Za-z]\d\d[A-Za-z]{2}\d\d', fd_xml_comp.attrib['atc'].strip())
+				if atc is None:
+					data['atc'] = None
+				else:
+					atc = atc.group()
+				data['atc'] = atc
+
+				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
+				if molecule_name != u'':
+					create_consumable_substance(substance = molecule_name, atc = atc, amount = amount, unit = unit)
+				data['molecule_name'] = molecule_name
+
+				inn_name = fd_xml_comp.attrib['inn'].strip()
+				if inn_name != u'':
+					create_consumable_substance(substance = inn_name, atc = atc, amount = amount, unit = unit)
+				#data['inn_name'] = molecule_name
+				data['inn_name'] = inn_name
+
+				if molecule_name == u'':
+					data['substance'] = inn_name
+					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
+				else:
+					data['substance'] = molecule_name
+
+				data['nature'] = fd_xml_comp.attrib['nature'].strip()
+				data['nature_ID'] = fd_xml_comp.attrib['natureLink'].strip()
+
+				# merge composition records of SA/FT nature
+				try:
+					old_data = comp_data[data['nature_ID']]
+					# normalize INN
+					if old_data['inn_name'] == u'':
+						old_data['inn_name'] = data['inn_name']
+					if data['inn_name'] == u'':
+						data['inn_name'] = old_data['inn_name']
+					# normalize molecule
+					if old_data['molecule_name'] == u'':
+						old_data['molecule_name'] = data['molecule_name']
+					if data['molecule_name'] == u'':
+						data['molecule_name'] = old_data['molecule_name']
+					# normalize ATC
+					if old_data['atc'] == u'':
+						old_data['atc'] = data['atc']
+					if data['atc'] == u'':
+						data['atc'] = old_data['atc']
+					# FT: transformed form
+					# SA: active substance
+					# it would be preferable to use the SA record because that's what's *actually*
+					# contained in the drug, however FreeDiams does not list the amount thereof
+					# (rather that of the INN)
+					# FT and SA records of the same component carry the same nature_ID
+					if data['nature'] == u'FT':
+						comp_data[data['nature_ID']] = data
+					else:
+						comp_data[data['nature_ID']] = old_data
+
+				# or create new record
+				except KeyError:
+					comp_data[data['nature_ID']] = data
+
+			# actually create components from (possibly merged) composition records
+			for key, data in comp_data.items():
+				new_drug.add_component (
+					substance = data['substance'],
+					atc = data['atc'],
+					amount = data['amount'],
+					unit = data['unit']
+				)
+	#--------------------------------------------------------
+	def __import_fd2gm_file_as_drugs_0_5(self, fd2gm_xml=None, pk_data_source=None):
+
 		db_def = fd2gm_xml.find('DrugsDatabaseName')
 		db_id = db_def.text.strip()
 		drug_id_name = db_def.attrib['drugUidName']
@@ -820,7 +960,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			new_drug['atc'] = drug_atc
 			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
 			new_drug['external_code'] = drug_uid
-			new_drug['pk_data_source'] = data_src_pk
+			new_drug['pk_data_source'] = pk_data_source
 			new_drug.save()
 
 			# parse XML for composition records
@@ -896,6 +1036,127 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					amount = data['amount'],
 					unit = data['unit']
 				)
+	#--------------------------------------------------------
+#	def import_fd2gm_file_as_drugs_old(self, filename=None):
+#		"""
+#			If returning textual prescriptions (say, drugs which FreeDiams
+#			did not know) then "IsTextual" will be True and UID will be -1.
+#		"""
+#		if filename is None:
+#			filename = self.__fd2gm_filename
+#
+#		# FIXME: do not import IsTextual drugs, or rather, make that configurable
+#
+#		fd2gm_xml = etree.ElementTree()
+#		fd2gm_xml.parse(filename)
+#
+#		data_src_pk = self.create_data_source_entry()
+#
+#		db_def = fd2gm_xml.find('DrugsDatabaseName')
+#		db_id = db_def.text.strip()
+#		drug_id_name = db_def.attrib['drugUidName']
+#		fd_xml_drug_entries = fd2gm_xml.findall('FullPrescription/Prescription')
+#
+#		self.__imported_drugs = []
+#		for fd_xml_drug in fd_xml_drug_entries:
+#			drug_uid = fd_xml_drug.find('Drug_UID').text.strip()
+#			if drug_uid == u'-1':
+#				_log.debug('skipping textual drug')
+#				continue		# it's a TextualDrug, skip it
+#			drug_name = fd_xml_drug.find('DrugName').text.replace(', )', ')').strip()
+#			drug_form = fd_xml_drug.find('DrugForm').text.strip()
+#			drug_atc = fd_xml_drug.find('DrugATC')
+#			if drug_atc is None:
+#				drug_atc = u''
+#			else:
+#				if drug_atc.text is None:
+#					drug_atc = u''
+#				else:
+#					drug_atc = drug_atc.text.strip()
+#
+#			# create new branded drug
+#			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+#			self.__imported_drugs.append(new_drug)
+#			new_drug['is_fake_brand'] = False
+#			new_drug['atc'] = drug_atc
+#			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
+#			new_drug['external_code'] = drug_uid
+#			new_drug['pk_data_source'] = data_src_pk
+#			new_drug.save()
+#
+#			# parse XML for composition records
+#			fd_xml_components = fd_xml_drug.getiterator('Composition')
+#			comp_data = {}
+#			for fd_xml_comp in fd_xml_components:
+#
+#				data = {}
+#
+#				amount = regex.match(r'\d+[.,]{0,1}\d*', fd_xml_comp.attrib['strenght'].strip())			# sic, typo
+#				if amount is None:
+#					amount = 99999
+#				else:
+#					amount = amount.group()
+#				data['amount'] = amount
+#
+#				unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', fd_xml_comp.attrib['strenght'].strip()).strip()	# sic, typo
+#				if unit == u'':
+#					unit = u'*?*'
+#				data['unit'] = unit
+#
+#				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
+#				if molecule_name != u'':
+#					create_consumable_substance(substance = molecule_name, atc = None, amount = amount, unit = unit)
+#				data['molecule_name'] = molecule_name
+#
+#				inn_name = fd_xml_comp.attrib['inn'].strip()
+#				if inn_name != u'':
+#					create_consumable_substance(substance = inn_name, atc = None, amount = amount, unit = unit)
+#				data['inn_name'] = molecule_name
+#
+#				if molecule_name == u'':
+#					data['substance'] = inn_name
+#					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
+#				else:
+#					data['substance'] = molecule_name
+#
+#				data['nature'] = fd_xml_comp.attrib['nature'].strip()
+#				data['nature_ID'] = fd_xml_comp.attrib['natureLink'].strip()
+#
+#				# merge composition records of SA/FT nature
+#				try:
+#					old_data = comp_data[data['nature_ID']]
+#					# normalize INN
+#					if old_data['inn_name'] == u'':
+#						old_data['inn_name'] = data['inn_name']
+#					if data['inn_name'] == u'':
+#						data['inn_name'] = old_data['inn_name']
+#					# normalize molecule
+#					if old_data['molecule_name'] == u'':
+#						old_data['molecule_name'] = data['molecule_name']
+#					if data['molecule_name'] == u'':
+#						data['molecule_name'] = old_data['molecule_name']
+#					# FT: transformed form
+#					# SA: active substance
+#					# it would be preferable to use the SA record because that's what's *actually*
+#					# contained in the drug, however FreeDiams does not list the amount thereof
+#					# (rather that of the INN)
+#					if data['nature'] == u'FT':
+#						comp_data[data['nature_ID']] = data
+#					else:
+#						comp_data[data['nature_ID']] = old_data
+#
+#				# or create new record
+#				except KeyError:
+#					comp_data[data['nature_ID']] = data
+#
+#			# actually create components from (possibly merged) composition records
+#			for key, data in comp_data.items():
+#				new_drug.add_component (
+#					substance = data['substance'],
+#					atc = None,
+#					amount = data['amount'],
+#					unit = data['unit']
+#				)
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
