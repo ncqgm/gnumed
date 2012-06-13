@@ -6,6 +6,10 @@
 # rel-1-2-patches
 ------------------------------------------------
 
+	1.2.1
+
+FIX: FreeDiams XML file API
+
 	1.2.0
 
 NEW: staff management: implement deletion
