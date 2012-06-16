@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -695,14 +695,6 @@ msgstr ""
 "Erro correndo pdflatex. Não foi possível converter o modelo LaTeX em PDF."
 
 msgid "Medication history"
-msgstr ""
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-
-msgid "Take: %s"
 msgstr ""
 
 msgid "copy"
@@ -4726,6 +4718,9 @@ msgstr "Organizar documentos por"
 
 msgid "&Delete"
 msgstr "&Apagar"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr ""
@@ -12863,6 +12858,15 @@ msgstr "&Local"
 msgid "(%s patients)"
 msgstr "(%s pacientes)"
 
+msgid "Waiting list"
+msgstr "Lista de espera"
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -13238,9 +13242,6 @@ msgstr ""
 
 msgid "&Notes"
 msgstr ""
-
-msgid "Waiting list"
-msgstr "Lista de espera"
 
 msgid "&Waiting list"
 msgstr ""

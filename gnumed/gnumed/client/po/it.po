@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -701,16 +701,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Storico dei medicamenti"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Prendi: %s"
-
-msgid "Take: %s"
-msgstr "Prendi: %s"
 
 msgid "copy"
 msgstr ""
@@ -4700,6 +4690,9 @@ msgstr "Ordina documenti per"
 
 msgid "&Delete"
 msgstr "&Elimina"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Salva"
@@ -12529,6 +12522,20 @@ msgstr "&Zona:"
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr "Lista d'attesa"
+
+#, fuzzy
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+"Non posso attivare il paziente:\n"
+"\n"
+"%s %s (%s)\n"
+"%s"
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12903,9 +12910,6 @@ msgstr "&Note"
 msgid "&Notes"
 msgstr "&Note"
 
-msgid "Waiting list"
-msgstr "Lista d'attesa"
-
 msgid "&Waiting list"
 msgstr "&Lista d'attesa"
 
@@ -13153,3 +13157,13 @@ msgstr "Quantità"
 
 msgid "First Date"
 msgstr "Prima Data"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Prendi: %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Prendi: %s"

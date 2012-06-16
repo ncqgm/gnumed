@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -714,16 +714,6 @@ msgstr "Erreur à l'exécution de pdftk : conversion en PDF impossible."
 
 msgid "Medication history"
 msgstr "Historique des traitements"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Prendre : %s"
-
-msgid "Take: %s"
-msgstr "Prenez : %s"
 
 msgid "copy"
 msgstr "copier"
@@ -5009,6 +4999,9 @@ msgstr "Trier les documents par"
 
 msgid "&Delete"
 msgstr "&Effacer"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Sauvegarder"
@@ -12905,6 +12898,15 @@ msgstr "Exporté: %s\n"
 msgid "(%s patients)"
 msgstr "(%s patients)"
 
+msgid "Waiting list"
+msgstr "Liste d'attente"
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -13289,9 +13291,6 @@ msgstr "&Notes"
 msgid "&Notes"
 msgstr "&Notes"
 
-msgid "Waiting list"
-msgstr "Liste d'attente"
-
 msgid "&Waiting list"
 msgstr "&Liste d'attente"
 
@@ -13539,3 +13538,13 @@ msgstr "Quantité"
 
 msgid "First Date"
 msgstr "Date de début"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Prendre : %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Prenez : %s"

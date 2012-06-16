@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -698,14 +698,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Ιατρικό Ιστορικό"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-
-msgid "Take: %s"
-msgstr ""
 
 msgid "copy"
 msgstr "αντιγραφή"
@@ -4614,6 +4606,9 @@ msgstr ""
 
 msgid "&Delete"
 msgstr "&Διαγραφή"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Αποθήκευση"
@@ -12304,6 +12299,15 @@ msgstr " Κωδικός: %s\n"
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr "Λίστα αναμονής"
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12672,9 +12676,6 @@ msgstr "&Σημειώσεις"
 
 msgid "&Notes"
 msgstr "&Σημειώσεις"
-
-msgid "Waiting list"
-msgstr "Λίστα αναμονής"
 
 msgid "&Waiting list"
 msgstr "&Λίστα αναμονής"

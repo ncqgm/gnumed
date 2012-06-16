@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -697,16 +697,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Medische geschiedenis"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Neem: %s"
-
-msgid "Take: %s"
-msgstr "Neem: %s"
 
 msgid "copy"
 msgstr ""
@@ -4930,6 +4920,9 @@ msgstr "Sorteer documenten op"
 
 msgid "&Delete"
 msgstr "&Verwijderen"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Opslaan"
@@ -13985,6 +13978,20 @@ msgstr "Episodes: %s"
 msgid "(%s patients)"
 msgstr "patiënt"
 
+msgid "Waiting list"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+"Kan patiënt niet activeren:\n"
+"\n"
+"%s %s (%s)\n"
+"%s"
+
 #, fuzzy
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr "Kan niet wisselen naar [%s]: geen patiënt geselecteerd"
@@ -14385,9 +14392,6 @@ msgstr "Notitie"
 msgid "&Notes"
 msgstr "Notitie"
 
-msgid "Waiting list"
-msgstr ""
-
 msgid "&Waiting list"
 msgstr ""
 
@@ -14639,3 +14643,13 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Neem: %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Neem: %s"

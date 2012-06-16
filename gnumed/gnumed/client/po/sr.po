@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -648,14 +648,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Историја коришћених лекова"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-
-msgid "Take: %s"
-msgstr ""
 
 msgid "copy"
 msgstr ""
@@ -4368,6 +4360,9 @@ msgid "Sort documents by"
 msgstr ""
 
 msgid "&Delete"
+msgstr ""
+
+msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
 
 msgid "&Save"
@@ -11922,6 +11917,15 @@ msgstr ""
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr ""
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12285,9 +12289,6 @@ msgid "&SimpleNotes"
 msgstr ""
 
 msgid "&Notes"
-msgstr ""
-
-msgid "Waiting list"
 msgstr ""
 
 msgid "&Waiting list"

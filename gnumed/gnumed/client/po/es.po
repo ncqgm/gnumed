@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -708,16 +708,6 @@ msgstr "Error corriendo pdftk. No puedo sellar formulario PDF."
 
 msgid "Medication history"
 msgstr "Historial de medicamentos"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Dosis: %s"
-
-msgid "Take: %s"
-msgstr "Dosis: %s"
 
 msgid "copy"
 msgstr "copia"
@@ -5027,6 +5017,9 @@ msgstr "Ordenar documentos por"
 
 msgid "&Delete"
 msgstr "&Borrar"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Guardar"
@@ -14119,6 +14112,20 @@ msgstr "Zona: %s\n"
 msgid "(%s patients)"
 msgstr "(%s pacientes)"
 
+msgid "Waiting list"
+msgstr "Lista de espera"
+
+#, fuzzy
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+"No puedo activar paciente externo:\n"
+"\n"
+"%s %s (%s)\n"
+"%s"
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 "No puedo agregar entrada de lista de espera: no hay paciente seleccionado."
@@ -14506,9 +14513,6 @@ msgstr "&Notas"
 msgid "&Notes"
 msgstr "&Notas"
 
-msgid "Waiting list"
-msgstr "Lista de espera"
-
 msgid "&Waiting list"
 msgstr "&Lista de espera"
 
@@ -14756,3 +14760,13 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Dosis: %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Dosis: %s"

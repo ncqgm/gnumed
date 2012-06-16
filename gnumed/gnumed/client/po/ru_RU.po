@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -686,16 +686,6 @@ msgstr "Ошибка запуска pdftk. Не удалось выровнят�
 
 msgid "Medication history"
 msgstr "Анамнез заболевания"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Взято: %s"
-
-msgid "Take: %s"
-msgstr "Взято: %s"
 
 msgid "copy"
 msgstr "копировать"
@@ -4957,6 +4947,9 @@ msgstr "Сортировать документы по"
 
 msgid "&Delete"
 msgstr "&Delete"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr "&Save"
@@ -13998,6 +13991,20 @@ msgstr "Зона: %s\n"
 msgid "(%s patients)"
 msgstr "(пациенты %s)"
 
+msgid "Waiting list"
+msgstr "Список ожидания"
+
+#, fuzzy
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+"Не удалось активировать пациента:\n"
+"\n"
+"%s %s (%s)\n"
+"%s"
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr "Не удалось добавить ввод в список ожидания: нет выбранного пациента."
 
@@ -14380,9 +14387,6 @@ msgstr "&SimpleNotes"
 msgid "&Notes"
 msgstr "&Notes"
 
-msgid "Waiting list"
-msgstr "Список ожидания"
-
 msgid "&Waiting list"
 msgstr "Список &Waiting"
 
@@ -14630,3 +14634,13 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Взято: %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Взято: %s"

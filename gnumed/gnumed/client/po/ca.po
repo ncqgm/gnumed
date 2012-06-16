@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -620,14 +620,6 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 
 msgid "Medication history"
-msgstr ""
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-
-msgid "Take: %s"
 msgstr ""
 
 msgid "copy"
@@ -4403,6 +4395,9 @@ msgid "Sort documents by"
 msgstr ""
 
 msgid "&Delete"
+msgstr ""
+
+msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
 
 msgid "&Save"
@@ -12019,6 +12014,15 @@ msgstr ""
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr ""
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12384,9 +12388,6 @@ msgid "&SimpleNotes"
 msgstr ""
 
 msgid "&Notes"
-msgstr ""
-
-msgid "Waiting list"
 msgstr ""
 
 msgid "&Waiting list"

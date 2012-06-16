@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -665,16 +665,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Medicineringshistorik"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Ta(inta): %s"
-
-msgid "Take: %s"
-msgstr "Ta(inta): &s"
 
 msgid "copy"
 msgstr "kopiera"
@@ -4515,6 +4505,9 @@ msgid "Sort documents by"
 msgstr ""
 
 msgid "&Delete"
+msgstr ""
+
+msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
 
 msgid "&Save"
@@ -12060,6 +12053,15 @@ msgstr ""
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr ""
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12425,9 +12427,6 @@ msgstr ""
 msgid "&Notes"
 msgstr ""
 
-msgid "Waiting list"
-msgstr ""
-
 msgid "&Waiting list"
 msgstr ""
 
@@ -12668,3 +12667,13 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Ta(inta): %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Ta(inta): &s"

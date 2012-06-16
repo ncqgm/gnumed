@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -677,16 +677,6 @@ msgstr ""
 
 msgid "Medication history"
 msgstr "Histórico de medicações"
-
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-"\n"
-" Tome: %s"
-
-msgid "Take: %s"
-msgstr "Tome: %s"
 
 msgid "copy"
 msgstr ""
@@ -4782,6 +4772,9 @@ msgstr "Organizar documentos por"
 
 msgid "&Delete"
 msgstr "&Apagar"
+
+msgid "<above, double-click problem to start entering SOAP note>"
+msgstr ""
 
 msgid "&Save"
 msgstr ""
@@ -12931,6 +12924,15 @@ msgstr "Local"
 msgid "(%s patients)"
 msgstr "(%s pacientes)"
 
+msgid "Waiting list"
+msgstr "Lista de espera"
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -13304,9 +13306,6 @@ msgstr ""
 msgid "&Notes"
 msgstr ""
 
-msgid "Waiting list"
-msgstr "Lista de espera"
-
 msgid "&Waiting list"
 msgstr ""
 
@@ -13547,3 +13546,13 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr ""
+#~ "\n"
+#~ " Tome: %s"
+
+#~ msgid "Take: %s"
+#~ msgstr "Tome: %s"

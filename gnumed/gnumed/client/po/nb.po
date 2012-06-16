@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-11 02:23+CEST\n"
+"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -631,15 +631,6 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 
 msgid "Medication history"
-msgstr ""
-
-#, fuzzy
-msgid ""
-"\n"
-" Take: %s"
-msgstr "   Dok: %s"
-
-msgid "Take: %s"
 msgstr ""
 
 msgid "copy"
@@ -4396,6 +4387,9 @@ msgid "Sort documents by"
 msgstr ""
 
 msgid "&Delete"
+msgstr ""
+
+msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
 
 msgid "&Save"
@@ -11989,6 +11983,15 @@ msgstr "   Dok: %s"
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr ""
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -12355,9 +12358,6 @@ msgstr ""
 msgid "&Notes"
 msgstr ""
 
-msgid "Waiting list"
-msgstr ""
-
 msgid "&Waiting list"
 msgstr ""
 
@@ -12599,6 +12599,12 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ " Take: %s"
+#~ msgstr "   Dok: %s"
 
 #, fuzzy
 #~ msgid " Type: %s"
