@@ -2328,7 +2328,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.__pat = gmPerson.gmCurrentPatient()
+		self.__curr_pat = gmPerson.gmCurrentPatient()
 		self.__problem = None
 		self.__init_ui()
 		self.__register_interests()
@@ -2343,22 +2343,30 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		self._splitter_main.SetSashGravity(0.5)
 		splitter_width = self._splitter_main.GetSizeTuple()[0]
 		self._splitter_main.SetSashPosition(splitter_width / 2, True)
+
+		self._TCTRL_soap.Disable()
+		self._BTN_save_soap.Disable()
+		self._BTN_clear_soap.Disable()
 	#-----------------------------------------------------
 	def __reset_ui(self):
 		self._LCTRL_problems.set_string_items()
-		self._TCTRL_soap_problem.SetValue(u'')
+		self._TCTRL_soap_problem.SetValue(_('<above, double-click problem to start entering SOAP note>'))
 		self._TCTRL_soap.SetValue(u'')
 		self._CHBOX_filter_by_problem.SetLabel(_('&Filter by problem'))
 		self._TCTRL_journal.SetValue(u'')
+
+		self._TCTRL_soap.Disable()
+		self._BTN_save_soap.Disable()
+		self._BTN_clear_soap.Disable()
 	#-----------------------------------------------------
 	def __save_soap(self):
-		if not self.__pat.connected:
+		if not self.__curr_pat.connected:
 			return None
 
 		if self.__problem is None:
 			return None
 
-		saved = self.__pat.emr.add_clin_narrative (
+		saved = self.__curr_pat.emr.add_clin_narrative (
 			note = self._TCTRL_soap.GetValue().strip(),
 			soap_cat = u'u',
 			episode = self.__problem
@@ -2374,6 +2382,10 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	def __perhaps_save_soap(self):
 		if self._TCTRL_soap.GetValue().strip() == u'':
 			return True
+		if self.__problem is None:
+			# FIXME: this could potentially lose input
+			self._TCTRL_soap.SetValue(u'')
+			return None
 		save_it = gmGuiHelpers.gm_show_question (
 			title = _('Saving SOAP note'),
 			question = _('Do you want to save the SOAP note ?')
@@ -2384,7 +2396,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	#-----------------------------------------------------
 	def __refresh_problem_list(self):
 		self._LCTRL_problems.set_string_items()
-		emr = self.__pat.get_emr()
+		emr = self.__curr_pat.get_emr()
 		epis = emr.get_episodes(open_status = True)
 		if len(epis) > 0:
 			self._LCTRL_problems.set_string_items(items = [ u'%s%s' % (
@@ -2406,7 +2418,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 			self._CHBOX_filter_by_problem.Refresh()
 
 		if not self._CHBOX_filter_by_problem.IsChecked():
-			self._TCTRL_journal.SetValue(self.__pat.emr.format_summary(dob = self.__pat['dob']))
+			self._TCTRL_journal.SetValue(self.__curr_pat.emr.format_summary(dob = self.__curr_pat['dob']))
 			return
 
 		if epi is None:
@@ -2425,7 +2437,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		# synchronous signals
-		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		self.__curr_pat.register_pre_selection_callback(callback = self._pre_selection_callback)
 		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#-----------------------------------------------------
 	def _pre_selection_callback(self):
@@ -2433,7 +2445,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 
 		Patient change will not proceed before this returns True.
 		"""
-		if not self.__pat.connected:
+		if not self.__curr_pat.connected:
 			return True
 		self.__perhaps_save_soap()
 		self.__problem = None
@@ -2444,7 +2456,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 
 		Shutdown will not proceed before this returns.
 		"""
-		if not self.__pat.connected:
+		if not self.__curr_pat.connected:
 			return
 		if not self.__save_soap():
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save SimpleNotes SOAP note.'), beep = True)
@@ -2468,10 +2480,14 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		))
 		self.__problem = epi
 		self._TCTRL_soap.SetValue(u'')
+
+		self._TCTRL_soap.Enable()
+		self._BTN_save_soap.Enable()
+		self._BTN_clear_soap.Enable()
 	#-----------------------------------------------------
 	def _on_get_problem_tooltip(self, episode):
 		return episode.format (
-			patient = self.__pat,
+			patient = self.__curr_pat,
 			with_summary = False,
 			with_codes = True,
 			with_encounters = False,
@@ -2501,7 +2517,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		).strip()
 		if epi_name == u'':
 			return
-		self.__pat.emr.add_episode (
+		self.__curr_pat.emr.add_episode (
 			episode_name = epi_name,
 			pk_health_issue = None,
 			is_open = True
