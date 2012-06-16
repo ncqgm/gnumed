@@ -8,6 +8,8 @@
 
 	1.2.1
 
+IMPROVED: user experience with SimpleNotes plugin [thanks J.Busser]
+
 FIX: FreeDiams XML file API
 FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
 
