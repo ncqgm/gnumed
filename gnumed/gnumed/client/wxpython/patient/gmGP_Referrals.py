@@ -3,7 +3,7 @@
 # refer to by name, company or category
 #
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 ############################################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
 # $Id: gmGP_Referrals.py,v 1.14 2008-04-13 14:39:49 ncq Exp $

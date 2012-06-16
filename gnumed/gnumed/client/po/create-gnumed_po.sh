@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# - generate a current gnumed.pot file from GnuMed source
+# - generate a current gnumed.pot file from GNUmed source
 # - merge with existing translations
 # - first arg should be ISO language code
 
@@ -18,7 +18,6 @@ echo "  source file definition: ${BASE}*.py"
 
 # create gnumed.pot
 find ${BASE} -follow -name '*.py' -print0 | xargs -0 pygettext --no-location -v -o ${POTNAME} "-" &> create-${LANGNAME}-po.log
-#find ${BASE} -follow -name '*.py' -print0 | xargs -0 xgettext -L Python -j -o ${LANGNAME}.po "-" &> create-${LANGNAME}-po.log
 
 
 if [ "${LANGNAME}" == "" ]; then

@@ -26,7 +26,7 @@ but that approach may not be fool-proof.
 # $Id: sitecustomize.py,v 1.8 2009-12-21 14:56:39 ncq Exp $
 __version__ = "$Revision: 1.8 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys
 

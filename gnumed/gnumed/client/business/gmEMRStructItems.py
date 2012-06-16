@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 """GNUmed health related business object.
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.157 $"
@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmCoding
 
 
 _log = logging.getLogger('gm.emr')
@@ -203,6 +204,26 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		# later we can improve this deeper inside
 		return gmDateTime.format_interval_medically(self._payload[self._idx['age_noted']])
 	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		args = {
+			'item': self._payload[self._idx['pk_health_issue']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_health_issue']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
 			issues = (self.pk_obj,),
@@ -256,7 +277,19 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
-	def format(self, left_margin=0, patient=None):
+	def format (self, left_margin=0, patient=None,
+		with_summary=True,
+		with_codes=True,
+		with_episodes=True,
+		with_encounters=True,
+		with_medications=True,
+		with_hospital_stays=True,
+		with_procedures=True,
+		with_family_history=True,
+		with_documents=True,
+		with_tests=True,
+		with_vaccinations=True
+	):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but health issue %s belongs to patient %s' % (
@@ -313,129 +346,164 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			)
 		))
 
-		if self._payload[self._idx['summary']] is not None:
-			lines.append(u'')
-			lines.append(gmTools.wrap (
-				text = self._payload[self._idx['summary']],
-				width = 60,
-				initial_indent = u'  ',
-				subsequent_indent = u'  '
-			))
+		if with_summary:
+			if self._payload[self._idx['summary']] is not None:
+				lines.append(u'')
+				lines.append(gmTools.wrap (
+					text = self._payload[self._idx['summary']],
+					width = 60,
+					initial_indent = u'  ',
+					subsequent_indent = u'  '
+				))
+
+		# codes ?
+		if with_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				lines.append(u'')
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			del codes
 
 		lines.append(u'')
 
 		emr = patient.get_emr()
 
 		# episodes
-		epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
-		if epis is None:
-			lines.append(_('Error retrieving episodes for this health issue.'))
-		elif len(epis) == 0:
-			lines.append(_('There are no episodes for this health issue.'))
-		else:
-			lines.append (
-				_('Episodes: %s (most recent: %s%s%s)') % (
-					len(epis),
-					gmTools.u_left_double_angle_quote,
-					emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
-					gmTools.u_right_double_angle_quote
+		if with_episodes:
+			epis = emr.get_episodes(issues = [self._payload[self._idx['pk_health_issue']]])
+			if epis is None:
+				lines.append(_('Error retrieving episodes for this health issue.'))
+			elif len(epis) == 0:
+				lines.append(_('There are no episodes for this health issue.'))
+			else:
+				lines.append (
+					_('Episodes: %s (most recent: %s%s%s)') % (
+						len(epis),
+						gmTools.u_left_double_angle_quote,
+						emr.get_most_recent_episode(issue = self._payload[self._idx['pk_health_issue']])['description'],
+						gmTools.u_right_double_angle_quote
+					)
 				)
-			)
-			for epi in epis:
-				lines.append(u' \u00BB%s\u00AB (%s)' % (
-					epi['description'],
-					gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
-				))
-
-		lines.append('')
+				for epi in epis:
+					lines.append(u' \u00BB%s\u00AB (%s)' % (
+						epi['description'],
+						gmTools.bool2subst(epi['episode_open'], _('ongoing'), _('closed'))
+					))
+			lines.append('')
 
 		# encounters
-		first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
-		last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
+		if with_encounters:
+			first_encounter = emr.get_first_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
+			last_encounter = emr.get_last_encounter(issue_id = self._payload[self._idx['pk_health_issue']])
 
-		if first_encounter is None or last_encounter is None:
-			lines.append(_('No encounters found for this health issue.'))
-		else:
-			encs = emr.get_encounters(issues = [self._payload[self._idx['pk_health_issue']]])
-			lines.append(_('Encounters: %s (%s - %s):') % (
-				len(encs),
-				first_encounter['started_original_tz'].strftime('%m/%Y'),
-				last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
-			))
-			lines.append(_(' Most recent: %s - %s') % (
-				last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-				last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
-			))
+			if first_encounter is None or last_encounter is None:
+				lines.append(_('No encounters found for this health issue.'))
+			else:
+				encs = emr.get_encounters(issues = [self._payload[self._idx['pk_health_issue']]])
+				lines.append(_('Encounters: %s (%s - %s):') % (
+					len(encs),
+					first_encounter['started_original_tz'].strftime('%m/%Y'),
+					last_encounter['last_affirmed_original_tz'].strftime('%m/%Y')
+				))
+				lines.append(_(' Most recent: %s - %s') % (
+					last_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					last_encounter['last_affirmed_original_tz'].strftime('%H:%M')
+				))
 
 		# medications
-		meds = emr.get_current_substance_intake (
-			issues = [ self._payload[self._idx['pk_health_issue']] ],
-			order_by = u'is_currently_active, started, substance'
-		)
+		if with_medications:
+			meds = emr.get_current_substance_intake (
+				issues = [ self._payload[self._idx['pk_health_issue']] ],
+				order_by = u'is_currently_active, started, substance'
+			)
+			if len(meds) > 0:
+				lines.append(u'')
+				lines.append(_('Active medications: %s') % len(meds))
+			for m in meds:
+				lines.append(m.format(left_margin = (left_margin + 1)))
+			del meds
 
-		if len(meds) > 0:
-			lines.append(u'')
-			lines.append(_('Active medications: %s') % len(meds))
-		for m in meds:
-			lines.append(m.format(left_margin = (left_margin + 1)))
-		del meds
-
-		# hospital stays
-		stays = emr.get_hospital_stays (
-			issues = [ self._payload[self._idx['pk_health_issue']] ]
-		)
-
-		if len(stays) > 0:
-			lines.append(u'')
-			lines.append(_('Hospital stays: %s') % len(stays))
-		for s in stays:
-			lines.append(s.format(left_margin = (left_margin + 1)))
-		del stays
+		# hospitalizations
+		if with_hospital_stays:
+			stays = emr.get_hospital_stays (
+				issues = [ self._payload[self._idx['pk_health_issue']] ]
+			)
+			if len(stays) > 0:
+				lines.append(u'')
+				lines.append(_('Hospitalizations: %s') % len(stays))
+			for s in stays:
+				lines.append(s.format(left_margin = (left_margin + 1)))
+			del stays
 
 		# procedures
-		procs = emr.get_performed_procedures (
-			issues = [ self._payload[self._idx['pk_health_issue']] ]
-		)
+		if with_procedures:
+			procs = emr.get_performed_procedures (
+				issues = [ self._payload[self._idx['pk_health_issue']] ]
+			)
+			if len(procs) > 0:
+				lines.append(u'')
+				lines.append(_('Procedures performed: %s') % len(procs))
+			for p in procs:
+				lines.append(p.format(left_margin = (left_margin + 1)))
+			del procs
 
-		if len(procs) > 0:
-			lines.append(u'')
-			lines.append(_('Procedures performed: %s') % len(procs))
-		for p in procs:
-			lines.append(p.format(left_margin = (left_margin + 1)))
-		del procs
+		# family history
+		if with_family_history:
+			fhx = emr.get_family_history(issues = [ self._payload[self._idx['pk_health_issue']] ])
+			if len(fhx) > 0:
+				lines.append(u'')
+				lines.append(_('Family History: %s') % len(fhx))
+			for f in fhx:
+				lines.append(f.format (
+					left_margin = (left_margin + 1),
+					include_episode = True,
+					include_comment = True,
+					include_codes = False
+				))
+			del fhx
 
 		epis = self.get_episodes()
 		if len(epis) > 0:
 			epi_pks = [ e['pk_episode'] for e in epis ]
 
 			# documents
-			doc_folder = patient.get_document_folder()
-			docs = doc_folder.get_documents(episodes = epi_pks)
-			if len(docs) > 0:
-				lines.append(u'')
-				lines.append(_('Documents: %s') % len(docs))
-			del docs
+			if with_documents:
+				doc_folder = patient.get_document_folder()
+				docs = doc_folder.get_documents(episodes = epi_pks)
+				if len(docs) > 0:
+					lines.append(u'')
+					lines.append(_('Documents: %s') % len(docs))
+				del docs
 
 			# test results
-			tests = emr.get_test_results_by_date(episodes = epi_pks)
-			if len(tests) > 0:
-				lines.append(u'')
-				lines.append(_('Measurements and Results: %s') % len(tests))
-			del tests
+			if with_tests:
+				tests = emr.get_test_results_by_date(episodes = epi_pks)
+				if len(tests) > 0:
+					lines.append(u'')
+					lines.append(_('Measurements and Results: %s') % len(tests))
+				del tests
 
 			# vaccinations
-			vaccs = emr.get_vaccinations(episodes = epi_pks)
-			if len(vaccs) > 0:
-				lines.append(u'')
-				lines.append(_('Vaccinations:'))
-			for vacc in vaccs:
-				lines.extend(vacc.format(with_reaction = True))
-			del vaccs
+			if with_vaccinations:
+				vaccs = emr.get_vaccinations(episodes = epi_pks, order_by = u'date_given, vaccine')
+				if len(vaccs) > 0:
+					lines.append(u'')
+					lines.append(_('Vaccinations:'))
+				for vacc in vaccs:
+					lines.extend(vacc.format(with_reaction = True))
+				del vaccs
 
 		del epis
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	# properties
@@ -470,6 +538,43 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2h_issue WHERE fk_item = %(issue)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'issue': self._payload[self._idx['pk_health_issue']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2h_issue (fk_item, fk_generic_code) VALUES (%(issue)s, %(pk_code)s)',
+				'args': {
+					'issue': self._payload[self._idx['pk_health_issue']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.
@@ -642,8 +747,13 @@ from (
 	def get_patient(self):
 		return self._payload[self._idx['pk_patient']]
 	#--------------------------------------------------------
-	def get_narrative(self, soap_cats=None, encounters=None):
-		return gmClinNarrative.get_narrative(soap_cats = None, encounters = encounters, episodes = [self.pk_obj])
+	def get_narrative(self, soap_cats=None, encounters=None, order_by = None):
+		return gmClinNarrative.get_narrative (
+			soap_cats = soap_cats,
+			encounters = encounters,
+			episodes = [self.pk_obj],
+			order_by = order_by
+		)
 	#--------------------------------------------------------
 	def rename(self, description=None):
 		"""Method for episode editing, that is, episode renaming.
@@ -666,6 +776,42 @@ from (
 			_log.error('cannot rename episode [%s] to [%s]' % (self, description))
 			self._payload[self._idx['description']] = old_description
 			return False
+		return True
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+
+		if pk_code in self._payload[self._idx['pk_generic_codes']]:
+			return
+
+		cmd = u"""
+			INSERT INTO clin.lnk_code2episode
+				(fk_item, fk_generic_code)
+			SELECT
+				%(item)s,
+				%(code)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.lnk_code2episode
+				WHERE
+					fk_item = %(item)s
+						AND
+					fk_generic_code = %(code)s
+			)"""
+		args = {
+			'item': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2episode WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_episode']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
@@ -723,7 +869,18 @@ from (
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
-	def format(self, left_margin=0, patient=None):
+	def format(self, left_margin=0, patient=None,
+		with_summary=True,
+		with_codes=True,
+		with_encounters=True,
+		with_documents=True,
+		with_hospital_stays=True,
+		with_procedures=True,
+		with_family_history=True,
+		with_tests=True,
+		with_vaccinations=True,
+		with_health_issue=False
+	):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
 			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
@@ -781,159 +938,197 @@ from (
 			)
 		))
 
-		if self._payload[self._idx['summary']] is not None:
-			lines.append(u'')
-			lines.append(gmTools.wrap (
-					text = self._payload[self._idx['summary']],
-					width = 60,
-					initial_indent = u'  ',
-					subsequent_indent = u'  '
+		if with_health_issue:
+			lines.append(u' ' + _('Health issue') + u': %s' % gmTools.coalesce (
+				self._payload[self._idx['health_issue']],
+				_('none associated')
+			))
+
+		if with_summary:
+			if self._payload[self._idx['summary']] is not None:
+				lines.append(u'')
+				lines.append(gmTools.wrap (
+						text = self._payload[self._idx['summary']],
+						width = 60,
+						initial_indent = u'  ',
+						subsequent_indent = u'  '
+					)
 				)
-			)
+
+		# codes
+		if with_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				lines.append(u'')
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			del codes
 
 		lines.append(u'')
 
 		# encounters
-		if encs is None:
-			lines.append(_('Error retrieving encounters for this episode.'))
-		elif len(encs) == 0:
-			lines.append(_('There are no encounters for this episode.'))
-		else:
-			lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
-
-			if len(encs) < 4:
-				line = _('%s encounter(s) (%s - %s):')
+		if with_encounters:
+			if encs is None:
+				lines.append(_('Error retrieving encounters for this episode.'))
+			elif len(encs) == 0:
+				#lines.append(_('There are no encounters for this episode.'))
+				pass
 			else:
-				line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
-			lines.append(line % (
-				len(encs),
-				first_encounter['started'].strftime('%m/%Y'),
-				last_encounter['last_affirmed'].strftime('%m/%Y')
-			))
+				lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
 
-			lines.append(u' %s - %s (%s):%s' % (
-				first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-				first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
-				first_encounter['l10n_type'],
-				gmTools.coalesce (
-					first_encounter['assessment_of_encounter'],
-					gmTools.coalesce (
-						first_encounter['reason_for_encounter'],
-						u'',
-						u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
-					),
-					u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
-				)
-			))
+				if len(encs) < 4:
+					line = _('%s encounter(s) (%s - %s):')
+				else:
+					line = _('1st and (up to 3) most recent (of %s) encounters (%s - %s):')
+				lines.append(line % (
+					len(encs),
+					first_encounter['started'].strftime('%m/%Y'),
+					last_encounter['last_affirmed'].strftime('%m/%Y')
+				))
 
-			if len(encs) > 4:
-				lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
-
-			for enc in encs[1:][-3:]:
 				lines.append(u' %s - %s (%s):%s' % (
-					enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
-					enc['last_affirmed_original_tz'].strftime('%H:%M'),
-					enc['l10n_type'],
+					first_encounter['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+					first_encounter['last_affirmed_original_tz'].strftime('%H:%M'),
+					first_encounter['l10n_type'],
 					gmTools.coalesce (
-						enc['assessment_of_encounter'],
+						first_encounter['assessment_of_encounter'],
 						gmTools.coalesce (
-							enc['reason_for_encounter'],
+							first_encounter['reason_for_encounter'],
 							u'',
 							u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
 						),
 						u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
 					)
 				))
-			del encs
 
-		# spell out last encounter
-		if last_encounter is not None:
-			lines.append('')
-			lines.append(_('Progress notes in most recent encounter:'))
-			lines.extend(last_encounter.format_soap (
-				episodes = [ self._payload[self._idx['pk_episode']] ],
-				left_margin = left_margin,
-				soap_cats = 'soap',
-				emr = emr
-			))
+				if len(encs) > 4:
+					lines.append(_(' ... %s skipped ...') % (len(encs) - 4))
+
+				for enc in encs[1:][-3:]:
+					lines.append(u' %s - %s (%s):%s' % (
+						enc['started_original_tz'].strftime('%Y-%m-%d %H:%M'),
+						enc['last_affirmed_original_tz'].strftime('%H:%M'),
+						enc['l10n_type'],
+						gmTools.coalesce (
+							enc['assessment_of_encounter'],
+							gmTools.coalesce (
+								enc['reason_for_encounter'],
+								u'',
+								u' \u00BB%s\u00AB' + (u' (%s)' % _('RFE'))
+							),
+							u' \u00BB%s\u00AB' + (u' (%s)' % _('AOE'))
+						)
+					))
+				del encs
+
+			# spell out last encounter
+			if last_encounter is not None:
+				lines.append('')
+				lines.append(_('Progress notes in most recent encounter:'))
+				lines.extend(last_encounter.format_soap (
+					episodes = [ self._payload[self._idx['pk_episode']] ],
+					left_margin = left_margin,
+					soap_cats = 'soapu',
+					emr = emr
+				))
 
 		# documents
-		doc_folder = patient.get_document_folder()
-		docs = doc_folder.get_documents (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
+		if with_documents:
+			doc_folder = patient.get_document_folder()
+			docs = doc_folder.get_documents (
+				episodes = [ self._payload[self._idx['pk_episode']] ]
+			)
+			if len(docs) > 0:
+				lines.append('')
+				lines.append(_('Documents: %s') % len(docs))
+			for d in docs:
+				lines.append(u' %s %s:%s%s' % (
+					d['clin_when'].strftime('%Y-%m-%d'),
+					d['l10n_type'],
+					gmTools.coalesce(d['comment'], u'', u' "%s"'),
+					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+				))
+			del docs
 
-		if len(docs) > 0:
-			lines.append('')
-			lines.append(_('Documents: %s') % len(docs))
-
-		for d in docs:
-			lines.append(u' %s %s:%s%s' % (
-				d['clin_when'].strftime('%Y-%m-%d'),
-				d['l10n_type'],
-				gmTools.coalesce(d['comment'], u'', u' "%s"'),
-				gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-			))
-		del docs
-
-		# hospital stays
-		stays = emr.get_hospital_stays (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
-
-		if len(stays) > 0:
-			lines.append('')
-			lines.append(_('Hospital stays: %s') % len(stays))
-
-		for s in stays:
-			lines.append(s.format(left_margin = (left_margin + 1)))
-		del stays
+		# hospitalizations
+		if with_hospital_stays:
+			stays = emr.get_hospital_stays(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(stays) > 0:
+				lines.append('')
+				lines.append(_('Hospitalizations: %s') % len(stays))
+			for s in stays:
+				lines.append(s.format(left_margin = (left_margin + 1)))
+			del stays
 
 		# procedures
-		procs = emr.get_performed_procedures (
-			episodes = [ self._payload[self._idx['pk_episode']] ]
-		)
+		if with_procedures:
+			procs = emr.get_performed_procedures(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(procs) > 0:
+				lines.append(u'')
+				lines.append(_('Procedures performed: %s') % len(procs))
+			for p in procs:
+				lines.append(p.format (
+					left_margin = (left_margin + 1),
+					include_episode = False,
+					include_codes = True
+				))
+			del procs
 
-		if len(procs) > 0:
-			lines.append(u'')
-			lines.append(_('Procedures performed: %s') % len(procs))
-		for p in procs:
-			lines.append(p.format(left_margin = (left_margin + 1), include_episode = False))
-		del procs
+		# family history
+		if with_family_history:
+			fhx = emr.get_family_history(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(fhx) > 0:
+				lines.append(u'')
+				lines.append(_('Family History: %s') % len(fhx))
+			for f in fhx:
+				lines.append(f.format (
+					left_margin = (left_margin + 1),
+					include_episode = False,
+					include_comment = True,
+					include_codes = True
+				))
+			del fhx
 
 		# test results
-		tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
-
-		if len(tests) > 0:
-			lines.append('')
-			lines.append(_('Measurements and Results:'))
-
-		for t in tests:
-			lines.extend(t.format (
-				with_review = False,
-				with_comments = False,
-				date_format = '%Y-%m-%d'
-			))
-		del tests
+		if with_tests:
+			tests = emr.get_test_results_by_date(episodes = [ self._payload[self._idx['pk_episode']] ])
+			if len(tests) > 0:
+				lines.append('')
+				lines.append(_('Measurements and Results:'))
+			for t in tests:
+				lines.extend(t.format (
+					with_review = False,
+					with_comments = False,
+					date_format = '%Y-%m-%d'
+				))
+			del tests
 
 		# vaccinations
-		vaccs = emr.get_vaccinations(episodes = [ self._payload[self._idx['pk_episode']] ])
-
-		if len(vaccs) > 0:
-			lines.append(u'')
-			lines.append(_('Vaccinations:'))
-
-		for vacc in vaccs:
-			lines.extend(vacc.format (
-				with_indications = True,
-				with_comment = True,
-				with_reaction = True,
-				date_format = '%Y-%m-%d'
-			))
-		del vaccs
+		if with_vaccinations:
+			vaccs = emr.get_vaccinations (
+				episodes = [ self._payload[self._idx['pk_episode']] ],
+				order_by = u'date_given DESC, vaccine'
+			)
+			if len(vaccs) > 0:
+				lines.append(u'')
+				lines.append(_('Vaccinations:'))
+			for vacc in vaccs:
+				lines.extend(vacc.format (
+					with_indications = True,
+					with_comment = True,
+					with_reaction = True,
+					date_format = '%Y-%m-%d'
+				))
+			del vaccs
 
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	# properties
@@ -942,6 +1137,43 @@ from (
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2episode WHERE fk_item = %(epi)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'epi': self._payload[self._idx['pk_episode']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2episode (fk_item, fk_generic_code) VALUES (%(epi)s, %(pk_code)s)',
+				'args': {
+					'epi': self._payload[self._idx['pk_episode']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 	#--------------------------------------------------------
 	def _get_has_narrative(self):
 		cmd = u"""SELECT EXISTS (
@@ -993,12 +1225,16 @@ def delete_episode(episode=None):
 	else:
 		pk = int(episode)
 
+	cmd = u'DELETE FROM clin.episode WHERE pk = %(pk)s'
+
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.episode where pk=%(pk)s', 'args': {'pk': pk}}])
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
-		_log.exception('cannot delete episode')
-		raise gmExceptions.DatabaseObjectInUseError('cannot delete episode, it is in use')
+		_log.exception('cannot delete episode, it is in use')
+		return False
+
+	return True
 #-----------------------------------------------------------
 def episode2problem(episode=None, allow_closed=False):
 	return cProblem (
@@ -1017,17 +1253,19 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
 	_cmds_store_payload = [
-		u"""update clin.encounter set
+		u"""UPDATE clin.encounter SET
 				started = %(started)s,
 				last_affirmed = %(last_affirmed)s,
 				fk_location = %(pk_location)s,
 				fk_type = %(pk_type)s,
 				reason_for_encounter = gm.nullify_empty_string(%(reason_for_encounter)s),
 				assessment_of_encounter = gm.nullify_empty_string(%(assessment_of_encounter)s)
-			where
-				pk = %(pk_encounter)s and
-				xmin = %(xmin_encounter)s""",
-		u"""select xmin_encounter from clin.v_pat_encounters where pk_encounter=%(pk_encounter)s"""
+			WHERE
+				pk = %(pk_encounter)s AND
+				xmin = %(xmin_encounter)s
+			""",
+		# need to return all fields so we can survive in-place upgrades
+		u"""select * from clin.v_pat_encounters where pk_encounter = %(pk_encounter)s"""
 	]
 	_updatable_fields = [
 		'started',
@@ -1039,7 +1277,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def set_active(self):
-		"""Set the enconter as the active one.
+		"""Set the encounter as the active one.
 
 		"Setting active" means making sure the encounter
 		row has the youngest "last_affirmed" timestamp of
@@ -1108,9 +1346,39 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			if another_object[field] is None:
 				return False
 
-			#if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S %Z') != another_object[field].strftime('%Y-%m-%d %H:%M:%S %Z'):
+			# compares at minute granularity
 			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M') != another_object[field].strftime('%Y-%m-%d %H:%M'):
 				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
+				return False
+
+		# compare codes
+		# 1) RFE
+		if another_object['pk_generic_codes_rfe'] is None:
+			if self._payload[self._idx['pk_generic_codes_rfe']] is not None:
+				return False
+		if another_object['pk_generic_codes_rfe'] is not None:
+			if self._payload[self._idx['pk_generic_codes_rfe']] is None:
+				return False
+		if (
+			(another_object['pk_generic_codes_rfe'] is None)
+				and
+			(self._payload[self._idx['pk_generic_codes_rfe']] is None)
+		) is False:
+			if set(another_object['pk_generic_codes_rfe']) != set(self._payload[self._idx['pk_generic_codes_rfe']]):
+				return False
+		# 2) AOE
+		if another_object['pk_generic_codes_aoe'] is None:
+			if self._payload[self._idx['pk_generic_codes_aoe']] is not None:
+				return False
+		if another_object['pk_generic_codes_aoe'] is not None:
+			if self._payload[self._idx['pk_generic_codes_aoe']] is None:
+				return False
+		if (
+			(another_object['pk_generic_codes_aoe'] is None)
+				and
+			(self._payload[self._idx['pk_generic_codes_aoe']] is None)
+		) is False:
+			if set(another_object['pk_generic_codes_aoe']) != set(self._payload[self._idx['pk_generic_codes_aoe']]):
 				return False
 
 		return True
@@ -1149,6 +1417,36 @@ select exists (
 				'args': args
 			}]
 		)
+		return rows[0][0]
+	#--------------------------------------------------------
+	def has_soap_narrative(self, soap_cats=None):
+		"""soap_cats: <space> = admin category"""
+
+		if soap_cats is None:
+			soap_cats = u'soap '
+		else:
+			soap_cats = soap_cats.lower()
+
+		cats = []
+		for cat in soap_cats:
+			if cat in u'soapu':
+				cats.append(cat)
+				continue
+			if cat == u' ':
+				cats.append(None)
+
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1 FROM clin.clin_narrative
+				WHERE
+					fk_encounter = %(enc)s
+						AND
+					soap_cat IN %(cats)s
+				LIMIT 1
+			)
+		"""
+		args = {'enc': self._payload[self._idx['pk_encounter']], 'cats': tuple(cats)}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd,'args': args}])
 		return rows[0][0]
 	#--------------------------------------------------------
 	def has_documents(self):
@@ -1232,7 +1530,37 @@ WHERE
 
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
 	#--------------------------------------------------------
-	def format_soap(self, episodes=None, left_margin=0, soap_cats='soap', emr=None, issues=None):
+	def add_code(self, pk_code=None, field=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		if field == u'rfe':
+			cmd = u"INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		elif field == u'aoe':
+			cmd = u"INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) values (%(item)s, %(code)s)"
+		else:
+			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
+		args = {
+			'item': self._payload[self._idx['pk_encounter']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None, field=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		if field == u'rfe':
+			cmd = u"DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		elif field == u'aoe':
+			cmd = u"DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		else:
+			raise ValueError('<field> must be one of "rfe" or "aoe", not "%s"', field)
+		args = {
+			'item': self._payload[self._idx['pk_encounter']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def format_soap(self, episodes=None, left_margin=0, soap_cats='soapu', emr=None, issues=None):
 
 		lines = []
 		for soap_cat in soap_cats:
@@ -1247,24 +1575,48 @@ WHERE
 			if len(soap_cat_narratives) == 0:
 				continue
 
-			lines.append(u'-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+			lines.append(u'%s%s %s %s' % (
+				gmTools.u_box_top_left_arc,
+				gmTools.u_box_horiz_single,
+				gmClinNarrative.soap_cat2l10n_str[soap_cat],
+				gmTools.u_box_horiz_single * 5
+			))
 			for soap_entry in soap_cat_narratives:
 				txt = gmTools.wrap (
-					text = u'%s\n (%.8s %s)' % (
-						soap_entry['narrative'],
-						soap_entry['provider'],
-						soap_entry['date'].strftime('%Y-%m-%d %H:%M')
-					),
+					text = soap_entry['narrative'],
 					width = 75,
 					initial_indent = u'',
 					subsequent_indent = (u' ' * left_margin)
+				)
+				lines.append(txt)
+				when = gmDateTime.pydt_strftime (
+					soap_entry['date'],
+					format = '%Y-%m-%d %H:%M',
+					accuracy = gmDateTime.acc_minutes
+				)
+				txt = u'%s%s %.8s, %s %s' % (
+					u' ' * 40,
+					gmTools.u_box_horiz_light_heavy,
+					soap_entry['provider'],
+					when,
+					gmTools.u_box_horiz_heavy_light
 				)
 				lines.append(txt)
 				lines.append('')
 
 		return lines
 	#--------------------------------------------------------
-	def format_latex(self, date_format=None, soap_cats=None):
+	def format_latex(self, date_format=None, soap_cats=None, soap_order=None):
+
+		nothing2format = (
+			(self._payload[self._idx['reason_for_encounter']] is None)
+				and
+			(self._payload[self._idx['assessment_of_encounter']] is None)
+				and
+			(self.has_soap_narrative(soap_cats = u'soapu') is False)
+		)
+		if nothing2format:
+			return u''
 
 		if date_format is None:
 			date_format = '%A, %B %d %Y'
@@ -1278,26 +1630,30 @@ WHERE
 		tex += u'\\hline \\tabularnewline \n'
 
 		for epi in self.get_episodes():
-			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj])
+			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:
 				continue
-			tex += u'\\multicolumn{2}{l}{\\emph{%s%s%s%s}} \\tabularnewline \n' % (
-#			tex += u' & \\emph{%s%s%s%s} \\tabularnewline \n' % (
+			tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('Problem')),
 				gmTools.tex_escape_string(epi['description']),
 				gmTools.coalesce (
 					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
 					instead = u'',
 					template_initial = u' {\\footnotesize [%s]}',
 					none_equivalents = [None, u'']
-				),
-				gmTools.tex_escape_string(gmTools.coalesce(epi['health_issue'], u'', u' (%s)')),
-				gmTools.coalesce (
-					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
-					instead = u'',
-					template_initial = u' {\\footnotesize [%s]}',
-					none_equivalents = [None, u'']
-				),
+				)
 			)
+			if epi['pk_health_issue'] is not None:
+				tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
+					gmTools.tex_escape_string(_('Health issue')),
+					gmTools.tex_escape_string(epi['health_issue']),
+					gmTools.coalesce (
+						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
+						instead = u'',
+						template_initial = u' {\\footnotesize [%s]}',
+						none_equivalents = [None, u'']
+					)
+				)
 			for soap in soaps:
 				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
 					gmClinNarrative.soap_cat2l10n[soap['soap_cat']],
@@ -1321,7 +1677,7 @@ WHERE
 
 		return tex
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False):
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True):
 		"""Format an encounter.
 
 		with_co_encountlet_hints:
@@ -1355,23 +1711,75 @@ WHERE
 
 			if self._payload[self._idx['reason_for_encounter']] is not None:
 				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				codes = self.generic_codes_rfe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
 
 			if self._payload[self._idx['assessment_of_encounter']] is not None:
 				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+				codes = self.generic_codes_aoe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
+				del codes
 
 		else:
+			now = gmDateTime.pydt_now_here()
+			if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
+				start = u'%s %s' % (
+					_('today'),
+					self._payload[self._idx['started_original_tz']].strftime('%H:%M')
+				)
+			else:
+				start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
 			lines.append(u'%s%s: %s - %s%s' % (
 				u' ' * left_margin,
 				self._payload[self._idx['l10n_type']],
-				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
+				start,
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
 			))
 			if with_rfe_aoe:
 				if self._payload[self._idx['reason_for_encounter']] is not None:
 					lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+				codes = self.generic_codes_rfe
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
 				if self._payload[self._idx['assessment_of_encounter']] is not None:
 					lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+				codes = self.generic_codes_aoe
+				if len(codes) > 0:
+					lines.append(u'')
+				for c in codes:
+					lines.append(u' %s: %s (%s - %s)' % (
+						c['code'],
+						c['term'],
+						c['name_short'],
+						c['version']
+					))
+				if len(codes) > 0:
+					lines.append(u'')
+				del codes
 
 		if with_soap:
 			lines.append(u'')
@@ -1389,13 +1797,29 @@ WHERE
 			lines.extend(self.format_soap (
 				episodes = episodes,
 				left_margin = left_margin,
-				soap_cats = 'soap',
+				soap_cats = 'soapu',
 				emr = emr,
 				issues = issues
 			))
 
+#		# family history
+#		if with_family_history:
+#			if episodes is not None:
+#				fhx = emr.get_family_history(episodes = episodes)
+#				if len(fhx) > 0:
+#					lines.append(u'')
+#					lines.append(_('Family History: %s') % len(fhx))
+#				for f in fhx:
+#					lines.append(f.format (
+#						left_margin = (left_margin + 1),
+#						include_episode = False,
+#						include_comment = True
+#					))
+#				del fhx
+
 		# test results
 		if with_tests:
+			emr = patient.get_emr()
 			tests = emr.get_test_results_by_date (
 				episodes = episodes,
 				encounter = self._payload[self._idx['pk_encounter']]
@@ -1411,9 +1835,11 @@ WHERE
 
 		# vaccinations
 		if with_vaccinations:
+			emr = patient.get_emr()
 			vaccs = emr.get_vaccinations (
 				episodes = episodes,
-				encounters = [ self._payload[self._idx['pk_encounter']] ]
+				encounters = [ self._payload[self._idx['pk_encounter']] ],
+				order_by = u'date_given DESC, vaccine'
 			)
 
 			if len(vaccs) > 0:
@@ -1468,6 +1894,84 @@ WHERE
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_generic_codes_rfe(self):
+		if len(self._payload[self._idx['pk_generic_codes_rfe']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_rfe']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes_rfe(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes_rfe']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2rfe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes_rfe']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2rfe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
+		return
+
+	generic_codes_rfe = property(_get_generic_codes_rfe, _set_generic_codes_rfe)
+	#--------------------------------------------------------
+	def _get_generic_codes_aoe(self):
+		if len(self._payload[self._idx['pk_generic_codes_aoe']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes_aoe']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes_aoe(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes_aoe']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2aoe WHERE fk_item = %(enc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes_aoe']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2aoe (fk_item, fk_generic_code) VALUES (%(enc)s, %(pk_code)s)',
+				'args': {
+					'enc': self._payload[self._idx['pk_encounter']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		self.refetch_payload()
+		return
+
+	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -1500,7 +2004,11 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 			) values (
 				%(pat)s,
 				-1,
-				coalesce((select pk from clin.encounter_type where description = %(typ)s), 0)
+				coalesce (
+					(select pk from clin.encounter_type where description = %(typ)s),
+					-- pick the first available
+					(select pk from clin.encounter_type limit 1)
+				)
 			) RETURNING pk"""
 	args = {'pat': fk_patient, 'typ': enc_type}
 	queries.append({'cmd': cmd, 'args': args})
@@ -1575,7 +2083,15 @@ def create_encounter_type(description=None, l10n_description=None):
 	return {'description': description, 'l10n_description': l10n_description}
 #-----------------------------------------------------------
 def get_encounter_types():
-	cmd = u"select _(description) as l10n_description, description from clin.encounter_type"
+	cmd = u"""
+		SELECT
+			_(description) AS l10n_description,
+			description
+		FROM
+			clin.encounter_type
+		ORDER BY
+			l10n_description
+	"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 #-----------------------------------------------------------
@@ -1664,6 +2180,16 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 			return None
 		return cEpisode(aPK_obj = self._payload[self._idx['pk_episode']])
 	#--------------------------------------------------------
+	def get_as_health_issue(self):
+		"""
+		Retrieve the cHealthIssue instance equivalent to this problem.
+		The problem's type attribute must be 'issue'
+		"""
+		if self._payload[self._idx['type']] != 'issue':
+			_log.error('cannot convert problem [%s] of type [%s] to health issue' % (self._payload[self._idx['problem']], self._payload[self._idx['type']]))
+			return None
+		return cHealthIssue(aPK_obj = self._payload[self._idx['pk_health_issue']])
+	#--------------------------------------------------------
 	def get_visual_progress_notes(self, encounter_id=None):
 
 		if self._payload[self._idx['type']] == u'issue':
@@ -1685,6 +2211,29 @@ class cProblem(gmBusinessDBObject.cBusinessDBObject):
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if self._payload[self._idx['type']] == u'issue':
+			cmd = u"""
+				SELECT * FROM clin.v_linked_codes WHERE
+					item_table = 'clin.lnk_code2h_issue'::regclass
+						AND
+					pk_item = %(item)s
+			"""
+			args = {'item': self._payload[self._idx['pk_health_issue']]}
+		else:
+			cmd = u"""
+				SELECT * FROM clin.v_linked_codes WHERE
+					item_table = 'clin.lnk_code2episode'::regclass
+						AND
+					pk_item = %(item)s
+			"""
+			args = {'item': self._payload[self._idx['pk_episode']]}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	generic_codes = property(_get_generic_codes, lambda x:x)
 #-----------------------------------------------------------
 def problem2episode(problem=None):
 	"""Retrieve the cEpisode instance equivalent to the given problem.
@@ -1774,14 +2323,14 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
 
 		if self._payload[self._idx['discharge']] is not None:
-			dis = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y %b %d').decode(gmI18N.get_encoding())
+			discharge = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y %b %d').decode(gmI18N.get_encoding())
 		else:
-			dis = u''
+			discharge = u''
 
 		line = u'%s%s%s%s: %s%s%s' % (
 			u' ' * left_margin,
 			self._payload[self._idx['admission']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
-			dis,
+			discharge,
 			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['episode']],
@@ -1790,13 +2339,36 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 #-----------------------------------------------------------
-def get_patient_hospital_stays(patient=None):
-
+def get_latest_patient_hospital_stay(patient=None):
 	queries = [{
-		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission',
+		# this assumes non-overarching stays
+		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
 		'args': {'pat': patient}
 	}]
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
+#-----------------------------------------------------------
+def get_patient_hospital_stays(patient=None, ongoing_only=False):
+	args = {'pat': patient}
+	if ongoing_only:
+		cmd = u"""
+			SELECT *
+			FROM clin.v_pat_hospital_stays
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				discharge is NULL
+			ORDER BY admission"""
+	else:
+		cmd = u"""
+			SELECT *
+			FROM clin.v_pat_hospital_stays
+			WHERE pk_patient = %(pat)s
+			ORDER BY admission"""
 
+	queries = [{'cmd': cmd, 'args': args}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
 	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
@@ -1863,7 +2435,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#-------------------------------------------------------
-	def format(self, left_margin=0, include_episode=True):
+	def format(self, left_margin=0, include_episode=True, include_codes=False):
 
 		if self._payload[self._idx['is_ongoing']]:
 			end = _(' (ongoing)')
@@ -1874,7 +2446,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			else:
 				end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
 
-		line = u'%s%s%s, %s: %s' % (
+		line = u'%s%s%s (%s): %s' % (
 			(u' ' * left_margin),
 			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
 			end,
@@ -1884,7 +2456,80 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		if include_episode:
 			line = u'%s (%s)' % (line, self._payload[self._idx['episode']])
 
+		if include_codes:
+			codes = self.generic_codes
+			if len(codes) > 0:
+				line += u'\n'
+			for c in codes:
+				line += u'%s  %s: %s (%s - %s)\n' % (
+					(u' ' * left_margin),
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				)
+			del codes
+
 		return line
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) values (%(issue)s, %(code)s)"
+		args = {
+			'issue': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(issue)s AND fk_generic_code = %(code)s"
+		args = {
+			'issue': self._payload[self._idx['pk_procedure']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2procedure WHERE fk_item = %(proc)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'proc': self._payload[self._idx['pk_procedure']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2procedure (fk_item, fk_generic_code) VALUES (%(proc)s, %(pk_code)s)',
+				'args': {
+					'proc': self._payload[self._idx['pk_procedure']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #-----------------------------------------------------------
 def get_performed_procedures(patient=None):
 
@@ -1898,6 +2543,18 @@ def get_performed_procedures(patient=None):
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
 	return [ cPerformedProcedure(row = {'idx': idx, 'data': r, 'pk_field': 'pk_procedure'})  for r in rows ]
+#-----------------------------------------------------------
+def get_latest_performed_procedure(patient=None):
+	queries = [
+		{
+		'cmd': u'select * from clin.v_pat_procedures where pk_patient = %(pat)s order by clin_when DESC LIMIT 1',
+		'args': {'pat': patient}
+		}
+	]
+	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPerformedProcedure(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_procedure'})
 #-----------------------------------------------------------
 def create_performed_procedure(encounter=None, episode=None, location=None, hospital_stay=None, procedure=None):
 
@@ -2044,7 +2701,11 @@ if __name__ == '__main__':
 		for t in tests:
 			print type(t), t
 			print type(diagnostic_certainty_classification2str(t)), diagnostic_certainty_classification2str(t)
-
+	#--------------------------------------------------------
+	def test_episode_codes():
+		epi = cEpisode(aPK_obj = 2)
+		print epi
+		print epi.generic_codes
 	#--------------------------------------------------------
 	# run them
 	#test_episode()
@@ -2054,6 +2715,7 @@ if __name__ == '__main__':
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
-	test_encounter2latex()
+	#test_encounter2latex()
+	test_episode_codes()
 #============================================================
 

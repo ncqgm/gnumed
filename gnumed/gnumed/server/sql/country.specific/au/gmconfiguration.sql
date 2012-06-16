@@ -1,8 +1,8 @@
--- Project: GnuMed - service "configuration" -- Australian specific stuff
+-- Project: GNUmed - service "configuration" -- Australian specific stuff
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmconfiguration.sql,v $
 -- $Revision: 1.3 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood
 
 -- Populates configuration tables for AU values

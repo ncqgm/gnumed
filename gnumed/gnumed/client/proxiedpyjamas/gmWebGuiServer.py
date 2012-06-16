@@ -5,11 +5,11 @@ __doc__ = """GNUmed web user interface server launcher.
 #==========================================================
 __version__ = "$Revision: 0.1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import re, sys, time, os, cPickle, zlib, locale, os.path
-import datetime as pyDT, webbrowser, shutil, logging, urllib2
+import datetime as pyDT, shutil, logging, urllib2
 
 # json-rpc
 from jsonserver import SimpleForkingJSONRPCServer, CloseConnection
@@ -22,8 +22,10 @@ from Gnumed.pycommon.gmBusinessDBObject import jsonclasshintify
 from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmPersonSearch
+
 
 #try:
 #   _('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -52,7 +54,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
     expected_hash = gmPG2.known_schema_hashes[expected_version]
     client_version = _cfg.get(option = u'client_version')
     global current_db_name
-    current_db_name = u'gnumed_%s' % expected_version
+    current_db_name = u'gnumed_v%s' % expected_version
 
     attempt = 0
 
@@ -332,7 +334,7 @@ PYJSDIR = sys._getframe().f_code.co_filename
 PYJSDIR = os.path.split(os.path.dirname(PYJSDIR))[0]
 PYJSDIR = os.path.join(PYJSDIR, 'pyjamas')
 
-DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
+DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v17@)"
 
 class HTTPServer(SimpleForkingJSONRPCServer):
     '''An application instance containing any number of streams. Except for constructor all methods are generators.'''
@@ -406,7 +408,7 @@ class HTTPServer(SimpleForkingJSONRPCServer):
         return jsonclasshintify(messages)
 
     def get_provider_inbox_data(self):
-        self.provider = gmPerson.gmCurrentProvider(provider=gmPerson.cStaff())
+        self.provider = gmStaff.gmCurrentProvider(provider=gmStaff.cStaff())
         inbox = gmProviderInbox.cProviderInbox()
         self.__msgs = inbox.messages
         return jsonclasshintify(inbox.messages)

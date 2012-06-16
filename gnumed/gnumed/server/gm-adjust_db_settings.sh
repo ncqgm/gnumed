@@ -7,7 +7,7 @@
 # usage: ./gm-adjust_db_settings.sh <database name>
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 
@@ -43,7 +43,9 @@ echo "set default_transaction_read_only to 'off';" >> $SQL_FILE
 echo "" >> $SQL_FILE
 
 echo "begin;" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set datestyle to 'ISO';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set default_transaction_read_only to 'on';" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set default_transaction_isolation to 'read committed';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set lc_messages to 'C';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
@@ -64,7 +66,7 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('\$RCSfile: gm-adjust_db_settings.sh,v $', '\$Revision: 1.7 $');" >> $SQL_FILE
+echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', 'v16');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 echo "" >> $SQL_FILE

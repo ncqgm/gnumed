@@ -1,8 +1,8 @@
--- Project: GnuMed
+-- Project: GNUmed
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/au/gmDemographics.au.sql,v $
 -- $Revision: 1.15 $
--- license: GPL
+-- license: GPL v2 or later
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
 -- demographics tables specific für Australia

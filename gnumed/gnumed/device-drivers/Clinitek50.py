@@ -2,13 +2,12 @@
 
 This device is made by Bayer Diagnostics.
 
-@license: GPL
+@license: GPL v2 or later
 """
 #========================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/device-drivers/Clinitek50.py,v $
 __version__ = "$Revision: 1.7 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://gnu.org/)"
+__license__ = "GPL v2 or later (details at http://gnu.org/)"
 
 # stock python
 import sys, os.path, time, string

@@ -7,7 +7,6 @@
 	and Karsten <Karsten.Hilbert@gmx.net>.
 """
 #================================================================
-__version__ = "$Revision: 1.114 $"
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -17,7 +16,6 @@ import sys, re, datetime as pydt, logging, time
 
 # 3rd party
 import wx
-import wx.lib.pubsub as wxps
 
 
 # GNUmed
@@ -26,12 +24,25 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
 from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
 from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
-from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg, wxgMoveNarrativeDlg
-from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
+#================================================================
+# EMR access helper functions
+#----------------------------------------------------------------
+def emr_access_spinner(time2spin=0):
+	"""Spin time in seconds."""
+	if time2spin == 0:
+		return
+	sleep_time = 0.1
+	total_rounds = int(time2spin / sleep_time)
+	if total_rounds < 1:
+		return
+	rounds = 0
+	while rounds < total_rounds:
+		wx.Yield()
+		time.sleep(sleep_time)
+		rounds += 1
 #================================================================
 # performed procedure related widgets/functions
 #----------------------------------------------------------------
@@ -243,11 +254,11 @@ limit 25
 		else:
 			self._DPRW_date.display_as_valid(True)
 
+		start = self._DPRW_date.GetData()
 		end = self._DPRW_end.GetData()
 		self._DPRW_end.display_as_valid(True)
 		if end is not None:
 			end = end.get_pydt()
-			start = self._DPRW_end.GetData()
 			if start is not None:
 				start = start.get_pydt()
 				if end < start:
@@ -287,10 +298,7 @@ limit 25
 			self._PRW_hospital_stay.display_as_valid(True)
 			self._PRW_location.display_as_valid(True)
 
-		wxps.Publisher().sendMessage (
-			topic = 'statustext',
-			data = {'msg': _('Cannot save procedure.'), 'beep': True}
-		)
+		gmDispatcher.send(signal = 'statustext', msg = _('Cannot save procedure.'), beep = True)
 
 		return (has_errors is False)
 	#----------------------------------------------------------------
@@ -315,7 +323,7 @@ limit 25
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
 
-		proc['clin_when'] = self._DPRW_date.data.get_pydt()
+		proc['clin_when'] = self._DPRW_date.GetData().get_pydt()
 		if self._DPRW_end.GetData() is None:
 			proc['clin_end'] = None
 		else:
@@ -323,12 +331,14 @@ limit 25
 		proc['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
 		proc.save()
 
+		proc.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		self.data = proc
 
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['clin_when'] = self._DPRW_date.data.get_pydt()
+		self.data['clin_when'] = self._DPRW_date.GetData().get_pydt()
 
 		if self._DPRW_end.GetData() is None:
 			self.data['clin_end'] = None
@@ -350,6 +360,8 @@ limit 25
 		self.data['performed_procedure'] = self._PRW_procedure.GetValue().strip()
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -361,6 +373,7 @@ limit 25
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
+		self._PRW_codes.SetText()
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -389,6 +402,9 @@ limit 25
 			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
+
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -427,7 +443,7 @@ limit 25
 			self._DPRW_end.is_valid_timestamp()
 		event.Skip()
 #================================================================
-# hospital stay related widgets/functions
+# hospitalizations related widgets/functions
 #----------------------------------------------------------------
 def manage_hospital_stays(parent=None):
 
@@ -445,7 +461,7 @@ def manage_hospital_stays(parent=None):
 			return True
 		gmDispatcher.send (
 			signal = u'statustext',
-			msg = _('Cannot delete hospital stay.'),
+			msg = _('Cannot delete hospitalization.'),
 			beep = True
 		)
 		return False
@@ -465,8 +481,8 @@ def manage_hospital_stays(parent=None):
 	#-----------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nSelect the hospital stay you want to edit !\n'),
-		caption = _('Editing hospital stays ...'),
+		msg = _("The patient's hospitalizations:\n"),
+		caption = _('Editing hospitalizations ...'),
 		columns = [_('Admission'), _('Discharge'), _('Reason'), _('Hospital')],
 		single_selection = True,
 		edit_callback = edit,
@@ -481,7 +497,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	ea.data = hospital_stay
 	ea.mode = gmTools.coalesce(hospital_stay, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
-	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospital stay'), _('Editing a hospital stay')))
+	dlg.SetTitle(gmTools.coalesce(hospital_stay, _('Adding a hospitalization'), _('Editing a hospitalization')))
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -489,8 +505,7 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 	return False
 #----------------------------------------------------------------
 class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Phrasewheel to allow selection of a hospital stay.
-	"""
+	"""Phrasewheel to allow selection of a hospitalization."""
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
@@ -555,28 +570,19 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
 			valid = False
-			wxps.Publisher().sendMessage (
-				topic = 'statustext',
-				data = {'msg': _('Missing admission data. Cannot save hospital stay.'), 'beep': True}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospitalization.'), beep = True)
 
 		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
 			if self._PRW_discharge.date is not None:
 				if not self._PRW_discharge.date > self._PRW_admission.date:
 					valid = False
 					self._PRW_discharge.display_as_valid(False)
-					wxps.Publisher().sendMessage (
-						topic = 'statustext',
-						data = {'msg': _('Discharge date must be empty or later than admission. Cannot save hospital stay.'), 'beep': True}
-					)
+					gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
 
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
-			wxps.Publisher().sendMessage (
-				topic = 'statustext',
-				data = {'msg': _('Must select an episode or enter a name for a new one. Cannot save hospital stay.'), 'beep': True}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
 
 		return (valid is True)
 	#----------------------------------------------------------------
@@ -606,7 +612,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def _refresh_as_new(self):
 		self._PRW_hospital.SetText(value = u'')
 		self._PRW_episode.SetText(value = u'')
-		self._PRW_admission.SetText(data = pydt.datetime.now())
+		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -647,6 +653,9 @@ def edit_encounter(parent=None, encounter=None):
 	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
+def manage_encounters(**kwargs):
+	return select_encounters(**kwargs)
+
 def select_encounters(parent=None, patient=None, single_selection=True, encounters=None, ignore_OK_button=False):
 
 	if patient is None:
@@ -679,28 +688,49 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 				e['pk_encounter']
 			] for e in encs
 		]
-
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = encs)
+		active_pk = emr.active_encounter['pk_encounter']
+		for idx in range(len(encs)):
+			e = encs[idx]
+			if e['pk_encounter'] == active_pk:
+				lctrl.SetItemTextColour(idx, col=wx.NamedColour('RED'))
 	#--------------------
 	def new():
-		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID)
+		cfg_db = gmCfg.cCfgSQL()
+		# FIXME: look for MRU/MCU encounter type config here
+		enc_type = cfg_db.get2 (
+			option = u'encounter.default_type',
+			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			bias = u'user',
+			default = u'in surgery'
+		)
+		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID, enc_type = enc_type)
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
 	def edit(enc=None):
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
+	def edit_active(enc=None):
+		return edit_encounter(parent = parent, encounter = emr.active_encounter)
+	#--------------------
+	def start_new(enc=None):
+		start_new_encounter(emr = emr)
+		return True
+	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nBelow find the relevant encounters of the patient.\n'),
+		msg = _("The patient's encounters.\n"),
 		caption = _('Encounters ...'),
 		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
-		can_return_empty = True,
+		can_return_empty = False,
 		single_selection = single_selection,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = new,
-		ignore_OK_button = ignore_OK_button
+		ignore_OK_button = ignore_OK_button,
+		left_extra_button = (_('Edit active'), _('Edit the active encounter'), edit_active),
+		middle_extra_button = (_('Start new'), _('Start new active encounter for the current patient.'), start_new)
 	)
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
@@ -776,6 +806,75 @@ def edit_encounter_type(parent=None, encounter_type=None):
 		return True
 	return False
 #----------------------------------------------------------------
+class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+		cmd = u"""
+			SELECT -- DISTINCT ON (data)
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				to_char(started, 'YYYY-MM-DD') %(fragment_condition)s
+					OR
+				l10n_type %(fragment_condition)s
+					OR
+				type %(fragment_condition)s
+				%(ctxt_patient)s
+			ORDER BY
+				list_label
+			LIMIT
+				30
+		"""
+		context = {'ctxt_patient': {
+			'where_part': u'AND pk_patient = %(patient)s',
+			'placeholder': u'patient'
+		}}
+
+		self.matcher = gmMatchProvider.cMatchProvider_SQL2(queries = [cmd], context = context)
+		self.matcher._SQL_data2match = u"""
+			SELECT
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				pk_encounter = %(pk)s
+		"""
+		self.matcher.setThresholds(1, 3, 5)
+		self.selection_only = True
+		# outside code MUST bind this to a patient
+		self.set_context(context = 'patient', val = None)
+	#--------------------------------------------------------
+	def set_from_instance(self, instance):
+		val = u'%s: %s' % (
+			gmDateTime.pydt_strftime(instance['started'], '%Y %b %d'),
+			instance['l10n_type']
+		)
+		self.SetText(value = val, data = instance['pk_encounter'])
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self._data.values()[0]['data'])
+		return enc.format (
+			with_docs = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_family_history = False
+		)
+#----------------------------------------------------------------
 class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of encounter type.
 
@@ -789,30 +888,30 @@ class cEncounterTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""
-select pk, l10n_description from (
-	select distinct on (pk) * from (
-		(select
-			pk,
-			_(description) as l10n_description,
-			1 as rank
-		from
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (data) *
+	FROM (
+		SELECT
+			pk AS data,
+			_(description) AS field_label,
+			case
+				when _(description) = description then _(description)
+				else _(description) || ' (' || description || ')'
+			end AS list_label
+		FROM
 			clin.encounter_type
-		where
+		WHERE
 			_(description) %(fragment_condition)s
-
-		) union all (
-
-		select
-			pk,
-			_(description) as l10n_description,
-			2 as rank
-		from
-			clin.encounter_type
-		where
+				OR
 			description %(fragment_condition)s
-		)
-	) as q_distinct_pk
-) as q_ordered order by rank, l10n_description
+	) AS q_distinct_pk
+) AS q_ordered
+ORDER BY
+	list_label
 """			]
 		)
 		mp.setThresholds(2, 4, 6)
@@ -821,6 +920,8 @@ select pk, l10n_description from (
 		self.selection_only = True
 		self.picklist_delay = 50
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgEncounterTypeEditAreaPnl
+
 class cEncounterTypeEditAreaPnl(wxgEncounterTypeEditAreaPnl.wxgEncounterTypeEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
@@ -959,9 +1060,17 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		)
 		self._PRW_end.SetText(fts.format_accurately(), data=fts)
 
+		# RFE
 		self._TCTRL_rfe.SetValue(gmTools.coalesce(self.__encounter['reason_for_encounter'], ''))
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
+		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_rfe)
+		self._PRW_rfe_codes.SetText(val, data)
 
+		# AOE
+		self._TCTRL_aoe.SetValue(gmTools.coalesce(self.__encounter['assessment_of_encounter'], ''))
+		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(self.__encounter.generic_codes_aoe)
+		self._PRW_aoe_codes.SetText(val, data)
+
+		# last affirmed
 		if self.__encounter['last_affirmed'] == self.__encounter['started']:
 			self._PRW_end.SetFocus()
 		else:
@@ -979,13 +1088,33 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self._PRW_encounter_type.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
 		self._PRW_encounter_type.Refresh()
 
-		if (not self._PRW_start.is_valid_timestamp()) or (self._PRW_start.GetValue().strip() == u''):
+		# start
+		if self._PRW_start.GetValue().strip() == u'':
+			self._PRW_start.SetBackgroundColour('pink')
+			self._PRW_start.Refresh()
 			self._PRW_start.SetFocus()
 			return False
+		if not self._PRW_start.is_valid_timestamp(empty_is_valid = False):
+			self._PRW_start.SetBackgroundColour('pink')
+			self._PRW_start.Refresh()
+			self._PRW_start.SetFocus()
+			return False
+		self._PRW_start.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_start.Refresh()
 
-		if (not self._PRW_end.is_valid_timestamp()) or (self._PRW_end.GetValue().strip() == u''):
+		# last_affirmed
+#		if self._PRW_end.GetValue().strip() == u'':
+#			self._PRW_end.SetBackgroundColour('pink')
+#			self._PRW_end.Refresh()
+#			self._PRW_end.SetFocus()
+#			return False
+		if not self._PRW_end.is_valid_timestamp(empty_is_valid = False):
+			self._PRW_end.SetBackgroundColour('pink')
+			self._PRW_end.Refresh()
 			self._PRW_end.SetFocus()
 			return False
+		self._PRW_end.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_end.Refresh()
 
 		return True
 	#--------------------------------------------------------
@@ -999,6 +1128,9 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		self.__encounter['reason_for_encounter'] = gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
 		self.__encounter['assessment_of_encounter'] = gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u'')
 		self.__encounter.save_payload()			# FIXME: error checking
+
+		self.__encounter.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
+		self.__encounter.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
 
 		return True
 #----------------------------------------------------------------
@@ -1042,6 +1174,66 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgActiveEncounterPnl
+
+class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgActiveEncounterPnl.wxgActiveEncounterPnl.__init__(self, *args, **kwargs)
+		self.__register_events()
+		self.refresh()
+	#------------------------------------------------------------
+	def clear(self):
+		self._TCTRL_encounter.SetValue(u'')
+		self._TCTRL_encounter.SetToolTipString(u'')
+		self._BTN_new.Enable(False)
+		self._BTN_list.Enable(False)
+	#------------------------------------------------------------
+	def refresh(self):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			self.clear()
+			return
+
+		enc = pat.get_emr().active_encounter
+		self._TCTRL_encounter.SetValue(enc.format(with_docs = False, with_tests = False, fancy_header = False, with_vaccinations = False, with_family_history = False).strip('\n'))
+		self._TCTRL_encounter.SetToolTipString (
+			_('The active encounter of the current patient:\n\n%s') %
+				enc.format(with_docs = False, with_tests = False, fancy_header = True, with_vaccinations = False, with_rfe_aoe = True, with_family_history = False).strip('\n')
+		)
+		self._BTN_new.Enable(True)
+		self._BTN_list.Enable(True)
+	#------------------------------------------------------------
+	def __register_events(self):
+		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
+
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_clear)
+		# this would throw an exception due to concurrency issues:
+		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._schedule_refresh)
+	#------------------------------------------------------------
+	# event handler
+	#------------------------------------------------------------
+	def _schedule_clear(self):
+		wx.CallAfter(self.clear)
+	#------------------------------------------------------------
+	def _schedule_refresh(self, *args, **kwargs):
+		wx.CallAfter(self.refresh)
+		return True
+	#------------------------------------------------------------
+	def _on_ldclick(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		edit_encounter(encounter = pat.get_emr().active_encounter)
+	#------------------------------------------------------------
+	def _on_new_button_pressed(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		start_new_encounter(emr = pat.get_emr())
+	#------------------------------------------------------------
+	def _on_list_button_pressed(self, event):
+		select_encounters()
 #================================================================
 # episode related widgets/functions
 #----------------------------------------------------------------
@@ -1269,12 +1461,27 @@ class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u"""
-				select distinct on (description) description, description, 1
-				from clin.episode
-				where description %(fragment_condition)s
-				order by description
-				limit 30"""
+			queries = [
+u"""
+SELECT DISTINCT ON (description)
+	description
+		AS data,
+	description
+		AS field_label,
+	description || ' ('
+	|| CASE
+		WHEN is_open IS TRUE THEN _('ongoing')
+		ELSE _('closed')
+	   END
+	|| ')'
+		AS list_label
+FROM
+	clin.episode
+WHERE
+	description %(fragment_condition)s
+ORDER BY description
+LIMIT 30
+"""
 			]
 		)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
@@ -1304,11 +1511,14 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 u"""(
 
 select
-	pk_episode,
+	pk_episode
+		as data,
+	description
+		as field_label,
 	coalesce (
 		description || ' - ' || health_issue,
 		description
-	) as description,
+	) as list_label,
 	1 as rank
 from
   	clin.v_pat_episodes
@@ -1320,11 +1530,14 @@ where
 ) union all (
 
 select
-	pk_episode,
+	pk_episode
+		as data,
+	description
+		as field_label,
 	coalesce (
 		description || _(' (closed)') || ' - ' || health_issue,
 		description || _(' (closed)')
-	) as description,
+	) as list_label,
 	2 as rank
 from
 	clin.v_pat_episodes
@@ -1334,7 +1547,8 @@ where
 	%(ctxt_pat)s
 
 )
-order by rank, description
+
+order by rank, list_label
 limit 30"""
 ],
 			context = ctxt
@@ -1376,8 +1590,7 @@ limit 30"""
 	#--------------------------------------------------------
 	def GetData(self, can_create=False, as_instance=False, is_open=False):
 		self.__is_open_for_create_data = is_open		# used (only) in _create_data()
-		gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
-		return self.data
+		return gmPhraseWheel.cPhraseWheel.GetData(self, can_create = can_create, as_instance = as_instance)
 	#--------------------------------------------------------
 	def _create_data(self):
 
@@ -1395,12 +1608,15 @@ limit 30"""
 		emr = pat.get_emr()
 		epi = emr.add_episode(episode_name = epi_name, is_open = self.__is_open_for_create_data)
 		if epi is None:
-			self.data = None
+			self.data = {}
 		else:
-			self.data = epi['pk_episode']
+			self.SetText (
+				value = epi_name,
+				data = epi['pk_episode']
+			)
 	#--------------------------------------------------------
 	def _data2instance(self):
-		return gmEMRStructItems.cEpisode(aPK_obj = self.data)
+		return gmEMRStructItems.cEpisode(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1456,9 +1672,9 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		emr = pat.get_emr()
 
 		epi = emr.add_episode(episode_name = self._PRW_description.GetValue().strip())
-		epi['summary'] = self._TCTRL_summary.GetValue().strip()
+		epi['summary'] = self._TCTRL_status.GetValue().strip()
 		epi['episode_open'] = not self._CHBOX_closed.IsChecked()
-		epi['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		epi['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 
 		issue_name = self._PRW_issue.GetValue().strip()
 		if len(issue_name) != 0:
@@ -1478,18 +1694,22 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		epi.save()
 
+		epi.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		self.data = epi
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
 		self.data['description'] = self._PRW_description.GetValue().strip()
-		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
+		self.data['summary'] = self._TCTRL_status.GetValue().strip()
 		self.data['episode_open'] = not self._CHBOX_closed.IsChecked()
-		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		self.data['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 
 		issue_name = self._PRW_issue.GetValue().strip()
-		if len(issue_name) != 0:
+		if len(issue_name) == 0:
+			self.data['pk_health_issue'] = None
+		else:
 			self.data['pk_health_issue'] = self._PRW_issue.GetData(can_create = True)
 			issue = gmEMRStructItems.cHealthIssue(aPK_obj = self.data['pk_health_issue'])
 
@@ -1504,6 +1724,8 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 				return False
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
@@ -1514,9 +1736,10 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
-		self._TCTRL_summary.SetValue(u'')
-		self._PRW_classification.SetText()
+		self._TCTRL_status.SetValue(u'')
+		self._PRW_certainty.SetText()
 		self._CHBOX_closed.SetValue(False)
+		self._PRW_codes.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
@@ -1527,12 +1750,15 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 
 		self._PRW_description.SetText(self.data['description'], data=self.data['description'])
 
-		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['diagnostic_certainty_classification'] is not None:
-			self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
 
 		self._CHBOX_closed.SetValue(not self.data['episode_open'])
+
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -1548,6 +1774,37 @@ def edit_health_issue(parent=None, issue=None):
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
+#----------------------------------------------------------------
+def select_health_issues(parent=None, emr=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def refresh(lctrl):
+		issues = emr.get_health_issues()
+		items = [
+			[
+				gmTools.bool2subst(i['is_confidential'], _('CONFIDENTIAL'), u'', u''),
+				i['description'],
+				gmTools.bool2subst(i['clinically_relevant'], _('relevant'), u'', u''),
+				gmTools.bool2subst(i['is_active'], _('active'), u'', u''),
+				gmTools.bool2subst(i['is_cause_of_death'], _('fatal'), u'', u'')
+			] for i in issues
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = issues)
+	#-----------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the health issues !\n'),
+		caption = _('Showing health issues ...'),
+		columns = [u'', _('Health issue'), u'', u'', u''],
+		single_selection = False,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+	)
 #----------------------------------------------------------------
 class cIssueListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 
@@ -1602,23 +1859,41 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
-			queries = [u"""
-(select pk_health_issue, description, 1
-	from clin.v_health_issues where
-		is_active is true and
-		description %(fragment_condition)s and
+			queries = [
+u"""
+SELECT
+	data,
+	field_label,
+	list_label
+FROM ((
+	SELECT
+		pk_health_issue AS data,
+		description AS field_label,
+		description AS list_label
+	FROM clin.v_health_issues
+	WHERE
+		is_active IS true
+			AND
+		description %(fragment_condition)s
+			AND
 		%(ctxt_pat)s
-	order by description)
 
-union
+	) UNION (
 
-(select pk_health_issue, description || _(' (inactive)'), 2
-	from clin.v_health_issues where
-		is_active is false and
-		description %(fragment_condition)s and
+	SELECT
+		pk_health_issue AS data,
+		description AS field_label,
+		description || _(' (inactive)') AS list_label
+	FROM clin.v_health_issues
+	WHERE
+		is_active IS false
+			AND
+		description %(fragment_condition)s
+			AND
 		%(ctxt_pat)s
-	order by description)"""
-			],
+)) AS union_query
+ORDER BY
+	list_label"""],
 			context = ctxt
 		)
 
@@ -1654,24 +1929,31 @@ union
 		self.set_context('pat', self.__patient_id)
 		return True
 	#--------------------------------------------------------
-	def GetData(self, can_create=False, is_open=False):
-		if self.data is None:
-			if can_create:
-				issue_name = self.GetValue().strip()
+	def _create_data(self):
+		issue_name = self.GetValue().strip()
+		if issue_name == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create health issue without name.'), beep = True)
+			_log.debug('cannot create health issue without name')
+			return
 
-				if self.use_current_patient:
-					pat = gmPerson.gmCurrentPatient()
-				else:
-					pat = gmPerson.cPatient(aPK_obj=self.__patient_id)
-				emr = pat.get_emr()
+		if self.use_current_patient:
+			pat = gmPerson.gmCurrentPatient()
+		else:
+			pat = gmPerson.cPatient(aPK_obj = self.__patient_id)
 
-				issue = emr.add_health_issue(issue_name = issue_name)
-				if issue is None:
-					self.data = None
-				else:
-					self.data = issue['pk_health_issue']
+		emr = pat.get_emr()
+		issue = emr.add_health_issue(issue_name = issue_name)
 
-		return gmPhraseWheel.cPhraseWheel.GetData(self)
+		if issue is None:
+			self.data = {}
+		else:
+			self.SetText (
+				value = issue_name,
+				data = issue['pk_health_issue']
+			)
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1688,6 +1970,8 @@ union
 			self.set_context('pat', patient.ID)
 		return True
 #------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgIssueSelectionDlg
+
 class cIssueSelectionDlg(wxgIssueSelectionDlg.wxgIssueSelectionDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -1780,6 +2064,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._PRW_year_noted.Enable(True)
 
+		self._PRW_codes.add_callback_on_lose_focus(self._on_leave_codes)
+
 		self.data = issue
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
@@ -1817,8 +2103,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		issue['laterality'] = side
 
-		issue['summary'] = self._TCTRL_summary.GetValue().strip()
-		issue['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		issue['summary'] = self._TCTRL_status.GetValue().strip()
+		issue['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 		issue['grouping'] = self._PRW_grouping.GetValue().strip()
 		issue['is_active'] = self._ChBOX_active.GetValue()
 		issue['clinically_relevant'] = self._ChBOX_relevant.GetValue()
@@ -1830,6 +2116,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			issue['age_noted'] = age_noted
 
 		issue.save()
+
+		issue.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
 		self.data = issue
 		return True
@@ -1845,8 +2133,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			side += u'd'
 		self.data['laterality'] = side
 
-		self.data['summary'] = self._TCTRL_summary.GetValue().strip()
-		self.data['diagnostic_certainty_classification'] = self._PRW_classification.GetData()
+		self.data['summary'] = self._TCTRL_status.GetValue().strip()
+		self.data['diagnostic_certainty_classification'] = self._PRW_certainty.GetData()
 		self.data['grouping'] = self._PRW_grouping.GetValue().strip()
 		self.data['is_active'] = bool(self._ChBOX_active.GetValue())
 		self.data['clinically_relevant'] = bool(self._ChBOX_relevant.GetValue())
@@ -1858,22 +2146,23 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 			self.data['age_noted'] = age_noted
 
 		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
-		# FIXME: handle is_operation
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_condition.SetText()
 		self._ChBOX_left.SetValue(0)
 		self._ChBOX_right.SetValue(0)
-		self._PRW_classification.SetText()
+		self._PRW_codes.SetText()
+		self._on_leave_codes()
+		self._PRW_certainty.SetText()
 		self._PRW_grouping.SetText()
-		self._TCTRL_summary.SetValue(u'')
+		self._TCTRL_status.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
 		self._ChBOX_active.SetValue(0)
 		self._ChBOX_relevant.SetValue(1)
-		self._ChBOX_is_operation.SetValue(0)
 		self._ChBOX_confidential.SetValue(0)
 		self._ChBOX_caused_death.SetValue(0)
 
@@ -1892,9 +2181,14 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		else:
 			self._ChBOX_right.SetValue(1)
 
-		self._PRW_classification.SetData(data = self.data['diagnostic_certainty_classification'])
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
+		self._on_leave_codes()
+
+		if self.data['diagnostic_certainty_classification'] is not None:
+			self._PRW_certainty.SetData(data = self.data['diagnostic_certainty_classification'])
 		self._PRW_grouping.SetText(gmTools.coalesce(self.data['grouping'], u''))
-		self._TCTRL_summary.SetValue(gmTools.coalesce(self.data['summary'], u''))
+		self._TCTRL_status.SetValue(gmTools.coalesce(self.data['summary'], u''))
 
 		if self.data['age_noted'] is None:
 			self._PRW_age_noted.SetText()
@@ -1906,7 +2200,6 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		self._ChBOX_active.SetValue(self.data['is_active'])
 		self._ChBOX_relevant.SetValue(self.data['clinically_relevant'])
-		self._ChBOX_is_operation.SetValue(0)		# FIXME
 		self._ChBOX_confidential.SetValue(self.data['is_confidential'])
 		self._ChBOX_caused_death.SetValue(self.data['is_cause_of_death'])
 
@@ -1920,6 +2213,12 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		return self._refresh_as_new()
 	#--------------------------------------------------------
 	# internal helpers
+	#--------------------------------------------------------
+	def _on_leave_codes(self, *args, **kwargs):
+		if not self._PRW_codes.IsModified():
+			return True
+
+		self._TCTRL_code_details.SetValue(u'- ' + u'\n- '.join([ c['list_label'] for c in self._PRW_codes.GetData() ]))
 	#--------------------------------------------------------
 	def _on_leave_age_noted(self, *args, **kwargs):
 
@@ -2030,10 +2329,10 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_FixedList (
 			aSeq = [
-				{'data': u'A', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
-				{'data': u'B', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
-				{'data': u'C', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
-				{'data': u'D', 'label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
+				{'data': u'A', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'A'), 'weight': 1},
+				{'data': u'B', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'B'), 'weight': 1},
+				{'data': u'C', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'C'), 'weight': 1},
+				{'data': u'D', 'list_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'field_label': gmEMRStructItems.diagnostic_certainty_classification2str(u'D'), 'weight': 1}
 			]
 		)
 		mp.setThresholds(1, 2, 4)
@@ -2053,7 +2352,7 @@ if __name__ == '__main__':
 	class testapp (wx.App):
 			"""
 			Test application for testing EMR struct widgets
-			"""			
+			"""
 			#--------------------------------------------------------
 			def OnInit (self):
 				"""

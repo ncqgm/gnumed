@@ -13,7 +13,7 @@ def resultset_functional_batchgenerator(cursor, size=100):
 # =======================================================================
 __version__ = "$Revision: 1.127 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 ### imports ###
 # stdlib
@@ -24,7 +24,7 @@ import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logg
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
-from Gnumed.pycommon.gmTools import prompted_input
+from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character
 
 _log = logging.getLogger('gm.db')
 _log.info(__version__)
@@ -90,49 +90,56 @@ auto_request_login_params = True
 # =======================================================================
 
 known_schema_hashes = {
-	'devel': 'not released, testing only',
-	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
-	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
-	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
-	'v7': '6c9f6d3981483f8e9433df99d1947b27',
-	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
-	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
-	'v11': '03042ae24f3f92877d986fb0a6184d76',
-	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e',
-	'v14': 'e170d543f067d1ea60bfe9076b1560cf',
-	'v15': '70012ff960b77ecdff4981c94b5b55b6'
+	0: 'not released, testing only',
+	2: 'b09d50d7ed3f91ddf4c4ddb8ea507720',
+	3: 'e73718eaf230d8f1d2d01afa8462e176',
+	4: '4428ccf2e54c289136819e701bb095ea',
+	5: '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
+	6: '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
+	7: '6c9f6d3981483f8e9433df99d1947b27',
+	8: '89b13a7af83337c3aad153b717e52360',
+	9: '641a9b2be3c378ffc2bb2f0b1c9f051d',
+	10: '7ef42a8fb2bd929a2cdd0c63864b4e8a',
+	11: '03042ae24f3f92877d986fb0a6184d76',
+	12: '06183a6616db62257e22814007a8ed07',
+	13: 'fab7c1ae408a6530c47f9b5111a0841e',
+	14: 'e170d543f067d1ea60bfe9076b1560cf',
+	15: '70012ff960b77ecdff4981c94b5b55b6',
+	16: '0bcf44ca22c479b52976e5eda1de8161',
+	17: '161428ee97a00e3bf56168c3a15b7b50'
 }
 
 map_schema_hash2version = {
-	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
-	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
-	'4428ccf2e54c289136819e701bb095ea': 'v4',
-	'7e7b093af57aea48c288e76632a382e5': 'v5',
-	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
-	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
-	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
-	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
-	'03042ae24f3f92877d986fb0a6184d76': 'v11',
-	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13',
-	'e170d543f067d1ea60bfe9076b1560cf': 'v14',
-	'70012ff960b77ecdff4981c94b5b55b6': 'v15'
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 2,
+	'e73718eaf230d8f1d2d01afa8462e176': 3,
+	'4428ccf2e54c289136819e701bb095ea': 4,
+	'7e7b093af57aea48c288e76632a382e5': 5,
+	'90e2026ac2efd236da9c8608b8685b2d': 6,
+	'6c9f6d3981483f8e9433df99d1947b27': 7,
+	'89b13a7af83337c3aad153b717e52360': 8,
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 9,
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 10,
+	'03042ae24f3f92877d986fb0a6184d76': 11,
+	'06183a6616db62257e22814007a8ed07': 12,
+	'fab7c1ae408a6530c47f9b5111a0841e': 13,
+	'e170d543f067d1ea60bfe9076b1560cf': 14,
+	'70012ff960b77ecdff4981c94b5b55b6': 15,
+	'0bcf44ca22c479b52976e5eda1de8161': 16,
+	'161428ee97a00e3bf56168c3a15b7b50': 17
 }
 
 map_client_branch2required_db_version = {
-	u'GIT tree': u'devel',
-	u'0.3': u'v9',
-	u'0.4': u'v10',
-	u'0.5': u'v11',
-	u'0.6': u'v12',
-	u'0.7': u'v13',
-	u'0.8': u'v14',
-	u'0.9': u'v15'
+	u'GIT tree': 0,
+	u'0.3': 9,
+	u'0.4': 10,
+	u'0.5': 11,
+	u'0.6': 12,
+	u'0.7': 13,
+	u'0.8': 14,
+	u'0.9': 15,
+	u'1.0': 16,		# intentionally duplicate with 1.1
+	u'1.1': 16,
+	u'1.2': 17
 }
 
 # get columns and data types for a given table
@@ -315,7 +322,7 @@ def __request_login_params_tui():
 	print "\nPlease enter the required login parameters:"
 	try:
 		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
-		login.database = prompted_input(prompt = "database", default = 'gnumed_v15')
+		login.database = prompted_input(prompt = "database", default = 'gnumed_v17')
 		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
@@ -425,8 +432,15 @@ def set_default_login(login=None):
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
 
 	global _default_dsn
+	if _default_dsn is None:
+		old_dsn = u'None'
+	else:
+		old_dsn = regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, _default_dsn)
+	_log.info ('setting default DSN from [%s] to [%s]',
+		old_dsn,
+		regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, dsn)
+	)
 	_default_dsn = dsn
-	_log.info('setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
 	return True
 # =======================================================================
@@ -434,10 +448,10 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
-	if version == 'devel':
-		args = {'ver': '9999'}
+	if version == 0:
+		args = {'ver': 9999}
 	else:
-		args = {'ver': version.strip('v')}
+		args = {'ver': version}
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [{
@@ -470,6 +484,10 @@ def get_schema_version(link_obj=None):
 def get_schema_structure(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def get_schema_hash(link_obj=None):
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
+	return rows[0]['md5']
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
 	cmd = u"""
@@ -561,6 +579,12 @@ where
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
 #------------------------------------------------------------------------
+def schema_exists(link_obj=None, schema=u'gm'):
+	cmd = u"""SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
+	args = {'schema': schema}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+#------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
 	cmd = u"""
@@ -626,7 +650,8 @@ def export_translations_from_database(filename=None):
 	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
 	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
 	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
-	tx_file.write(u'set default_transaction_read_only to off\n\n')
+	tx_file.write(u'set default_transaction_read_only to off;\n\n')
+	tx_file.write(u"set client_encoding to 'utf-8';\n\n")
 	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
 
 	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
@@ -812,7 +837,7 @@ def expand_keyword(keyword = None):
 	if keyword == u'$$steffi':
 		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
-	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
+	cmd = u"""SELECT expansion FROM clin.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:
@@ -837,9 +862,9 @@ def get_keyword_expansion_candidates(keyword = None):
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
 	if public:
-		cmd = u"select 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
 	else:
-		cmd = u"select 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
 
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 	if len(rows) != 0:
@@ -852,7 +877,7 @@ values (%(kwd)s, %(exp)s, null)"""
 	else:
 		cmd = u"""
 insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
+values (%(kwd)s, %(exp)s, (SELECT pk from dem.staff where db_user = current_user))"""
 
 	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
 
@@ -865,7 +890,7 @@ def delete_text_expansion(keyword):
 	cmd = u"""
 delete from clin.keyword_expansion where
 	keyword = %(kwd)s and (
-		(fk_staff = (select pk from dem.staff where db_user = current_user))
+		(fk_staff = (SELECT pk from dem.staff where db_user = current_user))
 			or
 		(fk_staff is null and owner = current_user)
 	)"""
@@ -877,17 +902,24 @@ delete from clin.keyword_expansion where
 def edit_text_expansion(keyword, expansion):
 
 	cmd1 = u"""
-delete from clin.keyword_expansion where
-	keyword = %(kwd)s and 
-	fk_staff = (select pk from dem.staff where db_user = current_user)"""
+		DELETE FROM clin.keyword_expansion
+		WHERE
+			keyword = %(kwd)s
+				AND
+			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
 
 	cmd2 = u"""
-insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
-
+		INSERT INTO clin.keyword_expansion (
+			keyword, expansion, fk_staff
+		) VALUES (
+			%(kwd)s,
+			%(exp)s,
+			(SELECT pk FROM dem.staff WHERE db_user = current_user)
+		)"""
+	args = {'kwd': keyword, 'exp': expansion}
 	rows, idx = run_rw_queries(queries = [
-		{'cmd': cmd1, 'args': {'kwd': keyword}},
-		{'cmd': cmd2, 'args': {'kwd': keyword, 'exp': expansion}},
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args},
 	])
 
 	global text_expansion_keywords
@@ -904,12 +936,12 @@ def send_maintenance_shutdown():
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
-	cmd = u'select %(candidate)s::interval'
+	cmd = u'SELECT %(candidate)s::interval'
 	try:
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		return True
 	except:
-		cmd = u'select %(candidate)s::text::interval'
+		cmd = u'SELECT %(candidate)s::text::interval'
 		try:
 			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 			return True
@@ -984,7 +1016,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	try:
 		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
 	except dbapi.ProgrammingError:
-		_log.debug('failed to set bytea_output to "escacpe", not necessary')
+		_log.debug('failed to set bytea_output to "escape", not necessary')
 
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
@@ -1161,7 +1193,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		is a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
 		to be executed as a single transaction, the last
 		query may usefully return rows (such as a
-		"select currval('some_sequence')" statement)
+		"SELECT currval('some_sequence')" statement)
 
 	<end_tx>
 		- controls whether the transaction is finalized (eg.
@@ -1385,16 +1417,18 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
-		curs.execute ("""
-			select
-				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
-			from pg_settings
-			where name='server_version'"""
-		)
+		curs.execute("""
+			SELECT
+				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
+			FROM
+				pg_settings
+			WHERE
+				name = 'server_version'
+		""")
 		postgresql_version = curs.fetchone()['version']
 		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
 		try:
-			curs.execute("select pg_size_pretty(pg_database_size(current_database()))")
+			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
 			_log.info('database size: %s', curs.fetchone()[0])
 		except:
 			pass
@@ -1473,35 +1507,17 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	# - transaction isolation level
 	if readonly:
-		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 		iso_level = u'read committed'
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
 		iso_level = u'serializable'
 
-	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s], datestyle [ISO], sql_inheritance [ON]', encoding, iso_level, _default_client_timezone)
+	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s]', encoding, iso_level, _default_client_timezone)
 
 	curs = conn.cursor()
 
 	# - client time zone
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
-
-	# - datestyle
-	# regarding DMY/YMD handling: since we force *input* to
-	# ISO, too, the DMY/YMD setting is not needed
-	cmd = "set datestyle to 'ISO'"
-	curs.execute(cmd)
-
-	# - SQL inheritance mode
-	cmd = 'set sql_inheritance to on'
-	curs.execute(cmd)
-
-	# - version string
-	global postgresql_version_string
-	if postgresql_version_string is None:
-		curs.execute('select version()')
-		postgresql_version_string = curs.fetchone()['version']
-		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
 
 	conn.commit()
 
@@ -1558,7 +1574,7 @@ def sanity_check_time_skew(tolerance=60):
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 
-	cmd = u"select now() at time zone 'UTC'"
+	cmd = u"SELECT now() at time zone 'UTC'"
 	conn = get_raw_connection(readonly=True)
 	curs = conn.cursor()
 
@@ -1603,16 +1619,30 @@ def sanity_check_database_settings():
 		2: fatal problem
 	"""
 	_log.debug('checking database settings')
-	settings = {
+
+	conn = get_connection()
+
+	# - version string
+	global postgresql_version_string
+	if postgresql_version_string is None:
+		curs = conn.cursor()
+		curs.execute('SELECT version()')
+		postgresql_version_string = curs.fetchone()['version']
+		curs.close()
+		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
+
+	options2check = {
 		# setting: [expected value, risk, fatal?]
 		u'allow_system_table_mods': [u'off', u'system breakage', False],
 		u'check_function_bodies': [u'on', u'suboptimal error detection', False],
+		u'datestyle': [u'ISO', u'faulty timestamp parsing', True],
+		u'default_transaction_isolation': [u'read committed', u'faulty database reads', True],
 		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
+		u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
@@ -1620,32 +1650,41 @@ def sanity_check_database_settings():
 	from Gnumed.pycommon import gmCfg2
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = u'hipaa'):
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
 	else:
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
 
-	cmd = u"select name, setting from pg_settings where name in %(settings)s"
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
+	cmd = u"SELECT name, setting from pg_settings where name in %(settings)s"
+	rows, idx = run_ro_queries (
+		link_obj = conn,
+		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
+		get_col_idx = False
+	)
 
 	found_error = False
 	found_problem = False
 	msg = []
 	for row in rows:
-		if row[1] != settings[row[0]][0]:
-			if settings[row[0]][2] is True:
+		option = row['name']
+		value_found = row['setting']
+		value_expected = options2check[option][0]
+		risk = options2check[option][1]
+		fatal_setting = options2check[option][2]
+		if value_found != value_expected:
+			if fatal_setting is True:
 				found_error = True
-			elif settings[row[0]][2] is False:
+			elif fatal_setting is False:
 				found_problem = True
-			elif settings[row[0]][2] is None:
+			elif fatal_setting is None:
 				pass
 			else:
-				_log.error(settings[row[0]])
+				_log.error(options2check[option])
 				raise ValueError(u'invalid database configuration sanity check')
-			msg.append(_(' option [%s]: %s') % (row[0], row[1]))
-			msg.append(_('  risk: %s') % settings[row[0]][1])
-			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+			msg.append(_(' option [%s]: %s') % (option, value_found))
+			msg.append(_('  risk: %s') % risk)
+			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (option, value_found, value_expected, risk))
 
 	if found_error:
 		return 2, u'\n'.join(msg)
@@ -1726,26 +1765,26 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
-# remove for 0.9
-# ----------------------------------------------------------------------
-#class cAdapterMxDateTime(object):
-#
-#	def __init__(self, dt):
-#		if dt.tz == '???':
-#			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-#		self.__dt = dt
-#
-#	def getquoted(self):
-#		# under some locale settings the mx.DateTime ISO formatter
-#		# will insert "," into the ISO string,
-#		# while this is allowed per the ISO8601 spec PostgreSQL
-#		# cannot currently handle that,
-#		# so map those "," to "." to make things work:
-#		return mxDT.ISO.str(self.__dt).replace(',', '.')
-#
-# ----------------------------------------------------------------------
-# PostgreSQL -> Python
-# ----------------------------------------------------------------------
+## remove for 0.9
+## ----------------------------------------------------------------------
+##class cAdapterMxDateTime(object):
+##
+##	def __init__(self, dt):
+##		if dt.tz == '???':
+##			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+##		self.__dt = dt
+##
+##	def getquoted(self):
+##		# under some locale settings the mx.DateTime ISO formatter
+##		# will insert "," into the ISO string,
+##		# while this is allowed per the ISO8601 spec PostgreSQL
+##		# cannot currently handle that,
+##		# so map those "," to "." to make things work:
+##		return mxDT.ISO.str(self.__dt).replace(',', '.')
+##
+## ----------------------------------------------------------------------
+## PostgreSQL -> Python
+## ----------------------------------------------------------------------
 
 #=======================================================================
 #  main
@@ -1761,15 +1800,15 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 
-# remove for 0.9
-try:
-	import mx.DateTime as mxDT
-#	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-except ImportError:
-	_log.warning('cannot import mx.DateTime')
+## remove for 0.9
+#try:
+#	import mx.DateTime as mxDT
+##	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#except ImportError:
+#	_log.warning('cannot import mx.DateTime')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY()..." so we can support PG arrays
+# them adapted to "... ARRAY[]..." so we can support PG arrays
 
 #=======================================================================
 if __name__ == "__main__":
@@ -1886,20 +1925,20 @@ if __name__ == "__main__":
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True)
 		print data
 		print idx
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
@@ -1996,7 +2035,7 @@ if __name__ == "__main__":
 		dsn = get_default_dsn()
 		conn = get_connection(dsn, readonly=True)
 		curs = conn.cursor()
-		curs.execute('select * from clin.clin_narrative where narrative = %s', ['a'])
+		curs.execute('SELECT * from clin.clin_narrative where narrative = %s', ['a'])
 	#--------------------------------------------------------------------
 	def test_sanitize_pg_regex():
 		tests = [
@@ -2091,11 +2130,15 @@ if __name__ == "__main__":
 	def test_run_query():
 		gmDateTime.init()
 		args = {'dt': gmDateTime.pydt_max_here()}
-		cmd = u"select %(dt)s"
+		cmd = u"SELECT %(dt)s"
 
-		#cmd = u"select 'infinity'::timestamp with time zone"
+		#cmd = u"SELECT 'infinity'::timestamp with time zone"
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		print rows
+	#--------------------------------------------------------------------
+	def test_schema_exists():
+		print schema_exists()
+
 	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
@@ -2113,6 +2156,7 @@ if __name__ == "__main__":
 	#test_get_foreign_key_details()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
-	test_run_query()
+	#test_run_query()
+	test_schema_exists()
 
 # ======================================================================

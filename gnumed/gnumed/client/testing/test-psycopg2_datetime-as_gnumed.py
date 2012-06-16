@@ -2,7 +2,7 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2_datetime-as_gnumed.py,v $
 __version__ = "$Revision: 1.3 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 # =======================================================================
 import sys, logging
 sys.path.insert(0, '../../')

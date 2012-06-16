@@ -3,7 +3,7 @@
 
 http://loinc.org
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.7 $"
@@ -14,7 +14,8 @@ import sys, codecs, logging, csv
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmTools
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.loinc')
@@ -30,39 +31,42 @@ name_short = u'LOINC'
 loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
 
 #============================================================
-def loinc2info(loinc=None):
+def loinc2term(loinc=None):
 
+	# NOTE: will return [NULL] on no-match due to the coalesce()
 	cmd = u"""
-select coalesce (
-	(select term
-	from ref.v_coded_terms
-	where
+SELECT coalesce (
+	(SELECT term
+	FROM ref.v_coded_terms
+	WHERE
 		coding_system = 'LOINC'
-			and
+			AND
 		code = %(loinc)s
-			and
+			AND
 		lang = i18n.get_curr_lang()
 	),
-	(select term
-	from ref.v_coded_terms
-	where
+	(SELECT term
+	FROM ref.v_coded_terms
+	WHERE
 		coding_system = 'LOINC'
-			and
+			AND
 		code = %(loinc)s
-			and
+			AND
 		lang = 'en_EN'
 	),
-	(select term
-	from ref.v_coded_terms
-	where
+	(SELECT term
+	FROM ref.v_coded_terms
+	WHERE
 		coding_system = 'LOINC'
-			and
+			AND
 		code = %(loinc)s
 	)
-)
-"""
+)"""
 	args = {'loinc': loinc}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if rows[0][0] is None:
+		return []
 
 	return [ r[0] for r in rows ]
 #============================================================
@@ -134,11 +138,11 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# create data source record
 	queries = [{
-		'cmd': u"""delete from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
+		'cmd': u"""DELETE FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s""",
 		'args': args
 	}, {
 		'cmd': u"""
-insert into ref.data_source (name_long, name_short, version, description, lang, source) values (
+INSERT INTO ref.data_source (name_long, name_short, version, description, lang, source) values (
 	%(name_long)s,
 	%(name_short)s,
 	%(ver)s,
@@ -148,7 +152,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 )""",
 		'args': args
 	}, {
-		'cmd': u"""select pk from ref.data_source where name_short = %(name_short)s and version = %(ver)s""",
+		'cmd': u"""SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s""",
 		'args': args
 	}]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
@@ -161,7 +165,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""delete from ref.loinc_staging"""
+	cmd = u"""DELETE FROM ref.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -169,7 +173,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# from file into staging table
 	curs = conn.cursor()
-	cmd = u"""insert into ref.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
+	cmd = u"""INSERT INTO ref.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
 	first = False
 	for loinc_line in loinc_reader:
 		if not first:
@@ -185,7 +189,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	curs = conn.cursor()
 	args = {'src_pk': data_src_pk}
 	cmd = u"""
-insert into ref.loinc (
+INSERT INTO ref.loinc (
 	fk_data_source,
 
 	term,
@@ -238,7 +242,7 @@ insert into ref.loinc (
 	long_common_name
 )
 
-select
+SELECT
 
 	%(src_pk)s,
 
@@ -301,7 +305,7 @@ select
 	nullif(inpc_percentage, ''),
 	nullif(long_common_name, '')
 
-from
+FROM
 	ref.loinc_staging
 """
 
@@ -313,7 +317,7 @@ from
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""delete from ref.loinc_staging"""
+	cmd = u"""DELETE FROM ref.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -325,6 +329,12 @@ from
 #------------------------------------------------------------
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
 
@@ -333,13 +343,17 @@ if __name__ == "__main__":
 
 	#--------------------------------------------------------
 	def test_loinc_split():
-		split_LOINCDBTXT(input_fname = sys.argv[2])
+		print split_LOINCDBTXT(input_fname = sys.argv[2])
 	#--------------------------------------------------------
 	def test_loinc_import():
 		loinc_import(version = '2.26')
 	#--------------------------------------------------------
-	if (len(sys.argv)) > 1 and (sys.argv[1] == 'test'):
-		#test_loinc_split()
-		test_loinc_import()
+	def test_loinc2term():
+		term = loinc2term(sys.argv[2])
+		print sys.argv[2], '->', term
+	#--------------------------------------------------------
+	test_loinc_split()
+	#test_loinc_import()
+	#test_loinc2term()
 
 #============================================================

@@ -3,18 +3,16 @@
 # enough functionality to run gnumed installation scripts
 #
 # Copyright (C) 2003, 2004 - 2010 GNUmed developers
-# Licence: GPL
+# Licence: GPL v2 or later
 #===================================================================
-__version__ = "$Revision: 1.10 $"
 __author__ = "Ian Haywood"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import sys, os, string, re, urllib2, logging
 
 
 _log = logging.getLogger('gm.bootstrapper')
-_log.info(__version__)
 
 unformattable_error_id = 12345
 #===================================================================

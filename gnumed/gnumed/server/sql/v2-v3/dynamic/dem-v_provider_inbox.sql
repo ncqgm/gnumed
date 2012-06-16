@@ -7,7 +7,7 @@
 -- What it does:
 -- - fix dem.v_provider_inbox
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================

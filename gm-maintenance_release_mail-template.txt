@@ -1,0 +1,58 @@
+
+Hello all,
+
+I am glad to be able to announce the immediate availability
+of the GNUmed xx.x.x Maintenance Release. It features the
+following bug fixes and minor improvements:
+
+Changelog:
+
+	xx replace with CHANGELOG xx
+
+
+Downloads available from:
+
+	http://www.gnumed.de/downloads/client/xx.x/
+	http://www.gnumed.de/downloads/server/vxx/
+
+
+Client installation:
+
+ Easily installable packages for your platform of choice
+ will be available shortly.
+
+ Meanwhile you can run the client from a downloaded tarball
+ or use the net based client installer:
+
+	http://www.gnumed.de/downloads/client/gm-install_client_locally.sh
+
+ which you need to download, make executable, and run.
+
+ More information available here:
+
+	http://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
+
+
+Database installation / upgrade:
+
+ Note that this release, as usual, does NOT require a
+ database upgrade. However, fixes to the database may
+ have been provided which you can (and should) install
+ with either
+
+	$> gm-fixup_server XX
+
+ or
+
+	$> cd .../server/bootstrap/
+	$> ./fixup-db.sh XX
+
+ Related information is found here:
+
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
+
+
+Please download, install, and report problems !
+
+Thanks,
+Karsten

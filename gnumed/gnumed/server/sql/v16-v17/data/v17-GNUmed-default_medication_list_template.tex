@@ -1,0 +1,100 @@
+%------------------------------------------------------------------
+% Author: Karsten Hilbert
+% License: GPL v2 or later
+%------------------------------------------------------------------
+
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{hyperref}
+\usepackage{ragged2e}
+\usepackage{tabularx}
+%\usepackage{ucs}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,lmargin=2.54cm}
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\makeatother
+
+\usepackage{babel}
+
+\begin{document}
+
+\footnotetext {\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Template: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+\noindent \begin{center}
+{\LARGE Current Medication List}%
+\par\end{center}
+
+\noindent \begin{center}
+{\large Printed: $<today::%Y %B %d>$}
+\par\end{center}{\large \par}
+
+\noindent \begin{center}
+{\large Provider: $<current_provider>$}
+\par\end{center}{\large \par}
+
+\noindent Patient: $<lastname>$, $<firstname>$
+
+\noindent Birthdate: $<date_of_birth::%Y %B %d>$
+
+{\footnotesize
+	$<adr_street::home>$ $<adr_number::home>$ \\
+	$<adr_postcode::home>$ $<adr_location::home>$
+}
+
+
+\vspace*{\medskipamount}
+
+%------------------------------------------------------------------
+$<current_meds_table::latex>$
+
+$<current_meds_notes::latex>$
+
+%------------------------------------------------------------------
+$<free_text::tex//Medication notes to the patient::9999>$
+%------------------------------------------------------------------
+
+% uncomment, if and as needed, the next lines to append text below the table
+%{\footnotesize			% start smaller font
+% <any line(s) of info you wish to be printed immediately below the table>
+%}						% end smaller font
+%------------------------------------------------------------------
+
+\vfill{}
+
+%------------------------------------------------------------------
+\noindent Allergies:
+
+\noindent $<allergy_state>$
+
+\noindent \begin{tabularx}{\textwidth}{|l|l|X|}
+\hline 
+Agent & Type & Reaction\tabularnewline
+\hline
+\hline
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline>$
+\end{tabularx}
+%------------------------------------------------------------------
+
+\medskip{}
+
+
+\noindent \begin{flushright}
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+\end{document}
+
+%------------------------------------------------------------------

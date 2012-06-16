@@ -4,7 +4,7 @@
 -- Source database version: v5
 -- Target database version: v6
 --
--- License: GPLv2
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

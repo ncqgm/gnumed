@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# license: GPL
+# license: GPL v2 or later
 # author: Karsten.Hilbert@gmx.net
 
-DB_LIST="gnumed_v14 gnumed_v15"
+DB_LIST="gnumed_v16 gnumed_v17 gnumed_v18"
 #DB_LIST="$1"
 
 export PGUSER="gm-dbo"
@@ -23,5 +23,5 @@ for DB in ${DB_LIST} ; do
 
 done
 
-ln -s ~/gm-schemadocs/gnumed_v15 ~/gm-schemadocs/release
-ln -s ~/gm-schemadocs/gnumed_v16 ~/gm-schemadocs/devel
+ln -s ~/gm-schemadocs/gnumed_v17 ~/gm-schemadocs/release
+ln -s ~/gm-schemadocs/gnumed_v18 ~/gm-schemadocs/devel

@@ -1,0 +1,144 @@
+% ----------------------------------------------------------------------
+% Author: Christoph Becker, Karsten Hilbert
+% License: GPL v2 or later
+%
+% **********************************************************************
+% ************   WARNING   *********************************************
+% **********************************************************************
+%
+% Note that the German legal situation DOES NOT ALLOW you to print
+% prescriptions for "Kassenpatienten" with this GNUmed form template.
+%
+% **********************************************************************
+% **********************************************************************
+
+\documentclass[10pt,german]{letter}
+
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage{babel}
+\usepackage[a4paper]{geometry}
+\geometry{verbose}
+
+% define page dimensions as needed
+\pagestyle{empty}
+\oddsidemargin 64mm		% (90mm vom linken Papierrand - 1 Inch LaTeX-Festrand links - 1mm Druckerrand)
+\topmargin 27mm			% (52mm vom oberen Papierrand - 1 Inch LaTeX-Festrand oben)
+\headheight 0mm
+\headsep 0mm
+\topskip 0mm
+\footskip 0mm
+%\textwidth146mm
+%\textheight104mm
+%\paperwidth148mm
+%\paperheight105mm
+
+% define where to put stuff
+\newcount\ganzlinks
+%\newcount\stempeloffsetx
+%\newcount\stempeloffsety
+
+\begin{document}
+\setlength{\unitlength}{1mm}
+
+% x-Koordinate tut nichts zur Sache (weil \oddsidemargin sie definiert)
+% y-Koordinate schiebt d. 'Bild' nach unten
+\begin{picture}(0,0)
+
+\ganzlinks=-80			% 80mm links der rechten unteren Ecke des Stammdatenkastens
+
+% for debugging:
+%\put(0,0){.+ (0,0)} % Ursprungskoordinate (rechte untere Ecke KVK-Datenblock)
+%\put(0,-47){.+ (0,-47)}
+%\put(\ganzlinks,0){.+ (-80,0)}
+%\put(\ganzlinks,-47){.+ (-80,-47)}
+
+%----- KVK-Daten -----------
+%\put(\ganzlinks,38){\texttt{*KVKKrankenkasse*}}
+\put(\ganzlinks,30){\texttt{$<name::%(lastnames)s, %(firstnames)s::50>$}}
+\put(-20,25){\texttt{$<date_of_birth::%d.%m.%Y::10>$}}
+\put(\ganzlinks,25){\texttt{$<adr_street::home::25>$ $<adr_number::home::5>$}}
+\put(\ganzlinks,20){\texttt{$<adr_postcode::home::5>$ $<adr_location::home::30>$}}
+%\put(\ganzlinks,10){\texttt{*KVKKassenNr*}}
+%\put(-56,10){\texttt{*KVKVersichertenNr*}}
+%\put(-22,10){\texttt{*KVKStatus*}}
+%\put(\ganzlinks,2){\texttt{*KVKZa-KZVNr*}}
+%\put(-49,2){\texttt{*KVKVKgueltigbis*}}
+\put(-24,2){\texttt{$<today::%d.%m.%Y::10>$}}
+%----- KVK-Daten -----------
+
+
+\put(\ganzlinks,-10){$<free_text::tex//Freier Formulareintrag::9999>$}
+
+
+%----- Stempel ---------------
+% da dieser in verschiedenen Forumularen an verschiedenen Stellen
+% gesetzt wird, wird hier mit einem Offset gearbeitet:
+% -> nur der Offset ist anzupassen
+%\stempeloffsetx=17
+%\stempeloffsety=-10
+
+%\put(\stempeloffsetx,\stempeloffsety){\Large*KZVNr*}
+%\advance\stempeloffsetx by 22 \advance\stempeloffsety by 3
+%\put(\stempeloffsetx,\stempeloffsety){\scriptsize KZV}
+%\advance\stempeloffsety by -3
+%\put(\stempeloffsetx,\stempeloffsety){\small*Kobl-Tr*}
+%\advance\stempeloffsetx by -22 \advance\stempeloffsety by -5
+%\put(\stempeloffsetx,\stempeloffsety){\normalsize*Zahnarzt*}
+%\advance\stempeloffsety by -5
+%\put(\stempeloffsetx,\stempeloffsety){\normalsize*Zahnarztname*}
+%\advance\stempeloffsety by -5
+%\put(\stempeloffsetx,\stempeloffsety){\normalsize*ZahnarztStrasse*}
+%\advance\stempeloffsety by -5
+%\put(\stempeloffsetx,\stempeloffsety){\normalsize*ZahnarztPlZOrt*}
+%----- Stempel ---------------
+
+\end{picture}
+
+\end{document}
+
+
+% ----------------------------------------------------------------------
+% This file is *heavily* based on work by:
+%
+% Christoph Becker (Dauner Str. 21, 53539 Kelberg, Germany, cgbecker@gmx.de)
+%
+% contributed to GNUmed on 4. Febr. 2005 
+%
+% Prinzip:
+%
+% Das gesamte Dokument besteht nur aus EINEM Bild (d.h. einer
+% 'picture'-Umgebung).
+%
+% Alle Felder des Formulars werden als Bildelemente vom Typ Text
+% platziert (Siehe Helmut Kopka, Latex - Eine Einfuehrung, Bd 1,
+% Kap. 6, Bilder) und zwar relativ, bezogen auf die Ursprungs-
+% koordinate des Bildes. Als Ursprungskoordinate wird die rechte
+% untere Ecke des Rahmens mit den Versichertenkartendaten
+% (Formularkopf) verwendet.
+%
+% Diese Ursprungskoordinate kann nicht an einem Papierrand liegen, weil
+% LaTeX einen Seitenrand von 0 ignoriert. Daher ist es besser, bei
+% Formularen einen leicht erkennbaren Ursprungspunkt im Formular zu
+% benutzen. Die Bildgroesse kann (0,0) sein.
+%
+% Der KZV- bzw. KV-Stempel wird mit einem Offset eingestellt, hier:
+%
+% \newcount\stempeloffsetx \stempeloffsetx=20
+% \newcount\stempeloffsety \stempeloffsety=-10
+%
+% Dadurch kann der 'Stempel' durch einfaches Kopieren auch in andere
+% Kassenformulare uebernommen werden (AU, HKP usw.). Es muss dann
+% lediglich der Offset geaendert werden.
+%
+% Das Formular wurde ursprünglich auf einem EPSON 630 LQ-Nadeldrucker
+% unter Windows XP mit TeXnicCenter entwickelt. Wenn sich auf einem
+% anderen Drucker oder unter Linux zeigt, dass die 
+% Ursprungskoordinate nicht stimmt, so kann diese ueber
+%
+%	\oddsidemargin
+%	\topmargin
+%
+% angepasst werden.
+% ----------------------------------------------------------------------

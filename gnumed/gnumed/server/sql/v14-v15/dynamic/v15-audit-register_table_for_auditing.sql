@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
@@ -70,7 +70,7 @@ create function audit.add_table_for_audit(name, name)
 create function audit.add_table_for_audit(name)
 	returns boolean
 	language SQL
-	as 'select audit.register_table_for_auditing(\'public\', $1);'
+	as E'select audit.register_table_for_auditing(''public'', $1);'
 ;
 
 -- --------------------------------------------------------------

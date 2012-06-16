@@ -7,7 +7,7 @@
 -- What it does:
 -- - create schema "ref"
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

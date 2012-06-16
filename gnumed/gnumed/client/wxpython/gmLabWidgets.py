@@ -19,7 +19,7 @@ import wx.lib.mixins.listctrl as listmixins
 
 
 from Gnumed.pycommon import gmI18N, gmPG2, gmCfg, gmExceptions, gmMatchProvider, gmDispatcher
-from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
+from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
 _log = gmLog.gmDefLog
@@ -119,7 +119,7 @@ class cLabReviewGrid(wx.Grid):
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
-			select pk, internal_name
+			select pk, internal_OBSOLETE_name
 			from test_org
 			"""
 		mp = gmMatchProvider.cMatchProvider_SQL2([query])
@@ -515,7 +515,7 @@ class cLabJournalNB(wx.Notebook):
 	#------------------------------------------------------------------------
 	def __get_labname(self, data):
 		# FIXME: eventually, this will be done via a cOrg value object class
-		query= """select internal_name from test_org where pk=%s"""
+		query= """select internal_OBSOLETE_name from test_org where pk=%s"""
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
 
@@ -621,10 +621,10 @@ class cLabJournalNB(wx.Notebook):
 			gmGuiHelpers.beep_status_text(_('No results marked as reviewed.'))
 			event.Skip()
 			return None
-		
+
 		for result in reviewed_results:
 			result['reviewed'] = 'true'
-			result['pk_reviewer'] = gmPerson.gmCurrentProvider()['pk_staff']
+			result['pk_reviewer'] = gmStaff.gmCurrentProvider()['pk_staff']
 			if not result['abnormal']:
 				result['abnormal'] = ''
 			successfull, error = result.save_payload()
@@ -638,7 +638,7 @@ class cLabJournalNB(wx.Notebook):
 					aTitle = _('update result status')
 				)
 				return None
-			
+
 		event.Skip()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):

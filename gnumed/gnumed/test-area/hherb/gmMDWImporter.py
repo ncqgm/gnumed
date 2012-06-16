@@ -1,11 +1,6 @@
 #!/usr/bin/python
 #
 #Copyright: Dr. Horst Herb <hherb@gnumed.net>
-#This source code is protected by the GPL licensing scheme.
-#Details regarding the GPL are available at http://www.gnu.org
-#You may use and share it as long as you don't deny this right
-#to anybody else.
-#This software is free software by the terms of the GPL license
 
 """This script imports demographic data from a MDW
 (Medical Drirector for Windows (R)) database table
@@ -17,7 +12,7 @@ The imported table is usually named PATIENTS.DBF."""
 
 __version__ = "$Revision: 1.1 $"
 __author__ = "Dr. Horst Herb <hherb@gnumed.net>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 __copyright__ = __author__
 
 #standard modules

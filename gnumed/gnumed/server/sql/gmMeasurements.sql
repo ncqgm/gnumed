@@ -1,10 +1,8 @@
--- GnuMed - test/measurement related tables
+-- GNUmed - test/measurement related tables
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- author: Christof Meigen <christof@nicht-ich.de>
--- license: GPL
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmMeasurements.sql,v $
--- $Revision: 1.58 $
+-- license: GPL v2 or later
 
 -- this belongs into the clinical service (historica)
 -- ===================================================================
@@ -90,7 +88,7 @@ comment on column clin.test_type.code is
 comment on column clin.test_type.coding_system is
 	'identifier of coding system that the code of this
 	 measurement type is taken from, should be verifiable
-	 against the "reference" service of GnuMed';
+	 against the "reference" service of GNUmed';
 comment on column clin.test_type.name is
 	'descriptive name of this measurement type,
 	 HL7: OBX.observation_identifier';

@@ -4,7 +4,7 @@ __doc__ = """GNUmed internetworking tools."""
 #===========================================================================
 __version__ = "$Revision: 1.98 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
 import sys
@@ -17,6 +17,7 @@ import mimetypes
 import mimetools
 import StringIO
 import zipfile
+import webbrowser
 
 
 # GNUmed libs
@@ -29,10 +30,23 @@ from Gnumed.pycommon import gmCfg2
 
 
 _log = logging.getLogger('gm.net')
+
 #===========================================================================
-def download_data_pack(url, filename=None):
+# browser access
+#---------------------------------------------------------------------------
+def open_url_in_browser(url, new=2, autoraise=True, *args, **kwargs):
+	# url, new=0, autoraise=True
+	try:
+		webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
+	except (webbrowser.Error, OSError):
+		_log.exception('error calling browser')
+		return False
+	return True
+#===========================================================================
+def download_file(url, filename=None, suffix=None):
+
 	if filename is None:
-		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = 'zip')
+		filename = gmTools.get_unique_filename(prefix = 'gm-dl-', suffix = suffix)
 	_log.debug('downloading [%s] into [%s]', url, filename)
 
 	try:
@@ -44,6 +58,31 @@ def download_data_pack(url, filename=None):
 
 	_log.debug(u'%s' % headers)
 	return dl_name
+#===========================================================================
+# data pack handling
+#---------------------------------------------------------------------------
+def download_data_packs_list(url, filename=None):
+	return download_file(url, filename = filename, suffix = 'conf')
+#---------------------------------------------------------------------------
+def download_data_pack(pack_url, filename=None, md5_url=None):
+
+	_log.debug('downloading data pack from: %s', pack_url)
+	dp_fname = download_file(pack_url, filename = filename, suffix = 'zip')
+	_log.debug('downloading MD5 from: %s', md5_url)
+	md5_fname = download_file(md5_url, filename = dp_fname + u'.md5')
+
+	md5_file = open(md5_fname, 'rU')
+	md5_expected = md5_file.readline().strip('\n')
+	md5_file.close()
+	_log.debug('expected MD5: %s', md5_expected)
+	md5_calculated = gmTools.file2md5(dp_fname, return_hex = True)
+	_log.debug('calculated MD5: %s', md5_calculated)
+
+	if md5_calculated != md5_expected:
+		_log.error('mismatch of expected vs calculated MD5: [%s] vs [%s]', md5_expected, md5_calculated)
+		return (False, (md5_expected, md5_calculated))
+
+	return True, dp_fname
 #---------------------------------------------------------------------------
 def unzip_data_pack(filename=None):
 
@@ -60,30 +99,21 @@ def unzip_data_pack(filename=None):
 	data_pack.extractall(unzip_dir)
 
 	return unzip_dir
-#===========================================================================
-#def md5():
-#
-#	if md5 is not None:
-#		_log.debug('  expected md5: %s', md5)
-#		try:
-#			file_md5 = gmTools.file2md5(filename = filename, return_hex = True)
-#			_log.info('[%s] exists', filename)
-#			_log.debug('calculated md5: %s', file_md5)
-#		except:
-#			_log.exception('cannot calculate md5 of [%s]', filename)
-#			file_md5 = '-1'
-#		if file_md5 == md5:
-#			_log.info('not downloading from [%s]', url)
-#			return filename
-#
-#	file_md5 = gmTools.file2md5(filename = dl_name, return_hex = True)
-#	_log.debug('calculated md5: %s', file_md5)
-#	if md5 is not None:
-#		_log.error('  expected md5: %s', md5)
-#		if file_md5 != md5:
-#			_log.error('md5 mismatch, error downloading data pack')
-#			return None
-#===========================================================================
+#---------------------------------------------------------------------------
+def install_data_pack(data_pack=None, conn=None):
+	from Gnumed.pycommon import gmPsql
+	psql = gmPsql.Psql(conn)
+	sql_script = os.path.join(data_pack['unzip_dir'], 'install-data-pack.sql')
+	if psql.run(sql_script) == 0:
+		curs = conn.cursor()
+		curs.execute(u'select gm.log_script_insertion(%(name)s, %(ver)s)', {'name': data_pack['pack_url'], 'ver': u'current'})
+		curs.close()
+		conn.commit()
+		return True
+
+	_log.error('error installing data pack: %s', data_pack)
+	return False
+#---------------------------------------------------------------------------
 def download_data_pack_old(url, target_dir=None):
 
 	if target_dir is None:
@@ -115,6 +145,45 @@ def download_data_pack_old(url, target_dir=None):
 	_log.error('download failed')
 	return False, None
 #===========================================================================
+# client update handling
+#---------------------------------------------------------------------------
+def compare_versions(left_version, right_version):
+	"""
+	 0: left == right
+	-1: left < right
+	 1: left > right
+	"""
+	if left_version == right_version:
+		_log.debug('same version: [%s] = [%s]', left_version, right_version)
+		return 0
+
+	left_parts = left_version.split('.')
+	right_parts = right_version.split('.')
+
+	tmp, left_major = gmTools.input2decimal(u'%s.%s' % (left_parts[0], left_parts[1]))
+	tmp, right_major = gmTools.input2decimal(u'%s.%s' % (right_parts[0], right_parts[1]))
+
+	if left_major < right_major:
+		_log.debug('left version [%s] < right version [%s]: major part', left_version, right_version)
+		return -1
+
+	if left_major > right_major:
+		_log.debug('left version [%s] > right version [%s]: major part', left_version, right_version)
+		return 1
+
+	tmp, left_part3 = gmTools.input2decimal(left_parts[2].replace('rc', '0.'))
+	tmp, right_part3 = gmTools.input2decimal(right_parts[2].replace('rc', '0.'))
+
+	if left_part3 < right_part3:
+		_log.debug('left version [%s] < right version [%s]: minor part', left_version, right_version)
+		return -1
+
+	if left_part3 > right_part3:
+		_log.debug('left version [%s] > right version [%s]: minor part', left_version, right_version)
+		return 1
+
+	return 0
+#---------------------------------------------------------------------------
 def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
 	"""Check for new releases at <url>.
 
@@ -123,6 +192,10 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	False: up to date
 	None: don't know
 	"""
+	if current_version == u'GIT HEAD':
+		_log.debug('GIT HEAD always up to date')
+		return (False, None)
+
 	try:
 		remote_file = wget.urlopen(url)
 	except (wget.URLError, ValueError, OSError):
@@ -171,22 +244,23 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 	# up to date ?
 	if consider_latest_branch:
 		_log.debug('latest branch taken into account')
-		if current_version >= latest_release_on_latest_branch:
-			_log.debug('up to date: current version >= latest version on latest branch')
-			return (False, None)
 		if latest_release_on_latest_branch is None:
-			if current_version >= latest_release_on_current_branch:
+			if compare_versions(latest_release_on_current_branch, current_version) in [-1, 0]:
 				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
+				return (False, None)
+		else:
+			if compare_versions(latest_release_on_latest_branch, current_version) in [-1, 0]:
+				_log.debug('up to date: current version >= latest version on latest branch')
 				return (False, None)
 	else:
 		_log.debug('latest branch not taken into account')
-		if current_version >= latest_release_on_current_branch:
+		if compare_versions(latest_release_on_current_branch, current_version) in [-1, 0]:
 			_log.debug('up to date: current version >= latest version on current branch')
 			return (False, None)
 
 	new_release_on_current_branch_available = (
 		(latest_release_on_current_branch is not None) and
-		(latest_release_on_current_branch > current_version)
+		(compare_versions(latest_release_on_current_branch, current_version) == 1)
 	)
 	_log.info('%snew release on current branch available', gmTools.bool2str(new_release_on_current_branch_available, '', 'no '))
 
@@ -196,7 +270,7 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 		(
 			(latest_branch > current_branch) or (
 				(latest_branch == current_branch) and
-				(latest_release_on_latest_branch > current_version)
+				(compare_versions(latest_release_on_latest_branch, current_version) == 1)
 			)
 		)
 	)
@@ -243,11 +317,16 @@ def check_for_update(url=None, current_branch=None, current_version=None, consid
 
 	return (True, msg)
 #===========================================================================
+# mail handling
+#---------------------------------------------------------------------------
 default_mail_sender = u'gnumed@gmx.net'
 default_mail_receiver = u'gnumed-devel@gnu.org'
 default_mail_server = u'mail.gmx.net'
 
 def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
+	# FIXME: How to generate and send mails: a step by step tutorial
+	# FIXME: http://groups.google.com/group/comp.lang.python/browse_thread/thread/e0793c1007361398/
+	# FIXME: google for aspineux blog
 
 	if message is None:
 		return False
@@ -372,8 +451,14 @@ This is a test mail from the gmTools.py module.
 		unzip_dir = unzip_data_pack(dl_name)
 		print "unzipped into", unzip_dir
 	#-----------------------------------------------------------------------
+	def test_browser():
+		success = open_url_in_browser(sys.argv[2])
+		print success
+		open_url_in_browser(sys.argv[2], abc=222)
+	#-----------------------------------------------------------------------
 	#test_check_for_update()
 	#test_send_mail()
-	test_dl_data_pack()
+	#test_dl_data_pack()
+	test_browser()
 
 #===========================================================================

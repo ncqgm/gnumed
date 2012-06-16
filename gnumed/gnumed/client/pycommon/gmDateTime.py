@@ -32,11 +32,15 @@ or imprecision of the timestamp contained within.
 
 This is useful in fields such as medicine where only partial
 timestamps may be known for certain events.
+
+Other useful links:
+
+	http://joda-time.sourceforge.net/key_instant.html
 """
 #===========================================================================
 __version__ = "$Revision: 1.34 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import sys, datetime as pyDT, time, os, re as regex, locale, logging
@@ -199,15 +203,21 @@ def mxdt2py_dt(mxDateTime):
 	if isinstance(mxDateTime, pyDT.datetime):
 		return mxDateTime
 
+	try:
+		tz_name = str(mxDateTime.gmtoffset()).replace(',', '.')
+	except mxDT.Error:
+		_log.debug('mx.DateTime cannot gmtoffset() this timestamp, assuming local time')
+		tz_name = current_local_iso_numeric_timezone_string
+
 	if dst_currently_in_effect:
 		tz = cFixedOffsetTimezone (
 			offset = ((time.altzone * -1) / 60),
-			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+			name = tz_name
 		)
 	else:
 		tz = cFixedOffsetTimezone (
 			offset = ((time.timezone * -1) / 60),
-			name = str(mxDateTime.gmtoffset()).replace(',', '.')
+			name = tz_name
 		)
 
 	try:
@@ -229,6 +239,53 @@ def mxdt2py_dt(mxDateTime):
 		)
 		raise
 #===========================================================================
+def format_dob(dob, format='%x', encoding=None, none_string=None, dob_is_estimated=False):
+	if dob is None:
+		if none_string is None:
+			return _('** DOB unknown **')
+		return none_string
+
+	dob_txt = pydt_strftime(dob, format = format, encoding = encoding, accuracy = acc_days)
+	if dob_is_estimated:
+		return u'%s%s' % (u'\u2248', dob_txt)
+
+	return dob_txt
+#---------------------------------------------------------------------------
+def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
+
+	if encoding is None:
+		encoding = gmI18N.get_encoding()
+
+	try:
+		return dt.strftime(format).decode(encoding, 'replace')
+	except ValueError:
+		_log.exception('Python cannot strftime() this <datetime>')
+
+	if accuracy == acc_days:
+		return u'%04d-%02d-%02d' % (
+			dt.year,
+			dt.month,
+			dt.day
+		)
+
+	if accuracy == acc_minutes:
+		return u'%04d-%02d-%02d %02d:%02d' % (
+			dt.year,
+			dt.month,
+			dt.day,
+			dt.hour,
+			dt.minute
+		)
+
+	return u'%04d-%02d-%02d %02d:%02d:%02d' % (
+		dt.year,
+		dt.month,
+		dt.day,
+		dt.hour,
+		dt.minute,
+		dt.second
+	)
+#---------------------------------------------------------------------------
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -283,7 +340,14 @@ def py_dt2wxDate(py_dt=None, wx=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def format_interval(interval=None, accuracy_wanted=acc_seconds):
+def format_interval(interval=None, accuracy_wanted=None, none_string=None):
+
+	if accuracy_wanted is None:
+		accuracy_wanted = acc_seconds
+
+	if interval is None:
+		if none_string is not None:
+			return none_string
 
 	years, days = divmod(interval.days, avg_days_per_gregorian_year)
 	months, days = divmod(days, avg_days_per_gregorian_month)
@@ -340,41 +404,39 @@ def format_interval_medically(interval=None):
 
 	This isn't mathematically correct but close enough for display.
 	"""
-	# FIXME: i18n for abbrevs
-
 	# more than 1 year ?
 	if interval.days > 363:
 		years, days = divmod(interval.days, 364)
 		leap_days, tmp = divmod(years, 4)
 		months, day = divmod((days + leap_days), 30.33)
 		if int(months) == 0:
-			return "%sy" % int(years)
-		return "%sy %sm" % (int(years), int(months))
+			return u"%s%s" % (int(years), _('interval_format_tag::years::y')[-1:])
+		return u"%s%s %s%s" % (int(years), _('interval_format_tag::years::y')[-1:], int(months), _('interval_format_tag::months::m')[-1:])
 
 	# more than 30 days / 1 month ?
 	if interval.days > 30:
 		months, days = divmod(interval.days, 30.33)
 		weeks, days = divmod(days, 7)
 		if int(weeks + days) == 0:
-			result = '%smo' % int(months)
+			result = u'%smo' % int(months)
 		else:
-			result = '%sm' % int(months)
+			result = u'%s%s' % (int(months), _('interval_format_tag::months::m')[-1:])
 		if int(weeks) != 0:
-			result += ' %sw' % int(weeks)
+			result += u' %s%s' % (int(weeks), _('interval_format_tag::weeks::w')[-1:])
 		if int(days) != 0:
-			result += ' %sd' % int(days)
+			result += u' %s%s' % (int(days), _('interval_format_tag::days::d')[-1:])
 		return result
 
 	# between 7 and 30 days ?
 	if interval.days > 7:
-		return "%sd" % interval.days
+		return u"%s%s" % (interval.days, _('interval_format_tag::days::d')[-1:])
 
 	# between 1 and 7 days ?
 	if interval.days > 0:
 		hours, seconds = divmod(interval.seconds, 3600)
 		if hours == 0:
-			return '%sd' % interval.days
-		return "%sd (%sh)" % (interval.days, int(hours))
+			return '%s%s' % (interval.days, _('interval_format_tag::days::d')[-1:])
+		return "%s%s (%sh)" % (interval.days, _('interval_format_tag::days::d')[-1:], int(hours))
 
 	# between 5 hours and 1 day
 	if interval.seconds > (5*3600):
@@ -400,12 +462,33 @@ def format_interval_medically(interval=None):
 		return '0:%02d' % int(minutes)
 	return "%s.%ss" % (int(minutes), int(seconds))
 #---------------------------------------------------------------------------
+def is_leap_year(year):
+	# year is multiple of 4 ?
+	div, remainder = divmod(year, 4)
+	# no -> not a leap year
+	if remainder > 0:
+		return False
+
+	# year is a multiple of 100 ?
+	div, remainder = divmod(year, 100)
+	# no -> IS a leap year
+	if remainder > 0:
+		return True
+
+	# year is a multiple of 400 ?
+	div, remainder = divmod(year, 400)
+	# yes -> IS a leap year
+	if remainder == 0:
+		return True
+
+	return False
+#---------------------------------------------------------------------------
 def calculate_apparent_age(start=None, end=None):
 	"""The result of this is a tuple (years, ..., seconds) as one would
-	'expect' a date to look like, that is, simple differences between
-	the fields.
+	'expect' an age to look like, that is, simple differences between
+	the fields:
 
-	No need for 100/400 years leap days rule	because 2000 WAS a leap year.
+		(years, months, days, hours, minutes, seconds)
 
 	This does not take into account time zones which may
 	shift the result by one day.
@@ -417,11 +500,16 @@ def calculate_apparent_age(start=None, end=None):
 		end = pyDT.datetime.now(gmCurrentLocalTimezone)
 
 	if end < start:
-		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> %s' % (end, start))
+		raise ValueError('calculate_apparent_age(): <end> (%s) before <start> (%s)' % (end, start))
 
 	if end == start:
-		years = months = days = hours = minutes = seconds = 0
-		return (years, months, days, hours, minutes, seconds)
+		return (0, 0, 0, 0, 0, 0)
+
+	# steer clear of leap years
+	if end.month == 2:
+		if end.day == 29:
+			if not is_leap_year(start.year):
+				end = end.replace(day = 28)
 
 	# years
 	years = end.year - start.year
@@ -431,7 +519,10 @@ def calculate_apparent_age(start=None, end=None):
 
 	# months
 	if end.month == start.month:
-		months = 0
+		if end < start:
+			months = 11
+		else:
+			months = 0
 	else:
 		months = end.month - start.month
 		if months < 0:
@@ -445,7 +536,10 @@ def calculate_apparent_age(start=None, end=None):
 
 	# days
 	if end.day == start.day:
-		days = 0
+		if end < start:
+			days = gregorian_month_length[start.month] - 1
+		else:
+			days = 0
 	else:
 		days = end.day - start.day
 		if days < 0:
@@ -686,7 +780,8 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 
 	Spaces and tabs are discarded.
 
-	Default is 'dmy':
+	Default is 'ndmy':
+		n - Now
 		d - toDay
 		m - toMorrow	Someone please suggest a synonym !
 		y - Yesterday
@@ -694,7 +789,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	This also defines the significance of the order of the characters.
 	"""
 	if trigger_chars is None:
-		trigger_chars = _('dmy (single character date triggers)')[:3].lower()
+		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
 
 	str2parse = str2parse.strip().lower()
 
@@ -707,15 +802,24 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	now = mxDT.now()
 	enc = gmI18N.get_encoding()
 
-	# today
+	# FIXME: handle uebermorgen/vorgestern ?
+
+	# right now
 	if str2parse == trigger_chars[0]:
+		return [{
+			'data': mxdt2py_dt(now),
+			'label': _('right now (%s, %s)') % (now.strftime('%A').decode(enc), now)
+		}]
+
+	# today
+	if str2parse == trigger_chars[1]:
 		return [{
 			'data': mxdt2py_dt(now),
 			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
 		}]
 
 	# tomorrow
-	if str2parse == trigger_chars[1]:
+	if str2parse == trigger_chars[2]:
 		ts = now + mxDT.RelativeDateTime(days = +1)
 		return [{
 			'data': mxdt2py_dt(ts),
@@ -723,7 +827,7 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 		}]
 
 	# yesterday
-	if str2parse == trigger_chars[2]:
+	if str2parse == trigger_chars[3]:
 		ts = now + mxDT.RelativeDateTime(days = -1)
 		return [{
 			'data': mxdt2py_dt(ts),
@@ -821,6 +925,7 @@ def __single_slash2py_dt(str2parse):
 	str2parse = str2parse.strip()
 
 	now = mxDT.now()
+	enc = gmI18N.get_encoding()
 
 	# 5/1999
 	if regex.match(r"^\d{1,2}(\s|\t)*/+(\s|\t)*\d{4}$", str2parse, flags = regex.LOCALE | regex.UNICODE):
@@ -947,16 +1052,16 @@ def __numbers_only2py_dt(str2parse):
 		})
 
 	# day X of next month
-	ts = now + mxDT.RelativeDateTime(months = 1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = 1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (next month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
 		})
 
 	# day X of last month
-	ts = now + mxDT.RelativeDateTime(months = -1, day = val)
-	if (val > 0) and (val <= gregorian_month_length[ts.month]):
+	if (val > 0) and (val < 32):
+		ts = now + mxDT.RelativeDateTime(months = -1, day = val)
 		matches.append ({
 			'data': mxdt2py_dt(ts),
 			'label': _('%d. of %s (last month): a %s') % (val, ts.strftime('%B').decode(enc), ts.strftime('%A').decode(enc))
@@ -1198,28 +1303,46 @@ def str2pydt_matches(str2parse=None, patterns=None):
 			text = str2parse,
 			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
 		)
-		# FIXME: convert to python datetime
 		matches.append ({
 			'data': mxdt2py_dt(date),
 			'label': date.strftime('%Y-%m-%d')
 		})
-	except (ValueError, mxDT.RangeError):
+	except (ValueError, OverflowError, mxDT.RangeError):
 		pass
 
 	# apply explicit patterns
 	if patterns is None:
 		patterns = []
 
-	patterns.append('%Y.%m.%d')
-	patterns.append('%Y/%m/%d')
 	patterns.append('%Y-%m-%d')
+	patterns.append('%y-%m-%d')
+	patterns.append('%Y/%m/%d')
+	patterns.append('%y/%m/%d')
+
+	patterns.append('%d-%m-%Y')
+	patterns.append('%d-%m-%y')
+	patterns.append('%d/%m/%Y')
+	patterns.append('%d/%m/%y')
+
+	patterns.append('%m-%d-%Y')
+	patterns.append('%m-%d-%y')
+	patterns.append('%m/%d/%Y')
+	patterns.append('%m/%d/%y')
+
+	patterns.append('%Y.%m.%d')
+	patterns.append('%y.%m.%d')
 
 	for pattern in patterns:
 		try:
-			date = pyDT.datetime.strptime(str2parse, pattern)
+			date = pyDT.datetime.strptime(str2parse, pattern).replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				tzinfo = gmCurrentLocalTimezone
+			)
 			matches.append ({
-				'data': mxdt2py_dt(date),
-				'label': date.strftime('%Y-%m-%d')
+				'data': date,
+				'label': pydt_strftime(date, format = '%Y-%m-%d', accuracy = acc_days)
 			})
 		except AttributeError:
 			# strptime() only available starting with Python 2.5
@@ -1233,7 +1356,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 
 	return matches
 #===========================================================================
-# string -> timestamp parser
+# string -> fuzzy timestamp parser
 #---------------------------------------------------------------------------
 def __explicit_offset(str2parse, offset_chars=None):
 	"""
@@ -1318,76 +1441,6 @@ def __explicit_offset(str2parse, offset_chars=None):
 		'label': label
 	}
 	return [tmp]
-#---------------------------------------------------------------------------
-def __single_char(str2parse, trigger_chars=None):
-	"""This matches on single characters.
-
-	Spaces and tabs are discarded.
-
-	Default is 'ndmy':
-		n - now
-		d - toDay
-		m - toMorrow	Someone please suggest a synonym !
-		y - yesterday
-
-	This also defines the significance of the order of the characters.
-	"""
-	if trigger_chars is None:
-		trigger_chars = _('ndmy (single character date triggers)')[:4].lower()
-
-	if not regex.match(u'^(\s|\t)*[%s]{1}(\s|\t)*$' % trigger_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
-		return []
-	val = str2parse.strip().lower()
-
-	now = mxDT.now()
-	enc = gmI18N.get_encoding()
-
-	# FIXME: handle uebermorgen/vorgestern ?
-
-	# right now
-	if val == trigger_chars[0]:
-		ts = now
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_subseconds
-			),
-			'label': _('right now (%s, %s)') % (ts.strftime('%A').decode(enc), ts)
-		}]
-
-	# today
-	if val == trigger_chars[1]:
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = now,
-				accuracy = acc_days
-			),
-			'label': _('today (%s)') % now.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	# tomorrow
-	if val == trigger_chars[2]:
-		ts = now + mxDT.RelativeDateTime(days = +1)
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_days
-			),
-			'label': _('tomorrow (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	# yesterday
-	if val == trigger_chars[3]:
-		ts = now + mxDT.RelativeDateTime(days = -1)
-		return [{
-			'data': cFuzzyTimestamp (
-				timestamp = ts,
-				accuracy = acc_days
-			),
-			'label': _('yesterday (%s)') % ts.strftime('%A, %Y-%m-%d').decode(enc)
-		}]
-
-	return []
 #---------------------------------------------------------------------------
 def __single_slash(str2parse):
 	"""Expand fragments containing a single slash.
@@ -1767,43 +1820,66 @@ def str2fuzzy_timestamp_matches(str2parse=None, default_time=None, patterns=None
 	matches = __single_dot(str2parse)
 	matches.extend(__numbers_only(str2parse))
 	matches.extend(__single_slash(str2parse))
-	matches.extend(__single_char(str2parse))
+	ms = __single_char2py_dt(str2parse)
+	for m in ms:
+		matches.append ({
+			'data': cFuzzyTimestamp (
+				timestamp = m['data'],
+				accuracy = acc_days
+			),
+			'label': m['label']
+		})
 	matches.extend(__explicit_offset(str2parse))
 
 	# try mxDT parsers
-	if mxDT is not None:
-		try:
-			# date ?
-			date_only = mxDT.Parser.DateFromString (
-				text = str2parse,
-				formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
-			)
-			# time, too ?
-			time_part = mxDT.Parser.TimeFromString(text = str2parse)
-			datetime = date_only + time_part
-			if datetime == date_only:
-				accuracy = acc_days
-				if isinstance(default_time, mxDT.DateTimeDeltaType):
-					datetime = date_only + default_time
-					accuracy = acc_minutes
-			else:
-				accuracy = acc_subseconds
-			fts = cFuzzyTimestamp (
-				timestamp = datetime,
-				accuracy = accuracy
-			)
-			matches.append ({
-				'data': fts,
-				'label': fts.format_accurately()
-			})
-		except (ValueError, mxDT.RangeError):
-			pass
+	try:
+		# date ?
+		date_only = mxDT.Parser.DateFromString (
+			text = str2parse,
+			formats = ('euro', 'iso', 'us', 'altus', 'altiso', 'lit', 'altlit', 'eurlit')
+		)
+		# time, too ?
+		time_part = mxDT.Parser.TimeFromString(text = str2parse)
+		datetime = date_only + time_part
+		if datetime == date_only:
+			accuracy = acc_days
+			if isinstance(default_time, mxDT.DateTimeDeltaType):
+				datetime = date_only + default_time
+				accuracy = acc_minutes
+		else:
+			accuracy = acc_subseconds
+		fts = cFuzzyTimestamp (
+			timestamp = datetime,
+			accuracy = accuracy
+		)
+		matches.append ({
+			'data': fts,
+			'label': fts.format_accurately()
+		})
+	except (ValueError, mxDT.RangeError):
+		pass
 
 	if patterns is None:
 		patterns = []
 
-	patterns.append(['%Y.%m.%d', acc_days])
+	patterns.append(['%Y-%m-%d', acc_days])
+	patterns.append(['%y-%m-%d', acc_days])
 	patterns.append(['%Y/%m/%d', acc_days])
+	patterns.append(['%y/%m/%d', acc_days])
+
+	patterns.append(['%d-%m-%Y', acc_days])
+	patterns.append(['%d-%m-%y', acc_days])
+	patterns.append(['%d/%m/%Y', acc_days])
+	patterns.append(['%d/%m/%y', acc_days])
+
+	patterns.append(['%m-%d-%Y', acc_days])
+	patterns.append(['%m-%d-%y', acc_days])
+	patterns.append(['%m/%d/%Y', acc_days])
+	patterns.append(['%m/%d/%y', acc_days])
+
+	patterns.append(['%Y.%m.%d', acc_days])
+	patterns.append(['%y.%m.%d', acc_days])
+
 
 	for pattern in patterns:
 		try:
@@ -1863,20 +1939,18 @@ class cFuzzyTimestamp:
 			accuracy = acc_subseconds
 			modifier = ''
 
+		if (accuracy < 1) or (accuracy > 8):
+			raise ValueError('%s.__init__(): <accuracy> must be between 1 and 8' % self.__class__.__name__)
+
 		if isinstance(timestamp, pyDT.datetime):
 			timestamp = mxDT.DateTime(timestamp.year, timestamp.month, timestamp.day, timestamp.hour, timestamp.minute, timestamp.second)
 
 		if type(timestamp) != mxDT.DateTimeType:
-			raise TypeError, '%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__
+			raise TypeError('%s.__init__(): <timestamp> must be of mx.DateTime.DateTime or datetime.datetime type' % self.__class__.__name__)
 
 		self.timestamp = timestamp
-
-		if (accuracy < 1) or (accuracy > 8):
-			raise ValueError, '%s.__init__(): <accuracy> must be between 1 and 7' % self.__class__.__name__
 		self.accuracy = accuracy
-
 		self.modifier =  modifier
-
 	#-----------------------------------------------------------------------
 	# magic API
 	#-----------------------------------------------------------------------
@@ -1906,34 +1980,37 @@ class cFuzzyTimestamp:
 	def Format(self, format_string):
 		return self.strftime(format_string)
 	#-----------------------------------------------------------------------
-	def format_accurately(self):
-		if self.accuracy == acc_years:
+	def format_accurately(self, accuracy=None):
+		if accuracy is None:
+			accuracy = self.accuracy
+
+		if accuracy == acc_years:
 			return unicode(self.timestamp.year)
 
-		if self.accuracy == acc_months:
+		if accuracy == acc_months:
 			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
-		if self.accuracy == acc_weeks:
+		if accuracy == acc_weeks:
 			return unicode(self.timestamp.strftime('%m/%Y'))	# FIXME: use 3-letter month ?
 
-		if self.accuracy == acc_days:
+		if accuracy == acc_days:
 			return unicode(self.timestamp.strftime('%Y-%m-%d'))
 
-		if self.accuracy == acc_hours:
+		if accuracy == acc_hours:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %I%p"))
 
-		if self.accuracy == acc_minutes:
+		if accuracy == acc_minutes:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M"))
 
-		if self.accuracy == acc_seconds:
+		if accuracy == acc_seconds:
 			return unicode(self.timestamp.strftime("%Y-%m-%d %H:%M:%S"))
 
-		if self.accuracy == acc_subseconds:
+		if accuracy == acc_subseconds:
 			return unicode(self.timestamp)
 
 		raise ValueError, '%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
 			self.__class__.__name__,
-			self.accuracy
+			accuracy
 		)
 	#-----------------------------------------------------------------------
 	def get_mxdt(self):
@@ -2100,9 +2177,9 @@ if __name__ == '__main__':
 			matches = str2fuzzy_timestamp_matches(str2parse = val)
 			for match in matches:
 				print 'label shown  :', match['label']
-				print 'data attached:', match['data']
+				print 'data attached:', match['data'], match['data'].timestamp
 				print ""
-			print "---------------"	
+			print "---------------"
 	#-------------------------------------------------
 	def test_cFuzzyTimeStamp():
 		print "testing fuzzy timestamp class"
@@ -2137,19 +2214,46 @@ if __name__ == '__main__':
 		print "fts.get_pydt():", fts.get_pydt()
 	#-------------------------------------------------
 	def test_calculate_apparent_age():
-		start = pydt_now_here().replace(year = 1974).replace(month = 10).replace(day = 23)
+		# test leap year glitches
+		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 27)
+		print "start is leap year: 29.2.2000"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
+		print "end is leap year: 29.2.2012"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
+		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
+		print "start is leap year: 29.2.2000"
+		print "end is leap year: 29.2.2012"
+		print " ", calculate_apparent_age(start = start, end = end)
+		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		print "leap year tests worked"
+
+		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 
-		start = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 13)
+		start = pydt_now_here().replace(month = 3).replace(day = 13).replace(year = 1979)
 		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 
-		start = pydt_now_here().replace(year = 1979).replace(month = 2, day = 2)
-		end = pydt_now_here().replace(year = 1979).replace(month = 3).replace(day = 31)
+		start = pydt_now_here().replace(month = 2, day = 2).replace(year = 1979)
+		end = pydt_now_here().replace(month = 3).replace(day = 31).replace(year = 1979)
 		print calculate_apparent_age(start = start, end = end)
 
-		start = pydt_now_here().replace(year = 2009).replace(month = 7, day = 21)
+		start = pydt_now_here().replace(month = 7, day = 21).replace(year = 2009)
+		print format_apparent_age_medically(calculate_apparent_age(start = start))
+
+		print "-------"
+		start = pydt_now_here().replace(month = 1).replace(day = 23).replace(hour = 12).replace(minute = 11).replace(year = 2011)
+		print calculate_apparent_age(start = start)
 		print format_apparent_age_medically(calculate_apparent_age(start = start))
 	#-------------------------------------------------
 	def test_str2pydt():
@@ -2166,6 +2270,22 @@ if __name__ == '__main__':
 				print ""
 			print "---------------"
 	#-------------------------------------------------
+	def test_pydt_strftime():
+		dt = pydt_now_here()
+		print pydt_strftime(dt)
+		print pydt_strftime(dt, accuracy = acc_days)
+		print pydt_strftime(dt, accuracy = acc_minutes)
+		print pydt_strftime(dt, accuracy = acc_seconds)
+		dt = dt.replace(year = 1899)
+		print pydt_strftime(dt)
+		print pydt_strftime(dt, accuracy = acc_days)
+		print pydt_strftime(dt, accuracy = acc_minutes)
+		print pydt_strftime(dt, accuracy = acc_seconds)
+	#-------------------------------------------------
+	def test_is_leap_year():
+		for year in range(1995, 2017):
+			print year, "leaps:", is_leap_year(year)
+	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
 	gmI18N.install_domain('gnumed')
@@ -2174,12 +2294,14 @@ if __name__ == '__main__':
 
 	#test_date_time()
 	#test_str2fuzzy_timestamp_matches()
-	test_cFuzzyTimeStamp()
+	#test_cFuzzyTimeStamp()
 	#test_get_pydt()
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	#test_calculate_apparent_age()
 	#test_str2pydt()
+	#test_pydt_strftime()
+	test_calculate_apparent_age()
+	#test_is_leap_year()
 
 #===========================================================================

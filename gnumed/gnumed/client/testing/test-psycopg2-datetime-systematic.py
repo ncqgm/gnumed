@@ -2,7 +2,7 @@
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2-datetime-systematic.py,v $
 __version__ = "$Revision: 1.4 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 # =======================================================================
 
 print "testing psycopg2 date/time parsing"
@@ -12,7 +12,7 @@ print "psycopg2:", psycopg2.__version__
 
 dsn = u'dbname=template1 user=xxx password=xxx'
 dsn = u'you need to adjust this'
-#dsn = u'dbname=gnumed_v15 user=any-doc password=any-doc'
+#dsn = u'dbname=gnumed_v17 user=any-doc password=any-doc'
 print "DSN:", dsn
 
 conn = psycopg2.connect(dsn=dsn)

@@ -52,10 +52,17 @@ care of all the pre- and post-GUI runtime environment setup.
 #==========================================================
 __version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # standard library
-import sys, os, os.path, signal, logging, platform
+import sys
+import os
+import platform
+import logging
+import signal
+import os.path
+import shutil
+import stat
 
 
 # do not run as module
@@ -167,8 +174,7 @@ def setup_python_path():
 	if not u'--local-import' in sys.argv:
 		return
 
-	print "GNUmed startup: Running from local source tree."
-	print "-----------------------------------------------"
+	print "Running from local source tree ..."
 
 	local_python_base_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
@@ -186,6 +192,62 @@ def setup_python_path():
 
 	print "Adjusting PYTHONPATH ..."
 	sys.path.insert(0, local_python_base_dir)
+#==========================================================
+def setup_local_repo_path():
+
+	local_repo_path = os.path.expanduser(os.path.join (
+		'~',
+		'.gnumed',
+		'local_code',
+		str(current_client_branch)
+	))
+	local_wxGladeWidgets_path = os.path.join(local_repo_path, 'Gnumed', 'wxGladeWidgets')
+
+	if not os.path.exists(local_wxGladeWidgets_path):
+		_log.debug('[%s] not found', local_wxGladeWidgets_path)
+		_log.info('local wxGlade widgets repository not available')
+		return
+
+	_log.info('local wxGlade widgets repository found:')
+	_log.info(local_wxGladeWidgets_path)
+
+	if not os.access(local_wxGladeWidgets_path, os.R_OK):
+		_log.error('invalid repo: no read access')
+		return
+
+	all_entries = os.listdir(os.path.join(local_repo_path, 'Gnumed'))
+	_log.debug('repo base contains: %s', all_entries)
+	all_entries.remove('wxGladeWidgets')
+	try:
+		all_entries.remove('__init__.py')
+	except ValueError:
+		_log.error('invalid repo: lacking __init__.py')
+		return
+	try:
+		all_entries.remove('__init__.pyc')
+	except ValueError:
+		pass
+
+	if len(all_entries) > 0:
+		_log.error('insecure repo: additional files or directories found')
+		return
+
+	# repo must be 0700 (rwx------)
+	stat_val = os.stat(local_wxGladeWidgets_path)
+	_log.debug('repo stat(): %s', stat_val)
+	perms = stat.S_IMODE(stat_val.st_mode)
+	_log.debug('repo permissions: %s (octal: %s)', perms, oct(perms))
+	if perms != 448:				# octal 0700
+		if os.name in ['nt']:
+			_log.warning('this platform does not support os.stat() permission checking')
+		else:
+			_log.error('insecure repo: permissions not 0600')
+			return
+
+	print "Activating local wxGlade widgets repository ..."
+	sys.path.insert(0, local_repo_path)
+	_log.debug('sys.path with repo:')
+	_log.debug(sys.path)
 #==========================================================
 def setup_logging():
 	try:
@@ -443,7 +505,13 @@ def setup_ui_type():
 	_log.debug('UI type: %s', ui_type)
 #==========================================================
 def setup_backend():
-	_log.info('client expects database version [%s]', gmPG2.map_client_branch2required_db_version[current_client_branch])
+
+	db_version = gmPG2.map_client_branch2required_db_version[current_client_branch]
+	_log.info('client expects database version [%s]', db_version)
+	_cfg.set_option (
+		option = u'database_version',
+		value = db_version
+	)
 
 	# set up database connection timezone
 	timezone = _cfg.get (
@@ -490,7 +558,17 @@ def shutdown_logging():
 
 	# do not choke on Windows
 	logging.raiseExceptions = False
+#==========================================================
+def shutdown_tmp_dir():
 
+	tmp_dir = gmTools.gmPaths().tmp_dir
+
+	if _cfg.get(option = u'debug'):
+		_log.debug('not removing tmp dir (--debug mode): %s', tmp_dir)
+		return
+
+	_log.warning('removing tmp dir: %s', tmp_dir)
+	shutil.rmtree(tmp_dir, True)
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
@@ -500,6 +578,7 @@ log_startup_info()
 setup_console_exception_handler()
 setup_cli()
 setup_signal_handlers()
+setup_local_repo_path()
 
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
 setup_locale()
@@ -538,6 +617,7 @@ elif ui_type == u'chweb':
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 
 shutdown_backend()
+shutdown_tmp_dir()
 _log.info('Normally shutting down as main module.')
 shutdown_logging()
 

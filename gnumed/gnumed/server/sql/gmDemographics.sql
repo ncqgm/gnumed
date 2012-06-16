@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics.sql,v $
 -- $Revision: 1.68 $
--- license: GPL
+-- license: GPL v2 or later
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
 -- ===================================================================
@@ -227,7 +227,7 @@ create table dem.lnk_identity2ext_id (
 select audit.add_table_for_audit('dem', 'lnk_identity2ext_id');
 
 comment on table dem.lnk_identity2ext_id is
-	'link external IDs to GnuMed identities';
+	'link external IDs to GNUmed identities';
 comment on column dem.lnk_identity2ext_id.external_id is
 	'textual representation of external ID which
 	 may be Social Security Number, patient ID of

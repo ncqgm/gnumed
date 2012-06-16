@@ -51,7 +51,7 @@ independantly.
 
 Concurrency handling
 --------------------
-GnuMed connections always run transactions in isolation level
+GNUmed connections always run transactions in isolation level
 "serializable". This prevents transactions happening at the
 *very same time* to overwrite each other's data. All but one
 of them will abort with a concurrency error (eg if a
@@ -135,6 +135,7 @@ import sys, copy, types, inspect, logging, datetime
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmPG2
+from Gnumed.pycommon.gmTools import tex_escape_string
 
 
 _log = logging.getLogger('gm.db')
@@ -166,9 +167,12 @@ class cBusinessDBObject(object):
 	<_cmds_store_payload>
 		- one or multiple "update ... set ... where xmin_* = ..." statements
 		  which actually update the database from the data in self._payload,
-		- the last query must refetch the XMIN values needed to detect
+		- the last query must refetch at least the XMIN values needed to detect
 		  concurrent updates, their field names had better be the same as
-		  in _cmd_fetch_payload
+		  in _cmd_fetch_payload,
+		- when subclasses tend to live a while after save_payload() was
+		  called and they support computed fields (say, _(some_column)
+		  you need to return *all* columns (see cEncounter)
 
 	<_updatable_fields>
 		- a list of fields available for update via object['field']
@@ -176,13 +180,16 @@ class cBusinessDBObject(object):
 
 	A template for new child classes:
 
+*********** start of template ***********
+
 #------------------------------------------------------------
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 
 #============================================================
-# description
+# short description
 #------------------------------------------------------------
+# use plural form, search-replace get_XXX
 _SQL_get_XXX = u\"""
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
@@ -190,6 +197,7 @@ _SQL_get_XXX = u\"""
 \"""
 
 class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
+	\"""Represents ...\"""
 
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
@@ -198,7 +206,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 				xxx = %(xxx)s,								-- typically "table_col = %(view_col)s"
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
-				pk = %(xxx)s
+				pk = %(pk_XXX)s
 					AND
 				xmin = %(xmin_XXX)s
 			RETURNING
@@ -206,11 +214,15 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_XXX
 		\"""
 	]
-	# view columns:
+	# view columns that can be updated:
 	_updatable_fields = [
 		u'xxx',
 		u'xxx'
 	]
+	#--------------------------------------------------------
+	def format(self):
+		return u'%s' % self
+
 #------------------------------------------------------------
 def get_XXX(order_by=None):
 	if order_by is None:
@@ -251,6 +263,7 @@ def delete_xxx(xxx=None):
 	return True
 #------------------------------------------------------------
 
+*********** end of template ***********
 
 	"""
 	#--------------------------------------------------------
@@ -372,7 +385,7 @@ def delete_xxx(xxx=None):
 			_log.warning('[%s]: no getter method [get_%s]' % (self.__class__.__name__, attribute))
 			methods = filter(lambda x: x[0].startswith('get_'), inspect.getmembers(self, inspect.ismethod))
 			_log.warning('[%s]: valid getter methods: %s' % (self.__class__.__name__, str(methods)))
-			raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+			raise KeyError('[%s]: cannot read from key [%s]' % (self.__class__.__name__, attribute))
 
 		self._ext_cache[attribute] = getter()
 		return self._ext_cache[attribute]
@@ -389,13 +402,13 @@ def delete_xxx(xxx=None):
 			except KeyError:
 				_log.warning('[%s]: cannot set attribute <%s> despite marked settable' % (self.__class__.__name__, attribute))
 				_log.warning('[%s]: supposedly settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
-				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s]: cannot access [%s]' % (self.__class__.__name__, attribute)
+				raise KeyError('[%s]: cannot write to key [%s]' % (self.__class__.__name__, attribute))
 
 		# 2) setters providing extensions
 		if hasattr(self, 'set_%s' % attribute):
 			setter = getattr(self, "set_%s" % attribute)
 			if not callable(setter):
-				raise gmExceptions.NoSuchBusinessObjectAttributeError, '[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute)
+				raise AttributeError('[%s] setter [set_%s] not callable' % (self.__class__.__name__, attribute))
 			try:
 				del self._ext_cache[attribute]
 			except KeyError:
@@ -404,7 +417,7 @@ def delete_xxx(xxx=None):
 				if setter(*value):
 					self._is_modified = True
 					return
-				raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value)
+				raise AttributeError('[%s]: setter [%s] failed for [%s]' % (self.__class__.__name__, setter, value))
 			if setter(value):
 				self._is_modified = True
 				return
@@ -414,7 +427,7 @@ def delete_xxx(xxx=None):
 		_log.warning('[%s]: settable attributes: %s' % (self.__class__.__name__, str(self.__class__._updatable_fields)))
 		methods = filter(lambda x: x[0].startswith('set_'), inspect.getmembers(self, inspect.ismethod))
 		_log.warning('[%s]: valid setter methods: %s' % (self.__class__.__name__, str(methods)))
-		raise gmExceptions.BusinessObjectAttributeNotSettableError, '[%s]: cannot set [%s]' % (self.__class__.__name__, attribute)
+		raise AttributeError('[%s]: cannot set [%s]' % (self.__class__.__name__, attribute))
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -433,9 +446,51 @@ def delete_xxx(xxx=None):
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
+	def fields_as_dict(self, date_format='%c', none_string=u'', escape_style=None, bool_strings=None):
+		if bool_strings is None:
+			bools = {True: u'true', False: u'false'}
+		else:
+			bools = {True: bool_strings[0], False: bool_strings[1]}
+		data = {}
+		for field in self._idx.keys():
+			# FIXME: harden against BYTEA fields
+			#if type(self._payload[self._idx[field]]) == ...
+			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
+			#	continue
+			val = self._payload[self._idx[field]]
+			if val is None:
+				data[field] = none_string
+				continue
+			if isinstance(val, bool):
+				data[field] = bools[val]
+				continue
+			if isinstance(val, datetime.datetime):
+				try:
+					data[field] = val.strftime(date_format).decode('utf8', 'replace')
+				except ValueError:
+					data[field] = val.isoformat()
+				if escape_style in [u'latex', u'tex']:
+					data[field] = tex_escape_string(data[field])
+				continue
+			try:
+				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+			except TypeError:
+				try:
+					data[field] = unicode(val)
+				except (UnicodeDecodeError, TypeError):
+					val = '%s' % str(val)
+					data[field] = val.decode('utf8', 'replace')
+			if escape_style in [u'latex', u'tex']:
+				data[field] = tex_escape_string(data[field])
+
+		return data
+	#--------------------------------------------------------
 	def get_patient(self):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
+	#--------------------------------------------------------
+	def format(self):
+		return u'%s' % self
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False):
 		"""Fetch field values from backend.
@@ -634,12 +689,13 @@ if __name__ == '__main__':
 
 	data = {
 		'pk_field': 'bogus_pk',
-		'idx': {'bogus_pk': 0, 'bogus_field': 1},
-		'data': [-1, 'bogus_data']
+		'idx': {'bogus_pk': 0, 'bogus_field': 1, 'bogus_date': 2},
+		'data': [-1, 'bogus_data', datetime.datetime.now()]
 	}
 	obj = cTestObj(row=data)
 	#print obj['wrong_field']
 	#print jsonclasshintify(obj)
-	obj['wrong_field'] = 1
+	#obj['wrong_field'] = 1
+	print obj.fields_as_dict()
 
 #============================================================

@@ -50,7 +50,7 @@ If none of this works it will fall back to making _() a noop.
 #===========================================================================
 __version__ = "$Revision: 1.50 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
@@ -65,18 +65,19 @@ system_locale_level = {}
 
 
 _translate_original = lambda x:x
+_substitutes_regex = regex.compile(r'%\(.+?\)s')
 
 # **********************************************************
 # == do not remove this line ===============================
 # it is needed to check for successful installation of
 # the desired message catalog
 # **********************************************************
-__orig_tag__ = u'Translate this or i18n will not work properly !'
+__orig_tag__ = u'Translate this or i18n into <en_EN> will not work properly !'
 # **********************************************************
 # **********************************************************
 
 # Q: I can't use non-ascii characters in labels and menus.
-# A: This can happen if your Python's sytem encoding is ascii and
+# A: This can happen if your Python's system encoding is ASCII and
 #    wxPython is non-unicode. Edit/create the file sitecustomize.py
 #    (should be somewhere in your PYTHONPATH), and put these magic lines:
 #
@@ -195,6 +196,8 @@ def __log_locale_settings(message=None):
 					_log.debug(u'locale.nl_langinfo(%s): %s', category, unicode(locale.nl_langinfo(_nl_langinfo_categories[category]), loc_enc))
 	except:
 		_log.exception('this OS does not support nl_langinfo')
+
+	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
 #---------------------------------------------------------------------------
 def _translate_protected(term):
 	"""This wraps _().
@@ -203,13 +206,31 @@ def _translate_protected(term):
 	"""
 	translation = _translate_original(term)
 
-	if translation.count(u'%s') == term.count(u'%s'):
-		return translation
+	# different number of %s substitutes ?
+	if translation.count(u'%s') != term.count(u'%s'):
+		_log.error('count("%s") mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
 
-	_log.error('count(%s) mismatch, returning untranslated string')
-	_log.error('original   : %s', term)
-	_log.error('translation: %s', translation)
-	return term
+	term_substitutes = _substitutes_regex.findall(term)
+	trans_substitutes = _substitutes_regex.findall(translation)
+
+	# different number of %(...)s substitutes ?
+	if len(term_substitutes) != len(trans_substitutes):
+		_log.error('count("%(...)s") mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
+
+	# different %(...)s substitutes ?
+	if set(term_substitutes) != set(trans_substitutes):
+		_log.error('"%(...)s" name mismatch, returning untranslated string')
+		_log.error('original   : %s', term)
+		_log.error('translation: %s', translation)
+		return term
+
+	return translation
 #---------------------------------------------------------------------------
 # external API
 #---------------------------------------------------------------------------
@@ -433,7 +454,7 @@ if __name__ == "__main__":
 	# it is needed to check for successful installation of
 	# the desired message catalog
 	# ********************************************************
-	tmp = _('Translate this or i18n will not work properly !')
+	tmp = _('Translate this or i18n into <en_EN> will not work properly !')
 	# ********************************************************
 	# ********************************************************
 

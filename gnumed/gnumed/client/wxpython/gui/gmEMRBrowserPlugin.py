@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed patient EMR browser plugin
+# GNUmed patient EMR browser plugin
 # ----------------------------------------------
 #
 # this plugin holds patient EMR tree
@@ -8,7 +8,7 @@
 #======================================================================
 __version__ = "$Revision: 1.19 $"
 __author__ = "Carlos Moro"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
@@ -33,8 +33,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#-------------------------------------------------
 	def MenuInfo(self):
-		#return ('emr_show', _('Topical &tree'))
-		return ('emr', _('Topical &tree'))
+		return ('emr', _('EMR &Tree (topical)'))
 	#-------------------------------------------------
 	def can_receive_focus(self):
 		# need patient

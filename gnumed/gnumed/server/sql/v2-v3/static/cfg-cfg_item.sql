@@ -7,7 +7,7 @@
 -- What it does:
 -- - upgrade cfg.cfg_item
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================

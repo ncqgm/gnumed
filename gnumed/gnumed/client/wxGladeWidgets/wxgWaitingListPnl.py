@@ -12,12 +12,12 @@ import wx
 class wxgWaitingListPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPhraseWheel, gmPatSearchWidgets, gmListWidgets
+        from Gnumed.wxpython import gmWaitingListWidgets, gmPatSearchWidgets, gmListWidgets
 
         # begin wxGlade: wxgWaitingListPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_zone = gmPatSearchWidgets.cWaitingZonePhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
+        self._PRW_zone = gmWaitingListWidgets.cWaitingZonePhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
         self._LBL_no_of_patients = wx.StaticText(self, -1, "")
         self._LCTRL_patients = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.SIMPLE_BORDER)
         self._BTN_activate = wx.Button(self, -1, _("&Activate"), style=wx.BU_EXACTFIT)

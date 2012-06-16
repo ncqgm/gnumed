@@ -10,9 +10,12 @@
 # file you intend to use is a link to the actual backup.
 # Use the full path instead.
 #
+# Best run as root.
+#
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
+set -o pipefail
 
 
 BACKUP="$1"
@@ -69,6 +72,7 @@ if test $? -ne 0 ; then
 	echo "    ERROR: Cannot create workspace. Aborting."
 	exit 1
 fi
+chmod +rx ${WORK_DIR}
 cd ${WORK_DIR}
 
 
@@ -101,6 +105,8 @@ if test $? -ne 0 ; then
 fi
 BACKUP=`basename ${BACKUP} .tar`
 rm ${BACKUP}.tar
+# need to give postgres appropriate permissions:
+chown -c postgres ${BACKUP}-*.sql
 
 
 echo ""
@@ -111,7 +117,7 @@ echo "   Please edit it to only include the roles you need for GNUmed."
 echo ""
 echo "   Remember that in PostgreSQL scripts the comment marker is \"--\"."
 echo ""
-read -e -p "   Press <ENTER> to continue."
+read -e -p "   Press <ENTER> to start editing."
 editor ${BACKUP}-roles.sql
 
 
@@ -148,7 +154,9 @@ chmod 0666 ${LOG}
 echo ""
 echo "==> Restoring GNUmed database ${TARGET_DB} ..."
 LOG="${LOG_BASE}/restoring-database-${TS}.log"
-sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.sql &> ${LOG}
+# can't use --single-transaction because CREATE DATABASE does not work inside transaction:
+#sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.sql &> ${LOG}
+sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database. Aborting."
 	echo "           see: ${LOG}"

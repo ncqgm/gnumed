@@ -7,7 +7,7 @@
 -- What it does:
 -- - upgrade blobs.v_obj4doc_no_data
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

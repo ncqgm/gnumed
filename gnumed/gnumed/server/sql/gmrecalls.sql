@@ -3,7 +3,7 @@
 -- purpose:  event recall system
 -- author: hherb
 -- copyright: Dr. Horst Herb, horst@hherb.com
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmrecalls.sql,v $
 -- $Id: gmrecalls.sql,v 1.5 2005-09-19 16:38:51 ncq Exp $

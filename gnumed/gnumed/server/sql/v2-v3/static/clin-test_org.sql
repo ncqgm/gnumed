@@ -7,7 +7,7 @@
 -- What it does:
 -- - change clin.test_org
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

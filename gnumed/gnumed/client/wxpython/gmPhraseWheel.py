@@ -18,13 +18,13 @@ import string, types, time, sys, re as regex, os.path
 # 3rd party
 import wx
 import wx.lib.mixins.listctrl as listmixins
-import wx.lib.pubsub
 
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
 
 
 import logging
@@ -32,10 +32,12 @@ _log = logging.getLogger('macosx')
 
 
 color_prw_invalid = 'pink'
+color_prw_partially_invalid = 'yellow'
 color_prw_valid = None				# this is used by code outside this module
 
-default_phrase_separators = '[;/|]+'
-default_spelling_word_separators = '[\W\d_]+'
+#default_phrase_separators = r'[;/|]+'
+default_phrase_separators = r';+'
+default_spelling_word_separators = r'[\W\d_]+'
 
 # those can be used by the <accepted_chars> phrasewheel parameter
 NUMERIC = '0-9'
@@ -68,6 +70,7 @@ class _cPRWTimer(wx.Timer):
 #============================================================
 # FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
+
 	def __init__(self, *args, **kwargs):
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER
@@ -80,7 +83,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__data = items
 		pos = len(items) + 1
 		for item in items:
-			row_num = self.InsertStringItem(pos, label=item['label'])
+			row_num = self.InsertStringItem(pos, label=item['list_label'])
 	#--------------------------------------------------------
 	def GetSelectedItemData(self):
 		sel_idx = self.GetFirstSelected()
@@ -88,78 +91,21 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 			return None
 		return self.__data[sel_idx]['data']
 	#--------------------------------------------------------
+	def get_selected_item(self):
+		sel_idx = self.GetFirstSelected()
+		if sel_idx == -1:
+			return None
+		return self.__data[sel_idx]
+	#--------------------------------------------------------
 	def get_selected_item_label(self):
 		sel_idx = self.GetFirstSelected()
 		if sel_idx == -1:
 			return None
-		return self.__data[sel_idx]['label']
+		return self.__data[sel_idx]['list_label']
 #============================================================
-# FIXME: cols in pick list
-# FIXME: snap_to_basename+set selection
-# FIXME: learn() -> PWL
-# FIXME: up-arrow: show recent (in-memory) history
-#----------------------------------------------------------
-# ideas
-#----------------------------------------------------------
-#- display possible completion but highlighted for deletion
-#(- cycle through possible completions)
-#- pre-fill selection with SELECT ... LIMIT 25
-#- async threads for match retrieval instead of timer
-#  - on truncated results return item "..." -> selection forcefully retrieves all matches
-
-#- generators/yield()
-#- OnChar() - process a char event
-
-# split input into words and match components against known phrases
-
-# make special list window:
-# - deletion of items
-# - highlight matched parts
-# - faster scrolling
-# - wxEditableListBox ?
-
-# - if non-learning (i.e. fast select only): autocomplete with match
-#   and move cursor to end of match
-#-----------------------------------------------------------------------------------------------
-# darn ! this clever hack won't work since we may have crossed a search location threshold
-#----
-#	#self.__prevFragment = "XXXXXXXXXXXXXXXXXX-very-unlikely--------------XXXXXXXXXXXXXXX"
-#	#self.__prevMatches = []		# a list of tuples (ID, listbox name, weight)
-#
-#	# is the current fragment just a longer version of the previous fragment ?
-#	if string.find(aFragment, self.__prevFragment) == 0:
-#	    # we then need to search in the previous matches only
-#	    for prevMatch in self.__prevMatches:
-#		if string.find(prevMatch[1], aFragment) == 0:
-#		    matches.append(prevMatch)
-#	    # remember current matches
-#	    self.__prefMatches = matches
-#	    # no matches found
-#	    if len(matches) == 0:
-#		return [(1,_('*no matching items found*'),1)]
-#	    else:
-#		return matches
-#----
-#TODO:
-# - see spincontrol for list box handling
-# stop list (list of negatives): "an" -> "animal" but not "and"
-#-----
-#> > remember, you should be searching on  either weighted data, or in some
-#> > situations a start string search on indexed data
-#>
-#> Can you be a bit more specific on this ?
-
-#seaching ones own previous text entered  would usually be instring but
-#weighted (ie the phrases you use the most auto filter to the top)
-
-#Searching a drug database for a   drug brand name is usually more
-#functional if it does a start string search, not an instring search which is
-#much slower and usually unecesary.  There are many other examples but trust
-#me one needs both
-#-----
-
-# FIXME: support selection-only-or-empty
-class cPhraseWheel(wx.TextCtrl):
+# base class for both single- and multi-phrase phrase wheels
+#------------------------------------------------------------
+class cPhraseWheelBase(wx.TextCtrl):
 	"""Widget for smart guessing of user fields, after Richard Terry's interface.
 
 	- VB implementation by Richard Terry
@@ -187,11 +133,6 @@ class cPhraseWheel(wx.TextCtrl):
 		checked against this regular expression
 	@type final_regex: a string holding a valid regex pattern
 
-	@param phrase_separators: if not None, input is split into phrases
-		at boundaries defined by this regex and matching/spellchecking
-		is performed on the phrase the cursor is in only
-	@type phrase_separators: None or a string holding a valid regex pattern
-
 	@param navigate_after_selection: whether or not to immediately
 		navigate to the widget next-in-tab-order after selecting an
 		item from the dropdown picklist
@@ -216,7 +157,6 @@ class cPhraseWheel(wx.TextCtrl):
 		self.accepted_chars = None
 		self.final_regex = '.*'
 		self.final_regex_error_msg = _('The content is invalid. It must match the regular expression: [%%s]. <%s>') % self.__class__.__name__
-		self.phrase_separators = default_phrase_separators
 		self.navigate_after_selection = False
 		self.speller = None
 		self.speller_word_separators = default_spelling_word_separators
@@ -224,15 +164,15 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# state tracking
 		self._has_focus = False
-		self.suppress_text_update_smarts = False
-		self.__current_matches = []
+		self._current_match_candidates = []
 		self._screenheight = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
-		self.input2match = ''
-		self.left_part = ''
-		self.right_part = ''
+		self.suppress_text_update_smarts = False
+
 		self.__static_tt = None
 		self.__static_tt_extra = None
-		self.__data = None
+		# don't do this or the tooltip code will fail: self.data = {}
+		# do this instead:
+		self._data = {}
 
 		self._on_selection_callbacks = []
 		self._on_lose_focus_callbacks = []
@@ -240,13 +180,13 @@ class cPhraseWheel(wx.TextCtrl):
 		self._on_modified_callbacks = []
 
 		try:
-			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB
+			kwargs['style'] = kwargs['style'] | wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER
 		except KeyError:
-			kwargs['style'] = wx.TE_PROCESS_TAB
-		wx.TextCtrl.__init__(self, parent, id, **kwargs)
+			kwargs['style'] = wx.TE_PROCESS_TAB | wx.TE_PROCESS_ENTER
+		super(cPhraseWheelBase, self).__init__(parent, id, **kwargs)
 
+		self.__my_startup_color = self.GetBackgroundColour()
 		self.__non_edit_font = self.GetFont()
-		self.__color_valid = self.GetBackgroundColour()
 		global color_prw_valid
 		if color_prw_valid is None:
 			color_prw_valid = wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW)
@@ -256,10 +196,80 @@ class cPhraseWheel(wx.TextCtrl):
 		self.__init_timer()
 	#--------------------------------------------------------
 	# external API
+	#---------------------------------------------------------
+	def GetData(self, can_create=False):
+		"""Retrieve the data associated with the displayed string(s).
+
+		- self._create_data() must set self.data if possible (/successful)
+		"""
+		if len(self._data) == 0:
+			if can_create:
+				self._create_data()
+
+		return self._data
+	#---------------------------------------------------------
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
+
+		if value is None:
+			value = u''
+
+		self.suppress_text_update_smarts = suppress_smarts
+
+		if data is not None:
+			self.suppress_text_update_smarts = True
+			self.data = self._dictify_data(data = data, value = value)
+		super(cPhraseWheelBase, self).SetValue(value)
+		self.display_as_valid(valid = True)
+
+		# if data already available
+		if len(self._data) > 0:
+			return True
+
+		# empty text value ?
+		if value == u'':
+			# valid value not required ?
+			if not self.selection_only:
+				return True
+
+		if not self._set_data_to_first_match():
+			# not found
+			if self.selection_only:
+				self.display_as_valid(valid = False)
+				return False
+
+		return True
+	#--------------------------------------------------------
+	def set_from_instance(self, instance):
+		raise NotImplementedError('[%s]: set_from_instance()' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def set_from_pk(self, pk):
+		raise NotImplementedError('[%s]: set_from_pk()' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def display_as_valid(self, valid=None, partially_invalid=False):
+		if valid is True:
+			self.SetBackgroundColour(self.__my_startup_color)
+		elif valid is False:
+			if partially_invalid:
+				self.SetBackgroundColour(color_prw_partially_invalid)
+			else:
+				self.SetBackgroundColour(color_prw_invalid)
+		else:
+			raise ValueError(u'<valid> must be True or False')
+		self.Refresh()
+	#--------------------------------------------------------
+	def display_as_disabled(self, disabled=None):
+		if disabled is True:
+			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		elif disabled is False:
+			self.SetBackgroundColour(color_prw_valid)
+		else:
+			raise ValueError(u'<disabled> must be True or False')
+		self.Refresh()
+	#--------------------------------------------------------
+	# callback API
 	#--------------------------------------------------------
 	def add_callback_on_selection(self, callback=None):
-		"""
-		Add a callback for invocation when a picklist item is selected.
+		"""Add a callback for invocation when a picklist item is selected.
 
 		The callback will be invoked whenever an item is selected
 		from the picklist. The associated data is passed in as
@@ -273,118 +283,27 @@ class cPhraseWheel(wx.TextCtrl):
 		self._on_selection_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_set_focus(self, callback=None):
-		"""
-		Add a callback for invocation when getting focus.
-		"""
+		"""Add a callback for invocation when getting focus."""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_set_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_set_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_lose_focus(self, callback=None):
-		"""
-		Add a callback for invocation when losing focus.
-		"""
+		"""Add a callback for invocation when losing focus."""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_lose_focus]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_lose_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_modified(self, callback=None):
-		"""
-		Add a callback for invocation when the content is modified.
-		"""
+		"""Add a callback for invocation when the content is modified."""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_modified]: ignoring callback [%s] - not callable' % callback)
 
 		self._on_modified_callbacks.append(callback)
-	#---------------------------------------------------------
-	def SetData(self, data=None):
-		"""
-		Set the data and thereby set the value, too.
-
-		If you call SetData() you better be prepared
-		doing a scan of the entire potential match space.
-
-		The whole thing will only work if data is found
-		in the match space anyways.
-		"""
-		if self.matcher is None:
-			matched, matches = (False, [])
-		else:
-			matched, matches = self.matcher.getMatches('*')
-
-		if self.selection_only:
-			if not matched or (len(matches) == 0):
-				return False
-
-		for match in matches:
-			if match['data'] == data:
-				self.display_as_valid(valid = True)
-				self.suppress_text_update_smarts = True
-				wx.TextCtrl.SetValue(self, match['label'])
-				self.data = data
-				return True
-
-		# no match found ...
-		if self.selection_only:
-			return False
-
-		self.data = data
-		self.display_as_valid(valid = True)
-		return True
-	#---------------------------------------------------------
-	def GetData(self, can_create=False, as_instance=False):
-		"""Retrieve the data associated with the displayed string.
-
-			_create_data() must set self.data if possible (successful)
-		"""
-		if self.data is None:
-			if can_create:
-				self._create_data()
-
-		if self.data is not None:
-			if as_instance:
-				return self._data2instance()
-
-		return self.data
-	#---------------------------------------------------------
-	def SetText(self, value=u'', data=None, suppress_smarts=False):
-
-		self.suppress_text_update_smarts = suppress_smarts
-
-		if data is not None:
-			self.suppress_text_update_smarts = True
-			self.data = data
-		if value is None:
-			value = u''
-		wx.TextCtrl.SetValue(self, value)
-		self.display_as_valid(valid = True)
-
-		# if data already available
-		if self.data is not None:
-			return True
-
-		if value == u'' and not self.selection_only:
-			return True
-
-		# or try to find data from matches
-		if self.matcher is None:
-			stat, matches = (False, [])
-		else:
-			stat, matches = self.matcher.getMatches(aFragment = value)
-
-		for match in matches:
-			if match['label'] == value:
-				self.data = match['data']
-				return True
-
-		# not found
-		if self.selection_only:
-			self.display_as_valid(valid = False)
-			return False
-
-		return True
+	#--------------------------------------------------------
+	# match provider proxies
 	#--------------------------------------------------------
 	def set_context(self, context=None, val=None):
 		if self.matcher is not None:
@@ -394,6 +313,8 @@ class cPhraseWheel(wx.TextCtrl):
 		if self.matcher is not None:
 			self.matcher.unset_context(context=context)
 	#--------------------------------------------------------
+	# spell-checking
+	#--------------------------------------------------------
 	def enable_default_spellchecker(self):
 		# FIXME: use Debian's wgerman-medical as "personal" wordlist if available
 		try:
@@ -401,21 +322,47 @@ class cPhraseWheel(wx.TextCtrl):
 		except ImportError:
 			self.speller = None
 			return False
+
 		try:
 			self.speller = enchant.DictWithPWL(None, os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck', 'wordlist.pwl')))
 		except enchant.DictNotFoundError:
 			self.speller = None
 			return False
+
 		return True
+	#---------------------------------------------------------
+	def _get_suggestions_from_spell_checker(self, val):
+		if self.speller is None:
+			return None
+
+		# get the last word
+		last_word = self.__speller_word_separators.split(val)[-1]
+		if last_word.strip() == u'':
+			return None
+
+		try:
+			suggestions = self.speller.suggest(last_word)
+		except:
+			_log.exception('had to disable (enchant) spell checker')
+			self.speller = None
+			return None
+
+		if len(suggestions) == 0:
+			return None
+
+		input2match_without_last_word = val[:val.rindex(last_word)]
+		return [ input2match_without_last_word + suggestion for suggestion in suggestions ]
 	#--------------------------------------------------------
-	def display_as_valid(self, valid=None):
-		if valid is True:
-			self.SetBackgroundColour(self.__color_valid)
-		elif valid is False:
-			self.SetBackgroundColour(color_prw_invalid)
+	def _set_speller_word_separators(self, word_separators):
+		if word_separators is None:
+			self.__speller_word_separators = regex.compile(default_spelling_word_separators, flags = regex.LOCALE | regex.UNICODE)
 		else:
-			raise ValueError(u'<valid> must be True or False')
-		self.Refresh()
+			self.__speller_word_separators = regex.compile(word_separators, flags = regex.LOCALE | regex.UNICODE)
+
+	def _get_speller_word_separators(self):
+		return self.__speller_word_separators.pattern
+
+	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -424,10 +371,10 @@ class cPhraseWheel(wx.TextCtrl):
 	def __init_dropdown(self, parent = None):
 		szr_dropdown = None
 		try:
-			#raise NotImplementedError		# for testing
+			#raise NotImplementedError		# uncomment for testing
 			self.__dropdown_needs_relative_position = False
-			self.__picklist_dropdown = wx.PopupWindow(parent)
-			list_parent = self.__picklist_dropdown
+			self._picklist_dropdown = wx.PopupWindow(parent)
+			list_parent = self._picklist_dropdown
 			self.__use_fake_popup = False
 		except NotImplementedError:
 			self.__use_fake_popup = True
@@ -438,251 +385,191 @@ class cPhraseWheel(wx.TextCtrl):
 
 			# using wx.MiniFrame
 			self.__dropdown_needs_relative_position = False
-			self.__picklist_dropdown = wx.MiniFrame (
+			self._picklist_dropdown = wx.MiniFrame (
 				parent = parent,
 				id = -1,
 				style = wx.SIMPLE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.FRAME_NO_TASKBAR | wx.POPUP_WINDOW
 			)
-			scroll_win = wx.ScrolledWindow(parent = self.__picklist_dropdown, style = wx.NO_BORDER)
+			scroll_win = wx.ScrolledWindow(parent = self._picklist_dropdown, style = wx.NO_BORDER)
 			scroll_win.SetSizer(szr_dropdown)
 			list_parent = scroll_win
 
 			# using wx.Window
 			#self.__dropdown_needs_relative_position = True
-			#self.__picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
-			#self.__picklist_dropdown.SetSizer(szr_dropdown)
-			#list_parent = self.__picklist_dropdown
+			#self._picklist_dropdown = wx.ScrolledWindow(parent=parent, style = wx.RAISED_BORDER)
+			#self._picklist_dropdown.SetSizer(szr_dropdown)
+			#list_parent = self._picklist_dropdown
 
-		self.mac_log('dropdown parent: %s' % self.__picklist_dropdown.GetParent())
+		self.__mac_log('dropdown parent: %s' % self._picklist_dropdown.GetParent())
 
-		# FIXME: support optional headers
-#		if kwargs['show_list_headers']:
-#			flags = 0
-#		else:
-#			flags = wx.LC_NO_HEADER
 		self._picklist = cPhraseWheelListCtrl (
 			list_parent,
 			style = wx.LC_NO_HEADER
 		)
-		self._picklist.InsertColumn(0, '')
+		self._picklist.InsertColumn(0, u'')
 
 		if szr_dropdown is not None:
 			szr_dropdown.Add(self._picklist, 1, wx.EXPAND)
 
-		self.__picklist_dropdown.Hide()
+		self._picklist_dropdown.Hide()
 	#--------------------------------------------------------
-	def _show_picklist(self):
-		"""Display the pick list."""
+	def _show_picklist(self, input2match):
+		"""Display the pick list if useful."""
 
-		border_width = 4
-		extra_height = 25
-
-		self.__picklist_dropdown.Hide()
-
-		# this helps if the current input was already selected from the
-		# list but still is the substring of another pick list item
-		if self.data is not None:
-			return
+		self._picklist_dropdown.Hide()
 
 		if not self._has_focus:
 			return
 
-		if len(self.__current_matches) == 0:
+		if len(self._current_match_candidates) == 0:
 			return
 
-		# if only one match and text == match
-		if len(self.__current_matches) == 1:
-			if self.__current_matches[0]['label'] == self.input2match:
-				self.data = self.__current_matches[0]['data']
+		# if only one match and text == match: do not show
+		# picklist but rather pick that match
+		if len(self._current_match_candidates) == 1:
+			candidate = self._current_match_candidates[0]
+			if candidate['field_label'] == input2match:
+				self._update_data_from_picked_item(candidate)
 				return
 
 		# recalculate size
-		rows = len(self.__current_matches)
+		dropdown_size = self._picklist_dropdown.GetSize()
+		border_width = 4
+		extra_height = 25
+		# height
+		rows = len(self._current_match_candidates)
 		if rows < 2:				# 2 rows minimum
 			rows = 2
 		if rows > 20:				# 20 rows maximum
 			rows = 20
-		self.mac_log('dropdown needs rows: %s' % rows)
-		dropdown_size = self.__picklist_dropdown.GetSize()
+		self.__mac_log('dropdown needs rows: %s' % rows)
 		pw_size = self.GetSize()
-		dropdown_size.SetWidth(pw_size.width)
 		dropdown_size.SetHeight (
 			(pw_size.height * rows)
 			+ border_width
 			+ extra_height
 		)
+		# width
+		dropdown_size.SetWidth(min (
+			self.Size.width * 2,
+			self.Parent.Size.width
+		))
 
 		# recalculate position
 		(pw_x_abs, pw_y_abs) = self.ClientToScreenXY(0,0)
-		self.mac_log('phrasewheel position (on screen): x:%s-%s, y:%s-%s' % (pw_x_abs, (pw_x_abs+pw_size.width), pw_y_abs, (pw_y_abs+pw_size.height)))
+		self.__mac_log('phrasewheel position (on screen): x:%s-%s, y:%s-%s' % (pw_x_abs, (pw_x_abs+pw_size.width), pw_y_abs, (pw_y_abs+pw_size.height)))
 		dropdown_new_x = pw_x_abs
 		dropdown_new_y = pw_y_abs + pw_size.height
-		self.mac_log('desired dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
-		self.mac_log('desired dropdown size: %s' % dropdown_size)
+		self.__mac_log('desired dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
+		self.__mac_log('desired dropdown size: %s' % dropdown_size)
 
 		# reaches beyond screen ?
 		if (dropdown_new_y + dropdown_size.height) > self._screenheight:
-			self.mac_log('dropdown extends offscreen (screen max y: %s)' % self._screenheight)
+			self.__mac_log('dropdown extends offscreen (screen max y: %s)' % self._screenheight)
 			max_height = self._screenheight - dropdown_new_y - 4
-			self.mac_log('max dropdown height would be: %s' % max_height)
+			self.__mac_log('max dropdown height would be: %s' % max_height)
 			if max_height > ((pw_size.height * 2) + 4):
 				dropdown_size.SetHeight(max_height)
-				self.mac_log('possible dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
-				self.mac_log('possible dropdown size: %s' % dropdown_size)
+				self.__mac_log('possible dropdown position (on screen): x:%s-%s, y:%s-%s' % (dropdown_new_x, (dropdown_new_x+dropdown_size.width), dropdown_new_y, (dropdown_new_y+dropdown_size.height)))
+				self.__mac_log('possible dropdown size: %s' % dropdown_size)
 
 		# now set dimensions
-		self.__picklist_dropdown.SetSize(dropdown_size)
-		self._picklist.SetSize(self.__picklist_dropdown.GetClientSize())
-		self.mac_log('pick list size set to: %s' % self.__picklist_dropdown.GetSize())
+		self._picklist_dropdown.SetSize(dropdown_size)
+		self._picklist.SetSize(self._picklist_dropdown.GetClientSize())
+		self.__mac_log('pick list size set to: %s' % self._picklist_dropdown.GetSize())
 		if self.__dropdown_needs_relative_position:
-			dropdown_new_x, dropdown_new_y = self.__picklist_dropdown.GetParent().ScreenToClientXY(dropdown_new_x, dropdown_new_y)
-		self.__picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
+			dropdown_new_x, dropdown_new_y = self._picklist_dropdown.GetParent().ScreenToClientXY(dropdown_new_x, dropdown_new_y)
+		self._picklist_dropdown.MoveXY(dropdown_new_x, dropdown_new_y)
 
 		# select first value
 		self._picklist.Select(0)
 
 		# and show it
-		self.__picklist_dropdown.Show(True)
+		self._picklist_dropdown.Show(True)
 
-		dd_tl = self.__picklist_dropdown.ClientToScreenXY(0,0)
-		dd_size = self.__picklist_dropdown.GetSize()
-		dd_br = self.__picklist_dropdown.ClientToScreenXY(dd_size.width, dd_size.height)
-		self.mac_log('dropdown placement now (on screen): x:%s-%s, y:%s-%s' % (dd_tl[0], dd_br[0], dd_tl[1], dd_br[1]))
+#		dropdown_top_left = self._picklist_dropdown.ClientToScreenXY(0,0)
+#		dropdown_size = self._picklist_dropdown.GetSize()
+#		dropdown_bottom_right = self._picklist_dropdown.ClientToScreenXY(dropdown_size.width, dropdown_size.height)
+#		self.__mac_log('dropdown placement now (on screen): x:%s-%s, y:%s-%s' % (
+#			dropdown_top_left[0],
+#			dropdown_bottom_right[0],
+#			dropdown_top_left[1],
+#			dropdown_bottom_right[1])
+#		)
 	#--------------------------------------------------------
 	def _hide_picklist(self):
 		"""Hide the pick list."""
-		self.__picklist_dropdown.Hide()		# dismiss the dropdown list window
+		self._picklist_dropdown.Hide()
 	#--------------------------------------------------------
-	def __select_picklist_row(self, new_row_idx=None, old_row_idx=None):
+	def _select_picklist_row(self, new_row_idx=None, old_row_idx=None):
+		"""Mark the given picklist row as selected."""
 		if old_row_idx is not None:
 			pass			# FIXME: do we need unselect here ? Select() should do it for us
 		self._picklist.Select(new_row_idx)
 		self._picklist.EnsureVisible(new_row_idx)
+	#--------------------------------------------------------
+	def _picklist_item2display_string(self, item=None):
+		"""Get string to display in the field for the given picklist item."""
+		if item is None:
+			item = self._picklist.get_selected_item()
+		try:
+			return item['field_label']
+		except KeyError:
+			pass
+		try:
+			return item['list_label']
+		except KeyError:
+			pass
+		try:
+			return item['label']
+		except KeyError:
+			return u'<no field_*/list_*/label in item>'
+			#return self._picklist.GetItemText(self._picklist.GetFirstSelected())
+	#--------------------------------------------------------
+	def _update_display_from_picked_item(self, item):
+		"""Update the display to show item strings."""
+		# default to single phrase
+		display_string = self._picklist_item2display_string(item = item)
+		self.suppress_text_update_smarts = True
+		super(cPhraseWheelBase, self).SetValue(display_string)
+		# in single-phrase phrasewheels always set cursor to end of string
+		self.SetInsertionPoint(self.GetLastPosition())
+		return
+	#--------------------------------------------------------
+	# match generation
+	#--------------------------------------------------------
+	def _extract_fragment_to_match_on(self):
+		raise NotImplementedError('[%s]: fragment extraction not implemented' % self.__class__.__name__)
 	#---------------------------------------------------------
-	def __update_matches_in_picklist(self, val=None):
-		"""Get the matches for the currently typed input fragment."""
-
-		self.input2match = val
-		if self.input2match is None:
-			if self.__phrase_separators is None:
-				self.input2match = self.GetValue().strip()
-			else:
-				# get current(ly relevant part of) input
-				entire_input = self.GetValue()
-				cursor_pos = self.GetInsertionPoint()
-				left_of_cursor = entire_input[:cursor_pos]
-				right_of_cursor = entire_input[cursor_pos:]
-				left_boundary = self.__phrase_separators.search(left_of_cursor)
-				if left_boundary is not None:
-					phrase_start = left_boundary.end()
-				else:
-					phrase_start = 0
-				self.left_part = entire_input[:phrase_start]
-				# find next phrase separator after cursor position
-				right_boundary = self.__phrase_separators.search(right_of_cursor)
-				if right_boundary is not None:
-					phrase_end = cursor_pos + (right_boundary.start() - 1)
-				else:
-					phrase_end = len(entire_input) - 1
-				self.right_part = entire_input[phrase_end+1:]
-				self.input2match = entire_input[phrase_start:phrase_end+1]
+	def _update_candidates_in_picklist(self, val):
+		"""Get candidates matching the currently typed input."""
 
 		# get all currently matching items
+		self._current_match_candidates = []
 		if self.matcher is not None:
-			matched, self.__current_matches = self.matcher.getMatches(self.input2match)
-			self._picklist.SetItems(self.__current_matches)
+			matched, self._current_match_candidates = self.matcher.getMatches(val)
+			self._picklist.SetItems(self._current_match_candidates)
 
-		# no matches found: might simply be due to a typo, so spellcheck
-		if len(self.__current_matches) == 0:
-			if self.speller is not None:
-				# filter out the last word
-				word = regex.split(self.__speller_word_separators, self.input2match)[-1]
-				if word.strip() != u'':
-					success = False
-					try:
-						success = self.speller.check(word)
-					except:
-						_log.exception('had to disable enchant spell checker')
-						self.speller = None
-					if success:
-						spells = self.speller.suggest(word)
-						truncated_input2match = self.input2match[:self.input2match.rindex(word)]
-						for spell in spells:
-							self.__current_matches.append({'label': truncated_input2match + spell, 'data': None})
-						self._picklist.SetItems(self.__current_matches)
+		# no matches:
+		# - none found (perhaps due to a typo)
+		# - or no matcher available
+		# anyway: spellcheck
+		if len(self._current_match_candidates) == 0:
+			suggestions = self._get_suggestions_from_spell_checker(val)
+			if suggestions is not None:
+				self._current_match_candidates = [
+					{'list_label': suggestion, 'field_label': suggestion, 'data': None}
+						for suggestion in suggestions
+				]
+				self._picklist.SetItems(self._current_match_candidates)
 	#--------------------------------------------------------
-	def _picklist_selection2display_string(self):
-		return self._picklist.GetItemText(self._picklist.GetFirstSelected())
-	#--------------------------------------------------------
-	# internal helpers: GUI
-	#--------------------------------------------------------
-	def _on_enter(self):
-		"""Called when the user pressed <ENTER>."""
-		if self.__picklist_dropdown.IsShown():
-			self._on_list_item_selected()
-		else:
-			# FIXME: check for errors before navigation
-			self.Navigate()
-	#--------------------------------------------------------
-	def __on_cursor_down(self):
-
-		if self.__picklist_dropdown.IsShown():
-			selected = self._picklist.GetFirstSelected()
-			if selected < (len(self.__current_matches) - 1):
-				self.__select_picklist_row(selected+1, selected)
-
-		# if we don't yet have a pick list: open new pick list
-		# (this can happen when we TAB into a field pre-filled
-		# with the top-weighted contextual data but want to
-		# select another contextual item)
-		else:
-			self.__timer.Stop()
-			if self.GetValue().strip() == u'':
-				self.__update_matches_in_picklist(val='*')
-			else:
-				self.__update_matches_in_picklist()
-			self._show_picklist()
-	#--------------------------------------------------------
-	def __on_cursor_up(self):
-		if self.__picklist_dropdown.IsShown():
-			selected = self._picklist.GetFirstSelected()
-			if selected > 0:
-				self.__select_picklist_row(selected-1, selected)
-		else:
-			# FIXME: input history ?
-			pass
-	#--------------------------------------------------------
-	def __on_tab(self):
-		"""Under certain circumstances takes special action on TAB.
-
-		returns:
-			True: TAB was handled
-			False: TAB was not handled
-		"""
-		if not self.__picklist_dropdown.IsShown():
-			return False
-
-		if len(self.__current_matches) != 1:
-			return False
-
-		if not self.selection_only:
-			return False
-
-		self.__select_picklist_row(new_row_idx=0)
-		self._on_list_item_selected()
-
-		return True
-	#--------------------------------------------------------
-	# internal helpers: logic
-	#--------------------------------------------------------
-	def _create_data(self):
-		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
+	# tooltip handling
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		# by default do not support dynamic tooltip parts
 		return None
 	#--------------------------------------------------------
-	def __reset_tooltip(self):
+	def __recalculate_tooltip(self):
 		"""Calculate dynamic tooltip part based on data item.
 
 		- called via ._set_data() each time property .data (-> .__data) is set
@@ -698,16 +585,21 @@ class cPhraseWheel(wx.TextCtrl):
 			else:
 				self.__static_tt = self.ToolTip.Tip
 
-		dynamic_part = self._get_data_tooltip()
-		if dynamic_part is None:
-			return
-
+		# need to always calculate static part because
+		# the dynamic part can have *become* None, again,
+		# in which case we want to be able to re-set the
+		# tooltip to the static part
 		static_part = self.__static_tt
 		if (self.__static_tt_extra) is not None and (self.__static_tt_extra.strip() != u''):
 			static_part = u'%s\n\n%s' % (
 				static_part,
 				self.__static_tt_extra
 			)
+
+		dynamic_part = self._get_data_tooltip()
+		if dynamic_part is None:
+			self.SetToolTipString(static_part)
+			return
 
 		if static_part == u'':
 			tt = dynamic_part
@@ -720,77 +612,8 @@ class cPhraseWheel(wx.TextCtrl):
 					gmTools.u_box_horiz_single * 32,
 					static_part
 				)
+
 		self.SetToolTipString(tt)
-	#--------------------------------------------------------
-	def __char_is_allowed(self, char=None):
-		# if undefined accept all chars
-		if self.accepted_chars is None:
-			return True
-		return (self.__accepted_chars.match(char) is not None)
-	#--------------------------------------------------------
-	# properties
-	#--------------------------------------------------------
-	def _get_data(self):
-		return self.__data
-
-	def _set_data(self, data):
-		self.__data = data
-		self.__reset_tooltip()
-
-	data = property(_get_data, _set_data)
-	#--------------------------------------------------------
-	def _set_accepted_chars(self, accepted_chars=None):
-		if accepted_chars is None:
-			self.__accepted_chars = None
-		else:
-			self.__accepted_chars = regex.compile(accepted_chars)
-
-	def _get_accepted_chars(self):
-		if self.__accepted_chars is None:
-			return None
-		return self.__accepted_chars.pattern
-
-	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
-	#--------------------------------------------------------
-	def _set_final_regex(self, final_regex='.*'):
-		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
-
-	def _get_final_regex(self):
-		return self.__final_regex.pattern
-
-	final_regex = property(_get_final_regex, _set_final_regex)
-	#--------------------------------------------------------
-	def _set_final_regex_error_msg(self, msg):
-		self.__final_regex_error_msg = msg % self.final_regex
-
-	def _get_final_regex_error_msg(self):
-		return self.__final_regex_error_msg
-
-	final_regex_error_msg = property(_get_final_regex_error_msg, _set_final_regex_error_msg)
-	#--------------------------------------------------------
-	def _set_phrase_separators(self, phrase_separators):
-		if phrase_separators is None:
-			self.__phrase_separators = None
-		else:
-			self.__phrase_separators = regex.compile(phrase_separators, flags = regex.LOCALE | regex.UNICODE)
-
-	def _get_phrase_separators(self):
-		if self.__phrase_separators is None:
-			return None
-		return self.__phrase_separators.pattern
-
-	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
-	#--------------------------------------------------------
-	def _set_speller_word_separators(self, word_separators):
-		if word_separators is None:
-			self.__speller_word_separators = regex.compile('[\W\d_]+', flags = regex.LOCALE | regex.UNICODE)
-		else:
-			self.__speller_word_separators = regex.compile(word_separators, flags = regex.LOCALE | regex.UNICODE)
-
-	def _get_speller_word_separators(self):
-		return self.__speller_word_separators.pattern
-
-	speller_word_separators = property(_get_speller_word_separators, _set_speller_word_separators)
 	#--------------------------------------------------------
 	def _get_static_tt_extra(self):
 		return self.__static_tt_extra
@@ -800,73 +623,14 @@ class cPhraseWheel(wx.TextCtrl):
 
 	static_tooltip_extra = property(_get_static_tt_extra, _set_static_tt_extra)
 	#--------------------------------------------------------
-	# timer code
-	#--------------------------------------------------------
-	def __init_timer(self):
-		self.__timer = _cPRWTimer()
-		self.__timer.callback = self._on_timer_fired
-		# initially stopped
-		self.__timer.Stop()
-	#--------------------------------------------------------
-	def _on_timer_fired(self):
-		"""Callback for delayed match retrieval timer.
-
-		if we end up here:
-		 - delay has passed without user input
-		 - the value in the input field has not changed since the timer started
-		"""
-		# update matches according to current input
-		self.__update_matches_in_picklist()
-
-		# we now have either:
-		# - all possible items (within reasonable limits) if input was '*'
-		# - all matching items
-		# - an empty match list if no matches were found
-		# also, our picklist is refilled and sorted according to weight
-
-		wx.CallAfter(self._show_picklist)
-	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_events(self):
-		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
 		wx.EVT_KEY_DOWN (self, self._on_key_down)
 		wx.EVT_SET_FOCUS(self, self._on_set_focus)
 		wx.EVT_KILL_FOCUS(self, self._on_lose_focus)
+		wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
 		self._picklist.Bind(wx.EVT_LEFT_DCLICK, self._on_list_item_selected)
-	#--------------------------------------------------------
-	def _on_list_item_selected(self, *args, **kwargs):
-		"""Gets called when user selected a list item."""
-
-		self._hide_picklist()
-		self.display_as_valid(valid = True)
-
-		data = self._picklist.GetSelectedItemData()	# just so that _picklist_selection2display_string can use it
-		if data is None:
-			return
-
-		self.data = data
-
-		# update our display
-		self.suppress_text_update_smarts = True
-		if self.__phrase_separators is not None:
-			wx.TextCtrl.SetValue(self, u'%s%s%s' % (self.left_part, self._picklist_selection2display_string(), self.right_part))
-		else:
-			wx.TextCtrl.SetValue(self, self._picklist_selection2display_string())
-
-		self.data = self._picklist.GetSelectedItemData()
-		self.MarkDirty()
-
-		# and tell the listeners about the user's selection
-		for callback in self._on_selection_callbacks:
-			callback(self.data)
-
-		if self.navigate_after_selection:
-			self.Navigate()
-		else:
-			self.SetInsertionPoint(self.GetLastPosition())
-
-		return
 	#--------------------------------------------------------
 	def _on_key_down(self, event):
 		"""Is called when a key is pressed."""
@@ -899,51 +663,11 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# need to handle all non-character key presses *before* this check
 		elif not self.__char_is_allowed(char = unichr(event.GetUnicodeKey())):
-			# FIXME: configure ?
 			wx.Bell()
-			# FIXME: display error message ?  Richard doesn't ...
+			# Richard doesn't show any error message here
 			return
 
 		event.Skip()
-		return
-	#--------------------------------------------------------
-	def _on_text_update (self, event):
-		"""Internal handler for wx.EVT_TEXT.
-
-		Called when text was changed by user or SetValue().
-		"""
-		if self.suppress_text_update_smarts:
-			self.suppress_text_update_smarts = False
-			return
-
-		self.data = None
-		self.__current_matches = []
-
-		# if empty string then hide list dropdown window
-		# we also don't need a timer event then
-		val = self.GetValue().strip()
-		ins_point = self.GetInsertionPoint()
-		if val == u'':
-			self._hide_picklist()
-			self.__timer.Stop()
-		else:
-			new_val = gmTools.capitalize(text = val, mode = self.capitalisation_mode)
-			if new_val != val:
-				self.suppress_text_update_smarts = True
-				wx.TextCtrl.SetValue(self, new_val)
-				if ins_point > len(new_val):
-					self.SetInsertionPointEnd()
-				else:
-					self.SetInsertionPoint(ins_point)
-					# FIXME: SetSelection() ?
-
-			# start timer for delayed match retrieval
-			self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
-
-		# notify interested parties
-		for callback in self._on_modified_callbacks:
-			callback()
-
 		return
 	#--------------------------------------------------------
 	def _on_set_focus(self, event):
@@ -972,13 +696,9 @@ class cPhraseWheel(wx.TextCtrl):
 		"""
 		self._has_focus = False
 
-		# don't need timer and pick list anymore
 		self.__timer.Stop()
 		self._hide_picklist()
-
-		# unset selection
 		self.SetSelection(1,1)
-
 		self.SetFont(self.__non_edit_font)
 		self.Refresh()
 
@@ -986,32 +706,12 @@ class cPhraseWheel(wx.TextCtrl):
 
 		# the user may have typed a phrase that is an exact match,
 		# however, just typing it won't associate data from the
-		# picklist, so do that now
-		if self.data is None:
-			val = self.GetValue().strip()
-			if val != u'':
-				self.__update_matches_in_picklist()
-				for match in self.__current_matches:
-					if match['label'] == val:
-						self.data = match['data']
-						self.MarkDirty()
-						break
-
-		# no exact match found
-		if self.data is None:
-			if self.selection_only:
-				wx.lib.pubsub.Publisher().sendMessage (
-					topic = 'statustext',
-					data = {'msg': self.selection_only_error_msg}
-				)
-				is_valid = False
+		# picklist, so try do that now
+		self._set_data_to_first_match()
 
 		# check value against final_regex if any given
 		if self.__final_regex.match(self.GetValue().strip()) is None:
-			wx.lib.pubsub.Publisher().sendMessage (
-				topic = 'statustext',
-				data = {'msg': self.final_regex_error_msg}
-			)
+			gmDispatcher.send(signal = 'statustext', msg = self.final_regex_error_msg)
 			is_valid = False
 
 		self.display_as_valid(valid = is_valid)
@@ -1022,13 +722,567 @@ class cPhraseWheel(wx.TextCtrl):
 
 		event.Skip()
 		return True
+	#--------------------------------------------------------
+	def _on_list_item_selected(self, *args, **kwargs):
+		"""Gets called when user selected a list item."""
+
+		self._hide_picklist()
+
+		item = self._picklist.get_selected_item()
+		# huh ?
+		if item is None:
+			self.display_as_valid(valid = True)
+			return
+
+		self._update_display_from_picked_item(item)
+		self._update_data_from_picked_item(item)
+		self.MarkDirty()
+
+		# and tell the listeners about the user's selection
+		for callback in self._on_selection_callbacks:
+			callback(self._data)
+
+		if self.navigate_after_selection:
+			self.Navigate()
+
+		return
+	#--------------------------------------------------------
+	def _on_text_update (self, event):
+		"""Internal handler for wx.EVT_TEXT.
+
+		Called when text was changed by user or by SetValue().
+		"""
+		if self.suppress_text_update_smarts:
+			self.suppress_text_update_smarts = False
+			return
+
+		self._adjust_data_after_text_update()
+		self._current_match_candidates = []
+
+		val = self.GetValue().strip()
+		ins_point = self.GetInsertionPoint()
+
+		# if empty string then hide list dropdown window
+		# we also don't need a timer event then
+		if val == u'':
+			self._hide_picklist()
+			self.__timer.Stop()
+		else:
+			new_val = gmTools.capitalize(text = val, mode = self.capitalisation_mode)
+			if new_val != val:
+				self.suppress_text_update_smarts = True
+				super(cPhraseWheelBase, self).SetValue(new_val)
+				if ins_point > len(new_val):
+					self.SetInsertionPointEnd()
+				else:
+					self.SetInsertionPoint(ins_point)
+					# FIXME: SetSelection() ?
+
+			# start timer for delayed match retrieval
+			self.__timer.Start(oneShot = True, milliseconds = self.picklist_delay)
+
+		# notify interested parties
+		for callback in self._on_modified_callbacks:
+			callback()
+
+		return
+	#--------------------------------------------------------
+	# keypress handling
+	#--------------------------------------------------------
+	def _on_enter(self):
+		"""Called when the user pressed <ENTER>."""
+		if self._picklist_dropdown.IsShown():
+			self._on_list_item_selected()
+		else:
+			# FIXME: check for errors before navigation
+			self.Navigate()
+	#--------------------------------------------------------
+	def __on_cursor_down(self):
+
+		if self._picklist_dropdown.IsShown():
+			idx_selected = self._picklist.GetFirstSelected()
+			if idx_selected < (len(self._current_match_candidates) - 1):
+				self._select_picklist_row(idx_selected + 1, idx_selected)
+			return
+
+		# if we don't yet have a pick list: open new pick list
+		# (this can happen when we TAB into a field pre-filled
+		# with the top-weighted contextual item but want to
+		# select another contextual item)
+		self.__timer.Stop()
+		if self.GetValue().strip() == u'':
+			val = u'*'
+		else:
+			val = self._extract_fragment_to_match_on()
+		self._update_candidates_in_picklist(val = val)
+		self._show_picklist(input2match = val)
+	#--------------------------------------------------------
+	def __on_cursor_up(self):
+		if self._picklist_dropdown.IsShown():
+			selected = self._picklist.GetFirstSelected()
+			if selected > 0:
+				self._select_picklist_row(selected-1, selected)
+		else:
+			# FIXME: input history ?
+			pass
+	#--------------------------------------------------------
+	def __on_tab(self):
+		"""Under certain circumstances take special action on <TAB>.
+
+		returns:
+			True: <TAB> was handled
+			False: <TAB> was not handled
+
+		-> can be used to decide whether to do further <TAB> handling outside this class
+		"""
+		# are we seeing the picklist ?
+		if not self._picklist_dropdown.IsShown():
+			return False
+
+		# with only one candidate ?
+		if len(self._current_match_candidates) != 1:
+			return False
+
+		# and do we require the input to be picked from the candidates ?
+		if not self.selection_only:
+			return False
+
+		# then auto-select that item
+		self._select_picklist_row(new_row_idx = 0)
+		self._on_list_item_selected()
+
+		return True
+	#--------------------------------------------------------
+	# timer handling
+	#--------------------------------------------------------
+	def __init_timer(self):
+		self.__timer = _cPRWTimer()
+		self.__timer.callback = self._on_timer_fired
+		# initially stopped
+		self.__timer.Stop()
+	#--------------------------------------------------------
+	def _on_timer_fired(self):
+		"""Callback for delayed match retrieval timer.
+
+		if we end up here:
+		 - delay has passed without user input
+		 - the value in the input field has not changed since the timer started
+		"""
+		# update matches according to current input
+		val = self._extract_fragment_to_match_on()
+		self._update_candidates_in_picklist(val = val)
+
+		# we now have either:
+		# - all possible items (within reasonable limits) if input was '*'
+		# - all matching items
+		# - an empty match list if no matches were found
+		# also, our picklist is refilled and sorted according to weight
+		wx.CallAfter(self._show_picklist, input2match = val)
 	#----------------------------------------------------
-	def mac_log(self, msg):
+	# random helpers and properties
+	#----------------------------------------------------
+	def __mac_log(self, msg):
 		if self.__use_fake_popup:
 			_log.debug(msg)
-#--------------------------------------------------------
-# MAIN
-#--------------------------------------------------------
+	#--------------------------------------------------------
+	def __char_is_allowed(self, char=None):
+		# if undefined accept all chars
+		if self.accepted_chars is None:
+			return True
+		return (self.__accepted_chars.match(char) is not None)
+	#--------------------------------------------------------
+	def _set_accepted_chars(self, accepted_chars=None):
+		if accepted_chars is None:
+			self.__accepted_chars = None
+		else:
+			self.__accepted_chars = regex.compile(accepted_chars)
+
+	def _get_accepted_chars(self):
+		if self.__accepted_chars is None:
+			return None
+		return self.__accepted_chars.pattern
+
+	accepted_chars = property(_get_accepted_chars, _set_accepted_chars)
+	#--------------------------------------------------------
+	def _set_final_regex(self, final_regex='.*'):
+		self.__final_regex = regex.compile(final_regex, flags = regex.LOCALE | regex.UNICODE)
+
+	def _get_final_regex(self):
+		return self.__final_regex.pattern
+
+	final_regex = property(_get_final_regex, _set_final_regex)
+	#--------------------------------------------------------
+	def _set_final_regex_error_msg(self, msg):
+		self.__final_regex_error_msg = msg % self.final_regex
+
+	def _get_final_regex_error_msg(self):
+		return self.__final_regex_error_msg
+
+	final_regex_error_msg = property(_get_final_regex_error_msg, _set_final_regex_error_msg)
+	#--------------------------------------------------------
+	# data munging
+	#--------------------------------------------------------
+	def _set_data_to_first_match(self):
+		return False
+	#--------------------------------------------------------
+	def _update_data_from_picked_item(self, item):
+		self.data = {item['field_label']: item}
+	#--------------------------------------------------------
+	def _dictify_data(self, data=None, value=None):
+		raise NotImplementedError('[%s]: _dictify_data()' % self.__class__.__name__)
+	#---------------------------------------------------------
+	def _adjust_data_after_text_update(self):
+		raise NotImplementedError('[%s]: cannot adjust data after text update' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def _data2match(self, data):
+		if self.matcher is None:
+			return None
+		return self.matcher.get_match_by_data(data = data)
+	#--------------------------------------------------------
+	def _create_data(self):
+		raise NotImplementedError('[%s]: cannot create data object' % self.__class__.__name__)
+	#--------------------------------------------------------
+	def _get_data(self):
+		return self._data
+
+	def _set_data(self, data):
+		self._data = data
+		self.__recalculate_tooltip()
+
+	data = property(_get_data, _set_data)
+
+#============================================================
+# FIXME: cols in pick list
+# FIXME: snap_to_basename+set selection
+# FIXME: learn() -> PWL
+# FIXME: up-arrow: show recent (in-memory) history
+#----------------------------------------------------------
+# ideas
+#----------------------------------------------------------
+#- display possible completion but highlighted for deletion
+#(- cycle through possible completions)
+#- pre-fill selection with SELECT ... LIMIT 25
+#- async threads for match retrieval instead of timer
+#  - on truncated results return item "..." -> selection forcefully retrieves all matches
+
+#- generators/yield()
+#- OnChar() - process a char event
+
+# split input into words and match components against known phrases
+
+# make special list window:
+# - deletion of items
+# - highlight matched parts
+# - faster scrolling
+# - wxEditableListBox ?
+
+# - if non-learning (i.e. fast select only): autocomplete with match
+#   and move cursor to end of match
+#-----------------------------------------------------------------------------------------------
+# darn ! this clever hack won't work since we may have crossed a search location threshold
+#----
+#	#self.__prevFragment = "***********-very-unlikely--------------***************"
+#	#self.__prevMatches = []		# a list of tuples (ID, listbox name, weight)
+#
+#	# is the current fragment just a longer version of the previous fragment ?
+#	if string.find(aFragment, self.__prevFragment) == 0:
+#	    # we then need to search in the previous matches only
+#	    for prevMatch in self.__prevMatches:
+#		if string.find(prevMatch[1], aFragment) == 0:
+#		    matches.append(prevMatch)
+#	    # remember current matches
+#	    self.__prefMatches = matches
+#	    # no matches found
+#	    if len(matches) == 0:
+#		return [(1,_('*no matching items found*'),1)]
+#	    else:
+#		return matches
+#----
+#TODO:
+# - see spincontrol for list box handling
+# stop list (list of negatives): "an" -> "animal" but not "and"
+#-----
+#> > remember, you should be searching on  either weighted data, or in some
+#> > situations a start string search on indexed data
+#>
+#> Can you be a bit more specific on this ?
+
+#seaching ones own previous text entered  would usually be instring but
+#weighted (ie the phrases you use the most auto filter to the top)
+
+#Searching a drug database for a   drug brand name is usually more
+#functional if it does a start string search, not an instring search which is
+#much slower and usually unecesary.  There are many other examples but trust
+#me one needs both
+
+# FIXME: support selection-only-or-empty
+
+
+#============================================================
+class cPhraseWheel(cPhraseWheelBase):
+
+	def GetData(self, can_create=False, as_instance=False):
+
+		super(cPhraseWheel, self).GetData(can_create = can_create)
+
+		if len(self._data) > 0:
+			if as_instance:
+				return self._data2instance()
+
+		if len(self._data) == 0:
+			return None
+
+		return self._data.values()[0]['data']
+	#---------------------------------------------------------
+	def SetData(self, data=None):
+		"""Set the data and thereby set the value, too. if possible.
+
+		If you call SetData() you better be prepared
+		doing a scan of the entire potential match space.
+
+		The whole thing will only work if data is found
+		in the match space anyways.
+		"""
+		# try getting match candidates
+		self._update_candidates_in_picklist(u'*')
+
+		# do we require a match ?
+		if self.selection_only:
+			# yes, but we don't have any candidates
+			if len(self._current_match_candidates) == 0:
+				return False
+
+		# among candidates look for a match with <data>
+		for candidate in self._current_match_candidates:
+			if candidate['data'] == data:
+				super(cPhraseWheel, self).SetText (
+					value = candidate['field_label'],
+					data = data,
+					suppress_smarts = True
+				)
+				return True
+
+		# no match found in candidates (but needed) ...
+		if self.selection_only:
+			self.display_as_valid(valid = False)
+			return False
+
+		self.data = self._dictify_data(data = data)
+		self.display_as_valid(valid = True)
+		return True
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def _show_picklist(self, input2match):
+
+		# this helps if the current input was already selected from the
+		# list but still is the substring of another pick list item or
+		# else the picklist will re-open just after selection
+		if len(self._data) > 0:
+			self._picklist_dropdown.Hide()
+			return
+
+		return super(cPhraseWheel, self)._show_picklist(input2match = input2match)
+	#--------------------------------------------------------
+	def _set_data_to_first_match(self):
+		# data already set ?
+		if len(self._data) > 0:
+			return True
+
+		# needed ?
+		val = self.GetValue().strip()
+		if val == u'':
+			return True
+
+		# so try
+		self._update_candidates_in_picklist(val = val)
+		for candidate in self._current_match_candidates:
+			if candidate['field_label'] == val:
+				self.data = {candidate['field_label']: candidate}
+				self.MarkDirty()
+				return True
+
+		# no exact match found
+		if self.selection_only:
+			gmDispatcher.send(signal = 'statustext', msg = self.selection_only_error_msg)
+			is_valid = False
+			return False
+
+		return True
+	#---------------------------------------------------------
+	def _adjust_data_after_text_update(self):
+		self.data = {}
+	#---------------------------------------------------------
+	def _extract_fragment_to_match_on(self):
+		return self.GetValue().strip()
+	#---------------------------------------------------------
+	def _dictify_data(self, data=None, value=None):
+		# assume data to always be old style
+		if value is None:
+			value = u'%s' % data
+		return {value: {'data': data, 'list_label': value, 'field_label': value}}
+#============================================================
+class cMultiPhraseWheel(cPhraseWheelBase):
+
+	def __init__(self, *args, **kwargs):
+
+		super(cMultiPhraseWheel, self).__init__(*args, **kwargs)
+
+		self.phrase_separators = default_phrase_separators
+		self.left_part = u''
+		self.right_part = u''
+		self.speller = None
+	#---------------------------------------------------------
+	def GetData(self, can_create=False, as_instance=False):
+
+		super(cMultiPhraseWheel, self).GetData(can_create = can_create)
+
+		if len(self._data) > 0:
+			if as_instance:
+				return self._data2instance()
+
+		return self._data.values()
+	#---------------------------------------------------------
+	def enable_default_spellchecker(self):
+		self.speller = None
+		return True
+	#---------------------------------------------------------
+	def list2data_dict(self, data_items=None):
+
+		data_dict = {}
+
+		for item in data_items:
+			try:
+				list_label = item['list_label']
+			except KeyError:
+				list_label = item['label']
+			try:
+				field_label = item['field_label']
+			except KeyError:
+				field_label = list_label
+			data_dict[field_label] = {'data': item['data'], 'list_label': list_label, 'field_label': field_label}
+
+		return data_dict
+	#---------------------------------------------------------
+	# internal API
+	#---------------------------------------------------------
+	def _get_suggestions_from_speller(self, val):
+		return None
+	#---------------------------------------------------------
+	def _adjust_data_after_text_update(self):
+		# the textctrl display must already be set properly
+		new_data = {}
+		# this way of looping automatically removes stale
+		# data for labels which are no longer displayed
+		for displayed_label in self.displayed_strings:
+			try:
+				new_data[displayed_label] = self._data[displayed_label]
+			except KeyError:
+				# this removes stale data for which there
+				# is no displayed_label anymore
+				pass
+
+		self.data = new_data
+	#---------------------------------------------------------
+	def _extract_fragment_to_match_on(self):
+
+		cursor_pos = self.GetInsertionPoint()
+
+		entire_input = self.GetValue()
+		if self.__phrase_separators.search(entire_input) is None:
+			self.left_part = u''
+			self.right_part = u''
+			return self.GetValue().strip()
+
+		string_left_of_cursor = entire_input[:cursor_pos]
+		string_right_of_cursor = entire_input[cursor_pos:]
+
+		left_parts = [ lp.strip() for lp in self.__phrase_separators.split(string_left_of_cursor) ]
+		if len(left_parts) == 0:
+			self.left_part = u''
+		else:
+			self.left_part = u'%s%s ' % (
+				(u'%s ' % self.__phrase_separators.pattern[0]).join(left_parts[:-1]),
+				self.__phrase_separators.pattern[0]
+			)
+
+		right_parts = [ rp.strip() for rp in self.__phrase_separators.split(string_right_of_cursor) ]
+		self.right_part = u'%s %s' % (
+			self.__phrase_separators.pattern[0],
+			(u'%s ' % self.__phrase_separators.pattern[0]).join(right_parts[1:])
+		)
+
+		val = (left_parts[-1] + right_parts[0]).strip()
+		return val
+	#--------------------------------------------------------
+	def _update_display_from_picked_item(self, item):
+		val = (u'%s%s%s' % (
+			self.left_part,
+			self._picklist_item2display_string(item = item),
+			self.right_part
+		)).lstrip().lstrip(';').strip()
+		self.suppress_text_update_smarts = True
+		super(cMultiPhraseWheel, self).SetValue(val)
+		# find item end and move cursor to that place:
+		item_end = val.index(item['field_label']) + len(item['field_label'])
+		self.SetInsertionPoint(item_end)
+		return
+	#--------------------------------------------------------
+	def _update_data_from_picked_item(self, item):
+
+		# add item to the data
+		self._data[item['field_label']] = item
+
+		# the textctrl display must already be set properly
+		field_labels = [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) ]
+		new_data = {}
+		# this way of looping automatically removes stale
+		# data for labels which are no longer displayed
+		for field_label in field_labels:
+			try:
+				new_data[field_label] = self._data[field_label]
+			except KeyError:
+				# this removes stale data for which there
+				# is no displayed_label anymore
+				pass
+
+		self.data = new_data
+	#---------------------------------------------------------
+	def _dictify_data(self, data=None, value=None):
+		if type(data) == type([]):
+			# useful because self.GetData() returns just such a list
+			return self.list2data_dict(data_items = data)
+		# else assume new-style already-dictified data
+		return data
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _set_phrase_separators(self, phrase_separators):
+		"""Set phrase separators.
+
+		- must be a valid regular expression pattern
+
+		input is split into phrases at boundaries defined by
+		this regex and matching is performed on the phrase
+		the cursor is in only,
+
+		after selection from picklist phrase_separators[0] is
+		added to the end of the match in the PRW
+		"""
+		self.__phrase_separators = regex.compile(phrase_separators, flags = regex.LOCALE | regex.UNICODE)
+
+	def _get_phrase_separators(self):
+		return self.__phrase_separators.pattern
+
+	phrase_separators = property(_get_phrase_separators, _set_phrase_separators)
+	#--------------------------------------------------------
+	def _get_displayed_strings(self):
+		return [ p.strip() for p in self.__phrase_separators.split(self.GetValue().strip()) if p.strip() != u'' ]
+
+	displayed_strings = property(_get_displayed_strings, lambda x:x)
+#============================================================
+# main
+#------------------------------------------------------------
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -1043,7 +1297,7 @@ if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmPG2, gmMatchProvider
 
-	prw = None
+	prw = None				# used for access from display_values_*
 	#--------------------------------------------------------
 	def display_values_set_focus(*args, **kwargs):
 		print "got focus:"
@@ -1069,15 +1323,16 @@ if __name__ == '__main__':
 		print "data :", prw.GetData()
 		return True
 	#--------------------------------------------------------
+	#--------------------------------------------------------
 	def test_prw_fixed_list():
 		app = wx.PyWidgetTester(size = (200, 50))
 
-		items = [	{'data':1, 'label':"Bloggs"},
-					{'data':2, 'label':"Baker"},
-					{'data':3, 'label':"Jones"},
-					{'data':4, 'label':"Judson"},
-					{'data':5, 'label':"Jacobs"},
-					{'data':6, 'label':"Judson-Jacobs"}
+		items = [	{'data': 1, 'list_label': "Bloggs", 'field_label': "Bloggs", 'weight': 0},
+					{'data': 2, 'list_label': "Baker", 'field_label': "Baker", 'weight': 0},
+					{'data': 3, 'list_label': "Jones", 'field_label': "Jones", 'weight': 0},
+					{'data': 4, 'list_label': "Judson", 'field_label': "Judson", 'weight': 0},
+					{'data': 5, 'list_label': "Jacobs", 'field_label': "Jacobs", 'weight': 0},
+					{'data': 6, 'list_label': "Judson-Jacobs", 'field_label': "Judson-Jacobs", 'weight': 0}
 				]
 
 		mp = gmMatchProvider.cMatchProvider_FixedList(items)
@@ -1104,13 +1359,12 @@ if __name__ == '__main__':
 			return True
 
 		gmPG2.get_connection()
-		# FIXME: add callbacks
-		# FIXME: add context
-		query = u'select code, name from dem.country where _(name) %(fragment_condition)s'
+		query = u"""SELECT code, code || ': ' || _(name), _(name) FROM dem.country WHERE _(name) %(fragment_condition)s"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
-		app = wx.PyWidgetTester(size = (200, 50))
+		app = wx.PyWidgetTester(size = (400, 50))
 		global prw
-		prw = cPhraseWheel(parent = app.frame, id = -1)
+		#prw = cPhraseWheel(parent = app.frame, id = -1)
+		prw = cMultiPhraseWheel(parent = app.frame, id = -1)
 		prw.matcher = mp
 
 		app.frame.Show(True)
@@ -1120,13 +1374,22 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_prw_patients():
 		gmPG2.get_connection()
-		query = u"select pk_identity, firstnames || ' ' || lastnames || ' ' || dob::text as pat_name from dem.v_basic_person where firstnames || lastnames %(fragment_condition)s"
-
+		query = u"""
+			select
+				pk_identity,
+				firstnames || ' ' || lastnames || ', ' || to_char(dob, 'YYYY-MM-DD'),
+				firstnames || ' ' || lastnames
+			from
+				dem.v_basic_person
+			where
+				firstnames || lastnames %(fragment_condition)s
+		"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
-		app = wx.PyWidgetTester(size = (200, 50))
+		app = wx.PyWidgetTester(size = (500, 50))
 		global prw
 		prw = cPhraseWheel(parent = app.frame, id = -1)
 		prw.matcher = mp
+		prw.selection_only = True
 
 		app.frame.Show(True)
 		app.MainLoop()
@@ -1151,9 +1414,9 @@ if __name__ == '__main__':
 
 		return True
 	#--------------------------------------------------------
-#	test_prw_fixed_list()
-#	test_prw_sql2()
-	test_spell_checking_prw()
-#	test_prw_patients()
+	#test_prw_fixed_list()
+	#test_prw_sql2()
+	#test_spell_checking_prw()
+	test_prw_patients()
 
 #==================================================

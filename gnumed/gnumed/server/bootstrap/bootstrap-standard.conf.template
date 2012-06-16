@@ -1,6 +1,6 @@
-# GnuMed database system bootstrapping config file
+# GNUmed database system bootstrapping config file
 #-------------------------------------------------
-# license: GPL
+# license: GPL v2 or later
 # author: Karsten Hilbert@gmx.net
 
 #----------------------------------
@@ -41,7 +41,7 @@ rely on this setup to import all necessary schema files.
 DO NOT USE !
 $description$
 
-# these NEED NOT correspond to GnuMed service names,
+# these NEED NOT correspond to GNUmed service names,
 # you just need to have a section in this file
 # corresponding to each line
 services = $services$
@@ -53,7 +53,7 @@ $services$
 # corresponds to one of the services listed under installation
 [service config]
 
-# real GnuMed service name (see docs)
+# real GNUmed service name (see docs)
 name = default
 
 # under which [section] do we find database specifics
@@ -169,7 +169,7 @@ $schema$
 database owner alias = GnuMed owner
 
 # - these are the standard groups that exist
-#   in every GnuMed database
+#   in every GNUmed database
 # - note how some groups don't have a write-enabled counterpart
 # - you can (and probably should) define site-specific
 #   groups in another file
@@ -195,7 +195,7 @@ $procedural languages$
 
 # Python isn't included in the default PostgreSQL
 # binaries yet although this is being discussed,
-# it may soon become a requirement for GnuMed, though
+# it may soon become a requirement for GNUmed, though
 #pg/Python
 
 # where to look for dynamic libraries for procedural languages
@@ -219,10 +219,10 @@ $language library dirs$
 # will ask the user to provide it given "interactive" is
 # true, otherwise it will fail
 #
-# - this account will own the GnuMed databases and all
+# - this account will own the GNUmed databases and all
 #   the objects in them
 # - it is not intended to be used as an everyday account
-# - it's also the one used to set up other GnuMed accounts
+# - it's also the one used to set up other GNUmed accounts
 [user GnuMed owner]
 name = gm-dbo
 
@@ -284,137 +284,3 @@ CREATE TRUSTED PROCEDURAL LANGUAGE 'plpython' HANDLER plpython_call_handler;
 $language activation$
 
 #----------------------------------
-# $Log: bootstrap-standard.conf.template,v $
-# Revision 1.32  2007-02-16 11:07:22  ncq
-# - explain "tablespace" option
-#
-# Revision 1.31  2006/12/12 13:03:08  ncq
-# - document "alternate location" option for db creation
-#
-# Revision 1.30  2006/09/17 07:02:00  ncq
-# - we don't register services anymore
-#
-# Revision 1.29  2006/06/13 21:12:04  ncq
-# - name option to language section
-# - add 8.1 library pathes for UNIX and Windows
-#
-# Revision 1.28  2006/05/24 15:33:18  ncq
-# - add comment on empty hostname
-#
-# Revision 1.27  2006/05/08 16:36:29  ncq
-# - better comments
-#
-# Revision 1.26  2005/11/18 15:56:55  ncq
-# - gmconfiguration.sql -> gmConfig-static.sql
-#
-# Revision 1.25  2005/11/09 10:42:47  ncq
-# - be more careful with others around us: install procedural language into
-#   our database only if needed, not into template1
-#
-# Revision 1.24  2005/09/19 16:29:53  ncq
-# - update
-#
-# Revision 1.23  2005/06/01 23:17:43  ncq
-# - support overriding target database name via environment variable
-#
-# Revision 1.22  2005/04/02 22:12:53  ncq
-# - document option [installation] -> "config files"
-#
-# Revision 1.21  2005/03/03 21:34:56  ncq
-# - add $libdir and comment
-#
-# Revision 1.20  2005/01/12 14:47:48  ncq
-# - in DB speak the database owner is customarily called dbo, hence use that
-#
-# Revision 1.19  2004/12/06 21:12:01  ncq
-# - document "keep temp files" option
-#
-# Revision 1.18  2003/11/28 10:00:41  ncq
-# - add "notification disable" option
-# - update template conf file
-# - use notification schema generator in bootstrapper
-#
-# Revision 1.17  2003/11/28 08:49:40  ncq
-# - add gmNotifications.sql
-#
-# Revision 1.16  2003/11/02 12:48:55  ncq
-# - add schema base directory option to config files
-# - hence we don't need the sql link anymore
-#
-# Revision 1.15  2003/10/19 12:57:19  ncq
-# - add scoring schema generator and use it
-#
-# Revision 1.14  2003/10/01 15:59:20  ncq
-# - remove now-obsolete audit_mark defines
-#
-# Revision 1.13  2003/08/26 14:11:13  ncq
-# - add option to disable checking for proc lang library files on remote machines
-#
-# Revision 1.12  2003/08/26 13:05:04  ncq
-# - add "audit disable" flag
-#
-# Revision 1.11  2003/08/17 18:06:36  ncq
-# - add x_db_fk views
-#
-# Revision 1.10  2003/08/17 00:06:37  ncq
-# - add def for audit fields table
-#
-# Revision 1.9  2003/08/02 14:33:48  ncq
-# - adapted to gmDemographics*.sql
-#
-# Revision 1.8  2003/07/27 21:45:16  ncq
-# - add gmMeasurements and gmCrossDB_FKs
-#
-# Revision 1.7  2003/05/26 13:59:12  ncq
-# - explain new password option semantics
-#
-# Revision 1.6  2003/05/22 12:53:41  ncq
-# - add automatic audit trail generation
-# - add options for that
-#
-# Revision 1.5  2003/05/14 07:27:54  ncq
-# - add gmAudit.sql to database level schema
-#
-# Revision 1.4  2003/05/12 12:47:25  ncq
-# - import some schema files at the database level, too
-# - add corresponding schema list in the config files
-#
-# Revision 1.3  2003/04/22 16:16:16  ncq
-# - added lots of comments on the postgres/gm-dbowner users
-#
-# Revision 1.2  2003/04/18 13:21:16  ncq
-# - include new script gmIdentityViews.sql
-#
-# Revision 1.1  2003/03/30 22:18:53  ncq
-# - renamed after discussion with native speaker :-)
-#
-# Revision 1.3  2003/03/30 20:57:37  ncq
-# - make localhost be 127.0.0.1 as Mandrake happens to want to rename that to the local hostname :-)
-#
-# Revision 1.2  2003/03/26 15:47:54  ncq
-# - alas, some distros store procedural language libraries in /usr/lib/postgresql/
-#
-# Revision 1.1  2003/02/25 08:26:49  ncq
-# - moved here from server/utils/
-#
-# Revision 1.5  2003/02/23 19:13:08  ncq
-# - move language library dirs to [GnuMed defaults] and that to
-#   the bottom of the file as per suggestion by Andreas
-#
-# Revision 1.4  2003/02/09 11:46:11  ncq
-# - added core database option for registering services
-# - convenience function _run_query()
-#
-# Revision 1.3  2003/01/28 13:39:14  ncq
-# - implemented schema import at the server level (= template database)
-# - this is mainly useful for importing users
-#
-# Revision 1.2  2003/01/26 13:30:25  ncq
-# - document all options
-#
-# Revision 1.1  2003/01/26 12:47:17  ncq
-# - next generation from test-area/
-#
-# Revision 1.4  2003/01/22 23:21:45  ncq
-# - this sort of documents the whole affair
-#

@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed allergies notebook plugin
+# GNUmed allergies notebook plugin
 # --------------------------------
 #
 # @copyright: author
@@ -8,7 +8,7 @@
 # $Id: gmAllergiesPlugin.py,v 1.9 2009-07-12 18:46:57 ncq Exp $
 __version__ = "$Revision: 1.9 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import logging
 

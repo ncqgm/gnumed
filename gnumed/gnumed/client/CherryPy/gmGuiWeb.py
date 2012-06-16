@@ -7,7 +7,7 @@ __doc__ = """GNUmed web client launcher.
 # $Id: gnumed.py,v 1.169 2010-01-31 18:20:41 ncq Exp $
 __version__ = "$Revision: 1 $"
 __author__  = "S. Hilbert <Sebastian.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import cherrypy                         # importing the CherryPy server library
 from Cheetah.Template import Template   # importing the Cheetah Template engine
@@ -20,7 +20,7 @@ except ImportError:
 
 
 # stdlib
-import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, webbrowser, shutil, logging, urllib2, re as regex
+import sys, time, os, cPickle, zlib, locale, os.path, datetime as pyDT, shutil, logging, urllib2, re as regex
 
 # GNUmed libs
 from Gnumed.pycommon import gmI18N, gmTools, gmDateTime, gmHooks
@@ -55,7 +55,7 @@ def connect_to_database(login_info=None, max_attempts=3, expected_version=None, 
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = u'client_version')
 	global current_db_name
-	current_db_name = u'gnumed_%s' % expected_version
+	current_db_name = u'gnumed_v%s' % expected_version
 
 	attempt = 0
 
@@ -276,7 +276,6 @@ def __get_backend_profiles():
 
 # ------------------------------------------------------------
 def GetLoginInfo(username=None, password=None, backend=None ):
-	
 		# username is provided through the web interface
 		# password is provided
 		# we need the profile
@@ -288,7 +287,7 @@ def GetLoginInfo(username=None, password=None, backend=None ):
 		#self.__backend_profiles = self.__get_backend_profiles()
 		__backend_profiles = __get_backend_profiles()
 		profile = __backend_profiles[backend.encode('utf8').strip()]
-		
+
 		_log.debug(u'backend profile "%s" selected', profile.name)
 		_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
 			username,
@@ -353,7 +352,7 @@ PYJSDIR = sys._getframe().f_code.co_filename
 PYJSDIR = os.path.split(os.path.dirname(PYJSDIR))[0]
 PYJSDIR = os.path.join(PYJSDIR, 'pyjamas')
 
-DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
+DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v17@)"
 
 class gmApp:
 
@@ -445,7 +444,7 @@ class gmApp:
                 "title" : "Welcome to GNUmed - Login"
                 , "cssFiles" : ["css/ext-all.css", "css/xtheme-gray.css"]
                 , "jsFiles" : ["ext/ext-base.js", "ext/ext-core.js"]
-                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
+                , "backend" : "GNUmed database on this machine (Linux/Mac) (gnumed_v17@)"
             }
         )
         return str( t )     # returning a string representation of the Template. CherryPy will only let you return strings with an exposed function
@@ -454,7 +453,7 @@ class gmApp:
         #return """
         #<form action="doLogin" method="post">
 	#    <p>Backend</p>
-	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v15@)"
+	#    <input type="text" name="backend" value="GNUmed database on this machine (Linux/Mac) (gnumed_v17@)"
 	#	size="15" maxlength="40"/>
 	#    <p>Username</p>
 	#    <input type="text" name="username" value="" 

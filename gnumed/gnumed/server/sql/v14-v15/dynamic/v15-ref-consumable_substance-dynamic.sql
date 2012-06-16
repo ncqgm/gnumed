@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
@@ -287,14 +287,19 @@ BEGIN
 		raise exception ''%'', _msg;
 	end if;
 
-	perform 1
-	from clin.substance_intake c_si
-	where c_si.fk_drug_component = (
-		select r_ls2b.pk
-		from ref.lnk_substance2brand r_ls2b
-		where r_ls2b.fk_substance = OLD.pk
+	PERFORM 1
+	FROM clin.substance_intake c_si
+	WHERE c_si.fk_drug_component IN (
+		-- get all PKs in component link table which
+		-- represent the substance we want to modify
+		SELECT
+			r_ls2b.pk
+		FROM
+			ref.lnk_substance2brand r_ls2b
+		WHERE
+			r_ls2b.fk_substance = OLD.pk
 	)
-	limit 1;
+	LIMIT 1;
 
 	if FOUND then
 		raise exception ''%'', _msg;

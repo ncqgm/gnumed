@@ -1,12 +1,11 @@
 #======================================================================
-# GnuMed patient EMR Journal plugin
+# GNUmed patient EMR Journal plugin
 # ----------------------------------------------
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.15 $"
 __author__ = "Karsten Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
@@ -15,7 +14,6 @@ from Gnumed.wxpython import gmPlugin, gmEMRBrowser
 from Gnumed.pycommon import gmI18N
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #======================================================================
 class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
@@ -31,8 +29,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		#return ('emr_show', _('Chronological &journal'))
-		return ('emr', _('Chronological &journal'))
+		return ('emr', _('EMR &Journal (chronological)'))
 
 	def can_receive_focus(self):
 		# need patient

@@ -15,16 +15,11 @@ def run_script(hook=None):
 
 which accepts a single argument <hook>. That argument will
 contain the hook that is being activated.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
 """
 # ========================================================================
 __version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
@@ -56,6 +51,7 @@ known_hooks = [
 	u'after_substance_intake_modified',
 	u'after_test_result_modified',
 	u'after_soap_modified',
+	u'after_code_link_modified',
 
 	u'after_new_doc_created',
 	u'before_print_doc',
@@ -117,13 +113,19 @@ def run_script(hook=None):
 		)
 		return False
 
-	script_mode = stat.S_IMODE(os.stat(full_script).st_mode)
-	if script_mode != 384:				# octal 0600
-		gmDispatcher.send (
-			signal = 'statustext',
-			msg = _('Script must be readable by the calling user only (permissions "0600"): [%s].') % full_script
-		)
-		return False
+	script_stat_val = os.stat(full_script)
+	_log.debug('hook script stat(): %s', script_stat_val)
+	script_perms = stat.S_IMODE(script_stat_val.st_mode)
+	_log.debug('hook script mode: %s (oktal: %s)', script_perms, oct(script_perms))
+	if script_perms != 384:				# octal 0600
+		if os.name in ['nt']:
+			_log.warning('this platform does not support os.stat() file permission checking')
+		else:
+			gmDispatcher.send (
+				signal = 'statustext',
+				msg = _('Script must be readable by the calling user only (permissions "0600"): [%s].') % full_script
+			)
+			return False
 
 	try:
 		tmp = gmTools.import_module_from_directory(script_path, script_name)

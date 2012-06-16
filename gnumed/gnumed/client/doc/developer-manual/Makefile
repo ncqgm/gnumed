@@ -1,8 +1,8 @@
-# Makefile to build several kinds of output for GnuMed user documentation
+# Makefile to build several kinds of output for GNUmed user documentation
 
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/developer-manual/Makefile,v $
 # $Revision: 1.1 $
-# license: GPL
+# license: GPL v2 or later
 # author: Andreas Tille <tille@debian.org>
 
 ## linuxdoc does not work for this DTD

@@ -1,8 +1,8 @@
 -- =============================================
--- GnuMed service discovery tables
+-- GNUmed service discovery tables
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmServices.sql,v $
 -- $Id: gmServices.sql,v 1.8 2005-09-19 16:38:51 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- ---------------------------------------------
 -- Import this file into any database you create and

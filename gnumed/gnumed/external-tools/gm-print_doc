@@ -35,13 +35,14 @@ FILES="$@"			# this is / those are the file(s) to print
 # detect printer manager
 CALL_PRINTER_MANAGER=""
 
-# kprinter ?
-if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
-	A=`which kprinter`
-	if [ $? = 0 ]; then
-		CALL_PRINTER_MANAGER="kprinter -c ${FILES}"
-	fi
-fi
+# removed by KDE 4 :-(
+## kprinter ?
+#if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
+#	A=`which kprinter`
+#	if [ $? = 0 ]; then
+#		CALL_PRINTER_MANAGER="kprinter -c ${FILES}"
+#	fi
+#fi
 
 # gtklp ?
 if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
@@ -99,6 +100,8 @@ echo ""
 
 exit 127
 # ===========================================================
+# http://lists.gnu.org/archive/html/gnumed-devel/2010-01/msg00112.html
+#
 # MacOSX:
 #
 # alternate Mac methods to open the PDF in Preview
@@ -120,34 +123,7 @@ exit 127
 # - freeware 'PrintFile" (as at 2009) supports batch command piping
 # - use "AcroRd32.exe /s /o /h /p $FILES" (requires Acrobat Reader to be installed)
 # - refer to http://www.robvanderwoude.com/printfiles.php#PrintPDF
+# - http://pages.cs.wisc.edu/~ghost/gsview/gsprint.htm
+# - http://stackoverflow.com/questions/4498099/silent-printing-of-a-pdf-in-python
 #
 # ===========================================================
-# $Log: gm-print_doc,v $
-# Revision 1.7  2010-01-19 15:49:07  ncq
-# - properly detect Darwin
-# - error message on unknown job type
-#
-# Revision 1.6  2010/01/17 22:43:04  ncq
-# - much improve printer interface detection
-#
-# Revision 1.5  2010/01/15 12:44:10  ncq
-# - add docs on possible Windows handling
-#
-# Revision 1.4  2010/01/13 21:52:23  ncq
-# - document how Mac might work
-#
-# Revision 1.3  2010/01/11 22:04:50  ncq
-# - support either of kprinter / gtklp
-#
-# Revision 1.2  2010/01/01 21:24:19  ncq
-# - documentation
-# - improved exit code use
-# - generic_document
-#
-# Revision 1.1  2009/12/23 13:08:08  ncq
-# - renamed to please Debian
-#
-# Revision 1.1  2009/12/21 23:04:26  ncq
-# - default print script
-#
-#

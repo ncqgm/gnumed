@@ -1,7 +1,6 @@
 """GNUmed provider inbox handling widgets.
 """
 #================================================================
-__version__ = "$Revision: 1.48 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys, logging
@@ -19,8 +18,11 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmProviderInbox
 
@@ -34,10 +36,10 @@ from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmDataPackWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 _indicator = {
 	-1: '',
@@ -45,152 +47,12 @@ _indicator = {
 	1: '*!!*'
 }
 #============================================================
-from Gnumed.wxGladeWidgets import wxgTextExpansionEditAreaPnl
-
-class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl):
-
-	def __init__(self, *args, **kwds):
-
-		try:
-			self.__keyword = kwds['keyword']
-			del kwds['keyword']
-		except KeyError:
-			self.__keyword = None
-
-		wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl.__init__(self, *args, **kwds)
-
-		self.__init_ui()
-		self.__register_interests()
-	#--------------------------------------------------------
-	def save(self):
-		if not self.__valid_for_save():
-			return False
-
-		if self.__keyword is None:
-			result = gmPG2.add_text_expansion (
-				keyword = self._TCTRL_keyword.GetValue().strip(),
-				expansion = self._TCTRL_expansion.GetValue(),
-				public = self._RBTN_public.GetValue()
-			)
-		else:
-			gmPG2.edit_text_expansion (
-				keyword = self._TCTRL_keyword.GetValue().strip(),
-				expansion = self._TCTRL_expansion.GetValue()
-			)
-			result = True
-
-		return result
-	#--------------------------------------------------------
-	def refresh(self):
-		self.__init_ui()
-#		if self.__keyword is not None:
-#			self._TCTRL_expansion.SetValue(u'')
-	#--------------------------------------------------------
-	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		self._TCTRL_keyword.Bind(wx.EVT_TEXT, self._on_keyword_modified)
-	#--------------------------------------------------------
-	def _on_keyword_modified(self, evt):
-		if self._TCTRL_keyword.GetValue().strip() == u'':
-			self._TCTRL_expansion.Enable(False)
-		else:
-			self._TCTRL_expansion.Enable(True)
-	#--------------------------------------------------------
-	# internal API
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		if kwd == u'':
-			self._TCTRL_keyword.SetBackgroundColour('pink')
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
-			return False
-		self._TCTRL_keyword.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
-		if self._TCTRL_expansion.GetValue().strip() == u'':
-			self._TCTRL_expansion.SetBackgroundColour('pink')
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
-			return False
-		self._TCTRL_expansion.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-
-		return True
-	#--------------------------------------------------------
-	def __init_ui(self, keyword=None):
-
-		if keyword is not None:
-			self.__keyword = keyword
-
-		if self.__keyword is None:
-			self._TCTRL_keyword.SetValue(u'')
-			self._TCTRL_keyword.Enable(True)
-			self._TCTRL_expansion.SetValue(u'')
-			self._TCTRL_expansion.Enable(False)
-			self._RBTN_public.Enable(True)
-			self._RBTN_private.Enable(True)
-			self._RBTN_public.SetValue(1)
-		else:
-			expansion = gmPG2.expand_keyword(keyword = self.__keyword)
-			self._TCTRL_keyword.SetValue(self.__keyword)
-			self._TCTRL_keyword.Enable(False)
-			self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-			self._TCTRL_expansion.Enable(True)
-			self._RBTN_public.Enable(False)
-			self._RBTN_private.Enable(False)
-#============================================================
-def configure_keyword_text_expansion(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#----------------------
-	def delete(keyword=None):
-		gmPG2.delete_text_expansion(keyword = keyword)
-		return True
-	#----------------------
-	def edit(keyword=None):
-		# add new keyword
-		ea = cTextExpansionEditAreaPnl(parent, -1, keyword=keyword)
-		dlg = gmEditArea.cGenericEditAreaDlg(parent, -1, edit_area = ea)
-		dlg.SetTitle (
-			gmTools.coalesce(keyword, _('Adding text expansion'), _('Editing text expansion "%s"'))
-		)
-		if dlg.ShowModal() == wx.ID_OK:
-			return True
-
-		return False
-	#----------------------
-	def refresh(lctrl=None):
-		kwds = [ [
-				r[0],
-				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-				r[3]
-			] for r in gmPG2.get_text_expansion_keywords()
-		]
-		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
-		lctrl.set_string_items(kwds)
-		lctrl.set_data(data)
-	#----------------------
-
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nSelect the keyword you want to edit !\n'),
-		caption = _('Editing keyword-based text expansions ...'),
-		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
-		single_selection = True,
-		edit_callback = edit,
-		new_callback = edit,
-		delete_callback = delete,
-		refresh_callback = refresh
-	)
-#============================================================
 def configure_fallback_primary_provider(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	staff = gmPerson.get_staff_list()
+	staff = gmStaff.get_staff_list()
 	choices = [ [
 			s[u'short_alias'],
 			u'%s%s %s' % (
@@ -541,14 +403,78 @@ class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('Select a message type.'))
 	#----------------------------------------------------------------
 	def _create_data(self):
-		if self.data is not None:
+		if self.GetData() is not None:
 			return
 
 		val = self.GetValue().strip()
 		if val == u'':
 			return
 
-		self.data = gmProviderInbox.create_inbox_item_type(message_type = val)
+		self.SetText (
+			value = val,
+			data = gmProviderInbox.create_inbox_item_type(message_type = val)
+		)
+#====================================================================
+def _display_clinical_reminders():
+	wx.CallAfter(__display_clinical_reminders)
+
+gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
+
+def __display_clinical_reminders():
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.connected:
+		return
+	for msg in pat.due_messages:
+		if msg['expiry_date'] is None:
+			exp = u''
+		else:
+			exp = _(' - expires %s') % gmDateTime.pydt_strftime (
+				msg['expiry_date'],
+				'%Y %b %d',
+				accuracy = gmDateTime.acc_days
+			)
+		txt = _(
+			'Due for %s (since %s%s):\n'
+			'%s'
+			'%s'
+			'\n'
+			'Patient: %s\n'
+			'Reminder by: %s'
+		) % (
+			gmDateTime.format_interval_medically(msg['interval_due']),
+			gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d', accuracy = gmDateTime.acc_days),
+			exp,
+			gmTools.coalesce(msg['comment'], u'', u'\n%s\n'),
+			gmTools.coalesce(msg['data'], u'', u'\n%s\n'),
+			pat['description_gender'],
+			msg['modified_by']
+		)
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Clinical reminder'),
+			aMessage = txt
+		)
+	for hint in pat.dynamic_hints:
+		txt = u'%s\n\n%s\n\n          %s' % (
+			hint['title'],
+			gmTools.wrap(hint['hint'], width = 50, initial_indent = u' ', subsequent_indent = u' '),
+			hint['source']
+		)
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,
+			-1,
+			caption = _('Clinical hint'),
+			question = txt,
+			button_defs = [
+				{'label': _('OK'), 'tooltip': _('OK'), 'default': True},
+				{'label': _('More info'), 'tooltip': _('Go to [%s]') % hint['url']}
+			]
+		)
+		button = dlg.ShowModal()
+		dlg.Destroy()
+		if button == wx.ID_NO:
+			gmNetworkTools.open_url_in_browser(hint['url'], autoraise = False)
+
+	return
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgInboxMessageEAPnl
 
@@ -634,7 +560,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 
 		receiver = None
 		if self._CHBOX_send_to_me.IsChecked():
-			receiver = gmPerson.gmCurrentProvider()['pk_staff']
+			receiver = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			if self._PRW_receiver.GetData() is not None:
 				receiver = self._PRW_receiver.GetData()
@@ -647,6 +573,12 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		)
 
 		msg['data'] = self._TCTRL_message.GetValue().strip()
+
+		if self._PRW_due.is_valid_timestamp():
+			msg['due_date'] = self._PRW_due.date
+
+		if self._PRW_expiry.is_valid_timestamp():
+			msg['expiry_date'] = self._PRW_expiry.date
 
 		if self._RBTN_normal.GetValue() is True:
 			msg['importance'] = 0
@@ -665,7 +597,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self.data['pk_type'] = self._PRW_type.GetData(can_create = True)
 
 		if self._CHBOX_send_to_me.IsChecked():
-			self.data['pk_staff'] = gmPerson.gmCurrentProvider()['pk_staff']
+			self.data['pk_staff'] = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			self.data['pk_staff'] = self._PRW_receiver.GetData()
 
@@ -678,6 +610,12 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 				self.data['pk_patient'] = None
 			else:
 				self.data['pk_patient'] = self._PRW_patient.person.ID
+
+		if self._PRW_due.is_valid_timestamp():
+			self.data['due_date'] = self._PRW_due.date
+
+		if self._PRW_expiry.is_valid_timestamp():
+			self.data['expiry_date'] = self._PRW_expiry.date
 
 		if self._RBTN_normal.GetValue() is True:
 			self.data['importance'] = 0
@@ -694,8 +632,10 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self._PRW_type.SetText(value = u'', data = None)
 		self._CHBOX_send_to_me.SetValue(True)
 		self._PRW_receiver.Enable(False)
-		self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+		self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		self._TCTRL_message.SetValue(u'')
+		self._PRW_due.SetText(data = None)
+		self._PRW_expiry.SetText(data = None)
 		self._RBTN_normal.SetValue(True)
 		self._RBTN_high.SetValue(False)
 		self._RBTN_low.SetValue(False)
@@ -721,13 +661,13 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 		self._TCTRL_subject.SetValue(gmTools.coalesce(self.data['comment'], u''))
 		self._PRW_type.SetData(data = self.data['pk_type'])
 
-		curr_prov = gmPerson.gmCurrentProvider()
+		curr_prov = gmStaff.gmCurrentProvider()
 		curr_pat = gmPerson.gmCurrentPatient()
 
 		if curr_prov['pk_staff'] == self.data['pk_staff']:
 			self._CHBOX_send_to_me.SetValue(True)
 			self._PRW_receiver.Enable(False)
-			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+			self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		else:
 			self._CHBOX_send_to_me.SetValue(False)
 			self._PRW_receiver.Enable(True)
@@ -744,7 +684,10 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			else:
 				self._CHBOX_active_patient.SetValue(False)
 				self._PRW_patient.Enable(True)
-				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+				if self.data['pk_patient'] is None:
+					self._PRW_patient.person = None
+				else:
+					self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
 		else:
 			self._CHBOX_active_patient.Enable(False)
 			self._CHBOX_active_patient.SetValue(False)
@@ -753,6 +696,9 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 				self._PRW_patient.person = None
 			else:
 				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+
+		self._PRW_due.SetText(data = self.data['due_date'])
+		self._PRW_expiry.SetText(data = self.data['expiry_date'])
 
 		self._RBTN_normal.SetValue(False)
 		self._RBTN_high.SetValue(False)
@@ -776,7 +722,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 	def _on_send_to_me_checked(self, event):
 		if self._CHBOX_send_to_me.IsChecked():
 			self._PRW_receiver.Enable(False)
-			self._PRW_receiver.SetData(data = gmPerson.gmCurrentProvider()['pk_staff'])
+			self._PRW_receiver.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
 		else:
 			self._PRW_receiver.Enable(True)
 			self._PRW_receiver.SetText(value = u'', data = None)
@@ -803,14 +749,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 	_item_handlers = {}
 
-	_patient_msg_types = ['clinical.review docs', 'clinical.review results', 'clinical.review vaccs']
 	#--------------------------------------------------------
 	def __init__(self, *args, **kwds):
 
 		wxgProviderInboxPnl.wxgProviderInboxPnl.__init__(self, *args, **kwds)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
-		self.provider = gmPerson.gmCurrentProvider()
+		self.provider = gmStaff.gmCurrentProvider()
 		self.filter_mode = 'all'
 		self.__init_ui()
 
@@ -834,8 +779,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
 		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_message_inbox_mod_db)
-		# FIXME: listen for doc insertion/deletion
-		# FIXME: listen for doc reviews
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'doc_obj_review_mod_db', receiver = self._on_message_inbox_mod_db)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
@@ -857,8 +803,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
-		"""Fill UI with data."""
-
 		self.__msgs = self.provider.inbox.messages
 
 		if self.filter_mode == 'active':
@@ -880,6 +824,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
+		self._TXT_inbox_item_comment.SetValue(u'')
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -900,20 +845,20 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		try:
 			handle_item = cProviderInboxPnl._item_handlers[handler_key]
 		except KeyError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-"""No double-click action pre-programmed into
-GNUmed for message category and type:
-
- [%s]
-"""
-) % handler_key,
-				_('handling provider inbox item')
-			)
-			return False
+			if msg['pk_patient'] is None:
+				gmGuiHelpers.gm_show_warning (
+					_('No double-click action pre-programmed into\n'
+					'GNUmed for message category and type:\n'
+					'\n'
+					' [%s]\n'
+					) % handler_key,
+					_('handling provider inbox item')
+				)
+				return False
+			handle_item = self._goto_patient
 
 		if not handle_item(pk_context = msg['pk_context'], pk_patient = msg['pk_patient']):
-			_log.error('item handler returned "false"')
+			_log.error('item handler returned <False>')
 			_log.error('handler key: [%s]', handler_key)
 			_log.error('message: %s', str(msg))
 			return False
@@ -942,7 +887,12 @@ GNUmed for message category and type:
 		self.__focussed_msg = tmp
 
 		# build menu
-		menu = wx.Menu(title = _('Inbox Message menu'))
+		menu = wx.Menu(title = _('Inbox Message Actions:'))
+
+		if self.__focussed_msg['pk_patient'] is not None:
+			ID = wx.NewId()
+			menu.AppendItem(wx.MenuItem(menu, ID, _('Activate patient')))
+			wx.EVT_MENU(menu, ID, self._on_goto_patient)
 
 		if not self.__focussed_msg['is_virtual']:
 			# - delete message
@@ -978,43 +928,47 @@ GNUmed for message category and type:
 		edit_inbox_message(parent = self, message = None, single_entry = False)
 	#--------------------------------------------------------
 	def _get_msg_tooltip(self, msg):
-		tt = u'%s: %s%s\n' % (
-			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
-			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
-			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
-		)
-
-		tt += u'%s: %s\n' % (
-			msg['l10n_category'],
-			msg['l10n_type']
-		)
-
-		tt += u'%s %s %s\n' % (
-			msg['modified_by'],
-			gmTools.u_right_arrow,
-			gmTools.coalesce(msg['provider'], _('everyone'))
-		)
-
-		tt += u'\n%s%s%s\n\n' % (
-			gmTools.u_left_double_angle_quote,
-			msg['comment'],
-			gmTools.u_right_double_angle_quote
-		)
-
-		tt += gmTools.coalesce (
-			msg['pk_patient'],
-			u'',
-			u'%s\n\n' % _('Patient #%s')
-		)
-
-		if msg['data'] is not None:
-			tt += msg['data'][:150]
-			if len(msg['data']) > 150:
-				tt += gmTools.u_ellipsis
-
-		return tt
+		return msg.format()
+#		tt = u'%s: %s%s\n' % (
+#			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
+#			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
+#			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
+#		)
+#
+#		tt += u'%s: %s\n' % (
+#			msg['l10n_category'],
+#			msg['l10n_type']
+#		)
+#
+#		tt += u'%s %s %s\n' % (
+#			msg['modified_by'],
+#			gmTools.u_right_arrow,
+#			gmTools.coalesce(msg['provider'], _('everyone'))
+#		)
+#
+#		tt += u'\n%s%s%s\n\n' % (
+#			gmTools.u_left_double_angle_quote,
+#			msg['comment'],
+#			gmTools.u_right_double_angle_quote
+#		)
+#
+#		tt += gmTools.coalesce (
+#			msg['pk_patient'],
+#			u'',
+#			u'%s\n\n' % _('Patient #%s')
+#		)
+#
+#		if msg['data'] is not None:
+#			tt += msg['data'][:150]
+#			if len(msg['data']) > 150:
+#				tt += gmTools.u_ellipsis
+#
+#		return tt
 	#--------------------------------------------------------
 	# item handlers
+	#--------------------------------------------------------
+	def _on_goto_patient(self, evt):
+		return self._goto_patient(pk_patient = self.__focussed_msg['pk_patient'])
 	#--------------------------------------------------------
 	def _on_delete_focussed_msg(self, evt):
 		if self.__focussed_msg['is_virtual']:
@@ -1040,7 +994,43 @@ GNUmed for message category and type:
 		print "now distributing"
 		return True
 	#--------------------------------------------------------
+	def _goto_patient(self, pk_context=None, pk_patient=None):
+
+		wx.BeginBusyCursor()
+
+		msg = _('There is a message about patient [%s].\n\n'
+			'However, I cannot find that\n'
+			'patient in the GNUmed database.'
+		) % pk_patient
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+		except:
+			wx.EndBusyCursor()
+			raise
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
+		wx.EndBusyCursor()
+
+		if not success:
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+
+		return True
+	#--------------------------------------------------------
 	def _goto_doc_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are unreviewed documents\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
 
 		try:
@@ -1048,13 +1038,7 @@ GNUmed for message category and type:
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		success = gmPatSearchWidgets.set_active_patient(patient = pat)
@@ -1062,52 +1046,124 @@ GNUmed for message category and type:
 		wx.EndBusyCursor()
 
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed documents\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are unreviewed results\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
-		success = gmPatSearchWidgets.set_active_patient(patient=gmPerson.cIdentity(aPK_obj=pk_patient))
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
+			return False
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
 		wx.EndBusyCursor()
+
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are unreviewed results\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return True
 	#--------------------------------------------------------
 	def _goto_vaccination_review(self, pk_context=None, pk_patient=None):
+
+		msg = _('Supposedly there are conflicting vaccinations\n'
+			'for patient [%s]. However, I cannot find\n'
+			'that patient in the GNUmed database.'
+		) % pk_patient
+
 		wx.BeginBusyCursor()
-		success = gmPatSearchWidgets.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = pk_patient))
+
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+		except gmExceptions.ConstructorError:
+			wx.EndBusyCursor()
+			_log.exception('patient [%s] not found', pk_patient)
+			gmGuiHelpers.gm_show_error(msg,	_('handling provider inbox item'))
+			return False
+
+		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+
 		wx.EndBusyCursor()
+
 		if not success:
-			gmGuiHelpers.gm_show_error (
-				_('Supposedly there are conflicting vaccinations\n'
-				  'for patient [%s]. However, I cannot find\n'
-				  'that patient in the GNUmed database.'
-				) % pk_patient,
-				_('handling provider inbox item')
-			)
+			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
 		wx.CallAfter(gmVaccWidgets.manage_vaccinations)
 
 		return True
+#============================================================
+def browse_dynamic_hints(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
+	def switch_activation(item):
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Switching clinical hint activation'))
+		if conn is None:
+			return False
+		item['is_active'] = not item['is_active']
+		return item.save(conn = conn)
+	#------------------------------------------------------------
+	def manage_data_packs(item):
+		gmDataPackWidgets.manage_data_packs(parent = parent)
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		hints = gmProviderInbox.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
+		items = [ [
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			h['title'],
+			h['source'][:30],
+			h['hint'][:60],
+			gmTools.coalesce(h['url'], u'')[:60],
+			h['lang'],
+			h['pk']
+		] for h in hints ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(hints)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nDynamic hints registered with GNUmed.\n'),
+		caption = _('Showing dynamic hints.'),
+		columns = [ _('Active'), _('Title'), _('Source'), _('Hint'), u'URL', _('Language'), u'#' ],
+		single_selection = True,
+		refresh_callback = refresh,
+		left_extra_button = (
+			_('(De)-Activate'),
+			_('Switch activation of the selected hint'),
+			switch_activation
+		),
+		right_extra_button = (
+			_('Data packs'),
+			_('Browse and install clinical hints data packs'),
+			manage_data_packs
+		),
+		list_tooltip_callback = get_tooltip
+	)
+
 #============================================================
 if __name__ == '__main__':
 

@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 """Medication handling code.
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.21 $"
@@ -39,7 +39,7 @@ from Gnumed.business.gmDocuments import create_document_type
 _log = logging.getLogger('gm.meds')
 _log.info(__version__)
 
-
+#_ = lambda x:x
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
 #============================================================
 def _on_substance_intake_modified():
@@ -54,12 +54,16 @@ def drug2renal_insufficiency_url(search_term=None):
 	if search_term is None:
 		return u'http://www.dosing.de'
 
+	if isinstance(search_term, basestring):
+		if search_term.strip() == u'':
+			return u'http://www.dosing.de'
+
 	terms = []
 	names = []
 
 	if isinstance(search_term, cBrandedDrug):
-		if search_term['atc_code'] is not None:
-			terms.append(search_term['atc_code'])
+		if search_term['atc'] is not None:
+			terms.append(search_term['atc'])
 
 	elif isinstance(search_term, cSubstanceIntakeEntry):
 		names.append(search_term['substance'])
@@ -67,6 +71,18 @@ def drug2renal_insufficiency_url(search_term=None):
 			terms.append(search_term['atc_brand'])
 		if search_term['atc_substance'] is not None:
 			terms.append(search_term['atc_substance'])
+
+	elif isinstance(search_term, cDrugComponent):
+		names.append(search_term['substance'])
+		if search_term['atc_brand'] is not None:
+			terms.append(search_term['atc_brand'])
+		if search_term['atc_substance'] is not None:
+			terms.append(search_term['atc_substance'])
+
+	elif isinstance(search_term, cConsumableSubstance):
+		names.append(search_term['description'])
+		if search_term['atc_code'] is not None:
+			terms.append(search_term['atc_code'])
 
 	elif search_term is not None:
 		names.append(u'%s' % search_term)
@@ -81,7 +97,7 @@ def drug2renal_insufficiency_url(search_term=None):
 	#url_template = u'http://www.google.de/#q=site%%3Adosing.de+%s'
 	#url = url_template % u'+OR+'.join(terms)
 
-	url_template = u'http://www.google.de/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
+	url_template = u'http://www.google.com/search?hl=de&source=hp&q=site%%3Adosing.de+%s&btnG=Google-Suche'
 	url = url_template % u'+OR+'.join(terms)
 
 	_log.debug(u'renal insufficiency URL: %s', url)
@@ -282,7 +298,7 @@ class cDrugDataSourceInterface(object):
 #============================================================
 class cFreeDiamsInterface(cDrugDataSourceInterface):
 
-	version = u'FreeDiams v0.5.4 interface'
+	version = u'FreeDiams interface'
 	default_encoding = 'utf8'
 	default_dob_format = '%Y/%m/%d'
 
@@ -353,6 +369,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		args = u'--exchange-in="%s"' % (self.__gm2fd_filename)
 		cmd = r'%s %s' % (self.path_to_binary, args)
+		if os.name == 'nt':
+			blocking = True
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the FreeDiams drug database')
 			return False
@@ -407,6 +425,8 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			r'/usr/bin/freediams',
 			r'freediams',
 			r'/Applications/FreeDiams.app/Contents/MacOs/FreeDiams',
+			r'C:\Program Files (x86)\FreeDiams\freediams.exe',
+			r'C:\Program Files\FreeDiams\freediams.exe',
 			r'c:\programs\freediams\freediams.exe',
 			r'freediams.exe'
 		])
@@ -530,19 +550,19 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>False</IsTextual>
-			<DrugName>%s</DrugName>
-			<Drug_UID>%s</Drug_UID>
-			<Drug_UID_type>%s</Drug_UID_type>		<!-- not yet supported by FreeDiams -->
+			<Drug u1="%s" u2="" old="%s" u3="" db="%s">		<!-- "old" needs to be the same as "u1" if not known -->
+				<DrugName>%s</DrugName>						<!-- just for identification when reading XML files -->
+			</Drug>
 		</Prescription>"""
 
 		last_db_id = u'CA_HCDPD'
 		for intake in intakes_pooled_by_brand.values():
 			last_db_id = gmTools.xml_escape_string(text = intake['external_code_type_brand'].replace(u'FreeDiams::', u'').split(u'::')[0])
 			drug_snippets.append(drug_snippet % (
-				gmTools.xml_escape_string(text = intake['brand'].strip()),
 				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
-				last_db_id
+				gmTools.xml_escape_string(text = intake['external_code_brand'].strip()),
+				last_db_id,
+				gmTools.xml_escape_string(text = intake['brand'].strip())
 			))
 
 		# process non-FD drugs
@@ -560,19 +580,27 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		del non_fd_intakes
 
 		drug_snippet = u"""<Prescription>
-			<IsTextual>True</IsTextual>
-			<TextualDrugName>%s</TextualDrugName>
+			<Drug u1="-1" u2="" old="" u3="" db="">
+				<DrugName>%s</DrugName>
+			</Drug>
+			<Dose Note="%s" IsTextual="true" IsAld="false"/>
 		</Prescription>"""
+#				<DrugUidName></DrugUidName>
+#				<DrugForm></DrugForm>
+#				<DrugRoute></DrugRoute>
+#				<DrugStrength/>
 
 		for intake in non_fd_substance_intakes:
-			drug_name = u'%s %s%s (%s)%s' % (
+			drug_name = u'%s %s%s (%s)' % (
 				intake['substance'],
 				intake['amount'],
 				intake['unit'],
-				intake['preparation'],
-				gmTools.coalesce(intake['schedule'], u'', _('\n Take: %s'))
+				intake['preparation']
 			)
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(intake['schedule'], u''))
+			))
 
 		intakes_pooled_by_brand = {}
 		for intake in non_fd_brand_intakes:
@@ -590,28 +618,23 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					comp['amount'],
 					comp['unit']
 			)
-			if comps[0]['schedule'] is not None:
-				drug_name += gmTools.coalesce(comps[0]['schedule'], u'', _('Take: %s'))
-			drug_snippets.append(drug_snippet % gmTools.xml_escape_string(text = drug_name.strip()))
+			drug_snippets.append(drug_snippet % (
+				gmTools.xml_escape_string(text = drug_name.strip()),
+				gmTools.xml_escape_string(text = gmTools.coalesce(comps[0]['schedule'], u''))
+			))
 
 		# assemble XML file
 		xml = u"""<?xml version = "1.0" encoding = "UTF-8"?>
-
+<!DOCTYPE FreeMedForms>
 <FreeDiams>
-	<DrugsDatabaseName>%s</DrugsDatabaseName>
-	<FullPrescription version="0.5.0">
-
+	<FullPrescription version="0.7.2">
 		%s
-
 	</FullPrescription>
 </FreeDiams>
 """
 
 		xml_file = codecs.open(self.__fd2gm_filename, 'wb', 'utf8')
-		xml_file.write(xml % (
-			last_db_id,
-			u'\n\t\t'.join(drug_snippets)
-		))
+		xml_file.write(xml % u'\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
 		return True
@@ -670,10 +693,15 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		atc_sens = [
 			a['atc_code'] for a in allgs if ((a['atc_code'] is not None) and (a['type'] == u'sensitivity'))
 		]
-		inn_allgs = [ a['allergene'] for a in allgs if a['type'] == u'allergy' ]
-		inn_sens = [ a['allergene'] for a in allgs if a['type'] == u'sensitivity' ]
+		inn_allgs = [
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'allergy'))
+		]
+		inn_sens = [
+			a['allergene'] for a in allgs if ((a['allergene'] is not None) and (a['type'] == u'sensitivity'))
+		]
 		# this is rather fragile: FreeDiams won't know what type of UID this is
 		# (but it will assume it is of the type of the drug database in use)
+		# but eventually FreeDiams puts all drugs into one database :-)
 		uid_allgs = [
 			a['substance_code'] for a in allgs if ((a['substance_code'] is not None) and (a['type'] == u'allergy'))
 		]
@@ -747,18 +775,26 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		prescription['ext_ref'] = u'FreeDiams'
 		prescription.save()
 		fd_filenames.append(filename)
-		success, msg, parts = prescription.add_parts_from_files (
-			files = fd_filenames,
-			reviewer = self.reviewer['pk_staff']
-		)
-
+		success, msg, parts = prescription.add_parts_from_files(files = fd_filenames)
 		if not success:
 			_log.error(msg)
 			return
 
+		for part in parts:
+			part['obj_comment'] = _('copy')
+			part.save()
+
 		xml_part = parts[-1]
 		xml_part['filename'] = u'freediams-prescription.xml'
+		xml_part['obj_comment'] = _('data')
 		xml_part.save()
+
+		# are we the intended reviewer ?
+		from Gnumed.business.gmPerson import gmCurrentProvider
+		me = gmCurrentProvider()
+		# if so: auto-sign the prescription
+		if xml_part['pk_intended_reviewer'] == me['pk_staff']:
+			prescription.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 	#--------------------------------------------------------
 	def import_fd2gm_file_as_drugs(self, filename=None):
 		"""
@@ -774,6 +810,142 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		fd2gm_xml.parse(filename)
 
 		data_src_pk = self.create_data_source_entry()
+
+		xml_version = fd2gm_xml.find('FullPrescription').attrib['version']
+		_log.debug('fd2gm file version: %s', xml_version)
+
+		if xml_version in ['0.6.0', '0.7.2']:
+			return self.__import_fd2gm_file_as_drugs_0_6_0(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
+
+		return self.__import_fd2gm_file_as_drugs_0_5(fd2gm_xml = fd2gm_xml, pk_data_source = data_src_pk)
+	#--------------------------------------------------------
+	def __import_fd2gm_file_as_drugs_0_6_0(self, fd2gm_xml=None, pk_data_source=None):
+
+#		drug_id_name = db_def.attrib['drugUidName']
+		fd_xml_prescriptions = fd2gm_xml.findall('FullPrescription/Prescription')
+
+		self.__imported_drugs = []
+		for fd_xml_prescription in fd_xml_prescriptions:
+			drug_uid = fd_xml_prescription.find('Drug').attrib['u1'].strip()
+			if drug_uid == u'-1':
+				_log.debug('skipping textual drug')
+				continue
+			drug_db =  fd_xml_prescription.find('Drug').attrib['db'].strip()
+			drug_uid_name = fd_xml_prescription.find('Drug/DrugUidName').text.strip()
+			#drug_uid_name = u'<%s>' % drug_db
+			drug_name = fd_xml_prescription.find('Drug/DrugName').text.replace(', )', ')').strip()
+			drug_form = fd_xml_prescription.find('Drug/DrugForm').text.strip()
+#			drug_atc = fd_xml_prescription.find('DrugATC')
+#			if drug_atc is None:
+#				drug_atc = u''
+#			else:
+#				if drug_atc.text is None:
+#					drug_atc = u''
+#				else:
+#					drug_atc = drug_atc.text.strip()
+
+			# create new branded drug
+			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
+			self.__imported_drugs.append(new_drug)
+			new_drug['is_fake_brand'] = False
+#			new_drug['atc'] = drug_atc
+			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (drug_db, drug_uid_name)
+			new_drug['external_code'] = drug_uid
+			new_drug['pk_data_source'] = pk_data_source
+			new_drug.save()
+
+			# parse XML for composition records
+			fd_xml_components = fd_xml_prescription.getiterator('Composition')
+			comp_data = {}
+			for fd_xml_comp in fd_xml_components:
+
+				data = {}
+
+				xml_strength = fd_xml_comp.attrib['strength'].strip()
+				amount = regex.match(r'^\d+[.,]{0,1}\d*', xml_strength)
+				if amount is None:
+					amount = 99999
+				else:
+					amount = amount.group()
+				data['amount'] = amount
+
+				#unit = regex.sub(r'\d+[.,]{0,1}\d*', u'', xml_strength).strip()
+				unit = (xml_strength[len(amount):]).strip()
+				if unit == u'':
+					unit = u'*?*'
+				data['unit'] = unit
+
+				# hopefully, FreeDiams gets their act together, eventually:
+				atc = regex.match(r'[A-Za-z]\d\d[A-Za-z]{2}\d\d', fd_xml_comp.attrib['atc'].strip())
+				if atc is None:
+					data['atc'] = None
+				else:
+					atc = atc.group()
+				data['atc'] = atc
+
+				molecule_name = fd_xml_comp.attrib['molecularName'].strip()
+				if molecule_name != u'':
+					create_consumable_substance(substance = molecule_name, atc = atc, amount = amount, unit = unit)
+				data['molecule_name'] = molecule_name
+
+				inn_name = fd_xml_comp.attrib['inn'].strip()
+				if inn_name != u'':
+					create_consumable_substance(substance = inn_name, atc = atc, amount = amount, unit = unit)
+				#data['inn_name'] = molecule_name
+				data['inn_name'] = inn_name
+
+				if molecule_name == u'':
+					data['substance'] = inn_name
+					_log.info('linking INN [%s] rather than molecularName as component', inn_name)
+				else:
+					data['substance'] = molecule_name
+
+				data['nature'] = fd_xml_comp.attrib['nature'].strip()
+				data['nature_ID'] = fd_xml_comp.attrib['natureLink'].strip()
+
+				# merge composition records of SA/FT nature
+				try:
+					old_data = comp_data[data['nature_ID']]
+					# normalize INN
+					if old_data['inn_name'] == u'':
+						old_data['inn_name'] = data['inn_name']
+					if data['inn_name'] == u'':
+						data['inn_name'] = old_data['inn_name']
+					# normalize molecule
+					if old_data['molecule_name'] == u'':
+						old_data['molecule_name'] = data['molecule_name']
+					if data['molecule_name'] == u'':
+						data['molecule_name'] = old_data['molecule_name']
+					# normalize ATC
+					if old_data['atc'] == u'':
+						old_data['atc'] = data['atc']
+					if data['atc'] == u'':
+						data['atc'] = old_data['atc']
+					# FT: transformed form
+					# SA: active substance
+					# it would be preferable to use the SA record because that's what's *actually*
+					# contained in the drug, however FreeDiams does not list the amount thereof
+					# (rather that of the INN)
+					# FT and SA records of the same component carry the same nature_ID
+					if data['nature'] == u'FT':
+						comp_data[data['nature_ID']] = data
+					else:
+						comp_data[data['nature_ID']] = old_data
+
+				# or create new record
+				except KeyError:
+					comp_data[data['nature_ID']] = data
+
+			# actually create components from (possibly merged) composition records
+			for key, data in comp_data.items():
+				new_drug.add_component (
+					substance = data['substance'],
+					atc = data['atc'],
+					amount = data['amount'],
+					unit = data['unit']
+				)
+	#--------------------------------------------------------
+	def __import_fd2gm_file_as_drugs_0_5(self, fd2gm_xml=None, pk_data_source=None):
 
 		db_def = fd2gm_xml.find('DrugsDatabaseName')
 		db_id = db_def.text.strip()
@@ -792,7 +964,10 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			if drug_atc is None:
 				drug_atc = u''
 			else:
-				drug_atc = drug_atc.text.strip()
+				if drug_atc.text is None:
+					drug_atc = u''
+				else:
+					drug_atc = drug_atc.text.strip()
 
 			# create new branded drug
 			new_drug = create_branded_drug(brand_name = drug_name, preparation = drug_form, return_existing = True)
@@ -801,7 +976,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			new_drug['atc'] = drug_atc
 			new_drug['external_code_type'] = u'FreeDiams::%s::%s' % (db_id, drug_id_name)
 			new_drug['external_code'] = drug_uid
-			new_drug['pk_data_source'] = data_src_pk
+			new_drug['pk_data_source'] = pk_data_source
 			new_drug.save()
 
 			# parse XML for composition records
@@ -915,8 +1090,17 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 					'data': self.__data_date,
 					'online_update': self.__online_update_date
 				}
-
-		open(self.data_date_filename, 'wb').close()
+		try:
+			open(self.data_date_filename, 'wb').close()
+		except StandardError:
+			_log.error('problem querying the MMI drug database for version information')
+			_log.exception('cannot create MMI drug database version file [%s]', self.data_date_filename)
+			self.__data_date = None
+			self.__online_update_date = None
+			return {
+				'data': u'?',
+				'online_update': u'?'
+			}
 
 		cmd = u'%s -DATADATE' % self.path_to_binary
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
@@ -962,12 +1146,18 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	#--------------------------------------------------------
 	def switch_to_frontend(self, blocking=False, cmd=None):
 
-		# must make sure csv file exists
-		open(self.default_csv_filename, 'wb').close()
+		try:
+			# must make sure csv file exists
+			open(self.default_csv_filename, 'wb').close()
+		except IOError:
+			_log.exception('problem creating GL/MMI <-> GNUmed exchange file')
+			return False
 
 		if cmd is None:
 			cmd = (u'%s %s' % (self.path_to_binary, self.args)) % self.default_csv_filename_arg
 
+		if os.name == 'nt':
+			blocking = True
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = blocking):
 			_log.error('problem switching to the MMI drug database')
 			# apparently on the first call MMI does not
@@ -1035,8 +1225,8 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			new_drugs.append(drug)
 
 			# update fields
-			drug['is_fake'] = False
-			drug['atc_code'] = entry['atc']
+			drug['is_fake_brand'] = False
+			drug['atc'] = entry['atc']
 			drug['external_code_type'] = u'DE-PZN'
 			drug['external_code'] = entry['pzn']
 			drug['fk_data_source'] = data_src_pk
@@ -1085,7 +1275,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		bdt_file.close()
 
-		self.switch_to_frontend(blocking = False)
+		self.switch_to_frontend(blocking = True)
 	#--------------------------------------------------------
 	def show_info_on_drug(self, drug=None):
 		self.switch_to_frontend(blocking = True)
@@ -1280,7 +1470,7 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 					WHERE
 						fk_drug_component IS NOT NULL
 							AND
-						fk_drug_component = (
+						fk_drug_component IN (
 							SELECT r_ls2b.pk
 							FROM ref.lnk_substance2brand r_ls2b
 							WHERE fk_substance = %(pk)s
@@ -1392,7 +1582,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_query1 = u"""
 		SELECT
 			pk::text,
-			(description || ' ' || amount || unit) as subst
+			(description || ' ' || amount || ' ' || unit) as subst
 		FROM ref.consumable_substance
 		WHERE description %(fragment_condition)s
 		ORDER BY subst
@@ -1400,7 +1590,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_query2 = u"""
 		SELECT
 			pk::text,
-			(description || ' ' || amount || unit) as subst
+			(description || ' ' || amount || ' ' || unit) as subst
 		FROM ref.consumable_substance
 		WHERE
 			%(fragment_condition)s
@@ -1526,7 +1716,18 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y-%m-%d'):
+	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None, show_all_brand_components=False):
+		if one_line:
+			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
+
+		return self.format_as_multiple_lines (
+			left_margin = left_margin,
+			date_format = date_format,
+			allergy = allergy,
+			show_all_brand_components = show_all_brand_components
+		)
+	#--------------------------------------------------------
+	def format_as_one_line(self, left_margin=0, date_format='%Y %B %d'):
 
 		if self._payload[self._idx['duration']] is None:
 			duration = gmTools.bool2subst (
@@ -1555,6 +1756,112 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None, show_all_brand_components=False):
+
+		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
+			gmTools.bool2subst (
+				boolean = self._payload[self._idx['is_currently_active']],
+				true_return = gmTools.bool2subst (
+					boolean = self._payload[self._idx['seems_inactive']],
+					true_return = _('active, needs check'),
+					false_return = _('active'),
+					none_return = _('assumed active')
+				),
+				false_return = _('inactive')
+			),
+			gmTools.bool2subst (
+				boolean = self._payload[self._idx['intake_is_approved_of']],
+				true_return = _('approved'),
+				false_return = _('unapproved')
+			),
+			self._payload[self._idx['pk_substance_intake']]
+		)
+
+		if allergy is not None:
+			certainty = gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'))
+			txt += u'\n'
+			txt += u' !! ---- Cave ---- !!\n'
+			txt += u' %s (%s): %s (%s)\n' % (
+				allergy['l10n_type'],
+				certainty,
+				allergy['descriptor'],
+				gmTools.coalesce(allergy['reaction'], u'')[:40]
+			)
+			txt += u'\n'
+
+		txt += u' ' + _('Substance: %s   [#%s]\n') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']])
+		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['preparation']]
+		txt += u' ' + _('Amount per dose: %s %s') % (self._payload[self._idx['amount']], self._payload[self._idx['unit']])
+		if self.ddd is not None:
+			txt += u' (DDD: %s %s)' % (self.ddd['ddd'], self.ddd['unit'])
+		txt += u'\n'
+		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', _(' ATC (substance): %s\n'))
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce (
+			self._payload[self._idx['brand']],
+			u'',
+			_(' Brand name: %%s   [#%s]\n') % self._payload[self._idx['pk_brand']]
+		)
+		txt += gmTools.coalesce(self._payload[self._idx['atc_brand']], u'', _(' ATC (brand): %s\n'))
+		if show_all_brand_components and (self._payload[self._idx['pk_brand']] is not None):
+			brand = self.containing_drug
+			if len(brand['pk_substances']) > 1:
+				for comp in brand['components']:
+					if comp.startswith(self._payload[self._idx['substance']] + u'::'):
+						continue
+					txt += _('  Other component: %s\n') % comp
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce(self._payload[self._idx['schedule']], u'', _(' Regimen: %s\n'))
+
+		if self._payload[self._idx['is_long_term']]:
+			duration = u' %s %s' % (gmTools.u_right_arrow, gmTools.u_infinity)
+		else:
+			if self._payload[self._idx['duration']] is None:
+				duration = u''
+			else:
+				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
+
+		txt += _(' Started %s%s%s\n') % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['started']],
+				format = date_format,
+				accuracy = gmDateTime.acc_days
+			),
+			duration,
+			gmTools.bool2subst(self._payload[self._idx['is_long_term']], _(' (long-term)'), _(' (short-term)'), u'')
+		)
+
+		if self._payload[self._idx['discontinued']] is not None:
+			txt += _(' Discontinued %s\n') % (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['discontinued']],
+					format = date_format,
+					accuracy = gmDateTime.acc_days
+				)
+			)
+			txt += _(' Reason: %s\n') % self._payload[self._idx['discontinue_reason']]
+
+		txt += u'\n'
+
+		txt += gmTools.coalesce(self._payload[self._idx['aim']], u'', _(' Aim: %s\n'))
+		txt += gmTools.coalesce(self._payload[self._idx['episode']], u'', _(' Episode: %s\n'))
+		txt += gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n'))
+		txt += gmTools.coalesce(self._payload[self._idx['notes']], u'', _(' Advice: %s\n'))
+
+		txt += u'\n'
+
+		txt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+			'row_ver': self._payload[self._idx['row_version']],
+			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
+			'mod_by': self._payload[self._idx['modified_by']]
+		}
+
+		return txt
+	#--------------------------------------------------------
 	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
 		allg = gmAllergy.create_allergy (
 			allergene = self._payload[self._idx['substance']],
@@ -1570,11 +1877,15 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		allg['atc_code'] = gmTools.coalesce(self._payload[self._idx['atc_substance']], self._payload[self._idx['atc_brand']])
 		if self._payload[self._idx['external_code_brand']] is not None:
 			allg['substance_code'] = u'%s::::%s' % (self._payload[self._idx['external_code_type_brand']], self._payload[self._idx['external_code_brand']])
-		comps = [ c['substance'] for c in self.containing_drug.components ]
-		if len(comps) == 0:
+
+		if self._payload[self._idx['pk_brand']] is None:
 			allg['generics'] = self._payload[self._idx['substance']]
 		else:
-			allg['generics'] = u'; '.join(comps)
+			comps = [ c['substance'] for c in self.containing_drug.components ]
+			if len(comps) == 0:
+				allg['generics'] = self._payload[self._idx['substance']]
+			else:
+				allg['generics'] = u'; '.join(comps)
 
 		allg.save()
 		return allg
@@ -1645,6 +1956,31 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
+def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None):
+	args = {'comp': pk_component, 'subst': pk_substance, 'pat': pk_identity}
+
+	where_clause = u"""
+		fk_encounter IN (
+			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
+		)
+			AND
+		"""
+
+	if pk_substance is not None:
+		where_clause += u'fk_substance = %(subst)s'
+	if pk_component is not None:
+		where_clause += u'fk_drug_component = %(comp)s'
+
+	cmd = u"""SELECT exists (
+	SELECT 1 FROM clin.substance_intake
+	WHERE
+		%s
+	LIMIT 1
+	)""" % where_clause
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+#------------------------------------------------------------
 def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None):
 
 	args = {
@@ -1686,7 +2022,17 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 			)
 			RETURNING pk"""
 
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	try:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	except gmPG2.dbapi.InternalError, e:
+		if e.pgerror is None:
+			raise
+		if 'prevent_duplicate_component' in e.pgerror:
+			_log.exception('will not create duplicate substance intake entry')
+			_log.error(e.pgerror)
+			return None
+		raise
+
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
 #------------------------------------------------------------
 def delete_substance_intake(substance=None):
@@ -1695,17 +2041,14 @@ def delete_substance_intake(substance=None):
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex =  u'\n{\\small\n'
-	tex += u'\\noindent %s\n' % _('Additional notes')
+	tex  = u'\n\\noindent %s\n' % _('Additional notes')
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|l|l|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|l|>{\\RaggedRight}X|p{7.5cm}|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s & %s & \\\\ \n' % (_('Substance'), _('Strength'), _('Brand'))
+	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabular}\n'
-	tex += u'}\n'
+	tex += u'\\end{tabularx}\n\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -1716,32 +2059,37 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	# create lines
 	lines = []
 	for med in current_meds:
-
-		lines.append(u'%s & %s%s & %s %s & {\\scriptsize %s} \\\\ \n \\hline \n' % (
-			med['substance'],
+		if med['brand'] is None:
+			brand = u''
+		else:
+			brand = u': {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
+		if med['aim'] is None:
+			aim = u''
+		else:
+			aim = u'{\\scriptsize %s}' % gmTools.tex_escape_string(med['aim'])
+		lines.append(u'%s ({\\small %s}%s) & %s%s & %s \\tabularnewline\n \\hline' % (
+			gmTools.tex_escape_string(med['substance']),
+			gmTools.tex_escape_string(med['preparation']),
+			brand,
 			med['amount'],
-			med['unit'],
-			gmTools.coalesce(med['brand'], u''),
-			med['preparation'],
-			gmTools.coalesce(med['notes'], u'')
+			gmTools.tex_escape_string(med['unit']),
+			aim
 		))
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 
 #------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
 	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
 	tex += u'\n'
-	tex += u'\\noindent \\begin{tabular}{|l|l|}\n'
+	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|>{\\RaggedRight}X|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\\\ \n' % (_('Drug'), _('Regimen'))
+	tex += u'%s & %s \\tabularnewline \n' % (_('Drug'), _('Regimen / Advice'))
 	tex += u'\\hline\n'
-	tex += u'\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\n'
-	tex += u'\\end{tabular}\n'
+	tex += u'\\end{tabularx}\n'
 
 	current_meds = emr.get_current_substance_intake (
 		include_inactive = False,
@@ -1757,20 +2105,22 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		try:
 			line_data[identifier]
 		except KeyError:
-			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'aims': [], 'strengths': []}
+			line_data[identifier] = {'brand': u'', 'preparation': u'', 'schedule': u'', 'notes': [], 'strengths': []}
 
 		line_data[identifier]['brand'] = identifier
-		line_data[identifier]['strengths'].append(u'%s%s' % (med['amount'], med['unit'].strip()))
+		line_data[identifier]['strengths'].append(u'%s %s%s' % (med['substance'][:20], med['amount'], med['unit'].strip()))
 		line_data[identifier]['preparation'] = med['preparation']
 		line_data[identifier]['schedule'] = gmTools.coalesce(med['schedule'], u'')
-		if med['aim'] not in line_data[identifier]['aims']:
-			line_data[identifier]['aims'].append(med['aim'])
+		if med['notes'] is not None:
+			if med['notes'] not in line_data[identifier]['notes']:
+				line_data[identifier]['notes'].append(med['notes'])
 
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s & %s \\\\'
-	line2_template = u' & {\\scriptsize %s\\par} \\\\'
+	line1_template = u'%s %s             & %s \\tabularnewline'
+	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\tabularnewline'
+	line3_template = u'                  & {\\scriptsize %s\\par} \\tabularnewline'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])
@@ -1781,30 +2131,24 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		already_seen.append(identifier)
 
 		lines.append (line1_template % (
-			line_data[identifier]['brand'],
-			line_data[identifier]['preparation'],
-			line_data[identifier]['schedule']
+			gmTools.tex_escape_string(line_data[identifier]['brand']),
+			gmTools.tex_escape_string(line_data[identifier]['preparation']),
+			gmTools.tex_escape_string(line_data[identifier]['schedule'])
 		))
 
-		strengths = u'/'.join(line_data[identifier]['strengths'])
-		if strengths == u'':
-			template = u' & {\\scriptsize %s\\par} \\\\'
-			for aim in line_data[identifier]['aims']:
-				lines.append(template % aim)
+		strengths = gmTools.tex_escape_string(u' / '.join(line_data[identifier]['strengths']))
+		if len(line_data[identifier]['notes']) == 0:
+			first_note = u''
 		else:
-			if len(line_data[identifier]['aims']) == 0:
-				template = u'%s & \\\\'
-				lines.append(template % strengths)
-			else:
-				template = u'%s & {\\scriptsize %s\\par} \\\\'
-				lines.append(template % (strengths, line_data[identifier]['aims'][0]))
-				template = u' & {\\scriptsize %s\\par} \\\\'
-				for aim in line_data[identifier]['aims'][1:]:
-					lines.append(template % aim)
+			first_note = gmTools.tex_escape_string(line_data[identifier]['notes'][0])
+		lines.append(line2_template % (strengths, first_note))
+		if len(line_data[identifier]['notes']) > 1:
+			for note in line_data[identifier]['notes'][1:]:
+				lines.append(line3_template % gmTools.tex_escape_string(note))
 
 		lines.append(u'\\hline')
 
-	return tex % u' \n'.join(lines)
+	return tex % u'\n'.join(lines)
 #============================================================
 _SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'
 
@@ -1991,15 +2335,43 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def set_substances_as_components(self, substances=None):
 
-		if self._payload[self._idx['is_in_use']]:
+		if self.is_in_use_by_patients:
 			return False
 
+		pk_substances2keep = [ s['pk'] for s in substances ]
 		args = {'brand': self._payload[self._idx['pk_brand']]}
+		queries = []
 
-		queries = [{'cmd': u"DELETE FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s", 'args': args}]
-		cmd = u'INSERT INTO ref.lnk_substance2brand (fk_brand, fk_substance) VALUES (%%(brand)s, %s)'
-		for s in substances:
-			queries.append({'cmd': cmd % s['pk'], 'args': args})
+		# INSERT those which are not there yet
+		cmd = u"""
+			INSERT INTO ref.lnk_substance2brand (
+				fk_brand,
+				fk_substance
+			)
+			SELECT
+				%(brand)s,
+				%(subst)s
+			WHERE NOT EXISTS (
+				SELECT 1
+				FROM ref.lnk_substance2brand
+				WHERE
+					fk_brand = %(brand)s
+						AND
+					fk_substance = %(subst)s
+			)"""
+		for pk in pk_substances2keep:
+			args['subst'] = pk
+			queries.append({'cmd': cmd, 'args': args})
+
+		# DELETE those that don't belong anymore
+		args['substances2keep'] = tuple(pk_substances2keep)
+		cmd = u"""
+			DELETE FROM ref.lnk_substance2brand
+			WHERE
+				fk_brand = %(brand)s
+					AND
+				fk_substance NOT IN %(substances2keep)s"""
+		queries.append({'cmd': cmd, 'args': args})
 
 		gmPG2.run_rw_queries(queries = queries)
 		self.refetch_payload()
@@ -2117,6 +2489,28 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_vaccine = property(_get_is_vaccine, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_in_use_by_patients(self):
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM clin.substance_intake
+				WHERE
+					fk_drug_component IS NOT NULL
+						AND
+					fk_drug_component IN (
+						SELECT r_ls2b.pk
+						FROM ref.lnk_substance2brand r_ls2b
+						WHERE fk_brand = %(pk)s
+					)
+				LIMIT 1
+			)"""
+		args = {'pk': self.pk_obj}
+
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+
+	is_in_use_by_patients = property(_get_is_in_use_by_patients, lambda x:x)
 #------------------------------------------------------------
 def get_branded_drugs():
 	cmd = u'SELECT pk FROM ref.branded_drug ORDER BY description'
@@ -2229,7 +2623,7 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_mmi_switch_to():
 		mmi = cGelbeListeWineInterface()
-		mmi.switch_to_frontend(blocking = False)
+		mmi.switch_to_frontend(blocking = True)
 	#--------------------------------------------------------
 	def test_mmi_let_user_select_drugs():
 		mmi = cGelbeListeWineInterface()
@@ -2289,6 +2683,8 @@ if __name__ == "__main__":
 		for s in get_consumable_substances():
 			print s
 	#--------------------------------------------------------
+	def test_drug2renal_insufficiency_url():
+		drug2renal_insufficiency_url(search_term = 'Metoprolol')
 	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
@@ -2307,4 +2703,6 @@ if __name__ == "__main__":
 	#test_create_substance_intake()
 	#test_show_components()
 	#test_get_consumable_substances()
+
+	#test_drug2renal_insufficiency_url()
 #============================================================

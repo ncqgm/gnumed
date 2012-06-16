@@ -7,7 +7,7 @@
 -- What it does:
 -- - upgrade blobs.v_reviewed_doc_objects
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

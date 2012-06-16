@@ -26,13 +26,13 @@ This script is designed for importing GNUmed SOAP input "bundles".
 #===============================================================
 __version__ = "$Revision: 1.24 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import sys, re, logging
 
 
-# GnuMed
+# GNUmed
 from Gnumed.pycommon import gmExceptions, gmI18N, gmDispatcher
 from Gnumed.business import gmClinNarrative, gmPerson, gmPersonSearch
 
@@ -63,10 +63,10 @@ class cSOAPImporter:
 	#-----------------------------------------------------------
 	def import_soap(self, bundle=None):
 		"""
-		Import supplied GnuMed SOAP input "bundle". For details consult current
+		Import supplied GNUmed SOAP input "bundle". For details consult current
 		module's description information.
 
-		@param bundle: GnuMed SOAP input data (as described in module's information)
+		@param bundle: GNUmed SOAP input data (as described in module's information)
 		@type bundle: list of dicts
 		"""
 		# process each entry in soap bundle independently
@@ -80,7 +80,7 @@ class cSOAPImporter:
 	# internal helpers
 	#-----------------------------------------------------------
 	def __import_narrative(self, soap_entry):
-		"""Import soap entry into GnuMed backend.
+		"""Import soap entry into GNUmed backend.
 
 		@param soap_entry: dictionary containing information related
 						   to one SOAP input line

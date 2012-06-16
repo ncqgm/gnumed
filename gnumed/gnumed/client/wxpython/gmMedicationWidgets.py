@@ -4,7 +4,7 @@
 __version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import logging, sys, os.path, webbrowser, decimal
+import logging, sys, os.path, decimal
 
 
 import wx, wx.grid
@@ -13,8 +13,8 @@ import wx, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2
-from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms
+from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2, gmNetworkTools
+from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
 from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
@@ -47,12 +47,14 @@ def configure_drug_data_source(parent=None):
 def get_drug_database(parent = None):
 	dbcfg = gmCfg.cCfgSQL()
 
+	# load from option
 	default_db = dbcfg.get2 (
 		option = 'external.drug_data.default_source',
 		workplace = gmSurgery.gmCurrentPractice().active_workplace,
 		bias = 'workplace'
 	)
 
+	# not configured -> try to configure
 	if default_db is None:
 		gmDispatcher.send('statustext', msg = _('No default drug database configured.'), beep = True)
 		configure_drug_data_source(parent = parent)
@@ -61,6 +63,7 @@ def get_drug_database(parent = None):
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
+		# still not configured -> return
 		if default_db is None:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('There is no default drug database configured.'),
@@ -68,17 +71,25 @@ def get_drug_database(parent = None):
 			)
 			return None
 
+	# now it MUST be configured (either newly or previously)
+	# but also *validly* ?
 	try:
 		drug_db = gmMedication.drug_data_source_interfaces[default_db]()
 	except KeyError:
+		# not valid
 		_log.error('faulty default drug data source configuration: %s', default_db)
+		# try to configure
 		configure_drug_data_source(parent = parent)
 		default_db = dbcfg.get2 (
 			option = 'external.drug_data.default_source',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
-		if default_db is None:
+		# deconfigured or aborted (and thusly still misconfigured) ?
+		try:
+			drug_db = gmMedication.drug_data_source_interfaces[default_db]()
+		except KeyError:
+			_log.error('still faulty default drug data source configuration: %s', default_db)
 			return None
 
 	pat = gmPerson.gmCurrentPatient()
@@ -671,6 +682,9 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_('A drug component with optional strength.'))
 		self.matcher = mp
 		self.selection_only = False
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmMedication.cDrugComponent(aPK_obj = self.GetData(as_instance = False, can_create = False))
 #============================================================
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -710,13 +724,17 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher = mp
 		self.selection_only = False
 		self.phrase_separators = None
+
+	#--------------------------------------------------------
+	def _data2instance(self):
+		return gmMedication.cConsumableSubstance(aPK_obj = self.GetData(as_instance = False, can_create = False))
 #============================================================
 # branded drugs widgets
 #------------------------------------------------------------
 def manage_components_of_branded_drug(parent=None, brand=None):
 
 	if brand is not None:
-		if brand['is_in_use']:
+		if brand.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Managing components of a drug'),
 				aMessage = _(
@@ -731,6 +749,9 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 	#--------------------------------------------------------
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------------------
+#	def manage_substances():
+#		pass
 	#--------------------------------------------------------
 	if brand is None:
 		msg = _('Pick the substances which are components of this drug.')
@@ -759,6 +780,11 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 	picker.set_columns(['Substances'], [right_col])
 	picker.set_choices(choices = choices, data = substs)
 	picker.set_picks(picks = picks, data = comp_substs)
+#	picker.extra_button = (
+#		_('Substances'),
+#		_('Manage list of consumable substances'),
+#		manage_substances
+#	)
 
 	btn_pressed = picker.ShowModal()
 	substs = picker.get_picks()
@@ -789,7 +815,7 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 		tt += u'\n'
 		tt += u'%s%s%s\n' % (
 			gmTools.bool2subst(brand.is_vaccine, u'%s, ' % _('Vaccine'), u''),
-			u'%s, ' % gmTools.bool2subst(brand['is_in_use'], _('in use'), _('not in use')),
+			u'%s, ' % gmTools.bool2subst(brand.is_in_use_by_patients, _('in use'), _('not in use')),
 			gmTools.bool2subst(brand['is_fake_brand'], _('fake'), u'')
 		)
 		tt += gmTools.coalesce(brand['atc'], u'', _('ATC: %s\n'))
@@ -798,20 +824,21 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 			tt += u'- %s' % u'\n- '.join(brand['components'])
 		return tt
 	#------------------------------------------------------------
-	def edit(brand=None):
-		if brand.is_vaccine:
-			gmGuiHelpers.gm_show_info (
-				aTitle = _('Editing medication'),
-				aMessage = _(
-					'Cannot edit the medication\n'
-					'\n'
-					' "%s" (%s)\n'
-					'\n'
-					'because it is a vaccine. Please edit it\n'
-					'from the vaccine management section !\n'
-				) % (brand['brand'], brand['preparation'])
-			)
-			return False
+	def edit(brand):
+		if brand is not None:
+			if brand.is_vaccine:
+				gmGuiHelpers.gm_show_info (
+					aTitle = _('Editing medication'),
+					aMessage = _(
+						'Cannot edit the medication\n'
+						'\n'
+						' "%s" (%s)\n'
+						'\n'
+						'because it is a vaccine. Please edit it\n'
+						'from the vaccine management section !\n'
+					) % (brand['brand'], brand['preparation'])
+				)
+				return False
 
 		return edit_branded_drug(parent = parent, branded_drug = brand, single_entry = True)
 	#------------------------------------------------------------
@@ -872,8 +899,9 @@ def manage_branded_drugs(parent=None, ignore_OK_button=False):
 
 #------------------------------------------------------------
 def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
+
 	if branded_drug is not None:
-		if branded_drug['is_in_use']:
+		if branded_drug.is_in_use_by_patients:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Editing drug'),
 				aMessage = _(
@@ -886,11 +914,22 @@ def edit_branded_drug(parent=None, branded_drug=None, single_entry=False):
 			)
 			return False
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------
+	def manage_substances(drug):
+		manage_consumable_substances(parent = parent)
+	#--------------------------------------------
 	ea = cBrandedDrugEAPnl(parent = parent, id = -1)
 	ea.data = branded_drug
 	ea.mode = gmTools.coalesce(branded_drug, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = single_entry)
 	dlg.SetTitle(gmTools.coalesce(branded_drug, _('Adding new drug brand'), _('Editing drug brand')))
+	dlg.left_extra_button = (
+		_('Substances'),
+		_('Manage consumable substances'),
+		manage_substances
+	)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -929,7 +968,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 	def _valid_for_save(self):
 
 		if self.data is not None:
-			if self.data['is_in_use']:
+			if self.data.is_in_use_by_patients:
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit drug brand. It is in use.'), beep = True)
 				return False
 
@@ -946,6 +985,26 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			self._PRW_preparation.display_as_valid(False)
 		else:
 			self._PRW_preparation.display_as_valid(True)
+
+		if validity is True:
+			self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+			if len(self.__component_substances) == 0:
+				wants_empty = gmGuiHelpers.gm_show_question (
+					title = _('Checking brand data'),
+					question = _(
+						'You have not selected any substances\n'
+						'as drug components.\n'
+						'\n'
+						'Without components you will not be able to\n'
+						'use this drug for documenting patient care.\n'
+						'\n'
+						'Are you sure you want to save\n'
+						'it without components ?'
+					)
+				)
+				if not wants_empty:
+					validity = False
+					self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
@@ -1035,7 +1094,11 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 	#----------------------------------------------------------------
 	def _on_manage_components_button_pressed(self, event):
 		event.Skip()
-		OKed, substs = manage_components_of_branded_drug(parent = self, brand = self.data)
+		if self.mode == 'new_from_existing':
+			brand = None
+		else:
+			brand = self.data
+		OKed, substs = manage_components_of_branded_drug(parent = self, brand = brand)
 		if OKed is True:
 			self.__component_substances = substs
 			comps = u''
@@ -1049,18 +1112,27 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 			SELECT
-				pk,
+				pk
+					AS data,
 				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
-					AS brand
+					AS list_label,
+				(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+					AS field_label
 			FROM ref.branded_drug
 			WHERE description %(fragment_condition)s
-			ORDER BY brand
+			ORDER BY list_label
 			LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(2, 3, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.SetToolTipString(_('The brand name of the drug.'))
+		self.SetToolTipString(_(
+			'The brand name of the drug.\n'
+			'\n'
+			'Note: a brand name will need to be linked to\n'
+			'one or more components before it can be used,\n'
+			'except in the case of fake (generic) vaccines.'
+		))
 		self.matcher = mp
 		self.selection_only = False
 
@@ -1194,6 +1266,39 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		has_component = (self._PRW_component.GetData() is not None)
 		has_substance = (self._PRW_substance.GetValue().strip() != u'')
 
+		self._PRW_component.display_as_valid(True)
+
+		# cannot add duplicate components
+		if self.mode == 'new':
+			msg = _(
+				'The patient is already taking\n'
+				'\n'
+				' %s\n'
+				'\n'
+				'You will want to adjust the schedule\n'
+				'rather than document the intake twice.'
+			)
+			title = _('Adding substance intake entry')
+			if has_component:
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
+					gmGuiHelpers.gm_show_warning (
+						aTitle = title,
+						aMessage = msg % self._PRW_component.GetValue().strip()
+					)
+					self._PRW_component.display_as_valid(False)
+					validity = False
+			pk_substance = self._PRW_substance.GetData()
+			if pk_substance is not None:
+				emr = gmPerson.gmCurrentPatient().get_emr()
+				if emr.substance_intake_exists(pk_substance = pk_substance):
+					gmGuiHelpers.gm_show_warning (
+						aTitle = title,
+						aMessage = msg % self._PRW_substance.GetValue().strip()
+					)
+					self._PRW_substance.display_as_valid(False)
+					validity = False
+
 		# must have either brand or substance
 		if (has_component is False) and (has_substance is False):
 			self._PRW_substance.display_as_valid(False)
@@ -1201,7 +1306,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			validity = False
 		else:
 			self._PRW_substance.display_as_valid(True)
-			self._PRW_component.display_as_valid(True)
 
 		# brands already have a preparation, so only required for substances
 		if not has_component:
@@ -1219,18 +1323,14 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self._PRW_episode.display_as_valid(True)
 
-#		# huh ?
-#		if self._CHBOX_approved.IsChecked() is True:
-#			self._PRW_duration.display_as_valid(True)
-#		else:
-#			if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
-#				self._PRW_duration.display_as_valid(True)
-#			else:
-#				if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
-#					self._PRW_duration.display_as_valid(False)
-#					validity = False
-#				else:
-#					self._PRW_duration.display_as_valid(True)
+		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
+			self._PRW_duration.display_as_valid(True)
+		else:
+			if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
+				self._PRW_duration.display_as_valid(False)
+				validity = False
+			else:
+				self._PRW_duration.display_as_valid(True)
 
 		# end must be > start if at all
 		end = self._DP_discontinued.GetData()
@@ -1245,7 +1345,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				self._DP_discontinued.display_as_valid(True)
 
 		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save substance intake. Invalid or missing essential input.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
 
 		return validity
 	#----------------------------------------------------------------
@@ -1266,6 +1366,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				episode = epi,
 				preparation = self._PRW_preparation.GetValue().strip()
 			)
+
+		if intake is None:
+			gmDispatcher.send('statustext', msg = _('Cannot add duplicate of (maybe inactive) substance intake.'), beep = True)
+			return False
 
 		intake['started'] = self._DP_started.GetData()
 		intake['discontinued'] = self._DP_discontinued.GetData()
@@ -1454,7 +1558,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			if brand['components'] is not None:
 				self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
 				tt = u'%s:\n\n- %s' % (
-					self.data['brand'],
+					brand['brand'],
 					u'\n- '.join(brand['components'])
 				)
 				self._TCTRL_brand_ingredients.SetToolTipString(tt)
@@ -1487,6 +1591,21 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
 		manage_consumable_substances(parent = self)
+	#----------------------------------------------------------------
+	def _on_heart_button_pressed(self, event):
+		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
+	#----------------------------------------------------------------
+	def _on_kidneys_button_pressed(self, event):
+		if self._PRW_component.GetData() is not None:
+			search_term = self._PRW_component.GetData(as_instance = True)
+		elif self._PRW_substance.GetData() is not None:
+			search_term = self._PRW_substance.GetData(as_instance = True)
+		elif self._PRW_component.GetValue().strip() != u'':
+			search_term = self._PRW_component.GetValue().strip()
+		else:
+			search_term = self._PRW_substance.GetValue().strip()
+
+		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
 	#----------------------------------------------------------------
 	def _on_discontinued_as_planned_button_pressed(self, event):
 
@@ -1587,7 +1706,7 @@ def delete_substance_intake(parent=None, substance=None):
 def edit_intake_of_substance(parent = None, substance=None):
 	ea = cSubstanceIntakeEAPnl(parent = parent, id = -1, substance = substance)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (substance is not None))
-	dlg.SetTitle(gmTools.coalesce(substance, _('Adding substance intake'), _('Editing substance intake')))
+	dlg.SetTitle(gmTools.coalesce(substance, _('Adding medication/non-medication substance intake'), _('Editing medication/non-medication substance intake')))
 	dlg.left_extra_button = (
 		_('Allergy'),
 		_('Document an allergy against this substance.'),
@@ -1691,7 +1810,7 @@ def print_medication_list(parent=None):
 		return False
 
 	# 3) print template
-	printed = gmPrinting.print_file_by_shellscript(filename = pdf_name, jobtype = 'medication_list')
+	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'medication_list')
 	if not printed:
 		gmGuiHelpers.gm_show_error (
 			aMessage = _('Error printing the medication list.'),
@@ -1762,6 +1881,8 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 			pk_component = drug['pk_components'][0],
 			episode = emr.add_episode(episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE)['pk_episode'],
 		)
+		if intake is None:
+			continue
 		intake['intake_is_approved_of'] = True
 		intake.save()
 
@@ -1782,32 +1903,45 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		self.__prev_row = None
 		self.__prev_tooltip_row = None
 		self.__prev_cell_0 = None
-		self.__grouping_mode = u'episode'
+		self.__grouping_mode = u'issue'
 		self.__filter_show_unapproved = True
-		self.__filter_show_inactive = False
+		self.__filter_show_inactive = True
 
 		self.__grouping2col_labels = {
-			u'episode': [
-				_('Episode'),
+			u'issue': [
+				_('Health issue'),
 				_('Substance'),
-				_('Dose'),
+				_('Strength'),
 				_('Schedule'),
 				_('Started'),
 				_('Duration / Until'),
-				_('Brand')
+				_('Brand'),
+				_('Advice')
 			],
 			u'brand': [
 				_('Brand'),
 				_('Schedule'),
 				_('Substance'),
-				_('Dose'),
+				_('Strength'),
 				_('Started'),
 				_('Duration / Until'),
-				_('Episode')
+				_('Health issue'),
+				_('Advice')
+			],
+			u'episode': [
+				_('Episode'),
+				_('Substance'),
+				_('Strength'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration / Until'),
+				_('Brand'),
+				_('Advice')
 			]
 		}
 
 		self.__grouping2order_by_clauses = {
+			u'issue': u'pk_health_issue nulls first, substance, started',
 			u'episode': u'pk_health_issue nulls first, episode, substance, started',
 			u'brand': u'brand nulls last, substance, started'
 		}
@@ -1958,6 +2092,46 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						brand = gmTools.coalesce(med['brand'], u'')
 				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
 
+			elif self.__grouping_mode == u'issue':
+				if med['pk_health_issue'] is None:
+					self.__prev_cell_0 = None
+					issue = u'%s%s' % (
+						gmTools.u_diameter,
+						gmTools.coalesce(med['episode'], u'', u' (%s)')
+					)
+				else:
+					if self.__prev_cell_0 == med['health_issue']:
+						issue = u''
+					else:
+						self.__prev_cell_0 = med['health_issue']
+						issue = med['health_issue']
+				self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
+
+				self.SetCellValue(row_idx, 1, med['substance'])
+				self.SetCellValue(row_idx, 2, u'%s%s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
+				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+
+				if med['is_long_term']:
+					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+				else:
+					if med['discontinued'] is None:
+						if med['duration'] is None:
+							self.SetCellValue(row_idx, 5, u'')
+						else:
+							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+					else:
+						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
+
+				if med['pk_brand'] is None:
+					brand = u''
+				else:
+					if med['fake_brand']:
+						brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
+					else:
+						brand = gmTools.coalesce(med['brand'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+
 			elif self.__grouping_mode == u'brand':
 
 				if med['pk_brand'] is None:
@@ -1990,14 +2164,20 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					else:
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
-				if med['pk_episode'] is None:
-					epi = u''
+				if med['pk_health_issue'] is None:
+					issue = u'%s%s' % (
+						gmTools.u_diameter,
+						gmTools.coalesce(med['episode'], u'', u' (%s)')
+					)
 				else:
-					epi = gmTools.coalesce(med['episode'], u'')
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = epi, width = 40))
+					issue = gmTools.coalesce(med['health_issue'], u'')
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = issue, width = 40))
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
+
+			if med['notes'] is not None:
+				self.SetCellValue(row_idx, 7, gmTools.wrap(text = med['notes'], width = 50))
 
 			if self.__filter_show_unapproved:
 				self.SetCellValue (
@@ -2044,20 +2224,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			drug_db.show_info_on_drug(substance_intake = intake)
 	#------------------------------------------------------------
 	def show_renal_insufficiency_info(self):
-
-		if len(self.__row_data) == 0:
-			return
-
-		sel_rows = self.get_selected_rows()
-
-		if len(sel_rows) != 1:
-			return
-
-		webbrowser.open (
-			url = gmMedication.drug2renal_insufficiency_url(search_term = self.get_selected_data()[0]),
-			new = False,
-			autoraise = True
-		)
+		search_term = None
+		if len(self.__row_data) > 0:
+			sel_rows = self.get_selected_rows()
+			if len(sel_rows) == 1:
+				search_term = self.get_selected_data()[0]
+		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
+	#------------------------------------------------------------
+	def show_cardiac_info(self):
+		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
 	#------------------------------------------------------------
 	def report_ADR(self):
 
@@ -2069,15 +2244,14 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			bias = u'user',
 			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
-
-		webbrowser.open(url = url, new = False, autoraise = True)
+		gmNetworkTools.open_url_in_browser(url = url)
 	#------------------------------------------------------------
 	def prescribe(self):
 		drug_db = get_drug_database()
 		if drug_db is None:
 			return
 
-		drug_db.reviewer = gmPerson.gmCurrentProvider()
+		drug_db.reviewer = gmStaff.gmCurrentProvider()
 		update_substance_intake_list_from_prescription (
 			parent = self,
 			prescribed_drugs = drug_db.prescribe(),
@@ -2241,6 +2415,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += gmTools.coalesce(entry['aim'], u'', _(' Aim: %s\n'))
 		tt += gmTools.coalesce(entry['episode'], u'', _(' Episode: %s\n'))
+		tt += gmTools.coalesce(entry['health_issue'], u'', _(' Health issue: %s\n'))
 		tt += gmTools.coalesce(entry['notes'], u'', _(' Advice: %s\n'))
 
 		tt += u'\n'
@@ -2405,6 +2580,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
 	#--------------------------------------------------------
+	def _on_issue_grouping_selected(self, event):
+		self._grid_substances.grouping_mode = 'issue'
+	#--------------------------------------------------------
 	def _on_episode_grouping_selected(self, event):
 		self._grid_substances.grouping_mode = 'episode'
 	#--------------------------------------------------------
@@ -2425,6 +2603,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def _on_button_kidneys_pressed(self, event):
 		self._grid_substances.show_renal_insufficiency_info()
+	#--------------------------------------------------------
+	def _on_button_heart_pressed(self, event):
+		self._grid_substances.show_cardiac_info()
 	#--------------------------------------------------------
 	def _on_adr_button_pressed(self, event):
 		self._grid_substances.report_ADR()

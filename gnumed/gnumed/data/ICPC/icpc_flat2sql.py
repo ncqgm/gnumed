@@ -8,7 +8,7 @@ fname = sys.argv[1]
 SQL_SCRIPT_START = u"""-- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================

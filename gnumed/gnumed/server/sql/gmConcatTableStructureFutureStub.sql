@@ -2,7 +2,7 @@
 -- project: GNUmed
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConcatTableStructureFutureStub.sql,v $
 -- $Id: gmConcatTableStructureFutureStub.sql,v 1.2 2007-06-18 20:35:25 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- this is needed to allow a post 0.2.6 bootstrapper

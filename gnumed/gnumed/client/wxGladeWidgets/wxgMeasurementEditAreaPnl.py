@@ -49,7 +49,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__set_properties
-        self.SetSize((616, 376))
+        self.SetSize((618, 378))
         self._PRW_test.SetToolTipString(_("The type of measurement or test this result is about."))
         self._PRW_test.SetFocus()
         self._BTN_test_info.SetToolTipString(_("Show a web search on this test type."))
@@ -106,7 +106,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
         __lbl_unit = wx.StaticText(self, -1, _("Units"))
         __lbl_unit.SetForegroundColour(wx.Colour(204, 50, 50))
         __szr_result.Add(__lbl_unit, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 4)
-        __szr_result.Add(self._PRW_units, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_result.Add(self._PRW_units, 2, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __lbl_abnormality = wx.StaticText(self, -1, _("Indicator"))
         __szr_result.Add(__lbl_abnormality, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 4)
         __szr_result.Add(self._PRW_abnormality_indicator, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

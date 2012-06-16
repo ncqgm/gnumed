@@ -2,17 +2,12 @@
 
 This module provides some convenient wxPython GUI
 helper thingies that are widely used throughout
-GnuMed.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
+GNUmed.
 """
 # ========================================================================
 __version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import os
 import logging
@@ -24,13 +19,30 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
-from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.main')
+# ========================================================================
+class cThreeValuedLogicPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		items = [
+			{'list_label': _('Yes: + / ! / 1'), 'field_label': _('yes'), 'data': True, 'weight': 0},
+			{'list_label': _('No: - / 0'), 'field_label': _('no'), 'data': False, 'weight': 1},
+			{'list_label': _('Unknown: ?'), 'field_label': _('unknown'), 'data': None, 'weight': 2},
+		]
+		mp = gmMatchProvider.cMatchProvider_FixedList(items)
+		mp.setThresholds(1, 1, 2)
+		mp.word_separators = '[ :/]+'
+		mp.word_separators = None
+		mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t23456]+" + r'"'
+
+		self.matcher = mp
 # ========================================================================
 from Gnumed.wxGladeWidgets import wxg2ButtonQuestionDlg
 
@@ -115,15 +127,40 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 		caption = kwargs['caption']
 		question = kwargs['question']
 		button_defs = kwargs['button_defs'][:3]
-
 		del kwargs['caption']
 		del kwargs['question']
 		del kwargs['button_defs']
+
+		try:
+			show_checkbox = kwargs['show_checkbox']
+			del kwargs['show_checkbox']
+		except KeyError:
+			show_checkbox = False
+
+		try:
+			checkbox_msg = kwargs['checkbox_msg']
+			del kwargs['checkbox_msg']
+		except KeyError:
+			checkbox_msg = None
+
+		try:
+			checkbox_tooltip = kwargs['checkbox_tooltip']
+			del kwargs['checkbox_tooltip']
+		except KeyError:
+			checkbox_tooltip = None
 
 		wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg.__init__(self, *args, **kwargs)
 
 		self.SetTitle(title = caption)
 		self._LBL_question.SetLabel(label = question)
+
+		if not show_checkbox:
+			self._CHBOX_dont_ask_again.Hide()
+		else:
+			if checkbox_msg is not None:
+				self._CHBOX_dont_ask_again.SetLabel(checkbox_msg)
+			if checkbox_tooltip is not None:
+				self._CHBOX_dont_ask_again.SetToolTipString(checkbox_tooltip)
 
 		buttons = [self._BTN_1, self._BTN_2, self._BTN_3]
 		for idx in range(len(button_defs)):
@@ -137,6 +174,9 @@ class c3ButtonQuestionDlg(wxg3ButtonQuestionDlg.wxg3ButtonQuestionDlg):
 				pass
 
 		self.Fit()
+	#--------------------------------------------------------
+	def checkbox_is_checked(self):
+		return self._CHBOX_dont_ask_again.IsChecked()
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -205,6 +245,8 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._TCTRL_data.SetValue(data)
 			self.Layout()
 			self.Refresh()
+
+		self._TCTRL_text.SetFocus()
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -359,6 +401,7 @@ class cFileDropTarget(wx.FileDropTarget):
 	def __init__(self, target):
 		wx.FileDropTarget.__init__(self)
 		self.target = target
+		_log.debug('setting up [%s] as file drop target', target)
 	#-----------------------------------------------
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)
@@ -375,7 +418,7 @@ def file2scaled_image(filename=None, height=100):
 #			current_width = 1
 #		if current_height == 0:
 #			current_height = 1
-		rescaled_width = (current_width / current_height) * rescaled_height
+		rescaled_width = (float(current_width) / current_height) * rescaled_height
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
 		bitmap = wx.BitmapFromImage(img_data)
 		del img_data
@@ -440,18 +483,18 @@ def gm_show_warning(aMessage=None, aTitle=None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False):
+def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False, question=None, title=None):
 	if cancel_button:
 		style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 	else:
 		style = wx.YES_NO | wx.ICON_QUESTION | wx.STAY_ON_TOP
 
-	dlg = wx.MessageDialog (
-		None,
-		aMessage,
-		aTitle,
-		style
-	)
+	if question is None:
+		question = aMessage
+	if title is None:
+		title = aTitle
+
+	dlg = wx.MessageDialog(None, question, title, style)
 	btn_pressed = dlg.ShowModal()
 	dlg.Destroy()
 
@@ -462,7 +505,6 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 	else:
 		return None
 #======================================================================
-
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -471,8 +513,27 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	app = wx.App()
-	img = file2scaled_image(filename = sys.argv[2])
-	print img
-	print img.Height
-	print img.Width
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+
+	#------------------------------------------------------------------
+	def test_scale_img():
+		app = wx.App()
+		img = file2scaled_image(filename = sys.argv[2])
+		print img
+		print img.Height
+		print img.Width
+	#------------------------------------------------------------------
+	def test_sql_logic_prw():
+		app = wx.PyWidgetTester(size = (200, 50))
+		prw = cThreeValuedLogicPhraseWheel(parent = app.frame, id = -1)
+		app.frame.Show(True)
+		app.MainLoop()
+
+		return True
+	#------------------------------------------------------------------
+	#test_scale_img()
+	test_sql_logic_prw()
+
+#======================================================================

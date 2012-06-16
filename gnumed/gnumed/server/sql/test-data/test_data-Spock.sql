@@ -1,9 +1,9 @@
--- Projekt GnuMed
+-- Projekt GNUmed
 -- test data for Mr.Spock, Enterprise
 -- http://www.nimoy.com/spock.html
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Spock.sql,v $
 -- $Revision: 1.12 $
 -- =============================================

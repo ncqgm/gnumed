@@ -3,7 +3,7 @@
 
 http://who.no
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.7 $"
@@ -117,7 +117,7 @@ def atc2ddd(atc=None):
 	return rows
 #============================================================
 def get_reference_atcs(order_by=u'atc, term, lang'):
-	cmd = u'select * from ref.v_atc order by %s' % order_by
+	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 #============================================================
@@ -184,13 +184,13 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	curs = conn.cursor()
 	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s, %s)"""
 	first = False
-	for loinc_line in atc_reader:
+	for atc_line in atc_reader:
 		# skip first
 		if not first:
 			first = True
 			continue
 		# skip blanks
-		if loinc_line[0] + loinc_line[1] + loinc_line[2] + loinc_line[3] + loinc_line[4] == u'':
+		if atc_line[0] + atc_line[1] + atc_line[2] + atc_line[3] + atc_line[4] == u'':
 			continue
 
 		comment = u''
@@ -199,24 +199,24 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 		adro = u''
 
 		# "1,1 mg O,P,R,..."
-		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', loinc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', loinc_line[4])
+		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			ddd_val, unit, adro = regex.split('\s', atc_line[4])
 		# "1,1 mg O,P,R bezogen auf ..."
-		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', loinc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', loinc_line[4], 3)
+		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "20 mg O"
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', loinc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', loinc_line[4])
+		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			ddd_val, unit, adro = regex.split('\s', atc_line[4])
 		# "20 mg O bezogen auf ..."
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', loinc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', loinc_line[4], 3)
+		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "Standarddosis: 1 Tablette oder 30 ml Mixtur"
 		else:
-			comment = loinc_line[4]
+			comment = atc_line[4]
 
 		args = [
-			loinc_line[0].strip(),
-			loinc_line[2],
+			atc_line[0].strip(),
+			atc_line[2],
 			ddd_val.replace(',', '.'),
 			unit,
 			adro,

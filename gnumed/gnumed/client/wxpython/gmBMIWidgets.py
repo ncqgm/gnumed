@@ -1,4 +1,4 @@
-"""GnuMed BMI calculator display widgets.
+"""GNUmed BMI calculator display widgets.
 
 acknowledgments: Gui screen Design taken with permission from
                  DrsDesk BMICalc @ DrsDesk Software 1995-2002
@@ -20,7 +20,7 @@ __version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import os.path
 
@@ -50,7 +50,7 @@ class BMI_Colour_Scale(wx.Window):
 		#draw the graphics for underneath the BMI buttons
 		#------------------------------------------------
 		dc.SetBrush(wx.Brush(wx.Colour(194,194,197), wx.SOLID)) #222,222,222
-		dc.SetPen(wx.Pen(wx.Color(194,197,194), 1))
+		dc.SetPen(wx.Pen(wx.Colour(194,197,194), 1))
 		dc.DrawRectangle(0, 0, 324, 30)
 		#----------------------------------------------------------
 		#draw the coloured elipses for each of the mass divisions
@@ -60,7 +60,7 @@ class BMI_Colour_Scale(wx.Window):
 		#Brush= fill in the elipse = yellow (255,255,0)
 		#Add text to foreground of the elipse in black
 		#----------------------------------------------------------
-		dc.SetPen(wx.Pen(wx.Color(0,0,0), 1))
+		dc.SetPen(wx.Pen(wx.Colour(0,0,0), 1))
 		dc.SetBrush(wx.Brush(wx.Colour(255,255,0), wx.SOLID))   #yellow
 		dc.DrawEllipse(6, 5, 80,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))

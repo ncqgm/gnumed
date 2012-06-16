@@ -2,7 +2,7 @@
 #============================================================
 __version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (for details see http://gnu.org)'
+__license__ = 'GPL v2 or later (for details see http://gnu.org)'
 
 import sys, logging
 
@@ -10,6 +10,7 @@ import sys, logging
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject, gmTools, gmDispatcher, gmHooks
+from Gnumed.business import gmCoding
 
 
 try:
@@ -23,29 +24,30 @@ _log.info(__version__)
 
 
 soap_cat2l10n = {
-	's': _('soap_S').replace(u'soap_', u''),
-	'o': _('soap_O').replace(u'soap_', u''),
-	'a': _('soap_A').replace(u'soap_', u''),
-	'p': _('soap_P').replace(u'soap_', u''),
-	#None: _('soap_ADMIN').replace(u'soap_', u'')
+	u's': _('soap_S').replace(u'soap_', u''),
+	u'o': _('soap_O').replace(u'soap_', u''),
+	u'a': _('soap_A').replace(u'soap_', u''),
+	u'p': _('soap_P').replace(u'soap_', u''),
+	u'u': u'?',
 	None: gmTools.u_ellipsis,
 	u'': gmTools.u_ellipsis
 }
 
 soap_cat2l10n_str = {
-	's': _('soap_Subjective').replace(u'soap_', u''),
-	'o': _('soap_Objective').replace(u'soap_', u''),
-	'a': _('soap_Assessment').replace(u'soap_', u''),
-	'p': _('soap_Plan').replace(u'soap_', u''),
+	u's': _('soap_Subjective').replace(u'soap_', u''),
+	u'o': _('soap_Objective').replace(u'soap_', u''),
+	u'a': _('soap_Assessment').replace(u'soap_', u''),
+	u'p': _('soap_Plan').replace(u'soap_', u''),
+	u'u': _('soap_Unspecified').replace(u'soap_', u''),
 	None: _('soap_Administrative').replace(u'soap_', u'')
 }
 
 l10n2soap_cat = {
-	_('soap_S').replace(u'soap_', u''): 's',
-	_('soap_O').replace(u'soap_', u''): 'o',
-	_('soap_A').replace(u'soap_', u''): 'a',
-	_('soap_P').replace(u'soap_', u''): 'p',
-	#_('soap_ADMIN').replace(u'soap_', u''): None
+	_('soap_S').replace(u'soap_', u''): u's',
+	_('soap_O').replace(u'soap_', u''): u'o',
+	_('soap_A').replace(u'soap_', u''): u'a',
+	_('soap_P').replace(u'soap_', u''): u'p',
+	u'?': u'u',
 	gmTools.u_ellipsis: None
 }
 
@@ -57,64 +59,10 @@ def _on_soap_modified():
 gmDispatcher.connect(_on_soap_modified, u'clin_narrative_mod_db')
 
 #============================================================
-class cDiag(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one real diagnosis.
-	"""
-	_cmd_fetch_payload = u"select *, xmin_clin_diag, xmin_clin_narrative from clin.v_pat_diag where pk_diag=%s"
-	_cmds_store_payload = [
-		u"""update clin.clin_diag set
-				laterality=%()s,
-				laterality=%(laterality)s,
-				is_chronic=%(is_chronic)s::boolean,
-				is_active=%(is_active)s::boolean,
-				is_definite=%(is_definite)s::boolean,
-				clinically_relevant=%(clinically_relevant)s::boolean
-			where
-				pk=%(pk_diag)s and
-				xmin=%(xmin_clin_diag)s""",
-		u"""update clin.clin_narrative set
-				narrative=%(diagnosis)s
-			where
-				pk=%(pk_diag)s and
-				xmin=%(xmin_clin_narrative)s""",
-		u"""select xmin_clin_diag, xmin_clin_narrative from clin.v_pat_diag where pk_diag=%s(pk_diag)s"""
-		]
-
-	_updatable_fields = [
-		'diagnosis',
-		'laterality',
-		'is_chronic',
-		'is_active',
-		'is_definite',
-		'clinically_relevant'
-	]
-	#--------------------------------------------------------
-	def get_codes(self):
-		"""
-			Retrieves codes linked to this diagnosis
-		"""
-		cmd = u"select code, coding_system from clin.v_codes4diag where diagnosis=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['diagnosis']]]}])
-		return rows
-	#--------------------------------------------------------
-	def add_code(self, code=None, coding_system=None):
-		"""
-			Associates a code (from coding system) with this diagnosis.
-		"""
-		# insert new code
-		cmd = u"select clin.add_coded_phrase (%(diag)s, %(code)s, %(sys)s)"
-		args = {
-			'diag': self._payload[self._idx['diagnosis']],
-			'code': code,
-			'sys': coding_system
-		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		return True
-#============================================================
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical free text entry.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%s"
+	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative = %s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
 				narrative = %(narrative)s,
@@ -135,40 +83,17 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		'pk_encounter'
 	]
 
-	#xxxxxxxxxxxxxxxx
-	# support row_version in view
-
-	#--------------------------------------------------------
-	def get_codes(self):
-		"""Retrieves codes linked to *this* narrative.
-		"""
-		cmd = u"select code, xfk_coding_system from clin.coded_phrase where term=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self._payload[self._idx['narrative']]]}])
-		return rows
-	#--------------------------------------------------------
-	def add_code(self, code=None, coding_system=None):
-		"""
-			Associates a code (from coding system) with this narrative.
-		"""
-		# insert new code
-		cmd = u"select clin.add_coded_phrase (%(narr)s, %(code)s, %(sys)s)"
-		args = {
-			'narr': self._payload[self._idx['narrative']],
-			'code': code,
-			'sys': coding_system
-		}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		return True
 	#--------------------------------------------------------
 	def format(self, left_margin=u'', fancy=False, width=75):
 
 		if fancy:
 			# FIXME: add revision
 			txt = gmTools.wrap (
-				text = _('%s: %s by %.8s\n%s') % (
+				text = _('%s: %s by %.8s (v%s)\n%s') % (
 					self._payload[self._idx['date']].strftime('%x %H:%M'),
 					soap_cat2l10n_str[self._payload[self._idx['soap_cat']]],
 					self._payload[self._idx['provider']],
+					self._payload[self._idx['row_version']],
 					self._payload[self._idx['narrative']]
 				),
 				width = width,
@@ -186,9 +111,81 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 				txt = txt[:width] + gmTools.u_ellipsis
 
 		return txt
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 
-#		lines.append('-- %s ----------' % gmClinNarrative.soap_cat2l10n_str[soap_cat])
+		if pk_code in self._payload[self._idx['pk_generic_codes']]:
+			return
 
+		cmd = u"""
+			INSERT INTO clin.lnk_code2narrative
+				(fk_item, fk_generic_code)
+			SELECT
+				%(item)s,
+				%(code)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.lnk_code2narrative
+				WHERE
+					fk_item = %(item)s
+						AND
+					fk_generic_code = %(code)s
+			)"""
+		args = {
+			'item': self._payload[self._idx['pk_narrative']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(item)s AND fk_generic_code = %(code)s"
+		args = {
+			'item': self._payload[self._idx['pk_narrative']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2narrative WHERE fk_item = %(narr)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'narr': self._payload[self._idx['pk_narrative']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2narrative (fk_item, fk_generic_code) VALUES (%(narr)s, %(pk_code)s)',
+				'args': {
+					'narr': self._payload[self._idx['pk_narrative']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
 #============================================================
 # convenience functions
 #============================================================
@@ -226,12 +223,18 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	# FIXME: this should check for .provider = current_user but
 	# FIXME: the view has provider mapped to their staff alias
 	cmd = u"""
-select *, xmin_clin_narrative from clin.v_pat_narrative where
-	pk_encounter = %(enc)s
-	and pk_episode = %(epi)s
-	and soap_cat = %(soap)s
-	and narrative = %(narr)s
-"""
+		SELECT
+			*, xmin_clin_narrative
+		FROM clin.v_pat_narrative
+		WHERE
+			pk_encounter = %(enc)s
+				AND
+			pk_episode = %(epi)s
+				AND
+			soap_cat = %(soap)s
+				AND
+			narrative = %(narr)s
+	"""
 	args = {
 		'enc': encounter_id,
 		'epi': episode_id,
@@ -245,14 +248,23 @@ select *, xmin_clin_narrative from clin.v_pat_narrative where
 
 	# insert new narrative
 	queries = [
-		{'cmd': u"insert into clin.clin_narrative (fk_encounter, fk_episode, narrative, soap_cat) values (%s, %s, %s, lower(%s))",
+		{'cmd': u"""
+			INSERT INTO clin.clin_narrative
+				(fk_encounter, fk_episode, narrative, soap_cat)
+			VALUES
+				(%s, %s, %s, lower(%s))""",
 		 'args': [encounter_id, episode_id, narrative, soap_cat]
 		},
-		{'cmd': u"select currval('clin.clin_narrative_pk_seq')"}
+		{'cmd': u"""
+			SELECT *, xmin_clin_narrative
+			FROM clin.v_pat_narrative
+			WHERE
+				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
+		}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True)
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
 
-	narrative = cNarrative(aPK_obj = rows[0][0])
+	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
 	return (True, narrative)
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
@@ -261,7 +273,7 @@ def delete_clin_narrative(narrative=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
 #------------------------------------------------------------
-def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None):
+def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None, order_by=None):
 	"""Get SOAP notes pertinent to this encounter.
 
 		since
@@ -298,7 +310,12 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 
 	if soap_cats is not None:
 		where_parts.append(u'soap_cat IN %(soap_cats)s')
-		args['soap_cats'] = tuple(cats)
+		args['soap_cats'] = tuple(soap_cats)
+
+	if order_by is None:
+		order_by = u'ORDER BY date, soap_rank'
+	else:
+		order_by = u'ORDER BY %s' % order_by
 
 	cmd = u"""
 		SELECT
@@ -309,10 +326,11 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 			clin.v_pat_narrative cvpn
 		WHERE
 			%s
-		ORDER BY
-			date,
-			soap_rank
-	""" % u' AND '.join(where_parts)
+		%s
+	""" % (
+		u' AND '.join(where_parts),
+		order_by
+	)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
@@ -425,19 +443,7 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
-	def test_diag():
-		print "\nDiagnose test"
-		print  "-------------"
-		diagnose = cDiag(aPK_obj=2)
-		fields = diagnose.get_fields()
-		for field in fields:
-			print field, ':', diagnose[field]
-		print "updatable:", diagnose.get_updatable_fields()
-		print "codes:", diagnose.get_codes()
-		#print "adding code..."
-		#diagnose.add_code('Test code', 'Test coding system')
-		#print "codes:", diagnose.get_codes()
-
+	#-----------------------------------------
 	def test_narrative():
 		print "\nnarrative test"
 		print	"--------------"
@@ -446,7 +452,7 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', narrative[field]
 		print "updatable:", narrative.get_updatable_fields()
-		print "codes:", narrative.get_codes()
+		print "codes:", narrative.generic_codes
 		#print "adding code..."
 		#narrative.add_code('Test code', 'Test coding system')
 		#print "codes:", diagnose.get_codes()
@@ -463,7 +469,6 @@ if __name__ == '__main__':
 	#-----------------------------------------
 
 	#test_search_text_across_emrs()
-	test_diag()
 	test_narrative()
 
 #============================================================

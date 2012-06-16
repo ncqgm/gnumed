@@ -1,5 +1,5 @@
 #======================================================================
-# GnuMed notebook based patient edition plugin
+# GNUmed notebook based patient edition plugin
 # ------------------------------------------------
 #
 # this plugin displays a notebook container for patient edition
@@ -9,7 +9,7 @@
 #======================================================================
 __version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 

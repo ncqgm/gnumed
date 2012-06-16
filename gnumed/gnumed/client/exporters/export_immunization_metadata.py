@@ -59,7 +59,9 @@ else:
 			vacc[idx['min_age']].day,
 			vacc[idx['max_age']].day
 		))
-		if vacc[idx['is_live']]:
+		if vacc[idx['is_live']] is None:
+			f.write("  type of vaccine not known\n")
+		elif vacc[idx['is_live']]:
 			f.write("  Cave: live vaccine\n")
 		else:
 			f.write("  non-live vaccine\n")

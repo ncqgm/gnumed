@@ -5,7 +5,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os, webbrowser, subprocess, codecs
+import sys, logging, datetime as pyDT, decimal, os, subprocess, codecs
 import os.path
 
 
@@ -14,13 +14,33 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson, gmPathLab, gmSurgery, gmLOINC, gmForms, gmPersonSearch
-from Gnumed.pycommon import gmTools, gmDispatcher, gmMatchProvider, gmDateTime, gmI18N, gmCfg, gmShellAPI
+from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmForms
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmOrganization
+
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea, gmGuiHelpers, gmListWidgets
-from Gnumed.wxpython import gmAuthWidgets, gmPatSearchWidgets, gmFormWidgets
-from Gnumed.wxGladeWidgets import wxgMeasurementsPnl, wxgMeasurementsReviewDlg
-from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
+
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmFormWidgets
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmOrganizationWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -36,14 +56,18 @@ def update_loinc_reference_data():
 	gmDispatcher.send(signal = 'statustext', msg = _('Updating LOINC data can take quite a while...'), beep = True)
 
 	# download
-	downloaded, loinc_dir = gmNetworkTools.download_data_pack(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip')
-	if not downloaded:
+	loinc_zip = gmNetworkTools.download_file(url = 'http://www.gnumed.de/downloads/data/loinc/loinctab.zip', suffix = '.zip')
+	if loinc_zip is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_warning (
 			aTitle = _('Downloading LOINC'),
 			aMessage = _('Error downloading the latest LOINC data.\n')
 		)
 		return False
+
+	_log.debug('downloaded zipped LOINC data into [%s]', loinc_zip)
+
+	loinc_dir = gmNetworkTools.unzip_data_pack(filename = loinc_zip)
 
 	# split master data file
 	data_fname, license_fname = gmLOINC.split_LOINCDBTXT(input_fname = os.path.join(loinc_dir, 'LOINCDB.TXT'))
@@ -95,11 +119,7 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	url = url % {'search_term': measurement_type}
 
-	webbrowser.open (
-		url = url,
-		new = False,
-		autoraise = True
-	)
+	gmNetworkTools.open_url_in_browser(url = url)
 #----------------------------------------------------------------
 def edit_measurement(parent=None, measurement=None, single_entry=False):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
@@ -237,6 +257,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		else:
 			test_count = None
 			tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
+			if len(tests) == 0:
+				return True
 
 		dlg = cMeasurementsReviewDlg (
 			self,
@@ -350,7 +372,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		for col_idx in self.__cell_data.keys():
 			for row_idx in self.__cell_data[col_idx].keys():
 				# loop over results in cell and only include
-				# this multi-value cells that are not ambigous
+				# those multi-value cells that are not ambiguous
 				do_not_include = False
 				for result in self.__cell_data[col_idx][row_idx]:
 					if unsigned_only:
@@ -1004,8 +1026,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 	patient = property(lambda x:x, _set_patient)
 #================================================================
-class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
+from Gnumed.wxGladeWidgets import wxgMeasurementsPnl
 
+class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a grid with lab data. Used as notebook page."""
 
 	def __init__(self, *args, **kwargs):
@@ -1035,6 +1058,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_pre_patient_selection(self):
 		self.data_grid.patient = None
 	#--------------------------------------------------------
+	def _on_add_button_pressed(self, event):
+		edit_measurement(parent = self, measurement = None)
+	#--------------------------------------------------------
 	def _on_review_button_pressed(self, evt):
 		self.PopupMenu(self.__action_button_popup)
 	#--------------------------------------------------------
@@ -1056,7 +1082,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self.__action_button_popup = wx.Menu(title = _('Act on selected results'))
+		self.__action_button_popup = wx.Menu(title = _('Perform on selected results:'))
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Review and &sign')))
@@ -1079,6 +1105,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('&Delete')))
 		wx.EVT_MENU(self.__action_button_popup, menu_id, self.__on_delete_current_selection)
+
+		# FIXME: create inbox message to staff to phone patient to come in
+		# FIXME: generate and let edit a SOAP narrative and include the values
+
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1093,6 +1123,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 #================================================================
 # editing widgets
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementsReviewDlg
+
 class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -1141,6 +1173,8 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		else:
 			self.Close()
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementEditAreaPnl
+
 class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 	"""This edit area saves *new* measurements into the active patient only."""
 
@@ -1158,6 +1192,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self.__register_interests()
 
 		self.successful_save_msg = _('Successfully saved measurement.')
+
+		self._DPRW_evaluated.display_accuracy = gmDateTime.acc_minutes
 	#--------------------------------------------------------
 	# generic edit area mixin API
 	#--------------------------------------------------------
@@ -1173,7 +1209,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		else:
 			self._DPRW_evaluated.SetData(data =	None)
 		self._TCTRL_note_test_org.SetValue(u'')
-		self._PRW_intended_reviewer.SetData()
+		self._PRW_intended_reviewer.SetData(gmStaff.gmCurrentProvider()['pk_staff'])
 		self._PRW_problem.SetData()
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)
@@ -1263,10 +1299,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			self._DPRW_evaluated.display_as_valid(True)
 
 		if self._TCTRL_result.GetValue().strip() == u'':
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 			validity = False
+			self.display_ctrl_as_valid(self._TCTRL_result, False)
 		else:
-			self._TCTRL_result.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+			self.display_ctrl_as_valid(self._TCTRL_result, True)
 
 		if self._PRW_problem.GetValue().strip() == u'':
 			self._PRW_problem.display_as_valid(False)
@@ -1299,10 +1335,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				continue
 			try:
 				decimal.Decimal(val.replace(',', u'.', 1))
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
+				self.display_ctrl_as_valid(widget, True)
 			except:
-				widget.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
 				validity = False
+				self.display_ctrl_as_valid(widget, False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save result. Invalid or missing essential input.'))
@@ -1313,12 +1349,13 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
-		try:
-			v_num = decimal.Decimal(self._TCTRL_result.GetValue().strip().replace(',', '.', 1))
+		success, result = gmTools.input2decimal(self._TCTRL_result.GetValue())
+		if success:
+			v_num = result
 			v_al = None
-		except:
-			v_num = None
+		else:
 			v_al = self._TCTRL_result.GetValue().strip()
+			v_num = None
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
@@ -1518,8 +1555,9 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		if tt['loinc'] is None:
 			return
 
-		info = gmLOINC.loinc2info(loinc = tt['loinc'])
+		info = gmLOINC.loinc2term(loinc = tt['loinc'])
 		if len(info) == 0:
+			self._TCTRL_loinc.SetValue(u'')
 			return
 
 		self._TCTRL_loinc.SetValue(u'%s: %s' % (tt['loinc'], info[0]))
@@ -1557,7 +1595,7 @@ def manage_measurement_types(parent=None):
 			gmTools.coalesce(m['loinc'], u''),
 			gmTools.coalesce(m['conversion_unit'], u''),
 			gmTools.coalesce(m['comment_type'], u''),
-			gmTools.coalesce(m['internal_name_org'], _('in-house')),
+			gmTools.coalesce(m['name_org'], u'?'),
 			gmTools.coalesce(m['comment_org'], u''),
 			m['pk_test_type']
 		] for m in mtypes ]
@@ -1598,127 +1636,55 @@ class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-	(
-select
-	pk_test_type,
+SELECT DISTINCT ON (field_label)
+	pk_test_type AS data,
 	name_tt
 		|| ' ('
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
+	AS field_label,
 	name_tt
 		|| ' ('
+		|| coalesce(code_tt || ', ', '')
+		|| abbrev_tt || ', '
+		|| coalesce(abbrev_meta || ': ' || name_meta || ', ', '')
 		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
+			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = vcutt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
-	name_tt %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+	AS list_label
+FROM
+	clin.v_unified_test_types vcutt
+WHERE
 	abbrev_meta %%(fragment_condition)s
-
-) union (
-
-select
-	pk_test_type,
-	name_tt
-		|| ' ('
-		|| coalesce (
-			(select internal_name from clin.test_org cto where cto.pk = vcutt.pk_test_org),
-			'%(in_house)s'
-			)
-		|| ')'
-	as name
-from clin.v_unified_test_types vcutt
-where
+		OR
+	name_meta %%(fragment_condition)s
+		OR
+	abbrev_tt %%(fragment_condition)s
+		OR
+	name_tt %%(fragment_condition)s
+		OR
 	code_tt %%(fragment_condition)s
-)
-
-order by name
-limit 50""" % {'in_house': _('in house lab')}
+ORDER BY field_label
+LIMIT 50""" % {'in_house': _('generic / in house lab')}
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		mp.word_separators = '[ \t:@]+'
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the type of measurement.'))
 		self.selection_only = False
 	#------------------------------------------------------------
 	def _data2instance(self):
-		if self.data is None:
+		if self.GetData() is None:
 			return None
 
-		return gmPathLab.cMeasurementType(aPK_obj = self.data)
-#----------------------------------------------------------------
-class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
-
-	def __init__(self, *args, **kwargs):
-
-		query = u"""
-select distinct on (internal_name)
-	pk,
-	internal_name
-from clin.test_org
-where
-	internal_name %(fragment_condition)s
-order by internal_name
-limit 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
-		mp.setThresholds(1, 2, 4)
-		#mp.word_separators = '[ \t:@]+'
-		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
-		self.matcher = mp
-		self.SetToolTipString(_('The name of the path lab/diagnostic organisation.'))
-		self.selection_only = False
-	#------------------------------------------------------------
-	def _create_data(self):
-		if self.data is not None:
-			_log.debug('data already set, not creating')
-			return
-
-		if self.GetValue().strip() == u'':
-			_log.debug('cannot create new lab, missing name')
-			return
-
-		lab = gmPathLab.create_test_org(name = self.GetValue().strip())
-		self.SetText(value = lab['internal_name'], data = lab['pk'])
-		return
-	#------------------------------------------------------------
-	def _data2instance(self):
-		return gmPathLab.cTestOrg(aPK_obj = self.data)
+		return gmPathLab.cMeasurementType(aPK_obj = self.GetData())
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementTypeEAPnl
 
@@ -1780,60 +1746,73 @@ limit 50"""
 
 		# loinc
 		query = u"""
-select distinct on (term)
-	loinc,
-	term
-from ((
-		select
-			loinc,
-			(loinc || ': ' || abbrev || ' (' || name || ')') as term
-		from clin.test_type
-		where loinc %(fragment_condition)s
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+SELECT DISTINCT ON (list_label)
+	data,
+	field_label,
+	list_label
+FROM ((
+
+		SELECT
+			loinc AS data,
+			loinc AS field_label,
+			(loinc || ': ' || abbrev || ' (' || name || ')') AS list_label
+		FROM clin.test_type
+		WHERE loinc %(fragment_condition)s
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			lang = i18n.get_curr_lang()
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			lang = 'en_EN'
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
-	) union all (
-		select
-			code as loinc,
-			(code || ': ' || term) as term
-		from ref.v_coded_terms
-		where
+		LIMIT 50
+
+	) UNION ALL (
+
+		SELECT
+			code AS data,
+			code AS field_label,
+			(code || ': ' || term) AS list_label
+		FROM ref.v_coded_terms
+		WHERE
 			coding_system = 'LOINC'
-				and
+				AND
 			(code %(fragment_condition)s
-				or
+				OR
 			term %(fragment_condition)s)
-		limit 50
+		LIMIT 50
 	)
-) as all_known_loinc
-order by term
-limit 50"""
+) AS all_known_loinc
+
+ORDER BY list_label
+LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
 		self._PRW_loinc.matcher = mp
@@ -1860,7 +1839,7 @@ limit 50"""
 
 		self._PRW_conversion_unit.set_context(context = u'loinc', val = loinc)
 
-		info = gmLOINC.loinc2info(loinc = loinc)
+		info = gmLOINC.loinc2term(loinc = loinc)
 		if len(info) == 0:
 			self._TCTRL_loinc_info.SetValue(u'')
 			return
@@ -1886,10 +1865,10 @@ limit 50"""
 
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
-			pk_org = gmPathLab.create_measurement_org (
+			pk_org = gmPathLab.create_test_org (
 				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
 				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
-			)
+			)['pk_test_org']
 
 		tt = gmPathLab.create_measurement_type (
 			lab = pk_org,
@@ -1900,7 +1879,10 @@ limit 50"""
 				self._PRW_conversion_unit.GetValue()
 			).strip()
 		)
-		tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		else:
+			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		tt.save()
 
@@ -1912,10 +1894,10 @@ limit 50"""
 
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
-			pk_org = gmPathLab.create_measurement_org (
+			pk_org = gmPathLab.create_test_org (
 				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
 				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
-			)
+			)['pk_test_org']
 
 		self.data['pk_test_org'] = pk_org
 		self.data['abbrev'] = self._PRW_abbrev.GetValue().strip()
@@ -1924,7 +1906,12 @@ limit 50"""
 			self._PRW_conversion_unit.GetData(),
 			self._PRW_conversion_unit.GetValue()
 		).strip()
-		self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		if self._PRW_loinc.GetData() is not None:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
+		else:
+			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
 		self.data.save()
 
@@ -1940,6 +1927,8 @@ limit 50"""
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
 		self._TCTRL_comment_org.SetValue(u'')
+
+		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
@@ -1958,35 +1947,40 @@ limit 50"""
 		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(gmTools.coalesce(self.data['comment_type'], u''))
 		self._PRW_test_org.SetText (
-			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
+			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['name_org']),
 			self.data['pk_test_org'],
 			True
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+
+		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
 		self._PRW_test_org.SetText (
-			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['internal_name_org']),
+			gmTools.coalesce(self.data['pk_test_org'], u'', self.data['name_org']),
 			self.data['pk_test_org'],
 			True
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+
+		self._PRW_name.SetFocus()
 #================================================================
 _SQL_units_from_test_results = u"""
 	-- via clin.v_test_results.pk_type (for types already used in results)
 	SELECT
-		val_unit as data,
-		val_unit || ' (' || name_tt || ')' as unit,
-		1 as rank
+		val_unit AS data,
+		val_unit AS field_label,
+		val_unit || ' (' || name_tt || ')' AS list_label,
+		1 AS rank
 	FROM
 		clin.v_test_results
 	WHERE
 		(
 			val_unit %(fragment_condition)s
 				OR
-		conversion_unit %(fragment_condition)s
-			)
+			conversion_unit %(fragment_condition)s
+		)
 		%(ctxt_type_pk)s
 		%(ctxt_test_name)s
 """
@@ -1994,9 +1988,10 @@ _SQL_units_from_test_results = u"""
 _SQL_units_from_test_types = u"""
 	-- via clin.test_type (for types not yet used in results)
 	SELECT
-		conversion_unit as data,
-		conversion_unit || ' (' || name || ')' as unit,
-		2 as rank
+		conversion_unit AS data,
+		conversion_unit AS field_label,
+		conversion_unit || ' (' || name || ')' AS list_label,
+		2 AS rank
 	FROM
 		clin.test_type
 	WHERE
@@ -2007,9 +2002,10 @@ _SQL_units_from_test_types = u"""
 _SQL_units_from_loinc_ipcc = u"""
 	-- via ref.loinc.ipcc_units
 	SELECT
-		ipcc_units as data,
-		ipcc_units || ' (' || term || ')' as unit,
-		3 as rank
+		ipcc_units AS data,
+		ipcc_units AS field_label,
+		ipcc_units || ' (LOINC.ipcc: ' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2021,9 +2017,10 @@ _SQL_units_from_loinc_ipcc = u"""
 _SQL_units_from_loinc_submitted = u"""
 	-- via ref.loinc.submitted_units
 	SELECT
-		submitted_units as data,
-		submitted_units || ' (' || term || ')'  as unit,
-		3 as rank
+		submitted_units AS data,
+		submitted_units AS field_label,
+		submitted_units || ' (LOINC.submitted:' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2035,9 +2032,10 @@ _SQL_units_from_loinc_submitted = u"""
 _SQL_units_from_loinc_example = u"""
 	-- via ref.loinc.example_units
 	SELECT
-		example_units as data,
-		example_units || ' (' || term || ')'  as unit,
-		3 as rank
+		example_units AS data,
+		example_units AS field_label,
+		example_units || ' (LOINC.example: ' || term || ')' AS list_label,
+		3 AS rank
 	FROM
 		ref.loinc
 	WHERE
@@ -2050,8 +2048,9 @@ _SQL_units_from_atc = u"""
 	-- via rev.atc.unit
 	SELECT
 		unit AS data,
-		unit AS unit,
-		1 AS rank
+		unit AS field_label,
+		unit || ' (ATC: ' || term || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.atc
 	WHERE
@@ -2064,8 +2063,9 @@ _SQL_units_from_consumable_substance = u"""
 	-- via ref.consumable_substance.unit
 	SELECT
 		unit AS data,
-		unit AS unit,
-		1 AS rank
+		unit AS field_label,
+		unit || ' (' || description || ')' AS list_label,
+		2 AS rank
 	FROM
 		ref.consumable_substance
 	WHERE
@@ -2078,9 +2078,18 @@ class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-SELECT DISTINCT ON (data) data, unit FROM (
+SELECT DISTINCT ON (data)
+	data,
+	field_label,
+	list_label
+FROM (
 
-	SELECT rank, data, unit FROM (
+	SELECT
+		data,
+		field_label,
+		list_label,
+		rank
+	FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s) UNION ALL
@@ -2088,7 +2097,7 @@ SELECT DISTINCT ON (data) data, unit FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s)
-	) as all_matching_units
+	) AS all_matching_units
 	WHERE data IS NOT NULL
 	ORDER BY rank
 
@@ -2130,14 +2139,10 @@ LIMIT 50""" % (
 			}
 		}
 
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query, context=ctxt)
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = ctxt)
 		mp.setThresholds(1, 2, 4)
 		#mp.print_queries = True
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
 		self.SetToolTipString(_('Select the desired unit for the amount or measurement.'))
 		self.selection_only = False
@@ -2197,34 +2202,26 @@ def manage_measurement_orgs(parent=None):
 	def refresh(lctrl):
 		orgs = gmPathLab.get_test_orgs()
 		lctrl.set_string_items ([
-			(o['internal_name'], gmTools.coalesce(o['contact'], u''), gmTools.coalesce(o['comment']), o['pk'])
+			(o['unit'], o['organization'], gmTools.coalesce(o['test_org_contact'], u''), gmTools.coalesce(o['comment'], u''), o['pk_test_org'])
 			for o in orgs
 		])
 		lctrl.set_data(orgs)
 	#------------------------------------------------------------
-	def delete(measurement_type):
-		if measurement_type.in_use:
-			gmDispatcher.send (
-				signal = 'statustext',
-				beep = True,
-				msg = _('Cannot delete measurement type [%s (%s)] because it is in use.') % (measurement_type['name'], measurement_type['abbrev'])
-			)
-			return False
-		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+	def delete(test_org):
+		gmPathLab.delete_test_org(test_org = test_org['pk_test_org'])
 		return True
 	#------------------------------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nThese are the diagnostic orgs (path labs etc) currently defined in GNUmed.\n\n'),
 		caption = _('Showing diagnostic orgs.'),
-		columns = [_('Name'), _('Contact'), _('Comment'), u'#'],
+		columns = [_('Name'), _('Organization'), _('Contact'), _('Comment'), u'#'],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
-		new_callback = edit
-#		,delete_callback = delete
+		new_callback = edit,
+		delete_callback = delete
 	)
-
 
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementOrgEAPnl
@@ -2242,8 +2239,6 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 		wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
@@ -2258,48 +2253,103 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
 		has_errors = False
-		if self._PRW_name.GetValue().strip() == u'':
-			has_errors = True
-			self._PRW_name.display_as_valid(valid = False)
+		if self._PRW_org_unit.GetData() is None:
+			if self._PRW_org_unit.GetValue().strip() == u'':
+				has_errors = True
+				self._PRW_org_unit.display_as_valid(valid = False)
+			else:
+				self._PRW_org_unit.display_as_valid(valid = True)
 		else:
-			self._PRW_name.display_as_valid(valid = True)
+			self._PRW_org_unit.display_as_valid(valid = True)
 
 		return (not has_errors)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		data = self._PRW_name.GetData(can_create = True, as_instance = True)
-
-		data['contact'] = self._TCTRL_contact.GetValue().strip()
-		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data = gmPathLab.create_test_org (
+			name = self._PRW_org_unit.GetValue().strip(),
+			comment = self._TCTRL_comment.GetValue().strip(),
+			pk_org_unit = self._PRW_org_unit.GetData()
+		)
+		data['test_org_contact'] = self._TCTRL_contact.GetValue().strip()
 		data.save()
-
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
 		self.data = data
-
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['internal_name'] = self._PRW_name.GetValue().strip()
-		self.data['contact'] = self._TCTRL_contact.GetValue().strip()
+		# get or create the org unit
+		name = self._PRW_org_unit.GetValue().strip()
+		org = gmOrganization.org_exists(organization = name)
+		if org is None:
+			org = gmOrganization.create_org (
+				organization = name,
+				category = u'Laboratory'
+			)
+		org_unit = gmOrganization.create_org_unit (
+			pk_organization = org['pk_org'],
+			unit = name
+		)
+		# update test_org fields
+		self.data['pk_org_unit'] = org_unit['pk_org_unit']
+		self.data['test_org_contact'] = self._TCTRL_contact.GetValue().strip()
 		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_name.SetText(value = u'', data = None)
+		self._PRW_org_unit.SetText(value = u'', data = None)
 		self._TCTRL_contact.SetValue(u'')
 		self._TCTRL_comment.SetValue(u'')
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_name.SetText(value = self.data['internal_name'], data = self.data['pk'])
-		self._TCTRL_contact.SetValue(gmTools.coalesce(self.data['contact'], u''))
+		self._PRW_org_unit.SetText(value = self.data['unit'], data = self.data['pk_org_unit'])
+		self._TCTRL_contact.SetValue(gmTools.coalesce(self.data['test_org_contact'], u''))
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _on_manage_orgs_button_pressed(self, event):
+		gmOrganizationWidgets.manage_orgs(parent = self)
+#----------------------------------------------------------------
+class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+SELECT DISTINCT ON (list_label)
+	pk AS data,
+	unit || ' (' || organization || ')' AS field_label,
+	unit || ' @ ' || organization AS list_label
+FROM clin.v_test_orgs
+WHERE
+	unit %(fragment_condition)s
+		OR
+	organization %(fragment_condition)s
+ORDER BY list_label
+LIMIT 50"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		#mp.word_separators = '[ \t:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = mp
+		self.SetToolTipString(_('The name of the path lab/diagnostic organisation.'))
+		self.selection_only = False
+	#------------------------------------------------------------
+	def _create_data(self):
+		if self.GetData() is not None:
+			_log.debug('data already set, not creating')
+			return
+
+		if self.GetValue().strip() == u'':
+			_log.debug('cannot create new lab, missing name')
+			return
+
+		lab = gmPathLab.create_test_org(name = self.GetValue().strip())
+		self.SetText(value = lab['unit'], data = lab['pk_test_org'])
+		return
+	#------------------------------------------------------------
+	def _data2instance(self):
+		return gmPathLab.cTestOrg(aPK_obj = self.GetData())
 #================================================================
 def manage_meta_test_types(parent=None):
 

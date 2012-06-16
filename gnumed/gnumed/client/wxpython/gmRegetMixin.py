@@ -38,11 +38,8 @@ Template for users:
 	#-----------------------------------------------------
 """
 #===========================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmRegetMixin.py,v $
-# $Id: gmRegetMixin.py,v 1.30 2009-05-08 08:01:36 ncq Exp $
-__version__ = "$Revision: 1.30 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import wx
 
@@ -78,10 +75,11 @@ class cRegetOnPaintMixin:
 		Called on different occasions such as "notebook page
 		raised" or "paint event received".
 		"""
-		if self._data_stale:
-			self._data_stale = not self._populate_with_data()
-
-		return not self._data_stale
+		if not self._data_stale:
+			return True
+		repopulated = self._populate_with_data()
+		self._data_stale = (repopulated is False)
+		return repopulated
 	#-----------------------------------------------------
 	# API for child classes
 	#-----------------------------------------------------
@@ -147,5 +145,3 @@ class cRegetOnPaintMixin:
 #---------------------------------------------------------------------------
 if __name__ == '__main__':
 	print "no unit test available"
-
-#===========================================================================

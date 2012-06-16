@@ -1,4 +1,4 @@
--- GnuMed database test accounts
+-- GNUmed database test accounts
 
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -- !! NEVER EVER use those accounts/passwords in a  !!
@@ -9,7 +9,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmTestAccounts.sql,v $
 -- $Id: gmTestAccounts.sql,v 1.11 2004-07-17 20:57:53 ncq Exp $
--- GPL
+-- GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
 -- must ignore errors so we don't fail on

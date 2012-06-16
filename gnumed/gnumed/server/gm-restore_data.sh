@@ -7,7 +7,7 @@
 # to your needs.
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 

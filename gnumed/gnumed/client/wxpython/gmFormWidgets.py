@@ -30,7 +30,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template
-	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note', 'invoice'])
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
 		return None
@@ -42,7 +42,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 2) process template
 	try:
-		doc = template.instantiate()
+		form = template.instantiate()
 	except KeyError:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -52,9 +52,9 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		return False
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
-	doc.substitute_placeholders(data_source = ph)
-	doc.edit()
-	printable_file = doc.generate_output()
+	form.substitute_placeholders(data_source = ph)
+	form.edit()
+	printable_file = form.generate_output()
 	if printable_file is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -67,7 +67,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	if jobtype is None:
 		jobtype = 'generic_document'
 
-	printed = gmPrinting.print_file_by_shellscript(filename = printable_file, jobtype = jobtype)
+	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
 	if not printed:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -88,10 +88,12 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 4) keep a copy
 	if keep_a_copy:
-		# tell UI to import the file
+		files2import = []
+		files2import.extend(form.final_output_filenames)
+		files2import.extend(form.re_editable_filenames)
 		gmDispatcher.send (
-			signal = u'import_document_from_file',
-			filename = printable_file,
+			signal = u'import_document_from_files',
+			filenames = files2import,
 			document_type = template['instance_type'],
 			unlock_patient = True
 		)
@@ -161,8 +163,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	#-------------------------
 	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
-		result = dlg.ShowModal()
-		return (result == wx.ID_OK)
+		return (dlg.ShowModal() == wx.ID_OK)
 	#-------------------------
 	def delete(template):
 		delete = gmGuiHelpers.gm_show_question (

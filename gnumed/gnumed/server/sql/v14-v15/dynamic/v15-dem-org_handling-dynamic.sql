@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 --
 -- ==============================================================
@@ -97,6 +97,7 @@ alter table dem.org_unit
 		on update cascade
 		on delete restrict
 ;
+
 
 
 -- .fk_category
@@ -346,6 +347,7 @@ insert into dem.org (description, fk_category) values (
 	(select pk from dem.org_category where description = 'Government')
 );
 
+-- Starship Enterprise address
 insert into dem.org (description, fk_category) values (
 	'Starfleet Central',
 	(select pk from dem.org_category where description = 'Hospital')
@@ -375,7 +377,25 @@ insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
 	'Enterprise Sickbay',
 	(select pk from dem.org where description = 'Starfleet Central'),
 	(select pk from dem.org_category where description = 'Ward'),
-	(select pk_address from dem.v_address where street = 'Galley 7-4a' and postcode = 'NCC-1701-E')
+	(select pk_address from dem.v_address where street = 'Galley 4a' and postcode = 'NCC-1701-E')
+);
+
+
+
+-- Notfallzentrum Riebeckstrasse
+insert into dem.org (description, fk_category) values (
+	'Notfallzentrum THONBERGKLINIKmvz',
+	(select pk from dem.org_category where description = 'Medical Practice')
+);
+
+select dem.create_address('65', 'Riebeckstraße', '04317', 'Leipzig', 'SN', 'DE', 'Parterre');
+update dem.street set suburb = 'Reudnitz-Thonberg' where name like 'Riebeckstra%' and postcode = '04317';
+
+insert into dem.org_unit (description, fk_org, fk_category, fk_address) values (
+	'Chirurgische Gemeinschaftspraxis',
+	(select pk from dem.org where description = 'Notfallzentrum THONBERGKLINIKmvz'),
+	(select pk from dem.org_category where description = 'Medical Practice'),
+	(select pk_address from dem.v_address where street like 'Riebeckstra%' and postcode = '04317' and number = '65')
 );
 
 \set ON_ERROR_STOP 1

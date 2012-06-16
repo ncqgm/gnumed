@@ -1,8 +1,8 @@
-"""GnuMed serial port tools.
+"""GNUmed serial port tools.
 
 These functions are complementing pySerial.
 
-@license: GPL (details at http://www.gnu.org)
+@license: GPL v2 or later (details at http://www.gnu.org)
 @copyright: author
 """
 #===========================================================================
@@ -10,7 +10,7 @@ These functions are complementing pySerial.
 # $Id: gmSerialTools.py,v 1.3 2008-01-30 14:05:31 ncq Exp $
 __version__ = "$Revision: 1.3 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__licence__ = "GPL (details at http://www.gnu.org)"
+__licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import time, string, logging
 

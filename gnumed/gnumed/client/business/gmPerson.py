@@ -17,11 +17,16 @@ import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs,
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
-from Gnumed.pycommon import gmPG2, gmMatchProvider, gmDateTime
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmHooks
 
-from Gnumed.business import gmDemographicRecord, gmProviderInbox, gmXdtMappings, gmClinicalRecord
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmXdtMappings
+from Gnumed.business import gmProviderInbox
 from Gnumed.business.gmDocuments import cDocumentFolder
 
 
@@ -32,6 +37,7 @@ __gender_list = None
 __gender_idx = None
 
 __gender2salutation_map = None
+__gender2string_map = None
 
 #============================================================
 # FIXME: make this work as a mapping type, too
@@ -298,157 +304,18 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 				map_gender2salutation(self._payload[self._idx['gender']])
 			),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' "%s"', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'", u'%s')
 		}
 
 	description = property(_get_description, lambda x:x)
 #============================================================
-class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_staff WHERE pk_staff = %s"
-	_cmds_store_payload = [
-		u"""UPDATE dem.staff SET
-				fk_role = %(pk_role)s,
-				short_alias = %(short_alias)s,
-				comment = gm.nullify_empty_string(%(comment)s),
-				is_active = %(is_active)s,
-				db_user = %(db_user)s
-			WHERE
-				pk = %(pk_staff)s
-					AND
-				xmin = %(xmin_staff)s
-			RETURNING
-				xmin AS xmin_staff"""
-	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
-	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
-		# by default get staff corresponding to CURRENT_USER
-		if (aPK_obj is None) and (row is None):
-			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
-			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-			except:
-				_log.exception('cannot instantiate staff instance')
-				gmLog2.log_stack_trace()
-				raise ValueError('cannot instantiate staff instance for database account CURRENT_USER')
-			if len(rows) == 0:
-				raise ValueError('no staff record for database account CURRENT_USER')
-			row = {
-				'pk_field': 'pk_staff',
-				'idx': idx,
-				'data': rows[0]
-			}
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, row = row)
-		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj = aPK_obj, row = row)
-
-		# are we SELF ?
-		self.__is_current_user = (gmPG2.get_current_user() == self._payload[self._idx['db_user']])
-
-		self.__inbox = None
-	#--------------------------------------------------------
-	def __setitem__(self, attribute, value):
-		if attribute == 'db_user':
-			if self.__is_current_user:
-				_log.debug('will not modify database account association of CURRENT_USER staff member')
-				return
-		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-	#--------------------------------------------------------
-	def _get_db_lang(self):
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': u'select i18n.get_curr_lang(%(usr)s)',
-				'args': {'usr': self._payload[self._idx['db_user']]}
-			}]
-		)
-		return rows[0][0]
-
-	def _set_db_lang(self, language):
-		if not gmPG2.set_user_language(language = language):
-			raise ValueError (
-				u'Cannot set database language to [%s] for user [%s].' % (language, self._payload[self._idx['db_user']])
-			)
-		return
-
-	database_language = property(_get_db_lang, _set_db_lang)
-	#--------------------------------------------------------
-	def _get_inbox(self):
-		if self.__inbox is None:
-			self.__inbox = gmProviderInbox.cProviderInbox(provider_id = self._payload[self._idx['pk_staff']])
-		return self.__inbox
-
-	def _set_inbox(self, inbox):
-		return
-
-	inbox = property(_get_inbox, _set_inbox)
-#============================================================
-def set_current_provider_to_logged_on_user():
-	gmCurrentProvider(provider = cStaff())
-#============================================================
-class gmCurrentProvider(gmBorg.cBorg):
-	"""Staff member Borg to hold currently logged on provider.
-
-	There may be many instances of this but they all share state.
-	"""
-	def __init__(self, provider=None):
-		"""Change or get currently logged on provider.
-
-		provider:
-		* None: get copy of current instance
-		* cStaff instance: change logged on provider (role)
-		"""
-		# make sure we do have a provider pointer
-		try:
-			self.provider
-		except AttributeError:
-			self.provider = gmNull.cNull()
-
-		# user wants copy of currently logged on provider
-		if provider is None:
-			return None
-
-		# must be cStaff instance, then
-		if not isinstance(provider, cStaff):
-			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
-
-		# same ID, no change needed
-		if self.provider['pk_staff'] == provider['pk_staff']:
-			return None
-
-		# first invocation
-		if isinstance(self.provider, gmNull.cNull):
-			self.provider = provider
-			return None
-
-		# user wants different provider
-		raise ValueError, 'provider change [%s] -> [%s] not yet supported' % (self.provider['pk_staff'], provider['pk_staff'])
-
-	#--------------------------------------------------------
-	def get_staff(self):
-		return self.provider
-	#--------------------------------------------------------
-	# __getitem__ handling
-	#--------------------------------------------------------
-	def __getitem__(self, aVar):
-		"""Return any attribute if known how to retrieve it by proxy.
-		"""
-		return self.provider[aVar]
-	#--------------------------------------------------------
-	# __s/getattr__ handling
-	#--------------------------------------------------------
-	def __getattr__(self, attribute):
-		if attribute == 'provider':			# so we can __init__ ourselves
-			raise AttributeError
-		if not isinstance(self.provider, gmNull.cNull):
-			return getattr(self.provider, attribute)
-#		raise AttributeError
-#============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"select * from dem.v_basic_person where pk_identity = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
 	_cmds_store_payload = [
-		u"""update dem.identity set
+		u"""UPDATE dem.identity SET
 				gender = %(gender)s,
 				dob = %(dob)s,
+				dob_is_estimated = %(dob_is_estimated)s,
 				tob = %(tob)s,
 				cob = gm.nullify_empty_string(%(cob)s),
 				title = gm.nullify_empty_string(%(title)s),
@@ -460,10 +327,11 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 				fk_emergency_contact = %(pk_emergency_contact)s,
 				fk_primary_provider = %(pk_primary_provider)s,
 				comment = gm.nullify_empty_string(%(comment)s)
-			where
+			WHERE
 				pk = %(pk_identity)s and
-				xmin = %(xmin_identity)s""",
-		u"""select xmin_identity from dem.v_basic_person where pk_identity = %(pk_identity)s"""
+				xmin = %(xmin_identity)s
+			RETURNING
+				xmin AS xmin_identity"""
 	]
 	_updatable_fields = [
 		"title",
@@ -478,7 +346,8 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		'emergency_contact',
 		'pk_emergency_contact',
 		'pk_primary_provider',
-		'comment'
+		'comment',
+		'dob_is_estimated'
 	]
 	#--------------------------------------------------------
 	def _get_ID(self):
@@ -500,8 +369,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 				# compare DOB at seconds level
 				if self._payload[self._idx['dob']] is not None:
-					old_dob = self._payload[self._idx['dob']].strftime('%Y %m %d %H %M %S')
-					new_dob = value.strftime('%Y %m %d %H %M %S')
+					old_dob = gmDateTime.pydt_strftime (
+						self._payload[self._idx['dob']],
+						format = '%Y %m %d %H %M %S',
+						accuracy = gmDateTime.acc_seconds
+					)
+					new_dob = gmDateTime.pydt_strftime (
+						value,
+						format = '%Y %m %d %H %M %S',
+						accuracy = gmDateTime.acc_seconds
+					)
 					if new_dob == old_dob:
 						return
 
@@ -512,16 +389,16 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_is_patient(self):
 		cmd = u"""
-select exists (
-	select 1
-	from clin.v_emr_journal
-	where
-		pk_patient = %(pat)s
-			and
-		soap_cat is not null
-)"""
+			SELECT EXISTS (
+				SELECT 1
+				FROM clin.v_emr_journal
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					soap_cat IS NOT NULL
+		)"""
 		args = {'pat': self._payload[self._idx['pk_identity']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 
 	def _set_is_patient(self, value):
@@ -529,25 +406,52 @@ select exists (
 
 	is_patient = property(_get_is_patient, _set_is_patient)
 	#--------------------------------------------------------
+	def _get_staff_id(self):
+		cmd = u"SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
+		args = {'pk': self._payload[self._idx['pk_identity']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		return rows[0][0]
+
+	staff_id = property(_get_staff_id, lambda x:x)
+	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------
-	def get_active_name(self):
-		for name in self.get_names():
-			if name['active_name'] is True:
-				return name
+	def _get_gender_symbol(self):
+		return map_gender2symbol[self._payload[self._idx['gender']]]
 
-		_log.error('cannot retrieve active name for patient [%s]' % self._payload[self._idx['pk_identity']])
-		return None
+	gender_symbol = property(_get_gender_symbol, lambda x:x)
 	#--------------------------------------------------------
-	def get_names(self):
-		cmd = u"select * from dem.v_person_names where pk_identity = %(pk_pat)s"
-		rows, idx = gmPG2.run_ro_queries (
-			queries = [{
-				'cmd': cmd,
-				'args': {'pk_pat': self._payload[self._idx['pk_identity']]}
-			}],
-			get_col_idx = True
-		)
+	def _get_gender_string(self):
+		return map_gender2string(gender = self._payload[self._idx['gender']])
+
+	gender_string = property(_get_gender_string, lambda x:x)
+	#--------------------------------------------------------
+	def get_active_name(self):
+		names = self.get_names(active_only = True)
+		if len(names) == 0:
+			_log.error('cannot retrieve active name for patient [%s]', self._payload[self._idx['pk_identity']])
+			return None
+		return names[0]
+
+	active_name = property(get_active_name, lambda x:x)
+	#--------------------------------------------------------
+	def get_names(self, active_only=False, exclude_active=False):
+
+		args = {'pk_pat': self._payload[self._idx['pk_identity']]}
+		where_parts = [u'pk_identity = %(pk_pat)s']
+		if active_only:
+			where_parts.append(u'active_name is True')
+		if exclude_active:
+			where_parts.append(u'active_name is False')
+		cmd = u"""
+			SELECT *
+			FROM dem.v_person_names
+			WHERE %s
+			ORDER BY active_name DESC, lastnames, firstnames
+		""" % u' AND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
 			# no names registered for patient
@@ -556,32 +460,21 @@ select exists (
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
 	#--------------------------------------------------------
-	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
-		if self._payload[self._idx['dob']] is None:
-			if none_string is None:
-				return _('** DOB unknown **')
-			return none_string
-
-		if encoding is None:
-			encoding = gmI18N.get_encoding()
-
-		return self._payload[self._idx['dob']].strftime(format).decode(encoding)
-	#--------------------------------------------------------
 	def get_description_gender(self):
-		return '%(sex)s%(title)s %(last)s, %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)') % {
 			'last': self._payload[self._idx['lastnames']],
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s'),
-			'sex': map_gender2salutation(self._payload[self._idx['gender']]),
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'"),
+			'sex': self.gender_symbol
 		}
 	#--------------------------------------------------------
 	def get_description(self):
-		return '%(last)s,%(title)s %(first)s%(nick)s' % {
+		return _(u'%(last)s,%(title)s %(first)s%(nick)s') % {
 			'last': self._payload[self._idx['lastnames']],
-			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s', u'%s'),
+			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
-			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u' (%s)', u'%s')
+			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'")
 		}
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
@@ -625,6 +518,8 @@ select exists (
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {u'pat': self.ID}}], get_col_idx = True)
 
 		return [ gmDemographicRecord.cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
+
+	tags = property(get_tags, lambda x:x)
 	#--------------------------------------------------------
 	def add_tag(self, tag):
 		args = {
@@ -745,14 +640,16 @@ select exists (
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
 		"""Edits an existing external ID.
 
-		creates ID type if necessary
+		Creates ID type if necessary.
 		"""
 		cmd = u"""
-update dem.lnk_identity2ext_id set
-	fk_origin = (select dem.add_external_id_type(%(type)s, %(issuer)s)),
-	external_id = %(value)s,
-	comment = %(comment)s
-where id = %(pk)s"""
+			UPDATE dem.lnk_identity2ext_id SET
+				fk_origin = (SELECT dem.add_external_id_type(%(type)s, %(issuer)s)),
+				external_id = %(value)s,
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				id = %(pk)s
+		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
@@ -768,10 +665,12 @@ where id = %(pk)s"""
 			where_parts.append(u'issuer = %(issuer)s')
 			args['issuer'] = issuer.strip()
 
-		cmd = u"select * from dem.v_external_ids4identity where %s" % ' and '.join(where_parts)
+		cmd = u"SELECT * FROM dem.v_external_ids4identity WHERE %s" % ' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return rows
+
+	external_ids = property(get_external_ids, lambda x:x)
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
 		cmd = u"""
@@ -854,7 +753,15 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				(select coalesce((max(list_position) + 1), 1) from clin.waiting_list)
 			)"""
 		args = {'pat': self.ID, 'urg': urgency, 'cmt': comment, 'area': zone}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose=True)
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], verbose = True)
+	#--------------------------------------------------------
+	def get_waiting_list_entry(self):
+		cmd = u"""SELECT * FROM clin.v_waiting_list WHERE pk_identity = %(pat)s"""
+		args = {'pat': self.ID}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		return rows
+
+	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -894,9 +801,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	# occupations API
 	#--------------------------------------------------------
 	def get_occupations(self):
-		cmd = u"select * from dem.v_person_jobs where pk_identity=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}])
-		return rows
+		return gmDemographicRecord.get_occupations(pk_identity = self.pk_obj)
 	#--------------------------------------------------------
 	def link_occupation(self, occupation=None, activities=None):
 		"""Link an occupation with a patient, creating the occupation if it does not exists.
@@ -991,23 +896,21 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	# contacts API
 	#--------------------------------------------------------
 	def get_addresses(self, address_type=None):
-		cmd = u"select * from dem.v_pat_addresses where pk_identity=%s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx=True)
-		addresses = []
-		for r in rows:
-			addresses.append(gmDemographicRecord.cPatientAddress(row={'idx': idx, 'data': r, 'pk_field': 'pk_address'}))
 
-		filtered = addresses
-
+		cmd = u"SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s"
+		args = {'pat': self.pk_obj}
 		if address_type is not None:
-			filtered = []
-			for adr in addresses:
-				if adr['address_type'] == address_type:
-					filtered.append(adr)
+			cmd = cmd + u" AND address_type = %(typ)s"
+			args['typ'] = address_type
 
-		return filtered
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		return [
+			gmDemographicRecord.cPatientAddress(row = {'idx': idx, 'data': r, 'pk_field': 'pk_address'})
+			for r in rows
+		]
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param number The number of the address.
@@ -1018,51 +921,57 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		@param country The code of the country.
 		@param id_type The primary key of the address type.
 		"""
-		# create/get address
-		adr = gmDemographicRecord.create_address (
-			country = country,
-			state = state,
-			urb = urb,
-			suburb = suburb,
-			postcode = postcode,
-			street = street,
-			number = number,
-			subunit = subunit
-		)
+		if address is None:
+			# create/get address
+			address = gmDemographicRecord.create_address (
+				country = country,
+				state = state,
+				urb = urb,
+				suburb = suburb,
+				postcode = postcode,
+				street = street,
+				number = number,
+				subunit = subunit
+			)
+
+		if address is None:
+			return None
 
 		# already linked ?
-		cmd = u"select * from dem.lnk_person_org_address where id_identity = %s and id_address = %s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj, adr['pk_address']]}])
+		cmd = u"SELECT * FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
+		args = {'pat': self.pk_obj, 'adr': address['pk_address']}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
 		# no, link to person
 		if len(rows) == 0:
-			args = {'id': self.pk_obj, 'adr': adr['pk_address'], 'type': id_type}
-			if id_type is None:
-				cmd = u"""
-					insert into dem.lnk_person_org_address(id_identity, id_address)
-					values (%(id)s, %(adr)s)"""
-			else:
-				cmd = u"""
-					insert into dem.lnk_person_org_address(id_identity, id_address, id_type)
-					values (%(id)s, %(adr)s, %(type)s)"""
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		else:
-			# already linked - but needs to change type ?
-			if id_type is not None:
-				r = rows[0]
-				if r['id_type'] != id_type:
-					cmd = "update dem.lnk_person_org_address set id_type = %(type)s where id = %(id)s"
-					gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'type': id_type, 'id': r['id']}}])
+			args = {'id': self.pk_obj, 'adr': address['pk_address'], 'type': id_type}
+			cmd = u"""
+				INSERT INTO dem.lnk_person_org_address(id_identity, id_address)
+				VALUES (%(id)s, %(adr)s)
+				RETURNING *"""
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
-		return adr
+		# already or now linked - needs to change type ?
+		if id_type is not None:
+			r = rows[0]
+			if r['id_type'] != id_type:
+				cmd = "UPDATE dem.lnk_person_org_address SET id_type = %(type)s WHERE id = %(id)s"
+				args = {'type': id_type, 'id': r['id']}
+				gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		return address
 	#----------------------------------------------------------------------
-	def unlink_address(self, address=None):
+	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the patient.
 
 		The address itself stays in the database.
 		The address can be either cAdress or cPatientAdress.
 		"""
-		cmd = u"delete from dem.lnk_person_org_address where id_identity = %(person)s and id_address = %(adr)s"
-		args = {'person': self.pk_obj, 'adr': address['pk_address']}
+		if pk_address is None:
+			args = {'person': self.pk_obj, 'adr': address['pk_address']}
+		else:
+			args = {'person': self.pk_obj, 'adr': pk_address}
+		cmd = u"DELETE FROM dem.lnk_person_org_address WHERE id_identity = %(person)s AND id_address = %(adr)s"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#----------------------------------------------------------------------
 	# relatives API
@@ -1134,23 +1043,48 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
+	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
+		return gmDateTime.format_dob (
+			self._payload[self._idx['dob']],
+			format = format,
+			encoding = encoding,
+			none_string = none_string,
+			dob_is_estimated = self._payload[self._idx['dob_is_estimated']]
+		)
+	#----------------------------------------------------------------------
 	def get_medical_age(self):
 		dob = self['dob']
 
 		if dob is None:
 			return u'??'
 
-		if self['deceased'] is None:
-#			return gmDateTime.format_interval_medically (
-#				pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone) - dob
-#			)
-			return gmDateTime.format_apparent_age_medically (
-				age = gmDateTime.calculate_apparent_age(start = dob)
+		if dob > gmDateTime.pydt_now_here():
+			return _('invalid age: DOB in the future')
+
+		death = self['deceased']
+
+		if death is None:
+			return u'%s%s' % (
+				gmTools.bool2subst (
+					self._payload[self._idx['dob_is_estimated']],
+					gmTools.u_almost_equal_to,
+					u''
+				),
+				gmDateTime.format_apparent_age_medically (
+					age = gmDateTime.calculate_apparent_age(start = dob)
+				)
 			)
 
-		return u'%s%s' % (
+		if dob > death:
+			return _('invalid age: DOB after death')
+
+		return u'%s%s%s' % (
 			gmTools.u_latin_cross,
-#			gmDateTime.format_interval_medically(self['deceased'] - dob)
+			gmTools.bool2subst (
+				self._payload[self._idx['dob_is_estimated']],
+				gmTools.u_almost_equal_to,
+				u''
+			),
 			gmDateTime.format_apparent_age_medically (
 				age = gmDateTime.calculate_apparent_age (
 					start = dob,
@@ -1182,18 +1116,26 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def _get_messages(self):
 		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']])
 
-	def _set_messages(self, messages):
-		return
+	messages = property(_get_messages, lambda x:x)
+	#--------------------------------------------------------
+	def _get_due_messages(self):
+		return gmProviderInbox.get_due_messages(pk_patient = self._payload[self._idx['pk_identity']])
 
-	messages = property(_get_messages, _set_messages)
+	due_messages = property(_get_due_messages, lambda x:x)
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
+	def _get_dynamic_hints(self):
+		return gmProviderInbox.get_hints_for_patient(pk_identity = self._payload[self._idx['pk_identity']])
+
+	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
+	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None
-		return cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
+		from Gnumed.business import gmStaff
+		return gmStaff.cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
 
 	primary_provider = property(_get_primary_provider, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1207,18 +1149,22 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)
-#============================================================
-class cStaffMember(cIdentity):
-	"""Represents a staff member which is a person.
 
-	- a specializing subclass of cIdentity turning it into a staff member
-	"""
-	def __init__(self, identity = None):
-		cIdentity.__init__(self, identity=identity)
-		self.__db_cache = {}
-	#--------------------------------------------------------
-	def get_inbox(self):
-		return gmProviderInbox.cProviderInbox(provider_id = self.ID)
+#============================================================
+# helper functions
+#------------------------------------------------------------
+#_spin_on_emr_access = None
+#
+#def set_emr_access_spinner(func=None):
+#	if not callable(func):
+#		_log.error('[%] not callable, not setting _spin_on_emr_access', func)
+#		return False
+#
+#	_log.debug('setting _spin_on_emr_access to [%s]', func)
+#
+#	global _spin_on_emr_access
+#	_spin_on_emr_access = func
+
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -1244,17 +1190,20 @@ class cPatient(cIdentity):
 	#----------------------------------------------------------
 	def get_emr(self):
 		if not self.__emr_access_lock.acquire(False):
-			raise AttributeError('cannot access EMR')
+			# maybe something slow is happening on the machine
+			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
+			time.sleep(0.5)
+			if not self.__emr_access_lock.acquire(False):
+				_log.debug('still failed to acquire EMR access lock, aborting')
+				raise AttributeError('cannot lock access to EMR')
 		try:
-			emr = self.__db_cache['clinical record']
-			self.__emr_access_lock.release()
-			return emr
+			self.__db_cache['clinical record']
 		except KeyError:
-			pass
-
-		self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
 		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
+
+	emr = property(get_emr, lambda x:x)
 	#--------------------------------------------------------
 	def get_document_folder(self):
 		try:
@@ -1264,6 +1213,8 @@ class cPatient(cIdentity):
 
 		self.__db_cache['document folder'] = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
 		return self.__db_cache['document folder']
+
+	document_folder = property(get_document_folder, lambda x:x)
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.
@@ -1450,18 +1401,19 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 		gmMatchProvider.cMatchProvider_SQL2.__init__(
 			self,
 			queries = [
-				u"""select
-						pk_staff,
-						short_alias || ' (' || coalesce(title, '') || firstnames || ' ' || lastnames || ')',
-						1
-					from dem.v_staff
-					where
-						is_active and (
-							short_alias %(fragment_condition)s or
-							firstnames %(fragment_condition)s or
-							lastnames %(fragment_condition)s or
+				u"""SELECT
+						pk_staff AS data,
+						short_alias || ' (' || coalesce(title, '') || ' ' || firstnames || ' ' || lastnames || ')' AS list_label,
+						short_alias || ' (' || coalesce(title, '') || ' ' || firstnames || ' ' || lastnames || ')' AS field_label
+					FROM dem.v_staff
+					WHERE
+						is_active AND (
+							short_alias %(fragment_condition)s OR
+							firstnames %(fragment_condition)s OR
+							lastnames %(fragment_condition)s OR
 							db_user %(fragment_condition)s
-						)"""
+						)
+				"""
 			]
 		)
 		self.setThresholds(1, 2, 3)
@@ -1514,14 +1466,14 @@ def set_active_patient(patient=None, forced_reload=False):
 		pat = patient
 	elif isinstance(patient, cIdentity):
 		pat = cPatient(aPK_obj=patient['pk_identity'])
-	elif isinstance(patient, cStaff):
-		pat = cPatient(aPK_obj=patient['pk_identity'])
+#	elif isinstance(patient, cStaff):
+#		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, gmCurrentPatient):
 		pat = patient.patient
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cStaff, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+		raise ValueError('<patient> must be either -1, cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
 
 	# attempt to switch
 	try:
@@ -1565,6 +1517,26 @@ map_gender2symbol = {
 #	'h': u'\u2642\u2640'
 }
 #------------------------------------------------------------
+def map_gender2string(gender=None):
+	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable string."""
+
+	global __gender2string_map
+
+	if __gender2string_map is None:
+		genders, idx = get_gender_list()
+		__gender2string_map = {
+			'm': _('male'),
+			'f': _('female'),
+			'tf': u'',
+			'tm': u'',
+			'h': u''
+		}
+		for g in genders:
+			__gender2string_map[g[idx['l10n_tag']]] = g[idx['l10n_label']]
+			__gender2string_map[g[idx['tag']]] = g[idx['l10n_label']]
+
+	return __gender2string_map[gender]
+#------------------------------------------------------------
 def map_gender2salutation(gender=None):
 	"""Maps GNUmed related i18n-aware gender specifiers to a human-readable salutation."""
 
@@ -1601,22 +1573,6 @@ def map_firstnames2gender(firstnames=None):
 		return None
 
 	return rows[0][0]
-#============================================================
-def get_staff_list(active_only=False):
-	if active_only:
-		cmd = u"select * from dem.v_staff where is_active order by can_login desc, short_alias asc"
-	else:
-		cmd = u"select * from dem.v_staff order by can_login desc, is_active desc, short_alias asc"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
-	staff_list = []
-	for row in rows:
-		obj_row = {
-			'idx': idx,
-			'data': row,
-			'pk_field': 'pk_staff'
-		}
-		staff_list.append(cStaff(row=obj_row))
-	return staff_list
 #============================================================
 def get_persons_from_pks(pks=None):
 	return [ cIdentity(aPK_obj = pk) for pk in pks ]
@@ -1660,9 +1616,9 @@ if __name__ == '__main__':
 		print pat['dob']
 		#pat['dob'] = 'test'
 
-		staff = cStaff()
-		print "setting active patient with", staff
-		set_active_patient(patient=staff)
+#		staff = cStaff()
+#		print "setting active patient with", staff
+#		set_active_patient(patient=staff)
 
 		print "setting active patient with -1"
 		set_active_patient(patient=-1)
@@ -1682,25 +1638,6 @@ if __name__ == '__main__':
 
 		for key in dto.keys():
 			print key
-	#--------------------------------------------------------
-	def test_staff():
-		staff = cStaff()
-		print staff
-		print staff.inbox
-		print staff.inbox.messages
-	#--------------------------------------------------------
-	def test_current_provider():
-		staff = cStaff()
-		provider = gmCurrentProvider(provider = staff)
-		print provider
-		print provider.inbox
-		print provider.inbox.messages
-		print provider.database_language
-		tmp = provider.database_language
-		provider.database_language = None
-		print provider.database_language
-		provider.database_language = tmp
-		print provider.database_language
 	#--------------------------------------------------------
 	def test_identity():
 		# create patient
@@ -1754,20 +1691,21 @@ if __name__ == '__main__':
 			print name.description
 			print '  ', name
 	#--------------------------------------------------------
+	def test_gender_list():
+		genders, idx = get_gender_list()
+		print "\n\nRetrieving gender enum (tag, label, weight):"
+		for gender in genders:
+			print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
 	#test_search_by_dto()
-	#test_staff()
-	test_current_provider()
 	#test_name()
+	test_gender_list()
 
 	#map_gender2salutation('m')
 	# module functions
-	#genders, idx = get_gender_list()
-	#print "\n\nRetrieving gender enum (tag, label, weight):"	
-	#for gender in genders:
-	#	print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 
 	#comms = get_comm_list()
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms

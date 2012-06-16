@@ -1,8 +1,7 @@
 """GNUmed allergy related widgets."""
 ############################################################################
-__version__ = "$Revision: 1.36 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys, time, datetime as pyDT, logging
 
@@ -18,7 +17,6 @@ from Gnumed.business import gmPerson, gmAllergy, gmPersonSearch
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #======================================================================
 class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
@@ -127,12 +125,20 @@ where narrative %(fragment_condition)s
 	def __is_valid_for_save(self):
 
 		if self._PRW_trigger.GetValue().strip() == '':
-			self._PRW_trigger.SetBackgroundColour('pink')
-			self._PRW_trigger.Refresh()
+			#self._PRW_trigger.SetBackgroundColour('pink')
+			#self._PRW_trigger.Refresh()
+			self._PRW_trigger.display_as_valid(False)
 			self._PRW_trigger.SetFocus()
 			return False
-		self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_trigger.display_as_valid(True)
 		self._PRW_trigger.Refresh()
+
+		if not self._DPRW_date_noted.is_valid_timestamp(empty_is_valid = False):
+			self._DPRW_date_noted.display_as_valid(False)
+			self._DPRW_date_noted.SetFocus()
+			return False
+		self._DPRW_date_noted.display_as_valid(True)
 
 		return True
 	#--------------------------------------------------------
@@ -335,6 +341,7 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		self._LCTRL_allergies.deselect_selected_item()
 		self._PNL_edit_area.clear()
 		self._BTN_delete.Enable(False)
+		self._LBL_message.SetLabel(_('Input new allergy item:'))
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -356,8 +363,9 @@ class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 		allergy = self._LCTRL_allergies.get_selected_item_data(only_one=True)
 		if allergy is None:
 			return
-		self._PNL_edit_area.refresh(allergy=allergy)
+		self._PNL_edit_area.refresh(allergy = allergy)
 		self._BTN_delete.Enable(True)
+		self._LBL_message.SetLabel(_('Edit the selected allergy item:'))
 	#--------------------------------------------------------
 	def _on_confirm_button_pressed(self, evt):
 		pat = gmPerson.gmCurrentPatient()

@@ -1,11 +1,11 @@
--- Project: GnuMed - cross-database foreign key descriptions
+-- Project: GNUmed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FKs.sql,v $
 -- $Revision: 1.10 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
--- import this into any GnuMed database that has foreign keys
+-- import this into any GNUmed database that has foreign keys
 -- pointing to other databases, IOW, nearly all of them :-)
 
 -- a cron script checks those FKs and reports errors,

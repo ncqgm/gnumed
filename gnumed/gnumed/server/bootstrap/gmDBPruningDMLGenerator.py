@@ -20,7 +20,7 @@ to weed out superfluous cruft.
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmDBPruningDMLGenerator.py,v $
 __version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import sys, os.path, codecs, logging
 

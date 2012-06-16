@@ -23,7 +23,7 @@
 # 5 0-23 * * *    /usr/bin/gm-move_backups_offsite.sh
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"

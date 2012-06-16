@@ -17,6 +17,9 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+
+from Gnumed.business import gmStaff
 
 #============================================================
 # description
@@ -35,7 +38,9 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				data = gm.nullify_empty_string(%(data)s),
 				importance = %(importance)s,
 				fk_patient = %(pk_patient)s,
-				ufk_context = %(pk_context)s
+				ufk_context = %(pk_context)s,
+				due_date = %(due_date)s,
+				expiry_date = %(expiry_date)s
 			WHERE
 				pk = %(pk_inbox_message)s
 					AND
@@ -52,8 +57,86 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'data',
 		u'importance',
 		u'pk_patient',
-		u'ufk_context'
+		u'ufk_context',
+		u'due_date',
+		u'expiry_date'
 	]
+	#------------------------------------------------------------
+	def format(self):
+		tt = u'%s: %s%s\n' % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['received_when']],
+				format = '%A, %Y %B %d, %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			),
+			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
+			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], u'', u' #%s ')
+		)
+
+		tt += u'%s: %s\n' % (
+			self._payload[self._idx['l10n_category']],
+			self._payload[self._idx['l10n_type']]
+		)
+
+		tt += u'%s %s %s\n' % (
+			self._payload[self._idx['modified_by']],
+			gmTools.u_right_arrow,
+			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
+		)
+
+		tt += u'\n%s%s%s\n\n' % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['comment']],
+			gmTools.u_right_double_angle_quote
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['pk_patient']],
+			u'',
+			u'%s\n\n' % _('Patient #%s')
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['due_date']],
+			u'',
+			_('Due: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['expiry_date']],
+			u'',
+			_('Expiry: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
+		if self._payload[self._idx['data']] is not None:
+			tt += self._payload[self._idx['data']][:150]
+			if len(self._payload[self._idx['data']]) > 150:
+				tt += gmTools.u_ellipsis
+
+		return tt
+#------------------------------------------------------------
+def get_due_messages(pk_patient=None, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
+
+	args = {'pat': pk_patient}
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u'is_due IS TRUE'
+	]
+
+	cmd = u"SELECT *, now() - due_date AS interval_due FROM dem.v_message_inbox WHERE %s" % (
+		order_by % u' AND '.join(where_parts)
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
 #------------------------------------------------------------
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
 
@@ -67,9 +150,9 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'pk_staff in (%(staff)s, NULL)')
+			where_parts.append(u'pk_staff IN (%(staff)s, NULL) OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		else:
-			where_parts.append(u'pk_staff = %(staff)s')
+			where_parts.append(u'pk_staff = %(staff)s OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
@@ -158,13 +241,12 @@ def create_inbox_item_type(message_type=None, category=u'clinical'):
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
 	return rows[0]['pk']
-#============================================================
+
 #============================================================
 class cProviderInbox:
 	def __init__(self, provider_id=None):
 		if provider_id is None:
-			from Gnumed.business import gmPerson
-			self.__provider_id = gmPerson.gmCurrentProvider()['pk_staff']
+			self.__provider_id = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
@@ -188,6 +270,103 @@ class cProviderInbox:
 		return
 
 	messages = property(_get_messages, _set_messages)
+
+#============================================================
+# dynamic hints API
+#------------------------------------------------------------
+_SQL_get_dynamic_hints = u"SELECT *, xmin AS xmin_auto_hint FROM ref.auto_hint WHERE %s"
+
+class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents dynamic hints to be run against the database."""
+
+	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk = %s"
+	_cmds_store_payload = [
+		u"""UPDATE ref.auto_hint SET
+				is_active = %(is_active)s
+			WHERE
+				pk = %(pk)s
+					AND
+				xmin = %(xmin_auto_hint)s
+			RETURNING
+				pk,
+				xmin AS xmin_auto_hint
+		"""
+	]
+	_updatable_fields = [
+		u'is_active'
+	]
+	#--------------------------------------------------------
+	def format(self):
+		txt = u'%s               [#%s]\n' % (
+			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
+			self._payload[self._idx['pk']]
+		)
+		txt += u'\n'
+		txt += u'%s\n\n' % self._payload[self._idx['title']]
+		txt += _('Source: %s\n') % self._payload[self._idx['source']]
+		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap (
+			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			width = 50,
+			initial_indent = u' ',
+			subsequent_indent = u' '
+		)
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		return txt
+
+#------------------------------------------------------------
+def get_dynamic_hints(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_dynamic_hints % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+#------------------------------------------------------------
+#def create_xxx(xxx=None, xxx=None):
+#
+#	args = {
+#		u'xxx': xxx,
+#		u'xxx': xxx
+#	}
+#	cmd = u"""
+#		INSERT INTO xxx.xxx (
+#			xxx,
+#			xxx,
+#			xxx
+#		) VALUES (
+#			%(xxx)s,
+#			%(xxx)s,
+#			gm.nullify_empty_string(%(xxx)s)
+#		)
+#		RETURNING pk
+#	"""
+#	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+#
+#	return cDynamicHint(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+#def delete_xxx(xxx=None):
+#	args = {'pk': xxx}
+#	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
+#	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#	return True
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+def get_hints_for_patient(pk_identity=None):
+	conn = gmPG2.get_connection()
+	curs = conn.cursor()
+	curs.callproc('clin.get_hints_for_patient', [pk_identity])
+	rows = curs.fetchall()
+	idx = gmPG2.get_col_indices(curs)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
 #============================================================
 if __name__ == '__main__':
 
@@ -202,10 +381,9 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
-	from Gnumed.business import gmPerson
 	#---------------------------------------
 	def test_inbox():
-		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		inbox = cProviderInbox()
 		for msg in inbox.messages:
 			print msg
@@ -217,8 +395,18 @@ if __name__ == '__main__':
 	def test_create_type():
 		print create_inbox_item_type(message_type = 'test')
 	#---------------------------------------
+	def test_due():
+		for msg in get_due_messages(pk_patient = 12):
+			print msg.format()
+	#---------------------------------------
+	def test_auto_hints():
+		for row in get_dynamic_hints(pk_identity = 13):
+			print row
+	#---------------------------------------
 	#test_inbox()
 	#test_msg()
-	test_create_type()
+	#test_create_type()
+	#test_due()
+	test_auto_hints()
 
 #============================================================

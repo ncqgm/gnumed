@@ -8,7 +8,7 @@
 # actually bootstrap the latest database from scratch.
 #
 # author: Andreas Tille, Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 #==============================================================
 # those probably need some adjustment from package maintainers:
@@ -26,6 +26,8 @@ if ! su -c "psql -t -d template1 -c \"show lc_ctype;\"" -l postgres | grep -q -e
 fi
 
 cd ${GM_SERVER_DIR}
+mkdir -p ${GM_LOG_BASE}
+export GM_LOG_BASE
 ./bootstrap-latest.sh
 
 #==============================================================

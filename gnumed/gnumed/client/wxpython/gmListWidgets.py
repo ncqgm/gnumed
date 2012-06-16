@@ -12,9 +12,8 @@ TODO:
 	http://trac.flipturn.org/browser/trunk/peppy/lib/column_autosize.py
 """
 #================================================================
-__version__ = "$Revision: 1.37 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 
 import sys, types
@@ -26,9 +25,6 @@ import wx.lib.mixins.listctrl as listmixins
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmTools, gmDispatcher
-from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg, wxgGenericListManagerPnl
 
 #================================================================
 # FIXME: configurable callback on double-click action
@@ -117,6 +113,8 @@ def get_choices_from_list (
 
 	return None
 #----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
+
 class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
 	"""A dialog holding a list and a few buttons to act on the items."""
 
@@ -142,9 +140,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 
-		self.ignore_OK_button = False			# by default do show/use the OK button
-
 		self.can_return_empty = False
+		self.ignore_OK_button = False			# by default do show/use the OK button
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
@@ -159,6 +156,14 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
+		if selections is None:
+			return
+		if len(selections) == 0:
+			return
+		if self.ignore_OK_button:
+			return
+		self._BTN_ok.Enable(True)
+		self._BTN_ok.SetDefault()
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_items.set_data(data = data)
@@ -189,8 +194,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		if not self.new_callback():
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -198,13 +205,16 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
 		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -212,16 +222,20 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
 		# to be both an item selected and a deletor configured
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if item_data is None:
+			self._LCTRL_items.SetFocus()
 			return
 		if not self.delete_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -229,12 +243,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__left_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -242,12 +259,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__middle_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -255,12 +275,15 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__right_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
@@ -268,17 +291,23 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
 	def _set_ignore_OK_button(self, ignored):
 		self.__ignore_OK_button = ignored
 		if self.__ignore_OK_button:
-			self._BTN_ok.Enable(False)
 			self._BTN_ok.Hide()
+			self._BTN_ok.Enable(False)
 		else:
-			self._BTN_ok.Enable(True)
 			self._BTN_ok.Show()
+			if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+				if self.can_return_empty:
+					self._BTN_ok.Enable(True)
+				else:
+					self._BTN_ok.Enable(False)
+					self._BTN_cancel.SetDefault()
 
 	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
 	#------------------------------------------------------------
@@ -419,8 +448,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LCTRL_items.item_tooltip_callback = callback
 
 	list_tooltip_callback = property(lambda x:x, _set_list_tooltip_callback)
-	#def _get_tooltip(self, item):		# inside class
-	#def _get_tooltip(item):			# outside class
+	#def _get_tooltip(self, item):		# inside a class
+	#def _get_tooltip(item):			# outside a class
 	#------------------------------------------------------------
 	def _set_message(self, message):
 		if message is None:
@@ -431,6 +460,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 	message = property(lambda x:x, _set_message)
 #================================================================
+from Gnumed.wxGladeWidgets import wxgGenericListManagerPnl
+
 class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	"""A panel holding a generic multi-column list and action buttions."""
 
@@ -453,6 +484,12 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
 		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
 		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+
+		self.__select_callback = None			# called when an item is selected, data of topmost selected item passed in
+
+		self.left_extra_button = None
+		self.middle_extra_button = None
+		self.right_extra_button = None
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
@@ -485,11 +522,16 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self._BTN_edit.Enable(True)
 		if self.delete_callback is not None:
 			self._BTN_remove.Enable(True)
+		if self.__select_callback is not None:
+			item = self._LCTRL_items.get_selected_item_data(only_one=True)
+			self.__select_callback(item)
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
 			self._BTN_edit.Enable(False)
 			self._BTN_remove.Enable(False)
+			if self.__select_callback is not None:
+				self.__select_callback(None)
 	#------------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		if not self.new_callback():
@@ -501,6 +543,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self.refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
+	#------------------------------------------------------------
+	def _on_list_item_activated(self, event):
+		if self.edit_callback is None:
+			return
+		self._on_edit_button_pressed(event)
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -530,16 +577,146 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		finally:
 			wx.EndBusyCursor()
 	#------------------------------------------------------------
+	def _on_left_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__left_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
+	def _on_middle_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__middle_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
+	def _on_right_extra_button_pressed(self, event):
+		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		if not self.__right_extra_button_callback(item_data):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
 	def _get_new_callback(self):
 		return self.__new_callback
 
 	def _set_new_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<new> callback is not a callable: %s' % callback)
 		self.__new_callback = callback
 		self._BTN_add.Enable(callback is not None)
 
 	new_callback = property(_get_new_callback, _set_new_callback)
+	#------------------------------------------------------------
+	def _get_select_callback(self):
+		return self.__select_callback
+
+	def _set_select_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<select> callback is not a callable: %s' % callback)
+		self.__select_callback = callback
+
+	select_callback = property(_get_select_callback, _set_select_callback)
+	#------------------------------------------------------------
+	def _get_message(self):
+		return self._LBL_message.GetLabel()
+
+	def _set_message(self, msg):
+		if msg is None:
+			self._LBL_message.Hide()
+			self._LBL_message.SetLabel(u'')
+		else:
+			self._LBL_message.SetLabel(msg)
+			self._LBL_message.Show()
+		self.Layout()
+
+	message = property(_get_message, _set_message)
+	#------------------------------------------------------------
+	def _set_left_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_left.Enable(False)
+			self._BTN_extra_left.Hide()
+			self.__left_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
+		self.__left_extra_button_callback = callback
+		self._BTN_extra_left.SetLabel(label)
+		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.Enable(True)
+		self._BTN_extra_left.Show()
+
+	left_extra_button = property(lambda x:x, _set_left_extra_button)
+	#------------------------------------------------------------
+	def _set_middle_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_middle.Enable(False)
+			self._BTN_extra_middle.Hide()
+			self.__middle_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<middle extra button> callback is not a callable: %s' % callback)
+		self.__middle_extra_button_callback = callback
+		self._BTN_extra_middle.SetLabel(label)
+		self._BTN_extra_middle.SetToolTipString(tooltip)
+		self._BTN_extra_middle.Enable(True)
+		self._BTN_extra_middle.Show()
+
+	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
+	#------------------------------------------------------------
+	def _set_right_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_right.Enable(False)
+			self._BTN_extra_right.Hide()
+			self.__right_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<right extra button> callback is not a callable: %s' % callback)
+		self.__right_extra_button_callback = callback
+		self._BTN_extra_right.SetLabel(label)
+		self._BTN_extra_right.SetToolTipString(tooltip)
+		self._BTN_extra_right.Enable(True)
+		self._BTN_extra_right.Show()
+
+	right_extra_button = property(lambda x:x, _set_right_extra_button)
 #================================================================
 from Gnumed.wxGladeWidgets import wxgItemPickerDlg
 
@@ -562,6 +739,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
+		self.__extra_button_callback = None
 
 		self._LCTRL_left.SetFocus()
 	#------------------------------------------------------------
@@ -605,6 +783,26 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def get_picks(self):
 		return self._LCTRL_right.get_item_data()
+
+	picks = property(get_picks, lambda x:x)
+	#------------------------------------------------------------
+	def _set_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra.Enable(False)
+			self._BTN_extra.Hide()
+			self.__extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<extra button> callback is not a callable: %s' % callback)
+		self.__extra_button_callback = callback
+		self._BTN_extra.SetLabel(label)
+		self._BTN_extra.SetToolTipString(tooltip)
+		self._BTN_extra.Enable(True)
+		self._BTN_extra.Show()
+
+	extra_button = property(lambda x:x, _set_extra_button)
 	#------------------------------------------------------------
 	# internal helpers
 	#------------------------------------------------------------
@@ -659,6 +857,23 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def _on_button_right2left_pressed(self, event):
 		self.__remove_selected_picks()
+	#------------------------------------------------------------
+	def _on_extra_button_pressed(self, event):
+		self.__extra_button_callback()
+#		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+#		if not self.__left_extra_button_callback(item_data):
+#			self._LCTRL_items.SetFocus()
+#			return
+#		if self.refresh_callback is None:
+#			self._LCTRL_items.SetFocus()
+#			return
+#		wx.BeginBusyCursor()
+#		try:
+#			self.refresh_callback(lctrl = self._LCTRL_items)
+#		finally:
+#			wx.EndBusyCursor()
+#		self._LCTRL_items.set_column_widths()
+#		self._LCTRL_items.SetFocus()
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
@@ -679,6 +894,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__widths = None
 		self.__data = None
 		self.__activate_callback = None
+		self.__rightclick_callback = None
 
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.__item_tooltip_callback = None
@@ -772,9 +988,23 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		self.Select(0, on = 0)
+		if selections is None:
+			return
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
 			#self.SetItemState(idx, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+
+	def __get_selections(self):
+		if self.__is_single_selection:
+			return [self.GetFirstSelected()]
+		selections = []
+		idx = self.GetFirstSelected()
+		while idx != -1:
+			selections.append(idx)
+			idx = self.GetNextSelected(idx)
+		return selections
+
+	selections = property(__get_selections, set_selections)
 	#------------------------------------------------------------
 	# getters
 	#------------------------------------------------------------
@@ -866,16 +1096,82 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
 	#------------------------------------------------------------
+	def _on_list_item_rightclicked(self, event):
+		event.Skip()
+		if self.__rightclick_callback is not None:
+			self.__rightclick_callback(event)
+	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
-		item_idx, where = self.HitTest(wx.Point(event.X, event.Y))
+		"""Update tooltip on mouse motion.
 
+			for s in dir(wx):
+				if s.startswith('LIST_HITTEST'):
+					print s, getattr(wx, s)
+
+			LIST_HITTEST_ABOVE 1
+			LIST_HITTEST_BELOW 2
+			LIST_HITTEST_NOWHERE 4
+			LIST_HITTEST_ONITEM 672
+			LIST_HITTEST_ONITEMICON 32
+			LIST_HITTEST_ONITEMLABEL 128
+			LIST_HITTEST_ONITEMRIGHT 256
+			LIST_HITTEST_ONITEMSTATEICON 512
+			LIST_HITTEST_TOLEFT 1024
+			LIST_HITTEST_TORIGHT 2048
+		"""
+		item_idx, where_flag = self.HitTest(wx.Point(event.X, event.Y))
+
+		# pointer on item related area at all ?
+		if where_flag not in [
+			wx.LIST_HITTEST_ONITEMLABEL,
+			wx.LIST_HITTEST_ONITEMICON,
+			wx.LIST_HITTEST_ONITEMSTATEICON,
+			wx.LIST_HITTEST_ONITEMRIGHT,
+			wx.LIST_HITTEST_ONITEM
+		]:
+			self.__tt_last_item = None						# not on any item
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# same item as last time around ?
 		if self.__tt_last_item == item_idx:
 			return
 
+		# remeber the new item we are on
 		self.__tt_last_item = item_idx
 
-		if item_idx == -1:
+		# HitTest() can return -1 if it so pleases, meaning that no item
+		# was hit or else that maybe there aren't any items (empty list)
+		if item_idx == wx.NOT_FOUND:
 			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# do we *have* item data ?
+		if self.__data is None:
+			self.SetToolTipString(self.__tt_static_part)
+			return
+
+		# under some circumstances the item_idx returned
+		# by HitTest() may be out of bounds with respect to
+		# self.__data, this hints at a sync problem between
+		# setting display items and associated data
+		if (
+			(item_idx > (len(self.__data) - 1))
+				or
+			(item_idx < -1)
+		):
+			self.SetToolTipString(self.__tt_static_part)
+			print "*************************************************************"
+			print "GNUmed has detected an inconsistency with list item tooltips."
+			print ""
+			print "This is not a big problem and you can keep working."
+			print ""
+			print "However, please send us the following so we can fix GNUmed:"
+			print ""
+			print "item idx: %s" % item_idx
+			print 'where flag: %s' % where_flag
+			print 'data list length: %s' % len(self.__data)
+			print "*************************************************************"
 			return
 
 		dyna_tt = None
@@ -904,12 +1200,30 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
 	#------------------------------------------------------------
+	def _get_rightclick_callback(self):
+		return self.__rightclick_callback
+
+	def _set_rightclick_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_RIGHT_CLICK)
+		else:
+			if not callable(callback):
+				raise ValueError('<rightclick> callback is not a callable: %s' % callback)
+			self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
+		self.__rightclick_callback = callback
+
+	rightclick_callback = property(_get_rightclick_callback, _set_rightclick_callback)
+	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
 		if callback is not None:
 			if not callable(callback):
 				raise ValueError('<item_tooltip> callback is not a callable: %s' % callback)
 		self.__item_tooltip_callback = callback
 
+	# the callback must be a function which takes a single argument
+	# the argument is the data for the item the tooltip is on
+	# the callback must return None if no item tooltip is to be shown
+	# otherwise it must return a string (possibly with \n)
 	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)
 #================================================================
 # main

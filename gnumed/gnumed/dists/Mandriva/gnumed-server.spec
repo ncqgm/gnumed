@@ -10,7 +10,7 @@ Summary: 	%summary
 Name:		%name
 Version:	%version
 Release:	%mkrel 1
-License:	GPL
+License:	GPL v2 or later
 Group:		System/Servers
 Source:		http://www.gnumed.de/downloads/server/v8/%{oname}.%{version}.tgz
 Patch0:		bootstrap-latest.sh.patch

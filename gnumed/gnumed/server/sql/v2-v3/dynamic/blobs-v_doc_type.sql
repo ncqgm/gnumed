@@ -7,7 +7,7 @@
 -- What it does:
 -- - regenerate blobs.v_doc_type
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

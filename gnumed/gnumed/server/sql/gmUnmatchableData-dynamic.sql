@@ -3,7 +3,7 @@
 -- =============================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmUnmatchableData-dynamic.sql,v $
 -- $Id: gmUnmatchableData-dynamic.sql,v 1.2 2005-11-27 13:00:59 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 
 -- =============================================

@@ -1,9 +1,10 @@
+# -*- coding: utf8 -*-
 """GNUmed demographics object.
 
 This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 __version__ = "$Revision: 1.106 $"
@@ -28,6 +29,23 @@ from Gnumed.pycommon import gmTools
 _log = logging.getLogger('gm.business')
 _log.info(__version__)
 
+try:
+	_
+except NameError:
+	_ = lambda x:x
+
+#============================================================
+# occupation handling
+#------------------------------------------------------------
+def get_occupations(pk_identity=None):
+	cmd = u"""
+		SELECT *
+		FROM dem.v_person_jobs
+		WHERE pk_identity = %(pk)s
+		ORDER BY l10n_occupation
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_identity}}])
+	return rows
 #============================================================
 # text+image tags
 #------------------------------------------------------------
@@ -112,7 +130,7 @@ def get_tag_images(order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cTagImage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_tag_image'}) for r in rows ]
 #------------------------------------------------------------
-def create_tag_image(description=None):
+def create_tag_image(description=None, link_obj=None):
 
 	args = {u'desc': description, u'img': u''}
 	cmd = u"""
@@ -125,7 +143,13 @@ def create_tag_image(description=None):
 		)
 		RETURNING pk
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	rows, idx = gmPG2.run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': cmd, 'args': args}],
+		end_tx = True,
+		return_data = True,
+		get_col_idx = False
+	)
 
 	return cTagImage(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
@@ -286,7 +310,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	"""A class representing an address as an entity in itself.
 
 	We consider addresses to be self-complete "labels" for locations.
-	It does not depend on any people potentially living there. Thus
+	It does not depend on any people actually living there. Thus
 	an address can get attached to as many people as we want to
 	signify that that is their place of residence/work/...
 
@@ -301,67 +325,52 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	whom it is attached. In many cases you will want to create a *new*
 	address and link it to a person instead of the old address.
 	"""
-	_cmd_fetch_payload = u"select * from dem.v_address where pk_address=%s"
+	_cmd_fetch_payload = u"select * from dem.v_address where pk_address = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.address SET
 				aux_street = %(notes_street)s,
 				subunit = %(subunit)s,
 				addendum = %(notes_subunit)s,
 				lat_lon = %(lat_lon_street)s
-			WHERE id = %(pk_address)s AND xmin = %(xmin_address)s""",
-		u"select xmin as xmin_address from dem.address where id=%(pk_address)s"
+			WHERE
+				id = %(pk_address)s
+					AND
+				xmin = %(xmin_address)s
+			RETURNING
+				xmin AS xmin_address"""
 	]
-	_updatable_fields = ['notes_street', 'subunit', 'notes_subunit', 'lat_lon_address']
+	_updatable_fields = [
+		'notes_street',
+		'subunit',
+		'notes_subunit',
+		'lat_lon_address'
+	]
+	#--------------------------------------------------------
+	def format(self, single_line=False, verbose=False, show_type=False):
+		if single_line:
+			return format_address_single_line(address = self, show_type = False, verbose = verbose)
+		return format_address(address = self, show_type = False)
 #------------------------------------------------------------
-def address_exists(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None, notes_street=None, notes_subunit=None):
+def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
-	where_parts = [u"""
-		code_country = %(country)s and
-		code_state = %(state)s and
-		urb = %(urb)s and
-		postcode = %(postcode)s and
-		street = %(street)s and
-		number = %(number)s"""
-	]
-
-	if suburb is None:
-		where_parts.append(u"suburb is %(suburb)s")
-	else:
-		where_parts.append(u"suburb = %(suburb)s")
-
-	if notes_street is None:
-		where_parts.append(u"notes_street is %(notes_street)s")
-	else:
-		where_parts.append(u"notes_street = %(notes_street)s")
-
-	if subunit is None:
-		where_parts.append(u"subunit is %(subunit)s")
-	else:
-		where_parts.append(u"subunit = %(subunit)s")
-
-	if notes_subunit is None:
-		where_parts.append(u"notes_subunit is %(notes_subunit)s")
-	else:
-		where_parts.append(u"notes_subunit = %(notes_subunit)s")
-
-	cmd = u"select pk_address from dem.v_address where %s" % u" and ".join(where_parts)
-	data = {
+	cmd = u"""SELECT dem.address_exists(%(country)s, %(state)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
+	args = {
 		'country': country,
 		'state': state,
 		'urb': urb,
-		'suburb': suburb,
 		'postcode': postcode,
 		'street': street,
-		'notes_street': notes_street,
 		'number': number,
-		'subunit': subunit,
-		'notes_subunit': notes_subunit
+		'subunit': subunit
 	}
 
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': data}])
-
-	if len(rows) == 0:
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if rows[0][0] is None:
+		_log.debug('address does not exist')
+		for key, val in args.items():
+			_log.debug('%s: %s', key, val)
 		return None
+
 	return rows[0][0]
 #------------------------------------------------------------
 def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
@@ -373,7 +382,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		country = country,
 		state = state,
 		urb = urb,
-		suburb = suburb,
+#		suburb = suburb,
 		postcode = postcode,
 		street = street,
 		number = number,
@@ -383,15 +392,15 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		return cAddress(aPK_obj=pk_address)
 
 	cmd = u"""
-		select dem.create_address (
-			%(number)s,
-			%(street)s,
-			%(postcode)s,
-			%(urb)s,
-			%(state)s,
-			%(country)s,
-			%(subunit)s
-		)"""
+SELECT dem.create_address (
+	%(number)s,
+	%(street)s,
+	%(postcode)s,
+	%(urb)s,
+	%(state)s,
+	%(country)s,
+	%(subunit)s
+)"""
 	args = {
 		'number': number,
 		'street': street,
@@ -404,7 +413,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 	queries = [{'cmd': cmd, 'args': args}]
 
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	adr = cAddress(aPK_obj=rows[0][0])
+	adr = cAddress(aPK_obj = rows[0][0])
 
 	if suburb is not None:
 		queries = [{
@@ -416,10 +425,92 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 
 	return adr
 #------------------------------------------------------------
-def delete_address(address=None):
-	cmd = u"delete from dem.address where id=%s"
-	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd, 'args': [address['pk_address']]}])
+def delete_address(pk_address=None):
+	cmd = u"""
+		DELETE FROM dem.address
+		WHERE
+			id = %(pk)s
+				AND
+			NOT EXISTS ((
+				SELECT 1 FROM dem.org_unit WHERE fk_address = %(pk)s LIMIT 1
+					) UNION (
+				SELECT 1 FROM dem.lnk_identity2comm WHERE fk_address = %(pk)s LIMIT 1
+					) UNION (
+				SELECT 1 FROM dem.lnk_person_org_address WHERE id_address = %(pk)s LIMIT 1
+			))
+		"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
+#------------------------------------------------------------
+def format_address_single_line(address=None, verbose=False, show_type=False):
+	data = {
+		'pk_adr': address['pk_address'],
+		'street': address['street'],
+		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'number': address['number'],
+		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'zip': address['postcode'],
+		'urb': address['urb'],
+		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'l10n_state': address['l10n_state'],
+		'code_state': address['code_state'],
+		'l10n_country': address['l10n_country'],
+		'code_country': address['code_country']
+	}
+	if show_type:
+		data['type'] = address['l10n_address_type']
+
+	if verbose:
+		if show_type:
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+		else:
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+	else:
+		if show_type:
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+		else:
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+
+	return template % data
+#------------------------------------------------------------
+def format_address(address=None, show_type=False):
+	data = {
+		'pk_adr': address['pk_address'],
+		'street': address['street'],
+		'notes_street': gmTools.coalesce(address['notes_street'], u'', u' (%s)'),
+		'number': address['number'],
+		'subunit': gmTools.coalesce(address['subunit'], u'', u'/%s'),
+		'notes_subunit': gmTools.coalesce(address['notes_subunit'], u'', u' (%s)'),
+		'zip': address['postcode'],
+		'urb': address['urb'],
+		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
+		'l10n_state': address['l10n_state'],
+		'code_state': address['code_state'],
+		'l10n_country': address['l10n_country'],
+		'code_country': address['code_country']
+	}
+	if show_type:
+		data['type'] = address['l10n_address_type']
+		template = _(
+			'Address (%(type)s) [#%(pk_adr)s]\n'
+			' Street: %(street)s%(notes_street)s\n'
+			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
+			' Location: %(zip)s %(urb)s%(suburb)s\n'
+			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Country: %(l10n_country)s, %(code_country)s'
+		)
+	else:
+		template = _(
+			'Address [#%(pk_adr)s]\n'
+			' Street: %(street)s%(notes_street)s\n'
+			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
+			' Location: %(zip)s %(urb)s%(suburb)s\n'
+			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Country: %(l10n_country)s, %(code_country)s'
+		)
+	txt = template % data
+	return txt.split('\n')
 #------------------------------------------------------------
 def get_address_types(identity=None):
 	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
@@ -436,8 +527,39 @@ def get_addresses(order_by=None):
 	cmd = u"SELECT * FROM dem.v_address %s" % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cAddress(row = {'data': r, 'idx': idx, 'pk_field': u'pk_address'}) for r in rows ]
+#------------------------------------------------------------
+def get_address_from_patient_address_pk(pk_patient_address=None):
+	cmd = u"""
+		SELECT * FROM dem.v_address WHERE
+			pk_address = (
+				SELECT id_address
+				FROM dem.lnk_person_org_address
+				WHERE id = %(pk_pat_adr)s
+			)
+	"""
+	args = {'pk_pat_adr': pk_patient_address}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
 
 #===================================================================
+def get_patient_address(pk_patient_address=None):
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_lnk_person_org_address = %(pk)s'
+	args = {'pk': pk_patient_address}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+#-------------------------------------------------------------------
+def get_patient_address_by_type(pk_patient=None, adr_type=None):
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND address_type = %(typ)s'
+	args = {'pat': pk_patient, 'typ': adr_type}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+#-------------------------------------------------------------------
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_pat_addresses WHERE pk_address = %s"
@@ -451,94 +573,167 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_lnk_person_org_address
 		"""
-#		,u"""select xmin from dem.lnk_person_org_address where id=%(pk_lnk_person_org_address)s"""
 	]
 	_updatable_fields = ['pk_address_type']
 	#---------------------------------------------------------------
 	def get_identities(self, same_lastname=False):
 		pass
+	#--------------------------------------------------------
+	def format(self, single_line=False, verbose=False, show_type=True):
+		if single_line:
+			return format_address_single_line(address = self, verbose = verbose, show_type = show_type)
+		txt = format_address(address = self, show_type = show_type)
+		return txt
 #===================================================================
 # communication channels API
 #-------------------------------------------------------------------
 class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from dem.v_person_comms where pk_lnk_identity2comm = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_comms WHERE pk_lnk_identity2comm = %s"
 	_cmds_store_payload = [
-		u"""update dem.lnk_identity2comm set
-				fk_address = %(pk_address)s,
+		u"""UPDATE dem.lnk_identity2comm SET
+				--fk_address = %(pk_address)s,
+				fk_type = dem.create_comm_type(%(comm_type)s),
+				url = %(url)s,
+				is_confidential = %(is_confidential)s,
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				pk = %(pk_lnk_identity2comm)s
+					AND
+				xmin = %(xmin_lnk_identity2comm)s
+			RETURNING
+				xmin AS xmin_lnk_identity2comm
+		"""
+	]
+	_updatable_fields = [
+		#'pk_address',
+		'url',
+		'comm_type',
+		'is_confidential',
+		'comment'
+	]
+#-------------------------------------------------------------------
+class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
+
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_org_unit_comms WHERE pk_lnk_org_unit2comm = %s"
+	_cmds_store_payload = [
+		u"""UPDATE dem.lnk_org_unit2comm SET
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
 				is_confidential = %(is_confidential)s
-			where pk = %(pk_lnk_identity2comm)s and xmin = %(xmin_lnk_identity2comm)s
-		""",
-		u"select xmin as xmin_lnk_identity2comm from dem.lnk_identity2comm where pk = %(pk_lnk_identity2comm)s"
+			WHERE
+				pk = %(pk_lnk_org_unit2comm)s
+					AND
+				xmin = %(xmin_lnk_org_unit2comm)s
+			RETURNING
+				xmin AS xmin_lnk_org_unit2comm
+		"""
 	]
-	_updatable_fields = ['pk_address', 'url', 'comm_type', 'is_confidential']
+	_updatable_fields = [
+		'url',
+		'comm_type',
+		'is_confidential'
+	]
 #-------------------------------------------------------------------
-def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None):
+def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None, pk_org_unit=None):
 	"""Create a communications channel for a patient."""
 
 	if url is None:
 		return None
 
-	# FIXME: create comm type if necessary
-	args = {'pat': pk_identity, 'url': url, 'secret': is_confidential}
+	args = {
+		'url': url,
+		'secret': is_confidential,
+		'pk_type': pk_channel_type,
+		'type': comm_medium
+	}
+
+	if pk_identity is not None:
+		args['pk_owner'] = pk_identity
+		tbl = u'dem.lnk_identity2comm'
+		col = u'fk_identity'
+		view = u'dem.v_person_comms'
+		view_pk = u'pk_lnk_identity2comm'
+		channel_class = cCommChannel
+	if pk_org_unit is not None:
+		args['pk_owner'] = pk_org_unit
+		tbl = u'dem.lnk_org_unit2comm'
+		col = u'fk_org_unit'
+		view = u'dem.v_org_unit_comms'
+		view_pk = u'pk_lnk_org_unit2comm'
+		channel_class = cOrgCommChannel
 
 	if pk_channel_type is None:
-		args['type'] = comm_medium
-		cmd = u"""insert into dem.lnk_identity2comm (
-			fk_identity,
+		cmd = u"""INSERT INTO %s (
+			%s,
 			url,
 			fk_type,
 			is_confidential
-		) values (
-			%(pat)s,
-			%(url)s,
-			dem.create_comm_type(%(type)s),
-			%(secret)s
-		)"""
+		) VALUES (
+			%%(pk_owner)s,
+			%%(url)s,
+			dem.create_comm_type(%%(type)s),
+			%%(secret)s
+		)""" % (tbl, col)
 	else:
-		args['type'] = pk_channel_type
-		cmd = u"""insert into dem.lnk_identity2comm (
-			fk_identity,
+		cmd = u"""INSERT INTO %s (
+			%s,
 			url,
 			fk_type,
 			is_confidential
-		) values (
-			%(pat)s,
-			%(url)s,
-			%(type)s,
-			%(secret)s
-		)"""
+		) VALUES (
+			%%(pk_owner)s,
+			%%(url)s,
+			%%(pk_type)s,
+			%%(secret)s
+		)""" % (tbl, col)
 
-	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd, 'args': args},
-			{'cmd': u"select * from dem.v_person_comms where pk_lnk_identity2comm = currval(pg_get_serial_sequence('dem.lnk_identity2comm', 'pk'))"}
-		],
-		return_data = True,
-		get_col_idx = True
-	)
+	queries = [{'cmd': cmd, 'args': args}]
+	cmd = u"SELECT * FROM %s WHERE %s = currval(pg_get_serial_sequence('%s', 'pk'))" % (view, view_pk, tbl)
+	queries.append({'cmd': cmd})
 
-	return cCommChannel(row = {'pk_field': 'pk_lnk_identity2comm', 'data': rows[0], 'idx': idx})
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
+
+	if pk_identity is not None:
+		return cCommChannel(row = {'pk_field': view_pk, 'data': rows[0], 'idx': idx})
+
+	return channel_class(row = {'pk_field': view_pk, 'data': rows[0], 'idx': idx})
 #-------------------------------------------------------------------
-def delete_comm_channel(pk=None, pk_patient=None):
-	cmd = u"DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s"
-	args = {'pk': pk, 'pat': pk_patient}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+def delete_comm_channel(pk=None, pk_patient=None, pk_org_unit=None):
+	if pk_patient is not None:
+		query = {
+			'cmd': u"DELETE FROM dem.lnk_identity2comm WHERE pk = %(pk)s AND fk_identity = %(pat)s",
+			'args': {'pk': pk, 'pat': pk_patient}
+		}
+	if pk_org_unit is not None:
+		query = {
+			'cmd': u"DELETE FROM dem.lnk_org_unit2comm WHERE pk = %(pk)s AND fk_org_unit = %(unit)s",
+			'args': {'pk': pk, 'unit': pk_org_unit}
+		}
+	gmPG2.run_rw_queries(queries = [query])
 #-------------------------------------------------------------------
-__comm_channel_types = None
-
 def get_comm_channel_types():
-	global __comm_channel_types
-	if __comm_channel_types is None:
-		cmd = u"select pk, _(description) from dem.enum_comm_types"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
-		__comm_channel_types = rows
-	return __comm_channel_types
+	cmd = u"SELECT pk, _(description) AS l10n_description, description FROM dem.enum_comm_types"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	return rows
+#-------------------------------------------------------------------
+def delete_comm_channel_type(pk_channel_type=None):
+	cmd = u"""
+		DELETE FROM dem.enum_comm_types
+		WHERE
+			pk = %(pk)s
+			AND NOT EXISTS (
+				SELECT 1 FROM dem.lnk_identity2comm WHERE fk_type = %(pk)s
+			)
+			AND NOT EXISTS (
+				SELECT 1 FROM dem.lnk_org_unit2comm WHERE fk_type = %(pk)s
+			)
+	"""
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_channel_type}}])
+	return True
+#===================================================================
 #-------------------------------------------------------------------
 
-#===================================================================
 class cOrg (gmBusinessDBObject.cBusinessDBObject):
 	"""
 	Organisations
@@ -763,20 +958,62 @@ if __name__ == "__main__":
 	import random
 	#--------------------------------------------------------
 	def test_address_exists():
-		exists = address_exists (
-			country ='Germany',
-			state ='Sachsen',
-			urb ='Leipzig',
-			suburb ='Sellerhausen',
-			postcode ='04318',
-			street = u'Cunnersdorfer Strasse',
-			number = '11',
-			notes_subunit = '4.Stock rechts'
-		)
-		if exists is None:
-			print "address does not exist"
-		else:
-			print "address exists, primary key:", exists
+
+		addresses = [
+			{
+			'country': 'Germany',
+			'state': 'Sachsen',
+			'urb': 'Leipzig',
+			'postcode': '04318',
+			'street': u'Cunnersdorfer Strasse',
+			'number': '11'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': 'Parterre'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+			{
+			'country': 'DE',
+			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+			{
+#			'country': 'DE',
+#			'state': 'SN',
+			'urb': 'Leipzig',
+			'postcode': '04317',
+			'street': u'Riebeckstraße',
+			'number': '65',
+			'subunit': '1. Stock'
+			},
+		]
+
+		for adr in addresses:
+			print adr
+			exists = address_exists(**adr)
+			if exists is None:
+				print "address does not exist"
+			else:
+				print "address exists, primary key:", exists
+
 	#--------------------------------------------------------
 	def test_create_address():
 		address = create_address (
@@ -790,7 +1027,7 @@ if __name__ == "__main__":
 #			,notes_subunit = '4.Stock rechts'
 		)
 		print "created existing address"
-		print address
+		print address.format()
 
 		su = str(random.random())
 
@@ -807,7 +1044,8 @@ if __name__ == "__main__":
 		)
 		print "created new address with subunit", su
 		print address
-		print "deleted address:", delete_address(address)
+		print address.format()
+		print "deleted address:", delete_address(pk_address = address['pk_address'])
 	#--------------------------------------------------------
 	def test_get_countries():
 		for c in get_countries():
@@ -830,9 +1068,11 @@ if __name__ == "__main__":
 	def test_tag_images():
 		tag = cTagImage(aPK_obj = 1)
 		print tag
-		print get_tag_images()
+		#print get_tag_images()
 	#--------------------------------------------------------
-
+	def test_get_billing_address():
+		print get_patient_address_by_type(pk_patient = 12, adr_type = u'billing')
+	#--------------------------------------------------------
 	#gmPG2.get_connection()
 
 	#test_address_exists()
@@ -841,28 +1081,8 @@ if __name__ == "__main__":
 	#test_get_country_for_region()
 	#test_delete_tag()
 	test_tag_images()
+	#test_get_billing_address()
 
 	sys.exit()
-
-	gmDispatcher.connect(_post_patient_selection, 'post_patient_selection')
-	while 1:
-		pID = raw_input('a patient: ')
-		if pID == '':
-			break
-		try:
-			print pID
-			myPatient = gmPerson.cIdentity (aPK_obj = pID)
-		except:
-			_log.exception('Unable to set up patient with ID [%s]' % pID)
-			print "patient", pID, "can not be set up"
-			continue
-		print "ID       ", myPatient.ID
-		print "name     ", myPatient['description']
-		print "name     ", myPatient['description_gender']
-		print "title    ", myPatient['title']
-		print "dob      ", myPatient['dob']
-		print "med age  ", myPatient['medical_age']
-		for adr in myPatient.get_addresses():
-			print "address  ", adr
-		print "--------------------------------------"
 #============================================================
+

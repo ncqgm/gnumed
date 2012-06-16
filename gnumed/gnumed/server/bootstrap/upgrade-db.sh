@@ -106,6 +106,7 @@ if test "${SYSTEM}" != "Darwin" ; then
 		echo "ERROR:"
 		echo "ERROR: does not exist. Aborting."
 		echo "========================================="
+		read
 		exit 1
 	fi ;
 fi ;
@@ -150,6 +151,7 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 		echo "ERROR:"
 		echo "ERROR: failed. Aborting."
 		echo "========================================="
+		read
 		exit 1
 	fi
 else
@@ -173,6 +175,7 @@ echo_msg "2) upgrading to new database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
+	read
 	exit 1
 fi
 

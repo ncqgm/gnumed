@@ -6,7 +6,7 @@ functions for authenticating users.
 #================================================================
 __version__ = "$Revision: 1.45 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
@@ -106,7 +106,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = u'client_version')
 	global current_db_name
-	current_db_name = u'gnumed_%s' % expected_version
+	current_db_name = u'gnumed_v%s' % expected_version
 
 	attempt = 0
 
@@ -194,6 +194,26 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		# connect was successful
 		gmPG2.set_default_login(login = login)
 		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
+
+		seems_bootstrapped = gmPG2.schema_exists(schema = 'gm')
+		if not seems_bootstrapped:
+			_log.error('schema [gm] does not exist - database not bootstrapped ?')
+			msg = _(
+				'The database you connected to does not seem\n'
+				'to have been boostrapped properly.\n'
+				'\n'
+				'Make sure you have run the GNUmed database\n'
+				'bootstrapper tool to create a new database.\n'
+				'\n'
+				'Further help can be found on the website at\n'
+				'\n'
+				'  http://wiki.gnumed.de\n'
+				'\n'
+				'or on the GNUmed mailing list.'
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Verifying database'))
+			connected = False
+			break
 
 		compatible = gmPG2.database_schema_compatible(version = expected_version)
 		if compatible or not require_version:
@@ -691,8 +711,8 @@ class cLoginPanel(wx.Panel):
 			# FIXME: do not assume conf file is latin1 !
 			#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
-			_log.debug(u'backend profile "%s" selected', profile.name)
-			_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
+			_log.info(u'backend profile "%s" selected', profile.name)
+			_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
 				self._CBOX_user.GetValue(),
 				profile.database,
 				profile.host,
@@ -700,7 +720,7 @@ class cLoginPanel(wx.Panel):
 				profile.encoding,
 				gmTools.bool2subst(profile.public_db, u'public', u'private')
 			)
-			_log.debug(u' helpdesk: "%s"', profile.helpdesk)
+			_log.info(u' helpdesk: "%s"', profile.helpdesk)
 			login = gmLoginInfo.LoginInfo (
 				user = self._CBOX_user.GetValue(),
 				password = self.pwdentry.GetValue(),
@@ -721,21 +741,28 @@ class cLoginPanel(wx.Panel):
 		wx.MessageBox(_(
 """GNUmed main login screen
 
-USER:
- name of the GNUmed user
-PASSWORD
- password for this user
+Welcome to the GNUmed client. Shown are the current
+"Workplace" and (version).
 
-button OK:
- proceed with login
-button OPTIONS:
- set advanced options
-button CANCEL:
- abort login and quit GNUmed client
-button HELP:
- this help screen
+You may select to log into a public database with username
+and password {any-doc, any-doc}. Any other database
+(including a local one) must first be separately installed
+before you can log in.
 
-For assistance on using GNUmed please contact:
+For assistance on using GNUmed please consult the wiki:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual
+
+and to install a local database see:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+
+For more help than the above, please contact:
+
+ GNUmed Development List <gnumed-bugs@gnu.org>
+
+For local assistance please contact:
+
  %s""") % praxis.helpdesk)
 
 	#----------------------------

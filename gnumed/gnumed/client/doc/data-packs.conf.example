@@ -1,0 +1,32 @@
+#
+# GNUmed data packs list example
+#
+
+
+[data packs]
+
+data packs = $data packs$
+missing test pack
+corrupt test pack
+working test pack
+$data packs$
+
+
+#-------------------------------------------------------------------
+[pack missing test pack]
+name = test / data pack for testing (file missing)
+URL = http://www.gnumed.de/downloads/data/test/test-missing.zip
+minimum database version = 0
+maximum database version = 0
+
+[pack corrupt test pack]
+name = test / data pack for testing (md5 mismatch)
+URL = http://www.gnumed.de/downloads/data/test/test-corrupt.zip
+minimum database version = 0
+maximum database version = 0
+
+[pack working test pack]
+name = test / data pack for testing
+URL = http://www.gnumed.de/downloads/data/test/test.zip
+minimum database version = 0
+maximum database version = 0

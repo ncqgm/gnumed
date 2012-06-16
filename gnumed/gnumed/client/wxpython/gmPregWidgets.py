@@ -1,4 +1,4 @@
-"""GnuMed pregnancy related dates caculcator.
+"""GNUmed pregnancy related dates caculcator.
 
 Calculates from LMP:
  - EDC

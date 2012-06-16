@@ -4,7 +4,7 @@
 -- Source database version: v6
 -- Target database version: v7
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================
@@ -34,7 +34,7 @@ comment on column ref.paperwork_templates.name_short is
 comment on column ref.paperwork_templates.name_long is
 	'a long name unambigously describing the form';
 comment on column ref.paperwork_templates.gnumed_revision is
-	'GnuMed internal form def version, may
+	'GNUmed internal form def version, may
 	 occur if we rolled out a faulty form def';
 comment on column ref.paperwork_templates.data is
 	'the template complete with placeholders in

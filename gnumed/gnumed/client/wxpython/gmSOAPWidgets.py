@@ -16,7 +16,7 @@ import wx
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -342,9 +342,9 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #	def _on_application_closing(self):
 #		"""GNUmed is shutting down."""
 #		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 #		print "need to ask user about SOAP saving !"
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 	#--------------------------------------------------------
 #	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__
@@ -818,7 +818,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		# set up clinical context in progress note
 		encounter = emr.active_encounter
-		staff_id = gmPerson.gmCurrentProvider()['pk_staff']
+		staff_id = gmStaff.gmCurrentProvider()['pk_staff']
 		clin_ctx = {
 			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
 			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
@@ -898,7 +898,7 @@ class cResizingSoapPanel(wx.Panel):
 			# make Richard the default ;-)
 			# FIXME: actually, should be read from backend
 			line = cSOAPLineDef()
-			line.label = _('Patient Request')
+			line.label = _('Visit Purpose')
 			line.soap_cat = 's'
 			line.is_rfe = True
 			soap_lines.append(line)

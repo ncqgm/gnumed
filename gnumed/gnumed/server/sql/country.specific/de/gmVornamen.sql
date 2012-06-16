@@ -1,10 +1,10 @@
 -- =============================================
--- GnuMed first name to gender mappings
+-- GNUmed first name to gender mappings
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmVornamen.sql,v $
 -- $Revision: 1.7 $
 
--- license: GPL
+-- license: GPL v2 or later
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- The data was provided by Christoph Becker. Thanks !

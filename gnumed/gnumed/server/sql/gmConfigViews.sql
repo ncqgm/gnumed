@@ -1,8 +1,8 @@
 -- ===================================================
--- GnuMed configuration views
+-- GNUmed configuration views
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmConfigViews.sql,v $
 -- $Revision: 1.8 $
 -- ======================================================
@@ -57,7 +57,7 @@ COMMENT ON COLUMN cfg.config.hash_algo IS
 
 -- cfg.db --
 COMMENT ON TABLE cfg.db IS
-	'information on where to find the databases known to GnuMed';
+	'information on where to find the databases known to GNUmed';
 
 comment on column cfg.db.id is
 	'the database with id == 0 is the "default" database';

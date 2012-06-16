@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Grants.sql,v $
 -- $Revision: 1.19 $
--- license: GPL
+-- license: GPL v2 or later
 -- authors: Ian Haywood, Horst Herb, Karsten Hilbert, Richard Terry
 
 -- ===================================================================

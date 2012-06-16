@@ -56,8 +56,8 @@ Database installation / upgrade:
 
  More information on installation or upgrading is found here:
 
-	http://wiki.gnumed.de/bin/view/Gnumed/ServerInstall
-	http://wiki.gnumed.de/bin/view/Gnumed/ServerUpgrade
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
 
 
 Changelog:

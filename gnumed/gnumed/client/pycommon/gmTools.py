@@ -3,12 +3,13 @@ __doc__ = """GNUmed general tools."""
 
 #===========================================================================
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
 import decimal
 import cPickle, zlib
+import xml.sax.saxutils as xml_tools
 
 
 # GNUmed libs
@@ -42,11 +43,15 @@ u_left_double_angle_quote = u'\u00BB'		# >>
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
-u_ellipsis = u'\u2026'
+u_multiply = u'\u00D7'						# x
+u_ellipsis = u'\u2026'						# ...
+u_euro = u'\u20AC'							# EURO sign
+u_numero = u'\u2116'						# No. / # sign
 u_down_left_arrow = u'\u21B5'				# <-'
 u_left_arrow = u'\u2190'					# <--
 u_right_arrow = u'\u2192'					# -->
 u_sum = u'\u2211'
+u_almost_equal_to = u'\u2248'				# approximately / nearly / roughly
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
 u_diameter = u'\u2300'
@@ -61,6 +66,7 @@ u_box_bottom_right_arc = u'\u256f'
 u_box_bottom_left_arc = u'\u2570'
 u_box_horiz_light_heavy = u'\u257c'
 u_box_horiz_heavy_light = u'\u257e'
+u_skull_and_crossbones = u'\u2620'
 u_frowning_face = u'\u2639'
 u_smiling_face = u'\u263a'
 u_black_heart = u'\u2665'
@@ -72,7 +78,7 @@ u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
 u_replacement_character = u'\ufffd'
-
+u_link_symbol = u'\u1f517'
 
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
@@ -105,7 +111,7 @@ class gmPaths(gmBorg.cBorg):
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir
-	.tmp_dir (only readable)
+	.tmp_dir (readonly)
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -445,7 +451,7 @@ _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
 #---------------------------------------------------------------------------
-def size2str(size=0, template='%s'):
+def size2str(size=0, template=u'%s'):
 	if size == 1:
 		return template % _('1 Byte')
 	if size < 10 * _kB:
@@ -476,9 +482,15 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 		false_return = false_str
 	)
 #---------------------------------------------------------------------------
-def none_if(value=None, none_equivalent=None):
+def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
-	if value == none_equivalent:
+	if value is None:
+		return None
+	if strip_string:
+		stripped = value.strip()
+	else:
+		stripped = value
+	if stripped == none_equivalent:
 		return None
 	return value
 #---------------------------------------------------------------------------
@@ -608,16 +620,51 @@ def input2int(initial=None, minval=None, maxval=None):
 	try:
 		int_val = int(val)
 	except (TypeError, ValueError):
+		_log.exception('int(%s) failed', val)
 		return False, val
 
 	if minval is not None:
 		if int_val < minval:
+			_log.debug('%s < min (%s)', val, minval)
 			return False, val
 	if maxval is not None:
 		if int_val > maxval:
+			_log.debug('%s > max (%s)', val, maxval)
 			return False, val
 
 	return True, int_val
+#---------------------------------------------------------------------------
+def strip_leading_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[0].strip(eol).strip() != u'':
+			break
+		lines = lines[1:]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
+#---------------------------------------------------------------------------
+def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[-1].strip(eol).strip() != u'':
+			break
+		lines = lines[:-1]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
@@ -668,10 +715,14 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
-
-	text = text.replace(u'&', u'&amp;')
-
-	return text
+	return xml_tools.escape (
+		text,
+		entities = {
+			u'&': u'&amp;'
+		}
+	)
+#	text = text.replace(u'&', u'&amp;')
+#	return text
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None):
 	"""check for special LaTeX characters and transform them"""
@@ -684,6 +735,7 @@ def tex_escape_string(text=None):
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
 	text = text.replace(u'_', u'\\_')
+	text = text.replace(u_euro, u'\\EUR')
 
 	text = text.replace(u'^', u'\\verb#^#')
 	text = text.replace('~','\\verb#~#')
@@ -832,6 +884,11 @@ if __name__ == '__main__':
 					continue
 				else:
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
+	#-----------------------------------------------------------------------
+	def test_input2int():
+		print input2int(0)
+		print input2int('0')
+		print input2int(u'0', 0, 0)
 	#-----------------------------------------------------------------------
 	def test_coalesce():
 
@@ -1031,6 +1088,9 @@ second line\n
 	def test_md5():
 		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
+	def test_unicode():
+		print u_link_symbol * 10
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1042,8 +1102,10 @@ second line\n
 	#test_get_unique_filename()
 	#test_size2str()
 	#test_wrap()
-	test_input2decimal()
+	#test_input2decimal()
+	#test_input2int()
 	#test_unwrap()
 	#test_md5()
+	test_unicode()
 
 #===========================================================================

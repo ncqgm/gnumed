@@ -4,9 +4,9 @@
 # - command line options:
 #   - "quiet"
 
-VER="15"
-PREV_VER="14"
-VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13 14 15"
+PREV_VER="16"
+VER="17"
 QUIET="$1"
 
 
@@ -80,6 +80,7 @@ CONF="bootstrap-latest.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully. Aborting."
+	read
 	exit 1
 fi
 

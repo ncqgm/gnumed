@@ -12,14 +12,14 @@ import wx
 class wxgProvinceEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmPersonContactWidgets
+        from Gnumed.wxpython import gmAddressWidgets
 
         # begin wxGlade: wxgProvinceEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_province = gmPersonContactWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_province = gmAddressWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_code = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_country = gmPersonContactWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_country = gmAddressWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()

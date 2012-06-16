@@ -731,8 +731,12 @@ class database:
 		if template_version is None:
 			_log.warning('cannot check template database identity hash, no version specified')
 		else:
-			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
-				_log.error('invalid template database')
+			converted, version = gmTools.input2int(template_version.lstrip('v'), 0)
+			if not converted:
+				_log.error('invalid template database definition: %s', template_version)
+				return False
+			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
+				_log.error('invalid [%s] schema structure in GNUmed template database [%s]', template_version, self.template_db)
 				return False
 
 		# check for target database
@@ -993,14 +997,20 @@ class database:
 		# verify template database hash
 		print_msg("==> verifying target database schema ...")
 		target_version = cfg_get(self.section, 'target version')
-		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
+		if target_version == 'devel':
+			print_msg("    ... skipped (devel version)")
+			_log.info('result schema hash: %s', gmPG2.get_schema_hash(link_obj = self.conn))
+			_log.warning('testing/development only, not failing due to invalid target database identity hash')
+			return True
+		converted, version = gmTools.input2int(target_version.lstrip('v'), 2)
+		if not converted:
+			_log.error('cannot convert target database version: %s', target_version)
+			print_msg("    ... failed (invalid target version specification)")
+			return False
+		if gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
 			_log.info('database identity hash properly verified')
 			return True
 		_log.error('target database identity hash invalid')
-		if target_version == 'devel':
-			print_msg("    ... skipped (devel version)")
-			_log.warning('testing/development only, not failing due to invalid target database identity hash')
-			return True
 		print_msg("    ... failed (hash mismatch)")
 		return False
 	#--------------------------------------------------------------
@@ -1074,8 +1084,8 @@ class database:
 		file.close()
 
 		# import auditing schema
-		psql = gmPsql.Psql (self.conn)
-		if psql.run (tmpfile) != 0:
+		psql = gmPsql.Psql(self.conn)
+		if psql.run(tmpfile) != 0:
 			_log.error("cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
@@ -1116,7 +1126,7 @@ class database:
 		file.close()
 
 		# import notification schema
-		psql = gmPsql.Psql (self.conn)
+		psql = gmPsql.Psql(self.conn)
 		if psql.run(tmpfile) != 0:
 			_log.error("cannot import notification schema definition for database [%s]" % (self.name))
 			return None
@@ -1175,7 +1185,16 @@ class gmBundle:
 			_log.error("Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		if float(gmPG2.postgresql_version) < float(required_version):
+		converted, pg_ver = gmTools.input2decimal(gmPG2.postgresql_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			return None
+		converted, req_version = gmTools.input2decimal(required_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			_log.error('required: %s', required_version)
+			return None
+		if pg_ver < req_version:
 			_log.error("Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
@@ -1388,8 +1407,6 @@ def handle_cfg():
 	"""Bootstrap the source 'file' in _cfg."""
 
 	_log.info('config file: %s', _cfg.source_files['file'])
-	_log.info('SCM path: %s', cfg_get("revision control", "file"))
-	_log.info('file version: %s', cfg_get("revision control", "version"))
 
 	become_pg_demon_user()
 

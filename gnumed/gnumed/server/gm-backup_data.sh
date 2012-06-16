@@ -33,7 +33,7 @@
 # Note that 1a) will only work on UN*X.
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
 CONF="/etc/gnumed/gnumed-backup.conf"
@@ -59,7 +59,7 @@ fi
 
 
 # sanity check
-if ! su -c 'psql -t -l -p ${GM_PORT}' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+if ! su -c "psql -t -l -p ${GM_PORT}" -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."

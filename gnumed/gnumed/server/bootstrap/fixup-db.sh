@@ -4,7 +4,8 @@
 # Apply GNUmed database fixups.
 #
 # usage:
-#  fixup-db.sh vX <quiet>
+#  fixup-db.sh XX <quiet>
+#		XX: the database version to upgrade, such as 15
 #
 # prerequisites:
 #  fixup_db-vX.conf must exist
@@ -34,8 +35,8 @@ if test ! -f $CONF ; then
 	echo "ERROR: does not exist. Aborting."
 	echo "========================================="
 	echo ""
-	echo "USAGE: $0 x"
-	echo "   x   - database version to fix"
+	echo "USAGE: $0 xx"
+	echo "   xx   - database version to fix"
 	exit
 fi ;
 
@@ -84,6 +85,7 @@ echo_msg "1) applying fixes to database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Fixing \"gnumed_v${VER}\" did not finish successfully."
+	read
 	exit 1
 fi
 

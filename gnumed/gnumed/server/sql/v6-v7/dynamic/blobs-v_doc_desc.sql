@@ -7,7 +7,7 @@
 -- What it does:
 -- - add view blobs.v_doc_desc
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

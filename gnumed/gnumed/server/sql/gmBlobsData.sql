@@ -1,6 +1,6 @@
--- BLOB table data for GnuMed
+-- BLOB table data for GNUmed
 
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobsData.sql,v $

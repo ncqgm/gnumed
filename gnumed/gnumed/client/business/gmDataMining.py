@@ -58,13 +58,3 @@ if __name__ == '__main__':
 		print "delete (should work):", delete_report_definition(name = test_report)
 		print "check (should return False):", report_exists(name = test_report)
 #============================================================
-# $Log: gmDataMining.py,v $
-# Revision 1.3  2008-01-05 23:24:29  ncq
-# - fixup test framework
-#
-# Revision 1.2  2007/04/08 21:16:16  ncq
-# - fix and add test suite
-# - delete_report_definition()
-#
-# Revision 1.1  2007/04/08 19:20:04  ncq
-# - added

@@ -17,7 +17,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self._LBL_msg = wx.StaticText(self, -1, "")
         self._TCTRL_data = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_text = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.HSCROLL)
-        self._CHBOX_is_already_formatted = wx.CheckBox(self, -1, _("Is manually formatted"))
+        self._CHBOX_is_already_formatted = wx.CheckBox(self, -1, _("Do not reformat text"))
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
         self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
@@ -36,7 +36,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self.SetTitle(_("Generic multi line text entry dialog"))
         self.SetSize((600, 641))
         self._TCTRL_data.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._CHBOX_is_already_formatted.SetToolTipString(_("Check this if the text you entered is already manually pre-formatted, valid text in the sense of the target format.\n\nTypically you would leave this unchecked so that GNUmed verifies that your input is suitably formatted for the intended purpose. However, sometimes you may want to enter, say, raw LaTeX. In this case you can check this to prevent GNUmed from mangling your text."))
+        self._CHBOX_is_already_formatted.SetToolTipString(_("Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n\nUse this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."))
         self._CHBOX_is_already_formatted.Enable(False)
         self._BTN_restore.Enable(False)
         # end wxGlade
