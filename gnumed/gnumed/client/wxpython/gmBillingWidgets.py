@@ -768,6 +768,10 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
 		)
 		if adr is None:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Selecting address'),
+				aMessage = _('GNUmed does not know any addresses for this patient.')
+			)
 			return
 		self.data['pk_receiver_address'] = adr['pk_lnk_person_org_address']
 		self.data.save()
