@@ -19,7 +19,9 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
+
 from Gnumed.business import gmDemographicRecord
+
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmEditArea
@@ -206,7 +208,7 @@ class cCommChannelEditAreaPnl(wxgCommChannelEditAreaPnl.wxgCommChannelEditAreaPn
 		self._PRW_type.SetText(self.data['l10n_comm_type'])
 		self._TCTRL_url.SetValue(self.data['url'])
 		self._CHBOX_confidential.SetValue(self.data['is_confidential'])
-		self._TCTRL_comment.SetValue(self.data['comment'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
 		self._TCTRL_url.SetFocus()
 #------------------------------------------------------------
