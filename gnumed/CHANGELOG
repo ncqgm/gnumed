@@ -9,6 +9,7 @@
 	1.2.1
 
 FIX: FreeDiams XML file API
+FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
 
 	1.2.0
 

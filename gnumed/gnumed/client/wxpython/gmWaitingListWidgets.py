@@ -1,4 +1,4 @@
-"""GNUmed data pack related widgets."""
+"""GNUmed waiting list widgets."""
 #================================================================
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmPerson
@@ -124,7 +125,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# FIXME: filter out dupes
+		# FIXME: filter out dupes ?
 		self._PRW_patient.person.put_on_waiting_list (
 			urgency = self._SPCTRL_urgency.GetValue(),
 			comment = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u''),
@@ -331,7 +332,14 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		except gmExceptions.ConstructorError:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Waiting list'),
+				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+			)
+			return
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
@@ -339,14 +347,28 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		except gmExceptions.ConstructorError:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Waiting list'),
+				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+			)
+			return
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activateplus_button_pressed(self, evt):
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		try:
+			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+		except gmExceptions.ConstructorError:
+			gmGuiHelpers.gm_show_info (
+				aTitle = _('Waiting list'),
+				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
+			)
+			return
 		self.__last_patient = item['pk_identity']
 		self.__last_comment = gmTools.coalesce(item['comment'], u'').strip()
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
