@@ -711,8 +711,8 @@ class cLoginPanel(wx.Panel):
 			# FIXME: do not assume conf file is latin1 !
 			#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
-			_log.debug(u'backend profile "%s" selected', profile.name)
-			_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
+			_log.info(u'backend profile "%s" selected', profile.name)
+			_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
 				self._CBOX_user.GetValue(),
 				profile.database,
 				profile.host,
@@ -720,7 +720,7 @@ class cLoginPanel(wx.Panel):
 				profile.encoding,
 				gmTools.bool2subst(profile.public_db, u'public', u'private')
 			)
-			_log.debug(u' helpdesk: "%s"', profile.helpdesk)
+			_log.info(u' helpdesk: "%s"', profile.helpdesk)
 			login = gmLoginInfo.LoginInfo (
 				user = self._CBOX_user.GetValue(),
 				password = self.pwdentry.GetValue(),
