@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:52+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -6560,6 +6560,13 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address"
+msgstr "Elija el tipo de documento"
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 #, fuzzy

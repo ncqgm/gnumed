@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:52+CEST\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -6524,6 +6524,13 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address"
+msgstr "Выберите тип сообщения."
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 #, fuzzy

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:51+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -5906,6 +5906,13 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address"
+msgstr "Διαγραφή μηνύματος"
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."

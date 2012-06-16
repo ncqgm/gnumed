@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:52+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -6010,6 +6010,13 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address"
+msgstr "Riassegnazione tipo di documento"
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 #, fuzzy

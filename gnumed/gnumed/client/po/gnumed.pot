@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-06-16 17:03+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:53+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5315,6 +5315,12 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+msgid "Selecting address"
+msgstr ""
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."

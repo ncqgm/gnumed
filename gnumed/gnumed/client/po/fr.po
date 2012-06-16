@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
+"POT-Creation-Date: 2012-06-16 18:52+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -6409,6 +6409,13 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+#, fuzzy
+msgid "Selecting address"
+msgstr "Sélectionner une adresse par code postal ou nom de rue."
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."

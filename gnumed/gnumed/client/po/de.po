@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-06-16 17:02+CEST\n"
-"PO-Revision-Date: 2012-06-16 17:07+0100\n"
+"POT-Creation-Date: 2012-06-16 18:51+CEST\n"
+"PO-Revision-Date: 2012-06-16 18:55+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -5874,6 +5874,12 @@ msgstr "&USt. anwenden (%s%%)"
 
 msgid "billing"
 msgstr "Abrechnung"
+
+msgid "Selecting address"
+msgstr "Adresse wählen"
+
+msgid "GNUmed does not know any addresses for this patient."
+msgstr "Für diesen Patienten sind keine Adressen bekannt."
 
 msgid "Cannot edit already invoiced bill item."
 msgstr "Bereits in Rechnung gestellte GNr kann nicht mehr bearbeitet werden."
@@ -15717,9 +15723,6 @@ msgstr "erstmals"
 
 #~ msgid "restore fields with current values from backend"
 #~ msgstr "Setze Eingabefelder auf Werte in der Datenbank"
-
-#~ msgid "The addresses known for this patient."
-#~ msgstr "Die für diesen Patienten bekannten Adressen."
 
 #~ msgid "The address is no longer associated with this patient."
 #~ msgstr "Die Adresse ist diesem Patienten nicht länger zugeordnet."
