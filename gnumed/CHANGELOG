@@ -13,6 +13,7 @@ IMPROVED: tell when there's no address for billing [thanks S.Hilbert]
 
 FIX: FreeDiams XML file API
 FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
+FIX: exception on saving allergy without onset date [thanks J.Busser]
 
 	1.2.0
 

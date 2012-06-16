@@ -1,6 +1,5 @@
 """GNUmed allergy related widgets."""
 ############################################################################
-__version__ = "$Revision: 1.36 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -18,7 +17,6 @@ from Gnumed.business import gmPerson, gmAllergy, gmPersonSearch
 from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #======================================================================
 class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
@@ -127,12 +125,20 @@ where narrative %(fragment_condition)s
 	def __is_valid_for_save(self):
 
 		if self._PRW_trigger.GetValue().strip() == '':
-			self._PRW_trigger.SetBackgroundColour('pink')
-			self._PRW_trigger.Refresh()
+			#self._PRW_trigger.SetBackgroundColour('pink')
+			#self._PRW_trigger.Refresh()
+			self._PRW_trigger.display_as_valid(False)
 			self._PRW_trigger.SetFocus()
 			return False
-		self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		#self._PRW_trigger.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
+		self._PRW_trigger.display_as_valid(True)
 		self._PRW_trigger.Refresh()
+
+		if not self._DPRW_date_noted.is_valid_timestamp(empty_is_valid = False):
+			self._DPRW_date_noted.display_as_valid(False)
+			self._DPRW_date_noted.SetFocus()
+			return False
+		self._DPRW_date_noted.display_as_valid(True)
 
 		return True
 	#--------------------------------------------------------
