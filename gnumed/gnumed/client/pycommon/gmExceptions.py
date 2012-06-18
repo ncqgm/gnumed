@@ -1,7 +1,7 @@
-#############################################################################
+############################################################################
 #
 # gmExceptions - classes for exceptions gnumed modules may throw
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 #
 # @author: Dr. Horst Herb
 # @copyright: author
@@ -9,10 +9,36 @@
 # @dependencies: nil
 # @change log:
 #	07.02.2002 hherb first draft, untested
-#
-# @TODO: Almost everything
 ############################################################################
 
+class AccessDenied(Exception):
+	def __init__(self, msg, source=None, code=None, details=None):
+		self.errmsg = msg
+		self.source = source
+		self.code = code
+		self.details = details
+	#----------------------------------
+	def __str__(self):
+		txt = self.errmsg
+		if self.source is not None:
+			txt += u'\nSource: %s' % self.source
+		if self.code is not None:
+			txt += u'\nCode: %s' % self.code
+		if self.details is not None:
+			txt += u'\n%s' % self.details
+		return txt
+	#----------------------------------
+	def __repr__(self):
+		txt = self.errmsg
+		if self.source is not None:
+			txt += u'\nSource: %s' % source
+		if self.code is not None:
+			txt += u'\nCode: %s' % self.code
+		if self.details is not None:
+			txt += u'\n%s' % self.details
+		return txt
+
+#------------------------------------------------------------
 class DatabaseObjectInUseError(Exception):
 	def __init__(self, msg):
 		self.errmsg = msg

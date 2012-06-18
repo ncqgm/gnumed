@@ -1,6 +1,5 @@
 """GNUmed exception handling widgets."""
 # ========================================================================
-__version__ = "$Revision: 1.17 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -10,14 +9,17 @@ import logging, exceptions, traceback, re as regex, sys, os, shutil, datetime as
 import wx
 
 
-from Gnumed.business import gmSurgery
 from Gnumed.pycommon import gmDispatcher, gmCfg2, gmI18N, gmLog2, gmPG2
+from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon.gmTools import u_box_horiz_single
+
+from Gnumed.business import gmSurgery
+
 from Gnumed.wxpython import gmGuiHelpers
 
 
 _log2 = logging.getLogger('gm.gui')
-_log2.info(__version__)
 
 _prev_excepthook = None
 application_is_closing = False
@@ -102,6 +104,35 @@ def __handle_ctrl_c(t, v, tb):
 	wx.CallAfter(top_win.Close)
 	return True
 #-------------------------------------------------------------------------
+def __handle_access_violation(t, v, tb):
+
+	if t != gmExceptions.AccessDenied:
+		return False
+
+	_log2.error('access permissions violation detected')
+	wx.EndBusyCursor()
+	gmLog2.flush()
+	txt = u' ' + v.errmsg
+	if v.source is not None:
+		txt += _('\n Source: %s') % v.source
+	if v.code is not None:
+		txt += _('\n Code: %s') % v.code
+	if v.details is not None:
+		txt += _('\n%s\n Details (250 chars max):\n%s\n%s') % (
+			u_box_horiz_single * 50,
+			v.details[:250],
+			u_box_horiz_single * 50
+		)
+	gmGuiHelpers.gm_show_error (
+		aTitle = _('Access violation'),
+		aMessage = _(
+			'You do not have access to this part of GNUmed.\n'
+			'\n'
+			'%s'
+		) % txt
+	)
+	return True
+#-------------------------------------------------------------------------
 def __handle_lost_db_connection(t, v, tb):
 
 	if t not in [gmPG2.dbapi.OperationalError, gmPG2.dbapi.InterfaceError]:
@@ -176,6 +207,9 @@ def handle_uncaught_exception_wx(t, v, tb):
 	if __handle_import_error(t, v, tb):
 		return
 
+	if __handle_access_violation(t, v, tb):
+		return
+
 	# other exceptions
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = 'debug') is False:
@@ -227,7 +261,7 @@ def install_wx_exception_handler():
 	set_staff_name(_local_account)
 	set_is_public_database(False)
 	set_sender_email(None)
-	set_client_version('gmExceptionHandlingWidgets.py %s' % __version__)
+	set_client_version('gmExceptionHandlingWidgets.py <default>')
 
 	gmDispatcher.connect(signal = 'application_closing', receiver = _on_application_closing)
 

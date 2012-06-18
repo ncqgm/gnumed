@@ -11,23 +11,32 @@ def resultset_functional_batchgenerator(cursor, size=100):
 			yield rec
 """
 # =======================================================================
-__version__ = "$Revision: 1.127 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-### imports ###
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging
+import time
+import sys
+import os
+import codecs
+import types
+import logging
+import datetime as pydt
+import re as regex
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
+from Gnumed.pycommon import gmLoginInfo
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character
 
 _log = logging.getLogger('gm.db')
-_log.info(__version__)
 
 
 # 3rd party
@@ -37,7 +46,6 @@ except ImportError:
 	_log.exception("Python database adapter psycopg2 not found.")
 	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
 	raise
-### imports ###
 
 
 _log.info('psycopg2 version: %s' % dbapi.__version__)
@@ -137,9 +145,10 @@ map_client_branch2required_db_version = {
 	u'0.7': 13,
 	u'0.8': 14,
 	u'0.9': 15,
-	u'1.0': 16,		# intentionally duplicate with 1.1
+	u'1.0': 16,		# intentional duplicate with 1.1
 	u'1.1': 16,
-	u'1.2': 17
+	u'1.2': 17,
+	u'1.3': 18
 }
 
 # get columns and data types for a given table
@@ -1153,17 +1162,43 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			curs.execute(query['cmd'], args)
 			if verbose:
 				_log.debug('ran query: [%s]', curs.query)
-				_log.debug('PG status message: %s', curs.statusmessage)
+				if curs.statusmessage != u'':
+					_log.debug('PG status message: %s', curs.statusmessage)
 				_log.debug('cursor description: %s', str(curs.description))
-		except:
-			# FIXME: use .pgcode
+		except dbapi.Error as pg_exc:
+			_log.error('query failed: [%s]', curs.query)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('PG error code: %s', pg_exc.pgcode)
+			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot close cursor')
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
+				if curs.statusmessage != u'':
+					details = u'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+						details
+					)
+				raise gmExceptions.AccessDenied (
+					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					source = u'PostgreSQL',
+					code = pg_exc.pgcode,
+					details = details
+				)
+			raise
+		except:
 			_log.error('query failed: [%s]', curs.query)
-			_log.error('PG status message: %s', curs.statusmessage)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			try:
+				curs_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot close cursor')
+			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			raise
 
 	data = None
@@ -1229,24 +1264,24 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		conn_close = __noop
 		conn_commit = __noop
-		conn_rollback = __noop
+		tx_rollback = __noop
 		curs = link_obj
 		curs_close = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		conn_close = __noop
 		if end_tx:
 			conn_commit = link_obj.commit
-			conn_rollback = link_obj.rollback
+			tx_rollback = link_obj.rollback
 		else:
 			conn_commit = __noop
-			conn_rollback = __noop
+			tx_rollback = __noop
 		curs = link_obj.cursor()
 		curs_close = curs.close
 	elif link_obj is None:
 		conn = get_connection(readonly=False)
 		conn_close = conn.close
 		conn_commit = conn.commit
-		conn_rollback = conn.rollback
+		tx_rollback = conn.rollback
 		curs = conn.cursor()
 		curs_close = curs.close
 	else:
@@ -1262,12 +1297,38 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			args = None
 		try:
 			curs.execute(query['cmd'], args)
+		except dbapi.Error as pg_exc:
+			_log.error('RW query failed: [%s]', curs.query)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('PG error code: %s', pg_exc.pgcode)
+			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+			try:
+				curs_close()
+				tx_rollback()			# just for good measure
+				conn_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot cleanup')
+			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
+				if curs.statusmessage != u'':
+					details = u'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+						details
+					)
+				raise gmExceptions.AccessDenied (
+					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					source = u'PostgreSQL',
+					code = pg_exc.pgcode,
+					details = details
+				)
+			raise
 		except:
 			_log.exception('error running RW query')
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
-				conn_rollback()
+				tx_rollback()
 				conn_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot cleanup')
@@ -1284,7 +1345,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
-				conn_rollback()
+				tx_rollback()
 				conn_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot cleanup')

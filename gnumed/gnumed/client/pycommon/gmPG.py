@@ -1,7 +1,8 @@
 
-
 # This remains for documentation only.
 raise ImportError('This module is deprecated. Use gmPG2.py.')
+
+
 
 
 
@@ -1225,117 +1226,6 @@ def add_housekeeping_todo(
 		return (None, err)
 	return (1, result[0][0])
 #==================================================================
-def __run_notifications_debugger():
-	#-------------------------------
-	def myCallback(**kwds):
-		sys.stdout.flush()
-		print "\n=== myCallback: got called ==="
-		print kwds
-	#-------------------------------
-
-	dbpool = ConnectionPool()
-	roconn = dbpool.GetConnection('default', extra_verbose=1)
-	rocurs = roconn.cursor()
-
-	# main shell loop
-	print "PostgreSQL backend listener debug shell"
-	while 1:
-		print "---------------------------------------"
-		typed = raw_input("=> ")
-		args = typed.split(' ')
-		# mothing typed ?
-		if len(args) == 0:
-			continue
-		# help
-		if args[0] in ('help', '?'):
-			print "known commands"
-			print "--------------"
-			print "'listen' - start listening to a signal"
-			print "'ignore' - stop listening to a signal"
-			print "'send'   - send a signal"
-			print "'quit', 'exit', 'done' - well, chicken out"
-			continue
-		# exit
-		if args[0] in ('quit', 'exit', 'done'):
-			break
-		# signal stuff
-		if args[0] in ("listen", "ignore", "send"):
-			typed = raw_input("signal name: ")
-			sig_names = typed.split(' ')
-			# mothing typed ?
-			if len(sig_names) == 0:
-				continue
-			if args[0] == "listen":
-				dbpool.Listen('default', sig_names[0], myCallback)
-			if args[0] == "ignore":
-				dbpool.Unlisten('default', sig_names[0], myCallback)
-			if args[0] == "send":
-				cmd = 'NOTIFY "%s"' % sig_names[0]
-				print "... running >>>%s<<<" % (cmd)
-				if not run_query(rocurs, None, cmd):
-					print "... error sending [%s]" % cmd
-				roconn.commit()
-			continue
-		print 'unknown command [%s]' % typed
-
-	# clean up
-	print "please wait a second or two for threads to sync and die"
-	dbpool.StopListener('default')
-	rocurs.close()
-	roconn.close()
-	dbpool.ReleaseConnection('default')
 #==================================================================
 # Main - unit testing
 #------------------------------------------------------------------
-if __name__ == "__main__":
-	_log.Log(gmLog.lData, 'DBMS "%s" via DB-API module "%s": API level %s, thread safety %s, parameter style "%s"' % ('PostgreSQL', dbapi, dbapi.apilevel, dbapi.threadsafety, dbapi.paramstyle))
-
-	print "Do you want to test the backend notification code ?"
-	yes_no = raw_input('y/n: ')
-	if yes_no == 'y':
-		__run_notifications_debugger()
-		sys.exit()
-
-	dbpool = ConnectionPool()
-	### Let's see what services are distributed in this system:
-	print "\n\nServices available on this system:"
-	print '-----------------------------------------'
-	for service in dbpool.GetAvailableServices():
-		print service
-		dummy = dbpool.GetConnection(service)
-		print "\n.......................................\n"
-
-	### We have probably not distributed the services in full:
-	db = dbpool.GetConnection('config')
-	print "\n\nPossible services on any gnumed system:"
-	print '-----------------------------------------'
-	cursor = db.cursor()
-	cursor.execute("select name from cfg.distributed_db")
-	for service in  cursor.fetchall():
-		print service[0]
-
-	print "\nTesting convenience funtions:\n============================\n"
-
-	print "\nResult as dictionary\n==================\n"
-	cur = db.cursor()
-	cursor.execute("select * from cfg.db")
-	d = dictResult(cursor)
-	print d
-	print "\nResult attributes\n==================\n"
-	n = fieldNames(cursor)
-	#-------------------------------
-	def TestCallback():
-		print "[Backend notification received!]"
-	#-------------------------------
-	print "\n-------------------------------------"
-	print "Testing asynchronous notification for approx. 20 seconds"
-	print "start psql in another window connect to gnumed"
-	print "and type 'notify test'; if everything works,"
-	print "a message [Backend notification received!] should appear\n"
-	dbpool.Listen('default', 'test', TestCallback)
-	time.sleep(20)
-	dbpool.StopListener('default')
-	print "Requesting write access connection:"
-	con = dbpool.GetConnection('default', readonly=0)
-
-#==================================================================
