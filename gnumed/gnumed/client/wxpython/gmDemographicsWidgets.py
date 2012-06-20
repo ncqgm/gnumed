@@ -36,6 +36,7 @@ from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmRegetMixin
@@ -1630,6 +1631,11 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			self._PRW_region.SetText(value = self.default_region)
 
 		self._PRW_type.SetText(value = u'home')
+		# FIXME: only use this if member of gm-doctors,
+		# FIXME: other than that check fallback_primary_provider
+		self._PRW_primary_provider.SetData(data = gmStaff.gmCurrentProvider()['pk_staff'])
+
+		self._PRW_lastname.SetFocus()
 	#----------------------------------------------------------------
 	def __perhaps_invalidate_address_searcher(self, ctrl=None, field=None):
 

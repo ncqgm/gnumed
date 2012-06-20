@@ -10,6 +10,7 @@
 
 IMPROVED: user experience with SimpleNotes plugin [thanks J.Busser]
 IMPROVED: tell when there's no address for billing [thanks S.Hilbert]
+IMPROVED: suggest current user as primary provider on new patients [thanks J.Busser]
 
 FIX: FreeDiams XML file API
 FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
