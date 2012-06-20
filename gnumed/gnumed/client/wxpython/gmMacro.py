@@ -135,14 +135,9 @@ known_variant_placeholders = [
 	u'bill_item'							# args: template for string replacement
 ]
 
-default_placeholder_regex = r'\$<.+?>\$'				# this one works (except that OOo cannot be non-greedy |-( )
-
-#_regex_parts = [
-#	r'\$<\w+::.*(?::)\d+>\$',
-#	r'\$<\w+::.+(?!>\$)>\$',
-#	r'\$<\w+?>\$'
-#]
-#default_placeholder_regex = r'|'.join(_regex_parts)
+#http://help.libreoffice.org/Common/List_of_Regular_Expressions
+default_placeholder_regex = r'\$<.+?>\$'				# this one works [except that OOo cannot be non-greedy |-(    ]
+#default_placeholder_regex = r'\$<(?:(?!\$<).)+>\$'		# non-greedy equivalent, uses lookahead (but not supported by LO either |-o  )
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
@@ -1549,8 +1544,8 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	#test_placeholder_regex()
-	test_placeholder()
+	test_placeholder_regex()
+	#test_placeholder()
 
 #=====================================================================
 
