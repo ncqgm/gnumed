@@ -1,6 +1,6 @@
 #! /bin/bash
 # Author: Hilmar Berger
-# License: GPL
+# License: GPL v2 or later
 # this script reads the name of a directory where AMIS data should be located
 # and processes amis-import_data_template.sql so that the data can be copied to 
 # the database. The result will be piped through psql. 

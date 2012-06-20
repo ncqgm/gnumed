@@ -1,7 +1,7 @@
--- GnuMed office related/administrative data
+-- GNUmed office related/administrative data
 
--- This is free software in the sense of the General Public License (GPL)
--- For details regarding GPL licensing see http://gnu.org
+-- This is free software in the sense of the General Public License (GPL v2 or later)
+-- For details regarding GPL v2 or later licensing see http://gnu.org
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmOfficeData.sql,v $
 -- $Revision: 1.5 $ $Date: 2005-09-19 16:38:51 $ $Author: ncq $

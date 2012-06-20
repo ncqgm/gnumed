@@ -7,7 +7,7 @@
 -- What it does:
 -- - ...
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: 
 -- 
 -- ==============================================================

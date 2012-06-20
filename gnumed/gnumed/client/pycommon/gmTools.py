@@ -2,14 +2,14 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-__version__ = "$Revision: 1.98 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
-import urllib2 as wget, decimal, StringIO, MimeWriter, mimetypes, mimetools
+import decimal
 import cPickle, zlib
+import xml.sax.saxutils as xml_tools
 
 
 # GNUmed libs
@@ -25,7 +25,6 @@ from Gnumed.pycommon import gmBorg
 
 
 _log = logging.getLogger('gm.tools')
-_log.info(__version__)
 
 # CAPitalization modes:
 (	CAPS_NONE,					# don't touch it
@@ -36,10 +35,6 @@ _log.info(__version__)
 	CAPS_FIRST_ONLY				# CAP first char, lowercase the rest
 ) = range(6)
 
-default_mail_sender = u'gnumed@gmx.net'
-default_mail_receiver = u'gnumed-devel@gnu.org'
-default_mail_server = u'mail.gmx.net'
-
 
 u_right_double_angle_quote = u'\u00AB'		# <<
 u_registered_trademark = u'\u00AE'
@@ -48,13 +43,30 @@ u_left_double_angle_quote = u'\u00BB'		# >>
 u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
-u_ellipsis = u'\u2026'
-u_left_arrow = u'\u2190'
-u_right_arrow = u'\u2192'
+u_multiply = u'\u00D7'						# x
+u_ellipsis = u'\u2026'						# ...
+u_euro = u'\u20AC'							# EURO sign
+u_numero = u'\u2116'						# No. / # sign
+u_down_left_arrow = u'\u21B5'				# <-'
+u_left_arrow = u'\u2190'					# <--
+u_right_arrow = u'\u2192'					# -->
+u_sum = u'\u2211'
+u_almost_equal_to = u'\u2248'				# approximately / nearly / roughly
 u_corresponds_to = u'\u2258'
 u_infinity = u'\u221E'
 u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
+u_box_horiz_single = u'\u2500'
+u_box_horiz_4dashes = u'\u2508'
+u_box_top_double = u'\u2550'
+u_box_top_left_double_single = u'\u2552'
+u_box_top_right_double_single = u'\u2555'
+u_box_top_left_arc = u'\u256d'
+u_box_bottom_right_arc = u'\u256f'
+u_box_bottom_left_arc = u'\u2570'
+u_box_horiz_light_heavy = u'\u257c'
+u_box_horiz_heavy_light = u'\u257e'
+u_skull_and_crossbones = u'\u2620'
 u_frowning_face = u'\u2639'
 u_smiling_face = u'\u263a'
 u_black_heart = u'\u2665'
@@ -66,136 +78,8 @@ u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
 u_replacement_character = u'\ufffd'
+u_link_symbol = u'\u1f517'
 
-#===========================================================================
-def check_for_update(url=None, current_branch=None, current_version=None, consider_latest_branch=False):
-	"""Check for new releases at <url>.
-
-	Returns (bool, text).
-	True: new release available
-	False: up to date
-	None: don't know
-	"""
-	try:
-		remote_file = wget.urlopen(url)
-	except (wget.URLError, ValueError, OSError):
-		_log.exception("cannot retrieve version file from [%s]", url)
-		return (None, _('Cannot retrieve version information from:\n\n%s') % url)
-
-	_log.debug('retrieving version information from [%s]', url)
-
-	from Gnumed.pycommon import gmCfg2
-	cfg = gmCfg2.gmCfgData()
-	try:
-		cfg.add_stream_source(source = 'gm-versions', stream = remote_file)
-	except (UnicodeDecodeError):
-		remote_file.close()
-		_log.exception("cannot read version file from [%s]", url)
-		return (None, _('Cannot read version information from:\n\n%s') % url)
-
-	remote_file.close()
-
-	latest_branch = cfg.get('latest branch', 'branch', source_order = [('gm-versions', 'return')])
-	latest_release_on_latest_branch = cfg.get('branch %s' % latest_branch, 'latest release', source_order = [('gm-versions', 'return')])
-	latest_release_on_current_branch = cfg.get('branch %s' % current_branch, 'latest release', source_order = [('gm-versions', 'return')])
-
-	cfg.remove_source('gm-versions')
-
-	_log.info('current release: %s', current_version)
-	_log.info('current branch: %s', current_branch)
-	_log.info('latest release on current branch: %s', latest_release_on_current_branch)
-	_log.info('latest branch: %s', latest_branch)
-	_log.info('latest release on latest branch: %s', latest_release_on_latest_branch)
-
-	# anything known ?
-	no_release_information_available = (
-		(
-			(latest_release_on_current_branch is None) and
-			(latest_release_on_latest_branch is None)
-		) or (
-			not consider_latest_branch and
-			(latest_release_on_current_branch is None)
-		)
-	)
-	if no_release_information_available:
-		_log.warning('no release information available')
-		msg = _('There is no version information available from:\n\n%s') % url
-		return (None, msg)
-
-	# up to date ?
-	if consider_latest_branch:
-		_log.debug('latest branch taken into account')
-		if current_version >= latest_release_on_latest_branch:
-			_log.debug('up to date: current version >= latest version on latest branch')
-			return (False, None)
-		if latest_release_on_latest_branch is None:
-			if current_version >= latest_release_on_current_branch:
-				_log.debug('up to date: current version >= latest version on current branch and no latest branch available')
-				return (False, None)
-	else:
-		_log.debug('latest branch not taken into account')
-		if current_version >= latest_release_on_current_branch:
-			_log.debug('up to date: current version >= latest version on current branch')
-			return (False, None)
-
-	new_release_on_current_branch_available = (
-		(latest_release_on_current_branch is not None) and
-		(latest_release_on_current_branch > current_version)
-	)
-	_log.info('%snew release on current branch available', bool2str(new_release_on_current_branch_available, '', 'no '))
-
-	new_release_on_latest_branch_available = (
-		(latest_branch is not None)
-			and
-		(
-			(latest_branch > current_branch) or (
-				(latest_branch == current_branch) and
-				(latest_release_on_latest_branch > current_version)
-			)
-		)
-	)
-	_log.info('%snew release on latest branch available', bool2str(new_release_on_latest_branch_available, '', 'no '))
-
-	if not (new_release_on_current_branch_available or new_release_on_latest_branch_available):
-		_log.debug('up to date: no new releases available')
-		return (False, None)
-
-	# not up to date
-	msg = _('A new version of GNUmed is available.\n\n')
-	msg += _(' Your current version: "%s"\n') % current_version
-	if consider_latest_branch:
-		if new_release_on_current_branch_available:
-			msg += u'\n'
-			msg += _(' New version: "%s"') % latest_release_on_current_branch
-			msg += u'\n'
-			msg += _(' - bug fixes only\n')
-			msg += _(' - database fixups may be needed\n')
-		if new_release_on_latest_branch_available:
-			if current_branch != latest_branch:
-				msg += u'\n'
-				msg += _(' New version: "%s"') % latest_release_on_latest_branch
-				msg += u'\n'
-				msg += _(' - bug fixes and new features\n')
-				msg += _(' - database upgrade required\n')
-	else:
-		msg += u'\n'
-		msg += _(' New version: "%s"') % latest_release_on_current_branch
-		msg += u'\n'
-		msg += _(' - bug fixes only\n')
-		msg += _(' - database fixups may be needed\n')
-
-	msg += u'\n\n'
-	msg += _(
-		'Note, however, that this version may not yet\n'
-		'be available *pre-packaged* for your system.'
-	)
-
-	msg += u'\n\n'
-	msg += _('Details are found on <http://wiki.gnumed.de>.\n')
-	msg += u'\n'
-	msg += _('Version information loaded from:\n\n %s') % url
-
-	return (True, msg)
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
@@ -227,6 +111,7 @@ class gmPaths(gmBorg.cBorg):
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir
+	.tmp_dir (readonly)
 	"""
 	def __init__(self, app_name=None, wx=None):
 		"""Setup pathes.
@@ -285,6 +170,18 @@ class gmPaths(gmBorg.cBorg):
 		except ValueError:
 			self.system_app_data_dir = self.local_base_dir
 
+		# temporary directory
+		try:
+			self.__tmp_dir_already_set
+			_log.debug('temp dir already set')
+		except AttributeError:
+			tmp_base = os.path.join(tempfile.gettempdir(), app_name)
+			mkdir(tmp_base)
+			_log.info('previous temp dir: %s', tempfile.gettempdir())
+			tempfile.tempdir = tmp_base
+			_log.info('intermediate temp dir: %s', tempfile.gettempdir())
+			self.tmp_dir = tempfile.mkdtemp(prefix = r'gm-')
+
 		self.__log_paths()
 		if wx is None:
 			return True
@@ -332,6 +229,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)
 		_log.debug('system-wide application data dir: %s', self.system_app_data_dir)
+		_log.debug('temporary dir: %s', self.tmp_dir)
 	#--------------------------------------
 	# properties
 	#--------------------------------------
@@ -372,7 +270,7 @@ class gmPaths(gmBorg.cBorg):
 	system_app_data_dir = property(_get_system_app_data_dir, _set_system_app_data_dir)
 	#--------------------------------------
 	def _set_home_dir(self, path):
-		raise ArgumentError('invalid to set home dir')
+		raise ValueError('invalid to set home dir')
 
 	def _get_home_dir(self):
 		if self.__home_dir is not None:
@@ -401,121 +299,21 @@ class gmPaths(gmBorg.cBorg):
 		return self.__home_dir
 
 	home_dir = property(_get_home_dir, _set_home_dir)
-#===========================================================================
-def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='quoted-printable', attachments=None):
+	#--------------------------------------
+	def _set_tmp_dir(self, path):
+		if not (os.access(path, os.R_OK) and os.access(path, os.X_OK)):
+			msg = '[%s:tmp_dir]: invalid path [%s]' % (self.__class__.__name__, path)
+			_log.error(msg)
+			raise ValueError(msg)
+		_log.debug('previous temp dir: %s', tempfile.gettempdir())
+		self.__tmp_dir = path
+		tempfile.tempdir = self.__tmp_dir
+		self.__tmp_dir_already_set = True
 
-	if message is None:
-		return False
+	def _get_tmp_dir(self):
+		return self.__tmp_dir
 
-	message = message.lstrip().lstrip('\r\n').lstrip()
-
-	if sender is None:
-		sender = default_mail_sender
-
-	if receiver is None:
-		receiver = [default_mail_receiver]
-
-	if server is None:
-		server = default_mail_server
-
-	if subject is None:
-		subject = u'gmTools.py: send_mail() test'
-
-	msg = StringIO.StringIO()
-	writer = MimeWriter.MimeWriter(msg)
-	writer.addheader('To', u', '.join(receiver))
-	writer.addheader('From', sender)
-	writer.addheader('Subject', subject[:50].replace('\r', '/').replace('\n', '/'))
-	writer.addheader('MIME-Version', '1.0')
-
-	writer.startmultipartbody('mixed')
-
-	# start with a text/plain part
-	part = writer.nextpart()
-	body = part.startbody('text/plain')
-	part.flushheaders()
-	body.write(message.encode(encoding))
-
-	# now add the attachments
-	if attachments is not None:
-		for a in attachments:
-			filename = os.path.basename(a[0])
-			try:
-				mtype = a[1]
-				encoding = a[2]
-			except IndexError:
-				mtype, encoding = mimetypes.guess_type(a[0])
-				if mtype is None:
-					mtype = 'application/octet-stream'
-					encoding = 'base64'
-				elif mtype == 'text/plain':
-					encoding = 'quoted-printable'
-				else:
-					encoding = 'base64'
-
-			part = writer.nextpart()
-			part.addheader('Content-Transfer-Encoding', encoding)
-			body = part.startbody("%s; name=%s" % (mtype, filename))
-			mimetools.encode(open(a[0], 'rb'), body, encoding)
-
-	writer.lastpart()
-
-	import smtplib
-	session = smtplib.SMTP(server)
-	session.set_debuglevel(debug)
-	if auth is not None:
-		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, msg.getvalue())
-	session.quit()
-	msg.close()
-	if len(refused) != 0:
-		_log.error("refused recipients: %s" % refused)
-		return False
-
-	return True
-#-------------------------------------------------------------------------------
-def send_mail_old(sender=None, receiver=None, message=None, server=None, auth=None, debug=False, subject=None, encoding='latin1'):
-	"""Send an E-Mail.
-
-	<debug>: see smtplib.set_debuglevel()
-	<auth>: {'user': ..., 'password': ...}
-	<receiver>: a list of email addresses
-	"""
-	if message is None:
-		return False
-	message = message.lstrip().lstrip('\r\n').lstrip()
-
-	if sender is None:
-		sender = default_mail_sender
-
-	if receiver is None:
-		receiver = [default_mail_receiver]
-
-	if server is None:
-		server = default_mail_server
-
-	if subject is None:
-		subject = u'gmTools.py: send_mail() test'
-
-	body = u"""From: %s
-To: %s
-Subject: %s
-
-%s
-""" % (sender, u', '.join(receiver), subject[:50].replace('\r', '/').replace('\n', '/'), message)
-
-	import smtplib
-	session = smtplib.SMTP(server)
-	session.set_debuglevel(debug)
-	if auth is not None:
-		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, body.encode(encoding))
-	session.quit()
-	if len(refused) != 0:
-		_log.error("refused recipients: %s" % refused)
-		return False
-
-	return True
+	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
@@ -546,13 +344,17 @@ def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 #	for line in unicode_csv_data:
 #		yield line.encode('utf-8')
 
+default_csv_reader_rest_key = u'list_of_values_of_unknown_fields'
+
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **kwargs):
+
 	# csv.py doesn't do Unicode; encode temporarily as UTF-8:
 	try:
 		is_dict_reader = kwargs['dict']
 		del kwargs['dict']
 		if is_dict_reader is not True:
 			raise KeyError
+		kwargs['restkey'] = default_csv_reader_rest_key
 		csv_reader = csv.DictReader(unicode2charset_encoder(unicode_csv_data), dialect=dialect, **kwargs)
 	except KeyError:
 		is_dict_reader = False
@@ -562,7 +364,16 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 		# decode ENCODING back to Unicode, cell by cell:
 		if is_dict_reader:
 			for key in row.keys():
-				row[key] = unicode(row[key], encoding)
+				if key == default_csv_reader_rest_key:
+					old_data = row[key]
+					new_data = []
+					for val in old_data:
+						new_data.append(unicode(val, encoding))
+					row[key] = new_data
+					if default_csv_reader_rest_key not in csv_reader.fieldnames:
+						csv_reader.fieldnames.append(default_csv_reader_rest_key)
+				else:
+					row[key] = unicode(row[key], encoding)
 			yield row
 		else:
 			yield [ unicode(cell, encoding) for cell in row ]
@@ -640,7 +451,7 @@ _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
 #---------------------------------------------------------------------------
-def size2str(size=0, template='%s'):
+def size2str(size=0, template=u'%s'):
 	if size == 1:
 		return template % _('1 Byte')
 	if size < 10 * _kB:
@@ -671,13 +482,19 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 		false_return = false_str
 	)
 #---------------------------------------------------------------------------
-def none_if(value=None, none_equivalent=None):
+def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
-	if value == none_equivalent:
+	if value is None:
+		return None
+	if strip_string:
+		stripped = value.strip()
+	else:
+		stripped = value
+	if stripped == none_equivalent:
 		return None
 	return value
 #---------------------------------------------------------------------------
-def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None):
+def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None, function_initial=None):
 	"""Modelled after the SQL coalesce function.
 
 	To be used to simplify constructs like:
@@ -697,6 +514,9 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 	@param template_instead: if <instead> is returned replace the value into this template, must contain one <%s> 
 	@type template_instead: string or None
 
+	example:
+		function_initial = ('strftime', '%Y-%m-%d')
+
 	Ideas:
 		- list of insteads: initial, [instead, template], [instead, template], [instead, template], template_initial, ...
 	"""
@@ -709,6 +529,11 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 			return instead
 
 		return template_instead % instead
+
+	if function_initial is not None:
+		funcname, args = function_initial
+		func = getattr(initial, funcname)
+		initial = func(args)
 
 	if template_initial is None:
 		return initial
@@ -763,25 +588,83 @@ def capitalize(text=None, mode=CAPS_NAMES):
 #---------------------------------------------------------------------------
 def input2decimal(initial=None):
 
+	if isinstance(initial, decimal.Decimal):
+		return True, initial
+
 	val = initial
 
 	# float ? -> to string first
-	if type(val) == type(1.4):
+	if type(val) == type(float(1.4)):
 		val = str(val)
 
 	# string ? -> "," to "."
 	if isinstance(val, basestring):
 		val = val.replace(',', '.', 1)
 		val = val.strip()
-#		val = val.lstrip('0')
-#		if val.startswith('.'):
-#			val = '0' + val
 
 	try:
 		d = decimal.Decimal(val)
 		return True, d
 	except (TypeError, decimal.InvalidOperation):
 		return False, val
+#---------------------------------------------------------------------------
+def input2int(initial=None, minval=None, maxval=None):
+
+	val = initial
+
+	# string ? -> "," to "."
+	if isinstance(val, basestring):
+		val = val.replace(',', '.', 1)
+		val = val.strip()
+
+	try:
+		int_val = int(val)
+	except (TypeError, ValueError):
+		_log.exception('int(%s) failed', val)
+		return False, val
+
+	if minval is not None:
+		if int_val < minval:
+			_log.debug('%s < min (%s)', val, minval)
+			return False, val
+	if maxval is not None:
+		if int_val > maxval:
+			_log.debug('%s > max (%s)', val, maxval)
+			return False, val
+
+	return True, int_val
+#---------------------------------------------------------------------------
+def strip_leading_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[0].strip(eol).strip() != u'':
+			break
+		lines = lines[1:]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
+#---------------------------------------------------------------------------
+def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n'):
+	return_join = False
+	if lines is None:
+		return_join = True
+		lines = eol.split(text)
+
+	while True:
+		if lines[-1].strip(eol).strip() != u'':
+			break
+		lines = lines[:-1]
+
+	if return_join:
+		return eol.join(lines)
+
+	return lines
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
@@ -830,8 +713,19 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 
 	return text
 #---------------------------------------------------------------------------
+def xml_escape_string(text=None):
+	"""check for special XML characters and transform them"""
+	return xml_tools.escape (
+		text,
+		entities = {
+			u'&': u'&amp;'
+		}
+	)
+#	text = text.replace(u'&', u'&amp;')
+#	return text
+#---------------------------------------------------------------------------
 def tex_escape_string(text=None):
-	"""check for special latex-characters and transform them"""
+	"""check for special LaTeX characters and transform them"""
 
 	text = text.replace(u'\\', u'$\\backslash$')
 	text = text.replace(u'{', u'\\{')
@@ -841,11 +735,40 @@ def tex_escape_string(text=None):
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
 	text = text.replace(u'_', u'\\_')
+	text = text.replace(u_euro, u'\\EUR')
 
 	text = text.replace(u'^', u'\\verb#^#')
 	text = text.replace('~','\\verb#~#')
 
 	return text
+#---------------------------------------------------------------------------
+def prompted_input(prompt=None, default=None):
+	"""Obtains entry from standard input.
+
+	prompt: Prompt text to display in standard output
+	default: Default value (for user to press enter only)
+	CTRL-C: aborts and returns None
+	"""
+	if prompt is None:
+		msg = u'(CTRL-C aborts)'
+	else:
+		msg = u'%s (CTRL-C aborts)' % prompt
+
+	if default is None:
+		msg = msg + u': '
+	else:
+		msg = u'%s [%s]: ' % (msg, default)
+
+	try:
+		usr_input = raw_input(msg)
+	except KeyboardInterrupt:
+		return None
+
+	if usr_input == '':
+		return default
+
+	return usr_input
+
 #===========================================================================
 # image handling tools
 #---------------------------------------------------------------------------
@@ -940,6 +863,8 @@ if __name__ == '__main__':
 			['01.0', True, 1],
 			['01,0', True, 1],
 			[' 01, ', True, 1],
+
+			[decimal.Decimal('1.1'), True, decimal.Decimal('1.1')]
 		]
 		for test in tests:
 			conversion_worked, result = input2decimal(initial = test[0])
@@ -960,7 +885,16 @@ if __name__ == '__main__':
 				else:
 					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
 	#-----------------------------------------------------------------------
+	def test_input2int():
+		print input2int(0)
+		print input2int('0')
+		print input2int(u'0', 0, 0)
+	#-----------------------------------------------------------------------
 	def test_coalesce():
+
+		import datetime as dt
+		print coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d'))
+
 		print 'testing coalesce()'
 		print "------------------"
 		tests = [
@@ -1042,22 +976,6 @@ if __name__ == '__main__':
 		print "testing mkdir()"
 		mkdir(sys.argv[1])
 	#-----------------------------------------------------------------------
-	def test_send_mail():
-		msg = u"""
-To: %s
-From: %s
-Subject: gmTools test suite mail
-
-This is a test mail from the gmTools.py module.
-""" % (default_mail_receiver, default_mail_sender)
-		print "mail sending succeeded:", send_mail (
-			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
-			message = msg,
-			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
-			debug = True,
-			attachments = [sys.argv[0]]
-		)
-	#-----------------------------------------------------------------------
 	def test_gmPaths():
 		print "testing gmPaths()"
 		print "-----------------"
@@ -1067,6 +985,7 @@ This is a test mail from the gmTools.py module.
 		print "local      base dir:", paths.local_base_dir
 		print "system app data dir:", paths.system_app_data_dir
 		print "working directory  :", paths.working_dir
+		print "temp directory     :", paths.tmp_dir
 	#-----------------------------------------------------------------------
 	def test_none_if():
 		print "testing none_if()"
@@ -1166,33 +1085,17 @@ second line\n
 		print
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
-	def test_check_for_update():
-
-		test_data = [
-			('http://www.gnumed.de/downloads/gnumed-versions.txt', None, None, False),
-			('file:///home/ncq/gm-versions.txt', None, None, False),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', False),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.1', True),
-			('file:///home/ncq/gm-versions.txt', '0.2', '0.2.8.5', True)
-		]
-
-		for test in test_data:
-			print "arguments:", test
-			found, msg = check_for_update(test[0], test[1], test[2], test[3])
-			print msg
-
-		return
-	#-----------------------------------------------------------------------
 	def test_md5():
 		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
-	#test_check_for_update()
+	def test_unicode():
+		print u_link_symbol * 10
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	#test_send_mail()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -1200,7 +1103,9 @@ second line\n
 	#test_size2str()
 	#test_wrap()
 	#test_input2decimal()
+	#test_input2int()
 	#test_unwrap()
 	#test_md5()
+	test_unicode()
 
 #===========================================================================

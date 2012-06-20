@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
@@ -16,7 +16,7 @@ alter table clin.vacc_indication
 	add constraint vacc_indication_sane_single_atcs check (
 		(atcs_single_indication is null)
 			or
-		array_length(atcs_single_indication, 1) > 0
+		array_upper(atcs_single_indication, 1) > 0
 	);
 
 -- --------------------------------------------------------------
@@ -28,13 +28,13 @@ alter table clin.vacc_indication
 	add constraint vacc_indication_sane_combi_atcs check (
 		(atcs_combi_indication is null)
 			or
-		(array_length(atcs_combi_indication, 1) > 0)
+		(array_upper(atcs_combi_indication, 1) > 0)
 	);
 
 -- --------------------------------------------------------------
 -- rename a few indications
 update clin.vacc_indication set
-	description = 'Coxiella burnetii (Q fever)',
+	description = 'coxiella burnetii (Q fever)',
 	atcs_single_indication = array['J07AX']
 where
 	description = 'Coxiella burnetii';
@@ -61,7 +61,7 @@ where
 -- add new ones
 delete from clin.vacc_indication
 where description in (
-	'Bacillus anthracis (Anthrax)',
+	'bacillus anthracis (Anthrax)',
  	'human papillomavirus',
 	'rotavirus',
 	'tuberculosis',
@@ -74,7 +74,7 @@ insert into clin.vacc_indication (
 	description,
 	atcs_single_indication
 ) values (
-	'Bacillus anthracis (Anthrax)',
+	'bacillus anthracis (Anthrax)',
 	array['J07AC01']
 );
 

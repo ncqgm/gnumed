@@ -6,7 +6,7 @@ functions for authenticating users.
 #================================================================
 __version__ = "$Revision: 1.45 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
@@ -106,7 +106,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 	expected_hash = gmPG2.known_schema_hashes[expected_version]
 	client_version = _cfg.get(option = u'client_version')
 	global current_db_name
-	current_db_name = u'gnumed_%s' % expected_version
+	current_db_name = u'gnumed_v%s' % expected_version
 
 	attempt = 0
 
@@ -195,6 +195,26 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 		gmPG2.set_default_login(login = login)
 		gmPG2.set_default_client_encoding(encoding = dlg.panel.backend_profile.encoding)
 
+		seems_bootstrapped = gmPG2.schema_exists(schema = 'gm')
+		if not seems_bootstrapped:
+			_log.error('schema [gm] does not exist - database not bootstrapped ?')
+			msg = _(
+				'The database you connected to does not seem\n'
+				'to have been boostrapped properly.\n'
+				'\n'
+				'Make sure you have run the GNUmed database\n'
+				'bootstrapper tool to create a new database.\n'
+				'\n'
+				'Further help can be found on the website at\n'
+				'\n'
+				'  http://wiki.gnumed.de\n'
+				'\n'
+				'or on the GNUmed mailing list.'
+			)
+			gmGuiHelpers.gm_show_error(msg, _('Verifying database'))
+			connected = False
+			break
+
 		compatible = gmPG2.database_schema_compatible(version = expected_version)
 		if compatible or not require_version:
 			dlg.panel.save_state()
@@ -244,41 +264,102 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 
 	return connected
 #================================================================
-def get_dbowner_connection(procedure=None, dbo_password=None):
+def get_dbowner_connection(procedure=None, dbo_password=None, dbo_account=u'gm-dbo'):
 	if procedure is None:
 		procedure = _('<restricted procedure>')
 
 	# 1) get password for gm-dbo
 	if dbo_password is None:
-		pwd_gm_dbo = wx.GetPasswordFromUser (
+		dbo_password = wx.GetPasswordFromUser (
 			message = _("""
  [%s]
 
 This is a restricted procedure. We need the
-password for the GNUmed database owner.
+current password for the GNUmed database owner.
 
-Please enter the password for <gm-dbo>:""") % procedure,
+Please enter the current password for <%s>:""") % (
+				procedure,
+				dbo_account
+			),
 			caption = procedure
 		)
-		if pwd_gm_dbo == '':
+		if dbo_password == '':
 			return None
-	else:
-		pwd_gm_dbo = dbo_password
 
 	# 2) connect as gm-dbo
 	login = gmPG2.get_default_login()
-	dsn = gmPG2.make_psycopg2_dsn(database=login.database, host=login.host, port=login.port, user='gm-dbo', password=pwd_gm_dbo)
+	dsn = gmPG2.make_psycopg2_dsn (
+		database = login.database,
+		host = login.host,
+		port = login.port,
+		user = dbo_account,
+		password = dbo_password
+	)
 	try:
-		conn = gmPG2.get_connection(dsn=dsn, readonly=False, verbose=True, pooled=False)
+		conn = gmPG2.get_connection (
+			dsn = dsn,
+			readonly = False,
+			verbose = True,
+			pooled = False
+		)
 	except:
 		_log.exception('cannot connect')
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Cannot connect as the GNUmed database owner <gm-dbo>.'),
+			aMessage = _('Cannot connect as the GNUmed database owner <%s>.') % dbo_account,
 			aTitle = procedure
 		)
+		gmPG2.log_database_access(action = u'failed to connect as database owner for [%s]' % procedure)
 		return None
 
 	return conn
+#================================================================
+def change_gmdbowner_password():
+
+	title = _(u'Changing GNUmed database owner password')
+
+	dbo_account = wx.GetTextFromUser (
+		message = _(u"Enter the account name of the GNUmed database owner:"),
+		caption = title,
+		default_value = u''
+	)
+
+	if dbo_account.strip() == u'':
+		return False
+
+	dbo_conn = get_dbowner_connection (
+		procedure = title,
+		dbo_account = dbo_account
+	)
+	if dbo_conn is None:
+		return False
+
+	dbo_pwd_new_1 = wx.GetPasswordFromUser (
+		message = _(u"Enter the NEW password for the GNUmed database owner:"),
+		caption = title
+	)
+	if dbo_pwd_new_1.strip() == u'':
+		return False
+
+	dbo_pwd_new_2 = wx.GetPasswordFromUser (
+		message = _(u"""Enter the NEW password for the GNUmed database owner, again.
+
+(This will protect you from typos.)
+		"""),
+		caption = title
+	)
+	if dbo_pwd_new_2.strip() == u'':
+		return False
+
+	if dbo_pwd_new_1 != dbo_pwd_new_2:
+		return False
+
+	cmd = u"""ALTER ROLE "%s" ENCRYPTED PASSWORD '%s';""" % (
+		dbo_account,
+		dbo_pwd_new_2
+	)
+	gmPG2.run_rw_queries(link_obj = dbo_conn, queries = [{'cmd': cmd}], end_tx = True)
+
+	return True
 #================================================================
 class cBackendProfile:
 	pass
@@ -567,7 +648,7 @@ class cLoginPanel(wx.Panel):
 				del profiles[label]
 
 		if len(profiles) == 0:
-			host = u'salaam.homeunix.com'
+			host = u'publicdb.gnumed.de'
 			label = u'public GNUmed database (%s@%s)' % (current_db_name, host)
 			profiles[label] = cBackendProfile()
 			profiles[label].name = label
@@ -630,8 +711,8 @@ class cLoginPanel(wx.Panel):
 			# FIXME: do not assume conf file is latin1 !
 			#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
 			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
-			_log.debug(u'backend profile "%s" selected', profile.name)
-			_log.debug(u' details: <%s> on %s@%s:%s (%s, %s)',
+			_log.info(u'backend profile "%s" selected', profile.name)
+			_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
 				self._CBOX_user.GetValue(),
 				profile.database,
 				profile.host,
@@ -639,7 +720,7 @@ class cLoginPanel(wx.Panel):
 				profile.encoding,
 				gmTools.bool2subst(profile.public_db, u'public', u'private')
 			)
-			_log.debug(u' helpdesk: "%s"', profile.helpdesk)
+			_log.info(u' helpdesk: "%s"', profile.helpdesk)
 			login = gmLoginInfo.LoginInfo (
 				user = self._CBOX_user.GetValue(),
 				password = self.pwdentry.GetValue(),
@@ -660,21 +741,28 @@ class cLoginPanel(wx.Panel):
 		wx.MessageBox(_(
 """GNUmed main login screen
 
-USER:
- name of the GNUmed user
-PASSWORD
- password for this user
+Welcome to the GNUmed client. Shown are the current
+"Workplace" and (version).
 
-button OK:
- proceed with login
-button OPTIONS:
- set advanced options
-button CANCEL:
- abort login and quit GNUmed client
-button HELP:
- this help screen
+You may select to log into a public database with username
+and password {any-doc, any-doc}. Any other database
+(including a local one) must first be separately installed
+before you can log in.
 
-For assistance on using GNUmed please contact:
+For assistance on using GNUmed please consult the wiki:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual
+
+and to install a local database see:
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+
+For more help than the above, please contact:
+
+ GNUmed Development List <gnumed-bugs@gnu.org>
+
+For local assistance please contact:
+
  %s""") % praxis.helpdesk)
 
 	#----------------------------

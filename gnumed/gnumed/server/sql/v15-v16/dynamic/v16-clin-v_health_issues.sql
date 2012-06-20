@@ -1,0 +1,50 @@
+-- ==============================================================
+-- GNUmed database schema change script
+--
+-- License: GPL v2 or later
+-- Author: Karsten Hilbert
+-- 
+-- ==============================================================
+\set ON_ERROR_STOP 1
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
+drop view clin.v_health_issues cascade;
+\set ON_ERROR_STOP 1
+
+
+create view clin.v_health_issues as
+select
+	(select fk_patient from clin.encounter where pk = chi.fk_encounter)
+		as pk_patient,
+	chi.pk as pk_health_issue,
+	chi.description,
+	chi.summary,
+	chi.laterality,
+	chi.age_noted,
+	chi.is_active,
+	chi.clinically_relevant,
+	chi.is_confidential,
+	chi.is_cause_of_death,
+	chi.fk_encounter as pk_encounter,
+	chi.modified_when,
+	chi.modified_by,
+	chi.row_version,
+	chi.grouping,
+	chi.diagnostic_certainty_classification,
+	coalesce (
+		(select array_agg(c_lc2h.fk_generic_code) from clin.lnk_code2h_issue c_lc2h where c_lc2h.fk_item = chi.pk),
+		ARRAY[]::integer[]
+	)
+		as pk_generic_codes,
+	chi.xmin as xmin_health_issue
+from
+	clin.health_issue chi
+;
+
+
+grant select on clin.v_health_issues TO GROUP "gm-doctors";
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v16-clin-v_health_issues.sql', 'v16');
+
+-- ==============================================================

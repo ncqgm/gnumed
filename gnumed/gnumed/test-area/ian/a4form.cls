@@ -1,4 +1,4 @@
-% LaTeX environment for GnuMed forms
+% LaTeX environment for GNUmed forms
 % ============================================================
 % $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/ian/a4form.cls,v $
 % $Revision: 1.8 $

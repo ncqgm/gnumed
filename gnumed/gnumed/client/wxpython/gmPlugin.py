@@ -1,11 +1,10 @@
-"""gmPlugin - base classes for GnuMed Horst space notebook plugins.
+"""gmPlugin - base classes for GNUmed Horst space notebook plugins.
 
 @copyright: author
 """
 #==================================================================
-__version__ = "$Revision: 1.85 $"
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import os, sys, re, glob, logging
 
@@ -19,7 +18,6 @@ from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg, gmDispatcher, gmTo
 from Gnumed.business import gmPerson, gmSurgery
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #==============================================================================
 class cLoadProgressBar (wx.ProgressDialog):
@@ -319,8 +317,8 @@ def get_installed_plugins(plugin_dir=''):
 
 	files = glob.glob(os.path.join(search_path, 'gm*.py'))
 	plugins = []
-	for file in files:
-		path, fname = os.path.split(file)
+	for f in files:
+		path, fname = os.path.split(f)
 		mod_name, ext = os.path.splitext(fname)
 		plugins.append(mod_name)
 

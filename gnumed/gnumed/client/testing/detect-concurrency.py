@@ -1,7 +1,6 @@
 """Test for concurrency detection to work.
 """
 #============================================================
-# $Id: detect-concurrency.py,v 1.2 2006-05-04 09:49:20 ncq Exp $
 __version__ = "$Revision: 1.2 $"
 __author__ = "Karsten Hilbert"
 __license__ = "GPL"
@@ -9,11 +8,11 @@ __license__ = "GPL"
 import time, sys
 
 from Gnumed.pycommon import gmPG
-from Gnumed.business import gmClinNarrative, gmPerson
+from Gnumed.business import gmClinNarrative, gmPerson, gmPersonSearch
 #============================================================
 
 db = gmPG.ConnectionPool()
-pat = gmPerson.ask_for_patient()
+pat = gmPersonSearch.ask_for_patient()
 #gmPerson.set_active_patient(patient=pat)
 emr = pat.get_emr()
 epi = emr.get_episodes()[0]

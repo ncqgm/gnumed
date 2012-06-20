@@ -25,7 +25,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmDemographicsWidgets.cStateSelectionPhraseWheel" name="_PRW_province" base="EditTextCtrl">
+                <object class="gmAddressWidgets.cStateSelectionPhraseWheel" name="_PRW_province" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -77,7 +77,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmDemographicsWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
+                <object class="gmAddressWidgets.cCountryPhraseWheel" name="_PRW_country" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>

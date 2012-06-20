@@ -7,7 +7,7 @@
 # If you don't like it - change this code see @TODO!
 #
 # @copyright: authorcd
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	    10.06.2002 rterry initial implementation, untested
@@ -433,90 +433,3 @@ if __name__ == "__main__":
 	app.SetWidget(PatientsPanel, -1)
 	app.MainLoop()
 #----------------------------------------------------------------------
-# $Log: gmDemographics.py,v $
-# Revision 1.40  2008-04-13 14:39:49  ncq
-# - no more old style logging
-#
-# Revision 1.39  2008/01/30 14:03:42  ncq
-# - use signal names directly
-# - switch to std lib logging
-#
-# Revision 1.38  2007/04/11 20:47:54  ncq
-# - cleanup
-#
-# Revision 1.37  2006/07/30 17:51:00  ncq
-# - cleanup
-#
-# Revision 1.36  2006/05/15 13:42:02  ncq
-# - use new signals for activating_patient/patient_selected
-#
-# Revision 1.35  2005/09/26 18:01:53  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.34  2004/09/10 10:43:50  ncq
-# - remove dead import
-#
-# Revision 1.33  2004/08/31 19:46:45  ncq
-# - don't import patientnamequery.py
-#
-# Revision 1.32  2004/07/24 17:15:26  ncq
-# - small cleanups to keep track of plugin interface changes
-#
-# Revision 1.31  2004/07/18 20:30:54  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.30  2004/06/25 12:33:18  ncq
-# - cleanup
-#
-# Revision 1.29  2004/06/13 22:31:50  ncq
-# - gb['main.toolbar'] -> gb['main.top_panel']
-# - self.internal_name() -> self.__class__.__name__
-# - remove set_widget_reference()
-# - cleanup
-# - fix lazy load in _on_patient_selected()
-# - fix lazy load in ReceiveFocus()
-# - use self._widget in self.GetWidget()
-# - override populate_with_data()
-# - use gb['main.notebook.raised_plugin']
-#
-# Revision 1.28  2003/11/23 23:33:15  ncq
-# - cleanup
-#
-# Revision 1.27  2003/11/22 02:01:17  ihaywood
-# added Shown () function to please ClinicalWindowManager
-#
-# Revision 1.26  2003/04/28 12:14:40  ncq
-# - use .internal_name()
-#
-# Revision 1.25  2003/04/25 11:15:58  ncq
-# cleanup
-#
-# Revision 1.24  2003/04/05 00:39:23  ncq
-# - "patient" is now "clinical", changed all the references
-#
-# Revision 1.23  2003/04/04 20:52:44  ncq
-# - start disentanglement with top pane:
-#   - remove patient search/age/allergies/patient details
-#
-# Revision 1.22  2003/03/29 18:27:14  ncq
-# - make age/allergies read-only, cleanup
-#
-# Revision 1.21  2003/03/29 13:50:09  ncq
-# - adapt to new "top row" panel
-#
-# Revision 1.20  2003/03/28 16:43:12  ncq
-# - some cleanup in preparation of inserting the patient searcher
-#
-# Revision 1.19  2003/02/09 23:42:50  ncq
-# - date time conversion to age string does not work, set to 20 for now, fix soon
-#
-# Revision 1.18  2003/02/09 12:05:02  sjtan
-#
-#
-# wxBasePlugin is unnecessarily specific.
-#
-# Revision 1.17  2003/02/09 11:57:42  ncq
-# - cleanup, cvs keywords
-#

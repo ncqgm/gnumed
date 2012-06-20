@@ -1,5 +1,5 @@
 # -*- coding: latin-1 -*-
-"""GnuMed LDT anonymizer.
+"""GNUmed LDT anonymizer.
 
 This script anonymizes German pathology result
 files in LDT format.
@@ -16,7 +16,7 @@ __license__ = "GPL, details at http://www.gnu.org"
 import fileinput, sys, random, time
 
 from Gnumed.pycommon import gmPG, gmLoginInfo, gmLog
-from Gnumed.business import gmPathLab, gmPerson
+from Gnumed.business import gmPathLab, gmPerson, gmPersonSearch
 
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -51,7 +51,7 @@ pat_data = {
 	'firstnames': 'Laborata',
 	'gender': 'f'
 }
-searcher = gmPerson.cPatientSearcher_SQL()
+searcher = gmPersonSearch.cPatientSearcher_SQL()
 pat_ids = searcher.get_patient_ids(search_dict = pat_data)
 
 if len(pat_ids) == 0:

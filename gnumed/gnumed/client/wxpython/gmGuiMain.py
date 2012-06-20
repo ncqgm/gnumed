@@ -6,11 +6,6 @@ of the all signing all dancing GNUmed Python Reference
 client. It relies on the <gnumed.py> launcher having set up
 the non-GUI-related runtime environment.
 
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
-
 copyright: authors
 """
 #==============================================================================
@@ -18,11 +13,11 @@ __version__ = "$Revision: 1.491 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, locale, os.path, datetime as pyDT
-import webbrowser, shutil, logging, urllib2, subprocess, glob
+import sys, time, os, os.path, datetime as pyDT
+import shutil, logging, urllib2, subprocess, glob
 
 
 # 3rd party libs
@@ -33,7 +28,6 @@ if not hasattr(sys, 'frozen'):
 
 try:
 	import wx
-	import wx.lib.pubsub
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -53,9 +47,12 @@ if (version < 28) or ('unicode' not in wx.PlatformInfo):
 # GNUmed libs
 from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N
 from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2
+from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2, gmNetworkTools
 
 from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
+from Gnumed.business import gmVaccination
+from Gnumed.business import gmArriba
+from Gnumed.business import gmStaff
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -65,7 +62,20 @@ from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
 from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
 from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen, gmVaccWidgets
+from Gnumed.wxpython import gmFormWidgets, gmSnellen
+from Gnumed.wxpython import gmVaccWidgets
+from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmI18nWidgets
+from Gnumed.wxpython import gmCodingWidgets
+from Gnumed.wxpython import gmOrganizationWidgets
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmFamilyHistoryWidgets
+from Gnumed.wxpython import gmDataPackWidgets
+from Gnumed.wxpython import gmContactWidgets
+from Gnumed.wxpython import gmAddressWidgets
+from Gnumed.wxpython import gmBillingWidgets
+from Gnumed.wxpython import gmTextExpansionWidgets
+
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -75,6 +85,7 @@ except NameError:
 _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
+_original_wxEndBusyCursor = None
 
 _log = logging.getLogger('gm.main')
 _log.info(__version__)
@@ -92,6 +103,8 @@ class gmTopLevelFrame(wx.Frame):
 		"""You'll have to browse the source to understand what the constructor does
 		"""
 		wx.Frame.__init__(self, parent, id, title, size, style = wx.DEFAULT_FRAME_STYLE)
+
+		self.__setup_font()
 
 		self.__gb = gmGuiBroker.GuiBroker()
 		self.__pre_exit_callbacks = []
@@ -133,6 +146,48 @@ class gmTopLevelFrame(wx.Frame):
 		# effectively we need the font size to be configurable according to screen size
 		#self.vbox.SetSizeHints(self)
 		self.__set_GUI_size()
+
+	#----------------------------------------------
+	def __setup_font(self):
+
+		font = self.GetFont()
+		_log.debug('system default font is [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+
+		desired_font_face = _cfg.get (
+			group = u'workplace',
+			option = u'client font',
+			source_order = [
+				('explicit', 'return'),
+				('workbase', 'return'),
+				('local', 'return'),
+				('user', 'return'),
+				('system', 'return')
+			]
+		)
+
+		fonts2try = []
+		if desired_font_face is not None:
+			_log.info('client is configured to use font [%s]', desired_font_face)
+			fonts2try.append(desired_font_face)
+
+		if wx.Platform == '__WXMSW__':
+			sane_font_face = u'DejaVu Sans'
+			_log.info('MS Windows: appending fallback font candidate [%s]', sane_font_face)
+			fonts2try.append(sane_font_face)
+
+		if len(fonts2try) == 0:
+			return
+
+		for font_face in fonts2try:
+			success = font.SetFaceName(font_face)
+			if success:
+				self.SetFont(font)
+				_log.debug('switched font to [%s] (%s)', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc())
+				return
+			font = self.GetFont()
+			_log.error('cannot switch font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), font_face)
+
+		return
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""
@@ -187,6 +242,11 @@ class gmTopLevelFrame(wx.Frame):
 		"""Create the main menu entries.
 
 		Individual entries are farmed out to the modules.
+
+		menu item template:
+
+		item = menu_emr_edit.Append(-1, _(''), _(''))
+		self.Bind(wx.EVT_MENU, self__on_, item)
 		"""
 		global wx
 		self.mainmenu = wx.MenuBar()
@@ -210,14 +270,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		# GNUmed / Preferences
 		menu_config = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
 
-		item = menu_config.Append(-1, _('List configuration'), _('List all configuration items stored in the database.'))
+		item = menu_config.Append(-1, _('All options'), _('List all options as configured in the database.'))
 		self.Bind(wx.EVT_MENU, self.__on_list_configuration, item)
 
 		# GNUmed / Preferences / Database
 		menu_cfg_db = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
 
 		ID = wx.NewId()
 		menu_cfg_db.Append(ID, _('Language'), _('Configure the database language'))
@@ -227,28 +285,25 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_db.Append(ID, _('Welcome message'), _('Configure the database welcome message (all users).'))
 		wx.EVT_MENU(self, ID, self.__on_configure_db_welcome)
 
+		menu_config.AppendMenu(wx.NewId(), _('Database ...'), menu_cfg_db)
+
 		# GNUmed / Preferences / Client
 		menu_cfg_client = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
 
 		ID = wx.NewId()
 		menu_cfg_client.Append(ID, _('Export chunk size'), _('Configure the chunk size used when exporting BLOBs from the database.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_export_chunk_size)
 
-		ID = wx.NewId()
-		menu_cfg_client.Append(ID, _('Temporary directory'), _('Configure the directory to use as scratch space for temporary files.'))
-		wx.EVT_MENU(self, ID, self.__on_configure_temp_dir)
-
 		item = menu_cfg_client.Append(-1, _('Email address'), _('The email address of the user for sending bug reports, etc.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_user_email, item)
 
+		menu_config.AppendMenu(wx.NewId(), _('Client parameters ...'), menu_cfg_client)
+
 		# GNUmed / Preferences / User Interface
 		menu_cfg_ui = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
 
 		# -- submenu gnumed / config / ui / docs
 		menu_cfg_doc = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
 
 		ID = wx.NewId()
 		menu_cfg_doc.Append(ID, _('Review dialog'), _('Configure review dialog after document display.'))
@@ -262,9 +317,13 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_doc.Append(ID, _('Empty documents'), _('Whether to allow saving documents without parts.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_partless_docs)
 
+		item = menu_cfg_doc.Append(-1, _('Generate UUID'), _('Whether to generate UUIDs for new documents.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_generate_doc_uuid, item)
+
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Document handling ...'), menu_cfg_doc)
+
 		# -- submenu gnumed / config / ui / updates
 		menu_cfg_update = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Update handling ...'), menu_cfg_update)
 
 		ID = wx.NewId()
 		menu_cfg_update.Append(ID, _('Auto-check'), _('Whether to auto-check for updates at startup.'))
@@ -278,9 +337,10 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_update.Append(ID, _('URL'), _('The URL to retrieve version information from.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_update_url)
 
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Update handling ...'), menu_cfg_update)
+
 		# -- submenu gnumed / config / ui / patient
 		menu_cfg_pat_search = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Person ...'), menu_cfg_pat_search)
 
 		ID = wx.NewId()
 		menu_cfg_pat_search.Append(ID, _('Birthday reminder'), _('Configure birthday reminder proximity interval.'))
@@ -300,17 +360,24 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_pat_search.Append(-1, _('Default country'), _('Configure the default country for person creation.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_default_country, item)
 
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Person ...'), menu_cfg_pat_search)
+
 		# -- submenu gnumed / config / ui / soap handling
 		menu_cfg_soap_editing = wx.Menu()
-		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
 
 		ID = wx.NewId()
 		menu_cfg_soap_editing.Append(ID, _('Multiple new episodes'), _('Configure opening multiple new episodes on a patient at once.'))
 		wx.EVT_MENU(self, ID, self.__on_allow_multiple_new_episodes)
 
+		item = menu_cfg_soap_editing.Append(-1, _('Auto-open editors'), _('Configure auto-opening editors for recent problems.'))
+		self.Bind(wx.EVT_MENU, self.__on_allow_auto_open_episodes, item)
+
+		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
+
+		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
+
 		# GNUmed / Preferences / External tools
 		menu_cfg_ext_tools = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
 
 #		ID = wx.NewId()
 #		menu_cfg_ext_tools.Append(ID, _('IFAP command'), _('Set the command to start IFAP.'))
@@ -329,28 +396,49 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_ext_tools.Append(-1, _('Drug data source'), _('Select the drug data source.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_drug_data_source, item)
 
-		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
+#		item = menu_cfg_ext_tools.Append(-1, _('FreeDiams path'), _('Set the path for the FreeDiams binary.'))
+#		self.Bind(wx.EVT_MENU, self.__on_configure_freediams_cmd, item)
 
 		item = menu_cfg_ext_tools.Append(-1, _('ADR URL'), _('URL for reporting Adverse Drug Reactions.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_adr_url, item)
 
+		item = menu_cfg_ext_tools.Append(-1, _('vaccADR URL'), _('URL for reporting Adverse Drug Reactions to *vaccines*.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccine_adr_url, item)
+
+		item = menu_cfg_ext_tools.Append(-1, _('Vacc plans URL'), _('URL for vaccination plans.'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_vaccination_plans_url, item)
+
 		item = menu_cfg_ext_tools.Append(-1, _('Visual SOAP editor'), _('Set the command for calling the visual progress note editor.'))
 		self.Bind(wx.EVT_MENU, self.__on_configure_visual_soap_cmd, item)
 
+		menu_config.AppendMenu(wx.NewId(), _('External tools ...'), menu_cfg_ext_tools)
+
+		# -- submenu gnumed / config / billing
+		menu_cfg_bill = wx.Menu()
+
+		item = menu_cfg_bill.Append(-1, _('Invoice template (no VAT)'), _('Select the template for printing an invoice without VAT.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_no_vat, item)
+
+		item = menu_cfg_bill.Append(-1, _('Invoice template (with VAT)'), _('Select the template for printing an invoice with VAT.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_invoice_template_with_vat, item)
+
+		item = menu_cfg_bill.Append(-1, _('Catalogs URL'), _('URL for billing catalogs (schedules of fees).'))
+		self.Bind(wx.EVT_MENU, self.__on_configure_billing_catalogs_url, item)
+
 		# -- submenu gnumed / config / emr
 		menu_cfg_emr = wx.Menu()
-		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
 
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
 
+		item = menu_cfg_emr.Append(-1, _('Primary doctor'), _('Select the primary doctor to fall back to for patients without one.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
+
 		# -- submenu gnumed / config / emr / encounter
 		menu_cfg_encounter = wx.Menu()
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
 
 		ID = wx.NewId()
-		menu_cfg_encounter.Append(ID, _('Edit on patient change'), _('Edit encounter details on changing of patients.'))
+		menu_cfg_encounter.Append(ID, _('Edit before patient change'), _('Edit encounter details before change of patient.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_pat_change)
 
 		ID = wx.NewId()
@@ -369,82 +457,54 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_encounter.Append(ID, _('Default type'), _('Default type for new encounters.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_enc_default_type)
 
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Encounter ...'), menu_cfg_encounter)
+
 		# -- submenu gnumed / config / emr / episode
 		menu_cfg_episode = wx.Menu()
-		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ...'), menu_cfg_episode)
 
 		ID = wx.NewId()
 		menu_cfg_episode.Append(ID, _('Dormancy'), _('Maximum length of dormancy after which an episode will be considered closed.'))
 		wx.EVT_MENU(self, ID, self.__on_cfg_epi_ttl)
 
+		menu_cfg_emr.AppendMenu(wx.NewId(), _('Episode ...'), menu_cfg_episode)
+
+		menu_config.AppendMenu(wx.NewId(), _('EMR ...'), menu_cfg_emr)
+		menu_config.AppendMenu(wx.NewId(), _('Billing ...'), menu_cfg_bill)
+		menu_gnumed.AppendMenu(wx.NewId(), _('Preferences ...'), menu_config)
+
 		# -- submenu gnumed / master data
 		menu_master_data = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
 
-		item = menu_master_data.Append(-1, _('Workplace profiles'), _('Manage the plugins to load per workplace.'))
-		self.Bind(wx.EVT_MENU, self.__on_configure_workplace, item)
+		item = menu_master_data.Append(-1, _('Manage lists'), _('Manage various lists of master data.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_master_data, item)
 
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('&Document types'), _('Manage the document types available in the system.'))
-		self.Bind(wx.EVT_MENU, self.__on_edit_doc_types, item)
-
-		item = menu_master_data.Append(-1, _('&Form templates'), _('Manage templates for forms and letters.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_form_templates, item)
-
-		item = menu_master_data.Append(-1, _('&Text expansions'), _('Manage keyword based text expansion macros.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_text_expansion, item)
-
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('&Encounter types'), _('Manage encounter types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_encounter_types, item)
-
-		item = menu_master_data.Append(-1, _('&Provinces'), _('Manage provinces (counties, territories, ...).'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_provinces, item)
-
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('Substances'), _('Manage substances in use.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_substances, item)
-
-		item = menu_master_data.Append(-1, _('Drugs'), _('Manage branded drugs.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_branded_drugs, item)
-
-		item = menu_master_data.Append(-1, _('Drug components'), _('Manage components of branded drugs.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_substances_in_brands, item)
+		item = menu_master_data.Append(-1, _('Install data packs'), _('Install reference data from data packs.'))
+		self.Bind(wx.EVT_MENU, self.__on_install_data_packs, item)
 
 		item = menu_master_data.Append(-1, _('Update ATC'), _('Install ATC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_atc, item)
 
-		menu_master_data.AppendSeparator()
-
-		item = menu_master_data.Append(-1, _('Diagnostic orgs'), _('Manage diagnostic organisations (path labs etc).'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_test_orgs, item)
-
-		item = menu_master_data.Append(-1, _('&Test types'), _('Manage test/measurement types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_test_types, item)
-
-		item = menu_master_data.Append(-1, _('&Meta test types'), _('Show meta test/measurement types.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_meta_test_types, item)
-
 		item = menu_master_data.Append(-1, _('Update LOINC'), _('Download and install LOINC reference data.'))
 		self.Bind(wx.EVT_MENU, self.__on_update_loinc, item)
 
-		menu_master_data.AppendSeparator()
+		item = menu_master_data.Append(-1, _('Create fake vaccines'), _('Re-create fake generic vaccines.'))
+		self.Bind(wx.EVT_MENU, self.__on_generate_vaccines, item)
 
-		item = menu_master_data.Append(-1, _('Vaccines'), _('Show known vaccines.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_vaccines, item)
+		menu_gnumed.AppendMenu(wx.NewId(), _('&Master data ...'), menu_master_data)
 
 		# -- submenu gnumed / users
 		menu_users = wx.Menu()
-		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
 
 		item = menu_users.Append(-1, _('&Add user'), _('Add a new GNUmed user'))
 		self.Bind(wx.EVT_MENU, self.__on_add_new_staff, item)
 
 		item = menu_users.Append(-1, _('&Edit users'), _('Edit the list of GNUmed users'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_staff_list, item)
+
+		item = menu_users.Append(-1, _('&Change DB owner PWD'), _('Change the password of the GNUmed database owner'))
+		self.Bind(wx.EVT_MENU, self.__on_edit_gmdbowner_password, item)
+
+		menu_gnumed.AppendMenu(wx.NewId(), _('&Users ...'), menu_users)
 
 		# --
 		menu_gnumed.AppendSeparator()
@@ -455,69 +515,53 @@ class gmTopLevelFrame(wx.Frame):
 		self.mainmenu.Append(menu_gnumed, '&GNUmed')
 
 		# -- menu "Person" ---------------------------
-		menu_patient = wx.Menu()
+		menu_person = wx.Menu()
 
 		ID_CREATE_PATIENT = wx.NewId()
-		menu_patient.Append(ID_CREATE_PATIENT, _('Register person'), _("Register a new person with GNUmed"))
+		menu_person.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-#		item = menu_patient.Append(-1, _('Register new (old style)'), _("Register a new person with this practice"))
-#		self.Bind(wx.EVT_MENU, self.__on_create_patient, item)
-
 		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_patient.Append(ID_LOAD_EXT_PAT, _('Load external'), _('Load and possibly create person from an external source.'))
+		menu_person.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
 		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
 
+		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
+
 		ID_DEL_PAT = wx.NewId()
-		menu_patient.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
+		menu_person.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
-		item = menu_patient.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
+		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
 		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
-		menu_patient.AppendSeparator()
+		menu_person.AppendSeparator()
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-		menu_patient.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
+		menu_person.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
 
 		# FIXME: temporary until external program framework is active
 		ID = wx.NewId()
-		menu_patient.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
+		menu_person.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
 
-		menu_patient.AppendSeparator()
+		menu_person.AppendSeparator()
 
-		self.mainmenu.Append(menu_patient, '&Person')
-		self.__gb['main.patientmenu'] = menu_patient
+		self.mainmenu.Append(menu_person, '&Person')
+		self.__gb['main.patientmenu'] = menu_person
 
 		# -- menu "EMR" ---------------------------
 		menu_emr = wx.Menu()
-		self.mainmenu.Append(menu_emr, _("&EMR"))
-		self.__gb['main.emrmenu'] = menu_emr
 
-		# - submenu "show as"
-		menu_emr_show = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
-		self.__gb['main.emr_showmenu'] = menu_emr_show
-
-		# - summary
-		item = menu_emr_show.Append(-1, _('Summary'), _('Show a high-level summary of the EMR.'))
-		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
-
-		# - search
-		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
-		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
-
-		item = menu_emr.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
-		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
-
-		# -- submenu EMR / Add, Edit
+		# -- EMR / Add, Edit
 		menu_emr_edit = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
 		item = menu_emr_edit.Append(-1, _('&Past history (health issue / PMH)'), _('Add a past/previous medical history item (health issue) to the EMR of the active patient'))
 		self.Bind(wx.EVT_MENU, self.__on_add_health_issue, item)
+
+		item = menu_emr_edit.Append(-1, _('&Episode'), _('Add an episode of illness to the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_add_episode, item)
 
 		item = menu_emr_edit.Append(-1, _('&Medication'), _('Add medication / substance use entry.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_medication, item)
@@ -528,34 +572,48 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Occupation'), _('Edit occupation details for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_edit_occupation, item)
 
-		item = menu_emr_edit.Append(-1, _('&Hospital stays'), _('Manage hospital stays.'))
+		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospitalizations.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
 
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
 
-		item = menu_emr_edit.Append(-1, _('&Measurement(s)'), _('Add (a) measurement result(s) for the current patient.'))
+		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
 
-#		item = menu_emr_edit.Append(-1, )
-#		self.Bind(wx.EVT_MENU, , item)
+		item = menu_emr_edit.Append(-1, _('&Vaccinations'), _('Add (a) vaccination(s) for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
 
-		# -- EMR, again
+		item = menu_emr_edit.Append(-1, _('&Family history (FHx)'), _('Manage family history.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_fhx, item)
 
-#		# - start new encounter
+		item = menu_emr_edit.Append(-1, _('&Encounters'), _('List all encounters including empty ones.'))
+		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+
+		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
+
+		# - EMR /
+		item = menu_emr.Append(-1, _('Search this EMR'), _('Search for data in the EMR of the active patient'))
+		self.Bind(wx.EVT_MENU, self.__on_search_emr, item)
+
 		item = menu_emr.Append(-1, _('Start new encounter'), _('Start a new encounter for the active patient right now.'))
 		self.Bind(wx.EVT_MENU, self.__on_start_new_encounter, item)
 
-		# - list encounters
-		item = menu_emr.Append(-1, _('&Encounters list'), _('List all encounters including empty ones.'))
-		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+#		# - EMR / Show as /
+#		menu_emr_show = wx.Menu()
 
-		# - submenu GNUmed / "export as"
+#		item = menu_emr_show.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
+		item = menu_emr.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
+
+#		menu_emr.AppendMenu(wx.NewId(), _('Show as ...'), menu_emr_show)
+#		self.__gb['main.emr_showmenu'] = menu_emr_show
+
 		menu_emr.AppendSeparator()
 
+		# -- EMR / Export as
 		menu_emr_export = wx.Menu()
-		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
-		#   1) ASCII
+
 		ID_EXPORT_EMR_ASCII = wx.NewId()
 		menu_emr_export.Append (
 			ID_EXPORT_EMR_ASCII,
@@ -563,7 +621,7 @@ class gmTopLevelFrame(wx.Frame):
 			_("Export the EMR of the active patient into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_ASCII, self.OnExportEMR)
-		#   2) journal format
+
 		ID_EXPORT_EMR_JOURNAL = wx.NewId()
 		menu_emr_export.Append (
 			ID_EXPORT_EMR_JOURNAL,
@@ -571,7 +629,7 @@ class gmTopLevelFrame(wx.Frame):
 			_("Export the EMR of the active patient as a chronological journal into a text file")
 		)
 		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
-		#   3) Medistar import format
+
 		ID_EXPORT_MEDISTAR = wx.NewId()
 		menu_emr_export.Append (
 			ID_EXPORT_MEDISTAR,
@@ -580,10 +638,14 @@ class gmTopLevelFrame(wx.Frame):
 		)
 		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
 
-		# - draw a line
+		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
+
 		menu_emr.AppendSeparator()
 
-		# -- menu "paperwork" ---------------------
+		self.mainmenu.Append(menu_emr, _("&EMR"))
+		self.__gb['main.emrmenu'] = menu_emr
+
+		# -- menu "Paperwork" ---------------------
 		menu_paperwork = wx.Menu()
 
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
@@ -591,25 +653,30 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 
-		# menu "Tools" ---------------------------
+		# -- menu "Tools" -------------------------
 		self.menu_tools = wx.Menu()
-		self.__gb['main.toolsmenu'] = self.menu_tools
-		self.mainmenu.Append(self.menu_tools, _("&Tools"))
+
+		item = self.menu_tools.Append(-1, _('Search all EMRs'), _('Search for data across the EMRs of all patients'))
+		self.Bind(wx.EVT_MENU, self.__on_search_across_emrs, item)
 
 		ID_DICOM_VIEWER = wx.NewId()
 		viewer = _('no viewer installed')
-		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+		if gmShellAPI.detect_external_binary(binary = 'ginkgocadx')[0]:
+			viewer = u'Ginkgo CADx'
+		elif os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			viewer = u'OsiriX'
 		elif gmShellAPI.detect_external_binary(binary = 'aeskulap')[0]:
 			viewer = u'Aeskulap'
 		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
 			viewer = u'AMIDE'
+		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+			viewer = u'DicomScope'
 		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
 		if viewer == _('no viewer installed'):
-			_log.info('neither of OsiriX / Aeskulap / AMIDE / xmedcon found, disabling "DICOM viewer" menu item')
+			_log.info('neither of Ginkgo CADx / OsiriX / Aeskulap / AMIDE / DicomScope / xmedcon found, disabling "DICOM viewer" menu item')
 			self.menu_tools.Enable(id=ID_DICOM_VIEWER, enable=False)
 
 #		ID_DERMTOOL = wx.NewId()
@@ -623,15 +690,25 @@ class gmTopLevelFrame(wx.Frame):
 		item = self.menu_tools.Append(-1, _('MI/stroke risk'), _('Acute coronary syndrome/stroke risk assessment.'))
 		self.Bind(wx.EVT_MENU, self.__on_acs_risk_assessment, item)
 
+		ID_DICOM_VIEWER = wx.NewId()
+		self.menu_tools.Append(ID_DICOM_VIEWER, u'arriba', _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_arriba)
+		if not gmShellAPI.detect_external_binary(binary = 'arriba')[0]:
+			_log.info('<arriba> not found, disabling "arriba" menu item')
+			self.menu_tools.Enable(id = ID_DICOM_VIEWER, enable = False)
+#		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
+#		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
+
 		self.menu_tools.AppendSeparator()
 
-		# menu "Knowledge" ---------------------
-		menu_knowledge = wx.Menu()
-		self.__gb['main.knowledgemenu'] = menu_knowledge
-		self.mainmenu.Append(menu_knowledge, _('&Knowledge'))
+		self.mainmenu.Append(self.menu_tools, _("&Tools"))
+		self.__gb['main.toolsmenu'] = self.menu_tools
 
+		# -- menu "Knowledge" ---------------------
+		menu_knowledge = wx.Menu()
+
+		# -- Knowledge / Drugs
 		menu_drug_dbs = wx.Menu()
-		menu_knowledge.AppendMenu(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
 
 		item = menu_drug_dbs.Append(-1, _('&Database'), _('Jump to the drug database configured as the default.'))
 		self.Bind(wx.EVT_MENU, self.__on_jump_to_drug_db, item)
@@ -641,22 +718,35 @@ class gmTopLevelFrame(wx.Frame):
 #		menu_drug_dbs.Append(ID_IFAP, u'ifap', _('Start "ifap index PRAXIS" %s drug browser (Windows/Wine, Germany)') % gmTools.u_registered_trademark)
 #		wx.EVT_MENU(self, ID_IFAP, self.__on_ifap)
 
+		menu_knowledge.AppendMenu(wx.NewId(), _('&Drug Resources'), menu_drug_dbs)
+
 		menu_id = wx.NewId()
 		menu_drug_dbs.Append(menu_id, u'kompendium.ch', _('Show "kompendium.ch" drug database (online, Switzerland)'))
 		wx.EVT_MENU(self, menu_id, self.__on_kompendium_ch)
 
 #		menu_knowledge.AppendSeparator()
 
-		# - "recommended" medical links in the Wiki
+		# -- Knowledge /
 		ID_MEDICAL_LINKS = wx.NewId()
 		menu_knowledge.Append(ID_MEDICAL_LINKS, _('Medical links (www)'), _('Show a page of links to useful medical content.'))
 		wx.EVT_MENU(self, ID_MEDICAL_LINKS, self.__on_medical_links)
 
+		self.mainmenu.Append(menu_knowledge, _('&Knowledge'))
+		self.__gb['main.knowledgemenu'] = menu_knowledge
+
 		# -- menu "Office" --------------------
 		self.menu_office = wx.Menu()
 
-		self.__gb['main.officemenu'] = self.menu_office
+		item = self.menu_office.Append(-1, _('Audit trail'), _('Display database audit trail.'))
+		self.Bind(wx.EVT_MENU, self.__on_display_audit_trail, item)
+
+		self.menu_office.AppendSeparator()
+
+		item = self.menu_office.Append(-1, _('List bills'), _('List all bills across all patients.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_all_bills, item)
+
 		self.mainmenu.Append(self.menu_office, _('&Office'))
+		self.__gb['main.officemenu'] = self.menu_office
 
 		# -- menu "Help" --------------
 		help_menu = wx.Menu()
@@ -672,8 +762,10 @@ class gmTopLevelFrame(wx.Frame):
 		item = help_menu.Append(-1, _('Menu reference (www)'), _('View the reference for menu items on the web.'))
 		self.Bind(wx.EVT_MENU, self.__on_menu_reference, item)
 
+		item = help_menu.Append(-1, _('&Clear status line'), _('Clear out the status line.'))
+		self.Bind(wx.EVT_MENU, self.__on_clear_status_line, item)
+
 		menu_debugging = wx.Menu()
-		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
 
 		ID_SCREENSHOT = wx.NewId()
 		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
@@ -685,6 +777,9 @@ class gmTopLevelFrame(wx.Frame):
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
+
+		item = menu_debugging.Append(-1, _('Email log file'), _('Send the log file to the authors for help.'))
+		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
 
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
@@ -702,7 +797,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		if _cfg.get(option = 'debug'):
 			ID_TOGGLE_PAT_LOCK = wx.NewId()
-			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient'), _('Lock/unlock patient - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
+			menu_debugging.Append(ID_TOGGLE_PAT_LOCK, _('Lock/unlock patient search'), _('Lock/unlock patient search - USE ONLY IF YOU KNOW WHAT YOU ARE DOING !'))
 			wx.EVT_MENU(self, ID_TOGGLE_PAT_LOCK, self.__on_toggle_patient_lock)
 
 			ID_TEST_EXCEPTION = wx.NewId()
@@ -717,24 +812,24 @@ class gmTopLevelFrame(wx.Frame):
 			except ImportError:
 				menu_debugging.Enable(id = ID, enable = False)
 
+		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
+
 		help_menu.AppendSeparator()
 
 		help_menu.Append(wx.ID_ABOUT, _('About GNUmed'), "")
 		wx.EVT_MENU (self, wx.ID_ABOUT, self.OnAbout)
 
-		ID_CONTRIBUTORS = wx.NewId()
-		help_menu.Append(ID_CONTRIBUTORS, _('GNUmed contributors'), _('show GNUmed contributors'))
-		wx.EVT_MENU(self, ID_CONTRIBUTORS, self.__on_show_contributors)
-
 		item = help_menu.Append(-1, _('About database'), _('Show information about the current database.'))
 		self.Bind(wx.EVT_MENU, self.__on_about_database, item)
 
+		item = help_menu.Append(-1, _('About contributors'), _('Show GNUmed contributors'))
+		self.Bind(wx.EVT_MENU, self.__on_show_contributors, item)
+
 		help_menu.AppendSeparator()
 
+		self.mainmenu.Append(help_menu, _("&Help"))
 		# among other things the Manual is added from a plugin
 		self.__gb['main.helpmenu'] = help_menu
-		self.mainmenu.Append(help_menu, _("&Help"))
-
 
 		# and activate menu structure
 		self.SetMenuBar(self.mainmenu)
@@ -759,8 +854,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
-
-		wx.lib.pubsub.Publisher().subscribe(listener = self._on_set_statustext_pubsub, topic = 'statustext')
 
 		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
 	#----------------------------------------------
@@ -911,6 +1004,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_post_patient_selection(self, **kwargs):
 		self.__update_window_title()
+		gmDispatcher.send(signal = 'statustext', msg = u'')
 		try:
 			gmHooks.run_hook_script(hook = u'post_patient_activation')
 		except:
@@ -921,6 +1015,11 @@ class gmTopLevelFrame(wx.Frame):
 		return self.__sanity_check_encounter()
 	#----------------------------------------------
 	def __sanity_check_encounter(self):
+
+		# FIXME: should consult a centralized security provider
+		# secretaries cannot edit encounters
+		if _provider['role'] == u'secretary':
+			return True
 
 		dbcfg = gmCfg.cCfgSQL()
 		check_enc = bool(dbcfg.get2 (
@@ -973,8 +1072,7 @@ class gmTopLevelFrame(wx.Frame):
 					enc_summary += '%s; ' % epi['description']
 				enc['assessment_of_encounter'] = enc_summary
 
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent = self, encounter = enc)
-		dlg.ShowModal()
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 
 		return True
 	#----------------------------------------------
@@ -988,11 +1086,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
-		#gmFormWidgets.create_new_letter(parent = self)
-		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True, cleanup = _cfg.get(option = 'debug'))
-	#----------------------------------------------
-	def __on_manage_form_templates(self, evt):
-		gmFormWidgets.manage_form_templates(parent = self)
+		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True)
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
@@ -1004,7 +1098,8 @@ class gmTopLevelFrame(wx.Frame):
 			_("About GNUmed"),
 			size=wx.Size(350, 300),
 			style = wx.MAXIMIZE_BOX,
-			version = _cfg.get(option = 'client_version')
+			version = _cfg.get(option = 'client_version'),
+			debug = _cfg.get(option = 'debug')
 		)
 		gmAbout.Centre(wx.BOTH)
 		gmTopLevelFrame.otherWin = gmAbout
@@ -1076,38 +1171,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmCfgWidgets.list_configuration(parent = self)
 	#----------------------------------------------
 	# submenu GNUmed / options / client
-	#----------------------------------------------
-	def __on_configure_temp_dir(self, evt):
-
-		cfg = gmCfg.cCfgSQL()
-
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-
-		dlg = wx.DirDialog (
-			parent = self,
-			message = _('Choose temporary directory ...'),
-			defaultPath = tmp_dir,
-			style = wx.DD_DEFAULT_STYLE
-		)
-		result = dlg.ShowModal()
-		tmp_dir = dlg.GetPath()
-		dlg.Destroy()
-
-		if result != wx.ID_OK:
-			return
-
-		cfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			option = "horstspace.tmp_dir",
-			value = tmp_dir
-		)
 	#----------------------------------------------
 	def __on_configure_export_chunk_size(self, evt):
 
@@ -1221,7 +1284,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		def is_valid(value):
 			try:
-				float(value)
+				value = float(value)
 				return True, value
 			except:
 				return False, value
@@ -1245,41 +1308,75 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_configure_adr_url(self, evt):
 
+		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
+		german_default = u'https://dcgma.org/uaw/meldung.php'
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
 				'GNUmed will use this URL to access a website which lets\n'
 				'you report an adverse drug reaction (ADR).\n'
 				'\n'
-				'You can leave this empty but to set it to a specific\n'
-				'address the URL must be accessible now.'
+				'If you leave this empty it will fall back\n'
+				'to an URL for reporting ADRs in Germany.'
 			),
 			option = 'external.urls.report_ADR',
 			bias = 'user',
-			default_value = u'https://dcgma.org/uaw/meldung.php',
+			default_value = german_default,
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccine_adr_url(self, evt):
+
+		german_default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, german_default
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return True, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a website which lets\n'
+				'you report an adverse vaccination reaction (vADR).\n'
+				'\n'
+				'If you set it to a specific address that URL must be\n'
+				'accessible now. If you leave it empty it will fall back\n'
+				'to the URL for reporting other adverse drug reactions.'
+			),
+			option = 'external.urls.report_vaccine_ADR',
+			bias = 'user',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
 	def __on_configure_measurements_url(self, evt):
 
+		german_default = u'http://www.laborlexikon.de',
+
 		def is_valid(value):
 			value = value.strip()
 			if value == u'':
-				return True, value
+				return True, german_default
 			try:
 				urllib2.urlopen(value)
 				return True, value
 			except:
-				return False, value
+				return True, value
 
 		gmCfgWidgets.configure_string_option (
 			message = _(
@@ -1291,7 +1388,35 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = 'external.urls.measurements_encyclopedia',
 			bias = 'user',
-			default_value = u'http://www.laborlexikon.de',
+			default_value = german_default,
+			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_configure_vaccination_plans_url(self, evt):
+
+		german_default = u'http://www.bundesaerztekammer.de/downloads/ImpfempfehlungenRKI2009.pdf'
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, german_default
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return True, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to access a page showing\n'
+				'vaccination schedules.\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.vaccination_plans',
+			bias = 'user',
+			default_value = german_default,
 			validator = is_valid
 		)
 	#----------------------------------------------
@@ -1429,7 +1554,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		dbcfg.set (
-			option = u'patient_search.plugin_to_raise_after_startup',
+			option = u'horstspace.plugin_to_raise_after_startup',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			value = plugin
 		)
@@ -1454,10 +1579,10 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_cfg_default_region(self, evt):
-		gmDemographicsWidgets.configure_default_region()
+		gmAddressWidgets.configure_default_region()
 	#----------------------------------------------
 	def __on_cfg_default_country(self, evt):
-		gmDemographicsWidgets.configure_default_country()
+		gmAddressWidgets.configure_default_country()
 	#----------------------------------------------
 	def __on_configure_dob_reminder_proximity(self, evt):
 
@@ -1500,6 +1625,23 @@ class gmTopLevelFrame(wx.Frame):
 			]
 		)
 	#----------------------------------------------
+	def __on_allow_auto_open_episodes(self, evt):
+
+		gmCfgWidgets.configure_boolean_option (
+			parent = self,
+			question = _(
+				'When activating a patient, do you want GNUmed to\n'
+				'auto-open editors for all active problems that were\n'
+				'touched upon during the current and the most recent\n'
+				'encounter ?'
+			),
+			option = u'horstspace.soap_editor.auto_open_latest_episodes',
+			button_tooltips = [
+				_('Yes, auto-open editors for all problems of the most recent encounter.'),
+				_('No, only auto-open one editor for a new, unassociated problem.')
+			]
+		)
+	#----------------------------------------------
 	def __on_configure_initial_pat_plugin(self, evt):
 
 		dbcfg = gmCfg.cCfgSQL()
@@ -1515,7 +1657,7 @@ class gmTopLevelFrame(wx.Frame):
 			option = u'patient_search.plugin_to_raise_after_search',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user'
-		), u'gmEMRBrowserPlugin')
+		), u'gmPatientOverviewPlugin')
 		try:
 			selections = [plugin_list.index(initial_plugin)]
 		except ValueError:
@@ -1546,10 +1688,48 @@ class gmTopLevelFrame(wx.Frame):
 			value = plugin
 		)
 	#----------------------------------------------
+	# submenu GNUmed / config / billing
+	#----------------------------------------------
+	def __on_cfg_invoice_template_no_vat(self, evt):
+		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = False)
+	#----------------------------------------------
+	def __on_cfg_invoice_template_with_vat(self, evt):
+		gmBillingWidgets.configure_invoice_template(parent = self, with_vat = True)
+	#----------------------------------------------
+	def __on_configure_billing_catalogs_url(self, evt):
+		german_default = u'http://www.e-bis.de/goae/defaultFrame.htm'
+
+		def is_valid(value):
+			value = value.strip()
+			if value == u'':
+				return True, german_default
+			try:
+				urllib2.urlopen(value)
+				return True, value
+			except:
+				return True, value
+
+		gmCfgWidgets.configure_string_option (
+			message = _(
+				'GNUmed will use this URL to let you browse\n'
+				'billing catalogs (schedules of fees).\n'
+				'\n'
+				'You can leave this empty but to set it to a specific\n'
+				'address the URL must be accessible now.'
+			),
+			option = 'external.urls.schedules_of_fees',
+			bias = 'user',
+			default_value = german_default,
+			validator = is_valid
+		)
+	#----------------------------------------------
 	# submenu GNUmed / config / encounter
 	#----------------------------------------------
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
+	#----------------------------------------------
+	def __on_cfg_fallback_primary_provider(self, evt):
+		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
@@ -1683,16 +1863,16 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = wx.TextEntryDialog (
 			parent = self,
 			message = _(
-				'This email address will be used when GNUmed\n'
-				'is sending email on your behalf such as when\n'
-				'reporting bugs or when you choose to contribute\n'
-				'reference material to the GNUmed community.\n'
+				'If you want the GNUmed developers to be able to\n'
+				'contact you directly - rather than via the public\n'
+				'mailing list only - you can enter your preferred\n'
+				'email address here.\n'
 				'\n'
-				'The developers will then be able to get back to you\n'
-				'directly with advice. Otherwise you would have to\n'
-				'follow the mailing list discussion for help.\n'
+				'This address will then be included with bug reports\n'
+				'or contributions to the GNUmed community you may\n'
+				'choose to send from within the GNUmed client.\n'
 				'\n'
-				'Leave this blank if you wish to stay anonymous.'
+				'Leave this blank if you wish to stay anonymous.\n'
 			),
 			caption = _('Please enter your email address.'),
 			defaultValue = gmTools.coalesce(email, u''),
@@ -1707,9 +1887,6 @@ class gmTopLevelFrame(wx.Frame):
 		gmSurgery.gmCurrentPractice().user_email = email
 		gmExceptionHandlingWidgets.set_sender_email(email)
 		dlg.Destroy()
-	#----------------------------------------------
-	def __on_configure_workplace(self, evt):
-		gmProviderInboxWidgets.configure_workplace_plugins(parent = self)
 	#----------------------------------------------
 	def __on_configure_update_check(self, evt):
 		gmCfgWidgets.configure_boolean_option (
@@ -1818,6 +1995,23 @@ class gmTopLevelFrame(wx.Frame):
 			]
 		)
 	#----------------------------------------------
+	def __on_configure_generate_doc_uuid(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			question = _(
+				'After importing a new document do you\n'
+				'want GNUmed to generate a unique ID\n'
+				'(UUID) for that document ?\n'
+				'\n'
+				'This can be useful if you want to label the\n'
+				'originals with that ID for later identification.'
+			),
+			option = u'horstspace.scan_index.generate_doc_uuid',
+			button_tooltips = [
+				_('Yes, generate a UUID for the new document after importing.'),
+				_('No, do not generate a UUID for the new document after importing.')
+			]
+		)
+	#----------------------------------------------
 	def __on_configure_doc_review_dialog(self, evt):
 
 		def is_valid(value):
@@ -1825,7 +2019,7 @@ class gmTopLevelFrame(wx.Frame):
 				value = int(value)
 			except:
 				return False, value
-			if value not in [0, 1, 2]:
+			if value not in [0, 1, 2, 3, 4]:
 				return False, value
 			return True, value
 
@@ -1840,6 +2034,8 @@ class gmTopLevelFrame(wx.Frame):
 				' 0: never display the review dialog\n'
 				' 1: always display the dialog\n'
 				' 2: only if there is no previous review by me\n'
+				' 3: only if there is no previous review at all\n'
+				' 4: only if there is no review by the responsible reviewer\n'
 				'\n'
 				'Note that if a viewer is configured to not block\n'
 				'GNUmed during document display the review dialog\n'
@@ -1847,23 +2043,172 @@ class gmTopLevelFrame(wx.Frame):
 			),
 			option = u'horstspace.document_viewer.review_after_display',
 			bias = u'user',
-			default_value = 2,
+			default_value = 3,
 			validator = is_valid
+		)
+	#----------------------------------------------
+	def __on_manage_master_data(self, evt):
+
+		# this is how it is sorted
+		master_data_lists = [
+			'adr',
+			'billables',
+			'drugs',
+			'hints',
+			'codes',
+			'communication_channel_types',
+			'substances_in_brands',
+			'substances',
+			'labs',
+			'form_templates',
+			'doc_types',
+			'enc_types',
+			'text_expansions',
+			'meta_test_types',
+			'orgs',
+			'patient_tags',
+			'provinces',
+			'db_translations',
+			'ref_data_sources',
+			'test_types',
+			'vacc_indications',
+			'vaccines',
+			'workplaces'
+		]
+
+		master_data_list_names = {
+			'adr': _('Addresses (likely slow)'),
+			'drugs': _('Branded drugs (as marketed)'),
+			'hints': _('Clinical hints'),
+			'codes': _('Codes and their respective terms'),
+			'communication_channel_types': _('Communication channel types'),
+			'substances_in_brands': _('Components of branded drugs (substances in brands)'),
+			'labs': _('Diagnostic organizations (path labs, ...)'),
+			'form_templates': _('Document templates (forms, letters, plots, ...)'),
+			'doc_types': _('Document types'),
+			'enc_types': _('Encounter types'),
+			'text_expansions': _('Keyword based text expansion macros'),
+			'meta_test_types': _('Meta test/measurement types'),
+			'orgs': _('Organizations with their units, addresses, and comm channels'),
+			'patient_tags': _('Patient tags'),
+			'provinces': _('Provinces (counties, territories, states, regions, ...)'),
+			'db_translations': _('String translations in the database'),
+			'test_types': _('Test/measurement types'),
+			'vacc_indications': _('Vaccination targets (conditions known to be preventable by vaccination)'),
+			'vaccines': _('Vaccines'),
+			'workplaces': _('Workplace profiles (which plugins to load)'),
+			'substances': _('Consumable substances'),
+			'billables': _('Billable items'),
+			'ref_data_sources': _('Reference data sources')
+		}
+
+		map_list2handler = {
+			'form_templates': gmFormWidgets.manage_form_templates,
+			'doc_types': gmDocumentWidgets.manage_document_types,
+			'text_expansions': gmTextExpansionWidgets.configure_keyword_text_expansion,
+			'db_translations': gmI18nWidgets.manage_translations,
+			'codes': gmCodingWidgets.browse_coded_terms,
+			'enc_types': gmEMRStructWidgets.manage_encounter_types,
+			'provinces': gmAddressWidgets.manage_provinces,
+			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
+			'drugs': gmMedicationWidgets.manage_branded_drugs,
+			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
+			'labs': gmMeasurementWidgets.manage_measurement_orgs,
+			'test_types': gmMeasurementWidgets.manage_measurement_types,
+			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
+			'vaccines': gmVaccWidgets.manage_vaccines,
+			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
+			'orgs': gmOrganizationWidgets.manage_orgs,
+			'adr': gmAddressWidgets.manage_addresses,
+			'substances': gmMedicationWidgets.manage_consumable_substances,
+			'patient_tags': gmDemographicsWidgets.manage_tag_images,
+			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
+			'billables': gmBillingWidgets.manage_billables,
+			'ref_data_sources': gmCodingWidgets.browse_data_sources,
+			'hints': gmProviderInboxWidgets.browse_dynamic_hints,
+		}
+
+		#---------------------------------
+		def edit(item):
+			try: map_list2handler[item](parent = self)
+			except KeyError: pass
+			return False
+		#---------------------------------
+
+		gmListWidgets.get_choices_from_list (
+			parent = self,
+			caption = _('Master data management'),
+			choices = [ master_data_list_names[lst] for lst in master_data_lists],
+			data = master_data_lists,
+			columns = [_('Select the list you want to manage:')],
+			edit_callback = edit,
+			single_selection = True,
+			ignore_OK_button = True
 		)
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
-		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
-			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking=False)
+		found, cmd = gmShellAPI.detect_external_binary(binary = 'ginkgocadx')
+		if found:
+			gmShellAPI.run_command_in_shell(cmd, blocking=False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'xmedcon']:
+		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking = False)
+			return
+
+		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
-				gmShellAPI.run_command_in_shell(cmd, blocking=False)
+				gmShellAPI.run_command_in_shell(cmd, blocking = False)
 				return
 
 		gmDispatcher.send(signal = 'statustext', msg = _('No DICOM viewer found.'), beep = True)
+	#----------------------------------------------
+	def __on_arriba(self, evt):
+
+		curr_pat = gmPerson.gmCurrentPatient()
+
+		arriba = gmArriba.cArriba()
+		pat = gmTools.bool2subst(curr_pat.connected, curr_pat, None)
+		if not arriba.run(patient = pat, debug = _cfg.get(option = 'debug')):
+			return
+
+		# FIXME: try to find patient
+		if curr_pat is None:
+			return
+
+		if arriba.pdf_result is None:
+			return
+
+		doc = gmDocumentWidgets.save_file_as_new_document (
+			parent = self,
+			filename = arriba.pdf_result,
+			document_type = _('risk assessment')
+		)
+
+		try: os.remove(arriba.pdf_result)
+		except StandardError: _log.exception('cannot remove [%s]', arriba.pdf_result)
+
+		if doc is None:
+			return
+
+		doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
+		doc.save()
+
+		try:
+			open(arriba.xml_result).close()
+			part = doc.add_part(file = arriba.xml_result)
+		except StandardError:
+			_log.exception('error accessing [%s]', arriba.xml_result)
+			gmDispatcher.send(signal = u'statustext', msg = _('[arriba] XML result not found in [%s]') % arriba.xml_result, beep = False)
+
+		if part is None:
+			return
+
+		part['obj_comment'] = u'XML-Daten'
+		part['filename'] = u'arriba-result.xml'
+		part.save()
 	#----------------------------------------------
 	def __on_acs_risk_assessment(self, evt):
 
@@ -1896,7 +2241,7 @@ class gmTopLevelFrame(wx.Frame):
 				open(pdf).close()
 			except:
 				_log.exception('error accessing [%s]', pdf)
-				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the ARRIBA result in [%s] !') % pdf, beep = True)
+				gmDispatcher.send(signal = u'statustext', msg = _('There was a problem accessing the [arriba] result in [%s] !') % pdf, beep = True)
 				continue
 
 			doc = gmDocumentWidgets.save_file_as_new_document (
@@ -1912,7 +2257,7 @@ class gmTopLevelFrame(wx.Frame):
 
 			if doc is None:
 				continue
-			doc['comment'] = u'ARRIBA: %s' % _('cardiovascular risk assessment')
+			doc['comment'] = u'arriba: %s' % _('cardiovascular risk assessment')
 			doc.save()
 
 		return
@@ -1936,21 +2281,22 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'],
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
 		gmMedicationWidgets.jump_to_drug_database()
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
-		webbrowser.open (
-			url = 'http://www.kompendium.ch',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = u'http://www.kompendium.ch')
+	#----------------------------------------------
+	# Office
+	#----------------------------------------------
+	def __on_display_audit_trail(self, evt):
+		gmProviderInboxWidgets.show_audit_trail(parent = self)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_show_all_bills(self, evt):
+		gmBillingWidgets.manage_bills(parent = self)
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------
@@ -2000,37 +2346,21 @@ class gmTopLevelFrame(wx.Frame):
 		wx.lib.inspection.InspectionTool().Show()
 	#----------------------------------------------
 	def __on_display_bugtracker(self, evt):
-		webbrowser.open (
-			url = 'https://bugs.launchpad.net/gnumed/',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'https://bugs.launchpad.net/gnumed/')
 	#----------------------------------------------
 	def __on_display_wiki(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de')
 	#----------------------------------------------
 	def __on_display_user_manual_online(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual#UserGuideInManual')
 	#----------------------------------------------
 	def __on_menu_reference(self, evt):
-		webbrowser.open (
-			url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference',
-			new = False,
-			autoraise = True
-		)
+		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
 		if found:
-			gmShellAPI.run_command_in_shell(cmd, blocking=False)
+			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
 		gmDispatcher.send(signal = 'statustext', msg = _('pgAdmin III not found.'), beep = True)
 	#----------------------------------------------
@@ -2040,6 +2370,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_unblock_cursor(self, evt):
 		wx.EndBusyCursor()
+	#----------------------------------------------
+	def __on_clear_status_line(self, evt):
+		gmDispatcher.send(signal = 'statustext', msg = u'')
 	#----------------------------------------------
 	def __on_toggle_patient_lock(self, evt):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2077,6 +2410,9 @@ class gmTopLevelFrame(wx.Frame):
 		gmLog2.flush()
 		shutil.copy2(gmLog2._logfile_name, new_name)
 		gmDispatcher.send('statustext', msg = _('Log file backed up as [%s].') % new_name)
+	#----------------------------------------------
+	def __on_email_log_file(self, evt):
+		gmExceptionHandlingWidgets.mail_log(parent = self)
 	#----------------------------------------------
 	# GNUmed /
 	#----------------------------------------------
@@ -2124,6 +2460,13 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
 	#----------------------------------------------
+	def __on_add_episode(self, event):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add episode. No active patient.'))
+			return False
+		gmEMRStructWidgets.edit_episode(parent = self, episode = None)
+	#----------------------------------------------
 	def __on_add_medication(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2153,7 +2496,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_manage_hospital_stays(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospital stays. No active patient.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospitalizations. No active patient.'))
 			return False
 		gmEMRStructWidgets.manage_hospital_stays(parent = self)
 		evt.Skip()
@@ -2164,6 +2507,24 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot edit occupation. No active patient.'))
 			return False
 		gmDemographicsWidgets.edit_occupation()
+		evt.Skip()
+	#----------------------------------------------
+	def __on_add_vaccination(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add vaccinations. No active patient.'))
+			return False
+
+		gmVaccWidgets.manage_vaccinations(parent = self)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_fhx(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage family history. No active patient.'))
+			return False
+
+		gmFamilyHistoryWidgets.manage_family_history(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_add_measurement(self, evt):
@@ -2247,9 +2608,41 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_export_for_medistar(self, event):
 		gmNarrativeWidgets.export_narrative_for_medistar_import (
 			parent = self,
-			soap_cats = u'soap',
+			soap_cats = u'soapu',
 			encounter = None			# IOW, the current one
 		)
+	#----------------------------------------------
+	def __on_add_tag2person(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add tag to person. No active patient.'))
+			return
+
+		tag = gmDemographicsWidgets.manage_tag_images(parent = self)
+		if tag is None:
+			return
+
+		tag = curr_pat.add_tag(tag['pk_tag_image'])
+		msg = _('Edit the comment on tag [%s]') % tag['l10n_description']
+		comment = wx.GetTextFromUser (
+			message = msg,
+			caption = _('Editing tag comment'),
+			default_value = gmTools.coalesce(tag['comment'], u''),
+			parent = self
+		)
+
+		if comment == u'':
+			return
+
+		if comment.strip() == tag['comment']:
+			return
+
+		if comment == u' ':
+			tag['comment'] = None
+		else:
+			tag['comment'] = comment.strip()
+
+		tag.save()
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
 		dbcfg = gmCfg.cCfgSQL()
@@ -2275,12 +2668,6 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
 	#----------------------------------------------
-#	def __on_create_patient(self, event):
-#		"""Launch create patient wizard.
-#		"""
-#		wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-#		wiz.RunWizard(activate=True)
-	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2302,10 +2689,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
-		#wiz = gmDemographicsWidgets.cNewPatientWizard(parent=self)
-		#if not wiz.RunWizard(activate=True):
-		#	return False
-		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+		if not gmDemographicsWidgets.create_new_person(parent = self, activate = True):
+			return
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
@@ -2313,36 +2698,8 @@ class gmTopLevelFrame(wx.Frame):
 		dlg = gmStaffWidgets.cEditStaffListDlg(parent=self, id=-1)
 		dlg.ShowModal()
 	#----------------------------------------------
-	def __on_edit_doc_types(self, event):
-		dlg = gmDocumentWidgets.cEditDocumentTypesDlg(parent=self, id=-1)
-		dlg.ShowModal()
-	#----------------------------------------------
-	def __on_manage_text_expansion(self, evt):
-		gmProviderInboxWidgets.configure_keyword_text_expansion(parent=self)
-	#----------------------------------------------
-	def __on_manage_encounter_types(self, evt):
-		gmEMRStructWidgets.manage_encounter_types(parent=self)
-	#----------------------------------------------
-	def __on_manage_provinces(self, evt):
-		gmDemographicsWidgets.manage_provinces(parent=self)
-	#----------------------------------------------
-	def __on_manage_substances(self, evt):
-		gmMedicationWidgets.manage_substances_in_use(parent = self)
-	#----------------------------------------------
-	def __on_manage_branded_drugs(self, evt):
-		gmMedicationWidgets.manage_branded_drugs(parent = self)
-	#----------------------------------------------
-	def __on_manage_substances_in_brands(self, evt):
-		gmMedicationWidgets.manage_substances_in_brands(parent = self)
-	#----------------------------------------------
-	def __on_manage_test_orgs(self, evt):
-		gmMeasurementWidgets.manage_measurement_orgs(parent = self)
-	#----------------------------------------------
-	def __on_manage_test_types(self, evt):
-		gmMeasurementWidgets.manage_measurement_types(parent = self)
-	#----------------------------------------------
-	def __on_manage_meta_test_types(self, evt):
-		gmMeasurementWidgets.manage_meta_test_types(parent = self)
+	def __on_edit_gmdbowner_password(self, evt):
+		gmAuthWidgets.change_gmdbowner_password()
 	#----------------------------------------------
 	def __on_update_loinc(self, evt):
 		gmMeasurementWidgets.update_loinc_reference_data()
@@ -2350,8 +2707,13 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_update_atc(self, evt):
 		gmMedicationWidgets.update_atc_reference_data()
 	#----------------------------------------------
-	def __on_manage_vaccines(self, evt):
-		gmVaccWidgets.manage_vaccines(parent = self)
+	def __on_install_data_packs(self, evt):
+		gmDataPackWidgets.manage_data_packs(parent = self)
+	#----------------------------------------------
+	def __on_generate_vaccines(self, evt):
+		wx.BeginBusyCursor()
+		gmVaccination.regenerate_generic_vaccines()
+		wx.EndBusyCursor()
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.
@@ -2415,8 +2777,12 @@ class gmTopLevelFrame(wx.Frame):
 
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'
-			print _('You have to manually close this window to finalize shutting down GNUmed.')
-			print _('This is so that you can inspect the console output at your leisure.')
+			try:
+				print _('You have to manually close this window to finalize shutting down GNUmed.')
+				print _('This is so that you can inspect the console output at your leisure.')
+			except UnicodeEncodeError:
+				print 'You have to manually close this window to finalize shutting down GNUmed.'
+				print 'This is so that you can inspect the console output at your leisure.'
 			print '---=== GNUmed shutdown ===---'
 
 		# shutdown GUI exception handling
@@ -2455,15 +2821,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-#			title = pat['title']
-#			if title is None:
-#				title = ''
-#			else:
-#				title = title[:4]
-
 			args['pat'] = u'%s %s %s (%s) #%d' % (
 				gmTools.coalesce(pat['title'], u'', u'%.4s'),
-				#title,
 				pat['firstnames'],
 				pat['lastnames'],
 				pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
@@ -2495,8 +2854,8 @@ class gmTopLevelFrame(wx.Frame):
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%c', t).decode(gmI18N.get_encoding())
-		self.SetStatusText(st,1)
+		st = time.strftime('%c', t).decode(gmI18N.get_encoding(), 'replace')
+		self.SetStatusText(st, 1)
 	#------------------------------------------------
 	def Lock(self):
 		"""Lock GNUmed client against unauthorized access"""
@@ -2557,7 +2916,7 @@ class gmApp(wx.App):
 				return False
 
 		# FIXME: load last position from backend
-		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640,440))
+		frame = gmTopLevelFrame(None, -1, _('GNUmed client'), (640, 440))
 		frame.CentreOnScreen(wx.BOTH)
 		self.SetTopWindow(frame)
 		frame.Show(True)
@@ -2654,15 +3013,11 @@ class gmApp(wx.App):
 		for key in kwargs.keys():
 			print '    [%s]: %s' % (key, kwargs[key])
 	#----------------------------------------------
-	def _signal_debugging_monitor_pubsub(self, msg):
-		print "wx.lib.pubsub message:"
-		print msg.topic
-		print msg.data
-	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
-		self.__guibroker['horstspace.top_panel'].patient_selector.SetFocus()
+		#gmPerson.set_emr_access_spinner(func = gmEMRStructWidgets.emr_access_spinner)
+		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------
 	def __setup_user_activity_timer(self):
@@ -2696,14 +3051,9 @@ class gmApp(wx.App):
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
 
-#		if _cfg.get(option = 'debug'):
-#			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
-#			_log.debug('connected old signal monitor')
-#			wx.lib.pubsub.Publisher().subscribe (
-#				listener = self._signal_debugging_monitor_pubsub,
-#				topic = wx.lib.pubsub.getStrAllTopics()
-#			)
-#			_log.debug('connected wx.lib.pubsub based signal monitor for all topics: [%s]', wx.lib.pubsub.getStrAllTopics())
+		if _cfg.get(option = 'debug'):
+			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
+			_log.debug('connected signal monitor')
 	#----------------------------------------------
 	def __check_for_updates(self):
 
@@ -2739,7 +3089,7 @@ class gmApp(wx.App):
 		# check account <-> staff member association
 		try:
 			global _provider
-			_provider = gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+			_provider = gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		except ValueError:
 			account = gmPG2.get_current_user()
 			_log.exception('DB account [%s] cannot be used as a GNUmed staff login', account)
@@ -2776,6 +3126,7 @@ class gmApp(wx.App):
 
 			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 				None,
+				#self.GetTopWindow(),				# freezes
 				-1,
 				caption = _('Verifying database'),
 				question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
@@ -2909,6 +3260,7 @@ class gmApp(wx.App):
 			_log.info('running on GTK (probably Linux)')
 		elif wx.Platform == '__WXMAC__':
 			_log.info('running on Mac OS')
+			wx.SystemOptions.SetOptionInt('mac.textcontrol-use-spell-checker', 1)
 		else:
 			_log.info('running on an unknown platform (%s)' % wx.Platform)
 	#----------------------------------------------
@@ -3040,26 +3392,31 @@ def _signal_debugging_monitor(*args, **kwargs):
 		# careful because of possibly limited console output encoding
 		try: print '    [%s]: %s' % (key, kwargs[key])
 		except: print 'cannot print signal information'
+#==============================================================================
+def _safe_wxEndBusyCursor():
+	try: _original_wxEndBusyCursor()
+	except wx.PyAssertionError: pass
 #------------------------------------------------------------------------------
-def _signal_debugging_monitor_pubsub(msg):
-	# careful because of possibly limited console output encoding
-	try:
-		print '==> received wx.lib.pubsub message: "%s"' % msg.topic
-		print '    data: %s' % msg.data
-		print msg
-	except: print 'problem printing pubsub message information'
+def setup_safe_wxEndBusyCursor():
+	# monkey patch wxPython, needed on Windows ...
+	if os.name != 'nt':
+		return
+	print "GNUmed startup: Monkey patching wx.EndBusyCursor..."
+	global _original_wxEndBusyCursor
+	_original_wxEndBusyCursor = wx.EndBusyCursor
+	wx.EndBusyCursor = _safe_wxEndBusyCursor
+	_log.debug('monkey patched wx.EndBusyCursor:')
+	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
 #==============================================================================
 def main():
 
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
 		_log.debug('gmDispatcher signal monitor activated')
-		wx.lib.pubsub.Publisher().subscribe (
-			listener = _signal_debugging_monitor_pubsub,
-			topic = wx.lib.pubsub.getStrAllTopics()
-		)
-		_log.debug('wx.lib.pubsub signal monitor activated')
 
+	setup_safe_wxEndBusyCursor()
+
+	wx.InitAllImageHandlers()
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered

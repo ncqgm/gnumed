@@ -4,13 +4,13 @@ They are used by business objects to give
 phrasewheels the ability to guess phrases.
 
 Copyright (C) GNUMed developers
-license: GPL
+license: GPL v2 or later
 """
 __version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import string, types, time, sys, re as regex, logging
+import re as regex, logging
 
 
 # GNUmed
@@ -21,7 +21,13 @@ _log = logging.getLogger('gm.ui')
 _log.info(__version__)
 
 
+# these are stripped from the fragment passed to the
+# match provider before looking for matches:
 default_ignored_chars = "[?!.'\\(){}\[\]<>~#*$%^_]+" + '"'
+
+# these are used to detect word boundaries which is,
+# in turn, used to normalize word boundaries in the
+# input fragment
 default_word_separators = '[- \t=+&:@]+'
 #============================================================
 class cMatchProvider(object):
@@ -41,6 +47,7 @@ class cMatchProvider(object):
 
 		self._context_vals = {}
 		self.__ignored_chars = regex.compile(default_ignored_chars)
+		# used to normalize word boundaries:
 		self.__word_separators = regex.compile(default_word_separators)
 	#--------------------------------------------------------
 	# actions
@@ -92,6 +99,9 @@ class cMatchProvider(object):
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		raise NotImplementedError
+	#--------------------------------------------------------
+	def get_match_by_data(self, data=None):
+		return None
 	#--------------------------------------------------------
 	# configuration
 	#--------------------------------------------------------
@@ -175,9 +185,9 @@ class cMatchProvider_FixedList(cMatchProvider):
 	def __init__(self, aSeq = None):
 		"""aSeq must be a list of dicts. Each dict must have the keys (data, label, weight)
 		"""
-		if not type(aSeq) in [types.ListType, types.TupleType]:
-			_log.error('fixed list match provider argument must be a list or tuple of dicts')
-			raise TypeError('fixed list match provider argument must be a list or tuple of dicts')
+		if not type(aSeq) in [type(None), type([]), type(())]:
+			_log.error('fixed list match provider argument must be a list/tuple of dicts/None')
+			raise TypeError('fixed list match provider argument must be a list/tuple of dicts/None')
 
 		self.__items = aSeq
 		cMatchProvider.__init__(self)
@@ -195,7 +205,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		# look for matches
 		for item in self.__items:
 			# at start of phrase, that is
-			if string.find(string.lower(item['label']), aFragment) == 0:
+			if item['list_label'].lower().startswith(aFragment.lower()):
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -209,14 +219,15 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			pos = string.find(string.lower(item['label']), aFragment)
+			item_label = item['list_label'].lower()
+			fragment_pos = item_label.find(aFragment.lower())
 			# found at start of phrase
-			if pos == 0:
+			if fragment_pos == 0:
 				matches.append(item)
 			# found as a true substring
-			elif pos > 0:
+			elif fragment_pos > 0:
 				# but use only if substring is at start of a word
-				if (item['label'])[pos-1] == ' ':
+				if item_label[fragment_pos-1] == u' ':
 					matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -230,7 +241,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		matches = []
 		# look for matches
 		for item in self.__items:
-			if string.find(string.lower(item['label']), aFragment) != -1:
+			if item['list_label'].lower().find(aFragment.lower()) != -1:
 				matches.append(item)
 		# no matches found
 		if len(matches) == 0:
@@ -250,7 +261,7 @@ class cMatchProvider_FixedList(cMatchProvider):
 		return (True, matches)
 	#--------------------------------------------------------
 	def set_items(self, items):
-		"""items must be a list of dicts. Each dict must have the keys (data, label, weight)"""
+		"""items must be a list of dicts. Each dict must have the keys (data, list_label, weight)"""
 		self.__items = items
 	#--------------------------------------------------------
 	def __cmp_items(self, item1, item2):
@@ -272,7 +283,7 @@ class cMatchProvider_Func(cMatchProvider):
 		"""get_candidates() must return a list of strings."""
 		if get_candidates is None:
 			_log.error('must define function to retrieve match candidates list')
-			raise ArgumentError('must define function to retrieve match candidates list')
+			raise ValueError('must define function to retrieve match candidates list')
 
 		self._get_candidates = get_candidates
 		cMatchProvider.__init__(self)
@@ -286,13 +297,12 @@ class cMatchProvider_Func(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		print "getting phrase matches"
 		matches = []
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
 			# at start of phrase, that is
-			if aFragment.startswith(candidate['label'].lower()):
+			if aFragment.startswith(candidate['list_label'].lower()):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -303,17 +313,16 @@ class cMatchProvider_Func(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
-		print "getting word matches"
 		matches = []
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			pos = candidate['label'].lower().find(aFragment)
-#			pos = string.find(string.lower(candidate['label']), aFragment)
+			pos = candidate['list_label'].lower().find(aFragment)
+#			pos = string.find(string.lower(candidate['list_label']), aFragment)
 			# found as a true substring
 			# but use only if substring is at start of a word
 			# FIXME: use word seps
-			if (pos == 0) or (candidate['label'][pos-1] == ' '):
+			if (pos == 0) or (candidate['list_label'][pos-1] == u' '):
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -328,8 +337,8 @@ class cMatchProvider_Func(cMatchProvider):
 		candidates = self._get_candidates()
 		# look for matches
 		for candidate in candidates:
-			if candidate['label'].lower().find(aFragment) != -1:
-#			if string.find(string.lower(candidate['label']), aFragment) != -1:
+			if candidate['list_label'].lower().find(aFragment) != -1:
+#			if string.find(string.lower(candidate['list_label']), aFragment) != -1:
 				matches.append(candidate)
 		# no matches found
 		if len(matches) == 0:
@@ -360,17 +369,28 @@ class cMatchProvider_SQL2(cMatchProvider):
 	queries:
 		- a list of unicode strings
 		- each string is a query
-		- each string must contain: "... where <column> %(fragment_condition)s ..."
-		- each string can contain in the where clause: "... %(<context_key>)s ..."
+		- each string must contain: "... WHERE <column> %(fragment_condition)s ..."
+		- each string can contain in the where clause: "... %(<ctxt_key1>)s ..."
+		- each query must return (data, list_label, field_label)
 
-	context definitions to be used in the queries
-	example: {'ctxt_country': {'where_part': 'and country = %(country)s', 'placeholder': 'country'}}
+	context definitions to be used in the queries, example:
+		{'ctxt_key1': {'where_part': 'AND country = %(country)s', 'placeholder': 'country'}}
+
+	client code using .set_context() must use the 'placeholder':
+		<phrasewheel>/<match provider>.set_context('country', 'Germany')
+
+	_SQL_data2match:
+		SQL to retrieve a match by, say, primary key
+		wherein the only keyword argument is 'pk'
 	"""
 	def __init__(self, queries = None, context = None):
-		if type(queries) != types.ListType:
-			queries = [queries]
 
-		self._queries = queries
+		cMatchProvider.__init__(self)
+
+		if type(queries) == type([]):
+			self._queries = queries
+		else:
+			self._queries = [queries]
 
 		if context is None:
 			self._context = {}
@@ -378,7 +398,8 @@ class cMatchProvider_SQL2(cMatchProvider):
 			self._context = context
 
 		self._args = {}
-		cMatchProvider.__init__(self)
+
+		self._SQL_data2match = None
 	#--------------------------------------------------------
 	# internal matching algorithms
 	#
@@ -389,28 +410,55 @@ class cMatchProvider_SQL2(cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		fragment_condition = u"ilike %(fragment)s"
+
+		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%s%%" % aFragment
-		return self.__find_matches(fragment_condition)
+
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
+
 		fragment_condition = u"~* %(fragment)s"
 		aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 		self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
-		return self.__find_matches(fragment_condition)
+
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getMatchesBySubstr(self, aFragment):
 		"""Return matches for aFragment as a true substring."""
-		fragment_condition = u"ilike %(fragment)s"
+
+		fragment_condition = u"ILIKE %(fragment)s"
 		self._args['fragment'] = u"%%%s%%" % aFragment
-		return self.__find_matches(fragment_condition)
+
+		return self._find_matches(fragment_condition)
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
 		return self.getMatchesBySubstr(u'')
 	#--------------------------------------------------------
-	def __find_matches(self, fragment_condition):
+	def get_match_by_data(self, data=None):
+		if self._SQL_data2match is None:
+			return None
+
+		query = {'cmd': self._SQL_data2match, 'args': {'pk': data}}
+		try:
+			rows, idx = gmPG2.run_ro_queries(queries = [query], get_col_idx = False)
+		except:
+			_log.exception('[%s]: error running _SQL_data2match, dropping query', self.__class__.__name__)
+			self._SQL_data2match = None
+			return None
+
+		# hopefully the most frequent case:
+		if len(rows) == 1:
+			return rows[0]
+
+		_log.error('[%s]: 0 or >1 rows found by running _SQL_data2match, ambiguous, ignoring', self.__class__.__name__)
+		return None
+	#--------------------------------------------------------
+	def _find_matches(self, fragment_condition):
+		if self.print_queries:
+			print "----------------------"
 		matches = []
 		for query in self._queries:
 			where_fragments = {'fragment_condition': fragment_condition}
@@ -422,20 +470,26 @@ class cMatchProvider_SQL2(cMatchProvider):
 					self._args[placeholder] = self._context_vals[placeholder]
 					# we do have a context value for this key, so add the where condition
 					where_fragments[context_key] = where_part
+					if self.print_queries:
+						print "ctxt ph:", placeholder
+						print "ctxt where:", where_part
+						print "ctxt val:", self._context_vals[placeholder]
 				except KeyError:
 					# we don't have a context value for this key, so skip the where condition
 					where_fragments[context_key] = u''
+					if self.print_queries:
+						print "invalid ctxt key:", context_key
 
 			cmd = query % where_fragments
 
 			if self.print_queries:
-				print self.__class__.__name__
-				print self._context_vals
-				print self._args
-				print cmd
+				print "class:", self.__class__.__name__
+				print "ctxt:", self._context_vals
+				print "args:", self._args
+				print "query:", cmd
 
 			try:
-				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}])
+				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': self._args}], get_col_idx = False)
 			except:
 				_log.exception('[%s]: error running match provider SQL, dropping query', self.__class__.__name__)
 				idx = self._queries.index(query)
@@ -447,9 +501,39 @@ class cMatchProvider_SQL2(cMatchProvider):
 				continue
 
 			for row in rows:
-				matches.append({'data': row[0], 'label': row[1], 'weight': 0})
+				match = {'weight': 0}
+
+				try:
+					match['data'] = row['data']
+				except KeyError:
+					match['data'] = row[0]
+
+				try:
+					match['list_label'] = row['list_label']
+				except KeyError:
+					match['list_label'] = row[1]
+
+				# explicit "field_label" in result ?
+				try:
+					match['field_label'] = row['field_label']
+				# no
+				except KeyError:
+					# but does row[2] exist ?
+					try:
+						match['field_label'] = row[2]
+					# no: reuse "list_label"
+					except IndexError:
+						match['field_label'] = match['list_label']
+
+#				try:
+#					match['label'] = row['label']
+#				except KeyError:
+#					match['label'] = match['list_label']
+
+				matches.append(match)
 
 			return (True, matches)
+
 		# none found whatsoever
 		return (False, [])
 #================================================================

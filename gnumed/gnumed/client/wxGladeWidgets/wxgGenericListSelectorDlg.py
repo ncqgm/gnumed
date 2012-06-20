@@ -16,9 +16,12 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self._LCTRL_items = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.NO_BORDER)
         self._BTN_ok = wx.Button(self, wx.ID_OK, "")
         self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
-        self._BTN_new = wx.Button(self, wx.ID_NEW, "")
-        self._BTN_edit = wx.Button(self, -1, _("&Edit"))
-        self._BTN_delete = wx.Button(self, -1, _("&Delete"))
+        self._BTN_new = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
+        self._BTN_edit = wx.Button(self, -1, _("&Edit"), style=wx.BU_EXACTFIT)
+        self._BTN_delete = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
+        self._BTN_extra_left = wx.Button(self, -1, _("1"), style=wx.BU_EXACTFIT)
+        self._BTN_extra_middle = wx.Button(self, -1, _("2"), style=wx.BU_EXACTFIT)
+        self._BTN_extra_right = wx.Button(self, -1, _("3"), style=wx.BU_EXACTFIT)
 
         self.__set_properties()
         self.__do_layout()
@@ -28,6 +31,9 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._on_new_button_pressed, self._BTN_new)
         self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
         self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
+        self.Bind(wx.EVT_BUTTON, self._on_left_extra_button_pressed, self._BTN_extra_left)
+        self.Bind(wx.EVT_BUTTON, self._on_middle_extra_button_pressed, self._BTN_extra_middle)
+        self.Bind(wx.EVT_BUTTON, self._on_right_extra_button_pressed, self._BTN_extra_right)
         # end wxGlade
 
     def __set_properties(self):
@@ -43,8 +49,11 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         self._BTN_new.Enable(False)
         self._BTN_edit.SetToolTipString(_("Edit the (first or only) item selected in the list above."))
         self._BTN_edit.Enable(False)
-        self._BTN_delete.SetToolTipString(_("Delete the (first or only) item selected in the list above."))
+        self._BTN_delete.SetToolTipString(_("Delete - if possible - the (first or only) item selected in the list above."))
         self._BTN_delete.Enable(False)
+        self._BTN_extra_left.Enable(False)
+        self._BTN_extra_middle.Enable(False)
+        self._BTN_extra_right.Enable(False)
         # end wxGlade
 
     def __do_layout(self):
@@ -54,13 +63,16 @@ class wxgGenericListSelectorDlg(wx.Dialog):
         __szr_main.Add(self._LBL_message, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 3)
         __szr_main.Add(self._LCTRL_items, 1, wx.ALL|wx.EXPAND, 3)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_ok, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_ok, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_cancel, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_new, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_edit, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_delete, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+        __szr_buttons.Add(self._BTN_extra_left, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_extra_middle, 0, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_extra_right, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_main.Add(__szr_buttons, 0, wx.ALL|wx.EXPAND, 3)
         self.SetSizer(__szr_main)
@@ -90,6 +102,18 @@ class wxgGenericListSelectorDlg(wx.Dialog):
 
     def _on_delete_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
         print "Event handler `_on_delete_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_left_extra_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
+        print "Event handler `_on_left_extra_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_middle_extra_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
+        print "Event handler `_on_middle_extra_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_right_extra_button_pressed(self, event): # wxGlade: wxgGenericListSelectorDlg.<event_handler>
+        print "Event handler `_on_right_extra_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgGenericListSelectorDlg

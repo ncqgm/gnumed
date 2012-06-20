@@ -10,7 +10,7 @@ import psycopg2 as dbapi
 
 __license__ = "GPL"
 dsn = "dbname=gnumed_v9 user=any-doc password=any-doc"
-#dsn = "host=salaam.homeunix.com port=5432 dbname=gnumed_v2 user=any-doc password=any-doc"
+#dsn = "host=publicdb.gnumed.de port=5432 dbname=gnumed_v2 user=any-doc password=any-doc"
 fname = sys.argv[1]
 encodings = 'win1250 win1252 latin1 iso-8859-15 sql_ascii latin9'.split()
 

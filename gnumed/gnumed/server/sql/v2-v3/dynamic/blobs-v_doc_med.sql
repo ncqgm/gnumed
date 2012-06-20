@@ -7,7 +7,7 @@
 -- What it does:
 -- - upgrade blobs.v_doc_med
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

@@ -282,7 +282,7 @@ class user:
 			# this means to ask the user if interactive
 			elif self.password == '':
 				if _interactive:
-					print "I need the password for the GNUmed database user [%s]." % self.name
+					print "I need the password for the database user [%s]." % self.name
 					self.password = getpass.getpass("Please type the password: ")
 				else:
 					_log.warning('cannot get password for database user [%s]', self.name)
@@ -357,13 +357,14 @@ class db_server:
 			if self.conn.closed == 0:
 				self.conn.close()
 
-		self.conn = connect (self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
+		self.conn = connect(self.name, self.port, self.template_db, self.superuser.name, self.superuser.password)
 		if self.conn is None:
 			_log.error('Cannot connect.')
 			return None
 
 		self.conn.cookie = 'db_server.__connect_superuser_to_srv_template'
 
+		# verify encoding
 		curs = self.conn.cursor()
 		curs.execute(u"select setting from pg_settings where name = 'lc_ctype'")
 		data = curs.fetchall()
@@ -374,12 +375,21 @@ class db_server:
 			_log.warning('while this cluster setting allows to store databases')
 			_log.warning('in any encoding as is it does not allow for locale')
 			_log.warning('sorting etc, hence it is not recommended for use')
+			_log.warning('(although it will, technically, work)')
 		elif not (lc_ctype.endswith('.utf-8') or lc_ctype.endswith('.utf8')):
 			_log.error('LC_CTYPE does not end in .UTF-8 or .UTF8')
-			_log.error('cluster encoding incompatible with utf8 encoded databases but')
-			_log.error('for GNUmed installation the cluster must accept this encoding')
-			_log.error('you may need to re-initdb or create a new cluster')
-			return None
+			curs.execute(u"show server_encoding")
+			data = curs.fetchall()
+			srv_enc = data[0][0]
+			_log.info('server_encoding is [%s]', srv_enc)
+			srv_enc = srv_enc.lower()
+			if not srv_enc in ['utf8', 'utf-8']:
+				_log.error('cluster encoding incompatible with utf8 encoded databases but')
+				_log.error('for GNUmed installation the cluster must accept this encoding')
+				_log.error('you may need to re-initdb or create a new cluster')
+				return None
+			_log.info('server encoding seems compatible despite not being reported in LC_CTYPE')
+
 		# make sure we get english messages
 		curs.execute(u"set lc_messages to 'C'")
 		curs.close()
@@ -444,12 +454,13 @@ class db_server:
 			return True
 
 		print_msg ((
-"""The database owner will be created.
+"""The database owner [%s] will be created.
+
 You will have to provide a new password for it
 unless it is pre-defined in the configuration file.
 
-Make sure to remember the password for later use.
-"""))
+Make sure to remember the password for later use !
+""") % name)
 		_dbowner = user(anAlias = dbowner_alias)
 
 		cmd = 'create user "%s" with password \'%s\' createdb createrole in group "%s", "gm-logins"' % (_dbowner.name, _dbowner.password, self.auth_group)
@@ -720,8 +731,12 @@ class database:
 		if template_version is None:
 			_log.warning('cannot check template database identity hash, no version specified')
 		else:
-			if not gmPG2.database_schema_compatible(link_obj=self.conn, version=template_version):
-				_log.error('invalid template database')
+			converted, version = gmTools.input2int(template_version.lstrip('v'), 0)
+			if not converted:
+				_log.error('invalid template database definition: %s', template_version)
+				return False
+			if not gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
+				_log.error('invalid [%s] schema structure in GNUmed template database [%s]', template_version, self.template_db)
 				return False
 
 		# check for target database
@@ -862,6 +877,7 @@ class database:
 	def check_holy_auth_line(self):
 
 		holy_pattern = 'local.*samegroup.*\+gm-logins'
+		holy_pattern_inactive = '#\s*local.*samegroup.*\+gm-logins'
 
 		conn = connect (
 			self.server.name,
@@ -899,8 +915,22 @@ class database:
 				break
 
 		if not found_holy_line:
-			_log.info('did not find standard GNUmed authentication directive in pg_hba.conf')
+			_log.info('did not find active standard GNUmed authentication directive in pg_hba.conf')
 			_log.info('regex: %s' % holy_pattern)
+
+			found_holy_line_inactive = False
+			for line in fileinput.input(hba_file):
+				if regex.match(holy_pattern_inactive, line) is not None:
+					found_holy_line_inactive = True
+					_log.info('found inactive standard GNUmed authentication directive in pg_hba.conf')
+					_log.info('[%s]', line)
+					_log.info('it may still be in the wrong place, though, so double-check if clients cannot connect')
+					break
+			if not found_holy_line_inactive:
+				_log.info('did not find inactive standard GNUmed authentication directive in pg_hba.conf either')
+				_log.info('regex: %s' % holy_pattern_inactive)
+
+			_log.info('bootstrapping is likely to have succeeded but clients probably cannot connect yet')
 			print_msg('==> sanity checking PostgreSQL authentication settings ...')
 			print_msg('')
 			print_msg('Note that even after successfully bootstrapping the GNUmed ')
@@ -908,7 +938,7 @@ class database:
 			print_msg('allow GNUmed clients to connect to it.')
 			print_msg('')
 			print_msg('In many standard PostgreSQL installations this amounts to')
-			print_msg('adding the authentication directive:')
+			print_msg('adding (or uncommenting) the authentication directive:')
 			print_msg('')
 			print_msg('  "local   samegroup   +gm-logins   md5"')
 			print_msg('')
@@ -932,7 +962,9 @@ class database:
 
 		script_base_dir = cfg_get(self.section, "script base directory")
 		script_base_dir = os.path.expanduser(script_base_dir)
-		script_base_dir = os.path.abspath(script_base_dir)
+		# doesn't work on MacOSX:
+		#script_base_dir = os.path.abspath(os.path.expanduser(script_base_dir))
+		script_base_dir = os.path.normcase(os.path.normpath(os.path.join('.', script_base_dir)))
 
 		for import_script in import_scripts:
 			try:
@@ -965,14 +997,20 @@ class database:
 		# verify template database hash
 		print_msg("==> verifying target database schema ...")
 		target_version = cfg_get(self.section, 'target version')
-		if gmPG2.database_schema_compatible(link_obj=self.conn, version=target_version):
+		if target_version == 'devel':
+			print_msg("    ... skipped (devel version)")
+			_log.info('result schema hash: %s', gmPG2.get_schema_hash(link_obj = self.conn))
+			_log.warning('testing/development only, not failing due to invalid target database identity hash')
+			return True
+		converted, version = gmTools.input2int(target_version.lstrip('v'), 2)
+		if not converted:
+			_log.error('cannot convert target database version: %s', target_version)
+			print_msg("    ... failed (invalid target version specification)")
+			return False
+		if gmPG2.database_schema_compatible(link_obj = self.conn, version = version):
 			_log.info('database identity hash properly verified')
 			return True
 		_log.error('target database identity hash invalid')
-		if target_version == 'devel':
-			print_msg("    ... skipped (devel version)")
-			_log.warning('testing/development only, not failing due to invalid target database identity hash')
-			return True
 		print_msg("    ... failed (hash mismatch)")
 		return False
 	#--------------------------------------------------------------
@@ -1046,8 +1084,8 @@ class database:
 		file.close()
 
 		# import auditing schema
-		psql = gmPsql.Psql (self.conn)
-		if psql.run (tmpfile) != 0:
+		psql = gmPsql.Psql(self.conn)
+		if psql.run(tmpfile) != 0:
 			_log.error("cannot import audit schema definition for database [%s]" % (self.name))
 			return None
 
@@ -1088,7 +1126,7 @@ class database:
 		file.close()
 
 		# import notification schema
-		psql = gmPsql.Psql (self.conn)
+		psql = gmPsql.Psql(self.conn)
 		if psql.run(tmpfile) != 0:
 			_log.error("cannot import notification schema definition for database [%s]" % (self.name))
 			return None
@@ -1147,7 +1185,16 @@ class gmBundle:
 			_log.error("Cannot load minimum required PostgreSQL version from config file.")
 			return None
 
-		if float(gmPG2.postgresql_version) < float(required_version):
+		converted, pg_ver = gmTools.input2decimal(gmPG2.postgresql_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			return None
+		converted, req_version = gmTools.input2decimal(required_version)
+		if not converted:
+			_log.error('error checking PostgreSQL version')
+			_log.error('required: %s', required_version)
+			return None
+		if pg_ver < req_version:
 			_log.error("Reported live PostgreSQL version [%s] is smaller than the required minimum version [%s]." % (gmPG2.postgresql_version, required_version))
 			return None
 
@@ -1360,8 +1407,6 @@ def handle_cfg():
 	"""Bootstrap the source 'file' in _cfg."""
 
 	_log.info('config file: %s', _cfg.source_files['file'])
-	_log.info('SCM path: %s', cfg_get("revision control", "file"))
-	_log.info('file version: %s', cfg_get("revision control", "version"))
 
 	become_pg_demon_user()
 

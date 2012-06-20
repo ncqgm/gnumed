@@ -2,7 +2,7 @@
 -- database: GIS
 -- purpose:  geographic information (mostly of type 'address')
 
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-GIS-data.sql,v $
 -- $Id $
 -- ===================================================================

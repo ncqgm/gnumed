@@ -1,8 +1,8 @@
--- Project: GnuMed - cross-database foreign key descriptions
+-- Project: GNUmed - cross-database foreign key descriptions
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCrossDB_FK-views.sql,v $
 -- $Revision: 1.6 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- ===================================================================

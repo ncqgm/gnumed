@@ -19,6 +19,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
         wx.Panel.__init__(self, *args, **kwds)
         self._PRW_test = gmMeasurementWidgets.cMeasurementTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_test_info = wx.Button(self, -1, _("Info"), style=wx.BU_EXACTFIT)
+        self._TCTRL_loinc = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_result = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_units = gmMeasurementWidgets.cUnitPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_abnormality_indicator = gmMeasurementWidgets.cTestResultIndicatorPhraseWheel(self, -1, "", style=wx.NO_BORDER)
@@ -48,10 +49,11 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__set_properties
-        self.SetSize((610, 370))
+        self.SetSize((618, 378))
         self._PRW_test.SetToolTipString(_("The type of measurement or test this result is about."))
         self._PRW_test.SetFocus()
         self._BTN_test_info.SetToolTipString(_("Show a web search on this test type."))
+        self._TCTRL_loinc.Enable(False)
         self._TCTRL_result.SetToolTipString(_("The result of the measurement. Numeric and alphanumeric input is allowed."))
         self._PRW_units.SetToolTipString(_("The units this result comes in."))
         self._PRW_abnormality_indicator.SetToolTipString(_("Enter an indicator for the degree of abnormality.\nOften +, -, !, ?, () or any combination thereof."))
@@ -78,7 +80,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 
     def __do_layout(self):
         # begin wxGlade: wxgMeasurementEditAreaPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(17, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(18, 2, 1, 3)
         __szr_range_target = wx.BoxSizer(wx.HORIZONTAL)
         __szr_range_normal = wx.BoxSizer(wx.HORIZONTAL)
         __szr_review = wx.BoxSizer(wx.HORIZONTAL)
@@ -94,6 +96,9 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
         __szr_test.Add(self._PRW_test, 1, wx.RIGHT|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_test.Add(self._BTN_test_info, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(__szr_test, 1, wx.EXPAND, 0)
+        __lbl_loinc = wx.StaticText(self, -1, _("LOINC"))
+        _gszr_main.Add(__lbl_loinc, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+        _gszr_main.Add(self._TCTRL_loinc, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_result = wx.StaticText(self, -1, _("Value"))
         __lbl_result.SetForegroundColour(wx.Colour(204, 50, 50))
         _gszr_main.Add(__lbl_result, 0, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -101,7 +106,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
         __lbl_unit = wx.StaticText(self, -1, _("Units"))
         __lbl_unit.SetForegroundColour(wx.Colour(204, 50, 50))
         __szr_result.Add(__lbl_unit, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 4)
-        __szr_result.Add(self._PRW_units, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_result.Add(self._PRW_units, 2, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __lbl_abnormality = wx.StaticText(self, -1, _("Indicator"))
         __szr_result.Add(__lbl_abnormality, 0, wx.LEFT|wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 4)
         __szr_result.Add(self._PRW_abnormality_indicator, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

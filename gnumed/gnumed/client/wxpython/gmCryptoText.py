@@ -10,7 +10,7 @@
 #
 # @author: Dr. Horst Herb
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: wxPython (>= version 2.3.1)
 # @change log:
 #	30.06.2001 hherb initial implementation, untested

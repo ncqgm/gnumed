@@ -4,7 +4,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
 -- $Revision: 1.13 $
 
--- license: GPL
+-- license: GPL v2 or later
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- =============================================

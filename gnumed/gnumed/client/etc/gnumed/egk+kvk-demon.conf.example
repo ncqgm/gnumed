@@ -3,7 +3,7 @@
 # $Id: egk+kvk-demon.conf.example,v 1.2 2009-01-08 21:12:01 ncq Exp $
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #
 # This is a shell fragment sourced by the GNUmed client rc
 # script (gnumed-client-de, that is).

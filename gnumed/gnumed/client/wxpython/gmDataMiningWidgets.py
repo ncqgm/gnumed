@@ -5,11 +5,11 @@
 # $Id: gmDataMiningWidgets.py,v 1.14 2009-07-30 12:03:34 ncq Exp $
 __version__ = '$Revision: 1.14 $'
 __author__ = 'karsten.hilbert@gmx.net'
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 
 # stdlib
-import sys, os, fileinput, webbrowser, logging
+import sys, os, fileinput, logging
 
 
 # 3rd party
@@ -19,8 +19,8 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N
-from Gnumed.business import gmPerson, gmDataMining
+from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N, gmNetworkTools
+from Gnumed.business import gmPerson, gmDataMining, gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
 from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
 
@@ -65,7 +65,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 			pat_pk = int(pat_data)
 			pat = gmPerson.cIdentity(aPK_obj = pat_pk)
 		except (ValueError, TypeError):
-			searcher = gmPerson.cPatientSearcher_SQL()
+			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			idents = searcher.get_identities(pat_data)
 			if len(idents) == 0:
 				gmDispatcher.send(signal = 'statustext', msg = _('No matching patient found.'))
@@ -148,7 +148,16 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [u'select distinct on (label) cmd, label from cfg.report_query where label %(fragment_condition)s or cmd %(fragment_condition)s']
+			queries = [u"""
+				SELECT DISTINCT ON (label)
+					cmd,
+					label
+				FROM cfg.report_query
+				WHERE
+					label %(fragment_condition)s
+						OR
+					cmd %(fragment_condition)s
+			"""]
 		)
 		mp.setThresholds(2,3,5)
 		self._PRW_report_name.matcher = mp
@@ -170,9 +179,12 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 	def add_filenames(self, filenames):
 		# act on first file only
 		fname = filenames[0]
+		_log.debug('importing SQL from <%s>', fname)
 		# act on text files only
 		mime_type = gmMimeLib.guess_mimetype(fname)
+		_log.debug('mime type: %s', mime_type)
 		if not mime_type.startswith('text/'):
+			_log.debug('not a text file')
 			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
 			return False
 		# act on "small" files only
@@ -252,7 +264,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if not do_it:
 			return
 
-		auth = {'user': gmTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
+		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
 		msg = u"""--- This is a report definition contributed by a GNUmed user:
 
 ----------------------------------------
@@ -266,13 +278,13 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 --- The GNUmed client.
 """ % (report, query)
 
-		if not gmTools.send_mail (
+		if not gmNetworkTools.send_mail (
 			sender = u'GNUmed Report Generator <gnumed@gmx.net>',
 			receiver = [u'gnumed-devel@gnu.org'],
 			subject = u'user contributed report',
 			message = msg,
 			encoding = gmI18N.get_encoding(),
-			server = gmTools.default_mail_server,
+			server = gmNetworkTools.default_mail_server,
 			auth = auth
 		):
 			gmDispatcher.send(signal = 'statustext', msg = _('Unable to send mail. Cannot contribute report [%s] to GNUmed community.') % report, beep = True)
@@ -282,9 +294,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		return True
 	#--------------------------------------------------------
 	def _on_schema_button_pressed(self, evt):
-		# new=2: Python 2.5: open new tab
 		# will block when called in text mode (that is, from a terminal, too !)
-		webbrowser.open(u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema', new=2, autoraise=1)
+		gmNetworkTools.open_url_in_browser(url = u'http://wiki.gnumed.de/bin/view/Gnumed/DatabaseSchema')
 	#--------------------------------------------------------
 	def _on_delete_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -327,7 +338,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			import Gnuplot
 		except ImportError:
 			gmGuiHelpers.gm_show_info (
-				aMessage = _('Cannot import GNUplot python module.'),
+				aMessage = _('Cannot import "Gnuplot" python module.'),
 				aTitle = _('Query result visualizer')
 			)
 			return
@@ -374,15 +385,53 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		self._BTN_visualize.Enable(False)
 
-		query = self._TCTRL_query.GetValue().strip().strip(';')
-		if query == u'':
+		user_query = self._TCTRL_query.GetValue().strip().strip(';')
+		if user_query == u'':
 			return True
+
+		# FIXME: make LIMIT configurable
+		limit = u'1001'
+
+		wrapper_query = u"""
+			SELECT *
+			FROM (
+				%%s
+			) AS user_query
+			LIMIT %s
+		""" % limit
+
+		# does user want to insert current patient ID ?
+		patient_id_token = u'$<ID_active_patient>$'
+		if user_query.find(patient_id_token) != -1:
+			# she does, but is it possible ?
+			curr_pat = gmPerson.gmCurrentPatient()
+			if not curr_pat.connected:
+				gmGuiHelpers.gm_show_error (
+					aMessage = _(
+						'This query requires a patient to be\n'
+						'active in the client.\n'
+						'\n'
+						'Please activate the patient you are interested\n'
+						'in and re-run the query.\n'
+					),
+					aTitle = _('Active patient query')
+				)
+				return False
+			wrapper_query = u"""
+				SELECT
+					%s AS pk_patient,
+					*
+				FROM (
+					%%s
+				) AS user_query
+				LIMIT %s
+			""" % (str(curr_pat.ID), limit)
+			user_query = user_query.replace(patient_id_token, str(curr_pat.ID))
 
 		self._LCTRL_result.set_columns()
 		self._LCTRL_result.patient_key = None
 
-		# FIXME: make configurable
-		query = u'select * from (' + query + u'\n) as real_query limit 1024'
+		query = wrapper_query % user_query
 		try:
 			# read-only for safety reasons
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
@@ -398,7 +447,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
 				rows.append([line])
 			rows.append([u''])
-			for line in query.split('\n'):
+			for line in user_query.split('\n'):
 				rows.append([line])
 			self._LCTRL_result.set_string_items(rows)
 			self._LCTRL_result.set_column_widths()
@@ -414,6 +463,21 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Found %s results.') % len(rows))
 
+		if len(rows) == 1001:
+			gmGuiHelpers.gm_show_info (
+				aMessage = _(
+					'This query returned at least 1001 results.\n'
+					'\n'
+					'GNUmed will only show the first 1000 rows.\n'
+					'\n'
+					'You may want to narrow down the WHERE conditions\n'
+					'or use LIMIT and OFFSET to batchwise go through\n'
+					'all the matching rows.'
+				),
+				aTitle = _('Report Generator')
+			)
+			rows = rows[:-1]		# make it true :-)
+
 		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
 		# set_columns() and sort them according to position-in-query
 		cols = [ (value, key) for key, value in idx.items() ]
@@ -421,10 +485,25 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		cols = [ pair[1] for pair in cols ]
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
-			label = unicode(gmTools.coalesce(row[0], u''))
+			try:
+				label = unicode(gmTools.coalesce(row[0], u'')).replace('\n', '<LF>').replace('\r', '<CR>')
+			except UnicodeDecodeError:
+				label = _('not unicode()able')
+			if len(label) > 150:
+				label = label[:150] + gmTools.u_ellipsis
 			row_num = self._LCTRL_result.InsertStringItem(sys.maxint, label = label)
 			for col_idx in range(1, len(row)):
-				self._LCTRL_result.SetStringItem(index = row_num, col = col_idx, label = unicode(gmTools.coalesce(row[col_idx], u'')))
+				try:
+					label = unicode(gmTools.coalesce(row[col_idx], u'')).replace('\n', '<LF>').replace('\r', '<CR>')[:250]
+				except UnicodeDecodeError:
+					label = _('not unicode()able')
+				if len(label) > 150:
+					label = label[:150] + gmTools.u_ellipsis
+				self._LCTRL_result.SetStringItem (
+					index = row_num,
+					col = col_idx,
+					label = label
+				)
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
 		try:
@@ -464,54 +543,3 @@ if __name__ == '__main__':
 	test_pat_list_ctrl()
 
 #================================================================
-# $Log: gmDataMiningWidgets.py,v $
-# Revision 1.14  2009-07-30 12:03:34  ncq
-# - improved contribution email
-#
-# Revision 1.13  2009/07/18 11:46:53  ncq
-# - be more robust in the face of non-existant patients being activated
-#
-# Revision 1.12  2009/07/15 12:21:10  ncq
-# - auto-load report from db if name exists and query empty and name loses focus
-# - clear results, too, on clear button
-# - improved plot title
-# - improved error handling around Gnuplot access
-# - display # of results found
-#
-# Revision 1.11  2009/07/06 17:10:35  ncq
-# - signal errors in sanity check of query before contributing
-# - show warning before sending contribution
-# - fix encoding of contribution email
-#
-# Revision 1.10  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.9  2008/12/22 18:59:56  ncq
-# - put \n before appended wrapper query because original query might have
-#   a line starting with "-- " as the last line ...
-#
-# Revision 1.8  2008/03/06 18:29:29  ncq
-# - standard lib logging only
-#
-# Revision 1.7  2007/12/11 12:49:25  ncq
-# - explicit signal handling
-#
-# Revision 1.6  2007/11/21 14:33:40  ncq
-# - fix use of send_mail()
-#
-# Revision 1.5  2007/09/24 18:31:16  ncq
-# - support visualizing data mining results
-#
-# Revision 1.4  2007/09/10 13:50:05  ncq
-# - missing import
-#
-# Revision 1.3  2007/08/12 00:07:18  ncq
-# - no more gmSignals.py
-#
-# Revision 1.2  2007/07/09 11:06:24  ncq
-# - missing import
-#
-# Revision 1.1  2007/07/09 11:03:49  ncq
-# - new file
-#
-#

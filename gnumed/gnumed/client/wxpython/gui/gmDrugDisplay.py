@@ -13,7 +13,7 @@
 #                   Basic skeleton of this code written by Dr. H Horst
 #                   heavily commented for learning purposes by Dr. R Terry
 # @copyright: authors
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 #
 # @TODO:
 #	 decision of text display wigit
@@ -638,102 +638,3 @@ else:
 			return DrugDisplay (parent, -1)
 
 #==================================================
-# $Log: gmDrugDisplay.py,v $
-# Revision 1.34  2008-03-06 18:32:30  ncq
-# - standard lib logging only
-#
-# Revision 1.33  2007/10/07 12:33:27  ncq
-# - workplace property now on gmSurgery.gmCurrentPractice() borg
-#
-# Revision 1.32  2007/02/17 14:13:11  ncq
-# - gmPerson.gmCurrentProvider().workplace now property
-#
-# Revision 1.31  2006/10/25 07:23:30  ncq
-# - no gmPG no more
-#
-# Revision 1.30  2006/05/14 21:44:22  ncq
-# - add get_workplace() to gmPerson.gmCurrentProvider and make use thereof
-# - remove use of gmWhoAmI.py
-#
-# Revision 1.29  2006/05/12 12:19:09  ncq
-# - whoami -> whereami
-#
-# Revision 1.28  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.27  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.26  2005/09/24 09:17:29  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.25  2005/03/17 20:30:56  hinnef
-# fixed some bugs, module dependencies
-#
-# Revision 1.24  2005/03/06 14:54:19  ncq
-# - szr.AddWindow() -> Add() such that wx2.5 works
-# - 'demographic record' -> get_identity()
-#
-# Revision 1.23  2004/08/20 13:34:48  ncq
-# - getFirstMatchingDBSet() -> getDBParam()
-#
-# Revision 1.22  2004/08/04 17:16:02  ncq
-# - wx.NotebookPlugin -> cNotebookPlugin
-# - derive cNotebookPluginOld from cNotebookPlugin
-# - make cNotebookPluginOld warn on use and implement old
-#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
-# - ReceiveFocus() -> receive_focus()
-#
-# Revision 1.21  2004/07/19 11:50:43  ncq
-# - cfg: what used to be called "machine" really is "workplace", so fix
-#
-# Revision 1.20  2004/07/18 20:30:54  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.19  2004/06/20 16:50:51  ncq
-# - carefully fool epydoc
-#
-# Revision 1.18  2004/06/20 06:49:21  ihaywood
-# changes required due to Epydoc's OCD
-#
-# Revision 1.17  2004/03/19 08:25:06  ncq
-# - display message if drug database not specified
-#
-# Revision 1.16  2004/03/12 22:42:09  ncq
-# - I guess I've got obsessive-janitorial dysfunction
-#
-# Revision 1.15  2004/03/12 18:34:44  hinnef
-#  - fixed module import
-#
-# Revision 1.14  2003/12/29 17:00:20  uid66147
-# - whoami adjustment
-#
-# Revision 1.13  2003/11/17 10:56:40  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:40  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.12  2003/09/03 17:33:22  hinnef
-# make use of gmWhoAmI, try to get config info from backend
-#
-# Revision 1.11  2003/08/24 13:41:10  hinnef
-# moved to main tree, bug fixes
-#
-# Revision 1.6  2002/11/17 16:44:23  hinnef
-# fixed some bugs regarding display of non-string items and list entries in PI
-#
-# Revision 1.5  2002/11/09 15:09:03  hinnef
-# new items in product list, ListCtrl instead of ListBox
-#
-# Revision 1.4  2002/10/31 23:13:06  hinnef
-# added generic substance support, further improvements
-#
-# @change log:
-#       04.12.2001 hherb initial implementation, untested, uncomplete
-#	08.12.2001 rterry minor revisions to screen design, commenting
-#	05.09.2002 hherb DB-API 2.0 compliance

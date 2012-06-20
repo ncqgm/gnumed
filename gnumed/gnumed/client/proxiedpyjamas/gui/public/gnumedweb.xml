@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pyjsglade>
+<properties>
+	<property name="xmlfile" value="/home/lkcl/src/pyjsglade/src/gnumedweb.xml" />
+	<property name="version" value="0.1" />
+</properties>
+<components>
+	<component id="LoginPanel" name="VerticalPanel" type="Panel" index="None" left="384" top="455" visible="True">
+		<properties name="elements">
+		</properties>
+		<properties name="layout">
+			<property name="spacing" value="8" />
+			<property name="padding" value="0" />
+		</properties>
+		<properties name="common">
+			<property name="name" value="LoginPanel" />
+		</properties>
+		<components>
+			<component id="imgImage1" name="Image" type="Widget" index="0">
+				<properties name="widget">
+					<property name="url" value="images/gnumedlogo.png" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="imgImage1" />
+				</properties>
+			</component>
+			<component id="CaptionPanel1" name="CaptionPanel" type="Panel" index="1">
+				<properties name="widget">
+					<property name="caption" value="GNUmed Default 0.7.7" />
+				</properties>
+				<properties name="elements">
+				</properties>
+				<properties name="common">
+					<property name="name" value="CaptionPanel1" />
+				</properties>
+				<components>
+					<component id="Grid1" name="Grid" type="Panel" index="0">
+						<properties name="elements">
+						</properties>
+						<properties name="common">
+							<property name="name" value="Grid1" />
+						</properties>
+						<components>
+							<component id="lblusername" name="HTML" type="Widget" index="(0, 0)">
+								<properties name="widget">
+									<property name="text" value="username" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="lblusername" />
+								</properties>
+							</component>
+							<component id="username" name="TextBox" type="Widget" index="(0, 1)">
+								<properties name="widget">
+									<property name="text" value="any-doc" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="username" />
+								</properties>
+							</component>
+							<component id="lblpassword" name="HTML" type="Widget" index="(1, 0)">
+								<properties name="widget">
+									<property name="text" value="password" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="lblpassword" />
+								</properties>
+							</component>
+							<component id="password" name="PasswordTextBox" type="Widget" index="(1, 1)">
+								<properties name="widget">
+									<property name="text" value="password" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="password" />
+								</properties>
+							</component>
+						</components>
+					</component>
+				</components>
+			</component>
+			<component id="button_login" name="Button" type="Widget" index="2">
+				<properties name="widget">
+					<property name="label" value="Login" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="button_login" />
+				</properties>
+				<properties name="events">
+					<property name="onClick" value="onLoginClicked" />
+				</properties>
+			</component>
+			<component id="status" name="HTML" type="Widget" index="3">
+				<properties name="widget">
+					<property name="text" value=" " />
+				</properties>
+				<properties name="common">
+					<property name="name" value="status" />
+				</properties>
+			</component>
+		</components>
+	</component>
+	<component id="MainPanel" name="VerticalPanel" type="Panel" index="None" left="374" top="317" visible="True">
+		<properties name="elements">
+		</properties>
+		<properties name="layout">
+			<property name="spacing" value="8" />
+			<property name="padding" value="0" />
+			<property name="width" value="100%" />
+			<property name="border" value="1" />
+		</properties>
+		<properties name="common">
+			<property name="name" value="MainPanel" />
+		</properties>
+		<components>
+			<component id="MenuBar1" name="MenuBar" type="Widget" index="0">
+				<properties name="widget">
+					<property name="0" value="(0, u'GNUmed', u'GNUmed', '')" />
+					<property name="1" value="(1, u'plugin', u'Go To Plugin', '')" />
+					<property name="2" value="(2, u'patientsummary', u'Patient Summary', '')" />
+					<property name="3" value="(1, u'preferences', u'Preferences', '')" />
+					<property name="4" value="(1, u'logout', u'Logout', u'onMenuItemLogout')" />
+					<property name="5" value="(0, u'Person', u'Person', '')" />
+					<property name="6" value="(1, u'registerperson', u'Register Person', u'onMenuItemRegisterPerson')" />
+					<property name="7" value="(0, u'EMR', u'EMR', '')" />
+					<property name="8" value="(0, u'Correspondance', u'Correspondance', '')" />
+					<property name="9" value="(0, u'Tools', u'Tools', '')" />
+					<property name="10" value="(0, u'Knowledge', u'Knowledge', '')" />
+					<property name="11" value="(0, u'Office', u'Office', '')" />
+					<property name="12" value="(0, u'Help', u'Help', '')" />
+					<property name="vertical" value="False" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="MenuBar1" />
+				</properties>
+			</component>
+			<component id="fTabs" name="TabPanel" type="Panel" index="1">
+				<properties name="layout">
+					<property name="width" value="100%" />
+					<property name="height" value="100%" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="fTabs" />
+				</properties>
+			</component>
+		</components>
+	</component>
+	<component id="PatientInbox" name="DockPanel" type="Panel" index="None" left="252" top="370" visible="True">
+		<properties name="elements">
+		</properties>
+		<properties name="layout">
+			<property name="spacing" value="0" />
+			<property name="padding" value="4" />
+			<property name="width" value="100%" />
+			<property name="border" value="1" />
+		</properties>
+		<properties name="common">
+			<property name="name" value="PatientInbox" />
+		</properties>
+		<components>
+			<component id="lbTitle" name="HTML" type="Widget" index="(0, 'north')">
+				<properties name="widget">
+					<property name="text" value="Patient Inbox" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="lbTitle" />
+				</properties>
+			</component>
+			<component id="None" index="(1, 'south')">
+			</component>
+			<component id="None" index="(2, 'west')">
+			</component>
+			<component id="None" index="(3, 'east')">
+			</component>
+			<component id="grid" name="Grid" type="Panel" index="(4, 'center')">
+				<properties name="elements">
+					<properties name="(0, 1)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 3)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 2)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 4)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+				</properties>
+				<properties name="common">
+					<property name="name" value="grid" />
+				</properties>
+				<components>
+					<component id="None" index="(0, 0)">
+					</component>
+					<component id="date" name="HTML" type="Widget" index="(0, 1)">
+						<properties name="widget">
+							<property name="text" value="date" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="date" />
+						</properties>
+					</component>
+					<component id="category" name="HTML" type="Widget" index="(0, 2)">
+						<properties name="widget">
+							<property name="text" value="category" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="category" />
+						</properties>
+					</component>
+					<component id="type" name="HTML" type="Widget" index="(0, 3)">
+						<properties name="widget">
+							<property name="text" value="type" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="type" />
+						</properties>
+					</component>
+					<component id="message" name="HTML" type="Widget" index="(0, 4)">
+						<properties name="widget">
+							<property name="text" value="message" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="message" />
+						</properties>
+					</component>
+				</components>
+			</component>
+		</components>
+	</component>
+	<component id="ProviderInbox" name="DockPanel" type="Panel" index="None" left="455" top="498" visible="True">
+		<properties name="elements">
+		</properties>
+		<properties name="layout">
+			<property name="spacing" value="0" />
+			<property name="padding" value="4" />
+			<property name="width" value="100%" />
+			<property name="border" value="1" />
+		</properties>
+		<properties name="common">
+			<property name="name" value="ProviderInbox" />
+		</properties>
+		<components>
+			<component id="lbTitle" name="HTML" type="Widget" index="(0, 'north')">
+				<properties name="widget">
+					<property name="text" value="Provider Inbox" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="lbTitle" />
+				</properties>
+			</component>
+			<component id="None" index="(1, 'south')">
+			</component>
+			<component id="None" index="(2, 'west')">
+			</component>
+			<component id="None" index="(3, 'east')">
+			</component>
+			<component id="grid" name="Grid" type="Panel" index="(4, 'center')">
+				<properties name="elements">
+					<properties name="(0, 1)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 3)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 2)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+					<properties name="(0, 4)">
+						<property name="halign" value="left" />
+						<property name="valign" value="top" />
+					</properties>
+				</properties>
+				<properties name="common">
+					<property name="name" value="grid" />
+				</properties>
+				<components>
+					<component id="None" index="(0, 0)">
+					</component>
+					<component id="date" name="HTML" type="Widget" index="(0, 1)">
+						<properties name="widget">
+							<property name="text" value="date" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="date" />
+						</properties>
+					</component>
+					<component id="category" name="HTML" type="Widget" index="(0, 2)">
+						<properties name="widget">
+							<property name="text" value="category" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="category" />
+						</properties>
+					</component>
+					<component id="type" name="HTML" type="Widget" index="(0, 3)">
+						<properties name="widget">
+							<property name="text" value="type" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="type" />
+						</properties>
+					</component>
+					<component id="message" name="HTML" type="Widget" index="(0, 4)">
+						<properties name="widget">
+							<property name="text" value="message" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="message" />
+						</properties>
+					</component>
+				</components>
+			</component>
+			<component id="hpShow" name="HorizontalPanel" type="Panel" index="(5, 'north')">
+				<properties name="elements">
+				</properties>
+				<properties name="layout">
+					<property name="spacing" value="0" />
+					<property name="padding" value="0" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="hpShow" />
+				</properties>
+				<components>
+					<component id="HTML2" name="HTML" type="Widget" index="0">
+						<properties name="widget">
+							<property name="text" value="Show messages:" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="HTML2" />
+						</properties>
+					</component>
+					<component id="rdbAll" name="RadioButton" type="Widget" index="1">
+						<properties name="widget">
+							<property name="group" value="messages" />
+							<property name="label" value="all" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="rdbAll" />
+						</properties>
+						<properties name="events">
+							<property name="onClick" value="onAllMessagesSelected" />
+						</properties>
+					</component>
+					<component id="rdbActive" name="RadioButton" type="Widget" index="2">
+						<properties name="widget">
+							<property name="group" value="messages" />
+							<property name="label" value="Active-patient related" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="rdbActive" />
+						</properties>
+						<properties name="events">
+							<property name="onClick" value="onPatientMessagesSelected" />
+						</properties>
+					</component>
+				</components>
+			</component>
+		</components>
+	</component>
+	<component id="PatientSelect" name="DialogBox" type="Panel" index="None" left="251" top="245" visible="True">
+		<properties name="widget">
+			<property name="caption" value="DialogBox1" />
+		</properties>
+		<properties name="elements">
+		</properties>
+		<properties name="common">
+			<property name="name" value="PatientSelect" />
+		</properties>
+		<components>
+			<component id="vp" name="VerticalPanel" type="Panel" index="0">
+				<properties name="elements">
+				</properties>
+				<properties name="layout">
+					<property name="spacing" value="0" />
+					<property name="padding" value="0" />
+				</properties>
+				<properties name="common">
+					<property name="name" value="vp" />
+				</properties>
+				<components>
+					<component id="HTML1" name="HTML" type="Widget" index="0">
+						<properties name="widget">
+							<property name="text" value="Please select a Patient" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="HTML1" />
+						</properties>
+					</component>
+					<component id="HorizontalPanel1" name="HorizontalPanel" type="Panel" index="2">
+						<properties name="elements">
+						</properties>
+						<properties name="layout">
+							<property name="spacing" value="0" />
+							<property name="padding" value="0" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="HorizontalPanel1" />
+						</properties>
+						<components>
+							<component id="btnOk" name="Button" type="Widget" index="0">
+								<properties name="widget">
+									<property name="label" value="OK" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="btnOk" />
+								</properties>
+								<properties name="events">
+									<property name="onClick" value="onPatientSelectOk" />
+								</properties>
+							</component>
+							<component id="btnCancel" name="Button" type="Widget" index="1">
+								<properties name="widget">
+									<property name="label" value="Cancel" />
+								</properties>
+								<properties name="common">
+									<property name="name" value="btnCancel" />
+								</properties>
+								<properties name="events">
+									<property name="onClick" value="onPatientSelectCancel" />
+								</properties>
+							</component>
+						</components>
+					</component>
+					<component id="sp" name="ScrollPanel" type="Panel" index="1">
+						<properties name="elements">
+						</properties>
+						<properties name="layout">
+							<property name="width" value="600px" />
+							<property name="height" value="400px" />
+						</properties>
+						<properties name="common">
+							<property name="name" value="sp" />
+						</properties>
+						<components>
+							<component id="grid" name="Grid" type="Panel" index="0">
+								<properties name="elements">
+								</properties>
+								<properties name="common">
+									<property name="name" value="grid" />
+								</properties>
+								<properties name="events">
+									<property name="onCellClicked" value="onPatientCellClicked" />
+								</properties>
+								<components>
+									<component id="None" index="(0, 0)">
+									</component>
+								</components>
+							</component>
+						</components>
+					</component>
+				</components>
+			</component>
+		</components>
+	</component>
+</components>
+</pyjsglade>

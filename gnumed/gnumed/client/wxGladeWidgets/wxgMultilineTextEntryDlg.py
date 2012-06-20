@@ -17,6 +17,7 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self._LBL_msg = wx.StaticText(self, -1, "")
         self._TCTRL_data = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_READONLY|wx.TE_WORDWRAP|wx.NO_BORDER)
         self._TCTRL_text = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.HSCROLL)
+        self._CHBOX_is_already_formatted = wx.CheckBox(self, -1, _("Do not reformat text"))
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
         self._BTN_restore = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
@@ -35,6 +36,8 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         self.SetTitle(_("Generic multi line text entry dialog"))
         self.SetSize((600, 641))
         self._TCTRL_data.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._CHBOX_is_already_formatted.SetToolTipString(_("Leave this unchecked so that GNUmed can check for characters that need escaping or transforming.\n\nUse this option when you have put in raw formatting, like HTML or LaTeX, that you are confident should be left untouched."))
+        self._CHBOX_is_already_formatted.Enable(False)
         self._BTN_restore.Enable(False)
         # end wxGlade
 
@@ -42,9 +45,13 @@ class wxgMultilineTextEntryDlg(wx.Dialog):
         # begin wxGlade: wxgMultilineTextEntryDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_options = wx.BoxSizer(wx.HORIZONTAL)
         __szr_main.Add(self._LBL_msg, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
         __szr_main.Add(self._TCTRL_data, 1, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_main.Add(self._TCTRL_text, 4, wx.ALL|wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_options.Add(self._CHBOX_is_already_formatted, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_options.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_options, 0, wx.ALL|wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 5)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_clear, 0, wx.RIGHT|wx.EXPAND, 5)

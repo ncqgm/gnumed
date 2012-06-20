@@ -1,8 +1,8 @@
 """This module encapsulates a document description stored in an XML file.
 
-This is mainly used by GnuMed/Archive.
+This is mainly used by GNUmed/Archive.
 
-@copyright: GPL
+@copyright: GPL v2 or later
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $

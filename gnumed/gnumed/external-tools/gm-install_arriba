@@ -8,7 +8,7 @@
 #
 # ===========================================================
 
-JAR_VER="2.0.4"
+JAR_VER="2.4.1"
 
 # ===========================================================
 DL_SOURCE_URL="http://www.arriba-hausarzt.de/downloads/arriba.jar"
@@ -26,11 +26,11 @@ mv ${DL_TARGET_DIR}/${DL_JAR_NAME} ${DL_TARGET_DIR}/${VERSIONED_JAR_NAME}
 
 
 # create wrapper
-echo "#!/bin/sh"									> ${WRAPPER_NAME}
-echo ""												>> ${WRAPPER_NAME}
-echo "java -jar  ${INSTALL_BASE}/${APP_NAME}.jar"	>> ${WRAPPER_NAME}
-echo ""												>> ${WRAPPER_NAME}
-echo "# ======================================="	>> ${WRAPPER_NAME}
+echo "#!/bin/sh"										> ${WRAPPER_NAME}
+echo ""													>> ${WRAPPER_NAME}
+echo "java -jar  ${INSTALL_BASE}/${APP_NAME}.jar \$@"	>> ${WRAPPER_NAME}
+echo ""													>> ${WRAPPER_NAME}
+echo "# ======================================="		>> ${WRAPPER_NAME}
 chmod +x ${WRAPPER_NAME}
 
 
@@ -44,7 +44,7 @@ echo ""
 read -p "Alte ARRIBA-Versionen entfernen ? [j/N]: " REPLY
 if test "${REPLY}" = "j" ; then
 
-	OLD_JARS="/usr/bin/arriba* /usr/local/bin/arriba-2.0.3.jar"
+	OLD_JARS="/usr/bin/arriba* /usr/local/bin/arriba-2.0.3.jar /usr/local/bin/arriba-2.0.4.jar /usr/local/bin/arriba-2.2.2.jar"
 
 	echo "Sie müssen jetzt das Passwort für root eingeben (außer Sie SIND root):"
 	su -c "rm -v -f ${OLD_JARS}"

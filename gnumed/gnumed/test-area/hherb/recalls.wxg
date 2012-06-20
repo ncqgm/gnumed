@@ -216,7 +216,7 @@
     <object class="MainFrame" name="frmRecallApp" base="EditFrame">
         <style>wxDEFAULT_FRAME_STYLE</style>
         <statusbar>1</statusbar>
-        <title>GnuMed: recall system</title>
+        <title>GNUmed: recall system</title>
         <menubar>1</menubar>
         <object class="wxStatusBar" name="frmRecallApp_statusbar" base="EditStatusBar">
             <fields>

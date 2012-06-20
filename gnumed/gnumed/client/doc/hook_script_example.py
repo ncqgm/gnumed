@@ -8,11 +8,9 @@
 # Copy this file to ~/.gnumed/scripts/hook_script.py and modify as needed.
 #
 #===========================================================================
-# $Id: hook_script_example.py,v 1.4 2008-03-09 20:14:47 ncq Exp $
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/doc/hook_script_example.py,v $
 __version__ = "$Revision: 1.4 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 #from Gnumed.wxpython import gmGuiHelpers, gmPatSearchWidgets
 #from Gnumed.business import gmPerson
@@ -72,20 +70,3 @@ def run_script(hook=None):
 	return
 
 #===========================================================================
-# $Log: hook_script_example.py,v $
-# Revision 1.4  2008-03-09 20:14:47  ncq
-# - load_patient_*_sources() -> get_person_*
-#
-# Revision 1.3  2007/11/03 17:52:40  ncq
-# - much enhanced with examples
-#
-# Revision 1.2  2007/03/26 15:04:24  ncq
-# - better docs
-#
-# Revision 1.1  2007/02/19 16:23:08  ncq
-# - better name
-#
-# Revision 1.1  2007/02/19 16:21:07  ncq
-# - an example for the hooks framework
-#
-#

@@ -4,9 +4,9 @@
 # - command line options:
 #   - "quiet"
 
-VER="14"
-PREV_VER="13"
-VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12"
+VERSIONS_TO_DROP="2 3 4 5 6 7 8 9 10 11 12 13 14 15"
+PREV_VER="16"
+VER="17"
 QUIET="$1"
 
 
@@ -25,6 +25,7 @@ fi ;
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
 	PORT_DEF="-p ${GM_DB_PORT}"
+	export PGPORT="${GM_DB_PORT}"
 else
 	PORT_DEF=""
 fi ;
@@ -48,22 +49,20 @@ echo_msg "with the name \"gnumed_v${VER}\"."
 # better safe than sorry
 ALL_PREV_VERS="${VERSIONS_TO_DROP} ${PREV_VER} ${VER}"
 for DB_VER in ${ALL_PREV_VERS} ; do
-	VER_EXISTS=`su -c "psql -l" -l postgres | grep gnumed_v${DB_VER}`
+	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${DB_VER}`
 	if test "${VER_EXISTS}" != "" ; then
 		echo ""
-		echo "-----------------------------------------------"
-		echo "At least one of the GNUmed databases among"
-		echo ""
-		echo " [${ALL_PREV_VERS}]"
-		echo ""
-		echo "already exists.  Note that during bootstrapping"
-		echo "those databases will be OVERWRITTEN !"
+		echo "------------------------------------------------"
+		echo "The database \"gnumed_v${DB_VER}\" already exists."
+
+		echo "Note that during bootstrapping this"
+		echo "database will be OVERWRITTEN !"
 		echo ""
 		echo "Do you really intend to bootstrap or did you"
 		echo "rather want to *upgrade* from v${PREV_VER} to v${VER} ?"
 		echo ""
-		echo "(For upgrading you should run the upgrade"
-		echo " script instead.)"
+		echo "(For upgrading you should run the"
+		echo " upgrade script instead.)"
 		echo ""
 		echo "Continue bootstrapping (deletes databases) ? "
 		echo ""
@@ -81,6 +80,7 @@ CONF="bootstrap-latest.conf"
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Bootstrapping \"gnumed_v${VER}\" did not finish successfully. Aborting."
+	read
 	exit 1
 fi
 

@@ -2,7 +2,7 @@
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/update_db-v1_v2.sql,v $
 -- $Revision: 1.21 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Ian Haywood, Horst Herb, Karsten Hilbert
 
 -- ===================================================================

@@ -1,6 +1,6 @@
 -- dynamic BLOB structures GNUmed
 
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmBlobViews.sql,v $

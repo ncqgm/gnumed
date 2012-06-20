@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
@@ -105,6 +105,35 @@ insert into ref.paperwork_templates (
 	'referral-letter.tex',
 	'real template missing'::bytea
 );
+
+-- --------------------------------------------------------------
+-- most recent vaccinations list
+\unset ON_ERROR_STOP
+insert into ref.form_types (name) values (i18n.i18n('vaccination record'));
+\set ON_ERROR_STOP 1
+
+select i18n.upd_tx('de_DE', 'vaccination record', 'Impfnachweis');
+
+delete from ref.paperwork_templates where name_long = 'Most recent vaccinations (GNUmed default)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'vaccination record'),
+	'Latest vaccs (GNUmed)',
+	'Most recent vaccinations (GNUmed default)',
+	'1.0',
+	'L',
+	'vaccinations.tex',
+	'real template missing'::bytea
+);
+
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('$RCSfile: v14-ref-paperwork_templates.sql,v $', '$Revision: 1.3 $');

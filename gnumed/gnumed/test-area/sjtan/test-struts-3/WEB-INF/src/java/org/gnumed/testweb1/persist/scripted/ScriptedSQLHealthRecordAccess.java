@@ -979,7 +979,7 @@ public class ScriptedSQLHealthRecordAccess implements HealthRecordAccess01,
     private Statement getDeferredConstraintStatement(Connection conn) throws SQLException {
         Statement c = conn.createStatement();
         
-        c.execute("commit;begin"); // required on salaam for some reason.
+        c.execute("commit;begin"); // required on publicdb for some reason.
         
         c.executeUpdate("set constraints rfi_fk_clin_narrative deferred");
         return c;

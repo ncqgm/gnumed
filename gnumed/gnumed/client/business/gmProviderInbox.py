@@ -4,8 +4,6 @@
 This should eventually end up in a class cPractice.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmProviderInbox.py,v $
-# $Id: gmProviderInbox.py,v 1.14 2009-12-01 21:48:42 ncq Exp $
 __license__ = "GPL"
 __version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -16,123 +14,254 @@ import sys
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmBusinessDBObject
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+
+from Gnumed.business import gmStaff
 
 #============================================================
+# description
+#------------------------------------------------------------
+_SQL_get_inbox_messages = u"SELECT * FROM dem.v_message_inbox WHERE %s"
+
 class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from dem.v_message_inbox where pk_message_inbox = %s"
-
+	_cmd_fetch_payload = _SQL_get_inbox_messages % u"pk_inbox_message = %s"
 	_cmds_store_payload = [
+		u"""
+			UPDATE dem.message_inbox SET
+				fk_staff = %(pk_staff)s,
+				fk_inbox_item_type = %(pk_type)s,
+				comment = gm.nullify_empty_string(%(comment)s),
+				data = gm.nullify_empty_string(%(data)s),
+				importance = %(importance)s,
+				fk_patient = %(pk_patient)s,
+				ufk_context = %(pk_context)s,
+				due_date = %(due_date)s,
+				expiry_date = %(expiry_date)s
+			WHERE
+				pk = %(pk_inbox_message)s
+					AND
+				xmin = %(xmin_message_inbox)s
+			RETURNING
+				pk as pk_inbox_message,
+				xmin as xmin_message_inbox
+		"""
 	]
-
-	u"""update clin.test_result set
-				clin_when = %(clin_when)s,
-				narrative = nullif(trim(%(comment)s), ''),
-				val_num = %(val_num)s,
-				val_alpha = nullif(trim(%(val_alpha)s), ''),
-				val_unit = nullif(trim(%(val_unit)s), ''),
-				val_normal_min = %(val_normal_min)s,
-				val_normal_max = %(val_normal_max)s,
-				val_normal_range = nullif(trim(%(val_normal_range)s), ''),
-				val_target_min = %(val_target_min)s,
-				val_target_max = %(val_target_max)s,
-				val_target_range = nullif(trim(%(val_target_range)s), ''),
-				abnormality_indicator = nullif(trim(%(abnormality_indicator)s), ''),
-				norm_ref_group = nullif(trim(%(norm_ref_group)s), ''),
-				note_test_org = nullif(trim(%(note_test_org)s), ''),
-				material = nullif(trim(%(material)s), ''),
-				material_detail = nullif(trim(%(material_detail)s), ''),
-				fk_intended_reviewer = %(pk_intended_reviewer)s,
-				fk_encounter = %(pk_encounter)s,
-				fk_episode = %(pk_episode)s,
-				fk_type = %(pk_test_type)s
-			where
-				pk = %(pk_test_result)s and
-				xmin = %(xmin_test_result)s""",
-	u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_test_result)s"""
-
 	_updatable_fields = [
 		u'pk_staff',
-		u'pk_patient',
 		u'pk_type',
 		u'comment',
-		u'pk_context',
 		u'data',
-		u'importance'
+		u'importance',
+		u'pk_patient',
+		u'ufk_context',
+		u'due_date',
+		u'expiry_date'
 	]
+	#------------------------------------------------------------
+	def format(self):
+		tt = u'%s: %s%s\n' % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['received_when']],
+				format = '%A, %Y %B %d, %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			),
+			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
+			gmTools.coalesce(self._payload[self._idx['pk_inbox_message']], u'', u' #%s ')
+		)
+
+		tt += u'%s: %s\n' % (
+			self._payload[self._idx['l10n_category']],
+			self._payload[self._idx['l10n_type']]
+		)
+
+		tt += u'%s %s %s\n' % (
+			self._payload[self._idx['modified_by']],
+			gmTools.u_right_arrow,
+			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
+		)
+
+		tt += u'\n%s%s%s\n\n' % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['comment']],
+			gmTools.u_right_double_angle_quote
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['pk_patient']],
+			u'',
+			u'%s\n\n' % _('Patient #%s')
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['due_date']],
+			u'',
+			_('Due: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
+		tt += gmTools.coalesce (
+			self._payload[self._idx['expiry_date']],
+			u'',
+			_('Expiry: %s\n'),
+			function_initial = ('strftime', '%Y-%m-%d')
+		)
+
+		if self._payload[self._idx['data']] is not None:
+			tt += self._payload[self._idx['data']][:150]
+			if len(self._payload[self._idx['data']]) > 150:
+				tt += gmTools.u_ellipsis
+
+		return tt
 #------------------------------------------------------------
-def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False):
+def get_due_messages(pk_patient=None, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
+
+	args = {'pat': pk_patient}
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u'is_due IS TRUE'
+	]
+
+	cmd = u"SELECT *, now() - due_date AS interval_due FROM dem.v_message_inbox WHERE %s" % (
+		order_by % u' AND '.join(where_parts)
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY importance desc, received_when desc'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
 
 	args = {}
 	where_parts = []
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'pk_staff in (%(staff)s, NULL)')
+			where_parts.append(u'pk_staff IN (%(staff)s, NULL) OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		else:
-			where_parts.append(u'pk_staff = %(staff)s')
+			where_parts.append(u'pk_staff = %(staff)s OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
 		where_parts.append(u'pk_patient = %(pat)s')
 		args['pat'] = pk_patient
 
-	cmd = u"""
-		SELECT *
-		FROM dem.v_message_inbox
-		WHERE %s
-		ORDER BY importance desc, received_when desc""" % u' AND '.join(where_parts)
-
+	cmd = _SQL_get_inbox_messages % (
+		order_by % u' AND '.join(where_parts)
+	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	return [ cInboxMessage(row = {'pk_field': 'pk_message_inbox', 'idx': idx, 'data': r})  for r in rows ]
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 #------------------------------------------------------------
-def delete_inbox_message(pk=None):
-	gmPG2.run_rw_queries(queries = [{'cmd': u"delete from dem.message_inbox where pk = %s", 'args': [pk]}])
+def create_inbox_message(message_type=None, subject=None, patient=None, staff=None):
+
+	success, pk_type = gmTools.input2int(initial = message_type)
+	if not success:
+		pk_type = create_inbox_item_type(message_type = message_type)
+
+	cmd = u"""
+		INSERT INTO dem.message_inbox (
+			fk_staff,
+			fk_patient,
+			fk_inbox_item_type,
+			comment
+		) VALUES (
+			%(staff)s,
+			%(pat)s,
+			%(type)s,
+			gm.nullify_empty_string(%(subject)s)
+		)
+		RETURNING pk
+	"""
+	args = {
+		u'staff': staff,
+		u'pat': patient,
+		u'type': pk_type,
+		u'subject': subject
+	}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cInboxMessage(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_inbox_message(inbox_message=None):
+	args = {'pk': inbox_message}
+	cmd = u"DELETE FROM dem.message_inbox WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+#------------------------------------------------------------
+def create_inbox_item_type(message_type=None, category=u'clinical'):
+
+	# determine category PK
+	success, pk_cat = gmTools.input2int(initial = category)
+	if not success:
+		args = {u'cat': category}
+		cmd = u"""SELECT COALESCE (
+			(SELECT pk FROM dem.inbox_item_category WHERE _(description) = %(cat)s),
+			(SELECT pk FROM dem.inbox_item_category WHERE description = %(cat)s)
+		) AS pk"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if rows[0]['pk'] is None:
+			cmd = u"INSERT INTO dem.inbox_item_category (description) VALUES (%(cat)s) RETURNING pk"
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+			pk_cat = rows[0]['pk']
+		else:
+			pk_cat = rows[0]['pk']
+
+	# find type PK or create type
+	args = {u'cat': pk_cat, u'type': message_type}
+	cmd = u"""SELECT COALESCE (
+		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(cat)s and _(description) = %(type)s),
+		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(cat)s and description = %(type)s)
+	) AS pk"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	if rows[0]['pk'] is None:
+		cmd = u"""
+			INSERT INTO dem.inbox_item_type (
+				fk_inbox_item_category,
+				description,
+				is_user
+			) VALUES (
+				%(cat)s,
+				%(type)s,
+				TRUE
+			) RETURNING pk"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+	return rows[0]['pk']
+
 #============================================================
 class cProviderInbox:
 	def __init__(self, provider_id=None):
 		if provider_id is None:
-			from Gnumed.business import gmPerson
-			self.__provider_id = gmPerson.gmCurrentProvider()['pk_staff']
+			self.__provider_id = gmStaff.gmCurrentProvider()['pk_staff']
 		else:
 			self.__provider_id = provider_id
 	#--------------------------------------------------------
-	def _get_messages_old(self):
-		cmd = u"""
-select
-	importance,
-	l10n_category,
-	l10n_type,
-	comment,
-	category,
-	type,
-	pk_context,
-	data,
-	pk_message_inbox,
-	received_when,
-	pk_patient
-from dem.v_message_inbox
-where pk_staff = %s
-order by importance desc, received_when desc"""
-		try:
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.__provider_id]}])
-		except:
-			return [[
-				1,
-				_('error'),
-				_('error'),
-				_('unable to get provider inbox messages from database'),
-				'error',
-				'error',
-				None,
-				_('An error occurred while retrieving provider inbox messages from the database.'),
-				None,
-				None,
-				None
-			]]
-		return rows
+	def delete_message(self, pk=None):
+		return delete_inbox_message(inbox_message = pk)
+	#--------------------------------------------------------
+	def add_message(message_type=None, subject=None, patient=None):
+		return create_inbox_message (
+			message_type = message_type,
+			subject = subject,
+			patient = patient,
+			staff = self.__provider_id
+		)
+	#--------------------------------------------------------
+	# properties
 	#--------------------------------------------------------
 	def _get_messages(self):
 		return get_inbox_messages(pk_staff = self.__provider_id)
@@ -141,21 +270,120 @@ order by importance desc, received_when desc"""
 		return
 
 	messages = property(_get_messages, _set_messages)
+
+#============================================================
+# dynamic hints API
+#------------------------------------------------------------
+_SQL_get_dynamic_hints = u"SELECT *, xmin AS xmin_auto_hint FROM ref.auto_hint WHERE %s"
+
+class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents dynamic hints to be run against the database."""
+
+	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk = %s"
+	_cmds_store_payload = [
+		u"""UPDATE ref.auto_hint SET
+				is_active = %(is_active)s
+			WHERE
+				pk = %(pk)s
+					AND
+				xmin = %(xmin_auto_hint)s
+			RETURNING
+				pk,
+				xmin AS xmin_auto_hint
+		"""
+	]
+	_updatable_fields = [
+		u'is_active'
+	]
 	#--------------------------------------------------------
-	def delete_message(self, pk=None):
-		return delete_inbox_message(pk = pk)
+	def format(self):
+		txt = u'%s               [#%s]\n' % (
+			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
+			self._payload[self._idx['pk']]
+		)
+		txt += u'\n'
+		txt += u'%s\n\n' % self._payload[self._idx['title']]
+		txt += _('Source: %s\n') % self._payload[self._idx['source']]
+		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap (
+			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			width = 50,
+			initial_indent = u' ',
+			subsequent_indent = u' '
+		)
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		return txt
+
+#------------------------------------------------------------
+def get_dynamic_hints(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_dynamic_hints % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+#------------------------------------------------------------
+#def create_xxx(xxx=None, xxx=None):
+#
+#	args = {
+#		u'xxx': xxx,
+#		u'xxx': xxx
+#	}
+#	cmd = u"""
+#		INSERT INTO xxx.xxx (
+#			xxx,
+#			xxx,
+#			xxx
+#		) VALUES (
+#			%(xxx)s,
+#			%(xxx)s,
+#			gm.nullify_empty_string(%(xxx)s)
+#		)
+#		RETURNING pk
+#	"""
+#	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+#
+#	return cDynamicHint(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+#def delete_xxx(xxx=None):
+#	args = {'pk': xxx}
+#	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
+#	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+#	return True
+#------------------------------------------------------------
+
+#------------------------------------------------------------
+def get_hints_for_patient(pk_identity=None):
+	conn = gmPG2.get_connection()
+	curs = conn.cursor()
+	curs.callproc('clin.get_hints_for_patient', [pk_identity])
+	rows = curs.fetchall()
+	idx = gmPG2.get_col_indices(curs)
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
 #============================================================
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
 	from Gnumed.pycommon import gmI18N
-	from Gnumed.business import gmPerson
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 
 	#---------------------------------------
 	def test_inbox():
-		gmPerson.gmCurrentProvider(provider = gmPerson.cStaff())
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		inbox = cProviderInbox()
 		for msg in inbox.messages:
 			print msg
@@ -164,56 +392,21 @@ if __name__ == '__main__':
 		msg = cInboxMessage(aPK_obj = 1)
 		print msg
 	#---------------------------------------
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		test_inbox()
-		#test_msg()
+	def test_create_type():
+		print create_inbox_item_type(message_type = 'test')
+	#---------------------------------------
+	def test_due():
+		for msg in get_due_messages(pk_patient = 12):
+			print msg.format()
+	#---------------------------------------
+	def test_auto_hints():
+		for row in get_dynamic_hints(pk_identity = 13):
+			print row
+	#---------------------------------------
+	#test_inbox()
+	#test_msg()
+	#test_create_type()
+	#test_due()
+	test_auto_hints()
 
 #============================================================
-# $Log: gmProviderInbox.py,v $
-# Revision 1.14  2009-12-01 21:48:42  ncq
-# - fix typo
-#
-# Revision 1.13  2009/11/30 22:24:36  ncq
-# - add order by
-#
-# Revision 1.12  2009/08/24 20:03:59  ncq
-# - proper cInboxMessage and use it
-#
-# Revision 1.11  2008/09/04 12:52:51  ncq
-# - load received_when
-#
-# Revision 1.10  2007/10/30 12:47:53  ncq
-# - fix test suite
-# - make messages a property on inbox
-#
-# Revision 1.9  2007/03/01 13:51:13  ncq
-# - remove call to _log
-#
-# Revision 1.8  2006/10/08 15:10:01  ncq
-# - convert to gmPG2
-# - return all the fields needed for inbox on error
-#
-# Revision 1.7  2006/05/20 18:30:09  ncq
-# - cleanup
-#
-# Revision 1.6  2006/05/16 08:20:28  ncq
-# - remove field duplication
-#
-# Revision 1.5  2006/05/15 14:38:43  ncq
-# - include message PK in load list
-# - add delete_message()
-#
-# Revision 1.4  2006/05/12 13:53:34  ncq
-# - missing ()
-#
-# Revision 1.3  2006/05/12 13:48:27  ncq
-# - properly import gmPerson
-#
-# Revision 1.2  2006/05/12 12:04:30  ncq
-# - use gmCurrentProvider
-# - load more fields from inbox for later use
-#
-# Revision 1.1  2006/01/22 18:10:21  ncq
-# - class for provider inbox
-#
-#

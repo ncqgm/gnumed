@@ -1,5 +1,5 @@
 #!/bin/env python
-#This software is free software by the terms of the GPL license
+#This software is free software by the terms of the GPL v2 or later license
 
 """This module provides a (modal) dialog presenting a list
 of choices. The user can either quickly make a selection by

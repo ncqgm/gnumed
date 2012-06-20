@@ -1,10 +1,10 @@
--- Projekt GnuMed
+-- Projekt GNUmed
 -- Impfkalender der Hersteller von Influenza-Impfstoff
 
 -- Quellen: Beipackzettel
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Influenza.sql,v $
 -- $Revision: 1.9 $
 -- =============================================

@@ -6,7 +6,7 @@
 #
 # @author: Dr. Horst Herb
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: nil
 # @change log:
 #	10.03.2002 hherb first draft, largely untested

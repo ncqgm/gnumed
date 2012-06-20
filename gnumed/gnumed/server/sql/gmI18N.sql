@@ -4,7 +4,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmI18N.sql,v $
 -- $Id: gmI18N.sql,v 1.25 2006-02-10 14:06:40 ncq Exp $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- =============================================
 -- Import this script into any GNUmed database you create.

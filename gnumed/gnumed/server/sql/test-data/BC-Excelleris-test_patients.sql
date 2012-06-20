@@ -3,7 +3,7 @@
 -- test patients from British Columbia, Excelleris Labs, HL7 import
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
--- license: GPL
+-- license: GPL v2 or later
 --
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/BC-Excelleris-test_patients.sql,v $
 -- $Revision: 1.1 $
@@ -17,9 +17,9 @@ set default_transaction_read_only to off;
 begin;
 
 -- =============================================
-select dem.add_external_id_type('PHN', 'BC Medical Services Plan, CA', 'p');
-select dem.add_external_id_type('medical record number', 'fake hospital 1 in BC, CA', 'p');
-select dem.add_external_id_type('medical record number', 'fake hospital 2 in BC, CA', 'p');
+select dem.add_external_id_type('PHN', 'BC Medical Services Plan, CA');
+select dem.add_external_id_type('medical record number', 'fake hospital 1 in BC, CA');
+select dem.add_external_id_type('medical record number', 'fake hospital 2 in BC, CA');
 
 -- =============================================
 -- "APATIENT"

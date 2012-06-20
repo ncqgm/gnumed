@@ -19,7 +19,7 @@ import wx.lib.mixins.listctrl as listmixins
 
 
 from Gnumed.pycommon import gmI18N, gmPG2, gmCfg, gmExceptions, gmMatchProvider, gmDispatcher
-from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab
+from Gnumed.business import gmPerson, gmClinicalRecord, gmPathLab, gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmPhraseWheel
 
 _log = gmLog.gmDefLog
@@ -119,7 +119,7 @@ class cLabReviewGrid(wx.Grid):
 class cLabWheel(gmPhraseWheel.cPhraseWheel):
 	def __init__(self, parent):
 		query = """
-			select pk, internal_name
+			select pk, internal_OBSOLETE_name
 			from test_org
 			"""
 		mp = gmMatchProvider.cMatchProvider_SQL2([query])
@@ -515,7 +515,7 @@ class cLabJournalNB(wx.Notebook):
 	#------------------------------------------------------------------------
 	def __get_labname(self, data):
 		# FIXME: eventually, this will be done via a cOrg value object class
-		query= """select internal_name from test_org where pk=%s"""
+		query= """select internal_OBSOLETE_name from test_org where pk=%s"""
 		labs = gmPG.run_ro_query('historica', query, None, data)
 		return labs
 
@@ -621,10 +621,10 @@ class cLabJournalNB(wx.Notebook):
 			gmGuiHelpers.beep_status_text(_('No results marked as reviewed.'))
 			event.Skip()
 			return None
-		
+
 		for result in reviewed_results:
 			result['reviewed'] = 'true'
-			result['pk_reviewer'] = gmPerson.gmCurrentProvider()['pk_staff']
+			result['pk_reviewer'] = gmStaff.gmCurrentProvider()['pk_staff']
 			if not result['abnormal']:
 				result['abnormal'] = ''
 			successfull, error = result.save_payload()
@@ -638,7 +638,7 @@ class cLabJournalNB(wx.Notebook):
 					aTitle = _('update result status')
 				)
 				return None
-			
+
 		event.Skip()
 	#--------------------------------------------------------
 	def __on_right_click(self, evt):
@@ -854,110 +854,3 @@ if __name__ == '__main__':
 	#gmPG.StopListeners()
 	_log.Log (gmLog.lInfo, "closing lab journal")
 #=========================================================
-# $Log: gmLabWidgets.py,v $
-# Revision 1.33  2009-12-21 15:07:11  ncq
-# - fix wx keycode access
-#
-# Revision 1.32  2008/03/17 14:54:22  ncq
-# - a bit of cleanup
-#
-# Revision 1.31  2008/03/06 18:29:29  ncq
-# - standard lib logging only
-#
-# Revision 1.30  2008/01/30 14:08:06  ncq
-# - do not use old cfg file support anymore
-#
-# Revision 1.29  2008/01/11 16:15:32  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.28  2007/08/28 14:18:13  ncq
-# - no more gm_statustext()
-#
-# Revision 1.27  2007/02/22 17:41:13  ncq
-# - adjust to gmPerson changes
-#
-# Revision 1.26  2007/02/05 12:15:23  ncq
-# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
-#
-# Revision 1.25  2007/01/20 22:52:27  ncq
-# - .KeyCode -> GetKeyCode()
-#
-# Revision 1.24  2007/01/18 22:07:52  ncq
-# - (Get)KeyCode() -> KeyCode so 2.8 can do
-#
-# Revision 1.23  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.22  2006/10/25 07:21:57  ncq
-# - no more gmPG
-#
-# Revision 1.21  2006/08/04 05:46:15  ncq
-# - fix wx import style
-#
-# Revision 1.20  2006/07/19 20:29:50  ncq
-# - import cleanup
-#
-# Revision 1.19  2006/05/12 12:18:11  ncq
-# - whoami -> whereami cleanup
-# - use gmCurrentProvider()
-#
-# Revision 1.18  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.17  2005/12/27 18:57:47  ncq
-# - fix syntax error
-#
-# Revision 1.16  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.15  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.14  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.13  2005/09/24 09:17:29  ncq
-# - some wx2.6 compatibility fixes
-#
-# Revision 1.12  2005/06/10 23:22:43  ncq
-# - SQL2 match provider now requires query *list*
-#
-# Revision 1.11  2005/05/05 06:28:23  ncq
-# - renamed phrasewheel methods
-#
-# Revision 1.10  2005/03/06 14:54:19  ncq
-# - szr.AddWindow() -> Add() such that wx2.5 works
-# - 'demographic record' -> get_identity()
-#
-# Revision 1.9  2005/02/15 18:33:08  ncq
-# - identity.id -> pk
-#
-# Revision 1.8  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.7  2004/10/27 12:18:19  ncq
-# - insignificant cleanup
-#
-# Revision 1.6  2004/10/20 21:47:24  ncq
-# - cleanup, improve variable naming/error handling
-# - in LabJournal consolidate layouting
-#
-# Revision 1.5  2004/10/01 13:33:41  ncq
-# - older wxPythons don't have grid.GetColMinimalAcceptableWidth so do try: except:
-#
-# Revision 1.4  2004/09/29 19:14:31  ncq
-# - id -> pk
-#
-# Revision 1.3  2004/07/18 20:30:53  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.2  2004/07/15 15:55:14  ncq
-# - include factored out code from gui/gmShowLab.py
-#
-# Revision 1.1  2004/07/15 15:03:41  ncq
-# - factored out from wxpython/gui/gmLabJournal.py
-#

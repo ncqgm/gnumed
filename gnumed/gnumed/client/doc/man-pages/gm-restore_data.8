@@ -1,0 +1,39 @@
+.TH GM-RESTORE_DATA 8 "2011 May 10th" "GNUmed server data-only restore"
+
+.SH NAME
+.B gm-restore_data
+- restoring data into an empty GNUmed database
+
+.SH SYNOPSIS
+.B gm-restore_database
+.I <target database>
+.I <backup file>
+
+.I <target database>:
+a GNUmed database (such as "gnumed_v17")
+
+.I <backup file>:
+a data-only GNUmed database backup file (such as "backup-gnumed_vX-*-data_only.tar.bz2")
+
+.SH DESCRIPTION
+The
+.B gm-restore_database
+script tries to restore a GNUmed database from a data-only
+backup. It tries to be very conservative. It is intended
+for interactive use by root and may have to be adjusted
+to your needs.
+
+.SH KNOWN PROBLEMS
+
+Note that for some reason restoring does not work when
+the backup file you intend to restore is a link to the
+actual backup. Use the full path instead.
+
+.SH SEE ALSO
+gm-backup_database(8)
+
+/etc/gnumed/gnumed-restore.conf
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert,
+for the Debian GNU/Linux system (but may be used by others).

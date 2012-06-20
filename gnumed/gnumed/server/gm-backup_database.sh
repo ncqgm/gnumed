@@ -28,9 +28,11 @@
 #  47 12,19 * * * * /usr/bin/gm-backup_database.sh
 #
 # author: Karsten Hilbert
-# license: GPL v2
+# license: GPL v2 or later
 #==============================================================
 
+# Keep this properly updated to refer to the
+# database you want to currently backup.
 CONF="/etc/gnumed/gnumed-backup.conf"
 
 #==============================================================
@@ -56,7 +58,9 @@ fi
 
 
 # sanity check
-if ! su -c 'psql -t -l' -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
+# (his does not work on Mac, so you
+#  may need to comment this out)
+if ! su -c "psql -t -l -p ${GM_PORT}" -l postgres | grep -q "^[[:space:]]*${GM_DATABASE}" ; then
 	echo "The configuration in ${CONF} is set to backup"
 	echo "the GNUmed database ${GM_DATABASE}. This"
 	echo "database does not exist, however. Aborting."
@@ -73,12 +77,13 @@ else
 fi;
 
 if test "${HAS_HIGHER_VER}" = "t" ; then
-	echo "Backing up database ${GM_DATABASE}. However,"
-	echo "a newer database seems to exist:"
+	echo "Backing up database ${GM_DATABASE}."
 	echo ""
-	sudo -u postgres psql -l | grep gnumed_v
+	echo "However, a newer database seems to exist:"
 	echo ""
-	echo "Make sure you really want to backup the old database !"
+	sudo -u postgres psql -l -p ${GM_PORT} | grep gnumed_v
+	echo ""
+	echo "Make sure you really want to backup the older database !"
 fi ;
 
 
@@ -116,7 +121,8 @@ if test -z ${GM_HOST} ; then
 	echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-	echo "-- "`psql -A -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+	echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 	pg_dump -C -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 else
@@ -136,7 +142,8 @@ else
 		echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
-		echo "-- "`psql -A -h ${GM_HOST} -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"` >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
+		echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 		pg_dump -C -v -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 	else

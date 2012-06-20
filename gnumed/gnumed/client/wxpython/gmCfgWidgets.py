@@ -3,7 +3,7 @@
 #================================================================
 __version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
 import logging, sys
@@ -16,9 +16,14 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmCfg, gmDispatcher, gmTools, gmCfg2
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmCfg2
 from Gnumed.business import gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -45,7 +50,7 @@ def check_for_updates():
 
 	_cfg = gmCfg2.gmCfgData()
 
-	found, msg = gmTools.check_for_update (
+	found, msg = gmNetworkTools.check_for_update (
 		url = url,
 		current_branch = _cfg.get(option = 'client_branch'),
 		current_version = _cfg.get(option = 'client_version'),
@@ -68,26 +73,83 @@ def list_configuration(parent=None):
 
 	#---------------
 	def refresh(lctrl):
-		opts = gmCfg.get_all_options()
+		opts = gmCfg.get_all_options(order_by = u'owner, workplace, option')
 
 		items = [ [
-			o['option'],
-			o['value'],
 			o['owner'],
 			o['workplace'],
+			o['option'],
+			o['value'],
 			o['type'],
 			gmTools.coalesce(o['description'], u'')
 		] for o in opts ]
 		lctrl.set_string_items(items)
+		lctrl.set_data(opts)
+	#---------------
+	def tooltip(item):
+		return (
+			u'%s %s (#%s) %s\n'
+			u'\n'
+			u' %s @ %s\n'
+			u'\n'
+			u' %s: %s\n'
+			u'%s'
+		) % (
+			gmTools.u_box_horiz_single * 3,
+			item['option'],
+			item['pk_cfg_item'],
+			gmTools.u_box_horiz_single * 3,
+			item['owner'],
+			item['workplace'],
+			item['type'],
+			gmTools.wrap(
+				text = item['value'],
+				width = 40,
+				subsequent_indent = u' ' * 8
+			),
+			gmTools.wrap (
+				text = gmTools.coalesce(item['description'], u'', u'\n%s'),
+				width = 40,
+				initial_indent = u' ',
+				subsequent_indent = u' '
+			)
+		)
+	#---------------
+	def delete(item):
+		delete_it = gmGuiHelpers.gm_show_question (
+			aTitle = _('Deleting option'),
+			aMessage = u'%s\n\n%s %s (#%s) %s\n\n%s\n\n%s' % (
+				tooltip(item),
+				gmTools.u_box_horiz_single * 3,
+				item['option'],
+				item['pk_cfg_item'],
+				gmTools.u_box_horiz_single * 3,
+				_('Do you really want to delete this option ?'),
+				_('(GNUmed will re-create options as needed.)')
+			)
+		)
+		if not delete_it:
+			return False
 
+		from Gnumed.wxpython.gmAuthWidgets import get_dbowner_connection
+		conn = get_dbowner_connection(procedure = _('Deleting option'))
+		if conn is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot connect as database owner. Unable to delete option.'))
+			return False
+
+		cfg = gmCfg.cCfgSQL()
+		cfg.delete(conn = conn, pk_option = item['pk_cfg_item'])
+		return True
 	#---------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('This list shows all configuration settings from the database.'),
-		caption = _('Showing configuration'),
-		columns = [_('Option'), _('Value'), _('User'), _('Workplace'), _('Type'), _('Description')],
+		msg = _('All configured options currently in the database.'),
+		caption = _('All configured options'),
+		columns = [ _('User'), _('Workplace'), _('Option'), _('Value'), _('Type'), _('Description') ],
 		refresh_callback = refresh,
-		ignore_OK_button = True
+		delete_callback = delete,
+		ignore_OK_button = True,
+		list_tooltip_callback = tooltip
 	)
 #================================================================
 def configure_string_from_list_option(parent=None, message=None, option=None, bias='user', default_value=u'', choices=None, columns=None, data=None, caption=None):

@@ -24,13 +24,13 @@ _log.info(__version__)
 #============================================================
 # convenience functions
 #============================================================
-def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None, cleanup=True):
+def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template
-	template = manage_form_templates(parent = parent)
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note', 'invoice'])
 	if template is None:
 		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
 		return None
@@ -42,7 +42,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 2) process template
 	try:
-		doc = template.instantiate()
+		form = template.instantiate()
 	except KeyError:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -52,11 +52,9 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 		return False
 	ph = gmMacro.gmPlaceholderHandler()
 	#ph.debug = True
-	doc.substitute_placeholders(data_source = ph)
-	doc.edit()
-	printable_file = doc.generate_output(cleanup = cleanup)
-	if cleanup:
-		doc.cleanup()
+	form.substitute_placeholders(data_source = ph)
+	form.edit()
+	printable_file = form.generate_output()
 	if printable_file is None:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -69,7 +67,7 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 	if jobtype is None:
 		jobtype = 'generic_document'
 
-	printed = gmPrinting.print_file_by_shellscript(filename = printable_file, jobtype = jobtype)
+	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
 	if not printed:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -90,10 +88,12 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 
 	# 4) keep a copy
 	if keep_a_copy:
-		# tell UI to import the file
+		files2import = []
+		files2import.extend(form.final_output_filenames)
+		files2import.extend(form.re_editable_filenames)
 		gmDispatcher.send (
-			signal = u'import_document_from_file',
-			filename = printable_file,
+			signal = u'import_document_from_files',
+			filenames = files2import,
 			document_type = template['instance_type'],
 			unlock_patient = True
 		)
@@ -155,7 +155,7 @@ def print_doc_from_ooo_template(template=None):
 
 	return True
 #------------------------------------------------------------
-def manage_form_templates(parent=None):
+def manage_form_templates(parent=None, template_types=None, active_only=False, excluded_types=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -163,8 +163,7 @@ def manage_form_templates(parent=None):
 	#-------------------------
 	def edit(template=None):
 		dlg = cFormTemplateEditAreaDlg(parent, -1, template=template)
-		result = dlg.ShowModal()
-		return (result == wx.ID_OK)
+		return (dlg.ShowModal() == wx.ID_OK)
 	#-------------------------
 	def delete(template):
 		delete = gmGuiHelpers.gm_show_question (
@@ -185,7 +184,7 @@ def manage_form_templates(parent=None):
 		return False
 	#-------------------------
 	def refresh(lctrl):
-		templates = gmForms.get_form_templates(active_only = False)
+		templates = gmForms.get_form_templates(active_only = active_only, template_types = template_types, excluded_types = excluded_types)
 		lctrl.set_string_items(items = [ [t['name_long'], t['external_version'], gmForms.form_engine_names[t['engine']]] for t in templates ])
 		lctrl.set_data(data = templates)
 	#-------------------------
@@ -205,7 +204,7 @@ def manage_form_templates(parent=None):
 def create_new_letter(parent=None):
 
 	# 1) have user select template
-	template = manage_form_templates(parent = parent)
+	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
 	if template is None:
 		return
 
@@ -302,6 +301,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._TCTRL_date_modified.SetValue(u'')
 			self._TCTRL_modified_by.SetValue(u'')
 
+			self._BTN_export.Enable(False)
 		else:
 			self._PRW_name_long.SetText(self.__template['name_long'])
 			self._PRW_name_short.SetText(self.__template['name_short'])
@@ -317,6 +317,8 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 
 			self._TCTRL_filename.Enable(True)
 			self._BTN_load.Enable(not self.__template['has_instances'])
+
+			self._BTN_export.Enable(True)
 
 		self._PRW_name_long.SetFocus()
 	#--------------------------------------------------------
@@ -413,7 +415,6 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			message = _('Choose a form template file'),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
-#			wildcard = "%s (*.ott)|*.ott|%s (*.tex)|*.tex|%s (*)|*|%s (*.*)|*.*" % (_('OOo templates'), _('LaTeX templates'), _('all files'), _('all files (Win)')),
 			wildcard = '|'.join(wildcards),
 			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
 		)
@@ -422,6 +423,40 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self.full_filename = dlg.GetPath()
 			fname = os.path.split(self.full_filename)[1]
 			self._TCTRL_filename.SetValue(fname)
+		dlg.Destroy()
+	#--------------------------------------------------------
+	def _on_export_button_pressed(self, event):
+
+		if self.__template is None:
+			return
+
+		engine_abbrev = gmForms.form_engine_abbrevs[self._CH_engine.GetSelection()]
+
+		wildcards = []
+		try:
+			wildcards.append(u'%s (%s)|%s' % (
+				gmForms.form_engine_names[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev],
+				gmForms.form_engine_template_wildcards[engine_abbrev]
+			))
+		except KeyError:
+			pass
+		wildcards.append(u"%s (*)|*" % _('all files'))
+		wildcards.append(u"%s (*.*)|*.*" % _('all files (Windows)'))
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Enter a filename to save the template in'),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = '',
+			wildcard = '|'.join(wildcards),
+			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT | wx.HIDE_READONLY
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			fname = dlg.GetPath()
+			self.__template.export_to_file(filename = fname)
+
 		dlg.Destroy()
 #============================================================
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):

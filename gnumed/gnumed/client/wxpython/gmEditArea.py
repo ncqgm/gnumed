@@ -6,14 +6,17 @@ __version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
-import logging, datetime as pydt
+import sys
+import logging
+import datetime as pydt
 
 
 import wx
 
 
-from Gnumed.pycommon import gmDispatcher, gmExceptions
-from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg, wxgGenericEditAreaDlg2
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.ui')
@@ -23,6 +26,8 @@ edit_area_modes = ['new', 'edit', 'new_from_existing']
 
 class cGenericEditAreaMixin(object):
 	"""Mixin for edit area panels providing generic functionality.
+
+	**************** start of template ****************
 
 #====================================================================
 # Class definition:
@@ -39,7 +44,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		except KeyError:
 			data = None
 
-		wxgXxxEAPnl.wxgXxxPatientEAPnl.__init__(self, *args, **kwargs)
+		wxgXxxEAPnl.wxgXxxEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
 		# Code using this mixin should set mode and data
@@ -57,15 +62,41 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
+
+		# its best to validate bottom -> top such that the
+		# cursor ends up in the topmost failing field
+
+		# remove when implemented:
 		return False
-		return True
+
+		validity = True
+
+		if self._TCTRL_xxx.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
+			self._TCTRL_xxx.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
+
+		if self._PRW_xxx.GetData() is None:
+			validity = False
+			self._PRW_xxx.display_as_valid(False)
+			self._PRW_xxx.SetFocus()
+		else:
+			self._PRW_xxx.display_as_valid(True)
+
+		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		# save the data as a new instance
-		data = 
 
-		data[''] = 
-		data[''] = 
+		# remove when implemented:
+		return False
+
+		# save the data as a new instance
+		data = gmXXXX.create_xxxx()
+
+		data[''] = self._
+		data[''] = self._
 
 		data.save()
 
@@ -77,32 +108,38 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
+
+		# remove when implemented:
+		return False
+
 		# update self.data and save the changes
-		self.data[''] = 
-		self.data[''] = 
-		self.data[''] = 
+		self.data[''] = self._TCTRL_xxx.GetValue().strip()
+		self.data[''] = self._PRW_xxx.GetData()
+		self.data[''] = self._CHBOX_xxx.GetValue()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		pass
 	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		pass
 	#----------------------------------------------------------------
-	def _refresh_as_new_from_existing(self):
-		pass
-	#----------------------------------------------------------------
+
+	**************** end of template ****************
 	"""
 	def __init__(self):
 		self.__mode = 'new'
 		self.__data = None
 		self.successful_save_msg = None
-		self._refresh_as_new()
 		self.__tctrl_validity_colors = {
 			True: wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW),
 			False: 'pink'
 		}
+		self._refresh_as_new()
 	#----------------------------------------------------------------
 	def _get_mode(self):
 		return self.__mode
@@ -147,6 +184,9 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if not self._valid_for_save():
 			return False
 
+		# remove messages about previous invalid save attempts
+		gmDispatcher.send(signal = 'statustext', msg = u'')
+
 		if self.__mode in ['new', 'new_from_existing']:
 			if self._save_as_new():
 				self.mode = 'edit'
@@ -163,24 +203,36 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		"""Invoked from the generic edit area dialog.
 
 		Invokes
-			_refresh_as_new
-			_refresh_from_existing
-			_refresh_as_new_from_existing
+			_refresh_as_new()
+			_refresh_from_existing()
+			_refresh_as_new_from_existing()
 		on the implementing edit area as needed.
+
+		Then calls _valid_for_save().
 		"""
 		if self.__mode == 'new':
-			return self._refresh_as_new()
+			result = self._refresh_as_new()
+			self._valid_for_save()
+			return result
 		elif self.__mode == 'edit':
-			return self._refresh_from_existing()
+			result = self._refresh_from_existing()
+			return result
 		elif self.__mode == 'new_from_existing':
-			return self._refresh_as_new_from_existing()
+			result = self._refresh_as_new_from_existing()
+			self._valid_for_save()
+			return result
 		else:
 			raise ValueError('[%s] <mode> must be in %s' % (self.__class__.__name__, edit_area_modes))
 	#----------------------------------------------------------------
 	def display_tctrl_as_valid(self, tctrl=None, valid=None):
-		tctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
-		tctrl.Refresh()
+		self.display_ctrl_as_valid(ctrl = tctrl, valid = valid)
+	#----------------------------------------------------------------
+	def display_ctrl_as_valid(self, ctrl=None, valid=None):
+		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
+		ctrl.Refresh()
 #====================================================================
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg2
+
 class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	"""Dialog for parenting edit area panels with save/clear/next/cancel"""
 
@@ -204,6 +256,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2.__init__(self, *args, **kwargs)
 
+		self.left_extra_button = None
+
 		if cGenericEditAreaDlg2._today.day != cGenericEditAreaDlg2._lucky_day:
 			self._BTN_lucky.Enable(False)
 			self._BTN_lucky.Hide()
@@ -213,15 +267,18 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 				self._BTN_lucky.Hide()
 
 		# replace dummy panel
-		old_ea = self._PNL_ea
-		ea_pnl_szr = old_ea.GetContainingSizer()
-		ea_pnl_parent = old_ea.GetParent()
-		ea_pnl_szr.Remove(old_ea)
-		old_ea.Destroy()
-		del old_ea
+		dummy_ea_pnl = self._PNL_ea
+		ea_pnl_szr = dummy_ea_pnl.GetContainingSizer()
+		ea_pnl_parent = dummy_ea_pnl.GetParent()
+		ea_pnl_szr.Remove(dummy_ea_pnl)
+		dummy_ea_pnl.Destroy()
+		del dummy_ea_pnl
+		new_ea_min_size = new_ea.GetMinSize()
 		new_ea.Reparent(ea_pnl_parent)
 		self._PNL_ea = new_ea
 		ea_pnl_szr.Add(self._PNL_ea, 1, wx.EXPAND, 0)
+		ea_pnl_szr.SetMinSize(new_ea_min_size)					# set minimum size of EA pnl sizer from its new EA item
+		ea_pnl_szr.Fit(new_ea)									# resize the new EA to the minimum size of the EA pnl sizer
 
 		# adjust buttons
 		if single_entry:
@@ -231,10 +288,11 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._adjust_clear_revert_buttons()
 
 		# redraw layout
-		self.Layout()
+		#self.Layout()
 		main_szr = self.GetSizer()
 		main_szr.Fit(self)
-		self.Refresh()
+		self.Layout()
+		#self.Refresh()				# apparently not needed (27.3.2011)
 
 		self._PNL_ea.refresh()
 	#--------------------------------------------------------
@@ -279,6 +337,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			self._PNL_ea.refresh()
 	#--------------------------------------------------------
 	def _on_lucky_button_pressed(self, evt):
+		from Gnumed.wxpython import gmGuiHelpers
 		gmGuiHelpers.gm_show_info (
 			_(	'Today is your lucky day !\n'
 				'\n'
@@ -287,8 +346,39 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 			),
 			_('GNUmed Lottery')
 		)
+	#--------------------------------------------------------
+	def _on_left_extra_button_pressed(self, event):
+		if not self.__left_extra_button_callback(self._PNL_ea.data):
+			return
+
+		if self.IsModal():
+			self.EndModal(wx.ID_OK)
+		else:
+			self.Close()
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _set_left_extra_button(self, definition):
+		if definition is None:
+			self._BTN_extra_left.Enable(False)
+			self._BTN_extra_left.Hide()
+			self.__left_extra_button_callback = None
+			return
+
+		(label, tooltip, callback) = definition
+		if not callable(callback):
+			raise ValueError('<left extra button> callback is not a callable: %s' % callback)
+		self.__left_extra_button_callback = callback
+		self._BTN_extra_left.SetLabel(label)
+		self._BTN_extra_left.SetToolTipString(tooltip)
+		self._BTN_extra_left.Enable(True)
+		self._BTN_extra_left.Show()
+
+	left_extra_button = property(lambda x:x, _set_left_extra_button)
 #====================================================================
 # DEPRECATED:
+from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
+
 class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 	"""Dialog for parenting edit area with save/clear/cancel"""
 
@@ -325,11 +415,11 @@ class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
 #====================================================================
 #====================================================================
 #====================================================================
-import time
+#import time
 
-from Gnumed.business import gmPerson, gmDemographicRecord
+#from Gnumed.business import gmPerson, gmDemographicRecord
 from Gnumed.pycommon import gmGuiBroker
-from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
+#from Gnumed.wxpython import gmDateTimeInput, gmPhraseWheel, gmGuiHelpers
 
 _gb = gmGuiBroker.GuiBroker()
 
@@ -345,15 +435,15 @@ gmSECTION_RECALLS = 12
 
 richards_blue = wx.Colour(0,0,131)
 richards_aqua = wx.Colour(0,194,197)
-richards_dark_gray = wx.Color(131,129,131)
-richards_light_gray = wx.Color(255,255,255)
-richards_coloured_gray = wx.Color(131,129,131)
+richards_dark_gray = wx.Colour(131,129,131)
+richards_light_gray = wx.Colour(255,255,255)
+richards_coloured_gray = wx.Colour(131,129,131)
 
 
 CONTROLS_WITHOUT_LABELS =['wxTextCtrl', 'cEditAreaField', 'wx.SpinCtrl', 'gmPhraseWheel', 'wx.ComboBox'] 
 
 def _decorate_editarea_field(widget):
-	widget.SetForegroundColour(wx.Color(255, 0, 0))
+	widget.SetForegroundColour(wx.Colour(255, 0, 0))
 	widget.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.BOLD, False, ''))
 #====================================================================
 class cEditAreaPopup(wx.Dialog):
@@ -369,7 +459,7 @@ class cEditAreaPopup(wx.Dialog):
 		edit_area = None
 	):
 		if not isinstance(edit_area, cEditArea2):
-			raise gmExceptions.ConstructorError, '<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area)
+			raise TypeError('<edit_area> must be of type cEditArea2 but is <%s>' % type(edit_area))
 		wx.Dialog.__init__(self, parent, id, title, pos, size, style, name)
 		self.__wxID_BTN_SAVE = wx.NewId()
 		self.__wxID_BTN_RESET = wx.NewId()
@@ -456,7 +546,7 @@ class cEditArea2(wx.Panel):
 			size = size,
 			style = style | wx.TAB_TRAVERSAL
 		)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		self.data = None		# a placeholder for opaque data
 		self.fields = {}
@@ -621,7 +711,7 @@ class cEditArea2(wx.Panel):
 			positions.sort()
 			for pos in positions:
 				field, weight = self.fields[line][pos]
-#				field.SetBackgroundColour(wx.Color(222,222,222))
+#				field.SetBackgroundColour(wx.Colour(222,222,222))
 				szr_line.Add(field, weight, wx.EXPAND)
 			szr_main_fgrid.Add(szr_line, flag=wx.GROW | wx.ALIGN_LEFT)
 
@@ -703,7 +793,7 @@ class cEditArea(wx.Panel):
 
 		# init main background panel
 		wx.Panel.__init__(self, parent, id, pos=pos, size=size, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		self.data = None
 		self.fields = {}
@@ -792,7 +882,7 @@ class cEditArea(wx.Panel):
 		return hszr_prompts
 	#----------------------------------------------------------------
 	def __generate_fields(self):
-		self.fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
+		self.fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
 		# rows, cols, hgap, vgap
 		vszr = wx.BoxSizer(wx.VERTICAL)
 		lines = self.fields.keys()
@@ -1054,7 +1144,7 @@ class gmEditArea(cEditArea):
 	def __make_editing_area(self):
 		# make edit fields
 		fields_pnl = wx.Panel(self, -1, wx.DefaultPosition, wx.DefaultSize, style = wx.RAISED_BORDER | wx.TAB_TRAVERSAL)
-		fields_pnl.SetBackgroundColour(wx.Color(222,222,222))
+		fields_pnl.SetBackgroundColour(wx.Colour(222,222,222))
 		# rows, cols, hgap, vgap
 		gszr = wx.GridSizer(len(_prompt_defs[self._type]), 1, 2, 2)
 
@@ -1235,81 +1325,6 @@ class gmEditArea(cEditArea):
 				pass
 		return values
 #====================================================================
-class gmFamilyHxEditArea(gmEditArea):
-	def __init__(self, parent, id):
-		try:
-			gmEditArea.__init__(self, parent, id, aType = 'family history')
-		except gmExceptions.ConstructorError:
-			_log.exceptions('cannot instantiate family Hx edit area')
-			raise
-	#----------------------------------------------------------------
-	def _make_edit_lines(self, parent):
-		_log.debug("making family Hx lines")
-		lines = []
-		self.input_fields = {}
-		# line 1
-		# FIXME: put patient search widget here, too ...
-		# add button "make active patient"
-		self.input_fields['name'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		self.input_fields['DOB'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lbl_dob = self._make_prompt(parent, _(" Date of Birth "), richards_blue)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['name'], 4, wx.EXPAND)
-		szr.Add(lbl_dob, 2, wx.EXPAND)
-		szr.Add(self.input_fields['DOB'], 4, wx.EXPAND)
-		lines.append(szr)
-		# line 2
-		# FIXME: keep relationship attachments permamently ! (may need to make new patient ...)
-		# FIXME: learning phrasewheel attached to list loaded from backend
-		self.input_fields['relationship'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['relationship'], 4, wx.EXPAND)
-		lines.append(szr)
-		# line 3
-		self.input_fields['condition'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		self.cb_condition_confidential = wx.CheckBox(parent, -1, _("confidental"), wx.DefaultPosition, wx.DefaultSize, wx.NO_BORDER)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(self.input_fields['condition'], 6, wx.EXPAND)
-		szr.Add(self.cb_condition_confidential, 0, wx.EXPAND)
-		lines.append(szr)
-		# line 4
-		self.input_fields['comment'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lines.append(self.input_fields['comment'])
-		# line 5
-		lbl_onset = self._make_prompt(parent, _(" age onset "), richards_blue)
-		self.input_fields['age onset'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		#    FIXME: combo box ...
-		lbl_caused_death = self._make_prompt(parent, _(" caused death "), richards_blue)
-		self.input_fields['caused death'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lbl_aod = self._make_prompt(parent, _(" age died "), richards_blue)
-		self.input_fields['AOD'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.Add(lbl_onset, 0, wx.EXPAND)
-		szr.Add(self.input_fields['age onset'], 1,wx.EXPAND)
-		szr.Add(lbl_caused_death, 0, wx.EXPAND)
-		szr.Add(self.input_fields['caused death'], 2,wx.EXPAND)
-		szr.Add(lbl_aod, 0, wx.EXPAND)
-		szr.Add(self.input_fields['AOD'], 1, wx.EXPAND)
-		szr.Add(2, 2, 8)
-		lines.append(szr)
-		# line 6
-		self.input_fields['progress notes'] = cEditAreaField(parent, -1, wx.DefaultPosition, wx.DefaultSize)
-		lines.append(self.input_fields['progress notes'])
-		# line 8
-		self.Btn_next_condition = wx.Button(parent, -1, _("Next Condition"))
-		szr = wx.BoxSizer(wx.HORIZONTAL)
-		szr.AddSpacer(10, 0, 0)
-		szr.Add(self.Btn_next_condition, 0, wx.EXPAND | wx.ALL, 1)
-		szr.Add(2, 1, 5)
-		szr.Add(self._make_standard_buttons(parent), 0, wx.EXPAND)
-		lines.append(szr)
-
-		return lines
-
-	def _save_data(self):
-		return 1
-
-#====================================================================
 class gmPastHistoryEditArea(gmEditArea):
 
 	def __init__(self, parent, id):
@@ -1350,7 +1365,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			widget = self.fld_age_noted,
 			weight = 2
 		)
-		
+
 		# line 2
 		self.fld_laterality_none= wx.RadioButton(parent, -1, _("N/A"))
 		self.fld_laterality_left= wx.RadioButton(parent, -1, _("L"))
@@ -1458,10 +1473,11 @@ class gmPastHistoryEditArea(gmEditArea):
 		try:
 			birthyear = int(str(self._patient['dob']).split('-')[0]) 
 		except:
-			birthyear = time.localtime()[0]
-		
+#			birthyear = time.localtime()[0]
+			birthyear = 1
+
 		return birthyear
-		
+
 	def _yearKillFocus( self, event):	
 		event.Skip()	
 		try:
@@ -1475,7 +1491,7 @@ class gmPastHistoryEditArea(gmEditArea):
 			"notes1": "",
 			"notes2": "",
 			"age": "",
-			"year": str(time.localtime()[0]),
+			#"year": str(time.localtime()[0]),
 			"progress": "",
 			"active": 1,
 			"operation": 0,
@@ -1489,7 +1505,8 @@ class gmPastHistoryEditArea(gmEditArea):
 
 	def _getDefaultAge(self):
 		try:
-			return	time.localtime()[0] - self._patient.getBirthYear()
+			#return	time.localtime()[0] - self._patient.getBirthYear()
+			return 1
 		except:
 			return 0
 
@@ -1497,8 +1514,7 @@ class gmPastHistoryEditArea(gmEditArea):
 		values = gmPastHistoryEditArea.__init_values
 		values["age"] = str( self._getDefaultAge())
 		return values 
-		
-		
+
 	def _save_data(self):
 		clinical = self._patient.get_emr().get_past_history()
 		if self.getDataId() is None:
@@ -1748,7 +1764,7 @@ class gmPnlEditAreaPrompts(wx.Panel):
 class EditTextBoxes(wx.Panel):
 	def __init__(self, parent, id, editareaprompts, section):
 		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize,style = wx.RAISED_BORDER | wx.TAB_TRAVERSAL)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 		self.parent = parent
 		# rows, cols, hgap, vgap
 		self.gszr = wx.GridSizer(len(editareaprompts), 1, 2, 2)
@@ -1849,7 +1865,7 @@ class EditArea(wx.Panel):
 		_log.warning('***** old style EditArea instantiated, please convert *****')
 
 		wx.Panel.__init__(self, parent, id, wx.DefaultPosition, wx.DefaultSize, style = wx.NO_BORDER)
-		self.SetBackgroundColour(wx.Color(222,222,222))
+		self.SetBackgroundColour(wx.Colour(222,222,222))
 
 		# make prompts
 		prompts = gmPnlEditAreaPrompts(self, -1, line_labels)
@@ -2033,7 +2049,7 @@ class EditArea(wx.Panel):
 #	        elif section == gmSECTION_MEASUREMENTS:
 #		      self.combo_measurement_type = wx.ComboBox(self, ID_MEASUREMENT_TYPE, "", wx.DefaultPosition,wx.DefaultSize, ['Blood pressure','INR','Height','Weight','Whatever other measurement you want to put in here'], wx.CB_DROPDOWN)
 #		      self.combo_measurement_type.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_measurement_type.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_measurement_type.SetForegroundColour(wx.Colour(255,0,0))
 #		      self.txt_measurement_value = cEditAreaField(self,ID_MEASUREMENT_VALUE,wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_txt_measurement_date = cEditAreaField(self,ID_MEASUREMENT_DATE,wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_txt_measurement_comment = cEditAreaField(self,ID_MEASUREMENT_COMMENT,wx.DefaultPosition,wx.DefaultSize)
@@ -2136,7 +2152,7 @@ class EditArea(wx.Panel):
 #		      self.gszr.AddSizer(self.sizer_line10,0,wx.EXPAND)                   #e.g check boxes to include medications etc
 #		      self.gszr.Add(self.sizer_line11,0,wx.EXPAND)                       #e.g check boxes to include active problems etc
 		      #self.spacer = wxWindow(self,-1,wx.DefaultPosition,wx.DefaultSize)
-		      #self.spacer.SetBackgroundColour(wx.Color(255,255,255))
+		      #self.spacer.SetBackgroundColour(wx.Colour(255,255,255))
 #		      self.sizer_line12.Add(5,0,6)
 		      #self.sizer_line12.Add(self.spacer,6,wx.EXPAND)
 #		      self.sizer_line12.Add(self.btnpreview,1,wx.EXPAND|wxALL,2)
@@ -2148,15 +2164,15 @@ class EditArea(wx.Panel):
 		      #FIXME remove present options in this combo box	  #FIXME defaults need to be loaded from database	  
 #		      self.combo_tosee = wx.ComboBox(self, ID_RECALLS_TOSEE, "", wx.DefaultPosition,wx.DefaultSize, ['Doctor1','Doctor2','Nurse1','Dietition'], wx.CB_READONLY ) #wx.CB_DROPDOWN)
 #		      self.combo_tosee.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_tosee.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_tosee.SetForegroundColour(wx.Colour(255,0,0))
 		      #FIXME defaults need to be loaded from database
 #		      self.combo_recall_method = wx.ComboBox(self, ID_RECALLS_CONTACTMETHOD, "", wx.DefaultPosition,wx.DefaultSize, ['Letter','Telephone','Email','Carrier pigeon'], wx.CB_READONLY )
 #		      self.combo_recall_method.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_recall_method.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_recall_method.SetForegroundColour(wx.Colour(255,0,0))
 		      #FIXME defaults need to be loaded from database
  #                     self.combo_apptlength = wx.ComboBox(self, ID_RECALLS_APPNTLENGTH, "", wx.DefaultPosition,wx.DefaultSize, ['brief','standard','long','prolonged'], wx.CB_READONLY )
 #		      self.combo_apptlength.SetFont(wx.Font(12,wx.SWISS,wx.NORMAL, wx.BOLD,False,''))
-#		      self.combo_apptlength.SetForegroundColour(wx.Color(255,0,0))
+#		      self.combo_apptlength.SetForegroundColour(wx.Colour(255,0,0))
 #		      self.txt_recall_for = cEditAreaField(self,ID_RECALLS_TXT_FOR, wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_recall_due = cEditAreaField(self,ID_RECALLS_TXT_DATEDUE, wx.DefaultPosition,wx.DefaultSize)
 #		      self.txt_recall_addtext = cEditAreaField(self,ID_RECALLS_TXT_ADDTEXT,wx.DefaultPosition,wx.DefaultSize)

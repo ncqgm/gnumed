@@ -1,11 +1,11 @@
 # -*- coding: latin-1 -*-
-"""GnuMed LDT importer.
+"""GNUmed LDT importer.
 
 This script automatically imports German pathology result
 files in LDT format.
 
 It relies on patient-to-request-ID mappings to be present
-in the GnuMed database. It will only import those request
+in the GNUmed database. It will only import those request
 that have a mapping.
 
 The general theory of operation of automatic import at
@@ -13,7 +13,7 @@ Hilbert office is as follows:
 
 - automatically retrieve LDT files from labs
 - archive them
-- make them available in a GnuMed private directory
+- make them available in a GNUmed private directory
 - run importer every hour
 - import those records that have a mapping
 - make those records available to TurboMed
@@ -35,7 +35,7 @@ import glob, os.path, sys, tempfile, fileinput, time, copy, random, shutil
 
 
 from Gnumed.pycommon import gmCfg, gmLoginInfo, gmExceptions, gmI18N
-from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson
+from Gnumed.business import gmPathLab, gmXdtMappings, gmPerson, gmPersonSearch
 
 import mx.DateTime as mxDT
 
@@ -124,6 +124,7 @@ class cLDTImporter:
 	# internal helpers
 	#-----------------------------------------------------------
 	def _verify_8300(self, a_line, field_data):
+		# FIXME: internal_name is no more
 		cmd = "select exists(select pk from test_org where internal_name=%s)"
 		status = gmPG.run_ro_query('historica', cmd, None, field_data)
 		if status is None:
@@ -490,7 +491,7 @@ class cLDTImporter:
 				_log.Log(gmLog.lErr, 'Kann lab_request nicht automatisch erzeugen.')
 				return None
 			# find patient
-			searcher = gmPerson.cPatientSearcher_SQL()
+			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			pat_ids = searcher.get_patient_ids(search_dict=pat_ldt)
 			print "must use dto, not search_dict"
 			if len(pat_ids) == 0:

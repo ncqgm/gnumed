@@ -1,4 +1,4 @@
-"""GnuMed patient EMR tree browser.
+"""GNUmed patient EMR tree browser.
 """
 #================================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/sjtan/emr_browser/gmEMRBrowser.py,v $
@@ -13,7 +13,7 @@ from wxPython import wx
 
 from Gnumed.pycommon import gmLog, gmI18N, gmPG, gmDispatcher, gmSignals
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson
+from Gnumed.business import gmEMRStructItems, gmPerson, gmPersonSearch
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.pycommon.gmPyCompat import *
 
@@ -469,9 +469,9 @@ if __name__ == '__main__':
 		# make sure we have a db connection
 		gmPG.set_default_client_encoding('latin1')
 		pool = gmPG.ConnectionPool()
-		
+
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
@@ -481,10 +481,10 @@ if __name__ == '__main__':
 		emr_browser = cEMRBrowserPanel(application.frame, -1)
 #		emr_browser.set_patient(patient)		
 		emr_browser.refresh_tree()
-		
+
 		application.frame.Show(True)
 		application.MainLoop()
-		
+
 		# clean up
 		if patient is not None:
 			try:
@@ -504,42 +504,3 @@ if __name__ == '__main__':
 	_log.Log (gmLog.lInfo, "closing emr browser...")
 
 #================================================================
-# $Log: gmEMRBrowser.py,v $
-# Revision 1.6  2008-11-21 13:07:19  ncq
-# - get_names can return empty list
-#
-# Revision 1.5  2008/01/11 16:18:14  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.4  2005/02/03 20:22:07  ncq
-# - get_demographic_record() -> get_identity()
-#
-# Revision 1.3  2005/01/31 13:06:40  ncq
-# - use gmPerson.ask_for_patient()
-#
-# Revision 1.2  2005/01/31 10:18:11  ncq
-# - gmPatient -> gmPerson
-#
-# Revision 1.1  2004/12/21 23:52:59  sjtan
-#
-# diff shows the difference b/n latest cvs and proposed changes to have working menu items.
-#
-# Revision 1.6  2004/10/31 00:37:13  cfmoro
-# Fixed some method names. Refresh function made public for easy reload, eg. standalone. Refresh browser at startup in standalone mode
-#
-# Revision 1.5  2004/09/06 18:57:27  ncq
-# - Carlos pluginized the lot ! :-)
-# - plus some fixes/tabified it
-#
-# Revision 1.4	2004/09/01 22:01:45	 ncq
-# - actually use Carlos' issue/episode summary code
-#
-# Revision 1.3	2004/08/11 09:46:24	 ncq
-# - now that EMR exporter supports SOAP notes - display them
-#
-# Revision 1.2	2004/07/26 00:09:27	 ncq
-# - Carlos brings us data display for the encounters - can REALLY browse EMR now !
-#
-# Revision 1.1	2004/07/21 12:30:25	 ncq
-# - initial checkin
-#

@@ -1,0 +1,73 @@
+
+Hello all,
+
+I am glad to be able to announce the immediate availability
+of the GNUmed xx.x.x Feature Release.
+
+
+Downloads available from:
+
+	http://www.gnumed.de/downloads/client/xx.x/
+	http://www.gnumed.de/downloads/server/vxx/
+
+
+Client installation:
+
+ Easily installable packages for your platform of choice
+ will be available shortly.
+
+ Meanwhile you can run the client from a downloaded tarball
+ or use the net based client installer:
+
+	http://www.gnumed.de/downloads/client/gm-install_client_locally.sh
+
+ which you need to download, make executable, and run.
+
+ More information available here:
+
+	http://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
+
+
+Database installation / upgrade:
+
+ Note that this release, as usual, DOES require a database
+ upgrade from vxx to vxx if you already have a database and
+ wish to retain the patient data you documented therein. For
+ uprading you can use the script provided in the tarball:
+
+	.../server/bootstrap/upgrade-db.sh xx xx
+
+ Alternatively, you can use the network upgrader:
+
+	http://www.gnumed.de/downloads/server/net_upgrade-gnumed_server.sh
+
+ which you need to download, make executable and run.
+
+ If you wish to install a fresh database (without upgrading
+ an existing one) you can use the install script:
+
+	.../server/bootstrap/bootstrap-latest.sh
+
+ or, again, the network based installer:
+
+	http://www.gnumed.de/downloads/server/net_install-gnumed_server.sh
+
+ Note that both ways WILL DELETE existing databases !
+
+ More information on installation or upgrading is found here:
+
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
+
+
+Changelog:
+
+	xx replace with CHANGELOG xx
+
+
+
+
+Please download, install, and report problems !
+
+Thanks,
+Karsten

@@ -6,7 +6,7 @@ These objects handle German patient cards (KVK and eGK).
 KVK: http://www.kbv.de/ita/register_G.html
 eGK: http://www.gematik.de/upload/gematik_Qop_eGK_Spezifikation_Teil1_V1_1_0_Kommentare_4_1652.pdf
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
@@ -150,13 +150,14 @@ select pk_identity from dem.v_external_ids4identity where
 		return old_idents
 	#--------------------------------------------------------
 	def import_extra_data(self, identity=None, *args, **kwargs):
+		# FIXME: rather use remember_external_id()
+
 		# Versicherungsnummer
 		identity.add_external_id (
 			type_name = insurance_number_external_id_type_egk,
 			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse',
-			context = u'p'
+			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street
@@ -290,8 +291,7 @@ select pk_identity from dem.v_external_ids4identity where
 			type_name = insurance_number_external_id_type,
 			value = self.insuree_number,
 			issuer = issuer_template % (self.insurance_company, self.insurance_number),
-			comment = u'Nummer des Versicherten bei der Krankenkasse',
-			context = u'p'
+			comment = u'Nummer des Versicherten bei der Krankenkasse'
 		)
 		# address
 		street = self.street

@@ -11,13 +11,13 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmDateTimeInput
 
         # begin wxGlade: wxgPersonIdentityManagerPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PNL_identity = gmDemographicsWidgets.cIdentityEAPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._PNL_identity = gmDemographicsWidgets.cIdentityEAPnl(self, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
         self._BTN_save_identity = wx.Button(self, wx.ID_SAVE, "", style=wx.BU_EXACTFIT)
         self._BTN_reload_identity = wx.Button(self, wx.ID_REVERT_TO_SAVED, "", style=wx.BU_EXACTFIT)
-        self._PNL_names = gmDemographicsWidgets.cPersonNamesManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self._PNL_ids = gmDemographicsWidgets.cPersonIDsManagerPnl(self, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._PNL_names = gmDemographicsWidgets.cPersonNamesManagerPnl(self, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
+        self._PNL_ids = gmDemographicsWidgets.cPersonIDsManagerPnl(self, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
 
         self.__set_properties()
         self.__do_layout()
@@ -40,15 +40,15 @@ class wxgPersonIdentityManagerPnl(wx.ScrolledWindow):
         __szr_top = wx.BoxSizer(wx.HORIZONTAL)
         __szr_identity = wx.BoxSizer(wx.VERTICAL)
         __szr_identity_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_identity.Add(self._PNL_identity, 1, wx.EXPAND, 0)
-        __szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_identity.Add(self._PNL_identity, 1, wx.BOTTOM | wx.EXPAND, 3)
+        __szr_identity_buttons.Add(self._BTN_save_identity, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
         __szr_identity_buttons.Add(self._BTN_reload_identity, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_identity_buttons.Add((20, 20), 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_identity_buttons.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_identity.Add(__szr_identity_buttons, 0, wx.EXPAND, 0)
-        __szr_top.Add(__szr_identity, 0, wx.RIGHT|wx.EXPAND, 10)
-        __szr_top.Add(self._PNL_names, 1, wx.EXPAND, 5)
-        __szr_main.Add(__szr_top, 1, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
-        __szr_main.Add(self._PNL_ids, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_top.Add(__szr_identity, 2, wx.RIGHT | wx.EXPAND, 10)
+        __szr_top.Add(self._PNL_names, 4, wx.EXPAND, 5)
+        __szr_main.Add(__szr_top, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
+        __szr_main.Add(self._PNL_ids, 1, wx.ALL | wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade

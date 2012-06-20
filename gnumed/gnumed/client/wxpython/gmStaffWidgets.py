@@ -1,28 +1,19 @@
-"""GNUmed staff management widgets.
-
-This source code is protected by the GPL licensing scheme.
-Details regarding the GPL are available at http://www.gnu.org
-You may use and share it as long as you don't deny this right
-to anybody else.
-"""
+"""GNUmed staff management widgets."""
 #=========================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmStaffWidgets.py,v $
-# $Id: gmStaffWidgets.py,v 1.27 2010-01-31 18:20:03 ncq Exp $
-__version__ = "$Revision: 1.27 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import logging
 
 import wx
 
-from Gnumed.pycommon import gmPG2, gmTools, gmI18N
+from Gnumed.pycommon import gmTools, gmI18N
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 from Gnumed.wxpython import gmGuiHelpers, gmAuthWidgets
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg, wxgEditStaffListDlg
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #==========================================================================
 class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 
@@ -45,12 +36,12 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		lbl_login = {True: _('can login'), False: _('can not login')}
 
 		self._LCTRL_staff.DeleteAllItems()
-		staff_list = gmPerson.get_staff_list()
+		staff_list = gmStaff.get_staff_list()
 		pos = len(staff_list) + 1
 		for staff in staff_list:
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['role'])
+			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['l10n_role'])
 			title = gmTools.coalesce(staff['title'], '')
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))
@@ -94,7 +85,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._btn_activate.Enable(True)
 		# fill editor
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff = gmStaff.cStaff(aPK_obj=pk_staff)
 		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
 		self._TCTRL_alias.SetValue(staff['short_alias'])
 		self._TCTRL_account.SetValue(staff['db_user'])
@@ -113,49 +104,36 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
-
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Activating GNUmed user.'))
 		if conn is None:
 			return False
-
-		# 1) activate staff entry
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
-		staff['is_active'] = True
-		staff.save_payload(conn=conn)				# FIXME: error handling
-
-		# 2) enable database account login
-		rowx, idx = gmPG2.run_rw_queries (
-			link_obj = conn,
-			queries = [{'cmd': u'select gm.create_user(%s, %s)', 'args': [staff['db_user'], 'flying wombat']}],
-			end_tx = True
-		)
+		gmStaff.activate_staff(conn = conn, pk_staff = pk_staff)
 		conn.close()
 		self.__init_ui_data()
 		return True
 	#--------------------------------------------------------
 	def _on_deactivate_button_pressed(self, evt):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
-
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Deactivating GNUmed user.'))
 		if conn is None:
 			return False
-
-		# 1) inactivate staff entry
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
-		staff['is_active'] = False
-		staff.save_payload(conn=conn)				# FIXME: error handling
-
-		# 2) disable database account login
-		rows, idx = gmPG2.run_rw_queries (
-			link_obj = conn,
-			queries = [{'cmd': u'select gm.disable_user(%s)', 'args': [staff['db_user']]}],
-			end_tx = True
-		)
+		gmStaff.deactivate_staff(conn = conn, pk_staff = pk_staff)
 		conn.close()
 		self.__init_ui_data()
 		return True
 	#--------------------------------------------------------
-#	def _on_delete_button_pressed(self, event):
+	def _on_delete_button_pressed(self, event):
+		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
+		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Removing GNUmed user.'))
+		if conn is None:
+			return False
+		success, msg = gmStaff.delete_staff(conn = conn, pk_staff = pk_staff)
+		conn.close()
+		self.__init_ui_data()
+		if not success:
+			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Removing GNUmed user'))
+			return False
+		return True
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, event):
 		pk_staff = self._LCTRL_staff.GetItemData(self._LCTRL_staff.GetFirstSelected())
@@ -164,7 +142,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if conn is None:
 			return False
 
-		staff = gmPerson.cStaff(aPK_obj=pk_staff)
+		staff = gmStaff.cStaff(aPK_obj=pk_staff)
 		staff['short_alias'] = self._TCTRL_alias.GetValue()
 		staff['db_user'] = self._TCTRL_account.GetValue()
 		staff['comment'] = self._TCTRL_comment.GetValue()
@@ -237,124 +215,20 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			return False
 
 		# create new user
-		pat = gmPerson.gmCurrentPatient()
-		db_account = self._TXT_account.GetValue()
-		queries = [
-			# database account
-			{'cmd': u'select gm.create_user(%s, %s)', 'args': [db_account, self._TXT_password.GetValue()]},
-			# staff entry
-			{
-				'cmd': u"insert into dem.staff (fk_identity, fk_role, db_user, short_alias) values (%s, (select pk from dem.staff_role where name='doctor'), %s, %s)",
-				'args': [pat.ID, db_account, self._TXT_short_alias.GetValue().strip()]
-			}
-		]
-		try:
-			rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
-		except gmPG2.dbapi.IntegrityError, e:
-			if e.pgcode == gmPG2.sql_error_codes.UNIQUE_VIOLATION:
-				gmGuiHelpers.gm_show_error (
-					aMessage = _(
-						'Cannot add GNUmed user.\n'
-						'\n'
-						'The database account [%s] is already listed as a\n'
-						'GNUmed user. There can only be one GNUmed user\n'
-						'for each database account.\n'
-					) % db_account,
-					aTitle = _('Adding GNUmed user')
-				)
-				return False
-			raise
+		success, msg = gmStaff.create_staff (
+			conn = conn,
+			db_account = self._TXT_account.GetValue(),
+			password = self._TXT_password.GetValue(),
+			identity = gmPerson.gmCurrentPatient().ID,
+			short_alias = self._TXT_short_alias.GetValue().strip()
+		)
+		conn.close()
+		if not success:
+			gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Adding GNUmed user'))
+			return False
 
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
 #==========================================================================
-# $Log: gmStaffWidgets.py,v $
-# Revision 1.27  2010-01-31 18:20:03  ncq
-# - protect against empty passwords
-#
-# Revision 1.26  2009/07/23 16:42:38  ncq
-# - staff -> user
-#
-# Revision 1.25  2009/06/04 16:33:51  ncq
-# - adjust to dob-less persons
-#
-# Revision 1.24  2008/12/01 12:17:17  ncq
-# - again
-#
-# Revision 1.23  2008/12/01 12:15:36  ncq
-# - gm_*_user now live in gm.
-#
-# Revision 1.22  2008/10/22 12:21:58  ncq
-# - use %x in strftime where appropriate
-#
-# Revision 1.21  2008/08/20 14:55:33  ncq
-# - explicitely signal error condition of database
-#   account already being in use for a staff member
-#
-# Revision 1.20  2008/03/05 22:30:15  ncq
-# - new style logging
-#
-# Revision 1.19  2008/01/11 16:15:33  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.18  2008/01/05 16:41:27  ncq
-# - remove logging from gm_show_*()
-#
-# Revision 1.17  2007/12/04 16:16:27  ncq
-# - use gmAuthWidgets
-#
-# Revision 1.16  2007/04/23 01:11:51  ncq
-# - handle gm-dbo password field
-#
-# Revision 1.15  2007/03/01 16:35:01  ncq
-# - no more idents
-#
-# Revision 1.14  2007/02/22 17:41:13  ncq
-# - adjust to gmPerson changes
-#
-# Revision 1.13  2006/12/31 16:25:43  ncq
-# - strftime() does not take unicode
-#
-# Revision 1.12  2006/11/24 14:23:41  ncq
-# - EndModal() needs wx.ID_*
-#
-# Revision 1.11  2006/10/31 13:30:27  ncq
-# - use gmPG2
-#
-# Revision 1.10  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.9  2006/10/25 07:21:57  ncq
-# - no more gmPG
-#
-# Revision 1.8  2006/09/03 11:32:10  ncq
-# - clean up wx import
-# - use gmTools.coalesce()
-# - use gmGuiHelpers.get_dbowner_connection instead of local crap copy
-#
-# Revision 1.7  2006/06/17 16:45:19  ncq
-# - only insert column labels once
-# - use get_dbowner_connection() in gmGuiHelpers
-# - implement activate()/save() on staff details
-#
-# Revision 1.6  2006/06/15 20:57:49  ncq
-# - actually do something with the improved staff list editor
-#
-# Revision 1.5  2006/06/10 05:13:06  ncq
-# - improved "edit staff list"
-#
-# Revision 1.4  2006/06/09 14:43:02  ncq
-# - improve staff member handling
-#
-# Revision 1.3  2006/06/06 20:54:36  ncq
-# - add staff member delisting dialog
-#
-# Revision 1.2  2006/03/14 21:31:15  ncq
-# - add event handlers for buttons
-# - actually implement adding a new provider
-#
-# Revision 1.1  2006/03/09 21:10:14  ncq
-# - simple wrapper around dialog to add current patient as staff member
-#

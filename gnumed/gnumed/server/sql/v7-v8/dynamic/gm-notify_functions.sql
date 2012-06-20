@@ -4,7 +4,7 @@
 -- Source database version: v7
 -- Target database version: v8
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
@@ -56,7 +56,7 @@ BEGIN
 		relnamespace = (select oid from pg_namespace where nspname = _namespace)
 	;
 	if not found then
-		tmp := _namespace || \'.\' || _table;
+		tmp := _namespace || ''.'' || _table;
 		raise exception ''add_table_for_notifies: Table [%] does not exist.'', tmp;
 	end if;
 

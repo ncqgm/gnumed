@@ -10,7 +10,7 @@ class wxgFormTemplateEditAreaDlg(wx.Dialog):
         from Gnumed.wxpython import gmFormWidgets
 
         # begin wxGlade: wxgFormTemplateEditAreaDlg.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
+        kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.THICK_FRAME | wx.STAY_ON_TOP
         wx.Dialog.__init__(self, *args, **kwds)
         self._PNL_edit_area = gmFormWidgets.cFormTemplateEditAreaPnl(self, -1)
         self._BTN_save = wx.Button(self, wx.ID_OK, _("Save"))
@@ -26,7 +26,7 @@ class wxgFormTemplateEditAreaDlg(wx.Dialog):
         # begin wxGlade: wxgFormTemplateEditAreaDlg.__set_properties
         self.SetTitle(_("edit form template details"))
         self.SetSize(wx.DLG_SZE(self, (450, 200)))
-        self._BTN_save.SetToolTipString(_("Save the encounter details."))
+        self._BTN_save.SetToolTipString(_("Save the form template definition."))
         self._BTN_close.SetToolTipString(_("Close this dialog."))
         self._BTN_close.SetDefault()
         # end wxGlade
@@ -35,11 +35,11 @@ class wxgFormTemplateEditAreaDlg(wx.Dialog):
         # begin wxGlade: wxgFormTemplateEditAreaDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL|wx.EXPAND, 3)
+        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL | wx.EXPAND, 3)
         __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_close, 0, wx.EXPAND, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.EXPAND, 15)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP | wx.EXPAND, 15)
         self.SetSizer(__szr_main)
         self.Layout()
         self.Centre()

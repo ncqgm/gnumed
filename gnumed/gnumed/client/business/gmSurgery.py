@@ -1,7 +1,5 @@
 """GNUmed Surgery related middleware."""
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmSurgery.py,v $
-# $Id: gmSurgery.py,v 1.14 2009-07-23 20:03:36 ncq Exp $
 __license__ = "GPL"
 __version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -105,7 +103,11 @@ where
 	# properties
 	#--------------------------------------------------------
 	def _get_waiting_list_patients(self):
-		cmd = u'select * from clin.v_waiting_list order by list_position'
+		cmd = u"""
+			SELECT * FROM clin.v_waiting_list
+			ORDER BY
+				list_position
+		"""
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{'cmd': cmd}],
 			get_col_idx = False
@@ -253,48 +255,3 @@ if __name__ == '__main__':
 		print "regression tests succeeded"
 
 #============================================================
-# $Log: gmSurgery.py,v $
-# Revision 1.14  2009-07-23 20:03:36  ncq
-# - make "Local Default" the built-in default workplace
-#
-# Revision 1.13  2009/05/18 15:30:45  ncq
-# - delete_workplace
-#
-# Revision 1.12  2009/02/04 12:28:44  ncq
-# - update in waiting list
-#
-# Revision 1.11  2009/01/22 11:15:55  ncq
-# - move entries in waiting list
-#
-# Revision 1.10  2009/01/17 23:01:18  ncq
-# - waiting list handling
-#
-# Revision 1.9  2008/07/16 10:32:50  ncq
-# - add .user_email property
-#
-# Revision 1.8  2007/12/23 11:55:49  ncq
-# - cleanup, use gmCfg2
-#
-# Revision 1.7  2007/10/23 21:20:24  ncq
-# - cleanup
-#
-# Revision 1.6  2007/10/21 20:16:29  ncq
-# - fix setting db logon banner
-# - add test suite
-#
-# Revision 1.5  2007/10/07 12:28:09  ncq
-# - workplace property now on gmSurgery.gmCurrentPractice() borg
-#
-# Revision 1.4  2007/09/20 21:29:38  ncq
-# - add db_logon_banner handling
-#
-# Revision 1.3  2007/08/07 21:34:19  ncq
-# - cPaths -> gmPaths
-#
-# Revision 1.2  2007/05/11 14:11:20  ncq
-# - add gmCurrentPractice borg
-#
-# Revision 1.1  2007/04/07 23:00:01  ncq
-# - Medical Practice (Surgery) related stuff
-#
-#

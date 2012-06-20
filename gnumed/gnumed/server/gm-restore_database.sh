@@ -1,17 +1,21 @@
 #!/bin/bash
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/gm-restore_database.sh,v $
-# $Id: gm-restore_database.sh,v 1.5 2008-11-03 10:30:40 ncq Exp $
-#
-# author: Karsten Hilbert
-# license: GPL v2
-#
 # This script tries to restore a GNUmed database from a
 # backup. It tries to be very conservative. It is intended
 # for interactive use and will have to be adjusted to your
 # needs.
+#
+# Note that for some reason it doesn't work when the backup
+# file you intend to use is a link to the actual backup.
+# Use the full path instead.
+#
+# Best run as root.
+#
+# author: Karsten Hilbert
+# license: GPL v2 or later
 #==============================================================
+set -o pipefail
 
 
 BACKUP="$1"
@@ -68,6 +72,7 @@ if test $? -ne 0 ; then
 	echo "    ERROR: Cannot create workspace. Aborting."
 	exit 1
 fi
+chmod +rx ${WORK_DIR}
 cd ${WORK_DIR}
 
 
@@ -84,19 +89,24 @@ echo ""
 echo "==> Unpacking backup file ..."
 BACKUP=${WORK_DIR}/`basename ${BACKUP}`
 if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
+	echo " => Decompressing (from bzip2) ..."
 	bunzip2 -v ${BACKUP}
 	if test $? -ne 0 ; then
-		echo "    ERROR: Cannot unpack (bzip2) backup file. Aborting."
+		echo "    ERROR: Cannot decompress bzip2 backup file. Aborting."
 		exit 1
 	fi
 	BACKUP=`basename ${BACKUP} .bz2`
 fi
+echo " => Extracting (from tarball) ..."
 tar -xvvf ${BACKUP}
 if test $? -ne 0 ; then
-	echo "    ERROR: Cannot unpack (tar) backup file. Aborting."
+	echo "    ERROR: Cannot unpack tarball backup file. Aborting."
 	exit 1
 fi
 BACKUP=`basename ${BACKUP} .tar`
+rm ${BACKUP}.tar
+# need to give postgres appropriate permissions:
+chown -c postgres ${BACKUP}-*.sql
 
 
 echo ""
@@ -107,7 +117,7 @@ echo "   Please edit it to only include the roles you need for GNUmed."
 echo ""
 echo "   Remember that in PostgreSQL scripts the comment marker is \"--\"."
 echo ""
-read -e -p "   Press <ENTER> to continue."
+read -e -p "   Press <ENTER> to start editing."
 editor ${BACKUP}-roles.sql
 
 
@@ -122,7 +132,7 @@ if test -z ${TARGET_DB} ; then
 	echo "    ERROR: Backup does not create target database ${TARGET_DB}. Aborting."
 	exit 1
 fi
-if test `sudo -u postgres psql -l | grep ${TARGET_DB} | wc -l` -ne 0 ; then
+if test `sudo -u postgres psql -l -p ${GM_PORT} | grep ${TARGET_DB} | wc -l` -ne 0 ; then
 	echo "    ERROR: Target database ${TARGET_DB} already exists. Aborting."
 	exit 1
 fi
@@ -131,29 +141,29 @@ fi
 echo ""
 echo "==> Restoring GNUmed roles ..."
 LOG="${LOG_BASE}/restoring-roles-${TS}.log"
-# FIXME: when 8.2 becomes standard use --single-transaction
-sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> ${LOG}
+sudo -u postgres psql -e -E -p ${GM_PORT} --single-transaction -f ${BACKUP}-roles.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: Failed to restore roles. Aborting."
 	echo "           see: ${LOG}"
-	sudo -u postgres chmod 0666 ${LOG}
+	chmod 0666 ${LOG}
 	exit 1
 fi
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
 echo "==> Restoring GNUmed database ${TARGET_DB} ..."
 LOG="${LOG_BASE}/restoring-database-${TS}.log"
-# FIXME: when 8.2 becomes standard use --single-transaction
+# can't use --single-transaction because CREATE DATABASE does not work inside transaction:
+#sudo -u postgres psql -p ${GM_PORT} --single-transaction -f ${BACKUP}-database.sql &> ${LOG}
 sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database. Aborting."
 	echo "           see: ${LOG}"
-	sudo -u postgres chmod 0666 ${LOG}
+	chmod 0666 ${LOG}
 	exit 1
 fi
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
@@ -163,7 +173,7 @@ echo "==> Analyzing database ${TARGET_DB} ..."
 # we need to update statistics to get decent performance
 LOG="${LOG_BASE}/analyzing-database-${TS}.log"
 sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> ${LOG}
-sudo -u postgres chmod 0666 ${LOG}
+chmod 0666 ${LOG}
 
 
 echo ""
@@ -173,46 +183,20 @@ rmdir -v ${WORK_DIR}
 cd -
 
 
+echo ""
+echo "You may need to adjust the PostgreSQL database access permissions."
+echo "Please edit /etc/postgresql/x.y/main/pg_hba.conf as needed."
+echo ""
+echo "Typically you will need a line like this:"
+echo ""
+echo " local   samegroup   +gm-logins   md5"
+echo ""
+echo "For details refer to the GNUmed documentation at:"
+echo ""
+echo " http://wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+echo ""
+
+
 exit 0
 
 #==============================================================
-# $Log: gm-restore_database.sh,v $
-# Revision 1.5  2008-11-03 10:30:40  ncq
-# - slightly less gossipy
-# - improved wording
-# - better error checking
-#
-# Revision 1.4  2008/10/25 20:41:04  ncq
-# - cleanup, better wording and error checking
-# - fix path problem after unbzip2/untar based on Rogerios report
-#
-# Revision 1.3  2008/10/16 09:18:51  ncq
-# - only optionally unpack the backup if it ends in .bz2
-#
-# Revision 1.2  2007/12/02 11:48:24  ncq
-# - source config before testing backup integrity so we don't waste
-#   time only to discover we cannot find our options ...
-#
-# Revision 1.1  2007/11/30 13:36:41  ncq
-# - renamed to better reflect distinction to restoring data only
-#
-# Revision 1.5  2007/07/03 10:04:32  ncq
-# - properly chmod log files on success, too
-#
-# Revision 1.4  2007/07/03 10:03:22  ncq
-# - use WORK_DIR_BASE
-# - better comment before editing roles
-# - timestamped log files under LOG_BASE
-# - properly chmod log files
-#
-# Revision 1.3  2007/06/18 20:36:39  ncq
-# - improved output
-# - vacuum analyze after restoration
-#
-# Revision 1.2  2007/05/17 15:21:04  ncq
-# - speed up grepping for create database
-#
-# Revision 1.1  2007/05/08 11:11:21  ncq
-# - a tested restore script
-#
-#

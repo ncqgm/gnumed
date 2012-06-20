@@ -7,7 +7,7 @@
 -- What it does:
 -- - enhance narrative search view
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

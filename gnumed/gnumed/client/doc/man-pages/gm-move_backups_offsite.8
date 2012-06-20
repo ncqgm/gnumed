@@ -1,0 +1,46 @@
+.TH GM-MOVE_BACKUPS_OFFSITE 8 "2011 May 10th" "GNUmed backups offsiting"
+
+.SH NAME
+.B gm-move_backups_offsite
+- move GNUmed backups to elsewhere
+
+.SH SYNOPSIS
+.B gm-move_backups_offsite
+
+.SH DESCRIPTION
+The
+.B gm-move_backups_offsite
+script can be used to move backups to another host, IOW
+storing them "offsite" in the loosest sense of the word.
+
+.SH EXAMPLE
+
+Imagine the following situation:
+
+1) a laptop running client and database which is
+   taken to the office, to patients, etc
+
+2) a desktop at home with some spare storage
+
+3) the laptop is occasionally connected to the home
+   network and thus has access to the desktop machine
+
+Given appropriate configuration of
+.B gm-move_backups_offsite
+one could add the following two lines to the cron
+script on the laptop to make sure database backups
+are replicated to the desktop whenever the laptop
+has access to it:
+
+@reboot         /usr/bin/gm-move_backups_offsite.sh
+
+5 0-23 * * *    /usr/bin/gm-move_backups_offsite.sh
+
+
+.SH SEE ALSO
+.B /etc/gnumed/gnumed-backup.conf
+
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert, for the
+Debian GNU/Linux system (but may be used by others).

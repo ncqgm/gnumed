@@ -1,7 +1,7 @@
 Installation instructions
 -------------------------
 
-If you checked out GNUmed from CVS or downloaded the tarball
+If you checked out GNUmed from VCS or downloaded the tarball
 there is nothing to install really. Everything can be run
 right from the directory where you put the files (this will
 change when we package releases).
@@ -16,8 +16,10 @@ You can bootstrap a database with help of the shell scripts in
     gnumed/server/bootstrap/
 
 But you don't have to ! You can also connect the client to one
-of the public servers. Look at the GnuMed Wiki for connection
+of the public servers. Look at the GNUmed Wiki for connection
 info.
+
+	http://wiki.gnumed.de
 
 You can then run the client with help of the shell scripts in
 

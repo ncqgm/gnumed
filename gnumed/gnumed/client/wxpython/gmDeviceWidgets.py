@@ -1,8 +1,6 @@
 """GNUmed measurement widgets.
 """
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDeviceWidgets.py,v $
-# $Id: gmDeviceWidgets.py,v 1.17 2009-07-18 19:26:35 shilbert Exp $
 __version__ = "$Revision: 1.17 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -17,7 +15,7 @@ import wx	#, wx.grid
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
-from Gnumed.business import gmPerson, gmDevices, gmDocuments
+from Gnumed.business import gmPerson, gmDevices, gmDocuments, gmPersonSearch
 from Gnumed.pycommon import gmDispatcher, gmMatchProvider
 from Gnumed.wxpython import gmRegetMixin, gmGuiHelpers, gmPatSearchWidgets
 from Gnumed.wxGladeWidgets import wxgCardiacDevicePluginPnl
@@ -133,7 +131,7 @@ if __name__ == '__main__':
 
 	#------------------------------------------------------------
 	def test_grid():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		app = wx.PyWidgetTester(size = (500, 300))
 		lab_grid = cMeasurementsGrid(parent = app.frame, id = -1)
 		lab_grid.patient = pat
@@ -141,7 +139,7 @@ if __name__ == '__main__':
 		app.MainLoop()
 	#------------------------------------------------------------
 	def test_test_ea_pnl():
-		pat = gmPerson.ask_for_patient()
+		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient=pat)
 		app = wx.PyWidgetTester(size = (500, 300))
 		ea = cMeasurementEditAreaPnl(parent = app.frame, id = -1)
@@ -153,53 +151,4 @@ if __name__ == '__main__':
 		test_test_ea_pnl()
 
 #================================================================
-# $Log: gmDeviceWidgets.py,v $
-# Revision 1.17  2009-07-18 19:26:35  shilbert
-# - now actually returns the most recent interrogation
-#
-# Revision 1.16  2009/07/18 17:48:24  shilbert
-# - debugging repopulate_ui()
-#
-# Revision 1.15  2009/07/18 14:33:02  ncq
-# - some more cleanup
-#
-# Revision 1.14  2009/07/17 22:18:45  ncq
-# - a *bit* of cleanup ;-)
-#
-# Revision 1.13  2009/07/17 21:08:07  shilbert
-# - cleanup
-#
-# Revision 1.12  2009/07/17 19:57:06  shilbert
-# - now gets xml data from database
-#
-# Revision 1.11  2009/07/16 20:25:08  shilbert
-# - fixed typos and syntax errors
-#
-# Revision 1.10  2009/07/16 19:59:06  shilbert
-# - xml should now be gotten from database
-#
-# Revision 1.9  2009/07/15 20:13:37  shilbert
-# - first step to getting xml from database
-#
-# Revision 1.8  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.7  2009/04/16 12:47:28  ncq
-# - some cleanup
-#
-# Revision 1.6  2009/04/14 18:35:52  shilbert
-# - cleanup
-#
-# Revision 1.5  2009/04/13 19:10:06  shilbert
-# -
-#
-# Revision 1.4  2009/04/13 19:06:25  ncq
-# - add missing )
-#
-# Revision 1.3  2009/04/13 18:37:14  shilbert
-# - updated class/filename
-#
-# Revision 1.2  2009/04/13 18:22:08  ncq
-# - a tiny bit of cleanup
-#
 #

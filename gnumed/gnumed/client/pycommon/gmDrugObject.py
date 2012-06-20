@@ -1,3 +1,9 @@
+
+print "this is currently not used"
+
+import sys
+sys.exit()
+
 #############################################################################
 #
 # gmDrugObject - Object hiding all drug related backend communication
@@ -5,7 +11,7 @@
 #
 # @author: Hilmar Berger
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 #
 ############################################################################
 
@@ -14,7 +20,7 @@
 #==================================================================             
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmDrugObject.py,v $      
 # $Id: gmDrugObject.py,v 1.4 2008-04-13 14:41:40 ncq Exp $
-__version__ = "$Revision: 1.4 $"                                               
+__version__ = "$Revision: 1.4 $"
 __author__ = "Hilmar Berger <Hilmar.Berger@gmx.net>"
 
 import sys, string, types, os.path

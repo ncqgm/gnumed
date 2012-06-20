@@ -31,6 +31,8 @@ class ScrollTxtWin (wx.Window):
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
 	name_list = [
+		u'Dr Horst Herb',
+		u'Karsten Hilbert',
 		u'Dr Gerardo Arnaez',
 		u'Dr Hilmar Berger',
 		u'Michael Bonert',
@@ -90,7 +92,7 @@ class AboutFrame (wx.Frame):
 	"""
 	About GNUmed
 	"""
-	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???'):
+	def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE, version='???', debug=False):
 		wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
 		self.SetIcon(gmTools.get_icon(wx = wx))
@@ -118,11 +120,18 @@ class AboutFrame (wx.Frame):
 			box.Add((0,0), 4)
 		else:
 			box.Add((0,0), 4)
-		ver_txt=wx.StaticText(self, -1, _("Version %s brought to you by") % version)
+		ver_txt=wx.StaticText (
+			self,
+			-1,
+			_('Version %s%s brought to you by') % (
+				version,
+				gmTools.bool2subst(debug, u' (%s)' % _('debug'), u'')
+			)
+		)
 		ver_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(ver_txt, 0, wx.ALIGN_CENTRE)
 
-		admins_txt=wx.StaticText(self, -1, _("Drs Horst Herb && Karsten Hilbert"))
+		admins_txt=wx.StaticText(self, -1, "")
 		admins_txt.SetFont(wx.Font(10, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		box.Add(admins_txt, 0, wx.ALIGN_CENTRE)
 
@@ -169,6 +178,14 @@ class cContributorsDlg(wx.Dialog):
 'the user name.\n'
 '%s'
 ) % u"""
+== A ===========================================
+
+Marc Angermann, MD
+ Germany
+
+ - Rechnungsvorlage
+ - bug reports
+
 == B ===========================================
 
 James Busser, MD
@@ -176,7 +193,7 @@ James Busser, MD
 
  - test results handling
  - documentation would be nothing without him
- - encouragment
+ - encouragement, testing, bug reporting
  - testing on MacOSX
 
 == F ===========================================
@@ -209,6 +226,11 @@ John Jaarsveld, MD
  - Dutch l10n
 
 == L ===========================================
+
+Nico Latzer
+ Germany
+
+ - invoice handling code
 
 Steffi Leibner, Leipzig
  Germany

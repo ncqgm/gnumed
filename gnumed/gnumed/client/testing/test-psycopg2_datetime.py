@@ -1,9 +1,12 @@
 # =======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/testing/test-psycopg2_datetime.py,v $
 __version__ = "$Revision: 1.1 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 # =======================================================================
+
+import locale
+locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+print locale.getlocale()
 
 print "testing psycopg2 date/time parsing"
 
@@ -44,33 +47,34 @@ psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 
 try:
 	import mx.DateTime as mxDT
-	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+	#psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+	psycopg2.extensions.register_type(psycopg2._psycopg.MXDATETIME)
 except ImportError:
 	_log.warning('cannot import mx.DateTime')
 #=======================================================================
 
-dsn = u'dbname=gnumed_v9 host=salaam.homeunix.com port=5432 user=any-doc password=any-doc sslmode=prefer'
+dsn = u'dbname=gnumed_v9 host=publicdb.gnumed.de port=5432 user=any-doc password=any-doc sslmode=prefer'
 print dsn
 
 import psycopg2.extras
 conn = psycopg2.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 #conn = psycopg2.connect(dsn=dsn)
 
+now = mxDT.now()
+print now
+print '%s' % now
+print mxDT.ISO.str(now)
+
+#mxDT.ISO.str(now).replace(',', '.')
+
 cmd = u"""select * from dem.v_staff where db_user = CURRENT_USER"""
 curs = conn.cursor()
 curs.execute(cmd)
-print curs.fetchall()
+data = curs.fetchall()
+print data
 curs.close()
 conn.close()
 
 print "success"
 
 # =======================================================================
-# $Log: test-psycopg2_datetime.py,v $
-# Revision 1.1  2009-02-10 18:48:15  ncq
-# - moved here
-#
-# Revision 1.1  2009/02/10 13:57:03  ncq
-# - test for psycopg2 on Ubuntu-Intrepid
-#
-#

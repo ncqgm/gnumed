@@ -1,0 +1,33 @@
+.TH GM-DUMP_SCHEMA 8 "2011 Feb 8th" "GNUmed server dump schema"
+
+.SH NAME
+.B gm-dump_schema
+- GNUmed server dump schema and roles
+
+.SH SYNOPSIS
+.B gm-dump_schema
+.I <target database>
+
+.I <target database>:
+a GNUmed database (such as "gnumed_VERSION")
+
+.SH DESCRIPTION
+The
+.B gm-dump_schema
+script can be used to dump the schema and roles of a
+GNUmed database in order to aid debugging of database
+problems.
+
+In order to safeguard patient and user privacy role
+passwords are removed from the dump. The dump also
+does not include any patient data.
+
+.SH EXAMPLE
+
+Dump the schema and roles of a GNUmed v17 database:
+
+.B gm-dump_schema
+gnumed_v17
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>.

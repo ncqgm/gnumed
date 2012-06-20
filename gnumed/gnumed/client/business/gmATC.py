@@ -3,11 +3,9 @@
 
 http://who.no
 
-license: GPL
+license: GPL v2 or later
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmATC.py,v $
-# $Id: gmATC.py,v 1.7 2010-02-06 20:43:22 ncq Exp $
 __version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
@@ -44,11 +42,9 @@ def propagate_atc(substance=None, atc=None):
 
 	args = {'atc': atc, 'term': substance.strip()}
 	queries = [
-		{'cmd': u"UPDATE ref.substance_in_brand SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.consumable_substance SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args},
-		{'cmd': u"UPDATE clin.consumed_substance SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
-		 'args': args},
-		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE description = %(term)s AND atc_code IS NULL",
+		{'cmd': u"UPDATE ref.branded_drug SET atc_code = %(atc)s WHERE lower(description) = lower(%(term)s) AND atc_code IS NULL",
 		 'args': args}
 	]
 	gmPG2.run_rw_queries(queries = queries)
@@ -69,15 +65,11 @@ def text2atc(text=None, fuzzy=False):
 				WHERE term ilike %(term)s AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.substance_in_brand
+				FROM ref.consumable_substance
 				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
-				WHERE description ilike %(term)s AND atc_code IS NOT NULL
-					UNION
-				SELECT atc_code, null, null
-				FROM clin.consumed_substance
 				WHERE description ilike %(term)s AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
@@ -89,19 +81,15 @@ def text2atc(text=None, fuzzy=False):
 			FROM (
 				SELECT atc as atc_code, is_group_code, pk_data_source
 				FROM ref.v_atc
-				WHERE lower(term) = %(term)s AND atc IS NOT NULL
+				WHERE lower(term) = lower(%(term)s) AND atc IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
-				FROM ref.substance_in_brand
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
+				FROM ref.consumable_substance
+				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
 					UNION
 				SELECT atc_code, null, null
 				FROM ref.branded_drug
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
-					UNION
-				SELECT atc_code, null, null
-				FROM clin.consumed_substance
-				WHERE lower(description) = %(term)s AND atc_code IS NOT NULL
+				WHERE lower(description) = lower(%(term)s) AND atc_code IS NOT NULL
 			) as tmp
 			ORDER BY atc_code
 		"""
@@ -129,7 +117,7 @@ def atc2ddd(atc=None):
 	return rows
 #============================================================
 def get_reference_atcs(order_by=u'atc, term, lang'):
-	cmd = u'select * from ref.v_atc order by %s' % order_by
+	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
 #============================================================
@@ -196,13 +184,13 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	curs = conn.cursor()
 	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s, %s)"""
 	first = False
-	for loinc_line in atc_reader:
+	for atc_line in atc_reader:
 		# skip first
 		if not first:
 			first = True
 			continue
 		# skip blanks
-		if loinc_line[0] + loinc_line[1] + loinc_line[2] + loinc_line[3] + loinc_line[4] == u'':
+		if atc_line[0] + atc_line[1] + atc_line[2] + atc_line[3] + atc_line[4] == u'':
 			continue
 
 		comment = u''
@@ -211,24 +199,24 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 		adro = u''
 
 		# "1,1 mg O,P,R,..."
-		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', loinc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', loinc_line[4])
+		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			ddd_val, unit, adro = regex.split('\s', atc_line[4])
 		# "1,1 mg O,P,R bezogen auf ..."
-		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', loinc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', loinc_line[4], 3)
+		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "20 mg O"
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', loinc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', loinc_line[4])
+		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
+			ddd_val, unit, adro = regex.split('\s', atc_line[4])
 		# "20 mg O bezogen auf ..."
-		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', loinc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', loinc_line[4], 3)
+		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
+			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "Standarddosis: 1 Tablette oder 30 ml Mixtur"
 		else:
-			comment = loinc_line[4]
+			comment = atc_line[4]
 
 		args = [
-			loinc_line[0].strip(),
-			loinc_line[2],
+			atc_line[0].strip(),
+			atc_line[2],
 			ddd_val.replace(',', '.'),
 			unit,
 			adro,
@@ -323,26 +311,3 @@ if __name__ == "__main__":
 	#test_get_reference_atcs()
 
 #============================================================
-# $Log: gmATC.py,v $
-# Revision 1.7  2010-02-06 20:43:22  ncq
-# - atc2ddd / get-reference-atcs
-#
-# Revision 1.6  2009/12/01 21:47:02  ncq
-# - make ATC propatation smarter
-#
-# Revision 1.5  2009/11/29 19:58:36  ncq
-# - propagate-atc
-#
-# Revision 1.4  2009/11/28 18:12:02  ncq
-# - text2atc() and test
-#
-# Revision 1.3  2009/10/21 20:32:45  ncq
-# - cleanup
-#
-# Revision 1.2  2009/06/10 20:59:12  ncq
-# - data file must be in the same directory as conf file
-#
-# Revision 1.1  2009/06/04 16:42:54  ncq
-# - first version
-#
-#

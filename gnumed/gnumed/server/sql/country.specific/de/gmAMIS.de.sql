@@ -5,7 +5,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmAMIS.de.sql,v $
 -- author: Hilmar Berger, Karsten Hilbert
 -- version: $Revision: 1.6 $
--- license: GPL
+-- license: GPL v2 or later
 -- TODO: further processing of the data (normalizing)
 -- =====================================================================================
 reset client_encoding;

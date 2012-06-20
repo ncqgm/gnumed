@@ -4,7 +4,11 @@
 __version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import os.path, sys, re as regex, logging
+import os.path
+import os
+import sys
+import re as regex
+import logging
 
 
 import wx
@@ -13,9 +17,18 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
-from Gnumed.business import gmPerson, gmDocuments, gmEMRStructItems, gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmPhraseWheel, gmPlugin, gmEMRStructWidgets, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg, wxgSelectablySortedDocTreePnl, wxgEditDocumentTypesPnl, wxgEditDocumentTypesDlg
+from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmSurgery
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -95,9 +108,32 @@ def manage_document_descriptions(parent=None, document=None):
 	return True
 #============================================================
 def _save_file_as_new_document(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
 	wx.CallAfter(save_file_as_new_document, **kwargs)
+
+def _save_files_as_new_document(**kwargs):
+	try:
+		del kwargs['signal']
+		del kwargs['sender']
+	except KeyError:
+		pass
+	wx.CallAfter(save_files_as_new_document, **kwargs)
 #----------------------
-def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, **kwargs):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
+	return save_files_as_new_document (
+		parent = parent,
+		filenames = [filename],
+		document_type = document_type,
+		unlock_patient = unlock_patient,
+		episode = episode,
+		review_as_normal = review_as_normal
+	)
+#----------------------
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -133,18 +169,23 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		encounter = emr.active_encounter['pk_encounter'],
 		episode = episode['pk_episode']
 	)
-	part = doc.add_part(file = filename)
-	part['filename'] = filename
-	part.save_payload()
+	if reference is not None:
+		doc['ext_ref'] = reference
+		doc.save()
+	doc.add_parts_from_files(files = filenames)
+
+	if review_as_normal:
+		doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 
 	if unlock_patient:
 		pat.locked = False
 
-	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from [%s].') % filename, beep = True)
+	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
 
 	return doc
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
+gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -161,26 +202,38 @@ class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [u"""
-select *
-from (
-	select distinct on (comment) *
-	from (
-		-- keyed by doc type
-		select comment, comment as pk, 1 as rank
-		from blobs.doc_med
-		where
+SELECT
+	data,
+	field_label,
+	list_label
+FROM (
+	SELECT DISTINCT ON (field_label) *
+	FROM (
+		-- constrained by doc type
+		SELECT
+			comment AS data,
+			comment AS field_label,
+			comment AS list_label,
+			1 AS rank
+		FROM blobs.doc_med
+		WHERE
 			comment %(fragment_condition)s
 			%(ctxt_doc_type)s
 
-		union all
+		UNION ALL
 
-		select comment, comment as pk, 2 as rank
-		from blobs.doc_med
-		where comment %(fragment_condition)s
-	) as q_union
-) as q_distinct
-order by rank, comment
-limit 25"""],
+		SELECT
+			comment AS data,
+			comment AS field_label,
+			comment AS list_label,
+			2 AS rank
+		FROM blobs.doc_med
+		WHERE
+			comment %(fragment_condition)s
+	) AS q_union
+) AS q_distinct
+ORDER BY rank, list_label
+LIMIT 25"""],
 			context = context
 		)
 		mp.setThresholds(3, 5, 7)
@@ -191,6 +244,18 @@ limit 25"""],
 
 		self.SetToolTipString(_('Enter a comment on the document.'))
 #============================================================
+# document type widgets
+#============================================================
+def manage_document_types(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = cEditDocumentTypesDlg(parent = parent)
+	dlg.ShowModal()
+#============================================================
+from Gnumed.wxGladeWidgets import wxgEditDocumentTypesDlg
+
 class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 	"""A dialog showing a cEditDocumentTypesPnl."""
 
@@ -198,6 +263,8 @@ class cEditDocumentTypesDlg(wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg):
 		wxgEditDocumentTypesDlg.wxgEditDocumentTypesDlg.__init__(self, *args, **kwargs)
 
 #============================================================
+from Gnumed.wxGladeWidgets import wxgEditDocumentTypesPnl
+
 class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	"""A panel grouping together fields to edit the list of document types."""
 
@@ -347,16 +414,34 @@ class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
-u"""select * from ((
-	select pk_doc_type, l10n_type, 1 as rank from blobs.v_doc_type where
-		is_user_defined is True and
+u"""SELECT
+	data,
+	field_label,
+	list_label
+FROM ((
+	SELECT
+		pk_doc_type AS data,
+		l10n_type AS field_label,
+		l10n_type AS list_label,
+		1 AS rank
+	FROM blobs.v_doc_type
+	WHERE
+		is_user_defined IS True
+			AND
 		l10n_type %(fragment_condition)s
-) union (
-	select pk_doc_type, l10n_type, 2 from blobs.v_doc_type where
-		is_user_defined is False and
+) UNION (
+	SELECT
+		pk_doc_type AS data,
+		l10n_type AS field_label,
+		l10n_type AS list_label,
+		2 AS rank
+	FROM blobs.v_doc_type
+	WHERE
+		is_user_defined IS False
+			AND
 		l10n_type %(fragment_condition)s
-)) as q1 order by q1.rank, q1.l10n_type
-"""]
+)) AS q1
+ORDER BY q1.rank, q1.list_label"""]
 			)
 		mp.setThresholds(2, 4, 6)
 
@@ -365,12 +450,41 @@ u"""select * from ((
 
 		self.SetToolTipString(_('Select the document type.'))
 	#--------------------------------------------------------
-	def GetData(self, can_create=False):
-		if self.data is None:
-			if can_create:
-				self.data = gmDocuments.create_document_type(self.GetValue().strip())['pk_doc_type']	# FIXME: error handling
-		return self.data
+	def _create_data(self):
+
+		doc_type = self.GetValue().strip()
+		if doc_type == u'':
+			gmDispatcher.send(signal = u'statustext', msg = _('Cannot create document type without name.'), beep = True)
+			_log.debug('cannot create document type without name')
+			return
+
+		pk = gmDocuments.create_document_type(doc_type)['pk_doc_type']
+		if pk is None:
+			self.data = {}
+		else:
+			self.SetText (
+				value = doc_type,
+				data = pk
+			)
 #============================================================
+# document review widgets
+#============================================================
+def review_document_part(parent=None, part=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	dlg = cReviewDocPartDlg (
+		parent = parent,
+		id = -1,
+		part = part
+	)
+	dlg.ShowModal()
+	dlg.Destroy()
+#------------------------------------------------------------
+def review_document(parent=None, document=None):
+	return review_document_part(parent = parent, part = document)
+#------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgReviewDocPartDlg
+
 class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init__(self, *args, **kwds):
 		"""Support parts and docs now.
@@ -379,16 +493,19 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		del kwds['part']
 		wxgReviewDocPartDlg.wxgReviewDocPartDlg.__init__(self, *args, **kwds)
 
-		if isinstance(part, gmDocuments.cMedDocPart):
+		if isinstance(part, gmDocuments.cDocumentPart):
 			self.__part = part
 			self.__doc = self.__part.get_containing_document()
 			self.__reviewing_doc = False
-		elif isinstance(part, gmDocuments.cMedDoc):
+		elif isinstance(part, gmDocuments.cDocument):
 			self.__doc = part
-			self.__part = self.__doc.parts[0]
+			if len(self.__doc.parts) == 0:
+				self.__part = None
+			else:
+				self.__part = self.__doc.parts[0]
 			self.__reviewing_doc = True
 		else:
-			raise ValueError('<part> must be gmDocuments.cMedDoc or gmDocuments.cMedDocPart instance, got <%s>' % type(part))
+			raise ValueError('<part> must be gmDocuments.cDocument or gmDocuments.cDocumentPart instance, got <%s>' % type(part))
 
 		self.__init_ui_data()
 	#--------------------------------------------------------
@@ -397,20 +514,20 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 	def __init_ui_data(self):
 		# FIXME: fix this
 		# associated episode (add " " to avoid popping up pick list)
-		self._PhWheel_episode.SetText('%s ' % self.__part['episode'], self.__part['pk_episode'])
-		self._PhWheel_doc_type.SetText(value = self.__part['l10n_type'], data = self.__part['pk_type'])
+		self._PhWheel_episode.SetText('%s ' % self.__doc['episode'], self.__doc['pk_episode'])
+		self._PhWheel_doc_type.SetText(value = self.__doc['l10n_type'], data = self.__doc['pk_type'])
 		self._PhWheel_doc_type.add_callback_on_set_focus(self._on_doc_type_gets_focus)
 		self._PhWheel_doc_type.add_callback_on_lose_focus(self._on_doc_type_loses_focus)
 
 		if self.__reviewing_doc:
-			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['doc_comment'], ''))
-			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__part['pk_type'])
+			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__doc['comment'], ''))
+			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = self.__doc['pk_type'])
 		else:
 			self._PRW_doc_comment.SetText(gmTools.coalesce(self.__part['obj_comment'], ''))
 
-		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__part['date_generated'])
+		fts = gmDateTime.cFuzzyTimestamp(timestamp = self.__doc['clin_when'])
 		self._PhWheel_doc_date.SetText(fts.strftime('%Y-%m-%d'), fts)
-		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__part['ext_ref'], ''))
+		self._TCTRL_reference.SetValue(gmTools.coalesce(self.__doc['ext_ref'], ''))
 		if self.__reviewing_doc:
 			self._TCTRL_filename.Enable(False)
 			self._SPINCTRL_seq_idx.Enable(False)
@@ -433,28 +550,37 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._LCTRL_existing_reviews.SetColumnWidth(col=3, width=wx.LIST_AUTOSIZE_USEHEADER)
 			self._LCTRL_existing_reviews.SetColumnWidth(col=4, width=wx.LIST_AUTOSIZE)
 
-		me = gmPerson.gmCurrentProvider()
-		if self.__part['pk_intended_reviewer'] == me['pk_staff']:
-			msg = _('(you are the primary reviewer)')
+		if self.__part is None:
+			self._ChBOX_review.SetValue(False)
+			self._ChBOX_review.Enable(False)
+			self._ChBOX_abnormal.Enable(False)
+			self._ChBOX_relevant.Enable(False)
+			self._ChBOX_sign_all_pages.Enable(False)
 		else:
-			msg = _('(someone else is the primary reviewer)')
-		self._TCTRL_responsible.SetValue(msg)
+			me = gmStaff.gmCurrentProvider()
+			if self.__part['pk_intended_reviewer'] == me['pk_staff']:
+				msg = _('(you are the primary reviewer)')
+			else:
+				other = gmStaff.cStaff(aPK_obj = self.__part['pk_intended_reviewer'])
+				msg = _('(someone else is the intended reviewer: %s)') % other['short_alias']
+			self._TCTRL_responsible.SetValue(msg)
+			# init my review if any
+			if self.__part['reviewed_by_you']:
+				revs = self.__part.get_reviews()
+				for rev in revs:
+					if rev['is_your_review']:
+						self._ChBOX_abnormal.SetValue(bool(rev[2]))
+						self._ChBOX_relevant.SetValue(bool(rev[3]))
+						break
 
-		# init my review if any
-		if self.__part['reviewed_by_you']:
-			revs = self.__part.get_reviews()
-			for rev in revs:
-				if rev['is_your_review']:
-					self._ChBOX_abnormal.SetValue(bool(rev[2]))
-					self._ChBOX_relevant.SetValue(bool(rev[3]))
-					break
-
-		self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
+			self._ChBOX_sign_all_pages.SetValue(self.__reviewing_doc)
 
 		return True
 	#--------------------------------------------------------
 	def __reload_existing_reviews(self):
 		self._LCTRL_existing_reviews.DeleteAllItems()
+		if self.__part is None:
+			return True
 		revs = self.__part.get_reviews()		# FIXME: this is ugly as sin, it should be dicts, not lists
 		if len(revs) == 0:
 			return True
@@ -501,7 +627,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		if pk_episode is None:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot create episode\n [%s]'),
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
@@ -517,20 +643,22 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		self.__doc['pk_type'] = doc_type
 		if self.__reviewing_doc:
 			self.__doc['comment'] = self._PRW_doc_comment.GetValue().strip()
-		self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
+		# FIXME: a rather crude way of error checking:
+		if self._PhWheel_doc_date.GetData() is not None:
+			self.__doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		self.__doc['ext_ref'] = self._TCTRL_reference.GetValue().strip()
 
 		success, data = self.__doc.save_payload()
 		if not success:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot link the document to episode\n\n [%s]') % epi_name,
-				_('editing document properties')
+				_('Editing document properties')
 			)
 			return False
 
 		# 2) handle review
 		if self._ChBOX_review.GetValue():
-			provider = gmPerson.gmCurrentProvider()
+			provider = gmStaff.gmCurrentProvider()
 			abnormal = self._ChBOX_abnormal.GetValue()
 			relevant = self._ChBOX_relevant.GetValue()
 			msg = None
@@ -546,19 +674,35 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 				if self._ChBOX_responsible.GetValue():
 					self.__part['pk_intended_reviewer'] = provider['pk_staff']
 			if msg is not None:
-				gmGuiHelpers.gm_show_error(msg, _('editing document properties'))
+				gmGuiHelpers.gm_show_error(msg, _('Editing document properties'))
 				return False
 
 		# 3) handle "page" specific parts
 		if not self.__reviewing_doc:
 			self.__part['filename'] = gmTools.none_if(self._TCTRL_filename.GetValue().strip(), u'')
-			self.__part['seq_idx'] = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			new_idx = gmTools.none_if(self._SPINCTRL_seq_idx.GetValue(), 0)
+			if self.__part['seq_idx'] != new_idx:
+				if new_idx in self.__doc['seq_idx_list']:
+					msg = _(
+						'Cannot set page number to [%s] because\n'
+						'another page with this number exists.\n'
+						'\n'
+						'Page numbers in use:\n'
+						'\n'
+						' %s'
+					) % (
+						new_idx,
+						self.__doc['seq_idx_list']
+					)
+					gmGuiHelpers.gm_show_error(msg, _('Editing document part properties'))
+				else:
+					self.__part['seq_idx'] = new_idx
 			self.__part['obj_comment'] = self._PRW_doc_comment.GetValue().strip()
 			success, data = self.__part.save_payload()
 			if not success:
 				gmGuiHelpers.gm_show_error (
 					_('Error saving part properties.'),
-					_('editing document properties')
+					_('Editing document part properties')
 				)
 				return False
 
@@ -584,6 +728,37 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+def acquire_images_from_capture_device(device=None, calling_window=None):
+
+	_log.debug('acquiring images from [%s]', device)
+
+	# do not import globally since we might want to use
+	# this module without requiring any scanner to be available
+	from Gnumed.pycommon import gmScanBackend
+	try:
+		fnames = gmScanBackend.acquire_pages_into_files (
+			device = device,
+			delay = 5,
+			calling_window = calling_window
+		)
+	except OSError:
+		_log.exception('problem acquiring image from source')
+		gmGuiHelpers.gm_show_error (
+			aMessage = _(
+				'No images could be acquired from the source.\n\n'
+				'This may mean the scanner driver is not properly installed.\n\n'
+				'On Windows you must install the TWAIN Python module\n'
+				'while on Linux and MacOSX it is recommended to install\n'
+				'the XSane package.'
+			),
+			aTitle = _('Acquiring images')
+		)
+		return None
+
+	_log.debug('acquired %s images', len(fnames))
+
+	return fnames
+#------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
@@ -652,7 +827,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	def __init_ui_data(self):
 		# -----------------------------
-		self._PhWheel_episode.SetText('')
+		self._PhWheel_episode.SetText(value = _('other documents'), suppress_smarts = True)
 		self._PhWheel_doc_type.SetText('')
 		# -----------------------------
 		# FIXME: make this configurable: either now() or last_date()
@@ -661,7 +836,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._PRW_doc_comment.SetText('')
 		# FIXME: should be set to patient's primary doc
 		self._PhWheel_reviewer.selection_only = True
-		me = gmPerson.gmCurrentProvider()
+		me = gmStaff.gmCurrentProvider()
 		self._PhWheel_reviewer.SetText (
 			value = u'%s (%s%s %s)' % (me['short_alias'], me['title'], me['firstnames'], me['lastnames']),
 			data = me['pk_staff']
@@ -679,6 +854,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# the list holding our page files
 		self._LBOX_doc_pages.Clear()
 		self.acquired_pages = []
+
+		self._PhWheel_doc_type.SetFocus()
 	#--------------------------------------------------------
 	def __reload_LBOX_doc_pages(self):
 		self._LBOX_doc_pages.Clear()
@@ -965,7 +1142,18 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# - date of generation
 		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
 		# - external reference
-		ref = gmDocuments.get_ext_ref()
+		cfg = gmCfg.cCfgSQL()
+		generate_uuid = bool (
+			cfg.get2 (
+				option = 'horstspace.scan_index.generate_doc_uuid',
+				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				bias = 'user',
+				default = False
+			)
+		)
+		ref = None
+		if generate_uuid:
+			ref = gmDocuments.get_ext_ref()
 		if ref is not None:
 			new_doc['ext_ref'] = ref
 		# - comment
@@ -1015,7 +1203,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		gmHooks.run_hook_script(hook = u'after_new_doc_created')
 
 		# inform user
-		cfg = gmCfg.cCfgSQL()
 		show_id = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.show_doc_id',
@@ -1024,8 +1211,11 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 		)
 		wx.EndBusyCursor()
-		if show_id and (ref is not None):
-			msg = _(
+		if show_id:
+			if ref is None:
+				msg = _('Successfully saved the new document.')
+			else:
+				msg = _(
 """The reference ID for the new document is:
 
  <%s>
@@ -1037,7 +1227,7 @@ If you don't care about the ID you can switch
 off this message in the GNUmed configuration.""") % ref
 			gmGuiHelpers.gm_show_info (
 				aMessage = msg,
-				aTitle = _('saving document')
+				aTitle = _('Saving document')
 			)
 		else:
 			gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))
@@ -1060,6 +1250,130 @@ off this message in the GNUmed configuration.""") % ref
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
 #============================================================
+def display_document_part(parent=None, part=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# sanity check
+	if part['size'] == 0:
+		_log.debug('cannot display part [%s] - 0 bytes', part['pk_obj'])
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Document part does not seem to exist in database !'),
+			aTitle = _('showing document')
+		)
+		return None
+
+	wx.BeginBusyCursor()
+	cfg = gmCfg.cCfgSQL()
+
+	# determine database export chunk size
+	chunksize = int(
+	cfg.get2 (
+		option = "horstspace.blob_export_chunk_size",
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'workplace',
+		default = 2048
+	))
+
+	# shall we force blocking during view ?
+	block_during_view = bool( cfg.get2 (
+		option = 'horstspace.document_viewer.block_during_view',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = None
+	))
+
+	wx.EndBusyCursor()
+
+	# display it
+	successful, msg = part.display_via_mime (
+		chunksize = chunksize,
+		block = block_during_view
+	)
+	if not successful:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot display document part:\n%s') % msg,
+			aTitle = _('showing document')
+		)
+		return None
+
+	# handle review after display
+	# 0: never
+	# 1: always
+	# 2: if no review by myself exists yet
+	# 3: if no review at all exists yet
+	# 4: if no review by responsible reviewer
+	review_after_display = int(cfg.get2 (
+		option = 'horstspace.document_viewer.review_after_display',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user',
+		default = 3
+	))
+	if review_after_display == 1:			# always review
+		review_document_part(parent = parent, part = part)
+	elif review_after_display == 2:			# review if no review by me exists
+		review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
+		if len(review_by_me) == 0:
+			review_document_part(parent = parent, part = part)
+	elif review_after_display == 3:
+		if len(part.get_reviews()) == 0:
+			review_document_part(parent = parent, part = part)
+	elif review_after_display == 4:
+		reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+		if len(reviewed_by_responsible) == 0:
+			review_document_part(parent = parent, part = part)
+
+	return True
+#============================================================
+def manage_documents(parent=None, msg=None):
+
+	pat = gmPerson.gmCurrentPatient()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#--------------------------------------------------------
+	def edit(document=None):
+		return
+		#return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+	#--------------------------------------------------------
+	def delete(document):
+		return
+#		if substance.is_in_use_by_patients:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
+#			return False
+#
+#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		docs = pat.document_folder.get_documents()
+		items = [ [
+			gmDateTime.pydt_strftime(d['clin_when'], u'%Y-%m-%d', accuracy = gmDateTime.acc_days),
+			d['l10n_type'],
+			gmTools.coalesce(d['comment'], u''),
+			gmTools.coalesce(d['ext_ref'], u''),
+			d['pk_doc']
+		] for d in docs ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(docs)
+	#------------------------------------------------------------
+	if msg is None:
+		msg = _('Document list for this patient.')
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing documents.'),
+		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), u'#'],
+		single_selection = True,
+		#new_callback = edit,
+		#edit_callback = edit,
+		#delete_callback = delete,
+		refresh_callback = refresh
+		#,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+	)
+#============================================================
+from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
+
 class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySortedDocTreePnl):
 	"""A panel with a document tree which can be sorted."""
 	#--------------------------------------------------------
@@ -1080,6 +1394,11 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_episode.SetValue(True)
 	#--------------------------------------------------------
+	def _on_sort_by_issue_selected(self, event):
+		self._doc_tree.sort_mode = 'issue'
+		self._doc_tree.SetFocus()
+		self._rbtn_sort_by_issue.SetValue(True)
+	#--------------------------------------------------------
 	def _on_sort_by_type_selected(self, evt):
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
@@ -1090,14 +1409,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 
 	It listens to document and patient changes and updated itself accordingly.
+
+	This acts on the current patient.
 	"""
-	_sort_modes = ['age', 'review', 'episode', 'type']
+	_sort_modes = ['age', 'review', 'episode', 'type', 'issue']
 	_root_node_labels = None
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
 		"""Set up our specialised tree.
 		"""
-		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER
+		kwds['style'] = wx.TR_NO_BUTTONS | wx.NO_BORDER | wx.TR_SINGLE
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -1108,6 +1429,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			'age': tmp % _('most recent on top'),
 			'review': tmp % unsigned,
 			'episode': tmp % _('sorted by episode'),
+			'issue': tmp % _('sorted by health issue'),
 			'type': tmp % _('sorted by type')
 		}
 
@@ -1125,7 +1447,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		node = self.GetSelection()
 		node_data = self.GetPyData(node)
 
-		if not isinstance(node_data, gmDocuments.cMedDocPart):
+		if not isinstance(node_data, gmDocuments.cDocumentPart):
 			return True
 
 		self.__display_part(part = node_data)
@@ -1186,7 +1508,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __build_context_menus(self):
 
 		# --- part context menu ---
-		self.__part_context_menu = wx.Menu(title = _('part menu'))
+		self.__part_context_menu = wx.Menu(title = _('Part Actions:'))
 
 		ID = wx.NewId()
 		self.__part_context_menu.Append(ID, _('Display part'))
@@ -1197,6 +1519,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(self.__part_context_menu, ID, self.__review_curr_part)
 
 		self.__part_context_menu.AppendSeparator()
+
+		item = self.__part_context_menu.Append(-1, _('Delete part'))
+		self.Bind(wx.EVT_MENU, self.__delete_part, item)
+
+		item = self.__part_context_menu.Append(-1, _('Move part'))
+		self.Bind(wx.EVT_MENU, self.__move_part, item)
 
 		ID = wx.NewId()
 		self.__part_context_menu.Append(ID, _('Print part'))
@@ -1213,13 +1541,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__part_context_menu.AppendSeparator()			# so we can append some items
 
 		# --- doc context menu ---
-		self.__doc_context_menu = wx.Menu(title = _('document menu'))
+		self.__doc_context_menu = wx.Menu(title = _('Document Actions:'))
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__review_curr_part)
 
 		self.__doc_context_menu.AppendSeparator()
+
+		item = self.__doc_context_menu.Append(-1, _('Add parts'))
+		self.Bind(wx.EVT_MENU, self.__add_part, item)
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Print all parts'))
@@ -1251,6 +1582,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__doc_context_menu.Append(ID, _('Edit corresponding encounter'))
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__edit_encounter_details)
 
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Select corresponding encounter'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__select_encounter)
 
 #		self.__doc_context_menu.AppendSeparator()
 
@@ -1283,7 +1617,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# init new tree
 		self.root = self.AddRoot(cDocTree._root_node_labels[self.__sort_mode], -1, -1)
-		self.SetPyData(self.root, None)
+		self.SetItemPyData(self.root, None)
 		self.SetItemHasChildren(self.root, False)
 
 		# read documents from database
@@ -1324,25 +1658,41 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				lbl = doc['episode']				# it'd be nice to also show the issue but we don't have that
+				lbl = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
 				if not intermediate_nodes.has_key(lbl):
 					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
 					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetPyData(intermediate_nodes[lbl], None)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
 				parent = intermediate_nodes[lbl]
 			elif self.__sort_mode == 'type':
-				if not intermediate_nodes.has_key(doc['l10n_type']):
-					intermediate_nodes[doc['l10n_type']] = self.AppendItem(parent = self.root, text = doc['l10n_type'])
-					self.SetItemBold(intermediate_nodes[doc['l10n_type']], bold = True)
-					self.SetPyData(intermediate_nodes[doc['l10n_type']], None)
-				parent = intermediate_nodes[doc['l10n_type']]
+				lbl = doc['l10n_type']
+				if not intermediate_nodes.has_key(lbl):
+					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
+					self.SetItemBold(intermediate_nodes[lbl], bold = True)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
+				parent = intermediate_nodes[lbl]
+			elif self.__sort_mode == 'issue':
+				if doc['health_issue'] is None:
+					lbl = _('Unattributed episode: %s') % doc['episode']
+				else:
+					lbl = doc['health_issue']
+				if not intermediate_nodes.has_key(lbl):
+					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
+					self.SetItemBold(intermediate_nodes[lbl], bold = True)
+					self.SetItemPyData(intermediate_nodes[lbl], None)
+					self.SetItemHasChildren(intermediate_nodes[lbl], True)
+				parent = intermediate_nodes[lbl]
 			else:
 				parent = self.root
 
 			doc_node = self.AppendItem(parent = parent, text = label)
 			#self.SetItemBold(doc_node, bold = True)
-			self.SetPyData(doc_node, doc)
-			if len(parts) > 0:
+			self.SetItemPyData(doc_node, doc)
+			if len(parts) == 0:
+				self.SetItemHasChildren(doc_node, False)
+			else:
 				self.SetItemHasChildren(doc_node, True)
 
 			# now add parts as child nodes
@@ -1351,7 +1701,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 #					rel = ' [%s]' % _('Cave')
 #				else:
 #					rel = ''
-				label = '%s%s (%s)%s' % (
+				f_ext = u''
+				if part['filename'] is not None:
+					f_ext = os.path.splitext(part['filename'])[1].strip('.').strip()
+				if f_ext != u'':
+					f_ext = u' .' + f_ext.upper()
+				label = '%s%s (%s%s)%s' % (
 					gmTools.bool2str (
 						boolean = part['reviewed'] or part['reviewed_by_you'] or part['reviewed_by_intended_reviewer'],
 						true_str = u'',
@@ -1359,6 +1714,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 					),
 					_('part %2s') % part['seq_idx'],
 					gmTools.size2str(part['size']),
+					f_ext,
 					gmTools.coalesce (
 						part['obj_comment'],
 						u'',
@@ -1367,7 +1723,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				)
 
 				part_node = self.AppendItem(parent = doc_node, text = label)
-				self.SetPyData(part_node, part)
+				self.SetItemPyData(part_node, part)
+				self.SetItemHasChildren(part_node, False)
 
 		self.__sort_nodes()
 		self.SelectItem(self.root)
@@ -1375,7 +1732,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# FIXME: apply expansion state if available or else ...
 		# FIXME: ... uncollapse to default state
 		self.Expand(self.root)
-		if self.__sort_mode in ['episode', 'type']:
+		if self.__sort_mode in ['episode', 'type', 'issue']:
 			for key in intermediate_nodes.keys():
 				self.Expand(intermediate_nodes[key])
 
@@ -1391,6 +1748,12 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		 1: 1 > 2
 		"""
 		# Windows can send bogus events so ignore that
+		if not node1:
+			_log.debug('invalid node 1')
+			return 0
+		if not node2:
+			_log.debug('invalid node 2')
+			return 0
 		if not node1.IsOk():
 			_log.debug('no data on node 1')
 			return 0
@@ -1402,7 +1765,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		data2 = self.GetPyData(node2)
 
 		# doc node
-		if isinstance(data1, gmDocuments.cMedDoc):
+		if isinstance(data1, gmDocuments.cDocument):
 
 			date_field = 'clin_when'
 			#date_field = 'modified_when'
@@ -1419,6 +1782,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				if data1['episode'] < data2['episode']:
 					return -1
 				if data1['episode'] == data2['episode']:
+					# inner sort: reverse by date
+					if data1[date_field] > data2[date_field]:
+						return -1
+					if data1[date_field] == data2[date_field]:
+						return 0
+					return 1
+				return 1
+
+			elif self.__sort_mode == 'issue':
+				if data1['health_issue'] < data2['health_issue']:
+					return -1
+				if data1['health_issue'] == data2['health_issue']:
 					# inner sort: reverse by date
 					if data1[date_field] > data2[date_field]:
 						return -1
@@ -1462,7 +1837,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				return 1
 
 		# part node
-		if isinstance(data1, gmDocuments.cMedDocPart):
+		if isinstance(data1, gmDocuments.cDocumentPart):
 			# compare sequence IDs (= "page" numbers)
 			# FIXME: wrong order ?
 			if data1['seq_idx'] < data2['seq_idx']:
@@ -1517,7 +1892,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# expand/collapse documents on activation
-		if isinstance(node_data, gmDocuments.cMedDoc):
+		if isinstance(node_data, gmDocuments.cDocument):
 			self.Toggle(node)
 			return True
 
@@ -1539,11 +1914,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return None
 
 		# documents
-		if isinstance(self.__curr_node_data, gmDocuments.cMedDoc):
+		if isinstance(self.__curr_node_data, gmDocuments.cDocument):
 			self.__handle_doc_context()
 
 		# parts
-		if isinstance(self.__curr_node_data, gmDocuments.cMedDocPart):
+		if isinstance(self.__curr_node_data, gmDocuments.cDocumentPart):
 			self.__handle_part_context()
 
 		del self.__curr_node_data
@@ -1586,7 +1961,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.PopupMenu(self.__doc_context_menu, wx.DefaultPosition)
 	#--------------------------------------------------------
 	def __handle_part_context(self):
-
 		# make active patient photograph
 		if self.__curr_node_data['type'] == 'patient photograph':
 			ID = wx.NewId()
@@ -1618,17 +1992,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(
 		cfg.get2 (
@@ -1648,7 +2011,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# display it
 		successful, msg = part.display_via_mime (
-			tmpdir = tmp_dir,
 			chunksize = chunksize,
 			block = block_during_view
 		)
@@ -1666,18 +2028,27 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# 0: never
 		# 1: always
 		# 2: if no review by myself exists yet
+		# 3: if no review at all exists yet
+		# 4: if no review by responsible reviewer
 		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
 			bias = 'user',
-			default = 2
+			default = 3
 		))
 		if review_after_display == 1:			# always review
 			self.__review_part(part=part)
 		elif review_after_display == 2:			# review if no review by me exists
 			review_by_me = filter(lambda rev: rev['is_your_review'], part.get_reviews())
 			if len(review_by_me) == 0:
-				self.__review_part(part=part)
+				self.__review_part(part = part)
+		elif review_after_display == 3:
+			if len(part.get_reviews()) == 0:
+				self.__review_part(part = part)
+		elif review_after_display == 4:
+			reviewed_by_responsible = filter(lambda rev: rev['is_review_by_responsible_reviewer'], part.get_reviews())
+			if len(reviewed_by_responsible) == 0:
+				self.__review_part(part = part)
 
 		return True
 	#--------------------------------------------------------
@@ -1689,6 +2060,49 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		dlg.ShowModal()
 		dlg.Destroy()
+	#--------------------------------------------------------
+	def __move_part(self, evt):
+		target_doc = manage_documents (
+			parent = self,
+			msg = _('\nSelect the document into which to move the selected part !\n')
+		)
+		if target_doc is None:
+			return
+		self.__curr_node_data['pk_doc'] = target_doc['pk_doc']
+		self.__curr_node_data.save()
+	#--------------------------------------------------------
+	def __delete_part(self, evt):
+		delete_it = gmGuiHelpers.gm_show_question (
+			cancel_button = True,
+			title = _('Deleting document part'),
+			question = _(
+				'Are you sure you want to delete the %s part #%s\n'
+				'\n'
+				'%s'
+				'from the following document\n'
+				'\n'
+				' %s (%s)\n'
+				'%s'
+				'\n'
+				'Really delete ?\n'
+				'\n'
+				'(this action cannot be reversed)'
+			) % (
+				gmTools.size2str(self.__curr_node_data['size']),
+				self.__curr_node_data['seq_idx'],
+				gmTools.coalesce(self.__curr_node_data['obj_comment'], u'', u' "%s"\n\n'),
+				self.__curr_node_data['l10n_type'],
+				gmDateTime.pydt_strftime(self.__curr_node_data['date_generated'], format = '%Y-%m-%d', accuracy = gmDateTime.acc_days),
+				gmTools.coalesce(self.__curr_node_data['doc_comment'], u'', u' "%s"\n')
+			)
+		)
+		if not delete_it:
+			return
+
+		gmDocuments.delete_document_part (
+			part_pk = self.__curr_node_data['pk_obj'],
+			encounter_pk = gmPerson.gmCurrentPatient().emr.active_encounter['pk_encounter']
+		)
 	#--------------------------------------------------------
 	def __process_part(self, action=None, l10n_action=None):
 
@@ -1716,17 +2130,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -1736,14 +2139,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		))
 
 		part_file = self.__curr_node_data.export_to_file (
-			aTempDir = tmp_dir,
+#			aTempDir = tmp_dir,
 			aChunkSize = chunksize
 		)
 
 		cmd = u'%s %s' % (external_cmd, part_file)
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -1762,7 +2169,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				_('Processing document part: %s') % l10n_action
 			)
 	#--------------------------------------------------------
-	# FIXME: icons in the plugin toolbar
 	def __print_part(self, evt):
 		self.__process_part(action = u'print', l10n_action = _('print'))
 	#--------------------------------------------------------
@@ -1774,10 +2180,19 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
+	def __select_encounter(self, evt):
+		enc = gmEMRStructWidgets.select_encounters (
+			parent = self,
+			patient = gmPerson.gmCurrentPatient()
+		)
+		if not enc:
+			return
+		self.__curr_node_data['pk_encounter'] = enc['pk_encounter']
+		self.__curr_node_data.save()
+	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
-		enc = gmEMRStructItems.cEncounter(aPK_obj=self.__curr_node_data['pk_encounter'])
-		dlg = gmEMRStructWidgets.cEncounterEditAreaDlg(parent=self, encounter=enc)
-		dlg.ShowModal()
+		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__curr_node_data['pk_encounter'])
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 
@@ -1805,17 +2220,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		cfg = gmCfg.cCfgSQL()
 
-		# get export directory for temporary files
-		tmp_dir = gmTools.coalesce (
-			cfg.get2 (
-				option = "horstspace.tmp_dir",
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
-				bias = 'workplace'
-			),
-			os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		)
-		_log.debug("temporary directory [%s]", tmp_dir)
-
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
@@ -1824,15 +2228,16 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			default = default_chunksize
 		))
 
-		part_files = self.__curr_node_data.export_parts_to_files (
-			export_dir = tmp_dir,
-			chunksize = chunksize
-		)
+		part_files = self.__curr_node_data.export_parts_to_files(chunksize = chunksize)
 
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		cmd = external_cmd + u' ' + u' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()
@@ -1861,6 +2266,20 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __mail_doc(self, evt):
 		self.__process_doc(action = u'mail', l10n_action = _('mail'))
 	#--------------------------------------------------------
+	def __add_part(self, evt):
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Choose a file'),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = '',
+			wildcard = "%s (*)|*|PNGs (*.png)|*.png|PDFs (*.pdf)|*.pdf|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
+			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
+		dlg.Destroy()
+	#--------------------------------------------------------
 	def __access_external_original(self, evt):
 
 		gmHooks.run_hook_script(hook = u'before_external_doc_access')
@@ -1886,9 +2305,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		cmd = u'%s "%s" "%s"' % (external_cmd, self.__curr_node_data['type'], self.__curr_node_data['ext_ref'])
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
-			blocking = False
+			blocking = blocking
 		)
 
 		wx.EndBusyCursor()

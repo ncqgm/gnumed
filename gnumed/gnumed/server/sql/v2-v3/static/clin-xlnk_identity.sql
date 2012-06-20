@@ -7,7 +7,7 @@
 -- What it does:
 -- - drop clin.xlnk_identity
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: Karsten Hilbert
 -- 
 -- ==============================================================

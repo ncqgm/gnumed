@@ -1,7 +1,7 @@
 -- ==============================================================
 -- GNUmed database schema change script
 --
--- License: GPL
+-- License: GPL v2 or later
 -- Author: karsten.hilbert@gmx.net
 -- 
 -- ==============================================================
@@ -15,7 +15,7 @@
 -- --------------------------------------------------------------
 -- remember to handle dependant objects possibly dropped by CASCADE
 \unset ON_ERROR_STOP
-drop clin.v_lab_requests cascade;
+drop view clin.v_lab_requests cascade;
 \set ON_ERROR_STOP 1
 
 

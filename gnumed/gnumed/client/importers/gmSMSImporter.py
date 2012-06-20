@@ -39,8 +39,8 @@ def run_importer():
 		return False
 
 	# find patient by gsm
-#	cmd1 = u"select dem.add_external_id_type(%(desc)s, %(org)s, %(ctxt)s)"
-#	args1 = {'desc': external_id_type, 'org': u'gmSMSImporter.py', 'ctxt': u'p'}
+#	cmd1 = u"select dem.add_external_id_type(%(desc)s, %(org)s)"
+#	args1 = {'desc': external_id_type, 'org': u'gmSMSImporter.py'}
 #	cmd2 = u'select pk from dem.enum_ext_id_types where name = %(desc)s'
 #	rows, idx = gmPG2.run_rw_queries (
 #		queries = [
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
 	login = cLogin()
 	login.database = u'gnumed_v9'
-	login.host = u'salaam.homeunix.com'
+	login.host = u'publicdb.gnumed.de'
 	login.port = 5432
 	login.user = u'any-doc'
 	login.password = u'any-doc'

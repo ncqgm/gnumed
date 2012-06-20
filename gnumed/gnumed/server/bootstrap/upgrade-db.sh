@@ -22,6 +22,8 @@
 #
 # ========================================================
 
+set -o pipefail
+
 PREV_VER="$1"
 NEXT_VER="$2"
 SKIP_BACKUP="$3"
@@ -48,7 +50,7 @@ if test ! -f $CONF ; then
 	echo "USAGE: $0 x x+1"
 	echo "   x   - database version to upgrade from"
 	echo "   x+1 - database version to upgrade to (sequentially only)"
-	exit
+	exit 1
 fi ;
 
 
@@ -68,6 +70,7 @@ fi ;
 # tell libpq-based tools about the non-default port, if any
 if test -n "${GM_DB_PORT}" ; then
 	PORT_DEF="-p ${GM_DB_PORT}"
+	export PGPORT="${GM_DB_PORT}"
 else
 	PORT_DEF=""
 fi ;
@@ -84,6 +87,33 @@ function echo_msg () {
 }
 
 
+
+# Darwin/MacOSX ?
+# (MacOSX cannot "su -c" ...)
+SYSTEM=`uname -s`
+if test "${SYSTEM}" != "Darwin" ; then
+	# Does source database exist ?
+	TEMPLATE_DB="gnumed_v${PREV_VER}"
+	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep ${TEMPLATE_DB}`
+	if test "${VER_EXISTS}" == "" ; then
+		echo ""
+		echo "Trying to upgrade from version <${PREV_VER}> to version <${NEXT_VER}> ..."
+		echo ""
+		echo "========================================="
+		echo "ERROR: The template database"
+		echo "ERROR:"
+		echo "ERROR:  ${TEMPLATE_DB}"
+		echo "ERROR:"
+		echo "ERROR: does not exist. Aborting."
+		echo "========================================="
+		read
+		exit 1
+	fi ;
+fi ;
+
+
+
+# eventually attempt the upgrade
 echo_msg ""
 echo_msg "==========================================================="
 echo_msg "Upgrading GNUmed database."
@@ -107,9 +137,23 @@ if test "$SKIP_BACKUP" != "no-backup" ; then
 	echo_msg "   You may need to type in the password for gm-dbo."
 	if test "$BZIP_BACKUP" != "no-compression" ; then
 		pg_dump -C -U gm-dbo ${PORT_DEF} gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}.bz2
+		ARCHIVED="$?"
 	else
 		pg_dump -C -U gm-dbo ${PORT_DEF} -f ${BAK_FILE} gnumed_v${PREV_VER}
+		ARCHIVED="$?"
 	fi ;
+	if test "${ARCHIVED}" != "0" ; then
+		echo ""
+		echo "========================================="
+		echo "ERROR: Backing up database"
+		echo "ERROR:"
+		echo "ERROR:  gnumed_v${PREV_VER}"
+		echo "ERROR:"
+		echo "ERROR: failed. Aborting."
+		echo "========================================="
+		read
+		exit 1
+	fi
 else
 	echo_msg ""
 	echo "   !!! SKIPPED backup !!!"
@@ -131,6 +175,7 @@ echo_msg "2) upgrading to new database ..."
 ./bootstrap_gm_db_system.py --log-file=${LOG} --conf-file=${CONF} --${QUIET}
 if test "$?" != "0" ; then
 	echo "Upgrading \"gnumed_v${PREV_VER}\" to \"gnumed_v${NEXT_VER}\" did not finish successfully."
+	read
 	exit 1
 fi
 

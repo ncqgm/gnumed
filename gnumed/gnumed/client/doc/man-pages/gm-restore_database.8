@@ -1,0 +1,35 @@
+.TH GM-RESTORE_DATABASE 8 "2011 May 10th" "GNUmed server database restore"
+
+.SH NAME
+.B gm-restore_database
+- restoring a GNUmed database
+
+.SH SYNOPSIS
+.B gm-restore_database
+.I <backup file>
+
+.I <backup file>:
+a database backup file ("backup-gnumed_vX-*.tar.bz2")
+
+.SH DESCRIPTION
+The
+.B gm-restore_database
+script tries to restore a GNUmed database from a
+backup. It tries to be very conservative. It is intended
+for interactive use by root and may have to be adjusted
+to your needs.
+
+.SH KNOWN PROBLEMS
+
+Note that for some reason restoring does not work when
+the backup file you intend to restore is a link to the
+actual backup. Use the full path instead.
+
+.SH SEE ALSO
+gm-backup_data(8)
+
+/etc/gnumed/gnumed-restore.conf
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert,
+for the Debian GNU/Linux system (but may be used by others).

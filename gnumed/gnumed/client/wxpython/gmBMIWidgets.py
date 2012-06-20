@@ -1,4 +1,4 @@
-"""GnuMed BMI calculator display widgets.
+"""GNUmed BMI calculator display widgets.
 
 acknowledgments: Gui screen Design taken with permission from
                  DrsDesk BMICalc @ DrsDesk Software 1995-2002
@@ -20,7 +20,7 @@ __version__ = "$Revision: 1.13 $"
 __author__  =  "Richard Terry <rterry@gnumed.net>,\
 				Michael Bonert <bonerti@mie.utoronto.ca>,\
 				Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 import os.path
 
@@ -50,7 +50,7 @@ class BMI_Colour_Scale(wx.Window):
 		#draw the graphics for underneath the BMI buttons
 		#------------------------------------------------
 		dc.SetBrush(wx.Brush(wx.Colour(194,194,197), wx.SOLID)) #222,222,222
-		dc.SetPen(wx.Pen(wx.Color(194,197,194), 1))
+		dc.SetPen(wx.Pen(wx.Colour(194,197,194), 1))
 		dc.DrawRectangle(0, 0, 324, 30)
 		#----------------------------------------------------------
 		#draw the coloured elipses for each of the mass divisions
@@ -60,7 +60,7 @@ class BMI_Colour_Scale(wx.Window):
 		#Brush= fill in the elipse = yellow (255,255,0)
 		#Add text to foreground of the elipse in black
 		#----------------------------------------------------------
-		dc.SetPen(wx.Pen(wx.Color(0,0,0), 1))
+		dc.SetPen(wx.Pen(wx.Colour(0,0,0), 1))
 		dc.SetBrush(wx.Brush(wx.Colour(255,255,0), wx.SOLID))   #yellow
 		dc.DrawEllipse(6, 5, 80,15)
 		dc.SetFont(wx.Font(8, wx.SWISS, wx.NORMAL, wx.NORMAL))
@@ -551,125 +551,3 @@ if __name__ == '__main__':
 	app.MainLoop()
 
 #=====================================================================
-# $Log: gmBMIWidgets.py,v $
-# Revision 1.13  2007-01-20 22:52:27  ncq
-# - .KeyCode -> GetKeyCode()
-#
-# Revision 1.12  2007/01/18 22:05:25  ncq
-# - wx2.8 needs properties !
-#
-# Revision 1.11  2005/10/24 10:47:09  ihaywood
-# works properly now, again using Andreas' packages, with wx 2.4
-#
-# Revision 1.10  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.9  2005/09/28 15:57:47  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.8  2005/09/26 18:01:50  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.7  2005/07/24 18:52:55  ncq
-# - comment out not-yet-functional buttons
-#
-# Revision 1.6  2005/07/16 11:34:47  ncq
-# - just cleanup
-#
-# Revision 1.5  2005/06/16 07:03:19  rterry
-# Fixed Sizer syntax to work with 2.6.1 (eg (10,0,0,0) should be ((10,0),0,0)
-# multiple occurence
-# Note this form cannot be closed currently needs fixing-
-# Richard Terry
-#
-# Revision 1.4  2004/08/09 00:02:20  ncq
-# - fix bitmap path when standalone
-#
-# Revision 1.3  2004/08/06 09:03:35  ncq
-# - look for bmi_calculator.png in bitmaps/
-#
-# Revision 1.2  2004/08/06 08:56:04  ncq
-# - cleanups after surgery
-#
-# Revision 1.1  2004/08/06 08:47:13  ncq
-# - moved here from wxpython/patient/ as it is not a patient plugin
-#
-# Revision 1.30  2004/07/18 20:30:54  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.29  2004/06/13 22:31:49  ncq
-# - gb['main.toolbar'] -> gb['main.top_panel']
-# - self.internal_name() -> self.__class__.__name__
-# - remove set_widget_reference()
-# - cleanup
-# - fix lazy load in _on_patient_selected()
-# - fix lazy load in ReceiveFocus()
-# - use self._widget in self.GetWidget()
-# - override populate_with_data()
-# - use gb['main.notebook.raised_plugin']
-#
-# Revision 1.28  2004/03/14 22:36:33  ncq
-# - Andreas will find any bug I try to sneak in, even missing ,
-#
-# Revision 1.27  2004/03/12 13:25:43  ncq
-# - note on hardcoded normal range
-#
-# Revision 1.26  2004/03/10 15:48:36  ncq
-# - new import scheme
-#
-# Revision 1.25  2003/11/17 10:56:41  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:40  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.24  2003/05/12 01:39:27  michaelb
-# minor bug fix - hitting 'Reset' before a field was selected used to result in an error
-#
-# Revision 1.23  2003/04/28 04:32:44  michaelb
-# some minor clean-up (removal of note and spaces)
-#
-# Revision 1.21  2003/04/26 08:45:56  ncq
-# - removed some left-over cruft, i18n()ed buttons, added comments on BMI reference charts
-#
-# Revision 1.20  2003/04/26 03:32:30  michaelb
-# misc. clean-up, elimination of variables that can be done without
-#
-# Revision 1.19  2003/04/22 05:10:11  michaelb
-# reset button now works, initialization of BMI slider on entry of mass & height, something Karsten won't like ('tabbing' w/ enter), TODO/FIXME comments
-#
-# Revision 1.18  2003/04/20 22:47:06  ncq
-# - skip color scale and bmi text field on tab order
-#
-# Revision 1.17  2003/04/20 12:26:56  ncq
-# - clean up, sizer streamlining
-#
-# Revision 1.16  2003/04/20 02:40:52  michaelb
-# tabbing btw fields/slider works, calculation works (slider functional, 'Goal mass' & 'kg to loose' functional)
-#
-# Revision 1.15  2003/04/14 07:35:54  ncq
-# - moved standalone icon acquision inside OnInit to alleviate segfault
-#
-# Revision 1.14  2003/04/14 04:04:41  michaelb
-# changed 'weight' to 'mass' in most places, calculation now partially functional
-#
-# Revision 1.13  2003/04/05 00:39:23  ncq
-# - "patient" is now "clinical", changed all the references
-#
-# Revision 1.12  2003/01/14 20:18:57  ncq
-# - fixed setfont() problem
-#
-# Revision 1.11  2003/01/12 18:51:32  ncq
-# - fixed segfault on invocation as plugin
-#
-# Revision 1.10  2003/01/12 17:13:54  ncq
-# - streamlined import based on invocation
-#
-# Revision 1.9  2003/01/12 02:14:06  ncq
-# - CVS keywords
-# - clean separation in standalone and plugin
-#

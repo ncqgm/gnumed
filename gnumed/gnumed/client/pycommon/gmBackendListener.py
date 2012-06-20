@@ -50,6 +50,10 @@ class gmBackendListener(gmBorg.cBorg):
 		_log.debug('connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode
 		self._cursor = self._conn.cursor()
+		try:
+			self._conn_fd = self._conn.fileno()
+		except AttributeError:
+			self._conn_fd = self._cursor.fileno()
 		self._conn_lock = threading.Lock()		# lock for access to connection object
 
 		self.curr_patient_pk = None
@@ -116,7 +120,7 @@ class gmBackendListener(gmBorg.cBorg):
 	def __register_interests(self):
 
 		# determine patient-specific notifications
-		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is True'
+		cmd = u'SELECT DISTINCT ON (signal) signal FROM gm.notifying_tables WHERE carries_identity_pk IS true'
 		self._conn_lock.acquire(1)
 		try:
 			self._cursor.execute(cmd)
@@ -209,6 +213,8 @@ class gmBackendListener(gmBorg.cBorg):
 		try:
 			self._conn.rollback()
 			self._conn.close()
+		except:
+			pass				# connection can already be closed :-(
 		finally:
 			self._conn_lock.release()
 	#-------------------------------
@@ -227,25 +233,47 @@ class gmBackendListener(gmBorg.cBorg):
 	# the actual thread code
 	#-------------------------------
 	def _process_notifications(self):
+
+		# get a cursor for this thread
+		self._conn_lock.acquire(1)
+		try:
+			self._cursor_in_thread = self._conn.cursor()
+		finally:
+			self._conn_lock.release()
+
+		# loop until quitting
 		_have_quit_lock = None
 		while not _have_quit_lock:
+
+			# quitting ?
 			if self._quit_lock.acquire(0):
 				break
+
 			# wait at most self._poll_interval for new data
 			self._conn_lock.acquire(1)
 			try:
-				ready_input_sockets = select.select([self._cursor], [], [], self._poll_interval)[0]
+				ready_input_sockets = select.select([self._conn_fd], [], [], self._poll_interval)[0]
 			finally:
 				self._conn_lock.release()
+
 			# any input available ?
 			if len(ready_input_sockets) == 0:
 				# no, select.select() timed out
 				# give others a chance to grab the conn lock (eg listen/unlisten)
 				time.sleep(0.3)
 				continue
+
 			# data available, wait for it to fully arrive
-			while not self._cursor.isready():
-				pass
+#			while not self._cursor.isready():
+#				pass
+			# replace by conn.poll() when psycopg2 2.2 becomes standard
+			self._conn_lock.acquire(1)
+			try:
+				self._cursor_in_thread.execute(u'SELECT 1')
+				self._cursor_in_thread.fetchall()
+			finally:
+				self._conn_lock.release()
+
 			# any notifications ?
 			while len(self._conn.notifies) > 0:
 				# if self._quit_lock can be acquired we may be in
@@ -297,7 +325,7 @@ if __name__ == "__main__":
 	notifies = 0
 
 	from Gnumed.pycommon import gmPG2, gmI18N
-	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPerson, gmPersonSearch
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')
@@ -396,7 +424,7 @@ if __name__ == "__main__":
 			print '   - %s' % sig
 
 		while True:
-			pat = gmPerson.ask_for_patient()
+			pat = gmPersonSearch.ask_for_patient()
 			if pat is None:
 				break
 			print "found patient", pat

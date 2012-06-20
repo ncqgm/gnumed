@@ -1,0 +1,68 @@
+%% GNUmed EMR Journal LaTeX template
+%% This document is an integral part of the GNUmed project, find us at <wiki.gnumed.de>
+%------------------------------------------------------------------
+% License: GPL v2 or later
+%
+%------------------------------------------------------------------
+
+\documentclass[10pt,english]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage{array}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{babel}
+\usepackage{longtable}
+
+\usepackage[a4paper]{geometry}
+\geometry{verbose,lmargin=2.54cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead {$<title>$ $<lastname>$, $<firstname>$ ($<date_of_birth::%Y %B %d>$) -- Chronological EMR printout}
+\cfoot {\thepage}
+
+
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+
+\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny $<tex_escape::GNUmed-default_emr_journal_template.tex>$}
+
+\title {Chronological EMR printout for: \\ \emph {$<title>$ $<lastname>$, $<firstname>$}}
+\author {From $<current_provider>$ on:}
+\maketitle 
+
+
+\noindent $<allergy_state>$:\\
+\emph {$<allergy_list::%(descriptor)s//, >$}
+
+
+\noindent
+\begin{longtable}{|l|l|l|>{\raggedright}p{10cm}|}
+\hline
+Date & {\tiny Provider} &  & Narrative \tabularnewline
+\hline
+% 12: 12 weeks = 4 months
+$<emr_journal::soap //{\footnotesize %(date)s } & {\tiny %(modified_by)s} & {\tiny %(soap_cat)s} & {\small %(narrative)s} \tabularnewline//very long line//12//tex::>$
+\hline
+\end{longtable}
+
+
+\begin{tabular}{c}
+\rule{0pt}{10ex} \texttt {\textsl {\footnotesize <Practice Stamp / Signature>}}\\
+\rule{0pt}{4ex} {\footnotesize $<current_provider>$}\\
+\hline
+\tiny The above physician cannot be held responsible for unconfirmed content or alterations to this letter. \\
+\end{tabular}
+
+\end{document}
+
+%------------------------------------------------------------------

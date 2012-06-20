@@ -11,21 +11,33 @@ def resultset_functional_batchgenerator(cursor, size=100):
 			yield rec
 """
 # =======================================================================
-__version__ = "$Revision: 1.127 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-### imports ###
 # stdlib
-import time, locale, sys, re as regex, os, codecs, types, datetime as pydt, logging
+import time
+import sys
+import os
+import codecs
+import types
+import logging
+import datetime as pydt
+import re as regex
+
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmExceptions, gmDateTime, gmBorg, gmI18N, gmLog2
+from Gnumed.pycommon import gmLoginInfo
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon.gmTools import prompted_input, u_replacement_character
 
 _log = logging.getLogger('gm.db')
-_log.info(__version__)
+
 
 # 3rd party
 try:
@@ -34,7 +46,6 @@ except ImportError:
 	_log.exception("Python database adapter psycopg2 not found.")
 	print "CRITICAL ERROR: Cannot find module psycopg2 for connecting to the database server."
 	raise
-### imports ###
 
 
 _log.info('psycopg2 version: %s' % dbapi.__version__)
@@ -81,48 +92,63 @@ postgresql_version = None			# accuracy: major.minor
 
 __ro_conn_pool = None
 
+auto_request_login_params = True
 # =======================================================================
 # global data
 # =======================================================================
 
 known_schema_hashes = {
-	'devel': 'not released, testing only',
-	'v2': 'b09d50d7ed3f91ddf4c4ddb8ea507720',
-	'v3': 'e73718eaf230d8f1d2d01afa8462e176',
-	'v4': '4428ccf2e54c289136819e701bb095ea',
-	'v5': '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
-	'v6': '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
-	'v7': '6c9f6d3981483f8e9433df99d1947b27',
-	'v8': '89b13a7af83337c3aad153b717e52360',
-	'v9': '641a9b2be3c378ffc2bb2f0b1c9f051d',
-	'v10': '7ef42a8fb2bd929a2cdd0c63864b4e8a',
-	'v11': '03042ae24f3f92877d986fb0a6184d76',
-	'v12': '06183a6616db62257e22814007a8ed07',
-	'v13': 'fab7c1ae408a6530c47f9b5111a0841e'
+	0: 'not released, testing only',
+	2: 'b09d50d7ed3f91ddf4c4ddb8ea507720',
+	3: 'e73718eaf230d8f1d2d01afa8462e176',
+	4: '4428ccf2e54c289136819e701bb095ea',
+	5: '7e7b093af57aea48c288e76632a382e5',	# ... old (v1) style hashes
+	6: '90e2026ac2efd236da9c8608b8685b2d',	# new (v2) style hashes ...
+	7: '6c9f6d3981483f8e9433df99d1947b27',
+	8: '89b13a7af83337c3aad153b717e52360',
+	9: '641a9b2be3c378ffc2bb2f0b1c9f051d',
+	10: '7ef42a8fb2bd929a2cdd0c63864b4e8a',
+	11: '03042ae24f3f92877d986fb0a6184d76',
+	12: '06183a6616db62257e22814007a8ed07',
+	13: 'fab7c1ae408a6530c47f9b5111a0841e',
+	14: 'e170d543f067d1ea60bfe9076b1560cf',
+	15: '70012ff960b77ecdff4981c94b5b55b6',
+	16: '0bcf44ca22c479b52976e5eda1de8161',
+	17: '161428ee97a00e3bf56168c3a15b7b50'
 }
 
 map_schema_hash2version = {
-	'b09d50d7ed3f91ddf4c4ddb8ea507720': 'v2',
-	'e73718eaf230d8f1d2d01afa8462e176': 'v3',
-	'4428ccf2e54c289136819e701bb095ea': 'v4',
-	'7e7b093af57aea48c288e76632a382e5': 'v5',
-	'90e2026ac2efd236da9c8608b8685b2d': 'v6',
-	'6c9f6d3981483f8e9433df99d1947b27': 'v7',
-	'89b13a7af83337c3aad153b717e52360': 'v8',
-	'641a9b2be3c378ffc2bb2f0b1c9f051d': 'v9',
-	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 'v10',
-	'03042ae24f3f92877d986fb0a6184d76': 'v11',
-	'06183a6616db62257e22814007a8ed07': 'v12',
-	'fab7c1ae408a6530c47f9b5111a0841e': 'v13'
+	'b09d50d7ed3f91ddf4c4ddb8ea507720': 2,
+	'e73718eaf230d8f1d2d01afa8462e176': 3,
+	'4428ccf2e54c289136819e701bb095ea': 4,
+	'7e7b093af57aea48c288e76632a382e5': 5,
+	'90e2026ac2efd236da9c8608b8685b2d': 6,
+	'6c9f6d3981483f8e9433df99d1947b27': 7,
+	'89b13a7af83337c3aad153b717e52360': 8,
+	'641a9b2be3c378ffc2bb2f0b1c9f051d': 9,
+	'7ef42a8fb2bd929a2cdd0c63864b4e8a': 10,
+	'03042ae24f3f92877d986fb0a6184d76': 11,
+	'06183a6616db62257e22814007a8ed07': 12,
+	'fab7c1ae408a6530c47f9b5111a0841e': 13,
+	'e170d543f067d1ea60bfe9076b1560cf': 14,
+	'70012ff960b77ecdff4981c94b5b55b6': 15,
+	'0bcf44ca22c479b52976e5eda1de8161': 16,
+	'161428ee97a00e3bf56168c3a15b7b50': 17
 }
 
 map_client_branch2required_db_version = {
-	u'GIT tree': u'devel',
-	u'0.3': u'v9',
-	u'0.4': u'v10',
-	u'0.5': u'v11',
-	u'0.6': u'v12',
-	u'0.7': u'v13'
+	u'GIT tree': 0,
+	u'0.3': 9,
+	u'0.4': 10,
+	u'0.5': 11,
+	u'0.6': 12,
+	u'0.7': 13,
+	u'0.8': 14,
+	u'0.9': 15,
+	u'1.0': 16,		# intentional duplicate with 1.1
+	u'1.1': 16,
+	u'1.2': 17,
+	u'1.3': 18
 }
 
 # get columns and data types for a given table
@@ -297,12 +323,6 @@ def __detect_client_timezone(conn=None):
 # =======================================================================
 # login API
 # =======================================================================
-def __prompted_input(prompt, default=None):
-	usr_input = raw_input(prompt)
-	if usr_input == '':
-		return default
-	return usr_input
-#---------------------------------------------------
 def __request_login_params_tui():
 	"""Text mode request of database login parameters"""
 	import getpass
@@ -310,12 +330,12 @@ def __request_login_params_tui():
 
 	print "\nPlease enter the required login parameters:"
 	try:
-		login.host = __prompted_input("host ['' = non-TCP/IP]: ", '')
-		login.database = __prompted_input("database [gnumed_v14]: ", 'gnumed_v14')
-		login.user = __prompted_input("user name: ", '')
+		login.host = prompted_input(prompt = "host ('' = non-TCP/IP)", default = '')
+		login.database = prompted_input(prompt = "database", default = 'gnumed_v17')
+		login.user = prompted_input(prompt = "user name", default = '')
 		tmp = 'password for "%s" (not shown): ' % login.user
 		login.password = getpass.getpass(tmp)
-		login.port = __prompted_input("port [5432]: ", 5432)
+		login.port = prompted_input(prompt = "port", default = 5432)
 	except KeyboardInterrupt:
 		_log.warning("user cancelled text mode login dialog")
 		print "user cancelled text mode login dialog"
@@ -349,17 +369,19 @@ def __request_login_params_gui_wx():
 	return login
 #---------------------------------------------------
 def request_login_params():
-	"""Request login parameters for database connection.
-	"""
+	"""Request login parameters for database connection."""
+	# do we auto-request parameters at all ?
+	if not auto_request_login_params:
+		raise Exception('Cannot request login parameters.')
+
 	# are we inside X ?
 	# (if we aren't wxGTK will crash hard at
 	# C-level with "can't open Display")
 	if os.environ.has_key('DISPLAY'):
-		# try GUI
-		try:
-			return __request_login_params_gui_wx()
-		except:
-			pass
+		# try wxPython GUI
+		try: return __request_login_params_gui_wx()
+		except: pass
+
 	# well, either we are on the console or
 	# wxPython does not work, use text mode
 	return __request_login_params_tui()
@@ -419,8 +441,15 @@ def set_default_login(login=None):
 	dsn = make_psycopg2_dsn(login.database, login.host, login.port, login.user, login.password)
 
 	global _default_dsn
+	if _default_dsn is None:
+		old_dsn = u'None'
+	else:
+		old_dsn = regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, _default_dsn)
+	_log.info ('setting default DSN from [%s] to [%s]',
+		old_dsn,
+		regex.sub(r'password=[^\s]+', u'password=%s' % u_replacement_character, dsn)
+	)
 	_default_dsn = dsn
-	_log.info('setting default DSN from [%s] to [%s]' % (_default_dsn, dsn))
 
 	return True
 # =======================================================================
@@ -428,10 +457,10 @@ def set_default_login(login=None):
 # =======================================================================
 def database_schema_compatible(link_obj=None, version=None, verbose=True):
 	expected_hash = known_schema_hashes[version]
-	if version == 'devel':
-		args = {'ver': '9999'}
+	if version == 0:
+		args = {'ver': 9999}
 	else:
-		args = {'ver': version.strip('v')}
+		args = {'ver': version}
 	rows, idx = run_ro_queries (
 		link_obj = link_obj,
 		queries = [{
@@ -464,6 +493,10 @@ def get_schema_version(link_obj=None):
 def get_schema_structure(link_obj=None):
 	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select gm.concat_table_structure()'}])
 	return rows[0][0]
+#------------------------------------------------------------------------
+def get_schema_hash(link_obj=None):
+	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': u'select md5(gm.concat_table_structure()) as md5'}])
+	return rows[0]['md5']
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
 	cmd = u"""
@@ -555,6 +588,12 @@ where
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': {'schema': schema, 'table': table}}])
 	return rows
 #------------------------------------------------------------------------
+def schema_exists(link_obj=None, schema=u'gm'):
+	cmd = u"""SELECT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname = %(schema)s)"""
+	args = {'schema': schema}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+#------------------------------------------------------------------------
 def table_exists(link_obj=None, schema=None, table=None):
 	"""Returns false, true."""
 	cmd = u"""
@@ -609,17 +648,136 @@ def get_col_names(link_obj=None, schema='public', table=None):
 	for row in rows:
 		cols.append(row[0])
 	return cols
+
+#------------------------------------------------------------------------
+# i18n functions
+#------------------------------------------------------------------------
+def export_translations_from_database(filename=None):
+	tx_file = codecs.open(filename, 'wb', 'utf8')
+	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
+	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
+	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
+	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
+	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
+	tx_file.write(u'set default_transaction_read_only to off;\n\n')
+	tx_file.write(u"set client_encoding to 'utf-8';\n\n")
+	tx_file.write(u'\\unset ON_ERROR_STOP\n\n')
+
+	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	for row in rows:
+		line = u"select i18n.upd_tx(quote_literal(E'%s'), quote_literal(E'%s'), quote_literal(E'%s'));\n" % (
+			row['lang'].replace("'", "\\'"),
+			row['orig'].replace("'", "\\'"),
+			row['trans'].replace("'", "\\'")
+		)
+		tx_file.write(line)
+	tx_file.write(u'\n')
+
+	tx_file.write(u'\set ON_ERROR_STOP 1\n')
+	tx_file.close()
+
+	return True
+#------------------------------------------------------------------------
+def delete_translation_from_database(link_obj=None, language=None, original=None):
+	cmd = u'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'
+	args = {'lang': language, 'orig': original}
+	run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = False, end_tx = True)
+	return True
+
+#------------------------------------------------------------------------
+def update_translation_in_database(language=None, original=None, translation=None):
+	cmd = u'SELECT i18n.upd_tx(%(lang)s, %(orig)s, %(trans)s)'
+	args = {'lang': language, 'orig': original, 'trans': translation}
+	run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = False)
+	return args
+
 #------------------------------------------------------------------------
 def get_translation_languages():
 	rows, idx = run_ro_queries (
 		queries = [{'cmd': u'select distinct lang from i18n.translations'}]
 	)
 	return [ r[0] for r in rows ]
+
+#------------------------------------------------------------------------
+def get_database_translations(language=None, order_by=None):
+
+	args = {'lang': language}
+	_log.debug('language [%s]', language)
+
+	if order_by is None:
+		order_by = u'ORDER BY %s' % order_by
+	else:
+		order_by = u'ORDER BY lang, orig'
+
+	if language is None:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				NULL as lang,
+				ik.orig,
+				NULL AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				it.lang,
+				it.orig,
+				it.trans
+			FROM
+				i18n.translations it
+
+		)) as translatable_strings
+		%s""" % order_by
+	else:
+		cmd = u"""
+		SELECT DISTINCT ON (orig, lang)
+			lang, orig, trans
+		FROM ((
+
+			-- strings stored as translation keys whether translated or not
+			SELECT
+				%%(lang)s as lang,
+				ik.orig,
+				i18n._(ik.orig, %%(lang)s) AS trans
+			FROM
+				i18n.keys ik
+
+		) UNION ALL (
+
+			-- already translated strings
+			SELECT
+				%%(lang)s as lang,
+				it.orig,
+				i18n._(it.orig, %%(lang)s) AS trans
+			FROM
+				i18n.translations it
+
+		)) AS translatable_strings
+		%s""" % order_by
+
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if rows is None:
+		_log.error('no translatable strings found')
+	else:
+		_log.debug('%s translatable strings found', len(rows))
+
+	return rows
+
 #------------------------------------------------------------------------
 def get_current_user_language():
 	cmd = u'select i18n.get_curr_lang()'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	return rows[0][0]
+
 #------------------------------------------------------------------------
 def set_user_language(user=None, language=None):
 	"""Set the user language in the database.
@@ -688,7 +846,7 @@ def expand_keyword(keyword = None):
 	if keyword == u'$$steffi':
 		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
-	cmd = u"""select expansion from clin.v_your_keyword_expansions where keyword = %(kwd)s"""
+	cmd = u"""SELECT expansion FROM clin.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:
@@ -713,9 +871,9 @@ def get_keyword_expansion_candidates(keyword = None):
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
 	if public:
-		cmd = u"select 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
 	else:
-		cmd = u"select 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
 
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 	if len(rows) != 0:
@@ -728,7 +886,7 @@ values (%(kwd)s, %(exp)s, null)"""
 	else:
 		cmd = u"""
 insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
+values (%(kwd)s, %(exp)s, (SELECT pk from dem.staff where db_user = current_user))"""
 
 	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
 
@@ -741,7 +899,7 @@ def delete_text_expansion(keyword):
 	cmd = u"""
 delete from clin.keyword_expansion where
 	keyword = %(kwd)s and (
-		(fk_staff = (select pk from dem.staff where db_user = current_user))
+		(fk_staff = (SELECT pk from dem.staff where db_user = current_user))
 			or
 		(fk_staff is null and owner = current_user)
 	)"""
@@ -753,17 +911,24 @@ delete from clin.keyword_expansion where
 def edit_text_expansion(keyword, expansion):
 
 	cmd1 = u"""
-delete from clin.keyword_expansion where
-	keyword = %(kwd)s and 
-	fk_staff = (select pk from dem.staff where db_user = current_user)"""
+		DELETE FROM clin.keyword_expansion
+		WHERE
+			keyword = %(kwd)s
+				AND
+			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
 
 	cmd2 = u"""
-insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (select pk from dem.staff where db_user = current_user))"""
-
+		INSERT INTO clin.keyword_expansion (
+			keyword, expansion, fk_staff
+		) VALUES (
+			%(kwd)s,
+			%(exp)s,
+			(SELECT pk FROM dem.staff WHERE db_user = current_user)
+		)"""
+	args = {'kwd': keyword, 'exp': expansion}
 	rows, idx = run_rw_queries(queries = [
-		{'cmd': cmd1, 'args': {'kwd': keyword}},
-		{'cmd': cmd2, 'args': {'kwd': keyword, 'exp': expansion}},
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args},
 	])
 
 	global text_expansion_keywords
@@ -780,12 +945,12 @@ def send_maintenance_shutdown():
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
-	cmd = u'select %(candidate)s::interval'
+	cmd = u'SELECT %(candidate)s::interval'
 	try:
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 		return True
 	except:
-		cmd = u'select %(candidate)s::text::interval'
+		cmd = u'SELECT %(candidate)s::text::interval'
 		try:
 			rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'candidate': candidate}}])
 			return True
@@ -853,6 +1018,14 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	needed_chunks, remainder = divmod(data_size, chunk_size)
 	_log.debug('chunks to retrieve: [%s]' % needed_chunks)
 	_log.debug('remainder to retrieve: [%s] bytes' % remainder)
+
+	# try setting "bytea_output"
+	# - fails if not necessary
+	# - succeeds if necessary
+	try:
+		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
+	except dbapi.ProgrammingError:
+		_log.debug('failed to set bytea_output to "escape", not necessary')
 
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
@@ -989,17 +1162,43 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			curs.execute(query['cmd'], args)
 			if verbose:
 				_log.debug('ran query: [%s]', curs.query)
-				_log.debug('PG status message: %s', curs.statusmessage)
+				if curs.statusmessage != u'':
+					_log.debug('PG status message: %s', curs.statusmessage)
 				_log.debug('cursor description: %s', str(curs.description))
-		except:
-			# FIXME: use .pgcode
+		except dbapi.Error as pg_exc:
+			_log.error('query failed: [%s]', curs.query)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('PG error code: %s', pg_exc.pgcode)
+			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot close cursor')
 			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
+			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
+				if curs.statusmessage != u'':
+					details = u'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+						details
+					)
+				raise gmExceptions.AccessDenied (
+					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					source = u'PostgreSQL',
+					code = pg_exc.pgcode,
+					details = details
+				)
+			raise
+		except:
 			_log.error('query failed: [%s]', curs.query)
-			_log.error('PG status message: %s', curs.statusmessage)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			try:
+				curs_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot close cursor')
+			tx_rollback()		# need to rollback so ABORT state isn't preserved in pooled conns
 			raise
 
 	data = None
@@ -1029,7 +1228,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		is a list of dicts [{'cmd': <string>, 'args': <dict> or <tuple>)
 		to be executed as a single transaction, the last
 		query may usefully return rows (such as a
-		"select currval('some_sequence')" statement)
+		"SELECT currval('some_sequence')" statement)
 
 	<end_tx>
 		- controls whether the transaction is finalized (eg.
@@ -1065,24 +1264,24 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	if isinstance(link_obj, dbapi._psycopg.cursor):
 		conn_close = __noop
 		conn_commit = __noop
-		conn_rollback = __noop
+		tx_rollback = __noop
 		curs = link_obj
 		curs_close = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		conn_close = __noop
 		if end_tx:
 			conn_commit = link_obj.commit
-			conn_rollback = link_obj.rollback
+			tx_rollback = link_obj.rollback
 		else:
 			conn_commit = __noop
-			conn_rollback = __noop
+			tx_rollback = __noop
 		curs = link_obj.cursor()
 		curs_close = curs.close
 	elif link_obj is None:
 		conn = get_connection(readonly=False)
 		conn_close = conn.close
 		conn_commit = conn.commit
-		conn_rollback = conn.rollback
+		tx_rollback = conn.rollback
 		curs = conn.cursor()
 		curs_close = curs.close
 	else:
@@ -1098,12 +1297,38 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			args = None
 		try:
 			curs.execute(query['cmd'], args)
+		except dbapi.Error as pg_exc:
+			_log.error('RW query failed: [%s]', curs.query)
+			if curs.statusmessage != u'':
+				_log.error('PG status message: %s', curs.statusmessage)
+			_log.error('PG error code: %s', pg_exc.pgcode)
+			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+			try:
+				curs_close()
+				tx_rollback()			# just for good measure
+				conn_close()
+			except dbapi.InterfaceError:
+				_log.exception('cannot cleanup')
+			if pg_exc.pgcode == sql_error_codes.INSUFFICIENT_PRIVILEGE:
+				details = u'Query: [%s]' % curs.query.strip().strip(u'\n').strip().strip(u'\n')
+				if curs.statusmessage != u'':
+					details = u'Status: %s\n%s' % (
+						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
+						details
+					)
+				raise gmExceptions.AccessDenied (
+					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					source = u'PostgreSQL',
+					code = pg_exc.pgcode,
+					details = details
+				)
+			raise
 		except:
 			_log.exception('error running RW query')
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
-				conn_rollback()
+				tx_rollback()
 				conn_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot cleanup')
@@ -1120,7 +1345,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			gmLog2.log_stack_trace()
 			try:
 				curs_close()
-				conn_rollback()
+				tx_rollback()
 				conn_close()
 			except dbapi.InterfaceError:
 				_log.exception('cannot cleanup')
@@ -1134,6 +1359,49 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	conn_close()
 
 	return (data, col_idx)
+#------------------------------------------------------------------------
+def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
+	"""Generates SQL for an INSERT query.
+
+	values: dict of values keyed by field to insert them into
+	"""
+	if schema is None:
+		schema = u'public'
+
+	fields = values.keys()		# that way val_snippets and fields really should end up in the same order
+	val_snippets = []
+	for field in fields:
+		val_snippets.append(u'%%(%s)s' % field)
+
+	if returning is None:
+		returning = u''
+		return_data = False
+	else:
+		returning = u'\n\tRETURNING\n\t\t%s' % u', '.join(returning)
+		return_data = True
+
+	cmd = u"""\nINSERT INTO %s.%s (
+		%s
+	) VALUES (
+		%s
+	)%s""" % (
+		schema,
+		table,
+		u',\n\t\t'.join(fields),
+		u',\n\t\t'.join(val_snippets),
+		returning
+	)
+
+	_log.debug(u'running SQL: >>>%s<<<', cmd)
+
+	return run_rw_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': cmd, 'args': values}],
+		end_tx = end_tx,
+		return_data = return_data,
+		get_col_idx = get_col_idx,
+		verbose = verbose
+	)
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
@@ -1178,6 +1446,9 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	if dsn is None:
 		dsn = get_default_dsn()
 
+	if u'host=salaam.homeunix' in dsn:
+		raise ValueError('The public database is not hosted by <salaam.homeunix.com> anymore.\n\nPlease point your configuration files to <publicdb.gnumed.de>.')
+
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
 	except dbapi.OperationalError, e:
@@ -1207,16 +1478,18 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	global postgresql_version
 	if postgresql_version is None:
 		curs = conn.cursor()
-		curs.execute ("""
-			select
-				(split_part(setting, '.', 1) || '.' || split_part(setting, '.', 2))::numeric as version
-			from pg_settings
-			where name='server_version'"""
-		)
+		curs.execute("""
+			SELECT
+				substring(setting, E'^\\\\d{1,2}\\\\.\\\\d{1,2}')::numeric AS version
+			FROM
+				pg_settings
+			WHERE
+				name = 'server_version'
+		""")
 		postgresql_version = curs.fetchone()['version']
 		_log.info('PostgreSQL version (numeric): %s' % postgresql_version)
 		try:
-			curs.execute("select pg_size_pretty(pg_database_size(current_database()))")
+			curs.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
 			_log.info('database size: %s', curs.fetchone()[0])
 		except:
 			pass
@@ -1254,7 +1527,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled=True):
 	"""Get a new connection.
 
-	This assumes the locale system has been initialzied
+	This assumes the locale system has been initialized
 	unless an encoding is specified.
 	"""
 	# FIXME: support pooled on RW, too
@@ -1284,7 +1557,7 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 		_log.warning('for this to work properly the application MUST have called locale.setlocale() before')
 
 	# set connection properties
-	# 1) client encoding
+	# - client encoding
 	try:
 		conn.set_client_encoding(encoding)
 	except dbapi.OperationalError:
@@ -1293,37 +1566,38 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 			raise cEncodingError, (encoding, v), tb
 		raise
 
-	# 2) transaction isolation level
+	# - transaction isolation level
 	if readonly:
-		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 		iso_level = u'read committed'
 	else:
 		conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
 		iso_level = u'serializable'
 
-	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s], datestyle [ISO], sql_inheritance [ON]', encoding, iso_level, _default_client_timezone)
+	_log.debug('client string encoding [%s], isolation level [%s], time zone [%s]', encoding, iso_level, _default_client_timezone)
 
 	curs = conn.cursor()
 
-	# client time zone
+	# - client time zone
 	curs.execute(_sql_set_timezone, [_default_client_timezone])
 
-	# datestyle
-	# regarding DMY/YMD handling: since we force *input* to
-	# ISO, too, the DMY/YMD setting is not needed
-	cmd = "set datestyle to 'ISO'"
-	curs.execute(cmd)
+	conn.commit()
 
-	# SQL inheritance mode
-	cmd = 'set sql_inheritance to on'
-	curs.execute(cmd)
-
-	# version string
-	global postgresql_version_string
-	if postgresql_version_string is None:
-		curs.execute('select version()')
-		postgresql_version_string = curs.fetchone()['version']
-		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
+	# FIXME: remove this whole affair once either 9.0 is standard (Ubuntu 10 LTS is
+	# FIXME: PG 8.4, however!) or else when psycopg2 supports a workaround
+	#
+	# - bytea data format
+	# PG 9.0 switched to - by default - using "hex" rather than "escape",
+	# however, psycopg2's linked with a pre-9.0 libpq do assume "escape"
+	# as the transmission mode for bytea output,
+	# so try to set this setting back to "escape",
+	# if that's not possible the reason will be that PG < 9.0 does not support
+	# that setting - which also means we don't need it and can ignore the
+	# failure
+	cmd = "set bytea_output to 'escape'"
+	try:
+		curs.execute(cmd)
+	except dbapi.ProgrammingError:
+		_log.error('cannot set bytea_output format')
 
 	curs.close()
 	conn.commit()
@@ -1345,6 +1619,14 @@ def __noop():
 def _raise_exception_on_ro_conn_close():
 	raise TypeError(u'close() called on read-only connection')
 #-----------------------------------------------------------------------
+def log_database_access(action=None):
+	run_insert (
+		schema = u'gm',
+		table = u'access_log',
+		values = {u'user_action': action},
+		end_tx = True
+	)
+#-----------------------------------------------------------------------
 def sanity_check_time_skew(tolerance=60):
 	"""Check server time and local time to be within
 	the given tolerance of each other.
@@ -1353,7 +1635,7 @@ def sanity_check_time_skew(tolerance=60):
 	"""
 	_log.debug('maximum skew tolerance (seconds): %s', tolerance)
 
-	cmd = u"select now() at time zone 'UTC'"
+	cmd = u"SELECT now() at time zone 'UTC'"
 	conn = get_raw_connection(readonly=True)
 	curs = conn.cursor()
 
@@ -1398,16 +1680,30 @@ def sanity_check_database_settings():
 		2: fatal problem
 	"""
 	_log.debug('checking database settings')
-	settings = {
+
+	conn = get_connection()
+
+	# - version string
+	global postgresql_version_string
+	if postgresql_version_string is None:
+		curs = conn.cursor()
+		curs.execute('SELECT version()')
+		postgresql_version_string = curs.fetchone()['version']
+		curs.close()
+		_log.info('PostgreSQL version (string): "%s"' % postgresql_version_string)
+
+	options2check = {
 		# setting: [expected value, risk, fatal?]
 		u'allow_system_table_mods': [u'off', u'system breakage', False],
 		u'check_function_bodies': [u'on', u'suboptimal error detection', False],
+		u'datestyle': [u'ISO', u'faulty timestamp parsing', True],
+		u'default_transaction_isolation': [u'read committed', u'faulty database reads', True],
 		u'default_transaction_read_only': [u'on', u'accidental database writes', False],
 		u'fsync': [u'on', u'data loss/corruption', True],
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		u'regex_flavor': [u'advanced', u'query breakage', False],
+		u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}
@@ -1415,32 +1711,41 @@ def sanity_check_database_settings():
 	from Gnumed.pycommon import gmCfg2
 	_cfg = gmCfg2.gmCfgData()
 	if _cfg.get(option = u'hipaa'):
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', True]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', True]
 	else:
-		settings[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
-		settings[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_connections'] = [u'on', u'non-compliance with HIPAA', None]
+		options2check[u'log_disconnections'] = [u'on', u'non-compliance with HIPAA', None]
 
-	cmd = u"select name, setting from pg_settings where name in %(settings)s"
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'settings': tuple(settings.keys())}}])
+	cmd = u"SELECT name, setting from pg_settings where name in %(settings)s"
+	rows, idx = run_ro_queries (
+		link_obj = conn,
+		queries = [{'cmd': cmd, 'args': {'settings': tuple(options2check.keys())}}],
+		get_col_idx = False
+	)
 
 	found_error = False
 	found_problem = False
 	msg = []
 	for row in rows:
-		if row[1] != settings[row[0]][0]:
-			if settings[row[0]][2] is True:
+		option = row['name']
+		value_found = row['setting']
+		value_expected = options2check[option][0]
+		risk = options2check[option][1]
+		fatal_setting = options2check[option][2]
+		if value_found != value_expected:
+			if fatal_setting is True:
 				found_error = True
-			elif settings[row[0]][2] is False:
+			elif fatal_setting is False:
 				found_problem = True
-			elif settings[row[0]][2] is None:
+			elif fatal_setting is None:
 				pass
 			else:
-				_log.error(settings[row[0]])
+				_log.error(options2check[option])
 				raise ValueError(u'invalid database configuration sanity check')
-			msg.append(_(' option [%s]: %s') % (row[0], row[1]))
-			msg.append(_('  risk: %s') % settings[row[0]][1])
-			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (row[0], row[1], settings[row[0]][0], settings[row[0]][1]))
+			msg.append(_(' option [%s]: %s') % (option, value_found))
+			msg.append(_('  risk: %s') % risk)
+			_log.warning('PG option [%s] set to [%s], expected [%s], risk: <%s>' % (option, value_found, value_expected, risk))
 
 	if found_error:
 		return 2, u'\n'.join(msg)
@@ -1510,6 +1815,7 @@ class cEncodingError(dbapi.OperationalError):
 # -----------------------------------------------------------------------
 # Python -> PostgreSQL
 # -----------------------------------------------------------------------
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 class cAdapterPyDateTime(object):
 
 	def __init__(self, dt):
@@ -1520,25 +1826,26 @@ class cAdapterPyDateTime(object):
 	def getquoted(self):
 		return _timestamp_template % self.__dt.isoformat()
 
-# ----------------------------------------------------------------------
-class cAdapterMxDateTime(object):
-
-	def __init__(self, dt):
-		if dt.tz == '???':
-			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
-		self.__dt = dt
-
-	def getquoted(self):
-		# under some locale settings the mx.DateTime ISO formatter
-		# will insert "," into the ISO string,
-		# while this is allowed per the ISO8601 spec PostgreSQL
-		# cannot currently handle that,
-		# so map those "," to "." to make things work:
-		return mxDT.ISO.str(self.__dt).replace(',', '.')
-
-# ----------------------------------------------------------------------
-# PostgreSQL -> Python
-# ----------------------------------------------------------------------
+## remove for 0.9
+## ----------------------------------------------------------------------
+##class cAdapterMxDateTime(object):
+##
+##	def __init__(self, dt):
+##		if dt.tz == '???':
+##			_log.info('[%s]: no time zone string available in (%s), assuming local time zone', self.__class__.__name__, dt)
+##		self.__dt = dt
+##
+##	def getquoted(self):
+##		# under some locale settings the mx.DateTime ISO formatter
+##		# will insert "," into the ISO string,
+##		# while this is allowed per the ISO8601 spec PostgreSQL
+##		# cannot currently handle that,
+##		# so map those "," to "." to make things work:
+##		return mxDT.ISO.str(self.__dt).replace(',', '.')
+##
+## ----------------------------------------------------------------------
+## PostgreSQL -> Python
+## ----------------------------------------------------------------------
 
 #=======================================================================
 #  main
@@ -1546,19 +1853,23 @@ class cAdapterMxDateTime(object):
 
 # make sure psycopg2 knows how to handle unicode ...
 # intended to become standard
+# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
+# check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
-try:
-	import mx.DateTime as mxDT
-	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-except ImportError:
-	_log.warning('cannot import mx.DateTime')
+
+## remove for 0.9
+#try:
+#	import mx.DateTime as mxDT
+##	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
+#except ImportError:
+#	_log.warning('cannot import mx.DateTime')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
-# them adapted to "... ARRAY()..." so we can support PG arrays
+# them adapted to "... ARRAY[]..." so we can support PG arrays
 
 #=======================================================================
 if __name__ == "__main__":
@@ -1675,20 +1986,20 @@ if __name__ == "__main__":
 		dsn = 'dbname=gnumed_v9 user=any-doc password=any-doc'
 		conn = get_connection(dsn, readonly=True)
 
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
-		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True)
+		data, idx = run_ro_queries(link_obj=conn, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True)
 		print data
 		print idx
 
 		curs = conn.cursor()
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select version()'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT version()'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
-		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'select 1'}], return_data=True, get_col_idx=True, verbose=True)
+		data, idx = run_ro_queries(link_obj=curs, queries=[{'cmd': u'SELECT 1'}], return_data=True, get_col_idx=True, verbose=True)
 		print data
 		print idx
 
@@ -1785,7 +2096,7 @@ if __name__ == "__main__":
 		dsn = get_default_dsn()
 		conn = get_connection(dsn, readonly=True)
 		curs = conn.cursor()
-		curs.execute('select * from clin.clin_narrative where narrative = %s', ['a'])
+		curs.execute('SELECT * from clin.clin_narrative where narrative = %s', ['a'])
 	#--------------------------------------------------------------------
 	def test_sanitize_pg_regex():
 		tests = [
@@ -1877,6 +2188,19 @@ if __name__ == "__main__":
 		for line in get_schema_revision_history():
 			print u' - '.join(line)
 	#--------------------------------------------------------------------
+	def test_run_query():
+		gmDateTime.init()
+		args = {'dt': gmDateTime.pydt_max_here()}
+		cmd = u"SELECT %(dt)s"
+
+		#cmd = u"SELECT 'infinity'::timestamp with time zone"
+		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		print rows
+	#--------------------------------------------------------------------
+	def test_schema_exists():
+		print schema_exists()
+
+	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
 	#test_get_connection()
@@ -1892,6 +2216,8 @@ if __name__ == "__main__":
 	#test_keyword_expansion()
 	#test_get_foreign_key_details()
 	#test_set_user_language()
-	test_get_schema_revision_history()
+	#test_get_schema_revision_history()
+	#test_run_query()
+	test_schema_exists()
 
 # ======================================================================

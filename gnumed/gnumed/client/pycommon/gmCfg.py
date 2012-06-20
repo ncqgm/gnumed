@@ -17,7 +17,7 @@ applicability by the constraints "workplace", "user", and "cookie".
 The basic API for handling items is get()/set().
 The database config objects auto-sync with the backend.
 
-@copyright: GPL
+@copyright: GPL v2 or later
 """
 # TODO:
 # - optional arg for set -> type
@@ -42,7 +42,12 @@ _log.info(__version__)
 # it will already be in many databases
 cfg_DEFAULT = "xxxDEFAULTxxx"
 #==================================================================
-def get_all_options():
+def get_all_options(order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
 
 	cmd = u"""
 SELECT * FROM (
@@ -51,7 +56,8 @@ SELECT
 	vco.*,
 	cs.value
 FROM
-	cfg.v_cfg_options vco JOIN cfg.cfg_string cs ON (vco.pk_cfg_item = cs.fk_item)
+	cfg.v_cfg_options vco
+		JOIN cfg.cfg_string cs ON (vco.pk_cfg_item = cs.fk_item)
 
 UNION ALL
 
@@ -59,7 +65,8 @@ SELECT
 	vco.*,
 	cn.value::text
 FROM
-	cfg.v_cfg_options vco JOIN cfg.cfg_numeric cn ON (vco.pk_cfg_item = cn.fk_item)
+	cfg.v_cfg_options vco
+		JOIN cfg.cfg_numeric cn ON (vco.pk_cfg_item = cn.fk_item)
 
 UNION ALL
 
@@ -67,7 +74,8 @@ SELECT
 	vco.*,
 	csa.value::text
 FROM
-	cfg.v_cfg_options vco JOIN cfg.cfg_str_array csa ON (vco.pk_cfg_item = csa.fk_item)
+	cfg.v_cfg_options vco
+		JOIN cfg.cfg_str_array csa ON (vco.pk_cfg_item = csa.fk_item)
 
 UNION ALL
 
@@ -75,10 +83,11 @@ SELECT
 	vco.*,
 	cd.value::text
 FROM
-	cfg.v_cfg_options vco JOIN cfg.cfg_data cd ON (vco.pk_cfg_item = cd.fk_item)
+	cfg.v_cfg_options vco
+		JOIN cfg.cfg_data cd ON (vco.pk_cfg_item = cd.fk_item)
 
 ) as option_list
-ORDER BY option"""
+%s""" % order_by
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 
@@ -396,7 +405,16 @@ where %s""" % where_clause
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': where_args}], return_data=True)
 		return rows
 	#----------------------------
-	def delete(self, workplace = None, cookie = None, option = None):
+	def delete(self, conn=None, pk_option=None):
+		if conn is None:
+			# without a gm-dbo connection you can only delete your own options :-)
+			cmd = u"DELETE FROM cfg.cfg_item WHERE pk = %(pk)s AND owner = CURRENT_USER"
+		else:
+			cmd = u"DELETE FROM cfg.cfg_item WHERE pk = %(pk)s"
+		args = {'pk': pk_option}
+		gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], end_tx = True)
+	#----------------------------
+	def delete_old(self, workplace = None, cookie = None, option = None):
 		"""
 		Deletes an option or a whole group.
 		Note you have to call store() in order to save

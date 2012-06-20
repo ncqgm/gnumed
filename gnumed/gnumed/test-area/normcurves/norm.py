@@ -3,7 +3,7 @@
 # norm.py
 # Author:       Christof Meigen (christof@nicht-ich.de)
 # Copyright:    author
-# License:      GPL
+# License:      GPL v2 or later
 # Last Changed: 13 sep 2002
 ###############################################################
 # $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/test-area/normcurves/norm.py,v $

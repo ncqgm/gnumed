@@ -4,8 +4,8 @@
 #
 # @copyright: Tony Lembke (tony@lemlink.com.au)
 ############################################################################
-# This source code is protected by the GPL licensing scheme.
-# Details regarding the GPL are available at http://www.gnu.org
+# This source code is protected by the GPL v2 or later licensing scheme.
+# Details regarding the GPL v2 or later are available at http://www.gnu.org
 # You may use and share it as long as you don't deny this right
 # to anybody else.
 # use GnuPGInterface which is available from http://py-gnupg.sourceforge.net/

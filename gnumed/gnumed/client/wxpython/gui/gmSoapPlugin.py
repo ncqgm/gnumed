@@ -9,7 +9,7 @@
 #======================================================================
 __version__ = "$Revision: 1.7 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
@@ -61,14 +61,14 @@ if __name__ == "__main__":
 	import wx
 
 	# GNUmed
-	from Gnumed.business import gmPerson
+	from Gnumed.business import gmPersonSearch
 	from Gnumed.wxpython import gmSOAPWidgets
 
 	_log.info("starting Notebooked progress notes input plugin...")
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "None patient. Exiting gracefully..."
 			sys.exit(0)
@@ -94,27 +94,3 @@ if __name__ == "__main__":
 
 	_log.info("closing Notebooked progress notes input plugin...")
 #======================================================================
-# $Log: gmSoapPlugin.py,v $
-# Revision 1.7  2010-02-07 15:20:39  ncq
-# - show this in EMR menu now
-#
-# Revision 1.6  2009/08/03 20:51:18  ncq
-# - don't put it into the menu specifically
-#
-# Revision 1.5  2009/06/29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.4  2009/06/04 16:31:24  ncq
-# - use set-active-patient from pat-search-widgets
-#
-# Revision 1.3  2009/04/12 20:12:23  shilbert
-# - import of gmSOAPWidgets was missing in standalone mode
-#
-# Revision 1.2  2009/01/06 18:21:55  ncq
-# - better tab name
-#
-# Revision 1.1  2008/11/20 20:30:49  ncq
-# - new plugin
-#
-#

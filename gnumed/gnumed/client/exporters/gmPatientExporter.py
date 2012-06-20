@@ -9,8 +9,6 @@ TODO:
   - HTML - post-0.1 !
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/exporters/gmPatientExporter.py,v $
-# $Id: gmPatientExporter.py,v 1.138 2009-09-08 17:14:55 ncq Exp $
 __version__ = "$Revision: 1.138 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
@@ -25,7 +23,7 @@ import mx.DateTime as mxDT
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative
+from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative, gmPersonSearch
 
 
 _log = logging.getLogger('gm.export')
@@ -514,26 +512,39 @@ class cEmrExport:
         for a_health_issue in h_issues:
             health_issue_action( emr_tree, a_health_issue)
 
-        emr_tree.SortChildren(emr_tree.GetRootItem())
-    #--------------------------------------------------------             
+        root_item = emr_tree.GetRootItem()
+        if len(h_issues) == 0:
+            emr_tree.SetItemHasChildren(root_item, False)
+        else:
+            emr_tree.SetItemHasChildren(root_item, True)
+        emr_tree.SortChildren(root_item)
+    #--------------------------------------------------------
     def _add_health_issue_branch( self, emr_tree, a_health_issue):
             """appends to a wx emr_tree  , building wx treenodes from the health_issue  make this reusable for non-collapsing tree updates"""
             emr = self.__patient.get_emr()
             root_node = emr_tree.GetRootItem()
             issue_node =  emr_tree.AppendItem(root_node, a_health_issue['description'])
-            emr_tree.SetPyData(issue_node, a_health_issue)
+            emr_tree.SetItemPyData(issue_node, a_health_issue)
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
+            if len(episodes) == 0:
+                emr_tree.SetItemHasChildren(issue_node, False)
+            else:
+                emr_tree.SetItemHasChildren(issue_node, True)
             for an_episode in episodes:
                 self._add_episode_to_tree( emr, emr_tree, issue_node,a_health_issue,  an_episode)
             emr_tree.SortChildren(issue_node)
     #--------------------------------------------------------
     def _add_episode_to_tree( self, emr , emr_tree, issue_node, a_health_issue, an_episode):
         episode_node =  emr_tree.AppendItem(issue_node, an_episode['description'])
-        emr_tree.SetPyData(episode_node, an_episode)
+        emr_tree.SetItemPyData(episode_node, an_episode)
         if an_episode['episode_open']:
             emr_tree.SetItemBold(issue_node, True)
 
         encounters = self._get_encounters( an_episode, emr )
+        if len(encounters) == 0:
+            emr_tree.SetItemHasChildren(episode_node, False)
+        else:
+            emr_tree.SetItemHasChildren(episode_node, True)
         self._add_encounters_to_tree( encounters,  emr_tree, episode_node )
         emr_tree.SortChildren(episode_node)
         return episode_node
@@ -561,7 +572,8 @@ class cEmrExport:
                 )
             )
             encounter_node_id = emr_tree.AppendItem(episode_node, label)
-            emr_tree.SetPyData(encounter_node_id, an_encounter)
+            emr_tree.SetItemPyData(encounter_node_id, an_encounter)
+            emr_tree.SetItemHasChildren(encounter_node_id, False)
     #--------------------------------------------------------
     def _get_encounters ( self, an_episode, emr ):
                encounters = emr.get_encounters (
@@ -702,7 +714,7 @@ class cEmrExport:
             None: _('Administrative')
         }
         eol_w_margin = '\n' + (' ' * (left_margin+3))
-        for soap_cat in 'soap':
+        for soap_cat in 'soapu':
             soap_cat_narratives = emr.get_clin_narrative (
                 episodes = [episode['pk_episode']],
                 encounters = [encounter['pk_encounter']],
@@ -1055,7 +1067,7 @@ class cMedistarSOAPExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soap', export_to_import_file=False):
+	def export_to_file(self, filename=None, encounter=None, soap_cats=u'soapu', export_to_import_file=False):
 		if not self.__pat.connected:
 			return (False, 'no active patient')
 
@@ -1094,12 +1106,12 @@ class cMedistarSOAPExporter:
 
 		return (status, filename)
 	#--------------------------------------------------------
-	def export(self, target, encounter=None, soap_cats=u'soap'):
+	def export(self, target, encounter=None, soap_cats=u'soapu'):
 		return self.__export(target, encounter = encounter, soap_cats = soap_cats)
 	#--------------------------------------------------------
 	# interal API
 	#--------------------------------------------------------
-	def __export(self, target=None, encounter=None, soap_cats=u'soap'):
+	def __export(self, target=None, encounter=None, soap_cats=u'soapu'):
 		# get data
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in soap_cats:
@@ -1133,11 +1145,11 @@ def run():
     patient = None
     patient_id = None
     patient_term = None
-    pat_searcher = gmPerson.cPatientSearcher_SQL()
+    pat_searcher = gmPersonSearch.cPatientSearcher_SQL()
 
     # App execution loop
     while patient_term != 'bye':
-        patient = gmPerson.ask_for_patient()
+        patient = gmPersonSearch.ask_for_patient()
         if patient is None:
             break
         # FIXME: needed ?
@@ -1170,9 +1182,9 @@ if __name__ == "__main__":
 	def export_journal():
 
 		print "Exporting EMR journal(s) ..."
-		pat_searcher = gmPerson.cPatientSearcher_SQL()
+		pat_searcher = gmPersonSearch.cPatientSearcher_SQL()
 		while True:
-			patient = gmPerson.ask_for_patient()
+			patient = gmPersonSearch.ask_for_patient()
 			if patient is None:
 				break
 
@@ -1193,451 +1205,3 @@ if __name__ == "__main__":
 	export_journal()
 
 #============================================================
-# $Log: gmPatientExporter.py,v $
-# Revision 1.138  2009-09-08 17:14:55  ncq
-# - apply unwrap() to encounter node title
-#
-# Revision 1.137  2009/07/15 12:47:25  ncq
-# - properly use patient age
-#
-# Revision 1.136  2009/06/29 15:01:07  ncq
-# - use get-latest-soap in encounter formatting
-#
-# Revision 1.135  2009/06/04 16:24:35  ncq
-# - support dob-less persons
-#
-# Revision 1.134  2009/01/02 11:36:43  ncq
-# - cleanup
-#
-# Revision 1.133  2008/12/18 21:26:45  ncq
-# - missing H in HH24 in date formatting in journal exporter
-#
-# Revision 1.132  2008/12/09 23:24:29  ncq
-# - .date -> .clin_when in doc_med
-#
-# Revision 1.131  2008/12/01 12:36:57  ncq
-# - improved encounter node label
-#
-# Revision 1.130  2008/10/22 12:06:05  ncq
-# - use %x in strftime
-#
-# Revision 1.129  2008/10/12 15:32:18  ncq
-# - support "mod date" in journal
-#
-# Revision 1.128  2008/09/02 18:59:30  ncq
-# - no more fk_patient in clin.health_issue and related changes
-#
-# Revision 1.127  2008/07/28 15:42:30  ncq
-# - cleanup
-# - enhance medistar exporter
-#
-# Revision 1.126  2008/07/12 15:20:55  ncq
-# - comment out print
-#
-# Revision 1.125  2008/07/07 13:39:22  ncq
-# - properly sort tree
-# - current patient .connected
-#
-# Revision 1.124  2008/06/24 13:55:14  ncq
-# - change encounter node label
-#
-# Revision 1.123  2008/06/23 09:59:57  ncq
-# - much improved journal layout
-#
-# Revision 1.122  2008/06/15 20:16:02  ncq
-# - add a space
-#
-# Revision 1.121  2008/05/19 15:44:16  ncq
-# - just silly cleanup
-#
-# Revision 1.120  2008/05/07 15:16:01  ncq
-# - use centralized soap category translations from gmClinNarrative
-#
-# Revision 1.119  2008/04/11 12:21:11  ncq
-# - some cleanup
-#
-# Revision 1.118  2008/04/02 10:15:54  ncq
-# - show local time zone in encounter summary
-#
-# Revision 1.117  2008/03/06 18:24:45  ncq
-# - indentation fix
-#
-# Revision 1.116  2008/03/05 22:25:09  ncq
-# - no more gmLog
-#
-# Revision 1.115  2008/01/30 13:46:17  ncq
-# - cleanup
-#
-# Revision 1.114  2008/01/22 11:52:24  ncq
-# - Unattributed
-# - improved Journal formatting as per list
-#
-# Revision 1.113  2008/01/13 01:13:58  ncq
-# - use issue.age_noted_human_readable()
-#
-# Revision 1.112  2008/01/11 16:10:00  ncq
-# - first/last -> first-/lastnames
-#
-# Revision 1.111  2007/12/26 22:26:04  shilbert
-# - indentation error fixed
-#
-# Revision 1.110  2007/12/23 11:56:38  ncq
-# - improve output, cleanup
-#
-# Revision 1.109  2007/11/28 11:52:13  ncq
-# - get_all_names() -> get_names()
-#
-# Revision 1.108  2007/11/05 12:10:05  ncq
-# - support admin soap type
-#
-# Revision 1.107  2007/06/18 19:33:19  ncq
-# - cleanup
-# - show date in narrative, too
-#
-# Revision 1.106  2007/05/21 14:46:44  ncq
-# - use patient['dirname']
-#
-# Revision 1.105  2007/05/14 13:09:04  ncq
-# - use bold on health issues with open episodes
-#
-# Revision 1.104  2007/04/01 15:25:55  ncq
-# - safely get encoding
-#
-# Revision 1.103  2007/03/02 15:30:00  ncq
-# - decode() strftime() output
-#
-# Revision 1.102  2007/02/22 17:30:48  ncq
-# - no more get_identity()
-# - patient now cIdentity() child
-#
-# Revision 1.101  2007/02/19 17:54:06  ncq
-# - need to return True when successful
-#
-# Revision 1.100  2007/02/19 16:56:05  ncq
-# - properly check for is_connected()
-#
-# Revision 1.99  2007/02/19 14:07:31  ncq
-# - fix format string parameters
-#
-# Revision 1.98  2007/02/17 14:10:03  ncq
-# - use improved gmTools.coalesce()
-#
-# Revision 1.97  2007/02/10 23:41:38  ncq
-# - fix loading of GNUmed python modules
-# - cleaned up journal exporter
-# - fixed bug in journal exporter where it expected is_connected()
-#   in non-gmCurrentPatient-using context, too
-# - when run standalone: export journal
-#
-# Revision 1.96  2007/01/18 22:03:58  ncq
-# - a bit of cleanup
-#
-# Revision 1.95  2007/01/15 20:20:03  ncq
-# - move wrap() to gmTools
-#
-# Revision 1.94  2007/01/13 22:17:40  ncq
-# - wrap narrative to 75 characters per line
-#
-# Revision 1.93  2006/12/13 00:31:24  ncq
-# - export into unicode files
-# - fix use of get_encounters()
-#
-# Revision 1.92  2006/11/26 15:44:34  ncq
-# - strftime() does not accept u''
-#
-# Revision 1.91  2006/11/24 14:16:20  ncq
-# - unicode-robustify dump_item_fields()
-#
-# Revision 1.90  2006/11/19 11:05:38  ncq
-# - cleanup
-#
-# Revision 1.89  2006/11/09 17:48:05  ncq
-# - ever more careful handling of NULLs
-#
-# Revision 1.88  2006/11/07 00:25:19  ncq
-# - make journal exporter emit strictly u''
-#
-# Revision 1.87  2006/11/05 17:54:17  ncq
-# - don't use issue pk in get_encounters()
-# - gmPG -> gmPG2
-#
-# Revision 1.86  2006/11/05 17:02:54  ncq
-# - comment out lab results access, not in use yet
-#
-# Revision 1.85  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.84  2006/10/25 07:18:12  ncq
-# - no more gmPG
-#
-# Revision 1.83  2006/10/23 13:21:50  ncq
-# - vaccs/path lab not yet converted to gmPG2
-#
-# Revision 1.82  2006/09/03 14:46:26  ncq
-# - robustify regarding encoding issues
-# - improve test suite
-#
-# Revision 1.81  2006/07/19 20:25:48  ncq
-# - gmPyCompat.py is history
-#
-# Revision 1.80  2006/06/09 14:39:23  ncq
-# - comment out vaccination handling for now
-#
-# Revision 1.79  2006/05/30 13:36:35  ncq
-# - properly use get_encounters()
-#
-# Revision 1.78  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.77  2006/02/27 22:38:36  ncq
-# - spell out rfe/aoe as per Richard's request
-#
-# Revision 1.76  2005/12/25 13:24:30  sjtan
-#
-# schema changes in names .
-#
-# Revision 1.75  2005/12/10 23:02:05  ncq
-# - tables are in clin.* now
-#
-# Revision 1.74  2005/10/30 15:48:56  ncq
-# - slightly enlarge space for provider signum display
-#
-# Revision 1.73  2005/10/19 09:06:39  ncq
-# - resolve merge conflict: just whitespace diff
-#
-# Revision 1.72  2005/10/18 13:34:01  sjtan
-# after running; small diffs
-#
-# Revision 1.71  2005/10/15 18:16:24  ncq
-# - encounter['description'] is gone, use 'aoe'
-#
-# Revision 1.70  2005/10/11 21:51:07  ncq
-# - rfe/aoe handling changes so adapt to that
-#
-# Revision 1.69  2005/10/08 12:33:09  sjtan
-# tree can be updated now without refetching entire cache; done by passing emr object to create_xxxx methods and calling emr.update_cache(key,obj);refresh_historical_tree non-destructively checks for changes and removes removed nodes and adds them if cache mismatch.
-#
-# Revision 1.68  2005/10/04 19:22:37  sjtan
-# allow a refetch of part of the cache, so that don't have to completely collapse tree view to view after change.
-#
-# Revision 1.67  2005/10/04 00:04:45  sjtan
-# convert to wx.; catch some transitional errors temporarily
-#
-# Revision 1.66  2005/10/03 13:49:21  sjtan
-# using new wx. temporary debugging to stdout(easier to read). where is rfe ?
-#
-# Revision 1.65  2005/09/11 17:28:20  ncq
-# - tree widget now display provider sign, not database account
-#
-# Revision 1.64  2005/09/09 13:50:07  ncq
-# - detail improvements in tree widget progress note output
-#
-# Revision 1.63  2005/09/08 16:57:06  ncq
-# - improve progress note display in tree widget
-#
-# Revision 1.62  2005/09/05 15:56:27  ncq
-# - sort journal by episode within encounters
-#
-# Revision 1.61  2005/09/04 07:28:51  ncq
-# - better naming of dummy health issue for unassociated episodes
-# - display time of entry in front of SOAP notes
-#
-# Revision 1.60  2005/07/04 11:14:36  ncq
-# - improved episode summary yet again
-#
-# Revision 1.59  2005/07/02 18:18:26  ncq
-# - improve EMR tree right side info pane according to user
-#   testing and ideas gleaned from TransHIS
-#
-# Revision 1.58  2005/06/30 16:11:55  cfmoro
-# Bug fix: multiple episode w/o issue when refreshing tree
-#
-# Revision 1.57  2005/06/30 11:42:05  cfmoro
-# Removed debug print
-#
-# Revision 1.56  2005/06/30 11:30:10  cfmoro
-# Minor fix on issue info when no encounters attached
-#
-# Revision 1.55  2005/06/20 13:03:38  cfmoro
-# Relink encounter to another episode
-#
-# Revision 1.54  2005/06/12 22:09:39  ncq
-# - better encounter formatting yet
-#
-# Revision 1.53  2005/06/07 09:04:45  ncq
-# - cleanup, better encounter data display
-#
-# Revision 1.52  2005/05/17 18:11:41  ncq
-# - dob2medical_age is in gmPerson
-#
-# Revision 1.51  2005/05/12 15:08:31  ncq
-# - add Medistar SOAP exporter and wrap(text, width) convenience function
-#
-# Revision 1.50  2005/04/27 19:59:19  ncq
-# - deal with narrative rows that are empty
-#
-# Revision 1.49  2005/04/12 16:15:36  ncq
-# - improve journal style exporter
-#
-# Revision 1.48  2005/04/12 10:00:19  ncq
-# - add cEMRJournalExporter class
-#
-# Revision 1.47  2005/04/03 20:08:18  ncq
-# - GUI stuff does not belong here (eg move to gmEMRBrowser which is to become gmEMRWidgets, eventually)
-#
-# Revision 1.46  2005/04/03 09:27:25  ncq
-# - better wording
-#
-# Revision 1.45  2005/04/02 21:37:27  cfmoro
-# Unlinked episodes displayes in EMR tree and dump
-#
-# Revision 1.44  2005/04/02 20:45:12  cfmoro
-# Implementated  exporting emr from gui client
-#
-# Revision 1.43  2005/03/30 21:14:31  cfmoro
-# Using cIdentity recent changes
-#
-# Revision 1.42  2005/03/29 07:24:07  ncq
-# - tabify
-#
-# Revision 1.41     2005/03/20 17:48:38  ncq
-# - add two sanity checks by Syan
-#
-# Revision 1.40     2005/02/20 08:32:51  sjtan
-#
-# indentation syntax error.
-#
-# Revision 1.39     2005/02/03 20:19:16  ncq
-# - get_demographic_record() -> get_identity()
-#
-# Revision 1.38     2005/01/31 13:01:23  ncq
-# - use ask_for_patient() in gmPerson
-#
-# Revision 1.37     2005/01/31 10:19:11  ncq
-# - gmPatient -> gmPerson
-#
-# Revision 1.36     2004/10/26 12:52:56  ncq
-# - Carlos: fix conceptual bug by building top-down (eg. issue -> episode
-#    -> item) instead of bottom-up
-#
-# Revision 1.35     2004/10/20 21:43:45  ncq
-# - cleanup
-# - use allergy['descriptor']
-# - Format() dates
-#
-# Revision 1.34     2004/10/20 11:14:55  sjtan
-# restored import for unix. get_historical_tree may of changed, but mainly should
-# be guards in gmClinicalRecord for changing [] to None when functions expecting None, and client
-# functions passing [].
-#
-# Revision 1.33     2004/10/12 10:52:40  ncq
-# - improve vaccinations handling
-#
-# Revision 1.32     2004/10/11 19:53:41  ncq
-# - document classes are now VOs
-#
-# Revision 1.31     2004/09/29 19:13:37  ncq
-# - cosmetical fixes as discussed with our office staff
-#
-# Revision 1.30     2004/09/29 10:12:50  ncq
-# - Carlos added intuitive vaccination table - muchos improvos !
-#
-# Revision 1.29     2004/09/10 10:39:01  ncq
-# - fixed assignment that needs to be comparison == in lambda form
-#
-# Revision 1.28     2004/09/06 18:55:09  ncq
-# - a bunch of cleanups re get_historical_tree()
-#
-# Revision 1.27     2004/09/01 21:59:01  ncq
-# - python classes can only have one single __init__
-# - add in Carlos' code for displaying episode/issue summaries
-#
-# Revision 1.26     2004/08/23 09:08:53  ncq
-# - improve output
-#
-# Revision 1.25     2004/08/11 09:45:28  ncq
-# - format SOAP notes, too
-#
-# Revision 1.24     2004/08/09 18:41:08  ncq
-# - improved ASCII dump
-#
-# Revision 1.23     2004/07/26 00:02:30  ncq
-# - Carlos introduces export of RFE/AOE and dynamic layouting (left margin)
-#
-# Revision 1.22     2004/07/18 10:46:30  ncq
-# - lots of cleanup by Carlos
-#
-# Revision 1.21     2004/07/09 22:39:40  ncq
-# - write to file like object passed to __init__
-#
-# Revision 1.20     2004/07/06 00:26:06  ncq
-# - fail on _cfg is_instance of cNull(), not on missing conf-file option
-#
-# Revision 1.19     2004/07/03 17:15:59  ncq
-# - decouple contraint/patient/outfile handling
-#
-# Revision 1.18     2004/07/02 00:54:04  ncq
-# - constraints passing cleanup by Carlos
-#
-# Revision 1.17     2004/06/30 12:52:36  ncq
-# - cleanup
-#
-# Revision 1.16     2004/06/30 12:43:10  ncq
-# - read opts from config file, cleanup
-#
-# Revision 1.15     2004/06/29 08:16:35  ncq
-# - take output file from command line
-# - *search* for patients, don't require knowledge of their ID
-#
-# Revision 1.14     2004/06/28 16:15:56  ncq
-# - still more faulty id_ found
-#
-# Revision 1.13     2004/06/28 15:52:00  ncq
-# - some comments
-#
-# Revision 1.12     2004/06/28 12:18:52  ncq
-# - more id_* -> fk_*
-#
-# Revision 1.11     2004/06/26 23:45:50  ncq
-# - cleanup, id_* -> fk/pk_*
-#
-# Revision 1.10     2004/06/26 06:53:25  ncq
-# - id_episode -> pk_episode
-# - constrained by date range from Carlos
-# - dump documents folder, too, by Carlos
-#
-# Revision 1.9    2004/06/23 22:06:48     ncq
-# - cleaner error handling
-# - fit for further work by Carlos on UI interface/dumping to file
-# - nice stuff !
-#
-# Revision 1.8    2004/06/20 18:50:53     ncq
-# - some exception catching, needs more cleanup
-#
-# Revision 1.7    2004/06/20 18:35:07     ncq
-# - more work from Carlos
-#
-# Revision 1.6    2004/05/12 14:34:41     ncq
-# - now displays nice vaccination tables
-# - work by Carlos Moro
-#
-# Revision 1.5    2004/04/27 18:54:54     ncq
-# - adapt to gmClinicalRecord
-#
-# Revision 1.4    2004/04/24 13:35:33     ncq
-# - vacc table update
-#
-# Revision 1.3    2004/04/24 12:57:30     ncq
-# - stop db listeners on exit
-#
-# Revision 1.2    2004/04/20 13:00:22     ncq
-# - recent changes by Carlos to use VO API
-#
-# Revision 1.1    2004/03/25 23:10:02     ncq
-# - gmEmrExport -> gmPatientExporter by Carlos' suggestion
-#
-# Revision 1.2    2004/03/25 09:53:30     ncq
-# - added log keyword
-#

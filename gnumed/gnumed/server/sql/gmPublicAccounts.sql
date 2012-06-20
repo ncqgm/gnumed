@@ -1,6 +1,6 @@
--- GnuMed PUBLIC database accounts
+-- GNUmed PUBLIC database accounts
 
--- use for publicly accessible GnuMed databases
+-- use for publicly accessible GNUmed databases
 
 -- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 -- !! NEVER EVER use those accounts/passwords in a  !!
@@ -11,7 +11,7 @@
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmPublicAccounts.sql,v $
 -- $Id: gmPublicAccounts.sql,v 1.8 2006-02-02 16:20:46 ncq Exp $
--- GPL
+-- GPL v2 or later
 -- author: Karsten.Hilbert@gmx.net
 -- ===================================================================
 -- don't fail if user already exists

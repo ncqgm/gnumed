@@ -1,8 +1,8 @@
--- Project: GnuMed - service "Reference"
+-- Project: GNUmed - service "Reference"
 -- ===================================================================
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmReference.sql,v $
 -- $Revision: 1.26 $
--- license: GPL
+-- license: GPL v2 or later
 -- author: Karsten Hilbert
 
 -- these tables hold data that are "reference material" and are naturally

@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# ===========================================================
+# Fetch and unpack a GNUmed data pack.
+#
+# While this CAN be run manually from the command line
+# it is really only intended to be used from within the
+# GNUmed client.
+#
+# Examples:
+#
+#	ATC: gm-download_data http://www.gnumed.de/downloads/data/atc/atc-data.zip /somewhere/
+#
+# ===========================================================
+DL_URL="$1"			# the full URL of the zipped data pack GNUmed wants us to download
+TARGET_DIR="$2"		# the directory in which GNUmed expects to find the unzipped data
+
+# ===========================================================
+ARCHIVE_NAME=`basename ${DL_URL}`
+LOG="${TARGET_DIR}/gm-dl-${ARCHIVE_NAME}.log"
+STAGING_DIR="/tmp/gnumed"
+
+echo "$0" > ${LOG}
+echo "" >> ${LOG} 2>&1
+echo "url: ${DL_URL}" >> ${LOG} 2>&1
+echo "archive name: ${ARCHIVE_NAME}" >> ${LOG} 2>&1
+echo "staging dir: ${STAGING_DIR}/" >> ${LOG} 2>&1
+echo "target dir: ${TARGET_DIR}" >> ${LOG} 2>&1
+echo "" >> ${LOG} 2>&1
+
+# prepare staging area
+mkdir -pv ${STAGING_DIR} >> ${LOG} 2>&1
+if test $? -ne 0 ; then
+	echo "cannot create staging directory, aborting" >> ${LOG} 2>&1
+	exit 1
+fi
+
+# download data pack into /tmp/gnumed/
+wget -vc --progress=dot ${DL_URL} -P ${STAGING_DIR}/ >> ${LOG} 2>&1
+if test $? -ne 0 ; then
+	echo "problem with wget download, aborting" >> ${LOG} 2>&1
+	exit 1
+fi
+
+# unzip into target dir
+unzip -o -d ${TARGET_DIR}/ ${STAGING_DIR}/${ARCHIVE_NAME} >> ${LOG} 2>&1
+if test $? -ne 0 ; then
+	echo "problem with unzipping download, aborting" >> ${LOG} 2>&1
+	exit 1
+fi
+
+# cleanup
+rm -vf ${STAGING_DIR}/${ARCHIVE_NAME} >> ${LOG} 2>&1
+
+exit 0
+# ===========================================================

@@ -3,18 +3,18 @@
 # enough functionality to run gnumed installation scripts
 #
 # Copyright (C) 2003, 2004 - 2010 GNUmed developers
-# Licence: GPL
+# Licence: GPL v2 or later
 #===================================================================
-__version__ = "$Revision: 1.10 $"
 __author__ = "Ian Haywood"
-__license__ = "GPL (details at http://www.gnu.org)"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
 import sys, os, string, re, urllib2, logging
 
 
 _log = logging.getLogger('gm.bootstrapper')
-_log.info(__version__)
+
+unformattable_error_id = 12345
 #===================================================================
 def shellrun (cmd):
 	"""
@@ -51,13 +51,19 @@ class Psql:
 		return ret
 	#---------------------------------------------------------------
 	def fmt_msg(self, aMsg):
-		tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
-		tmp = tmp.replace(u'\r', u'')
-		#tmp = string.replace("%s:%d: %s" % (self.filename, self.lineno-1, aMsg), '\r', '')
-		return tmp.replace(u'\n', u'')
-	#---------------------------------------------------------------
-#	def log (self, level, str):
-#	   _log.Log (level, "%s: line %d: %s" % (self.filename, self.lineno-1, str))
+		try:
+			tmp = u"%s:%d: %s" % (self.filename, self.lineno-1, aMsg)
+			tmp = tmp.replace(u'\r', u'')
+			tmp = tmp.replace(u'\n', u'')
+		except UnicodeDecodeError:
+			global unformattable_error_id
+			tmp = u"%s:%d: <cannot unicode(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
+			try:
+				print 'ERROR: GNUmed bootstrap #%d:' % unformattable_error_id
+				print aMsg
+			except: pass
+			unformattable_error_id += 1
+		return tmp
 	#---------------------------------------------------------------
 	def run (self, filename):
 		"""

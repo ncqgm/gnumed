@@ -3,9 +3,8 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten Hilbert"
-__license__ = 'GPL (details at http://www.gnu.org)'
+__license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
@@ -15,7 +14,6 @@ from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #======================================================================
 class gmMeasurementsGridPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient measurements."""
@@ -30,7 +28,7 @@ class gmMeasurementsGridPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('&Measurements overview'))
+		return ('emr', _('&Measurements'))
 
 	def can_receive_focus(self):
 		if not self._verify_patient_avail():
@@ -43,14 +41,3 @@ if __name__ == "__main__":
 	print "no test code"
 
 #======================================================================
-# $Log: gmMeasurementsGridPlugin.py,v $
-# Revision 1.3  2009-05-08 08:02:01  ncq
-# - cleanup
-#
-# Revision 1.2  2008/06/24 14:01:02  ncq
-# - improved menu item label
-#
-# Revision 1.1  2008/03/25 19:33:15  ncq
-# - new plugin
-#
-#

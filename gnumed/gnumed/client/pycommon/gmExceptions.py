@@ -1,18 +1,44 @@
-#############################################################################
+############################################################################
 #
 # gmExceptions - classes for exceptions gnumed modules may throw
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 #
 # @author: Dr. Horst Herb
 # @copyright: author
-# @license: GPL (details at http://www.gnu.org)
+# @license: GPL v2 or later (details at http://www.gnu.org)
 # @dependencies: nil
 # @change log:
 #	07.02.2002 hherb first draft, untested
-#
-# @TODO: Almost everything
 ############################################################################
 
+class AccessDenied(Exception):
+	def __init__(self, msg, source=None, code=None, details=None):
+		self.errmsg = msg
+		self.source = source
+		self.code = code
+		self.details = details
+	#----------------------------------
+	def __str__(self):
+		txt = self.errmsg
+		if self.source is not None:
+			txt += u'\nSource: %s' % self.source
+		if self.code is not None:
+			txt += u'\nCode: %s' % self.code
+		if self.details is not None:
+			txt += u'\n%s' % self.details
+		return txt
+	#----------------------------------
+	def __repr__(self):
+		txt = self.errmsg
+		if self.source is not None:
+			txt += u'\nSource: %s' % source
+		if self.code is not None:
+			txt += u'\nCode: %s' % self.code
+		if self.details is not None:
+			txt += u'\n%s' % self.details
+		return txt
+
+#------------------------------------------------------------
 class DatabaseObjectInUseError(Exception):
 	def __init__(self, msg):
 		self.errmsg = msg
@@ -81,27 +107,6 @@ class NoSuchBusinessObjectError(ConstructorError):
 	def __str__(self):
 		return self.errmsg
 
-# access errors
-class NoSuchBusinessObjectAttributeError(KeyError):
-	"""Raised when a clinical item attribute can not be found."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "no such business DB-object attribute found"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return self.errmsg
-
-class BusinessObjectAttributeNotSettableError(KeyError):
-	"""Raised when a clinical item attribute is not settable."""
-	def __init__(self, errmsg = None):
-		if errmsg is None:
-			self.errmsg = "business DB-object attribute not settable"
-		else:
-			self.errmsg = errmsg
-	def __str__(self):
-		return self.errmsg
-
 #------------------------------------------------------------
 class InvalidInputError(Exception):
 	"""Raised by business layers when an attempt is made to input
@@ -116,33 +121,3 @@ class InvalidInputError(Exception):
 		return self.errmsg
 
 #=====================================================================
-# $Log: gmExceptions.py,v $
-# Revision 1.9  2007-05-14 10:32:07  ncq
-# - add exception DatabaseObjectInUseError
-#
-# Revision 1.8  2006/11/24 09:51:00  ncq
-# - don't blindly str() self.errmsg as this may not actually be possible (easily, with encodings)
-#
-# Revision 1.7  2006/10/10 07:27:34  ncq
-# - no more ClinItem exceptions
-#
-# Revision 1.6  2004/10/11 19:07:36  ncq
-# - add exceptions for business db class
-#
-# Revision 1.5  2004/06/02 12:51:45  ncq
-# - add exceptions tailored to cClinItem __set/getitem__()
-#   errors as per Syan's suggestion
-#
-# Revision 1.4  2004/05/08 17:31:31  ncq
-# - add NoSuchClinItemError
-#
-# Revision 1.3  2004/03/27 04:37:01  ihaywood
-# lnk_person2address now lnk_person_org_address
-# sundry bugfixes
-#
-# Revision 1.2  2004/03/10 00:14:04  ncq
-# - fix imports
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#

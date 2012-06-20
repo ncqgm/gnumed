@@ -1,10 +1,17 @@
 #!/bin/bash
 
-# maybe force some locale setting here
-#export LANGUAGE=fr
 
-# if there are unicode troubles you can force to ASCII with this:
-#export LANGUAGE=en
+# useful for reproducing problems with certain LOCALE settings
+# (set values from a --debug log file)
+#export LANGUAGE=
+#export LC_NUMERIC=
+#export LC_MESSAGES=
+#export LC_MONETARY=
+#export LC_COLLATE=
+#export LC_CTYPE=
+#export LC_ALL=
+#export LC_TIME=
+#export LANG=
 
 
 # source systemwide startup extension shell script if it exists

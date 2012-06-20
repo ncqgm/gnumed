@@ -35,7 +35,7 @@ if __name__ == '__main__':
 	if rows is None:
 		_log.error('cannot retrieve untranslated strings')
 		sys.exit('cannot retrieve untranslated strings')
-	if len(rows) is None:
+	if len(rows) == 0:
 		_log.error('no untranslated strings available')
 		print "nothing to translate"
 		sys.exit(0)
@@ -50,31 +50,3 @@ if __name__ == '__main__':
 	# cleanup
 	print "done"
 #============================================================
-# $Log: dump-missing-db_translations.py,v $
-# Revision 1.9  2009-02-10 18:51:18  ncq
-# - document usage
-#
-# Revision 1.8  2008/08/17 12:07:56  ncq
-# - adjust to new middleware
-#
-# Revision 1.7  2007/06/12 13:23:06  ncq
-# - make it work with gmPG2
-#
-# Revision 1.6  2006/05/16 15:56:20  ncq
-# - cleanup
-#
-# Revision 1.5  2006/01/09 13:48:23  ncq
-# - adjust to schema "i18n"
-#
-# Revision 1.4  2005/03/31 20:11:22  ncq
-# - use i18n_upd_tx()
-#
-# Revision 1.3  2004/05/22 11:50:55  ncq
-# - fix imports
-#
-# Revision 1.2  2004/01/12 17:15:18  ncq
-# - removed extra "values" in SQL template
-#
-# Revision 1.1  2003/12/29 14:57:37  uid66147
-# - dumps missing translations from GnuMed database
-#

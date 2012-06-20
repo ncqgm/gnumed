@@ -4,7 +4,7 @@
 # Source database version: v6
 # Target database version: v7
 #
-# License: GPL
+# License: GPL v2 or later
 # Author: karsten.hilbert@gmx.net
 # 
 #==============================================================

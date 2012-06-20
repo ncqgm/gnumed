@@ -108,7 +108,7 @@ Karsten Hilbert schrieb:
 >Due to your suggestion I enhanced our daily cron job such that
 >now we offer daily snapshot database dumps. There are now:
 >
->http://salaam.homeunix.com/~ncq/gnumed/schema/...
+>http://publicdb.gnumed.de/~ncq/gnumed/schema/...
 >
 >-> gm-data-dump.sql
 >-> gm-schema-dump.sql
@@ -116,7 +116,7 @@ Karsten Hilbert schrieb:
 >
 >Those are also linked in the Wiki:
 >
->http://salaam.homeunix.com/twiki/bin/view/Gnumed/DatabaseSchema
+>http://publicdb.gnumed.de/twiki/bin/view/Gnumed/DatabaseSchema
 >
 >However,
 >  
@@ -152,7 +152,7 @@ Karsten Hilbert schrieb:
 >>
 >There are README/INSTALL files in the very root of the
 >CVS tree. They don't talk about setting up a new database
->because that is not for people trying GnuMed first time
+>because that is not for people trying GNUmed first time
 >around. However, the files should talk about using the
 >public servers. They now do.
 >
@@ -174,9 +174,9 @@ Karsten Hilbert schrieb:
 >   generators available
 >b) because no one voluntuered to regularly update graphical
 >   schema pictures with a manual tool
->c) GnuMed DOES HAVE detailed graphical schema in several formats:
+>c) GNUmed DOES HAVE detailed graphical schema in several formats:
 >
->   http://salaam.homeunix.com/twiki/bin/view/Gnumed/DatabaseSchema
+>   http://publicdb.gnumed.de/twiki/bin/view/Gnumed/DatabaseSchema
 >
 >Please tell us how we can improve the situation so
 >people find it.
@@ -209,7 +209,7 @@ Karsten Hilbert schrieb:
 >>has to do if it will stay and grow)
 >>    
 >>
->GnuMed has shared it's database schema from day -1.
+>GNUmed has shared it's database schema from day -1.
 >
 >  
 >

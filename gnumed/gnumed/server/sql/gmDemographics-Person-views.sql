@@ -2,7 +2,7 @@
 
 -- purpose: views for easier identity access
 -- author: Karsten Hilbert
--- license: GPL (details at http://gnu.org)
+-- license: GPL v2 or later (details at http://gnu.org)
 
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmDemographics-Person-views.sql,v $
 -- $Id: gmDemographics-Person-views.sql,v 1.55 2006-08-04 05:40:27 ncq Exp $

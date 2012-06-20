@@ -1,0 +1,85 @@
+%------------------------------------------------------------------
+% Author: Karsten Hilbert
+% License: GPL v2 or later
+%
+%------------------------------------------------------------------
+
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+%\usepackage[a4paper]{geometry}
+\usepackage[a5paper]{geometry}
+\usepackage{hyperref}
+
+%\geometry{verbose,lmargin=2.54cm}
+\geometry{verbose,lmargin=1cm}
+\pagestyle{empty}
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\makeatother
+
+\usepackage{babel}
+
+\begin{document}
+
+\footnotetext {\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Dokumentenvorlage: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+
+\noindent \begin{center}
+{\LARGE Most Recent Vaccinations}%
+\par\end{center}
+
+\noindent \begin{center}
+{\large Printed $<today::%Y %B %d>$}
+\par\end{center}{\large \par}
+
+\noindent \begin{center}
+{\large By $<current_provider>$}
+\par\end{center}{\large \par}
+
+\noindent Patient: $<lastname>$, $<firstname>$
+
+\noindent Birthdate: $<date_of_birth::%Y %B %d>$
+
+{\footnotesize
+	$<adr_street::home>$ $<adr_number::home>$ \\
+	$<adr_postcode::home>$ $<adr_location::home>$
+}
+
+\vspace*{\medskipamount}
+
+$<latest_vaccs_table::latex>$
+
+\vfill{}
+
+\noindent Known allergies:
+
+\begin{tabular}{|l|l|l|}
+\hline 
+Agent & Type & Reaction\tabularnewline
+\hline
+\hline 
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline >$
+\end{tabular}
+
+\medskip{}
+
+
+\noindent \begin{flushright}
+\texttt{\textsl{\footnotesize Practice Stamp / Physician Signature}}
+\par\end{flushright}
+\end{document}
+
+%------------------------------------------------------------------

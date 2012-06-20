@@ -1,0 +1,59 @@
+%% GNUmed Consultation Report LaTeX template
+%% This document is an integral part of the GNUmed project, find us at <wiki.gnumed.de>
+%------------------------------------------------------------------
+% License: GPL v2 or later
+%
+%------------------------------------------------------------------
+
+\documentclass[10pt,english]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage{array}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{babel}
+\usepackage{longtable}
+
+\usepackage[a4paper]{geometry}
+\geometry{verbose,lmargin=2.54cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead {$<title>$ $<lastname>$, $<firstname>$ ($<date_of_birth::%Y %B %d>$) -- Consultation Report}
+\cfoot {\thepage}
+
+
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+
+\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny $<tex_escape::GNUmed-default_consultation_report_template.tex>$}
+
+\title {Consultation Report for: \\ \emph {$<title>$ $<lastname>$, $<firstname>$}}
+\author {From $<current_provider>$, written on:}
+\maketitle 
+
+
+\noindent
+\begin{longtable}{l>{\raggedright}p{15cm}}
+$<soap_for_encounters::soap//::99999>$
+\end{longtable}
+
+
+\begin{tabular}{c}
+\rule{0pt}{10ex} \texttt {\textsl {\footnotesize <Practice Stamp / Signature>}}\\
+\rule{0pt}{4ex} {\footnotesize $<current_provider>$}\\
+\hline
+\tiny The above physician cannot be held responsible for unconfirmed content or alterations to this letter. \\
+\end{tabular}
+
+\end{document}
+
+%------------------------------------------------------------------

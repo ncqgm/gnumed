@@ -1,10 +1,8 @@
 -- GNUmed office related/administrative tables
 
--- This is free software in the sense of the General Public License (GPL)
--- For details regarding GPL licensing see http://gnu.org
+-- This is free software in the sense of the General Public License (GPL v2 or later)
+-- For details regarding GPL v2 or later licensing see http://gnu.org
 
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmoffice.sql,v $
--- $Revision: 1.15 $ $Date: 2005-12-05 16:17:24 $ $Author: ncq $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1

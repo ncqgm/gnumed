@@ -1,8 +1,6 @@
 """GNUmed SOAP related widgets.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmSOAPWidgets.py,v $
-# $Id: gmSOAPWidgets.py,v 1.114 2010-01-11 19:59:13 ncq Exp $
 __version__ = "$Revision: 1.114 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
@@ -18,7 +16,7 @@ import wx
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -344,9 +342,9 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 #	def _on_application_closing(self):
 #		"""GNUmed is shutting down."""
 #		print "[%s]: the application is closing down" % self.__class__.__name__
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 #		print "need to ask user about SOAP saving !"
-#		print "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+#		print "************************************"
 	#--------------------------------------------------------
 #	def _on_episodes_modified(self):
 #		print "[%s]: episode modified" % self.__class__.__name__
@@ -820,7 +818,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 
 		# set up clinical context in progress note
 		encounter = emr.active_encounter
-		staff_id = gmPerson.gmCurrentProvider()['pk_staff']
+		staff_id = gmStaff.gmCurrentProvider()['pk_staff']
 		clin_ctx = {
 			gmSOAPimporter.soap_bundle_EPISODE_ID_KEY: epi_id,
 			gmSOAPimporter.soap_bundle_ENCOUNTER_ID_KEY: encounter['pk_encounter'],
@@ -900,7 +898,7 @@ class cResizingSoapPanel(wx.Panel):
 			# make Richard the default ;-)
 			# FIXME: actually, should be read from backend
 			line = cSOAPLineDef()
-			line.label = _('Patient Request')
+			line.label = _('Visit Purpose')
 			line.soap_cat = 's'
 			line.is_rfe = True
 			soap_lines.append(line)
@@ -1177,7 +1175,7 @@ if __name__ == "__main__":
 
 	try:
 		# obtain patient
-		patient = gmPerson.ask_for_patient()
+		patient = gmPersonSearch.ask_for_patient()
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
@@ -1238,446 +1236,3 @@ if __name__ == "__main__":
 		raise
 
 #============================================================
-# $Log: gmSOAPWidgets.py,v $
-# Revision 1.114  2010-01-11 19:59:13  ncq
-# - cleanup
-# - warn-on-unsaved-soap and use it
-#
-# Revision 1.113  2009/09/13 18:45:25  ncq
-# - no more get-active-encounter()
-#
-# Revision 1.112  2009/06/22 09:28:21  ncq
-# - improved wording as per list
-#
-# Revision 1.111  2009/06/20 22:39:27  ncq
-# - improved wording as per list discussion
-#
-# Revision 1.110  2009/06/04 16:30:30  ncq
-# - use set active patient from pat search widgets
-#
-# Revision 1.109  2009/02/10 18:40:07  ncq
-# - allow one editor per issue regardless of opening order
-#
-# Revision 1.108  2008/12/12 16:36:36  ncq
-# - better tooltip
-#
-# Revision 1.107  2008/11/20 20:17:50  ncq
-# - better docs
-#
-# Revision 1.106  2008/09/02 19:01:12  ncq
-# - adjust to clin health_issue fk_patient drop and related changes
-#
-# Revision 1.105  2008/08/08 13:32:59  ncq
-# - factor out save_unsaved_soap()
-# - register and act on pre-exit callback
-# - some cleanup
-#
-# Revision 1.104  2008/08/05 16:22:17  ncq
-# - cleanup
-#
-# Revision 1.103  2008/07/14 13:48:16  ncq
-# - properly save unsaved soap
-# - cleanup
-#
-# Revision 1.102  2008/07/10 21:04:10  ncq
-# - better comments
-# - experimental pre-selection SOAP saving
-#
-# Revision 1.101  2008/06/28 22:37:39  ncq
-# - visual improvement
-# - improved code comments
-# - add button to discard current editor
-# - prepare for saving soap on patient change/shutdown
-# - allow backing out of saving soap when asked for title of new episode
-#
-# Revision 1.100  2008/03/05 22:30:15  ncq
-# - new style logging
-#
-# Revision 1.99  2008/02/25 17:43:03  ncq
-# - keywords: ea -> ea$, phx -> phx$
-# - fix add_editor()
-# - clinical logic change for adding new editors
-#
-# Revision 1.98  2008/01/14 20:42:26  ncq
-# - don't crash on adding an empty editor
-#
-# Revision 1.97  2008/01/05 16:41:27  ncq
-# - remove logging from gm_show_*()
-#
-# Revision 1.96  2007/12/12 16:24:57  ncq
-# - explicit signals
-#
-# Revision 1.95  2007/09/24 22:05:57  ncq
-# - ask user for episode name when needed
-#
-# Revision 1.94  2007/08/12 00:12:41  ncq
-# - no more gmSignals.py
-#
-# Revision 1.93  2007/05/14 13:11:25  ncq
-# - use statustext() signal
-#
-# Revision 1.92  2007/03/08 11:53:59  ncq
-# - cleanup
-#
-# Revision 1.91  2007/03/02 15:39:13  ncq
-# - properly refresh widgets
-#
-# Revision 1.90  2007/02/17 14:02:11  ncq
-# - use improved coalesce()
-#
-# Revision 1.89  2007/02/04 16:14:23  ncq
-# - remove VSCROLL/HSCROLL for Mac
-#
-# Revision 1.88  2007/01/15 20:22:46  ncq
-# - move_episode_to_issue() is in gmEMRStructWidgets
-#
-# Revision 1.87  2007/01/15 13:05:38  ncq
-# - use move_episode_to_issue()
-#
-# Revision 1.86  2006/12/15 15:28:37  ncq
-# - signal problem saving progress note
-#
-# Revision 1.85  2006/11/28 20:53:41  ncq
-# - a missing Refresh()
-#
-# Revision 1.84  2006/11/26 17:13:17  ncq
-# - properly check for duplicate episode editors in add_editor when problem is None
-#
-# Revision 1.83  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.82  2006/11/20 18:23:53  ncq
-# - smarten up add_editor() with allow_same_problem
-# - after save() open new unassociated editor if none there and refresh problem list
-#
-# Revision 1.81  2006/11/20 16:04:45  ncq
-# - improve problem list problem labels (show associated issue for episodes)
-#
-# Revision 1.80  2006/10/31 13:32:58  ncq
-# - cleanup
-# - require only rfe
-#
-# Revision 1.79  2006/10/25 07:46:44  ncq
-# - Format() -> strftime() since datetime.datetime does not have .Format()
-#
-# Revision 1.78  2006/10/25 07:25:38  ncq
-# - drop minimum soap entry as requested by user
-#
-# Revision 1.77  2006/10/23 13:23:04  ncq
-# - we don't need vacc widgets currently
-#
-# Revision 1.76  2006/10/08 11:08:42  ncq
-# - move to gmPG2 and only when testing
-#
-# Revision 1.75  2006/09/01 14:47:02  ncq
-# - fix typo
-#
-# Revision 1.74  2006/07/19 20:29:50  ncq
-# - import cleanup
-#
-# Revision 1.73  2006/06/20 14:26:36  ncq
-# - do not refresh problem list too early or threading will kill us
-#
-# Revision 1.72  2006/06/17 19:56:24  ncq
-# - immediately refresh problem list when episode_changed() signal arrives
-#
-# Revision 1.71  2006/06/17 14:26:30  ncq
-# - missing return True
-#
-# Revision 1.70  2006/06/17 14:00:03  ncq
-# - cleanup
-#
-# Revision 1.69  2006/05/15 13:36:00  ncq
-# - signal cleanup:
-#   - activating_patient -> pre_patient_selection
-#   - patient_selected -> post_patient_selection
-#
-# Revision 1.68  2006/05/12 12:18:11  ncq
-# - whoami -> whereami cleanup
-# - use gmCurrentProvider()
-#
-# Revision 1.67  2006/05/04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.66  2006/01/03 12:12:03  ncq
-# - make epydoc happy re _()
-#
-# Revision 1.65  2005/12/27 19:01:07  ncq
-# - define vacc popup keyword just for testing
-# - slightly massage Syan's close-episodes-on-creation patch
-#
-# Revision 1.64  2005/12/27 02:52:40  sjtan
-#
-# allow choice of closing old episode, or relinking to old episode, whenever opening a new episode in the present of an already open episode of an issue.
-# Small logic error fixed where the id of the health_issue was passed in as the id of an episode.
-#
-# Revision 1.63  2005/12/26 12:03:10  sjtan
-#
-# more schema matching. some delegation .
-#
-# Revision 1.62  2005/10/21 09:25:52  ncq
-# - verify input structure in store_data()
-# - reorder __init__ so cSoapWin does not fail
-# - better recursion in data_sink setting for keywords
-#
-# Revision 1.61  2005/10/20 07:44:44  ncq
-# - cleanup++, some refactoring for clarity
-# - new way of handling popup data
-#
-# Revision 1.60  2005/10/04 13:09:49  sjtan
-# correct syntax errors; get soap entry working again.
-#
-# Revision 1.59  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.58  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.57  2005/09/27 20:44:59  ncq
-# - wx.wx* -> wx.*
-#
-# Revision 1.56  2005/09/26 18:01:51  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.55  2005/09/26 04:31:27  ihaywood
-# allow problem to be passed to clinical popup EditAreas
-#
-# Revision 1.54  2005/09/12 15:10:43  ncq
-# - robustify auto-closing of episodes
-#
-# Revision 1.53  2005/09/11 17:39:54  ncq
-# - auto-close episodes older than 90 days when a new episode
-#   for the same health issue is started by the user,
-#   still lacking user interaction for "old" episodes younger than that
-#
-# Revision 1.52  2005/09/09 13:53:03  ncq
-# - make progress note editor deal with cProblem instances and
-#   add appropriate casts in callers, thereby simplifying code
-# - auto-generate episode names where appropriate
-#
-# Revision 1.51  2005/08/22 13:27:47  ncq
-# - properly return error from SetHeadingTxt
-#
-# Revision 1.50  2005/07/21 21:01:26  ncq
-# - cleanup
-#
-# Revision 1.49  2005/06/20 13:15:02  cfmoro
-# Port to changes in cEpisodeSelector
-#
-# Revision 1.48  2005/05/17 08:10:44  ncq
-# - rearrange/relabel buttons/drop "discard" button on progress
-#    notes notebook according to user feedback
-#
-# Revision 1.47  2005/05/14 14:59:41  ncq
-# - cleanups, teach proper levels to listen to signals
-# - listen to "activating_patient" so we can save progress notes *before* changing patient
-# - reset SOAP notebook on patient_selected
-#
-# Revision 1.46  2005/05/12 15:12:57  ncq
-# - improved problem list look and feel
-#
-# Revision 1.45  2005/05/08 21:49:11  ncq
-# - cleanup, improve test code
-# - add progress note editor notebook and use it
-# - teach cResizingSoapPanel how to save itself
-#
-# Revision 1.44  2005/05/06 15:32:11  ncq
-# - initial notebooked progress note input widget and test code
-#
-# Revision 1.43  2005/05/05 06:50:27  ncq
-# - more work on pre-0.1 issues: use BoxSizer instead of FlexGridSizer
-#   for progress note editor so STC *should* occupy whole width of
-#   multisash, however, redrawing makes it wrong again at times
-# - add dummy popup keywords for pending ICPC coding
-# - try to drop from heading to STC on enter
-# - make TAB move from heading to STC
-# - we might want to make the header part of the same TAB container as the STC
-#
-# Revision 1.42  2005/04/27 18:51:06  ncq
-# - slightly change Syans fix for the failing soap import to properly
-#   take advantage of the existing infrastructure, my bad
-#
-# Revision 1.41  2005/04/27 14:49:38  sjtan
-#
-# allow the save clin_item to work by fixing a small bug where soap_cat isn't passed.
-#
-# Revision 1.40  2005/04/25 08:34:03  ncq
-# - cleanup
-# - don't display closed episodes in problem list
-# - don't wipe out half-baked progress notes when switching
-#   back and forth after relevant backend changes
-#
-# Revision 1.39  2005/04/24 14:52:15  ncq
-# - use generic edit area popup for health issues
-#
-# Revision 1.38  2005/04/20 22:22:41  ncq
-# - create_vacc_popup/create_issue_popup
-#
-# Revision 1.37  2005/04/18 19:25:50  ncq
-# - configure Plan input field to popup vaccinations edit area
-#   on keyword $vacc
-# - simplify cSoapLineDef because progress note input widget
-#   is not used to *edit* progress notes ...
-#
-# Revision 1.36  2005/04/12 16:22:28  ncq
-# - remove faulty _()
-#
-# Revision 1.35  2005/04/12 10:06:06  ncq
-# - cleanup
-#
-# Revision 1.34  2005/04/03 20:18:27  ncq
-# - I feel haphazardous - enable actual progress note writing on [save]  :-))
-#
-# Revision 1.33  2005/03/29 18:43:06  cfmoro
-# Removed debugging lines O:)
-#
-# Revision 1.32  2005/03/29 18:40:55  cfmoro
-# Fixed last encounter date when does not exists
-#
-# Revision 1.31  2005/03/29 07:31:01  ncq
-# - according to user feedback:
-#   - switch sides for problem selection/progress note editor
-#   - add header to problem list
-#   - improve problem list formatting/display "last open"
-# - remove debugging code
-#
-# Revision 1.30  2005/03/18 16:48:41  cfmoro
-# Fixes to integrate multisash notes input plugin in wxclient
-#
-# Revision 1.29  2005/03/17 21:23:16  cfmoro
-# Using cClinicalRecord.problem2episode to take advantage of episode cache
-#
-# Revision 1.28  2005/03/17 19:53:13  cfmoro
-# Fixes derived from different combination of events. Replaced button state by per action sanity check for 0.1
-#
-# Revision 1.27  2005/03/17 17:48:20  cfmoro
-# Using types.NoneType to detect unassociated progress note
-#
-# Revision 1.26  2005/03/17 16:41:30  ncq
-# - properly allow explicit None episodes to indicate "unassociated"
-#
-# Revision 1.25  2005/03/17 13:35:23  ncq
-# - some cleanup
-#
-# Revision 1.24  2005/03/16 19:29:22  cfmoro
-# cResizingSoapPanel accepting cProblem instance of type episode
-#
-# Revision 1.23  2005/03/16 17:47:30  cfmoro
-# Minor fixes after moving the file. Restored test harness
-#
-# Revision 1.22  2005/03/15 08:07:52  ncq
-# - incorporated cMultiSashedProgressNoteInputPanel from Carlos' test area
-# - needs fixing/cleanup
-# - test harness needs to be ported
-#
-# Revision 1.21  2005/03/14 21:02:41  cfmoro
-# Handle changing text in unassociated notes
-#
-# Revision 1.20  2005/03/14 18:41:53  cfmoro
-# Indent fix
-#
-# Revision 1.19  2005/03/14 18:39:49  cfmoro
-# Clear phrasewheel on saving unassociated note
-#
-# Revision 1.18  2005/03/14 17:36:51  cfmoro
-# Added unit test for unassociated progress note
-#
-# Revision 1.17  2005/03/14 14:39:18  ncq
-# - somewhat improve Carlos' support for unassociated progress notes
-#
-# Revision 1.16  2005/03/13 09:05:06  cfmoro
-# Added intial support for unassociated progress notes
-#
-# Revision 1.15  2005/03/09 19:41:18  cfmoro
-# Decoupled cResizingSoapPanel from editing problem-encounter soap notes use case
-#
-# Revision 1.14  2005/03/04 19:44:28  cfmoro
-# Minor fixes from unit test
-#
-# Revision 1.13  2005/03/03 21:12:49  ncq
-# - some cleanups, switch to using data transfer classes
-#   instead of complex and unwieldy dictionaries
-#
-# Revision 1.12  2005/02/23 03:20:44  cfmoro
-# Restores SetProblem function. Clean ups
-#
-# Revision 1.11  2005/02/21 19:07:42  ncq
-# - some cleanup
-#
-# Revision 1.10  2005/01/31 10:37:26  ncq
-# - gmPatient.py -> gmPerson.py
-#
-# Revision 1.9  2005/01/28 18:35:42  cfmoro
-# Removed problem idx number
-#
-# Revision 1.8  2005/01/18 13:38:24  ncq
-# - cleanup
-# - input_defs needs to be list as dict does not guarantee order
-# - make Richard-SOAP the default
-#
-# Revision 1.7  2005/01/17 19:55:28  cfmoro
-# Adapted to receive cProblem instances for SOAP edition
-#
-# Revision 1.6  2005/01/13 14:28:07  ncq
-# - cleanup
-#
-# Revision 1.5  2005/01/11 08:12:39  ncq
-# - fix a whole bunch of bugs from moving to main trunk
-#
-# Revision 1.4  2005/01/10 20:14:02  cfmoro
-# Import sys
-#
-# Revision 1.3  2005/01/10 17:50:36  ncq
-# - carry over last bits and pieces from test-area
-#
-# Revision 1.2  2005/01/10 17:48:03  ncq
-# - all of test_area/cfmoro/soap_input/gmSoapWidgets.py moved here
-#
-# Revision 1.1  2005/01/10 16:14:35  ncq
-# - soap widgets independant of the backend (gmPG) live in here
-#
-# Revision 1.13	 2004/06/30 20:33:41  ncq
-# - add_clinical_note() -> add_clin_narrative()
-#
-# Revision 1.12	 2004/03/09 07:54:32  ncq
-# - can call __save_note() from button press handler directly
-#
-# Revision 1.11	 2004/03/08 23:35:10  shilbert
-# - adapt to new API from Gnumed.foo import bar
-#
-# Revision 1.10	 2004/02/25 09:46:22  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.9	2004/02/05 23:49:52	 ncq
-# - use wxCallAfter()
-#
-# Revision 1.8	2003/11/09 14:29:11	 ncq
-# - new API style in clinical record
-#
-# Revision 1.7	2003/10/26 01:36:13	 ncq
-# - gmTmpPatient -> gmPatient
-#
-# Revision 1.6	2003/07/05 12:57:23	 ncq
-# - catch one more error on saving note
-#
-# Revision 1.5	2003/06/26 22:26:04	 ncq
-# - streamlined _save_note()
-#
-# Revision 1.4	2003/06/25 22:51:24	 ncq
-# - now also handle signale application_closing()
-#
-# Revision 1.3	2003/06/24 12:57:05	 ncq
-# - actually connect to backend
-# - save note on patient change and on explicit save request
-#
-# Revision 1.2	2003/06/22 16:20:33	 ncq
-# - start backend connection
-#
-# Revision 1.1	2003/06/19 16:50:32	 ncq
-# - let's make something simple but functional first
-#
-#

@@ -1,4 +1,4 @@
-# GnuMed form printer design study
+# GNUmed form printer design study
 
 __doc__ = """
 Module to print a form using the wx. toolkit.
@@ -346,30 +346,3 @@ fp = FormPrinter ()
 psd = gmPrinterSetupDialog (fp)
 
 #=================================================
-# $Log: gmFormPrinter.py,v $
-# Revision 1.12  2009-01-15 11:35:41  ncq
-# - cleanup
-#
-# Revision 1.11  2008/03/06 18:29:29  ncq
-# - standard lib logging only
-#
-# Revision 1.10  2006/10/25 07:21:57  ncq
-# - no more gmPG
-#
-# Revision 1.9  2006/01/03 12:12:03  ncq
-# - make epydoc happy re _()
-#
-# Revision 1.8  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.7  2005/09/28 15:57:48  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.6  2005/09/26 18:01:50  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.5  2004/06/20 16:01:05  ncq
-# - please epydoc more carefully
-#

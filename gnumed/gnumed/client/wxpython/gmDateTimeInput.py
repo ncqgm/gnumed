@@ -1,34 +1,495 @@
-# -*- coding: iso-8859-1 -*-
 """GNUmed date input widget
 
 All GNUmed date input should happen via classes in
-this module. Initially this is just a plain text box
-but using this throughout GNUmed will allow us to
-transparently add features.
+this module.
 
 @copyright: author(s)
 """
 #==============================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDateTimeInput.py,v $
-# $Id: gmDateTimeInput.py,v 1.66 2009-12-21 15:04:57 ncq Exp $
 __version__ = "$Revision: 1.66 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
-__licence__ = "GPL (details at http://www.gnu.org)"
+__licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
+# standard libary
 import re, string, sys, time, datetime as pyDT, logging
 
 
-import mx.DateTime as mxDT, wx
+# 3rd party
+import mx.DateTime as mxDT
+import wx
+import wx.calendar
 
 
 # GNUmed specific
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmMatchProvider, gmDateTime
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmI18N
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers
 
 _log = logging.getLogger('gm.ui')
 
+#============================================================
+#class cIntervalMatchProvider(gmMatchProvider.cMatchProvider):
+#	"""Turns strings into candidate intervals."""
+#	def __init__(self):
+#
+#		gmMatchProvider.cMatchProvider.__init__(self)
+#
+#		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
+#		self.word_separators = None
+##		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+#	#--------------------------------------------------------
+#	# external API
+#	#--------------------------------------------------------
+#	#--------------------------------------------------------
+#	# base class API
+#	#--------------------------------------------------------
+#	def getMatchesByPhrase(self, aFragment):
+#		intv = gmDateTime.str2interval(str_interval = aFragment)
+#
+#		if intv is None:
+#			return (False, [])
+#
+#		items = [{
+#			'data': intv,
+#			'field_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes),
+#			'list_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes)
+#		}]
+#
+#		return (True, items)
+#	#--------------------------------------------------------
+#	def getMatchesByWord(self, aFragment):
+#		return self.getMatchesByPhrase(aFragment)
+#	#--------------------------------------------------------
+#	def getMatchesBySubstr(self, aFragment):
+#		return self.getMatchesByPhrase(aFragment)
+#	#--------------------------------------------------------
+#	def getAllMatches(self):
+#		matches = (False, [])
+#		return matches
+#============================================================
+class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.phrase_separators = None
+		self.display_accuracy = None
+	#--------------------------------------------------------
+	# phrasewheel internal API
+	#--------------------------------------------------------
+	def _update_candidates_in_picklist(self, val):
+		intv = gmDateTime.str2interval(str_interval = val)
+		if intv is None:
+			self._current_match_candidates = []
+		else:
+			self._current_match_candidates = [{
+				'data': intv,
+				'field_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes),
+				'list_label': gmDateTime.format_interval(intv, gmDateTime.acc_minutes)
+			}]
+		self._picklist.SetItems(self._current_match_candidates)
+	#---------------------------------------------------------
+#	def _on_lose_focus(self, event):
+#		# are we valid ?
+#		if len(self._data) == 0:
+#			self._set_data_to_first_match()
+#
+#		# let the base class do its thing
+#		super(cIntervalPhraseWheel, self)._on_lose_focus(event)
+	#--------------------------------------------------------
+	def _picklist_item2display_string(self, item=None):
+		intv = item['data']
+		if intv is not None:
+			return gmDateTime.format_interval (
+				interval = intv,
+				accuracy_wanted = self.display_accuracy
+			)
+		return item['field_label']
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		intv = self.GetData()
+		if intv is None:
+			return u''
+		return gmDateTime.format_interval (
+			interval = intv,
+			accuracy_wanted = self.display_accuracy
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def SetValue(self, value):
+
+		if isinstance(value, pyDT.timedelta):
+			self.SetText(data = value, suppress_smarts = True)
+			return
+
+		if value is None:
+			value = u''
+
+		super(cIntervalPhraseWheel, self).SetValue(value)
+	#--------------------------------------------------------
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
+
+		if data is not None:
+			if value.strip() == u'':
+				value = gmDateTime.format_interval (
+					interval = data,
+					accuracy_wanted = self.display_accuracy
+				)
+
+		super(cIntervalPhraseWheel, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+	#--------------------------------------------------------
+	def SetData(self, data=None):
+		if data is None:
+			super(cIntervalPhraseWheel, self).SetText(u'', None)
+			return
+
+		value = gmDateTime.format_interval (
+			interval = data,
+			accuracy_wanted = self.display_accuracy
+		)
+		super(cIntervalPhraseWheel, self).SetText(value = value, data = data)
+	#--------------------------------------------------------
+	def GetData(self):
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
+
+		return super(cIntervalPhraseWheel, self).GetData()
+#============================================================
+class cCalendarDatePickerDlg(wx.Dialog):
+	"""Shows a calendar control from which the user can pick a date."""
+	def __init__(self, parent):
+
+		wx.Dialog.__init__(self, parent, title = _('Pick a date ...'))
+		panel = wx.Panel(self, -1)
+
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		panel.SetSizer(sizer)
+
+		cal = wx.calendar.CalendarCtrl(panel)
+
+		if sys.platform != 'win32':
+			# gtk truncates the year - this fixes it
+			w, h = cal.Size
+			cal.Size = (w+25, h)
+			cal.MinSize = cal.Size
+
+		sizer.Add(cal, 0)
+
+		button_sizer = wx.BoxSizer(wx.HORIZONTAL)
+		button_sizer.Add((0, 0), 1)
+		btn_ok = wx.Button(panel, wx.ID_OK)
+		btn_ok.SetDefault()
+		button_sizer.Add(btn_ok, 0, wx.ALL, 2)
+		button_sizer.Add((0, 0), 1)
+		btn_can = wx.Button(panel, wx.ID_CANCEL)
+		button_sizer.Add(btn_can, 0, wx.ALL, 2)
+		button_sizer.Add((0, 0), 1)
+		sizer.Add(button_sizer, 1, wx.EXPAND | wx.ALL, 10)
+		sizer.Fit(panel)
+		self.ClientSize = panel.Size
+
+		cal.Bind(wx.EVT_KEY_DOWN, self.__on_key_down)
+		cal.SetFocus()
+		self.cal = cal
+	#-----------------------------------------------------------
+	def __on_key_down(self, evt):
+		code = evt.KeyCode
+		if code == wx.WXK_TAB:
+			self.cal.Navigate()
+		elif code in (wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER):
+			self.EndModal(wx.ID_OK)
+		elif code == wx.WXK_ESCAPE:
+			self.EndModal(wx.ID_CANCEL)
+		else:
+			evt.Skip()
+
+#============================================================
+class cDateMatchProvider(gmMatchProvider.cMatchProvider):
+	"""Turns strings into candidate dates.
+
+	Matching on "all" (*, '') will pop up a calendar :-)
+	"""
+	def __init__(self):
+
+		gmMatchProvider.cMatchProvider.__init__(self)
+
+		self.setThresholds(aPhrase = 1, aWord = 998, aSubstring = 999)
+		self.word_separators = None
+#		self.ignored_chars("""[?!."'\\(){}\[\]<>~#*$%^_]+""")
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	#--------------------------------------------------------
+	# base class API
+	#--------------------------------------------------------
+	# internal matching algorithms
+	#
+	# if we end up here:
+	#	- aFragment will not be "None"
+	#   - aFragment will be lower case
+	#	- we _do_ deliver matches (whether we find any is a different story)
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+		matches = gmDateTime.str2pydt_matches(str2parse = aFragment.strip())
+
+		if len(matches) == 0:
+			return (False, [])
+
+		items = []
+		for match in matches:
+			if match['data'] is None:
+				items.append ({
+					'data': None,
+					'field_label': match['label'],
+					'list_label': match['label']
+				})
+				continue
+
+			data = match['data'].replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				microsecond = 111111
+			)
+			list_label = gmDateTime.pydt_strftime (
+				data,
+				format = '%A, %d. %B %Y (%x)',
+				accuracy = gmDateTime.acc_days
+			)
+			items.append ({
+				'data': data,
+				'field_label': match['label'],
+				'list_label': list_label
+			})
+
+		return (True, items)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+		return self.getMatchesByPhrase(aFragment)
+	#--------------------------------------------------------
+	def getAllMatches(self):
+		"""Return all items."""
+
+		matches = (False, [])
+		return matches
+
+#		# consider this:
+#		dlg = cCalendarDatePickerDlg(None)
+#		# FIXME: show below parent
+#		dlg.CentreOnScreen()
+#
+#		if dlg.ShowModal() == wx.ID_OK:
+#			date = dlg.cal.Date
+#			if date is not None:
+#				if date.IsValid():
+#					date = gmDateTime.wxDate2py_dt(wxDate = date).replace (
+#						hour = 11,
+#						minute = 11,
+#						second = 11,
+#						microsecond = 111111
+#					)
+#					lbl = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+#					matches = (True, [{'data': date, 'label': lbl}])
+#		dlg.Destroy()
+#
+#		return matches
+#============================================================
+class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		self.matcher = cDateMatchProvider()
+		self.phrase_separators = None
+
+		self.static_tooltip_extra = _('<ALT-C/K>: pick from (c/k)alendar')
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+#	def __text2timestamp(self):
+#
+#		self._update_candidates_in_picklist(val = self.GetValue().strip())
+#
+#		if len(self._current_match_candidates) == 1:
+#			return self._current_match_candidates[0]['data']
+#
+#		return None
+	#--------------------------------------------------------
+	def __pick_from_calendar(self):
+		dlg = cCalendarDatePickerDlg(self)
+		# FIXME: show below parent
+		dlg.CentreOnScreen()
+		decision = dlg.ShowModal()
+		date = dlg.cal.Date
+		dlg.Destroy()
+
+		if decision != wx.ID_OK:
+			return
+
+		if date is None:
+			return
+
+		if not date.IsValid():
+			return
+
+		date = gmDateTime.wxDate2py_dt(wxDate = date).replace (
+			hour = 11,
+			minute = 11,
+			second = 11,
+			microsecond = 111111
+		)
+		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+		self.SetText(value = val, data = date, suppress_smarts = True)
+	#--------------------------------------------------------
+	# phrasewheel internal API
+	#--------------------------------------------------------
+	def _on_lose_focus(self, event):
+		# no valid date yet ?
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
+			date = self.GetData()
+			if date is not None:
+				self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))
+
+		# let the base class do its thing
+		super(cDateInputPhraseWheel, self)._on_lose_focus(event)
+	#--------------------------------------------------------
+	def _picklist_item2display_string(self, item=None):
+		data = item['data']
+		if data is not None:
+			return gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+		return item['field_label']
+	#--------------------------------------------------------
+	def _on_key_down(self, event):
+
+		# <ALT-C> / <ALT-K> -> calendar
+		if event.AltDown() is True:
+			char = unichr(event.GetUnicodeKey())
+			if char in u'ckCK':
+				self.__pick_from_calendar()
+				return
+
+		super(cDateInputPhraseWheel, self)._on_key_down(event)
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if len(self._data) == 0:
+			return u''
+
+		date = self.GetData()
+		# if match provider only provided completions
+		# but not a full date with it
+		if date is None:
+			return u''
+
+		return gmDateTime.pydt_strftime (
+			date,
+			format = '%A, %d. %B %Y (%x)',
+			accuracy = gmDateTime.acc_days
+		)
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def SetValue(self, value):
+
+		if isinstance(value, pyDT.datetime):
+			date = value.replace (
+				hour = 11,
+				minute = 11,
+				second = 11,
+				microsecond = 111111
+			)
+			self.SetText(data = date, suppress_smarts = True)
+			return
+
+		if value is None:
+			value = u''
+
+		super(self.__class__, self).SetValue(value)
+	#--------------------------------------------------------
+	def SetText(self, value=u'', data=None, suppress_smarts=False):
+
+		if data is not None:
+			if isinstance(data, gmDateTime.cFuzzyTimestamp):
+				data = data.timestamp.replace (
+					hour = 11,
+					minute = 11,
+					second = 11,
+					microsecond = 111111
+				)
+			if value.strip() == u'':
+				value = gmDateTime.pydt_strftime(data, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+
+		super(self.__class__, self).SetText(value = value, data = data, suppress_smarts = suppress_smarts)
+	#--------------------------------------------------------
+	def SetData(self, data=None):
+		if data is None:
+			gmPhraseWheel.cPhraseWheel.SetText(self, u'', None)
+			return
+		self.SetText(data = data)
+	#--------------------------------------------------------
+	def GetData(self):
+		if len(self._data) == 0:
+			self._set_data_to_first_match()
+
+		return super(self.__class__, self).GetData()
+	#--------------------------------------------------------
+	def is_valid_timestamp(self, allow_empty=True):
+		if len(self._data) > 0:
+			self.display_as_valid(True)
+			return True
+
+		if self.GetValue().strip() == u'':
+			if allow_empty:
+				self.display_as_valid(True)
+				return True
+			else:
+				self.display_as_valid(False)
+				return False
+
+		# skip showing calendar on '*' from here
+		if self.GetValue().strip() == u'*':
+			self.display_as_valid(False)
+			return False
+
+		# try to auto-snap to first match
+		self._set_data_to_first_match()
+		if len(self._data) == 0:
+			self.display_as_valid(False)
+			return False
+
+		date = self.GetData()
+		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))
+		self.display_as_valid(True)
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_date(self):
+		return self.GetData()
+
+	def _set_date(self, date):
+		raise AttributeError('._set_date not implemented')
+#		val = gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days)
+#		self.data = date.replace (
+#			hour = 11,
+#			minute = 11,
+#			second = 11,
+#			microsecond = 111111
+#		)
+
+	date = property(_get_date, _set_date)
 #============================================================
 class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):
@@ -55,12 +516,20 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
 		"""Return matches for aFragment at start of phrases."""
-		self.__now = mxDT.now()
 		matches = gmDateTime.str2fuzzy_timestamp_matches(aFragment.strip())
-		if len(matches) > 0:
-			return (True, matches)
-		else:
+
+		if len(matches) == 0:
 			return (False, [])
+
+		items = []
+		for match in matches:
+			items.append ({
+				'data': match['data'],
+				'field_label': match['label'],
+				'list_label': match['label']
+			})
+
+		return (True, items)
 	#--------------------------------------------------------
 	def getMatchesByWord(self, aFragment):
 		"""Return matches for aFragment at start of words inside phrases."""
@@ -72,7 +541,6 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	#--------------------------------------------------------
 	def getAllMatches(self):
 		"""Return all items."""
-		# FIXME: popup calendar to pick from
 		return (False, [])
 #==================================================
 class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
@@ -85,19 +553,19 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		self.phrase_separators = None
 		self.selection_only = True
 		self.selection_only_error_msg = _('Cannot interpret input as timestamp.')
+		self.display_accuracy = None
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __text2timestamp(self, val=None):
-
 		if val is None:
-			val = self.GetValue().strip()
-
+			val = self.GetValue()
+		val = val.strip()
+		if val == u'':
+			return None
 		success, matches = self.matcher.getMatchesByPhrase(val)
-		#matches = gmDateTime.str2fuzzy_timestamp_matches(str2parse=val)
 		if len(matches) == 1:
 			return matches[0]['data']
-
 		return None
 	#--------------------------------------------------------
 	# phrasewheel internal API
@@ -106,16 +574,19 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		# are we valid ?
 		if self.data is None:
 			# no, so try
-			self.data = self.__text2timestamp()
+			date = self.__text2timestamp()
+			if date is not None:
+				self.SetValue(value = date.format_accurately(accuracy = self.display_accuracy))
+				self.data = date
 
 		# let the base class do its thing
 		gmPhraseWheel.cPhraseWheel._on_lose_focus(self, event)
 	#--------------------------------------------------------
-	def _picklist_selection2display_string(self):
-		data = self._picklist.GetSelectedItemData()
+	def _picklist_item2display_string(self, item=None):
+		data = item['data']
 		if data is not None:
-			return data.format_accurately()
-		return self._picklist.get_selected_item_label()
+			return data.format_accurately(accuracy = self.display_accuracy)
+		return item['field_label']
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -125,7 +596,7 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
 			if value.strip() == u'':
-				value = data.format_accurately()
+				value = data.format_accurately(accuracy = self.display_accuracy)
 
 		gmPhraseWheel.cPhraseWheel.SetText(self, value = value, data = data, suppress_smarts = suppress_smarts)
 	#--------------------------------------------------------
@@ -135,385 +606,72 @@ class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 		else:
 			if isinstance(data, pyDT.datetime):
 				data = gmDateTime.cFuzzyTimestamp(timestamp=data)
-			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(), data = data)
+			gmPhraseWheel.cPhraseWheel.SetText(self, value = data.format_accurately(accuracy = self.display_accuracy), data = data)
 	#--------------------------------------------------------
-	def is_valid_timestamp(self):
-		if self.data is not None:
+	def is_valid_timestamp(self, empty_is_valid=True):
+		if self.GetData() is not None:
 			return True
 
 		# skip empty value
 		if self.GetValue().strip() == u'':
-			return True
-
-		self.data = self.__text2timestamp()
-		if self.data is None:
+			if empty_is_valid:
+				return True
 			return False
 
-		return True
-#==================================================
-class cTimeInput(wx.TextCtrl):
-	def __init__(self, parent, *args, **kwargs):
-		if len(args) < 2:
-			if not kwargs.has_key('value'):
-				kwargs['value'] = _('enter time here')
-		wx.TextCtrl.__init__(
-			self,
-			parent,
-			*args,
-			**kwargs
+		date = self.__text2timestamp()
+		if date is None:
+			return False
+
+		self.SetText (
+			value = date.format_accurately(accuracy = self.display_accuracy),
+			data = date,
+			suppress_smarts = True
 		)
-#==================================================
-class cDateInputCtrl(wx.DatePickerCtrl):
 
-	def __init__(self, *args, **kwargs):
-
-		wx.DatePickerCtrl.__init__(self,*args,**kwargs)
-		#super(cDateInputCtrl, self).__init__(*args, **kwargs)
-		#self.Bind(wx.EVT_DATE_CHANGED, self.__on_date_changed, self)
-	#----------------------------------------------
-	def SetValue(self, value):
-		"""Set either datetime.datetime or wx.DateTime"""
-
-		if isinstance(value, (pyDT.date, pyDT.datetime)):
-			wxvalue = wx.DateTime()
-			wxvalue.Set(year = value.year, month = value.month-1, day = value.day)
-			value = wxvalue
-
-		elif value is None:
-			value = wx.DefaultDateTime
-
-		wx.DatePickerCtrl.SetValue(self, value)
-	#----------------------------------------------
-	def GetValue(self, as_pydt=False):
-		"""Returns datetime.datetime values"""
-
-		value = wx.DatePickerCtrl.GetValue(self)
-
-		if value is None:
-			return None
-
-		# manage null dates (useful when wx.DP_ALLOWNONE is set)
-		if not value.IsValid():
-			return None
-
-		self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		self.Refresh()
-
-		if not as_pydt:
-			return value
-
-		return gmDateTime.wxDate2py_dt(value)
-
-		#return pyDT.datetime(value.GetYear(), value.GetMonth() + 1, value.GetDay())
-	#----------------------------------------------
-	# def convenience wrapper
-	#----------------------------------------------
-	def is_valid_timestamp(self, allow_none=True):
-		val = self.GetValue()
-
-		if val is None:
-			if allow_none:
-				valid = True
-			else:
-				valid = False
-		else:
-			valid = val.IsValid()
-
-		if valid:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		else:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-
-		self.Refresh()
-		return valid
-	#----------------------------------------------
-	def get_pydt(self):
-		return self.GetValue(as_pydt = True)
-	#----------------------------------------------
-	def display_as_valid(self, valid=True):
-		if valid is True:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_valid)
-		else:
-			self.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
-		self.Refresh()
+		return True
 #==================================================
 # main
 #--------------------------------------------------
 if __name__ == '__main__':
 
-	if (len(sys.argv) > 1) and (sys.argv[1] == 'test'):
-		from Gnumed.pycommon import gmI18N
-		gmI18N.activate_locale()
-		gmI18N.install_domain(domain='gnumed')
-		gmDateTime.init()
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		#----------------------------------------------------
-		def test_cli():
-			mp = cMatchProvider_FuzzyTimestamp()
-			mp.word_separators = None
-			mp.setThresholds(aWord = 998, aSubstring = 999)
-			val = None
-			while val != 'exit':
-				print "************************************"
-				val = raw_input('Enter date fragment: ')
-				found, matches = mp.getMatches(aFragment=val)
-				for match in matches:
-					print match['label']
-					print match['data']
-					print "---------------"
-		#--------------------------------------------------------
-		def test_gui():
-			app = wx.PyWidgetTester(size = (200, 300))
-			app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
-			app.MainLoop()
-		#--------------------------------------------------------
-		def test_picker():
-			app = wx.PyWidgetTester(size = (200, 300))
-			app.SetWidget(cDateInputCtrl, id=-1, size=(180,20), pos=(10,20))
-			app.MainLoop()
-		#--------------------------------------------------------
-		#test_cli()
-		#test_gui()
-		test_picker()
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain='gnumed')
+	gmDateTime.init()
+
+	#----------------------------------------------------
+	def test_cli():
+		mp = cMatchProvider_FuzzyTimestamp()
+		mp.word_separators = None
+		mp.setThresholds(aWord = 998, aSubstring = 999)
+		val = None
+		while val != 'exit':
+			print "************************************"
+			val = raw_input('Enter date fragment ("exit" to quit): ')
+			found, matches = mp.getMatches(aFragment=val)
+			for match in matches:
+				#print match
+				print match['label']
+				print match['data']
+				print "---------------"
+	#--------------------------------------------------------
+	def test_fuzzy_picker():
+		app = wx.PyWidgetTester(size = (300, 40))
+		app.SetWidget(cFuzzyTimestampInput, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#--------------------------------------------------------
+	def test_picker():
+		app = wx.PyWidgetTester(size = (300, 40))
+		app.SetWidget(cDateInputPhraseWheel, id=-1, size=(180,20), pos=(10,20))
+		app.MainLoop()
+	#--------------------------------------------------------
+	#test_cli()
+	#test_fuzzy_picker()
+	test_picker()
 
 #==================================================
-# - free text input: start string with "
-#==================================================
-# $Log: gmDateTimeInput.py,v $
-# Revision 1.66  2009-12-21 15:04:57  ncq
-# - cDatePickerCtrl
-# 	- SetValue now takes datetime, too
-# 	- GetValue can return datetime
-#
-# Revision 1.65  2009/06/04 14:52:54  ncq
-# - re-import lost cDatePickerCtrl and test
-#
-# Revision 1.65  2009/05/28 10:49:55  ncq
-# - cDatePickerCtrl
-#
-# Revision 1.64  2009/02/05 14:28:46  ncq
-# - cleanup
-#
-# Revision 1.63  2008/06/22 17:31:50  ncq
-# - some cleanup
-#
-# Revision 1.62  2008/06/18 15:46:49  ncq
-# - cleanup: offset/trigger chars are handled in the str 2 timestamp function directly
-#
-# Revision 1.61  2008/06/15 20:33:55  ncq
-# - adjust to match provider properties
-#
-# Revision 1.60  2008/05/07 15:20:36  ncq
-# - support suppress smarts in SetText
-#
-# Revision 1.59  2008/04/02 10:22:03  ncq
-# - optionalize test suite running
-#
-# Revision 1.58  2008/03/05 22:30:13  ncq
-# - new style logging
-#
-# Revision 1.57  2007/07/10 20:28:36  ncq
-# - consolidate install_domain() args
-#
-# Revision 1.56  2007/06/15 10:24:53  ncq
-# - adjust to change function signature
-#
-# Revision 1.55  2007/04/02 18:39:52  ncq
-# - gmFuzzyTimestamp -> gmDateTime
-#
-# Revision 1.54  2007/03/18 14:01:52  ncq
-# - re-add lost 1.54
-#
-# Revision 1.54  2007/03/12 12:26:15  ncq
-# - allow SetData/SetText to take datetime.datetime instances
-#
-# Revision 1.53  2007/02/16 12:51:07  ncq
-# - fix is_valid_timestamp()
-#
-# Revision 1.52  2007/02/16 10:23:44  ncq
-# - make it selection_only and set error message
-# - u''ify more
-# - delegate more work to standard phrasewheel code
-# - add SetText()
-# - fix _picklist_selection2display_string()
-# - need to activate locale in test suite
-#
-# Revision 1.51  2007/02/05 12:15:23  ncq
-# - no more aMatchProvider/selection_only in cPhraseWheel.__init__()
-#
-# Revision 1.50  2007/02/04 15:51:00  ncq
-# - no more snap_to_first_match
-# - use SetText()
-# - explicetly unset phrase separators
-#
-# Revision 1.49  2006/12/21 10:54:18  ncq
-# - add SetData
-#
-# Revision 1.48  2006/11/27 23:14:33  ncq
-# - remove prints
-#
-# Revision 1.47  2006/11/27 23:04:49  ncq
-# - factor out UI-independant code
-#
-# Revision 1.46  2006/11/27 12:39:00  ncq
-# - remove useless check
-#
-# Revision 1.45  2006/11/26 22:38:14  ncq
-# - recognize 1953 as meaning that year :-)
-#
-# Revision 1.44  2006/11/24 14:19:43  ncq
-# - variable name fix in __text2timestamp
-#
-# Revision 1.43  2006/11/24 10:01:31  ncq
-# - gm_beep_statustext() -> gm_statustext()
-#
-# Revision 1.42  2006/11/19 11:11:57  ncq
-# - fix wrong return value
-#
-# Revision 1.41  2006/07/19 20:29:50  ncq
-# - import cleanup
-#
-# Revision 1.40  2006/07/01 13:12:32  ncq
-# - improve test harness
-#
-# Revision 1.39  2006/06/15 15:35:30  ncq
-# - better error handling
-#
-# Revision 1.38  2006/06/05 21:30:08  ncq
-# - add single-dot expander so German 23. expands to 23rd this month this year
-# - add is_valid_timestamp() to external API so patient wizard can use it
-#
-# Revision 1.37  2006/06/04 21:50:32  ncq
-# - cleanup
-#
-# Revision 1.36  2006/06/02 13:17:50  ncq
-# - add configurable offset chars for i18n
-# - various cleanups and optimizations
-# - fix __explicit_offset to use proper fuzzy timestamp
-# - __validate() -> __text2timestamp() and smarten up
-#
-# Revision 1.35  2006/06/02 10:12:09  ncq
-# - cleanup
-# - add more fragment expanders
-#
-# Revision 1.34  2006/05/24 10:35:38  ncq
-# - better named match provider
-#
-# Revision 1.33  2006/05/24 10:12:37  ncq
-# - cleanup
-# - timestamp match provider:
-#   - use fuzzy timestamp
-#   - i18n()ize single character triggers
-#   - improve phrasewheel strings
-# - fuzzy timestamp phrasewheel
-#   - a lot of cleanup
-# - proper test code
-#
-# Revision 1.32  2006/05/20 18:37:10  ncq
-# - cleanup
-#
-# Revision 1.31  2006/05/12 12:08:51  ncq
-# - comment out proposed fix for unicode problems
-#
-# Revision 1.30  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.29  2005/09/28 15:57:47  ncq
-# - a whole bunch of wx.Foo -> wx.Foo
-#
-# Revision 1.28  2005/09/26 18:01:50  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.27  2005/09/25 01:13:06  ihaywood
-# use a nicer way of discovering non-Unicode wxPython builds
-# I resisted the temptation to use "if os.environ['USER'] == 'ncq':"
-#
-# Revision 1.26  2005/09/25 01:00:47  ihaywood
-# bugfixes
-#
-# remember 2.6 uses "import wx" not "from wxPython import wx"
-# removed not null constraint on clin_encounter.rfe as has no value on instantiation
-# client doesn't try to set clin_encounter.description as it doesn't exist anymore
-#
-# Revision 1.25  2005/08/22 13:03:46  ncq
-# - set bounds on "day of month" calculations
-#
-# Revision 1.24  2005/07/31 16:22:25  ncq
-# - need to import "time"
-#
-# Revision 1.23  2005/07/31 16:04:19  ncq
-# - on some platforms, notably MS Windows mx.DateTime does not support
-#   strptime(), hence use time.strptime()
-#
-# Revision 1.22  2005/07/31 15:32:50  ncq
-# - cleanup
-#
-# Revision 1.21  2005/07/31 15:23:40  ncq
-# - fixed long-standing validation logic bug
-# - logging is best done using proper syntax, too
-#
-# Revision 1.20  2005/07/27 15:17:06  ncq
-# - properly catch date input error such that we
-#   may find the bug on Windows
-#
-# Revision 1.19  2005/06/08 22:01:42  cfmoro
-# Avoid validating when empty date
-#
-# Revision 1.18  2005/06/08 21:19:50  cfmoro
-# Crash fix
-#
-# Revision 1.17  2005/06/04 09:55:32  ncq
-# - also call parent class _on_lose_focus so we don't loose
-#   callbacks set by other people
-#
-# Revision 1.16  2005/06/03 00:54:33  cfmoro
-# Validte date in SetValue
-#
-# Revision 1.15  2005/06/03 00:36:54  cfmoro
-# Validate date on setValue
-#
-# Revision 1.14  2005/06/02 23:28:54  cfmoro
-# Date validation
-#
-# Revision 1.13  2005/04/25 17:11:33  ncq
-# - set encoding for file
-#
-# Revision 1.12  2005/04/24 15:05:22  ncq
-# - use gmI18N properly
-#
-# Revision 1.11  2004/12/23 16:20:15  ncq
-# - add licence
-#
-# Revision 1.10  2004/07/18 20:30:53  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.9  2004/03/05 11:22:35  ncq
-# - import from Gnumed.<pkg>
-#
-# Revision 1.8  2004/02/25 09:46:21  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.7  2003/11/05 22:21:06  sjtan
-#
-# let's gmDateInput specify id_callback in constructor list.
-#
-# Revision 1.6  2003/11/04 10:35:23  ihaywood
-# match providers in gmDemographicRecord
-#
-# Revision 1.5  2003/10/06 17:49:40  ncq
-# - remove dependancy on gmI18N on standalone test run
-#
-# Revision 1.4  2003/10/02 20:51:12  ncq
-# - add alt-XX shortcuts, move __* to _*
-#
-# Revision 1.3  2003/09/30 18:47:47  ncq
-# - converted date time input field into phrase wheel descendant
-#
-# Revision 1.2  2003/08/10 00:57:15  ncq
-# - add TODO item
-#
-# Revision 1.1  2003/05/23 14:05:01  ncq
-# - first implementation
-#

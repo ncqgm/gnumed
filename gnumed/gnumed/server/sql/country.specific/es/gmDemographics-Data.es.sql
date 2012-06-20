@@ -5,7 +5,7 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/es/gmDemographics-Data.es.sql,v $
 -- $Id: gmDemographics-Data.es.sql,v 1.7 2006-01-09 13:46:19 ncq Exp $
 -- author: Carlos Moro
--- license: GPL
+-- license: GPL v2 or later
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive

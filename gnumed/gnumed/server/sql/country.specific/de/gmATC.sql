@@ -1,8 +1,8 @@
 -- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmATC.sql,v $
 -- $Revision: 1.3 $
 
--- part of GnuMed
--- GPL
+-- part of GNUmed
+-- GPL v2 or later
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
 -- German ATC data
