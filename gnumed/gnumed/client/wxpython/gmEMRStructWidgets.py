@@ -8,10 +8,13 @@
 """
 #================================================================
 __author__ = "cfmoro1976@yahoo.es, karsten.hilbert@gmx.net"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 # stdlib
-import sys, re, datetime as pydt, logging, time
+import sys
+import time
+import logging
+import datetime as pydt
 
 
 # 3rd party
@@ -21,9 +24,23 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmMatchProvider, gmDispatcher, gmTools, gmDateTime, gmCfg, gmExceptions
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmSurgery, gmPersonSearch
-from Gnumed.wxpython import gmPhraseWheel, gmGuiHelpers, gmListWidgets, gmEditArea, gmPatSearchWidgets
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmMatchProvider
+
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmPerson
+
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmPatSearchWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -1226,13 +1243,19 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 	#------------------------------------------------------------
 	def _on_ldclick(self, event):
 		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
 		edit_encounter(encounter = pat.get_emr().active_encounter)
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
 		start_new_encounter(emr = pat.get_emr())
 	#------------------------------------------------------------
 	def _on_list_button_pressed(self, event):
+		if not gmPerson.gmCurrentPatient().connected:
+			return
 		select_encounters()
 #================================================================
 # episode related widgets/functions
@@ -2347,6 +2370,8 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':
+
+	from Gnumed.business import gmPersonSearch
 
 	#================================================================	
 	class testapp (wx.App):
