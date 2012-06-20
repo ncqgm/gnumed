@@ -406,24 +406,7 @@ class gmOOoConnector(gmBorg.cBorg):
 
 		init_ooo()
 
-# test:
-#		self.__setup_connection_string()
-# master:
-		#self.ooo_start_cmd = 'oowriter -invisible -accept="socket,host=localhost,port=2002;urp;"'
-		#self.remote_context_uri = "uno:socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
-
-		pipe_name = "uno-gm2lo-%s" % str(random.random())[2:]
-		_log.debug('pipe name: %s', pipe_name)
-
-		#self.ooo_start_cmd = '%s -invisible -norestore -accept="pipe,name=%s;urp"' % (
-		self.ooo_start_cmd = '%s --norestore --accept="pipe,name=%s;urp" &' % (
-			writer_binary,
-			pipe_name
-		)
-		_log.debug('startup command: %s', self.ooo_start_cmd)
-
-		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
-		_log.debug('remote context URI: %s', self.remote_context_uri)
+		self.__setup_connection_string()
 
 		self.resolver_uri = "com.sun.star.bridge.UnoUrlResolver"
 		self.desktop_uri = "com.sun.star.frame.Desktop"
@@ -449,7 +432,6 @@ class gmOOoConnector(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def open_document(self, filename=None):
 		"""<filename> must be absolute"""
-
 		if self.desktop is None:
 			_log.error('cannot access OOo desktop')
 			return None
@@ -478,18 +460,22 @@ class gmOOoConnector(gmBorg.cBorg):
 	def __setup_connection_string(self):
 
 		# socket:
-		ooo_port = u'2002'
-		_log.debug('expecting OOo server on port [%s]', ooo_port)
-		#self.ooo_start_cmd = 'oowriter -invisible -norestore -nofirststartwizard -nologo -accept="socket,host=localhost,port=%s;urp;StarOffice.ServiceManager"' % ooo_port
-		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="socket,host=localhost,port=%s;urp;"' % ooo_port
-		self.remote_context_uri = "uno:socket,host=localhost,port=%s;urp;StarOffice.ComponentContext" % ooo_port
+#		ooo_port = u'2002'
+#		#self.ooo_start_cmd = 'oowriter -invisible -norestore -nofirststartwizard -nologo -accept="socket,host=localhost,port=%s;urp;StarOffice.ServiceManager"' % ooo_port
+#		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="socket,host=localhost,port=%s;urp;"' % ooo_port
+#		self.remote_context_uri = "uno:socket,host=localhost,port=%s;urp;StarOffice.ComponentContext" % ooo_port
 
 		# pipe:
-#		pipe_name = "uno-gm2ooo-%s" % str(random.random())[2:]
-#		_log.debug('expecting OOo server on named pipe [%s]', pipe_name)
-#		self.ooo_start_cmd = 'oowriter -invisible -norestore -accept="pipe,name=%s;urp"' % pipe_name
-#		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
+		pipe_name = "uno-gm2lo-%s" % str(random.random())[2:]
+		_log.debug('expecting OOo/LO server on named pipe [%s]', pipe_name)
+		self.ooo_start_cmd = '%s --invisible --norestore --accept="pipe,name=%s;urp" &' % (
+			writer_binary,
+			pipe_name
+		)
+		_log.debug('startup command: %s', self.ooo_start_cmd)
 
+		self.remote_context_uri = "uno:pipe,name=%s;urp;StarOffice.ComponentContext" % pipe_name
+		_log.debug('remote context URI: %s', self.remote_context_uri)
 	#--------------------------------------------------------
 	def __startup_ooo(self):
 		_log.info('trying to start OOo server')
@@ -505,7 +491,6 @@ class gmOOoConnector(gmBorg.cBorg):
 		if self.__desktop is not None:
 			return self.__desktop
 
-		_log.debug('remote context URI: %s', self.remote_context_uri)
 		self.remote_context = None
 
 		attempts = self.max_connect_attempts
