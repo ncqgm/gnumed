@@ -455,15 +455,20 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			)
 			list_data.append(last)
 
+		if cover_period is not None:
+			item = _('Last %s:') % self._PRW_encounter_range.GetValue().strip()
+			list_items.append(item)
+			list_data.append(_('Statistics cover period'))
+
 		encs = emr.get_encounter_stats_by_type(cover_period = cover_period)
 		for enc in encs:
-			item = u'%s x %s' % (enc['frequency'], enc['l10n_type'])
+			item = u' %s x %s' % (enc['frequency'], enc['l10n_type'])
 			list_items.append(item)
 			list_data.append(item)
 
 		stays = emr.get_hospital_stay_stats_by_hospital(cover_period = cover_period)
 		for stay in stays:
-			item = u'%s x %s' % (
+			item = u' %s x %s' % (
 				stay['frequency'],
 				stay['hospital']
 			)
