@@ -13,6 +13,7 @@ IMPROVED: tell when there's no address for billing [thanks S.Hilbert]
 IMPROVED: suggest current user as primary provider on new patients [thanks J.Busser]
 IMPROVED: AutoHotKey script [thanks V.Banait]
 IMPROVED: login dialog size [thanks J.Busser/L.Dodd]
+IMPROVED: show stats cover period in Activity overview plugin sub panel [thanks J.Busser]
 
 FIX: FreeDiams XML file API
 FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
