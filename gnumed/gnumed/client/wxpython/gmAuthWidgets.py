@@ -411,7 +411,7 @@ class cLoginPanel(wx.Panel):
 			self.topsizer.Add (
 				bmp,
 				proportion = 0,
-				flag = wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL,
+				flag = wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_CENTER_HORIZONTAL|wx.ALL,
 				border = 10
 			)
 		except:
@@ -453,7 +453,7 @@ class cLoginPanel(wx.Panel):
 			-1,
 			self.__backend_profiles.keys()[0],
 			wx.DefaultPosition,
-			size = wx.Size(150,-1),
+			size = wx.Size(550,-1),
 			choices = self.__backend_profiles.keys(),
 			style = wx.CB_READONLY
 		)
