@@ -14,6 +14,7 @@ IMPROVED: suggest current user as primary provider on new patients [thanks J.Bus
 IMPROVED: AutoHotKey script [thanks V.Banait]
 IMPROVED: login dialog size [thanks J.Busser/L.Dodd]
 IMPROVED: show stats cover period in Activity overview plugin sub panel [thanks J.Busser]
+IMPROVED: soft-wrapping SimpleNotes and $<free_text>$ input [thanks J.Busser]
 
 FIX: FreeDiams XML file API
 FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
