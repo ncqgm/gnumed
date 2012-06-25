@@ -17,12 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.16 (database v16.16)',
-	'GNUmed 1.1.16 Release Notes:
+	'Release Notes for GNUmed 1.1.17 (database v16.17)',
+	'GNUmed 1.1.17 Release Notes:
 
-	1.1.16
+	16.17
 
-FIX: FreeDiams XML file API access
+FIX: insufficient waiting time formatting [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------
