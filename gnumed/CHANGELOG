@@ -1109,6 +1109,10 @@ IMPROVED: constraints on i18n.translations
 # gnumed_v16
 ------------------------------------------------
 
+	16.17
+
+FIX: insufficient waiting time formatting [thanks J.Busser]
+
 	16.11
 
 IMPROVED: add Russian DB string translations [thanks anon]
