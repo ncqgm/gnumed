@@ -1078,6 +1078,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v17
 ------------------------------------------------
 
+	17.1
+
+FIX: insufficient waiting time formatting [thanks J.Busser]
+
 	17.0
 
 NEW: allow "*u*nspecified" in clin.clin_root_item/clin_narrative/soap_cat_ranks.soap_cat
