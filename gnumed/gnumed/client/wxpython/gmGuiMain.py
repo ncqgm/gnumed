@@ -431,7 +431,7 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
 
-		item = menu_cfg_emr.Append(-1, _('Primary doctor'), _('Select the primary doctor to fall back to for patients without one.'))
+		item = menu_cfg_emr.Append(-1, _('Fallback provider'), _('Select the doctor to fall back to for patients without a primary provider.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
 
 		# -- submenu gnumed / config / emr / encounter

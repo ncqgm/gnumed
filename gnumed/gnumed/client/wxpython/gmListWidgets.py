@@ -10,6 +10,8 @@ TODO:
 	with a new name (ColumnAutoSizeMixin) and better sizing algorithm at:
 
 	http://trac.flipturn.org/browser/trunk/peppy/lib/column_autosize.py
+
+	sorting: http://code.activestate.com/recipes/426407/
 """
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
