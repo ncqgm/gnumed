@@ -2,7 +2,7 @@
 Hello all,
 
 I am glad to be able to announce the immediate availability
-of the GNUmed xx.x.x Maintenance Release. It features the
+of the GNUmed x.x.x Maintenance Release. It features the
 following bug fixes and minor improvements:
 
 Changelog:
@@ -12,7 +12,7 @@ Changelog:
 
 Downloads available from:
 
-	http://www.gnumed.de/downloads/client/xx.x/
+	http://www.gnumed.de/downloads/client/x.x/
 	http://www.gnumed.de/downloads/server/vxx/
 
 

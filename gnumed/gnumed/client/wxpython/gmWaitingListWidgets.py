@@ -154,8 +154,8 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__current_zone = None
-		self.__last_patient = None
-		self.__last_comment = None
+		self.__id_most_recently_activated_patient = None
+		self.__comment_most_recently_activated_patient = None
 
 		self.__init_ui()
 		self.__register_events()
@@ -181,7 +181,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		"""
 		This gets called when a patient has been activated, but
 		only when the waiting list is actually in use (that is,
-		the plugin is loaded
+		the plugin is loaded)
 		"""
 		pat = gmPerson.gmCurrentPatient()
 		enc = pat.emr.active_encounter
@@ -189,11 +189,11 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			return
 		entries = pat.waiting_list_entries
 		if len(entries) == 0:
-			if self.__last_patient is None:
+			if self.__id_most_recently_activated_patient is None:
 				return
-			if self.__last_patient != pat.ID:
+			if self.__id_most_recently_activated_patient != pat.ID:
 				return
-			rfe = self.__last_comment
+			rfe = self.__comment_most_recently_activated_patient
 		else:
 			entry = entries[0]
 			if gmTools.coalesce(entry['comment'], u'').strip() == u'':
@@ -201,7 +201,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			rfe = entry['comment'].strip()
 		enc['reason_for_encounter'] = rfe
 		enc.save()
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 	#--------------------------------------------------------
 	def _on_get_list_tooltip(self, entry):
 
@@ -247,7 +247,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __refresh_waiting_list(self):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 
 		praxis = gmSurgery.gmCurrentPractice()
 		pats = praxis.waiting_list_patients
@@ -314,21 +314,25 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	# event handlers
 	#--------------------------------------------------------
 	def _on_zone_selected(self, zone=None):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		if self.__current_zone == self._PRW_zone.GetValue().strip():
 			return True
 		wx.CallAfter(self.__refresh_waiting_list)
 		return True
 	#--------------------------------------------------------
 	def _on_waiting_list_modified(self, *args, **kwargs):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		wx.CallAfter(self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self, *args, **kwargs):
-		wx.CallAfter(self._check_RFE)
+		wx.CallAfter(self.__on_post_patient_selection)
+	#--------------------------------------------------------
+	def __on_post_patient_selection(self):
+		self._check_RFE()
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_list_item_activated(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
@@ -343,7 +347,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
@@ -369,13 +373,13 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
-		self.__last_patient = item['pk_identity']
-		self.__last_comment = gmTools.coalesce(item['comment'], u'').strip()
+		self.__id_most_recently_activated_patient = item['pk_identity']
+		self.__comment_most_recently_activated_patient = gmTools.coalesce(item['comment'], u'').strip()
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		curr_pat = gmPerson.gmCurrentPatient()
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
@@ -386,7 +390,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		dlg.Destroy()
 	#--------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
@@ -396,7 +400,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		dlg.Destroy()
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one = True)
 		if item is None:
 			return
@@ -435,14 +439,14 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
 	#--------------------------------------------------------
 	def _on_up_button_pressed(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
 		gmSurgery.gmCurrentPractice().raise_in_waiting_list(current_position = item['list_position'])
 	#--------------------------------------------------------
 	def _on_down_button_pressed(self, evt):
-		self.__last_patient = None
+		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
