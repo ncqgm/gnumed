@@ -469,9 +469,9 @@ def size2str(size=0, template=u'%s'):
 def bool2subst(boolean=None, true_return=True, false_return=False, none_return=None):
 	if boolean is None:
 		return none_return
-	if boolean is True:
+	if boolean:
 		return true_return
-	if boolean is False:
+	if not boolean:
 		return false_return
 	raise ValueError('bool2subst(): <boolean> arg must be either of True, False, None')
 #---------------------------------------------------------------------------
@@ -715,14 +715,7 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
-	return xml_tools.escape (
-		text,
-		entities = {
-			u'&': u'&amp;'
-		}
-	)
-#	text = text.replace(u'&', u'&amp;')
-#	return text
+	return xml_tools.escape(text)
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None):
 	"""check for special LaTeX characters and transform them"""
@@ -1091,6 +1084,11 @@ second line\n
 	def test_unicode():
 		print u_link_symbol * 10
 	#-----------------------------------------------------------------------
+	def test_xml_escape():
+		print xml_escape_string(u'<')
+		print xml_escape_string(u'>')
+		print xml_escape_string(u'&')
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1106,6 +1104,7 @@ second line\n
 	#test_input2int()
 	#test_unwrap()
 	#test_md5()
-	test_unicode()
+	#test_unicode()
+	test_xml_escape()
 
 #===========================================================================

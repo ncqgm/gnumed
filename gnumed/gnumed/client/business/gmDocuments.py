@@ -208,6 +208,8 @@ class cDocumentFolder:
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
+
+	documents = property(get_documents, lambda x:x)
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None):
 		return create_document(document_type = document_type, encounter = encounter, episode = episode)

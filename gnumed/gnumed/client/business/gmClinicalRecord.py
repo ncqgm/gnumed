@@ -239,6 +239,8 @@ SELECT fk_encounter from
 			procs = filter(lambda p: p['pk_health_issue'] in issues, procs)
 
 		return procs
+
+	performed_procedures = property(get_performed_procedures, lambda x:x)
 	#--------------------------------------------------------
 	def get_latest_performed_procedure(self):
 		return gmEMRStructItems.get_latest_performed_procedure(patient = self.pk_patient)
@@ -261,6 +263,8 @@ SELECT fk_encounter from
 		if issues is not None:
 			stays = filter(lambda s: s['pk_health_issue'] in issues, stays)
 		return stays
+
+	hospital_stays = property(get_hospital_stays, lambda x:x)
 	#--------------------------------------------------------
 	def get_latest_hospital_stay(self):
 		return gmEMRStructItems.get_latest_patient_hospital_stay(patient = self.pk_patient)
@@ -1034,15 +1038,20 @@ WHERE
 	#--------------------------------------------------------
 	# API: episodes
 	#--------------------------------------------------------
-	def get_episodes(self, id_list=None, issues=None, open_status=None):
+	def get_episodes(self, id_list=None, issues=None, open_status=None, order_by=None):
 		"""Fetches from backend patient episodes.
 
 		id_list - Episodes' PKs list
 		issues - Health issues' PKs list to filter episodes by
 		open_status - return all episodes, only open or closed one(s)
 		"""
-		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_patient=%s"
-		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'ORDER BY %s' % order_by
+
+		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_patient = %%(pat)s %s" % order_by
+		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx=True)
 		tmp = []
 		for r in rows:
 			tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
@@ -1251,6 +1260,8 @@ WHERE
 				filtered_issues.append(issue)
 
 		return filtered_issues
+
+	health_issues = property(get_health_issues, lambda x:x)
 	#------------------------------------------------------------------
 	def add_health_issue(self, issue_name=None):
 		"""Adds patient health issue."""
@@ -1398,6 +1409,8 @@ WHERE
 		vaccs = [ gmVaccination.cVaccination(row = {'idx': idx, 'data': r, 'pk_field': 'pk_vaccination'})  for r in rows ]
 
 		return vaccs
+
+	vaccinations = property(get_vaccinations, lambda x:x)
 	#--------------------------------------------------------
 	# old/obsolete:
 	#--------------------------------------------------------
@@ -1816,7 +1829,7 @@ WHERE
 		self.current_encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
 		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])
 	#------------------------------------------------------------------
-	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None):
+	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False):
 		"""Retrieves patient's encounters.
 
 		id_list - PKs of encounters to fetch
@@ -1824,6 +1837,7 @@ WHERE
 		until - final date for encounter items, DateTime instance
 		episodes - PKs of the episodes the encounters belong to (many-to-many relation)
 		issues - PKs of the health issues the encounters belong to (many-to-many relation)
+		skip_empty - do NOT return those which do not have any of documents/clinical items/RFE/AOE
 
 		NOTE: if you specify *both* issues and episodes
 		you will get the *aggregate* of all encounters even
@@ -1834,41 +1848,48 @@ WHERE
 		Rationale: If it was the other way round it would be
 		redundant to specify the list of issues at all.
 		"""
-		# fetch all encounters for patient
-		cmd = u"SELECT * FROM clin.v_pat_encounters WHERE pk_patient=%s order by started"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
-		encounters = []
-		for r in rows:
-			encounters.append(gmEMRStructItems.cEncounter(row={'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}))
+		where_parts = [u'c_vpe.pk_patient = %(pat)s']
+		args = {'pat': self.pk_patient}
+
+		if skip_empty:
+			where_parts.append(u"""NOT (
+				gm.is_null_or_blank_string(c_vpe.reason_for_encounter)
+					AND
+				gm.is_null_or_blank_string(c_vpe.assessment_of_encounter)
+					AND
+				NOT EXISTS (
+					SELECT 1 FROM clin.v_pat_items c_vpi WHERE c_vpi.pk_patient = %(pat)s AND c_vpi.pk_encounter = c_vpe.pk_encounter
+						UNION ALL
+					SELECT 1 FROM blobs.v_doc_med b_vdm WHERE b_vdm.pk_patient = %(pat)s AND b_vdm.pk_encounter = c_vpe.pk_encounter
+				))""")
+
+		if since is not None:
+			where_parts.append(u'c_vpe.started >= %(start)s')
+			args['start'] = since
+
+		if until is not None:
+			where_parts.append(u'c_vpe.last_affirmed <= %(end)s')
+			args['end'] = since
+
+		cmd = u"""
+			SELECT *
+			FROM clin.v_pat_encounters c_vpe
+			WHERE
+				%s
+			ORDER BY started
+		""" % u' AND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		encounters = [ gmEMRStructItems.cEncounter(row = {'data': r, 'idx': idx, 'pk_field': 'pk_encounter'}) for r in rows ]
 
 		# we've got the encounters, start filtering
 		filtered_encounters = []
 		filtered_encounters.extend(encounters)
+
 		if id_list is not None:
 			filtered_encounters = filter(lambda enc: enc['pk_encounter'] in id_list, filtered_encounters)
-		if since is not None:
-			filtered_encounters = filter(lambda enc: enc['started'] >= since, filtered_encounters)
-		if until is not None:
-			filtered_encounters = filter(lambda enc: enc['last_affirmed'] <= until, filtered_encounters)
 
 		if (issues is not None) and (len(issues) > 0):
-
 			issues = tuple(issues)
-
-			# Syan attests that an explicit union of child tables is way faster
-			# as there seem to be problems with parent table expansion and use
-			# of child table indexes, so if get_encounter() runs very slow on
-			# your machine use the lines below
-
-#			rows = gmPG.run_ro_query('historica', cClinicalRecord._clin_root_item_children_union_query, None, (tuple(issues),))
-#			if rows is None:
-#				_log.error('cannot load encounters for issues [%s] (patient [%s])' % (str(issues), self.pk_patient))
-#			else:
-#				enc_ids = map(lambda x:x[0], rows)
-#				filtered_encounters = filter(lambda enc: enc['pk_encounter'] in enc_ids, filtered_encounters)
-
-			# this problem seems fixed for us as of PostgreSQL 8.2  :-)
-
 			# however, this seems like the proper approach:
 			# - find episodes corresponding to the health issues in question
 			cmd = u"SELECT distinct pk FROM clin.episode WHERE fk_health_issue in %(issues)s"
@@ -1879,9 +1900,7 @@ WHERE
 			episodes.extend(epi_ids)
 
 		if (episodes is not None) and (len(episodes) > 0):
-
 			episodes = tuple(episodes)
-
 			# if the episodes to filter by belong to the patient in question so will
 			# the encounters found with them - hence we don't need a WHERE on the patient ...
 			cmd = u"SELECT distinct fk_encounter FROM clin.clin_root_item WHERE fk_episode in %(epis)s"
@@ -1916,6 +1935,44 @@ WHERE
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[0]
 	#--------------------------------------------------------
+	def get_earliest_care_date(self):
+		args = {'pat': self.pk_patient}
+		cmd = u"""
+SELECT MIN(earliest) FROM (
+	(
+		SELECT MIN(episode_modified_when) AS earliest FROM clin.v_pat_episodes WHERE pk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(modified_when) AS earliest FROM clin.v_health_issues WHERE pk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(modified_when) AS earliest FROM clin.encounter WHERE fk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(started) AS earliest FROM clin.v_pat_encounters WHERE pk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(modified_when) AS earliest FROM clin.v_pat_items WHERE pk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(modified_when) AS earliest FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat)s
+
+	) UNION ALL (
+
+		SELECT MIN(last_confirmed) AS earliest FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat)s
+
+	)
+) AS candidates"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return rows[0][0]
+
+	earliest_care_date = property(get_earliest_care_date, lambda x:x)
+	#--------------------------------------------------------
 	def get_last_encounter(self, issue_id=None, episode_id=None):
 		"""Retrieves last encounter for a concrete issue and/or episode
 
@@ -1941,6 +1998,8 @@ WHERE
 		# FIXME: this does not scale particularly well, I assume
 		encounters.sort(lambda x,y: cmp(x['started'], y['started']))
 		return encounters[-1]
+
+	last_encounter = property(get_last_encounter, lambda x:x)
 	#------------------------------------------------------------------
 	def get_encounter_stats_by_type(self, cover_period=None):
 		args = {'pat': self.pk_patient, 'range': cover_period}

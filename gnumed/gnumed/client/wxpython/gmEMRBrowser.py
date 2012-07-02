@@ -866,8 +866,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# episodes: chronologically
 		if isinstance(item1, gmEMRStructItems.cEpisode):
-			start1 = item1.get_access_range()[0]
-			start2 = item2.get_access_range()[0]
+			start1 = item1.best_guess_start_date
+			start2 = item2.best_guess_start_date
 			if start1 == start2:
 				return 0
 			if start1 < start2:
