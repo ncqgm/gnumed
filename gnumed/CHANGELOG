@@ -1083,6 +1083,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v17
 ------------------------------------------------
 
+	17.2
+
+FIX: incorrect auditing setup of ref.billable [thanks J.Busser]
+
 	17.1
 
 FIX: insufficient waiting time formatting [thanks J.Busser]

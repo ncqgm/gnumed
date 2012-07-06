@@ -11,7 +11,8 @@
 -- --------------------------------------------------------------
 comment on table ref.billable is 'items that *can* be billed to patients';
 
-select audit.register_table_for_auditing('ref'::name, 'billable'::name);
+-- this was a bug:
+--select audit.register_table_for_auditing('ref'::name, 'billable'::name);
 select gm.register_notifying_table('ref', 'billable');
 
 
