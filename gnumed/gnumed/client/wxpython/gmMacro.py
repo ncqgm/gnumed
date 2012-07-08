@@ -107,6 +107,9 @@ known_variant_placeholders = [
 	u'patient_comm',						# args: comm channel type as per database
 	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
+	u'patient_photo',						# args: <template>
+											# returns full path to an exported copy of the image rather
+											# than the image data itself
 	u'external_id',							# args: <type of ID>//<issuer of ID>
 	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
 											#				eg. "male//female//other"
@@ -756,6 +759,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return _('no URL for comm channel [%s]') % data
 			return u''
 		return comms[0]['url']
+	#--------------------------------------------------------
+	def _get_variant_patient_photo(self, data=u'%s'):
+		template = data
+		mugshot = self.pat.document_folder.latest_mugshot
+		if mugshot is None:
+			if self.debug:
+				return _('no mugshot available')
+			return u''
+		fname = mugshot.export_to_file()
+		if fname is None:
+			if self.debug:
+				return _('cannot export latest mugshot')
+			return u''
+		return template % fname
 	#--------------------------------------------------------
 	def _get_variant_patient_tags(self, data=u'%s//\\n'):
 		if len(self.pat.tags) == 0:
@@ -1519,7 +1536,8 @@ if __name__ == '__main__':
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
-			u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
+			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
+			u'$<patient_photo::\includegraphics[width=60mm]{%s}::250>$',
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1544,8 +1562,8 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	test_placeholder_regex()
-	#test_placeholder()
+	#test_placeholder_regex()
+	test_placeholder()
 
 #=====================================================================
 

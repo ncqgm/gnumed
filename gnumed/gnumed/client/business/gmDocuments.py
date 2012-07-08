@@ -94,13 +94,14 @@ class cDocumentFolder:
 		return prescription
 	#--------------------------------------------------------
 	def get_latest_mugshot(self):
-		cmd = u"select pk_obj from blobs.v_latest_mugshot where pk_patient=%s"
+		cmd = u"SELECT pk_obj FROM blobs.v_latest_mugshot WHERE pk_patient = %s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		if len(rows) == 0:
 			_log.info('no mugshots available for patient [%s]' % self.pk_patient)
 			return None
-		mugshot = cDocumentPart(aPK_obj=rows[0][0])
-		return mugshot
+		return cDocumentPart(aPK_obj = rows[0][0])
+
+	latest_mugshot = property(get_latest_mugshot, lambda x:x)
 	#--------------------------------------------------------
 	def get_mugshot_list(self, latest_only=True):
 		if latest_only:
