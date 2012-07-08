@@ -5,7 +5,7 @@
 # - first arg should be ISO language code
 
 
-BASE="../"											# where to look for files
+BASE="../ ../../timelinelib/"						# where to look for files
 POTNAME="gnumed.pot"								# what to call the result
 LANGNAME="$1"										# what language are we working on
 AUXNAME="${LANGNAME}-additional-translations.po"	# more translations
