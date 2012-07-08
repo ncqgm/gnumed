@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-06-11 02:24+CEST\n"
+"POT-Creation-Date: 2012-07-08 01:23+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,895 @@ msgstr ""
 "Content-Transfer-Encoding: ENCODING\n"
 "Generated-By: pygettext.py 1.5\n"
 
+
+msgid "Jan"
+msgstr ""
+
+msgid "Feb"
+msgstr ""
+
+msgid "Mar"
+msgstr ""
+
+msgid "Apr"
+msgstr ""
+
+msgid "May"
+msgstr ""
+
+msgid "Jun"
+msgstr ""
+
+msgid "Jul"
+msgstr ""
+
+msgid "Aug"
+msgstr ""
+
+msgid "Sep"
+msgstr ""
+
+msgid "Oct"
+msgstr ""
+
+msgid "Nov"
+msgstr ""
+
+msgid "Dec"
+msgstr ""
+
+msgid "Mon"
+msgstr ""
+
+msgid "Tue"
+msgstr ""
+
+msgid "Wed"
+msgstr ""
+
+msgid "Thu"
+msgstr ""
+
+msgid "Fri"
+msgstr ""
+
+msgid "Sat"
+msgstr ""
+
+msgid "Sun"
+msgstr ""
+
+msgid "Could not find iCalendar Python package. It is required for working with ICS files. See the Timeline website or the INSTALL file for instructions how to install it."
+msgstr ""
+
+msgid "Unable to open timeline '%s'."
+msgstr ""
+
+msgid "Unknown format."
+msgstr ""
+
+msgid "Unable to read from file '%s'."
+msgstr ""
+
+msgid "Unable to read timeline data from '%s'."
+msgstr ""
+
+msgid "Displayed period must be > 0."
+msgstr ""
+
+msgid "Welcome"
+msgstr ""
+
+msgid "Welcome to Timeline"
+msgstr ""
+
+msgid "Intro"
+msgstr ""
+
+msgid "Hover me!"
+msgstr ""
+
+msgid "Hovering events with a triangle shows the event description."
+msgstr ""
+
+msgid "Features"
+msgstr ""
+
+msgid "Scroll"
+msgstr ""
+
+msgid ""
+"Left click somewhere on the timeline and start dragging.\n"
+"\n"
+"You can also use the mouse wheel.\n"
+"\n"
+"You can also middle click with the mouse to center around that point."
+msgstr ""
+
+msgid "Zoom"
+msgstr ""
+
+msgid ""
+"Hold down Ctrl while scrolling the mouse wheel.\n"
+"\n"
+"Hold down Shift while dragging with the mouse."
+msgstr ""
+
+msgid "Create event"
+msgstr ""
+
+msgid ""
+"Double click somewhere on the timeline.\n"
+"\n"
+"Hold down Ctrl while dragging the mouse to select a period."
+msgstr ""
+
+msgid "Edit event"
+msgstr ""
+
+msgid "Double click on an event."
+msgstr ""
+
+msgid "Select event"
+msgstr ""
+
+msgid ""
+"Click on it.\n"
+"\n"
+"Hold down Ctrl while clicking events to select multiple."
+msgstr ""
+
+msgid "Delete event"
+msgstr ""
+
+msgid "Select events to be deleted and press the Del key."
+msgstr ""
+
+msgid "Resize and move me!"
+msgstr ""
+
+msgid "First select me and then drag the handles."
+msgstr ""
+
+msgid "Saving"
+msgstr ""
+
+msgid ""
+"This timeline is stored in memory and modifications to it will not be persisted between sessions.\n"
+"\n"
+"Choose File/New/File Timeline to create a timeline that is saved on disk."
+msgstr ""
+
+msgid "Start time "
+msgstr ""
+
+msgid "End time "
+msgstr ""
+
+msgid "Start time can't be after end time"
+msgstr ""
+
+msgid "Unable to save timeline data to '%s'. File left unmodified."
+msgstr ""
+
+msgid "Unable to write timeline data."
+msgstr ""
+
+msgid "Unable to write to temporary file '%s'."
+msgstr ""
+
+msgid "Unable to take backup to '%s'."
+msgstr ""
+
+msgid "Unable to rename temporary file '%s' to original."
+msgstr ""
+
+msgid "Unable to delete backup file '%s'."
+msgstr ""
+
+msgid "Field '%s' can't be empty."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "You can't change time when the Event is locked"
+msgstr ""
+
+msgid "End must be > Start"
+msgstr ""
+
+msgid "Entered period is too long."
+msgstr ""
+
+msgid "Text"
+msgstr ""
+
+msgid "Image files"
+msgstr ""
+
+msgid "Export to Image"
+msgstr ""
+
+msgid "File '%s' exists. Overwrite?"
+msgstr ""
+
+msgid "Help contents"
+msgstr ""
+
+msgid "Concepts"
+msgstr ""
+
+msgid "Questions and answers"
+msgstr ""
+
+msgid "Tasks"
+msgstr ""
+
+msgid "Where is the save button?"
+msgstr ""
+
+msgid ""
+"\n"
+"There is no save button. Timeline will automatically save your data whenever needed.\n"
+msgstr ""
+
+msgid "Where do the week numbers go if I start my weeks on Sunday?"
+msgstr ""
+
+msgid ""
+"\n"
+"The date data object used does not support week numbers for weeks that start on Sunday at present.  We plan on using a different date object that will support this in future versions.\n"
+msgstr ""
+
+msgid "Timeline"
+msgstr ""
+
+msgid ""
+"\n"
+"The timeline shows dates according to the Gregorian calendar on the x-axis. Currently the dates are limited to dates between year 10 and year 9989.\n"
+"\n"
+"Future versions might support various kinds of timelines so that you for example can specify a time in terms of number of minutes since a start time. If you are interested in such a feature, please get in touch.\n"
+msgstr ""
+
+msgid "Events"
+msgstr ""
+
+msgid ""
+"\n"
+"An event is the basic data type for representing information on the timeline.  It must specify where on the timeline is should be placed (when that event happened). This can be either a specific point in time or a period.\n"
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid ""
+"\n"
+"Categories are used to group events. An event can only belong to one category. All events that belong to the same category are displayed with the same background color.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"The *Create Event* dialog can be opened in the following ways:\n"
+"\n"
+"- Select *Timeline* - *Create Event* from the menu.\n"
+"- Double click with the *left* mouse button on the timeline.\n"
+"- Press the *Ctrl* key, thereafter hold *left* mouse button down on the timeline, drag the mouse and release it.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"The *Edit Event* dialog can be opened by double clicking on an event.\n"
+msgstr ""
+
+msgid "Selecting events"
+msgstr ""
+
+msgid ""
+"\n"
+"To select an event, click on it. To select multiple events, hold down the *Ctrl* key while clicking events.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"To delete an event, select it and press the *Del* key. Multiple events can be deleted at the same time.\n"
+msgstr ""
+
+msgid "Will associated events be deleted when I delete a category?"
+msgstr ""
+
+msgid ""
+"\n"
+"No. The events will still be there but they will not belong to a category.\n"
+msgstr ""
+
+msgid "Edit categories"
+msgstr ""
+
+msgid ""
+"\n"
+"Categories can be managed in the *Edit Categories* dialog (*Timeline* > *Edit Categories*). To edit an existing category, double click on it.\n"
+"\n"
+"The visibility of categories can also be edited in the sidebar (*View* > *Sidebar*).\n"
+msgstr ""
+
+msgid "Contact"
+msgstr ""
+
+msgid ""
+"\n"
+"If you have more questions about Timeline, or if you want to get in contact with users and developers of Timeline, send an email to the user mailing list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
+msgstr ""
+
+msgid "Why is Timeline not available in my language?"
+msgstr ""
+
+msgid ""
+"\n"
+"Timeline is developed and translated by volunteers. If you would like to contribute translations you are very much welcome to contact us.\n"
+msgstr ""
+
+msgid "Search results for '%s'"
+msgstr ""
+
+msgid "Related pages"
+msgstr ""
+
+msgid "Printing"
+msgstr ""
+
+msgid ""
+"There was a problem printing.\n"
+"Perhaps your current printer is not set correctly?"
+msgstr ""
+
+msgid "Print preview"
+msgstr ""
+
+msgid "Go to &Zero\tCtrl+Z"
+msgstr ""
+
+msgid "Go to &Time\tCtrl+T"
+msgstr ""
+
+msgid "Backward\tPgUp"
+msgstr ""
+
+msgid "Forward\tPgDn"
+msgstr ""
+
+msgid "Can't zoom deeper than 5"
+msgstr ""
+
+msgid "1-period"
+msgstr ""
+
+msgid "10-period"
+msgstr ""
+
+msgid "100-period"
+msgstr ""
+
+msgid "1000-period"
+msgstr ""
+
+msgid "Go to Time"
+msgstr ""
+
+msgid "Go to &Today\tCtrl+T"
+msgstr ""
+
+msgid "Go to D&ate...\tCtrl+G"
+msgstr ""
+
+msgid "Forward One Wee&k\tCtrl+K"
+msgstr ""
+
+msgid "Back One &Week\tCtrl+W"
+msgstr ""
+
+msgid "Forward One Mont&h\tCtrl+h"
+msgstr ""
+
+msgid "Back One &Month\tCtrl+M"
+msgstr ""
+
+msgid "Forward One Yea&r\tCtrl+R"
+msgstr ""
+
+msgid "Back One &Year\tCtrl+Y"
+msgstr ""
+
+msgid "Fit Millennium"
+msgstr ""
+
+msgid "Fit Century"
+msgstr ""
+
+msgid "Fit Decade"
+msgstr ""
+
+msgid "Fit Year"
+msgstr ""
+
+msgid "Fit Month"
+msgstr ""
+
+msgid "Fit Day"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "can't be before year 10"
+msgstr ""
+
+msgid "can't be after year 9989"
+msgstr ""
+
+msgid "Can't zoom wider than 1200 years"
+msgstr ""
+
+msgid "Can't zoom deeper than 1 hour"
+msgstr ""
+
+msgid "Day"
+msgstr ""
+
+msgid "Week"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Year"
+msgstr ""
+
+msgid "Go to Date"
+msgstr ""
+
+msgid "can't be before year %d"
+msgstr ""
+
+msgid "can't be after year %d"
+msgstr ""
+
+msgid "No timeline set"
+msgstr ""
+
+msgid "Can't scroll more to the left"
+msgstr ""
+
+msgid "Can't scroll more to the right"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Duplicate..."
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Sticky Balloon"
+msgstr ""
+
+msgid "Center"
+msgstr ""
+
+msgid "%s events hidden"
+msgstr ""
+
+msgid "Are you sure you want to delete this event?"
+msgstr ""
+
+msgid "Can't move locked event"
+msgstr ""
+
+msgid "Period is too long"
+msgstr ""
+
+msgid "Select region to zoom into"
+msgstr ""
+
+msgid "Region too long"
+msgstr ""
+
+msgid "Region too short"
+msgstr ""
+
+msgid "Add new"
+msgstr ""
+
+msgid "Add Category"
+msgstr ""
+
+msgid "Edit..."
+msgstr ""
+
+msgid "Add..."
+msgstr ""
+
+msgid "Edit Category"
+msgstr ""
+
+msgid "Are you sure you want to delete category '%s'?"
+msgstr ""
+
+msgid "Events belonging to '%s' will no longer belong to a category."
+msgstr ""
+
+msgid "Events belonging to '%s' will now belong to '%s'."
+msgstr ""
+
+msgid "Invalid date"
+msgstr ""
+
+msgid "No match"
+msgstr ""
+
+msgid "Only one match"
+msgstr ""
+
+msgid "Edit Categories"
+msgstr ""
+
+msgid "Category name '%s' not valid. Must be non-empty."
+msgstr ""
+
+msgid "Category name '%s' already in use."
+msgstr ""
+
+msgid "Name:"
+msgstr ""
+
+msgid "Color:"
+msgstr ""
+
+msgid "Font Color:"
+msgstr ""
+
+msgid "Parent:"
+msgstr ""
+
+msgid "Container Properties"
+msgstr ""
+
+msgid "Category:"
+msgstr ""
+
+msgid "Duplicate Event"
+msgstr ""
+
+msgid "%d Events not duplicated due to missing dates."
+msgstr ""
+
+msgid "Number of duplicates:"
+msgstr ""
+
+msgid "Period"
+msgstr ""
+
+msgid "Frequency:"
+msgstr ""
+
+msgid "Backward"
+msgstr ""
+
+msgid "Forward"
+msgstr ""
+
+msgid "Both"
+msgstr ""
+
+msgid "Direction"
+msgstr ""
+
+msgid "Event Properties"
+msgstr ""
+
+msgid "When:"
+msgstr ""
+
+msgid "to"
+msgstr ""
+
+msgid "Container:"
+msgstr ""
+
+msgid "Add Container"
+msgstr ""
+
+msgid "Show time"
+msgstr ""
+
+msgid "Fuzzy"
+msgstr ""
+
+msgid "Locked"
+msgstr ""
+
+msgid "Ends today"
+msgstr ""
+
+msgid "Text:"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Alert"
+msgstr ""
+
+msgid "Icon"
+msgstr ""
+
+msgid "Add more events after this one"
+msgstr ""
+
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr ""
+
+msgid "Select Icon"
+msgstr ""
+
+msgid "Edit Container"
+msgstr ""
+
+msgid "Edit Event"
+msgstr ""
+
+msgid "Create Event"
+msgstr ""
+
+msgid "Help"
+msgstr ""
+
+msgid "Could not find markdown Python package.  It is needed by the help system. See the Timeline website or the INSTALL file for instructions how to install it."
+msgstr ""
+
+msgid "Go to home page"
+msgstr ""
+
+msgid "Go back one page"
+msgstr ""
+
+msgid "Go forward one page"
+msgstr ""
+
+msgid "Page not found"
+msgstr ""
+
+msgid "Could not find page '%s'."
+msgstr ""
+
+msgid "Timeline files"
+msgstr ""
+
+msgid "SVG files"
+msgstr ""
+
+msgid "&File"
+msgstr ""
+
+msgid "Create a new timeline"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "File Timeline..."
+msgstr ""
+
+msgid "Create Timeline"
+msgstr ""
+
+msgid "The specified timeline already exists."
+msgstr ""
+
+msgid "Opening timeline instead of creating new."
+msgstr ""
+
+msgid "Information"
+msgstr ""
+
+msgid "Directory Timeline..."
+msgstr ""
+
+msgid "Open an existing timeline"
+msgstr ""
+
+msgid "Open Timeline"
+msgstr ""
+
+msgid "Open &Recent"
+msgstr ""
+
+msgid "Page Set&up..."
+msgstr ""
+
+msgid "Setup page for printing"
+msgstr ""
+
+msgid "Print Preview"
+msgstr ""
+
+msgid "Print"
+msgstr ""
+
+msgid "&Export to Image..."
+msgstr ""
+
+msgid "Export the current view to a PNG image"
+msgstr ""
+
+msgid "&Export to SVG..."
+msgstr ""
+
+msgid "Export the current view to a SVG image"
+msgstr ""
+
+msgid "Could not find pysvg Python package. It is needed to export to SVG. See the Timeline website or the INSTALL file for instructions how to install it."
+msgstr ""
+
+msgid "Export to SVG"
+msgstr ""
+
+msgid "Play timeline"
+msgstr ""
+
+msgid "Play timeline as movie"
+msgstr ""
+
+msgid "Exit the program"
+msgstr ""
+
+msgid "&Edit"
+msgstr ""
+
+msgid "&View"
+msgstr ""
+
+msgid "&Sidebar\tCtrl+I"
+msgstr ""
+
+msgid "&Legend"
+msgstr ""
+
+msgid "&Balloons on hover"
+msgstr ""
+
+msgid "&Timeline"
+msgstr ""
+
+msgid "Create &Event..."
+msgstr ""
+
+msgid "Create a new event"
+msgstr ""
+
+msgid "&Duplicate Selected Event..."
+msgstr ""
+
+msgid "Duplicate the Selected Event"
+msgstr ""
+
+msgid "&Measure Distance between two Events..."
+msgstr ""
+
+msgid "Measure the Distance between two Events"
+msgstr ""
+
+msgid "Distance between selected events"
+msgstr ""
+
+msgid "Events are overlapping or distance is 0"
+msgstr ""
+
+msgid "Edit &Categories"
+msgstr ""
+
+msgid "&Navigate"
+msgstr ""
+
+msgid "Find First Event"
+msgstr ""
+
+msgid "Find Last Event"
+msgstr ""
+
+msgid "Fit All Events"
+msgstr ""
+
+msgid "&Help"
+msgstr ""
+
+msgid "&Contents\tF1"
+msgstr ""
+
+msgid "Getting started tutorial"
+msgstr ""
+
+msgid "Unable to write configuration file."
+msgstr ""
+
+msgid "read-only"
+msgstr ""
+
+msgid "File '%s' does not exist."
+msgstr ""
+
+msgid "No timeline opened."
+msgstr ""
+
+msgid "First time using Timeline?"
+msgstr ""
+
+msgid "Relevant help topics:"
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Preferences"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Date && Time"
+msgstr ""
+
+msgid "Week start on:"
+msgstr ""
+
+msgid ""
+"This feature is experimental. If events are\n"
+"created in the extended range, you can not\n"
+"disable this option and successfully load\n"
+"the timeline again. A reload of the timeline\n"
+"is also needed for this to take effect."
+msgstr ""
+
+msgid "Open most recent timeline on startup"
+msgstr ""
+
+msgid "Use inertial scrolling"
+msgstr ""
+
+msgid "Use extended date range (before 1 AD)"
+msgstr ""
+
+msgid "Monday"
+msgstr ""
+
+msgid "Sunday"
+msgstr ""
+
+msgid "Unable to copy to clipboard."
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Question"
+msgstr ""
 
 msgid "programmer forgot to specify error message"
 msgstr ""
@@ -617,14 +1506,6 @@ msgstr ""
 msgid "Medication history"
 msgstr ""
 
-msgid ""
-"\n"
-" Take: %s"
-msgstr ""
-
-msgid "Take: %s"
-msgstr ""
-
 msgid "copy"
 msgstr ""
 
@@ -1189,6 +2070,48 @@ msgstr ""
 
 msgid ""
 "Exported: %s\n"
+msgstr ""
+
+msgid "Health issues"
+msgstr ""
+
+msgid "Episodes"
+msgstr ""
+
+msgid "Encounters"
+msgstr ""
+
+msgid "Hospital stays"
+msgstr ""
+
+msgid "Procedures"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "Substances"
+msgstr ""
+
+msgid "Life events"
+msgstr ""
+
+msgid "Birth"
+msgstr ""
+
+msgid "Live events"
+msgstr ""
+
+msgid "Date of birth unknown"
+msgstr ""
+
+msgid "Start of Care"
+msgstr ""
+
+msgid "The earliest recorded event of care in this praxis."
+msgstr ""
+
+msgid "Death"
 msgstr ""
 
 msgid ""
@@ -1958,9 +2881,6 @@ msgid ""
 "RV Lead: Medtronic ? (explanted)                        Explanted: Feb 09 2008"
 msgstr ""
 
-msgid "New"
-msgstr ""
-
 msgid "&All"
 msgstr ""
 
@@ -2217,9 +3137,6 @@ msgstr ""
 msgid "Unapproved"
 msgstr ""
 
-msgid "&Edit"
-msgstr ""
-
 msgid "Info"
 msgstr ""
 
@@ -2311,9 +3228,6 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-msgid "Delete"
-msgstr ""
-
 msgid "Contribute"
 msgstr ""
 
@@ -2397,6 +3311,9 @@ msgstr ""
 msgid "Unit"
 msgstr ""
 
+msgid "Refresh the timeline display."
+msgstr ""
+
 msgid "Edit Document Types"
 msgstr ""
 
@@ -2442,9 +3359,6 @@ msgstr ""
 msgid "Deactivate"
 msgstr ""
 
-msgid "Close"
-msgstr ""
-
 msgid "Edit staff list"
 msgstr ""
 
@@ -2487,9 +3401,6 @@ msgid ""
 msgstr ""
 
 msgid "Close this dialog."
-msgstr ""
-
-msgid "Name"
 msgstr ""
 
 msgid "edit encounter details"
@@ -2577,9 +3488,6 @@ msgid "Patient"
 msgstr ""
 
 msgid "Nest under"
-msgstr ""
-
-msgid "Description"
 msgstr ""
 
 msgid "Certainty"
@@ -3227,9 +4135,6 @@ msgid "A comment on this lab."
 msgstr ""
 
 msgid "Org.Unit"
-msgstr ""
-
-msgid "Contact"
 msgstr ""
 
 msgid "A descriptive name for this test type."
@@ -3892,9 +4797,6 @@ msgstr ""
 msgid "With Sample"
 msgstr ""
 
-msgid "Print"
-msgstr ""
-
 msgid "Your review"
 msgstr ""
 
@@ -4127,6 +5029,9 @@ msgid "Sort documents by"
 msgstr ""
 
 msgid "&Delete"
+msgstr ""
+
+msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
 
 msgid "&Save"
@@ -5040,9 +5945,6 @@ msgstr ""
 msgid "Cancel Login."
 msgstr ""
 
-msgid "&Help"
-msgstr ""
-
 msgid "Help for login screen"
 msgstr ""
 
@@ -5320,6 +6222,12 @@ msgid "&VAT applies (%s%%)"
 msgstr ""
 
 msgid "billing"
+msgstr ""
+
+msgid "Selecting address"
+msgstr ""
+
+msgid "GNUmed does not know any addresses for this patient."
 msgstr ""
 
 msgid "Cannot edit already invoiced bill item."
@@ -5643,9 +6551,6 @@ msgid ""
 msgstr ""
 
 msgid "Active patient query"
-msgstr ""
-
-msgid "Error"
 msgstr ""
 
 msgid "The query failed."
@@ -6261,9 +7166,6 @@ msgid ""
 msgstr ""
 
 msgid "Managing document descriptions"
-msgstr ""
-
-msgid "Documents"
 msgstr ""
 
 msgid "Select the episode under which to file the document ..."
@@ -7292,9 +8194,6 @@ msgstr ""
 msgid "Specialty"
 msgstr ""
 
-msgid "Text"
-msgstr ""
-
 msgid "Meds"
 msgstr ""
 
@@ -7322,9 +8221,6 @@ msgstr ""
 msgid "(R)"
 msgstr ""
 
-msgid "Both"
-msgstr ""
-
 msgid "Operation"
 msgstr ""
 
@@ -7347,6 +8243,33 @@ msgid ""
 "Please make sure to get the missing\n"
 "parts installed. Otherwise some of the\n"
 "functionality will not be accessible."
+msgstr ""
+
+msgid ""
+"\n"
+" Source: %s"
+msgstr ""
+
+msgid ""
+"\n"
+" Code: %s"
+msgstr ""
+
+msgid ""
+"\n"
+"%s\n"
+" Details (250 chars max):\n"
+"%s\n"
+"%s"
+msgstr ""
+
+msgid "Access violation"
+msgstr ""
+
+msgid ""
+"You do not have access to this part of GNUmed.\n"
+"\n"
+"%s"
 msgstr ""
 
 msgid "Lost connection"
@@ -7771,10 +8694,10 @@ msgstr ""
 msgid "Select the template for printing a medication list."
 msgstr ""
 
-msgid "Primary doctor"
+msgid "Fallback provider"
 msgstr ""
 
-msgid "Select the primary doctor to fall back to for patients without one."
+msgid "Select the doctor to fall back to for patients without a primary provider."
 msgstr ""
 
 msgid "Edit before patient change"
@@ -9851,9 +10774,6 @@ msgstr ""
 msgid "Editing drug brand"
 msgstr ""
 
-msgid "Substances"
-msgstr ""
-
 msgid "Manage consumable substances"
 msgstr ""
 
@@ -10459,6 +11379,12 @@ msgstr ""
 msgid "last: %s, %s"
 msgstr ""
 
+msgid "Last %s:"
+msgstr ""
+
+msgid "Statistics cover period"
+msgstr ""
+
 msgid "%s Vacc: %s"
 msgstr ""
 
@@ -10849,12 +11775,6 @@ msgstr ""
 msgid "&Print"
 msgstr ""
 
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
 msgid "week"
 msgstr ""
 
@@ -11038,9 +11958,6 @@ msgid "Inbox Message Actions:"
 msgstr ""
 
 msgid "Activate patient"
-msgstr ""
-
-msgid "Edit"
 msgstr ""
 
 msgid "You must deal with the reason for this message to remove it from your inbox."
@@ -11562,6 +12479,15 @@ msgstr ""
 msgid "(%s patients)"
 msgstr ""
 
+msgid "Waiting list"
+msgstr ""
+
+msgid ""
+"Cannot activate patient.\n"
+"\n"
+"It has probably been disabled."
+msgstr ""
+
 msgid "Cannot add waiting list entry: No patient selected."
 msgstr ""
 
@@ -11836,6 +12762,12 @@ msgstr ""
 msgid "EMR &Journal (chronological)"
 msgstr ""
 
+msgid "EMR Timeline"
+msgstr ""
+
+msgid "Show &Timeline"
+msgstr ""
+
 msgid "Template Plugin"
 msgstr ""
 
@@ -11924,9 +12856,6 @@ msgid "&SimpleNotes"
 msgstr ""
 
 msgid "&Notes"
-msgstr ""
-
-msgid "Waiting list"
 msgstr ""
 
 msgid "&Waiting list"
@@ -12093,9 +13022,6 @@ msgid "Change Font"
 msgstr ""
 
 msgid "Save list layout"
-msgstr ""
-
-msgid "Help"
 msgstr ""
 
 msgid "Exit"
