@@ -331,7 +331,7 @@ msgstr " %s αποτελέσματα εξετάσεων\n"
 
 #, fuzzy
 msgid " %s hospitalizations"
-msgstr " %S Ενδονοσοκομειακές παραμονές\n"
+msgstr " %s Ενδονοσοκομειακές παραμονές\n"
 
 #, fuzzy
 msgid ""

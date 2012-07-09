@@ -1470,7 +1470,7 @@ msgid ""
 "[%s]."
 msgstr ""
 "Skript (makro) måste vara läsbart enbart för användaren (tillstånd "
-"\"0600\"): [%S]."
+"\"0600\"): [%s]."
 
 msgid "Error running hook [%s] script."
 msgstr "Fel då hulling (eng. hook) i skript [%s] exekverades."
