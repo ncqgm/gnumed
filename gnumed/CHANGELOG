@@ -19,6 +19,7 @@ NEW: placeholder $<patient_photo>$
 
 IMPROVED: more frequent waiting list updates [thanks J.Busser]
 IMRPOVED: release mail word-smithing
+IMPROVED: disambiguate "problem IS health issue" in SOAP editor [thanks J.Busser]
 
 	1.2.1
 

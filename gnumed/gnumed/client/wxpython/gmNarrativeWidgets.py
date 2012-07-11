@@ -846,7 +846,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 
-				list_items.append([last, problem['problem'], gmTools.u_down_left_arrow])		#gmTools.u_left_arrow
+				list_items.append([last, problem['problem'], gmTools.u_left_arrow_with_tail])
 
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
