@@ -50,6 +50,7 @@ u_numero = u'\u2116'						# No. / # sign
 u_down_left_arrow = u'\u21B5'				# <-'
 u_left_arrow = u'\u2190'					# <--
 u_right_arrow = u'\u2192'					# -->
+u_left_arrow_with_tail = u'\u21a2'			# <--<
 u_sum = u'\u2211'
 u_almost_equal_to = u'\u2248'				# approximately / nearly / roughly
 u_corresponds_to = u'\u2258'
