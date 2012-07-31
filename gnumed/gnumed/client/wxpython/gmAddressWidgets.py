@@ -424,7 +424,8 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		self.data = {
 			'l10n_state' : self._PRW_province.GetValue().strip(),
 			'code_state' : self._TCTRL_code.GetValue().strip(),
-			'l10n_country' : self._PRW_country.GetValue().strip()
+			'l10n_country' : self._PRW_country.GetValue().strip(),
+			'code_country' : self._PRW_country.GetData().strip()
 		}
 
 		return True

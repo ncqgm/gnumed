@@ -6,6 +6,10 @@
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.18
+
+FIX: exception on adding region [thanks U.Koch Kronberg]
+
 	1.1.16
 
 FIX: FreeDiams XML file API access
