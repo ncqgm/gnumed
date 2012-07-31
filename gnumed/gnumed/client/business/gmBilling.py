@@ -342,7 +342,10 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			)
 		else:
 			txt += _(' VAT: does not apply\n')
-		txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
+		if self._payload[self._idx['pk_bill_items']] is None:
+			txt += _(' Items billed: 0\n')
+		else:
+			txt += _(' Items billed: %s\n') % len(self._payload[self._idx['pk_bill_items']])
 		txt += _(' Invoice: %s\n') % (
 			gmTools.bool2subst (
 				self._payload[self._idx['pk_doc']] is None,

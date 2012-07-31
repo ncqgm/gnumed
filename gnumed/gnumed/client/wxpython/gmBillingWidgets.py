@@ -629,14 +629,18 @@ def manage_bills(parent=None, patient=None):
 				close_date = _('<open>')
 			else:
 				close_date = gmDateTime.pydt_strftime(b['close_date'], '%Y %b %d')
-			items.append([
-				close_date,
-				b['invoice_id'],
-				gmTools.bool2subst (
+			if b['total_amount'] is None:
+				amount = _('no items on bill')
+			else:
+				amount = gmTools.bool2subst (
 					b['apply_vat'],
 					_('%s %s (with %s%% VAT)') % (b['total_amount_with_vat'], b['currency'], b['percent_vat']),
 					u'%s %s' % (b['total_amount'], b['currency'])
 				)
+			items.append ([
+				close_date,
+				b['invoice_id'],
+				amount
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
@@ -824,18 +828,17 @@ def manage_bill_items(parent=None, pk_patient=None):
 			gmDateTime.pydt_strftime(b['date_to_bill'], '%x', accuracy = gmDateTime.acc_days),
 			b['unit_count'],
 			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
-			u'%s %s (%s %s %s%s%s)' % (
+			b['currency'],
+			u'%s (%s %s %s%s%s)' % (
 				b['total_amount'],
-				b['currency'],
 				b['unit_count'],
 				gmTools.u_multiply,
 				b['net_amount_per_unit'],
 				gmTools.u_multiply,
 				b['amount_multiplier']
 			),
-			u'%s %s (%s%%)' % (
+			u'%s (%s%%)' % (
 				b['vat'],
-				b['currency'],
 				b['vat_multiplier'] * 100
 			),
 			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
@@ -848,7 +851,7 @@ def manage_bill_items(parent=None, pk_patient=None):
 		parent = parent,
 		#msg = msg,
 		caption = _('Showing bill items.'),
-		columns = [_('Date'), _('Count'), _('Description'), _('Value'), _('VAT'), _('Catalog'), u'#'],
+		columns = [_('Date'), _('Count'), _('Description'), u'%s$%s%s' % (gmTools.u_euro, gmTools.u_currency_pound, gmTools.u_kanji_yen), _('Value'), _('VAT'), _('Catalog'), u'#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -895,13 +898,10 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			gmDateTime.pydt_strftime(b['date_to_bill'], '%x', accuracy = gmDateTime.acc_days),
 			b['unit_count'],
 			u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
-			u'%s %s' % (
-				b['total_amount'],
-				b['currency']
-			),
-			u'%s %s (%s%%)' % (
+			b['currency'],
+			b['total_amount'],
+			u'%s (%s%%)' % (
 				b['vat'],
-				b['currency'],
 				b['vat_multiplier'] * 100
 			),
 			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
@@ -928,6 +928,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Charge date'),
 			_('Count'),
 			_('Description'),
+			u'%s$%s%s' % (gmTools.u_euro, gmTools.u_currency_pound, gmTools.u_kanji_yen),
 			_('Value'),
 			_('VAT'),
 			_('Catalog'),

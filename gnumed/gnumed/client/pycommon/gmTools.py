@@ -36,6 +36,8 @@ _log = logging.getLogger('gm.tools')
 ) = range(6)
 
 
+u_currency_pound = u'\u00A3'				# Pound sign
+u_currency_yen = u'\u00A5'					# Yen sign
 u_right_double_angle_quote = u'\u00AB'		# <<
 u_registered_trademark = u'\u00AE'
 u_plus_minus = u'\u00B1'
@@ -78,6 +80,7 @@ u_pencil_1 = u'\u270e'
 u_pencil_2 = u'\u270f'
 u_pencil_3 = u'\u2710'
 u_latin_cross = u'\u271d'
+u_kanji_yen = u'\u5186'						# Yen kanji
 u_replacement_character = u'\ufffd'
 u_link_symbol = u'\u1f517'
 
