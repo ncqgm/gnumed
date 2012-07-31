@@ -25,6 +25,7 @@ IMPROVED: better listing of bills w/o items [thanks J.Busser]
 FIX: tooltip of bills w/o items [thanks J.Busser]
 FIX: failure to save .tex bill files
 FIX: faulty encounter matcher SQL [thanks J.Busser]
+FIX: failure to properly modify workplace plugin list [thanks V.Banait]
 
 	1.2.1
 
