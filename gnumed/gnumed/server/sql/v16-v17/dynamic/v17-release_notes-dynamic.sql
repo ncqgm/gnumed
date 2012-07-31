@@ -17,28 +17,26 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.1 (database v17.1)',
-	'GNUmed 1.2.1 Release Notes:
+	'Release Notes for GNUmed 1.2.2 (database v17.2)',
+	'GNUmed 1.2.2 Release Notes:
 
-	1.2.1
+	1.2.2
 
-IMPROVED: user experience with SimpleNotes plugin [thanks J.Busser]
-IMPROVED: tell when there is no address for billing [thanks S.Hilbert]
-IMPROVED: suggest current user as primary provider on new patients [thanks J.Busser]
-IMPROVED: AutoHotKey script [thanks V.Banait]
-IMPROVED: login dialog size [thanks J.Busser/L.Dodd]
-IMPROVED: show stats cover period in Activity overview plugin sub panel [thanks J.Busser]
-IMPROVED: soft-wrapping SimpleNotes and $<free_text>$ input [thanks J.Busser]
+IMPROVED: more frequent waiting list updates [thanks J.Busser]
+IMRPOVED: release mail word-smithing
+IMPROVED: disambiguate "problem IS health issue" in SOAP editor [thanks J.Busser]
+IMPROVED: better listing of bills w/o items [thanks J.Busser]
 
-FIX: FreeDiams XML file API
-FIX: exception activating disabled patient from waiting list [thanks B.Uhl]
-FIX: exception on saving allergy without onset date [thanks J.Busser]
-FIX: exception on editing comm channel w/o comment [thanks J.Busser]
-FIX: exception on d-clicking top panel encounter field w/o active patient [thanks J.Busser]
+FIX: tooltip of bills w/o items [thanks J.Busser]
+FIX: failure to save .tex bill files
+FIX: faulty encounter matcher SQL [thanks J.Busser]
 
-	17.1
+	17.2
 
-FIX: insufficient waiting time formatting [thanks J.Busser]
+FIX: incorrect auditing setup of ref.billable [thanks J.Busser]
+
+IMPROVED: prevent bills w/o items [thanks J.Busser]
+IMPROVED: warn on upgrade if target DB exists [thanks V.Banait]
 ');
 
 -- --------------------------------------------------------------
