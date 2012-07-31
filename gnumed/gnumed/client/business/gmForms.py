@@ -935,6 +935,7 @@ class cLaTeXForm(cFormEngine):
 		try:
 			sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
 			shutil.move(self.instance_filename, sandboxed_instance_filename)
+			self.re_editable_filenames = [sandboxed_instance_filename]
 
 			# LaTeX can need up to three runs to get cross references et al right
 			if platform.system() == 'Windows':

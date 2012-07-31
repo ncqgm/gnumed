@@ -829,22 +829,23 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
 
 		cmd = u"""
-			SELECT -- DISTINCT ON (data)
+			SELECT DISTINCT ON (list_label)
 				pk_encounter
 					AS data,
-				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type || ' [#' || pk_encounter || ']'
 					AS list_label,
 				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
 					AS field_label
 			FROM
 				clin.v_pat_encounters
 			WHERE
-				to_char(started, 'YYYY-MM-DD') %(fragment_condition)s
-					OR
-				l10n_type %(fragment_condition)s
-					OR
-				type %(fragment_condition)s
-				%(ctxt_patient)s
+				(
+					to_char(started, 'YYYY-MM-DD') %(fragment_condition)s
+						OR
+					l10n_type %(fragment_condition)s
+						OR
+					type %(fragment_condition)s
+				)	%(ctxt_patient)s
 			ORDER BY
 				list_label
 			LIMIT
@@ -870,6 +871,7 @@ class cEncounterPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				pk_encounter = %(pk)s
 		"""
 		self.matcher.setThresholds(1, 3, 5)
+		#self.matcher.print_queries = True
 		self.selection_only = True
 		# outside code MUST bind this to a patient
 		self.set_context(context = 'patient', val = None)
