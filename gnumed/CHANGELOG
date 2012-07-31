@@ -1094,6 +1094,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 FIX: incorrect auditing setup of ref.billable [thanks J.Busser]
 
 IMPROVED: prevent bills w/o items [thanks J.Busser]
+IMPROVED: warn on upgrade if target DB exists [thanks V.Banait]
 
 	17.1
 
