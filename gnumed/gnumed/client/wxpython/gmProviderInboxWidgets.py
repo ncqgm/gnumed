@@ -225,7 +225,7 @@ def configure_workplace_plugins(parent=None):
 		picker.set_columns(['Available plugins'], ['Active plugins'])
 		available_plugins = gmPlugin.get_installed_plugins(plugin_dir = 'gui')
 		picker.set_choices(available_plugins)
-		picker.set_picks(picks = curr_plugins)
+		picker.set_picks(picks = curr_plugins[:])
 		btn_pressed = picker.ShowModal()
 		if btn_pressed != wx.ID_OK:
 			picker.Destroy()
