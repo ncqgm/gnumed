@@ -113,23 +113,54 @@ fi ;
 
 
 
+# show what we do
+echo_msg ""
+echo_msg "==========================================================="
+echo_msg "Upgrading GNUmed database: v${PREV_VER} -> v${NEXT_VER}"
+echo_msg ""
+echo_msg "This will create a new GNUmed v${NEXT_VER} database from an"
+echo_msg "existing v${PREV_VER} database. Patient data is transferred and"
+echo_msg "transformed as necessary. The old v${PREV_VER} database will"
+echo_msg "remain unscathed. For the upgrade to proceed there must"
+echo_msg "not be any connections to it by other users, however."
+echo_msg ""
+echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\". Note"
+echo_msg "that any pre-existing v${NEXT_VER} database WILL BE DELETED"
+echo_msg "during the upgrade !"
+echo_msg ""
+echo_msg "(this script usually needs to be run as <root>)"
+echo_msg "==========================================================="
+
+
+
+# better safe than sorry
+if test "${SYSTEM}" != "Darwin" ; then
+	# Does TARGET database exist ?
+	VER_EXISTS=`su -c "psql -l ${PORT_DEF}" -l postgres | grep gnumed_v${NEXT_VER}`
+	if test "${VER_EXISTS}" != "" ; then
+		echo ""
+		echo "WARNING: The target database"
+		echo "WARNING:"
+		echo "WARNING:  gnumed_v${NEXT_VER}"
+		echo "WARNING:"
+		echo "WARNING: already exists."
+		echo "WARNING:"
+		echo "WARNING: Note that during the upgrade this"
+		echo "WARNING: database will be OVERWRITTEN !"
+		echo ""
+		echo "Continue upgrading (overwrites gnumed_v${NEXT_VER}) ? "
+		echo ""
+		read -e -p "[yes / NO]: "
+		if test "${REPLY}" != "yes" ; then
+			echo "Upgrading aborted by user."
+			exit 1
+		fi
+	fi
+fi
+
+
+
 # eventually attempt the upgrade
-echo_msg ""
-echo_msg "==========================================================="
-echo_msg "Upgrading GNUmed database."
-echo_msg ""
-echo_msg "This will *non-destructively* create a new GNUmed database"
-echo_msg "of version v${NEXT_VER} from an existing v${PREV_VER} database."
-echo_msg "Existing data is transferred and transformed as necessary."
-echo_msg ""
-echo_msg "This script usually needs to be run as <root>. Also,"
-echo_msg "the database \"gnumed_v${PREV_VER}\" must not be used by"
-echo_msg "other users."
-echo_msg ""
-echo_msg "The name of the new database will be \"gnumed_v${NEXT_VER}\"."
-echo_msg "==========================================================="
-
-
 echo_msg ""
 echo_msg "1) creating backup of existing database ..."
 if test "$SKIP_BACKUP" != "no-backup" ; then
