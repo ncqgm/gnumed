@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# ===========================================================
+# Convert files from one format into another.
+#
+# The GNUmed client expects to be able to run this command
+# in a systemwide way, ie. it needs to be accessible in the
+# executable $PATH (such that "which gm-convert_file" gives a
+# useful answer). There can be several copies per system in
+# which way users can override a system default script with
+# their own.
+#
+# Typical locations for this script would be
+#
+#	/usr/bin/
+#	/usr/local/bin/
+#	~/bin/
+#
+# This is just an example. You must install ImageMagick
+# to actually use it.
+#
+# ===========================================================
+INPUT_FILE="$1"
+TARGET_MIME="$2"
+TARGET_EXTENSION="$3"
+TARGET_FILENAME="$4"
+
+# ----------------------------------------------------------
+CONVERTER="convert -regard-warnings "			# requires imagemagick
+CMD_LINE="${INPUT_FILE} ${TARGET_EXTENSION}:${TARGET_FILENAME}"
+RUN_CONVERTER="${CONVERTER} ${CMD_LINE}"
+
+
+if test -z ${TARGET_FILENAME} ; then
+	echo "=============================================================================================="
+	echo "Usage:"
+	echo " $0 <input file> <target mime type> <target file extension> <target filename>"
+	echo ""
+	echo "Given:"
+	echo " $0 ${CMD_LINE}"
+	echo "=============================================================================================="
+	exit 1
+fi
+
+
+rm -f ${TARGET_FILENAME}
+rm -f ${TARGET_EXTENSION}:${TARGET_FILENAME}
+${RUN_CONVERTER}
+if test "$?" != "0" ; then
+	rm -f ${TARGET_FILENAME}
+	rm -f ${TARGET_EXTENSION}:${TARGET_FILENAME}
+	exit 1
+fi
+
+exit 0
+# ===========================================================

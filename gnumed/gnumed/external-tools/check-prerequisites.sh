@@ -85,6 +85,18 @@ else
 	echo "found"
 fi
 
+
+echo -n " 'Ginkgo CADx' DICOM viewer... "
+BIN=`which ginkgocadx`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'ginkgocadx' command installed."
+	echo "  INFO : This is the recommended DICOM viewer."
+else
+	echo "found"
+fi
+
+
 echo -n " 'Aeskulap' DICOM viewer... "
 BIN=`which aeskulap`
 if [ "x${BIN}x" == "xx" ]; then
@@ -165,6 +177,16 @@ else
 	echo "found"
 fi
 
+echo -n " 'gm-convert_file' command... "
+BIN=`which gm-convert_file`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-convert_file' command installed."
+	echo "  INFO : It is used to convert files between formats from within GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'pdflatex' command... "
 BIN=`which pdflatex`
 if [ "x${BIN}x" == "xx" ]; then
@@ -175,16 +197,17 @@ else
 	echo "found"
 fi
 
-echo -n " 'kprinter' command... "
-BIN=`which kprinter`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'kprinter' command installed."
-	echo "  INFO : It is used to print files from KDE."
-	echo "  INFO : On Windows it is not needed."
-else
-	echo "found"
-fi
+# not available anymore:
+#echo -n " 'kprinter' command... "
+#BIN=`which kprinter`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'kprinter' command installed."
+#	echo "  INFO : It is used to print files from KDE."
+#	echo "  INFO : On Windows it is not needed."
+#else
+#	echo "found"
+#fi
 
 echo -n " 'gtklp' command... "
 BIN=`which gtklp`
@@ -193,6 +216,17 @@ if [ "x${BIN}x" == "xx" ]; then
 	echo "  INFO : You don't seem to have the 'gktlp' command installed."
 	echo "  INFO : It is used to print files from GNOME."
 	echo "  INFO : On Windows it is not needed."
+else
+	echo "found"
+fi
+
+echo -n " 'convert' command... "
+BIN=`which convert`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'convert' command installed."
+	echo "  INFO : It comes with the ImageMagick package and is used"
+	echo "  INFO : to convert files from one format into another."
 else
 	echo "found"
 fi

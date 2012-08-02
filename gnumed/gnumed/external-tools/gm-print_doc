@@ -23,9 +23,6 @@
 # for a list of print job type tags.
 #
 # ===========================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-print_doc,v $
-# $Id: gm-print_doc,v 1.7 2010-01-19 15:49:07 ncq Exp $
-# ===========================================================
 
 TYPE="$1"			# this is a tag as to what type of print job this is
 shift 1

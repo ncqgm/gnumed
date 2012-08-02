@@ -245,7 +245,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def export_to_file(self, aTempDir = None, aChunkSize = 0, filename=None):
+	def export_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
@@ -261,8 +261,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			# get unique filename
 			filename = gmTools.get_unique_filename (
 				prefix = 'gm-doc_obj-page_%s-' % self._payload[self._idx['seq_idx']],
-				suffix = suffix,
-				tmp_dir = aTempDir
+				suffix = suffix
 			)
 
 		success = gmPG2.bytea2file (
@@ -275,10 +274,33 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			data_size = self._payload[self._idx['size']]
 		)
 
-		if success:
+		if not success:
+			return None
+
+		if target_mime is None:
 			return filename
 
-		return None
+		if target_extension is None:
+			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
+
+		target_fname = gmTools.get_unique_filename (
+			prefix = 'gm-doc_obj-page_%s-converted-' % self._payload[self._idx['seq_idx']],
+			suffix = target_extension
+		)
+		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
+		if gmMimeLib.convert_file (
+			filename = filename,
+			target_mime = target_mime,
+			target_filename = target_fname
+		):
+			return target_fname
+
+		_log.warning('conversion failed')
+		if not ignore_conversion_problems:
+			return None
+
+		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
+		return filename
 	#--------------------------------------------------------
 	def get_reviews(self):
 		cmd = u"""
@@ -389,9 +411,9 @@ where
 		self._is_modified = True
 		self.save_payload()
 	#--------------------------------------------------------
-	def display_via_mime(self, tmpdir=None, chunksize=0, block=None):
+	def display_via_mime(self, chunksize=0, block=None):
 
-		fname = self.export_to_file(aTempDir = tmpdir, aChunkSize = chunksize)
+		fname = self.export_to_file(aChunkSize = chunksize)
 		if fname is None:
 			return False, ''
 

@@ -128,6 +128,7 @@ cp -R ../../external-tools/gm-remove_person.sh ./gnumed-client.$CLIENTREV/extern
 cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/check-prerequisites.* ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/*.ahk ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
@@ -175,7 +176,8 @@ cp -R ../../client/doc/man-pages/gnumed.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-print_doc.1 ./gnumed-client.$CLIENTREV/client/doc/gm-print_doc.1
 cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/client/doc/gm_ctl_client.1
 cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/gm-install_arriba.8
-cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/server/doc/
+cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/doc/man-pages/gm-convert_file.1 ./gnumed-client.$CLIENTREV/client/doc/
 
 
 # etc

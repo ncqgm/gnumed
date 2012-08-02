@@ -2138,10 +2138,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			default = default_chunksize
 		))
 
-		part_file = self.__curr_node_data.export_to_file (
-#			aTempDir = tmp_dir,
-			aChunkSize = chunksize
-		)
+		part_file = self.__curr_node_data.export_to_file(aChunkSize = chunksize)
 
 		cmd = u'%s %s' % (external_cmd, part_file)
 		if os.name == 'nt':

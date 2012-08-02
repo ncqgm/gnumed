@@ -1,0 +1,55 @@
+.\" ========================================================
+.\" license: GPL v2 or later
+.\" ========================================================
+
+.TH gm-convert_file 1 "2012 August 2nd" "Convert files from within GNUmed"
+
+
+.SH NAME
+.B gm-convert_file
+- converts files from within GNUmed
+
+
+.SH SYNOPSIS
+.B gm-convert_file
+.I <input file>
+.I <target mime type>
+.I <target file extension>
+.I <target filename>
+
+
+.SH DESCRIPTION
+.B gm-convert_file
+is a helper script which GNUmed uses to convert files from
+one format into another as needed.
+
+.SH OPTIONS
+.PP
+.TP
+.B input file
+The file to convert.
+.TP
+.B target mime type
+The mime type into which to convert the input file.
+.TP
+.B target file extension
+The extension of the target filename
+
+Some programs (say, convert of ImageMagick fame) use this
+(rather than the target mime type) to determine the target
+format.
+.TP
+.B target filename
+The filename under which to store the converted file.
+
+
+.SH SEE ALSO
+.TP
+.B convert(1)
+.TP
+.B http://www.gnumed.de
+
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>
+for the Debian GNU/Linux system (but may be used by others).

@@ -10,7 +10,13 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # stdlib
-import os, mailcap, sys, mimetypes, shutil, logging
+import sys
+import os
+import mailcap
+import mimetypes
+import subprocess
+import shutil
+import logging
 
 
 # GNUmed
@@ -202,6 +208,44 @@ def _get_system_startfile_cmd(filename):
 
 	_system_startfile_cmd = u''
 	return False, None
+#-----------------------------------------------------------------------------------
+def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None):
+	"""Convert file from one format into another.
+
+		target_mime: a mime type
+	"""
+	if target_extension is None:
+		tmp, target_extension = os.path.splitext(target_filename)
+
+	base_name = u'gm-convert_file'
+
+	paths = gmTools.gmPaths()
+	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
+
+	candidates = [ base_name, local_script ]		#, base_name + u'.bat'
+	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
+	if not found:
+		binary = base_name# + r'.bat'
+
+	cmd_line = [
+		binary,
+		filename,
+		target_mime,
+		target_extension.strip('.'),
+		target_filename
+	]
+	_log.debug('converting: %s', cmd_line)
+	try:
+		gm_convert = subprocess.Popen(cmd_line)
+	except OSError:
+		_log.debug('cannot run <%s(.bat)>', base_name)
+		return False
+	gm_convert.communicate()
+	if gm_convert.returncode != 0:
+		_log.error('<%s(.bat)> returned [%s], failed to convert', base_name, gm_convert.returncode)
+		return False
+
+	return True
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
 	"""Try to find an appropriate viewer with all tricks and call it.

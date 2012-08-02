@@ -5,8 +5,6 @@
 #
 # 	http://loinc.org
 #
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-download_atc,v $
-# $Id: gm-download_atc,v 1.1 2009-06-10 20:12:46 ncq Exp $
 # ===========================================================
 ARCH_NAME="atc-data.zip"
 DL_URL="http://www.gnumed.de/downloads/data/atc/${ARCH_NAME}"
@@ -18,11 +16,3 @@ unzip -o ${DL_DIR}/${ARCH_NAME} -d ${DL_DIR}
 rm -v ${DL_DIR}/${ARCH_NAME}
 
 # ===========================================================
-# $Log: gm-download_atc,v $
-# Revision 1.1  2009-06-10 20:12:46  ncq
-# - first version
-#
-# Revision 1.1  2009/05/19 12:42:37  ncq
-# - new
-#
-#
