@@ -262,15 +262,18 @@ def setup_logging():
 	_log = logging.getLogger('gm.launcher')
 #==========================================================
 def log_startup_info():
-	_log.info('Starting up as main module (%s).', __version__)
-	_log.info('GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
-	_log.info('Platform: %s', platform.uname())
-	_log.info('Python %s on %s (%s)', sys.version, sys.platform, os.name)
+	_log.info(u'Starting up as main module (%s).', __version__)
+	_log.info(u'GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
+	_log.info(u'Platform: %s', platform.uname())
+	_log.info(u'Python %s on %s (%s)', sys.version, sys.platform, os.name)
 	try:
 		import lsb_release
-		_log.info('%s' % lsb_release.get_distro_information())
+		_log.info(u'%s' % lsb_release.get_distro_information())
 	except ImportError:
 		pass
+	_log.info('process environment:')
+	for key, val in os.environ.items():
+		_log.info(u' %s: %s', (u'${%s}' % key).rjust(30), val)
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console

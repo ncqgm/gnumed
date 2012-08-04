@@ -1423,8 +1423,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._PRW_component.SetText(u'', None)
+		self._LBL_component.Enable(True)
+		self._PRW_component.Enable(True)
 		self._TCTRL_brand_ingredients.SetValue(u'')
 		self._TCTRL_brand_ingredients.SetToolTipString(u'')
+
+		self._LBL_or.Enable(True)
 
 		self._PRW_substance.SetText(u'', None)
 		self._PRW_substance.Enable(True)
@@ -1459,7 +1463,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		else:
 			self.__refresh_from_existing_component()
 
+		# no editing of substance or component
+		self._LBL_component.Enable(False)
 		self._PRW_component.Enable(False)
+		self._LBL_or.Enable(False)
 		self._PRW_substance.Enable(False)
 
 		if self.data['is_long_term']:
@@ -1494,9 +1501,13 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def __refresh_from_existing_substance(self):
 		self._LBL_component.Enable(False)
+		self._PRW_component.Enable(False)
 		self._PRW_component.SetText(u'', None)
 		self._PRW_component.display_as_valid(True)
 
+		self._LBL_or.Enable(False)
+
+		self._PRW_substance.Enable(True)
 		self._PRW_substance.SetText (
 			u'%s %s%s' % (self.data['substance'], self.data['amount'], self.data['unit']),
 			self.data['pk_substance']
@@ -1506,6 +1517,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_preparation.Enable(True)
 	#----------------------------------------------------------------
 	def __refresh_from_existing_component(self):
+		self._LBL_component.Enable(True)
+		self._PRW_component.Enable(True)
 		self._PRW_component.SetText (
 			u'%s %s%s (%s)' % (self.data['substance'], self.data['amount'], self.data['unit'], self.data['brand']),
 			self.data['pk_drug_component']
