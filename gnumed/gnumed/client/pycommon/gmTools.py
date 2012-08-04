@@ -149,15 +149,17 @@ class gmPaths(gmBorg.cBorg):
 		self.__home_dir = None
 
 		# where the main script (the "binary") is installed
-		#self.local_base_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', '.'))
-		self.local_base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+		if getattr(sys, 'frozen', False):
+			_log.info('frozen app, installed into temporary path')
+			#self.local_base_dir = os.path.dirname(__file__)
+			self.local_base_dir = os.environ.get('_MEIPASS2')
+		else:
+			self.local_base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 		# the current working dir at the OS
 		self.working_dir = os.path.abspath(os.curdir)
 
 		# user-specific config dir, usually below the home dir
-		#mkdir(os.path.expanduser(os.path.join('~', '.%s' % app_name)))
-		#self.user_config_dir = os.path.expanduser(os.path.join('~', '.%s' % app_name))
 		mkdir(os.path.join(self.home_dir, '.%s' % app_name))
 		self.user_config_dir = os.path.join(self.home_dir, '.%s' % app_name)
 
@@ -226,9 +228,10 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def __log_paths(self):
 		_log.debug('sys.argv[0]: %s', sys.argv[0])
+		_log.debug('dir(__file__): %s', os.path.dirname(__file__))
+		_log.debug('frozen.${_MEIPASS2}: %s', os.environ.get('_MEIPASS2', '<not frozen>'))
 		_log.debug('local application base dir: %s', self.local_base_dir)
 		_log.debug('current working dir: %s', self.working_dir)
-		#_log.debug('user home dir: %s', os.path.expanduser('~'))
 		_log.debug('user home dir: %s', self.home_dir)
 		_log.debug('user-specific config dir: %s', self.user_config_dir)
 		_log.debug('system-wide config dir: %s', self.system_config_dir)

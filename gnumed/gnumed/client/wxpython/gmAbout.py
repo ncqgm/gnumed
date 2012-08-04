@@ -48,6 +48,7 @@ class ScrollTxtWin (wx.Window):
 		u'Dr Rogerio Luz',
 		u'Dr Sebastian Hilbert',
 		u'Dr John Jaarsveld',
+		u'Uwe Koch Kronberg',
 		u'et alii'
 	]
 
@@ -224,6 +225,14 @@ John Jaarsveld, MD
 
  - lots of help with the visual progress notes
  - Dutch l10n
+
+== K ===========================================
+
+Uwe Koch Kronberg
+ Chile
+
+ - Spanish
+ - Chilean demographics
 
 == L ===========================================
 

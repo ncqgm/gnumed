@@ -302,15 +302,20 @@ def get_installed_plugins(plugin_dir=''):
 	is considered the one -- because that's where the import will
 	get it from.
 	"""
+	_log.debug('searching installed plugins')
 	search_path = None
-	for path in sys.path:
-		tmp = os.path.join(path, 'Gnumed', 'wxpython', plugin_dir)
-		if os.path.exists(tmp):
-			search_path = tmp
+	candidates = sys.path[:]
+	candidates.append(gmTools.gmPaths().local_base_dir)
+	for candidate in candidates:
+		candidate = os.path.join(candidate, 'Gnumed', 'wxpython', plugin_dir)
+		_log.debug(candidate)
+		if os.path.exists(candidate):
+			search_path = candidate
 			break
+		_log.debug('not found')
 	if search_path is None:
-		_log.error('unable to find any candidate directory matching [$candidate/Gnumed/wxpython/%s/]' % plugin_dir)
-		_log.error('candidates: %s' % str(sys.path))
+		_log.error('unable to find any directory matching [%s]', os.path.join('${CANDIDATE}', 'Gnumed', 'wxpython', plugin_dir))
+		_log.error('candidates: %s', str(candidates))
 		return []
 
 	_log.info("scanning plugin directory [%s]" % search_path)
