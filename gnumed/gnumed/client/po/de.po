@@ -12365,7 +12365,7 @@ msgid "Duration / Until"
 msgstr "Dauer / Bis"
 
 msgid "%s (fake)"
-msgstr "% (unecht)"
+msgstr "%s (unecht)"
 
 msgid "Cannot edit more than one substance at once."
 msgstr "Kann nicht mehrere Substanzen gleichzeitig bearbeiten."
