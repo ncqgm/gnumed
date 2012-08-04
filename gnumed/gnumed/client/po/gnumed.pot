@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-06-16 18:53+CEST\n"
+"POT-Creation-Date: 2012-08-04 12:55+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,6 +170,10 @@ msgstr ""
 
 msgid ""
 " VAT: does not apply\n"
+msgstr ""
+
+msgid ""
+" Items billed: 0\n"
 msgstr ""
 
 msgid ""
@@ -5294,6 +5298,9 @@ msgid ""
 msgstr ""
 
 msgid "<open>"
+msgstr ""
+
+msgid "no items on bill"
 msgstr ""
 
 msgid "%s %s (with %s%% VAT)"
@@ -10458,6 +10465,12 @@ msgid "first: %s, %s"
 msgstr ""
 
 msgid "last: %s, %s"
+msgstr ""
+
+msgid "Last %s:"
+msgstr ""
+
+msgid "Statistics cover period"
 msgstr ""
 
 msgid "%s Vacc: %s"

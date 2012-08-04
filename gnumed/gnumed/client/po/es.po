@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-16 18:52+CEST\n"
+"POT-Creation-Date: 2012-08-04 12:55+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -209,6 +209,9 @@ msgid " Value + VAT: %s %s\n"
 msgstr ""
 
 msgid " VAT: does not apply\n"
+msgstr ""
+
+msgid " Items billed: 0\n"
 msgstr ""
 
 msgid " Items billed: %s\n"
@@ -6538,6 +6541,9 @@ msgstr ""
 msgid "<open>"
 msgstr ""
 
+msgid "no items on bill"
+msgstr ""
+
 msgid "%s %s (with %s%% VAT)"
 msgstr ""
 
@@ -12758,6 +12764,14 @@ msgstr "Sección: %s (%s)"
 #, fuzzy
 msgid "last: %s, %s"
 msgstr "parte %s: %s"
+
+#, fuzzy
+msgid "Last %s:"
+msgstr "Último/a"
+
+#, fuzzy
+msgid "Statistics cover period"
+msgstr "Estadísticas"
 
 #, fuzzy
 msgid "%s Vacc: %s"
