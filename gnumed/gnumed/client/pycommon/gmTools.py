@@ -233,10 +233,10 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def __log_paths(self):
 		_log.debug('sys.argv[0]: %s', sys.argv[0])
-		_log.debug('        __file__ : %s', __file__)
-		_log.debug('dirname(__file__): %s', os.path.dirname(__file__))
-		_log.debug('os.environ["_MEIPASS2"]: %s', os.environ.get('_MEIPASS2', '<not found>'))
+		_log.debug('sys.executable: %s', sys.executable)
 		_log.debug('sys._MEIPASS: %s', getattr(sys, '_MEIPASS', '<not found>'))
+		_log.debug('os.environ["_MEIPASS2"]: %s', os.environ.get('_MEIPASS2', '<not found>'))
+		_log.debug('__file__ : %s', __file__)
 		_log.debug('local application base dir: %s', self.local_base_dir)
 		_log.debug('current working dir: %s', self.working_dir)
 		_log.debug('user home dir: %s', self.home_dir)
