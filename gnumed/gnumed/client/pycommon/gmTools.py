@@ -151,8 +151,13 @@ class gmPaths(gmBorg.cBorg):
 		# where the main script (the "binary") is installed
 		if getattr(sys, 'frozen', False):
 			_log.info('frozen app, installed into temporary path')
+			# this would find the path of *THIS* file
 			#self.local_base_dir = os.path.dirname(__file__)
-			self.local_base_dir = os.environ.get('_MEIPASS2')
+			# while this is documented on the web, the ${_MEIPASS2} does not exist
+			#self.local_base_dir = os.environ.get('_MEIPASS2')
+			# this is what Martin Zibricky <mzibr.public@gmail.com> told us to use
+			# when asking about this on pyinstaller@googlegroups.com
+			self.local_base_dir = sys._MEIPASS
 		else:
 			self.local_base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
@@ -228,8 +233,10 @@ class gmPaths(gmBorg.cBorg):
 	#--------------------------------------
 	def __log_paths(self):
 		_log.debug('sys.argv[0]: %s', sys.argv[0])
-		_log.debug('dir(__file__): %s', os.path.dirname(__file__))
-		_log.debug('frozen.${_MEIPASS2}: %s', os.environ.get('_MEIPASS2', '<not frozen>'))
+		_log.debug('        __file__ : %s', __file__)
+		_log.debug('dirname(__file__): %s', os.path.dirname(__file__))
+		_log.debug('os.environ["_MEIPASS2"]: %s', os.environ.get('_MEIPASS2', '<not found>'))
+		_log.debug('sys._MEIPASS: %s', getattr(sys, '_MEIPASS', '<not found>'))
 		_log.debug('local application base dir: %s', self.local_base_dir)
 		_log.debug('current working dir: %s', self.working_dir)
 		_log.debug('user home dir: %s', self.home_dir)
@@ -1102,7 +1109,7 @@ second line\n
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	#test_gmPaths()
+	test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -1113,6 +1120,6 @@ second line\n
 	#test_input2int()
 	#test_unwrap()
 	#test_md5()
-	test_unicode()
+	#test_unicode()
 
 #===========================================================================

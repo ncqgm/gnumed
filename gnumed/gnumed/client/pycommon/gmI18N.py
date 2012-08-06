@@ -308,14 +308,14 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    strip one directory level
 		#    this is a rather neat trick :-)
 		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(os.environ.get('_MEIPASS2'), '..', 'po'))
+			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, '..', 'po'))
 		else:
 			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
 		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(os.environ.get('_MEIPASS2'), 'po'))
+			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, 'po'))
 		else:
 			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
@@ -348,14 +348,14 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    strip one directory level
 		#    this is a rather neat trick :-)
 		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(os.environ.get('_MEIPASS2'), '..', 'po'))
+			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, '..', 'po'))
 		else:
 			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
 		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(os.environ.get('_MEIPASS2'), 'po' ))
+			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, 'po' ))
 		else:
 			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po' ))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
