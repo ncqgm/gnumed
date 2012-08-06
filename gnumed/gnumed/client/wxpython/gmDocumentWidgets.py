@@ -1497,6 +1497,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# connect handlers
 		wx.EVT_TREE_ITEM_ACTIVATED (self, self.GetId(), self._on_activate)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self.__on_right_click)
+		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
@@ -1647,47 +1648,76 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			parts = doc.parts
 
-			label = _('%s%7s %s:%s (%s part(s)%s)') % (
-				gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
-				doc['clin_when'].strftime('%m/%Y'),
-				doc['l10n_type'][:26],
-				gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
-				len(parts),
-				gmTools.coalesce(initial = doc['ext_ref'], instead = u'', template_initial = u', \u00BB%s\u00AB')
-			)
+			if len(parts) == 0:
+				no_parts = _('no parts')
+			elif len(parts) == 1:
+				no_parts = _('1 part')
+			else:
+				no_parts = _('%s parts') % len(parts)
 
 			# need intermediate branch level ?
 			if self.__sort_mode == 'episode':
-				lbl = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
-				if not intermediate_nodes.has_key(lbl):
-					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
-					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetItemPyData(intermediate_nodes[lbl], None)
-					self.SetItemHasChildren(intermediate_nodes[lbl], True)
-				parent = intermediate_nodes[lbl]
+				inter_label = u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' (%s)'))
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					no_parts
+				)
+				if not intermediate_nodes.has_key(inter_label):
+					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
+					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[inter_label], None)
+					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
+				parent = intermediate_nodes[inter_label]
+
 			elif self.__sort_mode == 'type':
-				lbl = doc['l10n_type']
-				if not intermediate_nodes.has_key(lbl):
-					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
-					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetItemPyData(intermediate_nodes[lbl], None)
-					self.SetItemHasChildren(intermediate_nodes[lbl], True)
-				parent = intermediate_nodes[lbl]
+				inter_label = doc['l10n_type']
+				doc_label = _('%s%7s (%s):%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					no_parts,
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' %s %%s' % gmTools.u_right_arrow))
+				)
+				if not intermediate_nodes.has_key(inter_label):
+					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
+					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[inter_label], None)
+					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
+				parent = intermediate_nodes[inter_label]
+
 			elif self.__sort_mode == 'issue':
 				if doc['health_issue'] is None:
-					lbl = _('Unattributed episode: %s') % doc['episode']
+					inter_label = _('Unattributed episode: %s') % doc['episode']
 				else:
-					lbl = doc['health_issue']
-				if not intermediate_nodes.has_key(lbl):
-					intermediate_nodes[lbl] = self.AppendItem(parent = self.root, text = lbl)
-					self.SetItemBold(intermediate_nodes[lbl], bold = True)
-					self.SetItemPyData(intermediate_nodes[lbl], None)
-					self.SetItemHasChildren(intermediate_nodes[lbl], True)
-				parent = intermediate_nodes[lbl]
+					inter_label = doc['health_issue']
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					no_parts
+				)
+				if not intermediate_nodes.has_key(inter_label):
+					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
+					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
+					self.SetItemPyData(intermediate_nodes[inter_label], None)
+					self.SetItemHasChildren(intermediate_nodes[inter_label], True)
+				parent = intermediate_nodes[inter_label]
+
 			else:
+				doc_label = _('%s%7s %s:%s (%s)') % (
+					gmTools.bool2subst(doc.has_unreviewed_parts, gmTools.u_writing_hand, u'', u'?'),
+					doc['clin_when'].strftime('%m/%Y'),
+					doc['l10n_type'][:26],
+					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
+					no_parts
+				)
 				parent = self.root
 
-			doc_node = self.AppendItem(parent = parent, text = label)
+			doc_node = self.AppendItem(parent = parent, text = doc_label)
 			#self.SetItemBold(doc_node, bold = True)
 			self.SetItemPyData(doc_node, doc)
 			if len(parts) == 0:
@@ -1935,6 +1965,28 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __manage_document_descriptions(self, evt):
 		manage_document_descriptions(parent = self, document = self.__curr_node_data)
+	#--------------------------------------------------------
+	def _on_tree_item_gettooltip(self, event):
+
+		item = event.GetItem()
+
+		if not item.IsOk():
+			event.SetToolTip(u' ')
+			return
+
+		data = self.GetPyData(item)
+
+		# documents
+		if isinstance(data, gmDocuments.cDocument):
+			tt = data.format()
+		# parts
+		elif isinstance(data, gmDocuments.cDocumentPart):
+			tt = data.format()
+		# other (root, intermediate nodes)
+		else:
+			tt = u' '
+
+		event.SetToolTip(tt)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

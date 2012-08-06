@@ -422,7 +422,36 @@ where
 			return False, msg
 
 		return True, ''
+	#--------------------------------------------------------
+	def format(self):
+		txt = _('%s document part                 [#%s]\n') % (
+			gmTools.bool2str (
+				boolean = self._payload[self._idx['reviewed']],
+				true_str = _('Reviewed'),
+				false_str = _('Unreviewed')
+			),
+			self._payload[self._idx['pk_obj']]
+		)
 
+		f_ext = u''
+		if self._payload[self._idx['filename']] is not None:
+			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
+		if f_ext != u'':
+			f_ext = u'.' + f_ext.upper() + u' '
+		txt += _(' Part %s: %s %s(%s Bytes)\n') % (
+			self._payload[self._idx['seq_idx']],
+			gmTools.size2str(self._payload[self._idx['size']]),
+			f_ext,
+			self._payload[self._idx['size']]
+		)
+
+		if self._payload[self._idx['filename']] is not None:
+			txt += _(' Filename: %s\n') % self._payload[self._idx['filename']]
+
+		if self._payload[self._idx['obj_comment']] is not None:
+			txt += u'\n%s\n' % self._payload[self._idx['obj_comment']]
+
+		return txt
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
 	cmd = u"select blobs.delete_document_part(%(pk)s, %(enc)s)"
@@ -617,7 +646,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self):
 		part_count = len(self._payload[self._idx['seq_idx_list']])
-		if part_count == 1:
+		if part_count == 0:
+			parts = _('no parts')
+		elif part_count == 1:
 			parts = _('1 part')
 		else:
 			parts = _('%s parts') % part_count
@@ -628,12 +659,14 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			' Episode: %s\n'
 			'%s'
 			'%s'
+			'%s'
 		) % (
 			self._payload[self._idx['l10n_type']],
 			parts,
 			self._payload[self._idx['pk_doc']],
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %B %d', accuracy = gmDateTime.acc_days),
 			self._payload[self._idx['episode']],
+			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
 		)

@@ -11,6 +11,8 @@
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
 
+IMPROVED: document tree: better labels, tooltips added
+
 ------------------------------------------------
 # rel-1-2-patches
 ------------------------------------------------
