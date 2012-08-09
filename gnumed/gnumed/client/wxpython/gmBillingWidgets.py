@@ -1,5 +1,6 @@
-"""GNUmed billing handling widgets.
-"""
+#  coding: utf8
+"""GNUmed billing handling widgets."""
+
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -69,7 +70,7 @@ def manage_billables(parent=None):
 		items = [ [
 			b['billable_code'],
 			b['billable_description'],
-			u'%s %s' % (b['raw_amount'], b['currency']),
+			u'%(currency)s%(raw_amount)s' % b,
 			u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
 			gmTools.coalesce(b['comment'], u''),
 			b['pk_billable']
@@ -469,20 +470,19 @@ def remove_items_from_bill(parent=None, bill=None):
 		gmDateTime.pydt_strftime(b['date_to_bill'], '%x', accuracy = gmDateTime.acc_days),
 		b['unit_count'],
 		u'%s: %s%s' % (b['billable_code'], b['billable_description'], gmTools.coalesce(b['item_detail'], u'', u' - %s')),
-		u'%s %s (%s %s %s%s%s)' % (
-			b['total_amount'],
-			b['currency'],
-			b['unit_count'],
-			gmTools.u_multiply,
-			b['net_amount_per_unit'],
-			gmTools.u_multiply,
-			b['amount_multiplier']
-		),
-		u'%s %s (%s%%)' % (
-			b['vat'],
-			b['currency'],
-			b['vat_multiplier'] * 100
-		),
+		u'%(curr)s %(total_val)s (%(count)s %(x)s %(unit_val)s%(x)s%(val_multiplier)s)' % {
+			'curr': b['currency'],
+			'total_val': b['total_amount'],
+			'count': b['unit_count'],
+			'x': gmTools.u_multiply,
+			'unit_val': b['net_amount_per_unit'],
+			'val_multiplier': b['amount_multiplier']
+		},
+		u'%(curr)s%(vat)s (%(perc_vat)s%%)' % {
+			'vat': b['vat'],
+			'curr': b['currency'],
+			'perc_vat': b['vat_multiplier'] * 100
+		},
 		u'%s (%s)' % (b['catalog_short'], b['catalog_version']),
 		b['pk_bill_item']
 	] for b in list_data ]
@@ -634,8 +634,8 @@ def manage_bills(parent=None, patient=None):
 			else:
 				amount = gmTools.bool2subst (
 					b['apply_vat'],
-					_('%s %s (with %s%% VAT)') % (b['total_amount_with_vat'], b['currency'], b['percent_vat']),
-					u'%s %s' % (b['total_amount'], b['currency'])
+					_('%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)') % b,
+					u'%(currency)s%(total_amount)s' % b
 				)
 			items.append ([
 				close_date,
@@ -729,22 +729,16 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			adr = self.data.address
 			self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
 
-		self._TCTRL_value.SetValue(u'%s %s' % (
-			self.data['total_amount'],
-			self.data['currency']
-		))
+		self._TCTRL_value.SetValue(u'%(currency)s%(total_amount)s' % self.data)
 		self._CHBOX_vat_applies.SetValue(self.data['apply_vat'])
 		self._CHBOX_vat_applies.SetLabel(_('&VAT applies (%s%%)') % self.data['percent_vat'])
 		if self.data['apply_vat']:
-			self._TCTRL_value_with_vat.SetValue(u'%s %s %s %s %s %s %s' % (
+			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
-				self.data['total_vat'],
-				self.data['currency'],
 				gmTools.u_right_arrow,
 				gmTools.u_sum,
-				self.data['total_amount_with_vat'],
-				self.data['currency']
-			))
+			)
+			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 		else:
 			self._TCTRL_value_with_vat.SetValue(u'')
 
@@ -754,15 +748,12 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _on_vat_applies_box_checked(self, event):
 		if self._CHBOX_vat_applies.GetValue():
-			self._TCTRL_value_with_vat.SetValue(u'%s %s %s %s %s %s %s' % (
+			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
-				self.data['total_vat'],
-				self.data['currency'],
 				gmTools.u_right_arrow,
 				gmTools.u_sum,
-				self.data['total_amount_with_vat'],
-				self.data['currency']
-			))
+			)
+			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 			return
 		self._TCTRL_value_with_vat.SetValue(u'')
 	#----------------------------------------------------------------
@@ -851,7 +842,7 @@ def manage_bill_items(parent=None, pk_patient=None):
 		parent = parent,
 		#msg = msg,
 		caption = _('Showing bill items.'),
-		columns = [_('Date'), _('Count'), _('Description'), u'%s$%s%s' % (gmTools.u_euro, gmTools.u_currency_pound, gmTools.u_kanji_yen), _('Value'), _('VAT'), _('Catalog'), u'#'],
+		columns = [_('Date'), _('Count'), _('Description'), _('¤'), _('Value'), _('VAT'), _('Catalog'), u'#'],
 		single_selection = True,
 		new_callback = edit,
 		edit_callback = edit,
@@ -928,7 +919,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Charge date'),
 			_('Count'),
 			_('Description'),
-			u'%s$%s%s' % (gmTools.u_euro, gmTools.u_currency_pound, gmTools.u_kanji_yen),
+			_('¤'),
 			_('Value'),
 			_('VAT'),
 			_('Catalog'),

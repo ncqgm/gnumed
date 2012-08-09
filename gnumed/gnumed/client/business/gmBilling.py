@@ -66,13 +66,12 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['billable_code']],
 			self._payload[self._idx['billable_description']]
 		)
-		txt += _(' %s %s + %s%% VAT = %s %s\n') % (
-			self._payload[self._idx['raw_amount']],
-			self._payload[self._idx['currency']],
-			self._payload[self._idx['vat_multiplier']] * 100,
-			self._payload[self._idx['amount_with_vat']],
-			self._payload[self._idx['currency']]
-		)
+		txt += _(' %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n') % {
+			'curr': self._payload[self._idx['currency']],
+			'raw_val': self._payload[self._idx['raw_amount']],
+			'perc_vat': self._payload[self._idx['vat_multiplier']] * 100,
+			'val_w_vat': self._payload[self._idx['amount_with_vat']]
+		}
 		txt += u' %s %s%s (%s)' % (
 			self._payload[self._idx['catalog_short']],
 			self._payload[self._idx['catalog_version']],
@@ -189,19 +188,19 @@ class cBillItem(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_numero,
 			self._payload[self._idx['unit_count']]
 		)
-		txt += _(' Amount per unit: %s %s (%s %s per catalog)\n') % (
-			self._payload[self._idx['net_amount_per_unit']],
-			self._payload[self._idx['currency']],
-			self._payload[self._idx['billable_amount']],
-			self._payload[self._idx['billable_currency']]
-		)
+		txt += _(' Amount per unit: %(curr)s%(val_p_unit)s (%(cat_curr)s%(cat_val)s per catalog)\n') % {
+			'curr': self._payload[self._idx['currency']],
+			'val_p_unit': self._payload[self._idx['net_amount_per_unit']],
+			'cat_curr': self._payload[self._idx['billable_currency']],
+			'cat_val': self._payload[self._idx['billable_amount']]
+		}
 		txt += _(' Amount multiplier: %s\n') % self._payload[self._idx['amount_multiplier']]
-		txt += _(' VAT would be: %s%% %s %s %s\n') % (
-			self._payload[self._idx['vat_multiplier']] * 100,
-			gmTools.u_corresponds_to,
-			self._payload[self._idx['vat']],
-			self._payload[self._idx['currency']]
-		)
+		txt += _(' VAT would be: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
+			'perc_vat': self._payload[self._idx['vat_multiplier']] * 100,
+			'equals': gmTools.u_corresponds_to,
+			'curr': self._payload[self._idx['currency']],
+			'vat': self._payload[self._idx['vat']]
+		}
 
 		txt += u'\n'
 		txt += _(' Charge date: %s') % gmDateTime.pydt_strftime (
@@ -325,21 +324,21 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				'%Y %b %d',
 				accuracy = gmDateTime.acc_days
 			)
-		txt += _(' Bill value: %s %s\n') % (
-			self._payload[self._idx['total_amount']],
-			self._payload[self._idx['currency']]
-		)
+		txt += _(' Bill value: %(curr)s%(val)s\n') % {
+			'curr': self._payload[self._idx['currency']],
+			'val': self._payload[self._idx['total_amount']]
+		}
 		if self._payload[self._idx['apply_vat']]:
-			txt += _(' VAT: %s%% %s %s %s\n') % (
-				self._payload[self._idx['percent_vat']],
-				gmTools.u_corresponds_to,
-				self._payload[self._idx['total_vat']],
-				self._payload[self._idx['currency']]
-			)
-			txt += _(' Value + VAT: %s %s\n') % (
-				self._payload[self._idx['total_amount_with_vat']],
-				self._payload[self._idx['currency']]
-			)
+			txt += _(' VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
+				'perc_vat': self._payload[self._idx['percent_vat']],
+				'equals': gmTools.u_corresponds_to,
+				'curr': self._payload[self._idx['currency']],
+				'vat': self._payload[self._idx['total_vat']]
+			}
+			txt += _(' Value + VAT: %(curr)s%(val)s\n') % {
+				'curr': self._payload[self._idx['currency']],
+				'val': self._payload[self._idx['total_amount_with_vat']]
+			}
 		else:
 			txt += _(' VAT: does not apply\n')
 		if self._payload[self._idx['pk_bill_items']] is None:
