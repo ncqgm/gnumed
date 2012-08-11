@@ -157,7 +157,10 @@ class gmPaths(gmBorg.cBorg):
 			#self.local_base_dir = os.environ.get('_MEIPASS2')
 			# this is what Martin Zibricky <mzibr.public@gmail.com> told us to use
 			# when asking about this on pyinstaller@googlegroups.com
-			self.local_base_dir = sys._MEIPASS
+			#self.local_base_dir = sys._MEIPASS
+			# however, we are --onedir, so we should look at sys.executable
+			# as per the pyinstaller manual
+			self.local_base_dir = os.path.dirname(sys.executable)
 		else:
 			self.local_base_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
