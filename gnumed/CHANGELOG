@@ -23,6 +23,7 @@ IMPROVED: document tree: better labels, tooltips added
 
 FIX: failure to parse plugin directory with frozen app [thanks S.Hilbert]
 FIX: failure to add >1 branded intake in sequence [thanks V.Banait]
+FIX: exception on saving hospital stay w/o admission date
 
 	1.2.2
 

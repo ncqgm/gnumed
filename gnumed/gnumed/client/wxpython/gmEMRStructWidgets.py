@@ -591,10 +591,11 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
 			if self._PRW_discharge.date is not None:
-				if not self._PRW_discharge.date > self._PRW_admission.date:
-					valid = False
-					self._PRW_discharge.display_as_valid(False)
-					gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
+				if self._PRW_admission.date is not None:
+					if not self._PRW_discharge.date > self._PRW_admission.date:
+						valid = False
+						self._PRW_discharge.display_as_valid(False)
+						gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
 
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
