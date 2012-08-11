@@ -287,6 +287,10 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 		self._adjust_clear_revert_buttons()
 
+		# attach listener
+		self._TCTRL_status.SetValue('')
+		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
+
 		# redraw layout
 		#self.Layout()
 		main_szr = self.GetSizer()
@@ -295,6 +299,16 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		#self.Refresh()				# apparently not needed (27.3.2011)
 
 		self._PNL_ea.refresh()
+	#--------------------------------------------------------
+	def _on_set_statustext(self, msg=None, loglevel=None, beep=True):
+		if msg is None:
+			self._TCTRL_status.SetValue('')
+			return
+		if msg.strip() == u'':
+			self._TCTRL_status.SetValue('')
+			return
+		self._TCTRL_status.SetValue(msg)
+		return
 	#--------------------------------------------------------
 	def _adjust_clear_revert_buttons(self):
 		if self._PNL_ea.data is None:
@@ -310,6 +324,7 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		if self._PNL_ea.save():
+			gmDispatcher.disconnect(signal = u'statustext', receiver = self._on_set_statustext)
 			if self.IsModal():
 				self.EndModal(wx.ID_OK)
 			else:

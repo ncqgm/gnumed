@@ -11,6 +11,7 @@
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
 NEW: DEGAM UTI 2012 guideline
+NEW: status line in each edit area
 
 IMPROVED: document tree: better labels, tooltips added
 
