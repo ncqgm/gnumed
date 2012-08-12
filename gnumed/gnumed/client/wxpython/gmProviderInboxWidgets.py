@@ -3,7 +3,8 @@
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, logging
+import sys
+import logging
 
 
 import wx
@@ -546,6 +547,19 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			self._PRW_receiver.display_as_valid(True)
 			self.display_ctrl_as_valid(ctrl = self._CHBOX_active_patient, valid = True)
 			self.display_ctrl_as_valid(ctrl = self._PRW_patient, valid = True)
+
+		if self._PRW_due.is_valid_timestamp():
+			if self._PRW_expiry.is_valid_timestamp():
+				if not self._PRW_expiry.date > self._PRW_due.date:
+					validity = False
+					self._PRW_expiry.display_as_valid(False)
+					gmDispatcher.send(signal = 'statustext', msg = _('Message cannot expire before being due.'))
+				else:
+					self._PRW_expiry.display_as_valid(True)
+			else:
+				self._PRW_expiry.display_as_valid(True)
+		else:
+			self._PRW_expiry.display_as_valid(True)
 
 		return validity
 	#----------------------------------------------------------------

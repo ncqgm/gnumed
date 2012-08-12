@@ -11,6 +11,7 @@
 FIX: failure to parse plugin directory with frozen app [thanks S.Hilbert]
 FIX: failure to add >1 branded intake in sequence [thanks V.Banait]
 FIX: exception on saving hospital stay w/o admission date
+FIX: failure to check for message expiry > due [thanks S.Griesfeller]
 
 	1.2.2
 
