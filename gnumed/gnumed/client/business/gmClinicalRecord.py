@@ -2098,17 +2098,13 @@ LIMIT 2
 	#------------------------------------------------------------------
 	# API: measurements / test results
 	#------------------------------------------------------------------
-	def get_most_recent_result(self):
-		cmd = u"""
-			SELECT * FROM clin.v_test_results
-			WHERE pk_patient = %(pat)s
-			ORDER BY clin_when DESC
-			LIMIT 1"""
-		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		if len(rows) == 0:
-			return None
-		return gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+	def get_most_recent_results(self, test_type=None, loinc=None, no_of_results=1):
+		return gmPathLab.get_most_recent_results (
+			test_type = test_type,
+			loinc = loinc,
+			no_of_results = no_of_results,
+			patient = self.pk_patient
+		)
 	#------------------------------------------------------------------
 	def get_unsigned_results(self, order_by=None):
 		if order_by is None:
@@ -2433,7 +2429,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_most_recent():
 		emr = cClinicalRecord(aPKey=12)
-		print emr.get_most_recent_result()
+		print emr.get_most_recent_results()
 	#-----------------------------------------
 	#test_allergy_state()
 	#test_is_allergic_to()

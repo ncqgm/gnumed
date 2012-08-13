@@ -133,7 +133,7 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 	dlg.Destroy()
 	return False
 #================================================================
-def plot_measurements(parent=None, tests=None):
+def plot_measurements(parent=None, tests=None, format=None):
 
 	template = gmFormWidgets.manage_form_templates (
 		parent = parent,
@@ -152,7 +152,7 @@ def plot_measurements(parent=None, tests=None):
 
 	script = template.instantiate()
 	script.data_filename = fname_data
-	script.generate_output(format = 'wxp') 		# Gnuplot output terminal
+	script.generate_output(format = format) 		# Gnuplot output terminal, wxt = wxWidgets window
 
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
@@ -563,7 +563,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		tip += gmTools.coalesce(tt['comment_tt'], u'', _(' Comment: %s\n'))
 		tip += gmTools.coalesce(tt['code_tt'], u'', _(' Code: %s\n'))
 		tip += gmTools.coalesce(tt['coding_system_tt'], u'', _(' Code: %s\n'))
-		result = tt.get_most_recent_result(pk_patient = self.__patient.ID)
+		result = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 1)
 		if result is not None:
 			tip += u'\n'
 			tip += _('Most recent result:\n')
@@ -1200,6 +1200,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def _refresh_as_new(self):
 		self._PRW_test.SetText(u'', None, True)
 		self.__refresh_loinc_info()
+		self.__refresh_previous_value()
 		self.__update_units_context()
 		self._TCTRL_result.SetValue(u'')
 		self._PRW_units.SetText(u'', None, True)
@@ -1231,6 +1232,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def _refresh_from_existing(self):
 		self._PRW_test.SetData(data = self.data['pk_test_type'])
 		self.__refresh_loinc_info()
+		self.__refresh_previous_value()
 		self.__update_units_context()
 		self._TCTRL_result.SetValue(self.data['unified_val'])
 		self._PRW_units.SetText(self.data['val_unit'], self.data['val_unit'], True)
@@ -1265,6 +1267,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		self._PRW_test.SetText(u'', None, True)
 		self.__refresh_loinc_info()
+		self.__refresh_previous_value()
 		self.__update_units_context()
 		self._TCTRL_result.SetValue(u'')
 		self._PRW_units.SetText(u'', None, True)
@@ -1490,6 +1493,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def _on_leave_test_prw(self):
 		self.__refresh_loinc_info()
+		self.__refresh_previous_value()
 		self.__update_units_context()
 	#--------------------------------------------------------
 	def _on_leave_indicator_prw(self):
@@ -1561,6 +1565,29 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			return
 
 		self._TCTRL_loinc.SetValue(u'%s: %s' % (tt['loinc'], info[0]))
+	#--------------------------------------------------------
+	def __refresh_previous_value(self):
+		self._TCTRL_previous_value.SetValue(u'')
+		# it doesn't make much sense to show the most
+		# recent value when editing an existing one
+		if self.data is not None:
+			return
+		if self._PRW_test.GetData() is None:
+			return
+		tt = self._PRW_test.GetData(as_instance = True)
+		most_recent = tt.get_most_recent_results (
+			no_of_results = 1,
+			patient = gmPerson.gmCurrentPatient().ID
+		)
+		if most_recent is None:
+			return
+		self._TCTRL_previous_value.SetValue(_('%s ago: %s%s%s - %s') % (
+			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
+			most_recent['unified_val'],
+			most_recent['val_unit'],
+			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)'),
+			most_recent['name_tt']
+		))
 #================================================================
 # measurement type handling
 #================================================================

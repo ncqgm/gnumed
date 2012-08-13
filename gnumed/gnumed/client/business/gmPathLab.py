@@ -143,22 +143,30 @@ class cUnifiedTestType(gmBusinessDBObject.cBusinessDBObject):
 
 	_updatable_fields = []
 	#--------------------------------------------------------
-	def get_most_recent_result(self, pk_patient=None):
-		cmd = u"""
-			SELECT pk_test_result, clin_when
-			FROM clin.v_test_results
-			WHERE
-				pk_patient = %(pat)s
-					AND
-				pk_meta_test_type = %(pkmtt)s
-			ORDER BY clin_when DESC
-			LIMIT 1
-		"""
-		args = {'pat': pk_patient, 'pkmtt': self._payload[self._idx['pk_meta_test_type']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		if len(rows) == 0:
-			return None
-		return cTestResult(aPK_obj = rows[0]['pk_test_result'])
+	def get_most_recent_results(self, patient=None, no_of_results=1):
+		results = get_most_recent_results (
+			test_type = self._payload[self._idx['pk_test_type']],
+			loinc = None,
+			no_of_results = no_of_results,
+			patient = patient
+		)
+		if results is None:
+			if self._payload[self._idx['loinc_tt']] is not None:
+				results = get_most_recent_results (
+					test_type = None,
+					loinc = self._payload[self._idx['loinc_tt']],
+					no_of_results = no_of_results,
+					patient = patient
+				)
+		if results is None:
+			if self._payload[self._idx['loinc_meta']] is not None:
+				results = get_most_recent_results (
+					test_type = None,
+					loinc = self._payload[self._idx['loinc_meta']],
+					no_of_results = no_of_results,
+					patient = patient
+				)
+		return results
 #============================================================
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
@@ -212,6 +220,23 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	in_use = property(_get_in_use, lambda x:x)
+	#--------------------------------------------------------
+	def get_most_recent_results(self, patient=None, no_of_results=1):
+		results = get_most_recent_results (
+			test_type = self._payload[self._idx['pk_test_type']],
+			loinc = None,
+			no_of_results = no_of_results,
+			patient = patient
+		)
+		if results is None:
+			if self._payload[self._idx['loinc']] is not None:
+				results = get_most_recent_results (
+					test_type = None,
+					loinc = self._payload[self._idx['loinc']],
+					no_of_results = no_of_results,
+					patient = patient
+				)
+		return results
 #------------------------------------------------------------
 def get_measurement_types(order_by=None):
 	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')
@@ -540,6 +565,45 @@ WHERE
 """ % u',\n	'.join(set_parts)
 
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+#------------------------------------------------------------
+def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
+
+	if None not in [test_type, loinc]:
+		raise ArgumentError('either <test_type> or <loinc> must be None')
+
+	if no_of_results < 1:
+		raise ArgumentError('<no_of_results> must be > 0')
+
+	args = {
+		'pat': patient,
+		'ttyp': test_type,
+		'loinc': loinc
+	}
+
+	where_parts = [u'pk_patient = %(pat)s']
+	if test_type is not None:
+		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+	elif loinc is not None:
+		where_parts.append(u'((loinc_tt = %(loinc)s) OR (loinc_meta = %(loinc)s))')
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE
+			%s
+		ORDER BY clin_when DESC
+		LIMIT %s""" % (
+			u' AND '.join(where_parts),
+			no_of_results
+		)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+
+	if no_of_results == 1:
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 #------------------------------------------------------------
 def delete_test_result(result=None):
 
@@ -777,7 +841,7 @@ def __format_test_results_latex(results=None):
 	return tex % u' \\tabularnewline\n \\hline\n'.join(rows)
 
 #============================================================
-def export_results_for_gnuplot(results=None, filename=None):
+def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 
 	if filename is None:
 		filename = gmTools.get_unique_filename(prefix = u'gm2gpl-', suffix = '.dat')
@@ -825,11 +889,14 @@ def export_results_for_gnuplot(results=None, filename=None):
 			curr_date = r['clin_when'].strftime('%Y-%m-%d')
 			if curr_date == prev_date:
 				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing for same-day values'))
-			if r['clin_when'].year == prev_year:
-				when_template = '%b %d %H:%M'
+			if show_year:
+				if r['clin_when'].year == prev_year:
+					when_template = '%b %d %H:%M'
+				else:
+					when_template = '%b %d %H:%M (%Y)'
+				prev_year = r['clin_when'].year
 			else:
-				when_template = '%b %d %H:%M (%Y)'
-			prev_year = r['clin_when'].year
+				when_template = '%b %d'
 			gp_data.write (u'%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
 				r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
 				r['unified_val'],
