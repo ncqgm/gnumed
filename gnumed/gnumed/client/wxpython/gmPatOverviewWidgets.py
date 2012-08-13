@@ -195,7 +195,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		list_data = []
 
 		emr = patient.get_emr()
-		most_recent = emr.get_most_recent_result()
+		most_recent = emr.get_most_recent_results(no_of_results = 1)
 		if most_recent is None:
 			self._LCTRL_results.set_string_items(items = [])
 			self._LCTRL_results.set_data(data = [])

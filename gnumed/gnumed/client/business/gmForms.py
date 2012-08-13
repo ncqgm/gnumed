@@ -998,10 +998,10 @@ class cGnuplotForm(cFormEngine):
 		Expects .data_filename to be set.
 		"""
 		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
-		fname_file = codecs.open(self.conf_filename, 'wb', 'utf8')
-		fname_file.write('# setting the gnuplot data file\n')
-		fname_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
-		fname_file.close()
+		conf_file = codecs.open(self.conf_filename, 'wb', 'utf8')
+		conf_file.write('# setting the gnuplot data file\n')
+		conf_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
+		conf_file.close()
 
 		# FIXME: cater for configurable path
 		if platform.system() == 'Windows':
