@@ -132,14 +132,99 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 		return True
 	dlg.Destroy()
 	return False
+
 #================================================================
-def plot_measurements(parent=None, tests=None, format=None, show_year = True):
+def configure_default_gnuplot_template(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
 
 	template = gmFormWidgets.manage_form_templates (
 		parent = parent,
 		active_only = True,
 		template_types = [u'gnuplot script']
 	)
+
+	option = u'form_templates.default_gnuplot_template'
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
+		return None
+
+	if template['engine'] != u'G':
+		gmDispatcher.send(signal = 'statustext', msg = _('No default Gnuplot script template selected.'), beep = True)
+		return None
+
+	dbcfg = gmCfg.cCfgSQL()
+	dbcfg.set (
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		option = option,
+		value = u'%s - %s' % (template['name_long'], template['external_version'])
+	)
+	return template
+
+#============================================================
+def get_default_gnuplot_template(parent = None):
+
+	option = u'form_templates.default_gnuplot_template'
+
+	dbcfg = gmCfg.cCfgSQL()
+
+	# load from option
+	default_template_name = dbcfg.get2 (
+		option = option,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user'
+	)
+
+	# not configured -> try to configure
+	if default_template_name is None:
+		gmDispatcher.send('statustext', msg = _('No default Gnuplot template configured.'), beep = False)
+		default_template = configure_default_gnuplot_template(parent = parent)
+		# still not configured -> return
+		if default_template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no default Gnuplot one-type script template configured.'),
+				aTitle = _('Plotting test results')
+			)
+			return None
+		return default_template
+
+	# now it MUST be configured (either newly or previously)
+	# but also *validly* ?
+	try:
+		name, ver = default_template_name.split(u' - ')
+	except:
+		# not valid
+		_log.exception('problem splitting Gnuplot script template name [%s]', default_template_name)
+		gmDispatcher.send(signal = 'statustext', msg = _('Problem loading Gnuplot script template.'), beep = True)
+		return None
+
+	default_template = gmForms.get_form_template(name_long = name, external_version = ver)
+	if default_template is None:
+		default_template = configure_default_gnuplot_template(parent = parent)
+		# still not configured -> return
+		if default_template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot load default Gnuplot script template [%s - %s]') % (name, ver),
+				aTitle = _('Plotting test results')
+			)
+			return None
+
+	return default_template
+
+#----------------------------------------------------------------
+def plot_measurements(parent=None, tests=None, format=None, show_year = True, use_default_template=False):
+
+	# only valid for one-type plotting
+	if use_default_template:
+		template = get_default_gnuplot_template()
+	else:
+		template = gmFormWidgets.manage_form_templates (
+			parent = parent,
+			active_only = True,
+			template_types = [u'gnuplot script']
+		)
 
 	if template is None:
 		gmGuiHelpers.gm_show_error (
@@ -154,6 +239,26 @@ def plot_measurements(parent=None, tests=None, format=None, show_year = True):
 	script.data_filename = fname_data
 	script.generate_output(format = format) 		# Gnuplot output terminal, wxt = wxWidgets window
 
+#----------------------------------------------------------------
+def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=True, plot_singular_result=True, use_default_template=False):
+
+	earlier, later = test.get_adjacent_results(desired_earlier_results = 2, desired_later_results = 2)
+	results2plot = []
+	if earlier is not None:
+		results2plot.extend(earlier)
+	results2plot.append(test)
+	if later is not None:
+		results2plot.extend(later)
+	if len(results2plot) == 1:
+		if not plot_singular_result:
+			return
+	plot_measurements (
+		parent = parent,
+		tests = results2plot,
+		format = format,
+		show_year = show_year,
+		use_default_template = use_default_template
+	)
 #================================================================
 #from Gnumed.wxGladeWidgets import wxgPrimaryCareVitalsInputPnl
 
@@ -1417,14 +1522,12 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		self.data = tr
 
-		earlier, later = self.data.get_adjacent_results()
-		results2plot = []
-		if earlier is not None:
-			results2plot.extend(earlier)
-		results2plot.append(self.data)
-		if later is not None:
-			results2plot.extend(later)
-		plot_measurements(parent = None, tests = results2plot, format = None, show_year = False)
+		wx.CallAfter (
+			plot_adjacent_measurements,
+			test = self.data,
+			plot_singular_result = False,
+			use_default_template = True
+		)
 
 		return True
 	#--------------------------------------------------------
@@ -1492,14 +1595,12 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				make_me_responsible = False
 			)
 
-		earlier, later = self.data.get_adjacent_results()
-		results2plot = []
-		if earlier is not None:
-			results2plot.extend(earlier)
-		results2plot.append(self.data)
-		if later is not None:
-			results2plot.extend(later)
-		plot_measurements(parent = None, tests = results2plot, format = None, show_year = False)
+		wx.CallAfter (
+			plot_adjacent_measurements,
+			test = self.data,
+			plot_singular_result = False,
+			use_default_template = True
+		)
 
 		return True
 	#--------------------------------------------------------

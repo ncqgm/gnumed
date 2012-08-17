@@ -1,11 +1,17 @@
 """GNUmed measurements related business objects."""
+
+# FIXME: use UCUM from Regenstrief Institute
 #============================================================
-__version__ = "$Revision: 1.81 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import types, sys, logging, codecs, decimal
+import types
+import sys
+import logging
+import codecs
+import decimal
+
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
@@ -25,9 +31,6 @@ from Gnumed.business import gmOrganization
 
 
 _log = logging.getLogger('gm.lab')
-_log.info(__version__)
-
-# FIXME: use UCUM from Regenstrief Institute
 
 #============================================================
 def _on_test_result_modified():
@@ -1574,4 +1577,3 @@ if __name__ == '__main__':
 	test_calculate_bmi()
 
 #============================================================
-

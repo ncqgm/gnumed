@@ -9,15 +9,22 @@ the non-GUI-related runtime environment.
 copyright: authors
 """
 #==============================================================================
-__version__ = "$Revision: 1.491 $"
 __author__  = "H. Herb <hherb@gnumed.net>,\
 			   K. Hilbert <Karsten.Hilbert@gmx.net>,\
 			   I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
-import sys, time, os, os.path, datetime as pyDT
-import shutil, logging, urllib2, subprocess, glob
+import sys
+import time
+import os
+import os.path
+import datetime as pyDT
+import shutil
+import logging
+import urllib2
+import subprocess
+import glob
 
 
 # 3rd party libs
@@ -45,24 +52,51 @@ if (version < 28) or ('unicode' not in wx.PlatformInfo):
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmCfg, gmPG2, gmDispatcher, gmGuiBroker, gmI18N
-from Gnumed.pycommon import gmExceptions, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmHooks, gmBackendListener, gmCfg2, gmLog2, gmNetworkTools
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmBackendListener
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmNetworkTools
 
-from Gnumed.business import gmPerson, gmClinicalRecord, gmSurgery, gmEMRStructItems
+from Gnumed.business import gmPerson
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmArriba
 from Gnumed.business import gmStaff
 
 from Gnumed.exporters import gmPatientExporter
 
-from Gnumed.wxpython import gmGuiHelpers, gmHorstSpace, gmEMRBrowser
-from Gnumed.wxpython import gmDemographicsWidgets, gmEMRStructWidgets
-from Gnumed.wxpython import gmPatSearchWidgets, gmAllergyWidgets, gmListWidgets
-from Gnumed.wxpython import gmProviderInboxWidgets, gmCfgWidgets, gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmNarrativeWidgets, gmPhraseWheel, gmMedicationWidgets
-from Gnumed.wxpython import gmStaffWidgets, gmDocumentWidgets, gmTimer, gmMeasurementWidgets
-from Gnumed.wxpython import gmFormWidgets, gmSnellen
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmHorstSpace
+from Gnumed.wxpython import gmEMRBrowser
+from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmPatSearchWidgets
+from Gnumed.wxpython import gmAllergyWidgets
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmProviderInboxWidgets
+from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmExceptionHandlingWidgets
+from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmMedicationWidgets
+from Gnumed.wxpython import gmStaffWidgets
+from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmTimer
+from Gnumed.wxpython import gmMeasurementWidgets
+from Gnumed.wxpython import gmFormWidgets
+from Gnumed.wxpython import gmSnellen
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmI18nWidgets
@@ -88,7 +122,6 @@ _scripting_listener = None
 _original_wxEndBusyCursor = None
 
 _log = logging.getLogger('gm.main')
-_log.info(__version__)
 _log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 
 #==============================================================================
@@ -430,6 +463,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
+
+		item = menu_cfg_emr.Append(-1, _('Default Gnuplot template'), _('Select the default template for plotting test results.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_default_gnuplot_template, item)
 
 		item = menu_cfg_emr.Append(-1, _('Fallback provider'), _('Select the doctor to fall back to for patients without a primary provider.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_fallback_primary_provider, item)
@@ -1727,6 +1763,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
+	#----------------------------------------------
+	def __on_cfg_default_gnuplot_template(self, evt):
+		gmMeasurementWidgets.configure_default_gnuplot_template(parent = self)
 	#----------------------------------------------
 	def __on_cfg_fallback_primary_provider(self, evt):
 		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
