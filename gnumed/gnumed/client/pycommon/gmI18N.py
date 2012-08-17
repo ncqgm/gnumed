@@ -307,17 +307,11 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    last resort for inferior operating systems such as DOS/Windows
 		#    strip one directory level
 		#    this is a rather neat trick :-)
-		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, '..', 'po'))
-		else:
-			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
-		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, 'po'))
-		else:
-			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po'))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 
@@ -331,15 +325,14 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		_log.debug('No use looking in standard POSIX locations - not a POSIX system.')
 
 	# - $(<script-name>_DIR)/
-	if not getattr(sys, 'frozen', False):
-		env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
-		_log.debug('looking at ${%s}' % env_key)
-		if os.environ.has_key(env_key):
-			loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'po'))
-			_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
-			candidates.append(loc_dir)
-		else:
-			_log.info("${%s} not set" % env_key)
+	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
+	_log.debug('looking at ${%s}' % env_key)
+	if os.environ.has_key(env_key):
+		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'po'))
+		_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
+		candidates.append(loc_dir)
+	else:
+		_log.info("${%s} not set" % env_key)
 
 	# - locally
 	if not prefer_local_catalog:
@@ -347,17 +340,11 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 		#    last resort for inferior operating systems such as DOS/Windows
 		#    strip one directory level
 		#    this is a rather neat trick :-)
-		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, '..', 'po'))
-		else:
-			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), '..', 'po'))
 		_log.debug('looking above binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 		# - in path to binary
-		if getattr(sys, 'frozen', False):
-			loc_dir = os.path.abspath(os.path.join(sys._MEIPASS, 'po' ))
-		else:
-			loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po' ))
+		loc_dir = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'po' ))
 		_log.debug('looking in binary install directory [%s]' % loc_dir)
 		candidates.append(loc_dir)
 
