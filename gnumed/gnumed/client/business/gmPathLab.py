@@ -460,6 +460,11 @@ where
 
 	reference_ranges = property(_get_reference_ranges, _set_reference_ranges)
 	#--------------------------------------------------------
+	def _get_test_type(self):
+		return cMeasurementType(aPK_obj = self._payload[self._idx['pk_test_type']])
+
+	test_type = property(_get_test_type, lambda x:x)
+	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 
 		# FIXME: this is not concurrency safe
@@ -492,6 +497,72 @@ where
 			return
 
 		self.refetch_payload()
+	#--------------------------------------------------------
+	def get_adjacent_results(self, desired_earlier_results=1, desired_later_results=1, max_offset=None):
+
+		if desired_earlier_results < 1:
+			raise ArgumentError('<desired_earlier_results> must be > 0')
+
+		if desired_later_results < 1:
+			raise ArgumentError('<desired_later_results> must be > 0')
+
+		args = {
+			'pat': self._payload[self._idx['pk_patient']],
+			'ttyp': self._payload[self._idx['pk_test_type']],
+			'tloinc': self._payload[self._idx['loinc_tt']],
+			'mtyp': self._payload[self._idx['pk_meta_test_type']],
+			'mloinc': self._payload[self._idx['loinc_meta']],
+			'when': self._payload[self._idx['clin_when']],
+			'offset': max_offset
+		}
+		WHERE = u'((pk_test_type = %(ttyp)s) OR (loinc_tt = %(tloinc)s))'
+		WHERE_meta = u'((pk_meta_test_type = %(mtyp)s) OR (loinc_meta = %(mloinc)s))'
+		if max_offset is not None:
+			WHERE = WHERE + u' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
+			WHERE_meta = WHERE_meta + u' AND (clin_when BETWEEN (%(when)s - %(offset)s) AND (%(when)s + %(offset)s))'
+
+		SQL = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				clin_when %s %%(when)s
+					AND
+				%s
+			ORDER BY clin_when
+			LIMIT %s"""
+
+		# get earlier results
+		earlier_results = []
+		# by type
+		cmd = SQL % (u'<', WHERE, desired_earlier_results)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) > 0:
+			earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
+		# by meta type ?
+		missing_results = desired_earlier_results - len(earlier_results)
+		if  missing_results > 0:
+			cmd = SQL % (u'<', WHERE_meta, missing_results)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+			if len(rows) > 0:
+				earlier_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
+
+		# get later results
+		later_results = []
+		# by type
+		cmd = SQL % (u'>', WHERE, desired_later_results)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) > 0:
+			later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
+		# by meta type ?
+		missing_results = desired_later_results - len(later_results)
+		if  missing_results > 0:
+			cmd = SQL % (u'>', WHERE_meta, missing_results)
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+			if len(rows) > 0:
+				later_results.extend([ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ])
+
+		return earlier_results, later_results
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------

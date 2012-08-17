@@ -133,7 +133,7 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 	dlg.Destroy()
 	return False
 #================================================================
-def plot_measurements(parent=None, tests=None, format=None):
+def plot_measurements(parent=None, tests=None, format=None, show_year = True):
 
 	template = gmFormWidgets.manage_form_templates (
 		parent = parent,
@@ -148,7 +148,7 @@ def plot_measurements(parent=None, tests=None, format=None):
 		)
 		return False
 
-	fname_data = gmPathLab.export_results_for_gnuplot(results = tests)
+	fname_data = gmPathLab.export_results_for_gnuplot(results = tests, show_year = show_year)
 
 	script = template.instantiate()
 	script.data_filename = fname_data
@@ -1417,6 +1417,15 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		self.data = tr
 
+		earlier, later = self.data.get_adjacent_results()
+		results2plot = []
+		if earlier is not None:
+			results2plot.extend(earlier)
+		results2plot.append(self.data)
+		if later is not None:
+			results2plot.extend(later)
+		plot_measurements(parent = None, tests = results2plot, format = None, show_year = False)
+
 		return True
 	#--------------------------------------------------------
 	def _save_as_update(self):
@@ -1482,6 +1491,15 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				comment = gmTools.none_if(self._TCTRL_review_comment.GetValue().strip(), u''),
 				make_me_responsible = False
 			)
+
+		earlier, later = self.data.get_adjacent_results()
+		results2plot = []
+		if earlier is not None:
+			results2plot.extend(earlier)
+		results2plot.append(self.data)
+		if later is not None:
+			results2plot.extend(later)
+		plot_measurements(parent = None, tests = results2plot, format = None, show_year = False)
 
 		return True
 	#--------------------------------------------------------
