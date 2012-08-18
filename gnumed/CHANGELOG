@@ -16,6 +16,7 @@ NEW: status line in each edit area
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
 IMPROVED: measurement EA: plot adjacent results upon saving
+IMPROVED: support a comment on bills
 
 ------------------------------------------------
 # rel-1-2-patches

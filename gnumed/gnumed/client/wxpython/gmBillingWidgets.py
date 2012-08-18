@@ -640,7 +640,8 @@ def manage_bills(parent=None, patient=None):
 			items.append ([
 				close_date,
 				b['invoice_id'],
-				amount
+				amount,
+				gmTools.coalesce(b['comment'], u'')
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(bills)
@@ -648,7 +649,7 @@ def manage_bills(parent=None, patient=None):
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		caption = _('Showing bills.'),
-		columns = [_('Close date'), _('Invoice ID'), _('Value')],
+		columns = [_('Close date'), _('Invoice ID'), _('Value'), _('Comment')],
 		single_selection = True,
 		edit_callback = edit,
 		delete_callback = delete,
@@ -709,6 +710,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def _save_as_update(self):
 		self.data['close_date'] = self._PRW_close_date.GetData()
 		self.data['apply_vat'] = self._CHBOX_vat_applies.GetValue()
+		self.data['comment'] = self._TCTRL_comment.GetValue()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------
@@ -741,6 +743,8 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
 		else:
 			self._TCTRL_value_with_vat.SetValue(u'')
+
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
 		self._PRW_close_date.SetFocus()
 	#----------------------------------------------------------------

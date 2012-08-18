@@ -24,6 +24,7 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         self._TCTRL_value = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY | wx.NO_BORDER)
         self._CHBOX_vat_applies = wx.CheckBox(self, -1, _("&VAT applies"))
         self._TCTRL_value_with_vat = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY | wx.NO_BORDER)
+        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -46,11 +47,12 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         self._CHBOX_vat_applies.SetToolTipString(_("Select here whether or not to apply VAT when creating an invoice for this bill."))
         self._TCTRL_value_with_vat.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_value_with_vat.SetToolTipString(_("The total value of this bill after VAT has been applied."))
+        self._TCTRL_comment.SetToolTipString(_("Add an arbitrary comment on this bill."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgBillEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(4, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
         __szr_value_details = wx.BoxSizer(wx.HORIZONTAL)
         __szr_address_details = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_invoice_id = wx.StaticText(self, -1, _("Invoice ID"))
@@ -73,6 +75,9 @@ class wxgBillEAPnl(wx.ScrolledWindow):
         __szr_value_details.Add(self._CHBOX_vat_applies, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_value_details.Add(self._TCTRL_value_with_vat, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
         _gszr_main.Add(__szr_value_details, 1, wx.EXPAND, 0)
+        __lbl_comment = wx.StaticText(self, -1, _("Comment"))
+        _gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._TCTRL_comment, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)
         _gszr_main.Fit(self)
         _gszr_main.AddGrowableCol(1)

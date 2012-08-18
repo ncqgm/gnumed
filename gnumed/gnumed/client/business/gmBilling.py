@@ -287,6 +287,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				invoice_id = gm.nullify_empty_string(%(invoice_id)s),
 				close_date = %(close_date)s,
 				apply_vat = %(apply_vat)s,
+				comment = gm.nullify_empty_string(%(comment)s),
 				fk_receiver_identity = %(pk_receiver_identity)s,
 				fk_receiver_address = %(pk_receiver_address)s,
 				fk_doc = %(pk_doc)s
@@ -304,6 +305,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_receiver_identity',
 		u'close_date',
 		u'apply_vat',
+		u'comment',
 		u'pk_receiver_address',
 		u'pk_doc'
 	]
@@ -318,16 +320,22 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['pk_bill']]
 		)
 		txt += _(' Invoice ID: %s\n') % self._payload[self._idx['invoice_id']]
+
 		if self._payload[self._idx['close_date']] is not None:
 			txt += _(' Closed: %s\n') % gmDateTime.pydt_strftime (
 				self._payload[self._idx['close_date']],
 				'%Y %b %d',
 				accuracy = gmDateTime.acc_days
 			)
+
+		if self._payload[self._idx['comment']] is not None:
+			txt += _(' Comment: %s\n') % self._payload[self._idx['comment']]
+
 		txt += _(' Bill value: %(curr)s%(val)s\n') % {
 			'curr': self._payload[self._idx['currency']],
 			'val': self._payload[self._idx['total_amount']]
 		}
+
 		if self._payload[self._idx['apply_vat']]:
 			txt += _(' VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
 				'perc_vat': self._payload[self._idx['percent_vat']],
@@ -341,6 +349,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			}
 		else:
 			txt += _(' VAT: does not apply\n')
+
 		if self._payload[self._idx['pk_bill_items']] is None:
 			txt += _(' Items billed: 0\n')
 		else:
