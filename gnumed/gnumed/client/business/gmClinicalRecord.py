@@ -1038,41 +1038,55 @@ WHERE
 	#--------------------------------------------------------
 	# API: episodes
 	#--------------------------------------------------------
-	def get_episodes(self, id_list=None, issues=None, open_status=None, order_by=None):
+	def get_episodes(self, id_list=None, issues=None, open_status=None, order_by=None, unlinked_only=False):
 		"""Fetches from backend patient episodes.
 
 		id_list - Episodes' PKs list
 		issues - Health issues' PKs list to filter episodes by
-		open_status - return all episodes, only open or closed one(s)
+		open_status - return all (None) episodes, only open (True) or closed (False) one(s)
 		"""
+		if (unlinked_only is True) and (issues is not None):
+			raise ValueError('<unlinked_only> cannot be TRUE if <issues> is not None')
+
 		if order_by is None:
 			order_by = u''
 		else:
 			order_by = u'ORDER BY %s' % order_by
 
-		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE pk_patient = %%(pat)s %s" % order_by
-		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx=True)
-		tmp = []
-		for r in rows:
-			tmp.append(gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}))
+		args = {
+			'pat': self.pk_patient,
+			'open': open_status
+		}
+		where_parts = [u'pk_patient = %(pat)s']
 
-		# now filter
-		if (id_list is None) and (issues is None) and (open_status is None):
-			return tmp
-
-		# ok, let's filter episode list
-		filtered_episodes = []
-		filtered_episodes.extend(tmp)
 		if open_status is not None:
-			filtered_episodes = filter(lambda epi: epi['episode_open'] == open_status, filtered_episodes)
+			where_parts.append(u'episode_open IS %(open)s')
+
+		if unlinked_only:
+			where_parts.append(u'pk_health_issue is NULL')
 
 		if issues is not None:
-			filtered_episodes = filter(lambda epi: epi['pk_health_issue'] in issues, filtered_episodes)
+			where_parts.append(u'pk_health_issue IN %(issues)s')
+			args['issues'] = tuple(issues)
 
 		if id_list is not None:
-			filtered_episodes = filter(lambda epi: epi['pk_episode'] in id_list, filtered_episodes)
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(id_list)
 
-		return filtered_episodes
+		cmd = u"SELECT * FROM clin.v_pat_episodes WHERE %s %s" % (
+			u' AND '.join(where_parts),
+			order_by
+		)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		return [ gmEMRStructItems.cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'}) for r in rows ]
+
+	episodes = property(get_episodes, lambda x:x)
+	#------------------------------------------------------------------
+	def get_unlinked_episodes(self, open_status=None, order_by=None):
+		return self.get_episodes(open_status = open_status, order_by = order_by, unlinked_only = True)
+
+	unlinked_episodes = property(get_unlinked_episodes, lambda x:x)
 	#------------------------------------------------------------------
 	def get_episodes_by_encounter(self, pk_encounter=None):
 		cmd = u"""SELECT distinct pk_episode
@@ -1241,12 +1255,9 @@ WHERE
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
 
-		cmd = u"SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient=%(pat)s"
+		cmd = u"SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient = %(pat)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
-		issues = []
-		for row in rows:
-			r = {'idx': idx, 'data': row, 'pk_field': 'pk_health_issue'}
-			issues.append(gmEMRStructItems.cHealthIssue(row = r))
+		issues = [ gmEMRStructItems.cHealthIssue(row = {'idx': idx, 'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
 
 		if id_list is None:
 			return issues
@@ -2431,6 +2442,11 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey=12)
 		print emr.get_most_recent_results()
 	#-----------------------------------------
+	def test_episodes():
+		emr = cClinicalRecord(aPKey=12)
+		print "episodes:", emr.episodes
+		print "unlinked:", emr.unlinked_episodes
+	#-----------------------------------------
 	#test_allergy_state()
 	#test_is_allergic_to()
 
@@ -2446,7 +2462,8 @@ if __name__ == "__main__":
 	#test_get_almost_recent_encounter()
 	#test_get_meds()
 	#test_get_as_journal()
-	test_get_most_recent()
+	#test_get_most_recent()
+	test_episodes()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

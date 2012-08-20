@@ -1,12 +1,14 @@
-"""GNUmed patient EMR tree browser.
-"""
+"""GNUmed patient EMR tree browser."""
 #================================================================
-__version__ = "$Revision: 1.111 $"
 __author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 # std lib
-import sys, os.path, StringIO, codecs, logging
+import sys
+import os.path
+import StringIO
+import codecs
+import logging
 
 
 # 3rd party
@@ -14,9 +16,15 @@ import wx
 
 
 # GNUmed libs
-from Gnumed.pycommon import gmI18N, gmDispatcher, gmExceptions, gmTools
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmTools
 from Gnumed.exporters import gmPatientExporter
-from Gnumed.business import gmEMRStructItems, gmPerson, gmSOAPimporter, gmPersonSearch
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmPerson
+from Gnumed.business import gmSOAPimporter
+from Gnumed.business import gmPersonSearch
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmSOAPWidgets
@@ -29,7 +37,6 @@ from Gnumed.wxpython import gmFamilyHistoryWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #============================================================
 def export_emr_to_ascii(parent=None):
@@ -98,7 +105,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		self.__enable_display_mode_selection = None
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__curr_node = None
-		self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
+		#self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self._old_cursor_pos = None
 
@@ -135,6 +142,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		"""Configures enabled event signals."""
 		wx.EVT_TREE_SEL_CHANGED (self, self.GetId(), self._on_tree_item_selected)
 		wx.EVT_TREE_ITEM_RIGHT_CLICK (self, self.GetId(), self._on_tree_item_right_clicked)
+		self.Bind(wx.EVT_TREE_ITEM_EXPANDING, self._on_tree_item_expanding)
 
 		# handle tooltips
 #		wx.EVT_MOTION(self, self._on_mouse_motion)
@@ -150,15 +158,30 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		# FIXME: auto select the previously self.__curr_node if not None
 		# FIXME: error handling
 
+		if not self.__pat.connected:
+			return
+
 		wx.BeginBusyCursor()
-
 #		self.snapshot_expansion()
-
 		# init new tree
+		root_item = self.__populate_root_node()
+#		self.__exporter.get_historical_tree(self)				# this is slow
+		self.__curr_node = root_item
+		self.SelectItem(root_item)
+		self.Expand(root_item)
+		self.__update_text_for_selected_node()					# this is fairly slow, too
+#		self.restore_expansion()
+		wx.EndBusyCursor()
+		return True
+	#--------------------------------------------------------
+	def __populate_root_node(self):
+
 		self.DeleteAllItems()
+
 		root_item = self.AddRoot(_('EMR of %(lastnames)s, %(firstnames)s') % self.__pat.get_active_name())
 		self.SetItemPyData(root_item, None)
 		self.SetItemHasChildren(root_item, True)
+
 		self.__root_tooltip = self.__pat['description_gender'] + u'\n'
 		if self.__pat['deceased'] is None:
 			self.__root_tooltip += u' %s (%s)\n\n' % (
@@ -199,18 +222,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if self.__root_tooltip == u'':
 			self.__root_tooltip = u' '
 
-		# have the tree filled by the exporter
-		self.__exporter.get_historical_tree(self)
-		self.__curr_node = root_item
-
-		self.SelectItem(root_item)
-		self.Expand(root_item)
-		self.__update_text_for_selected_node()
-
-#		self.restore_expansion()
-
-		wx.EndBusyCursor()
-		return True
+		return root_item
 	#--------------------------------------------------------
 	def __update_text_for_selected_node(self):
 		"""Displays information for the selected tree node."""
@@ -448,6 +460,45 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if not gmEMRStructItems.delete_episode(episode = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
 	#--------------------------------------------------------
+	def __expand_episode_node(self, episode_node=None):
+		self.DeleteChildren(episode_node)
+
+		emr = self.__pat.emr
+		epi = self.GetPyData(episode_node)
+		encounters = emr.get_encounters(episodes = [epi['pk_episode']], skip_empty = True)
+		if len(encounters) == 0:
+			self.SetItemHasChildren(episode_node, False)
+			return
+
+		self.SetItemHasChildren(episode_node, True)
+
+		for enc in encounters:
+			label = u'%s: %s' % (
+				enc['started'].strftime('%Y-%m-%d'),
+				gmTools.unwrap (
+					gmTools.coalesce (
+						gmTools.coalesce (
+							gmTools.coalesce (
+								enc.get_latest_soap (				# soAp
+									soap_cat = 'a',
+									episode = epi['pk_episode']
+								),
+								enc['assessment_of_encounter']		# or AOE
+							),
+							enc['reason_for_encounter']				# or RFE
+						),
+						enc['l10n_type']							# or type
+					),
+					max_length = 40
+				)
+			)
+			encounter_node = self.AppendItem(episode_node, label)
+			self.SetItemPyData(encounter_node, enc)
+			# we don't expand encounter nodes (what for ?)
+			self.SetItemHasChildren(encounter_node, False)
+
+		self.SortChildren(episode_node)
+	#--------------------------------------------------------
 	# encounter level
 	#--------------------------------------------------------
 	def __move_progress_notes(self, evt):
@@ -538,6 +589,49 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		while epi.IsOk():
 			self.Expand(epi)
 			epi, epi_cookie = self.GetNextChild(self.__curr_node, epi_cookie)
+	#--------------------------------------------------------
+	def __expand_issue_node(self, issue_node=None):
+		self.DeleteChildren(issue_node)
+
+		emr = self.__pat.emr
+		issue = self.GetPyData(issue_node)
+		episodes = emr.get_episodes(issues = [issue['pk_health_issue']])
+		if len(episodes) == 0:
+			self.SetItemHasChildren(issue_node, False)
+			return
+
+		self.SetItemHasChildren(issue_node, True)
+
+		for episode in episodes:
+			episode_node =  self.AppendItem(issue_node, episode['description'])
+			self.SetItemPyData(episode_node, episode)
+			if episode['episode_open']:
+				self.SetItemBold(issue_node, True)
+			# fake it so we can expand it
+			self.SetItemHasChildren(episode_node, True)
+
+		self.SortChildren(issue_node)
+	#--------------------------------------------------------
+	def __expand_pseudo_issue_node(self, fake_issue_node=None):
+		self.DeleteChildren(fake_issue_node)
+
+		emr = self.__pat.emr
+		episodes = emr.unlinked_episodes
+		if len(episodes) == 0:
+			self.SetItemHasChildren(fake_issue_node, False)
+			return
+
+		self.SetItemHasChildren(fake_issue_node, True)
+
+		for episode in episodes:
+			episode_node =  self.AppendItem(fake_issue_node, episode['description'])
+			self.SetItemPyData(episode_node, episode)
+			if episode['episode_open']:
+				self.SetItemBold(fake_issue_node, True)
+			# fake it so we can expand it
+			self.SetItemHasChildren(episode_node, True)
+
+		self.SortChildren(fake_issue_node)
 	#--------------------------------------------------------
 	# EMR level
 	#--------------------------------------------------------
@@ -634,6 +728,27 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			encounter = self.__curr_node_data
 		)
 	#--------------------------------------------------------
+	def __expand_root_node(self):
+		root_node = self.GetRootItem()
+		self.DeleteChildren(root_node)
+
+		issues = [{
+			'description': _('Unattributed episodes'),
+			'pk_health_issue': None
+		}]
+
+		emr = self.__pat.emr
+		issues.extend(emr.health_issues)
+
+		for issue in issues:
+			issue_node =  self.AppendItem(root_node, issue['description'])
+			self.SetItemPyData(issue_node, issue)
+			# fake it so we can expand it
+			self.SetItemHasChildren(issue_node, True)
+
+		self.SetItemHasChildren(root_node, (len(issues) != 0))
+		self.SortChildren(root_node)
+	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_narrative_mod_db(self, *args, **kwargs):
@@ -644,6 +759,35 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def _on_issue_mod_db(self, *args, **kwargs):
 		wx.CallAfter(self.__populate_tree)
+	#--------------------------------------------------------
+	def _on_tree_item_expanding(self, event):
+		if not self.__pat.connected:
+			return
+
+		event.Skip()
+
+		node = event.GetItem()
+		if node == self.GetRootItem():
+			self.__expand_root_node()
+			return
+
+		node_data = self.GetPyData(node)
+
+		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+			self.__expand_issue_node(issue_node = node)
+			return
+
+		if isinstance(node_data, gmEMRStructItems.cEpisode):
+			self.__expand_episode_node(episode_node = node)
+			return
+
+		# pseudo node "free-standing episodes"
+		if type(node_data) == type({}):
+			self.__expand_pseudo_issue_node(fake_issue_node = node)
+			return
+
+		# encounter nodes do not need expanding
+		#if isinstance(node_data, gmEMRStructItems.cEncounter):
 	#--------------------------------------------------------
 	def _on_tree_item_selected(self, event):
 		sel_item = event.GetItem()

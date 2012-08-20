@@ -504,10 +504,10 @@ where
 	def get_adjacent_results(self, desired_earlier_results=1, desired_later_results=1, max_offset=None):
 
 		if desired_earlier_results < 1:
-			raise ArgumentError('<desired_earlier_results> must be > 0')
+			raise ValueError('<desired_earlier_results> must be > 0')
 
 		if desired_later_results < 1:
-			raise ArgumentError('<desired_later_results> must be > 0')
+			raise ValueError('<desired_later_results> must be > 0')
 
 		args = {
 			'pat': self._payload[self._idx['pk_patient']],
@@ -644,10 +644,10 @@ WHERE
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
 
 	if None not in [test_type, loinc]:
-		raise ArgumentError('either <test_type> or <loinc> must be None')
+		raise ValueError('either <test_type> or <loinc> must be None')
 
 	if no_of_results < 1:
-		raise ArgumentError('<no_of_results> must be > 0')
+		raise ValueError('<no_of_results> must be > 0')
 
 	args = {
 		'pat': patient,
