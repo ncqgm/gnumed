@@ -923,7 +923,7 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Charge date'),
 			_('Count'),
 			_('Description'),
-			_('¤'),
+			_(u'¤'),
 			_('Value'),
 			_('VAT'),
 			_('Catalog'),
