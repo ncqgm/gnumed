@@ -605,8 +605,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		for episode in episodes:
 			episode_node =  self.AppendItem(issue_node, episode['description'])
 			self.SetItemPyData(episode_node, episode)
-			if episode['episode_open']:
-				self.SetItemBold(issue_node, True)
 			# fake it so we can expand it
 			self.SetItemHasChildren(episode_node, True)
 
@@ -734,6 +732,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		issues = [{
 			'description': _('Unattributed episodes'),
+			'has_open_episode': False,
 			'pk_health_issue': None
 		}]
 
@@ -742,6 +741,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		for issue in issues:
 			issue_node =  self.AppendItem(root_node, issue['description'])
+			self.SetItemBold(issue_node, issue['has_open_episode'])
 			self.SetItemPyData(issue_node, issue)
 			# fake it so we can expand it
 			self.SetItemHasChildren(issue_node, True)

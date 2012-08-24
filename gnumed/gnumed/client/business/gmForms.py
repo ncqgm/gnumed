@@ -817,6 +817,7 @@ form_engines[u'A'] = cAbiWordForm
 #================================================================
 # LaTeX template forms
 #----------------------------------------------------------------
+# XeTeX: http://www.scholarsfonts.net/xetextt.pdf
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX."""
 
