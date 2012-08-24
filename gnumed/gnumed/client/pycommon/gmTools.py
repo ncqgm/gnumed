@@ -735,10 +735,19 @@ def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
 	return xml_tools.escape(text)
 #---------------------------------------------------------------------------
-def tex_escape_string(text=None):
-	"""check for special LaTeX characters and transform them"""
+# a web search did not reveal anything else for Xe(La)Tex
+def tex_escape_string(text=None, replace_known_unicode=True):
+	"""check for special TeX characters and transform them"""
 
-	text = text.replace(u'\\', u'$\\backslash$')
+	#text = text.replace(u'\\', u'$\\backslash$')
+	text = text.replace(u'\\', u'\\textbackslash')
+
+	#text = text.replace(u'^', u'\\verb#^#')
+	text = text.replace(u'^', u'\\textasciicircum')
+
+	#text = text.replace('~','\\verb#~#')
+	text = text.replace('~','\\textasciitilde')
+
 	text = text.replace(u'{', u'\\{')
 	text = text.replace(u'}', u'\\}')
 	text = text.replace(u'%', u'\\%')
@@ -746,10 +755,10 @@ def tex_escape_string(text=None):
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
 	text = text.replace(u'_', u'\\_')
-	text = text.replace(u_euro, u'\\EUR')
 
-	text = text.replace(u'^', u'\\verb#^#')
-	text = text.replace('~','\\verb#~#')
+	if replace_known_unicode:
+		# this should NOT be replaced for Xe(La)Tex
+		text = text.replace(u_euro, u'\\EUR')
 
 	return text
 #---------------------------------------------------------------------------

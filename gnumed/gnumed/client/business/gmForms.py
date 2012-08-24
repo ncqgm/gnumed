@@ -2,7 +2,7 @@
 """GNUmed forms classes
 
 Business layer for printing all manners of forms, letters, scripts etc.
- 
+
 license: GPL v2 or later
 """
 #============================================================
@@ -48,7 +48,7 @@ _log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P', u'A']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P', u'A', u'X']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
@@ -56,7 +56,8 @@ form_engine_names = {
 	u'I': 'Image editor',
 	u'G': 'Gnuplot script',
 	u'P': 'PDF forms',
-	u'A': 'AbiWord'
+	u'A': 'AbiWord',
+	u'X': 'Xe(La)TeX'
 }
 
 form_engine_template_wildcards = {
@@ -64,7 +65,8 @@ form_engine_template_wildcards = {
 	u'L': u'*.tex',
 	u'G': u'*.gpl',
 	u'P': u'*.pdf',
-	u'A': u'*.abw'
+	u'A': u'*.abw',
+	u'X': u'*.tex'
 }
 
 # is filled in further below after each engine is defined
@@ -817,7 +819,6 @@ form_engines[u'A'] = cAbiWordForm
 #================================================================
 # LaTeX template forms
 #----------------------------------------------------------------
-# XeTeX: http://www.scholarsfonts.net/xetextt.pdf
 class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX."""
 
@@ -977,6 +978,175 @@ class cLaTeXForm(cFormEngine):
 		return final_pdf_name
 #------------------------------------------------------------
 form_engines[u'L'] = cLaTeXForm
+
+#================================================================
+# Xe(La)TeX template forms
+#----------------------------------------------------------------
+# Xe(La)TeX: http://www.scholarsfonts.net/xetextt.pdf
+class cXeTeXForm(cFormEngine):
+	"""A forms engine wrapping Xe(La)TeX."""
+
+	def __init__(self, template_file=None):
+		super(self.__class__, self).__init__(template_file = template_file)
+		path, ext = os.path.splitext(self.template_filename)
+		if ext in [r'', r'.']:
+			ext = r'.tex'
+		self.instance_filename = r'%s-instance%s' % (path, ext)
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+
+		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
+		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
+
+		if self.template is not None:
+			# inject placeholder values
+			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		for line in template_file:
+
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+				instance_file.write(line)
+				continue
+
+			# 1) find placeholders in this line
+			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+			# 2) and replace them
+			for placeholder in placeholders_in_line:
+				try:
+					val = data_source[placeholder]
+				except:
+					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
+					_log.exception(val)
+
+				if val is None:
+					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
+
+				line = line.replace(placeholder, val)
+
+			instance_file.write(line)
+
+		instance_file.close()
+		self.re_editable_filenames = [self.instance_filename]
+		template_file.close()
+
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
+
+		return
+	#--------------------------------------------------------
+	def edit(self):
+
+		mimetypes = [
+			u'application/x-xetex',
+			u'application/x-latex',
+			u'application/x-tex',
+			u'text/plain'
+		]
+
+		for mimetype in mimetypes:
+			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.instance_filename)
+			if editor_cmd is not None:
+				break
+
+		if editor_cmd is None:
+			# Xe(La)TeX code is utf8: also consider text *viewers*
+			# since pretty much any of them will be an editor as well
+			for mimetype in mimetypes:
+				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
+				if editor_cmd is not None:
+					break
+
+		# last resort
+		if editor_cmd is None:
+			if os.name == 'nt':
+				editor_cmd = u'notepad.exe %s' % self.instance_filename
+			else:
+				editor_cmd = u'sensible-editor %s' % self.instance_filename
+
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		self.re_editable_filenames = [self.instance_filename]
+
+		return result
+	#--------------------------------------------------------
+	def generate_output(self, instance_file=None, format=None):
+
+		if instance_file is None:
+			instance_file = self.instance_filename
+
+		try:
+			open(instance_file, 'r').close()
+		except:
+			_log.exception('cannot access form instance file [%s]', instance_file)
+			gmLog2.log_stack_trace()
+			return None
+
+		self.instance_filename = instance_file
+
+		_log.debug('ignoring <format> directive [%s], generating PDF', format)
+
+		# create sandbox for Xe(La)TeX to play in
+		sandbox_dir = os.path.splitext(self.template_filename)[0]
+		_log.debug('Xe(La)TeX sandbox directory: [%s]', sandbox_dir)
+
+#		old_cwd = os.getcwd()
+#		_log.debug('CWD: [%s]', old_cwd)
+
+		gmTools.mkdir(sandbox_dir)
+
+#		os.chdir(sandbox_dir)
+#		try:
+		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
+		shutil.move(self.instance_filename, sandboxed_instance_filename)
+		self.re_editable_filenames = [sandboxed_instance_filename]
+
+		# Xe(La)TeX can need up to three runs to get cross references et al right
+		if platform.system() == 'Windows':
+			# not yet supported: -draftmode
+			# does not support: -shell-escape
+			draft_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			final_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+		else:
+			# not yet supported: -draftmode
+			draft_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (sandbox_dir, sandboxed_instance_filename)
+			final_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (sandbox_dir, sandboxed_instance_filename)
+		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
+			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
+				_log.error('problem running xelatex, cannot generate form output')
+				gmDispatcher.send(signal = 'statustext', msg = _('Error running xelatex. Cannot turn Xe(La)TeX template into PDF.'), beep = True)
+				#os.chdir(old_cwd)
+				return None
+#		finally:
+#			os.chdir(old_cwd)
+
+		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
+		target_dir = os.path.split(self.instance_filename)[0]
+		try:
+			shutil.move(sandboxed_pdf_name, target_dir)
+		except IOError:
+			_log.exception('cannot move sandboxed PDF: %s -> %s', sandboxed_pdf_name, target_dir)
+			gmDispatcher.send(signal = 'statustext', msg = _('Sandboxed PDF output file cannot be moved.'), beep = True)
+			return None
+
+		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+
+		try:
+			open(final_pdf_name, 'r').close()
+		except IOError:
+			_log.exception('cannot open target PDF: %s', final_pdf_name)
+			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
+			return None
+
+		self.final_output_filenames = [final_pdf_name]
+
+		return final_pdf_name
+#------------------------------------------------------------
+form_engines[u'X'] = cXeTeXForm
+
 #============================================================
 # Gnuplot template forms
 #------------------------------------------------------------
