@@ -184,7 +184,7 @@ def configure_invoice_template(parent=None, with_vat=True):
 		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
 		return None
 
-	if template['engine'] != u'L':
+	if template['engine'] not in [u'L', u'X']:
 		gmDispatcher.send(signal = 'statustext', msg = _('No invoice template configured.'), beep = True)
 		return None
 

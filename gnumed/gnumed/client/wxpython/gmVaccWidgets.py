@@ -5,7 +5,6 @@ Modelled after Richard Terry's design document.
 copyright: authors
 """
 #======================================================================
-__version__ = "$Revision: 1.36 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -17,18 +16,30 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmMatchProvider, gmTools, gmI18N
-from Gnumed.pycommon import gmCfg, gmDateTime, gmNetworkTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmPrinting
+
 from Gnumed.business import gmPerson
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmSurgery
-from Gnumed.wxpython import gmPhraseWheel, gmTerryGuiParts, gmRegetMixin, gmGuiHelpers
+
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmTerryGuiParts
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmFormWidgets
+from Gnumed.wxpython import gmMacro
 
 
 _log = logging.getLogger('gm.vaccination')
-_log.info(__version__)
 
 #======================================================================
 # vaccination indication related widgets
@@ -552,8 +563,68 @@ class cVaccineEAPnl(wxgVaccineEAPnl.wxgVaccineEAPnl, gmEditArea.cGenericEditArea
 
 		self.__indications = picks
 		self.__refresh_indications()
+
 #======================================================================
 # vaccination related widgets
+#----------------------------------------------------------------------
+def print_vaccinations(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# 1) get template
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		active_only = True,
+		template_types = [u'Medical statement', u'vaccination report', u'vaccination record']
+	)
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No vaccination document template selected.'), beep = False)
+		return None
+
+	# 2) process template
+	try:
+		vaccs_printout = template.instantiate()
+	except KeyError:
+		_log.exception('cannot instantiate vaccinations printout template [%s]', template)
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Invalid vaccinations printout template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aTitle = _('Printing vaccinations')
+		)
+		return False
+
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	vaccs_printout.substitute_placeholders(data_source = ph)
+	pdf_name = vaccs_printout.generate_output()
+	if pdf_name is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error generating the vaccinations printout.'),
+			aTitle = _('Printing vaccinations')
+		)
+		return False
+
+	# 3) print template
+	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'vaccinations')
+	if not printed:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing vaccinations.'),
+			aTitle = _('Printing vaccinations')
+		)
+		return False
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+	epi = emr.add_episode(episode_name = 'administration', is_open = False)
+	emr.add_clin_narrative (
+		soap_cat = None,
+		note = _('vaccinations printed from template [%s - %s]') % (template['name_long'], template['external_version']),
+		episode = epi
+	)
+
+	return True
+
 #----------------------------------------------------------------------
 def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	ea = cVaccinationEAPnl(parent = parent, id = -1)
@@ -568,6 +639,7 @@ def edit_vaccination(parent=None, vaccination=None, single_entry=True):
 	if not single_entry:
 		return True
 	return False
+
 #----------------------------------------------------------------------
 def manage_vaccinations(parent=None):
 
@@ -587,6 +659,10 @@ def manage_vaccinations(parent=None):
 		)
 
 		gmNetworkTools.open_url_in_browser(url = url)
+		return False
+	#------------------------------------------------------------
+	def print_vaccs(vaccination=None):
+		print_vaccinations(parent = parent)
 		return False
 	#------------------------------------------------------------
 	def edit(vaccination=None):
@@ -623,7 +699,8 @@ def manage_vaccinations(parent=None):
 		new_callback = edit,
 		edit_callback = edit,
 		delete_callback = delete,
-		left_extra_button = (_('Vaccination Plans'), _('Open a browser showing vaccination schedules.'), browse2schedules)
+		left_extra_button = (_('Print'), _('Print vaccinations using a template.'), print_vaccs),
+		right_extra_button = (_('Vaccination Plans'), _('Open a browser showing vaccination schedules.'), browse2schedules)
 	)
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
@@ -922,6 +999,9 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 
 		self.__indications = picks
 		self.__refresh_indications()
+
+#======================================================================
+#======================================================================
 #======================================================================
 #======================================================================
 class cImmunisationsPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
@@ -1198,5 +1278,3 @@ if __name__ == "__main__":
 	app = wx.PyWidgetTester(size = (600, 600))
 	app.SetWidget(cATCPhraseWheel, -1)
 	app.MainLoop()
-#======================================================================
-
