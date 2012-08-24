@@ -203,6 +203,7 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 		self._LBL_left_part.SetLabel(u'')
 		self._LBL_left_part.Hide()
 		self._TCTRL_fillin.SetValue(u'')
+		self._TCTRL_fillin.SetBackgroundColour('yellow')
 		self._TCTRL_fillin.Disable()
 		self._TCTRL_fillin.Hide()
 		self._LBL_right_part.SetLabel(u'')
@@ -336,7 +337,7 @@ def expand_keyword(parent=None, keyword=None, show_list=False):
 			keyword = gmListWidgets.get_choices_from_list (
 				parent = parent,
 				msg = _(
-					'Several macros match the keyword [%s].\n'
+					'Several macro keywords match the fragment [%s].\n'
 					'\n'
 					'Please select the expansion you want to happen.'
 				) % keyword,

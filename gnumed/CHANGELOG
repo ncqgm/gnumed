@@ -20,6 +20,7 @@ IMPROVED: measurement EA: plot adjacent results upon saving
 IMPROVED: support a comment on bills
 IMPROVED: EMR tree: load data when expanding nodes
 IMPROVED: vaccinations list: print vaccinations via template
+IMPROVED: better dynamic text expansion dialog
 
 ------------------------------------------------
 # rel-1-2-patches
