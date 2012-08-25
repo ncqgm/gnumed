@@ -310,6 +310,13 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 
 	filled_in_expansion = property(_get_filled_in, lambda x:x)
 	#---------------------------------------------
+	def _set_keyword(self, keyword):
+		self.SetTitle(_('Expanding <%s>') % keyword)
+
+	keyword = property(lambda x:x, _set_keyword)
+	#---------------------------------------------
+	# event handlers
+	#---------------------------------------------
 	def _on_forward_button_pressed(self, event):
 		self.__goto_next_fillin()
 #============================================================
@@ -362,6 +369,7 @@ def expand_keyword(parent=None, keyword=None, show_list=False):
 
 	if regex.search(_text_expansion_fillin_regex, expansion) is not None:
 		dlg = cTextExpansionFillInDlg(None, -1)
+		dlg.keyword = keyword
 		dlg.expansion = expansion
 		button = dlg.ShowModal()
 		if button == wx.ID_OK:
