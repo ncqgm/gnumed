@@ -2207,8 +2207,17 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 	_query_desc_only = u"""
 		SELECT DISTINCT ON (component)
 			pk_component,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS component
+			(substance
+				|| ' ' || amount || unit
+				|| ' ' || preparation
+				|| ' ('
+					|| brand
+					|| coalesce (
+						' [' || external_code_type_brand || '::' || external_code_brand || ']',
+						''
+					)
+				|| ')'
+			) AS component
 		FROM ref.v_drug_components
 		WHERE
 			substance %(fragment_condition)s
@@ -2220,8 +2229,17 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 		SELECT DISTINCT ON (component)
 			pk_component,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS component
+			(substance
+				|| ' ' || amount || unit
+				|| ' ' || preparation
+				|| ' ('
+					|| brand
+					|| coalesce (
+						' [' || external_code_type_brand || '::' || external_code_brand || ']',
+						''
+					)
+				|| ')'
+			) AS component
 		FROM ref.v_drug_components
 		WHERE
 			%(fragment_condition)s
