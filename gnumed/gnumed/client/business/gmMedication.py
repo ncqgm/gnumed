@@ -2205,27 +2205,31 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
 	_query_desc_only = u"""
-		SELECT DISTINCT ON (component)
-			pk_component,
+		SELECT DISTINCT ON (list_label)
+			pk_component AS data,
 			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS component
+				AS field_label,
+			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
+				AS list_label
 		FROM ref.v_drug_components
 		WHERE
 			substance %(fragment_condition)s
 				OR
 			brand %(fragment_condition)s
-		ORDER BY component
+		ORDER BY list_label
 		LIMIT 50"""
 	_query_desc_and_amount = u"""
 
-		SELECT DISTINCT ON (component)
-			pk_component,
+		SELECT DISTINCT ON (list_label)
+			pk_component AS data,
 			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS component
+				AS field_label,
+			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
+				AS list_label
 		FROM ref.v_drug_components
 		WHERE
 			%(fragment_condition)s
-		ORDER BY component
+		ORDER BY list_label
 		LIMIT 50"""
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):

@@ -1,27 +1,52 @@
-"""GNUmed medication/substances handling widgets.
-"""
+"""GNUmed medication/substances handling widgets."""
+
 #================================================================
-__version__ = "$Revision: 1.33 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
-import logging, sys, os.path, decimal
+import logging
+import sys
+import os.path
+import decimal
 
 
-import wx, wx.grid
+import wx
+import wx.grid
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmCfg, gmShellAPI, gmTools, gmDateTime
-from Gnumed.pycommon import gmMatchProvider, gmI18N, gmPrinting, gmCfg2, gmNetworkTools
-from Gnumed.business import gmPerson, gmATC, gmSurgery, gmMedication, gmForms, gmStaff
-from Gnumed.wxpython import gmGuiHelpers, gmRegetMixin, gmAuthWidgets, gmEditArea, gmMacro
-from Gnumed.wxpython import gmCfgWidgets, gmListWidgets, gmPhraseWheel, gmFormWidgets
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmPrinting
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmNetworkTools
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmATC
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmMedication
+from Gnumed.business import gmForms
+from Gnumed.business import gmStaff
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmMacro
+from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #============================================================
 # generic drug database access
