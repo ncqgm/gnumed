@@ -2204,28 +2204,70 @@ def get_drug_components():
 class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+
 	_query_desc_only = u"""
 		SELECT DISTINCT ON (list_label)
-			pk_component AS data,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS field_label,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS list_label
-		FROM ref.v_drug_components
+			r_vdc1.pk_component
+				AS data,
+			(r_vdc1.substance || ' '
+				|| r_vdc1.amount || r_vdc1.unit || ' '
+				|| r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						select array_to_string(array_agg(r_vdc2.amount), ' / ')
+						from ref.v_drug_components r_vdc2
+						where r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			 || ')'
+			)	AS field_label,
+			(r_vdc1.substance || ' '
+				|| r_vdc1.amount || r_vdc1.unit || ' '
+				|| r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						select array_to_string(array_agg(r_vdc2.amount), ' / ')
+						from ref.v_drug_components r_vdc2
+						where r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			 || ')'
+			)	AS list_label
+		FROM ref.v_drug_components r_vdc1
 		WHERE
-			substance %(fragment_condition)s
+			r_vdc1.substance %(fragment_condition)s
 				OR
-			brand %(fragment_condition)s
+			r_vdc1.brand %(fragment_condition)s
 		ORDER BY list_label
 		LIMIT 50"""
-	_query_desc_and_amount = u"""
 
+	_query_desc_and_amount = u"""
 		SELECT DISTINCT ON (list_label)
 			pk_component AS data,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS field_label,
-			(substance || ' ' || amount || unit || ' ' || preparation || ' (' || brand ||  ')')
-				AS list_label
+			(r_vdc1.substance || ' '
+				|| r_vdc1.amount || r_vdc1.unit || ' '
+				|| r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						select array_to_string(array_agg(r_vdc2.amount), ' / ')
+						from ref.v_drug_components r_vdc2
+						where r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			 || ')'
+			)	AS field_label,
+			(r_vdc1.substance || ' '
+				|| r_vdc1.amount || r_vdc1.unit || ' '
+				|| r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						select array_to_string(array_agg(r_vdc2.amount), ' / ')
+						from ref.v_drug_components r_vdc2
+						where r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			 || ')'
+			)	AS list_label
 		FROM ref.v_drug_components
 		WHERE
 			%(fragment_condition)s
