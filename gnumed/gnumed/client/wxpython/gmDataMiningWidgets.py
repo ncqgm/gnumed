@@ -1,15 +1,15 @@
-"""GNUmed data mining related widgets.
-"""
+"""GNUmed data mining related widgets."""
+
 #================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmDataMiningWidgets.py,v $
-# $Id: gmDataMiningWidgets.py,v 1.14 2009-07-30 12:03:34 ncq Exp $
-__version__ = '$Revision: 1.14 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 
 # stdlib
-import sys, os, fileinput, logging
+import sys
+import os
+import fileinput
+import logging
 
 
 # 3rd party
@@ -19,14 +19,23 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmMimeLib, gmTools, gmPG2, gmMatchProvider, gmI18N, gmNetworkTools
-from Gnumed.business import gmPerson, gmDataMining, gmPersonSearch
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets
-from Gnumed.wxGladeWidgets import wxgPatientListingPnl, wxgDataMiningPnl
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmNetworkTools
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmDataMining
+from Gnumed.business import gmPersonSearch
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #================================================================
 class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
@@ -42,25 +51,47 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self)
 	#------------------------------------------------------------
+	def __get_patient_pk_column(self, data=None):
+		if self.patient_key is not None:
+			try:
+				data[self.pk_patient]
+				return self.patient_key
+			except (KeyError, IndexError, TypeError):
+				_log.error('misconfigured identifier column <%s>', self.patient_key)
+
+		_log.debug('identifier column not configured, trying to detect')
+
+		if data.has_key('pk_patient'):
+			return u'pk_patient'
+
+		if data.has_key('pk_identity'):
+			return u'pk_identity'
+
+		return gmListWidgets.get_choices_from_list (
+			parent = self,
+			msg = _(
+				'The report result list does not contain any columns\n'
+				'named "%s", "pk_patient", or "pk_identity".\n'
+				'\n'
+				'Select the column which contains patient IDs:\n'
+			) % self.patient_key,
+			caption = _('Choose column from query results ...'),
+			choices = data.keys(),
+			columns = [_('Column name')],
+			single_selection = True
+		)
+	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
 	def _on_list_item_activated(self, evt):
-		if self.patient_key is None:
+		data = self.get_selected_item_data(only_one=True)
+		pk_pat_col = self.__get_patient_pk_column(data = data)
+
+		if pk_pat_col is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('List not known to be patient-related.'))
 			return
-		data = self.get_selected_item_data(only_one=True)
-		try:
-			pat_data = data[self.patient_key]
-		except (KeyError, IndexError, TypeError):
-			gmGuiHelpers.gm_show_info (
-				_(
-				'Cannot activate patient.\n\n'
-				'The row does not contain a column\n'
-				'named or indexed "%s".\n\n'
-				) % self.patient_key,
-				_('activating patient from list')
-			)
-			return
+
+		pat_data = data[pk_pat_col]
 		try:
 			pat_pk = int(pat_data)
 			pat = gmPerson.cIdentity(aPK_obj = pat_pk)
@@ -85,7 +116,10 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
 		from Gnumed.wxpython import gmPatSearchWidgets
 		gmPatSearchWidgets.set_active_patient(patient = pat)
+
 #================================================================
+from Gnumed.wxGladeWidgets import wxgPatientListingPnl
+
 class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -134,7 +168,10 @@ class cPatientListingPnl(wxgPatientListingPnl.wxgPatientListingPnl):
 	#------------------------------------------------------------
 	def _on_BTN_5_pressed(self, event):
 		event.Skip()
+
 #================================================================
+from Gnumed.wxGladeWidgets import wxgDataMiningPnl
+
 class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -187,11 +224,11 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			_log.debug('not a text file')
 			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. Not a text file.') % fname, beep = True)
 			return False
-		# act on "small" files only
-		stat_val = os.stat(fname)
-		if stat_val.st_size > 2000:
-			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
-			return False
+#		# act on "small" files only
+#		stat_val = os.stat(fname)
+#		if stat_val.st_size > 5000:
+#			gmDispatcher.send(signal='statustext', msg = _('Cannot read SQL from [%s]. File too big (> 2000 bytes).') % fname, beep = True)
+#			return False
 		# all checks passed
 		for line in fileinput.input(fname):
 			self._TCTRL_query.AppendText(line)
@@ -202,41 +239,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		pass
 	#--------------------------------------------------------
 	# event handlers
-	#--------------------------------------------------------
-	def _on_list_item_activated(self, evt):
-		data = self._LCTRL_result.get_selected_item_data()
-
-		try:
-			pk_pat = data['pk_patient']
-		except KeyError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-				'Cannot activate patient.\n\n'
-				'The report result list does not contain\n'
-				'a column named "pk_patient".\n\n'
-				'You may want to use the SQL "AS" column alias\n'
-				'syntax to make your query return such a column.\n'
-				),
-				_('Activating patient from report result')
-			)
-			return
-
-		try:
-			pat = gmPerson.cPatient(aPK_obj = pk_pat)
-		except StandardError:
-			gmGuiHelpers.gm_show_warning (
-				_(
-				'Cannot activate patient.\n'
-				'\n'
-				'There does not seem to exist a patient\n'
-				'with an internal ID of [%s].\n'
-				) % pk_pat,
-				_('Activating patient from report result')
-			)
-			return
-
-		from Gnumed.wxpython import gmPatSearchWidgets
-		gmPatSearchWidgets.set_active_patient(patient = pat)
 	#--------------------------------------------------------
 	def _on_contribute_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -313,7 +315,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self._PRW_report_name.SetText()
 		self._TCTRL_query.SetValue(u'')
 		self._LCTRL_result.set_columns()
-		self._LCTRL_result.patient_key = None
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
 		report = self._PRW_report_name.GetValue().strip()
@@ -348,7 +349,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			msg = _('Choose a column to be used as the X-Axis:'),
 			caption = _('Choose column from query results ...'),
 			choices = self.query_results[0].keys(),
-			columns = [_('column name')],
+			columns = [_('Column name')],
 			single_selection = True
 		)
 		if x_col is None:
@@ -359,7 +360,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			msg = _('Choose a column to be used as the Y-Axis:'),
 			caption = _('Choose column from query results ...'),
 			choices = self.query_results[0].keys(),
-			columns = [_('column name')],
+			columns = [_('Column name')],
 			single_selection = True
 		)
 		if y_col is None:
@@ -429,7 +430,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			user_query = user_query.replace(patient_id_token, str(curr_pat.ID))
 
 		self._LCTRL_result.set_columns()
-		self._LCTRL_result.patient_key = None
 
 		query = wrapper_query % user_query
 		try:
@@ -506,10 +506,6 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 				)
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
-		try:
-			self._LCTRL_result.patient_key = idx['pk_patient']
-		except KeyError:
-			pass
 
 		self.query_results = rows
 		self._BTN_visualize.Enable(True)
@@ -541,5 +537,3 @@ if __name__ == '__main__':
 	#------------------------------------------------------------
 
 	test_pat_list_ctrl()
-
-#================================================================

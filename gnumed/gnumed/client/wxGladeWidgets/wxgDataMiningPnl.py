@@ -10,13 +10,12 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmDataMiningWidgets, gmPhraseWheel
 
         # begin wxGlade: wxgDataMiningPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D|wx.SP_BORDER)
-        self._splitter_bottom_panel = wx.Panel(self._splitter, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
-        self.splitter_top_panel = wx.Panel(self._splitter, -1, style=wx.NO_BORDER|wx.TAB_TRAVERSAL)
+        self._splitter = wx.SplitterWindow(self, -1, style=wx.SP_3D | wx.SP_BORDER)
+        self.splitter_top_panel = wx.Panel(self._splitter, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
         self._PRW_report_name = gmPhraseWheel.cPhraseWheel(self.splitter_top_panel, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_query = wx.TextCtrl(self.splitter_top_panel, -1, "", style=wx.TE_MULTILINE|wx.TE_WORDWRAP|wx.NO_BORDER)
+        self._TCTRL_query = wx.TextCtrl(self.splitter_top_panel, -1, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.NO_BORDER)
         self._BTN_run = wx.Button(self.splitter_top_panel, -1, _("Run"), style=wx.BU_EXACTFIT)
         self._BTN_visualize = wx.Button(self.splitter_top_panel, -1, _("Visualize"), style=wx.BU_EXACTFIT)
         self._BTN_clear = wx.Button(self.splitter_top_panel, -1, _("Clear"), style=wx.BU_EXACTFIT)
@@ -24,7 +23,8 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         self._BTN_delete = wx.Button(self.splitter_top_panel, -1, _("Delete"), style=wx.BU_EXACTFIT)
         self._BTN_contribute = wx.Button(self.splitter_top_panel, -1, _("Contribute"), style=wx.BU_EXACTFIT)
         self._BTN_schema = wx.Button(self.splitter_top_panel, -1, _("Schema"), style=wx.BU_EXACTFIT)
-        self._LCTRL_result = gmDataMiningWidgets.cPatientListingCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT|wx.LC_SINGLE_SEL|wx.SIMPLE_BORDER)
+        self._splitter_bottom_panel = wx.Panel(self._splitter, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
+        self._LCTRL_result = gmDataMiningWidgets.cPatientListingCtrl(self._splitter_bottom_panel, -1, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SIMPLE_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -62,27 +62,27 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
         _szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __LBL_report_name = wx.StaticText(self.splitter_top_panel, -1, _("Report"))
         _fgszr_top.Add(__LBL_report_name, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _fgszr_top.Add(self._PRW_report_name, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _fgszr_top.Add(self._PRW_report_name, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         __LBL_query = wx.StaticText(self.splitter_top_panel, -1, _("\nCommand\n(SQL)"))
         _fgszr_top.Add(__LBL_query, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _fgszr_top.Add(self._TCTRL_query, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _fgszr_top.Add(self._TCTRL_query, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         _fgszr_top.Add((20, 20), 0, wx.EXPAND, 0)
-        _szr_buttons.Add(self._BTN_run, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        _szr_buttons.Add(self._BTN_visualize, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        _szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        _szr_buttons.Add(self._BTN_run, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        _szr_buttons.Add(self._BTN_visualize, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        _szr_buttons.Add(self._BTN_clear, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         _szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        _szr_buttons.Add(self._BTN_save, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        _szr_buttons.Add(self._BTN_delete, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
+        _szr_buttons.Add(self._BTN_save, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        _szr_buttons.Add(self._BTN_delete, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
         _szr_buttons.Add(self._BTN_contribute, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         _szr_buttons.Add(self._BTN_schema, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _fgszr_top.Add(_szr_buttons, 0, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 0)
+        _fgszr_top.Add(_szr_buttons, 0, wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL, 0)
         self.splitter_top_panel.SetSizer(_fgszr_top)
         _fgszr_top.AddGrowableRow(1)
         _fgszr_top.AddGrowableCol(1)
         __szr_splitter_bottom.Add(self._LCTRL_result, 1, wx.EXPAND, 0)
         self._splitter_bottom_panel.SetSizer(__szr_splitter_bottom)
-        self._splitter.SplitHorizontally(self.splitter_top_panel, self._splitter_bottom_panel, 150)
+        self._splitter.SplitHorizontally(self.splitter_top_panel, self._splitter_bottom_panel, 125)
         _szr_main.Add(self._splitter, 1, wx.EXPAND, 0)
         self.SetSizer(_szr_main)
         _szr_main.Fit(self)
@@ -102,10 +102,6 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
 
     def _on_contribute_button_pressed(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
         print "Event handler `_on_contribute_button_pressed' not implemented"
-        event.Skip()
-
-    def _on_list_item_activated(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
-        print "Event handler `_on_list_item_activated' not implemented"
         event.Skip()
 
     def _on_delete_button_pressed(self, event): # wxGlade: wxgDataMiningPnl.<event_handler>
