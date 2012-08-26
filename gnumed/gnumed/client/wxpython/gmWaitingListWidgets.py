@@ -264,6 +264,12 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		else:
 			pats = [ p for p in pats if p['waiting_zone'] == self.__current_zone ]
 
+		# filter by "active patient only"
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if self._CHBOX_active_patient_only.IsChecked():
+				pats = [ p for p in pats if p['pk_identity'] == curr_pat.ID ]
+
 		old_pks = [ d['pk_waiting_list'] for d in self._LCTRL_patients.get_selected_item_data() ]
 		self._LCTRL_patients.set_string_items (
 			[ [
@@ -328,6 +334,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		wx.CallAfter(self.__on_post_patient_selection)
 	#--------------------------------------------------------
 	def __on_post_patient_selection(self):
+		self._CHBOX_active_patient_only.Enable()
 		self._check_RFE()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -451,6 +458,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		gmSurgery.gmCurrentPractice().lower_in_waiting_list(current_position = item['list_position'])
+	#--------------------------------------------------------
+	def _on_active_patient_only_checked(self, evt):
+		self.__refresh_waiting_list()
 	#--------------------------------------------------------
 	# edit
 	#--------------------------------------------------------

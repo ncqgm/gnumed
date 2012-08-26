@@ -15,11 +15,12 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmWaitingListWidgets, gmPatSearchWidgets, gmListWidgets
 
         # begin wxGlade: wxgWaitingListPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_zone = gmWaitingListWidgets.cWaitingZonePhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
+        self._CHBOX_active_patient_only = wx.CheckBox(self, -1, _("Active &patient"))
+        self._PRW_zone = gmWaitingListWidgets.cWaitingZonePhraseWheel(self, -1, "", style=wx.TE_PROCESS_ENTER | wx.NO_BORDER)
         self._LBL_no_of_patients = wx.StaticText(self, -1, "")
-        self._LCTRL_patients = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT|wx.SIMPLE_BORDER)
+        self._LCTRL_patients = gmListWidgets.cReportListCtrl(self, -1, style=wx.LC_REPORT | wx.SIMPLE_BORDER)
         self._BTN_activate = wx.Button(self, -1, _("&Activate"), style=wx.BU_EXACTFIT)
         self._BTN_activateplus = wx.Button(self, -1, _(u"Activate²"), style=wx.BU_EXACTFIT)
         self._BTN_add_patient = wx.Button(self, wx.ID_ADD, "", style=wx.BU_EXACTFIT)
@@ -31,6 +32,7 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_CHECKBOX, self._on_active_patient_only_checked, self._CHBOX_active_patient_only)
         self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_patients)
         self.Bind(wx.EVT_BUTTON, self._on_activate_button_pressed, self._BTN_activate)
         self.Bind(wx.EVT_BUTTON, self._on_activateplus_button_pressed, self._BTN_activateplus)
@@ -44,6 +46,8 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgWaitingListPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._CHBOX_active_patient_only.SetToolTipString(_("Check this if you want to see entries for the active patient only."))
+        self._CHBOX_active_patient_only.Enable(False)
         self._PRW_zone.SetToolTipString(_("Enter the waiting zone you want to filter by here.\nIf you leave this empty all waiting patients will be shown regardless of which zone they are waiting in."))
         self._LCTRL_patients.SetToolTipString(_("These patients are waiting.\n\nDoubleclick to activate (entry will stay in list)."))
         self._BTN_activate.SetToolTipString(_("Activate patient but do not remove from waiting list."))
@@ -67,27 +71,30 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_top = wx.BoxSizer(wx.HORIZONTAL)
-        __lbl_filter = wx.StaticText(self, -1, _("Filter by:"))
-        __szr_top.Add(__lbl_filter, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 10)
+        __lbl_filter = wx.StaticText(self, -1, _("Filters:"))
+        __szr_top.Add(__lbl_filter, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_top.Add(self._CHBOX_active_patient_only, 0, wx.ALIGN_CENTER_VERTICAL, 10)
+        __VLINE_patient_zone = wx.StaticLine(self, -1, style=wx.LI_VERTICAL)
+        __szr_top.Add(__VLINE_patient_zone, 0, wx.LEFT | wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
         __lbl_zone = wx.StaticText(self, -1, _("Zone"))
-        __szr_top.Add(__lbl_zone, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_top.Add(self._PRW_zone, 1, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_top.Add(self._LBL_no_of_patients, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_top.Add((20, 20), 3, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_main.Add(__szr_top, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 3)
-        __szr_main.Add(self._LCTRL_patients, 1, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 3)
+        __szr_top.Add(__lbl_zone, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_top.Add(self._PRW_zone, 1, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_top.Add(self._LBL_no_of_patients, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_top.Add((20, 20), 3, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_top, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 3)
+        __szr_main.Add(self._LCTRL_patients, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 3)
         __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_activate, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_activate, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_activateplus, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_add_patient, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_buttons.Add(self._BTN_remove, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_add_patient, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_buttons.Add(self._BTN_remove, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_buttons.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
-        __szr_buttons.Add(self._BTN_up, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_buttons.Add(self._BTN_up, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
         __szr_buttons.Add(self._BTN_down, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_buttons.Add((20, 20), 2, wx.EXPAND, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.TOP|wx.BOTTOM|wx.EXPAND, 5)
+        __szr_main.Add(__szr_buttons, 0, wx.TOP | wx.BOTTOM | wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade
@@ -126,6 +133,10 @@ class wxgWaitingListPnl(wx.ScrolledWindow):
 
     def _on_activateplus_button_pressed(self, event): # wxGlade: wxgWaitingListPnl.<event_handler>
         print "Event handler `_on_activateplus_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_active_patient_only_checked(self, event):  # wxGlade: wxgWaitingListPnl.<event_handler>
+        print "Event handler `_on_active_patient_only_checked' not implemented"
         event.Skip()
 
 # end of class wxgWaitingListPnl
