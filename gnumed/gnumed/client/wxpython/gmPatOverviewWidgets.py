@@ -961,9 +961,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmTools.coalesce(val['comment'], u'', u'\n\n%s')
 				)
 			if key == 'job':
+				tt = _('Last modified: %s') % val['modified_when'].strftime('%m/%Y')
 				if val['activities'] is None:
-					return None
-				return _('Activities:\n\n%s') % val['activities']
+					return tt
+				return tt + (u'\n\n' + _('Activities:\n\n%s') % val['activities'])
 
 		return None
 	#-----------------------------------------------------

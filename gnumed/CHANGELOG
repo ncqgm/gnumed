@@ -24,6 +24,7 @@ IMPROVED: better dynamic text expansion dialog
 IMPROVED: drug component PRW: disambiguate which drug will be picked
 IMPROVED: waiting list: filter by active patient
 IMPROVED: report generator: be smarter about patient ID columns
+IMPROVED: patient overview: display last modified of occupation
 
 ------------------------------------------------
 # rel-1-2-patches
