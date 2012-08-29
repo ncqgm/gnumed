@@ -943,7 +943,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# occupation
 		jobs = patient.get_occupations()
 		for j in jobs:
-			items.append(_('job: %s') % j['l10n_occupation'])
+			items.append(_('job: %s (%s)') % (
+				j['l10n_occupation'],
+				j['modified_when'].strftime('%m/%Y')
+			))
 			data.append({'job': j})
 
 		self._LCTRL_identity.set_string_items(items = items)
