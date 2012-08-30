@@ -9,12 +9,12 @@
 
 --set default_transaction_read_only to off;
 -- --------------------------------------------------------------
-delete from clin.keyword_expansion where keyword = 'LL-HWI_Anamnese-DEGAM_2012';
+delete from ref.keyword_expansion where keyword = 'LL-HWI_Anamnese-DEGAM_2012';
 
-insert into clin.keyword_expansion (
+insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	expansion
+	textual_snippet
 ) values (
 	null,
 	'LL-HWI_Anamnese-DEGAM_2012',
@@ -48,12 +48,12 @@ eingeschränkte Kommunikation/Flankenschmerz/Fieber/komplizierende Faktoren
 ');
 
 -- --------------------------------------------------------------
-delete from clin.keyword_expansion where keyword = 'LL-HWI_Befund-DEGAM_2012';
+delete from ref.keyword_expansion where keyword = 'LL-HWI_Befund-DEGAM_2012';
 
-insert into clin.keyword_expansion (
+insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	expansion
+	textual_snippet
 ) values (
 	null,
 	'LL-HWI_Befund-DEGAM_2012',
@@ -79,12 +79,12 @@ Optionen:
 ');
 
 -- --------------------------------------------------------------
-delete from clin.keyword_expansion where keyword = 'LL-HWI_Bewertung-DEGAM_2012';
+delete from ref.keyword_expansion where keyword = 'LL-HWI_Bewertung-DEGAM_2012';
 
-insert into clin.keyword_expansion (
+insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	expansion
+	textual_snippet
 ) values (
 	null,
 	'LL-HWI_Bewertung-DEGAM_2012',
@@ -104,12 +104,12 @@ AGVs:
 ');
 
 -- --------------------------------------------------------------
-delete from clin.keyword_expansion where keyword = 'LL-HWI_Plan-DEGAM_2012';
+delete from ref.keyword_expansion where keyword = 'LL-HWI_Plan-DEGAM_2012';
 
-insert into clin.keyword_expansion (
+insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	expansion
+	textual_snippet
 ) values (
 	null,
 	'LL-HWI_Plan-DEGAM_2012',
@@ -132,4 +132,4 @@ Antibiose:
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-clin-DEGAM_HWI_2012.sql', '18.0');
+select gm.log_script_insertion('v18-ref-DEGAM_HWI_2012.sql', '18.0');

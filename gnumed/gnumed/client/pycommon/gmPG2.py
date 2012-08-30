@@ -832,7 +832,7 @@ def get_text_expansion_keywords():
 	if text_expansion_keywords is not None:
 		return text_expansion_keywords
 
-	cmd = u"""select keyword, public_expansion, private_expansion, owner from clin.v_keyword_expansions"""
+	cmd = u"""select keyword, public_expansion, private_expansion, owner from ref.v_keyword_expansions"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
 	text_expansion_keywords = rows
 
@@ -846,7 +846,7 @@ def expand_keyword(keyword = None):
 	if keyword == u'$$steffi':
 		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
 
-	cmd = u"""SELECT expansion FROM clin.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
+	cmd = u"""SELECT expansion FROM ref.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
 	if len(rows) == 0:
@@ -871,9 +871,9 @@ def get_keyword_expansion_candidates(keyword = None):
 def add_text_expansion(keyword=None, expansion=None, public=None):
 
 	if public:
-		cmd = u"SELECT 1 from clin.v_keyword_expansions where public_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 FROM ref.v_keyword_expansions WHERE public_expansion IS TRUE AND keyword = %(kwd)s"
 	else:
-		cmd = u"SELECT 1 from clin.v_your_keyword_expansions where private_expansion is true and keyword = %(kwd)s"
+		cmd = u"SELECT 1 FROM ref.v_your_keyword_expansions WHERE private_expansion IS TRUE AND keyword = %(kwd)s"
 
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 	if len(rows) != 0:
@@ -881,12 +881,12 @@ def add_text_expansion(keyword=None, expansion=None, public=None):
 
 	if public:
 		cmd = u"""
-insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, null)"""
+INSERT INTO ref.keyword_expansion (keyword, textual_snippet, fk_staff)
+VALUES (%(kwd)s, %(exp)s, null)"""
 	else:
 		cmd = u"""
-insert into clin.keyword_expansion (keyword, expansion, fk_staff)
-values (%(kwd)s, %(exp)s, (SELECT pk from dem.staff where db_user = current_user))"""
+INSERT INTO ref.keyword_expansion (keyword, textual_snippet, fk_staff)
+VALUES (%(kwd)s, %(exp)s, (SELECT pk FROM dem.staff WHERE db_user = current_user))"""
 
 	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
 
@@ -897,11 +897,11 @@ values (%(kwd)s, %(exp)s, (SELECT pk from dem.staff where db_user = current_user
 #------------------------------------------------------------------------
 def delete_text_expansion(keyword):
 	cmd = u"""
-delete from clin.keyword_expansion where
-	keyword = %(kwd)s and (
-		(fk_staff = (SELECT pk from dem.staff where db_user = current_user))
-			or
-		(fk_staff is null and owner = current_user)
+DELETE FROM ref.keyword_expansion WHERE
+	keyword = %(kwd)s AND (
+		(fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user))
+			OR
+		(fk_staff IS NULL AND owner = current_user)
 	)"""
 	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
 
@@ -911,15 +911,15 @@ delete from clin.keyword_expansion where
 def edit_text_expansion(keyword, expansion):
 
 	cmd1 = u"""
-		DELETE FROM clin.keyword_expansion
+		DELETE FROM ref.keyword_expansion
 		WHERE
 			keyword = %(kwd)s
 				AND
 			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
 
 	cmd2 = u"""
-		INSERT INTO clin.keyword_expansion (
-			keyword, expansion, fk_staff
+		INSERT INTO ref.keyword_expansion (
+			keyword, textual_snippet, fk_staff
 		) VALUES (
 			%(kwd)s,
 			%(exp)s,
