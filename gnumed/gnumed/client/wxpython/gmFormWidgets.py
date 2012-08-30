@@ -1,8 +1,9 @@
-"""GNUmed form/letter handling widgets.
-"""
+"""GNUmed form/letter handling widgets."""
+
 #================================================================
-__version__ = "$Revision: 1.16 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
+
 
 import os.path, sys, logging
 
@@ -12,14 +13,20 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmTools, gmDispatcher, gmPrinting
-from Gnumed.business import gmForms, gmPerson
-from Gnumed.wxpython import gmGuiHelpers, gmListWidgets, gmMacro
-from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl, wxgFormTemplateEditAreaDlg
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmPrinting
+
+from Gnumed.business import gmForms
+from Gnumed.business import gmPerson
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmMacro
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #============================================================
 # convenience functions
@@ -265,6 +272,8 @@ def create_new_letter(parent=None):
 
 	doc.show(True)
 #============================================================
+from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl
+
 class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -459,6 +468,8 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 
 		dlg.Destroy()
 #============================================================
+from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaDlg
+
 class cFormTemplateEditAreaDlg(wxgFormTemplateEditAreaDlg.wxgFormTemplateEditAreaDlg):
 
 	def __init__(self, *args, **kwargs):

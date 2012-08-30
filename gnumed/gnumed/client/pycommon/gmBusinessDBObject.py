@@ -125,21 +125,25 @@ The solution is to use our own column for optimistic locking
 which gets updated by an AFTER UPDATE trigger.
 """
 #============================================================
-__version__ = "$Revision: 1.60 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
-import sys, copy, types, inspect, logging, datetime
+
+import sys
+import types
+import inspect
+import logging
+import datetime
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmPG2
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon.gmTools import tex_escape_string
 
 
 _log = logging.getLogger('gm.db')
-_log.info(__version__)
 #============================================================
 class cBusinessDBObject(object):
 	"""Represents business objects in the database.
@@ -202,8 +206,10 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
 		u\"""
-			UPDATE xxx.xxx SET								-- typically the underlying table name
-				xxx = %(xxx)s,								-- typically "table_col = %(view_col)s"
+			-- typically the underlying table name
+			UPDATE xxx.xxx SET
+				-- typically "table_col = %(view_col)s"
+				xxx = %(xxx)s,
 				xxx = gm.nullify_empty_string(%(xxx)s)
 			WHERE
 				pk = %(pk_XXX)s
