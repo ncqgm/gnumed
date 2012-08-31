@@ -977,19 +977,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		chosen_device = self.get_device_to_use()
 
-		tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp'))
-		try:
-			gmTools.mkdir(tmpdir)
-		except:
-			tmpdir = None
-
 		# FIXME: configure whether to use XSane or sane directly
 		# FIXME: add support for xsane_device_settings argument
 		try:
 			fnames = self.scan_module.acquire_pages_into_files (
 				device = chosen_device,
 				delay = 5,
-				tmpdir = tmpdir,
 				calling_window = self
 			)
 		except OSError:

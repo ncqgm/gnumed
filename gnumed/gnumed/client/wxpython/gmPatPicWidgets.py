@@ -90,7 +90,6 @@ class cPatientPicture(wx.StaticBitmap):
 		try:
 			fnames = gmScanBackend.acquire_pages_into_files (
 				delay = 5,
-				tmpdir = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')),
 				calling_window = self
 			)
 		except OSError:

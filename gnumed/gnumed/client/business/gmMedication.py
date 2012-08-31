@@ -1072,9 +1072,9 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		paths = gmTools.gmPaths()
 
-		self.default_csv_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'rezept.txt')
-		self.default_csv_filename_arg = os.path.join(paths.home_dir, '.gnumed', 'tmp')
-		self.interactions_filename = os.path.join(paths.home_dir, '.gnumed', 'tmp', 'gm2mmi.bdt')
+		self.default_csv_filename = os.path.join(paths.tmp_dir, 'rezept.txt')
+		self.default_csv_filename_arg = paths.tmp_dir
+		self.interactions_filename = os.path.join(paths.tmp_dir, 'gm2mmi.bdt')
 		self.data_date_filename = r'C:\Programme\MMI PHARMINDEX\datadate.txt'
 
 		self.__data_date = None

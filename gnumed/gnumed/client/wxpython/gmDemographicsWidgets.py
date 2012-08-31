@@ -419,7 +419,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		]
 		gmDataMiningWidgets.cPatientListingPnl.__init__(self, *args, **kwargs)
 
-		self.fname = os.path.expanduser(os.path.join('~', '.gnumed', 'tmp', 'korganizer2gnumed.csv'))
+		self.fname = os.path.expanduser(os.path.join(gmTools.gmPaths().tmp_dir, 'korganizer2gnumed.csv'))
 		self.reload_cmd = 'konsolekalendar --view --export-type csv --export-file %s' % self.fname
 
 	#--------------------------------------------------------

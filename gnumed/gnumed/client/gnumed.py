@@ -412,7 +412,6 @@ def setup_paths_and_files():
 
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'tmp')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR')))

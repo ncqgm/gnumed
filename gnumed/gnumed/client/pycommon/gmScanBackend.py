@@ -1,17 +1,20 @@
 #==================================================
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
-__version__ = "$Revision: 1.56 $"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
-#==================================================
+
 # stdlib
-import sys, os.path, os, string, time, shutil, codecs, glob, locale, errno, stat, logging
-
-
-# 3rd party
-#import Image
+import sys
+import os.path
+import os
+import time
+import shutil
+import codecs
+import glob
+import logging
+#import stat
 
 
 # GNUmed
@@ -24,7 +27,6 @@ from Gnumed.pycommon import gmLog2
 
 
 _log = logging.getLogger('gm.scanning')
-_log.info(__version__)
 
 _twain_module = None
 _sane_module = None
@@ -62,9 +64,9 @@ class cTwainScanner:
 	#---------------------------------------------------
 	# external API
 	#---------------------------------------------------
-	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
+	def acquire_pages_into_files(self, delay=None, filename=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', tmp_dir=tmpdir)
+			filename = gmTools.get_unique_filename(prefix = 'gmScannedObj-', suffix = '.bmp')
 		else:
 			tmp, ext = os.path.splitext(filename)
 			if ext != '.bmp':
@@ -287,9 +289,9 @@ class cSaneScanner:
 	def close(self):
 		self.__scanner.close()
 	#---------------------------------------------------
-	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
+	def acquire_pages_into_files(self, delay=None, filename=None):
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp', tmp_dir=tmpdir)
+			filename = gmTools.get_unique_filename(prefix='gmScannedObj-', suffix='.bmp')
 		else:
 			tmp, ext = os.path.splitext(filename)
 			if ext != '.bmp':
@@ -336,11 +338,11 @@ class cSaneScanner:
 #==================================================
 class cXSaneScanner:
 
-	_filetype = u'.png'					# FIXME: configurable, TIFF ?
+	_filetype = u'.png'
 	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
-	#_xsanerc_backup = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc.gnumed.bak'))
-	_xsanerc_gnumed = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf'))
-	_xsanerc_backup = os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed-xsanerc.conf.bak'))
+	paths = gmTools.gmPaths()
+	_xsanerc_gnumed = os.path.expanduser(os.path.join(paths.tmp_dir, 'gm-xsanerc.conf'))
+	_xsanerc_backup = os.path.expanduser(os.path.join(paths.tmp_dir, 'gm-xsanerc.conf.bak'))
 
 	#----------------------------------------------
 	def __init__(self):
@@ -355,8 +357,6 @@ class cXSaneScanner:
 				'Start XSane once before using it with GNUmed.'
 			) % cXSaneScanner._xsanerc
 			raise ImportError(msg)
-#		if not os.access(cXSaneScanner._xsanerc, os.R_OK):
-#			raise ImportError('XSane not properly installed for this user, no write access for [%s]' % cXSaneScanner._xsanerc)
 
 		self.device_settings_file = None
 		self.default_device = None
@@ -364,7 +364,7 @@ class cXSaneScanner:
 	def close(self):
 		pass
 	#----------------------------------------------
-	def acquire_pages_into_files(self, delay=None, filename=None, tmpdir=None):
+	def acquire_pages_into_files(self, delay=None, filename=None):
 		"""Call XSane.
 
 		<filename> name part must have format name-001.ext>
@@ -372,8 +372,7 @@ class cXSaneScanner:
 		if filename is None:
 			filename = gmTools.get_unique_filename (
 				prefix = 'gmScannedObj-',
-				suffix = cXSaneScanner._filetype,
-				tmp_dir = tmpdir
+				suffix = cXSaneScanner._filetype
 			)
 		name, ext = os.path.splitext(filename)
 		filename = '%s-001%s' % (name, cXSaneScanner._filetype)
@@ -381,7 +380,7 @@ class cXSaneScanner:
 		filename = os.path.abspath(os.path.expanduser(filename))
 		path, name = os.path.split(filename)
 
-		self.__prepare_xsanerc(tmpdir=path)
+		self.__prepare_xsanerc()
 
 		cmd = 'xsane --no-mode-selection --save --force-filename "%s" --xsane-rc "%s" %s %s' % (
 			filename,
@@ -403,7 +402,7 @@ class cXSaneScanner:
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
-	def __prepare_xsanerc(self, tmpdir=None):
+	def __prepare_xsanerc(self):
 
 		try:
 			open(cXSaneScanner._xsanerc_gnumed, 'r+b').close()
@@ -418,10 +417,11 @@ class cXSaneScanner:
 		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
 		fwrite = codecs.open(cXSaneScanner._xsanerc_gnumed, mode = "w", encoding = enc)
 
+		paths = gmTools.gmPaths()
 		val_dict = {
 			u'filetype': cXSaneScanner._filetype,
-			u'tmp-path': tmpdir,
-			u'working-directory': tmpdir,
+			u'tmp-path': paths.tmp_dir,
+			u'working-directory': paths.tmp_dir,
 			u'skip-existing-numbers': u'1',
 			u'filename-counter-step': u'1',
 			u'filename-counter-len': u'3'
@@ -445,13 +445,7 @@ class cXSaneScanner:
 		fwrite.close()
 		fread.close()
 
-		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-
 		return True
-	#----------------------------------------------
-#	def __restore_xsanerc(self):
-#		shutil.copy2(cXSaneScanner._xsanerc_backup, cXSaneScanner._xsanerc)
-#		#os.chmod(cXSaneScanner._xsanerc, stat.S_IWUSR | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 #==================================================
 def get_devices():
 	try:
@@ -469,7 +463,7 @@ def get_devices():
 	_sane_import_module()
 	return _sane_module.get_devices()
 #-----------------------------------------------------
-def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None, calling_window=None, xsane_device_settings=None):
+def acquire_pages_into_files(device=None, delay=None, filename=None, calling_window=None, xsane_device_settings=None):
 	"""Connect to a scanner and return the scanned pages as a file list.
 
 	returns:
@@ -490,7 +484,7 @@ def acquire_pages_into_files(device=None, delay=None, filename=None, tmpdir=None
 			scanner = cSaneScanner(device=device)
 
 	_log.debug('requested filename: [%s]' % filename)
-	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay, tmpdir=tmpdir)
+	fnames = scanner.acquire_pages_into_files(filename=filename, delay=delay)
 	scanner.close()
 	_log.debug('acquired pages into files: %s' % str(fnames))
 
@@ -524,6 +518,3 @@ if __name__ == '__main__':
 				print "error, cannot acquire page"
 			else:
 				print " image files:", fnames
-
-#==================================================
-
