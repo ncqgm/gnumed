@@ -18,11 +18,11 @@ alter table ref.keyword_expansion
 
 
 alter table ref.keyword_expansion
-	add column binary_snippet bytea;
+	add column binary_data bytea;
 
 
 alter table ref.keyword_expansion
-	rename column expansion to textual_snippet;
+	rename column expansion to textual_data;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v18-ref-keyword_expansion-static.sql', '18.0');

@@ -14,7 +14,7 @@ delete from ref.keyword_expansion where keyword = 'LL-HWI_Anamnese-DEGAM_2012';
 insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	textual_snippet
+	textual_data
 ) values (
 	null,
 	'LL-HWI_Anamnese-DEGAM_2012',
@@ -53,7 +53,7 @@ delete from ref.keyword_expansion where keyword = 'LL-HWI_Befund-DEGAM_2012';
 insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	textual_snippet
+	textual_data
 ) values (
 	null,
 	'LL-HWI_Befund-DEGAM_2012',
@@ -84,7 +84,7 @@ delete from ref.keyword_expansion where keyword = 'LL-HWI_Bewertung-DEGAM_2012';
 insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	textual_snippet
+	textual_data
 ) values (
 	null,
 	'LL-HWI_Bewertung-DEGAM_2012',
@@ -109,7 +109,7 @@ delete from ref.keyword_expansion where keyword = 'LL-HWI_Plan-DEGAM_2012';
 insert into ref.keyword_expansion (
 	fk_staff,
 	keyword,
-	textual_snippet
+	textual_data
 ) values (
 	null,
 	'LL-HWI_Plan-DEGAM_2012',

@@ -823,116 +823,7 @@ def force_user_language(language=None):
 		'cmd': u'select i18n.force_curr_lang(%(lang)s)',
 		'args': {'lang': language}
 	}])
-#------------------------------------------------------------------------
-#------------------------------------------------------------------------
-text_expansion_keywords = None
 
-def get_text_expansion_keywords():
-	global text_expansion_keywords
-	if text_expansion_keywords is not None:
-		return text_expansion_keywords
-
-	cmd = u"""select keyword, public_expansion, private_expansion, owner from ref.v_keyword_expansions"""
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd}])
-	text_expansion_keywords = rows
-
-	_log.info('retrieved %s text expansion keywords', len(text_expansion_keywords))
-
-	return text_expansion_keywords
-#------------------------------------------------------------------------
-def expand_keyword(keyword = None):
-
-	# Easter Egg ;-)
-	if keyword == u'$$steffi':
-		return u'Hai, play !  Versucht das ! (Keks dazu ?)  :-)'
-
-	cmd = u"""SELECT expansion FROM ref.v_your_keyword_expansions WHERE keyword = %(kwd)s"""
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-
-	if len(rows) == 0:
-		return None
-
-	return rows[0]['expansion']
-#------------------------------------------------------------------------
-def get_keyword_expansion_candidates(keyword = None):
-
-	if keyword is None:
-		return []
-
-	get_text_expansion_keywords()
-
-	candidates = []
-	for kwd in text_expansion_keywords:
-		if kwd['keyword'].startswith(keyword):
-			candidates.append(kwd['keyword'])
-
-	return candidates
-#------------------------------------------------------------------------
-def add_text_expansion(keyword=None, expansion=None, public=None):
-
-	if public:
-		cmd = u"SELECT 1 FROM ref.v_keyword_expansions WHERE public_expansion IS TRUE AND keyword = %(kwd)s"
-	else:
-		cmd = u"SELECT 1 FROM ref.v_your_keyword_expansions WHERE private_expansion IS TRUE AND keyword = %(kwd)s"
-
-	rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-	if len(rows) != 0:
-		return False
-
-	if public:
-		cmd = u"""
-INSERT INTO ref.keyword_expansion (keyword, textual_snippet, fk_staff)
-VALUES (%(kwd)s, %(exp)s, null)"""
-	else:
-		cmd = u"""
-INSERT INTO ref.keyword_expansion (keyword, textual_snippet, fk_staff)
-VALUES (%(kwd)s, %(exp)s, (SELECT pk FROM dem.staff WHERE db_user = current_user))"""
-
-	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
-
-	global text_expansion_keywords
-	text_expansion_keywords = None
-
-	return True
-#------------------------------------------------------------------------
-def delete_text_expansion(keyword):
-	cmd = u"""
-DELETE FROM ref.keyword_expansion WHERE
-	keyword = %(kwd)s AND (
-		(fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user))
-			OR
-		(fk_staff IS NULL AND owner = current_user)
-	)"""
-	rows, idx = run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-
-	global text_expansion_keywords
-	text_expansion_keywords = None
-#------------------------------------------------------------------------
-def edit_text_expansion(keyword, expansion):
-
-	cmd1 = u"""
-		DELETE FROM ref.keyword_expansion
-		WHERE
-			keyword = %(kwd)s
-				AND
-			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
-
-	cmd2 = u"""
-		INSERT INTO ref.keyword_expansion (
-			keyword, textual_snippet, fk_staff
-		) VALUES (
-			%(kwd)s,
-			%(exp)s,
-			(SELECT pk FROM dem.staff WHERE db_user = current_user)
-		)"""
-	args = {'kwd': keyword, 'exp': expansion}
-	rows, idx = run_rw_queries(queries = [
-		{'cmd': cmd1, 'args': args},
-		{'cmd': cmd2, 'args': args},
-	])
-
-	global text_expansion_keywords
-	text_expansion_keywords = None
 # =======================================================================
 # query runners and helpers
 # =======================================================================
@@ -2133,14 +2024,6 @@ if __name__ == "__main__":
 	def test_sanity_check_time_skew():
 		sanity_check_time_skew()
 	#--------------------------------------------------------------------
-	def test_keyword_expansion():
-		print "keywords, from database:"
-		print get_text_expansion_keywords()
-		print "keywords, cached:"
-		print get_text_expansion_keywords()
-		print "'$keyword' expands to:"
-		print expand_keyword(keyword = u'$dvt')
-	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
 		for row in get_foreign_keys2column (
 			schema = u'dem',
@@ -2213,7 +2096,6 @@ if __name__ == "__main__":
 	#test_sanitize_pg_regex()
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
-	#test_keyword_expansion()
 	#test_get_foreign_key_details()
 	#test_set_user_language()
 	#test_get_schema_revision_history()

@@ -31,6 +31,7 @@ from Gnumed.business import gmSurgery
 from Gnumed.business import gmForms
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmKeywordExpansion
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -1931,7 +1932,7 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 				and
 			(keyword != u'$$steffi')			# Easter Egg ;-)
 				and
-			(keyword not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ])
+			(keyword not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
 		):
 			evt.Skip()
 			return

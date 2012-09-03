@@ -27,11 +27,11 @@ alter table ref.keyword_expansion
 	);
 
 -- --------------------------------------------------------------
--- .textual_snippet
-comment on column ref.keyword_expansion.textual_snippet is 'This holds the text of non-binary snippets.';
+-- .textual_data
+comment on column ref.keyword_expansion.textual_data is 'This holds the text of non-binary snippets.';
 
 alter table ref.keyword_expansion
-	alter column textual_snippet
+	alter column textual_data
 		drop not null;
 
 
@@ -41,12 +41,12 @@ alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_text;
 
 alter table ref.keyword_expansion
 	add constraint ref_kwd_exp_sane_text check (
-		gm.is_null_or_non_empty_string(textual_snippet) is True
+		gm.is_null_or_non_empty_string(textual_data) is True
 	);
 
 -- --------------------------------------------------------------
--- .binary_snippet
-comment on column ref.keyword_expansion.binary_snippet is 'This holds the binary data of non-textual snippets';
+-- .binary_data
+comment on column ref.keyword_expansion.binary_data is 'This holds the binary data of non-textual snippets';
 
 \unset ON_ERROR_STOP
 alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_data;
@@ -55,9 +55,9 @@ alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_data;
 
 alter table ref.keyword_expansion
 	add constraint ref_kwd_exp_sane_data check (
-		(binary_snippet is NULL)
+		(binary_data is NULL)
 			or
-		(octet_length(binary_snippet) > 0)
+		(octet_length(binary_data) > 0)
 	);
 
 -- --------------------------------------------------------------
@@ -69,14 +69,14 @@ alter table ref.keyword_expansion drop constraint ref_kwd_exp_binary_xor_textual
 
 alter table ref.keyword_expansion
 	add constraint ref_kwd_exp_binary_xor_textual check (
-		((binary_snippet is NULL) and (textual_snippet is not NULL))
+		((binary_data is NULL) and (textual_data is not NULL))
 			or
-		((binary_snippet is not NULL) and (textual_snippet is NULL))
+		((binary_data is not NULL) and (textual_data is NULL))
 	);
 
 -- --------------------------------------------------------------
 -- .key_id
-comment on column ref.keyword_expansion.key_id is 'A GnuPG key ID. If this is set (NOT NULL) then the *_snippet is encrypted';
+comment on column ref.keyword_expansion.key_id is 'A GnuPG key ID. If this is set (NOT NULL) then the snippet is encrypted';
 
 \unset ON_ERROR_STOP
 alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_key_id;
@@ -92,41 +92,40 @@ alter table ref.keyword_expansion
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_keyword_expansions cascade;
-drop view clin.v_your_keyword_expansions cascade;
-\set ON_ERROR_STOP 1
-
-
-\unset ON_ERROR_STOP
 drop view ref.v_keyword_expansions cascade;
 \set ON_ERROR_STOP 1
 
 create view ref.v_keyword_expansions as
 select
 	r_ke.pk
-		as pk_keyword_expansion,
+		as pk_expansion,
 	r_ke.fk_staff
 		as pk_staff,
 	r_ke.keyword
 		as keyword,
-	r_ke.textual_snippet
+	r_ke.textual_data
 		as expansion,
 	r_ke.key_id
 		as key_id,
+	(binary_data is null)
+		as is_textual,
+	octet_length(binary_data)
+		as data_size,
 	(r_ke.fk_staff is null)
 		as public_expansion,
 	(r_ke.fk_staff is not null)
 		as private_expansion,
 	r_ke.owner
-		as owner
+		as owner,
+	r_ke.xmin
+		as xmin_expansion
 from
 	ref.keyword_expansion r_ke
-where
-	binary_snippet is null
 ;
 
 
 comment on view ref.v_keyword_expansions is
-	'Just a slightly more convenient view over expansions, excluding binary ones.';
+	'Just a slightly more convenient view over expansions.';
 
 
 grant select on
@@ -135,6 +134,7 @@ to group "gm-doctors";
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
+drop view clin.v_your_keyword_expansions cascade;
 drop view ref.v_your_keyword_expansions cascade;
 \set ON_ERROR_STOP 1
 
@@ -143,53 +143,61 @@ select distinct on (keyword) *
 from (
 	select
 		r_ke.pk
-			as pk_keyword_expansion,
+			as pk_expansion,
 		r_ke.fk_staff
 			as pk_staff,
 		r_ke.keyword
 			as keyword,
-		r_ke.textual_snippet
+		r_ke.textual_data
 			as expansion,
 		r_ke.key_id
 			as key_id,
+		(binary_data is null)
+			as is_textual,
+		octet_length(binary_data)
+			as data_size,
 		false
 			as public_expansion,
 		true
 			as private_expansion,
 		r_ke.owner
-			as owner
+			as owner,
+		r_ke.xmin
+			as xmin_expansion
 	from
 		ref.keyword_expansion r_ke
 	where
 		fk_staff = (select pk from dem.staff where db_user = current_user)
-			and
-		binary_snippet is null
 
 		union all
 
 	select
 		r_ke.pk
-			as pk_keyword_expansion,
+			as pk_expansion,
 		r_ke.fk_staff
 			as pk_staff,
 		r_ke.keyword
 			as keyword,
-		r_ke.textual_snippet
+		r_ke.textual_data
 			as expansion,
 		r_ke.key_id
 			as key_id,
+		(binary_data is null)
+			as is_textual,
+		octet_length(binary_data)
+			as data_size,
 		true
 			as public_expansion,
 		false
 			as private_expansion,
 		r_ke.owner
-			as owner
+			as owner,
+		r_ke.xmin
+			as xmin_expansion
 	from
 		ref.keyword_expansion r_ke
 	where
 		fk_staff is null
-			and
-		binary_snippet is null
 	order by
 		private_expansion desc
 ) as union_result;
@@ -198,7 +206,7 @@ from (
 comment on view ref.v_your_keyword_expansions is
 'View over the text expansions relevant to the current user:
 a private expansion set up for the current user overrides a
-public expansion of the same keyword. Binary expansions are excluded.';
+public expansion of the same keyword.';
 
 
 grant select on

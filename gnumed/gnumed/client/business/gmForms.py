@@ -6,7 +6,6 @@ Business layer for printing all manners of forms, letters, scripts etc.
 license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.79 $"
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
@@ -44,7 +43,6 @@ from Gnumed.business import gmSurgery
 
 
 _log = logging.getLogger('gm.forms')
-_log.info(__version__)
 
 #============================================================
 # this order is also used in choice boxes for the engine
@@ -1093,13 +1091,8 @@ class cXeTeXForm(cFormEngine):
 		sandbox_dir = os.path.splitext(self.template_filename)[0]
 		_log.debug('Xe(La)TeX sandbox directory: [%s]', sandbox_dir)
 
-#		old_cwd = os.getcwd()
-#		_log.debug('CWD: [%s]', old_cwd)
-
 		gmTools.mkdir(sandbox_dir)
 
-#		os.chdir(sandbox_dir)
-#		try:
 		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
 		shutil.move(self.instance_filename, sandboxed_instance_filename)
 		self.re_editable_filenames = [sandboxed_instance_filename]
@@ -1118,10 +1111,7 @@ class cXeTeXForm(cFormEngine):
 			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 				_log.error('problem running xelatex, cannot generate form output')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running xelatex. Cannot turn Xe(La)TeX template into PDF.'), beep = True)
-				#os.chdir(old_cwd)
 				return None
-#		finally:
-#			os.chdir(old_cwd)
 
 		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
 		target_dir = os.path.split(self.instance_filename)[0]

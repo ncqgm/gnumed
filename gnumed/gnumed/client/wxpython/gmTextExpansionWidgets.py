@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-"""GNUmed text expansion widgets."""
+"""GNUmed keyword expansion widgets."""
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -17,6 +17,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
+from Gnumed.business import gmKeywordExpansion
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmListWidgets
 
@@ -62,14 +63,14 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		if self._TCTRL_keyword.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without keyword.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without keyword.'), beep = True)
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)
 
 		if self._TCTRL_expansion.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save text expansion without expansion text.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without expansion text.'), beep = True)
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = True)
 
@@ -77,7 +78,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		kwd = self._TCTRL_keyword.GetValue().strip()
-		saved = gmPG2.add_text_expansion (
+		saved = gmKeywordExpansion.add_text_expansion (
 			keyword = kwd,
 			expansion = self._TCTRL_expansion.GetValue(),
 			public = self._RBTN_public.GetValue()
@@ -90,7 +91,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		kwd = self._TCTRL_keyword.GetValue().strip()
-		gmPG2.edit_text_expansion (
+		gmKeywordExpansion.edit_text_expansion (
 			keyword = kwd,
 			expansion = self._TCTRL_expansion.GetValue()
 		)
@@ -111,7 +112,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	def _refresh_as_new_from_existing(self):
 		self._TCTRL_keyword.SetValue(u'%s%s' % (self.data, _(u'___copy')))
 		self._TCTRL_keyword.Enable(True)
-		expansion = gmPG2.expand_keyword(keyword = self.data)
+		expansion = gmKeywordExpansion.expand_keyword(keyword = self.data)
 		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
 		self._TCTRL_expansion.Enable(True)
 		self._RBTN_public.Enable(True)
@@ -123,7 +124,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	def _refresh_from_existing(self):
 		self._TCTRL_keyword.SetValue(self.data)
 		self._TCTRL_keyword.Enable(False)
-		expansion = gmPG2.expand_keyword(keyword = self.data)
+		expansion = gmKeywordExpansion.expand_keyword(keyword = self.data)
 		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
 		self._TCTRL_expansion.Enable(True)
 		self._RBTN_public.Enable(False)
@@ -149,14 +150,14 @@ def configure_keyword_text_expansion(parent=None):
 
 	#----------------------
 	def delete(keyword=None):
-		gmPG2.delete_text_expansion(keyword = keyword)
+		gmKeywordExpansion.delete_text_expansion(keyword = keyword)
 		return True
 	#----------------------
 	def edit(keyword=None):
 		ea = cTextExpansionEditAreaPnl(parent, -1, keyword = keyword)
 		dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
 		dlg.SetTitle (
-			gmTools.coalesce(keyword, _('Adding text expansion'), _('Editing text expansion "%s"'))
+			gmTools.coalesce(keyword, _('Adding keyword expansion'), _('Editing keyword expansion "%s"'))
 		)
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
@@ -169,9 +170,9 @@ def configure_keyword_text_expansion(parent=None):
 				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
 				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
 				r[3]
-			] for r in gmPG2.get_text_expansion_keywords()
+			] for r in gmKeywordExpansion.get_textual_expansion_keywords()
 		]
-		data = [ r[0] for r in gmPG2.get_text_expansion_keywords() ]
+		data = [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]
 		lctrl.set_string_items(kwds)
 		lctrl.set_data(data)
 	#----------------------
@@ -179,7 +180,7 @@ def configure_keyword_text_expansion(parent=None):
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the keyword you want to edit !\n'),
-		caption = _('Editing keyword-based text expansions ...'),
+		caption = _('Editing keyword-based expansions ...'),
 		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
 		single_selection = True,
 		edit_callback = edit,
@@ -335,7 +336,7 @@ def expand_keyword(parent=None, keyword=None, show_list=False):
 		parent = wx.GetApp().GetTopWindow()
 
 	if show_list:
-		candidates = gmPG2.get_keyword_expansion_candidates(keyword = keyword)
+		candidates = gmKeywordExpansion.get_matching_textual_keywords(fragment = keyword)
 		if len(candidates) == 0:
 			return None
 		if len(candidates) == 1:
@@ -357,7 +358,7 @@ def expand_keyword(parent=None, keyword=None, show_list=False):
 			if keyword is None:
 				return None
 
-	expansion = gmPG2.expand_keyword(keyword = keyword)
+	expansion = gmKeywordExpansion.expand_keyword(keyword = keyword)
 
 	# not found
 	if expansion is None:

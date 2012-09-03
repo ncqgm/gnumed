@@ -503,7 +503,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 		if keyword == u'$$steffi':			# Easter Egg ;-)
 			expansion = u'Hai, play! Versucht das!  (Keks dazu?)  :-)'
 		else:
-			expansion = gmPG2.expand_keyword(keyword = keyword)
+			expansion = gmKeywordExpansion.expand_keyword(keyword = keyword)
 
 		if expansion is None:
 			return
@@ -684,7 +684,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 
 			line, caret_pos = self.GetCurLine()
 			word = self.__keyword_separators.split(line[:caret_pos])[-1]
-			if (word not in [ r[0] for r in gmPG2.get_text_expansion_keywords() ]) and (word != u'$$steffi'):		# Easter Egg ;-)
+			if (word not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]) and (word != u'$$steffi'):		# Easter Egg ;-)
 				evt.Skip()
 				return
 
