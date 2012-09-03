@@ -35,6 +35,7 @@ from Gnumed.business import gmPathLab
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmKeywordExpansion
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmNarrativeWidgets
@@ -81,18 +82,24 @@ _injectable_placeholders = {
 
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 known_variant_placeholders = [
-	u'soap',
-	u'progress_notes',			# "args" holds: categories//template
-								# 	categories: string with 'soapu '; ' ' == None == admin
-								#	template:	u'something %s something'		(do not include // in template !)
-	u'emr_journal',				# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
-								#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
-								#				   (" " == None == admin category)
-								#	template:	   something %s something else
-								#				   (Do not include // in the template !)
-								#	line length:   the length of individual lines, not the total placeholder length
-								#	time range:	   the number of weeks going back in time
-								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
+	# generic:
+	u'free_text',							# show a dialog for entering some free text
+	u'text_snippet',						# a text snippet, taken from the keyword expansion mechanism
+											# args: <snippet name>//<template>
+	u'data_snippet',						# a binary snippet, taken from the keyword expansion mechanism
+											# args: <snippet name>//<template>//<optional target mime type>//<optional target extension>
+											# returns full path to an exported copy of the
+											# data rather than the data itself,
+											#	template: string template for outputting the path
+											#	target mime type: a mime type into which to convert the image, no conversion if not given
+											#	target extension: target file name extension, derived from target mime type if not given
+	u'tex_escape',							# "args" holds: string to escape
+	u'today',								# "args" holds: strftime format
+	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
+											#				eg. "male//female//other"
+											#				or: "Lieber Patient//Liebe Patientin"
+
+	# patient demographics:
 	u'date_of_birth',
 
 	u'patient_address',			# "args": <type of address>//<optional formatting template>
@@ -118,29 +125,41 @@ known_variant_placeholders = [
 											#	target extension: target file name extension, derived from target mime type if not given
 
 	u'external_id',							# args: <type of ID>//<issuer of ID>
-	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
-											#				eg. "male//female//other"
-											#				or: "Lieber Patient//Liebe Patientin"
+
+
 	u'current_meds',						# "args" holds: line template
 	u'current_meds_table',					# "args" holds: format, options
-											#				currently only "latex"
+
+	# clinical record related:
+	u'soap',
+	u'progress_notes',						# "args" holds: categories//template
+											# 	categories: string with 'soapu '; ' ' == None == admin
+											#	template:	u'something %s something'		(do not include // in template !)
+	u'emr_journal',							# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
+											#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
+											#				   (" " == None == admin category)
+											#	template:	   something %s something else
+											#				   (Do not include // in the template !)
+											#	line length:   the length of individual lines, not the total placeholder length
+											#	time range:	   the number of weeks going back in time
+											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
 	u'current_meds_notes',					# "args" holds: format, options
 	u'lab_table',							# "args" holds: format (currently "latex" only)
 	u'latest_vaccs_table',					# "args" holds: format, options
 	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
-	u'today',								# "args" holds: strftime format
-	u'tex_escape',							# "args" holds: string to escape
 	u'allergies',							# "args" holds: line template, one allergy per line
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
 	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
 	u'name',								# "args" holds: template for name parts arrangement
-	u'free_text',							# show a dialog for entering some free text
 	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
+
+	# provider related:
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
 
+	# billing related:
 	u'bill',								# args: template for string replacement
 	u'bill_item'							# args: template for string replacement
 ]
@@ -1045,6 +1064,67 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_tex_escape(self, data=None):
 		return gmTools.tex_escape_string(text = data)
 	#--------------------------------------------------------
+	def _get_variant_text_snippet(self, data=None):
+		data_parts = data.split(u'//')
+		keyword = data_parts[0]
+		template = u'%s'
+		if len(data_parts) > 1:
+			template = data_parts[1]
+
+		expansion = gmKeywordExpansion.get_expansion (
+			keyword = keyword,
+			textual_only = True,
+			binary_only = False
+		)
+		if expansion is None:
+			if self.debug:
+				return _('no textual expansion found for keyword <%s>' % keyword)
+			return u''
+
+		# FIXME: support decryption
+		return template % expansion['expansion']
+
+	#--------------------------------------------------------
+	def _get_variant_data_snippet(self, data=None):
+		parts = data.split(u'//')
+		keyword = parts[0]
+		template = u'%s'
+		target_mime = None
+		target_ext = None
+		if len(parts) > 1:
+			template = parts[1]
+		if len(parts) > 2:
+			target_mime = parts[2].strip()
+		if len(parts) > 3:
+			target_ext = parts[3].strip()
+		if target_ext is None:
+			if target_mime is not None:
+				target_ext = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
+
+		expansion = gmKeywordExpansion.get_expansion (
+			keyword = keyword,
+			textual_only = False,
+			binary_only = True
+		)
+		if expansion is None:
+			if self.debug:
+				return _('no binary expansion found for keyword <%s>' % keyword)
+			return u''
+
+		filename = expansion.export_to_file (
+			target_mime = target_mime,
+			target_extension = target_ext,
+			ignore_conversion_problems = True
+		)
+		if filename is None:
+			if self.debug:
+				return _('cannot export or convert data for binary expansion keyword <%s>' % keyword)
+			return u''
+
+		# FIXME: support decryption
+		return template % filename
+
+	#--------------------------------------------------------
 	def _get_variant_free_text(self, data=u'tex//'):
 		# <data>:
 		#	format:	tex (only, currently)
@@ -1564,7 +1644,9 @@ if __name__ == '__main__':
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
 			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
-			u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
+			#u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
+			u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
+			u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$'
 		]
 
 		handler = gmPlaceholderHandler()

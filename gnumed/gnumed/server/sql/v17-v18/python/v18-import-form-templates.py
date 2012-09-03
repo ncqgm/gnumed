@@ -26,6 +26,18 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# LMcC autograph
+	gmPG2.file2bytea (
+		query = u"""
+			update ref.keyword_expansion set
+				textual_data = NULL,
+				binary_data = %(data)s::bytea
+			where
+				keyword = 'autograph-LMcC'""",
+		filename = os.path.join('..', 'sql', 'v17-v18', 'data', 'v18-LMcC_autograph.png'),
+		conn = conn
+	)
+
 	return True
 
 #==============================================================
