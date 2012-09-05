@@ -572,6 +572,35 @@ def manage_bills(parent=None, patient=None):
 				gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Displaying invoice'))
 			return False
 
+		wrong_patient = False
+		# showing all bills ?
+		if patient is None:
+			# so, do we have a current patient ?
+			curr_pat = gmPerson.gmCurrentPatient()
+			if curr_pat.connected:
+				# and is the bill about the current patient, too ?
+				# (because that's what the new invoice would get attached to)
+				if curr_pat.ID != bill['pk_patient']:
+					wrong_patient = True
+			else:
+				wrong_patient = True
+
+		# FIXME: should ask whether to set fk_receiver_identity
+		# FIXME: but this would need enabling the bill EA to edit same
+		if wrong_patient:
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Displaying invoice'),
+				aMessage = _(
+					'Cannot find an existing invoice PDF for this bill.\n'
+					'\n'
+					'Cannot create one either because the active\n'
+					'patient is different from the patient on the bill.\n'
+					'\n'
+					'Please activate patient [#%s] and try again !'
+				) % bill['pk_patient']
+			)
+			return False
+
 		# create it ?
 		create_it = gmGuiHelpers.gm_show_question (
 			title = _('Displaying invoice'),
