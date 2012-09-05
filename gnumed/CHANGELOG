@@ -1105,6 +1105,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v17
 ------------------------------------------------
 
+	17.4
+
+FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
+
 	17.2
 
 FIX: incorrect auditing setup of ref.billable [thanks J.Busser]
