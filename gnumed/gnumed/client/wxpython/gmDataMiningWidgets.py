@@ -267,7 +267,10 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			return
 
 		auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'}
-		msg = u"""--- This is a report definition contributed by a GNUmed user:
+		msg = u"""--- This is a report definition contributed by a GNUmed user.
+
+--- Save it as a text file and drop it onto the Report Generator
+--- inside GNUmed in order to take advantage of the contribution.
 
 ----------------------------------------
 
