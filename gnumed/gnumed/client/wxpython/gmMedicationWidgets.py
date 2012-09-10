@@ -542,7 +542,7 @@ def manage_drug_components(parent=None):
 		items = [ [
 			u'%s%s' % (c['brand'], gmTools.coalesce(c['atc_brand'], u'', u' [%s]')),
 			u'%s%s' % (c['substance'], gmTools.coalesce(c['atc_substance'], u'', u' [%s]')),
-			u'%s%s' % (c['amount'], c['unit']),
+			u'%s %s' % (c['amount'], c['unit']),
 			c['preparation'],
 			gmTools.coalesce(c['external_code_brand'], u'', u'%%s [%s]' % c['external_code_type_brand']),
 			c['pk_component']
@@ -793,8 +793,8 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 		comp_substs = [ c.substance for c in brand.components ]
 
 	substs = gmMedication.get_consumable_substances(order_by = 'description')
-	choices = [ u'%s %s%s' % (s['description'], s['amount'], s['unit']) for s in substs ]
-	picks = [ u'%s %s%s' % (c['description'], c['amount'], c['unit']) for c in comp_substs ]
+	choices = [ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ]
+	picks = [ u'%s %s %s' % (c['description'], c['amount'], c['unit']) for c in comp_substs ]
 
 	picker = gmListWidgets.cItemPickerDlg (
 		parent,
@@ -1128,7 +1128,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			self.__component_substances = substs
 			comps = u''
 			if len(substs) > 0:
-				comps = u'- %s' % u'\n- '.join([ u'%s %s%s' % (s['description'], s['amount'], s['unit']) for s in substs ])
+				comps = u'- %s' % u'\n- '.join([ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ])
 			self._TCTRL_components.SetValue(comps)
 #============================================================
 class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -1534,7 +1534,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_substance.Enable(True)
 		self._PRW_substance.SetText (
-			u'%s %s%s' % (self.data['substance'], self.data['amount'], self.data['unit']),
+			u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
 			self.data['pk_substance']
 		)
 
@@ -1545,7 +1545,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._LBL_component.Enable(True)
 		self._PRW_component.Enable(True)
 		self._PRW_component.SetText (
-			u'%s %s%s (%s)' % (self.data['substance'], self.data['amount'], self.data['unit'], self.data['brand']),
+			u'%s %s %s (%s)' % (self.data['substance'], self.data['amount'], self.data['unit'], self.data['brand']),
 			self.data['pk_drug_component']
 		)
 
@@ -2106,7 +2106,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = epi, width = 40))
 
 				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, u'%s%s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 
@@ -2146,7 +2146,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = issue, width = 40))
 
 				self.SetCellValue(row_idx, 1, med['substance'])
-				self.SetCellValue(row_idx, 2, u'%s%s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 
@@ -2188,7 +2188,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
-				self.SetCellValue(row_idx, 3, u'%s%s' % (med['amount'], med['unit']))
+				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 
 				if med['is_long_term']:
@@ -2410,7 +2410,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
 		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
-		tt += u' ' + _('Amount per dose: %s%s') % (entry['amount'], entry['unit'])
+		tt += u' ' + _('Amount per dose: %s %s') % (entry['amount'], entry['unit'])
 		if entry.ddd is not None:
 			tt += u' (DDD: %s %s)' % (entry.ddd['ddd'], entry.ddd['unit'])
 		tt += u'\n'
