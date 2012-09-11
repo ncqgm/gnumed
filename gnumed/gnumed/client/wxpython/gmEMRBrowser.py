@@ -75,7 +75,6 @@ def export_emr_to_ascii(parent=None):
 
 	_log.debug('exporting EMR to [%s]', fname)
 
-#	output_file = open(fname, 'wb')
 	output_file = codecs.open(fname, 'wb', encoding='utf8', errors='replace')
 	exporter = gmPatientExporter.cEmrExport(patient = pat)
 	exporter.set_output_file(output_file)
@@ -152,6 +151,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
 		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
 		gmDispatcher.connect(signal = 'family_history_mod_db', receiver = self._on_issue_mod_db)
+	#--------------------------------------------------------
+	def clear_tree(self):
+		self.DeleteAllItems()
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
@@ -1109,22 +1111,29 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self.__register_events()
 	#--------------------------------------------------------
 	def __register_events(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
 	# event handler
 	#--------------------------------------------------------
-	def _on_post_patient_selection(self):
-		if self.GetParent().GetCurrentPage() == self:
-			self.repopulate_ui()
+	def _on_pre_patient_selection(self):
+		self._pnl_emr_tree._emr_tree.clear_tree()
 		return True
 	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self.__on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	def __on_post_patient_selection(self):
+		if self.GetParent().GetCurrentPage() != self:
+			return True
+		self.repopulate_ui()
+	#--------------------------------------------------------
 	def _on_show_details_selected(self, event):
-		#event.Skip()
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'details'
 	#--------------------------------------------------------
 	def _on_show_journal_selected(self, event):
-		#event.Skip()
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
 	#--------------------------------------------------------
 	# external API

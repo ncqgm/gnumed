@@ -33,6 +33,7 @@ IMPROVED: patient overview: display last modified of occupation
 	1.2.4
 
 FIX: prevent invoices from getting attached to the wrong patient [thanks M.Angermann]
+FIX: robustify EMR tree against corner cases on patient change
 
 IMPROVED: drug component PRW: show external ID of brand if known
 
