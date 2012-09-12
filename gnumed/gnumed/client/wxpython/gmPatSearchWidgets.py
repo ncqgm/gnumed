@@ -1015,7 +1015,7 @@ def set_active_patient(patient=None, forced_reload=False):
 	if isinstance(patient, gmPerson.cPatient):
 		pass
 	elif isinstance(patient, gmPerson.cIdentity):
-		patient = cPatient(aPK_obj = patient['pk_identity'])
+		patient = gmPerson.cPatient(aPK_obj = patient['pk_identity'])
 #	elif isinstance(patient, cStaff):
 #		patient = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, gmPerson.gmCurrentPatient):
