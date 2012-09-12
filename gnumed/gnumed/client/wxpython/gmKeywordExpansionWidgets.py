@@ -165,23 +165,34 @@ def configure_keyword_text_expansion(parent=None):
 		return False
 	#----------------------
 	def refresh(lctrl=None):
-		kwds = [ [
-				r[0],
-				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-				r[3]
-			] for r in gmKeywordExpansion.get_textual_expansion_keywords()
+		expansions = gmKeywordExpansion.get_keyword_expansions(order_by = u'is_textual DESC, keyword, public_expansion')
+		items = [[
+				e['keyword'],
+				gmTools.bool2subst(e['is_textual'], _('text'), _('data')),
+				gmTools.bool2subst(e['public_expansion'], _('public'), _('private'))
+			] for e in expansions
 		]
-		data = [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]
-		lctrl.set_string_items(kwds)
-		lctrl.set_data(data)
+		lctrl.set_string_items(items)
+		lctrl.set_data(expansions)
+	#----------------------
+#	def refresh_old(lctrl=None):
+#		kwds = [ [
+#				r[0],
+#				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
+#				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
+#				r[3]
+#			] for r in gmKeywordExpansion.get_textual_expansion_keywords()
+#		]
+#		data = [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]
+#		lctrl.set_string_items(kwds)
+#		lctrl.set_data(data)
 	#----------------------
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the keyword you want to edit !\n'),
 		caption = _('Editing keyword-based expansions ...'),
-		columns = [_('Keyword'), _('Public'), _('Private'), _('Owner')],
+		columns = [_('Keyword'), _('Type'), _('Scope')],
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit,

@@ -41,7 +41,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDocumentWidgets
-from Gnumed.wxpython import gmTextExpansionWidgets
+from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -1945,7 +1945,7 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 	#------------------------------------------------
 	def replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
 
-		expansion = gmTextExpansionWidgets.expand_keyword(parent = self, keyword = keyword, show_list = show_list)
+		expansion = gmKeywordExpansionWidgets.expand_keyword(parent = self, keyword = keyword, show_list = show_list)
 
 		if expansion is None:
 			return

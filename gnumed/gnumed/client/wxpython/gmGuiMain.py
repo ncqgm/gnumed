@@ -108,7 +108,7 @@ from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmBillingWidgets
-from Gnumed.wxpython import gmTextExpansionWidgets
+from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 
 try:
@@ -2144,7 +2144,7 @@ class gmTopLevelFrame(wx.Frame):
 		map_list2handler = {
 			'form_templates': gmFormWidgets.manage_form_templates,
 			'doc_types': gmDocumentWidgets.manage_document_types,
-			'text_expansions': gmTextExpansionWidgets.configure_keyword_text_expansion,
+			'text_expansions': gmKeywordExpansionWidgets.configure_keyword_text_expansion,
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,

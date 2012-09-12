@@ -8,6 +8,7 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys
+import os
 import logging
 
 
@@ -91,6 +92,27 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
 	#--------------------------------------------------------
+	def update_data_from_file(self, fname=None):
+		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
+			_log.error('[%s] is not a readable file' % fname)
+			return False
+
+		gmPG2.file2bytea (
+			query = u"UPDATE ref.keyword_expansion SET binary_data = %(data)s::bytea, textual_data = NULL WHERE pk = %(pk)s",
+			filename = fname,
+			args = {'pk': self.pk_obj}
+		)
+
+		# must update XMIN now ...
+		self.refetch_payload()
+
+		global __textual_expansion_keywords
+		__textual_expansion_keywords = None
+		global __keyword_expansions
+		__keyword_expansions = None
+
+		return True
+	#--------------------------------------------------------
 	def format(self):
 		txt = u'%s            #%s\n' % (
 			gmTools.bool2subst (
@@ -127,7 +149,13 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		return txt
 
 #------------------------------------------------------------
+__keyword_expansions = None
+
 def get_keyword_expansions(order_by=None):
+	global __keyword_expansions
+	if __keyword_expansions is not None:
+		return __keyword_expansions
+
 	if order_by is None:
 		order_by = u'true'
 	else:
@@ -135,7 +163,9 @@ def get_keyword_expansions(order_by=None):
 
 	cmd = _SQL_get_keyword_expansions % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cKeywordExpansion(row = {'data': r, 'idx': idx, 'pk_field': 'pk_expansion'}) for r in rows ]
+
+	__keyword_expansions = [ cKeywordExpansion(row = {'data': r, 'idx': idx, 'pk_field': 'pk_expansion'}) for r in rows ]
+	return __keyword_expansions
 
 #------------------------------------------------------------
 def get_expansion(keyword=None, textual_only=True, binary_only=False):
@@ -200,6 +230,8 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
+	global __keyword_expansions
+	__keyword_expansions = None
 
 	return expansion
 #------------------------------------------------------------
@@ -210,6 +242,8 @@ def delete_keyword_expansion(pk=None):
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
+	global __keyword_expansions
+	__keyword_expansions = None
 
 	return True
 
@@ -228,7 +262,7 @@ def get_textual_expansion_keywords():
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	__textual_expansion_keywords = rows
 
-	_log.info('retrieved %s expansion keywords', len(__textual_expansion_keywords))
+	_log.info('retrieved %s textual expansion keywords', len(__textual_expansion_keywords))
 
 	return __textual_expansion_keywords
 #------------------------------------------------------------------------
@@ -278,6 +312,8 @@ VALUES (%(kwd)s, %(exp)s, (SELECT pk FROM dem.staff WHERE db_user = current_user
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
+	global __keyword_expansions
+	__keyword_expansions = None
 
 	return True
 #------------------------------------------------------------------------
@@ -293,6 +329,9 @@ DELETE FROM ref.keyword_expansion WHERE
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
+	global __keyword_expansions
+	__keyword_expansions = None
+
 #------------------------------------------------------------------------
 def edit_text_expansion(keyword, expansion):
 
@@ -319,6 +358,8 @@ def edit_text_expansion(keyword, expansion):
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
+	global __keyword_expansions
+	__keyword_expansions = None
 
 #============================================================
 if __name__ == "__main__":

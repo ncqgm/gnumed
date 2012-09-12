@@ -926,32 +926,24 @@ class cLaTeXForm(cFormEngine):
 		sandbox_dir = os.path.splitext(self.template_filename)[0]
 		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
 
-		old_cwd = os.getcwd()
-		_log.debug('CWD: [%s]', old_cwd)
-
 		gmTools.mkdir(sandbox_dir)
 
-		os.chdir(sandbox_dir)
-		try:
-			sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
-			shutil.move(self.instance_filename, sandboxed_instance_filename)
-			self.re_editable_filenames = [sandboxed_instance_filename]
+		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
+		shutil.move(self.instance_filename, sandboxed_instance_filename)
+		self.re_editable_filenames = [sandboxed_instance_filename]
 
-			# LaTeX can need up to three runs to get cross references et al right
-			if platform.system() == 'Windows':
-				draft_cmd = r'pdflatex.exe -draftmode -interaction nonstopmode %s' % sandboxed_instance_filename
-				final_cmd = r'pdflatex.exe -interaction nonstopmode %s' % sandboxed_instance_filename
-			else:
-				draft_cmd = r'pdflatex -draftmode -interaction nonstopmode %s' % sandboxed_instance_filename
-				final_cmd = r'pdflatex -interaction nonstopmode %s' % sandboxed_instance_filename
-			for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
-				if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
-					_log.error('problem running pdflatex, cannot generate form output')
-					gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
-					os.chdir(old_cwd)
-					return None
-		finally:
-			os.chdir(old_cwd)
+		# LaTeX can need up to three runs to get cross references et al right
+		if platform.system() == 'Windows':
+			draft_cmd = r'pdflatex.exe -draftmode -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			final_cmd = r'pdflatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+		else:
+			draft_cmd = r'pdflatex -draftmode -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			final_cmd = r'pdflatex -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
+			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
+				_log.error('problem running pdflatex, cannot generate form output')
+				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
+				return None
 
 		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
 		target_dir = os.path.split(self.instance_filename)[0]
