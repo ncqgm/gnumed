@@ -1143,6 +1143,7 @@ IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 	17.4
 
 FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
+FIX: add trigger to prevent linking of invoices and bills of different patients
 
 	17.2
 

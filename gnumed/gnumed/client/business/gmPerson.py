@@ -1465,7 +1465,7 @@ def set_active_patient(patient=None, forced_reload=False):
 	if isinstance(patient, cPatient):
 		pat = patient
 	elif isinstance(patient, cIdentity):
-		pat = cPatient(aPK_obj=patient['pk_identity'])
+		pat = cPatient(aPK_obj = patient['pk_identity'])
 #	elif isinstance(patient, cStaff):
 #		pat = cPatient(aPK_obj=patient['pk_identity'])
 	elif isinstance(patient, gmCurrentPatient):
@@ -1473,7 +1473,16 @@ def set_active_patient(patient=None, forced_reload=False):
 	elif patient == -1:
 		pat = patient
 	else:
-		raise ValueError('<patient> must be either -1, cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+		# maybe integer ?
+		success, pk = gmTools.input2int(initial = patient, minval = 1)
+		if not success:
+			raise ValueError('<patient> must be either -1, >0, or a cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+		# but also valid patient ID ?
+		try:
+			pat = cPatient(aPK_obj = pk)
+		except:
+			_log.exception('error changing active patient to [%s]' % patient)
+			return False
 
 	# attempt to switch
 	try:

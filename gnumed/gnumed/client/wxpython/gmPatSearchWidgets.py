@@ -1012,6 +1012,28 @@ def _check_birthday(patient=None):
 #------------------------------------------------------------
 def set_active_patient(patient=None, forced_reload=False):
 
+	if isinstance(patient, gmPerson.cPatient):
+		pass
+	elif isinstance(patient, gmPerson.cIdentity):
+		patient = cPatient(aPK_obj = patient['pk_identity'])
+#	elif isinstance(patient, cStaff):
+#		patient = cPatient(aPK_obj=patient['pk_identity'])
+	elif isinstance(patient, gmPerson.gmCurrentPatient):
+		patient = patient.patient
+	elif patient == -1:
+		pass
+	else:
+		# maybe integer ?
+		success, pk = gmTools.input2int(initial = patient, minval = 1)
+		if not success:
+			raise ValueError('<patient> must be either -1, >0, or a cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+		# but also valid patient ID ?
+		try:
+			patient = gmPerson.cPatient(aPK_obj = pk)
+		except:
+			_log.exception('error changing active patient to [%s]' % patient)
+			return False
+
 	_check_has_dob(patient = patient)
 
 	if not _check_for_provider_chart_access(patient = patient):

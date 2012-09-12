@@ -37,6 +37,7 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPersonContactWidgets
+from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmDocumentWidgets
@@ -312,6 +313,44 @@ def create_bill_from_items(bill_items=None):
 #----------------------------------------------------------------
 def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True):
 
+	bill_patient_not_active = False
+	# do we have a current patient ?
+	curr_pat = gmPerson.gmCurrentPatient()
+	if curr_pat.connected:
+		# is the bill about the current patient, too ?
+		# (because that's what the new invoice would get
+		#  created for and attached to)
+		if curr_pat.ID != bill['pk_patient']:
+			bill_patient_not_active = True
+	else:
+		bill_patient_not_active = True
+
+	# FIXME: could ask whether to set fk_receiver_identity
+	# FIXME: but this would need enabling the bill EA to edit same
+	if bill_patient_not_active:
+		activate_patient = gmGuiHelpers.gm_show_question (
+			title = _('Creating invoice'),
+			question = _(
+				'Cannot find an existing invoice PDF for this bill.\n'
+				'\n'
+				'Active patient: %s\n'
+				'Patient on bill: #%s\n'
+				'\n'
+				'Activate patient on bill so invoice PDF can be created ?'
+			) % (
+				gmTools.coalesce(curr_pat.ID, u'', u'#%s'),
+				bill['pk_patient']
+			)
+		)
+		if not activate_patient:
+			return False
+		if not gmPatSearchWidgets.set_active_patient(patient = bill['pk_patient']):
+			gmGuiHelpers.gm_show_error (
+				aTitle = _('Creating invoice'),
+				aMessage = _('Cannot activate patient #%s.') % bill['pk_patient']
+			)
+			return False
+
 	if None in [ bill['close_date'], bill['pk_receiver_address'] ]:
 		edit_bill(parent = parent, bill = bill, single_entry = True)
 		# cannot invoice open bills
@@ -570,35 +609,6 @@ def manage_bills(parent=None, patient=None):
 			success, msg = invoice.parts[-1].display_via_mime()
 			if not success:
 				gmGuiHelpers.gm_show_error(aMessage = msg, aTitle = _('Displaying invoice'))
-			return False
-
-		wrong_patient = False
-		# showing all bills ?
-		if patient is None:
-			# so, do we have a current patient ?
-			curr_pat = gmPerson.gmCurrentPatient()
-			if curr_pat.connected:
-				# and is the bill about the current patient, too ?
-				# (because that's what the new invoice would get attached to)
-				if curr_pat.ID != bill['pk_patient']:
-					wrong_patient = True
-			else:
-				wrong_patient = True
-
-		# FIXME: should ask whether to set fk_receiver_identity
-		# FIXME: but this would need enabling the bill EA to edit same
-		if wrong_patient:
-			gmGuiHelpers.gm_show_warning (
-				aTitle = _('Displaying invoice'),
-				aMessage = _(
-					'Cannot find an existing invoice PDF for this bill.\n'
-					'\n'
-					'Cannot create one either because the active\n'
-					'patient is different from the patient on the bill.\n'
-					'\n'
-					'Please activate patient [#%s] and try again !'
-				) % bill['pk_patient']
-			)
 			return False
 
 		# create it ?
