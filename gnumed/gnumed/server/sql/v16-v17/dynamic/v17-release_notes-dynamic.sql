@@ -31,6 +31,7 @@ IMPROVED: drug component PRW: show external ID of brand if known
 
 FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
 FIX: add trigger to prevent linking of invoices and bills of different patients
+FIX: guard against all-zero fractions on consumable substance amounts [thanks J.Busser]
 ');
 
 -- --------------------------------------------------------------

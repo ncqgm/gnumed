@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2012-06-16 18:51+CEST\n"
-"PO-Revision-Date: 2012-06-16 18:55+0100\n"
+"POT-Creation-Date: 2012-09-12 20:40+CEST\n"
+"PO-Revision-Date: 2012-09-12 20:45+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -195,6 +195,9 @@ msgstr " Wert mit USt.: %s %s\n"
 
 msgid " VAT: does not apply\n"
 msgstr " USt.: nicht zutreffend\n"
+
+msgid " Items billed: 0\n"
+msgstr " Positionen: 0\n"
 
 msgid " Items billed: %s\n"
 msgstr " Positionen: %s\n"
@@ -5721,6 +5724,24 @@ msgid "Creating invoice"
 msgstr "Rechnungsbeleg erzeugen"
 
 msgid ""
+"Cannot find an existing invoice PDF for this bill.\n"
+"\n"
+"Active patient: %s\n"
+"Patient on bill: #%s\n"
+"\n"
+"Activate patient on bill so invoice PDF can be created ?"
+msgstr ""
+"Kann keinen Beleg (PDF) zu dieser Rechnung finden.\n"
+"\n"
+"Aktiver Patient: %s\n"
+"Patient auf Rechnung: #%s\n"
+"\n"
+"Patient von Rechnung aktivieren, damit ein Beleg erzeugt werden kann ?"
+
+msgid "Cannot activate patient #%s."
+msgstr "Kann Patienten #%s nicht aktivieren."
+
+msgid ""
 "Cannot create invoice from bill.\n"
 "\n"
 "The bill is not closed."
@@ -5853,6 +5874,9 @@ msgstr ""
 
 msgid "<open>"
 msgstr "<offen>"
+
+msgid "no items on bill"
+msgstr "Keine Posten auf der Rechnung"
 
 msgid "%s %s (with %s%% VAT)"
 msgstr " %s %s (inkl %s%% USt)"
@@ -11866,6 +11890,12 @@ msgstr "erstmals: %s, %s"
 msgid "last: %s, %s"
 msgstr "zuletzt: %s, %s"
 
+msgid "Last %s:"
+msgstr "Zuletzt %s:"
+
+msgid "Statistics cover period"
+msgstr "Zeitraum der Statistik"
+
 msgid "%s Vacc: %s"
 msgstr "%s Impfg: %s"
 
@@ -12539,6 +12569,9 @@ msgstr "Zu [%s] gehen"
 
 msgid "More info"
 msgstr "Weitere Info"
+
+msgid "Message cannot expire before being due."
+msgstr "Benachrichtigung kann nicht vor Fälligkeit verfallen."
 
 msgid "Adding new inbox message"
 msgstr "Neue Nachricht erzeugen"

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-08-04 12:55+CEST\n"
+"POT-Creation-Date: 2012-09-12 20:40+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5188,6 +5188,18 @@ msgid "Checking invoice items"
 msgstr ""
 
 msgid "Creating invoice"
+msgstr ""
+
+msgid ""
+"Cannot find an existing invoice PDF for this bill.\n"
+"\n"
+"Active patient: %s\n"
+"Patient on bill: #%s\n"
+"\n"
+"Activate patient on bill so invoice PDF can be created ?"
+msgstr ""
+
+msgid "Cannot activate patient #%s."
 msgstr ""
 
 msgid ""
@@ -11011,6 +11023,9 @@ msgid "Go to [%s]"
 msgstr ""
 
 msgid "More info"
+msgstr ""
+
+msgid "Message cannot expire before being due."
 msgstr ""
 
 msgid "Adding new inbox message"
