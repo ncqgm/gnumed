@@ -17,15 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.3 (database v17.3)',
-	'GNUmed 1.2.3 Release Notes:
+	'Release Notes for GNUmed 1.2.4 (database v17.4)',
+	'GNUmed 1.2.4 Release Notes:
 
-	1.2.3
+	1.2.4
 
-FIX: failure to parse plugin directory with frozen app [thanks S.Hilbert]
-FIX: failure to add >1 branded intake in sequence [thanks V.Banait]
-FIX: exception on saving hospital stay w/o admission date
-FIX: failure to check for message expiry > due [thanks S.Griesfeller]
+FIX: prevent invoices from getting attached to the wrong patient [thanks M.Angermann]
+FIX: robustify EMR tree against corner cases on patient change
+
+IMPROVED: drug component PRW: show external ID of brand if known
+
+	17.4
+
+FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
+FIX: add trigger to prevent linking of invoices and bills of different patients
 ');
 
 -- --------------------------------------------------------------
