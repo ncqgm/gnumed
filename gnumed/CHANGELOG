@@ -30,6 +30,10 @@ IMPROVED: patient overview: display last modified of occupation
 # rel-1-2-patches
 ------------------------------------------------
 
+	1.2.5
+
+FIX: disappearing substances grid when activating another patient [thanks J.Busser]
+
 	1.2.4
 
 FIX: prevent invoices from getting attached to the wrong patient [thanks M.Angermann]

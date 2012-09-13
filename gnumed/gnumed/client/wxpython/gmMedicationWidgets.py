@@ -2592,16 +2592,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._schedule_data_reget)
 		# active_substance_mod_db
 		# substance_brand_mod_db
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
+
 	def __on_pre_patient_selection(self):
 		self._grid_substances.patient = None
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self.__on_post_patient_selection)
+
+	def __on_post_patient_selection(self):
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		self._grid_substances.add_substance()
