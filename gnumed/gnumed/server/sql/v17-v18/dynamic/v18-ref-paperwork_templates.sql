@@ -21,7 +21,7 @@ alter table ref.paperwork_templates
 
 comment on column ref.paperwork_templates.engine is
 'the business layer forms engine used to process this form, currently:
-	- T: plain text
+	- T: plain text (generic postprocessing)
 	- L: LaTeX
 	- H: Health Layer 7
 	- O: OpenOffice

@@ -13,7 +13,9 @@ import os, sys, time, os.path, logging
 import codecs
 import re as regex
 import shutil
-import random, platform, subprocess
+import random
+import platform
+import subprocess
 import socket										# needed for OOo on Windows
 #, libxml2, libxslt
 import shlex
@@ -23,7 +25,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
-	gmI18N.install_domain(domain='gnumed')
+	gmI18N.install_domain(domain = 'gnumed')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
@@ -33,6 +35,7 @@ from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 
@@ -46,7 +49,7 @@ _log = logging.getLogger('gm.forms')
 
 #============================================================
 # this order is also used in choice boxes for the engine
-form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P', u'A', u'X']
+form_engine_abbrevs = [u'O', u'L', u'I', u'G', u'P', u'A', u'X', u'T']
 
 form_engine_names = {
 	u'O': 'OpenOffice',
@@ -55,7 +58,8 @@ form_engine_names = {
 	u'G': 'Gnuplot script',
 	u'P': 'PDF forms',
 	u'A': 'AbiWord',
-	u'X': 'Xe(La)TeX'
+	u'X': 'Xe(La)TeX',
+	u'T': 'text export'
 }
 
 form_engine_template_wildcards = {
@@ -64,7 +68,8 @@ form_engine_template_wildcards = {
 	u'G': u'*.gpl',
 	u'P': u'*.pdf',
 	u'A': u'*.abw',
-	u'X': u'*.tex'
+	u'X': u'*.tex',
+	u'T': u'*.ini'
 }
 
 # is filled in further below after each engine is defined
@@ -652,72 +657,73 @@ class cFormEngine(object):
 		"""Generate output suitable for further processing outside this class, e.g. printing."""
 		raise NotImplementedError
 	#--------------------------------------------------------
-	def process(self, data_source=None):
-		"""Merge values into the form template.
-		"""
-		pass
 	#--------------------------------------------------------
-	def cleanup(self):
-		"""
-		A sop to TeX which can't act as a true filter: to delete temporary files
-		"""
-		pass
-	#--------------------------------------------------------
-	def exe(self, command):
-		"""
-		Executes the provided command.
-		If command cotains %F. it is substituted with the filename
-		Otherwise, the file is fed in on stdin
-		"""
-		pass
-	#--------------------------------------------------------
-	def store(self, params=None):
-		"""Stores the parameters in the backend.
-
-		- link_obj can be a cursor, a connection or a service name
-		- assigning a cursor to link_obj allows the calling code to
-		  group the call to store() into an enclosing transaction
-		  (for an example see gmReferral.send_referral()...)
-		"""
-		# some forms may not have values ...
-		if params is None:
-			params = {}
-		patient_clinical = self.patient.get_emr()
-		encounter = patient_clinical.active_encounter['pk_encounter']
-		# FIXME: get_active_episode is no more
-		#episode = patient_clinical.get_active_episode()['pk_episode']
-		# generate "forever unique" name
-		cmd = "select name_short || ': <' || name_long || '::' || external_version || '>' from paperwork_templates where pk=%s";
-		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
-		form_name = None
-		if rows is None:
-			_log.error('error retrieving form def for [%s]' % self.pk_def)
-		elif len(rows) == 0:
-			_log.error('no form def for [%s]' % self.pk_def)
-		else:
-			form_name = rows[0][0]
-		# we didn't get a name but want to store the form anyhow
-		if form_name is None:
-			form_name=time.time()	# hopefully unique enough
-		# in one transaction
-		queries = []
-		# - store form instance in form_instance
-		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, fk_encounter) values (%s, %s, %s, %s)"
-		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
-		# - store params in form_data
-		for key in params.keys():
-			cmd = """
-				insert into form_data(fk_instance, place_holder, value)
-				values ((select currval('form_instances_pk_seq')), %s, %s::text)
-			"""
-			queries.append((cmd, [key, params[key]]))
-		# - get inserted PK
-		queries.append(("select currval ('form_instances_pk_seq')", []))
-		status, err = gmPG.run_commit('historica', queries, True)
-		if status is None:
-			_log.error('failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
-			return None
-		return status
+#	def process(self, data_source=None):
+#		"""Merge values into the form template.
+#		"""
+#		pass
+#	#--------------------------------------------------------
+#	def cleanup(self):
+#		"""
+#		A sop to TeX which can't act as a true filter: to delete temporary files
+#		"""
+#		pass
+#	#--------------------------------------------------------
+#	def exe(self, command):
+#		"""
+#		Executes the provided command.
+#		If command cotains %F. it is substituted with the filename
+#		Otherwise, the file is fed in on stdin
+#		"""
+#		pass
+#	#--------------------------------------------------------
+#	def store(self, params=None):
+#		"""Stores the parameters in the backend.
+#
+#		- link_obj can be a cursor, a connection or a service name
+#		- assigning a cursor to link_obj allows the calling code to
+#		  group the call to store() into an enclosing transaction
+#		  (for an example see gmReferral.send_referral()...)
+#		"""
+#		# some forms may not have values ...
+#		if params is None:
+#			params = {}
+#		patient_clinical = self.patient.get_emr()
+#		encounter = patient_clinical.active_encounter['pk_encounter']
+#		# FIXME: get_active_episode is no more
+#		#episode = patient_clinical.get_active_episode()['pk_episode']
+#		# generate "forever unique" name
+#		cmd = "select name_short || ': <' || name_long || '::' || external_version || '>' from paperwork_templates where pk=%s";
+#		rows = gmPG.run_ro_query('reference', cmd, None, self.pk_def)
+#		form_name = None
+#		if rows is None:
+#			_log.error('error retrieving form def for [%s]' % self.pk_def)
+#		elif len(rows) == 0:
+#			_log.error('no form def for [%s]' % self.pk_def)
+#		else:
+#			form_name = rows[0][0]
+#		# we didn't get a name but want to store the form anyhow
+#		if form_name is None:
+#			form_name=time.time()	# hopefully unique enough
+#		# in one transaction
+#		queries = []
+#		# - store form instance in form_instance
+#		cmd = "insert into form_instances(fk_form_def, form_name, fk_episode, fk_encounter) values (%s, %s, %s, %s)"
+#		queries.append((cmd, [self.pk_def, form_name, episode, encounter]))
+#		# - store params in form_data
+#		for key in params.keys():
+#			cmd = """
+#				insert into form_data(fk_instance, place_holder, value)
+#				values ((select currval('form_instances_pk_seq')), %s, %s::text)
+#			"""
+#			queries.append((cmd, [key, params[key]]))
+#		# - get inserted PK
+#		queries.append(("select currval ('form_instances_pk_seq')", []))
+#		status, err = gmPG.run_commit('historica', queries, True)
+#		if status is None:
+#			_log.error('failed to store form [%s] (%s): %s' % (self.pk_def, form_name, err))
+#			return None
+#		return status
 
 #================================================================
 # OOo template forms
@@ -813,6 +819,114 @@ class cAbiWordForm(cFormEngine):
 		return self.instance_filename
 #----------------------------------------------------------------
 form_engines[u'A'] = cAbiWordForm
+
+#================================================================
+# text template forms
+#----------------------------------------------------------------
+class cTextForm(cFormEngine):
+	"""A forms engine outputting data as text for further processing."""
+
+	def __init__(self, template_file=None):
+		super(self.__class__, self).__init__(template_file = template_file)
+
+		# generate real template file from .ini file
+		cfg_file = codecs.open(filename = self.template_filename, mode = 'rU', encoding = u'utf8')
+		self.form_definition = gmCfg2.parse_INI_stream(stream = cfg_file)
+		cfg_file.close()
+		self.form_definition['form::template']
+	#--------------------------------------------------------
+	def substitute_placeholders(self, data_source=None):
+		self.instance_filename = gmTools.get_unique_filename (
+			prefix = 'gm-T-instance-',
+			suffix = '.txt'
+		)
+		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
+
+		if self.template is not None:
+			# inject placeholder values
+			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		if isinstance(self.form_definition['form::template'], type([])):
+			template_text = self.form_definition['form::template']
+		else:
+			template_text = self.form_definition['form::template'].split('\n')
+
+		no_errors = True
+		for line in template_text:
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+				instance_file.write('%s\n' % line)
+				continue
+
+			# 1) find placeholders in this line
+			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+			# 2) and replace them
+			for placeholder in placeholders_in_line:
+				try:
+					val = data_source[placeholder]
+				except:
+					val = _('error with placeholder [%s]') % placeholder
+					_log.exception(val)
+					no_errors = False
+
+				if val is None:
+					val = _('error with placeholder [%s]') % placeholder
+
+				line = line.replace(placeholder, val)
+
+			instance_file.write(u'%s\n' % line)
+
+		instance_file.close()
+		self.re_editable_filenames = [self.instance_filename]
+
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
+
+		return no_errors
+	#--------------------------------------------------------
+	def edit(self):
+
+		editor_cmd = None
+		try:
+			editor_cmd = self.form_definition['form::editor'] % self.instance_filename
+		except KeyError:
+			_log.debug('no explicit editor defined for text template')
+
+		if editor_cmd is None:
+			mimetype = u'text/plain'
+			editor_cmd = gmMimeLib.get_editor_cmd(mimetype, self.instance_filename)
+			if editor_cmd is None:
+				# also consider text *viewers* since pretty much any of them will be an editor as well
+				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
+
+		# last resort
+		if editor_cmd is None:
+			if os.name == 'nt':
+				editor_cmd = u'notepad.exe %s' % self.instance_filename
+			else:
+				editor_cmd = u'sensible-editor %s' % self.instance_filename
+
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		self.re_editable_filenames = [self.instance_filename]
+
+		return result
+	#--------------------------------------------------------
+	def generate_output(self, format=None):
+		try:
+			post_processor = self.form_definition['form::post processor'] % self.instance_filename
+		except KeyError:
+			_log.debug('no explicit post processor defined for text template')
+			return True
+
+		self.final_output_filenames = [self.instance_filename]
+
+		return gmShellAPI.run_command_in_shell(command = post_processor, blocking = True)
+#------------------------------------------------------------
+form_engines[u'T'] = cTextForm
 
 #================================================================
 # LaTeX template forms
@@ -1896,6 +2010,25 @@ if __name__ == '__main__':
 		final_name = form.generate_output(instance_file = instance_file)
 		print "final file is:", final_name
 	#--------------------------------------------------------
+	def test_text_form():
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			return
+		gmPerson.set_active_patient(patient = pat)
+
+		gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
+
+		path = os.path.abspath(sys.argv[2])
+		form = cTextForm(template_file = path)
+
+		from Gnumed.wxpython import gmMacro
+		ph = gmMacro.gmPlaceholderHandler()
+		ph.debug = True
+		print "placeholder substitution worked:", form.substitute_placeholders(data_source = ph)
+		form.edit()
+		form.generate_output()
+	#--------------------------------------------------------
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	# now run the tests
 	#test_au()
@@ -1913,6 +2046,7 @@ if __name__ == '__main__':
 	#set_template_from_file()
 	#test_latex_form()
 	#test_pdf_form()
-	test_abiword_form()
+	#test_abiword_form()
+	test_text_form()
 
 #============================================================

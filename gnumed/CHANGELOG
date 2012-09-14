@@ -13,6 +13,7 @@ NEW: placeholder $<patient_photo>$
 NEW: DEGAM UTI 2012 guideline
 NEW: status line in each edit area
 NEW: Xe(La)TeX based forms engine
+NEW: plain text based/generic postprocessing forms engine
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type

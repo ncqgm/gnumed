@@ -22,7 +22,6 @@ The database config objects auto-sync with the backend.
 # TODO:
 # - optional arg for set -> type
 #==================================================================
-__version__ = "$Revision: 1.60 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
@@ -36,7 +35,6 @@ from Gnumed.pycommon import gmPG2, gmTools
 
 
 _log = logging.getLogger('gm.cfg')
-_log.info(__version__)
 
 # don't change this without knowing what you do as
 # it will already be in many databases

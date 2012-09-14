@@ -100,10 +100,11 @@ known_variant_placeholders = [
 											#				or: "Lieber Patient//Liebe Patientin"
 
 	# patient demographics:
+	u'name',								# "args" holds: template for name parts arrangement
 	u'date_of_birth',
 
-	u'patient_address',			# "args": <type of address>//<optional formatting template>
-	u'adr_street',				# "args" holds: type of address
+	u'patient_address',						# "args": <type of address>//<optional formatting template>
+	u'adr_street',							# "args" holds: type of address
 	u'adr_number',
 	u'adr_subunit',
 	u'adr_location',
@@ -151,7 +152,6 @@ known_variant_placeholders = [
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
 	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
-	u'name',								# "args" holds: template for name parts arrangement
 	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 

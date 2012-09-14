@@ -1,8 +1,6 @@
 """GNUmed configuration handling.
 """
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmCfg2.py,v $
-__version__ = "$Revision: 1.20 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
@@ -16,7 +14,6 @@ from Gnumed.pycommon import gmBorg
 
 
 _log = logging.getLogger('gm.cfg')
-_log.info(__version__)
 #==================================================================
 # helper functions
 #==================================================================

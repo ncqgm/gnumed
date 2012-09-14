@@ -17,7 +17,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
         self._TCTRL_external_version = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_template_type = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_instance_type = gmDocumentWidgets.cDocumentTypeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._CH_engine = wx.Choice(self, -1, choices=[_("OpenOffice"), _("LaTeX"), _("Image editor"), _("Gnuplot"), _("PDF form editor"), _("AbiWord"), _("Xe(La)TeX")])
+        self._CH_engine = wx.Choice(self, -1, choices=[_("OpenOffice"), _("LaTeX"), _("Image editor"), _("Gnuplot"), _("PDF form editor"), _("AbiWord"), _("Xe(La)TeX"), _("Text (generic processing)")])
         self._CHBOX_active = wx.CheckBox(self, -1, _("active"))
         self._TCTRL_filename = wx.TextCtrl(self, -1, "")
         self._BTN_load = wx.Button(self, -1, _("&Load"), style=wx.BU_EXACTFIT)
