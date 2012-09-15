@@ -35,7 +35,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				data = gm.nullify_empty_string(%(data)s),
 				importance = %(importance)s,
 				fk_patient = %(pk_patient)s,
-				ufk_context = %(pk_context)s
+				ufk_context = NULLIF(%(pk_context)s::integer[], ARRAY[NULL::integer])
 			WHERE
 				pk = %(pk_inbox_message)s
 					AND
@@ -52,7 +52,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'data',
 		u'importance',
 		u'pk_patient',
-		u'ufk_context'
+		u'pk_context'
 	]
 #------------------------------------------------------------
 def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
