@@ -17,12 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.1.18 (database v16.18)',
-	'GNUmed 1.1.18 Release Notes:
+	'Release Notes for GNUmed 1.1.19 (database v16.19)',
+	'GNUmed 1.1.19 Release Notes:
 
-	1.1.18
+	1.1.19
 
-FIX: exception on adding region [thanks U.Koch Kronberg]
+FIX: faulty handling of inbox message context PK arrays
 ');
 
 -- --------------------------------------------------------------
