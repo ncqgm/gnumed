@@ -116,6 +116,10 @@ IMPROVED: "latest vaccinations" template
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.19
+
+FIX: faulty handling of inbox message context PK arrays
+
 	1.1.18
 
 FIX: exception on adding region [thanks U.Koch Kronberg]

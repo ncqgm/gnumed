@@ -38,7 +38,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 				data = gm.nullify_empty_string(%(data)s),
 				importance = %(importance)s,
 				fk_patient = %(pk_patient)s,
-				ufk_context = %(pk_context)s,
+				ufk_context = NULLIF(%(pk_context)s::integer[], ARRAY[NULL::integer]),
 				due_date = %(due_date)s,
 				expiry_date = %(expiry_date)s
 			WHERE
@@ -57,7 +57,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'data',
 		u'importance',
 		u'pk_patient',
-		u'ufk_context',
+		u'pk_context',
 		u'due_date',
 		u'expiry_date'
 	]
