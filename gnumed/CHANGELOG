@@ -34,6 +34,7 @@ IMPROVED: patient overview: display last modified of occupation
 	1.2.5
 
 FIX: disappearing substances grid when activating another patient [thanks J.Busser]
+FIX: botched due/expiry verification on saving provider inbox message
 
 	1.2.4
 
