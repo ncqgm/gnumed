@@ -16,7 +16,17 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmCfg, gmPG2, gmMimeLib, gmExceptions, gmMatchProvider, gmDispatcher, gmDateTime, gmTools, gmShellAPI, gmHooks
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmHooks
+
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
@@ -1401,7 +1411,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	# FIXME: handle expansion state
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 
-	It listens to document and patient changes and updated itself accordingly.
+	It listens to document and patient changes and updates itself accordingly.
 
 	This acts on the current patient.
 	"""
@@ -1683,7 +1693,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 			elif self.__sort_mode == 'issue':
 				if doc['health_issue'] is None:
-					inter_label = _('Unattributed episode: %s') % doc['episode']
+					inter_label = _('%s (unattributed episode)') % doc['episode']
 				else:
 					inter_label = doc['health_issue']
 				doc_label = _('%s%7s %s:%s (%s)') % (
