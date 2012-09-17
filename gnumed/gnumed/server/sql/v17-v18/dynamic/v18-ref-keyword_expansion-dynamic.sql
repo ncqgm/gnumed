@@ -75,17 +75,16 @@ alter table ref.keyword_expansion
 	);
 
 -- --------------------------------------------------------------
--- .key_id
-comment on column ref.keyword_expansion.key_id is 'A GnuPG key ID. If this is set (NOT NULL) then the snippet is encrypted';
-
-\unset ON_ERROR_STOP
-alter table ref.keyword_expansion drop constraint ref_kwd_exp_sane_key_id;
-\set ON_ERROR_STOP 1
+-- .encrypted
+comment on column ref.keyword_expansion.encrypted is 'If true the snippet is encrypted with GnuPG.';
 
 alter table ref.keyword_expansion
-	add constraint ref_kwd_exp_sane_key_id check (
-		gm.is_null_or_non_empty_string(key_id) is True
-	);
+	alter column encrypted
+		set default false;
+
+alter table ref.keyword_expansion
+	alter column encrypted
+		set not null;
 
 -- --------------------------------------------------------------
 -- views
@@ -105,8 +104,8 @@ select
 		as keyword,
 	r_ke.textual_data
 		as expansion,
-	r_ke.key_id
-		as key_id,
+	r_ke.encrypted
+		as is_encrypted,
 	(binary_data is null)
 		as is_textual,
 	octet_length(binary_data)
@@ -150,8 +149,8 @@ from (
 			as keyword,
 		r_ke.textual_data
 			as expansion,
-		r_ke.key_id
-			as key_id,
+		r_ke.encrypted
+			as is_encrypted,
 		(binary_data is null)
 			as is_textual,
 		octet_length(binary_data)
@@ -180,8 +179,8 @@ from (
 			as keyword,
 		r_ke.textual_data
 			as expansion,
-		r_ke.key_id
-			as key_id,
+		r_ke.encrypted
+			as is_encrypted,
 		(binary_data is null)
 			as is_textual,
 		octet_length(binary_data)

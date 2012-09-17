@@ -231,4 +231,15 @@ else
 	echo "found"
 fi
 
+echo -n " 'gpg' command... "
+BIN=`which gpg`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gpg' command installed."
+	echo "  INFO : It comes with the GNU Privacy Guard (GnuPG) package"
+	echo "  INFO : and is used to decrypt files and data."
+else
+	echo "found"
+fi
+
 #=================================================================

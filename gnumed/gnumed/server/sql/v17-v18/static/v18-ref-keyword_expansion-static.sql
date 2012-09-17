@@ -14,7 +14,8 @@ alter table clin.keyword_expansion
 
 
 alter table ref.keyword_expansion
-	add column key_id text;
+	add column encrypted boolean
+		default false;
 
 
 alter table ref.keyword_expansion

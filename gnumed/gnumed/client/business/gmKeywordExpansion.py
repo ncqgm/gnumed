@@ -32,7 +32,19 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		u"""
 			UPDATE ref.keyword_expansion SET
 				keyword = gm.nullify_empty_string(%(keyword)s),
-				textual_data = gm.nullify_empty_string(%(expansion)s)
+				textual_data = CASE
+					WHEN gm.nullify_empty_string(%(expansion)s) IS NULL
+						THEN CASE
+							WHEN binary_data IS NULL THEN '---fake_data---'
+							ELSE NULL
+						END
+					ELSE gm.nullify_empty_string(%(expansion)s)
+				END,
+				binary_data = CASE
+					WHEN gm.nullify_empty_string(%(expansion)s) IS NULL THEN binary_data
+					ELSE NULL
+				END,
+				encrypted = %(is_encrypted)s
 			WHERE
 				pk = %(pk_expansion)s
 					AND
@@ -44,11 +56,14 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		u'keyword',
 		u'expansion',
-		u'key_id'
+		u'is_encrypted'
 	]
 
 	#--------------------------------------------------------
 	def export_to_file(self, aChunkSize=0, target_mime=None, target_extension=None, ignore_conversion_problems=False):
+
+		if self._payload[self._idx['is_textual']]:
+			return None
 
 		if self._payload[self._idx['data_size']] == 0:
 			return None
@@ -92,14 +107,14 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 		_log.warning('programmed to ignore conversion problems, hoping receiver can handle [%s]', filename)
 		return filename
 	#--------------------------------------------------------
-	def update_data_from_file(self, fname=None):
-		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
-			_log.error('[%s] is not a readable file' % fname)
+	def update_data_from_file(self, filename=None):
+		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
+			_log.error('[%s] is not a readable file' % filename)
 			return False
 
 		gmPG2.file2bytea (
 			query = u"UPDATE ref.keyword_expansion SET binary_data = %(data)s::bytea, textual_data = NULL WHERE pk = %(pk)s",
-			filename = fname,
+			filename = filename,
 			args = {'pk': self.pk_obj}
 		)
 
@@ -129,18 +144,13 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 				_('public')
 			),
 			gmTools.bool2subst (
-				(self._payload[self._idx['key_id']] is None),
-				u'',
-				u', %s' % _('encrypted')
+				self._payload[self._idx['is_encrypted']],
+				u', %s' % _('encrypted'),
+				u''
 			)
 		)
 		txt += _(' Keyword: %s\n') % self._payload[self._idx['keyword']]
 		txt += _(' Owner: %s\n') % self._payload[self._idx['owner']]
-		txt += gmTools.bool2subst (
-			(self._payload[self._idx['key_id']] is None),
-			u'',
-			_(' Key ID: %s\n') % self._payload[self._idx['key_id']]
-		)
 		if self._payload[self._idx['is_textual']]:
 			txt += u'\n%s' % self._payload[self._idx['expansion']]
 		else:
@@ -151,10 +161,11 @@ class cKeywordExpansion(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 __keyword_expansions = None
 
-def get_keyword_expansions(order_by=None):
+def get_keyword_expansions(order_by=None, force_reload=False):
 	global __keyword_expansions
-	if __keyword_expansions is not None:
-		return __keyword_expansions
+	if not force_reload:
+		if __keyword_expansions is not None:
+			return __keyword_expansions
 
 	if order_by is None:
 		order_by = u'true'
@@ -190,8 +201,12 @@ def get_expansion(keyword=None, textual_only=True, binary_only=False):
 #------------------------------------------------------------
 def create_keyword_expansion(keyword=None, text=None, data_file=None, public=True):
 
+	if text is not None:
+		if text.strip() == u'':
+			text = None
+
 	if None not in [text, data_file]:
-		raise ValueError('either <text> or <data> must be non-NULL')
+		raise ValueError('either <text> or <data_file> must be non-NULL')
 
 	# already exists ?
 	cmd = u"SELECT 1 FROM ref.v_your_keyword_expansions WHERE public_expansion IS %(public)s AND keyword = %(kwd)s"
@@ -226,7 +241,8 @@ def create_keyword_expansion(keyword=None, text=None, data_file=None, public=Tru
 		"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 	expansion = cKeywordExpansion(aPK_obj = rows[0]['pk'])
-	expansion.update_data_from_file(filename = data_file)
+	if data_file is not None:
+		expansion.update_data_from_file(filename = data_file)
 
 	global __textual_expansion_keywords
 	__textual_expansion_keywords = None
@@ -287,80 +303,6 @@ def expand_keyword(keyword = None):
 		return None
 
 	return rows[0]['expansion']
-#------------------------------------------------------------------------
-def add_text_expansion(keyword=None, expansion=None, public=None):
-
-	if public:
-		cmd = u"SELECT 1 FROM ref.v_keyword_expansions WHERE public_expansion IS TRUE AND keyword = %(kwd)s"
-	else:
-		cmd = u"SELECT 1 FROM ref.v_your_keyword_expansions WHERE private_expansion IS TRUE AND keyword = %(kwd)s"
-
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-	if len(rows) != 0:
-		return False
-
-	if public:
-		cmd = u"""
-INSERT INTO ref.keyword_expansion (keyword, textual_data, fk_staff)
-VALUES (%(kwd)s, %(exp)s, null)"""
-	else:
-		cmd = u"""
-INSERT INTO ref.keyword_expansion (keyword, textual_data, fk_staff)
-VALUES (%(kwd)s, %(exp)s, (SELECT pk FROM dem.staff WHERE db_user = current_user))"""
-
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword, 'exp': expansion}}])
-
-	global __textual_expansion_keywords
-	__textual_expansion_keywords = None
-	global __keyword_expansions
-	__keyword_expansions = None
-
-	return True
-#------------------------------------------------------------------------
-def delete_text_expansion(keyword):
-	cmd = u"""
-DELETE FROM ref.keyword_expansion WHERE
-	keyword = %(kwd)s AND (
-		(fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user))
-			OR
-		(fk_staff IS NULL AND owner = current_user)
-	)"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'kwd': keyword}}])
-
-	global __textual_expansion_keywords
-	__textual_expansion_keywords = None
-	global __keyword_expansions
-	__keyword_expansions = None
-
-#------------------------------------------------------------------------
-def edit_text_expansion(keyword, expansion):
-
-	cmd1 = u"""
-		DELETE FROM ref.keyword_expansion
-		WHERE
-			keyword = %(kwd)s
-				AND
-			fk_staff = (SELECT pk FROM dem.staff WHERE db_user = current_user)"""
-
-	cmd2 = u"""
-		INSERT INTO ref.keyword_expansion (
-			keyword, textual_data, fk_staff
-		) VALUES (
-			%(kwd)s,
-			%(exp)s,
-			(SELECT pk FROM dem.staff WHERE db_user = current_user)
-		)"""
-	args = {'kwd': keyword, 'exp': expansion}
-	rows, idx = gmPG2.run_rw_queries(queries = [
-		{'cmd': cmd1, 'args': args},
-		{'cmd': cmd2, 'args': args},
-	])
-
-	global __textual_expansion_keywords
-	__textual_expansion_keywords = None
-	global __keyword_expansions
-	__keyword_expansions = None
-
 #============================================================
 if __name__ == "__main__":
 

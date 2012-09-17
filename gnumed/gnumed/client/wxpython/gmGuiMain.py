@@ -1150,15 +1150,17 @@ class gmTopLevelFrame(wx.Frame):
 
 		auth = _(
 			'\n\n'
-			' workplace: %s\n'
-			' account: %s\n'
-			' database: %s\n'
-			' server:	%s\n'
+			' workplace:    %s\n'
+			' account:      %s\n'
+			' database:     %s\n'
+			' server:       %s\n'
+			' PostgreSQL:   %s\n'
 		) % (
 			praxis.active_workplace,
 			login.user,
 			login.database,
-			gmTools.coalesce(login.host, u'<localhost>')
+			gmTools.coalesce(login.host, u'<localhost>'),
+			gmPG2.postgresql_version_string
 		)
 
 		msg += auth

@@ -7,6 +7,7 @@ __license__ = "GPL v2 or later"
 import logging
 import sys
 import re as regex
+import os.path
 
 
 import wx
@@ -34,8 +35,8 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 	def __init__(self, *args, **kwds):
 
 		try:
-			data = kwds['keyword']
-			del kwds['keyword']
+			data = kwds['expansion']
+			del kwds['expansion']
 		except KeyError:
 			data = None
 
@@ -47,101 +48,212 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		if data is not None:
 			self.mode = 'edit'
 
-		#self.__init_ui()
+#		self.__init_ui()
 		self.__register_interests()
-	#--------------------------------------------------------
-	def __init_ui(self, keyword=None):
 
-		if keyword is not None:
-			self.data = keyword
+		self.__data_filename = None
+	#--------------------------------------------------------
+#	def __init_ui(self, expansion=None):
+#		self._BTN_select_data_file.Enable(False)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
 		validity = True
 
+		has_expansion = (
+			(self._TCTRL_expansion.GetValue().strip() != u'')
+				or
+			(self.__data_filename is not None)
+				or
+			((self.data is not None) and (self.data['is_textual'] is False))
+		)
+
+		if has_expansion:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = True)
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_data_file, valid = True)
+		else:
+			validity = False
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without text or data expansion.'), beep = True)
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_data_file, valid = False)
+			if self.data is None:
+				self._TCTRL_expansion.SetFocus()
+			else:
+				if self.data['is_textual']:
+					self._TCTRL_expansion.SetFocus()
+				else:
+					self._BTN_select_data_file.SetFocus()
+
 		if self._TCTRL_keyword.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = False)
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without keyword.'), beep = True)
+			self._TCTRL_keyword.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)
-
-		if self._TCTRL_expansion.GetValue().strip() == u'':
-			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = False)
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save keyword expansion without expansion text.'), beep = True)
-		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_expansion, valid = True)
 
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		saved = gmKeywordExpansion.add_text_expansion (
-			keyword = kwd,
-			expansion = self._TCTRL_expansion.GetValue(),
+		expansion = gmKeywordExpansion.create_keyword_expansion (
+			keyword = self._TCTRL_keyword.GetValue().strip(),
+			text = self._TCTRL_expansion.GetValue(),
+			data_file = self.__data_filename,
 			public = self._RBTN_public.GetValue()
 		)
-		if not saved:
+
+		if expansion is None:
 			return False
 
-		self.data = kwd
+		expansion['is_encrypted'] = self._CHBOX_is_encrypted.IsChecked()
+		expansion.save()
+
+		self.data = expansion
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		kwd = self._TCTRL_keyword.GetValue().strip()
-		gmKeywordExpansion.edit_text_expansion (
-			keyword = kwd,
-			expansion = self._TCTRL_expansion.GetValue()
-		)
-		self.data = kwd
+
+		self.data['expansion'] = self._TCTRL_expansion.GetValue().strip()
+		self.data['is_encrypted'] = self._CHBOX_is_encrypted.IsChecked()
+		self.data.save()
+
+		if self.__data_filename is not None:
+			self.data.update_data_from_file(filename = self.__data_filename)
+
 		return True
 	#----------------------------------------------------------------
+	#----------------------------------------------------------------
 	def _refresh_as_new(self):
+		self.__data_filename = None
+
 		self._TCTRL_keyword.SetValue(u'')
 		self._TCTRL_keyword.Enable(True)
+
+		self._LBL_data.Enable(False)
+		self._BTN_select_data_file.Enable(False)
+		self._TCTRL_data_file.SetValue(u'')
+		self._CHBOX_is_encrypted.SetValue(False)
+		self._CHBOX_is_encrypted.Enable(False)
+
+		self._LBL_text.Enable(False)
 		self._TCTRL_expansion.SetValue(u'')
 		self._TCTRL_expansion.Enable(False)
-		self._RBTN_public.Enable(True)
-		self._RBTN_private.Enable(True)
+
+		self._RBTN_public.Enable(False)
+		self._RBTN_private.Enable(False)
 		self._RBTN_public.SetValue(1)
 
 		self._TCTRL_keyword.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
+		self._refresh_from_existing()
+
 		self._TCTRL_keyword.SetValue(u'%s%s' % (self.data, _(u'___copy')))
 		self._TCTRL_keyword.Enable(True)
-		expansion = gmKeywordExpansion.expand_keyword(keyword = self.data)
-		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-		self._TCTRL_expansion.Enable(True)
+
 		self._RBTN_public.Enable(True)
 		self._RBTN_private.Enable(True)
-		self._RBTN_public.SetValue(1)
 
 		self._TCTRL_keyword.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._TCTRL_keyword.SetValue(self.data)
+		self.__data_filename = None
+
+		self._TCTRL_keyword.SetValue(self.data['keyword'])
 		self._TCTRL_keyword.Enable(False)
-		expansion = gmKeywordExpansion.expand_keyword(keyword = self.data)
-		self._TCTRL_expansion.SetValue(gmTools.coalesce(expansion, u''))
-		self._TCTRL_expansion.Enable(True)
+
+		if self.data['is_textual']:
+			self._LBL_text.Enable(True)
+			self._TCTRL_expansion.SetValue(gmTools.coalesce(self.data['expansion'], u''))
+
+			self._LBL_data.Enable(False)
+			self._BTN_select_data_file.Enable(False)
+			self._TCTRL_data_file.SetValue(u'')
+			self._CHBOX_is_encrypted.SetValue(False)
+			self._CHBOX_is_encrypted.Enable(False)
+		else:
+			self._LBL_text.Enable(False)
+			self._TCTRL_expansion.SetValue(u'')
+
+			self._LBL_data.Enable(True)
+			self._BTN_select_data_file.Enable(True)
+			self._TCTRL_data_file.SetValue(_('Size: %s') % gmTools.size2str(self.data['data_size']))
+			self._CHBOX_is_encrypted.SetValue(self.data['is_encrypted'])
+			self._CHBOX_is_encrypted.Enable(True)
+
 		self._RBTN_public.Enable(False)
 		self._RBTN_private.Enable(False)
+		if self.data['public_expansion']:
+			self._RBTN_public.SetValue(1)
+		else:
+			self._RBTN_private.SetValue(1)
 
-		self._TCTRL_expansion.SetFocus()
+		if self.data['is_textual']:
+			self._TCTRL_expansion.SetFocus()
+		else:
+			self._BTN_select_data_file.SetFocus()
 	#----------------------------------------------------------------
 	# event handling
 	#----------------------------------------------------------------
 	def __register_interests(self):
 		self._TCTRL_keyword.Bind(wx.EVT_TEXT, self._on_keyword_modified)
+		self._TCTRL_expansion.Bind(wx.EVT_TEXT, self._on_expansion_modified)
 	#----------------------------------------------------------------
 	def _on_keyword_modified(self, evt):
 		if self._TCTRL_keyword.GetValue().strip() == u'':
+			self._LBL_text.Enable(False)
 			self._TCTRL_expansion.Enable(False)
-		else:
-			self._TCTRL_expansion.Enable(True)
+			self._LBL_data.Enable(False)
+			self._BTN_select_data_file.Enable(False)
+			self._CHBOX_is_encrypted.Enable(False)
+			self._RBTN_public.Enable(False)
+			self._RBTN_private.Enable(False)
+			return
+
+		# keyword is not empty
+		# mode must be new(_from_existing) or else
+		# we cannot modify the keyword in the first place
+		self._LBL_text.Enable(True)
+		self._TCTRL_expansion.Enable(True)
+		self._LBL_data.Enable(True)
+		self._BTN_select_data_file.Enable(True)
+		self._RBTN_public.Enable(True)
+		self._RBTN_private.Enable(True)
+	#----------------------------------------------------------------
+	def _on_expansion_modified(self, evt):
+		if self._TCTRL_expansion.GetValue().strip() == u'':
+			self._LBL_data.Enable(True)
+			self._BTN_select_data_file.Enable(True)
+			return
+
+		self.__data_filename = None
+		self._LBL_data.Enable(False)
+		self._BTN_select_data_file.Enable(False)
+		self._TCTRL_data_file.SetValue(u'')
+		self._CHBOX_is_encrypted.Enable(False)
+	#----------------------------------------------------------------
+	def _on_select_data_file_button_pressed(self, event):
+		wildcards = [
+			u"%s (*)|*" % _('all files'),
+			u"%s (*.*)|*.*" % _('all files (Windows)')
+		]
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _('Choose the file containing the data snippet'),
+			wildcard = '|'.join(wildcards),
+			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+		)
+		result = dlg.ShowModal()
+		if result != wx.ID_CANCEL:
+			self.__data_filename = dlg.GetPath()
+			self._TCTRL_data_file.SetValue(self.__data_filename)
+			self._CHBOX_is_encrypted.SetValue(False)
+			self._CHBOX_is_encrypted.Enable(True)
+
+		dlg.Destroy()
+
 #============================================================
 def configure_keyword_text_expansion(parent=None):
 
@@ -149,23 +261,28 @@ def configure_keyword_text_expansion(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#----------------------
-	def delete(keyword=None):
-		gmKeywordExpansion.delete_text_expansion(keyword = keyword)
+	def delete(expansion=None):
+		gmKeywordExpansion.delete_keyword_expansion(pk = expansion['pk_expansion'])
 		return True
 	#----------------------
-	def edit(keyword=None):
-		ea = cTextExpansionEditAreaPnl(parent, -1, keyword = keyword)
+	def edit(expansion=None):
+		ea = cTextExpansionEditAreaPnl(parent, -1, expansion = expansion)
 		dlg = gmEditArea.cGenericEditAreaDlg2(parent, -1, edit_area = ea)
-		dlg.SetTitle (
-			gmTools.coalesce(keyword, _('Adding keyword expansion'), _('Editing keyword expansion "%s"'))
-		)
+		if expansion is None:
+			title = _('Adding keyword expansion')
+		else:
+			title = _('Editing keyword expansion "%s"') % expansion['keyword']
+		dlg.SetTitle(title)
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
 
 		return False
 	#----------------------
+	def tooltip(expansion):
+		return expansion.format()
+	#----------------------
 	def refresh(lctrl=None):
-		expansions = gmKeywordExpansion.get_keyword_expansions(order_by = u'is_textual DESC, keyword, public_expansion')
+		expansions = gmKeywordExpansion.get_keyword_expansions(order_by = u'is_textual DESC, keyword, public_expansion', force_reload = True)
 		items = [[
 				e['keyword'],
 				gmTools.bool2subst(e['is_textual'], _('text'), _('data')),
@@ -174,18 +291,6 @@ def configure_keyword_text_expansion(parent=None):
 		]
 		lctrl.set_string_items(items)
 		lctrl.set_data(expansions)
-	#----------------------
-#	def refresh_old(lctrl=None):
-#		kwds = [ [
-#				r[0],
-#				gmTools.bool2subst(r[1], gmTools.u_checkmark_thick, u''),
-#				gmTools.bool2subst(r[2], gmTools.u_checkmark_thick, u''),
-#				r[3]
-#			] for r in gmKeywordExpansion.get_textual_expansion_keywords()
-#		]
-#		data = [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ]
-#		lctrl.set_string_items(kwds)
-#		lctrl.set_data(data)
 	#----------------------
 
 	gmListWidgets.get_choices_from_list (
@@ -197,7 +302,8 @@ def configure_keyword_text_expansion(parent=None):
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		list_tooltip_callback = tooltip
 	)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgTextExpansionFillInDlg

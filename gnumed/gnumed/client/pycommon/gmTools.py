@@ -7,6 +7,8 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
 import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
+import platform
+import subprocess
 import decimal
 import cPickle, zlib
 import xml.sax.saxutils as xml_tools
@@ -335,8 +337,44 @@ class gmPaths(gmBorg.cBorg):
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
+def gpg_decrypt_file(filename=None, passphrase=None):
+
+	if platform.system() == 'Windows':
+		exec_name = 'gpg.exe'
+	else:
+		exec_name = 'gpg'
+
+	tmp, fname = os.path.split(filename)
+	basename, tmp = os.path.splitext(fname)
+	filename_decrypted = get_unique_filename(prefix = '%s-decrypted-' % basename)
+
+	args = [exec_name, '--verbose', '--batch', '--yes', '--passphrase-fd', '0', '--output', filename_decrypted, '--decrypt', filename]
+	_log.debug('GnuPG args: %s' % str(args))
+
+	try:
+		gpg = subprocess.Popen (
+			args = args,
+			stdin = subprocess.PIPE,
+			stdout = subprocess.PIPE,
+			stderr = subprocess.PIPE,
+			close_fds = False
+		)
+	except (OSError, ValueError, subprocess.CalledProcessError):
+		_log.exception('there was a problem executing gpg')
+		gmDispatcher.send(signal = u'statustext', msg = _('Error running GnuPG. Cannot decrypt data.'), beep = True)
+		return
+
+	out, error = gpg.communicate(passphrase)
+	_log.debug('gpg returned [%s]', gpg.returncode)
+	if gpg.returncode != 0:
+		_log.debug('GnuPG STDOUT:\n%s', out)
+		_log.debug('GnuPG STDERR:\n%s', error)
+		return None
+
+	return filename_decrypted
+#---------------------------------------------------------------------------
 def file2md5(filename=None, return_hex=True):
-	blocksize = 2**10 * 128			# 128k, since md5 use 128 byte blocks
+	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
 
 	f = open(filename, 'rb')
@@ -1116,11 +1154,16 @@ second line\n
 		print xml_escape_string(u'>')
 		print xml_escape_string(u'&')
 	#-----------------------------------------------------------------------
+	def test_gpg_decrypt():
+		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
+		if fname is not None:
+			print "successfully decrypted:", fname
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
 	#test_mkdir()
-	test_gmPaths()
+	#test_gmPaths()
 	#test_none_if()
 	#test_bool2str()
 	#test_bool2subst()
@@ -1133,5 +1176,6 @@ second line\n
 	#test_md5()
 	#test_unicode()
 	#test_xml_escape()
+	test_gpg_decrypt()
 
 #===========================================================================
