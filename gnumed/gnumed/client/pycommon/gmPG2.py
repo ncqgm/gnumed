@@ -895,13 +895,12 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 			conn.rollback()
 			return True
 
+	max_chunk_size = 1024 * 1024 * 20			# 20 MB, works for typical CR DICOMs
+	if chunk_size == 0:
+		chunk_size = min(data_size, max_chunk_size)
+
 	_log.debug('expecting bytea data of size: [%s] bytes' % data_size)
 	_log.debug('using chunk size of: [%s] bytes' % chunk_size)
-
-	# chunk size of 0 means "retrieve whole field at once"
-	if chunk_size == 0:
-		chunk_size = data_size
-		_log.debug('chunk size [0] bytes: retrieving all data at once')
 
 	# Windoze sucks: it can't transfer objects of arbitrary size,
 	# anyways, we need to split the transfer,
