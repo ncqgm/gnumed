@@ -7,7 +7,12 @@ This module implements functions a macro can legally use.
 __version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
-import sys, time, random, types, logging
+import sys
+import time
+import random
+import types
+import logging
+import os
 
 
 import wx
@@ -1083,7 +1088,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# FIXME: support decryption
 		return template % expansion['expansion']
-
 	#--------------------------------------------------------
 	def _get_variant_data_snippet(self, data=None):
 		parts = data.split(u'//')
@@ -1111,19 +1115,35 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return _('no binary expansion found for keyword <%s>' % keyword)
 			return u''
 
-		filename = expansion.export_to_file (
-			target_mime = target_mime,
-			target_extension = target_ext,
-			ignore_conversion_problems = True
-		)
+		filename = expansion.export_to_file()
 		if filename is None:
 			if self.debug:
-				return _('cannot export or convert data for binary expansion keyword <%s>' % keyword)
+				return _('cannot export data of binary expansion keyword <%s>' % keyword)
 			return u''
 
-		# FIXME: support decryption
-		return template % filename
+		if expansion['is_encrypted']:
+			pwd = wx.GetPasswordFromUser (
+				message = _('Enter your GnuPG passphrase for decryption of [%s]') % expansion['keyword'],
+				caption = _('GnuPG passphrase prompt'),
+				default_value = u''
+			)
+			filename = gmTools.gpg_decrypt_file(filename = filename, passphrase = pwd)
+			if filename is None:
+				if self.debug:
+					return _('cannot decrypt data of binary expansion keyword <%s>' % keyword)
+				return u''
 
+		target_fname = gmTools.get_unique_filename (
+			prefix = '%s-converted-' % os.path.splitext(filename)[0],
+			suffix = target_ext
+		)
+		if not gmMimeLib.convert_file(filename = filename, target_mime = target_mime, target_filename = target_fname):
+			if self.debug:
+				return _('cannot convert data of binary expansion keyword <%s>' % keyword)
+			# hoping that the target can cope:
+			return template % filename
+
+		return template % target_fname
 	#--------------------------------------------------------
 	def _get_variant_free_text(self, data=u'tex//'):
 		# <data>:
