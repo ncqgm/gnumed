@@ -2122,12 +2122,18 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
-					brand = u''
+					brand = med['preparation']
 				else:
 					if med['fake_brand']:
-						brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
+						brand = u'%s %s' % (
+							gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+							med['preparation']
+						)
 					else:
-						brand = gmTools.coalesce(med['brand'], u'')
+						brand = u'%s %s' % (
+							gmTools.coalesce(med['brand'], u''),
+							med['preparation']
+						)
 				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
 
 			elif self.__grouping_mode == u'issue':
@@ -2162,28 +2168,43 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
-					brand = u''
+					brand = med['preparation']
 				else:
 					if med['fake_brand']:
-						brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
+						brand = u'%s %s' % (
+							gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+							med['preparation']
+						)
 					else:
-						brand = gmTools.coalesce(med['brand'], u'')
+						brand = u'%s %s' % (
+							gmTools.coalesce(med['brand'], u''),
+							med['preparation']
+						)
 				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
 
 			elif self.__grouping_mode == u'brand':
 
 				if med['pk_brand'] is None:
 					self.__prev_cell_0 = None
-					brand = gmTools.u_diameter
+					brand =  u'%s (%s)' % (
+						gmTools.u_diameter,
+						med['preparation']
+					)
 				else:
 					if self.__prev_cell_0 == med['brand']:
 						brand = u''
 					else:
 						self.__prev_cell_0 = med['brand']
 						if med['fake_brand']:
-							brand = gmTools.coalesce(med['brand'], u'', _('%s (fake)'))
+							brand = u'%s %s' % (
+								gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+								med['preparation']
+							)
 						else:
-							brand = gmTools.coalesce(med['brand'], u'')
+							brand = u'%s %s' % (
+								gmTools.coalesce(med['brand'], u''),
+								med['preparation']
+							)
 				self.SetCellValue(row_idx, 0, gmTools.wrap(text = brand, width = 35))
 
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
