@@ -28,7 +28,7 @@ BEGIN
 	if _fraction <> 0 then
 		return _numeric_value;
 	end if;
-	return _numeric_value::integer::numeric;
+	return _numeric_value::bigint::numeric;
 END;';
 
 

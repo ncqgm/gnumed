@@ -1117,6 +1117,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v17
 ------------------------------------------------
 
+	17.6
+
+IMPROVED: extend range of guard against all-zero substance amount fractions
+
 	17.4
 
 FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
