@@ -28,7 +28,13 @@ BEGIN
 	if _fraction <> 0 then
 		return _numeric_value;
 	end if;
-	return _numeric_value::bigint::numeric;
+	BEGIN
+		return _numeric_value::bigint::numeric;
+	EXCEPTION
+		WHEN numeric_value_out_of_range THEN
+			RAISE NOTICE ''[gm.strip_allzeros_fraction]: cannot strip from %'', _numeric_value;
+			RETURN _numeric_value;
+	END;
 END;';
 
 
