@@ -1153,6 +1153,10 @@ IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 # gnumed_v17
 ------------------------------------------------
 
+	17.6
+
+IMPROVED: extend range of guard against all-zero substance amount fractions
+
 	17.4
 
 FIX: add report to find wrongly assigned invoices [thanks M.Angermann]
