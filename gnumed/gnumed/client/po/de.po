@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "POT-Creation-Date: 2012-07-08 01:23+CEST\n"
-"PO-Revision-Date: 2012-07-08 02:05+0100\n"
+"PO-Revision-Date: 2012-09-19 01:14+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -114,7 +114,7 @@ msgid "Hovering events with a triangle shows the event description."
 msgstr ""
 
 msgid "Features"
-msgstr ""
+msgstr "Fähigkeiten"
 
 msgid "Scroll"
 msgstr ""
@@ -253,13 +253,13 @@ msgid "Help contents"
 msgstr "Rohdaten"
 
 msgid "Concepts"
-msgstr ""
+msgstr "Konzepte"
 
 msgid "Questions and answers"
-msgstr ""
+msgstr "Fragen und Antworten"
 
 msgid "Tasks"
-msgstr ""
+msgstr "Aufgaben"
 
 msgid "Where is the save button?"
 msgstr ""
@@ -993,9 +993,8 @@ msgstr "Kann nicht ins Clipboard kopieren."
 msgid "Error"
 msgstr "Fehler"
 
-#, fuzzy
 msgid "Question"
-msgstr "Sensibilität"
+msgstr "Frage"
 
 msgid "programmer forgot to specify error message"
 msgstr "Programmierer hat vergessen, die Fehlermeldung genau anzugeben."
@@ -5444,7 +5443,7 @@ msgid "&Delete"
 msgstr "&Löschen"
 
 msgid "<above, double-click problem to start entering SOAP note>"
-msgstr ""
+msgstr "<zum Eingeben von SOAP-Notizen oben ein Problem doppelklicken>"
 
 msgid "&Save"
 msgstr "&Speichern"
@@ -9273,16 +9272,23 @@ msgid ""
 "%s\n"
 "%s"
 msgstr ""
+"\n"
+"%s\n"
+" Details (max 250 Zeichen):\n"
+"%s\n"
+"%s"
 
-#, fuzzy
 msgid "Access violation"
-msgstr "Abkürzung"
+msgstr "Zugriffsverletzung"
 
 msgid ""
 "You do not have access to this part of GNUmed.\n"
 "\n"
 "%s"
 msgstr ""
+"Sie haben keine Zugriff auf diesen Teil von GNUmed.\n"
+"\n"
+"%s"
 
 msgid "Lost connection"
 msgstr "Verbindung verloren"
@@ -12882,13 +12888,11 @@ msgstr "erstmals: %s, %s"
 msgid "last: %s, %s"
 msgstr "zuletzt: %s, %s"
 
-#, fuzzy
 msgid "Last %s:"
-msgstr "Zuletzt"
+msgstr "Letzte %s:"
 
-#, fuzzy
 msgid "Statistics cover period"
-msgstr "Statistik"
+msgstr "Statistikzeitraum"
 
 msgid "%s Vacc: %s"
 msgstr "%s Impfg: %s"

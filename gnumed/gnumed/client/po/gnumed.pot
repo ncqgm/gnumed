@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2012-07-08 01:23+CEST\n"
+"POT-Creation-Date: 2012-09-19 01:10+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -994,7 +994,7 @@ msgid "Inactive billable item"
 msgstr ""
 
 msgid ""
-" %s %s + %s%% VAT = %s %s\n"
+" %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
 msgstr ""
 
 msgid "Open item"
@@ -1012,7 +1012,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-" Amount per unit: %s %s (%s %s per catalog)\n"
+" Amount per unit: %(curr)s%(val_p_unit)s (%(cat_curr)s%(cat_val)s per catalog)\n"
 msgstr ""
 
 msgid ""
@@ -1020,7 +1020,7 @@ msgid ""
 msgstr ""
 
 msgid ""
-" VAT would be: %s%% %s %s %s\n"
+" VAT would be: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
 msgstr ""
 
 msgid " Charge date: %s"
@@ -1046,19 +1046,27 @@ msgid ""
 msgstr ""
 
 msgid ""
-" Bill value: %s %s\n"
+" Comment: %s\n"
 msgstr ""
 
 msgid ""
-" VAT: %s%% %s %s %s\n"
+" Bill value: %(curr)s%(val)s\n"
 msgstr ""
 
 msgid ""
-" Value + VAT: %s %s\n"
+" VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
+msgstr ""
+
+msgid ""
+" Value + VAT: %(curr)s%(val)s\n"
 msgstr ""
 
 msgid ""
 " VAT: does not apply\n"
+msgstr ""
+
+msgid ""
+" Items billed: 0\n"
 msgstr ""
 
 msgid ""
@@ -1285,7 +1293,28 @@ msgstr ""
 msgid "last check:"
 msgstr ""
 
+msgid ""
+"%s document part                 [#%s]\n"
+msgstr ""
+
+msgid "Reviewed"
+msgstr ""
+
+msgid "Unreviewed"
+msgstr ""
+
+msgid ""
+" Part %s: %s %s(%s Bytes)\n"
+msgstr ""
+
+msgid ""
+" Filename: %s\n"
+msgstr ""
+
 msgid "part"
+msgstr ""
+
+msgid "no parts"
 msgstr ""
 
 msgid "1 part"
@@ -1299,7 +1328,11 @@ msgid ""
 "\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s"
+"%s%s%s"
+msgstr ""
+
+msgid ""
+" Health issue: %s\n"
 msgstr ""
 
 msgid ""
@@ -1491,6 +1524,9 @@ msgstr ""
 msgid "PDF output file cannot be opened."
 msgstr ""
 
+msgid "Error running xelatex. Cannot turn Xe(La)TeX template into PDF."
+msgstr ""
+
 msgid "Error running gnuplot. Cannot plot data."
 msgstr ""
 
@@ -1501,6 +1537,29 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid "Textual keyword expansion"
+msgstr ""
+
+msgid "Binary keyword expansion"
+msgstr ""
+
+msgid "private"
+msgstr ""
+
+msgid "public"
+msgstr ""
+
+msgid "encrypted"
+msgstr ""
+
+msgid ""
+" Keyword: %s\n"
+msgstr ""
+
+msgid ""
+" Owner: %s\n"
 msgstr ""
 
 msgid "Medication history"
@@ -1601,10 +1660,6 @@ msgstr ""
 
 msgid ""
 " Episode: %s\n"
-msgstr ""
-
-msgid ""
-" Health issue: %s\n"
 msgstr ""
 
 msgid ""
@@ -2430,6 +2485,9 @@ msgstr ""
 msgid "  risk: %s"
 msgstr ""
 
+msgid "Error running GnuPG. Cannot decrypt data."
+msgstr ""
+
 msgid "1 Byte"
 msgstr ""
 
@@ -2721,6 +2779,9 @@ msgid "Select here whether or not to apply VAT when creating an invoice for this
 msgstr ""
 
 msgid "The total value of this bill after VAT has been applied."
+msgstr ""
+
+msgid "Add an arbitrary comment on this bill."
 msgstr ""
 
 msgid "Invoice ID"
@@ -3584,6 +3645,12 @@ msgid "OpenOffice"
 msgstr ""
 
 msgid "PDF form editor"
+msgstr ""
+
+msgid "Text (generic processing)"
+msgstr ""
+
+msgid "Xe(La)TeX"
 msgstr ""
 
 msgid "&Load"
@@ -5250,6 +5317,15 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+msgid "File"
+msgstr ""
+
+msgid "Se&lect"
+msgstr ""
+
+msgid "Encrypted"
+msgstr ""
+
 msgid "&Me only"
 msgstr ""
 
@@ -5266,7 +5342,19 @@ msgid ""
 "as those are needed to detect when to trigger keyword expansion."
 msgstr ""
 
-msgid "This is the text the keyword will expand to. You can use any text-based punctuation and formatting."
+msgid "Select a file from which to load the binary data."
+msgstr ""
+
+msgid "File from which to load the binary data."
+msgstr ""
+
+msgid "Check this if the data file is encrypted and needs decryption before use."
+msgstr ""
+
+msgid ""
+"This is the text the keyword will expand to. You can use any text-based punctuation and formatting.\n"
+"\n"
+"Any $<HINT>$ will make GNUmed prompt the user for input while displaying HINT for guidance."
 msgstr ""
 
 msgid "Select this if you want to use this text expansion just for yourself."
@@ -5278,7 +5366,7 @@ msgstr ""
 msgid "Keyword"
 msgstr ""
 
-msgid "Expand to"
+msgid "Expansion"
 msgstr ""
 
 msgid "Scope"
@@ -5530,10 +5618,16 @@ msgstr ""
 msgid "&Urgency:"
 msgstr ""
 
+msgid "Active &patient"
+msgstr ""
+
 msgid "&Activate"
 msgstr ""
 
 msgid "Activate\302\262"
+msgstr ""
+
+msgid "Check this if you want to see entries for the active patient only."
 msgstr ""
 
 msgid ""
@@ -5568,7 +5662,7 @@ msgstr ""
 msgid "Move patient down."
 msgstr ""
 
-msgid "Filter by:"
+msgid "Filters:"
 msgstr ""
 
 msgid "Zone"
@@ -6094,6 +6188,18 @@ msgid "Creating invoice"
 msgstr ""
 
 msgid ""
+"Cannot find an existing invoice PDF for this bill.\n"
+"\n"
+"Active patient: %s\n"
+"Patient on bill: #%s\n"
+"\n"
+"Activate patient on bill so invoice PDF can be created ?"
+msgstr ""
+
+msgid "Cannot activate patient #%s."
+msgstr ""
+
+msgid ""
 "Cannot create invoice from bill.\n"
 "\n"
 "The bill is not closed."
@@ -6203,7 +6309,10 @@ msgstr ""
 msgid "<open>"
 msgstr ""
 
-msgid "%s %s (with %s%% VAT)"
+msgid "no items on bill"
+msgstr ""
+
+msgid "%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)"
 msgstr ""
 
 msgid "Showing bills."
@@ -6245,7 +6354,13 @@ msgstr ""
 msgid "Showing bill items."
 msgstr ""
 
+msgid "\302\244"
+msgstr ""
+
 msgid "Charge date"
+msgstr ""
+
+msgid "\302\244"
 msgstr ""
 
 msgid "Count %s Value %s Factor"
@@ -6428,47 +6543,26 @@ msgstr ""
 msgid "Please enter your pass phrase:"
 msgstr ""
 
-msgid "List not known to be patient-related."
-msgstr ""
-
 msgid ""
-"Cannot activate patient.\n"
+"The report result list does not contain any columns\n"
+"named \"%s\", \"pk_patient\", or \"pk_identity\".\n"
 "\n"
-"The row does not contain a column\n"
-"named or indexed \"%s\".\n"
-"\n"
+"Select the column which contains patient IDs:\n"
 msgstr ""
 
-msgid "activating patient from list"
+msgid "Choose column from query results ..."
+msgstr ""
+
+msgid "Column name"
+msgstr ""
+
+msgid "List not known to be patient-related."
 msgstr ""
 
 msgid "No matching patient found."
 msgstr ""
 
 msgid "Cannot read SQL from [%s]. Not a text file."
-msgstr ""
-
-msgid "Cannot read SQL from [%s]. File too big (> 2000 bytes)."
-msgstr ""
-
-msgid ""
-"Cannot activate patient.\n"
-"\n"
-"The report result list does not contain\n"
-"a column named \"pk_patient\".\n"
-"\n"
-"You may want to use the SQL \"AS\" column alias\n"
-"syntax to make your query return such a column.\n"
-msgstr ""
-
-msgid "Activating patient from report result"
-msgstr ""
-
-msgid ""
-"Cannot activate patient.\n"
-"\n"
-"There does not seem to exist a patient\n"
-"with an internal ID of [%s].\n"
 msgstr ""
 
 msgid "Report must have a name for contribution."
@@ -6522,12 +6616,6 @@ msgid "Query result visualizer"
 msgstr ""
 
 msgid "Choose a column to be used as the X-Axis:"
-msgstr ""
-
-msgid "Choose column from query results ..."
-msgstr ""
-
-msgid "column name"
 msgstr ""
 
 msgid "Choose a column to be used as the Y-Axis:"
@@ -7535,10 +7623,13 @@ msgstr ""
 msgid "loading document list"
 msgstr ""
 
-msgid "%s%7s %s:%s (%s part(s)%s)"
+msgid "%s%7s %s:%s (%s)"
 msgstr ""
 
-msgid "Unattributed episode: %s"
+msgid "%s%7s (%s):%s (%s)"
+msgstr ""
+
+msgid "%s (unattributed episode)"
 msgstr ""
 
 msgid "part %2s"
@@ -8694,6 +8785,12 @@ msgstr ""
 msgid "Select the template for printing a medication list."
 msgstr ""
 
+msgid "Default Gnuplot template"
+msgstr ""
+
+msgid "Select the default template for plotting test results."
+msgstr ""
+
 msgid "Fallback provider"
 msgstr ""
 
@@ -9186,10 +9283,11 @@ msgstr ""
 msgid ""
 "\n"
 "\n"
-" workplace: %s\n"
-" account: %s\n"
-" database: %s\n"
-" server:\t%s\n"
+" workplace:    %s\n"
+" account:      %s\n"
+" database:     %s\n"
+" server:       %s\n"
+" PostgreSQL:   %s\n"
 msgstr ""
 
 msgid "About database and server"
@@ -9944,6 +10042,50 @@ msgstr ""
 msgid "Contribute translations to GNUmed community by email."
 msgstr ""
 
+msgid "Cannot save keyword expansion without text or data expansion."
+msgstr ""
+
+msgid "Cannot save keyword expansion without keyword."
+msgstr ""
+
+msgid "___copy"
+msgstr ""
+
+msgid "Size: %s"
+msgstr ""
+
+msgid "Choose the file containing the data snippet"
+msgstr ""
+
+msgid "Adding keyword expansion"
+msgstr ""
+
+msgid "Editing keyword expansion \"%s\""
+msgstr ""
+
+msgid "text"
+msgstr ""
+
+msgid ""
+"\n"
+"Select the keyword you want to edit !\n"
+msgstr ""
+
+msgid "Editing keyword-based expansions ..."
+msgstr ""
+
+msgid "Expanding <%s>"
+msgstr ""
+
+msgid ""
+"Several macro keywords match the fragment [%s].\n"
+"\n"
+"Please select the expansion you want to happen."
+msgstr ""
+
+msgid "Selecting text macro"
+msgstr ""
+
 msgid "choose which lab will process the probe with the specified ID"
 msgstr ""
 
@@ -10097,6 +10239,12 @@ msgstr ""
 msgid "no URL for comm channel [%s]"
 msgstr ""
 
+msgid "no mugshot available"
+msgstr ""
+
+msgid "cannot export or convert latest mugshot"
+msgstr ""
+
 msgid "no tags for this patient"
 msgstr ""
 
@@ -10125,6 +10273,12 @@ msgid "PHX: Invalid placeholder options."
 msgstr ""
 
 msgid "no PHX for this patient (available or selected)"
+msgstr ""
+
+msgid "Enter your GnuPG passphrase for decryption of [%s]"
+msgstr ""
+
+msgid "GnuPG passphrase prompt"
 msgstr ""
 
 msgid "generic text"
@@ -10220,10 +10374,25 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
-msgid "Cannot plot without a plot script."
+msgid "No default Gnuplot script template selected."
+msgstr ""
+
+msgid "No default Gnuplot template configured."
+msgstr ""
+
+msgid "There is no default Gnuplot one-type script template configured."
 msgstr ""
 
 msgid "Plotting test results"
+msgstr ""
+
+msgid "Problem loading Gnuplot script template."
+msgstr ""
+
+msgid "Cannot load default Gnuplot script template [%s - %s]"
+msgstr ""
+
+msgid "Cannot plot without a plot script."
 msgstr ""
 
 msgid ""
@@ -10277,10 +10446,6 @@ msgstr ""
 
 msgid ""
 " Conversion unit: %s\n"
-msgstr ""
-
-msgid ""
-" Comment: %s\n"
 msgstr ""
 
 msgid ""
@@ -10490,6 +10655,9 @@ msgid "Successfully saved measurement."
 msgstr ""
 
 msgid "Cannot save result. Invalid or missing essential input."
+msgstr ""
+
+msgid "%s ago: %s%s%s - %s"
 msgstr ""
 
 msgid "Adding measurement type"
@@ -10943,9 +11111,6 @@ msgstr ""
 msgid "Cannot create allergy from more than one substance at once."
 msgstr ""
 
-msgid "Amount per dose: %s%s"
-msgstr ""
-
 msgid "Cannot move progress notes. No active patient."
 msgstr ""
 
@@ -11209,9 +11374,6 @@ msgstr ""
 msgid "List of templates in the database."
 msgstr ""
 
-msgid "File"
-msgstr ""
-
 msgid "Files in the filesystem."
 msgstr ""
 
@@ -11409,10 +11571,13 @@ msgstr ""
 msgid "aka: %(last)s, %(first)s%(nick)s"
 msgstr ""
 
-msgid "job: %s"
+msgid "job: %s (%s)"
 msgstr ""
 
 msgid "issued by: %s%s"
+msgstr ""
+
+msgid "Last modified: %s"
 msgstr ""
 
 msgid ""
@@ -11919,6 +12084,9 @@ msgstr ""
 msgid "More info"
 msgstr ""
 
+msgid "Message cannot expire before being due."
+msgstr ""
+
 msgid "Adding new inbox message"
 msgstr ""
 
@@ -12225,47 +12393,6 @@ msgstr ""
 msgid "Enlisting person as user."
 msgstr ""
 
-msgid "Cannot save text expansion without keyword."
-msgstr ""
-
-msgid "Cannot save text expansion without expansion text."
-msgstr ""
-
-msgid "___copy"
-msgstr ""
-
-msgid "Adding text expansion"
-msgstr ""
-
-msgid "Editing text expansion \"%s\""
-msgstr ""
-
-msgid ""
-"\n"
-"Select the keyword you want to edit !\n"
-msgstr ""
-
-msgid "Editing keyword-based text expansions ..."
-msgstr ""
-
-msgid "Owner"
-msgstr ""
-
-msgid "Private"
-msgstr ""
-
-msgid "Public"
-msgstr ""
-
-msgid ""
-"Several macros match the keyword [%s].\n"
-"\n"
-"Please select the expansion you want to happen."
-msgstr ""
-
-msgid "Selecting text macro"
-msgstr ""
-
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
@@ -12383,6 +12510,24 @@ msgstr ""
 msgid "This vaccine"
 msgstr ""
 
+msgid "No vaccination document template selected."
+msgstr ""
+
+msgid "Invalid vaccinations printout template [%s - %s (%s)]"
+msgstr ""
+
+msgid "Printing vaccinations"
+msgstr ""
+
+msgid "Error generating the vaccinations printout."
+msgstr ""
+
+msgid "Error printing vaccinations."
+msgstr ""
+
+msgid "vaccinations printed from template [%s - %s]"
+msgstr ""
+
 msgid "Adding new vaccinations"
 msgstr ""
 
@@ -12398,6 +12543,9 @@ msgid "Showing vaccinations."
 msgstr ""
 
 msgid "Intended to protect from"
+msgstr ""
+
+msgid "Print vaccinations using a template."
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
