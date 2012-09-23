@@ -39,7 +39,6 @@ from Gnumed.business import gmMedication
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmVaccination
-from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmKeywordExpansion
 
 from Gnumed.wxpython import gmGuiHelpers
@@ -133,14 +132,12 @@ known_variant_placeholders = [
 	u'external_id',							# args: <type of ID>//<issuer of ID>
 
 
-	u'current_meds',						# "args" holds: line template
-	u'current_meds_table',					# "args" holds: format, options
-
 	# clinical record related:
 	u'soap',
 	u'progress_notes',						# "args" holds: categories//template
 											# 	categories: string with 'soapu '; ' ' == None == admin
 											#	template:	u'something %s something'		(do not include // in template !)
+	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'emr_journal',							# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
 											#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
 											#				   (" " == None == admin category)
@@ -149,15 +146,21 @@ known_variant_placeholders = [
 											#	line length:   the length of individual lines, not the total placeholder length
 											#	time range:	   the number of weeks going back in time
 											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
+
+	u'current_meds',						# "args" holds: line template//<select>
+											#	<select>: if this is present the user will be asked which meds to export
+	u'current_meds_table',					# "args" holds: format, options
 	u'current_meds_notes',					# "args" holds: format, options
+
 	u'lab_table',							# "args" holds: format (currently "latex" only)
+
 	u'latest_vaccs_table',					# "args" holds: format, options
 	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
+
 	u'allergies',							# "args" holds: line template, one allergy per line
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
 	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
-	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 
 	# provider related:
@@ -940,14 +943,28 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return [_('template is missing')]
 
-		emr = self.pat.get_emr()
-		current_meds = emr.get_current_substance_intake (
-			include_inactive = False,
-			include_unapproved = False,
-			order_by = u'brand, substance'
-		)
+		parts = data.split(u'//')
+		template = parts[0]
+		ask_user = False
+		if len(parts) > 1:
+			ask_user = (parts[1] == u'select')
 
-		return u'\n'.join([ data % m.fields_as_dict(date_format = '%Y %B %d') for m in current_meds ])
+		emr = self.pat.get_emr()
+		if ask_user:
+			from Gnumed.wxpython import gmMedicationWidgets
+			current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+			if current_meds is None:
+				return u''
+		else:
+			current_meds = emr.get_current_substance_intake (
+				include_inactive = False,
+				include_unapproved = True,
+				order_by = u'brand, substance'
+			)
+			if len(current_meds) == 0:
+				return u''
+
+		return u'\n'.join([ template % m.fields_as_dict(date_format = '%Y %B %d') for m in current_meds ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
 
@@ -1665,8 +1682,9 @@ if __name__ == '__main__':
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
 			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
 			#u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
-			u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
-			u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$'
+			#u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
+			#u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$',
+			u'$<current_meds::%s//select::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1687,12 +1705,22 @@ if __name__ == '__main__':
 			print '%s' % handler[ph]
 		#handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
+	def test():
+		pat = gmPersonSearch.ask_for_patient()
+		if pat is None:
+			sys.exit()
+		gmPerson.set_active_patient(patient = pat)
+		from Gnumed.wxpython import gmMedicationWidgets
+		gmMedicationWidgets.manage_substance_intakes()
+
+	#--------------------------------------------------------
 
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
 	test_placeholder()
+	#test()
 
 #=====================================================================
 

@@ -1229,6 +1229,83 @@ def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 	dlg.ShowModal()
 
 	return True
+
+#============================================================
+def manage_substance_intakes(parent=None, emr=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if emr is None:
+		emr = gmPerson.gmCurrentPatient().emr
+#	#------------------------------------------------------------
+#	def add_from_db(substance):
+#		drug_db = get_drug_database(parent = parent)
+#		if drug_db is None:
+#			return False
+#		drug_db.import_drugs()
+#		return True
+#	#------------------------------------------------------------
+#	def edit(substance=None):
+#		return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+#	#------------------------------------------------------------
+#	def delete(substance):
+#		if substance.is_in_use_by_patients:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
+#			return False
+#
+#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+	#------------------------------------------------------------
+	def get_tooltip(intake=None):
+		return intake.format(one_line = False, show_all_brand_components = True)
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		intakes = emr.get_current_substance_intake (
+			include_inactive = False,
+			include_unapproved = True,
+			order_by = u'substance, brand, started'
+		)
+		items = [ [
+			u'%s%s %s %s %s%s' % (
+				i['substance'],
+				gmTools.coalesce(i['brand'], u'', u' (%s)'),
+				i['amount'],
+				i['unit'],
+				i['preparation'],
+				gmTools.coalesce(i['external_code_brand'], u'', u' [%s::%s]' % (i['external_code_type_brand'], i['external_code_brand']))
+			),
+			u'%s%s%s' % (
+				gmTools.coalesce(i['started'], u'', u'%%s %s' % gmTools.u_right_arrow, function_initial = ('strftime', '%Y %B %d')),
+				gmTools.coalesce(i['schedule'], u'', u' %s %s' % (i['schedule'], gmTools.u_right_arrow)),
+				gmTools.coalesce(i['duration'], u'', u' %s')
+			),
+			u'%s' % (
+				gmTools.bool2subst (
+					i['intake_is_approved_of'],
+					u'',
+					_('disapproved')
+				)
+			)
+		] for i in intakes ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(intakes)
+	#------------------------------------------------------------
+	msg = _('Substances consumed by the patient:')
+
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing consumable substances.'),
+		columns = [ _('Intake'), _('Application'), _('Status') ],
+		single_selection = False,
+#		new_callback = edit,
+#		edit_callback = edit,
+#		delete_callback = delete,
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip
+#		,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
+	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentMedicationEAPnl
 
@@ -2689,14 +2766,21 @@ if __name__ == '__main__':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
+	from Gnumed.business import gmPersonSearch
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
+	pat = gmPersonSearch.ask_for_patient()
+	if pat is None:
+		sys.exit()
+	gmPerson.set_active_patient(patient = pat)
+
 	#----------------------------------------
-	app = wx.PyWidgetTester(size = (600, 600))
-	#app.SetWidget(cATCPhraseWheel, -1)
-	app.SetWidget(cSubstancePhraseWheel, -1)
-	app.MainLoop()
+#	app = wx.PyWidgetTester(size = (600, 600))
+#	#app.SetWidget(cATCPhraseWheel, -1)
+#	app.SetWidget(cSubstancePhraseWheel, -1)
+#	app.MainLoop()
+	manage_substance_intakes()
 
 #============================================================

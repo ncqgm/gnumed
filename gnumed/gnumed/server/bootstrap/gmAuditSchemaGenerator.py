@@ -17,10 +17,8 @@ put any constraints on the audit trail tables except for
 audited table.
 """
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmAuditSchemaGenerator.py,v $
-__version__ = "$Revision: 1.35 $"
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
-__license__ = "GPL"		# (details at http://www.gnu.org)
+__license__ = "GPL v2 or later"		# (details at http://www.gnu.org)
 
 import sys, os.path, string, logging
 
@@ -29,7 +27,6 @@ from Gnumed.pycommon import gmPG2
 
 
 _log = logging.getLogger('gm.bootstrapper')
-_log.info(__version__)
 
 # the audit trail tables start with this prefix
 audit_trail_table_prefix = u'log_'
@@ -306,145 +303,3 @@ if __name__ == "__main__" :
 		file.write("%s;\n" % line)
 	file.close()
 #==================================================================
-# $Log: gmAuditSchemaGenerator.py,v $
-# Revision 1.35  2009-12-01 21:56:27  ncq
-# - add comment orig_* columns
-#
-# Revision 1.34  2009/08/24 20:11:27  ncq
-# - bump db version
-# - fix tag creation
-# - provider inbox:
-# 	enable filter-to-active-patient,
-# 	listen to new signal,
-# 	use cInboxMessage class
-# - properly constrain LOINC phrasewheel SQL
-# - include v12 scripts in release
-# - install arriba jar to /usr/local/bin/
-# - check for table existence in audit schema generator
-# - include dem.message inbox with additional generic signals
-#
-# Revision 1.33  2009/05/04 11:42:28  ncq
-# - document why detecting audit targets via inheritance from
-#   audit.audit_fields does not work
-#
-# Revision 1.32  2008/01/27 21:23:22  ncq
-# - check function bodies
-#
-# Revision 1.31  2008/01/07 14:15:43  ncq
-# - port to gmCfg2/gmLog2
-# - create database with default transaction mode set to readonly
-#
-# Revision 1.30  2007/12/09 20:45:45  ncq
-# - a bit of cleanup
-# - when we detect a pre-existing audit log table we better check
-#   its structure - and bingo, a mismatch is found right away
-#
-# Revision 1.29  2006/12/18 17:38:19  ncq
-# - u''ify 2 queries
-#
-# Revision 1.28  2006/12/06 16:11:08  ncq
-# - port to gmPG2
-#
-# Revision 1.27  2006/11/14 23:27:56  ncq
-# - explicitely (cascade) drop audit trigger functions so we can
-#   change return type from opaque to trigger
-# - make sure audit tables are created in "audit."
-#
-# Revision 1.26  2006/05/24 12:10:46  ncq
-# - use session_user
-#
-# Revision 1.25  2006/01/05 16:07:11  ncq
-# - generate audit trail tables and functions in schema "audit"
-# - adjust configuration
-# - audit trigger functions now "security definer" (== gm-dbo)
-# - grant SELECT only to non-gm-dbo users
-# - return language_handler not opaque from language call handler functions
-#
-# Revision 1.24  2005/12/04 09:34:44  ncq
-# - make fit for schema support
-# - move some queries to gmPG
-# - improve DDL templates (use or replace on functions)
-#
-# Revision 1.23  2005/09/13 11:51:06  ncq
-# - use "drop function ... cascade;"
-#
-# Revision 1.22  2004/07/17 21:23:49  ncq
-# - run_query now has verbosity argument, so use it
-#
-# Revision 1.21  2004/06/28 13:31:17  ncq
-# - really fix imports, now works again
-#
-# Revision 1.20  2004/06/28 13:23:20  ncq
-# - fix import statements
-#
-# Revision 1.19  2003/11/05 16:03:02  ncq
-# - allow gm-public to insert into log tables
-#
-# Revision 1.18  2003/10/25 16:58:40  ncq
-# - fix audit trigger function generation omitting target column names
-#
-# Revision 1.17  2003/10/19 12:56:27  ncq
-# - streamline
-#
-# Revision 1.16  2003/10/01 15:43:45  ncq
-# - use table audited_tables now instead of inheriting from audit_mark
-#
-# Revision 1.15  2003/08/17 00:09:37  ncq
-# - add auto-generation of missing audit trail tables
-# - use that
-#
-# Revision 1.14  2003/07/05 13:45:49  ncq
-# - modify -> modified
-#
-# Revision 1.13  2003/07/05 12:53:29  ncq
-# - actually use ";"s correctly (verified)
-#
-# Revision 1.12  2003/07/05 12:29:57  ncq
-# - just a bit of cleanup
-#
-# Revision 1.11  2003/07/05 12:26:01  ncq
-# - need ; at end of chained SQL statements !
-#
-# Revision 1.10  2003/06/29 12:41:34  ncq
-# - remove excessive quoting
-# - check fail of get_children
-# - check for audit_mark/audit_fields split compliance
-#
-# Revision 1.9  2003/06/26 21:44:25  ncq
-# - %s; quoting bug, cursor(cmd, args) style
-#
-# Revision 1.8  2003/06/03 13:48:19  ncq
-# - clarify log message
-#
-# Revision 1.7  2003/05/22 12:54:48  ncq
-# - update comments
-# - make audit prefix configurable
-#
-# Revision 1.6  2003/05/17 18:43:24  ncq
-# - make triggers zt* so other things (like notify triggers) can easier run afterwards as, say zzt*
-#
-# Revision 1.5  2003/05/15 10:18:32  ncq
-# - name triggers "zzt_*" so they are executed last
-# - name trigger function "ft_*"
-# - better __doc__
-#
-# Revision 1.4  2003/05/14 22:03:28  ncq
-# - better names for template definitions and lots of other items
-# - attributes -> columns
-# - check whether target table exists, fail if not
-#
-# Revision 1.3  2003/05/13 14:55:43  ncq
-# - take list of columns to be audited from target audit table,
-#   not from source table, this implies that the target table MUST exist
-#   prior to running this script
-#
-# Revision 1.2  2003/05/13 14:39:11  ncq
-# - separate triggers/functions for insert/update/delete
-# - seems to work now
-#
-# Revision 1.1  2003/05/12 20:57:19  ncq
-# - audit schema generator
-#
-#
-# @change log:
-#	12.07.2001 hherb first draft, untested
