@@ -6,7 +6,10 @@
 __author__ = "H.Herb, I.Haywood, K.Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-import os, sys, re, glob, logging
+import os
+import sys
+import glob
+import logging
 
 
 import wx
@@ -14,8 +17,18 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg, gmDispatcher, gmTools
-from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmSurgery
+
+
+_cfg = gmCfg2.gmCfgData()
 
 _log = logging.getLogger('gm.ui')
 
@@ -313,10 +326,27 @@ def get_installed_plugins(plugin_dir=''):
 			search_path = candidate
 			break
 		_log.debug('not found')
+
 	if search_path is None:
 		_log.error('unable to find any directory matching [%s]', os.path.join('${CANDIDATE}', 'Gnumed', 'wxpython', plugin_dir))
 		_log.error('candidates: %s', str(candidates))
-		return []
+		# read from config file
+		_log.info('trying to read list of installed plugins from config files')
+		plugins = _cfg.get (
+			group = u'client',
+			option = u'installed plugins',
+			source_order = [
+				('system', 'extend'),
+				('user', 'extend'),
+				('workbase', 'extend'),
+				('explicit', 'extend')
+			]
+		)
+		if plugins is None:
+			_log.debug('no plugins found in config files')
+			return []
+		_log.debug("plugins found: %s" % str(plugins))
+		return plugins
 
 	_log.info("scanning plugin directory [%s]" % search_path)
 
@@ -393,5 +423,4 @@ if __name__ == '__main__':
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
 		print get_installed_plugins('gui')
 
-#==================================================================
-
+#------------------------------------------------------------------
