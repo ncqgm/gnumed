@@ -41,7 +41,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
+			cmd = u"select *, _(role) AS l10n_role from dem.v_staff where db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			except:

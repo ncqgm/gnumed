@@ -5,7 +5,6 @@ helper thingies that are widely used throughout
 GNUmed.
 """
 # ========================================================================
-__version__ = "$Revision: 1.106 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -20,6 +19,9 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmMatchProvider
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmLog2
+from Gnumed.pycommon import gmTools
 from Gnumed.wxpython import gmPhraseWheel
 
 
@@ -504,6 +506,7 @@ def gm_show_question(aMessage='programmer forgot to specify question', aTitle='g
 		return False
 	else:
 		return None
+
 #======================================================================
 if __name__ == '__main__':
 

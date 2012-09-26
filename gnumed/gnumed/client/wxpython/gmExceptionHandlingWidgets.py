@@ -118,7 +118,7 @@ def __handle_access_violation(t, v, tb):
 	if v.code is not None:
 		txt += _('\n Code: %s') % v.code
 	if v.details is not None:
-		txt += _('\n%s\n Details (250 chars max):\n%s\n%s') % (
+		txt += _('\n Details (first 250 characters):\n%s\n%s\n%s') % (
 			u_box_horiz_single * 50,
 			v.details[:250],
 			u_box_horiz_single * 50

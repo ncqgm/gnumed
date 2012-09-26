@@ -840,6 +840,9 @@ class gmTopLevelFrame(wx.Frame):
 			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
+			item = menu_debugging.Append(-1, _('Test access violation handling'), _('Simulate an access violation.'))
+			self.Bind(wx.EVT_MENU, self.__on_test_access_violation, item)
+
 			ID = wx.NewId()
 			menu_debugging.Append(ID, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
 			wx.EVT_MENU(self, ID, self.__on_invoke_inspector)
@@ -2382,6 +2385,14 @@ class gmTopLevelFrame(wx.Frame):
 		#import nonexistant_module
 		raise ValueError('raised ValueError to test exception handling')
 	#----------------------------------------------
+	def __on_test_access_violation(self, evt):
+		raise gmExceptions.AccessDenied (
+			_('[-9999]: <access violation test error>'),
+			source = u'GNUmed code',
+			code = -9999,
+			details = _('This is a deliberate AcessDenied exception thrown to test the handling of access violations by means of a decorator.')
+		)
+	#----------------------------------------------
 	def __on_invoke_inspector(self, evt):
 		import wx.lib.inspection
 		wx.lib.inspection.InspectionTool().Show()
@@ -2550,6 +2561,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDemographicsWidgets.edit_occupation()
 		evt.Skip()
 	#----------------------------------------------
+	@gmStaffWidgets.verify_minimum_required_role('doctor', _('manage vaccinations'), None)
 	def __on_add_vaccination(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
