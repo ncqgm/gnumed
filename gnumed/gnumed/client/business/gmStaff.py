@@ -22,10 +22,9 @@ _log = logging.getLogger('gm.staff')
 
 #============================================================
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_staff WHERE pk_staff = %s"
+	_cmd_fetch_payload = u"SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE pk_staff = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.staff SET
-				fk_role = %(pk_role)s,
 				short_alias = %(short_alias)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				is_active = %(is_active)s,
@@ -37,7 +36,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_staff"""
 	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
+	_updatable_fields = ['short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
