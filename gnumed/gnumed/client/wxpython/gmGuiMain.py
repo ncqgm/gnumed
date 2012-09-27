@@ -109,6 +109,7 @@ from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 try:
@@ -840,8 +841,11 @@ class gmTopLevelFrame(wx.Frame):
 			menu_debugging.Append(ID_TEST_EXCEPTION, _('Test error handling'), _('Throw an exception to test error handling.'))
 			wx.EVT_MENU(self, ID_TEST_EXCEPTION, self.__on_test_exception)
 
-			item = menu_debugging.Append(-1, _('Test access violation handling'), _('Simulate an access violation.'))
+			item = menu_debugging.Append(-1, _('Test access violation exception'), _('Simulate an access violation exception.'))
 			self.Bind(wx.EVT_MENU, self.__on_test_access_violation, item)
+
+			item = menu_debugging.Append(-1, _('Test access checking'), _('Simulate a failing access check.'))
+			self.Bind(wx.EVT_MENU, self.__on_test_access_checking, item)
 
 			ID = wx.NewId()
 			menu_debugging.Append(ID, _('Invoke inspector'), _('Invoke the widget hierarchy inspector (needs wxPython 2.8).'))
@@ -2393,6 +2397,15 @@ class gmTopLevelFrame(wx.Frame):
 			details = _('This is a deliberate AcessDenied exception thrown to test the handling of access violations by means of a decorator.')
 		)
 	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('admin', activity = _('testing access check for non-existant <admin> role'))
+	def __on_test_access_checking(self, evt):
+		raise gmExceptions.AccessDenied (
+			_('[-9999]: <access violation test error>'),
+			source = u'GNUmed code',
+			code = -9999,
+			details = _('This is a deliberate AcessDenied exception. You should not see this message because the role is checked in a decorator.')
+		)
+	#----------------------------------------------
 	def __on_invoke_inspector(self, evt):
 		import wx.lib.inspection
 		wx.lib.inspection.InspectionTool().Show()
@@ -2561,7 +2574,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDemographicsWidgets.edit_occupation()
 		evt.Skip()
 	#----------------------------------------------
-	@gmStaffWidgets.verify_minimum_required_role('doctor', _('manage vaccinations'), None)
+	@gmAccessPermissionWidgets.verify_minimum_required_role('doctor', activity = _('manage vaccinations'))
 	def __on_add_vaccination(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:

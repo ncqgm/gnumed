@@ -11,7 +11,6 @@ import wx
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
-from Gnumed.pycommon import gmLog2
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 
@@ -241,45 +240,5 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
-
-#-------------------------------------------------------------------------
-_known_roles = [
-	'public',
-	'staff',
-	'nurse',
-	'doctor'
-]
-
-_curr_staff = gmStaff.gmCurrentProvider()
-
-def verify_minimum_required_role(minimum_role, activity, return_value_on_failure):
-	def _inner_verify_minimum_required_role(original_function):
-
-		def _func_decorated_with_required_role_checking(*args, **kwargs):
-			if _known_roles.index(minimum_role) > _known_roles.index(_curr_staff['role']):
-				_log.info('access denied: %s', activity)
-				_log.debug('required role: %s', minimum_role)
-				_log.debug('current role: %s', _curr_staff['role'])
-				gmLog2.flush()
-				wx.EndBusyCursor()
-				gmGuiHelpers.gm_show_error (
-					aTitle = _('Access denied'),
-					aMessage = _(
-						'You do not have access to this part of GNUmed:\n'
-						'\n'
-						'  [%s]\n'
-						'\n'
-						'Your role: %s (%s)'
-					) % (
-						activity,
-						_curr_staff['l10n_role'],
-						_curr_staff['role']
-					)
-				)
-				return return_value_on_failure
-			return original_function(*args, **kwargs)
-
-		return _func_decorated_with_required_role_checking
-	return _inner_verify_minimum_required_role
 
 #==========================================================================
