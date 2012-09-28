@@ -11,14 +11,38 @@ import wx
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmMatchProvider
+
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.ui')
+
+#==========================================================================
+class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		items = [
+			{'list_label': _('Public (no clinical or demographic access)'), 'field_label': _('public'), 'data': 'public', 'weight': 1},
+			{'list_label': _('Staff (demographic access only)'), 'field_label': _('staff (clerical)'), 'data': 'staff', 'weight': 1},
+			{'list_label': _('Doctor (full access)'), 'field_label': _('doctor'), 'data': 'doctor', 'weight': 1},
+		]
+		mp = gmMatchProvider.cMatchProvider_FixedList(items)
+		mp.setThresholds(1, 2, 3)
+		mp.word_separators = None
+		#mp.ignored_chars = r"[.'\\(){}\[\]<>~#*$%^_=&@\t0123456789]+" + r'"'
+		#self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
+		self.matcher = mp
+		self.selection_only = True
+
 #==========================================================================
 from Gnumed.wxGladeWidgets import wxgEditStaffListDlg
 
@@ -96,6 +120,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
 		self._TCTRL_alias.SetValue(staff['short_alias'])
 		self._TCTRL_account.SetValue(staff['db_user'])
+		self._PRW_user_role.SetText(value = staff['l10n_role'], data = staff['role'], suppress_smarts = True)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(staff['comment'], ''))
 	#--------------------------------------------------------
 	def _on_listitem_deselected(self, evt):
