@@ -11,12 +11,24 @@ import os, sys
 
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
 from Gnumed.pycommon import gmExceptions, gmShellAPI
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 #======================================================================
 class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate a simple KOrganizer link window."""
 
 	tab_name = _('Appointments')
+	required_minimum_role = 'staff'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 	#--------------------------------------------------------
 	def __init__(self):
 		# detect KOrganizer

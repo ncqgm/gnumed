@@ -14,8 +14,15 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmGuiBroker, gmCfg, gmDispatcher, gmTools
-from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmSurgery
+
 
 _log = logging.getLogger('gm.ui')
 

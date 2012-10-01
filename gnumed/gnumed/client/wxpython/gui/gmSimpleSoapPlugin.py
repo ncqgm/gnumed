@@ -17,6 +17,7 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -24,6 +25,17 @@ _log = logging.getLogger('gm.ui')
 class gmSimpleSoapPlugin(gmPlugin.cNotebookPlugin):
 
 	tab_name = _('SimpleNotes')
+	required_minimum_role = 'doctor'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 
 	def name (self):
 		return gmSimpleSoapPlugin.tab_name

@@ -20,6 +20,12 @@ from Gnumed.pycommon import gmLog2
 
 _log = logging.getLogger('gm.staff')
 
+_map_gm_role2pg_group = {
+	u'public': 'gm-public',
+	u'staff': u'gm-staff',
+	u'doctor': u'gm-doctors'
+}
+
 #============================================================
 _SQL_fetch_staff_fields = u'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
 
@@ -108,6 +114,29 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return gmPerson.cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
+	#--------------------------------------------------------
+	def set_role(self, conn=None, role=None):
+		if role.strip() == self._payload[self._idx['role']]:
+			return True
+
+		cmd = u'SELECT gm.add_user_to_permission_group(%(usr)s::name, %(grp)s::name)'
+		args = {
+			'usr': self._payload[self._idx['db_user']],
+			'grp': _map_gm_role2pg_group[role.strip()]
+		}
+		rows, idx = gmPG2.run_rw_queries (
+			link_obj = conn,
+			queries = [{'cmd': cmd, 'args': args}],
+			get_col_idx = False,
+			return_data = True,
+			end_tx = True
+		)
+		if not rows[0][0]:
+			return False
+		self.refetch_payload()
+		return True
+
+	role = property(lambda x:x, set_role)
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:

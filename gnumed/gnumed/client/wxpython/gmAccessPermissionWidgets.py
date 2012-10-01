@@ -10,7 +10,6 @@ import logging
 import wx
 
 
-from Gnumed.pycommon import gmLog2
 from Gnumed.business import gmStaff
 
 from Gnumed.wxpython import gmGuiHelpers
@@ -46,7 +45,6 @@ def verify_minimum_required_role(minimum_role, activity=None, return_value_on_fa
 				_log.debug('required role: %s', minimum_role)
 				_log.debug('current role: %s (<%s>)', _curr_staff['l10n_role'], _curr_staff['role'])
 				_log.debug('current user: %s (<%s>)', _curr_staff['short_alias'], _curr_staff['db_user'])
-				gmLog2.flush()
 				wx.EndBusyCursor()
 				if fail_silently:
 					return return_value_on_failure
@@ -68,4 +66,3 @@ def verify_minimum_required_role(minimum_role, activity=None, return_value_on_fa
 	return _inner_verify_minimum_required_role
 
 #=========================================================================
-#-------------------------------------------------------------------------

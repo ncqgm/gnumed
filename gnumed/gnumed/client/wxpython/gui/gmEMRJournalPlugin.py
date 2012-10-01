@@ -12,6 +12,7 @@ import logging
 
 from Gnumed.wxpython import gmPlugin, gmEMRBrowser
 from Gnumed.pycommon import gmI18N
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.ui')
 
@@ -23,7 +24,17 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 
 	def name (self):
 		return gmEMRJournalPlugin.tab_name
+	required_minimum_role = 'doctor'
 
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 	def GetWidget (self, parent):
 		self._widget = gmEMRBrowser.cEMRJournalPanel(parent, -1)
 		return self._widget

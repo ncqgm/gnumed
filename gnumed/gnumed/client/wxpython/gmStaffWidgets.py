@@ -105,6 +105,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
+		self._PRW_user_role.SetText(value = u'', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	# event handlers
@@ -132,6 +133,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('')
 		self._TCTRL_alias.SetValue('')
 		self._TCTRL_account.SetValue('')
+		self._PRW_user_role.SetText(value = u'', data = None)
 		self._TCTRL_comment.SetValue('')
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
@@ -174,19 +176,28 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		if conn is None:
 			return False
 
-		staff = gmStaff.cStaff(aPK_obj=pk_staff)
+		staff = gmStaff.cStaff(aPK_obj = pk_staff)
 		staff['short_alias'] = self._TCTRL_alias.GetValue()
 		staff['db_user'] = self._TCTRL_account.GetValue()
 		staff['comment'] = self._TCTRL_comment.GetValue()
-		success, data = staff.save_payload(conn=conn)
-		conn.close()
+		success, data = staff.save_payload(conn = conn)
 		if not success:
+			conn.close()
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Failed to save changes to GNUmed database user.'),
 				aTitle = _('Modifying GNUmed user')
 			)
 			return False
 
+		target_role = self._PRW_user_role.GetData()
+		if target_role is not None:
+			if not staff.set_role(conn = conn, role = target_role):
+				gmGuiHelpers.gm_show_error (
+					aMessage = _('Failed to set role [%s] for GNUmed database user.') % self._PRW_user_role.GetValue().strip(),
+					aTitle = _('Modifying GNUmed user')
+				)
+
+		conn.close()
 		self.__init_ui_data()
 		return True
 #==========================================================================

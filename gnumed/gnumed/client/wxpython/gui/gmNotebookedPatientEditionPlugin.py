@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
 # GNUmed
 from Gnumed.wxpython import gmPlugin, gmDemographicsWidgets
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -35,7 +36,17 @@ class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
 
 	tab_name = _('Demographics')
+	required_minimum_role = 'staff'
 
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 	def name (self):
 		return gmNotebookedPatientEditionPlugin.tab_name
 
