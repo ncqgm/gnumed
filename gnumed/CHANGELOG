@@ -17,6 +17,7 @@ NEW: plain text based/generic postprocessing forms engine
 NEW: placeholder $<text_snippet>$ operating on keyword expansions
 NEW: encryptable placeholder $<data_snippet>$
 NEW: look for installed plugins list in config files, too
+NEW: medical staff vs non-medical staff permissions handling
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
