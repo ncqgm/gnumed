@@ -20,12 +20,19 @@ from Gnumed.pycommon import gmLog2
 
 _log = logging.getLogger('gm.staff')
 
+_map_gm_role2pg_group = {
+	u'public': 'gm-public',
+	u'staff': u'gm-staff',
+	u'doctor': u'gm-doctors'
+}
+
 #============================================================
+_SQL_fetch_staff_fields = u'SELECT *, _(role) AS l10n_role FROM dem.v_staff WHERE %s'
+
 class cStaff(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_staff WHERE pk_staff = %s"
+	_cmd_fetch_payload = _SQL_fetch_staff_fields % u"pk_staff = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.staff SET
-				fk_role = %(pk_role)s,
 				short_alias = %(short_alias)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				is_active = %(is_active)s,
@@ -37,12 +44,13 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_staff"""
 	]
-	_updatable_fields = ['pk_role', 'short_alias', 'comment', 'is_active', 'db_user']
+	_updatable_fields = ['short_alias', 'comment', 'is_active', 'db_user']
 	#--------------------------------------------------------
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			cmd = u"select * from dem.v_staff where db_user = CURRENT_USER"
+			#cmd = u"select *, _(role) AS l10n_role from dem.v_staff where "
+			cmd = _SQL_fetch_staff_fields % u"db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 			except:
@@ -106,12 +114,35 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return gmPerson.cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
+	#--------------------------------------------------------
+	def set_role(self, conn=None, role=None):
+		if role.strip() == self._payload[self._idx['role']]:
+			return True
+
+		cmd = u'SELECT gm.add_user_to_permission_group(%(usr)s::name, %(grp)s::name)'
+		args = {
+			'usr': self._payload[self._idx['db_user']],
+			'grp': _map_gm_role2pg_group[role.strip()]
+		}
+		rows, idx = gmPG2.run_rw_queries (
+			link_obj = conn,
+			queries = [{'cmd': cmd, 'args': args}],
+			get_col_idx = False,
+			return_data = True,
+			end_tx = True
+		)
+		if not rows[0][0]:
+			return False
+		self.refetch_payload()
+		return True
+
+	role = property(lambda x:x, set_role)
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
-		cmd = u"SELECT * FROM dem.v_staff WHERE is_active ORDER BY can_login DESC, short_alias ASC"
+		cmd = _SQL_fetch_staff_fields % u'is_active ORDER BY can_login DESC, short_alias ASC'
 	else:
-		cmd = u"SELECT * FROM dem.v_staff ORDER BY can_login desc, is_active desc, short_alias ASC"
+		cmd = _SQL_fetch_staff_fields % u'TRUE ORDER BY can_login DESC, is_active DESC, short_alias ASC'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
 	staff_list = []
 	for row in rows:

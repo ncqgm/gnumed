@@ -11,6 +11,7 @@ import logging
 
 from Gnumed.wxpython import gmPlugin, gmMeasurementWidgets
 from Gnumed.pycommon import gmI18N
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -19,7 +20,17 @@ class gmMeasurementsGridPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient measurements."""
 
 	tab_name = _('Measurements')
+	required_minimum_role = 'doctor'
 
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 	def name (self):
 		return gmMeasurementsGridPlugin.tab_name
 

@@ -7,12 +7,24 @@ __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>\
 __license__ = "GPL"
 
 from Gnumed.wxpython import gmPlugin, gmDocumentWidgets
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 #====================================
 class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient scan index documents window."""
 
 	tab_name = _('Attach documents')
+	required_minimum_role = 'staff'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 
 	def name(self):
 		return gmScanIdxMedDocsPlugin.tab_name

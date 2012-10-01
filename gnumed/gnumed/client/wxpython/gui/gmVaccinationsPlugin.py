@@ -6,9 +6,6 @@
 #
 # @copyright: author
 #======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmVaccinationsPlugin.py,v $
-# $Id: gmVaccinationsPlugin.py,v 1.8 2008-03-06 18:32:31 ncq Exp $
-__version__ = "$Revision: 1.8 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -18,7 +15,6 @@ import wx
 from Gnumed.wxpython import gmPlugin, gmVaccWidgets
 
 _log = gmLog.gmDefLog
-_log.Log(gmLog.lInfo, __version__)
 
 #======================================================================
 class gmVaccinationsPlugin(gmPlugin.cNotebookPlugin):
@@ -58,37 +54,3 @@ if __name__ == "__main__":
 	app.SetWidget(gmVaccWidgets.cImmunisationsPanel, -1)
 	app.MainLoop()
 #======================================================================
-# $Log: gmVaccinationsPlugin.py,v $
-# Revision 1.8  2008-03-06 18:32:31  ncq
-# - standard lib logging only
-#
-# Revision 1.7  2007/10/12 07:28:25  ncq
-# - lots of import related cleanup
-#
-# Revision 1.6  2005/09/28 21:27:30  ncq
-# - a lot of wx2.6-ification
-#
-# Revision 1.5  2005/09/26 18:01:52  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.4  2004/09/18 13:56:34  ncq
-# - translate tab label
-#
-# Revision 1.3  2004/08/04 17:16:02  ncq
-# - wx.NotebookPlugin -> cNotebookPlugin
-# - derive cNotebookPluginOld from cNotebookPlugin
-# - make cNotebookPluginOld warn on use and implement old
-#   explicit "main.notebook.raised_plugin"/ReceiveFocus behaviour
-# - ReceiveFocus() -> receive_focus()
-#
-# Revision 1.2  2004/07/15 23:27:04  ncq
-# - typo fix
-#
-# Revision 1.1  2004/07/15 23:16:21  ncq
-# - refactor vaccinations GUI code into
-#   - gmVaccWidgets.py: layout manager independant widgets
-#   - gui/gmVaccinationsPlugins.py: Horst space notebook plugin
-#   - patient/gmPG_Immunisation.py: erstwhile Richard space patient plugin
-#

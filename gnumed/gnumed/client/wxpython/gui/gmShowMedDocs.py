@@ -10,6 +10,7 @@ import wx
 
 
 from Gnumed.wxpython import gmDocumentWidgets, gmPlugin
+from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -19,6 +20,17 @@ class gmShowMedDocs(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate document tree."""
 
 	tab_name = _("Documents")
+	required_minimum_role = 'doctor'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 
 	def name(self):
 		return gmShowMedDocs.tab_name

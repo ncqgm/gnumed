@@ -10,8 +10,6 @@ TODO:
   - ...
 """
 #=============================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmXdtViewer.py,v $
-# $Id: gmXdtViewer.py,v 1.39 2009-06-29 15:12:49 ncq Exp $
 __version__ = "$Revision: 1.39 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
@@ -25,6 +23,8 @@ from Gnumed.wxpython import gmGuiHelpers, gmPlugin
 from Gnumed.pycommon import gmI18N, gmDispatcher
 from Gnumed.business import gmXdtMappings, gmXdtObjects
 from Gnumed.wxGladeWidgets import wxgXdtListPnl
+from Gnumed.wxpython import gmAccessPermissionWidgets
+
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -361,6 +361,17 @@ class gmXdtViewer(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate xDT list-in-panel viewer"""
 
 	tab_name = _('xDT viewer')
+	required_minimum_role = 'staff'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
+	#-------------------------------------------------
 
 	def name(self):
 		return gmXdtViewer.tab_name

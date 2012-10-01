@@ -8,11 +8,14 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import logging
 
+
 import wx
 
+
 from Gnumed.wxpython import gmPlugin
-#from Gnumed.wxpython import gmBillItemWidgets
 from Gnumed.wxpython import gmBillingWidgets
+from Gnumed.wxpython import gmAccessPermissionWidgets
+
 
 _log = logging.getLogger('gm.billing')
 
@@ -20,6 +23,16 @@ _log = logging.getLogger('gm.billing')
 class gmBillingPlugin(gmPlugin.cNotebookPlugin):
 
 	tab_name = _('Billing')
+	required_minimum_role = 'doctor'
+
+	@gmAccessPermissionWidgets.verify_minimum_required_role (
+		required_minimum_role,
+		activity = _('loading plugin <%s>') % tab_name,
+		return_value_on_failure = False,
+		fail_silently = False
+	)
+	def register(self):
+		gmPlugin.cNotebookPlugin.register(self)
 
 	def name(self):
 		return gmBillingPlugin.tab_name
