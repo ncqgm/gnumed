@@ -32,6 +32,7 @@ IMPROVED: report generator: be smarter about patient ID columns
 IMPROVED: patient overview: display last modified of occupation
 IMPROVED: substances grid: show preparation of items
 IMPROVED: placeholder $<current_meds>$ can let user select entries
+IMPROVED: measurements grid labels
 
 ------------------------------------------------
 # rel-1-2-patches

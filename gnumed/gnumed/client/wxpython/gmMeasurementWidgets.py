@@ -505,7 +505,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		emr = self.__patient.get_emr()
 
 		self.__row_label_data = emr.get_test_types_for_results()
-		test_type_labels = [ u'%s (%s)' % (test['unified_abbrev'], test['unified_name']) for test in self.__row_label_data ]
+		#test_type_labels = [ u'%s (%s)' % (test['unified_abbrev'], test['unified_name']) for test in self.__row_label_data ]
+		test_type_labels = [ test['unified_abbrev'] for test in self.__row_label_data ]
 		if len(test_type_labels) == 0:
 			return
 
@@ -526,7 +527,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
+			#row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
+			row = test_type_labels.index(result['unified_abbrev'])
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
@@ -954,10 +956,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
 
+		LBL_type_col = wx.StaticText(self.__WIN_corner, -1, _('Measurement type'))
 		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
 			self.__WIN_corner,
 			-1,
-			label = _('Reference'),
+			label = _('(Reference)'),
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
@@ -976,6 +979,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		SZR_corner = wx.BoxSizer(wx.VERTICAL)
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
+		SZR_corner.Add(LBL_type_col, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		SZR_corner.AddWindow(SZR_inner, 0, wx.EXPAND)	# inner sizer with centered hyperlink
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
 
