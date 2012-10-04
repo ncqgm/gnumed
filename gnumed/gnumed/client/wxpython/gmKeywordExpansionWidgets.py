@@ -28,6 +28,118 @@ _log = logging.getLogger('gm.ui')
 _text_expansion_fillin_regex = r'\$<.*>\$'
 
 #============================================================
+class cKeywordExpansion_TextCtrlMixin():
+
+	def __init__(self):
+		if not isinstance(self, wx.TextCtrl):
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
+	#--------------------------------------------------------
+	def enable_keyword_expansions(self):
+		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
+		self.Bind(wx.EVT_CHAR, self.__on_char_in_keyword_expansion_mixin)
+	#--------------------------------------------------------
+	def disable_keyword_expansions(self):
+		self.Unbind(wx.EVT_CHAR)
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __on_char_in_keyword_expansion_mixin(self, evt):
+		evt.Skip()
+
+		# empty ?
+		if self.LastPosition == 1:
+			return
+
+		char = unichr(evt.GetUnicodeKey())
+
+		explicit_expansion = False
+		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
+			if evt.GetKeyCode() != 13:		# CTRL-ALT-ENTER
+				return
+			explicit_expansion = True
+
+		if not explicit_expansion:
+			# user did not press CTRL-ALT-ENTER,
+			# however, did they last enter a
+			# "keyword sepearator", active character ?
+			if self.__keyword_separators.match(char) is None:
+				return
+
+		caret_pos, line_no = self.PositionToXY(self.InsertionPoint)
+		line = self.GetLineText(line_no)
+		keyword = self.__keyword_separators.split(line[:caret_pos])[-1]
+
+		if (
+			(not explicit_expansion)
+				and
+			(keyword != u'$$steffi')			# Easter Egg ;-)
+				and
+			(keyword not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
+		):
+			return
+
+		start = self.InsertionPoint - len(keyword)
+		wx.CallAfter(self.__replace_keyword_with_expansion, keyword, start, explicit_expansion)
+
+		return
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
+
+		expansion = expand_keyword(parent = self, keyword = keyword, show_list = show_list)
+
+		if expansion is None:
+			return
+
+		if expansion == u'':
+			return
+
+		if not self.IsMultiLine():
+			expansion_lines = gmTools.strip_leading_empty_lines (
+				lines = gmTools.strip_trailing_empty_lines (
+					text = expansion,
+					return_list = True
+				),
+				return_list = True
+			)
+			if len(expansion_lines) == 0:
+				return
+			if len(expansion_lines) == 1:
+				expansion = expansion_lines[0]
+			else:
+				msg = _(
+					'The fragment <%s> expands to multiple lines !\n'
+					'\n'
+					'This text field can hold one line only, hwoever.\n'
+					'\n'
+					'Please select the line you want to insert:'
+				) % keyword
+				expansion = gmListWidgets.get_choices_from_list (
+					parent = self,
+					msg = msg,
+					caption = _('Adapting multi-line expansion to single-line text field'),
+					choices = expansion_lines,
+					selections = [0],
+					columns = [_('Keyword expansion lines')],
+					single_selection = True,
+					can_return_empty = False
+				)
+				if expansion is None:
+					return
+
+		self.Replace (
+			position,
+			position + len(keyword),
+			expansion
+		)
+
+		self.SetInsertionPoint(position + len(expansion) + 1)
+		self.ShowPosition(position + len(expansion) + 1)
+
+		return
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgTextExpansionEditAreaPnl
 
 class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEditAreaPnl, gmEditArea.cGenericEditAreaMixin):

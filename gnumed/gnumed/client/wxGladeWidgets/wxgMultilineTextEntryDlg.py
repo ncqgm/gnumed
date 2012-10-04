@@ -11,12 +11,15 @@ import wx
 
 class wxgMultilineTextEntryDlg(wx.Dialog):
     def __init__(self, *args, **kwds):
+
+        from Gnumed.wxpython import gmTextCtrl
+
         # begin wxGlade: wxgMultilineTextEntryDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.THICK_FRAME
         wx.Dialog.__init__(self, *args, **kwds)
         self._LBL_msg = wx.StaticText(self, -1, "")
         self._TCTRL_data = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP | wx.NO_BORDER)
-        self._TCTRL_text = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
+        self._TCTRL_text = gmTextCtrl.cTextCtrl(self, -1, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP)
         self._CHBOX_is_already_formatted = wx.CheckBox(self, -1, _("Do not reformat text"))
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
         self._BTN_clear = wx.Button(self, wx.ID_CLEAR, "")
