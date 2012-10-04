@@ -162,7 +162,7 @@ def print_doc_from_ooo_template(template=None):
 
 	return True
 #------------------------------------------------------------
-def manage_form_templates(parent=None, template_types=None, active_only=False, excluded_types=None):
+def manage_form_templates(parent=None, template_types=None, active_only=False, excluded_types=None, msg=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -197,6 +197,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	#-------------------------
 	template = gmListWidgets.get_choices_from_list (
 		parent = parent,
+		msg = msg,
 		caption = _('Select letter or form template.'),
 		columns = [_('Template'), _('Version'), _('Type')],
 		edit_callback = edit,

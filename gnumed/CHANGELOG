@@ -19,6 +19,7 @@ NEW: encryptable placeholder $<data_snippet>$
 NEW: look for installed plugins list in config files, too
 NEW: medical staff vs non-medical staff permissions handling
 NEW: generic gmTextCtrl supporting keyword expansion macros
+NEW: current substances grid: generate Rx either from DB or from form template
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type

@@ -33,6 +33,7 @@ from Gnumed.business import gmSurgery
 from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
+from Gnumed.business import gmDocuments
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -44,6 +45,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmFormWidgets
 from Gnumed.wxpython import gmAllergyWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -1851,7 +1853,7 @@ def configure_medication_list_template(parent=None):
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
-	if template['engine'] not in [u'L', u'X']:
+	if template['engine'] not in [u'L', u'X', u'T']:
 		gmDispatcher.send(signal = 'statustext', msg = _('No medication list template configured.'), beep = True)
 		return None
 
@@ -1933,6 +1935,7 @@ def print_medication_list(parent=None):
 		)
 		return False
 
+	# 4) keep notice on printing
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
 	epi = emr.add_episode(episode_name = 'administration', is_open = False)
@@ -1943,6 +1946,170 @@ def print_medication_list(parent=None):
 	)
 
 	return True
+
+#------------------------------------------------------------
+def configure_prescription_template(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	template = gmFormWidgets.manage_form_templates (
+		parent = parent,
+		msg = _('Select the default prescription template:'),
+		template_types = ['prescription', 'current medication list']
+	)
+
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No prescription template configured.'), beep = True)
+		return None
+
+	if template['engine'] not in [u'L', u'X', u'T']:
+		gmDispatcher.send(signal = 'statustext', msg = _('No prescription template configured.'), beep = True)
+		return None
+
+	option = u'form_templates.prescription'
+	dbcfg = gmCfg.cCfgSQL()
+	dbcfg.set (
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		option = option,
+		value = u'%s - %s' % (template['name_long'], template['external_version'])
+	)
+
+	return template
+#------------------------------------------------------------
+def get_prescription_template(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dbcfg = gmCfg.cCfgSQL()
+	option = u'form_templates.prescription'
+	template_name = dbcfg.get2 (
+		option = option,
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = 'user'
+	)
+
+	if template_name is None:
+		template = configure_prescription_template(parent = parent)
+		if template is None:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('There is no prescription template configured.'),
+				aTitle = _('Printing prescription')
+			)
+			return None
+		return template
+
+	try:
+		name, ver = template_name.split(u' - ')
+	except:
+		_log.exception('problem splitting prescription template name [%s]', template_name)
+		gmDispatcher.send(signal = 'statustext', msg = _('Problem loading prescription template.'), beep = True)
+		return False
+	template = gmForms.get_form_template(name_long = name, external_version = ver)
+	if template is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot load prescription template [%s - %s]') % (name, ver),
+			aTitle = _('Printing prescription')
+		)
+		return False
+	return template
+#------------------------------------------------------------
+def print_prescription(parent=None, emr=None):
+
+	# 1) get template
+	rx_template = get_prescription_template(parent = parent)
+	if rx_template is None:
+		return False
+
+	# 2) process template
+	try:
+		rx = rx_template.instantiate()
+	except KeyError:
+		_log.exception('cannot instantiate prescription template [%s]', rx_template)
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Invalid prescription template [%s - %s (%s)]') % (rx_template['name_long'], rx_template['external_version'], rx_template['engine']),
+			aTitle = _('Printing prescription list')
+		)
+		return False
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	rx.substitute_placeholders(data_source = ph)
+	pdf_name = rx.generate_output()
+	if pdf_name is None:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error generating the prescription printout.'),
+			aTitle = _('Printing prescription')
+		)
+		return False
+
+	# 3) print template
+	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'prescription')
+	if not printed:
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing the prescription.'),
+			aTitle = _('Printing prescription')
+		)
+		return False
+
+	epi = emr.add_episode (
+		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
+		is_open = False
+	)
+
+	# 4) keep a copy
+	files2import = []
+	files2import.extend(rx.final_output_filenames)
+	files2import.extend(rx.re_editable_filenames)
+	doc = gmDocumentWidgets.save_files_as_new_document (
+		parent = parent,
+		filenames = files2import,
+		document_type = u'prescription',
+		#document_type = rx_template['instance_type'],
+		#document_type = gmMedication.DOCUMENT_TYPE_PRESCRIPTION,
+		#document_type = gmDocuments.create_document_type(document_type = gmDocuments.DOCUMENT_TYPE_PRESCRIPTION)['pk_doc_type'],
+		episode = epi,
+		review_as_normal = True
+	)
+
+	# 5) keep notice on printing
+	emr.add_clin_narrative (
+		soap_cat = None,
+		note = _('prescription printed from template [%s - %s]') % (rx_template['name_long'], rx_template['external_version']),
+		episode = epi
+	)
+
+	return True
+
+#------------------------------------------------------------
+def prescribe_drugs(parent=None, emr=None):
+
+	dbcfg = gmCfg.cCfgSQL()
+	rx_mode = dbcfg.get2 (
+		option = u'horst_space.default_prescription_mode',
+		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		bias = u'user',
+		default = u'form'			# set to 'database' to access database
+	)
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if rx_mode == 'form':
+		return print_prescription(parent = parent, emr = emr)
+
+	if rx_mode == 'database':
+		drug_db = get_drug_database()
+		if drug_db is None:
+			return
+		drug_db.reviewer = gmStaff.gmCurrentProvider()
+		prescribed_drugs = drug_db.prescribe()
+		update_substance_intake_list_from_prescription (
+			parent = parent,
+			prescribed_drugs = prescribed_drugs,
+			emr = emr
+		)
+
 #------------------------------------------------------------
 def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs=None, emr=None):
 
@@ -2371,9 +2538,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
 	#------------------------------------------------------------
 	def report_ADR(self):
-
 		dbcfg = gmCfg.cCfgSQL()
-
 		url = dbcfg.get2 (
 			option = u'external.urls.report_ADR',
 			workplace = gmSurgery.gmCurrentPractice().active_workplace,
@@ -2383,15 +2548,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		gmNetworkTools.open_url_in_browser(url = url)
 	#------------------------------------------------------------
 	def prescribe(self):
-		drug_db = get_drug_database()
-		if drug_db is None:
-			return
-
-		drug_db.reviewer = gmStaff.gmCurrentProvider()
-		update_substance_intake_list_from_prescription (
+		prescribe_drugs (
 			parent = self,
-			prescribed_drugs = drug_db.prescribe(),
-			emr = self.__patient.get_emr()
+			emr = self.__patient.emr
 		)
 	#------------------------------------------------------------
 	def check_interactions(self):

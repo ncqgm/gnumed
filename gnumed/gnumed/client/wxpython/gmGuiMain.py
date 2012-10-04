@@ -465,6 +465,12 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_emr.Append(-1, _('Medication list template'), _('Select the template for printing a medication list.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_medication_list_template, item)
 
+		item = menu_cfg_emr.Append(-1, _('Prescription mode'), _('Select the default mode for creating a prescription.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_prescription_mode, item)
+
+		item = menu_cfg_emr.Append(-1, _('Prescription template'), _('Select the template for printing a prescription.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_prescription_template, item)
+
 		item = menu_cfg_emr.Append(-1, _('Default Gnuplot template'), _('Select the default template for plotting test results.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_default_gnuplot_template, item)
 
@@ -1772,6 +1778,21 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_medication_list_template(self, evt):
 		gmMedicationWidgets.configure_medication_list_template(parent = self)
+	#----------------------------------------------
+	def __on_cfg_prescription_template(self, evt):
+		gmMedicationWidgets.configure_prescription_template(parent = self)
+	#----------------------------------------------
+	def __on_cfg_prescription_mode(self, evt):
+		gmCfgWidgets.configure_string_from_list_option (
+			parent = self,
+			message = _('Select the default prescription mode.\n'),
+			option = 'horst_space.default_prescription_mode',
+			bias = 'user',
+			default_value = u'form',
+			choices = [ _('Formular'), _('Datenbank') ],
+			columns = [_('Prescription mode')],
+			data = [ u'form', u'database' ]
+		)
 	#----------------------------------------------
 	def __on_cfg_default_gnuplot_template(self, evt):
 		gmMeasurementWidgets.configure_default_gnuplot_template(parent = self)
