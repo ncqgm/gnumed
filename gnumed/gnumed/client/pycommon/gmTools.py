@@ -690,37 +690,33 @@ def input2int(initial=None, minval=None, maxval=None):
 
 	return True, int_val
 #---------------------------------------------------------------------------
-def strip_leading_empty_lines(lines=None, text=None, eol=u'\n'):
-	return_join = False
+def strip_leading_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	if lines is None:
-		return_join = True
-		lines = eol.split(text)
+		lines = text.split(eol)
 
 	while True:
 		if lines[0].strip(eol).strip() != u'':
 			break
 		lines = lines[1:]
 
-	if return_join:
-		return eol.join(lines)
+	if return_list:
+		return lines
 
-	return lines
+	return eol.join(lines)
 #---------------------------------------------------------------------------
-def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n'):
-	return_join = False
+def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	if lines is None:
-		return_join = True
-		lines = eol.split(text)
+		lines = text.split(eol)
 
 	while True:
 		if lines[-1].strip(eol).strip() != u'':
 			break
 		lines = lines[:-1]
 
-	if return_join:
-		return eol.join(lines)
+	if return_list:
+		return lines
 
-	return lines
+	return eol.join(lines)
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
@@ -1159,6 +1155,26 @@ second line\n
 		if fname is not None:
 			print "successfully decrypted:", fname
 	#-----------------------------------------------------------------------
+	def test_strip_trailing_empty_lines():
+		tests = [
+			u'one line, no embedded line breaks  ',
+			u'one line\nwith embedded\nline\nbreaks\n   '
+		]
+		for test in tests:
+			print 'as list:'
+			print strip_trailing_empty_lines(text = test, eol=u'\n', return_list = True)
+			print 'as string:'
+			print u'>>>%s<<<' % strip_trailing_empty_lines(text = test, eol=u'\n', return_list = False)
+		tests = [
+			['list', 'without', 'empty', 'trailing', 'lines'],
+			['list', 'with', 'empty', 'trailing', 'lines', '', '  ', '']
+		]
+		for test in tests:
+			print 'as list:'
+			print strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = True)
+			print 'as string:'
+			print strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = False)
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1176,6 +1192,7 @@ second line\n
 	#test_md5()
 	#test_unicode()
 	#test_xml_escape()
-	test_gpg_decrypt()
+	#test_gpg_decrypt()
+	test_strip_trailing_empty_lines()
 
 #===========================================================================
