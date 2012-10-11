@@ -33,4 +33,27 @@ comment on column ref.paperwork_templates.engine is
 ;
 
 -- --------------------------------------------------------------
+delete from ref.paperwork_templates where name_long = 'ungültiges GKV-Rezept (GNUmed-Vorgabe)';
+
+insert into ref.paperwork_templates (
+	fk_template_type,
+	instance_type,
+	name_short,
+	name_long,
+	external_version,
+	engine,
+	filename,
+	data
+) values (
+	(select pk from ref.form_types where name = 'prescription'),
+	'prescription',
+	'ungültiges GKV-Rpt (GMd)',
+	'ungültiges GKV-Rezept (GNUmed-Vorgabe)',
+	'v18.0',
+	'L',
+	'form-header.tex',
+	'real template missing'::bytea
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v18-ref-paperwork_templates.sql', '18.0');
