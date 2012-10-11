@@ -1840,22 +1840,22 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 
 	empty = property(_get_empty, lambda x:x)
 #============================================================
-class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
+class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin):
 
 	def __init__(self, *args, **kwargs):
 
 		wx_expando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
-
-		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
+		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
+		self.enable_keyword_expansions()
 
 		self.__register_interests()
 	#------------------------------------------------
-	# fixup errors in platform expando.py
+	# monkeypatch platform expando.py
 	#------------------------------------------------
 	def _wrapLine(self, line, dc, width):
 
 		if (wx.MAJOR_VERSION >= 2) and (wx.MINOR_VERSION > 8):
-			return super(cSoapLineTextCtrl, self)._wrapLine(line, dc, width)
+			return wx_expando.ExpandoTextCtrl._wrapLine(line, dc, width)
 
 		# THIS FIX LIFTED FROM TRUNK IN SVN:
 		# Estimate where the control will wrap the lines and
@@ -1887,7 +1887,6 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 	def __register_interests(self):
 		#wx.EVT_KEY_DOWN (self, self.__on_key_down)
 		#wx.EVT_KEY_UP (self, self.__OnKeyUp)
-		wx.EVT_CHAR(self, self.__on_char)
 		wx.EVT_SET_FOCUS(self, self.__on_focus)
 	#--------------------------------------------------------
 	def __on_focus(self, evt):
@@ -1903,66 +1902,7 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 		#evt.height = self.GetSize().height
 		#evt.numLines = self.GetNumberOfLines()
 		self.GetEventHandler().ProcessEvent(evt)
-	#--------------------------------------------------------
-	def __on_char(self, evt):
-		char = unichr(evt.GetUnicodeKey())
 
-		if self.LastPosition == 1:
-			evt.Skip()
-			return
-
-		explicit_expansion = False
-		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
-			if evt.GetKeyCode() != 13:
-				evt.Skip()
-				return
-			explicit_expansion = True
-
-		if not explicit_expansion:
-			if self.__keyword_separators.match(char) is None:
-				evt.Skip()
-				return
-
-		caret_pos, line_no = self.PositionToXY(self.InsertionPoint)
-		line = self.GetLineText(line_no)
-		keyword = self.__keyword_separators.split(line[:caret_pos])[-1]
-
-		if (
-			(not explicit_expansion)
-				and
-			(keyword != u'$$steffi')			# Easter Egg ;-)
-				and
-			(keyword not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
-		):
-			evt.Skip()
-			return
-
-		start = self.InsertionPoint - len(keyword)
-		wx.CallAfter(self.replace_keyword_with_expansion, keyword, start, explicit_expansion)
-
-		evt.Skip()
-		return
-	#------------------------------------------------
-	def replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
-
-		expansion = gmKeywordExpansionWidgets.expand_keyword(parent = self, keyword = keyword, show_list = show_list)
-
-		if expansion is None:
-			return
-
-		if expansion == u'':
-			return
-
-		self.Replace (
-			position,
-			position + len(keyword),
-			expansion
-		)
-
-		self.SetInsertionPoint(position + len(expansion) + 1)
-		self.ShowPosition(position + len(expansion) + 1)
-
-		return
 #============================================================
 # visual progress notes
 #============================================================
