@@ -936,21 +936,55 @@ class cLaTeXForm(cFormEngine):
 
 	def __init__(self, template_file=None):
 		super(self.__class__, self).__init__(template_file = template_file)
-		path, ext = os.path.splitext(self.template_filename)
-		if ext in [r'', r'.']:
-			ext = r'.tex'
-		self.instance_filename = r'%s-instance%s' % (path, ext)
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
-
-		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
-		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
 		if self.template is not None:
 			# inject placeholder values
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		path, ext = os.path.splitext(self.template_filename)
+		if ext in [r'', r'.']:
+			ext = r'.tex'
+
+		filenames = [
+			self.template_filename,
+			r'%s-run1_result%s' % (path, ext),
+			r'%s-run2_result%s' % (path, ext),
+			r'%s-run3_result%s' % (path, ext)
+		]
+
+		found_placeholders = True
+		current_run = 1
+		while found_placeholders and (current_run < 4):
+			_log.debug('placeholder substitution run #%s', current_run)
+			found_placeholders = self.__substitute_placeholders (
+				input_filename = filenames[current_run-1],
+				output_filename = filenames[current_run],
+				data_source = data_source
+			)
+			current_run += 1
+
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
+
+		self.instance_filename = self.re_editable_filenames[0]
+
+		return
+	#--------------------------------------------------------
+	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None):
+
+		_log.debug('[%s] -> [%s]', input_filename, output_filename)
+
+		found_placeholders = False
+
+		template_file = codecs.open(input_filename, 'rU', 'utf8')
+		instance_file = codecs.open(output_filename, 'wb', 'utf8')
 
 		for line in template_file:
 
@@ -960,6 +994,8 @@ class cLaTeXForm(cFormEngine):
 
 			# 1) find placeholders in this line
 			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+			if len(placeholders_in_line) > 0:
+				found_placeholders = True
 			# 2) and replace them
 			for placeholder in placeholders_in_line:
 				try:
@@ -976,16 +1012,10 @@ class cLaTeXForm(cFormEngine):
 			instance_file.write(line)
 
 		instance_file.close()
-		self.re_editable_filenames = [self.instance_filename]
+		self.re_editable_filenames = [output_filename]
 		template_file.close()
 
-		if self.template is not None:
-			# remove temporary placeholders
-			data_source.unset_placeholder(u'form_name_long')
-			data_source.unset_placeholder(u'form_name_short')
-			data_source.unset_placeholder(u'form_version')
-
-		return
+		return found_placeholders
 	#--------------------------------------------------------
 	def edit(self):
 
@@ -1092,21 +1122,58 @@ class cXeTeXForm(cFormEngine):
 
 	def __init__(self, template_file=None):
 		super(self.__class__, self).__init__(template_file = template_file)
-		path, ext = os.path.splitext(self.template_filename)
-		if ext in [r'', r'.']:
-			ext = r'.tex'
-		self.instance_filename = r'%s-instance%s' % (path, ext)
+#		path, ext = os.path.splitext(self.template_filename)
+#		if ext in [r'', r'.']:
+#			ext = r'.tex'
+#		self.instance_filename = r'%s-instance%s' % (path, ext)
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
-
-		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
-		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
 		if self.template is not None:
 			# inject placeholder values
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		path, ext = os.path.splitext(self.template_filename)
+		if ext in [r'', r'.']:
+			ext = r'.tex'
+
+		filenames = [
+			self.template_filename,
+			r'%s-run1_result%s' % (path, ext),
+			r'%s-run2_result%s' % (path, ext),
+			r'%s-run3_result%s' % (path, ext)
+		]
+
+		found_placeholders = True
+		current_run = 1
+		while found_placeholders and (current_run < 4):
+			_log.debug('placeholder substitution run #%s', current_run)
+			found_placeholders = self.__substitute_placeholders (
+				input_filename = filenames[current_run-1],
+				output_filename = filenames[current_run],
+				data_source = data_source
+			)
+			current_run += 1
+
+		if self.template is not None:
+			# remove temporary placeholders
+			data_source.unset_placeholder(u'form_name_long')
+			data_source.unset_placeholder(u'form_name_short')
+			data_source.unset_placeholder(u'form_version')
+
+		self.instance_filename = self.re_editable_filenames[0]
+
+		return
+	#--------------------------------------------------------
+	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None):
+		_log.debug('[%s] -> [%s]', input_filename, output_filename)
+
+		found_placeholders = False
+
+		template_file = codecs.open(input_filename, 'rU', 'utf8')
+		instance_file = codecs.open(output_filename, 'wb', 'utf8')
 
 		for line in template_file:
 
@@ -1116,6 +1183,8 @@ class cXeTeXForm(cFormEngine):
 
 			# 1) find placeholders in this line
 			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+			if len(placeholders_in_line) > 0:
+				found_placeholders = True
 			# 2) and replace them
 			for placeholder in placeholders_in_line:
 				try:
@@ -1132,16 +1201,56 @@ class cXeTeXForm(cFormEngine):
 			instance_file.write(line)
 
 		instance_file.close()
-		self.re_editable_filenames = [self.instance_filename]
+		self.re_editable_filenames = [output_filename]
 		template_file.close()
 
-		if self.template is not None:
-			# remove temporary placeholders
-			data_source.unset_placeholder(u'form_name_long')
-			data_source.unset_placeholder(u'form_name_short')
-			data_source.unset_placeholder(u'form_version')
-
-		return
+		return found_placeholders
+	#--------------------------------------------------------
+#	def old_substitute_placeholders(self, data_source=None):
+#
+#		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
+#		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
+#
+#		if self.template is not None:
+#			# inject placeholder values
+#			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
+#			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
+#			data_source.set_placeholder(u'form_version', self.template['external_version'])
+#
+#		for line in template_file:
+#
+#			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+#				instance_file.write(line)
+#				continue
+#
+#			# 1) find placeholders in this line
+#			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
+#			# 2) and replace them
+#			for placeholder in placeholders_in_line:
+#				try:
+#					val = data_source[placeholder]
+#				except:
+#					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
+#					_log.exception(val)
+#
+#				if val is None:
+#					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
+#
+#				line = line.replace(placeholder, val)
+#
+#			instance_file.write(line)
+#
+#		instance_file.close()
+#		self.re_editable_filenames = [self.instance_filename]
+#		template_file.close()
+#
+#		if self.template is not None:
+#			# remove temporary placeholders
+#			data_source.unset_placeholder(u'form_name_long')
+#			data_source.unset_placeholder(u'form_name_short')
+#			data_source.unset_placeholder(u'form_version')
+#
+#		return
 	#--------------------------------------------------------
 	def edit(self):
 

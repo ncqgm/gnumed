@@ -25,16 +25,17 @@ insert into ref.keyword_expansion (
 %\stempeloffsetx=17
 %\stempeloffsety=-80
 
-\put(\stempeloffsetx,\stempeloffsety){***BSNR/LANR***}
+% debug:
+%\put(\stempeloffsetx,\stempeloffsety){.+ (Stempelwurzel)}
 
-%\advance\stempeloffsetx by 22
-%\advance\stempeloffsety by 3
-%\put(\stempeloffsetx,\stempeloffsety){*KV*}
-%\advance\stempeloffsety by -3
-%\put(\stempeloffsetx,\stempeloffsety){*Kobl-Tr*}
-%\advance\stempeloffsetx by -22
+\put(\stempeloffsetx,\stempeloffsety){
+	{\tiny
+	*BSNR:$<current_provider_external_id::%s//KV-BSNR//KV::25>$ 
+	LANR:$<current_provider_external_id::%s//KV-LANR//KV::25>$*
+	}
+}
 
-\advance\stempeloffsety by -5
+\advance\stempeloffsety by -4
 \put(\stempeloffsetx,\stempeloffsety){*Dr.Leonard McCoy*}
 
 \advance\stempeloffsety by -5

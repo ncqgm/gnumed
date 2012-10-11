@@ -49,59 +49,23 @@
 % y-Koordinate schiebt d. 'Bild' nach unten
 \begin{picture}(0,0)
 
-\ganzlinks=-80			% 80mm links der rechten unteren Ecke des Stammdatenkastens
+	\ganzlinks=-80			% 80mm links der rechten unteren Ecke des Stammdatenkastens
+	\stempeloffsetx=17
+	\stempeloffsety=-80
 
-%---- debugging ----
-% KVK-Datenblock:
+	% KVK-Daten
+	$<text_snippet::GKV_KVK_Daten-LaTeX_picture_environment//%s::9999>$
 
-% links oben
-\put(\ganzlinks,43){.+}
-\put(\ganzlinks,37){.+}
+	% Medikamente
+	\multiputlist(\ganzlinks,-10)(0,-5)[l]{
+	**** FORMULAR DARF NICHT VERWENDET WERDEN ****,
+	$<current_meds::%(substance)s {\footnotesize (%(brand)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s,//select::>$
+	*************************************************,
+	$<free_text::tex//Hinweis zum Rezept::9999>$
+	}
 
-% rechts oben
-\put(0,37){.+}
-\put(0,43){.+}
-
-% links unten:
-\put(\ganzlinks,0){.+ (LU: -80,0)}
-% rechts unten (Ursprungskoordinate (rechte untere Ecke KVK-Datenblock))
-\put(0,0){.+ (RU: 0,0)}
-
-%\put(0,-47){.+ (0,-47)}
-%\put(\ganzlinks,0){.+ (-80,0)}
-%\put(\ganzlinks,-47){.+ (-80,-47)}
-%---- debugging ----
-
-%----- KVK-Daten -----------
-%\put(\ganzlinks,38){\texttt{*KVKKrankenkasse*}}
-\put(\ganzlinks,30){\texttt{$<name::%(lastnames)s, %(firstnames)s::50>$}}
-\put(-20,25){\texttt{$<date_of_birth::%d.%m.%Y::10>$}}
-\put(\ganzlinks,25){\texttt{$<adr_street::home::25>$ $<adr_number::home::5>$}}
-\put(\ganzlinks,20){\texttt{$<adr_postcode::home::5>$ $<adr_location::home::30>$}}
-%\put(\ganzlinks,10){\texttt{*KVKKassenNr*}}
-%\put(-56,10){\texttt{*KVKVersichertenNr*}}
-%\put(-22,10){\texttt{*KVKStatus*}}
-%\put(\ganzlinks,2){\texttt{*KVKZa-KZVNr*}}
-%\put(-49,2){\texttt{*KVKVKgueltigbis*}}
-\put(-24,2){\texttt{$<today::%d.%m.%Y::10>$}}
-%----- Ende KVK-Daten -----------
-
-
-% Medikamente
-\put(\ganzlinks,-10){**** FORMULAR DARF NICHT VERWENDET WERDEN ****}
-
-\multiputlist(\ganzlinks,-15)(0,-5)[l]{
-$<current_meds::%(substance)s {\footnotesize (%(brand)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s,//select::>$
-*************************************************,
-$<free_text::tex//Hinweis zum Rezept::9999>$
-}
-
-% Stempel
-\stempeloffsetx=17
-\stempeloffsety=-80
-
-%\put(\stempeloffsetx,\stempeloffsety){.+ (Stempel: 17,-80)}		% debug
-$<text_snippet::LMcC-GKV_Stempel-LaTeX_picture_environment//%s::9999>$
+	% Stempel
+	$<text_snippet::LMcC-GKV_Stempel-LaTeX_picture_environment//%s::9999>$
 
 \end{picture}
 

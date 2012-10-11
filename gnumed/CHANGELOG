@@ -36,6 +36,7 @@ IMPROVED: patient overview: display last modified of occupation
 IMPROVED: substances grid: show preparation of items
 IMPROVED: placeholder $<current_meds>$ can let user select entries
 IMPROVED: measurements grid labels
+IMPROVED: (Xe)(La)TeX forms engine recursively substitutes placeholders
 
 ------------------------------------------------
 # rel-1-2-patches
