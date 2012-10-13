@@ -1684,7 +1684,9 @@ if __name__ == '__main__':
 			#u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
 			#u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
 			#u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$',
+			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
 			u'$<current_meds::%s//select::>$'
+
 		]
 
 		handler = gmPlaceholderHandler()

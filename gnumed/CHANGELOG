@@ -1160,6 +1160,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	18.0
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
+IMPROVED: include PK columns in schema version check
 
 ------------------------------------------------
 # gnumed_v17
