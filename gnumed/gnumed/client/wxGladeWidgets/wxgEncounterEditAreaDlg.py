@@ -10,10 +10,10 @@ class wxgEncounterEditAreaDlg(wx.Dialog):
         from Gnumed.wxpython import gmEMRStructWidgets
 
         # begin wxGlade: wxgEncounterEditAreaDlg.__init__
-        kwds["style"] = wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER|wx.MAXIMIZE_BOX|wx.MINIMIZE_BOX|wx.THICK_FRAME|wx.STAY_ON_TOP
+        kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.THICK_FRAME | wx.STAY_ON_TOP
         wx.Dialog.__init__(self, *args, **kwds)
         self._PNL_edit_area = gmEMRStructWidgets.cEncounterEditAreaPnl(self, -1)
-        self._BTN_save = wx.Button(self, wx.ID_OK, _("Save"))
+        self._BTN_save = wx.Button(self, wx.ID_OK, _("&Save"))
         self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 
         self.__set_properties()
@@ -26,19 +26,19 @@ class wxgEncounterEditAreaDlg(wx.Dialog):
         # begin wxGlade: wxgEncounterEditAreaDlg.__set_properties
         self.SetTitle(_("edit encounter details"))
         self._BTN_save.SetToolTipString(_("Save the encounter details."))
+        self._BTN_save.SetDefault()
         self._BTN_close.SetToolTipString(_("Close this dialog."))
-        self._BTN_close.SetDefault()
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgEncounterEditAreaDlg.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL|wx.EXPAND, 5)
+        __szr_main.Add(self._PNL_edit_area, 1, wx.ALL | wx.EXPAND, 5)
         __szr_buttons.Add(self._BTN_save, 0, wx.EXPAND, 0)
         __szr_buttons.Add((20, 20), 1, wx.EXPAND, 0)
         __szr_buttons.Add(self._BTN_close, 0, wx.EXPAND, 0)
-        __szr_main.Add(__szr_buttons, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
+        __szr_main.Add(__szr_buttons, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         self.Layout()

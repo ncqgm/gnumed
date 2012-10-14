@@ -1775,6 +1775,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			intake = self.data,
 			emr = gmPerson.gmCurrentPatient().get_emr()
 		)
+
 #============================================================
 def delete_substance_intake(parent=None, substance=None):
 

@@ -904,13 +904,14 @@ class cTextForm(cFormEngine):
 				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
 
 		# last resort
-		if editor_cmd is None:
-			if os.name == 'nt':
-				editor_cmd = u'notepad.exe %s' % self.instance_filename
-			else:
-				editor_cmd = u'sensible-editor %s' % self.instance_filename
+#		if editor_cmd is None:
+#			if os.name == 'nt':
+#				editor_cmd = u'notepad.exe %s' % self.instance_filename
+#			else:
+#				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		if editor_cmd is not None:
+			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
 
 		return result
@@ -1039,13 +1040,14 @@ class cLaTeXForm(cFormEngine):
 					break
 
 		# last resort
-		if editor_cmd is None:
-			if os.name == 'nt':
-				editor_cmd = u'notepad.exe %s' % self.instance_filename
-			else:
-				editor_cmd = u'sensible-editor %s' % self.instance_filename
+#		if editor_cmd is None:
+#			if os.name == 'nt':
+#				editor_cmd = u'notepad.exe %s' % self.instance_filename
+#			else:
+#				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		if editor_cmd is not None:
+			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
 
 		return result
@@ -1206,52 +1208,6 @@ class cXeTeXForm(cFormEngine):
 
 		return found_placeholders
 	#--------------------------------------------------------
-#	def old_substitute_placeholders(self, data_source=None):
-#
-#		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
-#		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
-#
-#		if self.template is not None:
-#			# inject placeholder values
-#			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
-#			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
-#			data_source.set_placeholder(u'form_version', self.template['external_version'])
-#
-#		for line in template_file:
-#
-#			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
-#				instance_file.write(line)
-#				continue
-#
-#			# 1) find placeholders in this line
-#			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
-#			# 2) and replace them
-#			for placeholder in placeholders_in_line:
-#				try:
-#					val = data_source[placeholder]
-#				except:
-#					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
-#					_log.exception(val)
-#
-#				if val is None:
-#					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
-#
-#				line = line.replace(placeholder, val)
-#
-#			instance_file.write(line)
-#
-#		instance_file.close()
-#		self.re_editable_filenames = [self.instance_filename]
-#		template_file.close()
-#
-#		if self.template is not None:
-#			# remove temporary placeholders
-#			data_source.unset_placeholder(u'form_name_long')
-#			data_source.unset_placeholder(u'form_name_short')
-#			data_source.unset_placeholder(u'form_version')
-#
-#		return
-	#--------------------------------------------------------
 	def edit(self):
 
 		mimetypes = [
@@ -1275,13 +1231,14 @@ class cXeTeXForm(cFormEngine):
 					break
 
 		# last resort
-		if editor_cmd is None:
-			if os.name == 'nt':
-				editor_cmd = u'notepad.exe %s' % self.instance_filename
-			else:
-				editor_cmd = u'sensible-editor %s' % self.instance_filename
+#		if editor_cmd is None:
+#			if os.name == 'nt':
+#				editor_cmd = u'notepad.exe %s' % self.instance_filename
+#			else:
+#				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		if editor_cmd is not None:
+			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
 
 		return result
