@@ -7,7 +7,6 @@ API crystallize from actual use in true XP fashion.
 license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.106 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>"
 
 # stdlib
@@ -27,7 +26,6 @@ from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.business')
-_log.info(__version__)
 
 try:
 	_
@@ -389,7 +387,7 @@ def create_address(country=None, state=None, urb=None, suburb=None, postcode=Non
 		subunit = subunit
 	)
 	if pk_address is not None:
-		return cAddress(aPK_obj=pk_address)
+		return cAddress(aPK_obj = pk_address)
 
 	cmd = u"""
 SELECT dem.create_address (
@@ -418,7 +416,7 @@ SELECT dem.create_address (
 	if suburb is not None:
 		queries = [{
 			# CAVE: suburb will be ignored if there already is one
-			'cmd': u"update dem.street set suburb = %(suburb)s where id=%(pk_street)s and suburb is Null",
+			'cmd': u"UPDATE dem.street SET suburb = %(suburb)s WHERE id = %(pk_street)s AND suburb IS NULL",
 			'args': {'suburb': suburb, 'pk_street': adr['pk_street']}
 		}]
 		rows, idx = gmPG2.run_rw_queries(queries = queries)

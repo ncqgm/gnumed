@@ -818,12 +818,8 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		if a['pk_address'] != address['pk_address']:
 			raise ValueError('problem linking address to person or org')
 
-		notes = self._TCTRL_notes_street.GetValue().strip()
-		if notes != u'':
-			address['notes_street'] = notes
-		notes = self._TCTRL_notes_subunit.GetValue().strip()
-		if notes != u'':
-			address['notes_subunit'] = notes
+		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
+		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
 		address.save_payload()
 
 		self.__address = address
