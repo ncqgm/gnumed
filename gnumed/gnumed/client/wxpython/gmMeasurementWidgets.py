@@ -643,8 +643,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__row_label_data = []
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
-		# display test info (unified, which tests are grouped, which panels they belong to
-		# include details about test types included,
+		# display test info (unified, which tests are grouped, which panels
+		# they belong to include details about test types included,
 
 		# sometimes, for some reason, there is no row and
 		# wxPython still tries to find a tooltip for it
@@ -1780,7 +1780,7 @@ class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		query = u"""
 SELECT DISTINCT ON (field_label)
 	pk_test_type AS data,
-	name_tt
+	name
 		|| ' ('
 		|| coalesce (
 			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = c_vtt.pk_test_org),
@@ -2184,7 +2184,7 @@ _SQL_units_from_loinc_example = u"""
 """
 
 _SQL_units_from_atc = u"""
-	-- via rev.atc.unit
+	-- via ref.atc.unit
 	SELECT
 		unit AS data,
 		unit AS field_label,
@@ -2257,11 +2257,11 @@ LIMIT 50""" % (
 				'placeholder': u'pk_type'
 			},
 			'ctxt_test_name': {
-				'where_part': u'AND %(test_name)s IN (name_tt, name_meta, code_tt, abbrev_meta)',
+				'where_part': u'AND %(test_name)s IN (name_tt, name_meta, abbrev_meta)',
 				'placeholder': u'test_name'
 			},
 			'ctxt_ctt': {
-				'where_part': u'AND %(test_name)s IN (name, code, abbrev)',
+				'where_part': u'AND %(test_name)s IN (name, abbrev)',
 				'placeholder': u'test_name'
 			},
 			'ctxt_loinc': {
