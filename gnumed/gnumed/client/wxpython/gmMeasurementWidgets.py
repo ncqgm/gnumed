@@ -668,8 +668,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		tip += _('Test type:\n')
 		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name_tt'], tt['abbrev_tt'], gmTools.coalesce(tt['loinc_tt'], u'', u' [%s]'), tt['pk_test_type'])
 		tip += gmTools.coalesce(tt['comment_tt'], u'', _(' Comment: %s\n'))
-		tip += gmTools.coalesce(tt['code_tt'], u'', _(' Code: %s\n'))
-		tip += gmTools.coalesce(tt['coding_system_tt'], u'', _(' Code: %s\n'))
 		result = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 1)
 		if result is not None:
 			tip += u'\n'
@@ -727,9 +725,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# basics
 		tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
-		tt += u' ' + _(u'Type: "%(name)s" (%(code)s)  [#%(pk_type)s]\n') % ({
+		tt += u' ' + _(u'Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
 			'name': d['name_tt'],
-			'code': d['code_tt'],
+			'abbr': d['abbrev_tt'],
 			'pk_type': d['pk_test_type']
 		})
 		tt += u' ' + _(u'Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
@@ -956,11 +954,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.__WIN_corner = self.GetGridCornerLabelWindow()		# a wx.Window instance
 
-		LBL_type_col = wx.StaticText(self.__WIN_corner, -1, _('Measurement type'))
 		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
 			self.__WIN_corner,
 			-1,
-			label = _('(Reference)'),
+			label = _('Measurement type'),
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
@@ -979,7 +976,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		SZR_corner = wx.BoxSizer(wx.VERTICAL)
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
-		SZR_corner.Add(LBL_type_col, 0, wx.ALIGN_CENTER_HORIZONTAL, 0)
 		SZR_corner.AddWindow(SZR_inner, 0, wx.EXPAND)	# inner sizer with centered hyperlink
 		SZR_corner.Add((20, 20), 1, wx.EXPAND, 0)		# spacer
 
@@ -1027,8 +1023,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'Please select the individual results you want to work on:'
 			),
 			caption = _('Selecting test results'),
-			choices = [ [d['clin_when'], d['unified_abbrev'], d['unified_name'], d['unified_val']] for d in cell_data ],
-			columns = [_('Date / Time'), _('Code'), _('Test'), _('Result')],
+			choices = [ [d['clin_when'], u'%s: %s' % (d['unified_abbrev'], d['unified_name']), d['unified_val']] for d in cell_data ],
+			columns = [ _('Date / Time'), _('Test'), _('Result') ],
 			data = cell_data,
 			single_selection = single_selection
 		)

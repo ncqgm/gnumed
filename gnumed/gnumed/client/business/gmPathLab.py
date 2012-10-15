@@ -194,8 +194,6 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		'abbrev',
 		'name',
 		'loinc',
-		'code',
-		'coding_system',
 		'comment_type',
 		'conversion_unit',
 		'pk_test_org'
