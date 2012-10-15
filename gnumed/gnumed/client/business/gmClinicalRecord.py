@@ -2147,20 +2147,7 @@ LIMIT 2
 		"""
 		args = {'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return [ gmPathLab.cUnifiedTestType(aPK_obj = row['pk_test_type']) for row in rows ]
-	#------------------------------------------------------------------
-	def get_test_types_details(self):
-		"""Retrieve details on tests grouped under unified names for this patient's results."""
-		cmd = u"""
-SELECT * FROM clin.v_unified_test_types WHERE pk_test_type in (
-	SELECT distinct on (unified_name, unified_abbrev) pk_test_type
-	from clin.v_test_results
-	WHERE pk_patient = %(pat)s
-)
-order by unified_name"""
-		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		return rows, idx
+		return [ gmPathLab.cMeasurementType(aPK_obj = row['pk_test_type']) for row in rows ]
 	#------------------------------------------------------------------
 	def get_dates_for_results(self):
 		"""Get the dates for which we have results."""
@@ -2366,13 +2353,6 @@ if __name__ == "__main__":
 		for test in tests:
 			print test
 	#-----------------------------------------
-	def test_get_test_types_details():
-		emr = cClinicalRecord(aPKey=12)
-		rows, idx = emr.get_test_types_details()
-		print "test type details:"
-		for row in rows:
-			print row
-	#-----------------------------------------
 	def test_get_statistics():
 		emr = cClinicalRecord(aPKey=12)
 		for key, item in emr.get_statistics().iteritems():
@@ -2454,7 +2434,6 @@ if __name__ == "__main__":
 	#test_get_dates_for_results()
 	#test_get_measurements()
 	#test_get_test_results_by_date()
-	#test_get_test_types_details()
 	#test_get_statistics()
 	#test_get_problems()
 	#test_add_test_result()

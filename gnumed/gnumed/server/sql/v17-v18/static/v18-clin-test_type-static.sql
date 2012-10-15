@@ -10,12 +10,33 @@
 
 -- --------------------------------------------------------------
 -- transfer data from deprecated column
-update clin.test_type
-set abbrev = code
+update clin.test_type set
+	abbrev = code
 where
 	abbrev is null
 		and
 	code is not null
+;
+
+-- --------------------------------------------------------------
+-- .fk_meta_type
+alter table clin.test_type
+	add column fk_meta_test_type integer;
+
+
+alter table audit.log_test_type
+	add column fk_meta_test_type integer;
+
+-- --------------------------------------------------------------
+-- transfer meta test type links (because that table will be dropped)
+update clin.test_type set
+	fk_meta_test_type = (
+		select fk_test_type_unified
+		from clin.lnk_ttype2unified_type
+		where fk_test_type = clin.test_type.pk
+		-- better safe than sorry:
+		limit 1
+	)
 ;
 
 -- --------------------------------------------------------------

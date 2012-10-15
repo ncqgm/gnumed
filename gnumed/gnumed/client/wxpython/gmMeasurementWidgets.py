@@ -505,7 +505,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		emr = self.__patient.get_emr()
 
 		self.__row_label_data = emr.get_test_types_for_results()
-		#test_type_labels = [ u'%s (%s)' % (test['unified_abbrev'], test['unified_name']) for test in self.__row_label_data ]
 		test_type_labels = [ test['unified_abbrev'] for test in self.__row_label_data ]
 		if len(test_type_labels) == 0:
 			return
@@ -527,7 +526,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			#row = test_type_labels.index(u'%s (%s)' % (result['unified_abbrev'], result['unified_name']))
 			row = test_type_labels.index(result['unified_abbrev'])
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
@@ -647,8 +645,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 	def get_row_tooltip(self, row=None):
 		# display test info (unified, which tests are grouped, which panels they belong to
 		# include details about test types included,
-		# most recent value in this row, etc
-#		test_details, td_idx = emr.get_test_types_details()
 
 		# sometimes, for some reason, there is no row and
 		# wxPython still tries to find a tooltip for it
@@ -666,8 +662,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		tip += gmTools.coalesce(tt['comment_meta'], u'', _(' Comment: %s\n'))
 		tip += u'\n'
 		tip += _('Test type:\n')
-		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name_tt'], tt['abbrev_tt'], gmTools.coalesce(tt['loinc_tt'], u'', u' [%s]'), tt['pk_test_type'])
-		tip += gmTools.coalesce(tt['comment_tt'], u'', _(' Comment: %s\n'))
+		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name'], tt['abbrev'], gmTools.coalesce(tt['loinc'], u'', u' [%s]'), tt['pk_test_type'])
+		tip += gmTools.coalesce(tt['comment_type'], u'', _(' Comment: %s\n'))
 		result = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 1)
 		if result is not None:
 			tip += u'\n'
@@ -1787,34 +1783,31 @@ SELECT DISTINCT ON (field_label)
 	name_tt
 		|| ' ('
 		|| coalesce (
-			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = vcutt.pk_test_org),
+			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = c_vtt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
 	AS field_label,
-	name_tt
+	name
 		|| ' ('
-		|| coalesce(code_tt || ', ', '')
-		|| abbrev_tt || ', '
+		|| abbrev || ', '
 		|| coalesce(abbrev_meta || ': ' || name_meta || ', ', '')
 		|| coalesce (
-			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = vcutt.pk_test_org),
+			(SELECT unit || ' @ ' || organization FROM clin.v_test_orgs c_vto WHERE c_vto.pk_test_org = c_vtt.pk_test_org),
 			'%(in_house)s'
 			)
 		|| ')'
 	AS list_label
 FROM
-	clin.v_unified_test_types vcutt
+	clin.v_test_types c_vtt
 WHERE
 	abbrev_meta %%(fragment_condition)s
 		OR
 	name_meta %%(fragment_condition)s
 		OR
-	abbrev_tt %%(fragment_condition)s
+	abbrev %%(fragment_condition)s
 		OR
-	name_tt %%(fragment_condition)s
-		OR
-	code_tt %%(fragment_condition)s
+	name %%(fragment_condition)s
 ORDER BY field_label
 LIMIT 50""" % {'in_house': _('generic / in house lab')}
 

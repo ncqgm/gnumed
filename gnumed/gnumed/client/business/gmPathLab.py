@@ -135,41 +135,7 @@ def get_meta_test_types():
 	cmd = u'select * from clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
-#============================================================
-class cUnifiedTestType(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one unified test type."""
 
-	# FIXME: if we ever want to write we need to include XMIN in the view
-	_cmd_fetch_payload = u"""select * from clin.v_unified_test_types where pk_test_type = %s"""
-
-	_cmds_store_payload = []
-
-	_updatable_fields = []
-	#--------------------------------------------------------
-	def get_most_recent_results(self, patient=None, no_of_results=1):
-		results = get_most_recent_results (
-			test_type = self._payload[self._idx['pk_test_type']],
-			loinc = None,
-			no_of_results = no_of_results,
-			patient = patient
-		)
-		if results is None:
-			if self._payload[self._idx['loinc_tt']] is not None:
-				results = get_most_recent_results (
-					test_type = None,
-					loinc = self._payload[self._idx['loinc_tt']],
-					no_of_results = no_of_results,
-					patient = patient
-				)
-		if results is None:
-			if self._payload[self._idx['loinc_meta']] is not None:
-				results = get_most_recent_results (
-					test_type = None,
-					loinc = self._payload[self._idx['loinc_meta']],
-					no_of_results = no_of_results,
-					patient = patient
-				)
-		return results
 #============================================================
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
@@ -341,6 +307,7 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 	ttype = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
 
 	return ttype
+
 #============================================================
 class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result."""
@@ -990,6 +957,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 	gp_data.close()
 
 	return filename
+
 #============================================================
 class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab result."""

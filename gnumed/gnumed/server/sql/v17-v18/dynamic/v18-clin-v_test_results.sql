@@ -24,9 +24,9 @@ select
 	tr.clin_when,
 
 	-- unified
-	vutt.unified_abbrev,
-	vutt.unified_name,
-	vutt.unified_loinc,
+	c_vtt.unified_abbrev,
+	c_vtt.unified_name,
+	c_vtt.unified_loinc,
 	case when coalesce(trim(both from tr.val_alpha), '') = ''
 		then tr.val_num::text
 		else case when tr.val_num is null
@@ -48,7 +48,7 @@ select
 	tr.val_num,
 	tr.val_alpha,
 	tr.val_unit,
-	vutt.conversion_unit,
+	c_vtt.conversion_unit,
 	tr.val_normal_min,
 	tr.val_normal_max,
 	tr.val_normal_range,
@@ -62,18 +62,19 @@ select
 	tr.material_detail,
 
 	-- test type details
-	vutt.abbrev_tt,
-	vutt.name_tt,
-	vutt.loinc_tt,
-	vutt.comment_tt,
-	d_ou.description as name_test_org,
-	cto.contact as contact_test_org,
+	c_vtt.abbrev as abbrev_tt,
+	c_vtt.name as name_tt,
+	c_vtt.loinc as loinc_tt,
+	c_vtt.comment_type as comment_tt,
+	c_vtt.name_org as name_test_org,
+	c_vtt.contact_org as contact_test_org,
+	c_vtt.comment_org as comment_test_org,
 
 	-- meta test type details
-	vutt.abbrev_meta,
-	vutt.name_meta,
-	vutt.loinc_meta,
-	vutt.comment_meta,
+	c_vtt.abbrev_meta,
+	c_vtt.name_meta,
+	c_vtt.loinc_meta,
+	c_vtt.comment_meta,
 
 	-- episode/issue data
 	epi.description
@@ -139,8 +140,8 @@ select
 	tr.fk_request as pk_request,
 	tr.xmin as xmin_test_result,
 	-- v_unified_test_types
-	vutt.pk_test_org,
-	vutt.pk_meta_test_type,
+	c_vtt.pk_test_org,
+	c_vtt.pk_meta_test_type,
 	-- v_pat_episodes
 	epi.fk_health_issue
 		as pk_health_issue,
@@ -153,11 +154,9 @@ from
 				left join clin.reviewed_test_results rtr on (tr.pk = rtr.fk_reviewed_row)
 					left join clin.health_issue chi on (epi.fk_health_issue = chi.pk)
 	,
-	clin.v_unified_test_types vutt
-		left join clin.test_org cto on (vutt.pk_test_org = cto.pk)
-			left join dem.org_unit d_ou on (cto.fk_org_unit = d_ou.pk)
+	clin.v_test_types c_vtt
 where
-	tr.fk_type = vutt.pk_test_type
+	tr.fk_type = c_vtt.pk_test_type
 ;
 
 
