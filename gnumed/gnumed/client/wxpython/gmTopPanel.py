@@ -56,6 +56,8 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
 		gmDispatcher.connect(signal = u'identity_tag_mod_db', receiver = self._on_tag_change)
+
+		gmDispatcher.connect(signal = u'focus_patient_search', receiver = self._on_focus_patient_search)
 	#----------------------------------------------
 	# event handling
 	#----------------------------------------------
@@ -80,6 +82,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def _on_allergies_change(self, **kwargs):
 		wx.CallAfter(self.__update_allergies)
+	#-------------------------------------------------------
+	def _on_focus_patient_search(self, **kwargs):
+		wx.CallAfter(self._TCTRL_patient_selector.SetFocus)
 	#-------------------------------------------------------
 	# internal API
 	#-------------------------------------------------------

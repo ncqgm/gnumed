@@ -560,6 +560,11 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Person" ---------------------------
 		menu_person = wx.Menu()
 
+		item = menu_person.Append(-1, _('Search'), _('Search for a person.'))
+		self.Bind(wx.EVT_MENU, self.__on_search_person, item)
+		acc_tab = wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_ESCAPE, item.GetId())])
+		self.SetAcceleratorTable(acc_tab)
+
 		ID_CREATE_PATIENT = wx.NewId()
 		menu_person.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
@@ -2751,6 +2756,9 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
+	#----------------------------------------------
+	def __on_search_person(self, evt):
+		gmDispatcher.send(signal = u'focus_patient_search')
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
 		gmDemographicsWidgets.create_new_person(parent = self, activate = True)

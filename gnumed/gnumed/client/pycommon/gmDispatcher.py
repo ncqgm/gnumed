@@ -30,7 +30,8 @@ known_signals = [
 	u'application_closing',
 	u'request_user_attention',
 	u'clin_item_updated',			# sent by SOAP importer
-	u'register_pre_exit_callback'	# args: callback = function to call
+	u'register_pre_exit_callback',	# args: callback = function to call
+	u'focus_patient_search',		# set focus to patient search box
 ]
 
 _log = logging.getLogger('gm.messaging')
