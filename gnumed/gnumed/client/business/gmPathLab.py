@@ -143,17 +143,20 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
 
 	_cmds_store_payload = [
-		u"""update clin.test_type set
+		u"""UPDATE clin.test_type SET
 				abbrev = %(abbrev)s,
 				name = %(name)s,
 				loinc = gm.nullify_empty_string(%(loinc)s),
-				code = gm.nullify_empty_string(%(code)s),
-				coding_system = gm.nullify_empty_string(%(coding_system)s),
 				comment = gm.nullify_empty_string(%(comment_type)s),
 				conversion_unit = gm.nullify_empty_string(%(conversion_unit)s),
-				fk_test_org = %(pk_test_org)s
-			where pk = %(pk_test_type)s""",
-		u"""select xmin_test_type from clin.v_test_types where pk_test_type = %(pk_test_type)s"""
+				fk_test_org = %(pk_test_org)s,
+				fk_meta_test_type = %(pk_meta_test_type)s
+			WHERE
+				pk = %(pk_test_type)s
+					AND
+				xmin = %(xmin_test_type)s
+			RETURNING
+				xmin AS xmin_test_type"""
 	]
 
 	_updatable_fields = [
@@ -162,7 +165,8 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		'loinc',
 		'comment_type',
 		'conversion_unit',
-		'pk_test_org'
+		'pk_test_org',
+		'pk_meta_test_type'
 	]
 	#--------------------------------------------------------
 #	def __setitem__(self, attribute, value):
@@ -181,7 +185,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 #		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
 	def _get_in_use(self):
-		cmd = u'select exists(select 1 from clin.test_result where fk_type = %(pk_type)s)'
+		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.test_result WHERE fk_type = %(pk_type)s)'
 		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 		return rows[0][0]
@@ -204,6 +208,50 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 					patient = patient
 				)
 		return results
+	#--------------------------------------------------------
+	def format(self, patient=None):
+		tt = u''
+		tt += _('Test type "%s" (%s)          [#%s]\n') % (
+			self._payload[self._idx['name']],
+			self._payload[self._idx['abbrev']],
+			self._payload[self._idx['pk_test_type']]
+		)
+		tt += u'\n'
+		tt += gmTools.coalesce(self._payload[self._idx['loinc']], u'', u' LOINC: %s\n')
+		tt += gmTools.coalesce(self._payload[self._idx['conversion_unit']], u'', _(' Conversion unit: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['comment_type']], u'', _(' Comment: %s\n'))
+
+		if self._payload[self._idx['is_fake_meta_type']] is False:
+			tt += u'\n'
+			tt += _('Aggregated under meta type:\n')
+			tt += _(' Name: %s - %s             [#%s]\n') % (
+				self._payload[self._idx['abbrev_meta']],
+				self._payload[self._idx['name_meta']],
+				self._payload[self._idx['pk_meta_test_type']]
+			)
+			tt += gmTools.coalesce(self._payload[self._idx['loinc_meta']], u'', u' LOINC: %s\n')
+			tt += gmTools.coalesce(self._payload[self._idx['comment_meta']], u'', _(' Comment: %s\n'))
+
+		tt += u'\n'
+		tt += _('Lab details:\n')
+		tt += _(' Name: %s\n') % self._payload[self._idx['name_org']]
+		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], u'', _(' Contact: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], u'', _(' Comment: %s\n'))
+
+		if patient is not None:
+			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
+			if result is not None:
+				tt += u'\n'
+				tt += _('Most recent result:\n')
+				tt += _(' %s: %s%s%s') % (
+					result['clin_when'].strftime('%Y-%m-%d'),
+					result['unified_val'],
+					gmTools.coalesce(result['val_unit'], u'', u' %s'),
+					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+				)
+
+		return tt
+
 #------------------------------------------------------------
 def get_measurement_types(order_by=None):
 	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')

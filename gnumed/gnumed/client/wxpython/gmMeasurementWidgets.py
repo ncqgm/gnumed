@@ -505,7 +505,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 		emr = self.__patient.get_emr()
 
 		self.__row_label_data = emr.get_test_types_for_results()
-		test_type_labels = [ test['unified_abbrev'] for test in self.__row_label_data ]
+		test_type_labels = [ u'%s%s' % (
+				gmTools.bool2subst(test['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+				test['unified_abbrev']
+			) for test in self.__row_label_data
+		]
 		if len(test_type_labels) == 0:
 			return
 
@@ -526,7 +530,10 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# cell values (list of test results)
 		for result in results:
-			row = test_type_labels.index(result['unified_abbrev'])
+			row = test_type_labels.index(u'%s%s' % (
+				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+				result['unified_abbrev']
+			))
 			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
 
 			try:
@@ -653,29 +660,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		except IndexError:
 			return u' '
 
-		tip = u''
-		tip += _('Details about %s (%s)%s\n') % (tt['unified_name'], tt['unified_abbrev'], gmTools.coalesce(tt['unified_loinc'], u'', u' [%s]'))
-		tip += u'\n'
-		tip += _('Meta type:\n')
-		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name_meta'], tt['abbrev_meta'], gmTools.coalesce(tt['loinc_meta'], u'', u' [%s]'), tt['pk_meta_test_type'])
-		tip += gmTools.coalesce(tt['conversion_unit'], u'', _(' Conversion unit: %s\n'))
-		tip += gmTools.coalesce(tt['comment_meta'], u'', _(' Comment: %s\n'))
-		tip += u'\n'
-		tip += _('Test type:\n')
-		tip += _(' Name: %s (%s)%s #%s\n') % (tt['name'], tt['abbrev'], gmTools.coalesce(tt['loinc'], u'', u' [%s]'), tt['pk_test_type'])
-		tip += gmTools.coalesce(tt['comment_type'], u'', _(' Comment: %s\n'))
-		result = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 1)
-		if result is not None:
-			tip += u'\n'
-			tip += _('Most recent result:\n')
-			tip += _(' %s: %s%s%s') % (
-				result['clin_when'].strftime('%Y-%m-%d'),
-				result['unified_val'],
-				gmTools.coalesce(result['val_unit'], u'', u' %s'),
-				gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
-			)
-
-		return tip
+		return tt.format(patient = self.__patient.ID)
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
 		# FIXME: add panel/battery, request details
@@ -1019,7 +1004,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				'Please select the individual results you want to work on:'
 			),
 			caption = _('Selecting test results'),
-			choices = [ [d['clin_when'], u'%s: %s' % (d['unified_abbrev'], d['unified_name']), d['unified_val']] for d in cell_data ],
+			choices = [ [d['clin_when'], u'%s: %s' % (d['abbrev_tt'], d['name_tt']), d['unified_val']] for d in cell_data ],
 			columns = [ _('Date / Time'), _('Test'), _('Result') ],
 			data = cell_data,
 			single_selection = single_selection
@@ -1729,21 +1714,6 @@ def manage_measurement_types(parent=None):
 		dlg.Destroy()
 		return False
 	#------------------------------------------------------------
-	def refresh(lctrl):
-		mtypes = gmPathLab.get_measurement_types(order_by = 'name, abbrev')
-		items = [ [
-			m['abbrev'],
-			m['name'],
-			gmTools.coalesce(m['loinc'], u''),
-			gmTools.coalesce(m['conversion_unit'], u''),
-			gmTools.coalesce(m['comment_type'], u''),
-			gmTools.coalesce(m['name_org'], u'?'),
-			gmTools.coalesce(m['comment_org'], u''),
-			m['pk_test_type']
-		] for m in mtypes ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(mtypes)
-	#------------------------------------------------------------
 	def delete(measurement_type):
 		if measurement_type.in_use:
 			gmDispatcher.send (
@@ -1755,6 +1725,24 @@ def manage_measurement_types(parent=None):
 		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
 		return True
 	#------------------------------------------------------------
+	def get_tooltip(test_type):
+		return test_type.format()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		mtypes = gmPathLab.get_measurement_types(order_by = 'name, abbrev')
+		items = [ [
+			m['abbrev'],
+			m['name'],
+			gmTools.coalesce(m['conversion_unit'], u''),
+			gmTools.coalesce(m['loinc'], u''),
+			gmTools.coalesce(m['comment_type'], u''),
+			gmTools.coalesce(m['name_org'], u'?'),
+			gmTools.coalesce(m['comment_org'], u''),
+			m['pk_test_type']
+		] for m in mtypes ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(mtypes)
+	#------------------------------------------------------------
 	msg = _(
 		'\n'
 		'These are the measurement types currently defined in GNUmed.\n'
@@ -1765,12 +1753,13 @@ def manage_measurement_types(parent=None):
 		parent = parent,
 		msg = msg,
 		caption = _('Showing measurement types.'),
-		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Base unit'), _('Comment'), _('Org'), _('Comment'), u'#'],
+		columns = [ _('Abbrev'), _('Name'), _('Unit'), _('LOINC'), _('Comment'), _('Org'), _('Comment'), u'#' ],
 		single_selection = True,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,
-		delete_callback = delete
+		delete_callback = delete,
+		list_tooltip_callback = get_tooltip
 	)
 #----------------------------------------------------------------
 class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -2023,6 +2012,8 @@ LIMIT 50"""
 		else:
 			tt['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		tt['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+		tt['pk_meta_test_type'] = self._PRW_meta_type.GetData()
+
 		tt.save()
 
 		self.data = tt
@@ -2052,6 +2043,7 @@ LIMIT 50"""
 		else:
 			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetValue().strip(), u'')
 		self.data['comment_type'] = gmTools.none_if(self._TCTRL_comment_type.GetValue().strip(), u'')
+		self.data['pk_meta_test_type'] = self._PRW_meta_type.GetData()
 		self.data.save()
 
 		return True
@@ -2066,6 +2058,7 @@ LIMIT 50"""
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
 		self._TCTRL_comment_org.SetValue(u'')
+		self._PRW_meta_type.SetText(u'', None, True)
 
 		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
@@ -2091,6 +2084,10 @@ LIMIT 50"""
 			True
 		)
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
+		if self.data['pk_meta_test_type'] is None:
+			self._PRW_meta_type.SetText(u'', None, True)
+		else:
+			self._PRW_meta_type.SetText(u'%s: %s' % (self.data['abbrev_meta'], self.data['name_meta']), self.data['pk_meta_test_type'], True)
 
 		self._PRW_name.SetFocus()
 	#----------------------------------------------------------------
@@ -2104,6 +2101,7 @@ LIMIT 50"""
 		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
 
 		self._PRW_name.SetFocus()
+
 #================================================================
 _SQL_units_from_test_results = u"""
 	-- via clin.v_test_results.pk_type (for types already used in results)
@@ -2211,7 +2209,8 @@ _SQL_units_from_consumable_substance = u"""
 		unit %(fragment_condition)s
 		%(ctxt_substance)s
 """
-#================================================================
+
+#----------------------------------------------------------------
 class cUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -2489,6 +2488,7 @@ LIMIT 50"""
 	#------------------------------------------------------------
 	def _data2instance(self):
 		return gmPathLab.cTestOrg(aPK_obj = self.GetData())
+
 #================================================================
 def manage_meta_test_types(parent=None):
 
@@ -2528,6 +2528,52 @@ def manage_meta_test_types(parent=None):
 		#delete_callback = delete,
 		#refresh_callback = refresh
 	)
+#----------------------------------------------------------------
+class cMetaTestTypePRW(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+SELECT DISTINCT ON (field_label)
+	c_mtt.pk
+		AS data,
+	c_mtt.abbrev || ': ' || name
+		AS field_label,
+	c_mtt.abbrev || ': ' || name
+		||	coalesce (
+				' (' || c_mtt.comment || ')',
+				''
+			)
+		||	coalesce (
+				', LOINC: ' || c_mtt.loinc,
+				''
+			)
+	AS list_label
+FROM
+	clin.meta_test_type c_mtt
+WHERE
+	abbrev %(fragment_condition)s
+		OR
+	name %(fragment_condition)s
+		OR
+	loinc %(fragment_condition)s
+ORDER BY field_label
+LIMIT 50"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		mp.word_separators = '[ \t:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = mp
+		self.SetToolTipString(_('Select the meta test type.'))
+		self.selection_only = True
+	#------------------------------------------------------------
+	def _data2instance(self):
+		if self.GetData() is None:
+			return None
+
+		return gmPathLab.cMetaTestType(aPK_obj = self.GetData())
+
 #================================================================
 # main
 #----------------------------------------------------------------

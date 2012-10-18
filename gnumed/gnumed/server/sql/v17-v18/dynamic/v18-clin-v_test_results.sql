@@ -71,6 +71,7 @@ select
 	c_vtt.comment_org as comment_test_org,
 
 	-- meta test type details
+	c_vtt.is_fake_meta_type,
 	c_vtt.abbrev_meta,
 	c_vtt.name_meta,
 	c_vtt.loinc_meta,
