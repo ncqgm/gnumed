@@ -95,7 +95,8 @@ BEGIN
 	end if;
 
 	-- drop user from all groups
-	FOREACH _group IN ARRAY _valid_groups LOOP
+	--FOREACH _group IN ARRAY _valid_groups LOOP
+	FOR _group IN SELECT unnest(_valid_groups) LOOP
 		_query := ''alter group '' || _group || '' drop user '' || quote_ident(_username) || '';'';
 		execute _query;
 	END LOOP;
