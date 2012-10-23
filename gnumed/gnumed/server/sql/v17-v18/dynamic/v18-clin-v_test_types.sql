@@ -8,6 +8,20 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+comment on column clin.test_type.fk_meta_test_type is
+	'Link to the meta test type (if any) this test type is to be aggregated under.';
+
+
+\unset ON_ERROR_STOP
+drop index clin.test_type_fk_test_org_idx cascade;
+drop index clin.test_type_fk_meta_test_type_idx cascade;
+
+\set ON_ERROR_STOP 1
+
+create index on clin.test_type (fk_test_org);
+create index on clin.test_type (fk_meta_test_type);
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_meta_test_types cascade;
 drop view clin.v_unified_test_types cascade;
