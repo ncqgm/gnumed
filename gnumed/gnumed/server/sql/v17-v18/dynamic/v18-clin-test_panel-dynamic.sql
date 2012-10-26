@@ -44,7 +44,7 @@ alter table clin.test_panel
 -- --------------------------------------------------------------
 -- .comment
 comment on column clin.test_panel.comment is
-	'An arbitrary comment this panel.';
+	'An arbitrary comment on this panel.';
 
 
 \unset ON_ERROR_STOP

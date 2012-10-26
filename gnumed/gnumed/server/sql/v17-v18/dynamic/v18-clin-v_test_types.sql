@@ -8,18 +8,29 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- .fk_test_org
+\unset ON_ERROR_STOP
+drop index clin.test_type_fk_test_org_idx cascade;
+\set ON_ERROR_STOP 1
+
+create index on clin.test_type (fk_test_org);
+
+-- --------------------------------------------------------------
+-- .fk_meta_test_type
 comment on column clin.test_type.fk_meta_test_type is
 	'Link to the meta test type (if any) this test type is to be aggregated under.';
 
 
 \unset ON_ERROR_STOP
-drop index clin.test_type_fk_test_org_idx cascade;
 drop index clin.test_type_fk_meta_test_type_idx cascade;
-
+alter table clin.test_type drop constraint test_type_fk_meta_test_type_fkey cascade;
 \set ON_ERROR_STOP 1
 
-create index on clin.test_type (fk_test_org);
 create index on clin.test_type (fk_meta_test_type);
+
+alter table clin.test_type
+	add foreign key (fk_meta_test_type)
+		references clin.meta_test_type(pk);
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
@@ -59,6 +70,9 @@ select
 	c_mtt.name as name_meta,
 	c_mtt.loinc as loinc_meta,
 	c_mtt.comment as comment_meta,
+
+	-- panels
+	(select array_agg(pk) from clin.test_panel c_tp where c_tt.pk = any(c_tp.pk_test_types)) as pk_test_panels,
 
 	-- admin links
 	c_tt.fk_test_org
