@@ -120,6 +120,10 @@ IMPROVED: "latest vaccinations" template
 # rel-1-1-patches
 ------------------------------------------------
 
+	1.1.20
+
+FIX: must be careful about active name when merging patients [thanks S.Reus]
+
 	1.1.19
 
 FIX: faulty handling of inbox message context PK arrays
