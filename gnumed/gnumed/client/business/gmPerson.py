@@ -5,7 +5,6 @@ This is a patient object intended to let a useful client-side
 API crystallize from actual use in true XP fashion.
 """
 #============================================================
-__version__ = "$Revision: 1.198 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -31,7 +30,6 @@ from Gnumed.business.gmDocuments import cDocumentFolder
 
 
 _log = logging.getLogger('gm.person')
-_log.info(__version__)
 
 __gender_list = None
 __gender_idx = None
@@ -693,30 +691,42 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				return False, _('Cannot merge active patient into another patient.')
 
 		queries = []
-		args = {'old_pat': other_identity.ID, 'new_pat': self.ID}
+		args = {'pat2del': other_identity.ID, 'pat2keep': self.ID}
 
-		# delete old allergy state
+		# merge allergy state
 		queries.append ({
-			'cmd': u'delete from clin.allergy_state where pk = (select pk_allergy_state from clin.v_pat_allergy_state where pk_patient = %(old_pat)s)',
+			'cmd': u"""
+				UPDATE clin.allergy_state SET
+					has_allergy = greatest (
+						(SELECT has_allergy FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2del)s),
+						(SELECT has_allergy FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2keep)s)
+					)
+				WHERE
+					pk = (SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2keep)s)
+			""",
 			'args': args
 		})
-		# FIXME: adjust allergy_state in kept patient
+		# delete old allergy state
+		queries.append ({
+			'cmd': u'delete from clin.allergy_state where pk = (select pk_allergy_state from clin.v_pat_allergy_state where pk_patient = %(pat2del)s)',
+			'args': args
+		})
 
 		# transfer names
 		# 1) move inactive ones
 		queries.append ({
-			'cmd': u'update dem.names SET id_identity = %(new_pat)s WHERE id_identity = %(old_pat)s AND active IS false',
+			'cmd': u'update dem.names SET id_identity = %(pat2keep)s WHERE id_identity = %(pat2del)s AND active IS false',
 			'args': args
 		})
-		# 2) copy active ones
+		# 2) copy active name
 		queries.append ({
 			'cmd': u"""
 				INSERT INTO dem.names (
 					id_identity, active, lastnames, firstnames, preferred, comment
 				) SELECT
-					%(new_pat)s, false, lastnames, firstnames, preferred, comment
+					%(pat2keep)s, false, lastnames, firstnames, preferred, comment
 				FROM dem.names
-				WHERE id_identity = %(old_pat)s AND active IS true""",
+				WHERE id_identity = %(pat2del)s AND active IS true""",
 			'args': args
 		})
 
@@ -728,7 +738,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		)
 
 		# generate UPDATEs
-		cmd_template = u'update %s set %s = %%(new_pat)s where %s = %%(old_pat)s'
+		cmd_template = u'update %s set %s = %%(pat2keep)s where %s = %%(pat2del)s'
 		for FK in FKs:
 			if FK['referencing_table'] == u'dem.names':
 				continue
@@ -739,7 +749,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		# remove old identity entry
 		queries.append ({
-			'cmd': u'delete from dem.identity where pk = %(old_pat)s',
+			'cmd': u'delete from dem.identity where pk = %(pat2del)s',
 			'args': args
 		})
 

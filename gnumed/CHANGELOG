@@ -38,6 +38,7 @@ IMPROVED: placeholder $<current_meds>$ can let user select entries
 IMPROVED: measurements grid labels
 IMPROVED: (Xe)(La)TeX forms engine recursively substitutes placeholders
 IMPROVED: address: street/subunit level comment can now be removed
+IMPROVED: do not loose has_allergy=True on merging patients
 
 ------------------------------------------------
 # rel-1-2-patches
