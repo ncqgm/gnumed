@@ -836,9 +836,21 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		})
 		# FIXME: adjust allergy_state in kept patient
 
-		# deactivate all names of old patient
+		# transfer names
+		# 1) move inactive ones
 		queries.append ({
-			'cmd': u'update dem.names set active = False where id_identity = %(old_pat)s',
+			'cmd': u'update dem.names SET id_identity = %(new_pat)s WHERE id_identity = %(old_pat)s AND active IS false',
+			'args': args
+		})
+		# 2) copy active ones
+		queries.append ({
+			'cmd': u"""
+				INSERT INTO dem.names (
+					id_identity, active, lastnames, firstnames, preferred, comment
+				) SELECT
+					%(new_pat)s, false, lastnames, firstnames, preferred, comment
+				FROM dem.names
+				WHERE id_identity = %(old_pat)s AND active IS true""",
 			'args': args
 		})
 
@@ -852,6 +864,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		# generate UPDATEs
 		cmd_template = u'update %s set %s = %%(new_pat)s where %s = %%(old_pat)s'
 		for FK in FKs:
+			if FK['referencing_table'] == u'dem.names':
+				continue
 			queries.append ({
 				'cmd': cmd_template % (FK['referencing_table'], FK['referencing_column'], FK['referencing_column']),
 				'args': args
