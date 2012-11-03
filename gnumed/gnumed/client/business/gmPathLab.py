@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmCoding
 
 
 _log = logging.getLogger('gm.lab')
@@ -116,6 +117,178 @@ def get_test_orgs(order_by=u'unit'):
 	cmd = u'SELECT * FROM clin.v_test_orgs ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cTestOrg(row = {'pk_field': 'pk_test_org', 'data': r, 'idx': idx}) for r in rows ]
+
+#============================================================
+# test panels / profiles
+#------------------------------------------------------------
+_SQL_get_test_panels = u"SELECT * FROM clin.v_test_panels WHERE %s"
+
+class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a grouping/listing of tests into a panel."""
+
+	_cmd_fetch_payload = _SQL_get_test_panels % u"pk_test_panel = %s"
+	_cmds_store_payload = [
+		u"""
+			UPDATE clin.test_panel SET
+				description = gm.nullify_empty_string(%(description)s),
+				comment = gm.nullify_empty_string(%(comment)s),
+				fk_test_types = %(pk_test_types)s
+			WHERE
+				pk = %(pk_test_panel)s
+					AND
+				xmin = %(xmin_test_panel)s
+			RETURNING
+				xmin AS xmin_test_panel
+		"""
+	]
+	_updatable_fields = [
+		u'description',
+		u'comment',
+		u'pk_test_types'
+	]
+	#--------------------------------------------------------
+	def add_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"INSERT INTO clin.lnk_code2tst_pnl (fk_item, fk_generic_code) values (%(tp)s, %(code)s)"
+		args = {
+			'tp': self._payload[self._idx['pk_test_panel']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	def remove_code(self, pk_code=None):
+		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
+		cmd = u"DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code = %(code)s"
+		args = {
+			'tp': self._payload[self._idx['pk_test_panel']],
+			'code': pk_code
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_test_types(self):
+		if self._payload[self._idx['pk_test_types']] is None:
+			return None
+
+		rows, idx = gmPG2.run_ro_queries (
+			queries = [{
+			'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s',
+			'args': {'pks': tuple(self._payload[self._idx['pk_test_types']])}
+			}],
+			get_col_idx = True
+		)
+		return [ cMeasurementType(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_type'}) for r in rows ]
+
+	test_types = property(_get_test_types, lambda x:x)
+	#--------------------------------------------------------
+	def _get_generic_codes(self):
+		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
+			return []
+
+		cmd = gmCoding._SQL_get_generic_linked_codes % u'pk_generic_code IN %(pks)s'
+		args = {'pks': tuple(self._payload[self._idx['pk_generic_codes']])}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmCoding.cGenericLinkedCode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_lnk_code2item'}) for r in rows ]
+
+	def _set_generic_codes(self, pk_codes):
+		queries = []
+		# remove all codes
+		if len(self._payload[self._idx['pk_generic_codes']]) > 0:
+			queries.append ({
+				'cmd': u'DELETE FROM clin.lnk_code2tst_pnl WHERE fk_item = %(tp)s AND fk_generic_code IN %(codes)s',
+				'args': {
+					'tp': self._payload[self._idx['pk_test_panel']],
+					'codes': tuple(self._payload[self._idx['pk_generic_codes']])
+				}
+			})
+		# add new codes
+		for pk_code in pk_codes:
+			queries.append ({
+				'cmd': u'INSERT INTO clin.lnk_code2test_panel (fk_item, fk_generic_code) VALUES (%(tp)s, %(pk_code)s)',
+				'args': {
+					'tp': self._payload[self._idx['pk_test_panel']],
+					'pk_code': pk_code
+				}
+			})
+		if len(queries) == 0:
+			return
+		# run it all in one transaction
+		rows, idx = gmPG2.run_rw_queries(queries = queries)
+		return
+
+	generic_codes = property(_get_generic_codes, _set_generic_codes)
+	#--------------------------------------------------------
+	def format(self):
+		txt = _('Test panel "%s"          [#%s]\n') % (
+			self._payload[self._idx['description']],
+			self._payload[self._idx['pk_test_panel']]
+		)
+
+		if self._payload[self._idx['comment']] is not None:
+			txt += u'\n'
+			txt += gmTools.wrap (
+				text = self._payload[self._idx['comment']],
+				width = 50,
+				initial_indent = u' ',
+				subsequent_indent = u' '
+			)
+			txt += u'\n'
+
+		tts = self.test_types
+		if tts is not None:
+			txt += u'\n'
+			txt += _('Included test types:\n')
+			for tt in tts:
+				txt += u' %s: %s\n' % (
+					tt['abbrev'],
+					tt['name']
+				)
+
+		codes = self.generic_codes
+		if len(codes) > 0:
+			txt += u'\n'
+			for c in codes:
+				txt += u'%s  %s: %s (%s - %s)\n' % (
+					(u' ' * left_margin),
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				)
+
+		return txt
+#------------------------------------------------------------
+def get_test_panels(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_test_panels % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cTestPanel(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_panel'}) for r in rows ]
+#------------------------------------------------------------
+def create_test_panel(description=None):
+
+	args = {u'desc': description.strip()}
+	cmd = u"""
+		INSERT INTO clin.test_panel (description)
+		VALUES (gm.nullify_empty_string(%(desc)s))
+		RETURNING pk
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cTestPanel(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_test_panel(pk=None):
+	args = {'pk': pk}
+	cmd = u"DELETE FROM clin.test_panel WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
 #============================================================
 class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one meta test type under which actual test types can be aggregated."""
@@ -137,15 +310,18 @@ def get_meta_test_types():
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 
 #============================================================
+_SQL_get_test_types = u"SELECT * FROM clin.v_test_types WHERE %s"
+
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
-	_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
+	#_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
+	_cmd_fetch_payload = _SQL_get_test_types % u"pk_test_type = %s"
 
 	_cmds_store_payload = [
 		u"""UPDATE clin.test_type SET
-				abbrev = %(abbrev)s,
-				name = %(name)s,
+				abbrev = gm.nullify_empty_string(%(abbrev)s),
+				name = gm.nullify_empty_string(%(name)s),
 				loinc = gm.nullify_empty_string(%(loinc)s),
 				comment = gm.nullify_empty_string(%(comment_type)s),
 				conversion_unit = gm.nullify_empty_string(%(conversion_unit)s),
@@ -209,6 +385,14 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 				)
 		return results
 	#--------------------------------------------------------
+	def _get_test_panels(self):
+		if self._payload[self._idx['pk_test_panels']] is None:
+			return None
+
+		return [ cTestPanel(aPK_obj = pk) for pk in self._payload[self._idx['pk_test_panels']] ]
+
+	test_panels = property(_get_test_panels, lambda x:x)
+	#--------------------------------------------------------
 	def format(self, patient=None):
 		tt = u''
 		tt += _('Test type "%s" (%s)          [#%s]\n') % (
@@ -221,6 +405,12 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		tt += gmTools.coalesce(self._payload[self._idx['conversion_unit']], u'', _(' Conversion unit: %s\n'))
 		tt += gmTools.coalesce(self._payload[self._idx['comment_type']], u'', _(' Comment: %s\n'))
 
+		tt += u'\n'
+		tt += _('Lab details:\n')
+		tt += _(' Name: %s\n') % self._payload[self._idx['name_org']]
+		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], u'', _(' Contact: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], u'', _(' Comment: %s\n'))
+
 		if self._payload[self._idx['is_fake_meta_type']] is False:
 			tt += u'\n'
 			tt += _('Aggregated under meta type:\n')
@@ -232,11 +422,15 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			tt += gmTools.coalesce(self._payload[self._idx['loinc_meta']], u'', u' LOINC: %s\n')
 			tt += gmTools.coalesce(self._payload[self._idx['comment_meta']], u'', _(' Comment: %s\n'))
 
-		tt += u'\n'
-		tt += _('Lab details:\n')
-		tt += _(' Name: %s\n') % self._payload[self._idx['name_org']]
-		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], u'', _(' Contact: %s\n'))
-		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], u'', _(' Comment: %s\n'))
+		panels = self.test_panels
+		if panels is not None:
+			tt += u'\n'
+			tt += _('Listed in test panels:\n')
+			for panel in panels:
+				tt += _(' Panel "%s"             [#%s]\n') % (
+					panel['description'],
+					panel['pk']
+				)
 
 		if patient is not None:
 			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
@@ -1573,7 +1767,11 @@ if __name__ == '__main__':
 		print "BMI:", bmi
 		print "low:", low, "kg"
 		print "hi :", high, "kg"
-
+	#--------------------------------------------------------
+	def test_test_panel():
+		tp = cTestPanel(aPK_obj = 1)
+		print tp
+		print tp.format()
 	#--------------------------------------------------------
 
 	#test_result()
@@ -1588,6 +1786,7 @@ if __name__ == '__main__':
 	#test_meta_test_type()
 	#test_test_type()
 	#test_format_test_results()
-	test_calculate_bmi()
+	#test_calculate_bmi()
+	test_test_panel()
 
 #============================================================

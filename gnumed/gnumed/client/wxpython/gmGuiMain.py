@@ -2145,6 +2145,7 @@ class gmTopLevelFrame(wx.Frame):
 			'db_translations',
 			'ref_data_sources',
 			'test_types',
+			'test_panels',
 			'vacc_indications',
 			'vaccines',
 			'workplaces'
@@ -2173,7 +2174,8 @@ class gmTopLevelFrame(wx.Frame):
 			'workplaces': _('Workplace profiles (which plugins to load)'),
 			'substances': _('Consumable substances'),
 			'billables': _('Billable items'),
-			'ref_data_sources': _('Reference data sources')
+			'ref_data_sources': _('Reference data sources'),
+			'test_panels': _('Test/measurement panels/profiles')
 		}
 
 		map_list2handler = {
@@ -2200,6 +2202,7 @@ class gmTopLevelFrame(wx.Frame):
 			'billables': gmBillingWidgets.manage_billables,
 			'ref_data_sources': gmCodingWidgets.browse_data_sources,
 			'hints': gmProviderInboxWidgets.browse_dynamic_hints,
+			'test_panels': gmMeasurementWidgets.manage_test_panels
 		}
 
 		#---------------------------------

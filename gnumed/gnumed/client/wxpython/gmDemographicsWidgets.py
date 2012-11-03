@@ -532,6 +532,10 @@ class cOccupationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 #============================================================
 # identity widgets / functions
 #============================================================
+def document_death_of_patient(identity=None):
+	pass
+
+#------------------------------------------------------------
 def disable_identity(identity=None):
 	# ask user for assurance
 	go_ahead = gmGuiHelpers.gm_show_question (

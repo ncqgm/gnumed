@@ -72,7 +72,7 @@ select
 	c_mtt.comment as comment_meta,
 
 	-- panels
-	(select array_agg(pk) from clin.test_panel c_tp where c_tt.pk = any(c_tp.pk_test_types)) as pk_test_panels,
+	(select array_agg(pk) from clin.test_panel c_tp where c_tt.pk = any(c_tp.fk_test_types)) as pk_test_panels,
 
 	-- admin links
 	c_tt.fk_test_org

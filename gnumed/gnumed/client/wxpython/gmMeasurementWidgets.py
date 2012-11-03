@@ -663,7 +663,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		return tt.format(patient = self.__patient.ID)
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
-		# FIXME: add panel/battery, request details
+		# FIXME: add battery, request details
 
 		try:
 			d = self.__cell_data[col][row]
@@ -700,12 +700,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		# header
 		if is_multi_cell:
-			tt = _(u'Measurement details of most recent (topmost) result:               \n')
+			tt = _(u'Details of most recent (topmost) result:               \n')
+			tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
 		else:
-			tt = _(u'Measurement details:                                               \n')
+			tt = _(u'Result from %s             \n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
 
 		# basics
-		tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
 		tt += u' ' + _(u'Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
 			'name': d['name_tt'],
 			'abbr': d['abbrev_tt'],
@@ -1688,6 +1688,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)'),
 			most_recent['name_tt']
 		))
+
 #================================================================
 # measurement type handling
 #================================================================
@@ -2313,6 +2314,7 @@ limit 25"""
 		self.matcher = mp
 		self.SetToolTipString(_('Select an indicator for the level of abnormality.'))
 		self.selection_only = False
+
 #================================================================
 # measurement org widgets / functions
 #----------------------------------------------------------------
@@ -2448,6 +2450,7 @@ class cMeasurementOrgEAPnl(wxgMeasurementOrgEAPnl.wxgMeasurementOrgEAPnl, gmEdit
 	#----------------------------------------------------------------
 	def _on_manage_orgs_button_pressed(self, event):
 		gmOrganizationWidgets.manage_orgs(parent = self)
+
 #----------------------------------------------------------------
 class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -2573,6 +2576,74 @@ LIMIT 50"""
 			return None
 
 		return gmPathLab.cMetaTestType(aPK_obj = self.GetData())
+
+#================================================================
+# test panel handling
+#================================================================
+def manage_test_panels(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#------------------------------------------------------------
+	def edit(test_type=None):
+#		ea = cMeasurementTypeEAPnl(parent = parent, id = -1, type = test_type)
+#		dlg = gmEditArea.cGenericEditAreaDlg2 (
+#			parent = parent,
+#			id = -1,
+#			edit_area = ea,
+#			single_entry = gmTools.bool2subst((test_type is None), False, True)
+#		)
+#		dlg.SetTitle(gmTools.coalesce(test_type, _('Adding measurement type'), _('Editing measurement type')))
+#
+#		if dlg.ShowModal() == wx.ID_OK:
+#			dlg.Destroy()
+#			return True
+#
+#		dlg.Destroy()
+		return False
+	#------------------------------------------------------------
+	def delete(test_panel):
+#		if measurement_type.in_use:
+#			gmDispatcher.send (
+#				signal = 'statustext',
+#				beep = True,
+#				msg = _('Cannot delete measurement type [%s (%s)] because it is in use.') % (measurement_type['name'], measurement_type['abbrev'])
+#			)
+#			return False
+#		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		return True
+	#------------------------------------------------------------
+	def get_tooltip(test_panel):
+		return test_panel.format()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		panels = gmPathLab.get_test_panels(order_by = 'description')
+		items = [ [
+			p['description'],
+			gmTools.coalesce(p['comment'], u''),
+			p['pk_test_panel']
+		] for p in panels ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(panels)
+	#------------------------------------------------------------
+	msg = _(
+		'\n'
+		'Test panels as defined in GNUmed.\n'
+	)
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing test panels.'),
+		columns = [ _('Name'), _('Comment'), u'#' ],
+		single_selection = True,
+		refresh_callback = refresh,
+		#edit_callback = edit,
+		#new_callback = edit,
+		#delete_callback = delete,
+		list_tooltip_callback = get_tooltip
+	)
 
 #================================================================
 # main
