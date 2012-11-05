@@ -158,7 +158,7 @@ IMPROVED: "latest vaccinations" template
 # rel-1-1-patches
 ------------------------------------------------
 
-	1.1.20
+	1.1.20 (unreleased)
 
 FIX: must be careful about active name when merging patients [thanks S.Reus]
 
@@ -1206,6 +1206,10 @@ IMPROVED: constraints on i18n.translations
 ------------------------------------------------
 # gnumed_v16
 ------------------------------------------------
+
+	16.20 (unreleased)
+
+FIX: very senior installations might have duplicate blobs.doc_obj.fk_doc FK defs
 
 	16.17
 
