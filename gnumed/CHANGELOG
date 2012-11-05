@@ -1174,6 +1174,8 @@ IMPROVED: include PK columns in schema version check
 
 	17.6
 
+FIX: very senior installations might have duplicate blobs.doc_obj.fk_doc FK defs
+
 IMPROVED: extend range of guard against all-zero substance amount fractions
 
 	17.4
@@ -1207,7 +1209,7 @@ IMPROVED: constraints on i18n.translations
 # gnumed_v16
 ------------------------------------------------
 
-	16.20 (unreleased)
+	16.20
 
 FIX: very senior installations might have duplicate blobs.doc_obj.fk_doc FK defs
 
