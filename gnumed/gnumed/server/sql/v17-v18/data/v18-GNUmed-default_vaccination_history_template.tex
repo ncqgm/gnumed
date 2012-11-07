@@ -7,14 +7,14 @@
 \usepackage[T1]{fontenc}
 \usepackage[cjkjis,graphics]{ucs}
 \usepackage[utf8x]{inputenc}
-\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{tabu}
 \usepackage{graphicx}
 \usepackage[space]{grffile}
-%\usepackage{lmodern}
-%\usepackage{times}
-%\usepackage{amsmath}
 \usepackage[a4paper]{geometry}
 %\usepackage[a5paper]{geometry}
+\usepackage{hyperref}
+
 %\geometry{verbose,lmargin=2.54cm}
 \geometry{verbose,lmargin=1cm}
 \pagestyle{empty}
@@ -58,16 +58,17 @@ $<patient_photo::\includegraphics[width=30mm]{%s}//image/png//.png::250>$
 %\vspace*{\medskipamount}
 
 
-\begin{tabular}{|l|l|l|}
+\begin{longtabu} to \textwidth {|l|X[,L]|X[,L]|}
 \hline 
 Given & Vaccine (batch) & Indications\tabularnewline
 \hline
 \hline
-$<vaccination_history::%(date_given)s & %(vaccine)s {\footnotesize (%(batch_no)s) } & {\footnotesize %(l10n_indications)s \tabularnewline \hline }//%Y %b %d::250>$
-\end{tabular}
+$<vaccination_history::%(date_given)s & %(vaccine)s {\footnotesize (%(batch_no)s) } & {\footnotesize %(l10n_indications)s } \tabularnewline \hline//%Y %b %d::>$
+\end{longtabu}
 
 
 \vfill{}
+
 
 \noindent Known allergies:
 
