@@ -46,6 +46,8 @@ IMPROVED: do not loose has_allergy=True on merging patients
 
 	1.2.6
 
+FIX: failure to merge patients with identical names [thanks S.Reus]
+
 IMPROVED: Backport looking at config files when scanning for installed plugins
 
 	1.2.5
