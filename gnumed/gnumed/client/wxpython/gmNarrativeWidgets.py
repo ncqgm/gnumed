@@ -1296,6 +1296,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
+#	def _schedule_data_reget(self):
+#		gmRegetMixin.cRegetOnPaintMixin._schedule_data_reget(self)
+	#--------------------------------------------------------
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
 		self.__refresh_encounter()

@@ -2187,7 +2187,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._TCTRL_status.SetValue(u'')
 		self._PRW_age_noted.SetText()
 		self._PRW_year_noted.SetText()
-		self._ChBOX_active.SetValue(0)
+		self._ChBOX_active.SetValue(1)
 		self._ChBOX_relevant.SetValue(1)
 		self._ChBOX_confidential.SetValue(0)
 		self._ChBOX_caused_death.SetValue(0)
