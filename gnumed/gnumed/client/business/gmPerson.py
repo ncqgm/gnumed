@@ -703,20 +703,50 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		# FIXME: adjust allergy_state in kept patient
 
 		# transfer names
-		# 1) move inactive ones
+		# 1) disambiguate names in old pat
 		queries.append ({
-			'cmd': u'update dem.names SET id_identity = %(new_pat)s WHERE id_identity = %(old_pat)s AND active IS false',
+			'cmd': u"""
+				UPDATE dem.names d_n1 SET
+					lastnames = lastnames || ' (%s)'
+				WHERE
+					d_n1.id_identity = %%(old_pat)s
+						AND
+					EXISTS (
+						SELECT 1 FROM dem.names d_n2
+						WHERE
+							d_n2.id_identity = %%(new_pat)s
+								AND
+							d_n2.lastnames = d_n1.lastnames
+								AND
+							d_n2.firstnames = d_n1.firstnames
+					)""" % _('assimilated'),
 			'args': args
 		})
-		# 2) copy active ones
+		# 2) move inactive ones (but beware of dupes)
+		queries.append ({
+			'cmd': u"""
+				UPDATE dem.names SET
+					id_identity = %(new_pat)s
+				WHERE
+					id_identity = %(old_pat)s
+						AND
+					active IS false
+				""",
+			'args': args
+		})
+		# 3) copy active ones
 		queries.append ({
 			'cmd': u"""
 				INSERT INTO dem.names (
 					id_identity, active, lastnames, firstnames, preferred, comment
 				) SELECT
 					%(new_pat)s, false, lastnames, firstnames, preferred, comment
-				FROM dem.names
-				WHERE id_identity = %(old_pat)s AND active IS true""",
+				FROM dem.names d_n1
+				WHERE
+					d_n1.id_identity = %(old_pat)s
+						AND
+					d_n1.active IS true
+				""",
 			'args': args
 		})
 
