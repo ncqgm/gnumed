@@ -175,7 +175,7 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-			'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s',
+			'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
 			'args': {'pks': tuple(self._payload[self._idx['pk_test_types']])}
 			}],
 			get_col_idx = True
@@ -429,7 +429,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 			for panel in panels:
 				tt += _(' Panel "%s"             [#%s]\n') % (
 					panel['description'],
-					panel['pk']
+					panel['pk_test_panel']
 				)
 
 		if patient is not None:

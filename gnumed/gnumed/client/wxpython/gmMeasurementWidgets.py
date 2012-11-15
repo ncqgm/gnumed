@@ -287,6 +287,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		wx.grid.Grid.__init__(self, *args, **kwargs)
 
 		self.__patient = None
+		self.__panel_to_show = None
+		self.__show_by_panel = False
 		self.__cell_data = {}
 		self.__row_label_data = []
 
@@ -497,11 +499,168 @@ class cMeasurementsGrid(wx.grid.Grid):
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def repopulate_grid(self):
-
 		self.empty_grid()
 		if self.__patient is None:
 			return
 
+		if self.__show_by_panel:
+			self.__repopulate_grid_by_panel()
+			return
+
+		self.__repopulate_grid_all_results()
+	#------------------------------------------------------------
+	def __repopulate_grid_by_panel(self):
+
+		if self.__panel_to_show is None:
+			return
+
+		emr = self.__patient.get_emr()
+
+		# rows
+		self.__row_label_data = self.__panel_to_show.test_types
+		row_labels = [ u'%s%s' % (
+				gmTools.bool2subst(test['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+				test['unified_abbrev']
+			) for test in self.__row_label_data
+		]
+		if len(row_labels) == 0:
+			return
+
+		# columns
+		column_labels = [
+			date[0].strftime(self.__date_format) for date in emr.get_dates_for_results (
+				tests = self.__panel_to_show['pk_test_types'],
+				# FIXME: make configurable
+				reverse_chronological = True
+			)
+		]
+		results = emr.get_test_results_by_date (
+			tests = self.__panel_to_show['pk_test_types'],
+			# FIXME: make configurable
+			reverse_chronological = True
+		)
+
+		self.BeginBatch()
+
+		# rows
+		self.AppendRows(numRows = len(row_labels))
+		for row_idx in range(len(row_labels)):
+			self.SetRowLabelValue(row_idx, row_labels[row_idx])
+
+		# columns
+		self.AppendCols(numCols = len(column_labels))
+		for date_idx in range(len(column_labels)):
+			self.SetColLabelValue(date_idx, column_labels[date_idx])
+
+		# cell values (list of test results)
+		for result in results:
+			row = row_labels.index(u'%s%s' % (
+				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+				result['unified_abbrev']
+			))
+			col = column_labels.index(result['clin_when'].strftime(self.__date_format))
+
+			try:
+				self.__cell_data[col]
+			except KeyError:
+				self.__cell_data[col] = {}
+
+			# the tooltip always shows the youngest sub result details
+			if self.__cell_data[col].has_key(row):
+				self.__cell_data[col][row].append(result)
+				self.__cell_data[col][row].sort(key = lambda x: x['clin_when'], reverse = True)
+			else:
+				self.__cell_data[col][row] = [result]
+
+			# rebuild cell display string
+			vals2display = []
+			for sub_result in self.__cell_data[col][row]:
+
+				# is the sub_result technically abnormal ?
+				ind = gmTools.coalesce(sub_result['abnormality_indicator'], u'').strip()
+				if ind != u'':
+					lab_abnormality_indicator = u' (%s)' % ind[:3]
+				else:
+					lab_abnormality_indicator = u''
+				# - if noone reviewed - use what the lab thinks
+				if sub_result['is_technically_abnormal'] is None:
+					abnormality_indicator = lab_abnormality_indicator
+				# - if someone reviewed and decreed normality - use that
+				elif sub_result['is_technically_abnormal'] is False:
+					abnormality_indicator = u''
+				# - if someone reviewed and decreed abnormality ...
+				else:
+					# ... invent indicator if the lab did't use one
+					if lab_abnormality_indicator == u'':
+						# FIXME: calculate from min/max/range
+						abnormality_indicator = u' (%s)' % gmTools.u_plus_minus
+					# ... else use indicator the lab used
+					else:
+						abnormality_indicator = lab_abnormality_indicator
+
+				# is the sub_result relevant clinically ?
+				# FIXME: take into account primary_GP once we support that
+				sub_result_relevant = sub_result['is_clinically_relevant']
+				if sub_result_relevant is None:
+					# FIXME: calculate from clinical range
+					sub_result_relevant = False
+
+				missing_review = False
+				# warn on missing review if
+				# a) no review at all exists or
+				if not sub_result['reviewed']:
+					missing_review = True
+				# b) there is a review but
+				else:
+					# current user is reviewer and hasn't reviewed
+					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
+						missing_review = True
+
+				# can we display the full sub_result length ?
+				if len(sub_result['unified_val']) > 8:
+					tmp = u'%.7s%s' % (sub_result['unified_val'][:7], gmTools.u_ellipsis)
+				else:
+					tmp = u'%.8s' % sub_result['unified_val'][:8]
+
+				# abnormal ?
+				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
+
+				# is there a comment ?
+				has_sub_result_comment = gmTools.coalesce (
+					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
+					u''
+				).strip() != u''
+				if has_sub_result_comment:
+					tmp = u'%s %s' % (tmp, gmTools.u_ellipsis)
+
+				# lacking a review ?
+				if missing_review:
+					tmp = u'%s %s' % (tmp, gmTools.u_writing_hand)
+
+				# part of a multi-result cell ?
+				if len(self.__cell_data[col][row]) > 1:
+					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
+
+				vals2display.append(tmp)
+
+			self.SetCellValue(row, col, u'\n'.join(vals2display))
+			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
+#			font = self.GetCellFont(row, col)
+#			if not font.IsFixedWidth():
+#				font.SetFamily(family = wx.FONTFAMILY_MODERN)
+			# FIXME: what about partial sub results being relevant ??
+			if sub_result_relevant:
+				font = self.GetCellFont(row, col)
+				self.SetCellTextColour(row, col, 'firebrick')
+				font.SetWeight(wx.FONTWEIGHT_BOLD)
+				self.SetCellFont(row, col, font)
+#			self.SetCellFont(row, col, font)
+
+		self.AutoSize()
+		self.EndBatch()
+		return
+	#------------------------------------------------------------
+	def __repopulate_grid_all_results(self):
 		emr = self.__patient.get_emr()
 
 		self.__row_label_data = emr.get_test_types_for_results()
@@ -916,12 +1075,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
+		self.SetMinSize(wx.DefaultSize)
 
 		# setting this screws up the labels: they are cut off and displaced
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
 
-		#self.SetRowLabelSize(wx.GRID_AUTOSIZE)		# starting with 2.8.8
-		self.SetRowLabelSize(150)
+		self.SetRowLabelSize(wx.grid.GRID_AUTOSIZE)		# starting with 2.8.8
+		#self.SetRowLabelSize(150)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
 
 		# add link to left upper corner
@@ -938,7 +1098,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		LNK_lab = wx.lib.hyperlink.HyperLinkCtrl (
 			self.__WIN_corner,
 			-1,
-			label = _('Measurement type'),
+			label = _('Tests'),
 			style = wx.HL_DEFAULT_STYLE			# wx.TE_READONLY|wx.TE_CENTRE| wx.NO_BORDER |
 		)
 		LNK_lab.SetURL(url)
@@ -1111,6 +1271,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.repopulate_grid()
 
 	patient = property(lambda x:x, _set_patient)
+	#------------------------------------------------------------
+	def _set_panel_to_show(self, panel):
+		self.__panel_to_show = panel
+		self.repopulate_grid()
+
+	panel_to_show = property(lambda x:x, _set_panel_to_show)
+	#------------------------------------------------------------
+	def _set_show_by_panel(self, show_by_panel):
+		self.__show_by_panel = show_by_panel
+		self.repopulate_grid()
+
+	show_by_panel = property(lambda x:x, _set_show_by_panel)
 #================================================================
 from Gnumed.wxGladeWidgets import wxgMeasurementsPnl
 
@@ -1143,6 +1315,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def __on_pre_patient_selection(self):
 		self.data_grid.patient = None
+		self.panel_data_grid.patient = None
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		edit_measurement(parent = self, measurement = None)
@@ -1164,6 +1337,35 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def __on_delete_current_selection(self, evt):
 		self.data_grid.delete_current_selection()
+	#--------------------------------------------------------
+	def _on_panel_selected(self, panel):
+		wx.CallAfter(self.__on_panel_selected, panel=panel)
+	#--------------------------------------------------------
+	def __on_panel_selected(self, panel):
+		if panel is None:
+			self._TCTRL_panel_comment.SetValue(u'')
+			self.panel_data_grid.panel_to_show = None
+			self.panel_data_grid.Hide()
+		else:
+			pnl = self._PRW_panel.GetData(as_instance = True)
+			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
+				pnl['comment'],
+				u''
+			))
+			self.panel_data_grid.panel_to_show = pnl
+			self.panel_data_grid.Show()
+		self.Layout()
+		#self.Refresh()
+	#--------------------------------------------------------
+	def _on_panel_selection_modified(self):
+		wx.CallAfter(self.__on_panel_selection_modified)
+	#--------------------------------------------------------
+	def __on_panel_selection_modified(self):
+		self._TCTRL_panel_comment.SetValue(u'')
+		if self._PRW_panel.GetValue().strip() == u'':
+			self.panel_data_grid.panel_to_show = None
+			self.panel_data_grid.Hide()
+			self.Layout()
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1195,6 +1397,15 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		# FIXME: create inbox message to staff to phone patient to come in
 		# FIXME: generate and let edit a SOAP narrative and include the values
 
+		self._PRW_panel.add_callback_on_selection(callback = self._on_panel_selected)
+		self._PRW_panel.add_callback_on_modified(callback = self._on_panel_selection_modified)
+
+		self.panel_data_grid.show_by_panel = True
+		self.panel_data_grid.panel_to_show = None
+		self.panel_data_grid.Hide()
+		self.Layout()
+
+		self._PRW_panel.SetFocus()
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
@@ -1203,8 +1414,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			self.data_grid.patient = pat
+			self.panel_data_grid.patient = pat
 		else:
 			self.data_grid.patient = None
+			self.panel_data_grid.patient = None
 		return True
 #================================================================
 # editing widgets
@@ -2644,6 +2857,42 @@ def manage_test_panels(parent=None):
 		#delete_callback = delete,
 		list_tooltip_callback = get_tooltip
 	)
+
+#----------------------------------------------------------------
+class cTestPanelPRW(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+SELECT
+	pk_test_panel
+		AS data,
+	description
+		AS field_label,
+	description
+		AS list_label
+FROM
+	clin.v_test_panels
+WHERE
+	description %(fragment_condition)s
+ORDER BY field_label
+LIMIT 30"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		#mp.word_separators = '[ \t:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.matcher = mp
+		self.SetToolTipString(_('Select a test panel.'))
+		self.selection_only = True
+	#------------------------------------------------------------
+	def _data2instance(self):
+		if self.GetData() is None:
+			return None
+		return gmPathLab.cTestPanel(aPK_obj = self.GetData())
+	#------------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		return gmPathLab.cTestPanel(aPK_obj = self.GetData()).format()
 
 #================================================================
 # main

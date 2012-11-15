@@ -297,7 +297,10 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self._on_lose_focus_callbacks.append(callback)
 	#---------------------------------------------------------
 	def add_callback_on_modified(self, callback=None):
-		"""Add a callback for invocation when the content is modified."""
+		"""Add a callback for invocation when the content is modified.
+
+		This callback will NOT be passed any values.
+		"""
 		if not callable(callback):
 			raise ValueError('[add_callback_on_modified]: ignoring callback [%s] - not callable' % callback)
 
@@ -566,7 +569,9 @@ class cPhraseWheelBase(wx.TextCtrl):
 	# tooltip handling
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
-		# by default do not support dynamic tooltip parts
+		# child classes can override this to provide
+		# per data item dynamic tooltips,
+		# by default do not support dynamic tooltip parts:
 		return None
 	#--------------------------------------------------------
 	def __recalculate_tooltip(self):

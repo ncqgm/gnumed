@@ -16,8 +16,11 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmMeasurementWidgets
 
         # begin wxGlade: wxgMeasurementsPnl.__init__
-        kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
+        kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
+        self._PRW_panel = gmMeasurementWidgets.cTestPanelPRW(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_panel_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self.panel_data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
         self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
         self._RBTN_my_unsigned = wx.RadioButton(self, -1, _("&Your unsigned"))
@@ -36,6 +39,8 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgMeasurementsPnl.__set_properties
         self.SetScrollRate(10, 10)
+        self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+        self._TCTRL_panel_comment.Enable(False)
         self._BTN_add.SetToolTipString(_("Add measurments."))
         self._RBTN_my_unsigned.SetToolTipString(_("Apply selection to those unsigned results for which you are to take responsibility."))
         self._RBTN_all_unsigned.SetToolTipString(_("Apply selection to all unsigned results."))
@@ -47,18 +52,27 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgMeasurementsPnl.__do_layout
         __szr_main = wx.BoxSizer(wx.VERTICAL)
         __szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self.data_grid, 1, wx.LEFT|wx.RIGHT|wx.TOP|wx.EXPAND, 5)
+        __szr_grids = wx.BoxSizer(wx.VERTICAL)
+        __szr_panel_options = wx.BoxSizer(wx.HORIZONTAL)
+        __lbl_display = wx.StaticText(self, -1, _("Group by &panel:"))
+        __szr_panel_options.Add(__lbl_display, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_panel_options.Add(self._PRW_panel, 2, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
+        __szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_main.Add(__szr_panel_options, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
+        __szr_grids.Add(self.panel_data_grid, 0, wx.EXPAND, 5)
+        __szr_grids.Add(self.data_grid, 1, wx.TOP | wx.EXPAND, 5)
+        __szr_main.Add(__szr_grids, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
         __hline_buttons = wx.StaticLine(self, -1)
-        __szr_main.Add(__hline_buttons, 0, wx.ALL|wx.EXPAND, 5)
-        __szr_bottom.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_bottom.Add(self._BTN_add, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_main.Add(__hline_buttons, 0, wx.ALL | wx.EXPAND, 5)
         __szr_bottom.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_bottom.Add(self._RBTN_my_unsigned, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_bottom.Add(self._RBTN_all_unsigned, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 3)
-        __szr_bottom.Add(self._BTN_select, 0, wx.RIGHT|wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_bottom.Add(self._BTN_add, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_bottom.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_bottom.Add(self._RBTN_my_unsigned, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_bottom.Add(self._RBTN_all_unsigned, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_bottom.Add(self._BTN_select, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_bottom.Add(self._BTN_review, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_bottom.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
-        __szr_main.Add(__szr_bottom, 0, wx.LEFT|wx.RIGHT|wx.BOTTOM|wx.EXPAND, 5)
+        __szr_main.Add(__szr_bottom, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 5)
         self.SetSizer(__szr_main)
         __szr_main.Fit(self)
         # end wxGlade

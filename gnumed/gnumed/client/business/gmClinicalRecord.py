@@ -2149,33 +2149,61 @@ LIMIT 2
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return [ gmPathLab.cMeasurementType(aPK_obj = row['pk_test_type']) for row in rows ]
 	#------------------------------------------------------------------
-	def get_dates_for_results(self):
+	def get_dates_for_results(self, tests=None, reverse_chronological=True):
 		"""Get the dates for which we have results."""
-		cmd = u"""
-SELECT distinct on (cwhen) date_trunc('day', clin_when) as cwhen
-from clin.v_test_results
-WHERE pk_patient = %(pat)s
-order by cwhen desc"""
+		where_parts = [u'pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
+
+		if tests is not None:
+			where_parts.append(u'pk_test_type IN %(tests)s')
+			args['tests'] = tuple(tests)
+
+		cmd = u"""
+			SELECT distinct on (cwhen) date_trunc('day', clin_when) as cwhen
+			FROM clin.v_test_results
+			WHERE %s
+			ORDER BY cwhen %s
+		""" % (
+			u' AND '.join(where_parts),
+			gmTools.bool2subst(reverse_chronological, u'DESC', u'ASC', u'DESC')
+		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
-	def get_test_results_by_date(self, encounter=None, episodes=None):
+	def get_test_results_by_date(self, encounter=None, episodes=None, tests=None, reverse_chronological=True):
+
+		where_parts = [u'pk_patient = %(pat)s']
+		args = {'pat': self.pk_patient}
+
+		if tests is not None:
+			where_parts.append(u'pk_test_type IN %(tests)s')
+			args['tests'] = tuple(tests)
+
+		if encounter is not None:
+			where_parts.append(u'pk_encounter = %(enc)s')
+			args['enc'] = encounter
+
+		if episodes is not None:
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(episodes)
 
 		cmd = u"""
-SELECT *, xmin_test_result FROM clin.v_test_results
-WHERE pk_patient = %(pat)s
-order by clin_when desc, pk_episode, unified_name"""
-		args = {'pat': self.pk_patient}
+			SELECT * FROM clin.v_test_results
+			WHERE %s
+			ORDER BY clin_when %s, pk_episode, unified_name
+		""" % (
+			u' AND '.join(where_parts),
+			gmTools.bool2subst(reverse_chronological, u'DESC', u'ASC', u'DESC')
+		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 
-		if episodes is not None:
-			tests = [ t for t in tests if t['pk_episode'] in episodes ]
-
-		if encounter is not None:
-			tests = [ t for t in tests if t['pk_encounter'] == encounter ]
+#		if episodes is not None:
+#			tests = [ t for t in tests if t['pk_episode'] in episodes ]
+#
+#		if encounter is not None:
+#			tests = [ t for t in tests if t['pk_encounter'] == encounter ]
 
 		return tests
 	#------------------------------------------------------------------
