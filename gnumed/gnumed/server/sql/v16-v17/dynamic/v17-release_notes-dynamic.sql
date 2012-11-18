@@ -17,13 +17,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.5 (database v17.5)',
-	'GNUmed 1.2.5 Release Notes:
+	'Release Notes for GNUmed 1.2.6 (database v17.6)',
+	'GNUmed 1.2.6 Release Notes:
 
-	1.2.5
+	1.2.6
 
-FIX: disappearing substances grid when activating another patient [thanks J.Busser]
-FIX: botched due/expiry verification on saving provider inbox message
+FIX: failure to merge patients with identical names [thanks S.Reus]
+IMPROVED: Backport looking at config files when scanning for installed plugins
+
+	17.6
+
+FIX: very senior installations might have duplicate blobs.doc_obj.fk_doc FK defs
+IMPROVED: extend range of guard against all-zero substance amount fractions
 ');
 
 -- --------------------------------------------------------------
