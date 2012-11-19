@@ -1,0 +1,67 @@
+-- ==============================================================
+-- GNUmed database schema change script
+--
+-- License: GPL v2 or later
+-- Author: karsten.hilbert@gmx.net
+--
+-- ==============================================================
+\set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
+
+-- --------------------------------------------------------------
+INSERT INTO dem.message_inbox (
+	fk_staff,
+	fk_inbox_item_type,
+	comment,
+	data
+) VALUES (
+	(select pk from dem.staff where db_user = 'any-doc'),
+	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
+	'Release Notes for GNUmed 1.3.rc1 (database v18.rc1)',
+	'GNUmed 1.3.rc1 Release Notes:
+
+	1.3.rc1
+
+NEW: visualize the EMR using TheTimelineProject
+NEW: placeholder $<patient_photo>$
+NEW: DEGAM UTI 2012 guideline
+NEW: status line in each edit area
+NEW: Xe(La)TeX based forms engine
+NEW: plain text based/generic postprocessing forms engine
+NEW: placeholder $<text_snippet>$ operating on keyword expansions
+NEW: encryptable placeholder $<data_snippet>$
+NEW: look for installed plugins list in config files, too
+NEW: medical staff vs non-medical staff permissions handling
+NEW: generic gmTextCtrl supporting keyword expansion macros
+NEW: current substances grid: generate Rx either from DB or from form template
+NEW: GVK-Rezept prescription template (darf in D nicht verwendet werden)
+NEW: revamped measurements handling including test panels
+
+IMPROVED: document tree: better labels, tooltips added
+IMPROVED: measurement EA: show most recent value of test type
+IMPROVED: measurement EA: plot adjacent results upon saving
+IMPROVED: support a comment on bills
+IMPROVED: EMR tree: load data when expanding nodes
+IMPROVED: vaccinations list: print vaccinations via template
+IMPROVED: better dynamic text expansion dialog
+IMPROVED: drug component PRW: disambiguate which drug will be picked
+IMPROVED: waiting list: filter by active patient
+IMPROVED: report generator: be smarter about patient ID columns
+IMPROVED: patient overview: display last modified of occupation
+IMPROVED: substances grid: show preparation of items
+IMPROVED: placeholder $<current_meds>$ can let user select entries
+IMPROVED: measurements grid labels
+IMPROVED: (Xe)(La)TeX forms engine recursively substitutes placeholders
+IMPROVED: address: street/subunit level comment can now be removed
+IMPROVED: do not loose has_allergy=True on merging patients
+IMPROVED: health issue EA: safer workflow
+IMPROVED: SOAP plugin: improved selection of most-recent information
+
+	18.0
+
+IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
+IMPROVED: include PK columns in schema version check
+');
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v18-release_notes-dynamic.sql', '18.0');

@@ -3,11 +3,11 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-#CLIENTREV="0.7.rc1"
+#CLIENTREV="1.3.rc1"
 CLIENTREV="Git"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-#SRVREV="13.rc1"
+#SRVREV="18.rc1"
 SRVREV="Git"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
@@ -287,8 +287,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v17/gnumed-schema.html
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v17/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v18/gnumed-schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v18/gnumed-schema-no_audit.dot
 cd -
 
 
@@ -570,6 +570,23 @@ cp -R ../../server/sql/v16-v17/data/* ./gnumed-client.$CLIENTREV/server/sql/v16-
 cp -R ../../server/sql/v16-v17/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v16-v17/python
 cp -R ../../server/sql/v16-v17/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/fixups
 #cp -R ../../server/sql/v16-v17/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v16-v17/superuser
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/superuser
+
+cp ../../server/sql/v17-v18/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v17-v18
+cp -R ../../server/sql/v17-v18/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/dynamic
+cp -R ../../server/sql/v17-v18/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/static
+cp -R ../../server/sql/v17-v18/data/* ./gnumed-client.$CLIENTREV/server/sql/v17-v18/data
+cp -R ../../server/sql/v17-v18/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v17-v18/python
+#cp -R ../../server/sql/v17-v18/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
+#cp -R ../../server/sql/v17-v18/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/superuser
 
 #----------------------------------
 # weed out unnecessary stuff

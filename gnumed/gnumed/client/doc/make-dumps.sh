@@ -3,7 +3,7 @@
 # license: GPL v2 or later
 # author: Karsten.Hilbert@gmx.net
 
-DB="gnumed_v17"
+DB="gnumed_v18"
 
 SCHEMADUMP=~/gm-schemadocs/gm-schema-dump.sql
 DATADUMP=~/gm-schemadocs/gm-data-dump.sql
