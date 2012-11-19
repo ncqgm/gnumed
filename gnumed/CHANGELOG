@@ -41,6 +41,7 @@ IMPROVED: (Xe)(La)TeX forms engine recursively substitutes placeholders
 IMPROVED: address: street/subunit level comment can now be removed
 IMPROVED: do not loose has_allergy=True on merging patients
 IMPROVED: health issue EA: safer workflow
+IMPROVED: SOAP plugin: improved selection of most-recent information
 
 ------------------------------------------------
 # rel-1-2-patches

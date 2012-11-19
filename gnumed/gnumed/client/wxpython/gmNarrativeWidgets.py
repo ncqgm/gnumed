@@ -879,7 +879,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
-	def __get_soap_for_issue_problem(self, problem=None):
+	def __get_info_for_issue_problem(self, problem=None, fancy=False):
 		soap = u''
 		emr = self.__pat.get_emr()
 		prev_enc = emr.get_last_but_one_encounter(issue_id = problem['pk_health_issue'])
@@ -887,8 +887,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			soap += prev_enc.format (
 				issues = [ problem['pk_health_issue'] ],
 				with_soap = True,
-				with_docs = False,
-				with_tests = False,
+				with_docs = fancy,
+				with_tests = fancy,
 				patient = self.__pat,
 				fancy_header = False,
 				with_rfe_aoe = True
@@ -916,7 +916,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return soap
 	#--------------------------------------------------------
-	def __get_soap_for_episode_problem(self, problem=None):
+	def __get_info_for_episode_problem(self, problem=None, fancy=False):
 		soap = u''
 		emr = self.__pat.get_emr()
 		prev_enc = emr.get_last_but_one_encounter(episode_id = problem['pk_episode'])
@@ -924,8 +924,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			soap += prev_enc.format (
 				episodes = [ problem['pk_episode'] ],
 				with_soap = True,
-				with_docs = False,
-				with_tests = False,
+				with_docs = fancy,
+				with_tests = fancy,
 				patient = self.__pat,
 				fancy_header = False,
 				with_rfe_aoe = True
@@ -936,8 +936,8 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 				if prev_enc is not None:
 					soap += prev_enc.format (
 						with_soap = True,
-						with_docs = False,
-						with_tests = False,
+						with_docs = fancy,
+						with_tests = fancy,
 						patient = self.__pat,
 						issues = [ problem['pk_health_issue'] ],
 						fancy_header = False,
@@ -1001,15 +1001,14 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		if problem['type'] == u'issue':
 			caption = problem['problem'][:35]
-			soap = self.__get_soap_for_issue_problem(problem = problem)
-
+			txt = self.__get_info_for_issue_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
 		elif problem['type'] == u'episode':
 			caption = problem['problem'][:35]
-			soap = self.__get_soap_for_episode_problem(problem = problem)
+			txt = self.__get_info_for_episode_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
 
-		self._TCTRL_recent_notes.SetValue(soap)
+		self._TCTRL_recent_notes.SetValue(txt)
 		self._TCTRL_recent_notes.ShowPosition(self._TCTRL_recent_notes.GetLastPosition())
-		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on %s%s%s') % (
+		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent info on %s%s%s') % (
 			gmTools.u_left_double_angle_quote,
 			caption,
 			gmTools.u_right_double_angle_quote
@@ -1293,6 +1292,16 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		)
 		if not saved:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+	#--------------------------------------------------------
+	def _on_notes_only_selected(self, event):
+		self.__refresh_recent_notes (
+			problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		)
+	#--------------------------------------------------------
+	def _on_full_encounter_selected(self, event):
+		self.__refresh_recent_notes (
+			problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		)
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
