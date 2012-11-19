@@ -20,6 +20,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         wx.ScrolledWindow.__init__(self, *args, **kwds)
         self._PRW_panel = gmMeasurementWidgets.cTestPanelPRW(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_panel_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
+        self._BTN_manage_panels = wx.Button(self, -1, _("Manage"), style=wx.BU_EXACTFIT)
         self.panel_data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
         self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, -1, size=(1, 1))
         self._BTN_add = wx.Button(self, wx.ID_ADD, "")
@@ -31,6 +32,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_BUTTON, self._on_manage_panels_button_pressed, self._BTN_manage_panels)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
         self.Bind(wx.EVT_BUTTON, self._on_select_button_pressed, self._BTN_select)
         self.Bind(wx.EVT_BUTTON, self._on_review_button_pressed, self._BTN_review)
@@ -41,6 +43,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         self.SetScrollRate(10, 10)
         self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_panel_comment.Enable(False)
+        self._BTN_manage_panels.SetToolTipString(_("Manage test panels."))
         self._BTN_add.SetToolTipString(_("Add measurments."))
         self._RBTN_my_unsigned.SetToolTipString(_("Apply selection to those unsigned results for which you are to take responsibility."))
         self._RBTN_all_unsigned.SetToolTipString(_("Apply selection to all unsigned results."))
@@ -57,7 +60,8 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
         __lbl_display = wx.StaticText(self, -1, _("Group by &panel:"))
         __szr_panel_options.Add(__lbl_display, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_panel_options.Add(self._PRW_panel, 2, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
-        __szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_panel_options.Add(self._BTN_manage_panels, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_main.Add(__szr_panel_options, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
         __szr_grids.Add(self.panel_data_grid, 0, wx.EXPAND, 5)
         __szr_grids.Add(self.data_grid, 1, wx.TOP | wx.EXPAND, 5)
@@ -103,6 +107,10 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 
     def _on_add_button_pressed(self, event): # wxGlade: wxgMeasurementsPnl.<event_handler>
         print "Event handler `_on_add_button_pressed' not implemented"
+        event.Skip()
+
+    def _on_manage_panels_button_pressed(self, event):  # wxGlade: wxgMeasurementsPnl.<event_handler>
+        print "Event handler `_on_manage_panels_button_pressed' not implemented"
         event.Skip()
 
 # end of class wxgMeasurementsPnl

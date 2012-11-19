@@ -1329,6 +1329,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		elif self._RBTN_all_unsigned.GetValue() is True:
 			self.data_grid.select_cells(unsigned_only = True, accountables_only = False, keep_preselections = False)
 	#--------------------------------------------------------
+	def _on_manage_panels_button_pressed(self, event):
+		manage_test_panels(parent = self)
+	#--------------------------------------------------------
 	def __on_sign_current_selection(self, evt):
 		self.data_grid.sign_current_selection()
 	#--------------------------------------------------------
@@ -1419,6 +1422,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 			self.data_grid.patient = None
 			self.panel_data_grid.patient = None
 		return True
+
 #================================================================
 # editing widgets
 #================================================================
@@ -1905,6 +1909,56 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 #================================================================
 # measurement type handling
 #================================================================
+def pick_measurement_types(parent=None, msg=None, right_column=None, picks=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if msg is None:
+		msg = _('Pick the relevant measurement types.')
+
+	if right_column is None:
+		right_columns = [_('Picked')]
+	else:
+		right_columns = [right_column]
+
+	picker = gmListWidgets.cItemPickerDlg(parent, -1, msg = msg)
+	picker.set_columns(columns = [_('Known measurement types')], columns_right = right_columns)
+	types = gmPathLab.get_measurement_types(order_by = 'unified_abbrev')
+	picker.set_choices (
+		choices = [
+			u'%s: %s%s' % (
+				t['unified_abbrev'],
+				t['unified_name'],
+				gmTools.coalesce(t['name_org'], u'', u' (%s)')
+			)
+			for t in types
+		],
+		data = types
+	)
+	if picks is not None:
+		picker.set_picks (
+			picks = [
+				u'%s: %s%s' % (
+					p['unified_abbrev'],
+					p['unified_name'],
+					gmTools.coalesce(p['name_org'], u'', u' (%s)')
+				)
+				for p in picks
+			],
+			data = picks
+		)
+	result = picker.ShowModal()
+
+	if result == wx.ID_CANCEL:
+		picker.Destroy()
+		return None
+
+	picks = picker.picks
+	picker.Destroy()
+	return picks
+
+#----------------------------------------------------------------
 def manage_measurement_types(parent=None):
 
 	if parent is None:
@@ -2793,38 +2847,35 @@ LIMIT 50"""
 #================================================================
 # test panel handling
 #================================================================
+def edit_test_panel(parent=None, test_panel=None):
+	ea = cTestPanelEAPnl(parent = parent, id = -1)
+	ea.data = test_panel
+	ea.mode = gmTools.coalesce(test_panel, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2 (
+		parent = parent,
+		id = -1,
+		edit_area = ea,
+		single_entry = gmTools.bool2subst((test_panel is None), False, True)
+	)
+	dlg.SetTitle(gmTools.coalesce(test_panel, _('Adding new test panel'), _('Editing test panel')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#----------------------------------------------------------------
 def manage_test_panels(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
-	def edit(test_type=None):
-#		ea = cMeasurementTypeEAPnl(parent = parent, id = -1, type = test_type)
-#		dlg = gmEditArea.cGenericEditAreaDlg2 (
-#			parent = parent,
-#			id = -1,
-#			edit_area = ea,
-#			single_entry = gmTools.bool2subst((test_type is None), False, True)
-#		)
-#		dlg.SetTitle(gmTools.coalesce(test_type, _('Adding measurement type'), _('Editing measurement type')))
-#
-#		if dlg.ShowModal() == wx.ID_OK:
-#			dlg.Destroy()
-#			return True
-#
-#		dlg.Destroy()
-		return False
+	def edit(test_panel=None):
+		return edit_test_panel(parent = parent, test_panel = test_panel)
 	#------------------------------------------------------------
 	def delete(test_panel):
-#		if measurement_type.in_use:
-#			gmDispatcher.send (
-#				signal = 'statustext',
-#				beep = True,
-#				msg = _('Cannot delete measurement type [%s (%s)] because it is in use.') % (measurement_type['name'], measurement_type['abbrev'])
-#			)
-#			return False
-#		gmPathLab.delete_measurement_type(measurement_type = measurement_type['pk_test_type'])
+		gmPathLab.delete_test_panel(pk = test_panel['pk_test_panel'])
 		return True
 	#------------------------------------------------------------
 	def get_tooltip(test_panel):
@@ -2852,9 +2903,9 @@ def manage_test_panels(parent=None):
 		columns = [ _('Name'), _('Comment'), u'#' ],
 		single_selection = True,
 		refresh_callback = refresh,
-		#edit_callback = edit,
-		#new_callback = edit,
-		#delete_callback = delete,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
 		list_tooltip_callback = get_tooltip
 	)
 
@@ -2893,6 +2944,122 @@ LIMIT 30"""
 		if self.GetData() is None:
 			return None
 		return gmPathLab.cTestPanel(aPK_obj = self.GetData()).format()
+
+#====================================================================
+from Gnumed.wxGladeWidgets import wxgTestPanelEAPnl
+
+class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['panel']
+			del kwargs['panel']
+		except KeyError:
+			data = None
+
+		wxgTestPanelEAPnl.wxgTestPanelEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self._test_types = None
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+		validity = True
+
+		if self._test_types is None:
+			validity = False
+			gmDispatcher.send(signal = 'statustext', msg = _('No test types selected.'))
+			self._BTN_select_tests.SetFocus()
+
+		if self._TCTRL_description.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = False)
+			self._TCTRL_description.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		data = gmPathLab.create_test_panel(description = self._TCTRL_description.GetValue().strip())
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data['pk_test_types'] = [ tt['pk_test_type'] for tt in self._test_types ]
+		data.save()
+		data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['description'] = self._TCTRL_description.GetValue().strip()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.data['pk_test_types'] = [ tt['pk_test_type'] for tt in self._test_types ]
+		self.data.save()
+		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
+		return True
+	#----------------------------------------------------------------
+	def __refresh_test_types_field(self, test_types=None):
+		self._TCTRL_tests.SetValue(u'')
+		self._test_types = test_types
+		if self._test_types is None:
+			return
+		tmp = u';\n'.join ([
+			u'%s: %s%s' % (
+				t['unified_abbrev'],
+				t['unified_name'],
+				gmTools.coalesce(t['name_org'], u'', u' (%s)')
+			)
+			for t in self._test_types
+		])
+		self._TCTRL_tests.SetValue(tmp)
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_description.SetValue(u'')
+		self._TCTRL_comment.SetValue(u'')
+		self.__refresh_test_types_field()
+		self._PRW_codes.SetText()
+
+		self._TCTRL_description.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+		self.__refresh_test_types_field(test_types = self.data.test_types)
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_description.SetValue(self.data['description'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self.__refresh_test_types_field(test_types = self.data.test_types)
+		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
+		self._PRW_codes.SetText(val, data)
+
+		self._BTN_select_tests.SetFocus()
+	#----------------------------------------------------------------
+	def _on_select_tests_button_pressed(self, event):
+		desc = self._TCTRL_description.GetValue().strip()
+		if desc == u'':
+			desc = None
+		picked = pick_measurement_types (
+			parent = self,
+			msg = _('Pick the measurement types for this panel.'),
+			right_column = desc,
+			picks = self._test_types
+		)
+		if picked is None:
+			return
+		if len(picked) == 0:
+			picked = None
+		self.__refresh_test_types_field(test_types = picked)
 
 #================================================================
 # main
@@ -2934,4 +3101,3 @@ if __name__ == '__main__':
 		#test_primary_care_vitals_pnl()
 
 #================================================================
-

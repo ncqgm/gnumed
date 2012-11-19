@@ -74,6 +74,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self._TCTRL_xxx.GetValue().strip() == u'':
 			validity = False
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
+			gmDispatcher.send(signal = 'statustext', msg = _('No entry in field xxx.'))
 			self._TCTRL_xxx.SetFocus()
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
@@ -81,6 +82,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self._PRW_xxx.GetData() is None:
 			validity = False
 			self._PRW_xxx.display_as_valid(False)
+			gmDispatcher.send(signal = 'statustext', msg = _('No entry in field xxx.'))
 			self._PRW_xxx.SetFocus()
 		else:
 			self._PRW_xxx.display_as_valid(True)

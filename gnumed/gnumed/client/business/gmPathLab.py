@@ -315,7 +315,6 @@ _SQL_get_test_types = u"SELECT * FROM clin.v_test_types WHERE %s"
 class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test result type."""
 
-	#_cmd_fetch_payload = u"""select * from clin.v_test_types where pk_test_type = %s"""
 	_cmd_fetch_payload = _SQL_get_test_types % u"pk_test_type = %s"
 
 	_cmds_store_payload = [
