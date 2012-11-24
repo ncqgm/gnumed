@@ -52,7 +52,7 @@ BEGIN
 				|| _source_group || ''" to group "''
 				|| _target_group || ''"'';
 		raise notice ''%'', tmp;
-		-- satisfy "database = samegroup" in pg_hba.conf
+		-- satisfy "database = samerole" in pg_hba.conf
 		tmp := ''alter group '' || quote_ident(_target_group) || '' add user '' || quote_ident(member_name) || '';'';
 		execute tmp;
 
@@ -121,7 +121,7 @@ BEGIN
 	_query := ''alter group "gm-public" add user '' || quote_ident(_username) || '';'';
 	execute _query;
 
-	-- satisfy "database = samegroup" in pg_hba.conf
+	-- satisfy "database = samerole" in pg_hba.conf
 	select into _database current_database();
 	_query := ''alter group '' || quote_ident(_database) || '' add user '' || quote_ident(_username) || '';'';
 	execute _query;
