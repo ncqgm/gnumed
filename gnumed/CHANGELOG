@@ -22,6 +22,8 @@ NEW: generic gmTextCtrl supporting keyword expansion macros
 NEW: current substances grid: generate Rx either from DB or from form template
 NEW: GVK-Rezept prescription template (darf in D nicht verwendet werden)
 NEW: revamped measurements handling including test panels
+NEW: placeholder $<soap_by_issue>$, selecting SOAP via issues list
+NEW: placeholder $<soap_by_episode>$, selecting SOAP via episodes list
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -42,6 +44,7 @@ IMPROVED: address: street/subunit level comment can now be removed
 IMPROVED: do not loose has_allergy=True on merging patients
 IMPROVED: health issue EA: safer workflow
 IMPROVED: SOAP plugin: improved selection of most-recent information
+IMPROVED: EMR tree browser: display entire EMR as journal
 
 ------------------------------------------------
 # rel-1-2-patches

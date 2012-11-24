@@ -14,7 +14,13 @@ import wx.lib.statbmp as wx_genstatbmp
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+
 from Gnumed.pycommon import gmI18N
+
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
@@ -423,20 +429,163 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 	wx.EndBusyCursor()
 	return True
 #------------------------------------------------------------
-def select_narrative_from_episodes_new(parent=None, soap_cats=None):
-	"""soap_cats needs to be a list"""
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
+def select_narrative_by_issue(parent=None, soap_cats=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
 
+	# not useful if you think about it:
+#	issues = [ i for i in emr.health_issues ]
+#	if len(issues) == 0:
+#		gmDispatcher.send(signal = 'statustext', msg = _('No progress notes found.'))
+#		return []
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if soap_cats is None:
+		soap_cats = u'soapu'
+	soap_cats = list(soap_cats)
+	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+
 	selected_soap = {}
-	selected_narrative_pks = []
+	#selected_narrative_pks = []
 
 	#-----------------------------------------------
+	def get_soap_tooltip(soap):
+		return soap.format(fancy = True, width = 60)
+	#-----------------------------------------------
+	def pick_soap_from_issue(issue):
+
+		if issue is None:
+			return False
+
+		narr_for_issue = emr.get_clin_narrative(issues = [issue['pk_health_issue']], soap_cats = soap_cats)
+
+		if len(narr_for_issue) == 0:
+			gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for this health issue.'))
+			return True
+
+		selected_narr = gmListWidgets.get_choices_from_list (
+			parent = parent,
+			msg = _('Pick the [%s] narrative you want to include in the report.') % u'/'.join(i18n_soap_cats),
+			caption = _('Picking [%s] from %s%s%s') % (
+				u'/'.join(i18n_soap_cats),
+				gmTools.u_left_double_angle_quote,
+				issue['description'],
+				gmTools.u_right_double_angle_quote
+			),
+			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
+			choices = [ [
+				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
+				narr['provider'],
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '//').replace('\r', '//')
+			] for narr in narr_for_issue ],
+			data = narr_for_issue,
+			#selections=None,
+			#edit_callback=None,
+			single_selection = False,
+			can_return_empty = False,
+			list_tooltip_callback = get_soap_tooltip
+		)
+
+		if selected_narr is None:
+			return True
+
+		for narr in selected_narr:
+			selected_soap[narr['pk_narrative']] = narr
+
+		return True
+	#-----------------------------------------------
+	def edit_issue(issue):
+		return gmEMRStructWidgets.edit_health_issue(parent = parent, issue = issue)
+	#-----------------------------------------------
+	def refresh_issues(lctrl):
+		#issues = [ i for i in emr.health_issues ]
+		issues = emr.health_issues
+		lctrl.set_string_items ([ [
+				gmTools.bool2subst(i['is_confidential'], _('!! CONFIDENTIAL !!'), u''),
+				i['description'],
+				gmTools.bool2subst(i['is_active'], _('active'), _('inactive'))
+			] for i in issues
+		])
+		lctrl.set_data(issues)
+	#-----------------------------------------------
+	def get_issue_tooltip(issue):
+		return issue.format (
+			patient = pat,
+			with_encounters = False,
+			with_medications = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_documents = False,
+			with_tests = False,
+			with_vaccinations = False
+		)
+	#-----------------------------------------------
+	#selected_episode_pks = []
+
+	issues_picked_from = gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\n Select the issue you want to report on.'),
+		caption = _('Picking [%s] from health issues') % u'/'.join(i18n_soap_cats),
+		columns = [_('Privacy'), _('Issue'), _('Status')],
+		edit_callback = edit_issue,
+		refresh_callback = refresh_issues,
+		single_selection = True,
+		can_return_empty = True,
+		ignore_OK_button = False,
+		left_extra_button = (
+			_('&Pick notes'),
+			_('Pick [%s] entries from selected health issue') % u'/'.join(i18n_soap_cats),
+			pick_soap_from_issue
+		),
+		list_tooltip_callback = get_issue_tooltip
+	)
+
+	if issues_picked_from is None:
+		return []
+
+	return selected_soap.values()
+
+#	selection_idxs = []
+#	for idx in range(len(all_epis)):
+#		if all_epis[idx]['pk_episode'] in selected_episode_pks:
+#			selection_idxs.append(idx)
+#	if len(selection_idxs) != 0:
+#		dlg.set_selections(selections = selection_idxs)
+#------------------------------------------------------------
+def select_narrative_by_episode(parent=None, soap_cats=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	all_epis = [ epi for epi in emr.get_episodes(order_by = u'description') if epi.has_narrative ]
+	if len(all_epis) == 0:
+		gmDispatcher.send(signal = 'statustext', msg = _('No episodes with progress notes found.'))
+		return []
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if soap_cats is None:
+		soap_cats = u'soapu'
+	soap_cats = list(soap_cats)
+	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+
+	selected_soap = {}
+	#selected_narrative_pks = []
+
+	#-----------------------------------------------
+	def get_soap_tooltip(soap):
+		return soap.format(fancy = True, width = 60)
+	#-----------------------------------------------
 	def pick_soap_from_episode(episode):
+
+		if episode is None:
+			return False
 
 		narr_for_epi = emr.get_clin_narrative(episodes = [episode['pk_episode']], soap_cats = soap_cats)
 
@@ -444,69 +593,108 @@ def select_narrative_from_episodes_new(parent=None, soap_cats=None):
 			gmDispatcher.send(signal = 'statustext', msg = _('No narrative available for selected episode.'))
 			return True
 
-		dlg = cNarrativeListSelectorDlg (
+		selected_narr = gmListWidgets.get_choices_from_list (
 			parent = parent,
-			id = -1,
-			narrative = narr_for_epi,
-			msg = _(
-				'\n This is the narrative (type %s) for the chosen episodes.\n'
-				'\n'
-				' Now, mark the entries you want to include in your report.\n'
-			) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
+			msg = _('Pick the [%s] narrative you want to include in the report.') % u'/'.join(i18n_soap_cats),
+			caption = _('Picking [%s] from %s%s%s') % (
+				u'/'.join(i18n_soap_cats),
+				gmTools.u_left_double_angle_quote,
+				episode['description'],
+				gmTools.u_right_double_angle_quote
+			),
+			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
+			choices = [ [
+				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
+				narr['provider'],
+				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				narr['narrative'].replace('\n', '//').replace('\r', '//')
+			] for narr in narr_for_epi ],
+			data = narr_for_epi,
+			#selections=None,
+			#edit_callback=None,
+			single_selection = False,
+			can_return_empty = False,
+			list_tooltip_callback = get_soap_tooltip
 		)
+
+		if selected_narr is None:
+			return True
+
+		for narr in selected_narr:
+			selected_soap[narr['pk_narrative']] = narr
+
+		return True
+
 #		selection_idxs = []
 #		for idx in range(len(narr_for_epi)):
 #			if narr_for_epi[idx]['pk_narrative'] in selected_narrative_pks:
 #				selection_idxs.append(idx)
 #		if len(selection_idxs) != 0:
 #			dlg.set_selections(selections = selection_idxs)
-		btn_pressed = dlg.ShowModal()
-		selected_narr = dlg.get_selected_item_data()
-		dlg.Destroy()
 
-		if btn_pressed == wx.ID_CANCEL:
-			return True
-
-		selected_narrative_pks = [ i['pk_narrative'] for i in selected_narr ]
-		for narr in selected_narr:
-			selected_soap[narr['pk_narrative']] = narr
-
-		print "before returning from picking soap"
-
-		return True
+#		selected_narrative_pks = [ i['pk_narrative'] for i in selected_narr ]
+#		for narr in selected_narr:
+#			selected_soap[narr['pk_narrative']] = narr
+#
+#		print "before returning from picking soap"
+#
+#		return True
+#	#-----------------------------------------------
+	def edit_episode(episode):
+		return gmEMRStructWidgets.edit_episode(parent = parent, episode = episode)
 	#-----------------------------------------------
-	selected_episode_pks = []
+	def refresh_episodes(lctrl):
+		all_epis = [ epi for epi in emr.get_episodes(order_by = u'description') if epi.has_narrative ]
+		lctrl.set_string_items ([ [
+				u'%s%s' % (e['description'], gmTools.coalesce(e['health_issue'], u'', u' (%s)')),
+				gmTools.bool2subst(e['episode_open'], _('open'), _('closed'))
+			] for e in all_epis
+		])
+		lctrl.set_data(all_epis)
+	#-----------------------------------------------
+	def get_episode_tooltip(episode):
+		return episode.format (
+			patient = pat,
+			with_encounters = False,
+			with_documents = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_tests = False,
+			with_vaccinations = False
+		)
+	#-----------------------------------------------
+	#selected_episode_pks = []
 
-	all_epis = [ epi for epi in emr.get_episodes() if epi.has_narrative ]
+	epis_picked_from = gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\n Select the episode you want to report on.'),
+		caption = _('Picking [%s] from episodes') % u'/'.join(i18n_soap_cats),
+		columns = [_('Episode'), _('Status')],
+		edit_callback = edit_episode,
+		refresh_callback = refresh_episodes,
+		single_selection = True,
+		can_return_empty = True,
+		ignore_OK_button = False,
+		left_extra_button = (
+			_('&Pick notes'),
+			_('Pick [%s] entries from selected episode') % u'/'.join(i18n_soap_cats),
+			pick_soap_from_episode
+		),
+		list_tooltip_callback = get_episode_tooltip
+	)
 
-	if len(all_epis) == 0:
-		gmDispatcher.send(signal = 'statustext', msg = _('No episodes recorded for the health issues selected.'))
+	if epis_picked_from is None:
 		return []
 
-	dlg = gmEMRStructWidgets.cEpisodeListSelectorDlg (
-		parent = parent,
-		id = -1,
-		episodes = all_epis,
-		msg = _('\n Select the the episode you want to report on.\n')
-	)
+	return selected_soap.values()
+
 #	selection_idxs = []
 #	for idx in range(len(all_epis)):
 #		if all_epis[idx]['pk_episode'] in selected_episode_pks:
 #			selection_idxs.append(idx)
 #	if len(selection_idxs) != 0:
 #		dlg.set_selections(selections = selection_idxs)
-	dlg.left_extra_button = (
-		_('Pick SOAP'),
-		_('Pick SOAP entries from topmost selected episode'),
-		pick_soap_from_episode
-	)
-	btn_pressed = dlg.ShowModal()
-	dlg.Destroy()
-
-	if btn_pressed == wx.ID_CANCEL:
-		return None
-
-	return selected_soap.values()
 #------------------------------------------------------------
 def select_narrative_from_episodes(parent=None, soap_cats=None):
 	"""soap_cats needs to be a list"""
@@ -2526,7 +2714,7 @@ if __name__ == '__main__':
 		pat = gmPersonSearch.ask_for_patient()
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
-		sels = select_narrative_from_episodes()
+		sels = select_narrative_from_episodes_new()
 		print "selected:"
 		for sel in sels:
 			print sel
@@ -2551,8 +2739,8 @@ if __name__ == '__main__':
 		soap_input._schedule_data_reget()
 		application.MainLoop()
 	#----------------------------------------
-	#test_select_narrative_from_episodes()
-	test_cSoapNoteExpandoEditAreaPnl()
+	test_select_narrative_from_episodes()
+	#test_cSoapNoteExpandoEditAreaPnl()
 	#test_cSoapPluginPnl()
 
 #============================================================

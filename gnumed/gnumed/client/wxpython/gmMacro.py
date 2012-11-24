@@ -137,13 +137,25 @@ known_variant_placeholders = [
 	u'progress_notes',						# "args" holds: categories//template
 											# 	categories: string with 'soapu '; ' ' == None == admin
 											#	template:	u'something %s something'		(do not include // in template !)
-	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
+
+	u'soap_for_encounters',					# lets the user select a list of encounters for which
+											# LaTeX formatted progress notes are emitted:
+											# "args": soap categories // strftime date format
+
+	u'soap_by_issue',						# lets the user select a list of issues and
+											# then SOAP entries from those issues
+											# "args": soap categories // strftime date format // template
+
+	u'soap_by_episode',						# lets the user select a list of issues and
+											# then SOAP entries from those issues
+											# "args": soap categories // strftime date format // template
+
 	u'emr_journal',							# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
 											#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
 											#				   (" " == None == admin category)
 											#	template:	   something %s something else
 											#				   (Do not include // in the template !)
-											#	line length:   the length of individual lines, not the total placeholder length
+											#	line length:   the maximum length of individual lines, not the total placeholder length
 											#	time range:	   the number of weeks going back in time
 											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
 
@@ -610,6 +622,59 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return u'\n'.join(lines)
 	#--------------------------------------------------------
+	def _get_variant_soap_by_issue(self, data=None):
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'issue')
+	#--------------------------------------------------------
+	def _get_variant_soap_by_episode(self, data=None):
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'episode')
+	#--------------------------------------------------------
+	def __get_variant_soap_by_issue_or_episode(self, data=None, mode=None):
+
+		# default: all categories, neutral template
+		cats = list(u'soapu')
+		cats.append(None)
+
+		date_format = None
+		template = u'%s'
+
+		if data is not None:
+			data_parts = data.split('//')
+
+			# part[0]: categories
+			if len(data_parts[0]) > 0:
+				cats = []
+				if u' ' in data_parts[0]:
+					cats.append(None)
+				cats.extend(list(data_parts[0].replace(u' ', u'')))
+
+			# part[1]: date format
+			if len(data_parts) > 1:
+				if len(data_parts[1]) > 0:
+					date_format = data_parts[1]
+
+			# part[2]: template
+			if len(data_parts) > 2:
+				if len(data_parts[2]) > 0:
+					template = data_parts[2]
+
+		if mode == u'issue':
+			narr = gmNarrativeWidgets.select_narrative_by_issue(soap_cats = cats)
+		else:
+			narr = gmNarrativeWidgets.select_narrative_by_episode(soap_cats = cats)
+
+		if narr is None:
+			return u''
+
+		if len(narr) == 0:
+			return u''
+
+		try:
+			narr = [ template % n.fields_as_dict(date_format = date_format, escape_style = u'tex') for n in narr ]
+		except KeyError:
+			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+
+		return u'\n'.join(narr)
+	#--------------------------------------------------------
 	def _get_variant_progress_notes(self, data=None):
 		return self._get_variant_soap(data=data)
 	#--------------------------------------------------------
@@ -639,7 +704,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 1:
 				template = data_parts[1]
 
-		#narr = gmNarrativeWidgets.select_narrative_from_episodes_new(soap_cats = cats)
 		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
 
 		if narr is None:
@@ -1658,7 +1722,7 @@ if __name__ == '__main__':
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
-			#u'soap_a',,
+			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
@@ -1685,7 +1749,9 @@ if __name__ == '__main__':
 			#u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
 			#u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$',
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
-			u'$<current_meds::%s//select::>$'
+			#u'$<current_meds::%s//select::>$',
+			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
+			u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
 
 		]
 

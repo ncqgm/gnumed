@@ -287,9 +287,12 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# root node == EMR level
 		else:
-			self.__enable_display_mode_selection(False)
-			emr = self.__pat.get_emr()
-			txt = emr.format_summary(dob = self.__pat['dob'])
+			self.__enable_display_mode_selection(True)
+			if self.__details_display_mode == u'details':
+				emr = self.__pat.get_emr()
+				txt = emr.format_summary(dob = self.__pat['dob'])
+			else:
+				txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
 			self.__img_display.clear()
 
 		self.__details_display.Clear()
