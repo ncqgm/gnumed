@@ -4,13 +4,15 @@ This module contains widgets and GUI
 functions for authenticating users.
 """
 #================================================================
-__version__ = "$Revision: 1.45 $"
 __author__ = "karsten.hilbert@gmx.net, H.Herb, H.Berger, R.Terry"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, logging, re as regex
+import sys
+import os.path
+import logging
+import re as regex
 
 
 # 3rd party
@@ -20,13 +22,20 @@ import wx
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmLoginInfo, gmPG2, gmBackendListener, gmTools, gmCfg2, gmI18N
+from Gnumed.pycommon import gmLoginInfo
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmBackendListener
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmI18N
+
 from Gnumed.business import gmSurgery
-from Gnumed.wxpython import gmGuiHelpers, gmExceptionHandlingWidgets
+
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmExceptionHandlingWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 _cfg = gmCfg2.gmCfgData()
 
 try:
@@ -707,32 +716,33 @@ class cLoginPanel(wx.Panel):
 	#############################################################################
 	def GetLoginInfo(self):
 		"""convenience function for compatibility with gmLoginInfo.LoginInfo"""
-		if not self.cancelled:
-			# FIXME: do not assume conf file is latin1 !
-			#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
-			profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
-			_log.info(u'backend profile "%s" selected', profile.name)
-			_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
-				self._CBOX_user.GetValue(),
-				profile.database,
-				profile.host,
-				profile.port,
-				profile.encoding,
-				gmTools.bool2subst(profile.public_db, u'public', u'private')
-			)
-			_log.info(u' helpdesk: "%s"', profile.helpdesk)
-			login = gmLoginInfo.LoginInfo (
-				user = self._CBOX_user.GetValue(),
-				password = self.pwdentry.GetValue(),
-				host = profile.host,
-				database = profile.database,
-				port = profile.port
-			)
-			login.public_db = profile.public_db
-			login.helpdesk = profile.helpdesk
-			return login
+		if self.cancelled:
+			return None
 
-		return None
+		# FIXME: do not assume conf file is latin1 !
+		#profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('latin1').strip()]
+		profile = self.__backend_profiles[self._CBOX_profile.GetValue().encode('utf8').strip()]
+		_log.info(u'backend profile "%s" selected', profile.name)
+		_log.info(u' details: <%s> on %s@%s:%s (%s, %s)',
+			self._CBOX_user.GetValue(),
+			profile.database,
+			profile.host,
+			profile.port,
+			profile.encoding,
+			gmTools.bool2subst(profile.public_db, u'public', u'private')
+		)
+		_log.info(u' helpdesk: "%s"', profile.helpdesk)
+		login = gmLoginInfo.LoginInfo (
+			user = self._CBOX_user.GetValue(),
+			password = self.pwdentry.GetValue(),
+			host = profile.host,
+			database = profile.database,
+			port = profile.port
+		)
+		login.public_db = profile.public_db
+		login.helpdesk = profile.helpdesk
+		login.backend_profile = profile.name
+		return login
 	#----------------------------
 	# event handlers
 	#----------------------------
@@ -837,4 +847,3 @@ if __name__ == "__main__":
 #		app.MainLoop()
 
 #================================================================
-

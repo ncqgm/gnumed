@@ -5,7 +5,12 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL"
 
 
-import logging, sys, codecs, re as regex, shutil, os, types
+import logging
+import sys
+import codecs
+import re as regex
+import shutil
+import os
 
 
 if __name__ == "__main__":
@@ -82,10 +87,88 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 	# last group then or else the following group would have
 	# triggered the option writeout.
 	sink.write(u'%s = %s\n' % (option, value))
+
 #==================================================================
 def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=None):
 
-	group_seen = False
+	our_group_seen = False
+	inside_our_group = False
+	our_list_seen = False
+	inside_our_list = False
+
+	# loop until group found or src empty
+	for line in src:
+
+		if inside_our_list:			# can only be true if already inside our group
+			# new list has been written already
+			# so now at end of our (old) list ?
+			if regex.match('\$%s\$' % option, line.strip()) is not None:
+				inside_our_list = False
+				continue
+			# skip old list entries
+			continue
+
+		if inside_our_group:
+			# our option ?
+			if regex.match('%s(\s|\t)*=(\s|\t)*\$%s\$' % (option, option), line.strip()) is not None:
+				sink.write(line)										# list header
+				sink.write('\n'.join(value))
+				sink.write('\n')
+				sink.write('$%s$\n' % option)							# list footer
+				sink.write('\n')
+				our_list_seen = True
+				inside_our_list = True
+				continue
+
+			# next group (= end of our group) ?
+			if regex.match('\[.+\]', line.strip()) is not None:
+				# our list already handled ?  (if so must already be finished)
+				if not our_list_seen:
+					# no, so need to add our list to the group before ...
+					sink.write('%s = $%s$\n' % (option, option))		# list header
+					sink.write('\n'.join(value))
+					sink.write('\n')
+					sink.write('$%s$\n' % option)						# list footer
+					sink.write('\n')
+					our_list_seen = True
+					inside_our_list = False
+				# ... starting the next group
+				sink.write(line)				# next group header
+				inside_our_group = False
+				continue
+
+			# other lines inside our group
+			sink.write(line)
+			continue
+
+		# our group ?
+		if line.strip() == u'[%s]' % group:
+			our_group_seen = True
+			inside_our_group = True
+			sink.write(line)						# group header
+			continue
+
+		sink.write(line)
+
+	# looped over all lines but did not find our group, so add group
+	if not our_group_seen:
+		sink.write('[%s]\n' % group)
+
+	if not our_list_seen:
+		# We either just added the group or it was the last group
+		# but did not contain the option. It must have been the
+		# last group then or else the group following it would have
+		# triggered the option writeout.
+		sink.write('%s = $%s$\n' % (option, option))
+		sink.write('\n'.join(value))
+		sink.write('\n')
+		sink.write('$%s$\n' % option)
+		sink.write('\n')
+
+#==================================================================
+def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, value=None):
+
+	our_group_seen = False
 	option_seen = False
 	in_list = False
 
@@ -105,12 +188,12 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 			sink.write(line)
 			continue
 
-		# start of list ?
+		# at start of a list ?
 		match = regex.match('(?P<list_name>.+)(\s|\t)*=(\s|\t)*\$(?P=list_name)\$', line)
 		if match is not None:
 			in_list = True
 			# our list ?
-			if group_seen and (match.group('list_name') == option):
+			if our_group_seen and (match.group('list_name') == option):
 				option_seen = True
 				sink.write(line)
 				sink.write('\n'.join(value))
@@ -119,7 +202,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 			sink.write(line)
 			continue
 
-		# end of list ?
+		# at end of a list ?
 		if regex.match('\$.+\$.*', line) is not None:
 			in_list = False
 			sink.write(line)
@@ -127,14 +210,14 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 
 		# our group ?
 		if line.strip() == u'[%s]' % group:
-			group_seen = True
 			sink.write(line)
+			our_group_seen = True
 			continue
 
 		# another group ?
 		if regex.match('\[%s\].*' % group, line) is not None:
 			# next group but option not seen yet ?
-			if group_seen and not option_seen:
+			if our_group_seen and not option_seen:
 				option_seen = True
 				sink.write('%s = $%s$\n' % (option, option))
 				sink.write('\n'.join(value))
@@ -151,7 +234,7 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 		return
 
 	# need to add group ?
-	if not group_seen:
+	if not our_group_seen:
 		sink.write('[%s]\n' % group)
 
 	# We either just added the group or it was the last group
@@ -314,7 +397,7 @@ class gmCfgData(gmBorg.cBorg):
 				return value
 
 			if policy == u'extend':
-				if isinstance(value, types.ListType):
+				if isinstance(value, type([])):
 					results.extend(value)
 				else:
 					results.append(value)
@@ -452,6 +535,12 @@ class gmCfgData(gmBorg.cBorg):
 #==================================================================
 if __name__ == "__main__":
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
 	logging.basicConfig(level = logging.DEBUG)
 	#-----------------------------------------
 	def test_gmCfgData():
@@ -519,79 +608,8 @@ if __name__ == "__main__":
 			value = u'for real (new)'
 		)
 	#-----------------------------------------
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		test_gmCfgData()
-		#test_set_list_opt()
-		#test_set_opt()
+	#test_gmCfgData()
+	test_set_list_opt()
+	#test_set_opt()
 
 #==================================================================
-# $Log: gmCfg2.py,v $
-# Revision 1.20  2009-06-10 21:00:01  ncq
-# - add remove-source
-#
-# Revision 1.19  2009/05/08 07:59:05  ncq
-# - .panic -> .critical
-#
-# Revision 1.18  2008/09/09 20:15:42  ncq
-# - warn on same-file different-source
-#
-# Revision 1.17  2008/08/31 16:12:12  ncq
-# - when getting from multiple sources, if policy is "extend",
-#   flatten list options into a single result list
-#
-# Revision 1.16  2008/08/31 14:51:42  ncq
-# - properly handle explicit file=None for dummy sources
-#
-# Revision 1.15  2008/08/03 20:03:11  ncq
-# - do not simply add "." before the entire path of the dummy
-#   conf file when setting option - it should go right before the name part
-#
-# Revision 1.14  2008/07/17 21:30:01  ncq
-# - detect unterminated list option
-#
-# Revision 1.13  2008/07/16 10:36:25  ncq
-# - fix two bugs in INI parsing
-# - better logging, some cleanup
-# - .reload_file_source
-#
-# Revision 1.12  2008/07/07 11:33:57  ncq
-# - a bit of cleanup
-#
-# Revision 1.11  2008/05/21 13:58:50  ncq
-# - factor out add_stream_source from add_file_source
-#
-# Revision 1.10  2008/03/09 20:15:29  ncq
-# - don't fail on non-existing sources
-# - cleanup
-# - better docs
-#
-# Revision 1.9  2008/01/27 21:09:38  ncq
-# - set_option_in_INI_file() and tests
-#
-# Revision 1.8  2008/01/11 16:10:35  ncq
-# - better logging
-#
-# Revision 1.7  2008/01/07 14:12:33  ncq
-# - add some documentation to add_cli()
-#
-# Revision 1.6  2007/12/26 22:43:28  ncq
-# - source order needs policy
-#
-# Revision 1.5  2007/12/26 21:50:45  ncq
-# - missing continue
-# - better test suite
-#
-# Revision 1.4  2007/12/26 21:11:11  ncq
-# - need codecs
-#
-# Revision 1.3  2007/12/26 20:47:22  ncq
-# - need to create internal source if doesn't exist
-#
-# Revision 1.2  2007/12/26 20:18:03  ncq
-# - fix test suite
-#
-# Revision 1.1  2007/12/23 11:53:13  ncq
-# - a much improved cfg options interface
-#   - no database handling yet
-#
-#
