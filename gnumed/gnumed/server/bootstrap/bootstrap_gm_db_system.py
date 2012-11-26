@@ -876,8 +876,8 @@ class database:
 	#--------------------------------------------------------------
 	def check_holy_auth_line(self):
 
-		holy_pattern = 'local.*samegroup.*\+gm-logins'
-		holy_pattern_inactive = '#\s*local.*samegroup.*\+gm-logins'
+		holy_pattern = 'local.*samerole.*\+gm-logins'
+		holy_pattern_inactive = '#\s*local.*samerole.*\+gm-logins'
 
 		conn = connect (
 			self.server.name,
@@ -940,7 +940,7 @@ class database:
 			print_msg('In many standard PostgreSQL installations this amounts to')
 			print_msg('adding (or uncommenting) the authentication directive:')
 			print_msg('')
-			print_msg('  "local   samegroup   +gm-logins   md5"')
+			print_msg('  "local   samerole    +gm-logins   md5"')
 			print_msg('')
 			print_msg('in the proper place of the file:')
 			print_msg('')
