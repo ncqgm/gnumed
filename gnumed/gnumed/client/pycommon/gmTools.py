@@ -742,7 +742,11 @@ def xml_escape_string(text=None):
 #	return text
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None):
-	"""check for special LaTeX characters and transform them"""
+	"""check for special TeX characters and transform them"""
+
+	text = text.replace(u'\\', u'\\textbackslash')
+	text = text.replace(u'^', u'\\textasciicircum')
+	text = text.replace('~','\\textasciitilde')
 
 	text = text.replace(u'{', u'\\{')
 	text = text.replace(u'}', u'\\}')
@@ -750,12 +754,8 @@ def tex_escape_string(text=None):
 	text = text.replace(u'&', u'\\&')
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
-	text = text.replace(u'\\', u'$\\backslash$')
 	text = text.replace(u'_', u'\\_')
 	text = text.replace(u_euro, u'\\EUR')
-
-	text = text.replace(u'^', u'\\verb#^#')
-	text = text.replace('~','\\verb#~#')
 
 	return text
 #---------------------------------------------------------------------------
