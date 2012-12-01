@@ -773,6 +773,9 @@ class cAbiWordForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
 
+		data_source.escape_style = u'xml'
+		data_source.escape_function = None			# gmTools.xml_escape_text() ?
+
 		for line in template_file:
 
 			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
@@ -945,6 +948,9 @@ class cLaTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		data_source.escape_function = gmTools.tex_escape_string
+		data_source.escape_style = u'latex'
 
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:
@@ -1136,6 +1142,9 @@ class cXeTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+
+		data_source.escape_function = gmTools.xetex_escape_string
+		data_source.escape_style = u'xetex'
 
 		path, ext = os.path.splitext(self.template_filename)
 		if ext in [r'', r'.']:

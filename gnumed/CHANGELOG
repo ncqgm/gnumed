@@ -45,6 +45,7 @@ IMPROVED: do not loose has_allergy=True on merging patients
 IMPROVED: health issue EA: safer workflow
 IMPROVED: SOAP plugin: improved selection of most-recent information
 IMPROVED: EMR tree browser: display entire EMR as journal
+IMPROVED: placeholder handler: always properly escape data based on target form engine
 
 ------------------------------------------------
 # rel-1-2-patches

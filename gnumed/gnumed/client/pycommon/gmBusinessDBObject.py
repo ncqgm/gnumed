@@ -473,10 +473,6 @@ def delete_xxx(xxx=None):
 				continue
 
 			if isinstance(val, datetime.datetime):
-#				try:
-#					data[field] = val.strftime(date_format).decode('utf8', 'replace')
-#				except ValueError:
-#					data[field] = val.isoformat()
 				data[field] = pydt_strftime(val, format = date_format, encoding = 'utf8')
 				if escape_style in [u'latex', u'tex']:
 					data[field] = tex_escape_string(data[field])
