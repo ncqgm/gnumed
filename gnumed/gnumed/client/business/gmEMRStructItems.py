@@ -348,7 +348,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u'')
+				lines.append(u' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 					text = self._payload[self._idx['summary']],
 					width = 60,
@@ -1077,7 +1077,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u'')
+				lines.append(u' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 						text = self._payload[self._idx['summary']],
 						width = 60,

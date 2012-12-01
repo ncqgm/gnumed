@@ -985,14 +985,15 @@ class cEMRJournalExporter:
 
 		# get data
 		cmd = u"""
-select
-	to_char(vemrj.clin_when, 'YYYY-MM-DD') as date,
-	vemrj.*,
-	(select rank from clin.soap_cat_ranks where soap_cat = vemrj.soap_cat) as scr,
-	to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') as date_modified
-from clin.v_emr_journal vemrj
-where pk_patient = %s
-order by date, pk_episode, scr, src_table"""
+			SELECT
+				to_char(vemrj.clin_when, 'YYYY-MM-DD') AS date,
+				vemrj.*,
+				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = vemrj.soap_cat) AS scr,
+				to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified
+			FROM clin.v_emr_journal vemrj
+			WHERE pk_patient = %s
+			ORDER BY date, pk_episode, scr, src_table
+		"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [patient['pk_identity']]}], get_col_idx = True)
 
 		# write data

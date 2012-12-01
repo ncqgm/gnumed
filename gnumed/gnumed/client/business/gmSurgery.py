@@ -197,7 +197,7 @@ where
 		pass
 
 	def _get_workplaces(self):
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'select distinct workplace from cfg.cfg_item'}])
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'SELECT DISTINCT workplace FROM cfg.cfg_item ORDER BY workplace'}])
 		return [ r[0] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)
