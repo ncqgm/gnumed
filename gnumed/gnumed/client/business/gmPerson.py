@@ -9,13 +9,26 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 # std lib
-import sys, os.path, time, re as regex, string, types, datetime as pyDT, codecs, threading, logging
+import sys
+import os.path
+import time
+import re as regex
+import datetime as pyDT
+import codecs
+import threading
+import logging
 
 
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmExceptions, gmDispatcher, gmBorg, gmI18N, gmNull, gmBusinessDBObject, gmTools
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmNull
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
@@ -809,6 +822,11 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
 	#--------------------------------------------------------
+	def _get_export_tray(self):
+		return gmExportTray.cExportTray(self.tray_dir_name)
+
+	export_tray = property(_get_export_tray, lambda x:x)
+	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
 		template = u'%s%s%s\r\n'
@@ -1189,13 +1207,36 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	def get_dirname(self):
 		"""Format patient demographics into patient specific path name fragment."""
-		return '%s-%s%s-%s' % (
+		return (u'%s-%s%s-%s' % (
 			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
 			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
-			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)'),
+			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)').replace(u' ', u'_'),
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
+		)).replace (
+			u"'", u""
+		).replace (
+			u'"', u''
+		).replace (
+			u'/', u'_'
+		).replace (
+			u'\\', u'_'
+		).replace (
+			u'~', u''
+		).replace (
+			u'|', u'_'
+		).replace (
+			u'*', u''
+		).replace (
+			u'\u2248', u''			# "approximately", having been added by dob_is_estimated
 		)
 
+	dirname = property(get_dirname, lambda x:x)
+	#----------------------------------------------------------------------
+	def _get_tray_dir_name(self):
+		paths = gmTools.gmPaths()
+		return os.path.join(paths.tmp_dir, self.dirname)
+
+	tray_dir_name = property(_get_tray_dir_name, lambda x:x)
 #============================================================
 # helper functions
 #------------------------------------------------------------

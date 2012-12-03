@@ -115,7 +115,6 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 				sink.write('\n'.join(value))
 				sink.write('\n')
 				sink.write('$%s$\n' % option)							# list footer
-				sink.write('\n')
 				our_list_seen = True
 				inside_our_list = True
 				continue
@@ -129,7 +128,6 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 					sink.write('\n'.join(value))
 					sink.write('\n')
 					sink.write('$%s$\n' % option)						# list footer
-					sink.write('\n')
 					our_list_seen = True
 					inside_our_list = False
 				# ... starting the next group
@@ -163,7 +161,6 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 		sink.write('\n'.join(value))
 		sink.write('\n')
 		sink.write('$%s$\n' % option)
-		sink.write('\n')
 
 #==================================================================
 def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, value=None):
