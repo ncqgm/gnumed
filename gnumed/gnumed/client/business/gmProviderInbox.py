@@ -5,7 +5,6 @@ This should eventually end up in a class cPractice.
 """
 #============================================================
 __license__ = "GPL"
-__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -22,7 +21,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmStaff
 
 #============================================================
-# description
+# provider message inbox
 #------------------------------------------------------------
 _SQL_get_inbox_messages = u"SELECT * FROM dem.v_message_inbox WHERE %s"
 
