@@ -1029,7 +1029,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return self._escape(_('template is missing'))
 
-		return u'\n'.join([ data % a for a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) in self.pat.emr.get_allergies() ])
+		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 

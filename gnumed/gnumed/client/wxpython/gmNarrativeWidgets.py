@@ -1184,10 +1184,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
 
-		soap = u''
-		caption = u'<?>'
-
-		if problem['type'] == u'issue':
+		if problem is None:
+			caption = u'<?>'
+			txt = u''
+		elif problem['type'] == u'issue':
 			caption = problem['problem'][:35]
 			txt = self.__get_info_for_issue_problem(problem = problem, fancy = not self._RBTN_notes_only.GetValue())
 		elif problem['type'] == u'episode':
@@ -2094,6 +2094,12 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl, gmKeywordExpansionWidgets.cK
 		wx.CallAfter(self._after_on_focus)
 	#--------------------------------------------------------
 	def _after_on_focus(self):
+		# robustify against PyDeadObjectError - since we are called
+		# from wx.CallAfter this SoapCtrl may be gone by the time
+		# we get to handling this layout request, say, on patient
+		# change or some such
+		if not self:
+			return
 		#wx.CallAfter(self._adjustCtrl)
 		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)
