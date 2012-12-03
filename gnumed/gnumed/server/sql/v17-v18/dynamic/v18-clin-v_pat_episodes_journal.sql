@@ -10,10 +10,10 @@
 -- --------------------------------------------------------------
 -- create index for faster join in EMR view
 \unset ON_ERROR_STOP
-drop index clin.episode_fk_encounter_idx cascade;
+drop index clin.idx_episode_fk_encounter cascade;
 \set ON_ERROR_STOP 1
 
-create index on clin.episode (fk_encounter);
+create index idx_episode_fk_encounter on clin.episode(fk_encounter);
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
