@@ -24,6 +24,7 @@ NEW: GVK-Rezept prescription template (darf in D nicht verwendet werden)
 NEW: revamped measurements handling including test panels
 NEW: placeholder $<soap_by_issue>$, selecting SOAP via issues list
 NEW: placeholder $<soap_by_episode>$, selecting SOAP via episodes list
+NEW: progress notes can now be created from EMR tree
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
