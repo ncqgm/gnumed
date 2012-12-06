@@ -1,9 +1,15 @@
 """GNUmed narrative handling widgets."""
 #================================================================
-__version__ = "$Revision: 1.46 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import sys, logging, os, os.path, time, re as regex, shutil
+import sys
+import logging
+import os
+import os.path
+import time
+import re as regex
+import shutil
 
 
 import wx
@@ -53,7 +59,6 @@ from Gnumed.exporters import gmPatientExporter
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #============================================================
 # narrative related widgets/functions
 #------------------------------------------------------------
@@ -881,10 +886,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	- previous notes
 
 	Right hand side:
-	- encounter details fields
-	- notebook with progress note editors
-	- visual progress notes
-	- hints
+	- panel handling
+		- encounter details fields
+		- notebook with progress note editors
+		- visual progress notes
 
 	Listens to patient change signals, thus acts on the current patient.
 	"""
@@ -894,39 +899,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.__pat = gmPerson.gmCurrentPatient()
-		self.__patient_just_changed = False
 		self.__init_ui()
 		self.__reset_ui_content()
-
 		self.__register_interests()
-	#--------------------------------------------------------
-	# public API
-	#--------------------------------------------------------
-	def save_encounter(self):
-
-		if not self.__encounter_valid_for_save():
-			return False
-
-		emr = self.__pat.get_emr()
-		enc = emr.active_encounter
-
-		rfe = self._TCTRL_rfe.GetValue().strip()
-		if len(rfe) == 0:
-			enc['reason_for_encounter'] = None
-		else:
-			enc['reason_for_encounter'] = rfe
-		aoe = self._TCTRL_aoe.GetValue().strip()
-		if len(aoe) == 0:
-			enc['assessment_of_encounter'] = None
-		else:
-			enc['assessment_of_encounter'] = aoe
-
-		enc.save_payload()
-
-		enc.generic_codes_rfe = [ c['data'] for c in self._PRW_rfe_codes.GetData() ]
-		enc.generic_codes_aoe = [ c['data'] for c in self._PRW_aoe_codes.GetData() ]
-
-		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -942,54 +917,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
 		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
-
-		self._NB_soap_editors.DeleteAllPages()
-		self._NB_soap_editors.MoveAfterInTabOrder(self._PRW_aoe_codes)
-	#--------------------------------------------------------
-	def _on_encounter_start_lost_focus(self):
-		start = self._PRW_encounter_start.GetData()
-		if start is None:
-			return
-		start = start.get_pydt()
-
-		end = self._PRW_encounter_end.GetData()
-		if end is None:
-			fts = gmDateTime.cFuzzyTimestamp (
-				timestamp = start,
-				accuracy = gmDateTime.acc_minutes
-			)
-			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
-			return
-		end = end.get_pydt()
-
-		if start > end:
-			end = end.replace (
-				year = start.year,
-				month = start.month,
-				day = start.day
-			)
-			fts = gmDateTime.cFuzzyTimestamp (
-				timestamp = end,
-				accuracy = gmDateTime.acc_minutes
-			)
-			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
-			return
-
-		emr = self.__pat.get_emr()
-		if start != emr.active_encounter['started']:
-			end = end.replace (
-				year = start.year,
-				month = start.month,
-				day = start.day
-			)
-			fts = gmDateTime.cFuzzyTimestamp (
-				timestamp = end,
-				accuracy = gmDateTime.acc_minutes
-			)
-			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
-			return
-
-		return
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""Clear all information from input panel."""
@@ -999,13 +926,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._TCTRL_recent_notes.SetValue(u'')
 		self._SZR_recent_notes_staticbox.SetLabel(_('Most recent notes on selected problem'))
 
-		self._TCTRL_rfe.SetValue(u'')
-		self._PRW_rfe_codes.SetText(suppress_smarts = True)
-		self._TCTRL_aoe.SetValue(u'')
-		self._PRW_aoe_codes.SetText(suppress_smarts = True)
-
-		self._NB_soap_editors.DeleteAllPages()
-		self._NB_soap_editors.add_editor()
+		self._PNL_editors.patient = None
 	#--------------------------------------------------------
 	def __refresh_problem_list(self):
 		"""Update health problems list."""
@@ -1154,33 +1075,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return soap
 	#--------------------------------------------------------
-	def __refresh_current_editor(self):
-		self._NB_soap_editors.refresh_current_editor()
-	#--------------------------------------------------------
-	def __setup_initial_patient_editors(self):
-		if not self.__patient_just_changed:
-			return
-
-		dbcfg = gmCfg.cCfgSQL()
-		auto_open_recent_problems = bool(dbcfg.get2 (
-			option = u'horstspace.soap_editor.auto_open_latest_episodes',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
-			bias = u'user',
-			default = True
-		))
-
-		self.__patient_just_changed = False
-		emr = self.__pat.get_emr()
-		recent_epis = emr.active_encounter.get_episodes()
-		prev_enc = emr.get_last_but_one_encounter()
-		if prev_enc is not None:
-			recent_epis.extend(prev_enc.get_episodes())
-
-		for epi in recent_epis:
-			if not epi['episode_open']:
-				continue
-			self._NB_soap_editors.add_editor(problem = epi)
-	#--------------------------------------------------------
 	def __refresh_recent_notes(self, problem=None):
 		"""This refreshes the recent-notes part."""
 
@@ -1206,48 +1100,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		return True
 	#--------------------------------------------------------
-	def __refresh_encounter(self):
-		"""Update encounter fields."""
-
-		emr = self.__pat.get_emr()
-		enc = emr.active_encounter
-
-		self._TCTRL_rfe.SetValue(gmTools.coalesce(enc['reason_for_encounter'], u''))
-		val, data = self._PRW_rfe_codes.generic_linked_codes2item_dict(enc.generic_codes_rfe)
-		self._PRW_rfe_codes.SetText(val, data)
-
-		self._TCTRL_aoe.SetValue(gmTools.coalesce(enc['assessment_of_encounter'], u''))
-		val, data = self._PRW_aoe_codes.generic_linked_codes2item_dict(enc.generic_codes_aoe)
-		self._PRW_aoe_codes.SetText(val, data)
-
-		self._TCTRL_rfe.Refresh()
-		self._PRW_rfe_codes.Refresh()
-		self._TCTRL_aoe.Refresh()
-		self._PRW_aoe_codes.Refresh()
-	#--------------------------------------------------------
-	def __encounter_modified(self):
-		"""Assumes that the field data is valid."""
-
-		emr = self.__pat.get_emr()
-		enc = emr.active_encounter
-
-		data = {
-			'pk_type': enc['pk_type'],
-			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
-			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-			'pk_location': enc['pk_location'],
-			'pk_patient': enc['pk_patient'],
-			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
-			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData(),
-			'started': enc['started'],
-			'last_affirmed': enc['last_affirmed']
-		}
-
-		return not enc.same_payload(another_object = data)
-	#--------------------------------------------------------
-	def __encounter_valid_for_save(self):
-		return True
-	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
@@ -1258,90 +1110,22 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
-		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
-
-		# synchronous signals
-		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
-		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
-	#--------------------------------------------------------
-	def _pre_selection_callback(self):
-		"""Another patient is about to be activated.
-
-		Patient change will not proceed before this returns True.
-		"""
-		# don't worry about the encounter here - it will be offered
-		# for editing higher up if anything was saved to the EMR
-		if not self.__pat.connected:
-			return True
-		return self._NB_soap_editors.warn_on_unsaved_soap()
-	#--------------------------------------------------------
-	def _pre_exit_callback(self):
-		"""The client is about to be shut down.
-
-		Shutdown will not proceed before this returns.
-		"""
-		if not self.__pat.connected:
-			return True
-
-#		if self.__encounter_modified():
-#			do_save_enc = gmGuiHelpers.gm_show_question (
-#				aMessage = _(
-#					'You have modified the details\n'
-#					'of the current encounter.\n'
-#					'\n'
-#					'Do you want to save those changes ?'
-#				),
-#				aTitle = _('Starting new encounter')
-#			)
-#			if do_save_enc:
-#				if not self.save_encounter():
-#					gmDispatcher.send(signal = u'statustext', msg = _('Error saving current encounter.'), beep = True)
-
-		emr = self.__pat.get_emr()
-		saved = self._NB_soap_editors.save_all_editors (
-			emr = emr,
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		if not saved:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
-		return True
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
+
 	def __on_pre_patient_selection(self):
 		self.__reset_ui_content()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
-		self.__patient_just_changed = True
-	#--------------------------------------------------------
-	def _on_doc_mod_db(self):
-		wx.CallAfter(self.__refresh_current_editor)
+		wx.CallAfter(__on_post_patient_selection)
+
+	def __on_post_patient_selection(self):
+		self._schedule_data_reget()
+		self._PNL_editors.patient = self.__pat
 	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
 		wx.CallAfter(self._schedule_data_reget)
-	#--------------------------------------------------------
-	def _on_encounter_code_modified(self):
-		emr = self.__pat.get_emr()
-		emr.active_encounter.refetch_payload()
-		wx.CallAfter(self.__refresh_encounter)
-	#--------------------------------------------------------
-	def _on_current_encounter_modified(self):
-		wx.CallAfter(self.__refresh_encounter)
-	#--------------------------------------------------------
-	def _on_current_encounter_switched(self):
-		wx.CallAfter(self.__on_current_encounter_switched)
-	#--------------------------------------------------------
-	def __on_current_encounter_switched(self):
-		self.__refresh_encounter()
 	#--------------------------------------------------------
 	# problem list specific events
 	#--------------------------------------------------------
@@ -1363,7 +1147,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_problem_selected(self, event):
 		"""Show related note at the bottom."""
-		emr = self.__pat.get_emr()
 		self.__refresh_recent_notes (
 			problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
 		)
@@ -1382,7 +1165,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			bias = u'user',
 			default = False
 		))
-		if self._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_duplicate_editors):
+		if self._PNL_editors.add_editor(problem = problem, allow_same_problem = allow_duplicate_editors):
 			return True
 
 		gmGuiHelpers.gm_show_error (
@@ -1392,7 +1175,6 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 			) % problem['problem'],
 			aTitle = _('opening progress note editor')
 		)
-		event.Skip()
 		return False
 	#--------------------------------------------------------
 	def _on_show_closed_episodes_checked(self, event):
@@ -1401,85 +1183,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def _on_irrelevant_issues_checked(self, event):
 		self.__refresh_problem_list()
 	#--------------------------------------------------------
-	# SOAP editor specific buttons
-	#--------------------------------------------------------
-	def _on_discard_editor_button_pressed(self, event):
-		self._NB_soap_editors.close_current_editor()
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_new_editor_button_pressed(self, event):
-		self._NB_soap_editors.add_editor(allow_same_problem = True)
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_clear_editor_button_pressed(self, event):
-		self._NB_soap_editors.clear_current_editor()
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_save_note_button_pressed(self, event):
-		emr = self.__pat.get_emr()
-		self._NB_soap_editors.save_current_editor (
-			emr = emr,
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_save_note_under_button_pressed(self, event):
-		encounter = gmEMRStructWidgets.select_encounters (
-			parent = self,
-			patient = self.__pat,
-			single_selection = True
-		)
-		# cancelled or None selected:
-		if encounter is None:
-			return
-
-		emr = self.__pat.get_emr()
-		self._NB_soap_editors.save_current_editor (
-			emr = emr,
-			encounter = encounter['pk_encounter'],
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		event.Skip()
-	#--------------------------------------------------------
-	def _on_image_button_pressed(self, event):
-		emr = self.__pat.get_emr()
-		self._NB_soap_editors.add_visual_progress_note_to_current_problem()
-		event.Skip()
-	#--------------------------------------------------------
-	# encounter specific buttons
-	#--------------------------------------------------------
-	def _on_save_encounter_button_pressed(self, event):
-		self.save_encounter()
-		event.Skip()
-	#--------------------------------------------------------
-	# other buttons
-	#--------------------------------------------------------
-	def _on_save_all_button_pressed(self, event):
-		self.save_encounter()
-		time.sleep(0.3)
-		event.Skip()
-		wx.SafeYield()
-
-		wx.CallAfter(self._save_all_button_pressed_bottom_half)
-		wx.SafeYield()
-	#--------------------------------------------------------
-	def _save_all_button_pressed_bottom_half(self):
-		emr = self.__pat.get_emr()
-		saved = self._NB_soap_editors.save_all_editors (
-			emr = emr,
-			episode_name_candidates = [
-				gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-				gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u'')
-			]
-		)
-		if not saved:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save all editors. Some were kept open.'), beep = True)
+	# recent-notes specific events
 	#--------------------------------------------------------
 	def _on_notes_only_selected(self, event):
 		self.__refresh_recent_notes (
@@ -1493,13 +1197,12 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
-#	def _schedule_data_reget(self):
-#		gmRegetMixin.cRegetOnPaintMixin._schedule_data_reget(self)
+	# only needed for debugging:
+	#def _schedule_data_reget(self):
+	#	gmRegetMixin.cRegetOnPaintMixin._schedule_data_reget(self)
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		self.__refresh_problem_list()
-		self.__refresh_encounter()
-		self.__setup_initial_patient_editors()
 		return True
 
 #============================================================
@@ -1512,7 +1215,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		- textual progress notes
 		- visual progress notes
 
-	in context.
+	in context. Does NOT act on the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
 
@@ -1524,6 +1227,8 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 	#--------------------------------------------------------
 	# public API
 	#--------------------------------------------------------
+	def add_editor(self, problem=None, allow_same_problem=False):
+		return self._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_same_problem)
 	#--------------------------------------------------------
 	def _get_patient(self):
 		return self.__pat
@@ -1630,6 +1335,26 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 	#--------------------------------------------------------
 	def __refresh_current_editor(self):
 		self._NB_soap_editors.refresh_current_editor()
+#	#--------------------------------------------------------
+#	def __encounter_modified(self):
+#		"""Assumes that the field data is valid."""
+#
+#		emr = self.__pat.get_emr()
+#		enc = emr.active_encounter
+#
+#		data = {
+#			'pk_type': enc['pk_type'],
+#			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
+#			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
+#			'pk_location': enc['pk_location'],
+#			'pk_patient': enc['pk_patient'],
+#			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
+#			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData(),
+#			'started': enc['started'],
+#			'last_affirmed': enc['last_affirmed']
+#		}
+#
+#		return not enc.same_payload(another_object = data)
 	#--------------------------------------------------------
 	def __encounter_valid_for_save(self):
 		return True
@@ -1660,7 +1385,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		return self._NB_soap_editors.warn_on_unsaved_soap()
 	#--------------------------------------------------------
 	def _pre_exit_callback(self):
-		"""The client is about to be shut down.
+		"""The client is about to (be) shut down.
 
 		Shutdown will not proceed before this returns.
 		"""

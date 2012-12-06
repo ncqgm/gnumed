@@ -1194,6 +1194,52 @@ class cEncounterEditAreaDlg(wxgEncounterEditAreaDlg.wxgEncounterEditAreaDlg):
 				self.EndModal(wx.ID_OK)
 			else:
 				self.Close()
+	#--------------------------------------------------------
+	def _on_encounter_start_lost_focus(self):
+		start = self._PRW_encounter_start.GetData()
+		if start is None:
+			return
+		start = start.get_pydt()
+
+		end = self._PRW_encounter_end.GetData()
+		if end is None:
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = start,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+		end = end.get_pydt()
+
+		if start > end:
+			end = end.replace (
+				year = start.year,
+				month = start.month,
+				day = start.day
+			)
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = end,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+
+		emr = self.__pat.get_emr()
+		if start != emr.active_encounter['started']:
+			end = end.replace (
+				year = start.year,
+				month = start.month,
+				day = start.day
+			)
+			fts = gmDateTime.cFuzzyTimestamp (
+				timestamp = end,
+				accuracy = gmDateTime.acc_minutes
+			)
+			self._PRW_encounter_end.SetText(fts.format_accurately(), data = fts)
+			return
+
+		return
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgActiveEncounterPnl
 
