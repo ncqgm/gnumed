@@ -1845,6 +1845,13 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		for page_idx in range(self.GetPageCount()):
 			page = self.GetPage(page_idx)
 
+			if problem_to_add is None:
+				if page.problem is None:
+					self.SetSelection(page_idx)
+					gmDispatcher.send(signal = u'statustext', msg = u'Raising existing editor.', beep = True)
+					return True
+				continue
+
 			# editor is for unassociated new problem
 			if page.problem is None:
 				continue
