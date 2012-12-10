@@ -47,6 +47,7 @@ IMPROVED: health issue EA: safer workflow
 IMPROVED: SOAP plugin: improved selection of most-recent information
 IMPROVED: EMR tree browser: display entire EMR as journal
 IMPROVED: placeholder handler: always properly escape data based on target form engine
+IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" workplace
 
 ------------------------------------------------
 # rel-1-2-patches
