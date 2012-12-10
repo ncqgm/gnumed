@@ -9,7 +9,6 @@ TODO:
   - HTML - post-0.1 !
 """
 #============================================================
-__version__ = "$Revision: 1.138 $"
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
@@ -22,12 +21,18 @@ import mx.DateTime as mxDT
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmI18N, gmExceptions, gmNull, gmPG2, gmTools
+
+from Gnumed.pycommon import gmI18N
+
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
+from Gnumed.pycommon import gmExceptions, gmNull, gmPG2, gmTools, gmDateTime
 from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative, gmPersonSearch
 
 
 _log = logging.getLogger('gm.export')
-_log.info(__version__)
 #============================================================
 class cEmrExport:
 
@@ -82,7 +87,7 @@ class cEmrExport:
     def set_patient(self, patient=None):
         """
             Sets exporter patient
-            
+
             patient - Patient whose data are to be dumped
         """
         if patient is None:
@@ -930,6 +935,64 @@ class cEMRJournalExporter:
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
+	def export_to_file_by_mod_time(self, filename=None, patient=None):
+		if patient is None:
+			patient = gmPerson.gmCurrentPatient()
+			if not patient.connected:
+				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
+
+		if filename is None:
+			filename = gmTools.get_unique_filename(prefix = 'gm-emr_by_mod_time-', suffix = '.txt')
+
+		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8', errors = 'replace')
+
+		self.__part_len = 80
+
+		# write header
+		txt = _('EMR Journal sorted by last modification time\n')
+		f.write(txt)
+		f.write(u'=' * (len(txt)-1))
+		f.write('\n')
+		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
+		f.write(_('Born   : %s, age: %s\n\n') % (
+			patient.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+			patient.get_medical_age()
+		))
+
+		# get data
+		cmd = u"""
+			SELECT
+				vemrj.*,
+				to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified
+			FROM clin.v_emr_journal vemrj
+			WHERE pk_patient = %(pat)s
+			ORDER BY modified_when
+		"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': patient['pk_identity']}}])
+
+		f.write ((u'-' * 100) + u'\n')
+		f.write (u'%16.16s | %9.9s | %1.1s | %s \n' % (_('Last modified'), _('By'), u' ', _('Entry')))
+		f.write ((u'-' * 100) + u'\n')
+
+		for r in rows:
+			txt = u'%16.16s | %9.9s | %1.1s | %s \n' % (
+				r['date_modified'],
+				r['modified_by'],
+				gmClinNarrative.soap_cat2l10n[r['soap_cat']],
+				gmTools.wrap (
+					text = r['narrative'].replace(u'\r', u''),
+					width = self.__part_len,
+					subsequent_indent = u'%31.31s%1.1s | ' % (u' ', gmClinNarrative.soap_cat2l10n[r['soap_cat']])
+				)
+			)
+			f.write(txt)
+
+		f.write((u'-' * 100) + u'\n\n')
+		f.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%c'))
+
+		f.close()
+		return filename
+	#--------------------------------------------------------
 	def export_to_file(self, filename=None, patient=None):
 		"""Export medical record into a file.
 
@@ -980,7 +1043,7 @@ class cEMRJournalExporter:
 			patient.get_medical_age()
 		))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Happened'), _('Doc'), _('Narrative')))
+		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Encounter'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 
 		# get data
@@ -1199,10 +1262,19 @@ if __name__ == "__main__":
 					print "error cleaning up patient"
 		print "Done."
 	#--------------------------------------------------------
+	def export_forensics():
+		pat_searcher = gmPersonSearch.cPatientSearcher_SQL()
+		patient = gmPersonSearch.ask_for_patient()
+		if patient is None:
+			return
+
+		exporter = cEMRJournalExporter()
+		print "exported into file:", exporter.export_to_file_by_mod_time(patient = patient)
+	#--------------------------------------------------------
 	print "\n\nGNUmed ASCII EMR Export"
 	print     "======================="
 
-	# run main loop
-	export_journal()
+	#export_journal()
+	export_forensics()
 
 #============================================================

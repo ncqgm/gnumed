@@ -1238,6 +1238,75 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	#--------------------------------------------------------
 	def _select_edit_mode(self, edit=True):
 		self.editing = edit
+
+#================================================================
+from Gnumed.wxGladeWidgets import wxgEMRJournalPluginPnl
+
+class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
+
+	def __init__(self, *args, **kwds):
+
+		wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl.__init__(self, *args, **kwds)
+		self._TCTRL_journal.SetValue(u'')
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		self._TCTRL_journal.SetValue(u'')
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		if self._RBTN_by_encounter.GetValue():
+			txt = StringIO.StringIO()
+			# FIXME: if journal is large this will error out, use generator/yield etc
+			# FIXME: turn into proper list
+			try:
+				exporter.export(txt)
+				self._TCTRL_journal.SetValue(txt.getvalue())
+			except ValueError:
+				_log.exception('cannot get EMR journal')
+				self._TCTRL_journal.SetValue (_(
+					'An error occurred while retrieving the EMR\n'
+					'in journal form for the active patient.\n\n'
+					'Please check the log file for details.'
+				))
+			txt.close()
+		else:
+			fname = exporter.export_to_file_by_mod_time()
+			f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
+			for line in f:
+				self._TCTRL_journal.AppendText(line)
+			f.close()
+
+		self._TCTRL_journal.ShowPosition(self._TCTRL_journal.GetLastPosition())
+		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	# event handler
+	#--------------------------------------------------------
+	def _on_pre_patient_selection(self):
+		self._TCTRL_journal.SetValue(u'')
+		return True
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self.__on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	def __on_post_patient_selection(self):
+		if self.GetParent().GetCurrentPage() != self:
+			return True
+		self.repopulate_ui()
+	#--------------------------------------------------------
+	def _on_order_by_encounter_selected(self, event):
+		self.repopulate_ui()
+	#--------------------------------------------------------
+	def _on_order_by_last_mod_selected(self, event):
+		self.repopulate_ui()
+
 #================================================================
 class cEMRJournalPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):
@@ -1276,21 +1345,28 @@ class cEMRJournalPanel(wx.Panel):
 	# notebook plugin API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
-		txt = StringIO.StringIO()
+#		txt = StringIO.StringIO()
 		exporter = gmPatientExporter.cEMRJournalExporter()
-		# FIXME: if journal is large this will error out, use generator/yield etc
-		# FIXME: turn into proper list
-		try:
-			exporter.export(txt)
-			self.__journal.SetValue(txt.getvalue())
-		except ValueError:
-			_log.exception('cannot get EMR journal')
-			self.__journal.SetValue (_(
-				'An error occurred while retrieving the EMR\n'
-				'in journal form for the active patient.\n\n'
-				'Please check the log file for details.'
-			))
-		txt.close()
+		fname = exporter.export_to_file_by_mod_time()
+		f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
+		for line in f:
+			self.__journal.AppendText(line)
+		f.close()
+
+#		# FIXME: if journal is large this will error out, use generator/yield etc
+#		# FIXME: turn into proper list
+#		try:
+#			exporter.export(txt)
+#			self.__journal.SetValue(txt.getvalue())
+#		except ValueError:
+#			_log.exception('cannot get EMR journal')
+#			self.__journal.SetValue (_(
+#				'An error occurred while retrieving the EMR\n'
+#				'in journal form for the active patient.\n\n'
+#				'Please check the log file for details.'
+#			))
+#		txt.close()
+
 		self.__journal.ShowPosition(self.__journal.GetLastPosition())
 		return True
 #================================================================
