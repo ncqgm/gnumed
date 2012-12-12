@@ -12,6 +12,7 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython.gmListWidgets import cReportListCtrl
+        from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 
         # begin wxGlade: wxgSimpleSoapPluginPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
@@ -23,7 +24,7 @@ class wxgSimpleSoapPluginPnl(wx.ScrolledWindow):
         self._BTN_edit_problem = wx.Button(self.__pnl_left, -1, _("&Edit"), style=wx.BU_EXACTFIT)
         self._BTN_delete_problem = wx.Button(self.__pnl_left, -1, _("&Delete"), style=wx.BU_EXACTFIT)
         self._TCTRL_soap_problem = wx.TextCtrl(self.__pnl_left, -1, _("<above, double-click problem to start entering SOAP note>"), style=wx.TE_READONLY | wx.NO_BORDER)
-        self._TCTRL_soap = wx.TextCtrl(self.__pnl_left, -1, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.NO_BORDER)
+        self._TCTRL_soap = cTextCtrl(self.__pnl_left, -1, "", style=wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.NO_BORDER)
         self._BTN_save_soap = wx.Button(self.__pnl_left, -1, _("&Save"), style=wx.BU_EXACTFIT)
         self._BTN_clear_soap = wx.Button(self.__pnl_left, -1, _("&Clear"), style=wx.BU_EXACTFIT)
         self.__pnl_right = wx.Panel(self._splitter_main, -1, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)

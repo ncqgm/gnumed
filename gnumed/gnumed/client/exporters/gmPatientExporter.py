@@ -980,7 +980,7 @@ class cEMRJournalExporter:
 				r['modified_by'],
 				gmClinNarrative.soap_cat2l10n[r['soap_cat']],
 				gmTools.wrap (
-					text = r['narrative'].replace(u'\r', u''),
+					text = r['narrative'].replace(u'\r', u'') + u' (%s: %s)' % (_('When'), gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d %H:%M')),
 					width = self.__part_len,
 					subsequent_indent = u'%31.31s%1.1s | ' % (u' ', gmClinNarrative.soap_cat2l10n[r['soap_cat']])
 				)

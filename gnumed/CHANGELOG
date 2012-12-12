@@ -49,6 +49,7 @@ IMPROVED: EMR tree browser: display entire EMR as journal
 IMPROVED: placeholder handler: always properly escape data based on target form engine
 IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" workplace
 IMPROVED: EMR Journal: order grouped by encounter or order by last modified of items
+IMPROVED: SimpleSoap plugin: enable keyword based text expansions
 
 ------------------------------------------------
 # rel-1-2-patches
