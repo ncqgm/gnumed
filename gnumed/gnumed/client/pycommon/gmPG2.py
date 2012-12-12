@@ -1062,7 +1062,8 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			if curs.statusmessage != u'':
 				_log.error('PG status message: %s', curs.statusmessage)
 			_log.error('PG error code: %s', pg_exc.pgcode)
-			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+			if pg_exc.pgerror is not None:
+				_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
@@ -1075,8 +1076,12 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
 						details
 					)
+				if pg_exc.pgerror is None:
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+				else:
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 				raise gmExceptions.AccessDenied (
-					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					msg,
 					source = u'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details
@@ -1194,7 +1199,8 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			if curs.statusmessage != u'':
 				_log.error('PG status message: %s', curs.statusmessage)
 			_log.error('PG error code: %s', pg_exc.pgcode)
-			_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+			if pg_exc.pgerror is not None:
+				_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 				tx_rollback()			# just for good measure
@@ -1208,8 +1214,12 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 						curs.statusmessage.strip().strip(u'\n').strip().strip(u'\n'),
 						details
 					)
+				if pg_exc.pgerror is None:
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+				else:
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 				raise gmExceptions.AccessDenied (
-					u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n')),
+					msg,
 					source = u'PostgreSQL',
 					code = pg_exc.pgcode,
 					details = details

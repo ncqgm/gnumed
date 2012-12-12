@@ -2987,8 +2987,6 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
-#		_log.info('display: %s:%s' % (wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)))
-
 		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
 		self.SetAppName(u'gnumed')
 		self.SetVendorName(u'The GNUmed Development Community.')
@@ -3005,6 +3003,8 @@ class gmApp(wx.App):
 
 		if not self.__establish_backend_connection():
 			return False
+
+		self.__update_workplace_list()
 
 		if not _cfg.get(option = 'skip-update-check'):
 			self.__check_for_updates()
@@ -3243,6 +3243,20 @@ class gmApp(wx.App):
 		self.__check_db_lang()
 
 		return True
+	#----------------------------------------------
+	def __update_workplace_list(self):
+		wps = gmSurgery.gmCurrentPractice().workplaces
+		if len(wps) == 0:
+			return
+		login = gmPG2.get_default_login()
+		prefs_file = _cfg.get(option = 'user_preferences_file')
+		gmCfg2.set_option_in_INI_file (
+			filename = prefs_file,
+			group = u'profile %s' % login.backend_profile,
+			option = u'last known workplaces',
+			value = wps
+		)
+		_cfg.reload_file_source(file = prefs_file)
 	#----------------------------------------------
 	def __setup_prefs_file(self):
 		"""Setup access to a config file for storing preferences."""

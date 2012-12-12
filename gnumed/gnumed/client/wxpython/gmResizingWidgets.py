@@ -3,9 +3,6 @@
 Design by Richard Terry and Ian Haywood.
 """
 #====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmResizingWidgets.py,v $
-# $Id: gmResizingWidgets.py,v 1.55 2009-03-10 14:24:15 ncq Exp $
-__version__ = "$Revision: 1.55 $"
 __author__ = "Ian Haywood, Karsten Hilbert, Richard Terry"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -17,10 +14,10 @@ import wx.stc
 
 
 from Gnumed.pycommon import gmI18N, gmDispatcher, gmPG2
+from Gnumed.business import gmKeywordExpansion
 from Gnumed.wxpython import gmGuiHelpers, gmTimer
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 STYLE_ERROR=1
 STYLE_TEXT=2

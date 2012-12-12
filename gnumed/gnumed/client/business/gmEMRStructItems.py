@@ -348,7 +348,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u'')
+				lines.append(u' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 					text = self._payload[self._idx['summary']],
 					width = 60,
@@ -1077,7 +1077,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		if with_summary:
 			if self._payload[self._idx['summary']] is not None:
-				lines.append(u'')
+				lines.append(u' %s:' % _('Synopsis'))
 				lines.append(gmTools.wrap (
 						text = self._payload[self._idx['summary']],
 						width = 60,
@@ -1105,9 +1105,9 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		# encounters
 		if with_encounters:
 			if encs is None:
-				lines.append(_('Error retrieving encounters for this episode.'))
+				lines.append(_('Error retrieving encounters for this health issue.'))
 			elif len(encs) == 0:
-				#lines.append(_('There are no encounters for this episode.'))
+				#lines.append(_('There are no encounters for this issue.'))
 				pass
 			else:
 				lines.append(_('Last worked on: %s\n') % last_encounter['last_affirmed_original_tz'].strftime('%Y-%m-%d %H:%M'))
@@ -1745,21 +1745,18 @@ limit 1
 	#--------------------------------------------------------
 	def get_episodes(self, exclude=None):
 		cmd = u"""
-SELECT * FROM clin.v_pat_episodes
-WHERE
-	pk_episode IN (
+			SELECT * FROM clin.v_pat_episodes
+			WHERE pk_episode IN (
+					SELECT DISTINCT fk_episode
+					FROM clin.clin_root_item
+					WHERE fk_encounter = %%(enc)s
 
-		SELECT DISTINCT fk_episode
-		FROM clin.clin_root_item
-		WHERE fk_encounter = %%(enc)s
+						UNION
 
-			UNION
-
-		SELECT DISTINCT fk_episode
-		FROM blobs.doc_med
-		WHERE fk_encounter = %%(enc)s
-	)
-	%s"""
+					SELECT DISTINCT fk_episode
+					FROM blobs.doc_med
+					WHERE fk_encounter = %%(enc)s
+			) %s"""
 		args = {'enc': self.pk_obj}
 		if exclude is not None:
 			cmd = cmd % u'AND pk_episode NOT IN %(excluded)s'
@@ -1770,6 +1767,8 @@ WHERE
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		return [ cEpisode(row = {'data': r, 'idx': idx, 'pk_field': 'pk_episode'})  for r in rows ]
+
+	episodes = property(get_episodes, lambda x:x)
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None, field=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -1918,13 +1917,7 @@ WHERE
 
 		return tex
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True):
-		"""Format an encounter.
-
-		with_co_encountlet_hints:
-			- whether to include which *other* episodes were discussed during this encounter
-			- (only makes sense if episodes != None)
-		"""
+	def format_header(self, fancy_header=True, left_margin=0, with_rfe_aoe=False):
 		lines = []
 
 		if fancy_header:
@@ -1934,7 +1927,11 @@ WHERE
 				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
 				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
 				self._payload[self._idx['source_time_zone']],
-				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
+				gmTools.coalesce (
+					self._payload[self._idx['assessment_of_encounter']],
+					u'',
+					u' %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+				),
 				self._payload[self._idx['pk_encounter']]
 			))
 
@@ -1976,162 +1973,295 @@ WHERE
 				if len(codes) > 0:
 					lines.append(u'')
 				del codes
+			return lines
+
+		now = gmDateTime.pydt_now_here()
+		if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
+			start = u'%s %s' % (
+				_('today'),
+				self._payload[self._idx['started_original_tz']].strftime('%H:%M')
+			)
+		else:
+			start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
+		lines.append(u'%s%s: %s - %s%s' % (
+			u' ' * left_margin,
+			self._payload[self._idx['l10n_type']],
+			start,
+			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
+			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
+		))
+		if with_rfe_aoe:
+			if self._payload[self._idx['reason_for_encounter']] is not None:
+				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+			codes = self.generic_codes_rfe
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			if len(codes) > 0:
+				lines.append(u'')
+			if self._payload[self._idx['assessment_of_encounter']] is not None:
+				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+			codes = self.generic_codes_aoe
+			if len(codes) > 0:
+				lines.append(u'')
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			if len(codes) > 0:
+				lines.append(u'')
+			del codes
+
+		return lines
+	#--------------------------------------------------------
+	def format_by_episode(self, episodes=None, issues=None, left_margin=0, patient=None, with_soap=False, with_tests=True, with_docs=True, with_vaccinations=True, with_family_history=True):
+
+		lines = []
+		emr = patient.emr
+		if episodes is None:
+			episodes = [ e['pk_episode'] for e in self.episodes ]
+
+		for pk in episodes:
+			epi = cEpisode(aPK_obj = pk)
+			lines.append(_('\nEpisode %s%s%s%s:') % (
+				gmTools.u_left_double_angle_quote,
+				epi['description'],
+				gmTools.u_right_double_angle_quote,
+				gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+			))
+
+			# soap
+			if with_soap:
+				if patient.ID != self._payload[self._idx['pk_patient']]:
+					msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
+						patient.ID,
+						self._payload[self._idx['pk_encounter']],
+						self._payload[self._idx['pk_patient']]
+					)
+					raise ValueError(msg)
+
+				lines.extend(self.format_soap (
+					episodes = [pk],
+					left_margin = left_margin,
+					soap_cats = 'soapu',
+					emr = emr,
+					issues = issues
+				))
+
+			# test results
+			if with_tests:
+				tests = emr.get_test_results_by_date (
+					episodes = [pk],
+					encounter = self._payload[self._idx['pk_encounter']]
+				)
+				if len(tests) > 0:
+					lines.append('')
+					lines.append(_('Measurements and Results:'))
+
+				for t in tests:
+					lines.extend(t.format())
+
+				del tests
+
+			# vaccinations
+			if with_vaccinations:
+				vaccs = emr.get_vaccinations (
+					episodes = [pk],
+					encounters = [ self._payload[self._idx['pk_encounter']] ],
+					order_by = u'date_given DESC, vaccine'
+				)
+				if len(vaccs) > 0:
+					lines.append(u'')
+					lines.append(_('Vaccinations:'))
+				for vacc in vaccs:
+					lines.extend(vacc.format (
+						with_indications = True,
+						with_comment = True,
+						with_reaction = True,
+						date_format = '%Y-%m-%d'
+					))
+				del vaccs
+
+			# family history
+			if with_family_history:
+				fhx = emr.get_family_history(episodes = [pk])
+				if len(fhx) > 0:
+					lines.append(u'')
+					lines.append(_('Family History: %s') % len(fhx))
+				for f in fhx:
+					lines.append(f.format (
+						left_margin = (left_margin + 1),
+						include_episode = False,
+						include_comment = True
+					))
+				del fhx
+
+			# documents
+			if with_docs:
+				doc_folder = patient.get_document_folder()
+				docs = doc_folder.get_documents (
+					episodes = [pk],
+					encounter = self._payload[self._idx['pk_encounter']]
+				)
+				if len(docs) > 0:
+					lines.append(u'')
+					lines.append(_('Documents:'))
+				for d in docs:
+					lines.append(u' %s %s:%s%s' % (
+						d['clin_when'].strftime('%Y-%m-%d'),
+						d['l10n_type'],
+						gmTools.coalesce(d['comment'], u'', u' "%s"'),
+						gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+					))
+
+				del docs
+
+		return lines
+	#--------------------------------------------------------
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True, by_episode=False):
+		"""Format an encounter.
+
+		with_co_encountlet_hints:
+			- whether to include which *other* episodes were discussed during this encounter
+			- (only makes sense if episodes != None)
+		"""
+		lines = self.format_header (
+			fancy_header = fancy_header,
+			left_margin = left_margin,
+			with_rfe_aoe = with_rfe_aoe
+		)
+
+		if by_episode:
+			lines.extend(self.format_by_episode (
+				episodes = episodes,
+				issues = issues,
+				left_margin = left_margin,
+				patient = patient,
+				with_soap = with_soap,
+				with_tests = with_tests,
+				with_docs = with_docs,
+				with_vaccinations = with_vaccinations,
+				with_family_history = with_family_history
+			))
 
 		else:
-			now = gmDateTime.pydt_now_here()
-			if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
-				start = u'%s %s' % (
-					_('today'),
-					self._payload[self._idx['started_original_tz']].strftime('%H:%M')
-				)
-			else:
-				start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
-			lines.append(u'%s%s: %s - %s%s' % (
-				u' ' * left_margin,
-				self._payload[self._idx['l10n_type']],
-				start,
-				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
-				gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
-			))
-			if with_rfe_aoe:
-				if self._payload[self._idx['reason_for_encounter']] is not None:
-					lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
-				codes = self.generic_codes_rfe
-				for c in codes:
-					lines.append(u' %s: %s (%s - %s)' % (
-						c['code'],
-						c['term'],
-						c['name_short'],
-						c['version']
-					))
-				if len(codes) > 0:
-					lines.append(u'')
-				if self._payload[self._idx['assessment_of_encounter']] is not None:
-					lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
-				codes = self.generic_codes_aoe
-				if len(codes) > 0:
-					lines.append(u'')
-				for c in codes:
-					lines.append(u' %s: %s (%s - %s)' % (
-						c['code'],
-						c['term'],
-						c['name_short'],
-						c['version']
-					))
-				if len(codes) > 0:
-					lines.append(u'')
-				del codes
-
-		if with_soap:
-			lines.append(u'')
-
-			if patient.ID != self._payload[self._idx['pk_patient']]:
-				msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
-					patient.ID,
-					self._payload[self._idx['pk_encounter']],
-					self._payload[self._idx['pk_patient']]
-				)
-				raise ValueError(msg)
-
-			emr = patient.get_emr()
-
-			lines.extend(self.format_soap (
-				episodes = episodes,
-				left_margin = left_margin,
-				soap_cats = 'soapu',
-				emr = emr,
-				issues = issues
-			))
-
-#		# family history
-#		if with_family_history:
-#			if episodes is not None:
-#				fhx = emr.get_family_history(episodes = episodes)
-#				if len(fhx) > 0:
-#					lines.append(u'')
-#					lines.append(_('Family History: %s') % len(fhx))
-#				for f in fhx:
-#					lines.append(f.format (
-#						left_margin = (left_margin + 1),
-#						include_episode = False,
-#						include_comment = True
-#					))
-#				del fhx
-
-		# test results
-		if with_tests:
-			emr = patient.get_emr()
-			tests = emr.get_test_results_by_date (
-				episodes = episodes,
-				encounter = self._payload[self._idx['pk_encounter']]
-			)
-			if len(tests) > 0:
-				lines.append('')
-				lines.append(_('Measurements and Results:'))
-
-			for t in tests:
-				lines.extend(t.format())
-
-			del tests
-
-		# vaccinations
-		if with_vaccinations:
-			emr = patient.get_emr()
-			vaccs = emr.get_vaccinations (
-				episodes = episodes,
-				encounters = [ self._payload[self._idx['pk_encounter']] ],
-				order_by = u'date_given DESC, vaccine'
-			)
-
-			if len(vaccs) > 0:
+			if with_soap:
 				lines.append(u'')
-				lines.append(_('Vaccinations:'))
 
-			for vacc in vaccs:
-				lines.extend(vacc.format (
-					with_indications = True,
-					with_comment = True,
-					with_reaction = True,
-					date_format = '%Y-%m-%d'
-				))
-			del vaccs
+				if patient.ID != self._payload[self._idx['pk_patient']]:
+					msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
+						patient.ID,
+						self._payload[self._idx['pk_encounter']],
+						self._payload[self._idx['pk_patient']]
+					)
+					raise ValueError(msg)
 
-		# documents
-		if with_docs:
-			doc_folder = patient.get_document_folder()
-			docs = doc_folder.get_documents (
-				episodes = episodes,
-				encounter = self._payload[self._idx['pk_encounter']]
-			)
+				emr = patient.get_emr()
 
-			if len(docs) > 0:
-				lines.append(u'')
-				lines.append(_('Documents:'))
-
-			for d in docs:
-				lines.append(u' %s %s:%s%s' % (
-					d['clin_when'].strftime('%Y-%m-%d'),
-					d['l10n_type'],
-					gmTools.coalesce(d['comment'], u'', u' "%s"'),
-					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+				lines.extend(self.format_soap (
+					episodes = episodes,
+					left_margin = left_margin,
+					soap_cats = 'soapu',
+					emr = emr,
+					issues = issues
 				))
 
-			del docs
+	#		# family history
+	#		if with_family_history:
+	#			if episodes is not None:
+	#				fhx = emr.get_family_history(episodes = episodes)
+	#				if len(fhx) > 0:
+	#					lines.append(u'')
+	#					lines.append(_('Family History: %s') % len(fhx))
+	#				for f in fhx:
+	#					lines.append(f.format (
+	#						left_margin = (left_margin + 1),
+	#						include_episode = False,
+	#						include_comment = True
+	#					))
+	#				del fhx
 
-		# co-encountlets
-		if with_co_encountlet_hints:
-			if episodes is not None:
-				other_epis = self.get_episodes(exclude = episodes)
-				if len(other_epis) > 0:
+			# test results
+			if with_tests:
+				emr = patient.get_emr()
+				tests = emr.get_test_results_by_date (
+					episodes = episodes,
+					encounter = self._payload[self._idx['pk_encounter']]
+				)
+				if len(tests) > 0:
+					lines.append('')
+					lines.append(_('Measurements and Results:'))
+
+				for t in tests:
+					lines.extend(t.format())
+
+				del tests
+
+			# vaccinations
+			if with_vaccinations:
+				emr = patient.get_emr()
+				vaccs = emr.get_vaccinations (
+					episodes = episodes,
+					encounters = [ self._payload[self._idx['pk_encounter']] ],
+					order_by = u'date_given DESC, vaccine'
+				)
+
+				if len(vaccs) > 0:
 					lines.append(u'')
-					lines.append(_('%s other episodes touched upon during this encounter:') % len(other_epis))
-				for epi in other_epis:
-					lines.append(u' %s%s%s%s' % (
-						gmTools.u_left_double_angle_quote,
-						epi['description'],
-						gmTools.u_right_double_angle_quote,
-						gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+					lines.append(_('Vaccinations:'))
+
+				for vacc in vaccs:
+					lines.extend(vacc.format (
+						with_indications = True,
+						with_comment = True,
+						with_reaction = True,
+						date_format = '%Y-%m-%d'
 					))
+				del vaccs
+
+			# documents
+			if with_docs:
+				doc_folder = patient.get_document_folder()
+				docs = doc_folder.get_documents (
+					episodes = episodes,
+					encounter = self._payload[self._idx['pk_encounter']]
+				)
+
+				if len(docs) > 0:
+					lines.append(u'')
+					lines.append(_('Documents:'))
+
+				for d in docs:
+					lines.append(u' %s %s:%s%s' % (
+						d['clin_when'].strftime('%Y-%m-%d'),
+						d['l10n_type'],
+						gmTools.coalesce(d['comment'], u'', u' "%s"'),
+						gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
+					))
+
+				del docs
+
+			# co-encountlets
+			if with_co_encountlet_hints:
+				if episodes is not None:
+					other_epis = self.get_episodes(exclude = episodes)
+					if len(other_epis) > 0:
+						lines.append(u'')
+						lines.append(_('%s other episodes touched upon during this encounter:') % len(other_epis))
+					for epi in other_epis:
+						lines.append(u' %s%s%s%s' % (
+							gmTools.u_left_double_angle_quote,
+							epi['description'],
+							gmTools.u_right_double_angle_quote,
+							gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
+						))
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)

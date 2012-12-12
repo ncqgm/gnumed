@@ -11,9 +11,10 @@
 -- .fk_test_org
 \unset ON_ERROR_STOP
 drop index clin.test_type_fk_test_org_idx cascade;
+drop index clin.idx_test_type_fk_test_org cascade;
 \set ON_ERROR_STOP 1
 
-create index on clin.test_type (fk_test_org);
+create index idx_test_type_fk_test_org on clin.test_type(fk_test_org);
 
 -- --------------------------------------------------------------
 -- .fk_meta_test_type
@@ -23,10 +24,11 @@ comment on column clin.test_type.fk_meta_test_type is
 
 \unset ON_ERROR_STOP
 drop index clin.test_type_fk_meta_test_type_idx cascade;
+drop index idx_test_type_fk_meta_test_type cascade;
 alter table clin.test_type drop constraint test_type_fk_meta_test_type_fkey cascade;
 \set ON_ERROR_STOP 1
 
-create index on clin.test_type (fk_meta_test_type);
+create index idx_test_type_fk_meta_test_type on clin.test_type(fk_meta_test_type);
 
 alter table clin.test_type
 	add foreign key (fk_meta_test_type)

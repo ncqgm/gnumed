@@ -1,8 +1,5 @@
 #======================================================================
 # GNUmed patient EMR Journal plugin
-# ----------------------------------------------
-#
-# @copyright: author
 #======================================================================
 __author__ = "Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
@@ -10,8 +7,9 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 import logging
 
 
-from Gnumed.wxpython import gmPlugin, gmEMRBrowser
 from Gnumed.pycommon import gmI18N
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmEMRBrowser
 from Gnumed.wxpython import gmAccessPermissionWidgets
 
 _log = logging.getLogger('gm.ui')
@@ -21,10 +19,10 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR Journal window."""
 
 	tab_name = _('EMR journal')
+	required_minimum_role = 'doctor'
 
 	def name (self):
 		return gmEMRJournalPlugin.tab_name
-	required_minimum_role = 'doctor'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,
@@ -36,7 +34,8 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		gmPlugin.cNotebookPlugin.register(self)
 	#-------------------------------------------------
 	def GetWidget (self, parent):
-		self._widget = gmEMRBrowser.cEMRJournalPanel(parent, -1)
+		#self._widget = gmEMRBrowser.cEMRJournalPanel(parent, -1)
+		self._widget = gmEMRBrowser.cEMRJournalPluginPnl(parent, -1)
 		return self._widget
 
 	def MenuInfo (self):

@@ -75,7 +75,7 @@ echo "select name, setting from pg_settings where name in ('lc_ctype', 'server_e
 
 echo "" >> $SQL_FILE
 echo "-- should be checked in pg_hba.conf in case of client connection problems:" >> $SQL_FILE
-echo "--local   samegroup   +gm-logins   md5" >> $SQL_FILE
+echo "--local   samerole    +gm-logins   md5" >> $SQL_FILE
 
 
 

@@ -99,12 +99,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		gmGuiHelpers.cTreeExpansionHistoryMixin.__init__(self)
 
-		self.__details_display = None
-		self.__details_display_mode = u'details'				# "details" or "journal"
-		self.__enable_display_mode_selection = None
+		self.__soap_display = None
+		self.__soap_display_mode = u'details'				# "details" or "journal"
+		self.__img_display = None
+		self.__cb__enable_display_mode_selection = lambda x:x
+		self.__cb__select_edit_mode = lambda x:x
+		self.__cb__add_soap_editor = lambda x:x
 		self.__pat = gmPerson.gmCurrentPatient()
 		self.__curr_node = None
-		#self.__exporter = gmPatientExporter.cEmrExport(patient = self.__pat)
 
 		self._old_cursor_pos = None
 
@@ -123,17 +125,45 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		return True
 	#--------------------------------------------------------
-	def set_narrative_display(self, narrative_display=None):
-		self.__details_display = narrative_display
+	def _get_soap_display(self):
+		return self.__soap_display
+
+	def _set_soap_display(self, soap_display=None):
+		self.__soap_display = soap_display
+
+	soap_display = property(_get_soap_display, _set_soap_display)
 	#--------------------------------------------------------
-	def set_image_display(self, image_display=None):
+	def _get_image_display(self):
+		return self.__img_display
+
+	def _set_image_display(self, image_display=None):
 		self.__img_display = image_display
+
+	image_display = property(_get_image_display, _set_image_display)
 	#--------------------------------------------------------
 	def set_enable_display_mode_selection_callback(self, callback):
 		if not callable(callback):
 			raise ValueError('callback [%s] not callable' % callback)
+		self.__cb__enable_display_mode_selection = callback
+	#--------------------------------------------------------
+	def _set_edit_mode_selector(self, callback):
+		if callback is None:
+			callback = lambda x:x
+		if not callable(callback):
+			raise ValueError('edit mode selector [%s] not callable' % callback)
+		self.__cb__select_edit_mode = callback
 
-		self.__enable_display_mode_selection = callback
+	edit_mode_selector = property(lambda x:x, _set_edit_mode_selector)
+	#--------------------------------------------------------
+	def _set_soap_editor_adder(self, callback):
+		if callback is None:
+			callback = lambda x:x
+		if not callable(callback):
+			raise ValueError('soap editor adder [%s] not callable' % callback)
+		self.__cb__add_soap_editor = callback
+
+	soap_editor_adder = property(lambda x:x, _set_soap_editor_adder)
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -229,7 +259,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __update_text_for_selected_node(self):
 		"""Displays information for the selected tree node."""
 
-		if self.__details_display is None:
+		if self.__soap_display is None:
 			self.__img_display.clear()
 			return
 
@@ -241,8 +271,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		doc_folder = self.__pat.get_document_folder()
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
-			self.__enable_display_mode_selection(True)
-			if self.__details_display_mode == u'details':
+			self.__cb__enable_display_mode_selection(True)
+			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin=1, patient = self.__pat)
 			else:
 				txt = node_data.format_as_journal(left_margin = 1)
@@ -253,14 +283,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			)
 
 		elif isinstance(node_data, type({})):
-			self.__enable_display_mode_selection(False)
+			self.__cb__enable_display_mode_selection(False)
 			# FIXME: turn into real dummy issue
 			txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
 			self.__img_display.clear()
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
-			self.__enable_display_mode_selection(True)
-			if self.__details_display_mode == u'details':
+			self.__cb__enable_display_mode_selection(True)
+			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
 			else:
 				txt = node_data.format_as_journal(left_margin = 1)
@@ -270,7 +300,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			)
 
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
-			self.__enable_display_mode_selection(False)
+			self.__cb__enable_display_mode_selection(False)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
 			txt = node_data.format (
 				episodes = [epi['pk_episode']],
@@ -287,74 +317,19 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		# root node == EMR level
 		else:
-			self.__enable_display_mode_selection(False)
-			emr = self.__pat.get_emr()
-			txt = emr.format_summary(dob = self.__pat['dob'])
+			self.__cb__enable_display_mode_selection(True)
+			if self.__soap_display_mode == u'details':
+				emr = self.__pat.get_emr()
+				txt = emr.format_summary(dob = self.__pat['dob'])
+			else:
+				txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
 			self.__img_display.clear()
 
-		self.__details_display.Clear()
-		self.__details_display.WriteText(txt)
-		self.__details_display.ShowPosition(0)
+		self.__soap_display.Clear()
+		self.__soap_display.WriteText(txt)
+		self.__soap_display.ShowPosition(0)
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
-
-		# - episodes
-		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
-
-		menu_id = wx.NewId()
-		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Move encounters')))
-		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
-
-		# - encounters
-		self.__enc_context_popup = wx.Menu(title = _('Encounter Actions:'))
-		# - move data
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
-		# - edit encounter details
-		menu_id = wx.NewId()
-		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
-
-		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
-		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
-
-		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
-		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
-
-		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
-		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
-
-		# - health issues
-		self.__issue_context_popup = wx.Menu(title = _('Health Issue Actions:'))
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
-
-		self.__issue_context_popup.AppendSeparator()
-
-		menu_id = wx.NewId()
-		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Open to encounter level')))
-		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__expand_issue_to_encounter_level)
-		# print " attach issue to another patient"
-		# print " move all episodes to another issue"
 
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Actions:'))
@@ -365,6 +340,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		item = self.__root_context_popup.Append(-1, _('Create episode'))
 		self.Bind(wx.EVT_MENU, self.__create_episode, item)
+
+		item = self.__root_context_popup.Append(-1, _('Create progress note'))
+		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
 
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Manage allergies')))
@@ -407,6 +385,74 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		menu_id = wx.NewId()
 		expand_menu.AppendItem(wx.MenuItem(expand_menu, menu_id, _('... encounter level')))
 		wx.EVT_MENU(expand_menu, menu_id, self.__expand_to_encounter_level)
+
+		# - health issues
+		self.__issue_context_popup = wx.Menu(title = _('Health Issue Actions:'))
+
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Edit details')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__edit_issue)
+
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Delete')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__delete_issue)
+
+		self.__issue_context_popup.AppendSeparator()
+
+		menu_id = wx.NewId()
+		self.__issue_context_popup.AppendItem(wx.MenuItem(self.__issue_context_popup, menu_id, _('Open to encounter level')))
+		wx.EVT_MENU(self.__issue_context_popup, menu_id, self.__expand_issue_to_encounter_level)
+		# print " attach issue to another patient"
+		# print " move all episodes to another issue"
+
+		item = self.__issue_context_popup.Append(-1, _('Create progress note'))
+		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
+
+		# - episodes
+		self.__epi_context_popup = wx.Menu(title = _('Episode Actions:'))
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Edit details')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__edit_episode)
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Delete')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__delete_episode)
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Promote')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__promote_episode_to_issue)
+
+		item = self.__epi_context_popup.Append(-1, _('Create progress note'))
+		self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
+
+		menu_id = wx.NewId()
+		self.__epi_context_popup.AppendItem(wx.MenuItem(self.__epi_context_popup, menu_id, _('Move encounters')))
+		wx.EVT_MENU(self.__epi_context_popup, menu_id, self.__move_encounters)
+
+		# - encounters
+		self.__enc_context_popup = wx.Menu(title = _('Encounter Actions:'))
+		# - move data
+		menu_id = wx.NewId()
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Move data to another episode')))
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__relink_encounter_data2episode)
+		# - edit encounter details
+		menu_id = wx.NewId()
+		self.__enc_context_popup.AppendItem(wx.MenuItem(self.__enc_context_popup, menu_id, _('Edit details')))
+		wx.EVT_MENU(self.__enc_context_popup, menu_id, self.__edit_encounter_details)
+
+		# would require pre-configurable save-under which we don't have
+		#item = self.__enc_context_popup.Append(-1, _('Create progress note'))
+		#self.Bind(wx.EVT_MENU, self.__create_soap_editor, item)
+
+		item = self.__enc_context_popup.Append(-1, _('Edit progress notes'))
+		self.Bind(wx.EVT_MENU, self.__edit_progress_notes, item)
+
+		item = self.__enc_context_popup.Append(-1, _('Move progress notes'))
+		self.Bind(wx.EVT_MENU, self.__move_progress_notes, item)
+
+		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
+		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
 	#--------------------------------------------------------
 	def __handle_root_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__root_context_popup, pos)
@@ -640,6 +686,10 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def __create_episode(self, event):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = None)
+	#--------------------------------------------------------
+	def __create_soap_editor(self, event):
+		self.__cb__select_edit_mode(True)
+		self.__cb__add_soap_editor(problem = self.__curr_node_data, allow_same_problem = False)
 	#--------------------------------------------------------
 	def __document_allergy(self, event):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
@@ -1065,14 +1115,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	# properties
 	#--------------------------------------------------------
 	def _get_details_display_mode(self):
-		return self.__details_display_mode
+		return self.__soap_display_mode
 
 	def _set_details_display_mode(self, mode):
 		if mode not in [u'details', u'journal']:
 			raise ValueError('details display mode must be one of "details", "journal"')
-		if self.__details_display_mode == mode:
+		if self.__soap_display_mode == mode:
 			return
-		self.__details_display_mode = mode
+		self.__soap_display_mode = mode
 		self.__update_text_for_selected_node()
 
 	details_display_mode = property(_get_details_display_mode, _set_details_display_mode)
@@ -1084,7 +1134,7 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 
 	Lacks a widget to display details for selected items. The
 	tree data will be refetched - if necessary - whenever
-	repopulate_ui() is called, e.g., when then patient is changed.
+	repopulate_ui() is called, e.g., when the patient is changed.
 	"""
 	def __init__(self, *args, **kwds):
 		wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl.__init__(self, *args, **kwds)
@@ -1105,20 +1155,45 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	"""
 	def __init__(self, *args, **kwds):
 		wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTreeBrowserPnl.__init__(self, *args, **kwds)
-		self._pnl_emr_tree._emr_tree.set_narrative_display(narrative_display = self._TCTRL_item_details)
-		self._pnl_emr_tree._emr_tree.set_image_display(image_display = self._PNL_visual_soap)
+		self._pnl_emr_tree._emr_tree.soap_display = self._TCTRL_item_details
+		self._pnl_emr_tree._emr_tree.image_display = self._PNL_visual_soap
 		self._pnl_emr_tree._emr_tree.set_enable_display_mode_selection_callback(self.enable_display_mode_selection)
+		self._pnl_emr_tree._emr_tree.soap_editor_adder = self._add_soap_editor
+		self._pnl_emr_tree._emr_tree.edit_mode_selector = self._select_edit_mode
 		self.__register_events()
+
+		self.editing = False
 	#--------------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
+	def _get_editing(self):
+		return self.__editing
+
+	def _set_editing(self, editing):
+		self.__editing = editing
+		self.enable_display_mode_selection(enable = not self.__editing)
+		if self.__editing:
+			self._BTN_switch_browse_edit.SetLabel(_('&Browse'))
+			self._PNL_browse.Hide()
+			self._PNL_visual_soap.Hide()
+			self._PNL_edit.Show()
+		else:
+			self._BTN_switch_browse_edit.SetLabel(_('&Edit'))
+			self._PNL_edit.Hide()
+			self._PNL_visual_soap.Show()
+			self._PNL_browse.Show()
+		self._PNL_right_side.GetSizer().Layout()
+
+	editing = property(_get_editing, _set_editing)
+	#--------------------------------------------------------
 	# event handler
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		self._pnl_emr_tree._emr_tree.clear_tree()
+		self._PNL_edit.patient = None
 		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -1136,21 +1211,102 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	def _on_show_journal_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
 	#--------------------------------------------------------
+	def _on_switch_browse_edit_button_pressed(self, event):
+		self.editing = not self.__editing
+	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		"""Fills UI with data."""
 		self._pnl_emr_tree.repopulate_ui()
+		self._PNL_edit.patient = gmPerson.gmCurrentPatient()
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
 	#--------------------------------------------------------
 	def enable_display_mode_selection(self, enable):
+		if self.editing:
+			enable = False
 		if enable:
 			self._RBTN_details.Enable(True)
 			self._RBTN_journal.Enable(True)
 			return
 		self._RBTN_details.Enable(False)
 		self._RBTN_journal.Enable(False)
+	#--------------------------------------------------------
+	def _add_soap_editor(self, problem=None, allow_same_problem=False):
+		self._PNL_edit._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_same_problem)
+	#--------------------------------------------------------
+	def _select_edit_mode(self, edit=True):
+		self.editing = edit
+
+#================================================================
+from Gnumed.wxGladeWidgets import wxgEMRJournalPluginPnl
+
+class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
+
+	def __init__(self, *args, **kwds):
+
+		wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl.__init__(self, *args, **kwds)
+		self._TCTRL_journal.SetValue(u'')
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		self._TCTRL_journal.SetValue(u'')
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		if self._RBTN_by_encounter.GetValue():
+			txt = StringIO.StringIO()
+			# FIXME: if journal is large this will error out, use generator/yield etc
+			# FIXME: turn into proper list
+			try:
+				exporter.export(txt)
+				self._TCTRL_journal.SetValue(txt.getvalue())
+			except ValueError:
+				_log.exception('cannot get EMR journal')
+				self._TCTRL_journal.SetValue (_(
+					'An error occurred while retrieving the EMR\n'
+					'in journal form for the active patient.\n\n'
+					'Please check the log file for details.'
+				))
+			txt.close()
+		else:
+			fname = exporter.export_to_file_by_mod_time()
+			f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
+			for line in f:
+				self._TCTRL_journal.AppendText(line)
+			f.close()
+
+		self._TCTRL_journal.ShowPosition(self._TCTRL_journal.GetLastPosition())
+		return True
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	# event handler
+	#--------------------------------------------------------
+	def _on_pre_patient_selection(self):
+		self._TCTRL_journal.SetValue(u'')
+		return True
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		wx.CallAfter(self.__on_post_patient_selection)
+		return True
+	#--------------------------------------------------------
+	def __on_post_patient_selection(self):
+		if self.GetParent().GetCurrentPage() != self:
+			return True
+		self.repopulate_ui()
+	#--------------------------------------------------------
+	def _on_order_by_encounter_selected(self, event):
+		self.repopulate_ui()
+	#--------------------------------------------------------
+	def _on_order_by_last_mod_selected(self, event):
+		self.repopulate_ui()
+
 #================================================================
 class cEMRJournalPanel(wx.Panel):
 	def __init__(self, *args, **kwargs):
@@ -1189,21 +1345,28 @@ class cEMRJournalPanel(wx.Panel):
 	# notebook plugin API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
-		txt = StringIO.StringIO()
+#		txt = StringIO.StringIO()
 		exporter = gmPatientExporter.cEMRJournalExporter()
-		# FIXME: if journal is large this will error out, use generator/yield etc
-		# FIXME: turn into proper list
-		try:
-			exporter.export(txt)
-			self.__journal.SetValue(txt.getvalue())
-		except ValueError:
-			_log.exception('cannot get EMR journal')
-			self.__journal.SetValue (_(
-				'An error occurred while retrieving the EMR\n'
-				'in journal form for the active patient.\n\n'
-				'Please check the log file for details.'
-			))
-		txt.close()
+		fname = exporter.export_to_file_by_mod_time()
+		f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
+		for line in f:
+			self.__journal.AppendText(line)
+		f.close()
+
+#		# FIXME: if journal is large this will error out, use generator/yield etc
+#		# FIXME: turn into proper list
+#		try:
+#			exporter.export(txt)
+#			self.__journal.SetValue(txt.getvalue())
+#		except ValueError:
+#			_log.exception('cannot get EMR journal')
+#			self.__journal.SetValue (_(
+#				'An error occurred while retrieving the EMR\n'
+#				'in journal form for the active patient.\n\n'
+#				'Please check the log file for details.'
+#			))
+#		txt.close()
+
 		self.__journal.ShowPosition(self.__journal.GetLastPosition())
 		return True
 #================================================================

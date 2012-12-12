@@ -137,13 +137,25 @@ known_variant_placeholders = [
 	u'progress_notes',						# "args" holds: categories//template
 											# 	categories: string with 'soapu '; ' ' == None == admin
 											#	template:	u'something %s something'		(do not include // in template !)
-	u'soap_for_encounters',					# "args" holds: soap cats // strftime date format
+
+	u'soap_for_encounters',					# lets the user select a list of encounters for which
+											# LaTeX formatted progress notes are emitted:
+											# "args": soap categories // strftime date format
+
+	u'soap_by_issue',						# lets the user select a list of issues and
+											# then SOAP entries from those issues
+											# "args": soap categories // strftime date format // template
+
+	u'soap_by_episode',						# lets the user select a list of issues and
+											# then SOAP entries from those issues
+											# "args": soap categories // strftime date format // template
+
 	u'emr_journal',							# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
 											#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
 											#				   (" " == None == admin category)
 											#	template:	   something %s something else
 											#				   (Do not include // in the template !)
-											#	line length:   the length of individual lines, not the total placeholder length
+											#	line length:   the maximum length of individual lines, not the total placeholder length
 											#	time range:	   the number of weeks going back in time
 											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
 
@@ -178,6 +190,7 @@ default_placeholder_regex = r'\$<.+?>\$'				# this one works [except that OOo ca
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
+
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Returns values for placeholders.
@@ -226,6 +239,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.invalid_placeholder_template = _('invalid placeholder [%s]')
 
 		self.__cache = {}
+
+		self.__esc_style = None
+		self.__esc_func = lambda x:x
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -242,6 +258,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def unset_cache_value(self, key=None):
 		del self.__cache[key]
+	#--------------------------------------------------------
+	def _set_escape_style(escape_style=None):
+		self.__esc_style = escape_style
+		return
+
+	escape_style = property(lambda x:x, _set_escape_style)
+	#--------------------------------------------------------
+	def _set_escape_function(escape_function=None):
+		if escape_function is None:
+			self.__esc_func = lambda x:x
+			return
+		if not callable(escape_function):
+			raise ValueError(u'[%s._set_escape_function]: <%s> not callable' % (self.__class__.__name__, escape_function))
+		self.__esc_func = escape_function
+		return
+
+	escape_function = property(lambda x:x, _set_escape_function)
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -361,16 +394,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		pass
 	#--------------------------------------------------------
 	def _get_lastname(self):
-		return self.pat.get_active_name()['lastnames']
+		return self._escape(self.pat.get_active_name()['lastnames'])
 	#--------------------------------------------------------
 	def _get_firstname(self):
-		return self.pat.get_active_name()['firstnames']
+		return self._escape(self.pat.get_active_name()['firstnames'])
 	#--------------------------------------------------------
 	def _get_title(self):
-		return gmTools.coalesce(self.pat.get_active_name()['title'], u'')
+		return self._escape(gmTools.coalesce(self.pat.get_active_name()['title'], u''))
 	#--------------------------------------------------------
 	def _get_dob(self):
-		return self._get_variant_date_of_birth(data='%x')
+		return self._get_variant_date_of_birth(data = '%x')
 	#--------------------------------------------------------
 	def _get_progress_notes(self):
 		return self._get_variant_soap()
@@ -394,9 +427,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._get_variant_soap(soap_cats = None)
 	#--------------------------------------------------------
 	def _get_client_version(self):
-		return gmTools.coalesce (
-			_cfg.get(option = u'client_version'),
-			u'%s' % self.__class__.__name__
+		return self._escape (
+			gmTools.coalesce (
+				_cfg.get(option = u'client_version'),
+				u'%s' % self.__class__.__name__
+			)
 		)
 	#--------------------------------------------------------
 	def _get_primary_praxis_provider(self):
@@ -414,8 +449,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			prov['firstnames'][:1],
 			prov['lastnames']
 		)
-
-		return tmp
+		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_current_provider(self):
 		prov = gmStaff.gmCurrentProvider()
@@ -430,8 +464,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			prov['firstnames'][:1],
 			prov['lastnames']
 		)
-
-		return tmp
+		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_allergy_state(self):
 		allg_state = self.pat.get_emr().allergy_state
@@ -439,13 +472,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if allg_state['last_confirmed'] is None:
 			date_confirmed = u''
 		else:
-			date_confirmed = u' (%s)' % allg_state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+			date_confirmed = u' (%s)' % gmDateTime.pydt_strftime (
+				allg_state['last_confirmed'],
+				format = '%Y %B %d'
+			)
 
 		tmp = u'%s%s' % (
 			allg_state.state_string,
 			date_confirmed
 		)
-		return tmp
+		return self._escape(tmp)
 	#--------------------------------------------------------
 	# property definitions for static placeholders
 	#--------------------------------------------------------
@@ -488,7 +524,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		lines = []
 		for enc in encounters:
 			try:
-				lines.append(template % enc)
+				lines.append(template % enc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
 			except:
 				lines.append(u'error formatting encounter')
 				_log.exception('problem formatting encounter list')
@@ -583,32 +619,91 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				target_format = data_parts[4]
 
 		# FIXME: will need to be a generator later on
-		narr = self.pat.get_emr().get_as_journal(soap_cats = cats, time_range = time_range)
+		narr = self.pat.emr.get_as_journal(soap_cats = cats, time_range = time_range)
 
 		if len(narr) == 0:
 			return u''
 
-		if target_format == u'tex':
-			keys = narr[0].keys()
-			lines = []
-			line_dict = {}
-			for n in narr:
-				for key in keys:
-					if isinstance(n[key], basestring):
-						line_dict[key] = gmTools.tex_escape_string(text = n[key])
-						continue
-					line_dict[key] = n[key]
-				try:
-					lines.append((template % line_dict)[:line_length])
-				except KeyError:
-					return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
-		else:
-			try:
-				lines = [ (template % n)[:line_length] for n in narr ]
-			except KeyError:
-				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+#-------------
+#		if target_format == u'tex':
+#			keys = narr[0].keys()
+#			lines = []
+#			line_dict = {}
+#			for n in narr:
+#				for key in keys:
+#					if isinstance(n[key], basestring):
+#						line_dict[key] = gmTools.tex_escape_string(text = n[key])
+#						continue
+#					line_dict[key] = n[key]
+#				try:
+#					lines.append((template % line_dict)[:line_length])
+#				except KeyError:
+#					return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
+#		else:
+#			try:
+#				lines = [ (template % n)[:line_length] for n in narr ]
+#			except KeyError:
+#				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+#-------------------
+		try:
+			lines = [ (template % n.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))[:line_length] for n in narr ]
+		except KeyError:
+			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 
 		return u'\n'.join(lines)
+	#--------------------------------------------------------
+	def _get_variant_soap_by_issue(self, data=None):
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'issue')
+	#--------------------------------------------------------
+	def _get_variant_soap_by_episode(self, data=None):
+		return self.__get_variant_soap_by_issue_or_episode(data = data, mode = u'episode')
+	#--------------------------------------------------------
+	def __get_variant_soap_by_issue_or_episode(self, data=None, mode=None):
+
+		# default: all categories, neutral template
+		cats = list(u'soapu')
+		cats.append(None)
+
+		date_format = None
+		template = u'%s'
+
+		if data is not None:
+			data_parts = data.split('//')
+
+			# part[0]: categories
+			if len(data_parts[0]) > 0:
+				cats = []
+				if u' ' in data_parts[0]:
+					cats.append(None)
+				cats.extend(list(data_parts[0].replace(u' ', u'')))
+
+			# part[1]: date format
+			if len(data_parts) > 1:
+				if len(data_parts[1]) > 0:
+					date_format = data_parts[1]
+
+			# part[2]: template
+			if len(data_parts) > 2:
+				if len(data_parts[2]) > 0:
+					template = data_parts[2]
+
+		if mode == u'issue':
+			narr = gmNarrativeWidgets.select_narrative_by_issue(soap_cats = cats)
+		else:
+			narr = gmNarrativeWidgets.select_narrative_by_episode(soap_cats = cats)
+
+		if narr is None:
+			return u''
+
+		if len(narr) == 0:
+			return u''
+
+		try:
+			narr = [ template % n.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for n in narr ]
+		except KeyError:
+			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+
+		return u'\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_progress_notes(self, data=None):
 		return self._get_variant_soap(data=data)
@@ -639,7 +734,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 1:
 				template = data_parts[1]
 
-		#narr = gmNarrativeWidgets.select_narrative_from_episodes_new(soap_cats = cats)
 		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
 
 		if narr is None:
@@ -649,7 +743,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		try:
-			narr = [ template % n['narrative'] for n in narr ]
+			narr = [ template % self._escape(n['narrative']) for n in narr ]
 		except KeyError:
 			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 
@@ -662,14 +756,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		name = self.pat.get_active_name()
 
 		parts = {
-			'title': gmTools.coalesce(name['title'], u''),
-			'firstnames': name['firstnames'],
-			'lastnames': name['lastnames'],
-			'preferred': gmTools.coalesce (
+			'title': self._escape(gmTools.coalesce(name['title'], u'')),
+			'firstnames': self._escape(name['firstnames']),
+			'lastnames': self._escape(name['lastnames']),
+			'preferred': self._escape(gmTools.coalesce (
 				initial = name['preferred'],
 				instead = u' ',
 				template_initial = u' "%s" '
-			)
+			))
 		}
 
 		return data % parts
@@ -679,6 +773,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
 	def _get_variant_gender_mapper(self, data='male//female//other'):
+
 		values = data.split('//', 2)
 
 		if len(values) == 2:
@@ -690,12 +785,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return _('invalid gender mapping layout: [%s]') % data
 
 		if self.pat['gender'] == u'm':
-			return male_value
+			return self._escape(male_value)
 
 		if self.pat['gender'] == u'f':
-			return female_value
+			return self._escape(female_value)
 
-		return other_value
+		return self._escape(other_value)
 	#--------------------------------------------------------
 	# address related placeholders
 	#--------------------------------------------------------
@@ -728,7 +823,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				template = data_parts[1]
 
 		try:
-			return template % adr.fields_as_dict()
+			return template % adr.fields_as_dict(escape_style = self__esc_style)
 		except StandardError:
 			_log.exception('error formatting address')
 			_log.error('template: %s', template)
@@ -754,13 +849,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if adr is None:
 					_log.debug('no replacement selected')
 					if self.debug:
-						return _('no address type replacement selected')
+						return self._escape(_('no address type replacement selected'))
 					return u''
 				type2use = adr['address_type']
 				self.__cache[cache_key] = type2use
 				_log.debug('caching (%s): [%s] -> [%s]', cache_key, requested_type, type2use)
 
-		return self.pat.get_addresses(address_type = type2use)[0][part]
+		return self._escape(self.pat.get_addresses(address_type = type2use)[0][part])
 	#--------------------------------------------------------
 	def _get_variant_adr_street(self, data=u'?'):
 		return self.__get_variant_adr_part(data = data, part = 'street')
@@ -790,9 +885,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		comms = self.pat.get_comm_channels(comm_medium = data)
 		if len(comms) == 0:
 			if self.debug:
-				return _('no URL for comm channel [%s]') % data
+				return self._escape(_('no URL for comm channel [%s]') % data)
 			return u''
-		return comms[0]['url']
+		return self._escape(comms[0]['url'])
 	#--------------------------------------------------------
 	def _get_variant_patient_photo(self, data=None):
 
@@ -813,7 +908,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		mugshot = self.pat.document_folder.latest_mugshot
 		if mugshot is None:
 			if self.debug:
-				return _('no mugshot available')
+				return self._escape(_('no mugshot available'))
 			return u''
 
 		fname = mugshot.export_to_file (
@@ -823,7 +918,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 		if fname is None:
 			if self.debug:
-				return _('cannot export or convert latest mugshot')
+				return self._escape(_('cannot export or convert latest mugshot'))
 			return u''
 
 		return template % fname
@@ -831,19 +926,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_patient_tags(self, data=u'%s//\\n'):
 		if len(self.pat.tags) == 0:
 			if self.debug:
-				return _('no tags for this patient')
+				return self._escape(_('no tags for this patient'))
 			return u''
 
 		tags = gmDemographicsWidgets.select_patient_tags(patient = self.pat)
 
 		if tags is None:
 			if self.debug:
-				return _('no patient tags selected for inclusion') % data
+				return self._escape(_('no patient tags selected for inclusion') % data)
 			return u''
 
 		template, separator = data.split('//', 2)
 
-		return separator.join([ template % t.fields_as_dict() for t in tags ])
+		return separator.join([ template % t.fields_as_dict(escape_style = self.__esc_style) for t in tags ])
 #	#--------------------------------------------------------
 #	def _get_variant_patient_tags_table(self, data=u'?'):
 #		pass
@@ -851,97 +946,95 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_current_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return u'current provider external ID: template is missing'
+			return self._escape(u'current provider external ID: template is missing')
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return u'current provider external ID: type is missing'
+			return self._escape(u'current provider external ID: type is missing')
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return u'current provider external ID: issuer is missing'
+			return self._escape(u'current provider external ID: issuer is missing')
 
 		prov = gmStaff.gmCurrentProvider()
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
 			if self.debug:
-				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return u''
 
-		return ids[0]['value']
+		return self._escape(ids[0]['value'])
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return u'primary in-praxis provider external ID: template is missing'
+			return self._escape(u'primary in-praxis provider external ID: template is missing')
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return u'primary in-praxis provider external ID: type is missing'
+			return self._escape(u'primary in-praxis provider external ID: type is missing')
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return u'primary in-praxis provider external ID: issuer is missing'
+			return self._escape(u'primary in-praxis provider external ID: issuer is missing')
 
 		prov = self.pat.primary_provider
 		if prov is None:
 			if self.debug:
-				return _('no primary in-praxis provider')
+				return self._escape(_('no primary in-praxis provider'))
 			return u''
 
 		ids = prov.identity.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
 			if self.debug:
-				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return u''
 
-		return ids[0]['value']
+		return self._escape(ids[0]['value'])
 	#--------------------------------------------------------
 	def _get_variant_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
-			return u'patient external ID: template is missing'
+			return self._escape(u'patient external ID: template is missing')
 
 		id_type = data_parts[0].strip()
 		if id_type == u'':
-			return u'patient external ID: type is missing'
+			return self._escape(u'patient external ID: type is missing')
 
 		issuer = data_parts[1].strip()
 		if issuer == u'':
-			return u'patient external ID: issuer is missing'
+			return self._escape(u'patient external ID: issuer is missing')
 
 		ids = self.pat.get_external_ids(id_type = id_type, issuer = issuer)
 
 		if len(ids) == 0:
 			if self.debug:
-				return _('no external ID [%s] by [%s]') % (id_type, issuer)
+				return self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return u''
 
-		return ids[0]['value']
+		return self._escape(ids[0]['value'])
 	#--------------------------------------------------------
 	def _get_variant_allergy_list(self, data=None):
 		if data is None:
-			return [_('template is missing')]
+			return self._escape(_('template is missing'))
 
 		template, separator = data.split('//', 2)
 
-		emr = self.pat.get_emr()
-		return separator.join([ template % a for a in emr.get_allergies() ])
+		return separator.join([ template % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
 	#--------------------------------------------------------
 	def _get_variant_allergies(self, data=None):
 
 		if data is None:
-			return [_('template is missing')]
+			return self._escape(_('template is missing'))
 
-		emr = self.pat.get_emr()
-		return u'\n'.join([ data % a for a in emr.get_allergies() ])
+		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 
 		if data is None:
-			return [_('template is missing')]
+			return self._escape(_('template is missing'))
 
 		parts = data.split(u'//')
 		template = parts[0]
@@ -964,62 +1057,41 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(current_meds) == 0:
 				return u''
 
-		return u'\n'.join([ template % m.fields_as_dict(date_format = '%Y %B %d') for m in current_meds ])
+		return u'\n'.join([ template % m.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for m in current_meds ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
-
 		options = data.split('//')
 
-		if u'latex' in options:
-			return gmMedication.format_substance_intake (
-				emr = self.pat.get_emr(),
-				output_format = u'latex',
-				table_type = u'by-brand'
-			)
-
-		_log.error('no known current medications table formatting style in [%s]', data)
-		return _('unknown current medication table formatting style')
+		return gmMedication.format_substance_intake (
+			emr = self.pat.emr,
+			output_format = self.__esc_style,
+			table_type = u'by-brand'
+		)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
-
 		options = data.split('//')
 
-		if u'latex' in options:
-			return gmMedication.format_substance_intake_notes (
-				emr = self.pat.get_emr(),
-				output_format = u'latex',
-				table_type = u'by-brand'
-			)
-
-		_log.error('no known current medications notes formatting style in [%s]', data)
-		return _('unknown current medication notes formatting style')
+		return gmMedication.format_substance_intake_notes (
+			emr = self.pat.get_emr(),
+			output_format = self.__esc_style,
+			table_type = u'by-brand'
+		)
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
-
 		options = data.split('//')
 
-		emr = self.pat.get_emr()
-
-		if u'latex' in options:
-			return gmPathLab.format_test_results (
-				results = emr.get_test_results_by_date(),
-				output_format = u'latex'
-			)
-
-		_log.error('no known test results table formatting style in [%s]', data)
-		return _('unknown test results table formatting style [%s]') % data
+		return gmPathLab.format_test_results (
+			results = self.pat.emr.get_test_results_by_date(),
+			output_format = self.__esc_style
+		)
 	#--------------------------------------------------------
 	def _get_variant_latest_vaccs_table(self, data=None):
-
 		options = data.split('//')
 
-		emr = self.pat.get_emr()
-
-		if u'latex' in options:
-			return gmVaccination.format_latest_vaccinations(output_format = u'latex', emr = emr)
-
-		_log.error('no known vaccinations table formatting style in [%s]', data)
-		return _('unknown vaccinations table formatting style [%s]') % data
+		return gmVaccination.format_latest_vaccinations (
+			output_format = self.__esc_style,
+			emr = self.pat.emr
+		)
 	#--------------------------------------------------------
 	def _get_variant_vaccination_history(self, data=None):
 		options = data.split('//')
@@ -1027,19 +1099,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(options) > 1:
 			date_format = options[1]
 		else:
-			date_format = u'%Y %B %d'
+			date_format = u'%Y %b %d'
 
-		emr = self.pat.get_emr()
-		vaccs = emr.get_vaccinations(order_by = u'date_given DESC, vaccine')
+		vaccs = self.pat.emr.get_vaccinations(order_by = u'date_given DESC, vaccine')
 
-		return u'\n'.join([ template % v.fields_as_dict(date_format = date_format) for v in vaccs ])
+		return u'\n'.join([ template % v.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for v in vaccs ])
 	#--------------------------------------------------------
 	def _get_variant_PHX(self, data=None):
 
 		if data is None:
 			if self.debug:
 				_log.error('PHX: missing placeholder arguments')
-				return _('PHX: Invalid placeholder options.')
+				return self._escape(_('PHX: Invalid placeholder options.'))
 			return u''
 
 		_log.debug('arguments: %s', data)
@@ -1047,7 +1118,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		data_parts = data.split(u'//')
 		template = u'%s'
 		separator = u'\n'
-		date_format = '%Y %B %d'
+		date_format = '%Y %b %d'
 		esc_style = None
 		try:
 			template = data_parts[0]
@@ -1060,28 +1131,29 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		phxs = gmEMRStructWidgets.select_health_issues(emr = self.pat.emr)
 		if phxs is None:
 			if self.debug:
-				return _('no PHX for this patient (available or selected)')
+				return self._escape(_('no PHX for this patient (available or selected)'))
 			return u''
 
 		return separator.join ([
 			template % phx.fields_as_dict (
 				date_format = date_format,
-				escape_style = esc_style,
-				bool_strings = (_('yes'), _('no'))
+				#escape_style = esc_style,
+				escape_style = self.__esc_style,
+				bool_strings = (self._escape(_('yes')), self._escape(_('no')))
 			) for phx in phxs
 		])
 	#--------------------------------------------------------
 	def _get_variant_problems(self, data=None):
 
 		if data is None:
-			return [_('template is missing')]
+			return self._escape(_('template is missing'))
 
-		probs = self.pat.get_emr().get_problems()
+		probs = self.pat.emr.get_problems()
 
-		return u'\n'.join([ data % p for p in probs ])
+		return u'\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%x'):
-		return gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding())
+		return self._escape(gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding()))
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
 		return gmTools.tex_escape_string(text = data)
@@ -1100,11 +1172,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 		if expansion is None:
 			if self.debug:
-				return _('no textual expansion found for keyword <%s>' % keyword)
+				return self._escape(_('no textual expansion found for keyword <%s>') % keyword)
 			return u''
 
 		# FIXME: support decryption
-		return template % expansion['expansion']
+		return template % self._escape(expansion['expansion'])
 	#--------------------------------------------------------
 	def _get_variant_data_snippet(self, data=None):
 		parts = data.split(u'//')
@@ -1129,13 +1201,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 		if expansion is None:
 			if self.debug:
-				return _('no binary expansion found for keyword <%s>' % keyword)
+				return self._escape(_('no binary expansion found for keyword <%s>') % keyword)
 			return u''
 
 		filename = expansion.export_to_file()
 		if filename is None:
 			if self.debug:
-				return _('cannot export data of binary expansion keyword <%s>' % keyword)
+				return self._escape(_('cannot export data of binary expansion keyword <%s>') % keyword)
 			return u''
 
 		if expansion['is_encrypted']:
@@ -1147,7 +1219,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			filename = gmTools.gpg_decrypt_file(filename = filename, passphrase = pwd)
 			if filename is None:
 				if self.debug:
-					return _('cannot decrypt data of binary expansion keyword <%s>' % keyword)
+					return self._escape(_('cannot decrypt data of binary expansion keyword <%s>') % keyword)
 				return u''
 
 		target_fname = gmTools.get_unique_filename (
@@ -1156,7 +1228,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 		if not gmMimeLib.convert_file(filename = filename, target_mime = target_mime, target_filename = target_fname):
 			if self.debug:
-				return _('cannot convert data of binary expansion keyword <%s>' % keyword)
+				return self._escape(_('cannot convert data of binary expansion keyword <%s>') % keyword)
 			# hoping that the target can cope:
 			return template % filename
 
@@ -1186,7 +1258,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if decision != wx.ID_SAVE:
 			dlg.Destroy()
 			if self.debug:
-				return _('Text input cancelled by user.')
+				return self._escape(_('Text input cancelled by user.'))
 			return u''
 
 		text = dlg.value.strip()
@@ -1196,10 +1268,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		dlg.Destroy()
 
-		if format == u'tex':
-			return gmTools.tex_escape_string(text = text)
+#		if format in [u'tex', u'latex']:
+#			return gmTools.tex_escape_string(text = text)
+#		return text
 
-		return text
+		return self._escape(text)
 	#--------------------------------------------------------
 	def _get_variant_bill(self, data=None):
 		try:
@@ -1209,11 +1282,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			bill = gmBillingWidgets.manage_bills(patient = self.pat)
 			if bill is None:
 				if self.debug:
-					return _('no bill selected')
+					return self._escape(_('no bill selected'))
 				return u''
 			self.__cache['bill'] = bill
 
-		return data % bill.fields_as_dict(date_format = '%Y %B %d')
+		return data % bill.fields_as_dict(date_format = '%Y %B %d', escape_style = self.__esc_style)
 	#--------------------------------------------------------
 	def _get_variant_bill_item(self, data=None):
 		try:
@@ -1223,16 +1296,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			bill = gmBillingWidgets.manage_bills(patient = self.pat)
 			if bill is None:
 				if self.debug:
-					return _('no bill selected')
+					return self._escape(_('no bill selected'))
 				return u''
 			self.__cache['bill'] = bill
 
-		return u'\n'.join([ data % i.fields_as_dict(date_format = '%Y %B %d') for i in bill.bill_items ])
+		return u'\n'.join([ data % i.fields_as_dict(date_format = '%Y %B %d', escape_style = self.__esc_style) for i in bill.bill_items ])
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __let_user_select_comm_type(self, missing=None):
-		pass
+	def _escape(text=None):
+		if self.__esc_func is None:
+			return text
+		return self.__esc_func(text)
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
@@ -1658,7 +1733,7 @@ if __name__ == '__main__':
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
-			#u'soap_a',,
+			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
 			#u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
@@ -1685,7 +1760,9 @@ if __name__ == '__main__':
 			#u'$<data_snippet::binary_test_snippet//path=<%s>//image/png//.png::250>$',
 			#u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$',
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
-			u'$<current_meds::%s//select::>$'
+			#u'$<current_meds::%s//select::>$',
+			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
+			u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
 
 		]
 

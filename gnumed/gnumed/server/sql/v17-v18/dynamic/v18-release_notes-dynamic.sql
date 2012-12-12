@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.rc1 (database v18.rc1)',
-	'GNUmed 1.3.rc1 Release Notes:
+	'Release Notes for GNUmed 1.3.rc2 (database v18.rc2)',
+	'GNUmed 1.3.rc2 Release Notes:
 
-	1.3.rc1
+	1.3.rc2
 
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
@@ -36,6 +36,9 @@ NEW: generic gmTextCtrl supporting keyword expansion macros
 NEW: current substances grid: generate Rx either from DB or from form template
 NEW: GVK-Rezept prescription template (darf in D nicht verwendet werden)
 NEW: revamped measurements handling including test panels
+NEW: placeholder $<soap_by_issue>$, selecting SOAP via issues list
+NEW: placeholder $<soap_by_episode>$, selecting SOAP via episodes list
+NEW: progress notes can now be created from EMR tree
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -56,8 +59,13 @@ IMPROVED: address: street/subunit level comment can now be removed
 IMPROVED: do not loose has_allergy=True on merging patients
 IMPROVED: health issue EA: safer workflow
 IMPROVED: SOAP plugin: improved selection of most-recent information
+IMPROVED: EMR tree browser: display entire EMR as journal
+IMPROVED: placeholder handler: always properly escape data based on target form engine
+IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" workplace
+IMPROVED: EMR Journal: order grouped by encounter or order by last modified of items
+IMPROVED: SimpleSoap plugin: enable keyword based text expansions
 
-	18.0
+	18.rc2
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 IMPROVED: include PK columns in schema version check

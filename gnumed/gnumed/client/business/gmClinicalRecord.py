@@ -8,7 +8,6 @@ early on in your code (before cClinicalRecord.__init__() is
 called for the first time).
 """
 #============================================================
-__version__ = "$Revision: 1.308 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -40,7 +39,13 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 	gmDateTime.init()
 
-from Gnumed.pycommon import gmExceptions, gmPG2, gmDispatcher, gmI18N, gmCfg, gmTools, gmDateTime
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
@@ -53,7 +58,6 @@ from Gnumed.business.gmDemographicRecord import get_occupations
 
 
 _log = logging.getLogger('gm.emr')
-_log.debug(__version__)
 
 _me = None
 _here = None
@@ -204,7 +208,7 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	# API: family history
 	#--------------------------------------------------------
-	def get_family_history(self, episodes=None, issues=None):
+	def get_family_history(self, episodes=None, issues=None, encounters=None):
 		fhx = gmFamilyHistory.get_family_history (
 			order_by = u'l10n_relation, condition',
 			patient = self.pk_patient
@@ -215,6 +219,9 @@ SELECT fk_encounter from
 
 		if issues is not None:
 			fhx = filter(lambda f: f['pk_health_issue'] in issues, fhx)
+
+		if encounters is not None:
+			fhx = filter(lambda f: f['pk_encounter'] in encounters, fhx)
 
 		return fhx
 	#--------------------------------------------------------
@@ -343,17 +350,39 @@ SELECT fk_encounter from
 			soap_cats
 				- list of SOAP categories of the narrative to be retrieved
 		"""
+		where_parts = [u'pk_patient = %(pat)s']
+		args = {u'pat': self.pk_patient}
+
+		if issues is not None:
+			where_parts.append(u'pk_health_issue IN %(issues)s')
+			args['issues'] = tuple(issues)
+
+		if episodes is not None:
+			where_parts.append(u'pk_episode IN %(epis)s')
+			args['epis'] = tuple(episodes)
+
+		if encounters is not None:
+			where_parts.append(u'pk_encounter IN %(encs)s')
+			args['encs'] = tuple(encounters)
+
+		if soap_cats is not None:
+			where_parts.append(u'soap_cat IN %(cats)s')
+			soap_cats = list(soap_cats)
+			args['cats'] = [ cat.lower() for cat in soap_cats if cat is not None ]
+			if None in soap_cats:
+				args['cats'].append(None)
+			args['cats'] = tuple(args['cats'])
+
 		cmd = u"""
-			SELECT cvpn.*, (SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = cvpn.soap_cat) as soap_rank
-			from clin.v_pat_narrative cvpn
-			WHERE pk_patient = %s
-			order by date, soap_rank
-		"""
+			SELECT
+				c_vpn.*,
+				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = c_vpn.soap_cat) AS soap_rank
+			FROM clin.v_pat_narrative c_vpn
+			WHERE %s
+			ORDER BY date, soap_rank
+		""" % u' AND '.join(where_parts)
 
-		##########################
-		# support row_version in narrative for display in tree
-
-		rows, idx = gmPG2.run_ro_queries(queries=[{'cmd': cmd, 'args': [self.pk_patient]}], get_col_idx=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
@@ -362,19 +391,6 @@ SELECT fk_encounter from
 
 		if until is not None:
 			filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
-
-		if issues is not None:
-			filtered_narrative = filter(lambda narr: narr['pk_health_issue'] in issues, filtered_narrative)
-
-		if episodes is not None:
-			filtered_narrative = filter(lambda narr: narr['pk_episode'] in episodes, filtered_narrative)
-
-		if encounters is not None:
-			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
-
-		if soap_cats is not None:
-			soap_cats = map(lambda c: c.lower(), soap_cats)
-			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
 
 		if providers is not None:
 			filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)
@@ -895,6 +911,27 @@ order by
 
 		return txt
 	#--------------------------------------------------------
+	def format_as_journal(self, left_margin=0, patient=None):
+		txt = u''
+		for enc in self.get_encounters(skip_empty = True):
+			txt += gmTools.u_box_horiz_4dashes * 70 + u'\n'
+			txt += enc.format (
+				episodes = None,			# means: each touched upon
+				left_margin = left_margin,
+				patient = patient,
+				fancy_header = False,
+				with_soap = True,
+				with_docs = True,
+				with_tests = True,
+				with_vaccinations = True,
+				with_co_encountlet_hints = False,		# irrelevant
+				with_rfe_aoe = True,
+				with_family_history = True,
+				by_episode = True
+			)
+
+		return txt
+	#--------------------------------------------------------
 	# API: allergy
 	#--------------------------------------------------------
  	def get_allergies(self, remove_sensitivities=False, since=None, until=None, encounters=None, episodes=None, issues=None, ID_list=None):
@@ -1255,7 +1292,7 @@ WHERE
 	#--------------------------------------------------------
 	def get_health_issues(self, id_list = None):
 
-		cmd = u"SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient = %(pat)s"
+		cmd = u"SELECT *, xmin_health_issue FROM clin.v_health_issues WHERE pk_patient = %(pat)s ORDER BY description"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
 		issues = [ gmEMRStructItems.cHealthIssue(row = {'idx': idx, 'data': r, 'pk_field': 'pk_health_issue'}) for r in rows ]
 
@@ -2454,6 +2491,13 @@ if __name__ == "__main__":
 		emr = cClinicalRecord(aPKey=12)
 		print "episodes:", emr.episodes
 		print "unlinked:", emr.unlinked_episodes
+
+	#-----------------------------------------
+	def test_format_as_journal():
+		emr = cClinicalRecord(aPKey=12)
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(aPK_obj = 12)
+		print emr.format_as_journal(left_margin = 1, patient = pat)
 	#-----------------------------------------
 	#test_allergy_state()
 	#test_is_allergic_to()
@@ -2470,7 +2514,8 @@ if __name__ == "__main__":
 	#test_get_meds()
 	#test_get_as_journal()
 	#test_get_most_recent()
-	test_episodes()
+	#test_episodes()
+	test_format_as_journal()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

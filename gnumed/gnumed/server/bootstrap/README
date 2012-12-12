@@ -34,10 +34,10 @@ prerequisites that need to be matched:
    users to connect:
 
 # for local connections from the same machine
-local	samegroup	+gm-logins							md5
+local	samerole	+gm-logins							md5
 
 # for remote connections from other machines
-host	samegroup	+gm-logins		<IP/NETMASK>		md5
+host	samerole	+gm-logins		<IP/NETMASK>		md5
 
 
 
