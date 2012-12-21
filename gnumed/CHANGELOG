@@ -9,6 +9,7 @@
 	1.2.7
 
 FIX: faulty LaTeX escaping of "\" special character [thanks V.Banait]
+FIX: failure to announce auto-picks from PRW dropdowns [thanks J.Busser]
 
 	1.2.6
 

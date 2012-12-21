@@ -1100,6 +1100,9 @@ class cPhraseWheel(cPhraseWheelBase):
 			if candidate['field_label'] == val:
 				self.data = {candidate['field_label']: candidate}
 				self.MarkDirty()
+				# tell listeners about the user's selection
+				for callback in self._on_selection_callbacks:
+					callback(self._data)
 				return True
 
 		# no exact match found
