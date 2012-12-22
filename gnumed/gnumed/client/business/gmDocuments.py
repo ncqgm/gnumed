@@ -1,10 +1,7 @@
-"""This module encapsulates a document stored in a GNUmed database.
-
-@copyright: GPL v2 or later
-"""
+"""This module encapsulates a document stored in a GNUmed database."""
 #============================================================
-__version__ = "$Revision: 1.118 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
 import sys, os, shutil, os.path, types, time, logging
 
@@ -20,7 +17,6 @@ from Gnumed.pycommon import gmDateTime
 
 
 _log = logging.getLogger('gm.docs')
-_log.info(__version__)
 
 MUGSHOT=26
 DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = u'visual progress note'
@@ -536,7 +532,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		return True
 	#--------------------------------------------------------
 	def _get_parts(self):
-		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s"
+		cmd = _sql_fetch_document_part_fields % u"pk_doc = %s ORDER BY seq_idx"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_obj]}], get_col_idx = True)
 		return [ cDocumentPart(row = {'pk_field': 'pk_obj', 'idx': idx, 'data': r}) for r in rows ]
 
@@ -602,14 +598,11 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	def export_parts_to_files(self, export_dir=None, chunksize=0):
 		fnames = []
 		for part in self.parts:
-			# FIXME: add guess_extension_from_mimetype
-			fname = os.path.basename(gmTools.coalesce (
-				part['filename'],
-				u'%s%s%s_%s' % (part['l10n_type'], gmTools.coalesce(part['ext_ref'], '-', '-%s-'), _('part'), part['seq_idx'])
-			))
+			fname = part.export_to_file(aChunkSize = chunksize)
 			if export_dir is not None:
-				fname = os.path.join(export_dir, fname)
-			fnames.append(part.export_to_file(aChunkSize = chunksize, filename = fname))
+				shutil.move(fname, export_dir)
+				fname = os.path.join(export_dir, os.path.split(fname)[1])
+			fnames.append(fname)
 		return fnames
 	#--------------------------------------------------------
 	def _get_has_unreviewed_parts(self):

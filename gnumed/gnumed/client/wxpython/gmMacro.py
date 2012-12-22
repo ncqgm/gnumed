@@ -175,6 +175,20 @@ known_variant_placeholders = [
 	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 
+	u'documents',							# "args" format:	<select>//<description>//<template>//<path template>//<path>
+											#	select:			let user select which documents to include,
+											#					optional, if not given: all documents included
+											#	description:	whether to include descriptions, optional
+											#	template:		something %(field)s something else,
+											#					(do not include "//" itself in the template),
+											#	path template:	the template for outputting the path to exported
+											#					copies of the document pages, if not given no pages
+											#					are exported, this template can contain "%(name)s"
+											#					and/or "%(fullpath)s" which is replaced by the
+											#					appropriate value for each exported file
+											#	path:			into which path to export copies of the document pages,
+											#					temp dir if not given
+
 	# provider related:
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
@@ -512,6 +526,58 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
+	#--------------------------------------------------------
+	def _get_variant_documents(self, data=None):
+
+		select = False
+		include_descriptions = False
+		template = u'%s'
+		path_template = None
+		export_path = None
+
+		data_parts = data.split('//')
+
+		if u'select' in data_parts:
+			select = True
+			data_parts.remove(u'select')
+
+		if u'description' in data_parts:
+			include_descriptions = True
+			data_parts.remove(u'description')
+
+		template = data_parts[0]
+
+		if len(data_parts) > 1:
+			path_template = data_parts[1]
+
+		if len(data_parts) > 2:
+			export_path = data_parts[2]
+
+		# create path
+		if export_path is not None:
+			export_path = os.path.normcase(os.path.expanduser(export_path))
+			gmTools.mkdir(export_path)
+
+		# select docs
+		if select:
+			docs = xxx.select()
+		else:
+			docs = self.pat.document_folder.documents
+
+		lines = []
+		for doc in docs:
+			lines.append(template % doc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
+			if include_descriptions:
+				for desc in doc.get_descriptions(max_lng = None):
+					lines.append(self._escape(desc['text'] + u'\n'))
+			if path_template is not None:
+				for part_name in doc.export_parts_to_files(export_dir = export_path):
+					path, name = os.path.split(part_name)
+					lines.append(path_template % {'fullpath': part_name, 'name': name})
+
+
+		return u'\n'.join(lines)
+
 	#--------------------------------------------------------
 	def _get_variant_encounter_list(self, data=None):
 
@@ -1746,7 +1812,7 @@ if __name__ == '__main__':
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
-			u'patient_comm::homephone::1234',
+			#u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
 			#u'adr_region::home::1234',
 			#u'adr_country::fehlt::1234',
@@ -1773,7 +1839,8 @@ if __name__ == '__main__':
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
 			#u'$<current_meds::%s//select::>$',
 			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
-			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
+			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$',
+			u'$<documents::description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
 
 		]
 
