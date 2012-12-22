@@ -117,7 +117,7 @@ known_variant_placeholders = [
 	u'adr_region',
 	u'adr_country',
 
-	u'patient_comm',						# args: comm channel type as per database
+	u'patient_comm',						# args: <comm channel type as per database>//template
 	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
 
@@ -881,13 +881,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_adr_country(self, data=u'?'):
 		return self.__get_variant_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
-	def _get_variant_patient_comm(self, data=u'?'):
-		comms = self.pat.get_comm_channels(comm_medium = data)
+	def _get_variant_patient_comm(self, data=None):
+		comm_type = None
+		template = u'%(url)s'
+		if data is not None:
+			data_parts = data.split(u'//')
+			if len(data_parts) > 0:
+				comm_type = data_parts[0]
+			if len(data_parts) > 1:
+				template = data_parts[1]
+
+		comms = self.pat.get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return self._escape(_('no URL for comm channel [%s]') % data)
+				return template + u': ' + self._escape(_('no URL for comm channel [%s]') % data)
 			return u''
-		return self._escape(comms[0]['url'])
+
+		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
+		# self._escape(comms[0]['url'])
 	#--------------------------------------------------------
 	def _get_variant_patient_photo(self, data=None):
 
@@ -1304,7 +1315,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def _escape(text=None):
+	def _escape(self, text=None):
 		if self.__esc_func is None:
 			return text
 		return self.__esc_func(text)
@@ -1735,7 +1746,7 @@ if __name__ == '__main__':
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',
-			#u'patient_comm::homephone::1234',
+			u'patient_comm::homephone::1234',
 			#u'$<patient_address::work::1234>$',
 			#u'adr_region::home::1234',
 			#u'adr_country::fehlt::1234',
@@ -1762,7 +1773,7 @@ if __name__ == '__main__':
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
 			#u'$<current_meds::%s//select::>$',
 			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
-			u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
+			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
 
 		]
 
