@@ -1329,7 +1329,7 @@ def display_document_part(parent=None, part=None):
 
 	return True
 #============================================================
-def manage_documents(parent=None, msg=None):
+def manage_documents(parent=None, msg=None, single_selection=True):
 
 	pat = gmPerson.gmCurrentPatient()
 
@@ -1351,7 +1351,7 @@ def manage_documents(parent=None, msg=None):
 	def refresh(lctrl):
 		docs = pat.document_folder.get_documents()
 		items = [ [
-			gmDateTime.pydt_strftime(d['clin_when'], u'%Y-%m-%d', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(d['clin_when'], u'%Y %b %d', accuracy = gmDateTime.acc_days),
 			d['l10n_type'],
 			gmTools.coalesce(d['comment'], u''),
 			gmTools.coalesce(d['ext_ref'], u''),
@@ -1367,7 +1367,7 @@ def manage_documents(parent=None, msg=None):
 		msg = msg,
 		caption = _('Showing documents.'),
 		columns = [_('Generated'), _('Type'), _('Comment'), _('Ref #'), u'#'],
-		single_selection = True,
+		single_selection = single_selection,
 		#new_callback = edit,
 		#edit_callback = edit,
 		#delete_callback = delete,

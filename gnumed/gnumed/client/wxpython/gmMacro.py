@@ -49,6 +49,7 @@ from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -560,7 +561,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# select docs
 		if select:
-			docs = xxx.select()
+			docs = gmDocumentWidgets.manage_documents(msg = _('Select the patient documents to reference from the new document.'), single_selection = False)
 		else:
 			docs = self.pat.document_folder.documents
 
@@ -1840,7 +1841,7 @@ if __name__ == '__main__':
 			#u'$<current_meds::%s//select::>$',
 			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
 			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$',
-			u'$<documents::description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
+			u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
 
 		]
 
