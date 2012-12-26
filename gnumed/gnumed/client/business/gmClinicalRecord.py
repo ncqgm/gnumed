@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """GNUmed clinical patient record.
 
 This is a clinical record object intended to let a useful
@@ -25,11 +26,9 @@ __license__ = "GPL"
 #===================================================
 
 # standard libs
-import sys, string, time, copy, locale
-
-
-# 3rd party
+import sys
 import logging
+import decimal
 
 
 if __name__ == '__main__':
@@ -468,7 +467,7 @@ order by
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "SELECT %s FROM clin.v_pat_items WHERE pk_patient=%%s order by src_table, clin_when" % string.join(fields, ', ')
+		cmd = "SELECT %s FROM clin.v_pat_items WHERE pk_patient=%%s order by src_table, clin_when" % ', '.join(fields)
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG2.run_query(curs, None, cmd, self.pk_patient):
@@ -2366,6 +2365,115 @@ LIMIT 2
 			_log.error(str(data))
 			return None
 		return data
+
+#============================================================
+class cClinicalResult(object):
+
+	def __init__(self, message=None):
+		self.message = message
+		self.numeric_value = None
+		self.date_valid = None
+		self.variables = {}
+		self.formula_name = None
+		self.formula_source = None
+		self.warnings = []
+
+	def __unicode__(self):
+		return u'[cClinicalResult]: name: %s\nsource: %s\nvalue: %s\ndate: %s\nmsg: %s\nvars: %s\nwarnings: %s' % (
+			self.formula_name,
+			self.formula_source,
+			self.numeric_value,
+			self.date_valid,
+			self.message,
+			self.variables,
+			self.warnings
+		)
+
+#============================================================
+class cClinicalCalculator(object):
+
+	def __init__(self, patient=None):
+		self.patient = patient
+	#--------------------------------------------------------
+#	def suggest_algorithm(self, pk_test_type):
+#		return None
+	#--------------------------------------------------------
+	def _get_mdrd_short(self):
+		result = cClinicalResult(_('unknown MDRD (4 vars)'))
+		result.formula_name = u'eGFR by 4 variables MDRD'
+		result.formula_source = u'12/2012: http://en.wikipedia.org/Renal_function'
+
+		if self.patient is None:
+			result.message = _('MDRD (4 vars): no patient')
+			return result
+
+		if self.patient['dob'] is None:
+			result.message = _('MDRD (4 vars): no DOB (no age)')
+			return result
+
+		# 1) gender
+		from Gnumed.business.gmPerson import map_gender2mf
+		result.variables['gender'] = self.patient['gender']
+		result.variables['gender_mf'] = map_gender2mf[self.patient['gender']]
+		if result.variables['gender_mf'] == 'm':
+			result.variables['gender_multiplier'] = decimal.Decimal(1)
+		elif result.variables['gender_mf'] == 'f':
+			result.variables['gender_multiplier'] = decimal.Decimal('0.742')
+		else:
+			result.message = _('MDRD (4 vars): neither male nor female')
+			return result
+
+		# 2) creatinine
+		result.variables['serum_crea'] = self.patient.emr.get_most_recent_results(loinc = ['2160-0', '14682-9', '40264-4'], no_of_results = 1)
+		if result.variables['serum_crea'] is None:
+			result.message = _('MDRD (4 vars): serum creatinine value not found (LOINC: 2160-0, 14682-9)')
+			return result
+		if result.variables['serum_crea']['val_num'] is None:
+			result.message = _('MDRD (4 vars): creatinine value not numeric')
+			return result
+		result.variables['serum_crea_val'] = decimal.Decimal(result.variables['serum_crea']['val_num'])
+		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+			result.variables['unit_multiplier'] = decimal.Decimal(186)
+		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+			result.variables['unit_multiplier'] = decimal.Decimal(32788)
+		else:
+			result.message = _('MDRD (4 vars): unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
+			return result
+
+		# 3) age (at creatinine evaluation)
+		result.variables['dob'] = self.patient['dob']
+		result.variables['age@crea'] = decimal.Decimal (
+			gmDateTime.calculate_apparent_age (
+				start = result.variables['dob'],
+				end = result.variables['serum_crea']['clin_when']
+			)[0]
+		)
+
+		# 4) ethnicity
+		result.variables['ethnicity_multiplier'] = decimal.Decimal(1)			# non-black
+		result.warnings.append(_('ethnicity: GNUmed does not yet know patient ethnicity, ignoring correction factor'))
+
+		# calculate
+		result.numeric_value =  result.variables['unit_multiplier'] * \
+			pow(result.variables['serum_crea_val'], decimal.Decimal('-1.154')) * \
+			pow(result.variables['age@crea'], decimal.Decimal('-0.203')) * \
+			result.variables['ethnicity_multiplier'] * \
+			result.variables['gender_multiplier']
+
+		result.message = _('eGFR(4 variables MDRD): %.2f (%s)') % (
+			result.numeric_value,
+			gmDateTime.pydt_strftime (
+				result.variables['serum_crea']['clin_when'],
+				format = '%Y %b %d'
+			)
+		)
+		result.date_valid = result.variables['serum_crea']['clin_when']
+
+		return result
+
+	MDRD_short = property(_get_mdrd_short, lambda x:x)
+	#--------------------------------------------------------
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -2502,6 +2610,22 @@ if __name__ == "__main__":
 		pat = cPatient(aPK_obj = 12)
 		print emr.format_as_journal(left_margin = 1, patient = pat)
 	#-----------------------------------------
+	def test_clin_calc():
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(aPK_obj = 12)
+		calc = cClinicalCalculator(patient = pat)
+		mdrd = calc.MDRD_short
+
+		print mdrd.message
+		print mdrd.numeric_value
+		print mdrd.formula_name
+		print mdrd.formula_source
+		print ""
+		print mdrd.variables
+		print ""
+		print mdrd.warnings
+	#-----------------------------------------
+
 	#test_allergy_state()
 	#test_is_allergic_to()
 
@@ -2518,7 +2642,8 @@ if __name__ == "__main__":
 	#test_get_as_journal()
 	#test_get_most_recent()
 	#test_episodes()
-	test_format_as_journal()
+	#test_format_as_journal()
+	test_clin_calc()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

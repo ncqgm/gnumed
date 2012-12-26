@@ -19,7 +19,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmI18N
@@ -34,6 +33,8 @@ from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmClinicalRecord
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -1340,7 +1341,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_substance.selection_only = True
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		curr_pat = gmPerson.gmCurrentPatient()
+		emr = curr_pat.emr
 
 		state = emr.allergy_state
 		if state['last_confirmed'] is None:
@@ -1357,6 +1359,22 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				allergy['l10n_type'],
 				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?'),
 				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
+			)
+
+		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfr is None:
+			calc = gmClinicalRecord.cClinicalCalculator(curr_pat)
+			gfr = calc.MDRD_short
+			if gfr.numeric_value is not None:
+				_log.debug(u'%s' % gfr)
+				msg += u'\n'
+				msg += gfr.message
+		else:
+			msg += u'\n'
+			msg += u'%s: %s%s\n' % (
+				gfr['unified_abbrev'],
+				gfr['unified_val'],
+				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)')
 			)
 
 		self._LBL_allergies.SetLabel(msg)

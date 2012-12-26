@@ -865,7 +865,8 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 	if test_type is not None:
 		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
 	elif loinc is not None:
-		where_parts.append(u'((loinc_tt = %(loinc)s) OR (loinc_meta = %(loinc)s))')
+		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		args['loinc'] = tuple(loinc)
 
 	cmd = u"""
 		SELECT * FROM clin.v_test_results
