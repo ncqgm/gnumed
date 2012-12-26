@@ -492,7 +492,10 @@ def create_timeline_file(patient=None, filename=None):
 		))
 
 	# display range
-	end = end.replace(month = end.month + 1)
+	if end.month == 12:
+		end = end.replace(month = 1)
+	else:
+		end = end.replace(month = end.month + 1)
 	timeline.write(xml_end % (
 		format_pydt(start),
 		format_pydt(end)

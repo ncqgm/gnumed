@@ -10,13 +10,26 @@
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmXdtViewer"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmEMRTimelinePlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmXdtViewer"}'
 where
 	fk_item in (
 		select pk_cfg_item
 		from cfg.v_cfg_options
 		where
 			workplace = 'GNUmed Default'
+			and option = 'horstspace.notebook.plugin_load_order'
+		)
+;
+
+-- --------------------------------------------------------------
+update cfg.cfg_str_array set
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin"}'
+where
+	fk_item in (
+		select pk_cfg_item
+		from cfg.v_cfg_options
+		where
+			workplace = 'Clinician'
 			and option = 'horstspace.notebook.plugin_load_order'
 		)
 ;
