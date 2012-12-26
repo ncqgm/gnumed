@@ -28,6 +28,7 @@ NEW: progress notes can now be created from EMR tree
 NEW: score: Bird Criteria for Polymyalgia rheumatica
 NEW: score: prediction of bacterial conjunctivitis
 NEW: placeholder $<documents>$, include/export documents
+NEW: list placeholders from within client
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -53,6 +54,7 @@ IMPROVED: placeholder handler: always properly escape data based on target form 
 IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" workplace
 IMPROVED: EMR Journal: order grouped by encounter or order by last modified of items
 IMPROVED: SimpleSoap plugin: enable keyword based text expansions
+IMPROVED: patient overview: show comment on contact in tooltip
 
 ------------------------------------------------
 # rel-1-2-patches

@@ -4,7 +4,6 @@
 This module implements functions a macro can legally use.
 """
 #=====================================================================
-__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys
@@ -13,6 +12,7 @@ import random
 import types
 import logging
 import os
+import codecs
 
 
 import wx
@@ -57,17 +57,17 @@ _cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
 known_placeholders = [
-	'lastname',
-	'firstname',
-	'title',
-	'date_of_birth',
-	'progress_notes',
-	'soap',
-	'soap_s',
-	'soap_o',
-	'soap_a',
-	'soap_p',
-	'soap_u',
+	u'lastname',
+	u'firstname',
+	u'title',
+	u'date_of_birth',
+	u'progress_notes',
+	u'soap',
+	u'soap_s',
+	u'soap_o',
+	u'soap_a',
+	u'soap_p',
+	u'soap_u',
 	u'client_version',
 	u'current_provider',
 	u'primary_praxis_provider',			# primary provider for current patient in this praxis
@@ -105,11 +105,11 @@ known_variant_placeholders = [
 											#				or: "Lieber Patient//Liebe Patientin"
 
 	# patient demographics:
-	u'name',								# "args" holds: template for name parts arrangement
-	u'date_of_birth',
+	u'name',								# args: template for name parts arrangement
+	u'date_of_birth',						# args: strftime date/time format directive
 
-	u'patient_address',						# "args": <type of address>//<optional formatting template>
-	u'adr_street',							# "args" holds: type of address
+	u'patient_address',						# args: <type of address>//<optional formatting template>
+	u'adr_street',							# args: <type of address>
 	u'adr_number',
 	u'adr_subunit',
 	u'adr_location',
@@ -118,7 +118,7 @@ known_variant_placeholders = [
 	u'adr_region',
 	u'adr_country',
 
-	u'patient_comm',						# args: <comm channel type as per database>//template
+	u'patient_comm',						# args: <comm channel type as per database>//<%(key)s-template>
 	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
 
@@ -205,7 +205,31 @@ default_placeholder_regex = r'\$<.+?>\$'				# this one works [except that OOo ca
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
+#=====================================================================
+def show_placeholders():
+	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
+	ph_file = codecs.open(filename = fname, mode = 'wb', encoding = 'utf8', errors = 'replace')
 
+	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
+	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
+
+	ph_file.write(u'Simple placeholders (use like: $<PLACEHOLDER_NAME>$):\n')
+	for ph in known_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.write(u'Variable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	for ph in known_variant_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.write(u'Injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	for ph in _injectable_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.close()
+	gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Returns values for placeholders.
@@ -565,6 +589,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			docs = self.pat.document_folder.documents
 
+		if docs is None:
+			return u''
+
 		lines = []
 		for doc in docs:
 			lines.append(template % doc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
@@ -576,9 +603,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					path, name = os.path.split(part_name)
 					lines.append(path_template % {'fullpath': part_name, 'name': name})
 
-
 		return u'\n'.join(lines)
-
 	#--------------------------------------------------------
 	def _get_variant_encounter_list(self, data=None):
 
@@ -1870,15 +1895,18 @@ if __name__ == '__main__':
 		gmPerson.set_active_patient(patient = pat)
 		from Gnumed.wxpython import gmMedicationWidgets
 		gmMedicationWidgets.manage_substance_intakes()
-
+	#--------------------------------------------------------
+	def test_show_phs():
+		show_placeholders()
 	#--------------------------------------------------------
 
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
-	test_placeholder()
 	#test()
+	#test_placeholder()
+	test_show_phs()
 
 #=====================================================================
 

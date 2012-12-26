@@ -144,7 +144,6 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	def cleanup(self):
 		_log.debug('cleaning up after clinical record for patient [%s]' % self.pk_patient)
-
 		return True
 	#--------------------------------------------------------
 	# messaging
@@ -175,6 +174,10 @@ SELECT fk_encounter from
 		if self.current_encounter.is_modified():
 			_log.debug('unsaved changes in active encounter, cannot switch to another one')
 			raise ValueError('unsaved changes in active encounter, cannot switch to another one')
+
+		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
+			_log.debug('encounter_mod_db received but no change to active encounter payload')
+			return True
 
 		# there was a change in the database from elsewhere,
 		# locally, however, we don't have any changes, therefore
