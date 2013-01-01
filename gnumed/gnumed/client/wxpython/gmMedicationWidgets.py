@@ -35,6 +35,7 @@ from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmClinicalCalculator
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -1322,6 +1323,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		except KeyError:
 			data = None
 
+		self.calc = gmClinicalCalculator.cClinicalCalculator()
+
 		wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
@@ -1351,33 +1354,65 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			confirmed = state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
 		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
 		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
-		msg += u'\n'
 
-		for allergy in emr.get_allergies():
-			msg += u'%s (%s, %s): %s\n' % (
+		tt = u''
+
+		allgs = emr.get_allergies()
+		if len(allgs) > 0:
+			msg += u'\n'
+		for allergy in allgs:
+			msg += u'%s: %s (%s)\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
-				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?'),
+				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?')
+			)
+			tt += u'%s: %s\n' % (
+				allergy['descriptor'],
 				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			)
 
+		if len(allgs) > 0:
+			msg += u'\n'
+			tt += u'\n'
+
 		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if gfr is None:
-			calc = gmClinicalRecord.cClinicalCalculator(curr_pat)
-			gfr = calc.MDRD_short
-			if gfr.numeric_value is not None:
-				_log.debug(u'%s' % gfr)
-				msg += u'\n'
+			self.calc.patient = curr_pat
+			gfr = self.calc.eGFR
+			if gfr.numeric_value is None:
+				msg += _('GFR: unknown')
+			else:
 				msg += gfr.message
+				tt += _('estimated GFR:\n')
+				tt += _(' formula: %s\n') % gfr.formula_name
+				tt += _(' source: %s\n') % gfr.formula_source
+				tt += u' %s: %s %s (%s)' % (
+					gfr.variables['serum_crea']['unified_abbrev'],
+					gfr.variables['serum_crea']['unified_val'],
+					gfr.variables['serum_crea']['val_unit'],
+					gmDateTime.pydt_strftime (
+						gfr.variables['serum_crea']['clin_when'],
+						format = '%Y %b %d'
+					)
+				)
+				if len(gfr.warnings) > 0:
+					tt += _('\n Caveats:')
+				for w in gfr.warnings:
+					tt += u'\n * %s' % w
 		else:
-			msg += u'\n'
-			msg += u'%s: %s%s\n' % (
+			msg += u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
 				gfr['unified_val'],
-				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)')
+				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmDateTime.pydt_strftime (
+					gfr['clin_when'],
+					format = '%Y %b %d'
+				)
 			)
+			tt += _('GFR reported by path lab')
 
 		self._LBL_allergies.SetLabel(msg)
+		self._LBL_allergies.SetToolTipString(tt)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------

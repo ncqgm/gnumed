@@ -847,6 +847,45 @@ WHERE
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
+def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, tolerance_interval=None, patient=None):
+
+	if None not in [test_type, loinc]:
+		raise ValueError('either <test_type> or <loinc> must be None')
+
+	args = {
+		'pat': patient,
+		'ttyp': test_type,
+		'loinc': loinc,
+		'ts': timestamp,
+		'intv': tolerance_interval
+	}
+
+	where_parts = [u'pk_patient = %(pat)s']
+	if test_type is not None:
+		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+	elif loinc is not None:
+		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		args['loinc'] = tuple(loinc)
+
+	if tolerance_interval is None:
+		where_parts.append(u'clin_when = %(ts)s')
+	else:
+		where_parts.append(u'clin_when between (%(ts)s - %(intv)s::interval) AND (%(ts)s + %(intv)s::interval)')
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE
+			%s
+		ORDER BY
+			abs(extract(epoch from age(clin_when, %%(ts)s)))
+		LIMIT 1""" % u' AND '.join(where_parts)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+
+	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+#------------------------------------------------------------
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
 
 	if None not in [test_type, loinc]:
