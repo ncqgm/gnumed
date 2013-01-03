@@ -1383,22 +1383,16 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				msg += _('GFR: unknown')
 			else:
 				msg += gfr.message
-				tt += _('estimated GFR:\n')
-				tt += _(' formula: %s\n') % gfr.formula_name
-				tt += _(' source: %s\n') % gfr.formula_source
-				tt += u' %s: %s %s (%s)' % (
-					gfr.variables['serum_crea']['unified_abbrev'],
-					gfr.variables['serum_crea']['unified_val'],
-					gfr.variables['serum_crea']['val_unit'],
-					gmDateTime.pydt_strftime (
-						gfr.variables['serum_crea']['clin_when'],
-						format = '%Y %b %d'
-					)
+				tt += gfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = u'\n',
+					with_formula = True,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = True,
+					return_list = False
 				)
-				if len(gfr.warnings) > 0:
-					tt += _('\n Caveats:')
-				for w in gfr.warnings:
-					tt += u'\n * %s' % w
 		else:
 			msg += u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
@@ -2899,9 +2893,59 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			self._grid_substances.patient = pat
+			self.__refresh_gfr(pat)
 		else:
 			self._grid_substances.patient = None
+			self.__clear_gfr()
 		return True
+	#--------------------------------------------------------
+	def __refresh_gfr(self, patient):
+		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfr is None:
+			calc = gmClinicalCalculator.cClinicalCalculator()
+			calc.patient = patient
+			gfr = calc.eGFR
+			if gfr.numeric_value is None:
+				msg = _('GFR: ?')
+			else:
+				msg = _('eGFR: %.1f (%s)') % (
+					gfr.numeric_value,
+					gmDateTime.pydt_strftime (
+						gfr.date_valid,
+						format = '%b %Y'
+					)
+				)
+				tt = gfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = u'\n',
+					with_formula = True,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = True,
+					return_list = False
+				)
+		else:
+			msg = u'%s: %s %s (%s)\n' % (
+				gfr['unified_abbrev'],
+				gfr['unified_val'],
+				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmDateTime.pydt_strftime (
+					gfr['clin_when'],
+					format = '%b %Y'
+				)
+			)
+			tt = _('GFR reported by path lab')
+
+		self._LBL_gfr.SetLabel(msg)
+		self._LBL_gfr.SetToolTipString(tt)
+		self._LBL_gfr.Refresh()
+		self.Layout()
+	#--------------------------------------------------------
+	def __clear_gfr(self):
+		self._LBL_gfr.SetLabel(_('GFR: ?'))
+		self._LBL_gfr.Refresh()
+		self.Layout()
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------

@@ -39,24 +39,99 @@ class cClinicalResult(object):
 		self.numeric_value = None
 		self.unit = None
 		self.date_valid = None
-		self.variables = {}
 		self.formula_name = None
 		self.formula_source = None
+		self.variables = {}
 		self.sub_results = []
 		self.warnings = [_('THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE.')]
-
+	#--------------------------------------------------------
 	def __unicode__(self):
-		return u'[cClinicalResult]: name: %s\nsource: %s\nvalue: %s unit: %s, date: %s\nmsg: %s\nvars: %s\nwarnings: %s\nsub-results: %s' % (
-			self.formula_name,
-			self.formula_source,
+		txt = u'[cClinicalResult]: %s %s (%s)\n\n%s' % (
 			self.numeric_value,
 			self.unit,
 			self.date_valid,
-			self.message,
-			self.variables,
-			self.warnings,
-			self.sub_results
+			self.format (
+				left_margin = 0,
+				width = 80,
+				eol = u'\n',
+				with_formula = True,
+				with_warnings = True,
+				with_variables = True,
+				with_sub_results = True,
+				return_list = False
+			)
 		)
+		return txt
+	#--------------------------------------------------------
+	def format(self, left_margin=0, eol=u'\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, return_list=False):
+		lines = []
+		lines.append(self.message)
+
+		if with_formula:
+			txt = gmTools.wrap (
+				text = u'%s %s' % (
+					_('Algorithm:'),
+					self.formula_name
+				),
+				width = width,
+				initial_indent = u' ',
+				subsequent_indent = u' ' * 2,
+				eol = eol
+			)
+			lines.append(txt)
+			txt = gmTools.wrap (
+				text = u'%s %s' % (
+					_('Source:'),
+					self.formula_source
+				),
+				width = width,
+				initial_indent = u' ',
+				subsequent_indent = u' ' * 2,
+				eol = eol
+			)
+			lines.append(txt)
+
+		if with_warnings:
+			if len(self.warnings) > 0:
+				lines.append(u' Caveat:')
+			for w in self.warnings:
+				txt = gmTools.wrap(text = w, width = width, initial_indent = u'  %s ' % gmTools.u_right_arrow, subsequent_indent = u'    ', eol = eol)
+				lines.append(txt)
+			if len(self.warnings) > 0:
+				lines.append(u'')
+
+		if with_variables:
+			if len(self.variables) > 0:
+				lines.append(u' %s' % _('Variables:'))
+			for key in self.variables.keys():
+				txt = u'  %s %s: %s' % (
+					gmTools.u_right_arrow,
+					key,
+					self.variables[key]
+				)
+				lines.append(txt)
+
+		if with_sub_results:
+			if len(self.sub_results) > 0:
+				lines.append(u' %s' % _('Intermediate results:'))
+			for r in self.sub_results:
+				lines.extend(r.format (
+					left_margin = left_margin + 1,
+					width = width,
+					eol = eol,
+					with_formula = with_formula,
+					with_warnings = with_warnings,
+					with_variables = with_variables,
+					with_sub_results = False,			# break cycles
+					return_list = True
+				))
+
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = eol)
+		if return_list:
+			return lines
+
+		left_margin = u' ' * left_margin
+		return left_margin + (eol + left_margin).join(lines) + eol
 
 #============================================================
 class cClinicalCalculator(object):
@@ -180,7 +255,7 @@ class cClinicalCalculator(object):
 			result.variables['BSA'] = BSA.numeric_value
 			result_numeric_value = result.numeric_value / BSA.numeric_value
 
-		result.message = _('eGFR(MDRD): %.2f %s (%s) [4-vars, IDMS]') % (
+		result.message = _('eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]') % (
 			result.numeric_value,
 			result.unit,
 			gmDateTime.pydt_strftime (
@@ -285,7 +360,7 @@ class cClinicalCalculator(object):
 		)
 		result.unit = u'ml/min/1.73m²'
 
-		result.message = _('eGFR (Schwartz): %.2f %s (%s)') % (
+		result.message = _('eGFR (Schwartz): %.1f %s (%s)') % (
 			result.numeric_value,
 			result.unit,
 			gmDateTime.pydt_strftime (
@@ -411,20 +486,10 @@ if __name__ == "__main__":
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 12)
 		calc = cClinicalCalculator(patient = pat)
-		#result = calc.eGFR_MDRD_short
+		result = calc.eGFR_MDRD_short
 		#result = calc.eGFR_Schwartz
 		#result = calc.eGFR
-		result = calc.body_surface_area
-
-		print result.message
-		print result.numeric_value, result.unit, result.date_valid
-		print result.formula_name
-		print result.formula_source
-		print ""
-		print result.variables
-		print ""
-		print result.warnings
-		print ""
-		print result.sub_results
+		#result = calc.body_surface_area
+		print u'%s' % result
 	#-----------------------------------------
 	test_clin_calc()
