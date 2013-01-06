@@ -73,6 +73,8 @@ def print_files(filenames=None, jobtype=None, print_api=None):
 		if _print_files_by_gtklp(filenames = filenames):
 			return True
 	elif os.name == 'nt':
+		if _print_files_by_shellscript(filenames = filenames, jobtype = jobtype):
+			return True
 		if _print_files_by_gsprint_exe(filenames = filenames):
 			return True
 		if _print_files_by_acroread_exe(filenames = filenames):
@@ -81,6 +83,7 @@ def print_files(filenames=None, jobtype=None, print_api=None):
 			return True
 		if _print_files_by_IE(filenames = filenames):
 			return True
+		return False
 
 	if _print_files_by_shellscript(filenames = filenames, jobtype = jobtype):
 		return True
