@@ -460,7 +460,10 @@ class cUnhandledExceptionDlg(wxgUnhandledExceptionDlg.wxgUnhandledExceptionDlg):
 			_log2.error(u'user comment: %s', comment.strip())
 		_log2.warning('syncing log file for backup to [%s]', self.logfile)
 		gmLog2.flush()
-		shutil.copy2(_logfile_name, self.logfile)
+		try:
+			shutil.copy2(_logfile_name, self.logfile)
+		except IOError:
+			_log2.error('cannot backup log file')
 		top_win = wx.GetApp().GetTopWindow()
 		wx.CallAfter(top_win.Close)
 		evt.Skip()
