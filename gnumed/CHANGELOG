@@ -56,6 +56,7 @@ IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" w
 IMPROVED: EMR Journal: order grouped by encounter or order by last modified of items
 IMPROVED: SimpleSoap plugin: enable keyword based text expansions
 IMPROVED: patient overview: show comment on contact in tooltip
+IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-2-patches

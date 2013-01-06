@@ -52,6 +52,21 @@ class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher.set_items([ {'data': i, 'list_label': i, 'field_label': i, 'weight': 1} for i in items ])
 
 #============================================================
+def edit_waiting_list_entry(parent=None, entry=None):
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	ea = cWaitingListEntryEditAreaPnl(parent = parent, id = -1)
+	ea.data = entry
+	ea.mode = gmTools.coalesce(entry, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
+	dlg.SetTitle(gmTools.coalesce(entry, _('Adding new waiting list entry'), _('Editing waiting list entry')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#============================================================
 from Gnumed.wxGladeWidgets import wxgWaitingListEntryEditAreaPnl
 
 class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingListEntryEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
@@ -351,6 +366,11 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if curr_pat.ID == item['pk_identity']:
+				edit_waiting_list_entry(parent = self, entry = item)
+				return
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activate_button_pressed(self, evt):
@@ -366,6 +386,10 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				aMessage = _('Cannot activate patient.\n\nIt has probably been disabled.')
 			)
 			return
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if curr_pat.ID == item['pk_identity']:
+				return
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_activateplus_button_pressed(self, evt):
@@ -383,6 +407,10 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		self.__id_most_recently_activated_patient = item['pk_identity']
 		self.__comment_most_recently_activated_patient = gmTools.coalesce(item['comment'], u'').strip()
 		gmSurgery.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if curr_pat.ID == item['pk_identity']:
+				return
 		wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = pat)
 	#--------------------------------------------------------
 	def _on_add_patient_button_pressed(self, evt):
@@ -391,20 +419,14 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
 			return
-		ea = cWaitingListEntryEditAreaPnl(self, -1, patient = curr_pat)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.ShowModal()
-		dlg.Destroy()
+		edit_waiting_list_entry(parent = self)
 	#--------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		ea = cWaitingListEntryEditAreaPnl(self, -1, entry = item)
-		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-		dlg.ShowModal()
-		dlg.Destroy()
+		edit_waiting_list_entry(parent = self, entry = item)
 	#--------------------------------------------------------
 	def _on_remove_button_pressed(self, evt):
 		self.__id_most_recently_activated_patient = None
