@@ -983,10 +983,19 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 	#------------------------------------------------------------
-	def set_data(self, data = None):
+	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
+		if data is not None:
+			if len(data) != (self.ItemCount):
+				raise ValueError('<data> length (%s) must be equal to number of list items (%s)' % (len(data), self.ItemCount))
 		self.__data = data
 		self.__tt_last_item = None
+		return
+
+	def _get_data(self):
+		return self.__data
+
+	data = property(_get_data, set_data)
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		self.Select(0, on = 0)
