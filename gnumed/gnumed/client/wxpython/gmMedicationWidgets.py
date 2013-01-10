@@ -2907,6 +2907,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			gfr = calc.eGFR
 			if gfr.numeric_value is None:
 				msg = _('GFR: ?')
+				tt = gfr.message
 			else:
 				msg = _('eGFR: %.1f (%s)') % (
 					gfr.numeric_value,
