@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """GNUmed clinical patient record.
 
 This is a clinical record object intended to let a useful
@@ -9,7 +10,7 @@ called for the first time).
 """
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 #===================================================
 # TODO
@@ -25,10 +26,7 @@ __license__ = "GPL"
 #===================================================
 
 # standard libs
-import sys, string, time, copy, locale
-
-
-# 3rd party
+import sys
 import logging
 
 
@@ -49,6 +47,7 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
+from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmMedication
@@ -144,7 +143,6 @@ SELECT fk_encounter from
 	#--------------------------------------------------------
 	def cleanup(self):
 		_log.debug('cleaning up after clinical record for patient [%s]' % self.pk_patient)
-
 		return True
 	#--------------------------------------------------------
 	# messaging
@@ -175,6 +173,10 @@ SELECT fk_encounter from
 		if self.current_encounter.is_modified():
 			_log.debug('unsaved changes in active encounter, cannot switch to another one')
 			raise ValueError('unsaved changes in active encounter, cannot switch to another one')
+
+		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
+			_log.debug('encounter_mod_db received but no change to active encounter payload')
+			return True
 
 		# there was a change in the database from elsewhere,
 		# locally, however, we don't have any changes, therefore
@@ -465,7 +467,7 @@ order by
 			'pk_health_issue',
 			'src_table'
 		]
-		cmd = "SELECT %s FROM clin.v_pat_items WHERE pk_patient=%%s order by src_table, clin_when" % string.join(fields, ', ')
+		cmd = "SELECT %s FROM clin.v_pat_items WHERE pk_patient=%%s order by src_table, clin_when" % ', '.join(fields)
 		ro_conn = self._conn_pool.GetConnection('historica')
 		curs = ro_conn.cursor()
 		if not gmPG2.run_query(curs, None, cmd, self.pk_patient):
@@ -2154,6 +2156,15 @@ LIMIT 2
 			patient = self.pk_patient
 		)
 	#------------------------------------------------------------------
+	def get_result_at_timestamp(self, timestamp=None, test_type=None, loinc=None, tolerance_interval='12 hours'):
+		return gmPathLab.get_result_at_timestamp (
+			timestamp = timestamp,
+			test_type = test_type,
+			loinc = loinc,
+			tolerance_interval = tolerance_interval,
+			patient = self.pk_patient
+		)
+	#------------------------------------------------------------------
 	def get_unsigned_results(self, order_by=None):
 		if order_by is None:
 			order_by = u''
@@ -2271,25 +2282,6 @@ LIMIT 2
 
 		return tr
 	#------------------------------------------------------------------
-	def get_bmi(self):
-
-		cfg_db = gmCfg.cCfgSQL()
-
-		mass_loincs = cfg_db.get2 (
-			option = u'lab.body_mass_loincs',
-			workplace = _here.active_workplace,
-			bias = u'user',
-			default = []
-		)
-
-		height_loincs = cfg_db.get2 (
-			option = u'lab.body_height_loincs',
-			workplace = _here.active_workplace,
-			bias = u'user',
-			default = []
-		)
-
-		return gmPathLab.calculate_bmi(mass = mass, height = height)	# age = age
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
@@ -2363,6 +2355,7 @@ LIMIT 2
 			_log.error(str(data))
 			return None
 		return data
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -2499,6 +2492,7 @@ if __name__ == "__main__":
 		pat = cPatient(aPK_obj = 12)
 		print emr.format_as_journal(left_margin = 1, patient = pat)
 	#-----------------------------------------
+
 	#test_allergy_state()
 	#test_is_allergic_to()
 

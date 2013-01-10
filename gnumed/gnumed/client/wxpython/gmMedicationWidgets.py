@@ -19,7 +19,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmI18N
@@ -34,6 +33,9 @@ from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmClinicalCalculator
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -1321,6 +1323,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		except KeyError:
 			data = None
 
+		self.calc = gmClinicalCalculator.cClinicalCalculator()
+
 		wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
@@ -1340,7 +1344,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_substance.selection_only = True
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
-		emr = gmPerson.gmCurrentPatient().get_emr()
+		curr_pat = gmPerson.gmCurrentPatient()
+		emr = curr_pat.emr
 
 		state = emr.allergy_state
 		if state['last_confirmed'] is None:
@@ -1349,17 +1354,59 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			confirmed = state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
 		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
 		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
-		msg += u'\n'
 
-		for allergy in emr.get_allergies():
-			msg += u'%s (%s, %s): %s\n' % (
+		tt = u''
+
+		allgs = emr.get_allergies()
+		if len(allgs) > 0:
+			msg += u'\n'
+		for allergy in allgs:
+			msg += u'%s: %s (%s)\n' % (
 				allergy['descriptor'],
 				allergy['l10n_type'],
-				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?'),
+				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?')
+			)
+			tt += u'%s: %s\n' % (
+				allergy['descriptor'],
 				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			)
 
+		if len(allgs) > 0:
+			msg += u'\n'
+			tt += u'\n'
+
+		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfr is None:
+			self.calc.patient = curr_pat
+			gfr = self.calc.eGFR
+			if gfr.numeric_value is None:
+				msg += _('GFR: unknown')
+			else:
+				msg += gfr.message
+				tt += gfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = u'\n',
+					with_formula = True,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = True,
+					return_list = False
+				)
+		else:
+			msg += u'%s: %s %s (%s)\n' % (
+				gfr['unified_abbrev'],
+				gfr['unified_val'],
+				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmDateTime.pydt_strftime (
+					gfr['clin_when'],
+					format = '%Y %b %d'
+				)
+			)
+			tt += _('GFR reported by path lab')
+
 		self._LBL_allergies.SetLabel(msg)
+		self._LBL_allergies.SetToolTipString(tt)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -2846,9 +2893,59 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
 			self._grid_substances.patient = pat
+			self.__refresh_gfr(pat)
 		else:
 			self._grid_substances.patient = None
+			self.__clear_gfr()
 		return True
+	#--------------------------------------------------------
+	def __refresh_gfr(self, patient):
+		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		if gfr is None:
+			calc = gmClinicalCalculator.cClinicalCalculator()
+			calc.patient = patient
+			gfr = calc.eGFR
+			if gfr.numeric_value is None:
+				msg = _('GFR: ?')
+			else:
+				msg = _('eGFR: %.1f (%s)') % (
+					gfr.numeric_value,
+					gmDateTime.pydt_strftime (
+						gfr.date_valid,
+						format = '%b %Y'
+					)
+				)
+				tt = gfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = u'\n',
+					with_formula = True,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = True,
+					return_list = False
+				)
+		else:
+			msg = u'%s: %s %s (%s)\n' % (
+				gfr['unified_abbrev'],
+				gfr['unified_val'],
+				gmTools.coalesce(gfr['abnormality_indicator'], u'', u' (%s)'),
+				gmDateTime.pydt_strftime (
+					gfr['clin_when'],
+					format = '%b %Y'
+				)
+			)
+			tt = _('GFR reported by path lab')
+
+		self._LBL_gfr.SetLabel(msg)
+		self._LBL_gfr.SetToolTipString(tt)
+		self._LBL_gfr.Refresh()
+		self.Layout()
+	#--------------------------------------------------------
+	def __clear_gfr(self):
+		self._LBL_gfr.SetLabel(_('GFR: ?'))
+		self._LBL_gfr.Refresh()
+		self.Layout()
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------

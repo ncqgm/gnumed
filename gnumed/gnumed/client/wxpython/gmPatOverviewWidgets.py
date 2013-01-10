@@ -673,6 +673,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		list_items = []
 		multi_brands_already_seen = []
+		data_items = []
 		for intake in intakes:
 			brand = intake.containing_drug
 			if brand is None or len(brand['pk_components']) == 1:
@@ -686,6 +687,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 						u': %s'
 					)
 				))
+				data_items.append(intake)
 			else:
 				if intake['brand'] in multi_brands_already_seen:
 					continue
@@ -699,8 +701,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 						u': %s'
 					)
 				))
+				data_items.append(intake)
 		self._LCTRL_meds.set_string_items(items = list_items)
-		self._LCTRL_meds.set_data(data = intakes)
+		self._LCTRL_meds.set_data(data = data_items)
 	#-----------------------------------------------------
 	def _calc_meds_list_item_tooltip(self, data):
 		emr = gmPerson.gmCurrentPatient().get_emr()
@@ -780,11 +783,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return u'\n'.join(data.format())
 
 		if isinstance(data, gmDemographicRecord.cCommChannel):
-			return gmTools.bool2subst (
-				data['is_confidential'],
-				_('*** CONFIDENTIAL ***'),
-				None
-			)
+			parts = []
+			if data['is_confidential']:
+				parts.append(_('*** CONFIDENTIAL ***'))
+			if data['comment'] is not None:
+				parts.append(data['comment'])
+			return u'\n'.join(parts)
 
 		if isinstance(data, gmPerson.cIdentity):
 			return u'%s\n\n%s' % (

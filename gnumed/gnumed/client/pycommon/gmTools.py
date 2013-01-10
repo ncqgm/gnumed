@@ -49,6 +49,7 @@ u_one_quarter = u'\u00BC'
 u_one_half = u'\u00BD'
 u_three_quarters = u'\u00BE'
 u_multiply = u'\u00D7'						# x
+u_triangular_bullet = u'\u2023'				# triangular bullet  (>)
 u_ellipsis = u'\u2026'						# ...
 u_euro = u'\u20AC'							# EURO sign
 u_numero = u'\u2116'						# No. / # sign
@@ -723,6 +724,8 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 	and most spaces in the text. Expects that existing line
 	breaks are posix newlines (\n).
 	"""
+	if width is None:
+		return text
 	wrapped = initial_indent + reduce (
 		lambda line, word, width=width: '%s%s%s' % (
 			line,

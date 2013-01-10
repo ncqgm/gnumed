@@ -1118,7 +1118,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self.__reset_ui_content()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(__on_post_patient_selection)
+		wx.CallAfter(self.__on_post_patient_selection)
 
 	def __on_post_patient_selection(self):
 		self._schedule_data_reget()

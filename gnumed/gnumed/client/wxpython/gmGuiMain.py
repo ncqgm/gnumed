@@ -699,6 +699,11 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
 
+		menu_paperwork.AppendSeparator()
+
+		item = menu_paperwork.Append(-1, _('List Placeholders'), _('Show a list of all placeholders.'))
+		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
+
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
 
 		# -- menu "Tools" -------------------------
@@ -1141,6 +1146,10 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
 		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True)
+	#----------------------------------------------
+	def __on_show_placeholders(self, evt):
+		from Gnumed.wxpython.gmMacro import show_placeholders
+		show_placeholders()
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------

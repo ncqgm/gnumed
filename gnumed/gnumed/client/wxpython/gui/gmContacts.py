@@ -112,11 +112,11 @@ class cContactsPanel(wx.wx.Panel):
 		self.list_organisations.SetFont(wx.wxFont(10, wx.wxSWISS, wx.wx.NORMAL, wx.wx.NORMAL, False, ''))
 		#----------------------------------------
 		# add some dummy data to the allergy list
-		self.list_organisations.InsertColumn(0,_( "Organisation"))
-		self.list_organisations.InsertColumn(1,_( "Employees"))
-		self.list_organisations.InsertColumn(2,_( "Address"))
-		self.list_organisations.InsertColumn(3,_( "Category/Email"))
-		self.list_organisations.InsertColumn(4,_( "Phone"))
+		self.list_organisations.InsertColumn(0, "Organisation")
+		self.list_organisations.InsertColumn(1, "Employees")
+		self.list_organisations.InsertColumn(2, "Address")
+		self.list_organisations.InsertColumn(3, "Category/Email")
+		self.list_organisations.InsertColumn(4, "Phone")
 	
 		#-------------------------------------------------------------
 		#loop through the scriptdata array and add to the list control
@@ -828,12 +828,12 @@ class cContactsPanel(wx.wx.Panel):
 			self.lbl_Type.SetLabel(_('occupation'))
 			self._loadOccupations()
 			parent = self.getCurrent()
-			self.input_fields['name'].SetToolTip(wx.wx.ToolTip(_("'Title. first LAST-IN-CAPITAL',   or \n'Title. Last, first' \n- the dot is required to separate title; comma indicates the order of the names is last names, first names.")) )
+			self.input_fields['name'].SetToolTip(wx.wx.ToolTip("'Title. first LAST-IN-CAPITAL',   or \n'Title. Last, first' \n- the dot is required to separate title; comma indicates the order of the names is last names, first names.") )
 		else:
 			self.lbl_Type.SetLabel(_('subdivision'))
 			self._loadDivisionTypes()
 			parent = self.getCurrent().getParent()
-			self.input_fields['name'].SetToolTip(wx.wx.ToolTip(_("The organization's name.") ) )
+			self.input_fields['name'].SetToolTip(wx.wx.ToolTip("The organization's name." ) )
 		
 	
 		dependent = not parent is None
@@ -933,50 +933,50 @@ class gmContacts (gmPlugin.cNotebookPluginOld):
 	def populate_toolbar (self, tb, widget):
 		tool1 = tb.AddTool(ID_SEARCHGLOBAL, images_contacts_toolbar16_16.getfind_globalBitmap(),
 					shortHelpString=_("Global Search Of Contacts Database"), isToggle=False)
-		tb.AddControl(wx.wx.TextCtrl(tb, ID_SEARCHGLOBAL, name =_("txtGlobalSearch"),size =(100,-1),style = 0, value = ''))
+		tb.AddControl(wx.wx.TextCtrl(tb, ID_SEARCHGLOBAL, name ="txtGlobalSearch",size =(100,-1),style = 0, value = ''))
 		tool1 = tb.AddTool(ID_ORGANISATIONDISPLAY, images_contacts_toolbar16_16.getorganisationBitmap(),
-					shortHelpString=_("Display Organisations"),)
+					shortHelpString="Display Organisations",)
 		tool1 = tb.AddTool(ID_GENERALPRACTICESDISPLAY, images_contacts_toolbar16_16.getgeneralpracticesBitmap(),
-					shortHelpString=_("Display General Practices"),)
+					shortHelpString="Display General Practices",)
 		tool1 = tb.AddTool(ID_DOCTORSDISPLAY, images_contacts_toolbar16_16.getdoctorBitmap(),
-					shortHelpString=_("Display Doctors"),)
+					shortHelpString="Display Doctors",)
 		tool1 = tb.AddTool(ID_PERSONSDISPLAY, images_contacts_toolbar16_16.getpersonBitmap(),
-					shortHelpString=_("Display Persons"), isToggle=False)
+					shortHelpString="Display Persons", isToggle=False)
 		tool1 = tb.AddTool(ID_ORGANISATIONADD, images_contacts_toolbar16_16.getorganisation_addBitmap(),
-					shortHelpString=_("Add an Organisation"),)
+					shortHelpString="Add an Organisation",)
 	
 		tool1 = tb.AddTool(ID_SAVE, images_contacts_toolbar16_16.getsaveBitmap(),
-					shortHelpString=_("Save Record"),)
+					shortHelpString="Save Record",)
 		tool1 = tb.AddTool(ID_BRANCHDEPTADD, images_contacts_toolbar16_16.getbranch_addBitmap(),
-					shortHelpString=_("Add Branch or Department"),)
+					shortHelpString="Add Branch or Department",)
 		tool1 = tb.AddTool(ID_EMPLOYEEADD, images_contacts_toolbar16_16.getemployeesBitmap(),
-					shortHelpString=_("Add an Employee"),)
+					shortHelpString="Add an Employee",)
 		tool1 = tb.AddTool(ID_PERSONADD, images_contacts_toolbar16_16.getperson_addBitmap(),
-					shortHelpString=_("Add Person"),)
+					shortHelpString="Add Person",)
 		#tb.AddControl(wx.wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wx.wxDefaultPosition, wx.wxDefaultSize))
 	
 	
 		tb.AddControl(wx.wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wx.wxDefaultPosition, wx.wxDefaultSize))
 		
 		tool1 = tb.AddTool(ID_RELOAD, images_contacts_toolbar16_16.getreloadBitmap(),
-					shortHelpString=_("Refresh Display"),)
+					shortHelpString="Refresh Display",)
 		
 		tb.AddControl(wx.wxStaticBitmap(tb, -1, images_contacts_toolbar16_16.getvertical_separator_thinBitmap(), wx.wxDefaultPosition, wx.wxDefaultSize))
 		
 		tool1 = tb.AddTool(ID_SEARCHSPECIFIC, images_contacts_toolbar16_16.getfind_specificBitmap(),
-					shortHelpString=_("Find Specific Records in Contacts Database"),)
+					shortHelpString="Find Specific Records in Contacts Database",)
 		tool1 = tb.AddTool(ID_SORTA_Z, images_contacts_toolbar16_16.getsort_A_ZBitmap(),
-					shortHelpString=_("Sort A to Z"),)
+					shortHelpString="Sort A to Z",)
 		tool1 = tb.AddTool(ID_SORTZ_A, images_contacts_toolbar16_16.getsort_Z_ABitmap(),
-					shortHelpString=_("Sort Z to A"),)
+					shortHelpString="Sort Z to A",)
 		tool1 = tb.AddTool(ID_SENDEMAIL, images_contacts_toolbar16_16.getsendemailBitmap(),
-					shortHelpString=_("Send Email"),)
+					shortHelpString="Send Email",)
 		tool1 = tb.AddTool(ID_LINKINTERNET, images_contacts_toolbar16_16.getearthBitmap(),
-					shortHelpString=_("Load Web Address"),)
+					shortHelpString="Load Web Address",)
 		tool1 = tb.AddTool(ID_INSTANTREPORT, images_contacts_toolbar16_16.getlighteningBitmap(),
-					shortHelpString=_("Instant Report from Grid"),)
+					shortHelpString="Instant Report from Grid",)
 		tool1 = tb.AddTool(ID_REPORTS, images_contacts_toolbar16_16.getreportsBitmap(),
-					shortHelpString=_("Pre-formatted reports"),)
+					shortHelpString="Pre-formatted reports",)
 	
 		self.__connect_commands(tb)
 

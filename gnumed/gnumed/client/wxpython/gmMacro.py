@@ -4,7 +4,6 @@
 This module implements functions a macro can legally use.
 """
 #=====================================================================
-__version__ = "$Revision: 1.51 $"
 __author__ = "K.Hilbert <karsten.hilbert@gmx.net>"
 
 import sys
@@ -13,6 +12,7 @@ import random
 import types
 import logging
 import os
+import codecs
 
 
 import wx
@@ -49,6 +49,7 @@ from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmDocumentWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -56,17 +57,17 @@ _cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
 known_placeholders = [
-	'lastname',
-	'firstname',
-	'title',
-	'date_of_birth',
-	'progress_notes',
-	'soap',
-	'soap_s',
-	'soap_o',
-	'soap_a',
-	'soap_p',
-	'soap_u',
+	u'lastname',
+	u'firstname',
+	u'title',
+	u'date_of_birth',
+	u'progress_notes',
+	u'soap',
+	u'soap_s',
+	u'soap_o',
+	u'soap_a',
+	u'soap_p',
+	u'soap_u',
 	u'client_version',
 	u'current_provider',
 	u'primary_praxis_provider',			# primary provider for current patient in this praxis
@@ -104,11 +105,11 @@ known_variant_placeholders = [
 											#				or: "Lieber Patient//Liebe Patientin"
 
 	# patient demographics:
-	u'name',								# "args" holds: template for name parts arrangement
-	u'date_of_birth',
+	u'name',								# args: template for name parts arrangement
+	u'date_of_birth',						# args: strftime date/time format directive
 
-	u'patient_address',						# "args": <type of address>//<optional formatting template>
-	u'adr_street',							# "args" holds: type of address
+	u'patient_address',						# args: <type of address>//<optional formatting template>
+	u'adr_street',							# args: <type of address>
 	u'adr_number',
 	u'adr_subunit',
 	u'adr_location',
@@ -117,7 +118,7 @@ known_variant_placeholders = [
 	u'adr_region',
 	u'adr_country',
 
-	u'patient_comm',						# args: comm channel type as per database
+	u'patient_comm',						# args: <comm channel type as per database>//<%(key)s-template>
 	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
 
@@ -175,6 +176,20 @@ known_variant_placeholders = [
 	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 
+	u'documents',							# "args" format:	<select>//<description>//<template>//<path template>//<path>
+											#	select:			let user select which documents to include,
+											#					optional, if not given: all documents included
+											#	description:	whether to include descriptions, optional
+											#	template:		something %(field)s something else,
+											#					(do not include "//" itself in the template),
+											#	path template:	the template for outputting the path to exported
+											#					copies of the document pages, if not given no pages
+											#					are exported, this template can contain "%(name)s"
+											#					and/or "%(fullpath)s" which is replaced by the
+											#					appropriate value for each exported file
+											#	path:			into which path to export copies of the document pages,
+											#					temp dir if not given
+
 	# provider related:
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
@@ -190,7 +205,31 @@ default_placeholder_regex = r'\$<.+?>\$'				# this one works [except that OOo ca
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
+#=====================================================================
+def show_placeholders():
+	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
+	ph_file = codecs.open(filename = fname, mode = 'wb', encoding = 'utf8', errors = 'replace')
 
+	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
+	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
+
+	ph_file.write(u'Simple placeholders (use like: $<PLACEHOLDER_NAME>$):\n')
+	for ph in known_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.write(u'Variable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	for ph in known_variant_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.write(u'Injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	for ph in _injectable_placeholders:
+		ph_file.write(u' %s\n' % ph)
+	ph_file.write(u'\n')
+
+	ph_file.close()
+	gmMimeLib.call_viewer_on_file(aFile = fname, block = False)
 #=====================================================================
 class gmPlaceholderHandler(gmBorg.cBorg):
 	"""Returns values for placeholders.
@@ -512,6 +551,59 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
+	#--------------------------------------------------------
+	def _get_variant_documents(self, data=None):
+
+		select = False
+		include_descriptions = False
+		template = u'%s'
+		path_template = None
+		export_path = None
+
+		data_parts = data.split('//')
+
+		if u'select' in data_parts:
+			select = True
+			data_parts.remove(u'select')
+
+		if u'description' in data_parts:
+			include_descriptions = True
+			data_parts.remove(u'description')
+
+		template = data_parts[0]
+
+		if len(data_parts) > 1:
+			path_template = data_parts[1]
+
+		if len(data_parts) > 2:
+			export_path = data_parts[2]
+
+		# create path
+		if export_path is not None:
+			export_path = os.path.normcase(os.path.expanduser(export_path))
+			gmTools.mkdir(export_path)
+
+		# select docs
+		if select:
+			docs = gmDocumentWidgets.manage_documents(msg = _('Select the patient documents to reference from the new document.'), single_selection = False)
+		else:
+			docs = self.pat.document_folder.documents
+
+		if docs is None:
+			return u''
+
+		lines = []
+		for doc in docs:
+			lines.append(template % doc.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))
+			if include_descriptions:
+				for desc in doc.get_descriptions(max_lng = None):
+					lines.append(self._escape(desc['text'] + u'\n'))
+			if path_template is not None:
+				for part_name in doc.export_parts_to_files(export_dir = export_path):
+					path, name = os.path.split(part_name)
+					lines.append(path_template % {'fullpath': part_name, 'name': name})
+
+		return u'\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_encounter_list(self, data=None):
 
@@ -881,13 +973,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_adr_country(self, data=u'?'):
 		return self.__get_variant_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
-	def _get_variant_patient_comm(self, data=u'?'):
-		comms = self.pat.get_comm_channels(comm_medium = data)
+	def _get_variant_patient_comm(self, data=None):
+		comm_type = None
+		template = u'%(url)s'
+		if data is not None:
+			data_parts = data.split(u'//')
+			if len(data_parts) > 0:
+				comm_type = data_parts[0]
+			if len(data_parts) > 1:
+				template = data_parts[1]
+
+		comms = self.pat.get_comm_channels(comm_medium = comm_type)
 		if len(comms) == 0:
 			if self.debug:
-				return self._escape(_('no URL for comm channel [%s]') % data)
+				return template + u': ' + self._escape(_('no URL for comm channel [%s]') % data)
 			return u''
-		return self._escape(comms[0]['url'])
+
+		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
+		# self._escape(comms[0]['url'])
 	#--------------------------------------------------------
 	def _get_variant_patient_photo(self, data=None):
 
@@ -1304,7 +1407,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def _escape(text=None):
+	def _escape(self, text=None):
 		if self.__esc_func is None:
 			return text
 		return self.__esc_func(text)
@@ -1762,7 +1865,8 @@ if __name__ == '__main__':
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
 			#u'$<current_meds::%s//select::>$',
 			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
-			u'$<soap_by_episode::soapu //%Y %b %d//%s::>$'
+			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$',
+			u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
 
 		]
 
@@ -1791,15 +1895,18 @@ if __name__ == '__main__':
 		gmPerson.set_active_patient(patient = pat)
 		from Gnumed.wxpython import gmMedicationWidgets
 		gmMedicationWidgets.manage_substance_intakes()
-
+	#--------------------------------------------------------
+	def test_show_phs():
+		show_placeholders()
 	#--------------------------------------------------------
 
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
 	#test_placeholder_regex()
-	test_placeholder()
 	#test()
+	#test_placeholder()
+	test_show_phs()
 
 #=====================================================================
 
