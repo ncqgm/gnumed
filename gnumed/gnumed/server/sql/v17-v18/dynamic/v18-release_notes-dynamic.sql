@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.rc2 (database v18.rc2)',
-	'GNUmed 1.3.rc2 Release Notes:
+	'Release Notes for GNUmed 1.3.rc3 (database v18.rc3)',
+	'GNUmed 1.3.rc3 Release Notes:
 
-	1.3.rc2
+	1.3.rc3
 
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
@@ -39,6 +39,11 @@ NEW: revamped measurements handling including test panels
 NEW: placeholder $<soap_by_issue>$, selecting SOAP via issues list
 NEW: placeholder $<soap_by_episode>$, selecting SOAP via episodes list
 NEW: progress notes can now be created from EMR tree
+NEW: score: Bird Criteria for Polymyalgia rheumatica
+NEW: score: prediction of bacterial conjunctivitis
+NEW: placeholder $<documents>$, include/export documents
+NEW: list placeholders from within client
+NEW: show (e)GFR in substance intake EA
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -64,8 +69,10 @@ IMPROVED: placeholder handler: always properly escape data based on target form 
 IMPROVED: depreciate gmNotebookedProgressNoteInputPlugin from "GNUmed Default" workplace
 IMPROVED: EMR Journal: order grouped by encounter or order by last modified of items
 IMPROVED: SimpleSoap plugin: enable keyword based text expansions
+IMPROVED: patient overview: show comment on contact in tooltip
+IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
 
-	18.rc2
+	18.rc3
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 IMPROVED: include PK columns in schema version check
