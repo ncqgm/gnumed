@@ -1894,6 +1894,12 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl):
 		wx.CallAfter(self._after_on_focus)
 	#--------------------------------------------------------
 	def _after_on_focus(self):
+		# robustify against PyDeadObjectError - since we are called
+		# from wx.CallAfter this SoapCtrl may be gone by the time
+		# we get to handling this layout request, say, on patient
+		# change or some such
+		if not self:
+			return
 		#wx.CallAfter(self._adjustCtrl)
 		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)

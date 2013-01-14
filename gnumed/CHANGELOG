@@ -6,6 +6,10 @@
 # rel-1-2-patches
 ------------------------------------------------
 
+	1.2.8
+
+FIX: backport existence check in expando layout handling
+
 	1.2.7
 
 FIX: faulty LaTeX escaping of "\" special character [thanks V.Banait]
