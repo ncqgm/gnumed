@@ -952,10 +952,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		"""All item members must be unicode()able or None."""
 
 		self.DeleteAllItems()
-		self.__data = items
-		self.__tt_last_item = None
+		if self.ItemCount != 0:
+			raise ValueError('.ItemCount not 0 after .DeleteAllItems()')
 
 		if items is None:
+			self.data = None
 			return
 
 		for item in items:
@@ -963,6 +964,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				item[0]
 				if not isinstance(item, basestring):
 					is_numerically_iterable = True
+				# do not iterate over individual chars in a string, however
 				else:
 					is_numerically_iterable = False
 			except TypeError:
@@ -973,13 +975,15 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				# None/ints/unicode strings fail to get encoded
 				col_val = unicode(item[0])
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-				for col_idx in range(1, min(self.GetColumnCount(), len(item))):
-					col_val = unicode(item[col_idx])
-					self.SetStringItem(index = row_num, col = col_idx, label = col_val)
+				for col_num in range(1, min(self.GetColumnCount(), len(item))):
+					col_val = unicode(item[col_num])
+					self.SetStringItem(index = row_num, col = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+
+		self.data = items
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
