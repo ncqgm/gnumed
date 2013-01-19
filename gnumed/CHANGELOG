@@ -10,6 +10,8 @@
 
 FIX: backport existence check in expando layout handling
 
+IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
+
 	1.2.7
 
 FIX: faulty LaTeX escaping of "\" special character [thanks V.Banait]

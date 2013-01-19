@@ -1655,7 +1655,7 @@ WHERE
 					)
 				)
 			for soap in soaps:
-				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
+				tex += u'{\\small %s} & %s \\tabularnewline \n' % (
 					gmClinNarrative.soap_cat2l10n[soap['soap_cat']],
 					gmTools.tex_escape_string(soap['narrative'].strip(u'\n'))
 				)
