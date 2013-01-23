@@ -157,7 +157,8 @@ known_variant_placeholders = [
 											#	template:	   something %s something else
 											#				   (Do not include // in the template !)
 											#	line length:   the maximum length of individual lines, not the total placeholder length
-											#	time range:	   the number of weeks going back in time
+											#	time range:		the number of weeks going back in time if given as a single number,
+											#					or else it must be a valid PostgreSQL interval definition (w/o the ::interval)
 											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
 
 	u'current_meds',						# "args" holds: line template//<select>
@@ -704,7 +705,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				try:
 					time_range = 7 * int(data_parts[3])
 				except:
-					time_range = None
+					#time_range = None			# infinite
+					# pass on literally, meaning it must be a valid PG interval string
+					time_range = data_parts[3]
 
 			# part[4]: output format
 			if len(data_parts) > 4:
@@ -715,6 +718,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		if len(narr) == 0:
 			return u''
+
+		keys = narr[0].keys()
+		lines = []
+		line_dict = {}
+		for n in narr:
+			for key in keys:
+				if isinstance(n[key], basestring):
+					line_dict[key] = self._escape(text = n[key])
+					continue
+				line_dict[key] = n[key]
+			try:
+				lines.append((template % line_dict)[:line_length])
+			except KeyError:
+				return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
 
 #-------------
 #		if target_format == u'tex':
@@ -737,10 +754,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 #			except KeyError:
 #				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 #-------------------
-		try:
-			lines = [ (template % n.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style))[:line_length] for n in narr ]
-		except KeyError:
-			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 
 		return u'\n'.join(lines)
 	#--------------------------------------------------------
@@ -805,7 +818,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# default: all categories, neutral template
 		cats = list(u'soapu')
 		cats.append(None)
-		template = u'%s'
+		template = u'%(narrative)s'
 
 		if data is not None:
 			data_parts = data.split('//')
@@ -834,10 +847,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(narr) == 0:
 			return u''
 
+		# if any "%s" is in the template there cannot be any %(key)s
+		# and we also restrict the fields to .narrative (this is the
+		# old placeholder behaviour
+		if u'%s' in template:
+			narr = [ self._escape(n['narrative']) for n in narr ]
+		else:
+			narr = [ n.fields_as_dict(escape_style = self.__esc_style) for n in narr ]
+
 		try:
-			narr = [ template % self._escape(n['narrative']) for n in narr ]
+			narr = [ template % n for n in narr ]
 		except KeyError:
 			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+		except TypeError:
+			return u'cannot mix "%%s" and "%%(key)s" in template [%s]' % template
 
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
@@ -915,7 +938,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				template = data_parts[1]
 
 		try:
-			return template % adr.fields_as_dict(escape_style = self__esc_style)
+			return template % adr.fields_as_dict(escape_style = self.__esc_style)
 		except StandardError:
 			_log.exception('error formatting address')
 			_log.error('template: %s', template)
@@ -1833,7 +1856,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
+			u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
@@ -1866,8 +1889,9 @@ if __name__ == '__main__':
 			#u'$<current_meds::%s//select::>$',
 			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
 			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$',
-			u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
-
+			#u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
+			#u'$<soap::soapu //%s::9999>$',
+			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1905,8 +1929,8 @@ if __name__ == '__main__':
 	#test_scripting()
 	#test_placeholder_regex()
 	#test()
-	#test_placeholder()
-	test_show_phs()
+	test_placeholder()
+	#test_show_phs()
 
 #=====================================================================
 
