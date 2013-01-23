@@ -87,10 +87,11 @@ known_variant_placeholders = [
 	u'emr_journal',				# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
 								#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
 								#				   (" " == None == admin category)
-								#	template:	   something %s something else
-								#				   (Do not include // in the template !)
-								#	line length:   the length of individual lines, not the total placeholder length
-								#	time range:	   the number of weeks going back in time
+								#	template:		something %s something else
+								#					(Do not include // in the template !)
+								#	line length:	the length of individual lines, not the total placeholder length
+								#	time range:		the number of weeks going back in time if given as a single number,
+								#					or else it must be a valid PostgreSQL interval definition (w/o the ::interval)
 								#	target format: "tex" or anything else, if "tex", data will be tex-escaped
 	u'date_of_birth',
 
@@ -544,7 +545,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				try:
 					time_range = 7 * int(data_parts[3])
 				except:
-					time_range = None
+					#time_range = None			# infinite
+					# pass on literally, meaning it must be a valid PG interval string
+					time_range = data_parts[3]
 
 			# part[4]: output format
 			if len(data_parts) > 4:
@@ -586,7 +589,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# default: all categories, neutral template
 		cats = list(u'soapu')
 		cats.append(None)
-		template = u'%s'
+		template = u'%(narrative)s'
 
 		if data is not None:
 			data_parts = data.split('//')
@@ -616,10 +619,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(narr) == 0:
 			return u''
 
+		# if any "%s" is in the template there cannot be any %(key)s
+		# and we also restrict the fields to .narrative (this is the
+		# old placeholder behaviour
+		if u'%s' in template:
+			narr = [ n['narrative'] for n in narr ]
+		else:
+			narr = [ n.fields_as_dict(escape_style = u'latex') for n in narr ]
+
 		try:
-			narr = [ template % n['narrative'] for n in narr ]
+			narr = [ template % n for n in narr ]
 		except KeyError:
 			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
+		except TypeError:
+			return u'cannot mix "%%s" and "%%(key)s" in template [%s]' % template
 
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
@@ -1499,7 +1512,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//110::',
+			u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_a',,
@@ -1524,7 +1537,9 @@ if __name__ == '__main__':
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
 			#u'$<date_of_birth::%Y %B %d::20>$',
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
-			u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
+			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
+			#u'$<soap::soapu //%s::9999>$',
+			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 		]
 
 		handler = gmPlaceholderHandler()

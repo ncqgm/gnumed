@@ -369,8 +369,13 @@ SELECT fk_encounter from
 			filtered_narrative = filter(lambda narr: narr['pk_encounter'] in encounters, filtered_narrative)
 
 		if soap_cats is not None:
-			soap_cats = map(lambda c: c.lower(), soap_cats)
-			filtered_narrative = filter(lambda narr: narr['soap_cat'] in soap_cats, filtered_narrative)
+			cats = []
+			for cat in soap_cats:
+				if cat is None:
+					cats.append(None)
+					continue
+				cats.append(cat.lower())
+			filtered_narrative = filter(lambda narr: narr['soap_cat'] in cats, filtered_narrative)
 
 		if providers is not None:
 			filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)

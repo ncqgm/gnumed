@@ -11,6 +11,8 @@
 FIX: backport existence check in expando layout handling
 
 IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
+IMPROVED: $<progress_notes>$ placeholder: template handling
+IMPROVED: $<emr_journal>$ placeholder: time_range can be any PG interval
 
 	1.2.7
 
