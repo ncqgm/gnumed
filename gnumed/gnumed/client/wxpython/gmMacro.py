@@ -50,6 +50,7 @@ from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
+from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -1291,18 +1292,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(data_parts) > 1:
 			template = data_parts[1]
 
-		expansion = gmKeywordExpansion.get_expansion (
-			keyword = keyword,
-			textual_only = True,
-			binary_only = False
-		)
+		expansion = gmKeywordExpansionWidgets.expand_keyword(keyword = keyword, show_list = True)
+
 		if expansion is None:
 			if self.debug:
 				return self._escape(_('no textual expansion found for keyword <%s>') % keyword)
 			return u''
 
-		# FIXME: support decryption
-		return template % self._escape(expansion['expansion'])
+		#return template % self._escape(expansion)
+		return template % expansion
 	#--------------------------------------------------------
 	def _get_variant_data_snippet(self, data=None):
 		parts = data.split(u'//')
