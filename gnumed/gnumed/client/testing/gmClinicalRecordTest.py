@@ -233,12 +233,7 @@ class LabAPITests(unittest.TestCase):
 		"""Check if a lab request can be retrieved"""
 		lab_request = self.emr.get_lab_request(pk = 1, lab= 2, req_id= 'SC937-0176-CEC#15034')
 		self.assertEqual(isinstance(lab_request, gmPathLab.cLabRequest), True)
-		
-	def testGetLabResults(self):
-		"""Check if lab result list can be retrieved"""
-		lab_result = self.emr.get_lab_results(limit = 2)[0]
-		self.assertEqual(isinstance(lab_result, gmPathLab.cLabResult), True)
-		
+
 	def testAddLabRequest(self):
 		"""Check that a new lab request can be created"""
 		# create new lab request

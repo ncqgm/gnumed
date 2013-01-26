@@ -749,8 +749,7 @@ class cLabDataGrid(wx.Grid):
 				3: profile -> user defined profile order
 		"""
 		emr = self.__pat.get_emr()
-		# FIXME: there might be too many results to handle in memory
-		results = emr.get_lab_results()
+		results = None
 		if results is None:
 			name = self.__pat.get_names()
 			gmGuiHelpers.gm_show_error (
@@ -761,12 +760,12 @@ class cLabDataGrid(wx.Grid):
 		if len(results) == 0:
 			gmDispatcher.send(signal = 'statustext', msg =_('No lab data available.'))
 			return None
-			
+
 		dates, test_names = self.__compile_stats(results)
 		# sort tests before pushing onto the grid 
 		#sort_mode = gmPerson.getsort_mode() # yet to be written
 		sort_mode = 1 # get real here :-)
-			
+
 		if sort_mode == 1:
 			"""
 			2) look at the the most recent date a test was performed on

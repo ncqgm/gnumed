@@ -396,23 +396,8 @@ class cEmrExport:
             until=self.__constraints['until'],
             encounters=self.__constraints['encounters'],
             episodes=self.__constraints['episodes'],
-            issues=self.__constraints['issues']))
-#        try:
- #               filtered_items.extend(emr.get_vaccinations(
-  #                  since=self.__constraints['since'],
-   #                 until=self.__constraints['until'],
-    #                encounters=self.__constraints['encounters'],
-     #               episodes=self.__constraints['episodes'],
-      #              issues=self.__constraints['issues']))
-       # except:
-        #        _log.error("vaccination error? outside regime")
-
-#        filtered_items.extend(emr.get_lab_results(
- #           since=self.__constraints['since'],
-  #          until=self.__constraints['until'],
-   #         encounters=self.__constraints['encounters'],
-    #        episodes=self.__constraints['episodes'],
-     #       issues=self.__constraints['issues']))
+            issues=self.__constraints['issues'])
+        )
         self.__filtered_items = filtered_items
         return True
     #--------------------------------------------------------

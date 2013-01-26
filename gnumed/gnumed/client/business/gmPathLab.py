@@ -847,6 +847,45 @@ WHERE
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
+def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None):
+
+	where_parts = []
+
+	if pk_patient is not None:
+		where_parts.append(u'pk_patient = %(pat)s')
+		args = {'pat': pk_patient}
+
+#	if tests is not None:
+#		where_parts.append(u'pk_test_type IN %(tests)s')
+#		args['tests'] = tuple(tests)
+
+	if encounters is not None:
+		where_parts.append(u'pk_encounter IN %(encs)s')
+		args['encs'] = tuple(encounters)
+
+	if episodes is not None:
+		where_parts.append(u'pk_episode IN %(epis)s')
+		args['epis'] = tuple(episodes)
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE %s
+		%s
+	""" % (
+		u' AND '.join(where_parts),
+		order_by
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+	return tests
+
+#------------------------------------------------------------
 def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, tolerance_interval=None, patient=None):
 
 	if None not in [test_type, loinc]:
@@ -885,6 +924,7 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 		return None
 
 	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
 #------------------------------------------------------------
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
 
@@ -924,16 +964,17 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
 #------------------------------------------------------------
 def delete_test_result(result=None):
-
 	try:
 		pk = int(result)
 	except (TypeError, AttributeError):
 		pk = result['pk_test_result']
 
-	cmd = u'delete from clin.test_result where pk = %(pk)s'
+	cmd = u'DELETE FROM clin.test_result WHERE pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
+
 #------------------------------------------------------------
 def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
 
@@ -989,6 +1030,7 @@ where
 	})
 
 	return tr
+
 #------------------------------------------------------------
 def format_test_results(results=None, output_format=u'latex'):
 
@@ -1000,6 +1042,7 @@ def format_test_results(results=None, output_format=u'latex'):
 	msg = _('unknown test results output format [%s]') % output_format
 	_log.error(msg)
 	return msg
+
 #------------------------------------------------------------
 def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_range=True):
 
@@ -1038,6 +1081,7 @@ def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_r
 				lines.append(tmp)
 
 	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
+
 #------------------------------------------------------------
 def __tests2latex_cell(results=None, show_time=False, show_range=True):
 
@@ -1083,6 +1127,7 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 		lines.append(tmp)
 
 	return u' \\\\ '.join(lines)
+
 #------------------------------------------------------------
 def __format_test_results_latex(results=None):
 

@@ -1,6 +1,5 @@
 """GNUmed measurement widgets."""
 #================================================================
-__version__ = "$Revision: 1.66 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -44,7 +43,6 @@ from Gnumed.wxpython import gmOrganizationWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #================================================================
 # LOINC related widgets
@@ -120,6 +118,7 @@ def call_browser_on_measurement_type(measurement_type=None):
 	url = url % {'search_term': measurement_type}
 
 	gmNetworkTools.open_url_in_browser(url = url)
+
 #----------------------------------------------------------------
 def edit_measurement(parent=None, measurement=None, single_entry=False):
 	ea = cMeasurementEditAreaPnl(parent = parent, id = -1)
@@ -132,6 +131,62 @@ def edit_measurement(parent=None, measurement=None, single_entry=False):
 		return True
 	dlg.Destroy()
 	return False
+
+#----------------------------------------------------------------
+def manage_measurements(parent=None, single_selection=False, emr=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if emr is None:
+		emr = gmPerson.gmCurrentPatient().emr
+
+	#------------------------------------------------------------
+	def edit(measurement=None):
+		return edit_measurement(parent = parent, measurement = measurement, single_entry = True)
+	#------------------------------------------------------------
+	def delete(measurement):
+		gmPathLab.delete_test_result(result = measurement)
+		return True
+	#------------------------------------------------------------
+	def get_tooltip(measurement):
+		return u'\n'.join(measurement.format(with_review = True, with_comments = True))
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		results = emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
+		items = [ [
+			gmDateTime.pydt_strftime (
+				r['clin_when'],
+				'%Y %b %d %H:%M',
+				accuracy = gmDateTime.acc_minutes
+			),
+			r['unified_abbrev'],
+			u'%s%s%s' % (
+				r['unified_val'],
+				gmTools.coalesce(r['val_unit'], u'', u' %s'),
+				gmTools.coalesce(r['abnormality_indicator'], u'', u' %s')
+			),
+			r['unified_name'],
+			gmTools.coalesce(r['comment'], u''),
+			r['pk_test_result']
+		] for r in results ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(results)
+	#------------------------------------------------------------
+	msg = _('Test results (ordered reverse-chronologicallly)')
+
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Showing test results.'),
+		columns = [ _('When'), _('Abbrev'), _('Value'), _('Name'), _('Comment'), u'#' ],
+		single_selection = single_selection,
+		refresh_callback = refresh,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		list_tooltip_callback = get_tooltip
+	)
 
 #================================================================
 def configure_default_gnuplot_template(parent=None):

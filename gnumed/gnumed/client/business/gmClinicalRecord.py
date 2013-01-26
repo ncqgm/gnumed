@@ -2218,6 +2218,14 @@ LIMIT 2
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows
 	#------------------------------------------------------------------
+	def get_test_results(self, encounters=None, episodes=None, tests=None, order_by=None):
+		return gmPathLab.get_test_results (
+			pk_patient = self.pk_patient,
+			encounters = encounters,
+			episodes = episodes,
+			order_by = order_by
+		)
+	#------------------------------------------------------------------
 	def get_test_results_by_date(self, encounter=None, episodes=None, tests=None, reverse_chronological=True):
 
 		where_parts = [u'pk_patient = %(pat)s']
@@ -2246,12 +2254,6 @@ LIMIT 2
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		tests = [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
-
-#		if episodes is not None:
-#			tests = [ t for t in tests if t['pk_episode'] in episodes ]
-#
-#		if encounter is not None:
-#			tests = [ t for t in tests if t['pk_encounter'] == encounter ]
 
 		return tests
 	#------------------------------------------------------------------
@@ -2284,57 +2286,6 @@ LIMIT 2
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
-	def get_lab_results(self, limit=None, since=None, until=None, encounters=None, episodes=None, issues=None):
-		"""Retrieves lab result clinical items.
-
-		limit - maximum number of results to retrieve
-		since - initial date
-		until - final date
-		encounters - list of encounters
-		episodes - list of episodes
-		issues - list of health issues
-		"""
-		try:
-			return self.__db_cache['lab results']
-		except KeyError:
-			pass
-		self.__db_cache['lab results'] = []
-		if limit is None:
-			lim = ''
-		else:
-			# only use limit if all other constraints are None
-			if since is None and until is None and encounters is None and episodes is None and issues is None:
-				lim = "limit %s" % limit
-			else:
-				lim = ''
-
-		cmd = """SELECT * FROM clin.v_results4lab_req WHERE pk_patient=%%s %s""" % lim
-		rows, idx = gmPG.run_ro_query('historica', cmd, True, self.pk_patient)
-		if rows is None:
-			return False
-		for row in rows:
-			lab_row = {
-				'pk_field': 'pk_result',
-				'idx': idx,
-				'data': row
-			}			
-			lab_result = gmPathLab.cLabResult(row=lab_row)
-			self.__db_cache['lab results'].append(lab_result)
-
-		# ok, let's constrain our list
-		filtered_lab_results = []
-		filtered_lab_results.extend(self.__db_cache['lab results'])
-		if since is not None:
-			filtered_lab_results = filter(lambda lres: lres['req_when'] >= since, filtered_lab_results)
-		if until is not None:
-			filtered_lab_results = filter(lambda lres: lres['req_when'] < until, filtered_lab_results)
- 		if issues is not None:
-			filtered_lab_results = filter(lambda lres: lres['pk_health_issue'] in issues, filtered_lab_results)
-		if episodes is not None:
-			filtered_lab_results = filter(lambda lres: lres['pk_episode'] in episodes, filtered_lab_results)
-		if encounters is not None:
-			filtered_lab_results = filter(lambda lres: lres['pk_encounter'] in encounters, filtered_lab_results)
-		return filtered_lab_results
 	#------------------------------------------------------------------
 	def get_lab_request(self, pk=None, req_id=None, lab=None):
 		# FIXME: verify that it is our patient ? ...
@@ -2540,14 +2491,6 @@ if __name__ == "__main__":
 #	last_encounter = emr.get_last_encounter(episode_id = 1)
 #	print '\nLast encounter: ' + str(last_encounter)
 #	print ''
-
-#	# lab results
-#	lab = emr.get_lab_results()
-#	lab_file = open('lab-data.txt', 'wb')
-#	for lab_result in lab:
-#		lab_file.write(str(lab_result))
-#		lab_file.write('\n')
-#	lab_file.close()
 
 	#dump = record.get_missing_vaccinations()
 	#f = open('vaccs.lst', 'wb')
