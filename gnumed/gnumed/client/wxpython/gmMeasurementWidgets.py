@@ -150,7 +150,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		return True
 	#------------------------------------------------------------
 	def get_tooltip(measurement):
-		return u'\n'.join(measurement.format(with_review = True, with_comments = True))
+		return measurement.format(with_review=True, with_evaluation=True, with_ranges=True)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		results = emr.get_test_results(order_by = 'clin_when DESC, unified_abbrev, unified_name')
@@ -877,8 +877,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 		return tt.format(patient = self.__patient.ID)
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
-		# FIXME: add battery, request details
-
 		try:
 			d = self.__cell_data[col][row]
 		except KeyError:
@@ -891,237 +889,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 		is_multi_cell = False
 		if len(d) > 1:
 			is_multi_cell = True
-
 		d = d[0]
 
-		has_normal_min_or_max = (d['val_normal_min'] is not None) or (d['val_normal_max'] is not None)
-		if has_normal_min_or_max:
-			normal_min_max = u'%s - %s' % (
-				gmTools.coalesce(d['val_normal_min'], u'?'),
-				gmTools.coalesce(d['val_normal_max'], u'?')
-			)
-		else:
-			normal_min_max = u''
-
-		has_clinical_min_or_max = (d['val_target_min'] is not None) or (d['val_target_max'] is not None)
-		if has_clinical_min_or_max:
-			clinical_min_max = u'%s - %s' % (
-				gmTools.coalesce(d['val_target_min'], u'?'),
-				gmTools.coalesce(d['val_target_max'], u'?')
-			)
-		else:
-			clinical_min_max = u''
-
+		tt = u''
 		# header
 		if is_multi_cell:
-			tt = _(u'Details of most recent (topmost) result:               \n')
-			tt += u' ' + _(u'Date: %s\n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
-		else:
-			tt = _(u'Result from %s             \n') % d['clin_when'].strftime('%c').decode(gmI18N.get_encoding())
-
-		# basics
-		tt += u' ' + _(u'Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
-			'name': d['name_tt'],
-			'abbr': d['abbrev_tt'],
-			'pk_type': d['pk_test_type']
-		})
-		tt += u' ' + _(u'Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
-			'val': d['unified_val'],
-			'unit': gmTools.coalesce(d['val_unit'], u'', u' %s'),
-			'ind': gmTools.coalesce(d['abnormality_indicator'], u'', u' (%s)'),
-			'pk_result': d['pk_test_result']
-		})
-		tmp = (u'%s%s' % (
-			gmTools.coalesce(d['name_test_org'], u''),
-			gmTools.coalesce(d['contact_test_org'], u'', u' (%s)'),
-		)).strip()
-		if tmp != u'':
-			tt += u' ' + _(u'Source: %s\n') % tmp
-		tt += u'\n'
-
-		# clinical evaluation
-		norm_eval = None
-		if d['val_num'] is not None:
-			# 1) normal range
-			# lowered ?
-			if (d['val_normal_min'] is not None) and (d['val_num'] < d['val_normal_min']):
-				try:
-					percent = (d['val_num'] * 100) / d['val_normal_min']
-				except ZeroDivisionError:
-					percent = None
-				if percent is not None:
-					if percent < 6:
-						norm_eval = _(u'%.1f %% of the normal lower limit') % percent
-					else:
-						norm_eval = _(u'%.0f %% of the normal lower limit') % percent
-			# raised ?
-			if (d['val_normal_max'] is not None) and (d['val_num'] > d['val_normal_max']):
-				try:
-					x_times = d['val_num'] / d['val_normal_max']
-				except ZeroDivisionError:
-					x_times = None
-				if x_times is not None:
-					if x_times < 10:
-						norm_eval = _(u'%.1f times the normal upper limit') % x_times
-					else:
-						norm_eval = _(u'%.0f times the normal upper limit') % x_times
-			if norm_eval is not None:
-				tt += u'  (%s)\n' % norm_eval
-#			#-------------------------------------
-#			# this idea was shot down on the list
-#			#-------------------------------------
-#			# bandwidth of deviation
-#			if None not in [d['val_normal_min'], d['val_normal_max']]:
-#				normal_width = d['val_normal_max'] - d['val_normal_min']
-#				deviation_from_normal_range = None
-#				# below ?
-#				if d['val_num'] < d['val_normal_min']:
-#					deviation_from_normal_range = d['val_normal_min'] - d['val_num']
-#				# above ?
-#				elif d['val_num'] > d['val_normal_max']:
-#					deviation_from_normal_range = d['val_num'] - d['val_normal_max']
-#				if deviation_from_normal_range is None:
-#					try:
-#						times_deviation = deviation_from_normal_range / normal_width
-#					except ZeroDivisionError:
-#						times_deviation = None
-#					if times_deviation is not None:
-#						if times_deviation < 10:
-#							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
-#						else:
-#							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
-#			#-------------------------------------
-
-			# 2) clinical target range
-			norm_eval = None
-			# lowered ?
-			if (d['val_target_min'] is not None) and (d['val_num'] < d['val_target_min']):
-				try:
-					percent = (d['val_num'] * 100) / d['val_target_min']
-				except ZeroDivisionError:
-					percent = None
-				if percent is not None:
-					if percent < 6:
-						norm_eval = _(u'%.1f %% of the target lower limit') % percent
-					else:
-						norm_eval = _(u'%.0f %% of the target lower limit') % percent
-			# raised ?
-			if (d['val_target_max'] is not None) and (d['val_num'] > d['val_target_max']):
-				try:
-					x_times = d['val_num'] / d['val_target_max']
-				except ZeroDivisionError:
-					x_times = None
-				if x_times is not None:
-					if x_times < 10:
-						norm_eval = _(u'%.1f times the target upper limit') % x_times
-					else:
-						norm_eval = _(u'%.0f times the target upper limit') % x_times
-			if norm_eval is not None:
-				tt += u' (%s)\n' % norm_eval
-#			#-------------------------------------
-#			# this idea was shot down on the list
-#			#-------------------------------------
-#			# bandwidth of deviation
-#			if None not in [d['val_target_min'], d['val_target_max']]:
-#				normal_width = d['val_target_max'] - d['val_target_min']
-#				deviation_from_target_range = None
-#				# below ?
-#				if d['val_num'] < d['val_target_min']:
-#					deviation_from_target_range = d['val_target_min'] - d['val_num']
-#				# above ?
-#				elif d['val_num'] > d['val_target_max']:
-#					deviation_from_target_range = d['val_num'] - d['val_target_max']
-#				if deviation_from_target_range is None:
-#					try:
-#						times_deviation = deviation_from_target_range / normal_width
-#					except ZeroDivisionError:
-#						times_deviation = None
-#				if times_deviation is not None:
-#					if times_deviation < 10:
-#						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
-#					else:
-#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
-#			#-------------------------------------
-
-		# ranges
-		tt += u' ' + _(u'Standard normal range: %(norm_min_max)s%(norm_range)s  \n') % ({
-			'norm_min_max': normal_min_max,
-			'norm_range': gmTools.coalesce (
-				d['val_normal_range'],
-				u'',
-				gmTools.bool2subst (
-					has_normal_min_or_max,
-					u' / %s',
-					u'%s'
-				)
-			)
-		})
-		if d['norm_ref_group'] is not None:
-			tt += u' ' + _(u'Reference group: %s\n') % d['norm_ref_group']
-		tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
-			'clin_min_max': clinical_min_max,
-			'clin_range': gmTools.coalesce (
-				d['val_target_range'],
-				u'',
-				gmTools.bool2subst (
-					has_clinical_min_or_max,
-					u' / %s',
-					u'%s'
-				)
-			)
-		})
-
-		# metadata
-		if d['comment'] is not None:
-			tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(d['comment'].split(u'\n'))
-		if d['note_test_org'] is not None:
-			tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(d['note_test_org'].split(u'\n'))
-		tt += u' ' + _(u'Episode: %s\n') % d['episode']
-		if d['health_issue'] is not None:
-			tt += u' ' + _(u'Issue: %s\n') % d['health_issue']
-		if d['material'] is not None:
-			tt += u' ' + _(u'Material: %s\n') % d['material']
-		if d['material_detail'] is not None:
-			tt += u' ' + _(u'Details: %s\n') % d['material_detail']
-		tt += u'\n'
-
-		# review
-		if d['reviewed']:
-			review = d['last_reviewed'].strftime('%c').decode(gmI18N.get_encoding())
-		else:
-			review = _('not yet')
-		tt += _(u'Signed (%(sig_hand)s): %(reviewed)s\n') % ({
-			'sig_hand': gmTools.u_writing_hand,
-			'reviewed': review
-		})
-		tt += u' ' + _(u'Responsible clinician: %s\n') % gmTools.bool2subst(d['you_are_responsible'], _('you'), d['responsible_reviewer'])
-		if d['reviewed']:
-			tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({'reviewer': gmTools.bool2subst(d['review_by_you'], _('you'), gmTools.coalesce(d['last_reviewer'], u'?'))})
-			tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({'abnormal': gmTools.bool2subst(d['is_technically_abnormal'], _('yes'), _('no'), u'?')})
-			tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({'relevant': gmTools.bool2subst(d['is_clinically_relevant'], _('yes'), _('no'), u'?')})
-		if d['review_comment'] is not None:
-			tt += u' ' + _(u' Comment: %s\n') % d['review_comment'].strip()
-		tt += u'\n'
-
-		# type
-		tt += _(u'Test type details:\n')
-		tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
-			'name_meta': gmTools.coalesce(d['name_meta'], u''),
-			'abbrev_meta': gmTools.coalesce(d['abbrev_meta'], u''),
-			'pk_u_type': d['pk_meta_test_type']
-		})
-		if d['comment_tt'] is not None:
-			tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(d['comment_tt'].split(u'\n'))
-		if d['comment_meta'] is not None:
-			tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(d['comment_meta'].split(u'\n'))
-		tt += u'\n'
-
-		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
-			'row_ver': d['row_version'],
-			'mod_when': d['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
-			'mod_by': d['modified_by']
-		})
-
+			tt += _(u'Details of most recent (topmost) result !               \n')
+		tt += d.format(with_review = True, with_evaluation = True, with_ranges = True)
 		return tt
 	#------------------------------------------------------------
 	# internal helpers
