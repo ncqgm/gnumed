@@ -51,6 +51,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
+from Gnumed.wxpython import gmMeasurementWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -168,6 +169,7 @@ known_variant_placeholders = [
 	u'current_meds_notes',					# "args" holds: format, options
 
 	u'lab_table',							# "args" holds: format (currently "latex" only)
+	u'test_results',						# "args":			<%(key)s-template>//<date format>//<line separator (EOL)>
 
 	u'latest_vaccs_table',					# "args" holds: format, options
 	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
@@ -1212,6 +1214,36 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			output_format = self.__esc_style
 		)
 	#--------------------------------------------------------
+	def _get_variant_test_results(self, data=None):
+
+		template = u''
+		date_format = '%Y %b %d %H:%M'
+		separator = u'\n'
+
+		options = data.split(u'//')
+		try:
+			template = options[0].strip()
+			date_format = options[1]
+			separator = options[2]
+		except IndexError:
+			pass
+
+		if date_format.strip() == u'':
+			date_format = '%Y %b %d %H:%M'
+		if separator.strip() == u'':
+			separator = u'\n'
+
+		results = gmMeasurementWidgets.manage_measurements(single_selection = False, emr = self.pat.emr)
+		if results is None:
+			if self.debug:
+				return self._escape(_('no results for this patient (available or selected)'))
+			return u''
+
+		if template == u'':
+			return (separator + separator).join([ self._escape(r.format(date_format = date_format)) for r in results ])
+
+		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results ])
+	#--------------------------------------------------------
 	def _get_variant_latest_vaccs_table(self, data=None):
 		options = data.split('//')
 
@@ -1854,7 +1886,7 @@ if __name__ == '__main__':
 	def test_placeholder():
 
 		phs = [
-			u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
+			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
 			#u'free_text::tex//placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
@@ -1890,6 +1922,8 @@ if __name__ == '__main__':
 			#u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
 			#u'$<soap::soapu //%s::9999>$',
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
+			#u'$<test_results:://%c::>$'
+			u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
 		]
 
 		handler = gmPlaceholderHandler()

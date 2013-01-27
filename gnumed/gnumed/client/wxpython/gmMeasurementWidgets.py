@@ -32,13 +32,11 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
 
 from Gnumed.wxpython import gmRegetMixin
-from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmEditArea
-from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
-from Gnumed.wxpython import gmFormWidgets
-from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 
 
@@ -175,12 +173,13 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 	#------------------------------------------------------------
 	msg = _('Test results (ordered reverse-chronologicallly)')
 
-	gmListWidgets.get_choices_from_list (
+	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
 		caption = _('Showing test results.'),
 		columns = [ _('When'), _('Abbrev'), _('Value'), _('Name'), _('Comment'), u'#' ],
 		single_selection = single_selection,
+		can_return_empty = False,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,
@@ -190,6 +189,8 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 
 #================================================================
 def configure_default_gnuplot_template(parent=None):
+
+	from Gnumed.wxpython import gmFormWidgets
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -270,6 +271,8 @@ def get_default_gnuplot_template(parent = None):
 
 #----------------------------------------------------------------
 def plot_measurements(parent=None, tests=None, format=None, show_year = True, use_default_template=False):
+
+	from Gnumed.wxpython import gmFormWidgets
 
 	# only valid for one-type plotting
 	if use_default_template:
@@ -2896,6 +2899,7 @@ class cTestPanelEAPnl(wxgTestPanelEAPnl.wxgTestPanelEAPnl, gmEditArea.cGenericEd
 if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmLog2
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain()

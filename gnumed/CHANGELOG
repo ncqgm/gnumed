@@ -30,6 +30,7 @@ NEW: score: prediction of bacterial conjunctivitis
 NEW: placeholder $<documents>$, include/export documents
 NEW: list placeholders from within client
 NEW: show (e)GFR in substance intake EA
+NEW: placeholder $<test_results>$, selecting test results from list
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
