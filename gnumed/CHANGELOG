@@ -9,6 +9,7 @@
 	1.2.8
 
 FIX: backport existence check in expando layout handling
+FIX: exception on adding duplicate active name [thanks J.Busser]
 
 IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
 IMPROVED: $<progress_notes>$ placeholder: template handling

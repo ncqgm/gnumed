@@ -1100,7 +1100,19 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 		last = self._PRW_lastname.GetValue().strip()
 		active = self._CHBOX_active.GetValue()
 
-		data = self.__identity.add_name(first, last, active)
+		try:
+			data = self.__identity.add_name(first, last, active)
+		except gmPG2.dbapi.IntegrityError as exc:
+			_log.exception('cannot save new name')
+			gmGuiHelpers.gm_show_error (
+				aTitle = _('Adding name'),
+				aMessage = _(
+					'Cannot add this name to the patient !\n'
+					'\n'
+					' %s'
+				) % str(exc)
+			)
+			return False
 
 		old_nick = self.__identity['active_name']['preferred']
 		new_nick = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
@@ -1134,7 +1146,19 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 			self.data.save()
 		# else clone name and update that
 		else:
-			name = self.__identity.add_name(first, last, active)
+			try:
+				name = self.__identity.add_name(first, last, active)
+			except gmPG2.dbapi.IntegrityError as exc:
+				_log.exception('cannot clone name when editing existing name')
+				gmGuiHelpers.gm_show_error (
+					aTitle = _('Editing name'),
+					aMessage = _(
+						'Cannot clone a copy of this name !\n'
+						'\n'
+						' %s'
+					) % str(exc)
+				)
+				return False
 			name['preferred'] = gmTools.none_if(self._PRW_nick.GetValue().strip(), u'')
 			name['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 			name.save()
