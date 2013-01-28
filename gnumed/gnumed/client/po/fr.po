@@ -1094,12 +1094,8 @@ msgstr ""
 "\n"
 "Êtes-vous certain d'avoir installé une base de donnée?\n"
 "\n"
-"%s\n"
-"\n"
 "S'il vous plaît, réessayez avec les bonnes informations d'authentification "
 "ou annulez.\n"
-"\n"
-"%s\n"
 "\n"
 "Il faudrait peut-être vérifier les informations d'authentification du client "
 "PostgreSQL dans le fichier de configuration pg_hba.conf. Pour plus "
@@ -1126,8 +1122,6 @@ msgstr ""
 "\n"
 "S'il vous plaît, réessayez avec les bonnes informations d'authentification "
 "ou annulez.\n"
-"\n"
-"%s\n"
 "\n"
 "Il faudrait peut-être vérifier les informations d'authentification du client "
 "PostgreSQL dans le fichier de configuration pg_hba.conf. Pour plus "
@@ -14416,13 +14410,11 @@ msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 "Impossible d'activer le gestionnaire des allergies. Aucun patient actif."
 
-#, fuzzy
 msgid "Gender: %s (%s) - %s\n"
-msgstr "Rencontres: %s (%s - %s)"
+msgstr ""
 
-#, fuzzy
 msgid "Born: %s\n"
-msgstr "Exporté: %s\n"
+msgstr ""
 
 msgid "%s  %s (%s today !)"
 msgstr "%s %s (%s aujourd'hui !)"
@@ -14433,23 +14425,20 @@ msgid ""
 "\n"
 msgstr ""
 
-#, fuzzy
 msgid "Age: %s\n"
-msgstr "Exporté: %s\n"
+msgstr ""
 
-#, fuzzy
 msgid "Died: %s\n"
-msgstr "Fermé"
+msgstr ""
 
-#, fuzzy
 msgid "At age: %s\n"
-msgstr "Patient :"
+msgstr ""
 
 msgid " (date of birth and age are estimated)\n"
 msgstr ""
 
 msgid "last confirmed %s\n"
-msgstr "dernier confirmé &s\n"
+msgstr "dernier confirmé %s\n"
 
 msgid "Comment (%s): %%s"
 msgstr "Commentaire (%s) : %%s"
