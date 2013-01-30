@@ -658,7 +658,7 @@ def export_translations_from_database(filename=None):
 	tx_file = codecs.open(filename, 'wb', 'utf8')
 	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
 	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
-	tx_file.write(u'-- - user language is set to [%s]\n\n' % get_current_user_language())
+	tx_file.write(u'-- - user database language is set to [%s]\n\n' % get_current_user_language())
 	tx_file.write(u'-- Please email this file to <gnumed-devel@gnu.org>.\n')
 	tx_file.write(u'-- ----------------------------------------------------------------------------------------------\n\n')
 	tx_file.write(u'set default_transaction_read_only to off;\n\n')

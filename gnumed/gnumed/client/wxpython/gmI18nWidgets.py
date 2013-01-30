@@ -1,7 +1,6 @@
 """GNUmed I18n/L10n related widgets.
 """
 #================================================================
-__version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -32,7 +31,6 @@ from Gnumed.wxpython import gmAuthWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #==============================================================================
 from Gnumed.wxGladeWidgets import wxgDatabaseTranslationEAPnl
@@ -218,12 +216,18 @@ def manage_translations(parent=None, language=None):
 		fname = gmTools.get_unique_filename(prefix = 'gm-db-translations-', suffix = '.sql')
 		gmPG2.export_translations_from_database(filename = fname)
 
+		msg = (
+			u'These are database string translations contributed by a GNUmed user.\n'
+			'\n'
+			'\tThe GNUmed "%s" Client'
+		) % gmI18N.system_locale
+
 		if not gmNetworkTools.send_mail (
 			auth = {'user': gmNetworkTools.default_mail_sender, 'password': u'gnumed-at-gmx-net'},
 			sender = u'GNUmed Client <gnumed@gmx.net>',
 			receiver = [u'gnumed-bugs@gnu.org'],
 			subject = u'<contribution>: database translation',
-			message = u'These are database string translations contributed by a GNUmed user.\n\n\tThe GNUmed Client',
+			message = msg,
 			encoding = gmI18N.get_encoding(),
 			attachments = [[fname, u'text/plain', u'quoted-printable']]
 		):
