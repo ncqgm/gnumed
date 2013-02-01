@@ -14,6 +14,7 @@ FIX: exception on adding duplicate active name [thanks J.Busser]
 IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
 IMPROVED: $<progress_notes>$ placeholder: template handling
 IMPROVED: $<emr_journal>$ placeholder: time_range can be any PG interval
+IMPROVED: instrument code to track list widget bug
 
 	1.2.7
 

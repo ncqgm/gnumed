@@ -793,20 +793,31 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	# reget-on-paint API
 	#--------------------------------------------------------
+	def _schedule_data_reget(self):
+		_log.debug('called by reget-on-paint mixin API')
+		gmRegetMixin.cRegetOnPaintMixin._schedule_data_reget(self)
+	#--------------------------------------------------------
 	def _populate_with_data(self):
+		_log.debug('_populate_with_data() (after _schedule_data_reget ?)')
 		self.__populate_inbox()
 		return True
+	#--------------------------------------------------------
+	# notebook plugin API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		_log.debug('called by notebook plugin API')
+		gmRegetMixin.cRegetOnPaintMixin.repopulate_ui(self)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'message_inbox_generic_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'message_inbox_generic_mod_db', receiver = self._on_message_inbox_generic_mod_db)
 		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_message_inbox_mod_db)
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_message_inbox_mod_db)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_message_inbox_mod_db)
-		gmDispatcher.connect(signal = u'doc_obj_review_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_results_mod_db)
+		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_mod_db)
+		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = u'doc_obj_review_mod_db', receiver = self._on_doc_obj_review_mod_db)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
@@ -828,14 +839,24 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
+		_log.debug('populating provider inbox')
+
 		self.__msgs = self.provider.inbox.messages
+		_log.debug('total # of inbox msgs for current provider: %s', len(self.__msgs))
 
 		if self.filter_mode == 'active':
+			_log.debug('inbox set to show msgs for active patient only')
 			if gmPerson.gmCurrentPatient().connected:
 				curr_pat_id = gmPerson.gmCurrentPatient().ID
+				_log.debug('filtering msgs against active patient: %s', curr_pat_id)
 				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] == curr_pat_id ]
 			else:
+				_log.debug('no active patient, so not showing any inbox msgs')
 				self.__msgs = []
+		else:
+			_log.debug('inbox set to show all messages')
+
+		_log.debug('# of inbox msgs to actually show: %s', len(self.__msgs))
 
 		items = [
 			[
@@ -846,6 +867,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				m['comment']
 			] for m in self.__msgs
 		]
+		_log.debug('# of list items created from msgs: %s', len(items))
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
@@ -853,13 +875,41 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def _on_post_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
-		wx.CallAfter(self._RBTN_active_patient.Enable)
+	def _on_results_mod_db(self):
+		_log.debug('reviewed_test_results_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
+	#--------------------------------------------------------
+	def _on_identity_mod_db(self):
+		_log.debug('identity_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
+	#--------------------------------------------------------
+	def _on_doc_obj_review_mod_db(self):
+		_log.debug('doc_obj_review_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
+	#--------------------------------------------------------
+	def _on_doc_mod_db(self):
+		_log.debug('doc_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
+	#--------------------------------------------------------
+	def _on_message_inbox_generic_mod_db(self, *args, **kwargs):
+		_log.debug('message_inbox_generic_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
 	#--------------------------------------------------------
 	def _on_message_inbox_mod_db(self, *args, **kwargs):
-		wx.CallAfter(self._schedule_data_reget)
+		_log.debug('message_inbox_mod_db')
+		wx.CallAfter(self.__on_message_inbox_mod_db)
+
+	def __on_message_inbox_mod_db(self):
+		self._schedule_data_reget()
 		gmDispatcher.send(signal = u'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		_log.debug('post_patient_selection')
+		wx.CallAfter(self.__on_post_patient_selection)
+
+	def __on_post_patient_selection(self):
+		self._RBTN_active_patient.Enable()
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
 		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
@@ -942,11 +992,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def _on_all_messages_radiobutton_selected(self, event):
 		self.filter_mode = 'all'
 		self._TXT_inbox_item_comment.SetValue(u'')
+		_log.debug('_on_all_messages_radiobutton_selected')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_active_patient_radiobutton_selected(self, event):
 		self.filter_mode = 'active'
 		self._TXT_inbox_item_comment.SetValue(u'')
+		_log.debug('_on_active_patient_radiobutton_selected')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
