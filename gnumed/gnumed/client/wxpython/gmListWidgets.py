@@ -18,16 +18,17 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
 
-import sys, types
+import sys
+import types
+import logging
+import thread
 
 
 import wx
 import wx.lib.mixins.listctrl as listmixins
 
 
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
-
+_log = logging.getLogger('gm.list_ui')
 #================================================================
 # FIXME: configurable callback on double-click action
 
@@ -950,12 +951,16 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(col = idx, width = width_type)
 	#------------------------------------------------------------
-	def set_string_items(self, items = None):
+	def set_string_items(self, items=None):
 		"""All item members must be unicode()able or None."""
 
-		self.DeleteAllItems()
-		if self.ItemCount != 0:
-			raise ValueError('.ItemCount not 0 after .DeleteAllItems()')
+		_log.debug('thread: %s; ItemCount before DeleteAllItems(): %s', thread.get_ident(), self.GetItemCount())
+		if not self.DeleteAllItems():
+			_log.debug('DeleteAllItems() failed')
+		item_count = self.GetItemCount()
+		_log.debug('ItemCount after DeleteAllItems(): %s', item_count)
+		if item_count != 0:
+			_log.debug('.GetItemCount() not 0 after .DeleteAllItems()')
 
 		if items is None:
 			self.data = None
@@ -990,8 +995,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
 		if data is not None:
-			if len(data) != (self.ItemCount):
-				raise ValueError('<data> length (%s) must be equal to number of list items (%s)' % (len(data), self.ItemCount))
+			item_count = self.GetItemCount()
+			if len(data) != item_count:
+				_log.debug('thread: %s; <data> length (%s) must be equal to number of list items (%s)', thread.get_ident(), len(data), item_count)
 		self.__data = data
 		self.__tt_last_item = None
 		return
@@ -1250,6 +1256,8 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	sys.path.insert(0, '../../')
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()
