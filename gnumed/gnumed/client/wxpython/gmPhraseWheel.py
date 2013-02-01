@@ -699,13 +699,17 @@ class cPhraseWheelBase(wx.TextCtrl):
 		The user has had her say, so don't second guess
 		intentions but do report error conditions.
 		"""
+		event.Skip()
 		self._has_focus = False
-
 		self.__timer.Stop()
 		self._hide_picklist()
+		wx.CallAfter(self.__on_lost_focus)
+		return True
+	#--------------------------------------------------------
+	def __on_lost_focus(self):
 		self.SetSelection(1,1)
 		self.SetFont(self.__non_edit_font)
-		self.Refresh()
+		#self.Refresh()		# already done in .display_as_valid() below
 
 		is_valid = True
 
@@ -724,9 +728,6 @@ class cPhraseWheelBase(wx.TextCtrl):
 		# notify interested parties
 		for callback in self._on_lose_focus_callbacks:
 			callback()
-
-		event.Skip()
-		return True
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, *args, **kwargs):
 		"""Gets called when user selected a list item."""
