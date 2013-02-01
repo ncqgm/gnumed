@@ -17,16 +17,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.7 (database v17.7)',
-	'GNUmed 1.2.7 Release Notes:
+	'Release Notes for GNUmed 1.2.8 (database v17.8)',
+	'GNUmed 1.2.8 Release Notes:
 
-	1.2.7
+	1.2.8
 
-FIX: faulty LaTeX escaping of "\" special character [thanks V.Banait]
-FIX: failure to announce auto-picks from PRW dropdowns [thanks J.Busser]
-FIX: sanity check item/data count in lists [thanks J.Busser]
-FIX: possibly faulty tooltips in patient overview meds list
-FIX: ignore exception on backing up log file inside exception handler
+FIX: backport existence check in expando layout handling
+FIX: exception on adding duplicate active name [thanks J.Busser]
+
+IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
+IMPROVED: $<progress_notes>$ placeholder: template handling
+IMPROVED: $<emr_journal>$ placeholder: time_range can be any PG interval
+IMPROVED: instrument code to track list widget bug
 ');
 
 -- --------------------------------------------------------------
