@@ -805,8 +805,9 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	# notebook plugin API
 	#--------------------------------------------------------
 	def repopulate_ui(self):
-		_log.debug('called by notebook plugin API')
-		gmRegetMixin.cRegetOnPaintMixin.repopulate_ui(self)
+		_log.debug('called by notebook plugin API, skipping inbox loading')
+		#gmRegetMixin.cRegetOnPaintMixin.repopulate_ui(self)
+		return True
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -832,6 +833,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		}
 
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
+		self._LCTRL_provider_inbox.debug = 'provider inbox list'
 
 		self._msg_welcome.SetLabel(msg)
 
