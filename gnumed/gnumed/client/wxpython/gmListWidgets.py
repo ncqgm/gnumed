@@ -882,6 +882,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 	def __init__(self, *args, **kwargs):
 
+		self.debug = None
+
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT
 		except KeyError:
@@ -952,13 +954,15 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def set_string_items(self, items=None):
 		"""All item members must be unicode()able or None."""
 
-		_log.debug('thread: %s; ItemCount before DeleteAllItems(): %s', thread.get_ident(), self.GetItemCount())
+		if self.debug is not None:
+			_log.debug('GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', self.GetItemCount(), self.debug, thread.get_ident())
 		if not self.DeleteAllItems():
-			_log.debug('DeleteAllItems() failed')
+			_log.debug('DeleteAllItems() failed (%s)', self.debug)
 		item_count = self.GetItemCount()
-		_log.debug('ItemCount after DeleteAllItems(): %s', item_count)
+		if self.debug is not None:
+			_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
 		if item_count != 0:
-			_log.debug('.GetItemCount() not 0 after .DeleteAllItems()')
+			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
 
 		if items is None:
 			self.data = None
@@ -995,7 +999,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
-				_log.debug('thread: %s; <data> length (%s) must be equal to number of list items (%s)', thread.get_ident(), len(data), item_count)
+				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
 		self.__data = data
 		self.__tt_last_item = None
 		return
