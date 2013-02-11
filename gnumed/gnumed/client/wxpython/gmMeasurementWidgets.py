@@ -171,7 +171,7 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(results)
 	#------------------------------------------------------------
-	msg = _('Test results (ordered reverse-chronologicallly)')
+	msg = _('Test results (ordered reverse-chronologically)')
 
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,

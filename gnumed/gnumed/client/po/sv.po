@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-01-10 14:41+CET\n"
+"POT-Creation-Date: 2013-02-11 13:02+CET\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -20,63 +20,63 @@ msgstr ""
 "X-Generator: Launchpad (build 15376)\n"
 
 msgid "Jan"
-msgstr ""
+msgstr "Jan"
 
 msgid "Feb"
-msgstr ""
+msgstr "Feb"
 
 msgid "Mar"
-msgstr ""
+msgstr "Mar"
 
 msgid "Apr"
-msgstr ""
+msgstr "Apr"
 
 msgid "May"
-msgstr ""
+msgstr "Maj"
 
 msgid "Jun"
-msgstr ""
+msgstr "Jun"
 
 msgid "Jul"
-msgstr ""
+msgstr "Jul"
 
 msgid "Aug"
-msgstr ""
+msgstr "Aug"
 
 msgid "Sep"
-msgstr ""
+msgstr "Sep"
 
 msgid "Oct"
-msgstr ""
+msgstr "Okt"
 
 #, fuzzy
 msgid "Nov"
 msgstr "Nej"
 
 msgid "Dec"
-msgstr ""
+msgstr "Dec"
 
 msgid "Mon"
-msgstr ""
+msgstr "Mån"
 
 msgid "Tue"
-msgstr ""
+msgstr "Tis"
 
 msgid "Wed"
-msgstr ""
+msgstr "Ons"
 
 msgid "Thu"
-msgstr ""
+msgstr "Tor"
 
 msgid "Fri"
-msgstr ""
+msgstr "Fre"
 
 #, fuzzy
 msgid "Sat"
 msgstr "Status"
 
 msgid "Sun"
-msgstr ""
+msgstr "Sön"
 
 msgid ""
 "Could not find iCalendar Python package. It is required for working with ICS "
@@ -85,29 +85,29 @@ msgid ""
 msgstr ""
 
 msgid "Unable to open timeline '%s'."
-msgstr ""
+msgstr "Kan inte öppna tidslinje '%s'."
 
 #, fuzzy
 msgid "Unknown format."
 msgstr "okänd reaktion"
 
 msgid "Unable to read from file '%s'."
-msgstr ""
+msgstr "Kan inte läsa från filen '%s'."
 
 msgid "Unable to read timeline data from '%s'."
-msgstr ""
+msgstr "Kunde inte läsa tidslinjedata från '%s'."
 
 msgid "Displayed period must be > 0."
 msgstr ""
 
 msgid "Welcome"
-msgstr ""
+msgstr "Välkommen"
 
 msgid "Welcome to Timeline"
-msgstr ""
+msgstr "Välkommen till Timeline"
 
 msgid "Intro"
-msgstr ""
+msgstr "Intro"
 
 msgid "Hover me!"
 msgstr ""
@@ -116,10 +116,10 @@ msgid "Hovering events with a triangle shows the event description."
 msgstr ""
 
 msgid "Features"
-msgstr ""
+msgstr "Funktioner"
 
 msgid "Scroll"
-msgstr ""
+msgstr "Scrolla"
 
 msgid ""
 "Left click somewhere on the timeline and start dragging.\n"
@@ -130,7 +130,7 @@ msgid ""
 msgstr ""
 
 msgid "Zoom"
-msgstr ""
+msgstr "Zooma"
 
 msgid ""
 "Hold down Ctrl while scrolling the mouse wheel.\n"
@@ -139,7 +139,7 @@ msgid ""
 msgstr ""
 
 msgid "Create event"
-msgstr ""
+msgstr "Skapa händelse"
 
 msgid ""
 "Double click somewhere on the timeline.\n"
@@ -148,13 +148,13 @@ msgid ""
 msgstr ""
 
 msgid "Edit event"
-msgstr ""
+msgstr "Redigera händelse"
 
 msgid "Double click on an event."
 msgstr ""
 
 msgid "Select event"
-msgstr ""
+msgstr "Välj händelse"
 
 msgid ""
 "Click on it.\n"
@@ -163,7 +163,7 @@ msgid ""
 msgstr ""
 
 msgid "Delete event"
-msgstr ""
+msgstr "Ta bort händelse"
 
 msgid "Select events to be deleted and press the Del key."
 msgstr ""
@@ -175,7 +175,7 @@ msgid "First select me and then drag the handles."
 msgstr ""
 
 msgid "Saving"
-msgstr ""
+msgstr "Sparar"
 
 msgid ""
 "This timeline is stored in memory and modifications to it will not be "
@@ -185,13 +185,13 @@ msgid ""
 msgstr ""
 
 msgid "Start time "
-msgstr ""
+msgstr "Starttid "
 
 msgid "End time "
-msgstr ""
+msgstr "Sluttid "
 
 msgid "Start time can't be after end time"
-msgstr ""
+msgstr "Starttiden kan inte vara efter sluttiden"
 
 msgid "Unable to save timeline data to '%s'. File left unmodified."
 msgstr ""
@@ -219,46 +219,49 @@ msgid "Name"
 msgstr ""
 
 msgid "You can't change time when the Event is locked"
-msgstr ""
+msgstr "Det går inte att ändra tid när en händelse är låst"
 
 msgid "End must be > Start"
-msgstr ""
+msgstr "Slut måste vara > Start"
 
 msgid "Entered period is too long."
-msgstr ""
+msgstr "Angiven period är för lång."
 
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 msgid "Image files"
-msgstr ""
+msgstr "Bildfiler"
 
 msgid "Export to Image"
-msgstr ""
+msgstr "Exportera till Bild"
 
 msgid "File '%s' exists. Overwrite?"
-msgstr ""
+msgstr "Filen '%s' finns redan. Vill du skriva över den?"
 
 msgid "Help contents"
-msgstr ""
+msgstr "Hjälpinnehåll"
 
 msgid "Concepts"
-msgstr ""
+msgstr "Begrepp"
 
 msgid "Questions and answers"
-msgstr ""
+msgstr "Frågor och svar"
 
 msgid "Tasks"
-msgstr ""
+msgstr "Aktiviteter"
 
 msgid "Where is the save button?"
-msgstr ""
+msgstr "Var är sparaknappen?"
 
 msgid ""
 "\n"
 "There is no save button. Timeline will automatically save your data whenever "
 "needed.\n"
 msgstr ""
+"\n"
+"Det finns ingen sparaknapp. Timeline sparar automatiskt ditt data när det "
+"behövs.\n"
 
 msgid "Where do the week numbers go if I start my weeks on Sunday?"
 msgstr ""
@@ -271,7 +274,7 @@ msgid ""
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "Tidslinje"
 
 msgid ""
 "\n"
@@ -284,7 +287,7 @@ msgid ""
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "Händelser"
 
 msgid ""
 "\n"
@@ -293,9 +296,14 @@ msgid ""
 "that event happened). This can be either a specific point in time or a "
 "period.\n"
 msgstr ""
+"\n"
+"En händelse är den bastyp som används för att representera information på "
+"tidslinjen. Den måste specificera var på tidslinjen den ska placeras (när "
+"händelsen inträffar). Detta can vara antingen en specifik tidpunkt eller en "
+"tidsperiod.\n"
 
 msgid "Categories"
-msgstr ""
+msgstr "Kategorier"
 
 msgid ""
 "\n"
@@ -303,6 +311,10 @@ msgid ""
 "category. All events that belong to the same category are displayed with the "
 "same background color.\n"
 msgstr ""
+"\n"
+"Kategorier används för att gruppera händelser. En händelse kan tillhöra en "
+"och endast en kategori. Alla händelser som tillhör samma kategori visas med "
+"den bakgrundsfärg som man valt för kategorin.\n"
 
 msgid ""
 "\n"
@@ -313,11 +325,21 @@ msgid ""
 "- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
 "timeline, drag the mouse and release it.\n"
 msgstr ""
+"\n"
+"Dialogen *Skapa Händelse* kan öppnas på följande sätt:\n"
+"\n"
+"- Välj *Tidslinje* - *Skapa Händelse* från menyn\n"
+"- Dubbelklicka med den *vänstra* musknappen på tidslinjen\n"
+"- Håll *Ctrl* tangenten, håll *vänster* musknapp nedtryckt, dra den över "
+"tidslinjen och släpp den.\n"
 
 msgid ""
 "\n"
 "The *Edit Event* dialog can be opened by double clicking on an event.\n"
 msgstr ""
+"\n"
+"Dialogen \"Uppdatera Händelse\" öppnas genom att dubbelklicka på en "
+"händelse.\n"
 
 msgid "Move event vertically"
 msgstr ""
@@ -329,7 +351,7 @@ msgid ""
 msgstr ""
 
 msgid "Selecting events"
-msgstr ""
+msgstr "Markera händelser"
 
 msgid ""
 "\n"
@@ -342,17 +364,23 @@ msgid ""
 "To delete an event, select it and press the *Del* key. Multiple events can "
 "be deleted at the same time.\n"
 msgstr ""
+"\n"
+"För att ta bort en händelse, markera den och tryck på *Del*. Flera händelser "
+"kan tas bort samtidigt.\n"
 
 msgid "Will associated events be deleted when I delete a category?"
-msgstr ""
+msgstr "Kommer associerade händelser tas bort när jag tar bort en kategori?"
 
 msgid ""
 "\n"
 "No. The events will still be there but they will not belong to a category.\n"
 msgstr ""
+"\n"
+"Nej. Händelserna kommer fortfarande att vara kvar men de kommer inte att "
+"tillhöra någon kategori.\n"
 
 msgid "Edit categories"
-msgstr ""
+msgstr "Redigera kategorier"
 
 msgid ""
 "\n"
@@ -362,9 +390,16 @@ msgid ""
 "The visibility of categories can also be edited in the sidebar (*View* > "
 "*Sidebar*).\n"
 msgstr ""
+"\n"
+"Kategorier kan redigerasi dialogen \"Redigera Kategorier\" (*Timeline* > * "
+"Redigera Kategorier*). För att ändra data för en kategori så dubbelklickar "
+"du på den.\n"
+"\n"
+"Om befintliga kategorier ska visas  i sidopanelen eller inte är valfritt "
+"(*Visa* > *Sidopanel*)\n"
 
 msgid "Contact"
-msgstr ""
+msgstr "Kontakta"
 
 msgid ""
 "\n"
@@ -372,32 +407,42 @@ msgid ""
 "with users and developers of Timeline, send an email to the user mailing "
 "list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
 msgstr ""
+"\n"
+"Om du har fler frågor om Timeline eller om du vill komma i kontakt med "
+"användare och utvecklare av Timeline, skicka ett email till mailinglistan "
+"för användare: <thetimelineproj-user@lists.sourceforge.net>. (Vänligen skriv "
+"på engelska.)\n"
 
 msgid "Why is Timeline not available in my language?"
-msgstr ""
+msgstr "Varför finns inte Timeline på mitt språk?"
 
 msgid ""
 "\n"
 "Timeline is developed and translated by volunteers. If you would like to "
 "contribute translations you are very much welcome to contact us.\n"
 msgstr ""
+"\n"
+"Timeline utvecklas och översätts av volontärer. Om du vill hjälpa till att "
+"översätta så är du mycket välkommen att kontakta oss.\n"
 
 msgid "Search results for '%s'"
-msgstr ""
+msgstr "Sökresultat för '%s'"
 
 msgid "Related pages"
-msgstr ""
+msgstr "Relaterade sidor"
 
 msgid "Printing"
-msgstr ""
+msgstr "Utskrift"
 
 msgid ""
 "There was a problem printing.\n"
 "Perhaps your current printer is not set correctly?"
 msgstr ""
+"Det gick inte att skriva ut.\n"
+"Kontrollera så att din skrivare är inställd korrekt."
 
 msgid "Print preview"
-msgstr ""
+msgstr "Förhandsgranska"
 
 msgid "Go to &Zero\tCtrl+Z"
 msgstr ""
@@ -406,10 +451,10 @@ msgid "Go to &Time\tCtrl+T"
 msgstr ""
 
 msgid "Backward\tPgUp"
-msgstr ""
+msgstr "Bakåt\tPgUp"
 
 msgid "Forward\tPgDn"
-msgstr ""
+msgstr "Framåt\tPgDn"
 
 msgid "Can't zoom deeper than 5"
 msgstr ""
@@ -433,25 +478,25 @@ msgid "Go to &Today\tCtrl+T"
 msgstr ""
 
 msgid "Go to D&ate...\tCtrl+G"
-msgstr ""
+msgstr "Gå till D&atum...\tCtrl+G"
 
 msgid "Forward One Wee&k\tCtrl+K"
-msgstr ""
+msgstr "Framåt En Vec&ka\tCtrl+K"
 
 msgid "Back One &Week\tCtrl+W"
-msgstr ""
+msgstr "Bakåt En &Vecka\tCtrl+V"
 
 msgid "Forward One Mont&h\tCtrl+h"
-msgstr ""
+msgstr "Framåt En Måna&d\tCtrl+D"
 
 msgid "Back One &Month\tCtrl+M"
-msgstr ""
+msgstr "Bakåt en &Månad\tCtrl+M"
 
 msgid "Forward One Yea&r\tCtrl+R"
-msgstr ""
+msgstr "Framåt ett Å&r\tCtrl+R"
 
 msgid "Back One &Year\tCtrl+Y"
-msgstr ""
+msgstr "Bakåt Ett &År\tCtrl+Å"
 
 msgid "Fit Millennium"
 msgstr ""
@@ -463,34 +508,34 @@ msgid "Fit Decade"
 msgstr ""
 
 msgid "Fit Year"
-msgstr ""
+msgstr "Anpassa År"
 
 msgid "Fit Month"
-msgstr ""
+msgstr "Anpassa Månad"
 
 msgid "Fit Week"
 msgstr ""
 
 msgid "Fit Day"
-msgstr ""
+msgstr "Anpassa Dag"
 
 msgid "day"
-msgstr ""
+msgstr "dag"
 
 msgid "days"
-msgstr ""
+msgstr "dagar"
 
 msgid "hour"
-msgstr ""
+msgstr "timme"
 
 msgid "hours"
-msgstr ""
+msgstr "timmar"
 
 msgid "minute"
-msgstr ""
+msgstr "minut"
 
 msgid "minutes"
-msgstr ""
+msgstr "minuter"
 
 msgid "can't be before year 10"
 msgstr ""
@@ -502,22 +547,22 @@ msgid "Can't zoom wider than 1200 years"
 msgstr ""
 
 msgid "Can't zoom deeper than 1 hour"
-msgstr ""
+msgstr "Kan inte zooma djupare än 1 timme"
 
 msgid "Day"
-msgstr ""
+msgstr "Dag"
 
 msgid "Week"
-msgstr ""
+msgstr "Vecka"
 
 msgid "Month"
-msgstr ""
+msgstr "Månad"
 
 msgid "Year"
-msgstr ""
+msgstr "År"
 
 msgid "Go to Date"
-msgstr ""
+msgstr "Gå till Datum"
 
 msgid "can't be before year %d"
 msgstr ""
@@ -526,43 +571,43 @@ msgid "can't be after year %d"
 msgstr ""
 
 msgid "No timeline set"
-msgstr ""
+msgstr "Ingen tidslinje vald"
 
 msgid "Can't scroll more to the left"
-msgstr ""
+msgstr "Det går inte att scrolla mer åt vänster"
 
 msgid "Can't scroll more to the right"
-msgstr ""
+msgstr "Det går inte att scrolla mer åt höger"
 
 msgid "Edit"
-msgstr ""
+msgstr "Redigera"
 
 msgid "Duplicate..."
-msgstr ""
+msgstr "Duplicera..."
 
 msgid "Delete"
-msgstr ""
+msgstr "Ta bort"
 
 msgid "Sticky Balloon"
-msgstr ""
+msgstr "Fäst ballong"
 
 msgid "Goto URL"
 msgstr ""
 
 msgid "Center"
-msgstr ""
+msgstr "Centrera"
 
 msgid "%s events hidden"
-msgstr ""
+msgstr "%s gömda händelser"
 
 msgid "Are you sure you want to delete this event?"
-msgstr ""
+msgstr "Är du säker på att du vill ta bort den här händelsen?"
 
 msgid "Can't move locked event"
-msgstr ""
+msgstr "Det går inte att flytta låsta händelser"
 
 msgid "Period is too long"
-msgstr ""
+msgstr "För lång period"
 
 msgid "Select region to zoom into"
 msgstr ""
@@ -574,19 +619,19 @@ msgid "Region too short"
 msgstr ""
 
 msgid "Add new"
-msgstr ""
+msgstr "Lägg till ny"
 
 msgid "Add Category"
-msgstr ""
+msgstr "Lägg till Kategori"
 
 msgid "Edit..."
-msgstr ""
+msgstr "Redigera..."
 
 msgid "Add..."
-msgstr ""
+msgstr "Lägg till..."
 
 msgid "Edit Category"
-msgstr ""
+msgstr "Redigera Kategori"
 
 msgid "Are you sure you want to delete category '%s'?"
 msgstr ""
@@ -598,77 +643,77 @@ msgid "Events belonging to '%s' will now belong to '%s'."
 msgstr ""
 
 msgid "Invalid date"
-msgstr ""
+msgstr "Ogiltigt datum"
 
 msgid "No match"
-msgstr ""
+msgstr "Ingen träff"
 
 msgid "Only one match"
-msgstr ""
+msgstr "Endast en träff"
 
 msgid "Edit Categories"
-msgstr ""
+msgstr "Redigera Kategorier"
 
 msgid "Category name '%s' not valid. Must be non-empty."
-msgstr ""
+msgstr "Ogiltigt kategorinamn '%s'. Får inte vara blankt."
 
 msgid "Category name '%s' already in use."
-msgstr ""
+msgstr "Kategorinamnet '%s' används redan."
 
 msgid "Name:"
-msgstr ""
+msgstr "Namn:"
 
 msgid "Color:"
-msgstr ""
+msgstr "Färg:"
 
 msgid "Font Color:"
-msgstr ""
+msgstr "Textfärg"
 
 msgid "Parent:"
-msgstr ""
+msgstr "Förälder"
 
 msgid "Container Properties"
 msgstr ""
 
 msgid "Category:"
-msgstr ""
+msgstr "Kategori:"
 
 msgid "Duplicate Event"
-msgstr ""
+msgstr "Duplicera händelse"
 
 msgid "%d Events not duplicated due to missing dates."
-msgstr ""
+msgstr "%d händelser duplicerades inte pga ogiltiga datum"
 
 msgid "Number of duplicates:"
-msgstr ""
+msgstr "Antal dupliceringar"
 
 msgid "Period"
-msgstr ""
+msgstr "Period"
 
 msgid "Frequency:"
-msgstr ""
+msgstr "Frekvens:"
 
 msgid "Backward"
-msgstr ""
+msgstr "Bakåt"
 
 msgid "Forward"
-msgstr ""
+msgstr "Framåt"
 
 msgid "Both"
-msgstr ""
+msgstr "Både och"
 
 #, fuzzy
 msgid "Direction"
 msgstr "Reaktion"
 
 msgid "Event Properties"
-msgstr ""
+msgstr "Egenskaper för Händelse"
 
 msgid "When:"
-msgstr ""
+msgstr "När:"
 
 msgid "to"
-msgstr ""
+msgstr "till"
 
 msgid "Container:"
 msgstr ""
@@ -677,40 +722,40 @@ msgid "Add Container"
 msgstr ""
 
 msgid "Show time"
-msgstr ""
+msgstr "Visa tid"
 
 msgid "Fuzzy"
 msgstr ""
 
 msgid "Locked"
-msgstr ""
+msgstr "Låst"
 
 msgid "Ends today"
-msgstr ""
+msgstr "Slutar idag"
 
 msgid "Text:"
-msgstr ""
+msgstr "Text:"
 
 msgid "Description"
-msgstr ""
+msgstr "Beskrivning"
 
 msgid "Alert"
 msgstr ""
 
 msgid "Icon"
-msgstr ""
+msgstr "Ikon"
 
 msgid "Hyperlink"
 msgstr ""
 
 msgid "Add more events after this one"
-msgstr ""
+msgstr "Lägg till fler händelser efter denna"
 
 msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
+msgstr "Bilder kommer skalas ner så att de inte är större än %ix%i."
 
 msgid "Select Icon"
-msgstr ""
+msgstr "Välj Ikon"
 
 msgid "Test"
 msgstr ""
@@ -722,13 +767,13 @@ msgid "Edit Container"
 msgstr ""
 
 msgid "Edit Event"
-msgstr ""
+msgstr "Redigera Händelse"
 
 msgid "Create Event"
-msgstr ""
+msgstr "Skapa Händelse"
 
 msgid "Help"
-msgstr ""
+msgstr "Hjälp"
 
 msgid ""
 "Could not find markdown Python package.  It is needed by the help system. "
@@ -737,85 +782,85 @@ msgid ""
 msgstr ""
 
 msgid "Go to home page"
-msgstr ""
+msgstr "Gå till startsidan"
 
 msgid "Go back one page"
-msgstr ""
+msgstr "Gå bakåt en sida"
 
 msgid "Go forward one page"
-msgstr ""
+msgstr "Gå framåt en sida"
 
 msgid "Page not found"
-msgstr ""
+msgstr "Sidan hittades inte"
 
 msgid "Could not find page '%s'."
-msgstr ""
+msgstr "Kunde inte hitta sidan '%s'."
 
 msgid "Timeline files"
-msgstr ""
+msgstr "Tidslinjefiler"
 
 msgid "SVG files"
-msgstr ""
+msgstr "SVG-filer"
 
 msgid "&File"
-msgstr ""
+msgstr "&Arkiv"
 
 msgid "Create a new timeline"
-msgstr ""
+msgstr "Skapa en ny tidslinje"
 
 msgid "New"
-msgstr ""
+msgstr "Ny"
 
 msgid "File Timeline..."
 msgstr ""
 
 msgid "Create Timeline"
-msgstr ""
+msgstr "Skapa Tidslinje"
 
 msgid "The specified timeline already exists."
-msgstr ""
+msgstr "Den angivna tidslinjen finns redan."
 
 msgid "Opening timeline instead of creating new."
-msgstr ""
+msgstr "Öppnar tidslinje istället för att skapa ny."
 
 msgid "Information"
-msgstr ""
+msgstr "Information"
 
 msgid "Directory Timeline..."
-msgstr ""
+msgstr "Timeline från filkataloger..."
 
 msgid "Open an existing timeline"
-msgstr ""
+msgstr "Öppna en befintlig tidslinje"
 
 msgid "Open Timeline"
-msgstr ""
+msgstr "Öppna Tidslinje"
 
 msgid "Open &Recent"
-msgstr ""
+msgstr "Öppna s&enaste"
 
 msgid "Page Set&up..."
-msgstr ""
+msgstr "Sid&inställning..."
 
 msgid "Setup page for printing"
-msgstr ""
+msgstr "Definiera utskriftsformat"
 
 msgid "Print Preview"
-msgstr ""
+msgstr "Förhandsgranska"
 
 msgid "Print"
-msgstr ""
+msgstr "Skriv ut"
 
 msgid "&Export to Image..."
-msgstr ""
+msgstr "&Exportera till Bild..."
 
 msgid "Export the current view to a PNG image"
-msgstr ""
+msgstr "Exportera nuvarande vy till en PNG-bild"
 
 msgid "&Export to SVG..."
-msgstr ""
+msgstr "Exportera som &SVG..."
 
 msgid "Export the current view to a SVG image"
-msgstr ""
+msgstr "Exportera nuvarande vy till en SVG-bild"
 
 msgid ""
 "Could not find pysvg Python package. It is needed to export to SVG. See the "
@@ -823,7 +868,7 @@ msgid ""
 msgstr ""
 
 msgid "Export to SVG"
-msgstr ""
+msgstr "Exportera till SVG"
 
 msgid "Play timeline"
 msgstr ""
@@ -832,37 +877,37 @@ msgid "Play timeline as movie"
 msgstr ""
 
 msgid "Exit the program"
-msgstr ""
+msgstr "Avsluta programmet"
 
 msgid "&Edit"
-msgstr ""
+msgstr "&Redigera"
 
 msgid "&View"
-msgstr ""
+msgstr "&Visa"
 
 msgid "&Sidebar\tCtrl+I"
-msgstr ""
+msgstr "&Sidopanel\tCtrl+I"
 
 msgid "&Legend"
-msgstr ""
+msgstr "&Teckenförklaring"
 
 msgid "&Balloons on hover"
-msgstr ""
+msgstr "&Ballonger vid hovring"
 
 msgid "&Timeline"
-msgstr ""
+msgstr "&Tidslinje"
 
 msgid "Create &Event..."
-msgstr ""
+msgstr "Skapa &Händelse..."
 
 msgid "Create a new event"
-msgstr ""
+msgstr "Skapa en ny händelse"
 
 msgid "&Duplicate Selected Event..."
-msgstr ""
+msgstr "&Duplicera Markerad Händelse..."
 
 msgid "Duplicate the Selected Event"
-msgstr ""
+msgstr "Duplicera den Markerade Händelsen"
 
 msgid "&Measure Distance between two Events..."
 msgstr ""
@@ -877,60 +922,60 @@ msgid "Events are overlapping or distance is 0"
 msgstr ""
 
 msgid "Edit &Categories"
-msgstr ""
+msgstr "Redigera &Kategorier"
 
 msgid "&Navigate"
-msgstr ""
+msgstr "&Navigera"
 
 msgid "Find First Event"
-msgstr ""
+msgstr "Sök Första Händelsen"
 
 #, fuzzy
 msgid "Find Last Event"
 msgstr "Senast angiven"
 
 msgid "Fit All Events"
-msgstr ""
+msgstr "Sök Alla Händelser"
 
 msgid "&Help"
-msgstr ""
+msgstr "&Hjälp"
 
 msgid "&Contents\tF1"
-msgstr ""
+msgstr "&Innehåll\tF1"
 
 msgid "Getting started tutorial"
-msgstr ""
+msgstr "Kom igång övning"
 
 msgid "Unable to write configuration file."
 msgstr ""
 
 msgid "read-only"
-msgstr ""
+msgstr "skrivskyddad"
 
 msgid "File '%s' does not exist."
-msgstr ""
+msgstr "Filen '%s' finns inte."
 
 msgid "No timeline opened."
-msgstr ""
+msgstr "Ingen tidslinje öppnad."
 
 msgid "First time using Timeline?"
-msgstr ""
+msgstr "Första gången du använder Timeline?"
 
 msgid "Relevant help topics:"
-msgstr ""
+msgstr "Relevanta hjälpavsnitt:"
 
 msgid "Close"
 msgstr ""
 
 msgid "Preferences"
-msgstr ""
+msgstr "Inställningar"
 
 #, fuzzy
 msgid "General"
 msgstr "Generika"
 
 msgid "Date && Time"
-msgstr ""
+msgstr "Datum && tid"
 
 msgid "Week start on:"
 msgstr ""
@@ -944,7 +989,7 @@ msgid ""
 msgstr ""
 
 msgid "Open most recent timeline on startup"
-msgstr ""
+msgstr "Öppna senaste tidslinje vid start"
 
 msgid "Use inertial scrolling"
 msgstr ""
@@ -953,16 +998,16 @@ msgid "Use extended date range (before 1 AD)"
 msgstr ""
 
 msgid "Monday"
-msgstr ""
+msgstr "Måndag"
 
 msgid "Sunday"
-msgstr ""
+msgstr "Söndag"
 
 msgid "Unable to copy to clipboard."
-msgstr ""
+msgstr "Misslyckades med att kopiera till klippbordet"
 
 msgid "Error"
-msgstr ""
+msgstr "Fel"
 
 #, fuzzy
 msgid "Question"
@@ -1973,20 +2018,130 @@ msgstr ""
 msgid " %s: %s%s%s"
 msgstr ""
 
-msgid "   Doc: %s"
-msgstr "   Dokument: %s"
-
-msgid "   MTA: %s"
+msgid "Result from %s             \n"
 msgstr ""
 
-msgid "abnormal and relevant"
-msgstr "abnormalt relevant"
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
 
-msgid "normal but relevant"
-msgstr "normalt relevant"
+msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
 
-msgid "   unreviewed"
-msgstr "   ej granskat"
+msgid "Source: %s\n"
+msgstr ""
+
+msgid "%.1f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.0f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.1f times the normal upper limit"
+msgstr ""
+
+msgid "%.0f times the normal upper limit"
+msgstr ""
+
+msgid "%.1f %% of the target lower limit"
+msgstr ""
+
+msgid "%.0f %% of the target lower limit"
+msgstr ""
+
+msgid "%.1f times the target upper limit"
+msgstr ""
+
+msgid "%.0f times the target upper limit"
+msgstr ""
+
+msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgstr ""
+
+msgid "Reference group: %s\n"
+msgstr ""
+
+msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+msgstr ""
+
+msgid ""
+"\n"
+" Doc: "
+msgstr ""
+
+msgid "Doc: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Lab: "
+msgstr ""
+
+msgid "Lab: %s\n"
+msgstr ""
+
+msgid "Episode: %s\n"
+msgstr ""
+
+msgid "Issue: %s\n"
+msgstr ""
+
+msgid "Material: %s\n"
+msgstr ""
+
+msgid "Details: %s\n"
+msgstr ""
+
+msgid "not yet"
+msgstr ""
+
+msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
+msgstr ""
+
+msgid "Responsible clinician: %s\n"
+msgstr ""
+
+msgid "you"
+msgstr ""
+
+msgid "Last reviewer: %(reviewer)s\n"
+msgstr ""
+
+msgid " Technically abnormal: %(abnormal)s\n"
+msgstr ""
+
+msgid "yes"
+msgstr ""
+
+msgid "no"
+msgstr ""
+
+msgid " Clinically relevant: %(relevant)s\n"
+msgstr ""
+
+msgid "Test type details:\n"
+msgstr ""
+
+msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Type comment:"
+msgstr ""
+
+msgid "Type comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Group comment: "
+msgstr ""
+
+msgid "Group comment: %s\n"
+msgstr ""
+
+msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr ""
 
 msgid "unknown test results output format [%s]"
 msgstr "okänt format på provtagnings-resultat [%s]"
@@ -2163,9 +2318,6 @@ msgid "Active clinical hint"
 msgstr ""
 
 msgid "Inactive clinical hint"
-msgstr ""
-
-msgid "Source: %s\n"
 msgstr ""
 
 msgid "Language: %s\n"
@@ -6719,6 +6871,92 @@ msgid ""
 "in all cases !"
 msgstr ""
 
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+" (for the public and any new GNUmed data-\n"
+"  bases the default user name and password\n"
+"  are {any-doc, any-doc})\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kan inte ansluta till databasen:\n"
+"\n"
+"%s\n"
+"\n"
+"Är du säker att du installerat den lokala databasen?\n"
+"\n"
+"Var vänlig försök igen eller avbryt.\n"
+"Glöm inte att kontrollera inloggningsuppgifterna.\n"
+"\n"
+"Du kan också behöva kontrollera PostgreSQL-klientens konfiguration för "
+"auktorisering \n"
+"gentemot databasen. Detta konfigureras i filen pg_hba.conf. \n"
+"För mer information se:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"For the public and any new GNUmed databases the\n"
+"default user name and password are {any-doc, any-doc}.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kan inte ansluta till databasen:\n"
+"\n"
+"%s\n"
+"\n"
+"Var vänlig försök igen eller avbryt.\n"
+"Glöm inte att kontrollera inloggningsuppgifterna.\n"
+"\n"
+"Du kan också behöva kontrollera PostgreSQL-klientens konfiguration för \n"
+"auktorisering gentemot databasen. Detta konfigureras i filen pg_hba.conf. \n"
+"För mer information se:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+"\n"
+" (for the public and any new GNUmed databases\n"
+"  the default user name and password are\n"
+"  {any-doc, any-doc})\n"
+"\n"
+msgstr ""
+"Lyckas ubte ansluta till databasen:\n"
+"\n"
+"%s\n"
+"\n"
+"Var vänlig försök med annat gränssnitt, annan användare eller annat "
+"lösenord.\n"
+
 msgid ""
 "The database you connected to does not seem\n"
 "to have been boostrapped properly.\n"
@@ -6780,7 +7018,7 @@ msgstr ""
 msgid "Cannot find image"
 msgstr ""
 
-msgid "\"%s\" (version %s)"
+msgid "Workplace \"%s\" (version %s)"
 msgstr ""
 
 msgid "Log into"
@@ -6817,23 +7055,25 @@ msgid "Help for login screen"
 msgstr ""
 
 msgid ""
-"GNUmed main login screen\n"
+"Unable to connect to the database ?\n"
 "\n"
-"Welcome to the GNUmed client. Shown are the current\n"
-"\"Workplace\" and (version).\n"
+" \"PostgreSQL: FATAL:  password authentication failed ...\"\n"
 "\n"
-"You may select to log into a public database with username\n"
-"and password {any-doc, any-doc}. Any other database\n"
-"(including a local one) must first be separately installed\n"
-"before you can log in.\n"
+"The default user name and password are {any-doc, any-doc}\n"
+"for the public and any new GNUmed databases.\n"
+"\n"
+" \"... could not connect to server ...\"\n"
+"\n"
+"Mostly this is a case of new users who did not yet install\n"
+"or configure a PostgreSQL server and/or a GNUmed database\n"
+"of their own, which you must do before you can connect to\n"
+"anything other than the public demonstration database, see\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For assistance on using GNUmed please consult the wiki:\n"
 "\n"
 " http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
-"\n"
-"and to install a local database see:\n"
-"\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For more help than the above, please contact:\n"
 "\n"
@@ -6842,6 +7082,9 @@ msgid ""
 "For local assistance please contact:\n"
 "\n"
 " %s"
+msgstr ""
+
+msgid "HELP for GNUmed main login screen"
 msgstr ""
 
 msgid "Dialog was cancelled by user"
@@ -7787,6 +8030,26 @@ msgstr ""
 msgid "Invalid date of death."
 msgstr ""
 
+#, fuzzy
+msgid "Adding name"
+msgstr "Lägger till ny undersökningstyp"
+
+#, fuzzy
+msgid ""
+"Cannot add this name to the patient !\n"
+"\n"
+" %s"
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
+
+msgid "Editing name"
+msgstr ""
+
+msgid ""
+"Cannot clone a copy of this name !\n"
+"\n"
+" %s"
+msgstr ""
+
 msgid "Lastname"
 msgstr ""
 
@@ -7797,9 +8060,6 @@ msgid "Preferred Name"
 msgstr ""
 
 msgid "Adding new name"
-msgstr ""
-
-msgid "Editing name"
 msgstr ""
 
 msgid "Cannot delete the only name of a person."
@@ -8439,7 +8699,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed the filename to %(l10n_action)s."
 msgstr ""
@@ -8451,8 +8711,8 @@ msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
 msgstr ""
@@ -8469,7 +8729,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -8481,8 +8741,8 @@ msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -9234,12 +9494,6 @@ msgstr ""
 msgid "Cannot delete family history item."
 msgstr ""
 
-msgid "yes"
-msgstr ""
-
-msgid "no"
-msgstr ""
-
 msgid "Family history of this patient."
 msgstr ""
 
@@ -9815,6 +10069,9 @@ msgid "Add (a) measurement result(s) for the current patient."
 msgstr ""
 
 msgid "&Measurements"
+msgstr ""
+
+msgid "Manage measurement results for the current patient."
 msgstr ""
 
 msgid "Add (a) vaccination(s) for the current patient."
@@ -10782,6 +11039,10 @@ msgstr ""
 msgid "Cannot add measurement. No active patient."
 msgstr ""
 
+#, fuzzy
+msgid "Cannot manage measurements. No active patient."
+msgstr "Kan inte lista undersökningar. Ingen patient vald."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr ""
 
@@ -11214,6 +11475,9 @@ msgstr ""
 msgid "no primary in-praxis provider"
 msgstr ""
 
+msgid "no results for this patient (available or selected)"
+msgstr ""
+
 msgid "PHX: Invalid placeholder options."
 msgstr ""
 
@@ -11333,6 +11597,16 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
+msgid "Test results (ordered reverse-chronologicallly)"
+msgstr ""
+
+#, fuzzy
+msgid "Showing test results."
+msgstr " %s test resultat\n"
+
+msgid "Abbrev"
+msgstr ""
+
 msgid "No default Gnuplot script template selected."
 msgstr ""
 
@@ -11391,126 +11665,7 @@ msgstr ""
 msgid "Cannot plot results. No results selected."
 msgstr ""
 
-msgid "Details of most recent (topmost) result:               \n"
-msgstr ""
-
-msgid "Date: %s\n"
-msgstr ""
-
-msgid "Result from %s             \n"
-msgstr ""
-
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "%.1f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.0f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.1f times the normal upper limit"
-msgstr ""
-
-msgid "%.0f times the normal upper limit"
-msgstr ""
-
-msgid "%.1f %% of the target lower limit"
-msgstr ""
-
-msgid "%.0f %% of the target lower limit"
-msgstr ""
-
-msgid "%.1f times the target upper limit"
-msgstr ""
-
-msgid "%.0f times the target upper limit"
-msgstr ""
-
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
-
-msgid "Reference group: %s\n"
-msgstr ""
-
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid "Episode: %s\n"
-msgstr ""
-
-msgid "Issue: %s\n"
-msgstr ""
-
-msgid "Material: %s\n"
-msgstr ""
-
-msgid "Details: %s\n"
-msgstr ""
-
-msgid "not yet"
-msgstr ""
-
-msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
-msgstr ""
-
-msgid "you"
-msgstr ""
-
-msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
-
-msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
-
-msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
-
-msgid "Test type details:\n"
-msgstr ""
-
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Type comment:"
-msgstr ""
-
-msgid "Type comment: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Group comment: "
-msgstr ""
-
-msgid "Group comment: %s\n"
-msgstr ""
-
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgid "Details of most recent (topmost) result !               \n"
 msgstr ""
 
 msgid "Tests"
@@ -11597,9 +11752,6 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
-msgstr ""
-
-msgid "Abbrev"
 msgstr ""
 
 msgid "generic / in house lab"
@@ -14254,6 +14406,18 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid "   Doc: %s"
+#~ msgstr "   Dokument: %s"
+
+#~ msgid "abnormal and relevant"
+#~ msgstr "abnormalt relevant"
+
+#~ msgid "normal but relevant"
+#~ msgstr "normalt relevant"
+
+#~ msgid "   unreviewed"
+#~ msgstr "   ej granskat"
 
 #~ msgid "Error retrieving encounters for this episode."
 #~ msgstr "Fel vid inhämtning av undersökningar för denna episod."

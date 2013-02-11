@@ -8,7 +8,7 @@
 BASE="../ ../../timelinelib/"						# where to look for files
 POTNAME="gnumed.pot"								# what to call the result
 LANGNAME="$1"										# what language are we working on
-AUXNAME="${LANGNAME}-additional-translations.po"	# more translations
+AUXNAME="${LANGNAME}.po.additional-translations"	# more translations
 
 
 echo ""
@@ -57,6 +57,11 @@ if [ -f "${LANGNAME}.po" ]; then
 	mv -vf gnumed-${LANGNAME}.po ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
 else
 	cp -vf ${POTNAME} ${LANGNAME}.po >> create-${LANGNAME}-po.log 2>&1
+fi;
+
+
+if [ -f "${AUXNAME}" ]; then
+	mv -vf ${AUXNAME} zzzz-done-${AUXNAME} >> create-${LANGNAME}-po.log 2>&1
 fi;
 
 

@@ -2175,7 +2175,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			gmGuiHelpers.gm_show_error (
 				_('Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n'
 				  '\n'
-				  'Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n'
+				  'Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n'
 				  'must be in the execution path. The command will\n'
 				  'be passed the filename to %(l10n_action)s.'
 				) % {'action': action, 'l10n_action': l10n_action},
@@ -2213,8 +2213,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				_('Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n'
 				  '\n'
 				  'You may need to check and fix either of\n'
-				  ' gm_%(action)s_doc.sh (Unix/Mac) or\n'
-				  ' gm_%(action)s_doc.bat (Windows)\n'
+				  ' gm-%(action)s_doc (Unix/Mac) or\n'
+				  ' gm-%(action)s_doc.bat (Windows)\n'
 				  '\n'
 				  'The command is passed the filename to %(l10n_action)s.'
 				) % {'action': action, 'l10n_action': l10n_action},
@@ -2262,7 +2262,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			gmGuiHelpers.gm_show_error (
 				_('Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n'
 				  '\n'
-				  'Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n'
+				  'Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n'
 				  'must be in the execution path. The command will\n'
 				  'be passed a list of filenames to %(l10n_action)s.'
 				) % {'action': action, 'l10n_action': l10n_action},
@@ -2300,8 +2300,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				_('Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n'
 				  '\n'
 				  'You may need to check and fix either of\n'
-				  ' gm_%(action)s_doc.sh (Unix/Mac) or\n'
-				  ' gm_%(action)s_doc.bat (Windows)\n'
+				  ' gm-%(action)s_doc (Unix/Mac) or\n'
+				  ' gm-%(action)s_doc.bat (Windows)\n'
 				  '\n'
 				  'The command is passed a list of filenames to %(l10n_action)s.'
 				) % {'action': action, 'l10n_action': l10n_action},
