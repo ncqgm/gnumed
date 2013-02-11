@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-01-10 14:40+CET\n"
+"POT-Creation-Date: 2013-02-11 14:24+CET\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2132,20 +2132,145 @@ msgstr "verbeterde uitslag"
 msgid " %s: %s%s%s"
 msgstr "prik: %s, %s, %s"
 
-msgid "   Doc: %s"
+msgid "Result from %s             \n"
+msgstr ""
+
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
+
+msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
+
+#, fuzzy
+msgid "Source: %s\n"
+msgstr "Bron"
+
+msgid "%.1f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.0f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.1f times the normal upper limit"
+msgstr ""
+
+msgid "%.0f times the normal upper limit"
+msgstr ""
+
+msgid "%.1f %% of the target lower limit"
+msgstr ""
+
+msgid "%.0f %% of the target lower limit"
+msgstr ""
+
+msgid "%.1f times the target upper limit"
+msgstr ""
+
+msgid "%.0f times the target upper limit"
+msgstr ""
+
+msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgstr ""
+
+#, fuzzy
+msgid "Reference group: %s\n"
+msgstr "Verwijzing"
+
+msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+" Doc: "
 msgstr "   Doc: %s"
 
-msgid "   MTA: %s"
-msgstr "   MTA: %s"
+#, fuzzy
+msgid "Doc: %s\n"
+msgstr "   Doc: %s"
 
-msgid "abnormal and relevant"
-msgstr "abnormaal en relevant"
+#, fuzzy
+msgid ""
+"\n"
+" Lab: "
+msgstr "Lab"
 
-msgid "normal but relevant"
-msgstr "normaal maar relevant"
+#, fuzzy
+msgid "Lab: %s\n"
+msgstr "SQL: %s"
 
-msgid "   unreviewed"
-msgstr "   niet bekeken"
+#, fuzzy
+msgid "Episode: %s\n"
+msgstr "Episodes: %s"
+
+#, fuzzy
+msgid "Issue: %s\n"
+msgstr "Bericht: %s"
+
+msgid "Material: %s\n"
+msgstr ""
+
+#, fuzzy
+msgid "Details: %s\n"
+msgstr "Bijzonderheden"
+
+msgid "not yet"
+msgstr "nog niet"
+
+msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
+msgstr ""
+
+msgid "Responsible clinician: %s\n"
+msgstr ""
+
+msgid "you"
+msgstr "u"
+
+msgid "Last reviewer: %(reviewer)s\n"
+msgstr ""
+
+#, fuzzy
+msgid " Technically abnormal: %(abnormal)s\n"
+msgstr "Technisch abnormaal"
+
+msgid "yes"
+msgstr "ja"
+
+msgid "no"
+msgstr "nee"
+
+#, fuzzy
+msgid " Clinically relevant: %(relevant)s\n"
+msgstr "klinisch relevant: ja\n"
+
+#, fuzzy
+msgid "Test type details:\n"
+msgstr "bewerk details van episode."
+
+msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"\n"
+" Type comment:"
+msgstr "toelichting"
+
+#, fuzzy
+msgid "Type comment: %s\n"
+msgstr "Documenten: %s"
+
+msgid ""
+"\n"
+" Group comment: "
+msgstr ""
+
+#, fuzzy
+msgid "Group comment: %s\n"
+msgstr "Documenten: %s"
+
+msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr ""
 
 #, fuzzy
 msgid "unknown test results output format [%s]"
@@ -2334,10 +2459,6 @@ msgstr "Actieve problemen"
 #, fuzzy
 msgid "Inactive clinical hint"
 msgstr "sla klinische notitie op in EMD"
-
-#, fuzzy
-msgid "Source: %s\n"
-msgstr "Bron"
 
 #, fuzzy
 msgid "Language: %s\n"
@@ -7446,6 +7567,89 @@ msgstr ""
 "u deze of los ze op. Vertrouw er niet op dat deze database in\n"
 "alle gevallen goed werkt!"
 
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+" (for the public and any new GNUmed data-\n"
+"  bases the default user name and password\n"
+"  are {any-doc, any-doc})\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kan geen verbinding maken met de database:\n"
+"\n"
+"%s\n"
+"\n"
+"Weet je zeker dat er een lokale database geïnstalleerd is?\n"
+"\n"
+"Probeer het nogmaals met juiste inloggegevens of annuleer.\n"
+"\n"
+"Mogelijk dient u de authenticatie gegevens in pg_hba.conf \n"
+"van uw PostgreSQL client te controleren. voor meer informatie\n"
+"ga naar:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"For the public and any new GNUmed databases the\n"
+"default user name and password are {any-doc, any-doc}.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Kan geen verbinding maken met de database:\n"
+"\n"
+"%s\n"
+"\n"
+"Probeer het nogmaals met juiste inloggegevens of annuleer.\n"
+"\n"
+"Mogelijk dient u de authenticatie gegevens in pg_hba.conf\n"
+"van uw PostgreSQL client te controleren. voor meer informatie\n"
+"ga naar:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+"\n"
+" (for the public and any new GNUmed databases\n"
+"  the default user name and password are\n"
+"  {any-doc, any-doc})\n"
+"\n"
+msgstr ""
+"Kan geen verbinding maken met de database\n"
+"\n"
+"%s\n"
+"\n"
+"Probeer het nogmaals met een andere backen / gebruiker / wachtwoord "
+"combinatie !\n"
+
 msgid ""
 "The database you connected to does not seem\n"
 "to have been boostrapped properly.\n"
@@ -7520,7 +7724,8 @@ msgstr "Welkom  bij de"
 msgid "Cannot find image"
 msgstr "Kan afbeelding niet vinden"
 
-msgid "\"%s\" (version %s)"
+#, fuzzy
+msgid "Workplace \"%s\" (version %s)"
 msgstr "\"%s\" (versie %s)"
 
 #, fuzzy
@@ -7560,23 +7765,25 @@ msgid "Help for login screen"
 msgstr "Hulp bij het loginscherm"
 
 msgid ""
-"GNUmed main login screen\n"
+"Unable to connect to the database ?\n"
 "\n"
-"Welcome to the GNUmed client. Shown are the current\n"
-"\"Workplace\" and (version).\n"
+" \"PostgreSQL: FATAL:  password authentication failed ...\"\n"
 "\n"
-"You may select to log into a public database with username\n"
-"and password {any-doc, any-doc}. Any other database\n"
-"(including a local one) must first be separately installed\n"
-"before you can log in.\n"
+"The default user name and password are {any-doc, any-doc}\n"
+"for the public and any new GNUmed databases.\n"
+"\n"
+" \"... could not connect to server ...\"\n"
+"\n"
+"Mostly this is a case of new users who did not yet install\n"
+"or configure a PostgreSQL server and/or a GNUmed database\n"
+"of their own, which you must do before you can connect to\n"
+"anything other than the public demonstration database, see\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For assistance on using GNUmed please consult the wiki:\n"
 "\n"
 " http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
-"\n"
-"and to install a local database see:\n"
-"\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For more help than the above, please contact:\n"
 "\n"
@@ -7586,6 +7793,10 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+
+#, fuzzy
+msgid "HELP for GNUmed main login screen"
+msgstr "Hulp bij het loginscherm"
 
 msgid "Dialog was cancelled by user"
 msgstr "Dialoog geannuleerd door gebruiker"
@@ -8661,6 +8872,27 @@ msgstr "naam, geboortedatum"
 msgid "Invalid date of death."
 msgstr "naam, geboortedatum"
 
+#, fuzzy
+msgid "Adding name"
+msgstr "Nieuwe naam toegoegen"
+
+#, fuzzy
+msgid ""
+"Cannot add this name to the patient !\n"
+"\n"
+" %s"
+msgstr "kan patiënt [%s] (%s/%s) niet activeren"
+
+#, fuzzy
+msgid "Editing name"
+msgstr "Naam bewerken"
+
+msgid ""
+"Cannot clone a copy of this name !\n"
+"\n"
+" %s"
+msgstr ""
+
 msgid "Lastname"
 msgstr "Achternaam"
 
@@ -8672,10 +8904,6 @@ msgstr "Roepnaam"
 
 msgid "Adding new name"
 msgstr "Nieuwe naam toegoegen"
-
-#, fuzzy
-msgid "Editing name"
-msgstr "Naam bewerken"
 
 #, fuzzy
 msgid "Cannot delete the only name of a person."
@@ -9455,10 +9683,11 @@ msgid ""
 "(this action cannot be reversed)"
 msgstr ""
 
+#, fuzzy
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed the filename to %(l10n_action)s."
 msgstr ""
@@ -9472,12 +9701,13 @@ msgstr ""
 msgid "Processing document part: %s"
 msgstr "Verwerken documentonderdeel: %s"
 
+#, fuzzy
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
 msgstr ""
@@ -9497,10 +9727,11 @@ msgstr "fax"
 msgid "mail"
 msgstr "mail"
 
+#, fuzzy
 msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -9513,12 +9744,13 @@ msgstr ""
 msgid "Processing document: %s"
 msgstr "Document verwerken: %s"
 
+#, fuzzy
 msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -10453,12 +10685,6 @@ msgstr "Foutrapport is geëmaild."
 msgid "Cannot delete family history item."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
-msgid "yes"
-msgstr "ja"
-
-msgid "no"
-msgstr "nee"
-
 #, fuzzy
 msgid "Family history of this patient."
 msgstr "Bewerk details van het beroep voor de huidige patiënt."
@@ -11141,6 +11367,10 @@ msgstr "Voeg meetresultaten toe aan de huidige patiënt."
 #, fuzzy
 msgid "&Measurements"
 msgstr "Metingen"
+
+#, fuzzy
+msgid "Manage measurement results for the current patient."
+msgstr "Voeg meetresultaten toe aan de huidige patiënt."
 
 #, fuzzy
 msgid "Add (a) vaccination(s) for the current patient."
@@ -12314,6 +12544,10 @@ msgstr "Kan niet van tabblad wijzigen. Geen active patiënt."
 msgid "Cannot add measurement. No active patient."
 msgstr "Kan meting niet toevoegen. Geen actieve patiënt."
 
+#, fuzzy
+msgid "Cannot manage measurements. No active patient."
+msgstr "Kan meting niet toevoegen. Geen actieve patiënt."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr "Kan geen EMD samenvatting tonen. Geen actieve patiënt."
 
@@ -12821,6 +13055,10 @@ msgid "no primary in-praxis provider"
 msgstr ""
 
 #, fuzzy
+msgid "no results for this patient (available or selected)"
+msgstr "Geen verhaal beschikbaar voor de geselecteerde episodes."
+
+#, fuzzy
 msgid "PHX: Invalid placeholder options."
 msgstr "onbekende plaatsvuller: <%s>"
 
@@ -12951,6 +13189,16 @@ msgstr "Nieuwe meting toevoegen"
 msgid "Editing measurement"
 msgstr "Meting bewerken"
 
+msgid "Test results (ordered reverse-chronologically)"
+msgstr ""
+
+#, fuzzy
+msgid "Showing test results."
+msgstr "Meting bewerken"
+
+msgid "Abbrev"
+msgstr ""
+
 msgid "No default Gnuplot script template selected."
 msgstr ""
 
@@ -13024,141 +13272,7 @@ msgstr "Kan uitslagen niet tekenen. Geen uitslagen geselecteerd."
 msgid "Cannot plot results. No results selected."
 msgstr "Kan uitslagen niet tekenen. Geen uitslagen geselecteerd."
 
-msgid "Details of most recent (topmost) result:               \n"
-msgstr ""
-
-#, fuzzy
-msgid "Date: %s\n"
-msgstr "Geexporteerd: %s\n"
-
-msgid "Result from %s             \n"
-msgstr ""
-
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "%.1f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.0f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.1f times the normal upper limit"
-msgstr ""
-
-msgid "%.0f times the normal upper limit"
-msgstr ""
-
-msgid "%.1f %% of the target lower limit"
-msgstr ""
-
-msgid "%.0f %% of the target lower limit"
-msgstr ""
-
-msgid "%.1f times the target upper limit"
-msgstr ""
-
-msgid "%.0f times the target upper limit"
-msgstr ""
-
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
-
-#, fuzzy
-msgid "Reference group: %s\n"
-msgstr "Verwijzing"
-
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-#, fuzzy
-msgid ""
-"\n"
-" Doc: "
-msgstr "   Doc: %s"
-
-#, fuzzy
-msgid "Doc: %s\n"
-msgstr "   Doc: %s"
-
-#, fuzzy
-msgid ""
-"\n"
-" Lab: "
-msgstr "Lab"
-
-#, fuzzy
-msgid "Lab: %s\n"
-msgstr "SQL: %s"
-
-#, fuzzy
-msgid "Episode: %s\n"
-msgstr "Episodes: %s"
-
-#, fuzzy
-msgid "Issue: %s\n"
-msgstr "Bericht: %s"
-
-msgid "Material: %s\n"
-msgstr ""
-
-#, fuzzy
-msgid "Details: %s\n"
-msgstr "Bijzonderheden"
-
-msgid "not yet"
-msgstr "nog niet"
-
-msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
-msgstr ""
-
-msgid "you"
-msgstr "u"
-
-msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
-
-#, fuzzy
-msgid " Technically abnormal: %(abnormal)s\n"
-msgstr "Technisch abnormaal"
-
-#, fuzzy
-msgid " Clinically relevant: %(relevant)s\n"
-msgstr "klinisch relevant: ja\n"
-
-#, fuzzy
-msgid "Test type details:\n"
-msgstr "bewerk details van episode."
-
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-#, fuzzy
-msgid ""
-"\n"
-" Type comment:"
-msgstr "toelichting"
-
-#, fuzzy
-msgid "Type comment: %s\n"
-msgstr "Documenten: %s"
-
-msgid ""
-"\n"
-" Group comment: "
-msgstr ""
-
-#, fuzzy
-msgid "Group comment: %s\n"
-msgstr "Documenten: %s"
-
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgid "Details of most recent (topmost) result !               \n"
 msgstr ""
 
 #, fuzzy
@@ -13261,9 +13375,6 @@ msgid "Showing measurement types."
 msgstr "Meting bewerken"
 
 msgid "Org"
-msgstr ""
-
-msgid "Abbrev"
 msgstr ""
 
 #, fuzzy
@@ -16385,6 +16496,25 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "   Doc: %s"
+#~ msgstr "   Doc: %s"
+
+#~ msgid "   MTA: %s"
+#~ msgstr "   MTA: %s"
+
+#~ msgid "abnormal and relevant"
+#~ msgstr "abnormaal en relevant"
+
+#~ msgid "normal but relevant"
+#~ msgstr "normaal maar relevant"
+
+#~ msgid "   unreviewed"
+#~ msgstr "   niet bekeken"
+
+#, fuzzy
+#~ msgid "Date: %s\n"
+#~ msgstr "Geexporteerd: %s\n"
 
 #~ msgid "Employees"
 #~ msgstr "Werknemers"

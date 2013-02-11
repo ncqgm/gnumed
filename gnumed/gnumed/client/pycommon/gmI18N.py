@@ -48,7 +48,6 @@ If none of this works it will fall back to making _() a noop.
 @copyright: authors
 """
 #===========================================================================
-__version__ = "$Revision: 1.50 $"
 __author__ = "H. Herb <hherb@gnumed.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>, K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -58,7 +57,6 @@ import sys, os.path, os, re as regex, locale, gettext, logging, codecs
 
 
 _log = logging.getLogger('gm.i18n')
-_log.info(__version__)
 
 system_locale = ''
 system_locale_level = {}

@@ -246,7 +246,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				self._LCTRL_results.SetItemTextColour(idx, wx.NamedColour('RED'))
 	#-----------------------------------------------------
 	def _calc_results_list_item_tooltip(self, data):
-		return u'\n'.join(data.format())
+		return data.format()
 	#-----------------------------------------------------
 	def _on_result_activated(self, event):
 #		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)

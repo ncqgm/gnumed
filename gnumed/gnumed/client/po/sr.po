@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-01-10 14:41+CET\n"
+"POT-Creation-Date: 2013-02-11 14:25+CET\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -1968,20 +1968,130 @@ msgstr ""
 msgid " %s: %s%s%s"
 msgstr ""
 
-msgid "   Doc: %s"
+msgid "Result from %s             \n"
 msgstr ""
 
-msgid "   MTA: %s"
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 msgstr ""
 
-msgid "abnormal and relevant"
+msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
-msgid "normal but relevant"
+msgid "Source: %s\n"
 msgstr ""
 
-msgid "   unreviewed"
-msgstr "   непрегледани"
+msgid "%.1f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.0f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.1f times the normal upper limit"
+msgstr ""
+
+msgid "%.0f times the normal upper limit"
+msgstr ""
+
+msgid "%.1f %% of the target lower limit"
+msgstr ""
+
+msgid "%.0f %% of the target lower limit"
+msgstr ""
+
+msgid "%.1f times the target upper limit"
+msgstr ""
+
+msgid "%.0f times the target upper limit"
+msgstr ""
+
+msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgstr ""
+
+msgid "Reference group: %s\n"
+msgstr ""
+
+msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+msgstr ""
+
+msgid ""
+"\n"
+" Doc: "
+msgstr ""
+
+msgid "Doc: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Lab: "
+msgstr ""
+
+msgid "Lab: %s\n"
+msgstr ""
+
+msgid "Episode: %s\n"
+msgstr ""
+
+msgid "Issue: %s\n"
+msgstr ""
+
+msgid "Material: %s\n"
+msgstr ""
+
+msgid "Details: %s\n"
+msgstr ""
+
+msgid "not yet"
+msgstr ""
+
+msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
+msgstr ""
+
+msgid "Responsible clinician: %s\n"
+msgstr ""
+
+msgid "you"
+msgstr ""
+
+msgid "Last reviewer: %(reviewer)s\n"
+msgstr ""
+
+msgid " Technically abnormal: %(abnormal)s\n"
+msgstr ""
+
+msgid "yes"
+msgstr ""
+
+msgid "no"
+msgstr ""
+
+msgid " Clinically relevant: %(relevant)s\n"
+msgstr ""
+
+msgid "Test type details:\n"
+msgstr ""
+
+msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Type comment:"
+msgstr ""
+
+msgid "Type comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Group comment: "
+msgstr ""
+
+msgid "Group comment: %s\n"
+msgstr ""
+
+msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr ""
 
 msgid "unknown test results output format [%s]"
 msgstr ""
@@ -2157,9 +2267,6 @@ msgstr "Активни проблеми"
 #, fuzzy
 msgid "Inactive clinical hint"
 msgstr "клинички нерелевантно"
-
-msgid "Source: %s\n"
-msgstr ""
 
 #, fuzzy
 msgid "Language: %s\n"
@@ -6573,6 +6680,82 @@ msgid ""
 "in all cases !"
 msgstr ""
 
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+" (for the public and any new GNUmed data-\n"
+"  bases the default user name and password\n"
+"  are {any-doc, any-doc})\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Не могу да се повежем са базом:\n"
+"\n"
+"%s\n"
+"\n"
+"Проверите да ли имате инсталирану локалну базу података ?\n"
+"\n"
+"Пробајте поново са одговарајућим подацима или одустаните.\n"
+"\n"
+"Проверите подешавања за логовање у PostgreSQL \n"
+"клијенту и pg_hba.conf. \n"
+"За детаље погледајте:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"For the public and any new GNUmed databases the\n"
+"default user name and password are {any-doc, any-doc}.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Не могу да се повежем са базом:\n"
+"\n"
+"%s\n"
+"\n"
+"Пробајте поново са одговарајућим подацима или одустаните.\n"
+"\n"
+"Проверите подешавања за логовање у PostgreSQL \n"
+"клијенту и pg_hba.conf. \n"
+"За детаље погледајте:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+"\n"
+" (for the public and any new GNUmed databases\n"
+"  the default user name and password are\n"
+"  {any-doc, any-doc})\n"
+"\n"
+msgstr ""
+
 msgid ""
 "The database you connected to does not seem\n"
 "to have been boostrapped properly.\n"
@@ -6634,7 +6817,7 @@ msgstr ""
 msgid "Cannot find image"
 msgstr ""
 
-msgid "\"%s\" (version %s)"
+msgid "Workplace \"%s\" (version %s)"
 msgstr ""
 
 msgid "Log into"
@@ -6671,23 +6854,25 @@ msgid "Help for login screen"
 msgstr ""
 
 msgid ""
-"GNUmed main login screen\n"
+"Unable to connect to the database ?\n"
 "\n"
-"Welcome to the GNUmed client. Shown are the current\n"
-"\"Workplace\" and (version).\n"
+" \"PostgreSQL: FATAL:  password authentication failed ...\"\n"
 "\n"
-"You may select to log into a public database with username\n"
-"and password {any-doc, any-doc}. Any other database\n"
-"(including a local one) must first be separately installed\n"
-"before you can log in.\n"
+"The default user name and password are {any-doc, any-doc}\n"
+"for the public and any new GNUmed databases.\n"
+"\n"
+" \"... could not connect to server ...\"\n"
+"\n"
+"Mostly this is a case of new users who did not yet install\n"
+"or configure a PostgreSQL server and/or a GNUmed database\n"
+"of their own, which you must do before you can connect to\n"
+"anything other than the public demonstration database, see\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For assistance on using GNUmed please consult the wiki:\n"
 "\n"
 " http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
-"\n"
-"and to install a local database see:\n"
-"\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For more help than the above, please contact:\n"
 "\n"
@@ -6696,6 +6881,9 @@ msgid ""
 "For local assistance please contact:\n"
 "\n"
 " %s"
+msgstr ""
+
+msgid "HELP for GNUmed main login screen"
 msgstr ""
 
 msgid "Dialog was cancelled by user"
@@ -7660,6 +7848,27 @@ msgstr ""
 msgid "Invalid date of death."
 msgstr ""
 
+#, fuzzy
+msgid "Adding name"
+msgstr "Уређивање вакцине"
+
+#, fuzzy
+msgid ""
+"Cannot add this name to the patient !\n"
+"\n"
+" %s"
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
+
+#, fuzzy
+msgid "Editing name"
+msgstr "Уређивање вакцине"
+
+msgid ""
+"Cannot clone a copy of this name !\n"
+"\n"
+" %s"
+msgstr ""
+
 msgid "Lastname"
 msgstr ""
 
@@ -7671,10 +7880,6 @@ msgstr ""
 
 msgid "Adding new name"
 msgstr ""
-
-#, fuzzy
-msgid "Editing name"
-msgstr "Уређивање вакцине"
 
 msgid "Cannot delete the only name of a person."
 msgstr ""
@@ -8320,7 +8525,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed the filename to %(l10n_action)s."
 msgstr ""
@@ -8332,8 +8537,8 @@ msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
 msgstr ""
@@ -8350,7 +8555,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -8362,8 +8567,8 @@ msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -9117,12 +9322,6 @@ msgstr ""
 msgid "Cannot delete family history item."
 msgstr ""
 
-msgid "yes"
-msgstr ""
-
-msgid "no"
-msgstr ""
-
 msgid "Family history of this patient."
 msgstr ""
 
@@ -9698,6 +9897,10 @@ msgstr ""
 
 msgid "&Measurements"
 msgstr ""
+
+#, fuzzy
+msgid "Manage measurement results for the current patient."
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
@@ -10615,6 +10818,10 @@ msgstr ""
 msgid "Cannot add measurement. No active patient."
 msgstr ""
 
+#, fuzzy
+msgid "Cannot manage measurements. No active patient."
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr ""
 
@@ -11052,6 +11259,9 @@ msgstr ""
 msgid "no primary in-praxis provider"
 msgstr ""
 
+msgid "no results for this patient (available or selected)"
+msgstr ""
+
 msgid "PHX: Invalid placeholder options."
 msgstr ""
 
@@ -11171,6 +11381,16 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
+msgid "Test results (ordered reverse-chronologically)"
+msgstr ""
+
+#, fuzzy
+msgid "Showing test results."
+msgstr "Приказивање вакцина."
+
+msgid "Abbrev"
+msgstr ""
+
 msgid "No default Gnuplot script template selected."
 msgstr ""
 
@@ -11229,126 +11449,7 @@ msgstr ""
 msgid "Cannot plot results. No results selected."
 msgstr ""
 
-msgid "Details of most recent (topmost) result:               \n"
-msgstr ""
-
-msgid "Date: %s\n"
-msgstr ""
-
-msgid "Result from %s             \n"
-msgstr ""
-
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "%.1f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.0f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.1f times the normal upper limit"
-msgstr ""
-
-msgid "%.0f times the normal upper limit"
-msgstr ""
-
-msgid "%.1f %% of the target lower limit"
-msgstr ""
-
-msgid "%.0f %% of the target lower limit"
-msgstr ""
-
-msgid "%.1f times the target upper limit"
-msgstr ""
-
-msgid "%.0f times the target upper limit"
-msgstr ""
-
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
-
-msgid "Reference group: %s\n"
-msgstr ""
-
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid "Episode: %s\n"
-msgstr ""
-
-msgid "Issue: %s\n"
-msgstr ""
-
-msgid "Material: %s\n"
-msgstr ""
-
-msgid "Details: %s\n"
-msgstr ""
-
-msgid "not yet"
-msgstr ""
-
-msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
-msgstr ""
-
-msgid "you"
-msgstr ""
-
-msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
-
-msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
-
-msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
-
-msgid "Test type details:\n"
-msgstr ""
-
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Type comment:"
-msgstr ""
-
-msgid "Type comment: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Group comment: "
-msgstr ""
-
-msgid "Group comment: %s\n"
-msgstr ""
-
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgid "Details of most recent (topmost) result !               \n"
 msgstr ""
 
 #, fuzzy
@@ -11437,9 +11538,6 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
-msgstr ""
-
-msgid "Abbrev"
 msgstr ""
 
 msgid "generic / in house lab"
@@ -14122,6 +14220,9 @@ msgstr "Количина"
 
 msgid "First Date"
 msgstr "Први датум"
+
+#~ msgid "   unreviewed"
+#~ msgstr "   непрегледани"
 
 #~ msgid "part"
 #~ msgstr "део"

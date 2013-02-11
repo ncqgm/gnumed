@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-01-10 14:40+CET\n"
+"POT-Creation-Date: 2013-02-11 14:25+CET\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -99,7 +99,7 @@ msgid "Unknown format."
 msgstr "reação desconhecida"
 
 msgid "Unable to read from file '%s'."
-msgstr ""
+msgstr "Impossível ler o arquivo '%s'."
 
 #, fuzzy
 msgid "Unable to read timeline data from '%s'."
@@ -206,25 +206,25 @@ msgid "End time "
 msgstr ""
 
 msgid "Start time can't be after end time"
-msgstr ""
+msgstr "Data de início não pode ser após data de término"
 
 msgid "Unable to save timeline data to '%s'. File left unmodified."
-msgstr ""
+msgstr "Incapaz de gravar linha do tempo em '%s'.  Arquivo não modificado."
 
 msgid "Unable to write timeline data."
-msgstr ""
+msgstr "Incapaz de escrever informações sobre a linha do tempo."
 
 msgid "Unable to write to temporary file '%s'."
-msgstr ""
+msgstr "Incapaz de escrever no arquivo temporário '%s'."
 
 msgid "Unable to take backup to '%s'."
-msgstr ""
+msgstr "Incapaz de levar backup a '%s'."
 
 msgid "Unable to rename temporary file '%s' to original."
-msgstr ""
+msgstr "Incapaz de renomear arquivo temporário '%s' para original."
 
 msgid "Unable to delete backup file '%s'."
-msgstr ""
+msgstr "Incapaz de remover arquivo de backup '%s'."
 
 #, fuzzy
 msgid "Field '%s' can't be empty."
@@ -237,7 +237,7 @@ msgid "You can't change time when the Event is locked"
 msgstr ""
 
 msgid "End must be > Start"
-msgstr ""
+msgstr "Final deve ser > Início"
 
 msgid "Entered period is too long."
 msgstr ""
@@ -254,32 +254,35 @@ msgid "Export to Image"
 msgstr "Exportar para GDT"
 
 msgid "File '%s' exists. Overwrite?"
-msgstr ""
+msgstr "O arquivo '%s' já existe. Sobrescrever?"
 
 #, fuzzy
 msgid "Help contents"
 msgstr "Setor de Ajuda"
 
 msgid "Concepts"
-msgstr ""
+msgstr "Conceitos"
 
 msgid "Questions and answers"
-msgstr ""
+msgstr "Perguntas e respostas"
 
 msgid "Tasks"
-msgstr ""
+msgstr "Tarefas"
 
 msgid "Where is the save button?"
-msgstr ""
+msgstr "Onde está o botão \"Salvar\"?"
 
 msgid ""
 "\n"
 "There is no save button. Timeline will automatically save your data whenever "
 "needed.\n"
 msgstr ""
+"\n"
+"Não há botão \"Salvar\" ou \"Gravar\".  O TimeLine automaticamente gravará "
+"suas informações sempre que necessário.\n"
 
 msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr ""
+msgstr "Onde ficam os números das semanas quando as minhas começam no domingo?"
 
 msgid ""
 "\n"
@@ -289,7 +292,7 @@ msgid ""
 msgstr ""
 
 msgid "Timeline"
-msgstr ""
+msgstr "Timeline"
 
 msgid ""
 "\n"
@@ -302,7 +305,7 @@ msgid ""
 msgstr ""
 
 msgid "Events"
-msgstr ""
+msgstr "Eventos"
 
 msgid ""
 "\n"
@@ -313,7 +316,7 @@ msgid ""
 msgstr ""
 
 msgid "Categories"
-msgstr ""
+msgstr "Categorias"
 
 msgid ""
 "\n"
@@ -363,12 +366,14 @@ msgid ""
 msgstr ""
 
 msgid "Will associated events be deleted when I delete a category?"
-msgstr ""
+msgstr "Eventos associados serão apagados quando eu remover uma categoria?"
 
 msgid ""
 "\n"
 "No. The events will still be there but they will not belong to a category.\n"
 msgstr ""
+"\n"
+"Não. Os eventos ainda estarão lá, mas não pertencerão a uma categoria.\n"
 
 #, fuzzy
 msgid "Edit categories"
@@ -384,7 +389,7 @@ msgid ""
 msgstr ""
 
 msgid "Contact"
-msgstr ""
+msgstr "Contatar"
 
 msgid ""
 "\n"
@@ -394,7 +399,7 @@ msgid ""
 msgstr ""
 
 msgid "Why is Timeline not available in my language?"
-msgstr ""
+msgstr "Por que o Linha do Tempo não está disponível no meu idioma?"
 
 msgid ""
 "\n"
@@ -403,7 +408,7 @@ msgid ""
 msgstr ""
 
 msgid "Search results for '%s'"
-msgstr ""
+msgstr "Resultados da pesquisa por '%s'"
 
 #, fuzzy
 msgid "Related pages"
@@ -417,6 +422,8 @@ msgid ""
 "There was a problem printing.\n"
 "Perhaps your current printer is not set correctly?"
 msgstr ""
+"Houve um erro na hora de imprimir.\n"
+"A sua impressora está configurada corretamente?"
 
 #, fuzzy
 msgid "Print preview"
@@ -457,7 +464,7 @@ msgid "Go to &Today\tCtrl+T"
 msgstr ""
 
 msgid "Go to D&ate...\tCtrl+G"
-msgstr ""
+msgstr "Vá para a D&ata...\tCtrl+G"
 
 msgid "Forward One Wee&k\tCtrl+K"
 msgstr ""
@@ -481,16 +488,16 @@ msgid "Fit Millennium"
 msgstr ""
 
 msgid "Fit Century"
-msgstr ""
+msgstr "Encaixar Século"
 
 msgid "Fit Decade"
-msgstr ""
+msgstr "Encaixar Década"
 
 msgid "Fit Year"
-msgstr ""
+msgstr "Ajustar Ano"
 
 msgid "Fit Month"
-msgstr ""
+msgstr "Ajustar Mês"
 
 msgid "Fit Week"
 msgstr ""
@@ -527,13 +534,13 @@ msgid "Can't zoom wider than 1200 years"
 msgstr ""
 
 msgid "Can't zoom deeper than 1 hour"
-msgstr ""
+msgstr "Não é possível fechar zoom para menos de 1 hora"
 
 msgid "Day"
 msgstr ""
 
 msgid "Week"
-msgstr ""
+msgstr "Semana"
 
 msgid "Month"
 msgstr ""
@@ -552,7 +559,7 @@ msgid "can't be after year %d"
 msgstr ""
 
 msgid "No timeline set"
-msgstr ""
+msgstr "Nenhum cronograma definido"
 
 msgid "Can't scroll more to the left"
 msgstr ""
@@ -570,14 +577,14 @@ msgid "Delete"
 msgstr "Apagar"
 
 msgid "Sticky Balloon"
-msgstr ""
+msgstr "Balão Grudento"
 
 #, fuzzy
 msgid "Goto URL"
 msgstr "fatal"
 
 msgid "Center"
-msgstr ""
+msgstr "Centralizado"
 
 msgid "%s events hidden"
 msgstr ""
@@ -607,7 +614,7 @@ msgid "Add new"
 msgstr "Adicionando novo nome"
 
 msgid "Add Category"
-msgstr ""
+msgstr "Adicionar Categoria"
 
 #, fuzzy
 msgid "Edit..."
@@ -639,17 +646,17 @@ msgid "No match"
 msgstr "Lote"
 
 msgid "Only one match"
-msgstr ""
+msgstr "Somente uma associação"
 
 #, fuzzy
 msgid "Edit Categories"
 msgstr "inativo"
 
 msgid "Category name '%s' not valid. Must be non-empty."
-msgstr ""
+msgstr "Nome de categoria '%s' é inválido. Precisa ser preenchido."
 
 msgid "Category name '%s' already in use."
-msgstr ""
+msgstr "Nome de categoria '%s' já é usado."
 
 #, fuzzy
 msgid "Name:"
@@ -671,7 +678,7 @@ msgid "Container Properties"
 msgstr "Propriedades do Documento"
 
 msgid "Category:"
-msgstr ""
+msgstr "Categoria:"
 
 msgid "Duplicate Event"
 msgstr ""
@@ -683,7 +690,7 @@ msgid "Number of duplicates:"
 msgstr ""
 
 msgid "Period"
-msgstr ""
+msgstr "Período"
 
 #, fuzzy
 msgid "Frequency:"
@@ -707,10 +714,10 @@ msgid "Event Properties"
 msgstr "Propriedades do Documento"
 
 msgid "When:"
-msgstr ""
+msgstr "Quando:"
 
 msgid "to"
-msgstr ""
+msgstr "para"
 
 #, fuzzy
 msgid "Container:"
@@ -745,16 +752,16 @@ msgid "Alert"
 msgstr ""
 
 msgid "Icon"
-msgstr ""
+msgstr "Ícone"
 
 msgid "Hyperlink"
 msgstr ""
 
 msgid "Add more events after this one"
-msgstr ""
+msgstr "Adicionar mais eventos após este"
 
 msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
+msgstr "Imagens serão reduzidas ou ampliadas para caber em uma caixa %ix%i."
 
 #, fuzzy
 msgid "Select Icon"
@@ -788,16 +795,16 @@ msgid ""
 msgstr ""
 
 msgid "Go to home page"
-msgstr ""
+msgstr "Ir para a página inicial"
 
 msgid "Go back one page"
-msgstr ""
+msgstr "Volta uma página"
 
 msgid "Go forward one page"
-msgstr ""
+msgstr "Avançar uma página"
 
 msgid "Page not found"
-msgstr ""
+msgstr "Página não encontrada"
 
 #, fuzzy
 msgid "Could not find page '%s'."
@@ -830,10 +837,10 @@ msgid "Create Timeline"
 msgstr "Episódio Selecionado."
 
 msgid "The specified timeline already exists."
-msgstr ""
+msgstr "O cronograma especificado já existe."
 
 msgid "Opening timeline instead of creating new."
-msgstr ""
+msgstr "Abrir cronograma em lugar de criar novo."
 
 #, fuzzy
 msgid "Information"
@@ -843,20 +850,20 @@ msgid "Directory Timeline..."
 msgstr ""
 
 msgid "Open an existing timeline"
-msgstr ""
+msgstr "Abrir um cronograma existente"
 
 #, fuzzy
 msgid "Open Timeline"
 msgstr "Abrir Item"
 
 msgid "Open &Recent"
-msgstr ""
+msgstr "Abrir &Recente"
 
 msgid "Page Set&up..."
-msgstr ""
+msgstr "Config&uração da Página..."
 
 msgid "Setup page for printing"
-msgstr ""
+msgstr "Configurar página para impressão"
 
 #, fuzzy
 msgid "Print Preview"
@@ -897,7 +904,7 @@ msgid "Play timeline as movie"
 msgstr ""
 
 msgid "Exit the program"
-msgstr ""
+msgstr "Sair do programa"
 
 msgid "&Edit"
 msgstr "&Editar"
@@ -907,22 +914,22 @@ msgid "&View"
 msgstr "Veja o log"
 
 msgid "&Sidebar\tCtrl+I"
-msgstr ""
+msgstr "&Barra Lateral\tCtrl+I"
 
 msgid "&Legend"
-msgstr ""
+msgstr "&Legenda"
 
 msgid "&Balloons on hover"
 msgstr ""
 
 msgid "&Timeline"
-msgstr ""
+msgstr "&Cronograma"
 
 msgid "Create &Event..."
-msgstr ""
+msgstr "Criar &Evento..."
 
 msgid "Create a new event"
-msgstr ""
+msgstr "Criar novo evento"
 
 msgid "&Duplicate Selected Event..."
 msgstr ""
@@ -948,10 +955,10 @@ msgid "Edit &Categories"
 msgstr "inativo"
 
 msgid "&Navigate"
-msgstr ""
+msgstr "&Navegar"
 
 msgid "Find First Event"
-msgstr ""
+msgstr "Encontrar Primeiro Evento"
 
 #, fuzzy
 msgid "Find Last Event"
@@ -969,22 +976,22 @@ msgid "&Contents\tF1"
 msgstr "Componentes"
 
 msgid "Getting started tutorial"
-msgstr ""
+msgstr "Tutorial de iniciante"
 
 msgid "Unable to write configuration file."
-msgstr ""
+msgstr "Incapaz de escrever no arquivo de configuração."
 
 msgid "read-only"
-msgstr ""
+msgstr "somente leitura"
 
 msgid "File '%s' does not exist."
 msgstr ""
 
 msgid "No timeline opened."
-msgstr ""
+msgstr "Nenhuma linha do tempo aberta."
 
 msgid "First time using Timeline?"
-msgstr ""
+msgstr "Primeira vez usando o Timeline?"
 
 msgid "Relevant help topics:"
 msgstr ""
@@ -1001,10 +1008,10 @@ msgid "General"
 msgstr "Generalizado"
 
 msgid "Date && Time"
-msgstr ""
+msgstr "Data && Hora"
 
 msgid "Week start on:"
-msgstr ""
+msgstr "Semana começa no(a):"
 
 msgid ""
 "This feature is experimental. If events are\n"
@@ -1015,7 +1022,7 @@ msgid ""
 msgstr ""
 
 msgid "Open most recent timeline on startup"
-msgstr ""
+msgstr "Abrir linha do tempo mais recente ao iniciar"
 
 msgid "Use inertial scrolling"
 msgstr ""
@@ -1024,10 +1031,10 @@ msgid "Use extended date range (before 1 AD)"
 msgstr ""
 
 msgid "Monday"
-msgstr ""
+msgstr "Segunda-feira"
 
 msgid "Sunday"
-msgstr ""
+msgstr "Domingo"
 
 msgid "Unable to copy to clipboard."
 msgstr ""
@@ -1897,10 +1904,10 @@ msgid "Medication history"
 msgstr "Histórico de medicações"
 
 msgid "copy"
-msgstr ""
+msgstr "copiar"
 
 msgid "data"
-msgstr ""
+msgstr "dados"
 
 msgid "long-term"
 msgstr "longo prazo"
@@ -1918,16 +1925,16 @@ msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
 
 msgid "active, needs check"
-msgstr ""
+msgstr "ativo, precisa verificar"
 
 msgid "assumed active"
 msgstr ""
 
 msgid "approved"
-msgstr ""
+msgstr "aprovado"
 
 msgid "unapproved"
-msgstr ""
+msgstr "reprovado"
 
 msgid "definite"
 msgstr "definitivo"
@@ -1939,10 +1946,10 @@ msgid "Substance: %s   [#%s]\n"
 msgstr ""
 
 msgid "Preparation: %s\n"
-msgstr ""
+msgstr "Preparação: %s\n"
 
 msgid "Amount per dose: %s %s"
-msgstr ""
+msgstr "Quantidade por dose: %s %s"
 
 msgid " ATC (substance): %s\n"
 msgstr ""
@@ -1954,7 +1961,7 @@ msgid " ATC (brand): %s\n"
 msgstr ""
 
 msgid "  Other component: %s\n"
-msgstr ""
+msgstr "  Outro componente: %s\n"
 
 msgid " Regimen: %s\n"
 msgstr ""
@@ -1969,10 +1976,10 @@ msgid " (short-term)"
 msgstr ""
 
 msgid " Discontinued %s\n"
-msgstr ""
+msgstr " Descontinuado %s\n"
 
 msgid " Reason: %s\n"
-msgstr ""
+msgstr " Razão: %s\n"
 
 msgid " Aim: %s\n"
 msgstr ""
@@ -1984,7 +1991,7 @@ msgid " Advice: %s\n"
 msgstr ""
 
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
+msgstr "Revisão: #%(row_ver)s, %(mod_when)s por %(mod_by)s."
 
 msgid "Additional notes"
 msgstr "Notas adicionais"
@@ -2072,20 +2079,130 @@ msgstr ""
 msgid " %s: %s%s%s"
 msgstr ""
 
-msgid "   Doc: %s"
-msgstr "   Doc: %s"
+msgid "Result from %s             \n"
+msgstr ""
 
-msgid "   MTA: %s"
-msgstr "   MTA: %s"
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
 
-msgid "abnormal and relevant"
-msgstr "anormal e relevante"
+msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
 
-msgid "normal but relevant"
-msgstr "normal mas relevante"
+msgid "Source: %s\n"
+msgstr "Fonte: %s\n"
 
-msgid "   unreviewed"
-msgstr "   não revisado"
+msgid "%.1f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.0f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.1f times the normal upper limit"
+msgstr ""
+
+msgid "%.0f times the normal upper limit"
+msgstr ""
+
+msgid "%.1f %% of the target lower limit"
+msgstr ""
+
+msgid "%.0f %% of the target lower limit"
+msgstr ""
+
+msgid "%.1f times the target upper limit"
+msgstr ""
+
+msgid "%.0f times the target upper limit"
+msgstr ""
+
+msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgstr ""
+
+msgid "Reference group: %s\n"
+msgstr ""
+
+msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+msgstr ""
+
+msgid ""
+"\n"
+" Doc: "
+msgstr ""
+
+msgid "Doc: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Lab: "
+msgstr ""
+
+msgid "Lab: %s\n"
+msgstr ""
+
+msgid "Episode: %s\n"
+msgstr ""
+
+msgid "Issue: %s\n"
+msgstr ""
+
+msgid "Material: %s\n"
+msgstr ""
+
+msgid "Details: %s\n"
+msgstr ""
+
+msgid "not yet"
+msgstr ""
+
+msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
+msgstr ""
+
+msgid "Responsible clinician: %s\n"
+msgstr ""
+
+msgid "you"
+msgstr ""
+
+msgid "Last reviewer: %(reviewer)s\n"
+msgstr ""
+
+msgid " Technically abnormal: %(abnormal)s\n"
+msgstr ""
+
+msgid "yes"
+msgstr ""
+
+msgid "no"
+msgstr ""
+
+msgid " Clinically relevant: %(relevant)s\n"
+msgstr ""
+
+msgid "Test type details:\n"
+msgstr ""
+
+msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Type comment:"
+msgstr ""
+
+msgid "Type comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Group comment: "
+msgstr ""
+
+msgid "Group comment: %s\n"
+msgstr ""
+
+msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr ""
 
 msgid "unknown test results output format [%s]"
 msgstr "formato de resultado de exame não reconhecido [%s]"
@@ -2156,7 +2273,7 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr ""
 
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
-msgstr ""
+msgstr "%(last)s,%(title)s %(first)s%(nick)s"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Não é possível mesclar o paciente ativo com outro paciente."
@@ -2242,7 +2359,7 @@ msgid "full name"
 msgstr "nome completo"
 
 msgid "message"
-msgstr ""
+msgstr "mensagem"
 
 #, fuzzy
 msgid "virtual message"
@@ -2270,9 +2387,6 @@ msgstr "Problemas Ativos"
 #, fuzzy
 msgid "Inactive clinical hint"
 msgstr "não relevante clinicamente"
-
-msgid "Source: %s\n"
-msgstr ""
 
 #, fuzzy
 msgid "Language: %s\n"
@@ -7242,6 +7356,86 @@ msgstr ""
 "funcionará\n"
 "de maneira correta em todos os casos!"
 
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+" (for the public and any new GNUmed data-\n"
+"  bases the default user name and password\n"
+"  are {any-doc, any-doc})\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Não foi possíivel conectar ao Banco de Dados:\n"
+"%s\n"
+"\n"
+"Você tem certeza que tem um banco de dados local instalado ?\n"
+"\n"
+"Por favor tente novamente com o login e senha corretas ou cancele.\n"
+"\n"
+"Você também pode checar o arquivo pg_hba.conf na configuração de "
+"autenticação do PostgreSQL. Mais detalhes em:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"For the public and any new GNUmed databases the\n"
+"default user name and password are {any-doc, any-doc}.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+"Não foi possível conectar ao Banco de Dados:\n"
+"\n"
+"%s\n"
+"\n"
+"Favor tentar com o login e senha adequados ou cancelar.\n"
+"\n"
+"Você também pode verificar a autenticação do cliente PostgreSQL\n"
+"no arquivo de configuração pg_hba.conf. Para\n"
+"mais informações, veja:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#, fuzzy
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+"\n"
+" (for the public and any new GNUmed databases\n"
+"  the default user name and password are\n"
+"  {any-doc, any-doc})\n"
+"\n"
+msgstr ""
+"Não foi possivel conectar ao Banco de Dados:\n"
+"\n"
+"%s\n"
+"\n"
+"Favor tentar outro Servidor / Usuário / Senha!\n"
+
 msgid ""
 "The database you connected to does not seem\n"
 "to have been boostrapped properly.\n"
@@ -7315,7 +7509,8 @@ msgstr "Bem vindo a"
 msgid "Cannot find image"
 msgstr "Não foi possível achar imagem"
 
-msgid "\"%s\" (version %s)"
+#, fuzzy
+msgid "Workplace \"%s\" (version %s)"
 msgstr "\"$s\" (versão %s)"
 
 msgid "Log into"
@@ -7353,23 +7548,25 @@ msgid "Help for login screen"
 msgstr "Ajuda para a janela de login"
 
 msgid ""
-"GNUmed main login screen\n"
+"Unable to connect to the database ?\n"
 "\n"
-"Welcome to the GNUmed client. Shown are the current\n"
-"\"Workplace\" and (version).\n"
+" \"PostgreSQL: FATAL:  password authentication failed ...\"\n"
 "\n"
-"You may select to log into a public database with username\n"
-"and password {any-doc, any-doc}. Any other database\n"
-"(including a local one) must first be separately installed\n"
-"before you can log in.\n"
+"The default user name and password are {any-doc, any-doc}\n"
+"for the public and any new GNUmed databases.\n"
+"\n"
+" \"... could not connect to server ...\"\n"
+"\n"
+"Mostly this is a case of new users who did not yet install\n"
+"or configure a PostgreSQL server and/or a GNUmed database\n"
+"of their own, which you must do before you can connect to\n"
+"anything other than the public demonstration database, see\n"
+"\n"
+" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For assistance on using GNUmed please consult the wiki:\n"
 "\n"
 " http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual\n"
-"\n"
-"and to install a local database see:\n"
-"\n"
-" http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall\n"
 "\n"
 "For more help than the above, please contact:\n"
 "\n"
@@ -7379,6 +7576,10 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+
+#, fuzzy
+msgid "HELP for GNUmed main login screen"
+msgstr "Ajuda para a janela de login"
 
 msgid "Dialog was cancelled by user"
 msgstr "Janela foi cancelada pelo usuário"
@@ -8396,6 +8597,27 @@ msgstr "nome, data de nascimento"
 msgid "Invalid date of death."
 msgstr ""
 
+#, fuzzy
+msgid "Adding name"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid ""
+"Cannot add this name to the patient !\n"
+"\n"
+" %s"
+msgstr "Paciente ativo"
+
+#, fuzzy
+msgid "Editing name"
+msgstr "Editando endereço"
+
+msgid ""
+"Cannot clone a copy of this name !\n"
+"\n"
+" %s"
+msgstr ""
+
 msgid "Lastname"
 msgstr "Sobrenome"
 
@@ -8407,10 +8629,6 @@ msgstr "Apelido"
 
 msgid "Adding new name"
 msgstr "Adicionando novo nome"
-
-#, fuzzy
-msgid "Editing name"
-msgstr "Editando endereço"
 
 msgid "Cannot delete the only name of a person."
 msgstr "Não é possível apagar o único nome da pessoa."
@@ -9085,7 +9303,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed the filename to %(l10n_action)s."
 msgstr ""
@@ -9097,8 +9315,8 @@ msgid ""
 "Cannot %(l10n_action)s document part - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
 msgstr ""
@@ -9115,7 +9333,7 @@ msgstr ""
 msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command not found.\n"
 "\n"
-"Either of gm_%(action)s_doc.sh or gm_%(action)s_doc.bat\n"
+"Either of gm-%(action)s_doc or gm-%(action)s_doc.bat\n"
 "must be in the execution path. The command will\n"
 "be passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -9127,8 +9345,8 @@ msgid ""
 "Cannot %(l10n_action)s document - %(l10n_action)s command failed.\n"
 "\n"
 "You may need to check and fix either of\n"
-" gm_%(action)s_doc.sh (Unix/Mac) or\n"
-" gm_%(action)s_doc.bat (Windows)\n"
+" gm-%(action)s_doc (Unix/Mac) or\n"
+" gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed a list of filenames to %(l10n_action)s."
 msgstr ""
@@ -9973,12 +10191,6 @@ msgstr ""
 msgid "Cannot delete family history item."
 msgstr ""
 
-msgid "yes"
-msgstr ""
-
-msgid "no"
-msgstr ""
-
 #, fuzzy
 msgid "Family history of this patient."
 msgstr "Detalhes da fila de espera para esse paciente."
@@ -10608,6 +10820,10 @@ msgstr "Adicione um resultado de medição para o paciente atual"
 #, fuzzy
 msgid "&Measurements"
 msgstr "Adiionar &Resultados/Medidas"
+
+#, fuzzy
+msgid "Manage measurement results for the current patient."
+msgstr "Adicione um resultado de medição para o paciente atual"
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr ""
@@ -11638,6 +11854,10 @@ msgstr "Não foi possível adicionar problema de saúde. Não há paciente ativo
 msgid "Cannot add measurement. No active patient."
 msgstr ""
 
+#, fuzzy
+msgid "Cannot manage measurements. No active patient."
+msgstr "Não foi possível adicionar problema de saúde. Não há paciente ativo."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr "Não é possível mostrar resumo de Prontuário. Não há paciente ativo."
 
@@ -12080,6 +12300,10 @@ msgstr ""
 msgid "no primary in-praxis provider"
 msgstr ""
 
+#, fuzzy
+msgid "no results for this patient (available or selected)"
+msgstr "Mover descrição para outro episódio"
+
 msgid "PHX: Invalid placeholder options."
 msgstr ""
 
@@ -12204,6 +12428,16 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
+msgid "Test results (ordered reverse-chronologically)"
+msgstr ""
+
+#, fuzzy
+msgid "Showing test results."
+msgstr "Agrupar pacientes"
+
+msgid "Abbrev"
+msgstr ""
+
 msgid "No default Gnuplot script template selected."
 msgstr ""
 
@@ -12263,126 +12497,7 @@ msgstr ""
 msgid "Cannot plot results. No results selected."
 msgstr ""
 
-msgid "Details of most recent (topmost) result:               \n"
-msgstr ""
-
-msgid "Date: %s\n"
-msgstr ""
-
-msgid "Result from %s             \n"
-msgstr ""
-
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "%.1f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.0f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.1f times the normal upper limit"
-msgstr ""
-
-msgid "%.0f times the normal upper limit"
-msgstr ""
-
-msgid "%.1f %% of the target lower limit"
-msgstr ""
-
-msgid "%.0f %% of the target lower limit"
-msgstr ""
-
-msgid "%.1f times the target upper limit"
-msgstr ""
-
-msgid "%.0f times the target upper limit"
-msgstr ""
-
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
-
-msgid "Reference group: %s\n"
-msgstr ""
-
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid "Episode: %s\n"
-msgstr ""
-
-msgid "Issue: %s\n"
-msgstr ""
-
-msgid "Material: %s\n"
-msgstr ""
-
-msgid "Details: %s\n"
-msgstr ""
-
-msgid "not yet"
-msgstr ""
-
-msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
-msgstr ""
-
-msgid "you"
-msgstr ""
-
-msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
-
-msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
-
-msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
-
-msgid "Test type details:\n"
-msgstr ""
-
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Type comment:"
-msgstr ""
-
-msgid "Type comment: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Group comment: "
-msgstr ""
-
-msgid "Group comment: %s\n"
-msgstr ""
-
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgid "Details of most recent (topmost) result !               \n"
 msgstr ""
 
 #, fuzzy
@@ -12473,9 +12588,6 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
-msgstr ""
-
-msgid "Abbrev"
 msgstr ""
 
 #, fuzzy
@@ -15264,6 +15376,21 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid "   Doc: %s"
+#~ msgstr "   Doc: %s"
+
+#~ msgid "   MTA: %s"
+#~ msgstr "   MTA: %s"
+
+#~ msgid "abnormal and relevant"
+#~ msgstr "anormal e relevante"
+
+#~ msgid "normal but relevant"
+#~ msgstr "normal mas relevante"
+
+#~ msgid "   unreviewed"
+#~ msgstr "   não revisado"
 
 #~ msgid "Display Persons"
 #~ msgstr "Mostrar Pessoas"

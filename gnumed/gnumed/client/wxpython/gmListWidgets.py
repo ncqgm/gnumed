@@ -18,16 +18,17 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
 
-import sys, types
+import sys
+import types
+import logging
+import thread
 
 
 import wx
 import wx.lib.mixins.listctrl as listmixins
 
 
-if __name__ == '__main__':
-	sys.path.insert(0, '../../')
-
+_log = logging.getLogger('gm.list_ui')
 #================================================================
 # FIXME: configurable callback on double-click action
 
@@ -883,6 +884,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 	def __init__(self, *args, **kwargs):
 
+		self.debug = None
+
 		try:
 			kwargs['style'] = kwargs['style'] | wx.LC_REPORT
 		except KeyError:
@@ -950,14 +953,21 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(col = idx, width = width_type)
 	#------------------------------------------------------------
-	def set_string_items(self, items = None):
+	def set_string_items(self, items=None):
 		"""All item members must be unicode()able or None."""
 
-		self.DeleteAllItems()
-		self.__data = items
-		self.__tt_last_item = None
+		if self.debug is not None:
+			_log.debug('GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', self.GetItemCount(), self.debug, thread.get_ident())
+		if not self.DeleteAllItems():
+			_log.debug('DeleteAllItems() failed (%s)', self.debug)
+		item_count = self.GetItemCount()
+		if self.debug is not None:
+			_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
+		if item_count != 0:
+			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
 
 		if items is None:
+			self.data = None
 			return
 
 		for item in items:
@@ -965,6 +975,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				item[0]
 				if not isinstance(item, basestring):
 					is_numerically_iterable = True
+				# do not iterate over individual chars in a string, however
 				else:
 					is_numerically_iterable = False
 			except TypeError:
@@ -975,19 +986,22 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				# None/ints/unicode strings fail to get encoded
 				col_val = unicode(item[0])
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-				for col_idx in range(1, min(self.GetColumnCount(), len(item))):
-					col_val = unicode(item[col_idx])
-					self.SetStringItem(index = row_num, col = col_idx, label = col_val)
+				for col_num in range(1, min(self.GetColumnCount(), len(item))):
+					col_val = unicode(item[col_num])
+					self.SetStringItem(index = row_num, col = col_num, label = col_val)
 			else:
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+
+		self.data = items
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
 		if data is not None:
-			if len(data) != (self.ItemCount):
-				raise ValueError('<data> length (%s) must be equal to number of list items (%s)' % (len(data), self.ItemCount))
+			item_count = self.GetItemCount()
+			if len(data) != item_count:
+				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
 		self.__data = data
 		self.__tt_last_item = None
 		return
@@ -1246,6 +1260,8 @@ if __name__ == '__main__':
 
 	if sys.argv[1] != 'test':
 		sys.exit()
+
+	sys.path.insert(0, '../../')
 
 	from Gnumed.pycommon import gmI18N
 	gmI18N.activate_locale()

@@ -629,6 +629,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Add (a) measurement result(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
 
+		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Manage measurement results for the current patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_measurements, item)
+
 		item = menu_emr_edit.Append(-1, _('&Vaccinations'), _('Add (a) vaccination(s) for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_add_vaccination, item)
 
@@ -2638,6 +2641,13 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		gmMeasurementWidgets.edit_measurement(parent = self, measurement = None)
 		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_measurements(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage measurements. No active patient.'))
+			return False
+		gmMeasurementWidgets.manage_measurements(parent = self, single_selection = True, emr = pat.emr)
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()

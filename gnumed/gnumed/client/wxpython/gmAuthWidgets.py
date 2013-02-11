@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 """GNUmed authentication widgets.
 
 This module contains widgets and GUI
@@ -158,6 +159,10 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						'\n'
 						"Please retry with proper credentials or cancel.\n"
 						'\n'
+						' (for the public and any new GNUmed data-\n'
+						'  bases the default user name and password\n'
+						'  are {any-doc, any-doc})\n'
+						'\n'
 						'You may also need to check the PostgreSQL client\n'
 						'authentication configuration in pg_hba.conf. For\n'
 						'details see:\n'
@@ -169,6 +174,9 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 						"Unable to connect to database:\n\n"
 						"%s\n\n"
 						"Please retry with proper credentials or cancel.\n"
+						"\n"
+						"For the public and any new GNUmed databases the\n"
+						"default user name and password are {any-doc, any-doc}.\n"
 						"\n"
 						'You may also need to check the PostgreSQL client\n'
 						'authentication configuration in pg_hba.conf. For\n'
@@ -191,6 +199,11 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				"Unable to connect to database:\n\n"
 				"%s\n\n"
 				"Please retry another backend / user / password combination !\n"
+				"\n"
+				" (for the public and any new GNUmed databases\n"
+				"  the default user name and password are\n"
+				"  {any-doc, any-doc})\n"
+				"\n"
 			) % gmPG2.extract_msg_from_pg_exception(e)
 			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
 			gmGuiHelpers.gm_show_error (
@@ -436,7 +449,7 @@ class cLoginPanel(wx.Panel):
 				border = 10
 			)
 
-		paramsbox_caption = _('"%s" (version %s)') % (gmSurgery.gmCurrentPractice().active_workplace, client_version)
+		paramsbox_caption = _('Workplace "%s" (version %s)') % (gmSurgery.gmCurrentPractice().active_workplace, client_version)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -749,23 +762,25 @@ class cLoginPanel(wx.Panel):
 	def OnHelp(self, event):
 		praxis = gmSurgery.gmCurrentPractice()
 		wx.MessageBox(_(
-"""GNUmed main login screen
+u"""Unable to connect to the database ?
 
-Welcome to the GNUmed client. Shown are the current
-"Workplace" and (version).
+ "PostgreSQL: FATAL:  password authentication failed ..."
 
-You may select to log into a public database with username
-and password {any-doc, any-doc}. Any other database
-(including a local one) must first be separately installed
-before you can log in.
+The default user name and password are {any-doc, any-doc}
+for the public and any new GNUmed databases.
+
+ "... could not connect to server ..."
+
+Mostly this is a case of new users who did not yet install
+or configure a PostgreSQL server and/or a GNUmed database
+of their own, which you must do before you can connect to
+anything other than the public demonstration database, see
+
+ http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
 
 For assistance on using GNUmed please consult the wiki:
 
  http://wiki.gnumed.de/bin/view/Gnumed/GnumedManual
-
-and to install a local database see:
-
- http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
 
 For more help than the above, please contact:
 
@@ -773,7 +788,8 @@ For more help than the above, please contact:
 
 For local assistance please contact:
 
- %s""") % praxis.helpdesk)
+ %s""") % praxis.helpdesk,
+ 		caption = _('HELP for GNUmed main login screen'))
 
 	#----------------------------
 	def __on_login_button_pressed(self, event):

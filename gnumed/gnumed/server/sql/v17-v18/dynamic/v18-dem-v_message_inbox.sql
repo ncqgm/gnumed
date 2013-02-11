@@ -10,6 +10,15 @@
 
 -- --------------------------------------------------------------
 \unset ON_ERROR_STOP
+drop index dem.idx_msg_inbox_fk_staff cascade;
+drop index dem.idx_msg_inbox_fk_patient cascade;
+\set ON_ERROR_STOP 1
+
+create index idx_msg_inbox_fk_staff on dem.message_inbox(fk_staff);
+create index idx_msg_inbox_fk_patient on dem.message_inbox(fk_patient);
+
+-- --------------------------------------------------------------
+\unset ON_ERROR_STOP
 drop view dem.v_message_inbox cascade;
 \set ON_ERROR_STOP 1
 

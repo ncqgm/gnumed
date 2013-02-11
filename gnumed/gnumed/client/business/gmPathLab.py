@@ -608,41 +608,309 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_request'
 	]
 	#--------------------------------------------------------
-	def format(self, with_review=True, with_comments=True, date_format='%Y-%m-%d %H:%M'):
+#	def format_old(self, with_review=True, with_comments=True, date_format='%Y-%m-%d %H:%M'):
+#
+#		lines = []
+#
+#		lines.append(u' %s %s (%s): %s %s%s' % (
+#			self._payload[self._idx['clin_when']].strftime(date_format),
+#			self._payload[self._idx['unified_abbrev']],
+#			self._payload[self._idx['unified_name']],
+#			self._payload[self._idx['unified_val']],
+#			self._payload[self._idx['val_unit']],
+#			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)')
+#		))
+#
+#		if with_comments:
+#			if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
+#				lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
+#			if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
+#				lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
+#
+#		if with_review:
+#			if self._payload[self._idx['reviewed']]:
+#				if self._payload[self._idx['is_clinically_relevant']]:
+#					lines.append(u'   %s  %s: %s' % (
+#						self._payload[self._idx['last_reviewer']],
+#						self._payload[self._idx['last_reviewed']].strftime('%Y-%m-%d %H:%M'),
+#						gmTools.bool2subst (
+#							self._payload[self._idx['is_technically_abnormal']],
+#							_('abnormal and relevant'),
+#							_('normal but relevant')
+#						)
+#					))
+#			else:
+#				lines.append(_('   unreviewed'))
+#
+#		return lines
+	#--------------------------------------------------------
+	def format(self, with_review=True, with_evaluation=True, with_ranges=True, date_format='%Y %b %d %H:%M'):
 
-		lines = []
+		# FIXME: add battery, request details
 
-		lines.append(u' %s %s (%s): %s %s%s' % (
-			self._payload[self._idx['clin_when']].strftime(date_format),
-			self._payload[self._idx['unified_abbrev']],
-			self._payload[self._idx['unified_name']],
-			self._payload[self._idx['unified_val']],
-			self._payload[self._idx['val_unit']],
-			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)')
-		))
+		has_normal_min_or_max = (
+			self._payload[self._idx['val_normal_min']] is not None
+		) or (
+			self._payload[self._idx['val_normal_max']] is not None
+		)
+		if has_normal_min_or_max:
+			normal_min_max = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+			)
+		else:
+			normal_min_max = u''
 
-		if with_comments:
-			if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
-				lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
-			if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
-				lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
+		has_clinical_min_or_max = (
+			self._payload[self._idx['val_target_min']] is not None
+		) or (
+			self._payload[self._idx['val_target_max']] is not None
+		)
+		if has_clinical_min_or_max:
+			clinical_min_max = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+			)
+		else:
+			clinical_min_max = u''
+
+		# header
+		tt = _(u'Result from %s             \n') % gmDateTime.pydt_strftime (
+			self._payload[self._idx['clin_when']],
+			date_format
+		)
+
+		# basics
+		tt += u' ' + _(u'Type: "%(name)s" (%(abbr)s)  [#%(pk_type)s]\n') % ({
+			'name': self._payload[self._idx['name_tt']],
+			'abbr': self._payload[self._idx['abbrev_tt']],
+			'pk_type': self._payload[self._idx['pk_test_type']]
+		})
+		tt += u' ' + _(u'Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n') % ({
+			'val': self._payload[self._idx['unified_val']],
+			'unit': gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
+			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)'),
+			'pk_result': self._payload[self._idx['pk_test_result']]
+		})
+		tmp = (u'%s%s' % (
+			gmTools.coalesce(self._payload[self._idx['name_test_org']], u''),
+			gmTools.coalesce(self._payload[self._idx['contact_test_org']], u'', u' (%s)'),
+		)).strip()
+		if tmp != u'':
+			tt += u' ' + _(u'Source: %s\n') % tmp
+		tt += u'\n'
+
+		if with_evaluation:
+			norm_eval = None
+			if self._payload[self._idx['val_num']] is not None:
+				# 1) normal range
+				# lowered ?
+				if (self._payload[self._idx['val_normal_min']] is not None) and (self._payload[self._idx['val_num']] < self._payload[self._idx['val_normal_min']]):
+					try:
+						percent = (self._payload[self._idx['val_num']] * 100) / self._payload[self._idx['val_normal_min']]
+					except ZeroDivisionError:
+						percent = None
+					if percent is not None:
+						if percent < 6:
+							norm_eval = _(u'%.1f %% of the normal lower limit') % percent
+						else:
+							norm_eval = _(u'%.0f %% of the normal lower limit') % percent
+				# raised ?
+				if (self._payload[self._idx['val_normal_max']] is not None) and (self._payload[self._idx['val_num']] > self._payload[self._idx['val_normal_max']]):
+					try:
+						x_times = self._payload[self._idx['val_num']] / self._payload[self._idx['val_normal_max']]
+					except ZeroDivisionError:
+						x_times = None
+					if x_times is not None:
+						if x_times < 10:
+							norm_eval = _(u'%.1f times the normal upper limit') % x_times
+						else:
+							norm_eval = _(u'%.0f times the normal upper limit') % x_times
+				if norm_eval is not None:
+					tt += u'  (%s)\n' % norm_eval
+	#			#-------------------------------------
+	#			# this idea was shot down on the list
+	#			#-------------------------------------
+	#			# bandwidth of deviation
+	#			if None not in [self._payload[self._idx['val_normal_min']], self._payload[self._idx['val_normal_max']]]:
+	#				normal_width = self._payload[self._idx['val_normal_max']] - self._payload[self._idx['val_normal_min']]
+	#				deviation_from_normal_range = None
+	#				# below ?
+	#				if self._payload[self._idx['val_num']] < self._payload[self._idx['val_normal_min']]:
+	#					deviation_from_normal_range = self._payload[self._idx['val_normal_min']] - self._payload[self._idx['val_num']]
+	#				# above ?
+	#				elif self._payload[self._idx['val_num']] > self._payload[self._idx['val_normal_max']]:
+	#					deviation_from_normal_range = self._payload[self._idx['val_num']] - self._payload[self._idx['val_normal_max']]
+	#				if deviation_from_normal_range is None:
+	#					try:
+	#						times_deviation = deviation_from_normal_range / normal_width
+	#					except ZeroDivisionError:
+	#						times_deviation = None
+	#					if times_deviation is not None:
+	#						if times_deviation < 10:
+	#							tt += u'  (%s)\n' % _(u'deviates by %.1f times of the normal range') % times_deviation
+	#						else:
+	#							tt += u'  (%s)\n' % _(u'deviates by %.0f times of the normal range') % times_deviation
+	#			#-------------------------------------
+
+				# 2) clinical target range
+				norm_eval = None
+				# lowered ?
+				if (self._payload[self._idx['val_target_min']] is not None) and (self._payload[self._idx['val_num']] < self._payload[self._idx['val_target_min']]):
+					try:
+						percent = (self._payload[self._idx['val_num']] * 100) / self._payload[self._idx['val_target_min']]
+					except ZeroDivisionError:
+						percent = None
+					if percent is not None:
+						if percent < 6:
+							norm_eval = _(u'%.1f %% of the target lower limit') % percent
+						else:
+							norm_eval = _(u'%.0f %% of the target lower limit') % percent
+				# raised ?
+				if (self._payload[self._idx['val_target_max']] is not None) and (self._payload[self._idx['val_num']] > self._payload[self._idx['val_target_max']]):
+					try:
+						x_times = self._payload[self._idx['val_num']] / self._payload[self._idx['val_target_max']]
+					except ZeroDivisionError:
+						x_times = None
+					if x_times is not None:
+						if x_times < 10:
+							norm_eval = _(u'%.1f times the target upper limit') % x_times
+						else:
+							norm_eval = _(u'%.0f times the target upper limit') % x_times
+				if norm_eval is not None:
+					tt += u' (%s)\n' % norm_eval
+	#			#-------------------------------------
+	#			# this idea was shot down on the list
+	#			#-------------------------------------
+	#			# bandwidth of deviation
+	#			if None not in [self._payload[self._idx['val_target_min']], self._payload[self._idx['val_target_max']]]:
+	#				normal_width = self._payload[self._idx['val_target_max']] - self._payload[self._idx['val_target_min']]
+	#				deviation_from_target_range = None
+	#				# below ?
+	#				if self._payload[self._idx['val_num']] < self._payload[self._idx['val_target_min']]:
+	#					deviation_from_target_range = self._payload[self._idx['val_target_min']] - self._payload[self._idx['val_num']]
+	#				# above ?
+	#				elif self._payload[self._idx['val_num']] > self._payload[self._idx['val_target_max']]:
+	#					deviation_from_target_range = self._payload[self._idx['val_num']] - self._payload[self._idx['val_target_max']]
+	#				if deviation_from_target_range is None:
+	#					try:
+	#						times_deviation = deviation_from_target_range / normal_width
+	#					except ZeroDivisionError:
+	#						times_deviation = None
+	#				if times_deviation is not None:
+	#					if times_deviation < 10:
+	#						tt += u'  (%s)\n' % _(u'deviates by %.1f times of the target range') % times_deviation
+	#					else:
+	#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
+	#			#-------------------------------------
+
+		if with_ranges:
+			tt += u' ' + _(u'Standard normal range: %(norm_min_max)s%(norm_range)s  \n') % ({
+				'norm_min_max': normal_min_max,
+				'norm_range': gmTools.coalesce (
+					self._payload[self._idx['val_normal_range']],
+					u'',
+					gmTools.bool2subst (
+						has_normal_min_or_max,
+						u' / %s',
+						u'%s'
+					)
+				)
+			})
+			if self._payload[self._idx['norm_ref_group']] is not None:
+				tt += u' ' + _(u'Reference group: %s\n') % self._payload[self._idx['norm_ref_group']]
+			tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
+				'clin_min_max': clinical_min_max,
+				'clin_range': gmTools.coalesce (
+					self._payload[self._idx['val_target_range']],
+					u'',
+					gmTools.bool2subst (
+						has_clinical_min_or_max,
+						u' / %s',
+						u'%s'
+					)
+				)
+			})
+
+		# metadata
+		if self._payload[self._idx['comment']] is not None:
+			tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(self._payload[self._idx['comment']].split(u'\n'))
+		if self._payload[self._idx['note_test_org']] is not None:
+			tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+		tt += u' ' + _(u'Episode: %s\n') % self._payload[self._idx['episode']]
+		if self._payload[self._idx['health_issue']] is not None:
+			tt += u' ' + _(u'Issue: %s\n') % self._payload[self._idx['health_issue']]
+		if self._payload[self._idx['material']] is not None:
+			tt += u' ' + _(u'Material: %s\n') % self._payload[self._idx['material']]
+		if self._payload[self._idx['material_detail']] is not None:
+			tt += u' ' + _(u'Details: %s\n') % self._payload[self._idx['material_detail']]
+		tt += u'\n'
 
 		if with_review:
 			if self._payload[self._idx['reviewed']]:
-				if self._payload[self._idx['is_clinically_relevant']]:
-					lines.append(u'   %s  %s: %s' % (
-						self._payload[self._idx['last_reviewer']],
-						self._payload[self._idx['last_reviewed']].strftime('%Y-%m-%d %H:%M'),
-						gmTools.bool2subst (
-							self._payload[self._idx['is_technically_abnormal']],
-							_('abnormal and relevant'),
-							_('normal but relevant')
-						)
-					))
+				review = gmDateTime.pydt_strftime (
+					self._payload[self._idx['last_reviewed']],
+					date_format
+				)
 			else:
-				lines.append(_('   unreviewed'))
+				review = _('not yet')
+			tt += _(u'Signed (%(sig_hand)s): %(reviewed)s\n') % ({
+				'sig_hand': gmTools.u_writing_hand,
+				'reviewed': review
+			})
+			tt += u' ' + _(u'Responsible clinician: %s\n') % gmTools.bool2subst (
+				self._payload[self._idx['you_are_responsible']],
+				_('you'),
+				self._payload[self._idx['responsible_reviewer']]
+			)
+			if self._payload[self._idx['reviewed']]:
+				tt += u' ' + _(u'Last reviewer: %(reviewer)s\n') % ({
+					'reviewer': gmTools.bool2subst (
+						self._payload[self._idx['review_by_you']],
+						_('you'),
+						gmTools.coalesce(self._payload[self._idx['last_reviewer']], u'?')
+					)
+				})
+				tt += u' ' + _(u' Technically abnormal: %(abnormal)s\n') % ({
+					'abnormal': gmTools.bool2subst (
+						self._payload[self._idx['is_technically_abnormal']],
+						_('yes'),
+						_('no'),
+						u'?'
+					)
+				})
+				tt += u' ' + _(u' Clinically relevant: %(relevant)s\n') % ({
+					'relevant': gmTools.bool2subst (
+						self._payload[self._idx['is_clinically_relevant']],
+						_('yes'),
+						_('no'),
+						u'?'
+					)
+				})
+			if self._payload[self._idx['review_comment']] is not None:
+				tt += u' ' + _(u' Comment: %s\n') % self._payload[self._idx['review_comment']].strip()
+			tt += u'\n'
 
-		return lines
+		# type
+		tt += _(u'Test type details:\n')
+		tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
+			'name_meta': gmTools.coalesce(self._payload[self._idx['name_meta']], u''),
+			'abbrev_meta': gmTools.coalesce(self._payload[self._idx['abbrev_meta']], u''),
+			'pk_u_type': self._payload[self._idx['pk_meta_test_type']]
+		})
+		if self._payload[self._idx['comment_tt']] is not None:
+			tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
+		if self._payload[self._idx['comment_meta']] is not None:
+			tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
+		tt += u'\n'
+
+		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+			'row_ver': self._payload[self._idx['row_version']],
+			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']],date_format),
+			'mod_by': self._payload[self._idx['modified_by']]
+		})
+
+		return tt
 	#--------------------------------------------------------
 	def _get_reference_ranges(self):
 
@@ -847,6 +1115,45 @@ WHERE
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
+def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=None):
+
+	where_parts = []
+
+	if pk_patient is not None:
+		where_parts.append(u'pk_patient = %(pat)s')
+		args = {'pat': pk_patient}
+
+#	if tests is not None:
+#		where_parts.append(u'pk_test_type IN %(tests)s')
+#		args['tests'] = tuple(tests)
+
+	if encounters is not None:
+		where_parts.append(u'pk_encounter IN %(encs)s')
+		args['encs'] = tuple(encounters)
+
+	if episodes is not None:
+		where_parts.append(u'pk_episode IN %(epis)s')
+		args['epis'] = tuple(episodes)
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE %s
+		%s
+	""" % (
+		u' AND '.join(where_parts),
+		order_by
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+	return tests
+
+#------------------------------------------------------------
 def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, tolerance_interval=None, patient=None):
 
 	if None not in [test_type, loinc]:
@@ -885,6 +1192,7 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 		return None
 
 	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
 #------------------------------------------------------------
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
 
@@ -924,16 +1232,17 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
 #------------------------------------------------------------
 def delete_test_result(result=None):
-
 	try:
 		pk = int(result)
 	except (TypeError, AttributeError):
 		pk = result['pk_test_result']
 
-	cmd = u'delete from clin.test_result where pk = %(pk)s'
+	cmd = u'DELETE FROM clin.test_result WHERE pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk}}])
+
 #------------------------------------------------------------
 def create_test_result(encounter=None, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
 
@@ -989,6 +1298,7 @@ where
 	})
 
 	return tr
+
 #------------------------------------------------------------
 def format_test_results(results=None, output_format=u'latex'):
 
@@ -1000,6 +1310,7 @@ def format_test_results(results=None, output_format=u'latex'):
 	msg = _('unknown test results output format [%s]') % output_format
 	_log.error(msg)
 	return msg
+
 #------------------------------------------------------------
 def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_range=True):
 
@@ -1038,6 +1349,7 @@ def __tests2latex_minipage(results=None, width=u'1.5cm', show_time=False, show_r
 				lines.append(tmp)
 
 	return u'\\begin{minipage}{%s} \\begin{flushright} %s \\end{flushright} \\end{minipage}' % (width, u' \\\\ '.join(lines))
+
 #------------------------------------------------------------
 def __tests2latex_cell(results=None, show_time=False, show_range=True):
 
@@ -1083,6 +1395,7 @@ def __tests2latex_cell(results=None, show_time=False, show_range=True):
 		lines.append(tmp)
 
 	return u' \\\\ '.join(lines)
+
 #------------------------------------------------------------
 def __format_test_results_latex(results=None):
 

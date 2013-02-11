@@ -732,20 +732,20 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _on_loose_focus(self, evt):
 		# - redraw the currently active name upon losing focus
-
+		#
 		# if we use wx.EVT_KILL_FOCUS we will also receive this event
 		# when closing our application or loosing focus to another
 		# application which is NOT what we intend to achieve,
 		# however, this is the least ugly way of doing this due to
 		# certain vagaries of wxPython (see the Wiki)
-
+		evt.Skip()
+		wx.CallAfter(self.__on_lost_focus)
+	#--------------------------------------------------------
+	def __on_lost_focus(self):
 		# just for good measure
-		wx.CallAfter(self.SetSelection, 0, 0)
-
+		self.SetSelection(0, 0)
 		self._display_name()
 		self._remember_ident(self.person)
-
-		evt.Skip()
 	#--------------------------------------------------------
 	def __on_char(self, evt):
 		self._on_char(evt)

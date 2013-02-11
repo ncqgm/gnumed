@@ -30,6 +30,8 @@ NEW: score: prediction of bacterial conjunctivitis
 NEW: placeholder $<documents>$, include/export documents
 NEW: list placeholders from within client
 NEW: show (e)GFR in substance intake EA
+NEW: placeholder $<test_results>$, selecting test results from list
+NEW: Epworth Sleepiness Scale
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -57,10 +59,22 @@ IMPROVED: EMR Journal: order grouped by encounter or order by last modified of i
 IMPROVED: SimpleSoap plugin: enable keyword based text expansions
 IMPROVED: patient overview: show comment on contact in tooltip
 IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
+IMPROVED: database translation contribution code
+IMPROVED: login dialog help text [thanks J.Busser]
 
 ------------------------------------------------
 # rel-1-2-patches
 ------------------------------------------------
+
+	1.2.8
+
+FIX: backport existence check in expando layout handling
+FIX: exception on adding duplicate active name [thanks J.Busser]
+
+IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
+IMPROVED: $<progress_notes>$ placeholder: template handling
+IMPROVED: $<emr_journal>$ placeholder: time_range can be any PG interval
+IMPROVED: instrument code to track list widget bug
 
 	1.2.7
 
@@ -1199,6 +1213,10 @@ IMPROVED: include PK columns in schema version check
 ------------------------------------------------
 # gnumed_v17
 ------------------------------------------------
+
+	17.9
+
+FIX: senior installations might have clin_narrative_soap_cat_check [thanks M.Angermann]
 
 	17.6
 
