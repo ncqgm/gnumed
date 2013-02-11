@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.rc3 (database v18.rc3)',
-	'GNUmed 1.3.rc3 Release Notes:
+	'Release Notes for GNUmed 1.3.rc4 (database v18.rc4)',
+	'GNUmed 1.3.rc4 Release Notes:
 
-	1.3.rc3
+	1.3.rc4
 
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
@@ -44,6 +44,8 @@ NEW: score: prediction of bacterial conjunctivitis
 NEW: placeholder $<documents>$, include/export documents
 NEW: list placeholders from within client
 NEW: show (e)GFR in substance intake EA
+NEW: placeholder $<test_results>$, selecting test results from list
+NEW: Epworth Sleepiness Scale
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -71,8 +73,10 @@ IMPROVED: EMR Journal: order grouped by encounter or order by last modified of i
 IMPROVED: SimpleSoap plugin: enable keyword based text expansions
 IMPROVED: patient overview: show comment on contact in tooltip
 IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
+IMPROVED: database translation contribution code
+IMPROVED: login dialog help text [thanks J.Busser]
 
-	18.rc3
+	18.rc4
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 IMPROVED: include PK columns in schema version check
