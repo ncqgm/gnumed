@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:24+CET\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -12447,7 +12447,7 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy

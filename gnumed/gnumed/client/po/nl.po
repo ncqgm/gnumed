@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:24+CET\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -13189,7 +13189,7 @@ msgstr "Nieuwe meting toevoegen"
 msgid "Editing measurement"
 msgstr "Meting bewerken"
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy

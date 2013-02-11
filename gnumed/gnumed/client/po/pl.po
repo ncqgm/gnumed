@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:24+CET\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -19,64 +19,64 @@ msgstr ""
 "X-Generator: Launchpad (build 15376)\n"
 
 msgid "Jan"
-msgstr ""
+msgstr "sty"
 
 msgid "Feb"
-msgstr ""
+msgstr "lut"
 
 #, fuzzy
 msgid "Mar"
 msgstr "Pan"
 
 msgid "Apr"
-msgstr ""
+msgstr "kwi"
 
 msgid "May"
-msgstr ""
+msgstr "maj"
 
 msgid "Jun"
-msgstr ""
+msgstr "cze"
 
 msgid "Jul"
-msgstr ""
+msgstr "lip"
 
 msgid "Aug"
-msgstr ""
+msgstr "sie"
 
 msgid "Sep"
-msgstr ""
+msgstr "wrz"
 
 msgid "Oct"
-msgstr ""
+msgstr "paź"
 
 #, fuzzy
 msgid "Nov"
 msgstr "Nie"
 
 msgid "Dec"
-msgstr ""
+msgstr "gru"
 
 msgid "Mon"
-msgstr ""
+msgstr "Pn"
 
 msgid "Tue"
-msgstr ""
+msgstr "Wt"
 
 msgid "Wed"
-msgstr ""
+msgstr "Śr"
 
 msgid "Thu"
-msgstr ""
+msgstr "Czw"
 
 msgid "Fri"
-msgstr ""
+msgstr "Pt"
 
 #, fuzzy
 msgid "Sat"
 msgstr "Województwo"
 
 msgid "Sun"
-msgstr ""
+msgstr "Nd"
 
 msgid ""
 "Could not find iCalendar Python package. It is required for working with ICS "
@@ -101,16 +101,16 @@ msgid "Unable to read timeline data from '%s'."
 msgstr "Błąd odczytu linii czasu z '%s'."
 
 msgid "Displayed period must be > 0."
-msgstr ""
+msgstr "Wyświetlony przedział czasu musi być >0"
 
 msgid "Welcome"
-msgstr ""
+msgstr "Witaj"
 
 msgid "Welcome to Timeline"
-msgstr ""
+msgstr "Witaj w Timeline"
 
 msgid "Intro"
-msgstr ""
+msgstr "Wprowadzenie"
 
 msgid "Hover me!"
 msgstr ""
@@ -119,10 +119,10 @@ msgid "Hovering events with a triangle shows the event description."
 msgstr ""
 
 msgid "Features"
-msgstr ""
+msgstr "Cechy"
 
 msgid "Scroll"
-msgstr ""
+msgstr "Przewijanie"
 
 msgid ""
 "Left click somewhere on the timeline and start dragging.\n"
@@ -131,15 +131,23 @@ msgid ""
 "\n"
 "You can also middle click with the mouse to center around that point."
 msgstr ""
+"Kliknij lewym przyciskiem na oś czasu i zacznij przeciągać.\n"
+"\n"
+"Możesz także użyć rolki myszy.\n"
+"\n"
+"Możesz kliknąć środkowym przyciskiem, by wyśrodkować na danym punkcie."
 
 msgid "Zoom"
-msgstr ""
+msgstr "Przybliżenie"
 
 msgid ""
 "Hold down Ctrl while scrolling the mouse wheel.\n"
 "\n"
 "Hold down Shift while dragging with the mouse."
 msgstr ""
+"Przytrzymaj Ctrl podczas przewijania za pomocą rolki myszy.\n"
+"\n"
+"Przytrzymaj Shift podczas przeciągania."
 
 #, fuzzy
 msgid "Create event"
@@ -150,38 +158,44 @@ msgid ""
 "\n"
 "Hold down Ctrl while dragging the mouse to select a period."
 msgstr ""
+"Kliknij podwójnie na osi czasu.\n"
+"\n"
+"Przytrzymaj Ctrl podczas przeciągania, by wybrać okres."
 
 #, fuzzy
 msgid "Edit event"
 msgstr "nieaktywny"
 
 msgid "Double click on an event."
-msgstr ""
+msgstr "Kliknij podwójnie na zdarzeniu."
 
 msgid "Select event"
-msgstr ""
+msgstr "Wybierz zdarzenie"
 
 msgid ""
 "Click on it.\n"
 "\n"
 "Hold down Ctrl while clicking events to select multiple."
 msgstr ""
+"Kliknij na nim.\n"
+"\n"
+"Przytrzymaj Ctrl podczas klikania, by wybrać więcej okresów."
 
 #, fuzzy
 msgid "Delete event"
 msgstr "Dokumenty:"
 
 msgid "Select events to be deleted and press the Del key."
-msgstr ""
+msgstr "Wybierz zdarzenia do usunięcia i wciśnij klawisz Del."
 
 msgid "Resize and move me!"
-msgstr ""
+msgstr "Zmień rozmiar i przenieś mnie!"
 
 msgid "First select me and then drag the handles."
-msgstr ""
+msgstr "Najpierw mnie zaznacz, a potem chwyć za uchwyt i przeciągnij."
 
 msgid "Saving"
-msgstr ""
+msgstr "Zapisywanie"
 
 msgid ""
 "This timeline is stored in memory and modifications to it will not be "
@@ -191,13 +205,13 @@ msgid ""
 msgstr ""
 
 msgid "Start time "
-msgstr ""
+msgstr "Czas rozpoczęcia "
 
 msgid "End time "
-msgstr ""
+msgstr "Czas zakończenia "
 
 msgid "Start time can't be after end time"
-msgstr ""
+msgstr "Rozpoczęcie nie może być po zakończeniu"
 
 msgid "Unable to save timeline data to '%s'. File left unmodified."
 msgstr "Błąd zapisu danych linii czasu do pliku '%s'. Plik pozostał bez zmian."
@@ -230,7 +244,7 @@ msgid "End must be > Start"
 msgstr "Data końcowa nie może być wcześniejsza niż początkowa"
 
 msgid "Entered period is too long."
-msgstr ""
+msgstr "Wprowadzony przedział czasu jest zbyt długi."
 
 msgid "Text"
 msgstr "Tekst"
@@ -316,6 +330,10 @@ msgid ""
 "category. All events that belong to the same category are displayed with the "
 "same background color.\n"
 msgstr ""
+"\n"
+"Kategorie służą do grupowania zdarzeń. Zdarzeniu można przypisać tylko jedną "
+"kategorię. Zdarzenia z tej samej kategorii są wyświetlane z takim samym "
+"kolorem tła.\n"
 
 msgid ""
 "\n"
@@ -340,13 +358,16 @@ msgid ""
 msgstr ""
 
 msgid "Move event vertically"
-msgstr ""
+msgstr "Przesuń zdarzenie w pionie"
 
 msgid ""
 "\n"
 "An event can be moved vertically. This is done by first selecting the event "
 "and therefter using the Alt+Up or Alt+Down keys.\n"
 msgstr ""
+"\n"
+"Zdarzenie może być przesunięte w pionie. Po wybraniu zdarzenia wciśnij "
+"klawisze Alt+strzałka w górę lub Alt+strzałka w dół.\n"
 
 #, fuzzy
 msgid "Selecting events"
@@ -357,6 +378,9 @@ msgid ""
 "To select an event, click on it. To select multiple events, hold down the "
 "*Ctrl* key while clicking events.\n"
 msgstr ""
+"\n"
+"Kliknij na zdarzeniu by je wybrać. Przytrzymaj klawisz *Ctrl*, by wybrać "
+"wiele zdarzeń.\n"
 
 msgid ""
 "\n"
@@ -11810,7 +11834,7 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy
@@ -14726,10 +14750,10 @@ msgid "Prescribed For"
 msgstr ""
 
 msgid "Quantity"
-msgstr ""
+msgstr "Ilość"
 
 msgid "First Date"
-msgstr ""
+msgstr "Pierwsza data"
 
 #, fuzzy
 #~ msgid "abnormal and relevant"

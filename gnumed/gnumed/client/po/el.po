@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2013-02-11 13:00+CET\n"
+"POT-Creation-Date: 2013-02-11 14:24+CET\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -96,20 +96,20 @@ msgid ""
 msgstr ""
 
 msgid "Unable to open timeline '%s'."
-msgstr ""
+msgstr "Αδύνατο το άνοιγμα ου χρονοδιαγράμματος '%s'."
 
 #, fuzzy
 msgid "Unknown format."
 msgstr "Άγνωστη αντίδραση"
 
 msgid "Unable to read from file '%s'."
-msgstr ""
+msgstr "Αδυναμία ανάγνωσης από το αρχείο '%s'."
 
 msgid "Unable to read timeline data from '%s'."
-msgstr ""
+msgstr "Αδυναμία ανάγνωσης  δεδομένων χρονοδιαγράμματος από το '%s'."
 
 msgid "Displayed period must be > 0."
-msgstr ""
+msgstr "Η εμφανιζόμενη χρονική περίοδος πρέπει να είναι > 0."
 
 #, fuzzy
 msgid "Welcome"
@@ -150,6 +150,9 @@ msgid ""
 "\n"
 "Hold down Shift while dragging with the mouse."
 msgstr ""
+"Κρατήστε πατημένο το Ctrl καθώς κάνετε κύλιση με το ροδάκι του ποντικιού.\n"
+"\n"
+"Κρατήστε πατημένο το Shift καθώς σύρετε με το ποντίκι."
 
 #, fuzzy
 msgid "Create event"
@@ -11820,7 +11823,7 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:25+CET\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -19,17 +19,17 @@ msgstr ""
 "X-Generator: Launchpad (build 15376)\n"
 
 msgid "Jan"
-msgstr ""
+msgstr "Янв"
 
 msgid "Feb"
-msgstr ""
+msgstr "Фев"
 
 #, fuzzy
 msgid "Mar"
 msgstr "Гражданин"
 
 msgid "Apr"
-msgstr ""
+msgstr "Апр"
 
 #, fuzzy
 msgid "May"
@@ -52,7 +52,7 @@ msgid "Sep"
 msgstr "Установка"
 
 msgid "Oct"
-msgstr ""
+msgstr "Окт"
 
 #, fuzzy
 msgid "Nov"
@@ -63,17 +63,17 @@ msgid "Dec"
 msgstr "Doc"
 
 msgid "Mon"
-msgstr ""
+msgstr "Пн"
 
 #, fuzzy
 msgid "Tue"
 msgstr "Срок завершения"
 
 msgid "Wed"
-msgstr ""
+msgstr "Ср"
 
 msgid "Thu"
-msgstr ""
+msgstr "Чт"
 
 #, fuzzy
 msgid "Fri"
@@ -92,6 +92,8 @@ msgid ""
 "files. See the Timeline website or the INSTALL file for instructions how to "
 "install it."
 msgstr ""
+"Пакет Python для iCalendar не найден. Он необходим для работы с файлами ICS. "
+"Как его установить, см. инструкции на сайте Timeline или в файле INSTALL."
 
 #, fuzzy
 msgid "Unable to open timeline '%s'."
@@ -102,14 +104,14 @@ msgid "Unknown format."
 msgstr "неизвестная реакция"
 
 msgid "Unable to read from file '%s'."
-msgstr ""
+msgstr "Невозможно прочитать из файла '%s'."
 
 #, fuzzy
 msgid "Unable to read timeline data from '%s'."
 msgstr "Сбой удаления пациента из списка %s"
 
 msgid "Displayed period must be > 0."
-msgstr ""
+msgstr "Время отображения должно быть  > 0."
 
 #, fuzzy
 msgid "Welcome"
@@ -120,19 +122,19 @@ msgid "Welcome to Timeline"
 msgstr "Добро пожаловать в"
 
 msgid "Intro"
-msgstr ""
+msgstr "Введение"
 
 msgid "Hover me!"
-msgstr ""
+msgstr "Наведи на меня!"
 
 msgid "Hovering events with a triangle shows the event description."
-msgstr ""
+msgstr "При наведении на событие с треугольником показывает описание события."
 
 msgid "Features"
-msgstr ""
+msgstr "Функции"
 
 msgid "Scroll"
-msgstr ""
+msgstr "Прокрутить"
 
 msgid ""
 "Left click somewhere on the timeline and start dragging.\n"
@@ -141,15 +143,23 @@ msgid ""
 "\n"
 "You can also middle click with the mouse to center around that point."
 msgstr ""
+"Кликните левой мышкой по чему-нибудь в хронологии и начните протаскивание.\n"
+"\n"
+"Можно также использовать колесико мышки.\n"
+"\n"
+"Можно также кликнуть колесиком мышки для выделения вокруг этой точки."
 
 msgid "Zoom"
-msgstr ""
+msgstr "Увеличить"
 
 msgid ""
 "Hold down Ctrl while scrolling the mouse wheel.\n"
 "\n"
 "Hold down Shift while dragging with the mouse."
 msgstr ""
+"Удерживайте Ctrl при прокручивании колесиком мышки.\n"
+"\n"
+"Удерживайте Shift при протаскивание мышкой."
 
 #, fuzzy
 msgid "Create event"
@@ -160,13 +170,16 @@ msgid ""
 "\n"
 "Hold down Ctrl while dragging the mouse to select a period."
 msgstr ""
+"Дважды кликните что-нибудь в хронологии.\n"
+"\n"
+"Удерживайте Ctrl при протаскивание мышкой для выбора периода."
 
 #, fuzzy
 msgid "Edit event"
 msgstr "Комментарий &Edit"
 
 msgid "Double click on an event."
-msgstr ""
+msgstr "Дважды кликните на событии."
 
 #, fuzzy
 msgid "Select event"
@@ -177,19 +190,22 @@ msgid ""
 "\n"
 "Hold down Ctrl while clicking events to select multiple."
 msgstr ""
+"Кликните по нему.\n"
+"\n"
+"Для выбора нескольких событий при клике удерживайте Ctrl."
 
 #, fuzzy
 msgid "Delete event"
 msgstr "Удаление документа"
 
 msgid "Select events to be deleted and press the Del key."
-msgstr ""
+msgstr "Выберите события для удаления и нажмите клавишу Del."
 
 msgid "Resize and move me!"
-msgstr ""
+msgstr "Измените размер и переместите!"
 
 msgid "First select me and then drag the handles."
-msgstr ""
+msgstr "Сначала выберите и затем перетащите вручную."
 
 #, fuzzy
 msgid "Saving"
@@ -201,34 +217,39 @@ msgid ""
 "\n"
 "Choose File/New/File Timeline to create a timeline that is saved on disk."
 msgstr ""
+"Эта хронология внесена в память, и между сессиями изменения в ней не будут "
+"сохраняться.\n"
+"\n"
+"Выберите Файл/Новый/Хронология файла для создания сохраняемой на диск "
+"хронологии."
 
 #, fuzzy
 msgid "Start time "
 msgstr "Запустить новое"
 
 msgid "End time "
-msgstr ""
+msgstr "Время окончания "
 
 msgid "Start time can't be after end time"
-msgstr ""
+msgstr "Время начала не может быть позже времени окончания"
 
 msgid "Unable to save timeline data to '%s'. File left unmodified."
-msgstr ""
+msgstr "Отлючает сохранение данных хронологии в '%s'. Файл слева не изменен."
 
 msgid "Unable to write timeline data."
-msgstr ""
+msgstr "Отлючает запись данных хронологии."
 
 msgid "Unable to write to temporary file '%s'."
-msgstr ""
+msgstr "Отлючает запись во временный файл '%s'."
 
 msgid "Unable to take backup to '%s'."
-msgstr ""
+msgstr "Отлючает резервное копирование в '%s'."
 
 msgid "Unable to rename temporary file '%s' to original."
-msgstr ""
+msgstr "Отлючает переименование  временного файла '%s' на исходный."
 
 msgid "Unable to delete backup file '%s'."
-msgstr ""
+msgstr "Отлючает удаление файла резервного копирования '%s'."
 
 #, fuzzy
 msgid "Field '%s' can't be empty."
@@ -238,10 +259,10 @@ msgid "Name"
 msgstr "Имя"
 
 msgid "You can't change time when the Event is locked"
-msgstr ""
+msgstr "Вы не можете изменить время при блокировке события"
 
 msgid "End must be > Start"
-msgstr ""
+msgstr "Окончание должно быть > начала"
 
 #, fuzzy
 msgid "Entered period is too long."
@@ -259,32 +280,35 @@ msgid "Export to Image"
 msgstr "Экспорт в &file"
 
 msgid "File '%s' exists. Overwrite?"
-msgstr ""
+msgstr "Файл '%s' существует. Перезаписать?"
 
 #, fuzzy
 msgid "Help contents"
 msgstr "Необработанное содержание"
 
 msgid "Concepts"
-msgstr ""
+msgstr "Концепции"
 
 msgid "Questions and answers"
-msgstr ""
+msgstr "Вопросы и ответы"
 
 msgid "Tasks"
-msgstr ""
+msgstr "Задачи"
 
 msgid "Where is the save button?"
-msgstr ""
+msgstr "Где находится кнопка сохранения?"
 
 msgid ""
 "\n"
 "There is no save button. Timeline will automatically save your data whenever "
 "needed.\n"
 msgstr ""
+"\n"
+"Кнопки сохранения нет. Хронология будет автоматически сохранять ваши данные "
+"всякий раз, при необходимости.\n"
 
 msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr ""
+msgstr "Где идут номера недель, если я начинаю свои недели в воскресенье?"
 
 msgid ""
 "\n"
@@ -292,6 +316,10 @@ msgid ""
 "on Sunday at present.  We plan on using a different date object that will "
 "support this in future versions.\n"
 msgstr ""
+"\n"
+"В настоящее время используемый объект данных дата не поддерживает номера "
+"недель или недели, начинающиеся в воскресенье. Мы планируем использовать "
+"другой объект даты, который будет поддерживать его в будущих версиях.\n"
 
 #, fuzzy
 msgid "Timeline"
@@ -306,6 +334,13 @@ msgid ""
 "example can specify a time in terms of number of minutes since a start time. "
 "If you are interested in such a feature, please get in touch.\n"
 msgstr ""
+"\n"
+"Хронология показывает по оси х даты в соответствии с григорианским "
+"календарем. В настоящее время даты ограничиваются между 10 и 9989 годами.\n"
+"\n"
+"Будущие версии смогут поддерживать различные виды хронологий, так что можно "
+"будет указать время, например, в минутах с момента начала. Если вы "
+"заинтересованы в такой функции, то свяжитесь с нами.\n"
 
 #, fuzzy
 msgid "Events"
@@ -318,6 +353,10 @@ msgid ""
 "that event happened). This can be either a specific point in time or a "
 "period.\n"
 msgstr ""
+"\n"
+"Событие является основным типом данных для представления информации о "
+"хронологии. Следует указать, где по времени оно должно быть размещено (когда "
+"произошло это событие). Это может быть точный момент времени или период.\n"
 
 #, fuzzy
 msgid "Categories"
@@ -329,6 +368,10 @@ msgid ""
 "category. All events that belong to the same category are displayed with the "
 "same background color.\n"
 msgstr ""
+"\n"
+"Категории используются для группирования событий. Событие может принадлежать "
+"только к одной категории. Все события, принадлежащие к одной и той же "
+"категории, отображаются одним цветом.\n"
 
 msgid ""
 "\n"
@@ -339,11 +382,20 @@ msgid ""
 "- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
 "timeline, drag the mouse and release it.\n"
 msgstr ""
+"\n"
+"Диалог *Создать событие* можно открыть следующими способами:\n"
+"\n"
+"- Выберите *Хронологию* - *Создать событие* из меню.\n"
+"- Двойной клик *левой* кнопкой мыши на временной шкале.\n"
+"- Нажмите клавишу *Ctrl*, затем удерживая нажатой *левую* кнопку мыши на "
+"шкале времени, перетащите мышью и отпустите его.\n"
 
 msgid ""
 "\n"
 "The *Edit Event* dialog can be opened by double clicking on an event.\n"
 msgstr ""
+"\n"
+"При двойном клике по событию можно открыть диалог *Изменить событие*.\n"
 
 msgid "Move event vertically"
 msgstr ""
@@ -363,20 +415,28 @@ msgid ""
 "To select an event, click on it. To select multiple events, hold down the "
 "*Ctrl* key while clicking events.\n"
 msgstr ""
+"\n"
+"Для выбора события кликните по нему. Для выбора нескольких событий отмечайте "
+"их при нажатой клавише *Ctrl*.\n"
 
 msgid ""
 "\n"
 "To delete an event, select it and press the *Del* key. Multiple events can "
 "be deleted at the same time.\n"
 msgstr ""
+"\n"
+"Для удаления события выберите его и нажмите клавишу *Del*. Можно удалить "
+"несколько событий одновременно.\n"
 
 msgid "Will associated events be deleted when I delete a category?"
-msgstr ""
+msgstr "Будут ли удалены связанные события при удалении категории?"
 
 msgid ""
 "\n"
 "No. The events will still be there but they will not belong to a category.\n"
 msgstr ""
+"\n"
+"Нет. События останутся, но они не будут принадлежать к категории.\n"
 
 #, fuzzy
 msgid "Edit categories"
@@ -390,6 +450,13 @@ msgid ""
 "The visibility of categories can also be edited in the sidebar (*View* > "
 "*Sidebar*).\n"
 msgstr ""
+"\n"
+"Категориями можно управлять в диалоге *Изменить категории* (*Хронология* > "
+"*Изменить категории*). Для изменения существующей категории дважды кликните "
+"по ней.\n"
+"\n"
+"В боковой панели также можно изменить отображаемость категорий (*Обзор* > "
+"*Боковая панель*).\n"
 
 msgid "Contact"
 msgstr "Контактные данные"
@@ -400,15 +467,22 @@ msgid ""
 "with users and developers of Timeline, send an email to the user mailing "
 "list: <thetimelineproj-user@lists.sourceforge.net>. (Please use English.)\n"
 msgstr ""
+"\n"
+"Если имеются вопросы по хронологии, или нужно связаться с пользователями и "
+"его разработчиками, отправьте письмо в список рассылки: <thetimelineproj-"
+"user@lists.sourceforge.net>. (На английском.)\n"
 
 msgid "Why is Timeline not available in my language?"
-msgstr ""
+msgstr "Почему хронология не доступна на моем языке?"
 
 msgid ""
 "\n"
 "Timeline is developed and translated by volunteers. If you would like to "
 "contribute translations you are very much welcome to contact us.\n"
 msgstr ""
+"\n"
+"Хронология разрабатывается и переводится добровольцами. Если желаете принять "
+"участие в переводах, мы всегда приветствуем присоединение к нам.\n"
 
 #, fuzzy
 msgid "Search results for '%s'"
@@ -426,80 +500,82 @@ msgid ""
 "There was a problem printing.\n"
 "Perhaps your current printer is not set correctly?"
 msgstr ""
+"Возникла проблема печати.\n"
+"Возможно, текущий принтер настроен неправильно?"
 
 #, fuzzy
 msgid "Print preview"
 msgstr "Печать части"
 
 msgid "Go to &Zero\tCtrl+Z"
-msgstr ""
+msgstr "Перейти к &Zero\tCtrl+Z"
 
 msgid "Go to &Time\tCtrl+T"
-msgstr ""
+msgstr "Перейти к &Time\tCtrl+T"
 
 msgid "Backward\tPgUp"
-msgstr ""
+msgstr "Назад\tPgUp"
 
 msgid "Forward\tPgDn"
-msgstr ""
+msgstr "Вперёд\tPgDn"
 
 msgid "Can't zoom deeper than 5"
-msgstr ""
+msgstr "Невозможно увеличить более, чем в 5 раз"
 
 msgid "1-period"
-msgstr ""
+msgstr "1 после запятой"
 
 msgid "10-period"
-msgstr ""
+msgstr "2 после запятой"
 
 msgid "100-period"
-msgstr ""
+msgstr "3 после запятой"
 
 msgid "1000-period"
-msgstr ""
+msgstr "4 после запятой"
 
 #, fuzzy
 msgid "Go to Time"
 msgstr "Перейти к [%s]"
 
 msgid "Go to &Today\tCtrl+T"
-msgstr ""
+msgstr "Перейти к &Today\tCtrl+T"
 
 msgid "Go to D&ate...\tCtrl+G"
-msgstr ""
+msgstr "Перейти к D&ate...\tCtrl+G"
 
 msgid "Forward One Wee&k\tCtrl+K"
-msgstr ""
+msgstr "Вперёд на одну Wee&k\tCtrl+K"
 
 msgid "Back One &Week\tCtrl+W"
-msgstr ""
+msgstr "Назад на одну &неделю\tCtrl+K"
 
 msgid "Forward One Mont&h\tCtrl+h"
-msgstr ""
+msgstr "Вперёд на один &месяц\tCtrl+h"
 
 msgid "Back One &Month\tCtrl+M"
-msgstr ""
+msgstr "Назад на один мес&яц\tCtrl+M"
 
 msgid "Forward One Yea&r\tCtrl+R"
-msgstr ""
+msgstr "Вперёд на один &год\tCtrl+R"
 
 msgid "Back One &Year\tCtrl+Y"
-msgstr ""
+msgstr "Назад на один го&д\tCtrl+Y"
 
 msgid "Fit Millennium"
-msgstr ""
+msgstr "Подходящее тысячелетие"
 
 msgid "Fit Century"
-msgstr ""
+msgstr "Подходящее столетие"
 
 msgid "Fit Decade"
-msgstr ""
+msgstr "Подходящяя декада"
 
 msgid "Fit Year"
-msgstr ""
+msgstr "Подходящий год"
 
 msgid "Fit Month"
-msgstr ""
+msgstr "Подходящий месяц"
 
 #, fuzzy
 msgid "Fit Week"
@@ -516,28 +592,28 @@ msgid "days"
 msgstr "дней"
 
 msgid "hour"
-msgstr ""
+msgstr "час"
 
 msgid "hours"
-msgstr ""
+msgstr "часов"
 
 msgid "minute"
-msgstr ""
+msgstr "минута"
 
 msgid "minutes"
-msgstr ""
+msgstr "минут"
 
 msgid "can't be before year 10"
-msgstr ""
+msgstr "невозможно до 10 года"
 
 msgid "can't be after year 9989"
-msgstr ""
+msgstr "невозможно после 9989 года"
 
 msgid "Can't zoom wider than 1200 years"
-msgstr ""
+msgstr "Невозможно масштабировать более 1200 лет"
 
 msgid "Can't zoom deeper than 1 hour"
-msgstr ""
+msgstr "Невозможно масштабировать подробнее 1 часа"
 
 #, fuzzy
 msgid "Day"
@@ -548,71 +624,71 @@ msgid "Week"
 msgstr "Недели"
 
 msgid "Month"
-msgstr ""
+msgstr "Месяц"
 
 msgid "Year"
-msgstr ""
+msgstr "Год"
 
 #, fuzzy
 msgid "Go to Date"
 msgstr "Последний раз"
 
 msgid "can't be before year %d"
-msgstr ""
+msgstr "невозможно до %d лет"
 
 msgid "can't be after year %d"
-msgstr ""
+msgstr "невозможно после %d лет"
 
 msgid "No timeline set"
-msgstr ""
+msgstr "Хронология не установлена"
 
 msgid "Can't scroll more to the left"
-msgstr ""
+msgstr "Прокрутить влево больше невозможно"
 
 msgid "Can't scroll more to the right"
-msgstr ""
+msgstr "Прокрутить вправо больше невозможно"
 
 msgid "Edit"
 msgstr "Изменить"
 
 msgid "Duplicate..."
-msgstr ""
+msgstr "Дублировать..."
 
 msgid "Delete"
 msgstr "Удалить"
 
 msgid "Sticky Balloon"
-msgstr ""
+msgstr "Прилипшая всплывающая подсказка"
 
 #, fuzzy
 msgid "Goto URL"
 msgstr "Списки URL"
 
 msgid "Center"
-msgstr ""
+msgstr "Центровать"
 
 msgid "%s events hidden"
-msgstr ""
+msgstr "%s скрытых событий"
 
 #, fuzzy
 msgid "Are you sure you want to delete this event?"
 msgstr "Уверены, что нужно удалить этот документ?"
 
 msgid "Can't move locked event"
-msgstr ""
+msgstr "Невозможно удалить заблокированное событие"
 
 msgid "Period is too long"
-msgstr ""
+msgstr "Слишком большой период"
 
 #, fuzzy
 msgid "Select region to zoom into"
 msgstr "Выбрать лицо из списка"
 
 msgid "Region too long"
-msgstr ""
+msgstr "Слишком большая зона"
 
 msgid "Region too short"
-msgstr ""
+msgstr "Слишком маленькая зона"
 
 #, fuzzy
 msgid "Add new"
@@ -627,7 +703,7 @@ msgid "Edit..."
 msgstr "Изменить"
 
 msgid "Add..."
-msgstr ""
+msgstr "Добавить..."
 
 #, fuzzy
 msgid "Edit Category"
@@ -638,10 +714,10 @@ msgid "Are you sure you want to delete category '%s'?"
 msgstr "Уверены, что нужно удалить этот документ?"
 
 msgid "Events belonging to '%s' will no longer belong to a category."
-msgstr ""
+msgstr "События, связанные с '%s', больше не относятся этой категории."
 
 msgid "Events belonging to '%s' will now belong to '%s'."
-msgstr ""
+msgstr "События, связанные с '%s', теперь относятся к '%s'."
 
 #, fuzzy
 msgid "Invalid date"
@@ -652,17 +728,17 @@ msgid "No match"
 msgstr "Партия"
 
 msgid "Only one match"
-msgstr ""
+msgstr "Только одно совпадение"
 
 #, fuzzy
 msgid "Edit Categories"
 msgstr "Категория единиц"
 
 msgid "Category name '%s' not valid. Must be non-empty."
-msgstr ""
+msgstr "Имя категории  '%s' недопустимо. Не должно быть пустым."
 
 msgid "Category name '%s' already in use."
-msgstr ""
+msgstr "Имя категории '%s' уже используется."
 
 #, fuzzy
 msgid "Name:"
@@ -673,7 +749,7 @@ msgid "Color:"
 msgstr "Цветной"
 
 msgid "Font Color:"
-msgstr ""
+msgstr "Цвет шрифта:"
 
 #, fuzzy
 msgid "Parent:"
@@ -692,23 +768,23 @@ msgid "Duplicate Event"
 msgstr "Дата введения."
 
 msgid "%d Events not duplicated due to missing dates."
-msgstr ""
+msgstr "%d событий не дублировано из-за отсутствия дат."
 
 msgid "Number of duplicates:"
-msgstr ""
+msgstr "Количество дубликатов:"
 
 msgid "Period"
-msgstr ""
+msgstr "Период"
 
 #, fuzzy
 msgid "Frequency:"
 msgstr "Последовательность"
 
 msgid "Backward"
-msgstr ""
+msgstr "Назад"
 
 msgid "Forward"
-msgstr ""
+msgstr "Вперед"
 
 msgid "Both"
 msgstr "Оба"
@@ -726,7 +802,7 @@ msgid "When:"
 msgstr "Когда"
 
 msgid "to"
-msgstr ""
+msgstr "кому"
 
 #, fuzzy
 msgid "Container:"
@@ -741,10 +817,10 @@ msgid "Show time"
 msgstr "Показать часть"
 
 msgid "Fuzzy"
-msgstr ""
+msgstr "Неуточненный"
 
 msgid "Locked"
-msgstr ""
+msgstr "заблокированный"
 
 #, fuzzy
 msgid "Ends today"
@@ -762,16 +838,16 @@ msgid "Alert"
 msgstr "  Противопоказания  "
 
 msgid "Icon"
-msgstr ""
+msgstr "Значок"
 
 msgid "Hyperlink"
 msgstr ""
 
 msgid "Add more events after this one"
-msgstr ""
+msgstr "Добавить события еще"
 
 msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
+msgstr "Чтобы вместиться в %ix%i, изображения будут масштабированы."
 
 #, fuzzy
 msgid "Select Icon"
@@ -803,16 +879,18 @@ msgid ""
 "See the Timeline website or the INSTALL file for instructions how to install "
 "it."
 msgstr ""
+"Невозможно найти отмеченный пакет для Python. О том, как его установить, см. "
+"инструкции на сайте Timeline или в файле INSTALL."
 
 msgid "Go to home page"
-msgstr ""
+msgstr "Перейти на домашнюю страничку"
 
 #, fuzzy
 msgid "Go back one page"
 msgstr "Возвращает назад и повторяет поиск."
 
 msgid "Go forward one page"
-msgstr ""
+msgstr "Вперёд на одну страничку"
 
 #, fuzzy
 msgid "Page not found"
@@ -842,40 +920,40 @@ msgid "New"
 msgstr "Новое"
 
 msgid "File Timeline..."
-msgstr ""
+msgstr "Файл Timeline..."
 
 #, fuzzy
 msgid "Create Timeline"
 msgstr "Создать новое"
 
 msgid "The specified timeline already exists."
-msgstr ""
+msgstr "Указанная хронология уже существует."
 
 msgid "Opening timeline instead of creating new."
-msgstr ""
+msgstr "Открыть хронологию вместо создания новой."
 
 #, fuzzy
 msgid "Information"
 msgstr "Взаимодействие"
 
 msgid "Directory Timeline..."
-msgstr ""
+msgstr "Директория Timeline..."
 
 msgid "Open an existing timeline"
-msgstr ""
+msgstr "Открыть существующую хронологию"
 
 #, fuzzy
 msgid "Open Timeline"
 msgstr "Открыть элемент"
 
 msgid "Open &Recent"
-msgstr ""
+msgstr "Открыть &последний"
 
 msgid "Page Set&up..."
-msgstr ""
+msgstr "Параметры стра&ницы..."
 
 msgid "Setup page for printing"
-msgstr ""
+msgstr "Настройка страницы для печати"
 
 #, fuzzy
 msgid "Print Preview"
@@ -904,19 +982,21 @@ msgid ""
 "Could not find pysvg Python package. It is needed to export to SVG. See the "
 "Timeline website or the INSTALL file for instructions how to install it."
 msgstr ""
+"Не удалось найти пакет pysvg Python. Он необходим для экспорта в SVG. Для "
+"инструкций по установке см. веб-сайт Timeline или файл INSTALL."
 
 #, fuzzy
 msgid "Export to SVG"
 msgstr "Экспорт в GDT"
 
 msgid "Play timeline"
-msgstr ""
+msgstr "Воспроизведение хронологии"
 
 msgid "Play timeline as movie"
-msgstr ""
+msgstr "Воспроизведение хронологии как клип"
 
 msgid "Exit the program"
-msgstr ""
+msgstr "Выход из программы"
 
 msgid "&Edit"
 msgstr "&Edit"
@@ -926,16 +1006,16 @@ msgid "&View"
 msgstr "Просмотреть журнал"
 
 msgid "&Sidebar\tCtrl+I"
-msgstr ""
+msgstr "&Боковая панель\tCtrl+I"
 
 msgid "&Legend"
-msgstr ""
+msgstr "&Легенда"
 
 msgid "&Balloons on hover"
-msgstr ""
+msgstr "&Всплывающая подсказка при наведении"
 
 msgid "&Timeline"
-msgstr ""
+msgstr "&Хронология"
 
 #, fuzzy
 msgid "Create &Event..."
@@ -946,33 +1026,33 @@ msgid "Create a new event"
 msgstr "Создать нового пациента."
 
 msgid "&Duplicate Selected Event..."
-msgstr ""
+msgstr "&Дублировать выбранное событие..."
 
 #, fuzzy
 msgid "Duplicate the Selected Event"
 msgstr "Изменение выбранного пункта."
 
 msgid "&Measure Distance between two Events..."
-msgstr ""
+msgstr "&Масштаб периода между двумя событиями..."
 
 msgid "Measure the Distance between two Events"
-msgstr ""
+msgstr "Настроить длительность между двумя событиями"
 
 msgid "Distance between selected events"
-msgstr ""
+msgstr "Интервал между выбранными событиями"
 
 msgid "Events are overlapping or distance is 0"
-msgstr ""
+msgstr "События перекрываются или непрерывны"
 
 #, fuzzy
 msgid "Edit &Categories"
 msgstr "Категория единиц"
 
 msgid "&Navigate"
-msgstr ""
+msgstr "&Навигация"
 
 msgid "Find First Event"
-msgstr ""
+msgstr "Найти первое событие"
 
 #, fuzzy
 msgid "Find Last Event"
@@ -990,26 +1070,26 @@ msgid "&Contents\tF1"
 msgstr "&Contacts"
 
 msgid "Getting started tutorial"
-msgstr ""
+msgstr "Руководство Приступая к работе"
 
 #, fuzzy
 msgid "Unable to write configuration file."
 msgstr "Проверка конфигурационного файла"
 
 msgid "read-only"
-msgstr ""
+msgstr "только для чтения"
 
 msgid "File '%s' does not exist."
-msgstr ""
+msgstr "Файл '%s' не существует."
 
 msgid "No timeline opened."
-msgstr ""
+msgstr "Нет открытой хронологии."
 
 msgid "First time using Timeline?"
-msgstr ""
+msgstr "Начинать работу с Timeline?"
 
 msgid "Relevant help topics:"
-msgstr ""
+msgstr "Уместные темы справки:"
 
 msgid "Close"
 msgstr "Закрыть"
@@ -1027,7 +1107,7 @@ msgid "Date && Time"
 msgstr "Дата / время"
 
 msgid "Week start on:"
-msgstr ""
+msgstr "Начало недели:"
 
 msgid ""
 "This feature is experimental. If events are\n"
@@ -1036,25 +1116,30 @@ msgid ""
 "the timeline again. A reload of the timeline\n"
 "is also needed for this to take effect."
 msgstr ""
+"Эта функция экспериментальная. Если события\n"
+"созданы в расширенном диапазоне, то можно\n"
+"отключить эту опцию и успешно загрузить\n"
+"хронологию снова. Для вступления в силу также\n"
+"необходима перезагрузка хронологии."
 
 #, fuzzy
 msgid "Open most recent timeline on startup"
 msgstr "самое последнее по содержанию"
 
 msgid "Use inertial scrolling"
-msgstr ""
+msgstr "Использовать инерционную прокрутку"
 
 msgid "Use extended date range (before 1 AD)"
-msgstr ""
+msgstr "Использовать расширенный диапазон дат (до 1 г. н.э.)"
 
 msgid "Monday"
-msgstr ""
+msgstr "Понедельник"
 
 msgid "Sunday"
-msgstr ""
+msgstr "Воскресенье"
 
 msgid "Unable to copy to clipboard."
-msgstr ""
+msgstr "Невозможно скопировать в буфер."
 
 msgid "Error"
 msgstr "Ошибка"
@@ -2472,13 +2557,15 @@ msgid "Lot \\#"
 msgstr "Партия \\#"
 
 msgid "SoaP"
-msgstr ""
+msgstr "SoaP"
 
 msgid ""
 "SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
 "vaccination was administered in the practice or copied from trustworthy "
 "records."
 msgstr ""
+"SoaP -- \"С\"убъективно: пациент вспомнил о прививке. \"П\"лан: прививка "
+"была назначена в медучреждении или копирована из достоверных записей."
 
 msgid ""
 "Total number of vaccinations recorded for the corresponding target condition."
@@ -2719,13 +2806,13 @@ msgid "Substances"
 msgstr "Компоненты"
 
 msgid "Life events"
-msgstr ""
+msgstr "Биографические события"
 
 msgid "Birth"
-msgstr ""
+msgstr "Дата рождения"
 
 msgid "Live events"
-msgstr ""
+msgstr "Продолжающиеся события"
 
 #, fuzzy
 msgid "Date of birth unknown"
@@ -2736,10 +2823,10 @@ msgid "Start of Care"
 msgstr "Запустить новое"
 
 msgid "The earliest recorded event of care in this praxis."
-msgstr ""
+msgstr "Первое записанное событие медпомощи в этом медучреждении."
 
 msgid "Death"
-msgstr ""
+msgstr "Смерть"
 
 msgid ""
 "Help requested\n"
@@ -6509,7 +6596,7 @@ msgid "&Delete"
 msgstr "&Delete"
 
 msgid "<above, double-click problem to start entering SOAP note>"
-msgstr ""
+msgstr "<дважды кликните по проблеме выше для начала ввода записи SOAP>"
 
 msgid "&Filter by problem"
 msgstr "&Filter по болезням"
@@ -8187,7 +8274,7 @@ msgid "Selecting address"
 msgstr "Выбор адреса посредством ввода"
 
 msgid "GNUmed does not know any addresses for this patient."
-msgstr ""
+msgstr "GNUmed неизвестен никакой адрес для этого пациента."
 
 msgid "Cannot edit already invoiced bill item."
 msgstr "Невозможно изменить пункт долга с уже выставленным счетом"
@@ -10627,6 +10714,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"У вас нет прав доступа к этому компоненту GNUmed.\n"
+"\n"
+"%s"
 
 msgid "Lost connection"
 msgstr "Потеря подключения"
@@ -11134,7 +11224,7 @@ msgid "Select the default template for plotting test results."
 msgstr "Выберите тип по умолчанию для новых обращений.\n"
 
 msgid "Fallback provider"
-msgstr ""
+msgstr "Специалист резерва"
 
 #, fuzzy
 msgid ""
@@ -13189,7 +13279,7 @@ msgstr "Добавление нового исследования"
 msgid "Editing measurement"
 msgstr "Изменение исследования"
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy

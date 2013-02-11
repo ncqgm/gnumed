@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:25+CET\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -1904,10 +1904,10 @@ msgid "Medication history"
 msgstr "Histórico de medicações"
 
 msgid "copy"
-msgstr ""
+msgstr "copiar"
 
 msgid "data"
-msgstr ""
+msgstr "dados"
 
 msgid "long-term"
 msgstr "longo prazo"
@@ -1925,16 +1925,16 @@ msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
 
 msgid "active, needs check"
-msgstr ""
+msgstr "ativo, precisa verificar"
 
 msgid "assumed active"
 msgstr ""
 
 msgid "approved"
-msgstr ""
+msgstr "aprovado"
 
 msgid "unapproved"
-msgstr ""
+msgstr "reprovado"
 
 msgid "definite"
 msgstr "definitivo"
@@ -1946,10 +1946,10 @@ msgid "Substance: %s   [#%s]\n"
 msgstr ""
 
 msgid "Preparation: %s\n"
-msgstr ""
+msgstr "Preparação: %s\n"
 
 msgid "Amount per dose: %s %s"
-msgstr ""
+msgstr "Quantidade por dose: %s %s"
 
 msgid " ATC (substance): %s\n"
 msgstr ""
@@ -1961,7 +1961,7 @@ msgid " ATC (brand): %s\n"
 msgstr ""
 
 msgid "  Other component: %s\n"
-msgstr ""
+msgstr "  Outro componente: %s\n"
 
 msgid " Regimen: %s\n"
 msgstr ""
@@ -1976,10 +1976,10 @@ msgid " (short-term)"
 msgstr ""
 
 msgid " Discontinued %s\n"
-msgstr ""
+msgstr " Descontinuado %s\n"
 
 msgid " Reason: %s\n"
-msgstr ""
+msgstr " Razão: %s\n"
 
 msgid " Aim: %s\n"
 msgstr ""
@@ -1991,7 +1991,7 @@ msgid " Advice: %s\n"
 msgstr ""
 
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
+msgstr "Revisão: #%(row_ver)s, %(mod_when)s por %(mod_by)s."
 
 msgid "Additional notes"
 msgstr "Notas adicionais"
@@ -2089,7 +2089,7 @@ msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr ""
 
 msgid "Source: %s\n"
-msgstr ""
+msgstr "Fonte: %s\n"
 
 msgid "%.1f %% of the normal lower limit"
 msgstr ""
@@ -2273,7 +2273,7 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr ""
 
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
-msgstr ""
+msgstr "%(last)s,%(title)s %(first)s%(nick)s"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Não é possível mesclar o paciente ativo com outro paciente."
@@ -2359,7 +2359,7 @@ msgid "full name"
 msgstr "nome completo"
 
 msgid "message"
-msgstr ""
+msgstr "mensagem"
 
 #, fuzzy
 msgid "virtual message"
@@ -12428,7 +12428,7 @@ msgstr ""
 msgid "Editing measurement"
 msgstr ""
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy

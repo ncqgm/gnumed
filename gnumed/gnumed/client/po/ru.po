@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 13:01+CET\n"
+"POT-Creation-Date: 2013-02-11 14:25+CET\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -19,17 +19,17 @@ msgstr ""
 "X-Generator: Launchpad (build 14700)\n"
 
 msgid "Jan"
-msgstr ""
+msgstr "Янв"
 
 msgid "Feb"
-msgstr ""
+msgstr "Фев"
 
 #, fuzzy
 msgid "Mar"
 msgstr "Мистер"
 
 msgid "Apr"
-msgstr ""
+msgstr "Апр"
 
 #, fuzzy
 msgid "May"
@@ -52,7 +52,7 @@ msgid "Sep"
 msgstr "Установка"
 
 msgid "Oct"
-msgstr ""
+msgstr "Окт"
 
 #, fuzzy
 msgid "Nov"
@@ -63,17 +63,17 @@ msgid "Dec"
 msgstr "Доктор"
 
 msgid "Mon"
-msgstr ""
+msgstr "Пн"
 
 #, fuzzy
 msgid "Tue"
 msgstr "Срок завершения"
 
 msgid "Wed"
-msgstr ""
+msgstr "Ср"
 
 msgid "Thu"
-msgstr ""
+msgstr "Чт"
 
 #, fuzzy
 msgid "Fri"
@@ -132,7 +132,7 @@ msgid "Hovering events with a triangle shows the event description."
 msgstr ""
 
 msgid "Features"
-msgstr ""
+msgstr "Функции"
 
 msgid "Scroll"
 msgstr ""
@@ -536,13 +536,13 @@ msgid "days"
 msgstr "дней"
 
 msgid "hour"
-msgstr ""
+msgstr "час"
 
 msgid "hours"
 msgstr ""
 
 msgid "minute"
-msgstr ""
+msgstr "минута"
 
 msgid "minutes"
 msgstr ""
@@ -2801,7 +2801,7 @@ msgstr ""
 "--------------"
 
 msgid "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
-msgstr ""
+msgstr "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
 
 msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
@@ -3487,7 +3487,7 @@ msgid ""
 msgstr ""
 
 msgid "Where to send the bill."
-msgstr ""
+msgstr "Адрес получателя счёта"
 
 #, fuzzy
 msgid "Select the address where to send the bill."
@@ -3928,7 +3928,7 @@ msgid "... or ..."
 msgstr "... или ..."
 
 msgid "♥"
-msgstr ""
+msgstr "♥"
 
 #, fuzzy
 msgid "Kidneys"
@@ -5129,7 +5129,7 @@ msgid "Discharged"
 msgstr "Выписан"
 
 msgid "≈"
-msgstr ""
+msgstr "≈"
 
 msgid "The date of birth for this person."
 msgstr "Дата рождения этого человека."
@@ -6928,7 +6928,7 @@ msgid ""
 msgstr ""
 
 msgid "<age>"
-msgstr ""
+msgstr "<age>"
 
 msgid "Caveat"
 msgstr "Предостережение"
@@ -8179,7 +8179,7 @@ msgid ""
 msgstr ""
 
 msgid "<open>"
-msgstr ""
+msgstr "<open>"
 
 msgid "no items on bill"
 msgstr ""
@@ -8212,7 +8212,7 @@ msgid "Selecting address"
 msgstr "Выберите тип сообщения."
 
 msgid "GNUmed does not know any addresses for this patient."
-msgstr ""
+msgstr "GNUmed неизвестен адрес пациента."
 
 #, fuzzy
 msgid "Cannot edit already invoiced bill item."
@@ -8255,7 +8255,7 @@ msgid "Create invoice from selected items."
 msgstr "Для выбранных эпизодов нет доступной текстовой части."
 
 msgid "Bills"
-msgstr ""
+msgstr "Счета"
 
 #, fuzzy
 msgid "Browse bills of this patient."
@@ -13253,7 +13253,7 @@ msgstr "Добавление нового исследования"
 msgid "Editing measurement"
 msgstr "Редактирование исследования"
 
-msgid "Test results (ordered reverse-chronologicallly)"
+msgid "Test results (ordered reverse-chronologically)"
 msgstr ""
 
 #, fuzzy
