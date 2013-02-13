@@ -914,7 +914,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
-		msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
+
+		try:
+			msg = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
+		except IndexError:
+			_log.exception('problem with provider inbox item data access')
+			gmGuiHelpers.gm_show_error (
+				aTitle = _('handling provider inbox item'),
+				aMessage = _('There was a problem accessing the message data.')
+			)
+			_log.debug('effecting inbox reload')
+			wx.CallAfter(self.__populate_inbox)
+			return False
+
 		if msg is None:
 			return
 

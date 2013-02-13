@@ -66,6 +66,10 @@ IMPROVED: login dialog help text [thanks J.Busser]
 # rel-1-2-patches
 ------------------------------------------------
 
+	1.2.9
+
+FIX: protect against unexplained double-fill of provider inbox
+
 	1.2.8
 
 FIX: backport existence check in expando layout handling
