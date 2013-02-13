@@ -20,6 +20,7 @@ import sys
 import types
 import logging
 import thread
+import time
 
 
 import wx
@@ -954,18 +955,31 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def set_string_items(self, items=None):
 		"""All item members must be unicode()able or None."""
 
-		if self.debug is not None:
-			_log.debug('GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', self.GetItemCount(), self.debug, thread.get_ident())
-		if not self.DeleteAllItems():
-			_log.debug('DeleteAllItems() failed (%s)', self.debug)
-		item_count = self.GetItemCount()
-		if self.debug is not None:
-			_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
-		if item_count != 0:
+		wx.BeginBusyCursor()
+
+		loop = 0
+		while True:
+			if loop > 3:
+				_log.debug('unable to delete list items after looping 3 times, continuing and hoping for the best')
+				break
+			loop += 1
+			if self.debug is not None:
+				_log.debug('[round %s] GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', loop, self.GetItemCount(), self.debug, thread.get_ident())
+			if not self.DeleteAllItems():
+				_log.debug('DeleteAllItems() failed (%s)', self.debug)
+			item_count = self.GetItemCount()
+			if self.debug is not None:
+				_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
+			if item_count == 0:
+				break
+			wx.SafeYield(None, True)
 			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
+			time.sleep(0.3)
+			wx.SafeYield(None, True)
 
 		if items is None:
 			self.data = None
+			wx.EndBusyCursor()
 			return
 
 		for item in items:
@@ -993,6 +1007,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 
 		self.data = items
+
+		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
