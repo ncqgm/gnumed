@@ -239,7 +239,7 @@ def mxdt2py_dt(mxDateTime):
 		)
 		raise
 #===========================================================================
-def format_dob(dob, format='%x', encoding=None, none_string=None, dob_is_estimated=False):
+def format_dob(dob, format='%Y %b %d', encoding=None, none_string=None, dob_is_estimated=False):
 	if dob is None:
 		if none_string is None:
 			return _('** DOB unknown **')
@@ -251,7 +251,7 @@ def format_dob(dob, format='%x', encoding=None, none_string=None, dob_is_estimat
 
 	return dob_txt
 #---------------------------------------------------------------------------
-def pydt_strftime(dt, format='%c', encoding=None, accuracy=None):
+def pydt_strftime(dt, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=None):
 
 	if encoding is None:
 		encoding = gmI18N.get_encoding()
@@ -2198,7 +2198,7 @@ if __name__ == '__main__':
 			fts.accuracy = accuracy
 			print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
 			print "  format_accurately:", fts.format_accurately()
-			print "  strftime()       :", fts.strftime('%c')
+			print "  strftime()       :", fts.strftime('%Y %b %d  %H:%M:%S')
 			print "  print ...        :", fts
 			print "  print '%%s' %% ... : %s" % fts
 			print "  str()            :", str(fts)

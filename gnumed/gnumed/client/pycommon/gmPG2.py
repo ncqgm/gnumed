@@ -901,15 +901,13 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	if chunk_size == 0:
 		chunk_size = min(data_size, max_chunk_size)
 
-	_log.debug('expecting bytea data of size: [%s] bytes' % data_size)
-	_log.debug('using chunk size of: [%s] bytes' % chunk_size)
+	_log.debug('expecting %s bytes of BYTEA data in chunks of %s bytes', data_size, chunk_size)
 
 	# Windoze sucks: it can't transfer objects of arbitrary size,
 	# anyways, we need to split the transfer,
 	# however, only possible if postgres >= 7.2
 	needed_chunks, remainder = divmod(data_size, chunk_size)
-	_log.debug('chunks to retrieve: [%s]' % needed_chunks)
-	_log.debug('remainder to retrieve: [%s] bytes' % remainder)
+	_log.debug('# of chunks: %s; remainder: %s bytes', needed_chunks, remainder)
 
 	# try setting "bytea_output"
 	# - fails if not necessary

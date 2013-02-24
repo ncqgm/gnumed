@@ -1285,7 +1285,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 						t['unified_abbrev'],
 						t['unified_val'],
 						t['val_unit'],
-						t['clin_when'].strftime('%x').decode(gmI18N.get_encoding())
+						t['clin_when'].strftime('%Y %b %d').decode(gmI18N.get_encoding())
 					) for t in tests
 				]
 			)

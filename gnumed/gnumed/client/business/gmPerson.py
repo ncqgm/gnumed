@@ -1107,7 +1107,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
-	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
+	def get_formatted_dob(self, format='%Y %b %d', encoding=None, none_string=None):
 		return gmDateTime.format_dob (
 			self._payload[self._idx['dob']],
 			format = format,

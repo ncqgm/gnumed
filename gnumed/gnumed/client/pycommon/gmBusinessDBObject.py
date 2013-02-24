@@ -453,7 +453,7 @@ def delete_xxx(xxx=None):
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
 	#--------------------------------------------------------
-	def fields_as_dict(self, date_format='%c', none_string=u'', escape_style=None, bool_strings=None):
+	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string=u'', escape_style=None, bool_strings=None):
 		if bool_strings is None:
 			bools = {True: u'true', False: u'false'}
 		else:

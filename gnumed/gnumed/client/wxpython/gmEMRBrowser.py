@@ -864,7 +864,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #					return
 #
 #				self.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
-#					data['started'].strftime('%x'),
+#					data['started'].strftime('%Y %b %d'),
 #					data['l10n_type'],
 #					data['started'].strftime('%H:%m'),
 #					data['last_affirmed'].strftime('%H:%m'),
@@ -884,7 +884,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
 			tt = u'%s  %s  %s - %s\n' % (
-				data['started'].strftime('%x'),
+				data['started'].strftime('%Y %b %d'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
 				data['last_affirmed'].strftime('%H:%M')

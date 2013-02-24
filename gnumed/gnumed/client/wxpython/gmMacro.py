@@ -302,13 +302,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def unset_cache_value(self, key=None):
 		del self.__cache[key]
 	#--------------------------------------------------------
-	def _set_escape_style(escape_style=None):
+	def _set_escape_style(self, escape_style=None):
 		self.__esc_style = escape_style
 		return
 
 	escape_style = property(lambda x:x, _set_escape_style)
 	#--------------------------------------------------------
-	def _set_escape_function(escape_function=None):
+	def _set_escape_function(self, escape_function=None):
 		if escape_function is None:
 			self.__esc_func = lambda x:x
 			return
@@ -446,7 +446,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(gmTools.coalesce(self.pat.get_active_name()['title'], u''))
 	#--------------------------------------------------------
 	def _get_dob(self):
-		return self._get_variant_date_of_birth(data = '%x')
+		return self._get_variant_date_of_birth(data = '%Y %b %d')
 	#--------------------------------------------------------
 	def _get_progress_notes(self):
 		return self._get_variant_soap()
@@ -886,7 +886,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return data % parts
 	#--------------------------------------------------------
-	def _get_variant_date_of_birth(self, data='%x'):
+	def _get_variant_date_of_birth(self, data='%Y %b %d'):
 		return self.pat.get_formatted_dob(format = str(data), encoding = gmI18N.get_encoding())
 	#--------------------------------------------------------
 	# FIXME: extend to all supported genders
@@ -1311,7 +1311,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return u'\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
 	#--------------------------------------------------------
-	def _get_variant_today(self, data='%x'):
+	def _get_variant_today(self, data='%Y %b %d'):
 		return self._escape(gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding()))
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):

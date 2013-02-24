@@ -105,11 +105,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2merge.ID,
 				patient2merge['description_gender'],
 				patient2merge['gender'],
-				patient2merge.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+				patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 				patient2keep.ID,
 				patient2keep['description_gender'],
 				patient2keep['gender'],
-				patient2keep.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding())
+				patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
 			),
 			aTitle = _('Merging patients: confirmation'),
 			cancel_button = False
@@ -145,11 +145,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 				patient2merge.ID,
 				patient2merge['description_gender'],
 				patient2merge['gender'],
-				patient2merge.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+				patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 				patient2keep.ID,
 				patient2keep['description_gender'],
 				patient2keep['gender'],
-				patient2keep.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding())
+				patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
 			),
 			aTitle = _('Merging patients: success'),
 			cancel_button = False
@@ -198,13 +198,13 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['lastnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person['firstnames'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
 			label = u''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
-					label = u'%s (%s)' % (enc['started'].strftime('%x').decode(gmI18N.get_encoding()), enc['l10n_type'])
+					label = u'%s (%s)' % (enc['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding()), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
@@ -272,7 +272,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			if dto.dob is None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
 			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%x').decode(gmI18N.get_encoding()))
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding()))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -593,7 +593,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		gmGuiHelpers.gm_show_info (_(
 			'Cannot create new patient:\n\n'
 			' [%s %s (%s), %s]'
-			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
+			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding())),
 			_('Activating external patient')
 		)
 		return None
@@ -619,7 +619,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 				'Cannot activate patient:\n\n'
 				'%s %s (%s)\n'
 				'%s'
-				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%x').decode(gmI18N.get_encoding())),
+				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding())),
 				_('Activating external patient')
 			)
 			return None

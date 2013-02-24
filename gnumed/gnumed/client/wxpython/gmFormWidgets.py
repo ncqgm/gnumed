@@ -322,7 +322,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.__template['engine']))
 			self._CHBOX_active.SetValue(self.__template['in_use'])
 
-			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%x'))
+			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%Y %b %d'))
 			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
 			self._TCTRL_filename.Enable(True)
