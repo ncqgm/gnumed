@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
-
-"""HL7 handling."""
+"""Some HL7 handling."""
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
@@ -17,16 +16,6 @@ from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.hl7')
-
-#origin_url = u'http://loinc.org'
-#file_encoding = 'latin1'			# encoding is empirical
-#license_delimiter = u'Clip Here for Data'
-#version_tag = u'LOINC(R) Database Version'
-#name_long = u'LOINC® (Logical Observation Identifiers Names and Codes)'
-#name_short = u'LOINC'
-
-#loinc_fields = u"LOINC_NUM COMPONENT PROPERTY TIME_ASPCT SYSTEM SCALE_TYP METHOD_TYP RELAT_NMS CLASS SOURCE DT_LAST_CH CHNG_TYPE COMMENTS ANSWERLIST STATUS MAP_TO SCOPE NORM_RANGE IPCC_UNITS REFERENCE EXACT_CMP_SY MOLAR_MASS CLASSTYPE FORMULA SPECIES EXMPL_ANSWERS ACSSYM BASE_NAME FINAL NAACCR_ID CODE_TABLE SETROOT PANELELEMENTS SURVEY_QUEST_TEXT SURVEY_QUEST_SRC UNITSREQUIRED SUBMITTED_UNITS RELATEDNAMES2 SHORTNAME ORDER_OBS CDISC_COMMON_TESTS HL7_FIELD_SUBFIELD_ID EXTERNAL_COPYRIGHT_NOTICE EXAMPLE_UNITS INPC_PERCENTAGE LONG_COMMON_NAME".split()
-
 #============================================================
 def split_hl7_by_MSH(filename, encoding='utf8'):
 
