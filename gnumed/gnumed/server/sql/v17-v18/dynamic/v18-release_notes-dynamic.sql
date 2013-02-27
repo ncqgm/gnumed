@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.rc4 (database v18.rc4)',
-	'GNUmed 1.3.rc4 Release Notes:
+	'Release Notes for GNUmed 1.3.rc5 (database v18.rc5)',
+	'GNUmed 1.3.rc5 Release Notes:
 
-	1.3.rc4
+	1.3.rc5
 
 NEW: visualize the EMR using TheTimelineProject
 NEW: placeholder $<patient_photo>$
@@ -75,8 +75,10 @@ IMPROVED: patient overview: show comment on contact in tooltip
 IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
 IMPROVED: database translation contribution code
 IMPROVED: login dialog help text [thanks J.Busser]
+IMPROVED: patient searcher logic [thanks J.Busser]
+IMPROVED: non-overdue recalls display in patient overview
 
-	18.rc4
+	18.rc5
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
 IMPROVED: include PK columns in schema version check
