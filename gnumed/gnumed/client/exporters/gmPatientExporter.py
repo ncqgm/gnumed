@@ -123,7 +123,7 @@ class cEmrExport:
         emr = self.__patient.get_emr()
         # patient dob
         patient_dob = self.__patient['dob']
-        date_length = len(patient_dob.strftime('%x')) + 2
+        date_length = len(patient_dob.strftime('%Y %b %d')) + 2
 
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
@@ -156,7 +156,7 @@ class cEmrExport:
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
 
         # patient dob in top of vaccination chart 
-        txt = '\nDOB: %s' %(patient_dob.strftime('%x')) + '\n'
+        txt = '\nDOB: %s' %(patient_dob.strftime('%Y %b %d')) + '\n'
 
         # vacc chart table headers
         # top ---- header line
@@ -194,7 +194,7 @@ class cEmrExport:
                 elif row_index < seq_no: # vaccination scheduled
                     try:
                         vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                           
-                        vacc_date_str = vacc_date.strftime('%x')
+                        vacc_date_str = vacc_date.strftime('%Y %b %d')
                         txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'
                         prev_displayed_date[col_index] = vacc_date
                     except:
@@ -411,13 +411,13 @@ class cEmrExport:
             left_margin * u' ',
             allergy['descriptor'],
             gmTools.coalesce(allergy['reaction'], _('unknown reaction')),
-            allergy['date'].strftime('%x')
+            allergy['date'].strftime('%Y %b %d')
         )
 #        txt = left_margin * ' ' \
 #           + _('Allergy') + ': ' \
 #            + allergy['descriptor'] + u', ' \
 #            + gmTools.coalesce(allergy['reaction'], _('unknown reaction')) ' ' \
-#            + _('(noted %s)') % allergy['date'].strftime('%x') \
+#            + _('(noted %s)') % allergy['date'].strftime('%Y %b %d') \
 #            + '\n'
         return txt
     #--------------------------------------------------------
@@ -940,7 +940,7 @@ class cEMRJournalExporter:
 		f.write('\n')
 		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		f.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 			patient.get_medical_age()
 		))
 
@@ -973,7 +973,7 @@ class cEMRJournalExporter:
 			f.write(txt)
 
 		f.write((u'-' * 100) + u'\n\n')
-		f.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%c'))
+		f.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %b %d  %H:%M:%S'))
 
 		f.close()
 		return filename
@@ -1024,7 +1024,7 @@ class cEMRJournalExporter:
 		target.write('\n')
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (
-			patient.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 			patient.get_medical_age()
 		))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
@@ -1100,7 +1100,7 @@ class cEMRJournalExporter:
 
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%c').decode(gmI18N.get_encoding()))
+		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%Y %b %d  %H:%M:%S').decode(gmI18N.get_encoding()))
 
 		return
 #============================================================

@@ -216,7 +216,7 @@ class cAddPatientAsStaffDlg(wxgAddPatientAsStaffDlg.wxgAddPatientAsStaffDlg):
 		name = pat.get_active_name()
 		txt = _("""
   %s "%s" %s
-  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()))
+  born: %s""") % (name['firstnames'], name['preferred'], name['lastnames'], pat.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()))
 		self._TXT_person.SetValue(txt)
 		txt = name['firstnames'][:2] + name['lastnames'][:2]
 		self._TXT_short_alias.SetValue(txt)

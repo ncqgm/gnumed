@@ -61,10 +61,18 @@ IMPROVED: patient overview: show comment on contact in tooltip
 IMPROVED: waiting list entry double-click workflow [thanks J.Busser]
 IMPROVED: database translation contribution code
 IMPROVED: login dialog help text [thanks J.Busser]
+IMPROVED: patient searcher logic [thanks J.Busser]
+IMPROVED: non-overdue recalls display in patient overview
 
 ------------------------------------------------
 # rel-1-2-patches
 ------------------------------------------------
+
+	1.2.9 (unreleased)
+
+FIX: protect against unexplained double-fill of provider inbox
+
+IMPROVED: non-overdue recalls display in patient overview
 
 	1.2.8
 

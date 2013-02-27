@@ -839,7 +839,7 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 		self.LBL_source_episode.SetLabel(u'%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], u'', u' (%s)')))
 		self.LBL_encounter.SetLabel('%s: %s %s - %s' % (
-			self.encounter['started'].strftime('%x').decode(gmI18N.get_encoding()),
+			self.encounter['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
 			self.encounter['l10n_type'],
 			self.encounter['started'].strftime('%H:%M'),
 			self.encounter['last_affirmed'].strftime('%H:%M')

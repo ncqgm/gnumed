@@ -1107,7 +1107,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	#----------------------------------------------------------------------
 	# age/dob related
 	#----------------------------------------------------------------------
-	def get_formatted_dob(self, format='%x', encoding=None, none_string=None):
+	def get_formatted_dob(self, format='%Y %b %d', encoding=None, none_string=None):
 		return gmDateTime.format_dob (
 			self._payload[self._idx['dob']],
 			format = format,
@@ -1177,10 +1177,10 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		else:
 			return None
 	#--------------------------------------------------------
-	def _get_messages(self):
-		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']])
+	def get_messages(self, order_by=None):
+		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']], order_by = order_by)
 
-	messages = property(_get_messages, lambda x:x)
+	messages = property(get_messages, lambda x:x)
 	#--------------------------------------------------------
 	def _get_due_messages(self):
 		return gmProviderInbox.get_due_messages(pk_patient = self._payload[self._idx['pk_identity']])

@@ -2942,7 +2942,7 @@ class gmTopLevelFrame(wx.Frame):
 				gmTools.coalesce(pat['title'], u'', u'%.4s'),
 				pat['firstnames'],
 				pat['lastnames'],
-				pat.get_formatted_dob(format = '%x', encoding = gmI18N.get_encoding()),
+				pat.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 				pat['pk_identity']
 			)
 		else:
@@ -2971,7 +2971,7 @@ class gmTopLevelFrame(wx.Frame):
 	def _cb_update_clock(self):
 		"""Displays date and local time in the second slot of the status bar"""
 		t = time.localtime(time.time())
-		st = time.strftime('%c', t).decode(gmI18N.get_encoding(), 'replace')
+		st = time.strftime('%Y %b %d  %H:%M:%S', t).decode(gmI18N.get_encoding(), 'replace')
 		self.SetStatusText(st, 1)
 	#------------------------------------------------
 	def Lock(self):

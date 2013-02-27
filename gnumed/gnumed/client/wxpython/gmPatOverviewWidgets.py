@@ -273,17 +273,25 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 			list_data.append(msg)
 
-		for msg in patient.messages:
+		for msg in patient.get_messages(order_by = u'due_date NULLS LAST, importance DESC, received_when DESC'):
 			# already displayed above ?
 			if msg['is_due']:
 				continue
 			# not relevant anymore ?
 			if msg['is_expired']:
 				continue
-			list_items.append(u'%s%s' % (
-				msg['l10n_type'],
-				gmTools.coalesce(msg['comment'], u'', u': %s')
-			))
+			if msg['due_date'] is None:
+				label = u'%s%s' % (
+					msg['l10n_type'],
+					gmTools.coalesce(msg['comment'], u'', u': %s')
+				)
+			else:
+				label = _('due %s%s') % (
+					gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d'),
+					gmTools.coalesce(msg['comment'], u'', u': %s')
+				)
+
+			list_items.append(label)
 			list_data.append(msg)
 
 		for hint in patient.dynamic_hints:

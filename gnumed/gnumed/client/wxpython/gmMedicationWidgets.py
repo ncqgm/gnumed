@@ -2769,7 +2769,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
 			'row_ver': entry['row_version'],
-			'mod_when': entry['modified_when'].strftime('%c').decode(gmI18N.get_encoding()),
+			'mod_when': entry['modified_when'].strftime('%Y %b %d  %H:%M:%S').decode(gmI18N.get_encoding()),
 			'mod_by': entry['modified_by']
 		})
 

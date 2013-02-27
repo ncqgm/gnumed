@@ -395,7 +395,16 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		SELECT vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s)
 	) union all (
 		-- anywhere in name
-		SELECT vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames || n.lastnames || coalesce(n.preferred, '')) ~* lower(%s)
+		SELECT
+			vbp.*,
+			%s::text AS match_type
+		FROM
+			dem.v_basic_person vbp,
+			dem.names n
+		WHERE
+			vbp.pk_identity = n.id_identity
+				AND
+			lower(n.firstnames || ' ' || n.lastnames || ' ' || coalesce(n.preferred, '')) ~* lower(%s)
 	)) AS super_list ORDER BY lastnames, firstnames, dob
 ) AS sorted_list"""
 			tmp = normalized.strip()
@@ -460,7 +469,20 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames || n.lastnames) ~* lower(%s) AND lower(n.firstnames || n.lastnames) ~* lower(%s)",
+						'cmd': u"""SELECT DISTINCT ON (id_identity)
+									vbp.*,
+									%s::text AS match_type
+								FROM
+									dem.v_basic_person vbp,
+									dem.names n
+								WHERE
+									vbp.pk_identity = n.id_identity
+										AND
+									-- name_parts[0]
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+										AND
+									-- name_parts[1]
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)""",
 						'args': [_('name'), name_parts[0], name_parts[1]]
 					})
 					return queries
@@ -492,7 +514,21 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames || n.lastnames) ~* lower(%s) AND lower(n.firstnames || n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'cmd': u"""SELECT DISTINCT ON (id_identity)
+									vbp.*,
+									%s::text AS match_type
+								FROM
+									dem.v_basic_person vbp,
+									dem.names n
+								WHERE
+									vbp.pk_identity = n.id_identity
+										AND
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+										AND
+									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
+										AND
+									dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)
+						""",
 						'args': [_('name, date of birth'), name_parts[0], name_parts[1], date_part.replace(u',', u'.')]
 					})
 					return queries
@@ -545,7 +581,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				})
 				# or even substrings anywhere in name
 				where_parts.append ({
-					'conditions': u"lower(firstnames || lastnames) ~* lower(%s) OR lower(firstnames || lastnames) ~* lower(%s)",
+					'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s) OR lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 					'args': [_('name'), name_parts[0][0], name_parts[0][1]]
 				})
 
@@ -571,7 +607,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				})
 				# or even substrings anywhere in name
 				where_parts.append ({
-					'conditions': u"lower(firstnames || lastnames) ~* lower(%s) AND lower(firstnames || lastnames) ~* lower(%s)",
+					'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s) AND lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 					'args': [_('name'), ' '.join(name_parts[0]), ' '.join(name_parts[1])]
 				})
 
@@ -581,7 +617,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if len(name_parts) == 1:
 					for part in name_parts[0]:
 						where_parts.append ({
-							'conditions': u"lower(firstnames || lastnames) ~* lower(%s)",
+							'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 							'args': [_('name'), part]
 						})
 				else:
@@ -590,7 +626,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 						tmp.append(' '.join(part))
 					for part in tmp:
 						where_parts.append ({
-							'conditions': u"lower(firstnames || lastnames) ~* lower(%s)",
+							'conditions': u"lower(firstnames || ' ' || lastnames) ~* lower(%s)",
 							'args': [_('name'), part]
 						})
 
@@ -643,7 +679,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		args = []
 		# FIXME: split on more than just ' '
 		for arg in search_term.strip().split():
-			where_clause += u" AND lower(coalesce(vbp.title, '') || vbp.firstnames || vbp.lastnames) ~* lower(%s)"
+			where_clause += u" AND lower(coalesce(vbp.title, '') || ' ' || vbp.firstnames || ' ' || vbp.lastnames) ~* lower(%s)"
 			args.append(arg)
 
 		query = u"""
