@@ -1177,10 +1177,10 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		else:
 			return None
 	#--------------------------------------------------------
-	def _get_messages(self):
-		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']])
+	def get_messages(self, order_by=None):
+		return gmProviderInbox.get_inbox_messages(pk_patient = self._payload[self._idx['pk_identity']], order_by = order_by)
 
-	messages = property(_get_messages, lambda x:x)
+	messages = property(get_messages, lambda x:x)
 	#--------------------------------------------------------
 	def _get_due_messages(self):
 		return gmProviderInbox.get_due_messages(pk_patient = self._payload[self._idx['pk_identity']])
