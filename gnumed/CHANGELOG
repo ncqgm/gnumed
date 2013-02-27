@@ -68,9 +68,11 @@ IMPROVED: non-overdue recalls display in patient overview
 # rel-1-2-patches
 ------------------------------------------------
 
-	1.2.9
+	1.2.9 (unreleased)
 
 FIX: protect against unexplained double-fill of provider inbox
+
+IMPROVED: non-overdue recalls display in patient overview
 
 	1.2.8
 
