@@ -6,6 +6,10 @@
 # rel-1-2-patches
 ------------------------------------------------
 
+	1.2.10 (unreleased)
+
+IMPROVED: non-overdue recalls display in patient overview
+
 	1.2.9
 
 FIX: protect against unexplained double-fill of provider inbox
