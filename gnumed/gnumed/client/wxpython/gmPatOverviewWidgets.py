@@ -757,9 +757,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		comms = patient.get_comm_channels()
 		for comm in comms:
-			list_items.append(u'%s: %s' % (
+			list_items.append(u'%s: %s%s' % (
 				comm['l10n_comm_type'],
-				comm['url']
+				comm['url'],
+				gmTools.coalesce(comm['comment'], u'', u' (%s)')
 			))
 			list_data.append(comm)
 
