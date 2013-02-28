@@ -71,6 +71,7 @@ IMPROVED: non-overdue recalls display in patient overview
 	1.2.9 (unreleased)
 
 FIX: protect against unexplained double-fill of provider inbox
+FiX: protect against capitalize('') [thanks Slappinjohn]
 
 IMPROVED: non-overdue recalls display in patient overview
 
