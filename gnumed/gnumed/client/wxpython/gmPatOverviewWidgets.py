@@ -267,7 +267,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		due_messages = patient.due_messages
 		no_of_dues = len(due_messages)
 		for msg in due_messages:
-			list_items.append(_('due %s: %s') % (
+			list_items.append(_('due for %s: %s') % (
 				gmDateTime.format_interval_medically(msg['interval_due']),
 				gmTools.coalesce(msg['comment'], u'?')
 			))
@@ -286,8 +286,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmTools.coalesce(msg['comment'], u'', u': %s')
 				)
 			else:
-				label = _('due %s%s') % (
-					gmDateTime.pydt_strftime(msg['due_date'], '%Y %b %d'),
+				label = _('due in %s%s') % (
+					gmDateTime.format_interval_medically(msg['interval_due']),
 					gmTools.coalesce(msg['comment'], u'', u': %s')
 				)
 

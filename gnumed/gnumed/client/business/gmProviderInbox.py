@@ -129,7 +129,7 @@ def get_due_messages(pk_patient=None, order_by=None):
 		u'is_due IS TRUE'
 	]
 
-	cmd = u"SELECT *, now() - due_date AS interval_due FROM dem.v_message_inbox WHERE %s" % (
+	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
 		order_by % u' AND '.join(where_parts)
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)

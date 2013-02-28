@@ -74,6 +74,12 @@ select
 		else true
 	end
 		as is_expired,
+	case
+		when due_date is null then null
+		when due_date > now() then due_date - now()
+		else now() - due_date
+	end
+		as interval_due,
 	gm.xid2int(mi.xmin)
 		as xmin_message_inbox
 from
@@ -131,6 +137,8 @@ select
 		as is_due,
 	NULL::boolean
 		as is_expired,
+	NULL::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from
@@ -187,6 +195,8 @@ select
 		as is_due,
 	NULL::boolean
 		as is_expired,
+	NULL::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from
@@ -249,6 +259,8 @@ select
 		as is_due,
 	NULL::boolean
 		as is_expired,
+	NULL::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from
