@@ -580,6 +580,9 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	if (mode is None) or (mode == CAPS_NONE):
 		return text
 
+	if len(text) == 0:
+		return text
+
 	if mode == CAPS_FIRST:
 		if len(text) == 1:
 			return text[0].upper()

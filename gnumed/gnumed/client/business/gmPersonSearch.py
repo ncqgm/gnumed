@@ -162,7 +162,7 @@ class cPatientSearcher_SQL:
 		"""Compose queries if search term seems unambigous."""
 		queries = []
 
-		raw = raw.rstrip(u',').rstrip(u';')
+		raw = raw.strip().rstrip(u',').rstrip(u';').strip()
 
 		# "<digits>" - GNUmed patient PK or DOB
 		if regex.match(u"^(\s|\t)*\d+(\s|\t)*$", raw, flags = regex.LOCALE | regex.UNICODE):
@@ -364,7 +364,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 	#--------------------------------------------------------
 	# queries for DE
 	#--------------------------------------------------------
-	def _generate_queries_de(self, search_term = None):
+	def _generate_queries_de(self, search_term=None):
 
 		if search_term is None:
 			return []
@@ -377,7 +377,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		# no we don't
 		_log.debug('[%s]: not a search term with a "suggestive" structure' % search_term)
 
-		search_term = search_term.strip(u',').strip(u';')
+		search_term = search_term.strip().strip(u',').strip(u';').strip()
 		normalized = self._normalize_soundalikes(search_term)
 
 		queries = []
@@ -423,11 +423,16 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		if len(parts_list) == 1:
 			# re-split on whitespace
 			sub_parts_list = regex.split(u"\s*|\t*", normalized)
+			# ignore empty parts
+			sub_parts_list = [ p.strip() for p in sub_parts_list if p.strip() != u'' ]
 
 			# parse into name/date parts
 			date_count = 0
 			name_parts = []
 			for part in sub_parts_list:
+				# skip empty parts
+				if part.strip() == u'':
+					continue
 				# any digit signifies a date
 				# FIXME: what about "<40" ?
 				if regex.search(u"\d", part, flags = regex.LOCALE | regex.UNICODE):
@@ -511,6 +516,8 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			name_parts = []
 			name_count = 0
 			for part in parts_list:
+				if part.strip() == u'':
+					continue
 				# any digits ?
 				if regex.search(u"\d+", part, flags = regex.LOCALE | regex.UNICODE):
 					# FIXME: parse out whitespace *not* adjacent to a *word*
