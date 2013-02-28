@@ -1052,10 +1052,11 @@ class cLaTeXForm(cFormEngine):
 #			else:
 #				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		if editor_cmd is not None:
-			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
-		self.re_editable_filenames = [self.instance_filename]
+		if editor_cmd is None:
+			return False
 
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		self.re_editable_filenames = [self.instance_filename]
 		return result
 	#--------------------------------------------------------
 	def generate_output(self, instance_file=None, format=None):
@@ -1246,10 +1247,11 @@ class cXeTeXForm(cFormEngine):
 #			else:
 #				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
-		if editor_cmd is not None:
-			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
-		self.re_editable_filenames = [self.instance_filename]
+		if editor_cmd is None:
+			return False
 
+		result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
+		self.re_editable_filenames = [self.instance_filename]
 		return result
 	#--------------------------------------------------------
 	def generate_output(self, instance_file=None, format=None):
