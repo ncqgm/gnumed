@@ -170,11 +170,17 @@ class cBusinessDBObject(object):
 		  of their underlying tables
 
 	<_cmds_store_payload>
-		- one or multiple "update ... set ... where xmin_* = ..." statements
-		  which actually update the database from the data in self._payload,
+		- one or multiple "update ... set ... where xmin_* = ... and pk* = ..."
+		  statements which actually update the database from the data in self._payload,
 		- the last query must refetch at least the XMIN values needed to detect
 		  concurrent updates, their field names had better be the same as
 		  in _cmd_fetch_payload,
+		- the last query CAN return other fields which is particularly
+		  useful when those other fields are computed in the backend
+		  and may thus change upon save but will not have been set by
+		  the client code explicitely - this is only really of concern
+		  if the saved subclass is to be reused after saving rather
+		  than re-instantiated
 		- when subclasses tend to live a while after save_payload() was
 		  called and they support computed fields (say, _(some_column)
 		  you need to return *all* columns (see cEncounter)
@@ -195,18 +201,18 @@ from Gnumed.pycommon import gmPG2
 # short description
 #------------------------------------------------------------
 # use plural form, search-replace get_XXX
-_SQL_get_XXX = u\"""
+_SQL_get_XXX = u" ""
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
 	WHERE %s
-\"""
+"" "
 
 class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
-	\"""Represents ...\"""
+	" ""Represents ..."" "
 
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
-		u\"""
+		u" ""
 			-- typically the underlying table name
 			UPDATE xxx.xxx SET
 				-- typically "table_col = %(view_col)s"
@@ -217,9 +223,10 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_XXX)s
 			RETURNING
-				pk as pk_XXX,
 				xmin as xmin_XXX
-		\"""
+				--, ...
+				--, ...
+		" ""
 	]
 	# view columns that can be updated:
 	_updatable_fields = [
@@ -247,7 +254,7 @@ def create_xxx(xxx=None, xxx=None):
 		u'xxx': xxx,
 		u'xxx': xxx
 	}
-	cmd = u\"""
+	cmd = u" ""
 		INSERT INTO xxx.xxx (
 			xxx,
 			xxx,
@@ -258,10 +265,13 @@ def create_xxx(xxx=None, xxx=None):
 			gm.nullify_empty_string(%(xxx)s)
 		)
 		RETURNING pk
-	\"""
+		--RETURNING *
+	" ""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
 
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
+	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'xxx'})
 #------------------------------------------------------------
 def delete_xxx(xxx=None):
 	args = {'pk': xxx}
@@ -553,11 +563,6 @@ def delete_xxx(xxx=None):
 			conn = gmPG2.get_connection(readonly=False)
 			close_conn = conn.close
 
-		# query succeeded but failed to find the row to lock
-		# because another transaction committed an UPDATE or
-		# DELETE *before* we attempted to lock it ...
-		# FIXME: this can fail if savepoints are used since subtransactions change the xmin/xmax ...
-
 		queries = []
 		for query in self.__class__._cmds_store_payload:
 			queries.append({'cmd': query, 'args': args})
@@ -570,12 +575,16 @@ def delete_xxx(xxx=None):
 
 		# this can happen if:
 		# - someone else updated the row so XMIN does not match anymore
-		# - the PK went away (rows was deleted from under us)
+		# - the PK went away (rows were deleted from under us)
 		# - another WHERE condition of the UPDATE did not produce any rows to update
+		# - savepoints are used since subtransactions may relevantly change the xmin/xmax ...
 		if len(rows) == 0:
 			return (False, (u'cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
 
-		# update cached XMIN values (should be in first-and-only result row of last query)
+		# update cached values from should-be-first-and-only result
+		# row of last query,
+		# update all fields returned such that computed
+		# columns see their new values
 		row = rows[0]
 		for key in idx:
 			try:
