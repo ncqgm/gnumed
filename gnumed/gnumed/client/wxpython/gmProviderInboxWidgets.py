@@ -767,6 +767,44 @@ def edit_inbox_message(parent=None, message=None, single_entry=True):
 		return True
 	dlg.Destroy()
 	return False
+
+#============================================================
+def manage_reminders(parent=None, patient=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		reminders = gmProviderInbox.get_reminders(pk_patient = patient)
+		items = [ [
+			gmTools.bool2subst (
+				r['is_due'],
+				_('overdue for %s'),
+				_('due in %s')
+			) % gmDateTime.format_interval_medically(r['interval_due']),
+			r['comment'],
+			r['pk_inbox_message']
+		] for r in reminders ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(reminders)
+	#------------------------------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = None,
+		caption = _('Reminders for the current patient'),
+		columns = [ _('Status'), _('Subject'), '#' ],
+		single_selection = False,
+		can_return_empty = True,
+		ignore_OK_button = False,
+		refresh_callback = refresh
+#		edit_callback=None,
+#		new_callback=None,
+#		delete_callback=None,
+#		left_extra_button=None,
+#		middle_extra_button=None,
+#		right_extra_button=None
+	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 

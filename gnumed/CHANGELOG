@@ -32,6 +32,7 @@ NEW: list placeholders from within client
 NEW: show (e)GFR in substance intake EA
 NEW: placeholder $<test_results>$, selecting test results from list
 NEW: Epworth Sleepiness Scale
+NEW: placeholder $<reminders>$ for messages with due date
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type

@@ -194,6 +194,10 @@ known_variant_placeholders = [
 											#	path:			into which path to export copies of the document pages,
 											#					temp dir if not given
 
+	u'reminders',							# "args":			<template>//<date format>
+											#	template:		something %(field)s something else,
+											#					(do not include "//" itself in the template)
+
 	# provider related:
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
@@ -399,7 +403,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			try:
 				lng = int(lng)
 			except (TypeError, ValueError):
-				_log.error('placeholder length definition error: %s, discarding length: >%s<', original_placeholder, lng)
+				_log.debug('placeholder length definition error: %s, discarding length: >%s<', original_placeholder, lng)
 				lng = None
 
 		if len(parts) > 3:
@@ -555,6 +559,35 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
+	#--------------------------------------------------------
+	def _get_variant_reminders(self, data=None):
+
+		from Gnumed.wxpython import gmProviderInboxWidgets
+
+		template = _('due %(due_date)s: %(comment)s (%(interval_due)s)')
+		date_format = '%Y %b %d'
+
+		data_parts = data.split('//')
+
+		if len(data_parts) > 0:
+			if data_parts[0].strip() != u'':
+				template = data_parts[0]
+
+		if len(data_parts) > 1:
+			if data_parts[1].strip() != u'':
+				date_format = data_parts[1]
+
+		reminders = gmProviderInboxWidgets.manage_reminders(patient = self.pat.ID)
+
+		if reminders is None:
+			return u''
+
+		if len(reminders) == 0:
+			return u''
+
+		lines = [ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in reminders ]
+
+		return u'\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_documents(self, data=None):
 
@@ -1923,7 +1956,8 @@ if __name__ == '__main__':
 			#u'$<soap::soapu //%s::9999>$',
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 			#u'$<test_results:://%c::>$'
-			u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
+			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
+			u'$<reminders:://::>$'
 		]
 
 		handler = gmPlaceholderHandler()

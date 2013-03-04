@@ -143,7 +143,6 @@ def browse_incoming_unmatched(parent=None):
 #		right_extra_button=None
 	)
 
-
 #================================================================
 # LOINC related widgets
 #================================================================

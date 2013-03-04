@@ -116,6 +116,27 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
 		return tt
 #------------------------------------------------------------
+def get_reminders(pk_patient=None, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
+
+	args = {'pat': pk_patient}
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u'due_date IS NOT NULL'
+	]
+
+	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
+		order_by % u' AND '.join(where_parts)
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
+#------------------------------------------------------------
 def get_due_messages(pk_patient=None, order_by=None):
 
 	if order_by is None:
