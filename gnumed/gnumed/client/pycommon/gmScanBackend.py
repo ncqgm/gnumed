@@ -338,25 +338,31 @@ class cSaneScanner:
 #==================================================
 class cXSaneScanner:
 
-	_filetype = u'.png'
-	_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
-	paths = gmTools.gmPaths()
-	_xsanerc_gnumed = os.path.expanduser(os.path.join(paths.tmp_dir, 'gm-xsanerc.conf'))
-	_xsanerc_backup = os.path.expanduser(os.path.join(paths.tmp_dir, 'gm-xsanerc.conf.bak'))
+	_FILETYPE = u'.png'
 
 	#----------------------------------------------
 	def __init__(self):
 		# while not strictly necessary it is good to fail early
 		# this will tell us fairly safely whether XSane is properly installed
+		self._stock_xsanerc = os.path.expanduser(os.path.join('~', '.sane', 'xsane', 'xsane.rc'))
 		try:
-			open(cXSaneScanner._xsanerc, 'r').close()
+			open(self._stock_xsanerc, 'r').close()
 		except IOError:
 			msg = (
 				'XSane not properly installed for this user:\n\n'
 				' [%s] not found\n\n'
 				'Start XSane once before using it with GNUmed.'
-			) % cXSaneScanner._xsanerc
+			) % self._stock_xsanerc
 			raise ImportError(msg)
+
+		# make sure we've got a custom xsanerc for
+		# the user to modify manually
+		self._gm_custom_xsanerc = os.path.expanduser(os.path.join('~', '.gnumed', 'gm-xsanerc.conf'))
+		try:
+			open(self._gm_custom_xsanerc, 'r+b').close()
+		except IOError:
+			_log.info('creating [%s] from [%s]', self._gm_custom_xsanerc, self._stock_xsanerc)
+			shutil.copyfile(self._stock_xsanerc, self._gm_custom_xsanerc)
 
 		self.device_settings_file = None
 		self.default_device = None
@@ -370,21 +376,15 @@ class cXSaneScanner:
 		<filename> name part must have format name-001.ext>
 		"""
 		if filename is None:
-			filename = gmTools.get_unique_filename (
-				prefix = 'gmScannedObj-',
-				suffix = cXSaneScanner._filetype
-			)
+			filename = gmTools.get_unique_filename(prefix = 'gm-scan-')
+
 		name, ext = os.path.splitext(filename)
-		filename = '%s-001%s' % (name, cXSaneScanner._filetype)
-
+		filename = '%s-001%s' % (name, cXSaneScanner._FILETYPE)
 		filename = os.path.abspath(os.path.expanduser(filename))
-		path, name = os.path.split(filename)
-
-		self.__prepare_xsanerc()
 
 		cmd = 'xsane --no-mode-selection --save --force-filename "%s" --xsane-rc "%s" %s %s' % (
 			filename,
-			cXSaneScanner._xsanerc_gnumed,
+			self.__get_session_xsanerc(),
 			gmTools.coalesce(self.device_settings_file, '', '--device-settings %s'),
 			gmTools.coalesce(self.default_device, '')
 		)
@@ -395,33 +395,33 @@ class cXSaneScanner:
 			flist.sort()
 			return flist
 
-		raise OSError(-1, 'error starting XSane as [%s]' % cmd)
+		raise OSError(-1, 'error running XSane as [%s]' % cmd)
 	#---------------------------------------------------
 	def image_transfer_done(self):
 		return True
 	#----------------------------------------------
 	# internal API
 	#----------------------------------------------
-	def __prepare_xsanerc(self):
+	def __get_session_xsanerc(self):
 
-		try:
-			open(cXSaneScanner._xsanerc_gnumed, 'r+b').close()
-		except IOError:
-			_log.info('creating [%s] from [%s]', cXSaneScanner._xsanerc_gnumed, cXSaneScanner._xsanerc)
-			shutil.copyfile(cXSaneScanner._xsanerc, cXSaneScanner._xsanerc_gnumed)
-
-		shutil.move(cXSaneScanner._xsanerc_gnumed, cXSaneScanner._xsanerc_backup)
+		# create an xsanerc for this session
+		session_xsanerc = gmTools.get_unique_filename (
+			prefix = 'gm-session_xsanerc-',
+			suffix = '.conf'
+		)
+		_log.debug('GNUmed -> XSane session xsanerc: %s', session_xsanerc)
 
 		# our closest bet, might contain umlauts
 		enc = gmI18N.get_encoding()
-		fread = codecs.open(cXSaneScanner._xsanerc_backup, mode = "rU", encoding = enc)
-		fwrite = codecs.open(cXSaneScanner._xsanerc_gnumed, mode = "w", encoding = enc)
+		fread = codecs.open(self._gm_custom_xsanerc, mode = "rU", encoding = enc)
+		fwrite = codecs.open(session_xsanerc, mode = "w", encoding = enc)
 
 		paths = gmTools.gmPaths()
 		val_dict = {
-			u'filetype': cXSaneScanner._filetype,
 			u'tmp-path': paths.tmp_dir,
 			u'working-directory': paths.tmp_dir,
+			u'filename': u'<--force-filename>',
+			u'filetype': cXSaneScanner._FILETYPE,
 			u'skip-existing-numbers': u'1',
 			u'filename-counter-step': u'1',
 			u'filename-counter-len': u'3'
@@ -432,11 +432,12 @@ class cXSaneScanner:
 			line = line.replace(u'\r', u'')
 
 			if idx % 2 == 0:			# even lines are keys
-				key = line.strip(u'"')
-				fwrite.write(u'"%s"\n' % key)
+				curr_key = line.strip(u'"')
+				fwrite.write(u'"%s"\n' % curr_key)
 			else: 						# odd lines are corresponding values
 				try:
-					value = val_dict[key]
+					value = val_dict[curr_key]
+					_log.debug('replaced [%s] with [%s]', curr_key, val_dict[curr_key])
 				except KeyError:
 					value = line
 				fwrite.write(u'%s\n' % value)
@@ -445,7 +446,7 @@ class cXSaneScanner:
 		fwrite.close()
 		fread.close()
 
-		return True
+		return session_xsanerc
 #==================================================
 def get_devices():
 	try:

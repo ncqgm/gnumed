@@ -445,7 +445,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	"""This introduces a race condition between the file.close() and
 	actually using the filename.
 
-	The file will not exist after calling this function.
+	The file will NOT exist after calling this function.
 	"""
 	if tmp_dir is not None:
 		if (
@@ -453,7 +453,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 				or
 			not os.access(tmp_dir, os.X_OK | os.W_OK)
 		):
-			_log.info('cannot find temporary dir [%s], using system default', tmp_dir)
+			_log.warning('cannot find temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
 	kwargs = {'dir': tmp_dir}

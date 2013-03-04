@@ -321,6 +321,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		self.__fd2gm_filename = gmTools.get_unique_filename(prefix = r'freediams2gm-', suffix = r'.xml')
 		_log.debug('GNUmed <-> FreeDiams "exchange-out"/"prescription" file: %s', self.__fd2gm_filename)
 		paths = gmTools.gmPaths()
+		# this file can be modified by the user as needed:
 		self.__fd4gm_config_file = os.path.join(paths.home_dir, '.gnumed', 'freediams4gm.conf')
 
 		self.path_to_binary = None
