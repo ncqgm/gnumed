@@ -20,6 +20,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmPathLab
 
 
@@ -150,12 +151,11 @@ def delete_incoming_data(pk_incoming_data=None):
 
 #------------------------------------------------------------
 
-
 #============================================================
 def fix_HL7_stupidities(filename, encoding='utf8'):
 
 	out_fname = gmTools.get_unique_filename (
-		prefix = u'%s-fixed-' % os.path.splitext(filename)[0],
+		prefix = u'%s-fixed-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
 	_log.debug('fixing HL7 [%s] -> [%s]', filename, out_fname)
@@ -204,11 +204,20 @@ def extract_HL7_from_CDATA(filename, xml_path):
 	_log.debug('extracting HL7 from CDATA of <%s> nodes in XML file [%s]', xml_path, filename)
 
 	hl7_xml = pyxml.ElementTree()
-	hl7_xml.parse(filename)
-	out_fname = gmTools.get_unique_filename(prefix = u'%s-' % os.path.splitext(filename)[0], suffix = '.hl7')
+	try:
+		hl7_xml.parse(filename)
+	except pyxml.ParseError:
+		_log.exception('cannot parse [%s]' % filename)
+		return None
+	nodes = hl7_xml.findall(xml_path)
+	if len(nodes) == 0:
+		_log.debug('no data found')
+		return None
+
+	out_fname = gmTools.get_unique_filename(prefix = u'%s-' % gmTools.fname_stem(filename), suffix = '.hl7')
 	_log.debug('writing HL7 to [%s]', out_fname)
 	hl7_file = codecs.open(out_fname, 'wb', 'utf8')
-	for node in hl7_xml.findall(xml_path):
+	for node in nodes:
 		hl7_file.write(node.text)
 
 	return out_fname
@@ -243,7 +252,7 @@ def split_HL7_by_MSH(filename, encoding='utf8'):
 			if MSH_file is not None:
 				MSH_file.close()
 			idx += 1
-			out_fname = gmTools.get_unique_filename(prefix = u'%s-MSH_%s-' % (os.path.splitext(filename)[0], idx), suffix = 'hl7')
+			out_fname = gmTools.get_unique_filename(prefix = u'%s-MSH_%s-' % (gmTools.fname_stem(filename), idx), suffix = 'hl7')
 			_log.debug('writing message %s to [%s]', idx, out_fname)
 			MSH_fnames.append(out_fname)
 			MSH_file = codecs.open(out_fname, 'wb', 'utf8')
@@ -308,7 +317,7 @@ def flatten_MSH_by_PID(filename):
 			if PID_file is not None:
 				PID_file.close()
 			idx += 1
-			out_fname = gmTools.get_unique_filename(prefix = u'%s-PID_%s-' % (os.path.splitext(filename)[0], idx), suffix = 'hl7')
+			out_fname = gmTools.get_unique_filename(prefix = u'%s-PID_%s-' % (gmTools.fname_stem(filename), idx), suffix = 'hl7')
 			_log.debug('writing message for PID %s to [%s]', idx, out_fname)
 			PID_fnames.append(out_fname)
 			PID_file = codecs.open(out_fname, 'wb', 'utf8')
@@ -361,7 +370,8 @@ def __find_or_create_test_type(loinc, name, pk_lab, unit):
 		tt.save()
 		return tt
 	if tt['loinc'] != loinc:
-		raise ValueError('LOINC code mismatch between GM (%s) and HL7 (%s) for result type [%s]', tt['loinc'], loinc, name)
+#		raise ValueError('LOINC code mismatch between GM (%s) and HL7 (%s) for result type [%s]' % (tt['loinc'], loinc, name))
+		_log.error('LOINC code mismatch between GM (%s) and HL7 (%s) for result type [%s]', tt['loinc'], loinc, name)
 
 	return tt
 
@@ -435,7 +445,8 @@ def stage_MSH_as_incoming_data(filename, source=None):
 		#	u'fk_provider_disambiguated'		# The provider the data is relevant to.
 		inc.save()
 	except:
-		delete_incoming_data(pk_incoming_data = inc['pk_incoming_data'])
+		delete_incoming_data(pk_incoming_data = inc['pk_incoming_data_unmatched'])
+		raise
 
 	return inc
 
@@ -451,7 +462,6 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
-	from Gnumed.pycommon import gmDateTime
 
 	gmDateTime.init()
 
@@ -463,7 +473,7 @@ if __name__ == "__main__":
 			import_MSH(name)
 	#-------------------------------------------------------
 	def test_xml_extract():
-		hl7 = extract_HL7_from_CDATA(sys.argv[2], u'Message')
+		hl7 = extract_HL7_from_CDATA(sys.argv[2], u'.//Message')
 		print "HL7:", hl7
 		fixed = fix_HL7_stupidities(hl7)
 		print "fixed HL7:", fixed
@@ -477,7 +487,7 @@ if __name__ == "__main__":
 			print d
 	#-------------------------------------------------------
 	def test_stage_hl7_from_xml():
-		hl7 = extract_HL7_from_CDATA(sys.argv[2], u'Message')
+		hl7 = extract_HL7_from_CDATA(sys.argv[2], u'.//Message')
 		print "HL7:", hl7
 		fixed = fix_HL7_stupidities(hl7)
 		print "fixed HL7:", fixed
@@ -487,7 +497,17 @@ if __name__ == "__main__":
 			print " file:", name
 			print "", stage_MSH_as_incoming_data(name, source = u'Excelleris')
 	#-------------------------------------------------------
+	def test_stage_hl7():
+		fixed = fix_HL7_stupidities(sys.argv[2])
+		print "fixed HL7:", fixed
+		PID_names = split_HL7_by_PID(fixed, encoding='utf8')
+		print "staging per-PID HL7 files:"
+		for name in PID_names:
+			print " file:", name
+			print "", stage_MSH_as_incoming_data(name, source = u'?')
+	#-------------------------------------------------------
 	#test_import_HL7()
 	#test_xml_extract()
 	#test_incoming_data()
-	test_stage_hl7_from_xml()
+	#test_stage_hl7_from_xml()
+	test_stage_hl7()

@@ -755,6 +755,15 @@ class gmTopLevelFrame(wx.Frame):
 #		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
 #		self.Bind(wx.EVT_MENU, self.__on_arriba, item)
 
+		item = self.menu_tools.Append(-1, u'HL7 (Exelleris)', 'Stage Excelleris HL7')
+		self.Bind(wx.EVT_MENU, self.__on_excelleris, item)
+
+		item = self.menu_tools.Append(-1, u'HL7', 'Stage generic HL7')
+		self.Bind(wx.EVT_MENU, self.__on_hl7, item)
+
+		item = self.menu_tools.Append(-1, u'Incoming', 'Browse incoming data')
+		self.Bind(wx.EVT_MENU, self.__on_incoming, item)
+
 		self.menu_tools.AppendSeparator()
 
 		self.mainmenu.Append(self.menu_tools, _("&Tools"))
@@ -2350,6 +2359,15 @@ class gmTopLevelFrame(wx.Frame):
 			doc.save()
 
 		return
+	#----------------------------------------------
+	def __on_excelleris(self, evt):
+		gmMeasurementWidgets.import_Excelleris_HL7(parent = self)
+	#----------------------------------------------
+	def __on_hl7(self, evt):
+		gmMeasurementWidgets.import_HL7(parent = self)
+	#----------------------------------------------
+	def __on_incoming(self, evt):
+		gmMeasurementWidgets.browse_incoming_unmatched(parent = self)
 	#----------------------------------------------
 	def __on_snellen(self, evt):
 		dlg = gmSnellen.cSnellenCfgDlg()
