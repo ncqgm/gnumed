@@ -21,6 +21,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmPerson
@@ -251,7 +252,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			dob,
 			gmTools.coalesce(entry['waiting_zone'], u'', _('Zone: %s\n')),
 			entry['urgency'],
-			entry['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
+			gmDateTime.format_interval_medically(entry['waiting_time']),
 			gmTools.coalesce(entry['comment'], u'', u'\n%s')
 		)
 
@@ -290,7 +291,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			[ [
 				gmTools.coalesce(p['waiting_zone'], u''),
 				p['urgency'],
-				p['waiting_time_formatted'].replace(u'00 ', u'', 1).replace('00:', u'').lstrip('0'),
+				gmDateTime.format_interval_medically(p['waiting_time']),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				gmTools.coalesce (
 					gmTools.coalesce (

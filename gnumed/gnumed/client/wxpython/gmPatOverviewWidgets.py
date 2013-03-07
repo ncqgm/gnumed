@@ -431,9 +431,20 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		wlist = patient.get_waiting_list_entry()
 		if len(wlist) > 0:
 			is_waiting = True
-			w = wlist[0]
-			list_items.append(_('Currently in waiting list [%s]') % w['waiting_zone'])
-			list_data.append({'wlist': gmTools.coalesce(w['comment'], None)})
+			list_items.append(_('Currently %s entries in waiting list') % len(wlist))
+			tt = []
+			for w in wlist:
+				tt.append(u'%s) %s%s%s' % (
+					w['list_position'],
+					gmDateTime.format_interval_medically(w['waiting_time']),
+					gmTools.coalesce(w['waiting_zone'], u'', u' in "%s"'),
+					gmTools.coalesce(w['comment'], u'', u': %s')
+				))
+			if len(tt) > 0:
+				tt = u'\n'.join(tt)
+			else:
+				tt = None
+			list_data.append({'wlist': tt})
 
 		first = emr.get_first_encounter()
 		if first is not None:
