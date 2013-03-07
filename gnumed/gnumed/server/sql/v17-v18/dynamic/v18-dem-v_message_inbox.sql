@@ -61,22 +61,22 @@ select
 	mi.expiry_date
 		as expiry_date,
 	case
-		when due_date is null then null
-		when due_date > now() then false
-		when expiry_date is null then true
-		when expiry_date < now() then false
+		when due_date is null then false
+		 when due_date > now() then false
+		  when expiry_date is null then true
+		   when expiry_date < now() then false
 		else true
 	end
-		as is_due,
+		as is_overdue,
 	case
 		when expiry_date is null then false
-		when expiry_date > now() then false
+		 when expiry_date > now() then false
 		else true
 	end
 		as is_expired,
 	case
 		when due_date is null then null
-		when due_date > now() then due_date - now()
+		 when due_date > now() then due_date - now()
 		else now() - due_date
 	end
 		as interval_due,
@@ -134,7 +134,7 @@ select
 	NULL::date
 		as expiry_date,
 	NULL::boolean
-		as is_due,
+		as is_overdue,
 	NULL::boolean
 		as is_expired,
 	NULL::interval
@@ -192,7 +192,7 @@ select
 	NULL::date
 		as expiry_date,
 	NULL::boolean
-		as is_due,
+		as is_overdue,
 	NULL::boolean
 		as is_expired,
 	NULL::interval
@@ -256,7 +256,7 @@ select
 	NULL::date
 		as expiry_date,
 	NULL::boolean
-		as is_due,
+		as is_overdue,
 	NULL::boolean
 		as is_expired,
 	NULL::interval

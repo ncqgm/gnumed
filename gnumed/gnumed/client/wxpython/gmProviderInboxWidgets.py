@@ -425,7 +425,7 @@ def __display_clinical_reminders():
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
-	for msg in pat.due_messages:
+	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
 			exp = u''
 		else:
@@ -778,7 +778,7 @@ def manage_reminders(parent=None, patient=None):
 		reminders = gmProviderInbox.get_reminders(pk_patient = patient)
 		items = [ [
 			gmTools.bool2subst (
-				r['is_due'],
+				r['is_overdue'],
 				_('overdue for %s'),
 				_('due in %s')
 			) % gmDateTime.format_interval_medically(r['interval_due']),
