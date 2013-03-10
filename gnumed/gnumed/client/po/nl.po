@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 14:24+CET\n"
+"POT-Creation-Date: 2013-03-10 14:52+CET\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2445,11 +2445,19 @@ msgid "Patient #%s"
 msgstr "Patiënt"
 
 #, fuzzy
-msgid "Due: %s\n"
+msgid "Due: %s (%s ago)\n"
 msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
-msgid "Expiry: %s\n"
+msgid "Due: %s (in %s)\n"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Expired: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Expires: %s\n"
 msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
@@ -6105,24 +6113,61 @@ msgstr "&Vaccinaties"
 msgid "Programmer must override this text."
 msgstr "De programmeur moet deze tekst uitzetten."
 
-msgid "All"
-msgstr "Alle"
+msgid "A&ll"
+msgstr ""
 
 #, fuzzy
-msgid "Active-patient related"
-msgstr "Aktieve patient"
+msgid "&Overdue"
+msgstr "Beoordeling"
+
+#, fuzzy
+msgid "&Scheduled"
+msgstr "Actieve Schema"
+
+#, fuzzy
+msgid "&Unscheduled"
+msgstr "Actieve Schema"
+
+msgid "&Expired"
+msgstr ""
+
+#, fuzzy
+msgid "patient only"
+msgstr "patiënt"
+
+#, fuzzy
+msgid "provider only"
+msgstr "Provincie"
 
 #, fuzzy
 msgid "&Add"
 msgstr "&Alle gebruikers"
 
 #, fuzzy
-msgid "Show all your messages."
+msgid "Show all (but expired) messages."
 msgstr "Toon ALLE patientgerelateerde berichten."
 
 #, fuzzy
-msgid "Show those of your messages which are related to the active patient."
-msgstr "Toon alleen de patiëntberichten voor de active patiënt."
+msgid "Show overdue messages only."
+msgstr "Toon ALLE patientgerelateerde berichten."
+
+msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr ""
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+#, fuzzy
+msgid "Include only messages about the active patient."
+msgstr "Zoek voor gegevens in het EMD van de actieve patiënt"
+
+msgid ""
+"Include only messages explicitely for you (rather than also to all "
+"providers)."
+msgstr ""
 
 #, fuzzy
 msgid "Add a new message."
@@ -6132,9 +6177,12 @@ msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 "Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
 
+msgid "Show:"
+msgstr ""
+
 #, fuzzy
-msgid "Show messages:"
-msgstr "bericht"
+msgid "About active:"
+msgstr "inactief"
 
 #, fuzzy
 msgid "A code for this province."
@@ -6617,9 +6665,6 @@ msgstr "Toon &laboratoriumjournaal"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -7718,7 +7763,8 @@ msgid ""
 "\t\t"
 msgstr ""
 
-msgid "Welcome to the"
+#, fuzzy
+msgid "Welcome to"
 msgstr "Welkom  bij de"
 
 msgid "Cannot find image"
@@ -13011,6 +13057,9 @@ msgstr "algemene meerkeuze dialoog"
 msgid "invalid placeholder [%s]"
 msgstr "onbekende plaatsvuller: <%s>"
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 #, fuzzy
 msgid "Select the patient documents to reference from the new document."
 msgstr "Selecteer de episode waaronder dit document bewaard moet worden..."
@@ -13164,6 +13213,12 @@ msgstr ""
 
 msgid "forced detach attempt"
 msgstr "poging tot geforceerd afkoppelen."
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+msgid "Data ID"
+msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr ""
@@ -14043,7 +14098,7 @@ msgid "Search results"
 msgstr "zoekresultaten"
 
 #, fuzzy
-msgid "Search results for %s"
+msgid "Search results for [%s]"
 msgstr "zoekresultaten"
 
 #, fuzzy
@@ -14535,7 +14590,11 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, fuzzy
-msgid "due %s: %s"
+msgid "overdue %s: %s"
+msgstr "Documenten: %s"
+
+#, fuzzy
+msgid "due in %s%s"
 msgstr "Documenten: %s"
 
 #, fuzzy
@@ -14553,8 +14612,9 @@ msgstr "Naam bewerken"
 msgid "%s %s more not shown %s"
 msgstr ""
 
-msgid "Currently in waiting list [%s]"
-msgstr ""
+#, fuzzy
+msgid "Currently %s entries in waiting list"
+msgstr "De huidige geselecteerde patiënt is:"
 
 #, fuzzy
 msgid "first: %s, %s"
@@ -15249,25 +15309,51 @@ msgstr "Nieuwe naam toegoegen"
 msgid "Editing inbox message"
 msgstr "Naam bewerken"
 
+msgid "overdue for %s"
+msgstr ""
+
+#, fuzzy
+msgid "due in %s"
+msgstr "Documenten: %s"
+
+#, fuzzy
+msgid "Reminders for the current patient"
+msgstr "Schrijf een brief voor de huidige patiënt."
+
+#, fuzzy
+msgid "Category - Type"
+msgstr "Categorie"
+
 msgid "Sent"
 msgstr ""
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
+msgid " Inbox of %s %s%s."
+msgstr ""
+
+#, fuzzy
+msgid " (%s message(s))"
+msgstr "bericht"
+
+msgid "expired"
+msgstr ""
+
+msgid "%s overdue"
 msgstr ""
 
 msgid "Please check your GNUmed Inbox !"
 msgstr "Bekijk a.u.b. uw GNUmed Postvak In!"
+
+msgid "handling provider inbox item"
+msgstr ""
+
+msgid "There was a problem accessing the message data."
+msgstr ""
 
 msgid ""
 "No double-click action pre-programmed into\n"
 "GNUmed for message category and type:\n"
 "\n"
 " [%s]\n"
-msgstr ""
-
-msgid "handling provider inbox item"
 msgstr ""
 
 msgid "Message: %s"
@@ -16496,6 +16582,21 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "All"
+#~ msgstr "Alle"
+
+#, fuzzy
+#~ msgid "Active-patient related"
+#~ msgstr "Aktieve patient"
+
+#, fuzzy
+#~ msgid "Show those of your messages which are related to the active patient."
+#~ msgstr "Toon alleen de patiëntberichten voor de active patiënt."
+
+#, fuzzy
+#~ msgid "Show messages:"
+#~ msgstr "bericht"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Doc: %s"

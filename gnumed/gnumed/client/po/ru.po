@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 14:25+CET\n"
+"POT-Creation-Date: 2013-03-10 14:52+CET\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -2449,11 +2449,19 @@ msgid "Patient #%s"
 msgstr "Пациент #%s"
 
 #, fuzzy
-msgid "Due: %s\n"
+msgid "Due: %s (%s ago)\n"
 msgstr "Дата:%s\n"
 
 #, fuzzy
-msgid "Expiry: %s\n"
+msgid "Due: %s (in %s)\n"
+msgstr "Дата:%s\n"
+
+#, fuzzy
+msgid "Expired: %s\n"
+msgstr "Экспортированный: %s\n"
+
+#, fuzzy
+msgid "Expires: %s\n"
 msgstr "Экспортированный: %s\n"
 
 #, fuzzy
@@ -6193,20 +6201,60 @@ msgstr "&Hospitalizations"
 msgid "Programmer must override this text."
 msgstr "Программист должен аннулировать этот текст."
 
-msgid "All"
-msgstr "Всё"
+msgid "A&ll"
+msgstr ""
 
-msgid "Active-patient related"
-msgstr "Относящееся к активному пациенту"
+#, fuzzy
+msgid "&Overdue"
+msgstr "&Overview"
+
+#, fuzzy
+msgid "&Scheduled"
+msgstr "Запланировано"
+
+#, fuzzy
+msgid "&Unscheduled"
+msgstr "Запланировано"
+
+msgid "&Expired"
+msgstr ""
+
+#, fuzzy
+msgid "patient only"
+msgstr "пациент"
+
+#, fuzzy
+msgid "provider only"
+msgstr "Специалист"
 
 msgid "&Add"
 msgstr "&Add"
 
-msgid "Show all your messages."
+#, fuzzy
+msgid "Show all (but expired) messages."
 msgstr "Показывает все ваши сообщения."
 
-msgid "Show those of your messages which are related to the active patient."
-msgstr "Показывает сообщения, относящиеся к активному пациенту."
+#, fuzzy
+msgid "Show overdue messages only."
+msgstr "Показывает все ваши сообщения."
+
+msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr ""
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+#, fuzzy
+msgid "Include only messages about the active patient."
+msgstr "Если касается активного пациента, то отметьте."
+
+msgid ""
+"Include only messages explicitely for you (rather than also to all "
+"providers)."
+msgstr ""
 
 msgid "Add a new message."
 msgstr "Добавить новое сообщение."
@@ -6214,8 +6262,12 @@ msgstr "Добавить новое сообщение."
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Показывает все выбранные в вашем почтовом ящике сообщения."
 
-msgid "Show messages:"
-msgstr "Показывает сообщения:"
+msgid "Show:"
+msgstr "Показать:"
+
+#, fuzzy
+msgid "About active:"
+msgstr "Редактировать активное"
 
 msgid "A code for this province."
 msgstr "Код для этой области."
@@ -6697,9 +6749,6 @@ msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
 msgstr ""
-
-msgid "Show:"
-msgstr "Показать:"
 
 msgid "Edit staff details"
 msgstr "Редактировать сведения о сотруднике"
@@ -7826,7 +7875,8 @@ msgstr ""
 "(Это защитит от опечатки.)\n"
 "\t\t"
 
-msgid "Welcome to the"
+#, fuzzy
+msgid "Welcome to"
 msgstr "Добро пожаловать в"
 
 msgid "Cannot find image"
@@ -13071,6 +13121,9 @@ msgstr "диалоговое окно выбора нескольких джен
 msgid "invalid placeholder [%s]"
 msgstr "недопустимая вставка [%s]"
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 #, fuzzy
 msgid "Select the patient documents to reference from the new document."
 msgstr "Выберите эпизод, в котором зарегистрировать этот документ ..."
@@ -13228,6 +13281,13 @@ msgstr ""
 
 msgid "forced detach attempt"
 msgstr "попытка насильственного разъединения"
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+#, fuzzy
+msgid "Data ID"
+msgstr "Пакет данных"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr "Обновление данных LOINC может занять некоторое время ..."
@@ -14154,7 +14214,8 @@ msgstr ""
 msgid "Search results"
 msgstr "Результаты поиска"
 
-msgid "Search results for %s"
+#, fuzzy
+msgid "Search results for [%s]"
 msgstr "Результаты поиска для %s"
 
 msgid "Match"
@@ -14620,7 +14681,11 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s%7s %s:%s (%s часть(и)%s)"
 
 #, fuzzy
-msgid "due %s: %s"
+msgid "overdue %s: %s"
+msgstr "Комментарий (%s): %%s"
+
+#, fuzzy
+msgid "due in %s%s"
 msgstr "Комментарий (%s): %%s"
 
 #, fuzzy
@@ -14636,7 +14701,8 @@ msgstr "Редактирование почтового сообщения"
 msgid "%s %s more not shown %s"
 msgstr "%s %s более не указано %s"
 
-msgid "Currently in waiting list [%s]"
+#, fuzzy
+msgid "Currently %s entries in waiting list"
 msgstr "В настоящее время в списке ожидания [%s]"
 
 msgid "first: %s, %s"
@@ -15346,18 +15412,49 @@ msgstr "Добавление нового почтового сообщения"
 msgid "Editing inbox message"
 msgstr "Редактирование почтового сообщения"
 
+msgid "overdue for %s"
+msgstr ""
+
+#, fuzzy
+msgid "due in %s"
+msgstr "Комментарий (%s): %%s"
+
+#, fuzzy
+msgid "Reminders for the current patient"
+msgstr "Написать письмо для текущего пациента."
+
+#, fuzzy
+msgid "Category - Type"
+msgstr "Категория"
+
 msgid "Sent"
 msgstr "Отправить"
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
+#, fuzzy
+msgid " Inbox of %s %s%s."
 msgstr ""
 "\n"
 " Почтовый ящик %(title)s %(lname)s.\n"
 
+#, fuzzy
+msgid " (%s message(s))"
+msgstr "сообщение"
+
+msgid "expired"
+msgstr ""
+
+msgid "%s overdue"
+msgstr ""
+
 msgid "Please check your GNUmed Inbox !"
 msgstr "Проверьте ваш почтовый ящик GNUmed!"
+
+msgid "handling provider inbox item"
+msgstr "пункт управления почтовым ящиком специалиста"
+
+#, fuzzy
+msgid "There was a problem accessing the message data."
+msgstr "Имелась проблема доступа к этому [arriba] результату в [%s] !"
 
 msgid ""
 "No double-click action pre-programmed into\n"
@@ -15370,9 +15467,6 @@ msgstr ""
 "категории сообщений и типа:\n"
 "\n"
 "[%s]\n"
-
-msgid "handling provider inbox item"
-msgstr "пункт управления почтовым ящиком специалиста"
 
 msgid "Message: %s"
 msgstr "Сообщение: %s"
@@ -16585,6 +16679,18 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#~ msgid "All"
+#~ msgstr "Всё"
+
+#~ msgid "Active-patient related"
+#~ msgstr "Относящееся к активному пациенту"
+
+#~ msgid "Show those of your messages which are related to the active patient."
+#~ msgstr "Показывает сообщения, относящиеся к активному пациенту."
+
+#~ msgid "Show messages:"
+#~ msgstr "Показывает сообщения:"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Doc: %s"

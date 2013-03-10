@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 14:25+CET\n"
+"POT-Creation-Date: 2013-03-10 14:53+CET\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -2254,11 +2254,20 @@ msgid "Patient #%s"
 msgstr ""
 
 #, fuzzy
-msgid "Due: %s\n"
+msgid "Due: %s (%s ago)\n"
 msgstr "Документа: %s"
 
-msgid "Expiry: %s\n"
-msgstr ""
+#, fuzzy
+msgid "Due: %s (in %s)\n"
+msgstr "Документа: %s"
+
+#, fuzzy
+msgid "Expired: %s\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "Expires: %s\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy
 msgid "Active clinical hint"
@@ -5469,19 +5478,52 @@ msgstr ""
 msgid "Programmer must override this text."
 msgstr ""
 
-msgid "All"
+msgid "A&ll"
 msgstr ""
 
-msgid "Active-patient related"
+msgid "&Overdue"
+msgstr ""
+
+msgid "&Scheduled"
+msgstr ""
+
+msgid "&Unscheduled"
+msgstr ""
+
+msgid "&Expired"
+msgstr ""
+
+msgid "patient only"
+msgstr ""
+
+msgid "provider only"
 msgstr ""
 
 msgid "&Add"
 msgstr ""
 
-msgid "Show all your messages."
+msgid "Show all (but expired) messages."
 msgstr ""
 
-msgid "Show those of your messages which are related to the active patient."
+msgid "Show overdue messages only."
+msgstr ""
+
+msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr ""
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+#, fuzzy
+msgid "Include only messages about the active patient."
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
+
+msgid ""
+"Include only messages explicitely for you (rather than also to all "
+"providers)."
 msgstr ""
 
 msgid "Add a new message."
@@ -5490,8 +5532,12 @@ msgstr ""
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show messages:"
+msgid "Show:"
 msgstr ""
+
+#, fuzzy
+msgid "About active:"
+msgstr "неактиван"
 
 msgid "A code for this province."
 msgstr ""
@@ -5904,9 +5950,6 @@ msgstr ""
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -6811,7 +6854,7 @@ msgid ""
 "\t\t"
 msgstr ""
 
-msgid "Welcome to the"
+msgid "Welcome to"
 msgstr ""
 
 msgid "Cannot find image"
@@ -11219,6 +11262,9 @@ msgstr ""
 msgid "invalid placeholder [%s]"
 msgstr ""
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 msgid "Select the patient documents to reference from the new document."
 msgstr ""
 
@@ -11355,6 +11401,12 @@ msgid ""
 msgstr ""
 
 msgid "forced detach attempt"
+msgstr ""
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+msgid "Data ID"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -12116,7 +12168,7 @@ msgstr ""
 msgid "Search results"
 msgstr ""
 
-msgid "Search results for %s"
+msgid "Search results for [%s]"
 msgstr ""
 
 msgid "Match"
@@ -12507,7 +12559,11 @@ msgid "%s %s %s %s (%s ago, %s)"
 msgstr ""
 
 #, fuzzy
-msgid "due %s: %s"
+msgid "overdue %s: %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "due in %s%s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid ""
@@ -12522,7 +12578,7 @@ msgstr "генеричка порука за обавештење"
 msgid "%s %s more not shown %s"
 msgstr ""
 
-msgid "Currently in waiting list [%s]"
+msgid "Currently %s entries in waiting list"
 msgstr ""
 
 msgid "first: %s, %s"
@@ -13093,15 +13149,42 @@ msgstr ""
 msgid "Editing inbox message"
 msgstr ""
 
+msgid "overdue for %s"
+msgstr ""
+
+#, fuzzy
+msgid "due in %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "Reminders for the current patient"
+msgstr "Додај вакцинацију(е) за тренутног пацијента."
+
+msgid "Category - Type"
+msgstr ""
+
 msgid "Sent"
 msgstr ""
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
+msgid " Inbox of %s %s%s."
+msgstr ""
+
+msgid " (%s message(s))"
+msgstr ""
+
+msgid "expired"
+msgstr ""
+
+msgid "%s overdue"
 msgstr ""
 
 msgid "Please check your GNUmed Inbox !"
+msgstr ""
+
+msgid "handling provider inbox item"
+msgstr ""
+
+msgid "There was a problem accessing the message data."
 msgstr ""
 
 msgid ""
@@ -13109,9 +13192,6 @@ msgid ""
 "GNUmed for message category and type:\n"
 "\n"
 " [%s]\n"
-msgstr ""
-
-msgid "handling provider inbox item"
 msgstr ""
 
 msgid "Message: %s"
