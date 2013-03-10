@@ -70,7 +70,7 @@ IMPROVED: provider inbox: much improved workflow
 # rel-1-2-patches
 ------------------------------------------------
 
-	1.2.9 (unreleased)
+	1.2.9
 
 FIX: protect against unexplained double-fill of provider inbox
 FiX: protect against capitalize('') [thanks Slappinjohn]
