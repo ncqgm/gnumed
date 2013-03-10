@@ -225,6 +225,9 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__img_display.clear()
 			return
 
+		if not self.__curr_node.IsOk():
+			return
+
 		node_data = self.GetPyData(self.__curr_node)
 		doc_folder = self.__pat.get_document_folder()
 
