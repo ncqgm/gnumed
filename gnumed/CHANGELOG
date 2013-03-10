@@ -64,6 +64,7 @@ IMPROVED: database translation contribution code
 IMPROVED: login dialog help text [thanks J.Busser]
 IMPROVED: patient searcher logic [thanks J.Busser]
 IMPROVED: non-overdue recalls display in patient overview
+IMPROVED: provider inbox: much improved workflow
 
 ------------------------------------------------
 # rel-1-2-patches

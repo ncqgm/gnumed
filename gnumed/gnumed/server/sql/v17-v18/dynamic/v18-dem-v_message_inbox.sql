@@ -129,15 +129,15 @@ select
 	vo4dnd.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
+	TRUE::boolean
 		as is_overdue,
-	NULL::boolean
+	FALSE::boolean
 		as is_expired,
-	NULL::interval
+	'1 hour'::interval
 		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
@@ -187,15 +187,15 @@ select
 	vtr.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
+	TRUE::boolean
 		as is_overdue,
-	NULL::boolean
+	FALSE::boolean
 		as is_expired,
-	NULL::interval
+	'1 hour'::interval
 		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
@@ -251,15 +251,15 @@ select
 	vtr.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
+	TRUE::boolean
 		as is_overdue,
-	NULL::boolean
+	FALSE::boolean
 		as is_expired,
-	NULL::interval
+	'1 hour'::interval
 		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
