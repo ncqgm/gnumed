@@ -95,19 +95,22 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			u'%s\n\n' % _('Patient #%s')
 		)
 
-		tt += gmTools.coalesce (
-			self._payload[self._idx['due_date']],
-			u'',
-			_('Due: %s\n'),
-			function_initial = ('strftime', '%Y-%m-%d')
-		)
+		if self._payload[self._idx['due_date']] is not None:
+			if self._payload[self._idx['is_overdue']]:
+				template = _('Due: %s (%s ago)\n')
+			else:
+				template = _('Due: %s (in %s)\n')
+			tt += template % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['due_date']], '%Y %b %d'),
+				gmDateTime.format_interval_medically(self._payload[self._idx['interval_due']])
+			)
 
-		tt += gmTools.coalesce (
-			self._payload[self._idx['expiry_date']],
-			u'',
-			_('Expiry: %s\n'),
-			function_initial = ('strftime', '%Y-%m-%d')
-		)
+		if self._payload[self._idx['expiry_date']] is not None:
+			if self._payload[self._idx['is_expired']]:
+				template = _('Expired: %s\n')
+			else:
+				template = _('Expires: %s\n')
+			tt += template % gmDateTime.pydt_strftime(self._payload[self._idx['expiry_date']], '%Y %b %d')
 
 		if self._payload[self._idx['data']] is not None:
 			tt += self._payload[self._idx['data']][:150]
@@ -116,7 +119,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
 		return tt
 #------------------------------------------------------------
-def get_due_messages(pk_patient=None, order_by=None):
+def get_reminders(pk_patient=None, order_by=None):
 
 	if order_by is None:
 		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
@@ -126,10 +129,10 @@ def get_due_messages(pk_patient=None, order_by=None):
 	args = {'pat': pk_patient}
 	where_parts = [
 		u'pk_patient = %(pat)s',
-		u'is_due IS TRUE'
+		u'due_date IS NOT NULL'
 	]
 
-	cmd = u"SELECT *, now() - due_date AS interval_due FROM dem.v_message_inbox WHERE %s" % (
+	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
 		order_by % u' AND '.join(where_parts)
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
@@ -137,7 +140,28 @@ def get_due_messages(pk_patient=None, order_by=None):
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 
 #------------------------------------------------------------
-def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, order_by=None):
+def get_overdue_messages(pk_patient=None, order_by=None):
+
+	if order_by is None:
+		order_by = u'%s ORDER BY due_date, importance DESC, received_when DESC'
+	else:
+		order_by = u'%%s ORDER BY %s' % order_by
+
+	args = {'pat': pk_patient}
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u'is_overdue IS TRUE'
+	]
+
+	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
+		order_by % u' AND '.join(where_parts)
+	)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=False, exclude_expired=False, expired_only=False, overdue_only=False, unscheduled_only=False, exclude_unscheduled=False, order_by=None):
 
 	if order_by is None:
 		order_by = u'%s ORDER BY importance desc, received_when desc'
@@ -149,14 +173,29 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 
 	if pk_staff is not None:
 		if include_without_provider:
-			where_parts.append(u'pk_staff IN (%(staff)s, NULL) OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
+			where_parts.append(u'((pk_staff IN (%(staff)s, NULL)) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		else:
-			where_parts.append(u'pk_staff = %(staff)s OR modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)')
+			where_parts.append(u'((pk_staff = %(staff)s) OR (modified_by = (SELECT short_alias FROM dem.staff WHERE pk = %(staff)s)))')
 		args['staff'] = pk_staff
 
 	if pk_patient is not None:
 		where_parts.append(u'pk_patient = %(pat)s')
 		args['pat'] = pk_patient
+
+	if exclude_expired:
+		where_parts.append(u'is_expired IS FALSE')
+
+	if expired_only:
+		where_parts.append(u'is_expired IS TRUE')
+
+	if overdue_only:
+		where_parts.append(u'is_overdue IS TRUE')
+
+	if unscheduled_only:
+		where_parts.append(u'due_date IS NULL')
+
+	if exclude_unscheduled:
+		where_parts.append(u'due_date IS NOT NULL')
 
 	cmd = _SQL_get_inbox_messages % (
 		order_by % u' AND '.join(where_parts)
@@ -262,13 +301,23 @@ class cProviderInbox:
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_messages(self):
-		return get_inbox_messages(pk_staff = self.__provider_id)
+	def get_messages(self, pk_patient=None, include_without_provider=False, exclude_expired=False, expired_only=False, overdue_only=False, unscheduled_only=False, exclude_unscheduled=False, order_by=None):
+		return get_inbox_messages (
+			pk_staff = self.__provider_id,
+			pk_patient = pk_patient,
+			include_without_provider = include_without_provider,
+			exclude_expired = exclude_expired,
+			expired_only = expired_only,
+			overdue_only = overdue_only,
+			unscheduled_only = unscheduled_only,
+			exclude_unscheduled = exclude_unscheduled,
+			order_by = order_by
+		)
 
 	def _set_messages(self, messages):
 		return
 
-	messages = property(_get_messages, _set_messages)
+	messages = property(get_messages, _set_messages)
 
 #============================================================
 # dynamic hints API
@@ -395,7 +444,7 @@ if __name__ == '__main__':
 		print create_inbox_item_type(message_type = 'test')
 	#---------------------------------------
 	def test_due():
-		for msg in get_due_messages(pk_patient = 12):
+		for msg in get_overdue_messages(pk_patient = 12):
 			print msg.format()
 	#---------------------------------------
 	def test_auto_hints():

@@ -61,19 +61,25 @@ select
 	mi.expiry_date
 		as expiry_date,
 	case
-		when due_date is null then null
-		when due_date > now() then false
-		when expiry_date is null then true
-		when expiry_date < now() then false
+		when due_date is null then false
+		 when due_date > now() then false
+		  when expiry_date is null then true
+		   when expiry_date < now() then false
 		else true
 	end
-		as is_due,
+		as is_overdue,
 	case
 		when expiry_date is null then false
-		when expiry_date > now() then false
+		 when expiry_date > now() then false
 		else true
 	end
 		as is_expired,
+	case
+		when due_date is null then null
+		 when due_date > now() then due_date - now()
+		else now() - due_date
+	end
+		as interval_due,
 	gm.xid2int(mi.xmin)
 		as xmin_message_inbox
 from
@@ -123,14 +129,16 @@ select
 	vo4dnd.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
-		as is_due,
-	NULL::boolean
+	TRUE::boolean
+		as is_overdue,
+	FALSE::boolean
 		as is_expired,
+	'1 hour'::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from
@@ -179,14 +187,16 @@ select
 	vtr.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
-		as is_due,
-	NULL::boolean
+	TRUE::boolean
+		as is_overdue,
+	FALSE::boolean
 		as is_expired,
+	'1 hour'::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from
@@ -241,14 +251,16 @@ select
 	vtr.pk_patient as pk_patient,
 	true
 		as is_virtual,
-	NULL::date
+	now()::date - '1 hour'::interval
 		as due_date,
 	NULL::date
 		as expiry_date,
-	NULL::boolean
-		as is_due,
-	NULL::boolean
+	TRUE::boolean
+		as is_overdue,
+	FALSE::boolean
 		as is_expired,
+	'1 hour'::interval
+		as interval_due,
 	NULL::integer
 		as xmin_message_inbox
 from

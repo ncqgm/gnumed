@@ -21,6 +21,7 @@ from Gnumed.business import gmLOINC
 from Gnumed.business import gmForms
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmHL7
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
@@ -41,6 +42,106 @@ from Gnumed.wxpython import gmOrganizationWidgets
 
 
 _log = logging.getLogger('gm.ui')
+
+#================================================================
+# HL7 related widgets
+#================================================================
+def import_Excelleris_HL7(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# select file
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = 'Import Excelleris HL7 from XML file:',
+#		defaultDir = aDefDir,
+#		defaultFile = fname,
+		wildcard = "xml files|*.xml|XML files|*.XML|all files|*",
+		style = wx.OPEN | wx.FILE_MUST_EXIST
+	)
+	choice = dlg.ShowModal()
+	xml_name = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return False
+
+	hl7 = gmHL7.extract_HL7_from_CDATA(xml_name, u'.//Message')
+	if hl7 is None:
+		gmGuiHelpers.gm_show_info (
+			u'File [%s]\ndoes not seem to contain HL7 wrapped in XML.' % xml_name,
+			u'Extracting HL7 from XML'
+		)
+		return False
+	fixed_hl7 = gmHL7.fix_HL7_stupidities(hl7)
+	PID_names = gmHL7.split_HL7_by_PID(fixed_hl7)
+	for name in PID_names:
+		gmHL7.stage_MSH_as_incoming_data(name, source = u'Excelleris')
+
+#================================================================
+def import_HL7(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# select file
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = 'Import HL7 from file:',
+#		defaultDir = aDefDir,
+#		defaultFile = fname,
+		wildcard = "*.hl7|*.hl7|*.HL7|*.HL7|all files|*",
+		style = wx.OPEN | wx.FILE_MUST_EXIST
+	)
+	choice = dlg.ShowModal()
+	hl7_name = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return False
+
+	fixed_hl7 = gmHL7.fix_HL7_stupidities(hl7_name)
+	PID_names = gmHL7.split_HL7_by_PID(fixed_hl7)
+	for name in PID_names:
+		gmHL7.stage_MSH_as_incoming_data(name, source = u'generic')
+
+#================================================================
+def browse_incoming_unmatched(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		incoming = gmHL7.get_incoming_data()
+		items = [ [
+			i['data_type'],
+			u'%s, %s (%s) %s' % (
+				i['lastnames'],
+				i['firstnames'],
+				i['dob'],
+				i['gender']
+			),
+			i['external_data_id'],
+			i['pk_incoming_data_unmatched']
+		] for i in incoming ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(incoming)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = None,
+		caption = _('Showing unmatched incoming data'),
+		columns = [ _('Type'), _('Patient'), _('Data ID'), '#' ],
+		single_selection = True,
+		can_return_empty = False,
+		ignore_OK_button = True,
+		refresh_callback = refresh
+#		edit_callback=None,
+#		new_callback=None,
+#		delete_callback=None,
+#		left_extra_button=None,
+#		middle_extra_button=None,
+#		right_extra_button=None
+	)
 
 #================================================================
 # LOINC related widgets

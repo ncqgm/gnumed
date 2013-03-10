@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-02-11 14:24+CET\n"
-"PO-Revision-Date: 2013-02-25 16:26+0100\n"
+"POT-Creation-Date: 2013-03-10 14:51+CET\n"
+"PO-Revision-Date: 2013-03-10 15:26+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -2239,10 +2239,16 @@ msgstr "jeder"
 msgid "Patient #%s"
 msgstr "Patient #%s"
 
-msgid "Due: %s\n"
-msgstr "Fällig: %s\n"
+msgid "Due: %s (%s ago)\n"
+msgstr "Fällig: %s (seit %s)\n"
 
-msgid "Expiry: %s\n"
+msgid "Due: %s (in %s)\n"
+msgstr "Fällig: %s (in %s)\n"
+
+msgid "Expired: %s\n"
+msgstr "Verfallen: %s\n"
+
+msgid "Expires: %s\n"
 msgstr "Verfällt: %s\n"
 
 msgid "Active clinical hint"
@@ -5541,20 +5547,50 @@ msgstr "Krankenhausaufenthalt"
 msgid "Programmer must override this text."
 msgstr "Programmierer muß diesen Text überschreiben"
 
-msgid "All"
-msgstr "Alle"
+msgid "A&ll"
+msgstr "A&lle"
 
-msgid "Active-patient related"
-msgstr "über aktiven Patienten"
+msgid "&Overdue"
+msgstr "&Überfällig"
+
+msgid "&Scheduled"
+msgstr "&Terminierte"
+
+msgid "&Unscheduled"
+msgstr "&Unterminierte"
+
+msgid "&Expired"
+msgstr "%Verfallene"
+
+msgid "patient only"
+msgstr "Patienten"
+
+msgid "provider only"
+msgstr "Anwender"
 
 msgid "&Add"
 msgstr "&Hinzufügen"
 
-msgid "Show all your messages."
-msgstr "Alle Ihre Nachrichten zeigen."
+msgid "Show all (but expired) messages."
+msgstr "Alle (bis auf verfallene) Nachrichten zeigen."
 
-msgid "Show those of your messages which are related to the active patient."
-msgstr "Nur diejenigen Ihrer Nachrichten zeigen, die den aktiven Patienten betreffen."
+msgid "Show overdue messages only."
+msgstr "Nur überfällige Nachrichten zeigen."
+
+msgid "Show scheduled (future-due) messages only."
+msgstr "Nur Nachrichten mit Fälligkeitsdatum zeigen."
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr "Nur Nachrichten ohne Fälligkeitsdatum zeigen."
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr "Nur Nachrichten zeigen, deren Verfallsdatum verstrichen ist."
+
+msgid "Include only messages about the active patient."
+msgstr "Nur Nachrichten zum aktiven Patienten einschließen"
+
+msgid "Include only messages explicitely for you (rather than also to all providers)."
+msgstr "Nur Nachrichten an Sie persönlich (und nicht allgemein an alle Mitarbeiter) einschließen."
 
 msgid "Add a new message."
 msgstr "Eine neue Nachricht erzeugen."
@@ -5562,8 +5598,11 @@ msgstr "Eine neue Nachricht erzeugen."
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Zeigt die eingegangene Nachricht komplett."
 
-msgid "Show messages:"
-msgstr "Nachrichten zeigen:"
+msgid "Show:"
+msgstr "Zeige:"
+
+msgid "About active:"
+msgstr "Über aktiven:"
 
 msgid "A code for this province."
 msgstr "Ein Code für dieses Bundesland."
@@ -5952,9 +5991,6 @@ msgstr "Journal für den gewählten Bereich zeigen."
 
 msgid "Press this button to switch back and forth between browsing and entering SOAP notes."
 msgstr "Hiermit können Sie zwischen Blättern und Bearbeiten von ABDT-Einträgen wechseln."
-
-msgid "Show:"
-msgstr "Zeige:"
 
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
@@ -6994,7 +7030,7 @@ msgstr ""
 "(Dadurch werden Vertipper entdeckt.)\n"
 "\t\t"
 
-msgid "Welcome to the"
+msgid "Welcome to"
 msgstr "Willkommen bei"
 
 msgid "Cannot find image"
@@ -12102,6 +12138,9 @@ msgstr "allgemeine Mehrfachauswahl"
 msgid "invalid placeholder [%s]"
 msgstr "ungültiger Platzhalter [%s]"
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 msgid "Select the patient documents to reference from the new document."
 msgstr "Wählen Sie die Dokumente, die im neuen Dokument erwähnt werden sollen."
 
@@ -12243,6 +12282,12 @@ msgstr ""
 
 msgid "forced detach attempt"
 msgstr "Versuch erzwungenen Verbindungsabbruchs"
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+msgid "Data ID"
+msgstr "Daten-ID"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr "Das Auffrischen der LOINC-Daten kann etwas dauern ..."
@@ -13114,8 +13159,8 @@ msgstr ""
 msgid "Search results"
 msgstr "Suchergebnisse"
 
-msgid "Search results for %s"
-msgstr "Suchergebnisse für %s"
+msgid "Search results for [%s]"
+msgstr "Suchergebnisse für [%s]"
 
 msgid "Match"
 msgstr "Treffer"
@@ -13551,8 +13596,11 @@ msgstr "Zuletzt: vor %s (%s %s %s %s%s)"
 msgid "%s %s %s %s (%s ago, %s)"
 msgstr "%s %s %s %s (vor %s, %s)"
 
-msgid "due %s: %s"
-msgstr "fällig %s: %s"
+msgid "overdue %s: %s"
+msgstr "fällig seit %s: %s"
+
+msgid "due in %s%s"
+msgstr "fällig in %s%s"
 
 msgid ""
 "Do you really want to\n"
@@ -13567,8 +13615,8 @@ msgstr "Lösche Nachricht"
 msgid "%s %s more not shown %s"
 msgstr "%s %s weitere nicht dargestellt %s"
 
-msgid "Currently in waiting list [%s]"
-msgstr "Derzeit in Warteliste [%s]"
+msgid "Currently %s entries in waiting list"
+msgstr "Derzeit %s-Mal in Warteliste"
 
 msgid "first: %s, %s"
 msgstr "erstmals: %s, %s"
@@ -14259,18 +14307,41 @@ msgstr "Neue Nachricht erzeugen"
 msgid "Editing inbox message"
 msgstr "Existierende Nachricht bearbeiten"
 
+msgid "overdue for %s"
+msgstr "fällig seit %s"
+
+msgid "due in %s"
+msgstr "fällig in %s"
+
+msgid "Reminders for the current patient"
+msgstr "Erinnerungen für den aktiven Patienten"
+
+msgid "Category - Type"
+msgstr "Kategorie - Typ"
+
 msgid "Sent"
 msgstr "Gesendet"
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
-msgstr ""
-"\n"
-" Posteingang von %(title)s %(lname)s.\n"
+msgid " Inbox of %s %s%s."
+msgstr " Posteingang von %s %s%s.\n"
+
+msgid " (%s message(s))"
+msgstr " (%s Nachricht(en))"
+
+msgid "expired"
+msgstr "verfallen"
+
+msgid "%s overdue"
+msgstr "seit %s fällig"
 
 msgid "Please check your GNUmed Inbox !"
 msgstr "Bitte den Posteingang in GNUmed durchsehen."
+
+msgid "handling provider inbox item"
+msgstr "Nachrichtenverarbeitung aus dem Posteingang"
+
+msgid "There was a problem accessing the message data."
+msgstr "Problem beim Zugriff auf den Nachrichteninhalt."
 
 msgid ""
 "No double-click action pre-programmed into\n"
@@ -14282,9 +14353,6 @@ msgstr ""
 "Nachrichten mit Kategorie und Typ:\n"
 "\n"
 " [%s]\n"
-
-msgid "handling provider inbox item"
-msgstr "Nachrichtenverarbeitung aus dem Posteingang"
 
 msgid "Message: %s"
 msgstr "Nachricht: %s"
@@ -15458,6 +15526,20 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "All"
+#~ msgstr "Alle"
+
+#~ msgid "Active-patient related"
+#~ msgstr "über aktiven Patienten"
+
+#~ msgid "Show those of your messages which are related to the active patient."
+#~ msgstr ""
+#~ "Nur diejenigen Ihrer Nachrichten zeigen, die den aktiven Patienten "
+#~ "betreffen."
+
+#~ msgid "Show messages:"
+#~ msgstr "Nachrichten zeigen:"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Dr.: %s"
@@ -18360,9 +18442,6 @@ msgstr "erstmals"
 
 #~ msgid "generic user question dialog"
 #~ msgstr "allgemeine Nutzerabfrage"
-
-#~ msgid "start over"
-#~ msgstr "neu beginnen"
 
 #~ msgid "cannot get staff sign"
 #~ msgstr "kann Signum des Angestellten nicht ermitteln"

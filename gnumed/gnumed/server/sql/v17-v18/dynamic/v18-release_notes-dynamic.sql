@@ -46,6 +46,7 @@ NEW: list placeholders from within client
 NEW: show (e)GFR in substance intake EA
 NEW: placeholder $<test_results>$, selecting test results from list
 NEW: Epworth Sleepiness Scale
+NEW: placeholder $<reminders>$ for messages with due date
 
 IMPROVED: document tree: better labels, tooltips added
 IMPROVED: measurement EA: show most recent value of test type
@@ -77,6 +78,7 @@ IMPROVED: database translation contribution code
 IMPROVED: login dialog help text [thanks J.Busser]
 IMPROVED: patient searcher logic [thanks J.Busser]
 IMPROVED: non-overdue recalls display in patient overview
+IMPROVED: provider inbox: much improved workflow
 
 	18.rc5
 

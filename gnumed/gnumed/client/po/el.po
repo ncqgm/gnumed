@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2013-02-11 14:24+CET\n"
+"POT-Creation-Date: 2013-03-10 14:51+CET\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -2389,11 +2389,19 @@ msgid "Patient #%s"
 msgstr "Ασθενής"
 
 #, fuzzy
-msgid "Due: %s\n"
+msgid "Due: %s (%s ago)\n"
 msgstr "Ημερομηνία: %s\n"
 
 #, fuzzy
-msgid "Expiry: %s\n"
+msgid "Due: %s (in %s)\n"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Expired: %s\n"
+msgstr "Εξήχθηκε: %s\n"
+
+#, fuzzy
+msgid "Expires: %s\n"
 msgstr "Εξήχθηκε: %s\n"
 
 #, fuzzy
@@ -5810,20 +5818,58 @@ msgstr "Νοσοκομείο"
 msgid "Programmer must override this text."
 msgstr ""
 
-msgid "All"
-msgstr "Όλα"
+msgid "A&ll"
+msgstr ""
 
-msgid "Active-patient related"
-msgstr "Σχετιζόμενο με τον ενεργό ασθενή"
+msgid "&Overdue"
+msgstr ""
+
+#, fuzzy
+msgid "&Scheduled"
+msgstr "Προγραμματισμός"
+
+#, fuzzy
+msgid "&Unscheduled"
+msgstr "Προγραμματισμός"
+
+msgid "&Expired"
+msgstr ""
+
+#, fuzzy
+msgid "patient only"
+msgstr "ασθενής"
+
+#, fuzzy
+msgid "provider only"
+msgstr "Πάροχος"
 
 #, fuzzy
 msgid "&Add"
 msgstr "&Προσθήκη χρήστη"
 
-msgid "Show all your messages."
+msgid "Show all (but expired) messages."
 msgstr ""
 
-msgid "Show those of your messages which are related to the active patient."
+#, fuzzy
+msgid "Show overdue messages only."
+msgstr "Εμφάνιση μηνυμάτων:"
+
+msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr ""
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+#, fuzzy
+msgid "Include only messages about the active patient."
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+msgid ""
+"Include only messages explicitely for you (rather than also to all "
+"providers)."
 msgstr ""
 
 #, fuzzy
@@ -5833,8 +5879,12 @@ msgstr "Προσθήκη ενός νέου αντικειμένου στην π�
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show messages:"
-msgstr "Εμφάνιση μηνυμάτων:"
+msgid "Show:"
+msgstr ""
+
+#, fuzzy
+msgid "About active:"
+msgstr "ανενεργό"
 
 msgid "A code for this province."
 msgstr ""
@@ -6266,9 +6316,6 @@ msgstr "Δείξε &εργαστηριακό ημερολόγιο"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -7186,8 +7233,9 @@ msgid ""
 "\t\t"
 msgstr ""
 
-msgid "Welcome to the"
-msgstr ""
+#, fuzzy
+msgid "Welcome to"
+msgstr "Μήνυμα υποδοχής"
 
 msgid "Cannot find image"
 msgstr ""
@@ -11660,6 +11708,9 @@ msgstr ""
 msgid "invalid placeholder [%s]"
 msgstr ""
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 msgid "Select the patient documents to reference from the new document."
 msgstr ""
 
@@ -11797,6 +11848,12 @@ msgid ""
 msgstr ""
 
 msgid "forced detach attempt"
+msgstr ""
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+msgid "Data ID"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -12593,7 +12650,8 @@ msgstr ""
 msgid "Search results"
 msgstr "Αποτελέσματα αναζήτησης"
 
-msgid "Search results for %s"
+#, fuzzy
+msgid "Search results for [%s]"
 msgstr "Αποτελέσματα αναζήτησης για %s"
 
 msgid "Match"
@@ -13005,7 +13063,11 @@ msgstr ""
 "%s"
 
 #, fuzzy
-msgid "due %s: %s"
+msgid "overdue %s: %s"
+msgstr "σε %d μέρα(ες): %s"
+
+#, fuzzy
+msgid "due in %s%s"
 msgstr "σε %d μέρα(ες): %s"
 
 msgid ""
@@ -13020,8 +13082,9 @@ msgstr "Μήνυμα γενικής πληροφορίας"
 msgid "%s %s more not shown %s"
 msgstr ""
 
-msgid "Currently in waiting list [%s]"
-msgstr ""
+#, fuzzy
+msgid "Currently %s entries in waiting list"
+msgstr "Ο στιγμιαία επιλεγμένος ασθενής είναι:"
 
 #, fuzzy
 msgid "first: %s, %s"
@@ -13610,15 +13673,44 @@ msgstr "Μήνυμα γενικής πληροφορίας"
 msgid "Editing inbox message"
 msgstr "Μήνυμα γενικής πληροφορίας"
 
+msgid "overdue for %s"
+msgstr ""
+
+#, fuzzy
+msgid "due in %s"
+msgstr "σε %d μέρα(ες): %s"
+
+#, fuzzy
+msgid "Reminders for the current patient"
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+#, fuzzy
+msgid "Category - Type"
+msgstr "Κατηγορία"
+
 msgid "Sent"
 msgstr ""
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
+msgid " Inbox of %s %s%s."
+msgstr ""
+
+#, fuzzy
+msgid " (%s message(s))"
+msgstr "μήνυμα"
+
+msgid "expired"
+msgstr ""
+
+msgid "%s overdue"
 msgstr ""
 
 msgid "Please check your GNUmed Inbox !"
+msgstr ""
+
+msgid "handling provider inbox item"
+msgstr ""
+
+msgid "There was a problem accessing the message data."
 msgstr ""
 
 msgid ""
@@ -13626,9 +13718,6 @@ msgid ""
 "GNUmed for message category and type:\n"
 "\n"
 " [%s]\n"
-msgstr ""
-
-msgid "handling provider inbox item"
 msgstr ""
 
 msgid "Message: %s"
@@ -14745,6 +14834,12 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "All"
+#~ msgstr "Όλα"
+
+#~ msgid "Active-patient related"
+#~ msgstr "Σχετιζόμενο με τον ενεργό ασθενή"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Έγγραφο: %s"

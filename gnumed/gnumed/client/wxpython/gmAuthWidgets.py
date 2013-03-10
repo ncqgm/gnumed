@@ -389,7 +389,7 @@ class cBackendProfile:
 class cLoginDialog(wx.Dialog):
 	"""cLoginDialog - window holding cLoginPanel"""
 
-	def __init__(self, parent, id, title=_("Welcome to the"), client_version=u'*** unknown ***'):
+	def __init__(self, parent, id, title = _("Welcome to"), client_version = u'*** unknown ***'):
 		wx.Dialog.__init__(self, parent, id, title)
 		self.panel = cLoginPanel(self, -1, isDialog=1, client_version = client_version)
 		self.Fit() # needed for Windoze.

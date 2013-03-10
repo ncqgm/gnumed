@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-02-11 14:25+CET\n"
+"POT-Creation-Date: 2013-03-10 14:52+CET\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -2383,11 +2383,19 @@ msgid "Patient #%s"
 msgstr "Paciente"
 
 #, fuzzy
-msgid "Due: %s\n"
+msgid "Due: %s (%s ago)\n"
 msgstr "&Local"
 
 #, fuzzy
-msgid "Expiry: %s\n"
+msgid "Due: %s (in %s)\n"
+msgstr "&Local"
+
+#, fuzzy
+msgid "Expired: %s\n"
+msgstr "Exportado: %s\n"
+
+#, fuzzy
+msgid "Expires: %s\n"
 msgstr "Exportado: %s\n"
 
 #, fuzzy
@@ -5882,19 +5890,55 @@ msgstr "População"
 msgid "Programmer must override this text."
 msgstr "Programmer must override this text."
 
-msgid "All"
-msgstr "Todos"
-
-msgid "Active-patient related"
+msgid "A&ll"
 msgstr ""
+
+#, fuzzy
+msgid "&Overdue"
+msgstr "Revisão"
+
+msgid "&Scheduled"
+msgstr ""
+
+msgid "&Unscheduled"
+msgstr ""
+
+msgid "&Expired"
+msgstr ""
+
+#, fuzzy
+msgid "patient only"
+msgstr "Mover paciente para baixo."
+
+#, fuzzy
+msgid "provider only"
+msgstr "&Somente eu"
 
 msgid "&Add"
 msgstr ""
 
-msgid "Show all your messages."
+msgid "Show all (but expired) messages."
 msgstr ""
 
-msgid "Show those of your messages which are related to the active patient."
+msgid "Show overdue messages only."
+msgstr ""
+
+msgid "Show scheduled (future-due) messages only."
+msgstr ""
+
+msgid "Show unscheduled (no due date) messages only."
+msgstr ""
+
+msgid "Show expired (expiry date has passed) messages only."
+msgstr ""
+
+#, fuzzy
+msgid "Include only messages about the active patient."
+msgstr "Pesquisar dados do Prontuário do paciente ativo"
+
+msgid ""
+"Include only messages explicitely for you (rather than also to all "
+"providers)."
 msgstr ""
 
 #, fuzzy
@@ -5904,8 +5948,12 @@ msgstr "Adicionando novo problema de saúde"
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Isso mostra todas as mensagens de sua caixa de entrada."
 
-msgid "Show messages:"
+msgid "Show:"
 msgstr ""
+
+#, fuzzy
+msgid "About active:"
+msgstr "inactivo"
 
 msgid "A code for this province."
 msgstr ""
@@ -6381,9 +6429,6 @@ msgstr "rme-diário"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
-msgstr ""
-
-msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -7437,7 +7482,8 @@ msgid ""
 "\t\t"
 msgstr ""
 
-msgid "Welcome to the"
+#, fuzzy
+msgid "Welcome to"
 msgstr "Bem vindo a"
 
 msgid "Cannot find image"
@@ -12187,6 +12233,9 @@ msgstr ""
 msgid "invalid placeholder [%s]"
 msgstr ""
 
+msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
+msgstr ""
+
 msgid "Select the patient documents to reference from the new document."
 msgstr ""
 
@@ -12328,6 +12377,12 @@ msgid ""
 msgstr ""
 
 msgid "forced detach attempt"
+msgstr ""
+
+msgid "Showing unmatched incoming data"
+msgstr ""
+
+msgid "Data ID"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -13106,7 +13161,7 @@ msgstr ""
 msgid "Search results"
 msgstr ""
 
-msgid "Search results for %s"
+msgid "Search results for [%s]"
 msgstr ""
 
 msgid "Match"
@@ -13549,7 +13604,11 @@ msgstr ""
 "%s"
 
 #, fuzzy
-msgid "due %s: %s"
+msgid "overdue %s: %s"
+msgstr "Comentário: %s"
+
+#, fuzzy
+msgid "due in %s%s"
 msgstr "Comentário: %s"
 
 #, fuzzy
@@ -13567,8 +13626,9 @@ msgstr "mensagem informativa genérica"
 msgid "%s %s more not shown %s"
 msgstr ""
 
-msgid "Currently in waiting list [%s]"
-msgstr ""
+#, fuzzy
+msgid "Currently %s entries in waiting list"
+msgstr "O paciente correntemente seleccionado é:"
 
 #, fuzzy
 msgid "first: %s, %s"
@@ -14159,15 +14219,43 @@ msgstr "Adicionando novo nome"
 msgid "Editing inbox message"
 msgstr "mensagem informativa genérica"
 
+msgid "overdue for %s"
+msgstr ""
+
+#, fuzzy
+msgid "due in %s"
+msgstr "Comentário: %s"
+
+#, fuzzy
+msgid "Reminders for the current patient"
+msgstr "Escrever uma carta para o paciente atual."
+
+#, fuzzy
+msgid "Category - Type"
+msgstr "Categori­a"
+
 msgid "Sent"
 msgstr ""
 
-msgid ""
-"\n"
-" Inbox of %(title)s %(lname)s.\n"
+msgid " Inbox of %s %s%s."
+msgstr ""
+
+msgid " (%s message(s))"
+msgstr ""
+
+msgid "expired"
+msgstr ""
+
+msgid "%s overdue"
 msgstr ""
 
 msgid "Please check your GNUmed Inbox !"
+msgstr ""
+
+msgid "handling provider inbox item"
+msgstr ""
+
+msgid "There was a problem accessing the message data."
 msgstr ""
 
 msgid ""
@@ -14175,9 +14263,6 @@ msgid ""
 "GNUmed for message category and type:\n"
 "\n"
 " [%s]\n"
-msgstr ""
-
-msgid "handling provider inbox item"
 msgstr ""
 
 msgid "Message: %s"
@@ -15304,6 +15389,9 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#~ msgid "All"
+#~ msgstr "Todos"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Doc: %s"

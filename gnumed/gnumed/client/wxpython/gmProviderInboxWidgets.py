@@ -425,7 +425,7 @@ def __display_clinical_reminders():
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
-	for msg in pat.due_messages:
+	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
 			exp = u''
 		else:
@@ -767,6 +767,44 @@ def edit_inbox_message(parent=None, message=None, single_entry=True):
 		return True
 	dlg.Destroy()
 	return False
+
+#============================================================
+def manage_reminders(parent=None, patient=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		reminders = gmProviderInbox.get_reminders(pk_patient = patient)
+		items = [ [
+			gmTools.bool2subst (
+				r['is_overdue'],
+				_('overdue for %s'),
+				_('due in %s')
+			) % gmDateTime.format_interval_medically(r['interval_due']),
+			r['comment'],
+			r['pk_inbox_message']
+		] for r in reminders ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(reminders)
+	#------------------------------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = None,
+		caption = _('Reminders for the current patient'),
+		columns = [ _('Status'), _('Subject'), '#' ],
+		single_selection = False,
+		can_return_empty = True,
+		ignore_OK_button = False,
+		refresh_callback = refresh
+#		edit_callback=None,
+#		new_callback=None,
+#		delete_callback=None,
+#		left_extra_button=None,
+#		middle_extra_button=None,
+#		right_extra_button=None
+	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgProviderInboxPnl
 
@@ -781,7 +819,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
 		self.provider = gmStaff.gmCurrentProvider()
-		self.filter_mode = 'all'
 		self.__init_ui()
 
 		cProviderInboxPnl._item_handlers['clinical.review docs'] = self._goto_doc_review
@@ -822,58 +859,128 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_provider_inbox.set_columns([u'', _('Sent'), _('Category'), _('Type'), _('Message')])
+		self._LCTRL_provider_inbox.debug = 'provider inbox list'
 
-		msg = _('\n Inbox of %(title)s %(lname)s.\n') % {
-			'title': gmTools.coalesce (
+		self._LCTRL_provider_inbox.set_columns([u'', _('Sent'), _('Status'), _('Category - Type'), _('Message')])
+		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
+
+		self.__update_greeting()
+
+		if gmPerson.gmCurrentPatient().connected:
+			self._CHBOX_active_patient.Enable()
+	#--------------------------------------------------------
+	def __update_greeting(self, no_of_messages=None):
+		msg = _(' Inbox of %s %s%s.') % (
+			gmTools.coalesce (
 				self.provider['title'],
 				gmPerson.map_gender2salutation(self.provider['gender'])
 			),
-			'lname': self.provider['lastnames']
-		}
-
-		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
-		self._LCTRL_provider_inbox.debug = 'provider inbox list'
-
+			self.provider['lastnames'],
+			gmTools.coalesce(no_of_messages, u'', _(' (%s message(s))'))
+		)
 		self._msg_welcome.SetLabel(msg)
-
-		if gmPerson.gmCurrentPatient().connected:
-			self._RBTN_active_patient.Enable()
 	#--------------------------------------------------------
 	def __populate_inbox(self):
 		_log.debug('populating provider inbox')
 
-		self.__msgs = self.provider.inbox.messages
-		_log.debug('total # of inbox msgs for current provider: %s', len(self.__msgs))
+		# calculate constraints
+		pk_patient = None
+		if self._CHBOX_active_patient.IsChecked():
+			_log.debug('restricting to active patient')
+			curr_pat = gmPerson.gmCurrentPatient()
+			if curr_pat.connected:
+				pk_patient = curr_pat.ID
 
-		if self.filter_mode == 'active':
-			_log.debug('inbox set to show msgs for active patient only')
-			if gmPerson.gmCurrentPatient().connected:
-				curr_pat_id = gmPerson.gmCurrentPatient().ID
-				_log.debug('filtering msgs against active patient: %s', curr_pat_id)
-				self.__msgs = [ m for m in self.__msgs if m['pk_patient'] == curr_pat_id ]
+		include_without_provider = True
+		if self._CHBOX_active_provider.IsChecked():
+			_log.debug('restricting to active provider directly')
+			include_without_provider = False
+
+		# get which messages to show
+		if self._RBTN_all_messages.GetValue():
+			_log.debug('loading all but expired messages')
+			self.__msgs = self.provider.inbox.get_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider,
+				exclude_expired = True,
+				expired_only = False,
+				overdue_only = False,
+				unscheduled_only = False,
+				exclude_unscheduled = False
+			)
+		elif self._RBTN_overdue_messages.GetValue():
+			_log.debug('loading overdue messages only')
+			self.__msgs = self.provider.inbox.get_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider,
+				exclude_expired = True,
+				expired_only = False,
+				overdue_only = True,
+				unscheduled_only = False,
+				exclude_unscheduled = True,
+				order_by = u'due_date, importance DESC, received_when DESC'
+			)
+		elif self._RBTN_scheduled_messages.GetValue():
+			_log.debug('loading overdue messages only')
+			self.__msgs = self.provider.inbox.get_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider,
+				exclude_expired = True,
+				expired_only = False,
+				overdue_only = False,
+				unscheduled_only = False,
+				exclude_unscheduled = True,
+				order_by = u'due_date, importance DESC, received_when DESC'
+			)
+		elif self._RBTN_unscheduled_messages.GetValue():
+			_log.debug('loading unscheduled messages only')
+			self.__msgs = self.provider.inbox.get_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider,
+				exclude_expired = True,
+				expired_only = False,
+				overdue_only = False,
+				unscheduled_only = True,
+				exclude_unscheduled = False
+			)
+		elif self._RBTN_expired_messages.GetValue():
+			_log.debug('loading expired messages only')
+			self.__msgs = self.provider.inbox.get_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider,
+				exclude_expired = False,
+				expired_only = True,
+				overdue_only = False,
+				unscheduled_only = False,
+				exclude_unscheduled = True,
+				order_by = u'expiry_date DESC, importance DESC, received_when DESC'
+			)
+
+		_log.debug('total # of inbox msgs: %s', len(self.__msgs))
+
+		items = []
+		for m in self.__msgs:
+			item = [_indicator[m['importance']], gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d')]
+			if m['due_date'] is None:
+				item.append(u'')
 			else:
-				_log.debug('no active patient, so not showing any inbox msgs')
-				self.__msgs = []
-		else:
-			_log.debug('inbox set to show all messages')
+				if m['is_expired'] is True:
+					item.append(_('expired'))
+				else:
+					if m['is_overdue'] is True:
+						item.append(_('%s overdue') % gmDateTime.format_interval_medically(m['interval_due']))
+					else:
+						item.append(_('due in %s') % gmDateTime.format_interval_medically(m['interval_due']))
+			item.append(u'%s - %s' % (m['l10n_category'], m['l10n_type']))
+			item.append(m['comment'])
+			items.append(item)
 
-		_log.debug('# of inbox msgs to actually show: %s', len(self.__msgs))
-
-		items = [
-			[
-				_indicator[m['importance']],
-				m['received_when'].strftime('%Y-%m-%d'),
-				m['l10n_category'],
-				m['l10n_type'],
-				m['comment']
-			] for m in self.__msgs
-		]
 		_log.debug('# of list items created from msgs: %s', len(items))
 		self._LCTRL_provider_inbox.set_string_items(items = items)
 		self._LCTRL_provider_inbox.set_data(data = self.__msgs)
 		self._LCTRL_provider_inbox.set_column_widths()
 		self._TXT_inbox_item_comment.SetValue(u'')
+		self.__update_greeting(len(items))
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -910,7 +1017,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wx.CallAfter(self.__on_post_patient_selection)
 
 	def __on_post_patient_selection(self):
-		self._RBTN_active_patient.Enable()
+		self._CHBOX_active_patient.Enable()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _lst_item_activated(self, evt):
@@ -1003,16 +1110,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self.PopupMenu(menu, wx.DefaultPosition)
 		menu.Destroy()
 	#--------------------------------------------------------
-	def _on_all_messages_radiobutton_selected(self, event):
-		self.filter_mode = 'all'
+	def _on_message_range_radiobutton_selected(self, event):
 		self._TXT_inbox_item_comment.SetValue(u'')
-		_log.debug('_on_all_messages_radiobutton_selected')
+		_log.debug('_on_message_range_radiobutton_selected')
 		self.__populate_inbox()
 	#--------------------------------------------------------
-	def _on_active_patient_radiobutton_selected(self, event):
-		self.filter_mode = 'active'
+	def _on_active_patient_checkbox_ticked(self, event):
 		self._TXT_inbox_item_comment.SetValue(u'')
-		_log.debug('_on_active_patient_radiobutton_selected')
+		_log.debug('_on_active_patient_checkbox_ticked')
+		self.__populate_inbox()
+	#--------------------------------------------------------
+	def _on_active_provider_checkbox_ticked(self, event):
+		self._TXT_inbox_item_comment.SetValue(u'')
+		_log.debug('_on_active_provider_checkbox_ticked')
 		self.__populate_inbox()
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
@@ -1020,41 +1130,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def _get_msg_tooltip(self, msg):
 		return msg.format()
-#		tt = u'%s: %s%s\n' % (
-#			msg['received_when'].strftime('%A, %Y %B %d, %H:%M').decode(gmI18N.get_encoding()),
-#			gmTools.bool2subst(msg['is_virtual'], _('virtual message'), _('message')),
-#			gmTools.coalesce(msg['pk_inbox_message'], u'', u' #%s ')
-#		)
-#
-#		tt += u'%s: %s\n' % (
-#			msg['l10n_category'],
-#			msg['l10n_type']
-#		)
-#
-#		tt += u'%s %s %s\n' % (
-#			msg['modified_by'],
-#			gmTools.u_right_arrow,
-#			gmTools.coalesce(msg['provider'], _('everyone'))
-#		)
-#
-#		tt += u'\n%s%s%s\n\n' % (
-#			gmTools.u_left_double_angle_quote,
-#			msg['comment'],
-#			gmTools.u_right_double_angle_quote
-#		)
-#
-#		tt += gmTools.coalesce (
-#			msg['pk_patient'],
-#			u'',
-#			u'%s\n\n' % _('Patient #%s')
-#		)
-#
-#		if msg['data'] is not None:
-#			tt += msg['data'][:150]
-#			if len(msg['data']) > 150:
-#				tt += gmTools.u_ellipsis
-#
-#		return tt
 	#--------------------------------------------------------
 	# item handlers
 	#--------------------------------------------------------

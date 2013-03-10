@@ -1182,10 +1182,10 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 	messages = property(get_messages, lambda x:x)
 	#--------------------------------------------------------
-	def _get_due_messages(self):
-		return gmProviderInbox.get_due_messages(pk_patient = self._payload[self._idx['pk_identity']])
+	def _get_overdue_messages(self):
+		return gmProviderInbox.get_overdue_messages(pk_patient = self._payload[self._idx['pk_identity']])
 
-	due_messages = property(_get_due_messages, lambda x:x)
+	overdue_messages = property(_get_overdue_messages, lambda x:x)
 	#--------------------------------------------------------
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)

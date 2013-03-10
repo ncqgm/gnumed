@@ -435,12 +435,17 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 		else:
 			yield [ unicode(cell, encoding) for cell in row ]
 			#yield [unicode(cell, 'utf-8') for cell in row]
+
+#---------------------------------------------------------------------------
+def fname_stem(filename):
+	return os.path.splitext(os.path.basename(filename))[0]
+
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	"""This introduces a race condition between the file.close() and
 	actually using the filename.
 
-	The file will not exist after calling this function.
+	The file will NOT exist after calling this function.
 	"""
 	if tmp_dir is not None:
 		if (
@@ -448,7 +453,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 				or
 			not os.access(tmp_dir, os.X_OK | os.W_OK)
 		):
-			_log.info('cannot find temporary dir [%s], using system default', tmp_dir)
+			_log.warning('cannot find temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
 	kwargs = {'dir': tmp_dir}
@@ -618,6 +623,9 @@ def capitalize(text=None, mode=CAPS_NAMES):
 	have issues ! However, for UTF strings it should just work.
 	"""
 	if (mode is None) or (mode == CAPS_NONE):
+		return text
+
+	if len(text) == 0:
 		return text
 
 	if mode == CAPS_FIRST:
@@ -1177,6 +1185,21 @@ second line\n
 			print 'as string:'
 			print strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = False)
 	#-----------------------------------------------------------------------
+	def test_fname_stem():
+		tests = [
+			r'abc.exe',
+			r'\abc.exe',
+			r'c:\abc.exe',
+			r'c:\d\abc.exe',
+			r'/home/ncq/tmp.txt',
+			r'~/tmp.txt',
+			r'./tmp.txt',
+			r'./.././tmp.txt',
+			r'tmp.txt'
+		]
+		for t in tests:
+			print "[%s] -> [%s]" % (t, fname_stem(t))
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1195,6 +1218,7 @@ second line\n
 	#test_unicode()
 	#test_xml_escape()
 	#test_gpg_decrypt()
-	test_strip_trailing_empty_lines()
+	#test_strip_trailing_empty_lines()
+	test_fname_stem()
 
 #===========================================================================

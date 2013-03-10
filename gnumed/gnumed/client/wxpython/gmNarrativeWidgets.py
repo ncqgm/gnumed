@@ -244,21 +244,21 @@ def search_narrative_across_emrs(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	searcher = wx.TextEntryDialog (
+	search_term_dlg = wx.TextEntryDialog (
 		parent = parent,
 		message = _('Enter (regex) term to search for across all EMRs:'),
 		caption = _('Text search across all EMRs'),
 		style = wx.OK | wx.CANCEL | wx.CENTRE
 	)
-	result = searcher.ShowModal()
+	result = search_term_dlg.ShowModal()
 
 	if result != wx.ID_OK:
 		return
 
 	wx.BeginBusyCursor()
-	term = searcher.GetValue()
-	searcher.Destroy()
-	results = gmClinNarrative.search_text_across_emrs(search_term = term)
+	search_term = search_term_dlg.GetValue()
+	search_term_dlg.Destroy()
+	results = gmClinNarrative.search_text_across_emrs(search_term = search_term)
 	wx.EndBusyCursor()
 
 	if len(results) == 0:
@@ -266,18 +266,21 @@ def search_narrative_across_emrs(parent=None):
 			_(
 			'Nothing found for search term:\n'
 			' "%s"'
-			) % term,
+			) % search_term,
 			_('Search results')
 		)
 		return
 
-	items = [ [gmPerson.cIdentity(aPK_obj =
-	r['pk_patient'])['description_gender'], r['narrative'],
-	r['src_table']] for r in results ]
+	items = [ [
+		gmPerson.cIdentity(aPK_obj = r['pk_patient']),
+		r['description_gender'],
+		r['narrative'],
+		r['src_table']
+	] for r in results ]
 
 	selected_patient = gmListWidgets.get_choices_from_list (
 		parent = parent,
-		caption = _('Search results for %s') % term,
+		caption = _('Search results for [%s]') % search_term,
 		choices = items,
 		columns = [_('Patient'), _('Match'), _('Match location')],
 		data = [ r['pk_patient'] for r in results ],
@@ -303,21 +306,21 @@ def search_narrative_in_emr(parent=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	searcher = wx.TextEntryDialog (
+	search_term_dlg = wx.TextEntryDialog (
 		parent = parent,
 		message = _('Enter search term:'),
 		caption = _('Text search of entire EMR of active patient'),
 		style = wx.OK | wx.CANCEL | wx.CENTRE
 	)
-	result = searcher.ShowModal()
+	result = search_term_dlg.ShowModal()
 
 	if result != wx.ID_OK:
-		searcher.Destroy()
+		search_term_dlg.Destroy()
 		return False
 
 	wx.BeginBusyCursor()
-	val = searcher.GetValue()
-	searcher.Destroy()
+	val = search_term_dlg.GetValue()
+	search_term_dlg.Destroy()
 	emr = patient.get_emr()
 	rows = emr.search_narrative_simple(val)
 	wx.EndBusyCursor()
@@ -364,7 +367,7 @@ def search_narrative_in_emr(parent=None, patient=None):
 	dlg = wx.MessageDialog (
 		parent = parent,
 		message = msg,
-		caption = _('Search results for %s') % val,
+		caption = _('Search results for [%s]') % val,
 		style = wx.OK | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
