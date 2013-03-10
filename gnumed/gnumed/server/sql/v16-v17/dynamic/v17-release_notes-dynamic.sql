@@ -17,18 +17,21 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.2.8 (database v17.8)',
-	'GNUmed 1.2.8 Release Notes:
+	'Release Notes for GNUmed 1.2.9 (database v17.9)',
+	'GNUmed 1.2.9 Release Notes:
 
-	1.2.8
+	1.2.9
 
-FIX: backport existence check in expando layout handling
-FIX: exception on adding duplicate active name [thanks J.Busser]
+FIX: protect against unexplained double-fill of provider inbox
+FiX: protect against capitalize('') [thanks Slappinjohn]
+FIX: protect against yet another silly SetItemPyData issue
 
-IMPROVED: LaTeX -\normalsize SOAPU in formatting encounters [thanks V.Banait]
-IMPROVED: $<progress_notes>$ placeholder: template handling
-IMPROVED: $<emr_journal>$ placeholder: time_range can be any PG interval
-IMPROVED: instrument code to track list widget bug
+IMPROVED: non-overdue recalls display in patient overview
+IMPROVED: show comm channel comment in patient overview
+
+	17.9
+
+FIX: senior installations might have clin_narrative_soap_cat_check [thanks M.Angermann]
 ');
 
 -- --------------------------------------------------------------
