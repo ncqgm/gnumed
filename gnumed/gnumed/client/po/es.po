@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-10 14:52+CET\n"
+"POT-Creation-Date: 2013-03-10 19:52+CET\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -6312,12 +6312,12 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "paciente"
+msgid "Active patient"
+msgstr "Activar paciente"
 
 #, fuzzy
-msgid "provider only"
-msgstr "Proveedor"
+msgid "Yours"
+msgstr "horas"
 
 msgid "&Add"
 msgstr "&Añadir"
@@ -6355,12 +6355,12 @@ msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 "Muestra el total de los mensajes seleccionados en tu Bandeja de Entrada."
 
-msgid "Show:"
-msgstr "Muestre:"
-
 #, fuzzy
-msgid "About active:"
-msgstr "Editar activamente."
+msgid "Messages:"
+msgstr "Mensaje"
+
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr "Código para esta provincia."
@@ -6851,6 +6851,9 @@ msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
 msgstr ""
+
+msgid "Show:"
+msgstr "Muestre:"
 
 msgid "Edit staff details"
 msgstr "Editar detalles del personal"
@@ -15567,7 +15570,7 @@ msgstr ""
 " Bandeja de entrada de %(title)s %(lname)s.\n"
 
 #, fuzzy
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr "mensaje"
 
 msgid "expired"
@@ -16814,6 +16817,18 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "paciente"
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "Proveedor"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "Editar activamente."
 
 #~ msgid "All"
 #~ msgstr "Todo"

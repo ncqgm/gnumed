@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 14:52+CET\n"
+"POT-Creation-Date: 2013-03-10 19:53+CET\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -5774,10 +5774,11 @@ msgstr ""
 msgid "&Expired"
 msgstr ""
 
-msgid "patient only"
-msgstr ""
+#, fuzzy
+msgid "Active patient"
+msgstr "zaczynam spotkanie z pacjentem"
 
-msgid "provider only"
+msgid "Yours"
 msgstr ""
 
 msgid "&Add"
@@ -5814,12 +5815,11 @@ msgstr "Dodawanie nowego epizodu"
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-#, fuzzy
-msgid "About active:"
-msgstr "nieaktywny"
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -6254,6 +6254,9 @@ msgstr ""
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -13701,7 +13704,7 @@ msgstr ""
 msgid " Inbox of %s %s%s."
 msgstr ""
 
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr ""
 
 msgid "expired"
@@ -14837,6 +14840,10 @@ msgstr "Ilość"
 
 msgid "First Date"
 msgstr "Pierwsza data"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "nieaktywny"
 
 #, fuzzy
 #~ msgid "abnormal and relevant"

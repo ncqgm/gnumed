@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 14:51+CET\n"
+"POT-Creation-Date: 2013-03-10 19:52+CET\n"
 "PO-Revision-Date: 2010-02-09 16:17+0000\n"
 "Last-Translator: Brett Alton <brett.jr.alton@gmail.com>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
@@ -5507,10 +5507,11 @@ msgstr ""
 msgid "&Expired"
 msgstr ""
 
-msgid "patient only"
-msgstr ""
+#, fuzzy
+msgid "Active patient"
+msgstr "not clinically relevant"
 
-msgid "provider only"
+msgid "Yours"
 msgstr ""
 
 msgid "&Add"
@@ -5546,12 +5547,11 @@ msgstr ""
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-#, fuzzy
-msgid "About active:"
-msgstr "inactive"
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -5965,6 +5965,9 @@ msgstr ""
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -13119,7 +13122,7 @@ msgstr ""
 msgid " Inbox of %s %s%s."
 msgstr ""
 
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr ""
 
 msgid "expired"
@@ -14238,6 +14241,10 @@ msgstr ""
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "inactive"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Doc: %s"

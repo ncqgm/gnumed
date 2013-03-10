@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 14:52+CET\n"
+"POT-Creation-Date: 2013-03-10 19:53+CET\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -6132,12 +6132,11 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "patiënt"
+msgid "Active patient"
+msgstr "Aktieve patient"
 
-#, fuzzy
-msgid "provider only"
-msgstr "Provincie"
+msgid "Yours"
+msgstr ""
 
 #, fuzzy
 msgid "&Add"
@@ -6177,12 +6176,12 @@ msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 "Toon de volledige tekst van de geselectreerde berichten in uw Postvak In."
 
-msgid "Show:"
-msgstr ""
-
 #, fuzzy
-msgid "About active:"
-msgstr "inactief"
+msgid "Messages:"
+msgstr "bericht"
+
+msgid "Only:"
+msgstr ""
 
 #, fuzzy
 msgid "A code for this province."
@@ -6665,6 +6664,9 @@ msgstr "Toon &laboratoriumjournaal"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -15331,7 +15333,7 @@ msgid " Inbox of %s %s%s."
 msgstr ""
 
 #, fuzzy
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr "bericht"
 
 msgid "expired"
@@ -16582,6 +16584,18 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "patiënt"
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "Provincie"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "inactief"
 
 #~ msgid "All"
 #~ msgstr "Alle"

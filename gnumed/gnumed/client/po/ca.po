@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-10 14:51+CET\n"
+"POT-Creation-Date: 2013-03-10 19:52+CET\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -5583,10 +5583,10 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "Pacient"
+msgid "Active patient"
+msgstr "Començant visita amb el pacient"
 
-msgid "provider only"
+msgid "Yours"
 msgstr ""
 
 msgid "&Add"
@@ -5623,12 +5623,11 @@ msgstr "Crea una nova entrada a la llista de sobre."
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-#, fuzzy
-msgid "About active:"
-msgstr "Administratiu"
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -6050,6 +6049,9 @@ msgstr ""
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -13304,7 +13306,7 @@ msgstr ""
 msgid " Inbox of %s %s%s."
 msgstr ""
 
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr ""
 
 msgid "expired"
@@ -14436,6 +14438,14 @@ msgstr "Quantitat"
 
 msgid "First Date"
 msgstr ""
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "Pacient"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "Administratiu"
 
 #~ msgid "   Doc: %s"
 #~ msgstr "   Doc: %s"

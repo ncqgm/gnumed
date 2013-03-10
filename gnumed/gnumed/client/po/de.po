@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-03-10 14:51+CET\n"
-"PO-Revision-Date: 2013-03-10 15:26+0100\n"
+"POT-Creation-Date: 2013-03-10 19:52+CET\n"
+"PO-Revision-Date: 2013-03-10 19:56+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -5554,19 +5554,19 @@ msgid "&Overdue"
 msgstr "&Überfällig"
 
 msgid "&Scheduled"
-msgstr "&Terminierte"
+msgstr "&Terminiert"
 
 msgid "&Unscheduled"
-msgstr "&Unterminierte"
+msgstr "&Ohne Fälligkeit"
 
 msgid "&Expired"
-msgstr "%Verfallene"
+msgstr "&Verfallen"
 
-msgid "patient only"
-msgstr "Patienten"
+msgid "Active patient"
+msgstr "Aktiver Patient"
 
-msgid "provider only"
-msgstr "Anwender"
+msgid "Yours"
+msgstr "Eigene"
 
 msgid "&Add"
 msgstr "&Hinzufügen"
@@ -5598,11 +5598,11 @@ msgstr "Eine neue Nachricht erzeugen."
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Zeigt die eingegangene Nachricht komplett."
 
-msgid "Show:"
-msgstr "Zeige:"
+msgid "Messages:"
+msgstr "Nachrichten:"
 
-msgid "About active:"
-msgstr "Über aktiven:"
+msgid "Only:"
+msgstr "Nur:"
 
 msgid "A code for this province."
 msgstr "Ein Code für dieses Bundesland."
@@ -5991,6 +5991,9 @@ msgstr "Journal für den gewählten Bereich zeigen."
 
 msgid "Press this button to switch back and forth between browsing and entering SOAP notes."
 msgstr "Hiermit können Sie zwischen Blättern und Bearbeiten von ABDT-Einträgen wechseln."
+
+msgid "Show:"
+msgstr "Zeige:"
 
 msgid "Edit staff details"
 msgstr "Mitarbeiterdaten .ändern"
@@ -12139,7 +12142,7 @@ msgid "invalid placeholder [%s]"
 msgstr "ungültiger Platzhalter [%s]"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
-msgstr ""
+msgstr "fällig %(due_date)s: %(comment)s (%(interval_due)s)"
 
 msgid "Select the patient documents to reference from the new document."
 msgstr "Wählen Sie die Dokumente, die im neuen Dokument erwähnt werden sollen."
@@ -14323,10 +14326,10 @@ msgid "Sent"
 msgstr "Gesendet"
 
 msgid " Inbox of %s %s%s."
-msgstr " Posteingang von %s %s%s.\n"
+msgstr " Posteingang von %s %s%s."
 
-msgid " (%s message(s))"
-msgstr " (%s Nachricht(en))"
+msgid ": %s message(s)"
+msgstr ": %s Nachricht(en)"
 
 msgid "expired"
 msgstr "verfallen"
@@ -15526,6 +15529,15 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "patient only"
+#~ msgstr "Patienten"
+
+#~ msgid "provider only"
+#~ msgstr "Anwender"
+
+#~ msgid "About active:"
+#~ msgstr "Über aktiven:"
 
 #~ msgid "All"
 #~ msgstr "Alle"

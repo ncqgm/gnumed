@@ -876,7 +876,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				gmPerson.map_gender2salutation(self.provider['gender'])
 			),
 			self.provider['lastnames'],
-			gmTools.coalesce(no_of_messages, u'', _(' (%s message(s))'))
+			gmTools.coalesce(no_of_messages, u'', _(': %s message(s)'))
 		)
 		self._msg_welcome.SetLabel(msg)
 	#--------------------------------------------------------

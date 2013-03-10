@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-03-10 14:53+CET\n"
+"POT-Creation-Date: 2013-03-10 19:54+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5240,10 +5240,10 @@ msgstr ""
 msgid "&Expired"
 msgstr ""
 
-msgid "patient only"
+msgid "Active patient"
 msgstr ""
 
-msgid "provider only"
+msgid "Yours"
 msgstr ""
 
 msgid "&Add"
@@ -5276,10 +5276,10 @@ msgstr ""
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-msgid "About active:"
+msgid "Only:"
 msgstr ""
 
 msgid "A code for this province."
@@ -5651,6 +5651,9 @@ msgid "Show item journal."
 msgstr ""
 
 msgid "Press this button to switch back and forth between browsing and entering SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -12678,7 +12681,7 @@ msgstr ""
 msgid " Inbox of %s %s%s."
 msgstr ""
 
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr ""
 
 msgid "expired"

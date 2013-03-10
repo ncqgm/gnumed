@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 14:52+CET\n"
+"POT-Creation-Date: 2013-03-10 19:53+CET\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -5907,12 +5907,11 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "Mover paciente para baixo."
+msgid "Active patient"
+msgstr "Mover o paciente para cima."
 
-#, fuzzy
-msgid "provider only"
-msgstr "&Somente eu"
+msgid "Yours"
+msgstr ""
 
 msgid "&Add"
 msgstr ""
@@ -5948,12 +5947,11 @@ msgstr "Adicionando novo problema de saúde"
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Isso mostra todas as mensagens de sua caixa de entrada."
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-#, fuzzy
-msgid "About active:"
-msgstr "inactivo"
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -6429,6 +6427,9 @@ msgstr "rme-diário"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -14240,7 +14241,7 @@ msgstr ""
 msgid " Inbox of %s %s%s."
 msgstr ""
 
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr ""
 
 msgid "expired"
@@ -15389,6 +15390,18 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "1ª data"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "Mover paciente para baixo."
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "&Somente eu"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "inactivo"
 
 #~ msgid "All"
 #~ msgstr "Todos"

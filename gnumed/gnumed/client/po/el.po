@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2013-03-10 14:51+CET\n"
+"POT-Creation-Date: 2013-03-10 19:52+CET\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -5836,12 +5836,11 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "ασθενής"
+msgid "Active patient"
+msgstr "Σχετιζόμενο με τον ενεργό ασθενή"
 
-#, fuzzy
-msgid "provider only"
-msgstr "Πάροχος"
+msgid "Yours"
+msgstr ""
 
 #, fuzzy
 msgid "&Add"
@@ -5879,12 +5878,12 @@ msgstr "Προσθήκη ενός νέου αντικειμένου στην π�
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
-msgstr ""
-
 #, fuzzy
-msgid "About active:"
-msgstr "ανενεργό"
+msgid "Messages:"
+msgstr "Μήνυμα"
+
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -6316,6 +6315,9 @@ msgstr "Δείξε &εργαστηριακό ημερολόγιο"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -13695,7 +13697,7 @@ msgid " Inbox of %s %s%s."
 msgstr ""
 
 #, fuzzy
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr "μήνυμα"
 
 msgid "expired"
@@ -14834,6 +14836,18 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "ασθενής"
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "Πάροχος"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "ανενεργό"
 
 #~ msgid "All"
 #~ msgstr "Όλα"

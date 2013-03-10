@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 14:53+CET\n"
+"POT-Creation-Date: 2013-03-10 19:54+CET\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -6267,12 +6267,12 @@ msgid "&Expired"
 msgstr "Срок действия"
 
 #, fuzzy
-msgid "patient only"
-msgstr "пациент"
+msgid "Active patient"
+msgstr "Активировать пациента"
 
 #, fuzzy
-msgid "provider only"
-msgstr "Специалист"
+msgid "Yours"
+msgstr "часов"
 
 msgid "&Add"
 msgstr "&Add"
@@ -6309,12 +6309,12 @@ msgstr "Добавить новое сообщение."
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr "Показывает все выбранные в вашем почтовом ящике сообщения."
 
-msgid "Show:"
-msgstr "Показать:"
-
 #, fuzzy
-msgid "About active:"
-msgstr "Изменить активное"
+msgid "Messages:"
+msgstr "Сообщение"
+
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr "Код для этой области."
@@ -6796,6 +6796,9 @@ msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
 msgstr ""
+
+msgid "Show:"
+msgstr "Показать:"
 
 msgid "Edit staff details"
 msgstr "Изменить сведения о сотруднике"
@@ -15462,7 +15465,7 @@ msgstr ""
 " Почтовый ящик %(title)s %(lname)s.\n"
 
 #, fuzzy
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr "сообщение"
 
 #, fuzzy
@@ -16693,6 +16696,18 @@ msgstr "Количество"
 
 msgid "First Date"
 msgstr "Первый раз"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "пациент"
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "Специалист"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "Изменить активное"
 
 #~ msgid "All"
 #~ msgstr "Всё"

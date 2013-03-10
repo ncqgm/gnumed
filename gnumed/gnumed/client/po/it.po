@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-10 14:52+CET\n"
+"POT-Creation-Date: 2013-03-10 19:53+CET\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -5918,12 +5918,11 @@ msgid "&Expired"
 msgstr ""
 
 #, fuzzy
-msgid "patient only"
-msgstr "paziente"
+msgid "Active patient"
+msgstr "Paziente attivo"
 
-#, fuzzy
-msgid "provider only"
-msgstr "Provider &inbox"
+msgid "Yours"
+msgstr ""
 
 msgid "&Add"
 msgstr ""
@@ -5961,12 +5960,11 @@ msgstr "Aggiungi un nuovo membro dello staff"
 msgid "This shows the entirety of the selected message in your Inbox."
 msgstr ""
 
-msgid "Show:"
+msgid "Messages:"
 msgstr ""
 
-#, fuzzy
-msgid "About active:"
-msgstr "non attivo"
+msgid "Only:"
+msgstr ""
 
 msgid "A code for this province."
 msgstr ""
@@ -6398,6 +6396,9 @@ msgstr "Mostra il &giornale di laboratorio"
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
 "SOAP notes."
+msgstr ""
+
+msgid "Show:"
 msgstr ""
 
 msgid "Edit staff details"
@@ -13935,7 +13936,7 @@ msgid " Inbox of %s %s%s."
 msgstr ""
 
 #, fuzzy
-msgid " (%s message(s))"
+msgid ": %s message(s)"
 msgstr "Mostra i messaggi:"
 
 msgid "expired"
@@ -15095,6 +15096,18 @@ msgstr "Quantità"
 
 msgid "First Date"
 msgstr "Prima Data"
+
+#, fuzzy
+#~ msgid "patient only"
+#~ msgstr "paziente"
+
+#, fuzzy
+#~ msgid "provider only"
+#~ msgstr "Provider &inbox"
+
+#, fuzzy
+#~ msgid "About active:"
+#~ msgstr "non attivo"
 
 #~ msgid "All"
 #~ msgstr "Tutto"
