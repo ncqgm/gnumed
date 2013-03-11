@@ -2,12 +2,12 @@ Fingerprinting GNUmed database ...
 
            Name: gnumed_v18
     Schema hash: a0f9efcabdecfb4ddb6d8c0b69c02092
-           Size: 44 MB
+           Size: 46 MB
        Patients: 14
-       Contacts: 7
+       Contacts: 6
        Episodes: 5
          Issues: 2
-        Results: 7
+        Results: 5
    Vaccinations: 1
       Documents: 3
         Objects: 4
