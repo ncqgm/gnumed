@@ -10,7 +10,7 @@ import sys, copy, logging
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools
+from Gnumed.pycommon import gmBusinessDBObject, gmPG2, gmI18N, gmTools, gmDateTime
 from Gnumed.business import gmMedication
 
 
@@ -389,7 +389,7 @@ def __format_latest_vaccinations_latex(vaccinations=None):
 		target_count, vacc = vaccinations[target]
 		lines += row_template % (
 			target,
-			vacc['date_given'].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(vacc['date_given'], '%Y %b %d'),
 			vacc['vaccine'],
 			gmTools.tex_escape_string(vacc['batch_no'].strip()),
 			vacc['soap_cat'].upper(),

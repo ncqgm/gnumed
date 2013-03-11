@@ -1718,7 +1718,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_episode'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %B %d', one_line=True, allergy=None, show_all_brand_components=False):
+	def format(self, left_margin=0, date_format='%Y %b %d', one_line=True, allergy=None, show_all_brand_components=False):
 		if one_line:
 			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
 
@@ -1729,7 +1729,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			show_all_brand_components = show_all_brand_components
 		)
 	#--------------------------------------------------------
-	def format_as_one_line(self, left_margin=0, date_format='%Y %B %d'):
+	def format_as_one_line(self, left_margin=0, date_format='%Y %b %d'):
 
 		if self._payload[self._idx['duration']] is None:
 			duration = gmTools.bool2subst (
@@ -1746,7 +1746,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		line = u'%s%s (%s %s): %s %s%s %s (%s)' % (
 			u' ' * left_margin,
-			self._payload[self._idx['started']].strftime(date_format),
+			gmDateTime.pydt_strftime(self._payload[self._idx['started']], date_format),
 			gmTools.u_right_arrow,
 			duration,
 			self._payload[self._idx['substance']],
@@ -1758,7 +1758,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		return line
 	#--------------------------------------------------------
-	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %B %d', allergy=None, show_all_brand_components=False):
+	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_brand_components=False):
 
 		txt = _('Substance intake entry (%s, %s)   [#%s]                     \n') % (
 			gmTools.bool2subst (

@@ -204,7 +204,7 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
-					label = u'%s (%s)' % (enc['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding()), enc['l10n_type'])
+					label = u'%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
 			try:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
@@ -272,7 +272,7 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			if dto.dob is None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
 			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding()))
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -593,7 +593,9 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		gmGuiHelpers.gm_show_info (_(
 			'Cannot create new patient:\n\n'
 			' [%s %s (%s), %s]'
-			) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding())),
+			) % (
+				dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+			),
 			_('Activating external patient')
 		)
 		return None
@@ -614,12 +616,13 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 
 	if activate_immediately:
 		if not set_active_patient(patient = ident):
-			gmGuiHelpers.gm_show_info (
-				_(
+			gmGuiHelpers.gm_show_info (_(
 				'Cannot activate patient:\n\n'
 				'%s %s (%s)\n'
 				'%s'
-				) % (dto.firstnames, dto.lastnames, dto.gender, dto.dob.strftime('%Y %b %d').decode(gmI18N.get_encoding())),
+				) % (
+					dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+				),
 				_('Activating external patient')
 			)
 			return None

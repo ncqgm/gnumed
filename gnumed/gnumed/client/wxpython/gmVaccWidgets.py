@@ -677,7 +677,7 @@ def manage_vaccinations(parent=None):
 		vaccs = emr.get_vaccinations(order_by = 'date_given DESC, pk_vaccination')
 
 		items = [ [
-			v['date_given'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(v['date_given'], '%Y %b %d'),
 			v['vaccine'],
 			u', '.join(v['l10n_indications']),
 			v['batch_no'],

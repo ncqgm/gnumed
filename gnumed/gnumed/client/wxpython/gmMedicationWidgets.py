@@ -1279,7 +1279,7 @@ def manage_substance_intakes(parent=None, emr=None):
 				gmTools.coalesce(i['external_code_brand'], u'', u' [%s::%s]' % (i['external_code_type_brand'], i['external_code_brand']))
 			),
 			u'%s%s%s' % (
-				gmTools.coalesce(i['started'], u'', u'%%s %s' % gmTools.u_right_arrow, function_initial = ('strftime', '%Y %B %d')),
+				gmTools.coalesce(i['started'], u'', u'%%s %s' % gmTools.u_right_arrow, function_initial = ('strftime', '%Y-%M-%d')),
 				gmTools.coalesce(i['schedule'], u'', u' %s %s' % (i['schedule'], gmTools.u_right_arrow)),
 				gmTools.coalesce(i['duration'], u'', u' %s')
 			),
@@ -1351,7 +1351,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
 		else:
-			confirmed = state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
 		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
 		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
 
@@ -2747,15 +2747,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
 
 		tt += _(' Started %s%s%s\n') % (
-			entry['started'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(entry['started'], '%Y %b %d'),
 			duration,
 			gmTools.bool2subst(entry['is_long_term'], _(' (long-term)'), _(' (short-term)'), u'')
 		)
 
 		if entry['discontinued'] is not None:
-			tt += _(' Discontinued %s\n') % (
-				entry['discontinued'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
-			)
+			tt += _(' Discontinued %s\n') % gmDateTime.pydt_strftime(entry['discontinued'], '%Y %b %d')
 			tt += _(' Reason: %s\n') % entry['discontinue_reason']
 
 		tt += u'\n'
@@ -2769,7 +2767,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		tt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % ({
 			'row_ver': entry['row_version'],
-			'mod_when': entry['modified_when'].strftime('%Y %b %d  %H:%M:%S').decode(gmI18N.get_encoding()),
+			'mod_when': gmDateTime.pydt_strftime(entry['modified_when'], '%Y %b %d  %H:%M:%S'),
 			'mod_by': entry['modified_by']
 		})
 

@@ -657,7 +657,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['l10n_type']],
 			parts,
 			self._payload[self._idx['pk_doc']],
-			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %B %d', accuracy = gmDateTime.acc_days),
+			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], format = '%Y %b %d', accuracy = gmDateTime.acc_days),
 			self._payload[self._idx['episode']],
 			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),

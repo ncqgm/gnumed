@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 from Gnumed.exporters import gmPatientExporter
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
@@ -224,7 +225,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			template = u' %s - %s (%s)\n\n'
 			self.__root_tooltip += template % (
 				self.__pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
-				self.__pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
+				gmDateTime.pydt_strftime(self.__pat['deceased'], '%Y %b %d'),
 				self.__pat['medical_age']
 			)
 		self.__root_tooltip += gmTools.coalesce(self.__pat['comment'], u'', u'%s\n\n')
@@ -867,7 +868,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #					return
 #
 #				self.SetToolTip(u'%s  %s  %s - %s\n\nRFE: %s\nAOE: %s' % (
-#					data['started'].strftime('%Y %b %d'),
+#					gmDateTime.pydt_strftime(data['started'], '%Y %b %d'),
 #					data['l10n_type'],
 #					data['started'].strftime('%H:%m'),
 #					data['last_affirmed'].strftime('%H:%m'),
@@ -887,7 +888,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		if isinstance(data, gmEMRStructItems.cEncounter):
 			tt = u'%s  %s  %s - %s\n' % (
-				data['started'].strftime('%Y %b %d'),
+				gmDateTime.pydt_strftime(data['started'], '%Y %b %d'),
 				data['l10n_type'],
 				data['started'].strftime('%H:%M'),
 				data['last_affirmed'].strftime('%H:%M')

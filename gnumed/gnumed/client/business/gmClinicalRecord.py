@@ -833,8 +833,8 @@ order by
 		txt += u'\n'
 		txt += _(' %s encounters from %s to %s\n') % (
 			stats['encounters'],
-			first['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
-			last['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding())
+			gmDateTime.pydt_strftime(first['started'], '%Y %b %d'),
+			gmDateTime.pydt_strftime(last['started'], '%Y %b %d')
 		)
 		txt += _(' %s active medications\n') % stats['active_drugs']
 		txt += _(' %s documents\n') % stats['documents']
@@ -857,7 +857,7 @@ order by
 		allg_state = self.allergy_state
 		txt += (u' ' + allg_state.state_string)
 		if allg_state['last_confirmed'] is not None:
-			txt += (_(' (last confirmed %s)') % allg_state['last_confirmed'].strftime('%Y %b %d').decode(gmI18N.get_encoding()))
+			txt += _(' (last confirmed %s)') % gmDateTime.pydt_strftime(allg_state['last_confirmed'], '%Y %b %d')
 		txt += u'\n'
 		txt += gmTools.coalesce(allg_state['comment'], u'', u' %s\n')
 		for allg in self.get_allergies():
@@ -902,7 +902,7 @@ order by
 				ind,
 				gmTools.u_sum,
 				ind_count,
-				#vacc['date_given'].strftime('%b %Y').decode(gmI18N.get_encoding()),
+				#gmDateTime.pydt_strftime(vacc['date_given'], '%b %Y'),
 				since,
 				age_given,
 				vacc['vaccine'],
@@ -1828,10 +1828,10 @@ WHERE
 			pat[1][:15],
 			pat[2][:15],
 			pat[3],
-			pat[4].strftime('%Y %b %d'),
+			gmDateTime.pydt_strftime(pat[4], '%Y %b %d'),
 			self.pk_patient
 		)
-		enc = gmI18N.get_encoding()
+		#enc = gmI18N.get_encoding()
 		msg = _(
 			'%s\n'
 			'\n'
@@ -1846,8 +1846,8 @@ WHERE
 			'or do you want to start a new one ?\n'
 		) % (
 			pat_str,
-			encounter['started'].strftime('%Y %b %d').decode(enc),
-			encounter['started'].strftime('%H:%M'), encounter['last_affirmed'].strftime('%H:%M'),
+			gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
+			gmDateTime.pydt_strftime(encounter['started'], '%H:%M'), gmDateTime.pydt_strftime(encounter['last_affirmed'], '%H:%M'),
 			encounter['l10n_type'],
 			gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
 			gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),

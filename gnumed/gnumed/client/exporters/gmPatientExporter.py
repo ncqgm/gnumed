@@ -123,7 +123,7 @@ class cEmrExport:
         emr = self.__patient.get_emr()
         # patient dob
         patient_dob = self.__patient['dob']
-        date_length = len(patient_dob.strftime('%Y %b %d')) + 2
+        date_length = len(gmDateTime.pydt_strftime(patient_dob, '%Y %b %d')) + 2
 
         # dictionary of pairs indication : scheduled vaccination
         vaccinations4regimes = {}
@@ -156,7 +156,7 @@ class cEmrExport:
             vaccinations[a_vacc_regime['indication']] = emr.get_vaccinations(indications=[a_vacc_regime['indication']]) # given shots 4 indication
 
         # patient dob in top of vaccination chart 
-        txt = '\nDOB: %s' %(patient_dob.strftime('%Y %b %d')) + '\n'
+        txt = '\nDOB: %s' % (gmDateTime.pydt_strftime(patient_dob, '%Y %b %d')) + '\n'
 
         # vacc chart table headers
         # top ---- header line
@@ -193,8 +193,8 @@ class cEmrExport:
                      txt += ending_str * column_widths[col_index] + '|'
                 elif row_index < seq_no: # vaccination scheduled
                     try:
-                        vacc_date = vaccinations[indication][row_index]['date'] # vaccination given                           
-                        vacc_date_str = vacc_date.strftime('%Y %b %d')
+                        vacc_date = vaccinations[indication][row_index]['date'] # vaccination given
+                        vacc_date_str = gmDateTime.pydt_strftime(vacc_date, '%Y %b %d')
                         txt +=    vacc_date_str + (column_widths[col_index] - len(vacc_date_str)) * ' ' + '|'
                         prev_displayed_date[col_index] = vacc_date
                     except:
@@ -411,13 +411,13 @@ class cEmrExport:
             left_margin * u' ',
             allergy['descriptor'],
             gmTools.coalesce(allergy['reaction'], _('unknown reaction')),
-            allergy['date'].strftime('%Y %b %d')
+            gmDateTime.pydt_strftime(allergy['date'], '%Y %b %d')
         )
 #        txt = left_margin * ' ' \
 #           + _('Allergy') + ': ' \
 #            + allergy['descriptor'] + u', ' \
 #            + gmTools.coalesce(allergy['reaction'], _('unknown reaction')) ' ' \
-#            + _('(noted %s)') % allergy['date'].strftime('%Y %b %d') \
+#            + _('(noted %s)') % gmDateTime.pydt_strftime(allergy['date'], '%Y %b %d') \
 #            + '\n'
         return txt
     #--------------------------------------------------------
@@ -1100,7 +1100,7 @@ class cEMRJournalExporter:
 
 		# write footer
 		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(_('Exported: %s\n') % pyDT.datetime.now().strftime('%Y %b %d  %H:%M:%S').decode(gmI18N.get_encoding()))
+		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(pyDT.datetime.now(), '%Y %b %d  %H:%M:%S'))
 
 		return
 #============================================================
