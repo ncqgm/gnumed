@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-10 19:53+CET\n"
+"POT-Creation-Date: 2013-03-11 11:42+CET\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -123,19 +123,19 @@ msgid "Welcome to Timeline"
 msgstr "Добро пожаловать в"
 
 msgid "Intro"
-msgstr ""
+msgstr "Введение"
 
 msgid "Hover me!"
-msgstr ""
+msgstr "Наведи на меня!"
 
 msgid "Hovering events with a triangle shows the event description."
-msgstr ""
+msgstr "При наведении на событие с треугольником показывает описание события."
 
 msgid "Features"
 msgstr "Функции"
 
 msgid "Scroll"
-msgstr ""
+msgstr "Прокрутить"
 
 msgid ""
 "Left click somewhere on the timeline and start dragging.\n"
@@ -144,15 +144,23 @@ msgid ""
 "\n"
 "You can also middle click with the mouse to center around that point."
 msgstr ""
+"Кликните левой мышкой по чему-нибудь в хронологии и начните протаскивание.\n"
+"\n"
+"Можно также использовать колесико мышки.\n"
+"\n"
+"Можно также кликнуть колесиком мышки для выделения вокруг этой точки."
 
 msgid "Zoom"
-msgstr ""
+msgstr "Увеличить"
 
 msgid ""
 "Hold down Ctrl while scrolling the mouse wheel.\n"
 "\n"
 "Hold down Shift while dragging with the mouse."
 msgstr ""
+"Удерживайте Ctrl при прокручивании колесиком мышки.\n"
+"\n"
+"Удерживайте Shift при протаскивание мышкой."
 
 #, fuzzy
 msgid "Create event"
@@ -163,13 +171,16 @@ msgid ""
 "\n"
 "Hold down Ctrl while dragging the mouse to select a period."
 msgstr ""
+"Дважды кликните что-нибудь в хронологии.\n"
+"\n"
+"Удерживайте Ctrl при протаскивание мышкой для выбора периода."
 
 #, fuzzy
 msgid "Edit event"
 msgstr "Комментарий &Edit"
 
 msgid "Double click on an event."
-msgstr ""
+msgstr "Дважды кликните на событии."
 
 #, fuzzy
 msgid "Select event"
@@ -180,19 +191,22 @@ msgid ""
 "\n"
 "Hold down Ctrl while clicking events to select multiple."
 msgstr ""
+"Кликните по нему.\n"
+"\n"
+"Для выбора нескольких событий при клике удерживайте Ctrl."
 
 #, fuzzy
 msgid "Delete event"
 msgstr "Удаление документа"
 
 msgid "Select events to be deleted and press the Del key."
-msgstr ""
+msgstr "Выберите события для удаления и нажмите клавишу Del."
 
 msgid "Resize and move me!"
-msgstr ""
+msgstr "Измените размер и переместите!"
 
 msgid "First select me and then drag the handles."
-msgstr ""
+msgstr "Сначала выберите и затем перетащите вручную."
 
 #, fuzzy
 msgid "Saving"
@@ -204,13 +218,18 @@ msgid ""
 "\n"
 "Choose File/New/File Timeline to create a timeline that is saved on disk."
 msgstr ""
+"Эта хронология внесена в память, и между сессиями изменения в ней не будут "
+"сохраняться.\n"
+"\n"
+"Выберите Файл/Новый/Хронология файла для создания сохраняемой на диск "
+"хронологии."
 
 #, fuzzy
 msgid "Start time "
 msgstr "Запустить новое"
 
 msgid "End time "
-msgstr ""
+msgstr "Время окончания "
 
 msgid "Start time can't be after end time"
 msgstr "Время начала не должно быть позже времени окончания"
@@ -241,10 +260,10 @@ msgid "Name"
 msgstr "Имя"
 
 msgid "You can't change time when the Event is locked"
-msgstr ""
+msgstr "Вы не можете изменить время при блокировке события"
 
 msgid "End must be > Start"
-msgstr ""
+msgstr "Окончание должно быть > начала"
 
 #, fuzzy
 msgid "Entered period is too long."
@@ -289,7 +308,7 @@ msgstr ""
 "Кнопки сохранения просто нет, оно происходит автоматически.\n"
 
 msgid "Where do the week numbers go if I start my weeks on Sunday?"
-msgstr ""
+msgstr "Где идут номера недель, если я начинаю свои недели в воскресенье?"
 
 msgid ""
 "\n"
@@ -297,6 +316,10 @@ msgid ""
 "on Sunday at present.  We plan on using a different date object that will "
 "support this in future versions.\n"
 msgstr ""
+"\n"
+"В настоящее время используемый объект данных дата не поддерживает номера "
+"недель или недели, начинающиеся в воскресенье. Мы планируем использовать "
+"другой объект даты, который будет поддерживать его в будущих версиях.\n"
 
 #, fuzzy
 msgid "Timeline"
@@ -311,6 +334,13 @@ msgid ""
 "example can specify a time in terms of number of minutes since a start time. "
 "If you are interested in such a feature, please get in touch.\n"
 msgstr ""
+"\n"
+"Хронология показывает по оси х даты в соответствии с григорианским "
+"календарем. В настоящее время даты ограничиваются между 10 и 9989 годами.\n"
+"\n"
+"Будущие версии смогут поддерживать различные виды хронологий, так что можно "
+"будет указать время, например, в минутах с момента начала. Если вы "
+"заинтересованы в такой функции, то свяжитесь с нами.\n"
 
 #, fuzzy
 msgid "Events"
@@ -323,6 +353,10 @@ msgid ""
 "that event happened). This can be either a specific point in time or a "
 "period.\n"
 msgstr ""
+"\n"
+"Событие является основным типом данных для представления информации о "
+"хронологии. Следует указать, где по времени оно должно быть размещено (когда "
+"произошло это событие). Это может быть точный момент времени или период.\n"
 
 #, fuzzy
 msgid "Categories"
@@ -334,6 +368,10 @@ msgid ""
 "category. All events that belong to the same category are displayed with the "
 "same background color.\n"
 msgstr ""
+"\n"
+"Категории используются для группирования событий. Событие может принадлежать "
+"только к одной категории. Все события, принадлежащие к одной и той же "
+"категории, отображаются одним цветом.\n"
 
 msgid ""
 "\n"
@@ -344,11 +382,20 @@ msgid ""
 "- Press the *Ctrl* key, thereafter hold *left* mouse button down on the "
 "timeline, drag the mouse and release it.\n"
 msgstr ""
+"\n"
+"Диалог *Создать событие* можно открыть следующими способами:\n"
+"\n"
+"- Выберите *Хронологию* - *Создать событие* из меню.\n"
+"- Двойной клик *левой* кнопкой мыши на временной шкале.\n"
+"- Нажмите клавишу *Ctrl*, затем удерживая нажатой *левую* кнопку мыши на "
+"шкале времени, перетащите мышью и отпустите его.\n"
 
 msgid ""
 "\n"
 "The *Edit Event* dialog can be opened by double clicking on an event.\n"
 msgstr ""
+"\n"
+"При двойном клике по событию можно открыть диалог *Изменить событие*.\n"
 
 msgid "Move event vertically"
 msgstr ""
@@ -368,6 +415,9 @@ msgid ""
 "To select an event, click on it. To select multiple events, hold down the "
 "*Ctrl* key while clicking events.\n"
 msgstr ""
+"\n"
+"Для выбора события кликните по нему. Для выбора нескольких событий отмечайте "
+"их при нажатой клавише *Ctrl*.\n"
 
 msgid ""
 "\n"
@@ -401,6 +451,13 @@ msgid ""
 "The visibility of categories can also be edited in the sidebar (*View* > "
 "*Sidebar*).\n"
 msgstr ""
+"\n"
+"Категориями можно управлять в диалоге *Изменить категории* (*Хронология* > "
+"*Изменить категории*). Для изменения существующей категории дважды кликните "
+"по ней.\n"
+"\n"
+"В боковой панели также можно изменить отображаемость категорий (*Обзор* > "
+"*Боковая панель*).\n"
 
 msgid "Contact"
 msgstr "Контактные данные"
@@ -452,10 +509,10 @@ msgid "Print preview"
 msgstr "Печать части"
 
 msgid "Go to &Zero\tCtrl+Z"
-msgstr ""
+msgstr "Перейти к &Zero\tCtrl+Z"
 
 msgid "Go to &Time\tCtrl+T"
-msgstr ""
+msgstr "Перейти к &Time\tCtrl+T"
 
 msgid "Backward\tPgUp"
 msgstr "Назад\tPgUp"
@@ -464,19 +521,19 @@ msgid "Forward\tPgDn"
 msgstr "Вперёд\tPgDn"
 
 msgid "Can't zoom deeper than 5"
-msgstr ""
+msgstr "Невозможно увеличить более, чем в 5 раз"
 
 msgid "1-period"
-msgstr ""
+msgstr "1 после запятой"
 
 msgid "10-period"
-msgstr ""
+msgstr "2 после запятой"
 
 msgid "100-period"
-msgstr ""
+msgstr "3 после запятой"
 
 msgid "1000-period"
-msgstr ""
+msgstr "4 после запятой"
 
 #, fuzzy
 msgid "Go to Time"
@@ -507,7 +564,7 @@ msgid "Back One &Year\tCtrl+Y"
 msgstr "Назад на один Год\tCtrl+Y"
 
 msgid "Fit Millennium"
-msgstr ""
+msgstr "Подходящее тысячелетие"
 
 msgid "Fit Century"
 msgstr "Век"
@@ -539,22 +596,22 @@ msgid "hour"
 msgstr "час"
 
 msgid "hours"
-msgstr ""
+msgstr "часов"
 
 msgid "minute"
 msgstr "минута"
 
 msgid "minutes"
-msgstr ""
+msgstr "минут"
 
 msgid "can't be before year 10"
-msgstr ""
+msgstr "невозможно до 10 года"
 
 msgid "can't be after year 9989"
-msgstr ""
+msgstr "невозможно после 9989 года"
 
 msgid "Can't zoom wider than 1200 years"
-msgstr ""
+msgstr "Невозможно масштабировать более 1200 лет"
 
 msgid "Can't zoom deeper than 1 hour"
 msgstr "Не могу масштабировать глубже чем на 1 час"
@@ -578,19 +635,19 @@ msgid "Go to Date"
 msgstr "Последний раз"
 
 msgid "can't be before year %d"
-msgstr ""
+msgstr "невозможно до %d лет"
 
 msgid "can't be after year %d"
-msgstr ""
+msgstr "невозможно после %d лет"
 
 msgid "No timeline set"
 msgstr "Нет установленны сроки для"
 
 msgid "Can't scroll more to the left"
-msgstr ""
+msgstr "Прокрутить влево больше невозможно"
 
 msgid "Can't scroll more to the right"
-msgstr ""
+msgstr "Прокрутить вправо больше невозможно"
 
 msgid "Edit"
 msgstr "Изменить"
@@ -602,7 +659,7 @@ msgid "Delete"
 msgstr "Удалить"
 
 msgid "Sticky Balloon"
-msgstr ""
+msgstr "Прилипшая всплывающая подсказка"
 
 #, fuzzy
 msgid "Goto URL"
@@ -612,27 +669,27 @@ msgid "Center"
 msgstr "По центру"
 
 msgid "%s events hidden"
-msgstr ""
+msgstr "%s скрытых событий"
 
 #, fuzzy
 msgid "Are you sure you want to delete this event?"
 msgstr "Уверены, что нужно удалить этот документ?"
 
 msgid "Can't move locked event"
-msgstr ""
+msgstr "Невозможно удалить заблокированное событие"
 
 msgid "Period is too long"
-msgstr ""
+msgstr "Слишком большой период"
 
 #, fuzzy
 msgid "Select region to zoom into"
 msgstr "Выбрать лицо из списка"
 
 msgid "Region too long"
-msgstr ""
+msgstr "Слишком большая зона"
 
 msgid "Region too short"
-msgstr ""
+msgstr "Слишком маленькая зона"
 
 #, fuzzy
 msgid "Add new"
@@ -694,7 +751,7 @@ msgid "Color:"
 msgstr "Цветной"
 
 msgid "Font Color:"
-msgstr ""
+msgstr "Цвет шрифта:"
 
 #, fuzzy
 msgid "Parent:"
@@ -762,10 +819,10 @@ msgid "Show time"
 msgstr "Показать часть"
 
 msgid "Fuzzy"
-msgstr ""
+msgstr "Неуточненный"
 
 msgid "Locked"
-msgstr ""
+msgstr "заблокированный"
 
 #, fuzzy
 msgid "Ends today"
@@ -927,16 +984,18 @@ msgid ""
 "Could not find pysvg Python package. It is needed to export to SVG. See the "
 "Timeline website or the INSTALL file for instructions how to install it."
 msgstr ""
+"Не удалось найти пакет pysvg Python. Он необходим для экспорта в SVG. Для "
+"инструкций по установке см. веб-сайт Timeline или файл INSTALL."
 
 #, fuzzy
 msgid "Export to SVG"
 msgstr "Экспорт в GDT"
 
 msgid "Play timeline"
-msgstr ""
+msgstr "Воспроизведение хронологии"
 
 msgid "Play timeline as movie"
-msgstr ""
+msgstr "Воспроизведение хронологии как клип"
 
 msgid "Exit the program"
 msgstr "Выйти из программы"
@@ -955,7 +1014,7 @@ msgid "&Legend"
 msgstr "&Легенда"
 
 msgid "&Balloons on hover"
-msgstr ""
+msgstr "&Всплывающая подсказка при наведении"
 
 msgid "&Timeline"
 msgstr "&Хронология"
@@ -976,16 +1035,16 @@ msgid "Duplicate the Selected Event"
 msgstr "Изменение выбранного пункта."
 
 msgid "&Measure Distance between two Events..."
-msgstr ""
+msgstr "&Масштаб периода между двумя событиями..."
 
 msgid "Measure the Distance between two Events"
-msgstr ""
+msgstr "Настроить длительность между двумя событиями"
 
 msgid "Distance between selected events"
-msgstr ""
+msgstr "Интервал между выбранными событиями"
 
 msgid "Events are overlapping or distance is 0"
-msgstr ""
+msgstr "События перекрываются или непрерывны"
 
 #, fuzzy
 msgid "Edit &Categories"
@@ -1032,7 +1091,7 @@ msgid "First time using Timeline?"
 msgstr "Используете программу в первый раз?"
 
 msgid "Relevant help topics:"
-msgstr ""
+msgstr "Уместные темы справки:"
 
 msgid "Close"
 msgstr "Закрыть"
@@ -1059,16 +1118,21 @@ msgid ""
 "the timeline again. A reload of the timeline\n"
 "is also needed for this to take effect."
 msgstr ""
+"Эта функция экспериментальная. Если события\n"
+"созданы в расширенном диапазоне, то можно\n"
+"отключить эту опцию и успешно загрузить\n"
+"хронологию снова. Для вступления в силу также\n"
+"необходима перезагрузка хронологии."
 
 #, fuzzy
 msgid "Open most recent timeline on startup"
 msgstr "самое последнее по содержанию"
 
 msgid "Use inertial scrolling"
-msgstr ""
+msgstr "Использовать инерционную прокрутку"
 
 msgid "Use extended date range (before 1 AD)"
-msgstr ""
+msgstr "Использовать расширенный диапазон дат (до 1 г. н.э.)"
 
 msgid "Monday"
 msgstr "Понедельника"
@@ -1206,7 +1270,7 @@ msgid "Active billable item"
 msgstr "Текущие заболевания"
 
 msgid "Inactive billable item"
-msgstr ""
+msgstr "Неактивный пункт, подлежащий оплате"
 
 msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
 msgstr ""
@@ -1216,7 +1280,7 @@ msgid "Open item"
 msgstr "OpenOffice"
 
 msgid "Billed item"
-msgstr ""
+msgstr "Оплаченный пункт"
 
 #, fuzzy
 msgid " Details: %s\n"
@@ -1250,7 +1314,7 @@ msgid ""
 msgstr "  риск: %s"
 
 msgid "Open bill"
-msgstr ""
+msgstr "Открытый счет"
 
 #, fuzzy
 msgid "Closed bill"
@@ -1277,13 +1341,13 @@ msgid " Value + VAT: %(curr)s%(val)s\n"
 msgstr ""
 
 msgid " VAT: does not apply\n"
-msgstr ""
+msgstr " НДС: не используется\n"
 
 msgid " Items billed: 0\n"
 msgstr ""
 
 msgid " Items billed: %s\n"
-msgstr ""
+msgstr " Выставленные пункты счета: %s\n"
 
 #, fuzzy
 msgid " Invoice: %s\n"
@@ -1552,7 +1616,7 @@ msgid "Vaccinations"
 msgstr "Прививки"
 
 msgid "%s ago"
-msgstr ""
+msgstr "%s тому назад"
 
 #, fuzzy
 msgid "Allergies/Intolerances"
@@ -2528,7 +2592,7 @@ msgid "Lot \\#"
 msgstr "Партия \\#"
 
 msgid "SoaP"
-msgstr ""
+msgstr "SoaP"
 
 #, fuzzy
 msgid ""
@@ -2779,13 +2843,13 @@ msgid "Substances"
 msgstr "Вещество"
 
 msgid "Life events"
-msgstr ""
+msgstr "Биографические события"
 
 msgid "Birth"
-msgstr ""
+msgstr "Дата рождения"
 
 msgid "Live events"
-msgstr ""
+msgstr "Продолжающиеся события"
 
 #, fuzzy
 msgid "Date of birth unknown"
@@ -2796,10 +2860,10 @@ msgid "Start of Care"
 msgstr "Запустить новое"
 
 msgid "The earliest recorded event of care in this praxis."
-msgstr ""
+msgstr "Первое записанное событие медпомощи в этом медучреждении."
 
 msgid "Death"
-msgstr ""
+msgstr "Смерть"
 
 msgid ""
 "Help requested\n"
@@ -2815,6 +2879,8 @@ msgid ""
 "Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
 "%s"
 msgstr ""
+"Местное лечение:\\n%s\\n\\nСистемная терапия:\\n%s\\n\\nРезультат проверяет:"
+"\\n%s"
 
 msgid "unknown test status [%s]"
 msgstr "неизвестное состояние анализа [%s]"
@@ -3310,6 +3376,9 @@ msgid ""
 "\n"
 "If unknown use the date when it was reported to you."
 msgstr ""
+"Когда пациент заметил начало реакции.\n"
+"\n"
+"Если неизвестно, используйте дату, когда она была сообщена вам."
 
 msgid ""
 "What is reported to be the trigger for the reaction. Can be\n"
@@ -3367,7 +3436,7 @@ msgstr ""
 "существующая точно, в противоположность подозреваемой."
 
 msgid "Onset"
-msgstr ""
+msgstr "Начало"
 
 msgid "Trigger"
 msgstr "Непосредственная причина"
@@ -3408,6 +3477,8 @@ msgstr "Установленная аллергия"
 msgid ""
 "Input new allergy, or select from among existing allergy items to edit them:"
 msgstr ""
+"Введите новую аллергию или выберите из имеющихся пунктов для последующего "
+"изменения:"
 
 msgid "Allergy details"
 msgstr "Описание аллергии"
@@ -3478,7 +3549,7 @@ msgid "&Select"
 msgstr "&Select"
 
 msgid "&VAT applies"
-msgstr ""
+msgstr "Использующийся &НДС"
 
 msgid ""
 "The invoice ID.\n"
@@ -3487,12 +3558,20 @@ msgid ""
 "\n"
 "GNUmed will create one for you."
 msgstr ""
+"ID счета.\n"
+"\n"
+"Учтите, что в большинстве юрисдикций он должен быть уникальным объектом.\n"
+"\n"
+"GNUmed создаст для вас таковой."
 
 msgid ""
 "The close date of the bill.\n"
 "\n"
 "When a bill is closed items shall not be added to it anymore."
 msgstr ""
+"Дата закрытия счета.\n"
+"\n"
+"Элементы в нем невозможно больше будет добавить после закрытия счета."
 
 msgid "Where to send the bill."
 msgstr "Адрес получателя счёта"
@@ -3502,22 +3581,22 @@ msgid "Select the address where to send the bill."
 msgstr "Здесь выбирите тип адреса."
 
 msgid "The total value of this bill without VAT applied."
-msgstr ""
+msgstr "Общая стоимость этого счета без использования НДС."
 
 msgid ""
 "Select here whether or not to apply VAT when creating an invoice for this "
 "bill."
-msgstr ""
+msgstr "Здесь выберите, использовать или нет НДС при выставлении этого счета."
 
 msgid "The total value of this bill after VAT has been applied."
-msgstr ""
+msgstr "Общая стоимость этого счета после применения НДС."
 
 #, fuzzy
 msgid "Add an arbitrary comment on this bill."
 msgstr "Комментарий по этой лаборатории."
 
 msgid "Invoice ID"
-msgstr ""
+msgstr "ID счета"
 
 #, fuzzy
 msgid "Close date"
@@ -3538,18 +3617,20 @@ msgid "The billable from which to create the bill item."
 msgstr "Выберите файл, из которого загрузить изображение тэга."
 
 msgid "The encounter this item belongs to (or was created under)."
-msgstr ""
+msgstr "Этому элементу принадлежит обращение (или было создано в нем)."
 
 msgid ""
 "Optional: Pick the date at which to bill this item. If this is left blank "
 "the bill will show the date of the corresponding encounter."
 msgstr ""
+"Необязательно: поставьте дату, на когда выставить счет за этот пункт. Если "
+"оставите пустым, счет покажет дату соответствующего обращения."
 
 msgid "How many units of the item are to be charged."
-msgstr ""
+msgstr "Сколько раз начисляется пункт."
 
 msgid "Base amount w/o VAT."
-msgstr ""
+msgstr "Базовое начисление без НДС."
 
 msgid ""
 "The factor by which to multiply the base amount. Normally 1.\n"
@@ -3559,9 +3640,15 @@ msgid ""
 " <1: rebates\n"
 " <0:  credit notes"
 msgstr ""
+"Фактор, на который умножать базовое начисление. Обычно, 1.\n"
+"\n"
+" 0: бесплатные пункты\n"
+" >1: увеличивает\n"
+" <1: скидка\n"
+" <0: отметки кредита"
 
 msgid "Optional: An item-specific comment to be put on the bill."
-msgstr ""
+msgstr "Необязательно: комментарий в счете по отдельному пункту."
 
 #, fuzzy
 msgid "Item"
@@ -3576,40 +3663,44 @@ msgid "No of Units"
 msgstr "Единицы измерения"
 
 msgid "Factor"
-msgstr ""
+msgstr "Коэффициент"
 
 msgid "Show non-invoiced only"
-msgstr ""
+msgstr "Показать только без выписки счета"
 
 #, fuzzy
 msgid "&Insert"
 msgstr "&Install"
 
 msgid "Add billing item"
-msgstr ""
+msgstr "Добавить пункт счета"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
 "patient."
 msgstr ""
+"Выберите - по коду или части описания - оплачиваемый пункт для добавления к "
+"пациенту."
 
 msgid "Modify the factor to apply to the item price."
-msgstr ""
+msgstr "Измените коэффициент для цены пункта."
 
 msgid ""
 "Optional: Add a short patient specific comment on this item. Will be shown "
 "on the bill."
 msgstr ""
+"Необязательно: добавьте короткий комментарий относительно пациента в этот "
+"пункт. Будет показан в счете."
 
 #, fuzzy
 msgid "Add the selected billing item to the patient."
 msgstr "Добавить активного пациента в список ожидания."
 
 msgid "Item:"
-msgstr ""
+msgstr "Пункт:"
 
 msgid "Factor:"
-msgstr ""
+msgstr "Коэффициент:"
 
 msgid "Fake brand"
 msgstr "Подделка под патентованный препарат"
@@ -4757,7 +4848,7 @@ msgid "Save the form template definition."
 msgstr "Сохраняет определение отчета."
 
 msgid "AbiWord"
-msgstr ""
+msgstr "AbiWord"
 
 msgid "Gnuplot"
 msgstr "Создание графиков"
@@ -4782,7 +4873,7 @@ msgid "Xe(La)TeX"
 msgstr ""
 
 msgid "&Load"
-msgstr ""
+msgstr "&Загрузить"
 
 msgid "Export"
 msgstr "Экспорт"
@@ -5145,6 +5236,7 @@ msgstr "Дата рождения этого человека."
 msgid ""
 "Check this if the date of birth is estimated rather than known precisely."
 msgstr ""
+"Отметьте здесь, если дата рождения подсчитана правильнее, чем известно."
 
 #, fuzzy
 msgid "The time of birth if known."
@@ -5209,9 +5301,11 @@ msgstr "При необходимости - длинная текстовая д
 
 msgid "Optional: Pick a date when this message is due to be acted on."
 msgstr ""
+"Необязательно: вставьте дату, когда это сообщение должно быть задействовано."
 
 msgid "Optional: Pick a date when this message will no longer be relevant."
 msgstr ""
+"Необязательно: вставьте дату, когда это сообщение перестанет быть актуальным."
 
 msgid "Normal (standard) urgency of message."
 msgstr "Обычная (стандартная) срочность сообщения."
@@ -5238,7 +5332,7 @@ msgid "Due"
 msgstr "Срок завершения"
 
 msgid "Expires"
-msgstr ""
+msgstr "Истекает"
 
 msgid "Urgency"
 msgstr "Срочность"
@@ -5263,7 +5357,7 @@ msgid "←"
 msgstr "→"
 
 msgid "Extra"
-msgstr ""
+msgstr "Дополнительно"
 
 msgid "Move selected items from left to right."
 msgstr "Перемещает выбранный пункт слева направо."
@@ -5681,7 +5775,7 @@ msgstr ""
 "или LaTeX, которое точно должно быть оставлено нетронутым."
 
 msgid "Estimated"
-msgstr ""
+msgstr "Установлена"
 
 msgid "Required: lastname (family name)"
 msgstr "Обязательно: последнее имя (фамилия)"
@@ -5693,7 +5787,7 @@ msgid "Recommended: Date of birth. Your current time zone applies."
 msgstr "Рекомендовано: дата рождения. Применяется текущий временной пояс."
 
 msgid "Check if the DOB is estimated rather than known precisely."
-msgstr ""
+msgstr "Отметьте, если дата рождения установлена точнее, чем известно."
 
 msgid "Optional: the time of birth if known"
 msgstr "Необязательно: время рождения, если известно"
@@ -5871,6 +5965,8 @@ msgid ""
 "Here you can enter an interval (extending backwards from \"now\") within "
 "which to show health care activity."
 msgstr ""
+"Здесь можно ввести интервал (распространяя назад от \"текущего\"), внутри "
+"которого показывать активность медицинской помощи."
 
 msgid "Identity:"
 msgstr "Идентификация:"
@@ -5883,7 +5979,7 @@ msgid "Activity:"
 msgstr "Включить"
 
 msgid "(limit to last:"
-msgstr ""
+msgstr "(ограничить последним:"
 
 #, fuzzy
 msgid ")"
@@ -6603,7 +6699,7 @@ msgid "&Delete"
 msgstr "&Delete"
 
 msgid "<above, double-click problem to start entering SOAP note>"
-msgstr ""
+msgstr "<дважды кликните по проблеме выше для начала ввода записи SOAP>"
 
 msgid "&Filter by problem"
 msgstr "&Filter по болезням"
@@ -6967,7 +7063,7 @@ msgid "Finish filling in text macro."
 msgstr "Добавление текстового расширения"
 
 msgid "Go to the next fill-in position."
-msgstr ""
+msgstr "Переходит к следующей позиции заполнения."
 
 #, fuzzy
 msgid "Cancel filling in the text expansion."
@@ -6977,6 +7073,8 @@ msgid ""
 "\n"
 "Please fill in an appropriate value below.\n"
 msgstr ""
+"\n"
+"Заполните ниже соответствующее значение.\n"
 
 msgid "<age>"
 msgstr "<age>"
@@ -7128,7 +7226,7 @@ msgid "Add a vaccine to GNUmed."
 msgstr "Добавить вакцину в GNUmed."
 
 msgid "Select the indications this vaccination was given against."
-msgstr ""
+msgstr "Выберите, какие были показания для этой прививки."
 
 msgid "The batch number of the vaccine."
 msgstr "Номер партии для вакцины."
@@ -7371,7 +7469,7 @@ msgid "Version %s%s brought to you by"
 msgstr "Версия %s обеспечена через"
 
 msgid "debug"
-msgstr ""
+msgstr "отладка"
 
 msgid "Please visit http://www.gnumed.org"
 msgstr "Посетите http://www.gnumed.org"
@@ -8032,13 +8130,14 @@ msgstr "Пакет данных"
 
 msgid "Browse and install billing catalog (schedule of fees) data packs"
 msgstr ""
+"Отобразить и установить пакеты данных по реестру счетов (график оплаты)"
 
 #, fuzzy
 msgid "Catalogs (WWW)"
 msgstr "фатальное"
 
 msgid "Browse billing catalogs (schedules of fees) on the web"
-msgstr ""
+msgstr "Отобразить реестры счетов (графики оплаты) из интернета"
 
 #, fuzzy
 msgid "No invoice template configured."
@@ -8076,6 +8175,12 @@ msgid ""
 "\n"
 "%s\n"
 msgstr ""
+"Все пункты для включения в счет должны\n"
+"совпадать по валюте, НДС и пациенту.\n"
+"\n"
+"Этот пункт не совпадает:\n"
+"\n"
+"%s\n"
 
 msgid ""
 "This item is already invoiced:\n"
@@ -8084,6 +8189,11 @@ msgid ""
 "\n"
 "Cannot put it on a second bill."
 msgstr ""
+"Этот пункт уже внесен в счет:\n"
+"\n"
+"%s\n"
+"\n"
+"Вставить во второй счет невозможно."
 
 #, fuzzy
 msgid "Checking invoice items"
@@ -8111,12 +8221,18 @@ msgid ""
 "\n"
 "The bill is not closed."
 msgstr ""
+"Не удалось создать счет из долга.\n"
+"\n"
+"Долг не закрыт."
 
 msgid ""
 "Cannot create invoice from bill.\n"
 "\n"
 "There is no receiver address."
 msgstr ""
+"Не удалось создать счет из долга.\n"
+"\n"
+"Нет адреса получателя."
 
 #, fuzzy
 msgid ""
@@ -8152,13 +8268,16 @@ msgid ""
 "do you want to keep its items (effectively \"unbilling\" them)\n"
 "or do you want to also delete the bill items from the patient ?\n"
 msgstr ""
+"Нужно ли при удалении счета [%s]\n"
+"оставить его пункты (фактически \"бесплатные\" пункты)\n"
+"или также удалить пункты счета пациента?\n"
 
 #, fuzzy
 msgid "Delete + keep"
 msgstr "удаляемая часть"
 
 msgid "Delete the bill but keep (\"unbill\") its items."
-msgstr ""
+msgstr "Удаляет долг, но оставляет его пункты (\"бесплатно\")."
 
 #, fuzzy
 msgid "Delete all"
@@ -8176,13 +8295,15 @@ msgid ""
 "Also remove the invoice PDF from the document archive (because it will not "
 "correspond to the bill anymore)."
 msgstr ""
+"Также удаляет PDF счета из архива документации (т.к. он больше не относится "
+"к выставленному счету)."
 
 #, fuzzy
 msgid "Select the items you want to remove from bill [%s]:\n"
 msgstr "Выберите список для управления:"
 
 msgid "Removing items from bill"
-msgstr ""
+msgstr "Удаление пунктов из счета"
 
 #, fuzzy
 msgid "Count"
@@ -8201,13 +8322,21 @@ msgid ""
 "\n"
 "Note that neither action is reversible."
 msgstr ""
+"%s выбранных пунктов из счета [%s]\n"
+"\n"
+"Удалить только выбранные пункты из счета\n"
+"(они \"без оплаты\") или же нужно удалить\n"
+"их целиком у пациента?\n"
+"\n"
+"Учтите, что ни одно из этих действий необратимо."
 
 msgid "\"Unbill\""
-msgstr ""
+msgstr "\"Без оплаты\""
 
 msgid ""
 "Only \"unbill\" items (remove from bill but do not delete from patient)."
 msgstr ""
+"Только пункты \"без оплаты\" (удаляет из счета, но не удаляет у пациента)."
 
 #, fuzzy
 msgid "Completely delete items from the patient."
@@ -8223,12 +8352,19 @@ msgid ""
 "\n"
 "Do you want to create one ?"
 msgstr ""
+"Не удалось найти наличие\n"
+"PDF счета для этого долга.\n"
+"\n"
+"Хотите создать его?"
 
 msgid ""
 "There is no pre-configured billing address.\n"
 "\n"
 "Select the address you want to send the bill to."
 msgstr ""
+"Нет предварительно сформированного адреса для счета.\n"
+"\n"
+"Выберите адрес, на который нужно отправить счет."
 
 msgid "<open>"
 msgstr "<open>"
@@ -8248,16 +8384,16 @@ msgid "Create if necessary, and show the corresponding invoice PDF"
 msgstr "Выбор соответствующего обращения"
 
 msgid "Unbill"
-msgstr ""
+msgstr "Бесплатно"
 
 msgid "Select and remove items from a bill."
-msgstr ""
+msgstr "Выберите и удалите пункты из счета."
 
 msgid "&VAT applies (%s%%)"
-msgstr ""
+msgstr "&НДС применен (%s%%)"
 
 msgid "billing"
-msgstr ""
+msgstr "выставление счета"
 
 #, fuzzy
 msgid "Selecting address"
@@ -8290,13 +8426,13 @@ msgid "$__replace_by_your_currency_symbol"
 msgstr ""
 
 msgid "Charge date"
-msgstr ""
+msgstr "Назначить дату"
 
 msgid "Count %s Value %s Factor"
-msgstr ""
+msgstr "Сумма %s Значение %s Коэффициент"
 
 msgid "Invoice"
-msgstr ""
+msgstr "Выставить счет"
 
 #, fuzzy
 msgid "Invoice selected items"
@@ -8314,10 +8450,10 @@ msgid "Browse bills of this patient."
 msgstr "Семейный анамнез этого пациента."
 
 msgid "Billables"
-msgstr ""
+msgstr "Подлежит оплате"
 
 msgid "Browse list of billables."
-msgstr ""
+msgstr "Отображает список подлежащего к оплате."
 
 #, fuzzy
 msgid ""
@@ -8336,15 +8472,21 @@ msgid ""
 "\n"
 "No receiver address selected."
 msgstr ""
+"Не удалось создать счет.\n"
+"\n"
+"Не выбран адрес получателя."
 
 msgid ""
 "\"Factor\" must be a number\n"
 "\n"
 "Cannot insert bill item."
 msgstr ""
+"\"Коэффициент\" должен быть числом.\n"
+"\n"
+"Не удалось вставить пункт счета."
 
 msgid "Inserting bill item"
-msgstr ""
+msgstr "Вставка пункта счета"
 
 msgid "Your client (%s) is up to date."
 msgstr "Клиент (%s) в актуальном состоянии."
@@ -9741,7 +9883,7 @@ msgid "Generated"
 msgstr "Генерализованный"
 
 msgid "Ref #"
-msgstr ""
+msgstr "Исх. №"
 
 msgid "available documents (%s)"
 msgstr "доступные документы (%s)"
@@ -9872,6 +10014,15 @@ msgid ""
 "\n"
 "(this action cannot be reversed)"
 msgstr ""
+"Уверены, что нужно удалить %s часть #%s\n"
+"\n"
+"%s из следующего документа\n"
+"\n"
+" %s (%s)\n"
+"%s\n"
+"Действительно удалить?\n"
+"\n"
+"(это действие не может быть отменено)"
 
 #, fuzzy
 msgid ""
@@ -10734,6 +10885,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"У вас нет прав доступа к этому компоненту GNUmed.\n"
+"\n"
+"%s"
 
 msgid "Lost connection"
 msgstr "Потеря подключения"
@@ -11214,7 +11368,7 @@ msgid "Catalogs URL"
 msgstr "фатальное"
 
 msgid "URL for billing catalogs (schedules of fees)."
-msgstr ""
+msgstr "URL для списков по составлению счетов (схемы оплат)"
 
 msgid "Medication list template"
 msgstr "Шаблон списка лекарств"
@@ -11247,7 +11401,7 @@ msgid "Select the default template for plotting test results."
 msgstr "Выберите тип по умолчанию для новых обращений.\n"
 
 msgid "Fallback provider"
-msgstr ""
+msgstr "Специалист резерва"
 
 #, fuzzy
 msgid ""
@@ -11303,7 +11457,7 @@ msgid "EMR ..."
 msgstr "EMR ..."
 
 msgid "Billing ..."
-msgstr ""
+msgstr "Составление счета"
 
 msgid "Preferences ..."
 msgstr "Предпочтения ..."
@@ -11624,7 +11778,7 @@ msgid "Display database audit trail."
 msgstr "Отображает аудиторский след в базе данных."
 
 msgid "List all bills across all patients."
-msgstr ""
+msgstr "Перечисляет все счета по всем пациентам."
 
 #, fuzzy
 msgid "List bills"
@@ -11652,7 +11806,7 @@ msgid "View the reference for menu items on the web."
 msgstr "Отображает ссылки в интернет для пунктов меню."
 
 msgid "&Clear status line"
-msgstr ""
+msgstr "&Очистить строку статуса"
 
 #, fuzzy
 msgid "Clear out the status line."
@@ -12290,6 +12444,16 @@ msgid ""
 "\n"
 "Leave this blank if you wish to stay anonymous.\n"
 msgstr ""
+"Если хотите, чтобы разработчики GNUmed могли\n"
+"связаться с вами напрямую - лучше, чем только\n"
+"через открытый список рассылки - можете ввести\n"
+"здесь свой предпочтительный электронный адрес.\n"
+"\n"
+"Этот адрес, затем включенный с сообщениями об\n"
+"ошибках или публикациями в сообществе GNUmed,\n"
+"сможете выбрать для отправки из клиента GNUmed.\n"
+"\n"
+"Если хотите быть анонимным, оставьте его пустым.\n"
 
 msgid "Please enter your email address."
 msgstr "Введите адрес электронной почты."
@@ -12545,7 +12709,7 @@ msgid "Consumable substances"
 msgstr "Применяемые вещества"
 
 msgid "Billable items"
-msgstr ""
+msgstr "Пункты, подлежащие оплате"
 
 #, fuzzy
 msgid "Reference data sources"
@@ -15137,6 +15301,9 @@ msgid ""
 "\n"
 "Please select the address you would like to use instead:"
 msgstr ""
+"Для этого пациента не зарегистрирован адрес [%s].\n"
+"\n"
+"Выберите адрес, который нужно использовать:"
 
 #, fuzzy
 msgid "Selecting address by type"
@@ -15380,7 +15547,7 @@ msgid "Select a message type."
 msgstr "Выберите тип сообщения."
 
 msgid " - expires %s"
-msgstr ""
+msgstr " - срок истечения %s"
 
 msgid ""
 "Due for %s (since %s%s):\n"
@@ -15388,6 +15555,10 @@ msgid ""
 "Patient: %s\n"
 "Reminder by: %s"
 msgstr ""
+"Подлежит для %s (с %s%s):\n"
+"%s%s\n"
+"Пациент: %s\n"
+"Напоминание через: %s"
 
 #, fuzzy
 msgid "Clinical reminder"
@@ -15554,7 +15725,7 @@ msgid "Showing dynamic hints."
 msgstr "Отображение вакцин."
 
 msgid "Hint"
-msgstr ""
+msgstr "Информация"
 
 #, fuzzy
 msgid "(De)-Activate"
@@ -15565,7 +15736,7 @@ msgid "Switch activation of the selected hint"
 msgstr "Вызывает работу с выбранными исследованиями."
 
 msgid "Browse and install clinical hints data packs"
-msgstr ""
+msgstr "Отображение и установка пакетов данных для клинической информации"
 
 msgid "No action configured for keyword [%s]."
 msgstr "Для ключевого слова [%s] отсутствует действующая настройка."
@@ -15838,6 +16009,9 @@ msgid ""
 "Today is the patient's birtday !\n"
 "\n"
 msgstr ""
+"\n"
+"Сегодня у пациента день рождения!\n"
+"\n"
 
 #, fuzzy
 msgid "Age: %s\n"
@@ -15852,7 +16026,7 @@ msgid "At age: %s\n"
 msgstr "Дата:%s\n"
 
 msgid " (date of birth and age are estimated)\n"
-msgstr ""
+msgstr " (дата рождения и возраст приблизительны)\n"
 
 msgid "last confirmed %s\n"
 msgstr "Последний подтвержденный %s\n"
@@ -15954,7 +16128,7 @@ msgid "You must select at least one indication."
 msgstr "Перед сохранением нужно выбрать файл шаблона."
 
 msgid "Pick the diseases this vaccine protects against."
-msgstr ""
+msgstr "Выберите заболевания, от которых защищает эта вакцина."
 
 #, fuzzy
 msgid "This vaccine"
@@ -16021,7 +16195,7 @@ msgid "Saving vaccination"
 msgstr "Отображение прививок."
 
 msgid "Pick the diseases this vaccination was given against."
-msgstr ""
+msgstr "Выберите заболевания, против которых была применена эта прививка."
 
 msgid "  IMMUNISATIONS  "
 msgstr "  ИММУНИЗАЦИЯ  "
@@ -16148,7 +16322,7 @@ msgid "Allergies"
 msgstr "Аллергия"
 
 msgid "Billing"
-msgstr ""
+msgstr "Платеж"
 
 #, fuzzy
 msgid "loading plugin <%s>"
