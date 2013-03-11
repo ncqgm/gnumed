@@ -17,6 +17,7 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPrinting
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
@@ -322,7 +323,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.__template['engine']))
 			self._CHBOX_active.SetValue(self.__template['in_use'])
 
-			self._TCTRL_date_modified.SetValue(self.__template['last_modified'].strftime('%Y %b %d'))
+			self._TCTRL_date_modified.SetValue(gmDateTime.pydt_strftime(self.__template['last_modified'], '%Y %b %d'))
 			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
 			self._TCTRL_filename.Enable(True)

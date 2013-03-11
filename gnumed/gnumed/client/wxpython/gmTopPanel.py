@@ -131,14 +131,14 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		else:
 
-			tt += _('Died: %s\n') % self.curr_pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding())
+			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d.%b %Y')
 			tt += _('At age: %s\n') % self.curr_pat['medical_age']
 
 			template = u'%s  %s - %s (%s)'
 			age = template % (
 				gmPerson.map_gender2symbol[self.curr_pat['gender']],
 				self.curr_pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
-				self.curr_pat['deceased'].strftime('%d.%b %Y').decode(gmI18N.get_encoding()),
+				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%Y %b %d'),
 				self.curr_pat['medical_age']
 			)
 
@@ -157,7 +157,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
 		else:
-			confirmed = state['last_confirmed'].strftime('%Y %B %d').decode(gmI18N.get_encoding())
+			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
 		tt = (state.state_string + (90 * u' '))[:90] + u'\n'
 		tt += _('last confirmed %s\n') % confirmed
 		tt += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s') % state['modified_by'])

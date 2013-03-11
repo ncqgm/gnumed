@@ -15,7 +15,7 @@ import wx, wx.lib.imagebrowser
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmTools, gmI18N
+from Gnumed.pycommon import gmDispatcher, gmTools, gmI18N, gmDateTime
 from Gnumed.business import gmDocuments, gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -169,7 +169,7 @@ class cPatientPicture(wx.StaticBitmap):
 				'Patient picture (%s).\n'
 				'\n'
 				'Right-click for context menu.'
-			) % photo['date_generated'].strftime('%b %Y').decode(gmI18N.get_encoding()))
+			) % gmDateTime.pydt_strftime(photo['date_generated'], '%b %Y'))
 
 		return self.__set_pic_from_file(fname)
 	#-----------------------------------------------------------------

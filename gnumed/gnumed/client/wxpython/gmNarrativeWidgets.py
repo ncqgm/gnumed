@@ -842,10 +842,10 @@ class cMoveNarrativeDlg(wxgMoveNarrativeDlg.wxgMoveNarrativeDlg):
 
 		self.LBL_source_episode.SetLabel(u'%s%s' % (self.source_episode['description'], gmTools.coalesce(self.source_episode['health_issue'], u'', u' (%s)')))
 		self.LBL_encounter.SetLabel('%s: %s %s - %s' % (
-			self.encounter['started'].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(self.encounter['started'], '%Y %b %d'),
 			self.encounter['l10n_type'],
-			self.encounter['started'].strftime('%H:%M'),
-			self.encounter['last_affirmed'].strftime('%H:%M')
+			gmDateTime.pydt_strftime(self.encounter['started'], '%H:%M'),
+			gmDateTime.pydt_strftime(self.encounter['last_affirmed'], '%H:%M')
 		))
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
@@ -2455,7 +2455,7 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 					tip = agw_stt.SuperToolTip (
 						u'',
 						bodyImage = img,
-						header = _('Created: %s') % part['date_generated'].strftime('%Y %B %d').decode(gmI18N.get_encoding()),
+						header = _('Created: %s') % gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'),
 						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
 					)
 					tip.SetTopGradientColor('white')

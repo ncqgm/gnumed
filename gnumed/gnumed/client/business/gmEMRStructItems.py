@@ -1859,7 +1859,7 @@ limit 1
 			return u''
 
 		if date_format is None:
-			date_format = '%A, %B %d %Y'
+			date_format = '%A, %b %d %Y'
 
 		tex = u'\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
 			gmTools.tex_escape_string(self._payload[self._idx['l10n_type']]),
@@ -2694,13 +2694,13 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
 
 		if self._payload[self._idx['discharge']] is not None:
-			discharge = u' - %s' % self._payload[self._idx['discharge']].strftime('%Y %b %d').decode(gmI18N.get_encoding())
+			discharge = u' - %s' % gmDateTime.pydt_strftime(self._payload[self._idx['discharge']], '%Y %b %d')
 		else:
 			discharge = u''
 
 		line = u'%s%s%s%s: %s%s%s' % (
 			u' ' * left_margin,
-			self._payload[self._idx['admission']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(self._payload[self._idx['admission']], '%Y %b %d'),
 			discharge,
 			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
 			gmTools.u_left_double_angle_quote,
@@ -2815,11 +2815,11 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			if end is None:
 				end = u''
 			else:
-				end = u' - %s' % end.strftime('%Y %b %d').decode(gmI18N.get_encoding())
+				end = u' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
 
 		line = u'%s%s%s (%s): %s' % (
 			(u' ' * left_margin),
-			self._payload[self._idx['clin_when']].strftime('%Y %b %d').decode(gmI18N.get_encoding()),
+			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d'),
 			end,
 			self._payload[self._idx['clin_where']],
 			self._payload[self._idx['performed_procedure']]

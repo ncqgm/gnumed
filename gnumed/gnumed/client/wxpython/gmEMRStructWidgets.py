@@ -697,7 +697,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 
 		items = [
 			[
-				e['started'].strftime('%Y %b %d  %H:%M'),
+				gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'),
 				e['last_affirmed'].strftime('%H:%M'),
 				e['l10n_type'],
 				gmTools.coalesce(e['reason_for_encounter'], u''),

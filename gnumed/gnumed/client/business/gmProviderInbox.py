@@ -65,7 +65,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		tt = u'%s: %s%s\n' % (
 			gmDateTime.pydt_strftime (
 				self._payload[self._idx['received_when']],
-				format = '%A, %Y %B %d, %H:%M',
+				format = '%A, %Y %b %d, %H:%M',
 				accuracy = gmDateTime.acc_minutes
 			),
 			gmTools.bool2subst(self._payload[self._idx['is_virtual']], _('virtual message'), _('message')),
