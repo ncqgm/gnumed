@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-03-11 11:42+CET\n"
+"POT-Creation-Date: 2013-03-13 13:31+CET\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -12970,7 +12970,7 @@ msgstr ""
 msgid "Sent"
 msgstr ""
 
-msgid " Inbox of %s %s%s."
+msgid " Inbox of %s %s%s"
 msgstr ""
 
 msgid ": %s message(s)"

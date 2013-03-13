@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-03-11 11:42+CET\n"
+"POT-Creation-Date: 2013-03-13 13:32+CET\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -15329,7 +15329,7 @@ msgstr "Categorie"
 msgid "Sent"
 msgstr ""
 
-msgid " Inbox of %s %s%s."
+msgid " Inbox of %s %s%s"
 msgstr ""
 
 #, fuzzy

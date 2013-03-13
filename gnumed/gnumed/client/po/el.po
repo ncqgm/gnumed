@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2013-03-11 11:42+CET\n"
+"POT-Creation-Date: 2013-03-13 13:31+CET\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -13693,7 +13693,7 @@ msgstr "Κατηγορία"
 msgid "Sent"
 msgstr ""
 
-msgid " Inbox of %s %s%s."
+msgid " Inbox of %s %s%s"
 msgstr ""
 
 #, fuzzy
