@@ -870,13 +870,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			self._CHBOX_active_patient.Enable()
 	#--------------------------------------------------------
 	def __update_greeting(self, no_of_messages=None):
-		msg = _(' Inbox of %s %s%s.') % (
+		msg = _(' Inbox of %s %s%s') % (
 			gmTools.coalesce (
 				self.provider['title'],
 				gmPerson.map_gender2salutation(self.provider['gender'])
 			),
 			self.provider['lastnames'],
-			gmTools.coalesce(no_of_messages, u'', _(': %s message(s)'))
+			gmTools.coalesce(no_of_messages, u'.', _(': %s message(s)'))
 		)
 		self._msg_welcome.SetLabel(msg)
 	#--------------------------------------------------------

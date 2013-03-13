@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-03-11 11:42+CET\n"
+"POT-Creation-Date: 2013-03-13 13:32+CET\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -13932,7 +13932,7 @@ msgstr ""
 msgid "Sent"
 msgstr ""
 
-msgid " Inbox of %s %s%s."
+msgid " Inbox of %s %s%s"
 msgstr ""
 
 #, fuzzy
