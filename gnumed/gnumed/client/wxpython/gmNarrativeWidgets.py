@@ -272,8 +272,7 @@ def search_narrative_across_emrs(parent=None):
 		return
 
 	items = [ [
-		gmPerson.cIdentity(aPK_obj = r['pk_patient']),
-		r['description_gender'],
+		gmPerson.cIdentity(aPK_obj = r['pk_patient'])['description_gender'],
 		r['narrative'],
 		r['src_table']
 	] for r in results ]
