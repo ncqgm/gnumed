@@ -167,10 +167,9 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 		{'cmd': u'SELECT gm.create_user(%(pg_usr)s, %(pwd)s)', 'args': args},
 		{'cmd': u"""
 			INSERT INTO dem.staff
-				(fk_identity, fk_role, db_user, short_alias)
+				(fk_identity, db_user, short_alias)
 			VALUES (
 				%(person_id)s,
-				(SELECT pk FROM dem.staff_role WHERE name = %(gm_role_name)s),
 				%(pg_usr)s,
 				%(sig)s
 			)""",

@@ -598,7 +598,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v17-v18/superuser
 
 cp ../../server/sql/v17-v18/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v17-v18
@@ -606,7 +606,7 @@ cp -R ../../server/sql/v17-v18/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/s
 cp -R ../../server/sql/v17-v18/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/static
 cp -R ../../server/sql/v17-v18/data/* ./gnumed-client.$CLIENTREV/server/sql/v17-v18/data
 cp -R ../../server/sql/v17-v18/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v17-v18/python
-#cp -R ../../server/sql/v17-v18/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
+cp -R ../../server/sql/v17-v18/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
 #cp -R ../../server/sql/v17-v18/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/superuser
 
 #----------------------------------
