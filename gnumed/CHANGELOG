@@ -1226,6 +1226,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.1
+
+FIX: gm-doctors must be member of gm-public
+
 	18.0
 
 IMRPOVED: add missing PKs to cfg.cfg_* tables for Bucardo use [thanks Marc]
