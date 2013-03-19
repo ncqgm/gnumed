@@ -131,6 +131,14 @@ cp -R ../../external-tools/*.ahk ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-tools/
 
 
+# timeline (this needs to become better later on)
+mkdir -p ./gnumed-client.$CLIENTREV/timelinelib/
+cp -R ../../timelinelib/* ./gnumed-client.$CLIENTREV/timelinelib/
+mkdir -p ./gnumed-client.$CLIENTREV/icons/
+cp -R ../../icons/* ./gnumed-client.$CLIENTREV/icons/
+cp ../../icons/COPYING ./gnumed-client.$CLIENTREV/timelinelib/
+
+
 # client
 mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
@@ -191,6 +199,7 @@ cp -R ../../client/etc/gnumed/egk+kvk-demon.conf.example ./gnumed-client.$CLIENT
 mkdir -p ./gnumed-client.$CLIENTREV/client/exporters/
 cp -R ../../client/exporters/__init__.py ./gnumed-client.$CLIENTREV/client/exporters
 cp -R ../../client/exporters/gmPatientExporter.py ./gnumed-client.$CLIENTREV/client/exporters
+cp -R ../../client/exporters/timeline.py ./gnumed-client.$CLIENTREV/client/exporters
 
 
 # locale
@@ -620,7 +629,7 @@ find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 cd gnumed-client.$CLIENTREV
 ln -sT client Gnumed
 cd ..
-tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
+tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/timelinelib/ ./gnumed-client.$CLIENTREV/icons/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
 
 md5sum $CLIENTARCH > $CLIENTARCH.md5
 echo "" >> $CLIENTARCH.md5
