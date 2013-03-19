@@ -3,8 +3,8 @@
 Uses the excellent TheTimlineProject.
 """
 #================================================================
-__author__ = "cfmoro1976@yahoo.es, sjtan@swiftdsl.com.au, Karsten.Hilbert@gmx.net"
-__license__ = "GPL"
+__author__ = "Karsten.Hilbert@gmx.net"
+__license__ = "GPL v2 or later"
 
 # std lib
 import sys
@@ -20,10 +20,12 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from timelinelib.wxgui.component import TimelineComponent
+from timelinelib.db.exceptions import TimelineIOError
 
-from Gnumed.exporters import timeline
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmRegetMixin
+from Gnumed.exporters import timeline
 
 
 _log = logging.getLogger('gm.ui')
@@ -45,19 +47,19 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 #		self.__init_ui()
-#		self.__register_interests()
+		self.__register_interests()
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
-#	def __register_interests(self):
-#		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
-#	def _on_pre_patient_selection(self):
-#		wx.CallAfter(self.__on_pre_patient_selection)
+	def _on_pre_patient_selection(self):
+		wx.CallAfter(self.__on_pre_patient_selection)
 	#--------------------------------------------------------
-#	def __on_pre_patient_selection(self):
-#		pass
+	def __on_pre_patient_selection(self):
+		self._PNL_timeline.clear_timeline()
 	#--------------------------------------------------------
 	def _on_refresh_button_pressed(self, event):
 		self._populate_with_data()
@@ -71,15 +73,22 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 #		pass
 	#--------------------------------------------------------
 	# reget mixin API
-	#--------------------------------------------------------
+	#
 	# remember to call
 	#	self._schedule_data_reget()
-	# whenever you learn of data changes from database listener
-	# threads, dispatcher signals etc.
+	# whenever you learn of data changes from database
+	# listener threads, dispatcher signals etc.
+	#--------------------------------------------------------
 	def _populate_with_data(self):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return True
-		self._PNL_timeline.open_timeline(timeline.create_timeline_file(patient = pat))
+		try:
+			self._PNL_timeline.open_timeline(timeline.create_timeline_file(patient = pat))
+		except TimelineIOError:
+			self._PNL_timeline.clear_timeline()
+			_log.exception('cannot load EMR from timeline XML')
+			return False
+
 		return True
 #============================================================
