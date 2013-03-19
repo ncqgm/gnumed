@@ -961,7 +961,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		# IDs (.issuer & .comment -> tooltip)
 		ids = patient.external_ids
 		for i in ids:
-			items.append(u'%(name)s: %(value)s' % i)
+			items.append(u'%s: %s' % (i['name'], i['value']))
 			data.append({'id': i})
 
 		# occupation
