@@ -21,7 +21,6 @@ from Gnumed.business import gmLOINC
 from Gnumed.business import gmForms
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
-from Gnumed.business import gmHL7
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
@@ -66,6 +65,9 @@ def import_Excelleris_HL7(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
+	# for now, localize gmHL7 import
+	from Gnumed.business import gmHL7
+
 	hl7 = gmHL7.extract_HL7_from_CDATA(xml_name, u'.//Message')
 	if hl7 is None:
 		gmGuiHelpers.gm_show_info (
@@ -99,6 +101,9 @@ def import_HL7(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
+	# for now, localize gmHL7 import
+	from Gnumed.business import gmHL7
+
 	fixed_hl7 = gmHL7.fix_HL7_stupidities(hl7_name)
 	PID_names = gmHL7.split_HL7_by_PID(fixed_hl7)
 	for name in PID_names:
@@ -106,6 +111,9 @@ def import_HL7(parent=None):
 
 #================================================================
 def browse_incoming_unmatched(parent=None):
+
+	# for now, localize gmHL7 import
+	from Gnumed.business import gmHL7
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
