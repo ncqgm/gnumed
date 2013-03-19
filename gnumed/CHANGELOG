@@ -9,6 +9,7 @@
 	1.3.1
 
 FIX: make gmHL7 import optional [thanks J.Luszawski/A.Tille]
+FIX: exception on showing timeline [thanks S.Hilbert]
 
 IMPROVED: have prerequisite check look for python-hl7 [thanks J.Luszawski]
 

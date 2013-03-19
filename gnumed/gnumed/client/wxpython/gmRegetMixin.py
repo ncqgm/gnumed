@@ -25,11 +25,12 @@ Template for users:
 
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
-	#-----------------------------------------------------
+	#
 	# remember to call
 	#	self._schedule_data_reget()
-	# whenever you learn of data changes from database listener
-	# threads, dispatcher signals etc.
+	# whenever you learn of data changes from database
+	# listener threads, dispatcher signals etc.
+	#-----------------------------------------------------
 	def _populate_with_data(self):
 		# fill the UI with data
 		print "need to implement _populate_with_data"

@@ -84,3 +84,7 @@ class TimelineComponent(TimelinePanel):
         timeline = db_open(path)
         self.drawing_area.set_timeline(timeline)
         self.sidebar.cattree.initialize_from_timeline_view(self.drawing_area)
+
+    def clear_timeline(self):
+        self.drawing_area.set_timeline(None)
+        self.sidebar.cattree.initialize_from_timeline_view(self.drawing_area)
