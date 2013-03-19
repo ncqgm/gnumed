@@ -133,7 +133,7 @@ except ImportError:
 
 print " GNUmed Python modules...",
 try:
-	from Gnumed.pycommon import gmNull
+	from Gnumed.pycommon import gmTools
 	print "found"
 except ImportError:
 	missing = True
@@ -163,6 +163,17 @@ except ImportError:
 	print "  INFO : this is needed to access scanners on Windows"
 	print "  INFO : GNUmed will work but you will be unable to"
 	print "  INFO : scan if you are on a Windows machine"
+
+print " hl7...",
+try:
+	import hl7
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: hl7 not installed"
+	print "  INFO : this is needed to work with HL7 data"
+	print "  INFO : GNUmed will still work without it"
 
 if missing:
 	print ""
