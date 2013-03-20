@@ -772,8 +772,26 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			column = u'pk'
 		)
 
+		# disambiguate potential dupes
+		# - same-url comm channels
+		queries.append ({
+			'cmd': u"""
+				UPDATE dem.lnk_identity2comm
+				SET url = url || ' (%s %s)'
+				WHERE
+					fk_identity = %%(pat2del)s
+						AND
+					EXISTS (
+						SELECT 1 FROM dem.lnk_identity2comm d_li2c
+						WHERE d_li2c.fk_identity = %%(pat2keep)s AND d_li2c.url = url
+					)
+				""" % (_('merged'),	gmDateTime.pydt_strftime()),
+			'args': args
+		})
+
+
 		# generate UPDATEs
-		cmd_template = u'update %s set %s = %%(pat2keep)s where %s = %%(pat2del)s'
+		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
 		for FK in FKs:
 			if FK['referencing_table'] == u'dem.names':
 				continue
