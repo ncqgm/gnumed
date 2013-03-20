@@ -251,7 +251,10 @@ def format_dob(dob, format='%Y %b %d', encoding=None, none_string=None, dob_is_e
 
 	return dob_txt
 #---------------------------------------------------------------------------
-def pydt_strftime(dt, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=None):
+def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=None):
+
+	if dt is None:
+		dt = pydt_now_here()
 
 	if encoding is None:
 		encoding = gmI18N.get_encoding()

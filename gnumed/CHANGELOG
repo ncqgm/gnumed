@@ -12,6 +12,7 @@ FIX: make gmHL7 import optional [thanks J.Luszawski/A.Tille]
 FIX: exception on showing timeline [thanks S.Hilbert]
 FIX: exception on searching across EMRs [thanks V.Banait]
 FIX: exception on formatting external IDs in overview [thanks S.Hilbert]
+FiX: exception on merging patients with same comm channel [thanks M.Angermann]
 
 IMPROVED: have prerequisite check look for python-hl7 [thanks J.Luszawski]
 
