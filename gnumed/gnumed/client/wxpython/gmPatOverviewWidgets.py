@@ -434,8 +434,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('Currently %s entries in waiting list') % len(wlist))
 			tt = []
 			for w in wlist:
-				tt.append(u'%s) %s%s%s' % (
-					w['list_position'],
+				tt.append(u'%s %s%s%s' % (
+					gmTools.u_triangular_bullet,
 					gmDateTime.format_interval_medically(w['waiting_time']),
 					gmTools.coalesce(w['waiting_zone'], u'', u' in "%s"'),
 					gmTools.coalesce(w['comment'], u'', u': %s')
