@@ -476,10 +476,10 @@ def database_schema_compatible(link_obj=None, version=None, verbose=True):
 		_log.error('detected: %s (%s)' % (get_schema_version(link_obj=link_obj), rows[0]['md5']))
 		if verbose:
 			_log.debug('schema dump follows:')
-			for line in get_schema_structure(link_obj=link_obj).split():
+			for line in get_schema_structure(link_obj = link_obj).split():
 				_log.debug(line)
 			_log.debug('schema revision history dump follows:')
-			for line in get_schema_revision_history(link_obj=link_obj):
+			for line in get_schema_revision_history(link_obj = link_obj):
 				_log.debug(u' - '.join(line))
 		return False
 	_log.info('detected schema version [%s], hash [%s]' % (map_schema_hash2version[rows[0]['md5']], rows[0]['md5']))
@@ -501,15 +501,27 @@ def get_schema_hash(link_obj=None):
 	return rows[0]['md5']
 #------------------------------------------------------------------------
 def get_schema_revision_history(link_obj=None):
-	cmd = u"""
-select
-	imported::text,
-	version,
-	filename
-from gm.schema_revision
-order by imported
-"""
-	rows, idx = run_ro_queries(link_obj=link_obj, queries = [{'cmd': cmd}])
+
+	if table_exists(link_obj = link_obj, schema = 'gm', table = 'schema_revision'):
+		cmd = u"""
+			SELECT
+				imported::text,
+				version,
+				filename
+			FROM gm.schema_revision
+			ORDER BY imported"""
+	elif table_exists(link_obj = link_obj, schema = 'public', table = 'gm_schema_revision'):
+		cmd = u"""
+			SELECT
+				imported::text,
+				version,
+				filename
+			FROM public.gm_schema_revision
+			ORDER BY imported"""
+	else:
+		return []
+
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}])
 	return rows
 #------------------------------------------------------------------------
 def get_current_user():

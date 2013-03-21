@@ -1232,6 +1232,9 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	18.1
 
 FIX: gm-doctors must be member of gm-public
+FIX: exception dumping schema revision history of early DB versions [thanks Š.Laczi]
+
+IMPROVED: bootstrapper now checks gm.schema_revision AND public.gm_schema_revision
 
 	18.0
 
