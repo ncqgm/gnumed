@@ -80,7 +80,7 @@ class cClinicalRecord(object):
 
 	_clin_root_item_children_union_query = None
 
-	def __init__(self, aPKey = None):
+	def __init__(self, aPKey=None, allow_user_interaction=True):
 		"""Fails if
 
 		- no connection to database possible
@@ -125,7 +125,7 @@ SELECT fk_encounter from
 			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
 		self.remove_empty_encounters()
 		self.__encounter = None
-		if not self.__initiate_active_encounter():
+		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
 		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
@@ -1731,14 +1731,14 @@ WHERE
 	current_encounter = property(_get_current_encounter, _set_current_encounter)
 	active_encounter = property(_get_current_encounter, _set_current_encounter)
 	#------------------------------------------------------------------
-	def __initiate_active_encounter(self):
+	def __initiate_active_encounter(self, allow_user_interaction=True):
 
 		# 1) "very recent" encounter recorded ?
 		if self.__activate_very_recent_encounter():
 			return True
 
 		# 2) "fairly recent" encounter recorded ?
-		if self.__activate_fairly_recent_encounter():
+		if self.__activate_fairly_recent_encounter(allow_user_interaction = allow_user_interaction):
 			return True
 
 		# 3) start a completely new encounter
@@ -1778,7 +1778,7 @@ WHERE
 		_log.debug('"very recent" encounter [%s] found and re-activated' % enc_rows[0][0])
 		return True
 	#------------------------------------------------------------------
-	def __activate_fairly_recent_encounter(self):
+	def __activate_fairly_recent_encounter(self, allow_user_interaction=True):
 		"""Try to attach to a "fairly recent" encounter if there is one.
 
 		returns:
@@ -1787,6 +1787,10 @@ WHERE
 		"""
 		if _func_ask_user is None:
 			_log.debug('cannot ask user for guidance, not looking for fairly recent encounter')
+			return False
+
+		if not allow_user_interaction:
+			_log.exception('user interaction not desired, not looking for fairly recent encounter')
 			return False
 
 		cfg_db = gmCfg.cCfgSQL()
@@ -1816,6 +1820,9 @@ WHERE
 		if len(enc_rows) == 0:
 			_log.debug('no <fairly recent> encounter (between [%s] and [%s] old) found' % (min_ttl, max_ttl))
 			return False
+
+		_log.debug('"fairly recent" encounter [%s] found', enc_rows[0][0])
+
 		encounter = gmEMRStructItems.cEncounter(aPK_obj=enc_rows[0][0])
 		# ask user whether to attach or not
 		cmd = u"""
@@ -1831,7 +1838,6 @@ WHERE
 			gmDateTime.pydt_strftime(pat[4], '%Y %b %d'),
 			self.pk_patient
 		)
-		#enc = gmI18N.get_encoding()
 		msg = _(
 			'%s\n'
 			'\n'
@@ -1863,8 +1869,7 @@ WHERE
 
 		# attach to existing
 		self.current_encounter = encounter
-
-		_log.debug('"fairly recent" encounter [%s] found and re-activated' % enc_rows[0][0])
+		_log.debug('"fairly recent" encounter re-activated')
 		return True
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
