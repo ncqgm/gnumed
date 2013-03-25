@@ -1229,6 +1229,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.2
+
+FIX: fake .due_/.expiry_date must be TIMESTAMP WITH TIME ZONE (not DATE)
+
 	18.1
 
 FIX: gm-doctors must be member of gm-public
