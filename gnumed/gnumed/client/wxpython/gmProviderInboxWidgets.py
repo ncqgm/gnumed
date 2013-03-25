@@ -26,6 +26,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmSurgery
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmClinicalRecord
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -1140,6 +1141,19 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if self.__focussed_msg['is_virtual']:
 			gmDispatcher.send(signal = 'statustext', msg = _('You must deal with the reason for this message to remove it from your inbox.'), beep = True)
 			return False
+
+		pk_patient = self.__focussed_msg['pk_patient']
+		if pk_patient is not None:
+			emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
+			epi = emr.add_episode(episode_name = 'administration', is_open = False)
+			soap_cat = gmTools.bool2subst (
+				(self.__focussed_msg['category'] == u'clinical'),
+				u'U',
+				None
+			)
+			narr = _('Deleted inbox message:\n%s') % self.__focussed_msg.format()
+			emr.add_clin_narrative(note = narr, soap_cat = soap_cat, episode = epi)
+			gmDispatcher.send(signal = 'statustext', msg = _('Recorded deletion of inbox message in EMR.'), beep = False)
 
 		if not self.provider.inbox.delete_message(self.__focussed_msg['pk_inbox_message']):
 			gmDispatcher.send(signal='statustext', msg=_('Problem removing message from Inbox.'))

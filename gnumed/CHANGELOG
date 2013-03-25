@@ -6,6 +6,10 @@
 # rel-1-3-patches
 ------------------------------------------------
 
+	1.3.2
+
+IMPROVED: record deletion of inbox messages in EMR
+
 	1.3.1
 
 FIX: make gmHL7 import optional [thanks J.Luszawski/A.Tille]

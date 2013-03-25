@@ -1293,7 +1293,7 @@ class cPatient(cIdentity):
 			self.__db_cache['document folder'].cleanup()
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
-	def get_emr(self):
+	def get_emr(self, allow_user_interaction=True):
 		if not self.__emr_access_lock.acquire(False):
 			# maybe something slow is happening on the machine
 			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
@@ -1304,7 +1304,7 @@ class cPatient(cIdentity):
 		try:
 			self.__db_cache['clinical record']
 		except KeyError:
-			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']])
+			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']], allow_user_interaction = allow_user_interaction)
 		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
 
