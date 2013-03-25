@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmPrinting
 from Gnumed.business import gmPerson
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmSurgery
+from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmTerryGuiParts
@@ -665,6 +666,47 @@ def manage_vaccinations(parent=None):
 		print_vaccinations(parent = parent)
 		return False
 	#------------------------------------------------------------
+	def add_recall(vaccination=None):
+		if vaccination is None:
+			subject = _('vaccination recall')
+		else:
+			subject = _('vaccination recall (%s)') % vaccination['vaccine']
+
+		recall = gmProviderInbox.create_inbox_message (
+			message_type = _('Vaccination'),
+			subject = subject,
+			patient = pat.ID,
+			staff = None
+		)
+
+		if vaccination is not None:
+			recall['data'] = _('Existing vaccination:\n\n%s') % u'\n'.join(vaccination.format(
+				with_indications = True,
+				with_comment = True,
+				with_reaction = False,
+				date_format = '%Y %b %d'
+			))
+			recall.save()
+
+		from Gnumed.wxpython import gmProviderInboxWidgets
+		gmProviderInboxWidgets.edit_inbox_message (
+			parent = parent,
+			message = recall,
+			single_entry = False
+		)
+
+		return False
+	#------------------------------------------------------------
+	def get_tooltip(vaccination):
+		if vaccination is None:
+			return None
+		return u'\n'.join(vaccination.format (
+			with_indications = True,
+			with_comment = True,
+			with_reaction = True,
+			date_format = '%Y %b %d'
+		))
+	#------------------------------------------------------------
 	def edit(vaccination=None):
 		return edit_vaccination(parent = parent, vaccination = vaccination, single_entry = (vaccination is not None))
 	#------------------------------------------------------------
@@ -699,7 +741,9 @@ def manage_vaccinations(parent=None):
 		new_callback = edit,
 		edit_callback = edit,
 		delete_callback = delete,
+		list_tooltip_callback = get_tooltip,
 		left_extra_button = (_('Print'), _('Print vaccinations using a template.'), print_vaccs),
+		middle_extra_button = (_('Recall'), _('Add a recall for a vaccination'), add_recall),
 		right_extra_button = (_('Vaccination Plans'), _('Open a browser showing vaccination schedules.'), browse2schedules)
 	)
 #----------------------------------------------------------------------

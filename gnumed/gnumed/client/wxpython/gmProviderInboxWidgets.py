@@ -1151,7 +1151,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				u'U',
 				None
 			)
-			narr = _('Deleted inbox message:\n%s') % self.__focussed_msg.format()
+			narr = _('Deleted inbox message:\n%s') % self.__focussed_msg.format(with_patient = False)
 			emr.add_clin_narrative(note = narr, soap_cat = soap_cat, episode = epi)
 			gmDispatcher.send(signal = 'statustext', msg = _('Recorded deletion of inbox message in EMR.'), beep = False)
 
