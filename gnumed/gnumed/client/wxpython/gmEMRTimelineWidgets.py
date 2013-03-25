@@ -19,8 +19,8 @@ import wx
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from timelinelib.wxgui.component import TimelineComponent
-from timelinelib.db.exceptions import TimelineIOError
+from Gnumed.timelinelib.wxgui.component import TimelineComponent
+from Gnumed.timelinelib.db.exceptions import TimelineIOError
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.business import gmPerson
