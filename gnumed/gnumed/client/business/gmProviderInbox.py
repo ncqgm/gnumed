@@ -61,7 +61,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 		u'expiry_date'
 	]
 	#------------------------------------------------------------
-	def format(self):
+	def format(self, with_patient=True):
 		tt = u'%s: %s%s\n' % (
 			gmDateTime.pydt_strftime (
 				self._payload[self._idx['received_when']],
@@ -89,11 +89,12 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.u_right_double_angle_quote
 		)
 
-		tt += gmTools.coalesce (
-			self._payload[self._idx['pk_patient']],
-			u'',
-			u'%s\n\n' % _('Patient #%s')
-		)
+		if with_patient:
+			tt += gmTools.coalesce (
+				self._payload[self._idx['pk_patient']],
+				u'',
+				u'%s\n\n' % _('Patient #%s')
+			)
 
 		if self._payload[self._idx['due_date']] is not None:
 			if self._payload[self._idx['is_overdue']]:
