@@ -131,14 +131,6 @@ cp -R ../../external-tools/*.ahk ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-tools/
 
 
-# timeline (this needs to become better later on)
-mkdir -p ./gnumed-client.$CLIENTREV/timelinelib/
-cp -R ../../timelinelib/* ./gnumed-client.$CLIENTREV/timelinelib/
-mkdir -p ./gnumed-client.$CLIENTREV/icons/
-cp -R ../../icons/* ./gnumed-client.$CLIENTREV/icons/
-cp ../../icons/COPYING ./gnumed-client.$CLIENTREV/timelinelib/
-
-
 # client
 mkdir -p ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/__init__.py ./gnumed-client.$CLIENTREV/client/
@@ -152,6 +144,14 @@ cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../LICENSE ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
+
+
+# timeline (this needs to become better later on)
+mkdir -p ./gnumed-client.$CLIENTREV/client/timelinelib/
+cp -R ../../client/timelinelib/* ./gnumed-client.$CLIENTREV/client/timelinelib/
+mkdir -p ./gnumed-client.$CLIENTREV/client/icons/
+cp -R ../../client/icons/* ./gnumed-client.$CLIENTREV/client/icons/
+cp ../../client/icons/COPYING ./gnumed-client.$CLIENTREV/client/timelinelib/
 
 
 # bitmaps
