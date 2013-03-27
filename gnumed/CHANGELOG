@@ -10,6 +10,7 @@
 
 IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager
+IMPROVED: clean up LaTeX/Xe(La)TeX handling
 
 	1.3.1
 
