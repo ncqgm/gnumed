@@ -785,7 +785,7 @@ def tex_escape_string(text=None, replace_known_unicode=True):
 
 	text = text.replace(u'\\', u'\\textbackslash')
 	text = text.replace(u'^', u'\\textasciicircum')
-	text = text.replace('~','\\textasciitilde')
+	text = text.replace(u'~', u'\\textasciitilde')
 
 	text = text.replace(u'{', u'\\{')
 	text = text.replace(u'}', u'\\}')
@@ -1160,6 +1160,12 @@ second line\n
 		print xml_escape_string(u'>')
 		print xml_escape_string(u'&')
 	#-----------------------------------------------------------------------
+	def test_tex_escape():
+		tests = [u'\\', u'^', u'~', u'{', u'}', u'%',  u'&', u'#', u'$', u'_', u_euro]
+		tests.append(u'  '.join(tests))
+		for test in tests:
+			print u'%s:' % test, tex_escape_string(test)
+	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():
 		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
 		if fname is not None:
@@ -1220,5 +1226,6 @@ second line\n
 	#test_gpg_decrypt()
 	#test_strip_trailing_empty_lines()
 	test_fname_stem()
+	#test_tex_escape()
 
 #===========================================================================

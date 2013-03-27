@@ -644,6 +644,7 @@ class cFormEngine(object):
 	def __init__(self, template_file=None):
 		self.template = None
 		self.template_filename = template_file
+		_log.debug('working on template file [%s]', self.template_filename)
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 		"""Parse the template into an instance and replace placeholders with values."""
@@ -939,7 +940,22 @@ class cLaTeXForm(cFormEngine):
 	"""A forms engine wrapping LaTeX."""
 
 	def __init__(self, template_file=None):
+
+		# create sandbox for LaTeX to play in (and don't assume
+		# much of anything about the template_file except that it
+		# is at our disposal)
+		sandbox_dir = gmTools.get_unique_filename (
+			prefix = gmTools.fname_stem(template_file) + '_',
+			suffix = '.dir'
+		)
+		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
+		gmTools.mkdir(sandbox_dir)
+		shutil.copy(template_file, sandbox_dir)
+		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
+
 		super(self.__class__, self).__init__(template_file = template_file)
+
+		self.__sandbox_dir = sandbox_dir
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
@@ -958,9 +974,9 @@ class cLaTeXForm(cFormEngine):
 
 		filenames = [
 			self.template_filename,
-			r'%s-run1_result%s' % (path, ext),
-			r'%s-run2_result%s' % (path, ext),
-			r'%s-run3_result%s' % (path, ext)
+			r'%s-result_run1%s' % (path, ext),
+			r'%s-result_run2%s' % (path, ext),
+			r'%s-result_run3%s' % (path, ext)
 		]
 
 		found_placeholders = True
@@ -1075,47 +1091,26 @@ class cLaTeXForm(cFormEngine):
 
 		_log.debug('ignoring <format> directive [%s], generating PDF', format)
 
-		# create sandbox for LaTeX to play in
-		sandbox_dir = os.path.splitext(self.template_filename)[0]
-		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
-
-		gmTools.mkdir(sandbox_dir)
-
-		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
-		shutil.move(self.instance_filename, sandboxed_instance_filename)
-		self.re_editable_filenames = [sandboxed_instance_filename]
-
 		# LaTeX can need up to three runs to get cross references et al right
 		if platform.system() == 'Windows':
-			draft_cmd = r'pdflatex.exe -draftmode -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
-			final_cmd = r'pdflatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			draft_cmd = r'pdflatex.exe -draftmode -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'pdflatex.exe -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		else:
-			draft_cmd = r'pdflatex -draftmode -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
-			final_cmd = r'pdflatex -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			draft_cmd = r'pdflatex -draftmode -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'pdflatex -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
 			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 				_log.error('problem running pdflatex, cannot generate form output')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 				return None
 
-		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
-		target_dir = os.path.split(self.instance_filename)[0]
-		try:
-			shutil.move(sandboxed_pdf_name, target_dir)
-		except IOError:
-			_log.exception('cannot move sandboxed PDF: %s -> %s', sandboxed_pdf_name, target_dir)
-			gmDispatcher.send(signal = 'statustext', msg = _('Sandboxed PDF output file cannot be moved.'), beep = True)
-			return None
-
 		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
-
 		try:
 			open(final_pdf_name, 'r').close()
 		except IOError:
 			_log.exception('cannot open target PDF: %s', final_pdf_name)
 			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
 			return None
-
 		self.final_output_filenames = [final_pdf_name]
 
 		return final_pdf_name
@@ -1130,7 +1125,23 @@ class cXeTeXForm(cFormEngine):
 	"""A forms engine wrapping Xe(La)TeX."""
 
 	def __init__(self, template_file=None):
+
+		# create sandbox for LaTeX to play in (and don't assume
+		# much of anything about the template_file except that it
+		# is at our disposal)
+		sandbox_dir = gmTools.get_unique_filename (
+			prefix = gmTools.fname_stem(template_file) + '_',
+			suffix = '.dir'
+		)
+		_log.debug('Xe(La)TeX sandbox directory: [%s]', sandbox_dir)
+		gmTools.mkdir(sandbox_dir)
+		shutil.copy(template_file, sandbox_dir)
+		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
+
 		super(self.__class__, self).__init__(template_file = template_file)
+
+		self.__sandbox_dir = sandbox_dir
+
 #		path, ext = os.path.splitext(self.template_filename)
 #		if ext in [r'', r'.']:
 #			ext = r'.tex'
@@ -1153,9 +1164,9 @@ class cXeTeXForm(cFormEngine):
 
 		filenames = [
 			self.template_filename,
-			r'%s-run1_result%s' % (path, ext),
-			r'%s-run2_result%s' % (path, ext),
-			r'%s-run3_result%s' % (path, ext)
+			r'%s-result_run1%s' % (path, ext),
+			r'%s-result_run2%s' % (path, ext),
+			r'%s-result_run3%s' % (path, ext)
 		]
 
 		found_placeholders = True
@@ -1270,50 +1281,30 @@ class cXeTeXForm(cFormEngine):
 
 		_log.debug('ignoring <format> directive [%s], generating PDF', format)
 
-		# create sandbox for Xe(La)TeX to play in
-		sandbox_dir = os.path.splitext(self.template_filename)[0]
-		_log.debug('Xe(La)TeX sandbox directory: [%s]', sandbox_dir)
-
-		gmTools.mkdir(sandbox_dir)
-
-		sandboxed_instance_filename = os.path.join(sandbox_dir, os.path.split(self.instance_filename)[1])
-		shutil.move(self.instance_filename, sandboxed_instance_filename)
-		self.re_editable_filenames = [sandboxed_instance_filename]
-
 		# Xe(La)TeX can need up to three runs to get cross references et al right
 		if platform.system() == 'Windows':
 			# not yet supported: -draftmode
 			# does not support: -shell-escape
-			draft_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
-			final_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (sandbox_dir, sandboxed_instance_filename)
+			draft_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'xelatex.exe -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		else:
 			# not yet supported: -draftmode
-			draft_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (sandbox_dir, sandboxed_instance_filename)
-			final_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (sandbox_dir, sandboxed_instance_filename)
+			draft_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'xelatex -interaction=nonstopmode -output-directory=%s -shell-escape %s' % (self.__sandbox_dir, self.instance_filename)
+
 		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
 			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 				_log.error('problem running xelatex, cannot generate form output')
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running xelatex. Cannot turn Xe(La)TeX template into PDF.'), beep = True)
 				return None
 
-		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(sandboxed_instance_filename)[0]
-		target_dir = os.path.split(self.instance_filename)[0]
-		try:
-			shutil.move(sandboxed_pdf_name, target_dir)
-		except IOError:
-			_log.exception('cannot move sandboxed PDF: %s -> %s', sandboxed_pdf_name, target_dir)
-			gmDispatcher.send(signal = 'statustext', msg = _('Sandboxed PDF output file cannot be moved.'), beep = True)
-			return None
-
 		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
-
 		try:
 			open(final_pdf_name, 'r').close()
 		except IOError:
 			_log.exception('cannot open target PDF: %s', final_pdf_name)
 			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
 			return None
-
 		self.final_output_filenames = [final_pdf_name]
 
 		return final_pdf_name
