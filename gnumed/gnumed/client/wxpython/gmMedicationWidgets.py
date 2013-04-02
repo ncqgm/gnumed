@@ -2004,15 +2004,29 @@ def print_medication_list(parent=None):
 	# 4) keep notice on printing
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
-	epi = emr.add_episode(episode_name = 'administration', is_open = False)
-	emr.add_clin_narrative (
+	epi = emr.add_episode (
+		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
+		is_open = False
+	)
+	narr = emr.add_clin_narrative (
 		soap_cat = None,
 		note = _('medication list printed from template [%s - %s]') % (template['name_long'], template['external_version']),
 		episode = epi
 	)
 
-	return True
+	# 5) keep a copy
+	doc = gmDocumentWidgets.save_files_as_new_document (
+		parent = parent,
+		filenames = [pdf_name],
+		document_type = template['instance_type'],
+		episode = epi,
+		review_as_normal = True
+	)
 
+	# 6) link note and document
+	# narr[pk_document] = doc[pk]
+
+	return True
 #------------------------------------------------------------
 def configure_prescription_template(parent=None):
 
