@@ -1245,6 +1245,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	18.2
 
 FIX: fake .due_/.expiry_date must be TIMESTAMP WITH TIME ZONE (not DATE)
+FIX: faultily quoted DB translations/translation exporter
+FIX: adjust dynamic text expansions to new HINT detection format
+
+IMPROVED: French DB translations
 
 	18.1
 

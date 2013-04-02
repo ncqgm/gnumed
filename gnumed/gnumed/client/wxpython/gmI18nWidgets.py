@@ -5,7 +5,8 @@ __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # stdlib
-import logging, sys
+import logging
+import sys
 
 
 # 3rd party
