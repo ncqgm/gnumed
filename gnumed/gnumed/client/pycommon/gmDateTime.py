@@ -38,7 +38,6 @@ Other useful links:
 	http://joda-time.sourceforge.net/key_instant.html
 """
 #===========================================================================
-__version__ = "$Revision: 1.34 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -57,7 +56,6 @@ from Gnumed.pycommon import gmI18N
 
 
 _log = logging.getLogger('gm.datetime')
-_log.info(__version__)
 _log.info(u'mx.DateTime version: %s', mxDT.__version__)
 
 dst_locally_in_use = None
