@@ -42,4 +42,4 @@ Therapie: Bibrocathol (Antiseptikum), sonst Kanamycin (Arznei-Telegramm 1995)'
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-ref-bacterial_conjunctivitis_score.sql', '18.0');
+select gm.log_script_insertion('v18-ref-bacterial_conjunctivitis_score-fixup.sql', '18.2');

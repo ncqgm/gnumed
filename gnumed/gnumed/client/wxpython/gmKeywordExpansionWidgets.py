@@ -25,7 +25,7 @@ from Gnumed.wxpython import gmListWidgets
 
 _log = logging.getLogger('gm.ui')
 
-_text_expansion_fillin_regex = r'\$<.*>\$'
+_text_expansion_fillin_regex = r'\$\[.*\]\$'
 
 #============================================================
 class cKeywordExpansion_TextCtrlMixin():
@@ -503,7 +503,7 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 			self.__right_splitter = u'\n'
 			right_part = bottom_parts[0]
 			bottom_part =  bottom_parts[1]
-		hint = fillin.strip('$').strip('<').strip('>').strip()
+		hint = fillin.strip('$').strip('[').strip(']').strip()
 		self._LBL_top_part.SetLabel(top_part)
 		self._LBL_left_part.SetLabel(left_part)
 		self._LBL_left_part.Show()
@@ -629,17 +629,17 @@ if __name__ == '__main__':
 --------------------------------------
 Am Heart J. 2006 Mar;151(3):713-9.
 
-$<1 oder 0 eingeben>$ H epatische oder Nierenerkrankung
-$<1 oder 0 eingeben>$ E thanolabusus
-$<1 oder 0 eingeben>$ M alignom
-$<1 oder 0 eingeben>$ O ld patient (> 75 Jahre)
-$<1 oder 0 eingeben>$ R eduzierte Thrombozytenzahl/-funktion
-$<2 oder 0 eingeben>$ R²ekurrente (frühere) große Blutung
-$<1 oder 0 eingeben>$ H ypertonie (unkontrolliert)
-$<1 oder 0 eingeben>$ A nämie
-$<1 oder 0 eingeben>$ G enetische Faktoren
-$<1 oder 0 eingeben>$ E xzessives Sturzrisiko
-$<1 oder 0 eingeben>$ S Schlaganfall in der Anamnese
+$[1 oder 0 eingeben]$ H epatische oder Nierenerkrankung
+$[1 oder 0 eingeben]$ E thanolabusus
+$[1 oder 0 eingeben]$ M alignom
+$[1 oder 0 eingeben]$ O ld patient (> 75 Jahre)
+$[1 oder 0 eingeben]$ R eduzierte Thrombozytenzahl/-funktion
+$[2 oder 0 eingeben]$ R²ekurrente (frühere) große Blutung
+$[1 oder 0 eingeben]$ H ypertonie (unkontrolliert)
+$[1 oder 0 eingeben]$ A nämie
+$[1 oder 0 eingeben]$ G enetische Faktoren
+$[1 oder 0 eingeben]$ E xzessives Sturzrisiko
+$[1 oder 0 eingeben]$ S Schlaganfall in der Anamnese
 --------------------------------------
 Summe   Rate großer Blutungen
         pro 100 Patientenjahre
@@ -650,7 +650,7 @@ Summe   Rate großer Blutungen
  4         10.4
 >4         12.3
 
-Bewertung: Summe = $<Summe ausrechnen und bewerten>$"""
+Bewertung: Summe = $[Summe ausrechnen und bewerten]$"""
 
 		app = wx.PyWidgetTester(size = (600, 600))
 		dlg = cTextExpansionFillInDlg(None, -1)

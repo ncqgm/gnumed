@@ -132,4 +132,4 @@ Antibiose:
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-ref-DEGAM_HWI_2012.sql', '18.0');
+select gm.log_script_insertion('v18-ref-DEGAM_HWI_2012-fixup.sql', '18.2');
