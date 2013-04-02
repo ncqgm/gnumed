@@ -1493,17 +1493,21 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self._PRW_duration.display_as_valid(True)
 
-		# end must be > start if at all
+		# end must be "< now()" AND "> start" if at all
 		end = self._DP_discontinued.GetData()
 		if end is not None:
-			start = self._DP_started.GetData()
-			if start > end:
-				self._DP_started.display_as_valid(False)
+			if end > gmDateTime.pydt_now_here():
 				self._DP_discontinued.display_as_valid(False)
 				validity = False
 			else:
-				self._DP_started.display_as_valid(True)
-				self._DP_discontinued.display_as_valid(True)
+				start = self._DP_started.GetData()
+				if start > end:
+					self._DP_started.display_as_valid(False)
+					self._DP_discontinued.display_as_valid(False)
+					validity = False
+				else:
+					self._DP_started.display_as_valid(True)
+					self._DP_discontinued.display_as_valid(True)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))

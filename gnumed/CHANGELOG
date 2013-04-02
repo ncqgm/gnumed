@@ -11,6 +11,7 @@
 FIX: failure to fully escape % in Xe(La)TeX engine [thanks V.Banait]
 FIX: formatting error in current substance intake list
 FIX: collision of placeholder replacement and text expansion filling
+FIX: exception on substance-discontinued in the future [thanks S.Hilbert]
 
 IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager
