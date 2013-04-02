@@ -9,6 +9,7 @@
 	1.3.2
 
 FIX: failure to fully escape % in Xe(La)TeX engine [thanks V.Banait]
+FIX: formatting error in current substance intake list
 
 IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager
