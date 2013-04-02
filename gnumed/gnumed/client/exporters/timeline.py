@@ -493,9 +493,16 @@ def create_timeline_file(patient=None, filename=None):
 
 	# display range
 	if end.month == 12:
+		# both January and December feature 31 days, so no worry
 		end = end.replace(month = 1)
 	else:
-		end = end.replace(month = end.month + 1)
+		# be careful about the target month being
+		# shorter than the source month
+		real_day = end.day
+		target_month = end.month + 1
+		end = end.replace(day = 28)
+		end = end.replace(month = target_month)
+		end = end.replace(day = min(real_day, gmDateTime.gregorian_month_length[target_month]))
 	timeline.write(xml_end % (
 		format_pydt(start),
 		format_pydt(end)
