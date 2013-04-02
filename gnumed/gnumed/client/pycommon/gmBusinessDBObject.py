@@ -141,7 +141,7 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon.gmDateTime import pydt_strftime
-from Gnumed.pycommon.gmTools import tex_escape_string
+from Gnumed.pycommon.gmTools import tex_escape_string, xetex_escape_string
 
 
 _log = logging.getLogger('gm.db')
@@ -486,6 +486,8 @@ def delete_xxx(xxx=None):
 				data[field] = pydt_strftime(val, format = date_format, encoding = 'utf8')
 				if escape_style in [u'latex', u'tex']:
 					data[field] = tex_escape_string(data[field])
+				elif escape_style in [u'xetex', u'xelatex']:
+					data[field] = xetex_escape_string(data[field])
 				continue
 
 			try:
@@ -498,6 +500,8 @@ def delete_xxx(xxx=None):
 					data[field] = val.decode('utf8', 'replace')
 			if escape_style in [u'latex', u'tex']:
 				data[field] = tex_escape_string(data[field])
+			elif escape_style in [u'xetex', u'xelatex']:
+				data[field] = xetex_escape_string(data[field])
 
 		return data
 	#--------------------------------------------------------
