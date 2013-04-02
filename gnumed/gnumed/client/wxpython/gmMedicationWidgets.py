@@ -16,6 +16,10 @@ import wx.grid
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain(domain = 'gnumed')
+
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
@@ -1269,28 +1273,34 @@ def manage_substance_intakes(parent=None, emr=None):
 			include_unapproved = True,
 			order_by = u'substance, brand, started'
 		)
-		items = [ [
-			u'%s%s %s %s %s%s' % (
-				i['substance'],
-				gmTools.coalesce(i['brand'], u'', u' (%s)'),
-				i['amount'],
-				i['unit'],
-				i['preparation'],
-				gmTools.coalesce(i['external_code_brand'], u'', u' [%s::%s]' % (i['external_code_type_brand'], i['external_code_brand']))
-			),
-			u'%s%s%s' % (
-				gmTools.coalesce(i['started'], u'', u'%%s %s' % gmTools.u_right_arrow, function_initial = ('strftime', '%Y-%M-%d')),
-				gmTools.coalesce(i['schedule'], u'', u' %s %s' % (i['schedule'], gmTools.u_right_arrow)),
-				gmTools.coalesce(i['duration'], u'', u' %s')
-			),
-			u'%s' % (
-				gmTools.bool2subst (
-					i['intake_is_approved_of'],
-					u'',
-					_('disapproved')
+		items = []
+		for i in intakes:
+			if i['started'] is None:
+				started = u''
+			else:
+				started = u'%s:' % gmDateTime.pydt_strftime(i['started'], '%Y %b %d')
+			items.append ([
+				u'%s%s %s %s %s%s' % (
+					i['substance'],
+					gmTools.coalesce(i['brand'], u'', u' (%s)'),
+					i['amount'],
+					i['unit'],
+					i['preparation'],
+					gmTools.coalesce(i['external_code_brand'], u'', u' [%s::%s]' % (i['external_code_type_brand'], i['external_code_brand']))
+				),
+				u'%s%s%s' % (
+					started,
+					gmTools.coalesce(i['schedule'], u'', u' %%s %s' % gmTools.u_right_arrow),
+					gmTools.coalesce(i['duration'], u'', u' %s')
+				),
+				u'%s' % (
+					gmTools.bool2subst (
+						i['intake_is_approved_of'],
+						u'',
+						_('disapproved')
+					)
 				)
-			)
-		] for i in intakes ]
+			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
 	#------------------------------------------------------------
@@ -3025,11 +3035,7 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmI18N
 	from Gnumed.business import gmPersonSearch
-
-	gmI18N.activate_locale()
-	gmI18N.install_domain(domain = 'gnumed')
 
 	pat = gmPersonSearch.ask_for_patient()
 	if pat is None:
@@ -3037,7 +3043,7 @@ if __name__ == '__main__':
 	gmPerson.set_active_patient(patient = pat)
 
 	#----------------------------------------
-#	app = wx.PyWidgetTester(size = (600, 600))
+	app = wx.PyWidgetTester(size = (600, 600))
 #	#app.SetWidget(cATCPhraseWheel, -1)
 #	app.SetWidget(cSubstancePhraseWheel, -1)
 #	app.MainLoop()
