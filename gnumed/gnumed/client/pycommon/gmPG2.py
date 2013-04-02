@@ -680,7 +680,7 @@ def export_translations_from_database(filename=None):
 	cmd = u'SELECT lang, orig, trans FROM i18n.translations ORDER BY lang, orig'
 	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	for row in rows:
-		line = u"select i18n.upd_tx(quote_literal(E'%s'), quote_literal(E'%s'), quote_literal(E'%s'));\n" % (
+		line = u"select i18n.upd_tx(E'%s', E'%s', E'%s');\n" % (
 			row['lang'].replace("'", "\\'"),
 			row['orig'].replace("'", "\\'"),
 			row['trans'].replace("'", "\\'")
