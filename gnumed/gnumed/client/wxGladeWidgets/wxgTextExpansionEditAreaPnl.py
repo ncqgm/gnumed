@@ -42,7 +42,7 @@ class wxgTextExpansionEditAreaPnl(wx.ScrolledWindow):
         self._CHBOX_is_encrypted.SetToolTipString(_("Check this if the data file is encrypted and needs decryption before use."))
         self._CHBOX_is_encrypted.Enable(False)
         self._LBL_text.SetForegroundColour(wx.Colour(255, 127, 0))
-        self._TCTRL_expansion.SetToolTipString(_("This is the text the keyword will expand to. You can use any text-based punctuation and formatting.\n\nAny $<HINT>$ will make GNUmed prompt the user for input while displaying HINT for guidance."))
+        self._TCTRL_expansion.SetToolTipString(_("This is the text the keyword will expand to. You can use any text-based punctuation and formatting.\n\nAny $[HINT]$ will make GNUmed prompt the user for input while displaying HINT for guidance."))
         self._TCTRL_expansion.Enable(False)
         self._RBTN_private.SetToolTipString(_("Select this if you want to use this text expansion just for yourself."))
         self._RBTN_private.Enable(False)

@@ -38,4 +38,4 @@ Rheumatologie, 2012)'
 );
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-ref-Bird_PMR_1979.sql', '18.0');
+select gm.log_script_insertion('v18-ref-Bird_PMR_1979-fixup.sql', '18.2');

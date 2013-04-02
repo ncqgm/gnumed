@@ -46,4 +46,4 @@ Sum: $[Sum]$
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-ref-Epworth_Sleepiness_Scale_1997.sql', '18.0');
+select gm.log_script_insertion('v18-ref-Epworth_Sleepiness_Scale_1997-fixup.sql', '18.2');
