@@ -1,9 +1,6 @@
 # -*- coding: utf8 -*-
-#====================================================================
-# About GNUmed
-#====================================================================
-__version__ = "$Revision: 1.35 $"
-__author__ = "M.Bonert"
+
+__author__ = "M.Bonert, K.Hilbert"
 __license__ = "GPL"
 
 import sys
@@ -20,13 +17,11 @@ except NameError:
 	_ = lambda x:x
 
 ID_MENU = wx.NewId()
-ID_EXIT = wx.NewId()
 #====================================================================
 class ScrollTxtWin (wx.Window):
 	"""
 	Scrolling Text!
 	"""
-
 	# control parameters
 	__scroll_speed=.3 	# pixels/milliseconds (?)
 	__delay=500		# milliseconds
@@ -181,7 +176,7 @@ class cContributorsDlg(wx.Dialog):
 ) % u"""
 == A ===========================================
 
-Marc Angermann, MD
+Marc ANGERMANN, MD
  Germany
 
  - Rechnungsvorlage
@@ -189,7 +184,7 @@ Marc Angermann, MD
 
 == B ===========================================
 
-James Busser, MD
+James BUSSER, MD
  British Columbia
 
  - test results handling
@@ -197,9 +192,16 @@ James Busser, MD
  - encouragement, testing, bug reporting
  - testing on MacOSX
 
+Vaibhav BANAIT, MD, DNB, DM
+ India
+
+ - bug reports
+ - feature suggestions
+ - testing
+
 == F ===========================================
 
-Joachim Fischer
+Joachim FISCHER
  GP Fischer + Lintz
  Fachärzte Allgemeinmedizin
  Wolfschlugen
@@ -208,19 +210,19 @@ Joachim Fischer
 
 == H ===========================================
 
-Sebastian Hilbert, MD
+Sebastian HILBERT, MD
  Germany
 
  - packaging, PR
 
-Anne te Harvik
+Anne te HARVIK
  Netherlands
 
  - Dutch translation
 
 == J ===========================================
 
-John Jaarsveld, MD
+John JAARSVELD, MD
  Netherlands
 
  - lots of help with the visual progress notes
@@ -228,7 +230,7 @@ John Jaarsveld, MD
 
 == K ===========================================
 
-Uwe Koch Kronberg
+Uwe Koch KRONBERG
  Chile
 
  - Spanish
@@ -236,18 +238,18 @@ Uwe Koch Kronberg
 
 == L ===========================================
 
-Nico Latzer
+Nico LATZER
  Germany
 
  - invoice handling code
 
-Steffi Leibner, Leipzig
+Steffi LEIBNER, Leipzig
  Germany
 
  - Testen, Fehlerberichte
  - Dokumentenvorlage
 
-Rogerio Luz, Brasil
+Rogerio LUZ, Brasil
 
  - testing, bug reporting
  - SOAP handling discussion
@@ -255,26 +257,26 @@ Rogerio Luz, Brasil
 
 == N ===========================================
 
-Clemens Nietfeld, Oldenburg
+Clemens NIETFELD, Oldenburg
 
  - Information zur Anbindung von DocConcept
 
 == P ===========================================
 
-Martin Preuss, Hamburg
+Martin PREUSS, Hamburg
 
  - Chipkartenansteuerung
 
 == R ===========================================
 
-Thomas Reus, Düsseldorf
+Thomas REUS, Düsseldorf
 
  - Testen, Fehlerberichte
  - Dokumentenvorlage
 
 == T ===========================================
 
-Andreas Tille, Wernigerode
+Andreas TILLE, Wernigerode
 
  - Debian packages
  - encouragement, wisdom
@@ -315,4 +317,3 @@ if __name__ == '__main__':
 		app.MainLoop()
 
 #------------------------------------------------------------
-

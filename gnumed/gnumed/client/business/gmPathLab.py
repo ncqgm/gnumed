@@ -644,7 +644,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 #
 #		return lines
 	#--------------------------------------------------------
-	def format(self, with_review=True, with_evaluation=True, with_ranges=True, date_format='%Y %b %d %H:%M'):
+	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, date_format='%Y %b %d %H:%M'):
 
 		# FIXME: add battery, request details
 
@@ -837,9 +837,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(self._payload[self._idx['comment']].split(u'\n'))
 		if self._payload[self._idx['note_test_org']] is not None:
 			tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
-		tt += u' ' + _(u'Episode: %s\n') % self._payload[self._idx['episode']]
-		if self._payload[self._idx['health_issue']] is not None:
-			tt += u' ' + _(u'Issue: %s\n') % self._payload[self._idx['health_issue']]
+		if with_episode:
+			tt += u' ' + _(u'Episode: %s\n') % self._payload[self._idx['episode']]
+			if self._payload[self._idx['health_issue']] is not None:
+				tt += u' ' + _(u'Issue: %s\n') % self._payload[self._idx['health_issue']]
 		if self._payload[self._idx['material']] is not None:
 			tt += u' ' + _(u'Material: %s\n') % self._payload[self._idx['material']]
 		if self._payload[self._idx['material_detail']] is not None:
@@ -892,23 +893,25 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			tt += u'\n'
 
 		# type
-		tt += _(u'Test type details:\n')
-		tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
-			'name_meta': gmTools.coalesce(self._payload[self._idx['name_meta']], u''),
-			'abbrev_meta': gmTools.coalesce(self._payload[self._idx['abbrev_meta']], u''),
-			'pk_u_type': self._payload[self._idx['pk_meta_test_type']]
-		})
-		if self._payload[self._idx['comment_tt']] is not None:
-			tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
-		if self._payload[self._idx['comment_meta']] is not None:
-			tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
-		tt += u'\n'
+		if with_type_details:
+			tt += _(u'Test type details:\n')
+			tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
+				'name_meta': gmTools.coalesce(self._payload[self._idx['name_meta']], u''),
+				'abbrev_meta': gmTools.coalesce(self._payload[self._idx['abbrev_meta']], u''),
+				'pk_u_type': self._payload[self._idx['pk_meta_test_type']]
+			})
+			if self._payload[self._idx['comment_tt']] is not None:
+				tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
+			if self._payload[self._idx['comment_meta']] is not None:
+				tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
+			tt += u'\n'
 
-		tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
-			'row_ver': self._payload[self._idx['row_version']],
-			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']],date_format),
-			'mod_by': self._payload[self._idx['modified_by']]
-		})
+		if with_review:
+			tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
+				'row_ver': self._payload[self._idx['row_version']],
+				'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']],date_format),
+				'mod_by': self._payload[self._idx['modified_by']]
+			})
 
 		return tt
 	#--------------------------------------------------------
