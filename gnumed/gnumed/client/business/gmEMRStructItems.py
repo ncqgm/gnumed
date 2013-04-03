@@ -1232,10 +1232,13 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Measurements and Results:'))
 			for t in tests:
-				lines.extend(t.format (
+				lines.append(t.format (
 					with_review = False,
-					with_comments = False,
-					date_format = '%Y-%m-%d'
+					with_ranges = False,
+					with_evaluation = False,
+					with_episode = False,
+					with_type_details = False,
+					date_format = '%Y %b %d'
 				))
 			del tests
 
@@ -2066,7 +2069,7 @@ limit 1
 					lines.append(_('Measurements and Results:'))
 
 				for t in tests:
-					lines.extend(t.format())
+					lines.append(t.format())
 
 				del tests
 
@@ -2200,7 +2203,7 @@ limit 1
 					lines.append(_('Measurements and Results:'))
 
 				for t in tests:
-					lines.extend(t.format())
+					lines.append(t.format())
 
 				del tests
 
