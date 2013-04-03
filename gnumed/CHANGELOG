@@ -14,6 +14,7 @@ FIX: collision of placeholder replacement and text expansion filling
 FIX: exception on substance-discontinued in the future [thanks S.Hilbert]
 FIX: exception on months of different length in timeline [thanks S.Hilbert]
 FIX: faulty use of test results formatting
+FIX: intake EA forgot non-brand preparation [thanks S.Hilbert]
 
 IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager

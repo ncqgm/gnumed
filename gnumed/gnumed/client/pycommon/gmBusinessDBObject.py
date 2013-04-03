@@ -378,10 +378,23 @@ def delete_xxx(xxx=None):
 		try:
 			for attr in self._idx.keys():
 				if self._payload[self._idx[attr]] is None:
-					tmp.append(u'%s: NULL' % attr)
+					tmp.append('%s: NULL' % attr)
 				else:
 					tmp.append('%s: >>%s<<' % (attr, self._payload[self._idx[attr]]))
 			return '[%s:%s]: %s' % (self.__class__.__name__, self.pk_obj, str(tmp))
+			#return '[%s:%s]:\n %s' % (self.__class__.__name__, self.pk_obj, '\n '.join(lines))
+		except:
+			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
+	#--------------------------------------------------------
+	def __unicode__(self):
+		lines = []
+		try:
+			for attr in self._idx.keys():
+				if self._payload[self._idx[attr]] is None:
+					lines.append(u'%s: NULL' % attr)
+				else:
+					lines.append('%s: %s' % (attr, self._payload[self._idx[attr]]))
+			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, u'\n'.join(lines))
 		except:
 			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
 	#--------------------------------------------------------
