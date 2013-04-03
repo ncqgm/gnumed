@@ -726,18 +726,22 @@ class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 (
-	SELECT DISTINCT ON (preparation)
-		preparation as prep, preparation
+	SELECT DISTINCT ON (list_label)
+		preparation AS data,
+		preparation AS list_label,
+		preparation AS field_label
 	FROM ref.branded_drug
 	WHERE preparation %(fragment_condition)s
 ) UNION (
-	SELECT DISTINCT ON (preparation)
-		preparation as prep, preparation
+	SELECT DISTINCT ON (list_label)
+		preparation AS data,
+		preparation AS list_label,
+		preparation AS field_label
 	FROM clin.substance_intake
 	WHERE preparation %(fragment_condition)s
 )
-ORDER BY prep
-limit 30"""
+ORDER BY list_label
+LIMIT 30"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
@@ -1678,7 +1682,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self.data['pk_substance']
 		)
 
-		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
+#		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
+		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
 		self._PRW_preparation.Enable(True)
 	#----------------------------------------------------------------
 	def __refresh_from_existing_component(self):
@@ -1723,7 +1728,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_substance.Enable(True)
 			self._LBL_preparation.Enable(True)
 			self._PRW_preparation.Enable(True)
-			self._PRW_preparation.SetText(u'', None)
+			#self._PRW_preparation.SetText(u'', None)
 			self._TCTRL_brand_ingredients.SetValue(u'')
 			self._TCTRL_brand_ingredients.SetToolTipString(u'')
 		else:
