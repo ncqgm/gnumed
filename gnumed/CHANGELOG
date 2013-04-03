@@ -20,6 +20,7 @@ IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager
 IMPROVED: clean up LaTeX/Xe(La)TeX handling
 IMPROVED: keep a copy of printed current medication lists [thanks Liz]
+IMPROVED: add MELD score [thanks S.Hilbert]
 
 	1.3.1
 
