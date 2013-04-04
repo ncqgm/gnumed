@@ -37,7 +37,7 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
         self._CHBOX_approved = wx.CheckBox(self, -1, _("Approved of"))
         self._PRW_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_schedule = gmMedicationWidgets.cSubstanceSchedulePhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_duration = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_duration = gmDateTimeInput.cIntervalPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_long_term = wx.CheckBox(self, -1, _("Long-term"))
         self._PRW_aim = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_notes = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
