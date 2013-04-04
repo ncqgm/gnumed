@@ -1356,6 +1356,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_substance.add_callback_on_lose_focus(callback = self._on_leave_substance)
 		self._PRW_substance.selection_only = True
+
+		self._PRW_duration.display_accuracy = gmDateTime.acc_days
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -1491,9 +1493,15 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self._PRW_duration.display_as_valid(True)
 		else:
-			if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
-				self._PRW_duration.display_as_valid(False)
-				validity = False
+			if self._PRW_duration.GetData() is None:
+				# no data ...
+				if gmDateTime.str2interval(self._PRW_duration.GetValue()) is None:
+					self._PRW_duration.display_as_valid(False)
+					validity = False
+				# ... but valid string
+				else:
+					self._PRW_duration.display_as_valid(True)
+			# has data
 			else:
 				self._PRW_duration.display_as_valid(True)
 
@@ -1554,7 +1562,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			intake['duration'] = None
 		else:
-			intake['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			if self._PRW_duration.GetData() is None:
+				intake['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			else:
+				intake['duration'] = self._PRW_duration.GetData()
 		intake.save()
 
 		self.data = intake
@@ -1576,7 +1587,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
-			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+#			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			if self._PRW_duration.GetData() is None:
+				self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
+			else:
+				self.data['duration'] = self._PRW_duration.GetData()
 
 		# applies to non-component substances only
 		self.data['preparation'] = self._PRW_preparation.GetValue()
@@ -1647,10 +1662,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._CHBOX_long_term.SetValue(False)
 			self._PRW_duration.Enable(True)
 			self._BTN_discontinued_as_planned.Enable(True)
-			if self.data['duration'] is None:
-				self._PRW_duration.SetText(u'', None)
-			else:
-				self._PRW_duration.SetText(gmDateTime.format_interval(self.data['duration'], gmDateTime.acc_days), self.data['duration'])
+			self._PRW_duration.SetData(self.data['duration'])
+#			if self.data['duration'] is None:
+#				self._PRW_duration.SetText(u'', None)
+#			else:
+#				self._PRW_duration.SetText(gmDateTime.format_interval(self.data['duration'], gmDateTime.acc_days), self.data['duration'])
 		self._PRW_aim.SetText(gmTools.coalesce(self.data['aim'], u''), self.data['aim'])
 		self._PRW_notes.SetText(gmTools.coalesce(self.data['notes'], u''), self.data['notes'])
 		self._PRW_episode.SetData(self.data['pk_episode'])
