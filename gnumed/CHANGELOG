@@ -22,6 +22,7 @@ IMPROVED: create recalls from vaccinations manager
 IMPROVED: clean up LaTeX/Xe(La)TeX handling
 IMPROVED: keep a copy of printed current medication lists [thanks Liz]
 IMPROVED: add MELD score [thanks S.Hilbert]
+IMPROVED: include duration with current_meds_table [thanks V.Banait]
 
 	1.3.1
 
