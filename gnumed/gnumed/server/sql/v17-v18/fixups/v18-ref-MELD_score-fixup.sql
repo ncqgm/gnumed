@@ -6,8 +6,8 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-
 --set default_transaction_read_only to off;
+
 -- --------------------------------------------------------------
 set client_encoding to 'utf-8';
 
@@ -24,13 +24,13 @@ insert into ref.keyword_expansion (
 --------------------------------------
 Wiesner R et al. The model for end-stage liver disease (MELD) and allocation of donor livers. Gastroenterology 2003; 124: 91–6
 
-$[BIL in mg/dl]$ Bilirubin (mg/dl)
-$[CREA in mg/dl (between 1 and 4)]$ Serum Creatinine (mg/dl)
-$[INR]$ International Normalized Ratio (INR), min 1.0
+BIL:   $[BIL in mg/dl]$ mg/dl (Bilirubin)
+CREA:  $[CREA in mg/dl]$ mg/dl (Serum Creatinine, 1-4)
+INR:   $[INR]$ (International Normalized Ratio, >= 1.0)
 
 (	0.643 +
-	0.957 x ln(CREA) +
 	0.378 x ln(BIL) +
+	0.957 x ln(CREA) +
 	1.12 x ln(INR)
 ) x 10
 
@@ -45,8 +45,8 @@ For SI units (µmol/l):
 
 10 x 
 (	0.643 +
-	0.957 x ln(CREA / 88.4) +
 	0.378 x ln(BIL / 88.4) +
+	0.957 x ln(CREA / 88.4) +
 	1.12 x ln(INR)
 )');
 
