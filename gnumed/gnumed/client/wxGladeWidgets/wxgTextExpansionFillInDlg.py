@@ -38,6 +38,7 @@ class wxgTextExpansionFillInDlg(wx.Dialog):
         self._BTN_forward.SetToolTipString(_("Go to the next fill-in position."))
         self._BTN_forward.SetDefault()
         self._BTN_cancel.SetToolTipString(_("Cancel filling in the text expansion."))
+        self._LBL_hint.SetForegroundColour(wx.Colour(0, 0, 255))
         # end wxGlade
 
     def __do_layout(self):
