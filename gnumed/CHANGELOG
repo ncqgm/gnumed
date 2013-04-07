@@ -16,6 +16,7 @@ FIX: exception on months of different length in timeline [thanks S.Hilbert]
 FIX: faulty use of test results formatting
 FIX: intake EA forgot non-brand preparation [thanks S.Hilbert]
 FIX: re-saving of durations when editing substance intakes [thanks S.Hilbert]
+FIX: unable to save same-day hospital admission/discharge
 
 IMPROVED: record deletion of inbox messages in EMR
 IMPROVED: create recalls from vaccinations manager

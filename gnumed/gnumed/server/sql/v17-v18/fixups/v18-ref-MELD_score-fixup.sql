@@ -36,9 +36,17 @@ INR:   $[INR]$ (International Normalized Ratio, >= 1.0)
 
 Result: $[Apply formula !]$
 
-Score    :   6  15  20  24  28  30  35  40
-% 3-month
-mortality:   1   5  11  21  37  49  80  98
+3-month mortality in %
+----------------------
+Score   %
+  6     1
+ 15     5
+ 20    11
+ 24    21
+ 28    37
+ 30    49
+ 35    80
+ 40    98
 
 --------------------------------------
 For SI units (µmol/l):
