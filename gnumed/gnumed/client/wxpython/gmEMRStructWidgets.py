@@ -470,6 +470,14 @@ def manage_hospital_stays(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#-----------------------------------------
+	def get_tooltip(stay=None):
+		if stay is None:
+			return None
+		return stay.format (
+			include_procedures = True,
+			include_docs = True
+		)
+	#-----------------------------------------
 	def edit(stay=None):
 		return edit_hospital_stay(parent = parent, hospital_stay = stay)
 	#-----------------------------------------
@@ -505,7 +513,8 @@ def manage_hospital_stays(parent=None):
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip
 	)
 
 #----------------------------------------------------------------
@@ -585,22 +594,36 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		valid = True
 
-		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
-			valid = False
-			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospitalization.'), beep = True)
-
-		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
-			if self._PRW_discharge.date is not None:
-				if self._PRW_admission.date is not None:
-					if not self._PRW_discharge.date > self._PRW_admission.date:
-						valid = False
-						self._PRW_discharge.display_as_valid(False)
-						gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
-
 		if self._PRW_episode.GetValue().strip() == u'':
 			valid = False
 			self._PRW_episode.display_as_valid(False)
 			gmDispatcher.send(signal = 'statustext', msg = _('Must select an episode or enter a name for a new one. Cannot save hospitalization.'), beep = True)
+			self._PRW_episode.SetFocus()
+
+		if not self._PRW_admission.is_valid_timestamp(allow_empty = False):
+			valid = False
+			gmDispatcher.send(signal = 'statustext', msg = _('Missing admission data. Cannot save hospitalization.'), beep = True)
+			self._PRW_admission.SetFocus()
+
+		if self._PRW_discharge.is_valid_timestamp(allow_empty = True):
+			if self._PRW_discharge.date is not None:
+				adm = self._PRW_admission.date
+				discharge = self._PRW_discharge.date
+				# normalize for comparison
+				discharge = discharge.replace (
+					hour = adm.hour,
+					minute = adm.minute,
+					second = adm.second,
+					microsecond = adm.microsecond
+				)
+				if adm is not None:
+					if discharge == adm:
+						self._PRW_discharge.SetData(discharge + pydt.timedelta(seconds = 1))
+					elif not self._PRW_discharge.date > self._PRW_admission.date:
+						valid = False
+						self._PRW_discharge.display_as_valid(False)
+						gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
+						self._PRW_discharge.SetFocus()
 
 		return (valid is True)
 	#----------------------------------------------------------------
@@ -632,6 +655,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 		self._PRW_episode.SetText(value = u'')
 		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
+		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		if self.data['hospital'] is not None:
@@ -642,9 +666,12 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		self._PRW_admission.SetText(data = self.data['admission'])
 		self._PRW_discharge.SetText(data = self.data['discharge'])
+
+		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		print "this was not expected to be used in this edit area"
+
 #================================================================
 # encounter related widgets/functions
 #----------------------------------------------------------------
