@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-03-13 13:31+CET\n"
+"POT-Creation-Date: 2013-04-07 13:48+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,6 +14,1843 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
+
+msgid "programmer forgot to specify error message"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+
+msgid "generic error message"
+msgstr ""
+
+msgid "programmer forgot to specify info message"
+msgstr ""
+
+msgid "generic info message"
+msgstr ""
+
+msgid "programmer forgot to specify warning"
+msgstr ""
+
+msgid "generic warning message"
+msgstr "generisk advarselsbesked"
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Are you sure you have got a local database installed ?\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry with proper credentials or cancel.\n"
+"\n"
+"You may also need to check the PostgreSQL client\n"
+"authentication configuration in pg_hba.conf. For\n"
+"details see:\n"
+"\n"
+"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+msgstr ""
+
+msgid "Connecting to backend"
+msgstr ""
+
+msgid ""
+"Unable to connect to database:\n"
+"\n"
+"%s\n"
+"\n"
+"Please retry another backend / user / password combination !\n"
+msgstr ""
+
+msgid "unknown allergy state"
+msgstr ""
+
+msgid "no known allergies"
+msgstr "Ingen kendte allergier"
+
+msgid "*does* have allergies"
+msgstr ""
+
+msgid "ERROR: unknown allergy state [%s]"
+msgstr ""
+
+msgid "Cannot run [arriba] !"
+msgstr ""
+
+msgid "No [arriba] result found in [%s]."
+msgstr ""
+
+msgid "Active billable item"
+msgstr ""
+
+msgid "Inactive billable item"
+msgstr ""
+
+msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
+msgstr ""
+
+msgid "Open item"
+msgstr ""
+
+msgid "Billed item"
+msgstr ""
+
+msgid " Details: %s\n"
+msgstr ""
+
+msgid " %s of units: %s\n"
+msgstr ""
+
+msgid ""
+" Amount per unit: %(curr)s%(val_p_unit)s (%(cat_curr)s%(cat_val)s per "
+"catalog)\n"
+msgstr ""
+
+msgid " Amount multiplier: %s\n"
+msgstr ""
+
+msgid " VAT would be: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
+msgstr ""
+
+msgid " Charge date: %s"
+msgstr ""
+
+msgid ""
+"\n"
+" On bill: %s"
+msgstr ""
+
+msgid "Open bill"
+msgstr ""
+
+msgid "Closed bill"
+msgstr ""
+
+msgid " Invoice ID: %s\n"
+msgstr ""
+
+msgid " Closed: %s\n"
+msgstr ""
+
+msgid " Comment: %s\n"
+msgstr ""
+
+msgid " Bill value: %(curr)s%(val)s\n"
+msgstr ""
+
+msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
+msgstr ""
+
+msgid " Value + VAT: %(curr)s%(val)s\n"
+msgstr ""
+
+msgid " VAT: does not apply\n"
+msgstr ""
+
+msgid " Items billed: 0\n"
+msgstr ""
+
+msgid " Items billed: %s\n"
+msgstr ""
+
+msgid " Invoice: %s\n"
+msgstr ""
+
+msgid "not available"
+msgstr ""
+
+msgid " Patient: #%s\n"
+msgstr ""
+
+msgid " Receiver: #%s\n"
+msgstr ""
+
+msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
+msgstr ""
+
+msgid "soap_S"
+msgstr ""
+
+msgid "soap_O"
+msgstr ""
+
+msgid "soap_A"
+msgstr ""
+
+msgid "soap_P"
+msgstr ""
+
+msgid "soap_Subjective"
+msgstr ""
+
+msgid "soap_Objective"
+msgstr ""
+
+msgid "soap_Assessment"
+msgstr ""
+
+msgid "soap_Plan"
+msgstr ""
+
+msgid "soap_Unspecified"
+msgstr ""
+
+msgid "soap_Administrative"
+msgstr ""
+
+msgid ""
+"%s: %s by %.8s (v%s)\n"
+"%s"
+msgstr ""
+
+msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
+msgstr ""
+
+msgid "Algorithm:"
+msgstr ""
+
+msgid "Source:"
+msgstr ""
+
+msgid "Variables:"
+msgstr ""
+
+msgid "Intermediate results:"
+msgstr ""
+
+msgid "unknown MDRD (4 vars/IDMS)"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): no patient"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): no DOB (no age)"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): neither male nor female"
+msgstr ""
+
+msgid ""
+"MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): creatinine value not numeric"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): unknown serum creatinine unit (%s)"
+msgstr ""
+
+msgid "MDRD (4 vars/IDMS): formula does not apply at age [%s] (17 < age < 85)"
+msgstr ""
+
+msgid ""
+"ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
+msgstr ""
+
+msgid "NOT corrected for non-average body surface (average = 1.73m²)"
+msgstr ""
+
+msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
+msgstr ""
+
+msgid "unknown eGFR (Schwartz)"
+msgstr ""
+
+msgid "eGFR (Schwartz): no patient"
+msgstr ""
+
+msgid "eGFR (Schwartz): DOB needed for age"
+msgstr ""
+
+msgid ""
+"eGFR (Schwartz): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
+msgstr ""
+
+msgid "eGFR (Schwartz): creatinine value not numeric"
+msgstr ""
+
+msgid "eGFR (Schwartz): unknown serum creatinine unit (%s)"
+msgstr ""
+
+msgid "eGFR (Schwartz): formula does not apply at age [%s] (age must be <18)"
+msgstr ""
+
+msgid ""
+"eGFR (Schwartz): not known whether pre-term birth, applying full-term formula"
+msgstr ""
+
+msgid "eGFR (Schwartz): height not found"
+msgstr ""
+
+msgid "eGFR (Schwartz): height not numeric"
+msgstr ""
+
+msgid "eGFR (Schwartz): height not in m, cm, or mm"
+msgstr ""
+
+msgid "eGFR (Schwartz): %.1f %s (%s)"
+msgstr ""
+
+msgid "unknown body surface area"
+msgstr ""
+
+msgid "Body Surface Area: no patient"
+msgstr ""
+
+msgid "Body Surface Area: height not found"
+msgstr ""
+
+msgid "Body Surface Area: height not numeric"
+msgstr ""
+
+msgid "Body Surface Area: height not in m, cm, or mm"
+msgstr ""
+
+msgid "Body Surface Area: weight not found"
+msgstr ""
+
+msgid "Body Surface Area: weight not numeric"
+msgstr ""
+
+msgid "Body Surface Area: weight not in kg or g"
+msgstr ""
+
+msgid "BSA (DuBois): %.2f %s"
+msgstr ""
+
+msgid "modified entry"
+msgstr ""
+
+msgid "original entry"
+msgstr ""
+
+msgid "%s: encounter (%s)"
+msgstr "%s: tilfælde (%s)"
+
+msgid "health issue: %s"
+msgstr "Helbredsproblem %s"
+
+msgid "episode     : %s"
+msgstr "hændelse     : %s"
+
+msgid ""
+"Medical problems: %(problems)s\n"
+"Total encounters: %(encounters)s\n"
+"Total EMR entries: %(items)s\n"
+"Active medications: %(active_drugs)s\n"
+"Documents: %(documents)s\n"
+"Test results: %(results)s\n"
+"Hospitalizations: %(stays)s\n"
+"Procedures: %(procedures)s\n"
+"Vaccinations: %(vaccinations)s"
+msgstr ""
+
+msgid " %s known problems, clinically relevant thereof:\n"
+msgstr ""
+
+msgid " %s known problems\n"
+msgstr " %s kendte problemer\n"
+
+msgid "active"
+msgstr "aktiv"
+
+msgid "inactive"
+msgstr "inaktiv"
+
+msgid " %s encounters from %s to %s\n"
+msgstr " %s tilfælde fra %s til %s\n"
+
+msgid " %s active medications\n"
+msgstr ""
+
+msgid " %s documents\n"
+msgstr ""
+
+msgid " %s test results\n"
+msgstr ""
+
+msgid " %s hospitalizations"
+msgstr ""
+
+msgid ""
+", most recently:\n"
+"%s\n"
+msgstr ""
+
+msgid " %s performed procedures"
+msgstr ""
+
+msgid "Allergies and Intolerances\n"
+msgstr ""
+
+msgid " (last confirmed %s)"
+msgstr " (sidst bekræftet %s)"
+
+msgid "unknown reaction"
+msgstr "Ukendt reaktion"
+
+msgid "Family History"
+msgstr "Familiehistorik"
+
+msgid "Occupations"
+msgstr ""
+
+msgid "Vaccinations"
+msgstr "Vaccinationer"
+
+msgid "%s ago"
+msgstr ""
+
+msgid "Allergies/Intolerances"
+msgstr ""
+
+msgid "Allergy detail: %s"
+msgstr ""
+
+msgid ""
+"%s\n"
+"\n"
+"This patient's chart was worked on only recently:\n"
+"\n"
+" %s  %s - %s  (%s)\n"
+"\n"
+" Request: %s\n"
+" Outcome: %s\n"
+"\n"
+"Do you want to continue that consultation\n"
+"or do you want to start a new one ?\n"
+msgstr ""
+
+msgid "none given"
+msgstr ""
+
+msgid "Starting patient encounter"
+msgstr ""
+
+msgid ""
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
+msgstr ""
+
+msgid ""
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
+"s, %(code_country)s"
+msgstr ""
+
+msgid ""
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(code_country)s"
+msgstr ""
+
+msgid ""
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(code_country)s"
+msgstr ""
+
+msgid ""
+"Address (%(type)s) [#%(pk_adr)s]\n"
+" Street: %(street)s%(notes_street)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
+" Country: %(l10n_country)s, %(code_country)s"
+msgstr ""
+
+msgid ""
+"Address [#%(pk_adr)s]\n"
+" Street: %(street)s%(notes_street)s\n"
+" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Location: %(zip)s %(urb)s%(suburb)s\n"
+" Region: %(l10n_state)s, %(code_state)s\n"
+" Country: %(l10n_country)s, %(code_country)s"
+msgstr ""
+
+msgid "Battery:"
+msgstr "Batteri:"
+
+msgid "Device(%s):"
+msgstr "Enhed(%s):"
+
+msgid "Implanted:"
+msgstr ""
+
+msgid "Impedance:"
+msgstr ""
+
+msgid "Sensing:"
+msgstr ""
+
+msgid "Threshold"
+msgstr ""
+
+msgid "last check:"
+msgstr "sidste tjek:"
+
+msgid "%s document part                 [#%s]\n"
+msgstr ""
+
+msgid "Reviewed"
+msgstr ""
+
+msgid "Unreviewed"
+msgstr ""
+
+msgid " Part %s: %s %s(%s Bytes)\n"
+msgstr ""
+
+msgid " Filename: %s\n"
+msgstr ""
+
+msgid "no parts"
+msgstr ""
+
+msgid "1 part"
+msgstr ""
+
+msgid "%s parts"
+msgstr ""
+
+msgid ""
+"%s (%s)   #%s\n"
+"\n"
+" Created: %s\n"
+" Episode: %s\n"
+"%s%s%s"
+msgstr ""
+
+msgid " Health issue: %s\n"
+msgstr ""
+
+msgid " External reference: %s\n"
+msgstr ""
+
+msgid "A: Sign"
+msgstr ""
+
+msgid "B: Cluster of signs"
+msgstr ""
+
+msgid "C: Syndromic diagnosis"
+msgstr ""
+
+msgid "D: Scientific diagnosis"
+msgstr "D: Videnskabelig diagnose"
+
+msgid "<%s>: unknown diagnostic certainty classification"
+msgstr ""
+
+msgid "bilateral"
+msgstr ""
+
+msgid "left"
+msgstr ""
+
+msgid "right"
+msgstr ""
+
+msgid "Clinical data generated during encounters under this health issue:"
+msgstr ""
+
+msgid "Health Issue %s%s%s%s   [#%s]"
+msgstr ""
+
+msgid " ***** CONFIDENTIAL *****"
+msgstr ""
+
+msgid " contributed to death of patient"
+msgstr " bidrog til patientens død"
+
+msgid " Created during encounter: %s (%s - %s)   [#%s]"
+msgstr " Oprettet under konsultation: %s (%s - %s) [#%s]"
+
+msgid " Noted at age: %s"
+msgstr " Bemærket ved alderen: %s"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "not clinically relevant"
+msgstr "ikke klinisk relevant"
+
+msgid "clinically relevant"
+msgstr "klinisk relevant"
+
+msgid "Synopsis"
+msgstr ""
+
+msgid "Error retrieving episodes for this health issue."
+msgstr ""
+
+msgid "There are no episodes for this health issue."
+msgstr ""
+
+msgid "Episodes: %s (most recent: %s%s%s)"
+msgstr ""
+
+msgid "ongoing"
+msgstr ""
+
+msgid "closed"
+msgstr "lukket"
+
+msgid "No encounters found for this health issue."
+msgstr ""
+
+msgid "Encounters: %s (%s - %s):"
+msgstr ""
+
+msgid " Most recent: %s - %s"
+msgstr ""
+
+msgid "Active medications: %s"
+msgstr ""
+
+msgid "Hospitalizations: %s"
+msgstr ""
+
+msgid "Procedures performed: %s"
+msgstr ""
+
+msgid "Family History: %s"
+msgstr ""
+
+msgid "Documents: %s"
+msgstr "Dokumenter: %s"
+
+msgid "Measurements and Results: %s"
+msgstr "Målinger og resultater: %s"
+
+msgid "Vaccinations:"
+msgstr "Vaccinationer:"
+
+msgid "Unattributed episodes"
+msgstr ""
+
+msgid "Clinical data generated during encounters within this episode:"
+msgstr ""
+
+msgid "Episode %s%s%s   [#%s]"
+msgstr ""
+
+msgid "Created during encounter: %s (%s - %s)   [#%s]"
+msgstr ""
+
+msgid " Duration: %s (%s - %s)"
+msgstr ""
+
+msgid "finished"
+msgstr ""
+
+msgid "Health issue"
+msgstr ""
+
+msgid "none associated"
+msgstr ""
+
+msgid "Error retrieving encounters for this health issue."
+msgstr ""
+
+msgid "Last worked on: %s\n"
+msgstr ""
+
+msgid "%s encounter(s) (%s - %s):"
+msgstr ""
+
+msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
+msgstr ""
+
+msgid "RFE"
+msgstr ""
+
+msgid "AOE"
+msgstr ""
+
+msgid " ... %s skipped ..."
+msgstr ""
+
+msgid "Progress notes in most recent encounter:"
+msgstr ""
+
+msgid "Measurements and Results:"
+msgstr "Målinger og resultater:"
+
+msgid "Problem"
+msgstr "Problem"
+
+msgid "  your time: %s - %s  (@%s = %s%s)\n"
+msgstr ""
+
+msgid "daylight savings time in effect"
+msgstr ""
+
+msgid "today"
+msgstr ""
+
+msgid ""
+"\n"
+"Episode %s%s%s%s:"
+msgstr ""
+
+msgid "Documents:"
+msgstr "Dokumenter:"
+
+msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+msgid " (ongoing)"
+msgstr ""
+
+msgid "Episode"
+msgstr ""
+
+msgid "error with placeholder [%s]"
+msgstr ""
+
+msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
+msgstr ""
+
+msgid "PDF output file cannot be opened."
+msgstr ""
+
+msgid "Error running xelatex. Cannot turn Xe(La)TeX template into PDF."
+msgstr ""
+
+msgid "Error running gnuplot. Cannot plot data."
+msgstr ""
+
+msgid "Error running pdftk. Cannot extract fields from PDF form template."
+msgstr ""
+
+msgid "Error running pdftk. Cannot fill in PDF form template."
+msgstr ""
+
+msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid "Textual keyword expansion"
+msgstr ""
+
+msgid "Binary keyword expansion"
+msgstr ""
+
+msgid "private"
+msgstr ""
+
+msgid "public"
+msgstr ""
+
+msgid "encrypted"
+msgstr ""
+
+msgid " Keyword: %s\n"
+msgstr ""
+
+msgid " Owner: %s\n"
+msgstr ""
+
+msgid "Medication history"
+msgstr ""
+
+msgid "copy"
+msgstr ""
+
+msgid "data"
+msgstr ""
+
+msgid "long-term"
+msgstr ""
+
+msgid "short-term"
+msgstr ""
+
+msgid "?short-term"
+msgstr ""
+
+msgid "?ongoing"
+msgstr ""
+
+msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
+msgstr ""
+
+msgid "active, needs check"
+msgstr ""
+
+msgid "assumed active"
+msgstr ""
+
+msgid "approved"
+msgstr ""
+
+msgid "unapproved"
+msgstr ""
+
+msgid "definite"
+msgstr ""
+
+msgid "suspected"
+msgstr ""
+
+msgid "Substance: %s   [#%s]\n"
+msgstr ""
+
+msgid "Preparation: %s\n"
+msgstr ""
+
+msgid "Amount per dose: %s %s"
+msgstr ""
+
+msgid " ATC (substance): %s\n"
+msgstr ""
+
+msgid " Brand name: %%s   [#%s]\n"
+msgstr ""
+
+msgid " ATC (brand): %s\n"
+msgstr ""
+
+msgid "  Other component: %s\n"
+msgstr ""
+
+msgid " Regimen: %s\n"
+msgstr ""
+
+msgid " Started %s%s%s\n"
+msgstr ""
+
+msgid " (long-term)"
+msgstr ""
+
+msgid " (short-term)"
+msgstr ""
+
+msgid " Discontinued %s\n"
+msgstr ""
+
+msgid " Reason: %s\n"
+msgstr ""
+
+msgid " Aim: %s\n"
+msgstr ""
+
+msgid " Episode: %s\n"
+msgstr ""
+
+msgid " Advice: %s\n"
+msgstr ""
+
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+msgid "Additional notes"
+msgstr ""
+
+msgid "Substance"
+msgstr ""
+
+msgid "Aim"
+msgstr ""
+
+msgid "Brand"
+msgstr ""
+
+msgid "Strength"
+msgstr ""
+
+msgid "Medication list"
+msgstr ""
+
+msgid "ordered by brand"
+msgstr ""
+
+msgid "Regimen / Advice"
+msgstr ""
+
+msgid "Drug"
+msgstr ""
+
+msgid "units"
+msgstr ""
+
+msgid "Unit: %s (%s)"
+msgstr ""
+
+msgid "Organization: %s (%s)"
+msgstr ""
+
+msgid "inhouse lab"
+msgstr ""
+
+msgid "auto-generated"
+msgstr ""
+
+msgid "Test panel \"%s\"          [#%s]\n"
+msgstr ""
+
+msgid "Included test types:\n"
+msgstr ""
+
+msgid "Test type \"%s\" (%s)          [#%s]\n"
+msgstr ""
+
+msgid " Conversion unit: %s\n"
+msgstr ""
+
+msgid "Lab details:\n"
+msgstr ""
+
+msgid " Name: %s\n"
+msgstr ""
+
+msgid " Contact: %s\n"
+msgstr ""
+
+msgid "Aggregated under meta type:\n"
+msgstr ""
+
+msgid " Name: %s - %s             [#%s]\n"
+msgstr ""
+
+msgid "Listed in test panels:\n"
+msgstr ""
+
+msgid " Panel \"%s\"             [#%s]\n"
+msgstr ""
+
+msgid "Most recent result:\n"
+msgstr ""
+
+msgid " %s: %s%s%s"
+msgstr ""
+
+msgid "Result from %s             \n"
+msgstr ""
+
+msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
+msgstr ""
+
+msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+msgstr ""
+
+msgid "Source: %s\n"
+msgstr ""
+
+msgid "%.1f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.0f %% of the normal lower limit"
+msgstr ""
+
+msgid "%.1f times the normal upper limit"
+msgstr ""
+
+msgid "%.0f times the normal upper limit"
+msgstr ""
+
+msgid "%.1f %% of the target lower limit"
+msgstr ""
+
+msgid "%.0f %% of the target lower limit"
+msgstr ""
+
+msgid "%.1f times the target upper limit"
+msgstr ""
+
+msgid "%.0f times the target upper limit"
+msgstr ""
+
+msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgstr ""
+
+msgid "Reference group: %s\n"
+msgstr ""
+
+msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
+msgstr ""
+
+msgid ""
+"\n"
+" Doc: "
+msgstr ""
+
+msgid "Doc: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Lab: "
+msgstr ""
+
+msgid "Lab: %s\n"
+msgstr ""
+
+msgid "Episode: %s\n"
+msgstr ""
+
+msgid "Issue: %s\n"
+msgstr ""
+
+msgid "Material: %s\n"
+msgstr ""
+
+msgid "Details: %s\n"
+msgstr ""
+
+msgid "not yet"
+msgstr ""
+
+msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
+msgstr ""
+
+msgid "Responsible clinician: %s\n"
+msgstr ""
+
+msgid "you"
+msgstr ""
+
+msgid "Last reviewer: %(reviewer)s\n"
+msgstr ""
+
+msgid " Technically abnormal: %(abnormal)s\n"
+msgstr ""
+
+msgid "yes"
+msgstr ""
+
+msgid "no"
+msgstr ""
+
+msgid " Clinically relevant: %(relevant)s\n"
+msgstr ""
+
+msgid "Test type details:\n"
+msgstr ""
+
+msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Type comment:"
+msgstr ""
+
+msgid "Type comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Group comment: "
+msgstr ""
+
+msgid "Group comment: %s\n"
+msgstr ""
+
+msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+msgid "unknown test results output format [%s]"
+msgstr ""
+
+msgid "No test results to format."
+msgstr ""
+
+msgid "Test results"
+msgstr ""
+
+msgid "GNUmed test results export for Gnuplot plotting"
+msgstr ""
+
+msgid ""
+"blank line inserted to allow for discontinued line drawing for same-day "
+"values"
+msgstr ""
+
+msgid "The lab request already exists but belongs to a different patient."
+msgstr ""
+
+msgid "Verify which patient this lab request really belongs to."
+msgstr "Kontroller hvilken patient denne laboratorie forespørgsel tilhører"
+
+msgid ""
+"lab [%s], request ID [%s], expected link with patient [%s], currently linked "
+"to patient [%s]"
+msgstr ""
+
+msgid "need lab request when inserting lab result"
+msgstr ""
+
+msgid "error retrieving unreviewed lab results"
+msgstr ""
+
+msgid "external patient source (name, gender, date of birth)"
+msgstr ""
+
+msgid "<name> cannot be empty"
+msgstr ""
+
+msgid "<issuer> cannot be empty"
+msgstr ""
+
+msgid "<channel> cannot be empty"
+msgstr ""
+
+msgid "<number> cannot be empty"
+msgstr ""
+
+msgid "<street> cannot be empty"
+msgstr ""
+
+msgid "<urb> cannot be empty"
+msgstr ""
+
+msgid "<zip> cannot be empty"
+msgstr ""
+
+msgid "<country> cannot be empty"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
+msgstr ""
+
+msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
+msgid "Cannot merge active patient into another patient."
+msgstr ""
+
+msgid "assimilated"
+msgstr ""
+
+msgid "merged"
+msgstr ""
+
+msgid "invalid age: DOB in the future"
+msgstr ""
+
+msgid "invalid age: DOB after death"
+msgstr ""
+
+msgid "male"
+msgstr "mand"
+
+msgid "female"
+msgstr "kvinde"
+
+msgid "Mr"
+msgstr "Hr"
+
+msgid "Mrs"
+msgstr ""
+
+msgid "internal patient ID"
+msgstr "Internt patient ID"
+
+msgid "date of birth"
+msgstr "Fødselsdag"
+
+msgid "external patient ID"
+msgstr "Ekstern patient ID"
+
+msgid "first name"
+msgstr "fornavn"
+
+msgid "name, gender, date of birth"
+msgstr "Navn, køn, fødselsdag"
+
+msgid "last name"
+msgstr "efternavn"
+
+msgid "any name part"
+msgstr ""
+
+msgid "name: first-last"
+msgstr ""
+
+msgid "name: last-first"
+msgstr "Navn: efternavn-fornavn"
+
+msgid "name"
+msgstr "navn"
+
+msgid "names: first-last, date of birth"
+msgstr ""
+
+msgid "names: last-first, date of birth"
+msgstr ""
+
+msgid "names: last-first, dob"
+msgstr ""
+
+msgid "name, date of birth"
+msgstr "Navn, fødselsdag"
+
+msgid "names: first last"
+msgstr "Navne: fornavn efternavn"
+
+msgid "names: last, first"
+msgstr ""
+
+msgid "name: last, first"
+msgstr ""
+
+msgid "date of birth/death"
+msgstr ""
+
+msgid "full name"
+msgstr "fulde navn"
+
+msgid "message"
+msgstr ""
+
+msgid "virtual message"
+msgstr ""
+
+msgid "everyone"
+msgstr ""
+
+msgid "Patient #%s"
+msgstr ""
+
+msgid "Due: %s (%s ago)\n"
+msgstr ""
+
+msgid "Due: %s (in %s)\n"
+msgstr ""
+
+msgid "Expired: %s\n"
+msgstr ""
+
+msgid "Expires: %s\n"
+msgstr ""
+
+msgid "Active clinical hint"
+msgstr ""
+
+msgid "Inactive clinical hint"
+msgstr ""
+
+msgid "Language: %s\n"
+msgstr ""
+
+msgid ""
+"Cannot add GNUmed user.\n"
+"\n"
+"The database account [%s] is already listed as a\n"
+"GNUmed user. There can only be one GNUmed user\n"
+"for each database account.\n"
+msgstr ""
+
+msgid ""
+"Cannot delete GNUmed staff member because the\n"
+"database still contains data linked to it.\n"
+"\n"
+"The account was deactivated instead."
+msgstr ""
+
+msgid "vaccine"
+msgstr ""
+
+msgid "unknown vaccinations output format [%s]"
+msgstr ""
+
+msgid "No vaccinations to format."
+msgstr ""
+
+msgid "Latest vaccinations"
+msgstr ""
+
+msgid "per target condition"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Last given"
+msgstr ""
+
+msgid "Vaccine"
+msgstr ""
+
+msgid "Lot \\#"
+msgstr ""
+
+msgid "SoaP"
+msgstr ""
+
+msgid ""
+"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
+"vaccination was administered in the practice or copied from trustworthy "
+"records."
+msgstr ""
+
+msgid ""
+"Total number of vaccinations recorded for the corresponding target condition."
+msgstr ""
+
+msgid "Injection site"
+msgstr ""
+
+msgid "Reaction"
+msgstr ""
+
+msgid "Comment"
+msgstr ""
+
+msgid "internal error, check log"
+msgstr "Intern fejl, check log filen"
+
+msgid "consistency error, check log"
+msgstr ""
+
+msgid "ERROR: list of vaccinations not supplied"
+msgstr ""
+
+msgid "empty list of vaccinations"
+msgstr ""
+
+msgid "vacc -> ind error: %s"
+msgstr ""
+
+msgid "unknown gender"
+msgstr ""
+
+msgid "child"
+msgstr "barn"
+
+msgid "boy"
+msgstr "Dreng"
+
+msgid "girl"
+msgstr "Pige"
+
+msgid "animal"
+msgstr "Dyr"
+
+msgid "final"
+msgstr ""
+
+msgid "partial"
+msgstr "delvis"
+
+msgid "preliminary"
+msgstr ""
+
+msgid "already reported"
+msgstr ""
+
+msgid "corrected result"
+msgstr "Korrekt resultat"
+
+msgid "missing, reported later"
+msgstr ""
+
+msgid "gm_ctl_client: starting slave GNUmed client"
+msgstr ""
+
+msgid ""
+"A GNUmed slave client has been started because\n"
+"no running client could be found. You will now\n"
+"have to enter your user name and password into\n"
+"the login dialog as usual.\n"
+"\n"
+"Switch to the GNUmed login dialog now and proceed\n"
+"with the login procedure. Once GNUmed has started\n"
+"up successfully switch back to this window.\n"
+msgstr ""
+
+msgid "Connect to GNUmed"
+msgstr ""
+
+msgid "Proceed and try to connect to the newly started GNUmed client."
+msgstr ""
+
+msgid "Abort"
+msgstr ""
+
+msgid "Abort and do NOT connect to GNUmed."
+msgstr ""
+
+msgid "no hook specified, please report bug"
+msgstr ""
+
+msgid "Allergy"
+msgstr ""
+
+msgid "Vaccination"
+msgstr ""
+
+msgid "Lab result"
+msgstr ""
+
+msgid "%sAllergy: %s, %s (noted %s)\n"
+msgstr ""
+
+msgid "Lab"
+msgstr ""
+
+msgid ""
+"Error retrieving encounters for episode\n"
+"%s"
+msgstr ""
+
+msgid "There are no encounters for this episode."
+msgstr ""
+
+msgid ""
+"%sEpisode \"%s\" [%s]\n"
+"%sEncounters: %s (%s - %s)\n"
+"%sLast worked on: %s\n"
+msgstr ""
+
+msgid "Subjective"
+msgstr ""
+
+msgid "Objective"
+msgstr ""
+
+msgid "Assessment"
+msgstr ""
+
+msgid "Plan"
+msgstr ""
+
+msgid "Administrative"
+msgstr ""
+
+msgid "Encounter"
+msgstr ""
+
+msgid ""
+"An error occurred while retrieving a text\n"
+"dump of the EMR for the active patient.\n"
+"\n"
+"Please check the log file for details."
+msgstr ""
+
+msgid ""
+"An error occurred while Demographic record export\n"
+"Please check the log file for details."
+msgstr ""
+
+msgid "EMR Journal sorted by last modification time\n"
+msgstr ""
+
+msgid "Patient: %s (%s), No: %s\n"
+msgstr ""
+
+msgid ""
+"Born   : %s, age: %s\n"
+"\n"
+msgstr ""
+
+msgid "By"
+msgstr ""
+
+msgid "Last modified"
+msgstr ""
+
+msgid "Entry"
+msgstr ""
+
+msgid "When"
+msgstr ""
+
+msgid "Exported: %s\n"
+msgstr ""
+
+msgid "emr-journal"
+msgstr ""
+
+msgid "Chronological EMR Journal\n"
+msgstr ""
+
+msgid "Doc"
+msgstr ""
+
+msgid "Narrative"
+msgstr ""
+
+msgid "Health issues"
+msgstr ""
+
+msgid "Episodes"
+msgstr ""
+
+msgid "Encounters"
+msgstr ""
+
+msgid "Hospital stays"
+msgstr ""
+
+msgid "Procedures"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+msgid "Substances"
+msgstr ""
+
+msgid "Life events"
+msgstr ""
+
+msgid "Birth"
+msgstr ""
+
+msgid "Live events"
+msgstr ""
+
+msgid "Date of birth unknown"
+msgstr ""
+
+msgid "Start of Care"
+msgstr ""
+
+msgid "The earliest recorded event of care in this praxis."
+msgstr ""
+
+msgid "Death"
+msgstr ""
+
+msgid ""
+"Help requested\n"
+"--------------"
+msgstr ""
+
+msgid "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
+msgstr ""
+
+msgid ""
+"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
+"%s"
+msgstr ""
+
+msgid "unknown test status [%s]"
+msgstr ""
+
+msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
+msgstr ""
+
+msgid "** DOB unknown **"
+msgstr ""
+
+msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "interval_format_tag::weeks::w"
+msgstr ""
+
+msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "y::year_abbreviation"
+msgstr ""
+
+msgid "m::month_abbreviation"
+msgstr ""
+
+msgid "mo::month_only_abbreviation"
+msgstr ""
+
+msgid "w::week_abbreviation"
+msgstr ""
+
+msgid "d::day_abbreviation"
+msgstr ""
+
+msgid "h::hour_abbreviation"
+msgstr ""
+
+msgid "s::second_abbreviation"
+msgstr ""
+
+msgid "yYaA_keys_year"
+msgstr ""
+
+msgid "mM_keys_month"
+msgstr ""
+
+msgid "wW_keys_week"
+msgstr ""
+
+msgid "dD_keys_day"
+msgstr ""
+
+msgid "hH_keys_hour"
+msgstr ""
+
+msgid "ndmy (single character date triggers)"
+msgstr ""
+
+msgid "right now (%s, %s)"
+msgstr ""
+
+msgid "today (%s)"
+msgstr ""
+
+msgid "tomorrow (%s)"
+msgstr ""
+
+msgid "yesterday (%s)"
+msgstr ""
+
+msgid "%s-%s-%s: a %s last month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s this month"
+msgstr ""
+
+msgid "%s-%s-%s: a %s next month"
+msgstr ""
+
+msgid "%d. of %s (this month): a %s"
+msgstr ""
+
+msgid "%d. of %s (next month): a %s"
+msgstr ""
+
+msgid "%d. of %s (last month): a %s"
+msgstr ""
+
+msgid "in %d day(s): %s"
+msgstr ""
+
+msgid "%d day(s) ago: %s"
+msgstr ""
+
+msgid "in %d week(s): %s"
+msgstr ""
+
+msgid "%d week(s) ago: %s"
+msgstr ""
+
+msgid "%s (%s this year)"
+msgstr ""
+
+msgid "%s (%s next year)"
+msgstr ""
+
+msgid "%s (%s last year)"
+msgstr ""
+
+msgid "%s this week (%s of %s)"
+msgstr ""
+
+msgid "%s next week (%s of %s)"
+msgstr ""
+
+msgid "%s last week (%s of %s)"
+msgstr ""
+
+msgid "hdwmy (single character date offset triggers)"
+msgstr ""
+
+msgid "in %d hour(s): %s"
+msgstr ""
+
+msgid "%d hour(s) ago: %s"
+msgstr ""
+
+msgid "in %d month(s): %s"
+msgstr ""
+
+msgid "%d month(s) ago: %s"
+msgstr ""
+
+msgid "in %d year(s): %s"
+msgstr ""
+
+msgid "%d year(s) ago: %s"
+msgstr ""
+
+msgid "in %d hour(s) - %s"
+msgstr ""
+
+msgid "%d hour(s) ago - %s"
+msgstr ""
+
+msgid "in %d day(s) - %s"
+msgstr ""
+
+msgid "%d day(s) ago - %s"
+msgstr ""
+
+msgid "in %d week(s) - %s"
+msgstr ""
+
+msgid "%d week(s) ago - %s)"
+msgstr ""
+
+msgid "in %d month(s) - %s"
+msgstr ""
+
+msgid "%d month(s) ago - %s"
+msgstr ""
+
+msgid "in %d year(s) - %s"
+msgstr ""
+
+msgid "%d year(s) ago - %s"
+msgstr ""
+
+msgid "%d. of %s (this month) - a %s"
+msgstr ""
+
+msgid "%d. of %s (next month) - a %s"
+msgstr ""
+
+msgid "%d. of %s (last month) - a %s"
+msgstr ""
+
+msgid "No product information available."
+msgstr ""
+
+msgid "Script must not be a link: [%s]."
+msgstr ""
+
+msgid "Script must be readable by the calling user: [%s]."
+msgstr ""
+
+msgid ""
+"Script must be readable by the calling user only (permissions \"0600\"): "
+"[%s]."
+msgstr ""
+
+msgid "Error running hook [%s] script."
+msgstr ""
+
+msgid "Translate this or i18n into <en_EN> will not work properly !"
+msgstr ""
+
+msgid "[%s] is not a readable file"
+msgstr ""
+
+msgid ""
+"Unable to display the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+"Your system does not seem to have a (working)\n"
+"viewer registered for the file type\n"
+" [%s]"
+msgstr ""
+
+msgid ""
+"Cannot retrieve version information from:\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"Cannot read version information from:\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"There is no version information available from:\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"A new version of GNUmed is available.\n"
+"\n"
+msgstr ""
+
+msgid " Your current version: \"%s\"\n"
+msgstr ""
+
+msgid " New version: \"%s\""
+msgstr ""
+
+msgid " - bug fixes only\n"
+msgstr ""
+
+msgid " - database fixups may be needed\n"
+msgstr ""
+
+msgid " - bug fixes and new features\n"
+msgstr ""
+
+msgid " - database upgrade required\n"
+msgstr ""
+
+msgid ""
+"Note, however, that this version may not yet\n"
+"be available *pre-packaged* for your system."
+msgstr ""
+
+msgid "Details are found on <http://wiki.gnumed.de>.\n"
+msgstr ""
+
+msgid ""
+"Version information loaded from:\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid ""
+"Cannot connect to configuration database with:\n"
+"\n"
+"[%s]"
+msgstr ""
+
+msgid ""
+"Cannot connect to database with:\n"
+"\n"
+"[%s]"
+msgstr ""
+
+msgid "SQL: %s"
+msgstr ""
+
+msgid "cannot connect to service [%s]"
+msgstr ""
+
+msgid "Cannot connect to database without login information!"
+msgstr ""
+
+msgid "The wxPython GUI framework hasn't been initialized yet!"
+msgstr ""
+
+msgid "Can't connect to database without login information!"
+msgstr ""
+
+msgid " option [%s]: %s"
+msgstr ""
+
+msgid "  risk: %s"
+msgstr ""
+
+msgid "Error running GnuPG. Cannot decrypt data."
+msgstr ""
+
+msgid "1 Byte"
+msgstr ""
+
+msgid "%s Bytes"
+msgstr ""
 
 msgid "Jan"
 msgstr ""
@@ -954,1843 +2791,6 @@ msgid "Error"
 msgstr ""
 
 msgid "Question"
-msgstr ""
-
-msgid "programmer forgot to specify error message"
-msgstr ""
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-
-msgid "generic error message"
-msgstr ""
-
-msgid "programmer forgot to specify info message"
-msgstr ""
-
-msgid "generic info message"
-msgstr ""
-
-msgid "programmer forgot to specify warning"
-msgstr ""
-
-msgid "generic warning message"
-msgstr "generisk advarselsbesked"
-
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Are you sure you have got a local database installed ?\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-
-msgid "Connecting to backend"
-msgstr ""
-
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry another backend / user / password combination !\n"
-msgstr ""
-
-msgid "unknown allergy state"
-msgstr ""
-
-msgid "no known allergies"
-msgstr "Ingen kendte allergier"
-
-msgid "*does* have allergies"
-msgstr ""
-
-msgid "ERROR: unknown allergy state [%s]"
-msgstr ""
-
-msgid "Cannot run [arriba] !"
-msgstr ""
-
-msgid "No [arriba] result found in [%s]."
-msgstr ""
-
-msgid "Active billable item"
-msgstr ""
-
-msgid "Inactive billable item"
-msgstr ""
-
-msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
-msgstr ""
-
-msgid "Open item"
-msgstr ""
-
-msgid "Billed item"
-msgstr ""
-
-msgid " Details: %s\n"
-msgstr ""
-
-msgid " %s of units: %s\n"
-msgstr ""
-
-msgid ""
-" Amount per unit: %(curr)s%(val_p_unit)s (%(cat_curr)s%(cat_val)s per "
-"catalog)\n"
-msgstr ""
-
-msgid " Amount multiplier: %s\n"
-msgstr ""
-
-msgid " VAT would be: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
-msgstr ""
-
-msgid " Charge date: %s"
-msgstr ""
-
-msgid ""
-"\n"
-" On bill: %s"
-msgstr ""
-
-msgid "Open bill"
-msgstr ""
-
-msgid "Closed bill"
-msgstr ""
-
-msgid " Invoice ID: %s\n"
-msgstr ""
-
-msgid " Closed: %s\n"
-msgstr ""
-
-msgid " Comment: %s\n"
-msgstr ""
-
-msgid " Bill value: %(curr)s%(val)s\n"
-msgstr ""
-
-msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
-msgstr ""
-
-msgid " Value + VAT: %(curr)s%(val)s\n"
-msgstr ""
-
-msgid " VAT: does not apply\n"
-msgstr ""
-
-msgid " Items billed: 0\n"
-msgstr ""
-
-msgid " Items billed: %s\n"
-msgstr ""
-
-msgid " Invoice: %s\n"
-msgstr ""
-
-msgid "not available"
-msgstr ""
-
-msgid " Patient: #%s\n"
-msgstr ""
-
-msgid " Receiver: #%s\n"
-msgstr ""
-
-msgid "dummy-no-need-to-translate-but-make-epydoc-happy"
-msgstr ""
-
-msgid "soap_S"
-msgstr ""
-
-msgid "soap_O"
-msgstr ""
-
-msgid "soap_A"
-msgstr ""
-
-msgid "soap_P"
-msgstr ""
-
-msgid "soap_Subjective"
-msgstr ""
-
-msgid "soap_Objective"
-msgstr ""
-
-msgid "soap_Assessment"
-msgstr ""
-
-msgid "soap_Plan"
-msgstr ""
-
-msgid "soap_Unspecified"
-msgstr ""
-
-msgid "soap_Administrative"
-msgstr ""
-
-msgid ""
-"%s: %s by %.8s (v%s)\n"
-"%s"
-msgstr ""
-
-msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
-msgstr ""
-
-msgid "Algorithm:"
-msgstr ""
-
-msgid "Source:"
-msgstr ""
-
-msgid "Variables:"
-msgstr ""
-
-msgid "Intermediate results:"
-msgstr ""
-
-msgid "unknown MDRD (4 vars/IDMS)"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): no patient"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): no DOB (no age)"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): neither male nor female"
-msgstr ""
-
-msgid ""
-"MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): creatinine value not numeric"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): unknown serum creatinine unit (%s)"
-msgstr ""
-
-msgid "MDRD (4 vars/IDMS): formula does not apply at age [%s] (17 < age < 85)"
-msgstr ""
-
-msgid ""
-"ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
-msgstr ""
-
-msgid "NOT corrected for non-average body surface (average = 1.73m²)"
-msgstr ""
-
-msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
-msgstr ""
-
-msgid "unknown eGFR (Schwartz)"
-msgstr ""
-
-msgid "eGFR (Schwartz): no patient"
-msgstr ""
-
-msgid "eGFR (Schwartz): DOB needed for age"
-msgstr ""
-
-msgid ""
-"eGFR (Schwartz): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
-msgstr ""
-
-msgid "eGFR (Schwartz): creatinine value not numeric"
-msgstr ""
-
-msgid "eGFR (Schwartz): unknown serum creatinine unit (%s)"
-msgstr ""
-
-msgid "eGFR (Schwartz): formula does not apply at age [%s] (age must be <18)"
-msgstr ""
-
-msgid ""
-"eGFR (Schwartz): not known whether pre-term birth, applying full-term formula"
-msgstr ""
-
-msgid "eGFR (Schwartz): height not found"
-msgstr ""
-
-msgid "eGFR (Schwartz): height not numeric"
-msgstr ""
-
-msgid "eGFR (Schwartz): height not in m, cm, or mm"
-msgstr ""
-
-msgid "eGFR (Schwartz): %.1f %s (%s)"
-msgstr ""
-
-msgid "unknown body surface area"
-msgstr ""
-
-msgid "Body Surface Area: no patient"
-msgstr ""
-
-msgid "Body Surface Area: height not found"
-msgstr ""
-
-msgid "Body Surface Area: height not numeric"
-msgstr ""
-
-msgid "Body Surface Area: height not in m, cm, or mm"
-msgstr ""
-
-msgid "Body Surface Area: weight not found"
-msgstr ""
-
-msgid "Body Surface Area: weight not numeric"
-msgstr ""
-
-msgid "Body Surface Area: weight not in kg or g"
-msgstr ""
-
-msgid "BSA (DuBois): %.2f %s"
-msgstr ""
-
-msgid "modified entry"
-msgstr ""
-
-msgid "original entry"
-msgstr ""
-
-msgid "%s: encounter (%s)"
-msgstr "%s: tilfælde (%s)"
-
-msgid "health issue: %s"
-msgstr "Helbredsproblem %s"
-
-msgid "episode     : %s"
-msgstr "hændelse     : %s"
-
-msgid ""
-"Medical problems: %(problems)s\n"
-"Total encounters: %(encounters)s\n"
-"Total EMR entries: %(items)s\n"
-"Active medications: %(active_drugs)s\n"
-"Documents: %(documents)s\n"
-"Test results: %(results)s\n"
-"Hospitalizations: %(stays)s\n"
-"Procedures: %(procedures)s\n"
-"Vaccinations: %(vaccinations)s"
-msgstr ""
-
-msgid " %s known problems, clinically relevant thereof:\n"
-msgstr ""
-
-msgid " %s known problems\n"
-msgstr " %s kendte problemer\n"
-
-msgid "active"
-msgstr "aktiv"
-
-msgid "inactive"
-msgstr "inaktiv"
-
-msgid " %s encounters from %s to %s\n"
-msgstr " %s tilfælde fra %s til %s\n"
-
-msgid " %s active medications\n"
-msgstr ""
-
-msgid " %s documents\n"
-msgstr ""
-
-msgid " %s test results\n"
-msgstr ""
-
-msgid " %s hospitalizations"
-msgstr ""
-
-msgid ""
-", most recently:\n"
-"%s\n"
-msgstr ""
-
-msgid " %s performed procedures"
-msgstr ""
-
-msgid "Allergies and Intolerances\n"
-msgstr ""
-
-msgid " (last confirmed %s)"
-msgstr " (sidst bekræftet %s)"
-
-msgid "unknown reaction"
-msgstr "Ukendt reaktion"
-
-msgid "Family History"
-msgstr "Familiehistorik"
-
-msgid "Occupations"
-msgstr ""
-
-msgid "Vaccinations"
-msgstr "Vaccinationer"
-
-msgid "%s ago"
-msgstr ""
-
-msgid "Allergies/Intolerances"
-msgstr ""
-
-msgid "Allergy detail: %s"
-msgstr ""
-
-msgid ""
-"%s\n"
-"\n"
-"This patient's chart was worked on only recently:\n"
-"\n"
-" %s  %s - %s  (%s)\n"
-"\n"
-" Request: %s\n"
-" Outcome: %s\n"
-"\n"
-"Do you want to continue that consultation\n"
-"or do you want to start a new one ?\n"
-msgstr ""
-
-msgid "none given"
-msgstr ""
-
-msgid "Starting patient encounter"
-msgstr ""
-
-msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
-msgstr ""
-
-msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
-"s, %(code_country)s"
-msgstr ""
-
-msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
-msgstr ""
-
-msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
-msgstr ""
-
-msgid ""
-"Address (%(type)s) [#%(pk_adr)s]\n"
-" Street: %(street)s%(notes_street)s\n"
-" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
-" Country: %(l10n_country)s, %(code_country)s"
-msgstr ""
-
-msgid ""
-"Address [#%(pk_adr)s]\n"
-" Street: %(street)s%(notes_street)s\n"
-" Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
-" Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
-" Country: %(l10n_country)s, %(code_country)s"
-msgstr ""
-
-msgid "Battery:"
-msgstr "Batteri:"
-
-msgid "Device(%s):"
-msgstr "Enhed(%s):"
-
-msgid "Implanted:"
-msgstr ""
-
-msgid "Impedance:"
-msgstr ""
-
-msgid "Sensing:"
-msgstr ""
-
-msgid "Threshold"
-msgstr ""
-
-msgid "last check:"
-msgstr "sidste tjek:"
-
-msgid "%s document part                 [#%s]\n"
-msgstr ""
-
-msgid "Reviewed"
-msgstr ""
-
-msgid "Unreviewed"
-msgstr ""
-
-msgid " Part %s: %s %s(%s Bytes)\n"
-msgstr ""
-
-msgid " Filename: %s\n"
-msgstr ""
-
-msgid "no parts"
-msgstr ""
-
-msgid "1 part"
-msgstr ""
-
-msgid "%s parts"
-msgstr ""
-
-msgid ""
-"%s (%s)   #%s\n"
-"\n"
-" Created: %s\n"
-" Episode: %s\n"
-"%s%s%s"
-msgstr ""
-
-msgid " Health issue: %s\n"
-msgstr ""
-
-msgid " External reference: %s\n"
-msgstr ""
-
-msgid "A: Sign"
-msgstr ""
-
-msgid "B: Cluster of signs"
-msgstr ""
-
-msgid "C: Syndromic diagnosis"
-msgstr ""
-
-msgid "D: Scientific diagnosis"
-msgstr "D: Videnskabelig diagnose"
-
-msgid "<%s>: unknown diagnostic certainty classification"
-msgstr ""
-
-msgid "bilateral"
-msgstr ""
-
-msgid "left"
-msgstr ""
-
-msgid "right"
-msgstr ""
-
-msgid "Clinical data generated during encounters under this health issue:"
-msgstr ""
-
-msgid "Health Issue %s%s%s%s   [#%s]"
-msgstr ""
-
-msgid " ***** CONFIDENTIAL *****"
-msgstr ""
-
-msgid " contributed to death of patient"
-msgstr " bidrog til patientens død"
-
-msgid " Created during encounter: %s (%s - %s)   [#%s]"
-msgstr " Oprettet under konsultation: %s (%s - %s) [#%s]"
-
-msgid " Noted at age: %s"
-msgstr " Bemærket ved alderen: %s"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "not clinically relevant"
-msgstr "ikke klinisk relevant"
-
-msgid "clinically relevant"
-msgstr "klinisk relevant"
-
-msgid "Synopsis"
-msgstr ""
-
-msgid "Error retrieving episodes for this health issue."
-msgstr ""
-
-msgid "There are no episodes for this health issue."
-msgstr ""
-
-msgid "Episodes: %s (most recent: %s%s%s)"
-msgstr ""
-
-msgid "ongoing"
-msgstr ""
-
-msgid "closed"
-msgstr "lukket"
-
-msgid "No encounters found for this health issue."
-msgstr ""
-
-msgid "Encounters: %s (%s - %s):"
-msgstr ""
-
-msgid " Most recent: %s - %s"
-msgstr ""
-
-msgid "Active medications: %s"
-msgstr ""
-
-msgid "Hospitalizations: %s"
-msgstr ""
-
-msgid "Procedures performed: %s"
-msgstr ""
-
-msgid "Family History: %s"
-msgstr ""
-
-msgid "Documents: %s"
-msgstr "Dokumenter: %s"
-
-msgid "Measurements and Results: %s"
-msgstr "Målinger og resultater: %s"
-
-msgid "Vaccinations:"
-msgstr "Vaccinationer:"
-
-msgid "Unattributed episodes"
-msgstr ""
-
-msgid "Clinical data generated during encounters within this episode:"
-msgstr ""
-
-msgid "Episode %s%s%s   [#%s]"
-msgstr ""
-
-msgid "Created during encounter: %s (%s - %s)   [#%s]"
-msgstr ""
-
-msgid " Duration: %s (%s - %s)"
-msgstr ""
-
-msgid "finished"
-msgstr ""
-
-msgid "Health issue"
-msgstr ""
-
-msgid "none associated"
-msgstr ""
-
-msgid "Error retrieving encounters for this health issue."
-msgstr ""
-
-msgid "Last worked on: %s\n"
-msgstr ""
-
-msgid "%s encounter(s) (%s - %s):"
-msgstr ""
-
-msgid "1st and (up to 3) most recent (of %s) encounters (%s - %s):"
-msgstr ""
-
-msgid "RFE"
-msgstr ""
-
-msgid "AOE"
-msgstr ""
-
-msgid " ... %s skipped ..."
-msgstr ""
-
-msgid "Progress notes in most recent encounter:"
-msgstr ""
-
-msgid "Measurements and Results:"
-msgstr "Målinger og resultater:"
-
-msgid "Problem"
-msgstr "Problem"
-
-msgid "  your time: %s - %s  (@%s = %s%s)\n"
-msgstr ""
-
-msgid "daylight savings time in effect"
-msgstr ""
-
-msgid "today"
-msgstr ""
-
-msgid ""
-"\n"
-"Episode %s%s%s%s:"
-msgstr ""
-
-msgid "Documents:"
-msgstr "Dokumenter:"
-
-msgid "%s other episodes touched upon during this encounter:"
-msgstr ""
-
-msgid " (ongoing)"
-msgstr ""
-
-msgid "Episode"
-msgstr ""
-
-msgid "error with placeholder [%s]"
-msgstr ""
-
-msgid "Error running pdflatex. Cannot turn LaTeX template into PDF."
-msgstr ""
-
-msgid "Sandboxed PDF output file cannot be moved."
-msgstr ""
-
-msgid "PDF output file cannot be opened."
-msgstr ""
-
-msgid "Error running xelatex. Cannot turn Xe(La)TeX template into PDF."
-msgstr ""
-
-msgid "Error running gnuplot. Cannot plot data."
-msgstr ""
-
-msgid "Error running pdftk. Cannot extract fields from PDF form template."
-msgstr ""
-
-msgid "Error running pdftk. Cannot fill in PDF form template."
-msgstr ""
-
-msgid "Error running pdftk. Cannot flatten filled in PDF form."
-msgstr ""
-
-msgid "Textual keyword expansion"
-msgstr ""
-
-msgid "Binary keyword expansion"
-msgstr ""
-
-msgid "private"
-msgstr ""
-
-msgid "public"
-msgstr ""
-
-msgid "encrypted"
-msgstr ""
-
-msgid " Keyword: %s\n"
-msgstr ""
-
-msgid " Owner: %s\n"
-msgstr ""
-
-msgid "Medication history"
-msgstr ""
-
-msgid "copy"
-msgstr ""
-
-msgid "data"
-msgstr ""
-
-msgid "long-term"
-msgstr ""
-
-msgid "short-term"
-msgstr ""
-
-msgid "?short-term"
-msgstr ""
-
-msgid "?ongoing"
-msgstr ""
-
-msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr ""
-
-msgid "active, needs check"
-msgstr ""
-
-msgid "assumed active"
-msgstr ""
-
-msgid "approved"
-msgstr ""
-
-msgid "unapproved"
-msgstr ""
-
-msgid "definite"
-msgstr ""
-
-msgid "suspected"
-msgstr ""
-
-msgid "Substance: %s   [#%s]\n"
-msgstr ""
-
-msgid "Preparation: %s\n"
-msgstr ""
-
-msgid "Amount per dose: %s %s"
-msgstr ""
-
-msgid " ATC (substance): %s\n"
-msgstr ""
-
-msgid " Brand name: %%s   [#%s]\n"
-msgstr ""
-
-msgid " ATC (brand): %s\n"
-msgstr ""
-
-msgid "  Other component: %s\n"
-msgstr ""
-
-msgid " Regimen: %s\n"
-msgstr ""
-
-msgid " Started %s%s%s\n"
-msgstr ""
-
-msgid " (long-term)"
-msgstr ""
-
-msgid " (short-term)"
-msgstr ""
-
-msgid " Discontinued %s\n"
-msgstr ""
-
-msgid " Reason: %s\n"
-msgstr ""
-
-msgid " Aim: %s\n"
-msgstr ""
-
-msgid " Episode: %s\n"
-msgstr ""
-
-msgid " Advice: %s\n"
-msgstr ""
-
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-msgid "Additional notes"
-msgstr ""
-
-msgid "Substance"
-msgstr ""
-
-msgid "Aim"
-msgstr ""
-
-msgid "Brand"
-msgstr ""
-
-msgid "Strength"
-msgstr ""
-
-msgid "Medication list"
-msgstr ""
-
-msgid "ordered by brand"
-msgstr ""
-
-msgid "Regimen / Advice"
-msgstr ""
-
-msgid "Drug"
-msgstr ""
-
-msgid "units"
-msgstr ""
-
-msgid "Unit: %s (%s)"
-msgstr ""
-
-msgid "Organization: %s (%s)"
-msgstr ""
-
-msgid "inhouse lab"
-msgstr ""
-
-msgid "auto-generated"
-msgstr ""
-
-msgid "Test panel \"%s\"          [#%s]\n"
-msgstr ""
-
-msgid "Included test types:\n"
-msgstr ""
-
-msgid "Test type \"%s\" (%s)          [#%s]\n"
-msgstr ""
-
-msgid " Conversion unit: %s\n"
-msgstr ""
-
-msgid "Lab details:\n"
-msgstr ""
-
-msgid " Name: %s\n"
-msgstr ""
-
-msgid " Contact: %s\n"
-msgstr ""
-
-msgid "Aggregated under meta type:\n"
-msgstr ""
-
-msgid " Name: %s - %s             [#%s]\n"
-msgstr ""
-
-msgid "Listed in test panels:\n"
-msgstr ""
-
-msgid " Panel \"%s\"             [#%s]\n"
-msgstr ""
-
-msgid "Most recent result:\n"
-msgstr ""
-
-msgid " %s: %s%s%s"
-msgstr ""
-
-msgid "Result from %s             \n"
-msgstr ""
-
-msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
-
-msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
-
-msgid "Source: %s\n"
-msgstr ""
-
-msgid "%.1f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.0f %% of the normal lower limit"
-msgstr ""
-
-msgid "%.1f times the normal upper limit"
-msgstr ""
-
-msgid "%.0f times the normal upper limit"
-msgstr ""
-
-msgid "%.1f %% of the target lower limit"
-msgstr ""
-
-msgid "%.0f %% of the target lower limit"
-msgstr ""
-
-msgid "%.1f times the target upper limit"
-msgstr ""
-
-msgid "%.0f times the target upper limit"
-msgstr ""
-
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
-
-msgid "Reference group: %s\n"
-msgstr ""
-
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid "Episode: %s\n"
-msgstr ""
-
-msgid "Issue: %s\n"
-msgstr ""
-
-msgid "Material: %s\n"
-msgstr ""
-
-msgid "Details: %s\n"
-msgstr ""
-
-msgid "not yet"
-msgstr ""
-
-msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
-
-msgid "Responsible clinician: %s\n"
-msgstr ""
-
-msgid "you"
-msgstr ""
-
-msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
-
-msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
-
-msgid "yes"
-msgstr ""
-
-msgid "no"
-msgstr ""
-
-msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
-
-msgid "Test type details:\n"
-msgstr ""
-
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Type comment:"
-msgstr ""
-
-msgid "Type comment: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Group comment: "
-msgstr ""
-
-msgid "Group comment: %s\n"
-msgstr ""
-
-msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
-msgstr ""
-
-msgid "unknown test results output format [%s]"
-msgstr ""
-
-msgid "No test results to format."
-msgstr ""
-
-msgid "Test results"
-msgstr ""
-
-msgid "GNUmed test results export for Gnuplot plotting"
-msgstr ""
-
-msgid ""
-"blank line inserted to allow for discontinued line drawing for same-day "
-"values"
-msgstr ""
-
-msgid "The lab request already exists but belongs to a different patient."
-msgstr ""
-
-msgid "Verify which patient this lab request really belongs to."
-msgstr "Kontroller hvilken patient denne laboratorie forespørgsel tilhører"
-
-msgid ""
-"lab [%s], request ID [%s], expected link with patient [%s], currently linked "
-"to patient [%s]"
-msgstr ""
-
-msgid "need lab request when inserting lab result"
-msgstr ""
-
-msgid "error retrieving unreviewed lab results"
-msgstr ""
-
-msgid "external patient source (name, gender, date of birth)"
-msgstr ""
-
-msgid "<name> cannot be empty"
-msgstr ""
-
-msgid "<issuer> cannot be empty"
-msgstr ""
-
-msgid "<channel> cannot be empty"
-msgstr ""
-
-msgid "<number> cannot be empty"
-msgstr ""
-
-msgid "<street> cannot be empty"
-msgstr ""
-
-msgid "<urb> cannot be empty"
-msgstr ""
-
-msgid "<zip> cannot be empty"
-msgstr ""
-
-msgid "<country> cannot be empty"
-msgstr ""
-
-msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
-msgstr ""
-
-msgid "%(last)s,%(title)s %(first)s%(nick)s"
-msgstr ""
-
-msgid "Cannot merge active patient into another patient."
-msgstr ""
-
-msgid "assimilated"
-msgstr ""
-
-msgid "invalid age: DOB in the future"
-msgstr ""
-
-msgid "invalid age: DOB after death"
-msgstr ""
-
-msgid "male"
-msgstr "mand"
-
-msgid "female"
-msgstr "kvinde"
-
-msgid "Mr"
-msgstr "Hr"
-
-msgid "Mrs"
-msgstr ""
-
-msgid "internal patient ID"
-msgstr "Internt patient ID"
-
-msgid "date of birth"
-msgstr "Fødselsdag"
-
-msgid "external patient ID"
-msgstr "Ekstern patient ID"
-
-msgid "first name"
-msgstr "fornavn"
-
-msgid "name, gender, date of birth"
-msgstr "Navn, køn, fødselsdag"
-
-msgid "last name"
-msgstr "efternavn"
-
-msgid "any name part"
-msgstr ""
-
-msgid "name: first-last"
-msgstr ""
-
-msgid "name: last-first"
-msgstr "Navn: efternavn-fornavn"
-
-msgid "name"
-msgstr "navn"
-
-msgid "names: first-last, date of birth"
-msgstr ""
-
-msgid "names: last-first, date of birth"
-msgstr ""
-
-msgid "names: last-first, dob"
-msgstr ""
-
-msgid "name, date of birth"
-msgstr "Navn, fødselsdag"
-
-msgid "names: first last"
-msgstr "Navne: fornavn efternavn"
-
-msgid "names: last, first"
-msgstr ""
-
-msgid "name: last, first"
-msgstr ""
-
-msgid "date of birth/death"
-msgstr ""
-
-msgid "full name"
-msgstr "fulde navn"
-
-msgid "message"
-msgstr ""
-
-msgid "virtual message"
-msgstr ""
-
-msgid "everyone"
-msgstr ""
-
-msgid "Patient #%s"
-msgstr ""
-
-msgid "Due: %s (%s ago)\n"
-msgstr ""
-
-msgid "Due: %s (in %s)\n"
-msgstr ""
-
-msgid "Expired: %s\n"
-msgstr ""
-
-msgid "Expires: %s\n"
-msgstr ""
-
-msgid "Active clinical hint"
-msgstr ""
-
-msgid "Inactive clinical hint"
-msgstr ""
-
-msgid "Language: %s\n"
-msgstr ""
-
-msgid ""
-"Cannot add GNUmed user.\n"
-"\n"
-"The database account [%s] is already listed as a\n"
-"GNUmed user. There can only be one GNUmed user\n"
-"for each database account.\n"
-msgstr ""
-
-msgid ""
-"Cannot delete GNUmed staff member because the\n"
-"database still contains data linked to it.\n"
-"\n"
-"The account was deactivated instead."
-msgstr ""
-
-msgid "vaccine"
-msgstr ""
-
-msgid "unknown vaccinations output format [%s]"
-msgstr ""
-
-msgid "No vaccinations to format."
-msgstr ""
-
-msgid "Latest vaccinations"
-msgstr ""
-
-msgid "per target condition"
-msgstr ""
-
-msgid "Target"
-msgstr ""
-
-msgid "Last given"
-msgstr ""
-
-msgid "Vaccine"
-msgstr ""
-
-msgid "Lot \\#"
-msgstr ""
-
-msgid "SoaP"
-msgstr ""
-
-msgid ""
-"SoaP -- \"S\"ubjective: vaccination was remembered by patient. \"P\"lan: "
-"vaccination was administered in the practice or copied from trustworthy "
-"records."
-msgstr ""
-
-msgid ""
-"Total number of vaccinations recorded for the corresponding target condition."
-msgstr ""
-
-msgid "Injection site"
-msgstr ""
-
-msgid "Reaction"
-msgstr ""
-
-msgid "Comment"
-msgstr ""
-
-msgid "internal error, check log"
-msgstr "Intern fejl, check log filen"
-
-msgid "consistency error, check log"
-msgstr ""
-
-msgid "ERROR: list of vaccinations not supplied"
-msgstr ""
-
-msgid "empty list of vaccinations"
-msgstr ""
-
-msgid "vacc -> ind error: %s"
-msgstr ""
-
-msgid "unknown gender"
-msgstr ""
-
-msgid "child"
-msgstr "barn"
-
-msgid "boy"
-msgstr "Dreng"
-
-msgid "girl"
-msgstr "Pige"
-
-msgid "animal"
-msgstr "Dyr"
-
-msgid "final"
-msgstr ""
-
-msgid "partial"
-msgstr "delvis"
-
-msgid "preliminary"
-msgstr ""
-
-msgid "already reported"
-msgstr ""
-
-msgid "corrected result"
-msgstr "Korrekt resultat"
-
-msgid "missing, reported later"
-msgstr ""
-
-msgid "gm_ctl_client: starting slave GNUmed client"
-msgstr ""
-
-msgid ""
-"A GNUmed slave client has been started because\n"
-"no running client could be found. You will now\n"
-"have to enter your user name and password into\n"
-"the login dialog as usual.\n"
-"\n"
-"Switch to the GNUmed login dialog now and proceed\n"
-"with the login procedure. Once GNUmed has started\n"
-"up successfully switch back to this window.\n"
-msgstr ""
-
-msgid "Connect to GNUmed"
-msgstr ""
-
-msgid "Proceed and try to connect to the newly started GNUmed client."
-msgstr ""
-
-msgid "Abort"
-msgstr ""
-
-msgid "Abort and do NOT connect to GNUmed."
-msgstr ""
-
-msgid "no hook specified, please report bug"
-msgstr ""
-
-msgid "Allergy"
-msgstr ""
-
-msgid "Vaccination"
-msgstr ""
-
-msgid "Lab result"
-msgstr ""
-
-msgid "%sAllergy: %s, %s (noted %s)\n"
-msgstr ""
-
-msgid "Lab"
-msgstr ""
-
-msgid ""
-"Error retrieving encounters for episode\n"
-"%s"
-msgstr ""
-
-msgid "There are no encounters for this episode."
-msgstr ""
-
-msgid ""
-"%sEpisode \"%s\" [%s]\n"
-"%sEncounters: %s (%s - %s)\n"
-"%sLast worked on: %s\n"
-msgstr ""
-
-msgid "Subjective"
-msgstr ""
-
-msgid "Objective"
-msgstr ""
-
-msgid "Assessment"
-msgstr ""
-
-msgid "Plan"
-msgstr ""
-
-msgid "Administrative"
-msgstr ""
-
-msgid "Encounter"
-msgstr ""
-
-msgid ""
-"An error occurred while retrieving a text\n"
-"dump of the EMR for the active patient.\n"
-"\n"
-"Please check the log file for details."
-msgstr ""
-
-msgid ""
-"An error occurred while Demographic record export\n"
-"Please check the log file for details."
-msgstr ""
-
-msgid "EMR Journal sorted by last modification time\n"
-msgstr ""
-
-msgid "Patient: %s (%s), No: %s\n"
-msgstr ""
-
-msgid ""
-"Born   : %s, age: %s\n"
-"\n"
-msgstr ""
-
-msgid "By"
-msgstr ""
-
-msgid "Last modified"
-msgstr ""
-
-msgid "Entry"
-msgstr ""
-
-msgid "When"
-msgstr ""
-
-msgid "Exported: %s\n"
-msgstr ""
-
-msgid "emr-journal"
-msgstr ""
-
-msgid "Chronological EMR Journal\n"
-msgstr ""
-
-msgid "Doc"
-msgstr ""
-
-msgid "Narrative"
-msgstr ""
-
-msgid "Health issues"
-msgstr ""
-
-msgid "Episodes"
-msgstr ""
-
-msgid "Encounters"
-msgstr ""
-
-msgid "Hospital stays"
-msgstr ""
-
-msgid "Procedures"
-msgstr ""
-
-msgid "Documents"
-msgstr ""
-
-msgid "Substances"
-msgstr ""
-
-msgid "Life events"
-msgstr ""
-
-msgid "Birth"
-msgstr ""
-
-msgid "Live events"
-msgstr ""
-
-msgid "Date of birth unknown"
-msgstr ""
-
-msgid "Start of Care"
-msgstr ""
-
-msgid "The earliest recorded event of care in this praxis."
-msgstr ""
-
-msgid "Death"
-msgstr ""
-
-msgid ""
-"Help requested\n"
-"--------------"
-msgstr ""
-
-msgid "%s\\n\\nLab work:\\n%s\\n\\nHistopathology:\\n%s"
-msgstr ""
-
-msgid ""
-"Topical therapy:\\n%s\\n\\nSystemic therapy:\\n%s\\n\\nSubsequent checks:\\n"
-"%s"
-msgstr ""
-
-msgid "unknown test status [%s]"
-msgstr ""
-
-msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
-msgstr ""
-
-msgid "** DOB unknown **"
-msgstr ""
-
-msgid "interval_format_tag::years::y"
-msgstr ""
-
-msgid "interval_format_tag::months::m"
-msgstr ""
-
-msgid "interval_format_tag::weeks::w"
-msgstr ""
-
-msgid "interval_format_tag::days::d"
-msgstr ""
-
-msgid "y::year_abbreviation"
-msgstr ""
-
-msgid "m::month_abbreviation"
-msgstr ""
-
-msgid "mo::month_only_abbreviation"
-msgstr ""
-
-msgid "w::week_abbreviation"
-msgstr ""
-
-msgid "d::day_abbreviation"
-msgstr ""
-
-msgid "h::hour_abbreviation"
-msgstr ""
-
-msgid "s::second_abbreviation"
-msgstr ""
-
-msgid "yYaA_keys_year"
-msgstr ""
-
-msgid "mM_keys_month"
-msgstr ""
-
-msgid "wW_keys_week"
-msgstr ""
-
-msgid "dD_keys_day"
-msgstr ""
-
-msgid "hH_keys_hour"
-msgstr ""
-
-msgid "ndmy (single character date triggers)"
-msgstr ""
-
-msgid "right now (%s, %s)"
-msgstr ""
-
-msgid "today (%s)"
-msgstr ""
-
-msgid "tomorrow (%s)"
-msgstr ""
-
-msgid "yesterday (%s)"
-msgstr ""
-
-msgid "%s-%s-%s: a %s last month"
-msgstr ""
-
-msgid "%s-%s-%s: a %s this month"
-msgstr ""
-
-msgid "%s-%s-%s: a %s next month"
-msgstr ""
-
-msgid "%d. of %s (this month): a %s"
-msgstr ""
-
-msgid "%d. of %s (next month): a %s"
-msgstr ""
-
-msgid "%d. of %s (last month): a %s"
-msgstr ""
-
-msgid "in %d day(s): %s"
-msgstr ""
-
-msgid "%d day(s) ago: %s"
-msgstr ""
-
-msgid "in %d week(s): %s"
-msgstr ""
-
-msgid "%d week(s) ago: %s"
-msgstr ""
-
-msgid "%s (%s this year)"
-msgstr ""
-
-msgid "%s (%s next year)"
-msgstr ""
-
-msgid "%s (%s last year)"
-msgstr ""
-
-msgid "%s this week (%s of %s)"
-msgstr ""
-
-msgid "%s next week (%s of %s)"
-msgstr ""
-
-msgid "%s last week (%s of %s)"
-msgstr ""
-
-msgid "hdwmy (single character date offset triggers)"
-msgstr ""
-
-msgid "in %d hour(s): %s"
-msgstr ""
-
-msgid "%d hour(s) ago: %s"
-msgstr ""
-
-msgid "in %d month(s): %s"
-msgstr ""
-
-msgid "%d month(s) ago: %s"
-msgstr ""
-
-msgid "in %d year(s): %s"
-msgstr ""
-
-msgid "%d year(s) ago: %s"
-msgstr ""
-
-msgid "in %d hour(s) - %s"
-msgstr ""
-
-msgid "%d hour(s) ago - %s"
-msgstr ""
-
-msgid "in %d day(s) - %s"
-msgstr ""
-
-msgid "%d day(s) ago - %s"
-msgstr ""
-
-msgid "in %d week(s) - %s"
-msgstr ""
-
-msgid "%d week(s) ago - %s)"
-msgstr ""
-
-msgid "in %d month(s) - %s"
-msgstr ""
-
-msgid "%d month(s) ago - %s"
-msgstr ""
-
-msgid "in %d year(s) - %s"
-msgstr ""
-
-msgid "%d year(s) ago - %s"
-msgstr ""
-
-msgid "%d. of %s (this month) - a %s"
-msgstr ""
-
-msgid "%d. of %s (next month) - a %s"
-msgstr ""
-
-msgid "%d. of %s (last month) - a %s"
-msgstr ""
-
-msgid "No product information available."
-msgstr ""
-
-msgid "Script must not be a link: [%s]."
-msgstr ""
-
-msgid "Script must be readable by the calling user: [%s]."
-msgstr ""
-
-msgid ""
-"Script must be readable by the calling user only (permissions \"0600\"): "
-"[%s]."
-msgstr ""
-
-msgid "Error running hook [%s] script."
-msgstr ""
-
-msgid "Translate this or i18n into <en_EN> will not work properly !"
-msgstr ""
-
-msgid "[%s] is not a readable file"
-msgstr ""
-
-msgid ""
-"Unable to display the file:\n"
-"\n"
-" [%s]\n"
-"\n"
-"Your system does not seem to have a (working)\n"
-"viewer registered for the file type\n"
-" [%s]"
-msgstr ""
-
-msgid ""
-"Cannot retrieve version information from:\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid ""
-"Cannot read version information from:\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid ""
-"There is no version information available from:\n"
-"\n"
-"%s"
-msgstr ""
-
-msgid ""
-"A new version of GNUmed is available.\n"
-"\n"
-msgstr ""
-
-msgid " Your current version: \"%s\"\n"
-msgstr ""
-
-msgid " New version: \"%s\""
-msgstr ""
-
-msgid " - bug fixes only\n"
-msgstr ""
-
-msgid " - database fixups may be needed\n"
-msgstr ""
-
-msgid " - bug fixes and new features\n"
-msgstr ""
-
-msgid " - database upgrade required\n"
-msgstr ""
-
-msgid ""
-"Note, however, that this version may not yet\n"
-"be available *pre-packaged* for your system."
-msgstr ""
-
-msgid "Details are found on <http://wiki.gnumed.de>.\n"
-msgstr ""
-
-msgid ""
-"Version information loaded from:\n"
-"\n"
-" %s"
-msgstr ""
-
-msgid ""
-"Cannot connect to configuration database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-msgid ""
-"Cannot connect to database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-msgid "SQL: %s"
-msgstr ""
-
-msgid "cannot connect to service [%s]"
-msgstr ""
-
-msgid "Cannot connect to database without login information!"
-msgstr ""
-
-msgid "The wxPython GUI framework hasn't been initialized yet!"
-msgstr ""
-
-msgid "Can't connect to database without login information!"
-msgstr ""
-
-msgid " option [%s]: %s"
-msgstr ""
-
-msgid "  risk: %s"
-msgstr ""
-
-msgid "Error running GnuPG. Cannot decrypt data."
-msgstr ""
-
-msgid "1 Byte"
-msgstr ""
-
-msgid "%s Bytes"
 msgstr ""
 
 msgid "Put question here."
@@ -5984,7 +5984,7 @@ msgid ""
 "This is the text the keyword will expand to. You can use any text-based "
 "punctuation and formatting.\n"
 "\n"
-"Any $<HINT>$ will make GNUmed prompt the user for input while displaying "
+"Any $[HINT]$ will make GNUmed prompt the user for input while displaying "
 "HINT for guidance."
 msgstr ""
 
@@ -8709,16 +8709,16 @@ msgstr ""
 msgid "Editing a hospitalization"
 msgstr ""
 
+msgid ""
+"Must select an episode or enter a name for a new one. Cannot save "
+"hospitalization."
+msgstr ""
+
 msgid "Missing admission data. Cannot save hospitalization."
 msgstr ""
 
 msgid ""
 "Discharge date must be empty or later than admission. Cannot save "
-"hospitalization."
-msgstr ""
-
-msgid ""
-"Must select an episode or enter a name for a new one. Cannot save "
 "hospitalization."
 msgstr ""
 
@@ -12976,6 +12976,14 @@ msgid ""
 "You must deal with the reason for this message to remove it from your inbox."
 msgstr ""
 
+msgid ""
+"Deleted inbox message:\n"
+"%s"
+msgstr ""
+
+msgid "Recorded deletion of inbox message in EMR."
+msgstr ""
+
 msgid "Problem removing message from Inbox."
 msgstr ""
 
@@ -13394,6 +13402,20 @@ msgstr ""
 msgid "Editing vaccination"
 msgstr ""
 
+#, fuzzy
+msgid "vaccination recall"
+msgstr "Vaccinationer"
+
+#, fuzzy
+msgid "vaccination recall (%s)"
+msgstr "Vaccinationer"
+
+msgid ""
+"Existing vaccination:\n"
+"\n"
+"%s"
+msgstr ""
+
 msgid ""
 "\n"
 "Complete vaccination history for this patient.\n"
@@ -13406,6 +13428,12 @@ msgid "Intended to protect from"
 msgstr ""
 
 msgid "Print vaccinations using a template."
+msgstr ""
+
+msgid "Add a recall for a vaccination"
+msgstr ""
+
+msgid "Recall"
 msgstr ""
 
 msgid "Open a browser showing vaccination schedules."
