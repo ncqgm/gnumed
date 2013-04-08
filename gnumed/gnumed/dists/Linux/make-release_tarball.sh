@@ -631,7 +631,7 @@ find ./gnumed-client.$CLIENTREV/ -name 'wxg' -type d -exec rm -v -r '{}' ';'
 cd gnumed-client.$CLIENTREV
 ln -sT client Gnumed
 cd ..
-tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/timelinelib/ ./gnumed-client.$CLIENTREV/icons/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
+tar -czf $CLIENTARCH ./gnumed-client.$CLIENTREV/client/ ./gnumed-client.$CLIENTREV/external-tools/ ./gnumed-client.$CLIENTREV/Gnumed
 
 md5sum $CLIENTARCH > $CLIENTARCH.md5
 echo "" >> $CLIENTARCH.md5
