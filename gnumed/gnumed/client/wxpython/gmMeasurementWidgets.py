@@ -13,15 +13,6 @@ import wx, wx.grid, wx.lib.hyperlink
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.business import gmPerson
-from Gnumed.business import gmStaff
-from Gnumed.business import gmPathLab
-from Gnumed.business import gmSurgery
-from Gnumed.business import gmLOINC
-from Gnumed.business import gmForms
-from Gnumed.business import gmPersonSearch
-from Gnumed.business import gmOrganization
-
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmI18N
@@ -30,6 +21,16 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmMimeLib
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmSurgery
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmForms
+from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmOrganization
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmEditArea
@@ -118,6 +119,17 @@ def browse_incoming_unmatched(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
+	def show_hl7(data=None):
+		if data is None:
+			return False
+		filename = data.export_to_file()
+		if filename is None:
+			return False
+		formatted_hl7 = gmHL7.format_hl7_file(filename, return_filename = True)
+		gmMimeLib.call_viewer_on_file(aFile = formatted_hl7, block = False)
+
+		return False
+	#------------------------------------------------------------
 	def refresh(lctrl):
 		incoming = gmHL7.get_incoming_data()
 		items = [ [
@@ -142,11 +154,11 @@ def browse_incoming_unmatched(parent=None):
 		single_selection = True,
 		can_return_empty = False,
 		ignore_OK_button = True,
-		refresh_callback = refresh
+		refresh_callback = refresh,
 #		edit_callback=None,
 #		new_callback=None,
 #		delete_callback=None,
-#		left_extra_button=None,
+		left_extra_button = [_('Show'), _('Show formatted HL7'), show_hl7]
 #		middle_extra_button=None,
 #		right_extra_button=None
 	)
