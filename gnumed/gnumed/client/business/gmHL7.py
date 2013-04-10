@@ -46,6 +46,33 @@ OBX_name = 1
 OBX_value = 5
 OBX_unit = 6
 
+HL7_field_labels = {
+	'PID': {
+		0: 'Segment Type',
+		1: '<PID> Set ID',
+		2: 'Patient ID',
+		5: 'Patient name',
+		7: 'Date/Time of birth',
+		8: 'Administrative gender'
+	},
+	'OBR': {
+		0: 'Segment Type'
+	},
+	'OBX': {
+		0: 'Segment Type',
+		1: 'Set ID',
+		2: 'Value Type',
+		3: 'Identifier (LOINC)',
+		4: 'Observation Sub-ID',
+		5: 'Value',
+		6: 'Units',
+		7: 'References Range (Low - High)',
+		8: 'Abnormal Flags',
+		11: 'Result Status',
+		14: 'Date/Time of Observation'
+	}
+}
+
 #============================================================
 # class to handle unmatched incoming clinical data
 #------------------------------------------------------------
@@ -116,6 +143,32 @@ class cIncomingData(gmBusinessDBObject.cBusinessDBObject):
 		# must update XMIN now ...
 		self.refetch_payload()
 		return True
+	#--------------------------------------------------------
+	def export_to_file(self, aChunkSize=0, filename=None):
+
+		if self._payload[self._idx['data_size']] == 0:
+			return None
+
+		if self._payload[self._idx['data_size']] is None:
+			return None
+
+		if filename is None:
+			filename = gmTools.get_unique_filename(prefix = 'gm-incoming_data_unmatched-')
+
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM clin.incoming_data_unmatched WHERE pk = %(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['data_size']]
+		)
+
+		if not success:
+			return None
+
+		return filename
 
 #------------------------------------------------------------
 def get_incoming_data(order_by=None):
@@ -450,6 +503,69 @@ def stage_MSH_as_incoming_data(filename, source=None):
 
 	return inc
 
+#------------------------------------------------------------
+def format_hl7_message(message=None, skip_empty_fields=True, eol=u'\n '):
+	# a segment is a line starting with a type
+
+	msg = pyhl7.parse(message)
+
+	output = [[_('HL7 Message'), _(' %s segments (lines)%s') % (len(msg), gmTools.bool2subst(skip_empty_fields, _(', skipping empty fields'), u''))]]
+
+	max_len = 0
+	for s_idx in range(len(msg)):
+		seg = msg[s_idx]
+		seg_type = seg[0][0]
+
+		output.append([_('Segment #%s <%s>') % (s_idx, seg_type), _('%s fields') % len(seg)])
+
+		for f_idx in range(len(seg)):
+			field = seg[f_idx]
+			try:
+				label = HL7_field_labels[seg_type][f_idx]
+			except KeyError:
+				label = _('HL7 %s field') % seg_type
+
+			max_len = max(max_len, len(label))
+
+			if len(field) == 0:
+				if not skip_empty_fields:
+					output.append([u'%2s - %s' % (f_idx, label), _('<EMTPY>')])
+				continue
+			if (len(field) == 1) and (field[0].strip() == u''):
+				if not skip_empty_fields:
+					output.append([u'%2s - %s' % (f_idx, label), _('<EMTPY>')])
+				continue
+
+			output.append([u'%2s - %s' % (f_idx, label), u'%s' % field])
+
+	if eol is None:
+		return output
+
+	max_len += 7
+	return eol.join([ u'%s: %s' % ((o[0] + (u' ' * max_len))[:max_len], o[1]) for o in output ])
+
+#------------------------------------------------------------
+def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filename=False):
+	hl7_file = codecs.open(filename, 'rb', 'utf8')
+	output = format_hl7_message (
+		message = hl7_file.read(1024 * 1024 * 5),		# 5 MB max
+		skip_empty_fields = skip_empty_fields,
+		eol = eol
+	)
+	hl7_file.close()
+
+	if not return_filename:
+		return output
+
+	if eol is None:
+		output = u'\n '.join([ u'%s: %s' % ((o[0] + (u' ' * max_len))[:max_len], o[1]) for o in output ])
+
+	out_name = gmTools.get_unique_filename(prefix = 'gm-formatted_hl7-', suffix = u'.hl7')
+	out_file = codecs.open(out_name, 'wb', 'utf8')
+	out_file.write(output)
+	out_file.close()
+
+	return out_name
 #============================================================
 # main
 #------------------------------------------------------------
@@ -462,8 +578,11 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
+	from Gnumed.pycommon import gmI18N
 
 	gmDateTime.init()
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 
 	#-------------------------------------------------------
 	def test_import_HL7():
@@ -506,8 +625,27 @@ if __name__ == "__main__":
 			print " file:", name
 			print "", stage_MSH_as_incoming_data(name, source = u'?')
 	#-------------------------------------------------------
+	def test_format_hl7_message():
+		tests = [
+			"OBR|1||03-1350023-LIP-0|LIP^Lipids||20031004073300|20031004073300|||||||20031004073300||22333^MEDIC^IAN^TEST||031350023||03-1350023|031350023|20031004131600||CHEM|F|||22333^MEDIC^IAN^TEST",
+			"OBX|2|NM|22748-8^LDL Cholesterol||4.0|mmol/L|1.5 - 3.4|H|||F|||20031004073300"
+		]
+		for test in tests:
+			print format_hl7_message (
+#				skip_empty_fields = True,
+				message = test
+			)
+	#-------------------------------------------------------
+	def test_format_hl7_file():
+		print format_hl7_file (
+			sys.argv[2]
+#			skip_empty_fields = True
+		)
+	#-------------------------------------------------------
 	#test_import_HL7()
 	#test_xml_extract()
 	#test_incoming_data()
 	#test_stage_hl7_from_xml()
-	test_stage_hl7()
+	#test_stage_hl7()
+	#test_format_hl7_message()
+	test_format_hl7_file()
