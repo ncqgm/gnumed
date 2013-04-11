@@ -715,79 +715,141 @@ def manage_addresses(parent=None):
 		delete_callback = delete,
 		list_tooltip_callback = calculate_tooltip
 	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgGenericAddressEditAreaPnl
 
-class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl):
-	"""An edit area for editing/creating an address."""
+class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, gmEditArea.cGenericEditAreaMixin):
 
 	def __init__(self, *args, **kwargs):
+
 		try:
-			self.__address = kwargs['address']
+			data = kwargs['address']
 			del kwargs['address']
 		except KeyError:
-			self.__address = None
-
-		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
+			data = None
 
 		self.address_holder = None
+		self.__type_is_editable = True
+		self.__address_is_searchable = False
+
+		wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
 		self.type_is_editable = True
 		self.address_is_searchable = False
 
-		self.__register_interests()
-		self.refresh()
-	#--------------------------------------------------------
-	# external API
-	#--------------------------------------------------------
-	def refresh(self, address = None):
-		if address is not None:
-			self.__address = address
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
 
-		if self.__address is None:
-			self._PRW_type.SetText(u'', None)
-			self._PRW_zip.SetText(u'', None)
-			self._PRW_street.SetText(u'', None)
-			self._TCTRL_notes_street.SetValue(u'')
-			self._TCTRL_number.SetValue(u'')
-			self._TCTRL_subunit.SetValue(u'')
-			self._PRW_suburb.SetText(u'', None)
-			self._PRW_urb.SetText(u'', None)
-			self._PRW_state.SetText(u'', None)
-			self._PRW_country.SetText(u'', None)
-			self._TCTRL_notes_subunit.SetValue(u'')
-			if self.__type_is_editable:
-				self._PRW_type.SetFocus()
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		self._PRW_zip.add_callback_on_lose_focus(self._on_zip_set)
+		self._PRW_country.add_callback_on_lose_focus(self._on_country_set)
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = True
+
+		# if any field is filled, all must be filled, so track that
+		is_any_field_filled = False
+
+		# check by string
+		required_fields = [
+			self._PRW_urb,
+			self._TCTRL_number,
+			self._PRW_street,
+			self._PRW_zip
+		]
+		if self.__type_is_editable:
+			required_fields.insert(0, self._PRW_type)
+		for field in required_fields:
+			if len(field.GetValue().strip()) == 0:
+				if is_any_field_filled:
+					self.display_ctrl_as_valid(field, False)
+					field.SetFocus()
+					gmGuiHelpers.gm_show_error (
+						_('Address details must be filled in completely or not at all.'),
+						_('Saving contact data')
+					)
+					validity = False
 			else:
-				self._PRW_zip.SetFocus()
-			return
+				is_any_field_filled = True
+				self.display_ctrl_as_valid(field, True)
 
-		if self.__type_is_editable:
-			self._PRW_type.SetText(self.address['l10n_address_type'])
-		else:
-			self._PRW_type.SetText(u'', None)
-		self._PRW_zip.SetText(self.address['postcode'])
-		self._PRW_street.SetText(self.address['street'], data = self.address['street'])
-		self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.address['notes_street'], ''))
-		self._TCTRL_number.SetValue(self.address['number'])
-		self._TCTRL_subunit.SetValue(gmTools.coalesce(self.address['subunit'], ''))
-		self._PRW_suburb.SetText(gmTools.coalesce(self.address['suburb'], ''))
-		self._PRW_urb.SetText(self.address['urb'], data = self.address['urb'])
-		self._PRW_state.SetText(self.address['l10n_state'], data = self.address['code_state'])
-		self._PRW_country.SetText(self.address['l10n_country'], data = self.address['code_country'])
-		self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.address['notes_subunit'], ''))
+		# check by data
+		required_fields = (
+			self._PRW_country,
+			self._PRW_state
+		)
+		for field in required_fields:
+			if field.GetData() is None:
+				if is_any_field_filled:
+					self.display_ctrl_as_valid(field, False)
+					field.SetFocus()
+					gmGuiHelpers.gm_show_error (
+						_('Address details must be filled in completely or not at all.'),
+						_('Saving contact data')
+					)
+					validity = False
+			else:
+				is_any_field_filled = True
+				self.display_ctrl_as_valid(field, True)
 
-		if self.__type_is_editable:
-			self._PRW_type.SetFocus()
-		else:
-			self._PRW_zip.SetFocus()
-		return
-	#--------------------------------------------------------
-	def save(self):
-		"""Links address to patient or org, creating new address if necessary"""
-
-		if not self.__valid_for_save():
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		try:
+			# will create or return address
+			address = gmDemographicRecord.create_address (
+				country = self._PRW_country.GetData(),
+				state = self._PRW_state.GetData(),
+				urb = self._PRW_urb.GetValue().strip(),
+				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
+				postcode = self._PRW_zip.GetValue().strip(),
+				street = self._PRW_street.GetValue().strip(),
+				number = self._TCTRL_number.GetValue().strip(),
+				subunit = gmTools.none_if(self._TCTRL_subunit.GetValue().strip(), u'')
+			)
+		except:
+			_log.exception('cannot save address')
+			gmGuiHelpers.gm_show_error (
+				_('Cannot save address.\n\n'
+				  'Does the state [%s]\n'
+				  'exist in country [%s] ?'
+				) % (
+					self._PRW_state.GetValue().strip(),
+					self._PRW_country.GetValue().strip()
+				),
+				_('Saving address')
+			)
 			return False
 
+		# link address to holder (there better be one)
+		linked_address = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = address)
+		if linked_address['pk_address'] != address['pk_address']:
+			raise ValueError('problem linking address to person or org')
+
+		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
+		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
+		address.save()
+
+		linked_address.refetch_payload()
+		self.data = linked_address
+
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		# do not update existing address, rather
+		# create new one or get corresponding
+		# address should it exist
 		try:
 			address = gmDemographicRecord.create_address (
 				country = self._PRW_country.GetData(),
@@ -813,25 +875,76 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			)
 			return False
 
-		# link address to owner
-		a = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = address)
-		if a['pk_address'] != address['pk_address']:
+		# link address to holder (there better be one)
+		linked_address = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = address)
+		if linked_address['pk_address'] != address['pk_address']:
 			raise ValueError('problem linking address to person or org')
 
 		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
 		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
-		address.save_payload()
+		address.save()
 
-		self.__address = address
+		linked_address.refetch_payload()
+		self.data = linked_address
 
 		return True
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_type.SetText(u'', None)
+		self._PRW_zip.SetText(u'', None)
+		self._PRW_street.SetText(u'', None)
+		self._TCTRL_notes_street.SetValue(u'')
+		self._TCTRL_number.SetValue(u'')
+		self._TCTRL_subunit.SetValue(u'')
+		self._PRW_suburb.SetText(u'', None)
+		self._PRW_urb.SetText(u'', None)
+		self._PRW_state.SetText(u'', None)
+		self._PRW_country.SetText(u'', None)
+		self._TCTRL_notes_subunit.SetValue(u'')
+
+		if self.__type_is_editable:
+			self._PRW_type.SetFocus()
+		else:
+			self._PRW_zip.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+
+		self._PRW_zip.SetText(self.data['postcode'])
+		self._PRW_street.SetText(self.data['street'], data = self.data['street'])
+		self._PRW_suburb.SetText(gmTools.coalesce(self.data['suburb'], ''))
+		self._PRW_urb.SetText(self.data['urb'], data = self.data['urb'])
+		self._PRW_state.SetText(self.data['l10n_state'], data = self.data['code_state'])
+		self._PRW_country.SetText(self.data['l10n_country'], data = self.data['code_country'])
+
+		if self.__type_is_editable:
+			self._PRW_type.SetFocus()
+		else:
+			self._TCTRL_number.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		if self.__type_is_editable:
+			self._PRW_type.SetText(self.data['l10n_address_type'])
+		else:
+			self._PRW_type.SetText(u'', None)
+		self._PRW_zip.SetText(self.data['postcode'])
+		self._PRW_street.SetText(self.data['street'], data = self.data['street'])
+		self._TCTRL_notes_street.SetValue(gmTools.coalesce(self.data['notes_street'], ''))
+		self._TCTRL_number.SetValue(self.data['number'])
+		self._TCTRL_subunit.SetValue(gmTools.coalesce(self.data['subunit'], ''))
+		self._PRW_suburb.SetText(gmTools.coalesce(self.data['suburb'], ''))
+		self._PRW_urb.SetText(self.data['urb'], data = self.data['urb'])
+		self._PRW_state.SetText(self.data['l10n_state'], data = self.data['code_state'])
+		self._PRW_country.SetText(self.data['l10n_country'], data = self.data['code_country'])
+		self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.data['notes_subunit'], ''))
+
+		if self.__type_is_editable:
+			self._PRW_type.SetFocus()
+		else:
+			self._PRW_zip.SetFocus()
+	#----------------------------------------------------------------
 	# event handling
-	#--------------------------------------------------------
-	def __register_interests(self):
-		self._PRW_zip.add_callback_on_lose_focus(self._on_zip_set)
-		self._PRW_country.add_callback_on_lose_focus(self._on_country_set)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _on_zip_set(self):
 		"""Set the street, town, state and country according to entered zip code."""
 		zip_code = self._PRW_zip.GetValue()
@@ -845,7 +958,7 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			self._PRW_urb.set_context(context = u'zip', val = zip_code)
 			self._PRW_state.set_context(context = u'zip', val = zip_code)
 			self._PRW_country.set_context(context = u'zip', val = zip_code)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _on_country_set(self):
 		"""Set the states according to entered country."""
 		country = self._PRW_country.GetData()
@@ -853,63 +966,9 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 			self._PRW_state.unset_context(context = 'country')
 		else:
 			self._PRW_state.set_context(context = 'country', val = country)
-	#--------------------------------------------------------
-	# internal helpers
-	#--------------------------------------------------------
-	def __valid_for_save(self):
-
-		# validate required fields
-		is_any_field_filled = False
-
-		required_fields = [
-			self._PRW_zip,
-			self._PRW_street,
-			self._TCTRL_number,
-			self._PRW_urb
-		]
-		if self.__type_is_editable:
-			required_fields.insert(0, self._PRW_type)
-
-		for field in required_fields:
-			if len(field.GetValue().strip()) == 0:
-				if is_any_field_filled:
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-					gmGuiHelpers.gm_show_error (
-						_('Address details must be filled in completely or not at all.'),
-						_('Saving contact data')
-					)
-					return False
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		required_fields = (
-			self._PRW_state,
-			self._PRW_country
-		)
-		for field in required_fields:
-			if field.GetData() is None:
-				if is_any_field_filled:
-					field.SetBackgroundColour('pink')
-					field.SetFocus()
-					field.Refresh()
-					gmGuiHelpers.gm_show_error (
-						_('Address details must be filled in completely or not at all.'),
-						_('Saving contact data')
-					)
-					return False
-			else:
-				is_any_field_filled = True
-				field.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-				field.Refresh()
-
-		return True
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	# properties
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _get_type_is_editable(self):
 		return self.__type_is_editable
 
@@ -920,25 +979,24 @@ class cAddressEditAreaPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditArea
 		self._LBL_type.Show(type_is_editable)
 
 	type_is_editable = property(_get_type_is_editable, _set_type_is_editable)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _get_address_is_searchable(self):
 		return self.__address_is_searchable
 
 	def _set_address_is_searchable(self, address_is_searchable):
-		# always set tot FALSE when self.mode == 'new'
+		# FIXME: always set to FALSE when self.mode == 'new' ?
 		self.__address_is_searchable = address_is_searchable
 		self._PRW_address_searcher.Enable(address_is_searchable)
 		self._PRW_address_searcher.Show(address_is_searchable)
 		self._LBL_search.Show(address_is_searchable)
 
 	address_is_searchable = property(_get_address_is_searchable, _set_address_is_searchable)
-	#--------------------------------------------------------
+	#----------------------------------------------------------------
 	def _get_address(self):
-		return self.__address
+		return self.data
 
 	def _set_address(self, address):
-		self.__address = address
-		self.refresh()
+		self.data = address
 
 	address = property(_get_address, _set_address)
 

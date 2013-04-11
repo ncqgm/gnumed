@@ -139,18 +139,18 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		])
 	#--------------------------------------------------------
 	def _add_address(self):
-		ea = gmAddressWidgets.cAddressEditAreaPnl(self, -1)
+		ea = gmAddressWidgets.cAddressEAPnl(self, -1)
 		ea.address_holder = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() == wx.ID_OK:
 			return True
 		return False
 	#--------------------------------------------------------
 	def _edit_address(self, address):
-		ea = gmAddressWidgets.cAddressEditAreaPnl(self, -1, address = address)
+		ea = gmAddressWidgets.cAddressEAPnl(self, -1, address = address)
 		ea.address_holder = self.__identity
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Editing address'))
 		if dlg.ShowModal() == wx.ID_OK:
 			# did we add an entirely new address ?

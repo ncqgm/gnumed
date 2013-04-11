@@ -2,7 +2,6 @@
 # GNUmed Richard style Edit Area
 #====================================================================
 __license__ = 'GPL'
-__version__ = "$Revision: 1.135 $"
 __author__ = "R.Terry, K.Hilbert"
 
 #======================================================================
@@ -20,7 +19,6 @@ from Gnumed.pycommon import gmDispatcher
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #====================================================================
 edit_area_modes = ['new', 'edit', 'new_from_existing']
 
@@ -232,6 +230,7 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def display_ctrl_as_valid(self, ctrl=None, valid=None):
 		ctrl.SetBackgroundColour(self.__tctrl_validity_colors[valid])
 		ctrl.Refresh()
+
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg2
 
@@ -393,42 +392,6 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
 #====================================================================
-# DEPRECATED:
-from Gnumed.wxGladeWidgets import wxgGenericEditAreaDlg
-
-class cGenericEditAreaDlg(wxgGenericEditAreaDlg.wxgGenericEditAreaDlg):
-	"""Dialog for parenting edit area with save/clear/cancel"""
-
-	def __init__(self, *args, **kwargs):
-
-		ea = kwargs['edit_area']
-		del kwargs['edit_area']
-
-		wxgGenericEditAreaDlg.wxgGenericEditAreaDlg.__init__(self, *args, **kwargs)
-
-		szr = self._PNL_ea.GetContainingSizer()
-		szr.Remove(self._PNL_ea)
-		ea.Reparent(self)
-		szr.Add(ea, 1, wx.ALL|wx.EXPAND, 4)
-		self._PNL_ea = ea
-
-		self.Layout()
-		szr = self.GetSizer()
-		szr.Fit(self)
-		self.Refresh()
-
-		self._PNL_ea.refresh()
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		"""The edit area save() method must return True/False."""
-		if self._PNL_ea.save():
-			if self.IsModal():
-				self.EndModal(wx.ID_OK)
-			else:
-				self.Close()
-	#--------------------------------------------------------
-	def _on_clear_button_pressed(self, evt):
-		self._PNL_ea.refresh()
 #====================================================================
 #====================================================================
 #====================================================================

@@ -582,6 +582,11 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 			return format_address_single_line(address = self, verbose = verbose, show_type = show_type)
 		txt = format_address(address = self, show_type = show_type)
 		return txt
+	#--------------------------------------------------------
+	def _get_address(self):
+		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
+
+	address = property(_get_address, lambda x:x)
 #===================================================================
 # communication channels API
 #-------------------------------------------------------------------

@@ -387,10 +387,10 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		self.__refresh()
 	#--------------------------------------------------------
 	def _on_add_new_address_button_pressed(self, event):
-		ea = gmAddressWidgets.cAddressEditAreaPnl(self, -1)
+		ea = gmAddressWidgets.cAddressEAPnl(self, -1)
 		ea.address_holder = self.__unit
 		ea.type_is_editable = False
-		dlg = gmEditArea.cGenericEditAreaDlg(self, -1, edit_area = ea)
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new address'))
 		if dlg.ShowModal() != wx.ID_OK:
 			return False

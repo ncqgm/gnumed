@@ -188,6 +188,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def link_address(self, id_type=None, address=None):
 		self.address = address
+		return address
 	#--------------------------------------------------------
 	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the org unit.

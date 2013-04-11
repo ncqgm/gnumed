@@ -995,16 +995,9 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
-		@param number The number of the address.
-		@param street The name of the street.
-		@param postcode The postal code of the address.
-		@param urb The name of town/city/etc.
-		@param state The code of the state.
-		@param country The code of the country.
 		@param id_type The primary key of the address type.
 		"""
 		if address is None:
-			# create/get address
 			address = gmDemographicRecord.create_address (
 				country = country,
 				state = state,
@@ -1020,7 +1013,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return None
 
 		# already linked ?
-		cmd = u"SELECT * FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
+		cmd = u"SELECT id_address FROM dem.lnk_person_org_address WHERE id_identity = %(pat)s AND id_address = %(adr)s"
 		args = {'pat': self.pk_obj, 'adr': address['pk_address']}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -1030,18 +1023,17 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			cmd = u"""
 				INSERT INTO dem.lnk_person_org_address(id_identity, id_address)
 				VALUES (%(id)s, %(adr)s)
-				RETURNING *"""
+				RETURNING id_address"""
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 
-		# already or now linked - needs to change type ?
-		if id_type is not None:
-			r = rows[0]
-			if r['id_type'] != id_type:
-				cmd = "UPDATE dem.lnk_person_org_address SET id_type = %(type)s WHERE id = %(id)s"
-				args = {'type': id_type, 'id': r['id']}
-				gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		linked_adr = gmDemographicRecord.cPatientAddress(aPK_obj = rows[0]['id_address'])
 
-		return address
+		# possibly change type
+		if id_type is not None:
+			linked_adr['pk_address_type'] = id_type
+			linked_adr.save()
+
+		return linked_adr
 	#----------------------------------------------------------------------
 	def unlink_address(self, address=None, pk_address=None):
 		"""Remove an address from the patient.
