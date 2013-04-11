@@ -334,7 +334,7 @@ PYJSDIR = sys._getframe().f_code.co_filename
 PYJSDIR = os.path.split(os.path.dirname(PYJSDIR))[0]
 PYJSDIR = os.path.join(PYJSDIR, 'pyjamas')
 
-DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v18@)"
+DEFAULT_BACKEND = "GNUmed database on this machine (Linux/Mac) (gnumed_v19@)"
 
 class HTTPServer(SimpleForkingJSONRPCServer):
     '''An application instance containing any number of streams. Except for constructor all methods are generators.'''
