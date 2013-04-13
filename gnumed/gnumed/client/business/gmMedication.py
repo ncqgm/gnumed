@@ -750,16 +750,21 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		if filename is None:
 			filename = self.__fd2gm_filename
 
+		_log.debug('importing FreeDiams prescription information from [%s]', filename)
+
 		fd2gm_xml = etree.ElementTree()
 		fd2gm_xml.parse(filename)
 
 		pdfs = fd2gm_xml.findall('ExtraDatas/Printed')
 		if len(pdfs) == 0:
+			_log.debug('no PDF prescription files listed')
 			return
 
 		fd_filenames = []
 		for pdf in pdfs:
 			fd_filenames.append(pdf.attrib['file'])
+
+		_log.debug('listed PDF prescription files: %s', fd_filenames)
 
 		docs = self.patient.get_document_folder()
 		emr = self.patient.get_emr()
