@@ -23,6 +23,7 @@ import types
 import logging
 import thread
 import time
+import re as regex
 
 
 import wx
@@ -902,12 +903,22 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		self.__activate_callback = None
 		self.__rightclick_callback = None
 
-		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
 		self.__tt_static_part = _("""Select the items you want to work on.
 
 A discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking.""")
+		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+
+		self.__next_line_to_search = 0
+		self.__search_data = None
+		self.__search_dlg = None
+		self.__searchable_cols = None
+#		self.Bind(wx.EVT_KILL_FOCUS, self._on_lost_focus)
+		self.Bind(wx.EVT_CHAR, self._on_char)
+		self.Bind(wx.EVT_FIND_CLOSE, self._on_search_dlg_closed)
+		self.Bind(wx.EVT_FIND, self._on_search_first_match)
+		self.Bind(wx.EVT_FIND_NEXT, self._on_search_next_match)
 	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
@@ -1142,6 +1153,69 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if self.__rightclick_callback is not None:
 			self.__rightclick_callback(event)
 	#------------------------------------------------------------
+	def _on_char(self, evt):
+
+		if evt.GetModifiers() != wx.MOD_CMD:
+			evt.Skip()
+			return
+
+		if unichr(evt.GetRawKeyCode()) != u'f':
+			evt.Skip()
+			return
+
+		if len(self.__searchable_cols) == 0:
+			return
+
+		if self.__search_dlg is not None:
+			return
+
+		if self.__search_data is None:
+			self.__search_data = wx.FindReplaceData()
+		self.__search_dlg = wx.FindReplaceDialog (
+			self,
+			self.__search_data,
+			_('Search in list'),
+			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
+		)
+		self.__search_dlg.Show(True)
+	#------------------------------------------------------------
+	def _on_search_dlg_closed(self, evt):
+		self.__search_dlg.Destroy()
+		self.__search_dlg = None
+	#------------------------------------------------------------
+	def _on_lost_focus(self, evt):
+		evt.Skip()
+		if self.__search_dlg is None:
+			return
+		print self.FindFocus()
+		print self.__search_dlg
+		#self.__search_dlg.Close()
+	#------------------------------------------------------------
+	def __on_search_match(self, search_term):
+		for row_idx in range(self.__next_line_to_search, self.ItemCount):
+			for col_idx in range(self.ColumnCount):
+				if col_idx not in self.__searchable_cols:
+					continue
+				col_val = self.GetItem(row_idx, col_idx).GetText()
+				if regex.search(search_term, col_val, regex.U | regex.I) is not None:
+					self.Select(row_idx)
+					self.EnsureVisible(row_idx)
+					if row_idx == self.ItemCount - 1:
+						# wrap around
+						self.__next_line_to_search = 0
+					else:
+						self.__next_line_to_search = row_idx + 1
+					return True
+		# wrap around
+		self.__next_line_to_search = 0
+		return False
+	#------------------------------------------------------------
+	def _on_search_first_match(self, evt):
+		self.__on_search_match(evt.GetFindString())
+	#------------------------------------------------------------
+	def _on_search_next_match(self, evt):
+		self.__on_search_match(evt.GetFindString())
+	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
 		"""Update tooltip on mouse motion.
 
@@ -1266,6 +1340,21 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	# the callback must return None if no item tooltip is to be shown
 	# otherwise it must return a string (possibly with \n)
 	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)
+	#------------------------------------------------------------
+	def _set_searchable_cols(self, cols):
+		# zero-based list of which columns to search
+		if cols is None:
+			self.__searchable_cols = range(self.ColumnCount)
+			return
+		# weed out columns to be searched which
+		# don't exist an uniquify them
+		new_cols = {}
+		for col in cols:
+			if col < self.ColumnCount:
+				new_cols[col] = True
+		self.__searchable_cols = new_cols.keys()
+
+	searchable_columns = property(lambda x:x, _set_searchable_cols)
 #================================================================
 # main
 #----------------------------------------------------------------
