@@ -16,6 +16,8 @@ NEW: generic search in lists
 
 	1.3.3
 
+FIX: failure to use active patient on adding waiting list entry [thanks S.Hilbert]
+
 IMPROVED: primitive HL7 formatting
 IMPROVED: added recalls document template
 IMRPOVED: check files for readability before printing
