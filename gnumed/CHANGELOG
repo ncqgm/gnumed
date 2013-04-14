@@ -10,6 +10,7 @@
 
 IMPROVED: primitive HL7 formatting
 IMPROVED: added recalls document template
+IMRPOVED: check files for readability before printing
 
 	1.3.2
 

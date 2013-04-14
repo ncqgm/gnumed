@@ -43,6 +43,13 @@ def print_files(filenames=None, jobtype=None, print_api=None):
 
 	_log.debug('printing "%s": %s', jobtype, filenames)
 
+	for fname in filenames:
+		try:
+			open(fname, 'r').close()
+		except:
+			_log.exception('cannot open [%s], aborting', fname)
+			return False
+
 	if jobtype not in known_printjob_types:
 		print "unregistered print job type <%s>" % jobtype
 		_log.warning('print job type "%s" not registered', jobtype)
@@ -263,8 +270,9 @@ def _print_files_by_os_startfile(filenames=None):
 		_log.debug('%s -> %s', filename, fname)
 		try:
 			os.startfile(fname, 'print')
-		except OSError:
+		except:
 			_log.exception('cannot os.startfile()')
+			return False
 
 	return True
 #-----------------------------------------------------------------------
