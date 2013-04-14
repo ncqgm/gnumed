@@ -53,10 +53,10 @@ class cWaitingZonePhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.matcher.set_items([ {'data': i, 'list_label': i, 'field_label': i, 'weight': 1} for i in items ])
 
 #============================================================
-def edit_waiting_list_entry(parent=None, entry=None):
+def edit_waiting_list_entry(parent=None, entry=None, patient=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
-	ea = cWaitingListEntryEditAreaPnl(parent = parent, id = -1)
+	ea = cWaitingListEntryEditAreaPnl(parent = parent, id = -1, patient = gmTools.bool2subst((entry is None), patient, None))
 	ea.data = entry
 	ea.mode = gmTools.coalesce(entry, 'new', 'edit')
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)
@@ -420,7 +420,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add waiting list entry: No patient selected.'), beep = True)
 			return
-		edit_waiting_list_entry(parent = self)
+		edit_waiting_list_entry(parent = self, patient = curr_pat)
 	#--------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		self.__id_most_recently_activated_patient = None
