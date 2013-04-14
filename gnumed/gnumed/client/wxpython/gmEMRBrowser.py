@@ -21,11 +21,15 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmLog2
+
 from Gnumed.exporters import gmPatientExporter
+
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
 from Gnumed.business import gmSOAPimporter
 from Gnumed.business import gmPersonSearch
+
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmSOAPWidgets
@@ -271,7 +275,17 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		if not self.__curr_node.IsOk():
 			return
 
-		node_data = self.GetPyData(self.__curr_node)
+		try:
+			node_data = self.GetPyData(self.__curr_node)
+		except wx.PyAssertionError:
+			node_data = None		# fake a root node
+			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			_log.debug('real node: %s', self.__curr_node)
+			_log.debug('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
+			_log.debug('is root node: %s', self.__curr_node == self.GetRootItem())
+			_log.debug('node.m_pItem: %s', getattr(self.__curr_node.m_pItem), '<NO SUCH ATTRIBUTE>')
+			_log.debug('node attributes: %s', dir(self.__curr_node))
+			gmLog2.log_stack_trace()
 		doc_folder = self.__pat.get_document_folder()
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):

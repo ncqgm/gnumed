@@ -19,6 +19,7 @@ NEW: generic search in lists
 IMPROVED: primitive HL7 formatting
 IMPROVED: added recalls document template
 IMRPOVED: check files for readability before printing
+IMPROVED: sorta workaround infamous TreeCtrl.GetPyData() PyAssertion
 
 	1.3.2
 
