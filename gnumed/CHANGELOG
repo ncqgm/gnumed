@@ -1266,6 +1266,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.3
+
+FIX: faulty bill.trf_prevent_empty_bills [thanks S.Urbanek]
+
 	18.2
 
 FIX: fake .due_/.expiry_date must be TIMESTAMP WITH TIME ZONE (not DATE)
