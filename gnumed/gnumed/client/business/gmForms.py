@@ -1062,6 +1062,7 @@ class cLaTeXForm(cFormEngine):
 					break
 
 		# last resort
+		# Vaibhav BANAIT protested against this
 #		if editor_cmd is None:
 #			if os.name == 'nt':
 #				editor_cmd = u'notepad.exe %s' % self.instance_filename
@@ -1104,13 +1105,20 @@ class cLaTeXForm(cFormEngine):
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running pdflatex. Cannot turn LaTeX template into PDF.'), beep = True)
 				return None
 
-		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+		target_dir = os.path.normpath(os.path.join(os.path.split(sandboxed_pdf_name)[0], '..'))
+		final_pdf_name = os.path.join (
+			target_dir,
+			os.path.split(sandboxed_pdf_name)[1]
+		)
+		_log.debug('copying sandboxed PDF: %s -> %s', sandboxed_pdf_name, final_pdf_name)
 		try:
-			open(final_pdf_name, 'r').close()
+			shutil.copy2(sandboxed_pdf_name, target_dir)
 		except IOError:
-			_log.exception('cannot open target PDF: %s', final_pdf_name)
+			_log.exception('cannot open/move sandboxed PDF')
 			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
 			return None
+
 		self.final_output_filenames = [final_pdf_name]
 
 		return final_pdf_name
@@ -1298,16 +1306,24 @@ class cXeTeXForm(cFormEngine):
 				gmDispatcher.send(signal = 'statustext', msg = _('Error running xelatex. Cannot turn Xe(La)TeX template into PDF.'), beep = True)
 				return None
 
-		final_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+		sandboxed_pdf_name = u'%s.pdf' % os.path.splitext(self.instance_filename)[0]
+		target_dir = os.path.normpath(os.path.join(os.path.split(sandboxed_pdf_name)[0], '..'))
+		final_pdf_name = os.path.join (
+			target_dir,
+			os.path.split(sandboxed_pdf_name)[1]
+		)
+		_log.debug('copying sandboxed PDF: %s -> %s', sandboxed_pdf_name, final_pdf_name)
 		try:
-			open(final_pdf_name, 'r').close()
+			shutil.copy2(sandboxed_pdf_name, target_dir)
 		except IOError:
-			_log.exception('cannot open target PDF: %s', final_pdf_name)
+			_log.exception('cannot open/move sandboxed PDF')
 			gmDispatcher.send(signal = 'statustext', msg = _('PDF output file cannot be opened.'), beep = True)
 			return None
+
 		self.final_output_filenames = [final_pdf_name]
 
 		return final_pdf_name
+
 #------------------------------------------------------------
 form_engines[u'X'] = cXeTeXForm
 
