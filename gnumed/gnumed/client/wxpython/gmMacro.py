@@ -105,6 +105,7 @@ known_variant_placeholders = [
 	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
 											#				eg. "male//female//other"
 											#				or: "Lieber Patient//Liebe Patientin"
+	u'client_version',						# the version of the current client as a string (no "v" in front)
 
 	# patient demographics:
 	u'name',								# args: template for name parts arrangement
@@ -137,6 +138,12 @@ known_variant_placeholders = [
 
 	# clinical record related:
 	u'soap',
+	u'soap_s',
+	u'soap_o',
+	u'soap_a',
+	u'soap_p',
+	u'soap_u',
+	u'soap_admin',							# get all or subset of SOAPU/ADMIN, no template in args needed
 	u'progress_notes',						# "args" holds: categories//template
 											# 	categories: string with 'soapu '; ' ' == None == admin
 											#	template:	u'something %s something'		(do not include // in template !)
@@ -174,6 +181,7 @@ known_variant_placeholders = [
 	u'latest_vaccs_table',					# "args" holds: format, options
 	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
 
+	u'allergy_state',						# args: no args needed
 	u'allergies',							# "args" holds: line template, one allergy per line
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
@@ -199,7 +207,9 @@ known_variant_placeholders = [
 											#					(do not include "//" itself in the template)
 
 	# provider related:
+	u'current_provider',					# args: no args needed
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
+	u'primary_praxis_provider',				# primary provider for current patient in this praxis
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
 
 	# billing related:
@@ -283,7 +293,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.pat = gmPerson.gmCurrentPatient()
 		self.debug = False
 
-		self.invalid_placeholder_template = _('invalid placeholder [%s]')
+		self.invalid_placeholder_template = _('invalid placeholder >>>%s<<<')
 
 		self.__cache = {}
 
@@ -356,17 +366,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		parts = placeholder.split('::::', 1)
 		if len(parts) == 2:
 			name, lng = parts
-			unknown_injectable = False
+			is_an_injectable = True
 			try:
 				val = _injectable_placeholders[name]
 			except KeyError:
-				unknown_injectable = True
+				is_an_injectable = False
 			except:
 				_log.exception('placeholder handling error: %s', original_placeholder)
 				if self.debug:
 					return self.invalid_placeholder_template % original_placeholder
 				return None
-			if not unknown_injectable:
+			if is_an_injectable:
 				if val is None:
 					if self.debug:
 						return u'injectable placeholder [%s]: no value available' % name
@@ -378,7 +388,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(parts) == 2:
 			name, lng = parts
 			try:
-				return getattr(self, name)[:int(lng)]
+				lng = int(lng)
+			except (TypeError, ValueError):
+				lng = sys.maxint
+			try:
+				return getattr(self, name)[:lng]
 			except:
 				_log.exception('placeholder handling error: %s', original_placeholder)
 				if self.debug:
@@ -389,7 +403,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		parts = placeholder.split('::')
 
 		if len(parts) == 1:
-			_log.warning('invalid placeholder layout: %s', original_placeholder)
+			_log.warning('invalid placeholder layout: >>>%s<<<', original_placeholder)
 			if self.debug:
 				return self.invalid_placeholder_template % original_placeholder
 			return None
@@ -406,8 +420,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				_log.debug('placeholder length definition error: %s, discarding length: >%s<', original_placeholder, lng)
 				lng = None
 
+		_log.debug('placeholder has %s parts: name=[%s]; length=[%s]; options=>>>%s<<<', len(parts), name, lng, data)
+
 		if len(parts) > 3:
-			_log.warning('invalid placeholder layout: %s', original_placeholder)
+			_log.warning('invalid placeholder layout: >>>%s<<<', original_placeholder)
 			if self.debug:
 				return self.invalid_placeholder_template % original_placeholder
 			return None
@@ -559,6 +575,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
 	#--------------------------------------------------------
 	# variant handlers
+	#--------------------------------------------------------
+	def _get_variant_client_version(self, data=None):
+		return self._escape (
+			gmTools.coalesce (
+				_cfg.get(option = u'client_version'),
+				u'%s' % self.__class__.__name__
+			)
+		)
 	#--------------------------------------------------------
 	def _get_variant_reminders(self, data=None):
 
@@ -847,7 +871,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
 	def _get_variant_progress_notes(self, data=None):
-		return self._get_variant_soap(data=data)
+		return self._get_variant_soap(data = data)
+	#--------------------------------------------------------
+	def _get_variant_soap_s(self, data=None):
+		return self._get_variant_soap(data = u's')
+	#--------------------------------------------------------
+	def _get_variant_soap_o(self, data=None):
+		return self._get_variant_soap(data = u'o')
+	#--------------------------------------------------------
+	def _get_variant_soap_a(self, data=None):
+		return self._get_variant_soap(data = u'a')
+	#--------------------------------------------------------
+	def _get_variant_soap_p(self, data=None):
+		return self._get_variant_soap(data = u'p')
+	#--------------------------------------------------------
+	def _get_variant_soap_u(self, data=None):
+		return self._get_variant_soap(data = u'u')
+	#--------------------------------------------------------
+	def _get_variant_soap_admin(self, data=None):
+		return self._get_variant_soap(data = u' ')
 	#--------------------------------------------------------
 	def _get_variant_soap(self, data=None):
 
@@ -899,6 +941,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u'cannot mix "%%s" and "%%(key)s" in template [%s]' % template
 
 		return u'\n'.join(narr)
+	#--------------------------------------------------------
+	def _get_variant_title(self, data=None):
+		return self._get_variant_name(data = u'%(title)s')
+	#--------------------------------------------------------
+	def _get_variant_firstname(self, data=None):
+		return self._get_variant_name(data = u'%(firstnames)s')
+	#--------------------------------------------------------
+	def _get_variant_lastname(self, data=None):
+		return self._get_variant_name(data = u'%(lastnames)s')
 	#--------------------------------------------------------
 	def _get_variant_name(self, data=None):
 		if data is None:
@@ -1105,6 +1156,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 #	def _get_variant_patient_tags_table(self, data=u'?'):
 #		pass
 	#--------------------------------------------------------
+	def _get_variant_current_provider(self, data=None):
+		prov = gmStaff.gmCurrentProvider()
+
+		title = gmTools.coalesce (
+			prov['title'],
+			gmPerson.map_gender2salutation(prov['gender'])
+		)
+
+		tmp = u'%s %s. %s' % (
+			title,
+			prov['firstnames'][:1],
+			prov['lastnames']
+		)
+		return self._escape(tmp)
+	#--------------------------------------------------------
 	def _get_variant_current_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
 		if len(data_parts) < 2:
@@ -1127,6 +1193,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return self._escape(ids[0]['value'])
+	#--------------------------------------------------------
+	def _get_variant_primary_praxis_provider(self, data=None):
+		prov = self.pat.primary_provider
+		if prov is None:
+			return self._get_variant_current_provider()
+
+		title = gmTools.coalesce (
+			prov['title'],
+			gmPerson.map_gender2salutation(prov['gender'])
+		)
+
+		tmp = u'%s %s. %s' % (
+			title,
+			prov['firstnames'][:1],
+			prov['lastnames']
+		)
+		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
 		data_parts = data.split(u'//')
@@ -1177,6 +1260,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return self._escape(ids[0]['value'])
+	#--------------------------------------------------------
+	def _get_variant_allergy_state(self, data=None):
+		allg_state = self.pat.get_emr().allergy_state
+
+		if allg_state['last_confirmed'] is None:
+			date_confirmed = u''
+		else:
+			date_confirmed = u' (%s)' % gmDateTime.pydt_strftime (
+				allg_state['last_confirmed'],
+				format = '%Y %B %d'
+			)
+
+		tmp = u'%s%s' % (
+			allg_state.state_string,
+			date_confirmed
+		)
+		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_variant_allergy_list(self, data=None):
 		if data is None:
