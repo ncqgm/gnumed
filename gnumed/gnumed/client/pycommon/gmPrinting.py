@@ -16,6 +16,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmLog2
 
 
 _log = logging.getLogger('gm.printing')
@@ -137,17 +138,20 @@ def _print_files_by_IE(filenames=None):
 		_log.exception('<win32com> Python module not available for use in printing')
 		return False
 
-	i_explorer = dde_client.Dispatch("InternetExplorer.Application")
+	try:
+		i_explorer = dde_client.Dispatch("InternetExplorer.Application")
+		for filename in filenames:
+			if i_explorer.Busy:
+				time.sleep(1)
+			i_explorer.Navigate(os.path.normpath(filename))
+			if i_explorer.Busy:
+				time.sleep(1)
+			i_explorer.Document.printAll()
+		i_explorer.Quit()
+	except:
+		_log.exception('error calling IE via DDE')
+		return False
 
-	for filename in filenames:
-		if i_explorer.Busy:
-			time.sleep(1)
-		i_explorer.Navigate(os.path.normpath(filename))
-		if i_explorer.Busy:
-			time.sleep(1)
-		i_explorer.Document.printAll()
-
-	i_explorer.Quit()
 	return True
 #-----------------------------------------------------------------------
 def _print_files_by_gtklp(filenames=None):
@@ -269,9 +273,15 @@ def _print_files_by_os_startfile(filenames=None):
 		fname = os.path.normcase(os.path.normpath(filename))
 		_log.debug('%s -> %s', filename, fname)
 		try:
-			os.startfile(fname, 'print')
+			try:
+				os.startfile(fname, 'print')
+			except WindowsError, e:
+				_log.exception('no <print> action defined for this type of file')
+				if e.winerror == 1155:	# try <view> action
+					os.startfile(fname)
 		except:
-			_log.exception('cannot os.startfile()')
+			_log.exception('os.startfile() failed')
+			gmLog2.log_stack_trace()
 			return False
 
 	return True
@@ -348,8 +358,8 @@ if __name__ == '__main__':
 		print "testing printing via Mac Preview"
 		_print_files_by_mac_preview(filenames = [sys.argv[0]])
 	#--------------------------------------------------------------------
-	#print test_print_files()
+	print test_print_files()
 	#test_print_files_by_gtklp()
-	test_print_files_by_mac_preview()
+	#test_print_files_by_mac_preview()
 
 # =======================================================================
