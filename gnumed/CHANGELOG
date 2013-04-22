@@ -6,6 +6,10 @@
 # rel-1-3-patches
 ------------------------------------------------
 
+	1.3.4
+
+FIX: exception on DDE access to IE when printing
+
 	1.3.3
 
 FIX: failure to use active patient on adding waiting list entry [thanks S.Hilbert]
