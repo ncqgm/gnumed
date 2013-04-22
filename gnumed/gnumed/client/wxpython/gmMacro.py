@@ -58,25 +58,6 @@ _log = logging.getLogger('gm.scripting')
 _cfg = gmCfg2.gmCfgData()
 
 #=====================================================================
-known_placeholders = [
-	u'lastname',
-	u'firstname',
-	u'title',
-	u'date_of_birth',
-	u'progress_notes',
-	u'soap',
-	u'soap_s',
-	u'soap_o',
-	u'soap_a',
-	u'soap_p',
-	u'soap_u',
-	u'client_version',
-	u'current_provider',
-	u'primary_praxis_provider',			# primary provider for current patient in this praxis
-	u'allergy_state'
-]
-
-
 # values for the following placeholders must be injected from the outside before
 # using them, in use they must conform to the "placeholder::::max length" syntax,
 # as long as they resolve to None they return themselves
@@ -217,8 +198,22 @@ known_variant_placeholders = [
 	u'bill_item'							# args: template for string replacement
 ]
 
-#http://help.libreoffice.org/Common/List_of_Regular_Expressions
-default_placeholder_regex = r'\$<.+?>\$'				# this one works [except that OOo cannot be non-greedy |-(    ]
+# http://help.libreoffice.org/Common/List_of_Regular_Expressions
+# except that OOo cannot be non-greedy |-(
+#default_placeholder_regex = r'\$<.+?>\$'				# this one works 
+
+	# regex logic:
+	# starts with "$"
+	# followed by "<"
+	# followed by > 0 characters but NOT "<" but ONLY up to the NEXT ":"
+	# followed by "::"
+	# followed by any number of characters  but ONLY up to the NEXT ":"
+	# followed by "::"
+	# followed by any number of numbers
+	# followed by ">"
+	# followed by "$"
+default_placeholder_regex = r'\$<[^<]+?::.*?::\d*?>\$'		# this one works [except that OOo cannot be non-greedy |-(    ]
+
 #default_placeholder_regex = r'\$<(?:(?!\$<).)+>\$'		# non-greedy equivalent, uses lookahead (but not supported by LO either |-o  )
 
 default_placeholder_start = u'$<'
@@ -230,11 +225,6 @@ def show_placeholders():
 
 	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
 	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
-
-	ph_file.write(u'Simple placeholders (use like: $<PLACEHOLDER_NAME>$):\n')
-	for ph in known_placeholders:
-		ph_file.write(u' %s\n' % ph)
-	ph_file.write(u'\n')
 
 	ph_file.write(u'Variable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
 	for ph in known_variant_placeholders:
@@ -264,14 +254,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	- placeholders failing to resolve to a value return a warning string
 
 	There are several types of placeholders:
-
-	simple static placeholders
-		- those are listed in known_placeholders
-		- they are used as-is
-
-	extended static placeholders
-		- those are, effectively, static placeholders
-		  with a maximum length attached (after "::::")
 
 	injectable placeholders
 		- they must be set up before use by set_placeholder()
@@ -358,10 +340,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					return self.invalid_placeholder_template % original_placeholder
 				return None
 
-		# simple static placeholder ?
-		if placeholder in known_placeholders:
-			return getattr(self, placeholder)
-
 		# injectable placeholder ?
 		parts = placeholder.split('::::', 1)
 		if len(parts) == 2:
@@ -417,7 +395,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			try:
 				lng = int(lng)
 			except (TypeError, ValueError):
-				_log.debug('placeholder length definition error: %s, discarding length: >%s<', original_placeholder, lng)
 				lng = None
 
 		_log.debug('placeholder has %s parts: name=[%s]; length=[%s]; options=>>>%s<<<', len(parts), name, lng, data)
@@ -450,129 +427,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# properties actually handling placeholders
 	#--------------------------------------------------------
-	# property helpers
-	#--------------------------------------------------------
-	def _setter_noop(self, val):
-		"""This does nothing, used as a NOOP properties setter."""
-		pass
-	#--------------------------------------------------------
-	def _get_lastname(self):
-		return self._escape(self.pat.get_active_name()['lastnames'])
-	#--------------------------------------------------------
-	def _get_firstname(self):
-		return self._escape(self.pat.get_active_name()['firstnames'])
-	#--------------------------------------------------------
-	def _get_title(self):
-		return self._escape(gmTools.coalesce(self.pat.get_active_name()['title'], u''))
-	#--------------------------------------------------------
-	def _get_dob(self):
-		return self._get_variant_date_of_birth(data = '%Y %b %d')
-	#--------------------------------------------------------
-	def _get_progress_notes(self):
-		return self._get_variant_soap()
-	#--------------------------------------------------------
-	def _get_soap_s(self):
-		return self._get_variant_soap(data = u's')
-	#--------------------------------------------------------
-	def _get_soap_o(self):
-		return self._get_variant_soap(data = u'o')
-	#--------------------------------------------------------
-	def _get_soap_a(self):
-		return self._get_variant_soap(data = u'a')
-	#--------------------------------------------------------
-	def _get_soap_p(self):
-		return self._get_variant_soap(data = u'p')
-	#--------------------------------------------------------
-	def _get_soap_u(self):
-		return self._get_variant_soap(data = u'u')
-	#--------------------------------------------------------
-	def _get_soap_admin(self):
-		return self._get_variant_soap(soap_cats = None)
-	#--------------------------------------------------------
-	def _get_client_version(self):
-		return self._escape (
-			gmTools.coalesce (
-				_cfg.get(option = u'client_version'),
-				u'%s' % self.__class__.__name__
-			)
-		)
-	#--------------------------------------------------------
-	def _get_primary_praxis_provider(self):
-		prov = self.pat.primary_provider
-		if prov is None:
-			return self._get_current_provider()
-
-		title = gmTools.coalesce (
-			prov['title'],
-			gmPerson.map_gender2salutation(prov['gender'])
-		)
-
-		tmp = u'%s %s. %s' % (
-			title,
-			prov['firstnames'][:1],
-			prov['lastnames']
-		)
-		return self._escape(tmp)
-	#--------------------------------------------------------
-	def _get_current_provider(self):
-		prov = gmStaff.gmCurrentProvider()
-
-		title = gmTools.coalesce (
-			prov['title'],
-			gmPerson.map_gender2salutation(prov['gender'])
-		)
-
-		tmp = u'%s %s. %s' % (
-			title,
-			prov['firstnames'][:1],
-			prov['lastnames']
-		)
-		return self._escape(tmp)
-	#--------------------------------------------------------
-	def _get_allergy_state(self):
-		allg_state = self.pat.get_emr().allergy_state
-
-		if allg_state['last_confirmed'] is None:
-			date_confirmed = u''
-		else:
-			date_confirmed = u' (%s)' % gmDateTime.pydt_strftime (
-				allg_state['last_confirmed'],
-				format = '%Y %B %d'
-			)
-
-		tmp = u'%s%s' % (
-			allg_state.state_string,
-			date_confirmed
-		)
-		return self._escape(tmp)
-	#--------------------------------------------------------
-	# property definitions for static placeholders
-	#--------------------------------------------------------
-	placeholder_regex = property(lambda x: default_placeholder_regex, _setter_noop)
-
-	#--------------------------------------------------------
-
-	# placeholders
-	lastname = property(_get_lastname, _setter_noop)
-	firstname = property(_get_firstname, _setter_noop)
-	title = property(_get_title, _setter_noop)
-	date_of_birth = property(_get_dob, _setter_noop)
-
-	progress_notes = property(_get_progress_notes, _setter_noop)
-	soap = property(_get_progress_notes, _setter_noop)
-	soap_s = property(_get_soap_s, _setter_noop)
-	soap_o = property(_get_soap_o, _setter_noop)
-	soap_a = property(_get_soap_a, _setter_noop)
-	soap_p = property(_get_soap_p, _setter_noop)
-	soap_u = property(_get_soap_u, _setter_noop)
-	soap_admin = property(_get_soap_admin, _setter_noop)
-
-	allergy_state = property(_get_allergy_state, _setter_noop)
-
-	client_version = property(_get_client_version, _setter_noop)
-
-	current_provider = property(_get_current_provider, _setter_noop)
-	primary_praxis_provider = property(_get_primary_praxis_provider, _setter_noop)
+	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
 	#--------------------------------------------------------
 	# variant handlers
 	#--------------------------------------------------------
@@ -1858,8 +1713,6 @@ if __name__ == '__main__':
 		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
 
 		app = wx.PyWidgetTester(size = (200, 50))
-		for placeholder in known_placeholders:
-			print placeholder, "=", handler[placeholder]
 
 		ph = 'progress_notes::ap'
 		print '%s: %s' % (ph, handler[ph])
@@ -1931,8 +1784,6 @@ if __name__ == '__main__':
 #		print 'DOB (YYYY-MM-DD):', handler['date_of_birth::%Y-%m-%d']
 
 #		app = wx.PyWidgetTester(size = (200, 50))
-#		for placeholder in known_placeholders:
-#			print placeholder, "=", handler[placeholder]
 
 #		ph = 'progress_notes::ap'
 #		print '%s: %s' % (ph, handler[ph])
@@ -2006,13 +1857,22 @@ if __name__ == '__main__':
 
 		]
 
+		tests = [
+			u'junk   $<date_of_birth::%Y %B %d $<<inner placeholder::%Y %B %d::20>>$::20>$   junk',
+#			u'junk   $<date_of_birth::%Y %B %d::20>$   $<date_of_birth::%Y %B %d::20>$',
+#			u'junk   $<date_of_birth::%Y %B %d::>$   $<date_of_birth::%Y %B %d::20>$   $<<date_of_birth::%Y %B %d::20>>$',
+#			u'junk   $<date_of_birth::::20>$',
+#			u'junk   $<date_of_birth::::>$',
+		]
+
 		print "testing placeholder regex:", default_placeholder_regex
 		print ""
 
 		for t in tests:
 			print 'line: "%s"' % t
-			print "placeholders:"
-			for p in regex.findall(default_placeholder_regex, t, regex.IGNORECASE):
+			phs = regex.findall(default_placeholder_regex, t, regex.IGNORECASE)
+			print " %s placeholders:" % len(phs)
+			for p in phs:
 				print ' => "%s"' % p
 			print " "
 	#--------------------------------------------------------
@@ -2042,7 +1902,10 @@ if __name__ == '__main__':
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
-			#u'$<date_of_birth::%Y %B %d::20>$',
+			u'$<date_of_birth::%Y %B %d::20>$',
+			u'$<date_of_birth::%Y %B %d::>$',
+			u'$<date_of_birth::::20>$',
+			u'$<date_of_birth::::>$',
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
 			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
 			#u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
@@ -2057,7 +1920,7 @@ if __name__ == '__main__':
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
-			u'$<reminders:://::>$'
+			#u'$<reminders:://::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -2074,8 +1937,8 @@ if __name__ == '__main__':
 		#handler.set_placeholder('form_name_long', 'ein Testformular')
 		for ph in phs:
 			print ph
-			print "result:"
-			print '%s' % handler[ph]
+			print " result:"
+			print '  %s' % handler[ph]
 		#handler.unset_placeholder('form_name_long')
 	#--------------------------------------------------------
 	def test():
@@ -2093,9 +1956,9 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	#test_placeholder_regex()
+	test_placeholder_regex()
 	#test()
-	test_placeholder()
+	#test_placeholder()
 	#test_show_phs()
 
 #=====================================================================
