@@ -33,18 +33,18 @@
 
 \begin{document}
 
-\footnotetext {\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny \href{http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
 \footnotetext {\tiny Template: $<form_name_long::::60>$ v$<form_version::::20>$}
 
 \noindent \begin{center}
-{\large Vaccination history (printed $<today::%Y %B %d>$)}
+{\large Vaccination history (printed $<today::%Y %B %d::>$)}
 \par\end{center}
 
 %\noindent \begin{center}
-%{\large By $<current_provider>$}
+%{\large By $<current_provider::::>$}
 %\par\end{center}{\large \par}
 
-\noindent Patient: $<lastname>$, $<firstname>$ ($<date_of_birth::%Y %B %d>$)
+\noindent Patient: $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)
 
 {\footnotesize
 	$<adr_street::home>$ $<adr_number::home>$ \\
@@ -77,7 +77,7 @@ $<vaccination_history::%(date_given)s & %(vaccine)s {\footnotesize (%(batch_no)s
 Agent & Type & Reaction\tabularnewline
 \hline
 \hline 
-$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline >$
+$<allergies::%(descriptor)s & %(l10n_type)s & {\footnotesize %(reaction)s} \tabularnewline \hline ::>$
 \end{tabular}
 
 \medskip{}
