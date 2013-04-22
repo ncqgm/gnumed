@@ -356,17 +356,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		parts = placeholder.split('::::', 1)
 		if len(parts) == 2:
 			name, lng = parts
-			unknown_injectable = False
+			is_an_injectable = True
 			try:
 				val = _injectable_placeholders[name]
 			except KeyError:
-				unknown_injectable = True
+				is_an_injectable = False
 			except:
 				_log.exception('placeholder handling error: %s', original_placeholder)
 				if self.debug:
 					return self.invalid_placeholder_template % original_placeholder
 				return None
-			if not unknown_injectable:
+			if is_an_injectable:
 				if val is None:
 					if self.debug:
 						return u'injectable placeholder [%s]: no value available' % name
