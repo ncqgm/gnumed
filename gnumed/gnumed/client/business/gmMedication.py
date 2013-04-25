@@ -662,14 +662,6 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 	<Ui editmode="%s" blockPatientDatas="1"/>
 	%%s
 </FreeDiams_In>
-
-<!--
-		# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
-		<Creatinine value="12" unit="mg/l or mmol/l"/>
-		<Weight value="70" unit="kg or pd" />
-		<Height value="170" unit="cm or "/>
-		<ICD10 value="J11.0;A22;Z23"/>
--->
 """		% (
 			self.__fd4gm_config_file,
 			self.__fd2gm_filename,
@@ -719,6 +711,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			  dob="%s"
 			  gender="%s"
 		/>
+		<!-- can be <7 characters class codes: -->
 		<ATCAllergies value="%s"/>
 		<ATCIntolerances value="%s"/>
 
@@ -727,6 +720,17 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 
 		<DrugsUidAllergies value="%s"/>
 		<DrugsUidIntolerances value="%s"/>
+
+		<!--
+			# FIXME: search by LOINC code and add (as soon as supported by FreeDiams ...)
+			<Creatinine value="12" unit="mg/l or mmol/l"/>
+			<Weight value="70" unit="kg or pd" />
+			<WeightInGrams value="70"/>
+			<Height value="170" unit="cm or "/>
+			<HeightInCentimeters value="170"/>
+			<ICD10 value="J11.0;A22;Z23"/>
+		-->
+
 	</Patient>
 """		% (
 			gmTools.xml_escape_string(text = name['lastnames']),
