@@ -30,8 +30,40 @@ UPDATE ref.paperwork_templates r_pt SET
 	data = decode (
 		regexp_replace (
 			encode(data, 'escape'),
+			'\$<lastname::40>\$',
+			'$<lastname::::40>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
 			'\$<firstname>\$',
 			'$<firstname::::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<firstname::40>\$',
+			'$<firstname::::40>$',
 			'ig'
 		),
 		'escape'
@@ -296,6 +328,134 @@ WHERE
 	r_pt.data IS NOT NULL
 		AND
 	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<today::%d\.%B %Y>\$',
+			'$<today::%d.%B %Y::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<current_meds_table::latex>\$',
+			'$<current_meds_table::latex::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'T')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<current_meds_notes::latex>\$',
+			'$<current_meds_notes::latex::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'T')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<adr_street::home>\$',
+			'$<adr_street::home::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<adr_number::home>\$',
+			'$<adr_number::home::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<adr_postcode::home>\$',
+			'$<adr_postcode::home::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<adr_location::home>\$',
+			'$<adr_location::home::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'O', 'T', 'P')
+;
+
+UPDATE ref.paperwork_templates r_pt SET
+	data = decode (
+		regexp_replace (
+			encode(data, 'escape'),
+			'\$<latest_vaccs_table::latex>\$',
+			'$<latest_vaccs_table::latex::>$',
+			'ig'
+		),
+		'escape'
+	)
+WHERE
+	r_pt.data IS NOT NULL
+		AND
+	r_pt.engine IN ('L', 'X', 'T')
 ;
 
 -- --------------------------------------------------------------
