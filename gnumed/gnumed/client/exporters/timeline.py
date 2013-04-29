@@ -415,12 +415,12 @@ def create_timeline_file(patient=None, filename=None):
 	))
 	# birth
 	if patient['dob'] is None:
-		start = now.replace(year = start.year - 100)
+		start = now.replace(year = now.year - 100)
 		timeline.write(__xml_encounter_template % (
 			format_pydt(start),
 			format_pydt(start),
 			_('Birth') + u': ?',
-			_('Live events'),
+			_('Life events'),
 			_('Date of birth unknown')
 		))
 	else:
@@ -429,7 +429,7 @@ def create_timeline_file(patient=None, filename=None):
 			format_pydt(patient['dob']),
 			format_pydt(patient['dob']),
 			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u''),
-			_('Encounters'),
+			_('Life events'),
 			u''
 		))
 
@@ -507,6 +507,111 @@ def create_timeline_file(patient=None, filename=None):
 		format_pydt(start),
 		format_pydt(end)
 	))
+	timeline.close()
+	return timeline_fname
+
+#------------------------------------------------------------
+__fake_timeline_start = u"""<?xml version="1.0" encoding="utf-8"?>
+<timeline>
+	<version>0.20.0</version>
+	<categories>
+		<!-- life events -->
+		<category>
+			<name>%s</name>
+			<color>30,144,255</color>
+			<font_color>0,0,0</font_color>
+		</category>
+	</categories>
+	<events>""" % _('Life events')
+
+__fake_timeline_body_template = u"""
+		<event>
+			<start>%s</start>
+			<end>%s</end>
+			<text>%s</text>
+			<fuzzy>False</fuzzy>
+			<locked>True</locked>
+			<ends_today>False</ends_today>
+			<!-- category></category -->
+			<description>%s
+			</description>
+		</event>"""
+
+def create_fake_timeline_file(patient=None, filename=None):
+
+	emr = patient.emr
+	global now
+	now = gmDateTime.pydt_now_here()
+
+	if filename is None:
+		timeline_fname = gmTools.get_unique_filename(prefix = u'gm-', suffix = u'.timeline')
+	else:
+		timeline_fname = filename
+
+	_log.debug('creating dummy timeline in [%s]', timeline_fname)
+	timeline = codecs.open(timeline_fname, mode = 'wb', encoding = 'utf8', errors = 'xmlcharrefreplace')
+
+	timeline.write(__fake_timeline_start)
+
+	# birth
+	if patient['dob'] is None:
+		start = now.replace(year = now.year - 100)
+		timeline.write(__xml_encounter_template % (
+			format_pydt(start),
+			format_pydt(start),
+			_('Birth') + u': ?',
+			_('Life events'),
+			_('Date of birth unknown')
+		))
+	else:
+		start = patient['dob']
+		timeline.write(__xml_encounter_template % (
+			format_pydt(patient['dob']),
+			format_pydt(patient['dob']),
+			_('Birth') + gmTools.bool2subst(patient['dob_is_estimated'], u' (%s)' % gmTools.u_almost_equal_to, u''),
+			_('Life events'),
+			u''
+		))
+
+	# death
+	if patient['deceased'] is None:
+		end = now
+	else:
+		end = patient['deceased']
+		timeline.write(__xml_encounter_template % (
+			format_pydt(end),
+			format_pydt(end),
+			#u'',
+			_('Death'),
+			_('Life events'),
+			u''
+		))
+
+	# fake issue
+	timeline.write(__fake_timeline_body_template % (
+		format_pydt(start),
+		format_pydt(end),
+		_('Cannot display timeline.'),
+		_('Cannot display timeline.')
+	))
+
+	# display range
+	if end.month == 12:
+		# both January and December feature 31 days, so no worry
+		end = end.replace(month = 1)
+	else:
+		# be careful about the target month being
+		# shorter than the source month
+		real_day = end.day
+		target_month = end.month + 1
+		end = end.replace(day = 28)
+		end = end.replace(month = target_month)
+		end = end.replace(day = min(real_day, gmDateTime.gregorian_month_length[target_month]))
+	timeline.write(xml_end % (
+		format_pydt(start),
+		format_pydt(end)
+	))
+
 	timeline.close()
 	return timeline_fname
 

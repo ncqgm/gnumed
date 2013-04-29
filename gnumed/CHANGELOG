@@ -9,6 +9,7 @@
 	1.3.4
 
 FIX: exception on DDE access to IE when printing
+FIX: exception on timeline display problems
 
 IMPROVED: prepare for static placeholder depreciation
 
