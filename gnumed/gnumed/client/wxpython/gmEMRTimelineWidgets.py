@@ -85,10 +85,12 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 			return True
 		try:
 			self._PNL_timeline.open_timeline(timeline.create_timeline_file(patient = pat))
-		except TimelineIOError:
-			self._PNL_timeline.clear_timeline()
+		except:
+#		except TimelineIOError:
 			_log.exception('cannot load EMR from timeline XML')
-			return False
+			self._PNL_timeline.clear_timeline()
+			self._PNL_timeline.open_timeline(timeline.create_fake_timeline_file(patient = pat))
+			return True
 
 		return True
 #============================================================
