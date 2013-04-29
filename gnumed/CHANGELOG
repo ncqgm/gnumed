@@ -1265,6 +1265,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.4
+
+FIX: missing constraint clin.encounter.started <= clin.encounter.last_affirmed
+
 	18.3
 
 FIX: faulty bill.trf_prevent_empty_bills [thanks S.Urbanek]
