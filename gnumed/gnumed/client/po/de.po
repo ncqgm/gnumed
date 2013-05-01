@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-04-07 13:48+CEST\n"
-"PO-Revision-Date: 2013-04-07 13:53+0100\n"
+"POT-Creation-Date: 2013-05-01 20:08+CEST\n"
+"PO-Revision-Date: 2013-05-01 20:11+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -810,6 +810,27 @@ msgstr "Fehler mit pdftk. Kann PDF-Formular nicht befüllen."
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr "Fehler mit pdftk. Kann PDF-Formular nicht versiegeln."
 
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr "HL7-Nachricht"
+
+msgid "%s fields"
+msgstr "%s Felder"
+
+msgid "Segment #%s <%s>"
+msgstr "Segment #%s <%s>"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr "Textmakro"
 
@@ -1609,9 +1630,6 @@ msgstr "Lebensereignis"
 msgid "Birth"
 msgstr "Geburt"
 
-msgid "Live events"
-msgstr "Lebensereignisse"
-
 msgid "Date of birth unknown"
 msgstr "Geburtsdatum unbekannt"
 
@@ -1623,6 +1641,9 @@ msgstr "Die erste in dieser Praxis dokumentierte Behandlung."
 
 msgid "Death"
 msgstr "Tod"
+
+msgid "Cannot display timeline."
+msgstr "Kann Zeitstrahl nicht anzeigen."
 
 msgid ""
 "Help requested\n"
@@ -1675,17 +1696,59 @@ msgstr "[%s:%s]: Zeile nicht geändert (nichts zurückgeliefert), Zeile in Benut
 msgid "** DOB unknown **"
 msgstr "** Geburtsdatum unbekannt **"
 
+msgid "years"
+msgstr "Jahre"
+
+msgid "year"
+msgstr "Jahr"
+
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::J"
+
+msgid "months"
+msgstr "Monate"
+
+msgid "month"
+msgstr "Monat"
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::M"
 
+msgid "weeks"
+msgstr "Wochen"
+
+msgid "week"
+msgstr "Woche"
+
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::W"
 
+msgid "days"
+msgstr "Tage"
+
+msgid "day"
+msgstr "Tag"
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::T"
+
+msgid "hours"
+msgstr "Stunden"
+
+msgid "hour"
+msgstr "Stunde"
+
+msgid "minutes"
+msgstr "Minuten"
+
+msgid "minute"
+msgstr "Minute"
+
+msgid "seconds"
+msgstr "Sekunden"
+
+msgid "second"
+msgstr "Sekunde"
 
 msgid "y::year_abbreviation"
 msgstr "J::year_abbreviation"
@@ -2455,24 +2518,6 @@ msgstr ""
 
 msgid "Fit Day"
 msgstr "Zoom auf einen Tag einstellen"
-
-msgid "day"
-msgstr "Tag"
-
-msgid "days"
-msgstr "Tage"
-
-msgid "hour"
-msgstr "Stunde"
-
-msgid "hours"
-msgstr "Stunden"
-
-msgid "minute"
-msgstr "Minute"
-
-msgid "minutes"
-msgstr "Minuten"
 
 msgid "can't be before year 10"
 msgstr "Darf nicht vor dem Jahr 10 sein"
@@ -12138,8 +12183,8 @@ msgstr "Keine Labordaten verfügbar."
 msgid "generic multi choice dialog"
 msgstr "allgemeine Mehrfachauswahl"
 
-msgid "invalid placeholder [%s]"
-msgstr "ungültiger Platzhalter [%s]"
+msgid "invalid placeholder >>>%s<<<"
+msgstr "ungültiger Platzhalter >>>%s<<<"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
 msgstr "fällig %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -12291,6 +12336,12 @@ msgstr ""
 
 msgid "Data ID"
 msgstr "Daten-ID"
+
+msgid "Show"
+msgstr "Zeige"
+
+msgid "Show formatted HL7"
+msgstr "Zeige HL7 formatiert"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr "Das Auffrischen der LOINC-Daten kann etwas dauern ..."
@@ -14136,12 +14187,6 @@ msgstr "Korr.Termin"
 msgid "&Print"
 msgstr "&Drucken"
 
-msgid "week"
-msgstr "Woche"
-
-msgid "weeks"
-msgstr "Wochen"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -15561,6 +15606,9 @@ msgstr "Menge"
 msgid "First Date"
 msgstr "erstmals"
 
+#~ msgid "Live events"
+#~ msgstr "Lebensereignisse"
+
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "PDF-Datei im Sandkasten kann nicht geöffnet werden."
 
@@ -16605,9 +16653,6 @@ msgstr "erstmals"
 
 #~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
 #~ msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
-
-#~ msgid "Show formatted item details."
-#~ msgstr "Details formatiert anzeigen."
 
 #~ msgid "Manage drug brands."
 #~ msgstr "Medikamente verwalten."
