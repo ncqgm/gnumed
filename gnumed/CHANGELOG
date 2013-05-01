@@ -21,6 +21,7 @@ FIX: exception on timeline display problems
 FIX: exception on logging cIdentity.export_tray [thanks J.Busser]
 
 IMPROVED: prepare for static placeholder depreciation
+IMPROVED: verbosely format duration in $<current_meds_list>$ [thanks V.Banait]
 
 	1.3.3
 

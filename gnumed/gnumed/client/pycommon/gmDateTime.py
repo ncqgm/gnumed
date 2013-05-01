@@ -341,7 +341,7 @@ def py_dt2wxDate(py_dt=None, wx=None):
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------
-def format_interval(interval=None, accuracy_wanted=None, none_string=None):
+def format_interval(interval=None, accuracy_wanted=None, none_string=None, verbose=False):
 
 	if accuracy_wanted is None:
 		accuracy_wanted = acc_seconds
@@ -360,43 +360,93 @@ def format_interval(interval=None, accuracy_wanted=None, none_string=None):
 	tmp = u''
 
 	if years > 0:
-		tmp += u'%s%s' % (int(years), _('interval_format_tag::years::y')[-1:])
+		if verbose:
+			if years > 1:
+				tag = u' ' + _('years')
+			else:
+				tag = u' ' + _('year')
+		else:
+			tag = _('interval_format_tag::years::y')[-1:]
+		tmp += u'%s%s' % (int(years), tag)
+
 
 	if accuracy_wanted < acc_months:
 		return tmp.strip()
 
 	if months > 0:
-		tmp += u' %s%s' % (int(months), _('interval_format_tag::months::m')[-1:])
+		if verbose:
+			if months > 1:
+				tag = u' ' + _('months')
+			else:
+				tag = u' ' + _('month')
+		else:
+			tag = _('interval_format_tag::months::m')[-1:]
+		tmp += u' %s%s' % (int(months), tag)
 
 	if accuracy_wanted < acc_weeks:
 		return tmp.strip()
 
 	if weeks > 0:
-		tmp += u' %s%s' % (int(weeks), _('interval_format_tag::weeks::w')[-1:])
+		if verbose:
+			if weeks > 1:
+				tag = u' ' + _('weeks')
+			else:
+				tag = u' ' + _('week')
+		else:
+			tag = _('interval_format_tag::weeks::w')[-1:]
+		tmp += u' %s%s' % (int(weeks), tag)
 
 	if accuracy_wanted < acc_days:
 		return tmp.strip()
 
 	if days > 0:
-		tmp += u' %s%s' % (int(days), _('interval_format_tag::days::d')[-1:])
+		if verbose:
+			if days > 1:
+				tag = u' ' + _('days')
+			else:
+				tag = u' ' + _('day')
+		else:
+			tag = _('interval_format_tag::days::d')[-1:]
+		tmp += u' %s%s' % (int(days), tag)
 
 	if accuracy_wanted < acc_hours:
 		return tmp.strip()
 
 	if hours > 0:
-		tmp += u' %s/24' % int(hours)
+		if verbose:
+			if hours > 1:
+				tag = u' ' + _('hours')
+			else:
+				tag = u' ' + _('hour')
+		else:
+			tag = u'/24'
+		tmp += u' %s%s' % (int(hours), tag)
 
 	if accuracy_wanted < acc_minutes:
 		return tmp.strip()
 
 	if mins > 0:
-		tmp += u' %s/60' % int(mins)
+		if verbose:
+			if mins > 1:
+				tag = u' ' + _('minutes')
+			else:
+				tag = u' ' + _('minute')
+		else:
+			tag = u'/60'
+		tmp += u' %s%s' % (int(mins), tag)
 
 	if accuracy_wanted < acc_seconds:
 		return tmp.strip()
 
 	if secs > 0:
-		tmp += u' %s/60' % int(secs)
+		if verbose:
+			if secs > 1:
+				tag = u' ' + _('seconds')
+			else:
+				tag = u' ' + _('second')
+		else:
+			tag = u's'
+		tmp += u' %s%s' % (int(mins), tag)
 
 	return tmp.strip()
 #---------------------------------------------------------------------------
