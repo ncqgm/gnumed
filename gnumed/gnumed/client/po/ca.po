@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-07 13:47+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:34+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -774,6 +774,27 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+msgid "%s fields"
+msgstr ""
+
+msgid "Segment #%s <%s>"
+msgstr ""
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1572,9 +1593,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Data de naixença"
@@ -1587,6 +1605,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Crea una nova linia de temps"
 
 msgid ""
 "Help requested\n"
@@ -1610,16 +1632,60 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** Data de Naixença desconeguda **"
 
+#, fuzzy
+msgid "years"
+msgstr "o any:"
+
+#, fuzzy
+msgid "year"
+msgstr "o any:"
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2412,24 +2478,6 @@ msgstr ""
 
 msgid "Fit Day"
 msgstr "Mostra el dia"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -4431,15 +4479,6 @@ msgstr ""
 msgid "Country"
 msgstr "País"
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr ""
-
-msgid "Save the entered data into the database."
-msgstr "Guarda la informació entrada a la base de dades."
-
-msgid "Cancel editing the data and discard changes."
-msgstr ""
-
 msgid "left extra"
 msgstr ""
 
@@ -4462,6 +4501,9 @@ msgid "Save data into database and clear fields for another value."
 msgstr ""
 
 msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid "Cancel editing the data and discard changes."
 msgstr ""
 
 msgid ""
@@ -6696,6 +6738,12 @@ msgstr ""
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr ""
+
+msgid "Saving contact data"
+msgstr ""
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -6704,12 +6752,6 @@ msgid ""
 msgstr ""
 
 msgid "Saving address"
-msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr ""
-
-msgid "Saving contact data"
 msgstr ""
 
 msgid "Select an address by postcode or street name."
@@ -9494,12 +9536,6 @@ msgstr ""
 msgid "Editing family history"
 msgstr ""
 
-msgid "Printer Setup"
-msgstr ""
-
-msgid "Calibration"
-msgstr ""
-
 msgid "No document template selected."
 msgstr ""
 
@@ -11381,7 +11417,10 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+msgid "Search in list"
+msgstr ""
+
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11528,6 +11567,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Mostra l'hora"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -13131,12 +13177,6 @@ msgstr ""
 msgid "&Print"
 msgstr ""
 
-msgid "week"
-msgstr ""
-
-msgid "weeks"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -14470,6 +14510,9 @@ msgstr "Quantitat"
 
 msgid "First Date"
 msgstr ""
+
+#~ msgid "Save the entered data into the database."
+#~ msgstr "Guarda la informació entrada a la base de dades."
 
 #, fuzzy
 #~ msgid "patient only"

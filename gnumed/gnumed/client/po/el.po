@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: Giorgos Vagionis <giorgos1971@gmail.com>\n"
-"POT-Creation-Date: 2013-04-07 13:48+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:34+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -859,6 +859,29 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 "Σφάλμα τρέξιμο pdftk. Δεν μπορεί  απευθείαςς να  συμπληρωθεί σε μορφή PDF."
 
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+#, fuzzy
+msgid "HL7 Message"
+msgstr "Μήνυμα"
+
+#, fuzzy
+msgid "%s fields"
+msgstr "Πεδίο αγνοούμενο"
+
+msgid "Segment #%s <%s>"
+msgstr ""
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr ""
 
@@ -1678,9 +1701,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Ημερομηνία γέννησης"
@@ -1694,6 +1714,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Δημιουργία νέου"
 
 msgid ""
 "Help requested\n"
@@ -1718,16 +1742,58 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr ""
 
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr "εβδομάδες"
+
+msgid "week"
+msgstr "εβδομάδα"
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr "ημέρες"
+
+msgid "day"
+msgstr "ημέρα"
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2514,24 +2580,6 @@ msgstr "Εβδομάδες"
 #, fuzzy
 msgid "Fit Day"
 msgstr "Πρώτη Μέρα"
-
-msgid "day"
-msgstr "ημέρα"
-
-msgid "days"
-msgstr "ημέρες"
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -4678,15 +4726,6 @@ msgstr "Περιοχή"
 msgid "Country"
 msgstr "Χώρα"
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr ""
-
-msgid "Save the entered data into the database."
-msgstr ""
-
-msgid "Cancel editing the data and discard changes."
-msgstr ""
-
 msgid "left extra"
 msgstr ""
 
@@ -4709,6 +4748,9 @@ msgid "Save data into database and clear fields for another value."
 msgstr ""
 
 msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid "Cancel editing the data and discard changes."
 msgstr ""
 
 msgid ""
@@ -6963,6 +7005,12 @@ msgstr "Συνοικία"
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr ""
+
+msgid "Saving contact data"
+msgstr ""
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -6972,12 +7020,6 @@ msgstr ""
 
 msgid "Saving address"
 msgstr "Αποθήκευση διεύθυνσης"
-
-msgid "Address details must be filled in completely or not at all."
-msgstr ""
-
-msgid "Saving contact data"
-msgstr ""
 
 msgid "Select an address by postcode or street name."
 msgstr ""
@@ -9816,12 +9858,6 @@ msgstr ""
 msgid "Editing family history"
 msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 
-msgid "Printer Setup"
-msgstr "Ρύθμιση Εκτυπωτή"
-
-msgid "Calibration"
-msgstr ""
-
 msgid "No document template selected."
 msgstr ""
 
@@ -11708,7 +11744,11 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+#, fuzzy
+msgid "Search in list"
+msgstr "Αποτελέσματα αναζήτησης"
+
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11857,6 +11897,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Εμφάνιση μηνυμάτων:"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -13520,12 +13567,6 @@ msgstr ""
 msgid "&Print"
 msgstr "&Εκτύπωση"
 
-msgid "week"
-msgstr "εβδομάδα"
-
-msgid "weeks"
-msgstr "εβδομάδες"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -14868,6 +14909,9 @@ msgstr "Ποσότητα"
 
 msgid "First Date"
 msgstr "Πρώτη Μέρα"
+
+#~ msgid "Printer Setup"
+#~ msgstr "Ρύθμιση Εκτυπωτή"
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "Το Sandboxed PDF αρχείο εξαγωγής δεν μπορεί να μετακινηθεί."

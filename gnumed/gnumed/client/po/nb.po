@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:35+CEST\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -786,6 +786,28 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+msgid "%s fields"
+msgstr ""
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Dokumenter: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1600,9 +1622,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "navn, kjønn, fødselsdato"
@@ -1614,6 +1633,9 @@ msgid "The earliest recorded event of care in this praxis."
 msgstr ""
 
 msgid "Death"
+msgstr ""
+
+msgid "Cannot display timeline."
 msgstr ""
 
 msgid ""
@@ -1638,16 +1660,58 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr ""
 
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2401,24 +2465,6 @@ msgid "Fit Week"
 msgstr ""
 
 msgid "Fit Day"
-msgstr ""
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
 msgstr ""
 
 msgid "can't be before year 10"
@@ -4393,15 +4439,6 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr ""
-
-msgid "Save the entered data into the database."
-msgstr ""
-
-msgid "Cancel editing the data and discard changes."
-msgstr ""
-
 msgid "left extra"
 msgstr ""
 
@@ -4424,6 +4461,9 @@ msgid "Save data into database and clear fields for another value."
 msgstr ""
 
 msgid "Reset all fields to their previous values."
+msgstr ""
+
+msgid "Cancel editing the data and discard changes."
 msgstr ""
 
 msgid ""
@@ -6635,6 +6675,12 @@ msgstr ""
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr ""
+
+msgid "Saving contact data"
+msgstr ""
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -6643,12 +6689,6 @@ msgid ""
 msgstr ""
 
 msgid "Saving address"
-msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr ""
-
-msgid "Saving contact data"
 msgstr ""
 
 msgid "Select an address by postcode or street name."
@@ -9422,12 +9462,6 @@ msgstr ""
 msgid "Editing family history"
 msgstr ""
 
-msgid "Printer Setup"
-msgstr ""
-
-msgid "Calibration"
-msgstr ""
-
 msgid "No document template selected."
 msgstr ""
 
@@ -11291,7 +11325,11 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+#, fuzzy
+msgid "Search in list"
+msgstr "Lab resultat"
+
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11437,6 +11475,12 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+msgid "Show"
+msgstr ""
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -13034,12 +13078,6 @@ msgid "Rev EDC"
 msgstr ""
 
 msgid "&Print"
-msgstr ""
-
-msgid "week"
-msgstr ""
-
-msgid "weeks"
 msgstr ""
 
 msgid ""

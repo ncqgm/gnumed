@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:36+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -844,6 +844,29 @@ msgstr ""
 "Erro ao tentar executar pdflatex. Impossível gerar o PDF a partir do modelo "
 "LaTeX."
 
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+#, fuzzy
+msgid "HL7 Message"
+msgstr "mensagem"
+
+msgid "%s fields"
+msgstr ""
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Comentário: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr ""
 
@@ -1668,9 +1691,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Data de Nascimento"
@@ -1684,6 +1704,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Criando um novo problema de saúde ..."
 
 msgid ""
 "Help requested\n"
@@ -1709,16 +1733,60 @@ msgstr "[%s:%s]: linha não atualizada (não houve retorno), linha está em uso?
 msgid "** DOB unknown **"
 msgstr "** DN desconhecida **"
 
+#, fuzzy
+msgid "years"
+msgstr "ou Ano:"
+
+#, fuzzy
+msgid "year"
+msgstr "ou Ano:"
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2598,24 +2666,6 @@ msgstr ""
 #, fuzzy
 msgid "Fit Day"
 msgstr "Primeira Data"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr "não pode ser antes do ano 10"
@@ -4833,15 +4883,6 @@ msgstr "Estado"
 msgid "Country"
 msgstr "País"
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr "Janela genérica do GNUmed para Editar Área"
-
-msgid "Save the entered data into the database."
-msgstr "Salvar os dados no banco de dados"
-
-msgid "Cancel editing the data and discard changes."
-msgstr "Cancelar a edição de dados e descartar mudanças"
-
 #, fuzzy
 msgid "left extra"
 msgstr "lista a esquerda"
@@ -4866,6 +4907,9 @@ msgstr ""
 
 msgid "Reset all fields to their previous values."
 msgstr ""
+
+msgid "Cancel editing the data and discard changes."
+msgstr "Cancelar a edição de dados e descartar mudanças"
 
 msgid ""
 "Press me !\n"
@@ -7289,6 +7333,12 @@ msgstr "Bairro"
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr "Dados do endereço deverão ser completos."
+
+msgid "Saving contact data"
+msgstr "Salvando dados do contato"
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -7298,12 +7348,6 @@ msgstr ""
 
 msgid "Saving address"
 msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr "Dados do endereço deverão ser completos."
-
-msgid "Saving contact data"
-msgstr "Salvando dados do contato"
 
 msgid "Select an address by postcode or street name."
 msgstr "Selecione um endereço por CEP ou nome da rua."
@@ -10341,12 +10385,6 @@ msgstr "História de Medicação "
 msgid "Editing family history"
 msgstr "História de Medicação "
 
-msgid "Printer Setup"
-msgstr "Configurações de impressora"
-
-msgid "Calibration"
-msgstr "Calibrar"
-
 msgid "No document template selected."
 msgstr ""
 
@@ -12381,7 +12419,11 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+#, fuzzy
+msgid "Search in list"
+msgstr "Lista de medicamentos"
+
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -12535,6 +12577,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Mostrar arquivo de Log"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -14219,12 +14268,6 @@ msgstr ""
 msgid "&Print"
 msgstr ""
 
-msgid "week"
-msgstr ""
-
-msgid "weeks"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -15573,6 +15616,18 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid "GNUmed  generic EditArea dialog"
+#~ msgstr "Janela genérica do GNUmed para Editar Área"
+
+#~ msgid "Save the entered data into the database."
+#~ msgstr "Salvar os dados no banco de dados"
+
+#~ msgid "Printer Setup"
+#~ msgstr "Configurações de impressora"
+
+#~ msgid "Calibration"
+#~ msgstr "Calibrar"
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "Arquivo PDF criado não pode ser movido."

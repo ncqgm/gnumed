@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:36+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -856,6 +856,29 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 "Erro correndo pdflatex. Não foi possível converter o modelo LaTeX em PDF."
 
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+#, fuzzy
+msgid "%s fields"
+msgstr "campo XDT"
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Comentário: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr ""
 
@@ -1684,9 +1707,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Dia de Nascimento"
@@ -1700,6 +1720,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Criando um novo problema de saúde ..."
 
 msgid ""
 "Help requested\n"
@@ -1723,17 +1747,61 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** Data de nascimento desconhecida **"
 
+#, fuzzy
+msgid "years"
+msgstr "ou Ano:"
+
+#, fuzzy
+msgid "year"
+msgstr "ou Ano:"
+
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
+
+msgid "months"
+msgstr ""
+
+msgid "month"
+msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::m"
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::w"
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::d"
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
 
 msgid "y::year_abbreviation"
 msgstr "y::year_abbreviation"
@@ -2536,24 +2604,6 @@ msgstr ""
 #, fuzzy
 msgid "Fit Day"
 msgstr "1ª data"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -4706,15 +4756,6 @@ msgstr "Estado"
 msgid "Country"
 msgstr "País"
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr "Janela genérica do GNUmed para Editar Área"
-
-msgid "Save the entered data into the database."
-msgstr "Salvar os dados no banco de dados"
-
-msgid "Cancel editing the data and discard changes."
-msgstr "Cancelar a edição de dados e descartar mudanças"
-
 #, fuzzy
 msgid "left extra"
 msgstr "Apagando ID externo"
@@ -4739,6 +4780,9 @@ msgstr ""
 
 msgid "Reset all fields to their previous values."
 msgstr ""
+
+msgid "Cancel editing the data and discard changes."
+msgstr "Cancelar a edição de dados e descartar mudanças"
 
 msgid ""
 "Press me !\n"
@@ -7150,6 +7194,12 @@ msgstr "Bairro"
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr "Dados do endereço deverão ser completos."
+
+msgid "Saving contact data"
+msgstr "Salvando dados do contato"
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -7159,12 +7209,6 @@ msgstr ""
 
 msgid "Saving address"
 msgstr ""
-
-msgid "Address details must be filled in completely or not at all."
-msgstr "Dados do endereço deverão ser completos."
-
-msgid "Saving contact data"
-msgstr "Salvando dados do contato"
 
 msgid "Select an address by postcode or street name."
 msgstr "Selecione um endereço por CEP ou nome da rua."
@@ -10195,12 +10239,6 @@ msgstr ""
 msgid "Editing family history"
 msgstr ""
 
-msgid "Printer Setup"
-msgstr "Configurações de impressora"
-
-msgid "Calibration"
-msgstr "Calibrar"
-
 msgid "No document template selected."
 msgstr ""
 
@@ -12232,7 +12270,11 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+#, fuzzy
+msgid "Search in list"
+msgstr "Lista de medicamentos"
+
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -12386,6 +12428,14 @@ msgstr ""
 
 msgid "Data ID"
 msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Mostrar arquivo de Log"
+
+#, fuzzy
+msgid "Show formatted HL7"
+msgstr "editar os detalhes do modelo de formulário"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr ""
@@ -14064,12 +14114,6 @@ msgstr ""
 msgid "&Print"
 msgstr ""
 
-msgid "week"
-msgstr ""
-
-msgid "weeks"
-msgstr ""
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -15424,6 +15468,18 @@ msgstr "Quantidade"
 msgid "First Date"
 msgstr "1ª data"
 
+#~ msgid "GNUmed  generic EditArea dialog"
+#~ msgstr "Janela genérica do GNUmed para Editar Área"
+
+#~ msgid "Save the entered data into the database."
+#~ msgstr "Salvar os dados no banco de dados"
+
+#~ msgid "Printer Setup"
+#~ msgstr "Configurações de impressora"
+
+#~ msgid "Calibration"
+#~ msgstr "Calibrar"
+
 #, fuzzy
 #~ msgid "patient only"
 #~ msgstr "Mover paciente para baixo."
@@ -15881,10 +15937,6 @@ msgstr "1ª data"
 
 #~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
 #~ msgstr "Criado durante consulta: %s (%s - %s)   [#%s]\n"
-
-#, fuzzy
-#~ msgid "Show formatted item details."
-#~ msgstr "editar os detalhes do modelo de formulário"
 
 #~ msgid "Configure the directory to use as scratch space for temporary files."
 #~ msgstr ""

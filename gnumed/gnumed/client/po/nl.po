@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-01 19:36+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -854,6 +854,30 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+#, fuzzy
+msgid "HL7 Message"
+msgstr "bericht"
+
+#, fuzzy
+msgid "%s fields"
+msgstr "XDT veld"
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Documenten: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1728,9 +1752,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Geboortedatum"
@@ -1744,6 +1765,12 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr ""
+"Kan documentonderdeel niet weergeven:\n"
+"%s"
 
 msgid ""
 "Help requested\n"
@@ -1769,16 +1796,60 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** DOB onbekend **"
 
+#, fuzzy
+msgid "years"
+msgstr "Of jaar:"
+
+#, fuzzy
+msgid "year"
+msgstr "Of jaar:"
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr "weken"
+
+msgid "week"
+msgstr "week"
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr "dagen"
+
+msgid "day"
+msgstr "dag"
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 #, fuzzy
@@ -2608,24 +2679,6 @@ msgstr "Weken"
 #, fuzzy
 msgid "Fit Day"
 msgstr "Eerste Datum"
-
-msgid "day"
-msgstr "dag"
-
-msgid "days"
-msgstr "dagen"
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -4849,15 +4902,6 @@ msgstr "Regio"
 msgid "Country"
 msgstr "Land"
 
-msgid "GNUmed  generic EditArea dialog"
-msgstr "GNUmed algemene bewerk gebied dialoog"
-
-msgid "Save the entered data into the database."
-msgstr "Sla de ingevoerde informatie op in de database."
-
-msgid "Cancel editing the data and discard changes."
-msgstr "Annuleer het bewerken van de gegevens en verwerp de veranderingen."
-
 #, fuzzy
 msgid "left extra"
 msgstr "Verwijderen van BSN"
@@ -4886,6 +4930,9 @@ msgstr ""
 #, fuzzy
 msgid "Reset all fields to their previous values."
 msgstr "Wis alle velden of reset tot de waardes in de database."
+
+msgid "Cancel editing the data and discard changes."
+msgstr "Annuleer het bewerken van de gegevens en verwerp de veranderingen."
 
 msgid ""
 "Press me !\n"
@@ -7424,6 +7471,12 @@ msgstr "Deelgemeente"
 msgid "Showing addresses registered in GNUmed."
 msgstr ""
 
+msgid "Address details must be filled in completely or not at all."
+msgstr "Adresgegevens moeten volledig worden ingevuld of helemaal niet."
+
+msgid "Saving contact data"
+msgstr "Contactgegevens bewaren"
+
 msgid ""
 "Cannot save address.\n"
 "\n"
@@ -7434,12 +7487,6 @@ msgstr ""
 #, fuzzy
 msgid "Saving address"
 msgstr "Adres verwijderen"
-
-msgid "Address details must be filled in completely or not at all."
-msgstr "Adresgegevens moeten volledig worden ingevuld of helemaal niet."
-
-msgid "Saving contact data"
-msgstr "Contactgegevens bewaren"
 
 msgid "Select an address by postcode or street name."
 msgstr "Selecteer een adres op postcode of straatnaam"
@@ -10761,12 +10808,6 @@ msgstr "Indicatie"
 msgid "Editing family history"
 msgstr "Indicatie"
 
-msgid "Printer Setup"
-msgstr "Printerinstellingen"
-
-msgid "Calibration"
-msgstr "Kalibreren"
-
 msgid "No document template selected."
 msgstr ""
 
@@ -13057,7 +13098,11 @@ msgid "generic multi choice dialog"
 msgstr "algemene meerkeuze dialoog"
 
 #, fuzzy
-msgid "invalid placeholder [%s]"
+msgid "Search in list"
+msgstr "zoekresultaten"
+
+#, fuzzy
+msgid "invalid placeholder >>>%s<<<"
 msgstr "onbekende plaatsvuller: <%s>"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -13221,6 +13266,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "toon onderdeel"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -15132,12 +15184,6 @@ msgstr ""
 msgid "&Print"
 msgstr "&Afdrukken"
 
-msgid "week"
-msgstr "week"
-
-msgid "weeks"
-msgstr "weken"
-
 msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
@@ -16617,6 +16663,18 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#~ msgid "GNUmed  generic EditArea dialog"
+#~ msgstr "GNUmed algemene bewerk gebied dialoog"
+
+#~ msgid "Save the entered data into the database."
+#~ msgstr "Sla de ingevoerde informatie op in de database."
+
+#~ msgid "Printer Setup"
+#~ msgstr "Printerinstellingen"
+
+#~ msgid "Calibration"
+#~ msgstr "Kalibreren"
 
 #, fuzzy
 #~ msgid "patient only"
