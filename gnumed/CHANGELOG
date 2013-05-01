@@ -10,6 +10,7 @@
 
 FIX: exception on DDE access to IE when printing
 FIX: exception on timeline display problems
+FIX: exception on logging cIdentity.export_tray [thanks J.Busser]
 
 IMPROVED: prepare for static placeholder depreciation
 
