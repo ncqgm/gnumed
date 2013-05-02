@@ -880,7 +880,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 #		self._LCTRL_items.set_column_widths()
 #		self._LCTRL_items.SetFocus()
 #================================================================
-class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
+class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorterMixin):
 
 	# FIXME: searching by typing
 
@@ -897,6 +897,10 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
+		# required for column sorting
+		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns
+		self.itemDataMap = self.__get_items_for_sorting()		# must be updated after data update
+		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
 		self.__widths = None
 		self.__data = None
@@ -933,6 +937,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
+		
+		self._on_data_update()
+		
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		"""Set the column width policy.
@@ -1018,24 +1025,38 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+			# item data must not be null for sorting to work, BTW, it is useful
+			self.SetItemData(row_num, row_num)
 
 		self.data = items
 
+		self._on_data_update()
+		
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data must be a list corresponding to the item indices>"""
+		# this is hard to enforce
+		# FIXME: data should be added together with string items
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
 				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
+			#  load data into items, anyway (?)
+			for item_idx in range(len(data)):
+				self.SetItemData(item_idx, item_idx)
 		self.__data = data
 		self.__tt_last_item = None
+		
+		# string data not modified, no need to call _on_data_update
+		
 		return
 
 	def _get_data(self):
-		return self.__data
-
+		#return self.__data
+		# solution below should give the same result,
+		# but in case of len(__data)<>self.GetItemCount() gives the chance to figure out what is going on
+		return self.get_item_data() # when item_idx is None returns all data
 	data = property(_get_data, set_data)
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
@@ -1106,11 +1127,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def get_item_data(self, item_idx = None):
 		if self.__data is None:	# this isn't entirely clean
 			return None
-
+		# proper index mapping string items to data is stored as item data
+		# this enables changing of items order, and still returning proper data
 		if item_idx is not None:
-			return self.__data[item_idx]
-
-		return [ self.__data[item_idx] for item_idx in range(self.GetItemCount()) ]
+			return self.__data[self.GetItemData(item_idx)]
+			
+		# in case of len(__data)<>self.GetItemCount() gives the chance to figure out what is going on
+		return [ self.__data[self.GetItemData(item_idx)] for item_idx in range(self.GetItemCount()) ]
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 
@@ -1120,14 +1143,14 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetFirstSelected()
 			if idx == -1:
 				return None
-			return self.__data[idx]
+			return self.__data[self.GetItemData(idx)]
 
 		data = []
 		if self.__data is None:
 			return data
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			data.append(self.__data[idx])
+			data.append(self.__data[self.GetItemData(idx)])
 			idx = self.GetNextSelected(idx)
 
 		return data
@@ -1136,9 +1159,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.Select(idx = self.GetFirstSelected(), on = 0)
 	#------------------------------------------------------------
 	def remove_item(self, item_idx=None):
-		self.DeleteItem(item_idx)
 		if self.__data is not None:
-			del self.__data[item_idx]
+			del self.__data[self.GetItemData(item_idx)]
+		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
 	#------------------------------------------------------------
 	# event handlers
@@ -1355,6 +1378,35 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__searchable_cols = new_cols.keys()
 
 	searchable_columns = property(lambda x:x, _set_searchable_cols)
+	#------------------------------------------------------------
+	# required by ColumnSorterMixin
+	#------------------------------------------------------------
+	def GetListCtrl(self):
+		return self
+	def __get_items_for_sorting(self):
+		_dict = {}
+		if self.GetItemCount() > 0:
+			for item_idx in range(self.GetItemCount()):
+				_dict[item_idx] = ()
+				if self.GetColumnCount() > 0:
+					for col_idx in range(self.GetColumnCount()) :
+						_dict[item_idx] += (self.GetItem(item_idx, col_idx).GetText() ,)
+				
+		return _dict
+	#------------------------------------------------------------
+	def _on_data_update(self):
+		self.SetColumnCount(self.GetColumnCount())
+		self.itemDataMap = self.__get_items_for_sorting()
+	#------------------------------------------------------------
+	def _on_col_click(self, event):
+		# for debugging:
+		# print "column clicked : %s" % (event.GetColumn())
+		# column, order = self.GetSortState()
+		# print "column %s sort %s" % (column, order)
+		# print self._colSortFlag
+		# print self.itemDataMap
+		event.Skip()
+
 #================================================================
 # main
 #----------------------------------------------------------------
