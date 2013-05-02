@@ -9,7 +9,11 @@ license: GPL v2 or later
 __author__ ="Ian Haywood <ihaywood@gnu.org>, karsten.hilbert@gmx.net"
 
 
-import os, sys, time, os.path, logging
+import os
+import sys
+import time
+import os.path
+import logging
 import codecs
 import re as regex
 import shutil
@@ -907,13 +911,6 @@ class cTextForm(cFormEngine):
 				# also consider text *viewers* since pretty much any of them will be an editor as well
 				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
 
-		# last resort
-#		if editor_cmd is None:
-#			if os.name == 'nt':
-#				editor_cmd = u'notepad.exe %s' % self.instance_filename
-#			else:
-#				editor_cmd = u'sensible-editor %s' % self.instance_filename
-
 		if editor_cmd is not None:
 			result = gmShellAPI.run_command_in_shell(command = editor_cmd, blocking = True)
 		self.re_editable_filenames = [self.instance_filename]
@@ -1011,26 +1008,33 @@ class cLaTeXForm(cFormEngine):
 
 		for line in template_file:
 
-			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:		# empty lines
+				instance_file.write(line)
+				continue
+			if line.startswith('%'):		# TeX comment
 				instance_file.write(line)
 				continue
 
-			# 1) find placeholders in this line
-			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
-			if len(placeholders_in_line) > 0:
+			for placeholder_regex in [data_source.first_order_placeholder_regex, data_source.second_order_placeholder_regex, data_source.third_order_placeholder_regex]:
+				# 1) find placeholders in this line
+				placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
+				if len(placeholders_in_line) == 0:
+					continue
+				_log.debug('%s placeholders found with pattern: %s', len(placeholders_in_line), placeholder_regex)
 				found_placeholders = True
-			# 2) and replace them
-			for placeholder in placeholders_in_line:
-				try:
-					val = data_source[placeholder]
-				except:
-					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
-					_log.exception(val)
+				# 2) replace them
+				for placeholder in placeholders_in_line:
+					try:
+						val = data_source[placeholder]
+					except:
+						_log.exception('error with placeholder [%s]', placeholder)
+						val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
 
-				if val is None:
-					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
+					if val is None:
+						_log.debug('error with placeholder [%s]', placeholder)
+						val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
 
-				line = line.replace(placeholder, val)
+					line = line.replace(placeholder, val)
 
 			instance_file.write(line)
 
@@ -1060,14 +1064,6 @@ class cLaTeXForm(cFormEngine):
 				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
 				if editor_cmd is not None:
 					break
-
-		# last resort
-		# Vaibhav BANAIT protested against this
-#		if editor_cmd is None:
-#			if os.name == 'nt':
-#				editor_cmd = u'notepad.exe %s' % self.instance_filename
-#			else:
-#				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
 		if editor_cmd is None:
 			return False
@@ -1149,11 +1145,6 @@ class cXeTeXForm(cFormEngine):
 		super(self.__class__, self).__init__(template_file = template_file)
 
 		self.__sandbox_dir = sandbox_dir
-
-#		path, ext = os.path.splitext(self.template_filename)
-#		if ext in [r'', r'.']:
-#			ext = r'.tex'
-#		self.instance_filename = r'%s-instance%s' % (path, ext)
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
@@ -1208,26 +1199,33 @@ class cXeTeXForm(cFormEngine):
 
 		for line in template_file:
 
-			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:		# empty lines
+				instance_file.write(line)
+				continue
+			if line.startswith('%'):		# TeX comment
 				instance_file.write(line)
 				continue
 
-			# 1) find placeholders in this line
-			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
-			if len(placeholders_in_line) > 0:
+			for placeholder_regex in [data_source.first_order_placeholder_regex, data_source.second_order_placeholder_regex, data_source.third_order_placeholder_regex]:
+				# 1) find placeholders in this line
+				placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
+				if len(placeholders_in_line) == 0:
+					continue
+				_log.debug('%s placeholders found with pattern: %s', len(placeholders_in_line), placeholder_regex)
 				found_placeholders = True
-			# 2) and replace them
-			for placeholder in placeholders_in_line:
-				try:
-					val = data_source[placeholder]
-				except:
-					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
-					_log.exception(val)
+				# 2) replace them
+				for placeholder in placeholders_in_line:
+					try:
+						val = data_source[placeholder]
+					except:
+						_log.exception('error with placeholder [%s]', placeholder)
+						val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
 
-				if val is None:
-					val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder, replace_known_unicode=False)
+					if val is None:
+						_log.debug('error with placeholder [%s]', placeholder)
+						val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
 
-				line = line.replace(placeholder, val)
+					line = line.replace(placeholder, val)
 
 			instance_file.write(line)
 
@@ -1258,13 +1256,6 @@ class cXeTeXForm(cFormEngine):
 				editor_cmd = gmMimeLib.get_viewer_cmd(mimetype, self.instance_filename)
 				if editor_cmd is not None:
 					break
-
-		# last resort
-#		if editor_cmd is None:
-#			if os.name == 'nt':
-#				editor_cmd = u'notepad.exe %s' % self.instance_filename
-#			else:
-#				editor_cmd = u'sensible-editor %s' % self.instance_filename
 
 		if editor_cmd is None:
 			return False
@@ -2128,9 +2119,9 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
-	#test_latex_form()
+	test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
-	test_text_form()
+	#test_text_form()
 
 #============================================================

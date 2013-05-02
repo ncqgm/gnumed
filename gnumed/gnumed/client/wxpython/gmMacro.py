@@ -200,8 +200,7 @@ known_variant_placeholders = [
 
 # http://help.libreoffice.org/Common/List_of_Regular_Expressions
 # except that OOo cannot be non-greedy |-(
-#default_placeholder_regex = r'\$<.+?>\$'				# this one works 
-
+#default_placeholder_regex = r'\$<.+?>\$'				# previous working placeholder
 	# regex logic:
 	# starts with "$"
 	# followed by "<"
@@ -212,7 +211,11 @@ known_variant_placeholders = [
 	# followed by any number of numbers
 	# followed by ">"
 	# followed by "$"
-default_placeholder_regex = r'\$<[^<]+?::.*?::\d*?>\$'		# this one works [except that OOo cannot be non-greedy |-(    ]
+default_placeholder_regex = r'\$<[^<:]+::.*?::\d*?>\$'		# this one works [except that OOo cannot be non-greedy |-(    ]
+first_order_placeholder_regex =   r'\$<<<[^<:]+?::.*::\d*?>>>\$'
+second_order_placeholder_regex = r'\$<<[^<:]+?::.*::\d*?>>\$'
+third_order_placeholder_regex =  r'\$<[^<:]+::.*?::\d*?>\$'
+
 
 #default_placeholder_regex = r'\$<(?:(?!\$<).)+>\$'		# non-greedy equivalent, uses lookahead (but not supported by LO either |-o  )
 
@@ -275,7 +278,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		self.pat = gmPerson.gmCurrentPatient()
 		self.debug = False
 
-		self.invalid_placeholder_template = _('invalid placeholder >>>%s<<<')
+		self.invalid_placeholder_template = _('invalid placeholder >>>>>%s<<<<<')
 
 		self.__cache = {}
 
@@ -315,6 +318,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 	escape_function = property(lambda x:x, _set_escape_function)
 	#--------------------------------------------------------
+	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
+
+	first_order_placeholder_regex = property(lambda x: first_order_placeholder_regex, lambda x:x)
+	second_order_placeholder_regex = property(lambda x: second_order_placeholder_regex, lambda x:x)
+	third_order_placeholder_regex = property(lambda x: third_order_placeholder_regex, lambda x:x)
+	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
 	def __getitem__(self, placeholder):
@@ -330,14 +339,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		original_placeholder = placeholder
 
+		# remove leading/trailing '$<(<<)' and '(>>)>$'
 		if placeholder.startswith(default_placeholder_start):
-			placeholder = placeholder[len(default_placeholder_start):]
+			placeholder = placeholder.lstrip('$').lstrip('<')
 			if placeholder.endswith(default_placeholder_end):
-				placeholder = placeholder[:-len(default_placeholder_end)]
+				placeholder = placeholder.rstrip('$').rstrip('>')
 			else:
-				_log.debug('placeholder must either start with [%s] and end with [%s] or neither of both', default_placeholder_start, default_placeholder_end)
+				_log.error('placeholder must either start with [%s] and end with [%s] or neither of both', default_placeholder_start, default_placeholder_end)
 				if self.debug:
-					return self.invalid_placeholder_template % original_placeholder
+					return self._escape(self.invalid_placeholder_template % original_placeholder)
 				return None
 
 		# injectable placeholder ?
@@ -350,66 +360,41 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			except KeyError:
 				is_an_injectable = False
 			except:
-				_log.exception('placeholder handling error: %s', original_placeholder)
+				_log.exception('injectable placeholder handling error: %s', original_placeholder)
 				if self.debug:
-					return self.invalid_placeholder_template % original_placeholder
+					return self._escape(self.invalid_placeholder_template % original_placeholder)
 				return None
 			if is_an_injectable:
 				if val is None:
 					if self.debug:
-						return u'injectable placeholder [%s]: no value available' % name
+						return self._escape(u'injectable placeholder [%s]: no value available' % name)
 					return placeholder
-				return val[:int(lng)]
-
-		# extended static placeholder ?
-		parts = placeholder.split('::::', 1)
-		if len(parts) == 2:
-			name, lng = parts
-			try:
-				lng = int(lng)
-			except (TypeError, ValueError):
-				lng = sys.maxint
-			try:
-				return getattr(self, name)[:lng]
-			except:
-				_log.exception('placeholder handling error: %s', original_placeholder)
-				if self.debug:
-					return self.invalid_placeholder_template % original_placeholder
-				return None
+				try:
+					lng = int(lng)
+				except (TypeError, ValueError):
+					lng = len(val)
+				return val[:lng]
 
 		# variable placeholders
-		parts = placeholder.split('::')
-
-		if len(parts) == 1:
-			_log.warning('invalid placeholder layout: >>>%s<<<', original_placeholder)
+		if len(placeholder.split('::', 2)) < 3:
+			_log.error('invalid placeholder structure: %s', original_placeholder)
 			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
+				return self._escape(self.invalid_placeholder_template % original_placeholder)
 			return None
 
-		if len(parts) == 2:
-			name, data = parts
+		name, data = placeholder.split('::', 1)
+		data, lng_str = data.rsplit('::', 1)
+		_log.debug('placeholder parts: name=[%s]; length=[%s]; options=>>>%s<<<', name, lng_str, data)
+		try:
+			lng = int(lng_str)
+		except (TypeError, ValueError):
 			lng = None
-
-		if len(parts) == 3:
-			name, data, lng = parts
-			try:
-				lng = int(lng)
-			except (TypeError, ValueError):
-				lng = None
-
-		_log.debug('placeholder has %s parts: name=[%s]; length=[%s]; options=>>>%s<<<', len(parts), name, lng, data)
-
-		if len(parts) > 3:
-			_log.warning('invalid placeholder layout: >>>%s<<<', original_placeholder)
-			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
-			return None
 
 		handler = getattr(self, '_get_variant_%s' % name, None)
 		if handler is None:
 			_log.warning('no handler <_get_variant_%s> for placeholder %s', name, original_placeholder)
 			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
+				return self._escape(self.invalid_placeholder_template % original_placeholder)
 			return None
 
 		try:
@@ -419,17 +404,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		except:
 			_log.exception('placeholder handling error: %s', original_placeholder)
 			if self.debug:
-				return self.invalid_placeholder_template % original_placeholder
+				return self._escape(self.invalid_placeholder_template % original_placeholder)
 			return None
 
 		_log.error('something went wrong, should never get here')
 		return None
 	#--------------------------------------------------------
-	# properties actually handling placeholders
-	#--------------------------------------------------------
-	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
-	#--------------------------------------------------------
-	# variant handlers
+	# placeholder handlers
 	#--------------------------------------------------------
 	def _get_variant_client_version(self, data=None):
 		return self._escape (
@@ -1378,17 +1359,12 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return template % target_fname
 	#--------------------------------------------------------
-	def _get_variant_free_text(self, data=u'tex//'):
-		# <data>:
-		#	format:	tex (only, currently)
-		#	message: shown in input dialog, must not contain "//" or "::"
+	def _get_variant_free_text(self, data=None):
 
-		data_parts = data.split('//')
-		format = data_parts[0]
-		if len(data_parts) > 1:
-			msg = data_parts[1]
-		else:
+		if data is None:
 			msg = _('generic text')
+		else:
+			msg = data
 
 		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
 			None,
@@ -1411,10 +1387,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return text
 
 		dlg.Destroy()
-
-#		if format in [u'tex', u'latex']:
-#			return gmTools.tex_escape_string(text = text)
-#		return text
 
 		return self._escape(text)
 	#--------------------------------------------------------
@@ -1858,19 +1830,20 @@ if __name__ == '__main__':
 		]
 
 		tests = [
-			u'junk   $<date_of_birth::%Y %B %d $<<inner placeholder::%Y %B %d::20>>$::20>$   junk',
+#			u'junk   $<<<date_of_birth::%Y %B %d $<inner placeholder::%Y %B %d::20>$::20>>>$   junk',
 #			u'junk   $<date_of_birth::%Y %B %d::20>$   $<date_of_birth::%Y %B %d::20>$',
 #			u'junk   $<date_of_birth::%Y %B %d::>$   $<date_of_birth::%Y %B %d::20>$   $<<date_of_birth::%Y %B %d::20>>$',
 #			u'junk   $<date_of_birth::::20>$',
 #			u'junk   $<date_of_birth::::>$',
+			u'$<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$',
 		]
 
-		print "testing placeholder regex:", default_placeholder_regex
+		print "testing placeholder regex:", first_order_placeholder_regex
 		print ""
 
 		for t in tests:
 			print 'line: "%s"' % t
-			phs = regex.findall(default_placeholder_regex, t, regex.IGNORECASE)
+			phs = regex.findall(first_order_placeholder_regex, t, regex.IGNORECASE)
 			print " %s placeholders:" % len(phs)
 			for p in phs:
 				print ' => "%s"' % p

@@ -479,6 +479,8 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""
 
+	_log.debug('CWD: %s', os.getcwd())
+
 	remove_path = always_remove_path or False
 	if module_path not in sys.path:
 		_log.info('appending to sys.path: [%s]' % module_path)
