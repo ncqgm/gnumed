@@ -72,6 +72,7 @@ _injectable_placeholders = {
 known_variant_placeholders = [
 	# generic:
 	u'free_text',							# show a dialog for entering some free text
+											# args: <message>
 	u'text_snippet',						# a text snippet, taken from the keyword expansion mechanism
 											# args: <snippet name>//<template>
 	u'data_snippet',						# a binary snippet, taken from the keyword expansion mechanism
@@ -153,6 +154,10 @@ known_variant_placeholders = [
 
 	u'current_meds',						# "args" holds: line template//<select>
 											#	<select>: if this is present the user will be asked which meds to export
+	u'current_meds_for_rx',					# formats substance intakes either by substance (non-brand intakes or by
+											# brand (once per brand intake, even if multi-component)
+											# args: <line template>
+											#	<line_template>: template into which to insert each intake
 	u'current_meds_table',					# "args" holds: format, options
 	u'current_meds_notes',					# "args" holds: format, options
 
@@ -1129,6 +1134,30 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
 	#--------------------------------------------------------
+	def _get_variant_current_meds_for_rx(self, data=None):
+		if data is None:
+			return self._escape(_('current_meds_for_rx: template is missing'))
+
+		emr = self.pat.get_emr()
+		from Gnumed.wxpython import gmMedicationWidgets
+		current_meds = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+		if current_meds is None:
+			return u''
+
+		intakes2show = {}
+		for intake in current_meds:
+			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
+			if intake['pk_brand'] is None:
+				fields_dict['brand'] = _('generic %s') % fields_dict['substance']
+				fields_dict['contains'] = u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit'])
+				intakes2show[fields_dict['brand']] = fields_dict
+			else:
+				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
+				fields_dict['contains'] = u'; '.join([ u'%s %s%s' % (c[0], c[1], c[2]) for c in comps ])
+				intakes2show[intake['brand']] = fields_dict		# this will make multi-component drugs unique
+
+		return u'\n'.join([ data % intake for intake in intakes2show.values() ])
+	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 
 		if data is None:
@@ -1875,10 +1904,10 @@ if __name__ == '__main__':
 			#u'form_version::::5',
 			#u'$<current_meds::\item %(brand)s %(preparation)s (%(substance)s) from %(started)s for %(duration)s as %(schedule)s until %(discontinued)s\\n::250>$',
 			#u'$<vaccination_history::%(date_given)s: %(vaccine)s [%(batch_no)s] %(l10n_indications)s::250>$',
-			u'$<date_of_birth::%Y %B %d::20>$',
-			u'$<date_of_birth::%Y %B %d::>$',
-			u'$<date_of_birth::::20>$',
-			u'$<date_of_birth::::>$',
+			#u'$<date_of_birth::%Y %B %d::20>$',
+			#u'$<date_of_birth::%Y %B %d::>$',
+			#u'$<date_of_birth::::20>$',
+			#u'$<date_of_birth::::>$',
 			#u'$<patient_tags::Tag "%(l10n_description)s": %(comment)s//\\n- ::250>$',
 			#u'$<PHX::%(description)s\n  side: %(laterality)s, active: %(is_active)s, relevant: %(clinically_relevant)s, caused death: %(is_cause_of_death)s//\n//%Y %B %d//latex::250>$',
 			#u'$<patient_photo::\includegraphics[width=60mm]{%s}//image/png//.png::250>$',
@@ -1894,6 +1923,7 @@ if __name__ == '__main__':
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
 			#u'$<reminders:://::>$'
+			u'$<current_meds_for_rx::%(brand)s (%(contains)s)::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -1929,9 +1959,9 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	test_placeholder_regex()
+	#test_placeholder_regex()
 	#test()
-	#test_placeholder()
+	test_placeholder()
 	#test_show_phs()
 
 #=====================================================================

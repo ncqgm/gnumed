@@ -10,6 +10,7 @@
 
 NEW: generic search in lists
 NEW: nested placeholders
+NEW: placeholder $<current_meds_for_rx>$
 
 ------------------------------------------------
 # rel-1-3-patches
