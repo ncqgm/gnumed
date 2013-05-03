@@ -11,7 +11,6 @@ import sys
 # 3rd party
 import wx
 
-
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
@@ -182,7 +181,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		self._LCTRL_patients.set_columns ([
 			_('Zone'),
 			_('Urgency'),
-			#' ! ',
+			_('Registered'),
 			_('Waiting time'),
 			_('Patient'),
 			_('Born'),
@@ -292,6 +291,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			[ [
 				gmTools.coalesce(p['waiting_zone'], u''),
 				p['urgency'],
+				gmDateTime.pydt_strftime(p['registered'], format='%Y-%m-%d %H:%M'),
 				gmDateTime.format_interval_medically(p['waiting_time']),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				gmTools.coalesce (
