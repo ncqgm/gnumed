@@ -882,7 +882,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorterMixin):
 
-	# FIXME: searching by typing
+	get_data_idx_for_item = wx.ListCtrl.GetItemData
 
 	def __init__(self, *args, **kwargs):
 
@@ -897,9 +897,11 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
-		# required for column sorting
-		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns
-		self.itemDataMap = self.__get_items_for_sorting()		# must be updated after data update
+
+		# required for column sorting, MUST have this name
+		self.itemDataMap = self._get_items_for_sorting()		# must be updated after data update
+		listmixins.ColumnSorterMixin.__init__(self, 0)			# must be called again after adding columns
+		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
 		self.__widths = None
@@ -937,9 +939,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
-		
-		self._on_data_update()
-		
+
+		self._update_item2data_idx_map()
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		"""Set the column width policy.
@@ -1030,33 +1031,32 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		self.data = items
 
-		self._on_data_update()
-		
+		self._update_item2data_idx_map()
+
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def set_data(self, data=None):
-		"""<data must be a list corresponding to the item indices>"""
+		"""<data> assumed to be a list corresponding to the item indices"""
 		# this is hard to enforce
 		# FIXME: data should be added together with string items
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
 				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
-			#  load data into items, anyway (?)
+			# update item idx <-> item data map, anyway (?)
 			for item_idx in range(len(data)):
 				self.SetItemData(item_idx, item_idx)
 		self.__data = data
 		self.__tt_last_item = None
-		
-		# string data not modified, no need to call _on_data_update
-		
+		# string data (rows/visible list items) not modified,
+		# so no need to call _update_item2data_idx_map
 		return
 
 	def _get_data(self):
-		#return self.__data
-		# solution below should give the same result,
-		# but in case of len(__data)<>self.GetItemCount() gives the chance to figure out what is going on
-		return self.get_item_data() # when item_idx is None returns all data
+		# slower than "return self.__data" but helps with detecting
+		# problems with len(__data)<>self.GetItemCount()
+		return self.get_item_data() # item_idx is None: returns all data
+
 	data = property(_get_data, set_data)
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
@@ -1130,10 +1130,12 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# proper index mapping string items to data is stored as item data
 		# this enables changing of items order, and still returning proper data
 		if item_idx is not None:
-			return self.__data[self.GetItemData(item_idx)]
-			
-		# in case of len(__data)<>self.GetItemCount() gives the chance to figure out what is going on
-		return [ self.__data[self.GetItemData(item_idx)] for item_idx in range(self.GetItemCount()) ]
+			return self.__data[self.get_data_idx_for_item(item_idx)]
+
+		# if <idx> is None return all data up to item_count,
+		# in case of len(__data) <> self.GetItemCount() this
+		# gives the chance to figure out what is going on
+		return [ self.__data[self.get_data_idx_for_item(item_idx)] for item_idx in range(self.GetItemCount()) ]
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 
@@ -1143,14 +1145,14 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetFirstSelected()
 			if idx == -1:
 				return None
-			return self.__data[self.GetItemData(idx)]
+			return self.__data[self.get_data_idx_for_item(idx)]
 
 		data = []
 		if self.__data is None:
 			return data
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			data.append(self.__data[self.GetItemData(idx)])
+			data.append(self.__data[self.get_data_idx_for_item(idx)])
 			idx = self.GetNextSelected(idx)
 
 		return data
@@ -1160,7 +1162,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def remove_item(self, item_idx=None):
 		if self.__data is not None:
-			del self.__data[self.GetItemData(item_idx)]
+			del self.__data[self.get_data_idx_for_item(item_idx)]
 		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
 	#------------------------------------------------------------
@@ -1314,7 +1316,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		dyna_tt = None
 		if self.__item_tooltip_callback is not None:
-			dyna_tt = self.__item_tooltip_callback(self.__data[item_idx])
+			dyna_tt = self.__item_tooltip_callback(self.__data[self.get_data_idx_for_item(item_idx)])
 
 		if dyna_tt is None:
 			self.SetToolTipString(self.__tt_static_part)
@@ -1379,24 +1381,30 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	searchable_columns = property(lambda x:x, _set_searchable_cols)
 	#------------------------------------------------------------
-	# required by ColumnSorterMixin
+	# ColumnSorterMixin API
 	#------------------------------------------------------------
 	def GetListCtrl(self):
+		# required
 		return self
-	def __get_items_for_sorting(self):
-		_dict = {}
-		if self.GetItemCount() > 0:
-			for item_idx in range(self.GetItemCount()):
-				_dict[item_idx] = ()
-				if self.GetColumnCount() > 0:
-					for col_idx in range(self.GetColumnCount()) :
-						_dict[item_idx] += (self.GetItem(item_idx, col_idx).GetText() ,)
-				
-		return _dict
 	#------------------------------------------------------------
-	def _on_data_update(self):
+	def _get_items_for_sorting(self):
+		dict2sort = {}
+		item_count = self.GetItemCount()
+		if item_count == 0:
+			return dict2sort
+		col_count = self.GetColumnCount()
+		for item_idx in range(item_count):
+			dict2sort[item_idx] = ()
+			if col_count == 0:
+				continue
+			for col_idx in range(col_count):
+				dict2sort[item_idx] += (self.GetItem(item_idx, col_idx).GetText(), )
+
+		return dict2sort
+	#------------------------------------------------------------
+	def _update_item2data_idx_map(self):
 		self.SetColumnCount(self.GetColumnCount())
-		self.itemDataMap = self.__get_items_for_sorting()
+		self.itemDataMap = self._get_items_for_sorting()
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
 		# for debugging:
