@@ -507,6 +507,8 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 					col = col_idx,
 					label = label
 				)
+		# must be called explicitely, because string items are set above without calling set_string_items
+		self._update_item2data_idx_map()
 		self._LCTRL_result.set_column_widths()
 		self._LCTRL_result.set_data(data = rows)
 

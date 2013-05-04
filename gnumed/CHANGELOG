@@ -11,6 +11,7 @@
 NEW: generic search in lists
 NEW: nested placeholders
 NEW: placeholder $<current_meds_for_rx>$
+NEW: list sorting by column header click [thanks J.Luszawski]
 
 ------------------------------------------------
 # rel-1-3-patches

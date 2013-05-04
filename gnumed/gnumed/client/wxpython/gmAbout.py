@@ -44,6 +44,7 @@ class ScrollTxtWin (wx.Window):
 		u'Dr Sebastian Hilbert',
 		u'Dr John Jaarsveld',
 		u'Uwe Koch Kronberg',
+		u'Dr Jerzy Luszawski',
 		u'et alii'
 	]
 
@@ -248,6 +249,13 @@ Steffi LEIBNER, Leipzig
 
  - Testen, Fehlerberichte
  - Dokumentenvorlage
+
+Jerzy LUSZAWSKI
+ Poland
+
+ - list sorting
+ - plugins
+ - printing
 
 Rogerio LUZ, Brasil
 
