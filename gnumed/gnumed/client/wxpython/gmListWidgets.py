@@ -884,6 +884,11 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 
 	get_data_idx_for_item = wx.ListCtrl.GetItemData
 
+	sort_order_tags = {
+		True: u' [\u03b1\u0391 \u2192 \u03c9\u03A9]',
+		False: u' [\u03c9\u03A9 \u2192 \u03b1\u0391]'
+	}
+
 	def __init__(self, *args, **kwargs):
 
 		self.debug = None
@@ -899,8 +904,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
 		# required for column sorting, MUST have this name
-		self.itemDataMap = self._get_items_for_sorting()		# must be updated after data update
-		listmixins.ColumnSorterMixin.__init__(self, 0)			# must be called again after adding columns
+		self._update_item2data_idx_map()						# must be called after each (external/direct) list item update
+		listmixins.ColumnSorterMixin.__init__(self, 0)			# must be called again after adding columns (why ?)
 		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
@@ -1030,7 +1035,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.SetItemData(row_num, row_num)
 
 		self.data = items
-
 		self._update_item2data_idx_map()
 
 		wx.EndBusyCursor()
@@ -1387,7 +1391,23 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# required
 		return self
 	#------------------------------------------------------------
-	def _get_items_for_sorting(self):
+	def OnSortOrderChanged(self):
+		# cleanup column headers
+		for col_idx in range(self.ColumnCount):
+			col_state = self.GetColumn(col_idx)
+			if col_state.m_text.endswith(self.sort_order_tags[True]):
+				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
+			if col_state.m_text.endswith(self.sort_order_tags[False]):
+				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
+			self.SetColumn(col_idx, col_state)
+
+		# mark sort column
+		col_idx, is_ascending = self.GetSortState()
+		col_state = self.GetColumn(col_idx)
+		col_state.m_text += self.sort_order_tags[is_ascending]
+		self.SetColumn(col_idx, col_state)
+	#------------------------------------------------------------
+	def _prepare_items_for_sorting(self):
 		dict2sort = {}
 		item_count = self.GetItemCount()
 		if item_count == 0:
@@ -1404,7 +1424,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def _update_item2data_idx_map(self):
 		self.SetColumnCount(self.GetColumnCount())
-		self.itemDataMap = self._get_items_for_sorting()
+		self.itemDataMap = self._prepare_items_for_sorting()
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
 		# for debugging:
