@@ -14,6 +14,7 @@ FIX: exception on logging cIdentity.export_tray [thanks J.Busser]
 
 IMPROVED: prepare for static placeholder depreciation
 IMPROVED: verbosely format duration in $<current_meds_list>$ [thanks V.Banait]
+IMPROVED: "Cave:" field not red when known to not have allergies
 
 	1.3.3
 

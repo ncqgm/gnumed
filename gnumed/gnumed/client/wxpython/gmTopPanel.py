@@ -5,14 +5,26 @@ __author__  = "R.Terry <rterry@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.e
 __license__ = "GPL v2 or later"
 
 
-import sys, os.path, datetime as pyDT, logging
+import sys
+import os.path
+import datetime as pyDT
+import logging
 
 
 import wx
 
 
-from Gnumed.pycommon import gmGuiBroker, gmDispatcher, gmTools, gmCfg2, gmDateTime, gmI18N
-from Gnumed.business import gmPerson, gmEMRStructItems, gmAllergy
+from Gnumed.pycommon import gmGuiBroker
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmI18N
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmAllergy
+
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmAllergyWidgets
@@ -150,6 +162,8 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
+		show_red = True
+
 		emr = self.curr_pat.get_emr()
 		state = emr.allergy_state
 
@@ -164,11 +178,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		tt += u'\n'
 
 		# allergies
-		tmp = []
+		display = []
 		for allergy in emr.get_allergies():
 			# in field: "true" allergies only, not intolerances
-			if allergy['type'] == 'allergy':
-				tmp.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
+			if allergy['type'] == u'allergy':
+				display.append(allergy['descriptor'][:10].strip() + gmTools.u_ellipsis)
 			# in tooltip
 			if allergy['definite']:
 				certainty = _('definite')
@@ -184,15 +198,24 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				reaction
 			)
 
-		if len(tmp) == 0:
-			tmp = state.state_symbol
+		if len(display) == 0:
+			display = state.state_symbol
+			if display == gmTools.u_diameter:
+				show_red = False
 		else:
-			tmp = ','.join(tmp)
+			display = ','.join(display)
 
 		if state['last_confirmed'] is not None:
-			tmp += state['last_confirmed'].strftime(' (%x)')
+			display += gmDateTime.pydt_strftime(state['last_confirmed'], ' (%Y %b)')
 
-		self._TCTRL_allergies.SetValue(tmp)
+		if show_red:
+			self._LBL_allergies.SetForegroundColour('red')
+			self._TCTRL_allergies.SetForegroundColour('red')
+		else:
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+
+		self._TCTRL_allergies.SetValue(display)
 		self._TCTRL_allergies.SetToolTipString(tt)
 
 #===========================================================	

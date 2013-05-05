@@ -111,10 +111,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		_log.error('unknown allergy state [%s]', self._payload[self._idx['has_allergy']])
 		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
-	def _set_symbol(self, value):
-		raise AttributeError('invalid to set allergy state symbol')
-
-	state_symbol = property(_get_as_symbol, _set_symbol)
+	state_symbol = property(_get_as_symbol, lambda x:x)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == u'comment':
