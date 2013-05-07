@@ -634,28 +634,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			except KeyError:
 				return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
 
-#-------------
-#		if target_format == u'tex':
-#			keys = narr[0].keys()
-#			lines = []
-#			line_dict = {}
-#			for n in narr:
-#				for key in keys:
-#					if isinstance(n[key], basestring):
-#						line_dict[key] = gmTools.tex_escape_string(text = n[key])
-#						continue
-#					line_dict[key] = n[key]
-#				try:
-#					lines.append((template % line_dict)[:line_length])
-#				except KeyError:
-#					return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
-#		else:
-#			try:
-#				lines = [ (template % n)[:line_length] for n in narr ]
-#			except KeyError:
-#				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
-#-------------------
-
 		return u'\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_soap_by_issue(self, data=None):
