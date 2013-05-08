@@ -1314,7 +1314,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		dyna_tt = None
 		if self.__item_tooltip_callback is not None:
-			dyna_tt = self.__item_tooltip_callback(self.__data[item_idx])
+			dyna_tt = self.__item_tooltip_callback(self.__data[self.GetItemData(item_idx)])
 
 		if dyna_tt is None:
 			self.SetToolTipString(self.__tt_static_part)
