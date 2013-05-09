@@ -1,0 +1,54 @@
+-- ==============================================================
+-- GNUmed database schema change script
+--
+-- License: GPL v2 or later
+-- Author: karsten.hilbert@gmx.net
+--
+-- ==============================================================
+\set ON_ERROR_STOP 1
+
+--set default_transaction_read_only to off;
+-- --------------------------------------------------------------
+delete from ref.keyword_expansion where keyword = 'GKV_Stempel-LaTeX_picture_environment';
+
+insert into ref.keyword_expansion (
+	fk_staff,
+	keyword,
+	textual_data
+) values (
+	null,
+	'GKV_Stempel-LaTeX_picture_environment',
+	'%----- Stempel für LMcC ---------------
+% da der Stempel in verschiedenen Forumularen an verschiedenen
+% Stellen gesetzt wird, wird hier mit einem Offset gearbeitet,
+% -> nur der Offset ist (im Formulartemplate !) anzupassen, z.B.:
+%\stempeloffsetx=17
+%\stempeloffsety=-80
+
+% debug:
+%\put(\stempeloffsetx,\stempeloffsety){.+ (Stempelwurzel)}
+
+\put(\stempeloffsetx,\stempeloffsety){
+	{\tiny
+	BSNR:$<current_provider_external_id::%s//KV-BSNR//KV::25>$ / 
+	LANR:$<current_provider_external_id::%s//KV-LANR//KV::25>$
+	}
+}
+
+\advance\stempeloffsety by -4
+\put(\stempeloffsetx,\stempeloffsety){$<current_provider::::>$}
+
+\advance\stempeloffsety by -5
+\put(\stempeloffsetx,\stempeloffsety){FA für $[Facharzt für ?]$}
+
+\advance\stempeloffsety by -5
+\put(\stempeloffsetx,\stempeloffsety){$[Praxis: Straße & Hausnummer]$}
+
+\advance\stempeloffsety by -5
+\put(\stempeloffsetx,\stempeloffsety){$[Praxis: PLZ & Ort]$}
+%----- Stempel ---------------
+'
+);
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v19-GKV_Stempel.sql', '19.0');

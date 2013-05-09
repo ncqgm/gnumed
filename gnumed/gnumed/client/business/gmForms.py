@@ -1011,7 +1011,7 @@ class cLaTeXForm(cFormEngine):
 			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:		# empty lines
 				instance_file.write(line)
 				continue
-			if line.startswith('%'):		# TeX comment
+			if line.lstrip().startswith('%'):		# TeX comment
 				instance_file.write(line)
 				continue
 
