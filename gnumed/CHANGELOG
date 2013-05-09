@@ -27,6 +27,7 @@ IMPROVED: prepare for static placeholder depreciation
 IMPROVED: verbosely format duration in $<current_meds_list>$ [thanks V.Banait]
 IMPROVED: "Cave:" field not red when known to not have allergies
 IMPROVED: several reports on medications taken by patients
+IMPROVED: display of dynamic text expansion fill-in
 
 	1.3.3
 
