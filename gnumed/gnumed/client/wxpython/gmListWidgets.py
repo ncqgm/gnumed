@@ -1192,10 +1192,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			evt.Skip()
 			return
 
-		if len(self.__searchable_cols) == 0:
+		if self.__search_dlg is not None:
+			self.__search_dlg.Close()
 			return
 
-		if self.__search_dlg is not None:
+		if len(self.__searchable_cols) == 0:
 			return
 
 		if self.__search_data is None:
