@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-05-11 09:36+CEST\n"
+"POT-Creation-Date: 2013-05-11 14:35+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -11475,6 +11475,14 @@ msgid "Cannot edit drug brand. It is in use."
 msgstr ""
 
 msgid "Checking brand data"
+msgstr ""
+
+msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
 msgstr ""
 
 msgid ""
