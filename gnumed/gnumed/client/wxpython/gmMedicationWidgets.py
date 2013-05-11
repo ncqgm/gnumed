@@ -1011,37 +1011,58 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		validity = True
 
-		if self._PRW_brand.GetValue().strip() == u'':
+		brand_name = self._PRW_brand.GetValue().strip()
+		if brand_name == u'':
 			validity = False
 			self._PRW_brand.display_as_valid(False)
 		else:
 			self._PRW_brand.display_as_valid(True)
 
-		if self._PRW_preparation.GetValue().strip() == u'':
+		preparation = self._PRW_preparation.GetValue().strip()
+		if preparation == u'':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
 		if validity is True:
-			self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-			if len(self.__component_substances) == 0:
-				wants_empty = gmGuiHelpers.gm_show_question (
+			# dupe ?
+			drug = gmMedication.get_drug_by_brand(brand_name = brand_name, preparation = preparation)
+			if drug is not None:
+				validity = False
+				self._PRW_brand.display_as_valid(False)
+				self._PRW_preparation.display_as_valid(False)
+				gmGuiHelpers.gm_show_error (
 					title = _('Checking brand data'),
-					question = _(
-						'You have not selected any substances\n'
-						'as drug components.\n'
+					error = _(
+						'The brand information you entered:\n'
 						'\n'
-						'Without components you will not be able to\n'
-						'use this drug for documenting patient care.\n'
+						' [%s %s]\n'
 						'\n'
-						'Are you sure you want to save\n'
-						'it without components ?'
-					)
+						'already exists as a drug product.'
+					) % (brand_name, preparation)
 				)
-				if not wants_empty:
-					validity = False
-					self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
+
+			else:
+				# lacking components ?
+				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+				if len(self.__component_substances) == 0:
+					wants_empty = gmGuiHelpers.gm_show_question (
+						title = _('Checking brand data'),
+						question = _(
+							'You have not selected any substances\n'
+							'as drug components.\n'
+							'\n'
+							'Without components you will not be able to\n'
+							'use this drug for documenting patient care.\n'
+							'\n'
+							'Are you sure you want to save\n'
+							'it without components ?'
+						)
+					)
+					if not wants_empty:
+						validity = False
+						self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))

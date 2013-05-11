@@ -432,19 +432,23 @@ def file2scaled_image(filename=None, height=100):
 
 	return bitmap
 # ========================================================================
-def gm_show_error(aMessage = None, aTitle = None):
-	if aMessage is None:
-		aMessage = _('programmer forgot to specify error message')
+def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 
-	aMessage += _("\n\nPlease consult the error log for all the gory details !")
+	if error is None:
+		error = aMessage
+	if error is None:
+		error = _('programmer forgot to specify error message')
+	error += _("\n\nPlease consult the error log for all the gory details !")
 
-	if aTitle is None:
-		aTitle = _('generic error message')
+	if title is None:
+		title = aTitle
+	if title is None:
+		title = _('generic error message')
 
 	dlg = wx.MessageDialog (
 		parent = None,
-		message = aMessage,
-		caption = aTitle,
+		message = error,
+		caption = title,
 		style = wx.OK | wx.ICON_ERROR | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
