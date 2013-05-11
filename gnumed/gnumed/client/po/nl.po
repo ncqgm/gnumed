@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-11 09:35+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -854,6 +854,30 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+#, fuzzy
+msgid "HL7 Message"
+msgstr "bericht"
+
+#, fuzzy
+msgid "%s fields"
+msgstr "XDT veld"
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Documenten: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1728,9 +1752,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Geboortedatum"
@@ -1744,6 +1765,12 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr ""
+"Kan documentonderdeel niet weergeven:\n"
+"%s"
 
 msgid ""
 "Help requested\n"
@@ -1769,16 +1796,60 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** DOB onbekend **"
 
+#, fuzzy
+msgid "years"
+msgstr "Of jaar:"
+
+#, fuzzy
+msgid "year"
+msgstr "Of jaar:"
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr "weken"
+
+msgid "week"
+msgstr "week"
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr "dagen"
+
+msgid "day"
+msgstr "dag"
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 #, fuzzy
@@ -2608,24 +2679,6 @@ msgstr "Weken"
 #, fuzzy
 msgid "Fit Day"
 msgstr "Eerste Datum"
-
-msgid "day"
-msgstr "dag"
-
-msgid "days"
-msgstr "dagen"
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -3609,8 +3662,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -13057,7 +13111,7 @@ msgid "generic multi choice dialog"
 msgstr "algemene meerkeuze dialoog"
 
 #, fuzzy
-msgid "invalid placeholder [%s]"
+msgid "invalid placeholder >>>%s<<<"
 msgstr "onbekende plaatsvuller: <%s>"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -13221,6 +13275,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "toon onderdeel"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -15131,12 +15192,6 @@ msgstr ""
 
 msgid "&Print"
 msgstr "&Afdrukken"
-
-msgid "week"
-msgstr "week"
-
-msgid "weeks"
-msgstr "weken"
 
 msgid ""
 "\n"

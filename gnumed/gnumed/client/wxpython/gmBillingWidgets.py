@@ -1165,7 +1165,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		data = gmBilling.create_bill_item (
-			pk_encounter = gmPerson.gmCurrentPatient().emr.active_encounter['pk_encounter'],
+			pk_encounter = self._PRW_encounter.GetData(),
 			pk_billable = self._PRW_billable.GetData(),
 			pk_staff = gmStaff.gmCurrentProvider()['pk_staff']		# should be settable !
 		)
@@ -1212,7 +1212,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 		self._PRW_billable.set_from_pk(self.data['pk_billable'])
-		self._PRW_encounter.set_from_instance(gmPerson.gmCurrentPatient().emr.active_encounter)
+		self._PRW_encounter.SetData(self.data['pk_encounter_to_bill'])
 		self._PRW_date.SetData(data = self.data['raw_date_to_bill'])
 		self._TCTRL_count.SetValue(u'%s' % self.data['unit_count'])
 		self._TCTRL_amount.SetValue(u'%s' % self.data['net_amount_per_unit'])

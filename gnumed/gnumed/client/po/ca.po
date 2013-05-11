@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-07 13:47+CEST\n"
+"POT-Creation-Date: 2013-05-11 09:33+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -774,6 +774,27 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+msgid "%s fields"
+msgstr ""
+
+msgid "Segment #%s <%s>"
+msgstr ""
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1572,9 +1593,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Data de naixença"
@@ -1587,6 +1605,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Crea una nova linia de temps"
 
 msgid ""
 "Help requested\n"
@@ -1610,16 +1632,60 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** Data de Naixença desconeguda **"
 
+#, fuzzy
+msgid "years"
+msgstr "o any:"
+
+#, fuzzy
+msgid "year"
+msgstr "o any:"
+
 msgid "interval_format_tag::years::y"
+msgstr ""
+
+msgid "months"
+msgstr ""
+
+msgid "month"
 msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr ""
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2412,24 +2478,6 @@ msgstr ""
 
 msgid "Fit Day"
 msgstr "Mostra el dia"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -3319,8 +3367,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Esborra les entrades seleccionades de la llista."
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -11381,7 +11430,7 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11528,6 +11577,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Mostra l'hora"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -13129,12 +13185,6 @@ msgid "Rev EDC"
 msgstr ""
 
 msgid "&Print"
-msgstr ""
-
-msgid "week"
-msgstr ""
-
-msgid "weeks"
 msgstr ""
 
 msgid ""

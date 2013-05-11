@@ -22,7 +22,7 @@ class wxgBillingPluginPnl(wx.ScrolledWindow):
         self._TCTRL_factor = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_details = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._BTN_insert_item = wx.Button(self, -1, _("&Insert"), style=wx.BU_EXACTFIT)
-        self.__szr_add_item_staticbox = wx.StaticBox(self, -1, _("Add billing item"))
+        self.__szr_add_item_staticbox = wx.StaticBox(self, -1, _("Add billing item to current encounter"))
 
         self.__set_properties()
         self.__do_layout()

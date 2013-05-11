@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-04-07 13:49+CEST\n"
+"POT-Creation-Date: 2013-05-11 09:35+CEST\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -856,6 +856,29 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 "Erro correndo pdflatex. Não foi possível converter o modelo LaTeX em PDF."
 
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+#, fuzzy
+msgid "%s fields"
+msgstr "campo XDT"
+
+#, fuzzy
+msgid "Segment #%s <%s>"
+msgstr "Comentário: %s"
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
+msgstr ""
+
 msgid "Textual keyword expansion"
 msgstr ""
 
@@ -1684,9 +1707,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 #, fuzzy
 msgid "Date of birth unknown"
 msgstr "Dia de Nascimento"
@@ -1700,6 +1720,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Criando um novo problema de saúde ..."
 
 msgid ""
 "Help requested\n"
@@ -1723,17 +1747,61 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr "** Data de nascimento desconhecida **"
 
+#, fuzzy
+msgid "years"
+msgstr "ou Ano:"
+
+#, fuzzy
+msgid "year"
+msgstr "ou Ano:"
+
 msgid "interval_format_tag::years::y"
 msgstr "interval_format_tag::years::y"
+
+msgid "months"
+msgstr ""
+
+msgid "month"
+msgstr ""
 
 msgid "interval_format_tag::months::m"
 msgstr "interval_format_tag::months::m"
 
+msgid "weeks"
+msgstr ""
+
+msgid "week"
+msgstr ""
+
 msgid "interval_format_tag::weeks::w"
 msgstr "interval_format_tag::weeks::w"
 
+msgid "days"
+msgstr ""
+
+msgid "day"
+msgstr ""
+
 msgid "interval_format_tag::days::d"
 msgstr "interval_format_tag::days::d"
+
+msgid "hours"
+msgstr ""
+
+msgid "hour"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "minute"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
+msgstr ""
 
 msgid "y::year_abbreviation"
 msgstr "y::year_abbreviation"
@@ -2536,24 +2604,6 @@ msgstr ""
 #, fuzzy
 msgid "Fit Day"
 msgstr "1ª data"
-
-msgid "day"
-msgstr ""
-
-msgid "days"
-msgstr ""
-
-msgid "hour"
-msgstr ""
-
-msgid "hours"
-msgstr ""
-
-msgid "minute"
-msgstr ""
-
-msgid "minutes"
-msgstr ""
 
 msgid "can't be before year 10"
 msgstr ""
@@ -3504,8 +3554,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Notas adicionais na consulta corrente"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -12232,7 +12283,7 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -12386,6 +12437,14 @@ msgstr ""
 
 msgid "Data ID"
 msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Mostrar arquivo de Log"
+
+#, fuzzy
+msgid "Show formatted HL7"
+msgstr "editar os detalhes do modelo de formulário"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr ""
@@ -14062,12 +14121,6 @@ msgid "Rev EDC"
 msgstr ""
 
 msgid "&Print"
-msgstr ""
-
-msgid "week"
-msgstr ""
-
-msgid "weeks"
 msgstr ""
 
 msgid ""
@@ -15881,10 +15934,6 @@ msgstr "1ª data"
 
 #~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
 #~ msgstr "Criado durante consulta: %s (%s - %s)   [#%s]\n"
-
-#, fuzzy
-#~ msgid "Show formatted item details."
-#~ msgstr "editar os detalhes do modelo de formulário"
 
 #~ msgid "Configure the directory to use as scratch space for temporary files."
 #~ msgstr ""

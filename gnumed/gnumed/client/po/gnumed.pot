@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-05-01 20:08+CEST\n"
+"POT-Creation-Date: 2013-05-11 09:36+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3231,7 +3231,7 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
+msgid "Add billing item to current encounter"
 msgstr ""
 
 msgid "Select - by code or part of the description - a billable item to add to the patient."

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-04-07 13:47+CEST\n"
+"POT-Creation-Date: 2013-05-11 09:33+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -770,6 +770,27 @@ msgid "Error running pdftk. Cannot fill in PDF form template."
 msgstr ""
 
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
+msgstr ""
+
+msgid " %s segments (lines)%s"
+msgstr ""
+
+msgid ", skipping empty fields"
+msgstr ""
+
+msgid "HL7 Message"
+msgstr ""
+
+msgid "%s fields"
+msgstr ""
+
+msgid "Segment #%s <%s>"
+msgstr ""
+
+msgid "HL7 %s field"
+msgstr ""
+
+msgid "<EMTPY>"
 msgstr ""
 
 msgid "Textual keyword expansion"
@@ -1541,9 +1562,6 @@ msgstr ""
 msgid "Birth"
 msgstr ""
 
-msgid "Live events"
-msgstr ""
-
 msgid "Date of birth unknown"
 msgstr ""
 
@@ -1555,6 +1573,10 @@ msgstr ""
 
 msgid "Death"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot display timeline."
+msgstr "Vytvořit novou časovou osu"
 
 msgid ""
 "Help requested\n"
@@ -1578,16 +1600,60 @@ msgstr ""
 msgid "** DOB unknown **"
 msgstr ""
 
+msgid "years"
+msgstr ""
+
+msgid "year"
+msgstr ""
+
 msgid "interval_format_tag::years::y"
 msgstr ""
 
+#, fuzzy
+msgid "months"
+msgstr "Měsíc"
+
+#, fuzzy
+msgid "month"
+msgstr "Měsíc"
+
 msgid "interval_format_tag::months::m"
+msgstr ""
+
+msgid "weeks"
+msgstr ""
+
+msgid "week"
 msgstr ""
 
 msgid "interval_format_tag::weeks::w"
 msgstr ""
 
+msgid "days"
+msgstr "dny"
+
+msgid "day"
+msgstr "den"
+
 msgid "interval_format_tag::days::d"
+msgstr ""
+
+msgid "hours"
+msgstr "hodiny"
+
+msgid "hour"
+msgstr "hodina"
+
+msgid "minutes"
+msgstr "minuty"
+
+msgid "minute"
+msgstr "minuta"
+
+msgid "seconds"
+msgstr ""
+
+msgid "second"
 msgstr ""
 
 msgid "y::year_abbreviation"
@@ -2411,24 +2477,6 @@ msgstr ""
 
 msgid "Fit Day"
 msgstr ""
-
-msgid "day"
-msgstr "den"
-
-msgid "days"
-msgstr "dny"
-
-msgid "hour"
-msgstr "hodina"
-
-msgid "hours"
-msgstr "hodiny"
-
-msgid "minute"
-msgstr "minuta"
-
-msgid "minutes"
-msgstr "minuty"
 
 msgid "can't be before year 10"
 msgstr "nemůže být před rokem 10"
@@ -3283,7 +3331,7 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
+msgid "Add billing item to current encounter"
 msgstr ""
 
 msgid ""
@@ -11173,7 +11221,7 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "invalid placeholder [%s]"
+msgid "invalid placeholder >>>%s<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11318,6 +11366,13 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+#, fuzzy
+msgid "Show"
+msgstr "Zobrazit čas"
+
+msgid "Show formatted HL7"
 msgstr ""
 
 msgid "Updating LOINC data can take quite a while..."
@@ -12876,12 +12931,6 @@ msgid "Rev EDC"
 msgstr ""
 
 msgid "&Print"
-msgstr ""
-
-msgid "week"
-msgstr ""
-
-msgid "weeks"
 msgstr ""
 
 msgid ""

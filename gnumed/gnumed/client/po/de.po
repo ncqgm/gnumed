@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-05-01 20:08+CEST\n"
-"PO-Revision-Date: 2013-05-01 20:11+0100\n"
+"POT-Creation-Date: 2013-05-11 09:33+CEST\n"
+"PO-Revision-Date: 2013-05-11 09:45+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: \n"
@@ -3368,8 +3368,8 @@ msgstr "Nur offene Posten zeigen"
 msgid "&Insert"
 msgstr "&Einfügen"
 
-msgid "Add billing item"
-msgstr "Abrechungsposition hinzufügen"
+msgid "Add billing item to current encounter"
+msgstr "Rechnungsposition zur aktuellen Konsultation"
 
 msgid "Select - by code or part of the description - a billable item to add to the patient."
 msgstr "Wählen Sie eine GNr. anhand der Nummer oder der Beschreibung, die abgerechnet werden soll."
@@ -15605,6 +15605,9 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "Add billing item"
+#~ msgstr "Abrechungsposition hinzufügen"
 
 #~ msgid "Live events"
 #~ msgstr "Lebensereignisse"
