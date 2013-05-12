@@ -54,9 +54,12 @@ class cKeywordExpansion_TextCtrlMixin():
 
 		explicit_expansion = False
 		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
-			if evt.GetKeyCode() != 13:		# CTRL-ALT-ENTER
+			if evt.GetKeyCode() == wx.WXK_RETURN:		# CTRL-ALT-ENTER
+				explicit_expansion = True
+			elif evt.GetKeyCode() == 20:				# CTRL-ALT-T
+				explicit_expansion = True
+			else:
 				return
-			explicit_expansion = True
 
 		if not explicit_expansion:
 			# user did not press CTRL-ALT-ENTER,
