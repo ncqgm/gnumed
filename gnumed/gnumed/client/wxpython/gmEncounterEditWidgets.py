@@ -698,7 +698,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 				gmGuiHelpers.gm_show_info(aMessage = _('Either save or discard changes before printing.'), aTitle = default_dialog_title)
 				return
 		self
-		if self._CBox_EncounterType.GetValue() == encounter_description_admittance:
+		if self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()) == encounter_description_admittance:
 			template = gmForms.cFormTemplate(aPK_obj=get_paperwork_template_pk(template_type=print_context + encounter_description_admittance))
 			#physician = gmPerson.cStaff(aPK_obj=node_data['modified_by'])
 			#physician_full_name = '%(firstname_initial)s. %(lastname)s' % {
@@ -716,7 +716,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 				}
 			#report_display(template=template, placeholders_data=data)
 			report_display_html(template=template, placeholders_data=data)
-		elif self._CBox_EncounterType.GetValue() == encounter_description_discharge:
+		elif self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()) == encounter_description_discharge:
 			template = gmForms.cFormTemplate(aPK_obj=get_paperwork_template_pk(template_type=print_context + encounter_description_discharge))
 			# check if there is the date of admission encouter
 			cmd = u"""SELECT encounter_started
@@ -748,7 +748,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 				'discharge_narrative_p': self.__soap_narrative['p'].replace('\n', '<LI>'),
 				}
 			report_display_xml(template=template, placeholders_data=data)
-		elif self._CBox_EncounterType.GetValue() == encounter_description_clinic_visit:
+		elif self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()) == encounter_description_clinic_visit:
 			template = cFormTemplate(aPK_obj=get_paperwork_template_pk(template_type=print_context + encounter_description_clinic_visit + '.consultation letter'))
 			_report = cFormXSLT(template)
 			_report.process(sql_parameters = {'pkeys': node_data['pk_encounter']})
@@ -820,7 +820,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 				#we have encounter, skip all creation procedures
 			else:	#must create encounter
 				encounter = cEncounter(create_new = True, fk_patient = self.__patient.ID, 
-																									enc_type = get_encounter_type_pk(description = self._CBox_EncounterType.GetValue()))
+																									enc_type = get_encounter_type_pk(description = self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection())))
 				_log.info(u'encounter created')
 				self.__soap = get_latest_soap(encounter['pk_encounter'])	#this all will be None, it's OK
 				if isinstance(object_data, gmEMRStructItems.cEpisode):
@@ -834,7 +834,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 						#go on, objects will be created later
 					if isinstance(object_data, gmEMRStructItems.cHealthIssue):
 						#create associated episode
-						_issue_pk = object_data['pk']	#FIXME: this should be mapped to 'pk_health_issue' like other objects' pk
+						_issue_pk = object_data['pk_health_issue']
 					else:
 						_issue_pk = None
 					#go on, objects will be created later
@@ -866,7 +866,6 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 					episode = gmEMRStructItems.create_episode (
 							pk_health_issue = _issue_pk,
 							episode_name = epi_name,
-							patient_id = self.__patient.ID,
 							is_open = False,	#we should deal with this some day
 							encounter = encounter['pk_encounter'],
 							allow_dupes = True
@@ -882,7 +881,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 			if self._is_modified_encounter() :
 				encounter['reason_for_encounter']= gmTools.none_if(value=self._PhWheel_RFE.GetValue().strip(), none_equivalent=u'')
 				encounter['assessment_of_encounter']= gmTools.none_if(value=self._PhWheel_AOE.GetValue().strip(), none_equivalent=u'')
-				encounter['pk_type']=get_encounter_type_pk(description = self._CBox_EncounterType.GetValue())
+				encounter['pk_type']=get_encounter_type_pk(description = self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()))
 				encounter['started']=self._PhWheel_encounter_started.GetData().get_pydt()
 				encounter['last_affirmed']= pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
 				need_save.append(encounter)
@@ -947,7 +946,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 		#------------------------------------------------------
 		#business logic checks
 		#------------------------------------------------------
-		__t_unique_encounter_check = unique_encounters_check(self._CBox_EncounterType.GetValue().strip())
+		__t_unique_encounter_check = unique_encounters_check(self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()).strip())
 		if __t_unique_encounter_check is not None :
 			#check if there is no encounter of the same type within this episode
 			if isinstance(self.__emr.GetPyData(self.__curr_node), cEncounter) :
@@ -995,7 +994,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 			return True
 		if self.__cache['_PhWheel_AOE'] <> self._PhWheel_AOE.GetValue() :
 			return True
-		if self.__cache['_CBox_EncounterType'] <> self._CBox_EncounterType.GetValue() :
+		if self.__cache['_CBox_EncounterType'] <> self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection()) :
 			return True
 		if self.__cache['_PhWheel_encounter_started'] <> self._PhWheel_encounter_started.GetData().get_pydt() :
 			return True
@@ -1101,7 +1100,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 				else:
 					self.__soap_narrative[soap_cat] = self.__soap[soap_cat]['narrative']
 			self.__set_field_values(
-				encounter_type = node_data['type'], 
+				encounter_type = node_data['l10n_type'],
 				encounter_RFE = node_data['reason_for_encounter'],
 				encounter_AOE = node_data['assessment_of_encounter'],
 				encounter_started = node_data['started'],
@@ -1132,7 +1131,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 		# store current values in cache, for later checking if something was modified or restoring previous contents
 		self.__cache['_PhWheel_RFE']=self._PhWheel_RFE.GetValue()
 		self.__cache['_PhWheel_AOE']=self._PhWheel_AOE.GetValue()
-		self.__cache['_CBox_EncounterType']=self._CBox_EncounterType.GetValue()
+		self.__cache['_CBox_EncounterType']=self._CBox_EncounterType.GetClientData(self._CBox_EncounterType.GetSelection())
 		self.__cache['_PhWheel_encounter_started']=self._PhWheel_encounter_started.GetData().get_pydt()
 		self.__cache['_Txt_Narrative_s']=self._Txt_Narrative_s.GetValue()
 		self.__cache['_Txt_Narrative_o']=self._Txt_Narrative_o.GetValue()
