@@ -2440,7 +2440,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 
 		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
 	#----------------------------------------------
@@ -2514,7 +2514,7 @@ class gmTopLevelFrame(wx.Frame):
 		name = os.path.basename(gmLog2._logfile_name)
 		name, ext = os.path.splitext(name)
 		new_name = '%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
-		new_path = os.path.expanduser(os.path.join('~', 'gnumed', 'logs'))
+		new_path = os.path.expanduser(os.path.join('~', 'gnumed'))
 
 		dlg = wx.FileDialog (
 			parent = self,
@@ -2698,8 +2698,7 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-		# FIXME: make configurable
-		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', pat['dirname']))
+		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname']))
 		gmTools.mkdir(aDefDir)
 		# FIXME: make configurable
 		fname = '%s-%s_%s.txt' % (_('emr-journal'), pat['lastnames'], pat['firstnames'])
@@ -2791,9 +2790,8 @@ class gmTopLevelFrame(wx.Frame):
 		if not curr_pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as GDT. No active patient.'))
 			return False
-		# FIXME: configurable
-		enc = 'cp850'
-		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
+		enc = 'cp850'			# FIXME: configurable
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
 	#----------------------------------------------

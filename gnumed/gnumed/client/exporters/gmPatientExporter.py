@@ -996,7 +996,7 @@ class cEMRJournalExporter:
 				patient['firstnames'].replace(u' ', u'_'),
 				patient.get_formatted_dob(format = '%Y-%m-%d')
 			)
-			path = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', patient['dirname'], filename))
+			path = os.path.expanduser(os.path.join('~', 'gnumed', patient['dirname'], filename))
 
 		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8', errors = 'replace')
 		self.export(target = f, patient = patient)

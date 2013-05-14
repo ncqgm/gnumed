@@ -61,7 +61,7 @@ def export_emr_to_ascii(parent=None):
 
 	# get file name
 	wc = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-	defdir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR', pat['dirname'])))
+	defdir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname'])))
 	gmTools.mkdir(defdir)
 	fname = '%s-%s_%s.txt' % (_('emr-export'), pat['lastnames'], pat['firstnames'])
 	dlg = wx.FileDialog (

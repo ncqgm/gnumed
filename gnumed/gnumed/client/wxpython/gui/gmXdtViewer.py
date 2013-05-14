@@ -53,7 +53,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 	#--------------------------------------------------------------
 	def select_file(self, path=None):
 		if path is None:
-			root_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'xDT'))
+			root_dir = os.path.expanduser(os.path.join('~', 'gnumed'))
 		else:
 			root_dir = path
 		# get file name

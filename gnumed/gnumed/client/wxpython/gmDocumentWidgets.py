@@ -2395,7 +2395,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__curr_node_data['clin_when'].strftime('%Y-%m-%d'),
 			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', pat['dirname'], dname))
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname'], dname))
 		gmTools.mkdir(def_dir)
 
 		dlg = wx.DirDialog (
