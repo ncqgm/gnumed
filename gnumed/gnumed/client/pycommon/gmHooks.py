@@ -17,23 +17,24 @@ which accepts a single argument <hook>. That argument will
 contain the hook that is being activated.
 """
 # ========================================================================
-__version__ = "$Revision: 1.18 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-
 # stdlib
-import os, sys, stat, logging
-
-_log = logging.getLogger('gm.hook')
-_log.info(__version__)
+import os
+import sys
+import stat
+import logging
 
 
 # GNUmed libs
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
 
+
+_log = logging.getLogger('gm.hook')
 # ========================================================================
 known_hooks = [
 	u'post_patient_activation',
@@ -140,14 +141,26 @@ def run_script(hook=None):
 	_log.info('hook script: %s', full_script)
 	return True
 # ========================================================================
+__current_hook_stack = []
+
 def run_hook_script(hook=None):
 	# NOTE: this just *might* be a huge security hole
+
+	_log.info('told to pull hook [%s]', hook)
 
 	if hook not in known_hooks:
 		raise ValueError('run_hook_script(): unknown hook [%s]' % hook)
 
 	if not import_hook_module(reimport = False):
+		_log.debug('cannot import hook module, not pulling hook')
 		return False
+
+	if hook in __current_hook_stack:
+		_log.error('hook-code cycle detected, aborting')
+		_log.error('current hook stack: %s', __current_hook_stack)
+		return False
+
+	__current_hook_stack.append(hook)
 
 	try:
 		hook_module.run_script(hook = hook)
@@ -158,7 +171,20 @@ def run_hook_script(hook=None):
 			msg = _('Error running hook [%s] script.') % hook,
 			beep = True
 		)
+		if __current_hook_stack[-1] != hook:
+			_log.error('hook nesting errror detected')
+			_log.error('latest hook: expected [%s], found [%s]', hook, __current_hook_stack[-1])
+			_log.error('current hook stack: %s', __current_hook_stack)
+		else:
+			__current_hook_stack.pop()
 		return False
+
+	if __current_hook_stack[-1] != hook:
+		_log.error('hook nesting errror detected')
+		_log.error('latest hook: expected [%s], found [%s]', hook, __current_hook_stack[-1])
+		_log.error('current hook stack: %s', __current_hook_stack)
+	else:
+		__current_hook_stack.pop()
 
 	return True
 # ========================================================================
