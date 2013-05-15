@@ -325,10 +325,12 @@ SELECT fk_encounter from
 		if note.strip() == '':
 			_log.info('will not create empty clinical note')
 			return None
+		if isinstance(episode, gmEMRStructItems.cEpisode):
+			episode = episode['pk_episode']
 		status, data = gmClinNarrative.create_clin_narrative (
 			narrative = note,
 			soap_cat = soap_cat,
-			episode_id = episode['pk_episode'],
+			episode_id = episode,
 			encounter_id = self.current_encounter['pk_encounter']
 		)
 		if not status:
