@@ -16,6 +16,7 @@ NEW: "Grünes Rezept" for Germany
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts
+IMPROVED: just set DB lang at startup if missing, don't ask
 
 ------------------------------------------------
 # rel-1-3-patches
