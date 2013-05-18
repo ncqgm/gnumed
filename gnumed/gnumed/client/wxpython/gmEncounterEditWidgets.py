@@ -1001,7 +1001,7 @@ class cEncounterEditPnl(wxgEncounterEditPnl.wxgEncounterEditPnl, gmRegetMixin.cR
 		return False
 	#--------------------------------------------------------
 	def _is_modified_narrative(self, soap_cat = None):
-		if self.__cache['_Txt_Narrative_%s' % soap_cat] <> self.__dict__['_Txt_Narrative_%s' % soap_cat].GetValue().strip() :
+		if self.__cache['_Txt_Narrative_%s' % soap_cat].strip() <> self.__dict__['_Txt_Narrative_%s' % soap_cat].GetValue().strip() :
 			#adding white space will not trigger update, sorry
 			return True
 		if (self.__cache['_PhWheel_encounter_started'] <> self._PhWheel_encounter_started.GetData().get_pydt() 
