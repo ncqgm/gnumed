@@ -718,6 +718,7 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmMedication.cDrugComponent(aPK_obj = self.GetData(as_instance = False, can_create = False))
+
 #============================================================
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -749,6 +750,7 @@ LIMIT 30"""
 		self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
 		self.matcher = mp
 		self.selection_only = False
+
 #============================================================
 class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -765,6 +767,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmMedication.cConsumableSubstance(aPK_obj = self.GetData(as_instance = False, can_create = False))
+
 #============================================================
 # branded drugs widgets
 #------------------------------------------------------------
@@ -1217,6 +1220,53 @@ LIMIT 50"""
 		self.SetToolTipString(_('The schedule for taking this substance.'))
 		self.matcher = mp
 		self.selection_only = False
+
+#============================================================
+class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+(
+	SELECT DISTINCT ON (list_label)
+		aim
+			AS data,
+		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
+			AS list_label,
+		aim
+			AS field_label
+	FROM clin.v_pat_substance_intake
+	WHERE
+		aim %(fragment_condition)s
+		%(ctxt_substance)s
+) UNION (
+	SELECT DISTINCT ON (list_label)
+		aim
+			AS data,
+		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
+			AS list_label,
+		aim
+			AS field_label
+	FROM clin.v_pat_substance_intake
+	WHERE
+		aim %(fragment_condition)s
+)
+ORDER BY list_label
+LIMIT 30"""
+
+		context = {'ctxt_substance': {
+			'where_part': u'AND substance = %(substance)s',
+			'placeholder': u'substance'
+		}}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
+		mp.setThresholds(1, 2, 4)
+		#mp.word_separators = '[ \t=+&:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The medical aim for consuming this substance.'))
+		self.matcher = mp
+		self.selection_only = False
+
 #============================================================
 def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 
@@ -1379,6 +1429,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_substance.selection_only = True
 
 		self._PRW_duration.display_accuracy = gmDateTime.acc_days
+
+		#self._PRW_aim.
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
 		curr_pat = gmPerson.gmCurrentPatient()
