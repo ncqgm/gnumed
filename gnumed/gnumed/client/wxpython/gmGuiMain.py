@@ -1143,7 +1143,8 @@ class gmTopLevelFrame(wx.Frame):
 					enc_summary += '%s; ' % epi['description']
 				enc['assessment_of_encounter'] = enc_summary
 
-		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
+		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
+		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc, msg = msg)
 
 		return True
 	#----------------------------------------------
