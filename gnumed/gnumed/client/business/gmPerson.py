@@ -815,7 +815,26 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				""" % (_('merged'),	gmDateTime.pydt_strftime()),
 			'args': args
 		})
-
+		# - same-value external IDs
+		queries.append ({
+			'cmd': u"""
+				UPDATE dem.lnk_identity2ext_id
+				SET external_id = external_id || ' (%s %s)'
+				WHERE
+					id_identity = %%(pat2del)s
+						AND
+					EXISTS (
+						SELECT 1 FROM dem.lnk_identity2ext_id d_li2e
+						WHERE
+							d_li2e.id_identity = %%(pat2keep)s
+								AND
+							d_li2e.external_id = external_id
+								AND
+							d_li2e.fk_origin = fk_origin
+					)
+				""" % (_('merged'),	gmDateTime.pydt_strftime()),
+			'args': args
+		})
 
 		# generate UPDATEs
 		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
