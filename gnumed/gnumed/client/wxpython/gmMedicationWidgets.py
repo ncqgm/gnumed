@@ -1228,7 +1228,7 @@ class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 (
-	SELECT DISTINCT ON (list_label)
+	SELECT DISTINCT ON (field_label)
 		aim
 			AS data,
 		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
@@ -1240,7 +1240,7 @@ class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		aim %(fragment_condition)s
 		%(ctxt_substance)s
 ) UNION (
-	SELECT DISTINCT ON (list_label)
+	SELECT DISTINCT ON (field_label)
 		aim
 			AS data,
 		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
@@ -1430,7 +1430,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._PRW_duration.display_accuracy = gmDateTime.acc_days
 
-		#self._PRW_aim.
+		self._PRW_aim.add_callback_on_set_focus(callback = self._on_enter_aim)
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -1855,6 +1855,31 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_preparation.Enable(True)
 			self._TCTRL_brand_ingredients.SetValue(u'')
 			self._TCTRL_brand_ingredients.SetToolTipString(u'')
+	#----------------------------------------------------------------
+	def _on_enter_aim(self):
+		# when a drug component/substance is selected (that is, when .GetData()
+		# returns not None) then we do not want to use the GetValue().strip()
+		# result because that will also have amount and unit appended, hence
+		# create the real component or substance instance and take the canonical
+		# substance name from there
+		subst = self._PRW_component.GetValue().strip()
+		if subst != u'':
+			comp = self._PRW_component.GetData(as_instance = True)
+			if comp is None:
+				self._PRW_aim.set_context(context = u'substance', val = subst)
+				return
+			self._PRW_aim.set_context(context = u'substance', val = comp['substance'])
+			return
+
+		subst = self._PRW_substance.GetValue().strip()
+		if subst == u'':
+			self._PRW_aim.unset_context(context = u'substance')
+			return
+		comp = self._PRW_substance.GetData(as_instance = True)
+		if comp is None:
+			self._PRW_aim.set_context(context = u'substance', val = subst)
+			return
+		self._PRW_aim.set_context(context = u'substance', val = comp['description'])
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
 		if self._DP_discontinued.GetData() is None:
