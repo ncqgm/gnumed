@@ -50,6 +50,33 @@ __gender_idx = None
 __gender2salutation_map = None
 __gender2string_map = None
 
+
+#============================================================
+def external_id_exists(pk_issuer, value):
+	cmd = u'SELECT COUNT(1) FROM dem.lnk_identity2ext_id WHERE fk_origin = %(issuer)s AND external_id = %(val)s'
+	args = {'issuer': pk_issuer, 'val': value}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
+#============================================================
+def person_exists(lastnames, dob, firstnames=None):
+	args = {
+		'last': lastnames,
+		'dob': dob
+	}
+	where_parts = [
+		u"lastnames = %(last)s",
+		u"dem.date_trunc_utc('day', dob) = dem.date_trunc_utc('day', %(dob)s)"
+	]
+	if firstnames is not None:
+		if firstnames.strip() != u'':
+			#where_parts.append(u"position(%(first)s in firstnames) = 1")
+			where_parts.append(u"firstnames ~* %(first)s")
+			args['first'] = u'\\m' + firstnames
+	cmd = u"""SELECT COUNT(1) FROM dem.v_basic_person WHERE %s""" % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
 #============================================================
 # FIXME: make this work as a mapping type, too
 class cDTO_person(object):

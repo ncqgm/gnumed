@@ -12,7 +12,7 @@ import wx
 class wxgMeasurementEditAreaPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmDateTimeInput, gmMeasurementWidgets, gmProviderInboxWidgets, gmEMRStructWidgets
+        from Gnumed.wxpython import gmDateTimeInput, gmMeasurementWidgets, gmStaffWidgets, gmEMRStructWidgets
 
         # begin wxGlade: wxgMeasurementEditAreaPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
@@ -26,7 +26,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
         self._PRW_abnormality_indicator = gmMeasurementWidgets.cTestResultIndicatorPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._DPRW_evaluated = gmDateTimeInput.cFuzzyTimestampInput(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_note_test_org = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_intended_reviewer = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_intended_reviewer = gmStaffWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_problem = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_narrative = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_review = wx.CheckBox(self, -1, _("&Sign as:"))

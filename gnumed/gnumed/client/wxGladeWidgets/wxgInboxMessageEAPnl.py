@@ -13,6 +13,7 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmProviderInboxWidgets
+        from Gnumed.wxpython import gmStaffWidgets
         from Gnumed.wxpython import gmPatSearchWidgets
         from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 
@@ -22,7 +23,7 @@ class wxgInboxMessageEAPnl(wx.ScrolledWindow):
         self._TCTRL_subject = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_type = gmProviderInboxWidgets.cMessageTypePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_send_to_me = wx.CheckBox(self, -1, _(u"&Myself … or:"))
-        self._PRW_receiver = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_receiver = gmStaffWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._CHBOX_active_patient = wx.CheckBox(self, -1, _(u"&Active … or:"))
         self._PRW_patient = gmPatSearchWidgets.cPersonSearchCtrl(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_message = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE | wx.NO_BORDER)

@@ -39,8 +39,12 @@ from Gnumed.business import gmCA_MSVA
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmProviderInbox
 
-from Gnumed.wxpython import gmGuiHelpers, gmDemographicsWidgets, gmAuthWidgets
-from Gnumed.wxpython import gmRegetMixin, gmPhraseWheel, gmEditArea
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmRegetMixin
+from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmPhraseWheel
+from Gnumed.wxpython.gmPersonCreationWidgets import create_new_person
 
 
 _log = logging.getLogger('gm.person')
@@ -869,7 +873,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			if dlg.ShowModal() != wx.ID_NO:
 				return
 
-			success = gmDemographicsWidgets.create_new_person(activate = True)
+			success = create_new_person(activate = True)
 			if success:
 				self.person = gmPerson.gmCurrentPatient()
 			else:

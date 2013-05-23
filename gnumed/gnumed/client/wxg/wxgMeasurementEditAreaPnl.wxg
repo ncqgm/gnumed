@@ -243,7 +243,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmProviderInboxWidgets.cProviderPhraseWheel" name="_PRW_intended_reviewer" base="EditTextCtrl">
+                <object class="gmStaffWidgets.cProviderPhraseWheel" name="_PRW_intended_reviewer" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                     <tooltip>The doctor in charge who will have to assess and sign off this result.</tooltip>
                 </object>

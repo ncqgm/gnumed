@@ -40,7 +40,6 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
-from Gnumed.wxpython import gmPatSearchWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -2454,6 +2453,7 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 if __name__ == '__main__':
 
 	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	#================================================================	
 	class testapp (wx.App):

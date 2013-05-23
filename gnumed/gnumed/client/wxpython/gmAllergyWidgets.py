@@ -11,14 +11,26 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmI18N, gmDateTime, gmTools, gmMatchProvider
-from Gnumed.wxpython import gmDateTimeInput, gmTerryGuiParts, gmRegetMixin, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmAllergy, gmPersonSearch
-from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl, wxgAllergyEditAreaDlg, wxgAllergyManagerDlg
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMatchProvider
+
+from Gnumed.business import gmPerson
+from Gnumed.business import gmAllergy
+from Gnumed.business import gmPersonSearch
+
+from Gnumed.wxpython import gmDateTimeInput
+from Gnumed.wxpython import gmTerryGuiParts
+from Gnumed.wxpython import gmRegetMixin
+
 
 _log = logging.getLogger('gm.ui')
 
 #======================================================================
+from Gnumed.wxGladeWidgets import wxgAllergyEditAreaPnl
+
 class cAllergyEditAreaPnl(wxgAllergyEditAreaPnl.wxgAllergyEditAreaPnl):
 
 	def __init__(self, *args, **kwargs):
@@ -178,7 +190,10 @@ where narrative %(fragment_condition)s
 		self.__allergy.save_payload()
 
 		return True
+
 #======================================================================
+from Gnumed.wxGladeWidgets import wxgAllergyEditAreaDlg
+
 class cAllergyEditAreaDlg(wxgAllergyEditAreaDlg.wxgAllergyEditAreaDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -209,7 +224,10 @@ class cAllergyEditAreaDlg(wxgAllergyEditAreaDlg.wxgAllergyEditAreaDlg):
 	#--------------------------------------------------------
 	def _on_clear_button_pressed(self, evt):
 		self._PNL_edit_area.refresh()
+
 #======================================================================
+from Gnumed.wxGladeWidgets import wxgAllergyManagerDlg
+
 class cAllergyManagerDlg(wxgAllergyManagerDlg.wxgAllergyManagerDlg):
 
 	def __init__(self, *args, **kwargs):
@@ -537,6 +555,8 @@ class cAllergyPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 # main
 #----------------------------------------------------------------------
 if __name__ == "__main__":
+
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain='gnumed')

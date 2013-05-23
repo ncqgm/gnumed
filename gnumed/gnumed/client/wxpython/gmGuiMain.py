@@ -81,6 +81,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmHorstSpace
 from Gnumed.wxpython import gmEMRBrowser
 from Gnumed.wxpython import gmDemographicsWidgets
+from Gnumed.wxpython import gmPersonCreationWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmAllergyWidgets
@@ -2800,7 +2801,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = u'focus_patient_search')
 	#----------------------------------------------
 	def __on_create_new_patient(self, evt):
-		gmDemographicsWidgets.create_new_person(parent = self, activate = True)
+		gmPersonCreationWidgets.create_new_person(parent = self, activate = True)
 	#----------------------------------------------
 	def __on_enlist_patient_as_staff(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -2823,7 +2824,7 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_add_new_staff(self, event):
 		"""Create new person and add it as staff."""
-		if not gmDemographicsWidgets.create_new_person(parent = self, activate = True):
+		if not gmPersonCreationWidgets.create_new_person(parent = self, activate = True):
 			return
 		dlg = gmStaffWidgets.cAddPatientAsStaffDlg(parent=self, id=-1)
 		dlg.ShowModal()
