@@ -1,7 +1,6 @@
-"""GNUmed Surgery related middleware."""
+"""GNUmed Praxis related middleware."""
 #============================================================
 __license__ = "GPL"
-__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 

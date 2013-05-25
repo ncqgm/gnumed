@@ -34,7 +34,6 @@ from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmPersonSearch
-from Gnumed.business import gmSurgery
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 

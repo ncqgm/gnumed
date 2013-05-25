@@ -30,7 +30,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmI18N
 
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmExceptionHandlingWidgets
@@ -449,7 +449,7 @@ class cLoginPanel(wx.Panel):
 				border = 10
 			)
 
-		paramsbox_caption = _('Workplace "%s" (version %s)') % (gmSurgery.gmCurrentPractice().active_workplace, client_version)
+		paramsbox_caption = _('Workplace "%s" (version %s)') % (gmPraxis.gmCurrentPractice().active_workplace, client_version)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -760,7 +760,7 @@ class cLoginPanel(wx.Panel):
 	# event handlers
 	#----------------------------
 	def OnHelp(self, event):
-		praxis = gmSurgery.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPractice()
 		wx.MessageBox(_(
 u"""Unable to connect to the database ?
 

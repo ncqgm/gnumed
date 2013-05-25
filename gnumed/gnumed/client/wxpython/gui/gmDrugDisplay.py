@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
 from Gnumed.pycommon import gmDrugView, gmCfg, gmExceptions
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 _cfg = gmCfg.gmDefCfgFile
 #============================================================
@@ -86,13 +86,13 @@ class DrugDisplay(wx.Panel):
 				 size = wxDefaultSize, style = wx.TAB_TRAVERSAL):
 
 		wx.Panel.__init__(self, parent, id, pos, size, style)
-		
+
 		# if we are not inside gnumed we won't get a definite answer on
 		# who and where we are. in this case try to get config source 
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currworkplace = gmSurgery.gmCurrentPractice().active_workplace
+		currworkplace = gmPraxis.gmCurrentPractice().active_workplace
 		if currworkplace is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')
@@ -121,7 +121,7 @@ class DrugDisplay(wx.Panel):
 			_log.LogException("Unhandled exception during DrugView API init.", sys.exc_info(), verbose = 0)
 			raise gmExceptions.ConstructorError, "Couldn't initialize DrugView API"
 #			return None
-						
+
 		self.mode = MODE_BRAND
 		self.previousMode = MODE_BRAND
 		self.printer = wx.HtmlEasyPrinting()		#printer object to print html page

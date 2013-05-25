@@ -20,7 +20,7 @@ import wx
 
 from Gnumed.pycommon import gmGuiBroker, gmI18N, gmDispatcher, gmCfg
 from Gnumed.wxpython import gmPlugin, gmTopPanel, gmGuiHelpers
-from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.business import gmPerson, gmPraxis
 
 
 _log = logging.getLogger('gm.ui')
@@ -140,7 +140,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		db_cfg = gmCfg.cCfgSQL()
 		default_plugin = db_cfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = u'user',
 			default = u'gmPatientOverviewPlugin'
 		)

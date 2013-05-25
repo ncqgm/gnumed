@@ -21,7 +21,7 @@ from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg2
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 
@@ -36,14 +36,14 @@ def check_for_updates():
 
 	url = dbcfg.get2 (
 		option = u'horstspace.update.url',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = u'http://www.gnumed.de/downloads/gnumed-versions.txt'
 	)
 
 	consider_latest_branch = bool(dbcfg.get2 (
 		option = u'horstspace.update.consider_latest_branch',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = True
 	))
@@ -158,7 +158,7 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 
 	current_value = dbcfg.get2 (
 		option = option,
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = bias,
 		default = default_value
 	)
@@ -198,7 +198,7 @@ def configure_string_from_list_option(parent=None, message=None, option=None, bi
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		option = option,
 		value = choice
 	)
@@ -211,7 +211,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 
 	current_value = dbcfg.get2 (
 		option = option,
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = bias,
 		default = default_value
 	)
@@ -253,7 +253,7 @@ def configure_string_option(parent=None, message=None, option=None, bias=u'user'
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		option = option,
 		value = user_val
 	)
@@ -290,13 +290,13 @@ def configure_boolean_option(parent=None, question=None, option=None, button_too
 	dbcfg = gmCfg.cCfgSQL()
 	if decision == wx.ID_YES:
 		dbcfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			option = option,
 			value = True
 		)
 	elif decision == wx.ID_NO:
 		dbcfg.set (
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			option = option,
 			value = False
 		)

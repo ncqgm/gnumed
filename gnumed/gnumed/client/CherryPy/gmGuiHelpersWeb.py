@@ -15,7 +15,7 @@ import os
 import wx
 
 
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.wxGladeWidgets import wxg3ButtonQuestionDlg, wxg2ButtonQuestionDlg, wxgGreetingEditorDlg
 
 # ========================================================================
@@ -215,13 +215,13 @@ class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 	def __init__(self, *args, **kwargs):
 		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
 
-		self.surgery = gmSurgery.gmCurrentPractice()
-		self._TCTRL_message.SetValue(self.surgery.db_logon_banner)
+		self.praxis = gmPraxis.gmCurrentPractice()
+		self._TCTRL_message.SetValue(self.praxis.db_logon_banner)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_save_button_pressed(self, evt):
-		self.surgery.db_logon_banner = self._TCTRL_message.GetValue().strip()
+		self.praxis.db_logon_banner = self._TCTRL_message.GetValue().strip()
 		if self.IsModal():
 			self.EndModal(wx.ID_SAVE)
 		else:

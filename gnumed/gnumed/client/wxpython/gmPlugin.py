@@ -25,7 +25,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 
 _cfg = gmCfg2.gmCfgData()
@@ -37,7 +37,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
 		wx.ProgressDialog.__init__(
 			self,
-			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmSurgery.gmCurrentPractice().active_workplace, nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPraxis.gmCurrentPractice().active_workplace, nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -374,7 +374,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 		return [u'gmProviderInboxPlugin', u'gmDataMiningPlugin']
 
 	if workplace is None:
-		workplace = gmSurgery.gmCurrentPractice().active_workplace
+		workplace = gmPraxis.gmCurrentPractice().active_workplace
 
 	p_list = None
 

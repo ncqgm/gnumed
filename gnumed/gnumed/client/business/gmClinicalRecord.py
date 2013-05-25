@@ -93,13 +93,13 @@ class cClinicalRecord(object):
 		args = {'todo': u'patient [%s]' % aPKey}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
-		from Gnumed.business import gmSurgery, gmStaff
+		from Gnumed.business import gmPraxis, gmStaff
 		global _me
 		if _me is None:
 			_me = gmStaff.gmCurrentProvider()
 		global _here
 		if _here is None:
-			_here = gmSurgery.gmCurrentPractice()
+			_here = gmPraxis.gmCurrentPractice()
 
 		# ...........................................
 		# this is a hack to speed up get_encounters()

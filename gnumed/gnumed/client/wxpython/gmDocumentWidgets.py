@@ -31,7 +31,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmEMRStructItems
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -881,7 +881,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			dbcfg = gmCfg.cCfgSQL()
 			allow_empty = bool(dbcfg.get2 (
 				option =  u'horstspace.scan_index.allow_partless_documents',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPractice().active_workplace,
 				bias = 'user',
 				default = False
 			))
@@ -937,7 +937,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			dbcfg = gmCfg.cCfgSQL()
 			device = dbcfg.get2 (
 				option =  'external.xsane.default_device',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPractice().active_workplace,
 				bias = 'workplace',
 				default = ''
 			)
@@ -1149,7 +1149,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		generate_uuid = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.generate_doc_uuid',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPractice().active_workplace,
 				bias = 'user',
 				default = False
 			)
@@ -1209,7 +1209,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		show_id = bool (
 			cfg.get2 (
 				option = 'horstspace.scan_index.show_doc_id',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPractice().active_workplace,
 				bias = 'user'
 			)
 		)
@@ -1274,7 +1274,7 @@ def display_document_part(parent=None, part=None):
 	chunksize = int(
 	cfg.get2 (
 		option = "horstspace.blob_export_chunk_size",
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = 2048
 	))
@@ -1282,7 +1282,7 @@ def display_document_part(parent=None, part=None):
 	# shall we force blocking during view ?
 	block_during_view = bool( cfg.get2 (
 		option = 'horstspace.document_viewer.block_during_view',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'user',
 		default = None
 	))
@@ -1309,7 +1309,7 @@ def display_document_part(parent=None, part=None):
 	# 4: if no review by responsible reviewer
 	review_after_display = int(cfg.get2 (
 		option = 'horstspace.document_viewer.review_after_display',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'user',
 		default = 3
 	))
@@ -2051,7 +2051,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		chunksize = int(
 		cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = default_chunksize
 		))
@@ -2059,7 +2059,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# shall we force blocking during view ?
 		block_during_view = bool( cfg.get2 (
 			option = 'horstspace.document_viewer.block_during_view',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'user',
 			default = None
 		))
@@ -2087,7 +2087,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# 4: if no review by responsible reviewer
 		review_after_display = int(cfg.get2 (
 			option = 'horstspace.document_viewer.review_after_display',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'user',
 			default = 3
 		))
@@ -2188,7 +2188,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = default_chunksize
 		))
@@ -2284,7 +2284,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = default_chunksize
 		))
@@ -2427,7 +2427,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		# determine database export chunk size
 		chunksize = int(cfg.get2 (
 			option = "horstspace.blob_export_chunk_size",
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = default_chunksize
 		))

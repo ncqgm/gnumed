@@ -24,7 +24,7 @@ from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmClinicalRecord
 
@@ -137,7 +137,7 @@ def configure_workplace_plugins(parent=None):
 	#-----------------------------------
 	def delete(workplace):
 
-		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
+		curr_workplace = gmPraxis.gmCurrentPractice().active_workplace
 		if workplace == curr_workplace:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
 			return False
@@ -171,7 +171,7 @@ def configure_workplace_plugins(parent=None):
 		if not dbo_conn:
 			return False
 
-		gmSurgery.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
+		gmPraxis.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
 		return True
 	#-----------------------------------
 	def edit(workplace=None):
@@ -336,8 +336,8 @@ def configure_workplace_plugins(parent=None):
 		return True
 	#-----------------------------------
 	def refresh(lctrl):
-		workplaces = gmSurgery.gmCurrentPractice().workplaces
-		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
+		workplaces = gmPraxis.gmCurrentPractice().workplaces
+		curr_workplace = gmPraxis.gmCurrentPractice().active_workplace
 		try:
 			sels = [workplaces.index(curr_workplace)]
 		except ValueError:

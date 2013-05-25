@@ -32,7 +32,7 @@ from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmATC
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
 from Gnumed.business import gmForms
 from Gnumed.business import gmStaff
@@ -83,7 +83,7 @@ def get_drug_database(parent = None):
 	# load from option
 	default_db = dbcfg.get2 (
 		option = 'external.drug_data.default_source',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'workplace'
 	)
 
@@ -93,7 +93,7 @@ def get_drug_database(parent = None):
 		configure_drug_data_source(parent = parent)
 		default_db = dbcfg.get2 (
 			option = 'external.drug_data.default_source',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
 		# still not configured -> return
@@ -115,7 +115,7 @@ def get_drug_database(parent = None):
 		configure_drug_data_source(parent = parent)
 		default_db = dbcfg.get2 (
 			option = 'external.drug_data.default_source',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace'
 		)
 		# deconfigured or aborted (and thusly still misconfigured) ?
@@ -145,7 +145,7 @@ def jump_to_ifap(import_drugs=False):
 
 	ifap_cmd = dbcfg.get2 (
 		option = 'external.ifap-win.shell_command',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'workplace',
 		default = 'wine "C:\Ifapwin\WIAMDB.EXE"'
 	)
@@ -158,7 +158,7 @@ def jump_to_ifap(import_drugs=False):
 	if import_drugs:
 		transfer_file = os.path.expanduser(dbcfg.get2 (
 			option = 'external.ifap-win.transfer_file',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = 'workplace',
 			default = '~/.wine/drive_c/Ifapwin/ifap2gnumed.csv'
 		))
@@ -2044,7 +2044,7 @@ def configure_medication_list_template(parent=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		option = option,
 		value = u'%s - %s' % (template['name_long'], template['external_version'])
 	)
@@ -2062,7 +2062,7 @@ def print_medication_list(parent=None):
 
 	template = dbcfg.get2 (
 		option = option,
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'user'
 	)
 
@@ -2169,7 +2169,7 @@ def configure_prescription_template(parent=None):
 	option = u'form_templates.prescription'
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		option = option,
 		value = u'%s - %s' % (template['name_long'], template['external_version'])
 	)
@@ -2185,7 +2185,7 @@ def get_prescription_template(parent=None):
 	option = u'form_templates.prescription'
 	template_name = dbcfg.get2 (
 		option = option,
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = 'user'
 	)
 
@@ -2286,7 +2286,7 @@ def prescribe_drugs(parent=None, emr=None):
 	dbcfg = gmCfg.cCfgSQL()
 	rx_mode = dbcfg.get2 (
 		option = u'horst_space.default_prescription_mode',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPractice().active_workplace,
 		bias = u'user',
 		default = u'form'			# set to 'database' to access database
 	)
@@ -2740,7 +2740,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = u'external.urls.report_ADR',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPractice().active_workplace,
 			bias = u'user',
 			default = u'https://dcgma.org/uaw/meldung.php'		# http://www.akdae.de/Arzneimittelsicherheit/UAW-Meldung/UAW-Meldung-online.html
 		)
