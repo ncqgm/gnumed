@@ -63,6 +63,7 @@ import signal
 import os.path
 import shutil
 import stat
+import codecs
 
 
 # do not run as module
@@ -410,13 +411,36 @@ def handle_version_request():
 def setup_paths_and_files():
 	"""Create needed paths in user home directory."""
 
+	gnumed_DIR_README_TEXT = u"""GNUmed Electronic Medical Record
+
+	%s/
+
+This directory should only ever contain file which the user
+will come into direct contact with during using the
+application (say, by selecting a file from the file system,
+as when selecting document parts from files). You can create
+subdirectories here as you see fit for the purpose.
+
+This directory will also serve as the default directory when
+GNUmed asks the user to select a directory for storing a
+file.
+
+Any files which are NOT intended for direct user interaction
+but must be configured to live at a known location (say,
+inter-application data exchange files) should be put under
+the hidden directory "%s/".""" % (
+		os.path.expanduser(os.path.join('~', 'gnumed')),
+		os.path.expanduser(os.path.join('~', '.gnumed'))
+	)
+
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'scripts')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'spellcheck')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'EMR')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'xDT')))
-	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed', 'logs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'error_logs')))
+	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed')))
+
+	README = codecs.open(os.path.expanduser(os.path.join('~', 'gnumed', '00_README')), 'wb', 'utf8')
+	README.write(gnumed_DIR_README_TEXT)
+	README.close()
 
 	paths = gmTools.gmPaths(app_name = u'gnumed')
 

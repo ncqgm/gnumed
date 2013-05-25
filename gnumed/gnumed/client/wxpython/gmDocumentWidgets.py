@@ -2220,6 +2220,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 				) % {'action': action, 'l10n_action': l10n_action},
 				_('Processing document part: %s') % l10n_action
 			)
+		else:
+			if action == 'mail':
+				curr_pat = gmPerson.gmCurrentPatient()
+				emr = curr_pat.emr
+				emr.add_clin_narrative (
+					soap_cat = None,
+					note =  _('document part handed over to email program: %s') % self.__curr_node_data.format(single_line = True),
+					episode = self.__curr_node_data['pk_episode']
+				)
 	#--------------------------------------------------------
 	def __print_part(self, evt):
 		self.__process_part(action = u'print', l10n_action = _('print'))
@@ -2395,7 +2404,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			self.__curr_node_data['clin_when'].strftime('%Y-%m-%d'),
 			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'docs', pat['dirname'], dname))
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname'], dname))
 		gmTools.mkdir(def_dir)
 
 		dlg = wx.DirDialog (

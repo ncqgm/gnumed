@@ -16,7 +16,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmPhraseWheel
         from Gnumed.wxpython import gmVaccWidgets
         from Gnumed.wxpython import gmEMRStructWidgets
-        from Gnumed.wxpython import gmProviderInboxWidgets
+        from Gnumed.wxpython import gmStaffWidgets
 
         # begin wxGlade: wxgVaccinationEAPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
@@ -30,7 +30,7 @@ class wxgVaccinationEAPnl(wx.ScrolledWindow):
         self._PRW_batch = gmVaccWidgets.cBatchNoPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_site = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
-        self._PRW_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_provider = gmStaffWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._PRW_reaction = gmPhraseWheel.cPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_report = wx.Button(self, -1, _("ADR"), style=wx.BU_EXACTFIT)
         self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)

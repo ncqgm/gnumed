@@ -13,7 +13,7 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmPatSearchWidgets
-        from Gnumed.wxpython import gmProviderInboxWidgets
+        from Gnumed.wxpython import gmStaffWidgets
 
         # begin wxGlade: wxgPersonSocialNetworkManagerPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
@@ -22,7 +22,7 @@ class wxgPersonSocialNetworkManagerPnl(wx.Panel):
         self._BTN_activate_contact = wx.Button(self, -1, _("Activate"), style=wx.BU_EXACTFIT)
         self._BTN_remove_contact = wx.Button(self, wx.ID_REMOVE, "", style=wx.BU_EXACTFIT)
         self._TCTRL_er_contact = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE|wx.TE_WORDWRAP|wx.NO_BORDER)
-        self._PRW_provider = gmProviderInboxWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_provider = gmStaffWidgets.cProviderPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._BTN_save = wx.Button(self, wx.ID_SAVE, "")
         self._BTN_reload = wx.Button(self, wx.ID_REVERT_TO_SAVED, "")
 

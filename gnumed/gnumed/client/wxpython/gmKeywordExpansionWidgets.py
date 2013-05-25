@@ -54,9 +54,12 @@ class cKeywordExpansion_TextCtrlMixin():
 
 		explicit_expansion = False
 		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
-			if evt.GetKeyCode() != 13:		# CTRL-ALT-ENTER
+			if evt.GetKeyCode() == wx.WXK_RETURN:		# CTRL-ALT-ENTER
+				explicit_expansion = True
+			elif evt.GetKeyCode() == 20:				# CTRL-ALT-T
+				explicit_expansion = True
+			else:
 				return
-			explicit_expansion = True
 
 		if not explicit_expansion:
 			# user did not press CTRL-ALT-ENTER,
@@ -430,12 +433,21 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 	#---------------------------------------------
 	def __init_ui(self):
 		self._LBL_top_part.SetLabel(u'')
+		font = self._LBL_left_part.GetFont()
+		font.SetPointSize(pointSize = font.GetPointSize() + 1)
+		self._LBL_left_part.SetFont(font)
 		self._LBL_left_part.SetLabel(u'')
 		self._LBL_left_part.Hide()
+		font = self._TCTRL_fillin.GetFont()
+		font.SetPointSize(pointSize = font.GetPointSize() + 1)
+		self._TCTRL_fillin.SetFont(font)
 		self._TCTRL_fillin.SetValue(u'')
 		self._TCTRL_fillin.SetBackgroundColour('yellow')
 		self._TCTRL_fillin.Disable()
 		self._TCTRL_fillin.Hide()
+		font = self._LBL_right_part.GetFont()
+		font.SetPointSize(pointSize = font.GetPointSize() + 1)
+		self._LBL_right_part.SetFont(font)
 		self._LBL_right_part.SetLabel(u'')
 		self._LBL_right_part.Hide()
 		self._LBL_bottom_part.SetLabel(u'')

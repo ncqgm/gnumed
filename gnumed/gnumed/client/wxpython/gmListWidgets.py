@@ -904,7 +904,7 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
 		# required for column sorting, MUST have this name
-		self._update_item2data_idx_map()						# must be called after each (external/direct) list item update
+		self._invalidate_item2data_idx_map()					# must be called after each (external/direct) list item update
 		listmixins.ColumnSorterMixin.__init__(self, 0)			# must be called again after adding columns (why ?)
 		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
@@ -945,7 +945,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
 
-		self._update_item2data_idx_map()
+		self._invalidate_item2data_idx_map()
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		"""Set the column width policy.
@@ -1035,7 +1035,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.SetItemData(row_num, row_num)
 
 		self.data = items
-		self._update_item2data_idx_map()
+		self._invalidate_item2data_idx_map()
 
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
@@ -1192,10 +1192,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			evt.Skip()
 			return
 
-		if len(self.__searchable_cols) == 0:
+		if self.__search_dlg is not None:
+			self.__search_dlg.Close()
 			return
 
-		if self.__search_dlg is not None:
+		if len(self.__searchable_cols) == 0:
 			return
 
 		if self.__search_data is None:
@@ -1388,19 +1389,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	# ColumnSorterMixin API
 	#------------------------------------------------------------
 	def GetListCtrl(self):
+		if self.itemDataMap is None:
+			self._update_item2data_idx_map()
 		# required
 		return self
 	#------------------------------------------------------------
 	def OnSortOrderChanged(self):
-		# cleanup column headers
-		for col_idx in range(self.ColumnCount):
-			col_state = self.GetColumn(col_idx)
-			if col_state.m_text.endswith(self.sort_order_tags[True]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
-			if col_state.m_text.endswith(self.sort_order_tags[False]):
-				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
-			self.SetColumn(col_idx, col_state)
-
+		self._cleanup_column_headers()
 		# mark sort column
 		col_idx, is_ascending = self.GetSortState()
 		col_state = self.GetColumn(col_idx)
@@ -1422,8 +1417,21 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		return dict2sort
 	#------------------------------------------------------------
-	def _update_item2data_idx_map(self):
+	def _cleanup_column_headers(self):
+		for col_idx in range(self.ColumnCount):
+			col_state = self.GetColumn(col_idx)
+			if col_state.m_text.endswith(self.sort_order_tags[True]):
+				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[True])]
+			if col_state.m_text.endswith(self.sort_order_tags[False]):
+				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
+			self.SetColumn(col_idx, col_state)
+	#------------------------------------------------------------
+	def _invalidate_item2data_idx_map(self):
+		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
+		self._cleanup_column_headers()
+	#------------------------------------------------------------
+	def _update_item2data_idx_map(self):
 		self.itemDataMap = self._prepare_items_for_sorting()
 	#------------------------------------------------------------
 	def _on_col_click(self, event):

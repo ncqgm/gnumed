@@ -233,8 +233,8 @@ def handle_uncaught_exception_wx(t, v, tb):
 	name, ext = os.path.splitext(name)
 	new_name = os.path.expanduser(os.path.join (
 		'~',
-		'gnumed',
-		'logs',
+		'.gnumed',
+		'error-logs',
 		'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 	))
 
@@ -247,6 +247,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 
 	_log2.warning('syncing log file for backup to [%s]', new_name)
 	gmLog2.flush()
+	# keep a copy around
 	shutil.copy2(_logfile_name, new_name)
 # ------------------------------------------------------------------------
 def install_wx_exception_handler():

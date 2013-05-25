@@ -98,7 +98,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>0</option>
-                        <object class="gmProviderInboxWidgets.cProviderPhraseWheel" name="_PRW_provider" base="EditTextCtrl">
+                        <object class="gmStaffWidgets.cProviderPhraseWheel" name="_PRW_provider" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>Choose the provider the patient considers his or her primary provider in this praxis.</tooltip>
                         </object>

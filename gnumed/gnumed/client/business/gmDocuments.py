@@ -419,7 +419,27 @@ where
 
 		return True, ''
 	#--------------------------------------------------------
-	def format(self):
+	def format_single_line(self):
+		f_ext = u''
+		if self._payload[self._idx['filename']] is not None:
+			f_ext = os.path.splitext(self._payload[self._idx['filename']])[1].strip('.').strip()
+		if f_ext != u'':
+			f_ext = u' .' + f_ext.upper()
+		txt = _('part %s, %s%s%s of document %s from %s%s') % (
+			self._payload[self._idx['seq_idx']],
+			gmTools.size2str(self._payload[self._idx['size']]),
+			f_ext,
+			gmTools.coalesce(self._payload[self._idx['obj_comment']], u'', u' ("%s")'),
+			self._payload[self._idx['l10n_type']],
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y %b %d'),
+			gmTools.coalesce(self._payload[self._idx['doc_comment']], u'', u' ("%s")')
+		)
+		return txt
+	#--------------------------------------------------------
+	def format(self, single_line=False):
+		if single_line:
+			return self.format_single_line()
+
 		txt = _('%s document part                 [#%s]\n') % (
 			gmTools.bool2str (
 				boolean = self._payload[self._idx['reviewed']],

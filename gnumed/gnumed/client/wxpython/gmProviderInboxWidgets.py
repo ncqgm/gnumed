@@ -35,10 +35,10 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmAuthWidgets
-from Gnumed.wxpython import gmPatSearchWidgets
-from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDataPackWidgets
+from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
+from Gnumed.wxpython.gmVaccWidgets import manage_vaccinations
 
 
 _log = logging.getLogger('gm.ui')
@@ -85,19 +85,7 @@ def configure_fallback_primary_provider(parent=None):
 		data = data,
 		caption = _('Configuring fallback primary provider')
 	)
-#============================================================
-class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
-	def __init__(self, *args, **kwargs):
-
-		gmPhraseWheel.cPhraseWheel.__init__ (
-			self,
-			*args,
-			**kwargs
-		)
-		self.matcher = gmPerson.cMatchProvider_Provider()
-		self.SetToolTipString(_('Select a healthcare provider.'))
-		self.selection_only = True
 #============================================================
 # practice related widgets 
 #============================================================
@@ -1195,7 +1183,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			wx.EndBusyCursor()
 			raise
 
-		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+		success = set_active_patient(patient = pat)
 
 		wx.EndBusyCursor()
 
@@ -1222,7 +1210,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
-		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+		success = set_active_patient(patient = pat)
 
 		wx.EndBusyCursor()
 
@@ -1250,7 +1238,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
-		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+		success = set_active_patient(patient = pat)
 
 		wx.EndBusyCursor()
 
@@ -1278,7 +1266,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg,	_('handling provider inbox item'))
 			return False
 
-		success = gmPatSearchWidgets.set_active_patient(patient = pat)
+		success = set_active_patient(patient = pat)
 
 		wx.EndBusyCursor()
 

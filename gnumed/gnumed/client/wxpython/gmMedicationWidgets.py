@@ -718,6 +718,7 @@ class cDrugComponentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmMedication.cDrugComponent(aPK_obj = self.GetData(as_instance = False, can_create = False))
+
 #============================================================
 #============================================================
 class cSubstancePreparationPhraseWheel(gmPhraseWheel.cPhraseWheel):
@@ -749,6 +750,7 @@ LIMIT 30"""
 		self.SetToolTipString(_('The preparation (form) of the substance or brand.'))
 		self.matcher = mp
 		self.selection_only = False
+
 #============================================================
 class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -765,6 +767,7 @@ class cSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmMedication.cConsumableSubstance(aPK_obj = self.GetData(as_instance = False, can_create = False))
+
 #============================================================
 # branded drugs widgets
 #------------------------------------------------------------
@@ -1011,37 +1014,58 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 
 		validity = True
 
-		if self._PRW_brand.GetValue().strip() == u'':
+		brand_name = self._PRW_brand.GetValue().strip()
+		if brand_name == u'':
 			validity = False
 			self._PRW_brand.display_as_valid(False)
 		else:
 			self._PRW_brand.display_as_valid(True)
 
-		if self._PRW_preparation.GetValue().strip() == u'':
+		preparation = self._PRW_preparation.GetValue().strip()
+		if preparation == u'':
 			validity = False
 			self._PRW_preparation.display_as_valid(False)
 		else:
 			self._PRW_preparation.display_as_valid(True)
 
 		if validity is True:
-			self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-			if len(self.__component_substances) == 0:
-				wants_empty = gmGuiHelpers.gm_show_question (
+			# dupe ?
+			drug = gmMedication.get_drug_by_brand(brand_name = brand_name, preparation = preparation)
+			if drug is not None:
+				validity = False
+				self._PRW_brand.display_as_valid(False)
+				self._PRW_preparation.display_as_valid(False)
+				gmGuiHelpers.gm_show_error (
 					title = _('Checking brand data'),
-					question = _(
-						'You have not selected any substances\n'
-						'as drug components.\n'
+					error = _(
+						'The brand information you entered:\n'
 						'\n'
-						'Without components you will not be able to\n'
-						'use this drug for documenting patient care.\n'
+						' [%s %s]\n'
 						'\n'
-						'Are you sure you want to save\n'
-						'it without components ?'
-					)
+						'already exists as a drug product.'
+					) % (brand_name, preparation)
 				)
-				if not wants_empty:
-					validity = False
-					self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
+
+			else:
+				# lacking components ?
+				self._TCTRL_components.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+				if len(self.__component_substances) == 0:
+					wants_empty = gmGuiHelpers.gm_show_question (
+						title = _('Checking brand data'),
+						question = _(
+							'You have not selected any substances\n'
+							'as drug components.\n'
+							'\n'
+							'Without components you will not be able to\n'
+							'use this drug for documenting patient care.\n'
+							'\n'
+							'Are you sure you want to save\n'
+							'it without components ?'
+						)
+					)
+					if not wants_empty:
+						validity = False
+						self.display_ctrl_as_valid(ctrl = self._TCTRL_components, valid = False)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save branded drug. Invalid or missing essential input.'))
@@ -1196,6 +1220,53 @@ LIMIT 50"""
 		self.SetToolTipString(_('The schedule for taking this substance.'))
 		self.matcher = mp
 		self.selection_only = False
+
+#============================================================
+class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		query = u"""
+(
+	SELECT DISTINCT ON (field_label)
+		aim
+			AS data,
+		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
+			AS list_label,
+		aim
+			AS field_label
+	FROM clin.v_pat_substance_intake
+	WHERE
+		aim %(fragment_condition)s
+		%(ctxt_substance)s
+) UNION (
+	SELECT DISTINCT ON (field_label)
+		aim
+			AS data,
+		aim || ' (' || substance || ' ' || amount || ' ' || unit || ')'
+			AS list_label,
+		aim
+			AS field_label
+	FROM clin.v_pat_substance_intake
+	WHERE
+		aim %(fragment_condition)s
+)
+ORDER BY list_label
+LIMIT 30"""
+
+		context = {'ctxt_substance': {
+			'where_part': u'AND substance = %(substance)s',
+			'placeholder': u'substance'
+		}}
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
+		mp.setThresholds(1, 2, 4)
+		#mp.word_separators = '[ \t=+&:@]+'
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('The medical aim for consuming this substance.'))
+		self.matcher = mp
+		self.selection_only = False
+
 #============================================================
 def turn_substance_intake_into_allergy(parent=None, intake=None, emr=None):
 
@@ -1358,6 +1429,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_substance.selection_only = True
 
 		self._PRW_duration.display_accuracy = gmDateTime.acc_days
+
+		self._PRW_aim.add_callback_on_set_focus(callback = self._on_enter_aim)
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -1782,6 +1855,31 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_preparation.Enable(True)
 			self._TCTRL_brand_ingredients.SetValue(u'')
 			self._TCTRL_brand_ingredients.SetToolTipString(u'')
+	#----------------------------------------------------------------
+	def _on_enter_aim(self):
+		# when a drug component/substance is selected (that is, when .GetData()
+		# returns not None) then we do not want to use the GetValue().strip()
+		# result because that will also have amount and unit appended, hence
+		# create the real component or substance instance and take the canonical
+		# substance name from there
+		subst = self._PRW_component.GetValue().strip()
+		if subst != u'':
+			comp = self._PRW_component.GetData(as_instance = True)
+			if comp is None:
+				self._PRW_aim.set_context(context = u'substance', val = subst)
+				return
+			self._PRW_aim.set_context(context = u'substance', val = comp['substance'])
+			return
+
+		subst = self._PRW_substance.GetValue().strip()
+		if subst == u'':
+			self._PRW_aim.unset_context(context = u'substance')
+			return
+		comp = self._PRW_substance.GetData(as_instance = True)
+		if comp is None:
+			self._PRW_aim.set_context(context = u'substance', val = subst)
+			return
+		self._PRW_aim.set_context(context = u'substance', val = comp['description'])
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
 		if self._DP_discontinued.GetData() is None:

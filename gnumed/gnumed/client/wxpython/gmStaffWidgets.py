@@ -24,6 +24,20 @@ from Gnumed.wxpython import gmPhraseWheel
 _log = logging.getLogger('gm.ui')
 
 #==========================================================================
+class cProviderPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__ (
+			self,
+			*args,
+			**kwargs
+		)
+		self.matcher = gmPerson.cMatchProvider_Provider()
+		self.SetToolTipString(_('Select a healthcare provider.'))
+		self.selection_only = True
+
+#==========================================================================
 class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):

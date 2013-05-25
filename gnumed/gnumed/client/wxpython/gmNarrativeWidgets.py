@@ -50,10 +50,10 @@ from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
+from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
 from Gnumed.exporters import gmPatientExporter
 
@@ -290,7 +290,7 @@ def search_narrative_across_emrs(parent=None):
 	if selected_patient is None:
 		return
 
-	wx.CallAfter(gmPatSearchWidgets.set_active_patient, patient = gmPerson.cIdentity(aPK_obj = selected_patient))
+	wx.CallAfter(set_active_patient, patient = gmPerson.cIdentity(aPK_obj = selected_patient))
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 
@@ -391,7 +391,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 	# get file name
 	aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
 		# FIXME: make configurable
-	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed','export')))
+	aDefDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed')))
 		# FIXME: make configurable
 	fname = '%s-%s-%s-%s-%s.txt' % (
 		'Medistar-MD',
@@ -2739,7 +2739,7 @@ if __name__ == '__main__':
 	#----------------------------------------
 	def test_select_narrative_from_episodes():
 		pat = gmPersonSearch.ask_for_patient()
-		gmPatSearchWidgets.set_active_patient(patient = pat)
+		set_active_patient(patient = pat)
 		app = wx.PyWidgetTester(size = (200, 200))
 		sels = select_narrative_from_episodes_new()
 		print "selected:"
@@ -2758,7 +2758,7 @@ if __name__ == '__main__':
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			return
-		gmPatSearchWidgets.set_active_patient(patient=patient)
+		set_active_patient(patient=patient)
 
 		application = wx.PyWidgetTester(size=(800,500))
 		soap_input = cSoapPluginPnl(application.frame, -1)

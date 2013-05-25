@@ -379,6 +379,36 @@ class cMatchProvider_SQL2(cMatchProvider):
 	client code using .set_context() must use the 'placeholder':
 		<phrasewheel>/<match provider>.set_context('country', 'Germany')
 
+	full example query:
+
+		query = u" " "
+			SELECT DISTINCT ON (list_label)
+				pk_encounter
+					AS data,
+				to_char(started, 'YYYY Mon DD (HH24:MI)') || ': ' || l10n_type || ' [#' || pk_encounter || ']'
+					AS list_label,
+				to_char(started, 'YYYY Mon DD') || ': ' || l10n_type
+					AS field_label
+			FROM
+				clin.v_pat_encounters
+			WHERE
+				(
+					l10n_type %(fragment_condition)s
+						OR
+					type %(fragment_condition)s
+				)	%(ctxt_patient)s
+			ORDER BY
+				list_label
+			LIMIT
+				30
+		" " "
+		context = {'ctxt_patient': {
+			'where_part': u'AND pk_patient = %(PLACEHOLDER)s',
+			'placeholder': u'PLACEHOLDER'
+		}}
+		self.mp = gmMatchProvider.cMatchProvider_SQL2(queries = query, context = context)
+		self.set_context(context = 'PLACEHOLDER', val = '<THE VALUE>')
+
 	_SQL_data2match:
 		SQL to retrieve a match by, say, primary key
 		wherein the only keyword argument is 'pk'

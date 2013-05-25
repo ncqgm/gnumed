@@ -36,7 +36,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 	#curr_pat = gmPerson.gmCurrentPatient()
 	#if curr_pat.connected:
 	#	enc = 'cp850'			# FIXME: configurable
-	#	fname = os.path.expanduser(os.path.join('~', 'gnumed', 'export', 'xDT', 'current-patient.gdt'))
+	#	fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.gdt'))
 	#	curr_pat.export_as_gdt(filename = fname, encoding = enc)
 
 # main entry point

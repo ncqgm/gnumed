@@ -40,7 +40,6 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
-from Gnumed.wxpython import gmPatSearchWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -686,12 +685,12 @@ def start_new_encounter(emr=None):
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgEncounterEditAreaDlg
 
-def edit_encounter(parent=None, encounter=None):
+def edit_encounter(parent=None, encounter=None, msg=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# FIXME: use generic dialog 2
-	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter)
+	dlg = cEncounterEditAreaDlg(parent = parent, encounter = encounter, msg = msg)
 	if dlg.ShowModal() == wx.ID_OK:
 		dlg.Destroy()
 		return True
@@ -1091,7 +1090,13 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 		# getting the patient via the encounter allows us to act
 		# on any encounter regardless of the currently active patient
 		pat = gmPerson.cPatient(aPK_obj = self.__encounter['pk_patient'])
-		self._LBL_patient.SetLabel(pat.get_description_gender())
+		self._LBL_patient.SetLabel(pat.get_description_gender().strip())
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			if curr_pat.ID == self.__encounter['pk_patient']:
+				self._LBL_patient.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			else:
+				self._LBL_patient.SetForegroundColour('red')
 
 		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
 
@@ -2448,6 +2453,7 @@ class cDiagnosticCertaintyClassificationPhraseWheel(gmPhraseWheel.cPhraseWheel):
 if __name__ == '__main__':
 
 	from Gnumed.business import gmPersonSearch
+	from Gnumed.wxpython import gmPatSearchWidgets
 
 	#================================================================	
 	class testapp (wx.App):

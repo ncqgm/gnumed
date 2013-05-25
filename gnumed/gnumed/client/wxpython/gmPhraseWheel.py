@@ -7,7 +7,6 @@ interface of Richard Terry's Visual Basic client
 This is based on seminal work by Ian Haywood <ihaywood@gnu.org>
 """
 ############################################################################
-__version__ = "$Revision: 1.136 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood, S.J.Tan <sjtan@bigpond.com>"
 __license__ = "GPL"
 

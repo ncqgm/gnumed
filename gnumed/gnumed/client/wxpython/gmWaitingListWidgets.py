@@ -264,6 +264,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	#--------------------------------------------------------
 	def __refresh_waiting_list(self):
 		self.__id_most_recently_activated_patient = None
+		col, ascending = self._LCTRL_patients.GetSortState()	# preserve sorting order
 
 		praxis = gmSurgery.gmCurrentPractice()
 		pats = praxis.waiting_list_patients
@@ -314,6 +315,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				new_selections.append(new_pks.index(old_pk))
 		self._LCTRL_patients.selections = new_selections
 		self._LCTRL_patients.Refresh()
+		self._LCTRL_patients.SortListItems(col, ascending) # re-sort
 
 		self._LBL_no_of_patients.SetLabel(_('(%s patients)') % len(pats))
 

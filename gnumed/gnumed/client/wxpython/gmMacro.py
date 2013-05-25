@@ -157,7 +157,10 @@ known_variant_placeholders = [
 	u'current_meds_for_rx',					# formats substance intakes either by substance (non-brand intakes or by
 											# brand (once per brand intake, even if multi-component)
 											# args: <line template>
-											#	<line_template>: template into which to insert each intake
+											#	<line_template>: template into which to insert each intake, keys from
+											#	                 clin.v_pat_substance_intake, special additional keys:
+											#	                 %(contains)s -- list of components
+											#	                 %(amount2dispense)s -- how much/many to dispense
 	u'current_meds_table',					# "args" holds: format, options
 	u'current_meds_notes',					# "args" holds: format, options
 
@@ -633,28 +636,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				lines.append((template % line_dict)[:line_length])
 			except KeyError:
 				return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
-
-#-------------
-#		if target_format == u'tex':
-#			keys = narr[0].keys()
-#			lines = []
-#			line_dict = {}
-#			for n in narr:
-#				for key in keys:
-#					if isinstance(n[key], basestring):
-#						line_dict[key] = gmTools.tex_escape_string(text = n[key])
-#						continue
-#					line_dict[key] = n[key]
-#				try:
-#					lines.append((template % line_dict)[:line_length])
-#				except KeyError:
-#					return u'invalid key in template [%s], valid keys: %s]' % (template, str(keys))
-#		else:
-#			try:
-#				lines = [ (template % n)[:line_length] for n in narr ]
-#			except KeyError:
-#				return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
-#-------------------
 
 		return u'\n'.join(lines)
 	#--------------------------------------------------------
@@ -1148,15 +1129,24 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		for intake in current_meds:
 			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
 			if intake['pk_brand'] is None:
-				fields_dict['brand'] = _('generic %s') % fields_dict['substance']
-				fields_dict['contains'] = u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit'])
+				fields_dict['brand'] = self._escape(_('generic %s') % fields_dict['substance'])
+				fields_dict['contains'] = self._escape(u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
 				intakes2show[fields_dict['brand']] = fields_dict
 			else:
 				comps = [ c.split('::') for c in intake.containing_drug['components'] ]
-				fields_dict['contains'] = u'; '.join([ u'%s %s%s' % (c[0], c[1], c[2]) for c in comps ])
+				fields_dict['contains'] = self._escape(u'; '.join([ u'%s %s%s' % (c[0], c[1], c[2]) for c in comps ]))
 				intakes2show[intake['brand']] = fields_dict		# this will make multi-component drugs unique
 
-		return u'\n'.join([ data % intake for intake in intakes2show.values() ])
+		intakes2dispense = {}
+		for brand, intake in intakes2show.items():
+			msg = _('Dispense how much/many of "%(brand)s (%(contains)s)" ?') % intake
+			amount2dispense = wx.GetTextFromUser(msg, _('Amount to dispense ?'))
+			if amount2dispense == u'':
+				continue
+			intake['amount2dispense'] = amount2dispense
+			intakes2dispense[brand] = intake
+
+		return u'\n'.join([ data % intake for intake in intakes2dispense.values() ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 
@@ -1923,7 +1913,7 @@ if __name__ == '__main__':
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
 			#u'$<reminders:://::>$'
-			u'$<current_meds_for_rx::%(brand)s (%(contains)s)::>$'
+			u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 		]
 
 		handler = gmPlaceholderHandler()
