@@ -315,7 +315,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 				new_selections.append(new_pks.index(old_pk))
 		self._LCTRL_patients.selections = new_selections
 		self._LCTRL_patients.Refresh()
-		self._LCTRL_patients.SortListItems(col, ascending) # re-sort 
+		self._LCTRL_patients.SortListItems(col, ascending) # re-sort
 
 		self._LBL_no_of_patients.SetLabel(_('(%s patients)') % len(pats))
 
