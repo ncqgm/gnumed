@@ -41,7 +41,7 @@ def create_new_person(parent=None, activate=False):
 
 	def_region = dbcfg.get2 (
 		option = u'person.create.default_region',
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = u'user'
 	)
 	def_country = None
@@ -49,7 +49,7 @@ def create_new_person(parent=None, activate=False):
 	if def_region is None:
 		def_country = dbcfg.get2 (
 			option = u'person.create.default_country',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user'
 		)
 	else:

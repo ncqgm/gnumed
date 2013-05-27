@@ -37,7 +37,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 	def __init__(self, nr_plugins):
 		wx.ProgressDialog.__init__(
 			self,
-			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPraxis.gmCurrentPractice().active_workplace, nr_plugins),
+			title = _("GNUmed: configuring [%s] (%s plugins)") % (gmPraxis.gmCurrentPraxisBranch().active_workplace, nr_plugins),
 			message = _("loading list of plugins                               "),
 			maximum = nr_plugins,
 			parent = None,
@@ -374,7 +374,7 @@ def GetPluginLoadList(option, plugin_dir = '', defaults = None, workplace=None):
 		return [u'gmProviderInboxPlugin', u'gmDataMiningPlugin']
 
 	if workplace is None:
-		workplace = gmPraxis.gmCurrentPractice().active_workplace
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 
 	p_list = None
 

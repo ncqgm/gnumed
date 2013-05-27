@@ -258,7 +258,7 @@ def install_wx_exception_handler():
 	global _local_account
 	_local_account = os.path.basename(os.path.expanduser('~'))
 
-	set_helpdesk(gmPraxis.gmCurrentPractice().helpdesk)
+	set_helpdesk(gmPraxis.gmCurrentPraxisBranch().helpdesk)
 	set_staff_name(_local_account)
 	set_is_public_database(False)
 	set_sender_email(None)

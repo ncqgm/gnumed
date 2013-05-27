@@ -87,7 +87,7 @@ def manage_billables(parent=None):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = 'external.urls.schedules_of_fees',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = u'http://www.e-bis.de/goae/defaultFrame.htm'
 		)
@@ -196,7 +196,7 @@ def configure_invoice_template(parent=None, with_vat=True):
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = u'%s - %s' % (template['name_long'], template['external_version'])
 	)
@@ -213,7 +213,7 @@ def get_invoice_template(parent=None, with_vat=True):
 
 	template = dbcfg.get2 (
 		option = option,
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
 	)
 

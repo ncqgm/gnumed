@@ -189,7 +189,7 @@ def load_data_packs_list():
 	dbcfg = gmCfg.cCfgSQL()
 	dpl_url = dbcfg.get2 (
 		option = dpl_url_option,
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = default_dpl_url
 	)

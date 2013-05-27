@@ -140,7 +140,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		db_cfg = gmCfg.cCfgSQL()
 		default_plugin = db_cfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = u'gmPatientOverviewPlugin'
 		)

@@ -92,7 +92,7 @@ class DrugDisplay(wx.Panel):
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
 		# this is necessary to enable stand alone use of the drug browser
-		currworkplace = gmPraxis.gmCurrentPractice().active_workplace
+		currworkplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		if currworkplace is None:
 			# assume we are outside gnumed
 			self.dbName = _cfg.get('DrugReferenceBrowser', 'drugDBname')

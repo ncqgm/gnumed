@@ -146,7 +146,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.bar_width = -1
 		self.menu_id2plugin = {}
 
-		_log.info('workplace is >>>%s<<<', gmPraxis.gmCurrentPractice().active_workplace)
+		_log.info('workplace is >>>%s<<<', gmPraxis.gmCurrentPraxisBranch().active_workplace)
 
 		self.__setup_main_menu()
 		self.setup_statusbar()
@@ -232,7 +232,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 800
 		))
@@ -240,7 +240,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 600
 		))
@@ -1096,7 +1096,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		check_enc = bool(dbcfg.get2 (
 			option = 'encounter.show_editor_before_patient_change',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = True					# True: if needed, not always unconditionally
 		))
@@ -1184,7 +1184,7 @@ class gmTopLevelFrame(wx.Frame):
 		del gmAbout
 	#----------------------------------------------
 	def __on_about_database(self, evt):
-		praxis = gmPraxis.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
 
 		login = gmPG2.get_default_login()
@@ -1595,14 +1595,14 @@ class gmTopLevelFrame(wx.Frame):
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.notebook.plugin_load_order',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.plugin_to_raise_after_startup',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), u'gmEMRBrowserPlugin')
 		try:
@@ -1634,7 +1634,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg.set (
 			option = u'horstspace.plugin_to_raise_after_startup',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
 	#----------------------------------------------
@@ -1727,14 +1727,14 @@ class gmTopLevelFrame(wx.Frame):
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.notebook.plugin_load_order',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), u'gmPatientOverviewPlugin')
 		try:
@@ -1763,7 +1763,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg.set (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
 	#----------------------------------------------
@@ -1955,7 +1955,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_configure_user_email(self, evt):
-		email = gmPraxis.gmCurrentPractice().user_email
+		email = gmPraxis.gmCurrentPraxisBranch().user_email
 
 		dlg = wx.TextEntryDialog (
 			parent = self,
@@ -1981,7 +1981,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		email = dlg.GetValue().strip()
-		gmPraxis.gmCurrentPractice().user_email = email
+		gmPraxis.gmCurrentPraxisBranch().user_email = email
 		gmExceptionHandlingWidgets.set_sender_email(email)
 		dlg.Destroy()
 	#----------------------------------------------
@@ -2315,7 +2315,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		cmd = dbcfg.get2 (
 			option = u'external.tools.acs_risk_calculator_cmd',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 
@@ -2781,7 +2781,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		search_immediately = bool(dbcfg.get2 (
 			option = 'patient_search.external_sources.immediately_search_if_single_source',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = 0
 		))
@@ -2902,12 +2902,12 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg.set (
 			option = 'main.window.width',
 			value = curr_width,
-			workplace = gmPraxis.gmCurrentPractice().active_workplace
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		dbcfg.set (
 			option = 'main.window.height',
 			value = curr_height,
-			workplace = gmPraxis.gmCurrentPractice().active_workplace
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 
 		if _cfg.get(option = 'debug'):
@@ -2972,7 +2972,7 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['lastnames']
 		)
 
-		args['wp'] = gmPraxis.gmCurrentPractice().active_workplace
+		args['wp'] = gmPraxis.gmCurrentPraxisBranch().active_workplace
 
 		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
@@ -3033,7 +3033,7 @@ class gmApp(wx.App):
 		if not self.__setup_prefs_file():
 			return False
 
-		gmExceptionHandlingWidgets.set_sender_email(gmPraxis.gmCurrentPractice().user_email)
+		gmExceptionHandlingWidgets.set_sender_email(gmPraxis.gmCurrentPraxisBranch().user_email)
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
@@ -3196,7 +3196,7 @@ class gmApp(wx.App):
 
 		do_check = bool(dbcfg.get2 (
 			option = u'horstspace.update.autocheck_at_startup',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = True
 		))
@@ -3248,7 +3248,7 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
 
 		# display database banner
-		praxis = gmPraxis.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
 		if msg.strip() != u'':
 
@@ -3282,7 +3282,7 @@ class gmApp(wx.App):
 		return True
 	#----------------------------------------------
 	def __update_workplace_list(self):
-		wps = gmPraxis.gmCurrentPractice().workplaces
+		wps = gmPraxis.gmCurrentPraxisBranch().workplaces
 		if len(wps) == 0:
 			return
 		login = gmPG2.get_default_login()

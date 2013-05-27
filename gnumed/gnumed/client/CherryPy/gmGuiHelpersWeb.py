@@ -215,7 +215,7 @@ class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 	def __init__(self, *args, **kwargs):
 		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
 
-		self.praxis = gmPraxis.gmCurrentPractice()
+		self.praxis = gmPraxis.gmCurrentPraxisBranch()
 		self._TCTRL_message.SetValue(self.praxis.db_logon_banner)
 	#--------------------------------------------------------
 	# event handlers

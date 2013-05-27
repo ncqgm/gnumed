@@ -137,7 +137,7 @@ def configure_workplace_plugins(parent=None):
 	#-----------------------------------
 	def delete(workplace):
 
-		curr_workplace = gmPraxis.gmCurrentPractice().active_workplace
+		curr_workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		if workplace == curr_workplace:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
 			return False
@@ -336,8 +336,8 @@ def configure_workplace_plugins(parent=None):
 		return True
 	#-----------------------------------
 	def refresh(lctrl):
-		workplaces = gmPraxis.gmCurrentPractice().workplaces
-		curr_workplace = gmPraxis.gmCurrentPractice().active_workplace
+		workplaces = gmPraxis.gmCurrentPraxisBranch().workplaces
+		curr_workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		try:
 			sels = [workplaces.index(curr_workplace)]
 		except ValueError:

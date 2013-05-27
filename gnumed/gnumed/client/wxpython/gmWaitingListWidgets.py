@@ -95,7 +95,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 			self.data = data
 			self.mode = 'edit'
 
-		praxis = gmPraxis.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		pats = praxis.waiting_list_patients
 		zones = {}
 		zones.update([ [p['waiting_zone'], None] for p in pats if p['waiting_zone'] is not None ])
@@ -152,7 +152,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		gmPraxis.gmCurrentPractice().update_in_waiting_list (
+		gmPraxis.gmCurrentPraxisBranch().update_in_waiting_list (
 			pk = self.data['pk_waiting_list'],
 			urgency = self._SPCTRL_urgency.GetValue(),
 			comment = self._TCTRL_comment.GetValue().strip(),
@@ -266,7 +266,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		self.__id_most_recently_activated_patient = None
 		col, ascending = self._LCTRL_patients.GetSortState()	# preserve sorting order
 
-		praxis = gmPraxis.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		pats = praxis.waiting_list_patients
 
 		# set matcher to all zones currently in use
@@ -409,7 +409,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			return
 		self.__id_most_recently_activated_patient = item['pk_identity']
 		self.__comment_most_recently_activated_patient = gmTools.coalesce(item['comment'], u'').strip()
-		gmPraxis.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+		gmPraxis.gmCurrentPraxisBranch().remove_from_waiting_list(pk = item['pk_waiting_list'])
 		curr_pat = gmPerson.gmCurrentPatient()
 		if curr_pat.connected:
 			if curr_pat.ID == item['pk_identity']:
@@ -468,21 +468,21 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		)
 		if not do_delete:
 			return
-		gmPraxis.gmCurrentPractice().remove_from_waiting_list(pk = item['pk_waiting_list'])
+		gmPraxis.gmCurrentPraxisBranch().remove_from_waiting_list(pk = item['pk_waiting_list'])
 	#--------------------------------------------------------
 	def _on_up_button_pressed(self, evt):
 		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		gmPraxis.gmCurrentPractice().raise_in_waiting_list(current_position = item['list_position'])
+		gmPraxis.gmCurrentPraxisBranch().raise_in_waiting_list(current_position = item['list_position'])
 	#--------------------------------------------------------
 	def _on_down_button_pressed(self, evt):
 		self.__id_most_recently_activated_patient = None
 		item = self._LCTRL_patients.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		gmPraxis.gmCurrentPractice().lower_in_waiting_list(current_position = item['list_position'])
+		gmPraxis.gmCurrentPraxisBranch().lower_in_waiting_list(current_position = item['list_position'])
 	#--------------------------------------------------------
 	def _on_active_patient_only_checked(self, evt):
 		self.__refresh_waiting_list()

@@ -449,7 +449,7 @@ class cLoginPanel(wx.Panel):
 				border = 10
 			)
 
-		paramsbox_caption = _('Workplace "%s" (version %s)') % (gmPraxis.gmCurrentPractice().active_workplace, client_version)
+		paramsbox_caption = _('Workplace "%s" (version %s)') % (gmPraxis.gmCurrentPraxisBranch().active_workplace, client_version)
 
 		# FIXME: why doesn't this align in the centre ?
 		self.paramsbox = wx.StaticBox( self, -1, paramsbox_caption, style = wx.ALIGN_CENTRE_HORIZONTAL)
@@ -760,7 +760,7 @@ class cLoginPanel(wx.Panel):
 	# event handlers
 	#----------------------------
 	def OnHelp(self, event):
-		praxis = gmPraxis.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		wx.MessageBox(_(
 u"""Unable to connect to the database ?
 

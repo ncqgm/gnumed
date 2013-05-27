@@ -745,7 +745,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		# FIXME: look for MRU/MCU encounter type config here
 		enc_type = cfg_db.get2 (
 			option = u'encounter.default_type',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = u'in surgery'
 		)
@@ -1447,7 +1447,7 @@ def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False
 	db_cfg = gmCfg.cCfgSQL()
 	epi_ttl = int(db_cfg.get2 (
 		option = u'episode.ttl',
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = 60				# 2 months
 	))

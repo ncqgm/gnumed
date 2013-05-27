@@ -571,7 +571,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			dbcfg = gmCfg.cCfgSQL()
 			value = bool(dbcfg.get2 (
 				option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
-				workplace = gmPraxis.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = u'user',
 				default = False
 			))

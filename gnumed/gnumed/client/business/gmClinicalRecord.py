@@ -99,7 +99,7 @@ class cClinicalRecord(object):
 			_me = gmStaff.gmCurrentProvider()
 		global _here
 		if _here is None:
-			_here = gmPraxis.gmCurrentPractice()
+			_here = gmPraxis.gmCurrentPraxisBranch()
 
 		# ...........................................
 		# this is a hack to speed up get_encounters()

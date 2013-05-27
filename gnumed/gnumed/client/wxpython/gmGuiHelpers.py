@@ -286,12 +286,14 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 from Gnumed.business import gmPraxis
 from Gnumed.wxGladeWidgets import wxgGreetingEditorDlg
 
+# move to gmPraxisWidgets.py
+
 class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 
 	def __init__(self, *args, **kwargs):
 		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
 
-		self.praxis = gmPraxis.gmCurrentPractice()
+		self.praxis = gmPraxis.gmCurrentPraxisBranch()
 		self._TCTRL_message.SetValue(self.praxis.db_logon_banner)
 	#--------------------------------------------------------
 	# event handlers

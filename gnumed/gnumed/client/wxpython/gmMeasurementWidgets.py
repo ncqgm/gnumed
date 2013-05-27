@@ -214,14 +214,14 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	url = dbcfg.get (
 		option = u'external.urls.measurements_search',
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = u"http://www.google.de/search?as_oq=%(search_term)s&num=10&as_sitesearch=laborlexikon.de"
 	)
 
 	base_url = dbcfg.get2 (
 		option = u'external.urls.measurements_encyclopedia',
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',
 		default = u'http://www.laborlexikon.de'
 	)
@@ -334,7 +334,7 @@ def configure_default_gnuplot_template(parent=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 	dbcfg.set (
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		option = option,
 		value = u'%s - %s' % (template['name_long'], template['external_version'])
 	)
@@ -350,7 +350,7 @@ def get_default_gnuplot_template(parent = None):
 	# load from option
 	default_template_name = dbcfg.get2 (
 		option = option,
-		workplace = gmPraxis.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
 	)
 
@@ -1041,7 +1041,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = u'external.urls.measurements_encyclopedia',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = u'http://www.laborlexikon.de'
 		)

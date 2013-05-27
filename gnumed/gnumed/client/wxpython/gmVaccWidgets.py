@@ -654,7 +654,7 @@ def manage_vaccinations(parent=None):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = 'external.urls.vaccination_plans',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = u'http://www.bundesaerztekammer.de/downloads/STIKOEmpf2011.pdf'
 		)
@@ -1012,7 +1012,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = u'external.urls.report_vaccine_ADR',
-			workplace = gmPraxis.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
 		)
@@ -1020,7 +1020,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		if url.strip() == u'':
 			url = dbcfg.get2 (
 				option = u'external.urls.report_ADR',
-				workplace = gmPraxis.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = u'user'
 			)
 		gmNetworkTools.open_url_in_browser(url = url)

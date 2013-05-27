@@ -39,7 +39,7 @@ class DrugView:
 		# who and where we are. in this case try to get config source 
 		# from main config file (see gmCfg on how the name of this file
 		# is determined
-		currWorkplace = gmPraxis.gmCurrentPractice().active_workplace
+		currWorkplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		if currWorkplace is None:
 			# assume we are outside gnumed
 			self.dbConfFile = _cfg.get(aDatabaseName, 'configfile')

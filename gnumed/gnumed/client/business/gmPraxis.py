@@ -107,7 +107,7 @@ def delete_praxis_branch(pk_praxis_branch=None):
 	return True
 
 #============================================================
-class gmCurrentPractice(gmBorg.cBorg):
+class gmCurrentPraxisBranch(gmBorg.cBorg):
 
 	def __init__(self):
 		try:
@@ -298,7 +298,7 @@ if __name__ == '__main__':
 		sys.exit()
 
 	def run_tests():
-		prac = gmCurrentPractice()
+		prac = gmCurrentPraxisBranch()
 #		print "help desk:", prac.helpdesk
 #		print "active workplace:", prac.active_workplace
 
