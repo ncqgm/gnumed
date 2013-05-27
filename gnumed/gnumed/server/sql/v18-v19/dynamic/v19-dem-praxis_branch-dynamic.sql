@@ -20,11 +20,9 @@ select audit.register_table_for_auditing('dem', 'praxis_branch');
 grant select on dem.praxis_branch to group "gm-public";
 grant insert, update, delete on dem.praxis_branch to group "gm-doctors";
 
---GRANT USAGE ON SEQUENCE
---	cfg.cfg_numeric_pk_seq,
---	cfg.cfg_string_pk_seq,
---	cfg.cfg_str_array_pk_seq
---to group "gm-public";
+GRANT USAGE ON SEQUENCE
+	dem.praxis_branch_pk_seq
+to group "gm-public";
 
 -- --------------------------------------------------------------
 -- .fk_org_unit

@@ -11,7 +11,7 @@
 create table dem.praxis_branch (
 	pk serial primary key,
 	fk_org_unit integer
-);
+) inherits (audit.audit_fields);
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v19-dem-praxis_branch-static.sql', '19.0');

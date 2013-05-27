@@ -8,7 +8,7 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
@@ -21,7 +21,7 @@ declare
 	_table_desc record;
 	_pk_desc record;
 	_column_desc record;
-	_fk_desc text;
+	_fk_desc record;
 	_total text;
 begin
 	_total := '''';
@@ -91,10 +91,9 @@ begin
 		for _fk_desc in
 			select * from
 				(select
-					pg_catalog.pg_get_constraintdef(tbl.oid, true)
-						|| '':active=''
+					replace(pg_catalog.pg_get_constraintdef(tbl.oid, true), '' '', ''_'')
+						|| ''::active=''
 						|| tbl.convalidated
-						|| E''\n''
 					 as condef
 				from pg_catalog.pg_constraint tbl
 				where
@@ -105,7 +104,7 @@ begin
 			order by
 				decode(md5(FKs.condef), ''hex'')
 		loop
-			_total := _total || _fk_desc;
+			_total := _total || _fk_desc.condef || E''\n'';
 		end loop;
 
 	end loop;		-- over tables

@@ -44,6 +44,40 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 		return True
 	dlg.Destroy()
 	return False
+
+#============================================================
+def select_org_unit(parent=None, msg=None):
+
+	# fails because we sometimes need it before wx.App() is done with OnInit()
+#	if parent is None:
+#		parent = wx.GetApp().GetTopWindow()
+
+	#--------------------
+	def refresh(lctrl):
+		units = gmOrganization.get_org_units(order_by = 'organization, unit, l10n_unit_category')
+		items = [ [
+			u['organization'],
+			u['unit'],
+			gmTools.coalesce(u['l10n_unit_category'], u''),
+			u['pk_org_unit']
+		] for u in units ]
+
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = units)
+	#--------------------
+	if msg is None:
+		msg = _("Organizations and units thereof.\n")
+
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Unit selection ...'),
+		columns = [_('Organization'), _('Unit'), _('Unit type'), '#'],
+		can_return_empty = False,
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
 #============================================================
 class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 

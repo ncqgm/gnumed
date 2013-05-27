@@ -5,6 +5,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 import sys
+import logging
 
 
 if __name__ == '__main__':
@@ -16,6 +17,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 
 
+_log = logging.getLogger('gm.praxis')
 _cfg = gmCfg2.gmCfgData()
 #============================================================
 def delete_workplace(workplace=None, delete_config=False, conn=None):
@@ -109,17 +111,27 @@ def delete_praxis_branch(pk_praxis_branch=None):
 #============================================================
 class gmCurrentPraxisBranch(gmBorg.cBorg):
 
-	def __init__(self):
+	def __init__(self, branch=None):
 		try:
-			self.already_inited
-			return
+			self.branch
 		except AttributeError:
-			pass
+			self.branch = None
+			self.__helpdesk = None
+			self.__active_workplace = None
 
-		self.__helpdesk = None
-		self.__active_workplace = None
+		# user wants copy of current branch
+		if branch is None:
+			return None
 
-		self.already_inited = True
+		# must be cPraxisBranch instance, then
+		if not isinstance(branch, cPraxisBranch):
+			_log.error('cannot set current praxis branch to [%s], must be a cPraxisBranch instance' % str(branch))
+			raise TypeError, 'gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch)
+
+		self.branch = branch
+		_log.debug('current praxis branch now: %s', self.branch)
+
+		return None
 	#--------------------------------------------------------
 	# waiting list handling
 	#--------------------------------------------------------
@@ -316,12 +328,10 @@ if __name__ == '__main__':
 
 		return True
 
-
-	print get_praxis_branches()
-
-
 #	if not run_tests():
 #		print "regression tests failed"
 #	print "regression tests succeeded"
+
+	print get_praxis_branches()
 
 #============================================================

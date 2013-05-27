@@ -111,6 +111,7 @@ from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
+from Gnumed.wxpython import gmPraxisWidgets
 
 
 try:
@@ -3040,7 +3041,12 @@ class gmApp(wx.App):
 
 		if not self.__establish_backend_connection():
 			return False
+		if not self.__verify_db_account():
+			return False
+		if not self.__verify_praxis_branch():
+			return False
 
+		self.__check_db_lang()
 		self.__update_workplace_list()
 
 		if not _cfg.get(option = 'skip-update-check'):
@@ -3208,22 +3214,21 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def __establish_backend_connection(self):
 		"""Handle all the database related tasks necessary for startup."""
-
-		# log on
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
-
 		from Gnumed.wxpython import gmAuthWidgets
 		connected = gmAuthWidgets.connect_to_database (
 			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
 			require_version = not override
 		)
-		if not connected:
-			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
-			return False
-
+		if connected:
+			return True
+		_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
+		return False
+	#----------------------------------------------
+	def __verify_db_account(self):
 		# check account <-> staff member association
+		global _provider
 		try:
-			global _provider
 			_provider = gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		except ValueError:
 			account = gmPG2.get_current_user()
@@ -3247,39 +3252,42 @@ class gmApp(wx.App):
 		)
 		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
 
+		return True
+	#----------------------------------------------
+	def __verify_praxis_branch(self):
+
+		if not gmPraxisWidgets.set_active_praxis_branch():
+			return False
+
 		# display database banner
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
-		if msg.strip() != u'':
+		if msg.strip() == u'':
+			return True
 
-			login = gmPG2.get_default_login()
-			auth = u'\n%s\n\n' % (_('Database <%s> on <%s>') % (
-				login.database,
-				gmTools.coalesce(login.host, u'localhost')
-			))
-			msg = auth + msg + u'\n\n'
+		login = gmPG2.get_default_login()
+		auth = u'\n%s\n\n' % (_('Database <%s> on <%s>') % (
+			login.database,
+			gmTools.coalesce(login.host, u'localhost')
+		))
+		msg = auth + msg + u'\n\n'
 
-			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-				None,
-				#self.GetTopWindow(),				# freezes
-				-1,
-				caption = _('Verifying database'),
-				question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
-				button_defs = [
-					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
-					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
-				]
-			)
-			go_on = dlg.ShowModal()
-			dlg.Destroy()
-			if go_on != wx.ID_YES:
-				_log.info('user decided to not connect to this database')
-				return False
-
-		# check database language settings
-		self.__check_db_lang()
-
-		return True
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,		#self.GetTopWindow(),				# freezes
+			-1,
+			caption = _('Verifying database'),
+			question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
+			button_defs = [
+				{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
+				{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
+			]
+		)
+		log_on = dlg.ShowModal()
+		dlg.Destroy()
+		if log_on == wx.ID_YES:
+			return True
+		_log.info('user decided to not connect to this database')
+		return False
 	#----------------------------------------------
 	def __update_workplace_list(self):
 		wps = gmPraxis.gmCurrentPraxisBranch().workplaces
