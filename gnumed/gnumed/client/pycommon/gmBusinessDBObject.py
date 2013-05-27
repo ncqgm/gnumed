@@ -200,19 +200,21 @@ from Gnumed.pycommon import gmPG2
 #============================================================
 # short description
 #------------------------------------------------------------
+# search/replace "" " -> 3 "s
+#
 # use plural form, search-replace get_XXX
-_SQL_get_XXX = u" ""
+_SQL_get_XXX = u"" "
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
 	WHERE %s
 "" "
 
 class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
-	" ""Represents ..."" "
+	"" "Represents ..."" "
 
 	_cmd_fetch_payload = _SQL_get_XXX % u"pk_XXX = %s"
 	_cmds_store_payload = [
-		u" ""
+		u"" "
 			-- typically the underlying table name
 			UPDATE xxx.xxx SET
 				-- typically "table_col = %(view_col)s"
@@ -226,7 +228,7 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 				xmin as xmin_XXX
 				--, ...
 				--, ...
-		" ""
+		"" "
 	]
 	# view columns that can be updated:
 	_updatable_fields = [
@@ -246,7 +248,7 @@ def get_XXX(order_by=None):
 
 	cmd = _SQL_get_XXX % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'xxx'}) for r in rows ]
+	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_xxx'}) for r in rows ]
 #------------------------------------------------------------
 def create_xxx(xxx=None, xxx=None):
 
@@ -254,7 +256,7 @@ def create_xxx(xxx=None, xxx=None):
 		u'xxx': xxx,
 		u'xxx': xxx
 	}
-	cmd = u" ""
+	cmd = u"" "
 		INSERT INTO xxx.xxx (
 			xxx,
 			xxx,
@@ -266,15 +268,15 @@ def create_xxx(xxx=None, xxx=None):
 		)
 		RETURNING pk
 		--RETURNING *
-	" ""
+	"" "
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
 
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
-	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'xxx'})
+	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'})
 #------------------------------------------------------------
-def delete_xxx(xxx=None):
-	args = {'pk': xxx}
+def delete_xxx(pk_xxx=None):
+	args = {'pk': pk_xxx}
 	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True

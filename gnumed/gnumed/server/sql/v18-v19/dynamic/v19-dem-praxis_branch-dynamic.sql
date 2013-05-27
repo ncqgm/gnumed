@@ -133,7 +133,8 @@ select
 	d_vou.pk_category_unit,
 	d_vou.pk_address,
 	d_pb.xmin
-		as xmin_praxis_branch
+		as xmin_praxis_branch,
+	d_vou.xmin_org_unit
 from
 	dem.praxis_branch d_pb
 		left join dem.v_org_units d_vou on (d_pb.fk_org_unit = d_vou.pk_org_unit)
