@@ -236,8 +236,8 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 		u'xxx'
 	]
 	#--------------------------------------------------------
-	def format(self):
-		return u'%s' % self
+#	def format(self):
+#		return u'%s' % self
 
 #------------------------------------------------------------
 def get_XXX(order_by=None):

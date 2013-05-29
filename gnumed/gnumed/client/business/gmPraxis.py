@@ -16,6 +16,8 @@ from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 
+from Gnumed.business import gmOrganization
+
 
 _log = logging.getLogger('gm.praxis')
 _cfg = gmCfg2.gmCfgData()
@@ -77,7 +79,22 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format(self):
-		return u'%s' % self
+		txt = _('Praxis branch                   #%s\n') % self._payload[self._idx['pk_praxis_branch']]
+		txt += u' '
+		txt += u'\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
+		return txt
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
+
+	org_unit = property(_get_org_unit, lambda x:x)
+	#--------------------------------------------------------
+	def _get_org(self):
+		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
+
+	organization = property(_get_org, lambda x:x)
 
 #------------------------------------------------------------
 def get_praxis_branches(order_by=None):
@@ -309,6 +326,9 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	from Gnumed.pycommon import gmI18N
+	gmI18N.install_domain()
+
 	def run_tests():
 		prac = gmCurrentPraxisBranch()
 #		print "help desk:", prac.helpdesk
@@ -332,6 +352,7 @@ if __name__ == '__main__':
 #		print "regression tests failed"
 #	print "regression tests succeeded"
 
-	print get_praxis_branches()
+	for b in get_praxis_branches():
+		print b.format()
 
 #============================================================

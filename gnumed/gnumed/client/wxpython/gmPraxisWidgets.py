@@ -1,5 +1,24 @@
 """GNUmed praxis related widgets.
 
+Praxis:
+
+	Each database belongs to ONE praxis only. A praxis can
+	have several branches. A praxis is at the same level
+	as an organization, except that it is not explicitely
+	defined. Rather, that ONE organization of which at least
+	one unit is defined as a praxis branch IS the praxis.
+
+Praxis branch
+
+	Branches are the sites/locations of a praxis. There
+	can be several branches. Each branch must link to
+	units of ONE AND THE SAME organization (because
+	it is not considered good data protection practice
+	to mix charts of *different* organizations within
+	one database). However, that organization which
+	has units that are praxis branches can also have
+	other units which are not branches :-)
+
 copyright: authors
 """
 #============================================================
@@ -16,30 +35,366 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-#from Gnumed.pycommon import gmCfg
-#from Gnumed.pycommon import gmPG2
-#from Gnumed.pycommon import gmTools
-#from Gnumed.pycommon import gmDateTime
-#from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmCfg
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmPG2
 
 from Gnumed.business import gmPraxis
-#from Gnumed.business import gmPerson
-#from Gnumed.business import gmStaff
-#from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmStaff
+from Gnumed.business import gmOrganization
 
 from Gnumed.wxpython import gmOrganizationWidgets
-#from Gnumed.wxpython import gmEditArea
-#from Gnumed.wxpython import gmGuiHelpers
-#from Gnumed.wxpython.gmDemographicsWidgets import _validate_dob_field, _validate_tob_field
+from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmAuthWidgets
+from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmPlugin
+from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.praxis')
 
-#============================================================
-def set_active_praxis_branch(parent=None):
+#=========================================================================
+def show_audit_trail(parent=None):
 
-#	if parent is None:
-#		parent = wx.GetApp().GetTopWindow()
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('showing audit trail'))
+	if conn is None:
+		return False
+
+	#-----------------------------------
+	def refresh(lctrl):
+		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
+		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}], get_col_idx = False)
+		lctrl.set_string_items (
+			[ [
+				r['event_when'],
+				r['event_by'],
+				u'%s %s %s' % (
+					gmTools.coalesce(r['row_version_before'], gmTools.u_diameter),
+					gmTools.u_right_arrow,
+					gmTools.coalesce(r['row_version_after'], gmTools.u_diameter)
+				),
+				r['event_table'],
+				r['event'],
+				r['pk_audit']
+			] for r in rows ]
+		)
+	#-----------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = u'',
+		caption = _('GNUmed database audit log ...'),
+		columns = [ _('When'), _('Who'), _('Revisions'), _('Table'), _('Event'), '#' ],
+		single_selection = True,
+		refresh_callback = refresh
+	)
+
+#============================================================
+def configure_fallback_primary_provider(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	staff = gmStaff.get_staff_list()
+	choices = [ [
+			s[u'short_alias'],
+			u'%s%s %s' % (
+				gmTools.coalesce(s['title'], u'', u'%s '),
+				s['firstnames'],
+				s['lastnames']
+			),
+			s['l10n_role'],
+			gmTools.coalesce(s['comment'], u'')
+		]
+		for s in staff
+		if s['is_active'] is True
+	]
+	data = [ s['pk_staff'] for s in staff if s['is_active'] is True ]
+
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Please select the provider to fall back to in case\n'
+			'no primary provider is configured for a patient.\n'
+		),
+		option = 'patient.fallback_primary_provider',
+		bias = 'user',
+		default_value = None,
+		choices = choices,
+		columns = [_('Alias'), _('Provider'), _('Role'), _('Comment')],
+		data = data,
+		caption = _('Configuring fallback primary provider')
+	)
+
+#============================================================
+# workplace plugin configuration widgets
+#------------------------------------------------------------
+def configure_workplace_plugins(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	#-----------------------------------
+	def delete(workplace):
+
+		curr_workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+		if workplace == curr_workplace:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
+			return False
+
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			parent,
+			-1,
+			caption = _('Deleting workplace ...'),
+			question = _('Are you sure you want to delete this workplace ?\n\n "%s"\n') % workplace,
+			show_checkbox = True,
+			checkbox_msg = _('delete configuration, too'),
+			checkbox_tooltip = _(
+				'Check this if you want to delete all configuration items\n'
+				'for this workplace along with the workplace itself.'
+			),
+			button_defs = [
+				{'label': _('Delete'), 'tooltip': _('Yes, delete this workplace.'), 'default': True},
+				{'label': _('Do NOT delete'), 'tooltip': _('No, do NOT delete this workplace'), 'default': False}
+			]
+		)
+
+		decision = dlg.ShowModal()
+		if decision != wx.ID_YES:
+			dlg.Destroy()
+			return False
+
+		include_cfg = dlg.checkbox_is_checked()
+		dlg.Destroy()
+
+		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('delete workplace'))
+		if not dbo_conn:
+			return False
+
+		gmPraxis.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
+		return True
+	#-----------------------------------
+	def edit(workplace=None):
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		if workplace is None:
+			dlg = wx.TextEntryDialog (
+				parent = parent,
+				message = _('Enter a descriptive name for the new workplace:'),
+				caption = _('Configuring GNUmed workplaces ...'),
+				defaultValue = u'',
+				style = wx.OK | wx.CENTRE
+			)
+			dlg.ShowModal()
+			workplace = dlg.GetValue().strip()
+			if workplace == u'':
+				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
+				return False
+			curr_plugins = []
+		else:
+			curr_plugins = gmTools.coalesce(dbcfg.get2 (
+				option = u'horstspace.notebook.plugin_load_order',
+				workplace = workplace,
+				bias = 'workplace'
+				), []
+			)
+
+		msg = _(
+			'Pick the plugin(s) to be loaded the next time the client is restarted under the workplace:\n'
+			'\n'
+			'    [%s]\n'
+		) % workplace
+
+		picker = gmListWidgets.cItemPickerDlg (
+			parent,
+			-1,
+			title = _('Configuring workplace plugins ...'),
+			msg = msg
+		)
+		picker.set_columns(['Available plugins'], ['Active plugins'])
+		available_plugins = gmPlugin.get_installed_plugins(plugin_dir = 'gui')
+		picker.set_choices(available_plugins)
+		picker.set_picks(picks = curr_plugins[:])
+		btn_pressed = picker.ShowModal()
+		if btn_pressed != wx.ID_OK:
+			picker.Destroy()
+			return False
+
+		new_plugins = picker.get_picks()
+		picker.Destroy()
+		if new_plugins == curr_plugins:
+			return True
+
+		if new_plugins is None:
+			return True
+
+		dbcfg.set (
+			option = u'horstspace.notebook.plugin_load_order',
+			value = new_plugins,
+			workplace = workplace
+		)
+
+		return True
+	#-----------------------------------
+	def edit_old(workplace=None):
+
+		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
+
+		dbcfg = gmCfg.cCfgSQL()
+
+		if workplace is None:
+			dlg = wx.TextEntryDialog (
+				parent = parent,
+				message = _('Enter a descriptive name for the new workplace:'),
+				caption = _('Configuring GNUmed workplaces ...'),
+				defaultValue = u'',
+				style = wx.OK | wx.CENTRE
+			)
+			dlg.ShowModal()
+			workplace = dlg.GetValue().strip()
+			if workplace == u'':
+				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
+				return False
+			curr_plugins = []
+			choices = available_plugins
+		else:
+			curr_plugins = gmTools.coalesce(dbcfg.get2 (
+				option = u'horstspace.notebook.plugin_load_order',
+				workplace = workplace,
+				bias = 'workplace'
+				), []
+			)
+			choices = curr_plugins[:]
+			for p in available_plugins:
+				if p not in choices:
+					choices.append(p)
+
+		sels = range(len(curr_plugins))
+		new_plugins = gmListWidgets.get_choices_from_list (
+			parent = parent,
+			msg = _(
+				'\n'
+				'Select the plugin(s) to be loaded the next time\n'
+				'the client is restarted under the workplace:\n'
+				'\n'
+				' [%s]'
+				'\n'
+			) % workplace,
+			caption = _('Configuring GNUmed workplaces ...'),
+			choices = choices,
+			selections = sels,
+			columns = [_('Plugins')],
+			single_selection = False
+		)
+
+		if new_plugins == curr_plugins:
+			return True
+
+		if new_plugins is None:
+			return True
+
+		dbcfg.set (
+			option = u'horstspace.notebook.plugin_load_order',
+			value = new_plugins,
+			workplace = workplace
+		)
+
+		return True
+	#-----------------------------------
+	def clone(workplace=None):
+		if workplace is None:
+			return False
+
+		new_name = wx.GetTextFromUser (
+			message = _('Enter a name for the new workplace !'),
+			caption = _('Cloning workplace'),
+			default_value = u'%s-2' % workplace,
+			parent = parent
+		).strip()
+
+		if new_name == u'':
+			return False
+
+		dbcfg = gmCfg.cCfgSQL()
+		opt = u'horstspace.notebook.plugin_load_order'
+
+		plugins = dbcfg.get2 (
+			option = opt,
+			workplace = workplace,
+			bias = 'workplace'
+		)
+
+		dbcfg.set (
+			option = opt,
+			value = plugins,
+			workplace = new_name
+		)
+
+		# FIXME: clone cfg, too
+
+		return True
+	#-----------------------------------
+	def refresh(lctrl):
+		workplaces = gmPraxis.gmCurrentPraxisBranch().workplaces
+		curr_workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+		try:
+			sels = [workplaces.index(curr_workplace)]
+		except ValueError:
+			sels = []
+
+		lctrl.set_string_items(workplaces)
+		lctrl.set_selections(selections = sels)
+	#-----------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _(
+			'\nSelect the workplace to configure below.\n'
+			'\n'
+			'The currently active workplace is preselected.\n'
+		),
+		caption = _('Configuring GNUmed workplaces ...'),
+		columns = [_('Workplace')],
+		single_selection = True,
+		refresh_callback = refresh,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		left_extra_button = (_('Clone'), _('Clone the selected workplace'), clone)
+	)
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgGreetingEditorDlg
+
+class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
+
+		self.praxis = gmPraxis.gmCurrentPraxisBranch()
+		self._TCTRL_message.SetValue(self.praxis.db_logon_banner)
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, evt):
+		self.praxis.db_logon_banner = self._TCTRL_message.GetValue().strip()
+		if self.IsModal():
+			self.EndModal(wx.ID_SAVE)
+		else:
+			self.Close()
+
+#============================================================
+def set_active_praxis_branch(parent=None, no_parent=False):
+
+	if no_parent:
+		parent = None
+	else:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
 
 	branches = gmPraxis.get_praxis_branches()
 
@@ -49,8 +404,31 @@ def set_active_praxis_branch(parent=None):
 		return True
 
 	if len(branches) == 0:
+		orgs = gmOrganization.get_orgs()
+		if len(orgs) == 0 or True:
+			pk_cat = gmOrganization.create_org_category(category = u'Praxis')
+			org = gmOrganization.create_org(_('Your praxis'), pk_cat)
+			unit = org.add_unit(_('Your branch'))
+			branch = gmPraxis.create_praxis_branch(pk_org_unit = unit['pk_org_unit'])
+			_log.debug('auto-created praxis branch because no organizations existed: %s', branch)
+			gmPraxis.gmCurrentPraxisBranch(branch)
+			gmGuiHelpers.gm_show_info (
+				title = _('Praxis configuration ...'),
+				info = _(
+					'GNUmed has auto-created the following praxis branch\n'
+					'for you (which you can later configure as needed):\n'
+					'\n'
+					'%s'
+				) % branch.format()
+			)
+			return True
+
 		_log.debug('no praxis branches configured, selecting from organization units')
-		unit = gmOrganizationWidgets.select_org_unit(msg = _('You must select one unit of an organization to be the praxis branch you log in from.'))
+		msg = _(
+"""You must select one unit (department, site, ...) of an
+organization to represent the initial branch of your praxis."""
+		)
+		unit = gmOrganizationWidgets.select_org_unit(msg = msg, no_parent = True)
 		if unit is None:
 			_log.warning('no organization unit selected, aborting')
 			return False
@@ -73,7 +451,7 @@ def set_active_praxis_branch(parent=None):
 	#--------------------
 	branch = gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _("Select branch you are logging in from (of praxis [%s]).\n") % branches[0]['praxis'],
+		msg = _("Select branch (of praxis [%s]) which you are logging in from.\n") % branches[0]['praxis'],
 		caption = _('Praxis branch selection ...'),
 		columns = [_('Branch'), _('Branch type')],
 		can_return_empty = False,
@@ -85,6 +463,19 @@ def set_active_praxis_branch(parent=None):
 		return False
 	gmPraxis.gmCurrentPraxisBranch(branch)
 	return True
+
+#============================================================
+def manage_praxis_branches(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	branches = gmPraxis.get_praxis_branches()
+	org = branches[0].branch.org
+
+	msg = _('Pick the units of')
+
+#	branch_picker = gmListWidgets.cItemPickerDlg(msg = )
 
 #============================================================
 # main
@@ -102,5 +493,10 @@ if __name__ == "__main__":
 #	gmI18N.activate_locale()
 #	gmI18N.install_domain()
 
+	def test_configure_wp_plugins():
+		app = wx.PyWidgetTester(size = (400, 300))
+		configure_workplace_plugins()
+
 	#--------------------------------------------------------
 	#test_org_unit_prw()
+	#test_configure_wp_plugins()

@@ -12,12 +12,29 @@ import sys, logging
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmDemographicRecord
 
 
 _log = logging.getLogger('gm.org')
+
+#============================================================
+def create_org_category(category=None):
+	args = {'cat': category}
+	cmd1 = u"""INSERT INTO dem.org_category (description) SELECT %(cat)s
+WHERE NOT EXISTS (
+	SELECT 1 FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s
+)"""
+	cmd2 = u"""SELECT pk FROM dem.org_category WHERE description = %(cat)s or _(description) = %(cat)s LIMIT 1"""
+	queries = [
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args}
+	]
+	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = False, return_data = True)
+	return rows[0][0]
+
 #============================================================
 # organization API
 #------------------------------------------------------------
@@ -41,6 +58,9 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 		u'organization',
 		u'pk_category_org'
 	]
+	#--------------------------------------------------------
+	def add_unit(self, unit=None):
+		return create_org_unit(pk_organization = self._payload[self._idx['pk_org']], unit = unit)
 #------------------------------------------------------------
 def org_exists(organization=None, category=None):
 	args = {'desc': organization, 'cat': category}
@@ -198,11 +218,11 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		self.address = None
 	#--------------------------------------------------------
-	def format(self, with_address=False, with_org=True):
+	def format(self, with_address=False, with_org=True, with_comms=False):
 		lines = []
-		lines.append(_('Unit: %s (%s)') % (
+		lines.append(_('Unit: %s%s') % (
 			self._payload[self._idx['unit']],
-			self._payload[self._idx['l10n_unit_category']]
+			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], u'', u' (%s)')
 		))
 		if with_org:
 			lines.append(_('Organization: %s (%s)') % (
@@ -213,6 +233,13 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			adr = self.address
 			if adr is not None:
 				lines.extend(adr.format())
+		if with_comms:
+			for comm in self.comm_channels:
+				lines.append(u'%s: %s%s' % (
+					comm['l10n_comm_type'],
+					comm['url'],
+					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
+				))
 		return lines
 	#--------------------------------------------------------
 	# properties
@@ -227,6 +254,13 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		self.save()
 
 	address = property(_get_address, _set_address)
+	#--------------------------------------------------------
+	def _get_org(self):
+		return cOrg(aPK_obj = self._payload[self._idx['pk_org']])
+
+	organization = property(_get_org, lambda x:x)
+
+	comm_channels = property(get_comm_channels, lambda x:x)
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None):
 

@@ -1192,12 +1192,16 @@ class gmTopLevelFrame(wx.Frame):
 
 		auth = _(
 			'\n\n'
+			' praxis:       %s\n'
+			' branch:       %s\n'
 			' workplace:    %s\n'
 			' account:      %s\n'
 			' database:     %s\n'
 			' server:       %s\n'
 			' PostgreSQL:   %s\n'
 		) % (
+			praxis.branch['praxis'],
+			praxis.branch['branch'],
 			praxis.active_workplace,
 			login.user,
 			login.database,
@@ -1355,7 +1359,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmPG2.force_user_language(language = language)
 	#----------------------------------------------
 	def __on_configure_db_welcome(self, event):
-		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
+		dlg = gmPraxisWidgets.cGreetingEditorDlg(self, -1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	# submenu GNUmed - config - external tools
@@ -1827,7 +1831,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.configure_default_gnuplot_template(parent = self)
 	#----------------------------------------------
 	def __on_cfg_fallback_primary_provider(self, evt):
-		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
+		gmPraxisWidgets.configure_fallback_primary_provider(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
@@ -2210,7 +2214,7 @@ class gmTopLevelFrame(wx.Frame):
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_provinces,
-			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
+			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
 			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
@@ -2402,7 +2406,7 @@ class gmTopLevelFrame(wx.Frame):
 	# Office
 	#----------------------------------------------
 	def __on_display_audit_trail(self, evt):
-		gmProviderInboxWidgets.show_audit_trail(parent = self)
+		gmAccessPermissionWidgets.show_audit_trail(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_all_bills(self, evt):
@@ -2937,12 +2941,12 @@ class gmTopLevelFrame(wx.Frame):
 	def __set_window_title_template(self):
 
 		if _cfg.get(option = 'slave'):
-			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s] (%s:%s)' % (
+			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
 				_cfg.get(option = 'slave personality'),
 				_cfg.get(option = 'xml-rpc port')
 			)
 		else:
-			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s]'
+			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
 	#----------------------------------------------
 	def __update_window_title(self):
 		"""Update title of main window based on template.
@@ -2973,7 +2977,10 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['lastnames']
 		)
 
-		args['wp'] = gmPraxis.gmCurrentPraxisBranch().active_workplace
+		praxis = gmPraxis.gmCurrentPraxisBranch()
+		args['wp'] = praxis.active_workplace
+		args['site'] = praxis.branch['branch']
+		args['prax'] = praxis.branch['praxis']
 
 		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
@@ -3256,21 +3263,29 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def __verify_praxis_branch(self):
 
-		if not gmPraxisWidgets.set_active_praxis_branch():
+		if not gmPraxisWidgets.set_active_praxis_branch(no_parent = True):
 			return False
 
-		# display database banner
-		praxis = gmPraxis.gmCurrentPraxisBranch()
-		msg = praxis.db_logon_banner
-		if msg.strip() == u'':
-			return True
-
 		login = gmPG2.get_default_login()
-		auth = u'\n%s\n\n' % (_('Database <%s> on <%s>') % (
+		msg = u'\n'
+		msg += _('Database <%s> on <%s>') % (
 			login.database,
 			gmTools.coalesce(login.host, u'localhost')
-		))
-		msg = auth + msg + u'\n\n'
+		)
+		msg += u'\n\n'
+
+		praxis = gmPraxis.gmCurrentPraxisBranch()
+		msg += _('Branch "%s" of praxis "%s"\n') % (
+			praxis.branch['branch'],
+			praxis.branch['praxis']
+		)
+		msg += u'\n\n'
+
+		banner = praxis.db_logon_banner
+		if banner.strip() == u'':
+			return True
+		msg += banner
+		msg += u'\n\n'
 
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 			None,		#self.GetTopWindow(),				# freezes

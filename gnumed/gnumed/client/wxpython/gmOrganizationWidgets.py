@@ -46,11 +46,13 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 	return False
 
 #============================================================
-def select_org_unit(parent=None, msg=None):
+def select_org_unit(parent=None, msg=None, no_parent=False):
 
-	# fails because we sometimes need it before wx.App() is done with OnInit()
-#	if parent is None:
-#		parent = wx.GetApp().GetTopWindow()
+	if no_parent:
+		parent = None
+	else
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
 
 	#--------------------
 	def refresh(lctrl):

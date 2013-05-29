@@ -282,28 +282,7 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 	def _on_restore_button_pressed(self, evt):
 		if self.original_text is not None:
 			self._TCTRL_text.SetValue(self.original_text)
-# ========================================================================
-from Gnumed.business import gmPraxis
-from Gnumed.wxGladeWidgets import wxgGreetingEditorDlg
 
-# move to gmPraxisWidgets.py
-
-class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
-
-	def __init__(self, *args, **kwargs):
-		wxgGreetingEditorDlg.wxgGreetingEditorDlg.__init__(self, *args, **kwargs)
-
-		self.praxis = gmPraxis.gmCurrentPraxisBranch()
-		self._TCTRL_message.SetValue(self.praxis.db_logon_banner)
-	#--------------------------------------------------------
-	# event handlers
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, evt):
-		self.praxis.db_logon_banner = self._TCTRL_message.GetValue().strip()
-		if self.IsModal():
-			self.EndModal(wx.ID_SAVE)
-		else:
-			self.Close()
 # ========================================================================
 class cTreeExpansionHistoryMixin:
 	"""TreeCtrl mixin class to record expansion history."""
@@ -457,17 +436,22 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 	dlg.Destroy()
 	return True
 #-------------------------------------------------------------------------
-def gm_show_info(aMessage = None, aTitle = None):
-	if aMessage is None:
-		aMessage = _('programmer forgot to specify info message')
+def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 
-	if aTitle is None:
-		aTitle = _('generic info message')
+	if info is None:
+		info = aMessage
+	if info is None:
+		info = _('programmer forgot to specify info message')
+
+	if title is None:
+		title = aTitle
+	if title is None:
+		title = _('generic info message')
 
 	dlg = wx.MessageDialog (
 		parent = None,
-		message = aMessage,
-		caption = aTitle,
+		message = info,
+		caption = title,
 		style = wx.OK | wx.ICON_INFORMATION | wx.STAY_ON_TOP
 	)
 	dlg.ShowModal()
