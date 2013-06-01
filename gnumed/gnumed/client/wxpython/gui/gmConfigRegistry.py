@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmCfg, gmConfigCommon, gmI18N
 from Gnumed.wxpython import gmPlugin, gmGuiHelpers, gmRegetMixin
-from Gnumed.business import gmPerson, gmSurgery
+from Gnumed.business import gmPerson, gmPraxis
 
 import wx
 
@@ -520,7 +520,7 @@ else:
 
 		def GetWidget (self, parent):
 			# get current workplace name
-			workplace = gmSurgery.gmCurrentPractice().active_workplace
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 			currUser = gmStaff.gmCurrentProvider()['db_user']
 			_log.Log (gmLog.lInfo, "ConfigReg: %s@%s" % (currUser,workplace))
 			self._widget = gmConfigEditorPanel(parent,currUser,workplace)
@@ -533,7 +533,7 @@ else:
 		"""Wrapper to load this module from an environment that wants a panel
 		"""
 		currUser = gmStaff.gmCurrentProvider()['db_user']
-		workplace = gmSurgery.gmCurrentPractice().active_workplace
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		return gmConfigEditorPanel(parent,currUser,workplace)
 
 #------------------------------------------------------------                   

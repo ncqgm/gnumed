@@ -1,17 +1,25 @@
-"""GNUmed Surgery related middleware."""
+"""GNUmed Praxis related middleware."""
 #============================================================
 __license__ = "GPL"
-__version__ = "$Revision: 1.14 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
-import sys, os
+import sys
+import logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmTools, gmBorg, gmCfg2
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmBorg
+from Gnumed.pycommon import gmCfg2
+from Gnumed.pycommon import gmBusinessDBObject
 
+from Gnumed.business import gmOrganization
+
+
+_log = logging.getLogger('gm.praxis')
 _cfg = gmCfg2.gmCfgData()
 #============================================================
 def delete_workplace(workplace=None, delete_config=False, conn=None):
@@ -45,20 +53,102 @@ where
 		})
 
 	gmPG2.run_rw_queries(link_obj = conn, queries = queries, end_tx = True)
+
 #============================================================
-class gmCurrentPractice(gmBorg.cBorg):
+# short description
+#------------------------------------------------------------
+_SQL_get_praxis_branches = u"SELECT * FROM dem.v_praxis_branches WHERE %s"
 
-	def __init__(self):
+class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents a praxis branch"""
+
+	_cmd_fetch_payload = _SQL_get_praxis_branches % u"pk_praxis_branch = %s"
+	_cmds_store_payload = [
+		u"""UPDATE dem.praxis_branch SET
+				fk_org_unit = %(pk_org_unit)s
+			WHERE
+				pk = %(pk_praxis_branch)s
+					AND
+				xmin = %(xmin_praxis_branch)s
+			RETURNING
+				xmin as xmin_praxis_branch
+		"""
+	]
+	_updatable_fields = [
+		u'pk_org_unit'
+	]
+	#--------------------------------------------------------
+	def format(self):
+		txt = _('Praxis branch                   #%s\n') % self._payload[self._idx['pk_praxis_branch']]
+		txt += u' '
+		txt += u'\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
+		return txt
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
+
+	org_unit = property(_get_org_unit, lambda x:x)
+	#--------------------------------------------------------
+	def _get_org(self):
+		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
+
+	organization = property(_get_org, lambda x:x)
+
+#------------------------------------------------------------
+def get_praxis_branches(order_by=None):
+	if order_by is None:
+		order_by = u'true'
+	else:
+		order_by = u'true ORDER BY %s' % order_by
+
+	cmd = _SQL_get_praxis_branches % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
+#------------------------------------------------------------
+def create_praxis_branch(pk_org_unit=None):
+
+	args = {u'fk_unit': pk_org_unit}
+	cmd = u"""
+		INSERT INTO dem.praxis_branch (fk_org_unit)
+		VALUES (%(fk_unit)s)
+		RETURNING pk
+	"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+
+	return cPraxisBranch(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def delete_praxis_branch(pk_praxis_branch=None):
+	args = {'pk': pk_praxis_branch}
+	cmd = u"DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
+#============================================================
+class gmCurrentPraxisBranch(gmBorg.cBorg):
+
+	def __init__(self, branch=None):
 		try:
-			self.already_inited
-			return
+			self.branch
 		except AttributeError:
-			pass
+			self.branch = None
+			self.__helpdesk = None
+			self.__active_workplace = None
 
-		self.__helpdesk = None
-		self.__active_workplace = None
+		# user wants copy of current branch
+		if branch is None:
+			return None
 
-		self.already_inited = True
+		# must be cPraxisBranch instance, then
+		if not isinstance(branch, cPraxisBranch):
+			_log.error('cannot set current praxis branch to [%s], must be a cPraxisBranch instance' % str(branch))
+			raise TypeError, 'gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch)
+
+		self.branch = branch
+		_log.debug('current praxis branch now: %s', self.branch)
+
+		return None
 	#--------------------------------------------------------
 	# waiting list handling
 	#--------------------------------------------------------
@@ -230,8 +320,17 @@ where
 #============================================================
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	from Gnumed.pycommon import gmI18N
+	gmI18N.install_domain()
+
 	def run_tests():
-		prac = gmCurrentPractice()
+		prac = gmCurrentPraxisBranch()
 #		print "help desk:", prac.helpdesk
 #		print "active workplace:", prac.active_workplace
 
@@ -249,9 +348,11 @@ if __name__ == '__main__':
 
 		return True
 
-	if len(sys.argv) > 1 and sys.argv[1] == 'test':
-		if not run_tests():
-			print "regression tests failed"
-		print "regression tests succeeded"
+#	if not run_tests():
+#		print "regression tests failed"
+#	print "regression tests succeeded"
+
+	for b in get_praxis_branches():
+		print b.format()
 
 #============================================================

@@ -69,7 +69,7 @@ from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmArriba
@@ -111,6 +111,7 @@ from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
+from Gnumed.wxpython import gmPraxisWidgets
 
 
 try:
@@ -146,7 +147,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.bar_width = -1
 		self.menu_id2plugin = {}
 
-		_log.info('workplace is >>>%s<<<', gmSurgery.gmCurrentPractice().active_workplace)
+		_log.info('workplace is >>>%s<<<', gmPraxis.gmCurrentPraxisBranch().active_workplace)
 
 		self.__setup_main_menu()
 		self.setup_statusbar()
@@ -232,7 +233,7 @@ class gmTopLevelFrame(wx.Frame):
 		# width
 		width = int(cfg.get2 (
 			option = 'main.window.width',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 800
 		))
@@ -240,7 +241,7 @@ class gmTopLevelFrame(wx.Frame):
 		# height
 		height = int(cfg.get2 (
 			option = 'main.window.height',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = 600
 		))
@@ -1096,7 +1097,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		check_enc = bool(dbcfg.get2 (
 			option = 'encounter.show_editor_before_patient_change',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = True					# True: if needed, not always unconditionally
 		))
@@ -1184,19 +1185,23 @@ class gmTopLevelFrame(wx.Frame):
 		del gmAbout
 	#----------------------------------------------
 	def __on_about_database(self, evt):
-		praxis = gmSurgery.gmCurrentPractice()
+		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg = praxis.db_logon_banner
 
 		login = gmPG2.get_default_login()
 
 		auth = _(
 			'\n\n'
+			' praxis:       %s\n'
+			' branch:       %s\n'
 			' workplace:    %s\n'
 			' account:      %s\n'
 			' database:     %s\n'
 			' server:       %s\n'
 			' PostgreSQL:   %s\n'
 		) % (
+			praxis.branch['praxis'],
+			praxis.branch['branch'],
 			praxis.active_workplace,
 			login.user,
 			login.database,
@@ -1354,7 +1359,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmPG2.force_user_language(language = language)
 	#----------------------------------------------
 	def __on_configure_db_welcome(self, event):
-		dlg = gmGuiHelpers.cGreetingEditorDlg(self, -1)
+		dlg = gmPraxisWidgets.cGreetingEditorDlg(self, -1)
 		dlg.ShowModal()
 	#----------------------------------------------
 	# submenu GNUmed - config - external tools
@@ -1595,14 +1600,14 @@ class gmTopLevelFrame(wx.Frame):
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.notebook.plugin_load_order',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.plugin_to_raise_after_startup',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), u'gmEMRBrowserPlugin')
 		try:
@@ -1634,7 +1639,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg.set (
 			option = u'horstspace.plugin_to_raise_after_startup',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
 	#----------------------------------------------
@@ -1727,14 +1732,14 @@ class gmTopLevelFrame(wx.Frame):
 		# get list of possible plugins
 		plugin_list = gmTools.coalesce(dbcfg.get2 (
 			option = u'horstspace.notebook.plugin_load_order',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), [])
 
 		# get current setting
 		initial_plugin = gmTools.coalesce(dbcfg.get2 (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		), u'gmPatientOverviewPlugin')
 		try:
@@ -1763,7 +1768,7 @@ class gmTopLevelFrame(wx.Frame):
 
 		dbcfg.set (
 			option = u'patient_search.plugin_to_raise_after_search',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			value = plugin
 		)
 	#----------------------------------------------
@@ -1826,7 +1831,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmMeasurementWidgets.configure_default_gnuplot_template(parent = self)
 	#----------------------------------------------
 	def __on_cfg_fallback_primary_provider(self, evt):
-		gmProviderInboxWidgets.configure_fallback_primary_provider(parent = self)
+		gmPraxisWidgets.configure_fallback_primary_provider(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
@@ -1955,7 +1960,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_configure_user_email(self, evt):
-		email = gmSurgery.gmCurrentPractice().user_email
+		email = gmPraxis.gmCurrentPraxisBranch().user_email
 
 		dlg = wx.TextEntryDialog (
 			parent = self,
@@ -1981,7 +1986,7 @@ class gmTopLevelFrame(wx.Frame):
 			return
 
 		email = dlg.GetValue().strip()
-		gmSurgery.gmCurrentPractice().user_email = email
+		gmPraxis.gmCurrentPraxisBranch().user_email = email
 		gmExceptionHandlingWidgets.set_sender_email(email)
 		dlg.Destroy()
 	#----------------------------------------------
@@ -2209,7 +2214,7 @@ class gmTopLevelFrame(wx.Frame):
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEMRStructWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_provinces,
-			'workplaces': gmProviderInboxWidgets.configure_workplace_plugins,
+			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
 			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
@@ -2315,7 +2320,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		cmd = dbcfg.get2 (
 			option = u'external.tools.acs_risk_calculator_cmd',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user'
 		)
 
@@ -2401,7 +2406,7 @@ class gmTopLevelFrame(wx.Frame):
 	# Office
 	#----------------------------------------------
 	def __on_display_audit_trail(self, evt):
-		gmProviderInboxWidgets.show_audit_trail(parent = self)
+		gmAccessPermissionWidgets.show_audit_trail(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_all_bills(self, evt):
@@ -2781,7 +2786,7 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg = gmCfg.cCfgSQL()
 		search_immediately = bool(dbcfg.get2 (
 			option = 'patient_search.external_sources.immediately_search_if_single_source',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = 0
 		))
@@ -2902,12 +2907,12 @@ class gmTopLevelFrame(wx.Frame):
 		dbcfg.set (
 			option = 'main.window.width',
 			value = curr_width,
-			workplace = gmSurgery.gmCurrentPractice().active_workplace
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 		dbcfg.set (
 			option = 'main.window.height',
 			value = curr_height,
-			workplace = gmSurgery.gmCurrentPractice().active_workplace
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
 		)
 
 		if _cfg.get(option = 'debug'):
@@ -2936,12 +2941,12 @@ class gmTopLevelFrame(wx.Frame):
 	def __set_window_title_template(self):
 
 		if _cfg.get(option = 'slave'):
-			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s] (%s:%s)' % (
+			self.__title_template = u'GMdS: %%(pat)s [%%(prov)s@%%(wp)s in %%(site)s of %%(prax)s] (%s:%s)' % (
 				_cfg.get(option = 'slave personality'),
 				_cfg.get(option = 'xml-rpc port')
 			)
 		else:
-			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s]'
+			self.__title_template = u'GMd: %(pat)s [%(prov)s@%(wp)s in %(site)s of %(prax)s]'
 	#----------------------------------------------
 	def __update_window_title(self):
 		"""Update title of main window based on template.
@@ -2972,7 +2977,10 @@ class gmTopLevelFrame(wx.Frame):
 			_provider['lastnames']
 		)
 
-		args['wp'] = gmSurgery.gmCurrentPractice().active_workplace
+		praxis = gmPraxis.gmCurrentPraxisBranch()
+		args['wp'] = praxis.active_workplace
+		args['site'] = praxis.branch['branch']
+		args['prax'] = praxis.branch['praxis']
 
 		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
@@ -3033,14 +3041,19 @@ class gmApp(wx.App):
 		if not self.__setup_prefs_file():
 			return False
 
-		gmExceptionHandlingWidgets.set_sender_email(gmSurgery.gmCurrentPractice().user_email)
+		gmExceptionHandlingWidgets.set_sender_email(gmPraxis.gmCurrentPraxisBranch().user_email)
 
 		self.__guibroker = gmGuiBroker.GuiBroker()
 		self.__setup_platform()
 
 		if not self.__establish_backend_connection():
 			return False
+		if not self.__verify_db_account():
+			return False
+		if not self.__verify_praxis_branch():
+			return False
 
+		self.__check_db_lang()
 		self.__update_workplace_list()
 
 		if not _cfg.get(option = 'skip-update-check'):
@@ -3196,7 +3209,7 @@ class gmApp(wx.App):
 
 		do_check = bool(dbcfg.get2 (
 			option = u'horstspace.update.autocheck_at_startup',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'workplace',
 			default = True
 		))
@@ -3208,22 +3221,21 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def __establish_backend_connection(self):
 		"""Handle all the database related tasks necessary for startup."""
-
-		# log on
 		override = _cfg.get(option = '--override-schema-check', source_order = [('cli', 'return')])
-
 		from Gnumed.wxpython import gmAuthWidgets
 		connected = gmAuthWidgets.connect_to_database (
 			expected_version = gmPG2.map_client_branch2required_db_version[_cfg.get(option = 'client_branch')],
 			require_version = not override
 		)
-		if not connected:
-			_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
-			return False
-
+		if connected:
+			return True
+		_log.warning("Login attempt unsuccessful. Can't run GNUmed without database connection")
+		return False
+	#----------------------------------------------
+	def __verify_db_account(self):
 		# check account <-> staff member association
+		global _provider
 		try:
-			global _provider
 			_provider = gmStaff.gmCurrentProvider(provider = gmStaff.cStaff())
 		except ValueError:
 			account = gmPG2.get_current_user()
@@ -3247,42 +3259,53 @@ class gmApp(wx.App):
 		)
 		gmExceptionHandlingWidgets.set_staff_name(staff_name = tmp)
 
-		# display database banner
-		surgery = gmSurgery.gmCurrentPractice()
-		msg = surgery.db_logon_banner
-		if msg.strip() != u'':
-
-			login = gmPG2.get_default_login()
-			auth = u'\n%s\n\n' % (_('Database <%s> on <%s>') % (
-				login.database,
-				gmTools.coalesce(login.host, u'localhost')
-			))
-			msg = auth + msg + u'\n\n'
-
-			dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-				None,
-				#self.GetTopWindow(),				# freezes
-				-1,
-				caption = _('Verifying database'),
-				question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
-				button_defs = [
-					{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
-					{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
-				]
-			)
-			go_on = dlg.ShowModal()
-			dlg.Destroy()
-			if go_on != wx.ID_YES:
-				_log.info('user decided to not connect to this database')
-				return False
-
-		# check database language settings
-		self.__check_db_lang()
-
 		return True
 	#----------------------------------------------
+	def __verify_praxis_branch(self):
+
+		if not gmPraxisWidgets.set_active_praxis_branch(no_parent = True):
+			return False
+
+		login = gmPG2.get_default_login()
+		msg = u'\n'
+		msg += _('Database <%s> on <%s>') % (
+			login.database,
+			gmTools.coalesce(login.host, u'localhost')
+		)
+		msg += u'\n\n'
+
+		praxis = gmPraxis.gmCurrentPraxisBranch()
+		msg += _('Branch "%s" of praxis "%s"\n') % (
+			praxis.branch['branch'],
+			praxis.branch['praxis']
+		)
+		msg += u'\n\n'
+
+		banner = praxis.db_logon_banner
+		if banner.strip() == u'':
+			return True
+		msg += banner
+		msg += u'\n\n'
+
+		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
+			None,		#self.GetTopWindow(),				# freezes
+			-1,
+			caption = _('Verifying database'),
+			question = gmTools.wrap(msg, 60, initial_indent = u'    ', subsequent_indent = u'    '),
+			button_defs = [
+				{'label': _('Connect'), 'tooltip': _('Yes, connect to this database.'), 'default': True},
+				{'label': _('Disconnect'), 'tooltip': _('No, do not connect to this database.'), 'default': False}
+			]
+		)
+		log_on = dlg.ShowModal()
+		dlg.Destroy()
+		if log_on == wx.ID_YES:
+			return True
+		_log.info('user decided to not connect to this database')
+		return False
+	#----------------------------------------------
 	def __update_workplace_list(self):
-		wps = gmSurgery.gmCurrentPractice().workplaces
+		wps = gmPraxis.gmCurrentPraxisBranch().workplaces
 		if len(wps) == 0:
 			return
 		login = gmPG2.get_default_login()

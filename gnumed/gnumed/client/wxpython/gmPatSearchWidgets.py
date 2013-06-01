@@ -34,7 +34,7 @@ from Gnumed.pycommon import gmNetworkTools
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmKVK
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmCA_MSVA
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmProviderInbox
@@ -524,7 +524,7 @@ def load_persons_from_kvks():
 	dbcfg = gmCfg.cCfgSQL()
 	kvk_dir = os.path.abspath(os.path.expanduser(dbcfg.get2 (
 		option = 'DE.KVK.spool_dir',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = u'/var/spool/kvkd/'
 	)))
@@ -796,7 +796,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 			dbcfg = gmCfg.cCfgSQL()
 			search_immediately = bool(dbcfg.get2 (
 				option = 'patient_search.external_sources.immediately_search_if_single_source',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
 				default = 0
 			))
@@ -997,7 +997,7 @@ def _check_birthday(patient=None):
 	dbcfg = gmCfg.cCfgSQL()
 	dob_distance = dbcfg.get2 (
 		option = u'patient_search.dob_warn_interval',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = u'user',
 		default = u'1 week'
 	)
@@ -1067,7 +1067,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		self.__always_dismiss_on_search = bool ( 
 			cfg.get2 (
 				option = 'patient_search.always_dismiss_previous_patient',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
 				default = 0
 			)
@@ -1076,7 +1076,7 @@ class cActivePatientSelector(cPersonSearchCtrl):
 		self.__always_reload_after_search = bool (
 			cfg.get2 (
 				option = 'patient_search.always_reload_new_patient',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = 'user',
 				default = 0
 			)

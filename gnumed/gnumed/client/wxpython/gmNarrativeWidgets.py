@@ -39,7 +39,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmForms
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmPersonSearch
@@ -1163,7 +1163,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		dbcfg = gmCfg.cCfgSQL()
 		allow_duplicate_editors = bool(dbcfg.get2 (
 			option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = False
 		))
@@ -1290,7 +1290,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		dbcfg = gmCfg.cCfgSQL()
 		auto_open_recent_problems = bool(dbcfg.get2 (
 			option = u'horstspace.soap_editor.auto_open_latest_episodes',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = True
 		))
@@ -2276,7 +2276,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 	dbcfg = gmCfg.cCfgSQL()
 	cmd = dbcfg.get2 (
 		option = u'external.tools.visual_soap_editor_cmd',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user'
 	)
 

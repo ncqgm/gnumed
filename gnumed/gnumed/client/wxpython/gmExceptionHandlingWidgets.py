@@ -14,7 +14,7 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmNetworkTools
 from Gnumed.pycommon.gmTools import u_box_horiz_single
 
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 
@@ -258,7 +258,7 @@ def install_wx_exception_handler():
 	global _local_account
 	_local_account = os.path.basename(os.path.expanduser('~'))
 
-	set_helpdesk(gmSurgery.gmCurrentPractice().helpdesk)
+	set_helpdesk(gmPraxis.gmCurrentPraxisBranch().helpdesk)
 	set_staff_name(_local_account)
 	set_is_public_database(False)
 	set_sender_email(None)

@@ -46,7 +46,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmPersonSearch
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 
 
 _log = logging.getLogger('gm.forms')
@@ -461,7 +461,7 @@ class gmOOoConnector(gmBorg.cBorg):
 		dbcfg = gmCfg.cCfgSQL()
 		self.ooo_startup_settle_time = dbcfg.get2 (
 			option = u'external.ooo.startup_settle_time',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'workplace',
 			default = 3.0
 		)

@@ -15,7 +15,6 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
-from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmMatchProvider
@@ -24,7 +23,6 @@ from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
-from Gnumed.business import gmSurgery
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmClinicalRecord
 
@@ -35,7 +33,6 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmAuthWidgets
-from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmDataPackWidgets
 from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 from Gnumed.wxpython.gmVaccWidgets import manage_vaccinations
@@ -48,320 +45,7 @@ _indicator = {
 	0: '',
 	1: '*!!*'
 }
-#============================================================
-def configure_fallback_primary_provider(parent=None):
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	staff = gmStaff.get_staff_list()
-	choices = [ [
-			s[u'short_alias'],
-			u'%s%s %s' % (
-				gmTools.coalesce(s['title'], u'', u'%s '),
-				s['firstnames'],
-				s['lastnames']
-			),
-			s['l10n_role'],
-			gmTools.coalesce(s['comment'], u'')
-		]
-		for s in staff
-		if s['is_active'] is True
-	]
-	data = [ s['pk_staff'] for s in staff if s['is_active'] is True ]
-
-	gmCfgWidgets.configure_string_from_list_option (
-		parent = parent,
-		message = _(
-			'\n'
-			'Please select the provider to fall back to in case\n'
-			'no primary provider is configured for a patient.\n'
-		),
-		option = 'patient.fallback_primary_provider',
-		bias = 'user',
-		default_value = None,
-		choices = choices,
-		columns = [_('Alias'), _('Provider'), _('Role'), _('Comment')],
-		data = data,
-		caption = _('Configuring fallback primary provider')
-	)
-
-#============================================================
-# practice related widgets 
-#============================================================
-def show_audit_trail(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	conn = gmAuthWidgets.get_dbowner_connection(procedure = _('showing audit trail'))
-	if conn is None:
-		return False
-
-	#-----------------------------------
-	def refresh(lctrl):
-		cmd = u'SELECT * FROM audit.v_audit_trail ORDER BY audit_when_ts'
-		rows, idx = gmPG2.run_ro_queries(link_obj = conn, queries = [{'cmd': cmd}], get_col_idx = False)
-		lctrl.set_string_items (
-			[ [
-				r['event_when'],
-				r['event_by'],
-				u'%s %s %s' % (
-					gmTools.coalesce(r['row_version_before'], gmTools.u_diameter),
-					gmTools.u_right_arrow,
-					gmTools.coalesce(r['row_version_after'], gmTools.u_diameter)
-				),
-				r['event_table'],
-				r['event'],
-				r['pk_audit']
-			] for r in rows ]
-		)
-	#-----------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = u'',
-		caption = _('GNUmed database audit log ...'),
-		columns = [ _('When'), _('Who'), _('Revisions'), _('Table'), _('Event'), '#' ],
-		single_selection = True,
-		refresh_callback = refresh
-	)
-
-#============================================================
-# FIXME: this should be moved elsewhere !
-#------------------------------------------------------------
-def configure_workplace_plugins(parent=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	#-----------------------------------
-	def delete(workplace):
-
-		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
-		if workplace == curr_workplace:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete the active workplace.'), beep = True)
-			return False
-
-		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-			parent,
-			-1,
-			caption = _('Deleting workplace ...'),
-			question = _('Are you sure you want to delete this workplace ?\n\n "%s"\n') % workplace,
-			show_checkbox = True,
-			checkbox_msg = _('delete configuration, too'),
-			checkbox_tooltip = _(
-				'Check this if you want to delete all configuration items\n'
-				'for this workplace along with the workplace itself.'
-			),
-			button_defs = [
-				{'label': _('Delete'), 'tooltip': _('Yes, delete this workplace.'), 'default': True},
-				{'label': _('Do NOT delete'), 'tooltip': _('No, do NOT delete this workplace'), 'default': False}
-			]
-		)
-
-		decision = dlg.ShowModal()
-		if decision != wx.ID_YES:
-			dlg.Destroy()
-			return False
-
-		include_cfg = dlg.checkbox_is_checked()
-		dlg.Destroy()
-
-		dbo_conn = gmAuthWidgets.get_dbowner_connection(procedure = _('delete workplace'))
-		if not dbo_conn:
-			return False
-
-		gmSurgery.delete_workplace(workplace = workplace, conn = dbo_conn, delete_config = include_cfg)
-		return True
-	#-----------------------------------
-	def edit(workplace=None):
-
-		dbcfg = gmCfg.cCfgSQL()
-
-		if workplace is None:
-			dlg = wx.TextEntryDialog (
-				parent = parent,
-				message = _('Enter a descriptive name for the new workplace:'),
-				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = u'',
-				style = wx.OK | wx.CENTRE
-			)
-			dlg.ShowModal()
-			workplace = dlg.GetValue().strip()
-			if workplace == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
-				return False
-			curr_plugins = []
-		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get2 (
-				option = u'horstspace.notebook.plugin_load_order',
-				workplace = workplace,
-				bias = 'workplace'
-				), []
-			)
-
-		msg = _(
-			'Pick the plugin(s) to be loaded the next time the client is restarted under the workplace:\n'
-			'\n'
-			'    [%s]\n'
-		) % workplace
-
-		picker = gmListWidgets.cItemPickerDlg (
-			parent,
-			-1,
-			title = _('Configuring workplace plugins ...'),
-			msg = msg
-		)
-		picker.set_columns(['Available plugins'], ['Active plugins'])
-		available_plugins = gmPlugin.get_installed_plugins(plugin_dir = 'gui')
-		picker.set_choices(available_plugins)
-		picker.set_picks(picks = curr_plugins[:])
-		btn_pressed = picker.ShowModal()
-		if btn_pressed != wx.ID_OK:
-			picker.Destroy()
-			return False
-
-		new_plugins = picker.get_picks()
-		picker.Destroy()
-		if new_plugins == curr_plugins:
-			return True
-
-		if new_plugins is None:
-			return True
-
-		dbcfg.set (
-			option = u'horstspace.notebook.plugin_load_order',
-			value = new_plugins,
-			workplace = workplace
-		)
-
-		return True
-	#-----------------------------------
-	def edit_old(workplace=None):
-
-		available_plugins = gmPlugin.get_installed_plugins(plugin_dir='gui')
-
-		dbcfg = gmCfg.cCfgSQL()
-
-		if workplace is None:
-			dlg = wx.TextEntryDialog (
-				parent = parent,
-				message = _('Enter a descriptive name for the new workplace:'),
-				caption = _('Configuring GNUmed workplaces ...'),
-				defaultValue = u'',
-				style = wx.OK | wx.CENTRE
-			)
-			dlg.ShowModal()
-			workplace = dlg.GetValue().strip()
-			if workplace == u'':
-				gmGuiHelpers.gm_show_error(_('Cannot save a new workplace without a name.'), _('Configuring GNUmed workplaces ...'))
-				return False
-			curr_plugins = []
-			choices = available_plugins
-		else:
-			curr_plugins = gmTools.coalesce(dbcfg.get2 (
-				option = u'horstspace.notebook.plugin_load_order',
-				workplace = workplace,
-				bias = 'workplace'
-				), []
-			)
-			choices = curr_plugins[:]
-			for p in available_plugins:
-				if p not in choices:
-					choices.append(p)
-
-		sels = range(len(curr_plugins))
-		new_plugins = gmListWidgets.get_choices_from_list (
-			parent = parent,
-			msg = _(
-				'\n'
-				'Select the plugin(s) to be loaded the next time\n'
-				'the client is restarted under the workplace:\n'
-				'\n'
-				' [%s]'
-				'\n'
-			) % workplace,
-			caption = _('Configuring GNUmed workplaces ...'),
-			choices = choices,
-			selections = sels,
-			columns = [_('Plugins')],
-			single_selection = False
-		)
-
-		if new_plugins == curr_plugins:
-			return True
-
-		if new_plugins is None:
-			return True
-
-		dbcfg.set (
-			option = u'horstspace.notebook.plugin_load_order',
-			value = new_plugins,
-			workplace = workplace
-		)
-
-		return True
-	#-----------------------------------
-	def clone(workplace=None):
-		if workplace is None:
-			return False
-
-		new_name = wx.GetTextFromUser (
-			message = _('Enter a name for the new workplace !'),
-			caption = _('Cloning workplace'),
-			default_value = u'%s-2' % workplace,
-			parent = parent
-		).strip()
-
-		if new_name == u'':
-			return False
-
-		dbcfg = gmCfg.cCfgSQL()
-		opt = u'horstspace.notebook.plugin_load_order'
-
-		plugins = dbcfg.get2 (
-			option = opt,
-			workplace = workplace,
-			bias = 'workplace'
-		)
-
-		dbcfg.set (
-			option = opt,
-			value = plugins,
-			workplace = new_name
-		)
-
-		# FIXME: clone cfg, too
-
-		return True
-	#-----------------------------------
-	def refresh(lctrl):
-		workplaces = gmSurgery.gmCurrentPractice().workplaces
-		curr_workplace = gmSurgery.gmCurrentPractice().active_workplace
-		try:
-			sels = [workplaces.index(curr_workplace)]
-		except ValueError:
-			sels = []
-
-		lctrl.set_string_items(workplaces)
-		lctrl.set_selections(selections = sels)
-	#-----------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _(
-			'\nSelect the workplace to configure below.\n'
-			'\n'
-			'The currently active workplace is preselected.\n'
-		),
-		caption = _('Configuring GNUmed workplaces ...'),
-		columns = [_('Workplace')],
-		single_selection = True,
-		refresh_callback = refresh,
-		edit_callback = edit,
-		new_callback = edit,
-		delete_callback = delete,
-		left_extra_button = (_('Clone'), _('Clone the selected workplace'), clone)
-	)
 #====================================================================
 class cMessageTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1345,10 +1029,6 @@ if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain(domain = 'gnumed')
 
-	def test_configure_wp_plugins():
-		app = wx.PyWidgetTester(size = (400, 300))
-		configure_workplace_plugins()
-
 	def test_message_inbox():
 		app = wx.PyWidgetTester(size = (800, 600))
 		app.SetWidget(cProviderInboxPnl, -1)
@@ -1360,7 +1040,6 @@ if __name__ == '__main__':
 		app.MainLoop()
 
 
-	#test_configure_wp_plugins()
 	#test_message_inbox()
 	test_msg_ea()
 

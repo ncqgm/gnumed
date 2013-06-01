@@ -44,6 +44,47 @@ def edit_org_unit(parent=None, org_unit=None, single_entry=False, org=None):
 		return True
 	dlg.Destroy()
 	return False
+
+#============================================================
+def select_org_unit(parent=None, msg=None, no_parent=False):
+
+	if no_parent:
+		parent = None
+	else:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
+
+	#--------------------
+	def new():
+		manage_orgs(parent = parent, no_parent = no_parent)
+		return True
+	#--------------------
+	def refresh(lctrl):
+		units = gmOrganization.get_org_units(order_by = 'organization, unit, l10n_unit_category')
+		items = [ [
+			u['organization'],
+			u['unit'],
+			gmTools.coalesce(u['l10n_unit_category'], u''),
+			u['pk_org_unit']
+		] for u in units ]
+
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = units)
+	#--------------------
+	if msg is None:
+		msg = _("Organizations and units thereof.\n")
+
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = msg,
+		caption = _('Unit selection ...'),
+		columns = [_('Organization'), _('Unit'), _('Unit type'), '#'],
+		can_return_empty = False,
+		single_selection = True,
+		refresh_callback = refresh,
+		new_callback = new
+	)
+
 #============================================================
 class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -446,13 +487,17 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 #============================================================
 # organizations API
 #------------------------------------------------------------
-def manage_orgs(parent=None):
+def manage_orgs(parent=None, no_parent=False):
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
+	if no_parent:
+		parent = None
+	else:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
 
 	dlg = cOrganizationManagerDlg(parent, -1)
 	dlg.ShowModal()
+	dlg.Destroy()
 #============================================================
 def edit_org(parent=None, org=None, single_entry=False):
 	ea = cOrganizationEAPnl(parent = parent, id = -1)

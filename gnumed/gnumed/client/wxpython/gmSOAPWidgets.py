@@ -16,7 +16,7 @@ import wx
 # GNUmed
 from Gnumed.pycommon import gmDispatcher, gmI18N, gmExceptions, gmMatchProvider, gmTools, gmCfg
 from Gnumed.wxpython import gmResizingWidgets, gmPhraseWheel, gmEMRStructWidgets, gmGuiHelpers, gmRegetMixin, gmEditArea, gmPatSearchWidgets
-from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmSurgery, gmPersonSearch, gmStaff
+from Gnumed.business import gmPerson, gmEMRStructItems, gmSOAPimporter, gmPraxis, gmPersonSearch, gmStaff
 
 _log = logging.getLogger('gm.ui')
 _log.info(__version__)
@@ -571,7 +571,7 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 			dbcfg = gmCfg.cCfgSQL()
 			value = bool(dbcfg.get2 (
 				option = u'horstspace.soap_editor.allow_same_episode_multiple_times',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = u'user',
 				default = False
 			))

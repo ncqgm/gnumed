@@ -27,7 +27,7 @@ from Gnumed.pycommon import gmPrinting
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmVaccination
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmProviderInbox
 
 from Gnumed.wxpython import gmPhraseWheel
@@ -654,7 +654,7 @@ def manage_vaccinations(parent=None):
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = 'external.urls.vaccination_plans',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = 'user',
 			default = u'http://www.bundesaerztekammer.de/downloads/STIKOEmpf2011.pdf'
 		)
@@ -1012,7 +1012,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		dbcfg = gmCfg.cCfgSQL()
 		url = dbcfg.get2 (
 			option = u'external.urls.report_vaccine_ADR',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user',
 			default = u'http://www.pei.de/cln_042/SharedDocs/Downloads/fachkreise/uaw/meldeboegen/b-ifsg-meldebogen,templateId=raw,property=publicationFile.pdf/b-ifsg-meldebogen.pdf'
 		)
@@ -1020,7 +1020,7 @@ class cVaccinationEAPnl(wxgVaccinationEAPnl.wxgVaccinationEAPnl, gmEditArea.cGen
 		if url.strip() == u'':
 			url = dbcfg.get2 (
 				option = u'external.urls.report_ADR',
-				workplace = gmSurgery.gmCurrentPractice().active_workplace,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 				bias = u'user'
 			)
 		gmNetworkTools.open_url_in_browser(url = url)

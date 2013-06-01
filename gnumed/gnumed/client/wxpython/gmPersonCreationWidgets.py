@@ -22,7 +22,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmDispatcher
 
-from Gnumed.business import gmSurgery
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDemographicRecord
@@ -41,7 +41,7 @@ def create_new_person(parent=None, activate=False):
 
 	def_region = dbcfg.get2 (
 		option = u'person.create.default_region',
-		workplace = gmSurgery.gmCurrentPractice().active_workplace,
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = u'user'
 	)
 	def_country = None
@@ -49,7 +49,7 @@ def create_new_person(parent=None, activate=False):
 	if def_region is None:
 		def_country = dbcfg.get2 (
 			option = u'person.create.default_country',
-			workplace = gmSurgery.gmCurrentPractice().active_workplace,
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 			bias = u'user'
 		)
 	else:
