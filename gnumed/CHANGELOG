@@ -9,6 +9,7 @@
 	1.1.20 (unreleased)
 
 FIX: must be careful about active name when merging patients [thanks S.Reus]
+FIX: exception on parsing "2//" into timestamp suggestion [thanks jesenas]
 
 	1.1.19
 
