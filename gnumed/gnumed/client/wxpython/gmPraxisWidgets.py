@@ -405,7 +405,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 
 	if len(branches) == 0:
 		orgs = gmOrganization.get_orgs()
-		if len(orgs) == 0 or True:
+		if len(orgs) == 0:
 			pk_cat = gmOrganization.create_org_category(category = u'Praxis')
 			org = gmOrganization.create_org(_('Your praxis'), pk_cat)
 			unit = org.add_unit(_('Your branch'))
@@ -415,8 +415,9 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 			gmGuiHelpers.gm_show_info (
 				title = _('Praxis configuration ...'),
 				info = _(
-					'GNUmed has auto-created the following praxis branch\n'
-					'for you (which you can later configure as needed):\n'
+					'GNUmed has auto-created the following\n'
+					'praxis branch for you (which you can\n'
+					'later configure as needed):\n'
 					'\n'
 					'%s'
 				) % branch.format()
@@ -425,8 +426,10 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 
 		_log.debug('no praxis branches configured, selecting from organization units')
 		msg = _(
-"""You must select one unit (department, site, ...) of an
-organization to represent the initial branch of your praxis."""
+				'No praxis branches configured yet.\n'
+				'\n'
+				'You must select one unit of an organization to be\n'
+				'the initial branch (site, office) of your praxis.'
 		)
 		unit = gmOrganizationWidgets.select_org_unit(msg = msg, no_parent = True)
 		if unit is None:

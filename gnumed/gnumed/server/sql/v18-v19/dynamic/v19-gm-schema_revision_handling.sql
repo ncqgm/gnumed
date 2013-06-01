@@ -91,17 +91,21 @@ begin
 		for _fk_desc in
 			select * from
 				(select
-					replace(pg_catalog.pg_get_constraintdef(tbl.oid, true), '' '', ''_'')
+					tbl.contype,
+					''CONSTRAINT:type=''
+						|| tbl.contype || '':''
+						|| replace(pg_catalog.pg_get_constraintdef(tbl.oid, true), '' '', ''_'')
 						|| ''::active=''
 						|| tbl.convalidated
 					 as condef
 				from pg_catalog.pg_constraint tbl
 				where
 					tbl.conrelid = (_table_desc.table_schema || ''.'' || _table_desc.table_name)::regclass
-						AND
-					tbl.contype = ''f''
+--						AND
+--					tbl.contype = ''f''
 				) as FKs
 			order by
+				FKs.contype,
 				decode(md5(FKs.condef), ''hex'')
 		loop
 			_total := _total || _fk_desc.condef || E''\n'';

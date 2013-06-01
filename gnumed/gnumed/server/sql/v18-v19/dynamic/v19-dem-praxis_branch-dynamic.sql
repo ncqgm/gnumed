@@ -103,7 +103,7 @@ comment on function dem.trf_prevent_multiple_praxi() is
 	'Prevent praxis branches to be defined for more than one dem.org.';
 
 create trigger tr_prevent_multiple_praxi
-	before update or delete on dem.praxis_branch
+	before insert or update on dem.praxis_branch
 	for each row execute procedure dem.trf_prevent_multiple_praxi();
 
 -- --------------------------------------------------------------

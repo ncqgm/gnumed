@@ -50,10 +50,14 @@ def select_org_unit(parent=None, msg=None, no_parent=False):
 
 	if no_parent:
 		parent = None
-	else
+	else:
 		if parent is None:
 			parent = wx.GetApp().GetTopWindow()
 
+	#--------------------
+	def new():
+		manage_orgs(parent = parent, no_parent = no_parent)
+		return True
 	#--------------------
 	def refresh(lctrl):
 		units = gmOrganization.get_org_units(order_by = 'organization, unit, l10n_unit_category')
@@ -77,7 +81,8 @@ def select_org_unit(parent=None, msg=None, no_parent=False):
 		columns = [_('Organization'), _('Unit'), _('Unit type'), '#'],
 		can_return_empty = False,
 		single_selection = True,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		new_callback = new
 	)
 
 #============================================================
@@ -482,13 +487,17 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 #============================================================
 # organizations API
 #------------------------------------------------------------
-def manage_orgs(parent=None):
+def manage_orgs(parent=None, no_parent=False):
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
+	if no_parent:
+		parent = None
+	else:
+		if parent is None:
+			parent = wx.GetApp().GetTopWindow()
 
 	dlg = cOrganizationManagerDlg(parent, -1)
 	dlg.ShowModal()
+	dlg.Destroy()
 #============================================================
 def edit_org(parent=None, org=None, single_entry=False):
 	ea = cOrganizationEAPnl(parent = parent, id = -1)
