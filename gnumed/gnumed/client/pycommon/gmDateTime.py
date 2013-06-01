@@ -939,7 +939,7 @@ def __single_slash2py_dt(str2parse):
 	matches = []
 	# 5/
 	if regex.match(r"^\d{1,2}(\s|\t)*/+$", str2parse, flags = regex.LOCALE | regex.UNICODE):
-		val = int(str2parse[:-1].strip())
+		val = int(str2parse.rstrip(u'/').strip())
 
 		# "55/" -> "1955"
 		if val < 100 and val >= 0:
@@ -2299,9 +2299,9 @@ if __name__ == '__main__':
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	#test_str2pydt()
+	test_str2pydt()
 	#test_pydt_strftime()
-	test_calculate_apparent_age()
+	#test_calculate_apparent_age()
 	#test_is_leap_year()
 
 #===========================================================================
