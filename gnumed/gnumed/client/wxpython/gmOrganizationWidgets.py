@@ -17,7 +17,9 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
+
 from Gnumed.business import gmOrganization
+
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmPhraseWheel

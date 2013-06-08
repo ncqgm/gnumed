@@ -13,6 +13,7 @@ NEW: nested placeholders
 NEW: placeholder $<current_meds_for_rx>$
 NEW: list sorting by column header click [thanks J.Luszawski]
 NEW: "Grünes Rezept" for Germany
+NEW: manage your praxis with its branches
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts

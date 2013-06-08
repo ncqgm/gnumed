@@ -106,22 +106,69 @@ def get_praxis_branches(order_by=None):
 	cmd = _SQL_get_praxis_branches % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_praxis_branch(pk_org_unit=None):
 
 	args = {u'fk_unit': pk_org_unit}
-	cmd = u"""
+	cmd1 = u"""
 		INSERT INTO dem.praxis_branch (fk_org_unit)
-		VALUES (%(fk_unit)s)
-		RETURNING pk
+		SELECT %(fk_unit)s WHERE NOT EXISTS (
+			SELECT 1 FROM dem.praxis_branch WHERE fk_org_unit = %(fk_unit)s
+		)
 	"""
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	cmd2 = u"""SELECT * from dem.v_praxis_branches WHERE pk_org_unit = %(fk_unit)s"""
+	queries = [
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args}
+	]
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
+	return cPraxisBranch(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_praxis_branch'})
 
-	return cPraxisBranch(aPK_obj = rows[0]['pk'])
+#------------------------------------------------------------
+def create_praxis_branches(pk_org_units=None):
+	queries = []
+	for pk in pk_org_units:
+		args = {u'fk_unit': pk}
+		cmd = u"""
+			INSERT INTO dem.praxis_branch (fk_org_unit)
+			SELECT %(fk_unit)s WHERE NOT EXISTS (
+				SELECT 1 FROM dem.praxis_branch WHERE fk_org_unit = %(fk_unit)s
+			)
+		"""
+		queries.append({'cmd': cmd, 'args': args})
+
+	args = {'fk_units': tuple(pk_org_units)}
+	cmd = u"""SELECT * from dem.v_praxis_branches WHERE pk_org_unit IN %(fk_units)s"""
+	queries.append({'cmd': cmd, 'args': args})
+	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
+	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
+
 #------------------------------------------------------------
 def delete_praxis_branch(pk_praxis_branch=None):
 	args = {'pk': pk_praxis_branch}
 	cmd = u"DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
+#------------------------------------------------------------
+def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
+	args = {}
+	where_parts = []
+
+	if pk_praxis_branches is not None:
+		args['pks'] = tuple(pk_praxis_branches)
+		where_parts.append(u'pk IN %(pks)s')
+
+	if except_pk_praxis_branches is not None:
+		args['except'] = tuple(except_pk_praxis_branches)
+		where_parts.append(u'pk NOT IN %(except)s')
+
+	if len(where_parts) == 0:
+		cmd = u"DELETE FROM dem.praxis_branch"
+	else:
+		cmd = u"DELETE FROM dem.praxis_branch WHERE %s" % u' AND '.join(where_parts)
+
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
@@ -149,6 +196,24 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		_log.debug('current praxis branch now: %s', self.branch)
 
 		return None
+	#--------------------------------------------------------
+	# __getattr__ handling
+	#--------------------------------------------------------
+	def __getattr__(self, attribute):
+		if attribute == 'branch':
+			raise AttributeError
+		if hasattr(self, attribute):
+			return getattr(self, attribute)
+		return getattr(self.branch, attribute)
+	#--------------------------------------------------------
+	# __get/setitem__ handling
+	#--------------------------------------------------------
+	def __getitem__(self, attribute = None):
+		"""Return any attribute if known how to retrieve it by proxy."""
+		return self.branch[attribute]
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		self.branch[attribute] = value
 	#--------------------------------------------------------
 	# waiting list handling
 	#--------------------------------------------------------

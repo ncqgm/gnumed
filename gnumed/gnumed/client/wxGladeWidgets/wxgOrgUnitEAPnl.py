@@ -15,8 +15,6 @@ class wxgOrgUnitEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython.gmOrganizationWidgets import cOrganizationPhraseWheel
         from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
         from Gnumed.wxpython.gmOrganizationWidgets import cOrgCategoryPhraseWheel
-        from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
-        from Gnumed.wxpython.gmAddressWidgets import cAddressEditAreaPnl
 
         # begin wxGlade: wxgOrgUnitEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL

@@ -426,9 +426,9 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 
 		_log.debug('no praxis branches configured, selecting from organization units')
 		msg = _(
-				'No praxis branches configured yet.\n'
+				'No praxis branches configured currently.\n'
 				'\n'
-				'You must select one unit of an organization to be\n'
+				'You MUST select one unit of an organization to be\n'
 				'the initial branch (site, office) of your praxis.'
 		)
 		unit = gmOrganizationWidgets.select_org_unit(msg = msg, no_parent = True)
@@ -458,7 +458,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 		caption = _('Praxis branch selection ...'),
 		columns = [_('Branch'), _('Branch type')],
 		can_return_empty = False,
-		single_selection = single_selection,
+		single_selection = True,
 		refresh_callback = refresh
 	)
 	if branch is None:
@@ -473,12 +473,86 @@ def manage_praxis_branches(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	#---------------------------
+	def get_tooltip(data):
+		if data is None:
+			return None
+		return u'\n'.join(data.format(with_address = True, with_org = True, with_comms = True))
+	#---------------------------
+	def manage_orgs():
+		gmOrganizationWidgets.manage_orgs(parent = parent)
+	#---------------------------
+
 	branches = gmPraxis.get_praxis_branches()
-	org = branches[0].branch.org
+	org = branches[0].organization
+	praxis = branches[0]['praxis']
 
-	msg = _('Pick the units of')
+	msg = _(
+		'Pick those units of "%s" which are branches of your praxis !\n'
+		'\n'
+		'Note that no other client should be connected at this time.'
+		'\n'
+		'If you want to select another organization entirely\n'
+		'first remove all existing branches.\n'
+	) % praxis
 
-#	branch_picker = gmListWidgets.cItemPickerDlg(msg = )
+	picker = gmListWidgets.cItemPickerDlg(parent, -1, msg = msg)
+	picker.extra_button = (
+		_('Manage units'),
+		_('Manage organizations and their units'),
+		manage_orgs
+	)
+	picker.allow_duplicate_picks = False
+	picker.left_item_tooltip_callback = get_tooltip
+	picker.right_item_tooltip_callback = get_tooltip
+	picker.set_columns(columns = [_('Units of "%s"') % praxis], columns_right = [_('Branches of your praxis')])
+	units = org.units
+	branch_unit_pks = [b['pk_org_unit'] for b in branches]
+	branch_units = []
+	for unit in units:
+		if unit['pk_org_unit'] in branch_unit_pks:
+			branch_units.append(unit)
+	items = [ u'%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], u'', u' (%s)')) for u in units ]
+	picker.set_choices(choices = items, data = units)
+	items = [ u'%s%s' % (u['unit'], gmTools.coalesce(u['l10n_unit_category'], u'', u' (%s)')) for u in branch_units ]
+	picker.set_picks(picks = items, data = branch_units)
+	del units
+	del branch_unit_pks
+	del branch_units
+	del items
+
+	result = picker.ShowModal()
+
+	if result == wx.ID_CANCEL:
+		picker.Destroy()
+		return None
+
+	picks = picker.picks
+	picker.Destroy()
+
+	if len(picks) == 0:
+		gmPraxis.delete_praxis_branches()
+		while not set_active_praxis_branch(parent = parent):
+			pass
+		return
+
+	pk_picked_units = [p['pk_org_unit'] for p in picks]
+	pk_branches_to_keep = [
+		b['pk_praxis_branch'] for b in gmPraxis.get_praxis_branches()
+		if b['pk_org_unit'] in pk_picked_units
+	]
+	if len(pk_branches_to_keep) == 0:
+		gmPraxis.delete_praxis_branches()
+	else:
+		gmPraxis.delete_praxis_branches(except_pk_praxis_branches = pk_branches_to_keep)
+	gmPraxis.create_praxis_branches(pk_org_units = pk_picked_units)
+
+	# detect whether active branch in kept branches
+	if gmPraxis.gmCurrentPraxisBranch()['pk_praxis_branch'] in pk_branches_to_keep:
+		return
+
+	while not set_active_praxis_branch(parent = parent):
+		pass
 
 #============================================================
 # main

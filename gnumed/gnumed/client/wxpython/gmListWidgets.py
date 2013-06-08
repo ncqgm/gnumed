@@ -742,8 +742,9 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		else:
 			self._LBL_msg.SetLabel(msg)
 
+		self.allow_duplicate_picks = True
+
 		self._LCTRL_left.activate_callback = self.__pick_selected
-		#self._LCTRL_left.item_tooltip_callback = self.__on_get_item_tooltip
 		self.__extra_button_callback = None
 
 		self._LCTRL_left.SetFocus()
@@ -817,19 +818,32 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		right_items = self._LCTRL_right.get_string_items()
 		right_data = self._LCTRL_right.get_item_data()
-
-		right_items.extend(self._LCTRL_left.get_selected_string_items(only_one = False))
-		self._LCTRL_right.set_string_items(items = right_items)
-		del right_items
-
 		if right_data is None:
-			self._LCTRL_right.set_data(data = self._LCTRL_left.get_selected_item_data(only_one = False))
-		else:
-			right_data.extend(self._LCTRL_left.get_selected_item_data(only_one = False))
-			self._LCTRL_right.set_data(data = right_data)
-		del right_data
+			right_data = []
 
+		selected_items = self._LCTRL_left.get_selected_string_items(only_one = False)
+		selected_data = self._LCTRL_left.get_selected_item_data(only_one = False)
+
+		if self.allow_duplicate_picks:
+			right_items.extend(selected_items)
+			right_data.extend(selected_data)
+			self._LCTRL_right.set_string_items(items = right_items)
+			self._LCTRL_right.set_data(data = right_data)
+			self._LCTRL_right.set_column_widths()
+#			print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
+#			print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
+			return
+
+		for sel_item, sel_data in zip(selected_items, selected_data):
+			if sel_item in right_items:
+				continue
+			right_items.append(sel_item)
+			right_data.append(sel_data)
+		self._LCTRL_right.set_string_items(items = right_items)
+		self._LCTRL_right.set_data(data = right_data)
 		self._LCTRL_right.set_column_widths()
+#		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
+#		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
 	#------------------------------------------------------------
 	def __remove_selected_picks(self):
 		if self._LCTRL_right.get_selected_items(only_one = True) == -1:
@@ -840,6 +854,9 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 
 		if self._LCTRL_right.GetItemCount() == 0:
 			self._BTN_right2left.Enable(False)
+
+#		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
+#		print u'%s <-> %s (data)' % (len(self._LCTRL_left.data), len(self._LCTRL_right.data))
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -865,24 +882,28 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	#------------------------------------------------------------
 	def _on_extra_button_pressed(self, event):
 		self.__extra_button_callback()
-#		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
-#		if not self.__left_extra_button_callback(item_data):
-#			self._LCTRL_items.SetFocus()
-#			return
-#		if self.refresh_callback is None:
-#			self._LCTRL_items.SetFocus()
-#			return
-#		wx.BeginBusyCursor()
-#		try:
-#			self.refresh_callback(lctrl = self._LCTRL_items)
-#		finally:
-#			wx.EndBusyCursor()
-#		self._LCTRL_items.set_column_widths()
-#		self._LCTRL_items.SetFocus()
+	#------------------------------------------------------------
+	def _set_left_item_tooltip_callback(self, callback):
+		self._LCTRL_left.item_tooltip_callback = callback
+
+	left_item_tooltip_callback = property(lambda x:x, _set_left_item_tooltip_callback)
+	#------------------------------------------------------------
+	def _set_right_item_tooltip_callback(self, callback):
+		self._LCTRL_right.item_tooltip_callback = callback
+
+	right_item_tooltip_callback = property(lambda x:x, _set_right_item_tooltip_callback)
+
 #================================================================
 class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorterMixin):
 
-	get_data_idx_for_item = wx.ListCtrl.GetItemData
+	# sorting: at set_string_items() time all items will be
+	# adorned with their initial row number as wxPython data,
+	# this is used later for a) sorting and b) to access
+	# GNUmed data objects associated with rows,
+	# the latter are ordered in initial row number order
+	# at set_data() time
+
+	map_item_idx2data_idx = wx.ListCtrl.GetItemData
 
 	sort_order_tags = {
 		True: u' [\u03b1\u0391 \u2192 \u03c9\u03A9]',
@@ -904,8 +925,8 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
 		# required for column sorting, MUST have this name
-		self._invalidate_item2data_idx_map()					# must be called after each (external/direct) list item update
-		listmixins.ColumnSorterMixin.__init__(self, 0)			# must be called again after adding columns (why ?)
+		self._invalidate_sorting_metadata()					# must be called after each (external/direct) list item update
+		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns (why ?)
 		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
@@ -945,7 +966,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		for idx in range(len(columns)):
 			self.InsertColumn(idx, columns[idx])
 
-		self._invalidate_item2data_idx_map()
+		self._invalidate_sorting_metadata()
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		"""Set the column width policy.
@@ -982,7 +1003,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		"""All item members must be unicode()able or None."""
 
 		wx.BeginBusyCursor()
+		self._invalidate_sorting_metadata()
 
+		# remove existing items
 		loop = 0
 		while True:
 			if loop > 3:
@@ -1008,6 +1031,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			wx.EndBusyCursor()
 			return
 
+		# insert new items
 		for item in items:
 			try:
 				item[0]
@@ -1031,35 +1055,30 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
-			# item data must not be null for sorting to work, BTW, it is useful
-			self.SetItemData(row_num, row_num)
 
+		# set data to be a copy of items
 		self.data = items
-		self._invalidate_item2data_idx_map()
 
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data> assumed to be a list corresponding to the item indices"""
-		# this is hard to enforce
-		# FIXME: data should be added together with string items
 		if data is not None:
 			item_count = self.GetItemCount()
 			if len(data) != item_count:
 				_log.debug('<data> length (%s) must be equal to number of list items (%s)  (%s, thread [%s])', len(data), item_count, self.debug, thread.get_ident())
-			# update item idx <-> item data map, anyway (?)
 			for item_idx in range(len(data)):
 				self.SetItemData(item_idx, item_idx)
 		self.__data = data
 		self.__tt_last_item = None
 		# string data (rows/visible list items) not modified,
-		# so no need to call _update_item2data_idx_map
+		# so no need to call _update_sorting_metadata
 		return
 
 	def _get_data(self):
 		# slower than "return self.__data" but helps with detecting
 		# problems with len(__data)<>self.GetItemCount()
-		return self.get_item_data() # item_idx is None: returns all data
+		return self.get_item_data() 		# returns all data if item_idx is None
 
 	data = property(_get_data, set_data)
 	#------------------------------------------------------------
@@ -1069,7 +1088,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 		for idx in selections:
 			self.Select(idx = idx, on = 1)
-			#self.SetItemState(idx, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 
 	def __get_selections(self):
 		if self.__is_single_selection:
@@ -1131,15 +1149,14 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def get_item_data(self, item_idx = None):
 		if self.__data is None:	# this isn't entirely clean
 			return None
-		# proper index mapping string items to data is stored as item data
-		# this enables changing of items order, and still returning proper data
+
 		if item_idx is not None:
-			return self.__data[self.get_data_idx_for_item(item_idx)]
+			return self.__data[self.map_item_idx2data_idx(item_idx)]
 
 		# if <idx> is None return all data up to item_count,
 		# in case of len(__data) <> self.GetItemCount() this
 		# gives the chance to figure out what is going on
-		return [ self.__data[self.get_data_idx_for_item(item_idx)] for item_idx in range(self.GetItemCount()) ]
+		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.GetItemCount()) ]
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 
@@ -1149,14 +1166,14 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetFirstSelected()
 			if idx == -1:
 				return None
-			return self.__data[self.get_data_idx_for_item(idx)]
+			return self.__data[self.map_item_idx2data_idx(idx)]
 
 		data = []
 		if self.__data is None:
 			return data
 		idx = self.GetFirstSelected()
 		while idx != -1:
-			data.append(self.__data[self.get_data_idx_for_item(idx)])
+			data.append(self.__data[self.map_item_idx2data_idx(idx)])
 			idx = self.GetNextSelected(idx)
 
 		return data
@@ -1165,10 +1182,15 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.Select(idx = self.GetFirstSelected(), on = 0)
 	#------------------------------------------------------------
 	def remove_item(self, item_idx=None):
-		if self.__data is not None:
-			del self.__data[self.get_data_idx_for_item(item_idx)]
+		# do NOT remove the corresponding data because even if
+		# the item pointing to this data instance is gone all
+		# other items will still point to their corresponding
+		# *initial* row numbers
+		#if self.__data is not None:
+		#	del self.__data[self.map_item_idx2data_idx(item_idx)]
 		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
+		self._invalidate_sorting_metadata()
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -1208,43 +1230,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
 		)
 		self.__search_dlg.Show(True)
-	#------------------------------------------------------------
-	def _on_search_dlg_closed(self, evt):
-		self.__search_dlg.Destroy()
-		self.__search_dlg = None
-	#------------------------------------------------------------
-	def _on_lost_focus(self, evt):
-		evt.Skip()
-		if self.__search_dlg is None:
-			return
-		print self.FindFocus()
-		print self.__search_dlg
-		#self.__search_dlg.Close()
-	#------------------------------------------------------------
-	def __on_search_match(self, search_term):
-		for row_idx in range(self.__next_line_to_search, self.ItemCount):
-			for col_idx in range(self.ColumnCount):
-				if col_idx not in self.__searchable_cols:
-					continue
-				col_val = self.GetItem(row_idx, col_idx).GetText()
-				if regex.search(search_term, col_val, regex.U | regex.I) is not None:
-					self.Select(row_idx)
-					self.EnsureVisible(row_idx)
-					if row_idx == self.ItemCount - 1:
-						# wrap around
-						self.__next_line_to_search = 0
-					else:
-						self.__next_line_to_search = row_idx + 1
-					return True
-		# wrap around
-		self.__next_line_to_search = 0
-		return False
-	#------------------------------------------------------------
-	def _on_search_first_match(self, evt):
-		self.__on_search_match(evt.GetFindString())
-	#------------------------------------------------------------
-	def _on_search_next_match(self, evt):
-		self.__on_search_match(evt.GetFindString())
 	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
 		"""Update tooltip on mouse motion.
@@ -1321,13 +1306,52 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		dyna_tt = None
 		if self.__item_tooltip_callback is not None:
-			dyna_tt = self.__item_tooltip_callback(self.__data[self.get_data_idx_for_item(item_idx)])
+			dyna_tt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(item_idx)])
 
 		if dyna_tt is None:
 			self.SetToolTipString(self.__tt_static_part)
 			return
 
 		self.SetToolTipString(dyna_tt)
+	#------------------------------------------------------------
+	# search related methods
+	#------------------------------------------------------------
+	def _on_search_dlg_closed(self, evt):
+		self.__search_dlg.Destroy()
+		self.__search_dlg = None
+	#------------------------------------------------------------
+	def _on_lost_focus(self, evt):
+		evt.Skip()
+		if self.__search_dlg is None:
+			return
+#		print self.FindFocus()
+#		print self.__search_dlg
+		#self.__search_dlg.Close()
+	#------------------------------------------------------------
+	def __on_search_match(self, search_term):
+		for row_idx in range(self.__next_line_to_search, self.ItemCount):
+			for col_idx in range(self.ColumnCount):
+				if col_idx not in self.__searchable_cols:
+					continue
+				col_val = self.GetItem(row_idx, col_idx).GetText()
+				if regex.search(search_term, col_val, regex.U | regex.I) is not None:
+					self.Select(row_idx)
+					self.EnsureVisible(row_idx)
+					if row_idx == self.ItemCount - 1:
+						# wrap around
+						self.__next_line_to_search = 0
+					else:
+						self.__next_line_to_search = row_idx + 1
+					return True
+		# wrap around
+		self.__next_line_to_search = 0
+		return False
+	#------------------------------------------------------------
+	def _on_search_first_match(self, evt):
+		self.__on_search_match(evt.GetFindString())
+	#------------------------------------------------------------
+	def _on_search_next_match(self, evt):
+		self.__on_search_match(evt.GetFindString())
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -1390,19 +1414,18 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def GetListCtrl(self):
 		if self.itemDataMap is None:
-			self._update_item2data_idx_map()
-		# required
-		return self
+			self._update_sorting_metadata()
+		return self								# required
 	#------------------------------------------------------------
 	def OnSortOrderChanged(self):
 		self._cleanup_column_headers()
-		# mark sort column
+		# annotate sort column
 		col_idx, is_ascending = self.GetSortState()
 		col_state = self.GetColumn(col_idx)
 		col_state.m_text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
 	#------------------------------------------------------------
-	def _prepare_items_for_sorting(self):
+	def _generate_map_for_sorting(self):
 		dict2sort = {}
 		item_count = self.GetItemCount()
 		if item_count == 0:
@@ -1426,13 +1449,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
 			self.SetColumn(col_idx, col_state)
 	#------------------------------------------------------------
-	def _invalidate_item2data_idx_map(self):
+	def _invalidate_sorting_metadata(self):
 		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
 		self._cleanup_column_headers()
 	#------------------------------------------------------------
-	def _update_item2data_idx_map(self):
-		self.itemDataMap = self._prepare_items_for_sorting()
+	def _update_sorting_metadata(self):
+		self.itemDataMap = self._generate_map_for_sorting()
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
 		# for debugging:

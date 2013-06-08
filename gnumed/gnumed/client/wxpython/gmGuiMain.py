@@ -523,6 +523,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_master_data.Append(-1, _('Manage lists'), _('Manage various lists of master data.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_master_data, item)
 
+		item = menu_master_data.Append(-1, _('Manage praxis'), _('Manage your praxis branches.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_praxis, item)
+
 		item = menu_master_data.Append(-1, _('Install data packs'), _('Install reference data from data packs.'))
 		self.Bind(wx.EVT_MENU, self.__on_install_data_packs, item)
 
@@ -922,6 +925,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_pat_name_changed)
+		gmDispatcher.connect(signal = u'praxis_branch_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
 		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
 		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
@@ -1200,8 +1204,8 @@ class gmTopLevelFrame(wx.Frame):
 			' server:       %s\n'
 			' PostgreSQL:   %s\n'
 		) % (
-			praxis.branch['praxis'],
-			praxis.branch['branch'],
+			praxis['praxis'],
+			praxis['branch'],
 			praxis.active_workplace,
 			login.user,
 			login.database,
@@ -2251,6 +2255,9 @@ class gmTopLevelFrame(wx.Frame):
 			ignore_OK_button = True
 		)
 	#----------------------------------------------
+	def __on_manage_praxis(self, evt):
+		gmPraxisWidgets.manage_praxis_branches(parent = self)
+	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
 		found, cmd = gmShellAPI.detect_external_binary(binary = 'ginkgocadx')
@@ -2979,8 +2986,8 @@ class gmTopLevelFrame(wx.Frame):
 
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		args['wp'] = praxis.active_workplace
-		args['site'] = praxis.branch['branch']
-		args['prax'] = praxis.branch['praxis']
+		args['site'] = praxis['branch']
+		args['prax'] = praxis['praxis']
 
 		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
@@ -3276,8 +3283,8 @@ class gmApp(wx.App):
 
 		praxis = gmPraxis.gmCurrentPraxisBranch()
 		msg += _('Branch "%s" of praxis "%s"\n') % (
-			praxis.branch['branch'],
-			praxis.branch['praxis']
+			praxis['branch'],
+			praxis['praxis']
 		)
 		msg += u'\n\n'
 

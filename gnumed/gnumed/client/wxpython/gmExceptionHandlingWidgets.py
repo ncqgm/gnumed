@@ -234,7 +234,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	new_name = os.path.expanduser(os.path.join (
 		'~',
 		'.gnumed',
-		'error-logs',
+		'error_logs',
 		'%s_%s%s' % (name, pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'), ext)
 	))
 

@@ -61,6 +61,13 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def add_unit(self, unit=None):
 		return create_org_unit(pk_organization = self._payload[self._idx['pk_org']], unit = unit)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_units(self):
+		return get_org_units(order_by = u'unit', org = self._payload[self._idx['pk_org']])
+
+	units = property(_get_units, lambda x:x)
 #------------------------------------------------------------
 def org_exists(organization=None, category=None):
 	args = {'desc': organization, 'cat': category}
@@ -259,6 +266,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		return cOrg(aPK_obj = self._payload[self._idx['pk_org']])
 
 	organization = property(_get_org, lambda x:x)
+	org = property(_get_org, lambda x:x)
 
 	comm_channels = property(get_comm_channels, lambda x:x)
 #------------------------------------------------------------
