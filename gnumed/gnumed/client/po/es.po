@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-01 19:35+CEST\n"
+"POT-Creation-Date: 2013-06-08 21:59+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -608,6 +608,10 @@ msgstr "Umbral"
 msgid "last check:"
 msgstr "última revisión:"
 
+#, fuzzy
+msgid "part %s, %s%s%s of document %s from %s%s"
+msgstr "Importé nuevo documento desde %s."
+
 msgid "%s document part                 [#%s]\n"
 msgstr ""
 
@@ -1043,11 +1047,16 @@ msgstr "Droga"
 msgid "units"
 msgstr "unidades"
 
-msgid "Unit: %s (%s)"
+#, fuzzy
+msgid "Unit: %s%s"
 msgstr "Sección: %s (%s)"
 
 msgid "Organization: %s (%s)"
 msgstr "Organización: %s (%s)"
+
+#, fuzzy
+msgid " (confidential)"
+msgstr " (¡ confidencial !)"
 
 msgid "inhouse lab"
 msgstr "laboratorio local"
@@ -1395,6 +1404,10 @@ msgstr "fecha de nacimiento/muerte"
 
 msgid "full name"
 msgstr "nombre completo"
+
+#, fuzzy
+msgid "Praxis branch                   #%s\n"
+msgstr " Nombre: %s (%s)%s #%s\n"
 
 msgid "message"
 msgstr "mensaje"
@@ -3704,8 +3717,9 @@ msgstr ""
 msgid "&Insert"
 msgstr "&Instalar"
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Nuevas notas en este contacto"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -4637,8 +4651,8 @@ msgstr ""
 "Códigos relevantes para el Resultado de la Cita\n"
 "separados por \";\"."
 
-msgid "Patient:"
-msgstr "Paciente:"
+msgid "Patient"
+msgstr "Paciente"
 
 msgid "Type"
 msgstr "Tipo"
@@ -4721,9 +4735,6 @@ msgid ""
 msgstr ""
 "Códigos relevantes para este episodio\n"
 "separados por \";\"."
-
-msgid "Patient"
-msgstr "Paciente"
 
 msgid "Nest under"
 msgstr "Agrupar en"
@@ -5916,9 +5927,6 @@ msgstr "Ocupación actual."
 
 msgid "A comment on this person."
 msgstr "Comentario acerca de este paciente."
-
-msgid "Basic demographics"
-msgstr "Demografía básica"
 
 msgid "Identity"
 msgstr "Identidad"
@@ -9350,48 +9358,6 @@ msgstr " (¡ confidencial !)"
 msgid "Emergency data and primary provider saved."
 msgstr "Datos de emergencia y médico principal guardados."
 
-msgid "Adding new person"
-msgstr "Agregando paciente"
-
-msgid "Must enter lastname."
-msgstr "Ha de introducir un apellido."
-
-msgid "Must enter first name."
-msgstr "Ha de introducir un nombre."
-
-msgid "Must select gender."
-msgstr "Ha de elegir un sexo."
-
-msgid ""
-"To properly create an address, all the related fields must be filled in."
-msgstr ""
-"Se han de rellenar todos los campos requeridos para crear una dirección "
-"válida."
-
-msgid "Required fields"
-msgstr "Campos obligatorios"
-
-msgid "This field must contain an item selected from the dropdown list."
-msgstr "Este campo ha de contener un ítem elegido de la lista desplegable."
-
-msgid ""
-"Cannot save this address.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-"No puedo guardar la dirección.\n"
-"\n"
-"Deberá agregarla mediante el complemento de Demografía.\n"
-
-msgid ""
-"Address not saved.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-"No se ha grabado la dirección.\n"
-"\n"
-"Tendrá que añadirla mediante el complemento de Demografía.\n"
-
 msgid "Contacts"
 msgstr "Contactos"
 
@@ -10074,6 +10040,9 @@ msgstr ""
 " gm_%(action)s_doc.bat (Windows)\n"
 "\n"
 "Al comando le será traspasado el nombre de archivo de %(l10n_action)s."
+
+msgid "document part handed over to email program: %s"
+msgstr ""
 
 msgid "print"
 msgstr "imprimir"
@@ -11486,6 +11455,14 @@ msgstr "Administrar listas"
 msgid "Manage various lists of master data."
 msgstr "Administrar varias listas de datos maestros."
 
+#, fuzzy
+msgid "Manage praxis"
+msgstr "Ad&ministra organizaciones"
+
+#, fuzzy
+msgid "Manage your praxis branches."
+msgstr "Mostrando sustancias (principios activos)."
+
 msgid "Install data packs"
 msgstr "Instalar paquetes de datos"
 
@@ -11976,6 +11953,9 @@ msgstr "No puedo correr programa después de la activación del paciente."
 msgid "only documents added"
 msgstr "solamente se agregaron documentos"
 
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgstr ""
+
 msgid "Cannot write letter. No active patient."
 msgstr "No puedo escribir cartas. No hay paciente activo."
 
@@ -11983,6 +11963,8 @@ msgstr "No puedo escribir cartas. No hay paciente activo."
 msgid ""
 "\n"
 "\n"
+" praxis:       %s\n"
+" branch:       %s\n"
 " workplace:    %s\n"
 " account:      %s\n"
 " database:     %s\n"
@@ -12903,6 +12885,9 @@ msgstr "Comprobando permisos de acceso"
 msgid "Database <%s> on <%s>"
 msgstr "Base de datos <%s> en <%s>"
 
+msgid "Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
 msgid "Connect"
 msgstr "Conectar"
 
@@ -12937,22 +12922,6 @@ msgid "GNUmed startup"
 msgstr "Inicio de GNUmed"
 
 msgid ""
-"There is no language selected in the database for user [%s].\n"
-"Your system language is currently set to [%s].\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-"\n"
-msgstr ""
-"No hay idioma seleccionado en la base de datos para el usuario [%s].\n"
-"Su idioma para el sistema está actualmente configurado como [%s].\n"
-"\n"
-"¿Desea configurar el idioma de la base de datos a '%s'?\n"
-"\n"
-
-msgid "Remember to ignore missing language"
-msgstr "Recuerde ignorar el idioma faltante"
-
-msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
 "\n"
@@ -12962,9 +12931,6 @@ msgstr ""
 "el idioma ('%s') actual del sistema.\n"
 "\n"
 "¿Desea configurar el idioma de la base de datos a '%s'?\n"
-
-msgid "Remember to ignore language mismatch"
-msgstr "Recuerde ignorar la discordancia de idiomas."
 
 msgid "Checking database language settings"
 msgstr "Verificando la configuración del idioma de la base de datos"
@@ -12980,6 +12946,9 @@ msgstr "No fije el idioma de la base de datos ahora."
 
 msgid "Don't set"
 msgstr "No fije"
+
+msgid "Remember to ignore language mismatch"
+msgstr "Recuerde ignorar la discordancia de idiomas."
 
 msgid ""
 "Checking this will make GNUmed remember your decision\n"
@@ -13295,7 +13264,7 @@ msgid "Search in list"
 msgstr "Buscando existentes"
 
 #, fuzzy
-msgid "invalid placeholder >>>%s<<<"
+msgid "invalid placeholder >>>>>%s<<<<<"
 msgstr "marcador de posición [%s] inválido"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -13344,6 +13313,21 @@ msgstr "no hay identificador externo [%s] de [%s]"
 
 msgid "no primary in-praxis provider"
 msgstr "no hay médico primario en esta práctica"
+
+#, fuzzy
+msgid "current_meds_for_rx: template is missing"
+msgstr "falta plantilla"
+
+#, fuzzy
+msgid "generic %s"
+msgstr "Genéricos"
+
+msgid "Dispense how much/many of \"%(brand)s (%(contains)s)\" ?"
+msgstr ""
+
+#, fuzzy
+msgid "Amount to dispense ?"
+msgstr "Cantidad por dosis: %s%s"
 
 #, fuzzy
 msgid "no results for this patient (available or selected)"
@@ -14047,6 +14031,14 @@ msgid "Checking brand data"
 msgstr "Verificar actualizaciones del cliente"
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -14069,6 +14061,10 @@ msgid ""
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
 msgstr ""
+
+#, fuzzy
+msgid "The medical aim for consuming this substance."
+msgstr "El objetivo del consumo de esta substancia."
 
 msgid "discontinued due to allergy or intolerance"
 msgstr "descontinuado por alergia o intolerancia"
@@ -14791,6 +14787,18 @@ msgstr "Agregando nueva unidad organizacional"
 msgid "Editing organizational unit"
 msgstr "Editando unidad organizacional"
 
+#, fuzzy
+msgid "Organizations and units thereof.\n"
+msgstr "Ogranizaciones administrativa y sus unidades."
+
+#, fuzzy
+msgid "Unit selection ..."
+msgstr "selección de dispositivo"
+
+#, fuzzy
+msgid "Unit type"
+msgstr "Meta método de medición:\n"
+
 msgid "Select an organizational unit."
 msgstr "Seleccione una unidad organizacional"
 
@@ -15354,6 +15362,57 @@ msgstr ""
 msgid "Removing address"
 msgstr "Eliminando dirección"
 
+msgid "Adding new person"
+msgstr "Agregando paciente"
+
+msgid "ID exists !"
+msgstr ""
+
+msgid "One \"%s, %s (%s)\" already exists !"
+msgstr ""
+
+msgid "%s \"%s, %s (%s)\" already exist !"
+msgstr ""
+
+msgid "Must enter lastname."
+msgstr "Ha de introducir un apellido."
+
+msgid "Must enter first name."
+msgstr "Ha de introducir un nombre."
+
+msgid "Must select gender."
+msgstr "Ha de elegir un sexo."
+
+msgid ""
+"To properly create an address, all the related fields must be filled in."
+msgstr ""
+"Se han de rellenar todos los campos requeridos para crear una dirección "
+"válida."
+
+msgid "Required fields"
+msgstr "Campos obligatorios"
+
+msgid "This field must contain an item selected from the dropdown list."
+msgstr "Este campo ha de contener un ítem elegido de la lista desplegable."
+
+msgid ""
+"Cannot save this address.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+"No puedo guardar la dirección.\n"
+"\n"
+"Deberá agregarla mediante el complemento de Demografía.\n"
+
+msgid ""
+"Address not saved.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+"No se ha grabado la dirección.\n"
+"\n"
+"Tendrá que añadirla mediante el complemento de Demografía.\n"
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr "Ha de elegir un valor de la lista o escribir una coincidencia exacta."
 
@@ -15384,46 +15443,20 @@ msgstr ""
 msgid "Cannot switch to [%s]: no patient selected"
 msgstr "No ha sido posible cambiar a [%s]: no hay ningún paciente activo"
 
-msgid "Pregnancy Calculator"
-msgstr "Calculadora de Embarazo"
+msgid "showing audit trail"
+msgstr "mostrando registro de auditoría"
 
-msgid "LMP"
-msgstr "Último período menstrual"
+msgid "GNUmed database audit log ..."
+msgstr "Registro de auditoría de base de datos GNUmed ..."
 
-msgid "Click on calendar to enter the last menstrual period date"
-msgstr ""
-"Pulse sobre el calendario para introducir la fecha de la última menstruación"
+msgid "Event"
+msgstr "Evento"
 
-msgid "Gest."
-msgstr "Embarazo"
+msgid "Revisions"
+msgstr "Revisiones"
 
-msgid "EDC"
-msgstr "Fecha de parto"
-
-msgid "18 Week Ultrasound Scan"
-msgstr "Ecografía de la semana 18"
-
-msgid "Ultrasound Scan - Revised EDC"
-msgstr "Fecha de parto corregida por ecógrafo"
-
-msgid "Scan Date"
-msgstr "Fecha de Ecografía"
-
-msgid "Click on this field and then the ultrasound scan date on the calendar"
-msgstr ""
-"Pulse sobre este campo y seleccione en el calendario la fecha de ecografía"
-
-msgid "Weeks"
-msgstr "Semanas"
-
-msgid "Days"
-msgstr "Días"
-
-msgid "Rev EDC"
-msgstr "Fecha de parto corregida"
-
-msgid "&Print"
-msgstr "&Imprimir"
+msgid "Table"
+msgstr "Tabla"
 
 msgid ""
 "\n"
@@ -15439,24 +15472,6 @@ msgstr "Proveedor"
 
 msgid "Configuring fallback primary provider"
 msgstr "Configurar médico principal por defecto"
-
-msgid "Select a healthcare provider."
-msgstr "Seleccione un médico."
-
-msgid "showing audit trail"
-msgstr "mostrando registro de auditoría"
-
-msgid "GNUmed database audit log ..."
-msgstr "Registro de auditoría de base de datos GNUmed ..."
-
-msgid "Event"
-msgstr "Evento"
-
-msgid "Revisions"
-msgstr "Revisiones"
-
-msgid "Table"
-msgstr "Tabla"
 
 msgid "Cannot delete the active workplace."
 msgstr "No puedo borrar el lugar de trabajo activo."
@@ -15556,6 +15571,118 @@ msgstr "Clonar"
 
 msgid "Clone the selected workplace"
 msgstr "Clonar el lugar de trabajo seleccionado"
+
+#, fuzzy
+msgid "Your praxis"
+msgstr "Su evaluación"
+
+msgid "Your branch"
+msgstr ""
+
+#, fuzzy
+msgid "Praxis configuration ..."
+msgstr "guardando configuración"
+
+msgid ""
+"GNUmed has auto-created the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"GNUmed has auto-selected the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"No praxis branches configured currently.\n"
+"\n"
+"You MUST select one unit of an organization to be the initial\n"
+"branch (site, office) which you are logging in from."
+msgstr ""
+
+msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgstr ""
+
+msgid "Praxis branch selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Branch type"
+msgstr "Filial"
+
+msgid "Branch"
+msgstr "Filial"
+
+msgid ""
+"Pick those units of \"%s\" which are branches of your praxis !\n"
+"\n"
+"Note that no other client should be connected at this time.\n"
+"\n"
+"If you want to select another organization entirely\n"
+"first remove all existing branches.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Manage units"
+msgstr "Administrar listas"
+
+#, fuzzy
+msgid "Manage organizations and their units"
+msgstr "Ogranizaciones administrativa y sus unidades."
+
+msgid "Branches of your praxis"
+msgstr ""
+
+#, fuzzy
+msgid "Units of \"%s\""
+msgstr "Unidad de: %s"
+
+msgid "Pregnancy Calculator"
+msgstr "Calculadora de Embarazo"
+
+msgid "LMP"
+msgstr "Último período menstrual"
+
+msgid "Click on calendar to enter the last menstrual period date"
+msgstr ""
+"Pulse sobre el calendario para introducir la fecha de la última menstruación"
+
+msgid "Gest."
+msgstr "Embarazo"
+
+msgid "EDC"
+msgstr "Fecha de parto"
+
+msgid "18 Week Ultrasound Scan"
+msgstr "Ecografía de la semana 18"
+
+msgid "Ultrasound Scan - Revised EDC"
+msgstr "Fecha de parto corregida por ecógrafo"
+
+msgid "Scan Date"
+msgstr "Fecha de Ecografía"
+
+msgid "Click on this field and then the ultrasound scan date on the calendar"
+msgstr ""
+"Pulse sobre este campo y seleccione en el calendario la fecha de ecografía"
+
+msgid "Weeks"
+msgstr "Semanas"
+
+msgid "Days"
+msgstr "Días"
+
+msgid "Rev EDC"
+msgstr "Fecha de parto corregida"
+
+msgid "&Print"
+msgstr "&Imprimir"
 
 msgid "Select a message type."
 msgstr "Seleccione un tipo de mensaje."
@@ -15927,6 +16054,9 @@ msgstr " Listo "
 
 msgid " Cancel "
 msgstr " Cancelar "
+
+msgid "Select a healthcare provider."
+msgstr "Seleccione un médico."
 
 msgid "Public (no clinical or demographic access)"
 msgstr ""
@@ -16419,9 +16549,6 @@ msgstr "Configuración"
 msgid "&ConfigRegistry"
 msgstr "Registro de &Configuración"
 
-msgid "Branch"
-msgstr "Filial"
-
 msgid "Department"
 msgstr "Departamento"
 
@@ -16900,6 +17027,28 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "Patient:"
+#~ msgstr "Paciente:"
+
+#~ msgid "Basic demographics"
+#~ msgstr "Demografía básica"
+
+#~ msgid ""
+#~ "There is no language selected in the database for user [%s].\n"
+#~ "Your system language is currently set to [%s].\n"
+#~ "\n"
+#~ "Do you want to set the database language to '%s' ?\n"
+#~ "\n"
+#~ msgstr ""
+#~ "No hay idioma seleccionado en la base de datos para el usuario [%s].\n"
+#~ "Su idioma para el sistema está actualmente configurado como [%s].\n"
+#~ "\n"
+#~ "¿Desea configurar el idioma de la base de datos a '%s'?\n"
+#~ "\n"
+
+#~ msgid "Remember to ignore missing language"
+#~ msgstr "Recuerde ignorar el idioma faltante"
 
 #~ msgid "GNUmed  generic EditArea dialog"
 #~ msgstr "Diálogo genérico GNUmed EditArea"

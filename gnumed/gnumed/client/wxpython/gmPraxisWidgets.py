@@ -424,12 +424,30 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 			)
 			return True
 
+		if len(orgs) == 1:
+			units = orgs[0].units
+			if len(units) == 1:
+				branch = gmPraxis.create_praxis_branch(pk_org_unit = units[0]['pk_org_unit'])
+				_log.debug('auto-selected praxis branch because only one organization with only one unit existed: %s', branch)
+				gmPraxis.gmCurrentPraxisBranch(branch)
+				gmGuiHelpers.gm_show_info (
+					title = _('Praxis configuration ...'),
+					info = _(
+						'GNUmed has auto-selected the following\n'
+						'praxis branch for you (which you can\n'
+						'later configure as needed):\n'
+						'\n'
+						'%s'
+					) % branch.format()
+				)
+				return True
+
 		_log.debug('no praxis branches configured, selecting from organization units')
 		msg = _(
 				'No praxis branches configured currently.\n'
 				'\n'
-				'You MUST select one unit of an organization to be\n'
-				'the initial branch (site, office) of your praxis.'
+				'You MUST select one unit of an organization to be the initial\n'
+				'branch (site, office) which you are logging in from.'
 		)
 		unit = gmOrganizationWidgets.select_org_unit(msg = msg, no_parent = True)
 		if unit is None:
@@ -446,7 +464,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 		branches = gmPraxis.get_praxis_branches()
 		items = [
 			[	b['branch'],
-				b['l10n_unit_category']
+				gmTools.coalesce(b['l10n_unit_category'], u'')
 			] for b in branches
 		]
 		lctrl.set_string_items(items = items)
@@ -490,7 +508,7 @@ def manage_praxis_branches(parent=None):
 	msg = _(
 		'Pick those units of "%s" which are branches of your praxis !\n'
 		'\n'
-		'Note that no other client should be connected at this time.'
+		'Note that no other client should be connected at this time.\n'
 		'\n'
 		'If you want to select another organization entirely\n'
 		'first remove all existing branches.\n'

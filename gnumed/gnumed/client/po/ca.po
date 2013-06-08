@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-01 19:34+CEST\n"
+"POT-Creation-Date: 2013-06-08 21:58+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -520,6 +520,9 @@ msgstr "Llindar"
 msgid "last check:"
 msgstr "última comprovació:"
 
+msgid "part %s, %s%s%s of document %s from %s%s"
+msgstr ""
+
 msgid "%s document part                 [#%s]\n"
 msgstr ""
 
@@ -944,11 +947,16 @@ msgstr ""
 msgid "units"
 msgstr "unitats"
 
-msgid "Unit: %s (%s)"
-msgstr ""
+#, fuzzy
+msgid "Unit: %s%s"
+msgstr "Unitat:"
 
 msgid "Organization: %s (%s)"
 msgstr ""
+
+#, fuzzy
+msgid " (confidential)"
+msgstr "Confidencial"
 
 msgid "inhouse lab"
 msgstr "laboratori intern"
@@ -1276,6 +1284,9 @@ msgstr "data de naixença/defunció"
 
 msgid "full name"
 msgstr "Nom complet"
+
+msgid "Praxis branch                   #%s\n"
+msgstr ""
 
 msgid "message"
 msgstr ""
@@ -3367,8 +3378,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Esborra les entrades seleccionades de la llista."
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -4103,8 +4115,8 @@ msgid ""
 "separated by \";\"."
 msgstr ""
 
-msgid "Patient:"
-msgstr ""
+msgid "Patient"
+msgstr "Pacient"
 
 msgid "Type"
 msgstr ""
@@ -4170,9 +4182,6 @@ msgid ""
 "Codes relevant to this episode\n"
 "separated by \";\"."
 msgstr "No hi ha entrades per aquest episodi"
-
-msgid "Patient"
-msgstr "Pacient"
 
 msgid "Nest under"
 msgstr ""
@@ -5229,9 +5238,6 @@ msgid "The current occupation."
 msgstr ""
 
 msgid "A comment on this person."
-msgstr ""
-
-msgid "Basic demographics"
 msgstr ""
 
 msgid "Identity"
@@ -8105,40 +8111,6 @@ msgstr "Confidencial"
 msgid "Emergency data and primary provider saved."
 msgstr ""
 
-msgid "Adding new person"
-msgstr ""
-
-msgid "Must enter lastname."
-msgstr ""
-
-msgid "Must enter first name."
-msgstr ""
-
-msgid "Must select gender."
-msgstr ""
-
-msgid ""
-"To properly create an address, all the related fields must be filled in."
-msgstr ""
-
-msgid "Required fields"
-msgstr ""
-
-msgid "This field must contain an item selected from the dropdown list."
-msgstr ""
-
-msgid ""
-"Cannot save this address.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
-msgid ""
-"Address not saved.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
 msgid "Contacts"
 msgstr ""
 
@@ -8726,6 +8698,9 @@ msgid ""
 " gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
+msgstr ""
+
+msgid "document part handed over to email program: %s"
 msgstr ""
 
 msgid "print"
@@ -9941,6 +9916,13 @@ msgstr ""
 msgid "Manage various lists of master data."
 msgstr ""
 
+#, fuzzy
+msgid "Manage praxis"
+msgstr "Vacunació"
+
+msgid "Manage your praxis branches."
+msgstr ""
+
 msgid "Install data packs"
 msgstr ""
 
@@ -10405,12 +10387,17 @@ msgstr ""
 msgid "only documents added"
 msgstr ""
 
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgstr ""
+
 msgid "Cannot write letter. No active patient."
 msgstr ""
 
 msgid ""
 "\n"
 "\n"
+" praxis:       %s\n"
+" branch:       %s\n"
 " workplace:    %s\n"
 " account:      %s\n"
 " database:     %s\n"
@@ -11091,6 +11078,9 @@ msgstr ""
 msgid "Database <%s> on <%s>"
 msgstr ""
 
+msgid "Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
 msgid "Connect"
 msgstr ""
 
@@ -11119,24 +11109,10 @@ msgid "GNUmed startup"
 msgstr ""
 
 msgid ""
-"There is no language selected in the database for user [%s].\n"
-"Your system language is currently set to [%s].\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-"\n"
-msgstr ""
-
-msgid "Remember to ignore missing language"
-msgstr ""
-
-msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
 "\n"
 "Do you want to set the database language to '%s' ?\n"
-msgstr ""
-
-msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid "Checking database language settings"
@@ -11152,6 +11128,9 @@ msgid "Do not set your database language now."
 msgstr ""
 
 msgid "Don't set"
+msgstr ""
+
+msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid ""
@@ -11420,7 +11399,7 @@ msgstr ""
 msgid "Search in list"
 msgstr ""
 
-msgid "invalid placeholder >>>%s<<<"
+msgid "invalid placeholder >>>>>%s<<<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -11461,6 +11440,19 @@ msgid "no external ID [%s] by [%s]"
 msgstr ""
 
 msgid "no primary in-praxis provider"
+msgstr ""
+
+msgid "current_meds_for_rx: template is missing"
+msgstr ""
+
+#, fuzzy
+msgid "generic %s"
+msgstr "Genèrics"
+
+msgid "Dispense how much/many of \"%(brand)s (%(contains)s)\" ?"
+msgstr ""
+
+msgid "Amount to dispense ?"
 msgstr ""
 
 msgid "no results for this patient (available or selected)"
@@ -12057,6 +12049,14 @@ msgid "Checking brand data"
 msgstr ""
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -12076,6 +12076,9 @@ msgid ""
 "Note: a brand name will need to be linked to\n"
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
+msgstr ""
+
+msgid "The medical aim for consuming this substance."
 msgstr ""
 
 msgid "discontinued due to allergy or intolerance"
@@ -12674,6 +12677,17 @@ msgstr "Llistat de vacunes buit"
 msgid "Editing organizational unit"
 msgstr "Vacunació"
 
+#, fuzzy
+msgid "Organizations and units thereof.\n"
+msgstr "Vacunació"
+
+msgid "Unit selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Unit type"
+msgstr "Tipus de plantilla"
+
 msgid "Select an organizational unit."
 msgstr ""
 
@@ -13111,6 +13125,49 @@ msgstr ""
 msgid "Removing address"
 msgstr ""
 
+msgid "Adding new person"
+msgstr ""
+
+msgid "ID exists !"
+msgstr ""
+
+msgid "One \"%s, %s (%s)\" already exists !"
+msgstr ""
+
+msgid "%s \"%s, %s (%s)\" already exist !"
+msgstr ""
+
+msgid "Must enter lastname."
+msgstr ""
+
+msgid "Must enter first name."
+msgstr ""
+
+msgid "Must select gender."
+msgstr ""
+
+msgid ""
+"To properly create an address, all the related fields must be filled in."
+msgstr ""
+
+msgid "Required fields"
+msgstr ""
+
+msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+msgid ""
+"Cannot save this address.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
+msgid ""
+"Address not saved.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 
@@ -13138,60 +13195,6 @@ msgstr ""
 msgid "Cannot switch to [%s]: no patient selected"
 msgstr ""
 
-msgid "Pregnancy Calculator"
-msgstr ""
-
-msgid "LMP"
-msgstr ""
-
-msgid "Click on calendar to enter the last menstrual period date"
-msgstr ""
-
-msgid "Gest."
-msgstr ""
-
-msgid "EDC"
-msgstr ""
-
-msgid "18 Week Ultrasound Scan"
-msgstr ""
-
-msgid "Ultrasound Scan - Revised EDC"
-msgstr ""
-
-msgid "Scan Date"
-msgstr ""
-
-msgid "Click on this field and then the ultrasound scan date on the calendar"
-msgstr ""
-
-msgid "Weeks"
-msgstr ""
-
-msgid "Days"
-msgstr ""
-
-msgid "Rev EDC"
-msgstr ""
-
-msgid "&Print"
-msgstr ""
-
-msgid ""
-"\n"
-"Please select the provider to fall back to in case\n"
-"no primary provider is configured for a patient.\n"
-msgstr ""
-
-msgid "Provider"
-msgstr ""
-
-msgid "Configuring fallback primary provider"
-msgstr ""
-
-msgid "Select a healthcare provider."
-msgstr ""
-
 msgid "showing audit trail"
 msgstr ""
 
@@ -13205,6 +13208,18 @@ msgid "Revisions"
 msgstr ""
 
 msgid "Table"
+msgstr ""
+
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Configuring fallback primary provider"
 msgstr ""
 
 msgid "Cannot delete the active workplace."
@@ -13286,6 +13301,114 @@ msgid "Clone"
 msgstr ""
 
 msgid "Clone the selected workplace"
+msgstr ""
+
+#, fuzzy
+msgid "Your praxis"
+msgstr "La teva revisió"
+
+msgid "Your branch"
+msgstr ""
+
+msgid "Praxis configuration ..."
+msgstr ""
+
+msgid ""
+"GNUmed has auto-created the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"GNUmed has auto-selected the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"No praxis branches configured currently.\n"
+"\n"
+"You MUST select one unit of an organization to be the initial\n"
+"branch (site, office) which you are logging in from."
+msgstr ""
+
+msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgstr ""
+
+msgid "Praxis branch selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Branch type"
+msgstr "Tipus de plantilla"
+
+msgid "Branch"
+msgstr ""
+
+msgid ""
+"Pick those units of \"%s\" which are branches of your praxis !\n"
+"\n"
+"Note that no other client should be connected at this time.\n"
+"\n"
+"If you want to select another organization entirely\n"
+"first remove all existing branches.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Manage units"
+msgstr "Vacunació"
+
+#, fuzzy
+msgid "Manage organizations and their units"
+msgstr "Vacunació"
+
+msgid "Branches of your praxis"
+msgstr ""
+
+msgid "Units of \"%s\""
+msgstr ""
+
+msgid "Pregnancy Calculator"
+msgstr ""
+
+msgid "LMP"
+msgstr ""
+
+msgid "Click on calendar to enter the last menstrual period date"
+msgstr ""
+
+msgid "Gest."
+msgstr ""
+
+msgid "EDC"
+msgstr ""
+
+msgid "18 Week Ultrasound Scan"
+msgstr ""
+
+msgid "Ultrasound Scan - Revised EDC"
+msgstr ""
+
+msgid "Scan Date"
+msgstr ""
+
+msgid "Click on this field and then the ultrasound scan date on the calendar"
+msgstr ""
+
+msgid "Weeks"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Rev EDC"
+msgstr ""
+
+msgid "&Print"
 msgstr ""
 
 msgid "Select a message type."
@@ -13611,6 +13734,9 @@ msgid " OK "
 msgstr ""
 
 msgid " Cancel "
+msgstr ""
+
+msgid "Select a healthcare provider."
 msgstr ""
 
 msgid "Public (no clinical or demographic access)"
@@ -14041,9 +14167,6 @@ msgid "Setup"
 msgstr ""
 
 msgid "&ConfigRegistry"
-msgstr ""
-
-msgid "Branch"
 msgstr ""
 
 msgid "Department"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-05-01 19:36+CEST\n"
+"POT-Creation-Date: 2013-06-08 22:00+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -592,6 +592,10 @@ msgstr "Drempelwaarde"
 msgid "last check:"
 msgstr "laatste controle:"
 
+#, fuzzy
+msgid "part %s, %s%s%s of document %s from %s%s"
+msgstr "Kan documenttype niet veranderen naar [%s]."
+
 msgid "%s document part                 [#%s]\n"
 msgstr ""
 
@@ -1041,11 +1045,16 @@ msgstr "Geneesmiddel"
 msgid "units"
 msgstr "eenheden"
 
-msgid "Unit: %s (%s)"
-msgstr ""
+#, fuzzy
+msgid "Unit: %s%s"
+msgstr "prik: %s, %s, %s"
 
 msgid "Organization: %s (%s)"
 msgstr ""
+
+#, fuzzy
+msgid " (confidential)"
+msgstr "vertrouwelijk"
 
 #, fuzzy
 msgid "inhouse lab"
@@ -1401,6 +1410,10 @@ msgstr "geboorte- / sterfdatum"
 
 msgid "full name"
 msgstr "volledige naam"
+
+#, fuzzy
+msgid "Praxis branch                   #%s\n"
+msgstr "Patiënt: %s (%s), Nee: %s\n"
 
 msgid "message"
 msgstr "bericht"
@@ -3662,8 +3675,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Voortgangsrapport van laatste ontmoetingen:"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -4484,8 +4498,7 @@ msgid ""
 "separated by \";\"."
 msgstr "Conclusie"
 
-#, fuzzy
-msgid "Patient:"
+msgid "Patient"
 msgstr "Patiënt"
 
 msgid "Type"
@@ -4567,9 +4580,6 @@ msgid ""
 "Codes relevant to this episode\n"
 "separated by \";\"."
 msgstr "Verplaats gegevens naar andere episode"
-
-msgid "Patient"
-msgstr "Patiënt"
 
 #, fuzzy
 msgid "Nest under"
@@ -5746,10 +5756,6 @@ msgstr "Typ of selecteer een beroep."
 #, fuzzy
 msgid "A comment on this person."
 msgstr "Een aantekening bij deze patiënt."
-
-#, fuzzy
-msgid "Basic demographics"
-msgstr "Basale persoonsgegevens"
 
 msgid "Identity"
 msgstr "Identiteit"
@@ -9060,43 +9066,6 @@ msgstr "vertrouwelijk"
 msgid "Emergency data and primary provider saved."
 msgstr ""
 
-#, fuzzy
-msgid "Adding new person"
-msgstr "Nieuwe patiënt toevoegen"
-
-msgid "Must enter lastname."
-msgstr "Moet achternaam invoeren."
-
-msgid "Must enter first name."
-msgstr "Moet voornaam invoeren."
-
-msgid "Must select gender."
-msgstr "Moet geslacht selecteren."
-
-msgid ""
-"To properly create an address, all the related fields must be filled in."
-msgstr ""
-"Om een juist nieuw adres aan te maken, moeten alle gerelateerde velden "
-"ingevuld zijn."
-
-msgid "Required fields"
-msgstr "Verplichte velden"
-
-msgid "This field must contain an item selected from the dropdown list."
-msgstr ""
-
-msgid ""
-"Cannot save this address.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
-msgid ""
-"Address not saved.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
 msgid "Contacts"
 msgstr "Contactpersonen"
 
@@ -9813,6 +9782,9 @@ msgstr ""
 "Wellicht moet u controleren en oplossen\n"
 " gm_%(action)s_doc.sh (Unix/Linux/Mac) of \n"
 " gm_%(action)s_doc.bat (Windows)"
+
+msgid "document part handed over to email program: %s"
+msgstr ""
 
 msgid "print"
 msgstr "afdrukken"
@@ -11275,6 +11247,14 @@ msgstr "Allergieën bewerken"
 msgid "Manage various lists of master data."
 msgstr ""
 
+#, fuzzy
+msgid "Manage praxis"
+msgstr "Allergieën bewerken"
+
+#, fuzzy
+msgid "Manage your praxis branches."
+msgstr "Meting bewerken"
+
 msgid "Install data packs"
 msgstr ""
 
@@ -11804,12 +11784,17 @@ msgstr "Kan script niet uitvoeren na activeren van patiënt."
 msgid "only documents added"
 msgstr "alleen documenten toegevoegd"
 
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgstr ""
+
 msgid "Cannot write letter. No active patient."
 msgstr "Kan geen brief schrijven. Geen actieve patiënt."
 
 msgid ""
 "\n"
 "\n"
+" praxis:       %s\n"
+" branch:       %s\n"
 " workplace:    %s\n"
 " account:      %s\n"
 " database:     %s\n"
@@ -12715,6 +12700,9 @@ msgstr "Controleren op toegangsrechten"
 msgid "Database <%s> on <%s>"
 msgstr ""
 
+msgid "Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
 #, fuzzy
 msgid "Connect"
 msgstr "Context"
@@ -12752,22 +12740,6 @@ msgid "GNUmed startup"
 msgstr "GNUmed startop"
 
 msgid ""
-"There is no language selected in the database for user [%s].\n"
-"Your system language is currently set to [%s].\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-"\n"
-msgstr ""
-"Er is geen taal geselecteerd in de database voor gebruiker [%s].\n"
-"De systeemtaal is nu ingesteld op [%s].\n"
-"\n"
-"Wilt u de databasetaal zetten op '%s'?\n"
-"\n"
-
-msgid "Remember to ignore missing language"
-msgstr "Onthoud om missende taal te negeren"
-
-msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
 "\n"
@@ -12777,9 +12749,6 @@ msgstr ""
 "overeen met de huidige systeemtaal ('%s').\n"
 "\n"
 "Wilt ude databasetaal zetten op '%s'?\n"
-
-msgid "Remember to ignore language mismatch"
-msgstr "Onthoud om taalverschil te negeren"
 
 msgid "Checking database language settings"
 msgstr "Controleren databasetaal instellingen"
@@ -12795,6 +12764,9 @@ msgstr "Stel de taal van uw database niet nu in."
 
 msgid "Don't set"
 msgstr "Niet instellen"
+
+msgid "Remember to ignore language mismatch"
+msgstr "Onthoud om taalverschil te negeren"
 
 msgid ""
 "Checking this will make GNUmed remember your decision\n"
@@ -13102,7 +13074,7 @@ msgid "Search in list"
 msgstr "zoekresultaten"
 
 #, fuzzy
-msgid "invalid placeholder >>>%s<<<"
+msgid "invalid placeholder >>>>>%s<<<<<"
 msgstr "onbekende plaatsvuller: <%s>"
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -13149,6 +13121,20 @@ msgid "no external ID [%s] by [%s]"
 msgstr ""
 
 msgid "no primary in-praxis provider"
+msgstr ""
+
+#, fuzzy
+msgid "current_meds_for_rx: template is missing"
+msgstr "missend label"
+
+#, fuzzy
+msgid "generic %s"
+msgstr "Generiek"
+
+msgid "Dispense how much/many of \"%(brand)s (%(contains)s)\" ?"
+msgstr ""
+
+msgid "Amount to dispense ?"
 msgstr ""
 
 #, fuzzy
@@ -13823,6 +13809,14 @@ msgid "Checking brand data"
 msgstr "Controleren voor frontend updates"
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -13844,6 +13838,10 @@ msgid ""
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
 msgstr ""
+
+#, fuzzy
+msgid "The medical aim for consuming this substance."
+msgstr "De eenheid waarin dit resultaat komt."
 
 #, fuzzy
 msgid "discontinued due to allergy or intolerance"
@@ -14572,6 +14570,18 @@ msgid "Editing organizational unit"
 msgstr "instellingen bewaren"
 
 #, fuzzy
+msgid "Organizations and units thereof.\n"
+msgstr "instellingen bewaren"
+
+#, fuzzy
+msgid "Unit selection ..."
+msgstr "apparaat selectie"
+
+#, fuzzy
+msgid "Unit type"
+msgstr "Standaard type"
+
+#, fuzzy
 msgid "Select an organizational unit."
 msgstr "instellingen bewaren"
 
@@ -15113,6 +15123,52 @@ msgstr ""
 msgid "Removing address"
 msgstr "Adres verwijderen"
 
+#, fuzzy
+msgid "Adding new person"
+msgstr "Nieuwe patiënt toevoegen"
+
+msgid "ID exists !"
+msgstr ""
+
+msgid "One \"%s, %s (%s)\" already exists !"
+msgstr ""
+
+msgid "%s \"%s, %s (%s)\" already exist !"
+msgstr ""
+
+msgid "Must enter lastname."
+msgstr "Moet achternaam invoeren."
+
+msgid "Must enter first name."
+msgstr "Moet voornaam invoeren."
+
+msgid "Must select gender."
+msgstr "Moet geslacht selecteren."
+
+msgid ""
+"To properly create an address, all the related fields must be filled in."
+msgstr ""
+"Om een juist nieuw adres aan te maken, moeten alle gerelateerde velden "
+"ingevuld zijn."
+
+msgid "Required fields"
+msgstr "Verplichte velden"
+
+msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+msgid ""
+"Cannot save this address.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
+msgid ""
+"Address not saved.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 "U moet een waarde van de keuzelijst selecteren of een precieze overeenkomst."
@@ -15144,62 +15200,6 @@ msgstr ""
 msgid "Cannot switch to [%s]: no patient selected"
 msgstr "Kan niet wisselen naar [%s]: geen patiënt geselecteerd"
 
-msgid "Pregnancy Calculator"
-msgstr "Zwangerschapscalculator"
-
-msgid "LMP"
-msgstr ""
-
-msgid "Click on calendar to enter the last menstrual period date"
-msgstr ""
-"Klick op de kalender om de dati, vam de laatste menstruatie aan te geven"
-
-msgid "Gest."
-msgstr ""
-
-msgid "EDC"
-msgstr ""
-
-msgid "18 Week Ultrasound Scan"
-msgstr "18 weken echoscopie"
-
-msgid "Ultrasound Scan - Revised EDC"
-msgstr ""
-
-msgid "Scan Date"
-msgstr "Datum echoscopie"
-
-msgid "Click on this field and then the ultrasound scan date on the calendar"
-msgstr "Klik op dit veld en dan de echoscopiedatum op de kalender"
-
-msgid "Weeks"
-msgstr "Weken"
-
-msgid "Days"
-msgstr "Dagen"
-
-msgid "Rev EDC"
-msgstr ""
-
-msgid "&Print"
-msgstr "&Afdrukken"
-
-msgid ""
-"\n"
-"Please select the provider to fall back to in case\n"
-"no primary provider is configured for a patient.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Provider"
-msgstr "Provincie"
-
-msgid "Configuring fallback primary provider"
-msgstr ""
-
-msgid "Select a healthcare provider."
-msgstr "Selecteer een behandelaar."
-
 #, fuzzy
 msgid "showing audit trail"
 msgstr "Details bewerken"
@@ -15215,6 +15215,19 @@ msgid "Revisions"
 msgstr "Versie"
 
 msgid "Table"
+msgstr ""
+
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Provider"
+msgstr "Provincie"
+
+msgid "Configuring fallback primary provider"
 msgstr ""
 
 #, fuzzy
@@ -15316,6 +15329,116 @@ msgstr ""
 #, fuzzy
 msgid "Clone the selected workplace"
 msgstr "verwijder onderdeel"
+
+#, fuzzy
+msgid "Your praxis"
+msgstr "Uw beoordeling"
+
+msgid "Your branch"
+msgstr ""
+
+#, fuzzy
+msgid "Praxis configuration ..."
+msgstr "instellingen bewaren"
+
+msgid ""
+"GNUmed has auto-created the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"GNUmed has auto-selected the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"No praxis branches configured currently.\n"
+"\n"
+"You MUST select one unit of an organization to be the initial\n"
+"branch (site, office) which you are logging in from."
+msgstr ""
+
+msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgstr ""
+
+msgid "Praxis branch selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Branch type"
+msgstr "Branch"
+
+msgid "Branch"
+msgstr "Branch"
+
+msgid ""
+"Pick those units of \"%s\" which are branches of your praxis !\n"
+"\n"
+"Note that no other client should be connected at this time.\n"
+"\n"
+"If you want to select another organization entirely\n"
+"first remove all existing branches.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Manage units"
+msgstr "Allergieën bewerken"
+
+#, fuzzy
+msgid "Manage organizations and their units"
+msgstr "instellingen bewaren"
+
+msgid "Branches of your praxis"
+msgstr ""
+
+msgid "Units of \"%s\""
+msgstr ""
+
+msgid "Pregnancy Calculator"
+msgstr "Zwangerschapscalculator"
+
+msgid "LMP"
+msgstr ""
+
+msgid "Click on calendar to enter the last menstrual period date"
+msgstr ""
+"Klick op de kalender om de dati, vam de laatste menstruatie aan te geven"
+
+msgid "Gest."
+msgstr ""
+
+msgid "EDC"
+msgstr ""
+
+msgid "18 Week Ultrasound Scan"
+msgstr "18 weken echoscopie"
+
+msgid "Ultrasound Scan - Revised EDC"
+msgstr ""
+
+msgid "Scan Date"
+msgstr "Datum echoscopie"
+
+msgid "Click on this field and then the ultrasound scan date on the calendar"
+msgstr "Klik op dit veld en dan de echoscopiedatum op de kalender"
+
+msgid "Weeks"
+msgstr "Weken"
+
+msgid "Days"
+msgstr "Dagen"
+
+msgid "Rev EDC"
+msgstr ""
+
+msgid "&Print"
+msgstr "&Afdrukken"
 
 #, fuzzy
 msgid "Select a message type."
@@ -15677,6 +15800,9 @@ msgstr " OK "
 
 msgid " Cancel "
 msgstr " Annuleer "
+
+msgid "Select a healthcare provider."
+msgstr "Selecteer een behandelaar."
 
 msgid "Public (no clinical or demographic access)"
 msgstr ""
@@ -16165,9 +16291,6 @@ msgstr "Setup"
 
 msgid "&ConfigRegistry"
 msgstr "&ConfigRegister"
-
-msgid "Branch"
-msgstr "Branch"
 
 msgid "Department"
 msgstr "Afdeling"
@@ -16663,6 +16786,30 @@ msgstr "Hoeveelheid"
 
 msgid "First Date"
 msgstr "Eerste Datum"
+
+#, fuzzy
+#~ msgid "Patient:"
+#~ msgstr "Patiënt"
+
+#, fuzzy
+#~ msgid "Basic demographics"
+#~ msgstr "Basale persoonsgegevens"
+
+#~ msgid ""
+#~ "There is no language selected in the database for user [%s].\n"
+#~ "Your system language is currently set to [%s].\n"
+#~ "\n"
+#~ "Do you want to set the database language to '%s' ?\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Er is geen taal geselecteerd in de database voor gebruiker [%s].\n"
+#~ "De systeemtaal is nu ingesteld op [%s].\n"
+#~ "\n"
+#~ "Wilt u de databasetaal zetten op '%s'?\n"
+#~ "\n"
+
+#~ msgid "Remember to ignore missing language"
+#~ msgstr "Onthoud om missende taal te negeren"
 
 #~ msgid "GNUmed  generic EditArea dialog"
 #~ msgstr "GNUmed algemene bewerk gebied dialoog"

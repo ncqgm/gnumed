@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-05-01 19:37+CEST\n"
+"POT-Creation-Date: 2013-06-08 22:01+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -279,7 +279,7 @@ msgstr ""
 msgid "ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
 msgstr ""
 
-msgid "NOT corrected for non-average body surface (average = 1.73m\302\262)"
+msgid "NOT corrected for non-average body surface (average = 1.73m²)"
 msgstr ""
 
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
@@ -513,6 +513,9 @@ msgid "Threshold"
 msgstr ""
 
 msgid "last check:"
+msgstr ""
+
+msgid "part %s, %s%s%s of document %s from %s%s"
 msgstr ""
 
 msgid ""
@@ -944,10 +947,13 @@ msgstr ""
 msgid "units"
 msgstr ""
 
-msgid "Unit: %s (%s)"
+msgid "Unit: %s%s"
 msgstr ""
 
 msgid "Organization: %s (%s)"
+msgstr ""
+
+msgid " (confidential)"
 msgstr ""
 
 msgid "inhouse lab"
@@ -1299,6 +1305,10 @@ msgid "date of birth/death"
 msgstr ""
 
 msgid "full name"
+msgstr ""
+
+msgid ""
+"Praxis branch                   #%s\n"
 msgstr ""
 
 msgid "message"
@@ -3231,7 +3241,7 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
+msgid "Add billing item to current encounter"
 msgstr ""
 
 msgid "Select - by code or part of the description - a billable item to add to the patient."
@@ -3474,7 +3484,7 @@ msgstr ""
 msgid "... or ..."
 msgstr ""
 
-msgid "\342\231\245"
+msgid "♥"
 msgstr ""
 
 msgid "Kidneys"
@@ -3597,7 +3607,7 @@ msgstr ""
 msgid "&Interactions?"
 msgstr ""
 
-msgid "\342\204\236"
+msgid "℞"
 msgstr ""
 
 msgid "ADR"
@@ -3888,7 +3898,7 @@ msgid ""
 "separated by \";\"."
 msgstr ""
 
-msgid "Patient:"
+msgid "Patient"
 msgstr ""
 
 msgid "Type"
@@ -3945,9 +3955,6 @@ msgstr ""
 msgid ""
 "Codes relevant to this episode\n"
 "separated by \";\"."
-msgstr ""
-
-msgid "Patient"
 msgstr ""
 
 msgid "Nest under"
@@ -4376,7 +4383,7 @@ msgstr ""
 msgid "Discharged"
 msgstr ""
 
-msgid "\342\211\210"
+msgid "≈"
 msgstr ""
 
 msgid "The date of birth for this person."
@@ -4412,10 +4419,10 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-msgid "&Myself \342\200\246 or:"
+msgid "&Myself … or:"
 msgstr ""
 
-msgid "&Active \342\200\246 or:"
+msgid "&Active … or:"
 msgstr ""
 
 msgid "Normal"
@@ -4493,10 +4500,10 @@ msgstr ""
 msgid "label_1"
 msgstr ""
 
-msgid "\342\206\222"
+msgid "→"
 msgstr ""
 
-msgid "\342\206\220"
+msgid "←"
 msgstr ""
 
 msgid "Extra"
@@ -4904,9 +4911,6 @@ msgstr ""
 msgid "A comment on this person."
 msgstr ""
 
-msgid "Basic demographics"
-msgstr ""
-
 msgid "Identity"
 msgstr ""
 
@@ -5077,10 +5081,10 @@ msgstr ""
 msgid "arrhythmic"
 msgstr ""
 
-msgid "\302\260C"
+msgid "°C"
 msgstr ""
 
-msgid "\302\260F"
+msgid "°F"
 msgstr ""
 
 msgid "<last height>"
@@ -5142,7 +5146,7 @@ msgstr ""
 msgid ""
 "Body Mass Index.\n"
 "\n"
-"BMI = weight / height\302\262"
+"BMI = weight / height²"
 msgstr ""
 
 msgid ""
@@ -6007,7 +6011,7 @@ msgid ""
 "against"
 msgstr ""
 
-msgid "Batch \342\204\226"
+msgid "Batch №"
 msgstr ""
 
 msgid "Site"
@@ -6091,7 +6095,7 @@ msgstr ""
 msgid "&Activate"
 msgstr ""
 
-msgid "Activate\302\262"
+msgid "Activate²"
 msgstr ""
 
 msgid "Check this if you want to see entries for the active patient only."
@@ -7617,39 +7621,6 @@ msgstr ""
 msgid "Emergency data and primary provider saved."
 msgstr ""
 
-msgid "Adding new person"
-msgstr ""
-
-msgid "Must enter lastname."
-msgstr ""
-
-msgid "Must enter first name."
-msgstr ""
-
-msgid "Must select gender."
-msgstr ""
-
-msgid "To properly create an address, all the related fields must be filled in."
-msgstr ""
-
-msgid "Required fields"
-msgstr ""
-
-msgid "This field must contain an item selected from the dropdown list."
-msgstr ""
-
-msgid ""
-"Cannot save this address.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
-msgid ""
-"Address not saved.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
 msgid "Contacts"
 msgstr ""
 
@@ -8223,6 +8194,9 @@ msgid ""
 " gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
+msgstr ""
+
+msgid "document part handed over to email program: %s"
 msgstr ""
 
 msgid "print"
@@ -9403,6 +9377,12 @@ msgstr ""
 msgid "Manage various lists of master data."
 msgstr ""
 
+msgid "Manage praxis"
+msgstr ""
+
+msgid "Manage your praxis branches."
+msgstr ""
+
 msgid "Install data packs"
 msgstr ""
 
@@ -9853,12 +9833,17 @@ msgstr ""
 msgid "only documents added"
 msgstr ""
 
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgstr ""
+
 msgid "Cannot write letter. No active patient."
 msgstr ""
 
 msgid ""
 "\n"
 "\n"
+" praxis:       %s\n"
+" branch:       %s\n"
 " workplace:    %s\n"
 " account:      %s\n"
 " database:     %s\n"
@@ -10522,6 +10507,10 @@ msgstr ""
 msgid "Database <%s> on <%s>"
 msgstr ""
 
+msgid ""
+"Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
 msgid "Connect"
 msgstr ""
 
@@ -10550,24 +10539,10 @@ msgid "GNUmed startup"
 msgstr ""
 
 msgid ""
-"There is no language selected in the database for user [%s].\n"
-"Your system language is currently set to [%s].\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-"\n"
-msgstr ""
-
-msgid "Remember to ignore missing language"
-msgstr ""
-
-msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
 "\n"
 "Do you want to set the database language to '%s' ?\n"
-msgstr ""
-
-msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid "Checking database language settings"
@@ -10583,6 +10558,9 @@ msgid "Do not set your database language now."
 msgstr ""
 
 msgid "Don't set"
+msgstr ""
+
+msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid ""
@@ -10845,7 +10823,7 @@ msgstr ""
 msgid "Search in list"
 msgstr ""
 
-msgid "invalid placeholder >>>%s<<<"
+msgid "invalid placeholder >>>>>%s<<<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -10885,6 +10863,18 @@ msgid "no external ID [%s] by [%s]"
 msgstr ""
 
 msgid "no primary in-praxis provider"
+msgstr ""
+
+msgid "current_meds_for_rx: template is missing"
+msgstr ""
+
+msgid "generic %s"
+msgstr ""
+
+msgid "Dispense how much/many of \"%(brand)s (%(contains)s)\" ?"
+msgstr ""
+
+msgid "Amount to dispense ?"
 msgstr ""
 
 msgid "no results for this patient (available or selected)"
@@ -11469,6 +11459,14 @@ msgid "Checking brand data"
 msgstr ""
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -11488,6 +11486,9 @@ msgid ""
 "Note: a brand name will need to be linked to\n"
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
+msgstr ""
+
+msgid "The medical aim for consuming this substance."
 msgstr ""
 
 msgid "discontinued due to allergy or intolerance"
@@ -12073,6 +12074,16 @@ msgstr ""
 msgid "Editing organizational unit"
 msgstr ""
 
+msgid ""
+"Organizations and units thereof.\n"
+msgstr ""
+
+msgid "Unit selection ..."
+msgstr ""
+
+msgid "Unit type"
+msgstr ""
+
 msgid "Select an organizational unit."
 msgstr ""
 
@@ -12490,6 +12501,48 @@ msgstr ""
 msgid "Removing address"
 msgstr ""
 
+msgid "Adding new person"
+msgstr ""
+
+msgid "ID exists !"
+msgstr ""
+
+msgid "One \"%s, %s (%s)\" already exists !"
+msgstr ""
+
+msgid "%s \"%s, %s (%s)\" already exist !"
+msgstr ""
+
+msgid "Must enter lastname."
+msgstr ""
+
+msgid "Must enter first name."
+msgstr ""
+
+msgid "Must select gender."
+msgstr ""
+
+msgid "To properly create an address, all the related fields must be filled in."
+msgstr ""
+
+msgid "Required fields"
+msgstr ""
+
+msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+msgid ""
+"Cannot save this address.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
+msgid ""
+"Address not saved.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 
@@ -12516,60 +12569,6 @@ msgstr ""
 msgid "Cannot switch to [%s]: no patient selected"
 msgstr ""
 
-msgid "Pregnancy Calculator"
-msgstr ""
-
-msgid "LMP"
-msgstr ""
-
-msgid "Click on calendar to enter the last menstrual period date"
-msgstr ""
-
-msgid "Gest."
-msgstr ""
-
-msgid "EDC"
-msgstr ""
-
-msgid "18 Week Ultrasound Scan"
-msgstr ""
-
-msgid "Ultrasound Scan - Revised EDC"
-msgstr ""
-
-msgid "Scan Date"
-msgstr ""
-
-msgid "Click on this field and then the ultrasound scan date on the calendar"
-msgstr ""
-
-msgid "Weeks"
-msgstr ""
-
-msgid "Days"
-msgstr ""
-
-msgid "Rev EDC"
-msgstr ""
-
-msgid "&Print"
-msgstr ""
-
-msgid ""
-"\n"
-"Please select the provider to fall back to in case\n"
-"no primary provider is configured for a patient.\n"
-msgstr ""
-
-msgid "Provider"
-msgstr ""
-
-msgid "Configuring fallback primary provider"
-msgstr ""
-
-msgid "Select a healthcare provider."
-msgstr ""
-
 msgid "showing audit trail"
 msgstr ""
 
@@ -12583,6 +12582,18 @@ msgid "Revisions"
 msgstr ""
 
 msgid "Table"
+msgstr ""
+
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Configuring fallback primary provider"
 msgstr ""
 
 msgid "Cannot delete the active workplace."
@@ -12663,6 +12674,111 @@ msgid "Clone"
 msgstr ""
 
 msgid "Clone the selected workplace"
+msgstr ""
+
+msgid "Your praxis"
+msgstr ""
+
+msgid "Your branch"
+msgstr ""
+
+msgid "Praxis configuration ..."
+msgstr ""
+
+msgid ""
+"GNUmed has auto-created the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"GNUmed has auto-selected the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"No praxis branches configured currently.\n"
+"\n"
+"You MUST select one unit of an organization to be the initial\n"
+"branch (site, office) which you are logging in from."
+msgstr ""
+
+msgid ""
+"Select branch (of praxis [%s]) which you are logging in from.\n"
+msgstr ""
+
+msgid "Praxis branch selection ..."
+msgstr ""
+
+msgid "Branch type"
+msgstr ""
+
+msgid "Branch"
+msgstr ""
+
+msgid ""
+"Pick those units of \"%s\" which are branches of your praxis !\n"
+"\n"
+"Note that no other client should be connected at this time.\n"
+"\n"
+"If you want to select another organization entirely\n"
+"first remove all existing branches.\n"
+msgstr ""
+
+msgid "Manage units"
+msgstr ""
+
+msgid "Manage organizations and their units"
+msgstr ""
+
+msgid "Branches of your praxis"
+msgstr ""
+
+msgid "Units of \"%s\""
+msgstr ""
+
+msgid "Pregnancy Calculator"
+msgstr ""
+
+msgid "LMP"
+msgstr ""
+
+msgid "Click on calendar to enter the last menstrual period date"
+msgstr ""
+
+msgid "Gest."
+msgstr ""
+
+msgid "EDC"
+msgstr ""
+
+msgid "18 Week Ultrasound Scan"
+msgstr ""
+
+msgid "Ultrasound Scan - Revised EDC"
+msgstr ""
+
+msgid "Scan Date"
+msgstr ""
+
+msgid "Click on this field and then the ultrasound scan date on the calendar"
+msgstr ""
+
+msgid "Weeks"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Rev EDC"
+msgstr ""
+
+msgid "&Print"
 msgstr ""
 
 msgid "Select a message type."
@@ -12975,6 +13091,9 @@ msgid " OK "
 msgstr ""
 
 msgid " Cancel "
+msgstr ""
+
+msgid "Select a healthcare provider."
 msgstr ""
 
 msgid "Public (no clinical or demographic access)"
@@ -13388,9 +13507,6 @@ msgid "Setup"
 msgstr ""
 
 msgid "&ConfigRegistry"
-msgstr ""
-
-msgid "Branch"
 msgstr ""
 
 msgid "Department"

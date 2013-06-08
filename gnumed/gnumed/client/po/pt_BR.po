@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-05-01 19:36+CEST\n"
+"POT-Creation-Date: 2013-06-08 22:00+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -577,6 +577,9 @@ msgstr "Limiar"
 msgid "last check:"
 msgstr "checagem mais recente:"
 
+msgid "part %s, %s%s%s of document %s from %s%s"
+msgstr ""
+
 msgid "%s document part                 [#%s]\n"
 msgstr ""
 
@@ -1016,12 +1019,17 @@ msgstr "Medicamento"
 msgid "units"
 msgstr "unidades"
 
-msgid "Unit: %s (%s)"
-msgstr ""
+#, fuzzy
+msgid "Unit: %s%s"
+msgstr " Status: %s, %s"
 
 #, fuzzy
 msgid "Organization: %s (%s)"
 msgstr "Consultas: %s (%s - %s):"
+
+#, fuzzy
+msgid " (confidential)"
+msgstr "confidencial"
 
 msgid "inhouse lab"
 msgstr "laboratório próprio"
@@ -1353,6 +1361,9 @@ msgstr "data de nascimento/óbito"
 
 msgid "full name"
 msgstr "nome completo"
+
+msgid "Praxis branch                   #%s\n"
+msgstr ""
 
 msgid "message"
 msgstr "mensagem"
@@ -3611,8 +3622,9 @@ msgstr ""
 msgid "&Insert"
 msgstr ""
 
-msgid "Add billing item"
-msgstr ""
+#, fuzzy
+msgid "Add billing item to current encounter"
+msgstr "Notas de Evolução novas na consulta mais recente"
 
 msgid ""
 "Select - by code or part of the description - a billable item to add to the "
@@ -4469,7 +4481,7 @@ msgid ""
 "separated by \";\"."
 msgstr "Selecione o tipo de consulta"
 
-msgid "Patient:"
+msgid "Patient"
 msgstr "Paciente"
 
 msgid "Type"
@@ -4540,9 +4552,6 @@ msgid ""
 "Codes relevant to this episode\n"
 "separated by \";\"."
 msgstr "Mover dados para outro episódio"
-
-msgid "Patient"
-msgstr "Paciente"
 
 msgid "Nest under"
 msgstr ""
@@ -5683,9 +5692,6 @@ msgstr ""
 
 msgid "A comment on this person."
 msgstr "Comentário sobre essa pessoa."
-
-msgid "Basic demographics"
-msgstr ""
 
 msgid "Identity"
 msgstr "Identidade"
@@ -8855,40 +8861,6 @@ msgstr ""
 msgid "Emergency data and primary provider saved."
 msgstr ""
 
-msgid "Adding new person"
-msgstr ""
-
-msgid "Must enter lastname."
-msgstr "É necessário um Sobrenome."
-
-msgid "Must enter first name."
-msgstr "É necessário um Nome."
-
-msgid "Must select gender."
-msgstr "É necessário selecionar o sexo."
-
-msgid ""
-"To properly create an address, all the related fields must be filled in."
-msgstr "Para criar um endereço válido todos os campos devem ser preenchidos."
-
-msgid "Required fields"
-msgstr "Campos obrigatórios."
-
-msgid "This field must contain an item selected from the dropdown list."
-msgstr ""
-
-msgid ""
-"Cannot save this address.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
-msgid ""
-"Address not saved.\n"
-"\n"
-"You will have to add it via the Demographics plugin.\n"
-msgstr ""
-
 msgid "Contacts"
 msgstr "Contatos"
 
@@ -9487,6 +9459,9 @@ msgid ""
 " gm-%(action)s_doc.bat (Windows)\n"
 "\n"
 "The command is passed the filename to %(l10n_action)s."
+msgstr ""
+
+msgid "document part handed over to email program: %s"
 msgstr ""
 
 msgid "print"
@@ -10825,6 +10800,14 @@ msgstr ""
 msgid "Manage various lists of master data."
 msgstr ""
 
+#, fuzzy
+msgid "Manage praxis"
+msgstr "&Editar"
+
+#, fuzzy
+msgid "Manage your praxis branches."
+msgstr "Editar as substâncias consumíveis."
+
 msgid "Install data packs"
 msgstr ""
 
@@ -11320,12 +11303,17 @@ msgstr "Não é possível rodar o script depois de ativar o paciente."
 msgid "only documents added"
 msgstr "somente documentos adicionados"
 
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgstr ""
+
 msgid "Cannot write letter. No active patient."
 msgstr "Não é possível escrever carta. Não há paciente ativo."
 
 msgid ""
 "\n"
 "\n"
+" praxis:       %s\n"
+" branch:       %s\n"
 " workplace:    %s\n"
 " account:      %s\n"
 " database:     %s\n"
@@ -12089,6 +12077,9 @@ msgstr ""
 msgid "Database <%s> on <%s>"
 msgstr ""
 
+msgid "Branch \"%s\" of praxis \"%s\"\n"
+msgstr ""
+
 msgid "Connect"
 msgstr ""
 
@@ -12117,24 +12108,10 @@ msgid "GNUmed startup"
 msgstr ""
 
 msgid ""
-"There is no language selected in the database for user [%s].\n"
-"Your system language is currently set to [%s].\n"
-"\n"
-"Do you want to set the database language to '%s' ?\n"
-"\n"
-msgstr ""
-
-msgid "Remember to ignore missing language"
-msgstr ""
-
-msgid ""
 "The currently selected database language ('%s') does\n"
 "not match the current system language ('%s').\n"
 "\n"
 "Do you want to set the database language to '%s' ?\n"
-msgstr ""
-
-msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid "Checking database language settings"
@@ -12150,6 +12127,9 @@ msgid "Do not set your database language now."
 msgstr ""
 
 msgid "Don't set"
+msgstr ""
+
+msgid "Remember to ignore language mismatch"
 msgstr ""
 
 msgid ""
@@ -12423,7 +12403,7 @@ msgstr ""
 msgid "Search in list"
 msgstr "Lista de medicamentos"
 
-msgid "invalid placeholder >>>%s<<<"
+msgid "invalid placeholder >>>>>%s<<<<<"
 msgstr ""
 
 msgid "due %(due_date)s: %(comment)s (%(interval_due)s)"
@@ -12468,6 +12448,20 @@ msgstr ""
 
 msgid "no primary in-praxis provider"
 msgstr ""
+
+msgid "current_meds_for_rx: template is missing"
+msgstr ""
+
+#, fuzzy
+msgid "generic %s"
+msgstr "Genéricos"
+
+msgid "Dispense how much/many of \"%(brand)s (%(contains)s)\" ?"
+msgstr ""
+
+#, fuzzy
+msgid "Amount to dispense ?"
+msgstr "Quantidade por dose: %s %s"
 
 #, fuzzy
 msgid "no results for this patient (available or selected)"
@@ -13071,6 +13065,14 @@ msgid "Checking brand data"
 msgstr "Checando por atualizações do cliente"
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -13091,6 +13093,10 @@ msgid ""
 "one or more components before it can be used,\n"
 "except in the case of fake (generic) vaccines."
 msgstr ""
+
+#, fuzzy
+msgid "The medical aim for consuming this substance."
+msgstr "O objetivo do consumo desta substância."
 
 msgid "discontinued due to allergy or intolerance"
 msgstr ""
@@ -13735,6 +13741,17 @@ msgstr "Adicionando novo canal de comunicações."
 msgid "Editing organizational unit"
 msgstr "Editando canal de comunicações"
 
+#, fuzzy
+msgid "Organizations and units thereof.\n"
+msgstr "Administrar as descrições."
+
+msgid "Unit selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Unit type"
+msgstr "Tipo inicial"
+
 msgid "Select an organizational unit."
 msgstr ""
 
@@ -14202,6 +14219,49 @@ msgstr ""
 msgid "Removing address"
 msgstr "Removendo endereço"
 
+msgid "Adding new person"
+msgstr ""
+
+msgid "ID exists !"
+msgstr ""
+
+msgid "One \"%s, %s (%s)\" already exists !"
+msgstr ""
+
+msgid "%s \"%s, %s (%s)\" already exist !"
+msgstr ""
+
+msgid "Must enter lastname."
+msgstr "É necessário um Sobrenome."
+
+msgid "Must enter first name."
+msgstr "É necessário um Nome."
+
+msgid "Must select gender."
+msgstr "É necessário selecionar o sexo."
+
+msgid ""
+"To properly create an address, all the related fields must be filled in."
+msgstr "Para criar um endereço válido todos os campos devem ser preenchidos."
+
+msgid "Required fields"
+msgstr "Campos obrigatórios."
+
+msgid "This field must contain an item selected from the dropdown list."
+msgstr ""
+
+msgid ""
+"Cannot save this address.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
+msgid ""
+"Address not saved.\n"
+"\n"
+"You will have to add it via the Demographics plugin.\n"
+msgstr ""
+
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
 
@@ -14229,60 +14289,6 @@ msgstr ""
 msgid "Cannot switch to [%s]: no patient selected"
 msgstr ""
 
-msgid "Pregnancy Calculator"
-msgstr ""
-
-msgid "LMP"
-msgstr ""
-
-msgid "Click on calendar to enter the last menstrual period date"
-msgstr ""
-
-msgid "Gest."
-msgstr ""
-
-msgid "EDC"
-msgstr ""
-
-msgid "18 Week Ultrasound Scan"
-msgstr ""
-
-msgid "Ultrasound Scan - Revised EDC"
-msgstr ""
-
-msgid "Scan Date"
-msgstr ""
-
-msgid "Click on this field and then the ultrasound scan date on the calendar"
-msgstr ""
-
-msgid "Weeks"
-msgstr ""
-
-msgid "Days"
-msgstr ""
-
-msgid "Rev EDC"
-msgstr ""
-
-msgid "&Print"
-msgstr ""
-
-msgid ""
-"\n"
-"Please select the provider to fall back to in case\n"
-"no primary provider is configured for a patient.\n"
-msgstr ""
-
-msgid "Provider"
-msgstr ""
-
-msgid "Configuring fallback primary provider"
-msgstr ""
-
-msgid "Select a healthcare provider."
-msgstr ""
-
 msgid "showing audit trail"
 msgstr ""
 
@@ -14296,6 +14302,18 @@ msgid "Revisions"
 msgstr ""
 
 msgid "Table"
+msgstr ""
+
+msgid ""
+"\n"
+"Please select the provider to fall back to in case\n"
+"no primary provider is configured for a patient.\n"
+msgstr ""
+
+msgid "Provider"
+msgstr ""
+
+msgid "Configuring fallback primary provider"
 msgstr ""
 
 msgid "Cannot delete the active workplace."
@@ -14377,6 +14395,115 @@ msgid "Clone"
 msgstr ""
 
 msgid "Clone the selected workplace"
+msgstr ""
+
+#, fuzzy
+msgid "Your praxis"
+msgstr "Sua revisão"
+
+msgid "Your branch"
+msgstr ""
+
+#, fuzzy
+msgid "Praxis configuration ..."
+msgstr "Configuração"
+
+msgid ""
+"GNUmed has auto-created the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"GNUmed has auto-selected the following\n"
+"praxis branch for you (which you can\n"
+"later configure as needed):\n"
+"\n"
+"%s"
+msgstr ""
+
+msgid ""
+"No praxis branches configured currently.\n"
+"\n"
+"You MUST select one unit of an organization to be the initial\n"
+"branch (site, office) which you are logging in from."
+msgstr ""
+
+msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgstr ""
+
+msgid "Praxis branch selection ..."
+msgstr ""
+
+#, fuzzy
+msgid "Branch type"
+msgstr "Tipo inicial"
+
+msgid "Branch"
+msgstr ""
+
+msgid ""
+"Pick those units of \"%s\" which are branches of your praxis !\n"
+"\n"
+"Note that no other client should be connected at this time.\n"
+"\n"
+"If you want to select another organization entirely\n"
+"first remove all existing branches.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Manage units"
+msgstr "&Editar"
+
+#, fuzzy
+msgid "Manage organizations and their units"
+msgstr "Administrar as descrições."
+
+msgid "Branches of your praxis"
+msgstr ""
+
+msgid "Units of \"%s\""
+msgstr ""
+
+msgid "Pregnancy Calculator"
+msgstr ""
+
+msgid "LMP"
+msgstr ""
+
+msgid "Click on calendar to enter the last menstrual period date"
+msgstr ""
+
+msgid "Gest."
+msgstr ""
+
+msgid "EDC"
+msgstr ""
+
+msgid "18 Week Ultrasound Scan"
+msgstr ""
+
+msgid "Ultrasound Scan - Revised EDC"
+msgstr ""
+
+msgid "Scan Date"
+msgstr ""
+
+msgid "Click on this field and then the ultrasound scan date on the calendar"
+msgstr ""
+
+msgid "Weeks"
+msgstr ""
+
+msgid "Days"
+msgstr ""
+
+msgid "Rev EDC"
+msgstr ""
+
+msgid "&Print"
 msgstr ""
 
 msgid "Select a message type."
@@ -14709,6 +14836,9 @@ msgid " OK "
 msgstr ""
 
 msgid " Cancel "
+msgstr ""
+
+msgid "Select a healthcare provider."
 msgstr ""
 
 msgid "Public (no clinical or demographic access)"
@@ -15145,9 +15275,6 @@ msgid "Setup"
 msgstr ""
 
 msgid "&ConfigRegistry"
-msgstr ""
-
-msgid "Branch"
 msgstr ""
 
 msgid "Department"
@@ -15616,6 +15743,9 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid "Patient:"
+#~ msgstr "Paciente"
 
 #~ msgid "GNUmed  generic EditArea dialog"
 #~ msgstr "Janela genérica do GNUmed para Editar Área"
