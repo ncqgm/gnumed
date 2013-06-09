@@ -31,6 +31,8 @@ IMPROVED: new patient EA: warn on existing name + DOB
 
 FIX: exception on merging patients with identical external IDs [thanks Jim]
 
+IMPROVED: further clarify license of Timeline icons
+
 	1.3.4
 
 FIX: exception on DDE access to IE when printing
