@@ -21,16 +21,18 @@
 --\set ON_ERROR_STOP 1
 
 -- adjust data
-update clin.encounter
-	set last_affirmed = (started + '1 second'::interval
-where
-	started > last_affirmed;
-;
+-- never worked because it lacks an ")"
+--update clin.encounter
+--	set last_affirmed = (started + '1 second'::interval
+--where
+--	started > last_affirmed;
+--;
 
 
-alter table clin.encounter
-	add constraint encounter_must_start_before_it_ends
-		check (started <= last_affirmed);
+-- commented out because it never worked due to a missing ")" above
+--alter table clin.encounter
+--	add constraint encounter_must_start_before_it_ends
+--		check (started <= last_affirmed);
 
 --comment on forgot_to_edit_comment is
 --	'';
