@@ -3,11 +3,13 @@ Installation instructions
 
 If you checked out GNUmed from VCS or downloaded the tarball
 there is nothing to install really. Everything can be run
-right from the directory where you put the files (this will
-change when we package releases).
+right from the directory where you put the files. You can,
+however, also install pre-packaged GNUmed versions using
+the package manager of your platform.
 
-You need to make sure, however, that you have all the necessary
-3rd party components installed. For this use:
+Before running from a copy of the code you need to make
+sure that you have all the necessary 3rd party components
+installed. To do this run:
 
 	check-prerequisites.sh
 
@@ -15,7 +17,7 @@ You can bootstrap a database with help of the shell scripts in
 
     gnumed/server/bootstrap/
 
-But you don't have to ! You can also connect the client to one
+but you don't have to ! You can also connect the client to one
 of the public servers. Look at the GNUmed Wiki for connection
 info.
 
