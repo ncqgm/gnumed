@@ -143,9 +143,16 @@ cp -R ../../client/gm-from-vcs.bat ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed ./gnumed-client.$CLIENTREV/client/
 cp -R ./gnumed-client.desktop ./gnumed-client.$CLIENTREV/client/
 cp -R ../../client/sitecustomize.py ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../README ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../INSTALL ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../CHANGELOG ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../LICENSE ./gnumed-client.$CLIENTREV/client/
 cp -R ../../../GnuPublicLicense.txt ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../AUTHORS.timeline ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../COPYING.timeline ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../COPYING.timeline.icons ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../COPYING.TangoDesktopProject ./gnumed-client.$CLIENTREV/client/
+cp -R ../../../README.timeline ./gnumed-client.$CLIENTREV/client/
 
 
 # timeline (this needs to become better later on)
@@ -153,7 +160,6 @@ mkdir -p ./gnumed-client.$CLIENTREV/client/timelinelib/
 cp -R ../../client/timelinelib/* ./gnumed-client.$CLIENTREV/client/timelinelib/
 mkdir -p ./gnumed-client.$CLIENTREV/client/icons/
 cp -R ../../client/icons/* ./gnumed-client.$CLIENTREV/client/icons/
-cp ../../client/icons/COPYING ./gnumed-client.$CLIENTREV/client/timelinelib/
 
 
 # bitmaps
@@ -211,59 +217,12 @@ cd ../../client/po/
 for CURR_LANG in ${LANG_LIST} ; do
 	./create-gnumed_mo.sh ${CURR_LANG}
 done
-#./create-gnumed_mo.sh ca
-#./create-gnumed_mo.sh de
-#./create-gnumed_mo.sh el
-#./create-gnumed_mo.sh es
-#./create-gnumed_mo.sh fr
-#./create-gnumed_mo.sh it
-#./create-gnumed_mo.sh nb
-#./create-gnumed_mo.sh nl
-#./create-gnumed_mo.sh pl
-#./create-gnumed_mo.sh pt
-#./create-gnumed_mo.sh pt_BR
-#./create-gnumed_mo.sh ru
-#./create-gnumed_mo.sh ru_RU
-#./create-gnumed_mo.sh sq
-#./create-gnumed_mo.sh sr
-#./create-gnumed_mo.sh sv
 cd -
 
 for CURR_LANG in ${LANG_LIST} ; do
 	cp -R ../../client/po/${CURR_LANG}.po ./gnumed-client.$CLIENTREV/client/po
 	cp -R ../../client/po/${CURR_LANG}-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 done
-
-#cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/ca.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/de.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/el.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/es.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/fr.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/it.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/nb.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/nl.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pl.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pt.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pt_BR.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/ru.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/ru_RU.po ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/sv.po ./gnumed-client.$CLIENTREV/client/po
-
-#cp -R ../../client/po/ca-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/de-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/el-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/es-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/fr-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/it-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/nb-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/nl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pl-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pt-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/pt_BR-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/ru-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/ru_RU-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
-#cp -R ../../client/po/sv-gnumed.mo ./gnumed-client.$CLIENTREV/client/po
 
 
 # pycommon
