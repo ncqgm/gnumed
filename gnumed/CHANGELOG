@@ -1155,6 +1155,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v17
 ------------------------------------------------
 
+	17.10
+
+FIX: old installs may have clin_root_item_soap_cat which needs dropping
+
 	17.9
 
 FIX: senior installations might have clin_narrative_soap_cat_check [thanks M.Angermann]
