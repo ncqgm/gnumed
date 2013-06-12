@@ -1280,6 +1280,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.6
+
+FIX: clin_root_item_soap_cat check needs dropping
+
 	18.4
 
 FIX: missing constraint clin.encounter.started <= clin.encounter.last_affirmed
