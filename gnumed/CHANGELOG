@@ -6,6 +6,10 @@
 # rel-1-3-patches
 ------------------------------------------------
 
+	1.3.6
+
+FIX: exception on merging patients with identical addresses [thanks Jim]
+
 	1.3.5
 
 FIX: exception on merging patients with identical external IDs [thanks Jim]

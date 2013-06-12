@@ -808,6 +808,20 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				""" % (_('merged'),	gmDateTime.pydt_strftime()),
 			'args': args
 		})
+		# - same addresses
+		queries.append ({
+			'cmd': u"""
+				DELETE FROM dem.lnk_person_org_address
+				WHERE
+					id_identity = %(pat2del)s
+						AHD
+					id_address IN (
+						SELECT id_address FROM dem.lnk_person_org_address d_lpoa
+						WHERE d_lpoa.id_identity = %(pat2keep)s
+					)
+			""",
+			'args': args
+		})
 
 		# generate UPDATEs
 		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
