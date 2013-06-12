@@ -62,6 +62,19 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	def add_unit(self, unit=None):
 		return create_org_unit(pk_organization = self._payload[self._idx['pk_org']], unit = unit)
 	#--------------------------------------------------------
+	def format(self):
+		lines = []
+		lines.append(_('Organization #%s') % self._payload[self._idx['pk_org']])
+		lines.append(u'')
+		lines.append(u' %s "%s"' % (
+			self._payload[self._idx['l10n_category']],
+			self._payload[self._idx['organization']]
+		))
+		if self._payload[self._idx['is_praxis']]:
+			lines.append(u'')
+			lines.append(u' ' + _('This is your praxis !'))
+		return u'\n'.join(lines)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_units(self):
@@ -227,7 +240,12 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format(self, with_address=False, with_org=True, with_comms=False):
 		lines = []
-		lines.append(_('Unit: %s%s') % (
+		lines.append(_('Unit%s: %s%s') % (
+			gmTools.bool2subst (
+				self._payload[self._idx['is_praxis_branch']],
+				_(' (of your praxis)'),
+				u''
+			),
 			self._payload[self._idx['unit']],
 			gmTools.coalesce(self._payload[self._idx['l10n_unit_category']], u'', u' (%s)')
 		))

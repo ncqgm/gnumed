@@ -492,10 +492,10 @@ def manage_praxis_branches(parent=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	#---------------------------
-	def get_tooltip(data):
-		if data is None:
+	def get_unit_tooltip(unit):
+		if unit is None:
 			return None
-		return u'\n'.join(data.format(with_address = True, with_org = True, with_comms = True))
+		return u'\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
 	#---------------------------
 	def manage_orgs():
 		gmOrganizationWidgets.manage_orgs(parent = parent)
@@ -521,8 +521,8 @@ def manage_praxis_branches(parent=None):
 		manage_orgs
 	)
 	picker.allow_duplicate_picks = False
-	picker.left_item_tooltip_callback = get_tooltip
-	picker.right_item_tooltip_callback = get_tooltip
+	picker.left_item_tooltip_callback = get_unit_tooltip
+	picker.right_item_tooltip_callback = get_unit_tooltip
 	picker.set_columns(columns = [_('Units of "%s"') % praxis], columns_right = [_('Branches of your praxis')])
 	units = org.units
 	branch_unit_pks = [b['pk_org_unit'] for b in branches]

@@ -205,9 +205,15 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.'))
 		self._LCTRL_items.set_columns(columns = [ _('Organizational Unit'), _('Unit Category'), u'#' ])
+		self._LCTRL_items.SetToolTipString(_('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.'))
+		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+	#--------------------------------------------------------
+	def get_tooltip(self, unit):
+		if unit is None:
+			return _('Units (sites, parts, departments, branches, ...) of organizations registered in GNUmed.')
+		return u'\n'.join(unit.format(with_address = True, with_org = True, with_comms = True))
 	#--------------------------------------------------------
 	def __refresh(self):
 
@@ -240,6 +246,11 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(units)
+
+		for idx in range(len(units)):
+			unit = units[idx]
+			if unit['is_praxis_branch']:
+				self._LCTRL_items.SetItemTextColour(idx, col=wx.NamedColour('RED'))
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -706,6 +717,12 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		items = [ [o['organization'], o['l10n_category'], o['pk_org']] for o in orgs ]
 		self._LCTRL_items.set_string_items(items)
 		self._LCTRL_items.set_data(orgs)
+
+		for idx in range(len(orgs)):
+			org = orgs[idx]
+			if org['is_praxis']:
+				self._LCTRL_items.SetItemTextColour(idx, col=wx.NamedColour('RED'))
+				break
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -724,9 +741,15 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
-		self._LCTRL_items.SetToolTipString(_('Organizations registered in GNUmed.'))
 		self._LCTRL_items.set_columns(columns = [_('Organization'), _('Category'), u'#'])
+		self._LCTRL_items.SetToolTipString(_('Organizations registered in GNUmed.'))
+		self._LCTRL_items.item_tooltip_callback = self.get_tooltip
 		#self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+	#--------------------------------------------------------
+	def get_tooltip(self, org):
+		if org is None:
+			return _('Organizations registered in GNUmed.')
+		return org.format()
 #============================================================
 from Gnumed.wxGladeWidgets import wxgOrganizationManagerDlg
 

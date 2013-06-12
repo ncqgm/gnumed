@@ -415,8 +415,8 @@ def setup_paths_and_files():
 
 	%s/
 
-This directory should only ever contain file which the user
-will come into direct contact with during using the
+This directory should only ever contain files which the
+user will come into direct contact with while using the
 application (say, by selecting a file from the file system,
 as when selecting document parts from files). You can create
 subdirectories here as you see fit for the purpose.
