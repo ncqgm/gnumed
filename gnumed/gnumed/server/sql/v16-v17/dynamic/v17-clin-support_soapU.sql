@@ -12,6 +12,7 @@
 \unset ON_ERROR_STOP
 alter table clin.clin_root_item	drop constraint clin_root_item_soap_cat_check;
 alter table clin.clin_root_item	drop constraint clin_root_item_sane_soap_cat;
+alter table clin.clin_root_item	drop constraint clin_root_item_soap_cat;
 \set ON_ERROR_STOP 1
 
 alter table clin.clin_root_item
