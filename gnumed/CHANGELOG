@@ -9,6 +9,9 @@
 	1.3.6
 
 FIX: exception on merging patients with identical addresses [thanks Jim]
+FIX: exception on repeatedly updating LOINC [thanks A.Maier]
+
+IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
 
 	1.3.5
 

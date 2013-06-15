@@ -1,6 +1,5 @@
 """GNUmed clinical narrative business object."""
 #============================================================
-__version__ = "$Revision: 1.45 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 
@@ -20,7 +19,6 @@ except NameError:
 
 
 _log = logging.getLogger('gm.emr')
-_log.info(__version__)
 
 
 soap_cat2l10n = {
@@ -28,7 +26,8 @@ soap_cat2l10n = {
 	u'o': _('soap_O').replace(u'soap_', u''),
 	u'a': _('soap_A').replace(u'soap_', u''),
 	u'p': _('soap_P').replace(u'soap_', u''),
-	u'u': u'?',
+	u'u': _('soap_U').replace(u'soap_', u''),
+#	u'u': u'?',
 	None: gmTools.u_ellipsis,
 	u'': gmTools.u_ellipsis
 }
@@ -47,7 +46,8 @@ l10n2soap_cat = {
 	_('soap_O').replace(u'soap_', u''): u'o',
 	_('soap_A').replace(u'soap_', u''): u'a',
 	_('soap_P').replace(u'soap_', u''): u'p',
-	u'?': u'u',
+	_('soap_U').replace(u'soap_', u''): u'u',
+#	u'?': u'u',
 	gmTools.u_ellipsis: None
 }
 

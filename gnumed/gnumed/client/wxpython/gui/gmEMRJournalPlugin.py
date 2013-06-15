@@ -34,7 +34,6 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		gmPlugin.cNotebookPlugin.register(self)
 	#-------------------------------------------------
 	def GetWidget (self, parent):
-		#self._widget = gmEMRBrowser.cEMRJournalPanel(parent, -1)
 		self._widget = gmEMRBrowser.cEMRJournalPluginPnl(parent, -1)
 		return self._widget
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
 
         # display standalone browser
         application = wx.wxPyWidgetTester(size=(800,600))
-        emr_journal = gmEMRBrowser.cEMRJournalPanel(application.frame, -1)
+        emr_journal = gmEMRBrowser.cEMRJournalPluginPnl(application.frame, -1)
         emr_journal.refresh_journal()
 
         application.frame.Show(True)

@@ -136,39 +136,6 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	_log.debug('importing LOINC version [%s]', version)
 
-	in_file = codecs.open(license_fname, 'rU', encoding = 'utf8', errors = 'replace')
-	desc = in_file.read()
-	in_file.close()
-
-	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
-
-	# create data source record
-	queries = [{
-		'cmd': u"""DELETE FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s""",
-		'args': args
-	}, {
-		'cmd': u"""
-INSERT INTO ref.data_source (name_long, name_short, version, description, lang, source) values (
-	%(name_long)s,
-	%(name_short)s,
-	%(ver)s,
-	%(desc)s,
-	%(lang)s,
-	%(url)s
-)""",
-		'args': args
-	}, {
-		'cmd': u"""SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s""",
-		'args': args
-	}]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
-	data_src_pk = rows[0][0]
-	_log.debug('data source record created, pk is #%s', data_src_pk)
-
-	# import data
-	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
-	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
-
 	# clean out staging area
 	curs = conn.cursor()
 	cmd = u"""DELETE FROM ref.loinc_staging"""
@@ -177,7 +144,9 @@ INSERT INTO ref.data_source (name_long, name_short, version, description, lang, 
 	conn.commit()
 	_log.debug('staging table emptied')
 
-	# from file into staging table
+	# import data from csv file into staging table
+	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
+	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
 	cmd = u"""INSERT INTO ref.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
 	first = False
@@ -191,132 +160,165 @@ INSERT INTO ref.data_source (name_long, name_short, version, description, lang, 
 	csv_file.close()
 	_log.debug('staging table loaded')
 
-	# from staging table to real table
+	# create data source record
+	in_file = codecs.open(license_fname, 'rU', encoding = 'utf8', errors = 'replace')
+	desc = in_file.read()
+	in_file.close()
+	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}
+	queries = [
+		# insert if not existing
+		{'args': args, 'cmd': u"""
+			INSERT INTO ref.data_source (name_long, name_short, version) SELECT
+				%(name_long)s,
+				%(name_short)s,
+				%(ver)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM ref.data_source WHERE
+					name_long = %(name_long)s
+						AND
+					name_short = %(name_short)s
+						AND
+					version = %(ver)s
+			)"""
+		},
+		# update non-unique fields
+		{'args': args, 'cmd': u"""
+			UPDATE ref.data_source SET
+				description = %(desc)s,
+				source = %(url)s,
+				lang = %(lang)s
+			WHERE
+				name_long = %(name_long)s
+					AND
+				name_short = %(name_short)s
+					AND
+				version = %(ver)s
+			"""
+		},
+		# retrieve PK of data source
+		{'args': args, 'cmd': u"""SELECT pk FROM ref.data_source WHERE name_short = %(name_short)s AND version = %(ver)s"""}
+	]
 	curs = conn.cursor()
+	rows, idx = gmPG2.run_rw_queries(link_obj = curs, queries = queries, return_data = True)
+	data_src_pk = rows[0][0]
+	curs.close()
+	_log.debug('data source record created or updated, pk is #%s', data_src_pk)
+
+	# import from staging table to real table
 	args = {'src_pk': data_src_pk}
-	cmd = u"""
-INSERT INTO ref.loinc (
-	fk_data_source,
-
-	term,
-
-	code,
-	comment,
-	component,
-	property,
-	time_aspect,
-	system,
-	scale_type,
-	method_type,
-	related_names_1_old,
-	grouping_class,
-	loinc_internal_source,
-	dt_last_change,
-	change_type,
-	answer_list,
-	code_status,
-	maps_to,
-	scope,
-	normal_range,
-	ipcc_units,
-	reference,
-	exact_component_synonym,
-	molar_mass,
-	grouping_class_type,
-	formula,
-	species,
-	example_answers,
-	acs_synonyms,
-	base_name,
-	final,
-	naa_ccr_id,
-	code_table,
-	is_set_root,
-	panel_elements,
-	survey_question_text,
-	survey_question_source,
-	units_required,
-	submitted_units,
-	related_names_2,
-	short_name,
-	order_obs,
-	cdisc_common_tests,
-	hl7_field_subfield_id,
-	external_copyright_notice,
-	example_units,
-	inpc_percentage,
-	long_common_name
-)
-
-SELECT
-
-	%(src_pk)s,
-
-	coalesce (
-		nullif(long_common_name, ''),
-		(
-			coalesce(nullif(component, '') || ':', '') ||
-			coalesce(nullif(property, '') || ':', '') ||
-			coalesce(nullif(time_aspect, '') || ':', '') ||
-			coalesce(nullif(system, '') || ':', '') ||
-			coalesce(nullif(scale_type, '') || ':', '') ||
-			coalesce(nullif(method_type, '') || ':', '')
-		)
-	),
-
-	nullif(loinc_num, ''),
-	nullif(comments, ''),
-	nullif(component, ''),
-	nullif(property, ''),
-	nullif(time_aspect, ''),
-	nullif(system, ''),
-	nullif(scale_type, ''),
-	nullif(method_type, ''),
-	nullif(related_names_1_old, ''),
-	nullif(class, ''),
-	nullif(source, ''),
-	nullif(dt_last_change, ''),
-	nullif(change_type, ''),
-	nullif(answer_list, ''),
-	nullif(status, ''),
-	nullif(map_to, ''),
-	nullif(scope, ''),
-	nullif(normal_range, ''),
-	nullif(ipcc_units, ''),
-	nullif(reference, ''),
-	nullif(exact_component_synonym, ''),
-	nullif(molar_mass, ''),
-	nullif(class_type, '')::smallint,
-	nullif(formula, ''),
-	nullif(species, ''),
-	nullif(example_answers, ''),
-	nullif(acs_synonyms, ''),
-	nullif(base_name, ''),
-	nullif(final, ''),
-	nullif(naa_ccr_id, ''),
-	nullif(code_table, ''),
-	nullif(is_set_root, '')::boolean,
-	nullif(panel_elements, ''),
-	nullif(survey_question_text, ''),
-	nullif(survey_question_source, ''),
-	nullif(units_required, ''),
-	nullif(submitted_units, ''),
-	nullif(related_names_2, ''),
-	nullif(short_name, ''),
-	nullif(order_obs, ''),
-	nullif(cdisc_common_tests, ''),
-	nullif(hl7_field_subfield_id, ''),
-	nullif(external_copyright_notice, ''),
-	nullif(example_units, ''),
-	nullif(inpc_percentage, ''),
-	nullif(long_common_name, '')
-
-FROM
-	ref.loinc_staging
-"""
-
-	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd, 'args': args}])
-
+	queries = []
+	queries.append ({
+		'args': args,
+		'cmd': u"""
+			INSERT INTO ref.loinc (
+				fk_data_source, term, code
+			)
+			SELECT
+				%(src_pk)s,
+				coalesce (
+					nullif(long_common_name, ''),
+					(
+						coalesce(nullif(component, '') || ':', '') ||
+						coalesce(nullif(property, '') || ':', '') ||
+						coalesce(nullif(time_aspect, '') || ':', '') ||
+						coalesce(nullif(system, '') || ':', '') ||
+						coalesce(nullif(scale_type, '') || ':', '') ||
+						coalesce(nullif(method_type, '') || ':', '')
+					)
+				),
+				nullif(loinc_num, '')
+			FROM
+				ref.loinc_staging r_ls
+			WHERE NOT EXISTS (
+				SELECT 1 FROM ref.loinc r_l WHERE
+					r_l.fk_data_source = %(src_pk)s
+						AND
+					r_l.code = nullif(r_ls.loinc_num, '')
+						AND
+					r_l.term = 	coalesce (
+						nullif(r_ls.long_common_name, ''),
+						(
+							coalesce(nullif(r_ls.component, '') || ':', '') ||
+							coalesce(nullif(r_ls.property, '') || ':', '') ||
+							coalesce(nullif(r_ls.time_aspect, '') || ':', '') ||
+							coalesce(nullif(r_ls.system, '') || ':', '') ||
+							coalesce(nullif(r_ls.scale_type, '') || ':', '') ||
+							coalesce(nullif(r_ls.method_type, '') || ':', '')
+						)
+					)
+			)"""
+	})
+	queries.append ({
+		'args': args,
+		'cmd': u"""
+			UPDATE ref.loinc SET
+				comment = nullif(r_ls.comments, ''),
+				component = nullif(r_ls.component, ''),
+				property = nullif(r_ls.property, ''),
+				time_aspect = nullif(r_ls.time_aspect, ''),
+				system = nullif(r_ls.system, ''),
+				scale_type = nullif(r_ls.scale_type, ''),
+				method_type = nullif(r_ls.method_type, ''),
+				related_names_1_old = nullif(r_ls.related_names_1_old, ''),
+				grouping_class = nullif(r_ls.class, ''),
+				loinc_internal_source = nullif(r_ls.source, ''),
+				dt_last_change = nullif(r_ls.dt_last_change, ''),
+				change_type = nullif(r_ls.change_type, ''),
+				answer_list = nullif(r_ls.answer_list, ''),
+				code_status = nullif(r_ls.status, ''),
+				maps_to = nullif(r_ls.map_to, ''),
+				scope = nullif(r_ls.scope, ''),
+				normal_range = nullif(r_ls.normal_range, ''),
+				ipcc_units = nullif(r_ls.ipcc_units, ''),
+				reference = nullif(r_ls.reference, ''),
+				exact_component_synonym = nullif(r_ls.exact_component_synonym, ''),
+				molar_mass = nullif(r_ls.molar_mass, ''),
+				grouping_class_type = nullif(r_ls.class_type, '')::smallint,
+				formula = nullif(r_ls.formula, ''),
+				species = nullif(r_ls.species, ''),
+				example_answers = nullif(r_ls.example_answers, ''),
+				acs_synonyms = nullif(r_ls.acs_synonyms, ''),
+				base_name = nullif(r_ls.base_name, ''),
+				final = nullif(r_ls.final, ''),
+				naa_ccr_id = nullif(r_ls.naa_ccr_id, ''),
+				code_table = nullif(r_ls.code_table, ''),
+				is_set_root = nullif(r_ls.is_set_root, '')::boolean,
+				panel_elements = nullif(r_ls.panel_elements, ''),
+				survey_question_text = nullif(r_ls.survey_question_text, ''),
+				survey_question_source = nullif(r_ls.survey_question_source, ''),
+				units_required = nullif(r_ls.units_required, ''),
+				submitted_units = nullif(r_ls.submitted_units, ''),
+				related_names_2 = nullif(r_ls.related_names_2, ''),
+				short_name = nullif(r_ls.short_name, ''),
+				order_obs = nullif(r_ls.order_obs, ''),
+				cdisc_common_tests = nullif(r_ls.cdisc_common_tests, ''),
+				hl7_field_subfield_id = nullif(r_ls.hl7_field_subfield_id, ''),
+				external_copyright_notice = nullif(r_ls.external_copyright_notice, ''),
+				example_units = nullif(r_ls.example_units, ''),
+				inpc_percentage = nullif(r_ls.inpc_percentage, ''),
+				long_common_name = nullif(r_ls.long_common_name, '')
+			FROM
+				ref.loinc_staging r_ls
+			WHERE
+				fk_data_source = %(src_pk)s
+					AND
+				code = nullif(r_ls.loinc_num, '')
+					AND
+				term = coalesce (
+					nullif(r_ls.long_common_name, ''),
+					(
+						coalesce(nullif(r_ls.component, '') || ':', '') ||
+						coalesce(nullif(r_ls.property, '') || ':', '') ||
+						coalesce(nullif(r_ls.time_aspect, '') || ':', '') ||
+						coalesce(nullif(r_ls.system, '') || ':', '') ||
+						coalesce(nullif(r_ls.scale_type, '') || ':', '') ||
+						coalesce(nullif(r_ls.method_type, '') || ':', '')
+					)
+				)
+		"""
+	})
+	curs = conn.cursor()
+	gmPG2.run_rw_queries(link_obj = curs, queries = queries)
 	curs.close()
 	conn.commit()
 	_log.debug('transfer from staging table to real table done')
