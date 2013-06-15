@@ -1326,68 +1326,6 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		self.repopulate_ui()
 
 #================================================================
-class cEMRJournalPanel(wx.Panel):
-	def __init__(self, *args, **kwargs):
-		wx.Panel.__init__(self, *args, **kwargs)
-
-		self.__do_layout()
-		self.__register_events()
-	#--------------------------------------------------------
-	def __do_layout(self):
-		self.__journal = wx.TextCtrl (
-			self,
-			-1,
-			_('No EMR data loaded.'),
-			style = wx.TE_MULTILINE | wx.TE_READONLY
-		)
-		self.__journal.SetFont(wx.Font(10, wx.MODERN, wx.NORMAL, wx.NORMAL))
-		# arrange widgets
-		szr_outer = wx.BoxSizer(wx.VERTICAL)
-		szr_outer.Add(self.__journal, 1, wx.EXPAND, 0)
-		# and do layout
-		self.SetAutoLayout(1)
-		self.SetSizer(szr_outer)
-		szr_outer.Fit(self)
-		szr_outer.SetSizeHints(self)
-		self.Layout()
-	#--------------------------------------------------------
-	def __register_events(self):
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-	#--------------------------------------------------------
-	def _on_post_patient_selection(self):
-		"""Expects to be in a Notebook."""
-		if self.GetParent().GetCurrentPage() == self:
-			self.repopulate_ui()
-		return True
-	#--------------------------------------------------------
-	# notebook plugin API
-	#--------------------------------------------------------
-	def repopulate_ui(self):
-#		txt = StringIO.StringIO()
-		exporter = gmPatientExporter.cEMRJournalExporter()
-		fname = exporter.export_to_file_by_mod_time()
-		f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
-		for line in f:
-			self.__journal.AppendText(line)
-		f.close()
-
-#		# FIXME: if journal is large this will error out, use generator/yield etc
-#		# FIXME: turn into proper list
-#		try:
-#			exporter.export(txt)
-#			self.__journal.SetValue(txt.getvalue())
-#		except ValueError:
-#			_log.exception('cannot get EMR journal')
-#			self.__journal.SetValue (_(
-#				'An error occurred while retrieving the EMR\n'
-#				'in journal form for the active patient.\n\n'
-#				'Please check the log file for details.'
-#			))
-#		txt.close()
-
-		self.__journal.ShowPosition(self.__journal.GetLastPosition())
-		return True
-#================================================================
 # MAIN
 #----------------------------------------------------------------
 if __name__ == '__main__':

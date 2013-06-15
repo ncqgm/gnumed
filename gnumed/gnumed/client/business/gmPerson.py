@@ -841,7 +841,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				DELETE FROM dem.lnk_person_org_address
 				WHERE
 					id_identity = %(pat2del)s
-						AHD
+						AND
 					id_address IN (
 						SELECT id_address FROM dem.lnk_person_org_address d_lpoa
 						WHERE d_lpoa.id_identity = %(pat2keep)s

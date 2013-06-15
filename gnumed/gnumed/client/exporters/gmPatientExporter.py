@@ -140,7 +140,7 @@ class cEmrExport:
         # chart row count, columns width and vaccination dictionary of pairs indication : given shot
         column_widths = []
         chart_rows = -1
-        vaccinations = {}         
+        vaccinations = {}
         temp = -1
         for foot_header in foot_headers: # first column width
             if len(foot_header) > temp:
