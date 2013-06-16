@@ -1590,22 +1590,91 @@ WHERE
 class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
-	_query1 = u"""
+
+	_normal_query = u"""
 		SELECT
-			pk::text,
-			(description || ' ' || amount || ' ' || unit) as subst
-		FROM ref.consumable_substance
-		WHERE description %(fragment_condition)s
-		ORDER BY subst
+			data,
+			field_label,
+			list_label,
+			rank
+		FROM ((
+			-- substance intakes which match are first
+			SELECT
+				pk_substance AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (in use)') AS list_label,
+				1 AS rank
+			FROM (
+				SELECT DISTINCT ON (description, amount, unit)
+					pk_substance,
+					substance AS description,
+					amount,
+					unit
+				FROM clin.v_pat_substance_intake
+				WHERE pk_brand IS NULL
+			) AS normalized_intakes
+			WHERE description %(fragment_condition)s
+		) UNION ALL (
+			-- consumable substances which match - but are not intakes - are second
+			SELECT
+				pk AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (not in use)') AS list_label,
+				2 AS rank
+			FROM ref.consumable_substance
+			WHERE
+				description %(fragment_condition)s
+					AND
+				pk NOT IN (
+					SELECT fk_substance
+					FROM clin.substance_intake
+					WHERE fk_substance IS NOT NULL
+				)
+		)) AS candidates
+		ORDER BY rank, list_label
 		LIMIT 50"""
-	_query2 = u"""
+
+	_regex_query = 	u"""
 		SELECT
-			pk::text,
-			(description || ' ' || amount || ' ' || unit) as subst
-		FROM ref.consumable_substance
-		WHERE
-			%(fragment_condition)s
-		ORDER BY subst
+			data,
+			field_label,
+			list_label,
+			rank
+		FROM ((
+			SELECT
+				pk_substance AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (in use)') AS list_label,
+				1 AS rank
+			FROM (
+				SELECT DISTINCT ON (description, amount, unit)
+					pk_substance,
+					substance AS description,
+					amount,
+					unit
+				FROM clin.v_pat_substance_intake
+				WHERE pk_brand IS NULL
+			) AS normalized_intakes
+			WHERE
+				%(fragment_condition)s
+		) UNION ALL (
+			-- matching substances which are not in intakes
+			SELECT
+				pk AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (not in use)') AS list_label,
+				2 AS rank
+			FROM ref.consumable_substance
+			WHERE
+				%(fragment_condition)s
+					AND
+				pk NOT IN (
+					SELECT fk_substance
+					FROM clin.substance_intake
+					WHERE fk_substance IS NOT NULL
+				)
+		)) AS candidates
+		ORDER BY rank, list_label
 		LIMIT 50"""
 
 	#--------------------------------------------------------
@@ -1613,14 +1682,14 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment at start of phrases."""
 
 		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._query2]
+			self._queries = [cSubstanceMatchProvider._regex_query]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._query1]
+			self._queries = [cSubstanceMatchProvider._normal_query]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%s%%" % aFragment
 
@@ -1630,7 +1699,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment at start of words inside phrases."""
 
 		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._query2]
+			self._queries = [cSubstanceMatchProvider._regex_query]
 
 			desc = regex.sub(r'\s*\d+$', u'', aFragment)
 			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
@@ -1642,7 +1711,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._query1]
+			self._queries = [cSubstanceMatchProvider._normal_query]
 			fragment_condition = u"~* %(fragment)s"
 			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
 			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
@@ -1653,18 +1722,19 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 		"""Return matches for aFragment as a true substring."""
 
 		if cSubstanceMatchProvider._pattern.match(aFragment):
-			self._queries = [cSubstanceMatchProvider._query2]
+			self._queries = [cSubstanceMatchProvider._regex_query]
 			fragment_condition = """description ILIKE %(desc)s
 				AND
 			amount::text ILIKE %(amount)s"""
 			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
-			self._queries = [cSubstanceMatchProvider._query1]
+			self._queries = [cSubstanceMatchProvider._normal_query]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%%%s%%" % aFragment
 
 		return self._find_matches(fragment_condition)
+
 #============================================================
 class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by a patient."""
@@ -2213,7 +2283,23 @@ def get_drug_components():
 	cmd = _SQL_get_drug_components % u'true ORDER BY brand, substance'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
+
 #------------------------------------------------------------
+_SQL_find_matching_drug_components_by_name = u"""
+SELECT
+	data,
+	field_label,
+	list_label,
+	rank
+FROM ((
+
+	) UNION ALL (
+
+	)) AS matches
+ORDER BY rank, list_label
+LIMIT 50"""
+
+
 class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
@@ -2227,9 +2313,9 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				|| r_vdc1.preparation || ' ('
 				|| r_vdc1.brand || ' ['
 					|| (
-						select array_to_string(array_agg(r_vdc2.amount), ' / ')
-						from ref.v_drug_components r_vdc2
-						where r_vdc2.pk_brand = r_vdc1.pk_brand
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
 					)
 				|| ']'
 			 || ')'
@@ -2239,9 +2325,9 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				|| r_vdc1.preparation || ' ('
 				|| r_vdc1.brand || ' ['
 					|| (
-						select array_to_string(array_agg(r_vdc2.amount), ' / ')
-						from ref.v_drug_components r_vdc2
-						where r_vdc2.pk_brand = r_vdc1.pk_brand
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
 					)
 				|| ']'
 			 || ')'
@@ -2262,9 +2348,9 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				|| r_vdc1.preparation || ' ('
 				|| r_vdc1.brand || ' ['
 					|| (
-						select array_to_string(array_agg(r_vdc2.amount), ' / ')
-						from ref.v_drug_components r_vdc2
-						where r_vdc2.pk_brand = r_vdc1.pk_brand
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
 					)
 				|| ']'
 			 || ')'
@@ -2274,9 +2360,9 @@ class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				|| r_vdc1.preparation || ' ('
 				|| r_vdc1.brand || ' ['
 					|| (
-						select array_to_string(array_agg(r_vdc2.amount), ' / ')
-						from ref.v_drug_components r_vdc2
-						where r_vdc2.pk_brand = r_vdc1.pk_brand
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
 					)
 				|| ']'
 			 || ')'

@@ -22,6 +22,7 @@ IMPROVED: substance intake EA: PRW_aim context dependant on substance
 IMPROVED: encounter EA: improved display of patient context
 IMPROVED: new patient EA: warn on existing external ID
 IMPROVED: new patient EA: warn on existing name + DOB
+IMPROVED: substance PRW: prefer previously used as suggestions
 
 ------------------------------------------------
 # rel-1-3-patches
