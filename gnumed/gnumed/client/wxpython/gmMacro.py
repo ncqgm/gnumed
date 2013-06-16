@@ -158,7 +158,7 @@ known_variant_placeholders = [
 											# brand (once per brand intake, even if multi-component)
 											# args: <line template>
 											#	<line_template>: template into which to insert each intake, keys from
-											#	                 clin.v_pat_substance_intake, special additional keys:
+											#	                 clin.v_substance_intakes, special additional keys:
 											#	                 %(contains)s -- list of components
 											#	                 %(amount2dispense)s -- how much/many to dispense
 	u'current_meds_table',					# "args" holds: format, options

@@ -1235,7 +1235,7 @@ class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			AS list_label,
 		aim
 			AS field_label
-	FROM clin.v_pat_substance_intake
+	FROM clin.v_substance_intakes
 	WHERE
 		aim %(fragment_condition)s
 		%(ctxt_substance)s
@@ -1247,7 +1247,7 @@ class cSubstanceAimPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			AS list_label,
 		aim
 			AS field_label
-	FROM clin.v_pat_substance_intake
+	FROM clin.v_substance_intakes
 	WHERE
 		aim %(fragment_condition)s
 )

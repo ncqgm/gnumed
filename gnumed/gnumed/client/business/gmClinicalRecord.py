@@ -773,7 +773,7 @@ order by
 			# active and approved substances == medication
 			u"""
 				SELECT count(1)
-				from clin.v_pat_substance_intake
+				from clin.v_substance_intakes
 				WHERE
 					pk_patient = %(pat)s
 					and is_currently_active in (null, true)
@@ -1343,7 +1343,7 @@ WHERE
 		else:
 			order_by = u'order by %s' % order_by
 
-		cmd = u"SELECT * FROM clin.v_pat_substance_intake WHERE %s %s" % (
+		cmd = u"SELECT * FROM clin.v_substance_intakes WHERE %s %s" % (
 			u'\nand '.join(where_parts),
 			order_by
 		)

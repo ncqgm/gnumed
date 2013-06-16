@@ -1571,7 +1571,7 @@ WHERE
 	-- must not currently be used with a patient
 	NOT EXISTS (
 		SELECT 1
-		FROM clin.v_pat_substance_intake
+		FROM clin.v_substance_intakes
 		WHERE pk_substance = %(pk)s
 		LIMIT 1
 	)
@@ -1610,7 +1610,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_pat_substance_intake
+				FROM clin.v_substance_intakes
 				WHERE pk_brand IS NULL
 			) AS normalized_intakes
 			WHERE description %(fragment_condition)s
@@ -1652,7 +1652,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_pat_substance_intake
+				FROM clin.v_substance_intakes
 				WHERE pk_brand IS NULL
 			) AS normalized_intakes
 			WHERE
@@ -1739,7 +1739,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents a substance currently taken by a patient."""
 
-	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_substance_intake WHERE pk_substance_intake = %s"
+	_cmd_fetch_payload = u"SELECT * FROM clin.v_substance_intakes WHERE pk_substance_intake = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.substance_intake SET
 				clin_when = %(started)s,
@@ -2704,7 +2704,7 @@ def delete_branded_drug(brand=None):
 				AND
 			NOT EXISTS (
 				SELECT 1
-				FROM clin.v_pat_substance_intake
+				FROM clin.v_substance_intakes
 				WHERE pk_brand = %(pk)s
 				LIMIT 1
 			)
@@ -2719,7 +2719,7 @@ def delete_branded_drug(brand=None):
 				AND
 			NOT EXISTS (
 				SELECT 1
-				FROM clin.v_pat_substance_intake
+				FROM clin.v_substance_intakes
 				WHERE pk_brand = %(pk)s
 				LIMIT 1
 			)
