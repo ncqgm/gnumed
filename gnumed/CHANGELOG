@@ -14,6 +14,7 @@ NEW: placeholder $<current_meds_for_rx>$
 NEW: list sorting by column header click [thanks J.Luszawski]
 NEW: "Grünes Rezept" for Germany
 NEW: manage your praxis with its branches
+NEW: auto-hint "GVK-GU überfällig"
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts
@@ -23,6 +24,7 @@ IMPROVED: encounter EA: improved display of patient context
 IMPROVED: new patient EA: warn on existing external ID
 IMPROVED: new patient EA: warn on existing name + DOB
 IMPROVED: substance PRW: prefer previously used as suggestions
+IMPROVED: report failing auto-hints to the user
 
 ------------------------------------------------
 # rel-1-3-patches
