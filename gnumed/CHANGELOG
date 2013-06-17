@@ -10,6 +10,7 @@
 
 FIX: exception on merging patients with identical addresses [thanks Jim]
 FIX: exception on repeatedly updating LOINC [thanks A.Maier]
+FIX: exception on getattr() in braindead-tree-items-data-access workaround [thanks V.Banait]
 
 IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
 
