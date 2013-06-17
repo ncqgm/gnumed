@@ -2347,14 +2347,11 @@ limit 1
 
 	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
 #-----------------------------------------------------------
-def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
+def create_encounter(fk_patient=None, enc_type=None):
 	"""Creates a new encounter for a patient.
 
 	fk_patient - patient PK
-	fk_location - encounter location
 	enc_type - type of encounter
-
-	FIXME: we don't deal with location yet
 	"""
 	if enc_type is None:
 		enc_type = u'in surgery'
@@ -2363,21 +2360,14 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	try:
 		enc_type = int(enc_type)
 		cmd = u"""
-			INSERT INTO clin.encounter (
-				fk_patient, fk_location, fk_type
-			) VALUES (
-				%(pat)s,
-				-1,
-				%(typ)s
-			) RETURNING pk"""
+			INSERT INTO clin.encounter (fk_patient, fk_type)
+			VALUES (%(pat)s, %(typ)s) RETURNING pk"""
 	except ValueError:
 		enc_type = enc_type
 		cmd = u"""
-			insert into clin.encounter (
-				fk_patient, fk_location, fk_type
-			) values (
+			INSERT INTO clin.encounter (fk_patient, fk_type)
+			VALUES (
 				%(pat)s,
-				-1,
 				coalesce (
 					(select pk from clin.encounter_type where description = %(typ)s),
 					-- pick the first available
@@ -2390,6 +2380,9 @@ def create_encounter(fk_patient=None, fk_location=-1, enc_type=None):
 	encounter = cEncounter(aPK_obj = rows[0]['pk'])
 
 	return encounter
+
+#-----------------------------------------------------------
+# encounter types handling
 #-----------------------------------------------------------
 def update_encounter_type(description=None, l10n_description=None):
 
@@ -2455,6 +2448,23 @@ def create_encounter_type(description=None, l10n_description=None):
 	rows, idx = gmPG2.run_rw_queries(queries = queries)
 
 	return {'description': description, 'l10n_description': l10n_description}
+
+#-----------------------------------------------------------
+def get_most_commonly_used_encounter_type():
+	cmd = u"""
+		SELECT
+			COUNT(1) AS type_count,
+			fk_type
+		FROM clin.encounter
+		GROUP BY fk_type
+		ORDER BY type_count DESC
+		LIMIT 1
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	if len(rows) == 0:
+		return None
+	return rows[0]['fk_type']
+
 #-----------------------------------------------------------
 def get_encounter_types():
 	cmd = u"""
@@ -2466,13 +2476,15 @@ def get_encounter_types():
 		ORDER BY
 			l10n_description
 	"""
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
+
 #-----------------------------------------------------------
 def get_encounter_type(description=None):
 	cmd = u"SELECT * from clin.encounter_type where description = %s"
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
 	return rows
+
 #-----------------------------------------------------------
 def delete_encounter_type(description=None):
 	cmd = u"delete from clin.encounter_type where description = %(desc)s"

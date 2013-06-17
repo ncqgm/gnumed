@@ -1839,13 +1839,17 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()
-
+		msg = _(
+			'Select the default type for new encounters.\n'
+			'\n'
+			'Leaving this unset will make GNUmed apply the most commonly used type.\n'
+		)
 		gmCfgWidgets.configure_string_from_list_option (
 			parent = self,
-			message = _('Select the default type for new encounters.\n'),
+			message = msg,
 			option = 'encounter.default_type',
 			bias = 'user',
-			default_value = u'in surgery',
+#			default_value = u'in surgery',
 			choices = [ e[0] for e in enc_types ],
 			columns = [_('Encounter type')],
 			data = [ e[1] for e in enc_types ]

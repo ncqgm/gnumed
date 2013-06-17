@@ -742,13 +742,15 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	#--------------------
 	def new():
 		cfg_db = gmCfg.cCfgSQL()
-		# FIXME: look for MRU/MCU encounter type config here
 		enc_type = cfg_db.get2 (
 			option = u'encounter.default_type',
 			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = u'user',
-			default = u'in surgery'
+			bias = u'user'
 		)
+		if enc_type is None:
+			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()
+		if enc_type is None:
+			enc_type = u'in surgery'
 		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID, enc_type = enc_type)
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------

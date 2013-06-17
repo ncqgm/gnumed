@@ -1,12 +1,8 @@
 # -*- coding: utf8 -*-
 """GNUmed clinical patient record.
 
-This is a clinical record object intended to let a useful
-client-side API crystallize from actual use in true XP fashion.
-
-Make sure to call set_func_ask_user() and set_encounter_ttl()
-early on in your code (before cClinicalRecord.__init__() is
-called for the first time).
+Make sure to call set_func_ask_user() and set_encounter_ttl() early on in
+your code (before cClinicalRecord.__init__() is called for the first time).
 """
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
@@ -1875,14 +1871,19 @@ WHERE
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
 		cfg_db = gmCfg.cCfgSQL()
-		# FIXME: look for MRU/MCU encounter type config here
 		enc_type = cfg_db.get2 (
 			option = u'encounter.default_type',
 			workplace = _here.active_workplace,
-			bias = u'user',
-			default = u'in surgery'
+			bias = u'user'
 		)
-		self.current_encounter = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
+		if enc_type is None:
+			enc_type = gmEMRStructItems.get_most_commonly_used_encounter_type()
+		if enc_type is None:
+			enc_type = u'in surgery'
+		enc = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
+		enc['pk_location'] = _here['pk_praxis_branch']
+		enc.save()
+		self.current_encounter = enc
 		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])
 	#------------------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False):
