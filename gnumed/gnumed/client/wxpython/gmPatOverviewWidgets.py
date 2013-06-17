@@ -688,7 +688,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def __refresh_meds(self, patient=None):
 		# list by brand or substance:
 		emr = patient.get_emr()
-		intakes = emr.get_current_substance_intake(include_inactive = False, include_unapproved = True, order_by = u'substance')
+		intakes = emr.get_current_substance_intakes(include_inactive = False, include_unapproved = True, order_by = u'substance')
 
 		list_items = []
 		multi_brands_already_seen = []

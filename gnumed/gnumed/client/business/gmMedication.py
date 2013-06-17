@@ -528,7 +528,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				# do fail because __export_latest_prescription() should not have been called without patient
 				return False
 			emr = self.patient.get_emr()
-			substance_intakes = emr.get_current_substance_intake (
+			substance_intakes = emr.get_current_substance_intakes (
 				include_inactive = False,
 				include_unapproved = True
 			)
@@ -1563,27 +1563,26 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 def delete_consumable_substance(substance=None):
 	args = {'pk': substance}
 	cmd = u"""
-DELETE FROM ref.consumable_substance
-WHERE
-	pk = %(pk)s
-		AND
-
-	-- must not currently be used with a patient
-	NOT EXISTS (
-		SELECT 1
-		FROM clin.v_substance_intakes
-		WHERE pk_substance = %(pk)s
-		LIMIT 1
-	)
-		AND
-
-	-- must not currently be used with a branded drug
-	NOT EXISTS (
-		SELECT 1
-		FROM ref.lnk_substance2brand
-		WHERE fk_substance = %(pk)s
-		LIMIT 1
-	)"""
+		DELETE FROM ref.consumable_substance
+		WHERE
+			pk = %(pk)s
+				AND
+			-- must not currently be used with a patient
+			NOT EXISTS (
+				SELECT 1
+				FROM clin.v_substance_intakes		-- could be row from brand or non-brand intake, so look at both
+				WHERE pk_substance = %(pk)s
+				LIMIT 1
+			)
+				AND
+			-- must not currently be used with a branded drug
+			NOT EXISTS (
+				SELECT 1
+				FROM ref.lnk_substance2brand
+				WHERE fk_substance = %(pk)s
+				LIMIT 1
+			)
+	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 #------------------------------------------------------------
@@ -1598,11 +1597,11 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			list_label,
 			rank
 		FROM ((
-			-- substance intakes which match are first
+			-- first: substance intakes which match
 			SELECT
 				pk_substance AS data,
 				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (in use)') AS list_label,
+				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
 				1 AS rank
 			FROM (
 				SELECT DISTINCT ON (description, amount, unit)
@@ -1610,20 +1609,19 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_substance_intakes
-				WHERE pk_brand IS NULL
+				FROM clin.v_nonbrand_intakes
 			) AS normalized_intakes
-			WHERE description %(fragment_condition)s
+			WHERE description %%(fragment_condition)s
 		) UNION ALL (
 			-- consumable substances which match - but are not intakes - are second
 			SELECT
 				pk AS data,
 				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (not in use)') AS list_label,
+				(description || ' ' || amount || ' ' || unit) AS list_label,
 				2 AS rank
 			FROM ref.consumable_substance
 			WHERE
-				description %(fragment_condition)s
+				description %%(fragment_condition)s
 					AND
 				pk NOT IN (
 					SELECT fk_substance
@@ -1632,7 +1630,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				)
 		)) AS candidates
 		ORDER BY rank, list_label
-		LIMIT 50"""
+		LIMIT 50""" % _('in use')
 
 	_regex_query = 	u"""
 		SELECT
@@ -1644,7 +1642,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			SELECT
 				pk_substance AS data,
 				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (in use)') AS list_label,
+				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
 				1 AS rank
 			FROM (
 				SELECT DISTINCT ON (description, amount, unit)
@@ -1652,21 +1650,20 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 					substance AS description,
 					amount,
 					unit
-				FROM clin.v_substance_intakes
-				WHERE pk_brand IS NULL
+				FROM clin.v_nonbrand_intakes
 			) AS normalized_intakes
 			WHERE
-				%(fragment_condition)s
+				%%(fragment_condition)s
 		) UNION ALL (
 			-- matching substances which are not in intakes
 			SELECT
 				pk AS data,
 				(description || ' ' || amount || ' ' || unit) AS field_label,
-				(description || ' ' || amount || ' ' || unit || ' (not in use)') AS list_label,
+				(description || ' ' || amount || ' ' || unit) AS list_label,
 				2 AS rank
 			FROM ref.consumable_substance
 			WHERE
-				%(fragment_condition)s
+				%%(fragment_condition)s
 					AND
 				pk NOT IN (
 					SELECT fk_substance
@@ -1675,7 +1672,7 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 				)
 		)) AS candidates
 		ORDER BY rank, list_label
-		LIMIT 50"""
+		LIMIT 50""" % _('in use')
 
 	#--------------------------------------------------------
 	def getMatchesByPhrase(self, aFragment):
@@ -2131,7 +2128,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex += u'%s\n'
 	tex += u'\\end{tabularx}\n\n'
 
-	current_meds = emr.get_current_substance_intake (
+	current_meds = emr.get_current_substance_intakes (
 		include_inactive = False,
 		include_unapproved = False,
 		order_by = u'brand, substance'
@@ -2172,7 +2169,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	tex += u'%s\n'
 	tex += u'\\end{tabularx}\n'
 
-	current_meds = emr.get_current_substance_intake (
+	current_meds = emr.get_current_substance_intakes (
 		include_inactive = False,
 		include_unapproved = False,
 		order_by = u'brand, substance'
@@ -2704,7 +2701,7 @@ def delete_branded_drug(brand=None):
 				AND
 			NOT EXISTS (
 				SELECT 1
-				FROM clin.v_substance_intakes
+				FROM clin.v_brand_intakes
 				WHERE pk_brand = %(pk)s
 				LIMIT 1
 			)
@@ -2719,7 +2716,7 @@ def delete_branded_drug(brand=None):
 				AND
 			NOT EXISTS (
 				SELECT 1
-				FROM clin.v_substance_intakes
+				FROM clin.v_brand_intakes
 				WHERE pk_brand = %(pk)s
 				LIMIT 1
 			)
@@ -2807,7 +2804,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
-		fd.check_interactions(substances = fd.patient.get_emr().get_current_substance_intake(include_unapproved = True))
+		fd.check_interactions(substances = fd.patient.get_emr().get_current_substance_intakes(include_unapproved = True))
 	#--------------------------------------------------------
 	# generic
 	#--------------------------------------------------------

@@ -467,7 +467,7 @@ def create_timeline_file(patient=None, filename=None):
 		timeline.write(__format_vaccination_as_timeline_xml(vacc))
 
 	timeline.write(u'\n<!--\n========================================\n Substance intakes\n======================================== -->')
-	for intake in emr.get_current_substance_intake(include_inactive = True, include_unapproved = False):
+	for intake in emr.get_current_substance_intakes(include_inactive = True, include_unapproved = False):
 		timeline.write(__format_intake_as_timeline_xml(intake))
 
 	timeline.write(u'\n<!--\n========================================\n Documents\n======================================== -->')

@@ -1328,28 +1328,27 @@ WHERE
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------
-	def get_current_substance_intake(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None):
+	def get_current_substance_intakes(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None):
 
 		where_parts = [u'pk_patient = %(pat)s']
+		args = {'pat': self.pk_patient}
 
 		if not include_inactive:
-			where_parts.append(u'is_currently_active in (true, null)')
+			where_parts.append(u'is_currently_active IN (true, null)')
 
 		if not include_unapproved:
-			where_parts.append(u'intake_is_approved_of in (true, null)')
+			where_parts.append(u'intake_is_approved_of IN (true, null)')
 
 		if order_by is None:
 			order_by = u''
 		else:
-			order_by = u'order by %s' % order_by
+			order_by = u'ORDER BY %s' % order_by
 
 		cmd = u"SELECT * FROM clin.v_substance_intakes WHERE %s %s" % (
-			u'\nand '.join(where_parts),
+			u'\nAND '.join(where_parts),
 			order_by
 		)
-
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': self.pk_patient}}], get_col_idx = True)
-
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		meds = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
 
 		if episodes is not None:
@@ -2420,7 +2419,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
-		for med in emr.get_current_substance_intake():
+		for med in emr.get_current_substance_intakes():
 			print med
 	#-----------------------------------------
 	def test_is_allergic_to():

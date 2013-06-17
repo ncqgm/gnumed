@@ -1343,7 +1343,7 @@ def manage_substance_intakes(parent=None, emr=None):
 		return intake.format(one_line = False, show_all_brand_components = True)
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		intakes = emr.get_current_substance_intake (
+		intakes = emr.get_current_substance_intakes (
 			include_inactive = False,
 			include_unapproved = True,
 			order_by = u'substance, brand, started'
@@ -2315,7 +2315,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 	if len(prescribed_drugs) == 0:
 		return
 
-	curr_brands =  [ i['pk_brand'] for i in emr.get_current_substance_intake() if i['pk_brand'] is not None ]
+	curr_brands =  [ i['pk_brand'] for i in emr.get_current_substance_intakes() if i['pk_brand'] is not None ]
 	new_drugs = []
 	for drug in prescribed_drugs:
 		if drug['pk_brand'] not in curr_brands:
@@ -2487,7 +2487,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 			return
 
 		emr = self.__patient.get_emr()
-		meds = emr.get_current_substance_intake (
+		meds = emr.get_current_substance_intakes (
 			order_by = self.__grouping2order_by_clauses[self.__grouping_mode],
 			include_unapproved = self.__filter_show_unapproved,
 			include_inactive = self.__filter_show_inactive
