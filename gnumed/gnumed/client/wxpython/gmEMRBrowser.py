@@ -280,11 +280,11 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		except wx.PyAssertionError:
 			node_data = None		# fake a root node
 			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
-			_log.debug('real node: %s', self.__curr_node)
-			_log.debug('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
-			_log.debug('is root node: %s', self.__curr_node == self.GetRootItem())
-			_log.debug('node.m_pItem: %s', getattr(self.__curr_node.m_pItem), '<NO SUCH ATTRIBUTE>')
-			_log.debug('node attributes: %s', dir(self.__curr_node))
+			_log.error('real node: %s', self.__curr_node)
+			_log.error('node.IsOk(): %s', self.__curr_node.IsOk())		# already survived this further up
+			_log.error('is root node: %s', self.__curr_node == self.GetRootItem())
+			_log.error('node.m_pItem: %s', getattr(self.__curr_node, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
+			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
 		doc_folder = self.__pat.get_document_folder()
 
