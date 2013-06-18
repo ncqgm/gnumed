@@ -1881,7 +1881,7 @@ WHERE
 		if enc_type is None:
 			enc_type = u'in surgery'
 		enc = gmEMRStructItems.create_encounter(fk_patient = self.pk_patient, enc_type = enc_type)
-		enc['pk_location'] = _here['pk_praxis_branch']
+		enc['pk_org_unit'] = _here['pk_org_unit']
 		enc.save()
 		self.current_encounter = enc
 		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])

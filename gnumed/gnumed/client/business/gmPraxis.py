@@ -108,6 +108,15 @@ def get_praxis_branches(order_by=None):
 	return [ cPraxisBranch(row = {'data': r, 'idx': idx, 'pk_field': 'pk_praxis_branch'}) for r in rows ]
 
 #------------------------------------------------------------
+def get_praxis_branch_by_org_unit(pk_org_unit=None):
+	cmd = _SQL_get_praxis_branches % u'pk_org_unit = %(pk_ou)s'
+	args = {'pk_ou': pk_org_unit}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPraxisBranch(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_praxis_branch'})
+
+#------------------------------------------------------------
 def create_praxis_branch(pk_org_unit=None):
 
 	args = {u'fk_unit': pk_org_unit}

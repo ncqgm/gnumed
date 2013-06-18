@@ -22,6 +22,8 @@ from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmCoding
+from Gnumed.business import gmPraxis
+from Gnumed.business import gmOrganization
 
 
 _log = logging.getLogger('gm.emr')
@@ -1500,7 +1502,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		u"""UPDATE clin.encounter SET
 				started = %(started)s,
 				last_affirmed = %(last_affirmed)s,
-				fk_location = %(pk_location)s,
+				fk_location = %(pk_org_unit)s,
 				fk_type = %(pk_type)s,
 				reason_for_encounter = gm.nullify_empty_string(%(reason_for_encounter)s),
 				assessment_of_encounter = gm.nullify_empty_string(%(assessment_of_encounter)s)
@@ -1514,7 +1516,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'started',
 		'last_affirmed',
-		'pk_location',
+		'pk_org_unit',
 		'pk_type',
 		'reason_for_encounter',
 		'assessment_of_encounter'
@@ -1565,7 +1567,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	def same_payload(self, another_object=None):
 
 		relevant_fields = [
-			'pk_location',
+			'pk_org_unit',
 			'pk_type',
 			'pk_patient',
 			'reason_for_encounter',
@@ -1920,63 +1922,72 @@ limit 1
 
 		return tex
 	#--------------------------------------------------------
+	def __format_header_fancy(self, left_margin=0):
+		lines = []
+
+		lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
+			u' ' * left_margin,
+			self._payload[self._idx['l10n_type']],
+			self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
+			self._payload[self._idx['source_time_zone']],
+			gmTools.coalesce (
+				self._payload[self._idx['assessment_of_encounter']],
+				u'',
+				u' %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
+			),
+			self._payload[self._idx['pk_encounter']]
+		))
+
+		lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
+			self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
+			self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
+			gmDateTime.current_local_iso_numeric_timezone_string,
+			gmTools.bool2subst (
+				gmDateTime.dst_currently_in_effect,
+				gmDateTime.py_dst_timezone_name,
+				gmDateTime.py_timezone_name
+			),
+			gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
+		))
+
+		if self._payload[self._idx['praxis_branch']] is not None:
+			lines.append(_('Location: %s (%s)') % (self._payload[self._idx['praxis_branch']], self._payload[self._idx['praxis']]))
+
+		if self._payload[self._idx['reason_for_encounter']] is not None:
+			lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
+			codes = self.generic_codes_rfe
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			if len(codes) > 0:
+				lines.append(u'')
+
+		if self._payload[self._idx['assessment_of_encounter']] is not None:
+			lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
+			codes = self.generic_codes_aoe
+			for c in codes:
+				lines.append(u' %s: %s (%s - %s)' % (
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				))
+			if len(codes) > 0:
+				lines.append(u'')
+			del codes
+		return lines
+
+	#--------------------------------------------------------
 	def format_header(self, fancy_header=True, left_margin=0, with_rfe_aoe=False):
 		lines = []
 
 		if fancy_header:
-			lines.append(u'%s%s: %s - %s (@%s)%s [#%s]' % (
-				u' ' * left_margin,
-				self._payload[self._idx['l10n_type']],
-				self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M'),
-				self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
-				self._payload[self._idx['source_time_zone']],
-				gmTools.coalesce (
-					self._payload[self._idx['assessment_of_encounter']],
-					u'',
-					u' %s%%s%s' % (gmTools.u_left_double_angle_quote, gmTools.u_right_double_angle_quote)
-				),
-				self._payload[self._idx['pk_encounter']]
-			))
-
-			lines.append(_('  your time: %s - %s  (@%s = %s%s)\n') % (
-				self._payload[self._idx['started']].strftime('%Y-%m-%d %H:%M'),
-				self._payload[self._idx['last_affirmed']].strftime('%H:%M'),
-				gmDateTime.current_local_iso_numeric_timezone_string,
-				gmTools.bool2subst (
-					gmDateTime.dst_currently_in_effect,
-					gmDateTime.py_dst_timezone_name,
-					gmDateTime.py_timezone_name
-				),
-				gmTools.bool2subst(gmDateTime.dst_currently_in_effect, u' - ' + _('daylight savings time in effect'), u'')
-			))
-
-			if self._payload[self._idx['reason_for_encounter']] is not None:
-				lines.append(u'%s: %s' % (_('RFE'), self._payload[self._idx['reason_for_encounter']]))
-				codes = self.generic_codes_rfe
-				for c in codes:
-					lines.append(u' %s: %s (%s - %s)' % (
-						c['code'],
-						c['term'],
-						c['name_short'],
-						c['version']
-					))
-				if len(codes) > 0:
-					lines.append(u'')
-
-			if self._payload[self._idx['assessment_of_encounter']] is not None:
-				lines.append(u'%s: %s' % (_('AOE'), self._payload[self._idx['assessment_of_encounter']]))
-				codes = self.generic_codes_aoe
-				for c in codes:
-					lines.append(u' %s: %s (%s - %s)' % (
-						c['code'],
-						c['term'],
-						c['name_short'],
-						c['version']
-					))
-				if len(codes) > 0:
-					lines.append(u'')
-				del codes
-			return lines
+			return self.__format_header_fancy(left_margin = left_margin)
 
 		now = gmDateTime.pydt_now_here()
 		if now.strftime('%Y-%m-%d') == self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d'):
@@ -1986,12 +1997,13 @@ limit 1
 			)
 		else:
 			start = self._payload[self._idx['started_original_tz']].strftime('%Y-%m-%d %H:%M')
-		lines.append(u'%s%s: %s - %s%s' % (
+		lines.append(u'%s%s: %s - %s%s%s' % (
 			u' ' * left_margin,
 			self._payload[self._idx['l10n_type']],
 			start,
 			self._payload[self._idx['last_affirmed_original_tz']].strftime('%H:%M'),
-			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB')
+			gmTools.coalesce(self._payload[self._idx['assessment_of_encounter']], u'', u' \u00BB%s\u00AB'),
+			gmTools.coalesce(self._payload[self._idx['praxis_branch']], u'', u' @%s')
 		))
 		if with_rfe_aoe:
 			if self._payload[self._idx['reason_for_encounter']] is not None:
@@ -2346,6 +2358,21 @@ limit 1
 		return
 
 	generic_codes_aoe = property(_get_generic_codes_aoe, _set_generic_codes_aoe)
+	#--------------------------------------------------------
+	def _get_praxis_branch(self):
+		if self._payload[self._idx['pk_org_unit']] is None:
+			return None
+		return gmPraxis.get_praxis_branch_by_org_unit(pk_org_unit = self._payload[self._idx['pk_org_unit']])
+
+	praxis_branch = property(_get_praxis_branch, lambda x:x)
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		if self._payload[self._idx['pk_org_unit']] is None:
+			return None
+		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
+
+	org_unit = property(_get_org_unit, lambda x:x)
+
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, enc_type=None):
 	"""Creates a new encounter for a patient.

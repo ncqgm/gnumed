@@ -39,6 +39,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmMatchProvider
 
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmStaff
@@ -50,6 +51,7 @@ from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmCfgWidgets
+from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.praxis')
@@ -571,6 +573,47 @@ def manage_praxis_branches(parent=None):
 
 	while not set_active_praxis_branch(parent = parent):
 		pass
+
+#============================================================
+class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+		query = u"""
+			SELECT
+				pk_praxis_branch AS data,
+				branch || ' (' || praxis || ')' AS field_label,
+				branch || coalesce(' (' || l10n_unit_category || ')', '') || ' of ' || l10n_organization_category || ' "' || praxis || '"' AS list_label
+			FROM
+				dem.v_praxis_branches
+			WHERE
+				branch %(fragment_condition)s
+					OR
+				praxis %(fragment_condition)s
+					OR
+				l10n_unit_category %(fragment_condition)s
+			ORDER BY
+				list_label
+			LIMIT 50
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_("Select a praxis branch."))
+		self.matcher = mp
+		self.selection_only = True
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		branch = self._data2instance()
+		if branch is None:
+			return None
+		return branch.format()
+	#--------------------------------------------------------
+	def _data2instance(self):
+		if self.GetData() is None:
+			return None
+		return gmPraxis.cPraxisBranch(aPK_obj = self.GetData())
 
 #============================================================
 # main

@@ -715,31 +715,6 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	emr = patient.get_emr()
 
 	#--------------------
-	def refresh(lctrl):
-		if encounters is None:
-			encs = emr.get_encounters()
-		else:
-			encs = encounters
-
-		items = [
-			[
-				gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'),
-				e['last_affirmed'].strftime('%H:%M'),
-				e['l10n_type'],
-				gmTools.coalesce(e['reason_for_encounter'], u''),
-				gmTools.coalesce(e['assessment_of_encounter'], u''),
-				gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
-				e['pk_encounter']
-			] for e in encs
-		]
-		lctrl.set_string_items(items = items)
-		lctrl.set_data(data = encs)
-		active_pk = emr.active_encounter['pk_encounter']
-		for idx in range(len(encs)):
-			e = encs[idx]
-			if e['pk_encounter'] == active_pk:
-				lctrl.SetItemTextColour(idx, col=wx.NamedColour('RED'))
-	#--------------------
 	def new():
 		cfg_db = gmCfg.cCfgSQL()
 		enc_type = cfg_db.get2 (
@@ -764,20 +739,62 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		start_new_encounter(emr = emr)
 		return True
 	#--------------------
+	def get_tooltip(data):
+		if data is None:
+			return None
+		return data.format (
+			patient = patient,
+			with_soap = False,
+			with_docs = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_rfe_aoe = True,
+			with_family_history = False,
+			by_episode=False,
+			fancy_header = True,
+		)
+	#--------------------
+	def refresh(lctrl):
+		if encounters is None:
+			encs = emr.get_encounters()
+		else:
+			encs = encounters
+
+		items = [
+			[
+				u'%s - %s' % (gmDateTime.pydt_strftime(e['started'], '%Y %b %d  %H:%M'), e['last_affirmed'].strftime('%H:%M')),
+				e['l10n_type'],
+				gmTools.coalesce(e['praxis_branch'], u''),
+				gmTools.coalesce(e['reason_for_encounter'], u''),
+				gmTools.coalesce(e['assessment_of_encounter'], u''),
+				gmTools.bool2subst(e.has_clinical_data(), u'', gmTools.u_checkmark_thin),
+				e['pk_encounter']
+			] for e in encs
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = encs)
+		active_pk = emr.active_encounter['pk_encounter']
+		for idx in range(len(encs)):
+			e = encs[idx]
+			if e['pk_encounter'] == active_pk:
+				lctrl.SetItemTextColour(idx, col=wx.NamedColour('RED'))
+	#--------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _("The patient's encounters.\n"),
 		caption = _('Encounters ...'),
-		columns = [_('Started'), _('Ended'), _('Type'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
+		columns = [_('When'), _('Type'), _('Where'), _('Reason for Encounter'), _('Assessment of Encounter'), _('Empty'), '#'],
 		can_return_empty = False,
 		single_selection = single_selection,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = new,
+		list_tooltip_callback = get_tooltip,
 		ignore_OK_button = ignore_OK_button,
 		left_extra_button = (_('Edit active'), _('Edit the active encounter'), edit_active),
 		middle_extra_button = (_('Start new'), _('Start new active encounter for the current patient.'), start_new)
 	)
+
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):
 	"""This is used as the callback when the EMR detects that the
@@ -1100,7 +1117,20 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 			else:
 				self._LBL_patient.SetForegroundColour('red')
 
-		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data=self.__encounter['pk_type'])
+		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data = self.__encounter['pk_type'])
+		self._PRW_location.Enable(True)
+		self._PRW_location.display_as_disabled(False)
+		branch = self.__encounter.praxis_branch
+		if branch is None:		# None or old entry because praxis has been re-configured
+			unit = self.__encounter.org_unit
+			if unit is None:							# None
+				self._PRW_location.SetText(u'', data = None)
+			else:										# old entry
+				self._PRW_location.Enable(False)
+				self._PRW_location.display_as_disabled(True)
+				self._PRW_location.SetText(_('old praxis branch: %s (%s)') % (unit['unit'], unit['organization']), data = None)
+		else:
+			self._PRW_location.SetText(self.__encounter['praxis_branch'], data = branch['pk_praxis_branch'])
 
 		fts = gmDateTime.cFuzzyTimestamp (
 			timestamp = self.__encounter['started'],

@@ -1348,7 +1348,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 #			'pk_type': enc['pk_type'],
 #			'reason_for_encounter': gmTools.none_if(self._TCTRL_rfe.GetValue().strip(), u''),
 #			'assessment_of_encounter': gmTools.none_if(self._TCTRL_aoe.GetValue().strip(), u''),
-#			'pk_location': enc['pk_location'],
+#			'pk_location': enc['pk_org_unit'],
 #			'pk_patient': enc['pk_patient'],
 #			'pk_generic_codes_rfe': self._PRW_rfe_codes.GetData(),
 #			'pk_generic_codes_aoe': self._PRW_aoe_codes.GetData(),
