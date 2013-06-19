@@ -54,7 +54,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 	def __get_patient_pk_column(self, data=None):
 		if self.patient_key is not None:
 			try:
-				data[self.pk_patient]
+				data[self.patient_key]
 				return self.patient_key
 			except (KeyError, IndexError, TypeError):
 				_log.error('misconfigured identifier column <%s>', self.patient_key)
@@ -64,8 +64,17 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 		if data.has_key('pk_patient'):
 			return u'pk_patient'
 
+		if data.has_key('fk_patient'):
+			return u'fk_patient'
+
 		if data.has_key('pk_identity'):
 			return u'pk_identity'
+
+		if data.has_key('fk_identity'):
+			return u'fk_identity'
+
+		if data.has_key('id_identity'):
+			return u'id_identity'
 
 		return gmListWidgets.get_choices_from_list (
 			parent = self,
@@ -84,7 +93,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 	# event handling
 	#------------------------------------------------------------
 	def _on_list_item_activated(self, evt):
-		data = self.get_selected_item_data(only_one=True)
+		data = self.get_selected_item_data(only_one = True)
 		pk_pat_col = self.__get_patient_pk_column(data = data)
 
 		if pk_pat_col is None:

@@ -11,6 +11,7 @@
 FIX: exception on merging patients with identical addresses [thanks Jim]
 FIX: exception on repeatedly updating LOINC [thanks A.Maier]
 FIX: exception on getattr() in braindead-tree-items-data-access workaround [thanks V.Banait]
+FIX: exception on detecting patient ID column in patient listing ctrl [thanks Marc]
 
 IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
 
