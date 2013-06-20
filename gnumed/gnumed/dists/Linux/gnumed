@@ -38,7 +38,13 @@ fi
 # packages which install the GNUmed python modules into a path not
 # already accessible for imports via sys.path (say, /usr/share/gnumed/)
 # may need to adjust PYTHONPATH appropriately here
-#export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/usr/share/gnumed/"
+#export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}/usr/share/gnumed/:/usr/share/gnumed/Gnumed/"
+
+
+# packages which install the GNUmed helper scripts into a
+# path not already accessible via PATH (say, /usr/share/gnumed/bin)
+# may need to adjust PATH appropriately here
+#export PATH="${PATH}:/usr/share/gnumed/bin"
 
 
 # now run the client
