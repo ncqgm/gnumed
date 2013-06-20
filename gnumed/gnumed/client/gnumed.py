@@ -181,6 +181,8 @@ def setup_python_path():
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
 	)
 
+	print ' (%s)' % local_python_base_dir
+
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)
 	link_name = os.path.join(local_python_base_dir, 'Gnumed')
