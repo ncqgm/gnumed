@@ -550,8 +550,22 @@ def manage_praxis_branches(parent=None):
 	picks = picker.picks
 	picker.Destroy()
 
+	failed_delete_msg = _(
+		'Cannot delete praxis branch(es).\n'
+		'\n'
+		'There are probably clients logged in\n'
+		'from other locations. You need to log out\n'
+		'all but this client before the praxis can\n'
+		'be reconfigured.'
+	)
+
 	if len(picks) == 0:
-		gmPraxis.delete_praxis_branches()
+		if not gmPraxis.delete_praxis_branches():
+			gmGuiHelpers.gm_show_error (
+				error = failed_delete_msg,
+				title = _('Configuring praxis ...')
+			)
+			return False
 		while not set_active_praxis_branch(parent = parent):
 			pass
 		return
@@ -562,9 +576,19 @@ def manage_praxis_branches(parent=None):
 		if b['pk_org_unit'] in pk_picked_units
 	]
 	if len(pk_branches_to_keep) == 0:
-		gmPraxis.delete_praxis_branches()
+		if not gmPraxis.delete_praxis_branches():
+			gmGuiHelpers.gm_show_error (
+				error = failed_delete_msg,
+				title = _('Configuring praxis ...')
+			)
+			return False
 	else:
-		gmPraxis.delete_praxis_branches(except_pk_praxis_branches = pk_branches_to_keep)
+		if not gmPraxis.delete_praxis_branches(except_pk_praxis_branches = pk_branches_to_keep):
+			gmGuiHelpers.gm_show_error (
+				error = failed_delete_msg,
+				title = _('Configuring praxis ...')
+			)
+			return False
 	gmPraxis.create_praxis_branches(pk_org_units = pk_picked_units)
 
 	# detect whether active branch in kept branches

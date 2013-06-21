@@ -861,6 +861,67 @@ def is_pg_interval(candidate=None):
 			return True
 		except:
 			return False
+
+#------------------------------------------------------------------------
+def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
+	"""Uses pg_advisory(_shared).
+
+	- locks stack and need one unlock per lock
+	- same connection:
+		- all locks succeed
+	- different connections:
+		- shared + shared succeed
+		- shared + exclusive fail
+	"""
+	_log.debug('locking row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
+	if exclusive:
+		cmd = u"""SELECT pg_try_advisory_lock('%s'::regclass::oid::int, %s)""" % (table, pk)
+	else:
+		cmd = u"""SELECT pg_try_advisory_lock_shared('%s'::regclass::oid::int, %s)""" % (table, pk)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	if rows[0][0]:
+		return True
+	_log.warning('cannot lock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
+	return False
+
+#------------------------------------------------------------------------
+def unlock_row(link_obj=None, table=None, pk=None, exclusive=False):
+	"""Uses pg_advisory_unlock(_shared).
+
+	- each lock needs one unlock
+	"""
+	_log.debug('trying to unlock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
+	if exclusive:
+		cmd = u"SELECT pg_advisory_unlock('%s'::regclass::oid::int, %s)" % (table, pk)
+	else:
+		cmd = u"SELECT pg_advisory_unlock_shared('%s'::regclass::oid::int, %s)" % (table, pk)
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = False)
+	if rows[0][0]:
+		return True
+	_log.warning('cannot unlock row: [%s] [%s] (exclusive: %s)', table, pk, exclusive)
+	return False
+
+#------------------------------------------------------------------------
+def row_is_locked(table=None, pk=None):
+	"""Looks at pk_locks
+
+	- does not take into account locks other than 'advisory', however
+	"""
+	cmd = u"""SELECT EXISTS (
+		SELECT 1 FROM pg_locks WHERE
+			classid = '%s'::regclass::oid::int
+				AND
+			objid = %s
+				AND
+			locktype = 'advisory'
+	)""" % (table, pk)
+	rows, idx = run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	if rows[0][0]:
+		_log.debug('row is locked: [%s] [%s]', table, pk)
+		return True
+	_log.debug('row is NOT locked: [%s] [%s]', table, pk)
+	return False
+
 #------------------------------------------------------------------------
 def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, data_size_query=None):
 	outfile = file(filename, 'wb')
@@ -2103,7 +2164,44 @@ if __name__ == "__main__":
 	#--------------------------------------------------------------------
 	def test_schema_exists():
 		print schema_exists()
+	#--------------------------------------------------------------------
+	def test_row_locks():
+		row_is_locked(table = 'dem.identity', pk = 12)
 
+		print "1st connection:"
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print " 1st shared lock succeeded:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+
+		print "   2nd shared lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = False)
+		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print "   exclusive lock should succeed:", lock_row(table = 'dem.identity', pk = 12, exclusive = True)
+		print "   `-> unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = True)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+
+		print "2nd connection:"
+		conn = get_raw_connection(readonly=True)
+		print " shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
+		print " `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print " exclusive lock succeeded ?", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True), "(should fail)"
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+
+		print "1st connection:"
+		print " unlock succeeded:", unlock_row(table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+
+		print "2nd connection:"
+		print " exclusive lock should succeed", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = True)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print "  shared lock should succeed:", lock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
+		print "  `-> unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+		print " unlock succeeded:", unlock_row(link_obj = conn, table = 'dem.identity', pk = 12, exclusive = False)
+		print " locked:", row_is_locked(table = 'dem.identity', pk = 12)
+
+		conn.close()
 	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
@@ -2121,6 +2219,7 @@ if __name__ == "__main__":
 	#test_set_user_language()
 	#test_get_schema_revision_history()
 	#test_run_query()
-	test_schema_exists()
+	#test_schema_exists()
+	test_row_locks()
 
 # ======================================================================

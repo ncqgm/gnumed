@@ -84,6 +84,12 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		txt += u'\n '.join(self.org_unit.format(with_address = True, with_org = True, with_comms = True))
 		return txt
 	#--------------------------------------------------------
+	def lock(self, exclusive=False):
+		return lock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+	#--------------------------------------------------------
+	def unlock(self, exclusive=False):
+		return unlock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_org_unit(self):
@@ -95,6 +101,14 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
 
 	organization = property(_get_org, lambda x:x)
+
+#------------------------------------------------------------
+def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
+	return gmPG2.lock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
+
+#------------------------------------------------------------
+def unlock_praxis_branch(pk_praxis_branch=None, exclusive=False):
+	return gmPG2.unlock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
 
 #------------------------------------------------------------
 def get_praxis_branches(order_by=None):
@@ -155,13 +169,32 @@ def create_praxis_branches(pk_org_units=None):
 
 #------------------------------------------------------------
 def delete_praxis_branch(pk_praxis_branch=None):
+	if not lock_praxis_branch(pk_praxis_branch = pk_praxis_branch, exclusive = True):
+		return False
 	args = {'pk': pk_praxis_branch}
 	cmd = u"DELETE FROM dem.praxis_branch WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	unlock_praxis_branch(pk_praxis_branch = pk_praxis_branch, exclusive = True)
 	return True
 
 #------------------------------------------------------------
 def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=None):
+
+	if pk_praxis_branches is None:
+		cmd = u'SELECT pk from dem.praxis_branch'
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+		pks_to_lock = [ r[0] for r in rows ]
+	else:
+		pks_to_lock = pk_praxis_branches[:]
+
+	for pk in except_pk_praxis_branches:
+		try: pks_to_lock.remove(pk)
+		except ValueError: pass
+
+	for pk in pks_to_lock:
+		if not lock_praxis_branch(pk_praxis_branch = pk, exclusive = True):
+			return False
+
 	args = {}
 	where_parts = []
 
@@ -179,6 +212,8 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 		cmd = u"DELETE FROM dem.praxis_branch WHERE %s" % u' AND '.join(where_parts)
 
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	for pk in pks_to_lock:
+		unlock_praxis_branch(pk_praxis_branch = pk, exclusive = True)
 	return True
 
 #============================================================
@@ -201,6 +236,10 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 			_log.error('cannot set current praxis branch to [%s], must be a cPraxisBranch instance' % str(branch))
 			raise TypeError, 'gmPraxis.gmCurrentPraxisBranch.__init__(): <branch> must be a cPraxisBranch instance but is: %s' % str(branch)
 
+		if self.branch is not None:
+			self.branch.unlock()
+
+		branch.lock()
 		self.branch = branch
 		_log.debug('current praxis branch now: %s', self.branch)
 
