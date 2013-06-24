@@ -40,6 +40,7 @@ from Gnumed.business import gmPathLab
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmKeywordExpansion
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmNarrativeWidgets
@@ -52,6 +53,7 @@ from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 from Gnumed.wxpython import gmMeasurementWidgets
+from Gnumed.wxpython import gmPraxisWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -200,6 +202,14 @@ known_variant_placeholders = [
 	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
 	u'primary_praxis_provider',				# primary provider for current patient in this praxis
 	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
+
+	# praxis related:
+	u'praxis',								# args: <template>//select
+											#	template:		something %(field)s something else,
+											#					(do not include "//" itself in the template),
+											#	select:			if this is present allow selection of the
+											#					branch rather than using the current branch
+	u'praxis_address',						# args: <optional formatting template>
 
 	# billing related:
 	u'bill',								# args: template for string replacement
@@ -922,7 +932,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
-		# self._escape(comms[0]['url'])
 	#--------------------------------------------------------
 	def _get_variant_patient_photo(self, data=None):
 
@@ -977,6 +986,66 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 #	#--------------------------------------------------------
 #	def _get_variant_patient_tags_table(self, data=u'?'):
 #		pass
+	#--------------------------------------------------------
+	# praxis related placeholders
+	#--------------------------------------------------------
+	def _get_variant_praxis(self, data=None):
+		options = data.split(u'//')
+
+		if u'select' in options:
+			options.remove(u'select')
+			branch = 'select branch'
+		else:
+			branch = gmPraxis.cPraxisBranch(aPK_obj = gmPraxis.gmCurrentPraxisBranch()['pk_praxis_branch'])
+
+		template = u'%s'
+		if len(options) > 0:
+			template = options[0]
+		if template.strip() == u'':
+			template = u'%s'
+
+		return template % branch.fields_as_dict(escape_style = self.__esc_style)
+
+	#--------------------------------------------------------
+	def _get_variant_praxis_address(self, data=u''):
+
+		options = data.split(u'//')
+
+		# formatting template
+		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
+		if len(options) > 0:
+			if options[0].strip() != u'':
+				template = options[0]
+
+		adr = gmPraxis.gmCurrentPraxisBranch().address
+		if adr is None:
+			if self.debug:
+				return _('no address recorded')
+			return u''
+		try:
+			return template % adr.fields_as_dict(escape_style = self.__esc_style)
+		except StandardError:
+			_log.exception('error formatting address')
+			_log.error('template: %s', template)
+
+		return None
+	#--------------------------------------------------------
+	def _get_variant_praxis_comm(self, data=None):
+		options = data.split(u'//')
+		comm_type = options[0]
+		template = u'%(url)s'
+		if len(options) > 1:
+			template = options[1]
+
+		comms = gmPraxis.gmCurrentPraxisBranch().get_comm_channels(comm_medium = comm_type)
+		if len(comms) == 0:
+			if self.debug:
+				return template + u': ' + self._escape(_('no URL for comm channel [%s]') % data)
+			return u''
+
+		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
+	#--------------------------------------------------------
+	# provider related placeholders
 	#--------------------------------------------------------
 	def _get_variant_current_provider(self, data=None):
 		prov = gmStaff.gmCurrentProvider()
@@ -1913,17 +1982,19 @@ if __name__ == '__main__':
 			#u'$<test_results:://%c::>$'
 			#u'$<test_results::%(unified_abbrev)s: %(unified_val)s %(val_unit)s//%c::>$'
 			#u'$<reminders:://::>$'
-			u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
+			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
+			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
+			u'$<praxis_address::::120>$'
 		]
 
 		handler = gmPlaceholderHandler()
 		handler.debug = True
 
 		gmStaff.set_current_provider_to_logged_on_user()
+		gmPraxisWidgets.set_active_praxis_branch(no_parent = True)
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
-
 		gmPatSearchWidgets.set_active_patient(patient = pat)
 
 		app = wx.PyWidgetTester(size = (200, 50))

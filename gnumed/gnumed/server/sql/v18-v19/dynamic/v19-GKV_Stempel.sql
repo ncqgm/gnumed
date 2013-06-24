@@ -28,24 +28,22 @@ insert into ref.keyword_expansion (
 % debug:
 %\put(\stempeloffsetx,\stempeloffsety){.+ (Stempelwurzel)}
 
-\put(\stempeloffsetx,\stempeloffsety){
-	{\tiny
-	BSNR:$<current_provider_external_id::%s//KV-BSNR//KV::25>$ / 
-	LANR:$<current_provider_external_id::%s//KV-LANR//KV::25>$
-	}
-}
+\put(\stempeloffsetx,\stempeloffsety){{\tiny BSNR:$<current_provider_external_id::%s//KV-BSNR//KV::25>$ / LANR:$<current_provider_external_id::%s//KV-LANR//KV::25>$}}
 
 \advance\stempeloffsety by -4
-\put(\stempeloffsetx,\stempeloffsety){$<current_provider::::>$}
+\put(\stempeloffsetx,\stempeloffsety){$<current_provider::::40>$, {\small FA für $[Facharzt für ?]$}}
 
 \advance\stempeloffsety by -5
-\put(\stempeloffsetx,\stempeloffsety){FA für $[Facharzt für ?]$}
+\put(\stempeloffsetx,\stempeloffsety){{\tiny $<praxis::%(praxis)s: %(branch)s::100>$}}
 
 \advance\stempeloffsety by -5
-\put(\stempeloffsetx,\stempeloffsety){$[Praxis: Straße & Hausnummer]$}
+\put(\stempeloffsetx,\stempeloffsety){{\tiny $<praxis_address::%(street)s %(number)s::80>$}}
 
 \advance\stempeloffsety by -5
-\put(\stempeloffsetx,\stempeloffsety){$[Praxis: PLZ & Ort]$}
+\put(\stempeloffsetx,\stempeloffsety){{\tiny $<praxis_address::%(postcode)s %(urb)s::80>$}}
+
+\advance\stempeloffsety by -5
+\put(\stempeloffsetx,\stempeloffsety){{\small $<praxis_comm::workphone//fon %(url)s::80>$; $<praxis_comm::fax//fax %(url)s::80>$; $<praxis_comm::email//%(url)s::80>$}}
 %----- Stempel ---------------
 '
 );

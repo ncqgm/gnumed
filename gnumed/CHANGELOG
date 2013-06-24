@@ -15,6 +15,9 @@ NEW: list sorting by column header click [thanks J.Luszawski]
 NEW: "Grünes Rezept" for Germany
 NEW: manage your praxis with its branches
 NEW: auto-hint "GVK-GU überfällig"
+NEW: placeholder $<praxis>$
+NEW: placeholder $<praxis_address>$
+NEW: placeholder $<praxis_comm>$
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts

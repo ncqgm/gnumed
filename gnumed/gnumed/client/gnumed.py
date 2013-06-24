@@ -175,13 +175,10 @@ def setup_python_path():
 	if not u'--local-import' in sys.argv:
 		return
 
-	print "Running from local source tree ..."
-
 	local_python_base_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
 	)
-
-	print ' (%s)' % local_python_base_dir
+	print "Running from local source tree (%s) ..." % local_python_base_dir
 
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)

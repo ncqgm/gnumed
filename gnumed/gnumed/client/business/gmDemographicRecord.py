@@ -587,6 +587,7 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
 
 	address = property(_get_address, lambda x:x)
+
 #===================================================================
 # communication channels API
 #-------------------------------------------------------------------
@@ -609,12 +610,12 @@ class cCommChannel(gmBusinessDBObject.cBusinessDBObject):
 		"""
 	]
 	_updatable_fields = [
-		#'pk_address',
 		'url',
 		'comm_type',
 		'is_confidential',
 		'comment'
 	]
+
 #-------------------------------------------------------------------
 class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 
@@ -623,7 +624,8 @@ class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 		u"""UPDATE dem.lnk_org_unit2comm SET
 				fk_type = dem.create_comm_type(%(comm_type)s),
 				url = %(url)s,
-				is_confidential = %(is_confidential)s
+				is_confidential = %(is_confidential)s,
+				comment = gm.nullify_empty_string(%(comment)s)
 			WHERE
 				pk = %(pk_lnk_org_unit2comm)s
 					AND
@@ -635,8 +637,10 @@ class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'url',
 		'comm_type',
-		'is_confidential'
+		'is_confidential',
+		'comment'
 	]
+
 #-------------------------------------------------------------------
 def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None, pk_org_unit=None):
 	"""Create a communications channel for a patient."""
@@ -737,107 +741,6 @@ def delete_comm_channel_type(pk_channel_type=None):
 #===================================================================
 #-------------------------------------------------------------------
 
-class cOrg (gmBusinessDBObject.cBusinessDBObject):
-	"""
-	Organisations
-
-	This is also the common ancestor of cIdentity, self._table is used to
-	hide the difference.
-	The aim is to be able to sanely write code which doesn't care whether
-	its talking to an organisation or an individual"""
-	_table = "org"
-
-	_cmd_fetch_payload = "select *, xmin from dem.org where id=%s"
-	_cmds_lock_rows_for_update = ["select 1 from dem.org where id=%(id)s and xmin=%(xmin)s"]
-	_cmds_store_payload = [
-		"""update dem.org set
-			description=%(description)s,
-			id_category=(select id from dem.org_category where description=%(occupation)s)
-		where id=%(id)s""",
-		"select xmin from dem.org where id=%(id)s"
-	]
-	_updatable_fields = ["description", "occupation"]
-	_service = 'personalia'
-	#------------------------------------------------------------------
-	def cleanup (self):
-		pass
-	#------------------------------------------------------------------
-	def export_demographics (self):
-		if not self.__cache.has_key ('addresses'):
-			self['addresses']
-		if not self.__cache.has_key ('comms'):
-			self['comms']
-		return self.__cache
-	#--------------------------------------------------------------------
-	def get_members (self):
-		"""
-		Returns a list of (address dict, cIdentity) tuples 
-		"""
-		cmd = """select
-				vba.id,
-				vba.number,
-				vba.addendum, 
-				vba.street,
-				vba.urb,
-				vba.postcode,
-				at.name,
-				lpoa.id_type,
-				vbp.pk_identity,
-				title,
-				firstnames,
-				lastnames,
-				dob,
-				cob,
-				gender,
-				pupic,
-				pk_marital_status,
-				marital_status,
-				karyotype,
-				xmin_identity,
-				preferred
-			from
-				dem.v_basic_address vba,
-				dem.lnk_person_org_address lpoa,
-				dem.address_type at,
-				dem.v_basic_person vbp
-			where
-				lpoa.id_address = vba.id
-				and lpoa.id_type = at.id
-				and lpoa.id_identity = vbp.pk_identity
-				and lpoa.id_org = %%s
-				"""
-
-		rows, idx = gmPG.run_ro_query('personalia', cmd, 1, self.getId ())
-		if rows is None:
-			return []
-		elif len(rows) == 0:
-			return []
-		else:
-			return [({'pk':i[0], 'number':i[1], 'addendum':i[2], 'street':i[3], 'city':i[4], 'postcode':i[5], 'type':i[6], 'id_type':i[7]}, cIdentity (row = {'data':i[8:], 'id':idx[8:], 'pk_field':'id'})) for i in rows]	
-	#------------------------------------------------------------
-	def set_member (self, person, address):
-		"""
-		Binds a person to this organisation at this address.
-		person is a cIdentity object
-		address is a dict of {'number', 'street', 'addendum', 'city', 'postcode', 'type'}
-		type is one of the IDs returned by getAddressTypes
-		"""
-		cmd = "insert into dem.lnk_person_org_address (id_type, id_address, id_org, id_identity) values (%(type)s, dem.create_address (%(number)s, %(addendum)s, %(street)s, %(city)s, %(postcode)s), %(org_id)s, %(pk_identity)s)"
-		address['pk_identity'] = person['pk_identity']
-		address['org_id'] = self.getId()
-		if not id_addr:
-			return (False, None)
-		return gmPG.run_commit2 ('personalia', [(cmd, [address])])
-	#------------------------------------------------------------
-	def unlink_person (self, person):
-		cmd = "delete from dem.lnk_person_org_address where id_org = %s and id_identity = %s"
-		return gmPG.run_commit2 ('personalia', [(cmd, [self.getId(), person.ID])])
-	#----------------------------------------------------------------------
-	def getId (self):
-		"""
-		Hide the difference between org.id and v_basic_person.pk_identity
-		"""
-		return self['id']
 #==============================================================================
 def get_time_tuple (mx):
 	"""

@@ -390,6 +390,17 @@ class cGreetingEditorDlg(wxgGreetingEditorDlg.wxgGreetingEditorDlg):
 			self.Close()
 
 #============================================================
+def select_praxis_branch(parent=None):
+
+	branches = gmPraxis.get_praxis_branches()
+
+	if len(branches) == 0:
+		if not set_active_praxis_branch(parent = parent, no_parent = False):
+			return None
+
+	# FIXME: needs implementation
+
+#============================================================
 def set_active_praxis_branch(parent=None, no_parent=False):
 
 	if no_parent:

@@ -17,6 +17,7 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmDemographicRecord
 
 
 _log = logging.getLogger('gm.praxis')
@@ -90,6 +91,9 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	def unlock(self, exclusive=False):
 		return unlock_praxis_branch(pk_praxis_branch = self._payload[self._idx['pk_praxis_branch']], exclusive = exclusive)
 	#--------------------------------------------------------
+	def get_comm_channels(self, comm_medium=None):
+		return self.org_unit.get_comm_channels(comm_medium = comm_medium)
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_org_unit(self):
@@ -101,6 +105,17 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
 
 	organization = property(_get_org, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_address(self):
+		return self.org_unit.address
+
+	address = property(_get_address, lambda x:x)
+
+#	def _set_address(self, address):
+#		self['pk_address'] = address['pk_address']
+#		self.save()
+#	address = property(_get_address, _set_address)
 
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
@@ -221,9 +236,10 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 
 	def __init__(self, branch=None):
 		try:
-			self.branch
+			self.has_been_initialized
 		except AttributeError:
 			self.branch = None
+			self.has_been_initialized = True
 			self.__helpdesk = None
 			self.__active_workplace = None
 
@@ -248,9 +264,9 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 	# __getattr__ handling
 	#--------------------------------------------------------
 	def __getattr__(self, attribute):
-		if attribute == 'branch':
+		if attribute == 'has_been_initialized':
 			raise AttributeError
-		if hasattr(self, attribute):
+		if attribute in ['branch', 'waiting_list_patients', 'help_desk', 'db_logon_banner', 'active_workplace', 'workplaces', 'user_email']:
 			return getattr(self, attribute)
 		return getattr(self.branch, attribute)
 	#--------------------------------------------------------
@@ -430,6 +446,7 @@ where
 		_cfg.reload_file_source(file = prefs_file)
 
 	user_email = property(_get_user_email, _set_user_email)
+
 #============================================================
 if __name__ == '__main__':
 
