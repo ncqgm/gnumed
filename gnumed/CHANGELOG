@@ -41,6 +41,7 @@ FIX: exception on getattr() in braindead-tree-items-data-access workaround [than
 FIX: exception on detecting patient ID column in patient listing ctrl [thanks Marc]
 
 IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
+IMPROVED: print recalls from vaccinations list
 
 	1.3.5
 
