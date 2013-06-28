@@ -577,7 +577,12 @@ def print_vaccinations(parent=None):
 	template = gmFormWidgets.manage_form_templates (
 		parent = parent,
 		active_only = True,
-		template_types = [u'Medical statement', u'vaccination report', u'vaccination record']
+		template_types = [
+			u'Medical statement',
+			u'vaccination report',
+			u'vaccination record',
+			u'reminder'
+		]
 	)
 
 	if template is None:
@@ -742,9 +747,9 @@ def manage_vaccinations(parent=None):
 		edit_callback = edit,
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip,
-		left_extra_button = (_('Print'), _('Print vaccinations using a template.'), print_vaccs),
+		left_extra_button = (_('Print'), _('Print vaccinations or recalls.'), print_vaccs),
 		middle_extra_button = (_('Recall'), _('Add a recall for a vaccination'), add_recall),
-		right_extra_button = (_('Vaccination Plans'), _('Open a browser showing vaccination schedules.'), browse2schedules)
+		right_extra_button = (_('Vx schedules'), _('Open a browser showing vaccination schedules.'), browse2schedules)
 	)
 #----------------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgVaccinationEAPnl
