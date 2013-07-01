@@ -392,6 +392,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	def __init_ui(self):
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
+			self._LBL_mail.Disable()
 			self._PRW_email.SetText(_('<gm-mail_doc(.bat) not found>'), data = None)
 			self._PRW_email.display_as_disabled(True)
 			self._PRW_email.Disable()
@@ -399,6 +400,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
 		if not self.__fax_script_exists:
+			self._LBL_fax.Disable()
 			self._PRW_fax.SetText(_('<gm-fax_doc(.bat) not found>'), data = None)
 			self._PRW_fax.display_as_disabled(True)
 			self._PRW_fax.Disable()
@@ -465,6 +467,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._TCTRL_filename.SetValue(u'')
 			self._CH_engine.SetSelection(0)
 			self._CHBOX_active.SetValue(True)
+			self._CHBOX_editable.SetValue(True)
 
 			self._TCTRL_date_modified.SetValue(u'')
 			self._TCTRL_modified_by.SetValue(u'')
@@ -479,12 +482,14 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self._TCTRL_filename.SetValue(self.__template['filename'])
 			self._CH_engine.SetSelection(gmForms.form_engine_abbrevs.index(self.__template['engine']))
 			self._CHBOX_active.SetValue(self.__template['in_use'])
+			self._CHBOX_editable.SetValue(self.__template['edit_after_substitution'])
 
 			self._TCTRL_date_modified.SetValue(gmDateTime.pydt_strftime(self.__template['last_modified'], '%Y %b %d'))
 			self._TCTRL_modified_by.SetValue(self.__template['modified_by'])
 
 			self._TCTRL_filename.Enable(True)
-			self._BTN_load.Enable(not self.__template['has_instances'])
+			#self._BTN_load.Enable(not self.__template['has_instances'])
+			self._BTN_load.Enable(True)
 
 			self._BTN_export.Enable(True)
 
@@ -544,9 +549,9 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self.__template['name_short'] = self._PRW_name_short.GetValue().strip()
 			self.__template['name_long'] = self._PRW_name_long.GetValue().strip()
 
-		if not self.__template['has_instances']:
-			if self.full_filename is not None:
-				self.__template.update_template_from_file(filename = self.full_filename)
+#		if not self.__template['has_instances']:
+		if self.full_filename is not None:
+			self.__template.update_template_from_file(filename = self.full_filename)
 
 		self.__template['external_version'] = self._TCTRL_external_version.GetValue()
 		tmp = self._PRW_instance_type.GetValue().strip()
@@ -554,6 +559,7 @@ class cFormTemplateEditAreaPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAre
 			self.__template['instance_type'] = tmp
 		self.__template['filename'] = self._TCTRL_filename.GetValue()
 		self.__template['in_use'] = self._CHBOX_active.GetValue()
+		self.__template['edit_after_substitution'] = self._CHBOX_editable.GetValue()
 		self.__template['engine'] = gmForms.form_engine_abbrevs[self._CH_engine.GetSelection()]
 
 		self.__template.save()

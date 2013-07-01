@@ -129,26 +129,31 @@ class cFormTemplateType_MatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			ORDER BY list_label
 		"""
 		gmMatchProvider.cMatchProvider_SQL2.__init__(self, queries = [query])
+
 #============================================================
 class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u'select * from ref.v_paperwork_templates where pk_paperwork_template = %s'
+	_cmd_fetch_payload = u'SELECT * FROM ref.v_paperwork_templates WHERE pk_paperwork_template = %s'
 
 	_cmds_store_payload = [
-		u"""update ref.paperwork_templates set
+		u"""UPDATE ref.paperwork_templates SET
 				name_short = %(name_short)s,
 				name_long = %(name_long)s,
 				fk_template_type = %(pk_template_type)s,
 				instance_type = %(instance_type)s,
 				engine = %(engine)s,
 				in_use = %(in_use)s,
+				edit_after_substitution = %(edit_after_substitution)s,
 				filename = %(filename)s,
 				external_version = %(external_version)s
-			where
-				pk = %(pk_paperwork_template)s and
+			WHERE
+				pk = %(pk_paperwork_template)s
+					AND
 				xmin = %(xmin_paperwork_template)s
-		""",
-		u"""select xmin_paperwork_template from ref.v_paperwork_templates where pk_paperwork_template = %(pk_paperwork_template)s"""
+			RETURNING
+				xmin AS xmin_paperwork_template
+		"""
+#		, u"""select xmin_paperwork_template from ref.v_paperwork_templates where pk_paperwork_template = %(pk_paperwork_template)s"""
 	]
 
 	_updatable_fields = [
@@ -159,7 +164,8 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		u'instance_type',
 		u'engine',
 		u'in_use',
-		u'filename'
+		u'filename',
+		u'edit_after_substitution'
 	]
 
 	_suffix4engine = {
@@ -239,6 +245,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 		form = engine(template_file = fname)
 		form.template = self
 		return form
+
 #============================================================
 def get_form_template(name_long=None, external_version=None):
 	cmd = u'select pk from ref.paperwork_templates where name_long = %(lname)s and external_version = %(ver)s'
@@ -250,6 +257,7 @@ def get_form_template(name_long=None, external_version=None):
 		return None
 
 	return cFormTemplate(aPK_obj = rows[0]['pk'])
+
 #------------------------------------------------------------
 def get_form_templates(engine=None, active_only=False, template_types=None, excluded_types=None):
 	"""Load form templates."""
@@ -280,6 +288,7 @@ def get_form_templates(engine=None, active_only=False, template_types=None, excl
 	templates = [ cFormTemplate(row = {'pk_field': 'pk_paperwork_template', 'data': r, 'idx': idx}) for r in rows ]
 
 	return templates
+
 #------------------------------------------------------------
 def create_form_template(template_type=None, name_short=None, name_long=None):
 
@@ -301,6 +310,7 @@ def delete_form_template(template=None):
 		]
 	)
 	return True
+
 #============================================================
 # OpenOffice/LibreOffice API
 #============================================================

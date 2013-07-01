@@ -6,8 +6,77 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-
 --set default_transaction_read_only to off;
+
+-- --------------------------------------------------------------
+-- .edit_after_substitution
+comment on column ref.paperwork_templates.edit_after_substitution is
+	'Whether to offer last-minute, manual, generic editing inbetween placeholder substitution and final output generation.';
+
+alter table ref.paperwork_templates
+	alter column edit_after_substitution
+		set default True;
+
+update ref.paperwork_templates
+set edit_after_substitution = True
+where edit_after_substitution is null;
+
+alter table ref.paperwork_templates
+	alter column edit_after_substitution
+		set not null;
+
+-- --------------------------------------------------------------
+-- ref.v_paperwork_templates
+\unset ON_ERROR_STOP
+drop view ref.v_paperwork_templates cascade;
+\set ON_ERROR_STOP 1
+
+
+create view ref.v_paperwork_templates as
+select
+	pk
+		as pk_paperwork_template,
+	name_short,
+	name_long,
+	external_version,
+	(select name from ref.form_types where pk = fk_template_type)
+		as template_type,
+	(select _(name) from ref.form_types where pk = fk_template_type)
+		as l10n_template_type,
+	coalesce(instance_type, (select name from ref.form_types where pk = fk_template_type))
+		as instance_type,
+	coalesce(_(instance_type), (select _(name) from ref.form_types where pk = fk_template_type))
+		as l10n_instance_type,
+	engine,
+	in_use,
+	edit_after_substitution,
+	filename,
+	case
+		when data is not NULL then True
+		else False
+	end
+		as has_template_data,
+--	(select exists(select 1 from public.form_fields where fk_form = r_pt.pk limit 1))
+--		as has_instances,
+	modified_when
+		as last_modified,
+	coalesce (
+		(select short_alias from dem.staff where db_user = r_pt.modified_by),
+		'<' || r_pt.modified_by || '>'
+	) as modified_by,
+	fk_template_type
+		as pk_template_type,
+	xmin
+		as xmin_paperwork_template
+from
+	ref.paperwork_templates r_pt
+;
+
+
+grant select on
+	ref.v_paperwork_templates
+to group "gm-doctors";
+
 -- --------------------------------------------------------------
 delete from ref.paperwork_templates where name_long = 'Grünes Rezept (DE, GNUmed-Vorgabe)';
 
