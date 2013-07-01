@@ -17,18 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.5 (database v18.5)',
-	'GNUmed 1.3.5 Release Notes:
+	'Release Notes for GNUmed 1.3.6 (database v18.6)',
+	'GNUmed 1.3.6 Release Notes:
 
-	1.3.5
+	1.3.6
 
-FIX: exception on merging patients with identical external IDs [thanks Jim]
+FIX: exception on merging patients with identical addresses [thanks Jim]
+FIX: exception on repeatedly updating LOINC [thanks A.Maier]
+FIX: exception on getattr() in braindead-tree-items-data-access workaround [thanks V.Banait]
+FIX: exception on detecting patient ID column in patient listing ctrl [thanks Marc]
 
-IMPROVED: further clarify license of Timeline icons
+IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
+IMPROVED: print recalls from vaccinations list
 
-	18.5
+	18.6
 
-no changes
+FIX: clin_root_item_soap_cat check needs dropping
 ');
 
 -- --------------------------------------------------------------
