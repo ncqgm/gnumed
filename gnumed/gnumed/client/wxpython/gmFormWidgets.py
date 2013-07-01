@@ -20,6 +20,7 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
@@ -30,6 +31,13 @@ from Gnumed.wxpython import gmMacro
 
 
 _log = logging.getLogger('gm.ui')
+
+_ID_FORM_DISPOSAL_PRINT_NOW, \
+_ID_FORM_DISPOSAL_MAIL_NOW, \
+_ID_FORM_DISPOSAL_FAX_NOW, \
+_ID_FORM_DISPOSAL_TRAY_NOW, \
+_ID_FORM_DISPOSAL_ARCHIVE_NOW, \
+_ID_FORM_DISPOSAL_SAVE_NOW = range(6)
 
 #============================================================
 # convenience functions
@@ -72,6 +80,12 @@ def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode
 			aTitle = _('Printing document')
 		)
 		return False
+
+	#--------------------
+	wx.EndBusyCursor()
+	act_on_generated_forms(parent = parent, forms = [form])
+	return
+	#--------------------
 
 	# 3) print template
 	if jobtype is None:
@@ -211,6 +225,7 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	)
 
 	return template
+
 #------------------------------------------------------------
 def create_new_letter(parent=None):
 
@@ -275,6 +290,146 @@ def create_new_letter(parent=None):
 	wx.EndBusyCursor()
 
 	doc.show(True)
+
+#------------------------------------------------------------
+def act_on_generated_forms(parent=None, forms=None):
+
+	if len(forms) == 0:
+		return
+
+	no_of_printables = 0
+	tmp = []
+	for form in forms:
+		no_of_printables += len(form.final_output_filenames)
+		tmp.append(form.template['name_long'])
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = cFormDisposalDlg(parent, -1)
+	dlg.message = _(
+		'What would you like to do with these documents ?\n'
+		'\n'
+		' - %s'
+	) % u'\n - '.join(tmp)
+
+	action = dlg.ShowModal()
+	print "action code:", action
+
+	return
+
+	printable_file = form.generate_output()
+	if printable_file is None:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error creating printable document.'),
+			aTitle = _('Printing document')
+		)
+		return False
+
+	# 3) print template
+	if jobtype is None:
+		jobtype = 'generic_document'
+
+	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
+	if not printed:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Error printing document (%s).') % jobtype,
+			aTitle = _('Printing document')
+		)
+		return False
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+	if episode is None:
+		episode = emr.add_episode(episode_name = 'administration', is_open = False)
+	emr.add_clin_narrative (
+		soap_cat = None,
+		note = _('%s printed from template [%s - %s]') % (jobtype, template['name_long'], template['external_version']),
+		episode = episode
+	)
+
+	# 4) keep a copy
+	if keep_a_copy:
+		files2import = []
+		files2import.extend(form.final_output_filenames)
+		files2import.extend(form.re_editable_filenames)
+		gmDispatcher.send (
+			signal = u'import_document_from_files',
+			filenames = files2import,
+			document_type = template['instance_type'],
+			unlock_patient = True
+		)
+
+	wx.EndBusyCursor()
+
+	return True
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgFormDisposalDlg
+
+class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		wxgFormDisposalDlg.wxgFormDisposalDlg.__init__(self, *args, **kwargs)
+
+		self.__init_ui()
+
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _set_msg(self, msg):
+		self._LBL_msg.SetLabel(msg)
+		self._LBL_msg.Refresh()
+
+	message = property(lambda x:x, _set_msg)
+
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
+		if not self.__mail_script_exists:
+			self._PRW_email.SetText(_('<gm-mail_doc(.bat) not found>'), data = None)
+			self._PRW_email.display_as_disabled(True)
+			self._PRW_email.Disable()
+			self._BTN_mail.Disable()
+
+		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
+		if not self.__fax_script_exists:
+			self._PRW_fax.SetText(_('<gm-fax_doc(.bat) not found>'), data = None)
+			self._PRW_fax.display_as_disabled(True)
+			self._PRW_fax.Disable()
+			self._BTN_fax.Disable()
+
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_print_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		self.EndModal(_ID_FORM_DISPOSAL_PRINT_NOW)
+	#--------------------------------------------------------
+	def _on_mail_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		event.Skip()
+		if not self.__mail_script_exists:
+			return
+		self.EndModal(_ID_FORM_DISPOSAL_MAIL_NOW)
+	#--------------------------------------------------------
+	def _on_fax_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		event.Skip()
+		if not self.__fax_script_exists:
+			return
+		self.EndModal(_ID_FORM_DISPOSAL_FAX_NOW)
+	#--------------------------------------------------------
+	def _on_tray_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		self.EndModal(_ID_FORM_DISPOSAL_TRAY_NOW)
+	#--------------------------------------------------------
+	def _on_archive_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		self.EndModal(_ID_FORM_DISPOSAL_MAIL_NOW)
+	#--------------------------------------------------------
+	def _on_save_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		self.EndModal(_ID_FORM_DISPOSAL_SAVE_NOW)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl
 

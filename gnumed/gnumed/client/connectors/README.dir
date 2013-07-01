@@ -1,7 +1,3 @@
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/README,v $
-# $Id: README,v 1.9 2007-09-14 10:29:10 ncq Exp $
-# $Revision: 1.9 $
-
 This directory stores connectors specific to this client.
 
 Connectors are intermediate programs that 3rd party legacy

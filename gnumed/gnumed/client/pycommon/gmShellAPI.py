@@ -1,7 +1,6 @@
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
-__version__ = "$Revision: 1.13 $"
 __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -15,7 +14,6 @@ import shlex
 
 
 _log = logging.getLogger('gm.shell')
-_log.info(__version__)
 
 #===========================================================================
 def is_cmd_in_path(cmd=None):
@@ -95,6 +93,8 @@ def is_executable_by_wine(cmd=None):
 	return (False, None)
 #===========================================================================
 def detect_external_binary(binary=None):
+	"""<binary> is the name of the executable with or without .exe/.bat"""
+
 	_log.debug('searching for [%s]', binary)
 
 	binary = binary.lstrip()

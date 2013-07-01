@@ -11,9 +11,6 @@ to do smarter things you need to override:
 """
 
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/connectors/gm_ctl_client.py,v $
-# $Id: gm_ctl_client.py,v 1.9 2009-04-20 11:38:13 ncq Exp $
-__version__ = '$Revision: 1.9 $'
 __author__ = 'Karsten Hilbert <Karsten.Hilbert@gmx.net>'
 __license__ = 'GPL'
 
@@ -28,7 +25,6 @@ from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm_ctl_client')
-_log.info(__version__)
 #==================================================================
 class cBaseConnector:
 
