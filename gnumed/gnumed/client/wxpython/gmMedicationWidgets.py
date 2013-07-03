@@ -2529,7 +2529,10 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					if allg['type'] == u'allergy':
 						attr.SetTextColour('red')
 					else:
-						attr.SetTextColour('yellow')
+						#attr.SetTextColour('yellow')		# too light
+						#attr.SetTextColour('pink')			# too light
+						#attr.SetTextColour('dark orange')	# slightly better
+						attr.SetTextColour('magenta')
 					self.SetRowAttr(row_idx, attr)
 			else:
 				attr = self.GetOrCreateCellAttr(row_idx, 0)

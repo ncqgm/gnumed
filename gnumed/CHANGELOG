@@ -33,6 +33,10 @@ IMPROVED: report failing auto-hints to the user
 # rel-1-3-patches
 ------------------------------------------------
 
+	1.3.7
+
+IMPROVED: show substance intolerances in magenta rather than yellow [thanks Jim]
+
 	1.3.6
 
 FIX: exception on merging patients with identical addresses [thanks Jim]
