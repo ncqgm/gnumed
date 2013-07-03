@@ -14,6 +14,7 @@ import gettext
 from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 # end wxGlade
 
 
@@ -22,7 +23,10 @@ class wxgFormDisposalDlg(wx.Dialog):
 		# begin wxGlade: wxgFormDisposalDlg.__init__
 		kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.THICK_FRAME | wx.STAY_ON_TOP
 		wx.Dialog.__init__(self, *args, **kwds)
-		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("What would you like to do with the document ?"))
+		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("What would you like to do with the following document(s) ?"))
+		self._LCTRL_forms = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_REPORT | wx.NO_BORDER)
+		self._BTN_show_forms = wx.Button(self, wx.ID_ANY, _("Show"), style=wx.BU_EXACTFIT)
+		self._BTN_delete_forms = wx.Button(self, wx.ID_ANY, _("Delete"), style=wx.BU_EXACTFIT)
 		self._LBL_print = wx.StaticText(self, wx.ID_ANY, _("Print"))
 		self._CHBOX_print = wx.CheckBox(self, wx.ID_ANY, _("to printer"))
 		self._BTN_print = wx.Button(self, wx.ID_ANY, _("Now (&P)"), style=wx.BU_EXACTFIT)
@@ -42,24 +46,29 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self._CHBOX_save = wx.CheckBox(self, wx.ID_ANY, _("to file(s)"))
 		self._BTN_save = wx.Button(self, wx.ID_ANY, _("Now (&S)"), style=wx.BU_EXACTFIT)
 		self._TCTRL_soap = cTextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_OK = wx.Button(self, wx.ID_CLOSE, _("&OK"))
+		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
 		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
 		self.__set_properties()
 		self.__do_layout()
 
+		self.Bind(wx.EVT_BUTTON, self._on_show_forms_button_pressed, self._BTN_show_forms)
+		self.Bind(wx.EVT_BUTTON, self._on_delete_forms_button_pressed, self._BTN_delete_forms)
 		self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
 		self.Bind(wx.EVT_BUTTON, self._on_mail_button_pressed, self._BTN_mail)
 		self.Bind(wx.EVT_BUTTON, self._on_fax_button_pressed, self._BTN_fax)
 		self.Bind(wx.EVT_BUTTON, self._on_tray_button_pressed, self._BTN_tray)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_button_pressed, self._BTN_archive)
 		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
+		self.Bind(wx.EVT_BUTTON, self._on_ok_button_pressed, self._BTN_OK)
 		# end wxGlade
 
 	def __set_properties(self):
 		# begin wxGlade: wxgFormDisposalDlg.__set_properties
 		self.SetTitle(_("Form handling"))
-		self.SetSize((550, 375))
+		self.SetSize((550, 500))
+		self._BTN_show_forms.SetToolTipString(_("Show the selected form(s)."))
+		self._BTN_delete_forms.SetToolTipString(_("Delete the selected forms from the list."))
 		self._CHBOX_print.SetToolTipString(_("Check here for printing."))
 		self._BTN_print.SetToolTipString(_("Print immediately without further ado."))
 		self._BTN_print.SetDefault()
@@ -83,9 +92,16 @@ class wxgFormDisposalDlg(wx.Dialog):
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_grid = wx.FlexGridSizer(7, 3, 2, 2)
+		__szr_forms = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_forms_buttons = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(self._LBL_msg, 0, wx.ALL | wx.EXPAND, 3)
-		__sline_top = wx.StaticLine(self, wx.ID_ANY)
-		__szr_main.Add(__sline_top, 0, wx.LEFT | wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_forms.Add(self._LCTRL_forms, 1, wx.RIGHT | wx.EXPAND, 5)
+		__szr_forms_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+		__szr_forms_buttons.Add(self._BTN_show_forms, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_forms_buttons.Add(self._BTN_delete_forms, 0, wx.TOP | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_forms_buttons.Add((20, 20), 1, wx.EXPAND, 0)
+		__szr_forms.Add(__szr_forms_buttons, 0, wx.EXPAND, 0)
+		__szr_main.Add(__szr_forms, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 3)
 		__szr_grid.Add(self._LBL_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._CHBOX_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._BTN_print, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
@@ -120,6 +136,14 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self.Layout()
 		# end wxGlade
 
+	def _on_show_forms_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		print "Event handler '_on_show_forms_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_delete_forms_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		print "Event handler '_on_delete_forms_button_pressed' not implemented!"
+		event.Skip()
+
 	def _on_print_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
 		print "Event handler '_on_print_button_pressed' not implemented!"
 		event.Skip()
@@ -142,6 +166,10 @@ class wxgFormDisposalDlg(wx.Dialog):
 
 	def _on_save_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
 		print "Event handler '_on_save_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_ok_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		print "Event handler '_on_ok_button_pressed' not implemented!"
 		event.Skip()
 
 # end of class wxgFormDisposalDlg

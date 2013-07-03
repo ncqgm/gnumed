@@ -153,9 +153,7 @@ class cFormTemplate(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_paperwork_template
 		"""
-#		, u"""select xmin_paperwork_template from ref.v_paperwork_templates where pk_paperwork_template = %(pk_paperwork_template)s"""
 	]
-
 	_updatable_fields = [
 		u'name_short',
 		u'name_long',

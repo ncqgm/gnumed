@@ -8,6 +8,7 @@ __license__ = "GPL v2 or later"
 import os.path
 import sys
 import logging
+import shutil
 
 
 import wx
@@ -21,6 +22,7 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmPrinting
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
@@ -28,6 +30,7 @@ from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmMacro
+from Gnumed.wxpython.gmDocumentWidgets import save_files_as_new_document
 
 
 _log = logging.getLogger('gm.ui')
@@ -292,79 +295,214 @@ def create_new_letter(parent=None):
 	doc.show(True)
 
 #------------------------------------------------------------
-def act_on_generated_forms(parent=None, forms=None):
-
-	if len(forms) == 0:
-		return
-
-	no_of_printables = 0
-	tmp = []
-	for form in forms:
-		no_of_printables += len(form.final_output_filenames)
-		tmp.append(form.template['name_long'])
+#------------------------------------------------------------
+def generate_form_from_template(parent=None, template_types=None, edit=None):
+	"""If <edit> is None it will honor the template setting."""
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	dlg = cFormDisposalDlg(parent, -1)
-	dlg.message = _(
-		'What would you like to do with these documents ?\n'
-		'\n'
-		' - %s'
-	) % u'\n - '.join(tmp)
+	# 1) get template to use
+	template = manage_form_templates(parent = parent, active_only = True, template_types = template_types)
+	if template is None:
+		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'), beep = False)
+		return None
 
-	action = dlg.ShowModal()
-	print "action code:", action
+	wx.BeginBusyCursor()
 
-	return
-
-	printable_file = form.generate_output()
-	if printable_file is None:
-		wx.EndBusyCursor()
+	# 2) process template
+	try:
+		form = template.instantiate()
+	except KeyError:
+		_log.exception('cannot instantiate document template [%s]', template)
 		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error creating printable document.'),
-			aTitle = _('Printing document')
+			aMessage = _('Invalid document template [%s - %s (%s)]') % (name, ver, template['engine']),
+			aTitle = _('Generating document from template')
 		)
-		return False
+		wx.EndBusyCursor()
+		return None
+	ph = gmMacro.gmPlaceholderHandler()
+	#ph.debug = True
+	form.substitute_placeholders(data_source = ph)
+	if edit is None:
+		if form.template['edit_after_substitution']:
+			edit = True
+		else:
+			edit = False
+	if edit:
+		wx.EndBusyCursor()
+		form.edit()
+		wx.BeginBusyCursor()
 
-	# 3) print template
+	# 3) generate output
+	pdf_name = form.generate_output()
+	wx.EndBusyCursor()
+	if pdf_name is not None:
+		return form
+
+	gmGuiHelpers.gm_show_error (
+		aMessage = _('Error generating document printout.'),
+		aTitle = _('Generating document printout')
+	)
+	return None
+
+#------------------------------------------------------------
+def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=None, progress_note=None):
+	"""This function assumes that .generate_output() has already been called on each form."""
+
+	if len(forms) == 0:
+		return True
+
+	no_of_printables = 0
+	for form in forms:
+		no_of_printables += len(form.final_output_filenames)
+
+	if no_of_printables == 0:
+		return True
+
+	#-----------------------------
+	def save_soap(soap=None):
+		if soap.strip() == u'':
+			return
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.get_emr()
+		epi = emr.add_episode(episode_name = episode_name, is_open = False)
+		emr.add_clin_narrative (
+			soap_cat = None,
+			note = soap,
+			episode = epi
+		)
+	#-----------------------------
+	def archive_forms(episode_name=None):
+		if episode_name is None:
+			epi = None				# will ask for episode further down
+		else:
+			pat = gmPerson.gmCurrentPatient()
+			emr = pat.get_emr()
+			epi = emr.add_episode(episode_name = episode_name, is_open = False)
+
+		for form in forms:
+			files2import = []
+			files2import.extend(form.final_output_filenames)
+			files2import.extend(form.re_editable_filenames)
+			if len(files2import) == 0:
+				continue
+			save_files_as_new_document (
+				parent = parent,
+				filenames = files2import,
+				document_type = form.template['instance_type'],
+				unlock_patient = False,
+				episode = epi,
+				review_as_normal = True,
+				reference = None
+			)
+	#-----------------------------
+	def save_forms():
+		path = os.path.expanduser(os.path.join('~', 'gnumed'))
+		dlg = wx.DirDialog (
+			parent = parent,
+			message = _('Select directory in which to create patient directory ...'),
+			defaultPath = path,
+			style = wx.DD_DEFAULT_STYLE
+		)
+		result = dlg.ShowModal()
+		path = dlg.GetPath()
+		dlg.Destroy()
+
+		if result != wx.ID_OK:
+			return
+
+		pat = gmPerson.gmCurrentPatient()
+		path = os.path.join(path, pat.dirname)
+		gmTools.mkdir(path)
+		_log.debug('form saving path: %s', path)
+
+		for form in forms:
+			for filename in form.final_output_filenames:
+				shutil.copy2(filename, path)
+	#-----------------------------
+	def print_forms():
+		files2print = []
+		for form in forms:
+			files2print.extend(form.final_output_filenames)
+		if len(files2print) == 0:
+			return True
+		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
+		if not printed:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error printing documents.'),
+				aTitle = _('Printing [%s]') % jobtype
+			)
+		return printed
+	#-----------------------------
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
 	if jobtype is None:
 		jobtype = 'generic_document'
 
-	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
-	if not printed:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing document (%s).') % jobtype,
-			aTitle = _('Printing document')
-		)
-		return False
+	dlg = cFormDisposalDlg(parent, -1)
+	dlg.forms = forms
+	dlg.progress_note = progress_note
+	dlg.episode_name = episode_name
+	action_code = dlg.ShowModal()
 
-	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
-	if episode is None:
-		episode = emr.add_episode(episode_name = 'administration', is_open = False)
-	emr.add_clin_narrative (
-		soap_cat = None,
-		note = _('%s printed from template [%s - %s]') % (jobtype, template['name_long'], template['external_version']),
-		episode = episode
-	)
+	if action_code == wx.ID_CANCEL:
+		dlg.Destroy()
+		return True
 
-	# 4) keep a copy
-	if keep_a_copy:
-		files2import = []
-		files2import.extend(form.final_output_filenames)
-		files2import.extend(form.re_editable_filenames)
-		gmDispatcher.send (
-			signal = u'import_document_from_files',
-			filenames = files2import,
-			document_type = template['instance_type'],
-			unlock_patient = True
-		)
+	forms = dlg._LCTRL_forms.get_item_data()
+	if len(forms) == 0:
+		dlg.Destroy()
+		return True
 
-	wx.EndBusyCursor()
+	progress_note = dlg.progress_note
+	episode_name = dlg._PRW_episode.GetValue().strip()
+	do_save = dlg._CHBOX_save.GetValue()
+	do_print = dlg._CHBOX_print.GetValue()
+	dlg.Destroy()
 
-	return True
+	if action_code == _ID_FORM_DISPOSAL_PRINT_NOW:
+		save_soap(soap = progress_note)
+		if episode_name != u'':
+			archive_forms(episode_name = episode_name)
+		return print_forms()
+
+	if action_code == _ID_FORM_DISPOSAL_ARCHIVE_NOW:
+		save_soap(soap = progress_note)
+		if episode_name != u'':
+			archive_forms(episode_name = episode_name)
+		else:
+			archive_forms(episode_name = None)
+		return True
+
+	if action_code == _ID_FORM_DISPOSAL_SAVE_NOW:
+		save_soap(soap = progress_note)
+		save_forms()
+		return True
+
+	if action_code == _ID_FORM_DISPOSAL_MAIL_NOW:
+		return True
+
+	if action_code == _ID_FORM_DISPOSAL_FAX_NOW:
+		return True
+
+	if action_code == _ID_FORM_DISPOSAL_TRAY_NOW:
+		return True
+
+	# evaluate and do aggregate actions
+	if action_code == wx.ID_OK:
+		save_soap(soap = progress_note)
+		if episode_name != u'':
+			archive_forms(episode_name = episode_name)
+		if do_save:
+			save_forms()
+		if do_print:
+			print_forms()
+		return True
+
+	return False
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgFormDisposalDlg
@@ -387,9 +525,41 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	message = property(lambda x:x, _set_msg)
 
 	#--------------------------------------------------------
+	def _set_forms(self, forms):
+		items = [ f.template['name_long'] for f in forms ]
+		self._LCTRL_forms.set_string_items(items)
+		self._LCTRL_forms.set_data(forms)
+
+	forms = property(lambda x:x, _set_forms)
+
+	#--------------------------------------------------------
+	def _get_note(self):
+		return self._TCTRL_soap.GetValue().strip()
+
+	def _set_note(self, note):
+		if note is None:
+			note = u''
+		self._TCTRL_soap.SetValue(note)
+
+	progress_note = property(_get_note, _set_note)
+
+	#--------------------------------------------------------
+	def _get_episode_name(self):
+		return self._PRW_episode.GetValue().strip()
+
+	def _set_episode_name(self, episode_name):
+		if episode_name is None:
+			episode_name = u''
+		self._PRW_episode.SetValue(episode_name)
+
+	episode_name = property(_get_episode_name, _set_episode_name)
+
+	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __init_ui(self):
+		self._LCTRL_forms.set_columns([_('Form')])
+
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._LBL_mail.Disable()
@@ -406,32 +576,52 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 			self._PRW_fax.Disable()
 			self._BTN_fax.Disable()
 
+		self._LBL_tray.Disable()
+		self._CHBOX_tray.Disable()
+		self._BTN_tray.Disable()
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
-	def _on_print_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+	def _on_print_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_PRINT_NOW)
 	#--------------------------------------------------------
-	def _on_mail_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+	def _on_mail_button_pressed(self, event):
 		event.Skip()
 		if not self.__mail_script_exists:
 			return
 		self.EndModal(_ID_FORM_DISPOSAL_MAIL_NOW)
 	#--------------------------------------------------------
-	def _on_fax_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+	def _on_fax_button_pressed(self, event):
 		event.Skip()
 		if not self.__fax_script_exists:
 			return
 		self.EndModal(_ID_FORM_DISPOSAL_FAX_NOW)
 	#--------------------------------------------------------
-	def _on_tray_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+	def _on_tray_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_TRAY_NOW)
 	#--------------------------------------------------------
-	def _on_archive_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
-		self.EndModal(_ID_FORM_DISPOSAL_MAIL_NOW)
+	def _on_archive_button_pressed(self, event):
+		self.EndModal(_ID_FORM_DISPOSAL_ARCHIVE_NOW)
 	#--------------------------------------------------------
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+	def _on_save_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_SAVE_NOW)
+	#--------------------------------------------------------
+	def _on_show_forms_button_pressed(self, event):
+		event.Skip()
+		forms2show = self._LCTRL_forms.get_selected_item_data()
+		if len(forms2show) == 0:
+			return
+		for form in forms2show:
+			for filename in form.final_output_filenames:
+				gmMimeLib.call_viewer_on_file(filename, block = True)
+	#--------------------------------------------------------
+	def _on_delete_forms_button_pressed(self, event):
+		print "Event handler '_on_delete_forms_button_pressed' not implemented!"
+		event.Skip()
+	#--------------------------------------------------------
+	def _on_ok_button_pressed(self, event):
+		self.EndModal(wx.ID_OK)
 #============================================================
 from Gnumed.wxGladeWidgets import wxgFormTemplateEditAreaPnl
 

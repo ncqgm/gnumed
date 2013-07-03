@@ -573,63 +573,30 @@ def print_vaccinations(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	# 1) get template
-	template = gmFormWidgets.manage_form_templates (
+	vaccs_printout = gmFormWidgets.generate_form_from_template (
 		parent = parent,
-		active_only = True,
 		template_types = [
 			u'Medical statement',
 			u'vaccination report',
 			u'vaccination record',
 			u'reminder'
-		]
+		],
+		edit = False
 	)
 
-	if template is None:
-		gmDispatcher.send(signal = 'statustext', msg = _('No vaccination document template selected.'), beep = False)
-		return None
-
-	# 2) process template
-	try:
-		vaccs_printout = template.instantiate()
-	except KeyError:
-		_log.exception('cannot instantiate vaccinations printout template [%s]', template)
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid vaccinations printout template [%s - %s (%s)]') % (name, ver, template['engine']),
-			aTitle = _('Printing vaccinations')
-		)
+	if vaccs_printout is None:
 		return False
 
-	ph = gmMacro.gmPlaceholderHandler()
-	#ph.debug = True
-	vaccs_printout.substitute_placeholders(data_source = ph)
-	pdf_name = vaccs_printout.generate_output()
-	if pdf_name is None:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error generating the vaccinations printout.'),
-			aTitle = _('Printing vaccinations')
+	return gmFormWidgets.act_on_generated_forms (
+		parent = parent,
+		forms = [vaccs_printout],
+		jobtype = 'vaccinations',
+		episode_name = u'administration',
+		progress_note = _('vaccinations printed from template [%s - %s]') % (
+			vaccs_printout.template['name_long'],
+			vaccs_printout.template['external_version']
 		)
-		return False
-
-	# 3) print template
-	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'vaccinations')
-	if not printed:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing vaccinations.'),
-			aTitle = _('Printing vaccinations')
-		)
-		return False
-
-	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
-	epi = emr.add_episode(episode_name = 'administration', is_open = False)
-	emr.add_clin_narrative (
-		soap_cat = None,
-		note = _('vaccinations printed from template [%s - %s]') % (template['name_long'], template['external_version']),
-		episode = epi
 	)
-
-	return True
 
 #----------------------------------------------------------------------
 def edit_vaccination(parent=None, vaccination=None, single_entry=True):
