@@ -11,17 +11,17 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
-from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
-from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
+from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
+from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 # end wxGlade
 
 
 class wxgFormDisposalDlg(wx.Dialog):
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: wxgFormDisposalDlg.__init__
-		kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.THICK_FRAME | wx.STAY_ON_TOP
+		kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.THICK_FRAME
 		wx.Dialog.__init__(self, *args, **kwds)
 		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("What would you like to do with the following document(s) ?"))
 		self._LCTRL_forms = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_REPORT | wx.NO_BORDER)
@@ -30,8 +30,8 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self._LBL_print = wx.StaticText(self, wx.ID_ANY, _("Print"))
 		self._CHBOX_print = wx.CheckBox(self, wx.ID_ANY, _("to printer"))
 		self._BTN_print = wx.Button(self, wx.ID_ANY, _("Now (&P)"), style=wx.BU_EXACTFIT)
-		self._LBL_mail = wx.StaticText(self, wx.ID_ANY, _("Mail to"))
-		self._PRW_email = cPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+		self._LBL_mail = wx.StaticText(self, wx.ID_ANY, _("Mail"))
+		self._CHBOX_mail = wx.CheckBox(self, wx.ID_ANY, _("to recipients"))
 		self._BTN_mail = wx.Button(self, wx.ID_ANY, _("Now (&M)"), style=wx.BU_EXACTFIT)
 		self._LBL_fax = wx.StaticText(self, wx.ID_ANY, _("Fax to"))
 		self._PRW_fax = cPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
@@ -72,7 +72,6 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self._CHBOX_print.SetToolTipString(_("Check here for printing."))
 		self._BTN_print.SetToolTipString(_("Print immediately without further ado."))
 		self._BTN_print.SetDefault()
-		self._PRW_email.SetToolTipString(_("Enter an e-mail address here."))
 		self._BTN_mail.SetToolTipString(_("Mail immediately without further ado."))
 		self._PRW_fax.SetToolTipString(_("Enter a fax number here."))
 		self._BTN_fax.SetToolTipString(_("Fax immediately without further ado."))
@@ -106,7 +105,7 @@ class wxgFormDisposalDlg(wx.Dialog):
 		__szr_grid.Add(self._CHBOX_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._BTN_print, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._LBL_mail, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._PRW_email, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_grid.Add(self._CHBOX_mail, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._BTN_mail, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._LBL_fax, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._PRW_fax, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)

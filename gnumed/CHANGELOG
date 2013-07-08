@@ -18,6 +18,7 @@ NEW: auto-hint "GVK-GU überfällig"
 NEW: placeholder $<praxis>$
 NEW: placeholder $<praxis_address>$
 NEW: placeholder $<praxis_comm>$
+NEW: dialog for post-processing template-generated documents
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts

@@ -2097,62 +2097,25 @@ def print_medication_list(parent=None):
 			return False
 
 	# 2) process template
-	try:
-		meds_list = template.instantiate()
-	except KeyError:
-		_log.exception('cannot instantiate medication list template [%s]', template)
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid medication list template [%s - %s (%s)]') % (name, ver, template['engine']),
-			aTitle = _('Printing medication list')
-		)
-		return False
-
-	ph = gmMacro.gmPlaceholderHandler()
-	#ph.debug = True
-	meds_list.substitute_placeholders(data_source = ph)
-	pdf_name = meds_list.generate_output()
-	if pdf_name is None:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error generating the medication list.'),
-			aTitle = _('Printing medication list')
-		)
+	meds_list = gmFormWidgets.generate_form_from_template (
+		parent = parent,
+		template = template,
+		edit = False
+	)
+	if meds_list is None:
 		return False
 
 	# 3) print template
-	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'medication_list')
-	if not printed:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing the medication list.'),
-			aTitle = _('Printing medication list')
-		)
-		return False
-
-	# 4) keep notice on printing
-	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
-	epi = emr.add_episode (
-		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
-		is_open = False
-	)
-	narr = emr.add_clin_narrative (
-		soap_cat = None,
-		note = _('medication list printed from template [%s - %s]') % (template['name_long'], template['external_version']),
-		episode = epi
-	)
-
-	# 5) keep a copy
-	doc = gmDocumentWidgets.save_files_as_new_document (
+	return gmFormWidgets.act_on_generated_forms (
 		parent = parent,
-		filenames = [pdf_name],
-		document_type = template['instance_type'],
-		episode = epi,
-		review_as_normal = True
+		forms = [meds_list],
+		jobtype = 'medication_list',
+		#episode_name = u'administration',
+		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
+		progress_note = _('generated medication list document'),
+		review_copy_as_normal = True
 	)
 
-	# 6) link note and document
-	# narr[pk_document] = doc[pk]
-
-	return True
 #------------------------------------------------------------
 def configure_prescription_template(parent=None):
 
@@ -2218,7 +2181,7 @@ def get_prescription_template(parent=None):
 			aMessage = _('Cannot load prescription template [%s - %s]') % (name, ver),
 			aTitle = _('Printing prescription')
 		)
-		return False
+		return None
 	return template
 #------------------------------------------------------------
 def print_prescription(parent=None, emr=None):
@@ -2229,63 +2192,24 @@ def print_prescription(parent=None, emr=None):
 		return False
 
 	# 2) process template
-	try:
-		rx = rx_template.instantiate()
-	except KeyError:
-		_log.exception('cannot instantiate prescription template [%s]', rx_template)
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Invalid prescription template [%s - %s (%s)]') % (rx_template['name_long'], rx_template['external_version'], rx_template['engine']),
-			aTitle = _('Printing prescription list')
-		)
-		return False
-	ph = gmMacro.gmPlaceholderHandler()
-	#ph.debug = True
-	rx.substitute_placeholders(data_source = ph)
-	pdf_name = rx.generate_output()
-	if pdf_name is None:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error generating the prescription printout.'),
-			aTitle = _('Printing prescription')
-		)
+	rx = gmFormWidgets.generate_form_from_template (
+		parent = parent,
+		template = rx_template,
+		edit = False
+	)
+	if rx is None:
 		return False
 
 	# 3) print template
-	printed = gmPrinting.print_files(filenames = [pdf_name], jobtype = 'prescription')
-	if not printed:
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing the prescription.'),
-			aTitle = _('Printing prescription')
-		)
-		return False
-
-	epi = emr.add_episode (
-		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
-		is_open = False
-	)
-
-	# 4) keep a copy
-	files2import = []
-	files2import.extend(rx.final_output_filenames)
-	files2import.extend(rx.re_editable_filenames)
-	doc = gmDocumentWidgets.save_files_as_new_document (
+	return gmFormWidgets.act_on_generated_forms (
 		parent = parent,
-		filenames = files2import,
-		document_type = u'prescription',
-		#document_type = rx_template['instance_type'],
-		#document_type = gmMedication.DOCUMENT_TYPE_PRESCRIPTION,
-		#document_type = gmDocuments.create_document_type(document_type = gmDocuments.DOCUMENT_TYPE_PRESCRIPTION)['pk_doc_type'],
-		episode = epi,
-		review_as_normal = True
+		forms = [rx],
+		jobtype = u'prescription',
+		#episode_name = u'administration',
+		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
+		progress_note = _('generated prescription'),
+		review_copy_as_normal = True
 	)
-
-	# 5) keep notice on printing
-	emr.add_clin_narrative (
-		soap_cat = None,
-		note = _('prescription printed from template [%s - %s]') % (rx_template['name_long'], rx_template['external_version']),
-		episode = epi
-	)
-
-	return True
 
 #------------------------------------------------------------
 def prescribe_drugs(parent=None, emr=None):
@@ -2575,15 +2499,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
-					brand = med['preparation']
+					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
 					if med['fake_brand']:
-						brand = u'%s %s' % (
-							gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+						brand = u'%s (%s)' % (
+							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
 						)
 					else:
-						brand = u'%s %s' % (
+						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u''),
 							med['preparation']
 						)
@@ -2621,15 +2545,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
-					brand = med['preparation']
+					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
 				else:
 					if med['fake_brand']:
-						brand = u'%s %s' % (
-							gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+						brand = u'%s (%s)' % (
+							gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 							med['preparation']
 						)
 					else:
-						brand = u'%s %s' % (
+						brand = u'%s (%s)' % (
 							gmTools.coalesce(med['brand'], u''),
 							med['preparation']
 						)
@@ -2649,12 +2573,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					else:
 						self.__prev_cell_0 = med['brand']
 						if med['fake_brand']:
-							brand = u'%s %s' % (
-								gmTools.coalesce(med['brand'], u'', _('%s (fake)')),
+							brand = u'%s (%s)' % (
+								gmTools.coalesce(med['brand'], u'', _('%s <fake>')),
 								med['preparation']
 							)
 						else:
-							brand = u'%s %s' % (
+							brand = u'%s (%s)' % (
 								gmTools.coalesce(med['brand'], u''),
 								med['preparation']
 							)

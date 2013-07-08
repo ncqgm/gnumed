@@ -1164,7 +1164,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot write letter. No active patient.'), beep = True)
 			return True
-		gmFormWidgets.print_doc_from_template(parent = self, keep_a_copy = True)
+		gmFormWidgets.print_doc_from_template(parent = self)#, keep_a_copy = True)
 	#----------------------------------------------
 	def __on_show_placeholders(self, evt):
 		from Gnumed.wxpython.gmMacro import show_placeholders

@@ -45,89 +45,31 @@ _ID_FORM_DISPOSAL_SAVE_NOW = range(6)
 #============================================================
 # convenience functions
 #============================================================
-def print_doc_from_template(parent=None, jobtype=None, keep_a_copy=True, episode=None):
+def print_doc_from_template(parent=None, jobtype=None, episode=None):
 
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-
-	# 1) get template
-	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note', 'invoice'])
-	if template is None:
-		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'))
-		return None
-
-	if template['engine'] == u'O':
-		return print_doc_from_ooo_template(template = template)
-
-	wx.BeginBusyCursor()
-
-	# 2) process template
-	try:
-		form = template.instantiate()
-	except KeyError:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error creating printable document.\n\nThere is no engine for this type of template.'),
-			aTitle = _('Printing document')
-		)
-		return False
-	ph = gmMacro.gmPlaceholderHandler()
-	#ph.debug = True
-	form.substitute_placeholders(data_source = ph)
-	form.edit()
-	printable_file = form.generate_output()
-	if printable_file is None:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error creating printable document.'),
-			aTitle = _('Printing document')
-		)
+	form = generate_form_from_template (
+		parent = parent,
+		excluded_template_types = [
+			u'gnuplot script',
+			u'visual progress note',
+			u'invoice'
+		],
+		edit = True
+	)
+	if form is None:
 		return False
 
-	#--------------------
-	wx.EndBusyCursor()
-	act_on_generated_forms(parent = parent, forms = [form])
-	return
-	#--------------------
+	if form.template['engine'] == u'O':
+		return True
 
-	# 3) print template
-	if jobtype is None:
-		jobtype = 'generic_document'
-
-	printed = gmPrinting.print_files(filenames = [printable_file], jobtype = jobtype)
-	if not printed:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			aMessage = _('Error printing document (%s).') % jobtype,
-			aTitle = _('Printing document')
-		)
-		return False
-
-	pat = gmPerson.gmCurrentPatient()
-	emr = pat.get_emr()
-	if episode is None:
-		episode = emr.add_episode(episode_name = 'administration', is_open = False)
-	emr.add_clin_narrative (
-		soap_cat = None,
-		note = _('%s printed from template [%s - %s]') % (jobtype, template['name_long'], template['external_version']),
-		episode = episode
+	return act_on_generated_forms (
+		parent = parent,
+		forms = [form],
+		jobtype = jobtype,
+		episode_name = u'administration',
+		review_copy_as_normal = True
 	)
 
-	# 4) keep a copy
-	if keep_a_copy:
-		files2import = []
-		files2import.extend(form.final_output_filenames)
-		files2import.extend(form.re_editable_filenames)
-		gmDispatcher.send (
-			signal = u'import_document_from_files',
-			filenames = files2import,
-			document_type = template['instance_type'],
-			unlock_patient = True
-		)
-
-	wx.EndBusyCursor()
-
-	return True
 #------------------------------------------------------------
 # eventually this should become superfluous when there's a
 # standard engine wrapper around OOo
@@ -230,83 +172,26 @@ def manage_form_templates(parent=None, template_types=None, active_only=False, e
 	return template
 
 #------------------------------------------------------------
-def create_new_letter(parent=None):
-
-	# 1) have user select template
-	template = manage_form_templates(parent = parent, active_only = True, excluded_types = ['gnuplot script', 'visual progress note'])
-	if template is None:
-		return
-
-	wx.BeginBusyCursor()
-
-	# 2) export template to file
-	filename = template.export_to_file()
-	if filename is None:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			_(	'Error exporting form template\n'
-				'\n'
-				' "%s" (%s)'
-			) % (template['name_long'], template['external_version']),
-			_('Letter template export')
-		)
-		return
-
-	try:
-		doc = gmForms.cOOoLetter(template_file = filename, instance_type = template['instance_type'])
-	except ImportError:
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			_('Cannot connect to OpenOffice.\n\n'
-			  'The UNO bridge module for Python\n'
-			  'is not installed.'
-			),
-			_('Letter writer')
-		)
-		return
-
-	if not doc.open_in_ooo():
-		wx.EndBusyCursor()
-		gmGuiHelpers.gm_show_error (
-			_('Cannot connect to OpenOffice.\n'
-			  '\n'
-			  'You may want to increase the option\n'
-			  '\n'
-			  ' <%s>'
-			) % _('OOo startup time'),
-			_('Letter writer')
-		)
-		try: os.remove(filename)
-		except: pass
-		return
-
-	doc.show(False)
-	ph_handler = gmMacro.gmPlaceholderHandler()
-
-	wx.EndBusyCursor()
-
-	doc.replace_placeholders(handler = ph_handler)
-
-	wx.BeginBusyCursor()
-	filename = filename.replace('.ott', '.odt').replace('-FormTemplate-', '-FormInstance-')
-	doc.save_in_ooo(filename = filename)
-	wx.EndBusyCursor()
-
-	doc.show(True)
-
-#------------------------------------------------------------
-#------------------------------------------------------------
-def generate_form_from_template(parent=None, template_types=None, edit=None):
+def generate_form_from_template(parent=None, template_types=None, edit=None, template=None, excluded_template_types=None):
 	"""If <edit> is None it will honor the template setting."""
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# 1) get template to use
-	template = manage_form_templates(parent = parent, active_only = True, template_types = template_types)
 	if template is None:
-		gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'), beep = False)
-		return None
+		template = manage_form_templates (
+			parent = parent,
+			active_only = True,
+			template_types = template_types,
+			excluded_types = excluded_template_types
+		)
+		if template is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No document template selected.'), beep = False)
+			return None
+
+	if template['engine'] == u'O':
+		return print_doc_from_ooo_template(template = template)
 
 	wx.BeginBusyCursor()
 
@@ -347,7 +232,7 @@ def generate_form_from_template(parent=None, template_types=None, edit=None):
 	return None
 
 #------------------------------------------------------------
-def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=None, progress_note=None):
+def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=None, progress_note=None, review_copy_as_normal=False):
 	"""This function assumes that .generate_output() has already been called on each form."""
 
 	if len(forms) == 0:
@@ -359,6 +244,8 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 	if no_of_printables == 0:
 		return True
+
+	soap_lines = []
 
 	#-----------------------------
 	def save_soap(soap=None):
@@ -393,11 +280,22 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 				document_type = form.template['instance_type'],
 				unlock_patient = False,
 				episode = epi,
-				review_as_normal = True,
+				review_as_normal = review_copy_as_normal,
 				reference = None
 			)
+
+		return True
 	#-----------------------------
 	def save_forms():
+		# anything to do ?
+		files2save = []
+		form_names = []
+		for form in forms:
+			files2save.extend(form.final_output_filenames)
+			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
+		if len(files2save) == 0:
+			return True
+		# get path
 		path = os.path.expanduser(os.path.join('~', 'gnumed'))
 		dlg = wx.DirDialog (
 			parent = parent,
@@ -408,32 +306,100 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		result = dlg.ShowModal()
 		path = dlg.GetPath()
 		dlg.Destroy()
-
 		if result != wx.ID_OK:
 			return
-
+		# save forms
 		pat = gmPerson.gmCurrentPatient()
 		path = os.path.join(path, pat.dirname)
 		gmTools.mkdir(path)
 		_log.debug('form saving path: %s', path)
-
 		for form in forms:
 			for filename in form.final_output_filenames:
 				shutil.copy2(filename, path)
+		soap_lines.append(_('Saved to disk: %s') % u', '.join(form_names))
+		return True
 	#-----------------------------
 	def print_forms():
+		# anything to do ?
 		files2print = []
+		form_names = []
 		for form in forms:
 			files2print.extend(form.final_output_filenames)
+			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
 		if len(files2print) == 0:
 			return True
+		# print
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
 		if not printed:
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Error printing documents.'),
 				aTitle = _('Printing [%s]') % jobtype
 			)
-		return printed
+			return False
+		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
+		return True
+	#-----------------------------
+	def mail_forms():
+		# anything to do ?
+		files2mail = []
+		form_names = []
+		for form in forms:
+			files2mail.extend(form.final_output_filenames)
+			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
+		if len(files2mail) == 0:
+			return True
+		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
+		if not found:
+			return False
+		# send mail
+		cmd = u'%s %s' % (external_cmd, u' '.join(files2mail))
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = blocking
+		)
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error mailing documents.'),
+				aTitle = _('Mailing documents')
+			)
+			return False
+		soap_lines.append(_('Mailed: %s') % u', '.join(form_names))
+		return True
+	#-----------------------------
+	def fax_forms(fax_number=None):
+		# anything to do ?
+		files2fax = []
+		form_names = []
+		for form in forms:
+			files2fax.extend(form.final_output_filenames)
+			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
+		if len(files2fax) == 0:
+			return True
+		found, external_cmd = gmShellAPI.detect_external_binary('gm-fax_doc')
+		if not found:
+			return False
+		# send fax
+		cmd = u'%s "%s" %s' % (external_cmd, fax_number, u' '.join(files2fax))
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = blocking
+		)
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error faxing documents to\n\n  %s') % fax_number,
+				aTitle = _('Faxing documents')
+			)
+			return False
+		soap_lines.append(_('Faxed to %s: %s') % (fax_number, u', '.join(form_names)))
+		return True
 	#-----------------------------
 
 	if parent is None:
@@ -461,48 +427,71 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 	episode_name = dlg._PRW_episode.GetValue().strip()
 	do_save = dlg._CHBOX_save.GetValue()
 	do_print = dlg._CHBOX_print.GetValue()
+	do_mail = dlg._CHBOX_mail.GetValue()
+	fax_number = dlg._PRW_fax.GetValue().strip()
 	dlg.Destroy()
 
-	if action_code == _ID_FORM_DISPOSAL_PRINT_NOW:
-		save_soap(soap = progress_note)
-		if episode_name != u'':
-			archive_forms(episode_name = episode_name)
-		return print_forms()
-
-	if action_code == _ID_FORM_DISPOSAL_ARCHIVE_NOW:
-		save_soap(soap = progress_note)
-		if episode_name != u'':
-			archive_forms(episode_name = episode_name)
-		else:
-			archive_forms(episode_name = None)
-		return True
-
-	if action_code == _ID_FORM_DISPOSAL_SAVE_NOW:
-		save_soap(soap = progress_note)
-		save_forms()
-		return True
-
-	if action_code == _ID_FORM_DISPOSAL_MAIL_NOW:
-		return True
-
-	if action_code == _ID_FORM_DISPOSAL_FAX_NOW:
-		return True
-
-	if action_code == _ID_FORM_DISPOSAL_TRAY_NOW:
-		return True
-
-	# evaluate and do aggregate actions
 	if action_code == wx.ID_OK:
-		save_soap(soap = progress_note)
 		if episode_name != u'':
-			archive_forms(episode_name = episode_name)
+			result = archive_forms(episode_name = episode_name)
 		if do_save:
-			save_forms()
+			result = save_forms()
 		if do_print:
-			print_forms()
-		return True
+			result = print_forms()
+		if do_mail:
+			result = mail_forms()
+		if fax_number != u'':
+			result = fax_forms(fax_number = fax_number)
+		if progress_note != u'':
+			soap_lines.insert(0, progress_note)
+		if len(soap_lines) > 0:
+			save_soap(soap = u'\n'.join(soap_lines))
+		return result
 
-	return False
+	success = False
+	keep_a_copy = False
+	if action_code == _ID_FORM_DISPOSAL_PRINT_NOW:
+		if episode_name != u'':
+			keep_a_copy = True
+		success = print_forms()
+
+	elif action_code == _ID_FORM_DISPOSAL_ARCHIVE_NOW:
+		if episode_name == u'':
+			episode_name = None
+		keep_a_copy = True
+		success = True
+
+	elif action_code == _ID_FORM_DISPOSAL_SAVE_NOW:
+		if episode_name != u'':
+			keep_a_copy = True
+		success = save_forms()
+
+	elif action_code == _ID_FORM_DISPOSAL_MAIL_NOW:
+		if episode_name != u'':
+			keep_a_copy = True
+		success = mail_forms()
+
+	elif action_code == _ID_FORM_DISPOSAL_FAX_NOW:
+		if episode_name != u'':
+			keep_a_copy = True
+		success = fax_forms(fax_number = fax_number)
+
+	elif action_code == _ID_FORM_DISPOSAL_TRAY_NOW:
+		# not implemented
+		success = False
+
+	if not success:
+		return False
+
+	if progress_note != u'':
+		soap_lines.insert(0, progress_note)
+	if len(soap_lines) > 0:
+		save_soap(soap = u'\n'.join(soap_lines))
+
+	if keep_a_copy:
+		archive_forms(episode_name = episode_name)
+
+	return True
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgFormDisposalDlg
@@ -563,9 +552,9 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._LBL_mail.Disable()
-			self._PRW_email.SetText(_('<gm-mail_doc(.bat) not found>'), data = None)
-			self._PRW_email.display_as_disabled(True)
-			self._PRW_email.Disable()
+			self._CHBOX_mail.SetLabel(_('<gm-mail_doc(.bat) not found>'))
+			self._CHBOX_mail.SetValue(False)
+			self._CHBOX_mail.Disable()
 			self._BTN_mail.Disable()
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
@@ -577,6 +566,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 			self._BTN_fax.Disable()
 
 		self._LBL_tray.Disable()
+		self._CHBOX_tray.SetValue(False)
 		self._CHBOX_tray.Disable()
 		self._BTN_tray.Disable()
 

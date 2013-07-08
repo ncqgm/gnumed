@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
-"POT-Creation-Date: 2013-06-08 21:59+CEST\n"
-"PO-Revision-Date: 2013-06-08 22:03+0100\n"
+"POT-Creation-Date: 2013-07-07 22:27+CEST\n"
+"PO-Revision-Date: 2013-07-07 22:41+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -232,6 +232,9 @@ msgstr "soap_D"
 
 msgid "soap_P"
 msgstr "soap_T"
+
+msgid "soap_U"
+msgstr "soap_U"
 
 msgid "soap_Subjective"
 msgstr "soap_Anamnese"
@@ -518,8 +521,8 @@ msgid ""
 msgstr ""
 
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
-"s, %(code_country)s"
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
 msgstr ""
 
 msgid ""
@@ -788,6 +791,9 @@ msgstr "  Ortszeit: %s - %s  (@%s = %s%s)\n"
 msgid "daylight savings time in effect"
 msgstr "Sommerzeit aktiv"
 
+msgid "Location: %s (%s)"
+msgstr "Ort: %s (%s)"
+
 msgid "today"
 msgstr "heute"
 
@@ -884,6 +890,9 @@ msgstr "kopieren"
 
 msgid "data"
 msgstr "Daten"
+
+msgid "in use"
+msgstr "in Gebrauch"
 
 msgid "long-term"
 msgstr "Langzeit"
@@ -999,8 +1008,17 @@ msgstr "Medikament"
 msgid "units"
 msgstr "Einheiten"
 
-msgid "Unit: %s%s"
-msgstr "Abteilg.: %s%s"
+msgid "Organization #%s"
+msgstr "Organisation #%s"
+
+msgid "This is your praxis !"
+msgstr "Das ist Ihre Praxis !"
+
+msgid "Unit%s: %s%s"
+msgstr "Abteilg.%s: %s%s"
+
+msgid " (of your praxis)"
+msgstr " (Ihrer Praxis)"
 
 msgid "Organization: %s (%s)"
 msgstr "Organisation: %s (%s)"
@@ -3928,8 +3946,12 @@ msgstr "Seit wann wird diese Substanz konsumiert."
 msgid "Whether this substance is taken by advice."
 msgstr "Ob die Einnahme dieser Substanz gebilligt (bzw sogar empfohlen) wird."
 
-msgid "The episode this substance is taken under."
-msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
+msgid ""
+"Select, or enter for creation, the episode to which this substance will "
+"relate."
+msgstr ""
+"Wählen Sie die Episode (oder tippen Sie eine neue), welcher die Substanz "
+"zugeordnet werden soll."
 
 msgid "The schedule for taking this substance."
 msgstr "Der Einnahmeplan für diese Substanz."
@@ -4375,6 +4397,9 @@ msgstr "Details der Konsultation ändern"
 msgid "Edit the details for the encounter below:"
 msgstr "Ändern Sie die Details der Konsultation:"
 
+msgid "Select the praxis branch where this encounter took place."
+msgstr "Wählen Sie den Standort des Arzt-Patienten-Kontakts."
+
 msgid ""
 "Enter the Reason For Encounter here. This is the patient's initial request "
 "or purpose of visit which led to the encounter."
@@ -4408,6 +4433,9 @@ msgstr "Patient"
 
 msgid "Type"
 msgstr "Typ"
+
+msgid "Location"
+msgstr "Ort"
 
 msgid "Ended"
 msgstr "Ende"
@@ -4642,6 +4670,112 @@ msgstr "Eintrag:"
 msgid "Encounter:"
 msgstr "Kontakt:"
 
+msgid "What would you like to do with the following document(s) ?"
+msgstr "Was wollen Sie mit diesen Dokumenten tun ?"
+
+msgid "Show"
+msgstr "Zeige"
+
+msgid "to printer"
+msgstr "auf Drucker"
+
+msgid "Now (&P)"
+msgstr "jetzt (&D)"
+
+msgid "Mail"
+msgstr "Mail"
+
+msgid "to recipients"
+msgstr "an Empfänger"
+
+msgid "Now (&M)"
+msgstr "jetzt (&e)"
+
+msgid "Fax to"
+msgstr "Faxen an"
+
+msgid "Now (&F)"
+msgstr "jetzt (&F)"
+
+msgid "Tray"
+msgstr "Korb"
+
+msgid "export"
+msgstr "exportieren"
+
+msgid "Now (&T)"
+msgstr "Jetzt (&T)"
+
+msgid ""
+"Archive\n"
+"under"
+msgstr ""
+"Archiviere\n"
+"unter"
+
+msgid "Now (&A)"
+msgstr "jetzt (&A)"
+
+msgid "to file(s)"
+msgstr "in Dateien"
+
+msgid "Now (&S)"
+msgstr "jetzt (&S)"
+
+msgid "Form handling"
+msgstr "Formularverarbeitung"
+
+msgid "Show the selected form(s)."
+msgstr "Markierte Dokumente zeigen."
+
+msgid "Delete the selected forms from the list."
+msgstr "Markierte Dokumente entfernen."
+
+msgid "Check here for printing."
+msgstr "Hier markieren für Ausdruck."
+
+msgid "Print immediately without further ado."
+msgstr "Sofort und ausschließlich ausdrucken."
+
+msgid "Mail immediately without further ado."
+msgstr "Sofort und ausschließlich per E-Mail versenden."
+
+msgid "Enter a fax number here."
+msgstr "Geben Sie hier eine Faxnummer ein."
+
+msgid "Fax immediately without further ado."
+msgstr "Sofort und ausschließlich faxen."
+
+msgid "Check here if you want to put a copy into the export tray."
+msgstr "Hier ankreuzen, um eine Kopie in den Postausgang zu legen."
+
+msgid "Put into export tray immediately without further ado."
+msgstr ""
+
+msgid "Select episode under which to archive a copy of the document(s)."
+msgstr "Wählen Sie die Episode, der die Dokumente zugeordnet werden sollen."
+
+msgid "Put copy into archive without further ado."
+msgstr "Sofort und ausschließlich eine Kopie im Dokumentenarchiv hinterlegen."
+
+msgid "Check here to save document(s) to file(s)."
+msgstr "Hier markieren, um die Dokumente in Dateien zu speichern."
+
+msgid "Save to file(s) immediately without further ado."
+msgstr "Sofort und ausschließlich auf Festplatte speichern."
+
+msgid "Enter a SOAP note to be put into the chart."
+msgstr "Geben Sie hier eine Verlaufsnotiz für die Kartei ein."
+
+msgid "Act on the document(s) according to the above."
+msgstr "Die oben gewählten Aktionen ausführen."
+
+msgid "Cancel any actions and close dialog."
+msgstr "Alle Aktionen abbrechen und den Dialog schließen."
+
+msgid "Note"
+msgstr "Notiz"
+
 msgid "edit form template details"
 msgstr "Details der Vorlage ändern"
 
@@ -4671,6 +4805,9 @@ msgstr "generische Verarbeitung von Text"
 
 msgid "Xe(La)TeX"
 msgstr ""
+
+msgid "editable"
+msgstr "bearbeitbar"
 
 msgid "&Load"
 msgstr "&Laden"
@@ -4707,6 +4844,12 @@ msgstr "Der Formularprozessor für diese Vorlage."
 
 msgid "Mark this checkbox if you want this template to be active in GNUmed."
 msgstr "Hier ankreuzen, wenn diese Vorlage in GNUmed aktiv sein soll."
+
+msgid ""
+"Check here to be offered manual, generic, last-minute editing of the form "
+"after placeholder substitution but before final output generation (ususally "
+"PDF) with those form engines to which it applies."
+msgstr ""
 
 msgid ""
 "Examplary filename. Mainly used for deriving a suitable file extension since "
@@ -6064,9 +6207,6 @@ msgstr "Maßnahme"
 
 msgid "End"
 msgstr "Ende"
-
-msgid "Location"
-msgstr "Ort"
 
 msgid "and Episode"
 msgstr "und Episode"
@@ -10035,9 +10175,6 @@ msgstr ""
 "\n"
 "Genaue Fehlerbeschreibung in der Logdatei."
 
-msgid "No EMR data loaded."
-msgstr "Keine Karteieinträge geladen."
-
 msgid "Cannot delete performed procedure."
 msgstr "Kann die Maßnahme nicht löschen."
 
@@ -10176,6 +10313,9 @@ msgstr "Neuen Konsultationstype hinzufügen"
 
 msgid "Editing local encounter type name"
 msgstr "Bearbeite Lokalnamen des Konsultationstyps"
+
+msgid "old praxis branch: %s (%s)"
+msgstr ""
 
 msgid ""
 "The active encounter of the current patient:\n"
@@ -10361,6 +10501,9 @@ msgstr ""
 
 msgid "Select desired test option from the 'File' menu"
 msgstr "Wähle die gewünschte Testoption aus dem 'Datei'-Menü"
+
+msgid "No EMR data loaded."
+msgstr "Keine Karteieinträge geladen."
 
 msgid "EMR text dump"
 msgstr "Textauszug der Kartei"
@@ -10697,30 +10840,6 @@ msgstr "Familienanamnese hinzufügen"
 msgid "Editing family history"
 msgstr "Familienanamnese bearbeiten"
 
-msgid "No document template selected."
-msgstr "Keine Druckvorlage ausgewählt."
-
-msgid ""
-"Error creating printable document.\n"
-"\n"
-"There is no engine for this type of template."
-msgstr ""
-"Fehler bei Erzeugen eines Dokuments zum Drucken.\n"
-"\n"
-"Kein Prozessor für diesen Typ Vorlage bekannt."
-
-msgid "Printing document"
-msgstr "Dokument drucken"
-
-msgid "Error creating printable document."
-msgstr "Fehler beim Erzeugen der Druckausgabe."
-
-msgid "Error printing document (%s)."
-msgstr "Fehler beim Drucken eines Dokuments (%s)."
-
-msgid "%s printed from template [%s - %s]"
-msgstr "%s gedruckt mittels Template [%s - %s]"
-
 msgid ""
 "Error exporting form template\n"
 "\n"
@@ -10787,6 +10906,66 @@ msgstr ""
 
 msgid "Select letter or form template."
 msgstr "Die Brief- oder Formularvorlage wählen."
+
+msgid "No document template selected."
+msgstr "Keine Druckvorlage ausgewählt."
+
+msgid "Invalid document template [%s - %s (%s)]"
+msgstr "Unbrauchbare Dokumentenvorlage [%s - %s (%s)]"
+
+msgid "Generating document from template"
+msgstr "Erzeuge Dokument aus Vorlage"
+
+msgid "Error generating document printout."
+msgstr "Fehler beim Erzeugen der Ausdrucke."
+
+msgid "Generating document printout"
+msgstr "Erzeuge Ausgabedokument"
+
+msgid "Select directory in which to create patient directory ..."
+msgstr "Wo soll das patientenspezifische Unterverzeichnis angelegt werden ?"
+
+msgid "Saved to disk: %s"
+msgstr "Auf Festplatte gespeichert: %s"
+
+msgid "Error printing documents."
+msgstr "Fehler beim Drucken der Dokumente."
+
+msgid "Printing [%s]"
+msgstr "Drucke [%s]"
+
+msgid "Printed: %s"
+msgstr "Gedruckt: %s"
+
+msgid "Error mailing documents."
+msgstr ""
+
+msgid "Mailing documents"
+msgstr "Versende Dokumente per E-Mail"
+
+msgid "Mailed: %s"
+msgstr "Gemailt: %s"
+
+msgid ""
+"Error faxing documents to\n"
+"\n"
+"  %s"
+msgstr ""
+"Fehler beim Faxen der Dokumente an\n"
+"\n"
+"  %s"
+
+msgid "Faxing documents"
+msgstr "Faxe Dokumente"
+
+msgid "Faxed to %s: %s"
+msgstr "An %s gefaxt: %s"
+
+msgid "<gm-mail_doc(.bat) not found>"
+msgstr "<gm-mail_doc(.bat) nicht gefunden>"
+
+msgid "<gm-fax_doc(.bat) not found>"
+msgstr "<gm-fax_doc(.bat) nicht gefunden>"
 
 msgid "You must select a template file before saving."
 msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
@@ -11976,8 +12155,11 @@ msgstr "Datenbank"
 msgid "Formular"
 msgstr "Formular"
 
-msgid "Select the default type for new encounters.\n"
-msgstr "Wählen Sie den Standardtyp für neue Arzt-Patienten-Begegnungen.\n"
+msgid ""
+"Select the default type for new encounters.\n"
+"\n"
+"Leaving this unset will make GNUmed apply the most commonly used type.\n"
+msgstr ""
 
 msgid ""
 "Do you want GNUmed to show the encounter\n"
@@ -12943,6 +13125,9 @@ msgstr "Keine Symbole bei diesem Patienten"
 msgid "no patient tags selected for inclusion"
 msgstr "Keine Symbole dieses Patienten markiert"
 
+msgid "no address recorded"
+msgstr "Keine Adresse bekannt"
+
 msgid "no external ID [%s] by [%s]"
 msgstr "keine externe ID [%s] von [%s]"
 
@@ -13072,9 +13257,6 @@ msgstr ""
 
 msgid "Data ID"
 msgstr "Daten-ID"
-
-msgid "Show"
-msgstr "Zeige"
 
 msgid "Show formatted HL7"
 msgstr "Formatiertes HL7 zeigen"
@@ -13535,9 +13717,6 @@ msgstr ""
 msgid "Managing components of a drug ..."
 msgstr "Die Bestandteile eines Medikaments verwalten..."
 
-msgid "in use"
-msgstr "in Gebrauch"
-
 msgid "not in use"
 msgstr "nicht in Gebrauch"
 
@@ -13813,17 +13992,8 @@ msgstr "Problem beim Laden der Druckvorlage für die Medikamentenliste."
 msgid "Cannot load medication list template [%s - %s]"
 msgstr "Kann Vorlage [%s - %s] für Medikamentenliste nicht laden"
 
-msgid "Invalid medication list template [%s - %s (%s)]"
-msgstr "Unbrauchbare Vorlage für die Medikamentenliste [%s - %s (%s)]"
-
-msgid "Error generating the medication list."
-msgstr "Fehler beim Erzeugen der Medikamentenliste."
-
-msgid "Error printing the medication list."
-msgstr "Fehler beim Drucken der Medikamentenliste."
-
-msgid "medication list printed from template [%s - %s]"
-msgstr "Medikamentenliste nach Vorlage [%s - %s] gedruckt"
+msgid "generated medication list document"
+msgstr "Medikamentenliste erzeugt"
 
 msgid "Select the default prescription template:"
 msgstr "Wählen Sie die Standardvorlage für Verordnungen:"
@@ -13843,20 +14013,8 @@ msgstr "Problem beim Laden der Druckvorlage für Verordnungen."
 msgid "Cannot load prescription template [%s - %s]"
 msgstr "Kann Vorlage [%s - %s] für Verordnungen nicht laden"
 
-msgid "Invalid prescription template [%s - %s (%s)]"
-msgstr "Unbrauchbare Vorlage für Verordnungen [%s - %s (%s)]"
-
-msgid "Printing prescription list"
-msgstr "Drucke Medikamentenliste"
-
-msgid "Error generating the prescription printout."
-msgstr "Fehler beim Erzeugen des Verordnungsausdrucks."
-
-msgid "Error printing the prescription."
-msgstr "Fehler beim Drucken der Verordnung."
-
-msgid "prescription printed from template [%s - %s]"
-msgstr "Verordnung mittels Vorlage [%s - %s] gedruckt"
+msgid "generated prescription"
+msgstr "Verordnung erzeugt"
 
 msgid ""
 "These brands have been prescribed but are not listed\n"
@@ -13878,8 +14036,8 @@ msgstr "In Medikationsliste eintragen"
 msgid "Duration / Until"
 msgstr "Dauer / Bis"
 
-msgid "%s (fake)"
-msgstr "%s (unecht)"
+msgid "%s <fake>"
+msgstr "%s <unecht>"
 
 msgid "Cannot edit more than one substance at once."
 msgstr "Kann nicht mehrere Substanzen gleichzeitig bearbeiten."
@@ -14372,18 +14530,18 @@ msgstr "Abteilungsart"
 msgid "Select an organizational unit."
 msgstr "Wählen Sie eine Abteilung."
 
+msgid "Organizational Unit"
+msgstr "Abteilung"
+
+msgid "Unit Category"
+msgstr "Kategorie (Abteilung)"
+
 msgid ""
 "Units (sites, parts, departments, branches, ...) of organizations registered "
 "in GNUmed."
 msgstr ""
 "In GNUmed registrierte Teile (Niederlassungen, Abteilungen, Filialen, ...) "
 "von Einrichtungen."
-
-msgid "Organizational Unit"
-msgstr "Abteilung"
-
-msgid "Unit Category"
-msgstr "Kategorie (Abteilung)"
 
 msgid "Units of: %s"
 msgstr "Abteilg.von: %s"
@@ -15201,6 +15359,21 @@ msgstr "Zweigstellen Ihrer Praxis"
 msgid "Units of \"%s\""
 msgstr "Abteilungen von \"%s\""
 
+msgid ""
+"Cannot delete praxis branch(es).\n"
+"\n"
+"There are probably clients logged in\n"
+"from other locations. You need to log out\n"
+"all but this client before the praxis can\n"
+"be reconfigured."
+msgstr ""
+
+msgid "Configuring praxis ..."
+msgstr "Verwaltung der Praxis ..."
+
+msgid "Select a praxis branch."
+msgstr "Wählen Sie eine Praxis-Zweigstelle."
+
 msgid "Pregnancy Calculator"
 msgstr "Schwangerschaftsrechner"
 
@@ -15817,24 +15990,6 @@ msgstr "Wählen Sie die Krankheiten, vor denen dieser Impfstoff schützt."
 msgid "This vaccine"
 msgstr "Dieser Impfstoff"
 
-msgid "No vaccination document template selected."
-msgstr "Keine Druckvorlage für Impfungen ausgewählt."
-
-msgid "Invalid vaccinations printout template [%s - %s (%s)]"
-msgstr "Unbrauchbare Vorlage für Druck der Impfliste [%s - %s (%s)]"
-
-msgid "Printing vaccinations"
-msgstr "Impfungen drucken"
-
-msgid "Error generating the vaccinations printout."
-msgstr "Fehler beim Erzeugen des Impfausdrucks."
-
-msgid "Error printing vaccinations."
-msgstr "Fehler beim Drucken von Impfugnen."
-
-msgid "vaccinations printed from template [%s - %s]"
-msgstr "Impfungen mittels Vorlage [%s - %s] gedruckt"
-
 msgid "Adding new vaccinations"
 msgstr "Neue Impfungen hinzufügen"
 
@@ -15869,8 +16024,8 @@ msgstr "Zeige Impfungen."
 msgid "Intended to protect from"
 msgstr "Soll schützen vor"
 
-msgid "Print vaccinations using a template."
-msgstr "Impfungen mittels einer Druckvorlage drucken."
+msgid "Print vaccinations or recalls."
+msgstr "Impfungen oder Recalls drucken."
 
 msgid "Add a recall for a vaccination"
 msgstr "Eine Erinnerung an eine Impfung erzeugen"
@@ -15881,7 +16036,7 @@ msgstr "Erinnerung"
 msgid "Open a browser showing vaccination schedules."
 msgstr "Impfpläne im Browser anzeigen."
 
-msgid "Vaccination Plans"
+msgid "Vx schedules"
 msgstr "Impfpläne"
 
 msgid "prevention"
@@ -16546,6 +16701,81 @@ msgstr "Menge"
 
 msgid "First Date"
 msgstr "erstmals"
+
+#~ msgid "The episode this substance is taken under."
+#~ msgstr "Die Episode, im Rahmen welcher diese Substanz eingenommen wird."
+
+#~ msgid ""
+#~ "Error creating printable document.\n"
+#~ "\n"
+#~ "There is no engine for this type of template."
+#~ msgstr ""
+#~ "Fehler bei Erzeugen eines Dokuments zum Drucken.\n"
+#~ "\n"
+#~ "Kein Prozessor für diesen Typ Vorlage bekannt."
+
+#~ msgid "Printing document"
+#~ msgstr "Dokument drucken"
+
+#~ msgid "Error creating printable document."
+#~ msgstr "Fehler beim Erzeugen der Druckausgabe."
+
+#~ msgid "Error printing document (%s)."
+#~ msgstr "Fehler beim Drucken eines Dokuments (%s)."
+
+#~ msgid "%s printed from template [%s - %s]"
+#~ msgstr "%s gedruckt mittels Template [%s - %s]"
+
+#~ msgid "Invalid medication list template [%s - %s (%s)]"
+#~ msgstr "Unbrauchbare Vorlage für die Medikamentenliste [%s - %s (%s)]"
+
+#~ msgid "Error generating the medication list."
+#~ msgstr "Fehler beim Erzeugen der Medikamentenliste."
+
+#~ msgid "Error printing the medication list."
+#~ msgstr "Fehler beim Drucken der Medikamentenliste."
+
+#~ msgid "medication list printed from template [%s - %s]"
+#~ msgstr "Medikamentenliste nach Vorlage [%s - %s] gedruckt"
+
+#~ msgid "Invalid prescription template [%s - %s (%s)]"
+#~ msgstr "Unbrauchbare Vorlage für Verordnungen [%s - %s (%s)]"
+
+#~ msgid "Printing prescription list"
+#~ msgstr "Drucke Medikamentenliste"
+
+#~ msgid "Error generating the prescription printout."
+#~ msgstr "Fehler beim Erzeugen des Verordnungsausdrucks."
+
+#~ msgid "Error printing the prescription."
+#~ msgstr "Fehler beim Drucken der Verordnung."
+
+#~ msgid "prescription printed from template [%s - %s]"
+#~ msgstr "Verordnung mittels Vorlage [%s - %s] gedruckt"
+
+#~ msgid "vaccinations printed from template [%s - %s]"
+#~ msgstr "Impfungen mittels Vorlage [%s - %s] gedruckt"
+
+#~ msgid "Select the default type for new encounters.\n"
+#~ msgstr "Wählen Sie den Standardtyp für neue Arzt-Patienten-Begegnungen.\n"
+
+#~ msgid "No vaccination document template selected."
+#~ msgstr "Keine Druckvorlage für Impfungen ausgewählt."
+
+#~ msgid "Invalid vaccinations printout template [%s - %s (%s)]"
+#~ msgstr "Unbrauchbare Vorlage für Druck der Impfliste [%s - %s (%s)]"
+
+#~ msgid "Printing vaccinations"
+#~ msgstr "Impfungen drucken"
+
+#~ msgid "Error printing vaccinations."
+#~ msgstr "Fehler beim Drucken von Impfugnen."
+
+#~ msgid "Print vaccinations using a template."
+#~ msgstr "Impfungen mittels einer Druckvorlage drucken."
+
+#~ msgid "Vaccination Plans"
+#~ msgstr "Impfpläne"
 
 #~ msgid "Add billing item"
 #~ msgstr "Abrechungsposition hinzufügen"
@@ -18223,8 +18453,8 @@ msgstr "erstmals"
 #~ " Verantwortlicher: %(responsible_reviewer)s\n"
 #~ "\n"
 #~ "Details zum Meßverfahren:\n"
-#~ " Gruppiert unter \"%(name_unified)s\" (%(code_unified)s)  [#%(pk_u_type)"
-#~ "s]\n"
+#~ " Gruppiert unter \"%(name_unified)s\" (%(code_unified)s)  [#"
+#~ "%(pk_u_type)s]\n"
 #~ " Verfahrenskommentar: %(comment_type)s\n"
 #~ " Gruppenkommentar: %(comment_type_unified)s\n"
 #~ "\n"
@@ -18542,9 +18772,6 @@ msgstr "erstmals"
 #~ "außerhalb\n"
 #~ "Normbereich:"
 
-#~ msgid "Mail"
-#~ msgstr "Mail"
-
 #~ msgid "Copy the selected measurements to the clipboard."
 #~ msgstr "Gewählte Ergebnisse in die Zwischenablage kopieren."
 
@@ -18658,9 +18885,6 @@ msgstr "erstmals"
 
 #~ msgid "Cannot find config file. Option syntax: --conf-file=<file>"
 #~ msgstr "Kann Konfigurationsdatei nicht finden. Syntax: --conf-file=<file>"
-
-#~ msgid "stored medical documents"
-#~ msgstr "vorhandene medizinische Dokumente"
 
 #~ msgid "manage &allergies"
 #~ msgstr "&Allergien dokumentieren"
@@ -18823,9 +19047,6 @@ msgstr "erstmals"
 
 #~ msgid "Checked if the original template was modified."
 #~ msgstr "Angekreuzt wenn die Originalvorlage modifiziert wurde."
-
-#~ msgid "Form handler:"
-#~ msgstr "Umsetzung in:"
 
 #~ msgid "generic single choice dialog"
 #~ msgstr "allgemeine Nutzerauswahl"
@@ -19372,9 +19593,6 @@ msgstr "erstmals"
 
 #~ msgid "home"
 #~ msgstr "privat"
-
-#~ msgid "[No address recorded]"
-#~ msgstr "[Keine Adresse bekannt]"
 
 #~ msgid "Female"
 #~ msgstr "weiblich"

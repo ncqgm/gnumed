@@ -592,10 +592,7 @@ def print_vaccinations(parent=None):
 		forms = [vaccs_printout],
 		jobtype = 'vaccinations',
 		episode_name = u'administration',
-		progress_note = _('vaccinations printed from template [%s - %s]') % (
-			vaccs_printout.template['name_long'],
-			vaccs_printout.template['external_version']
-		)
+		review_copy_as_normal = True
 	)
 
 #----------------------------------------------------------------------
