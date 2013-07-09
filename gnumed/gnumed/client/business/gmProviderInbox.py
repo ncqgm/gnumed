@@ -205,11 +205,11 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
 #------------------------------------------------------------
-def create_inbox_message(message_type=None, subject=None, patient=None, staff=None):
+def create_inbox_message(message_type=None, subject=None, patient=None, staff=None, message_category=u'clinical'):
 
 	success, pk_type = gmTools.input2int(initial = message_type)
 	if not success:
-		pk_type = create_inbox_item_type(message_type = message_type)
+		pk_type = create_inbox_item_type(message_type = message_type, category = message_category)
 
 	cmd = u"""
 		INSERT INTO dem.message_inbox (

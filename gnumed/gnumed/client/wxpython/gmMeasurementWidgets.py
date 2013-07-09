@@ -4,11 +4,19 @@ __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
 
-import sys, logging, datetime as pyDT, decimal, os, subprocess, codecs
+import sys
+import logging
+import datetime as pyDT
+import decimal
+import os
+import subprocess
+import codecs
 import os.path
 
 
-import wx, wx.grid, wx.lib.hyperlink
+import wx
+import wx.grid
+import wx.lib.hyperlink
 
 
 if __name__ == '__main__':
@@ -205,6 +213,7 @@ def update_loinc_reference_data():
 
 	wx.EndBusyCursor()
 	return True
+
 #================================================================
 # convenience functions
 #================================================================
@@ -998,7 +1007,24 @@ class cMeasurementsGrid(wx.grid.Grid):
 		except IndexError:
 			return u' '
 
-		return tt.format(patient = self.__patient.ID)
+		meta_tt = tt.meta_test_type
+		if meta_tt is None:
+			return tt.format(patient = self.__patient.ID)
+
+		txt = meta_tt.format(with_tests = True)
+		txt += u'\n'
+		most_recent = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 2)
+		if most_recent is not None:
+			txt += _('Most recent results:')
+			for result in most_recent:
+				txt += _('\n %s: %s%s%s') % (
+					result['clin_when'].strftime('%Y %b %d'),
+					result['unified_val'],
+					gmTools.coalesce(result['val_unit'], u'', u' %s'),
+					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+				)
+
+		return txt
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
 		try:
@@ -1557,11 +1583,21 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		else:
 			self._DPRW_evaluated.display_as_valid(True)
 
-		if self._TCTRL_result.GetValue().strip() == u'':
+		val = self._TCTRL_result.GetValue().strip()
+		if val == u'':
 			validity = False
 			self.display_ctrl_as_valid(self._TCTRL_result, False)
 		else:
 			self.display_ctrl_as_valid(self._TCTRL_result, True)
+			numeric, val = gmTools.input2decimal(val)
+			if numeric:
+				if self._PRW_units.GetValue().strip() == u'':
+					self._PRW_units.display_as_valid(False)
+					validity = False
+				else:
+					self._PRW_units.display_as_valid(True)
+			else:
+				self._PRW_units.display_as_valid(True)
 
 		if self._PRW_problem.GetValue().strip() == u'':
 			self._PRW_problem.display_as_valid(False)
@@ -1580,12 +1616,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			validity = False
 		else:
 			self._PRW_intended_reviewer.display_as_valid(True)
-
-		if self._PRW_units.GetValue().strip() == u'':
-			self._PRW_units.display_as_valid(False)
-			validity = False
-		else:
-			self._PRW_units.display_as_valid(True)
 
 		ctrls = [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_target_min, self._TCTRL_target_max]
 		for widget in ctrls:
@@ -1982,6 +2012,7 @@ def manage_measurement_types(parent=None):
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip
 	)
+
 #----------------------------------------------------------------
 class cMeasurementTypePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -2094,76 +2125,11 @@ limit 50"""
 		self._PRW_conversion_unit.selection_only = False
 
 		# loinc
-		query = u"""
-SELECT DISTINCT ON (list_label)
-	data,
-	field_label,
-	list_label
-FROM ((
-
-		SELECT
-			loinc AS data,
-			loinc AS field_label,
-			(loinc || ': ' || abbrev || ' (' || name || ')') AS list_label
-		FROM clin.test_type
-		WHERE loinc %(fragment_condition)s
-		LIMIT 50
-
-	) UNION ALL (
-
-		SELECT
-			code AS data,
-			code AS field_label,
-			(code || ': ' || term) AS list_label
-		FROM ref.v_coded_terms
-		WHERE
-			coding_system = 'LOINC'
-				AND
-			lang = i18n.get_curr_lang()
-				AND
-			(code %(fragment_condition)s
-				OR
-			term %(fragment_condition)s)
-		LIMIT 50
-
-	) UNION ALL (
-
-		SELECT
-			code AS data,
-			code AS field_label,
-			(code || ': ' || term) AS list_label
-		FROM ref.v_coded_terms
-		WHERE
-			coding_system = 'LOINC'
-				AND
-			lang = 'en_EN'
-				AND
-			(code %(fragment_condition)s
-				OR
-			term %(fragment_condition)s)
-		LIMIT 50
-
-	) UNION ALL (
-
-		SELECT
-			code AS data,
-			code AS field_label,
-			(code || ': ' || term) AS list_label
-		FROM ref.v_coded_terms
-		WHERE
-			coding_system = 'LOINC'
-				AND
-			(code %(fragment_condition)s
-				OR
-			term %(fragment_condition)s)
-		LIMIT 50
-	)
-) AS all_known_loinc
-
-ORDER BY list_label
-LIMIT 50"""
-		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		#mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp = gmLOINC.cLOINCMatchProvider()
 		mp.setThresholds(1, 2, 4)
+		#mp.print_queries = True
+		#mp.word_separators = '[ \t:@]+'
 		self._PRW_loinc.matcher = mp
 		self._PRW_loinc.selection_only = False
 		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
@@ -2458,7 +2424,7 @@ FROM (
 		(%s)
 	) AS all_matching_units
 	WHERE data IS NOT NULL
-	ORDER BY rank
+	ORDER BY rank, list_label
 
 ) AS ranked_matching_units
 LIMIT 50""" % (
@@ -2718,6 +2684,13 @@ def manage_meta_test_types(parent=None):
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	#----------------------------------------
+	def get_tooltip(data):
+		if data is None:
+			return None
+		return data.format(with_tests = True)
+	#----------------------------------------
+
 	msg = _(
 		'\n'
 		'These are the meta test types currently defined in GNUmed.\n'
@@ -2746,6 +2719,7 @@ def manage_meta_test_types(parent=None):
 		] for m in mtts ],
 		data = mtts,
 		single_selection = True,
+		list_tooltip_callback = get_tooltip
 		#edit_callback = edit,
 		#new_callback = edit,
 		#delete_callback = delete,

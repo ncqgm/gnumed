@@ -6,20 +6,24 @@ http://loinc.org
 license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv
+import sys
+import codecs
+import logging
+import csv
+import re as regex
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMatchProvider
 
 
 _log = logging.getLogger('gm.loinc')
-_log.info(__version__)
+
 
 origin_url = u'http://loinc.org'
 file_encoding = 'latin1'			# encoding is empirical
@@ -332,6 +336,124 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table emptied')
 
 	return True
+
+#============================================================
+_SQL_LOINC_from_test_type = u"""
+	-- from test type
+	SELECT
+		loinc AS data,
+		loinc AS field_label,
+		(loinc || ': ' || abbrev || ' (' || name || ')') AS list_label
+	FROM clin.test_type
+	WHERE loinc %(fragment_condition)s
+"""
+
+_SQL_LOINC_from_i18n_coded_term = u"""
+	-- from coded term, in user language
+	SELECT
+		code AS data,
+		code AS field_label,
+		(code || ': ' || term) AS list_label
+	FROM ref.v_coded_terms
+	WHERE
+		coding_system = 'LOINC'
+			AND
+		lang = i18n.get_curr_lang()
+			AND
+		(code %(fragment_condition)s
+			OR
+		term %(fragment_condition)s)
+"""
+
+_SQL_LOINC_from_en_EN_coded_term = u"""
+	-- from coded term, in English
+	SELECT
+		code AS data,
+		code AS field_label,
+		(code || ': ' || term) AS list_label
+	FROM ref.v_coded_terms
+	WHERE
+		coding_system = 'LOINC'
+			AND
+		lang = 'en_EN'
+			AND
+		(code %(fragment_condition)s
+			OR
+		term %(fragment_condition)s)
+"""
+
+_SQL_LOINC_from_any_coded_term = u"""
+	-- from coded term, in any language
+	SELECT
+		code AS data,
+		code AS field_label,
+		(code || ': ' || term) AS list_label
+	FROM ref.v_coded_terms
+	WHERE
+		coding_system = 'LOINC'
+			AND
+		(code %(fragment_condition)s
+			OR
+		term %(fragment_condition)s)
+"""
+
+class cLOINCMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	_pattern = regex.compile(r'^\D+\s+\D+$', regex.UNICODE | regex.LOCALE)
+
+	_normal_query = u"""
+		SELECT DISTINCT ON (list_label)
+			data,
+			field_label,
+			list_label
+		FROM (
+			(%s) UNION ALL (
+			%s)
+		) AS all_known_loinc""" % (
+			_SQL_LOINC_from_test_type,
+			_SQL_LOINC_from_any_coded_term
+		)
+#--			%s) UNION ALL (
+#--			%s) UNION ALL (
+#		%
+#			_SQL_LOINC_from_i18n_coded_term,
+#			_SQL_LOINC_from_en_EN_coded_term,
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+
+		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByPhrase(self, aFragment)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+
+		if cLOINCMatchProvider._pattern.match(aFragment):
+			fragmentA, fragmentB = aFragment.split(u' ', 1)
+			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': u'~* %%(fragmentA)s'}
+			self._args['fragmentA'] = u"( %s)|(^%s)" % (fragmentA, fragmentA)
+			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': u'~* %%(fragmentB)s'}
+			self._args['fragmentB'] = u"( %s)|(^%s)" % (fragmentB, fragmentB)
+			self._queries = [u"SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
+			return self._find_matches(u'dummy')
+
+		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		return gmMatchProvider.cMatchProvider_SQL2.getMatchesByWord(self, aFragment)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+
+		if cLOINCMatchProvider._pattern.match(aFragment):
+			fragmentA, fragmentB = aFragment.split(u' ', 1)
+			query1 = cLOINCMatchProvider._normal_query % {'fragment_condition': u"ILIKE %%(fragmentA)s"}
+			self._args['fragmentA'] = u'%%%s%%' % fragmentA
+			query2 = cLOINCMatchProvider._normal_query % {'fragment_condition': u"ILIKE %%(fragmentB)s"}
+			self._args['fragmentB'] = u'%%%s%%' % fragmentB
+			self._queries = [u"SELECT * FROM (\n(%s\n) INTERSECT (%s)\n) AS intersected_matches\nORDER BY list_label\nLIMIT 75" % (query1, query2)]
+			return self._find_matches(u'dummy')
+
+		self._queries = [cLOINCMatchProvider._normal_query + u'\nORDER BY list_label\nLIMIT 75']
+		return gmMatchProvider.cMatchProvider_SQL2.getMatchesBySubstr(self, aFragment)
 #============================================================
 # main
 #------------------------------------------------------------

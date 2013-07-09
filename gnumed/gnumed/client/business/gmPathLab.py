@@ -298,11 +298,47 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = []
 
 	_updatable_fields = []
+	#--------------------------------------------------------
+	def format(self, with_tests=False):
+		txt = _('Meta (%s=aggregate) test type              [#%s]\n\n') % (gmTools.u_sum, self._payload[self._idx['pk']])
+		txt += _(' Name: %s (%s)\n') % (
+			self._payload[self._idx['abbrev']],
+			self._payload[self._idx['name']]
+		)
+		if self._payload[self._idx['loinc']] is not None:
+			txt += u' LOINC: %s (%s)\n' % self._payload[self._idx['loinc']]
+		if self._payload[self._idx['loinc']] is not None:
+			txt += _(' Comment: %s\n') % self._payload[self._idx['comment']]
+		if with_tests:
+			ttypes = self.included_test_types
+			if len(ttypes) > 0:
+				txt += _(' Aggregates the following test types:\n')
+			for ttype in ttypes:
+				txt += u'  %s (%s)%s%s      [#%s]\n' % (
+					ttype['name'],
+					ttype['abbrev'],
+					gmTools.coalesce(ttype['conversion_unit'], u'', ', %s'),
+					gmTools.coalesce(ttype['loinc'], u'', u', LOINC: %s'),
+					ttype['pk_test_type']
+				)
+		return txt
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_included_test_types(self):
+		cmd = _SQL_get_test_types % u'pk_meta_test_type = %(pk_meta)s'
+		args = {u'pk_meta': self._payload[self._idx['pk']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
+
+	included_test_types = property(_get_included_test_types, lambda x:x)
+
 #------------------------------------------------------------
 def delete_meta_type(meta_type=None):
 	cmd = u'delete from clin.meta_test_type where pk = %(pk)s'
 	args = {'pk': meta_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 #------------------------------------------------------------
 def get_meta_test_types():
 	cmd = u'select * from clin.meta_test_type'
@@ -359,6 +395,8 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 #
 #		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
 	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
 	def _get_in_use(self):
 		cmd = u'SELECT EXISTS(SELECT 1 FROM clin.test_result WHERE fk_type = %(pk_type)s)'
 		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
@@ -391,6 +429,15 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		return [ cTestPanel(aPK_obj = pk) for pk in self._payload[self._idx['pk_test_panels']] ]
 
 	test_panels = property(_get_test_panels, lambda x:x)
+	#--------------------------------------------------------
+	def get_meta_test_type(self, real_one_only=True):
+		if real_one_only is False:
+			return cMetaTestType(aPK_obj = self._payload[self._idx['pk_meta_test_type']])
+		if self._payload[self._idx['is_fake_meta_type']]:
+			return None
+		return cMetaTestType(aPK_obj = self._payload[self._idx['pk_meta_test_type']])
+
+	meta_test_type = property(get_meta_test_type, lambda x:x)
 	#--------------------------------------------------------
 	def format(self, patient=None):
 		tt = u''
@@ -450,6 +497,7 @@ def get_measurement_types(order_by=None):
 	cmd = u'select * from clin.v_test_types %s' % gmTools.coalesce(order_by, u'', u'order by %s')
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': r, 'idx': idx}) for r in rows ]
+
 #------------------------------------------------------------
 def find_measurement_type(lab=None, abbrev=None, name=None):
 
@@ -484,11 +532,13 @@ def find_measurement_type(lab=None, abbrev=None, name=None):
 
 		tt = cMeasurementType(row = {'pk_field': 'pk_test_type', 'data': rows[0], 'idx': idx})
 		return tt
+
 #------------------------------------------------------------
 def delete_measurement_type(measurement_type=None):
 	cmd = u'delete from clin.test_type where pk = %(pk)s'
 	args = {'pk': measurement_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 #------------------------------------------------------------
 def create_measurement_type(lab=None, abbrev=None, unit=None, name=None):
 	"""Create or get test type."""

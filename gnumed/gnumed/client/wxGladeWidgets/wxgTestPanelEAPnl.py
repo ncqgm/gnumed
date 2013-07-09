@@ -16,11 +16,11 @@ class wxgTestPanelEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgTestPanelEAPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._TCTRL_description = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_comment = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
-        self._TCTRL_tests = wx.TextCtrl(self, -1, "", style=wx.TE_MULTILINE)
-        self._BTN_select_tests = wx.Button(self, -1, _("&Select"), style=wx.BU_EXACTFIT)
-        self._PRW_codes = cGenericCodesPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._TCTRL_description = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+        self._TCTRL_comment = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+        self._TCTRL_tests = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE)
+        self._BTN_select_tests = wx.Button(self, wx.ID_ANY, _("&Manage..."), style=wx.BU_EXACTFIT)
+        self._PRW_codes = cGenericCodesPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 
         self.__set_properties()
         self.__do_layout()
@@ -32,10 +32,10 @@ class wxgTestPanelEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgTestPanelEAPnl.__set_properties
         self.SetScrollRate(10, 10)
         self._TCTRL_description.SetToolTipString(_("A short description for this test panel."))
-        self._TCTRL_comment.SetToolTipString(_("A comment on this test panel."))
+        self._TCTRL_comment.SetToolTipString(_("A comment on, or long-form description of, this test panel."))
         self._TCTRL_tests.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
         self._TCTRL_tests.Enable(False)
-        self._BTN_select_tests.SetToolTipString(_("Select the test types for this panel."))
+        self._BTN_select_tests.SetToolTipString(_("Manage which test types are members of this panel (battery)."))
         self._PRW_codes.SetToolTipString(_("Codes relevant to this test panel\nseparated by \";\"."))
         # end wxGlade
 
@@ -43,18 +43,18 @@ class wxgTestPanelEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgTestPanelEAPnl.__do_layout
         _gszr_main = wx.FlexGridSizer(4, 2, 1, 3)
         __szr_tests = wx.BoxSizer(wx.HORIZONTAL)
-        __lbl_description = wx.StaticText(self, -1, _("Description"))
+        __lbl_description = wx.StaticText(self, wx.ID_ANY, _("Description"))
         _gszr_main.Add(__lbl_description, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_description, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_comment = wx.StaticText(self, -1, _("Comment"))
+        __lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
         _gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._TCTRL_comment, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-        __lbl_tests = wx.StaticText(self, -1, _("Test types"))
+        __lbl_tests = wx.StaticText(self, wx.ID_ANY, _("Test types"))
         _gszr_main.Add(__lbl_tests, 0, wx.TOP, 2)
         __szr_tests.Add(self._TCTRL_tests, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_tests.Add(self._BTN_select_tests, 0, wx.TOP, 2)
         _gszr_main.Add(__szr_tests, 1, wx.EXPAND, 0)
-        __lbl_codes = wx.StaticText(self, -1, _("Codes"))
+        __lbl_codes = wx.StaticText(self, wx.ID_ANY, _("Codes"))
         _gszr_main.Add(__lbl_codes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_codes, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         self.SetSizer(_gszr_main)

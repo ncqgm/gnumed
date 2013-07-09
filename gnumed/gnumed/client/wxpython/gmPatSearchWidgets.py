@@ -977,6 +977,7 @@ def _check_for_provider_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = patient.staff_id,
 			message_type = _('Privacy notice'),
+			message_category = u'administrative',
 			subject = _('Your chart has been accessed by %s.') % prov,
 			patient = patient.ID
 		)
@@ -984,6 +985,7 @@ def _check_for_provider_chart_access(patient=None):
 		gmProviderInbox.create_inbox_message (
 			staff = curr_prov['pk_staff'],
 			message_type = _('Privacy notice'),
+			message_category = u'administrative',
 			subject = _('Staff member %s has been notified of your chart access.') % pat
 		)
 

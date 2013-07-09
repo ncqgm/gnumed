@@ -1585,6 +1585,7 @@ def delete_consumable_substance(substance=None):
 	"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+
 #------------------------------------------------------------
 class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 

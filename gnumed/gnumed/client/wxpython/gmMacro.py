@@ -52,7 +52,6 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
-from Gnumed.wxpython import gmMeasurementWidgets
 from Gnumed.wxpython import gmPraxisWidgets
 
 
@@ -1290,7 +1289,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if separator.strip() == u'':
 			separator = u'\n'
 
-		results = gmMeasurementWidgets.manage_measurements(single_selection = False, emr = self.pat.emr)
+		#results = gmMeasurementWidgets.manage_measurements(single_selection = False, emr = self.pat.emr)
+		from Gnumed.wxpython.gmMeasurementWidgets import manage_measurements
+		results = manage_measurements(single_selection = False, emr = self.pat.emr)
 		if results is None:
 			if self.debug:
 				return self._escape(_('no results for this patient (available or selected)'))
