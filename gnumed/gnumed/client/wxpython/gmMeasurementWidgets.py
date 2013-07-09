@@ -2678,7 +2678,7 @@ class cMeasurementOrgPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		query = u"""
 SELECT DISTINCT ON (list_label)
-	pk AS data,
+	pk_test_org AS data,
 	unit || ' (' || organization || ')' AS field_label,
 	unit || ' @ ' || organization AS list_label
 FROM clin.v_test_orgs
