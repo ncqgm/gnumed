@@ -29,7 +29,7 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE dem.org SET
 				description = %(organization)s,
-				fk_category = %(pk_category_org)s,
+				fk_category = %(pk_category_org)s
 			WHERE
 				pk = %(pk_org)s
 					AND
