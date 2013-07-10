@@ -609,25 +609,32 @@ class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.c
 		else:
 			self._PRW_category.display_as_valid(True)
 
-		if self.mode == 'edit':
-			if self._PRW_org.GetData() is None:
-				validity = False
-				self._PRW_org.display_as_valid(False)
-				self._PRW_org.SetFocus()
-			else:
-				self._PRW_org.display_as_valid(True)
+		if self._PRW_org.GetValue().strip() == u'':
+			validity = False
+			self._PRW_org.display_as_valid(False)
+			self._PRW_org.SetFocus()
 		else:
-			if self._PRW_org.GetValue().strip() == u'':
-				validity = False
-				self._PRW_org.display_as_valid(False)
-				self._PRW_org.SetFocus()
-			else:
-				if self._PRW_org.GetData() is not None:
-					validity = False
-					self._PRW_org.display_as_valid(False)
-					self._PRW_org.SetFocus()
-				else:
-					self._PRW_org.display_as_valid(True)
+			self._PRW_org.display_as_valid(True)
+
+#		if self.mode == 'edit':
+#			if self._PRW_org.GetData() is None:
+#				validity = False
+#				self._PRW_org.display_as_valid(False)
+#				self._PRW_org.SetFocus()
+#			else:
+#				self._PRW_org.display_as_valid(True)
+#		else:
+#			if self._PRW_org.GetValue().strip() == u'':
+#				validity = False
+#				self._PRW_org.display_as_valid(False)
+#				self._PRW_org.SetFocus()
+#			else:
+#				if self._PRW_org.GetData() is not None:
+#					validity = False
+#					self._PRW_org.display_as_valid(False)
+#					self._PRW_org.SetFocus()
+#				else:
+#					self._PRW_org.display_as_valid(True)
 
 		return validity
 	#----------------------------------------------------------------
@@ -639,7 +646,8 @@ class cOrganizationEAPnl(wxgOrganizationEAPnl.wxgOrganizationEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-		self.data['pk_org'] = self._PRW_org.GetData()
+		#self.data['pk_org'] = self._PRW_org.GetData()
+		self.data['organization'] = self._PRW_org.GetValue().strip()
 		self.data['pk_category_org'] = self._PRW_category.GetData()
 		self.data.save()
 		return True
