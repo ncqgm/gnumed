@@ -25,7 +25,6 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         self._TCTRL_loinc_info = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY | wx.NO_BORDER)
         self._TCTRL_comment_type = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
         self._PRW_test_org = gmMeasurementWidgets.cMeasurementOrgPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-        self._TCTRL_comment_org = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
         self._PRW_meta_type = gmMeasurementWidgets.cMetaTestTypePRW(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 
         self.__set_properties()
@@ -43,13 +42,12 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         self._TCTRL_loinc_info.Enable(False)
         self._TCTRL_comment_type.SetToolTipString(_("A comment on this test type, e.g. pertaining to typical context information."))
         self._PRW_test_org.SetToolTipString(_("The path lab/diagnostic organisation reporting on this test."))
-        self._TCTRL_comment_org.SetToolTipString(_("A comment on the organisation performing this measurement."))
         self._PRW_meta_type.SetToolTipString(_("Select the meta type as which to aggregate for display results with this test type."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgMeasurementTypeEAPnl.__do_layout
-        _gszr_main = wx.FlexGridSizer(8, 2, 1, 3)
+        _gszr_main = wx.FlexGridSizer(7, 2, 1, 3)
         __szr_loinc = wx.BoxSizer(wx.HORIZONTAL)
         __szr_abbrev_unit = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_name = wx.StaticText(self, wx.ID_ANY, _("Name"))
@@ -77,9 +75,6 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         __lbl_test_org = wx.StaticText(self, wx.ID_ANY, _("Lab"))
         _gszr_main.Add(__lbl_test_org, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_test_org, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 10)
-        __lbl_comment_org = wx.StaticText(self, wx.ID_ANY, _("Lab comment"))
-        _gszr_main.Add(__lbl_comment_org, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(self._TCTRL_comment_org, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_meta_type = wx.StaticText(self, wx.ID_ANY, _("Meta type"))
         _gszr_main.Add(__lbl_meta_type, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_meta_type, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)

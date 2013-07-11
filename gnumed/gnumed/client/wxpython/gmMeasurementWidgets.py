@@ -2133,7 +2133,6 @@ limit 50"""
 		self._PRW_conversion_unit.selection_only = False
 
 		# loinc
-		#mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp = gmLOINC.cLOINCMatchProvider()
 		mp.setThresholds(1, 2, 4)
 		#mp.print_queries = True
@@ -2189,8 +2188,7 @@ limit 50"""
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
 			pk_org = gmPathLab.create_test_org (
-				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
-				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u'')
 			)['pk_test_org']
 
 		tt = gmPathLab.create_measurement_type (
@@ -2220,8 +2218,7 @@ limit 50"""
 		pk_org = self._PRW_test_org.GetData()
 		if pk_org is None:
 			pk_org = gmPathLab.create_test_org (
-				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u''),
-				comment = gmTools.none_if(self._TCTRL_comment_org.GetValue().strip(), u'')
+				name = gmTools.none_if(self._PRW_test_org.GetValue().strip(), u'')
 			)['pk_test_org']
 
 		self.data['pk_test_org'] = pk_org
@@ -2252,7 +2249,6 @@ limit 50"""
 		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(u'')
 		self._PRW_test_org.SetText(u'', None, True)
-		self._TCTRL_comment_org.SetValue(u'')
 		self._PRW_meta_type.SetText(u'', None, True)
 
 		self._PRW_name.SetFocus()
@@ -2278,7 +2274,6 @@ limit 50"""
 			self.data['pk_test_org'],
 			True
 		)
-		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
 		if self.data['pk_meta_test_type'] is None:
 			self._PRW_meta_type.SetText(u'', None, True)
 		else:
@@ -2293,8 +2288,6 @@ limit 50"""
 			self.data['pk_test_org'],
 			True
 		)
-		self._TCTRL_comment_org.SetValue(gmTools.coalesce(self.data['comment_org'], u''))
-
 		self._PRW_name.SetFocus()
 
 #================================================================
