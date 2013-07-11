@@ -4,7 +4,6 @@
 license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.157 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
 import types, sys, string, datetime, logging, time
@@ -25,7 +24,6 @@ from Gnumed.business import gmCoding
 
 
 _log = logging.getLogger('gm.emr')
-_log.info(__version__)
 
 try: _
 except NameError: _ = lambda x:x
@@ -1584,15 +1582,15 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 			if self._payload[self._idx[field]] is None:
 				if another_object[field] is None:
 					continue
-				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
+				_log.debug('mismatch on [%s]: here="%s", other="%s"', field, self._payload[self._idx[field]], another_object[field])
 				return False
 
 			if another_object[field] is None:
 				return False
 
-			# compares at minute granularity
-			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M') != another_object[field].strftime('%Y-%m-%d %H:%M'):
-				_log.debug('mismatch on [%s]: "%s" vs. "%s"', field, self._payload[self._idx[field]], another_object[field])
+			# compares at seconds granularity
+			if self._payload[self._idx[field]].strftime('%Y-%m-%d %H:%M:%S') != another_object[field].strftime('%Y-%m-%d %H:%M:%S'):
+				_log.debug('mismatch on [%s]: here="%s", other="%s"', field, self._payload[self._idx[field]], another_object[field])
 				return False
 
 		# compare codes
