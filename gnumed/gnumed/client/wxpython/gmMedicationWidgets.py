@@ -1578,31 +1578,47 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self._PRW_duration.display_as_valid(True)
 
-		# start must exist
-		start = self._DP_started.GetData()
-		if start is None:
+		# started must exist
+		started = self._DP_started.GetData()
+		if started is None:
 			self._DP_started.display_as_valid(False)
 			validity = False
 		else:
 			self._DP_started.display_as_valid(True)
 
-		# end must be "< now()" AND "> start" if at all
-		end = self._DP_discontinued.GetData()
-		if end is not None:
-			if end > gmDateTime.pydt_now_here():
+		if validity is False:
+			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
+
+		# discontinued must be "< now()" AND "> started" if at all
+		discontinued = self._DP_discontinued.GetData()
+		if discontinued is not None:
+			now = gmDateTime.pydt_now_here().replace (
+				hour = 23,
+				minute = 59,
+				second = 59,
+				microsecond = 111111
+			)
+			# not in the future
+			if discontinued > now:
 				self._DP_discontinued.display_as_valid(False)
 				validity = False
+				gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) in the future (now: %s)!') % (discontinued, now))
 			else:
-				if start > end:
+				started = started.replace (
+					hour = 0,
+					minute = 0,
+					second = 0,
+					microsecond = 1
+				)
+				# and not before it was started
+				if started > discontinued:
 					self._DP_started.display_as_valid(False)
 					self._DP_discontinued.display_as_valid(False)
 					validity = False
+					gmDispatcher.send(signal = 'statustext', msg = _('Discontinued (%s) before started (%s) !') % (discontinued, started))
 				else:
 					self._DP_started.display_as_valid(True)
 					self._DP_discontinued.display_as_valid(True)
-
-		if validity is False:
-			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
 
 		return validity
 	#----------------------------------------------------------------

@@ -832,10 +832,10 @@ def __single_char2py_dt(str2parse, trigger_chars=None):
 	Spaces and tabs are discarded.
 
 	Default is 'ndmy':
-		n - Now
-		d - toDay
-		m - toMorrow	Someone please suggest a synonym !
-		y - Yesterday
+		n - _N_ow
+		d - to_D_ay
+		m - to_M_orrow	Someone please suggest a synonym ! ("2" does not cut it ...)
+		y - _Y_esterday
 
 	This also defines the significance of the order of the characters.
 	"""
