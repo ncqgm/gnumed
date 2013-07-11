@@ -630,8 +630,19 @@ class cOrgCommChannel(gmBusinessDBObject.cBusinessDBObject):
 	_updatable_fields = [
 		'url',
 		'comm_type',
-		'is_confidential'
+		'is_confidential',
+		'comment'
 	]
+	#--------------------------------------------------------
+	def __setitem__(self, attribute, value):
+		# fake it
+		if attribute == u'comment':
+			return
+		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+	#--------------------------------------------------------
+	def get_comment(self):
+		return None
+
 #-------------------------------------------------------------------
 def create_comm_channel(comm_medium=None, url=None, is_confidential=False, pk_channel_type=None, pk_identity=None, pk_org_unit=None):
 	"""Create a communications channel for a patient."""
