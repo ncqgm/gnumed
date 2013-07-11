@@ -1670,7 +1670,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
-		# auto-applies to all components of drug if any:
+		# auto-applies to all components of a multi-component drug if any:
 		self.data['started'] = self._DP_started.GetData()
 		self.data['discontinued'] = self._DP_discontinued.GetData()
 		if self.data['discontinued'] is None:
@@ -1683,7 +1683,6 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self._PRW_duration.GetValue().strip() in [u'', gmTools.u_infinity]:
 			self.data['duration'] = None
 		else:
-#			self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
 			if self._PRW_duration.GetData() is None:
 				self.data['duration'] = gmDateTime.str2interval(self._PRW_duration.GetValue())
 			else:
@@ -1788,15 +1787,20 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		self._LBL_or.Enable(False)
 
-		self._PRW_substance.Enable(True)
+		# disable for 1.3 since we aren't saving
+		# the change which in combination spells
+		# doom for patient safety
+		#self._PRW_substance.Enable(True)
+		self._PRW_substance.Enable(False)
 		self._PRW_substance.SetText (
 			u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
 			self.data['pk_substance']
 		)
 
-#		self._PRW_preparation.SetText(gmTools.coalesce(self.data['preparation'], u''), self.data['preparation'])
 		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
+		# see above
 		self._PRW_preparation.Enable(True)
+		self._PRW_preparation.Enable(False)
 	#----------------------------------------------------------------
 	def __refresh_from_existing_component(self):
 		self._LBL_component.Enable(True)
