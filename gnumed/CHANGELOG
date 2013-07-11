@@ -13,6 +13,7 @@ FIX: faulty SQL in lab phrasewheel [thanks Jim]
 FIX: exception on saving modified organization [thanks Jim]
 FIX: validity check on substance discontinuation date [thanks Jim]
 FIX: exception on accessing org unit comm channel comment [thanks Jim]
+FIX: failure to properly delete org *units* [thanks Jim]
 
 IMPROVED: show substance intolerances in magenta rather than yellow [thanks Jim]
 

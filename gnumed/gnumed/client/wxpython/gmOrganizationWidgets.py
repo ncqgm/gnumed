@@ -154,7 +154,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		return edit_org_unit(parent = self, org_unit = item, single_entry = True)
 	#--------------------------------------------------------
 	def _del(self, item):
-		return gmOrganization.delete_org_unit(unit = item['pk_org'])
+		return gmOrganization.delete_org_unit(unit = item['pk_org_unit'])
 	#--------------------------------------------------------
 	def _on_list_item_focused(self, event):
 		pass
