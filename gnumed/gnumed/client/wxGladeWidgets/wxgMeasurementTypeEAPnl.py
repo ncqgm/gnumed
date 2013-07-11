@@ -60,7 +60,7 @@ class wxgMeasurementTypeEAPnl(wx.ScrolledWindow):
         __lbl_abbrev.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_abbrev, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_abbrev_unit.Add(self._PRW_abbrev, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 10)
-        __lbl_unit = wx.StaticText(self, wx.ID_ANY, _("Unit"))
+        __lbl_unit = wx.StaticText(self, wx.ID_ANY, _("Base unit"))
         __lbl_unit.SetForegroundColour(wx.Colour(255, 0, 0))
         __szr_abbrev_unit.Add(__lbl_unit, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
         __szr_abbrev_unit.Add(self._PRW_conversion_unit, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)

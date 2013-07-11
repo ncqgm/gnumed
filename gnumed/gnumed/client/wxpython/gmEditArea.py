@@ -141,6 +141,8 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		}
 		self._refresh_as_new()
 	#----------------------------------------------------------------
+	# properties
+	#----------------------------------------------------------------
 	def _get_mode(self):
 		return self.__mode
 
@@ -169,6 +171,13 @@ class cXxxEAPnl(wxgXxxEAPnl.wxgXxxEAPnl, gmEditArea.cGenericEditAreaMixin):
 		self.refresh()
 
 	data = property(_get_data, _set_data)
+	#----------------------------------------------------------------
+	def show_msg(self, msg):
+		gmDispatcher.send(signal = 'statustext', msg = msg)
+
+	status_message = property(lambda x:x, show_msg)
+	#----------------------------------------------------------------
+	# generic edit area dialog API
 	#----------------------------------------------------------------
 	def save(self):
 		"""Invoked from the generic edit area dialog.

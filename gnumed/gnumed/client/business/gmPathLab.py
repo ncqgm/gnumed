@@ -66,8 +66,7 @@ class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 def create_test_org(name=None, comment=None, pk_org_unit=None):
 
 	if name is None:
-		name = _('inhouse lab')
-		comment = _('auto-generated')
+		name = u'unassigned lab'
 
 	# get org unit
 	if pk_org_unit is None:
@@ -989,6 +988,68 @@ where
 		raise AttributeError('[%s]: reference ranges not settable') % self.__class__.__name__
 
 	reference_ranges = property(_get_reference_ranges, _set_reference_ranges)
+	#--------------------------------------------------------
+	def _get_formatted_range(self):
+
+		has_normal_min_or_max = (
+			self._payload[self._idx['val_normal_min']] is not None
+		) or (
+			self._payload[self._idx['val_normal_max']] is not None
+		)
+		if has_normal_min_or_max:
+			normal_min_max = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+			)
+
+		has_clinical_min_or_max = (
+			self._payload[self._idx['val_target_min']] is not None
+		) or (
+			self._payload[self._idx['val_target_max']] is not None
+		)
+		if has_clinical_min_or_max:
+			clinical_min_max = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+			)
+
+		if has_clinical_min_or_max:
+			return _('Target: %(clin_min_max)s%(clin_range)s') % ({
+				'clin_min_max': clinical_min_max,
+				'clin_range': gmTools.coalesce (
+					self._payload[self._idx['val_target_range']],
+					u'',
+					gmTools.bool2subst (
+						has_clinical_min_or_max,
+						u' / %s',
+						u'%s'
+					)
+				)
+			})
+
+		if has_normal_min_or_max:
+			return _('Norm: %(norm_min_max)s%(norm_range)s') % ({
+				'norm_min_max': normal_min_max,
+				'norm_range': gmTools.coalesce (
+					self._payload[self._idx['val_normal_range']],
+					u'',
+					gmTools.bool2subst (
+						has_normal_min_or_max,
+						u' / %s',
+						u'%s'
+					)
+				)
+			})
+
+		if self._payload[self._idx['val_target_range']] is not None:
+			return _('Target: %s') % self._payload[self._idx['val_target_range']],
+
+		if self._payload[self._idx['val_normal_range']] is not None:
+			return _('Norm: %s') % self._payload[self._idx['val_normal_range']]
+
+		return None
+
+	formatted_range = property(_get_formatted_range, lambda x:x)
 	#--------------------------------------------------------
 	def _get_test_type(self):
 		return cMeasurementType(aPK_obj = self._payload[self._idx['pk_test_type']])
@@ -2082,7 +2143,8 @@ if __name__ == '__main__':
 	def test_result():
 		r = cTestResult(aPK_obj=1)
 		print r
-		print r.reference_ranges
+		#print r.reference_ranges
+		print r.formatted_range
 	#------------------------------------------
 	def test_lab_result():
 		print "test_result()"
@@ -2179,7 +2241,7 @@ if __name__ == '__main__':
 		print tp.format()
 	#--------------------------------------------------------
 
-	#test_result()
+	test_result()
 	#test_create_test_result()
 	#test_delete_test_result()
 	#test_create_measurement_type()
@@ -2192,6 +2254,6 @@ if __name__ == '__main__':
 	#test_test_type()
 	#test_format_test_results()
 	#test_calculate_bmi()
-	test_test_panel()
+	#test_test_panel()
 
 #============================================================
