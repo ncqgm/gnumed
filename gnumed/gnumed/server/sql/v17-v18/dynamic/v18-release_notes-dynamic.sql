@@ -17,22 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.6 (database v18.6)',
-	'GNUmed 1.3.6 Release Notes:
+	'Release Notes for GNUmed 1.3.7 (database v18.7)',
+	'GNUmed 1.3.7 Release Notes:
 
-	1.3.6
+	1.3.7
 
-FIX: exception on merging patients with identical addresses [thanks Jim]
-FIX: exception on repeatedly updating LOINC [thanks A.Maier]
-FIX: exception on getattr() in braindead-tree-items-data-access workaround [thanks V.Banait]
-FIX: exception on detecting patient ID column in patient listing ctrl [thanks Marc]
+FIX: exception on substance intake w/o start date [thanks Jim]
+FIX: faulty SQL in lab phrasewheel [thanks Jim]
+FIX: exception on saving modified organization [thanks Jim]
+FIX: validity check on substance discontinuation date [thanks Jim]
+FIX: exception on accessing org unit comm channel comment [thanks Jim]
+FIX: failure to properly delete org *units* [thanks Jim]
+FIX: failure to properly edit substance intakes [thanks Jim]
 
-IMPROVED: show "U" for soapU data rather than "?" [thanks Jim]
-IMPROVED: print recalls from vaccinations list
-
-	18.6
-
-FIX: clin_root_item_soap_cat check needs dropping
+IMPROVED: show substance intolerances in magenta rather than yellow [thanks Jim]
 ');
 
 -- --------------------------------------------------------------
