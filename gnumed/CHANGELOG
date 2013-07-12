@@ -44,6 +44,7 @@ FIX: exception on saving modified organization [thanks Jim]
 FIX: validity check on substance discontinuation date [thanks Jim]
 FIX: exception on accessing org unit comm channel comment [thanks Jim]
 FIX: failure to properly delete org *units* [thanks Jim]
+FIX: failure to properly edit substance intakes [thanks Jim]
 
 IMPROVED: show substance intolerances in magenta rather than yellow [thanks Jim]
 
