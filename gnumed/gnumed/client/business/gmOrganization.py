@@ -306,7 +306,13 @@ def create_org_unit(pk_organization=None, unit=None):
 #------------------------------------------------------------
 def delete_org_unit(unit=None):
 	args = {'pk': unit}
-	cmd = u"DELETE FROM dem.org_unit WHERE pk = %(pk)s"
+	cmd = u"""DELETE FROM dem.org_unit WHERE
+		pk = %(pk)s
+			AND
+		NOT EXISTS (
+			SELECT 1 FROM clin.encounter where fk_location = %(pk)s
+		)
+	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return True
 #------------------------------------------------------------
