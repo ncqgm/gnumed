@@ -631,9 +631,6 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
 
-		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Add (a) measurement result(s) for the current patient.'))
-		self.Bind(wx.EVT_MENU, self.__on_add_measurement, item)
-
 		item = menu_emr_edit.Append(-1, _('&Measurements'), _('Manage measurement results for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_measurements, item)
 
@@ -2668,14 +2665,6 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 
 		gmFamilyHistoryWidgets.manage_family_history(parent = self)
-		evt.Skip()
-	#----------------------------------------------
-	def __on_add_measurement(self, evt):
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot add measurement. No active patient.'))
-			return False
-		gmMeasurementWidgets.edit_measurement(parent = self, measurement = None)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_manage_measurements(self, evt):
