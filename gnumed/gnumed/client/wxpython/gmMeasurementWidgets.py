@@ -1056,12 +1056,17 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.EnableDragGridSize(1)
 		self.SetMinSize(wx.DefaultSize)
 
+		# column labels
 		# setting this screws up the labels: they are cut off and displaced
 		#self.SetColLabelAlignment(wx.ALIGN_CENTER, wx.ALIGN_BOTTOM)
 
+		# row labels
 		self.SetRowLabelSize(wx.grid.GRID_AUTOSIZE)		# starting with 2.8.8
 		#self.SetRowLabelSize(150)
 		self.SetRowLabelAlignment(horiz = wx.ALIGN_LEFT, vert = wx.ALIGN_CENTRE)
+		font = self.GetLabelFont()
+		font.SetWeight(wx.FONTWEIGHT_LIGHT)
+		self.SetLabelFont(font)
 
 		# add link to left upper corner
 		dbcfg = gmCfg.cCfgSQL()
@@ -1431,7 +1436,7 @@ class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
 		if tests is None:
 			msg = _('%s results selected. Too many to list individually.') % test_count
 		else:
-			msg = ' // '.join (
+			msg = '\n'.join (
 				[	u'%s: %s %s (%s)' % (
 						t['unified_abbrev'],
 						t['unified_val'],
