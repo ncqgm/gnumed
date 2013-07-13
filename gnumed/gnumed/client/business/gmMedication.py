@@ -16,6 +16,7 @@ import re as regex
 import subprocess
 import decimal
 from xml.etree import ElementTree as etree
+import datetime as pydt
 
 
 if __name__ == '__main__':
@@ -2020,6 +2021,37 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return cBrandedDrug(aPK_obj = self._payload[self._idx['pk_brand']])
 
 	containing_drug = property(_get_containing_drug, lambda x:x)
+	#--------------------------------------------------------
+	def _get_medically_formatted_start(self):
+		duration_taken = gmDateTime.pydt_now_here() - self._payload[self._idx['started']]
+
+		three_weeks = pydt.timedelta(weeks = 3, days = 1)
+		if duration_taken < three_weeks:
+			return _('%s (%s ago)') % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d'),
+				gmDateTime.format_interval_medically(duration_taken)
+			)
+
+		nine_weeks = pydt.timedelta(weeks = 9)
+		if duration_taken < nine_weeks:
+			return _('%s ago (%s)') % (
+				gmDateTime.format_interval_medically(duration_taken),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d')
+			)
+
+		one_year = pydt.timedelta(weeks = 52, days = 1)
+		if duration_taken < one_year:
+			return _('%s ago (%s)') % (
+				gmDateTime.format_interval_medically(duration_taken),
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %Y')
+			)
+
+		return _('%s ago (%s)') % (
+			gmDateTime.format_interval_medically(duration_taken),
+			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y')
+		)
+
+	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [

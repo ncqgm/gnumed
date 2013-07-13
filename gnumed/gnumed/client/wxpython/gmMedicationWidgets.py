@@ -1353,7 +1353,8 @@ def manage_substance_intakes(parent=None, emr=None):
 			if i['started'] is None:
 				started = u''
 			else:
-				started = u'%s:' % gmDateTime.pydt_strftime(i['started'], '%Y %b %d')
+				#started = u'%s:' % gmDateTime.pydt_strftime(i['started'], '%Y %b %d')
+				started = i.medically_formatted_start
 			items.append ([
 				u'%s%s %s %s %s%s' % (
 					i['substance'],
@@ -2505,7 +2506,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
 					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
@@ -2551,7 +2553,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
 					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
@@ -2607,7 +2610,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
 				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
 					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
