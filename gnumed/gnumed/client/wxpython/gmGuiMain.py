@@ -804,13 +804,16 @@ class gmTopLevelFrame(wx.Frame):
 		# -- menu "Office" --------------------
 		self.menu_office = wx.Menu()
 
-		item = self.menu_office.Append(-1, _('Audit trail'), _('Display database audit trail.'))
+		item = self.menu_office.Append(-1, _('&Audit trail'), _('Display database audit trail.'))
 		self.Bind(wx.EVT_MENU, self.__on_display_audit_trail, item)
 
 		self.menu_office.AppendSeparator()
 
-		item = self.menu_office.Append(-1, _('List bills'), _('List all bills across all patients.'))
+		item = self.menu_office.Append(-1, _('&Bills'), _('List all bills across all patients.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_all_bills, item)
+
+		item = self.menu_office.Append(-1, _('&Organizations'), _('Manage organizations.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_orgs, item)
 
 		self.mainmenu.Append(self.menu_office, _('&Office'))
 		self.__gb['main.officemenu'] = self.menu_office
@@ -2419,6 +2422,11 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_show_all_bills(self, evt):
 		gmBillingWidgets.manage_bills(parent = self)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_orgs(self, evt):
+		gmOrganizationWidgets.manage_orgs(parent = self)
+		evt.Skip()
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------

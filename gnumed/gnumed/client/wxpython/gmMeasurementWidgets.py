@@ -1299,6 +1299,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def _on_add_button_pressed(self, event):
 		edit_measurement(parent = self, measurement = None)
 	#--------------------------------------------------------
+	def _on_list_button_pressed(self, event):
+		event.Skip()
+		manage_measurements(parent = self, single_selection = True)#, emr = pat.emr)
+	#--------------------------------------------------------
 	def _on_review_button_pressed(self, evt):
 		self.PopupMenu(self.__action_button_popup)
 	#--------------------------------------------------------
