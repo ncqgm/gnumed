@@ -1554,8 +1554,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_result.SetFocus()
 	#--------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		self._refresh_from_existing()
-
 		self._PRW_test.SetText(u'', None, True)
 		self.__refresh_loinc_info()
 		self.__refresh_previous_value()
@@ -1563,8 +1561,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_result.SetValue(u'')
 		self._PRW_units.SetText(u'', None, True)
 		self._PRW_abnormality_indicator.SetText(u'', None, True)
-		# self._DPRW_evaluated
+		self._DPRW_evaluated.SetData(data = self.data['clin_when'])
 		self._TCTRL_note_test_org.SetValue(u'')
+		self._PRW_intended_reviewer.SetData(self.data['pk_intended_reviewer'])
+		self._PRW_problem.SetData(self.data['pk_episode'])
 		self._TCTRL_narrative.SetValue(u'')
 		self._CHBOX_review.SetValue(False)
 		self._CHBOX_abnormal.SetValue(False)
@@ -1845,8 +1845,7 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def __update_units_context(self):
 
-		tt = self._PRW_test.GetData(as_instance = True)
-		if tt is None:
+		if self._PRW_test.GetData() is None:
 			self._PRW_units.unset_context(context = u'pk_type')
 			self._PRW_units.unset_context(context = u'loinc')
 			if self._PRW_test.GetValue().strip() == u'':
@@ -1854,6 +1853,8 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 			else:
 				self._PRW_units.set_context(context = u'test_name', val = self._PRW_test.GetValue().strip())
 			return
+
+		tt = self._PRW_test.GetData(as_instance = True)
 
 		self._PRW_units.set_context(context = u'pk_type', val = tt['pk_test_type'])
 		self._PRW_units.set_context(context = u'test_name', val = tt['name'])
@@ -1868,19 +1869,22 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				unit = tt.temporally_closest_unit
 			else:
 				unit = tt.get_temporally_closest_unit(timestamp = clin_when)
-			self._PRW_units.SetText(unit, unit, True)
+			if unit is None:
+				self._PRW_units.SetText(u'', unit, True)
+			else:
+				self._PRW_units.SetText(unit, unit, True)
 
 	#--------------------------------------------------------
 	def __update_normal_range(self):
 		unit = self._PRW_units.GetValue().strip()
 		if unit == u'':
 			return
+		if self._PRW_test.GetData() is None:
+			return
 		for ctrl in [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_normal_range, self._TCTRL_norm_ref_group]:
 			if ctrl.GetValue().strip() != u'':
 				return
 		tt = self._PRW_test.GetData(as_instance = True)
-		if tt is None:
-			return
 		test_w_range = tt.get_temporally_closest_normal_range (
 			unit,
 			timestamp = self._DPRW_evaluated.GetData().get_pydt()
@@ -1897,12 +1901,12 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		unit = self._PRW_units.GetValue().strip()
 		if unit == u'':
 			return
+		if self._PRW_test.GetData() is None:
+			return
 		for ctrl in [self._TCTRL_target_min, self._TCTRL_target_max, self._TCTRL_target_range]:
 			if ctrl.GetValue().strip() != u'':
 				return
 		tt = self._PRW_test.GetData(as_instance = True)
-		if tt is None:
-			return
 		test_w_range = tt.get_temporally_closest_target_range (
 			unit,
 			gmPerson.gmCurrentPatient().ID,
