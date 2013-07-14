@@ -277,6 +277,18 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		gmPathLab.delete_test_result(result = measurement)
 		return True
 	#------------------------------------------------------------
+	def do_review(lctrl):
+		data = lctrl.get_selected_item_data()
+		if len(data) == 0:
+			return
+		return review_tests(parent = parent, tests = data)
+	#------------------------------------------------------------
+	def do_plot(lctrl):
+		data = lctrl.get_selected_item_data()
+		if len(data) == 0:
+			return
+		return plot_measurements(parent = parent, tests = data)
+	#------------------------------------------------------------
 	def get_tooltip(measurement):
 		return measurement.format(with_review=True, with_evaluation=True, with_ranges=True)
 	#------------------------------------------------------------
@@ -314,7 +326,9 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
-		list_tooltip_callback = get_tooltip
+		list_tooltip_callback = get_tooltip,
+		left_extra_button = (_('Review'), _('Review current selection'), do_review, True),
+		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, True)
 	)
 
 #================================================================
@@ -546,58 +560,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 			return True
 
 		selected_cells = self.get_selected_cells()
-		if len(selected_cells) > 10:
-			test_count = len(selected_cells)
-			tests = None
-		else:
-			test_count = None
-			tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
-			if len(tests) == 0:
-				return True
+		tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
 
-		dlg = cMeasurementsReviewDlg (
-			self,
-			-1,
-			tests = tests,
-			test_count = test_count
-		)
-		decision = dlg.ShowModal()
-
-		if decision == wx.ID_APPLY:
-			wx.BeginBusyCursor()
-
-			if dlg._RBTN_confirm_abnormal.GetValue():
-				abnormal = None
-			elif dlg._RBTN_results_normal.GetValue():
-				abnormal = False
-			else:
-				abnormal = True
-
-			if dlg._RBTN_confirm_relevance.GetValue():
-				relevant = None
-			elif dlg._RBTN_results_not_relevant.GetValue():
-				relevant = False
-			else:
-				relevant = True
-
-			if tests is None:
-				tests = self.__cells_to_data(cells = selected_cells, exclude_multi_cells = False)
-
-			comment = None
-			if len(tests) == 1:
-				comment = dlg._TCTRL_comment.GetValue()
-
-			for test in tests:
-				test.set_review (
-					technically_abnormal = abnormal,
-					clinically_relevant = relevant,
-					comment = comment,
-					make_me_responsible = dlg._CHBOX_responsible.IsChecked()
-				)
-
-			wx.EndBusyCursor()
-
-		dlg.Destroy()
+		return review_tests(parent = self, tests = tests)
 	#------------------------------------------------------------
 	def plot_current_selection(self):
 
@@ -1414,6 +1379,64 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 #================================================================
 # editing widgets
 #================================================================
+def review_tests(parent=None, tests=None):
+
+	if tests is None:
+		return True
+
+	if len(tests) == 0:
+		return True
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if len(tests) > 10:
+		test_count = len(tests)
+		tests2show = None
+	else:
+		test_count = None
+		tests2show = tests
+		if len(tests) == 0:
+			return True
+
+	dlg = cMeasurementsReviewDlg(parent, -1, tests = tests, test_count = test_count)
+	decision = dlg.ShowModal()
+	if decision != wx.ID_APPLY:
+		return True
+
+	wx.BeginBusyCursor()
+	if dlg._RBTN_confirm_abnormal.GetValue():
+		abnormal = None
+	elif dlg._RBTN_results_normal.GetValue():
+		abnormal = False
+	else:
+		abnormal = True
+
+	if dlg._RBTN_confirm_relevance.GetValue():
+		relevant = None
+	elif dlg._RBTN_results_not_relevant.GetValue():
+		relevant = False
+	else:
+		relevant = True
+
+	comment = None
+	if len(tests) == 1:
+		comment = dlg._TCTRL_comment.GetValue()
+
+	make_responsible = dlg._CHBOX_responsible.IsChecked()
+	dlg.Destroy()
+
+	for test in tests:
+		test.set_review (
+			technically_abnormal = abnormal,
+			clinically_relevant = relevant,
+			comment = comment,
+			make_me_responsible = make_responsible
+		)
+	wx.EndBusyCursor()
+
+	return True
+#----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgMeasurementsReviewDlg
 
 class cMeasurementsReviewDlg(wxgMeasurementsReviewDlg.wxgMeasurementsReviewDlg):
