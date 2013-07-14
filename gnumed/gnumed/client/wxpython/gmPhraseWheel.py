@@ -213,6 +213,11 @@ class cPhraseWheelBase(wx.TextCtrl):
 		if value is None:
 			value = u''
 
+		if (value == u'') and (data is None):
+			self._data = {}
+			super(cPhraseWheelBase, self).SetValue(value)
+			return
+
 		self.suppress_text_update_smarts = suppress_smarts
 
 		if data is not None:
@@ -680,9 +685,10 @@ class cPhraseWheelBase(wx.TextCtrl):
 		self._has_focus = True
 		event.Skip()
 
-		self.__non_edit_font = self.GetFont()
-		edit_font = self.GetFont()
-		edit_font.SetPointSize(pointSize = self.__non_edit_font.GetPointSize() + 1)
+		#self.__non_edit_font = self.GetFont()
+		#edit_font = self.GetFont()
+		edit_font = wx.FontFromNativeInfo(self.__non_edit_font.NativeFontInfo)
+		edit_font.SetPointSize(pointSize = edit_font.GetPointSize() + 1)
 		self.SetFont(edit_font)
 		self.Refresh()
 
@@ -1049,6 +1055,10 @@ class cPhraseWheel(cPhraseWheelBase):
 		The whole thing will only work if data is found
 		in the match space anyways.
 		"""
+		if data is None:
+			self._data = {}
+			return True
+
 		# try getting match candidates
 		self._update_candidates_in_picklist(u'*')
 

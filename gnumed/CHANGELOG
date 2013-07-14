@@ -9,6 +9,8 @@
 	1.3.8 (unreleased)
 
 FIX: better show all relevant test results in review dialog [thanks Rogerio]
+FIX: failure of <PRW>.SetData(None)
+FIX: multi-use PRW edit font growth
 
 	1.3.7
 
