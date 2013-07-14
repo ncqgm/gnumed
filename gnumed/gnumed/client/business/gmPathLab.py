@@ -379,21 +379,6 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		'pk_meta_test_type'
 	]
 	#--------------------------------------------------------
-#	def __setitem__(self, attribute, value):
-#
-#		# find fk_test_org from name
-#		if (attribute == 'fk_test_org') and (value is not None):
-#			try:
-#				int(value)
-#			except:
-#				cmd = u"select pk from clin.test_org where internal _name = %(val)s"
-#				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'val': value}}])
-#				if len(rows) == 0:
-#					raise ValueError('[%s]: no test org for [%s], cannot set <%s>' % (self.__class__.__name__, value, attribute))
-#				value = rows[0][0]
-#
-#		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
-	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_in_use(self):
@@ -437,6 +422,121 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		return cMetaTestType(aPK_obj = self._payload[self._idx['pk_meta_test_type']])
 
 	meta_test_type = property(get_meta_test_type, lambda x:x)
+	#--------------------------------------------------------
+	def get_temporally_closest_normal_range(self, unit, timestamp=None):
+		"""Returns the closest test result which does have normal range information.
+
+		- needs <unit>
+		- if <timestamp> is None it will assume now() and thus return the most recent
+		"""
+		if timestamp is None:
+			timestamp = gmDateTime.pydt_now_here()
+		cmd = u"""
+SELECT * FROM clin.v_test_results
+WHERE
+	pk_test_type = %(pk_type)s
+		AND
+	val_unit = %(unit)s
+		AND
+	(
+		(val_normal_min IS NOT NULL)
+			OR
+		(val_normal_max IS NOT NULL)
+			OR
+		(val_normal_range IS NOT NULL)
+	)
+ORDER BY
+	CASE
+		WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
+		ELSE %(clin_when)s - clin_when
+	END
+LIMIT 1"""
+		args = {
+			u'pk_type': self._payload[self._idx['pk_test_type']],
+			u'unit': unit,
+			u'clin_when': timestamp
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		r = rows[0]
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r})
+
+	#--------------------------------------------------------
+	def get_temporally_closest_target_range(self, unit, patient, timestamp=None):
+		"""Returns the closest test result which does have target range information.
+
+		- needs <unit>
+		- needs <patient> (as target will be per-patient)
+		- if <timestamp> is None it will assume now() and thus return the most recent
+		"""
+		if timestamp is None:
+			timestamp = gmDateTime.pydt_now_here()
+		cmd = u"""
+SELECT * FROM clin.v_test_results
+WHERE
+	pk_test_type = %(pk_type)s
+		AND
+	val_unit = %(unit)s
+		AND
+	pk_patient = %(pat)s
+		AND
+	(
+		(val_target_min IS NOT NULL)
+			OR
+		(val_target_max IS NOT NULL)
+			OR
+		(val_target_range IS NOT NULL)
+	)
+ORDER BY
+	CASE
+		WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
+		ELSE %(clin_when)s - clin_when
+	END
+LIMIT 1"""
+		args = {
+			u'pk_type': self._payload[self._idx['pk_test_type']],
+			u'unit': unit,
+			u'pat': patient,
+			u'clin_when': timestamp
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		r = rows[0]
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r})
+
+	#--------------------------------------------------------
+	def get_temporally_closest_unit(self, timestamp=None):
+		"""Returns the unit of the closest test result.
+
+		- if <timestamp> is None it will assume now() and thus return the most recent
+		"""
+		if timestamp is None:
+			timestamp = gmDateTime.pydt_now_here()
+		cmd = u"""
+SELECT val_unit FROM clin.v_test_results
+WHERE
+	pk_test_type = %(pk_type)s
+		AND
+	val_unit IS NOT NULL
+ORDER BY
+	CASE
+		WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
+		ELSE %(clin_when)s - clin_when
+	END
+LIMIT 1"""
+		args = {
+			u'pk_type': self._payload[self._idx['pk_test_type']],
+			u'clin_when': timestamp
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		return rows[0]['val_unit']
+
+	temporally_closest_unit = property(get_temporally_closest_unit, lambda x:x)
+
 	#--------------------------------------------------------
 	def format(self, patient=None):
 		tt = u''
@@ -964,30 +1064,45 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		return tt
 	#--------------------------------------------------------
-	def _get_reference_ranges(self):
-
+	def _get_temporally_closest_normal_range(self):
+		"""Returns the closest test result which does have normal range information."""
+		if self._payload[self._idx['val_normal_min']] is not None:
+			return self
+		if self._payload[self._idx['val_normal_max']] is not None:
+			return self
+		if self._payload[self._idx['val_normal_range']] is not None:
+			return self
 		cmd = u"""
-select
-distinct on (norm_ref_group_str, val_unit, val_normal_min, val_normal_max, val_normal_range, val_target_min, val_target_max, val_target_range)
-	pk_patient,
-	val_unit,
-	val_normal_min, val_normal_max, val_normal_range,
-	val_target_min, val_target_max, val_target_range,
-	norm_ref_group,
-	coalesce(norm_ref_group, '') as norm_ref_group_str
-from
-	clin.v_test_results
-where
-	pk_test_type = %(pk_type)s
-"""
-		args = {'pk_type': self._payload[self._idx['pk_test_type']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		return rows
+SELECT * from clin.v_test_results
+WHERE
+	pk_type = %(pk_type)s
+		AND
+	val_unit = %(unit)s
+		AND
+	(
+		(val_normal_min IS NOT NULL)
+			OR
+		(val_normal_max IS NOT NULL)
+			OR
+		(val_normal_range IS NOT NULL)
+	)
+ORDER BY
+	CASE
+		WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
+		ELSE %(clin_when)s - clin_when
+	END
+LIMIT 1"""
+		args = {
+			u'pk_type': self._payload[self._idx['pk_test_type']],
+			u'unit': self._payload[self._idx['val_unit']],
+			u'clin_when': self._payload[self._idx['clin_when']]
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
-	def _set_reference_ranges(self, val):
-		raise AttributeError('[%s]: reference ranges not settable') % self.__class__.__name__
-
-	reference_ranges = property(_get_reference_ranges, _set_reference_ranges)
+	temporally_closest_normal_range = property(_get_temporally_closest_normal_range, lambda x:x)
 	#--------------------------------------------------------
 	def _get_formatted_range(self):
 
@@ -2145,6 +2260,7 @@ if __name__ == '__main__':
 		print r
 		#print r.reference_ranges
 		print r.formatted_range
+		print r.temporally_closest_normal_range
 	#------------------------------------------
 	def test_lab_result():
 		print "test_result()"

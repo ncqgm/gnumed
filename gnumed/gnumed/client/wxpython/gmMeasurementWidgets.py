@@ -1799,11 +1799,20 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	def __register_interests(self):
 		self._PRW_test.add_callback_on_lose_focus(self._on_leave_test_prw)
 		self._PRW_abnormality_indicator.add_callback_on_lose_focus(self._on_leave_indicator_prw)
+		self._PRW_units.add_callback_on_lose_focus(self._on_leave_unit_prw)
 	#--------------------------------------------------------
 	def _on_leave_test_prw(self):
 		self.__refresh_loinc_info()
 		self.__refresh_previous_value()
 		self.__update_units_context()
+		# only works if we've got a unit set
+		self.__update_normal_range()
+		self.__update_clinical_range()
+	#--------------------------------------------------------
+	def _on_leave_unit_prw(self):
+		# maybe we've got a unit now ?
+		self.__update_normal_range()
+		self.__update_clinical_range()
 	#--------------------------------------------------------
 	def _on_leave_indicator_prw(self):
 		# if the user hasn't explicitly enabled reviewing
@@ -1836,12 +1845,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 	#--------------------------------------------------------
 	def __update_units_context(self):
 
-		self._PRW_units.unset_context(context = u'loinc')
-
 		tt = self._PRW_test.GetData(as_instance = True)
-
 		if tt is None:
 			self._PRW_units.unset_context(context = u'pk_type')
+			self._PRW_units.unset_context(context = u'loinc')
 			if self._PRW_test.GetValue().strip() == u'':
 				self._PRW_units.unset_context(context = u'test_name')
 			else:
@@ -1851,10 +1858,62 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._PRW_units.set_context(context = u'pk_type', val = tt['pk_test_type'])
 		self._PRW_units.set_context(context = u'test_name', val = tt['name'])
 
-		if tt['loinc'] is None:
-			return
+		if tt['loinc'] is not None:
+			self._PRW_units.set_context(context = u'loinc', val = tt['loinc'])
 
-		self._PRW_units.set_context(context = u'loinc', val = tt['loinc'])
+		# closest unit
+		if self._PRW_units.GetValue().strip() == u'':
+			clin_when = self._DPRW_evaluated.GetData().get_pydt()
+			if clin_when is None:
+				unit = tt.temporally_closest_unit
+			else:
+				unit = tt.get_temporally_closest_unit(timestamp = clin_when)
+			self._PRW_units.SetText(unit, unit, True)
+
+	#--------------------------------------------------------
+	def __update_normal_range(self):
+		unit = self._PRW_units.GetValue().strip()
+		if unit == u'':
+			return
+		for ctrl in [self._TCTRL_normal_min, self._TCTRL_normal_max, self._TCTRL_normal_range, self._TCTRL_norm_ref_group]:
+			if ctrl.GetValue().strip() != u'':
+				return
+		tt = self._PRW_test.GetData(as_instance = True)
+		if tt is None:
+			return
+		test_w_range = tt.get_temporally_closest_normal_range (
+			unit,
+			timestamp = self._DPRW_evaluated.GetData().get_pydt()
+		)
+		if test_w_range is None:
+			return
+		self._TCTRL_normal_min.SetValue(unicode(gmTools.coalesce(test_w_range['val_normal_min'], u'')))
+		self._TCTRL_normal_max.SetValue(unicode(gmTools.coalesce(test_w_range['val_normal_max'], u'')))
+		self._TCTRL_normal_range.SetValue(gmTools.coalesce(test_w_range['val_normal_range'], u''))
+		self._TCTRL_norm_ref_group.SetValue(gmTools.coalesce(test_w_range['norm_ref_group'], u''))
+
+	#--------------------------------------------------------
+	def __update_clinical_range(self):
+		unit = self._PRW_units.GetValue().strip()
+		if unit == u'':
+			return
+		for ctrl in [self._TCTRL_target_min, self._TCTRL_target_max, self._TCTRL_target_range]:
+			if ctrl.GetValue().strip() != u'':
+				return
+		tt = self._PRW_test.GetData(as_instance = True)
+		if tt is None:
+			return
+		test_w_range = tt.get_temporally_closest_target_range (
+			unit,
+			gmPerson.gmCurrentPatient().ID,
+			timestamp = self._DPRW_evaluated.GetData().get_pydt()
+		)
+		if test_w_range is None:
+			return
+		self._TCTRL_target_min.SetValue(unicode(gmTools.coalesce(test_w_range['val_target_min'], u'')))
+		self._TCTRL_target_max.SetValue(unicode(gmTools.coalesce(test_w_range['val_target_max'], u'')))
+		self._TCTRL_target_range.SetValue(gmTools.coalesce(test_w_range['val_target_range'], u''))
+
 	#--------------------------------------------------------
 	def __refresh_loinc_info(self):
 
