@@ -21,7 +21,7 @@ declare
 	_table_desc record;
 	_pk_desc record;
 	_column_desc record;
-	_fk_desc record;
+	_constraint_def record;
 	_total text;
 begin
 	_total := '''';
@@ -87,8 +87,8 @@ begin
 
 		end loop;
 
-		-- find and loop over FKs of that table
-		for _fk_desc in
+		-- find and loop over CONSTRAINTs of that table
+		for _constraint_def in
 			select * from
 				(select
 					tbl.contype,
@@ -103,12 +103,12 @@ begin
 					tbl.conrelid = (_table_desc.table_schema || ''.'' || _table_desc.table_name)::regclass
 --						AND
 --					tbl.contype = ''f''
-				) as FKs
+				) as CONSTRAINTs
 			order by
-				FKs.contype,
-				decode(md5(FKs.condef), ''hex'')
+				CONSTRAINTs.contype,
+				decode(md5(CONSTRAINTs.condef), ''hex'')
 		loop
-			_total := _total || _fk_desc.condef || E''\n'';
+			_total := _total || _constraint_def.condef || E''\n'';
 		end loop;
 
 	end loop;		-- over tables
