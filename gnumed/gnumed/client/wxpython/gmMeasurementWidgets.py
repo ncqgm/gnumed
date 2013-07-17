@@ -727,29 +727,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			# rebuild cell display string
 			vals2display = []
+			cell_has_out_of_bounds_value = False
 			for sub_result in self.__cell_data[col][row]:
 
-				# is the sub_result technically abnormal ?
-				ind = gmTools.coalesce(sub_result['abnormality_indicator'], u'').strip()
-				if ind != u'':
-					lab_abnormality_indicator = u' (%s)' % ind[:3]
-				else:
-					lab_abnormality_indicator = u''
-				# - if noone reviewed - use what the lab thinks
-				if sub_result['is_technically_abnormal'] is None:
-					abnormality_indicator = lab_abnormality_indicator
-				# - if someone reviewed and decreed normality - use that
-				elif sub_result['is_technically_abnormal'] is False:
+				#if (sub_result.is_considered_lowered is True) or (sub_result.is_considered_elevated is True):
+				if sub_result.is_considered_abnormal:
+					cell_has_out_of_bounds_value = True
+
+				abnormality_indicator = sub_result.formatted_abnormality_indicator
+				if abnormality_indicator is None:
 					abnormality_indicator = u''
-				# - if someone reviewed and decreed abnormality ...
-				else:
-					# ... invent indicator if the lab did't use one
-					if lab_abnormality_indicator == u'':
-						# FIXME: calculate from min/max/range
-						abnormality_indicator = u' (%s)' % gmTools.u_plus_minus
-					# ... else use indicator the lab used
-					else:
-						abnormality_indicator = lab_abnormality_indicator
+				if abnormality_indicator != u'':
+					abnormality_indicator = u' (%s)' % abnormality_indicator[:3]
 
 				# is the sub_result relevant clinically ?
 				# FIXME: take into account primary_GP once we support that
@@ -798,16 +787,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			self.SetCellValue(row, col, u'\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-#			font = self.GetCellFont(row, col)
-#			if not font.IsFixedWidth():
-#				font.SetFamily(family = wx.FONTFAMILY_MODERN)
 			# FIXME: what about partial sub results being relevant ??
 			if sub_result_relevant:
 				font = self.GetCellFont(row, col)
 				self.SetCellTextColour(row, col, 'firebrick')
 				font.SetWeight(wx.FONTWEIGHT_BOLD)
 				self.SetCellFont(row, col, font)
-#			self.SetCellFont(row, col, font)
+			if cell_has_out_of_bounds_value:
+				self.SetCellBackgroundColour(row, col, 'cornflower blue')
 
 		self.AutoSize()
 		self.EndBatch()
@@ -862,29 +849,18 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			# rebuild cell display string
 			vals2display = []
+			cell_has_out_of_bounds_value = False
 			for sub_result in self.__cell_data[col][row]:
 
-				# is the sub_result technically abnormal ?
-				ind = gmTools.coalesce(sub_result['abnormality_indicator'], u'').strip()
-				if ind != u'':
-					lab_abnormality_indicator = u' (%s)' % ind[:3]
-				else:
-					lab_abnormality_indicator = u''
-				# - if noone reviewed - use what the lab thinks
-				if sub_result['is_technically_abnormal'] is None:
-					abnormality_indicator = lab_abnormality_indicator
-				# - if someone reviewed and decreed normality - use that
-				elif sub_result['is_technically_abnormal'] is False:
+				#if (sub_result.is_considered_lowered is True) or (sub_result.is_considered_elevated is True):
+				if sub_result.is_considered_abnormal:
+					cell_has_out_of_bounds_value = True
+
+				abnormality_indicator = sub_result.formatted_abnormality_indicator
+				if abnormality_indicator is None:
 					abnormality_indicator = u''
-				# - if someone reviewed and decreed abnormality ...
-				else:
-					# ... invent indicator if the lab did't use one
-					if lab_abnormality_indicator == u'':
-						# FIXME: calculate from min/max/range
-						abnormality_indicator = u' (%s)' % gmTools.u_plus_minus
-					# ... else use indicator the lab used
-					else:
-						abnormality_indicator = lab_abnormality_indicator
+				if abnormality_indicator != u'':
+					abnormality_indicator = u' (%s)' % abnormality_indicator[:3]
 
 				# is the sub_result relevant clinically ?
 				# FIXME: take into account primary_GP once we support that
@@ -933,16 +909,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			self.SetCellValue(row, col, u'\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-#			font = self.GetCellFont(row, col)
-#			if not font.IsFixedWidth():
-#				font.SetFamily(family = wx.FONTFAMILY_MODERN)
 			# FIXME: what about partial sub results being relevant ??
 			if sub_result_relevant:
 				font = self.GetCellFont(row, col)
 				self.SetCellTextColour(row, col, 'firebrick')
 				font.SetWeight(wx.FONTWEIGHT_BOLD)
 				self.SetCellFont(row, col, font)
-#			self.SetCellFont(row, col, font)
+			if cell_has_out_of_bounds_value:
+				self.SetCellBackgroundColour(row, col, 'cornflower blue')
 
 		self.AutoSize()
 		self.EndBatch()
@@ -962,8 +936,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		self.__row_label_data = []
 	#------------------------------------------------------------
 	def get_row_tooltip(self, row=None):
-		# display test info (unified, which tests are grouped, which panels
-		# they belong to include details about test types included,
+		# include details about test types included ?
 
 		# sometimes, for some reason, there is no row and
 		# wxPython still tries to find a tooltip for it
@@ -972,22 +945,11 @@ class cMeasurementsGrid(wx.grid.Grid):
 		except IndexError:
 			return u' '
 
-		meta_tt = tt.meta_test_type
-		if meta_tt is None:
+		if tt['is_fake_meta_type']:
 			return tt.format(patient = self.__patient.ID)
 
-		txt = meta_tt.format(with_tests = True)
-		txt += u'\n'
-		most_recent = tt.get_most_recent_results(patient = self.__patient.ID, no_of_results = 2)
-		if most_recent is not None:
-			txt += _('Most recent results:')
-			for result in most_recent:
-				txt += _('\n %s: %s%s%s') % (
-					result['clin_when'].strftime('%Y %b %d'),
-					result['unified_val'],
-					gmTools.coalesce(result['val_unit'], u'', u' %s'),
-					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
-				)
+		meta_tt = tt.meta_test_type
+		txt = meta_tt.format(with_tests = True, patient = self.__patient.ID)
 
 		return txt
 	#------------------------------------------------------------

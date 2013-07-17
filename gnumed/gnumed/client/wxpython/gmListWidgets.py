@@ -1249,6 +1249,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.__search_dlg.Close()
 			return
 
+		if self.__searchable_cols is None:
+			self.searchable_columns = None
+
 		if len(self.__searchable_cols) == 0:
 			return
 
@@ -1351,13 +1354,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__search_dlg.Destroy()
 		self.__search_dlg = None
 	#------------------------------------------------------------
-	def _on_lost_focus(self, evt):
-		evt.Skip()
-		if self.__search_dlg is None:
-			return
-#		print self.FindFocus()
-#		print self.__search_dlg
-		#self.__search_dlg.Close()
+#	def _on_lost_focus(self, evt):
+#		evt.Skip()
+#		if self.__search_dlg is None:
+#			return
+##		print self.FindFocus()
+##		print self.__search_dlg
+#		#self.__search_dlg.Close()
 	#------------------------------------------------------------
 	def __on_search_match(self, search_term):
 		for row_idx in range(self.__next_line_to_search, self.ItemCount):
@@ -1432,7 +1435,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.__searchable_cols = range(self.ColumnCount)
 			return
 		# weed out columns to be searched which
-		# don't exist an uniquify them
+		# don't exist and uniquify them
 		new_cols = {}
 		for col in cols:
 			if col < self.ColumnCount:

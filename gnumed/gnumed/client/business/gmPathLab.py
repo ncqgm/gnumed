@@ -298,7 +298,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 
 	_updatable_fields = []
 	#--------------------------------------------------------
-	def format(self, with_tests=False):
+	def format(self, with_tests=False, patient=None):
 		txt = _('Meta (%s=aggregate) test type              [#%s]\n\n') % (gmTools.u_sum, self._payload[self._idx['pk']])
 		txt += _(' Name: %s (%s)\n') % (
 			self._payload[self._idx['abbrev']],
@@ -314,13 +314,73 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 				txt += _(' Aggregates the following test types:\n')
 			for ttype in ttypes:
 				txt += u'  %s (%s)%s%s      [#%s]\n' % (
-					ttype['name'],
 					ttype['abbrev'],
+					ttype['name'],
 					gmTools.coalesce(ttype['conversion_unit'], u'', ', %s'),
 					gmTools.coalesce(ttype['loinc'], u'', u', LOINC: %s'),
 					ttype['pk_test_type']
 				)
+		if patient is not None:
+			txt += u'\n'
+			most_recent = self.get_most_recent_result(patient = patient)
+			if most_recent is not None:
+				txt += _(' Most recent (%s): %s%s%s') % (
+					most_recent['clin_when'].strftime('%Y %b %d'),
+					most_recent['unified_val'],
+					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
+					gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)')
+				)
+			oldest = self.get_oldest_result(patient = patient)
+			if oldest is not None:
+				txt += u'\n'
+				txt += _(' Oldest (%s): %s%s%s') % (
+					oldest['clin_when'].strftime('%Y %b %d'),
+					oldest['unified_val'],
+					gmTools.coalesce(oldest['val_unit'], u'', u' %s'),
+					gmTools.coalesce(oldest['abnormality_indicator'], u'', u' (%s)')
+				)
 		return txt
+
+	#--------------------------------------------------------
+	def get_most_recent_result(self, patient=None):
+		args = {
+			'pat': patient,
+			'mttyp': self._payload[self._idx['pk']]
+		}
+		cmd = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				pk_meta_test_type = %(mttyp)s
+			ORDER BY clin_when DESC
+			LIMIT 1"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
+	#--------------------------------------------------------
+	def get_oldest_result(self, patient=None):
+		args = {
+			'pat': patient,
+			'mttyp': self._payload[self._idx['pk']]
+		}
+		cmd = u"""
+			SELECT * FROM clin.v_test_results
+			WHERE
+				pk_patient = %(pat)s
+					AND
+				pk_meta_test_type = %(mttyp)s
+			ORDER BY clin_when
+			LIMIT 1"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+
+		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -405,6 +465,23 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 					patient = patient
 				)
 		return results
+
+	#--------------------------------------------------------
+	def get_oldest_result(self, patient=None):
+		result = get_oldest_result (
+			test_type = self._payload[self._idx['pk_test_type']],
+			loinc = None,
+			patient = patient
+		)
+		if result is None:
+			if self._payload[self._idx['loinc']] is not None:
+				result = get_oldest_result (
+					test_type = None,
+					loinc = self._payload[self._idx['loinc']],
+					patient = patient
+				)
+		return result
+
 	#--------------------------------------------------------
 	def _get_test_panels(self):
 		if self._payload[self._idx['pk_test_panels']] is None:
@@ -413,6 +490,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		return [ cTestPanel(aPK_obj = pk) for pk in self._payload[self._idx['pk_test_panels']] ]
 
 	test_panels = property(_get_test_panels, lambda x:x)
+
 	#--------------------------------------------------------
 	def get_meta_test_type(self, real_one_only=True):
 		if real_one_only is False:
@@ -578,11 +656,19 @@ LIMIT 1"""
 				)
 
 		if patient is not None:
+			tt += u'\n'
 			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
 			if result is not None:
+				tt += _(' Most recent (%s): %s%s%s') % (
+					result['clin_when'].strftime('%Y-%m-%d'),
+					result['unified_val'],
+					gmTools.coalesce(result['val_unit'], u'', u' %s'),
+					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
+				)
+			result = self.get_oldest_result(patient = patient)
+			if result is not None:
 				tt += u'\n'
-				tt += _('Most recent result:\n')
-				tt += _(' %s: %s%s%s') % (
+				tt += _(' Oldest (%s): %s%s%s') % (
 					result['clin_when'].strftime('%Y-%m-%d'),
 					result['unified_val'],
 					gmTools.coalesce(result['val_unit'], u'', u' %s'),
@@ -1171,6 +1257,116 @@ LIMIT 1"""
 
 	test_type = property(_get_test_type, lambda x:x)
 	#--------------------------------------------------------
+	def _get_is_considered_elevated(self):
+		# 1) the user is right (review)
+		if self._payload[self._idx['is_technically_abnormal']] is False:
+			return False
+		# 2) the lab is right (result.abnormality_indicator)
+		indicator = self._payload[self._idx['abnormality_indicator']]
+		if indicator is not None:
+			indicator = indicator.strip()
+			if indicator != u'':
+				if indicator.strip(u'+') == u'':
+					return True
+				if indicator.strip(u'-') == u'':
+					return False
+		# 3) non-numerical value ?
+		if self._payload[self._idx['val_num']] is None:
+			return None
+		# 4) the target range is right
+		target_max = self._payload[self._idx['val_target_max']]
+		if target_max is not None:
+			if target_max < self._payload[self._idx['val_num']]:
+				return True
+		# 4) the normal range is right
+		normal_max = self._payload[self._idx['val_normal_max']]
+		if normal_max is not None:
+			if normal_max < self._payload[self._idx['val_num']]:
+				return True
+		return None
+
+	is_considered_elevated = property(_get_is_considered_elevated, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_considered_lowered(self):
+		# 1) the user is right (review)
+		if self._payload[self._idx['is_technically_abnormal']] is False:
+			return False
+		# 2) the lab is right (result.abnormality_indicator)
+		indicator = self._payload[self._idx['abnormality_indicator']]
+		if indicator is not None:
+			indicator = indicator.strip()
+			if indicator != u'':
+				if indicator.strip(u'+') == u'':
+					return False
+				if indicator.strip(u'-') == u'':
+					return True
+		# 3) non-numerical value ?
+		if self._payload[self._idx['val_num']] is None:
+			return None
+		# 4) the target range is right
+		target_min = self._payload[self._idx['val_target_min']]
+		if target_min is not None:
+			if target_min > self._payload[self._idx['val_num']]:
+				return True
+		# 4) the normal range is right
+		normal_min = self._payload[self._idx['val_normal_min']]
+		if normal_min is not None:
+			if normal_min > self._payload[self._idx['val_num']]:
+				return True
+		return None
+
+	is_considered_lowered = property(_get_is_considered_lowered, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_considered_abnormal(self):
+		if self.is_considered_lowered is True:
+			return True
+		if self.is_considered_elevated is True:
+			return True
+		if (self.is_considered_lowered is False) and (self.is_considered_elevated is False):
+			return False
+		return self._payload[self._idx['is_technically_abnormal']]
+
+	is_considered_abnormal = property(_get_is_considered_abnormal, lambda x:x)
+	#--------------------------------------------------------
+	def _get_formatted_abnormality_indicator(self):
+		# 1) the user is right
+		if self._payload[self._idx['is_technically_abnormal']] is False:
+			return u''
+		# 2) the lab is right (result.abnormality_indicator)
+		indicator = self._payload[self._idx['abnormality_indicator']]
+		if indicator is not None:
+			indicator = indicator.strip()
+			if indicator != u'':
+				return indicator
+		# 3) non-numerical value ? then we can' know more
+		if self._payload[self._idx['val_num']] is None:
+			return None
+		# 4) the target range is right
+		target_min = self._payload[self._idx['val_target_min']]
+		if target_min is not None:
+			if target_min > self._payload[self._idx['val_num']]:
+				return u'-'
+		target_max = self._payload[self._idx['val_target_max']]
+		if target_max is not None:
+			if target_max < self._payload[self._idx['val_num']]:
+				return u'+'
+		# 4) the normal range is right
+		normal_min = self._payload[self._idx['val_normal_min']]
+		if normal_min is not None:
+			if normal_min > self._payload[self._idx['val_num']]:
+				return u'-'
+		normal_max = self._payload[self._idx['val_normal_max']]
+		if normal_max is not None:
+			if normal_max < self._payload[self._idx['val_num']]:
+				return u'+'
+		# reviewed, abnormal, but no indicator available
+		if self._payload[self._idx['is_technically_abnormal']] is True:
+			return gmTools.u_plus_minus
+
+		return None
+
+	formatted_abnormality_indicator = property(_get_formatted_abnormality_indicator, lambda x:x)
+	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 
 		# FIXME: this is not concurrency safe
@@ -1461,6 +1657,37 @@ def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient
 		return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+#------------------------------------------------------------
+def get_oldest_result(test_type=None, loinc=None, patient=None):
+
+	if None not in [test_type, loinc]:
+		raise ValueError('either <test_type> or <loinc> must be None')
+
+	args = {
+		'pat': patient,
+		'ttyp': test_type,
+		'loinc': loinc
+	}
+
+	where_parts = [u'pk_patient = %(pat)s']
+	if test_type is not None:
+		where_parts.append(u'pk_test_type = %(ttyp)s')		# consider: pk_meta_test_type = %(pkmtt)s / self._payload[self._idx['pk_meta_test_type']]
+	elif loinc is not None:
+		where_parts.append(u'((loinc_tt IN %(loinc)s) OR (loinc_meta IN %(loinc)s))')
+		args['loinc'] = tuple(loinc)
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE
+			%s
+		ORDER BY clin_when
+		LIMIT 1""" % u' AND '.join(where_parts)
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+
+	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 #------------------------------------------------------------
 def delete_test_result(result=None):

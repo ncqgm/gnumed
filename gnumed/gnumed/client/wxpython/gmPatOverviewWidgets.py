@@ -211,12 +211,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		))
 		list_data.append(most_recent)
 		most_recent_needs_red = False
-		if most_recent['is_technically_abnormal'] is True:
+		#if most_recent['is_technically_abnormal'] is True:
+		if most_recent.is_considered_abnormal is True:
 			if most_recent['is_clinically_relevant']:
 				most_recent_needs_red = True
-		else:
-			if most_recent['abnormality_indicator'] not in [None, u'']:
-				most_recent_needs_red = True
+#		else:
+#			if most_recent['abnormality_indicator'] not in [None, u'']:
+#				most_recent_needs_red = True
 
 		unsigned = emr.get_unsigned_results(order_by = u"(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
 		no_of_reds = 0
