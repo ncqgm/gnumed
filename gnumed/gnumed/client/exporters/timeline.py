@@ -492,17 +492,12 @@ def create_timeline_file(patient=None, filename=None):
 		))
 
 	# display range
-	if end.month == 12:
-		# both January and December feature 31 days, so no worry
-		end = end.replace(month = 1)
-	else:
-		# be careful about the target month being
-		# shorter than the source month
-		real_day = end.day
-		target_month = end.month + 1
-		end = end.replace(day = 28)
-		end = end.replace(month = target_month)
-		end = end.replace(day = min(real_day, gmDateTime.gregorian_month_length[target_month]))
+	if end.month == 2:
+		if end.day == 29:
+			# leap years aren't consecutive
+			end = end.replace(day = 28)
+	target_year = end.year + 1
+	end = end.replace(year = target_year)
 	timeline.write(xml_end % (
 		format_pydt(start),
 		format_pydt(end)
@@ -538,7 +533,10 @@ __fake_timeline_body_template = u"""
 		</event>"""
 
 def create_fake_timeline_file(patient=None, filename=None):
+	"""Used to create an 'empty' timeline file for display.
 
+	- needed because .clear_timeline() doesn't really work
+	"""
 	emr = patient.emr
 	global now
 	now = gmDateTime.pydt_now_here()
@@ -596,17 +594,12 @@ def create_fake_timeline_file(patient=None, filename=None):
 	))
 
 	# display range
-	if end.month == 12:
-		# both January and December feature 31 days, so no worry
-		end = end.replace(month = 1)
-	else:
-		# be careful about the target month being
-		# shorter than the source month
-		real_day = end.day
-		target_month = end.month + 1
-		end = end.replace(day = 28)
-		end = end.replace(month = target_month)
-		end = end.replace(day = min(real_day, gmDateTime.gregorian_month_length[target_month]))
+	if end.month == 2:
+		if end.day == 29:
+			# leap years aren't consecutive
+			end = end.replace(day = 28)
+	target_year = end.year + 1
+	end = end.replace(year = target_year)
 	timeline.write(xml_end % (
 		format_pydt(start),
 		format_pydt(end)

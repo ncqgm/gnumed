@@ -12,6 +12,8 @@ FIX: better show all relevant test results in review dialog [thanks Rogerio]
 FIX: failure of <PRW>.SetData(None)
 FIX: multi-use PRW edit font growth
 
+IMPROVED: make timeline end 1 year after end of data
+
 	1.3.7
 
 FIX: exception on substance intake w/o start date [thanks Jim]
