@@ -12,8 +12,6 @@ automatically and the signal narrative_mod_db is sent
 from it.
 """
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmNotificationSchemaGenerator.py,v $
-__version__ = "$Revision: 1.40 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -26,7 +24,6 @@ from Gnumed.pycommon import gmPG2
 
 
 _log = logging.getLogger('gm.bootstrapper')
-_log.info(__version__)
 
 #==================================================================
 # SQL statements for notification triggers
@@ -407,6 +404,7 @@ where
 	schema.append('-- ----------------------------------------------')
 
 	return schema
+
 #==================================================================
 # main
 #------------------------------------------------------------------
@@ -433,153 +431,3 @@ if __name__ == "__main__" :
 	file.close()
 
 #==================================================================
-# $Log: gmNotificationSchemaGenerator.py,v $
-# Revision 1.40  2009-12-21 15:14:27  ncq
-# - fix typo
-#
-# Revision 1.39  2009/10/29 17:24:29  ncq
-# - consider case of when .fk_episode can actually be NULL in enc/epi sanity check
-#
-# Revision 1.38  2009/10/27 11:00:20  ncq
-# - better comments
-#
-# Revision 1.37  2009/08/24 20:11:27  ncq
-# - bump db version
-# - fix tag creation
-# - provider inbox:
-# 	enable filter-to-active-patient,
-# 	listen to new signal,
-# 	use cInboxMessage class
-# - properly constrain LOINC phrasewheel SQL
-# - include v12 scripts in release
-# - install arriba jar to /usr/local/bin/
-# - check for table existence in audit schema generator
-# - include dem.message inbox with additional generic signals
-#
-# Revision 1.36  2009/04/03 09:55:46  ncq
-# - generate trigger to sanity check encounter.fk_patient vs
-#   episode.fk_patient on insert on any clin.clin_root_item child
-#
-# Revision 1.35  2009/02/24 10:04:14  ncq
-# - fix DROP TRIGGER SQL
-#
-# Revision 1.34  2009/02/24 09:49:18  ncq
-# - DROPping TRIGGERs cannot CASCADE
-#
-# Revision 1.33  2009/02/23 08:47:22  ncq
-# - more careful deletion of triggers
-#
-# Revision 1.32  2009/01/17 23:13:18  ncq
-# - better name for non-identity announcers
-# - explicitely disable identity listening for non-identity tables
-# - improve dem.identity support
-# - add explicit generic waiting list support
-#
-# Revision 1.31  2009/01/08 16:43:58  ncq
-# - no more fk_identity in blobs.doc_med so remove identity accessor mapping
-#
-# Revision 1.30  2008/07/10 08:36:27  ncq
-# - protect against old mischief, too
-#
-# Revision 1.29  2008/07/10 08:19:30  ncq
-# - protect standard notification generation against existence of
-#   dummy entry for narrative notification used for telling client
-#   backend listener what to listen for (that is, don't fail notification
-#   generation on "any schema"."clin.clin_root_item children")
-#
-# Revision 1.28  2008/04/11 12:30:22  ncq
-# - create notification schema for clin.clin_root_item children
-#
-# Revision 1.27  2008/01/07 14:15:43  ncq
-# - port to gmCfg2/gmLog2
-# - create database with default transaction mode set to readonly
-#
-# Revision 1.26  2007/11/28 22:38:10  ncq
-# - make it know about dem.identity
-#
-# Revision 1.25  2007/11/28 14:01:07  ncq
-# - fix ,
-#
-# Revision 1.24  2007/11/28 11:57:01  ncq
-# - support id_identity as person pk accessor
-#
-# Revision 1.23  2007/11/05 12:11:16  ncq
-# - do not FAIL on not being able to find the pk_identity for
-#   notification, it's likely due to a framing transaction
-#   deleting our parent record
-#
-# Revision 1.22  2007/11/04 22:59:17  ncq
-# - remove completed TODO item
-#
-# Revision 1.21  2007/10/30 12:53:07  ncq
-# - if a table attaches the patient pk document that fact for the backend listener
-#
-# Revision 1.20  2007/10/30 08:30:17  ncq
-# - greatly smarten up notification trigger generation
-#   - now determine identity column at bootstrap time
-#     rather than trigger runtime
-#   - autodetect patient related tables
-#
-# Revision 1.19  2007/10/25 12:28:30  ncq
-# - need to PERFORM, not SELECT when throwing away results
-# - proper quoting
-#
-# Revision 1.18  2007/10/23 21:32:54  ncq
-# - fix test suite
-# - improve generated triggers
-#
-# Revision 1.17  2006/12/18 17:38:19  ncq
-# - u''ify 2 queries
-#
-# Revision 1.16  2006/12/06 16:11:25  ncq
-# - port to gmPG2
-#
-# Revision 1.15  2006/11/14 23:29:01  ncq
-# - explicitely drop notifiation functions so we can change
-#   return type from opaque to trigger
-#
-# Revision 1.14  2005/12/04 09:34:44  ncq
-# - make fit for schema support
-# - move some queries to gmPG
-# - improve DDL templates (use or replace on functions)
-#
-# Revision 1.13  2005/09/13 11:51:42  ncq
-# - properly drop trigger functions so update works
-#
-# Revision 1.12  2005/06/01 23:19:38  ncq
-# - make notification triggers deferrable - useful for special
-#   situations such as when loading a patient SQL dump
-#
-# Revision 1.11  2005/03/14 14:39:49  ncq
-# - id_patient -> pk_patient
-#
-# Revision 1.10  2004/11/24 15:38:07  ncq
-# - improve generated change triggers
-#
-# Revision 1.9  2004/09/17 20:57:12  ncq
-# - use lowercase since things will be lowercase anyways
-#
-# Revision 1.8  2004/07/17 21:23:49  ncq
-# - run_query now has verbosity argument, so use it
-#
-# Revision 1.7  2004/06/28 13:31:17  ncq
-# - really fix imports, now works again
-#
-# Revision 1.6  2004/06/28 13:23:20  ncq
-# - fix import statements
-#
-# Revision 1.5  2004/06/26 07:33:55  ncq
-# - id_episode -> fk/pk_episode
-#
-# Revision 1.4  2004/04/17 11:54:16  ncq
-# - v_patient_episodes -> v_pat_episodes
-#
-# Revision 1.3  2004/02/25 09:46:36  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.2  2003/12/01 22:10:55  ncq
-# - typo
-#
-# Revision 1.1  2003/11/28 10:16:06  ncq
-# - initial check-in
-#

@@ -32,7 +32,6 @@ further details.
 # - verify that pre-created database is owned by "gm-dbo"
 # - rework under assumption that there is only one DB
 #==================================================================
-__version__ = "$Revision: 1.113 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL"
 
@@ -1099,7 +1098,19 @@ class database:
 		return True
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
-		print_msg("==> setting up notifications ...")
+		print_msg("==> setting up (old style) notifications ...")
+
+		# always re-create generic super signal
+		_log.debug('creating generic modification announcement triggers on all registered tables')
+		curs = self.conn.cursor()
+		cmd = u"SELECT gm.create_all_table_mod_triggers(True)"
+		curs.execute(cmd)
+		result = curs.fetchone()
+		curs.close()
+		if result[0] is False:
+			_log.error('cannot create generic modification announcement triggers on all tables')
+			return None
+
 		# get configuration
 		tmp = cfg_get(self.section, 'notification disable')
 		# if this option is not given, assume we want notification
@@ -1516,7 +1527,7 @@ if __name__ == "__main__":
 	gmI18N.activate_locale()
 	gmLog2.set_string_encoding()
 
-	_log.info("startup (%s)" % __version__)
+	_log.info("startup")
 
 	try:
 		main()
