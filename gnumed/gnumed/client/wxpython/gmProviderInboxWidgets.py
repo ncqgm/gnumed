@@ -522,13 +522,12 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'message_inbox_generic_mod_db', receiver = self._on_message_inbox_generic_mod_db)
-		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
+		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_message_inbox_mod_db)
 		# FIXME: listen for results insertion/deletion
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_results_mod_db)
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_mod_db)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
-		gmDispatcher.connect(signal = u'doc_obj_review_mod_db', receiver = self._on_doc_obj_review_mod_db)
+		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_results_mod_db)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_identity_mod_db)
+		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = u'blobs.reviewed_doc_objs_mod_db', receiver = self._on_doc_obj_review_mod_db)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __init_ui(self):
@@ -672,10 +671,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
 		_log.debug('doc_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
-	#--------------------------------------------------------
-	def _on_message_inbox_generic_mod_db(self, *args, **kwargs):
-		_log.debug('message_inbox_generic_mod_db')
 		wx.CallAfter(self.__on_message_inbox_mod_db)
 	#--------------------------------------------------------
 	def _on_message_inbox_mod_db(self, *args, **kwargs):

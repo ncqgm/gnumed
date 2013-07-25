@@ -842,11 +842,11 @@ def force_user_language(language=None):
 # query runners and helpers
 # =======================================================================
 def send_maintenance_notification():
-	cmd = u'notify "db_maintenance_warning:"'
+	cmd = u'notify "db_maintenance_warning"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 #------------------------------------------------------------------------
 def send_maintenance_shutdown():
-	cmd = u'notify "db_maintenance_disconnect:"'
+	cmd = u'notify "db_maintenance_disconnect"'
 	run_rw_queries(queries = [{'cmd': cmd}], return_data = False)
 #------------------------------------------------------------------------
 def is_pg_interval(candidate=None):
@@ -1833,13 +1833,6 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
-
-## remove for 0.9
-#try:
-#	import mx.DateTime as mxDT
-##	psycopg2.extensions.register_adapter(mxDT.DateTimeType, cAdapterMxDateTime)
-#except ImportError:
-#	_log.warning('cannot import mx.DateTime')
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY[]..." so we can support PG arrays

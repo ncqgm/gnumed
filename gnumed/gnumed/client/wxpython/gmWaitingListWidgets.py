@@ -259,7 +259,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		return tt
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'waiting_list_generic_mod_db', receiver = self._on_waiting_list_modified)
+		gmDispatcher.connect(signal = u'clin.waiting_list_mod_db', receiver = self._on_waiting_list_modified)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
 	def __refresh_waiting_list(self):

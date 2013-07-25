@@ -1258,7 +1258,7 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
-		gmDispatcher.connect(signal = u'bill_item_mod_db', receiver = self._on_bill_item_modified)
+		gmDispatcher.connect(signal = u'bill.bill_item_mod_db', receiver = self._on_bill_item_modified)
 
 		self._PRW_billable.add_callback_on_selection(self._on_billable_selected_in_prw)
 	#-----------------------------------------------------

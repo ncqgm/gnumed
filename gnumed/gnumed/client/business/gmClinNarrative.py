@@ -56,7 +56,7 @@ def _on_soap_modified():
 	"""Always relates to the active patient."""
 	gmHooks.run_hook_script(hook = u'after_soap_modified')
 
-gmDispatcher.connect(_on_soap_modified, u'clin_narrative_mod_db')
+gmDispatcher.connect(_on_soap_modified, u'clin.clin_narrative_mod_db')
 
 #============================================================
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):

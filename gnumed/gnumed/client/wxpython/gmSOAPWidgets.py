@@ -526,8 +526,8 @@ class cNotebookedProgressNoteInputPanel(wx.Panel):
 
 		# client internal signals
 		gmDispatcher.connect(signal='post_patient_selection', receiver=self._on_post_patient_selection)
-		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		"""Patient changed."""

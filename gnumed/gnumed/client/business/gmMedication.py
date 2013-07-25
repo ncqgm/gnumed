@@ -47,7 +47,7 @@ def _on_substance_intake_modified():
 	"""Always relates to the active patient."""
 	gmHooks.run_hook_script(hook = u'after_substance_intake_modified')
 
-gmDispatcher.connect(_on_substance_intake_modified, u'substance_intake_mod_db')
+gmDispatcher.connect(_on_substance_intake_modified, u'clin.substance_intake_mod_db')
 
 #============================================================
 def drug2renal_insufficiency_url(search_term=None):

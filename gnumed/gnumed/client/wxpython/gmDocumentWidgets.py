@@ -289,7 +289,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		self._LCTRL_doc_type.set_column_widths()
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'doc_type_mod_db', receiver = self._on_doc_type_mod_db)
+		gmDispatcher.connect(signal = u'blobs.doc_type_mod_db', receiver = self._on_doc_type_mod_db)
 	#--------------------------------------------------------
 	def _on_doc_type_mod_db(self):
 		wx.CallAfter(self.repopulate_ui)
@@ -1506,8 +1506,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)
-		gmDispatcher.connect(signal = u'doc_page_mod_db', receiver = self._on_doc_page_mod_db)
+		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
+		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._on_doc_page_mod_db)
 	#--------------------------------------------------------
 	def __build_context_menus(self):
 

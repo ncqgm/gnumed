@@ -1135,8 +1135,8 @@ class cActivePatientSelector(cPersonSearchCtrl):
 	def __register_events(self):
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
 
 		gmDispatcher.connect(signal = 'patient_locked', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = 'patient_unlocked', receiver = self._on_post_patient_selection)

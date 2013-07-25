@@ -1341,7 +1341,7 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_clear)
 		# this would throw an exception due to concurrency issues:
 		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
-		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._schedule_refresh)
+		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._schedule_refresh)
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._schedule_refresh)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._schedule_refresh)
 	#------------------------------------------------------------

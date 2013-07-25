@@ -121,29 +121,30 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		# database change signals
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'comm_channel_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'job_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'dem.comm_channel_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'dem.job_mod_db', receiver = self._on_post_patient_selection)
 		# no signal for external IDs yet
 		# no signal for address yet
 		#gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		#gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 
-		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
-		gmDispatcher.connect(signal = u'substance_intake_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._on_post_patient_selection)
 
-		gmDispatcher.connect(signal = u'hospital_stay_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'family_history_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'procedure_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'vacc_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.hospital_stay_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.family_history_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.procedure_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.vaccination_mod_db', receiver = self._on_post_patient_selection)
+		#gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_post_patient_selection)
 
-		gmDispatcher.connect(signal = u'message_inbox_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
 #		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)

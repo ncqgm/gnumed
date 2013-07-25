@@ -4,29 +4,35 @@ This module implements threaded listening for asynchronuous
 notifications from the database backend.
 """
 #=====================================================================
-__version__ = "$Revision: 1.22 $"
 __author__ = "H. Herb <hherb@gnumed.net>, K.Hilbert <karsten.hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
-import sys, time, threading, select, logging
+import sys
+import time
+import threading
+import select
+import logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmDispatcher, gmExceptions, gmBorg
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmBorg
 
 
 _log = logging.getLogger('gm.db')
-_log.info(__version__)
 
 
-static_signals = [
+signals2listen4 = [
 	u'db_maintenance_warning',		# warns of impending maintenance and asks for disconnect
-	u'db_maintenance_disconnect'	# announces a forced disconnect and disconnects
+	u'db_maintenance_disconnect',	# announces a forced disconnect and disconnects
+	u'gm_table_mod'					# sent for any (registered) table modification, payload contains details
 ]
+
 #=====================================================================
 class gmBackendListener(gmBorg.cBorg):
 
-	def __init__(self, conn=None, poll_interval=3, patient=None):
+	def __init__(self, conn=None, poll_interval=3):
 
 		try:
 			self.already_inited
@@ -42,13 +48,13 @@ class gmBackendListener(gmBorg.cBorg):
 		# take the lock now so it cannot be taken by the worker
 		# thread until it is released in shutdown()
 		if not self._quit_lock.acquire(0):
-			_log.error('cannot acquire thread-quit lock ! aborting')
-			raise gmExceptions.ConstructorError, "cannot acquire thread-quit lock"
+			_log.error('cannot acquire thread-quit lock, aborting')
+			raise EnvironmentError("cannot acquire thread-quit lock")
 
 		self._conn = conn
 		self.backend_pid = self._conn.get_backend_pid()
 		_log.debug('connection has backend PID [%s]', self.backend_pid)
-		self._conn.set_isolation_level(0)		# autocommit mode
+		self._conn.set_isolation_level(0)		# autocommit mode = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
 		self._cursor = self._conn.cursor()
 		try:
 			self._conn_fd = self._conn.fileno()
@@ -56,10 +62,6 @@ class gmBackendListener(gmBorg.cBorg):
 			self._conn_fd = self._cursor.fileno()
 		self._conn_lock = threading.Lock()		# lock for access to connection object
 
-		self.curr_patient_pk = None
-		if patient is not None:
-			if patient.connected:
-				self.curr_patient_pk = patient.ID
 		self.__register_interests()
 
 		# check for messages every 'poll_interval' seconds
@@ -93,10 +95,6 @@ class gmBackendListener(gmBorg.cBorg):
 		self._listener_thread = None
 
 		try:
-			self.__unregister_patient_notifications()
-		except:
-			_log.exception('unable to unregister patient notifications')
-		try:
 			self.__unregister_unspecific_notifications()
 		except:
 			_log.exception('unable to unregister unspecific notifications')
@@ -107,87 +105,20 @@ class gmBackendListener(gmBorg.cBorg):
 	#-------------------------------
 	# event handlers
 	#-------------------------------
-	def _on_pre_patient_selection(self, *args, **kwargs):
-		self.__unregister_patient_notifications()
-		self.curr_patient_pk = None
-	#-------------------------------
-	def _on_post_patient_selection(self, *args, **kwargs):
-		self.curr_patient_pk = kwargs['pk_identity']
-		self.__register_patient_notifications()
-	#-------------------------------
 	# internal helpers
 	#-------------------------------
 	def __register_interests(self):
-
-		# determine patient-specific notifications
-		cmd = u'SELECT DISTINCT ON (signal) signal FROM gm.notifying_tables WHERE carries_identity_pk IS true'
-		self._conn_lock.acquire(1)
-		try:
-			self._cursor.execute(cmd)
-		finally:
-			self._conn_lock.release()
-		rows = self._cursor.fetchall()
-		self.patient_specific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
-		_log.info('configured patient specific notifications:')
-		_log.info('%s' % self.patient_specific_notifications)
-		gmDispatcher.known_signals.extend(self.patient_specific_notifications)
-
 		# determine unspecific notifications
-		cmd = u'select distinct on (signal) signal from gm.notifying_tables where carries_identity_pk is False'
-		self._conn_lock.acquire(1)
-		try:
-			self._cursor.execute(cmd)
-		finally:
-			self._conn_lock.release()
-		rows = self._cursor.fetchall()
-		self.unspecific_notifications = [ '%s_mod_db' % row[0] for row in rows ]
-		self.unspecific_notifications.extend(static_signals)
+		self.unspecific_notifications = signals2listen4
 		_log.info('configured unspecific notifications:')
 		_log.info('%s' % self.unspecific_notifications)
 		gmDispatcher.known_signals.extend(self.unspecific_notifications)
 
-		# listen to patient changes inside the local client
-		# so we can re-register patient specific notifications
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
-		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-
-		# do we need to start listening to patient specific
-		# notifications right away because we missed an
-		# earlier patient activation ?
-		self.__register_patient_notifications()
-
-		# listen to unspecific (non-patient related) notifications
+		# listen to unspecific notifications
 		self.__register_unspecific_notifications()
-	#-------------------------------
-	def __register_patient_notifications(self):
-		if self.curr_patient_pk is None:
-			return
-		for notification in self.patient_specific_notifications:
-			notification = '%s:%s' % (notification, self.curr_patient_pk)
-			_log.debug('starting to listen for [%s]' % notification)
-			cmd = 'LISTEN "%s"' % notification
-			self._conn_lock.acquire(1)
-			try:
-				self._cursor.execute(cmd)
-			finally:
-				self._conn_lock.release()
-	#-------------------------------
-	def __unregister_patient_notifications(self):
-		if self.curr_patient_pk is None:
-			return
-		for notification in self.patient_specific_notifications:
-			notification = '%s:%s' % (notification, self.curr_patient_pk)
-			_log.debug('stopping to listen for [%s]' % notification)
-			cmd = 'UNLISTEN "%s"' % notification
-			self._conn_lock.acquire(1)
-			try:
-				self._cursor.execute(cmd)
-			finally:
-				self._conn_lock.release()
 	#-------------------------------
 	def __register_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
-			sig = '%s:' % sig
 			_log.info('starting to listen for [%s]' % sig)
 			cmd = 'LISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
@@ -198,7 +129,6 @@ class gmBackendListener(gmBorg.cBorg):
 	#-------------------------------
 	def __unregister_unspecific_notifications(self):
 		for sig in self.unspecific_notifications:
-			sig = '%s:' % sig
 			_log.info('stopping to listen for [%s]' % sig)
 			cmd = 'UNLISTEN "%s"' % sig
 			self._conn_lock.acquire(1)
@@ -234,13 +164,6 @@ class gmBackendListener(gmBorg.cBorg):
 	#-------------------------------
 	def _process_notifications(self):
 
-		# get a cursor for this thread
-		self._conn_lock.acquire(1)
-		try:
-			self._cursor_in_thread = self._conn.cursor()
-		finally:
-			self._conn_lock.release()
-
 		# loop until quitting
 		_have_quit_lock = None
 		while not _have_quit_lock:
@@ -264,13 +187,9 @@ class gmBackendListener(gmBorg.cBorg):
 				continue
 
 			# data available, wait for it to fully arrive
-#			while not self._cursor.isready():
-#				pass
-			# replace by conn.poll() when psycopg2 2.2 becomes standard
 			self._conn_lock.acquire(1)
 			try:
-				self._cursor_in_thread.execute(u'SELECT 1')
-				self._cursor_in_thread.fetchall()
+				self._conn.poll()
 			finally:
 				self._conn_lock.release()
 
@@ -278,7 +197,7 @@ class gmBackendListener(gmBorg.cBorg):
 			while len(self._conn.notifies) > 0:
 				# if self._quit_lock can be acquired we may be in
 				# __del__ in which case gmDispatcher is not
-				# guarantueed to exist anymore
+				# guaranteed to exist anymore
 				if self._quit_lock.acquire(0):
 					_have_quit_lock = 1
 					break
@@ -288,22 +207,62 @@ class gmBackendListener(gmBorg.cBorg):
 					notification = self._conn.notifies.pop()
 				finally:
 					self._conn_lock.release()
-				# try sending intra-client signal
-				pid, full_signal = notification
-				signal_name, pk = full_signal.split(':')
+				# decode payload
+				payload = notification.payload.split(u'::')
+				operation = None
+				table = None
+				pk_column = None
+				pk_row = None
+				pk_identity = None
+				for item in payload:
+					if item.startswith(u'operation='):
+						operation = item.split(u'=')[1]
+					if item.startswith(u'table='):
+						table = item.split(u'=')[1]
+					if item.startswith(u'PK name='):
+						pk_column = item.split(u'=')[1]
+					if item.startswith(u'row PK='):
+						pk_row = item.split(u'=')[1]
+					if item.startswith(u'person PK='):
+						pk_identity = item.split(u'=')[1]
+				# try sending intra-client signals:
+				# 1) generic signal
 				try:
 					results = gmDispatcher.send (
-						signal = signal_name,
+						signal = notification.channel,
 						originated_in_database = True,
 						listener_pid = self.backend_pid,
-						sending_backend_pid = pid,
-						pk_identity = pk
+						sending_backend_pid = notification.pid,
+						pk_identity = pk_identity,
+						operation = operation,
+						table = table,
+						pk_column = pk_column,
+						pk_row = pk_row
 					)
 				except:
-					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (full_signal, pid)
+					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.channel, notification.pid)
 					print sys.exc_info()
+				# 2) dynamically emulated old style table specific signals
+				if table is not None:
+					signal = u'%s_mod_db' % table
+					try:
+						results = gmDispatcher.send (
+							signal = signal,
+							originated_in_database = True,
+							listener_pid = self.backend_pid,
+							sending_backend_pid = notification.pid,
+							pk_identity = pk_identity,
+							operation = operation,
+							table = table,
+							pk_column = pk_column,
+							pk_row = pk_row
+						)
+					except:
+						print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (signal, notification.pid)
+						print sys.exc_info()
 
-				# there *may* be more pending notifications but do we care ?
+				# there *may* be more pending notifications but
+				# we don't care when quitting
 				if self._quit_lock.acquire(0):
 					_have_quit_lock = 1
 					break
@@ -416,9 +375,6 @@ if __name__ == "__main__":
 
 		listener = gmBackendListener(conn = gmPG2.get_raw_connection())
 		print "listening for the following notifications:"
-		print "1) patient specific (patient #%s):" % listener.curr_patient_pk
-		for sig in listener.patient_specific_notifications:
-			print '   - %s' % sig
 		print "1) unspecific:"
 		for sig in listener.unspecific_notifications:
 			print '   - %s' % sig

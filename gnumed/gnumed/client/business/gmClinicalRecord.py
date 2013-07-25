@@ -144,7 +144,7 @@ SELECT fk_encounter from
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
-		gmDispatcher.connect(signal = u'encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
+		gmDispatcher.connect(signal = u'clin.encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
 
 		return True
 	#--------------------------------------------------------
@@ -171,7 +171,7 @@ SELECT fk_encounter from
 			raise ValueError('unsaved changes in active encounter, cannot switch to another one')
 
 		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
-			_log.debug('encounter_mod_db received but no change to active encounter payload')
+			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
 			return True
 
 		# there was a change in the database from elsewhere,
@@ -200,9 +200,6 @@ SELECT fk_encounter from
 #		except KeyError:
 #			pass
 		return 1
-	#--------------------------------------------------------
-	def _clin_item_modified(self):
-		_log.debug('DB: clin_root_item modification')
 	#--------------------------------------------------------
 	# API: family history
 	#--------------------------------------------------------
@@ -1720,7 +1717,7 @@ WHERE
 #		if encounter['started'].strftime('%Y-%m-%d %H:%M') == encounter['last_affirmed'].strftime('%Y-%m-%d %H:%M'):
 #			now = gmDateTime.pydt_now_here()
 #			if now > encounter['started']:
-#				encounter['last_affirmed'] = now		# this will trigger an "encounter_mod_db"
+#				encounter['last_affirmed'] = now		# this will trigger an "clin.encounter_mod_db"
 #				encounter.save()
 		self.__encounter = encounter
 		gmDispatcher.send(u'current_encounter_switched')

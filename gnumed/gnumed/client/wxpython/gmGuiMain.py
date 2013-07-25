@@ -923,11 +923,12 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_END_SESSION(self, self._on_end_session)
 
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_pat_name_changed)
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_pat_name_changed)
-		gmDispatcher.connect(signal = u'praxis_branch_mod_db', receiver = self._on_pat_name_changed)
+		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_pat_name_changed)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_pat_name_changed)
+		gmDispatcher.connect(signal = u'dem.praxis_branch_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
 		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
+		# FIXME: xxxxxxx signal
 		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)

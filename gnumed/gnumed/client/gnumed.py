@@ -244,7 +244,7 @@ def setup_local_repo_path():
 			_log.error('insecure repo: permissions not 0600')
 			return
 
-	print "Activating local wxGlade widgets repository ..."
+	print "Activating local wxGlade widgets repository (%s) ..." % local_wxGladeWidgets_path
 	sys.path.insert(0, local_repo_path)
 	_log.debug('sys.path with repo:')
 	_log.debug(sys.path)

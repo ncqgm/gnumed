@@ -63,11 +63,11 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'allg_mod_db', receiver = self._on_allergies_change)
-		gmDispatcher.connect(signal = u'allg_state_mod_db', receiver = self._on_allergies_change)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'identity_tag_mod_db', receiver = self._on_tag_change)
+		gmDispatcher.connect(signal = u'clin.allgergy_mod_db', receiver = self._on_allergies_change)
+		gmDispatcher.connect(signal = u'clin.allergy_state_mod_db', receiver = self._on_allergies_change)
+		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
+		gmDispatcher.connect(signal = u'dem.identity_tag_mod_db', receiver = self._on_tag_change)
 
 		gmDispatcher.connect(signal = u'focus_patient_search', receiver = self._on_focus_patient_search)
 	#----------------------------------------------

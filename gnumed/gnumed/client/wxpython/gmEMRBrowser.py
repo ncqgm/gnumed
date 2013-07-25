@@ -182,10 +182,11 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #		wx.EVT_MOTION(self, self._on_mouse_motion)
 		wx.EVT_TREE_ITEM_GETTOOLTIP(self, -1, self._on_tree_item_gettooltip)
 
+		# FIXME: xxxxx signal
 		gmDispatcher.connect(signal = 'narrative_mod_db', receiver = self._on_narrative_mod_db)
-		gmDispatcher.connect(signal = 'episode_mod_db', receiver = self._on_episode_mod_db)
-		gmDispatcher.connect(signal = 'health_issue_mod_db', receiver = self._on_issue_mod_db)
-		gmDispatcher.connect(signal = 'family_history_mod_db', receiver = self._on_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_mod_db)
+		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_issue_mod_db)
+		gmDispatcher.connect(signal = 'clin.family_history_mod_db', receiver = self._on_issue_mod_db)
 	#--------------------------------------------------------
 	def clear_tree(self):
 		self.DeleteAllItems()

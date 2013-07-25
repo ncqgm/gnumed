@@ -38,7 +38,7 @@ def _on_test_result_modified():
 	"""Always relates to the active patient."""
 	gmHooks.run_hook_script(hook = u'after_test_result_modified')
 
-gmDispatcher.connect(_on_test_result_modified, u'test_result_mod_db')
+gmDispatcher.connect(_on_test_result_modified, u'clin.test_result_mod_db')
 
 #============================================================
 class cTestOrg(gmBusinessDBObject.cBusinessDBObject):

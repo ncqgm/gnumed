@@ -1212,8 +1212,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __register_interests(self):
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'test_result_mod_db', receiver = self._schedule_data_reget)
-		gmDispatcher.connect(signal = u'reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self.__on_post_patient_selection)

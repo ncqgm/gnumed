@@ -1446,8 +1446,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 		return None
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'identity_mod_db', receiver = self._on_identity_change)
-		gmDispatcher.connect(signal = u'name_mod_db', receiver = self._on_identity_change)
+		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_identity_change)
+		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_identity_change)
 	#--------------------------------------------------------
 	def _on_identity_change(self):
 		"""Listen for patient *data* change."""

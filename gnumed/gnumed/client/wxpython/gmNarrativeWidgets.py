@@ -1109,9 +1109,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		# client internal signals
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
@@ -1369,11 +1369,11 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'doc_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
+		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)			# visual progress notes
 		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
 		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
-		gmDispatcher.connect(signal = u'rfe_code_mod_db', receiver = self._on_encounter_code_modified)
-		gmDispatcher.connect(signal = u'aoe_code_mod_db', receiver = self._on_encounter_code_modified)
+		gmDispatcher.connect(signal = u'clin.rfe_code_mod_db', receiver = self._on_encounter_code_modified)
+		gmDispatcher.connect(signal = u'clin.aoe_code_mod_db', receiver = self._on_encounter_code_modified)
 	#--------------------------------------------------------
 	def _pre_selection_callback(self):
 		"""Another patient is about to be activated.
@@ -1948,7 +1948,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.soap_fields:
 			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
 		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_episode_summary, self._TCTRL_episode_summary.GetId(), self._on_expando_needs_layout)
-		gmDispatcher.connect(signal = u'doc_page_mod_db', receiver = self._refresh_visual_soap)
+		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._refresh_visual_soap)
 	#--------------------------------------------------------
 	def _refresh_visual_soap(self):
 		wx.CallAfter(self.refresh_visual_soap)
@@ -2601,8 +2601,8 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 		# client internal signals
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
+		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		# synchronous signals
 		self.__curr_pat.register_pre_selection_callback(callback = self._pre_selection_callback)

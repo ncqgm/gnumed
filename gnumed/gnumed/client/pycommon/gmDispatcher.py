@@ -17,7 +17,6 @@ wx_core_PyDeadObjectError = None
 known_signals = [
 	u'current_encounter_modified',	# the current encounter was modified externally
 	u'current_encounter_switched',	# *another* encounter became the current one
-	u'encounter_mod_db',
 	u'pre_patient_selection',
 	u'post_patient_selection',
 	u'patient_locked',
@@ -93,7 +92,6 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 
 	if signal not in known_signals:
 		_log.error('unknown signal [%(sig)s]', {'sig': signal})
-		print "DISPATCHER WARNING: connect(): unknown signal [%s]" % signal
 
 	if signal is not Any:
 		signal = str(signal)
@@ -133,7 +131,6 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 	connect, only in reverse. Think of it as undoing a previous connection."""
 	if signal not in known_signals:
 		_log.error('unknown signal [%(sig)s]', {'sig': signal})
-		print "DISPATCHER ERROR: disconnect(): unknown signal [%s]" % signal
 
 	if signal is not Any:
 		signal = str(signal)
@@ -158,10 +155,6 @@ def send(signal=None, sender=None, **kwds):
 	Return a list of tuple pairs [(receiver, response), ... ].
 	If sender is None, signal is sent anonymously.
 	"""
-	if signal not in known_signals:
-		_log.error('unknown signal [%(sig)s]', {'sig': signal})
-		print "DISPATCHER ERROR: send(): unknown signal [%s]" % signal
-
 	signal = str(signal)
 	senderkey = id(sender)
 	anykey = id(Any)
