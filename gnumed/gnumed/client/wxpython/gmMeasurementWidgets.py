@@ -730,7 +730,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 			cell_has_out_of_bounds_value = False
 			for sub_result in self.__cell_data[col][row]:
 
-				#if (sub_result.is_considered_lowered is True) or (sub_result.is_considered_elevated is True):
 				if sub_result.is_considered_abnormal:
 					cell_has_out_of_bounds_value = True
 
@@ -739,13 +738,6 @@ class cMeasurementsGrid(wx.grid.Grid):
 					abnormality_indicator = u''
 				if abnormality_indicator != u'':
 					abnormality_indicator = u' (%s)' % abnormality_indicator[:3]
-
-				# is the sub_result relevant clinically ?
-				# FIXME: take into account primary_GP once we support that
-				sub_result_relevant = sub_result['is_clinically_relevant']
-				if sub_result_relevant is None:
-					# FIXME: calculate from clinical range
-					sub_result_relevant = False
 
 				missing_review = False
 				# warn on missing review if
@@ -778,6 +770,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 				# lacking a review ?
 				if missing_review:
 					tmp = u'%s %s' % (tmp, gmTools.u_writing_hand)
+				else:
+					if sub_result['is_clinically_relevant']:
+						tmp += u' !'
 
 				# part of a multi-result cell ?
 				if len(self.__cell_data[col][row]) > 1:
@@ -787,12 +782,16 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 			self.SetCellValue(row, col, u'\n'.join(vals2display))
 			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-			# FIXME: what about partial sub results being relevant ??
-			if sub_result_relevant:
-				font = self.GetCellFont(row, col)
-				self.SetCellTextColour(row, col, 'firebrick')
-				font.SetWeight(wx.FONTWEIGHT_BOLD)
-				self.SetCellFont(row, col, font)
+			# We used to color text in cells holding abnormals
+			# in firebrick red but that would color ALL text (including
+			# normals) and not only the abnormals within that
+			# cell. Shading, however, only says that *something*
+			# inside that cell is worthy of attention.
+			#if sub_result_relevant:
+			#	font = self.GetCellFont(row, col)
+			#	self.SetCellTextColour(row, col, 'firebrick')
+			#	font.SetWeight(wx.FONTWEIGHT_BOLD)
+			#	self.SetCellFont(row, col, font)
 			if cell_has_out_of_bounds_value:
 				self.SetCellBackgroundColour(row, col, 'cornflower blue')
 
