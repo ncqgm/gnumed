@@ -1310,6 +1310,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v18
 ------------------------------------------------
 
+	18.8
+
+FIX: typo in clin.trf_notify_reviewer_of_review_change()
+
 	18.6
 
 FIX: clin_root_item_soap_cat check needs dropping
