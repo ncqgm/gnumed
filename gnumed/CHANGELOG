@@ -1348,6 +1348,7 @@ Requires PostgreSQL 9.1 !
 FIX: disable faulty clin-encounter.sql in v4 -> v5
 
 IMPROVED: much simplified table mod announcement signal
+IMPROVED: include FKs in schema version check
 
 ------------------------------------------------
 # gnumed_v18

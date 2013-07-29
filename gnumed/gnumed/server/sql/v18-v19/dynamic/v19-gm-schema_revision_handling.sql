@@ -101,8 +101,13 @@ begin
 				from pg_catalog.pg_constraint tbl
 				where
 					tbl.conrelid = (_table_desc.table_schema || ''.'' || _table_desc.table_name)::regclass
---						AND
---					tbl.contype = ''f''
+					-- include FKs only because we may have to add/remove
+					-- other (say, check) constraints in a minor release
+					-- for valid reasons which we do not want to affect
+					-- the hash, if however we need to modify a foreign
+					-- key that would, indeed, warrant a hash change
+						AND
+					tbl.contype = ''f''
 				) as CONSTRAINTs
 			order by
 				CONSTRAINTs.contype,
