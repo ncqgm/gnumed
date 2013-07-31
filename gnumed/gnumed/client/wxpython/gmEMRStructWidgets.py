@@ -287,7 +287,7 @@ limit 25
 					self._DPRW_end.display_as_valid(False)
 
 		if self._PRW_hospital_stay.GetData() is None:
-			if self._PRW_episode.GetData() is None:
+			if self._PRW_episode.GetValue().strip() == u'':
 				self._PRW_episode.display_as_valid(False)
 				has_errors = True
 			else:
@@ -325,7 +325,7 @@ limit 25
 
 		if self._PRW_hospital_stay.GetData() is None:
 			stay = None
-			epi = self._PRW_episode.GetData()
+			epi = self._PRW_episode.GetData(can_create = True)
 			loc = self._PRW_location.GetValue().strip()
 		else:
 			stay = self._PRW_hospital_stay.GetData()
