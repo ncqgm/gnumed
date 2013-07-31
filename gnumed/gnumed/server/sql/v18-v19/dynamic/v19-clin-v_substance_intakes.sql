@@ -9,6 +9,10 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+comment on column clin.substance_intake.discontinued is 'When was this intake discontinued ?';
+comment on column clin.substance_intake.discontinue_reason is 'Why was this intake discontinued ?';
+
+-- --------------------------------------------------------------
 \unset ON_ERROR_STOP
 drop view clin.v_brand_intakes cascade;
 \set ON_ERROR_STOP 1
