@@ -22,8 +22,16 @@ cmd = u"""
 	)"""
 rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd}], get_col_idx = False)
 for row in rows:
-	print "dangling row:", row
-	print " Looking for most recent row about episode %s in audit table ..." % row['fk_episode']
+	print "=> dangling row:", row
+	print "   verifying corresponding child table row in [%s] ..." % row['src_table']
+	cmd = u"SELECT * from %s WHERE pk_audit = %%(pk_audit)s" % row['src_table']
+	args = {'pk_audit': row['pk_audit']}
+	child_rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(child_rows) == 0:
+		print "NO CHILD TABLE ROW, SOMETHING IS BROKEN"
+	for child_row in child_rows:
+		print '=> [%s] row:' % row['src_table'], child_row
+	print "   looking for most recent row about episode %s in audit table ..." % row['fk_episode']
 	cmd = u"""
 		SELECT * FROM audit.log_episode WHERE
 			pk = %(pk_epi)s
@@ -33,7 +41,7 @@ for row in rows:
 	args = {'pk_epi': row['fk_episode']}
 	audit_rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, 'args': args}], get_col_idx = False)
 	for audit_row in audit_rows:
-		print ' audited row:', audit_row
+		print '=> audited row:', audit_row
 
 print ""
 print "2) rows with dangling .fk_encounter:"
@@ -44,8 +52,16 @@ cmd = u"""
 	)"""
 rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd}], get_col_idx = False)
 for row in rows:
-	print "dangling row:", row
-	print " Looking for most recent row about encounter %s in audit table ..." % row['fk_encounter']
+	print "=> dangling row:", row
+	print "   verifying corresponding child table row in [%s] ..." % row['src_table']
+	cmd = u"SELECT * from %s WHERE pk_audit = %%(pk_audit)s" % row['src_table']
+	args = {'pk_audit': row['pk_audit']}
+	child_rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(child_rows) == 0:
+		print "NO CHILD TABLE ROW, SOMETHING IS BROKEN"
+	for child_row in child_rows:
+		print '=> [%s] row:' % row['src_table'], child_row
+	print "   looking for most recent row about encounter %s in audit table ..." % row['fk_encounter']
 	cmd = u"""
 		SELECT * FROM audit.log_encounter WHERE
 			pk = %(pk_enc)s
@@ -55,4 +71,4 @@ for row in rows:
 	args = {'pk_enc': row['fk_encounter']}
 	audit_rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, 'args': args}], get_col_idx = False)
 	for audit_row in audit_rows:
-		print ' audited row:', audit_row
+		print '=> audited row:', audit_row
