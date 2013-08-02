@@ -420,11 +420,11 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		if with_medications:
 			meds = emr.get_current_substance_intakes (
 				issues = [ self._payload[self._idx['pk_health_issue']] ],
-				order_by = u'is_currently_active, started, substance'
+				order_by = u'is_currently_active DESC, started, substance'
 			)
 			if len(meds) > 0:
 				lines.append(u'')
-				lines.append(_('Active medications: %s') % len(meds))
+				lines.append(_('Medications and Substances'))
 			for m in meds:
 				lines.append(m.format(left_margin = (left_margin + 1)))
 			del meds
@@ -2707,28 +2707,36 @@ def reclass_problem(self, problem=None):
 		return cHealthIssue(aPK_obj = problem['pk_health_issue'])
 
 	raise exc
+
 #============================================================
+_SQL_get_hospital_stays = u"select * from clin.v_hospital_stays where %s"
+
 class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_hospital_stays where pk_hospital_stay = %s"
+	_cmd_fetch_payload = _SQL_get_hospital_stays % u"pk_hospital_stay = %s"
 	_cmds_store_payload = [
-		u"""update clin.hospital_stay set
+		u"""UPDATE clin.hospital_stay SET
 				clin_when = %(admission)s,
 				discharge = %(discharge)s,
-				narrative = gm.nullify_empty_string(%(hospital)s),
+				fk_org_unit = %(pk_org_unit)s,
+				narrative = gm.nullify_empty_string(%(comment)s),
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
-			where
-				pk = %(pk_hospital_stay)s and
-				xmin = %(xmin_hospital_stay)s""",
-		u"""select xmin_hospital_stay from clin.v_pat_hospital_stays where pk_hospital_stay = %(pk_hospital_stay)s"""
+			WHERE
+				pk = %(pk_hospital_stay)s
+					AND
+				xmin = %(xmin_hospital_stay)s
+			RETURNING
+				xmin AS xmin_hospital_stay
+			"""
 	]
 	_updatable_fields = [
 		'admission',
 		'discharge',
-		'hospital',
+		'pk_org_unit',
 		'pk_episode',
-		'pk_encounter'
+		'pk_encounter',
+		'comment'
 	]
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
@@ -2738,67 +2746,63 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			discharge = u''
 
-		line = u'%s%s%s%s: %s%s%s' % (
+		line = u'%s%s%s (%s@%s): %s%s%s' % (
 			u' ' * left_margin,
 			gmDateTime.pydt_strftime(self._payload[self._idx['admission']], '%Y %b %d'),
 			discharge,
-			gmTools.coalesce(self._payload[self._idx['hospital']], u'', u' (%s)'),
+			self._payload[self._idx['ward']],
+			self._payload[self._idx['hospital']],
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['episode']],
 			gmTools.u_right_double_angle_quote
 		)
-
 		return line
+
 #-----------------------------------------------------------
 def get_latest_patient_hospital_stay(patient=None):
+	cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1"
 	queries = [{
 		# this assumes non-overarching stays
-		'cmd': u'SELECT * FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
+		#'cmd': u'SELECT * FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s ORDER BY admission DESC LIMIT 1',
+		'cmd': cmd,
 		'args': {'pat': patient}
 	}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 	if len(rows) == 0:
 		return None
 	return cHospitalStay(row = {'idx': idx, 'data': rows[0], 'pk_field': 'pk_hospital_stay'})
+
 #-----------------------------------------------------------
 def get_patient_hospital_stays(patient=None, ongoing_only=False):
 	args = {'pat': patient}
 	if ongoing_only:
-		cmd = u"""
-			SELECT *
-			FROM clin.v_pat_hospital_stays
-			WHERE
-				pk_patient = %(pat)s
-					AND
-				discharge is NULL
-			ORDER BY admission"""
+		cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s AND discharge is NULL ORDER BY admission"
 	else:
-		cmd = u"""
-			SELECT *
-			FROM clin.v_pat_hospital_stays
-			WHERE pk_patient = %(pat)s
-			ORDER BY admission"""
+		cmd = _SQL_get_hospital_stays % u"pk_patient = %(pat)s ORDER BY admission"
 
 	queries = [{'cmd': cmd, 'args': args}]
 	rows, idx = gmPG2.run_ro_queries(queries = queries, get_col_idx = True)
 
 	return [ cHospitalStay(row = {'idx': idx, 'data': r, 'pk_field': 'pk_hospital_stay'})  for r in rows ]
+
 #-----------------------------------------------------------
-def create_hospital_stay(encounter=None, episode=None):
+def create_hospital_stay(encounter=None, episode=None, fk_org_unit=None):
 
 	queries = [{
-		 'cmd': u'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode) VALUES (%(enc)s, %(epi)s) RETURNING pk',
-		 'args': {'enc': encounter, 'epi': episode}
+		 'cmd': u'INSERT INTO clin.hospital_stay (fk_encounter, fk_episode, fk_org_unit) VALUES (%(enc)s, %(epi)s, %(fk_org_unit)s) RETURNING pk',
+		 'args': {'enc': encounter, 'epi': episode, 'fk_org_unit': fk_org_unit}
 	}]
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 
 	return cHospitalStay(aPK_obj = rows[0][0])
+
 #-----------------------------------------------------------
 def delete_hospital_stay(stay=None):
 	cmd = u'DELETE FROM clin.hospital_stay WHERE pk = %(pk)s'
 	args = {'pk': stay}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+
 #============================================================
 class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
@@ -3099,14 +3103,14 @@ if __name__ == '__main__':
 			print proc.format(left_margin=2)
 	#--------------------------------------------------------
 	def test_hospital_stay():
-		stay = create_hospital_stay(encounter = 1, episode = 2)
-		stay['hospital'] = u'Starfleet Galaxy General Hospital'
-		stay.save_payload()
+		stay = create_hospital_stay(encounter = 1, episode = 2, fk_org_unit = 1)
+#		stay['hospital'] = u'Starfleet Galaxy General Hospital'
+#		stay.save_payload()
 		print stay
 		for s in get_patient_hospital_stays(12):
 			print s
 		delete_hospital_stay(stay['pk_hospital_stay'])
-		stay = create_hospital_stay(encounter = 1, episode = 4)
+		stay = create_hospital_stay(encounter = 1, episode = 4, fk_org_unit = 1)
 	#--------------------------------------------------------
 	def test_diagnostic_certainty_classification_map():
 		tests = [None, 'A', 'B', 'C', 'D', 'E']

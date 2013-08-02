@@ -48,7 +48,7 @@ union all
 
 union all
 
-	select * from clin.v_pat_hospital_stays_journal
+	select * from clin.v_hospital_stays_journal
 
 union all
 

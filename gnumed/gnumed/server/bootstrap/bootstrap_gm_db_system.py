@@ -1164,17 +1164,31 @@ class database:
 				}
 				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
 
+		# always re-create generic super signal (if exists)
 		print_msg("==> setting up generic notifications ...")
-		# always re-create generic super signal
 		_log.debug('creating generic modification announcement triggers on all registered tables')
 		curs = self.conn.cursor()
-		cmd = u"SELECT gm.create_all_table_mod_triggers(True)"
+		cmd = u"""
+			SELECT EXISTS (
+				SELECT 1 FROM information_schema.routines WHERE
+					routine_name = 'create_all_table_mod_triggers'
+						AND
+					routine_schema = 'gm'
+			)"""
 		curs.execute(cmd)
 		result = curs.fetchone()
-		curs.close()
-		if result[0] is False:
-			_log.error('cannot create generic modification announcement triggers on all tables')
-			return None
+		if result[0] is True:
+			_log.debug('creating generic modification announcement triggers on registered tables')
+			cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
+			curs.execute(cmd)
+			result = curs.fetchone()
+			curs.close()
+			if result[0] is False:
+				_log.error('cannot create generic modification announcement triggers on all tables')
+				return None
+		else:
+			curs.close()
+			_log.debug('NOT creating generic modification announcement triggers, functionality not available')
 
 		print_msg("==> setting up (old style) notifications ...")
 		# get configuration

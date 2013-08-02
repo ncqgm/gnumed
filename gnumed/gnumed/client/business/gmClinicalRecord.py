@@ -271,10 +271,11 @@ SELECT fk_encounter from
 	def get_latest_hospital_stay(self):
 		return gmEMRStructItems.get_latest_patient_hospital_stay(patient = self.pk_patient)
 	#--------------------------------------------------------
-	def add_hospital_stay(self, episode=None):
+	def add_hospital_stay(self, episode=None, fk_org_unit=None):
 		return gmEMRStructItems.create_hospital_stay (
 			encounter = self.current_encounter['pk_encounter'],
-			episode = episode
+			episode = episode,
+			fk_org_unit = fk_org_unit
 		)
 	#--------------------------------------------------------
 	def get_hospital_stay_stats_by_hospital(self, cover_period=None):
@@ -285,7 +286,7 @@ SELECT fk_encounter from
 
 		cmd = u"""
 			SELECT hospital, count(1) AS frequency
-			FROM clin.v_pat_hospital_stays
+			FROM clin.v_hospital_stays
 			WHERE
 				%s
 			GROUP BY hospital
@@ -761,7 +762,7 @@ order by
 			u'SELECT count(1) FROM clin.v_pat_items WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM blobs.v_doc_med WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM clin.v_test_results WHERE pk_patient = %(pat)s',
-			u'SELECT count(1) FROM clin.v_pat_hospital_stays WHERE pk_patient = %(pat)s',
+			u'SELECT count(1) FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM clin.v_pat_procedures WHERE pk_patient = %(pat)s',
 			# active and approved substances == medication
 			u"""

@@ -1809,18 +1809,21 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def format_as_one_line(self, left_margin=0, date_format='%Y %b %d'):
 
-		if self._payload[self._idx['duration']] is None:
-			duration = gmTools.bool2subst (
-				self._payload[self._idx['is_long_term']],
-				_('long-term'),
-				_('short-term'),
-				_('?short-term')
-			)
+		if self._payload[self._idx['is_currently_active']]:
+			if self._payload[self._idx['duration']] is None:
+				duration = gmTools.bool2subst (
+					self._payload[self._idx['is_long_term']],
+					_('long-term'),
+					_('short-term'),
+					_('?short-term')
+				)
+			else:
+				duration = gmDateTime.format_interval (
+					self._payload[self._idx['duration']],
+					accuracy_wanted = gmDateTime.acc_days
+				)
 		else:
-			duration = gmDateTime.format_interval (
-				self._payload[self._idx['duration']],
-				accuracy_wanted = gmDateTime.acc_days
-			)
+			duration = gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], date_format)
 
 		line = u'%s%s (%s %s): %s %s%s %s (%s)' % (
 			u' ' * left_margin,

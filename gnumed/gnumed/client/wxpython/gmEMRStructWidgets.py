@@ -497,7 +497,7 @@ def manage_hospital_stays(parent=None):
 				s['admission'].strftime('%Y-%m-%d'),
 				gmTools.coalesce(s['discharge'], u'', function_initial = ('strftime', '%Y-%m-%d')),
 				s['episode'],
-				gmTools.coalesce(s['hospital'], u'')
+				u'%s @ %s' % (s['ward'], s['hospital'])
 			] for s in stays
 		]
 		lctrl.set_string_items(items = items)
@@ -528,9 +528,119 @@ def edit_hospital_stay(parent=None, hospital_stay=None):
 		return True
 	dlg.Destroy()
 	return False
+
+#----------------------------------------------------------------
+class cHospitalWardPhraseWheel(gmPhraseWheel.cPhraseWheel):
+	"""Phrasewheel to allow selection of a hospitalization."""
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
+
+		query = u"""
+		SELECT data, list_label, field_label FROM (
+			SELECT DISTINCT ON (data) * FROM ((
+
+				-- already-used org_units
+				SELECT
+					pk_org_unit
+						AS data,
+					ward || ' @ ' || hospital
+						AS list_label,
+					ward || ' @ ' || hospital
+						AS field_label,
+					1
+						AS rank
+				FROM
+					clin.v_hospital_stays
+				WHERE
+					ward %(fragment_condition)s
+						OR
+					hospital %(fragment_condition)s
+
+				) UNION ALL (
+				-- wards
+				SELECT
+					pk_org_unit
+						AS data,
+					unit || ' (' || l10n_unit_category || ') @ ' || organization
+						AS list_label,
+					unit || ' @ ' || organization
+						AS field_label,
+					2
+						AS rank
+				FROM
+					dem.v_org_units
+				WHERE
+					unit_category = 'Ward'
+						AND
+					unit %(fragment_condition)s
+						AND
+					NOT EXISTS (
+						SELECT 1 FROM clin.v_hospital_stays WHERE clin.v_hospital_stays.pk_org_unit = dem.v_org_units.pk_org_unit
+					)
+
+				) UNION ALL (
+				-- hospital units
+				SELECT
+					pk_org_unit
+						AS data,
+					unit || coalesce(' (' || l10n_unit_category || ')', '') || ' @ ' || organization || ' (' || l10n_organization_category || ')'
+						AS list_label,
+					unit || ' @ ' || organization
+						AS field_label,
+					3
+						AS rank
+				FROM
+					dem.v_org_units
+				WHERE
+					unit_category <> 'Ward'
+						AND
+					organization_category = 'Hospital'
+						AND
+					unit %(fragment_condition)s
+						AND
+					NOT EXISTS (
+						SELECT 1 FROM clin.v_hospital_stays WHERE clin.v_hospital_stays.pk_org_unit = dem.v_org_units.pk_org_unit
+					)
+
+				) UNION ALL (
+				-- any other units
+				SELECT
+					pk_org_unit
+						AS data,
+					unit || coalesce(' (' || l10n_unit_category || ')', '') || ' @ ' || organization || ' (' || l10n_organization_category || ')'
+						AS list_label,
+					unit || ' @ ' || organization
+						AS field_label,
+					3
+						AS rank
+				FROM
+					dem.v_org_units
+				WHERE
+					unit_category <> 'Ward'
+						AND
+					organization_category <> 'Hospital'
+						AND
+					unit %(fragment_condition)s
+						AND
+					NOT EXISTS (
+						SELECT 1 FROM clin.v_hospital_stays WHERE clin.v_hospital_stays.pk_org_unit = dem.v_org_units.pk_org_unit
+					)
+			)) AS all_matches
+			ORDER BY data, rank
+		) AS distinct_matches
+		ORDER BY rank, list_label
+		LIMIT 50
+		"""
+
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = [query])
+		mp.setThresholds(2, 4, 6)
+		self.matcher = mp
+		self.selection_only = True
+
 #----------------------------------------------------------------
 class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
-	"""Phrasewheel to allow selection of a hospitalization."""
+	"""Phrasewheel to allow selection of a hospital-type org_unit."""
 	def __init__(self, *args, **kwargs):
 
 		gmPhraseWheel.cPhraseWheel.__init__ (self, *args, **kwargs)
@@ -540,36 +650,38 @@ class cHospitalStayPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
 u"""
-select
+SELECT
 	pk_hospital_stay,
 	descr
-from (
-	select distinct on (pk_hospital_stay)
+FROM (
+	SELECT DISTINCT ON (pk_hospital_stay)
 		pk_hospital_stay,
 		descr
-	from
-		(select
+	FROM
+		(SELECT
 			pk_hospital_stay,
 			(
 				to_char(admission, 'YYYY-Mon-DD')
-				|| coalesce((' (' || hospital || '):'), ': ')
+				|| ' (' || ward || ' @ ' || hospital || '):'
 				|| episode
 				|| coalesce((' (' || health_issue || ')'), '')
-			) as descr
-		 from
-		 	clin.v_pat_hospital_stays
-		 where
+			) AS descr
+		 FROM
+		 	clin.v_hospital_stays
+		 WHERE
 			%(ctxt_pat)s
 
 			hospital %(fragment_condition)s
-				or
+				OR
+			ward %(fragment_condition)s
+				OR
 			episode %(fragment_condition)s
-				or
+				OR
 			health_issue %(fragment_condition)s
-		) as the_stays
-) as distinct_stays
-order by descr
-limit 25
+		) AS the_stays
+) AS distinct_stays
+ORDER BY descr
+LIMIT 25
 """			],
 			context = ctxt
 		)
@@ -578,6 +690,7 @@ limit 25
 
 		self.matcher = mp
 		self.selection_only = True
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgHospitalStayEditAreaPnl
 
@@ -624,16 +737,24 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 						gmDispatcher.send(signal = 'statustext', msg = _('Discharge date must be empty or later than admission. Cannot save hospitalization.'), beep = True)
 						self._PRW_discharge.SetFocus()
 
+		if self._PRW_hospital.GetData() is None:
+			self._PRW_hospital.display_as_valid(False)
+			self.status_message = _('Must select a hospital. Cannot save hospitalization.')
+			self._PRW_hospital.SetFocus()
+		else:
+			self._PRW_hospital.display_as_valid(True)
+
 		return (valid is True)
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
-		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True))
-		stay['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
+		stay = emr.add_hospital_stay(episode = self._PRW_episode.GetData(can_create = True), fk_org_unit = self._PRW_hospital.GetData())
+		stay['comment'] = self._TCTRL_comment.GetValue().strip()
 		stay['admission'] = self._PRW_admission.GetData()
 		stay['discharge'] = self._PRW_discharge.GetData()
+		stay['comment'] = self._TCTRL_comment.GetValue()
 		stay.save_payload()
 
 		self.data = stay
@@ -642,29 +763,31 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 	def _save_as_update(self):
 
 		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
-		self.data['hospital'] = gmTools.none_if(self._PRW_hospital.GetValue().strip(), u'')
+		self.data['pk_org_unit'] = self._PRW_hospital.GetData()
 		self.data['admission'] = self._PRW_admission.GetData()
 		self.data['discharge'] = self._PRW_discharge.GetData()
+		self.data['comment'] = self._TCTRL_comment.GetValue()
 		self.data.save_payload()
 
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_hospital.SetText(value = u'')
+		self._PRW_hospital.SetText(value = u'', data = None)
 		self._PRW_episode.SetText(value = u'')
 		self._PRW_admission.SetText(data = gmDateTime.pydt_now_here())
 		self._PRW_discharge.SetText()
+		self._TCTRL_comment.SetValue(u'')
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		if self.data['hospital'] is not None:
-			self._PRW_hospital.SetText(value = self.data['hospital'])
+		self._PRW_hospital.SetText(value = u'%s @ %s' % (self.data['ward'], self.data['hospital']), data = self.data['pk_org_unit'])
 
 		if self.data['pk_episode'] is not None:
 			self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
 
 		self._PRW_admission.SetText(data = self.data['admission'])
 		self._PRW_discharge.SetText(data = self.data['discharge'])
+		self._TCTRL_comment.SetValue(self.data['comment'])
 
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
@@ -1646,7 +1769,7 @@ class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			queries = [
 u"""(
 
-select
+SELECT
 	pk_episode
 		as data,
 	description
@@ -1665,7 +1788,7 @@ where
 
 ) union all (
 
-select
+SELECT
 	pk_episode
 		as data,
 	description
@@ -2156,11 +2279,11 @@ class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEd
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [u"""
-select distinct on (grouping) grouping, grouping from (
+SELECT DISTINCT ON (grouping) grouping, grouping from (
 
-	select rank, grouping from ((
+	SELECT rank, grouping from ((
 
-		select
+		SELECT
 			grouping,
 			1 as rank
 		from
@@ -2168,11 +2291,11 @@ select distinct on (grouping) grouping, grouping from (
 		where
 			grouping %%(fragment_condition)s
 				and
-			(select True from clin.encounter where fk_patient = %s and pk = clin.health_issue.fk_encounter)
+			(SELECT True from clin.encounter where fk_patient = %s and pk = clin.health_issue.fk_encounter)
 
 	) union (
 
-		select
+		SELECT
 			grouping,
 			2 as rank
 		from
