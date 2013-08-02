@@ -177,6 +177,28 @@ where
 order by
 	cols.ordinal_position"""
 
+# only works for single-column FKs but that's fine
+# needs gm-dbo, any-doc won't work
+SQL_foreign_key_name = u"""SELECT tc.constraint_schema, tc.constraint_name
+FROM
+	information_schema.table_constraints tc
+		INNER JOIN information_schema.constraint_column_usage ccu USING (constraint_catalog, constraint_schema, constraint_name)
+			INNER JOIN information_schema.key_column_usage kcu USING (constraint_catalog, constraint_schema, constraint_name)
+WHERE
+	tc.constraint_type = 'FOREIGN KEY'
+		AND
+	kcu.table_schema = %(src_schema)s
+		AND
+	kcu.table_name = %(src_tbl)s
+		AND
+	kcu.column_name = %(src_col)s
+		AND
+	ccu.table_schema = %(target_schema)s
+		AND
+	ccu.table_name = %(target_tbl)s
+		AND
+	ccu.column_name = %(target_col)s"""
+
 # =======================================================================
 # module globals API
 # =======================================================================
@@ -579,6 +601,27 @@ where
 	)
 
 	return rows
+
+#------------------------------------------------------------------------
+def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, target_schema=None, target_table=None, target_column=None, link_obj=None):
+
+	args = {
+		'src_schema': src_schema,
+		'src_tbl': src_table,
+		'src_col': src_column,
+		'target_schema': target_schema,
+		'target_tbl': target_table,
+		'target_col': target_column
+	}
+
+	rows, idx = run_ro_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': SQL_foreign_key_name, 'args': args}],
+		get_col_idx = False
+	)
+
+	return rows
+
 #------------------------------------------------------------------------
 def get_child_tables(schema='public', table=None, link_obj=None):
 	"""Return child tables of <table>."""
@@ -2152,8 +2195,19 @@ if __name__ == "__main__":
 		cmd = u"SELECT %(dt)s"
 
 		#cmd = u"SELECT 'infinity'::timestamp with time zone"
+
+		cmd = u"""
+SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
+	SELECT REGEXP_REPLACE (
+		't1.130729.0902.tif',			-- string
+		E'(.1)\.([0-9\.]+)(\.tif)',		-- pattern
+		E'\\\\2'						-- replacement
+	) AS foofoo
+) AS foo"""
 		rows, idx = run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		print rows
+		print rows[0]
+		print rows[0][0]
 	#--------------------------------------------------------------------
 	def test_schema_exists():
 		print schema_exists()
@@ -2196,6 +2250,17 @@ if __name__ == "__main__":
 
 		conn.close()
 	#--------------------------------------------------------------------
+	def test_get_foreign_key_names():
+		print get_foreign_key_names (
+			src_schema = 'dem',
+			src_table = 'names',
+			src_column = 'id_identity',
+			target_schema = 'dem',
+			target_table = 'identity',
+			target_column = 'pk'
+		)
+
+	#--------------------------------------------------------------------
 	# run tests
 	#test_file2bytea()
 	#test_get_connection()
@@ -2213,6 +2278,7 @@ if __name__ == "__main__":
 	#test_get_schema_revision_history()
 	#test_run_query()
 	#test_schema_exists()
+	#test_get_foreign_key_names()
 	test_row_locks()
 
 # ======================================================================
