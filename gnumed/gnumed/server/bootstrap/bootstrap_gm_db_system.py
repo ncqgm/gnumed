@@ -174,6 +174,15 @@ administrator access.
 
 Please select a database configuation from the list below.
 """
+
+SQL_add_foreign_key = u"""
+ALTER TABLE %(src_schema)s.%(src_tbl)s
+	ADD FOREIGN KEY (%(src_col)s)
+		REFERENCES %(target_schema)s.%(target_tbl)s(%(target_col)s)
+		ON UPDATE CASCADE
+		ON DELETE RESTRICT
+;"""
+
 #==================================================================
 def user_exists(cursor=None, user=None):
 	cmd = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
@@ -1097,8 +1106,65 @@ class database:
 		except StandardError:
 			_log.exception('cannot remove audit trail schema file [%s]' % tmpfile)
 		return True
+
 	#--------------------------------------------------------------
 	def bootstrap_notifications(self):
+
+		# setup clin.clin_root_item child tables FK's
+		print_msg("==> verifying FKs on clin.clin_root_item child tables ...")
+		child_tables = gmPG2.get_child_tables(link_obj = self.conn, schema = 'clin', table = 'clin_root_item')
+		_log.info('clin.clin_root_item child tables:')
+		for child in child_tables:
+			_log.info('%s.%s', child['namespace'], child['table'])
+		for child in child_tables:
+			# .fk_episode
+			FKs = gmPG2.get_foreign_key_names (
+				link_obj = self.conn,
+				src_schema = child['namespace'],
+				src_table = child['table'],
+				src_column = 'fk_episode',
+				target_schema = 'clin',
+				target_table = 'episode',
+				target_column = 'pk',
+			)
+			if len(FKs) > 0:
+				_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_episode -> clin.episode.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+			else:
+				_log.info('adding FK: %s.%s.fk_episode -> clin.episode.pk', child['namespace'], child['table'])
+				cmd = SQL_add_foreign_key % {
+					'src_schema': child['namespace'],
+					'src_tbl': child['table'],
+					'src_col': 'fk_episode',
+					'target_schema': 'clin',
+					'target_tbl': 'episode',
+					'target_col': 'pk'
+				}
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+
+			# .fk_encounter
+			FKs = gmPG2.get_foreign_key_names (
+				link_obj = self.conn,
+				src_schema = child['namespace'],
+				src_table = child['table'],
+				src_column = 'fk_encounter',
+				target_schema = 'clin',
+				target_table = 'encounter',
+				target_column = 'pk'
+			)
+			if len(FKs) > 0:
+				_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_encounter -> clin.encounter.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+			else:
+				_log.info('adding FK: %s.%s.fk_encounter -> clin.encounter.pk', child['namespace'], child['table'])
+				cmd = SQL_add_foreign_key % {
+					'src_schema': child['namespace'],
+					'src_tbl': child['table'],
+					'src_col': 'fk_encounter',
+					'target_schema': 'clin',
+					'target_tbl': 'encounter',
+					'target_col': 'pk'
+				}
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+
 		print_msg("==> setting up notifications ...")
 		# get configuration
 		tmp = cfg_get(self.section, 'notification disable')

@@ -1313,6 +1313,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	18.8
 
 FIX: typo in clin.trf_notify_reviewer_of_review_change()
+FIX: ensure FKs on .fk_encounter/.fk_episode on clin.clin_root_item children
 
 	18.6
 
