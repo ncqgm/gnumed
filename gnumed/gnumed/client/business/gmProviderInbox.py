@@ -414,6 +414,8 @@ def get_hints_for_patient(pk_identity=None):
 	curs.callproc('clin.get_hints_for_patient', [pk_identity])
 	rows = curs.fetchall()
 	idx = gmPG2.get_col_indices(curs)
+	curs.close()
+	conn.rollback()
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
 
 #============================================================

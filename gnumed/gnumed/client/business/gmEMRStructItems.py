@@ -1446,7 +1446,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 	"""
 	if not allow_dupes:
 		try:
-			episode = cEpisode(name=episode_name, health_issue=pk_health_issue, encounter = encounter)
+			episode = cEpisode(name = episode_name, health_issue = pk_health_issue, encounter = encounter)
 			if episode['episode_open'] != is_open:
 				episode['episode_open'] = is_open
 				episode.save_payload()
@@ -1455,7 +1455,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 			pass
 
 	queries = []
-	cmd = u"insert into clin.episode (fk_health_issue, description, is_open, fk_encounter) values (%s, %s, %s::boolean, %s)"
+	cmd = u"INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
 	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)

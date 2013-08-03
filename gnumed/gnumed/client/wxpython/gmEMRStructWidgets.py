@@ -2031,7 +2031,9 @@ def edit_health_issue(parent=None, issue=None):
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (issue is not None))
 	dlg.SetTitle(gmTools.coalesce(issue, _('Adding a new health issue'), _('Editing a health issue')))
 	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
 		return True
+	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
 def select_health_issues(parent=None, emr=None):
@@ -2262,13 +2264,22 @@ class cHealthIssueEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgHealthIssueEd
 	def __init__(self, *args, **kwargs):
 
 		try:
-			issue = kwargs['issue']
+			data = kwargs['issue']
+			del kwargs['issue']
 		except KeyError:
-			 issue = None
+			data = None
 
 		wxgHealthIssueEditAreaPnl.wxgHealthIssueEditAreaPnl.__init__(self, *args, **kwargs)
-
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
 
 		# FIXME: include more sources: coding systems/other database columns
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
@@ -2318,14 +2329,13 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
-		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
-		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
+#		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
+#		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
 		self._PRW_year_noted.Enable(True)
 
 		self._PRW_codes.add_callback_on_lose_focus(self._on_leave_codes)
 
-		self.data = issue
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -2340,13 +2350,12 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		# FIXME: sanity check age/year diagnosed
 		age_noted = self._PRW_age_noted.GetValue().strip()
-		if age_noted != '':
+		if age_noted != u'':
 			if gmDateTime.str2interval(str_interval = age_noted) is None:
 				self._PRW_age_noted.display_as_valid(False)
 				self._PRW_age_noted.SetFocus()
 				return False
 		self._PRW_age_noted.display_as_valid(True)
-
 		return True
 	#----------------------------------------------------------------
 	def _save_as_new(self):
@@ -2425,6 +2434,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._ChBOX_confidential.SetValue(0)
 		self._ChBOX_caused_death.SetValue(0)
 
+		self._PRW_condition.SetFocus()
 		return True
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
@@ -2462,9 +2472,7 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._ChBOX_confidential.SetValue(self.data['is_confidential'])
 		self._ChBOX_caused_death.SetValue(self.data['is_cause_of_death'])
 
-		# this dance should assure self._PRW_year_noted gets set -- but it doesn't ...
-#		self._PRW_age_noted.SetFocus()
-#		self._PRW_condition.SetFocus()
+		self._TCTRL_status.SetFocus()
 
 		return True
 	#----------------------------------------------------------------
@@ -2484,51 +2492,35 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		if not self._PRW_age_noted.IsModified():
 			return True
 
-		str_age = self._PRW_age_noted.GetValue().strip()
+		age_str = self._PRW_age_noted.GetValue().strip()
 
-		if str_age == u'':
-			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+		if age_str == u'':
 			return True
 
-		age = gmDateTime.str2interval(str_interval = str_age)
+		issue_age = gmDateTime.str2interval(str_interval = age_str)
 
-		if age is None:
-			gmDispatcher.send(signal='statustext', msg=_('Cannot parse [%s] into valid interval.') % str_age)
-			self._PRW_age_noted.SetBackgroundColour('pink')
-			self._PRW_age_noted.Refresh()
-			wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+		if issue_age is None:
+			self.status_message = _('Cannot parse [%s] into valid interval.') % age_str
+			self._PRW_age_noted.display_as_valid(False)
 			return True
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat['dob'] is not None:
-			max_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
-
-			if age >= max_age:
-				gmDispatcher.send (
-					signal = 'statustext',
-					msg = _(
-						'Health issue cannot have been noted at age %s. Patient is only %s old.'
-					) % (age, pat.get_medical_age())
-				)
-				self._PRW_age_noted.SetBackgroundColour('pink')
-				self._PRW_age_noted.Refresh()
-				wx.CallAfter(self._PRW_year_noted.SetText, u'', None, True)
+			max_issue_age = pydt.datetime.now(tz=pat['dob'].tzinfo) - pat['dob']
+			if issue_age >= max_issue_age:
+				self.status_message = _('Health issue cannot have been noted at age %s. Patient is only %s old.') % (issue_age, pat.get_medical_age())
+				self._PRW_age_noted.display_as_valid(False)
 				return True
 
-		self._PRW_age_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_age_noted.Refresh()
-		self._PRW_age_noted.SetData(data=age)
+		self._PRW_age_noted.display_as_valid(True)
+		self._PRW_age_noted.SetText(value = age_str, data = issue_age)
 
 		if pat['dob'] is not None:
 			fts = gmDateTime.cFuzzyTimestamp (
-				timestamp = pat['dob'] + age,
+				timestamp = pat['dob'] + issue_age,
 				accuracy = gmDateTime.acc_months
 			)
-			wx.CallAfter(self._PRW_year_noted.SetText, str(fts), fts)
-			# if we do this we will *always* navigate there, regardless of TAB vs ALT-TAB
-			#wx.CallAfter(self._ChBOX_active.SetFocus)
-			# if we do the following instead it will take us to the save/update button ...
-			#wx.CallAfter(self.Navigate)
+			self._PRW_year_noted.SetText(value = str(fts), data = fts)
 
 		return True
 	#--------------------------------------------------------
@@ -2541,30 +2533,25 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 
 		if year_noted is None:
 			if self._PRW_year_noted.GetValue().strip() == u'':
-				wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
+				self._PRW_year_noted.display_as_valid(True)
 				return True
-			self._PRW_year_noted.SetBackgroundColour('pink')
-			self._PRW_year_noted.Refresh()
-			wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
+			self._PRW_year_noted.display_as_valid(False)
 			return True
 
 		year_noted = year_noted.get_pydt()
 
-		if year_noted >= pydt.datetime.now(tz=year_noted.tzinfo):
-			gmDispatcher.send(signal='statustext', msg=_('Condition diagnosed in the future.'))
-			self._PRW_year_noted.SetBackgroundColour('pink')
-			self._PRW_year_noted.Refresh()
-			wx.CallAfter(self._PRW_age_noted.SetText, u'', None, True)
+		if year_noted >= pydt.datetime.now(tz = year_noted.tzinfo):
+			self.status_message = _('Condition diagnosed in the future.')
+			self._PRW_year_noted.display_as_valid(False)
 			return True
 
-		self._PRW_year_noted.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOW))
-		self._PRW_year_noted.Refresh()
+		self._PRW_year_noted.display_as_valid(True)
 
 		pat = gmPerson.gmCurrentPatient()
 		if pat['dob'] is not None:
 			issue_age = year_noted - pat['dob']
-			str_age = gmDateTime.format_interval_medically(interval = issue_age)
-			wx.CallAfter(self._PRW_age_noted.SetText, str_age, issue_age)
+			age_str = gmDateTime.format_interval_medically(interval = issue_age)
+			self._PRW_age_noted.SetText(age_str, issue_age, True)
 
 		return True
 	#--------------------------------------------------------
