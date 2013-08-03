@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-11 09:33+CEST\n"
+"POT-Creation-Date: 2013-08-03 11:33+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -251,6 +251,9 @@ msgstr "soap_A"
 
 msgid "soap_P"
 msgstr "soap_P"
+
+msgid "soap_U"
+msgstr ""
 
 msgid "soap_Subjective"
 msgstr "soap_Subjetivo"
@@ -537,8 +540,8 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
-"s, %(code_country)s"
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
 msgstr ""
 "%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
 
@@ -4149,8 +4152,10 @@ msgstr "Cuándo se empezó a consumir esta sustancia."
 msgid "Whether this substance is taken by advice."
 msgstr "Acaso esta sustancia es tomada por recomendación."
 
-msgid "The episode this substance is taken under."
-msgstr "La razón por la cual se está tomando esta sustancia."
+msgid ""
+"Select, or enter for creation, the episode to which this substance will "
+"relate."
+msgstr ""
 
 msgid "The schedule for taking this substance."
 msgstr "El horario para la toma de esta substancia."
@@ -10073,8 +10078,8 @@ msgid ""
 "\n"
 "The command is passed the filename to %(l10n_action)s."
 msgstr ""
-"No puedo %(l10n_action)s parte de documento - falló comando %(l10n.action)"
-"s.\n"
+"No puedo %(l10n_action)s parte de documento - falló comando %(l10n."
+"action)s.\n"
 "\n"
 "Necesita revisar y verificar uno de\n"
 " gm_%(action)s_doc.sh (Unix/Mac) o\n"
@@ -10099,8 +10104,8 @@ msgid ""
 "must be in the execution path. The command will\n"
 "be passed a list of filenames to %(l10n_action)s."
 msgstr ""
-"No puedo %(l10n_action)s documento - no se encontró comando %(l10n.action)"
-"s.\n"
+"No puedo %(l10n_action)s documento - no se encontró comando %(l10n."
+"action)s.\n"
 "\n"
 "gm_%(action)s_doc.sh o gm_%(action)s_doc.bat\n"
 "debe estar en la ruta de ejecución. Al comando\n"
@@ -10375,9 +10380,6 @@ msgstr ""
 "para el paciente activo.\n"
 "\n"
 "Por favor, revise el archivo de registro para ver los detalles."
-
-msgid "No EMR data loaded."
-msgstr "Datos del RME no cargados"
 
 msgid "Cannot delete performed procedure."
 msgstr "No se puede borrar el procedimiento ya realizado."
@@ -10714,6 +10716,9 @@ msgstr ""
 
 msgid "Select desired test option from the 'File' menu"
 msgstr "Seleccione la opción de examen del menu 'Archivos'"
+
+msgid "No EMR data loaded."
+msgstr "Datos del RME no cargados"
 
 msgid "EMR text dump"
 msgstr "Extracto textual del RME"
@@ -11649,15 +11654,12 @@ msgstr "&Procedimientos"
 msgid "Manage procedures performed on the patient."
 msgstr "Maneja procedimientos llevados a cabo en el paciente."
 
-msgid "Add (a) measurement result(s) for the current patient."
+#, fuzzy
+msgid "Manage measurement results for the current patient."
 msgstr "Agrega (un) resultado(s) de medición para el paciente activo."
 
 msgid "&Measurements"
 msgstr "&Mediciones"
-
-#, fuzzy
-msgid "Manage measurement results for the current patient."
-msgstr "Agrega (un) resultado(s) de medición para el paciente activo."
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr "Agrega (una) vacunación(es) para el paciente activo."
@@ -12834,9 +12836,6 @@ msgstr "No puedo agregar vacunaciones. No existe paciente activo."
 
 msgid "Cannot manage family history. No active patient."
 msgstr "No puedo manejar historial familar. No existe paciente activo."
-
-msgid "Cannot add measurement. No active patient."
-msgstr "No puedo agregar medición. No existe paciente activo."
 
 #, fuzzy
 msgid "Cannot manage measurements. No active patient."
@@ -14056,6 +14055,14 @@ msgid "Checking brand data"
 msgstr "Verificar actualizaciones del cliente"
 
 msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
 "You have not selected any substances\n"
 "as drug components.\n"
 "\n"
@@ -14159,6 +14166,12 @@ msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
 "Datos ingresados incompletos/inválidos para guardarlos como ingesta de "
 "sustancia."
+
+msgid "Discontinued (%s) in the future (now: %s)!"
+msgstr ""
+
+msgid "Discontinued (%s) before started (%s) !"
+msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
 msgstr "No puedo agregar duplicado de medicación (eventualmente inactiva)."
@@ -16217,9 +16230,8 @@ msgstr "Mostrando vacunaciones."
 msgid "Intended to protect from"
 msgstr "Debiera proteger de"
 
-#, fuzzy
-msgid "Print vaccinations using a template."
-msgstr "No puedo agregar vacunaciones. No existe paciente activo."
+msgid "Print vaccinations or recalls."
+msgstr ""
 
 #, fuzzy
 msgid "Add a recall for a vaccination"
@@ -16232,8 +16244,8 @@ msgstr "Detalles de la llamada"
 msgid "Open a browser showing vaccination schedules."
 msgstr "Abra un navegador que muestre procedimientos de vacunación."
 
-msgid "Vaccination Plans"
-msgstr "Procedimientos de vacunación"
+msgid "Vx schedules"
+msgstr ""
 
 msgid "prevention"
 msgstr "prevención"
@@ -16909,6 +16921,22 @@ msgstr "Cantidad"
 
 msgid "First Date"
 msgstr "Primera cita"
+
+#~ msgid "The episode this substance is taken under."
+#~ msgstr "La razón por la cual se está tomando esta sustancia."
+
+#~ msgid "Add (a) measurement result(s) for the current patient."
+#~ msgstr "Agrega (un) resultado(s) de medición para el paciente activo."
+
+#~ msgid "Cannot add measurement. No active patient."
+#~ msgstr "No puedo agregar medición. No existe paciente activo."
+
+#, fuzzy
+#~ msgid "Print vaccinations using a template."
+#~ msgstr "No puedo agregar vacunaciones. No existe paciente activo."
+
+#~ msgid "Vaccination Plans"
+#~ msgstr "Procedimientos de vacunación"
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr ""

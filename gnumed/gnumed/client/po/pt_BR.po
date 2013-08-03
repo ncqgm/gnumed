@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2013-05-11 09:35+CEST\n"
+"POT-Creation-Date: 2013-08-03 11:34+CEST\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -138,7 +138,7 @@ msgid "Inactive billable item"
 msgstr "Item contábil inativo"
 
 msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
-msgstr ""
+msgstr " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
 
 msgid "Open item"
 msgstr "Abrir Item"
@@ -188,14 +188,14 @@ msgid " Closed: %s\n"
 msgstr " Fechada: %s\n"
 
 msgid " Comment: %s\n"
-msgstr ""
+msgstr " Comentário: %s\n"
 
 #, fuzzy
 msgid " Bill value: %(curr)s%(val)s\n"
 msgstr " Valor da nota: %s %s\n"
 
 msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
-msgstr ""
+msgstr " Imposto: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
 
 #, fuzzy
 msgid " Value + VAT: %(curr)s%(val)s\n"
@@ -238,6 +238,9 @@ msgstr "soap_A"
 msgid "soap_P"
 msgstr "soap_P"
 
+msgid "soap_U"
+msgstr "soap_U"
+
 msgid "soap_Subjective"
 msgstr "soap_Subjetivo"
 
@@ -264,121 +267,134 @@ msgstr ""
 "%s"
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
-msgstr ""
+msgstr "ESSA NÃO É UM EXAME VALIDADO. NÃO USE PARA A PRÁTICA CLÍNICA."
 
 msgid "Algorithm:"
-msgstr ""
+msgstr "Algoritmo:"
 
 #, fuzzy
 msgid "Source:"
 msgstr "Fontes das Porções"
 
 msgid "Variables:"
-msgstr ""
+msgstr "Variáveis:"
 
 #, fuzzy
 msgid "Intermediate results:"
 msgstr "resultado corrigido"
 
 msgid "unknown MDRD (4 vars/IDMS)"
-msgstr ""
+msgstr "MDRD desconhecido (4 variáveis/IDMS)"
 
 msgid "MDRD (4 vars/IDMS): no patient"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): sem paciente"
 
 msgid "MDRD (4 vars/IDMS): no DOB (no age)"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): sem DN (falta idade)"
 
 msgid "MDRD (4 vars/IDMS): neither male nor female"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): não há informações sobre sexo."
 
 msgid ""
 "MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
 msgstr ""
+"MDRD (4 variáveis/IDMS): valor de creatinina não foi encontrado (LOINC: "
+"2160-0, 14682-9)"
 
 msgid "MDRD (4 vars/IDMS): creatinine value not numeric"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): valor de creatinina não é numérico"
 
 msgid "MDRD (4 vars/IDMS): unknown serum creatinine unit (%s)"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): unidade de creatinina desconhecida (%s)"
 
 msgid "MDRD (4 vars/IDMS): formula does not apply at age [%s] (17 < age < 85)"
 msgstr ""
+"MDRD (4 variáveis/IDMS): fórmula não se aplica em idade [%s] (apenas de 17 a "
+"85 anos)."
 
 msgid ""
 "ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
 msgstr ""
+"características étnicas: GNUmed não conhece a característica étnica do "
+"paciente, ignorando o fator de correção"
 
 msgid "NOT corrected for non-average body surface (average = 1.73m²)"
 msgstr ""
+"NÃO foi corrigido para superfície corporal fora da média (média = 1,73m²)."
 
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
-msgstr ""
+msgstr "GFR estimada (MDRD): %.1f %s (%s) [4-variáveis, IDMS]"
 
 msgid "unknown eGFR (Schwartz)"
-msgstr ""
+msgstr "GFR estimada desconhecida (Schwartz)"
 
 msgid "eGFR (Schwartz): no patient"
-msgstr ""
+msgstr "GFR estimada (Schwartz): sem paciente"
 
 msgid "eGFR (Schwartz): DOB needed for age"
-msgstr ""
+msgstr "GFR estimada (Schwartz): DN necessária para idade"
 
 msgid ""
 "eGFR (Schwartz): serum creatinine value not found (LOINC: 2160-0, 14682-9)"
 msgstr ""
+"GFR estimada (Schwartz): valores de creatinina sérica não encontrada  "
+"(LOINC: 2160-0, 14682-9)"
 
 msgid "eGFR (Schwartz): creatinine value not numeric"
-msgstr ""
+msgstr "GFR estimada (Schwartz): valores de creatinina não numéricos"
 
 msgid "eGFR (Schwartz): unknown serum creatinine unit (%s)"
-msgstr ""
+msgstr "GFR estimada (Schwartz): unidade de creatinina desconhecida  (%s)"
 
 msgid "eGFR (Schwartz): formula does not apply at age [%s] (age must be <18)"
 msgstr ""
+"GFR estimada (Schwartz): fórmula não se aplica a idade [%s] (idade deve ser "
+"<18 anos)"
 
 msgid ""
 "eGFR (Schwartz): not known whether pre-term birth, applying full-term formula"
 msgstr ""
+"GFR estimada (Schwartz): aplicando a fórmula de parto a termo, pois não se "
+"sabe se é prematuro"
 
 msgid "eGFR (Schwartz): height not found"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não fornecida"
 
 msgid "eGFR (Schwartz): height not numeric"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não numérica"
 
 msgid "eGFR (Schwartz): height not in m, cm, or mm"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não está expressa em m, cm ou mm"
 
 msgid "eGFR (Schwartz): %.1f %s (%s)"
-msgstr ""
+msgstr "GFR estimada (Schwartz): %.1f %s (%s)"
 
 msgid "unknown body surface area"
-msgstr ""
+msgstr "área de superfície corporal desconhecido"
 
 msgid "Body Surface Area: no patient"
-msgstr ""
+msgstr "Área de Superfície Corporal: não há paciente"
 
 msgid "Body Surface Area: height not found"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura indisponível"
 
 msgid "Body Surface Area: height not numeric"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura não é numérico"
 
 msgid "Body Surface Area: height not in m, cm, or mm"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura não está expressa em m, cm ou mm"
 
 msgid "Body Surface Area: weight not found"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso indisponível"
 
 msgid "Body Surface Area: weight not numeric"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso não disponível"
 
 msgid "Body Surface Area: weight not in kg or g"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso não expresso em kg ou g"
 
 msgid "BSA (DuBois): %.2f %s"
-msgstr ""
+msgstr "ASC (DuBois): %.2f %s"
 
 msgid "modified entry"
 msgstr "registro modificado"
@@ -518,11 +534,11 @@ msgstr ""
 "%(code_state)s, %(code_country)s"
 
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
-"s, %(code_country)s"
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
 msgstr ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)"
-"s, %(code_country)s"
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_state)s, %(code_country)s"
 
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
@@ -546,6 +562,12 @@ msgid ""
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+"Endereço (%(type)s) [#%(pk_adr)s]\n"
+" Rua: %(street)s%(notes_street)s\n"
+" Número/Unidade: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Local: %(zip)s %(urb)s%(suburb)s\n"
+" Região: %(l10n_state)s, %(code_state)s\n"
+" País: %(l10n_country)s, %(code_country)s"
 
 msgid ""
 "Address [#%(pk_adr)s]\n"
@@ -555,6 +577,12 @@ msgid ""
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+"Endereço [#%(pk_adr)s]\n"
+" Rua: %(street)s%(notes_street)s\n"
+" Número/Unidade: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Local: %(zip)s %(urb)s%(suburb)s\n"
+" Região: %(l10n_state)s, %(code_state)s\n"
+" País: %(l10n_country)s, %(code_country)s"
 
 msgid "Battery:"
 msgstr "Bateria:"
@@ -578,7 +606,7 @@ msgid "last check:"
 msgstr "checagem mais recente:"
 
 msgid "%s document part                 [#%s]\n"
-msgstr ""
+msgstr "%s parte do documento                 [#%s]\n"
 
 #, fuzzy
 msgid "Reviewed"
@@ -617,6 +645,11 @@ msgid ""
 " Episode: %s\n"
 "%s%s%s"
 msgstr ""
+"%s (%s)   #%s\n"
+"\n"
+" Criado: %s\n"
+" Consulta: %s\n"
+"%s%s%s"
 
 #, fuzzy
 msgid " Health issue: %s\n"
@@ -680,7 +713,7 @@ msgid "clinically relevant"
 msgstr "relevante"
 
 msgid "Synopsis"
-msgstr ""
+msgstr "Sinopse"
 
 msgid "Error retrieving episodes for this health issue."
 msgstr "Erro ao buscar episódios para esse problema de saúde."
@@ -845,40 +878,40 @@ msgstr ""
 "LaTeX."
 
 msgid " %s segments (lines)%s"
-msgstr ""
+msgstr " %s segmentos (linhas)%s"
 
 msgid ", skipping empty fields"
-msgstr ""
+msgstr ", pulando campos vazios"
 
 #, fuzzy
 msgid "HL7 Message"
 msgstr "mensagem"
 
 msgid "%s fields"
-msgstr ""
+msgstr "%s campos"
 
 #, fuzzy
 msgid "Segment #%s <%s>"
 msgstr "Comentário: %s"
 
 msgid "HL7 %s field"
-msgstr ""
+msgstr "Campo HL7 %s"
 
 msgid "<EMTPY>"
-msgstr ""
+msgstr "<VAZIO>"
 
 msgid "Textual keyword expansion"
-msgstr ""
+msgstr "Expansão de Texto"
 
 msgid "Binary keyword expansion"
-msgstr ""
+msgstr "Expansão de Binário"
 
 #, fuzzy
 msgid "private"
 msgstr "Ativar"
 
 msgid "public"
-msgstr ""
+msgstr "público"
 
 #, fuzzy
 msgid "encrypted"
@@ -914,13 +947,13 @@ msgid "?ongoing"
 msgstr "?contínuo"
 
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr ""
+msgstr "Entrada de uso de Medicação (%s, %s)   [#%s]                     \n"
 
 msgid "active, needs check"
 msgstr "ativo, precisa verificar"
 
 msgid "assumed active"
-msgstr ""
+msgstr "assumido como ativo"
 
 msgid "approved"
 msgstr "aprovado"
@@ -932,10 +965,10 @@ msgid "definite"
 msgstr "definitivo"
 
 msgid "suspected"
-msgstr ""
+msgstr "incerto"
 
 msgid "Substance: %s   [#%s]\n"
-msgstr ""
+msgstr "Medicamento: %s   [#%s]\n"
 
 msgid "Preparation: %s\n"
 msgstr "Preparação: %s\n"
@@ -944,28 +977,28 @@ msgid "Amount per dose: %s %s"
 msgstr "Quantidade por dose: %s %s"
 
 msgid " ATC (substance): %s\n"
-msgstr ""
+msgstr " ATC (medicamento): %s\n"
 
 msgid " Brand name: %%s   [#%s]\n"
-msgstr ""
+msgstr " Nome comercial: %%s   [#%s]\n"
 
 msgid " ATC (brand): %s\n"
-msgstr ""
+msgstr " ATC (nome comercial): %s\n"
 
 msgid "  Other component: %s\n"
 msgstr "  Outro componente: %s\n"
 
 msgid " Regimen: %s\n"
-msgstr ""
+msgstr " Posologia: %s\n"
 
 msgid " Started %s%s%s\n"
-msgstr ""
+msgstr " Começou em: %s%s%s\n"
 
 msgid " (long-term)"
-msgstr ""
+msgstr " (uso pronlongado)"
 
 msgid " (short-term)"
-msgstr ""
+msgstr " (uso por pouco tempo)"
 
 msgid " Discontinued %s\n"
 msgstr " Descontinuado %s\n"
@@ -974,13 +1007,13 @@ msgid " Reason: %s\n"
 msgstr " Razão: %s\n"
 
 msgid " Aim: %s\n"
-msgstr ""
+msgstr " Motivo: %s\n"
 
 msgid " Episode: %s\n"
-msgstr ""
+msgstr " Episódio: %s\n"
 
 msgid " Advice: %s\n"
-msgstr ""
+msgstr " Orientações: %s\n"
 
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr "Revisão: #%(row_ver)s, %(mod_when)s por %(mod_by)s."
@@ -1030,16 +1063,16 @@ msgid "auto-generated"
 msgstr "autogerado"
 
 msgid "Test panel \"%s\"          [#%s]\n"
-msgstr ""
+msgstr "Painel de Exames \"%s\"          [#%s]\n"
 
 msgid "Included test types:\n"
-msgstr ""
+msgstr "Tipos de exames incluídos:\n"
 
 msgid "Test type \"%s\" (%s)          [#%s]\n"
-msgstr ""
+msgstr "Tipos de Exames \"%s\" (%s)          [#%s]\n"
 
 msgid " Conversion unit: %s\n"
-msgstr ""
+msgstr " Unidade de conversão: %s\n"
 
 #, fuzzy
 msgid "Lab details:\n"
@@ -1054,125 +1087,129 @@ msgid " Contact: %s\n"
 msgstr "Contatos"
 
 msgid "Aggregated under meta type:\n"
-msgstr ""
+msgstr "Agregar sob o meta tipo:\n"
 
 msgid " Name: %s - %s             [#%s]\n"
-msgstr ""
+msgstr " Nome: %s - %s             [#%s]\n"
 
 msgid "Listed in test panels:\n"
-msgstr ""
+msgstr "Listado nos seguintes painéis:\n"
 
 msgid " Panel \"%s\"             [#%s]\n"
-msgstr ""
+msgstr " Painel\"%s\"             [#%s]\n"
 
 msgid "Most recent result:\n"
-msgstr ""
+msgstr "Resultado mais recente:\n"
 
 msgid " %s: %s%s%s"
-msgstr ""
+msgstr " %s: %s%s%s"
 
 msgid "Result from %s             \n"
-msgstr ""
+msgstr "Resultados de %s             \n"
 
 msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
+msgstr "Tipo: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
+msgstr "Resultado: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 
 msgid "Source: %s\n"
 msgstr "Fonte: %s\n"
 
 msgid "%.1f %% of the normal lower limit"
-msgstr ""
+msgstr "%.1f %% do limite normal inferior"
 
 msgid "%.0f %% of the normal lower limit"
-msgstr ""
+msgstr "%.0f %% do limite inferior de normalidade"
 
 msgid "%.1f times the normal upper limit"
-msgstr ""
+msgstr "%.1f vezes o limite superior de normalidade"
 
 msgid "%.0f times the normal upper limit"
-msgstr ""
+msgstr "%.0f vezes o limite superior de normalidade"
 
 msgid "%.1f %% of the target lower limit"
-msgstr ""
+msgstr "%.1f %% do valor alvo inferior"
 
 msgid "%.0f %% of the target lower limit"
-msgstr ""
+msgstr "%.0f %% do valor alvo inferior"
 
 msgid "%.1f times the target upper limit"
-msgstr ""
+msgstr "%.1f vezes o valor do alvo superior"
 
 msgid "%.0f times the target upper limit"
-msgstr ""
+msgstr "%.0f vezes o valor do alvo superior"
 
 msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
+msgstr "Valores normais: %(norm_min_max)s%(norm_range)s  \n"
 
 msgid "Reference group: %s\n"
-msgstr ""
+msgstr "Grupo de referência: %s\n"
 
 msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
+msgstr "Valores alvo: %(clin_min_max)s%(clin_range)s  \n"
 
 msgid ""
 "\n"
 " Doc: "
 msgstr ""
+"\n"
+" Dr: "
 
 msgid "Doc: %s\n"
-msgstr ""
+msgstr "Dr.: %s\n"
 
 msgid ""
 "\n"
 " Lab: "
 msgstr ""
+"\n"
+" Laboratório: "
 
 msgid "Lab: %s\n"
-msgstr ""
+msgstr "Laboratório: %s\n"
 
 msgid "Episode: %s\n"
-msgstr ""
+msgstr "Episódio: %s\n"
 
 msgid "Issue: %s\n"
-msgstr ""
+msgstr "Problema: %s\n"
 
 msgid "Material: %s\n"
-msgstr ""
+msgstr "Material: %s\n"
 
 msgid "Details: %s\n"
-msgstr ""
+msgstr "Detalhes: %s\n"
 
 msgid "not yet"
-msgstr ""
+msgstr "ainda não"
 
 msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
+msgstr "Assinado (%(sig_hand)s): %(reviewed)s\n"
 
 msgid "Responsible clinician: %s\n"
-msgstr ""
+msgstr "Clínico responsável: %s\n"
 
 msgid "you"
-msgstr ""
+msgstr "você"
 
 msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
+msgstr "Último revisor: %(reviewer)s\n"
 
 msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
+msgstr " Tecnicamente anormal: %(abnormal)s\n"
 
 msgid "yes"
-msgstr ""
+msgstr "sim"
 
 msgid "no"
-msgstr ""
+msgstr "não"
 
 msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
+msgstr " Relevante: %(relevant)s\n"
 
 msgid "Test type details:\n"
-msgstr ""
+msgstr "Detalhes do tipo de exame:\n"
 
 msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
 msgstr ""
@@ -4013,8 +4050,10 @@ msgstr "Quando foi que a substância começou a ser consumida."
 msgid "Whether this substance is taken by advice."
 msgstr "Se essa substância está sendo usada sob supervisão."
 
-msgid "The episode this substance is taken under."
-msgstr "O episódio ao qual essa substância está relacionada."
+msgid ""
+"Select, or enter for creation, the episode to which this substance will "
+"relate."
+msgstr ""
 
 msgid "The schedule for taking this substance."
 msgstr "A posologia para essa substância."
@@ -9766,9 +9805,6 @@ msgstr ""
 "\n"
 "Veja o arquivo de log para os detalhes."
 
-msgid "No EMR data loaded."
-msgstr "Não há dados abertos no Prontuário."
-
 msgid "Cannot delete performed procedure."
 msgstr ""
 
@@ -10085,6 +10121,9 @@ msgstr ""
 
 msgid "Select desired test option from the 'File' menu"
 msgstr "Selecione o teste / exame desejado do menu 'Arquivo'"
+
+msgid "No EMR data loaded."
+msgstr "Não há dados abertos no Prontuário."
 
 msgid "EMR text dump"
 msgstr "Saída em forma de texto do Prontuário"
@@ -10989,16 +11028,13 @@ msgstr ""
 msgid "Manage procedures performed on the patient."
 msgstr ""
 
-msgid "Add (a) measurement result(s) for the current patient."
+#, fuzzy
+msgid "Manage measurement results for the current patient."
 msgstr "Adicione um resultado de medição para o paciente atual"
 
 #, fuzzy
 msgid "&Measurements"
 msgstr "Adiionar &Resultados/Medidas"
-
-#, fuzzy
-msgid "Manage measurement results for the current patient."
-msgstr "Adicione um resultado de medição para o paciente atual"
 
 msgid "Add (a) vaccination(s) for the current patient."
 msgstr ""
@@ -12026,9 +12062,6 @@ msgstr ""
 msgid "Cannot manage family history. No active patient."
 msgstr "Não foi possível adicionar problema de saúde. Não há paciente ativo."
 
-msgid "Cannot add measurement. No active patient."
-msgstr ""
-
 #, fuzzy
 msgid "Cannot manage measurements. No active patient."
 msgstr "Não foi possível adicionar problema de saúde. Não há paciente ativo."
@@ -13005,7 +13038,7 @@ msgid "Managing components of a drug ..."
 msgstr ""
 
 msgid "in use"
-msgstr ""
+msgstr "em uso"
 
 msgid "not in use"
 msgstr ""
@@ -13078,6 +13111,14 @@ msgstr ""
 #, fuzzy
 msgid "Checking brand data"
 msgstr "Checando por atualizações do cliente"
+
+msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
 
 msgid ""
 "You have not selected any substances\n"
@@ -13170,6 +13211,12 @@ msgid "Adding substance intake entry"
 msgstr "Editar a entrada da atual substância."
 
 msgid "Input incomplete/invalid for saving as substance intake."
+msgstr ""
+
+msgid "Discontinued (%s) in the future (now: %s)!"
+msgstr ""
+
+msgid "Discontinued (%s) before started (%s) !"
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -14968,9 +15015,8 @@ msgstr ""
 msgid "Intended to protect from"
 msgstr ""
 
-#, fuzzy
-msgid "Print vaccinations using a template."
-msgstr "Não há vacinas para formatar"
+msgid "Print vaccinations or recalls."
+msgstr ""
 
 msgid "Add a recall for a vaccination"
 msgstr ""
@@ -14982,7 +15028,7 @@ msgstr "Detalhes da Reconsulta"
 msgid "Open a browser showing vaccination schedules."
 msgstr ""
 
-msgid "Vaccination Plans"
+msgid "Vx schedules"
 msgstr ""
 
 msgid "prevention"
@@ -15108,19 +15154,19 @@ msgid "Billing"
 msgstr ""
 
 msgid "loading plugin <%s>"
-msgstr ""
+msgstr "carregando plugin <%s>"
 
 msgid "Cardiac Devices"
-msgstr ""
+msgstr "Dispositivos Cardíacos"
 
 msgid "Show &cardiac devices"
-msgstr ""
+msgstr "Exibir dispositivos &cardíacos"
 
 msgid "Type of entered value is not compatible with type expected."
-msgstr ""
+msgstr "Tipo do valor digitado não é compatível com o tipo esperado."
 
 msgid "saving configuration"
-msgstr ""
+msgstr "salvando configuração"
 
 msgid ""
 "There is no config definition for this parameter.\n"
@@ -15128,33 +15174,37 @@ msgid ""
 "\n"
 "Save anyway ?"
 msgstr ""
+"Não existe definição de configuração para este parâmetro.\n"
+"Assim sendo, a validade não pode ser verificada.\n"
+"\n"
+"Salvar assim mesmo?"
 
 msgid "Entered value is not valid."
-msgstr ""
+msgstr "Valor digitado não é válido."
 
 msgid "(Branch)"
-msgstr ""
+msgstr "(Ramo)"
 
 msgid "(Subtree root)"
-msgstr ""
+msgstr "(Ramificação - root)"
 
 msgid "<Options for current/default user and workplace>"
-msgstr ""
+msgstr "<Opções para o usuário atual/padrão e local de trabalho>"
 
 msgid "Parameters"
 msgstr ""
 
 msgid "Parameter Description"
-msgstr ""
+msgstr "Descrição de Parametro"
 
 msgid "Config Options"
-msgstr ""
+msgstr "Opções de Configuração"
 
 msgid "Setup"
 msgstr ""
 
 msgid "&ConfigRegistry"
-msgstr ""
+msgstr "Registro de &Configuração"
 
 msgid "Branch"
 msgstr ""
@@ -15163,7 +15213,7 @@ msgid "Department"
 msgstr ""
 
 msgid "Head Office"
-msgstr ""
+msgstr "Sede"
 
 msgid "Organisation"
 msgstr ""
@@ -15205,55 +15255,59 @@ msgid "Memo"
 msgstr ""
 
 msgid " Postal Address "
-msgstr ""
+msgstr " Endereço Postal "
 
 msgid "occupation"
-msgstr ""
+msgstr "ocupação"
 
 msgid "subdivision"
-msgstr ""
+msgstr "subdivisão"
 
 msgid "&Contacts"
 msgstr ""
 
 msgid "Global Search Of Contacts Database"
-msgstr ""
+msgstr "Pesquisa Global do Banco de Dados dos Contatos"
 
 msgid "Medication"
-msgstr ""
+msgstr "Medicação"
 
 msgid "Reports"
 msgstr ""
 
 msgid "&Report Generator"
-msgstr ""
+msgstr "&Gerador de Relatórios"
 
 msgid "No matching drug found."
-msgstr ""
+msgstr "Nenhum medicamento correspondente encontrado."
 
 msgid "Please enter at least three digits of the drug name."
 msgstr ""
+"Por favor, digite ao menos os três primeiros digitos do nome do medicamento."
 
 msgid "Starting drug data browser"
-msgstr ""
+msgstr "Iniciando navegador de dados dos medicamentos"
 
 msgid ""
 "Cannot start the drug data browser.\n"
 "\n"
 "There is no drug database specified in the configuration."
 msgstr ""
+"Não é possível iniciar o navegador de dados dos medicamentos.\n"
+"\n"
+"Não há base de dados dos medicamentos especificados na configuração."
 
 msgid "   Find   "
-msgstr ""
+msgstr "   Localizar   "
 
 msgid "Enter the name of the drug you are interested in"
-msgstr ""
+msgstr "Digite o nome do medicamento que você tem interesse"
 
 msgid "&Bookmark"
 msgstr ""
 
 msgid "Search by"
-msgstr ""
+msgstr "Procure por"
 
 msgid "Any"
 msgstr ""
@@ -15262,19 +15316,19 @@ msgid "Generic name"
 msgstr ""
 
 msgid "Indication"
-msgstr ""
+msgstr "Indicação"
 
 msgid "&Prescribe"
-msgstr ""
+msgstr "&Prescrever"
 
 msgid "&Display"
 msgstr ""
 
 msgid "DrugBrowser"
-msgstr ""
+msgstr "Navegador de Medicamentos"
 
 msgid "&DrugBrowser"
-msgstr ""
+msgstr "&Navegador de Medicamentos"
 
 msgid "EMR tree"
 msgstr ""
@@ -15304,40 +15358,40 @@ msgid "Appointments"
 msgstr ""
 
 msgid "&Appointments"
-msgstr ""
+msgstr "&Apontamentos"
 
 msgid "lab journal"
-msgstr ""
+msgstr "Relatório do laboratório"
 
 msgid "Show &lab journal"
-msgstr ""
+msgstr "Exiba relatório do &laboratório"
 
 msgid "HTML Source"
 msgstr ""
 
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 msgid "User &manual (local)"
-msgstr ""
+msgstr "&Manual do usuário (local)"
 
 msgid "Measurements"
-msgstr ""
+msgstr "Medições"
 
 msgid "progress notes (sash)"
-msgstr ""
+msgstr "notas de progresso (faixa)"
 
 msgid "progress notes"
-msgstr ""
+msgstr "notas de evolução"
 
 msgid "Demographics"
-msgstr ""
+msgstr "Dados demográficos"
 
 msgid "&Demographics"
-msgstr ""
+msgstr "Dados &demográficos"
 
 msgid "Progress notes"
-msgstr ""
+msgstr "Registro de progresso"
 
 #, fuzzy
 msgid "Overview"
@@ -15351,28 +15405,28 @@ msgid "Inbox"
 msgstr ""
 
 msgid "Provider &inbox"
-msgstr ""
+msgstr "&Caixa de entrada do fornecedor"
 
 msgid "Clinical"
 msgstr ""
 
 msgid "Error processing form"
-msgstr ""
+msgstr "Formulário de processamento de erro"
 
 msgid "Missing field"
-msgstr ""
+msgstr "Campo faltante"
 
 msgid "You must select a form and type"
-msgstr ""
+msgstr "Você deve selecionar o formulário e o tipo"
 
 msgid "&Request"
-msgstr ""
+msgstr "&Solicitação"
 
 msgid "Attach documents"
-msgstr ""
+msgstr "Anexar documentos"
 
 msgid "&Attach documents"
-msgstr ""
+msgstr "&Anexar documentos"
 
 #, fuzzy
 msgid "&Documents"
@@ -15383,58 +15437,61 @@ msgid "SimpleNotes"
 msgstr "Notas"
 
 msgid "&SimpleNotes"
-msgstr ""
+msgstr "&Notas simples"
 
 msgid "&Notes"
 msgstr ""
 
 msgid "&Waiting list"
-msgstr ""
+msgstr "&Aguardando lista"
 
 msgid "Field name"
 msgstr "Nome do campo"
 
 msgid "Interpreted content"
-msgstr ""
+msgstr "Conteúdo interpretado"
 
 msgid "xDT field ID"
-msgstr ""
+msgstr "ID do campo xDT"
 
 msgid "Raw content"
-msgstr ""
+msgstr "Teor de matéria"
 
 msgid "Choose an xDT file"
-msgstr ""
+msgstr "Escolha um arquivo xDT"
 
 msgid "xDT files"
-msgstr ""
+msgstr "arquivos xDT"
 
 msgid ""
 "Cannot access xDT file\n"
 "\n"
 " [%s]"
 msgstr ""
+"Não foi possível acessar arquivo xDT\n"
+"\n"
+" [%s]"
 
 msgid "loading xDT file"
 msgstr "carregando arquivo xDT"
 
 msgid "Encoding missing in xDT file. Assuming [%s]."
-msgstr ""
+msgstr "Falta codificação no arquivo xDT. Assumindo [%s]."
 
 msgid "name of xDT file"
 msgstr "nome do arquivo xDT"
 
 msgid "XDT field"
-msgstr ""
+msgstr "Campo XDT"
 
 msgid "XDT field content"
-msgstr ""
+msgstr "Conteúdo do campo XDT"
 
 msgid "xDT viewer"
 msgstr "vizualizador xDT"
 
 msgid "&xDT viewer"
-msgstr ""
+msgstr "Visualizador &xDT"
 
 msgid "Opening xDT file"
 msgstr "Abrindo arquivo xDT"
@@ -15443,14 +15500,18 @@ msgid ""
 "Cannot open xDT file.\n"
 "[%s]"
 msgstr ""
+"Não foi possível abrir arquivo xDT.\n"
+"[%s]"
 
 msgid ""
 "You must provide an xDT file on the command line.\n"
 "Format: --xdt-file=<file>"
 msgstr ""
+"Você deve providenciar um arquivo xDT na linha de comando.\n"
+"Formato: --xdt-file=<file>"
 
 msgid "XDT Viewer"
-msgstr ""
+msgstr "Visualizador XDT"
 
 msgid "icon_letter_A"
 msgstr ""
@@ -15561,7 +15622,7 @@ msgid "icon_Rx_symbol"
 msgstr ""
 
 msgid "Recalls entered this consultation"
-msgstr ""
+msgstr "Registros inseridos nesta consulta"
 
 msgid "Recall Details"
 msgstr "Detalhes da Reconsulta"
@@ -15625,6 +15686,16 @@ msgstr "Quantidade"
 
 msgid "First Date"
 msgstr "Primeira Data"
+
+#~ msgid "The episode this substance is taken under."
+#~ msgstr "O episódio ao qual essa substância está relacionada."
+
+#~ msgid "Add (a) measurement result(s) for the current patient."
+#~ msgstr "Adicione um resultado de medição para o paciente atual"
+
+#, fuzzy
+#~ msgid "Print vaccinations using a template."
+#~ msgstr "Não há vacinas para formatar"
 
 #~ msgid "Sandboxed PDF output file cannot be moved."
 #~ msgstr "Arquivo PDF criado não pode ser movido."

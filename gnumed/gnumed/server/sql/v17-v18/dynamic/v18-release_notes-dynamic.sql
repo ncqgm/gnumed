@@ -17,20 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.7 (database v18.7)',
-	'GNUmed 1.3.7 Release Notes:
+	'Release Notes for GNUmed 1.3.8 (database v18.8)',
+	'GNUmed 1.3.8 Release Notes:
 
-	1.3.7
+	1.3.8
 
-FIX: exception on substance intake w/o start date [thanks Jim]
-FIX: faulty SQL in lab phrasewheel [thanks Jim]
-FIX: exception on saving modified organization [thanks Jim]
-FIX: validity check on substance discontinuation date [thanks Jim]
-FIX: exception on accessing org unit comm channel comment [thanks Jim]
-FIX: failure to properly delete org *units* [thanks Jim]
-FIX: failure to properly edit substance intakes [thanks Jim]
+FIX: better show all relevant test results in review dialog [thanks Rogerio]
+FIX: failure of <PRW>.SetData(None)
+FIX: multi-use PRW edit font growth
 
-IMPROVED: show substance intolerances in magenta rather than yellow [thanks Jim]
+IMPROVED: make timeline end 1 year after end of data
+IMPROVED: es and pt_BR translations
+
+	18.8
+
+FIX: typo in clin.trf_notify_reviewer_of_review_change()
+FIX: ensure FKs on .fk_encounter/.fk_episode on clin.clin_root_item children
 ');
 
 -- --------------------------------------------------------------

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-05-11 14:35+CEST\n"
+"POT-Creation-Date: 2013-08-03 11:34+CEST\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -214,6 +214,9 @@ msgstr ""
 msgid "soap_P"
 msgstr ""
 
+msgid "soap_U"
+msgstr ""
+
 msgid "soap_Subjective"
 msgstr ""
 
@@ -279,7 +282,7 @@ msgstr ""
 msgid "ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
 msgstr ""
 
-msgid "NOT corrected for non-average body surface (average = 1.73m\302\262)"
+msgid "NOT corrected for non-average body surface (average = 1.73m²)"
 msgstr ""
 
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
@@ -3474,7 +3477,7 @@ msgstr ""
 msgid "... or ..."
 msgstr ""
 
-msgid "\342\231\245"
+msgid "♥"
 msgstr ""
 
 msgid "Kidneys"
@@ -3537,7 +3540,7 @@ msgstr ""
 msgid "Whether this substance is taken by advice."
 msgstr ""
 
-msgid "The episode this substance is taken under."
+msgid "Select, or enter for creation, the episode to which this substance will relate."
 msgstr ""
 
 msgid "The schedule for taking this substance."
@@ -3597,7 +3600,7 @@ msgstr ""
 msgid "&Interactions?"
 msgstr ""
 
-msgid "\342\204\236"
+msgid "℞"
 msgstr ""
 
 msgid "ADR"
@@ -4382,7 +4385,7 @@ msgstr ""
 msgid "Discharged"
 msgstr ""
 
-msgid "\342\211\210"
+msgid "≈"
 msgstr ""
 
 msgid "The date of birth for this person."
@@ -4418,10 +4421,10 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-msgid "&Myself \342\200\246 or:"
+msgid "&Myself … or:"
 msgstr ""
 
-msgid "&Active \342\200\246 or:"
+msgid "&Active … or:"
 msgstr ""
 
 msgid "Normal"
@@ -4499,10 +4502,10 @@ msgstr ""
 msgid "label_1"
 msgstr ""
 
-msgid "\342\206\222"
+msgid "→"
 msgstr ""
 
-msgid "\342\206\220"
+msgid "←"
 msgstr ""
 
 msgid "Extra"
@@ -5083,10 +5086,10 @@ msgstr ""
 msgid "arrhythmic"
 msgstr ""
 
-msgid "\302\260C"
+msgid "°C"
 msgstr ""
 
-msgid "\302\260F"
+msgid "°F"
 msgstr ""
 
 msgid "<last height>"
@@ -5148,7 +5151,7 @@ msgstr ""
 msgid ""
 "Body Mass Index.\n"
 "\n"
-"BMI = weight / height\302\262"
+"BMI = weight / height²"
 msgstr ""
 
 msgid ""
@@ -6013,7 +6016,7 @@ msgid ""
 "against"
 msgstr ""
 
-msgid "Batch \342\204\226"
+msgid "Batch №"
 msgstr ""
 
 msgid "Site"
@@ -6097,7 +6100,7 @@ msgstr ""
 msgid "&Activate"
 msgstr ""
 
-msgid "Activate\302\262"
+msgid "Activate²"
 msgstr ""
 
 msgid "Check this if you want to see entries for the active patient only."
@@ -8475,9 +8478,6 @@ msgid ""
 "Please check the log file for details."
 msgstr ""
 
-msgid "No EMR data loaded."
-msgstr ""
-
 msgid "Cannot delete performed procedure."
 msgstr ""
 
@@ -8747,6 +8747,9 @@ msgid ""
 msgstr ""
 
 msgid "Select desired test option from the 'File' menu"
+msgstr ""
+
+msgid "No EMR data loaded."
 msgstr ""
 
 msgid "EMR text dump"
@@ -9556,13 +9559,10 @@ msgstr ""
 msgid "Manage procedures performed on the patient."
 msgstr ""
 
-msgid "Add (a) measurement result(s) for the current patient."
+msgid "Manage measurement results for the current patient."
 msgstr ""
 
 msgid "&Measurements"
-msgstr ""
-
-msgid "Manage measurement results for the current patient."
 msgstr ""
 
 msgid "Add (a) vaccination(s) for the current patient."
@@ -10458,9 +10458,6 @@ msgid "Cannot add vaccinations. No active patient."
 msgstr ""
 
 msgid "Cannot manage family history. No active patient."
-msgstr ""
-
-msgid "Cannot add measurement. No active patient."
 msgstr ""
 
 msgid "Cannot manage measurements. No active patient."
@@ -11573,6 +11570,12 @@ msgid "Adding substance intake entry"
 msgstr ""
 
 msgid "Input incomplete/invalid for saving as substance intake."
+msgstr ""
+
+msgid "Discontinued (%s) in the future (now: %s)!"
+msgstr ""
+
+msgid "Discontinued (%s) before started (%s) !"
 msgstr ""
 
 msgid "Cannot add duplicate of (maybe inactive) substance intake."
@@ -13228,7 +13231,7 @@ msgstr ""
 msgid "Intended to protect from"
 msgstr ""
 
-msgid "Print vaccinations using a template."
+msgid "Print vaccinations or recalls."
 msgstr ""
 
 msgid "Add a recall for a vaccination"
@@ -13240,7 +13243,7 @@ msgstr ""
 msgid "Open a browser showing vaccination schedules."
 msgstr ""
 
-msgid "Vaccination Plans"
+msgid "Vx schedules"
 msgstr ""
 
 msgid "prevention"
