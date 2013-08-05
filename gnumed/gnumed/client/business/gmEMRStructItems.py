@@ -2804,24 +2804,23 @@ def delete_hospital_stay(stay=None):
 	return True
 
 #============================================================
+_SQL_get_procedures = u"select * from clin.v_procedures where %s"
+
 class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_procedures where pk_procedure = %s"
+	_cmd_fetch_payload = _SQL_get_procedures % u"pk_procedure = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.procedure SET
 				soap_cat = 'p',
 				clin_when = %(clin_when)s,
 				clin_end = %(clin_end)s,
 				is_ongoing = %(is_ongoing)s,
-				clin_where = NULLIF (
-					COALESCE (
-						%(pk_hospital_stay)s::TEXT,
-						gm.nullify_empty_string(%(clin_where)s)
-					),
-					%(pk_hospital_stay)s::TEXT
-				),
 				narrative = gm.nullify_empty_string(%(performed_procedure)s),
 				fk_hospital_stay = %(pk_hospital_stay)s,
+				fk_org_unit = (CASE
+					WHEN %(pk_hospital_stay)s IS NULL THEN %(pk_org_unit)s
+					ELSE NULL
+				END)::integer,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s
 			WHERE
@@ -2833,9 +2832,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		'clin_when',
 		'clin_end',
 		'is_ongoing',
-		'clin_where',
 		'performed_procedure',
 		'pk_hospital_stay',
+		'pk_org_unit',
 		'pk_episode',
 		'pk_encounter'
 	]
@@ -2843,9 +2842,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 	def __setitem__(self, attribute, value):
 
 		if (attribute == 'pk_hospital_stay') and (value is not None):
-			gmBusinessDBObject.cBusinessDBObject.__setitem__(self, 'clin_where', None)
+			gmBusinessDBObject.cBusinessDBObject.__setitem__(self, 'pk_org_unit', None)
 
-		if (attribute == 'clin_where') and (value is not None) and (value.strip() != u''):
+		if (attribute == 'pk_org_unit') and (value is not None):
 			gmBusinessDBObject.cBusinessDBObject.__setitem__(self, 'pk_hospital_stay', None)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
@@ -2861,11 +2860,12 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			else:
 				end = u' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
 
-		line = u'%s%s%s (%s): %s' % (
+		line = u'%s%s%s (%s @ %s): %s' % (
 			(u' ' * left_margin),
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d'),
 			end,
-			self._payload[self._idx['clin_where']],
+			self._payload[self._idx['unit']],
+			self._payload[self._idx['organization']],
 			self._payload[self._idx['performed_procedure']]
 		)
 		if include_episode:
@@ -2950,7 +2950,7 @@ def get_performed_procedures(patient=None):
 
 	queries = [
 		{
-		'cmd': u'select * from clin.v_pat_procedures where pk_patient = %(pat)s order by clin_when',
+		'cmd': u'SELECT * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when',
 		'args': {'pat': patient}
 		}
 	]
@@ -2962,7 +2962,7 @@ def get_performed_procedures(patient=None):
 def get_latest_performed_procedure(patient=None):
 	queries = [
 		{
-		'cmd': u'select * from clin.v_pat_procedures where pk_patient = %(pat)s order by clin_when DESC LIMIT 1',
+		'cmd': u'select * FROM clin.v_procedures WHERE pk_patient = %(pat)s ORDER BY clin_when DESC LIMIT 1',
 		'args': {'pat': patient}
 		}
 	]
@@ -2979,14 +2979,14 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 				fk_encounter,
 				fk_episode,
 				soap_cat,
-				clin_where,
+				fk_org_unit,
 				fk_hospital_stay,
 				narrative
 			) VALUES (
 				%(enc)s,
 				%(epi)s,
 				'p',
-				gm.nullify_empty_string(%(loc)s),
+				%(loc)s,
 				%(stay)s,
 				gm.nullify_empty_string(%(proc)s)
 			)
@@ -2997,12 +2997,14 @@ def create_performed_procedure(encounter=None, episode=None, location=None, hosp
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True)
 
 	return cPerformedProcedure(aPK_obj = rows[0][0])
+
 #-----------------------------------------------------------
 def delete_performed_procedure(procedure=None):
 	cmd = u'delete from clin.procedure where pk = %(pk)s'
 	args = {'pk': procedure}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
+
 #============================================================
 # main - unit testing
 #------------------------------------------------------------

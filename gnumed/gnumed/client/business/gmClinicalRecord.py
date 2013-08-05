@@ -763,7 +763,7 @@ order by
 			u'SELECT count(1) FROM blobs.v_doc_med WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM clin.v_test_results WHERE pk_patient = %(pat)s',
 			u'SELECT count(1) FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s',
-			u'SELECT count(1) FROM clin.v_pat_procedures WHERE pk_patient = %(pat)s',
+			u'SELECT count(1) FROM clin.v_procedures WHERE pk_patient = %(pat)s',
 			# active and approved substances == medication
 			u"""
 				SELECT count(1)

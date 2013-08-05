@@ -39,13 +39,16 @@ will merrily and automagically start logging away.
 # - exception()
 # - ascii_ctrl2mnemonic()
 #========================================================================
-__version__ = "$Revision: 1.13 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
-import logging, sys, os, codecs, locale
+import logging
+import sys
+import os
+import codecs
+import locale
 
 
 _logfile_name = None

@@ -1541,6 +1541,7 @@ def main():
 	print_msg("=======================================")
 	print_msg("Bootstrapping GNUmed database system...")
 	print_msg("=======================================")
+	print 'log:', gmLog2._logfile_name
 
 	# get initial conf file from CLI
 	cfg_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])

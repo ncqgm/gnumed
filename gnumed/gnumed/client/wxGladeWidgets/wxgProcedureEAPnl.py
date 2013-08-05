@@ -15,6 +15,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         from Gnumed.wxpython import gmPhraseWheel
         from Gnumed.wxpython import gmEMRStructWidgets
         from Gnumed.wxpython import gmDateTimeInput
+        from Gnumed.wxpython import gmOrganizationWidgets
         from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
 
         # begin wxGlade: wxgProcedureEAPnl.__init__
@@ -25,7 +26,8 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self._DPRW_end = gmDateTimeInput.cFuzzyTimestampInput(self, wx.ID_ANY, "", style=wx.NO_BORDER)
         self._CHBOX_ongoing = wx.CheckBox(self, wx.ID_ANY, _("Ongoing"))
         self.static_line_1 = wx.StaticLine(self, wx.ID_ANY)
-        self._PRW_location = gmPhraseWheel.cPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+        self._PRW_location = gmOrganizationWidgets.cOrgUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+        self._BTN_add_location = wx.Button(self, wx.ID_ANY, _("+"), style=wx.BU_EXACTFIT)
         self._PRW_episode = gmEMRStructWidgets.cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
         self.static_line_2 = wx.StaticLine(self, wx.ID_ANY)
         self._PRW_hospital_stay = gmEMRStructWidgets.cHospitalStayPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
@@ -37,6 +39,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self.__do_layout()
 
         self.Bind(wx.EVT_CHECKBOX, self._on_ongoing_checkbox_checked, self._CHBOX_ongoing)
+        self.Bind(wx.EVT_BUTTON, self._on_add_location_button_pressed, self._BTN_add_location)
         self.Bind(wx.EVT_BUTTON, self._on_add_hospital_stay_button_pressed, self._BTN_add_stay)
         # end wxGlade
 
@@ -48,6 +51,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         self._DPRW_end.SetToolTipString(_("When did this procedure end ?\n\nLeave empty for ongoing or \"one-off\" procedures without a significant duration."))
         self._CHBOX_ongoing.SetToolTipString(_("Select if procedure is ongoing (say, desensibilization)."))
         self._PRW_location.SetToolTipString(_("The location (praxis, clinic, ...) this procedure was performed at.\n\nMutually exclusive with \"Hospitalization\". Requires \"Episode\"."))
+        self._BTN_add_location.SetToolTipString(_("Manage organizations and units."))
         self._PRW_episode.SetToolTipString(_("Select, or enter for creation, the episode to which this procedure will relate.\n\nMutually exclusive with \"Hospitalization\". Requires \"Location\"."))
         self._PRW_hospital_stay.SetToolTipString(_("During which hospitalization was this procedure performed."))
         self._BTN_add_stay.SetToolTipString(_("Add a hospitalization."))
@@ -58,6 +62,7 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgProcedureEAPnl.__do_layout
         _gszr_main = wx.FlexGridSizer(10, 2, 1, 3)
         __szr_stay = wx.BoxSizer(wx.HORIZONTAL)
+        __szr_location = wx.BoxSizer(wx.HORIZONTAL)
         __szr_end_details = wx.BoxSizer(wx.HORIZONTAL)
         __lbl_procedure = wx.StaticText(self, wx.ID_ANY, _("Procedure"))
         __lbl_procedure.SetForegroundColour(wx.Colour(255, 0, 0))
@@ -77,12 +82,15 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         __lbl_location = wx.StaticText(self, wx.ID_ANY, _("Location"))
         __lbl_location.SetForegroundColour(wx.Colour(255, 127, 0))
         _gszr_main.Add(__lbl_location, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(self._PRW_location, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+        __szr_location.Add(self._PRW_location, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_location.Add(self._BTN_add_location, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(__szr_location, 1, wx.EXPAND, 0)
         __lbl_episode = wx.StaticText(self, wx.ID_ANY, _("and Episode"))
         __lbl_episode.SetForegroundColour(wx.Colour(255, 127, 0))
         _gszr_main.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self._PRW_episode, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_or = wx.StaticText(self, wx.ID_ANY, _("... or ..."))
+        __lbl_or.SetForegroundColour(wx.Colour(255, 0, 0))
         _gszr_main.Add(__lbl_or, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
         _gszr_main.Add(self.static_line_2, 0, wx.LEFT | wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 20)
         __lbl_stay = wx.StaticText(self, wx.ID_ANY, _("Hospitalization"))
@@ -109,6 +117,9 @@ class wxgProcedureEAPnl(wx.ScrolledWindow):
         print "Event handler `_on_ongoing_checkbox_checked' not implemented"
         event.Skip()
 
+    def _on_add_location_button_pressed(self, event):  # wxGlade: wxgProcedureEAPnl.<event_handler>
+        print "Event handler '_on_add_location_button_pressed' not implemented!"
+        event.Skip()
 # end of class wxgProcedureEAPnl
 
 

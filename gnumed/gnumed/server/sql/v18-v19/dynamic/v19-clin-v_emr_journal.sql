@@ -60,7 +60,7 @@ union all
 
 union all
 
-	select * from clin.v_pat_procedures_journal
+	select * from clin.v_procedures_journal
 
 union all
 

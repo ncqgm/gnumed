@@ -40,6 +40,7 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmOrganizationWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -102,7 +103,7 @@ def manage_performed_procedures(parent=None):
 						)
 					)
 				),
-				p['clin_where'],
+				u'%s @ %s' % (p['unit'], p['organization']),
 				p['episode'],
 				p['performed_procedure']
 			] for p in procs
@@ -154,37 +155,6 @@ class cProcedureEAPnl(wxgProcedureEAPnl.wxgProcedureEAPnl, gmEditArea.cGenericEd
 		self._DPRW_date.add_callback_on_lose_focus(callback = self._on_start_lost_focus)
 		self._DPRW_end.add_callback_on_lose_focus(callback = self._on_end_lost_focus)
 
-		# location
-		mp = gmMatchProvider.cMatchProvider_SQL2 (
-			queries = [
-u"""
-SELECT DISTINCT ON (data) data, location
-FROM (
-	SELECT
-		clin_where as data,
-		clin_where as location
-	FROM
-		clin.procedure
-	WHERE
-		clin_where %(fragment_condition)s
-
-		UNION ALL
-
-	SELECT
-		narrative as data,
-		narrative as location
-	FROM
-		clin.hospital_stay
-	WHERE
-		narrative %(fragment_condition)s
-) as union_result
-ORDER BY data
-LIMIT 25"""
-			]
-		)
-		mp.setThresholds(2, 4, 6)
-		self._PRW_location.matcher = mp
-
 		# procedure
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			queries = [
@@ -204,24 +174,32 @@ limit 25
 		if stay is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_location.Enable(True)
+			self._PRW_location.display_as_disabled(False)
 			self._PRW_episode.Enable(True)
+			self._PRW_episode.display_as_disabled(False)
 			self._LBL_hospital_details.SetLabel(u'')
 		else:
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
+			self._PRW_location.display_as_disabled(True)
 			self._PRW_episode.SetText()
 			self._PRW_episode.Enable(False)
+			self._PRW_episode.display_as_disabled(True)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 	#----------------------------------------------------------------
 	def _on_location_lost_focus(self):
-		if self._PRW_location.GetValue().strip() == u'':
+		loc = self._PRW_location.GetData()
+		if loc is None:
 			self._PRW_hospital_stay.Enable(True)
-#			self._PRW_episode.Enable(False)
+			self._PRW_hospital_stay.display_as_disabled(False)
+			self._PRW_episode.Enable(False)
+			self._PRW_episode.display_as_disabled(True)
 		else:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._PRW_hospital_stay.display_as_valid(True)
-#			self._PRW_episode.Enable(True)
+			self._PRW_hospital_stay.display_as_disabled(True)
+			self._PRW_episode.Enable(True)
+			self._PRW_episode.display_as_disabled(False)
 	#----------------------------------------------------------------
 	def _on_start_lost_focus(self):
 		if not self._DPRW_date.is_valid_timestamp():
@@ -302,9 +280,9 @@ limit 25
 			self._PRW_procedure.display_as_valid(True)
 
 		invalid_location = (
-			(self._PRW_hospital_stay.GetData() is None) and (self._PRW_location.GetValue().strip() == u'')
+			(self._PRW_hospital_stay.GetData() is None) and (self._PRW_location.GetData() is None)
 				or
-			(self._PRW_hospital_stay.GetData() is not None) and (self._PRW_location.GetValue().strip() != u'')
+			(self._PRW_hospital_stay.GetData() is not None) and (self._PRW_location.GetData() is not None)
 		)
 		if invalid_location:
 			self._PRW_hospital_stay.display_as_valid(False)
@@ -323,18 +301,15 @@ limit 25
 		pat = gmPerson.gmCurrentPatient()
 		emr = pat.get_emr()
 
-		if self._PRW_hospital_stay.GetData() is None:
-			stay = None
+		stay = self._PRW_hospital_stay.GetData()
+		if stay is None:
 			epi = self._PRW_episode.GetData(can_create = True)
-			loc = self._PRW_location.GetValue().strip()
 		else:
-			stay = self._PRW_hospital_stay.GetData()
 			epi = gmEMRStructItems.cHospitalStay(aPK_obj = stay)['pk_episode']
-			loc = None
 
 		proc = emr.add_performed_procedure (
 			episode = epi,
-			location = loc,
+			location = self._PRW_location.GetData(),
 			hospital_stay = stay,
 			procedure = self._PRW_procedure.GetValue().strip()
 		)
@@ -355,27 +330,20 @@ limit 25
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['clin_when'] = self._DPRW_date.GetData().get_pydt()
-
+		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
+		self.data['pk_org_unit'] = self._PRW_location.GetData()
+		self.data['pk_hospital_stay'] = self._PRW_hospital_stay.GetData()
+		self.data['performed_procedure'] = self._PRW_procedure.GetValue().strip()
 		if self._DPRW_end.GetData() is None:
 			self.data['clin_end'] = None
 		else:
 			self.data['clin_end'] = self._DPRW_end.GetData().get_pydt()
-
-		self.data['is_ongoing'] = self._CHBOX_ongoing.IsChecked()
-
-		if self._PRW_hospital_stay.GetData() is None:
-			self.data['pk_hospital_stay'] = None
-			self.data['clin_where'] = self._PRW_location.GetValue().strip()
+		if self.data['pk_hospital_stay'] is None:
 			self.data['pk_episode'] = self._PRW_episode.GetData()
 		else:
-			self.data['pk_hospital_stay'] = self._PRW_hospital_stay.GetData()
-			self.data['clin_where'] = None
-			stay = gmEMRStructItems.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())
-			self.data['pk_episode'] = stay['pk_episode']
-
-		self.data['performed_procedure'] = self._PRW_procedure.GetValue().strip()
-
+			self.data['pk_episode'] = gmEMRStructItems.cHospitalStay(aPK_obj = self._PRW_hospital_stay.GetData())['pk_episode']
 		self.data.save()
+
 		self.data.generic_codes = [ c['data'] for c in self._PRW_codes.GetData() ]
 
 		return True
@@ -386,6 +354,7 @@ limit 25
 		self._CHBOX_ongoing.SetValue(False)
 		self._CHBOX_ongoing.Enable(True)
 		self._PRW_hospital_stay.SetText()
+		self._LBL_hospital_details.SetLabel(u'')
 		self._PRW_location.SetText()
 		self._PRW_episode.SetText()
 		self._PRW_procedure.SetText()
@@ -412,12 +381,24 @@ limit 25
 
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
+			self._PRW_hospital_stay.Enable(False)
+			self._PRW_hospital_stay.display_as_disabled(True)
 			self._LBL_hospital_details.SetLabel(u'')
-			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
+			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
+			self._PRW_location.Enable(True)
+			self._PRW_location.display_as_disabled(False)
+			self._PRW_episode.Enable(True)
+			self._PRW_episode.display_as_disabled(False)
 		else:
-			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.Enable(True)
+			self._PRW_hospital_stay.display_as_disabled(False)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
+			self._PRW_location.Enable(False)
+			self._PRW_location.display_as_disabled(True)
+			self._PRW_episode.Enable(False)
+			self._PRW_episode.display_as_disabled(True)
 
 		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
 		self._PRW_codes.SetText(val, data)
@@ -426,13 +407,29 @@ limit 25
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 		self._PRW_episode.SetText(value = self.data['episode'], data = self.data['pk_episode'])
+
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
-			self._PRW_location.SetText(value = self.data['clin_where'], data = self.data['clin_where'])
+			self._PRW_hospital_stay.Enable(False)
+			self._PRW_hospital_stay.display_as_disabled(True)
+			self._LBL_hospital_details.SetLabel(u'')
+			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
+			self._PRW_location.Enable(True)
+			self._PRW_location.display_as_disabled(False)
+			self._PRW_episode.Enable(True)
+			self._PRW_episode.display_as_disabled(False)
 		else:
-			self._PRW_hospital_stay.SetText(value = self.data['clin_where'], data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
+			self._PRW_hospital_stay.Enable(True)
+			self._PRW_hospital_stay.display_as_disabled(False)
+			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
+			self._PRW_location.Enable(False)
+			self._PRW_location.display_as_disabled(True)
+			self._PRW_episode.Enable(False)
+			self._PRW_episode.display_as_disabled(True)
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------
@@ -442,6 +439,10 @@ limit 25
 		# FIXME: this would benefit from setting the created stay
 		edit_hospital_stay(parent = self.GetParent())
 		evt.Skip()
+	#----------------------------------------------------------------
+	def _on_add_location_button_pressed(self, event):
+		gmOrganizationWidgets.manage_orgs(parent = self)	#self.GetParent())
+		event.Skip()
 	#----------------------------------------------------------------
 	def _on_ongoing_checkbox_checked(self, event):
 		if self._CHBOX_ongoing.IsChecked():
@@ -458,6 +459,7 @@ limit 25
 		else:
 			self._DPRW_end.is_valid_timestamp()
 		event.Skip()
+
 #================================================================
 # hospitalizations related widgets/functions
 #----------------------------------------------------------------
