@@ -1201,6 +1201,7 @@ class gmTopLevelFrame(wx.Frame):
 			' branch:       %s\n'
 			' workplace:    %s\n'
 			' account:      %s\n'
+			' access:       %s\n'
 			' database:     %s\n'
 			' server:       %s\n'
 			' PostgreSQL:   %s\n'
@@ -1209,6 +1210,7 @@ class gmTopLevelFrame(wx.Frame):
 			praxis['branch'],
 			praxis.active_workplace,
 			login.user,
+			_provider['role'],
 			login.database,
 			gmTools.coalesce(login.host, u'<localhost>'),
 			gmPG2.postgresql_version_string
@@ -2657,7 +2659,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDemographicsWidgets.edit_occupation()
 		evt.Skip()
 	#----------------------------------------------
-	@gmAccessPermissionWidgets.verify_minimum_required_role('doctor', activity = _('manage vaccinations'))
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
 	def __on_add_vaccination(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:

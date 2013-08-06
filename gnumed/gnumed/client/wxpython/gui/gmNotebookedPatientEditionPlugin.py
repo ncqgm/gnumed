@@ -7,7 +7,6 @@
 #
 # @copyright: author
 #======================================================================
-__version__ = "$Revision: 1.15 $"
 __author__ = "Carlos Moro, Karsten Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -30,13 +29,12 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #======================================================================
 class gmNotebookedPatientEditionPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebooked patient edition window."""
 
 	tab_name = _('Demographics')
-	required_minimum_role = 'staff'
+	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

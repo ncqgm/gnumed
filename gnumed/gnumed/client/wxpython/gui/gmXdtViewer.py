@@ -10,7 +10,6 @@ TODO:
   - ...
 """
 #=============================================================================
-__version__ = "$Revision: 1.39 $"
 __author__ = "S.Hilbert, K.Hilbert"
 
 import sys, os, os.path, codecs, logging
@@ -27,7 +26,6 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #=============================================================================
 # FIXME: this belongs elsewhere under wxpython/
@@ -361,7 +359,7 @@ class gmXdtViewer(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate xDT list-in-panel viewer"""
 
 	tab_name = _('xDT viewer')
-	required_minimum_role = 'staff'
+	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

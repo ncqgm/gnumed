@@ -36,7 +36,7 @@ class gmSoapPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebook based progress note input window."""
 
 	tab_name = _('Notes')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

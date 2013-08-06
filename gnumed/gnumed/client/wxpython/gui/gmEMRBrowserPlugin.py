@@ -26,7 +26,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR browser window."""
 
 	tab_name = _('EMR tree')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

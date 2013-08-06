@@ -12,7 +12,7 @@ class gmWaitingListPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate the waiting list."""
 
 	tab_name = _('Waiting list')
-	required_minimum_role = 'staff'
+	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

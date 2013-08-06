@@ -45,9 +45,9 @@ class cUserRolePRW(gmPhraseWheel.cPhraseWheel):
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 
 		items = [
-			{'list_label': _('Public (no clinical or demographic access)'), 'field_label': _('public'), 'data': 'public', 'weight': 1},
-			{'list_label': _('Staff (demographic access only)'), 'field_label': _('staff (clerical)'), 'data': 'staff', 'weight': 1},
-			{'list_label': _('Doctor (full access)'), 'field_label': _('doctor'), 'data': 'doctor', 'weight': 1},
+			{'list_label': _('Public (no clinical or demographic access)'), 'field_label': _('public'), 'data': 'public access', 'weight': 1},
+			{'list_label': _('Staff (demographic access only)'), 'field_label': _('staff (clerical)'), 'data': 'non-clinical access', 'weight': 1},
+			{'list_label': _('full clinical access'), 'field_label': _('full clinical access'), 'data': 'full clinical access', 'weight': 1}
 		]
 		mp = gmMatchProvider.cMatchProvider_FixedList(items)
 		mp.setThresholds(1, 2, 3)

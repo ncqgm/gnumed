@@ -18,7 +18,7 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate a simple KOrganizer link window."""
 
 	tab_name = _('Appointments')
-	required_minimum_role = 'staff'
+	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

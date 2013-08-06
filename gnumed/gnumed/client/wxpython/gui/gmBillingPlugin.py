@@ -23,7 +23,7 @@ _log = logging.getLogger('gm.billing')
 class gmBillingPlugin(gmPlugin.cNotebookPlugin):
 
 	tab_name = _('Billing')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

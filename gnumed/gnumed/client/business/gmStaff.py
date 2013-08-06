@@ -21,9 +21,9 @@ from Gnumed.pycommon import gmLog2
 _log = logging.getLogger('gm.staff')
 
 _map_gm_role2pg_group = {
-	u'public': 'gm-public',
-	u'staff': u'gm-staff',
-	u'doctor': u'gm-doctors'
+	u'public access': 'gm-public',
+	u'non-clinical access': u'gm-staff',
+	u'full clinical access': u'gm-doctors'
 }
 
 #============================================================
@@ -159,8 +159,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 		'pg_usr': db_account,
 		'pwd': password,
 		'person_id': identity,
-		'sig': short_alias,
-		'gm_role_name': u'doctor'
+		'sig': short_alias
 	}
 
 	queries = [

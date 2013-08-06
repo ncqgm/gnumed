@@ -19,7 +19,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR Journal window."""
 
 	tab_name = _('EMR journal')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	def name (self):
 		return gmEMRJournalPlugin.tab_name

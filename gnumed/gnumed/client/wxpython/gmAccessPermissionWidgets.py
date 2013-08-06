@@ -19,11 +19,11 @@ _log = logging.getLogger('gm.perms')
 
 #=========================================================================
 _known_roles = [
-	'public',
-	'staff',
-	'nurse',		# currently not in use
-	'doctor',
-	'admin'			# currently not in use
+	u'public access',
+	u'non-clinical access',
+	u'limited clinical access',		# currently not in use
+	u'full clinical access',
+	u'admin'						# currently not in use
 ]
 
 _curr_staff = gmStaff.gmCurrentProvider()

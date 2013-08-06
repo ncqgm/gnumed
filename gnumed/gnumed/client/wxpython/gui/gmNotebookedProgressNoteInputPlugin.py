@@ -36,7 +36,7 @@ class gmNotebookedProgressNoteInputPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate notebook based progress note input window."""
 
 	tab_name = _('Progress notes')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

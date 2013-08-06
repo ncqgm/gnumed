@@ -14,7 +14,7 @@ class gmScanIdxMedDocsPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient scan index documents window."""
 
 	tab_name = _('Attach documents')
-	required_minimum_role = 'staff'
+	required_minimum_role = 'non-clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,

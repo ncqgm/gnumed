@@ -21,7 +21,7 @@ class gmCurrentSubstancesPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient current medication list."""
 
 	tab_name = _('Medication')
-	required_minimum_role = 'doctor'
+	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
 		required_minimum_role,
