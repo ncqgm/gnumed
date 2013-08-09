@@ -74,8 +74,6 @@ def set_func_ask_user(a_func = None):
 #============================================================
 class cClinicalRecord(object):
 
-	_clin_root_item_children_union_query = None
-
 	def __init__(self, aPKey=None, allow_user_interaction=True):
 		"""Fails if
 
@@ -84,6 +82,7 @@ class cClinicalRecord(object):
 		"""
 		self.pk_patient = aPKey			# == identity.pk == primary key
 
+		# FIXME: delegate to worker thread
 		# log access to patient record (HIPAA, for example)
 		cmd = u'SELECT gm.log_access2emr(%(todo)s)'
 		args = {'todo': u'patient [%s]' % aPKey}
@@ -97,33 +96,21 @@ class cClinicalRecord(object):
 		if _here is None:
 			_here = gmPraxis.gmCurrentPraxisBranch()
 
-		# ...........................................
-		# this is a hack to speed up get_encounters()
-		clin_root_item_children = gmPG2.get_child_tables('clin', 'clin_root_item')
-		if cClinicalRecord._clin_root_item_children_union_query is None:
-			union_phrase = u"""
-SELECT fk_encounter from
-	%s.%s cn
-		inner join
-	(SELECT pk FROM clin.episode ep WHERE ep.fk_health_issue in %%s) as epi
-		on (cn.fk_episode =  epi.pk)
-"""
-			cClinicalRecord._clin_root_item_children_union_query = u'union\n'.join (
-				[ union_phrase % (child[0], child[1]) for child in clin_root_item_children ]
-			)
-		# ...........................................
-
 		self.__db_cache = {}
 
 		# load current or create new encounter
 		if _func_ask_user is None:
 			_log.error('[_func_ask_user] is None')
 			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
+
+		# FIXME: delegate to worker thread ?
 		self.remove_empty_encounters()
+
 		self.__encounter = None
 		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
 			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
 
+		# FIXME: delegate to worker thread
 		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 
 		# register backend notification interests
@@ -195,10 +182,6 @@ SELECT fk_encounter from
 		return 1
 	#--------------------------------------------------------
 	def _db_callback_episodes_modified(self):
-#		try:
-#			del self.__db_cache['episodes']
-#		except KeyError:
-#			pass
 		return 1
 	#--------------------------------------------------------
 	# API: family history
@@ -440,134 +423,6 @@ order by
 		])
 		return rows
 	#--------------------------------------------------------
-	def get_text_dump_old(self):
-		# don't know how to invalidate this by means of
-		# a notify without catching notifies from *all*
-		# child tables, the best solution would be if
-		# inserts in child tables would also fire triggers
-		# of ancestor tables, but oh well,
-		# until then the text dump will not be cached ...
-		try:
-			return self.__db_cache['text dump old']
-		except KeyError:
-			pass
-		# not cached so go get it
-		fields = [
-			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
-			'modified_by',
-			'clin_when',
-			"case is_modified when false then '%s' else '%s' end as modified_string" % (_('original entry'), _('modified entry')),
-			'pk_item',
-			'pk_encounter',
-			'pk_episode',
-			'pk_health_issue',
-			'src_table'
-		]
-		cmd = "SELECT %s FROM clin.v_pat_items WHERE pk_patient=%%s order by src_table, clin_when" % ', '.join(fields)
-		ro_conn = self._conn_pool.GetConnection('historica')
-		curs = ro_conn.cursor()
-		if not gmPG2.run_query(curs, None, cmd, self.pk_patient):
-			_log.error('cannot load item links for patient [%s]' % self.pk_patient)
-			curs.close()
-			return None
-		rows = curs.fetchall()
-		view_col_idx = gmPG2.get_col_indices(curs)
-
-		# aggregate by src_table for item retrieval
-		items_by_table = {}
-		for item in rows:
-			src_table = item[view_col_idx['src_table']]
-			pk_item = item[view_col_idx['pk_item']]
-			if not items_by_table.has_key(src_table):
-				items_by_table[src_table] = {}
-			items_by_table[src_table][pk_item] = item
-
-		# get mapping for issue/episode IDs
-		issues = self.get_health_issues()
-		issue_map = {}
-		for issue in issues:
-			issue_map[issue['pk']] = issue['description']
-		episodes = self.get_episodes()
-		episode_map = {}
-		for episode in episodes:
-			episode_map[episode['pk_episode']] = episode['description']
-		emr_data = {}
-		# get item data from all source tables
-		for src_table in items_by_table.keys():
-			item_ids = items_by_table[src_table].keys()
-			# we don't know anything about the columns of
-			# the source tables but, hey, this is a dump
-			if len(item_ids) == 0:
-				_log.info('no items in table [%s] ?!?' % src_table)
-				continue
-			elif len(item_ids) == 1:
-				cmd = "SELECT * FROM %s WHERE pk_item=%%s order by modified_when" % src_table
-				if not gmPG2.run_query(curs, None, cmd, item_ids[0]):
-					_log.error('cannot load items from table [%s]' % src_table)
-					# skip this table
-					continue
-			elif len(item_ids) > 1:
-				cmd = "SELECT * FROM %s WHERE pk_item in %%s order by modified_when" % src_table
-				if not gmPG.run_query(curs, None, cmd, (tuple(item_ids),)):
-					_log.error('cannot load items from table [%s]' % src_table)
-					# skip this table
-					continue
-			rows = curs.fetchall()
-			table_col_idx = gmPG.get_col_indices(curs)
-			# format per-table items
-			for row in rows:
-				# FIXME: make this get_pkey_name()
-				pk_item = row[table_col_idx['pk_item']]
-				view_row = items_by_table[src_table][pk_item]
-				age = view_row[view_col_idx['age']]
-				# format metadata
-				try:
-					episode_name = episode_map[view_row[view_col_idx['pk_episode']]]
-				except:
-					episode_name = view_row[view_col_idx['pk_episode']]
-				try:
-					issue_name = issue_map[view_row[view_col_idx['pk_health_issue']]]
-				except:
-					issue_name = view_row[view_col_idx['pk_health_issue']]
-
-				if not emr_data.has_key(age):
-					emr_data[age] = []
-
-				emr_data[age].append(
-					_('%s: encounter (%s)') % (
-						view_row[view_col_idx['clin_when']],
-						view_row[view_col_idx['pk_encounter']]
-					)
-				)
-				emr_data[age].append(_('health issue: %s') % issue_name)
-				emr_data[age].append(_('episode     : %s') % episode_name)
-				# format table specific data columns
-				# - ignore those, they are metadata, some
-				#   are in clin.v_pat_items data already
-				cols2ignore = [
-					'pk_audit', 'row_version', 'modified_when', 'modified_by',
-					'pk_item', 'id', 'fk_encounter', 'fk_episode'
-				]
-				col_data = []
-				for col_name in table_col_idx.keys():
-					if col_name in cols2ignore:
-						continue
-					emr_data[age].append("=> %s:" % col_name)
-					emr_data[age].append(row[table_col_idx[col_name]])
-				emr_data[age].append("----------------------------------------------------")
-				emr_data[age].append("-- %s from table %s" % (
-					view_row[view_col_idx['modified_string']],
-					src_table
-				))
-				emr_data[age].append("-- written %s by %s" % (
-					view_row[view_col_idx['modified_when']],
-					view_row[view_col_idx['modified_by']]
-				))
-				emr_data[age].append("----------------------------------------------------")
-		curs.close()
-		self._conn_pool.ReleaseConnection('historica')
-		return emr_data
-	#--------------------------------------------------------
 	def get_text_dump(self, since=None, until=None, encounters=None, episodes=None, issues=None):
 		# don't know how to invalidate this by means of
 		# a notify without catching notifies from *all*
@@ -767,11 +622,13 @@ order by
 			# active and approved substances == medication
 			u"""
 				SELECT count(1)
-				from clin.v_substance_intakes
+				FROM clin.v_substance_intakes
 				WHERE
 					pk_patient = %(pat)s
-					and is_currently_active in (null, true)
-					and intake_is_approved_of in (null, true)""",
+						AND
+					is_currently_active IN (null, true)
+						AND
+					intake_is_approved_of IN (null, true)""",
 			u'SELECT count(1) FROM clin.v_pat_vaccinations WHERE pk_patient = %(pat)s'
 		])
 
@@ -807,7 +664,12 @@ order by
 			'Vaccinations: %(vaccinations)s'
 		) % self.get_statistics()
 	#--------------------------------------------------------
-	def format_summary(self, dob=None):
+	def format_summary(self):
+
+		cmd = u"SELECT dob from dem.v_basic_person where pk_identity = %(pk)s"
+		args = {'pk': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		dob = rows[0]['dob']
 
 		stats = self.get_statistics()
 		first = self.get_first_encounter()
@@ -862,27 +724,38 @@ order by
 				gmTools.coalesce(allg['reaction'], _('unknown reaction'))
 			)
 
-		txt += u'\n'
-		txt += _('Family History')
-		txt += u'\n'
+		meds = self.get_current_substance_intakes(order_by = u'intake_is_approved_of DESC, substance')
+		if len(meds) > 0:
+			txt += u'\n'
+			txt += _('Medications and Substances')
+			txt += u'\n'
+		for m in meds:
+			txt += u'%s\n' % m.format_as_one_line(left_margin = 1)
+
 		fhx = self.get_family_history()
+		if len(fhx) > 0:
+			txt += u'\n'
+			txt += _('Family History')
+			txt += u'\n'
 		for f in fhx:
 			txt += u'%s\n' % f.format(left_margin = 1)
 
-		txt += u'\n'
-		txt += _('Occupations')
-		txt += u'\n'
 		jobs = get_occupations(pk_identity = self.pk_patient)
+		if len(jobs) > 0:
+			txt += u'\n'
+			txt += _('Occupations')
+			txt += u'\n'
 		for job in jobs:
 			txt += u' %s%s\n' % (
 				job['l10n_occupation'],
 				gmTools.coalesce(job['activities'], u'', u': %s')
 			)
 
-		txt += u'\n'
-		txt += _('Vaccinations')
-		txt += u'\n'
 		vaccs = self.get_latest_vaccinations()
+		if len(vaccs) > 0:
+			txt += u'\n'
+			txt += _('Vaccinations')
+			txt += u'\n'
 		inds = sorted(vaccs.keys())
 		for ind in inds:
 			ind_count, vacc = vaccs[ind]

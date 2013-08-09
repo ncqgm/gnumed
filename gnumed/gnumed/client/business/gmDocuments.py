@@ -329,11 +329,13 @@ order by
 			_log.error('[%s] is not a readable file' % fname)
 			return False
 
-		gmPG2.file2bytea (
-			query = u"UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s",
+		if not gmPG2.file2bytea (
+			query = u"UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
 			filename = fname,
-			args = {'pk': self.pk_obj}
-		)
+			args = {'pk': self.pk_obj},
+			file_md5 = gmTools.file2md5(filename = fname, return_hex = True)
+		):
+			return False
 
 		# must update XMIN now ...
 		self.refetch_payload()

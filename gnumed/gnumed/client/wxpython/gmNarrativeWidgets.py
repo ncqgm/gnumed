@@ -2586,7 +2586,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 			self._CHBOX_filter_by_problem.Refresh()
 
 		if not self._CHBOX_filter_by_problem.IsChecked():
-			self._TCTRL_journal.SetValue(self.__curr_pat.emr.format_summary(dob = self.__curr_pat['dob']))
+			self._TCTRL_journal.SetValue(self.__curr_pat.emr.format_summary())
 			return
 
 		if epi is None:

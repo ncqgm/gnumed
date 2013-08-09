@@ -339,7 +339,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			self.__cb__enable_display_mode_selection(True)
 			if self.__soap_display_mode == u'details':
 				emr = self.__pat.get_emr()
-				txt = emr.format_summary(dob = self.__pat['dob'])
+				txt = emr.format_summary()
 			else:
 				txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
 			self.__img_display.clear()

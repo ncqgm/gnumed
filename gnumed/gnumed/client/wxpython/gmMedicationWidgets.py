@@ -1625,9 +1625,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 
-		emr = gmPerson.gmCurrentPatient().get_emr()
-		epi = self._PRW_episode.GetData(can_create = True)
+		epi = self._PRW_episode.GetData()
+		if epi is None:
+			# create new episode, Jim wants it to auto-open
+			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
+		emr = gmPerson.gmCurrentPatient().get_emr()
 		if self._PRW_substance.GetData() is None:
 			# auto-creates all components as intakes
 			intake = emr.add_substance_intake (
@@ -1695,7 +1698,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# per-component
 		self.data['aim'] = self._PRW_aim.GetValue()
 		self.data['notes'] = self._PRW_notes.GetValue()
-		self.data['pk_episode'] = self._PRW_episode.GetData(can_create = True)
+		epi = self._PRW_episode.GetData()
+		if epi is None:
+			# create new episode, Jim wants it to auto-open
+			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
+		self.data['pk_episode'] = epi
 
 		self.data.save()
 
@@ -1832,6 +1839,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._refresh_as_new()
 
 		self._PRW_episode.SetData(self.data['pk_episode'])
+		self._DP_started.SetData(self.data['started'])
 
 		self._PRW_component.SetFocus()
 	#----------------------------------------------------------------

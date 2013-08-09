@@ -1025,13 +1025,14 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	needed_chunks, remainder = divmod(data_size, chunk_size)
 	_log.debug('# of chunks: %s; remainder: %s bytes', needed_chunks, remainder)
 
-	# try setting "bytea_output"
-	# - fails if not necessary
-	# - succeeds if necessary
-	try:
-		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
-	except dbapi.ProgrammingError:
-		_log.debug('failed to set bytea_output to "escape", not necessary')
+#	# since we now require PG 9.1 we can disable this workaround:
+#	# try setting "bytea_output"
+#	# - fails if not necessary
+#	# - succeeds if necessary
+#	try:
+#		run_ro_queries(link_obj = conn, queries = [{'cmd': u"set bytea_output to 'escape'"}])
+#	except dbapi.ProgrammingError:
+#		_log.debug('failed to set bytea_output to "escape", not necessary')
 
 	# retrieve chunks, skipped if data size < chunk size,
 	# does this not carry the danger of cutting up multi-byte escape sequences ?
@@ -1069,14 +1070,19 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 	conn.rollback()
 	return True
 #------------------------------------------------------------------------
-def file2bytea(query=None, filename=None, args=None, conn=None):
+def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	"""Store data from a file into a bytea field.
 
 	The query must:
 	- be in unicode
 	- contain a format spec identifying the row (eg a primary key)
 	  matching <args> if it is an UPDATE
-	- contain a format spec %(data)s::bytea
+	- contain a format spec " <field> = %(data)s::bytea"
+
+	The query CAN return the MD5 of the inserted data:
+		RETURNING md5(<field>) AS md5
+	in which case it will compare it to the md5
+	of the file.
 	"""
 	# read data from file
 	infile = file(filename, "rb")
@@ -1094,12 +1100,25 @@ def file2bytea(query=None, filename=None, args=None, conn=None):
 	else:
 		close_conn = False
 
-	run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = True)
+	rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = (file_md5 is not None))
+
+	success_status = True
+	if file_md5 is None:
+		conn.commit()
+	else:
+		db_md5 = rows[0]['md5']
+		if file_md5 != db_md5:
+			conn.rollback()
+			success_status = False
+			_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+		else:
+			conn.commit()
+			_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] <> [DB::%s]', file_md5, db_md5)
 
 	if close_conn:
 		conn.close()
 
-	return
+	return success_status
 #------------------------------------------------------------------------
 def sanitize_pg_regex(expression=None, escape_all=False):
 	"""Escape input for use in a PostgreSQL regular expression.
@@ -1598,22 +1617,22 @@ def get_connection(dsn=None, readonly=True, encoding=None, verbose=False, pooled
 
 	conn.commit()
 
-	# FIXME: remove this whole affair once either 9.0 is standard (Ubuntu 10 LTS is
-	# FIXME: PG 8.4, however!) or else when psycopg2 supports a workaround
-	#
-	# - bytea data format
-	# PG 9.0 switched to - by default - using "hex" rather than "escape",
-	# however, psycopg2's linked with a pre-9.0 libpq do assume "escape"
-	# as the transmission mode for bytea output,
-	# so try to set this setting back to "escape",
-	# if that's not possible the reason will be that PG < 9.0 does not support
-	# that setting - which also means we don't need it and can ignore the
-	# failure
-	cmd = "set bytea_output to 'escape'"
-	try:
-		curs.execute(cmd)
-	except dbapi.ProgrammingError:
-		_log.error('cannot set bytea_output format')
+#	# FIXME: remove this whole affair once either 9.0 is standard (Ubuntu 10 LTS is
+#	# FIXME: PG 8.4, however!) or else when psycopg2 supports a workaround
+#	#
+#	# - bytea data format
+#	# PG 9.0 switched to - by default - using "hex" rather than "escape",
+#	# however, psycopg2's linked with a pre-9.0 libpq do assume "escape"
+#	# as the transmission mode for bytea output,
+#	# so try to set this setting back to "escape",
+#	# if that's not possible the reason will be that PG < 9.0 does not support
+#	# that setting - which also means we don't need it and can ignore the
+#	# failure
+#	cmd = "set bytea_output to 'escape'"
+#	try:
+#		curs.execute(cmd)
+#	except dbapi.ProgrammingError:
+#		_log.error('cannot set bytea_output format')
 
 	curs.close()
 	conn.commit()
@@ -1719,7 +1738,7 @@ def sanity_check_database_settings():
 		u'full_page_writes': [u'on', u'data loss/corruption', False],
 		u'lc_messages': [u'C', u'suboptimal error detection', False],
 		u'password_encryption': [u'on', u'breach of confidentiality', False],
-		u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
+		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True]
 	}

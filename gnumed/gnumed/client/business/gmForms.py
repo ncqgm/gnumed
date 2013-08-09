@@ -316,6 +316,9 @@ uno = None
 cOOoDocumentCloseListener = None
 writer_binary = None
 
+# http://forum.openoffice.org/en/forum/viewtopic.php?t=36370
+# http://stackoverflow.com/questions/4270962/using-pyuno-with-my-existing-python-installation
+
 #-----------------------------------------------------------
 def __configure_path_to_UNO():
 
