@@ -11,7 +11,7 @@
 # have to configure that using a .pgpass file (see the PG
 # manual for how to do that)
 #
-# http://www.postgresql.org/docs/8.1/static/libpq-pgpass.html
+# http://www.postgresql.org/docs/current/static/libpq-pgpass.html
 #
 #------------------------------------------------------------
 
@@ -20,11 +20,11 @@ GM_PORT="5432"
 
 # set this to a writable directory on a drive where
 # there is plenty of disk space available
-WORK_DIR_BASE="/tmp"
+WORK_DIR_BASE="/tmp/gnumed"
 
 # where to store log files,
 # note that if you chose to write logs to the work
-# directory they will get lost during cleanup if the
+# directory they may get lost during cleanup if the
 # restore process succeeds
 LOG_BASE="."
 

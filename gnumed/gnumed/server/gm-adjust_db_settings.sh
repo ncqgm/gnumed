@@ -11,7 +11,7 @@
 #
 #==============================================================
 
-SQL_FILE="/tmp/gm-db-settings.sql"
+SQL_FILE="/tmp/gnumed/gm-db-settings.sql"
 
 #==============================================================
 # There really should not be any need to
@@ -33,6 +33,8 @@ echo ""
 echo "=> Creating adjustment script ..."
 echo "    ${SQL_FILE}"
 
+mkdir -p /tmp/gnumed
+
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
 echo "-- (gm-adjust_db_settings.sh)" >> $SQL_FILE
 echo "" >> $SQL_FILE
@@ -51,13 +53,13 @@ echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
-echo "-- < PG 9.0 only:"
+echo "-- < PG 9.0 only:" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- cannot be set after server start:" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set allow_system_table_mods to 'off';" >> $SQL_FILE
-echo "-- (only needed for HIPAA compliance):" >> $SQL_FILE
+echo "-- only needed for HIPAA compliance:" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set log_connections to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set log_disconnections to 'on';" >> $SQL_FILE
 
@@ -66,7 +68,7 @@ echo "-- cannot be changed now (?):" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set fsync to 'on';" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set full_page_writes to 'on';" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', 'v16');" >> $SQL_FILE
+echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '19.0');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
@@ -82,7 +84,7 @@ echo "--local   samerole    +gm-logins   md5" >> $SQL_FILE
 echo ""
 echo "=> Adjusting database ${TARGET_DB} ..."
 LOG="gm-db-settings.log"
-sudo -u postgres psql -d ${TARGET_DB} --single-transaction -f ${SQL_FILE} &> ${LOG}
+sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to adjust database settings. Aborting."
 	echo "           see: ${LOG}"
@@ -96,12 +98,12 @@ rm ${SQL_FILE}
 echo "You will now have to take one of the following actions"
 echo "to make PostgreSQL recognize some of the changes:"
 echo ""
-echo "- run /etc/init.d/postgresql reload (adjust to version)"
-echo "- run pg_ctlcluster <version> <name> reload"
-echo "- run pg_ctl reload"
+echo "- run '/etc/init.d/postgresql reload (adjust to version)'"
+echo "- run 'pg_ctlcluster <version> <name> reload'"
+echo "- run 'pg_ctl reload'"
 echo "- stop and restart postgres"
 echo "- SIGHUP the server process"
-echo "- reboot the machine"
+echo "- reboot the machine (Windows)"
 echo ""
 
 #==============================================================
