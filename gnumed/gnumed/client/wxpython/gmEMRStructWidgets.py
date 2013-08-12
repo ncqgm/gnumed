@@ -2158,8 +2158,8 @@ limit 50""" % gmPerson.gmCurrentPatient().ID
 		self._PRW_age_noted.add_callback_on_lose_focus(self._on_leave_age_noted)
 		self._PRW_year_noted.add_callback_on_lose_focus(self._on_leave_year_noted)
 
-		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
-		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
+#		self._PRW_age_noted.add_callback_on_modified(self._on_modified_age_noted)
+#		self._PRW_year_noted.add_callback_on_modified(self._on_modified_year_noted)
 
 		self._PRW_year_noted.Enable(True)
 
