@@ -176,6 +176,10 @@ sudo -u postgres vacuumdb -v -z -d ${TARGET_DB} -p ${GM_PORT} &> ${LOG}
 chmod 0666 ${LOG}
 
 
+# adjusting settings
+gm-adjust_db_settings.sh ${TARGET_DB}
+
+
 echo ""
 echo "==> Cleaning up ..."
 rm -vf ${WORK_DIR}/*
@@ -198,5 +202,3 @@ echo ""
 
 
 exit 0
-
-#==============================================================

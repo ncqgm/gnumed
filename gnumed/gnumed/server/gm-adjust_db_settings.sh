@@ -30,7 +30,7 @@ fi
 
 
 echo ""
-echo "=> Creating adjustment script ..."
+echo "==> Creating database settings adjustment SQL script ..."
 echo "    ${SQL_FILE}"
 
 mkdir -p /tmp/gnumed
@@ -82,7 +82,7 @@ echo "--local   samerole    +gm-logins   md5" >> $SQL_FILE
 
 
 echo ""
-echo "=> Adjusting database ${TARGET_DB} ..."
+echo "==> Adjusting settings of database ${TARGET_DB} ..."
 LOG="gm-db-settings.log"
 sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
 if test $? -ne 0 ; then

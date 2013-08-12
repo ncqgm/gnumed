@@ -35,6 +35,7 @@ IMPROVED: enable generic lists' extra buttons to operate on multi-selections
 IMPROVED: access level role names
 IMPROVED: check MD5 sum of newly inserted document objects for extra paranoia
 IMPROVED: current medication list template
+IMPROVED: backup/restore automatically applies DB settings adjustments
 
 ------------------------------------------------
 # rel-1-3-patches
