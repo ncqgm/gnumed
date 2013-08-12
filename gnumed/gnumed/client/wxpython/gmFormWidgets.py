@@ -59,8 +59,8 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None):
 	if form is None:
 		return False
 
-	if form.template['engine'] == u'O':
-		return True
+	if form in [True, False]:	# returned by special OOo/LO handling
+		return form
 
 	return act_on_generated_forms (
 		parent = parent,
