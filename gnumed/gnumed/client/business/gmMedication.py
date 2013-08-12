@@ -2152,17 +2152,20 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex  = u'\n\\noindent %s\n' % _('Additional notes')
-	tex += u'\n'
-	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|l|>{\\RaggedRight}X|p{7.5cm}|}\n'
+	tex = u'\\noindent %s\n' % _('Additional notes')
+	tex += u'%%%% requires "\\usepackage{longtable}"\n'
+	tex += u'%%%% requires "\\usepackage{tabu}"\n'
+	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|l|X[,L]|}\n'
 	tex += u'\\hline\n'
 	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
+	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\\end{tabularx}\n\n'
+	tex += u'\\end{longtabu}\n'
 
 	current_meds = emr.get_current_substance_intakes (
 		include_inactive = False,
@@ -2195,15 +2198,16 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 #------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex =  u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
-	tex += u'\n'
-	tex += u'\\noindent \\begin{tabularx}{\\textwidth}{|>{\\RaggedRight}X|>{\\RaggedRight}X|}\n'
+	tex = u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
+	tex += u'%%%% requires "\\usepackage{longtable}"\n'
+	tex += u'%%%% requires "\\usepackage{tabu}"\n'
+	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
 	tex += u'\\hline\n'
 	tex += u'%s & %s \\tabularnewline \n' % (_('Drug'), _('Regimen / Advice'))
 	tex += u'\\hline\n'
 	tex += u'\\hline\n'
 	tex += u'%s\n'
-	tex += u'\\end{tabularx}\n'
+	tex += u'\\end{longtabu}\n'
 
 	current_meds = emr.get_current_substance_intakes (
 		include_inactive = False,
@@ -2265,6 +2269,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		lines.append(u'\\hline')
 
 	return tex % u'\n'.join(lines)
+
 #============================================================
 _SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'
 

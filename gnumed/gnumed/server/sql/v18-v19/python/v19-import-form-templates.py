@@ -38,6 +38,19 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# medication list
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '19.0'
+			WHERE
+				name_long = 'Current medication list (GNUmed default)'
+			""",
+		filename = os.path.join('..', 'sql', 'v18-v19', 'data', 'v19-GNUmed-default_medication_list_template.tex'),
+		conn = conn
+	)
+
 	return True
 
 #==============================================================
