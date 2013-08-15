@@ -136,7 +136,7 @@ class cPatientPicture(wx.StaticBitmap):
 		docs = gmDocuments.search_for_documents(patient_id = self.__pat.ID, type_id = gmDocuments.MUGSHOT)
 		if len(docs) == 0:
 			emr = self.__pat.get_emr()
-			epi = emr.add_episode(episode_name=_('Administration'))
+			epi = emr.add_episode(episode_name = u'administrative')
 			enc = emr.active_encounter
 			doc = gmDocuments.create_document (
 				document_type = gmDocuments.MUGSHOT,

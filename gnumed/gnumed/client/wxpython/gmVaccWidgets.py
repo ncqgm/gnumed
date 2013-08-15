@@ -591,7 +591,7 @@ def print_vaccinations(parent=None):
 		parent = parent,
 		forms = [vaccs_printout],
 		jobtype = 'vaccinations',
-		episode_name = u'administration',
+		episode_name = u'administrative',
 		review_copy_as_normal = True
 	)
 

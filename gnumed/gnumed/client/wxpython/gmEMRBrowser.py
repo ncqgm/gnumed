@@ -1195,12 +1195,12 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self.__editing = editing
 		self.enable_display_mode_selection(enable = not self.__editing)
 		if self.__editing:
-			self._BTN_switch_browse_edit.SetLabel(_('&Browse'))
+			self._BTN_switch_browse_edit.SetLabel(_('&Browse %s') % gmTools.u_ellipsis)
 			self._PNL_browse.Hide()
 			self._PNL_visual_soap.Hide()
 			self._PNL_edit.Show()
 		else:
-			self._BTN_switch_browse_edit.SetLabel(_('&Edit'))
+			self._BTN_switch_browse_edit.SetLabel(_('&New notes %s') % gmTools.u_ellipsis)
 			self._PNL_edit.Hide()
 			self._PNL_visual_soap.Show()
 			self._PNL_browse.Show()

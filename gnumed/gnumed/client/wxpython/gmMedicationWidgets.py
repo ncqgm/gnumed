@@ -2139,7 +2139,7 @@ def print_medication_list(parent=None):
 		parent = parent,
 		forms = [meds_list],
 		jobtype = 'medication_list',
-		#episode_name = u'administration',
+		#episode_name = u'administrative',
 		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
 		progress_note = _('generated medication list document'),
 		review_copy_as_normal = True
@@ -2234,7 +2234,7 @@ def print_prescription(parent=None, emr=None):
 		parent = parent,
 		forms = [rx],
 		jobtype = u'prescription',
-		#episode_name = u'administration',
+		#episode_name = u'administrative',
 		episode_name = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE,
 		progress_note = _('generated prescription'),
 		review_copy_as_normal = True

@@ -66,7 +66,7 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None):
 		parent = parent,
 		forms = [form],
 		jobtype = jobtype,
-		episode_name = u'administration',
+		episode_name = u'administrative',
 		review_copy_as_normal = True
 	)
 
