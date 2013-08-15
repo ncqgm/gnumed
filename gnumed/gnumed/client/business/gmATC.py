@@ -1,7 +1,10 @@
 # -*- coding: utf8 -*-
-"""ATC/DDD handling code.
+"""ATC handling code.
 
 http://who.no
+
+There is no DDD handling because DDD explicitely
+does not carry clinical meaning.
 
 license: GPL v2 or later
 """
@@ -99,27 +102,13 @@ def text2atc(text=None, fuzzy=False):
 	_log.debug(u'term: %s => ATCs: %s (fuzzy: %s)', text, rows, fuzzy)
 
 	return rows
-#============================================================
-def atc2ddd(atc=None):
-	cmd = u"""
-		SELECT DISTINCT ON (code) ddd, unit
-		FROM ref.atc
-		WHERE
-			code = %(atc)s
-				AND
-			ddd IS NOT NULL
-	"""
-	args = {'atc': atc.strip()}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
-	_log.debug(u'ATC: %s => DDD: %s', atc, rows)
-
-	return rows
 #============================================================
 def get_reference_atcs(order_by=u'atc, term, lang'):
 	cmd = u'SELECT * FROM ref.v_atc ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
+
 #============================================================
 def atc_import(cfg_fname=None, conn=None):
 
@@ -182,34 +171,34 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 
 	# from file into staging table
 	curs = conn.cursor()
-	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s, %s)"""
+	cmd = u"""insert into ref.atc_staging values (%s, %s, %s, %s, %s)"""
 	first = False
 	for atc_line in atc_reader:
 		# skip first
 		if not first:
 			first = True
 			continue
+
 		# skip blanks
 		if atc_line[0] + atc_line[1] + atc_line[2] + atc_line[3] + atc_line[4] == u'':
 			continue
 
 		comment = u''
-		ddd_val = u''
 		unit = u''
 		adro = u''
 
 		# "1,1 mg O,P,R,..."
 		if regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', atc_line[4])
+			tmp, unit, adro = regex.split('\s', atc_line[4])
 		# "1,1 mg O,P,R bezogen auf ..."
 		elif regex.match('\d{,3},\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
+			tmp, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "20 mg O"
 		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*$', atc_line[4]):
-			ddd_val, unit, adro = regex.split('\s', atc_line[4])
+			tmp, unit, adro = regex.split('\s', atc_line[4])
 		# "20 mg O bezogen auf ..."
 		elif regex.match('\d{,3}\s.{1,2}\s.(,.)*\s.+$', atc_line[4]):
-			ddd_val, unit, adro, comment = regex.split('\s', atc_line[4], 3)
+			tmp, unit, adro, comment = regex.split('\s', atc_line[4], 3)
 		# "Standarddosis: 1 Tablette oder 30 ml Mixtur"
 		else:
 			comment = atc_line[4]
@@ -217,7 +206,6 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 		args = [
 			atc_line[0].strip(),
 			atc_line[2],
-			ddd_val.replace(',', '.'),
 			unit,
 			adro,
 			comment
@@ -239,7 +227,6 @@ insert into ref.atc (
 	code,
 	term,
 	comment,
-	ddd,
 	unit,
 	administration_route
 ) select
@@ -247,7 +234,6 @@ insert into ref.atc (
 	atc,
 	name,
 	nullif(comment, ''),
-	nullif(ddd, '')::numeric,
 	nullif(unit, ''),
 	nullif(adro, '')
 
@@ -296,10 +282,6 @@ if __name__ == "__main__":
 		print ' ', text2atc(sys.argv[2])
 		print ' ', text2atc(sys.argv[2], True)
 	#--------------------------------------------------------
-	def test_atc2ddd():
-		print "searching for DDD on ATC:", sys.argv[2]
-		print atc2ddd(atc = sys.argv[2])
-	#--------------------------------------------------------
 	def test_get_reference_atcs():
 		print "reference_of_atc_codes:"
 		for atc in get_reference_atcs():
@@ -307,7 +289,6 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	#test_atc_import()
 	#test_text2atc()
-	test_atc2ddd()
-	#test_get_reference_atcs()
+	test_get_reference_atcs()
 
 #============================================================

@@ -1875,8 +1875,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		txt += u' ' + _('Substance: %s   [#%s]\n') % (self._payload[self._idx['substance']], self._payload[self._idx['pk_substance']])
 		txt += u' ' + _('Preparation: %s\n') % self._payload[self._idx['preparation']]
 		txt += u' ' + _('Amount per dose: %s %s') % (self._payload[self._idx['amount']], self._payload[self._idx['unit']])
-		if self.ddd is not None:
-			txt += u' (DDD: %s %s)' % (self.ddd['ddd'], self.ddd['unit'])
 		txt += u'\n'
 		txt += gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', _(' ATC (substance): %s\n'))
 
@@ -1974,28 +1972,6 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return allg
 	#--------------------------------------------------------
 	# properties
-	#--------------------------------------------------------
-	def _get_ddd(self):
-
-		try: self.__ddd
-		except AttributeError: self.__ddd = None
-
-		if self.__ddd is not None:
-			return self.__ddd
-
-		if self._payload[self._idx['atc_substance']] is not None:
-			ddd = gmATC.atc2ddd(atc = self._payload[self._idx['atc_substance']])
-			if len(ddd) != 0:
-				self.__ddd = ddd[0]
-		else:
-			if self._payload[self._idx['atc_brand']] is not None:
-				ddd = gmATC.atc2ddd(atc = self._payload[self._idx['atc_brand']])
-				if len(ddd) != 0:
-					self.__ddd = ddd[0]
-
-		return self.__ddd
-
-	ddd = property(_get_ddd, lambda x:x)
 	#--------------------------------------------------------
 	def _get_external_code(self):
 		drug = self.containing_drug

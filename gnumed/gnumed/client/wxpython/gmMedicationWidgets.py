@@ -225,7 +225,6 @@ def browse_atc_reference(parent=None):
 		items = [ [
 			a['atc'],
 			a['term'],
-			u'%s' % gmTools.coalesce(a['ddd'], u''),
 			gmTools.coalesce(a['unit'], u''),
 			gmTools.coalesce(a['administrative_route'], u''),
 			gmTools.coalesce(a['comment'], u''),
@@ -239,7 +238,7 @@ def browse_atc_reference(parent=None):
 		parent = parent,
 		msg = _('\nThe ATC codes as known to GNUmed.\n'),
 		caption = _('Showing ATC codes.'),
-		columns = [ u'ATC', _('Term'), u'DDD', _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
+		columns = [ u'ATC', _('Term'), _('Unit'), _(u'Route'), _('Comment'), _('Version'), _('Language') ],
 		single_selection = True,
 		refresh_callback = refresh
 	)
@@ -294,7 +293,7 @@ class cATCPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 				SELECT
 					code as atc_code,
-					(code || ': ' || term || coalesce(' (' || ddd || unit || ')', ''))
+					(code || ': ' || term)
 						AS label
 				FROM ref.atc
 				WHERE
@@ -2833,8 +2832,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		tt += u' ' + _('Substance: %s   [#%s]\n') % (entry['substance'], entry['pk_substance'])
 		tt += u' ' + _('Preparation: %s\n') % entry['preparation']
 		tt += u' ' + _('Amount per dose: %s %s') % (entry['amount'], entry['unit'])
-		if entry.ddd is not None:
-			tt += u' (DDD: %s %s)' % (entry.ddd['ddd'], entry.ddd['unit'])
 		tt += u'\n'
 		tt += gmTools.coalesce(entry['atc_substance'], u'', _(' ATC (substance): %s\n'))
 
