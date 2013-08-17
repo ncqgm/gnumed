@@ -2736,16 +2736,55 @@ LIMIT 50"""
 		return gmPathLab.cTestOrg(aPK_obj = self.GetData())
 
 #================================================================
+# Meta test type widgets
+#----------------------------------------------------------------
+def edit_meta_test_type(parent=None, meta_test_type=None):
+	ea = cMetaTestTypeEAPnl(parent = parent, id = -1)
+	ea.data = meta_test_type
+	ea.mode = gmTools.coalesce(meta_test_type, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2 (
+		parent = parent,
+		id = -1,
+		edit_area = ea,
+		single_entry = gmTools.bool2subst((meta_test_type is None), False, True)
+	)
+	dlg.SetTitle(gmTools.coalesce(meta_test_type, _('Adding new meta test type'), _('Editing meta test type')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#----------------------------------------------------------------
 def manage_meta_test_types(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
+	#------------------------------------------------------------
+	def edit(meta_test_type=None):
+		return edit_meta_test_type(parent = parent, meta_test_type = meta_test_type)
+	#------------------------------------------------------------
+	def delete(meta_test_type):
+		gmPathLab.delete_meta_type(meta_type = meta_test_type['pk'])
+		return True
 	#----------------------------------------
 	def get_tooltip(data):
 		if data is None:
 			return None
 		return data.format(with_tests = True)
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		mtts = gmPathLab.get_meta_test_types()
+		items = [ [
+			m['abbrev'],
+			m['name'],
+			gmTools.coalesce(m['loinc'], u''),
+			gmTools.coalesce(m['comment'], u''),
+			m['pk']
+		] for m in mtts ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(mtts)
 	#----------------------------------------
 
 	msg = _(
@@ -2760,28 +2799,19 @@ def manage_meta_test_types(parent=None):
 		'you switch labs or the lab starts using another test method.\n'
 	)
 
-	mtts = gmPathLab.get_meta_test_types()
-
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
 		caption = _('Showing meta test types.'),
 		columns = [_('Abbrev'), _('Name'), _('LOINC'), _('Comment'), u'#'],
-		choices = [ [
-			m['abbrev'],
-			m['name'],
-			gmTools.coalesce(m['loinc'], u''),
-			gmTools.coalesce(m['comment'], u''),
-			m['pk']
-		] for m in mtts ],
-		data = mtts,
 		single_selection = True,
-		list_tooltip_callback = get_tooltip
-		#edit_callback = edit,
-		#new_callback = edit,
-		#delete_callback = delete,
-		#refresh_callback = refresh
+		list_tooltip_callback = get_tooltip,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh
 	)
+
 #----------------------------------------------------------------
 class cMetaTestTypePRW(gmPhraseWheel.cPhraseWheel):
 
@@ -2827,6 +2857,155 @@ LIMIT 50"""
 			return None
 
 		return gmPathLab.cMetaTestType(aPK_obj = self.GetData())
+
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgMetaTestTypeEAPnl
+
+class cMetaTestTypeEAPnl(wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['meta_test_type']
+			del kwargs['meta_test_type']
+		except KeyError:
+			data = None
+
+		wxgMetaTestTypeEAPnl.wxgMetaTestTypeEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		# loinc
+		mp = gmLOINC.cLOINCMatchProvider()
+		mp.setThresholds(1, 2, 4)
+		#mp.print_queries = True
+		#mp.word_separators = '[ \t:@]+'
+		self._PRW_loinc.matcher = mp
+		self._PRW_loinc.selection_only = False
+		self._PRW_loinc.add_callback_on_lose_focus(callback = self._on_loinc_lost_focus)
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = True
+
+		if self._PRW_abbreviation.GetValue().strip() == u'':
+			validity = False
+			self._PRW_abbreviation.display_as_valid(False)
+			self.status_message = _('Missing abbreviation for meta test type.')
+			self._PRW_abbreviation.SetFocus()
+		else:
+			self._PRW_abbreviation.display_as_valid(True)
+
+		if self._PRW_name.GetValue().strip() == u'':
+			validity = False
+			self._PRW_name.display_as_valid(False)
+			self.status_message = _('Missing name for meta test type.')
+			self._PRW_name.SetFocus()
+		else:
+			self._PRW_name.display_as_valid(True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+
+		# save the data as a new instance
+		data = gmPathLab.create_meta_type (
+			name = self._PRW_name.GetValue().strip(),
+			abbreviation = self._PRW_abbreviation.GetValue().strip(),
+			return_existing = False
+		)
+		if data is None:
+			self.status_message = _('This meta test type already exists.')
+			return False
+		data['loinc'] = self._PRW_loinc.GetData()
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data.save()
+		self.data = data
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['name'] = self._PRW_name.GetValue().strip()
+		self.data['abbrev'] = self._PRW_abbreviation.GetValue().strip()
+		self.data['loinc'] = self._PRW_loinc.GetData()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._PRW_name.SetText(u'', None)
+		self._PRW_abbreviation.SetText(u'', None)
+		self._PRW_loinc.SetText(u'', None)
+		self._TCTRL_loinc_info.SetValue(u'')
+		self._TCTRL_comment.SetValue(u'')
+		self._LBL_member_detail.SetLabel(u'')
+
+		self._PRW_name.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._PRW_name.SetText(self.data['name'], self.data['pk'])
+		self._PRW_abbreviation.SetText(self.data['abbrev'], self.data['abbrev'])
+		self._PRW_loinc.SetText(gmTools.coalesce(self.data['loinc'], u''), self.data['loinc'])
+		self.__refresh_loinc_info()
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self.__refresh_members()
+
+		self._PRW_name.SetFocus()
+	#----------------------------------------------------------------
+	# event handlers
+	#----------------------------------------------------------------
+	def _on_loinc_lost_focus(self):
+		self.__refresh_loinc_info()
+	#----------------------------------------------------------------
+	# internal helpers
+	#----------------------------------------------------------------
+	def __refresh_loinc_info(self):
+		loinc = self._PRW_loinc.GetData()
+
+		if loinc is None:
+			self._TCTRL_loinc_info.SetValue(u'')
+			return
+
+		info = gmLOINC.loinc2term(loinc = loinc)
+		if len(info) == 0:
+			self._TCTRL_loinc_info.SetValue(u'')
+			return
+
+		self._TCTRL_loinc_info.SetValue(info[0])
+	#----------------------------------------------------------------
+	def __refresh_members(self):
+		if self.data is None:
+			self._LBL_member_detail.SetLabel(u'')
+			return
+
+		types = self.data.included_test_types
+		if len(types) == 0:
+			self._LBL_member_detail.SetLabel(u'')
+			return
+
+		lines = []
+		for tt in types:
+			lines.append(u'%s (%s%s) [#%s] @ %s' % (
+				tt['name'],
+				tt['abbrev'],
+				gmTools.coalesce(tt['loinc'], u'', u', LOINC: %s'),
+				tt['pk_test_type'],
+				tt['name_org']
+			))
+		self._LBL_member_detail.SetLabel(u'\n'.join(lines))
 
 #================================================================
 # test panel handling

@@ -387,7 +387,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 						return self._escape(u'injectable placeholder [%s]: no value available' % name)
 					return placeholder
 				try:
-					lng = int(lng)
+					lng = int(lng.strip())
 				except (TypeError, ValueError):
 					lng = len(val)
 				return val[:lng]
@@ -403,7 +403,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		data, lng_str = data.rsplit('::', 1)
 		_log.debug('placeholder parts: name=[%s]; length=[%s]; options=>>>%s<<<', name, lng_str, data)
 		try:
-			lng = int(lng_str)
+			lng = int(lng_str.strip())
 		except (TypeError, ValueError):
 			lng = None
 

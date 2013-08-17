@@ -292,11 +292,26 @@ def delete_test_panel(pk=None):
 class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one meta test type under which actual test types can be aggregated."""
 
-	_cmd_fetch_payload = u"""select * from clin.meta_test_type where pk = %s"""
-
-	_cmds_store_payload = []
-
-	_updatable_fields = []
+	_cmd_fetch_payload = u"SELECT *, xmin FROM clin.meta_test_type WHERE pk = %s"
+	_cmds_store_payload = [u"""
+		UPDATE clin.meta_test_type SET
+			abbrev = %(abbrev)s,
+			name = %(name)s,
+			loinc = gm.nullify_empty_string(%(loinc)s),
+			comment = gm.nullify_empty_string(%(comment)s)
+		WHERE
+			pk = %(pk)s
+				AND
+			xmin = %(xmin)s
+		RETURNING
+			xmin
+	"""]
+	_updatable_fields = [
+		u'abbrev',
+		u'name',
+		u'loinc',
+		u'comment'
+	]
 	#--------------------------------------------------------
 	def format(self, with_tests=False, patient=None):
 		txt = _('Meta (%s=aggregate) test type              [#%s]\n\n') % (gmTools.u_sum, self._payload[self._idx['pk']])
@@ -393,14 +408,51 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 	included_test_types = property(_get_included_test_types, lambda x:x)
 
 #------------------------------------------------------------
+def create_meta_type(name=None, abbreviation=None, return_existing=False):
+	cmd = u"""
+		INSERT INTO clin.meta_test_type (name, abbrev)
+		SELECT
+			%(name)s,
+			%(abbr)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM clin.meta_test_type
+			WHERE
+				name = %(name)s
+					AND
+				abbrev = %(abbr)s
+		)
+		 RETURNING *, xmin
+	"""
+	args = {
+		'name': name.strip(),
+		'abbr': abbreviation.strip()
+	}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True, return_data = True)
+	if len(rows) == 0:
+		if not return_existing:
+			return None
+		cmd = u"SELECT *, xmin FROM clin.meta_test_type WHERE name = %(name)s and %(abbr)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return cMetaTestType(row = {'pk_field': 'pk', 'idx': idx, 'data': rows[0]})
+
+#------------------------------------------------------------
 def delete_meta_type(meta_type=None):
-	cmd = u'delete from clin.meta_test_type where pk = %(pk)s'
+	cmd = u"""
+		DELETE FROM clin.meta_test_type
+		WHERE
+			pk = %(pk)s
+				AND
+			NOT EXISTS (
+				SELECT 1 FROM clin.test_type
+				WHERE fk_meta_test_type = %(pk)s
+			)"""
 	args = {'pk': meta_type}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 #------------------------------------------------------------
 def get_meta_test_types():
-	cmd = u'select * from clin.meta_test_type'
+	cmd = u'SELECT *, xmin FROM clin.meta_test_type'
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cMetaTestType(row = {'pk_field': 'pk', 'data': r, 'idx': idx}) for r in rows ]
 
