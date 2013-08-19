@@ -5,7 +5,8 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # stdlib
-import sys, logging
+import sys
+import logging
 
 
 # GNUmed modules
@@ -16,8 +17,8 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmHooks
 from Gnumed.pycommon import gmDispatcher
 
-_log = logging.getLogger('gm.coding')
 
+_log = logging.getLogger('gm.coding')
 
 #============================================================
 def _on_code_link_modified():
@@ -102,11 +103,43 @@ def get_coded_terms(coding_systems=None, languages=None, order_by=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	return rows
+
 #============================================================
 def get_data_sources(order_by=u'name_long, lang, version'):
 	cmd = u'SELECT * FROM ref.data_source ORDER BY %s' % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
 	return rows
+
+#============================================================
+def create_data_source(long_name=None, short_name=None, version=None, source=None, language=None):
+
+		args = {
+			'lname': long_name,
+			'sname': short_name,
+			'ver': version,
+			'src': source,
+			'lang': language
+		}
+
+		cmd = u"SELECT pk FROM ref.data_source WHERE name_long = %(lname)s AND name_short = %(sname)s AND version = %(ver)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+		if len(rows) > 0:
+			return rows[0]['pk']
+
+		cmd = u"""
+			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
+			VALUES (
+				%(lname)s,
+				%(sname)s,
+				%(ver)s,
+				%(src)s,
+				%(lang)s
+			)
+			RETURNING pk
+		"""
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
+
+		return rows[0]['pk']
 
 #============================================================
 # main

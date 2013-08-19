@@ -31,16 +31,20 @@ _SQL_get_billable_fields = u"SELECT * FROM ref.v_billables WHERE %s"
 class cBillable(gmBusinessDBObject.cBusinessDBObject):
 	"""Items which can be billed to patients."""
 
-	_cmd_fetch_payload = _SQL_get_billable_fields % u"""pk_billable = %s"""
+	_cmd_fetch_payload = _SQL_get_billable_fields % u"pk_billable = %s"
 	_cmds_store_payload = [
 		u"""UPDATE ref.billable SET
+				fk_data_source = %(pk_data_source)s,
 				code = %(billable_code)s,
 				term = %(billable_description)s,
+				comment = gm.nullify_empty_string(%(comment)s),
 				amount = %(raw_amount)s,
 				currency = %(currency)s,
-				vat_multiplier = %(vat_multiplier)s
+				vat_multiplier = %(vat_multiplier)s,
+				active = %(active)s
+				--, discountable = %(discountable)s
 			WHERE
-				pk = %(pk_billabs)s
+				pk = %(pk_billable)s
 					AND
 				xmin = %(xmin_billable)s
 			RETURNING
@@ -48,9 +52,14 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 		"""]
 
 	_updatable_fields = [
+		'billable_code',
 		'billable_description',
 		'raw_amount',
 		'vat_multiplier',
+		'comment',
+		'currency',
+		'active',
+		'pk_data_source'
 	]
 	#--------------------------------------------------------
 	def format(self):
@@ -88,6 +97,7 @@ class cBillable(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use, lambda x:x)
+
 #------------------------------------------------------------
 def get_billables(active_only=True, order_by=None):
 
@@ -104,6 +114,49 @@ def get_billables(active_only=True, order_by=None):
 	cmd = (_SQL_get_billable_fields % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cBillable(row = {'data': r, 'idx': idx, 'pk_field': 'pk_billable'}) for r in rows ]
+
+#------------------------------------------------------------
+def create_billable(code=None, term=None, data_source=None, return_existing=False):
+	args = {
+		'code': code.strip(),
+		'term': term.strip(),
+		'data_src': data_source
+	}
+	cmd = u"""
+		INSERT INTO ref.billable (code, term, fk_data_source)
+		SELECT
+			%(code)s,
+			%(term)s,
+			%(data_src)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM ref.billable
+			WHERE
+				code = %(code)s
+					AND
+				term = %(term)s
+					AND
+				fk_data_source = %(data_src)s
+		)
+		RETURNING pk"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+	if len(rows) > 0:
+		return cBillable(aPK_obj = rows[0]['pk'])
+
+	if not return_existing:
+		return None
+
+	cmd = u"""
+		SELECT * FROM ref.v_billables
+		WHERE
+			code = %(code)s
+				AND
+			term = %(term)s
+				AND
+			pk_data_source = %(data_src)s
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return cBillable(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_billable'})
+
 #------------------------------------------------------------
 def delete_billable(pk_billable=None):
 	cmd = u"""
@@ -117,6 +170,7 @@ def delete_billable(pk_billable=None):
 	"""
 	args = {'pk': pk_billable}
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 #============================================================
 # bill items
 #------------------------------------------------------------

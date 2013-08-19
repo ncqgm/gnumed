@@ -47,13 +47,32 @@ from Gnumed.wxpython import gmDataPackWidgets
 _log = logging.getLogger('gm.ui')
 
 #================================================================
+def edit_billable(parent=None, billable=None):
+	ea = cBillableEAPnl(parent = parent, id = -1)
+	ea.data = billable
+	ea.mode = gmTools.coalesce(billable, 'new', 'edit')
+	dlg = gmEditArea.cGenericEditAreaDlg2 (
+		parent = parent,
+		id = -1,
+		edit_area = ea,
+		single_entry = gmTools.bool2subst((billable is None), False, True)
+	)
+	dlg.SetTitle(gmTools.coalesce(billable, _('Adding new billable'), _('Editing billable')))
+	if dlg.ShowModal() == wx.ID_OK:
+		dlg.Destroy()
+		return True
+	dlg.Destroy()
+	return False
+
+#----------------------------------------------------------------
 def manage_billables(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
 	#------------------------------------------------------------
-#	def edit(substance=None):
-#		return edit_consumable_substance(parent = parent, substance = substance, single_entry = (substance is not None))
+	def edit(billable=None):
+		return edit_billable(parent = parent, billable = billable)
 	#------------------------------------------------------------
 	def delete(billable):
 		if billable.is_in_use:
@@ -102,8 +121,8 @@ def manage_billables(parent=None):
 		caption = _('Showing billable items.'),
 		columns = [_('Code'), _('Description'), _('Value'), _('Catalog'), _('Comment'), u'#'],
 		single_selection = True,
-		#new_callback = edit,
-		#edit_callback = edit,
+		new_callback = edit,
+		edit_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh,
 		middle_extra_button = (
@@ -119,7 +138,7 @@ def manage_billables(parent=None):
 		list_tooltip_callback = get_tooltip
 	)
 
-#================================================================
+#----------------------------------------------------------------
 class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
@@ -167,6 +186,173 @@ class cBillablePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	#------------------------------------------------------------
 	def set_from_pk(self, pk):
 		self.set_from_instance(gmBilling.cBillable(aPK_obj = pk))
+
+#----------------------------------------------------------------
+from Gnumed.wxGladeWidgets import wxgBillableEAPnl
+
+class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditAreaMixin):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			data = kwargs['billable']
+			del kwargs['billable']
+		except KeyError:
+			data = None
+
+		wxgBillableEAPnl.wxgBillableEAPnl.__init__(self, *args, **kwargs)
+		gmEditArea.cGenericEditAreaMixin.__init__(self)
+
+		# Code using this mixin should set mode and data
+		# after instantiating the class:
+		self.mode = 'new'
+		self.data = data
+		if data is not None:
+			self.mode = 'edit'
+
+		#self.__init_ui()
+	#----------------------------------------------------------------
+#	def __init_ui(self):
+#		# adjust phrasewheels etc
+	#----------------------------------------------------------------
+	# generic Edit Area mixin API
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = True
+
+		vat = self._TCTRL_vat.GetValue().strip()
+		if vat == u'':
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_vat, valid = True)
+		else:
+			success, vat = gmTools.input2decimal(initial = vat)
+			if success:
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_vat, valid = True)
+			else:
+				validity = False
+				self.display_tctrl_as_valid(tctrl = self._TCTRL_vat, valid = False)
+				self.status_message = _('VAT must be empty or a number.')
+				self._TCTRL_vat.SetFocus()
+
+		currency = self._TCTRL_currency.GetValue().strip()
+		if currency == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_currency, valid = False)
+			self.status_message = _('Currency is missing.')
+			self._TCTRL_currency.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_currency, valid = True)
+
+		success, val = gmTools.input2decimal(initial = self._TCTRL_amount.GetValue())
+		if success:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = True)
+		else:
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_amount, valid = False)
+			self.status_message = _('Value is missing.')
+			self._TCTRL_amount.SetFocus()
+
+		if self._TCTRL_description.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = False)
+			self.status_message = _('Description is missing.')
+			self._TCTRL_description.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_description, valid = True)
+
+		if self._PRW_coding_system.GetData() is None:
+			validity = False
+			self._PRW_coding_system.display_as_valid(False)
+			self.status_message = _('Coding system is missing.')
+			self._PRW_coding_system.SetFocus()
+		else:
+			self._PRW_coding_system.display_as_valid(True)
+
+		if self._TCTRL_code.GetValue().strip() == u'':
+			validity = False
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_code, valid = False)
+			self.status_message = _('Code is missing.')
+			self._TCTRL_code.SetFocus()
+		else:
+			self.display_tctrl_as_valid(tctrl = self._TCTRL_code, valid = True)
+
+		return validity
+	#----------------------------------------------------------------
+	def _save_as_new(self):
+		data = gmBilling.create_billable (
+			code = self._TCTRL_code.GetValue().strip(),
+			term = self._TCTRL_description.GetValue().strip(),
+			data_source = self._PRW_coding_system.GetData(),
+			return_existing = False
+		)
+		if data is None:
+			self.status_message = _('Billable already exists.')
+			return False
+
+		val = self._TCTRL_amount.GetValue().strip()
+		if val != u'':
+			tmp, val = gmTools.input2decimal(val)
+			data['raw_amount'] = val
+		val = self._TCTRL_currency.GetValue().strip()
+		if val != u'':
+			data['currency'] = val
+		vat = self._TCTRL_vat.GetValue().strip()
+		if vat != u'':
+			tmp, vat = gmTools.input2decimal(vat)
+			data['vat_multiplier'] = vat / 100
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
+		data['active'] = self._CHBOX_active.GetValue()
+
+		data.save()
+
+		self.data = data
+
+		return True
+	#----------------------------------------------------------------
+	def _save_as_update(self):
+		self.data['billable_description'] = self._TCTRL_description.GetValue().strip()
+		tmp, self.data['raw_amount'] = gmTools.input2decimal(self._TCTRL_amount.GetValue())
+		self.data['currency'] = self._TCTRL_currency.GetValue().strip()
+		vat = self._TCTRL_vat.GetValue().strip()
+		if vat == u'':
+			vat = 0
+		else:
+			tmp, vat = gmTools.input2decimal(vat)
+		self.data['vat_multiplier'] = vat / 100
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
+		self.data['active'] = self._CHBOX_active.GetValue()
+		self.data.save()
+		return True
+	#----------------------------------------------------------------
+	def _refresh_as_new(self):
+		self._TCTRL_code.SetValue(u'')
+		self._PRW_coding_system.SetText(u'', None)
+		self._TCTRL_description.SetValue(u'')
+		self._TCTRL_amount.SetValue(u'')
+		self._TCTRL_currency.SetValue(u'')
+		self._TCTRL_vat.SetValue(u'')
+		self._TCTRL_comment.SetValue(u'')
+		self._CHBOX_active.SetValue(True)
+
+		self._TCTRL_code.SetFocus()
+	#----------------------------------------------------------------
+	def _refresh_as_new_from_existing(self):
+		self._refresh_as_new()
+	#----------------------------------------------------------------
+	def _refresh_from_existing(self):
+		self._TCTRL_code.SetValue(self.data['billable_code'])
+		self._TCTRL_code.Enable(False)
+		self._PRW_coding_system.SetText(u'%s (%s)' % (self.data['catalog_short'], self.data['catalog_version']), self.data['pk_data_source'])
+		self._PRW_coding_system.Enable(False)
+		self._TCTRL_description.SetValue(self.data['billable_description'])
+		self._TCTRL_amount.SetValue(u'%s' % self.data['raw_amount'])
+		self._TCTRL_currency.SetValue(self.data['currency'])
+		self._TCTRL_vat.SetValue(u'%s' % (self.data['vat_multiplier'] * 100))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
+		self._CHBOX_active.SetValue(self.data['active'])
+
+		self._TCTRL_description.SetFocus()
+	#----------------------------------------------------------------
 
 #================================================================
 # invoice related widgets

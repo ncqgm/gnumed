@@ -1,6 +1,5 @@
 """GNUmed coding related widgets."""
 #================================================================
-__version__ = '$Revision: 1.4 $'
 __author__ = 'karsten.hilbert@gmx.net'
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -17,14 +16,15 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 
 from Gnumed.business import gmCoding
+
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
+
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPhraseWheel
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 #================================================================
 def browse_data_sources(parent=None):
@@ -64,6 +64,37 @@ def browse_data_sources(parent=None):
 #		middle_extra_button=None,
 #		right_extra_button=None
 	)
+
+#----------------------------------------------------------------
+class cDataSourcePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+
+		query = u"""
+			SELECT DISTINCT ON (list_label)
+				pk
+					AS data,
+				name_short || ' (' || version || ')'
+					AS field_label,
+				name_short || ' ' || version || ' (' || name_long || ')'
+					AS list_label
+			FROM
+				ref.data_source
+			WHERE
+				name_short %(fragment_condition)s
+					OR
+				name_long %(fragment_condition)s
+			ORDER BY list_label
+			LIMIT 50
+		"""
+		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
+		mp.setThresholds(1, 2, 4)
+#		mp.word_separators = '[ \t=+&:@]+'
+		self.SetToolTipString(_('Select a data source / coding system.'))
+		self.matcher = mp
+		self.selection_only = True
 
 #================================================================
 def browse_coded_terms(parent=None, coding_systems=None, languages=None):

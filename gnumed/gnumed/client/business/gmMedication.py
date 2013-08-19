@@ -4,7 +4,6 @@
 license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.21 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
@@ -33,12 +32,12 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
+from Gnumed.business import gmCoding
 from Gnumed.business.gmDocuments import DOCUMENT_TYPE_PRESCRIPTION
 from Gnumed.business.gmDocuments import create_document_type
 
 
 _log = logging.getLogger('gm.meds')
-_log.info(__version__)
 
 #_ = lambda x:x
 DEFAULT_MEDICATION_HISTORY_EPISODE = _('Medication history')
@@ -104,37 +103,7 @@ def drug2renal_insufficiency_url(search_term=None):
 	_log.debug(u'renal insufficiency URL: %s', url)
 
 	return url
-#============================================================
-# this should be in gmCoding.py
-def create_data_source(long_name=None, short_name=None, version=None, source=None, language=None):
 
-		args = {
-			'lname': long_name,
-			'sname': short_name,
-			'ver': version,
-			'src': source,
-			'lang': language
-		}
-
-		cmd = u"""select pk from ref.data_source where name_long = %(lname)s and name_short = %(sname)s and version = %(ver)s"""
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
-		if len(rows) > 0:
-			return rows[0]['pk']
-
-		cmd = u"""
-			INSERT INTO ref.data_source (name_long, name_short, version, source, lang)
-			VALUES (
-				%(lname)s,
-				%(sname)s,
-				%(ver)s,
-				%(src)s,
-				%(lang)s
-			)
-			returning pk
-			"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-
-		return rows[0]['pk']
 #============================================================
 # wishlist:
 # - --conf-file= for glwin.exe
@@ -350,7 +319,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		return version
 	#--------------------------------------------------------
 	def create_data_source_entry(self):
-		return create_data_source (
+		return gmCoding.create_data_source (
 			long_name = u'"FreeDiams" Drug Database Frontend',
 			short_name = u'FreeDiams',
 			version = self.get_data_source_version(),
@@ -1148,7 +1117,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	def create_data_source_entry(self):
 		versions = self.get_data_source_version()
 
-		return create_data_source (
+		return gmCoding.create_data_source (
 			long_name = u'Medikamentendatenbank "mmi PHARMINDEX" (Gelbe Liste)',
 			short_name = u'GL/MMI',
 			version = u'Daten: %s, Preise (Onlineupdate): %s' % (versions['data'], versions['online_update']),
