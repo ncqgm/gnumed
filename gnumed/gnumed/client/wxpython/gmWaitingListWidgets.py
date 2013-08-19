@@ -291,7 +291,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 			[ [
 				gmTools.coalesce(p['waiting_zone'], u''),
 				p['urgency'],
-				gmDateTime.pydt_strftime(p['registered'], format='%Y-%m-%d %H:%M'),
+				gmDateTime.pydt_strftime(p['registered'], format='%Y %b %d %H:%M'),
 				gmDateTime.format_interval_medically(p['waiting_time']),
 				u'%s, %s (%s)' % (p['lastnames'], p['firstnames'], p['l10n_gender']),
 				gmTools.coalesce (
