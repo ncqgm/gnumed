@@ -73,7 +73,7 @@ _injectable_placeholders = {
 known_variant_placeholders = [
 	# generic:
 	u'free_text',							# show a dialog for entering some free text
-											# args: <message>
+											# args: <message> shown in input dialog, must not contain "//" or "::"
 	u'text_snippet',						# a text snippet, taken from the keyword expansion mechanism
 											# args: <snippet name>//<template>
 	u'data_snippet',						# a binary snippet, taken from the keyword expansion mechanism
