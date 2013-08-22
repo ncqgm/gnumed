@@ -815,12 +815,37 @@ class cAbiWordForm(cFormEngine):
 		enc = sys.getfilesystemencoding()
 		cmd = (r'%s %s' % (self.abiword_binary, self.instance_filename.encode(enc))).encode(enc)
 		result = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
-		self.re_editable_filenames = []
+		self.re_editable_filenames = [self.instance_filename]
 		return result
 	#--------------------------------------------------------
 	def generate_output(self, instance_file=None, format=None):
-		self.final_output_filenames = [self.instance_filename]
-		return self.instance_filename
+
+		if instance_file is None:
+			instance_file = self.instance_filename
+		try:
+			open(instance_file, 'r').close()
+		except:
+			_log.exception('cannot access form instance file [%s]', instance_file)
+			gmLog2.log_stack_trace()
+			return None
+		self.instance_filename = instance_file
+
+		_log.debug('ignoring <format> directive [%s], generating PDF', format)
+
+		pdf_name = os.path.splitext(self.instance_filename)[0] + u'.pdf'
+		cmd = u'%s --to=pdf --to-name=%s %s' % (
+			self.abiword_binary,
+			pdf_name,
+			self.instance_filename
+		)
+		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
+			_log.error('problem running abiword, cannot generate form output')
+			gmDispatcher.send(signal = 'statustext', msg = _('Error running AbiWord. Cannot turn generate PDF.'), beep = True)
+			return None
+
+		self.final_output_filenames = [pdf_name]
+		return pdf_name
+
 #----------------------------------------------------------------
 form_engines[u'A'] = cAbiWordForm
 
