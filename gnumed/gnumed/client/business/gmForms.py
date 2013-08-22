@@ -289,23 +289,32 @@ def get_form_templates(engine=None, active_only=False, template_types=None, excl
 
 #------------------------------------------------------------
 def create_form_template(template_type=None, name_short=None, name_long=None):
-
-	cmd = u'insert into ref.paperwork_templates (fk_template_type, name_short, name_long, external_version) values (%(type)s, %(nshort)s, %(nlong)s, %(ext_version)s)'
-	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': cmd, 'args': {'type': template_type, 'nshort': name_short, 'nlong': name_long, 'ext_version': 'new'}},
-			{'cmd': u"select currval(pg_get_serial_sequence('ref.paperwork_templates', 'pk'))"}
-		],
-		return_data = True
-	)
+	cmd = u"""
+		INSERT INTO ref.paperwork_templates (
+			fk_template_type,
+			name_short,
+			name_long,
+			external_version
+		) VALUES (
+			%(type)s,
+			%(nshort)s,
+			%(nlong)s,
+			%(ext_version)s
+		)
+		RETURNING pk
+	"""
+	args = {'type': template_type, 'nshort': name_short, 'nlong': name_long, 'ext_version': 'new'}
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	template = cFormTemplate(aPK_obj = rows[0][0])
 	return template
+
 #------------------------------------------------------------
 def delete_form_template(template=None):
 	rows, idx = gmPG2.run_rw_queries (
-		queries = [
-			{'cmd': u'delete from ref.paperwork_templates where pk=%(pk)s', 'args': {'pk': template['pk_paperwork_template']}}
-		]
+		queries = [{
+			'cmd': u'DELETE FROM ref.paperwork_templates WHERE pk = %(pk)s',
+			'args': {'pk': template['pk_paperwork_template']}
+		}]
 	)
 	return True
 
