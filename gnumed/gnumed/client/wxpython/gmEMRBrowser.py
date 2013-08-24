@@ -301,10 +301,53 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 				episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
 			)
 
+		# unassociated episodes		# FIXME: turn into real dummy issue
 		elif isinstance(node_data, type({})):
-			self.__cb__enable_display_mode_selection(False)
-			# FIXME: turn into real dummy issue
-			txt = _('Pool of unassociated episodes:\n\n  "%s"') % node_data['description']
+			self.__cb__enable_display_mode_selection(True)
+			if self.__soap_display_mode == u'details':
+				txt = _('Pool of unassociated episodes "%s":\n') % node_data['description']
+				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = u'episode_open DESC, description')
+				if len(epis) > 0:
+					txt += u'\n'
+				for epi in epis:
+					txt += epi.format (
+						left_margin = 1,
+						patient = self.__pat,
+						with_summary = True,
+						with_codes = False,
+						with_encounters = False,
+						with_documents = False,
+						with_hospital_stays = False,
+						with_procedures = False,
+						with_family_history = False,
+						with_tests = False,
+						with_vaccinations = False,
+						with_health_issue = False
+					)
+					txt += u'\n'
+			else:
+				epis = self.__pat.emr.get_episodes(unlinked_only = True, order_by = u'episode_open DESC, description')
+				txt = u''
+				if len(epis) > 0:
+					txt += _(' Listing of unassociated episodes\n')
+				for epi in epis:
+					txt += u' %s\n' % (gmTools.u_box_horiz_4dashes * 60)
+					txt += epi.format (
+						left_margin = 1,
+						patient = self.__pat,
+						with_summary = False,
+						with_codes = False,
+						with_encounters = False,
+						with_documents = False,
+						with_hospital_stays = False,
+						with_procedures = False,
+						with_family_history = False,
+						with_tests = False,
+						with_vaccinations = False,
+						with_health_issue = False
+					)
+					txt += u'\n'
+					txt += epi.format_as_journal(left_margin = 2)
 			self.__img_display.clear()
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
