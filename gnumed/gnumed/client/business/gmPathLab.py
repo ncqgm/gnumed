@@ -895,42 +895,6 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_request'
 	]
 	#--------------------------------------------------------
-#	def format_old(self, with_review=True, with_comments=True, date_format='%Y-%m-%d %H:%M'):
-#
-#		lines = []
-#
-#		lines.append(u' %s %s (%s): %s %s%s' % (
-#			self._payload[self._idx['clin_when']].strftime(date_format),
-#			self._payload[self._idx['unified_abbrev']],
-#			self._payload[self._idx['unified_name']],
-#			self._payload[self._idx['unified_val']],
-#			self._payload[self._idx['val_unit']],
-#			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)')
-#		))
-#
-#		if with_comments:
-#			if gmTools.coalesce(self._payload[self._idx['comment']], u'').strip() != u'':
-#				lines.append(_('   Doc: %s') % self._payload[self._idx['comment']].strip())
-#			if gmTools.coalesce(self._payload[self._idx['note_test_org']], u'').strip() != u'':
-#				lines.append(_('   MTA: %s') % self._payload[self._idx['note_test_org']].strip())
-#
-#		if with_review:
-#			if self._payload[self._idx['reviewed']]:
-#				if self._payload[self._idx['is_clinically_relevant']]:
-#					lines.append(u'   %s  %s: %s' % (
-#						self._payload[self._idx['last_reviewer']],
-#						self._payload[self._idx['last_reviewed']].strftime('%Y-%m-%d %H:%M'),
-#						gmTools.bool2subst (
-#							self._payload[self._idx['is_technically_abnormal']],
-#							_('abnormal and relevant'),
-#							_('normal but relevant')
-#						)
-#					))
-#			else:
-#				lines.append(_('   unreviewed'))
-#
-#		return lines
-	#--------------------------------------------------------
 	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, date_format='%Y %b %d %H:%M'):
 
 		# FIXME: add battery, request details
@@ -1211,25 +1175,25 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if self._payload[self._idx['val_normal_range']] is not None:
 			return self
 		cmd = u"""
-SELECT * from clin.v_test_results
-WHERE
-	pk_type = %(pk_type)s
-		AND
-	val_unit = %(unit)s
-		AND
-	(
-		(val_normal_min IS NOT NULL)
-			OR
-		(val_normal_max IS NOT NULL)
-			OR
-		(val_normal_range IS NOT NULL)
-	)
-ORDER BY
-	CASE
-		WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
-		ELSE %(clin_when)s - clin_when
-	END
-LIMIT 1"""
+			SELECT * from clin.v_test_results
+			WHERE
+				pk_type = %(pk_type)s
+					AND
+				val_unit = %(unit)s
+					AND
+				(
+					(val_normal_min IS NOT NULL)
+						OR
+					(val_normal_max IS NOT NULL)
+						OR
+					(val_normal_range IS NOT NULL)
+				)
+			ORDER BY
+				CASE
+					WHEN clin_when > %(clin_when)s THEN clin_when - %(clin_when)s
+					ELSE %(clin_when)s - clin_when
+				END
+			LIMIT 1"""
 		args = {
 			u'pk_type': self._payload[self._idx['pk_test_type']],
 			u'unit': self._payload[self._idx['val_unit']],
@@ -1418,6 +1382,16 @@ LIMIT 1"""
 		return None
 
 	formatted_abnormality_indicator = property(_get_formatted_abnormality_indicator, lambda x:x)
+	#--------------------------------------------------------
+	def _get_is_long_text(self):
+		if self._payload[self._idx['val_alpha']] is None:
+			return False
+		lines = gmTools.strip_empty_lines(text = self._payload[self._idx['val_alpha']], eol = u'\n', return_list = True)
+		if len(lines) > 4:
+			return True
+		return False
+
+	is_long_text = property(_get_is_long_text, lambda x:x)
 	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 

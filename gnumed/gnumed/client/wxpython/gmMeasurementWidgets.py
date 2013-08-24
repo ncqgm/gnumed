@@ -751,10 +751,23 @@ class cMeasurementsGrid(wx.grid.Grid):
 						missing_review = True
 
 				# can we display the full sub_result length ?
-				if len(sub_result['unified_val']) > 8:
-					tmp = u'%.7s%s' % (sub_result['unified_val'][:7], gmTools.u_ellipsis)
+				if sub_result.is_long_text:
+					lines = gmTools.strip_empty_lines (
+						text = sub_result['unified_val'],
+						eol = u'\n',
+						return_list = True
+					)
+					tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
 				else:
-					tmp = u'%.8s' % sub_result['unified_val'][:8]
+					val = gmTools.strip_empty_lines (
+						text = sub_result['unified_val'],
+						eol = u'\n',
+						return_list = False
+					).replace(u'\n', u'//')
+					if len(val) > 8:
+						tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
+					else:
+						tmp = u'%.8s' % val[:8]
 
 				# abnormal ?
 				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
@@ -880,10 +893,23 @@ class cMeasurementsGrid(wx.grid.Grid):
 						missing_review = True
 
 				# can we display the full sub_result length ?
-				if len(sub_result['unified_val']) > 8:
-					tmp = u'%.7s%s' % (sub_result['unified_val'][:7], gmTools.u_ellipsis)
+				if sub_result.is_long_text:
+					lines = gmTools.strip_empty_lines (
+						text = sub_result['unified_val'],
+						eol = u'\n',
+						return_list = True
+					)
+					tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
 				else:
-					tmp = u'%.8s' % sub_result['unified_val'][:8]
+					val = gmTools.strip_empty_lines (
+						text = sub_result['unified_val'],
+						eol = u'\n',
+						return_list = False
+					).replace(u'\n', u'//')
+					if len(val) > 8:
+						tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
+					else:
+						tmp = u'%.8s' % val[:8]
 
 				# abnormal ?
 				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
@@ -954,24 +980,28 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	def get_cell_tooltip(self, col=None, row=None):
 		try:
-			d = self.__cell_data[col][row]
+			cell_results = self.__cell_data[col][row]
 		except KeyError:
 			# FIXME: maybe display the most recent or when the most recent was ?
-			d = None
+			cell_results = None
 
-		if d is None:
+		if cell_results is None:
 			return u' '
 
 		is_multi_cell = False
-		if len(d) > 1:
+		if len(cell_results) > 1:
 			is_multi_cell = True
-		d = d[0]
+		result = cell_results[0]
 
 		tt = u''
 		# header
 		if is_multi_cell:
 			tt += _(u'Details of most recent (topmost) result !               \n')
-		tt += d.format(with_review = True, with_evaluation = True, with_ranges = True)
+		if result.is_long_text:
+			tt += gmTools.strip_empty_lines(text = result['val_alpha'], eol = u'\n', return_list = False)
+			return tt
+
+		tt += result.format(with_review = True, with_evaluation = True, with_ranges = True)
 		return tt
 	#------------------------------------------------------------
 	# internal helpers

@@ -733,6 +733,14 @@ def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=Tru
 
 	return eol.join(lines)
 #---------------------------------------------------------------------------
+def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
+	return strip_trailing_empty_lines (
+		lines = strip_leading_empty_lines(lines = lines, text = text, eol = eol, return_list = True),
+		text = None,
+		eol = eol,
+		return_list = return_list
+	)
+#---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
 	and most spaces in the text. Expects that existing line

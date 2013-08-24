@@ -43,6 +43,7 @@ IMPROVED: EMR browser: listing/editing switch button label
 IMPROVED: current_meds_tables/*_notes placeholder can now span pages
 IMPROVED: waiting list [thanks Jerzy]
 IMPROVED: streamlined form templates management
+IMPROVED: display of long-text test results
 
 ------------------------------------------------
 # rel-1-3-patches
