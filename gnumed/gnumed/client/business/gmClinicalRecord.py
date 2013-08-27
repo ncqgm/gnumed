@@ -356,9 +356,11 @@ class cClinicalRecord(object):
 
 		cmd = u"""
 			SELECT
-				c_vpn.*,
-				(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = c_vpn.soap_cat) AS soap_rank
-			FROM clin.v_pat_narrative c_vpn
+				c_vn.*,
+				c_scr.rank AS soap_rank
+			FROM
+				clin.v_narrative c_vn
+					LEFT JOIN clin.soap_cat_ranks c_scr on c_vn.soap_cat = c_scr.soap_cat
 			WHERE %s
 			ORDER BY date, soap_rank
 		""" % u' AND '.join(where_parts)
@@ -374,7 +376,7 @@ class cClinicalRecord(object):
 			filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
 
 		if providers is not None:
-			filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)
+			filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
 
 		return filtered_narrative
 	#--------------------------------------------------------
@@ -1953,13 +1955,12 @@ SELECT MIN(earliest) FROM (
 		args = {'pat': self.pk_patient}
 
 		if (issue_id is None) and (episode_id is None):
-
 			cmd = u"""
-SELECT * FROM clin.v_pat_encounters
-WHERE pk_patient = %(pat)s
-ORDER BY started DESC
-LIMIT 2
-"""
+				SELECT * FROM clin.v_pat_encounters
+				WHERE pk_patient = %(pat)s
+				ORDER BY started DESC
+				LIMIT 2
+			"""
 		else:
 			where_parts = []
 
@@ -1972,20 +1973,20 @@ LIMIT 2
 				args['epi'] = episode_id
 
 			cmd = u"""
-SELECT *
-FROM clin.v_pat_encounters
-WHERE
-	pk_patient = %%(pat)s
-		AND
-	pk_encounter IN (
-		SELECT distinct pk_encounter
-		FROM clin.v_pat_narrative
-		WHERE
-			%s
-	)
-ORDER BY started DESC
-LIMIT 2
-""" % u' AND '.join(where_parts)
+				SELECT *
+				FROM clin.v_pat_encounters
+				WHERE
+					pk_patient = %%(pat)s
+						AND
+					pk_encounter IN (
+						SELECT distinct pk_encounter
+						FROM clin.v_narrative
+						WHERE
+							%s
+					)
+				ORDER BY started DESC
+				LIMIT 2
+			""" % u' AND '.join(where_parts)
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 

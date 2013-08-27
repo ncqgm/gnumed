@@ -719,14 +719,14 @@ class cEmrExport:
                 txt += gmTools.wrap (
                     '%s %.8s: %s\n' % (
                         soap_entry['date'].strftime('%d.%m. %H:%M'),
-                        soap_entry['provider'],
+                        soap_entry['modified_by'],
                         soap_entry['narrative']
                     ), 75
                 )
 
 #                txt += (
  #                   (' ' * (left_margin+3)) +
-  #                  soap_entry['date'].strftime('%H:%M %.8s: ') % soap_entry['provider'] +
+  #                  soap_entry['date'].strftime('%H:%M %.8s: ') % soap_entry['modified_by'] +
    #                 soap_entry['narrative'].replace('\n', eol_w_margin) +
     #                '\n'
      #           )

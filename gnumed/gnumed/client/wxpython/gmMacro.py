@@ -61,7 +61,8 @@ _cfg = gmCfg2.gmCfgData()
 #=====================================================================
 # values for the following placeholders must be injected from the outside before
 # using them, in use they must conform to the "placeholder::::max length" syntax,
-# as long as they resolve to None they return themselves
+# as long as they resolve to None they return their respective names so the
+# developers can know which placeholder was not set
 _injectable_placeholders = {
 	u'form_name_long': None,
 	u'form_name_short': None,
@@ -1975,8 +1976,8 @@ if __name__ == '__main__':
 			#u'$<data_snippet::autograph-LMcC//path=<%s>//image/jpg//.jpg::250>$',
 			#u'$<current_meds::%s ($<lastname::::50>$)//select::>$',
 			#u'$<current_meds::%s//select::>$',
-			#u'$<soap_by_issue::soapu //%Y %b %d//%s::>$',
-			#u'$<soap_by_episode::soapu //%Y %b %d//%s::>$',
+			#u'$<soap_by_issue::soapu //%Y %b %d//%(narrative)s::1000>$',
+			#u'$<soap_by_episode::soapu //%Y %b %d//%(narrative)s::1000>$',
 			#u'$<documents::select//description//document %(clin_when)s: %(l10n_type)s// file: %(fullpath)s (<some path>/%(name)s)//~/gnumed/export/::>$',
 			#u'$<soap::soapu //%s::9999>$',
 			#u'$<soap::soapu //%(soap_cat)s: %(date)s | %(provider)s | %(narrative)s::9999>$'

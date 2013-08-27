@@ -111,7 +111,7 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 			columns = [_('when'), _('who'), _('type'), _('entry')],
 			choices = [
 				[	narr['date'].strftime('%x %H:%M'),
-					narr['provider'],
+					narr['modified_by'],
 					gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 					narr['narrative'].replace('\n', '/').replace('\r', '/')
 				] for narr in notes
@@ -485,7 +485,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
 			choices = [ [
 				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
-				narr['provider'],
+				narr['modified_by'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')
 			] for narr in narr_for_issue ],
@@ -612,7 +612,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 			columns = [_('When'), _('Who'), _('Type'), _('Entry')],
 			choices = [ [
 				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
-				narr['provider'],
+				narr['modified_by'],
 				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')
 			] for narr in narr_for_epi ],
@@ -821,7 +821,7 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self._LCTRL_items.set_columns([_('when'), _('who'), _('type'), _('entry')]) #, _('Episode'), u'', _('Health Issue')])
 		# FIXME: date used should be date of encounter, not date_modified
 		self._LCTRL_items.set_string_items (
-			items = [ [narr['date'].strftime('%x %H:%M'), narr['provider'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
+			items = [ [narr['date'].strftime('%x %H:%M'), narr['modified_by'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)

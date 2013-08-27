@@ -1840,7 +1840,7 @@ limit 1
 				txt = u'%s%s %.8s, %s %s' % (
 					u' ' * 40,
 					gmTools.u_box_horiz_light_heavy,
-					soap_entry['provider'],
+					soap_entry['modified_by'],
 					when,
 					gmTools.u_box_horiz_heavy_light
 				)

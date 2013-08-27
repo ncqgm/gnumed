@@ -1128,7 +1128,7 @@ if __name__ == "__main__":
 					# FIXME: add more data such as doctor sig
 					label_txt = default_labels[narrative['soap_cat']]
 				except:
-					label_txt = narrative['soap_cat']				
+					label_txt = narrative['soap_cat']
 				line = cSOAPLineDef()
 				line.label = label_txt
 				line.text = narrative['narrative']

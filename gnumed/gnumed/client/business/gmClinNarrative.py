@@ -62,17 +62,20 @@ gmDispatcher.connect(_on_soap_modified, u'clin.clin_narrative_mod_db')
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one clinical free text entry.
 	"""
-	_cmd_fetch_payload = u"select *, xmin_clin_narrative from clin.v_pat_narrative where pk_narrative = %s"
+	_cmd_fetch_payload = u"SELECT * FROM clin.v_narrative WHERE pk_narrative = %s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
 				narrative = %(narrative)s,
 				clin_when = %(date)s,
 				soap_cat = lower(%(soap_cat)s),
-				fk_encounter = %(pk_encounter)s
-			where
-				pk=%(pk_narrative)s and
-				xmin=%(xmin_clin_narrative)s""",
-		u"""select xmin_clin_narrative from clin.v_pat_narrative where pk_narrative=%(pk_narrative)s"""
+				fk_encounter = %(pk_encounter)s,
+				fk_episode = %(pk_episode)s
+			WHERE
+				pk = %(pk_narrative)s
+					AND
+				xmin = %(xmin_clin_narrative)s
+			RETURNING
+				xmin AS xmin_clin_narrative"""
 		]
 
 	_updatable_fields = [
@@ -92,7 +95,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 				text = _('%s: %s by %.8s (v%s)\n%s') % (
 					self._payload[self._idx['date']].strftime('%x %H:%M'),
 					soap_cat2l10n_str[self._payload[self._idx['soap_cat']]],
-					self._payload[self._idx['provider']],
+					self._payload[self._idx['modified_by']],
 					self._payload[self._idx['row_version']],
 					self._payload[self._idx['narrative']]
 				),
@@ -105,7 +108,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 				self._payload[self._idx['date']].strftime('%x %H:%M'),
 				soap_cat2l10n[self._payload[self._idx['soap_cat']]],
 				self._payload[self._idx['narrative']],
-				self._payload[self._idx['provider']]
+				self._payload[self._idx['modified_by']]
 			)
 			if len(txt) > width:
 				txt = txt[:width] + gmTools.u_ellipsis
@@ -225,7 +228,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	cmd = u"""
 		SELECT
 			*, xmin_clin_narrative
-		FROM clin.v_pat_narrative
+		FROM clin.v_narrative
 		WHERE
 			pk_encounter = %(enc)s
 				AND
@@ -256,8 +259,8 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 		 'args': [encounter_id, episode_id, narrative, soap_cat]
 		},
 		{'cmd': u"""
-			SELECT *, xmin_clin_narrative
-			FROM clin.v_pat_narrative
+			SELECT *
+			FROM clin.v_narrative
 			WHERE
 				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
 		}
@@ -319,11 +322,11 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 
 	cmd = u"""
 		SELECT
-			cvpn.*,
-			(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = cvpn.soap_cat)
-				AS soap_rank
+			c_vn.*,
+			c_scr.rank AS soap_rank
 		FROM
-			clin.v_pat_narrative cvpn
+			clin.v_narrative c_vn
+				LEFT JOIN clin.soap_cat_ranks c_scr ON c_vn.soap_cat = c_scr.soap_cat
 		WHERE
 			%s
 		%s
@@ -343,7 +346,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 		filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
 
 	if providers is not None:
-		filtered_narrative = filter(lambda narr: narr['provider'] in providers, filtered_narrative)
+		filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
 
 	return filtered_narrative
 

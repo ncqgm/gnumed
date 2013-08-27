@@ -1366,6 +1366,8 @@ Requires PostgreSQL 9.1 !
 
 FIX: disable faulty clin-encounter.sql in v4 -> v5
 
+NEW: view changes for Jerzy's plugins
+
 IMPROVED: much simplified table mod announcement signal
 IMPROVED: include FKs in schema version check
 IMPROVED: remove .ddd/.unit from ref.atc

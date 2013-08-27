@@ -9,6 +9,30 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- Check: ref.paperwork_templates_engine_check (add H: HTML and S: XSLT as possible values)'
+
+ALTER TABLE ref.paperwork_templates DROP CONSTRAINT if exists engine_range;
+ALTER TABLE ref.paperwork_templates DROP CONSTRAINT if exists ref_templates_engine_range;
+
+ALTER TABLE ref.paperwork_templates
+	ADD CONSTRAINT ref_templates_engine_range CHECK (
+		engine = ANY(ARRAY['T'::text, 'L'::text, 'H'::text, 'O'::text, 'I'::text, 'G'::text, 'P'::text, 'A'::text, 'X'::text, 'S'::text])
+	);
+
+COMMENT ON COLUMN ref.paperwork_templates.engine IS 'the business layer forms engine used to process this form,
+	currently:
+	- T: plain text (generic postprocessing)
+	- L: LaTeX
+	- H: HTML
+	- O: OpenOffice
+	- I: image editor (visual progress notes)
+	- G: gnuplot scripts (test results graphing)
+	- P: PDF form (FDF based)
+	- A: AbiWord
+	- X: Xe(La)TeX
+	- S: XSLT';
+
+-- --------------------------------------------------------------
 -- .edit_after_substitution
 comment on column ref.paperwork_templates.edit_after_substitution is
 	'Whether to offer last-minute, manual, generic editing inbetween placeholder substitution and final output generation.';

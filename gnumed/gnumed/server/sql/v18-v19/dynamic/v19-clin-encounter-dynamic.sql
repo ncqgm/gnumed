@@ -76,7 +76,18 @@ select
 		ARRAY[]::integer[]
 	)
 		as pk_generic_codes_aoe,
-	c_enc.xmin as xmin_encounter
+	c_enc.xmin
+		as xmin_encounter,
+	-- needed by Jerzy's enhancements:
+	c_enc.row_version,
+	c_enc.pk_audit,
+	c_enc.modified_when,
+	c_enc.modified_by
+		as modified_by_raw,
+	coalesce (
+		(select staff.short_alias from dem.staff where staff.db_user = c_enc.modified_by),
+		'<'::text || c_enc.modified_by::text || '>'::text
+	) AS modified_by
 from
 	clin.encounter c_enc
 		left join clin.encounter_type c_et on (c_enc.fk_type = c_et.pk)
