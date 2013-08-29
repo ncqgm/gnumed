@@ -955,9 +955,10 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 		wx.ListCtrl.__init__(self, *args, **kwargs)
 		listmixins.ListCtrlAutoWidthMixin.__init__(self)
 
-		# required for column sorting, MUST have this name
+		# required for column sorting
 		self._invalidate_sorting_metadata()					# must be called after each (external/direct) list item update
 		listmixins.ColumnSorterMixin.__init__(self, 0)		# must be called again after adding columns (why ?)
+		self.__secondary_sort_col = None
 		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
@@ -1459,6 +1460,24 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		col_state.m_text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
 	#------------------------------------------------------------
+	def GetSecondarySortValues(self, primary_sort_col, item1_idx, item2_idx):
+		if self.__secondary_sort_col is None:
+			return (item1_idx, item2_idx)
+		if self.__secondary_sort_col == primary_sort_col:
+			return (item1_idx, item2_idx)
+		val1 = self.itemDataMap[item1_idx][self.__secondary_sort_col]
+		val2 = self.itemDataMap[item2_idx][self.__secondary_sort_col]
+		order = cmp(val1, val2)
+		if order == 0:
+			return (item1_idx, item2_idx)
+		# make the secondary column always sort ascending
+		currently_ascending = self._colSortFlag[primary_sort_col]
+		if currently_ascending:
+			val1, val2 = min(val1, val2), max(val1, val2)
+		else:
+			val1, val2 = max(val1, val2), min(val1, val2)
+		return (val1, val2)
+	#------------------------------------------------------------
 	def _generate_map_for_sorting(self):
 		dict2sort = {}
 		item_count = self.GetItemCount()
@@ -1489,6 +1508,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self._cleanup_column_headers()
 	#------------------------------------------------------------
 	def _update_sorting_metadata(self):
+		# MUST have this name
 		self.itemDataMap = self._generate_map_for_sorting()
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
@@ -1499,6 +1519,19 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# print self._colSortFlag
 		# print self.itemDataMap
 		event.Skip()
+	#------------------------------------------------------------
+	def __get_secondary_sort_col(self):
+		return self.__secondary_sort_col
+
+	def __set_secondary_sort_col(self, col):
+		if col is None:
+			self.__secondary_sort_col = None
+			return
+		if col > self.GetColumnCount():
+			raise ValueError('cannot secondary-sort on col [%s], there are only [%s] columns', col, self.GetColumnCount())
+		self.__secondary_sort_col = col
+
+	secondary_sort_column = property(__get_secondary_sort_col, __set_secondary_sort_col)
 
 #================================================================
 # main
