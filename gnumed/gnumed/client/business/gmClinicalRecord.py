@@ -347,7 +347,7 @@ class cClinicalRecord(object):
 			args['encs'] = tuple(encounters)
 
 		if soap_cats is not None:
-			where_parts.append(u'soap_cat IN %(cats)s')
+			where_parts.append(u'c_vn.soap_cat IN %(cats)s')
 			soap_cats = list(soap_cats)
 			args['cats'] = [ cat.lower() for cat in soap_cats if cat is not None ]
 			if None in soap_cats:

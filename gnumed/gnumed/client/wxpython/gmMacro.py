@@ -105,8 +105,8 @@ known_variant_placeholders = [
 	u'adr_region',
 	u'adr_country',
 
-	u'patient_comm',						# args: <comm channel type as per database>//<%(key)s-template>
-	u'patient_tags',						# "args" holds: <%(key)s-template>//<separator>
+	u'patient_comm',						# args: <comm channel type as per database>//<%(field)s-template>
+	u'patient_tags',						# "args" holds: <%(field)s-template>//<separator>
 #	u'patient_tags_table',					# "args" holds: no args
 
 	u'patient_photo',						# args: <template>//<optional target mime type>//<optional target extension>
@@ -152,7 +152,6 @@ known_variant_placeholders = [
 											#	line length:   the maximum length of individual lines, not the total placeholder length
 											#	time range:		the number of weeks going back in time if given as a single number,
 											#					or else it must be a valid PostgreSQL interval definition (w/o the ::interval)
-											#	target format: "tex" or anything else, if "tex", data will be tex-escaped	(currently only "latex")
 
 	u'current_meds',						# "args" holds: line template//<select>
 											#	<select>: if this is present the user will be asked which meds to export
@@ -167,16 +166,16 @@ known_variant_placeholders = [
 	u'current_meds_notes',					# "args" holds: format, options
 
 	u'lab_table',							# "args" holds: format (currently "latex" only)
-	u'test_results',						# "args":			<%(key)s-template>//<date format>//<line separator (EOL)>
+	u'test_results',						# "args":			<%(field)s-template>//<date format>//<line separator (EOL)>
 
-	u'latest_vaccs_table',					# "args" holds: format, options
-	u'vaccination_history',					# "args": <%(key)s-template//date format> to format one vaccination per line
+	u'latest_vaccs_table',					# "args": empty
+	u'vaccination_history',					# "args": <%(field)s-template//date format> to format one vaccination per line
 
 	u'allergy_state',						# args: no args needed
 	u'allergies',							# "args" holds: line template, one allergy per line
 	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
 	u'problems',							# "args" holds: line template, one problem per line
-	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format//escape style (latex, currently)
+	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format
 	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
 
 	u'documents',							# "args" format:	<select>//<description>//<template>//<path template>//<path>
@@ -586,7 +585,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = u'%s'
 		interactive = True
 		line_length = 9999
-		target_format = None
 		time_range = None
 
 		if data is not None:
@@ -622,10 +620,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					#time_range = None			# infinite
 					# pass on literally, meaning it must be a valid PG interval string
 					time_range = data_parts[3]
-
-			# part[4]: output format
-			if len(data_parts) > 4:
-				target_format = data_parts[4]
 
 		# FIXME: will need to be a generator later on
 		narr = self.pat.emr.get_as_journal(soap_cats = cats, time_range = time_range)
@@ -749,7 +743,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 1:
 				template = data_parts[1]
 
-		narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
+		#narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
+		narr = gmNarrativeWidgets.select_narrative(soap_cats = cats)
 
 		if narr is None:
 			return u''
@@ -757,7 +752,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(narr) == 0:
 			return u''
 
-		# if any "%s" is in the template there cannot be any %(key)s
+		# if any "%s" is in the template there cannot be any %(field)s
 		# and we also restrict the fields to .narrative (this is the
 		# old placeholder behaviour
 		if u'%s' in template:
@@ -770,7 +765,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		except KeyError:
 			return u'invalid key in template [%s], valid keys: %s]' % (template, str(narr[0].keys()))
 		except TypeError:
-			return u'cannot mix "%%s" and "%%(key)s" in template [%s]' % template
+			return u'cannot mix "%%s" and "%%(field)s" in template [%s]' % template
 
 		return u'\n'.join(narr)
 	#--------------------------------------------------------
@@ -1246,8 +1241,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return u'\n'.join([ template % m.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for m in current_meds ])
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
-		options = data.split('//')
-
 		return gmMedication.format_substance_intake (
 			emr = self.pat.emr,
 			output_format = self.__esc_style,
@@ -1255,8 +1248,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_notes(self, data=None):
-		options = data.split('//')
-
 		return gmMedication.format_substance_intake_notes (
 			emr = self.pat.get_emr(),
 			output_format = self.__esc_style,
@@ -1264,8 +1255,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		)
 	#--------------------------------------------------------
 	def _get_variant_lab_table(self, data=None):
-		options = data.split('//')
-
 		return gmPathLab.format_test_results (
 			results = self.pat.emr.get_test_results_by_date(),
 			output_format = self.__esc_style
@@ -1304,8 +1293,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return separator.join([ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in results ])
 	#--------------------------------------------------------
 	def _get_variant_latest_vaccs_table(self, data=None):
-		options = data.split('//')
-
 		return gmVaccination.format_latest_vaccinations (
 			output_format = self.__esc_style,
 			emr = self.pat.emr
@@ -1337,12 +1324,10 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		template = u'%s'
 		separator = u'\n'
 		date_format = '%Y %b %d'
-		esc_style = None
 		try:
 			template = data_parts[0]
 			separator = data_parts[1]
 			date_format = data_parts[2]
-			esc_style = data_parts[3]
 		except IndexError:
 			pass
 
@@ -1355,7 +1340,6 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return separator.join ([
 			template % phx.fields_as_dict (
 				date_format = date_format,
-				#escape_style = esc_style,
 				escape_style = self.__esc_style,
 				bool_strings = (self._escape(_('yes')), self._escape(_('no')))
 			) for phx in phxs
@@ -1943,7 +1927,7 @@ if __name__ == '__main__':
 
 		phs = [
 			#u'emr_journal::soapu //%(clin_when)s  %(modified_by)s  %(soap_cat)s  %(narrative)s//1000 days::',
-			#u'free_text::tex//placeholder test::9999',
+			#u'free_text::placeholder test::9999',
 			#u'soap_for_encounters:://::9999',
 			#u'soap_p',
 			#u'encounter_list::%(started)s: %(assessment_of_encounter)s::30',

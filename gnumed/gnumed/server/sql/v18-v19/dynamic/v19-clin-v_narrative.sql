@@ -23,6 +23,10 @@ select
 	) as modified_by,
 	c_n.soap_cat as soap_cat,
 	c_n.narrative as narrative,
+	c_epi.description
+		as episode,
+	c_hi.description
+		as health_issue,
 	c_n.pk_item as pk_item,
 	c_n.pk
 		as pk_narrative,
@@ -43,6 +47,7 @@ from
 	clin.clin_narrative c_n
 		left join clin.encounter c_enc on c_n.fk_encounter = c_enc.pk
 			left join clin.episode c_epi on c_n.fk_episode = c_epi.pk
+				left join clin.health_issue c_hi on c_epi.fk_health_issue = c_hi.pk
 ;
 
 

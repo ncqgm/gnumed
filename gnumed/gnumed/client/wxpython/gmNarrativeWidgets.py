@@ -435,6 +435,51 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 
 	wx.EndBusyCursor()
 	return True
+
+#------------------------------------------------------------
+def select_narrative(parent=None, soap_cats=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if soap_cats is None:
+		soap_cats = u'soapu'
+	soap_cats = list(soap_cats)
+	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+
+	#-----------------------------------------------
+	def get_tooltip(soap):
+		return soap.format(fancy = True, width = 60)
+	#-----------------------------------------------
+	def refresh(lctrl):
+		lctrl.secondary_sort_column = 0
+		soap = emr.get_clin_narrative(soap_cats = soap_cats)
+		lctrl.set_string_items ([ [
+			gmDateTime.pydt_strftime(s['date'], '%Y %m %d'),
+			s['modified_by'],
+			gmClinNarrative.soap_cat2l10n[s['soap_cat']],
+			s['narrative'],
+			s['episode'],
+			s['health_issue']
+		] for s in soap ])
+		lctrl.set_data(soap)
+	#-----------------------------------------------
+	return gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('Pick the [%s] narrative you want to use.') % u'/'.join(i18n_soap_cats),
+		caption = _('Picking [%s] narrative') % (u'/'.join(i18n_soap_cats)),
+		columns = [_('When'), _('Who'), _('Type'), _('Entry'), _('Episode'), _('Issue')],
+		#selections=None,
+		#edit_callback=None,
+		single_selection = False,
+		can_return_empty = False,
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip
+	)
+
 #------------------------------------------------------------
 def select_narrative_by_issue(parent=None, soap_cats=None):
 
@@ -2746,6 +2791,15 @@ if __name__ == '__main__':
 		for sel in sels:
 			print sel
 	#----------------------------------------
+	def test_select_narrative():
+		pat = gmPersonSearch.ask_for_patient()
+		set_active_patient(patient = pat)
+		app = wx.PyWidgetTester(size = (200, 200))
+		sels = select_narrative(parent=None, soap_cats = None)
+		print "selected:"
+		for sel in sels:
+			print sel
+	#----------------------------------------
 	def test_cSoapNoteExpandoEditAreaPnl():
 		pat = gmPersonSearch.ask_for_patient()
 		application = wx.PyWidgetTester(size=(800,500))
@@ -2766,7 +2820,8 @@ if __name__ == '__main__':
 		soap_input._schedule_data_reget()
 		application.MainLoop()
 	#----------------------------------------
-	test_select_narrative_from_episodes()
+	#test_select_narrative_from_episodes()
+	test_select_narrative()
 	#test_cSoapNoteExpandoEditAreaPnl()
 	#test_cSoapPluginPnl()
 

@@ -226,9 +226,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	# FIXME: this should check for .provider = current_user but
 	# FIXME: the view has provider mapped to their staff alias
 	cmd = u"""
-		SELECT
-			*, xmin_clin_narrative
-		FROM clin.v_narrative
+		SELECT * FROM clin.v_narrative
 		WHERE
 			pk_encounter = %(enc)s
 				AND
@@ -312,7 +310,7 @@ def get_narrative(since=None, until=None, encounters=None, episodes=None, issues
 		args['pat'] = patient
 
 	if soap_cats is not None:
-		where_parts.append(u'soap_cat IN %(soap_cats)s')
+		where_parts.append(u'c_vn.soap_cat IN %(soap_cats)s')
 		args['soap_cats'] = tuple(soap_cats)
 
 	if order_by is None:
