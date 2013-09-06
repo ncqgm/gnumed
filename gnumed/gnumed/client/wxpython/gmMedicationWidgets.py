@@ -1349,11 +1349,7 @@ def manage_substance_intakes(parent=None, emr=None):
 		)
 		items = []
 		for i in intakes:
-			if i['started'] is None:
-				started = u''
-			else:
-				#started = u'%s:' % gmDateTime.pydt_strftime(i['started'], '%Y %b %d')
-				started = i.medically_formatted_start
+			started = i.medically_formatted_start
 			items.append ([
 				u'%s%s %s %s %s%s' % (
 					i['substance'],
@@ -2465,7 +2461,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		for col_idx in range(len(labels)):
 			self.SetColLabelValue(col_idx, labels[col_idx])
 		if self.__filter_show_unapproved:
-			self.SetColLabelValue(len(labels), u'OK?')
+			#self.SetColLabelValue(len(labels), u'OK?')
+			self.SetColLabelValue(len(labels), u'')
 			self.SetColSize(len(labels), 40)
 
 		self.AppendRows(numRows = len(meds))
@@ -2513,7 +2510,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
@@ -2560,7 +2556,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
@@ -2617,7 +2612,6 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
 				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
-				#self.SetCellValue(row_idx, 4, med['started'].strftime('%Y-%m-%d'))
 				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
 				if med['is_long_term']:
@@ -2650,8 +2644,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue (
 					row_idx,
 					len(labels),
-					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
+					#gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, u'', u'?')
+					gmTools.bool2subst(med['intake_is_approved_of'], gmTools.u_checkmark_thin, gmTools.u_frowning_face, u'?')
 				)
+				font = self.GetCellFont(row_idx, len(labels))
+				font.SetPointSize(font.GetPointSize() + 2)
+				self.SetCellFont(row_idx, len(labels), font)
 
 			#self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 

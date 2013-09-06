@@ -1796,7 +1796,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 		line = u'%s%s (%s %s): %s %s%s %s (%s)' % (
 			u' ' * left_margin,
-			gmDateTime.pydt_strftime(self._payload[self._idx['started']], date_format),
+			self.medically_formatted_start,
 			gmTools.u_right_arrow,
 			duration,
 			self._payload[self._idx['substance']],
@@ -1876,11 +1876,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
 
 		txt += _(' Started %s%s%s\n') % (
-			gmDateTime.pydt_strftime (
-				self._payload[self._idx['started']],
-				format = date_format,
-				accuracy = gmDateTime.acc_days
-			),
+			self.medically_formatted_start,
 			duration,
 			gmTools.bool2subst(self._payload[self._idx['is_long_term']], _(' (long-term)'), _(' (short-term)'), u'')
 		)
@@ -1971,32 +1967,30 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	containing_drug = property(_get_containing_drug, lambda x:x)
 	#--------------------------------------------------------
 	def _get_medically_formatted_start(self):
+		if self._payload[self._idx['started']] is None:
+			return u''
+
 		duration_taken = gmDateTime.pydt_now_here() - self._payload[self._idx['started']]
 
-		three_weeks = pydt.timedelta(weeks = 3, days = 1)
-		if duration_taken < three_weeks:
-			return _('%s (%s ago)') % (
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d'),
+		three_months = pydt.timedelta(weeks = 13, days = 3)
+		if duration_taken < three_months:
+			return _('%s: %s ago') % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', u'utf8', gmDateTime.acc_days),
 				gmDateTime.format_interval_medically(duration_taken)
 			)
 
-		nine_weeks = pydt.timedelta(weeks = 9)
-		if duration_taken < nine_weeks:
-			return _('%s ago (%s)') % (
+		five_years = pydt.timedelta(weeks = 265)
+		if duration_taken < five_years:
+			return _('%s: %s ago (%s)') % (
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', u'utf8', gmDateTime.acc_months),
 				gmDateTime.format_interval_medically(duration_taken),
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d')
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days)
 			)
 
-		one_year = pydt.timedelta(weeks = 52, days = 1)
-		if duration_taken < one_year:
-			return _('%s ago (%s)') % (
-				gmDateTime.format_interval_medically(duration_taken),
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %Y')
-			)
-
-		return _('%s ago (%s)') % (
+		return _('%s: %s ago (%s)') % (
+			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', u'utf8', gmDateTime.acc_years),
 			gmDateTime.format_interval_medically(duration_taken),
-			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y')
+			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_years)
 		)
 
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)

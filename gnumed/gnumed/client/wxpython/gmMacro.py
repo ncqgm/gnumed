@@ -1192,6 +1192,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		intakes2show = {}
 		for intake in current_meds:
 			fields_dict = intake.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
+			fields_dict['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
 			if intake['pk_brand'] is None:
 				fields_dict['brand'] = self._escape(_('generic %s') % fields_dict['substance'])
 				fields_dict['contains'] = self._escape(u'%s %s%s' % (fields_dict['substance'], fields_dict['amount'], fields_dict['unit']))
@@ -1238,7 +1239,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(current_meds) == 0:
 				return u''
 
-		return u'\n'.join([ template % m.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for m in current_meds ])
+		lines = []
+		for m in current_meds:
+			data = m.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
+			data['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
+			lines.append(template % data)
+
+		return u'\n'.join(lines)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_table(self, data=None):
 		return gmMedication.format_substance_intake (

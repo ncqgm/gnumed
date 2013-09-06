@@ -39,7 +39,7 @@ alter table clin.test_type drop constraint clin_test_type_uniq_abbrev_per_org ca
 
 alter table clin.test_type
 	add constraint clin_test_type_uniq_abbrev_per_org
-		unique(fk_test_org, name)
+		unique(fk_test_org, abbrev)
 ;
 
 -- --------------------------------------------------------------
