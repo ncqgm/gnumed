@@ -437,7 +437,7 @@ def export_narrative_for_medistar_import(parent=None, soap_cats=u'soapu', encoun
 	return True
 
 #------------------------------------------------------------
-def select_narrative(parent=None, soap_cats=None):
+def select_narrative(parent=None, soap_cats=None, msg=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	emr = pat.get_emr()
@@ -449,6 +449,9 @@ def select_narrative(parent=None, soap_cats=None):
 		soap_cats = u'soapu'
 	soap_cats = list(soap_cats)
 	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+
+	if msg is None:
+		msg = _('Pick the [%s] narrative you want to use.') % u'/'.join(i18n_soap_cats)
 
 	#-----------------------------------------------
 	def get_tooltip(soap):
@@ -469,11 +472,9 @@ def select_narrative(parent=None, soap_cats=None):
 	#-----------------------------------------------
 	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('Pick the [%s] narrative you want to use.') % u'/'.join(i18n_soap_cats),
+		msg = msg,
 		caption = _('Picking [%s] narrative') % (u'/'.join(i18n_soap_cats)),
 		columns = [_('When'), _('Who'), _('Type'), _('Entry'), _('Episode'), _('Issue')],
-		#selections=None,
-		#edit_callback=None,
 		single_selection = False,
 		can_return_empty = False,
 		refresh_callback = refresh,

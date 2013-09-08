@@ -71,149 +71,152 @@ _injectable_placeholders = {
 
 
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
-known_variant_placeholders = [
+__known_variant_placeholders = {
 	# generic:
-	u'free_text',							# show a dialog for entering some free text
-											# args: <message> shown in input dialog, must not contain "//" or "::"
-	u'text_snippet',						# a text snippet, taken from the keyword expansion mechanism
-											# args: <snippet name>//<template>
-	u'data_snippet',						# a binary snippet, taken from the keyword expansion mechanism
-											# args: <snippet name>//<template>//<optional target mime type>//<optional target extension>
-											# returns full path to an exported copy of the
-											# data rather than the data itself,
-											#	template: string template for outputting the path
-											#	target mime type: a mime type into which to convert the image, no conversion if not given
-											#	target extension: target file name extension, derived from target mime type if not given
-	u'tex_escape',							# "args" holds: string to escape
-	u'today',								# "args" holds: strftime format
-	u'gender_mapper',						# "args" holds: <value when person is male> // <is female> // <is other>
-											#				eg. "male//female//other"
-											#				or: "Lieber Patient//Liebe Patientin"
-	u'client_version',						# the version of the current client as a string (no "v" in front)
+	u'free_text': u"""show a dialog for entering some free text:
+		args: <message> shown in input dialog, must not contain '//' or '::'""",
+	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
+		args: <snippet name>//<template>""",
+	u'data_snippet': u"""a binary snippet, taken from the keyword expansion mechanism:
+		args: <snippet name>//<template>//<optional target mime type>//<optional target extension>
+		returns full path to an exported copy of the
+		data rather than the data itself,
+		template: string template for outputting the path
+		target mime type: a mime type into which to convert the image, no conversion if not given
+		target extension: target file name extension, derived from target mime type if not given
+	""",
+	u'tex_escape': u"args: string to escape",
+	u'today': u"args: strftime format",
+	u'gender_mapper': u"""maps gender of patient to a string:
+		args: <value when person is male> // <is female> // <is other>
+		eg. 'male//female//other'
+		or: 'Lieber Patient//Liebe Patientin'""",
+	u'client_version': u"the version of the current client as a string (no 'v' in front)",
+
 
 	# patient demographics:
-	u'name',								# args: template for name parts arrangement
-	u'date_of_birth',						# args: strftime date/time format directive
+	u'name': u"args: template for name parts arrangement",
+	u'date_of_birth': u"args: strftime date/time format directive",
 
-	u'patient_address',						# args: <type of address>//<optional formatting template>
-	u'adr_street',							# args: <type of address>
-	u'adr_number',
-	u'adr_subunit',
-	u'adr_location',
-	u'adr_suburb',
-	u'adr_postcode',
-	u'adr_region',
-	u'adr_country',
+	u'patient_address': u"args: <type of address>//<optional formatting template>",
+	u'adr_street': u"args: <type of address>, cached per type",
+	u'adr_number': u"args: <type of address>, cached per type",
+	u'adr_subunit': u"args: <type of address>, cached per type",
+	u'adr_location': u"args: <type of address>, cached per type",
+	u'adr_suburb': u"args: <type of address>, cached per type",
+	u'adr_postcode': u"args: <type of address>, cached per type",
+	u'adr_region': u"args: <type of address>, cached per type",
+	u'adr_country': u"args: <type of address>, cached per type",
 
-	u'patient_comm',						# args: <comm channel type as per database>//<%(field)s-template>
-	u'patient_tags',						# "args" holds: <%(field)s-template>//<separator>
-#	u'patient_tags_table',					# "args" holds: no args
-
-	u'patient_photo',						# args: <template>//<optional target mime type>//<optional target extension>
-											# returns full path to an exported copy of the
-											# image rather than the image data itself,
-											# returns u'' if no mugshot available,
-											#	template: string template for outputting the path
-											#	target mime type: a mime type into which to convert the image, no conversion if not given
-											#	target extension: target file name extension, derived from target mime type if not given
-
-	u'external_id',							# args: <type of ID>//<issuer of ID>
+	u'patient_comm': u"args: <comm channel type as per database>//<%(field)s-template>",
+	u'patient_tags': u"args: <%(field)s-template>//<separator>",
+	#u'patient_tags_table': u"no args",
+	u'patient_photo': u"""outputs URL to exported patient photo:
+		args: <template>//<optional target mime type>//<optional target extension>,
+		returns full path to an exported copy of the
+		image rather than the image data itself,
+		returns u'' if no mugshot available,
+		template: string template for outputting the path
+		target mime type: a mime type into which to convert the image, no conversion if not given
+		target extension: target file name extension, derived from target mime type if not given""",
+	u'external_id': u"args: <type of ID>//<issuer of ID>",
 
 
 	# clinical record related:
-	u'soap',
-	u'soap_s',
-	u'soap_o',
-	u'soap_a',
-	u'soap_p',
-	u'soap_u',
-	u'soap_admin',							# get all or subset of SOAPU/ADMIN, no template in args needed
-	u'progress_notes',						# "args" holds: categories//template
-											# 	categories: string with 'soapu '; ' ' == None == admin
-											#	template:	u'something %s something'		(do not include // in template !)
+	u'soap': u"get all of SOAPU/ADMIN, no template in args needed",
+	u'soap_s': u"get subset of SOAPU/ADMIN, no template in args needed",
+	u'soap_o': u"get subset of SOAPU/ADMIN, no template in args needed",
+	u'soap_a': u"get subset of SOAPU/ADMIN, no template in args needed",
+	u'soap_p': u"get subset of SOAPU/ADMIN, no template in args needed",
+	u'soap_u': u"get subset of SOAPU/ADMIN, no template in args needed",
+	u'soap_admin': u"get subset of SOAPU/ADMIN, no template in args needed",
 
-	u'soap_for_encounters',					# lets the user select a list of encounters for which
-											# LaTeX formatted progress notes are emitted:
-											# "args": soap categories // strftime date format
+	u'progress_notes': u"""get progress notes:
+		args: categories//template
+		categories: string with 'soapu '; ' ' == None == admin
+		template:	u'something %s something'		(do not include // in template !)""",
 
-	u'soap_by_issue',						# lets the user select a list of issues and
-											# then SOAP entries from those issues
-											# "args": soap categories // strftime date format // template
+	u'soap_for_encounters': u"""lets the user select a list of encounters for which:
+		LaTeX formatted progress notes are emitted,
+		args: soap categories // strftime date format""",
 
-	u'soap_by_episode',						# lets the user select a list of issues and
-											# then SOAP entries from those issues
-											# "args": soap categories // strftime date format // template
+	u'soap_by_issue': u"""lets the user select a list of issues and then SOAP entries from those issues:
+		args: soap categories // strftime date format // template""",
 
-	u'emr_journal',							# "args" format:   <categories>//<template>//<line length>//<time range>//<target format>
-											#	categories:	   string with any of "s", "o", "a", "p", "u", " ";
-											#				   (" " == None == admin category)
-											#	template:	   something %s something else
-											#				   (Do not include // in the template !)
-											#	line length:   the maximum length of individual lines, not the total placeholder length
-											#	time range:		the number of weeks going back in time if given as a single number,
-											#					or else it must be a valid PostgreSQL interval definition (w/o the ::interval)
+	u'soap_by_episode': u"""lets the user select a list of episodes and then SOAP entries from those episodes:
+		args: soap categories // strftime date format // template""",
 
-	u'current_meds',						# "args" holds: line template//<select>
-											#	<select>: if this is present the user will be asked which meds to export
-	u'current_meds_for_rx',					# formats substance intakes either by substance (non-brand intakes or by
-											# brand (once per brand intake, even if multi-component)
-											# args: <line template>
-											#	<line_template>: template into which to insert each intake, keys from
-											#	                 clin.v_substance_intakes, special additional keys:
-											#	                 %(contains)s -- list of components
-											#	                 %(amount2dispense)s -- how much/many to dispense
-	u'current_meds_table',					# "args" holds: format, options
-	u'current_meds_notes',					# "args" holds: format, options
+	u'emr_journal': u"""returns EMR journal view entries:
+		args format:   <categories>//<template>//<line length>//<time range>//<target format>
+		categories:	   string with any of "s", "o", "a", "p", "u", " "; (" " == None == admin category)
+		template:	   something %s something else (Do not include // in the template !)
+		line length:   the maximum length of individual lines, not the total placeholder length
+		time range:		the number of weeks going back in time if given as a single number, or else it must be a valid PostgreSQL interval definition (w/o the ::interval)""",
 
-	u'lab_table',							# "args" holds: format (currently "latex" only)
-	u'test_results',						# "args":			<%(field)s-template>//<date format>//<line separator (EOL)>
+	u'current_meds': u"""returns current medications:
+		args: line template//<select>
+		<select>: if this is present the user will be asked which meds to export""",
 
-	u'latest_vaccs_table',					# "args": empty
-	u'vaccination_history',					# "args": <%(field)s-template//date format> to format one vaccination per line
+	u'current_meds_for_rx': u"""formats substance intakes either by substance (non-brand intakes or by brand (once per brand intake, even if multi-component):
+		args: <line template>
+		<line_template>: template into which to insert each intake, keys from
+		clin.v_substance_intakes, special additional keys:
+			%(contains)s -- list of components
+			%(amount2dispense)s -- how much/many to dispense""",
 
-	u'allergy_state',						# args: no args needed
-	u'allergies',							# "args" holds: line template, one allergy per line
-	u'allergy_list',						# "args" holds: template per allergy, allergies on one line
-	u'problems',							# "args" holds: line template, one problem per line
-	u'PHX',									# Past medical HiXtory, "args" holds: line template//separator//strftime date format
-	u'encounter_list',						# "args" holds: per-encounter template, each ends up on one line
+	u'current_meds_table': u"emits a LaTeX table, no arguments",
+	u'current_meds_notes': u"emits a LaTeX table, no arguments",
+	u'lab_table': u"emits a LaTeX table, no arguments",
+	u'test_results': u"args: <%(field)s-template>//<date format>//<line separator (EOL)>",
+	u'latest_vaccs_table': u"emits a LaTeX table, no arguments",
+	u'vaccination_history': u"args: <%(field)s-template//date format> to format one vaccination per line",
+	u'allergy_state': u"no arguments",
+	u'allergies': u"args: line template, one allergy per line",
+	u'allergy_list': u"args holds: template per allergy, all allergies on one line",
+	u'problems': u"args holds: line template, one problem per line",
+	u'PHX': u"Past medical HiXtory; args: line template//separator//strftime date format",
+	u'encounter_list': u"args: per-encounter template, each ends up on one line",
 
-	u'documents',							# "args" format:	<select>//<description>//<template>//<path template>//<path>
-											#	select:			let user select which documents to include,
-											#					optional, if not given: all documents included
-											#	description:	whether to include descriptions, optional
-											#	template:		something %(field)s something else,
-											#					(do not include "//" itself in the template),
-											#	path template:	the template for outputting the path to exported
-											#					copies of the document pages, if not given no pages
-											#					are exported, this template can contain "%(name)s"
-											#					and/or "%(fullpath)s" which is replaced by the
-											#					appropriate value for each exported file
-											#	path:			into which path to export copies of the document pages,
-											#					temp dir if not given
+	u'documents': u"""retrieves documents from the archive:
+		args:	<select>//<description>//<template>//<path template>//<path>
+		select:	let user select which documents to include, optional, if not given: all documents included
+		description:	whether to include descriptions, optional
+		template:	something %(field)s something else (do not include '//' or '::' itself in the template)
+		path template:	the template for outputting the path to exported
+			copies of the document pages, if not given no pages are exported,
+			this template can contain "%(name)s" and/or "%(fullpath)s" which 
+			is replaced by the appropriate value for each exported file
+		path:	into which path to export copies of the document pages, temp dir if not given""",
 
-	u'reminders',							# "args":			<template>//<date format>
-											#	template:		something %(field)s something else,
-											#					(do not include "//" itself in the template)
+	u'reminders': u"""patient reminders:
+		args:	<template>//<date format>
+		template:	something %(field)s something else (do not include '//' or '::' itself in the template)""",
+
 
 	# provider related:
-	u'current_provider',					# args: no args needed
-	u'current_provider_external_id',		# args: <type of ID>//<issuer of ID>
-	u'primary_praxis_provider',				# primary provider for current patient in this praxis
-	u'primary_praxis_provider_external_id',	# args: <type of ID>//<issuer of ID>
+	u'current_provider': u"no arguments",
+	u'current_provider_external_id': u"args: <type of ID>//<issuer of ID>",
+	u'primary_praxis_provider': u"primary provider for current patient in this praxis",
+	u'primary_praxis_provider_external_id': u"args: <type of ID>//<issuer of ID>",
+
 
 	# praxis related:
-	u'praxis',								# args: <template>//select
-											#	template:		something %(field)s something else,
-											#					(do not include "//" itself in the template),
-											#	select:			if this is present allow selection of the
-											#					branch rather than using the current branch
-	u'praxis_address',						# args: <optional formatting template>
+	u'praxis': u"""retrieve current branch of your praxis:
+		args: <template>//select
+		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
+		select:			if this is present allow selection of the branch rather than using the current branch""",
+
+	u'praxis_address': u"args: <optional formatting template>",
+
 
 	# billing related:
-	u'bill',								# args: template for string replacement
-	u'bill_item'							# args: template for string replacement
-]
+	u'bill': u"args: template for string replacement",
+	u'bill_item': u"args: template for string replacement"
+}
+
+known_variant_placeholders = __known_variant_placeholders.keys()
+known_variant_placeholders.sort()
+
 
 # http://help.libreoffice.org/Common/List_of_Regular_Expressions
 # except that OOo cannot be non-greedy |-(
@@ -248,7 +251,12 @@ def show_placeholders():
 
 	ph_file.write(u'Variable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
 	for ph in known_variant_placeholders:
-		ph_file.write(u' %s\n' % ph)
+		txt = __known_variant_placeholders[ph]
+		ph_file.write(u'\n')
+		ph_file.write(u'	---=== %s ===---\n' % ph)
+		ph_file.write(u'\n')
+		ph_file.write(txt)
+		ph_file.write('\n\n')
 	ph_file.write(u'\n')
 
 	ph_file.write(u'Injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
@@ -2015,8 +2023,8 @@ if __name__ == '__main__':
 	#test_scripting()
 	#test_placeholder_regex()
 	#test()
-	test_placeholder()
-	#test_show_phs()
+	#test_placeholder()
+	test_show_phs()
 
 #=====================================================================
 
