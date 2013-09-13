@@ -66,6 +66,8 @@ for BACKUP in ${BACKUP_BASENAME}-*.tar ; do
 		continue
 	fi
 
+	# I have tried "xz -9 -e" and it did not make much of
+	# a difference (48 MB in a 1.2 GB backup)
 	bzip2 -zq -${COMPRESSION_LEVEL} ${BACKUP}
 	bzip2 -tq ${BACKUP}.bz2
 	# FIXME: add check for exit code

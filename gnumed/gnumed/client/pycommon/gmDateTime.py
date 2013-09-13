@@ -789,7 +789,6 @@ def str2interval(str_interval=None):
 
 	# x/52 - weeks
 	if regex.match(u'^~*(\s|\t)*\d+(\s|\t)*/(\s|\t)*52$', str_interval, flags = regex.LOCALE | regex.UNICODE):
-#		return pyDT.timedelta(days = (int(regex.findall('\d+', str_interval)[0]) * days_per_week))
 		return pyDT.timedelta(weeks = int(regex.findall(u'\d+', str_interval, flags = regex.LOCALE | regex.UNICODE)[0]))
 
 	# x/7 - days
@@ -1265,7 +1264,7 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 	str2parse = str2parse.strip()
 
 	# "+/-XXd/w/m/t"
-	if not regex.match(r"^(\+|-)?(\s|\t)*\d{1,2}(\s|\t)*[%s]$" % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
+	if not regex.match(r"^(\+|-)?(\s|\t)*\d{1,3}(\s|\t)*[%s]$" % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE):
 		return []
 
 	# into the past ?
@@ -1276,7 +1275,7 @@ def __explicit_offset2py_dt(str2parse, offset_chars=None):
 		is_future = True
 		str2parse = str2parse.replace(u'+', u'').strip()
 
-	val = int(regex.findall(u'\d{1,2}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
+	val = int(regex.findall(u'\d{1,3}', str2parse, flags = regex.LOCALE | regex.UNICODE)[0])
 	offset_char = regex.findall(u'[%s]' % offset_chars, str2parse, flags = regex.LOCALE | regex.UNICODE)[0].lower()
 
 	now = mxDT.now()

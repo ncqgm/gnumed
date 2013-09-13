@@ -51,12 +51,28 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self)
 	#------------------------------------------------------------
-	def __get_patient_pk_column(self, data=None):
+	def __get_patient_pk_data_key(self, data=None):
+		if self.data is None:
+			return None
+
+		if len(self.data) == 0:
+			return None
+
+		if data is None:
+			data = self.get_selected_item_data(only_one = True)
+
+		if data is None:
+			data = self.get_item_data(item_idx = 0)
+
+		if data is None:
+			return None
+
 		if self.patient_key is not None:
 			try:
 				data[self.patient_key]
 				return self.patient_key
 			except (KeyError, IndexError, TypeError):
+				# programming error
 				_log.error('misconfigured identifier column <%s>', self.patient_key)
 
 		_log.debug('identifier column not configured, trying to detect')
@@ -79,8 +95,10 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 		return gmListWidgets.get_choices_from_list (
 			parent = self,
 			msg = _(
-				'The report result list does not contain any columns\n'
-				'named "%s", "pk_patient", or "pk_identity".\n'
+				'The report result list does not contain any of the following columns:\n'
+				'\n'
+				' <%s> / pk_patient / fk_patient\n'
+				' pk_identity / fk_identity / id_identity\n'
 				'\n'
 				'Select the column which contains patient IDs:\n'
 			) % self.patient_key,
@@ -89,12 +107,14 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 			columns = [_('Column name')],
 			single_selection = True
 		)
+
+	patient_pk_data_key = property(__get_patient_pk_data_key, lambda x:x)
 	#------------------------------------------------------------
 	# event handling
 	#------------------------------------------------------------
 	def _on_list_item_activated(self, evt):
 		data = self.get_selected_item_data(only_one = True)
-		pk_pat_col = self.__get_patient_pk_column(data = data)
+		pk_pat_col = self.__get_patient_pk_data_key(data = data)
 
 		if pk_pat_col is None:
 			gmDispatcher.send(signal = 'statustext', msg = _('List not known to be patient-related.'))
@@ -392,11 +412,47 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			_log.exception('unable to plot results from [%s:%s]' % (x_col, y_col))
 			gmDispatcher.send(signal = 'statustext', msg = _('Error plotting data.'), beep = True)
 
-		return
+	#--------------------------------------------------------
+	def _on_waiting_list_button_pressed(self, event):
+		event.Skip()
+
+		pat_pk_key = self._LCTRL_result.patient_pk_data_key
+		if pat_pk_key is None:
+			gmGuiHelpers.gm_show_info (
+				info = _('These report results do not seem to contain per-patient data.'),
+				title = _('Using report results')
+			)
+			return
+
+		zone = wx.GetTextFromUser (
+			_('Enter a waiting zone to put patients in:'),
+			caption = _('Using report results'),
+			default_value = _('search results')
+		)
+		if zone.strip() == u'':
+			return
+
+		data = self._LCTRL_result.get_selected_item_data(only_one = False)
+		if data is None:
+			use_all = gmGuiHelpers.gm_show_question (
+				title = _('Using report results'),
+				question = _('No results selected.\n\nTransfer ALL patients from results to waiting list ?'),
+				cancel_button = True
+			)
+			if not use_all:
+				return
+			data = self._LCTRL_result.data
+
+		comment = self._PRW_report_name.GetValue().strip()
+		for item in data:
+			pat = gmPerson.cIdentity(aPK_obj = item[pat_pk_key])
+			pat.put_on_waiting_list (comment = comment, zone = zone)
+
 	#--------------------------------------------------------
 	def _on_run_button_pressed(self, evt):
 
 		self._BTN_visualize.Enable(False)
+		self._BTN_waiting_list.Enable(False)
 
 		user_query = self._TCTRL_query.GetValue().strip().strip(';')
 		if user_query == u'':
@@ -523,6 +579,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		self.query_results = rows
 		self._BTN_visualize.Enable(True)
+		self._BTN_waiting_list.Enable(True)
 
 		return True
 #================================================================

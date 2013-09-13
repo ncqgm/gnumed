@@ -1178,7 +1178,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		return items
 	#------------------------------------------------------------
-	def get_item_data(self, item_idx = None):
+	def get_item_data(self, item_idx=None):
 		if self.__data is None:	# this isn't entirely clean
 			return None
 
