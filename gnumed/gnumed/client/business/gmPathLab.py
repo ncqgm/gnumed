@@ -146,6 +146,46 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_test_types'
 	]
 	#--------------------------------------------------------
+	def format(self):
+		txt = _('Test panel "%s"          [#%s]\n') % (
+			self._payload[self._idx['description']],
+			self._payload[self._idx['pk_test_panel']]
+		)
+
+		if self._payload[self._idx['comment']] is not None:
+			txt += u'\n'
+			txt += gmTools.wrap (
+				text = self._payload[self._idx['comment']],
+				width = 50,
+				initial_indent = u' ',
+				subsequent_indent = u' '
+			)
+			txt += u'\n'
+
+		tts = self.test_types
+		if tts is not None:
+			txt += u'\n'
+			txt += _('Included test types:\n')
+			for tt in tts:
+				txt += u' %s: %s\n' % (
+					tt['abbrev'],
+					tt['name']
+				)
+
+		codes = self.generic_codes
+		if len(codes) > 0:
+			txt += u'\n'
+			for c in codes:
+				txt += u'%s  %s: %s (%s - %s)\n' % (
+					(u' ' * left_margin),
+					c['code'],
+					c['term'],
+					c['name_short'],
+					c['version']
+				)
+
+		return txt
+	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
 		cmd = u"INSERT INTO clin.lnk_code2tst_pnl (fk_item, fk_generic_code) values (%(tp)s, %(code)s)"
@@ -220,45 +260,12 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 	#--------------------------------------------------------
-	def format(self):
-		txt = _('Test panel "%s"          [#%s]\n') % (
-			self._payload[self._idx['description']],
-			self._payload[self._idx['pk_test_panel']]
+	def get_most_recent_results(self, pk_patient=None, order_by=None):
+		return get_most_recent_results_for_panel (
+			pk_patient = pk_patient,
+			pk_panel = self._payload[self._idx['pk_test_panel']],
+			order_by = order_by
 		)
-
-		if self._payload[self._idx['comment']] is not None:
-			txt += u'\n'
-			txt += gmTools.wrap (
-				text = self._payload[self._idx['comment']],
-				width = 50,
-				initial_indent = u' ',
-				subsequent_indent = u' '
-			)
-			txt += u'\n'
-
-		tts = self.test_types
-		if tts is not None:
-			txt += u'\n'
-			txt += _('Included test types:\n')
-			for tt in tts:
-				txt += u' %s: %s\n' % (
-					tt['abbrev'],
-					tt['name']
-				)
-
-		codes = self.generic_codes
-		if len(codes) > 0:
-			txt += u'\n'
-			for c in codes:
-				txt += u'%s  %s: %s (%s - %s)\n' % (
-					(u' ' * left_margin),
-					c['code'],
-					c['term'],
-					c['name_short'],
-					c['version']
-				)
-
-		return txt
 #------------------------------------------------------------
 def get_test_panels(order_by=None):
 	if order_by is None:
@@ -269,6 +276,7 @@ def get_test_panels(order_by=None):
 	cmd = _SQL_get_test_panels % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cTestPanel(row = {'data': r, 'idx': idx, 'pk_field': 'pk_test_panel'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_test_panel(description=None):
 
@@ -281,6 +289,7 @@ def create_test_panel(description=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cTestPanel(aPK_obj = rows[0]['pk'])
+
 #------------------------------------------------------------
 def delete_test_panel(pk=None):
 	args = {'pk': pk}
@@ -1354,7 +1363,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			indicator = indicator.strip()
 			if indicator != u'':
 				return indicator
-		# 3) non-numerical value ? then we can' know more
+		# 3) non-numerical value ? then we can't know more
 		if self._payload[self._idx['val_num']] is None:
 			return None
 		# 4) the target range is right
@@ -1601,6 +1610,41 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 	)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
+	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+	return tests
+
+#------------------------------------------------------------
+def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=None):
+
+	if order_by is None:
+		order_by = u''
+	else:
+		order_by = u'ORDER BY %s' % order_by
+
+	args = {
+		'pat': pk_patient,
+		'pnl': pk_panel
+	}
+	cmd = u"""
+		SELECT c_vtr.*
+		FROM (
+			-- max(clin_when) per test_type-in-panel for patient
+			SELECT
+				pk_test_type,
+				MAX(clin_when) AS max_clin_when
+			FROM clin.v_test_results
+			WHERE
+				pk_patient = %%(pat)s
+					AND
+				pk_test_type = ANY (
+					(SELECT fk_test_types FROM clin.test_panel WHERE pk = %%(pnl)s)::int[]
+				)
+			GROUP BY pk_test_type
+		) AS latest_results
+			INNER JOIN clin.v_test_results c_vtr ON c_vtr.pk_test_type = latest_results.pk_test_type AND c_vtr.clin_when = latest_results.max_clin_when
+		%s
+	""" % order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 	return tests
 
@@ -2609,8 +2653,13 @@ if __name__ == '__main__':
 		print tp
 		print tp.format()
 	#--------------------------------------------------------
+	def test_get_most_recent_results_for_panel():
+		tp = cTestPanel(aPK_obj = 1)
+		print tp.format()
+		print len(tp.get_most_recent_results(pk_patient=12))
+	#--------------------------------------------------------
 
-	test_result()
+	#test_result()
 	#test_create_test_result()
 	#test_delete_test_result()
 	#test_create_measurement_type()
@@ -2624,5 +2673,6 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
+	test_get_most_recent_results_for_panel()
 
 #============================================================

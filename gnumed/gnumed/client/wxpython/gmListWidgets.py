@@ -69,9 +69,12 @@ def get_choices_from_list (
 		on [CANCEL]: None
 		on [OK]:
 			if any items selected:
-				list of selected items
+				if single_selection:
+					the data of the selected item
+				else:
+					list of data of selected items
 			else:
-				if can_return_empty is True:
+				if can_return_empty is True AND [OK] button was pressed:
 					empty list
 				else:
 					None

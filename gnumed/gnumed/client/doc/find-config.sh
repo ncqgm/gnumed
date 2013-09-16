@@ -6,4 +6,6 @@
 # where to look for files
 BASE="../"
 
-find ${BASE} -follow -name '*.py' -print0 | xargs -0 grep "option.*=.*\'\'" > current-options.lst
+find ${BASE} -follow -name '*.py' -print0 | xargs -0 grep "option\\s*=\\s*u*'.*'" > current-options.lst
+
+# | grep -v "cfg\.get"

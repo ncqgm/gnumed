@@ -207,9 +207,9 @@ class cClinicalCalculator(object):
 			return result
 
 		# 2) creatinine
-		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = ['2160-0', '14682-9', '40264-4'], no_of_results = 1)
+		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		if result.variables['serum_crea'] is None:
-			result.message = _('MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: 2160-0, 14682-9)')
+			result.message = _('MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
 			return result
 		if result.variables['serum_crea']['val_num'] is None:
 			result.message = _('MDRD (4 vars/IDMS): creatinine value not numeric')
@@ -294,9 +294,9 @@ class cClinicalCalculator(object):
 		result.variables['dob'] = self.__patient['dob']
 
 		# creatinine
-		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = ['2160-0', '14682-9', '40264-4'], no_of_results = 1)
+		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		if result.variables['serum_crea'] is None:
-			result.message = _('eGFR (Schwartz): serum creatinine value not found (LOINC: 2160-0, 14682-9)')
+			result.message = _('eGFR (Schwartz): serum creatinine value not found (LOINC: %s') % gmLOINC.LOINC_creatinine_quantity
 			return result
 		if result.variables['serum_crea']['val_num'] is None:
 			result.message = _('eGFR (Schwartz): creatinine value not numeric')

@@ -8,6 +8,7 @@ import logging
 import sys
 import os.path
 import decimal
+import datetime as pydt
 
 
 import wx
@@ -40,6 +41,7 @@ from Gnumed.business import gmDocuments
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmClinicalCalculator
+from Gnumed.business import gmPathLab
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -2978,6 +2980,27 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		row = evt.GetRow()
 		data = self.__row_data[row]
 		edit_intake_of_substance(parent = self, substance = data)
+
+#============================================================
+def configure_default_medications_lab_panel(parent=None):
+
+	panels = gmPathLab.get_test_panels(order_by = u'description')
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Select the measurements panel to show in the medications plugin.'
+			'\n'
+		),
+		option = u'horstspace.medications_plugin.lab_panel',
+		bias = 'user',
+		default_value = None,
+		choices = [ u'%s%s' % (p['description'], gmTools.coalesce(p['comment'], u'', u' (%s)')) for p in panels ],
+		columns = [_('Measurements panel')],
+		data = [ p['pk_test_panel'] for p in panels ],
+		caption = _('Configuring medications plugin measurements panel')
+	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgCurrentSubstancesPnl
 
@@ -2990,6 +3013,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
+		self.__lab_panel = None
+		self.__lab_default_text_color = self._TCTRL_lab.GetForegroundColour()
+
 		self.__register_interests()
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
@@ -3000,10 +3026,87 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		if pat.connected:
 			self._grid_substances.patient = pat
 			self.__refresh_gfr(pat)
+			self.__refresh_lab(patient = pat)
 		else:
 			self._grid_substances.patient = None
 			self.__clear_gfr()
+			self.__refresh_lab(patient = None)
 		return True
+	#--------------------------------------------------------
+	def __refresh_lab(self, patient):
+		self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
+		self._TCTRL_lab.SetValue(u'')
+		self._TCTRL_lab.Hide()
+
+		if patient is None:
+			self.Layout()
+			return
+
+		if self.__lab_panel is None:
+			self.Layout()
+			return
+
+		results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev')
+		if len(results) == 0:
+			self.Layout()
+			return
+
+		now = gmDateTime.pydt_now_here()
+
+		# look for GFR
+		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		if crea is None:
+			gfr_3_months_older_than_crea = False
+		else:
+			three_months = pydt.timedelta(weeks = 14)
+			gfr_3_months_older_than_crea = (crea['clin_when'] - gfr['clin_when']) > three_months
+		# if GFR not found in results or old, then calculate
+		if (gfr is None) or gfr_3_months_older_than_crea:
+			calc = gmClinicalCalculator.cClinicalCalculator()
+			calc.patient = patient
+			gfr = calc.eGFR
+			if gfr.numeric_value is None:
+				gfr_msg = u'?'
+			else:
+				gfr_msg = _(u'%.1f (%s ago)') % (
+					gfr.numeric_value,
+					gmDateTime.format_interval_medically(now - gfr.date_valid)
+					#gmDateTime.pydt_strftime (gfr.date_valid, format = '%b %Y')
+				)
+			self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('blue'))
+			self._TCTRL_lab.AppendText(_('eGFR:'))
+			self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
+			self._TCTRL_lab.AppendText(u' ' + gfr_msg)
+			self._TCTRL_lab.AppendText(u' || ')
+
+		for most_recent in results:
+			if most_recent.is_considered_abnormal:
+				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('red'))
+				txt = _('%s: %s%s%s (%s ago)') % (
+					most_recent['unified_abbrev'],
+					most_recent['unified_val'],
+					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
+					gmTools.coalesce(most_recent.formatted_abnormality_indicator, u'', u' %s'),
+					gmDateTime.format_interval_medically(now - most_recent['clin_when'])
+				)
+				self._TCTRL_lab.AppendText(txt)
+				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
+			else:
+				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('blue'))
+				self._TCTRL_lab.AppendText(u'%s:' % most_recent['unified_abbrev'])
+				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
+				txt = _(' %s%s%s (%s ago)') % (
+					most_recent['unified_val'],
+					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
+					gmTools.coalesce(most_recent.formatted_abnormality_indicator, u'', u' %s'),
+					gmDateTime.format_interval_medically(now - most_recent['clin_when'])
+				)
+				self._TCTRL_lab.AppendText(txt)
+			self._TCTRL_lab.AppendText(u' || ')
+
+		self._TCTRL_lab.Show()
+		self.Layout()
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
 		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
@@ -3060,14 +3163,32 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
+		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_test_result_mod)
 		# active_substance_mod_db
 		# substance_brand_mod_db
+	#--------------------------------------------------------
+	def _on_test_result_mod(self):
+		wx.CallAfter(self.__on_test_result_mod)
+	#--------------------------------------------------------
+	def __on_test_result_mod(self):
+		self.__refresh_lab(patient = self._grid_substances.patient)
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
 		wx.CallAfter(self.__on_pre_patient_selection)
 
 	def __on_pre_patient_selection(self):
+		dbcfg = gmCfg.cCfgSQL()
+		pk_panel = dbcfg.get2 (
+			option = u'horstspace.medications_plugin.lab_panel',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if pk_panel is None:
+			self.__lab_panel = None
+		else:
+			self.__lab_panel = gmPathLab.cTestPanel(aPK_obj = pk_panel)
 		self._grid_substances.patient = None
+		self.__refresh_lab(patient = None)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		wx.CallAfter(self.__on_post_patient_selection)

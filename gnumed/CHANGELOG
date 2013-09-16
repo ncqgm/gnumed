@@ -22,6 +22,7 @@ NEW: dialog for post-processing template-generated documents
 NEW: meta test type editing
 NEW: management of billables
 NEW: turn patient report results into waiting list entries
+NEW: show relevant measurements in current substances list
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts

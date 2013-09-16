@@ -338,6 +338,9 @@ class gmTopLevelFrame(wx.Frame):
 		# GNUmed / Preferences / User Interface
 		menu_cfg_ui = wx.Menu()
 
+		item = menu_cfg_ui.Append(-1, _('Medication measurements'), _('Select the measurements panel to show in the medications plugin.'))
+		self.Bind(wx.EVT_MENU, self.__on_cfg_meds_lab_pnl, item)
+
 		# -- submenu gnumed / config / ui / docs
 		menu_cfg_doc = wx.Menu()
 
@@ -1839,6 +1842,9 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_cfg_fallback_primary_provider(self, evt):
 		gmPraxisWidgets.configure_fallback_primary_provider(parent = self)
+	#----------------------------------------------
+	def __on_cfg_meds_lab_pnl(self, evt):
+		gmMedicationWidgets.configure_default_medications_lab_panel(parent = self)
 	#----------------------------------------------
 	def __on_cfg_enc_default_type(self, evt):
 		enc_types = gmEMRStructItems.get_encounter_types()

@@ -221,7 +221,7 @@ def call_browser_on_measurement_type(measurement_type=None):
 
 	dbcfg = gmCfg.cCfgSQL()
 
-	url = dbcfg.get (
+	url = dbcfg.get2 (
 		option = u'external.urls.measurements_search',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'user',

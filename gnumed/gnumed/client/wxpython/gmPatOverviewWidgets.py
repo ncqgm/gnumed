@@ -202,8 +202,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			self._LCTRL_results.set_data(data = [])
 			return
 
+		now = gmDateTime.pydt_now_here()
 		list_items.append(_('Latest: %s ago (%s %s %s %s%s)') % (
-			gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - most_recent['clin_when']),
+			gmDateTime.format_interval_medically(now - most_recent['clin_when']),
 			most_recent['unified_abbrev'],
 			most_recent['unified_val'],
 			most_recent['val_unit'],
