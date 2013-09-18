@@ -1402,6 +1402,25 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 	is_long_text = property(_get_is_long_text, lambda x:x)
 	#--------------------------------------------------------
+	def _get_estimate_numeric_value_from_alpha(self):
+		if self._payload[self._idx['val_alpha']] is None:
+			return None
+		val = self._payload[self._idx['val_alpha']].lstrip()
+		if val[0] == u'<':
+			factor = decimal.Decimal(0.5)
+			val = val[1:]
+		elif val[0] == u'>':
+			factor = 2
+			val = val[1:]
+		else:
+			return None
+		success, val = gmTools.input2decimal(initial = val)
+		if not success:
+			return None
+		return val * factor
+
+	estimate_numeric_value_from_alpha = property(_get_estimate_numeric_value_from_alpha, lambda x:x)
+	#--------------------------------------------------------
 	def set_review(self, technically_abnormal=None, clinically_relevant=None, comment=None, make_me_responsible=False):
 
 		# FIXME: this is not concurrency safe
@@ -2045,9 +2064,9 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 		prev_date = None
 		prev_year = None
 		for r in series[test_type]:
-			curr_date = r['clin_when'].strftime('%Y-%m-%d')
+			curr_date = gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d', 'utf8', gmDateTime.acc_days)
 			if curr_date == prev_date:
-				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing for same-day values'))
+				gp_data.write(u'\n# %s\n' % _('blank line inserted to allow for discontinued line drawing of same-day values'))
 			if show_year:
 				if r['clin_when'].year == prev_year:
 					when_template = '%b %d %H:%M'
@@ -2056,9 +2075,15 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 				prev_year = r['clin_when'].year
 			else:
 				when_template = '%b %d'
+			val = r['val_num']
+			if val is None:
+				val = r.estimate_numeric_value_from_alpha
+			if val is None:
+				continue		# skip distinctly non-numericable values
 			gp_data.write (u'%s %s "%s" %s %s %s %s %s %s "%s"\n' % (
-				r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
-				r['unified_val'],
+				#r['clin_when'].strftime('%Y-%m-%d_%H:%M'),
+				gmDateTime.pydt_strftime(r['clin_when'], '%Y-%m-%d_%H:%M', 'utf8', gmDateTime.acc_minutes),
+				val,
 				gmTools.coalesce(r['val_unit'], u'"<?>"'),
 				gmTools.coalesce(r['unified_target_min'], u'"<?>"'),
 				gmTools.coalesce(r['unified_target_max'], u'"<?>"'),
@@ -2553,11 +2578,12 @@ if __name__ == '__main__':
 		delete_test_result(tr)
 	#------------------------------------------
 	def test_result():
-		r = cTestResult(aPK_obj=1)
-		print r
+		r = cTestResult(aPK_obj=6)
+		#print r
 		#print r.reference_ranges
-		print r.formatted_range
-		print r.temporally_closest_normal_range
+		#print r.formatted_range
+		#print r.temporally_closest_normal_range
+		print r.estimate_numeric_value_from_alpha
 	#------------------------------------------
 	def test_lab_result():
 		print "test_result()"
@@ -2659,7 +2685,7 @@ if __name__ == '__main__':
 		print len(tp.get_most_recent_results(pk_patient=12))
 	#--------------------------------------------------------
 
-	#test_result()
+	test_result()
 	#test_create_test_result()
 	#test_delete_test_result()
 	#test_create_measurement_type()
@@ -2673,6 +2699,6 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	test_get_most_recent_results_for_panel()
+	#test_get_most_recent_results_for_panel()
 
 #============================================================
