@@ -22,7 +22,6 @@ class gmWaitingListPlugin(gmPlugin.cNotebookPlugin):
 	)
 	def register(self):
 		gmPlugin.cNotebookPlugin.register(self)
-	#-------------------------------------------------
 	#--------------------------------------------------------
 	def __init__(self):
 		gmPlugin.cNotebookPlugin.__init__(self)

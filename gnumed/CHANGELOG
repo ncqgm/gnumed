@@ -50,6 +50,7 @@ IMPROVED: EMR tree browser: show journal for unassociated episodes pool
 IMPROVED: improved SOAP selection list
 IMPROVED: more clinically relevant display of substance intake start
 IMPROVED: test results plotting: deal with '<N' and '>N' pseudo-numeric values
+IMPROVED: patient search now supports "LASTNAME, NICKNAME"
 
 ------------------------------------------------
 # rel-1-3-patches
