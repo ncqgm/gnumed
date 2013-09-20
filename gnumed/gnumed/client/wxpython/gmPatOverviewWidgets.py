@@ -34,6 +34,7 @@ from Gnumed.wxpython import gmContactWidgets
 from Gnumed.wxpython import gmMedicationWidgets
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmDocumentWidgets
@@ -529,7 +530,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			# <ctrl> down ?
 			if wx.GetKeyState(wx.WXK_CONTROL):
 				if isinstance(data, gmEMRStructItems.cEncounter):
-					gmEMRStructWidgets.edit_encounter(parent = self, encounter = data)
+					gmEncounterWidgets.edit_encounter(parent = self, encounter = data)
 					return
 
 		if type(data) == type({}):
@@ -541,7 +542,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				wx.CallAfter(gmEMRStructWidgets.manage_hospital_stays, parent = self)
 				return
 
-		wx.CallAfter(gmEMRStructWidgets.manage_encounters, parent = self, ignore_OK_button = False)
+		wx.CallAfter(gmEncounterWidgets.manage_encounters, parent = self, ignore_OK_button = False)
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_history(self, patient=None):

@@ -38,6 +38,7 @@ from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
 
 
@@ -2242,7 +2243,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __select_encounter(self, evt):
-		enc = gmEMRStructWidgets.select_encounters (
+		enc = gmEncounterWidgets.select_encounters (
 			parent = self,
 			patient = gmPerson.gmCurrentPatient()
 		)
@@ -2253,7 +2254,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __edit_encounter_details(self, evt):
 		enc = gmEMRStructItems.cEncounter(aPK_obj = self.__curr_node_data['pk_encounter'])
-		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc)
+		gmEncounterWidgets.edit_encounter(parent = self, encounter = enc)
 	#--------------------------------------------------------
 	def __process_doc(self, action=None, l10n_action=None):
 

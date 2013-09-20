@@ -11,15 +11,17 @@ import gettext
 # end wxGlade
 
 # begin wxGlade: extracode
-from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
-from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
-from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
-from Gnumed.wxpython.gmPraxisWidgets import cPraxisBranchPhraseWheel
 # end wxGlade
 
 
 class wxgEncounterEditAreaPnl(wx.ScrolledWindow):
 	def __init__(self, *args, **kwds):
+
+		from Gnumed.wxpython.gmEncounterWidgets import cEncounterTypePhraseWheel
+		from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
+		from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
+		from Gnumed.wxpython.gmPraxisWidgets import cPraxisBranchPhraseWheel
+
 		# begin wxGlade: wxgEncounterEditAreaPnl.__init__
 		kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)

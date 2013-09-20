@@ -12,7 +12,7 @@ class wxgCardiacDevicePluginPnl(wx.ScrolledWindow):
 
 	from Gnumed.wxpython.gmNarrativeWidgets import cSoapNoteInputNotebook
         from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
-        from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
+        from Gnumed.wxpython.gmEncounterWidgets import cEncounterTypePhraseWheel
         from Gnumed.wxpython import gmListWidgets
 
         # begin wxGlade: wxgCardiacDevicePluginPnl.__init__

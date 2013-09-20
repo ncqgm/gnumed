@@ -15,7 +15,7 @@ class wxgTopPnl(wx.Panel):
         from Gnumed.wxpython.gmPatPicWidgets import cPatientPicture
         from Gnumed.wxpython.gmPatSearchWidgets import cActivePatientSelector
         from Gnumed.wxpython.gmDemographicsWidgets import cImageTagPresenterPnl
-        from Gnumed.wxpython.gmEMRStructWidgets import cActiveEncounterPnl
+        from Gnumed.wxpython.gmEncounterWidgets import cActiveEncounterPnl
 
         # begin wxGlade: wxgTopPnl.__init__
         kwds["style"] = wx.RAISED_BORDER

@@ -112,6 +112,7 @@ from Gnumed.wxpython import gmBillingWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 from Gnumed.wxpython import gmAccessPermissionWidgets
 from Gnumed.wxpython import gmPraxisWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 
 
 try:
@@ -1154,7 +1155,7 @@ class gmTopLevelFrame(wx.Frame):
 				enc['assessment_of_encounter'] = enc_summary
 
 		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
-		gmEMRStructWidgets.edit_encounter(parent = self, encounter = enc, msg = msg)
+		gmEncounterWidgets.edit_encounter(parent = self, encounter = enc, msg = msg)
 
 		return True
 	#----------------------------------------------
@@ -2229,7 +2230,7 @@ class gmTopLevelFrame(wx.Frame):
 			'text_expansions': gmKeywordExpansionWidgets.configure_keyword_text_expansion,
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
-			'enc_types': gmEMRStructWidgets.manage_encounter_types,
+			'enc_types': gmEncounterWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_provinces,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
@@ -2600,14 +2601,14 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot start new encounter. No active patient.'))
 			return False
 		emr = pat.get_emr()
-		gmEMRStructWidgets.start_new_encounter(emr = emr)
+		gmEncounterWidgets.start_new_encounter(emr = emr)
 	#----------------------------------------------
 	def __on_list_encounters(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot list encounters. No active patient.'))
 			return False
-		gmEMRStructWidgets.select_encounters()
+		gmEncounterWidgets.select_encounters()
 	#----------------------------------------------
 	def __on_add_health_issue(self, event):
 		pat = gmPerson.gmCurrentPatient()
@@ -3180,8 +3181,7 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
-		gmClinicalRecord.set_func_ask_user(a_func = gmEMRStructWidgets.ask_for_encounter_continuation)
-		#gmPerson.set_emr_access_spinner(func = gmEMRStructWidgets.emr_access_spinner)
+		gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
 		self.__guibroker['horstspace.top_panel']._TCTRL_patient_selector.SetFocus()
 		gmHooks.run_hook_script(hook = u'startup-after-GUI-init')
 	#----------------------------------------------

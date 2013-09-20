@@ -11,7 +11,7 @@ import wx
 class wxgBillItemEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython.gmEMRStructWidgets import cEncounterPhraseWheel
+        from Gnumed.wxpython.gmEncounterWidgets import cEncounterPhraseWheel
         from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
         from Gnumed.wxpython.gmBillingWidgets import cBillablePhraseWheel
 

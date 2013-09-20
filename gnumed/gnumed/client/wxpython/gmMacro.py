@@ -48,6 +48,7 @@ from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
@@ -529,7 +530,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_encounter_list(self, data=None):
 
-		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+		encounters = gmEncounterWidgets.select_encounters(single_selection = False)
 		if not encounters:
 			return u''
 
@@ -572,7 +573,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if len(data_parts[1]) > 0:
 					date_format = data_parts[1]
 
-		encounters = gmEMRStructWidgets.select_encounters(single_selection = False)
+		encounters = gmEncounterWidgets.select_encounters(single_selection = False)
 		if not encounters:
 			return u''
 

@@ -47,6 +47,7 @@ from Gnumed.business import gmKeywordExpansion
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
@@ -79,7 +80,7 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 
 	if encounters is None:
 		encs = emr.get_encounters(episodes = episodes)
-		encounters = gmEMRStructWidgets.select_encounters (
+		encounters = gmEncounterWidgets.select_encounters (
 			parent = parent,
 			patient = patient,
 			single_selection = False,
@@ -122,7 +123,7 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 		return True
 
 	# which encounter to move to
-	enc2move2 = gmEMRStructWidgets.select_encounters (
+	enc2move2 = gmEncounterWidgets.select_encounters (
 		parent = parent,
 		patient = patient,
 		single_selection = True
@@ -1506,7 +1507,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		event.Skip()
 	#--------------------------------------------------------
 	def _on_save_note_under_button_pressed(self, event):
-		encounter = gmEMRStructWidgets.select_encounters (
+		encounter = gmEncounterWidgets.select_encounters (
 			parent = self,
 			patient = self.__pat,
 			single_selection = True

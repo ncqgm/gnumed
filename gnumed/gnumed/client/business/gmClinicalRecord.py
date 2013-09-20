@@ -8,19 +8,6 @@ your code (before cClinicalRecord.__init__() is called for the first time).
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later"
 
-#===================================================
-# TODO
-# Basically we'll probably have to:
-#
-# a) serialize access to re-getting data from the cache so
-#   that later-but-concurrent cache accesses spin until
-#   the first one completes the refetch from the database
-#
-# b) serialize access to the cache per-se such that cache
-#    flushes vs. cache regets happen atomically (where
-#    flushes would abort/restart current regets)
-#===================================================
-
 # standard libs
 import sys
 import logging
@@ -54,7 +41,6 @@ from Gnumed.business.gmDemographicRecord import get_occupations
 
 _log = logging.getLogger('gm.emr')
 
-_me = None
 _here = None
 #============================================================
 # helper functions
@@ -88,15 +74,10 @@ class cClinicalRecord(object):
 		args = {'todo': u'patient [%s]' % aPKey}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
-		from Gnumed.business import gmPraxis, gmStaff
-		global _me
-		if _me is None:
-			_me = gmStaff.gmCurrentProvider()
+		from Gnumed.business import gmPraxis
 		global _here
 		if _here is None:
 			_here = gmPraxis.gmCurrentPraxisBranch()
-
-		self.__db_cache = {}
 
 		# load current or create new encounter
 		if _func_ask_user is None:
@@ -170,19 +151,6 @@ class cClinicalRecord(object):
 		gmDispatcher.send(u'current_encounter_modified')
 
 		return True
-	#--------------------------------------------------------
-	def db_callback_vaccs_modified(self, **kwds):
-		return True
-	#--------------------------------------------------------
-	def _health_issues_modified(self):
-		try:
-			del self.__db_cache['health issues']
-		except KeyError:
-			pass
-		return 1
-	#--------------------------------------------------------
-	def _db_callback_episodes_modified(self):
-		return 1
 	#--------------------------------------------------------
 	# API: family history
 	#--------------------------------------------------------
@@ -426,18 +394,6 @@ order by
 		return rows
 	#--------------------------------------------------------
 	def get_text_dump(self, since=None, until=None, encounters=None, episodes=None, issues=None):
-		# don't know how to invalidate this by means of
-		# a notify without catching notifies from *all*
-		# child tables, the best solution would be if
-		# inserts in child tables would also fire triggers
-		# of ancestor tables, but oh well,
-		# until then the text dump will not be cached ...
-		try:
-			return self.__db_cache['text dump']
-		except KeyError:
-			pass
-		# not cached so go get it
-		# -- get the data --
 		fields = [
 			'age',
 			"to_char(modified_when, 'YYYY-MM-DD @ HH24:MI') as modified_when",
@@ -1343,22 +1299,17 @@ WHERE
 				regimes for, must be primary language, not l10n_indication
 		"""
 		# FIXME: use course, not regime
-		try:
-			self.__db_cache['vaccinations']['scheduled regimes']
-		except KeyError:
-			# retrieve vaccination regimes definitions
-			self.__db_cache['vaccinations']['scheduled regimes'] = []
-			cmd = """SELECT distinct on(pk_course) pk_course
-					 FROM clin.v_vaccs_scheduled4pat
-					 WHERE pk_patient=%s"""
-			rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
-			if rows is None:
-				_log.error('cannot retrieve scheduled vaccination courses')
-				del self.__db_cache['vaccinations']['scheduled regimes']
-				return None
-			# Instantiate vaccination items and keep cache
-			for row in rows:
-				self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
+		# retrieve vaccination regimes definitions
+		cmd = """SELECT distinct on(pk_course) pk_course
+				 FROM clin.v_vaccs_scheduled4pat
+				 WHERE pk_patient=%s"""
+		rows = gmPG.run_ro_query('historica', cmd, None, self.pk_patient)
+		if rows is None:
+			_log.error('cannot retrieve scheduled vaccination courses')
+			return None
+		# Instantiate vaccination items and keep cache
+		for row in rows:
+			self.__db_cache['vaccinations']['scheduled regimes'].append(gmVaccination.cVaccinationCourse(aPK_obj=row[0]))
 
 		# ok, let's constrain our list
 		filtered_regimes = []
@@ -1416,7 +1367,7 @@ WHERE
 		"""
 		try:
 			self.__db_cache['vaccinations']['vaccinated']
-		except KeyError:			
+		except KeyError:
 			self.__db_cache['vaccinations']['vaccinated'] = []
 			# Important fetch ordering by indication, date to know if a vaccination is booster
 			cmd= """SELECT * FROM clin.v_pat_vaccinations4indication
@@ -1717,8 +1668,10 @@ WHERE
 			'\n'
 			' %s  %s - %s  (%s)\n'
 			'\n'
-			' Request: %s\n'
-			' Outcome: %s\n'
+			' Reason for Encounter:\n'
+			'  %s\n'
+			' Assessment of Encounter:\n'
+			'  %s\n'
 			'\n'
 			'Do you want to continue that consultation\n'
 			'or do you want to start a new one ?\n'
@@ -2018,7 +1971,7 @@ SELECT MIN(earliest) FROM (
 		)
 
 #		# FIXME: this should be done async
-		cmd = u"select clin.remove_old_empty_encounters(%(pat)s::integer, %(ttl)s::interval)"
+		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
 		args = {'pat': self.pk_patient, 'ttl': ttl}
 		try:
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
@@ -2151,7 +2104,7 @@ SELECT MIN(earliest) FROM (
 			type = type['pk_test_type']
 
 		if intended_reviewer is None:
-			intended_reviewer = _me['pk_staff']
+			intended_reviewer = gmStaff.gmCurrentProvider()['pk_staff']
 
 		tr = gmPathLab.create_test_result (
 			encounter = self.current_encounter['pk_encounter'],

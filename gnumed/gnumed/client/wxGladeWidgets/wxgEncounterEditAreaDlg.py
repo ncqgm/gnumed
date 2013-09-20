@@ -7,12 +7,12 @@ import wx
 class wxgEncounterEditAreaDlg(wx.Dialog):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmEMRStructWidgets
+        from Gnumed.wxpython import gmEncounterWidgets
 
         # begin wxGlade: wxgEncounterEditAreaDlg.__init__
         kwds["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER | wx.MAXIMIZE_BOX | wx.MINIMIZE_BOX | wx.THICK_FRAME | wx.STAY_ON_TOP
         wx.Dialog.__init__(self, *args, **kwds)
-        self._PNL_edit_area = gmEMRStructWidgets.cEncounterEditAreaPnl(self, -1)
+        self._PNL_edit_area = gmEncounterWidgets.cEncounterEditAreaPnl(self, -1)
         self._BTN_save = wx.Button(self, wx.ID_OK, _("&Save"))
         self._BTN_close = wx.Button(self, wx.ID_CANCEL, _("Cancel"))
 

@@ -14,7 +14,7 @@ class wxgSoapPluginPnl(wx.ScrolledWindow):
 
         from Gnumed.wxpython.gmNarrativeWidgets import cFancySoapEditorPnl
         from Gnumed.wxpython.gmDateTimeInput import cFuzzyTimestampInput
-        from Gnumed.wxpython.gmEMRStructWidgets import cEncounterTypePhraseWheel
+        from Gnumed.wxpython.gmEncounterWidgets import cEncounterTypePhraseWheel
         from Gnumed.wxpython.gmCodingWidgets import cGenericCodesPhraseWheel
         from Gnumed.wxpython import gmListWidgets
 
