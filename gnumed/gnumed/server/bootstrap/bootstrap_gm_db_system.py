@@ -690,6 +690,12 @@ class database:
 		curs.execute("alter database %s set default_transaction_read_only to on" % self.name)
 		# we want checking of function bodies
 		curs.execute("alter database %s set check_function_bodies to on" % self.name)
+		# we want checking of data checksums if available
+		# remove exception handler when 9.3 is default
+		try:
+			curs.execute("alter database %s set ignore_checksum_failure to off" % self.name)
+		except:
+			_log.exception('PostgreSQL version < 9.3 does not support <ignore_checksum_failure>')
 		curs.close()
 
 		self.conn.commit()
@@ -1541,7 +1547,6 @@ def main():
 	print_msg("=======================================")
 	print_msg("Bootstrapping GNUmed database system...")
 	print_msg("=======================================")
-	print 'log:', gmLog2._logfile_name
 
 	# get initial conf file from CLI
 	cfg_file = _cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
@@ -1601,6 +1606,7 @@ def main():
 
 	_log.info("shutdown")
 	print("Done bootstrapping GNUmed database: We very likely succeeded.")
+	print 'log:', gmLog2._logfile_name
 
 #==================================================================
 if __name__ == "__main__":

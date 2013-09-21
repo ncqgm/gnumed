@@ -1373,6 +1373,7 @@ Requires PostgreSQL 9.1 !
 FIX: disable faulty clin-encounter.sql in v4 -> v5
 
 NEW: view changes for Jerzy's plugins
+NEW: support data checksums with PG 9.3
 
 IMPROVED: much simplified table mod announcement signal
 IMPROVED: include FKs in schema version check

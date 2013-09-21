@@ -53,8 +53,17 @@ echo "alter database ${TARGET_DB} set password_encryption to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set synchronous_commit to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set sql_inheritance to 'on';" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set check_function_bodies to 'on';" >> $SQL_FILE
+echo "" >> $SQL_FILE
+echo "-- starting with 9.3 (remove when 9.3 is required):" >> $SQL_FILE
+echo "\unset ON_ERROR_STOP" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';     -- comment out if the script fails" >> $SQL_FILE
+echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
+echo "" >> $SQL_FILE
 echo "-- < PG 9.0 only:" >> $SQL_FILE
+echo "--\unset ON_ERROR_STOP" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
+echo "--\set ON_ERROR_STOP 1" >> $SQL_FILE
+
 
 echo "" >> $SQL_FILE
 echo "-- cannot be set after server start:" >> $SQL_FILE
@@ -78,23 +87,24 @@ echo "select name, setting from pg_settings where name in ('lc_ctype', 'server_e
 echo "" >> $SQL_FILE
 echo "-- should be checked in pg_hba.conf in case of client connection problems:" >> $SQL_FILE
 echo "--local   samerole    +gm-logins   md5" >> $SQL_FILE
-
+echo "-- should be checked in pg_controldata /var/lib/postgresql/x.y/main output:" >> $SQL_FILE
+echo "-- data checksum version != 0" >> $SQL_FILE
 
 
 echo ""
 echo "==> Adjusting settings of database ${TARGET_DB} ..."
-LOG="gm-db-settings.log"
+LOG="/tmp/gnumed/$0.log"
 sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to adjust database settings. Aborting."
-	echo "           see: ${LOG}"
+	echo "    LOG  : ${LOG}"
 	chmod 0666 ${LOG}
 	exit 1
 fi
 chmod 0666 ${LOG}
-rm ${SQL_FILE}
 
 
+echo ""
 echo "You will now have to take one of the following actions"
 echo "to make PostgreSQL recognize some of the changes:"
 echo ""
