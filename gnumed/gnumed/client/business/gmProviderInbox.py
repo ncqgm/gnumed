@@ -260,10 +260,11 @@ def create_inbox_item_type(message_type=None, category=u'clinical'):
 			pk_cat = rows[0]['pk']
 
 	# find type PK or create type
-	args = {u'cat': pk_cat, u'type': message_type}
+	args = {u'pk_cat': pk_cat, u'type': message_type}
 	cmd = u"""SELECT COALESCE (
-		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(cat)s and _(description) = %(type)s),
-		(SELECT pk FROM dem.inbox_item_type where fk_inbox_item_category = %(cat)s and description = %(type)s)
+		-- fk_inbox_item_category = %(pk_cat)s AND
+		(SELECT pk FROM dem.inbox_item_type where _(description) = %(type)s),
+		(SELECT pk FROM dem.inbox_item_type where description = %(type)s)
 	) AS pk"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	if rows[0]['pk'] is None:
@@ -273,7 +274,7 @@ def create_inbox_item_type(message_type=None, category=u'clinical'):
 				description,
 				is_user
 			) VALUES (
-				%(cat)s,
+				%(pk_cat)s,
 				%(type)s,
 				TRUE
 			) RETURNING pk"""
