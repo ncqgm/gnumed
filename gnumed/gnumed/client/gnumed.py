@@ -50,7 +50,6 @@ care of all the pre- and post-GUI runtime environment setup.
  Show this help.
 """
 #==========================================================
-__version__ = "$Revision: 1.169 $"
 __author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -86,7 +85,7 @@ against. Please run GNUmed as a non-root user.
 	sys.exit(1)
 
 #----------------------------------------------------------
-current_client_version = u'1.3.8'
+current_client_version = u'1.3.9'
 current_client_branch = u'1.3'
 
 _log = None
@@ -262,7 +261,7 @@ def setup_logging():
 	_log = logging.getLogger('gm.launcher')
 #==========================================================
 def log_startup_info():
-	_log.info(u'Starting up as main module (%s).', __version__)
+	_log.info(u'Starting up as main module.')
 	_log.info(u'GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
 	_log.info(u'Platform: %s', platform.uname())
 	_log.info(u'Python %s on %s (%s)', sys.version, sys.platform, os.name)

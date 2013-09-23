@@ -6,7 +6,7 @@
 # rel-1-3-patches
 ------------------------------------------------
 
-	1.3.9 (unreleased)
+	1.3.9
 
 FIX: health issue EA hang [thanks Jim]
 FIX: exception on creating inbox item type which already exists under different category

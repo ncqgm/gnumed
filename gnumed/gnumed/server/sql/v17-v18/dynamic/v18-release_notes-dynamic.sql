@@ -17,23 +17,16 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.3.8 (database v18.8)',
-	'GNUmed 1.3.8 Release Notes:
+	'Release Notes for GNUmed 1.3.9 (database v18.9)',
+	'GNUmed 1.3.9 Release Notes:
 
-	1.3.8
+	1.3.9
 
-FIX: better show all relevant test results in review dialog [thanks Rogerio]
-FIX: failure of <PRW>.SetData(None)
-FIX: multi-use PRW edit font growth
+FIX: health issue EA hang [thanks Jim]
+FIX: exception on creating inbox item type which already exists under different category
 
-IMPROVED: make timeline end 1 year after end of data
-IMPROVED: es and pt_BR translations
-
-	18.8
-
-FIX: typo in clin.trf_notify_reviewer_of_review_change()
-FIX: ensure FKs on .fk_encounter/.fk_episode on clin.clin_root_item children
+IMPROVED: generate PDF from AbiWord generated forms
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v18-release_notes-dynamic.sql', '18.5');
+select gm.log_script_insertion('v18-release_notes-dynamic.sql', '18.9');
