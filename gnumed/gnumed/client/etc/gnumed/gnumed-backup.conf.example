@@ -27,7 +27,7 @@ INSTANCE_OWNER="GNUmed_Team"
 BACKUP_DIR="${HOME}/.gnumed/backup/"
 
 # which database to backup
-GM_DATABASE="database_to_backup__for_example_gnumed_v18"
+GM_DATABASE="database_to_backup__for_example_gnumed_v19"
 
 # user/group the backup is eventually owned by
 BACKUP_OWNER="$USER:$USER"

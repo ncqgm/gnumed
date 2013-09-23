@@ -49,7 +49,7 @@ class wxgFormTemplateEditAreaPnl(wx.ScrolledWindow):
 		self._TCTRL_external_version.SetToolTipString(_("External version information such as the exact version/release/revision of a paper form onto which to print data with the help of this template."))
 		self._CHBOX_active.SetToolTipString(_("Mark this checkbox if you want this template to be active in GNUmed."))
 		self._CHBOX_active.SetValue(1)
-		self._CHBOX_editable.SetToolTipString(_("Check here to be offered manual, generic, last-minute editing of the form after placeholder substitution but before final output generation (ususally PDF) with those form engines to which it applies."))
+		self._CHBOX_editable.SetToolTipString(_("Check here to be offered manual, generic, last-minute editing of the form after placeholder substitution but before final output generation (usually PDF) with those form engines to which it applies."))
 		self._CHBOX_editable.SetValue(1)
 		self._PRW_template_type.SetToolTipString(_("The type of this template. The intended use case for this template."))
 		self._PRW_instance_type.SetToolTipString(_("The document type under which to store forms generated from this template."))

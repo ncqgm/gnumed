@@ -123,10 +123,10 @@ end;
 ';
 
 
-comment on function gm.concat_table_structure_v18_and_up() is
-	'new concat_table_structure() starting with gnumed_v18,
+comment on function gm.concat_table_structure_v19_and_up() is
+	'new concat_table_structure() starting with gnumed_v19,
 	 works on dem, clin, blobs, cfg, ref, i18n, bill,
-	 includes primary keys,
+	 includes primary keys and constraints,
 	 sorts properly by bytea';
 
 -- --------------------------------------------------------------

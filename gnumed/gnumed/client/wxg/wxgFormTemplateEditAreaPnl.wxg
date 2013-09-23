@@ -90,7 +90,7 @@
                         <object class="wxCheckBox" name="_CHBOX_editable" base="EditCheckBox">
                             <checked>1</checked>
                             <label>editable</label>
-                            <tooltip>Check here to be offered manual, generic, last-minute editing of the form after placeholder substitution but before final output generation (ususally PDF) with those form engines to which it applies.</tooltip>
+                            <tooltip>Check here to be offered manual, generic, last-minute editing of the form after placeholder substitution but before final output generation (usually PDF) with those form engines to which it applies.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">
