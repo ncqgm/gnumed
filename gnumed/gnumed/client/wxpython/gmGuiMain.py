@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed GUI client.
 
 This contains the GUI application framework and main window

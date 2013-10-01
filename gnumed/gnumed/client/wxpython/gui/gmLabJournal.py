@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This plugin lets you manage laboratory requests
  - add requests
  - keep track of pending requests

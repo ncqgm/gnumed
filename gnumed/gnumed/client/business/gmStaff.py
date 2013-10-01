@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed staff objects."""
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"

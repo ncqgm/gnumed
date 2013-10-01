@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed clinical patient record.
 
 Make sure to call set_func_ask_user() and set_encounter_ttl() early on in

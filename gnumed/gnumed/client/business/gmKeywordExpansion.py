@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed keyword snippet expansions
 
 Copyright: authors

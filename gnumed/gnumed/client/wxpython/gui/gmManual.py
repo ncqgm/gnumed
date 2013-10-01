@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # a simple wrapper for the Manual class
 
 """GNUMed manuals in a HTML browser window

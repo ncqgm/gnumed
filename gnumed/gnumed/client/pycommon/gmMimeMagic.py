@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """magic.py
  determines a file type by its magic number
 
@@ -23,9 +24,6 @@ __version__ = '0.1'
 # - load alternative data on platforms (win: image/x-xbitmap)
 
 #=================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmMimeMagic.py,v $
-# $Id: gmMimeMagic.py,v 1.2 2009-09-13 18:31:57 ncq Exp $
-__version__ = "$Revision: 1.2 $"
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 

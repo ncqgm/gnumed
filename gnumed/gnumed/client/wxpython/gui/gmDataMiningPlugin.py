@@ -1,9 +1,7 @@
+# -*- coding: utf-8 -*-
 #=====================================================
 # GNUmed data mining plugin aka SimpleReports
 #=====================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmDataMiningPlugin.py,v $
-# $Id: gmDataMiningPlugin.py,v 1.4 2009-06-29 15:13:25 ncq Exp $
-__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -31,18 +29,3 @@ class gmDataMiningPlugin(gmPlugin.cNotebookPlugin):
 	def can_receive_focus(self):
 		return True
 #======================================================================
-# $Log: gmDataMiningPlugin.py,v $
-# Revision 1.4  2009-06-29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.3  2007/10/12 07:28:24  ncq
-# - lots of import related cleanup
-#
-# Revision 1.2  2007/07/09 12:47:38  ncq
-# - refactoring adjustments
-#
-# Revision 1.1  2007/04/06 23:09:13  ncq
-# - this is new
-#
-#

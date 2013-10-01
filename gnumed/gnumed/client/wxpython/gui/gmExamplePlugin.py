@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is a template plugin.
 
 This is in line with the blog series on developing a plugin
@@ -39,7 +40,6 @@ This file is used together with
                                                imports and manipulates the above generated code 
 """
 
-__version__ = "$Revision: 0.2 $"
 __author__ = "Sebastian Hilbert <Sebastian.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -65,7 +65,6 @@ what your plugin does.
 from Gnumed.wxpython import gmPlugin, gmExamplePluginWidgets
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #================================================================
 #The name of the class must match the filename of the plugin
 class gmExamplePlugin(gmPlugin.cNotebookPlugin):

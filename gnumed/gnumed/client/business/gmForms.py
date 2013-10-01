@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 """GNUmed forms classes
 
 Business layer for printing all manners of forms, letters, scripts etc.
@@ -864,7 +864,7 @@ class cAbiWordForm(cFormEngine):
 		)
 		if not gmShellAPI.run_command_in_shell(command = cmd, blocking = True):
 			_log.error('problem running abiword, cannot generate form output')
-			gmDispatcher.send(signal = 'statustext', msg = _('Error running AbiWord. Cannot turn generate PDF.'), beep = True)
+			gmDispatcher.send(signal = 'statustext', msg = _('Error running AbiWord. Cannot generate PDF.'), beep = True)
 			return None
 
 		self.final_output_filenames = [pdf_name]

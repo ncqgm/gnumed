@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GNUmed configuration editor.
 
 Works quite similar to the Windows Registry editor (but is

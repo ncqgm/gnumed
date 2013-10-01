@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed patient objects.
 
 This is a patient object intended to let a useful client-side

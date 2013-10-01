@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 """GNUmed German KVK/eGK objects.
 
 These objects handle German patient cards (KVK and eGK).

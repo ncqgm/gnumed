@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 __author__ = "M.Bonert, K.Hilbert"
 __license__ = "GPL"

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # GNUmed ...
 # licnese: GPL v2 or later
 

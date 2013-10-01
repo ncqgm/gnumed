@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #=====================================================
 # GNUmed provider inbox plugin
 # later to evolve into a more complete "provider-centric hub"

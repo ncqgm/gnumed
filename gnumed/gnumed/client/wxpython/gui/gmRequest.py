@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This is a basic requests panel.
 
 Status: hacking

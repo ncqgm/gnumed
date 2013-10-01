@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #############################################################################
 # This panel is the gui frontend to allow choice of person to
 # refer to by name, company or category

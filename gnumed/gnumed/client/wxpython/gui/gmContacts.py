@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #############################################################################
 # This panel is a contact manager to display and allow the
 # use to add/delete/edit organisations,branches, persons

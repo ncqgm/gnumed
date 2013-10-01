@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """A documents tree plugin."""
 
 __version__ = "$Revision: 1.78 $"

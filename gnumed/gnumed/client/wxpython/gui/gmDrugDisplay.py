@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #############################################################################
 #
 # gmDrugDisplay_RT  Feedback: anything which is incorrect or ambiguous please

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # dbf.py version 0.2
 # 1999/11/12
@@ -158,7 +159,3 @@ class dbf:
 
 
 #=====================================================================
-# $Log: gmdbf.py,v $
-# Revision 1.1  2004-02-25 09:30:13  ncq
-# - moved here from python-common
-#

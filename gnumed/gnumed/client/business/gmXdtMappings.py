@@ -1,4 +1,4 @@
-# -*- encoding: utf8 -*-
+# -*- encoding: utf-8 -*-
 """GNUmed German xDT mapping data.
 
 This maps xDT fields in various ways.

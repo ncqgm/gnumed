@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed clinical calculator(s)
 
 THIS IS NOT A VERIFIED CALCULATOR. DO NOT USE FOR ACTUAL CARE.

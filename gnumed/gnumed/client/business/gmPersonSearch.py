@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed person searching code."""
 #============================================================
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"

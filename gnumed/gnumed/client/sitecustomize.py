@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed site customization file.
 
 This file sets up the default string encoding for Python.
@@ -22,9 +22,6 @@ when trying to search for a patient. There is a built-in test below
 but that approach may not be fool-proof.
 """
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/sitecustomize.py,v $
-# $Id: sitecustomize.py,v 1.8 2009-12-21 14:56:39 ncq Exp $
-__version__ = "$Revision: 1.8 $"
 __author__  = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 

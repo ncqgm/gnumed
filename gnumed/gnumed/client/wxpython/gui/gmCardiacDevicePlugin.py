@@ -1,5 +1,5 @@
+# -*- coding: utf-8 -*-
 """This is a cardiac device interrogation management plugin """
-__version__ = "$Revision: 1.9 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 #================================================================
 import os.path, sys, logging
@@ -22,7 +22,6 @@ if __name__ == '__main__':
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 #================================================================
 class gmCardiacDevicePlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate document tree."""

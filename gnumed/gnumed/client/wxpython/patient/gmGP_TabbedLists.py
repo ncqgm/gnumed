@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #############################################################################
 #
 # gmMedGPTabbedLists :convenience widget that displays a notebook widget

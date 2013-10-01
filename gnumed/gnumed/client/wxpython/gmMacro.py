@@ -1,4 +1,4 @@
-#  coding: utf8
+# -*- coding: utf-8 -*-
 """GNUmed macro primitives.
 
 This module implements functions a macro can legally use.

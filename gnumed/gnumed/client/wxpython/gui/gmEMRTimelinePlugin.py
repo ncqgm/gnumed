@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the EMR Timeline plugin."""
 
 __author__ = "karsten.hilbert@gmx.net"

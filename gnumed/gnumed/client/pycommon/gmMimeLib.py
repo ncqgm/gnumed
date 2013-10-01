@@ -1,9 +1,8 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 
 """This module encapsulates mime operations.
 """
 #=======================================================================================
-__version__ = "$Revision: 1.27 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -24,7 +23,6 @@ import gmShellAPI, gmTools, gmCfg2
 
 
 _log = logging.getLogger('gm.docs')
-_log.info(__version__)
 #=======================================================================================
 def guess_mimetype(aFileName = None):
 	"""Guess mime type of arbitrary file.
