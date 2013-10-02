@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 """GNUmed keyword expansion widgets."""
 #================================================================
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
@@ -31,8 +31,8 @@ _text_expansion_fillin_regex = r'\$\[.*\]\$'
 class cKeywordExpansion_TextCtrlMixin():
 
 	def __init__(self):
-		if not isinstance(self, wx.TextCtrl):
-			raise TypeError('[%s]: can only be applied to wx.TextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
+		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
 	#--------------------------------------------------------
 	def enable_keyword_expansions(self):
 		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
@@ -64,13 +64,19 @@ class cKeywordExpansion_TextCtrlMixin():
 		if not explicit_expansion:
 			# user did not press CTRL-ALT-ENTER,
 			# however, did they last enter a
-			# "keyword sepearator", active character ?
+			# "keyword separator", active character ?
 			if self.__keyword_separators.match(char) is None:
 				return
 
-		caret_pos, line_no = self.PositionToXY(self.InsertionPoint)
+		caret_pos_in_document = self.InsertionPoint
+		if isinstance(self, wx.stc.StyledTextCtrl):
+			caret_pos_in_line = self.GetCurrentPos()
+			line_no = self.GetCurrentLine()
+			# reimplement PositionToXY() as LineFromPos()/GetColumn(GetCurrentPos)
+		else:
+			caret_pos_in_line, line_no = self.PositionToXY(caret_pos_in_document)
 		line = self.GetLineText(line_no)
-		keyword = self.__keyword_separators.split(line[:caret_pos])[-1]
+		keyword = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
 
 		if (
 			(not explicit_expansion)
@@ -81,6 +87,10 @@ class cKeywordExpansion_TextCtrlMixin():
 		):
 			return
 
+		# why does this work despite the wx.TextCtrl docs saying that
+		# InsertionPoint values cannot be used as indices into strings ?
+		# because we never cross an EOL which is the only documented
+		# reason for insertion point to be off the string index
 		start = self.InsertionPoint - len(keyword)
 		wx.CallAfter(self.__replace_keyword_with_expansion, keyword, start, explicit_expansion)
 

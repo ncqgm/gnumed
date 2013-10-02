@@ -203,8 +203,6 @@ class cBillableEAPnl(wxgBillableEAPnl.wxgBillableEAPnl, gmEditArea.cGenericEditA
 		wxgBillableEAPnl.wxgBillableEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		# Code using this mixin should set mode and data
-		# after instantiating the class:
 		self.mode = 'new'
 		self.data = data
 		if data is not None:
@@ -1280,6 +1278,7 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 	def __init_ui(self):
 		self._PRW_encounter.set_context(context = 'patient', val = gmPerson.gmCurrentPatient().ID)
 		self._PRW_billable.add_callback_on_selection(self._on_billable_selected)
+		self._PRW_billable.add_callback_on_modified(self._on_billable_modified)
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -1416,6 +1415,10 @@ class cBillItemEAPnl(wxgBillItemEAPnl.wxgBillItemEAPnl, gmEditArea.cGenericEditA
 			return
 		val = u'%s' % self._PRW_billable.GetData(as_instance = True)['raw_amount']
 		wx.CallAfter(self._TCTRL_amount.SetValue, val)
+	#----------------------------------------------------------------
+	def _on_billable_modified(self):
+		if self._PRW_billable.GetData() is None:
+			wx.CallAfter(self._TCTRL_amount.SetValue, u'')
 
 #============================================================
 # a plugin for billing
