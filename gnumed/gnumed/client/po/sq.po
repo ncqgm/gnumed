@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-09-25 11:32+0200\n"
+"POT-Creation-Date: 2013-10-07 22:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,21 +30,38 @@ msgid ""
 "%s"
 msgstr ""
 
-msgid ""
-"Could not find iCalendar Python package. It is required for working with ICS "
-"files. See the Timeline website or the INSTALL file for instructions how to "
-"install it."
-msgstr ""
-"Nuk u gjet moduli iCalendar Python. Ky modul eshte i nevojshme per te punuar "
-"me filat ICS. Shiko ne faqen e Timeline ose filen e INSTALIMIT per "
-"instruksione se si instalohet ky modul."
-
 #, python-format
 msgid "Unable to open timeline '%s'."
 msgstr "E pamundur per te hapur linjen kohore  '%s'."
 
 msgid "Unknown format."
 msgstr "Format i panjohur."
+
+msgid ""
+"You are trying to open an old file with a new version of timeline. Please "
+"install version 0.21.1 of timeline to convert it to the new format."
+msgstr ""
+
+msgid "Other timelines can't be imported to a directory timeline"
+msgstr ""
+
+msgid ""
+"Tutorial must be saved as a timeline to be able to import other timeline"
+msgstr ""
+
+#, python-format
+msgid "Only %s files can be imported"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Could not find iCalendar Python package. It is required for working with ICS "
+"files. See the Timeline website or the doc/installing.rst file for "
+"instructions how to install it."
+msgstr ""
+"Nuk u gjet moduli iCalendar Python. Ky modul eshte i nevojshme per te punuar "
+"me filat ICS. Shiko ne faqen e Timeline ose filen e INSTALIMIT per "
+"instruksione se si instalohet ky modul."
 
 #, python-format
 msgid "Unable to read timeline data from '%s'."
@@ -89,6 +106,35 @@ msgstr ""
 "Mund te perdorni gjithashty rroten e mausit!\n"
 "Mund te klikoni gjithashtu me butonin e mesit te mausit per tu qenderzuar "
 "rreth asaj pike!"
+
+#, fuzzy
+msgid "Container"
+msgstr "Kontenier:"
+
+msgid "?"
+msgstr ""
+
+#, fuzzy
+msgid "Resize me"
+msgstr "Me ndrysho madhesine dhe me leviz!"
+
+msgid ""
+"Container Subevent 1\n"
+"Click on the event to get the resize handles"
+msgstr ""
+
+msgid "Drag me"
+msgstr ""
+
+msgid ""
+"Container Subevent 2\n"
+"\n"
+"Click on the event to get the drag handle and drag it.\n"
+"\n"
+"To drag the whole container, click on it while holding down the Alt key. "
+"Keep the Alt key down and find the drag point at the center of the container "
+"and drag it."
+msgstr ""
 
 msgid "Zoom"
 msgstr "Zmadho"
@@ -200,19 +246,6 @@ msgstr "Eksporto ne Imazh"
 msgid "File '%s' exists. Overwrite?"
 msgstr "File '%s' ekziston. Ta ri-shkruaj?"
 
-msgid ""
-"There was a problem printing.\n"
-"Perhaps your current printer is not set correctly?"
-msgstr ""
-"Pati nje problem me printimin.\n"
-"Ndoshta printeri juaj nuk eshte konfiguruar sic duhet?"
-
-msgid "Printing"
-msgstr "Printimi"
-
-msgid "Print preview"
-msgstr "Pamje e printimit"
-
 msgid "Jan"
 msgstr "Janar"
 
@@ -279,6 +312,36 @@ msgstr "Shto..."
 msgid "Delete"
 msgstr "Fshij"
 
+msgid "Check All"
+msgstr ""
+
+msgid "Check children"
+msgstr ""
+
+msgid "Check all children"
+msgstr ""
+
+msgid "Check all parents"
+msgstr ""
+
+msgid "Check all parents of all childs"
+msgstr ""
+
+msgid "Uncheck All"
+msgstr ""
+
+msgid "Uncheck children"
+msgstr ""
+
+msgid "Uncheck all children"
+msgstr ""
+
+msgid "Uncheck all parents"
+msgstr ""
+
+msgid "Checking not allowed when there is no timeline view."
+msgstr ""
+
 msgid "Edit Category"
 msgstr "Modifiko kategori"
 
@@ -303,14 +366,28 @@ msgstr "Asnjë përputhje"
 msgid "Only one match"
 msgstr "Vetem nje perputhje"
 
+msgid "Invalid date"
+msgstr "Datë e pavlefshme"
+
+msgid "Give feedback"
+msgstr ""
+
 msgid "Add new"
 msgstr "Shto të re"
 
 msgid "Edit categories"
 msgstr "Modifiko kategorite"
 
-msgid "Invalid date"
-msgstr "Datë e pavlefshme"
+#, fuzzy
+msgid "Select a Category:"
+msgstr "Kategori:"
+
+msgid "Set Category on events without category"
+msgstr ""
+
+#, fuzzy
+msgid "Set Category on selected events"
+msgstr "Distanca ndermjet ngjarjeve te perzgjedhura"
 
 msgid "Show time"
 msgstr "Koha e shfaqjes"
@@ -385,14 +462,38 @@ msgstr "Modifiko Ngjarjen"
 msgid "Create Event"
 msgstr "Krijo Ngjarje"
 
-msgid "Close"
-msgstr "Mbyll"
+msgid "Email Feedback"
+msgstr ""
 
-msgid "Timeline files"
-msgstr "Filet e linjes kohore."
+msgid "Default client"
+msgstr ""
 
-msgid "SVG files"
-msgstr "Filet SVG"
+msgid "Gmail"
+msgstr ""
+
+msgid "Other email client"
+msgstr ""
+
+msgid ""
+"Copy and paste this email into your favorite email client and send it from "
+"there."
+msgstr ""
+
+msgid "Other"
+msgstr ""
+
+msgid "To:"
+msgstr ""
+
+#, fuzzy
+msgid "Subject:"
+msgstr "Zgjidh Ikonën"
+
+msgid "Body:"
+msgstr ""
+
+msgid "Send With:"
+msgstr ""
 
 msgid "&File"
 msgstr "&File"
@@ -406,6 +507,129 @@ msgstr "Krijo nje linje kohore te re"
 msgid "File Timeline..."
 msgstr "File te Linjes kohore..."
 
+msgid "Directory Timeline..."
+msgstr "Direktoria e Linjes Kohore..."
+
+msgid "Open an existing timeline"
+msgstr "Hap nje linje kohore egzistuese..."
+
+msgid "Open &Recent"
+msgstr "Hap &Recent"
+
+msgid "Save As..."
+msgstr ""
+
+#, fuzzy
+msgid "Import timeline..."
+msgstr "Direktoria e Linjes Kohore..."
+
+#, fuzzy
+msgid "&Export Current view to Image..."
+msgstr "&Export tek imazhi..."
+
+msgid "Export the current view to a PNG image"
+msgstr "Eksporto pamjen aktuale si imazh PNG"
+
+#, fuzzy
+msgid "&Export Whole Timeline to Images..."
+msgstr "&Export tek imazhi..."
+
+#, fuzzy
+msgid "Export whole Timeline to PNG images"
+msgstr "Eksporto pamjen aktuale si imazh PNG"
+
+msgid "&Export to SVG..."
+msgstr "&Export ne SVG..."
+
+msgid "Export the current view to a SVG image"
+msgstr "Eksporto pamjen aktuale si imazh SVG"
+
+msgid "Exit the program"
+msgstr "Dil nga programi"
+
+msgid "&Edit"
+msgstr "&Edit"
+
+msgid "&Sidebar\tCtrl+I"
+msgstr "&Sidebar\tCtrl+I"
+
+msgid "&Legend"
+msgstr "&Legend"
+
+msgid "&Balloons on hover"
+msgstr "&Balloons pezull"
+
+msgid "&View"
+msgstr "&View"
+
+msgid "Create &Event..."
+msgstr "Krijo &Event..."
+
+#, fuzzy
+msgid "&Edit Selected Event..."
+msgstr "&Duplicate ngjarjen e perzgjedhur..."
+
+msgid "&Duplicate Selected Event..."
+msgstr "&Duplicate ngjarjen e perzgjedhur..."
+
+#, fuzzy
+msgid "Set Category on Selected Events..."
+msgstr "&Duplicate ngjarjen e perzgjedhur..."
+
+msgid "&Measure Distance between two Events..."
+msgstr "&Measure distanca midis dy ngjarjeve..."
+
+msgid "Set Category on events without category..."
+msgstr ""
+
+msgid "Edit &Categories"
+msgstr "Modifiko &Categories"
+
+msgid "Read Only"
+msgstr ""
+
+msgid "&Timeline"
+msgstr "&Timeline"
+
+msgid "Find First Event"
+msgstr "Gjej ngjarjen e pare"
+
+msgid "Find Last Event"
+msgstr "Gjej ngjarjen e fundit"
+
+msgid "Fit All Events"
+msgstr "Perputh te gjitha ngjarjet"
+
+msgid "&Navigate"
+msgstr "&Navigate"
+
+msgid "Feedback"
+msgstr ""
+
+msgid "&Contents\tF1"
+msgstr "&Contents\tF1"
+
+msgid "Getting started tutorial"
+msgstr "Manuali i fillimit"
+
+msgid "Give Feedback..."
+msgstr ""
+
+msgid "Contact"
+msgstr "Kontakt"
+
+msgid "&Help"
+msgstr "&Help"
+
+msgid "read-only"
+msgstr "e pa modifikueshme"
+
+msgid "Timeline files"
+msgstr "Filet e linjes kohore."
+
+msgid "SVG files"
+msgstr "Filet SVG"
+
 msgid "Create Timeline"
 msgstr "Krijo Linje Kohore"
 
@@ -418,45 +642,18 @@ msgstr "Duke hapur linjen kohore ne vend te krijimit te nje te reje."
 msgid "Information"
 msgstr "Informacion"
 
-msgid "Directory Timeline..."
-msgstr "Direktoria e Linjes Kohore..."
-
-msgid "Open an existing timeline"
-msgstr "Hap nje linje kohore egzistuese..."
-
 msgid "Open Timeline"
 msgstr "Hap Linjen Kohore"
 
-msgid "Open &Recent"
-msgstr "Hap &Recent"
+#, fuzzy
+msgid "Save Timeline As"
+msgstr "Krijo Linje Kohore"
 
-msgid "Page Set&up..."
-msgstr "Set&up i faqes..."
-
-msgid "Setup page for printing"
-msgstr "Pershtat faqen per printim"
-
-msgid "Print Preview"
-msgstr "Pamja e parë e printimit"
-
-msgid "Print"
-msgstr "Printo"
-
-msgid "&Export to Image..."
-msgstr "&Export tek imazhi..."
-
-msgid "Export the current view to a PNG image"
-msgstr "Eksporto pamjen aktuale si imazh PNG"
-
-msgid "&Export to SVG..."
-msgstr "&Export ne SVG..."
-
-msgid "Export the current view to a SVG image"
-msgstr "Eksporto pamjen aktuale si imazh SVG"
-
+#, fuzzy
 msgid ""
 "Could not find pysvg Python package. It is needed to export to SVG. See the "
-"Timeline website or the INSTALL file for instructions how to install it."
+"Timeline website or the doc/installing.rst file for instructions how to "
+"install it."
 msgstr ""
 "Paketa pysvg e Python nuk u gjet. Kjo nevojitet per te eksportuar imazhin si "
 "SVG. Referoju faqes ne internet te Linjes Kohore ose files INSTALL per te "
@@ -465,93 +662,14 @@ msgstr ""
 msgid "Export to SVG"
 msgstr "Eksporto ne SVG"
 
-msgid "Play timeline"
-msgstr "Luaj linjen kohore"
-
-msgid "Play timeline as movie"
-msgstr "Luaj linjen kohore si film"
-
-msgid "Exit the program"
-msgstr "Dil nga programi"
-
-msgid "&Edit"
-msgstr "&Edit"
-
-msgid "&View"
-msgstr "&View"
-
-msgid "&Sidebar\tCtrl+I"
-msgstr "&Sidebar\tCtrl+I"
-
-msgid "&Legend"
-msgstr "&Legend"
-
-msgid "&Balloons on hover"
-msgstr "&Balloons pezull"
-
-msgid "&Timeline"
-msgstr "&Timeline"
-
-msgid "Create &Event..."
-msgstr "Krijo &Event..."
-
-msgid "Create a new event"
-msgstr "Krijo nje ngjarje te re"
-
-msgid "&Duplicate Selected Event..."
-msgstr "&Duplicate ngjarjen e perzgjedhur..."
-
-msgid "Duplicate the Selected Event"
-msgstr "Dyfishoni ngjarjen e zgjedhur"
-
-msgid "&Measure Distance between two Events..."
-msgstr "&Measure distanca midis dy ngjarjeve..."
-
-msgid "Measure the Distance between two Events"
-msgstr "Mat distancen ndermjet dy ngjarjeve"
+msgid "Unable to write configuration file."
+msgstr "E pamundur te shkruhet file e konfigurimit."
 
 msgid "Distance between selected events"
 msgstr "Distanca ndermjet ngjarjeve te perzgjedhura"
 
 msgid "Events are overlapping or distance is 0"
 msgstr "Ngjarjet janembivendosur ose distanca eshte 0"
-
-msgid "Edit &Categories"
-msgstr "Modifiko &Categories"
-
-msgid "&Navigate"
-msgstr "&Navigate"
-
-msgid "Find First Event"
-msgstr "Gjej ngjarjen e pare"
-
-msgid "Find Last Event"
-msgstr "Gjej ngjarjen e fundit"
-
-msgid "Fit All Events"
-msgstr "Perputh te gjitha ngjarjet"
-
-msgid "&Help"
-msgstr "&Help"
-
-msgid "&Contents\tF1"
-msgstr "&Contents\tF1"
-
-msgid "Getting started tutorial"
-msgstr "Manuali i fillimit"
-
-msgid "Contact"
-msgstr "Kontakt"
-
-msgid "Unable to write configuration file."
-msgstr "E pamundur te shkruhet file e konfigurimit."
-
-msgid "read-only"
-msgstr "e pa modifikueshme"
-
-#, python-format
-msgid "File '%s' does not exist."
-msgstr "File '%s' nuk egziston."
 
 msgid "No timeline opened."
 msgstr "Asnje linje kohore e hapur."
@@ -561,6 +679,9 @@ msgstr "Hera e pare qe perdorni linjen kohore?"
 
 msgid "Relevant help topics:"
 msgstr "Ceshtjet perkatese ndihmuese:"
+
+msgid "View Categories Individually"
+msgstr ""
 
 #, python-format
 msgid "Category name '%s' not valid. Must be non-empty."
@@ -594,27 +715,11 @@ msgstr "Data && Koha"
 msgid "Week start on:"
 msgstr "Java fillon tek:"
 
-msgid ""
-"This feature is experimental. If events are\n"
-"created in the extended range, you can not\n"
-"disable this option and successfully load\n"
-"the timeline again. A reload of the timeline\n"
-"is also needed for this to take effect."
-msgstr ""
-"Kjo vecori eshte eksperimentale. Nese ngjarjet jane\n"
-"krijuar ne rangun e zgjeruar, ju nuk mund ta\n"
-"caktivizoni kete opsion e me pas te aktivizoni\n"
-"perseri linjen kohore. Nje ri-ngarkim i linjes kohore\n"
-"eshte gjithashtu i nevojshem qe te marre efekt."
-
 msgid "Open most recent timeline on startup"
 msgstr "Hap linjen kohore me te fundit ne fillim"
 
 msgid "Use inertial scrolling"
 msgstr "Perdor zvaritje me inerci"
-
-msgid "Use extended date range (before 1 AD)"
-msgstr "Perdor rangun kohor te zgjeruar (perpara 1 AD)"
 
 msgid "Monday"
 msgstr "E hënë"
@@ -622,13 +727,20 @@ msgstr "E hënë"
 msgid "Sunday"
 msgstr "E djelë"
 
+msgid "Feedback On Feature"
+msgstr ""
+
+msgid "Give Feedback"
+msgstr ""
+
 msgid "Help"
 msgstr "Ndihmë"
 
+#, fuzzy
 msgid ""
 "Could not find markdown Python package.  It is needed by the help system. "
-"See the Timeline website or the INSTALL file for instructions how to install "
-"it."
+"See the Timeline website or the doc/installing.rst file for instructions how "
+"to install it."
 msgstr ""
 "Nuk u gjet paketa Python e selektuar. Kjo nevojitet nga sistemi i ndihmes. "
 "Shiko ne internet tek Linja Kohore ose referoju files INSTALL per "
@@ -687,8 +799,14 @@ msgstr "Modifiko Kategoritë"
 msgid "Error"
 msgstr "Gabim"
 
+msgid "Warning"
+msgstr ""
+
 msgid "Question"
 msgstr "Pyetje"
+
+msgid "You must select a category!"
+msgstr ""
 
 msgid "You can't change time when the Event is locked"
 msgstr "Ju nuk mund te ndrysoni kohen kur Ngjarja eshte e bllokuar"
@@ -698,6 +816,10 @@ msgstr "Fundi duhet te jete > Fillimi"
 
 msgid "Entered period is too long."
 msgstr "Periudha e futur eshte shume e gjate."
+
+#, fuzzy
+msgid "Start time > Now."
+msgstr "Koha e fillimit "
 
 #, python-format
 msgid "Field '%s' can't be empty."
@@ -754,17 +876,42 @@ msgstr ""
 "javet qe fillojne me te Djelen. Ne te ardhmen kemi ne plan te perdorim nje "
 "objekt tjeter per daten qe ti sportoje keto.\n"
 
-msgid "Timeline"
-msgstr "Linje kohore"
+msgid "Can multiple users work with the same timeline?"
+msgstr ""
 
 msgid ""
 "\n"
+"There are some support for multiple users to work on the same timeline "
+"file.\n"
+"\n"
+"When you try to make a change and someone else has made a change you will be "
+"asked to make one of two choices:\n"
+"\n"
+"- Set timeline in read-only mode.\n"
+"- Synchronize the timeline.\n"
+" \n"
+"During the your edit action the timeline is locked for changes by others. If "
+"you try to edit a timeline when it is locked by someone else you will be "
+"notified about this situation.\n"
+msgstr ""
+
+msgid "Timeline"
+msgstr "Linje kohore"
+
+#, fuzzy
+msgid ""
+"\n"
 "The timeline shows dates according to the Gregorian calendar on the x-axis. "
-"Currently the dates are limited to dates between year 10 and year 9989.\n"
+"Currently the earliest date is limited to Julian day 0 (November 24, 4714 "
+"BC).\n"
 "\n"
 "Future versions might support various kinds of timelines so that you for "
 "example can specify a time in terms of number of minutes since a start time. "
 "If you are interested in such a feature, please get in touch.\n"
+"\n"
+"The timeline is divided in two areas with a horizontal adjustable divider "
+"line. Period events are displayed below the line and point events are "
+"displayed above the line.\n"
 msgstr ""
 "\n"
 "Linja kohore tregon daten sipas kalendarit Gregorian ne boshtin x. "
@@ -774,13 +921,48 @@ msgstr ""
 "nga koha e fillimit. Nese jeni te interesuar per nje vecori te tille, ju "
 "lutem na kontaktoni.\n"
 
-msgid "Events"
-msgstr "Ngjarjet"
+#, fuzzy
+msgid "Scrolling Timeline"
+msgstr "Hap Linjen Kohore"
 
 msgid ""
 "\n"
+"A Timeline can be scrolled both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"There are two ways to scroll horizontal. You can either use the different "
+"options in the Navigation menu or you can use the mouse. To use the mouse, "
+"hold down the left mouse button and drag the mouse horizontally.\n"
+"\n"
+"To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the "
+"mouse wheel.\n"
+"Events are scrolled towards or away from the divider line separating point- "
+"and period-events.\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Zooming Timeline"
+msgstr "Hap Linjen Kohore"
+
+msgid ""
+"\n"
+"A Timeline can be Zoomed both horizontal (along time axis) and vertically "
+"(along event axis)\n"
+"\n"
+"To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"\n"
+"To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
+msgstr ""
+
+msgid "Events"
+msgstr "Ngjarjet"
+
+#, fuzzy
+msgid ""
+"\n"
 "An event is the basic data type for representing information on the "
-"timeline.  It must specify where on the timeline is should be placed (when "
+"timeline.  It must specify where on the timeline it should be placed (when "
 "that event happened). This can be either a specific point in time or a "
 "period.\n"
 msgstr ""
@@ -789,6 +971,25 @@ msgstr ""
 "kohore. Duhet te specifkoje ne linjen kohore se ku duhet vendosur (kur ajo "
 "ngjarje ndodhi). Kjo mund te jete nje moment i vecante ne kohe ose nje "
 "periudhe kohore.\n"
+
+msgid ""
+"\n"
+"For an event the following properties can be defined.\n"
+"\n"
+" - Start Date and Time.\n"
+" - End Date and Time (if period event).\n"
+" - Text - The label displayed for an event.\n"
+" - Category - A way to group events together.\n"
+" - Container - Another way to group events together.\n"
+" - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times "
+"are unknown.\n"
+" - Locked - Start- and End-points can't be changed.\n"
+" - Ends Today - The End-point is always set to current date.\n"
+" - Description - Event description that is shown i the balloon.\n"
+" - Icon - Image icon shown in balloon.\n"
+" - Alert - An alert dialog is opened at the specified alert time.\n"
+" - Hyperlink - A hyperlink that can be reached in the event context menu.\n"
+msgstr ""
 
 msgid "Categories"
 msgstr "Kategoritë"
@@ -821,9 +1022,12 @@ msgstr ""
 "- Shtypni butonin *Ctrl*, me pas mbani te shtypur butonin *e majte* te "
 "mausit mbi linjen kohore, zvarriteni mausin dhe me pas leshojeni.\n"
 
+#, fuzzy
 msgid ""
 "\n"
-"The *Edit Event* dialog can be opened by double clicking on an event.\n"
+"The *Edit Event* dialog can be opened by double clicking on an event or by "
+"selecting one event and select the 'Timeline -> Edit Selected Event...' "
+"menu.\n"
 msgstr ""
 "\n"
 "Dialogu i *Modifiko Ngjarje* mund te hapet duke klikuar dy here mbi nje "
@@ -838,6 +1042,29 @@ msgid ""
 "and therefter using the Alt+Up or Alt+Down keys.\n"
 msgstr ""
 
+#, fuzzy
+msgid "Duplicate event"
+msgstr "Ngjarje duplikate"
+
+msgid ""
+"\n"
+"An event can be duplicated. Select the event you want to duplicate and "
+"select the 'Timeline -> Duplicate Selected Event...' menu.\n"
+"Now a dialog appears in which you can define\n"
+"\n"
+" - How many duplications to do\n"
+" - The time period used\n"
+" - The frequency of time periods\n"
+" - The direction\n"
+" \n"
+" If number of duplications = 3, time span = day and frequency = 2, you will "
+"get 3 new copies of the event spread out with the time span of 2 days "
+"between them.\n"
+" \n"
+" You can also get to the duplication dialog from the event context menu, "
+"wich appears if you right-click an event with the mouse.\n"
+msgstr ""
+
 msgid "Selecting events"
 msgstr "Perzgjedhja e ngjarjeve"
 
@@ -849,6 +1076,35 @@ msgstr ""
 "\n"
 "Per te perzgjedhur nje ngjarje, klikoni mbi te. Per te perzgjedhur disa "
 "ngjarje, mbani shtypur butonin *Ctrl* dhe nderkohe klikoni mbi ngjarjet.\n"
+
+#, fuzzy
+msgid "Import timeline"
+msgstr "Asnje linje kohore e percaktuar"
+
+msgid ""
+"\n"
+"This feature can be used to merge two timelines into one.\n"
+"\n"
+"First open a timeline and then select menu 'File -> Import timeline...' and "
+"select the timeline to be imported.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Event Containers"
+msgstr "Modifiko Kontenierin"
+
+msgid ""
+"\n"
+"Containers are a way to group events together.\n"
+"In a container events can not overlap, so if you add a new event to a "
+"container\n"
+"all other events are moved to give room for the new event. The same thing "
+"happens\n"
+"if you resize an event within the container.\n"
+"             \n"
+"Have a look at this video for a demo. \n"
+"    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>\n"
+msgstr ""
 
 msgid ""
 "\n"
@@ -1027,13 +1283,11 @@ msgstr "minutë"
 msgid "minutes"
 msgstr "minuta"
 
-#, python-format
-msgid "can't be before year %d"
-msgstr "nuk mund te jete pepara vitit %d"
+msgid "can't be before year 10"
+msgstr "nuk mund te jete perpara vitit 10"
 
-#, python-format
-msgid "can't be after year %d"
-msgstr "nuk mund te jete pas vitit %d"
+msgid "can't be after year 9989"
+msgstr "nuk mund te jete pas vitit 9989"
 
 msgid "Can't zoom wider than 1200 years"
 msgstr "Nuk mund te zmadhoj me shume se 1200 vite"
@@ -1055,12 +1309,6 @@ msgstr "Vit"
 
 msgid "Go to Date"
 msgstr "Shko ne daten"
-
-msgid "can't be before year 10"
-msgstr "nuk mund te jete perpara vitit 10"
-
-msgid "can't be after year 9989"
-msgstr "nuk mund te jete pas vitit 9989"
 
 msgid "Go to &Zero\tCtrl+Z"
 msgstr "Shkoni ne &Zero\tCtrl+Z"
@@ -1085,6 +1333,19 @@ msgstr "1000-periudhe"
 
 msgid "Go to Time"
 msgstr "Shkoni ne kohen"
+
+#, python-format
+msgid "File '%s' does not exist."
+msgstr "File '%s' nuk egziston."
+
+msgid ""
+"Someoneelse has changed the Timeline.\n"
+"You have two choices!\n"
+"  1. Set Timeline in Read-Only mode.\n"
+"  2. Synchronize Timeline.\n"
+"\n"
+"Do you want to Synchronize?"
+msgstr ""
 
 msgid ""
 "Help requested\n"
@@ -1718,9 +1979,6 @@ msgid "Country"
 msgstr ""
 
 msgid "Type"
-msgstr ""
-
-msgid "Other"
 msgstr ""
 
 msgid "In-praxis primary"
@@ -2415,6 +2673,14 @@ msgstr ""
 msgid "Refresh the timeline display."
 msgstr ""
 
+#, fuzzy
+msgid "Export timeline as SVG image."
+msgstr "Eksporto pamjen aktuale si imazh SVG"
+
+#, fuzzy
+msgid "Print timeline."
+msgstr "Luaj linjen kohore"
+
 msgid "active"
 msgstr "aktiv"
 
@@ -3041,6 +3307,9 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
+msgid "Close"
+msgstr "Mbyll"
+
 msgid "Health issue selector"
 msgstr ""
 
@@ -3187,6 +3456,9 @@ msgstr ""
 #, fuzzy
 msgid "Show"
 msgstr "Koha e shfaqjes"
+
+msgid "Print"
+msgstr "Printo"
 
 msgid "to printer"
 msgstr ""
@@ -5738,7 +6010,7 @@ msgid "error with placeholder [%s]"
 msgstr "Gabim me placeholder [%s]"
 
 #, fuzzy
-msgid "Error running AbiWord. Cannot turn generate PDF."
+msgid "Error running AbiWord. Cannot generate PDF."
 msgstr ""
 "Gabim me egzekutimin e pdflatex. Num mund te kthej templaten LaTeX ne PDF."
 
@@ -13946,6 +14218,9 @@ msgid ""
 "  [%s]"
 msgstr ""
 
+msgid "Save timeline as SVG image under..."
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -15456,6 +15731,62 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#~ msgid ""
+#~ "There was a problem printing.\n"
+#~ "Perhaps your current printer is not set correctly?"
+#~ msgstr ""
+#~ "Pati nje problem me printimin.\n"
+#~ "Ndoshta printeri juaj nuk eshte konfiguruar sic duhet?"
+
+#~ msgid "Printing"
+#~ msgstr "Printimi"
+
+#~ msgid "Print preview"
+#~ msgstr "Pamje e printimit"
+
+#~ msgid "Page Set&up..."
+#~ msgstr "Set&up i faqes..."
+
+#~ msgid "Setup page for printing"
+#~ msgstr "Pershtat faqen per printim"
+
+#~ msgid "Print Preview"
+#~ msgstr "Pamja e parë e printimit"
+
+#~ msgid "Play timeline as movie"
+#~ msgstr "Luaj linjen kohore si film"
+
+#~ msgid "Create a new event"
+#~ msgstr "Krijo nje ngjarje te re"
+
+#~ msgid "Duplicate the Selected Event"
+#~ msgstr "Dyfishoni ngjarjen e zgjedhur"
+
+#~ msgid "Measure the Distance between two Events"
+#~ msgstr "Mat distancen ndermjet dy ngjarjeve"
+
+#~ msgid ""
+#~ "This feature is experimental. If events are\n"
+#~ "created in the extended range, you can not\n"
+#~ "disable this option and successfully load\n"
+#~ "the timeline again. A reload of the timeline\n"
+#~ "is also needed for this to take effect."
+#~ msgstr ""
+#~ "Kjo vecori eshte eksperimentale. Nese ngjarjet jane\n"
+#~ "krijuar ne rangun e zgjeruar, ju nuk mund ta\n"
+#~ "caktivizoni kete opsion e me pas te aktivizoni\n"
+#~ "perseri linjen kohore. Nje ri-ngarkim i linjes kohore\n"
+#~ "eshte gjithashtu i nevojshem qe te marre efekt."
+
+#~ msgid "Use extended date range (before 1 AD)"
+#~ msgstr "Perdor rangun kohor te zgjeruar (perpara 1 AD)"
+
+#~ msgid "can't be before year %d"
+#~ msgstr "nuk mund te jete pepara vitit %d"
+
+#~ msgid "can't be after year %d"
+#~ msgstr "nuk mund te jete pas vitit %d"
 
 #~ msgid "Active medications: %s"
 #~ msgstr "Mjekime aktive: %s"
