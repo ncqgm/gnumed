@@ -44,7 +44,6 @@ RECENT_FILES = "recent_files"
 OPEN_RECENT_AT_STARTUP = "open_recent_at_startup"
 BALLOON_ON_HOVER = "balloon_on_hover"
 WEEK_START = "week_start"
-USE_WIDE_DATE_RANGE = "use_wide_date_range"
 USE_INERTIAL_SCROLLING = "use_inertial_scrolling"
 DEFAULTS = {
     WINDOW_WIDTH: "900",
@@ -59,7 +58,6 @@ DEFAULTS = {
     RECENT_FILES: "",
     BALLOON_ON_HOVER: "True",
     WEEK_START: "monday",
-    USE_WIDE_DATE_RANGE: "False",
     USE_INERTIAL_SCROLLING : "False"
 }
 # Some settings
@@ -195,12 +193,6 @@ class Config(object):
             raise ValueError("Invalid week start.")
         self.config_parser.set(DEFAULTSECT, WEEK_START, week_start)
     week_start = property(get_week_start, set_week_start)
-
-    def get_use_wide_date_range(self):
-        return self.config_parser.getboolean(DEFAULTSECT, USE_WIDE_DATE_RANGE)
-    def set_use_wide_date_range(self, value):
-        self.config_parser.set(DEFAULTSECT, USE_WIDE_DATE_RANGE, str(value))
-    use_wide_date_range = property(get_use_wide_date_range, set_use_wide_date_range)
 
     def get_use_inertial_scrolling(self):
         return self.config_parser.getboolean(DEFAULTSECT, USE_INERTIAL_SCROLLING)

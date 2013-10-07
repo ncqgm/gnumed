@@ -40,6 +40,7 @@ def install(help_system):
     - Help(categories_delete)
     - Help(why_not_timeline_in_my_language)
     - Help(week_numbers_sunday_week_start)
+    - Help(multiple_users)
 - **%s**
     - Help(timeline)
     - Help(events)
@@ -51,6 +52,7 @@ def install(help_system):
     - Help(delete_event)
     - Help(edit_categories)
     - Help(select_events)
+    - Help(import_timeline)
 - **Help(contact)**
 """ % (_("Questions and answers"), _("Concepts"), _("Tasks"))))
 
@@ -80,33 +82,115 @@ There is no save button. Timeline will automatically save your data whenever nee
 The date data object used does not support week numbers for weeks that start on Sunday at present.  We plan on using a different date object that will support this in future versions.
 """))
 
-
     help_system.install_page(
-        id="timeline",
-        header=_("Timeline"),
-        related_pages=["events", "categories", "contact"],
+        id="multiple_users",
+        header=_("Can multiple users work with the same timeline?"),
         # TRANSLATORS: This text uses special markup.
         # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
         # Just write them as they are.
         # Stars produce emphasized text. DON'T remove them.
         # Dashes produce bullet lists. DON'T remove them.
         body=_("""
-The timeline shows dates according to the Gregorian calendar on the x-axis. Currently the dates are limited to dates between year 10 and year 9989.
+There are some support for multiple users to work on the same timeline file.
+
+When you try to make a change and someone else has made a change you will be asked to make one of two choices:
+
+- Set timeline in read-only mode.
+- Synchronize the timeline.
+ 
+During the your edit action the timeline is locked for changes by others. If you try to edit a timeline when it is locked by someone else you will be notified about this situation.
+"""))
+
+    help_system.install_page(
+        id="timeline",
+        header=_("Timeline"),
+        related_pages=["scrolling", "zooming", "import_timeline", "events", "categories", "contact"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+The timeline shows dates according to the Gregorian calendar on the x-axis. Currently the earliest date is limited to Julian day 0 (November 24, 4714 BC).
 
 Future versions might support various kinds of timelines so that you for example can specify a time in terms of number of minutes since a start time. If you are interested in such a feature, please get in touch.
+
+The timeline is divided in two areas with a horizontal adjustable divider line. Period events are displayed below the line and point events are displayed above the line.
+"""))
+
+    help_system.install_page(
+        id="scrolling",
+        header=_("Scrolling Timeline"),
+        related_pages=["timeline"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+A Timeline can be scrolled both horizontal (along time axis) and vertically (along event axis)
+
+There are two ways to scroll horizontal. You can either use the different options in the Navigation menu or you can use the mouse. To use the mouse, hold down the left mouse button and drag the mouse horizontally.
+
+To scroll vertically, hold down the Shift- and Ctrl-keys and scroll the mouse wheel.
+Events are scrolled towards or away from the divider line separating point- and period-events.
+
+"""))
+
+    help_system.install_page(
+        id="zooming",
+        header=_("Zooming Timeline"),
+        related_pages=["timeline"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+A Timeline can be Zoomed both horizontal (along time axis) and vertically (along event axis)
+
+To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.
+
+To zoom vertically, hold down the Alt-key and scroll the mouse wheel.
 """))
 
     help_system.install_page(
         id="events",
         header=_("Events"),
-        related_pages=["categories"],
+        related_pages=["event_properties", "create_event", "select_events", "edit_event", "delete_event", "move_event_vertically", "duplicate_event", "categories"],
         # TRANSLATORS: This text uses special markup.
         # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
         # Just write them as they are.
         # Stars produce emphasized text. DON'T remove them.
         # Dashes produce bullet lists. DON'T remove them.
         body=_("""
-An event is the basic data type for representing information on the timeline.  It must specify where on the timeline is should be placed (when that event happened). This can be either a specific point in time or a period.
+An event is the basic data type for representing information on the timeline.  It must specify where on the timeline it should be placed (when that event happened). This can be either a specific point in time or a period.
+"""))
+
+    help_system.install_page(
+        id="event_properties",
+        header=_("Event Properties"),
+        related_pages=["events", "event_containers"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+For an event the following properties can be defined.
+
+ - Start Date and Time.
+ - End Date and Time (if period event).
+ - Text - The label displayed for an event.
+ - Category - A way to group events together.
+ - Container - Another way to group events together.
+ - Fuzzy - Draw start and end of event fuzzy, to indicate that exact times are unknown.
+ - Locked - Start- and End-points can't be changed.
+ - Ends Today - The End-point is always set to current date.
+ - Description - Event description that is shown i the balloon.
+ - Icon - Image icon shown in balloon.
+ - Alert - An alert dialog is opened at the specified alert time.
+ - Hyperlink - A hyperlink that can be reached in the event context menu.
 """))
 
     help_system.install_page(
@@ -142,14 +226,14 @@ The *Create Event* dialog can be opened in the following ways:
     help_system.install_page(
         id="edit_event",
         header=_("Edit event"),
-        related_pages=["events", "delete_event"],
+        related_pages=["events", "select_events"],
         # TRANSLATORS: This text uses special markup.
         # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
         # Just write them as they are.
         # Stars produce emphasized text. DON'T remove them.
         # Dashes produce bullet lists. DON'T remove them.
         body=_("""
-The *Edit Event* dialog can be opened by double clicking on an event.
+The *Edit Event* dialog can be opened by double clicking on an event or by selecting one event and select the 'Timeline -> Edit Selected Event...' menu.
 """))
 
     help_system.install_page(
@@ -166,6 +250,29 @@ An event can be moved vertically. This is done by first selecting the event and 
 """))
 
     help_system.install_page(
+        id="duplicate_event",
+        header=_("Duplicate event"),
+        related_pages=["events", "select_events"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+An event can be duplicated. Select the event you want to duplicate and select the 'Timeline -> Duplicate Selected Event...' menu.
+Now a dialog appears in which you can define
+
+ - How many duplications to do
+ - The time period used
+ - The frequency of time periods
+ - The direction
+ 
+ If number of duplications = 3, time span = day and frequency = 2, you will get 3 new copies of the event spread out with the time span of 2 days between them.
+ 
+ You can also get to the duplication dialog from the event context menu, wich appears if you right-click an event with the mouse.
+"""))
+
+    help_system.install_page(
         id="select_events",
         header=_("Selecting events"),
         # TRANSLATORS: This text uses special markup.
@@ -178,9 +285,42 @@ To select an event, click on it. To select multiple events, hold down the *Ctrl*
 """))
 
     help_system.install_page(
+        id="import_timeline",
+        header=_("Import timeline"),
+        related_pages=["timeline"],
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+This feature can be used to merge two timelines into one.
+
+First open a timeline and then select menu 'File -> Import timeline...' and select the timeline to be imported.
+"""))
+
+    help_system.install_page(
+        id="event_containers",
+        header=_("Event Containers"),
+        # TRANSLATORS: This text uses special markup.
+        # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
+        # Just write them as they are.
+        # Stars produce emphasized text. DON'T remove them.
+        # Dashes produce bullet lists. DON'T remove them.
+        body=_("""
+Containers are a way to group events together.
+In a container events can not overlap, so if you add a new event to a container
+all other events are moved to give room for the new event. The same thing happens
+if you resize an event within the container.
+             
+Have a look at this video for a demo. 
+    <http://www.youtube.com/watch?v=dBwEQ3vqB_I>
+"""))
+
+    help_system.install_page(
         id="delete_event",
         header=_("Delete event"),
-        related_pages=["select_events", "events"],
+        related_pages=["events", "select_events"],
         # TRANSLATORS: This text uses special markup.
         # DON'T translate 'HelpFigure(..)' or 'Help(..)'.
         # Just write them as they are.

@@ -21,7 +21,7 @@ import wx
 from timelinelib.editors.container import ContainerEditor
 from timelinelib.wxgui.components.categorychoice import CategoryChoice
 from timelinelib.wxgui.utils import BORDER
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 from timelinelib.wxgui.utils import _set_focus_and_select
 import timelinelib.wxgui.utils as gui_utils
 
@@ -90,7 +90,7 @@ class ContainerEditorControllerApi(object):
         return self.lst_category.get()
 
     def display_invalid_name(self, message):
-        _display_error_message(message, self)
+        display_error_message(message, self)
         _set_focus_and_select(self.txt_name)
 
     def display_db_exception(self, e):

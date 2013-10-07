@@ -16,27 +16,26 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = (1, 0, 1)
-DEV = False
+# A category was added, edited, or deleted
+STATE_CHANGE_CATEGORY = 1
+# Something happened that changed the state of the timeline
+STATE_CHANGE_ANY = 2
+# A timer ticked
+TIMER_TICK = 3
 
 
-def get_version():
-    if DEV:
-        return ("%s.%s.%sdev" % VERSION) + DEV_REVISION
-    return "%s.%s.%s" % VERSION
+class Observable(object):
 
+    def __init__(self):
+        self.observers = []
 
-def _get_revision():
-    try:
-        import os
-        from subprocess import Popen, PIPE
-        root = os.path.join(os.path.dirname(__file__), "..", "..")
-        cmd = ["hg", "id", "-i", "-R", root]
-        rev = Popen(cmd, stdout=PIPE).communicate()[0].strip()
-        return rev
-    except:
-        return "0"
+    def register(self, fn):
+        self.observers.append(fn)
 
+    def unregister(self, fn):
+        if fn in self.observers:
+            self.observers.remove(fn)
 
-if DEV:
-    DEV_REVISION = _get_revision()
+    def _notify(self, state_change):
+        for fn in self.observers:
+            fn(state_change)

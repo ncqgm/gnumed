@@ -19,9 +19,10 @@
 import wx
 
 from timelinelib.wxgui.utils import BORDER
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 from timelinelib.wxgui.utils import time_picker_for
 from timelinelib.utils import ex_msg
+import timelinelib.calendar.gregorian as gregorian
 
 
 class TimeEditorDialog(wx.Dialog):
@@ -59,13 +60,20 @@ class TimeEditorDialog(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._ok_button_on_click, id=wx.ID_OK)
 
     def _ok_button_on_click(self, e):
+        self.on_return()
+
+    def on_return(self):
         try:
             self.time = self.time_picker.get_value()
+            if not self.checkbox.IsChecked():
+                gt = gregorian.from_time(self.time)
+                gt.hour = 12
+                self.time = gt.to_time()
         except ValueError, ex:
-            _display_error_message(ex_msg(ex))
+            display_error_message(ex_msg(ex))
         else:
             self.EndModal(wx.ID_OK)
-
+        
     def _layout_components(self):
         vbox = wx.BoxSizer(wx.VERTICAL)
         if self._should_display_show_time_checkbox():

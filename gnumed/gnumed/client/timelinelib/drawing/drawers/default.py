@@ -33,6 +33,7 @@ OUTER_PADDING = 5 # Space between event boxes (pixels)
 INNER_PADDING = 3 # Space inside event box to text (pixels)
 PERIOD_THRESHOLD = 20  # Periods smaller than this are drawn as events (pixels)
 BALLOON_RADIUS = 12
+ARROW_OFFSET = BALLOON_RADIUS + 25
 DATA_INDICATOR_SIZE = 10
 CONTRAST_RATIO_THREASHOLD = 2250
 WHITE = (255, 255, 255)
@@ -42,31 +43,50 @@ BLACK = (0, 0, 0)
 class DefaultDrawingAlgorithm(Drawer):
 
     def __init__(self):
+        self.font_size = 8
         self._create_fonts()
         self._create_pens()
         self._create_brushes()
         self.fast_draw = False
+        self.outer_padding = OUTER_PADDING
 
+    def increment_font_size(self, step=2):
+        self.font_size += step
+        self.small_text_font = get_default_font(self.font_size)
+        self._adjust_outer_padding_to_font_size()
+        
+    def decrement_font_size(self, step=2):
+        if self.font_size > step:
+            self.font_size -= step
+            self.small_text_font = get_default_font(self.font_size)
+            self._adjust_outer_padding_to_font_size()
+
+    def _adjust_outer_padding_to_font_size(self):
+        if self.font_size < 8:
+            self.outer_padding = OUTER_PADDING * self.font_size / 8
+        else:
+            self.outer_padding = OUTER_PADDING
+        
     def _create_fonts(self):
         self.header_font = get_default_font(12, True)
-        self.small_text_font = get_default_font(8)
+        self.small_text_font = get_default_font(self.font_size)
         self.small_text_font_bold = get_default_font(8, True)
 
     def _create_pens(self):
-        self.red_solid_pen = wx.Pen(wx.Color(255,0, 0), 1, wx.SOLID)
-        self.black_solid_pen = wx.Pen(wx.Color(0, 0, 0), 1, wx.SOLID)
-        self.darkred_solid_pen = wx.Pen(wx.Color(200, 0, 0), 1, wx.SOLID)
-        self.black_dashed_pen = wx.Pen(wx.Color(200, 200, 200), 1, wx.USER_DASH)
+        self.red_solid_pen = wx.Pen(wx.Colour(255,0, 0), 1, wx.SOLID)
+        self.black_solid_pen = wx.Pen(wx.Colour(0, 0, 0), 1, wx.SOLID)
+        self.darkred_solid_pen = wx.Pen(wx.Colour(200, 0, 0), 1, wx.SOLID)
+        self.black_dashed_pen = wx.Pen(wx.Colour(200, 200, 200), 1, wx.USER_DASH)
         self.black_dashed_pen.SetDashes([2, 2])
         self.black_dashed_pen.SetCap(wx.CAP_BUTT)
-        self.grey_solid_pen = wx.Pen(wx.Color(200, 200, 200), 1, wx.SOLID)
-        self.red_solid_pen = wx.Pen(wx.Color(255, 0, 0), 1, wx.SOLID)
+        self.grey_solid_pen = wx.Pen(wx.Colour(200, 200, 200), 1, wx.SOLID)
+        self.red_solid_pen = wx.Pen(wx.Colour(255, 0, 0), 1, wx.SOLID)
 
     def _create_brushes(self):
-        self.white_solid_brush = wx.Brush(wx.Color(255, 255, 255), wx.SOLID)
-        self.black_solid_brush = wx.Brush(wx.Color(0, 0, 0), wx.SOLID)
-        self.red_solid_brush = wx.Brush(wx.Color(255, 0, 0), wx.SOLID)
-        self.lightgrey_solid_brush = wx.Brush(wx.Color(230, 230, 230), wx.SOLID)
+        self.white_solid_brush = wx.Brush(wx.Colour(255, 255, 255), wx.SOLID)
+        self.black_solid_brush = wx.Brush(wx.Colour(0, 0, 0), wx.SOLID)
+        self.red_solid_brush = wx.Brush(wx.Colour(255, 0, 0), wx.SOLID)
+        self.lightgrey_solid_brush = wx.Brush(wx.Colour(230, 230, 230), wx.SOLID)
 
     def event_is_period(self, time_period):
         period_width_in_pixels = self.scene.width_of_period(time_period)
@@ -91,7 +111,7 @@ class DefaultDrawingAlgorithm(Drawer):
 
     def _create_scene(self, size, db, view_properties, get_text_extent_fn):
         scene = TimelineScene(size, db, view_properties, get_text_extent_fn, self.config)
-        scene.set_outer_padding(OUTER_PADDING)
+        scene.set_outer_padding(self.outer_padding)
         scene.set_inner_padding(INNER_PADDING)
         scene.set_period_threshold(PERIOD_THRESHOLD)
         scene.set_data_indicator_size(DATA_INDICATOR_SIZE)
@@ -193,7 +213,10 @@ class DefaultDrawingAlgorithm(Drawer):
         return self.scene.get_time(x)
 
     def get_hidden_event_count(self):
-        return self.scene.get_hidden_event_count()
+        try:
+            return self.scene.get_hidden_event_count()
+        except AttributeError:
+            return 0
 
     def _draw_period_selection(self, view_properties):
         if not view_properties.period_selection:
@@ -248,7 +271,7 @@ class DefaultDrawingAlgorithm(Drawer):
             self._draw_major_strip_label(time_period)
 
     def _draw_major_strip_end_line(self, time_period):
-        end_time = self.time_type.adjust_for_bc_years(time_period.end_time) 
+        end_time = self.time_type.adjust_for_bc_years(time_period.end_time)
         x = self.scene.x_pos_for_time(end_time)
         self.dc.DrawLine(x, 0, x, self.scene.height)
 
@@ -390,8 +413,30 @@ class DefaultDrawingAlgorithm(Drawer):
             self.dc.DrawText(cat.name, OUTER_PADDING + INNER_PADDING, cur_y)
             cur_y = cur_y + item_height + INNER_PADDING
 
+    def _scroll_events_vertically(self, view_properties):
+        collection = []
+        amount = view_properties.hscroll_amount
+        if amount != 0:
+            for (event, rect) in self.scene.event_data:
+                if rect.Y < self.scene.divider_y:
+                    self._scroll_point_events(amount, event, rect, collection)
+                else:
+                    self._scroll_period_events(amount, event, rect, collection)
+            self.scene.event_data = collection
+        
+    def _scroll_point_events(self, amount, event, rect, collection):
+        rect.Y += amount
+        if rect.Y < self.scene.divider_y - rect.height:
+            collection.append((event, rect))
+
+    def _scroll_period_events(self, amount, event, rect, collection):
+        rect.Y -= amount
+        if rect.Y > self.scene.divider_y + rect.height:
+            collection.append((event, rect))
+        
     def _draw_events(self, view_properties):
         """Draw all event boxes and the text inside them."""
+        self._scroll_events_vertically(view_properties)
         self.dc.SetFont(self.small_text_font)
         self.dc.DestroyClippingRegion()
         self._draw_lines_to_non_period_events(view_properties)
@@ -404,8 +449,7 @@ class DefaultDrawingAlgorithm(Drawer):
     def _draw_container(self, event, rect, view_properties):
         box_rect = wx.Rect(rect.X - 2, rect.Y - 2, rect.Width + 4, rect.Height + 4)
         self._draw_box(box_rect, event)
-        if self._event_displayed_as_point_event(rect):
-            self._draw_text(rect, event)
+        self._draw_text(rect, event)
         if view_properties.is_selected(event):
             self._draw_selection_and_handles(rect, event)
 
@@ -576,7 +620,7 @@ class DefaultDrawingAlgorithm(Drawer):
             fg_color = BLACK
         else:
             font_color = event.category.font_color
-            fg_color = wx.Color(font_color[0], font_color[1], font_color[2])
+            fg_color = wx.Colour(font_color[0], font_color[1], font_color[2])
         self.dc.SetTextForeground(fg_color)
 
     def _draw_contents_indicator(self, event, rect):
@@ -682,6 +726,13 @@ class DefaultDrawingAlgorithm(Drawer):
 
     def _draw_ballon(self, event, event_rect, sticky):
         """Draw one ballon on a selected event that has 'description' data."""
+        def max_text_width(iw):
+            padding = 2 * BALLOON_RADIUS
+            if iw > 0:
+                padding += BALLOON_RADIUS
+            max_text_width = (self.scene.width - SLIDER_WIDTH - event_rect.X - 
+                             event_rect.width / 2 - iw - padding + ARROW_OFFSET)
+            return max(MIN_TEXT_WIDTH, max_text_width)        
         # Constants
         MIN_TEXT_WIDTH = 200
         MIN_WIDTH = 100
@@ -696,7 +747,6 @@ class DefaultDrawingAlgorithm(Drawer):
             (iw, ih) = icon.Size
             inner_rect_w = iw
             inner_rect_h = ih
-        max_text_width = max(MIN_TEXT_WIDTH, (self.scene.width - SLIDER_WIDTH - event_rect.X - iw))
         # Text
         self.dc.SetFont(get_default_font(8))
         font_h = self.dc.GetCharHeight()
@@ -704,6 +754,7 @@ class DefaultDrawingAlgorithm(Drawer):
         description = event.get_data("description")
         lines = None
         if description != None:
+            max_text_width = max_text_width(iw)
             lines = break_text(description, self.dc, max_text_width)
             th = len(lines) * self.dc.GetCharHeight()
             for line in lines:
@@ -771,7 +822,6 @@ class DefaultDrawingAlgorithm(Drawer):
         H = 1 * R + inner_size[1]
         H_ARROW = 14
         W_ARROW = 15
-        W_ARROW_OFFSET = R + 25
         AA = 20
         # Starting point at the tip of the arrow
         (tipx, tipy) = tip_pos
@@ -782,7 +832,7 @@ class DefaultDrawingAlgorithm(Drawer):
                       p0.y - H_ARROW)
         path.AddLineToPoint(p1.x, p1.y)
         # Start of lower left rounded corner
-        p2 = wx.Point(p1.x - W_ARROW_OFFSET + R, p1.y)
+        p2 = wx.Point(p1.x - ARROW_OFFSET + R, p1.y)
         path.AddLineToPoint(p2.x, p2.y)
         # The lower left rounded corner. p3 is the center of the arc
         p3 = wx.Point(p2.x, p2.y - R)
@@ -808,15 +858,15 @@ class DefaultDrawingAlgorithm(Drawer):
         p9 = wx.Point(p8.x - R, p8.y)
         path.AddArc(p9.x, p9.y, R, math.radians(0), math.radians(90))
         # The lower side
-        p10 = wx.Point(p9.x - W + W_ARROW +  W_ARROW_OFFSET, p9.y + R)
+        p10 = wx.Point(p9.x - W + W_ARROW +  ARROW_OFFSET, p9.y + R)
         path.AddLineToPoint(p10.x, p10.y)
         path.CloseSubpath()
         # Draw sharp lines on GTK which uses Cairo
         # See: http://www.cairographics.org/FAQ/#sharp_lines
         gc.Translate(0.5, 0.5)
         # Draw the ballon
-        BORDER_COLOR = wx.Color(127, 127, 127)
-        BG_COLOR = wx.Color(255, 255, 231)
+        BORDER_COLOR = wx.Colour(127, 127, 127)
+        BG_COLOR = wx.Colour(255, 255, 231)
         PEN = wx.Pen(BORDER_COLOR, 1, wx.SOLID)
         BRUSH = wx.Brush(BG_COLOR, wx.SOLID)
         gc.SetPen(PEN)

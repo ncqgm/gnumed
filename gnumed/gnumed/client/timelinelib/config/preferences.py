@@ -24,17 +24,12 @@ class PreferencesEditor(object):
         self.weeks_map = ((0, "monday"), (1, "sunday"))
 
     def initialize_controls(self):
-        self.dialog.set_checkbox_enable_wide_date_range(
-            self.config.get_use_wide_date_range())
         self.dialog.set_checkbox_use_inertial_scrolling(
             self.config.get_use_inertial_scrolling())
         self.dialog.set_checkbox_open_recent_at_startup(
             self.config.get_open_recent_at_startup())
         index = self._week_index(self.config.week_start)
         self.dialog.set_week_start(index)
-
-    def on_use_wide_date_range_changed(self, value):
-        self.config.set_use_wide_date_range(value)
 
     def on_use_inertial_scrolling_changed(self, value):
         self.config.set_use_inertial_scrolling(value)

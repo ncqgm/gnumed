@@ -20,7 +20,7 @@ import wx
 import wx.lib.colourselect as colourselect
 
 import timelinelib.wxgui.utils as gui_utils
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 from timelinelib.wxgui.utils import _set_focus_and_select
 from timelinelib.wxgui.utils import BORDER
 from timelinelib.editors.category import CategoryEditor
@@ -85,12 +85,12 @@ class WxCategoryEdtiorDialog(wx.Dialog):
 
     def handle_invalid_name(self, name):
         msg = _("Category name '%s' not valid. Must be non-empty.")
-        _display_error_message(msg % name, self)
+        display_error_message(msg % name, self)
         _set_focus_and_select(self.txt_name)
 
     def handle_used_name(self, name):
         msg = _("Category name '%s' already in use.")
-        _display_error_message(msg % name, self)
+        display_error_message(msg % name, self)
         _set_focus_and_select(self.txt_name)
 
     def handle_db_error(self, e):

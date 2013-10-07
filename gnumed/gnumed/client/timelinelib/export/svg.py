@@ -17,8 +17,8 @@
 
 
 from types import UnicodeType
+from xml.sax.saxutils import escape as xmlescape
 
-import wx
 from pysvg.structure import *
 from pysvg.core import *
 from pysvg.text import *
@@ -32,9 +32,6 @@ from timelinelib.drawing.utils import darken_color
 
 OUTER_PADDING = 5      # Space between event boxes (pixels)
 INNER_PADDING = 3      # Space inside event box to text (pixels)
-BASELINE_PADDING = 15  # Extra space to move events away from baseline (pixels)
-PERIOD_THRESHOLD = 20  # Periods smaller than this are drawn as events (pixels)
-BALLOON_RADIUS = 12
 DATA_INDICATOR_SIZE = 10
 SMALL_FONT_SIZE = 9
 MAJOR_STRIP_FONT_SIZE = 6
@@ -47,6 +44,7 @@ def export(path, scene, view_properties):
 
 
 class SVGDrawingAlgorithm(object):
+
     # options:  shadow=True|False
     def __init__(self, path, scene, view_properties, **kwargs):
         # store important data references
@@ -59,14 +57,6 @@ class SVGDrawingAlgorithm(object):
         self.svg = svg(width="%dpx" % self.metrics['widthpx'], height="%dpx" % self.metrics['heightpx'])
         # Fonts and pens we use when drawing
         # SVG Text style
-        self.myHeaderStyle = StyleBuilder()
-        self.mySmallTextStyle = StyleBuilder()
-        self.myHeaderStyle.setFontFamily(fontfamily="Verdana")
-        self.mySmallTextStyle.setFontFamily(fontfamily="Verdana")
-        self.mySmallTextStyle.setFontSize('3')
-        self.myHeaderStyle.setFontSize('7')
-        self.mySmallTextStyle.setFilling("black")
-        self.myHeaderStyle.setFilling("black")
         filterShadow = filter(x="-.3",y="-.5", width=1.9, height=1.9)
         filtBlur = feGaussianBlur(stdDeviation="4")
         filtBlur.set_in("SourceAlpha")
@@ -90,7 +80,6 @@ class SVGDrawingAlgorithm(object):
         d=defs()
         d.addElement(filterShadow)
         self.svg.addElement(d)
-        self.DATA_ICON_WIDTH = 5
         # local flags
         self.shadowFlag = False
         # flag handling
@@ -106,24 +95,9 @@ class SVGDrawingAlgorithm(object):
         self.svg.save(path)
 
     def draw(self):
-        """
-        Implement the drawing interface.
-        """
-        self._draw_period_selection()
         self._draw_bg()
         self._draw_events(self.view_properties)
         self._draw_legend(self.view_properties, self._extract_categories())
-
-    def _draw_period_selection(self):
-        if not self.view_properties.period_selection:
-            return
-        start, end = self.view_properties.period_selection
-        start_x = self.scene.x_pos_for_time(start)
-        end_x = self.scene.x_pos_for_time(end)
-        self.dc.SetBrush(self.lightgrey_solid_brush)
-        self.dc.SetPen(wx.TRANSPARENT_PEN)
-        self.dc.DrawRectangle(start_x, 0,
-                              end_x - start_x + 1, self.scene.height)
 
     def _draw_bg(self):
         """
@@ -153,27 +127,20 @@ class SVGDrawingAlgorithm(object):
         oh = ShapeBuilder()
         line = oh.createLine(x,0,x,self.scene.height, strokewidth=0.5, stroke="lightgrey")
         group.addElement(line)
-        # self.dc.SetPen(self.black_dashed_pen)
-        # self.dc.DrawLine(x, 0, x, self.scene.height)
 
     def _draw_minor_strip_label(self, group, style, strip_period):
         label = self.scene.minor_strip.label(strip_period.start_time)
-        # self.dc.SetFont(self.scene.minor_strip.get_font(strip_period))
-        # (tw, th) = self.dc.GetTextExtent(label)
         middle = self.scene.x_pos_for_time(strip_period.start_time) + INNER_PADDING
         # check for negative values
         if middle < INNER_PADDING:
             return
         middley = self.scene.divider_y
-        # self.dc.DrawText(label, middle - tw / 2, middley - th)
         # Label
         myText = self._text(label, middle, middley)
         myText.set_style(style)
         group.addElement(myText)
 
     def _draw_major_strips(self, group, style):
-        #        self.dc.SetFont(self.header_font)
-        #        self.dc.SetPen(self.grey_solid_pen)
         oh = ShapeBuilder()
         style.setStrokeDashArray("")
         fontSize = MAJOR_STRIP_FONT_SIZE
@@ -182,16 +149,13 @@ class SVGDrawingAlgorithm(object):
             # Divider line
             x = self.scene.x_pos_for_time(tp.end_time)
             line = oh.createLine(x,0,x,self.scene.height,strokewidth=0.5, stroke="grey")
-            #            self.dc.DrawLine(x, 0, x, self.scene.height)
             # Label
             label = self.scene.major_strip.label(tp.start_time, True)
-            # (tw, th) = self.dc.GetTextExtent(label)
             x = self.scene.x_pos_for_time(tp.start_time) + INNER_PADDING
             #            x = self.scene.x_pos_for_time(tp.mean_time()) - tw / 2
             # If the label is not visible when it is positioned in the middle
             # of the period, we move it so that as much of it as possible is
             # visible without crossing strip borders.
-            # self.dc.DrawText(label, x, INNER_PADDING)
             extra_vertical_padding = 0
             if x - INNER_PADDING < 0:
                 x = INNER_PADDING
@@ -203,16 +167,12 @@ class SVGDrawingAlgorithm(object):
             group.addElement(myText)
 
     def _draw_divider_line(self, group):
-        # self.dc.SetPen(self.black_solid_pen)
         oh = ShapeBuilder()
         line = oh.createLine(0, self.scene.divider_y, self.scene.width,
                              self.scene.divider_y, strokewidth=0.5, stroke="grey")
         group.addElement(line)
-        # self.dc.DrawLine(0, self.scene.divider_y, self.scene.width,
-        #                  self.scene.divider_y)
 
     def _draw_lines_to_non_period_events(self, group, view_properties):
-        # self.dc.SetBrush(self.black_solid_brush)
         for (event, rect) in self.scene.event_data:
             if rect.Y < self.scene.divider_y:
                 x = self.scene.x_pos_for_time(event.mean_time())
@@ -226,8 +186,6 @@ class SVGDrawingAlgorithm(object):
                 group.addElement(line)
                 circle = oh.createCircle(x, self.scene.divider_y, 2)
                 group.addElement(circle)
-                # self.dc.DrawLine(x, y, x, self.scene.divider_y)
-                # self.dc.DrawCircle(x, self.scene.divider_y, 2)
 
     def _draw_now_line(self, group):
         x = self.scene.x_pos_for_now()
@@ -235,8 +193,6 @@ class SVGDrawingAlgorithm(object):
             oh = ShapeBuilder()
             line = oh.createLine(x, 0, x, self.scene.height, stroke="darkred")
             group.addElement(line)
-            # self.dc.SetPen(self.darkred_solid_pen)
-            # self.dc.DrawLine(x, 0, x, self.scene.height)
 
     def _get_base_color(self, event):
         if event.category:
@@ -388,7 +344,7 @@ class SVGDrawingAlgorithm(object):
         return indicator
 
     def _svg_clipped_text(self, myString, rectTuple, myStyle):
-        myString = self._encode_unicode_text(myString)
+        myString = self._encode_text(myString)
         # Put text,clipping into a SVG group
         group=g()
         rx, ry, width, height = rectTuple
@@ -422,8 +378,11 @@ class SVGDrawingAlgorithm(object):
         return group
 
     def _text(self, the_text, x, y):
-        encoded_text = self._encode_unicode_text(the_text)
+        encoded_text = self._encode_text(the_text)
         return text(encoded_text, x, y)
+
+    def _encode_text(self, text):
+        return self._encode_unicode_text(xmlescape(text))
 
     def _encode_unicode_text(self, text):
         if type(text) is UnicodeType:

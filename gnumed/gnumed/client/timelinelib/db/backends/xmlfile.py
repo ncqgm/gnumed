@@ -21,12 +21,13 @@ Implementation of timeline database with xml file storage.
 """
 
 
-import re
-import os.path
 from os.path import abspath
-import base64
-import StringIO
 from xml.sax.saxutils import escape as xmlescape
+import base64
+import os.path
+import re
+import shutil
+import StringIO
 
 import wx
 
@@ -37,9 +38,9 @@ from timelinelib.db.objects import Container
 from timelinelib.db.objects import Event
 from timelinelib.db.objects import Subevent
 from timelinelib.db.objects import TimePeriod
-from timelinelib.db.utils import safe_write
+from timelinelib.db.utils import safe_write, create_non_exising_path
 from timelinelib.meta.version import get_version
-from timelinelib.time import WxTimeType
+from timelinelib.time.gregoriantime import GregorianTimeType
 from timelinelib.utils import ex_msg
 from timelinelib.xml.parser import ANY
 from timelinelib.xml.parser import OPTIONAL
@@ -78,17 +79,13 @@ class ParseException(Exception):
 
 class XmlTimeline(MemoryDB):
 
-    def __init__(self, path, load=True, use_wide_date_range=False):
+    def __init__(self, path, load=True, import_timeline=False):
         MemoryDB.__init__(self)
         self.path = path
-        self._set_time_type(use_wide_date_range)
+        self.time_type = GregorianTimeType()
         if load == True:
             self._load()
             self._fill_containers()
-
-    def _set_time_type(self, use_wide_date_range):
-        if use_wide_date_range == True:
-            self.time_type = WxTimeType()
 
     def _parse_time(self, time_string):
         return self.get_time_type().parse_time(time_string)
@@ -143,16 +140,34 @@ class XmlTimeline(MemoryDB):
             whole_msg = (msg + "\n\n%s") % (abspath(self.path), ex_msg(e))
             raise TimelineIOError(whole_msg)
 
+    def import_timeline(self, path):
+        try:
+            self.importing = True
+            p = self.path
+            self.path = path
+            self._load()
+            self._fill_containers()
+            self.path = p
+        finally:
+            self.importing = False
+
     def _parse_version(self, text, tmp_dict):
         match = re.search(r"^(\d+).(\d+).(\d+)(dev.*)?$", text)
         if match:
             (x, y, z) = (int(match.group(1)), int(match.group(2)),
                          int(match.group(3)))
+            self._backup((x, y, z))
             tmp_dict["version"] = (x, y, z)
             self._create_rest_of_schema(tmp_dict)
         else:
             raise ParseException("Could not parse version number from '%s'."
                                  % text)
+
+    def _backup(self, current_version):
+        (x, y, z) = current_version
+        if x == 0:
+            shutil.copy(self.path,
+                        create_non_exising_path(self.path, "pre100bak"))
 
     def _create_rest_of_schema(self, tmp_dict):
         """
@@ -215,8 +230,12 @@ class XmlTimeline(MemoryDB):
         else:
             parent = None
         category = Category(name, color, font_color, True, parent=parent)
-        tmp_dict["category_map"][name] = category
-        self.save_category(category)
+        old_category = self._get_category_by_name(category)
+        if old_category is not None:
+            category = old_category     
+        if not tmp_dict["category_map"].has_key(name):
+            tmp_dict["category_map"][name] = category
+            self.save_category(category)
 
     def _parse_event(self, text, tmp_dict):
         start = self._parse_time(tmp_dict.pop("tmp_start"))
@@ -248,6 +267,8 @@ class XmlTimeline(MemoryDB):
             cid, text = self._extract_subid(text)
             event = Subevent(self.get_time_type(), start, end, text, category, cid=cid)
         else:
+            if self._text_starts_with_added_space(text):
+                text = self._remove_added_space(text)
             event = Event(self.get_time_type(), start, end, text, category, fuzzy, locked, ends_today)
         event.set_data("description", description)
         event.set_data("icon", icon)
@@ -255,6 +276,12 @@ class XmlTimeline(MemoryDB):
         event.set_data("hyperlink", hyperlink)
         self.save_event(event)
 
+    def _text_starts_with_added_space(self, text):
+        return text[0:2] in (" (", " [")
+    
+    def _remove_added_space(self, text):
+        return text[1:]
+        
     def alert_string(self, alert):
         time, text = alert
         time_string = self._time_string(time)
@@ -374,7 +401,10 @@ class XmlTimeline(MemoryDB):
         elif evt.is_subevent():
             write_simple_tag(file, "text", "(%d)%s " % (evt.cid(), evt.text), INDENT3)
         else:
-            write_simple_tag(file, "text", evt.text, INDENT3)
+            text = evt.text
+            if self._text_starts_with_container_tag(evt.text):
+                text = self._add_leading_space_to_text(evt.text)
+            write_simple_tag(file, "text", text, INDENT3)
         write_simple_tag(file, "fuzzy", "%s" % evt.fuzzy, INDENT3)
         write_simple_tag(file, "locked", "%s" % evt.locked, INDENT3)
         write_simple_tag(file, "ends_today", "%s" % evt.ends_today, INDENT3)
@@ -395,6 +425,12 @@ class XmlTimeline(MemoryDB):
             write_simple_tag(file, "icon", icon_text, INDENT3)
     _write_event = wrap_in_tag(_write_event, "event", INDENT2)
 
+    def _text_starts_with_container_tag(self, text):
+        return text[0] in ('(', '[')
+
+    def _add_leading_space_to_text(self, text):
+        return " %s" % text
+    
     def _write_view(self, file):
         if self._get_displayed_period() is not None:
             self._write_displayed_period(file)

@@ -285,8 +285,8 @@ class TimelineScene(object):
         """Fill the two arrays `minor_strip_data` and `major_strip_data`."""
         def fill(list, strip):
             """Fill the given list with the given strip."""
-            current_start = strip.start(self._view_properties.displayed_period.start_time)
             try:
+                current_start = strip.start(self._view_properties.displayed_period.start_time)
                 while current_start < self._view_properties.displayed_period.end_time:
                     next_start = strip.increment(current_start)
                     list.append(TimePeriod(self._db.get_time_type(), current_start, next_start))

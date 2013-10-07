@@ -16,27 +16,27 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-VERSION = (1, 0, 1)
-DEV = False
+import os.path
+
+import wx
+
+from timelinelib.config.paths import ICONS_DIR
+from timelinelib.wxgui.dialogs.feedback import show_feedback_dialog
 
 
-def get_version():
-    if DEV:
-        return ("%s.%s.%sdev" % VERSION) + DEV_REVISION
-    return "%s.%s.%s" % VERSION
+class FeedbackButton(wx.BitmapButton):
 
+    def __init__(self, parent, info, subject):
+        self.parent = parent
+        self.info = info
+        self.subject = subject
+        self._init_gui()
 
-def _get_revision():
-    try:
-        import os
-        from subprocess import Popen, PIPE
-        root = os.path.join(os.path.dirname(__file__), "..", "..")
-        cmd = ["hg", "id", "-i", "-R", root]
-        rev = Popen(cmd, stdout=PIPE).communicate()[0].strip()
-        return rev
-    except:
-        return "0"
+    def _init_gui(self):
+        feedback_bitmap = wx.Bitmap(os.path.join(ICONS_DIR, "feedback.png"))
+        wx.BitmapButton.__init__(self, self.parent, wx.ID_ANY, feedback_bitmap)
+        self.SetToolTip(wx.ToolTip(_("Give feedback")))
+        self.Bind(wx.EVT_BUTTON, self.on_click, self)
 
-
-if DEV:
-    DEV_REVISION = _get_revision()
+    def on_click(self, event):
+        show_feedback_dialog(self.info, self.subject, "", self.parent)

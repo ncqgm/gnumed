@@ -19,7 +19,7 @@
 import wx
 
 from timelinelib.wxgui.utils import BORDER
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 from timelinelib.editors.textdisplay import TextDisplayEditor
 
 
@@ -87,11 +87,12 @@ class TextDisplayDialog(TextDisplayDialogGui):
         if wx.TheClipboard.Open():
             self._copy_text_to_clipboard()
         else:
-            _display_error_message(_("Unable to copy to clipboard."))
+            display_error_message(_("Unable to copy to clipboard."))
 
     def _copy_text_to_clipboard(self):
         obj = wx.TextDataObject(self.controller.get_text())
         wx.TheClipboard.SetData(obj)
         wx.TheClipboard.Close()
+        
     def _btn_close_on_click(self, evt):
-        self.Close()
+        self.EndModal(wx.ID_OK)

@@ -16,24 +16,21 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# A category was added, edited, or deleted
-STATE_CHANGE_CATEGORY = 1
-# Something happened that changed the state of the timeline
-STATE_CHANGE_ANY = 2
+import wx
+
+from timelinelib.utilities.observer import Observable
+from timelinelib.utilities.observer import TIMER_TICK
 
 
-class Observable(object):
+class TimelineTimer(Observable):
 
-    def __init__(self):
-        self.observers = []
+    def __init__(self, parent):
+        Observable.__init__(self)
+        self.timer = wx.Timer(parent)
+        parent.Bind(wx.EVT_TIMER, self._timer_tick, self.timer)
 
-    def register(self, fn):
-        self.observers.append(fn)
-
-    def unregister(self, fn):
-        if fn in self.observers:
-            self.observers.remove(fn)
-
-    def _notify(self, state_change):
-        for fn in self.observers:
-            fn(state_change)
+    def start(self, interval_in_ms):
+        self.timer.Start(interval_in_ms)
+        
+    def _timer_tick(self, evt):
+        self._notify(TIMER_TICK)

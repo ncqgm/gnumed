@@ -42,11 +42,21 @@ class NoOpInputHandler(InputHandler):
         event = self.drawing_area.event_at(x, y, alt_down)
         time_at_x = self.drawing_area.get_time(x)
         if self._hit_resize_handle(x, y, alt_down) is not None:
-            direction = self._hit_resize_handle(x, y, alt_down)
-            self.drawing_area.change_input_handler_to_resize_by_drag(event, direction)
+            if self.drawing_area_view.ok_to_edit():
+                try:
+                    direction = self._hit_resize_handle(x, y, alt_down)
+                    self.drawing_area.change_input_handler_to_resize_by_drag(event, direction)
+                except:
+                    self.drawing_area_view.edit_ends()
+                    raise
             return
         if self._hit_move_handle(x, y, alt_down) and not event.ends_today:
-            self.drawing_area.change_input_handler_to_move_by_drag(event, time_at_x)
+            if self.drawing_area_view.ok_to_edit():
+                try:
+                    self.drawing_area.change_input_handler_to_move_by_drag(event, time_at_x)
+                except:
+                    self.drawing_area_view.edit_ends()
+                    raise
             return
         if (event is None and ctrl_down == False and shift_down == False):
             self.drawing_area._toggle_event_selection(x, y, ctrl_down)

@@ -25,18 +25,47 @@ from timelinelib.wxgui.utils import WildcardHelper
 
 
 def export_to_image(main_frame):
-    images_wildcard_helper = WildcardHelper(
-        _("Image files"), [("png", wx.BITMAP_TYPE_PNG)])
+    path, image_type = get_image_path(main_frame)
+    if path is not None and overwrite_existing_path(main_frame, path):
+        bitmap = main_frame.main_panel.get_current_image()
+        image = wx.ImageFromBitmap(bitmap)
+        image.SaveFile(path, image_type)
+        
+def export_to_images(main_frame):
+    path, image_type = get_image_path(main_frame)
+    if path is not None:
+        path_without_extension, extension  = path.rsplit(".", 1)
+        periods, current_period = main_frame.get_export_periods()
+        count = 1
+        for period in periods:
+            path = "%s_%d.%s" % (path_without_extension, count, extension)
+            if overwrite_existing_path(main_frame, path):
+                main_frame.main_panel.timeline_panel.drawing_area.controller.view_properties.displayed_period = period
+                main_frame.main_panel.redraw_timeline()
+                bitmap = main_frame.main_panel.get_current_image()
+                image = wx.ImageFromBitmap(bitmap)
+                image.SaveFile(path, image_type)
+            count += 1
+        main_frame.main_panel.timeline_panel.drawing_area.controller.view_properties.displayed_period = current_period
+        main_frame.main_panel.redraw_timeline()
+
+def get_image_path(main_frame):
+    image_type = None
+    path = None
+    file_info = _("Image files")
+    file_types = [("png", wx.BITMAP_TYPE_PNG)]  
+    images_wildcard_helper = WildcardHelper(file_info, file_types)
     wildcard = images_wildcard_helper.wildcard_string()
-    dialog = wx.FileDialog(main_frame, message=_("Export to Image"),
+    dialog = wx.FileDialog(main_frame, message=_("Export to Image"), 
                            wildcard=wildcard, style=wx.FD_SAVE)
     if dialog.ShowModal() == wx.ID_OK:
         path = images_wildcard_helper.get_path(dialog)
-        overwrite_question = _("File '%s' exists. Overwrite?") % path
-        if (not os.path.exists(path) or
-            _ask_question(overwrite_question, main_frame) == wx.YES):
-            bitmap = main_frame.main_panel.drawing_area.get_current_image()
-            image = wx.ImageFromBitmap(bitmap)
-            type = images_wildcard_helper.get_extension_data(path)
-            image.SaveFile(path, type)
+        image_type = images_wildcard_helper.get_extension_data(path)
     dialog.Destroy()
+    return path, image_type
+
+def overwrite_existing_path(main_frame, path):
+    if os.path.exists(path):
+        overwrite_question = _("File '%s' exists. Overwrite?") % path
+        return _ask_question(overwrite_question, main_frame) == wx.YES
+    return True

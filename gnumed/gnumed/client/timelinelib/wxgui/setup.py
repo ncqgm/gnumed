@@ -25,11 +25,11 @@ import wx
 
 from timelinelib.meta.version import get_version
 from timelinelib.wxgui.dialogs.mainframe import MainFrame
-from timelinelib.wxgui.dialogs.textdisplay import TextDisplayDialog
+from timelinelib.wxgui.dialogs.feedback import show_feedback_dialog
 
 
 def start_wx_application(application_arguments, before_main_loop_hook=None):
-    app = wx.PySimpleApp()
+    app = wx.App(False)
     main_frame = MainFrame(application_arguments)
     main_frame.Show()
     sys.excepthook = unhandled_exception_hook
@@ -39,27 +39,29 @@ def start_wx_application(application_arguments, before_main_loop_hook=None):
 
 
 def unhandled_exception_hook(type, value, tb):
-    title = "Unexpected Error"
-    text = create_error_message(type, value, tb)
-    dialog = TextDisplayDialog(title, text)
-    dialog.ShowModal()
-    dialog.Destroy()
+    show_feedback_dialog(
+        parent=None,
+        info=create_info_message(),
+        subject=create_subject(type, value),
+        body=create_error_message(type, value, tb))
+
+
+def create_info_message():
+    return ("An unexpected error has occurred. Help us fix it by reporting "
+            "the error through this form. "
+            "It would also be useful to describe what you did just "
+            "before the error occurred.")
+
+
+def create_subject(type, value):
+    exception_message = "".join(traceback.format_exception_only(type, value)).strip()
+    return "Crash report: %s" % exception_message
 
 
 def create_error_message(type, value, tb):
-    intro = create_intro_message()
-    exception = ("".join(traceback.format_exception(type, value, tb))).strip()
+    stacktrace = ("".join(traceback.format_exception(type, value, tb))).strip()
     versions = create_versions_message()
-    return "%s\n\n%s\n\n%s" % (intro, exception, versions)
-
-
-def create_intro_message():
-    intro1 = ("An unexpected error has occurred. Please report this by copying "
-              "this error message and sending it to "
-              "thetimelineproj-user@lists.sourceforge.net.")
-    intro2 = ("It would also be useful if you can describe what you did just "
-              "before the error occurred.")
-    return "%s\n\n%s" % (intro1, intro2)
+    return "Describe what you did here...\n\n%s\n\n%s" % (stacktrace, versions)
 
 
 def create_versions_message():

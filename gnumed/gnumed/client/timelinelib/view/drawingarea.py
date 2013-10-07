@@ -22,8 +22,9 @@ import webbrowser
 from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.objects import TimeOutOfRangeLeftError
 from timelinelib.db.objects import TimeOutOfRangeRightError
-from timelinelib.db.observer import STATE_CHANGE_ANY
-from timelinelib.db.observer import STATE_CHANGE_CATEGORY
+from timelinelib.db.utils import safe_locking
+from timelinelib.utilities.observer import STATE_CHANGE_ANY
+from timelinelib.utilities.observer import STATE_CHANGE_CATEGORY
 from timelinelib.drawing.viewproperties import ViewProperties
 from timelinelib.utils import ex_msg
 from timelinelib.view.move import MoveByDragInputHandler
@@ -32,6 +33,7 @@ from timelinelib.view.periodevent import CreatePeriodEventByDragInputHandler
 from timelinelib.view.resize import ResizeByDragInputHandler
 from timelinelib.view.scrolldrag import ScrollByDragInputHandler
 from timelinelib.view.zoom import ZoomByDragInputHandler
+import timelinelib.calendar.gregorian as gregorian
 
 
 # The width in pixels of the vertical scroll zones.
@@ -40,7 +42,7 @@ from timelinelib.view.zoom import ZoomByDragInputHandler
 # timeline. The scroll zone areas are found at the beginning and at the
 # end of the timeline.
 SCROLL_ZONE_WIDTH = 20
-
+HSCROLL_STEP = 25
 LEFT_RIGHT_SCROLL_FACTOR = 1 / 200.0
 MOUSE_SCROLL_FACTOR = 1 / 10.0
 
@@ -61,6 +63,7 @@ class DrawingArea(object):
         self.divider_line_slider.Bind(wx.EVT_CONTEXT_MENU, self._slider_on_context_menu)
         self.change_input_handler_to_no_op()
         self.fast_draw = False
+        self.timeline = None
 
     def change_input_handler_to_zoom_by_drag(self, start_time):
         self.input_handler = ZoomByDragInputHandler(self, self.status_bar_adapter, start_time)
@@ -81,6 +84,7 @@ class DrawingArea(object):
 
     def change_input_handler_to_no_op(self):
         self.input_handler = NoOpInputHandler(self, self.view)
+        self.view.edit_ends()
 
     def get_drawer(self):
         return self.drawing_algorithm
@@ -125,6 +129,7 @@ class DrawingArea(object):
             if self.view_properties.displayed_period is None:
                 default_tp = self.time_type.get_default_time_period()
                 self.view_properties.displayed_period = default_tp
+            self.view_properties.hscroll_amount = 0
         except TimelineIOError, e:
             self.fn_handle_db_error(e)
             properties_loaded = False
@@ -193,6 +198,7 @@ class DrawingArea(object):
         self.context_menu_event = self.drawing_algorithm.event_at(x, y, alt_down)
         if self.context_menu_event is None:
             return
+        self.view_properties.set_selected(self.context_menu_event, True)
         menu_definitions = [
             (_("Edit"), self._context_menu_on_edit_event),
             (_("Duplicate..."), self._context_menu_on_duplicate_event),
@@ -242,8 +248,6 @@ class DrawingArea(object):
         hyperlink = self.context_menu_event.get_data("hyperlink")
         webbrowser.open(hyperlink)
 
-
-    
     def left_mouse_dclick(self, x, y, ctrl_down, alt_down=False):
         """
         Event handler used when the left mouse button has been double clicked.
@@ -311,31 +315,59 @@ class DrawingArea(object):
     def mouse_moved(self, x, y, alt_down=False):
         self.input_handler.mouse_moved(x, y, alt_down)
 
-    def mouse_wheel_moved(self, rotation, ctrl_down, shift_down, x):
+    def mouse_wheel_moved(self, rotation, ctrl_down, shift_down, alt_down, x):
         direction = _step_function(rotation)
         if ctrl_down:
-            self._zoom_timeline(direction, x)
+            if shift_down:
+                self._scroll_horizontal(direction)
+            else:
+                self._zoom_timeline(direction, x)
         elif shift_down:
             self.divider_line_slider.SetValue(self.divider_line_slider.GetValue() + direction)
+            self._redraw_timeline()
+        elif alt_down:
+            if direction > 0:
+                self.drawing_algorithm.increment_font_size()
+            else:
+                self.drawing_algorithm.decrement_font_size()
             self._redraw_timeline()
         else:
             self._scroll_timeline_view(direction)
 
+    def _scroll_horizontal(self, direction):
+        if direction > 0:
+            self._scroll_up()
+        else:
+            self._scroll_down()
+        self._redraw_timeline()
+        
+    def _scroll_up(self):
+        self.view_properties.hscroll_amount -= HSCROLL_STEP
+        if self.view_properties.hscroll_amount < 0:
+            self.view_properties.hscroll_amount = 0
+    
+    def _scroll_down(self):
+        self.view_properties.hscroll_amount += HSCROLL_STEP
+    
     def key_down(self, keycode, alt_down):
         if keycode == wx.WXK_DELETE:
             self._delete_selected_events()
         elif alt_down:
             if keycode == wx.WXK_UP:
-                self._move_event_vertically(up=True)
+                self._try_move_event_vertically(True)
             elif keycode == wx.WXK_DOWN:
-                self._move_event_vertically(up=False)
-            elif keycode == wx.WXK_RIGHT:
+                self._try_move_event_vertically(False)
+            elif keycode in (wx.WXK_RIGHT, wx.WXK_NUMPAD_RIGHT):
                 self._scroll_timeline_view_by_factor(LEFT_RIGHT_SCROLL_FACTOR)
-            elif keycode == wx.WXK_LEFT:
+            elif keycode in (wx.WXK_LEFT, wx.WXK_NUMPAD_LEFT):
                 self._scroll_timeline_view_by_factor(-LEFT_RIGHT_SCROLL_FACTOR)
 
-    def _move_event_vertically(self, up=True):
+    def _try_move_event_vertically(self, up=True):
         if self._one_and_only_one_event_selected():
+            self._move_event_vertically(up)
+
+    def _move_event_vertically(self, up=True):
+        def edit_function():
             selected_event = self._get_first_selected_event()
             (overlapping_event, direction) = self.drawing_algorithm.get_closest_overlapping_event(selected_event,
                                                                                                   up=up)
@@ -348,6 +380,8 @@ class DrawingArea(object):
                 self.timeline.place_event_before_event(selected_event,
                                                        overlapping_event)
             self._redraw_timeline()
+            self.timeline._save_if_not_disabled()
+        safe_locking(self.view, edit_function)
 
     def key_up(self, keycode):
         if keycode == wx.WXK_CONTROL:
@@ -399,6 +433,7 @@ class DrawingArea(object):
                 self.fn_handle_db_error(e)
             finally:
                 self.drawing_algorithm.use_fast_draw(False)
+        self.view_properties.view_cats_individually = self.view.view_categories_individually()
         if self.timeline:
             self.view_properties.divider_position = (self.divider_line_slider.GetValue())
             self.view_properties.divider_position = (float(self.divider_line_slider.GetValue()) / 100.0)
@@ -425,10 +460,17 @@ class DrawingArea(object):
     def _display_eventinfo_in_statusbar(self, xpixelpos, ypixelpos, alt_down=False):
         event = self.drawing_algorithm.event_at(xpixelpos, ypixelpos, alt_down)
         if event != None:
-            self.status_bar_adapter.set_text(event.get_label())
+            label = event.get_label()
         else:
-            self.status_bar_adapter.set_text("")
+            label = self._format_current_pos_datetime_string(xpixelpos)
+        self.status_bar_adapter.set_text(label)
 
+    def _format_current_pos_datetime_string(self, xpos):
+        tm = self.get_time(xpos)
+        dt = self.time_type.event_date_string(tm)
+        tm = self.time_type.event_time_string(tm)
+        return "%s %s" % (dt, tm)
+        
     def balloon_show_timer_fired(self):
         self.input_handler.balloon_show_timer_fired()
 
@@ -474,18 +516,25 @@ class DrawingArea(object):
         """After acknowledge from the user, delete all selected events."""
         selected_event_ids = self.view_properties.get_selected_event_ids()
         nbr_of_selected_event_ids = len(selected_event_ids)
-        if nbr_of_selected_event_ids > 1:
-            text = _("Are you sure you want to delete %d events?" %
-                     nbr_of_selected_event_ids)
-        else:
-            text = _("Are you sure you want to delete this event?")
-        if self.view.ask_question(text) == wx.YES:
-            try:
+        def user_ack():
+            if nbr_of_selected_event_ids > 1:
+                text = _("Are you sure you want to delete %d events?" %
+                         nbr_of_selected_event_ids)
+            else:
+                text = _("Are you sure you want to delete this event?")
+            return self.view.ask_question(text) == wx.YES
+        def exception_handler(ex):
+            if isinstance(ex, TimelineIOError):
+                self.fn_handle_db_error(ex)
+            else:
+                raise(ex)
+        def edit_function():
+            if user_ack():
                 for event_id in selected_event_ids:
                     self.timeline.delete_event(event_id)
-            except TimelineIOError, e:
-                self.fn_handle_db_error(e)
-
+            self.view_properties.clear_selected()
+        safe_locking(self.view, edit_function, exception_handler)
+            
     def balloon_visibility_changed(self, visible):
         self.view_properties.show_balloons_on_hover = visible
         # When display on hovering is disabled we have to make sure

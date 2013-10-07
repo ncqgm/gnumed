@@ -33,9 +33,9 @@ from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.objects import Category
 from timelinelib.db.objects import Container
 from timelinelib.db.objects import Event
-from timelinelib.db.observer import Observable
-from timelinelib.db.observer import STATE_CHANGE_ANY
-from timelinelib.db.observer import STATE_CHANGE_CATEGORY
+from timelinelib.utilities.observer import Observable
+from timelinelib.utilities.observer import STATE_CHANGE_ANY
+from timelinelib.utilities.observer import STATE_CHANGE_CATEGORY
 from timelinelib.db.search import generic_event_search
 from timelinelib.db.utils import IdCounter
 
@@ -52,15 +52,20 @@ class MemoryDB(Observable):
         self.displayed_period = None
         self.hidden_categories = []
         self.save_disabled = False
-        from timelinelib.time.pytime import PyTimeType
-        self.time_type = PyTimeType()
+        from timelinelib.time.gregoriantime import GregorianTimeType
+        self.time_type = GregorianTimeType()
+        self.readonly = False
+        self.importing = False
 
     def get_time_type(self):
         return self.time_type
 
     def is_read_only(self):
-        return False
+        return self.readonly
 
+    def set_readonly(self):
+        self.readonly = True
+        
     def supported_event_data(self):
         return ["description", "icon", "alert", "hyperlink"]
 
@@ -180,13 +185,28 @@ class MemoryDB(Observable):
             raise TimelineIOError("Parent category not in db.")
         self._ensure_no_circular_parent(category)
         if not category in self.categories:
-            if category.has_id():
-                raise TimelineIOError("Category with id %s not found in db." %
-                                      category.id)
-            self.categories.append(category)
-            category.set_id(self.event_id_counter.get_next())
+            if self.importing:
+                if not self._category_name_exists(category):
+                    self._append_category(category)
+            else:
+                self._append_category(category)
         self._save_if_not_disabled()
         self._notify(STATE_CHANGE_CATEGORY)
+
+    def _category_name_exists(self, category):
+        return self._get_category_by_name(category) is not None
+        
+    def _append_category(self, category):
+        if category.has_id():
+            raise TimelineIOError("Category with id %s not found in db." %
+                                  category.id)
+        self.categories.append(category)
+        category.set_id(self.event_id_counter.get_next())
+        
+    def _get_category_by_name(self, category):
+        for cat in self.categories:
+            if cat.name == category.name:
+                return cat
 
     def delete_category(self, category_or_id):
         if isinstance(category_or_id, Category):

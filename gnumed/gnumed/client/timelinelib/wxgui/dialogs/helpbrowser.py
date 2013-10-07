@@ -17,13 +17,14 @@
 
 
 import os.path
+import webbrowser
 
 import wx
 import wx.html
 
 from timelinelib.config.paths import HELP_RESOURCES_DIR
 from timelinelib.config.paths import ICONS_DIR
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 
 
 class HelpBrowser(wx.Frame):
@@ -61,8 +62,8 @@ class HelpBrowser(wx.Frame):
           * (search, search_string)
         """
         if self.help_system is None:
-            _display_error_message(
-                _("Could not find markdown Python package.  It is needed by the help system. See the Timeline website or the INSTALL file for instructions how to install it."),
+            display_error_message(
+                _("Could not find markdown Python package.  It is needed by the help system. See the Timeline website or the doc/installing.rst file for instructions how to install it."),
                 self.GetParent())
             return
         if change_history:
@@ -166,8 +167,7 @@ class HelpBrowser(wx.Frame):
         if url.startswith("page:"):
             self.show_page(url[5:])
         else:
-            pass
-            # open in broswer
+            webbrowser.open(url)
 
     def _go_home(self):
         self.show_page(self.help_system.home_page)

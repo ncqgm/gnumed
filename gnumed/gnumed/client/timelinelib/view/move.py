@@ -52,6 +52,8 @@ class MoveByDragInputHandler(ScrollViewInputHandler):
     def left_mouse_up(self):
         ScrollViewInputHandler.left_mouse_up(self)
         self.status_bar_adapter.set_text("")
+        if self.drawing_area.timeline is not None:
+            self.drawing_area.timeline._save_if_not_disabled()
         self.drawing_area.change_input_handler_to_no_op()
 
     def view_scrolled(self):

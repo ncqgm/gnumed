@@ -52,6 +52,10 @@ class DrawingAreaPanel(wx.Panel):
     def get_current_image(self):
         return self.surface_bitmap
 
+    def get_filtered_events(self, search_target):
+        events = self.get_timeline().search(search_target)
+        return self.get_view_properties().filter_events(events)
+        
     def set_timeline(self, timeline):
         self.controller.set_timeline(timeline)
 
@@ -138,6 +142,16 @@ class DrawingAreaPanel(wx.Panel):
     def ask_question(self, question):
         return _ask_question(question, self)
 
+    def ok_to_edit(self):
+        return self.main_frame.ok_to_edit()
+    
+    def edit_ends(self):
+        self.SetFocusIgnoringChildren()
+        return self.main_frame.edit_ends()
+
+    def view_categories_individually(self):    
+        return self.main_frame.view_categories_individually()
+
     def _create_gui(self):
         self.balloon_show_timer = wx.Timer(self, -1)
         self.balloon_hide_timer = wx.Timer(self, -1)
@@ -185,31 +199,31 @@ class DrawingAreaPanel(wx.Panel):
         self.controller.window_resized()
 
     def _on_left_down(self, evt):
-        self.controller.left_mouse_down(evt.m_x, evt.m_y, evt.m_controlDown,
-                                        evt.m_shiftDown, evt.m_altDown)
+        self.controller.left_mouse_down(evt.GetX(), evt.GetY(), evt.ControlDown(),
+                                        evt.ShiftDown(), evt.AltDown())
         evt.Skip()
 
     def _on_right_down(self, evt):
-        self.controller.right_mouse_down(evt.m_x, evt.m_y, evt.m_altDown)
+        self.controller.right_mouse_down(evt.GetX(), evt.GetY(), evt.AltDown())
 
     def _on_left_dclick(self, evt):
-        self.controller.left_mouse_dclick(evt.m_x, evt.m_y, evt.m_controlDown,
-                                          evt.m_altDown)
+        self.controller.left_mouse_dclick(evt.GetX(), evt.GetY(), evt.ControlDown(),
+                                          evt.AltDown())
 
     def _on_middle_up(self, evt):
-        self.controller.middle_mouse_clicked(evt.m_x)
+        self.controller.middle_mouse_clicked(evt.GetX())
 
     def _on_left_up(self, evt):
         self.controller.left_mouse_up()
 
     def _on_enter(self, evt):
-        self.controller.mouse_enter(evt.m_x, evt.LeftIsDown())
+        self.controller.mouse_enter(evt.GetX(), evt.LeftIsDown())
 
     def _on_motion(self, evt):
-        self.controller.mouse_moved(evt.m_x, evt.m_y, evt.m_altDown)
+        self.controller.mouse_moved(evt.GetX(), evt.GetY(), evt.AltDown())
 
     def _on_mousewheel(self, evt):
-        self.controller.mouse_wheel_moved(evt.m_wheelRotation, evt.ControlDown(), evt.ShiftDown(), evt.GetX())
+        self.controller.mouse_wheel_moved(evt.GetWheelRotation(), evt.ControlDown(), evt.ShiftDown(), evt.AltDown(), evt.GetX())
 
     def _on_key_down(self, evt):
         self.controller.key_down(evt.GetKeyCode(), evt.AltDown())

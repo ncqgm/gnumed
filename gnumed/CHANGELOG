@@ -24,6 +24,7 @@ NEW: management of billables
 NEW: turn patient report results into waiting list entries
 NEW: show relevant measurements in current substances list
 NEW: AUDIT alcohol disorder screening
+NEW: print/export of EMR timeline
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts

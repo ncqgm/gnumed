@@ -9,7 +9,8 @@ __license__ = "GPL v2 or later"
 # std lib
 import sys
 import logging
-#os.path, codecs
+import os.path
+#codecs
 
 
 # 3rd party
@@ -23,6 +24,8 @@ from Gnumed.timelinelib.wxgui.component import TimelineComponent
 from Gnumed.timelinelib.db.exceptions import TimelineIOError
 
 from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmMimeLib
 from Gnumed.business import gmPerson
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.exporters import timeline
@@ -37,6 +40,14 @@ class cEMRTimelinePnl(TimelineComponent):
 #		TimelineComponent.__init__(self, *args, **kwargs)
 #	def __init__(self, parent):
 		TimelineComponent.__init__(self, args[0])
+	#--------------------------------------------------------
+	# rewrite when implemented in TimelineComponent
+	def export_as_svg(self, filename=None):
+		if filename is None:
+			filename = gmTools.get_unique_filename(suffix = u'.svg')
+		import Gnumed.timelinelib.export.svg as svg_exporter
+		svg_exporter.export(filename, self.get_scene(), self.get_view_properties())
+		return filename
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgEMRTimelinePluginPnl
@@ -62,7 +73,30 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		self._PNL_timeline.clear_timeline()
 	#--------------------------------------------------------
 	def _on_refresh_button_pressed(self, event):
+		#event.Skip()
 		self._populate_with_data()
+	#--------------------------------------------------------
+	def _on_export_button_pressed(self, event):
+		#event.Skip()
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _("Save timeline as SVG image under..."),
+			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
+			defaultFile = u'timeline.svg',
+			wildcard = u'%s (*.svg)|*.svg' % _('SVG files'),
+			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
+		)
+		choice = dlg.ShowModal()
+		fname = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return False
+		self._PNL_timeline.export_as_svg(filename = fname)
+	#--------------------------------------------------------
+	def _on_print_button_pressed(self, event):
+		#event.Skip()
+		svg_file = self._PNL_timeline.export_as_svg()
+		gmMimeLib.call_viewer_on_file(aFile = svg_file, block = None)
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()

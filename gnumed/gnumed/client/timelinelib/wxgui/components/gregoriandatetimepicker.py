@@ -17,25 +17,31 @@
 
 
 import os.path
-import datetime
 
 import wx.calendar
 
+import timelinelib.calendar.gregorian as gregorian
+from timelinelib.calendar.gregorian import Gregorian
+from timelinelib.time.gregoriantime import GregorianTimeType
 from timelinelib.config.paths import ICONS_DIR
-from timelinelib.time import PyTimeType
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
+from timelinelib.time.timeline import delta_from_days
 
 
-class PyDateTimePicker(wx.Panel):
+class GregorianDateTimePicker(wx.Panel):
 
     def __init__(self, parent, show_time=True, config=None):
         wx.Panel.__init__(self, parent)
         self.config = config
         self._create_gui()
-        self.controller = PyDateTimePickerController(
-            self.date_picker, self.time_picker, datetime.datetime.now)
+        self.controller = GregorianDateTimePickerController(
+            self.date_picker, self.time_picker, GregorianTimeType().now)
         self.show_time(show_time)
+        self.parent = parent
 
+    def on_return(self):
+        self.parent.on_return()
+        
     def show_time(self, show=True):
         self.time_picker.Show(show)
         self.GetSizer().Layout()
@@ -47,11 +53,11 @@ class PyDateTimePicker(wx.Panel):
         self.controller.set_value(value)
 
     def _create_gui(self):
-        self.date_picker = PyDatePicker(self)
+        self.date_picker = GregorianDatePicker(self)
         image = wx.Bitmap(os.path.join(ICONS_DIR, "calendar.png"))
         self.date_button = wx.BitmapButton(self, bitmap=image)
         self.Bind(wx.EVT_BUTTON, self._date_button_on_click, self.date_button)
-        self.time_picker = PyTimePicker(self)
+        self.time_picker = GregorianTimePicker(self)
         # Layout
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(self.date_picker, proportion=1,
@@ -64,7 +70,7 @@ class PyDateTimePicker(wx.Panel):
 
     def _date_button_on_click(self, evt):
         try:
-            wx_date = self._py_date_to_wx_date(self.date_picker.get_py_date())
+            wx_date = self.controller.date_tuple_to_wx_date(self.date_picker.get_value())
             calendar_popup = CalendarPopup(self, wx_date, self.config)
             calendar_popup.Bind(wx.calendar.EVT_CALENDAR_SEL_CHANGED,
                                 self._calendar_on_date_changed)
@@ -77,24 +83,19 @@ class PyDateTimePicker(wx.Panel):
             calendar_popup.Popup()
             self.calendar_popup = calendar_popup
         except ValueError:
-             _display_error_message(_("Invalid date"))
-
+            display_error_message(_("Invalid date"))
 
     def _calendar_on_date_changed(self, evt):
         wx_date = evt.GetEventObject().GetDate()
-        py_date = datetime.datetime(wx_date.Year, wx_date.Month+1, wx_date.Day)
-        self.date_picker.set_py_date(py_date)
+        date = self.controller.wx_date_to_date_tuple(wx_date)
+        self.date_picker.set_value(date)
 
     def _calendar_on_date_changed_dclick(self, evt):
         self.time_picker.SetFocus()
         self.calendar_popup.Dismiss()
 
-    def _py_date_to_wx_date(self, py_date):
-        return wx.DateTimeFromDMY(py_date.day, py_date.month-1, py_date.year,
-                                  0, 0, 0)
 
-
-class PyDateTimePickerController(object):
+class GregorianDateTimePickerController(object):
 
     def __init__(self, date_picker, time_picker, now_fn):
         self.date_picker = date_picker
@@ -102,18 +103,27 @@ class PyDateTimePickerController(object):
         self.now_fn = now_fn
 
     def get_value(self):
-        time = datetime.time(0, 0)
         if self.time_picker.IsShown():
-            time = self.time_picker.get_py_time()
-        return datetime.datetime.combine(self.date_picker.get_py_date(), time)
+            hour, minute, second = self.time_picker.get_value()
+        else:
+            hour, minute, second = (0, 0, 0)
+        year, month, day = self.date_picker.get_value()
+        return Gregorian(year, month, day, hour, minute, second).to_time()
 
-    def set_value(self, py_date_time):
-        if py_date_time == None:
-            py_date_time = self.now_fn()
-        self.date_picker.set_py_date(py_date_time.date())
-        self.time_picker.set_py_time(py_date_time.time())
+    def set_value(self, time):
+        if time == None:
+            time = self.now_fn()
+        self.date_picker.set_value(gregorian.from_time(time).to_date_tuple())
+        self.time_picker.set_value(gregorian.from_time(time).to_time_tuple())
 
+    def date_tuple_to_wx_date(self, date):
+        year, month, day = date
+        return wx.DateTimeFromDMY(day, month - 1, year, 0, 0, 0)
 
+    def wx_date_to_date_tuple(self, wx_date):
+        return (wx_date.Year, wx_date.Month + 1, wx_date.Day)
+
+    
 class CalendarPopup(wx.PopupTransientWindow):
 
     def __init__(self, parent, wx_date, config):
@@ -146,15 +156,15 @@ class CalendarPopup(wx.PopupTransientWindow):
         return style
 
     def _set_cal_range(self, cal):
-        min_date, msg = PyTimeType().get_min_time()
-        max_date, msg = PyTimeType().get_max_time()
-        min_date = self._py_date_to_wx_date(min_date)
-        max_date = self._py_date_to_wx_date(max_date) - wx.DateSpan.Day()
+        min_date, _ = GregorianTimeType().get_min_time()
+        max_date, _ = GregorianTimeType().get_max_time()
+        min_date = self.time_to_wx_date(min_date)
+        max_date = self.time_to_wx_date(max_date) - wx.DateSpan.Day()
         cal.SetDateRange(min_date, max_date)
 
-    def _py_date_to_wx_date(self, py_date):
-        return wx.DateTimeFromDMY(py_date.day, py_date.month - 1, py_date.year,
-                                  0, 0, 0)
+    def time_to_wx_date(self, time):
+        year, month, day = gregorian.from_time(time).to_date_tuple()
+        return wx.DateTimeFromDMY(day, month - 1, year, 0, 0, 0)
 
     def _bind_events(self):
         def on_month(evt):
@@ -190,19 +200,20 @@ class CalendarPopupController(object):
             self.repoped = True
 
 
-class PyDatePicker(wx.TextCtrl):
+class GregorianDatePicker(wx.TextCtrl):
 
     def __init__(self, parent):
         wx.TextCtrl.__init__(self, parent, style=wx.TE_PROCESS_ENTER)
-        self.controller = PyDatePickerController(self)
+        self.controller = GregorianDatePickerController(self)
         self._bind_events()
         self._resize_to_fit_text()
+        self.parent = parent
 
-    def get_py_date(self):
-        return self.controller.get_py_date()
+    def get_value(self):
+        return self.controller.get_value()
 
-    def set_py_date(self, py_date):
-        self.controller.set_py_date(py_date)
+    def set_value(self, date):
+        self.controller.set_value(date)
 
     def get_date_string(self):
         return self.GetValue()
@@ -240,23 +251,27 @@ class PyDatePicker(wx.TextCtrl):
                 self.controller.on_up()
             elif evt.GetKeyCode() == wx.WXK_DOWN:
                 self.controller.on_down()
+            elif (evt.GetKeyCode() == wx.WXK_NUMPAD_ENTER or 
+                  evt.GetKeyCode() == wx.WXK_RETURN):
+                self.parent.on_return()
             else:
                 evt.Skip()
         self.Bind(wx.EVT_KEY_DOWN, on_key_down)
+       
 
     def _resize_to_fit_text(self):
-        w, h = self.GetTextExtent("0000-00-00")
+        w, _ = self.GetTextExtent("0000-00-00")
         width = w + 20
         self.SetMinSize((width, -1))
 
 
-class PyDatePickerController(object):
+class GregorianDatePickerController(object):
 
-    def __init__(self, py_date_picker, error_bg="pink"):
-        self.py_date_picker = py_date_picker
+    def __init__(self, date_picker, error_bg="pink"):
+        self.date_picker = date_picker
         self.error_bg = error_bg
-        self.original_bg = self.py_date_picker.GetBackgroundColour()
-        self.separator = PyTimeType().event_date_string(PyTimeType().now())[4]
+        self.original_bg = self.date_picker.GetBackgroundColour()
+        self.separator = GregorianTimeType().event_date_string(GregorianTimeType().now())[4]
         self.region_year = 0
         self.region_month = 1
         self.region_day = 2
@@ -266,30 +281,30 @@ class PyDatePickerController(object):
         self.save_preferred_day = True
         self.last_selection = None
 
-    def get_py_date(self):
+    def get_value(self):
         try:
             (year, month, day) = self._parse_year_month_day()
-            py_date = datetime.date(year, month, day)
-            self._ensure_within_allowed_period(py_date)
-            return py_date
+            self._ensure_within_allowed_period((year, month, day))
+            return (year, month, day)
         except ValueError:
             raise ValueError("Invalid date.")
 
-    def set_py_date(self, py_date):
-        date_string = PyTimeType().event_date_string(py_date)
-        self.py_date_picker.set_date_string(date_string)
+    def set_value(self, value):
+        year, month, day = value
+        date_string = "%04d-%02d-%02d" % (year, month, day)
+        self.date_picker.set_date_string(date_string)
 
     def on_set_focus(self):
         if self.last_selection:
             start, end = self.last_selection
-            self.py_date_picker.SetSelection(start, end)
+            self.date_picker.SetSelection(start, end)
         else:
             self._select_region_if_possible(self.region_year)
-            self.last_selection = self.py_date_picker.GetSelection()
+            self.last_selection = self.date_picker.GetSelection()
 
     def on_kill_focus(self):
         if self.last_selection:
-            self.last_selection = self.py_date_picker.GetSelection()
+            self.last_selection = self.date_picker.GetSelection()
 
     def on_tab(self):
         for (left_region, right_region) in self.region_siblings:
@@ -308,7 +323,7 @@ class PyDatePickerController(object):
     def on_text_changed(self):
         self._change_background_depending_on_date_validity()
         if self._current_date_is_valid():
-            current_date = self.get_py_date()
+            current_date = self.get_value()
             # To prevent saving of preferred day when year or month is changed
             # in on_up() and on_down()...
             # Save preferred day only when text is entered in the date text
@@ -320,24 +335,27 @@ class PyDatePickerController(object):
 
     def on_up(self):
         def increment_year(date):
-            if date.year < PyTimeType().get_max_time()[0].year - 1:
-                return self._set_valid_day(date.year + 1, date.month, date.day)
+            year, month, day = date
+            if year < gregorian.from_time(GregorianTimeType().get_max_time()[0]).year - 1:
+                return self._set_valid_day(year + 1, month, day)
             return date
         def increment_month(date):
-            if date.month < 12:
-                return self._set_valid_day(date.year, date.month + 1,
-                                           date.day)
-            elif date.year < PyTimeType().get_max_time()[0].year - 1:
-                return self._set_valid_day(date.year + 1, 1, date.day)
+            year, month, day = date
+            if month < 12:
+                return self._set_valid_day(year, month + 1, day)
+            elif date.year < GregorianTimeType().get_max_time()[0].year - 1:
+                return self._set_valid_day(year + 1, 1, day)
             return date
         def increment_day(date):
-            if date <  PyTimeType().get_max_time()[0].date() - datetime.timedelta(days=1):
-                return date + datetime.timedelta(days=1)
+            year, month, day = date
+            time = gregorian.from_date(year, month, day).to_time()
+            if time <  GregorianTimeType().get_max_time()[0] - delta_from_days(1):
+                return gregorian.from_time(time + delta_from_days(1)).to_date_tuple()
             return date
         if not self._current_date_is_valid():
             return
-        selection = self.py_date_picker.GetSelection()
-        current_date = self.get_py_date()
+        selection = self.date_picker.GetSelection()
+        current_date = self.get_value()
         if self._insertion_point_in_region(self.region_year):
             new_date = increment_year(current_date)
         elif self._insertion_point_in_region(self.region_month):
@@ -350,32 +368,39 @@ class PyDatePickerController(object):
 
     def on_down(self):
         def decrement_year(date):
-            if date.year > PyTimeType().get_min_time()[0].year:
-                return self._set_valid_day(date.year - 1, date.month, date.day)
+            year, month, day = date
+            if year > gregorian.from_time(GregorianTimeType().get_min_time()[0]).year:
+                return self._set_valid_day(year - 1, month, day)
             return date
         def decrement_month(date):
-            if date.month > 1:
-                return self._set_valid_day(date.year, date.month - 1, date.day)
-            elif date.year > PyTimeType().get_min_time()[0].year:
-                return self._set_valid_day(date.year - 1, 12, date.day)
+            year, month, day = date
+            if month > 1:
+                return self._set_valid_day(year, month - 1, day)
+            elif year > gregorian.from_time(GregorianTimeType().get_min_time()[0]).year:
+                return self._set_valid_day(year - 1, 12, day)
             return date
         def decrement_day(date):
-            if date.day > 1:
-                return date.replace(day=date.day - 1)
-            elif date.month > 1:
-                return self._set_valid_day(date.year, date.month - 1, 31)
-            elif date.year > PyTimeType().get_min_time()[0].year:
-                return self._set_valid_day(date.year - 1, 12, 31)
+            year, month, day = date
+            if day > 1:
+                return self._set_valid_day(year, month, day - 1)
+            elif month > 1:
+                return self._set_valid_day(year, month - 1, 31)
+            elif year > gregorian.from_time(GregorianTimeType().get_min_time()[0]).year:
+                return self._set_valid_day(year - 1, 12, 31)
             return date
         if not self._current_date_is_valid():
             return
-        selection = self.py_date_picker.GetSelection()
-        current_date = self.get_py_date()
+        selection = self.date_picker.GetSelection()
+        current_date = self.get_value()
         if self._insertion_point_in_region(self.region_year):
             new_date = decrement_year(current_date)
         elif self._insertion_point_in_region(self.region_month):
             new_date = decrement_month(current_date)
         else:
+            year, month, day = current_date
+            gregorian.from_date(year, month, day)
+            if gregorian.from_date(year, month, day).to_time() == GregorianTimeType().get_min_time()[0]:
+                return 
             new_date = decrement_day(current_date)
             self._save_preferred_day(new_date)
         if current_date != new_date:
@@ -383,14 +408,14 @@ class PyDatePickerController(object):
 
     def _change_background_depending_on_date_validity(self):
         if self._current_date_is_valid():
-            self.py_date_picker.SetBackgroundColour(self.original_bg)
+            self.date_picker.SetBackgroundColour(self.original_bg)
         else:
-            self.py_date_picker.SetBackgroundColour(self.error_bg)
-        self.py_date_picker.SetFocus()
-        self.py_date_picker.Refresh()
+            self.date_picker.SetBackgroundColour(self.error_bg)
+        self.date_picker.SetFocus()
+        self.date_picker.Refresh()
 
     def _parse_year_month_day(self):
-        components = self.py_date_picker.get_date_string().split(self.separator)
+        components = self.date_picker.get_date_string().rsplit(self.separator, 2)
         if len(components) != 3:
             raise ValueError()
         year  = int(components[self.region_year])
@@ -398,20 +423,21 @@ class PyDatePickerController(object):
         day   = int(components[self.region_day])
         return (year, month, day)
 
-    def _ensure_within_allowed_period(self, py_date):
-        py_date_time = datetime.datetime(py_date.year, py_date.month, py_date.day)
-        if (py_date_time >= PyTimeType().get_max_time()[0] or
-            py_date_time <  PyTimeType().get_min_time()[0]):
+    def _ensure_within_allowed_period(self, date):
+        year, month, day = date
+        time = Gregorian(year, month, day, 0, 0, 0).to_time()
+        if (time >= GregorianTimeType().get_max_time()[0] or
+            time <  GregorianTimeType().get_min_time()[0]):
             raise ValueError()
 
     def _set_new_date_and_restore_selection(self, new_date, selection):
         def restore_selection(selection):
-            self.py_date_picker.SetSelection(selection[0], selection[1])
+            self.date_picker.SetSelection(selection[0], selection[1])
         self.save_preferred_day = False
         if self.preferred_day != None:
-            new_date = self._set_valid_day(new_date.year, new_date.month,
-                                           self.preferred_day)
-        self.set_py_date(new_date)
+            year, month, _ = new_date
+            new_date = self._set_valid_day(year, month, self.preferred_day)
+        self.set_value(new_date)
         restore_selection(selection)
         self.save_preferred_day = True
 
@@ -419,21 +445,22 @@ class PyDatePickerController(object):
         done = False
         while not done:
             try:
-                date = datetime.date(year=new_year, month=new_month, day=new_day)
+                date = gregorian.from_date(new_year, new_month, new_day)
                 done = True
-            except Exception, ex:
+            except Exception:
                 new_day -= 1
-        return date
+        return date.to_date_tuple()
 
     def _save_preferred_day(self, date):
-        if date.day > 28:
-            self.preferred_day = date.day
+        _, _, day = date
+        if day > 28:
+            self.preferred_day = day
         else:
             self.preferred_day = None
 
     def _current_date_is_valid(self):
         try:
-            self.get_py_date()
+            self.get_value()
         except ValueError:
             return False
         return True
@@ -441,12 +468,12 @@ class PyDatePickerController(object):
     def _select_region_if_possible(self, region):
         region_range = self._get_region_range(region)
         if region_range:
-            self.py_date_picker.SetSelection(region_range[0], region_range[-1])
+            self.date_picker.SetSelection(region_range[0], region_range[-1])
 
     def _insertion_point_in_region(self, n):
         region_range = self._get_region_range(n)
         if region_range:
-            return self.py_date_picker.GetInsertionPoint() in region_range
+            return self.date_picker.GetInsertionPoint() in region_range
 
     def _get_region_range(self, n):
         # Returns a range of valid cursor positions for a valid region year,
@@ -468,26 +495,27 @@ class PyDatePickerController(object):
                 return range(pos_of_separator2 + 1, len(datestring) + 1)
         if region_is_not_valid(n):
             return None
-        date = self.py_date_picker.get_date_string()
+        date = self.date_picker.get_date_string()
         if not date_has_exactly_two_seperators(date):
             return None
         pos_range = calculate_pos_range(n, date)
         return pos_range
 
 
-class PyTimePicker(wx.TextCtrl):
+class GregorianTimePicker(wx.TextCtrl):
 
     def __init__(self, parent):
         wx.TextCtrl.__init__(self, parent, style=wx.TE_PROCESS_ENTER)
-        self.controller = PyTimePickerController(self)
+        self.controller = GregorianTimePickerController(self)
         self._bind_events()
         self._resize_to_fit_text()
+        self.parent = parent
 
-    def get_py_time(self):
-        return self.controller.get_py_time()
+    def get_value(self):
+        return self.controller.get_value()
 
-    def set_py_time(self, py_time):
-        self.controller.set_py_time(py_time)
+    def set_value(self, value):
+        self.controller.set_value(value)
 
     def get_time_string(self):
         return self.GetValue()
@@ -525,51 +553,57 @@ class PyTimePicker(wx.TextCtrl):
                 self.controller.on_up()
             elif evt.GetKeyCode() == wx.WXK_DOWN:
                 self.controller.on_down()
+            elif (evt.GetKeyCode() == wx.WXK_NUMPAD_ENTER or 
+                  evt.GetKeyCode() == wx.WXK_RETURN):
+                self.parent.on_return()
             else:
                 evt.Skip()
         self.Bind(wx.EVT_KEY_DOWN, on_key_down)
 
     def _resize_to_fit_text(self):
-        w, h = self.GetTextExtent("00:00")
+        w, _ = self.GetTextExtent("00:00")
         width = w + 20
         self.SetMinSize((width, -1))
 
 
-class PyTimePickerController(object):
+class GregorianTimePickerController(object):
 
-    def __init__(self, py_time_picker):
-        self.py_time_picker = py_time_picker
-        self.original_bg = self.py_time_picker.GetBackgroundColour()
-        self.separator = PyTimeType().event_time_string(PyTimeType().now())[2]
+    def __init__(self, time_picker):
+        self.time_picker = time_picker
+        self.original_bg = self.time_picker.GetBackgroundColour()
+        self.separator = GregorianTimeType().event_time_string(GregorianTimeType().now())[2]
         self.hour_part = 0
         self.minute_part = 1
         self.last_selection = None
 
-    def get_py_time(self):
+    def get_value(self):
         try:
-            split = self.py_time_picker.get_time_string().split(self.separator)
+            split = self.time_picker.get_time_string().split(self.separator)
             if len(split) != 2:
                 raise ValueError()
             hour_string, minute_string = split
             hour = int(hour_string)
             minute = int(minute_string)
-            return datetime.time(hour, minute)
+            if not gregorian.is_valid_time(hour, minute, 0):
+                raise ValueError()
+            return (hour, minute, 0)
         except ValueError:
             raise ValueError("Invalid time.")
 
-    def set_py_time(self, py_time):
-        time_string = PyTimeType().event_time_string(py_time)
-        self.py_time_picker.set_time_string(time_string)
+    def set_value(self, value):
+        hour, minute, _ = value
+        time_string = "%02d:%02d" % (hour, minute)
+        self.time_picker.set_time_string(time_string)
 
     def on_set_focus(self):
         if self.last_selection:
             start, end = self.last_selection
-            self.py_time_picker.SetSelection(start, end)
+            self.time_picker.SetSelection(start, end)
         else:
             self._select_part(self.hour_part)
 
     def on_kill_focus(self):
-        self.last_selection = self.py_time_picker.GetSelection()
+        self.last_selection = self.time_picker.GetSelection()
 
     def on_tab(self):
         if self._in_minute_part():
@@ -585,31 +619,33 @@ class PyTimePickerController(object):
 
     def on_text_changed(self):
         try:
-            self.get_py_time()
-            self.py_time_picker.SetBackgroundColour(self.original_bg)
+            self.get_value()
+            self.time_picker.SetBackgroundColour(self.original_bg)
         except ValueError:
-            self.py_time_picker.SetBackgroundColour("pink")
-        self.py_time_picker.Refresh()
+            self.time_picker.SetBackgroundColour("pink")
+        self.time_picker.Refresh()
 
     def on_up(self):
         def increment_hour(time):
-            new_hour = time.hour + 1
+            hour, minute, second = time
+            new_hour = hour + 1
             if new_hour > 23:
                 new_hour = 0
-            return time.replace(hour=new_hour)
+            return (new_hour, minute, second)
         def increment_minutes(time):
-            new_hour = time.hour
-            new_minute = time.minute + 1
+            hour, minute, second = time
+            new_hour = hour
+            new_minute = minute + 1
             if new_minute > 59:
                 new_minute = 0
-                new_hour = time.hour + 1
+                new_hour = hour + 1
                 if new_hour > 23:
                     new_hour = 0
-            return time.replace(hour=new_hour, minute=new_minute)
+            return (new_hour, new_minute, second)
         if not self._time_is_valid():
             return
-        selection = self.py_time_picker.GetSelection()
-        current_time = self.get_py_time()
+        selection = self.time_picker.GetSelection()
+        current_time = self.get_value()
         if self._in_hour_part():
             new_time = increment_hour(current_time)
         else:
@@ -619,23 +655,25 @@ class PyTimePickerController(object):
 
     def on_down(self):
         def decrement_hour(time):
-            new_hour = time.hour - 1
+            hour, minute, second = time
+            new_hour = hour - 1
             if new_hour < 0:
                 new_hour = 23
-            return time.replace(hour=new_hour)
+            return (new_hour, minute, second)
         def decrement_minutes(time):
-            new_hour = time.hour
-            new_minute = time.minute - 1
+            hour, minute, second = time
+            new_hour = hour
+            new_minute = minute - 1
             if new_minute < 0:
                 new_minute = 59
-                new_hour = time.hour - 1
+                new_hour = hour - 1
                 if new_hour < 0:
                     new_hour = 23
-            return time.replace(hour=new_hour, minute=new_minute)
+            return (new_hour, new_minute, second)
         if not self._time_is_valid():
             return
-        selection = self.py_time_picker.GetSelection()
-        current_time = self.get_py_time()
+        selection = self.time_picker.GetSelection()
+        current_time = self.get_value()
         if self._in_hour_part():
             new_time = decrement_hour(current_time)
         else:
@@ -645,13 +683,13 @@ class PyTimePickerController(object):
 
     def _set_new_time_and_restore_selection(self, new_time, selection):
         def restore_selection(selection):
-            self.py_time_picker.SetSelection(selection[0], selection[1])
-        self.set_py_time(new_time)
+            self.time_picker.SetSelection(selection[0], selection[1])
+        self.set_value(new_time)
         restore_selection(selection)
 
     def _time_is_valid(self):
         try:
-            self.get_py_time()
+            self.get_value()
         except ValueError:
             return False
         return True
@@ -660,21 +698,21 @@ class PyTimePickerController(object):
         if self._separator_pos() == -1:
             return
         if part == self.hour_part:
-            self.py_time_picker.SetSelection(0, self._separator_pos())
+            self.time_picker.SetSelection(0, self._separator_pos())
         else:
-            time_string_len = len(self.py_time_picker.get_time_string())
-            self.py_time_picker.SetSelection(self._separator_pos() + 1, time_string_len)
+            time_string_len = len(self.time_picker.get_time_string())
+            self.time_picker.SetSelection(self._separator_pos() + 1, time_string_len)
         self.preferred_part = part
 
     def _in_hour_part(self):
         if self._separator_pos() == -1:
             return
-        return self.py_time_picker.GetInsertionPoint() <= self._separator_pos()
+        return self.time_picker.GetInsertionPoint() <= self._separator_pos()
 
     def _in_minute_part(self):
         if self._separator_pos() == -1:
             return
-        return self.py_time_picker.GetInsertionPoint() > self._separator_pos()
+        return self.time_picker.GetInsertionPoint() > self._separator_pos()
 
     def _separator_pos(self):
-        return self.py_time_picker.get_time_string().find(self.separator)
+        return self.time_picker.get_time_string().find(self.separator)

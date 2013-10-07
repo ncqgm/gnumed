@@ -40,6 +40,22 @@ class CategoriesEditor(wx.Dialog):
         self.cat_tree = self._create_gui()
         self._fill_controls_with_data()
 
+    def ok_to_edit(self):
+        """
+        This method is called from the categories tree control when
+        right-clicked to verify that editing is ok. But in this case
+        editing has already been approved by opening the CategoriesEditor
+        so we just return True
+        """
+        return True
+    
+    def edit_ends(self):
+        """
+        This method is called from the categories tree control when
+        editing ends to reset edit-ok state. But that will be done anyway
+        when we close the CategoriesEditor, so we do nothing.
+        """
+    
     def _fill_controls_with_data(self):
         self.cat_tree.initialize_from_db(self.db)
 
@@ -128,4 +144,3 @@ class CategoriesEditor(wx.Dialog):
         selected_category = self.cat_tree.get_selected_category() is not None
         self.btn_edit.Enable(selected_category)
         self.btn_del.Enable(selected_category)
-

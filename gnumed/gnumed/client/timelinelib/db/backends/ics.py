@@ -19,18 +19,18 @@
 from datetime import date
 from datetime import datetime
 from os.path import abspath
-import os.path
 
 from icalendar import Calendar
 
 from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.objects import Event
-from timelinelib.db.observer import Observable
+from timelinelib.utilities.observer import Observable
 from timelinelib.db.search import generic_event_search
 from timelinelib.db.utils import IdCounter
-from timelinelib.time import PyTimeType
+from timelinelib.time.gregoriantime import GregorianTimeType
 from timelinelib.utils import ex_msg
-
+from timelinelib.calendar.gregorian import Gregorian
+import timelinelib.calendar.gregorian as gregorian
 
 class IcsTimeline(Observable):
 
@@ -38,10 +38,11 @@ class IcsTimeline(Observable):
         Observable.__init__(self)
         self.path = path
         self.event_id_counter = IdCounter()
-        self._load_data()
+        self.cals = []
+        self.import_timeline(self.path)
 
     def get_time_type(self):
-        return PyTimeType()
+        return GregorianTimeType()
 
     def is_read_only(self):
         return True
@@ -105,34 +106,35 @@ class IcsTimeline(Observable):
         return None
 
     def _get_events(self, decider_fn=None):
-        events = []
-        for event in self.cal.walk("VEVENT"):
-            start, end = extract_start_end(event)
-            txt = ""
-            if event.has_key("summary"):
-                txt = event["summary"]
-            e = Event(self.get_time_type(), start, end, txt)
-            e.set_id(event["timeline_id"])
-            if decider_fn is None or decider_fn(e):
-                events.append(e)
-        return events
+        self.events = []
+        for cal in self.cals:
+            for event in cal.walk("VEVENT"):
+                start, end = extract_start_end(event)
+                txt = ""
+                if event.has_key("summary"):
+                    txt = event["summary"]
+                e = Event(self.get_time_type(), start, end, txt)
+                e.set_id(event["timeline_id"])
+                if decider_fn is None or decider_fn(e):
+                    self.events.append(e)
+        return self.events
 
-    def _load_data(self):
-        self.cal = Calendar()
+    def import_timeline(self, path):
         try:
-            file = open(self.path, "rb")
+            ics_file = open(path, "rb")
             try:
-                file_contents = file.read()
+                file_contents = ics_file.read()
                 try:
-                    self.cal = Calendar.from_string(file_contents)
-                    for event in self.cal.walk("VEVENT"):
+                    cal = Calendar.from_ical(file_contents)
+                    for event in cal.walk("VEVENT"):
                         event["timeline_id"] = self.event_id_counter.get_next()
+                    self.cals.append(cal)
                 except Exception, pe:
                     msg1 = _("Unable to read timeline data from '%s'.")
                     msg2 = "\n\n" + ex_msg(pe)
-                    raise TimelineIOError((msg1 % abspath(self.path)) + msg2)
+                    raise TimelineIOError((msg1 % abspath(path)) + msg2)
             finally:
-                file.close()
+                ics_file.close()
         except IOError, e:
             msg = _("Unable to read from file '%s'.")
             whole_msg = (msg + "\n\n%s") % (abspath(self.path), e)
@@ -152,8 +154,8 @@ def extract_start_end(vevent):
 
 def convert_to_datetime(d):
     if isinstance(d, datetime):
-        return datetime(d.year, d.month, d.day, d.hour, d.minute, d.second)
+        return Gregorian(d.year, d.month, d.day, d.hour, d.minute, d.second).to_time()
     elif isinstance(d, date):
-        return datetime(d.year, d.month, d.day)
+        return gregorian.from_date(d.year, d.month, d.day).to_time()
     else:
         raise TimelineIOError("Unknown date.")

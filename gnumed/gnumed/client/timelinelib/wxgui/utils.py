@@ -129,10 +129,25 @@ def _set_focus_and_select(ctrl):
         ctrl.SelectAll()
 
 
-def _display_error_message(message, parent=None):
+def display_error_message(message, parent=None):
     """Display an error message in a modal dialog box"""
     dial = wx.MessageDialog(parent, message, _("Error"), wx.OK | wx.ICON_ERROR)
     dial.ShowModal()
+
+
+def display_warning_message(message, parent=None):
+    dial = wx.MessageDialog(parent, message, _("Warning"), wx.OK | wx.ICON_WARNING)
+    dial.ShowModal()
+
+def display_information_message(caption, message, parent=None):
+    dialog = wx.MessageDialog(parent, message, caption, 
+                              wx.OK | wx.ICON_INFORMATION)
+    dialog.ShowModal()
+    dialog.Destroy()
+
+def get_user_ack(question, parent=None):
+    return wx.MessageBox(question, _("Question"),
+                         wx.YES_NO|wx.CENTRE|wx.NO_DEFAULT, parent) == wx.YES
 
 
 def _ask_question(question, parent=None):
@@ -151,16 +166,12 @@ def set_default_cursor(parent):
 
 def time_picker_for(time_type):
     from timelinelib.wxgui.components.numtimepicker import NumTimePicker
-    from timelinelib.wxgui.components.pydatetimepicker import PyDateTimePicker
-    from timelinelib.wxgui.components.wxdatetimepicker import WxDateTimePicker
-    from timelinelib.time import NumTimeType
-    from timelinelib.time import PyTimeType
-    from timelinelib.time import WxTimeType
-    if isinstance(time_type, PyTimeType):
-        return PyDateTimePicker
-    elif isinstance(time_type, WxTimeType):
-        return WxDateTimePicker
-    elif isinstance(time_type, NumTimeType):
+    from timelinelib.wxgui.components.gregoriandatetimepicker import GregorianDateTimePicker
+    from timelinelib.time.numtime import NumTimeType
+    from timelinelib.time.gregoriantime import GregorianTimeType
+    if isinstance(time_type, NumTimeType):
         return NumTimePicker
+    elif isinstance(time_type, GregorianTimeType):
+        return GregorianDateTimePicker
     else:
         raise ValueError("Unsupported time type: %s" % time_type)

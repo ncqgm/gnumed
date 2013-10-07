@@ -22,12 +22,14 @@ import wx
 import webbrowser
 
 from timelinelib.db.exceptions import TimelineIOError
+from timelinelib.db.utils import safe_locking
 from timelinelib.editors.event import EventEditor
 from timelinelib.repositories.dbwrapper import DbWrapperEventRepository
 from timelinelib.wxgui.components.categorychoice import CategoryChoice
+from timelinelib.wxgui.components.feedbackbutton import FeedbackButton
 from timelinelib.wxgui.dialogs.containereditor import ContainerEditorDialog
 from timelinelib.wxgui.utils import BORDER
-from timelinelib.wxgui.utils import _display_error_message
+from timelinelib.wxgui.utils import display_error_message
 from timelinelib.wxgui.utils import _set_focus_and_select
 from timelinelib.wxgui.utils import time_picker_for
 import timelinelib.wxgui.utils as gui_utils
@@ -73,7 +75,7 @@ class EventEditorDialog(wx.Dialog):
                                    border=BORDER)
 
     def _create_details(self):
-        grid = wx.FlexGridSizer(4, 2, BORDER, BORDER)
+        grid = wx.FlexGridSizer(6, 2, BORDER, BORDER)
         grid.AddGrowableCol(1)
         self._create_time_details(grid)
         self._create_checkboxes(grid)
@@ -266,8 +268,16 @@ class EventEditorDialog(wx.Dialog):
 
     def _create_buttons(self, properties_box):
         button_box = self.CreateStdDialogButtonSizer(wx.OK|wx.CANCEL)
+        button_box.InsertStretchSpacer(0)
+        button_box.Insert(0, FeedbackButton(
+            self,
+            info="What would make the event editor dialog better for you?",
+            subject="Feedback on event editor dialog"))
         self.Bind(wx.EVT_BUTTON, self._btn_ok_on_click, id=wx.ID_OK)
         properties_box.Add(button_box, flag=wx.EXPAND|wx.ALL, border=BORDER)
+
+    def on_return(self):
+        self._btn_ok_on_click(None)
 
     def _btn_ok_on_click(self, evt):
         self.controller.create_or_update_event()
@@ -405,14 +415,14 @@ class EventEditorDialog(wx.Dialog):
         self._display_invalid_input(message, self.txt_text)
 
     def _display_invalid_input(self, message, control):
-        _display_error_message(message, self)
+        display_error_message(message, self)
         _set_focus_and_select(control)
 
     def display_db_exception(self, e):
         gui_utils.handle_db_error_in_dialog(self, e)
 
     def display_error_message(self, message):
-        _display_error_message(message, self)
+        display_error_message(message, self)
 
     def clear_dialog(self):
         self.controller.clear()
@@ -428,6 +438,7 @@ class DescriptionEditor(wx.TextCtrl):
 
     def __init__(self, parent, editor):
         wx.TextCtrl.__init__(self, parent, style=wx.TE_MULTILINE)
+        self.Bind(wx.EVT_CHAR, self._on_char)
 
     def get_data(self):
         description = self.GetValue().strip()
@@ -441,6 +452,16 @@ class DescriptionEditor(wx.TextCtrl):
     def clear_data(self):
         self.SetValue("")
 
+    def _on_char(self, evt):
+        if self._ctrl_a(evt):
+            self.SelectAll()
+        else: 
+            evt.Skip()
+        
+    def _ctrl_a(self, evt):
+        KEY_CODE_A = 1
+        return evt.ControlDown() and evt.KeyCode == KEY_CODE_A
+        
 
 class IconEditor(wx.Panel):
 
@@ -720,11 +741,15 @@ def open_event_editor_for(parent, config, db, handle_db_error, event):
         else:
             return EventEditorDialog(
                 parent, config, _("Edit Event"), db, event=event)
-    gui_utils.show_modal(create_event_editor, handle_db_error)
+    def edit_function():
+        gui_utils.show_modal(create_event_editor, handle_db_error)
+    safe_locking(parent, edit_function)
 
 
 def open_create_event_editor(parent, config, db, handle_db_error, start=None, end=None):
     def create_event_editor():
-        return EventEditorDialog(
-            parent, config, _("Create Event"), db, start, end)
-    gui_utils.show_modal(create_event_editor, handle_db_error)
+        label = _("Create Event")
+        return EventEditorDialog(parent, config, label, db, start, end)
+    def edit_function():
+        gui_utils.show_modal(create_event_editor, handle_db_error)
+    safe_locking(parent, edit_function)

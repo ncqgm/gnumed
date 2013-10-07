@@ -30,9 +30,6 @@ class PreferencesDialog(wx.Dialog):
         self._controller = PreferencesEditor(self, config)
         self._controller.initialize_controls()
 
-    def set_checkbox_enable_wide_date_range(self, value):
-        self.chb_wide_date_range.SetValue(value)
-
     def set_checkbox_use_inertial_scrolling(self, value):
         self.chb_inertial_scrolling.SetValue(value)
 
@@ -84,17 +81,13 @@ class PreferencesDialog(wx.Dialog):
         self._size_tab_panel(panel, controls)
 
     def _create_date_time_tab_controls(self, panel):
-        self.chb_wide_date_range = self._create_chb_wide_date_range(panel)
         self.choice_week = self._create_choice_week(panel)
         grid = wx.FlexGridSizer(1, 2, BORDER, BORDER)
         grid.Add(wx.StaticText(panel, label=_("Week start on:")),
                  flag=wx.ALIGN_CENTER_VERTICAL)
         grid.Add(self.choice_week, flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-        warning = _("This feature is experimental. If events are\ncreated in the extended range, you can not\ndisable this option and successfully load\nthe timeline again. A reload of the timeline\nis also needed for this to take effect.")
-        warning_text_control = wx.StaticText(panel, label=warning)
-        warning_text_control.SetForegroundColour((255, 0, 0))
-        return (grid, self.chb_wide_date_range, warning_text_control)
-
+        return (grid,)
+    
     def _create_tab_panel(self, notebook, label):
         panel = wx.Panel(notebook)
         notebook.AddPage(panel, label)
@@ -118,12 +111,6 @@ class PreferencesDialog(wx.Dialog):
         chb = self._create_chb(panel, label, handler)
         return chb
 
-    def _create_chb_wide_date_range(self, panel):
-        label = _("Use extended date range (before 1 AD)")
-        handler = self._chb_use_wide_date_range_on_checkbox
-        chb = self._create_chb(panel, label, handler)
-        return chb
-
     def _create_chb(self, panel, label, handler):
         chb = wx.CheckBox(panel, label=label)
         self.Bind(wx.EVT_CHECKBOX, handler, chb)
@@ -142,9 +129,6 @@ class PreferencesDialog(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._btn_close_on_click, btn_close)
         return btn_close
 
-    def _chb_use_wide_date_range_on_checkbox(self, evt):
-        self._controller.on_use_wide_date_range_changed(evt.IsChecked())
-
     def _chb_use_inertial_scrolling_on_checkbox(self, evt):
         self._controller.on_use_inertial_scrolling_changed(evt.IsChecked())
 
@@ -155,4 +139,4 @@ class PreferencesDialog(wx.Dialog):
         self._controller.on_week_start_changed(evt.IsChecked())
 
     def _btn_close_on_click(self, e):
-        self.Close()
+        self.EndModal(wx.ID_OK)

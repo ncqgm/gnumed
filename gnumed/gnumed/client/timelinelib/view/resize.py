@@ -39,6 +39,8 @@ class ResizeByDragInputHandler(ScrollViewInputHandler):
     def left_mouse_up(self):
         ScrollViewInputHandler.left_mouse_up(self)
         self._clear_status_text()
+        if self.controller.timeline is not None:
+            self.controller.timeline._save_if_not_disabled()
         self.controller.change_input_handler_to_no_op()
 
     def view_scrolled(self):

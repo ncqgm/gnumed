@@ -22,19 +22,16 @@ times of files in a directory.
 """
 
 
-import os
 import os.path
 import colorsys
 from datetime import datetime
-from datetime import timedelta
-import time
 
-import wx
 
 from timelinelib.db.backends.memory import MemoryDB
 from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.objects import Category
 from timelinelib.db.objects import Event
+from timelinelib.calendar.gregorian import Gregorian
 
 
 class DirTimeline(MemoryDB):
@@ -114,7 +111,8 @@ class DirTimeline(MemoryDB):
         # st_mtime (time of most recent content modification),
         # st_ctime (platform dependent; time of most recent metadata change on
         #           Unix, or the time of creation on Windows):
-        start_time = datetime.fromtimestamp(int(stat.st_mtime))
+        dt = datetime.fromtimestamp(int(stat.st_mtime))
+        start_time = Gregorian(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second).to_time()
         end_time = start_time
         if start_time > end_time:
             start_time, end_time = end_time, start_time

@@ -17,11 +17,10 @@
 
 
 from datetime import datetime
-from datetime import time
-from datetime import timedelta
-import calendar
 import re
 
+from timelinelib.calendar.gregorian import Gregorian
+from timelinelib.calendar.gregorian import gregorian_week
 from timelinelib.calendar.monthnames import abbreviated_name_of_month
 from timelinelib.calendar.weekdaynames import abbreviated_name_of_weekday
 from timelinelib.db.objects import TimeOutOfRangeLeftError
@@ -30,28 +29,25 @@ from timelinelib.db.objects import TimePeriod
 from timelinelib.db.objects import time_period_center
 from timelinelib.drawing.interface import Strip
 from timelinelib.drawing.utils import get_default_font
+from timelinelib.time.timeline import delta_from_days
 from timelinelib.time.typeinterface import TimeType
+import timelinelib.calendar.gregorian as gregorian
+import timelinelib.time.timeline as timeline
 
 
-# To save computation power (used by `delta_to_microseconds`)
-US_PER_SEC = 1000000
-US_PER_DAY = 24 * 60 * 60 * US_PER_SEC
-
-
-class PyTimeType(TimeType):
+class GregorianTimeType(TimeType):
 
     def __eq__(self, other):
-        return isinstance(other, PyTimeType)
+        return isinstance(other, GregorianTimeType)
 
     def __ne__(self, other):
         return not (self == other)
 
     def time_string(self, time):
-        return "%s-%s-%s %s:%s:%s" % (time.year, time.month, time.day,
-                                      time.hour, time.minute, time.second)
+        return "%d-%02d-%02d %02d:%02d:%02d" % gregorian.from_time(time).to_tuple()
 
     def parse_time(self, time_string):
-        match = re.search(r"^(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)$", time_string)
+        match = re.search(r"^(-?\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)$", time_string)
         if match:
             year = int(match.group(1))
             month = int(match.group(2))
@@ -60,7 +56,7 @@ class PyTimeType(TimeType):
             minute = int(match.group(5))
             second = int(match.group(6))
             try:
-                return datetime(year, month, day, hour, minute, second)
+                return Gregorian(year, month, day, hour, minute, second).to_time()
             except ValueError:
                 raise ValueError("Invalid time, time string = '%s'" % time_string)
         else:
@@ -97,9 +93,10 @@ class PyTimeType(TimeType):
         def label_with_time(time):
             return u"%s %s" % (label_without_time(time), time_label(time))
         def label_without_time(time):
-            return u"%s %s %s" % (time.day, abbreviated_name_of_month(time.month), time.year)
+            gregorian_datetime = gregorian.from_time(time)
+            return u"%s %s %s" % (gregorian_datetime.day, abbreviated_name_of_month(gregorian_datetime.month), gregorian_datetime.year)
         def time_label(time):
-            return time.time().isoformat()[0:5]
+            return "%02d:%02d" % time.get_time_of_day()[:-1]
         if time_period.is_period():
             if time_period.has_nonzero_time():
                 label = u"%s to %s" % (label_with_time(time_period.start_time),
@@ -115,9 +112,9 @@ class PyTimeType(TimeType):
         return label
 
     def format_delta(self, delta):
-        days = delta.days
-        hours = delta.seconds / 3600
-        minutes = (delta.seconds - hours * 3600) / 60
+        days = delta.get_days()
+        hours = delta.get_hours() 
+        minutes = delta.get_minutes() 
         collector = []
         if days == 1:
             collector.append(u"1 %s" % _("day"))
@@ -137,21 +134,17 @@ class PyTimeType(TimeType):
         return delta_string
 
     def get_min_time(self):
-        min_time = datetime(10, 1, 1)
-        return (min_time, _("can't be before year 10"))
+        return (timeline.Time(0, 0), _("can't be before year 10"))
 
     def get_max_time(self):
-        max_time = datetime(9990, 1, 1)
-        return (max_time, _("can't be after year 9989"))
+        return (timeline.Time(5369833, 0), _("can't be after year 9989"))
 
     def choose_strip(self, metrics, config):
         """
         Return a tuple (major_strip, minor_strip) for current time period and
         window size.
         """
-        today = datetime.now()
-        tomorrow = today + timedelta(days=1)
-        day_period = TimePeriod(self, today, tomorrow)
+        day_period = TimePeriod(self, timeline.Time(0, 0), timeline.Time(1, 0))
         one_day_width = metrics.calc_exact_width(day_period)
         if one_day_width > 600:
             return (StripDay(), StripHour())
@@ -169,51 +162,41 @@ class PyTimeType(TimeType):
             return (StripCentury(), StripCentury())
 
     def mult_timedelta(self, delta, num):
-        """Return a new timedelta that is `num` times larger than `delta`."""
-        days = delta.days * num
-        seconds = delta.seconds * num
-        microseconds = delta.microseconds * num
-        return timedelta(days, seconds, microseconds)
+        return delta * num
 
     def get_default_time_period(self):
-        return time_period_center(self, datetime.now(), timedelta(days=30))
+        return time_period_center(self, self.now(), delta_from_days(30))
 
     def now(self):
-        return datetime.now()
+        py = datetime.now()
+        gregorian = Gregorian(py.year, py.month, py.day,
+                              py.hour, py.minute, py.second)
+        return gregorian.to_time()
 
     def get_time_at_x(self, time_period, x_percent_of_width):
         """Return the time at pixel `x`."""
-        microsecs = delta_to_microseconds(time_period.delta())
-        microsecs = microsecs * x_percent_of_width
-        return time_period.start_time + microseconds_to_delta(microsecs)
+        return time_period.start_time + time_period.delta() * x_percent_of_width
 
     def div_timedeltas(self, delta1, delta2):
-        """Return how many times delta2 fit in delta1."""
-        # Since Python can handle infinitely large numbers, this solution works. It
-        # might however not be optimal. If you are clever, you should be able to
-        # treat the different parts individually. But this is simple.
-        total_us1 = delta_to_microseconds(delta1)
-        total_us2 = delta_to_microseconds(delta2)
-        # Make sure that the result is a floating point number
-        return total_us1 / float(total_us2)
+        return delta1 / delta2
 
     def get_max_zoom_delta(self):
-        return (timedelta(days=1200*365),
+        return (delta_from_days(1200 * 365),
                 _("Can't zoom wider than 1200 years"))
 
     def get_min_zoom_delta(self):
-        return (timedelta(hours=1), _("Can't zoom deeper than 1 hour"))
+        return (timeline.delta_from_seconds(60 * 60), _("Can't zoom deeper than 1 hour"))
 
     def get_zero_delta(self):
-        return timedelta(0)
+        return timeline.delta_from_seconds(0)
 
     def time_period_has_nonzero_time(self, time_period):
-        nonzero_time = (time_period.start_time.time() != time(0, 0, 0) or
-                        time_period.end_time.time()   != time(0, 0, 0))
+        nonzero_time = (time_period.start_time.seconds != 0 or
+                        time_period.end_time.seconds  != 0)
         return nonzero_time
 
     def get_name(self):
-        return u"pytime"
+        return u"gregoriantime"
 
     def get_duplicate_functions(self):
         return [
@@ -224,7 +207,7 @@ class PyTimeType(TimeType):
         ]
 
     def zoom_is_ok(self, delta):
-        return (delta.seconds > 3600) or (delta.days > 0)
+        return (delta.seconds > 3600) or (delta.get_days() > 0)
 
     def half_delta(self, delta):
         return delta / 2
@@ -233,10 +216,12 @@ class PyTimeType(TimeType):
         return delta / 24
 
     def event_date_string(self, time):
-        return "%04d-%02d-%02d" % (time.year, time.month, time.day)
+        gregorian_time = gregorian.from_time(time)
+        return "%04d-%02d-%02d" % (gregorian_time.year, gregorian_time.month, gregorian_time.day)
 
     def event_time_string(self, time):
-        return "%02d:%02d" % (time.hour, time.minute)
+        gregorian_time = gregorian.from_time(time)
+        return "%02d:%02d" % (gregorian_time.hour, gregorian_time.minute)
 
     def eventtimes_equals(self, time1, time2):
         s1 = "%s %s" % (self.event_date_string(time1),
@@ -248,15 +233,16 @@ class PyTimeType(TimeType):
     def adjust_for_bc_years(self, time):
         return time
 
+
 def go_to_today_fn(main_frame, current_period, navigation_fn):
-    navigation_fn(lambda tp: tp.center(datetime.now()))
+    navigation_fn(lambda tp: tp.center(current_period.time_type.now()))
 
 
 def go_to_date_fn(main_frame, current_period, navigation_fn):
     def navigate_to(time):
         navigation_fn(lambda tp: tp.center(time))
     main_frame.display_time_editor_dialog(
-        PyTimeType(), current_period.mean_time(), navigate_to, _("Go to Date"))
+        GregorianTimeType(), current_period.mean_time(), navigate_to, _("Go to Date"))
 
 
 def backward_fn(main_frame, current_period, navigation_fn):
@@ -279,18 +265,26 @@ def _move_page_smart(current_period, navigation_fn, direction):
 def _whole_number_of_years(period):
     start, end = period.start_time, period.end_time
     year_diff = _calculate_year_diff(period)
-    whole_years = start.replace(year=start.year+year_diff) == end
+    old_start = gregorian.from_time(start)
+    new_start = old_start.replace(year=old_start.year + year_diff).to_time()
+    whole_years = new_start == end
     return whole_years and year_diff > 0
 
 
 def _move_page_years(curret_period, navigation_fn, direction):
     def navigate(tp):
         year_delta = direction * _calculate_year_diff(curret_period)
-        new_start_year = curret_period.start_time.year + year_delta
-        new_end_year = curret_period.end_time.year + year_delta
+        gregorian_start = gregorian.from_time(curret_period.start_time)
+        gregorian_end = gregorian.from_time(curret_period.end_time)
+        new_start_year = gregorian_start.year + year_delta
+        new_end_year = gregorian_end.year + year_delta
         try:
-            new_start = curret_period.start_time.replace(year=new_start_year)
-            new_end = curret_period.end_time.replace(year=new_end_year)
+            new_start = gregorian_start.replace(year=new_start_year).to_time()
+            new_end = gregorian_end.replace(year=new_end_year).to_time()
+            if new_end > curret_period.time_type.get_max_time()[0]:
+                raise ValueError()
+            if new_start < curret_period.time_type.get_min_time()[0]:
+                raise ValueError()
         except ValueError:
             if direction < 0:
                 raise TimeOutOfRangeLeftError()
@@ -301,11 +295,11 @@ def _move_page_years(curret_period, navigation_fn, direction):
 
 
 def _calculate_year_diff(period):
-    return period.end_time.year - period.start_time.year
+    return gregorian.from_time(period.end_time).year - gregorian.from_time(period.start_time).year
 
 
 def _whole_number_of_months(period):
-    start, end = period.start_time, period.end_time
+    start, end = gregorian.from_time(period.start_time), gregorian.from_time(period.end_time)
     start_months = start.year * 12 + start.month
     end_months = end.year * 12 + end.month
     month_diff = end_months - start_months
@@ -315,21 +309,29 @@ def _whole_number_of_months(period):
 
 def _move_page_months(curret_period, navigation_fn, direction):
     def navigate(tp):
-        start_months = curret_period.start_time.year * 12 + curret_period.start_time.month
-        end_months = curret_period.end_time.year * 12 + curret_period.end_time.month
+        start = gregorian.from_time(curret_period.start_time)
+        end = gregorian.from_time(curret_period.end_time)
+        start_months = start.year * 12 + start.month
+        end_months = end.year * 12 + end.month
         month_diff = end_months - start_months
         month_delta = month_diff * direction
         new_start_year, new_start_month = _months_to_year_and_month(start_months + month_delta)
         new_end_year, new_end_month = _months_to_year_and_month(end_months + month_delta)
         try:
-            new_start = curret_period.start_time.replace(year=new_start_year, month=new_start_month)
-            new_end = curret_period.end_time.replace(year=new_end_year, month=new_end_month)
+            new_start = start.replace(year=new_start_year, month=new_start_month)
+            new_end = end.replace(year=new_end_year, month=new_end_month)
+            start = new_start.to_time()
+            end = new_end.to_time()
+            if end > curret_period.time_type.get_max_time()[0]:
+                raise ValueError()
+            if start < curret_period.time_type.get_min_time()[0]:
+                raise ValueError()
         except ValueError:
             if direction < 0:
                 raise TimeOutOfRangeLeftError()
             else:
                 raise TimeOutOfRangeRightError()
-        return tp.update(new_start, new_end)
+        return tp.update(start, end)
     navigation_fn(navigate)
 
 
@@ -343,12 +345,12 @@ def _months_to_year_and_month(months):
 
 
 def forward_one_week_fn(main_frame, current_period, navigation_fn):
-    wk = timedelta(days=7)
+    wk = delta_from_days(7)
     navigation_fn(lambda tp: tp.move_delta(wk))
 
 
 def backward_one_week_fn(main_frame, current_period, navigation_fn):
-    wk = timedelta(days=7)
+    wk = delta_from_days(7)
     navigation_fn(lambda tp: tp.move_delta(-1*wk))
 
 
@@ -356,22 +358,24 @@ def navigate_month_step(current_period, navigation_fn, direction):
     """
     Currently does notice leap years.
     """
+    # TODO: NEW-TIME: (year, month, day, hour, minute, second) -> int (days in # month)
     tm = current_period.mean_time()
+    gt = gregorian.from_time(tm)
     if direction > 0:
-        if tm.month == 2:
+        if gt.month == 2:
             d = 28
-        elif tm.month in (4,6,9,11):
+        elif gt.month in (4,6,9,11):
             d = 30
         else:
             d = 31
     else:
-        if tm.month == 3:
+        if gt.month == 3:
             d = 28
-        elif tm.month in (5,7,10,12):
+        elif gt.month in (5,7,10,12):
             d = 30
         else:
             d = 31
-    mv = timedelta(days=d)
+    mv = delta_from_days(d)
     navigation_fn(lambda tp: tp.move_delta(direction*mv))
 
 
@@ -384,88 +388,88 @@ def backward_one_month_fn(main_frame, current_period, navigation_fn):
 
 
 def forward_one_year_fn(main_frame, current_period, navigation_fn):
-    yr = timedelta(days=365)
+    yr = delta_from_days(365)
     navigation_fn(lambda tp: tp.move_delta(yr))
 
 
 def backward_one_year_fn(main_frame, current_period, navigation_fn):
-    yr = timedelta(days=365)
+    yr = delta_from_days(365)
     navigation_fn(lambda tp: tp.move_delta(-1*yr))
 
 
 def fit_millennium_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
+    mean = gregorian.from_time(current_period.mean_time())
     if mean.year > get_millenium_max_year():
         year = get_millenium_max_year()
     else:
         year = max(get_min_year(), int(mean.year/1000)*1000)
-    start = datetime(year, 1, 1)
-    end = datetime(year + 1000, 1, 1)
+    start = gregorian.from_date(year, 1, 1).to_time()
+    end = gregorian.from_date(year + 1000, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def get_min_year():
-    return PyTimeType().get_min_time()[0].year
+    return gregorian.from_time(GregorianTimeType().get_min_time()[0]).year
 
 
 def get_millenium_max_year():
-    return PyTimeType().get_max_time()[0].year - 1000
+    return gregorian.from_time(GregorianTimeType().get_max_time()[0]).year - 1000
 
-    
+
 def get_century_max_year():
-    return PyTimeType().get_max_time()[0].year - 100
+    return gregorian.from_time(GregorianTimeType().get_max_time()[0]).year - 100
 
 
 def fit_century_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
+    mean = gregorian.from_time(current_period.mean_time())
     if mean.year > get_century_max_year():
         year = get_century_max_year()
     else:
         year = max(get_min_year(), int(mean.year/100)*100)
-    start = datetime(year, 1, 1)
-    end = datetime(year + 100, 1, 1)
+    start = gregorian.from_date(year, 1, 1).to_time()
+    end = gregorian.from_date(year + 100, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def fit_decade_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
-    start = datetime(int(mean.year/10)*10, 1, 1)
-    end = datetime(int(mean.year/10)*10+10, 1, 1)
+    mean = gregorian.from_time(current_period.mean_time())
+    start = gregorian.from_date(int(mean.year/10)*10, 1, 1).to_time()
+    end = gregorian.from_date(int(mean.year/10)*10+10, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def fit_year_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
-    start = datetime(mean.year, 1, 1)
-    end = datetime(mean.year + 1, 1, 1)
+    mean = gregorian.from_time(current_period.mean_time())
+    start = gregorian.from_date(mean.year, 1, 1).to_time()
+    end = gregorian.from_date(mean.year + 1, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def fit_month_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
-    start = datetime(mean.year, mean.month, 1)
+    mean = gregorian.from_time(current_period.mean_time())
+    start = gregorian.from_date(mean.year, mean.month, 1).to_time()
     if mean.month == 12:
-        end = datetime(mean.year + 1, 1, 1)
+        end = gregorian.from_date(mean.year + 1, 1, 1).to_time()
     else:
-        end = datetime(mean.year, mean.month + 1, 1)
+        end = gregorian.from_date(mean.year, mean.month + 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def fit_day_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
-    start = datetime(mean.year, mean.month, mean.day)
-    end = start + timedelta(days=1)
+    mean = gregorian.from_time(current_period.mean_time())
+    start = gregorian.from_date(mean.year, mean.month, mean.day).to_time()
+    end = start + delta_from_days(1)
     navigation_fn(lambda tp: tp.update(start, end))
 
 
 def fit_week_fn(main_frame, current_period, navigation_fn):
-    mean = current_period.mean_time()
-    start = datetime(mean.year, mean.month, mean.day)
-    weekday = datetime.weekday(start)
-    start = start - timedelta(days=weekday)
+    mean = gregorian.from_time(current_period.mean_time())
+    start = gregorian.from_date(mean.year, mean.month, mean.day).to_time()
+    weekday = start.get_day_of_week()
+    start = start - delta_from_days(weekday)
     if not main_frame.week_starts_on_monday():
-        start = start - timedelta(days=1)
-    end = start + timedelta(days=7)
+        start = start - delta_from_days(1)
+    end = start + delta_from_days(7)
     navigation_fn(lambda tp: tp.update(start, end))
 
 
@@ -474,38 +478,42 @@ class StripCentury(Strip):
     def label(self, time, major=False):
         if major:
             # TODO: This only works for English. Possible to localize?
+            time = gregorian.from_time(time)
             start_year = self._century_start_year(time.year)
             next_start_year = start_year + 100
             return str(next_start_year / 100) + " century"
         return ""
 
     def start(self, time):
-        return datetime(max(self._century_start_year(time.year), 10), 1, 1)
+        time = gregorian.from_time(time)
+        return gregorian.from_date(self._century_start_year(time.year), 1, 1).to_time()
 
     def increment(self, time):
-        return time.replace(year=time.year + 100)
+        gregorian_time = gregorian.from_time(time)
+        return gregorian_time.replace(year=gregorian_time.year+100).to_time()
 
     def get_font(self, time_period):
         return get_default_font(8)
 
     def _century_start_year(self, year):
         year = (int(year) / 100) * 100
-        #if year > get_century_max_year():
-        #    year = get_century_max_year
-        return year 
+        return year
 
 
 class StripDecade(Strip):
 
     def label(self, time, major=False):
-        # TODO: This only works for English. Possible to localize?
-        return str(self._decade_start_year(time.year)) + "s"
+        time = gregorian.from_time(time)
+        return format_decade(self._decade_start_year(time.year))
 
     def start(self, time):
-        return datetime(self._decade_start_year(time.year), 1, 1)
+        gregorian_time = gregorian.from_time(time)
+        new_gregorian = gregorian.from_date(self._decade_start_year(gregorian_time.year), 1, 1)
+        return new_gregorian.to_time()
 
     def increment(self, time):
-        return time.replace(year=time.year+10)
+        gregorian_time = gregorian.from_time(time)
+        return gregorian_time.replace(year=gregorian_time.year+10).to_time()
 
     def _decade_start_year(self, year):
         return (int(year) / 10) * 10
@@ -517,13 +525,16 @@ class StripDecade(Strip):
 class StripYear(Strip):
 
     def label(self, time, major=False):
-        return str(time.year)
+        return format_year(gregorian.from_time(time).year)
 
     def start(self, time):
-        return datetime(time.year, 1, 1)
+        gregorian_time = gregorian.from_time(time)
+        new_gregorian = gregorian.from_date(gregorian_time.year, 1, 1)
+        return new_gregorian.to_time()
 
     def increment(self, time):
-        return time.replace(year=time.year+1)
+        gregorian_time = gregorian.from_time(time)
+        return gregorian_time.replace(year=gregorian_time.year + 1).to_time()
 
     def get_font(self, time_period):
         return get_default_font(8)
@@ -532,15 +543,20 @@ class StripYear(Strip):
 class StripMonth(Strip):
 
     def label(self, time, major=False):
+        time = gregorian.from_time(time)
         if major:
-            return "%s %s" % (abbreviated_name_of_month(time.month), time.year)
+            return "%s %s" % (abbreviated_name_of_month(time.month),
+                              format_year(time.year))
         return abbreviated_name_of_month(time.month)
 
     def start(self, time):
-        return datetime(time.year, time.month, 1)
+        gregorian_time = gregorian.from_time(time)
+        new_gregorian = gregorian.from_date(gregorian_time.year, gregorian_time.month, 1)
+        return new_gregorian.to_time()
 
     def increment(self, time):
-        return time + timedelta(calendar.monthrange(time.year, time.month)[1])
+        days_in_month = gregorian.from_time(time).days_in_month()
+        return time + delta_from_days(days_in_month)
 
     def get_font(self, time_period):
         return get_default_font(8)
@@ -549,19 +565,24 @@ class StripMonth(Strip):
 class StripDay(Strip):
 
     def label(self, time, major=False):
+        time = gregorian.from_time(time)
         if major:
-            return "%s %s %s" % (time.day, abbreviated_name_of_month(time.month), time.year)
+            return "%s %s %s" % (time.day,
+                                 abbreviated_name_of_month(time.month),
+                                 format_year(time.year))
         return str(time.day)
 
     def start(self, time):
-        return datetime(time.year, time.month, time.day)
+        gregorian_time = gregorian.from_time(time)
+        new_gregorian = gregorian.from_date(gregorian_time.year, gregorian_time.month, gregorian_time.day)
+        return new_gregorian.to_time()
 
     def increment(self, time):
-        return time + timedelta(1)
+        return time + delta_from_days(1)
 
     def get_font(self, time_period):
-        if (time_period.start_time.weekday() in (5, 6)):
-                return get_default_font(8, True)
+        if (time_period.start_time.get_day_of_week() in (5, 6)):
+            return get_default_font(8, True)
         else:
             return get_default_font(8)
 
@@ -574,75 +595,73 @@ class StripWeek(Strip):
 
     def label(self, time, major=False):
         if major:
-            # Example: Week 23 (1-7 Jan 2009)
             first_weekday = self.start(time)
             next_first_weekday = self.increment(first_weekday)
-            last_weekday = next_first_weekday - timedelta(days=1)
+            last_weekday = next_first_weekday - delta_from_days(1)
             range_string = self._time_range_string(first_weekday, last_weekday)
             if self.config.week_start == "monday":
-                return (_("Week") + " %s (%s)") % (time.isocalendar()[1], range_string)
+                return (_("Week") + " %s (%s)") % (gregorian_week(time), range_string)
             else:
                 # It is sunday (don't know what to do about week numbers here)
                 return range_string
         # This strip should never be used as minor
         return ""
 
+    def _time_range_string(self, start, end):
+        start = gregorian.from_time(start)
+        end = gregorian.from_time(end)
+        if start.year == end.year:
+            if start.month == end.month:
+                return "%s-%s %s %s" % (start.day, end.day,
+                                        abbreviated_name_of_month(start.month),
+                                        format_year(start.year))
+            return "%s %s-%s %s %s" % (start.day,
+                                       abbreviated_name_of_month(start.month),
+                                       end.day,
+                                       abbreviated_name_of_month(end.month),
+                                       format_year(start.year))
+        return "%s %s %s-%s %s %s" % (start.day,
+                                      abbreviated_name_of_month(start.month),
+                                      format_year(start.year),
+                                      end.day,
+                                      abbreviated_name_of_month(end.month),
+                                      format_year(end.year))
+
     def start(self, time):
-        stripped_date = datetime(time.year, time.month, time.day)
         if self.config.week_start == "monday":
-            days_to_subtract = stripped_date.weekday()
+            days_to_subtract = time.get_day_of_week()
         else:
             # It is sunday
-            days_to_subtract = (stripped_date.weekday() + 1) % 7
-        return stripped_date - timedelta(days=days_to_subtract)
+            days_to_subtract = (time.get_day_of_week() + 1) % 7
+        return timeline.Time(time.julian_day - days_to_subtract, 0)
 
     def increment(self, time):
-        return time + timedelta(7)
+        return time + delta_from_days(7)
 
     def get_font(self, time_period):
         return get_default_font(8)
-
-    def _time_range_string(self, time1, time2):
-        """
-        Examples:
-
-        * 1-7 Jun 2009
-        * 28 Jun-3 Jul 2009
-        * 28 Jun 08-3 Jul 2009
-        """
-        if time1.year == time2.year:
-            if time1.month == time2.month:
-                return "%s-%s %s %s" % (time1.day, time2.day,
-                                        abbreviated_name_of_month(time1.month),
-                                        time1.year)
-            return "%s %s-%s %s %s" % (time1.day,
-                                       abbreviated_name_of_month(time1.month),
-                                       time2.day,
-                                       abbreviated_name_of_month(time2.month),
-                                       time1.year)
-        return "%s %s %s-%s %s %s" % (time1.day,
-                                      abbreviated_name_of_month(time1.month),
-                                      time1.year,
-                                      time2.day,
-                                      abbreviated_name_of_month(time2.month),
-                                      time2.year)
 
 
 class StripWeekday(Strip):
 
     def label(self, time, major=False):
         if major:
-            return "%s %s %s %s" % (abbreviated_name_of_weekday(time.weekday()),
+            day_of_week = time.get_day_of_week()
+            time = gregorian.from_time(time)
+            return "%s %s %s %s" % (abbreviated_name_of_weekday(day_of_week),
                                     time.day,
                                     abbreviated_name_of_month(time.month),
-                                    time.year)
-        return abbreviated_name_of_weekday(time.weekday())
+                                    format_year(time.year))
+        return (abbreviated_name_of_weekday(time.get_day_of_week()) + 
+                " %s" % gregorian.from_time(time).day) 
 
     def start(self, time):
-        return datetime(time.year, time.month, time.day)
+        gregorian_time = gregorian.from_time(time)
+        new_gregorian = gregorian.from_date(gregorian_time.year, gregorian_time.month, gregorian_time.day)
+        return new_gregorian.to_time()
 
     def increment(self, time):
-        return time + timedelta(1)
+        return time + delta_from_days(1)
 
     def get_font(self, time_period):
         return get_default_font(8)
@@ -651,42 +670,47 @@ class StripWeekday(Strip):
 class StripHour(Strip):
 
     def label(self, time, major=False):
+        time = gregorian.from_time(time)
         if major:
             return "%s %s %s %s" % (time.day, abbreviated_name_of_month(time.month),
-                                    time.year, time.hour)
+                                    format_year(time.year), time.hour)
         return str(time.hour)
 
     def start(self, time):
-        return datetime(time.year, time.month, time.day, time.hour)
+        (hours, minutes, seconds) = time.get_time_of_day()
+        return timeline.Time(time.julian_day, hours * 60 * 60)
 
     def increment(self, time):
-        return time + timedelta(hours=1)
+        return time + timeline.delta_from_seconds(60 * 60)
 
     def get_font(self, time_period):
         return get_default_font(8)
 
 
-def microseconds_to_delta(microsecs):
-    """Return a timedelta representing the given number of microseconds."""
-    return timedelta(microseconds=microsecs)
+def format_year(year):
+    if year <= 0:
+        return "%d BC" % (1 - year)
+    else:
+        return str(year)
 
 
-def delta_to_microseconds(delta):
-    """Return the number of microseconds that the timedelta represents."""
-    return (delta.days * US_PER_DAY +
-            delta.seconds * US_PER_SEC +
-            delta.microseconds)
+def format_decade(start_year):
+    # TODO: This only works for English. Possible to localize?
+    if start_year <= 0:
+        return "%ds BC" % abs(start_year)
+    else:
+        return str(start_year) + "s"
 
 
 def move_period_num_days(period, num):
-    delta = timedelta(days=1) * num
+    delta = delta_from_days(1) * num
     start_time = period.start_time + delta
     end_time = period.end_time + delta
     return TimePeriod(period.time_type, start_time, end_time)
 
 
 def move_period_num_weeks(period, num):
-    delta = timedelta(weeks=1) * num
+    delta = delta_from_days(7) * num
     start_time = period.start_time + delta
     end_time = period.end_time + delta
     return TimePeriod(period.time_type, start_time, end_time)
@@ -696,29 +720,31 @@ def move_period_num_months(period, num):
     try:
         delta = num
         years = abs(delta) / 12
+        gregorian_start = gregorian.from_time(period.start_time)
+        gregorian_end = gregorian.from_time(period.end_time)
         if num < 0:
             years = -years
         delta = delta - 12 * years
         if delta < 0:
-            start_month = period.start_time.month + 12 + delta
-            end_month = period.end_time.month + 12 + delta
+            start_month = gregorian_start.month + 12 + delta
+            end_month = gregorian_end.month + 12 + delta
             if start_month > 12:
                 start_month -=12
                 end_month -=12
-            if start_month > period.start_time.month:
+            if start_month > gregorian_start.month:
                 years -= 1
         else:
-            start_month = period.start_time.month + delta
-            end_month = period.start_time.month + delta
+            start_month = gregorian_start.month + delta
+            end_month = gregorian_start.month + delta
             if start_month > 12:
                 start_month -=12
                 end_month -=12
                 years += 1
-        start_year = period.start_time.year + years
-        end_year = period.start_time.year + years
-        start_time = period.start_time.replace(year=start_year, month=start_month)
-        end_time = period.end_time.replace(year=end_year, month=end_month)
-        return TimePeriod(period.time_type, start_time, end_time)
+        start_year = gregorian_start.year + years
+        end_year = gregorian_start.year + years
+        start_time = gregorian_start.replace(year=start_year, month=start_month)
+        end_time = gregorian_end.replace(year=end_year, month=end_month)
+        return TimePeriod(period.time_type, start_time.to_time(), end_time.to_time())
     except ValueError:
         return None
 
@@ -726,10 +752,10 @@ def move_period_num_months(period, num):
 def move_period_num_years(period, num):
     try:
         delta = num
-        start_year = period.start_time.year
-        end_year = period.end_time.year
-        start_time = period.start_time.replace(year=start_year + delta)
-        end_time = period.end_time.replace(year=end_year + delta)
-        return TimePeriod(period.time_type, start_time, end_time)
+        start_year = gregorian.from_time(period.start_time).year
+        end_year = gregorian.from_time(period.end_time).year
+        start_time = gregorian.from_time(period.start_time).replace(year=start_year + delta)
+        end_time = gregorian.from_time(period.end_time).replace(year=end_year + delta)
+        return TimePeriod(period.time_type, start_time.to_time(), end_time.to_time())
     except ValueError:
         return None
