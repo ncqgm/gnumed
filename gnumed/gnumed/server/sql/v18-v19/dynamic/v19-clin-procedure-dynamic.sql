@@ -10,15 +10,24 @@
 -- --------------------------------------------------------------
 comment on column clin.procedure.fk_org_unit is 'links to the or unit the procedure was performed at';
 
--- create "hospitals" in dem.org/dem.org_unit
+insert into dem.org_category (description)
+	select 'Point Of Care'::text
+	where not exists (
+		select 1 from dem.org_category d_oc where d_oc.description = 'Point Of Care'
+	);
+
+
+-- create "Points Of Care" in dem.org/dem.org_unit from clin.procedure.clin_where records
 -- orgs
 insert into dem.org (description, fk_category)
 select
 	c_p.clin_where,
-	(select pk from dem.org_category d_oc where d_oc.description = 'Medical Practice')
+	(select pk from dem.org_category d_oc where d_oc.description = 'Point Of Care')
 from
 	clin.procedure c_p
 where
+	c_p.clin_where is not null
+		and
 	not exists (select 1 from dem.org where dem.org.description = c_p.clin_where)
 ;
 -- units
@@ -29,6 +38,8 @@ select
 from
 	clin.procedure c_p
 where
+	c_p.clin_where is not null
+		and
 	not exists (
 		select 1 from dem.org_unit
 		where
@@ -50,6 +61,8 @@ update clin.procedure set
 	fk_org_unit = (
 		select pk from dem.org_unit d_ou where d_ou.description = clin_where
 	)
+where
+	clin_where is not null
 ;
 
 -- add new constraint
