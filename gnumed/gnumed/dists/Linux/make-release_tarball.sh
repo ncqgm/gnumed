@@ -570,6 +570,23 @@ cp -R ../../server/sql/v17-v18/python/*.py ./gnumed-client.$CLIENTREV/server/sql
 cp -R ../../server/sql/v17-v18/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/fixups
 #cp -R ../../server/sql/v17-v18/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v17-v18/superuser
 
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/superuser
+
+cp ../../server/sql/v18-v19/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v18-v19
+cp -R ../../server/sql/v18-v19/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/dynamic
+cp -R ../../server/sql/v18-v19/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/static
+cp -R ../../server/sql/v18-v19/data/* ./gnumed-client.$CLIENTREV/server/sql/v18-v19/data
+cp -R ../../server/sql/v18-v19/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v18-v19/python
+#cp -R ../../server/sql/v18-v19/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
+#cp -R ../../server/sql/v18-v19/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/superuser
+
 #----------------------------------
 # weed out unnecessary stuff
 for fname in $FILES_REMOVE ; do
