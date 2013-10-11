@@ -8,6 +8,13 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- de-crapify data
+update clin.hospital_stay set
+	narrative = 'unknown hospital [stay:' || pk || ']'
+where
+	gm.is_null_or_blank_string(narrative) is True
+;
+
 comment on column clin.hospital_stay.fk_org_unit is 'links to the hospital the patient was admitted to';
 
 -- create "hospitals" in dem.org/dem.org_unit
