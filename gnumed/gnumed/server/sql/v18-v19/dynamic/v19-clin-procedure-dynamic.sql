@@ -22,14 +22,14 @@ insert into dem.org_category (description)
 -- orgs
 insert into dem.org (description, fk_category)
 select distinct on (c_p.clin_where)
-	c_p.clin_where,
+	'org for "' || c_p.clin_where || '"',
 	(select pk from dem.org_category d_oc where d_oc.description = 'Point Of Care')
 from
 	clin.procedure c_p
 where
 	c_p.clin_where is not null
 		and
-	not exists (select 1 from dem.org d_o where d_o.description = c_p.clin_where)
+	not exists (select 1 from dem.org d_o where d_o.description = 'org for "' || c_p.clin_where || '"')
 ;
 
 -- units
@@ -47,7 +47,7 @@ where
 		where
 			dem.org_unit.description = c_p.clin_where
 				and
-			fk_org = (select pk from dem.org where dem.org.description = c_p.clin_where)
+			fk_org = (select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"')
 	)
 ;
 

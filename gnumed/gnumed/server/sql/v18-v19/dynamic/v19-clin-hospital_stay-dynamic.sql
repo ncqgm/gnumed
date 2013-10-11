@@ -32,14 +32,14 @@ where
 insert into dem.org_unit (fk_org, description)
 select
 	(select pk from dem.org where dem.org.description = c_hs.narrative),
-	c_hs.narrative
+	'unit of ' || c_hs.narrative
 from
 	clin.hospital_stay c_hs
 where
 	not exists (
 		select 1 from dem.org_unit
 		where
-			dem.org_unit.description = c_hs.narrative
+			dem.org_unit.description = 'unit of ' || c_hs.narrative
 				and
 			fk_org = (select pk from dem.org where dem.org.description = c_hs.narrative)
 	)
@@ -55,7 +55,7 @@ alter table clin.hospital_stay
 -- link hospital stays to orgs
 update clin.hospital_stay set
 	fk_org_unit = (
-		select pk from dem.org_unit d_ou where d_ou.description = narrative
+		select pk from dem.org_unit d_ou where d_ou.description = 'unit of ' || narrative
 	)
 ;
 
