@@ -7,6 +7,7 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
+--set default_transaction_read_only to off;
 -- --------------------------------------------------------------
 comment on column clin.procedure.fk_org_unit is 'links to the or unit the procedure was performed at';
 
@@ -20,7 +21,7 @@ insert into dem.org_category (description)
 -- create "Points Of Care" in dem.org/dem.org_unit from clin.procedure.clin_where records
 -- orgs
 insert into dem.org (description, fk_category)
-select
+select distinct on (c_p.clin_where)
 	c_p.clin_where,
 	(select pk from dem.org_category d_oc where d_oc.description = 'Point Of Care')
 from
@@ -28,11 +29,12 @@ from
 where
 	c_p.clin_where is not null
 		and
-	not exists (select 1 from dem.org where dem.org.description = c_p.clin_where)
+	not exists (select 1 from dem.org d_o where d_o.description = c_p.clin_where)
 ;
+
 -- units
 insert into dem.org_unit (fk_org, description)
-select
+select distinct on (c_p.clin_where)
 	(select pk from dem.org where dem.org.description = c_p.clin_where),
 	c_p.clin_where
 from

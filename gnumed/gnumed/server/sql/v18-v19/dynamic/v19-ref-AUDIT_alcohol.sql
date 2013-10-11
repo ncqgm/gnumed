@@ -9,6 +9,33 @@
 
 --set default_transaction_read_only to off;
 -- --------------------------------------------------------------
+delete from ref.keyword_expansion where keyword = 'score-ATRIA-bleeding_risk';
+
+insert into ref.keyword_expansion (
+	fk_staff,
+	keyword,
+	textual_data
+) values (
+	null,
+	'score-ATRIA-bleeding_risk',
+'ATRIA - bleeding risk in oral anti-coagulation for atrial fibrillation
+----------------------------------------------------------------------
+Fang MC et al; A new risk scheme to predict warfarin-associated hemorrhage.
+The ATRIA-Study. J Am Coll Cardiol. 2011;58:395-401.
+
+$[0/3]$ anemia
+$[0/3]$ severe renal disease (dialysis or eGFR < 30ml/min)
+$[0/2]$ age > 74 years
+$[0/1]$ any prior hemorrhage diagnosis
+$[0/1]$ diagnosed hypertension
+
+Sum: $[calculate sum]$
+
+	< 4: low risk ( <1% hemorrhages/year )
+	> 5: high risk
+';
+
+-- --------------------------------------------------------------
 delete from ref.keyword_expansion where keyword = 'score-AUDIT_alcohol_disorder_screening';
 
 insert into ref.keyword_expansion (
