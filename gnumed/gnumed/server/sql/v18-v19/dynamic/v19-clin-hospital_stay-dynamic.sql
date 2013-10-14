@@ -8,6 +8,13 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+-- de-crapify data
+update clin.hospital_stay set
+	narrative = 'unknown hospital [stay:' || pk || ']'
+where
+	gm.is_null_or_blank_string(narrative) is True
+;
+
 comment on column clin.hospital_stay.fk_org_unit is 'links to the hospital the patient was admitted to';
 
 -- create "hospitals" in dem.org/dem.org_unit
@@ -25,14 +32,14 @@ where
 insert into dem.org_unit (fk_org, description)
 select
 	(select pk from dem.org where dem.org.description = c_hs.narrative),
-	c_hs.narrative
+	'unit of ' || c_hs.narrative
 from
 	clin.hospital_stay c_hs
 where
 	not exists (
 		select 1 from dem.org_unit
 		where
-			dem.org_unit.description = c_hs.narrative
+			dem.org_unit.description = 'unit of ' || c_hs.narrative
 				and
 			fk_org = (select pk from dem.org where dem.org.description = c_hs.narrative)
 	)
@@ -48,7 +55,7 @@ alter table clin.hospital_stay
 -- link hospital stays to orgs
 update clin.hospital_stay set
 	fk_org_unit = (
-		select pk from dem.org_unit d_ou where d_ou.description = narrative
+		select pk from dem.org_unit d_ou where d_ou.description = 'unit of ' || narrative
 	)
 ;
 
