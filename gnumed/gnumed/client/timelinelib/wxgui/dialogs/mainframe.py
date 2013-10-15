@@ -821,7 +821,6 @@ class MainFrame(wx.Frame, GuiCreator, MainFrameApiUsedByController):
         if all_period == None:
             return
         if all_period.is_period():
-            all_period = all_period.zoom(-1)
             self._navigate_timeline(lambda tp: tp.update(all_period.start_time, all_period.end_time))
         else:
             self._navigate_timeline(lambda tp: tp.center(all_period.mean_time()))
@@ -833,7 +832,7 @@ class MainFrame(wx.Frame, GuiCreator, MainFrameApiUsedByController):
                 time_type = self.timeline.get_time_type()
                 start = self._first_time(visible_events)
                 end = self._last_time(visible_events)
-                return TimePeriod(time_type, start, end)
+                return TimePeriod(time_type, start, end).zoom(-1)
             else:
                 return None
         except ValueError, ex:
