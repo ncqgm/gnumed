@@ -1116,7 +1116,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 			_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
 		else:
 			conn.commit()
-			_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+			_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
 
 	if close_conn:
 		conn.close()
