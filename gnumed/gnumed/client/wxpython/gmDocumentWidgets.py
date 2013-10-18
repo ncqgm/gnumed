@@ -1,7 +1,6 @@
 """GNUmed medical document handling widgets.
 """
 #================================================================
-__version__ = "$Revision: 1.187 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 import os.path
@@ -43,7 +42,6 @@ from Gnumed.wxpython import gmListWidgets
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 
 default_chunksize = 1 * 1024 * 1024		# 1 MB
@@ -1543,6 +1541,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__part_context_menu.Append(ID, _('Mail part'))
 		wx.EVT_MENU(self.__part_context_menu, ID, self.__mail_part)
 
+		ID = wx.NewId()
+		self.__part_context_menu.Append(ID, _('Export part'))
+		wx.EVT_MENU(self.__part_context_menu, ID, self.__export_part_to_disk)
+
 		self.__part_context_menu.AppendSeparator()			# so we can append some items
 
 		# --- doc context menu ---
@@ -1551,6 +1553,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('%s Sign/Edit properties') % u'\u270D')
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__review_curr_part)
+
+		ID = wx.NewId()
+		self.__doc_context_menu.Append(ID, _('Delete document'))
+		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
 
 		self.__doc_context_menu.AppendSeparator()
 
@@ -1574,10 +1580,6 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EVT_MENU(self.__doc_context_menu, ID, self.__export_doc_to_disk)
 
 		self.__doc_context_menu.AppendSeparator()
-
-		ID = wx.NewId()
-		self.__doc_context_menu.Append(ID, _('Delete document'))
-		wx.EVT_MENU(self.__doc_context_menu, ID, self.__delete_document)
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Access external original'))
@@ -2240,6 +2242,53 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	def __mail_part(self, evt):
 		self.__process_part(action = u'mail', l10n_action = _('mail'))
 	#--------------------------------------------------------
+	def __export_part_to_disk(self, evt):
+		"""Export document part into directory."""
+
+		dlg = wx.DirDialog (
+			parent = self,
+			message = _('Save document part to directory ...'),
+			defaultPath = os.path.expanduser(os.path.join('~', 'gnumed')),
+			style = wx.DD_DEFAULT_STYLE
+		)
+		result = dlg.ShowModal()
+		dirname = dlg.GetPath()
+		dlg.Destroy()
+
+		if result != wx.ID_OK:
+			return True
+
+		wx.BeginBusyCursor()
+
+		pat = gmPerson.gmCurrentPatient()
+		fname = self.__curr_node_data.get_useful_filename (
+			patient = pat,
+			make_unique = True,
+			directory = dirname
+		)
+
+		cfg = gmCfg.cCfgSQL()
+
+		# determine database export chunk size
+		chunksize = int(cfg.get2 (
+			option = "horstspace.blob_export_chunk_size",
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'workplace',
+			default = default_chunksize
+		))
+
+		fname = self.__curr_node_data.export_to_file (
+			aChunkSize = chunksize,
+			filename = fname,
+			target_mime = None
+		)
+
+		wx.EndBusyCursor()
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported document part as [%s].') % fname)
+
+		return True
+	#--------------------------------------------------------
 	# document level context menu handlers
 	#--------------------------------------------------------
 	def __select_encounter(self, evt):
@@ -2400,12 +2449,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		- into subdirectory named after patient
 		"""
 		pat = gmPerson.gmCurrentPatient()
-		dname = '%s-%s%s' % (
-			self.__curr_node_data['l10n_type'],
-			self.__curr_node_data['clin_when'].strftime('%Y-%m-%d'),
-			gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
-		)
-		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname'], dname))
+		def_dir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname']))
 		gmTools.mkdir(def_dir)
 
 		dlg = wx.DirDialog (

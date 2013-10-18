@@ -247,18 +247,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if filename is None:
-			suffix = None
-			# preserve original filename extension if available
-			if self._payload[self._idx['filename']] is not None:
-				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
-				suffix = suffix.strip()
-				if suffix == u'':
-					suffix = None
-			# get unique filename
-			filename = gmTools.get_unique_filename (
-				prefix = 'gm-doc_obj-page_%s-' % self._payload[self._idx['seq_idx']],
-				suffix = suffix
-			)
+			filename = self.get_useful_filename(make_unique = True)
 
 		success = gmPG2.bytea2file (
 			data_query = {
@@ -279,8 +268,10 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		if target_extension is None:
 			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
 
+		target_path, name = os.path.split(filename)
+		name, tmp = os.path.splitext(name)
 		target_fname = gmTools.get_unique_filename (
-			prefix = 'gm-doc_obj-page_%s-converted-' % self._payload[self._idx['seq_idx']],
+			prefix = '%s-converted-' % name,
 			suffix = target_extension
 		)
 		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
@@ -470,12 +461,46 @@ where
 			txt += u'\n%s\n' % self._payload[self._idx['obj_comment']]
 
 		return txt
+	#--------------------------------------------------------
+	def get_useful_filename(self, patient=None, make_unique=False, directory=None):
+		patient_part = ''
+		if patient is not None:
+			patient_part = '-%s-' % patient['dirname']
+
+		# preserve original filename extension if available
+		suffix = '.dat'
+		if self._payload[self._idx['filename']] is not None:
+			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
+			suffix = suffix.strip().replace(' ', '-')
+			if suffix == u'':
+				suffix = '.dat'
+
+		fname = 'gm-doc_part-%s-%s-%s--#%s' % (
+			patient_part,
+			self._payload[self._idx['l10n_type']].replace(' ', '_'),
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days),
+			self._payload[self._idx['seq_idx']],
+			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
+		)
+
+		if make_unique:
+			fname = gmTools.get_unique_filename (
+				prefix = '%s-' % fname,
+				suffix = suffix,
+				tmp_dir = directory
+			)
+		else:
+			fname = os.path.join(directory, fname + suffix)
+
+		return fname
+
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
 	cmd = u"select blobs.delete_document_part(%(pk)s, %(enc)s)"
 	args = {'pk': part_pk, 'enc': encounter_pk}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return
+
 #============================================================
 _sql_fetch_document_fields = u"""
 		SELECT
