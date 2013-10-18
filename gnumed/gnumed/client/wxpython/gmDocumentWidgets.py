@@ -2123,8 +2123,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		)
 		if target_doc is None:
 			return
-		self.__curr_node_data['pk_doc'] = target_doc['pk_doc']
-		self.__curr_node_data.save()
+		if not self.__curr_node_data.reattach(pk_doc = target_doc['pk_doc']):
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Cannot move document part.'),
+				aTitle = _('Moving document part')
+			)
 	#--------------------------------------------------------
 	def __delete_part(self, evt):
 		delete_it = gmGuiHelpers.gm_show_question (

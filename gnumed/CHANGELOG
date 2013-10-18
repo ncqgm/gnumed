@@ -6,6 +6,10 @@
 # rel-1-3-patches
 ------------------------------------------------
 
+	1.3.10 (unreleased)
+
+FIX: exception on moving document parts
+
 	1.3.9
 
 FIX: health issue EA hang [thanks Jim]

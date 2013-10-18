@@ -222,8 +222,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 				seq_idx = %(seq_idx)s,
 				comment = gm.nullify_empty_string(%(obj_comment)s),
 				filename = gm.nullify_empty_string(%(filename)s),
-				fk_intended_reviewer = %(pk_intended_reviewer)s,
-				fk_doc = %(pk_doc)s
+				fk_intended_reviewer = %(pk_intended_reviewer)s
 			WHERE
 				pk = %(pk_obj)s
 					AND
@@ -235,8 +234,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		'seq_idx',
 		'obj_comment',
 		'pk_intended_reviewer',
-		'filename',
-		'pk_doc'
+		'filename'
 	]
 	#--------------------------------------------------------
 	# retrieve data
@@ -384,11 +382,12 @@ insert into blobs.reviewed_doc_objs (
 				'pk_row': pk_row
 			}
 			cmd = u"""
-update blobs.reviewed_doc_objs set
-	is_technically_abnormal = %(abnormal)s,
-	clinically_relevant = %(relevant)s
-where
-	pk=%(pk_row)s"""
+				UPDATE blobs.reviewed_doc_objs SET
+					is_technically_abnormal = %(abnormal)s,
+					clinically_relevant = %(relevant)s
+				WHERE
+					pk = %(pk_row)s
+			"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return True
@@ -397,15 +396,53 @@ where
 		if self._payload[self._idx['type']] != u'patient photograph':
 			return False
 		# set seq_idx to current max + 1
+		cmd = u'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': u'select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s',
+				'cmd': cmd,
 				'args': {'doc_id': self._payload[self._idx['pk_doc']]}
 			}]
 		)
 		self._payload[self._idx['seq_idx']] = rows[0][0]
 		self._is_modified = True
 		self.save_payload()
+	#--------------------------------------------------------
+	def reattach(self, pk_doc=None):
+		if pk_doc == self._payload[self._idx['pk_doc']]:
+			return True
+
+		cmd = u"""
+			UPDATE blobs.doc_obj SET
+				fk_doc = %(pk_doc_target)s,
+				-- coalesce needed for no-parts target docs
+				seq_idx = (SELECT coalesce(max(seq_idx) + 1, 1) FROM blobs.doc_obj WHERE fk_doc = %(pk_doc_target)s)
+			WHERE
+				EXISTS(SELECT 1 FROM blobs.doc_med WHERE pk = %(pk_doc_target)s)
+					AND
+				pk = %(pk_obj)s
+					AND
+				xmin = %(xmin_doc_obj)s
+			RETURNING fk_doc
+		"""
+		args = {
+			'pk_doc_target': pk_doc,
+			'pk_obj': self.pk_obj,
+			'xmin_doc_obj': self._payload[self._idx['xmin_doc_obj']]
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		if len(rows) == 0:
+			return False
+		# The following should never hold true because the target
+		# fk_doc is returned from the query and it is checked for
+		# equality before the UPDATE already. Assuming the update
+		# failed to update a row because the target fk_doc did
+		# not exist we would not get *any* rows in return - for
+		# which condition we also already checked
+		if rows[0]['fk_doc'] == self._payload[self._idx['pk_doc']]:
+			return False
+
+		self.refetch_payload()
+		return True
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
