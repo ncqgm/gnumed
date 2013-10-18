@@ -6,7 +6,7 @@ license: GPL v2 or later
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
-import types, sys, string, datetime, logging, time
+import types, sys, string, datetime, logging, time, pprint
 
 
 if __name__ == '__main__':
@@ -702,6 +702,79 @@ FROM (
 		return diagnostic_certainty_classification2str(self._payload[self._idx['diagnostic_certainty_classification']])
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
+	#--------------------------------------------------------
+	def _get_formatted_revision_history(self):
+		cmd = u"""SELECT
+				NULL AS audit_action,
+				NULL AS audit_when,
+				NULL AS audit_by,
+				pk_audit,
+				row_version,
+				modified_when,
+				modified_by,
+				pk,
+				description,
+				laterality,
+				age_noted,
+				is_active,
+				clinically_relevant,
+				is_confidential,
+				is_cause_of_death,
+				fk_encounter
+			FROM clin.health_issue
+			WHERE pk = %(pk_health_issue)s
+		UNION ALL
+			SELECT
+				audit_action,
+				audit_when,
+				audit_by,
+				pk_audit,
+				row_version,
+				modified_when,
+				modified_by,
+				pk,
+				description,
+				laterality,
+				age_noted,
+				is_active,
+				clinically_relevant,
+				is_confidential,
+				is_cause_of_death,
+				fk_encounter
+			FROM audit.log_health_issue
+			WHERE
+				pk_audit = (SELECT pk_audit FROM clin.health_issue WHERE pk = %(pk_health_issue)s)
+		ORDER BY row_version DESC
+		"""
+		args = {'pk_health_issue': self.pk_obj}
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		txt = _('health issue: %s%s%s\n\n') % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['description']],
+			gmTools.u_right_double_angle_quote
+		)
+		__fields_ordered = [ key for (key, value) in sorted(idx.items(), key = lambda (x, y): y)]
+		__current_version = {}
+		for col in __fields_ordered[3:]: # skip first 3 fields
+			__current_version[col] = rows[0][col]
+		txt += u'-' * 20 + '\n'
+		txt += _('\ncurrent values:\n')
+		txt += pprint.pformat(__current_version)
+		txt += u'\n'
+		if __current_version['row_version'] == 0:
+			txt += u'-' * 20 + '\n'
+			txt += _('no previous versions of this record')
+		else:
+			cols = {}
+			for col in __fields_ordered:
+				cols[col] = [ row[col] for row in rows ]
+			txt += u'-' * 20 + '\n'
+			txt += _('\nall values with <audit_action>, <audit_when>, <audit_by> fields (current value first):\n')
+			txt += u'\n' + pprint.pformat(cols) + '\n'
+
+		return txt
+
+	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -3051,6 +3124,7 @@ if __name__ == '__main__':
 #		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 #		print h_issue
 #		print h_issue.format_as_journal()
+		print h_issue.formatted_revision_history
 	#--------------------------------------------------------	
 	def test_episode():
 		print "\nepisode test"
