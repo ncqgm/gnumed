@@ -51,7 +51,8 @@ IMPROVED: current_meds_tables/*_notes placeholder can now span pages
 IMPROVED: waiting list [thanks Jerzy]
 IMPROVED: streamlined form templates management
 IMPROVED: display of long-text test results
-IMPROVED: EMR tree browser: show journal for unassociated episodes pool
+IMPROVED: EMR tree: show journal for unassociated episodes pool
+IMPROVED: EMR tree: keep expansion state across node edits
 IMPROVED: improved SOAP selection list
 IMPROVED: more clinically relevant display of substance intake start
 IMPROVED: test results plotting: deal with "<N" and ">N" pseudo-numeric values
