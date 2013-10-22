@@ -11,6 +11,7 @@ import logging
 
 
 import wx
+import wx.lib.mixins.treemixin as treemixin
 
 
 if __name__ == '__main__':
@@ -195,6 +196,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
 gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
+
 #============================================================
 class cDocumentCommentPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document comment from all existing comments."""
@@ -252,6 +254,7 @@ LIMIT 25"""],
 		self.picklist_delay = 50
 
 		self.SetToolTipString(_('Enter a comment on the document.'))
+
 #============================================================
 # document type widgets
 #============================================================
@@ -262,6 +265,7 @@ def manage_document_types(parent=None):
 
 	dlg = cEditDocumentTypesDlg(parent = parent)
 	dlg.ShowModal()
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgEditDocumentTypesDlg
 
@@ -414,6 +418,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		wx.EndBusyCursor()
 
 		return
+
 #============================================================
 class cDocumentTypeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select a document type."""
@@ -475,6 +480,7 @@ ORDER BY q1.rank, q1.list_label"""]
 				value = doc_type,
 				data = pk
 			)
+
 #============================================================
 # document review widgets
 #============================================================
@@ -736,6 +742,7 @@ class cReviewDocPartDlg(wxgReviewDocPartDlg.wxgReviewDocPartDlg):
 		else:
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
+
 #============================================================
 def acquire_images_from_capture_device(device=None, calling_window=None):
 
@@ -1327,6 +1334,7 @@ def display_document_part(parent=None, part=None):
 			review_document_part(parent = parent, part = part)
 
 	return True
+
 #============================================================
 def manage_documents(parent=None, msg=None, single_selection=True):
 
@@ -1405,9 +1413,9 @@ class cSelectablySortedDocTreePnl(wxgSelectablySortedDocTreePnl.wxgSelectablySor
 		self._doc_tree.sort_mode = 'type'
 		self._doc_tree.SetFocus()
 		self._rbtn_sort_by_type.SetValue(True)
+
 #============================================================
-class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
-	# FIXME: handle expansion state
+class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.ExpansionState):
 	"""This wx.TreeCtrl derivative displays a tree view of stored medical documents.
 
 	It listens to document and patient changes and updates itself accordingly.
@@ -1438,6 +1446,8 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.root = None
 		self.__sort_mode = 'age'
 
+		self.__expanded_nodes = None
+
 		self.__build_context_menus()
 		self.__register_interests()
 		self._schedule_data_reget()
@@ -1459,7 +1469,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _get_sort_mode(self):
 		return self.__sort_mode
-	#-----
+
 	def _set_sort_mode(self, mode):
 		if mode is None:
 			mode = 'age'
@@ -1471,13 +1481,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 			raise ValueError('invalid document tree sort mode [%s], valid modes: %s' % (mode, cDocTree._sort_modes))
 
 		self.__sort_mode = mode
+		self.__expanded_nodes = None
 
 		curr_pat = gmPerson.gmCurrentPatient()
 		if not curr_pat.connected:
 			return
 
 		self._schedule_data_reget()
-	#-----
+
 	sort_mode = property(_get_sort_mode, _set_sort_mode)
 	#--------------------------------------------------------
 	# reget-on-paint API
@@ -1765,12 +1776,18 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__sort_nodes()
 		self.SelectItem(self.root)
 
-		# FIXME: apply expansion state if available or else ...
-		# FIXME: ... uncollapse to default state
+		# restore expansion state
+		if self.__expanded_nodes is not None:
+			self.ExpansionState = self.__expanded_nodes
+		# but always expand root node
 		self.Expand(self.root)
-		if self.__sort_mode in ['episode', 'type', 'issue']:
-			for key in intermediate_nodes.keys():
-				self.Expand(intermediate_nodes[key])
+		# if no expansion state available then
+		# expand intermediate nodes as well
+		if self.__expanded_nodes is None:
+			# but only if there are any
+			if self.__sort_mode in ['episode', 'type', 'issue']:
+				for key in intermediate_nodes.keys():
+					self.Expand(intermediate_nodes[key])
 
 		wx.EndBusyCursor()
 
@@ -1900,16 +1917,14 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	# event handlers
 	#------------------------------------------------------------------------
 	def _on_doc_mod_db(self, *args, **kwargs):
-		# FIXME: remember current expansion state
+		self.__expanded_nodes = self.ExpansionState
 		wx.CallAfter(self._schedule_data_reget)
 	#------------------------------------------------------------------------
 	def _on_doc_page_mod_db(self, *args, **kwargs):
-		# FIXME: remember current expansion state
+		self.__expanded_nodes = self.ExpansionState
 		wx.CallAfter(self._schedule_data_reget)
 	#------------------------------------------------------------------------
 	def _on_pre_patient_selection(self, *args, **kwargs):
-		# FIXME: self.__store_expansion_history_in_db
-
 		# empty out tree
 		if self.root is not None:
 			self.DeleteAllItems()
@@ -1917,6 +1932,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 	#------------------------------------------------------------------------
 	def _on_post_patient_selection(self, *args, **kwargs):
 		# FIXME: self.__load_expansion_history_from_db (but not apply it !)
+		self.__expanded_nodes = None
 		self._schedule_data_reget()
 	#------------------------------------------------------------------------
 	def _on_activate(self, event):
@@ -2489,11 +2505,11 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin):
 		return True
 	#--------------------------------------------------------
 	def __delete_document(self, evt):
-		result = gmGuiHelpers.gm_show_question (
+		delete_it = gmGuiHelpers.gm_show_question (
 			aMessage = _('Are you sure you want to delete the document ?'),
 			aTitle = _('Deleting document')
 		)
-		if result is True:
+		if delete_it is True:
 			curr_pat = gmPerson.gmCurrentPatient()
 			emr = curr_pat.get_emr()
 			enc = emr.active_encounter
