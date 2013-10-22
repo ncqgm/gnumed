@@ -203,7 +203,6 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 #		self.snapshot_expansion()
 		# init new tree
 		root_item = self.__populate_root_node()
-#		self.__exporter.get_historical_tree(self)				# this is slow
 		self.__curr_node = root_item
 		self.SelectItem(root_item)
 		self.Expand(root_item)
@@ -287,15 +286,18 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			_log.error('node.m_pItem: %s', getattr(self.__curr_node, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
+
 		doc_folder = self.__pat.get_document_folder()
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__cb__enable_display_mode_selection(True)
+			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin=1, patient = self.__pat)
-			else:
+			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
-
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
@@ -352,25 +354,32 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
 			self.__cb__enable_display_mode_selection(True)
+			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
-			else:
+			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [node_data['pk_episode']]
 			)
 
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
-			self.__cb__enable_display_mode_selection(False)
+			#self.__cb__enable_display_mode_selection(False)
+			self.__cb__enable_display_mode_selection(True)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
-			txt = node_data.format (
-				episodes = [epi['pk_episode']],
-				with_soap = True,
-				left_margin = 1,
-				patient = self.__pat,
-				with_co_encountlet_hints = True
-			)
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
+			else:
+				txt = node_data.format (
+					episodes = [epi['pk_episode']],
+					with_soap = True,
+					left_margin = 1,
+					patient = self.__pat,
+					with_co_encountlet_hints = True
+				)
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [epi['pk_episode']],
@@ -1180,8 +1189,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		return self.__soap_display_mode
 
 	def _set_details_display_mode(self, mode):
-		if mode not in [u'details', u'journal']:
-			raise ValueError('details display mode must be one of "details", "journal"')
+		if mode not in [u'details', u'journal', u'revisions']:
+			raise ValueError('details display mode must be one of "details", "journal", "revisions"')
 		if self.__soap_display_mode == mode:
 			return
 		self.__soap_display_mode = mode
@@ -1273,6 +1282,9 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	def _on_show_journal_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
 	#--------------------------------------------------------
+	def _on_show_revisions_selected(self, event):
+		self._pnl_emr_tree._emr_tree.details_display_mode = u'revisions'
+	#--------------------------------------------------------
 	def _on_switch_browse_edit_button_pressed(self, event):
 		self.editing = not self.__editing
 	#--------------------------------------------------------
@@ -1291,9 +1303,11 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		if enable:
 			self._RBTN_details.Enable(True)
 			self._RBTN_journal.Enable(True)
+			self._RBTN_revisions.Enable(True)
 			return
 		self._RBTN_details.Enable(False)
 		self._RBTN_journal.Enable(False)
+		self._RBTN_revisions.Enable(False)
 	#--------------------------------------------------------
 	def _add_soap_editor(self, problem=None, allow_same_problem=False):
 		self._PNL_edit._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_same_problem)
