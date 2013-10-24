@@ -548,8 +548,8 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def __refresh_history(self, patient=None):
 		emr = patient.get_emr()
 
-		list_items = []
-		list_data = []
+		sort_key_list = []
+		data = {}
 
 		issues = [
 			i for i in emr.get_health_issues()
@@ -559,56 +559,80 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
 			if last_encounter is None:
 				last = issue['modified_when'].strftime('%m/%Y')
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(issue['modified_when'], format = '%Y %m %d %H %M %S'), issue['pk_health_issue'])
 			else:
 				last = last_encounter['last_affirmed'].strftime('%m/%Y')
-			list_items.append(u'%s %s' % (last, issue['description']))
-			list_data.append(issue)
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = '%Y %m %d %H %M %S'), issue['pk_health_issue'])
+			sort_key_list.append(sort_key)
+			data[sort_key] = [u'%s %s' % (last, issue['description']), issue]
 		del issues
 
 		fhxs = emr.get_family_history()
 		for fhx in fhxs:
-			list_items.append(u'%s: %s%s' % (
+			sort_key = u'0000 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
+			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
+			label = u'%s: %s%s' % (
 				fhx['l10n_relation'],
 				fhx['condition'],
 				gmTools.coalesce(fhx['age_noted'], u'', u' (@ %s)')
-			))
-			list_data.append(fhx)
+			)
+			sort_key_list.append(sort_key)
+			data[sort_key] = [label, fhx]
 		del fhxs
 
 		stays = emr.get_hospital_stays()
 		for stay in stays:
-			if stay['discharge'] is not None:
-				discharge = u''
-			else:
+			if stay['discharge'] is None:
 				discharge = gmTools.u_ellipsis
-			list_items.append(u'%s%s %s: %s' % (
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = '%Y %m %d %H %M %S'), stay['pk_hospital_stay'])
+			else:
+				discharge = u''
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['discharge'], format = '%Y %m %d %H %M %S'), stay['pk_hospital_stay'])
+			label = u'%s%s %s: %s' % (
 				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b %d'),
 				discharge,
 				stay['hospital'],
 				stay['episode']
-			))
-			list_data.append(stay)
+			)
+			sort_key_list.append(sort_key)
+			data[sort_key] = [label, stay]
 		del stays
 
 		procs = emr.get_performed_procedures()
 		for proc in procs:
-			list_items.append(u'%s%s %s' % (
+			if proc['is_ongoing']:
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %m %d %H %M %S'), proc['pk_procedure'])
+			else:
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_end'], format = '%Y %m %d %H %M %S'), proc['pk_procedure'])
+			label = u'%s%s %s' % (
 				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b %d'),
 				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, u'', u''),
 				proc['performed_procedure']
-			))
-			list_data.append(proc)
+			)
+			sort_key_list.append(sort_key)
+			data[sort_key] = [label, proc]
 		del procs
 
 		vaccs = emr.get_latest_vaccinations()
 		for ind, tmp in vaccs.items():
 			tmp, vacc = tmp
-			list_items.append(_('%s Vacc: %s') % (
-				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b %d'),
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %m %d %H %M %S'), vacc['pk_vaccination'])
+			label = _('%s Vacc: %s') % (
+				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
 				ind
-			))
-			list_data.append(vacc)
+			)
+			sort_key_list.append(sort_key)
+			data[sort_key] = [label, vacc]
 		del vaccs
+
+		sort_key_list.sort()
+		sort_key_list.reverse()
+		list_items = []
+		list_data = []
+		for key in sort_key_list:
+			label, item = data[key]
+			list_items.append(label)
+			list_data.append(item)
 
 		self._LCTRL_history.set_string_items(items = list_items)
 		self._LCTRL_history.set_data(data = list_data)

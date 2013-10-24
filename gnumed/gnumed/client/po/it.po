@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 14:35+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -3536,13 +3536,6 @@ msgstr ""
 msgid "Vaccine ..."
 msgstr ""
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 msgid "Batch №"
 msgstr ""
 
@@ -4814,11 +4807,18 @@ msgstr ""
 msgid "&Journal"
 msgstr "Giornale"
 
+msgid "Revisions"
+msgstr ""
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
+msgstr "Mostra il &giornale di laboratorio"
+
+#, fuzzy
+msgid "Show item revisions."
 msgstr "Mostra il &giornale di laboratorio"
 
 msgid ""
@@ -6132,11 +6132,13 @@ msgstr "ERRORE: stato allergico sconosciuto [%s]"
 msgid "Medication history"
 msgstr "Storico dei medicamenti"
 
-msgid "copy"
-msgstr ""
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Elimina la descrizione del documento"
 
-msgid "data"
-msgstr ""
+#, fuzzy
+msgid "prescription data"
+msgstr "Prescrizioni"
 
 msgid "in use"
 msgstr ""
@@ -7476,6 +7478,27 @@ msgstr "Analisi e risultati: %s"
 msgid "Vaccinations:"
 msgstr "Vaccinazioni:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "problema di salute: %s"
+
+#, fuzzy
+msgid ""
+"\n"
+"current values:\n"
+msgstr "<stato allergico attuale>"
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Casi non attribuiti"
 
@@ -7532,6 +7555,12 @@ msgstr "Decorsi per gli appuntamenti più recenti"
 msgid "Measurements and Results:"
 msgstr "Misure e risultati:"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "Episodio %s%s%s [#%s]"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  il tuo tempo: %s - %s  (@%s = %s%s)\n"
@@ -7556,6 +7585,12 @@ msgstr "Episodio %s%s%s [#%s]"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s altri episodi accennati duranti questi incontri:"
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Appuntamenti: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " in corso"
@@ -10898,9 +10933,6 @@ msgstr ""
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-msgid "Revisions"
-msgstr ""
-
 msgid "Table"
 msgstr ""
 
@@ -11142,6 +11174,9 @@ msgstr "Edita l'occupazione primaria"
 #, fuzzy
 msgid "text"
 msgstr "Contesto"
+
+msgid "data"
+msgstr ""
 
 msgid ""
 "\n"
@@ -11605,6 +11640,27 @@ msgstr ""
 msgid "Cannot list encounters. No active patient."
 msgstr ""
 
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "Cancella documento"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr ""
+"Non posso eliminare il tipo di documento\n"
+" [%s]\n"
+"perchè è attualmente in uso."
+
 #, fuzzy
 msgid "The patient's encounters.\n"
 msgstr "Spostare gli incontri"
@@ -11938,11 +11994,11 @@ msgid "Privacy notice"
 msgstr ""
 
 #, python-format
-msgid "Your chart has been accessed by %s."
+msgid "%s: Your chart has been accessed by %s."
 msgstr ""
 
 #, python-format
-msgid "Staff member %s has been notified of your chart access."
+msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 #, python-format
@@ -13093,8 +13149,15 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
+msgid "Export part"
+msgstr "Rapporto"
+
+#, fuzzy
 msgid "Document Actions:"
 msgstr "Documenti:"
+
+msgid "Delete document"
+msgstr "Cancella documento"
 
 #, fuzzy
 msgid "Add parts"
@@ -13111,9 +13174,6 @@ msgstr ""
 
 msgid "Export all parts"
 msgstr ""
-
-msgid "Delete document"
-msgstr "Cancella documento"
 
 msgid "Access external original"
 msgstr ""
@@ -13158,6 +13218,14 @@ msgid ""
 "\n"
 "Select the document into which to move the selected part !\n"
 msgstr "Selezionare l'episodio del quale si desidera spostare la narrazione."
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr "Non posso aggiungere la descrizione al documento."
+
+#, fuzzy
+msgid "Moving document part"
+msgstr "Cancella documento"
 
 #, fuzzy
 msgid "Deleting document part"
@@ -13212,6 +13280,14 @@ msgstr "fax"
 
 msgid "mail"
 msgstr "mail"
+
+#, fuzzy
+msgid "Save document part to directory ..."
+msgstr "Salva il documento nella cartella ..."
+
+#, fuzzy, python-format
+msgid "Successfully exported document part as [%s]."
+msgstr "Nuovo documento salvato con successo."
 
 #, python-format
 msgid ""
@@ -15326,9 +15402,6 @@ msgstr ""
 msgid "EMR successfully exported to file: %s"
 msgstr ""
 
-msgid "Cannot load clinical narrative. No active patient."
-msgstr "Non posso caricare la storia clinica. Nessun paziente attivo."
-
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
 msgstr ""
@@ -16551,6 +16624,9 @@ msgstr "Annulla"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
 
+#~ msgid "Cannot load clinical narrative. No active patient."
+#~ msgstr "Non posso caricare la storia clinica. Nessun paziente attivo."
+
 #, fuzzy
 #~ msgid "Printing"
 #~ msgstr "Stampa"
@@ -16626,10 +16702,6 @@ msgstr "Annulla e NON connetti a GNUmed"
 #, fuzzy
 #~ msgid "Printing prescription list"
 #~ msgstr "Prescrizioni"
-
-#, fuzzy
-#~ msgid "Error printing the prescription."
-#~ msgstr "Elimina la descrizione del documento"
 
 #, fuzzy
 #~ msgid "prescription printed from template [%s - %s]"

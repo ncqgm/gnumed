@@ -222,8 +222,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 				seq_idx = %(seq_idx)s,
 				comment = gm.nullify_empty_string(%(obj_comment)s),
 				filename = gm.nullify_empty_string(%(filename)s),
-				fk_intended_reviewer = %(pk_intended_reviewer)s,
-				fk_doc = %(pk_doc)s
+				fk_intended_reviewer = %(pk_intended_reviewer)s
 			WHERE
 				pk = %(pk_obj)s
 					AND
@@ -235,8 +234,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		'seq_idx',
 		'obj_comment',
 		'pk_intended_reviewer',
-		'filename',
-		'pk_doc'
+		'filename'
 	]
 	#--------------------------------------------------------
 	# retrieve data
@@ -247,18 +245,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 			return None
 
 		if filename is None:
-			suffix = None
-			# preserve original filename extension if available
-			if self._payload[self._idx['filename']] is not None:
-				name, suffix = os.path.splitext(self._payload[self._idx['filename']])
-				suffix = suffix.strip()
-				if suffix == u'':
-					suffix = None
-			# get unique filename
-			filename = gmTools.get_unique_filename (
-				prefix = 'gm-doc_obj-page_%s-' % self._payload[self._idx['seq_idx']],
-				suffix = suffix
-			)
+			filename = self.get_useful_filename(make_unique = True)
 
 		success = gmPG2.bytea2file (
 			data_query = {
@@ -279,8 +266,10 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 		if target_extension is None:
 			target_extension = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
 
+		target_path, name = os.path.split(filename)
+		name, tmp = os.path.splitext(name)
 		target_fname = gmTools.get_unique_filename (
-			prefix = 'gm-doc_obj-page_%s-converted-' % self._payload[self._idx['seq_idx']],
+			prefix = '%s-converted-' % name,
 			suffix = target_extension
 		)
 		_log.debug('attempting conversion: [%s] -> [<%s>:%s]', filename, target_mime, target_fname)
@@ -386,11 +375,12 @@ insert into blobs.reviewed_doc_objs (
 				'pk_row': pk_row
 			}
 			cmd = u"""
-update blobs.reviewed_doc_objs set
-	is_technically_abnormal = %(abnormal)s,
-	clinically_relevant = %(relevant)s
-where
-	pk=%(pk_row)s"""
+				UPDATE blobs.reviewed_doc_objs SET
+					is_technically_abnormal = %(abnormal)s,
+					clinically_relevant = %(relevant)s
+				WHERE
+					pk = %(pk_row)s
+			"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		return True
@@ -399,15 +389,53 @@ where
 		if self._payload[self._idx['type']] != u'patient photograph':
 			return False
 		# set seq_idx to current max + 1
+		cmd = u'SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-				'cmd': u'select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s',
+				'cmd': cmd,
 				'args': {'doc_id': self._payload[self._idx['pk_doc']]}
 			}]
 		)
 		self._payload[self._idx['seq_idx']] = rows[0][0]
 		self._is_modified = True
 		self.save_payload()
+	#--------------------------------------------------------
+	def reattach(self, pk_doc=None):
+		if pk_doc == self._payload[self._idx['pk_doc']]:
+			return True
+
+		cmd = u"""
+			UPDATE blobs.doc_obj SET
+				fk_doc = %(pk_doc_target)s,
+				-- coalesce needed for no-parts target docs
+				seq_idx = (SELECT coalesce(max(seq_idx) + 1, 1) FROM blobs.doc_obj WHERE fk_doc = %(pk_doc_target)s)
+			WHERE
+				EXISTS(SELECT 1 FROM blobs.doc_med WHERE pk = %(pk_doc_target)s)
+					AND
+				pk = %(pk_obj)s
+					AND
+				xmin = %(xmin_doc_obj)s
+			RETURNING fk_doc
+		"""
+		args = {
+			'pk_doc_target': pk_doc,
+			'pk_obj': self.pk_obj,
+			'xmin_doc_obj': self._payload[self._idx['xmin_doc_obj']]
+		}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+		if len(rows) == 0:
+			return False
+		# The following should never hold true because the target
+		# fk_doc is returned from the query and it is checked for
+		# equality before the UPDATE already. Assuming the update
+		# failed to update a row because the target fk_doc did
+		# not exist we would not get *any* rows in return - for
+		# which condition we also already checked
+		if rows[0]['fk_doc'] == self._payload[self._idx['pk_doc']]:
+			return False
+
+		self.refetch_payload()
+		return True
 	#--------------------------------------------------------
 	def display_via_mime(self, chunksize=0, block=None):
 
@@ -470,12 +498,46 @@ where
 			txt += u'\n%s\n' % self._payload[self._idx['obj_comment']]
 
 		return txt
+	#--------------------------------------------------------
+	def get_useful_filename(self, patient=None, make_unique=False, directory=None):
+		patient_part = ''
+		if patient is not None:
+			patient_part = '-%s-' % patient['dirname']
+
+		# preserve original filename extension if available
+		suffix = '.dat'
+		if self._payload[self._idx['filename']] is not None:
+			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
+			suffix = suffix.strip().replace(' ', '-')
+			if suffix == u'':
+				suffix = '.dat'
+
+		fname = 'gm-doc_part-%s-%s-%s--#%s' % (
+			patient_part,
+			self._payload[self._idx['l10n_type']].replace(' ', '_'),
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days),
+			self._payload[self._idx['seq_idx']],
+			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
+		)
+
+		if make_unique:
+			fname = gmTools.get_unique_filename (
+				prefix = '%s-' % fname,
+				suffix = suffix,
+				tmp_dir = directory
+			)
+		else:
+			fname = os.path.join(directory, fname + suffix)
+
+		return fname
+
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
 	cmd = u"select blobs.delete_document_part(%(pk)s, %(enc)s)"
 	args = {'pk': part_pk, 'enc': encounter_pk}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return
+
 #============================================================
 _sql_fetch_document_fields = u"""
 		SELECT

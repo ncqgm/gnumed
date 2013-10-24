@@ -334,16 +334,17 @@ class GregorianDatePickerController(object):
                 self._save_preferred_day(current_date)
 
     def on_up(self):
+        max_year = gregorian.from_time(GregorianTimeType().get_max_time()[0]).year
         def increment_year(date):
             year, month, day = date
-            if year < gregorian.from_time(GregorianTimeType().get_max_time()[0]).year - 1:
+            if year < max_year - 1:
                 return self._set_valid_day(year + 1, month, day)
             return date
         def increment_month(date):
             year, month, day = date
             if month < 12:
                 return self._set_valid_day(year, month + 1, day)
-            elif date.year < GregorianTimeType().get_max_time()[0].year - 1:
+            elif year < max_year - 1:
                 return self._set_valid_day(year + 1, 1, day)
             return date
         def increment_day(date):

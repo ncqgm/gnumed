@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.0 (database v19.0)',
-	'GNUmed 1.4.0 Release Notes:
+	'Release Notes for GNUmed 1.4.rc2 (database v19.rc2)',
+	'GNUmed 1.4.rc2 Release Notes:
 
-	1.4.0
+	1.4.rc2
 
 NEW: generic search in lists
 NEW: nested placeholders
@@ -40,6 +40,9 @@ NEW: show relevant measurements in current substances list
 NEW: AUDIT alcohol disorder screening
 NEW: print/export of EMR timeline
 NEW: ATRIA OAC bleeding risk score
+NEW: export of individual document parts
+NEW: EMR tree: support showing revisions
+NEW: manual deletion of encounters
 
 IMPROVED: hook nesting/cycling detection
 IMPROVED: document in chart mailing of document parts
@@ -58,18 +61,20 @@ IMPROVED: check MD5 sum of newly inserted document objects for extra paranoia
 IMPROVED: current medication list template
 IMPROVED: backup/restore automatically applies DB settings adjustments
 IMPROVED: default episode "administrative" rather than "administration"
-IMPROVED: EMR tree browser: listing/editing switch button label
+IMPROVED: EMR tree: listing/editing switch button label
+IMPROVED: EMR tree: show journal for unassociated episodes pool
+IMPROVED: EMR tree: keep expansion state across node edits
 IMPROVED: current_meds_tables/*_notes placeholder can now span pages
 IMPROVED: waiting list [thanks Jerzy]
 IMPROVED: streamlined form templates management
 IMPROVED: display of long-text test results
-IMPROVED: EMR tree browser: show journal for unassociated episodes pool
 IMPROVED: improved SOAP selection list
 IMPROVED: more clinically relevant display of substance intake start
 IMPROVED: test results plotting: deal with "<N" and ">N" pseudo-numeric values
 IMPROVED: patient search now supports "LASTNAME, NICKNAME"
+IMPROVED: document tree: keep expansion state across node edits
 
-	19.0
+	19.rc2
 
 Requires PostgreSQL 9.1 !
 
@@ -84,4 +89,4 @@ IMPROVED: remove .ddd/.unit from ref.atc
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.0');
+select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.rc2');

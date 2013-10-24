@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:31+0200\n"
-"PO-Revision-Date: 2013-10-07 22:31+0100\n"
+"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"PO-Revision-Date: 2013-10-24 14:39+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -3603,17 +3603,6 @@ msgstr "Impfdatum"
 msgid "Vaccine ..."
 msgstr "Impfstoff ..."
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-"... oder ...\n"
-"\n"
-"geimpft\n"
-"gegen"
-
 msgid "Batch №"
 msgstr "Charge"
 
@@ -4976,11 +4965,17 @@ msgstr "S&ynopse"
 msgid "&Journal"
 msgstr "&Journal"
 
+msgid "Revisions"
+msgstr "Revisionen"
+
 msgid "Show succinct item synopsis."
 msgstr "Zeige eine prägnante Synopse zur Auswahl."
 
 msgid "Show item journal."
 msgstr "Journal für den gewählten Bereich zeigen."
+
+msgid "Show item revisions."
+msgstr "Eintragsversionen anzeigen."
 
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
@@ -6386,11 +6381,11 @@ msgstr "FEHLER: fehlerhafter Allergiestatus [%s]"
 msgid "Medication history"
 msgstr "Medikamentenhistorie"
 
-msgid "copy"
-msgstr "kopieren"
+msgid "copy of printed prescription"
+msgstr "Kopie des gedruckten Rezepts"
 
-msgid "data"
-msgstr "Daten"
+msgid "prescription data"
+msgstr "Rezeptdaten"
 
 msgid "in use"
 msgstr "in Gebrauch"
@@ -7724,6 +7719,33 @@ msgstr "Messungen und Ergebnisse: %s"
 msgid "Vaccinations:"
 msgstr "Impfungen:"
 
+#, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr ""
+"Grunderkrankung: %s%s%s\n"
+"\n"
+
+msgid ""
+"\n"
+"current values:\n"
+msgstr ""
+"\n"
+"jetzige Werte:\n"
+
+msgid "no previous versions of this record"
+msgstr "Keine Vorversionen dieses Eintrags"
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+"\n"
+"alle Werte, zusätzlich <audit_action>, <audit_when>, <audit_by> (aktuelle "
+"Werte zuerst):\n"
+
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
 
@@ -7780,6 +7802,14 @@ msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
 
 #, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr ""
+"Episode: %s%s%s\n"
+"\n"
+
+#, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ortszeit: %s - %s  (@%s = %s%s)\n"
 
@@ -7804,6 +7834,14 @@ msgstr ""
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s weitere Episoden während dieses Kontakts bearbeitet:"
+
+#, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr ""
+"Konsultation: %s%s%s\n"
+"\n"
 
 msgid " (ongoing)"
 msgstr " (andauernd)"
@@ -11430,9 +11468,6 @@ msgstr "zeige Änderungsprotokoll"
 msgid "GNUmed database audit log ..."
 msgstr "Änderungsprotokoll der GNUmed-Datenbank ..."
 
-msgid "Revisions"
-msgstr "Revisionen"
-
 msgid "Table"
 msgstr "Tabelle"
 
@@ -11655,6 +11690,12 @@ msgid ""
 "all but this client before the praxis can\n"
 "be reconfigured."
 msgstr ""
+"Kann Praxisstandort(e) nicht löschen.\n"
+"\n"
+"Wahrscheinlich sind andere Nutzer von\n"
+"anderswo aus in diesem GNUmed angemeldet. Es\n"
+"müssen erst alle Nutzer ausgeloggt sein, sehe\n"
+"die Praxiseinstellungen verändert werden können."
 
 msgid "Configuring praxis ..."
 msgstr "Verwaltung der Praxis ..."
@@ -11710,6 +11751,9 @@ msgstr "Bearbeiten des Schlüsselwort-Makros \"%s\""
 
 msgid "text"
 msgstr "Text"
+
+msgid "data"
+msgstr "Daten"
 
 msgid ""
 "\n"
@@ -12250,6 +12294,29 @@ msgstr "Einen neuen Kontakt anlegen. Der aktive Kontakt endet."
 msgid "Cannot list encounters. No active patient."
 msgstr "Kann Kontakte nicht auflisten. Kein Patient aktiv."
 
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+"Konsultation [%s] wirklich löschen ?\n"
+"\n"
+"Eine Löschung kann nicht rückgängig gemacht werden.\n"
+"\n"
+"Die Konsultation kann freilich nur gelöscht werden,\n"
+"wenn darunter keine Daten eingegeben worden sind."
+
+msgid "Deleting encounter"
+msgstr "Konsultation löschen"
+
+#, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr "Kann Konsultation [%s] nicht löschen, da sie wohl in Benutzung ist."
+
 msgid "The patient's encounters.\n"
 msgstr "Die Kontakte des Patienten.\n"
 
@@ -12667,12 +12734,12 @@ msgid "Privacy notice"
 msgstr "Datenschutzhinweis"
 
 #, python-format
-msgid "Your chart has been accessed by %s."
-msgstr "Ihre Karteikarte wurde von %s aufgerufen."
+msgid "%s: Your chart has been accessed by %s."
+msgstr "%s: Ihre Karteikarte wurde von %s aufgerufen."
 
 #, python-format
-msgid "Staff member %s has been notified of your chart access."
-msgstr "Mitarbeiter %s wurde über die Akteneinsicht benachrichtigt."
+msgid "%s: Staff member %s has been notified of your chart access."
+msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
 
 #, python-format
 msgid ""
@@ -13237,7 +13304,7 @@ msgid "Measurements panel"
 msgstr "Meßwerteprofil"
 
 msgid "Configuring medications plugin measurements panel"
-msgstr ""
+msgstr "Konfiguration des Laborprofils für die Medikamentenüberwachung"
 
 #, python-format
 msgid "%.1f (%s ago)"
@@ -13498,6 +13565,8 @@ msgstr "Vor dem Speichern müssen Sie eine Vorlagedatei geladen haben."
 
 msgid "You must enter a type for documents created with this template."
 msgstr ""
+"Sie müssen einen Typ für die Dokumente angeben, die mit dieser Vorlage "
+"erzeugt werden."
 
 msgid "You must enter a type for this template."
 msgstr "Sie müssen einen Typ für diese Vorlage wählen."
@@ -13956,8 +14025,14 @@ msgstr "Teil faxen"
 msgid "Mail part"
 msgstr "Teil mailen"
 
+msgid "Export part"
+msgstr "Teil exportieren"
+
 msgid "Document Actions:"
 msgstr "Dokument-Aktionen:"
+
+msgid "Delete document"
+msgstr "Dokument löschen"
 
 msgid "Add parts"
 msgstr "Teile hinzufügen"
@@ -13973,9 +14048,6 @@ msgstr "Alle Teile mailen"
 
 msgid "Export all parts"
 msgstr "Alle Teile exportieren"
-
-msgid "Delete document"
-msgstr "Dokument löschen"
 
 msgid "Access external original"
 msgstr "Zugriff auf das externe Original"
@@ -14020,6 +14092,12 @@ msgid ""
 msgstr ""
 "\n"
 "Wählen Sie das Dokument, in welches Sie den Teil verschieben wollen !\n"
+
+msgid "Cannot move document part."
+msgstr "Kann Dokumententeil nicht verschieben."
+
+msgid "Moving document part"
+msgstr "Verschiebe Dokumententeil"
 
 msgid "Deleting document part"
 msgstr "Dokumententeil löschen"
@@ -14096,6 +14174,13 @@ msgstr "Faxen"
 
 msgid "mail"
 msgstr "mailen"
+
+msgid "Save document part to directory ..."
+msgstr "Dokumententeil speichern in Verzeichnis ..."
+
+#, python-format
+msgid "Successfully exported document part as [%s]."
+msgstr "Erfolgreich Dokumententeil unter [%s] gespeichert."
 
 #, python-format
 msgid ""
@@ -16043,7 +16128,7 @@ msgstr ""
 "  [%s]"
 
 msgid "Save timeline as SVG image under..."
-msgstr ""
+msgstr "Zeitstrahl als SVG-Bild speichern unter..."
 
 msgid "Cannot change notebook tabs. No active patient."
 msgstr "Kann Modul nicht aufrufen. Kein Patient aktiv."
@@ -16464,9 +16549,6 @@ msgstr "Speichere Karteikarte des Patienten in ..."
 #, python-format
 msgid "EMR successfully exported to file: %s"
 msgstr "Karteikarte erfolgreich in Datei [%s] exportiert."
-
-msgid "Cannot load clinical narrative. No active patient."
-msgstr "Kann Karteieinträge nicht laden. Kein Patient aktiv."
 
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
@@ -17844,6 +17926,23 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid ""
+#~ "... or ...\n"
+#~ "\n"
+#~ "vaccinated\n"
+#~ "against"
+#~ msgstr ""
+#~ "... oder ...\n"
+#~ "\n"
+#~ "geimpft\n"
+#~ "gegen"
+
+#~ msgid "copy"
+#~ msgstr "kopieren"
+
+#~ msgid "Cannot load clinical narrative. No active patient."
+#~ msgstr "Kann Karteieinträge nicht laden. Kein Patient aktiv."
+
+#~ msgid ""
 #~ "There was a problem printing.\n"
 #~ "Perhaps your current printer is not set correctly?"
 #~ msgstr ""
@@ -18006,9 +18105,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Error generating the prescription printout."
 #~ msgstr "Fehler beim Erzeugen des Verordnungsausdrucks."
-
-#~ msgid "Error printing the prescription."
-#~ msgstr "Fehler beim Drucken der Verordnung."
 
 #~ msgid "prescription printed from template [%s - %s]"
 #~ msgstr "Verordnung mittels Vorlage [%s - %s] gedruckt"

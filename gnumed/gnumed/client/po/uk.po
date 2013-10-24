@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 14:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3259,13 +3259,6 @@ msgstr ""
 msgid "Vaccine ..."
 msgstr ""
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 msgid "Batch №"
 msgstr ""
 
@@ -4469,10 +4462,16 @@ msgstr ""
 msgid "&Journal"
 msgstr ""
 
+msgid "Revisions"
+msgstr ""
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
+msgstr ""
+
+msgid "Show item revisions."
 msgstr ""
 
 msgid ""
@@ -5667,10 +5666,10 @@ msgstr "ПОМИЛКА: невідомий стан алергії [%s]"
 msgid "Medication history"
 msgstr ""
 
-msgid "copy"
+msgid "copy of printed prescription"
 msgstr ""
 
-msgid "data"
+msgid "prescription data"
 msgstr ""
 
 msgid "in use"
@@ -6934,6 +6933,26 @@ msgstr ""
 msgid "Vaccinations:"
 msgstr ""
 
+#, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr ""
+
+msgid ""
+"\n"
+"current values:\n"
+msgstr ""
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr ""
 
@@ -6990,6 +7009,12 @@ msgid "Measurements and Results:"
 msgstr ""
 
 #, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr ""
+
+#, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr ""
 
@@ -7011,6 +7036,12 @@ msgstr ""
 
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
+msgstr ""
+
+#, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
 msgstr ""
 
 msgid " (ongoing)"
@@ -10188,9 +10219,6 @@ msgstr ""
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-msgid "Revisions"
-msgstr ""
-
 msgid "Table"
 msgstr ""
 
@@ -10420,6 +10448,9 @@ msgid "Editing keyword expansion \"%s\""
 msgstr ""
 
 msgid "text"
+msgstr ""
+
+msgid "data"
 msgstr ""
 
 msgid ""
@@ -10857,6 +10888,23 @@ msgstr ""
 msgid "Cannot list encounters. No active patient."
 msgstr ""
 
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+msgid "Deleting encounter"
+msgstr ""
+
+#, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr ""
+
 msgid "The patient's encounters.\n"
 msgstr ""
 
@@ -11177,11 +11225,11 @@ msgid "Privacy notice"
 msgstr ""
 
 #, python-format
-msgid "Your chart has been accessed by %s."
+msgid "%s: Your chart has been accessed by %s."
 msgstr ""
 
 #, python-format
-msgid "Staff member %s has been notified of your chart access."
+msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 #, python-format
@@ -12271,7 +12319,13 @@ msgstr ""
 msgid "Mail part"
 msgstr ""
 
+msgid "Export part"
+msgstr ""
+
 msgid "Document Actions:"
+msgstr ""
+
+msgid "Delete document"
 msgstr ""
 
 msgid "Add parts"
@@ -12287,9 +12341,6 @@ msgid "Mail all parts"
 msgstr ""
 
 msgid "Export all parts"
-msgstr ""
-
-msgid "Delete document"
 msgstr ""
 
 msgid "Access external original"
@@ -12332,6 +12383,12 @@ msgstr ""
 msgid ""
 "\n"
 "Select the document into which to move the selected part !\n"
+msgstr ""
+
+msgid "Cannot move document part."
+msgstr ""
+
+msgid "Moving document part"
 msgstr ""
 
 msgid "Deleting document part"
@@ -12385,6 +12442,13 @@ msgid "fax"
 msgstr ""
 
 msgid "mail"
+msgstr ""
+
+msgid "Save document part to directory ..."
+msgstr ""
+
+#, python-format
+msgid "Successfully exported document part as [%s]."
 msgstr ""
 
 #, python-format
@@ -14390,9 +14454,6 @@ msgstr ""
 
 #, python-format
 msgid "EMR successfully exported to file: %s"
-msgstr ""
-
-msgid "Cannot load clinical narrative. No active patient."
 msgstr ""
 
 #, python-format

@@ -6,7 +6,7 @@ license: GPL v2 or later
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
-import types, sys, string, datetime, logging, time
+import types, sys, string, datetime, logging, time, pprint
 
 
 if __name__ == '__main__':
@@ -703,6 +703,70 @@ FROM (
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
+	def _get_formatted_revision_history(self):
+		cmd = u"""SELECT
+				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				pk_audit, row_version, modified_when, modified_by,
+				pk,
+				description,
+				laterality,
+				age_noted,
+				is_active,
+				clinically_relevant,
+				is_confidential,
+				is_cause_of_death,
+				fk_encounter
+			FROM clin.health_issue
+			WHERE pk = %(pk_health_issue)s
+		UNION ALL (
+			SELECT
+				audit_action, audit_when, audit_by,
+				pk_audit, row_version, modified_when, modified_by,
+				pk,
+				description,
+				laterality,
+				age_noted,
+				is_active,
+				clinically_relevant,
+				is_confidential,
+				is_cause_of_death,
+				fk_encounter
+			FROM audit.log_health_issue
+			WHERE
+				pk_audit = (SELECT pk_audit FROM clin.health_issue WHERE pk = %(pk_health_issue)s)
+		)
+		ORDER BY row_version DESC
+		"""
+		args = {'pk_health_issue': self.pk_obj}
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		txt = _('health issue: %s%s%s\n\n') % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['description']],
+			gmTools.u_right_double_angle_quote
+		)
+		__fields_ordered = [ key for (key, value) in sorted(idx.items(), key = lambda (x, y): y)]
+		__current_version = {}
+		for col in __fields_ordered[3:]: # skip first 3 fields
+			__current_version[col] = rows[0][col]
+		txt += u'-' * 20 + '\n'
+		txt += _('\ncurrent values:\n')
+		txt += pprint.pformat(__current_version)
+		txt += u'\n'
+		if __current_version['row_version'] == 0:
+			txt += u'-' * 20 + '\n'
+			txt += _('no previous versions of this record')
+		else:
+			cols = {}
+			for col in __fields_ordered:
+				cols[col] = [ row[col] for row in rows ]
+			txt += u'-' * 20 + '\n'
+			txt += _('\nall values with <audit_action>, <audit_when>, <audit_by> fields (current value first):\n')
+			txt += u'\n' + pprint.pformat(cols) + '\n'
+
+		return txt
+
+	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
@@ -1382,6 +1446,56 @@ FROM (
 
 	diagnostic_certainty_description = property(_get_diagnostic_certainty_description, lambda x:x)
 	#--------------------------------------------------------
+	def _get_formatted_revision_history(self):
+		cmd = u"""SELECT
+				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				pk_audit, row_version, modified_when, modified_by,
+				pk, fk_health_issue, description, is_open, fk_encounter
+			FROM clin.episode
+			WHERE pk = %(pk_episode)s
+		UNION ALL (
+			SELECT
+				audit_action, audit_when, audit_by,
+				pk_audit, row_version, modified_when, modified_by,
+				pk, fk_health_issue, description, is_open, fk_encounter
+			FROM audit.log_episode
+			WHERE
+				pk_audit = (SELECT pk_audit FROM clin.episode WHERE pk = %(pk_episode)s)
+		)
+		ORDER BY row_version DESC
+		"""
+		args = {'pk_episode': self.pk_obj}
+		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		txt = _('episode: %s%s%s\n\n') % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['description']],
+			gmTools.u_right_double_angle_quote
+		)
+
+		__fields_ordered = [ key for (key, value) in sorted(idx.items(), key=lambda (x, y): y)]
+		__current_version = {}
+		for col in __fields_ordered[3:]: # skip first 3 fields
+			__current_version[col] = rows[0][col]
+		txt += u'-' * 20 + '\n'
+		txt += _('\ncurrent values:\n')
+		txt += pprint.pformat(__current_version)			# pprint.pformat automatically sorts dictionary
+		txt += u'\n'
+		if __current_version['row_version'] == 0:
+			txt += u'-' * 20 + '\n'
+			txt += _(u'no previous versions of this record')
+		else:
+			cols={}
+			for col in __fields_ordered:
+				cols[col] = [ row[col] for row in rows ]
+			txt += u'-' * 20 + '\n'
+			txt += _('\nall values with <audit_action>, <audit_when>, <audit_by> fields (current value first):\n')
+			txt += u'\n' + pprint.pformat(cols) + '\n'
+
+		return txt
+
+	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
 			return []
@@ -1489,6 +1603,7 @@ def episode2problem(episode=None, allow_closed=False):
 		},
 		try_potential_problems = allow_closed
 	)
+
 #============================================================
 # encounter API
 #============================================================
@@ -1529,6 +1644,12 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		self['last_affirmed'] = gmDateTime.pydt_now_here()
 		self.save()
+	#--------------------------------------------------------
+	def lock(self, exclusive=False, link_obj=None):
+		return lock_encounter(self.pk_obj, exclusive = exclusive, link_obj = link_obj)
+	#--------------------------------------------------------
+	def unlock(self, exclusive=False, link_obj=None):
+		return unlock_encounter(self.pk_obj, exclusive = exclusive, link_obj = link_obj)
 	#--------------------------------------------------------
 	def transfer_clinical_data(self, source_episode=None, target_episode=None):
 		"""
@@ -2370,6 +2491,56 @@ limit 1
 		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
 
 	org_unit = property(_get_org_unit, lambda x:x)
+	#--------------------------------------------------------
+	def _get_formatted_revision_history(self):
+		cmd = u"""SELECT
+				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				pk_audit, row_version, modified_when, modified_by,
+				pk, fk_patient, fk_type, fk_location, source_time_zone, reason_for_encounter, assessment_of_encounter, started, last_affirmed
+			FROM clin.encounter
+			WHERE pk = %(pk_encounter)s
+		UNION ALL (
+			SELECT
+				audit_action, audit_when, audit_by,
+				pk_audit, orig_version, orig_when, orig_by,
+				pk, fk_patient, fk_type, fk_location, source_time_zone, reason_for_encounter, assessment_of_encounter, started, last_affirmed
+			FROM audit.log_encounter
+			WHERE
+				pk_audit = (SELECT pk_audit FROM clin.encounter WHERE pk = %(pk_encounter)s)
+		)
+		ORDER BY row_version DESC
+		"""
+		args = {'pk_encounter': self._payload[self._idx['pk_encounter']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+		txt = _('encounter: %s%s%s\n\n') % (
+			gmTools.u_left_double_angle_quote,
+			self._payload[self._idx['l10n_type']],
+			gmTools.u_right_double_angle_quote
+		)
+
+		__fields_ordered = [ key for (key, value) in sorted(idx.items(), key = lambda (x, y): y)]
+		__current_version = {}
+		for col in __fields_ordered[3:]: # skip first 3 fields
+			__current_version[col] = rows[0][col]
+		txt += u'-' * 20 + '\n'
+		txt += _('\ncurrent values:\n')
+		txt += pprint.pformat(__current_version)			# pprint.pformat automatically sorts dictionary
+		txt += u'\n'
+		if __current_version['row_version'] == 0:
+			txt += u'-' * 20 + '\n'
+			txt += _(u'no previous versions of this record')
+		else:
+			cols = {}
+			for col in __fields_ordered:
+				cols[col] = [ row[col] for row in rows ]
+			txt += u'-' * 20 + '\n'
+			txt += _('\nall values with <audit_action>, <audit_when>, <audit_by> fields (current value first):\n')
+			txt += u'\n' + pprint.pformat(cols) + '\n'
+
+		return txt
+
+	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, enc_type=None):
@@ -2405,6 +2576,40 @@ def create_encounter(fk_patient=None, enc_type=None):
 	encounter = cEncounter(aPK_obj = rows[0]['pk'])
 
 	return encounter
+
+#------------------------------------------------------------
+def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
+	return gmPG2.lock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+
+#------------------------------------------------------------
+def unlock_encounter(pk_encounter, exclusive=False, link_obj=None):
+	return gmPG2.unlock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+
+#-----------------------------------------------------------
+def delete_encounter(pk_encounter):
+	"""Deletes an encounter by PK.
+
+	- attempts to obtain an exclusive lock which should
+	  fail if the encounter is the active encounter in
+	  this or any other client
+	- catches DB exceptions which should mostly be related
+	  to clinical data already having been attached to
+	  the encounter thus making deletion fail
+	"""
+	conn = gmPG2.get_connection(readonly = False)
+	if not lock_encounter(pk_encounter, exclusive = True, link_obj = conn):
+		_log.debug('cannot lock encounter [%s] for deletion, it seems in use', pk_encounter)
+		return False
+	cmd = u"""DELETE FROM clin.encounter WHERE pk = %(enc)s"""
+	args = {'enc': pk_encounter}
+	try:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	except gmPG2.dbapi.Error:
+		_log.exception('cannot delete encounter [%s]', pk_encounter)
+		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
+		return False
+	unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
+	return True
 
 #-----------------------------------------------------------
 # encounter types handling
@@ -3051,6 +3256,7 @@ if __name__ == '__main__':
 #		h_issue = cHealthIssue(encounter = 1, name = u'post appendectomy/peritonitis')
 #		print h_issue
 #		print h_issue.format_as_journal()
+		print h_issue.formatted_revision_history
 	#--------------------------------------------------------	
 	def test_episode():
 		print "\nepisode test"
@@ -3080,6 +3286,8 @@ if __name__ == '__main__':
 
 		print "episode range:", episode.get_access_range()
 
+		print episode.formatted_revision_history
+
 		raw_input('ENTER to continue')
 
 	#--------------------------------------------------------
@@ -3092,6 +3300,7 @@ if __name__ == '__main__':
 		for field in fields:
 			print field, ':', encounter[field]
 		print "updatable:", encounter.get_updatable_fields()
+		print encounter.formatted_revision_history
 	#--------------------------------------------------------
 	def test_encounter2latex():
 		encounter = cEncounter(aPK_obj=1)
@@ -3129,8 +3338,8 @@ if __name__ == '__main__':
 	# run them
 	#test_episode()
 	#test_problem()
-	#test_encounter()
-	test_health_issue()
+	test_encounter()
+	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()

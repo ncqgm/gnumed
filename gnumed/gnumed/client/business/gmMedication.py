@@ -762,16 +762,16 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 			return
 
 		for part in parts:
-			part['obj_comment'] = _('copy')
+			part['obj_comment'] = _('copy of printed prescription')
 			part.save()
 
 		xml_part = parts[-1]
 		xml_part['filename'] = u'freediams-prescription.xml'
-		xml_part['obj_comment'] = _('data')
+		xml_part['obj_comment'] = _('prescription data')
 		xml_part.save()
 
 		# are we the intended reviewer ?
-		from Gnumed.business.gmPerson import gmCurrentProvider
+		from Gnumed.business.gmStaff import gmCurrentProvider
 		me = gmCurrentProvider()
 		# if so: auto-sign the prescription
 		if xml_part['pk_intended_reviewer'] == me['pk_staff']:

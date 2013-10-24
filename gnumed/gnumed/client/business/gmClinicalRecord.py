@@ -1546,7 +1546,13 @@ WHERE
 #			if now > encounter['started']:
 #				encounter['last_affirmed'] = now		# this will trigger an "clin.encounter_mod_db"
 #				encounter.save()
+		prev_enc = None
+		if self.__encounter is not None:
+			prev_enc = self.__encounter
+		encounter.lock(exclusive = False)		# lock new
 		self.__encounter = encounter
+		if prev_enc is not None:				# unlock old
+			prev_enc.unlock(exclusive = False)
 		gmDispatcher.send(u'current_encounter_switched')
 
 		return True

@@ -233,8 +233,18 @@ class TimelineScene(object):
         rx = (self._metrics.calc_x(event.time_period.start_time) -
               self._outer_padding)
         ry = self._get_ry(event)
-        rect = wx.Rect(rx, ry, rw, rh)
-        return rect
+        return self._create_ideal_wx_rect(rx, ry, rw, rh)
+
+    def _create_ideal_wx_rect(self, rx, ry, rw, rh):
+        PADDING = 15
+        if rx < (-PADDING):
+            move_distance = abs(rx) - PADDING
+            rx += move_distance
+            rw -= move_distance
+        right_edge_x = rx + rw
+        if right_edge_x > self.width + PADDING:
+            rw -= right_edge_x - self.width - PADDING
+        return wx.Rect(rx, ry, rw, rh)
 
     def _get_ry(self, event):
         if event.is_subevent():

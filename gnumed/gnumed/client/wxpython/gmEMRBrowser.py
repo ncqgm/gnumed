@@ -13,6 +13,7 @@ import logging
 
 # 3rd party
 import wx
+import wx.lib.mixins.treemixin as treemixin
 
 
 # GNUmed libs
@@ -92,8 +93,8 @@ def export_emr_to_ascii(parent=None):
 	gmDispatcher.send('statustext', msg = _('EMR successfully exported to file: %s') % fname, beep = False)
 	return fname
 #============================================================
-class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
-	"""This wx.TreeCtrl derivative displays a tree view of the medical record."""
+class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
+	"""This wx.TreeCtrl derivative displays a tree view of a medical record."""
 
 	#--------------------------------------------------------
 	def __init__(self, parent, id, *args, **kwds):
@@ -102,33 +103,20 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		kwds['style'] = wx.TR_HAS_BUTTONS | wx.NO_BORDER | wx.TR_SINGLE
 		wx.TreeCtrl.__init__(self, parent, id, *args, **kwds)
 
-		gmGuiHelpers.cTreeExpansionHistoryMixin.__init__(self)
-
 		self.__soap_display = None
-		self.__soap_display_mode = u'details'				# "details" or "journal"
+		self.__soap_display_mode = u'details'				# "details" or "journal" or "revisions"
 		self.__img_display = None
 		self.__cb__enable_display_mode_selection = lambda x:x
 		self.__cb__select_edit_mode = lambda x:x
 		self.__cb__add_soap_editor = lambda x:x
-		self.__pat = gmPerson.gmCurrentPatient()
+		self.__pat = None
 		self.__curr_node = None
-
-		self._old_cursor_pos = None
+		self.__expanded_nodes = None
 
 		self.__make_popup_menus()
 		self.__register_events()
 	#--------------------------------------------------------
 	# external API
-	#--------------------------------------------------------
-	def refresh(self):
-		if not self.__pat.connected:
-			gmDispatcher.send(signal='statustext', msg=_('Cannot load clinical narrative. No active patient.'),)
-			return False
-
-		if not self.__populate_tree():
-			return False
-
-		return True
 	#--------------------------------------------------------
 	def _get_soap_display(self):
 		return self.__soap_display
@@ -169,6 +157,38 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 	soap_editor_adder = property(lambda x:x, _set_soap_editor_adder)
 	#--------------------------------------------------------
+	# ExpansionState mixin API
+	#--------------------------------------------------------
+	def GetItemIdentity(self, item):
+		if item is None:
+			return u'invalid item'
+
+		if not item.IsOk():
+			return u'invalid item'
+
+		try:
+			node_data = self.GetPyData(item)
+		except wx.PyAssertionError:
+			_log.exception('unfathomable self.GetPyData() problem occurred, faking root node')
+			_log.error('real node: %s', item)
+			_log.error('node.IsOk(): %s', item.IsOk())		# already survived this further up
+			_log.error('is root node: %s', item == self.GetRootItem())
+			_log.error('node.m_pItem: %s', getattr(item, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
+			_log.error('node attributes: %s', dir(item))
+			gmLog2.log_stack_trace()
+			return u'invalid item'
+
+		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
+			return u'issue::%s' % node_data['pk_health_issue']
+		if isinstance(node_data, gmEMRStructItems.cEpisode):
+			return u'episode::%s' % node_data['pk_episode']
+		if isinstance(node_data, gmEMRStructItems.cEncounter):
+			return u'encounter::%s' % node_data['pk_encounter']
+		# unassociated episodes
+		if isinstance(node_data, type({})):
+			return u'dummy node::%s' % self.__pat.ID
+		# root node == EMR level
+		return u'root node::%s' % self.__pat.ID
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -190,25 +210,29 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	def clear_tree(self):
 		self.DeleteAllItems()
+		self.__expanded_nodes = None
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
 		# FIXME: auto select the previously self.__curr_node if not None
 		# FIXME: error handling
 
-		if not self.__pat.connected:
-			return
-
 		wx.BeginBusyCursor()
-#		self.snapshot_expansion()
+
+		if self.__pat is None:
+			self.clear_tree()
+			wx.EndBusyCursor()
+			return True
+
 		# init new tree
 		root_item = self.__populate_root_node()
-#		self.__exporter.get_historical_tree(self)				# this is slow
 		self.__curr_node = root_item
+		if self.__expanded_nodes is not None:
+			self.ExpansionState = self.__expanded_nodes
 		self.SelectItem(root_item)
 		self.Expand(root_item)
 		self.__update_text_for_selected_node()					# this is fairly slow, too
-#		self.restore_expansion()
+
 		wx.EndBusyCursor()
 		return True
 	#--------------------------------------------------------
@@ -287,15 +311,18 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			_log.error('node.m_pItem: %s', getattr(self.__curr_node, 'm_pItem', '<NO SUCH ATTRIBUTE>'))
 			_log.error('node attributes: %s', dir(self.__curr_node))
 			gmLog2.log_stack_trace()
+
 		doc_folder = self.__pat.get_document_folder()
 
 		if isinstance(node_data, gmEMRStructItems.cHealthIssue):
 			self.__cb__enable_display_mode_selection(True)
+			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin=1, patient = self.__pat)
-			else:
+			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
-
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
@@ -352,25 +379,32 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 
 		elif isinstance(node_data, gmEMRStructItems.cEpisode):
 			self.__cb__enable_display_mode_selection(True)
+			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
-			else:
+			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [node_data['pk_episode']]
 			)
 
 		elif isinstance(node_data, gmEMRStructItems.cEncounter):
-			self.__cb__enable_display_mode_selection(False)
+			#self.__cb__enable_display_mode_selection(False)
+			self.__cb__enable_display_mode_selection(True)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
-			txt = node_data.format (
-				episodes = [epi['pk_episode']],
-				with_soap = True,
-				left_margin = 1,
-				patient = self.__pat,
-				with_co_encountlet_hints = True
-			)
+			if self.__soap_display_mode == u'revisions':
+				txt = node_data.formatted_revision_history
+			else:
+				txt = node_data.format (
+					episodes = [epi['pk_episode']],
+					with_soap = True,
+					left_margin = 1,
+					patient = self.__pat,
+					with_co_encountlet_hints = True
+				)
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [epi['pk_episode']],
@@ -545,8 +579,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__curr_node_data)
 	#--------------------------------------------------------
 	def __promote_episode_to_issue(self, evt):
-		pat = gmPerson.gmCurrentPatient()
-		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data, emr = pat.get_emr())
+		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data, emr = self.__pat.emr)
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -703,9 +736,8 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __expand_issue_node(self, issue_node=None):
 		self.DeleteChildren(issue_node)
 
-		emr = self.__pat.emr
 		issue = self.GetPyData(issue_node)
-		episodes = emr.get_episodes(issues = [issue['pk_health_issue']])
+		episodes = self.__pat.emr.get_episodes(issues = [issue['pk_health_issue']])
 		if len(episodes) == 0:
 			self.SetItemHasChildren(issue_node, False)
 			return
@@ -723,8 +755,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	def __expand_pseudo_issue_node(self, fake_issue_node=None):
 		self.DeleteChildren(fake_issue_node)
 
-		emr = self.__pat.emr
-		episodes = emr.unlinked_episodes
+		episodes = self.__pat.emr.unlinked_episodes
 		if len(episodes) == 0:
 			self.SetItemHasChildren(fake_issue_node, False)
 			return
@@ -757,6 +788,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
 		# FIXME: use signal and use node level update
 		if dlg.ShowModal() == wx.ID_OK:
+			self.__expanded_nodes = self.ExpansionState
 			self.__populate_tree()
 		dlg.Destroy()
 		return
@@ -850,8 +882,7 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 			'pk_health_issue': None
 		}]
 
-		emr = self.__pat.emr
-		issues.extend(emr.health_issues)
+		issues.extend(self.__pat.emr.health_issues)
 
 		for issue in issues:
 			issue_node =  self.AppendItem(root_node, issue['description'])
@@ -869,15 +900,14 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 		wx.CallAfter(self.__update_text_for_selected_node)
 	#--------------------------------------------------------
 	def _on_episode_mod_db(self, *args, **kwargs):
+		self.__expanded_nodes = self.ExpansionState
 		wx.CallAfter(self.__populate_tree)
 	#--------------------------------------------------------
 	def _on_issue_mod_db(self, *args, **kwargs):
+		self.__expanded_nodes = self.ExpansionState
 		wx.CallAfter(self.__populate_tree)
 	#--------------------------------------------------------
 	def _on_tree_item_expanding(self, event):
-		if not self.__pat.connected:
-			return
-
 		event.Skip()
 
 		node = event.GetItem()
@@ -1176,19 +1206,35 @@ class cEMRTree(wx.TreeCtrl, gmGuiHelpers.cTreeExpansionHistoryMixin):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
+	def _get_patient(self):
+		return self.__pat
+
+	def _set_patient(self, patient):
+		if self.__pat == patient:
+			return
+		self.__pat = patient
+		if patient is None:
+			self.clear_tree()
+			return
+		return self.__populate_tree()
+
+	patient = property(_get_patient, _set_patient)
+	#--------------------------------------------------------
 	def _get_details_display_mode(self):
 		return self.__soap_display_mode
 
 	def _set_details_display_mode(self, mode):
-		if mode not in [u'details', u'journal']:
-			raise ValueError('details display mode must be one of "details", "journal"')
+		if mode not in [u'details', u'journal', u'revisions']:
+			raise ValueError('details display mode must be one of "details", "journal", "revisions"')
 		if self.__soap_display_mode == mode:
 			return
 		self.__soap_display_mode = mode
 		self.__update_text_for_selected_node()
 
 	details_display_mode = property(_get_details_display_mode, _set_details_display_mode)
+
 #================================================================
+# FIXME: still needed ?
 from Gnumed.wxGladeWidgets import wxgScrolledEMRTreePnl
 
 class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
@@ -1200,10 +1246,7 @@ class cScrolledEMRTreePnl(wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl):
 	"""
 	def __init__(self, *args, **kwds):
 		wxgScrolledEMRTreePnl.wxgScrolledEMRTreePnl.__init__(self, *args, **kwds)
-	#--------------------------------------------------------
-	def repopulate_ui(self):
-		self._emr_tree.refresh()
-		return True
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSplittedEMRTreeBrowserPnl
 
@@ -1254,7 +1297,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	# event handler
 	#--------------------------------------------------------
 	def _on_pre_patient_selection(self):
-		self._pnl_emr_tree._emr_tree.clear_tree()
+		self._pnl_emr_tree._emr_tree.patient = None
 		self._PNL_edit.patient = None
 		return True
 	#--------------------------------------------------------
@@ -1273,6 +1316,9 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	def _on_show_journal_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'journal'
 	#--------------------------------------------------------
+	def _on_show_revisions_selected(self, event):
+		self._pnl_emr_tree._emr_tree.details_display_mode = u'revisions'
+	#--------------------------------------------------------
 	def _on_switch_browse_edit_button_pressed(self, event):
 		self.editing = not self.__editing
 	#--------------------------------------------------------
@@ -1280,8 +1326,9 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		"""Fills UI with data."""
-		self._pnl_emr_tree.repopulate_ui()
-		self._PNL_edit.patient = gmPerson.gmCurrentPatient()
+		pat = gmPerson.gmCurrentPatient()
+		self._pnl_emr_tree._emr_tree.patient = pat
+		self._PNL_edit.patient = pat
 		self._splitter_browser.SetSashPosition(self._splitter_browser.GetSizeTuple()[0]/3, True)
 		return True
 	#--------------------------------------------------------
@@ -1291,9 +1338,11 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		if enable:
 			self._RBTN_details.Enable(True)
 			self._RBTN_journal.Enable(True)
+			self._RBTN_revisions.Enable(True)
 			return
 		self._RBTN_details.Enable(False)
 		self._RBTN_journal.Enable(False)
+		self._RBTN_revisions.Enable(False)
 	#--------------------------------------------------------
 	def _add_soap_editor(self, problem=None, allow_same_problem=False):
 		self._PNL_edit._NB_soap_editors.add_editor(problem = problem, allow_same_problem = allow_same_problem)
