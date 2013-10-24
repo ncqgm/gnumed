@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 11:05+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -3673,13 +3673,6 @@ msgstr "Gegeven datum"
 msgid "Vaccine ..."
 msgstr "Vaccin"
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 #, fuzzy
 msgid "Batch №"
 msgstr "Batch"
@@ -5066,11 +5059,19 @@ msgstr ""
 msgid "&Journal"
 msgstr "Journaal"
 
+#, fuzzy
+msgid "Revisions"
+msgstr "Versie"
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
+msgstr "Toon &laboratoriumjournaal"
+
+#, fuzzy
+msgid "Show item revisions."
 msgstr "Toon &laboratoriumjournaal"
 
 msgid ""
@@ -6427,11 +6428,13 @@ msgstr "FOUT: onbekende allergie-status [%s]"
 msgid "Medication history"
 msgstr "Medische geschiedenis"
 
-msgid "copy"
-msgstr ""
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Fout bij het verwijderen van de rapportdefinitie [%s]."
 
-msgid "data"
-msgstr ""
+#, fuzzy
+msgid "prescription data"
+msgstr "Voorschrifen"
 
 #, fuzzy
 msgid "in use"
@@ -7782,6 +7785,27 @@ msgstr "Metingen en Resultaten: %s"
 msgid "Vaccinations:"
 msgstr "Vaccinaties:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "gezondheidsprobleem: %s"
+
+#, fuzzy
+msgid ""
+"\n"
+"current values:\n"
+msgstr "onbekende allergiestatus"
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Niet toegewezen episodes"
 
@@ -7839,6 +7863,12 @@ msgstr "Voortgangsrapport van laatste ontmoetingen:"
 msgid "Measurements and Results:"
 msgstr "Metingen en Uitslagen:"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "Episodes: %s"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  plaatselijke tijd: %s - %s (@%s = %s%s)\n"
@@ -7863,6 +7893,12 @@ msgstr "Episode %s%s%s (%s) [#%s]\n"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " (voortdurend)"
@@ -11515,10 +11551,6 @@ msgstr "Details bewerken"
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-#, fuzzy
-msgid "Revisions"
-msgstr "Versie"
-
 msgid "Table"
 msgstr ""
 
@@ -11781,6 +11813,9 @@ msgstr "Wijzigen van tekstuitbreiding \"%s\""
 #, fuzzy
 msgid "text"
 msgstr "Context"
+
+msgid "data"
+msgstr ""
 
 msgid ""
 "\n"
@@ -13968,8 +14003,16 @@ msgid "Mail part"
 msgstr "Onderdeel mailen"
 
 #, fuzzy
+msgid "Export part"
+msgstr "teken alle delen af"
+
+#, fuzzy
 msgid "Document Actions:"
 msgstr "Documenten"
+
+#, fuzzy
+msgid "Delete document"
+msgstr "Tekstdocument"
 
 #, fuzzy
 msgid "Add parts"
@@ -13990,10 +14033,6 @@ msgstr "Onderdelen mailen"
 #, fuzzy
 msgid "Export all parts"
 msgstr "teken alle delen af"
-
-#, fuzzy
-msgid "Delete document"
-msgstr "Tekstdocument"
 
 msgid "Access external original"
 msgstr "Toegang tot externe origineel"
@@ -14045,6 +14084,16 @@ msgid ""
 msgstr ""
 "\n"
 "Selecteer het ontmoetingstype dat u wilt bewerken!\n"
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr ""
+"Kan documentonderdeel niet weergeven:\n"
+"%s"
+
+#, fuzzy
+msgid "Moving document part"
+msgstr "Verwerken documentonderdeel: %s"
 
 #, fuzzy
 msgid "Deleting document part"
@@ -14111,6 +14160,14 @@ msgstr "fax"
 
 msgid "mail"
 msgstr "mail"
+
+#, fuzzy
+msgid "Save document part to directory ..."
+msgstr "Document opslaan in map..."
+
+#, fuzzy, python-format
+msgid "Successfully exported document part as [%s]."
+msgstr "Succes bij het exporteren van %s onderdelen in de map [%s]."
 
 #, fuzzy, python-format
 msgid ""
@@ -16562,9 +16619,6 @@ msgstr "Bewaar het EMD van de patient als..."
 msgid "EMR successfully exported to file: %s"
 msgstr "EMD succesvol geëxporteerd naar bestand: %s"
 
-msgid "Cannot load clinical narrative. No active patient."
-msgstr "Kan klinisch verhaal niet laden. Geen actieve patiënt."
-
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
 msgstr ""
@@ -17952,6 +18006,9 @@ msgstr "Afbreken"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
+#~ msgid "Cannot load clinical narrative. No active patient."
+#~ msgstr "Kan klinisch verhaal niet laden. Geen actieve patiënt."
+
 #, fuzzy
 #~ msgid "Printing"
 #~ msgstr "Afdrukken"
@@ -18072,10 +18129,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
 #, fuzzy
 #~ msgid "Error generating the prescription printout."
-#~ msgstr "Fout bij het verwijderen van de rapportdefinitie [%s]."
-
-#, fuzzy
-#~ msgid "Error printing the prescription."
 #~ msgstr "Fout bij het verwijderen van de rapportdefinitie [%s]."
 
 #, fuzzy

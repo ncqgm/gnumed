@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 11:05+0200\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -3796,17 +3796,6 @@ msgstr "Дата введения."
 msgid "Vaccine ..."
 msgstr "Вакцина ..."
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-"... или ...\n"
-"\n"
-"прививка\n"
-"от"
-
 msgid "Batch №"
 msgstr "Партия №"
 
@@ -5232,10 +5221,17 @@ msgstr "Синопсис"
 msgid "&Journal"
 msgstr "Журнал"
 
+msgid "Revisions"
+msgstr "Проверки"
+
 msgid "Show succinct item synopsis."
 msgstr "Показывает сжатый синопсис пункта."
 
 msgid "Show item journal."
+msgstr "Показывает журнал пунктов."
+
+#, fuzzy
+msgid "Show item revisions."
 msgstr "Показывает журнал пунктов."
 
 msgid ""
@@ -6651,11 +6647,13 @@ msgstr "Ошибка: аллергологический статус неизв
 msgid "Medication history"
 msgstr "Анамнез заболевания"
 
-msgid "copy"
-msgstr "копировать"
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Ошибка печати списка лекарств."
 
-msgid "data"
-msgstr "данные"
+#, fuzzy
+msgid "prescription data"
+msgstr "Рецепты"
 
 msgid "in use"
 msgstr "используются"
@@ -8025,6 +8023,27 @@ msgstr "Исследования и результаты:  %s"
 msgid "Vaccinations:"
 msgstr "Прививки:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "заболевание: %s"
+
+#, fuzzy
+msgid ""
+"\n"
+"current values:\n"
+msgstr "<текущая установленная аллергия>"
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Эпизоды без аттрибутов"
 
@@ -8082,6 +8101,12 @@ msgstr "Рабочие записи при последнем обращении
 msgid "Measurements and Results:"
 msgstr "Исследования и результаты"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "Эпизод:%s\n"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  текущее время: %s - %s  (@%s = %s%s)\n"
@@ -8105,6 +8130,12 @@ msgstr "Обострение %s%s%s [#%s]"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s другие обострения, выявленные при этом обращении:"
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Обращения: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " (продолжающийся)"
@@ -11845,9 +11876,6 @@ msgstr "отображение аудиторского следа"
 msgid "GNUmed database audit log ..."
 msgstr "Аудиторский журнал базы данных GNUmed ..."
 
-msgid "Revisions"
-msgstr "Проверки"
-
 msgid "Table"
 msgstr "Таблица"
 
@@ -12112,6 +12140,9 @@ msgstr "Редактировани текстового расширения \"%
 #, fuzzy
 msgid "text"
 msgstr "Контекст"
+
+msgid "data"
+msgstr "данные"
 
 msgid ""
 "\n"
@@ -14388,8 +14419,15 @@ msgstr "Отправка факсом части"
 msgid "Mail part"
 msgstr "Отправка части по электронной почте"
 
+#, fuzzy
+msgid "Export part"
+msgstr "Экспорт всех частей"
+
 msgid "Document Actions:"
 msgstr "Операции с документом:"
+
+msgid "Delete document"
+msgstr "Удаление документа"
 
 #, fuzzy
 msgid "Add parts"
@@ -14406,9 +14444,6 @@ msgstr "Отправка всех частей по электронной по�
 
 msgid "Export all parts"
 msgstr "Экспорт всех частей"
-
-msgid "Delete document"
-msgstr "Удаление документа"
 
 msgid "Access external original"
 msgstr "Доступ к внешнему оригиналу"
@@ -14455,6 +14490,16 @@ msgstr ""
 "\n"
 " Выберите рабочие записи для перемещения из списка!\n"
 "\n"
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr ""
+"Невозможно отобразить часть документа:\n"
+"%s"
+
+#, fuzzy
+msgid "Moving document part"
+msgstr "Удаляемая часть документа"
 
 #, fuzzy
 msgid "Deleting document part"
@@ -14532,6 +14577,14 @@ msgstr "факс"
 
 msgid "mail"
 msgstr "почта"
+
+#, fuzzy
+msgid "Save document part to directory ..."
+msgstr "Сохраняет документ в каталоге ..."
+
+#, fuzzy, python-format
+msgid "Successfully exported document part as [%s]."
+msgstr "Части %s успешно экспортированы в каталог [%s]."
 
 #, fuzzy, python-format
 msgid ""
@@ -16981,9 +17034,6 @@ msgstr "Сохраняет EMR пациента как ..."
 msgid "EMR successfully exported to file: %s"
 msgstr "EMR успешно экспортирован в файл: %s"
 
-msgid "Cannot load clinical narrative. No active patient."
-msgstr "Невозможно загрузить клиническое изложение. Нет активного пациента."
-
 #, fuzzy, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
 msgstr "EMR из %(lastnames), %(firstnames)"
@@ -18343,6 +18393,23 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
 
 #~ msgid ""
+#~ "... or ...\n"
+#~ "\n"
+#~ "vaccinated\n"
+#~ "against"
+#~ msgstr ""
+#~ "... или ...\n"
+#~ "\n"
+#~ "прививка\n"
+#~ "от"
+
+#~ msgid "copy"
+#~ msgstr "копировать"
+
+#~ msgid "Cannot load clinical narrative. No active patient."
+#~ msgstr "Невозможно загрузить клиническое изложение. Нет активного пациента."
+
+#~ msgid ""
 #~ "There was a problem printing.\n"
 #~ "Perhaps your current printer is not set correctly?"
 #~ msgstr ""
@@ -18511,10 +18578,6 @@ msgstr "Отменить и НЕ подключаться к GNUmed."
 #, fuzzy
 #~ msgid "Error generating the prescription printout."
 #~ msgstr "Ошибка создания списка лекарств."
-
-#, fuzzy
-#~ msgid "Error printing the prescription."
-#~ msgstr "Ошибка печати списка лекарств."
 
 #, fuzzy
 #~ msgid "prescription printed from template [%s - %s]"

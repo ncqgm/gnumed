@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 11:04+0200\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -3353,13 +3353,6 @@ msgstr ""
 msgid "Vaccine ..."
 msgstr ""
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 msgid "Batch №"
 msgstr ""
 
@@ -4605,11 +4598,18 @@ msgstr ""
 msgid "&Journal"
 msgstr ""
 
+msgid "Revisions"
+msgstr ""
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
 msgstr ""
+
+#, fuzzy
+msgid "Show item revisions."
+msgstr "Vacunació"
 
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
@@ -5833,11 +5833,13 @@ msgstr ""
 msgid "Medication history"
 msgstr ""
 
-msgid "copy"
-msgstr ""
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Descripció"
 
-msgid "data"
-msgstr ""
+#, fuzzy
+msgid "prescription data"
+msgstr "Descripció"
 
 msgid "in use"
 msgstr ""
@@ -7125,6 +7127,26 @@ msgstr "Medicions i Resultats:"
 msgid "Vaccinations:"
 msgstr "Vacunacions:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "Assumpte mèdic:"
+
+msgid ""
+"\n"
+"current values:\n"
+msgstr ""
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Episodis no atribuïts"
 
@@ -7182,6 +7204,12 @@ msgstr ""
 msgid "Measurements and Results:"
 msgstr "Medicions i Resultats:"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "episodi : %s"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr ""
@@ -7206,6 +7234,12 @@ msgstr "episodi : %s"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Visites: %s (%s - %s):"
 
 #, fuzzy
 msgid " (ongoing)"
@@ -10461,9 +10495,6 @@ msgstr ""
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-msgid "Revisions"
-msgstr ""
-
 msgid "Table"
 msgstr ""
 
@@ -10700,6 +10731,9 @@ msgid "Editing keyword expansion \"%s\""
 msgstr "Vacunació"
 
 msgid "text"
+msgstr ""
+
+msgid "data"
 msgstr ""
 
 msgid ""
@@ -12600,8 +12634,15 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
+msgid "Export part"
+msgstr "Informe"
+
+#, fuzzy
 msgid "Document Actions:"
 msgstr "Documents"
+
+msgid "Delete document"
+msgstr ""
 
 #, fuzzy
 msgid "Add parts"
@@ -12617,9 +12658,6 @@ msgid "Mail all parts"
 msgstr ""
 
 msgid "Export all parts"
-msgstr ""
-
-msgid "Delete document"
 msgstr ""
 
 msgid "Access external original"
@@ -12663,6 +12701,14 @@ msgid ""
 "\n"
 "Select the document into which to move the selected part !\n"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr "Edita les propietats del document"
+
+#, fuzzy
+msgid "Moving document part"
+msgstr "Edita les propietats del document"
 
 #, fuzzy
 msgid "Deleting document part"
@@ -12716,6 +12762,13 @@ msgid "fax"
 msgstr ""
 
 msgid "mail"
+msgstr ""
+
+msgid "Save document part to directory ..."
+msgstr ""
+
+#, python-format
+msgid "Successfully exported document part as [%s]."
 msgstr ""
 
 #, python-format
@@ -14765,9 +14818,6 @@ msgstr ""
 
 #, python-format
 msgid "EMR successfully exported to file: %s"
-msgstr ""
-
-msgid "Cannot load clinical narrative. No active patient."
 msgstr ""
 
 #, python-format

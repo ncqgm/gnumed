@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 11:05+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -3485,13 +3485,6 @@ msgstr ""
 msgid "Vaccine ..."
 msgstr ""
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 msgid "Batch №"
 msgstr ""
 
@@ -4724,11 +4717,18 @@ msgstr ""
 msgid "&Journal"
 msgstr ""
 
+msgid "Revisions"
+msgstr ""
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 msgid "Show item journal."
 msgstr ""
+
+#, fuzzy
+msgid "Show item revisions."
+msgstr " %s test resultat\n"
 
 msgid ""
 "Press this button to switch back and forth between browsing and entering "
@@ -5945,11 +5945,13 @@ msgstr "FEL: Okänt allergiskt tillstånd [%s]"
 msgid "Medication history"
 msgstr "Medicineringshistorik"
 
-msgid "copy"
-msgstr "kopiera"
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Beskrivning"
 
-msgid "data"
-msgstr "data"
+#, fuzzy
+msgid "prescription data"
+msgstr "Beskrivning"
 
 msgid "in use"
 msgstr ""
@@ -7269,6 +7271,27 @@ msgstr "Provtagningar och Resultat: %s"
 msgid "Vaccinations:"
 msgstr "Vaccinering:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "Kategori av medicinsk frågeställning: %s"
+
+#, fuzzy
+msgid ""
+"\n"
+"current values:\n"
+msgstr "<nuvarande allerigiskt tillstånd>"
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Ej beaktade episoder:"
 
@@ -7326,6 +7349,12 @@ msgstr "Anteckningar om förbättring i senaste undersökning:"
 msgid "Measurements and Results:"
 msgstr "Provtagningar och resultat:"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "Episod %s%s%s   [#%s]"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  er tid: %s - %s  (@%s = %s%s)\n"
@@ -7349,6 +7378,12 @@ msgstr "Episod %s%s%s   [#%s]"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s andra under denna undersökning berörda episoder:"
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Undersökningar: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " (pågående)"
@@ -10565,9 +10600,6 @@ msgstr ""
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-msgid "Revisions"
-msgstr ""
-
 msgid "Table"
 msgstr ""
 
@@ -10800,6 +10832,9 @@ msgstr ""
 
 msgid "text"
 msgstr ""
+
+msgid "data"
+msgstr "data"
 
 msgid ""
 "\n"
@@ -12667,7 +12702,14 @@ msgstr ""
 msgid "Mail part"
 msgstr ""
 
+#, fuzzy
+msgid "Export part"
+msgstr "Exportera till SVG"
+
 msgid "Document Actions:"
+msgstr ""
+
+msgid "Delete document"
 msgstr ""
 
 msgid "Add parts"
@@ -12683,9 +12725,6 @@ msgid "Mail all parts"
 msgstr ""
 
 msgid "Export all parts"
-msgstr ""
-
-msgid "Delete document"
 msgstr ""
 
 msgid "Access external original"
@@ -12729,6 +12768,14 @@ msgid ""
 "\n"
 "Select the document into which to move the selected part !\n"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr "Det går inte att flytta låsta händelser"
+
+#, fuzzy
+msgid "Moving document part"
+msgstr " %s dokument\n"
 
 msgid "Deleting document part"
 msgstr ""
@@ -12781,6 +12828,13 @@ msgid "fax"
 msgstr ""
 
 msgid "mail"
+msgstr ""
+
+msgid "Save document part to directory ..."
+msgstr ""
+
+#, python-format
+msgid "Successfully exported document part as [%s]."
 msgstr ""
 
 #, python-format
@@ -14863,9 +14917,6 @@ msgstr ""
 msgid "EMR successfully exported to file: %s"
 msgstr ""
 
-msgid "Cannot load clinical narrative. No active patient."
-msgstr ""
-
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
 msgstr ""
@@ -16035,6 +16086,9 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#~ msgid "copy"
+#~ msgstr "kopiera"
 
 #~ msgid ""
 #~ "There was a problem printing.\n"

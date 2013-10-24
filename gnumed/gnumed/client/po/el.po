@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-07 22:24+0200\n"
+"POT-Creation-Date: 2013-10-24 11:04+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -3501,13 +3501,6 @@ msgstr "Ημέρα χορήγησης"
 msgid "Vaccine ..."
 msgstr "Εμβόλιο ..."
 
-msgid ""
-"... or ...\n"
-"\n"
-"vaccinated\n"
-"against"
-msgstr ""
-
 msgid "Batch №"
 msgstr ""
 
@@ -4776,11 +4769,18 @@ msgstr ""
 msgid "&Journal"
 msgstr "τεπ-ημερολόγιο"
 
+msgid "Revisions"
+msgstr ""
+
 msgid "Show succinct item synopsis."
 msgstr ""
 
 #, fuzzy
 msgid "Show item journal."
+msgstr "Δείξε &εργαστηριακό ημερολόγιο"
+
+#, fuzzy
+msgid "Show item revisions."
 msgstr "Δείξε &εργαστηριακό ημερολόγιο"
 
 msgid ""
@@ -6043,11 +6043,13 @@ msgstr "ΣΦΑΛΜΑ: άγνωστη αλλεργική κατάσταση [%s]"
 msgid "Medication history"
 msgstr "Ιατρικό Ιστορικό"
 
-msgid "copy"
-msgstr "αντιγραφή"
+#, fuzzy
+msgid "copy of printed prescription"
+msgstr "Συνταγές"
 
-msgid "data"
-msgstr "δεδομένα"
+#, fuzzy
+msgid "prescription data"
+msgstr "Συνταγές"
 
 msgid "in use"
 msgstr "σε χρήση"
@@ -7387,6 +7389,27 @@ msgstr "Μετρήσεις και Αποτελέσματα:%s"
 msgid "Vaccinations:"
 msgstr "Εμβολιασμοί:"
 
+#, fuzzy, python-format
+msgid ""
+"health issue: %s%s%s\n"
+"\n"
+msgstr "θέμα υγείας:%s"
+
+#, fuzzy
+msgid ""
+"\n"
+"current values:\n"
+msgstr "<τρέχουσα αλλεργική κατάσταση>"
+
+msgid "no previous versions of this record"
+msgstr ""
+
+msgid ""
+"\n"
+"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+"value first):\n"
+msgstr ""
+
 msgid "Unattributed episodes"
 msgstr "Μη καθορισμένα επεισόδια"
 
@@ -7444,6 +7467,12 @@ msgstr "Σημειώσεις προόδου στις πιο πρόσφατη σ�
 msgid "Measurements and Results:"
 msgstr "Μετρήσεις και Αποτελέσματα:"
 
+#, fuzzy, python-format
+msgid ""
+"episode: %s%s%s\n"
+"\n"
+msgstr "Επεισόδια %s%s%s [#%s]"
+
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
@@ -7468,6 +7497,12 @@ msgstr "Επεισόδια %s%s%s [#%s]"
 #, python-format
 msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"encounter: %s%s%s\n"
+"\n"
+msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " (εξερχόμενο)"
@@ -10766,9 +10801,6 @@ msgstr ""
 msgid "GNUmed database audit log ..."
 msgstr ""
 
-msgid "Revisions"
-msgstr ""
-
 msgid "Table"
 msgstr "Πίνακας"
 
@@ -11005,6 +11037,9 @@ msgstr "Επεξεργασία φαρμακευτικής αγωγής"
 #, fuzzy
 msgid "text"
 msgstr "Σχετιζόμενο"
+
+msgid "data"
+msgstr "δεδομένα"
 
 msgid ""
 "\n"
@@ -12939,8 +12974,15 @@ msgid "Mail part"
 msgstr ""
 
 #, fuzzy
+msgid "Export part"
+msgstr "Αναφορά"
+
+#, fuzzy
 msgid "Document Actions:"
 msgstr "Αρχεία:"
+
+msgid "Delete document"
+msgstr ""
 
 #, fuzzy
 msgid "Add parts"
@@ -12956,9 +12998,6 @@ msgid "Mail all parts"
 msgstr ""
 
 msgid "Export all parts"
-msgstr ""
-
-msgid "Delete document"
 msgstr ""
 
 msgid "Access external original"
@@ -13007,6 +13046,14 @@ msgid ""
 "\n"
 "Select the document into which to move the selected part !\n"
 msgstr ""
+
+#, fuzzy
+msgid "Cannot move document part."
+msgstr "Διαγραφή περιγραφής αρχείου"
+
+#, fuzzy
+msgid "Moving document part"
+msgstr "Διαγραφή περιγραφής αρχείου"
 
 #, fuzzy
 msgid "Deleting document part"
@@ -13061,6 +13108,13 @@ msgstr "φαξ"
 
 msgid "mail"
 msgstr "αλληλογραφία"
+
+msgid "Save document part to directory ..."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Successfully exported document part as [%s]."
+msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
 #, python-format
 msgid ""
@@ -15126,9 +15180,6 @@ msgstr "Αποθήκευση ΗΙΦ του ασθενούς ως..."
 msgid "EMR successfully exported to file: %s"
 msgstr "Επιτυχής εξαγωγή του ΗΙΦ στο αρχείο:%s"
 
-msgid "Cannot load clinical narrative. No active patient."
-msgstr ""
-
 #, python-format
 msgid "EMR of %(lastnames)s, %(firstnames)s"
 msgstr ""
@@ -16307,6 +16358,9 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#~ msgid "copy"
+#~ msgstr "αντιγραφή"
 
 #, fuzzy
 #~ msgid "Printing"
