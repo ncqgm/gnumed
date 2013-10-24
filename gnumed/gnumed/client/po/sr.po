@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 13:26+0200\n"
+"POT-Creation-Date: 2013-10-24 14:35+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -11384,11 +11384,11 @@ msgid "Privacy notice"
 msgstr ""
 
 #, python-format
-msgid "Your chart has been accessed by %s."
+msgid "%s: Your chart has been accessed by %s."
 msgstr ""
 
 #, python-format
-msgid "Staff member %s has been notified of your chart access."
+msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 #, python-format

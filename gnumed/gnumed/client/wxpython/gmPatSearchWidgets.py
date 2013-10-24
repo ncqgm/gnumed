@@ -978,7 +978,7 @@ def _check_for_provider_chart_access(patient=None):
 			staff = patient.staff_id,
 			message_type = _('Privacy notice'),
 			message_category = u'administrative',
-			subject = _('Your chart has been accessed by %s.') % prov,
+			subject = _('%s: Your chart has been accessed by %s.') % (pat, prov),
 			patient = patient.ID
 		)
 		# notify /me about the staff member notification
@@ -986,7 +986,7 @@ def _check_for_provider_chart_access(patient=None):
 			staff = curr_prov['pk_staff'],
 			message_type = _('Privacy notice'),
 			message_category = u'administrative',
-			subject = _('Staff member %s has been notified of your chart access.') % pat
+			subject = _('%s: Staff member %s has been notified of your chart access.') % (prov, pat)
 		)
 
 	return proceed

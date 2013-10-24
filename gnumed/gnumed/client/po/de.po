@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 13:26+0200\n"
-"PO-Revision-Date: 2013-10-24 13:34+0100\n"
+"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"PO-Revision-Date: 2013-10-24 14:39+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -12734,12 +12734,12 @@ msgid "Privacy notice"
 msgstr "Datenschutzhinweis"
 
 #, python-format
-msgid "Your chart has been accessed by %s."
-msgstr "Ihre Karteikarte wurde von %s aufgerufen."
+msgid "%s: Your chart has been accessed by %s."
+msgstr "%s: Ihre Karteikarte wurde von %s aufgerufen."
 
 #, python-format
-msgid "Staff member %s has been notified of your chart access."
-msgstr "Mitarbeiter %s wurde über die Akteneinsicht benachrichtigt."
+msgid "%s: Staff member %s has been notified of your chart access."
+msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
 
 #, python-format
 msgid ""
