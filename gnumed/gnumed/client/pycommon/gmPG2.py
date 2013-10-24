@@ -912,7 +912,7 @@ def is_pg_interval(candidate=None):
 def lock_row(link_obj=None, table=None, pk=None, exclusive=False):
 	"""Uses pg_advisory(_shared).
 
-	- locks stack and need one unlock per lock
+	- locks stack upon each other and need one unlock per lock
 	- same connection:
 		- all locks succeed
 	- different connections:

@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -11639,6 +11639,27 @@ msgstr ""
 
 msgid "Cannot list encounters. No active patient."
 msgstr ""
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "Cancella documento"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr ""
+"Non posso eliminare il tipo di documento\n"
+" [%s]\n"
+"perchè è attualmente in uso."
 
 #, fuzzy
 msgid "The patient's encounters.\n"

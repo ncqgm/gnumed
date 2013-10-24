@@ -1603,6 +1603,7 @@ def episode2problem(episode=None, allow_closed=False):
 		},
 		try_potential_problems = allow_closed
 	)
+
 #============================================================
 # encounter API
 #============================================================
@@ -1643,6 +1644,12 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		self['last_affirmed'] = gmDateTime.pydt_now_here()
 		self.save()
+	#--------------------------------------------------------
+	def lock(self, exclusive=False, link_obj=None):
+		return lock_encounter(self.pk_obj, exclusive = exclusive, link_obj = link_obj)
+	#--------------------------------------------------------
+	def unlock(self, exclusive=False, link_obj=None):
+		return unlock_encounter(self.pk_obj, exclusive = exclusive, link_obj = link_obj)
 	#--------------------------------------------------------
 	def transfer_clinical_data(self, source_episode=None, target_episode=None):
 		"""
@@ -2534,6 +2541,7 @@ limit 1
 		return txt
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
+
 #-----------------------------------------------------------
 def create_encounter(fk_patient=None, enc_type=None):
 	"""Creates a new encounter for a patient.
@@ -2568,6 +2576,40 @@ def create_encounter(fk_patient=None, enc_type=None):
 	encounter = cEncounter(aPK_obj = rows[0]['pk'])
 
 	return encounter
+
+#------------------------------------------------------------
+def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
+	return gmPG2.lock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+
+#------------------------------------------------------------
+def unlock_encounter(pk_encounter, exclusive=False, link_obj=None):
+	return gmPG2.unlock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
+
+#-----------------------------------------------------------
+def delete_encounter(pk_encounter):
+	"""Deletes an encounter by PK.
+
+	- attempts to obtain an exclusive lock which should
+	  fail if the encounter is the active encounter in
+	  this or any other client
+	- catches DB exceptions which should mostly be related
+	  to clinical data already having been attached to
+	  the encounter thus making deletion fail
+	"""
+	conn = gmPG2.get_connection(readonly = False)
+	if not lock_encounter(pk_encounter, exclusive = True, link_obj = conn):
+		_log.debug('cannot lock encounter [%s] for deletion, it seems in use', pk_encounter)
+		return False
+	cmd = u"""DELETE FROM clin.encounter WHERE pk = %(enc)s"""
+	args = {'enc': pk_encounter}
+	try:
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	except gmPG2.dbapi.Error:
+		_log.exception('cannot delete encounter [%s]', pk_encounter)
+		unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
+		return False
+	unlock_encounter(pk_encounter, exclusive = True, link_obj = conn)
+	return True
 
 #-----------------------------------------------------------
 # encounter types handling

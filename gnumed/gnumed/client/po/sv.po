@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -11274,6 +11274,24 @@ msgstr "Initiera en ny undersökning. Den innevarande kommer att stängas."
 
 msgid "Cannot list encounters. No active patient."
 msgstr "Kan inte lista undersökningar. Ingen patient vald."
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "Välj motsvarande undersökning"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr "Kan inte radera undersökningstyp [%s]. Den används."
 
 msgid "The patient's encounters.\n"
 msgstr ""

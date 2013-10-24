@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -11465,6 +11465,24 @@ msgstr ""
 
 #, fuzzy
 msgid "Cannot list encounters. No active patient."
+msgstr "Nie można dodać problemu zdrowotnego. Brak aktywnego pacjenta."
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "Usuwanie epizodu"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
 msgstr "Nie można dodać problemu zdrowotnego. Brak aktywnego pacjenta."
 
 #, fuzzy

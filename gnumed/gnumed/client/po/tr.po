@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -10870,6 +10870,23 @@ msgid "Start a new encounter. The existing one will be closed."
 msgstr ""
 
 msgid "Cannot list encounters. No active patient."
+msgstr ""
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+msgid "Deleting encounter"
+msgstr ""
+
+#, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
 msgstr ""
 
 msgid "The patient's encounters.\n"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -12310,6 +12310,24 @@ msgstr "Begin een nieuwe ontmoeting. De bestaande zal worden afgesloten."
 #, fuzzy
 msgid "Cannot list encounters. No active patient."
 msgstr "Kan geen nieuwe ontmoeting beginnen. Geen actieve patiënt."
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "verwijderen documenttype"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
 
 #, fuzzy
 msgid "The patient's encounters.\n"

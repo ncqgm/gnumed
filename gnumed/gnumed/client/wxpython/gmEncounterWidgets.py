@@ -122,7 +122,11 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		if enc_type is None:
 			enc_type = u'in surgery'
 		enc = gmEMRStructItems.create_encounter(fk_patient = patient.ID, enc_type = enc_type)
-		return edit_encounter(parent = parent, encounter = enc)
+		saved = edit_encounter(parent = parent, encounter = enc)
+		if saved:
+			return True
+		gmEMRStructItems.delete_encounter(pk_encounter = enc['pk_encounter'])
+		return False
 	#--------------------
 	def edit(enc=None):
 		return edit_encounter(parent = parent, encounter = enc)
@@ -133,6 +137,33 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 	def start_new(enc=None):
 		start_new_encounter(emr = emr)
 		return True
+	#--------------------
+	def delete(enc=None):
+		if enc is None:
+			return False
+		question = _(
+			'Really delete encounter [%s] ?\n'
+			'\n'
+			'Once deletion succeeds it cannot be undone.\n'
+			'\n'
+			'Note that it will only succeed if there\n'
+			'is no data attached to the encounter.'
+		) % enc['pk_encounter']
+		delete_it = gmGuiHelpers.gm_show_question (
+			question = question,
+			title = _('Deleting encounter'),
+			cancel_button = False
+		)
+		if not delete_it:
+			return False
+		if gmEMRStructItems.delete_encounter(pk_encounter = enc['pk_encounter']):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete encounter [%s]. It is probably in use.') % enc['pk_encounter'],
+			beep = True
+		)
+		return False
 	#--------------------
 	def get_tooltip(data):
 		if data is None:
@@ -184,6 +215,7 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = new,
+		delete_callback = delete,
 		list_tooltip_callback = get_tooltip,
 		ignore_OK_button = ignore_OK_button,
 		left_extra_button = (_('Edit active'), _('Edit the active encounter'), edit_active),

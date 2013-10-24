@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 11:05+0200\n"
+"POT-Creation-Date: 2013-10-24 13:26+0200\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -11975,6 +11975,24 @@ msgstr "Iniciar nova consulta. A anterior já existente será fechada."
 
 msgid "Cannot list encounters. No active patient."
 msgstr ""
+
+#, python-format
+msgid ""
+"Really delete encounter [%s] ?\n"
+"\n"
+"Once deletion succeeds it cannot be undone.\n"
+"\n"
+"Note that it will only succeed if there\n"
+"is no data attached to the encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Deleting encounter"
+msgstr "Apagando documento"
+
+#, fuzzy, python-format
+msgid "Cannot delete encounter [%s]. It is probably in use."
+msgstr "Não é possível apagar o tipo de consulta [%s]. Está em uso."
 
 #, fuzzy
 msgid "The patient's encounters.\n"
