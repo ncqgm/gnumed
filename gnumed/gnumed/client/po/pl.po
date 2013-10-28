@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"POT-Creation-Date: 2013-10-28 17:33+0100\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -335,13 +335,13 @@ msgid "Check all parents of all childs"
 msgstr ""
 
 msgid "Uncheck All"
-msgstr ""
+msgstr "Odznacz wszystko"
 
 msgid "Uncheck children"
-msgstr ""
+msgstr "Odznacz dzieci"
 
 msgid "Uncheck all children"
-msgstr ""
+msgstr "Odznacz wszystkie dzieci"
 
 #, fuzzy
 msgid "Uncheck all parents"
@@ -487,7 +487,7 @@ msgid "Default client"
 msgstr ""
 
 msgid "Gmail"
-msgstr ""
+msgstr "Gmail"
 
 msgid "Other email client"
 msgstr ""
@@ -501,7 +501,7 @@ msgid "Other"
 msgstr ""
 
 msgid "To:"
-msgstr ""
+msgstr "Do:"
 
 #, fuzzy
 msgid "Subject:"
@@ -537,7 +537,7 @@ msgid "Open &Recent"
 msgstr "Otwórz pop&rzednie linie  czasu"
 
 msgid "Save As..."
-msgstr ""
+msgstr "Zapisz jako..."
 
 msgid "Import timeline..."
 msgstr ""
@@ -606,7 +606,7 @@ msgid "Edit &Categories"
 msgstr "nieaktywny"
 
 msgid "Read Only"
-msgstr ""
+msgstr "Tylko do odczytu"
 
 msgid "&Timeline"
 msgstr "&Linia czasu"
@@ -5905,6 +5905,7 @@ msgstr ""
 
 msgid "NOT corrected for non-average body surface (average = 1.73m²)"
 msgstr ""
+"NIE uwzględnione dla nieprzeciętnej powierzchni ciała (przeciętna = 1.73m²)"
 
 #, python-format
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
@@ -7093,7 +7094,7 @@ msgid ""
 msgstr ""
 
 msgid "Open bill"
-msgstr ""
+msgstr "Rachunek otwarty"
 
 #, fuzzy
 msgid "Closed bill"
@@ -7243,8 +7244,7 @@ msgstr "%s: nieznana klasyfikacja diagnostycznej pewności"
 
 msgid "bilateral"
 msgstr ""
-"obustronny\r\n"
-"obustronnie"
+"obustronny"
 
 #, fuzzy
 msgid "Clinical data generated during encounters under this health issue:"

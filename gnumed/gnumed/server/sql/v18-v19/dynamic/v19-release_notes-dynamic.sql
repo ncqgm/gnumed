@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.rc2 (database v19.rc2)',
-	'GNUmed 1.4.rc2 Release Notes:
+	'Release Notes for GNUmed 1.4.0 (database v19.0)',
+	'GNUmed 1.4.0 Release Notes:
 
-	1.4.rc2
+	1.4.0
 
 NEW: generic search in lists
 NEW: nested placeholders
@@ -74,7 +74,7 @@ IMPROVED: test results plotting: deal with "<N" and ">N" pseudo-numeric values
 IMPROVED: patient search now supports "LASTNAME, NICKNAME"
 IMPROVED: document tree: keep expansion state across node edits
 
-	19.rc2
+	19.0
 
 Requires PostgreSQL 9.1 !
 
@@ -86,6 +86,7 @@ NEW: support data checksums with PG 9.3
 IMPROVED: much simplified table mod announcement signal
 IMPROVED: include FKs in schema version check
 IMPROVED: remove .ddd/.unit from ref.atc
+IMPROVED: EMR entry on deleting a document
 ');
 
 -- --------------------------------------------------------------

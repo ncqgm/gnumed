@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"POT-Creation-Date: 2013-10-28 17:33+0100\n"
 "PO-Revision-Date: 2012-06-01 01:18+0000\n"
 "Last-Translator: Rogerio Luz Coelho <dr.rogerioluzcoelho@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
@@ -3237,7 +3237,7 @@ msgid "Or year:"
 msgstr "ou Ano:"
 
 msgid "Synopsis"
-msgstr ""
+msgstr "Sinopse"
 
 msgid "Codes"
 msgstr ""
@@ -6226,128 +6226,137 @@ msgstr ""
 "Para desabilitar essa mensagem é só deixá-la em branco."
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
-msgstr ""
+msgstr "ESSA NÃO É UM EXAME VALIDADO. NÃO USE PARA A PRÁTICA CLÍNICA."
 
 msgid "Algorithm:"
-msgstr ""
+msgstr "Algoritmo:"
 
 #, fuzzy
 msgid "Source:"
 msgstr "Fontes das Porções"
 
 msgid "Variables:"
-msgstr ""
+msgstr "Variáveis:"
 
 #, fuzzy
 msgid "Intermediate results:"
 msgstr "resultado corrigido"
 
 msgid "unknown MDRD (4 vars/IDMS)"
-msgstr ""
+msgstr "MDRD desconhecido (4 variáveis/IDMS)"
 
 msgid "MDRD (4 vars/IDMS): no patient"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): sem paciente"
 
 msgid "MDRD (4 vars/IDMS): no DOB (no age)"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): sem DN (falta idade)"
 
 msgid "MDRD (4 vars/IDMS): neither male nor female"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): não há informações sobre sexo."
 
 #, python-format
 msgid "MDRD (4 vars/IDMS): serum creatinine value not found (LOINC: %s)"
 msgstr ""
 
 msgid "MDRD (4 vars/IDMS): creatinine value not numeric"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): valor de creatinina não é numérico"
 
 #, python-format
 msgid "MDRD (4 vars/IDMS): unknown serum creatinine unit (%s)"
-msgstr ""
+msgstr "MDRD (4 variáveis/IDMS): unidade de creatinina desconhecida (%s)"
 
 #, python-format
 msgid "MDRD (4 vars/IDMS): formula does not apply at age [%s] (17 < age < 85)"
 msgstr ""
+"MDRD (4 variáveis/IDMS): fórmula não se aplica em idade [%s] (apenas de 17 a "
+"85 anos)."
 
 msgid ""
 "ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor"
 msgstr ""
+"características étnicas: GNUmed não conhece a característica étnica do "
+"paciente, ignorando o fator de correção"
 
 msgid "NOT corrected for non-average body surface (average = 1.73m²)"
 msgstr ""
+"NÃO foi corrigido para superfície corporal fora da média (média = 1,73m²)."
 
 #, python-format
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
-msgstr ""
+msgstr "GFR estimada (MDRD): %.1f %s (%s) [4-variáveis, IDMS]"
 
 msgid "unknown eGFR (Schwartz)"
-msgstr ""
+msgstr "GFR estimada desconhecida (Schwartz)"
 
 msgid "eGFR (Schwartz): no patient"
-msgstr ""
+msgstr "GFR estimada (Schwartz): sem paciente"
 
 msgid "eGFR (Schwartz): DOB needed for age"
-msgstr ""
+msgstr "GFR estimada (Schwartz): DN necessária para idade"
 
 #, python-format
 msgid "eGFR (Schwartz): serum creatinine value not found (LOINC: %s"
 msgstr ""
 
 msgid "eGFR (Schwartz): creatinine value not numeric"
-msgstr ""
+msgstr "GFR estimada (Schwartz): valores de creatinina não numéricos"
 
 #, python-format
 msgid "eGFR (Schwartz): unknown serum creatinine unit (%s)"
-msgstr ""
+msgstr "GFR estimada (Schwartz): unidade de creatinina desconhecida  (%s)"
 
 #, python-format
 msgid "eGFR (Schwartz): formula does not apply at age [%s] (age must be <18)"
 msgstr ""
+"GFR estimada (Schwartz): fórmula não se aplica a idade [%s] (idade deve ser "
+"<18 anos)"
 
 msgid ""
 "eGFR (Schwartz): not known whether pre-term birth, applying full-term formula"
 msgstr ""
+"GFR estimada (Schwartz): aplicando a fórmula de parto a termo, pois não se "
+"sabe se é prematuro"
 
 msgid "eGFR (Schwartz): height not found"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não fornecida"
 
 msgid "eGFR (Schwartz): height not numeric"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não numérica"
 
 msgid "eGFR (Schwartz): height not in m, cm, or mm"
-msgstr ""
+msgstr "GFR estimada (Schwartz): altura não está expressa em m, cm ou mm"
 
 #, python-format
 msgid "eGFR (Schwartz): %.1f %s (%s)"
-msgstr ""
+msgstr "GFR estimada (Schwartz): %.1f %s (%s)"
 
 msgid "unknown body surface area"
-msgstr ""
+msgstr "área de superfície corporal desconhecido"
 
 msgid "Body Surface Area: no patient"
-msgstr ""
+msgstr "Área de Superfície Corporal: não há paciente"
 
 msgid "Body Surface Area: height not found"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura indisponível"
 
 msgid "Body Surface Area: height not numeric"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura não é numérico"
 
 msgid "Body Surface Area: height not in m, cm, or mm"
-msgstr ""
+msgstr "Área de Superfície Corporal: altura não está expressa em m, cm ou mm"
 
 msgid "Body Surface Area: weight not found"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso indisponível"
 
 msgid "Body Surface Area: weight not numeric"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso não disponível"
 
 msgid "Body Surface Area: weight not in kg or g"
-msgstr ""
+msgstr "Área de Superfície Corporal: peso não expresso em kg ou g"
 
 #, python-format
 msgid "BSA (DuBois): %.2f %s"
-msgstr ""
+msgstr "ASC (DuBois): %.2f %s"
 
 msgid "unknown allergy state"
 msgstr "estado alérgico desconhecido"
@@ -6374,7 +6383,7 @@ msgid "prescription data"
 msgstr "Prescrições"
 
 msgid "in use"
-msgstr ""
+msgstr "em uso"
 
 msgid "long-term"
 msgstr "longo prazo"
@@ -6396,13 +6405,13 @@ msgstr "?contínuo"
 
 #, python-format
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
-msgstr ""
+msgstr "Entrada de uso de Medicação (%s, %s)   [#%s]                     \n"
 
 msgid "active, needs check"
 msgstr "ativo, precisa verificar"
 
 msgid "assumed active"
-msgstr ""
+msgstr "assumido como ativo"
 
 msgid "approved"
 msgstr "aprovado"
@@ -6414,11 +6423,11 @@ msgid "definite"
 msgstr "definitivo"
 
 msgid "suspected"
-msgstr ""
+msgstr "incerto"
 
 #, python-format
 msgid "Substance: %s   [#%s]\n"
-msgstr ""
+msgstr "Medicamento: %s   [#%s]\n"
 
 #, python-format
 msgid "Preparation: %s\n"
@@ -6430,15 +6439,15 @@ msgstr "Quantidade por dose: %s %s"
 
 #, python-format
 msgid " ATC (substance): %s\n"
-msgstr ""
+msgstr " ATC (medicamento): %s\n"
 
 #, python-format
 msgid " Brand name: %%s   [#%s]\n"
-msgstr ""
+msgstr " Nome comercial: %%s   [#%s]\n"
 
 #, python-format
 msgid " ATC (brand): %s\n"
-msgstr ""
+msgstr " ATC (nome comercial): %s\n"
 
 #, python-format
 msgid "  Other component: %s\n"
@@ -6446,17 +6455,17 @@ msgstr "  Outro componente: %s\n"
 
 #, python-format
 msgid " Regimen: %s\n"
-msgstr ""
+msgstr " Posologia: %s\n"
 
 #, python-format
 msgid " Started %s%s%s\n"
-msgstr ""
+msgstr " Começou em: %s%s%s\n"
 
 msgid " (long-term)"
-msgstr ""
+msgstr " (uso pronlongado)"
 
 msgid " (short-term)"
-msgstr ""
+msgstr " (uso por pouco tempo)"
 
 #, python-format
 msgid " Discontinued %s\n"
@@ -6468,11 +6477,11 @@ msgstr " Razão: %s\n"
 
 #, python-format
 msgid " Aim: %s\n"
-msgstr ""
+msgstr " Motivo: %s\n"
 
 #, python-format
 msgid " Episode: %s\n"
-msgstr ""
+msgstr " Episódio: %s\n"
 
 #, fuzzy, python-format
 msgid " Health issue: %s\n"
@@ -6480,7 +6489,7 @@ msgstr "problema de saúde: %s"
 
 #, python-format
 msgid " Advice: %s\n"
-msgstr ""
+msgstr " Orientações: %s\n"
 
 #, python-format
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
@@ -6570,10 +6579,10 @@ msgstr "mensagem"
 
 #, python-format
 msgid " %s segments (lines)%s"
-msgstr ""
+msgstr " %s segmentos (linhas)%s"
 
 msgid ", skipping empty fields"
-msgstr ""
+msgstr ", pulando campos vazios"
 
 #, fuzzy, python-format
 msgid "Segment #%s <%s>"
@@ -6581,14 +6590,14 @@ msgstr "Comentário: %s"
 
 #, python-format
 msgid "%s fields"
-msgstr ""
+msgstr "%s campos"
 
 #, python-format
 msgid "HL7 %s field"
-msgstr ""
+msgstr "Campo HL7 %s"
 
 msgid "<EMTPY>"
-msgstr ""
+msgstr "<VAZIO>"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -6672,6 +6681,12 @@ msgid ""
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+"Endereço (%(type)s) [#%(pk_adr)s]\n"
+" Rua: %(street)s%(notes_street)s\n"
+" Número/Unidade: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Local: %(zip)s %(urb)s%(suburb)s\n"
+" Região: %(l10n_state)s, %(code_state)s\n"
+" País: %(l10n_country)s, %(code_country)s"
 
 #, python-format
 msgid ""
@@ -6682,19 +6697,25 @@ msgid ""
 " Region: %(l10n_state)s, %(code_state)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
+"Endereço [#%(pk_adr)s]\n"
+" Rua: %(street)s%(notes_street)s\n"
+" Número/Unidade: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Local: %(zip)s %(urb)s%(suburb)s\n"
+" Região: %(l10n_state)s, %(code_state)s\n"
+" País: %(l10n_country)s, %(code_country)s"
 
 msgid "Textual keyword expansion"
-msgstr ""
+msgstr "Expansão de Texto"
 
 msgid "Binary keyword expansion"
-msgstr ""
+msgstr "Expansão de Binário"
 
 #, fuzzy
 msgid "private"
 msgstr "Ativar"
 
 msgid "public"
-msgstr ""
+msgstr "público"
 
 #, fuzzy
 msgid "encrypted"
@@ -7042,10 +7063,10 @@ msgstr "Sra"
 
 #, python-format
 msgid "Test panel \"%s\"          [#%s]\n"
-msgstr ""
+msgstr "Painel de Exames \"%s\"          [#%s]\n"
 
 msgid "Included test types:\n"
-msgstr ""
+msgstr "Tipos de exames incluídos:\n"
 
 #, python-format
 msgid ""
@@ -7059,7 +7080,7 @@ msgstr "Paciente"
 
 #, python-format
 msgid " Comment: %s\n"
-msgstr ""
+msgstr " Comentário: %s\n"
 
 msgid " Aggregates the following test types:\n"
 msgstr ""
@@ -7074,11 +7095,11 @@ msgstr "Comentário: %s"
 
 #, python-format
 msgid "Test type \"%s\" (%s)          [#%s]\n"
-msgstr ""
+msgstr "Tipos de Exames \"%s\" (%s)          [#%s]\n"
 
 #, python-format
 msgid " Conversion unit: %s\n"
-msgstr ""
+msgstr " Unidade de conversão: %s\n"
 
 #, fuzzy
 msgid "Lab details:\n"
@@ -7093,143 +7114,147 @@ msgid " Contact: %s\n"
 msgstr "Contatos"
 
 msgid "Aggregated under meta type:\n"
-msgstr ""
+msgstr "Agregar sob o meta tipo:\n"
 
 #, python-format
 msgid " Name: %s - %s             [#%s]\n"
-msgstr ""
+msgstr " Nome: %s - %s             [#%s]\n"
 
 msgid "Listed in test panels:\n"
-msgstr ""
+msgstr "Listado nos seguintes painéis:\n"
 
 #, python-format
 msgid " Panel \"%s\"             [#%s]\n"
-msgstr ""
+msgstr " Painel\"%s\"             [#%s]\n"
 
 #, python-format
 msgid "Result from %s             \n"
-msgstr ""
+msgstr "Resultados de %s             \n"
 
 #, python-format
 msgid "Type: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
-msgstr ""
+msgstr "Tipo: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 
 #, python-format
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
-msgstr ""
+msgstr "Resultado: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 
 #, python-format
 msgid "%.1f %% of the normal lower limit"
-msgstr ""
+msgstr "%.1f %% do limite normal inferior"
 
 #, python-format
 msgid "%.0f %% of the normal lower limit"
-msgstr ""
+msgstr "%.0f %% do limite inferior de normalidade"
 
 #, python-format
 msgid "%.1f times the normal upper limit"
-msgstr ""
+msgstr "%.1f vezes o limite superior de normalidade"
 
 #, python-format
 msgid "%.0f times the normal upper limit"
-msgstr ""
+msgstr "%.0f vezes o limite superior de normalidade"
 
 #, python-format
 msgid "%.1f %% of the target lower limit"
-msgstr ""
+msgstr "%.1f %% do valor alvo inferior"
 
 #, python-format
 msgid "%.0f %% of the target lower limit"
-msgstr ""
+msgstr "%.0f %% do valor alvo inferior"
 
 #, python-format
 msgid "%.1f times the target upper limit"
-msgstr ""
+msgstr "%.1f vezes o valor do alvo superior"
 
 #, python-format
 msgid "%.0f times the target upper limit"
-msgstr ""
+msgstr "%.0f vezes o valor do alvo superior"
 
 #, python-format
 msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr ""
+msgstr "Valores normais: %(norm_min_max)s%(norm_range)s  \n"
 
 #, python-format
 msgid "Reference group: %s\n"
-msgstr ""
+msgstr "Grupo de referência: %s\n"
 
 #, python-format
 msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
+msgstr "Valores alvo: %(clin_min_max)s%(clin_range)s  \n"
 
 #, python-format
 msgid "Doc: %s\n"
-msgstr ""
+msgstr "Dr.: %s\n"
 
 msgid ""
 "\n"
 " Doc: "
 msgstr ""
+"\n"
+" Dr: "
 
 #, python-format
 msgid "Lab: %s\n"
-msgstr ""
+msgstr "Laboratório: %s\n"
 
 msgid ""
 "\n"
 " Lab: "
 msgstr ""
+"\n"
+" Laboratório: "
 
 #, python-format
 msgid "Episode: %s\n"
-msgstr ""
+msgstr "Episódio: %s\n"
 
 #, python-format
 msgid "Issue: %s\n"
-msgstr ""
+msgstr "Problema: %s\n"
 
 #, python-format
 msgid "Material: %s\n"
-msgstr ""
+msgstr "Material: %s\n"
 
 #, python-format
 msgid "Details: %s\n"
-msgstr ""
+msgstr "Detalhes: %s\n"
 
 msgid "not yet"
-msgstr ""
+msgstr "ainda não"
 
 #, python-format
 msgid "Signed (%(sig_hand)s): %(reviewed)s\n"
-msgstr ""
+msgstr "Assinado (%(sig_hand)s): %(reviewed)s\n"
 
 #, python-format
 msgid "Responsible clinician: %s\n"
-msgstr ""
+msgstr "Clínico responsável: %s\n"
 
 msgid "you"
-msgstr ""
+msgstr "você"
 
 #, python-format
 msgid "Last reviewer: %(reviewer)s\n"
-msgstr ""
+msgstr "Último revisor: %(reviewer)s\n"
 
 #, python-format
 msgid " Technically abnormal: %(abnormal)s\n"
-msgstr ""
+msgstr " Tecnicamente anormal: %(abnormal)s\n"
 
 msgid "yes"
-msgstr ""
+msgstr "sim"
 
 msgid "no"
-msgstr ""
+msgstr "não"
 
 #, python-format
 msgid " Clinically relevant: %(relevant)s\n"
-msgstr ""
+msgstr " Relevante: %(relevant)s\n"
 
 msgid "Test type details:\n"
-msgstr ""
+msgstr "Detalhes do tipo de exame:\n"
 
 #, python-format
 msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
@@ -7315,11 +7340,11 @@ msgstr "erro ao buscar resultado laboratorial não avaliado"
 
 #, python-format
 msgid "part %s, %s%s%s of document %s from %s%s"
-msgstr ""
+msgstr "part %s, %s%s%s do documento %s de %s%s"
 
 #, python-format
 msgid "%s document part                 [#%s]\n"
-msgstr ""
+msgstr "%s parte do documento                 [#%s]\n"
 
 #, fuzzy
 msgid "Reviewed"
@@ -7359,6 +7384,11 @@ msgid ""
 " Episode: %s\n"
 "%s%s%s"
 msgstr ""
+"%s (%s)   #%s\n"
+"\n"
+" Criado: %s\n"
+" Consulta: %s\n"
+"%s%s%s"
 
 #, fuzzy, python-format
 msgid " External reference: %s\n"
@@ -7449,7 +7479,7 @@ msgstr "Item contábil inativo"
 
 #, python-format
 msgid " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
-msgstr ""
+msgstr " %(curr)s%(raw_val)s + %(perc_vat)s%% VAT = %(curr)s%(val_w_vat)s\n"
 
 msgid "Open item"
 msgstr "Abrir Item"
@@ -7511,7 +7541,7 @@ msgstr " Valor da nota: %s %s\n"
 
 #, python-format
 msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
-msgstr ""
+msgstr " Imposto: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
 
 #, fuzzy, python-format
 msgid " Value + VAT: %(curr)s%(val)s\n"
@@ -9758,7 +9788,7 @@ msgid "icon_Set_Square"
 msgstr ""
 
 msgid "Recalls entered this consultation"
-msgstr ""
+msgstr "Registros inseridos nesta consulta"
 
 msgid "Recall Details"
 msgstr "Detalhes da Reconsulta"
@@ -9797,7 +9827,7 @@ msgid "Requests"
 msgstr "Solicitações"
 
 msgid "Measurements"
-msgstr ""
+msgstr "Medições"
 
 msgid "Referrals"
 msgstr "Referências"
@@ -16720,7 +16750,7 @@ msgid "Cannot set patient picture from [%s]."
 msgstr ""
 
 msgid "Head Office"
-msgstr ""
+msgstr "Sede"
 
 msgid "Department"
 msgstr ""
@@ -16765,26 +16795,26 @@ msgid "Memo"
 msgstr ""
 
 msgid " Postal Address "
-msgstr ""
+msgstr " Endereço Postal "
 
 msgid "occupation"
-msgstr ""
+msgstr "ocupação"
 
 msgid "subdivision"
-msgstr ""
+msgstr "subdivisão"
 
 msgid "&Contacts"
 msgstr ""
 
 msgid "Global Search Of Contacts Database"
-msgstr ""
+msgstr "Pesquisa Global do Banco de Dados dos Contatos"
 
 msgid "EMR Timeline"
 msgstr ""
 
 #, python-format
 msgid "loading plugin <%s>"
-msgstr ""
+msgstr "carregando plugin <%s>"
 
 msgid "Show &Timeline"
 msgstr ""
@@ -16798,10 +16828,10 @@ msgid "&Overview"
 msgstr "Revisão"
 
 msgid "Attach documents"
-msgstr ""
+msgstr "Anexar documentos"
 
 msgid "&Attach documents"
-msgstr ""
+msgstr "&Anexar documentos"
 
 msgid "AU Vacc"
 msgstr ""
@@ -16814,7 +16844,7 @@ msgid "SimpleNotes"
 msgstr "Notas"
 
 msgid "&SimpleNotes"
-msgstr ""
+msgstr "&Notas simples"
 
 msgid "EMR tree"
 msgstr ""
@@ -16826,52 +16856,56 @@ msgid "Appointments"
 msgstr ""
 
 msgid "&Appointments"
-msgstr ""
+msgstr "&Apontamentos"
 
 msgid "lab journal"
-msgstr ""
+msgstr "Relatório do laboratório"
 
 msgid "Show &lab journal"
-msgstr ""
+msgstr "Exiba relatório do &laboratório"
 
 msgid "Cardiac Devices"
-msgstr ""
+msgstr "Dispositivos Cardíacos"
 
 msgid "Show &cardiac devices"
-msgstr ""
+msgstr "Exibir dispositivos &cardíacos"
 
 msgid "Reports"
 msgstr ""
 
 msgid "&Report Generator"
-msgstr ""
+msgstr "&Gerador de Relatórios"
 
 msgid "No matching drug found."
-msgstr ""
+msgstr "Nenhum medicamento correspondente encontrado."
 
 msgid "Please enter at least three digits of the drug name."
 msgstr ""
+"Por favor, digite ao menos os três primeiros digitos do nome do medicamento."
 
 msgid "Starting drug data browser"
-msgstr ""
+msgstr "Iniciando navegador de dados dos medicamentos"
 
 msgid ""
 "Cannot start the drug data browser.\n"
 "\n"
 "There is no drug database specified in the configuration."
 msgstr ""
+"Não é possível iniciar o navegador de dados dos medicamentos.\n"
+"\n"
+"Não há base de dados dos medicamentos especificados na configuração."
 
 msgid "   Find   "
-msgstr ""
+msgstr "   Localizar   "
 
 msgid "Enter the name of the drug you are interested in"
-msgstr ""
+msgstr "Digite o nome do medicamento que você tem interesse"
 
 msgid "&Bookmark"
 msgstr ""
 
 msgid "Search by"
-msgstr ""
+msgstr "Procure por"
 
 msgid "Any"
 msgstr ""
@@ -16880,31 +16914,31 @@ msgid "Generic name"
 msgstr ""
 
 msgid "Indication"
-msgstr ""
+msgstr "Indicação"
 
 msgid "&Prescribe"
-msgstr ""
+msgstr "&Prescrever"
 
 msgid "&Display"
 msgstr ""
 
 msgid "DrugBrowser"
-msgstr ""
+msgstr "Navegador de Medicamentos"
 
 msgid "&DrugBrowser"
-msgstr ""
+msgstr "&Navegador de Medicamentos"
 
 msgid "Progress notes"
-msgstr ""
+msgstr "Registro de progresso"
 
 msgid "HTML Source"
 msgstr ""
 
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 msgid "User &manual (local)"
-msgstr ""
+msgstr "&Manual do usuário (local)"
 
 msgid "EMR journal"
 msgstr ""
@@ -16913,22 +16947,22 @@ msgid "EMR &Journal (chronological)"
 msgstr ""
 
 msgid "Demographics"
-msgstr ""
+msgstr "Dados demográficos"
 
 msgid "&Demographics"
-msgstr ""
+msgstr "Dados &demográficos"
 
 msgid "&Waiting list"
-msgstr ""
+msgstr "&Aguardando lista"
 
 msgid "Medication"
-msgstr ""
+msgstr "Medicação"
 
 msgid "Type of entered value is not compatible with type expected."
-msgstr ""
+msgstr "Tipo do valor digitado não é compatível com o tipo esperado."
 
 msgid "saving configuration"
-msgstr ""
+msgstr "salvando configuração"
 
 msgid ""
 "There is no config definition for this parameter.\n"
@@ -16936,58 +16970,62 @@ msgid ""
 "\n"
 "Save anyway ?"
 msgstr ""
+"Não existe definição de configuração para este parâmetro.\n"
+"Assim sendo, a validade não pode ser verificada.\n"
+"\n"
+"Salvar assim mesmo?"
 
 msgid "Entered value is not valid."
-msgstr ""
+msgstr "Valor digitado não é válido."
 
 msgid "(Branch)"
-msgstr ""
+msgstr "(Ramo)"
 
 msgid "(Subtree root)"
-msgstr ""
+msgstr "(Ramificação - root)"
 
 msgid "<Options for current/default user and workplace>"
-msgstr ""
+msgstr "<Opções para o usuário atual/padrão e local de trabalho>"
 
 msgid "Parameters"
 msgstr ""
 
 msgid "Parameter Description"
-msgstr ""
+msgstr "Descrição de Parametro"
 
 msgid "Config Options"
-msgstr ""
+msgstr "Opções de Configuração"
 
 msgid "Setup"
 msgstr ""
 
 msgid "&ConfigRegistry"
-msgstr ""
+msgstr "Registro de &Configuração"
 
 #, fuzzy
 msgid "&Documents"
 msgstr "Documentos"
 
 msgid "Provider &inbox"
-msgstr ""
+msgstr "&Caixa de entrada do fornecedor"
 
 msgid "Field name"
 msgstr "Nome do campo"
 
 msgid "Interpreted content"
-msgstr ""
+msgstr "Conteúdo interpretado"
 
 msgid "xDT field ID"
-msgstr ""
+msgstr "ID do campo xDT"
 
 msgid "Raw content"
-msgstr ""
+msgstr "Teor de matéria"
 
 msgid "Choose an xDT file"
-msgstr ""
+msgstr "Escolha um arquivo xDT"
 
 msgid "xDT files"
-msgstr ""
+msgstr "arquivos xDT"
 
 #, python-format
 msgid ""
@@ -16995,28 +17033,31 @@ msgid ""
 "\n"
 " [%s]"
 msgstr ""
+"Não foi possível acessar arquivo xDT\n"
+"\n"
+" [%s]"
 
 msgid "loading xDT file"
 msgstr "carregando arquivo xDT"
 
 #, python-format
 msgid "Encoding missing in xDT file. Assuming [%s]."
-msgstr ""
+msgstr "Falta codificação no arquivo xDT. Assumindo [%s]."
 
 msgid "name of xDT file"
 msgstr "nome do arquivo xDT"
 
 msgid "XDT field"
-msgstr ""
+msgstr "Campo XDT"
 
 msgid "XDT field content"
-msgstr ""
+msgstr "Conteúdo do campo XDT"
 
 msgid "xDT viewer"
 msgstr "vizualizador xDT"
 
 msgid "&xDT viewer"
-msgstr ""
+msgstr "Visualizador &xDT"
 
 msgid "Opening xDT file"
 msgstr "Abrindo arquivo xDT"
@@ -17026,20 +17067,24 @@ msgid ""
 "Cannot open xDT file.\n"
 "[%s]"
 msgstr ""
+"Não foi possível abrir arquivo xDT.\n"
+"[%s]"
 
 msgid ""
 "You must provide an xDT file on the command line.\n"
 "Format: --xdt-file=<file>"
 msgstr ""
+"Você deve providenciar um arquivo xDT na linha de comando.\n"
+"Formato: --xdt-file=<file>"
 
 msgid "XDT Viewer"
-msgstr ""
+msgstr "Visualizador XDT"
 
 msgid "progress notes (sash)"
-msgstr ""
+msgstr "notas de progresso (faixa)"
 
 msgid "progress notes"
-msgstr ""
+msgstr "notas de evolução"
 
 msgid "Allergies"
 msgstr ""
@@ -17054,16 +17099,16 @@ msgid "Clinical"
 msgstr ""
 
 msgid "Error processing form"
-msgstr ""
+msgstr "Formulário de processamento de erro"
 
 msgid "You must select a form and type"
-msgstr ""
+msgstr "Você deve selecionar o formulário e o tipo"
 
 msgid "Missing field"
-msgstr ""
+msgstr "Campo faltante"
 
 msgid "&Request"
-msgstr ""
+msgstr "&Solicitação"
 
 msgid "Template Plugin"
 msgstr ""
