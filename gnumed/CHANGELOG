@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.1
+
+IMPROVED: account for wx2.9 always being unicode but not saying so
+
 	1.4.0
 
 NEW: generic search in lists
@@ -1378,6 +1382,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.1
+
+IMPROVED: require existence of at least one org unit in v18
 
 	19.0
 
