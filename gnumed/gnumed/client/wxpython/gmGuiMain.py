@@ -31,7 +31,12 @@ import glob
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
 	import wxversion
-	wxversion.ensureMinimal('2.8-unicode', optionsRequired=True)
+	# we'll check options further down because we want to
+	# support 2.9 as well and while that supports unicode
+	# builds only anyway it don't respond well to requiring
+	# a "-unicode" option indicator, ... :-/
+	#wxversion.ensureMinimal('2.8-unicode', optionsRequired=True)
+	wxversion.ensureMinimal('2.8', optionsRequired = False)
 
 try:
 	import wx
