@@ -9,6 +9,7 @@
 	1.4.1
 
 IMPROVED: account for wx2.9 always being unicode but not saying so
+IMPROVED: font size for some top panel parts on Mac
 
 	1.4.0
 
