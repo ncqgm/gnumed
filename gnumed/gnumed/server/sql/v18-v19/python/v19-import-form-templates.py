@@ -34,7 +34,7 @@ def run(conn=None):
 				external_version = '19.0'
 			where
 				name_long = 'Grünes Rezept (DE, GNUmed-Vorgabe)'""",
-		filename = os.path.join('..', 'sql', 'v18-v19', 'data', 'v19-GNUmed-Grünes_Rezept_template.tex'),
+		filename = os.path.join('..', 'sql', 'v18-v19', 'data', 'v19-GNUmed-Gruenes_Rezept_template.tex'),
 		conn = conn
 	)
 

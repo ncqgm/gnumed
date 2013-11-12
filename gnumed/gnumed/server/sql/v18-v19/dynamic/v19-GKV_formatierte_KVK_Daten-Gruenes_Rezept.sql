@@ -55,4 +55,4 @@ insert into ref.keyword_expansion (
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-GKV_formatierte_KVK_Daten-Grünes_Rezept.sql', '19.0');
+select gm.log_script_insertion('v19-GKV_formatierte_KVK_Daten-Gruenes_Rezept.sql', '19.0');
