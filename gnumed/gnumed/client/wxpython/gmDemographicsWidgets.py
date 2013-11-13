@@ -1114,7 +1114,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 					'Cannot add this name to the patient !\n'
 					'\n'
 					' %s'
-				) % exc.pgerror
+				) % exc.u_pgerror
 #				) % str(exc)
 			)
 			return False
@@ -1162,7 +1162,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 						'Cannot clone a copy of this name !\n'
 						'\n'
 						' %s'
-					) % exc.pgerror
+					) % exc.u_pgerror
 #					) % str(exc)
 				)
 				return False
