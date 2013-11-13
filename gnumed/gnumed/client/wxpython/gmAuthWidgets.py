@@ -205,7 +205,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 				"  the default user name and password are\n"
 				"  {any-doc, any-doc})\n"
 				"\n"
-			) % exc.pgerror
+			) % exc.u_pgerror
 #			) % gmPG2.extract_msg_from_pg_exception(e)
 			msg = regex.sub(r'password=[^\s]+', u'password=%s' % gmTools.u_replacement_character, msg)
 			gmGuiHelpers.gm_show_error (

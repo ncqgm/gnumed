@@ -2081,9 +2081,9 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 		if exc.pgerror is None:
 			raise
 		exc = make_pg_exception_fields_unicode(exc)
-		if 'prevent_duplicate_component' in exc.pgerror:
+		if 'prevent_duplicate_component' in exc.u_pgerror:
 			_log.exception('will not create duplicate substance intake entry')
-			_log.error(exc.pgerror)
+			_log.error(exc.u_pgerror)
 			return None
 		raise
 

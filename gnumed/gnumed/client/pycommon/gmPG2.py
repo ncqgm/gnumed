@@ -1200,7 +1200,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error(u'PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+				_log.error(u'PG error message: %s', pg_exc.u_pgerror)
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
@@ -1216,7 +1216,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 				if pg_exc.pgerror is None:
 					msg = u'[%s]' % pg_exc.pgcode
 				else:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
 				raise gmExceptions.AccessDenied (
 					msg,
 					source = u'PostgreSQL',
@@ -1338,7 +1338,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error(u'PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error(u'PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+				_log.error(u'PG error message: %s', pg_exc.u_pgerror)
 			try:
 				curs_close()
 				tx_rollback()			# just for good measure
@@ -1355,7 +1355,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 				if pg_exc.pgerror is None:
 					msg = u'[%s]' % pg_exc.pgcode
 				else:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.u_pgerror)
 				raise gmExceptions.AccessDenied (
 					msg,
 					source = u'PostgreSQL',
@@ -1825,11 +1825,11 @@ def make_pg_exception_fields_unicode(exc):
 		except (AttributeError, IndexError, TypeError):
 			return exc
 		# assumption
-		exc.pgerror = unicode(msg, gmI18N.get_encoding(), 'replace')
+		exc.u_pgerror = unicode(msg, gmI18N.get_encoding(), 'replace')
 		return exc
 
 	# assumption
-	exc.pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace')
+	exc.u_pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace').strip().strip(u'\n').strip().strip(u'\n')
 
 	return exc
 #------------------------------------------------------------------------
