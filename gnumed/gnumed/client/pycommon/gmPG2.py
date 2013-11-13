@@ -1197,9 +1197,10 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			_log.error('query failed: [%s]', curs.query)
 			if curs.statusmessage != u'':
 				_log.error('PG status message: %s', curs.statusmessage)
+			pg_exc = make_pg_exception_fields_unicode(pg_exc)
 			_log.error('PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+				_log.error(u'PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 			except dbapi.InterfaceError:
@@ -1213,7 +1214,7 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 						details
 					)
 				if pg_exc.pgerror is None:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+					msg = u'[%s]' % pg_exc.pgcode
 				else:
 					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 				raise gmExceptions.AccessDenied (
@@ -1322,7 +1323,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:
-			print "run_rw_queries(): non-unicode query"
+			print "gmPG2.run_rw_queries(): non-unicode query"
 			print query['cmd']
 		try:
 			args = query['args']
@@ -1334,9 +1335,10 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 			_log.error('RW query failed: [%s]', curs.query)
 			if curs.statusmessage != u'':
 				_log.error('PG status message: %s', curs.statusmessage)
-			_log.error('PG error code: %s', pg_exc.pgcode)
+			pg_exc = make_pg_exception_fields_unicode(pg_exc)
+			_log.error(u'PG error code: %s', pg_exc.pgcode)
 			if pg_exc.pgerror is not None:
-				_log.error('PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
+				_log.error(u'PG error message: %s', pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 			try:
 				curs_close()
 				tx_rollback()			# just for good measure
@@ -1351,7 +1353,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 						details
 					)
 				if pg_exc.pgerror is None:
-					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror)
+					msg = u'[%s]' % pg_exc.pgcode
 				else:
 					msg = u'[%s]: %s' % (pg_exc.pgcode, pg_exc.pgerror.strip().strip(u'\n').strip().strip(u'\n'))
 				raise gmExceptions.AccessDenied (
@@ -1811,7 +1813,26 @@ def __log_PG_settings(curs=None):
 	for setting in settings:
 		_log.debug(u'PG option [%s]: %s', setting[0], setting[1])
 	return True
-# =======================================================================
+#========================================================================
+def make_pg_exception_fields_unicode(exc):
+
+	if not isinstance(exc, dbapi.Error):
+		return exc
+
+	if exc.pgerror is None:
+		try:
+			msg = exc.args[0]
+		except (AttributeError, IndexError, TypeError):
+			return exc
+		# assumption
+		exc.pgerror = unicode(msg, gmI18N.get_encoding(), 'replace')
+		return exc
+
+	# assumption
+	exc.pgerror = unicode(exc.pgerror, gmI18N.get_encoding(), 'replace')
+
+	return exc
+#------------------------------------------------------------------------
 def extract_msg_from_pg_exception(exc=None):
 
 	try:
@@ -1819,6 +1840,7 @@ def extract_msg_from_pg_exception(exc=None):
 	except (AttributeError, IndexError, TypeError):
 		return u'cannot extract message from exception'
 
+	# assumption
 	return unicode(msg, gmI18N.get_encoding(), 'replace')
 # =======================================================================
 class cAuthenticationError(dbapi.OperationalError):

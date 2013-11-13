@@ -2077,12 +2077,13 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 
 	try:
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	except gmPG2.dbapi.InternalError, e:
-		if e.pgerror is None:
+	except gmPG2.dbapi.InternalError, exc:
+		if exc.pgerror is None:
 			raise
-		if 'prevent_duplicate_component' in e.pgerror:
+		exc = make_pg_exception_fields_unicode(exc)
+		if 'prevent_duplicate_component' in exc.pgerror:
 			_log.exception('will not create duplicate substance intake entry')
-			_log.error(e.pgerror)
+			_log.error(exc.pgerror)
 			return None
 		raise
 
