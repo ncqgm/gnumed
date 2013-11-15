@@ -1118,7 +1118,9 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	data = property(_get_data, set_data)
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
-		self.Select(0, on = 0)
+		# not sure why this is done:
+		if self.GetItemCount() > 0:
+			self.Select(0, on = 0)
 		if selections is None:
 			return
 		for idx in selections:
