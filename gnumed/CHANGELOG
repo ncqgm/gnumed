@@ -10,6 +10,7 @@
 
 IMPROVED: account for wx2.9 always being unicode but not saying so
 IMPROVED: font size for some top panel parts on Mac
+IMPROVED: adjustments for wx2.9 and wx on Mac
 
 	1.4.0
 
