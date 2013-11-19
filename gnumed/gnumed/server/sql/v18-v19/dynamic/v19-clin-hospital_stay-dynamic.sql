@@ -31,7 +31,7 @@ where
 -- units
 insert into dem.org_unit (fk_org, description)
 select
-	(select pk from dem.org where dem.org.description = c_hs.narrative),
+	(select pk from dem.org where dem.org.description = c_hs.narrative order by pk limit 1),
 	'unit of ' || c_hs.narrative
 from
 	clin.hospital_stay c_hs
@@ -41,7 +41,7 @@ where
 		where
 			dem.org_unit.description = 'unit of ' || c_hs.narrative
 				and
-			fk_org = (select pk from dem.org where dem.org.description = c_hs.narrative)
+			fk_org = (select pk from dem.org where dem.org.description = c_hs.narrative order by pk limit 1)
 	)
 ;
 
