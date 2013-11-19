@@ -1387,6 +1387,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	19.1
 
+FIX: dem.lnk_org_unit2ext_id.fk_org_unit definition
+
 IMPROVED: require existence of at least one org unit in v18
 
 	19.0

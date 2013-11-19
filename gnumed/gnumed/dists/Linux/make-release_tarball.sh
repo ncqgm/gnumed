@@ -584,7 +584,7 @@ cp -R ../../server/sql/v18-v19/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/s
 cp -R ../../server/sql/v18-v19/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/static
 cp -R ../../server/sql/v18-v19/data/* ./gnumed-client.$CLIENTREV/server/sql/v18-v19/data
 cp -R ../../server/sql/v18-v19/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v18-v19/python
-#cp -R ../../server/sql/v18-v19/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
+cp -R ../../server/sql/v18-v19/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
 #cp -R ../../server/sql/v18-v19/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/superuser
 
 #----------------------------------
