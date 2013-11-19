@@ -1392,6 +1392,7 @@ FIX: make dem.org unique on description
 FIX: normalization of (clin.procedure/clin.hospital_stay).fk_org_unit
 
 IMPROVED: require existence of at least one org unit in v18
+IMPROVED: clin.v_pat_encounters wants coalesce() around praxis location
 
 	19.0
 

@@ -1,17 +1,17 @@
 Fingerprinting GNUmed database ...
 
                 Name: gnumed_v19
-         Schema hash: 419e5225259c53dd36ad80d82066ff02
-                Size: 69 MB
-            Patients: 15
-            Contacts: 9
-            Episodes: 6
+         Schema hash: 9765373098b03fb208332498f34cd4b5
+                Size: 67 MB
+            Patients: 14
+            Contacts: 6
+            Episodes: 5
               Issues: 2
              Results: 5
         Vaccinations: 1
-           Documents: 4
-             Objects: 6
-        Version (PG): 9.3.0
+           Documents: 3
+             Objects: 4
+        Version (PG): 9.3.1
        Encoding (PG): UTF8
      LC_COLLATE (PG): de_DE.UTF-8
        LC_CTYPE (PG): de_DE.UTF-8
@@ -449,7 +449,6 @@ COL:dem.lnk_org_unit2ext_id.modified_by::name
 COL:dem.lnk_org_unit2ext_id.external_id::text
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_org_unit)_REFERENCES_dem.org_unit(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_type)_REFERENCES_dem.enum_ext_id_types(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_org_unit)_REFERENCES_dem.org(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 TABLE:dem.name_gender_map
 PK:dem.name_gender_map.id::integer
 COL:dem.name_gender_map.name::text

@@ -53,9 +53,9 @@ select
 		from clin.encounter c_enc1
 		where c_enc1.pk = c_enc.pk
 	)) as last_affirmed_original_tz,
-	d_ou.description
+	coalesce(d_ou.description, '?')
 		as praxis_branch,
-	d_o.description
+	coalesce(d_o.description, '?')
 		as praxis,
 	c_enc.fk_location
 		as pk_org_unit,
