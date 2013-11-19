@@ -35,7 +35,7 @@ where
 -- units
 insert into dem.org_unit (fk_org, description)
 select distinct on (c_p.clin_where)
-	(select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"'),
+	(select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"' order by pk limit 1),
 	c_p.clin_where
 from
 	clin.procedure c_p
@@ -47,7 +47,7 @@ where
 		where
 			dem.org_unit.description = c_p.clin_where
 				and
-			fk_org = (select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"')
+			fk_org = (select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"' order by pk limit 1)
 	)
 ;
 
