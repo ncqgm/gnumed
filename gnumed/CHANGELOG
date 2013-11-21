@@ -9,6 +9,7 @@
 	1.3.10 (unreleased)
 
 FIX: exception on moving document parts
+FIX: linking new address to org unit [thanks Marc]
 
 	1.3.9
 
