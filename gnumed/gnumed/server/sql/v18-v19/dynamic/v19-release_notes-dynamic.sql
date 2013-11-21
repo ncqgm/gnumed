@@ -17,8 +17,16 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.0 (database v19.0)',
-	'GNUmed 1.4.0 Release Notes:
+	'Release Notes for GNUmed 1.4.1 (database v19.1)',
+	'GNUmed 1.4.1 Release Notes:
+
+	1.4.1
+
+FIX: deleting org units which are in use [thanks Marc]
+
+IMPROVED: account for wx2.9 always being unicode but not saying so
+IMPROVED: font size for some top panel parts on Mac
+IMPROVED: adjustments for wx2.9 and wx on Mac
 
 	1.4.0
 
@@ -74,9 +82,18 @@ IMPROVED: test results plotting: deal with "<N" and ">N" pseudo-numeric values
 IMPROVED: patient search now supports "LASTNAME, NICKNAME"
 IMPROVED: document tree: keep expansion state across node edits
 
-	19.0
+	19.1
 
 Requires PostgreSQL 9.1 !
+
+FIX: dem.lnk_org_unit2ext_id.fk_org_unit definition
+FIX: make dem.org unique on description
+FIX: normalization of (clin.procedure/clin.hospital_stay).fk_org_unit
+
+IMPROVED: require existence of at least one org unit in v18
+IMPROVED: clin.v_pat_encounters wants coalesce() around praxis location
+
+	19.0
 
 FIX: disable faulty clin-encounter.sql in v4 -> v5
 
