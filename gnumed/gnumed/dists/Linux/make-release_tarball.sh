@@ -643,6 +643,7 @@ rm -R ./gnumed-server.$SRVREV/
 echo "include schema docs"
 
 # upload
+read -p "Hit [ENTER] for uploading tarballs "
 scp $CLIENTARCH $CLIENTARCH.md5 $CLIENTARCH.sha512 $SRVARCH $SRVARCH.md5 $SRVARCH.sha512 www.gnumed.de:
 
 # post announcement ?
