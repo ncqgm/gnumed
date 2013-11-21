@@ -851,7 +851,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		# create new one or get corresponding
 		# address should it exist
 		try:
-			address = gmDemographicRecord.create_address (
+			created_or_loaded_address = gmDemographicRecord.create_address (
 				country = self._PRW_country.GetData(),
 				state = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
@@ -876,14 +876,13 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 			return False
 
 		# link address to holder (there better be one)
-		linked_address = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = address)
-		if linked_address['pk_address'] != address['pk_address']:
+		linked_address = self.address_holder.link_address(id_type = self._PRW_type.GetData(), address = created_or_loaded_address)
+		if linked_address['pk_address'] != created_or_loaded_address['pk_address']:
 			raise ValueError('problem linking address to person or org')
 
-		address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
-		address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
-		address.save()
-
+		created_or_loaded_address['notes_street'] = gmTools.none_if(self._TCTRL_notes_street.GetValue().strip(), u'')
+		created_or_loaded_address['notes_subunit'] = gmTools.none_if(self._TCTRL_notes_subunit.GetValue().strip(), u'')
+		created_or_loaded_address.save_payload()
 		linked_address.refetch_payload()
 		self.data = linked_address
 
