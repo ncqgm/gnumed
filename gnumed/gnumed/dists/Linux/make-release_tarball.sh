@@ -576,7 +576,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/dynamic
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/python
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
 #mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v18-v19/superuser
 
 cp ../../server/sql/v18-v19/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v18-v19
