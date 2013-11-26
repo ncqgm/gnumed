@@ -1469,6 +1469,8 @@ def become_pg_demon_user():
 	except:
 		running_as = None
 
+	gmPG2.log_auth_environment()
+
 	pg_demon_user_passwd_line = None
 	try:
 		pg_demon_user_passwd_line = pwd.getpwnam('postgres')
@@ -1485,6 +1487,7 @@ def become_pg_demon_user():
 	if os.getuid() == 0: # we are the super-user
 		_log.info('switching to UNIX user [%s]' % pg_demon_user_passwd_line[0])
 		os.setuid(pg_demon_user_passwd_line[2])
+		gmPG2.log_auth_environment()
 
 	elif running_as == pg_demon_user_passwd_line[0]: # we are the postgres user already
 		_log.info('I already am the UNIX user [%s]' % pg_demon_user_passwd_line[0])

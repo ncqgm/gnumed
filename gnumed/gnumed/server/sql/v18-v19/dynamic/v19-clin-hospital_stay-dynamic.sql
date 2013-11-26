@@ -7,57 +7,74 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
--- --------------------------------------------------------------
--- de-crapify data
-update clin.hospital_stay set
-	narrative = 'unknown hospital [stay:' || pk || ']'
-where
-	gm.is_null_or_blank_string(narrative) is True
-;
+--set default_transaction_read_only to off;
 
+set check_function_bodies to on;
+
+-- --------------------------------------------------------------
+-- .fk_org_unit
 comment on column clin.hospital_stay.fk_org_unit is 'links to the hospital the patient was admitted to';
 
--- create "hospitals" in dem.org/dem.org_unit
--- orgs
-insert into dem.org (description, fk_category)
-select
-	c_hs.narrative,
-	(select pk from dem.org_category d_oc where d_oc.description = 'Hospital')
-from
-	clin.hospital_stay c_hs
-where
-	not exists (select 1 from dem.org where dem.org.description = c_hs.narrative)
-;
--- units
-insert into dem.org_unit (fk_org, description)
-select
-	(select pk from dem.org where dem.org.description = c_hs.narrative order by pk limit 1),
-	'unit of ' || c_hs.narrative
-from
-	clin.hospital_stay c_hs
-where
-	not exists (
-		select 1 from dem.org_unit
-		where
-			dem.org_unit.description = 'unit of ' || c_hs.narrative
-				and
-			fk_org = (select pk from dem.org where dem.org.description = c_hs.narrative order by pk limit 1)
-	)
-;
-
--- add foreign key
 alter table clin.hospital_stay
 	add foreign key (fk_org_unit)
 		references dem.org_unit(pk)
 		on update cascade
 		on delete restrict;
 
--- link hospital stays to orgs
-update clin.hospital_stay set
-	fk_org_unit = (
-		select pk from dem.org_unit d_ou where d_ou.description = 'unit of ' || narrative
-	)
-;
+
+-- create function for populating the foreign key
+drop function if exists staging.populate_hospital_stay_FKs() cascade;
+
+create function staging.populate_hospital_stay_FKs()
+	returns boolean
+	language 'plpgsql'
+	as '
+DECLARE
+	_stay_row record;
+	_pk_org integer;
+	_pk_unit integer;
+	_pk_cat integer;
+	_org text;
+	_unit text;
+BEGIN
+	FOR _stay_row IN
+		select * from clin.hospital_stay
+	LOOP
+		insert into dem.org_category (description)
+		select ''Hospital''::text where not exists (
+			select 1 from dem.org_category where description = ''Hospital''
+		);
+		select pk into _pk_cat from dem.org_category where description = ''Hospital'';
+
+		IF gm.is_null_or_blank_string(_stay_row.narrative) IS TRUE THEN
+			_org := ''unknown hospital'';
+		ELSE
+			_org := _stay_row.narrative;
+		END IF;
+
+		_unit := ''unit of stay #'' || _stay_row.pk;
+
+		select pk into _pk_org from dem.org where description = _org;
+		IF _pk_org IS NULL THEN
+			insert into dem.org (fk_category, description) values (_pk_cat, _org);
+			select pk into _pk_org from dem.org where description = _org;
+		END IF;
+
+		select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
+		IF _pk_unit IS NULL THEN
+			insert into dem.org_unit (fk_org, description) values (_pk_org, _unit);
+			select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
+		END IF;
+
+		update clin.hospital_stay set fk_org_unit = _pk_unit;
+	END LOOP;
+	return TRUE;
+END;';
+
+
+select staging.populate_hospital_stay_FKs();
+
+drop function if exists staging.populate_hospital_stay_FKs() cascade;
 
 -- set not null
 alter table clin.hospital_stay

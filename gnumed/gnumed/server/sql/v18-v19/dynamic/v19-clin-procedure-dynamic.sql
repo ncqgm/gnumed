@@ -8,68 +8,82 @@
 \set ON_ERROR_STOP 1
 
 --set default_transaction_read_only to off;
+
+set check_function_bodies to on;
+
 -- --------------------------------------------------------------
+-- .fk_org_unit
 comment on column clin.procedure.fk_org_unit is 'links to the or unit the procedure was performed at';
 
-insert into dem.org_category (description)
-	select 'Point Of Care'::text
-	where not exists (
-		select 1 from dem.org_category d_oc where d_oc.description = 'Point Of Care'
-	);
-
-
--- create "Points Of Care" in dem.org/dem.org_unit from clin.procedure.clin_where records
--- orgs
-insert into dem.org (description, fk_category)
-select distinct on (c_p.clin_where)
-	'org for "' || c_p.clin_where || '"',
-	(select pk from dem.org_category d_oc where d_oc.description = 'Point Of Care')
-from
-	clin.procedure c_p
-where
-	c_p.clin_where is not null
-		and
-	not exists (select 1 from dem.org d_o where d_o.description = 'org for "' || c_p.clin_where || '"')
-;
-
--- units
-insert into dem.org_unit (fk_org, description)
-select distinct on (c_p.clin_where)
-	(select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"' order by pk limit 1),
-	c_p.clin_where
-from
-	clin.procedure c_p
-where
-	c_p.clin_where is not null
-		and
-	not exists (
-		select 1 from dem.org_unit
-		where
-			dem.org_unit.description = c_p.clin_where
-				and
-			fk_org = (select pk from dem.org where dem.org.description = 'org for "' || c_p.clin_where || '"' order by pk limit 1)
-	)
-;
-
--- add foreign key
 alter table clin.procedure
 	add foreign key (fk_org_unit)
 		references dem.org_unit(pk)
 		on update cascade
 		on delete restrict;
 
--- link hospital stays to orgs
-update clin.procedure set
-	fk_org_unit = (
-		select pk from dem.org_unit d_ou where d_ou.description = clin_where
-	)
-where
-	clin_where is not null
-;
+
+-- create function for populating the foreign key
+drop function if exists staging.populate_procedure_FKs() cascade;
+
+create function staging.populate_procedure_FKs()
+	returns boolean
+	language 'plpgsql'
+	as '
+DECLARE
+	_proc_row record;
+	_pk_org integer;
+	_pk_unit integer;
+	_pk_cat integer;
+	_org text;
+	_unit text;
+BEGIN
+	FOR _proc_row IN
+		select * from clin.procedure
+	LOOP
+		IF _stay_row.fk_hospital_stay IS NOT NULL THEN
+			CONTINUE;
+		END IF;
+
+		insert into dem.org_category (description)
+		select ''Point Of Care''::text where not exists (
+			select 1 from dem.org_category where description = ''Point Of Care''
+		);
+		select pk into _pk_cat from dem.org_category where description = ''Point Of Care'';
+
+		IF gm.is_null_or_blank_string(_proc_row.clin_where) IS TRUE THEN
+			_org := ''org for unknown Point Of Care'';
+			_unit := ''unknown Point Of Care'';
+		ELSE
+			_org := ''org for "'' || _proc_row.clin_where || ''"'';
+			_unit := _proc_row.clin_where;
+		END IF;
+
+		select pk into _pk_org from dem.org where description = _org;
+		IF _pk_org IS NULL THEN
+			insert into dem.org (fk_category, description) values (_pk_cat, _org);
+			select pk into _pk_org from dem.org where description = _org;
+		END IF;
+
+		select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
+		IF _pk_unit IS NULL THEN
+			insert into dem.org_unit (fk_org, description) values (_pk_org, _unit);
+			select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
+		END IF;
+
+		update clin.procedure set fk_org_unit = _pk_unit;
+	END LOOP;
+	return TRUE;
+END;';
+
+
+select staging.populate_procedure_FKs();
+
+drop function if exists staging.populate_procedure_FKs() cascade;
+
 
 -- add new constraint
-alter table clin.procedure
-	drop constraint if exists clin_procedure_lnk_org_or_stay cascade;
+alter table clin.procedure drop constraint if exists single_location_definition cascade;
+alter table clin.procedure drop constraint if exists clin_procedure_lnk_org_or_stay cascade;
 
 alter table clin.procedure
 	add constraint clin_procedure_lnk_org_or_stay check (

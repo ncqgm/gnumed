@@ -453,7 +453,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		first = emr.get_first_encounter()
 		if first is not None:
 			list_items.append (
-				_('first: %s, %s') % (
+				_('first (in GMd): %s, %s') % (
 					gmDateTime.pydt_strftime (
 						first['started'],
 						format = '%Y %b %d',
