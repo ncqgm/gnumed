@@ -1121,21 +1121,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		emr = pat.get_emr()
 
 		# create new document
-		pk_episode = self._PhWheel_episode.GetData()
-		if pk_episode is None:
-			episode = emr.add_episode (
-				episode_name = self._PhWheel_episode.GetValue().strip(),
-				is_open = True
-			)
-			if episode is None:
-				wx.EndBusyCursor()
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot start episode [%s].') % self._PhWheel_episode.GetValue().strip(),
-					aTitle = _('saving document')
-				)
-				return False
-			pk_episode = episode['pk_episode']
-
+		pk_episode = self._PhWheel_episode.GetData(can_create = True, is_open = True)
 		encounter = emr.active_encounter['pk_encounter']
 		document_type = self._PhWheel_doc_type.GetData()
 		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)

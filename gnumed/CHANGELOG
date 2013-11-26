@@ -6,6 +6,15 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.2
+
+FIX: mislinked document insert [thanks Marc]
+
+IMPROVED: desktop entry keywords [thanks Andreas]
+IMPROVED: man page typo [thanks Andreas]
+IMPROVED: authentication environment logging
+IMPROVED: patient overview encounters summary [thanks Jim]
+
 	1.4.1
 
 FIX: deleting org units which are in use [thanks Marc]
@@ -1387,6 +1396,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.2
+
+IMPROVED: normalization of (clin.procedure/clin.hospital_stay).fk_org_unit
 
 	19.1
 

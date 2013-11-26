@@ -13,3 +13,4 @@ Icon=gm_icon-serpent_and_gnu
 Exec=/usr/bin/gnumed
 Terminal=false
 Categories=Office;MedicalSoftware;
+Keywords=PHR;PMR;EHR;PMS;Patient Record;Medical Record;Patient Chart;Practice Management System;Medical Practice;Surgery

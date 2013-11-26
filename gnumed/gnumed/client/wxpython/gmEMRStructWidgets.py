@@ -1188,6 +1188,9 @@ limit 30"""
 		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	#--------------------------------------------------------
 	def _pre_patient_selection(self):
+		self.__patient_id = None
+		self.unset_context('pat')
+		self.SetData()
 		return True
 	#--------------------------------------------------------
 	def _post_patient_selection(self):
@@ -1195,6 +1198,7 @@ limit 30"""
 			patient = gmPerson.gmCurrentPatient()
 			self.set_context('pat', patient.ID)
 		return True
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgEpisodeEditAreaPnl
 

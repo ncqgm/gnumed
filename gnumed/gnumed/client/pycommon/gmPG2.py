@@ -481,6 +481,25 @@ def set_default_login(login=None):
 	_default_dsn = dsn
 
 	return True
+
+#------------------------------------------------------------------------
+def log_auth_environment():
+	try:
+		pgpass_file = os.path.expanduser(os.path.join('~', '.pgpass'))
+		if os.path.exists(pgpass_file):
+			_log.debug('standard .pgpass (%s) exists', pgpass_file)
+		else:
+			_log.debug('standard .pgpass (%s) not found', pgpass_file)
+		pgpass_var = os.getenv('PGPASSFILE')
+		if pgpass_var is None:
+			_log.debug('$PGPASSFILE not set')
+		else:
+			if os.path.exists(pgpass_var):
+				_log.debug('$PGPASSFILE=%s exists', pgpass_var)
+			else:
+				_log.debug('$PGPASSFILE=%s not found')
+	except StandardError:
+		_log.exception('cannot detect .pgpass and or $PGPASSFILE')
 # =======================================================================
 # netadata API
 # =======================================================================
