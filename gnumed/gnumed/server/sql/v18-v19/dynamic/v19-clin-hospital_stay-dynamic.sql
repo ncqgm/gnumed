@@ -66,7 +66,7 @@ BEGIN
 			select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
 		END IF;
 
-		update clin.hospital_stay set fk_org_unit = _pk_unit;
+		update clin.hospital_stay set fk_org_unit = _pk_unit where pk = _stay_row.pk;
 	END LOOP;
 	return TRUE;
 END;';
