@@ -2455,21 +2455,6 @@ _SQL_units_from_loinc_example = u"""
 		%(ctxt_loinc_term)s
 """
 
-_SQL_units_from_atc = u"""
-	-- via ref.atc.unit
-	SELECT
-		unit AS data,
-		unit AS field_label,
-		unit || ' (ATC: ' || term || ')' AS list_label,
-		2 AS rank
-	FROM
-		ref.atc
-	WHERE
-		unit IS NOT NULL
-			AND
-		unit %(fragment_condition)s
-"""
-
 _SQL_units_from_consumable_substance = u"""
 	-- via ref.consumable_substance.unit
 	SELECT
@@ -2507,7 +2492,6 @@ FROM (
 		(%s) UNION ALL
 		(%s) UNION ALL
 		(%s) UNION ALL
-		(%s) UNION ALL
 		(%s)
 	) AS all_matching_units
 	WHERE data IS NOT NULL
@@ -2520,7 +2504,6 @@ LIMIT 50""" % (
 			_SQL_units_from_loinc_ipcc,
 			_SQL_units_from_loinc_submitted,
 			_SQL_units_from_loinc_example,
-			_SQL_units_from_atc,
 			_SQL_units_from_consumable_substance
 		)
 

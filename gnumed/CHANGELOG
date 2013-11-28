@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.3
+
+FIX: test results unit PRW SQL
+
 	1.4.2
 
 FIX: mislinked document insert [thanks Marc]
@@ -1396,6 +1400,12 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.3
+
+FIX: typo in clin.procedure.fk_org_unit normalizer
+
+IMPROVED: various database object comments
 
 	19.2
 

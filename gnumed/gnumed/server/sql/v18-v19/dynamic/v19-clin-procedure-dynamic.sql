@@ -38,12 +38,8 @@ DECLARE
 	_unit text;
 BEGIN
 	FOR _proc_row IN
-		select * from clin.procedure
+		select * from clin.procedure where fk_hospital_stay is null
 	LOOP
-		IF _stay_row.fk_hospital_stay IS NOT NULL THEN
-			CONTINUE;
-		END IF;
-
 		insert into dem.org_category (description)
 		select ''Point Of Care''::text where not exists (
 			select 1 from dem.org_category where description = ''Point Of Care''
@@ -70,7 +66,7 @@ BEGIN
 			select pk into _pk_unit from dem.org_unit where description = _unit and fk_org = _pk_org;
 		END IF;
 
-		update clin.procedure set fk_org_unit = _pk_unit;
+		update clin.procedure set fk_org_unit = _pk_unit where pk = _proc_row.pk;
 	END LOOP;
 	return TRUE;
 END;';
