@@ -17,21 +17,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.2 (database v19.2)',
-	'GNUmed 1.4.2 Release Notes:
+	'Release Notes for GNUmed 1.4.3 (database v19.3)',
+	'GNUmed 1.4.3 Release Notes:
 
-	1.4.2
+	1.4.3
 
-FIX: mislinked document insert [thanks Marc]
+FIX: test results unit PRW SQL
 
-IMPROVED: desktop entry keywords [thanks Andreas]
-IMPROVED: man page typo [thanks Andreas]
-IMPROVED: authentication environment logging
-IMPROVED: patient overview encounters summary [thanks Jim]
+	19.3 -- Requires PostgreSQL 9.1 !
 
-	19.2 -- Requires PostgreSQL 9.1 !
+FIX: typo in clin.procedure.fk_org_unit normalizer
 
-IMPROVED: normalization of (clin.procedure/clin.hospital_stay).fk_org_unit
+IMPROVED: various database object comments
 ');
 
 -- --------------------------------------------------------------
