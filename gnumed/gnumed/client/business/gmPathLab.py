@@ -904,35 +904,41 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'pk_request'
 	]
 	#--------------------------------------------------------
+	def format_concisely(self, date_format='%Y %b %d', with_notes=True):
+		range_info = gmTools.coalesce (
+			self.formatted_clinical_range,
+			self.formatted_normal_range
+		)
+		review = gmTools.bool2subst (
+			self._payload[self._idx['reviewed']],
+			u'',
+			u' ' + gmTools.u_writing_hand,
+			u' ' + gmTools.u_writing_hand
+		)
+		txt = u'%s %s: %s%s%s%s%s' % (
+			gmDateTime.pydt_strftime (
+				self._payload[self._idx['clin_when']],
+				date_format
+			),
+			self._payload[self._idx['name_tt']],
+			self._payload[self._idx['unified_val']],
+			gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
+			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' %s'),
+			gmTools.coalesce(range_info, u'', u' (%s)'),
+			review
+		)
+		if with_notes:
+			txt += u'\n'
+			if self._payload[self._idx['note_test_org']] is not None:
+				txt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+			if self._payload[self._idx['comment']] is not None:
+				txt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
+
+		return txt.strip(u'\n')
+	#--------------------------------------------------------
 	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, date_format='%Y %b %d %H:%M'):
 
 		# FIXME: add battery, request details
-
-		has_normal_min_or_max = (
-			self._payload[self._idx['val_normal_min']] is not None
-		) or (
-			self._payload[self._idx['val_normal_max']] is not None
-		)
-		if has_normal_min_or_max:
-			normal_min_max = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
-			)
-		else:
-			normal_min_max = u''
-
-		has_clinical_min_or_max = (
-			self._payload[self._idx['val_target_min']] is not None
-		) or (
-			self._payload[self._idx['val_target_max']] is not None
-		)
-		if has_clinical_min_or_max:
-			clinical_min_max = u'%s - %s' % (
-				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
-				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
-			)
-		else:
-			clinical_min_max = u''
 
 		# header
 		tt = _(u'Result from %s             \n') % gmDateTime.pydt_strftime (
@@ -1069,30 +1075,8 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	#			#-------------------------------------
 
 		if with_ranges:
-			tt += u' ' + _(u'Standard normal range: %(norm_min_max)s%(norm_range)s  \n') % ({
-				'norm_min_max': normal_min_max,
-				'norm_range': gmTools.coalesce (
-					self._payload[self._idx['val_normal_range']],
-					u'',
-					gmTools.bool2subst (
-						has_normal_min_or_max,
-						u' / %s',
-						u'%s'
-					)
-				)
-			})
-			tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
-				'clin_min_max': clinical_min_max,
-				'clin_range': gmTools.coalesce (
-					self._payload[self._idx['val_target_range']],
-					u'',
-					gmTools.bool2subst (
-						has_clinical_min_or_max,
-						u' / %s',
-						u'%s'
-					)
-				)
-			})
+			tt += u' ' + _(u'Standard normal range: %s  \n') % self.formatted_normal_range
+			tt += u' ' + _(u'Clinical target range: %s  \n') % self.formatted_clinical_range
 			if self._payload[self._idx['norm_ref_group']] is not None:
 				tt += u' ' + _(u'Reference group: %s\n') % self._payload[self._idx['norm_ref_group']]
 
@@ -1175,6 +1159,114 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			})
 
 		return tt
+	#--------------------------------------------------------
+	def _get_has_normal_min_or_max(self):
+		return (
+			self._payload[self._idx['val_normal_min']] is not None
+		) or (
+			self._payload[self._idx['val_normal_max']] is not None
+		)
+
+	has_normal_min_or_max = property(_get_has_normal_min_or_max, lambda x:x)
+	#--------------------------------------------------------
+	def _get_normal_min_max(self):
+		has_range_info = (
+			self._payload[self._idx['val_normal_min']] is not None
+		) or (
+			self._payload[self._idx['val_normal_max']] is not None
+		)
+		if has_range_info is False:
+			return None
+
+		return u'%s - %s' % (
+			gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
+			gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+		)
+
+	normal_min_max = property(_get_normal_min_max, lambda x:x)
+	#--------------------------------------------------------
+	def _get_formatted_normal_range(self):
+		has_numerical_range = (
+			self._payload[self._idx['val_normal_min']] is not None
+		) or (
+			self._payload[self._idx['val_normal_max']] is not None
+		)
+		if has_numerical_range:
+			numerical_range = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_normal_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_normal_max']], u'?')
+			)
+		else:
+			numerical_range = u''
+		textual_range = gmTools.coalesce (
+			self._payload[self._idx['val_normal_range']],
+			u'',
+			gmTools.bool2subst (
+				has_numerical_range,
+				u' / %s',
+				u'%s'
+			)
+		)
+		range_info = u'%s%s' % (numerical_range, textual_range)
+		if range_info == u'':
+			return None
+		return range_info
+
+	formatted_normal_range = property(_get_formatted_normal_range, lambda x:x)
+	#--------------------------------------------------------
+	def _get_has_clinical_min_or_max(self):
+		return (
+			self._payload[self._idx['val_target_min']] is not None
+		) or (
+			self._payload[self._idx['val_target_max']] is not None
+		)
+
+	has_clinical_min_or_max = property(_get_has_clinical_min_or_max, lambda x:x)
+	#--------------------------------------------------------
+	def _get_clinical_min_max(self):
+		has_range_info = (
+			self._payload[self._idx['val_target_min']] is not None
+		) or (
+			self._payload[self._idx['val_target_max']] is not None
+		)
+		if has_range_info is False:
+			return None
+
+		return u'%s - %s' % (
+			gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
+			gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+		)
+
+	clinical_min_max = property(_get_clinical_min_max, lambda x:x)
+	#--------------------------------------------------------
+	def _get_formatted_clinical_range(self):
+		has_numerical_range = (
+			self._payload[self._idx['val_target_min']] is not None
+		) or (
+			self._payload[self._idx['val_target_max']] is not None
+		)
+		if has_numerical_range:
+			numerical_range = u'%s - %s' % (
+				gmTools.coalesce(self._payload[self._idx['val_target_min']], u'?'),
+				gmTools.coalesce(self._payload[self._idx['val_target_max']], u'?')
+			)
+		else:
+			numerical_range = u''
+		textual_range = gmTools.coalesce (
+			self._payload[self._idx['val_target_range']],
+			u'',
+			gmTools.bool2subst (
+				has_numerical_range,
+				u' / %s',
+				u'%s'
+			)
+		)
+		range_info = u'%s%s' % (numerical_range, textual_range)
+		if range_info == u'':
+			return None
+		return range_info
+
+	formatted_clinical_range = property(_get_formatted_clinical_range, lambda x:x)
 	#--------------------------------------------------------
 	def _get_temporally_closest_normal_range(self):
 		"""Returns the closest test result which does have normal range information."""
