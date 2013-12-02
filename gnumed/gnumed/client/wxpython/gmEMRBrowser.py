@@ -33,6 +33,7 @@ from Gnumed.business import gmPersonSearch
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmSOAPWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
