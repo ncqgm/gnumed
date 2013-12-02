@@ -1296,14 +1296,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Measurements and Results:'))
 			for t in tests:
-				lines.append(t.format (
-					with_review = False,
-					with_ranges = False,
-					with_evaluation = False,
-					with_episode = False,
-					with_type_details = False,
-					date_format = '%Y %b %d'
-				))
+				lines.append(u' ' + t.format_concisely(date_format = '%Y %b %d', with_notes = True))
 			del tests
 
 		# vaccinations

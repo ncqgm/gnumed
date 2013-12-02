@@ -12,6 +12,8 @@ FIX: gracefully recover from invalid URLs [thanks Jim]
 FIX: encounter editing from EMR browser [thanks Jim]
 FIX: faulty date access in test result EA [thanks Jim]
 
+IMPROVED: results formatting in episode synopsis of EMR tree
+
 	1.4.3
 
 FIX: test results unit PRW SQL
