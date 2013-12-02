@@ -1878,10 +1878,11 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		# closest unit
 		if self._PRW_units.GetValue().strip() == u'':
-			clin_when = self._DPRW_evaluated.GetData().get_pydt()
+			clin_when = self._DPRW_evaluated.GetData()
 			if clin_when is None:
 				unit = tt.temporally_closest_unit
 			else:
+				clin_when = clin_when.get_pydt()
 				unit = tt.get_temporally_closest_unit(timestamp = clin_when)
 			if unit is None:
 				self._PRW_units.SetText(u'', unit, True)

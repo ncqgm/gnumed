@@ -6,6 +6,12 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.4
+
+FIX: gracefully recover from invalid URLs [thanks Jim]
+FIX: encounter editing from EMR browser [thanks Jim]
+FIX: faulty date access in test result EA [thanks Jim]
+
 	1.4.3
 
 FIX: test results unit PRW SQL

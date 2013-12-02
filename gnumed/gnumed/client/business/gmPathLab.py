@@ -959,6 +959,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		if tmp != u'':
 			tt += u' ' + _(u'Source: %s\n') % tmp
 		tt += u'\n'
+		if self._payload[self._idx['note_test_org']] is not None:
+			tt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+		if self._payload[self._idx['comment']] is not None:
+			tt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
 
 		if with_evaluation:
 			norm_eval = None
@@ -987,7 +991,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						else:
 							norm_eval = _(u'%.0f times the normal upper limit') % x_times
 				if norm_eval is not None:
-					tt += u'  (%s)\n' % norm_eval
+					tt += u'  = %s\n' % norm_eval
 	#			#-------------------------------------
 	#			# this idea was shot down on the list
 	#			#-------------------------------------
@@ -1038,7 +1042,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 						else:
 							norm_eval = _(u'%.0f times the target upper limit') % x_times
 				if norm_eval is not None:
-					tt += u' (%s)\n' % norm_eval
+					tt += u' = %s\n' % norm_eval
 	#			#-------------------------------------
 	#			# this idea was shot down on the list
 	#			#-------------------------------------
@@ -1077,8 +1081,6 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 					)
 				)
 			})
-			if self._payload[self._idx['norm_ref_group']] is not None:
-				tt += u' ' + _(u'Reference group: %s\n') % self._payload[self._idx['norm_ref_group']]
 			tt += u' ' + _(u'Clinical target range: %(clin_min_max)s%(clin_range)s  \n') % ({
 				'clin_min_max': clinical_min_max,
 				'clin_range': gmTools.coalesce (
@@ -1091,12 +1093,10 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 					)
 				)
 			})
+			if self._payload[self._idx['norm_ref_group']] is not None:
+				tt += u' ' + _(u'Reference group: %s\n') % self._payload[self._idx['norm_ref_group']]
 
 		# metadata
-		if self._payload[self._idx['comment']] is not None:
-			tt += u' ' + _(u'Doc: %s\n') % _(u'\n Doc: ').join(self._payload[self._idx['comment']].split(u'\n'))
-		if self._payload[self._idx['note_test_org']] is not None:
-			tt += u' ' + _(u'Lab: %s\n') % _(u'\n Lab: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
 		if with_episode:
 			tt += u' ' + _(u'Episode: %s\n') % self._payload[self._idx['episode']]
 			if self._payload[self._idx['health_issue']] is not None:
@@ -1155,7 +1155,8 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		# type
 		if with_type_details:
 			tt += _(u'Test type details:\n')
-			tt += u' ' + _(u'Grouped under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
+			tt += u' ' + _(u'Aggregated (%(sum)s) under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
+				'sum': gmTools.u_sum,
 				'name_meta': gmTools.coalesce(self._payload[self._idx['name_meta']], u''),
 				'abbrev_meta': gmTools.coalesce(self._payload[self._idx['abbrev_meta']], u''),
 				'pk_u_type': self._payload[self._idx['pk_meta_test_type']]
