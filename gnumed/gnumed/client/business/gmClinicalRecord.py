@@ -2022,20 +2022,46 @@ SELECT MIN(earliest) FROM (
 		return [ gmPathLab.cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 	#------------------------------------------------------------------
 	# FIXME: use psyopg2 dbapi extension of named cursors - they are *server* side !
-	def get_test_types_for_results(self):
+	def get_test_types_for_results(self, order_by=None, unique_meta_types=False):
 		"""Retrieve data about test types for which this patient has results."""
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'ORDER BY %s' % order_by
 
-		cmd = u"""
-		SELECT * FROM (
-			SELECT DISTINCT ON (pk_test_type) pk_test_type, clin_when, unified_name
-			FROM clin.v_test_results
-			WHERE pk_patient = %(pat)s
-		) AS foo
-		ORDER BY clin_when desc, unified_name
-		"""
+		if unique_meta_types:
+			cmd = u"""
+				SELECT * FROM clin.v_test_types c_vtt
+				WHERE c_vtt.pk_test_type IN (
+						SELECT DISTINCT ON (c_vtr1.pk_meta_test_type) c_vtr1.pk_test_type
+						FROM clin.v_test_results c_vtr1
+						WHERE
+							c_vtr1.pk_patient = %%(pat)s
+								AND
+							c_vtr1.pk_meta_test_type IS NOT NULL
+					UNION ALL
+						SELECT DISTINCT ON (c_vtr2.pk_test_type) c_vtr2.pk_test_type
+						FROM clin.v_test_results c_vtr2
+						WHERE
+							c_vtr2.pk_patient = %%(pat)s
+								AND
+							c_vtr2.pk_meta_test_type IS NULL
+				)
+				%s""" % order_by
+		else:
+			cmd = u"""
+				SELECT * FROM clin.v_test_types c_vtt
+				WHERE c_vtt.pk_test_type IN (
+					SELECT DISTINCT ON (c_vtr.pk_test_type) c_vtr.pk_test_type
+					FROM clin.v_test_results c_vtr
+					WHERE c_vtr.pk_patient = %%(pat)s
+				)
+				%s""" % order_by
+
 		args = {'pat': self.pk_patient}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return [ gmPathLab.cMeasurementType(aPK_obj = row['pk_test_type']) for row in rows ]
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmPathLab.cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
+
 	#------------------------------------------------------------------
 	def get_dates_for_results(self, tests=None, reverse_chronological=True):
 		"""Get the dates for which we have results."""
@@ -2047,10 +2073,10 @@ SELECT MIN(earliest) FROM (
 			args['tests'] = tuple(tests)
 
 		cmd = u"""
-			SELECT distinct on (cwhen) date_trunc('day', clin_when) as cwhen
+			SELECT DISTINCT ON (clin_when_day) date_trunc('day', clin_when) as clin_when_day
 			FROM clin.v_test_results
 			WHERE %s
-			ORDER BY cwhen %s
+			ORDER BY clin_when_day %s
 		""" % (
 			u' AND '.join(where_parts),
 			gmTools.bool2subst(reverse_chronological, u'DESC', u'ASC', u'DESC')
@@ -2175,11 +2201,11 @@ if __name__ == "__main__":
 		emr.allergy_state = 'abc'
 	#-----------------------------------------
 	def test_get_test_names():
-		emr = cClinicalRecord(aPKey=12)
-		rows = emr.get_test_types_for_results()
-		print "test result names:"
-		for row in rows:
-			print row
+		emr = cClinicalRecord(aPKey = 6, allow_user_interaction = False)
+		rows = emr.get_test_types_for_results(unique_meta_types = True)
+		print "test result names:", len(rows)
+#		for row in rows:
+#			print row
 	#-----------------------------------------
 	def test_get_dates_for_results():
 		emr = cClinicalRecord(aPKey=12)
@@ -2287,7 +2313,7 @@ if __name__ == "__main__":
 	#test_allergy_state()
 	#test_is_allergic_to()
 
-	#test_get_test_names()
+	test_get_test_names()
 	#test_get_dates_for_results()
 	#test_get_measurements()
 	#test_get_test_results_by_date()
@@ -2300,7 +2326,7 @@ if __name__ == "__main__":
 	#test_get_as_journal()
 	#test_get_most_recent()
 	#test_episodes()
-	test_format_as_journal()
+	#test_format_as_journal()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

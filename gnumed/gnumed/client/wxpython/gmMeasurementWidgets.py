@@ -657,39 +657,40 @@ class cMeasurementsGrid(wx.grid.Grid):
 			return
 
 		if self.__show_by_panel:
-			self.__repopulate_grid_by_panel()
-			return
-
-		self.__repopulate_grid_all_results()
-	#------------------------------------------------------------
-	def __repopulate_grid_by_panel(self):
-
-		if self.__panel_to_show is None:
+			if self.__panel_to_show is None:
+				return
+			tests = self.__panel_to_show.get_test_types_for_results (
+				self.__patient.ID,
+				order_by = u'unified_abbrev',
+				unique_meta_types = True
+			)
+			self.__repopulate_grid(tests4rows = tests, test_pks2show = self.__panel_to_show['pk_test_types'])
 			return
 
 		emr = self.__patient.get_emr()
+		tests = emr.get_test_types_for_results(order_by = u'unified_abbrev', unique_meta_types = True)
+		self.__repopulate_grid(tests4rows = tests)
+	#------------------------------------------------------------
+	def __repopulate_grid(self, tests4rows=None, test_pks2show=None):
 
-		# rows
-		self.__row_label_data = self.__panel_to_show.test_types
-		row_labels = [ u'%s%s' % (
-				gmTools.bool2subst(test['is_fake_meta_type'], u'', gmTools.u_sum, u''),
-				test['unified_abbrev']
-			) for test in self.__row_label_data
-		]
-		if len(row_labels) == 0:
+		if len(tests4rows) == 0:
 			return
 
-		# columns
-		column_labels = [
-			date[0].strftime(self.__date_format) for date in emr.get_dates_for_results (
-				tests = self.__panel_to_show['pk_test_types'],
-				# FIXME: make configurable
-				reverse_chronological = True
-			)
+		self.__row_label_data = tests4rows
+		row_labels = [ u'%s%s' % (
+				gmTools.bool2subst(test_type['is_fake_meta_type'], u'', gmTools.u_sum, u''),
+				test_type['unified_abbrev']
+			) for test_type in self.__row_label_data
 		]
+
+		emr = self.__patient.get_emr()
+		col_labels = [ gmDateTime.pydt_strftime(date[0], self.__date_format) for date in emr.get_dates_for_results (
+				tests = test_pks2show,
+				reverse_chronological = True
+		)]
+
 		results = emr.get_test_results_by_date (
-			tests = self.__panel_to_show['pk_test_types'],
-			# FIXME: make configurable
+			tests = test_pks2show,
 			reverse_chronological = True
 		)
 
@@ -701,34 +702,34 @@ class cMeasurementsGrid(wx.grid.Grid):
 			self.SetRowLabelValue(row_idx, row_labels[row_idx])
 
 		# columns
-		self.AppendCols(numCols = len(column_labels))
-		for date_idx in range(len(column_labels)):
-			self.SetColLabelValue(date_idx, column_labels[date_idx])
+		self.AppendCols(numCols = len(col_labels))
+		for col_idx in range(len(col_labels)):
+			self.SetColLabelValue(col_idx, col_labels[col_idx])
 
 		# cell values (list of test results)
 		for result in results:
-			row = row_labels.index(u'%s%s' % (
+			row_idx = row_labels.index(u'%s%s' % (
 				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
 				result['unified_abbrev']
 			))
-			col = column_labels.index(result['clin_when'].strftime(self.__date_format))
+			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format))
 
 			try:
-				self.__cell_data[col]
+				self.__cell_data[col_idx]
 			except KeyError:
-				self.__cell_data[col] = {}
+				self.__cell_data[col_idx] = {}
 
 			# the tooltip always shows the youngest sub result details
-			if self.__cell_data[col].has_key(row):
-				self.__cell_data[col][row].append(result)
-				self.__cell_data[col][row].sort(key = lambda x: x['clin_when'], reverse = True)
+			if self.__cell_data[col_idx].has_key(row_idx):
+				self.__cell_data[col_idx][row_idx].append(result)
+				self.__cell_data[col_idx][row_idx].sort(key = lambda x: x['clin_when'], reverse = True)
 			else:
-				self.__cell_data[col][row] = [result]
+				self.__cell_data[col_idx][row_idx] = [result]
 
 			# rebuild cell display string
 			vals2display = []
 			cell_has_out_of_bounds_value = False
-			for sub_result in self.__cell_data[col][row]:
+			for sub_result in self.__cell_data[col_idx][row_idx]:
 
 				if sub_result.is_considered_abnormal:
 					cell_has_out_of_bounds_value = True
@@ -788,164 +789,30 @@ class cMeasurementsGrid(wx.grid.Grid):
 						tmp += u' !'
 
 				# part of a multi-result cell ?
-				if len(self.__cell_data[col][row]) > 1:
+				if len(self.__cell_data[col_idx][row_idx]) > 1:
 					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
 
 				vals2display.append(tmp)
 
-			self.SetCellValue(row, col, u'\n'.join(vals2display))
-			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
+			self.SetCellValue(row_idx, col_idx, u'\n'.join(vals2display))
+			self.SetCellAlignment(row_idx, col_idx, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
 			# We used to color text in cells holding abnormals
 			# in firebrick red but that would color ALL text (including
 			# normals) and not only the abnormals within that
 			# cell. Shading, however, only says that *something*
 			# inside that cell is worthy of attention.
 			#if sub_result_relevant:
-			#	font = self.GetCellFont(row, col)
-			#	self.SetCellTextColour(row, col, 'firebrick')
+			#	font = self.GetCellFont(row_idx, col_idx)
+			#	self.SetCellTextColour(row_idx, col_idx, 'firebrick')
 			#	font.SetWeight(wx.FONTWEIGHT_BOLD)
-			#	self.SetCellFont(row, col, font)
+			#	self.SetCellFont(row_idx, col_idx, font)
 			if cell_has_out_of_bounds_value:
-				self.SetCellBackgroundColour(row, col, 'cornflower blue')
+				self.SetCellBackgroundColour(row_idx, col_idx, 'cornflower blue')
 
 		self.AutoSize()
 		self.EndBatch()
 		return
-	#------------------------------------------------------------
-	def __repopulate_grid_all_results(self):
-		emr = self.__patient.get_emr()
 
-		self.__row_label_data = emr.get_test_types_for_results()
-		test_type_labels = [ u'%s%s' % (
-				gmTools.bool2subst(test['is_fake_meta_type'], u'', gmTools.u_sum, u''),
-				test['unified_abbrev']
-			) for test in self.__row_label_data
-		]
-		if len(test_type_labels) == 0:
-			return
-
-		test_date_labels = [ date[0].strftime(self.__date_format) for date in emr.get_dates_for_results() ]
-		results = emr.get_test_results_by_date()
-
-		self.BeginBatch()
-
-		# rows
-		self.AppendRows(numRows = len(test_type_labels))
-		for row_idx in range(len(test_type_labels)):
-			self.SetRowLabelValue(row_idx, test_type_labels[row_idx])
-
-		# columns
-		self.AppendCols(numCols = len(test_date_labels))
-		for date_idx in range(len(test_date_labels)):
-			self.SetColLabelValue(date_idx, test_date_labels[date_idx])
-
-		# cell values (list of test results)
-		for result in results:
-			row = test_type_labels.index(u'%s%s' % (
-				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
-				result['unified_abbrev']
-			))
-			col = test_date_labels.index(result['clin_when'].strftime(self.__date_format))
-
-			try:
-				self.__cell_data[col]
-			except KeyError:
-				self.__cell_data[col] = {}
-
-			# the tooltip always shows the youngest sub result details
-			if self.__cell_data[col].has_key(row):
-				self.__cell_data[col][row].append(result)
-				self.__cell_data[col][row].sort(key = lambda x: x['clin_when'], reverse = True)
-			else:
-				self.__cell_data[col][row] = [result]
-
-			# rebuild cell display string
-			vals2display = []
-			cell_has_out_of_bounds_value = False
-			for sub_result in self.__cell_data[col][row]:
-
-				#if (sub_result.is_considered_lowered is True) or (sub_result.is_considered_elevated is True):
-				if sub_result.is_considered_abnormal:
-					cell_has_out_of_bounds_value = True
-
-				abnormality_indicator = sub_result.formatted_abnormality_indicator
-				if abnormality_indicator is None:
-					abnormality_indicator = u''
-				if abnormality_indicator != u'':
-					abnormality_indicator = u' (%s)' % abnormality_indicator[:3]
-
-				# is the sub_result relevant clinically ?
-				# FIXME: take into account primary_GP once we support that
-				sub_result_relevant = sub_result['is_clinically_relevant']
-				if sub_result_relevant is None:
-					# FIXME: calculate from clinical range
-					sub_result_relevant = False
-
-				missing_review = False
-				# warn on missing review if
-				# a) no review at all exists or
-				if not sub_result['reviewed']:
-					missing_review = True
-				# b) there is a review but
-				else:
-					# current user is reviewer and hasn't reviewed
-					if sub_result['you_are_responsible'] and not sub_result['review_by_you']:
-						missing_review = True
-
-				# can we display the full sub_result length ?
-				if sub_result.is_long_text:
-					lines = gmTools.strip_empty_lines (
-						text = sub_result['unified_val'],
-						eol = u'\n',
-						return_list = True
-					)
-					tmp = u'%.7s%s' % (lines[0][:7], gmTools.u_ellipsis)
-				else:
-					val = gmTools.strip_empty_lines (
-						text = sub_result['unified_val'],
-						eol = u'\n',
-						return_list = False
-					).replace(u'\n', u'//')
-					if len(val) > 8:
-						tmp = u'%.7s%s' % (val[:7], gmTools.u_ellipsis)
-					else:
-						tmp = u'%.8s' % val[:8]
-
-				# abnormal ?
-				tmp = u'%s%.6s' % (tmp, abnormality_indicator)
-
-				# is there a comment ?
-				has_sub_result_comment = gmTools.coalesce (
-					gmTools.coalesce(sub_result['note_test_org'], sub_result['comment']),
-					u''
-				).strip() != u''
-				if has_sub_result_comment:
-					tmp = u'%s %s' % (tmp, gmTools.u_ellipsis)
-
-				# lacking a review ?
-				if missing_review:
-					tmp = u'%s %s' % (tmp, gmTools.u_writing_hand)
-
-				# part of a multi-result cell ?
-				if len(self.__cell_data[col][row]) > 1:
-					tmp = u'%s %s' % (sub_result['clin_when'].strftime('%H:%M'), tmp)
-
-				vals2display.append(tmp)
-
-			self.SetCellValue(row, col, u'\n'.join(vals2display))
-			self.SetCellAlignment(row, col, horiz = wx.ALIGN_RIGHT, vert = wx.ALIGN_CENTRE)
-			# FIXME: what about partial sub results being relevant ??
-			if sub_result_relevant:
-				font = self.GetCellFont(row, col)
-				self.SetCellTextColour(row, col, 'firebrick')
-				font.SetWeight(wx.FONTWEIGHT_BOLD)
-				self.SetCellFont(row, col, font)
-			if cell_has_out_of_bounds_value:
-				self.SetCellBackgroundColour(row, col, 'cornflower blue')
-
-		self.AutoSize()
-		self.EndBatch()
-		return
 	#------------------------------------------------------------
 	def empty_grid(self):
 		self.BeginBatch()
