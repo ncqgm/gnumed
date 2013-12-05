@@ -206,16 +206,67 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
 	#--------------------------------------------------------
+	def get_test_types_for_results(self, pk_patient, order_by=None, unique_meta_types=False):
+		"""Retrieve data about test types on this panel (for which this patient has results)."""
+
+		if order_by is None:
+			order_by = u''
+		else:
+			order_by = u'ORDER BY %s' % order_by
+
+		if unique_meta_types:
+			cmd = u"""
+				SELECT * FROM clin.v_test_types c_vtt
+				WHERE c_vtt.pk_test_type IN (
+						SELECT DISTINCT ON (c_vtr1.pk_meta_test_type) c_vtr1.pk_test_type
+						FROM clin.v_test_results c_vtr1
+						WHERE
+							c_vtr1.pk_test_type IN %%(pks)s
+								AND
+							c_vtr1.pk_patient = %%(pat)s
+								AND
+							c_vtr1.pk_meta_test_type IS NOT NULL
+					UNION ALL
+						SELECT DISTINCT ON (c_vtr2.pk_test_type) c_vtr2.pk_test_type
+						FROM clin.v_test_results c_vtr2
+						WHERE
+							c_vtr2.pk_test_type IN %%(pks)s
+								AND
+							c_vtr2.pk_patient = %%(pat)s
+								AND
+							c_vtr2.pk_meta_test_type IS NULL
+				)
+				%s""" % order_by
+		else:
+			cmd = u"""
+				SELECT * FROM clin.v_test_types c_vtt
+				WHERE c_vtt.pk_test_type IN (
+					SELECT DISTINCT ON (c_vtr.pk_test_type) c_vtr.pk_test_type
+					FROM clin.v_test_results c_vtr
+					WHERE
+						c_vtr.pk_test_type IN %%(pks)s
+								AND
+						c_vtr.pk_patient = %%(pat)s
+				)
+				%s""" % order_by
+
+		args = {
+			'pat': pk_patient,
+			'pks': tuple(self._payload[self._idx['pk_test_types']])
+		}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ cMeasurementType(row = {'pk_field': 'pk_test_type', 'idx': idx, 'data': r}) for r in rows ]
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_test_types(self):
 		if self._payload[self._idx['pk_test_types']] is None:
 			return None
-
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
-			'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
-			'args': {'pks': tuple(self._payload[self._idx['pk_test_types']])}
+				'cmd': _SQL_get_test_types % u'pk_test_type IN %(pks)s ORDER BY unified_abbrev',
+				'args': {'pks': tuple(self._payload[self._idx['pk_test_types']])}
 			}],
 			get_col_idx = True
 		)
@@ -329,18 +380,19 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['name']]
 		)
 		if self._payload[self._idx['loinc']] is not None:
-			txt += u' LOINC: %s (%s)\n' % self._payload[self._idx['loinc']]
-		if self._payload[self._idx['loinc']] is not None:
+			txt += u' LOINC: %s\n' % self._payload[self._idx['loinc']]
+		if self._payload[self._idx['comment']] is not None:
 			txt += _(' Comment: %s\n') % self._payload[self._idx['comment']]
 		if with_tests:
 			ttypes = self.included_test_types
 			if len(ttypes) > 0:
 				txt += _(' Aggregates the following test types:\n')
 			for ttype in ttypes:
-				txt += u'  %s (%s)%s%s      [#%s]\n' % (
-					ttype['abbrev'],
+				txt += u'  - %s (%s)%s%s%s      [#%s]\n' % (
 					ttype['name'],
+					ttype['abbrev'],
 					gmTools.coalesce(ttype['conversion_unit'], u'', ', %s'),
+					gmTools.coalesce(ttype['name_org'], u'', u' (%s)'),
 					gmTools.coalesce(ttype['loinc'], u'', u', LOINC: %s'),
 					ttype['pk_test_type']
 				)
@@ -349,7 +401,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			most_recent = self.get_most_recent_result(patient = patient)
 			if most_recent is not None:
 				txt += _(' Most recent (%s): %s%s%s') % (
-					most_recent['clin_when'].strftime('%Y %b %d'),
+					gmDateTime.pydt_strftime(most_recent['clin_when'], '%Y %b %d'),
 					most_recent['unified_val'],
 					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
 					gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' (%s)')
@@ -358,7 +410,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 			if oldest is not None:
 				txt += u'\n'
 				txt += _(' Oldest (%s): %s%s%s') % (
-					oldest['clin_when'].strftime('%Y %b %d'),
+					gmDateTime.pydt_strftime(oldest['clin_when'], '%Y %b %d'),
 					oldest['unified_val'],
 					gmTools.coalesce(oldest['val_unit'], u'', u' %s'),
 					gmTools.coalesce(oldest['abnormality_indicator'], u'', u' (%s)')
@@ -721,7 +773,7 @@ LIMIT 1"""
 			result = self.get_most_recent_results(patient = patient, no_of_results = 1)
 			if result is not None:
 				tt += _(' Most recent (%s): %s%s%s') % (
-					result['clin_when'].strftime('%Y-%m-%d'),
+					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
 					result['unified_val'],
 					gmTools.coalesce(result['val_unit'], u'', u' %s'),
 					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
@@ -730,7 +782,7 @@ LIMIT 1"""
 			if result is not None:
 				tt += u'\n'
 				tt += _(' Oldest (%s): %s%s%s') % (
-					result['clin_when'].strftime('%Y-%m-%d'),
+					gmDateTime.pydt_strftime(result['clin_when'], '%Y %b %d'),
 					result['unified_val'],
 					gmTools.coalesce(result['val_unit'], u'', u' %s'),
 					gmTools.coalesce(result['abnormality_indicator'], u'', u' (%s)')
@@ -958,17 +1010,6 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)'),
 			'pk_result': self._payload[self._idx['pk_test_result']]
 		})
-		tmp = (u'%s%s' % (
-			gmTools.coalesce(self._payload[self._idx['name_test_org']], u''),
-			gmTools.coalesce(self._payload[self._idx['contact_test_org']], u'', u' (%s)'),
-		)).strip()
-		if tmp != u'':
-			tt += u' ' + _(u'Source: %s\n') % tmp
-		tt += u'\n'
-		if self._payload[self._idx['note_test_org']] is not None:
-			tt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
-		if self._payload[self._idx['comment']] is not None:
-			tt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
 
 		if with_evaluation:
 			norm_eval = None
@@ -1074,11 +1115,22 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	#						tt += u'  (%s)\n' % _(u'deviates by %.0f times of the target range') % times_deviation
 	#			#-------------------------------------
 
+		tmp = (u'%s%s' % (
+			gmTools.coalesce(self._payload[self._idx['name_test_org']], u''),
+			gmTools.coalesce(self._payload[self._idx['contact_test_org']], u'', u' (%s)'),
+		)).strip()
+		if tmp != u'':
+			tt += u' ' + _(u'Source: %s\n') % tmp
+		tt += u'\n'
+		if self._payload[self._idx['note_test_org']] is not None:
+			tt += u' ' + _(u'Lab comment: %s\n') % _(u'\n Lab comment: ').join(self._payload[self._idx['note_test_org']].split(u'\n'))
+		if self._payload[self._idx['comment']] is not None:
+			tt += u' ' + _(u'Praxis comment: %s\n') % _(u'\n Praxis comment: ').join(self._payload[self._idx['comment']].split(u'\n'))
+
 		if with_ranges:
-			tt += u' ' + _(u'Standard normal range: %s  \n') % self.formatted_normal_range
-			tt += u' ' + _(u'Clinical target range: %s  \n') % self.formatted_clinical_range
-			if self._payload[self._idx['norm_ref_group']] is not None:
-				tt += u' ' + _(u'Reference group: %s\n') % self._payload[self._idx['norm_ref_group']]
+			tt += gmTools.coalesce(self.formatted_normal_range, u'', u' ' + _('Standard normal range: %s\n'))
+			tt += gmTools.coalesce(self.formatted_clinical_range, u'', u' ' + _('Clinical target range: %s\n'))
+			tt += gmTools.coalesce(self._payload[self._idx['norm_ref_group']], u'', u' ' + _('Reference group: %s\n'))
 
 		# metadata
 		if with_episode:
