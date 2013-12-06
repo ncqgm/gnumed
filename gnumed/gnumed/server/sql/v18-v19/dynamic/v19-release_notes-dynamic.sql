@@ -17,18 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.3 (database v19.3)',
-	'GNUmed 1.4.3 Release Notes:
+	'Release Notes for GNUmed 1.4.4 (database v19.4)',
+	'GNUmed 1.4.4 Release Notes:
 
-	1.4.3
+	1.4.4
 
-FIX: test results unit PRW SQL
+FIX: gracefully recover from invalid URLs [thanks Jim]
+FIX: encounter editing from EMR browser [thanks Jim]
+FIX: faulty date access in test result EA [thanks Jim]
+FIX: a few minor bugs displaying test results
 
-	19.3 -- Requires PostgreSQL 9.1 !
+IMPROVED: results formatting in episode synopsis of EMR tree
+IMPROVED: lots of details in the test results grid
 
-FIX: typo in clin.procedure.fk_org_unit normalizer
-
-IMPROVED: various database object comments
+	19.4 -- Requires PostgreSQL 9.1 !
 ');
 
 -- --------------------------------------------------------------
