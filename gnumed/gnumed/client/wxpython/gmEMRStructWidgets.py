@@ -790,7 +790,7 @@ class cHospitalStayEditAreaPnl(wxgHospitalStayEditAreaPnl.wxgHospitalStayEditAre
 
 		self._PRW_admission.SetText(data = self.data['admission'])
 		self._PRW_discharge.SetText(data = self.data['discharge'])
-		self._TCTRL_comment.SetValue(self.data['comment'])
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
 		self._PRW_hospital.SetFocus()
 	#----------------------------------------------------------------
