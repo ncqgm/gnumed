@@ -1127,6 +1127,10 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def _on_add_button_pressed(self, event):
 		edit_measurement(parent = self, measurement = None)
 	#--------------------------------------------------------
+	def _on_manage_types_button_pressed(self, event):
+		event.Skip()
+		manage_measurement_types(parent = self)
+	#--------------------------------------------------------
 	def _on_list_button_pressed(self, event):
 		event.Skip()
 		manage_measurements(parent = self, single_selection = True)#, emr = pat.emr)
@@ -1941,6 +1945,10 @@ def manage_measurement_types(parent=None):
 	def get_tooltip(test_type):
 		return test_type.format()
 	#------------------------------------------------------------
+	def manage_aggregates(test_type):
+		manage_meta_test_types(parent = parent)
+		return False
+	#------------------------------------------------------------
 	def refresh(lctrl):
 		mtypes = gmPathLab.get_measurement_types(order_by = 'name, abbrev')
 		items = [ [
@@ -1972,7 +1980,8 @@ def manage_measurement_types(parent=None):
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
-		list_tooltip_callback = get_tooltip
+		list_tooltip_callback = get_tooltip,
+		left_extra_button = (_('%s &Aggregate') % gmTools.u_sum, _('Manage aggregations (%s) of tests into groups.') % gmTools.u_sum, manage_aggregates)
 	)
 
 #----------------------------------------------------------------

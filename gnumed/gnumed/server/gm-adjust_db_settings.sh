@@ -96,7 +96,7 @@ echo "" >> $SQL_FILE
 
 echo ""
 echo "==> Adjusting settings of database ${TARGET_DB} ..."
-LOG="/tmp/gnumed/$0-$$.log"
+LOG="/tmp/gnumed/$(basename $0)-$$.log"
 sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to adjust database settings. Aborting."
