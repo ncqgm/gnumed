@@ -28,6 +28,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage panels"), style=wx.BU_EXACTFIT)
 		self.panel_data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
 		self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
+		self._BTN_manage_types = wx.Button(self, wx.ID_ANY, _("Manage types"), style=wx.BU_EXACTFIT)
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_list = wx.Button(self, wx.ID_ANY, _("&List"))
 		self._BTN_select = wx.Button(self, wx.ID_ANY, _("&Select:"), style=wx.BU_EXACTFIT)
@@ -39,6 +40,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self.__do_layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_manage_panels_button_pressed, self._BTN_manage_panels)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_types_button_pressed, self._BTN_manage_types)
 		self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
 		self.Bind(wx.EVT_BUTTON, self._on_list_button_pressed, self._BTN_list)
 		self.Bind(wx.EVT_BUTTON, self._on_select_button_pressed, self._BTN_select)
@@ -51,6 +53,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_panel_comment.Enable(False)
 		self._BTN_manage_panels.SetToolTipString(_("Manage test panels."))
+		self._BTN_manage_types.SetToolTipString(_("Manage test types."))
 		self._BTN_add.SetToolTipString(_("Add measurments."))
 		self._BTN_list.SetToolTipString(_("Show all measurements in a chronological list."))
 		self._BTN_select.SetToolTipString(_("Select results according to your choice on the right.\n\nThis will override any previous selection.\n\nNote that you can also select cells, rows, or columns manually within the table."))
@@ -76,7 +79,12 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		__szr_main.Add(__szr_grids, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
 		__hline_buttons = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__hline_buttons, 0, wx.ALL | wx.EXPAND, 5)
+		__szr_bottom.Add(self._BTN_manage_types, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_bottom.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
+		__vline_buttons = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
+		__szr_bottom.Add(__vline_buttons, 0, wx.RIGHT | wx.EXPAND, 3)
+		__lbl_results = wx.StaticText(self, wx.ID_ANY, _("Results:"))
+		__szr_bottom.Add(__lbl_results, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_bottom.Add(self._BTN_add, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_bottom.Add(self._BTN_list, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_bottom.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
@@ -110,4 +118,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		print "Event handler '_on_review_button_pressed' not implemented!"
 		event.Skip()
 
+	def _on_manage_types_button_pressed(self, event):  # wxGlade: wxgMeasurementsPnl.<event_handler>
+		print "Event handler '_on_manage_types_button_pressed' not implemented!"
+		event.Skip()
 # end of class wxgMeasurementsPnl

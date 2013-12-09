@@ -6,6 +6,12 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.5
+
+IMPROVED: lab results grid tooltips
+IMRPOVED: manage test types from lab results grid
+IMRPOVED: manage aggregates from test types listing
+
 	1.4.4
 
 FIX: gracefully recover from invalid URLs [thanks Jim]
@@ -1410,6 +1416,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.5
+
+FIX: gm-adjust_db_settings.sh to work from non-CWD [thanks Marc]
 
 	19.3
 

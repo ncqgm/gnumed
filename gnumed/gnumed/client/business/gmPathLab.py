@@ -743,7 +743,7 @@ LIMIT 1"""
 
 		tt += u'\n'
 		tt += _('Lab details:\n')
-		tt += _(' Name: %s\n') % self._payload[self._idx['name_org']]
+		tt += _(' Name: %s\n') % gmTools.coalesce(self._payload[self._idx['name_org']], u'')
 		tt += gmTools.coalesce(self._payload[self._idx['contact_org']], u'', _(' Contact: %s\n'))
 		tt += gmTools.coalesce(self._payload[self._idx['comment_org']], u'', _(' Comment: %s\n'))
 
@@ -1191,14 +1191,15 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		# type
 		if with_type_details:
 			tt += _(u'Test type details:\n')
-			tt += u' ' + _(u'Aggregated (%(sum)s) under "%(name_meta)s" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n') % ({
-				'sum': gmTools.u_sum,
-				'name_meta': gmTools.coalesce(self._payload[self._idx['name_meta']], u''),
-				'abbrev_meta': gmTools.coalesce(self._payload[self._idx['abbrev_meta']], u''),
-				'pk_u_type': self._payload[self._idx['pk_meta_test_type']]
-			})
 			if self._payload[self._idx['comment_tt']] is not None:
 				tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
+			if self._payload[self._idx['pk_meta_test_type']] is not None:
+				tt += u' ' + _(u'Aggregated (%s) under: %s (%s)  [#%s]\n') % (
+					gmTools.u_sum,
+					self._payload[self._idx['name_meta']],
+					self._payload[self._idx['abbrev_meta']],
+					self._payload[self._idx['pk_meta_test_type']]
+				)
 			if self._payload[self._idx['comment_meta']] is not None:
 				tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
 			tt += u'\n'
