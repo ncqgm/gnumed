@@ -3,7 +3,7 @@
 Think shopping cart in a web shop.
 """
 #============================================================
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
@@ -25,10 +25,13 @@ _log = logging.getLogger('gm.tray')
 #============================================================
 class cExportTray(object):
 
-	def __init__(self, directory):
-		if not gmTools.mkdir(directory = directory):
-			raise ValueError('[%s.__init__()]: path [%s] is not valid' % (self.__class__.__name__, directory))
-		self.__dir = directory
+	def __init__(self, base_dir=None, directory):
+		if base_dir is None:
+			base_dir = gmTools.gmPaths().tmp_dir
+		full_dir = os.path.join(base_dir, directory)
+		if not gmTools.mkdir(directory = full_dir):
+			raise ValueError('[%s.__init__()]: path [%s] is not valid' % (self.__class__.__name__, full_dir))
+		self.__dir = full_dir
 		_log.debug('export tray [%s]', self.__dir)
 		self.__tray_items = {}
 	#--------------------------------------------------------
