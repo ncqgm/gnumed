@@ -27,15 +27,31 @@ TIMER_TICK = 3
 class Observable(object):
 
     def __init__(self):
-        self.observers = []
+        self._observers = []
+        self._listeners = []
+
+    def listen_for(self, event, function):
+        self._listeners.append((True, event, function))
+
+    def listen_for_any(self, function):
+        self._listeners.append((False, None, function))
+
+    def unlisten(self, function):
+        self._listeners = [x for x in self._listeners if x[2] != function]
 
     def register(self, fn):
-        self.observers.append(fn)
+        self._observers.append(fn)
 
     def unregister(self, fn):
-        if fn in self.observers:
-            self.observers.remove(fn)
+        if fn in self._observers:
+            self._observers.remove(fn)
 
-    def _notify(self, state_change):
-        for fn in self.observers:
+    def _notify(self, state_change=None):
+        for (listen_for_specific, event, function) in self._listeners:
+            if listen_for_specific:
+                if state_change == event:
+                    function()
+            else:
+                function()
+        for fn in self._observers:
             fn(state_change)

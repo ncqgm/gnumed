@@ -65,7 +65,7 @@ class GregorianTimeType(TimeType):
     def get_navigation_functions(self):
         return [
             (_("Go to &Today\tCtrl+T"), go_to_today_fn),
-            (_("Go to D&ate...\tCtrl+G"), go_to_date_fn),
+            (_("Go to &Date...\tCtrl+G"), go_to_date_fn),
             ("SEP", None),
             (_("Backward\tPgUp"), backward_fn),
             (_("Forward\tPgDn"), forward_fn),
@@ -480,8 +480,11 @@ class StripCentury(Strip):
             # TODO: This only works for English. Possible to localize?
             time = gregorian.from_time(time)
             start_year = self._century_start_year(time.year)
-            next_start_year = start_year + 100
-            return str(next_start_year / 100) + " century"
+            century = (start_year + 100) / 100
+            if century <= 0:
+                return str(abs(century - 1)) + " century BC"
+            else:
+                return str(century) + " century"
         return ""
 
     def start(self, time):

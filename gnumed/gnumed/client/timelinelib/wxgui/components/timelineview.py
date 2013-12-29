@@ -149,9 +149,21 @@ class DrawingAreaPanel(wx.Panel):
         self.SetFocusIgnoringChildren()
         return self.main_frame.edit_ends()
 
-    def view_categories_individually(self):    
-        return self.main_frame.view_categories_individually()
+    def zoom_in(self):
+        self.controller.mouse_wheel_moved(120, True, False, False, self._get_half_width())
+    
+    def zoom_out(self):
+        self.controller.mouse_wheel_moved(-120, True, False, False, self._get_half_width())
 
+    def vert_zoom_in(self):
+        self.controller.mouse_wheel_moved(120, False, False, True, self._get_half_width())
+    
+    def vert_zoom_out(self):
+        self.controller.mouse_wheel_moved(-120, False, False, True, self._get_half_width())
+
+    def _get_half_width(self):
+        return self.GetSize()[0] / 2
+        
     def _create_gui(self):
         self.balloon_show_timer = wx.Timer(self, -1)
         self.balloon_hide_timer = wx.Timer(self, -1)

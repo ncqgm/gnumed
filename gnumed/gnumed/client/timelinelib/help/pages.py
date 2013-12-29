@@ -149,7 +149,7 @@ Events are scrolled towards or away from the divider line separating point- and 
         body=_("""
 A Timeline can be Zoomed both horizontal (along time axis) and vertically (along event axis)
 
-To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.
+To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.
 
 To zoom vertically, hold down the Alt-key and scroll the mouse wheel.
 """))

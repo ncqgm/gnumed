@@ -25,7 +25,7 @@ will be created with the dictionary key as label.
 When one of these submenues is selected the function show_feature_feedback_dialog() will
 be called with the dictionary key as the feature_name argument.S
 """
-FEATURES = { "Vertical Scrolling" :
+FEATURES = { "Vertical &Scrolling" :
              """
              This new feature enables you to scroll the Timeline events vertically.
              You accomplish this by pressing the Ctrl+Shift keys and then scroll the mouse wheel.
@@ -33,20 +33,20 @@ FEATURES = { "Vertical Scrolling" :
              from view when they cross the divider line.
              """,
               
-             "Vertical Zooming" :
+             "Vertical &Zooming" :
              """
              This new feature enables you to zoom the Timeline events vertically.
              You accomplish this by pressing the Alt key and then scroll the mouse wheel.
              """,
              
-             "Exporting whole Timeline to images" :
+             "E&xporting whole Timeline to images" :
              """
              Now you can export the entire timeline to a series of images.
              Select menu File -> Export Whole Timeline to Image.
              Each image will contain the timespan currently displayed in the Timeline view.
              """,
              
-             "Containers" :
+             "&Containers" :
              """
              Containers are a way to group events together.
              In a container events can not overlap, so if you add a new event to a container

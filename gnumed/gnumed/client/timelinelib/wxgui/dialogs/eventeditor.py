@@ -334,9 +334,10 @@ class EventEditorDialog(wx.Dialog):
         return self.chb_period.IsChecked()
 
     def set_show_time(self, checked):
-        self.chb_show_time.SetValue(checked)
-        self.dtp_start.show_time(checked)
-        self.dtp_end.show_time(checked)
+        if self.timeline.get_time_type().is_date_time_type():
+            self.chb_show_time.SetValue(checked)
+            self.dtp_start.show_time(checked)
+            self.dtp_end.show_time(checked)
 
     def get_fuzzy(self):
         return self.chb_fuzzy.GetValue()

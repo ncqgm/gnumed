@@ -141,6 +141,15 @@ class NumTimeType(TimeType):
     def eventtimes_equals(self, time1, time2):
         return time_string(time1) == time_string(time2)
 
+    def event_date_string(self, time):
+        return "%s" % time
+        
+    def event_time_string(self, time):
+        return "%s" % time
+
+    def adjust_for_bc_years(self, time):
+        return time
+
 
 class NumStrip(Strip):
 

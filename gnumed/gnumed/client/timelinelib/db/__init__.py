@@ -31,7 +31,7 @@ from timelinelib.wxgui.utils import display_warning_message
 current_timeline = None
 
 
-def db_open(path, import_timeline=False):
+def db_open(path, import_timeline=False, timetype=None):
     """
     Create timeline database that can read and write timeline data from and to
     persistent storage identified by path.
@@ -50,7 +50,7 @@ def db_open(path, import_timeline=False):
     elif os.path.isdir(path):
         return open_directory_timeline(path)
     elif path.endswith(".timeline"):
-        return db_open_timeline(path, import_timeline)
+        return db_open_timeline(path, import_timeline, timetype)
     elif path.endswith(".ics"):
         return db_open_ics(path, import_timeline)
     else:
@@ -74,13 +74,13 @@ def open_directory_timeline(path):
     return current_timeline
 
 
-def db_open_timeline(path, import_timeline=False):
+def db_open_timeline(path, import_timeline=False, timetype=None):
     if import_timeline and current_timeline:
         return db_import_timeline(path)
     elif (os.path.exists(path) and file_starts_with(path, "# Written by Timeline ")):
         raise TimelineIOError(_("You are trying to open an old file with a new version of timeline. Please install version 0.21.1 of timeline to convert it to the new format."))
     else:
-        return db_open_newtype_timeline(path)
+        return db_open_newtype_timeline(path, timetype)
 
 
 def db_import_timeline(path):
@@ -99,10 +99,10 @@ def db_import_timeline(path):
     return current_timeline
 
 
-def db_open_newtype_timeline(path):
+def db_open_newtype_timeline(path, timetype=None):
     global current_timeline
     from timelinelib.db.backends.xmlfile import XmlTimeline
-    current_timeline = XmlTimeline(path, import_timeline=False)
+    current_timeline = XmlTimeline(path, import_timeline=False, timetype=timetype)
     return current_timeline
 
 
@@ -185,7 +185,7 @@ def copy_db(from_db, to_db):
     to_vp = ViewProperties()
     for from_cat in from_db.get_categories():
         cat = cat_map[from_cat.name]
-        visible = from_vp.category_visible(from_cat)
+        visible = from_vp.is_category_visible(from_cat)
         to_vp.set_category_visible(cat, visible)
     if from_vp.displayed_period is not None:
         # start_time and end_time immutable so safe to copy

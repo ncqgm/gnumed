@@ -41,6 +41,7 @@ from timelinelib.db.objects import TimePeriod
 from timelinelib.db.utils import safe_write, create_non_exising_path
 from timelinelib.meta.version import get_version
 from timelinelib.time.gregoriantime import GregorianTimeType
+from timelinelib.time.numtime import NumTimeType
 from timelinelib.utils import ex_msg
 from timelinelib.xml.parser import ANY
 from timelinelib.xml.parser import OPTIONAL
@@ -79,14 +80,19 @@ class ParseException(Exception):
 
 class XmlTimeline(MemoryDB):
 
-    def __init__(self, path, load=True, import_timeline=False):
+    def __init__(self, path, load=True, import_timeline=False, timetype=None):
         MemoryDB.__init__(self)
         self.path = path
-        self.time_type = GregorianTimeType()
+        self.time_type = self._select_timetype(timetype)
         if load == True:
             self._load()
             self._fill_containers()
 
+    def _select_timetype(self, timetype):
+        if timetype == None:
+            timetype = GregorianTimeType()
+        return timetype
+    
     def _parse_time(self, time_string):
         return self.get_time_type().parse_time(time_string)
 
@@ -177,6 +183,7 @@ class XmlTimeline(MemoryDB):
         on the version.
         """
         tmp_dict["partial_schema"].add_child_tags([
+            Tag("timetype", OPTIONAL, self._parse_timetype),
             Tag("categories", SINGLE, None, [
                 Tag("category", ANY, self._parse_category, [
                     Tag("name", SINGLE, parse_fn_store("tmp_name")),
@@ -218,6 +225,16 @@ class XmlTimeline(MemoryDB):
             ]),
         ])
 
+    def _parse_timetype(self, text, tmp_dict):
+        self.time_type = None
+        valid_time_types = (GregorianTimeType(), NumTimeType())
+        for timetype in valid_time_types:
+            if text == timetype.get_name():
+                self.time_type = timetype
+                break
+        if self.time_type is None:
+            raise ParseException("Invalid timetype '%s' found." % text)
+    
     def _parse_category(self, text, tmp_dict):
         name = tmp_dict.pop("tmp_name")
         color = parse_color(tmp_dict.pop("tmp_color"))
@@ -364,6 +381,7 @@ class XmlTimeline(MemoryDB):
 
     def _write_timeline(self, file):
         write_simple_tag(file, "version", get_version(), INDENT1)
+        write_simple_tag(file, "timetype", self.time_type.get_name(), INDENT1)
         self._write_categories(file)
         self._write_events(file)
         self._write_view(file)

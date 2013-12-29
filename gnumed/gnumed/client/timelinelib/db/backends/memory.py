@@ -244,7 +244,7 @@ class MemoryDB(Observable):
             self.displayed_period = view_properties.displayed_period
         self.hidden_categories = []
         for cat in self.categories:
-            if not view_properties.category_visible(cat):
+            if not view_properties.is_category_visible(cat):
                 self.hidden_categories.append(cat)
         self._save_if_not_disabled()
 

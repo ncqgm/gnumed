@@ -16,7 +16,10 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class ViewProperties(object):
+from timelinelib.utilities.observer import Observable
+
+
+class ViewProperties(Observable):
     """
     Store properties of a view.
 
@@ -25,6 +28,7 @@ class ViewProperties(object):
     """
 
     def __init__(self):
+        Observable.__init__(self)
         self.sticky_balloon_event_ids = []
         self.hovered_event = None
         self.selected_event_ids = []
@@ -43,61 +47,43 @@ class ViewProperties(object):
         self.hidden_categories = []
         self.period_selection = None
         self.displayed_period = None
+        self._notify()
+
+    def change_hovered_event(self, event):
+        if self.hovered_event != event:
+            self.hovered_event = event
+            self._notify()
+
+    def change_show_legend(self, show):
+        if self.show_legend != show:
+            self.show_legend = show
+            self._notify()
+
+    def change_view_cats_individually(self, view_cats_individually):
+        if self.view_cats_individually != view_cats_individually:
+            self.view_cats_individually = view_cats_individually
+            self._notify()
 
     def get_displayed_period(self):
         return self.displayed_period
-    
+
     def filter_events(self, events):
-        if self.view_cats_individually:
-            return self.filter_events_individually(events)
+        return [event for event in events if self._is_event_visible(event)]
+
+    def _is_event_visible(self, event):
+        if event.is_subevent():
+            return (self.is_event_with_category_visible(event.category) and
+                    self.is_event_with_category_visible(event.container.category))
         else:
-            return self.filter_events_with_all_parents_selected(events)
-
-    def filter_events_with_all_parents_selected(self, events):
-        def category_visible(e, cat):
-            if cat is None:
-                return True
-            elif e.is_subevent():
-                container_visible = category_visible(e.container,
-                                                     e.container.category)
-                if container_visible:
-                    if self.category_visible(cat) == True:
-                        return category_visible(e, cat.parent)
-                    else:
-                        return False
-                else:
-                    return False
-            elif self.category_visible(cat) == True:
-                return category_visible(e, cat.parent)
-            else:
-                return False
-        return [e for e in events if category_visible(e, e.category)]
-
-    def filter_events_individually(self, events):
-        def category_visible(e, cat):
-            if cat is None:
-                return True
-            elif e.is_subevent():
-                container_visible = category_visible(e.container,
-                                                     e.container.category)
-                if container_visible:
-                    if self.category_visible(cat) == True:
-                        return True
-                    else:
-                        return False
-                else:
-                    return False
-            elif self.category_visible(cat) == True:
-                return True
-            else:
-                return False
-        return [e for e in events if category_visible(e, e.category)]
+            return self.is_event_with_category_visible(event.category)
 
     def is_selected(self, event):
         return event.id in self.selected_event_ids
 
     def clear_selected(self):
-        self.selected_event_ids = []
+        if self.selected_event_ids:
+            self.selected_event_ids = []
+            self._notify()
 
     def event_is_hovered(self, event):
         return (self.hovered_event is not None and
@@ -111,25 +97,70 @@ class ViewProperties(object):
             self.sticky_balloon_event_ids.append(event.id)
         elif has_sticky == False and event.id in self.sticky_balloon_event_ids:
             self.sticky_balloon_event_ids.remove(event.id)
+        self._notify()
 
     def set_selected(self, event, is_selected=True):
         if is_selected == True and not event.id in self.selected_event_ids:
             self.selected_event_ids.append(event.id)
+            self._notify()
         elif is_selected == False and event.id in self.selected_event_ids:
             self.selected_event_ids.remove(event.id)
+            self._notify()
+
+    def set_only_selected(self, event, is_selected):
+        if is_selected:
+            if self.selected_event_ids != [event.id]:
+                self.selected_event_ids = [event.id]
+                self._notify()
+        else:
+            self.clear_selected()
 
     def set_displayed_period(self, period):
         self.displayed_period = period
+        self._notify()
 
     def get_selected_event_ids(self):
         return self.selected_event_ids[:]
 
-    def category_visible(self, category):
-        return not category.id in self.hidden_categories
+    def toggle_category_visibility(self, category):
+        self.set_category_visible(category,
+                                  not self.is_category_visible(category))
+
+    def is_category_visible(self, category):
+        return category.id not in self.hidden_categories
+
+    def is_event_with_category_visible(self, category):
+        if category is None:
+            return True
+        elif self.view_cats_individually:
+            return self.is_category_visible(category)
+        else:
+            return self._is_category_recursively_visible(category)
+
+    def _is_category_recursively_visible(self, category):
+        if self.is_category_visible(category):
+            if category.parent is None:
+                return True
+            else:
+                return self._is_category_recursively_visible(category.parent)
+        else:
+            return False
+
+    def set_categories_visible(self, categories, is_visible=True):
+        category_ids = [category.id for category in categories]
+        self._set_categories_with_ids_visible(category_ids, is_visible)
 
     def set_category_visible(self, category, is_visible=True):
-        if is_visible == True and category.id in self.hidden_categories:
-            self.hidden_categories.remove(category.id)
-        elif is_visible == False and not category.id in self.hidden_categories:
-            self.hidden_categories.append(category.id)
+        self._set_categories_with_ids_visible([category.id], is_visible)
 
+    def _set_categories_with_ids_visible(self, category_ids, is_visible):
+        need_notify = False
+        for id in category_ids:
+            if is_visible == True and id in self.hidden_categories:
+                self.hidden_categories.remove(id)
+                need_notify = True
+            elif is_visible == False and not id in self.hidden_categories:
+                self.hidden_categories.append(id)
+                need_notify = True
+        if need_notify:
+            self._notify()

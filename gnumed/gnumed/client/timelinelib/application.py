@@ -16,15 +16,15 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import os
 import getpass
+import os
 
-
-from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.backends.xmlfile import XmlTimeline
-from timelinelib.wxgui.utils import get_user_ack
-from timelinelib.wxgui.utils import display_warning_message
+from timelinelib.db.exceptions import TimelineIOError
+from timelinelib.time.numtime import NumTimeType
 from timelinelib.wxgui.utils import display_error_message
+from timelinelib.wxgui.utils import display_warning_message
+from timelinelib.wxgui.utils import get_user_ack
 
 
 class LockedException(Exception):
@@ -55,9 +55,10 @@ class TimelineApplication(object):
         else:
             display_error_message(_("File '%s' does not exist.") % path, self.main_frame)
 
-    def open_timeline(self, path, import_timeline=False):
+    def open_timeline(self, path, import_timeline=False, timetype=None):
+        self.main_frame.save_current_timeline_data()
         try:
-            self.timeline = self.db_open_fn(path, import_timeline)
+            self.timeline = self.db_open_fn(path, import_timeline, timetype)
         except TimelineIOError, e:
             self.main_frame.handle_db_error(e)
             self.timelinepath = None
@@ -80,10 +81,10 @@ class TimelineApplication(object):
             self.main_frame.set_timeline_readonly()
         except:
             pass
-    
+
     def week_starts_on_monday(self):
         return self.config.week_start == "monday"
-    
+
     def ok_to_edit(self):
         if self.timeline is None:
             return True
@@ -106,7 +107,7 @@ class TimelineApplication(object):
         if last_changed > 0:
             self._lock()
         return True
-    
+
     def calc_events_distance(self, event1, event2):
         if event1.time_period.start_time <= event2.time_period.start_time:
             distance = (event2.time_period.start_time -
@@ -115,31 +116,31 @@ class TimelineApplication(object):
             distance = (event1.time_period.start_time -
                         event2.time_period.end_time)
         return distance
-        
+
     def _timeline_path_doesnt_exists_yet(self):
         return not os.path.exists(self.timelinepath)
-        
+
     def edit_ends(self):
         if self.timeline is not None:
             if self._the_lock_is_mine():
                 self.last_changed = self._get_modification_date()
                 self._unlock()
-        
+
     def timeline_is_readonly(self):
         return self.timeline is not None and self.timeline.is_read_only()
-    
+
     def _get_modification_date(self):
         try:
             return os.path.getmtime(self.timelinepath)
         except:
             return 0
-    
+
     def _synchronize(self):
         drawing_area = self.main_frame.main_panel.timeline_panel.drawing_area
         vp = drawing_area.get_view_properties()
         displayed_period = vp.get_displayed_period()
         self.open_timeline(self.timelinepath)
-        vp.set_displayed_period(displayed_period) 
+        vp.set_displayed_period(displayed_period)
         drawing_area.redraw_timeline()
 
     def _lock(self):
@@ -157,7 +158,7 @@ class TimelineApplication(object):
         finally:
             if fp is not None:
                 fp.close()
-                
+
     def _get_lockpath(self):
         return "%s.lock" % self.timelinepath
 
@@ -168,7 +169,7 @@ class TimelineApplication(object):
     def _locked(self):
         lockpath = self._get_lockpath()
         return os.path.exists(lockpath)
-    
+
     def _unlock(self):
         lockpath = self._get_lockpath()
         if os.path.exists(lockpath):

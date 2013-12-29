@@ -113,8 +113,14 @@ class IcsTimeline(Observable):
                 txt = ""
                 if event.has_key("summary"):
                     txt = event["summary"]
+                elif event.has_key("description"):
+                    txt = event["description"]
+                else:
+                    txt == "Unknown"
                 e = Event(self.get_time_type(), start, end, txt)
                 e.set_id(event["timeline_id"])
+                if event.has_key("description"):
+                    e.set_data("description", event["description"])
                 if decider_fn is None or decider_fn(e):
                     self.events.append(e)
         return self.events

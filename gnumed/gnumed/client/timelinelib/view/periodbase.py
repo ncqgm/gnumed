@@ -37,8 +37,8 @@ class SelectPeriodByDragInputHandler(ScrollViewInputHandler):
         self._move_current_time()
 
     def _move_current_time(self):
-        self.current_time = self.controller.get_time(self.last_x)
         try:
+            self.current_time = self.controller.get_time(self.last_x)
             period = self.get_current_period()
             self.last_valid_time = self.current_time
         except ValueError:

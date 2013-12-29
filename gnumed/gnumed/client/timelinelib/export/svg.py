@@ -35,6 +35,7 @@ INNER_PADDING = 3      # Space inside event box to text (pixels)
 DATA_INDICATOR_SIZE = 10
 SMALL_FONT_SIZE = 9
 MAJOR_STRIP_FONT_SIZE = 6
+ENCODING = "utf-8"
 
 
 def export(path, scene, view_properties):
@@ -54,6 +55,7 @@ class SVGDrawingAlgorithm(object):
         # SVG document size, maybe TODO
         self.metrics = dict({'widthpx':1052, 'heightpx':744});
         # SVG document handle
+        #print svg
         self.svg = svg(width="%dpx" % self.metrics['widthpx'], height="%dpx" % self.metrics['heightpx'])
         # Fonts and pens we use when drawing
         # SVG Text style
@@ -92,7 +94,7 @@ class SVGDrawingAlgorithm(object):
         write the SVG code into the file with filename path. No
         checking is done if file/path exists
         """
-        self.svg.save(path)
+        self.svg.save(path, encoding=ENCODING)
 
     def draw(self):
         self._draw_bg()
@@ -386,6 +388,6 @@ class SVGDrawingAlgorithm(object):
 
     def _encode_unicode_text(self, text):
         if type(text) is UnicodeType:
-            return text.encode('ISO-8859-1')
+            return text.encode(ENCODING)
         else:
             return text

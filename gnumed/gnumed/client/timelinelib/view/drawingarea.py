@@ -16,16 +16,20 @@
 # along with Timeline.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import wx
+import datetime
 import webbrowser
+
+import wx
 
 from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.objects import TimeOutOfRangeLeftError
 from timelinelib.db.objects import TimeOutOfRangeRightError
 from timelinelib.db.utils import safe_locking
+from timelinelib.drawing.utils import get_default_font
+from timelinelib.drawing.viewproperties import ViewProperties
+from timelinelib.monitoring import monitoring
 from timelinelib.utilities.observer import STATE_CHANGE_ANY
 from timelinelib.utilities.observer import STATE_CHANGE_CATEGORY
-from timelinelib.drawing.viewproperties import ViewProperties
 from timelinelib.utils import ex_msg
 from timelinelib.view.move import MoveByDragInputHandler
 from timelinelib.view.noop import NoOpInputHandler
@@ -33,7 +37,6 @@ from timelinelib.view.periodevent import CreatePeriodEventByDragInputHandler
 from timelinelib.view.resize import ResizeByDragInputHandler
 from timelinelib.view.scrolldrag import ScrollByDragInputHandler
 from timelinelib.view.zoom import ZoomByDragInputHandler
-import timelinelib.calendar.gregorian as gregorian
 
 
 # The width in pixels of the vertical scroll zones.
@@ -115,8 +118,10 @@ class DrawingArea(object):
         self.timeline = timeline
         self.time_type = timeline.get_time_type()
         self.timeline.register(self._timeline_changed)
+        self.view_properties.unlisten(self._redraw_timeline)
         properties_loaded = self._load_view_properties()
         if properties_loaded:
+            self.view_properties.listen_for_any(self._redraw_timeline)
             self._redraw_timeline()
             self.view.Enable()
             self.view.SetFocus()
@@ -140,9 +145,7 @@ class DrawingArea(object):
             timeline.unregister(self._timeline_changed)
 
     def show_hide_legend(self, show):
-        self.view_properties.show_legend = show
-        if self.timeline:
-            self._redraw_timeline()
+        self.view_properties.change_show_legend(show)
 
     def get_time_period(self):
         """Return currently displayed time period."""
@@ -413,7 +416,7 @@ class DrawingArea(object):
     def _set_initial_values_to_member_variables(self):
         self.timeline = None
         self.view_properties = ViewProperties()
-        self.view_properties.show_legend = self.config.get_show_legend()
+        self.view_properties.change_show_legend(self.config.get_show_legend())
         self.view_properties.show_balloons_on_hover = self.config.get_balloon_on_hover()
         self.dragscroll_timer_running = False
 
@@ -428,13 +431,22 @@ class DrawingArea(object):
         def fn_draw(dc):
             try:
                 self.drawing_algorithm.use_fast_draw(self.fast_draw)
+                monitoring.timer_start()
                 self.drawing_algorithm.draw(dc, self.timeline, self.view_properties, self.config)
+                monitoring.timer_end()
+                if monitoring.IS_ENABLED:
+                    (width, height) = self.view.GetSizeTuple()
+                    redraw_time = monitoring.timer_elapsed_ms()
+                    monitoring.count_timeline_redraw()
+                    dc.SetTextForeground((255, 0, 0))
+                    dc.SetFont(get_default_font(12, bold=True))
+                    dc.DrawText("Redraw count: %d" % monitoring.timeline_redraw_count, width - 300, height - 60)
+                    dc.DrawText("Last redraw time: %.3f ms" % redraw_time, width - 300, height - 40)
             except TimelineIOError, e:
                 self.fn_handle_db_error(e)
             finally:
                 self.drawing_algorithm.use_fast_draw(False)
-        self.view_properties.view_cats_individually = self.view.view_categories_individually()
-        if self.timeline:
+        if self.timeline and self.view_properties.displayed_period:
             self.view_properties.divider_position = (self.divider_line_slider.GetValue())
             self.view_properties.divider_position = (float(self.divider_line_slider.GetValue()) / 100.0)
             self.view.redraw_surface(fn_draw)
@@ -449,12 +461,12 @@ class DrawingArea(object):
         event = self.drawing_algorithm.event_at(xpixelpos, ypixelpos, alt_down)
         if event:
             selected = not self.view_properties.is_selected(event)
-            if not control_down:
-                self.view_properties.clear_selected()
-            self.view_properties.set_selected(event, selected)
+            if control_down:
+                self.view_properties.set_selected(event, selected)
+            else:
+                self.view_properties.set_only_selected(event, selected)
         else:
             self.view_properties.clear_selected()
-        self._redraw_timeline()
         return event != None
 
     def _display_eventinfo_in_statusbar(self, xpixelpos, ypixelpos, alt_down=False):
@@ -478,8 +490,7 @@ class DrawingArea(object):
         self.input_handler.balloon_hide_timer_fired()
 
     def _redraw_balloons(self, event):
-        self.view_properties.hovered_event = event
-        self._redraw_timeline()
+        self.view_properties.change_hovered_event(event)
 
     def _in_scroll_zone(self, x):
         """

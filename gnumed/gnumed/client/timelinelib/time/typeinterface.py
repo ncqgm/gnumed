@@ -86,13 +86,13 @@ class TimeType(object):
         raise NotImplementedError("margin_delta not implemented.")
 
     def event_date_string(self, time):
-        raise NotImplementedError("eventtimes_equals not implemented.")
+        raise NotImplementedError("event_date_string not implemented.")
 
     def event_time_string(self, time):
-        raise NotImplementedError("eventtimes_equals not implemented.")
+        raise NotImplementedError("event_time_string not implemented.")
 
     def eventtimes_equals(self, time1, time2):
         raise NotImplementedError("eventtimes_equals not implemented.")
 
     def adjust_for_bc_years(self, time):
-        raise NotImplementedError("adjust_for_zero_year not implemented.")
+        raise NotImplementedError("adjust_for_bc_years not implemented.")
