@@ -2005,6 +2005,12 @@ SELECT MIN(earliest) FROM (
 			patient = self.pk_patient
 		)
 	#------------------------------------------------------------------
+	def get_results_for_day(self, timestamp=None):
+		return gmPathLab.get_results_for_day (
+			timestamp = timestamp,
+			patient = self.pk_patient
+		)
+	#------------------------------------------------------------------
 	def get_unsigned_results(self, order_by=None):
 		if order_by is None:
 			order_by = u''

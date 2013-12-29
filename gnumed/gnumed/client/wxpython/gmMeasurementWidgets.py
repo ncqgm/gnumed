@@ -472,6 +472,94 @@ def plot_adjacent_measurements(parent=None, test=None, format=None, show_year=Tr
 #================================================================
 # display widgets
 #================================================================
+from Gnumed.wxGladeWidgets import wxgMeasurementsDetailsPnl
+
+class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPnl):
+
+	def __init__(self, *args, **kwargs):
+		wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPnl.__init__(self, *args, **kwargs)
+		self.__patient = None
+		self.__date_format = str('%Y %b %d')
+
+		self.__init_ui()
+	#------------------------------------------------------------
+	def repopulate_panel(self):
+		if self.__patient is None:
+			self._LCTRL_days.set_string_items()
+			self._TCTRL_measurements.SetValue(u'')
+			return
+
+		dates = [ d[0] for d in self.__patient.emr.get_dates_for_results(reverse_chronological = True) ]
+		items = [ [gmDateTime.pydt_strftime(d, self.__date_format)] for d in dates ]
+
+		self._LCTRL_days.set_string_items(items)
+		self._LCTRL_days.set_data(dates)
+		self._LCTRL_days.Select(idx = 0, on = 1)
+		self._LCTRL_days.SetFocus()
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_days.set_columns([_('Day')])
+		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
+
+		self._LCTRL_days.activate_callback = self._on_day_activated
+
+	#------------------------------------------------------------
+	def _on_day_activated(self, evt):
+		day = self._LCTRL_days.get_item_data(item_idx = evt.Index)
+		results = self.__patient.emr.get_results_for_day(timestamp = day)
+		items = []
+		data = []
+		for r in results:
+			range_info = gmTools.coalesce (
+				r.formatted_clinical_range,
+				r.formatted_normal_range
+			)
+			review = gmTools.bool2subst (
+				r['reviewed'],
+				u'',
+				u' ' + gmTools.u_writing_hand,
+				u' ' + gmTools.u_writing_hand
+			)
+			items.append ([
+				gmDateTime.pydt_strftime(r['clin_when'], '%H:%M'),
+				r['name_tt'],
+				u'%s%s%s%s' % (
+					gmTools.strip_empty_lines(text = ['unified_val'])[0],
+					gmTools.coalesce(r['val_unit'], u'', u' %s'),
+					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
+					review
+				),
+				gmTools.coalesce(range_info, u'')
+			])
+			data.append({'data': r, 'formatted': r.format()})
+
+		self._LCTRL_results.set_string_items(items)
+		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_results.set_data(data)
+		self._LCTRL_results.Select(idx = 0, on = 1)
+		self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
+
+		self._LCTRL_results.SetFocus()
+	#------------------------------------------------------------
+	def _on_result_selected(self, event):
+		event.Skip()
+		item_data = self._LCTRL_results.get_item_data(item_idx = event.Index)
+		self._TCTRL_measurements.SetValue(item_data['formatted'])
+	#------------------------------------------------------------
+	# properties
+	#------------------------------------------------------------
+	def _get_patient(self):
+		return self.__patient
+
+	def _set_patient(self, patient):
+		self.__patient = patient
+		self.repopulate_panel()
+
+	patient = property(_get_patient, _set_patient)
+
+#================================================================
 class cMeasurementsGrid(wx.grid.Grid):
 	"""A grid class for displaying measurment results.
 
@@ -1073,11 +1161,14 @@ class cMeasurementsGrid(wx.grid.Grid):
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
+	def _get_patient(self):
+		return self.__patient
+
 	def _set_patient(self, patient):
 		self.__patient = patient
 		self.repopulate_grid()
 
-	patient = property(lambda x:x, _set_patient)
+	patient = property(_get_patient, _set_patient)
 	#------------------------------------------------------------
 	def _set_panel_to_show(self, panel):
 		self.__panel_to_show = panel
@@ -1100,6 +1191,7 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		wxgMeasurementsPnl.wxgMeasurementsPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__display_mode = u'grid'
 		self.__init_ui()
 		self.__register_interests()
 	#--------------------------------------------------------
@@ -1146,6 +1238,24 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def _on_manage_panels_button_pressed(self, event):
 		manage_test_panels(parent = self)
+	#--------------------------------------------------------
+	def _on_display_mode_button_pressed(self, event):
+		event.Skip()
+		if self.__display_mode == u'grid':
+			self._BTN_display_mode.SetLabel(_('All: as &Grid'))
+			self.__display_mode = u'day'
+			self.data_grid.Hide()
+			if self.data_panel.patient is None:
+				self.data_panel.patient = self.data_grid.patient
+			self.data_panel.Show()
+		else:
+			self._BTN_display_mode.SetLabel(_('All: by &Day'))
+			self.__display_mode = u'grid'
+			self.data_panel.Hide()
+			if self.data_grid.patient is None:
+				self.data_grid.patient = self.data_panel.patient
+			self.data_grid.Show()
+		self.Layout()
 	#--------------------------------------------------------
 	def __on_sign_current_selection(self, evt):
 		self.data_grid.sign_current_selection()
@@ -1221,6 +1331,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		self.panel_data_grid.show_by_panel = True
 		self.panel_data_grid.panel_to_show = None
 		self.panel_data_grid.Hide()
+		self._BTN_display_mode.SetLabel(_('All: by &Day'))
+		self.data_grid.Show()
+		self.data_panel.Hide()
 		self.Layout()
 
 		self._PRW_panel.SetFocus()
@@ -1228,14 +1341,19 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		"""Populate fields in pages with data from model."""
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			self.data_grid.patient = pat
 			self.panel_data_grid.patient = pat
+			if self.__display_mode == u'grid':
+				self.data_grid.patient = pat
+				self.data_panel.patient = None
+			else:
+				self.data_grid.patient = None
+				self.data_panel.patient = pat
 		else:
-			self.data_grid.patient = None
 			self.panel_data_grid.patient = None
+			self.data_grid.patient = None
+			self.data_panel.patient = None
 		return True
 
 #================================================================

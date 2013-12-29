@@ -26,8 +26,10 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self._PRW_panel = gmMeasurementWidgets.cTestPanelPRW(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._TCTRL_panel_comment = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._BTN_manage_panels = wx.Button(self, wx.ID_ANY, _("Manage panels"), style=wx.BU_EXACTFIT)
+		self._BTN_display_mode = wx.Button(self, wx.ID_ANY, _("All: by day"), style=wx.BU_EXACTFIT)
 		self.panel_data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
 		self.data_grid = gmMeasurementWidgets.cMeasurementsGrid(self, wx.ID_ANY, size=(1, 1))
+		self.data_panel = gmMeasurementWidgets.cMeasurementsDetailsPnl(self, wx.ID_ANY, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
 		self._BTN_manage_types = wx.Button(self, wx.ID_ANY, _("Manage types"), style=wx.BU_EXACTFIT)
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_list = wx.Button(self, wx.ID_ANY, _("&List"))
@@ -40,6 +42,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self.__do_layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_manage_panels_button_pressed, self._BTN_manage_panels)
+		self.Bind(wx.EVT_BUTTON, self._on_display_mode_button_pressed, self._BTN_display_mode)
 		self.Bind(wx.EVT_BUTTON, self._on_manage_types_button_pressed, self._BTN_manage_types)
 		self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
 		self.Bind(wx.EVT_BUTTON, self._on_list_button_pressed, self._BTN_list)
@@ -53,6 +56,7 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		self._TCTRL_panel_comment.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_panel_comment.Enable(False)
 		self._BTN_manage_panels.SetToolTipString(_("Manage test panels."))
+		self._BTN_display_mode.SetToolTipString(_("Switch between modes of the full results display."))
 		self._BTN_manage_types.SetToolTipString(_("Manage test types."))
 		self._BTN_add.SetToolTipString(_("Add measurments."))
 		self._BTN_list.SetToolTipString(_("Show all measurements in a chronological list."))
@@ -67,15 +71,19 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
 		__szr_bottom = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_grids = wx.BoxSizer(wx.VERTICAL)
+		__szr_full_displays = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_panel_options = wx.BoxSizer(wx.HORIZONTAL)
 		__lbl_display = wx.StaticText(self, wx.ID_ANY, _("Spotlight &Panel:"))
 		__szr_panel_options.Add(__lbl_display, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_panel_options.Add(self._PRW_panel, 2, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 10)
 		__szr_panel_options.Add(self._TCTRL_panel_comment, 3, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_panel_options.Add(self._BTN_manage_panels, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_panel_options.Add(self._BTN_manage_panels, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_panel_options.Add(self._BTN_display_mode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_main.Add(__szr_panel_options, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
 		__szr_grids.Add(self.panel_data_grid, 0, wx.EXPAND, 5)
-		__szr_grids.Add(self.data_grid, 1, wx.TOP | wx.EXPAND, 5)
+		__szr_full_displays.Add(self.data_grid, 1, wx.EXPAND, 5)
+		__szr_full_displays.Add(self.data_panel, 1, wx.EXPAND, 0)
+		__szr_grids.Add(__szr_full_displays, 1, wx.TOP | wx.EXPAND, 5)
 		__szr_main.Add(__szr_grids, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 5)
 		__hline_buttons = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__hline_buttons, 0, wx.ALL | wx.EXPAND, 5)
@@ -120,5 +128,8 @@ class wxgMeasurementsPnl(wx.ScrolledWindow):
 
 	def _on_manage_types_button_pressed(self, event):  # wxGlade: wxgMeasurementsPnl.<event_handler>
 		print "Event handler '_on_manage_types_button_pressed' not implemented!"
+		event.Skip()
+	def _on_display_mode_button_pressed(self, event):  # wxGlade: wxgMeasurementsPnl.<event_handler>
+		print "Event handler '_on_display_mode_button_pressed' not implemented!"
 		event.Skip()
 # end of class wxgMeasurementsPnl

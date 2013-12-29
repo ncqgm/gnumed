@@ -1854,6 +1854,31 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 #------------------------------------------------------------
+def get_results_for_day(timestamp=None, patient=None):
+
+	args = {
+		'pat': patient,
+		'ts': timestamp
+	}
+
+	where_parts = [
+		u'pk_patient = %(pat)s',
+		u"date_trunc('day'::text, clin_when) = date_trunc('day'::text, %(ts)s)"
+	]
+
+	cmd = u"""
+		SELECT * FROM clin.v_test_results
+		WHERE
+			%s
+		ORDER BY
+			name_tt
+	""" % u' AND '.join(where_parts)
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+
+	return [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
+
+#------------------------------------------------------------
 def get_most_recent_results(test_type=None, loinc=None, no_of_results=1, patient=None):
 
 	if None not in [test_type, loinc]:
