@@ -202,7 +202,7 @@ from Gnumed.pycommon import gmPG2
 #------------------------------------------------------------
 # search/replace "" " -> 3 "s
 #
-# use plural form, search-replace get_XXX
+# search-replace get_XXX, use plural form
 _SQL_get_XXX = u"" "
 	SELECT *, (xmin AS xmin_XXX)
 	FROM XXX.v_XXX
@@ -225,7 +225,10 @@ class cXxxXxx(gmBusinessDBObject.cBusinessDBObject):
 					AND
 				xmin = %(xmin_XXX)s
 			RETURNING
-				xmin as xmin_XXX
+				xmin AS xmin_XXX
+				-- also return columns which are calculated in the view used by
+				-- the initial SELECT such that they will further on contain their
+				-- updated value:
 				--, ...
 				--, ...
 		"" "
@@ -248,7 +251,7 @@ def get_XXX(order_by=None):
 
 	cmd = _SQL_get_XXX % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_xxx'}) for r in rows ]
+	return [ cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'}) for r in rows ]
 #------------------------------------------------------------
 def create_xxx(xxx=None, xxx=None):
 
@@ -275,8 +278,8 @@ def create_xxx(xxx=None, xxx=None):
 	return cXxxXxx(aPK_obj = rows[0]['pk'])
 	#return cXxxXxx(row = {'data': r, 'idx': idx, 'pk_field': 'pk_XXX'})
 #------------------------------------------------------------
-def delete_xxx(pk_xxx=None):
-	args = {'pk': pk_xxx}
+def delete_xxx(pk_XXX=None):
+	args = {'pk': pk_XXX}
 	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True

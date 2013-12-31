@@ -901,7 +901,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
 	#--------------------------------------------------------
 	def _get_export_tray(self):
-		#return gmExportTray.cExportTray(self.tray_dir_name)
+		#return gmExportArea.cExportArea(self.tray_dir_name)
 		return None
 
 	export_tray = property(_get_export_tray, lambda x:x)

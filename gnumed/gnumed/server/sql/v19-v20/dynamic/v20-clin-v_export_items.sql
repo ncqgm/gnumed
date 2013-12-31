@@ -35,7 +35,9 @@ select
 			(select b_do.data from blobs.doc_obj b_do where b_do.pk = c_ei.fk_doc_obj),
 			''
 		)
-	)) as md5_sum
+	)) as md5_sum,
+	c_ei.xmin
+		as xmin_export_item
 from
 	clin.export_item c_ei
 ;

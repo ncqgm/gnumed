@@ -533,7 +533,11 @@ insert into blobs.reviewed_doc_objs (
 
 #------------------------------------------------------------
 def delete_document_part(part_pk=None, encounter_pk=None):
-	cmd = u"select blobs.delete_document_part(%(pk)s, %(enc)s)"
+	cmd = u"""
+		SELECT blobs.delete_document_part(%(pk)s, %(enc)s)
+		WHERE NOT EXISTS
+			(SELECT 1 FROM clin.export_item where fk_doc_obj = %(pk)s)
+	"""
 	args = {'pk': part_pk, 'enc': encounter_pk}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return

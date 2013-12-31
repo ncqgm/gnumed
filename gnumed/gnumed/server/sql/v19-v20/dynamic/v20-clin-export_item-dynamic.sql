@@ -86,7 +86,11 @@ alter table clin.export_item
 alter table clin.export_item drop constraint if exists FK_clin_export_item_fk_doc_obj cascade;
 
 alter table clin.export_item
-	add constraint FK_clin_export_item_fk_doc_obj foreign key (fk_doc_obj) references blobs.doc_obj(pk);
+	add constraint FK_clin_export_item_fk_doc_obj foreign key (fk_doc_obj)
+		references blobs.doc_obj(pk)
+		on update cascade
+		on delete restrict
+;
 
 -- --------------------------------------------------------------
 -- .data
@@ -103,25 +107,28 @@ alter table clin.export_item
 
 -- --------------------------------------------------------------
 -- .fk_identity
-comment on column clin.export_item.fk_identity is 'the patient this item pertains to';
+comment on column clin.export_item.fk_identity is 'the patient this item pertains to, DELETE does not cascade because we may have wanted to export data before deleting a patient ...';
 
 alter table clin.export_item drop constraint if exists FK_clin_export_item_fk_identity cascade;
 
 alter table clin.export_item
-	add constraint FK_clin_export_item_fk_identity foreign key (fk_identity) references dem.identity(pk);
-
-alter table clin.export_item
-	alter column fk_identity
-		set not null;
+	add constraint FK_clin_export_item_fk_identity foreign key (fk_identity)
+		references dem.identity(pk)
+		on update cascade
+		on delete restrict
+;
 
 -- --------------------------------------------------------------
 -- multi-column constraints
+
+-- unique(fk_identity <-> description)
 alter table clin.export_item drop constraint if exists clin_export_item_uniq_desc_per_pat cascade;
 
 alter table clin.export_item
 	add constraint clin_export_item_uniq_desc_per_pat unique (fk_identity, description);
 
 
+-- fk_doc_obj <-> data
 alter table clin.export_item drop constraint if exists clin_export_item_fk_obj_or_data cascade;
 
 alter table clin.export_item
@@ -129,6 +136,17 @@ alter table clin.export_item
 		((data is null) and (fk_doc_obj is not null))
 			or
 		((data is not null) and (fk_doc_obj is null))
+	);
+
+
+-- fk_doc_obj <-> fk_identity
+alter table clin.export_item drop constraint if exists clin_export_item_fk_obj_or_fk_identity cascade;
+
+alter table clin.export_item
+	add constraint clin_export_item_fk_obj_or_fk_identity check (
+		((fk_identity is null) and (fk_doc_obj is not null))
+			or
+		((fk_identity is not null) and (fk_doc_obj is null))
 	);
 
 -- --------------------------------------------------------------
