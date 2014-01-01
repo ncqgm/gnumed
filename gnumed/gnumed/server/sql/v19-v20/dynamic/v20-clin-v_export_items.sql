@@ -14,8 +14,16 @@ create view clin.v_export_items as
 select
 	c_ei.pk
 		as pk_export_item,
-	c_ei.fk_identity
-		as pk_identity,
+	coalesce (
+		c_ei.fk_identity,
+		(select fk_patient from clin.encounter where
+			pk = (
+				select fk_encounter from blobs.doc_med where pk = (
+					select fk_doc from blobs.doc_obj where pk = c_ei.fk_doc_obj
+				)
+			)
+		)
+	)	as pk_identity,
 	coalesce (
 		(select short_alias from dem.staff where db_user = c_ei.created_by),
 		'<' || c_ei.created_by || '>'
@@ -36,6 +44,7 @@ select
 			''
 		)
 	)) as md5_sum,
+	octet_length(coalesce(c_ei.data, ''::bytea)) as size,
 	c_ei.xmin
 		as xmin_export_item
 from

@@ -21,9 +21,10 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmMimeLib
 #from Gnumed.pycommon import gmDateTime
 
-#from Gnumed.business import gmStaff
+from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.exp_area')
 
@@ -55,24 +56,98 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				pk = %(pk_export_item)s
 					AND
 				xmin = %(xmin_export_item)s
-			RETURNING
-				xmin AS xmin_export_item,
-				created_by,
-				md5(coalesce (
-					data,
-					coalesce((select b_do.data from blobs.doc_obj b_do where b_do.pk = fk_doc_obj),'')
-				)) AS md5_sum
-		"""
+		""",
+		_SQL_get_export_items % u'pk_export_item = %(pk_export_item)s'
 	]
 	_updatable_fields = [
 		u'pk_identity',
-		u'created_by',
+		u'created_when',
+		u'designation',
+		u'description',
 		u'pk_doc_obj'
 	]
 	#--------------------------------------------------------
 #	def format(self):
 #		return u'%s' % self
+	#--------------------------------------------------------
+	def update_data_from_file(self, fname=None):
+		# sanity check
+		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
+			_log.error('[%s] is not a readable file' % fname)
+			return False
 
+		cmd = u"UPDATE clin.export_item SET data = %(data)s::bytea, fk_doc_obj = NULL WHERE pk = %(pk)s"
+		args = {'pk': self.pk_obj}
+		if not gmPG2.file2bytea(query = cmd, filename = fname, args = args):
+			return False
+
+		# must update XMIN now ...
+		self.refetch_payload()
+		return True
+	#--------------------------------------------------------
+	def export_to_file(self, aChunkSize=0, filename=None):
+
+		if self._payload[self._idx['pk_doc_obj']] is not None:
+			return self.document_part.export_to_file (
+				aChunkSize = aChunkSize,
+				filename = filename,
+				ignore_conversion_problems = True
+			)
+
+		if filename is None:
+			filename = self.get_useful_filename()
+
+		success = gmPG2.bytea2file (
+			data_query = {
+				'cmd': u'SELECT substring(data from %(start)s for %(size)s) FROM clin.export_item WHERE pk = %(pk)s',
+				'args': {'pk': self.pk_obj}
+			},
+			filename = filename,
+			chunk_size = aChunkSize,
+			data_size = self._payload[self._idx['size']]
+		)
+
+		if not success:
+			return None
+
+		return filename
+	#--------------------------------------------------------
+	def display_via_mime(self, chunksize=0, block=None):
+
+		if self._payload[self._idx['pk_doc_obj']] is not None:
+			return self.document_part.display_via_mime(chunksize = chunksize, block = block)
+
+		fname = self.export_to_file(aChunkSize = chunksize)
+		if fname is None:
+			return False, ''
+
+		success, msg = gmMimeLib.call_viewer_on_file(fname, block = block)
+		if not success:
+			return False, msg
+
+		return True, ''
+	#--------------------------------------------------------
+	def get_useful_filename(self, patient=None, directory=None):
+		patient_part = ''
+		if patient is not None:
+			patient_part = '-%s' % patient['dirname']
+
+		fname = gmTools.get_unique_filename (
+			prefix = 'gm-export_item%s-' % patient_part,
+			suffix = '.dat',
+			tmp_dir = directory
+		)
+
+		return os.path.join(directory, fname)
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_doc_part(self):
+		if self._payload[self._idx['pk_doc_obj']] is None:
+			return None
+		return gmDocuments.cDocumentPart(aPK_obj = self._payload[self._idx['pk_doc_obj']])
+
+	document_part = property(_get_doc_part, lambda x:x)
 #------------------------------------------------------------
 def get_export_items(order_by=None, pk_identity=None):
 
@@ -87,38 +162,35 @@ def get_export_items(order_by=None, pk_identity=None):
 	if pk_identity is not None:
 		where_parts.append(u'pk_identity = %(pat)s')
 
-	cmd = _SQL_get_export_items % u' AND '.join(where_parts) + order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	cmd = (_SQL_get_export_items % u' AND '.join(where_parts)) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
 #------------------------------------------------------------
-def create_export_item(designation=None, description=None, pk_identity=None, pk_doc_obj=None):
+def create_export_item(description=None, pk_identity=None, pk_doc_obj=None):
 
 	args = {
-		u'desig': designation,
 		u'desc': description,
 		u'pk_obj': pk_doc_obj,
 		u'pk_pat': pk_identity
 	}
 	cmd = u"""
 		INSERT INTO clin.export_item (
-			designation,
 			description,
 			fk_doc_obj,
 			fk_identity,
 			data
 		) VALUES (
-			gm.nullify_empty_string(%(desig)s),
 			gm.nullify_empty_string(%(desc)s),
 			%(pk_obj)s,
-			CASE
+			(CASE
 				WHEN %(pk_obj)s IS NULL THEN %(pk_pat)s
-				ELSE NULL
-			END,
-			CASE
+				ELSE NULL::integer
+			END),
+			(CASE
 				WHEN %(pk_obj)s IS NULL THEN 'to be replaced by real data'::bytea
-				ELSE NULL
-			END
+				ELSE NULL::bytea
+			END)
 		)
 		RETURNING pk
 		--RETURNING *
@@ -135,23 +207,59 @@ def delete_export_item(pk_export_item=None):
 	cmd = u"DELETE FROM clin.export_item WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
-#------------------------------------------------------------
 
+#============================================================
+class cExportArea(object):
 
+	def __init__(self, pk_identity):
+		self.__pk_identity = pk_identity
 
+	#--------------------------------------------------------
+	def add_files(self, filenames=None):
+		for fname in filenames:
+			try:
+				open(fname).close()
+			except StandardError:
+				_log.exception('cannot open file <%s>', fname)
+				return False
+
+		all_ok = True
+		for fname in filenames:
+			path, basename = os.path.split(fname)
+			item = create_export_item (
+				description = _(u'file: %s (%s/)') % (basename, path),
+				pk_identity = self.__pk_identity
+			)
+			all_ok = all_ok and item.update_data_from_file(fname = fname)
+
+		return all_ok
+	#--------------------------------------------------------
+	def add_documents(self, documents=None):
+		for doc in documents:
+			for obj in doc.parts:
+				if self.document_part_item_exists(pk_part = obj['pk_obj']):
+					continue
+				create_export_item (
+					description = _('doc: %s') % obj.format_single_line(),
+					pk_doc_obj = obj['pk_obj']
+				)
+	#--------------------------------------------------------
+	def document_part_item_exists(self, pk_part=None):
+		cmd = u"SELECT EXISTS (SELECT 1 FROM clin.export_item WHERE fk_doc_obj = %(pk_obj)s)"
+		args = {'pk_obj': pk_part}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		return rows[0][0]
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_items(self):
+		return get_export_items(order_by = u'designation, description', pk_identity = self.__pk_identity)
+
+	items = property(_get_items, lambda x:x)
 
 #============================================================
 class cExportTray(object):
 
-	def __init__(self):
-		if base_dir is None:
-			base_dir = gmTools.gmPaths().tmp_dir
-		full_dir = os.path.join(base_dir, directory)
-		if not gmTools.mkdir(directory = full_dir):
-			raise ValueError('[%s.__init__()]: path [%s] is not valid' % (self.__class__.__name__, full_dir))
-		self.__dir = full_dir
-		_log.debug('export tray [%s]', self.__dir)
-		self.__tray_items = {}
 	#--------------------------------------------------------
 	def add_file(self, filename=None, description=None, remove_source_file=False):
 
@@ -226,8 +334,8 @@ if __name__ == '__main__':
 #		items = get_export_items()
 #		for item in items:
 #			print item.format()
-#		import random
-#		create_export_item(designation=None, description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj=None)
+		import random
+		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None)
 		items = get_export_items()
 		for item in items:
 			print item.format()

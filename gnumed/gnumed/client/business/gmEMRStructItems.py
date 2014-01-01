@@ -2549,21 +2549,23 @@ def create_encounter(fk_patient=None, enc_type=None):
 	try:
 		enc_type = int(enc_type)
 		cmd = u"""
-			INSERT INTO clin.encounter (fk_patient, fk_type)
-			VALUES (%(pat)s, %(typ)s) RETURNING pk"""
+			INSERT INTO clin.encounter (fk_patient, fk_type, fk_location)
+			VALUES (%(pat)s, %(typ)s, %(prax)s) RETURNING pk"""
 	except ValueError:
 		enc_type = enc_type
 		cmd = u"""
-			INSERT INTO clin.encounter (fk_patient, fk_type)
+			INSERT INTO clin.encounter (fk_patient, fk_location, fk_type)
 			VALUES (
 				%(pat)s,
+				%(prax)s,
 				coalesce (
 					(select pk from clin.encounter_type where description = %(typ)s),
 					-- pick the first available
 					(select pk from clin.encounter_type limit 1)
 				)
 			) RETURNING pk"""
-	args = {'pat': fk_patient, 'typ': enc_type}
+	praxis = gmPraxis.gmCurrentPraxisBranch()
+	args = {'pat': fk_patient, 'typ': enc_type, 'prax': praxis['pk_org_unit']}
 	queries.append({'cmd': cmd, 'args': args})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = False)
 	encounter = cEncounter(aPK_obj = rows[0]['pk'])

@@ -26,6 +26,9 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmBorg
 from Gnumed.pycommon import gmI18N
+if __name__ == '__main__':
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
@@ -39,6 +42,7 @@ from Gnumed.business import gmDemographicRecord
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmExportArea
 from Gnumed.business.gmDocuments import cDocumentFolder
 
 
@@ -900,11 +904,10 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 	waiting_list_entries = property(get_waiting_list_entry, lambda x:x)
 	#--------------------------------------------------------
-	def _get_export_tray(self):
-		#return gmExportArea.cExportArea(self.tray_dir_name)
-		return None
+	def _get_export_area(self):
+		return gmExportArea.cExportArea(self.ID)
 
-	export_tray = property(_get_export_tray, lambda x:x)
+	export_area = property(_get_export_area, lambda x:x)
 	#--------------------------------------------------------
 	def export_as_gdt(self, filename=None, encoding='iso-8859-15', external_id_type=None):
 
@@ -1864,17 +1867,24 @@ if __name__ == '__main__':
 		for gender in genders:
 			print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 	#--------------------------------------------------------
+	def test_export_area():
+		person = cIdentity(aPK_obj = 12)
+		print person
+		print person.export_area
+		print person.export_area.items
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
 	#test_search_by_dto()
 	#test_name()
-	test_gender_list()
+	#test_gender_list()
 
 	#map_gender2salutation('m')
 	# module functions
 
 	#comms = get_comm_list()
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms
+	test_export_area()
 
 #============================================================
