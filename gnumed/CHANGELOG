@@ -6,7 +6,10 @@
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.rc
+
 NEW: by-day display mode for test results including multi-line ones
+NEW: patient documents export area plugin
 
 ------------------------------------------------
 # rel-1-4-patches
