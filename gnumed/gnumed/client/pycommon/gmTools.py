@@ -820,6 +820,18 @@ def xetex_escape_string(text=None):
 	# as opposed to LaTeX, except true unicode chars
 	return tex_escape_string(text = text, replace_known_unicode = False)
 #---------------------------------------------------------------------------
+__html_escape_table = {
+	u"&": u"&amp;",
+	u'"': u"&quot;",
+	u"'": u"&apos;",
+	u">": u"&gt;",
+	u"<": u"&lt;",
+}
+
+def html_escape_string(text=None):
+	return "".join(__html_escape_table.get(char, char) for char in text)
+
+#---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):
 	"""Obtains entry from standard input.
 

@@ -239,13 +239,13 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	# retrieve data
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False):
+	def export_to_file(self, aChunkSize=0, filename=None, target_mime=None, target_extension=None, ignore_conversion_problems=False, directory=None):
 
 		if self._payload[self._idx['size']] == 0:
 			return None
 
 		if filename is None:
-			filename = self.get_useful_filename(make_unique = True)
+			filename = self.get_useful_filename(make_unique = True, directory = directory)
 
 		success = gmPG2.bytea2file (
 			data_query = {
@@ -512,7 +512,7 @@ insert into blobs.reviewed_doc_objs (
 			if suffix == u'':
 				suffix = '.dat'
 
-		fname = 'gm-doc_part-%s-%s-%s--#%s' % (
+		fname = 'gm-doc_part-%s-%s-%s--pg_%s' % (
 			patient_part,
 			self._payload[self._idx['l10n_type']].replace(' ', '_'),
 			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days),
@@ -527,7 +527,7 @@ insert into blobs.reviewed_doc_objs (
 				tmp_dir = directory
 			)
 		else:
-			fname = os.path.join(directory, fname + suffix)
+			fname = os.path.join(gmTools.coalesce(directory, u''), fname + suffix)
 
 		return fname
 

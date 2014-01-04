@@ -88,6 +88,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		gmDispatcher.connect(self._on_post_patient_selection, u'post_patient_selection')
 	#----------------------------------------------
 	def __load_plugins(self):
+
+		wx.BeginBusyCursor()
+
 		# get plugin list
 		plugin_list = gmPlugin.GetPluginLoadList (
 			option = 'horstspace.notebook.plugin_load_order',
@@ -95,8 +98,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			defaults = ['gmProviderInboxPlugin']
 		)
 
+		_log.debug('plugin load order: %s', plugin_list)
+
 		nr_plugins = len(plugin_list)
-		wx.BeginBusyCursor()
 
 		#  set up a progress bar
 		progress_bar = gmPlugin.cLoadProgressBar(nr_plugins)

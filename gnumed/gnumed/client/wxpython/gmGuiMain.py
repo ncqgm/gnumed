@@ -713,6 +713,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_paperwork.Append(-1, _('&Write letter'), _('Write a letter for the current patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_new_letter, item)
 
+		item = menu_paperwork.Append(-1, _('Screenshot -> export area'), _('Put a screenshot into the patient export area.'))
+		self.Bind(wx.EVT_MENU, self.__on_save_screenshot_into_export_area, item)
+
 		menu_paperwork.AppendSeparator()
 
 		item = menu_paperwork.Append(-1, _('List Placeholders'), _('Show a list of all placeholders.'))
@@ -1179,6 +1182,20 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_show_placeholders(self, evt):
 		from Gnumed.wxpython.gmMacro import show_placeholders
 		show_placeholders()
+	#----------------------------------------------
+	def __on_save_screenshot_into_export_area(self, evt):
+		evt.Skip()
+		wx.CallAfter(self.__save_screenshot_into_export_area)
+	#----------------------------------------------
+	def __save_screenshot_into_export_area(self):
+
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot put screenshot into export area. No active patient.'), beep = True)
+			return True
+
+		screenshot_file = self.__save_screenshot_to_file()
+		pat.export_area.add_files(filenames = [screenshot_file])
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------
@@ -2451,36 +2468,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __save_screenshot(self):
 
-		time.sleep(0.5)
-
-		rect = self.GetRect()
-
-		# adjust for window decoration on Linux
-		if sys.platform == 'linux2':
-			client_x, client_y = self.ClientToScreen((0, 0))
-			border_width = client_x - rect.x
-			title_bar_height = client_y - rect.y
-			# If the window has a menu bar, remove it from the title bar height.
-			if self.GetMenuBar():
-				title_bar_height /= 2
-			rect.width += (border_width * 2)
-			rect.height += title_bar_height + border_width
-
-		wdc = wx.ScreenDC()
-		mdc = wx.MemoryDC()
-		img = wx.EmptyBitmap(rect.width, rect.height)
-		mdc.SelectObject(img)
-		mdc.Blit (						# copy ...
-			0, 0,						# ... to here in the target ...
-			rect.width, rect.height,	# ... that much from ...
-			wdc,						# ... the source ...
-			rect.x, rect.y				# ... starting here
-		)
-
-		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-		img.SaveFile(fname, wx.BITMAP_TYPE_PNG)
-		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % fname)
+		self.__save_screenshot_to_file(filename = fname)
 	#----------------------------------------------
 	def __on_test_exception(self, evt):
 		#import nonexistant_module
@@ -3007,6 +2996,45 @@ class gmTopLevelFrame(wx.Frame):
 
 		self.SetTitle(self.__title_template % args)
 	#----------------------------------------------
+	def __save_screenshot_to_file(self, filename=None):
+
+		time.sleep(0.5)
+
+		rect = self.GetRect()
+
+		# adjust for window decoration on Linux
+		if sys.platform == 'linux2':
+			client_x, client_y = self.ClientToScreen((0, 0))
+			border_width = client_x - rect.x
+			title_bar_height = client_y - rect.y
+			# If the window has a menu bar, remove it from the title bar height.
+			if self.GetMenuBar():
+				title_bar_height /= 2
+			rect.width += (border_width * 2)
+			rect.height += title_bar_height + border_width
+
+		scr_dc = wx.ScreenDC()
+		mem_dc = wx.MemoryDC()
+		img = wx.EmptyBitmap(rect.width, rect.height)
+		mem_dc.SelectObject(img)
+		mem_dc.Blit (					# copy ...
+			0, 0,						# ... to here in the target ...
+			rect.width, rect.height,	# ... that much from ...
+			scr_dc,						# ... the source ...
+			rect.x, rect.y				# ... starting here
+		)
+
+		# FIXME: improve filename with patient/workplace/provider, allow user to select/change
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = u'gm-screenshot-%s-' % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'),
+				suffix = u'.png'
+			)
+
+		img.SaveFile(filename, wx.BITMAP_TYPE_PNG)
+		gmDispatcher.send(signal = 'statustext', msg = _('Saved screenshot to file [%s].') % filename)
+
+		return filename
 	#----------------------------------------------
 	def setup_statusbar(self):
 		sb = self.CreateStatusBar(2, wx.ST_SIZEGRIP)

@@ -82,6 +82,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def _on_show_item_button_pressed(self, event):
 		event.Skip()
 		item = self._LCTRL_items.get_selected_item_data(only_one = True)
+		if item is None:
+			return
 		item.display_via_mime(block = False)
 	#--------------------------------------------------------
 	def _on_add_items_button_pressed(self, event):
@@ -90,8 +92,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			parent = self,
 			message = _("Select files to add to the export area"),
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-			#defaultFile = u'timeline.svg',
-			#wildcard = u'%s (*.*)|*.*' % _('all files'),
 			style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST | wx.FD_MULTIPLE | wx.FD_PREVIEW
 		)
 		choice = dlg.ShowModal()
@@ -152,14 +152,79 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 #		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
 		return True
 	#--------------------------------------------------------
-	def _on_burn_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
-		print "Event handler '_on_burn_items_button_pressed' not implemented!"
+	def _on_save_items_button_pressed(self, event):
 		event.Skip()
 
-	def _on_save_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
-		print "Event handler '_on_save_items_button_pressed' not implemented!"
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			save_all = gmGuiHelpers.gm_show_question (
+				title = _('Saving export area documents'),
+				question = _('Truly export ALL items to disk (rather than just a selection) ?')
+			)
+			if not save_all:
+				return
+			items = self._LCTRL_items.get_item_data()
+
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory into which to export the documents.'),
+			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+		)
+		choice = dlg.ShowModal()
+		path = dlg.GetPath()
+		if choice != wx.ID_OK:
+			return
+
+		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
+
+#		soap_lines.append(_('Saved to %s: %s') % u', '.join(form_names))
+
+		gmGuiHelpers.gm_show_info (
+			title = _('Saving export area documents'),
+			info = _('Saved documents into directory:\n\n %s') % export_dir
+		)
+	#--------------------------------------------------------
+	def _on_burn_items_button_pressed(self, event):
 		event.Skip()
 
+		found, external_cmd = gmShellAPI.detect_external_binary('gm-burn_doc')
+		if not found:
+			return False
+
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		if len(items) == 0:
+			burn_all = gmGuiHelpers.gm_show_question (
+				title = _('Saving export area documents'),
+				question = _('Truly burn ALL items to CD/DVD (rather than just a selection) ?')
+			)
+			if not burn_all:
+				return
+			items = self._LCTRL_items.get_item_data()
+
+		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(items = items)
+		if export_dir is None:
+			return False
+
+		cmd = u'%s %s' % (external_cmd, export_dir)
+		if os.name == 'nt':
+			blocking = True
+		else:
+			blocking = False
+		success = gmShellAPI.run_command_in_shell (
+			command = cmd,
+			blocking = blocking
+		)
+		if not success:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error burning documents to CD/DVD.'),
+				aTitle = _('Burning documents')
+			)
+			return False
+
+#		soap_lines.append(_('Burned %s to CD/DVD: %s') % u', '.join(form_names))
+
+		return True
+	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
 		print "Event handler '_on_archive_items_button_pressed' not implemented!"
 		event.Skip()
@@ -241,27 +306,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 #		soap_lines.append(_('Faxed to %s: %s') % (fax_number, u', '.join(form_names)))
 		return True
 #	#--------------------------------------------------------
-#	def _on_refresh_button_pressed(self, event):
-#		#event.Skip()
-#		self._populate_with_data()
-#	#--------------------------------------------------------
-#	def _on_export_button_pressed(self, event):
-#		#event.Skip()
-#		dlg = wx.FileDialog (
-#			parent = self,
-#			message = _("Save timeline as SVG image under..."),
-#			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
-#			defaultFile = u'timeline.svg',
-#			wildcard = u'%s (*.svg)|*.svg' % _('SVG files'),
-#			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
-#		)
-#		choice = dlg.ShowModal()
-#		fname = dlg.GetPath()
-#		dlg.Destroy()
-#		if choice != wx.ID_OK:
-#			return False
-#		self._PNL_timeline.export_as_svg(filename = fname)
-	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
 	#--------------------------------------------------------
@@ -270,7 +314,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def __init_ui(self):
 		self._LCTRL_items.set_columns([_('By'), _('When'), _('Description')])
 
-		self._BTN_save_items.Disable()
+		#self._BTN_save_items.Disable()
 		self._BTN_archive_items.Disable()
 
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
@@ -293,7 +337,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			self._BTN_burn_items.SetToolTipString (
 				self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
 			)
-
 	#--------------------------------------------------------
 	# reget mixin API
 	#

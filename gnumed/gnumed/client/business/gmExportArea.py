@@ -14,15 +14,20 @@ import sys
 import logging
 import shutil
 import os
+import codecs
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMimeLib
-#from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmCfg2
 
 from Gnumed.business import gmDocuments
 
@@ -85,17 +90,18 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 		return True
 	#--------------------------------------------------------
-	def export_to_file(self, aChunkSize=0, filename=None):
+	def export_to_file(self, aChunkSize=0, filename=None, directory=None):
 
 		if self._payload[self._idx['pk_doc_obj']] is not None:
 			return self.document_part.export_to_file (
 				aChunkSize = aChunkSize,
 				filename = filename,
-				ignore_conversion_problems = True
+				ignore_conversion_problems = True,
+				directory = directory
 			)
 
 		if filename is None:
-			filename = self.get_useful_filename()
+			filename = self.get_useful_filename(directory = directory)
 
 		success = gmPG2.bytea2file (
 			data_query = {
@@ -209,6 +215,73 @@ def delete_export_item(pk_export_item=None):
 	return True
 
 #============================================================
+_html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+       "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Patient data for %s</title>
+</head>
+<body>
+
+<h1>Patient data export</h1>
+
+<h2>Demographics</h2>
+
+<p>
+	%s<br>
+	%s
+</p>
+
+<h2>Documents</h2>
+
+<ul>
+"""
+
+# <li><a href="documents/filename-1.ext">document 1 description</a></li>
+_html_list_item = u"""	<li><a href="documents/%s">%s</a></li>
+"""
+
+_html_end = u"""
+</ul>
+
+%s, GNUmed version %s
+
+</body>
+</html>
+"""
+
+_autorun_inf = (
+u'[AutoRun]\r\n'						# needs \r\n for Windows
+u'label=%s\r\n'							# patient name/DOB
+u'shellexecute=index.html\r\n'
+u'action=%s\r\n'						# % _('Browse patient data')
+u'\r\n'
+u'[Content]\r\n'
+u'PictureFiles=yes\r\n'
+u'VideoFiles=yes\r\n'
+u'MusicFiles=no\r\n'
+u'\r\n'
+u'[IgnoreContentPaths]\r\n'
+u'\documents\r\n'
+u'\r\n'
+u'[unused]\r\n'
+u'open=requires explicit executable\r\n'
+u'icon=use standard icon for storage unit\r\n'
+)
+
+_README = u"""This is a patient data bundle created by the GNUmed Electronic Medical Record.
+
+Patient: %s
+
+Please display <index.html> to browse patient data.
+
+Individual documents are stored under
+
+	./documents/
+"""
+
+#------------------------------------------------------------
 class cExportArea(object):
 
 	def __init__(self, pk_identity):
@@ -249,6 +322,69 @@ class cExportArea(object):
 		args = {'pk_obj': pk_part}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
+	#--------------------------------------------------------
+	def export_with_meta_data(self, base_dir=None, items=None):
+
+		if items is None:
+			items_found = self.items
+
+		if len(items) == 0:
+			return None
+
+		if base_dir is None:
+			base_dir = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir')
+
+		_log.debug('base dir: %s', base_dir)
+
+		doc_dir = os.path.join(base_dir, r'documents')
+		gmTools.mkdir(doc_dir)
+
+		from Gnumed.business.gmPerson import cIdentity
+		pat = cIdentity(aPK_obj = self.__pk_identity)
+
+		# index.html
+		idx_fname = os.path.join(base_dir, u'index.html')
+		idx_file = codecs.open(idx_fname, u'wb', u'utf8')
+		# header
+		idx_file.write(_html_start % (
+			gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			gmTools.html_escape_string(pat['description_gender']),
+			gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d'))
+		))
+		# middle
+		for item in items:
+			item_path = item.export_to_file(directory = doc_dir)
+			item_fname = os.path.split(item_path)[1]
+			idx_file.write(_html_list_item % (
+				item_fname,
+				gmTools.html_escape_string(item['description'])
+			))
+		# footer
+		_cfg = gmCfg2.gmCfgData()
+		idx_file.write(_html_end % (
+			gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), u'%Y %B %d')),
+			gmTools.html_escape_string(_cfg.get(option = u'client_version'))
+		))
+		idx_file.close()
+
+		# autorun.inf
+		autorun_fname = os.path.join(base_dir, u'autorun.inf')
+		autorun_file = codecs.open(autorun_fname, u'wb', u'utf8')
+		autorun_file.write(_autorun_inf % (
+			(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')).strip(),
+			_('Browse patient data')
+		))
+		autorun_file.close()
+
+		# README
+		readme_fname = os.path.join(base_dir, u'README')
+		readme_file = codecs.open(readme_fname, u'wb', u'utf8')
+		readme_file.write(_README % (
+			pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
+		))
+		readme_file.close()
+
+		return base_dir
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -343,5 +479,10 @@ if __name__ == '__main__':
 		item.save()
 		print item
 	#---------------------------------------
+	def test_export_area():
+		exp = cExportArea(12)
+		print exp.export_with_meta_data()
+	#---------------------------------------
 	#test_tray()
-	test_export_items()
+	#test_export_items()
+	test_export_area()
