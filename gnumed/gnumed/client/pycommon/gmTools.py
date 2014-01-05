@@ -114,6 +114,10 @@ def mkdir(directory=None):
 	return True
 
 #---------------------------------------------------------------------------
+def dir_is_empty(directory=None):
+	return len(os.listdir(directory)) == 0
+
+#---------------------------------------------------------------------------
 class gmPaths(gmBorg.cBorg):
 	"""This class provides the following paths:
 
@@ -1232,6 +1236,9 @@ second line\n
 		for t in tests:
 			print "[%s] -> [%s]" % (t, fname_stem(t))
 	#-----------------------------------------------------------------------
+	def test_dir_is_empty():
+		print sys.argv[2], 'empty:', dir_is_empty(sys.argv[2])
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1251,7 +1258,8 @@ second line\n
 	#test_xml_escape()
 	#test_gpg_decrypt()
 	#test_strip_trailing_empty_lines()
-	test_fname_stem()
+	#test_fname_stem()
 	#test_tex_escape()
+	test_dir_is_empty()
 
 #===========================================================================

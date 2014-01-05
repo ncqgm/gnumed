@@ -175,6 +175,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if choice != wx.ID_OK:
 			return
 
+		if not gmTools.dir_is_empty(path):
+			path = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir', tmp_dir = path)
+
 		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
 
 #		soap_lines.append(_('Saved to %s: %s') % u', '.join(form_names))

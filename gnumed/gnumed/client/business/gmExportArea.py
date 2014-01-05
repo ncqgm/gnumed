@@ -56,6 +56,10 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 				data = CASE
 					WHEN %(pk_doc_obj)s IS NULL THEN coalesce(data, 'to be replaced by real data')
 					ELSE NULL
+				END,
+				filename = CASE
+					WHEN %(pk_doc_obj)s IS NULL THEN gm.nullify_empty_string(%(filename)s)
+					ELSE NULL
 				END
 			WHERE
 				pk = %(pk_export_item)s
@@ -69,21 +73,27 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		u'created_when',
 		u'designation',
 		u'description',
-		u'pk_doc_obj'
+		u'pk_doc_obj',
+		u'filename'
 	]
 	#--------------------------------------------------------
 #	def format(self):
 #		return u'%s' % self
 	#--------------------------------------------------------
-	def update_data_from_file(self, fname=None):
+	def update_data_from_file(self, filename=None):
 		# sanity check
-		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
-			_log.error('[%s] is not a readable file' % fname)
+		if not (os.access(filename, os.R_OK) and os.path.isfile(filename)):
+			_log.error('[%s] is not a readable file' % filename)
 			return False
 
-		cmd = u"UPDATE clin.export_item SET data = %(data)s::bytea, fk_doc_obj = NULL WHERE pk = %(pk)s"
-		args = {'pk': self.pk_obj}
-		if not gmPG2.file2bytea(query = cmd, filename = fname, args = args):
+		cmd = u"""
+			UPDATE clin.export_item SET
+				data = %(data)s::bytea,
+				fk_doc_obj = NULL,
+				filename = gm.nullify_empty_string(%(fname)s)
+			WHERE pk = %(pk)s"""
+		args = {'pk': self.pk_obj, 'fname': filename}
+		if not gmPG2.file2bytea(query = cmd, filename = filename, args = args):
 			return False
 
 		# must update XMIN now ...
@@ -138,9 +148,17 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		if patient is not None:
 			patient_part = '-%s' % patient['dirname']
 
+		# preserve original filename extension if available
+		suffix = '.dat'
+		if self._payload[self._idx['filename']] is not None:
+			tmp, suffix = os.path.splitext(self._payload[self._idx['filename']])
+			suffix = suffix.strip().replace(' ', '-')
+			if suffix == u'':
+				suffix = '.dat'
+
 		fname = gmTools.get_unique_filename (
 			prefix = 'gm-export_item%s-' % patient_part,
-			suffix = '.dat',
+			suffix = suffix,
 			tmp_dir = directory
 		)
 
@@ -173,19 +191,21 @@ def get_export_items(order_by=None, pk_identity=None):
 
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
 #------------------------------------------------------------
-def create_export_item(description=None, pk_identity=None, pk_doc_obj=None):
+def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, filename=None):
 
 	args = {
 		u'desc': description,
 		u'pk_obj': pk_doc_obj,
-		u'pk_pat': pk_identity
+		u'pk_pat': pk_identity,
+		u'fname': filename
 	}
 	cmd = u"""
 		INSERT INTO clin.export_item (
 			description,
 			fk_doc_obj,
 			fk_identity,
-			data
+			data,
+			filename
 		) VALUES (
 			gm.nullify_empty_string(%(desc)s),
 			%(pk_obj)s,
@@ -194,18 +214,19 @@ def create_export_item(description=None, pk_identity=None, pk_doc_obj=None):
 				ELSE NULL::integer
 			END),
 			(CASE
-				WHEN %(pk_obj)s IS NULL THEN 'to be replaced by real data'::bytea
+				WHEN %(pk_obj)s IS NULL THEN %(fname)s::bytea
 				ELSE NULL::bytea
+			END),
+			(CASE
+				WHEN %(pk_obj)s IS NULL THEN gm.nullify_empty_string(%(fname)s)
+				ELSE NULL
 			END)
 		)
 		RETURNING pk
-		--RETURNING *
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-	#rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
 
 	return cExportItem(aPK_obj = rows[0]['pk'])
-	#return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
 
 #------------------------------------------------------------
 def delete_export_item(pk_export_item=None):
@@ -220,25 +241,26 @@ _html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>Patient data for %s</title>
+<title>%(html_title_header)s %(html_title_patient)s</title>
 </head>
 <body>
 
-<h1>Patient data export</h1>
-
-<h2>Demographics</h2>
+<h1>%(title)s</h1>
 
 <p>
-	%s<br>
-	%s
+	%(pat_name)s<br>
+	%(pat_dob)s
 </p>
 
-<h2>Documents</h2>
+<p><img src="%(mugshot_url)s" alt="%(mugshot_alt)s" title="%(mugshot_title)s" width="200" border="2"></p>
+
+<h2>%(docs_title)s</h2>
 
 <ul>
 """
 
 # <li><a href="documents/filename-1.ext">document 1 description</a></li>
+
 _html_list_item = u"""	<li><a href="documents/%s">%s</a></li>
 """
 
@@ -288,22 +310,35 @@ class cExportArea(object):
 		self.__pk_identity = pk_identity
 
 	#--------------------------------------------------------
-	def add_files(self, filenames=None):
-		for fname in filenames:
-			try:
-				open(fname).close()
-			except StandardError:
-				_log.exception('cannot open file <%s>', fname)
-				return False
+	def add_file(self, filename=None):
+		try:
+			open(filename).close()
+		except StandardError:
+			_log.exception('cannot open file <%s>', filename)
+			return False
 
+		file_md5 = gmTools.file2md5(filename = filename, return_hex = False)
+		if self.md5_exists(md5 = file_md5, include_document_parts = False):
+			_log.debug('md5 match (%s): %s already in export area', file_md5, filename)
+			return True
+
+		path, basename = os.path.split(filename)
+		item = create_export_item (
+			description = _(u'file: %s (%s/)') % (basename, path),
+			pk_identity = self.__pk_identity,
+			filename = filename
+		)
+
+		if item.update_data_from_file(filename = filename):
+			return True
+
+		delete_export_item(pk_export_item = item['pk_export_item'])
+		return False
+	#--------------------------------------------------------
+	def add_files(self, filenames=None):
 		all_ok = True
 		for fname in filenames:
-			path, basename = os.path.split(fname)
-			item = create_export_item (
-				description = _(u'file: %s (%s/)') % (basename, path),
-				pk_identity = self.__pk_identity
-			)
-			all_ok = all_ok and item.update_data_from_file(fname = fname)
+			all_ok = all_ok and self.add_file(filename = fname)
 
 		return all_ok
 	#--------------------------------------------------------
@@ -323,6 +358,24 @@ class cExportArea(object):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		return rows[0][0]
 	#--------------------------------------------------------
+	def md5_exists(self, md5=None, include_document_parts=False):
+		where_parts = [
+			u'pk_patient = %(pat)s)',
+			u'md5_sum = %(md5)s'
+		]
+		args = {
+			'pat': self.__pk_identity,
+			'md5': md5
+		}
+
+		if not include_document_parts:
+			where_parts.append(u'pk_doc_obj IS NULL')
+
+		cmd = u"SELECT EXISTS (SELECT 1 FROM clin.v_export_items WHERE %s)" % u' AND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+		return rows[0][0]
+	#--------------------------------------------------------
 	def export_with_meta_data(self, base_dir=None, items=None):
 
 		if items is None:
@@ -339,18 +392,26 @@ class cExportArea(object):
 		doc_dir = os.path.join(base_dir, r'documents')
 		gmTools.mkdir(doc_dir)
 
-		from Gnumed.business.gmPerson import cIdentity
-		pat = cIdentity(aPK_obj = self.__pk_identity)
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(aPK_obj = self.__pk_identity)
+		mugshot = pat.document_folder.latest_mugshot
+		mugshot_url = mugshot.export_to_file(directory = doc_dir)
 
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
 		idx_file = codecs.open(idx_fname, u'wb', u'utf8')
 		# header
-		idx_file.write(_html_start % (
-			gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
-			gmTools.html_escape_string(pat['description_gender']),
-			gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d'))
-		))
+		idx_file.write(_html_start % {
+			u'html_title_header': _('Patient data for'),
+			u'html_title_patient': gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			u'title': _('Patient data export'),
+			u'pat_name': gmTools.html_escape_string(pat['description_gender']),
+			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			u'mugshot_url': mugshot_url,
+			u'mugshot_alt': _('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y'),
+			u'mugshot_title': gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y'),
+			u'docs_title': _('Documents')
+		})
 		# middle
 		for item in items:
 			item_path = item.export_to_file(directory = doc_dir)
@@ -394,58 +455,6 @@ class cExportArea(object):
 	items = property(_get_items, lambda x:x)
 
 #============================================================
-class cExportTray(object):
-
-	#--------------------------------------------------------
-	def add_file(self, filename=None, description=None, remove_source_file=False):
-
-		src_filename = filename
-		if description is None:
-			description = src_filename
-
-		# check for dupes
-		try:
-			item_fname = self.__tray_items[description]
-			item_md5 = gmTools.file2md5(filename = item_fname, return_hex = False)
-			src_md5 = gmTools.file2md5(filename = src_filename, return_hex = False)
-			if item_md5 == src_md5:
-				_log.debug('md5 match: [%s] (%s) already in tray as [%s]', description, src_filename, item_fname)
-				return True
-		except KeyError:
-			pass
-		except StandardError:
-			_log.exception('cannot check [%s] for dupes in export tray [%s]', src_filename, self.__dir)
-			return False
-
-		# move into tray
-		src_dir, src_name = os.path.split(src_filename)
-		target_filename = os.path.join(self.__dir, src_name)
-		try:
-			shutil.copy2(src_filename, target_filename)
-		except StandardError:
-			_log.exception('cannot copy [%s] into export tray as [%s]', src_filename, target_filename)
-			return False
-		self.__tray_items[description] = target_filename
-
-		# remove source
-		if remove_source_file:
-			try:
-				os.remove(src_filename)
-			except StandardError:
-				_log.exception('cannot remove [%s]', src_filename)
-
-		return True
-	#--------------------------------------------------------
-	def _get_tray_items(self):
-		return self.__tray_items
-
-	items = property(_get_tray_items, lambda x:x)
-	#--------------------------------------------------------
-	def _get_filenames(self):
-		return self.__tray_items.values()
-
-	filenames = property(_get_filenames, lambda x:x)
-#============================================================
 if __name__ == '__main__':
 
 	if len(sys.argv) < 2:
@@ -460,18 +469,12 @@ if __name__ == '__main__':
 	gmI18N.install_domain()
 
 	#---------------------------------------
-	def test_tray():
-		tray = cExportTray(os.path.expanduser('~/tmp/'))
-		print tray
-		print tray.items
-		print tray.filenames
-	#---------------------------------------
 	def test_export_items():
 #		items = get_export_items()
 #		for item in items:
 #			print item.format()
 		import random
-		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None)
+		create_export_item(description = 'description %s' % random.random(), pk_identity = 12, pk_doc_obj = None, filename = u'dummy.dat')
 		items = get_export_items()
 		for item in items:
 			print item.format()
@@ -483,6 +486,5 @@ if __name__ == '__main__':
 		exp = cExportArea(12)
 		print exp.export_with_meta_data()
 	#---------------------------------------
-	#test_tray()
 	#test_export_items()
 	test_export_area()

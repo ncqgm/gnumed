@@ -250,7 +250,7 @@ class gmCryptoText(wx.TextCtrl):
  
 #############################################################################
 # test function for this module: simply run the module as "main"
-# a text entry window will pop up. Write something, select arbitray
+# a text entry window will pop up. Write something, select arbitrary
 # segmnts of text with the mouse, and then right click the selection
 # for options like encryption, decryption, and setting of passphrase
 #############################################################################

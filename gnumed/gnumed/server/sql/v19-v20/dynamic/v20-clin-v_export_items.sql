@@ -45,6 +45,10 @@ select
 		)
 	)) as md5_sum,
 	octet_length(coalesce(c_ei.data, ''::bytea)) as size,
+	coalesce (
+		c_ei.filename,
+		(select b_do.filename from blobs.doc_obj b_do where b_do.pk = c_ei.fk_doc_obj)
+	) as filename,
 	c_ei.xmin
 		as xmin_export_item
 from

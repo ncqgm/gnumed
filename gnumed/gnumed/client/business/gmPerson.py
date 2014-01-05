@@ -1305,12 +1305,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		)
 
 	dirname = property(get_dirname, lambda x:x)
-	#----------------------------------------------------------------------
-	def _get_tray_dir_name(self):
-		paths = gmTools.gmPaths()
-		return os.path.join(paths.tmp_dir, self.dirname)
 
-	tray_dir_name = property(_get_tray_dir_name, lambda x:x)
 #============================================================
 # helper functions
 #------------------------------------------------------------

@@ -119,6 +119,17 @@ alter table clin.export_item
 ;
 
 -- --------------------------------------------------------------
+-- .filename
+comment on column clin.export_item.filename is 'a filename, possibly from an import, if applicable, mainly used to please non-mime pseudo operating systems';
+
+alter table clin.export_item drop constraint if exists clin_export_item_sane_filename cascade;
+
+alter table clin.export_item
+	add constraint clin_export_item_sane_filename check (
+		gm.is_null_or_non_empty_string(filename) is True
+	);
+
+-- --------------------------------------------------------------
 -- multi-column constraints
 
 -- unique(fk_identity <-> description)
@@ -147,6 +158,17 @@ alter table clin.export_item
 		((fk_identity is null) and (fk_doc_obj is not null))
 			or
 		((fk_identity is not null) and (fk_doc_obj is null))
+	);
+
+
+-- fk_doc_obj <-> filename
+alter table clin.export_item drop constraint if exists clin_export_item_fk_obj_or_filename cascade;
+
+alter table clin.export_item
+	add constraint clin_export_item_fk_obj_or_filename check (
+		((filename is null) and (fk_doc_obj is not null))
+			or
+		((filename is not null) and (fk_doc_obj is null))
 	);
 
 -- --------------------------------------------------------------

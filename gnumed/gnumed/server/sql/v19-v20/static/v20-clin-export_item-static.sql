@@ -16,7 +16,8 @@ create table clin.export_item (
 	designation text,							-- "print" -> print manager
 	description text,
 	fk_doc_obj integer,
-	data bytea
+	data bytea,
+	filename text
 );
 -- inherits (audit.audit_fields)
 

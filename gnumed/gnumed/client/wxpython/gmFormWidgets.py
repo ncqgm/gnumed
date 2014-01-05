@@ -39,7 +39,7 @@ _log = logging.getLogger('gm.ui')
 _ID_FORM_DISPOSAL_PRINT_NOW, \
 _ID_FORM_DISPOSAL_MAIL_NOW, \
 _ID_FORM_DISPOSAL_FAX_NOW, \
-_ID_FORM_DISPOSAL_TRAY_NOW, \
+_ID_FORM_DISPOSAL_EXPORT_NOW, \
 _ID_FORM_DISPOSAL_ARCHIVE_NOW, \
 _ID_FORM_DISPOSAL_SAVE_NOW = range(6)
 
@@ -430,7 +430,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			keep_a_copy = True
 		success = fax_forms(fax_number = fax_number)
 
-	elif action_code == _ID_FORM_DISPOSAL_TRAY_NOW:
+	elif action_code == _ID_FORM_DISPOSAL_EXPORT_NOW:
 		# not implemented
 		success = False
 
@@ -519,10 +519,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 			self._PRW_fax.Disable()
 			self._BTN_fax.Disable()
 
-		self._LBL_tray.Disable()
-		self._CHBOX_tray.SetValue(False)
-		self._CHBOX_tray.Disable()
-		self._BTN_tray.Disable()
+		self._CHBOX_export.SetValue(False)
 
 	#--------------------------------------------------------
 	# event handlers
@@ -542,8 +539,8 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 			return
 		self.EndModal(_ID_FORM_DISPOSAL_FAX_NOW)
 	#--------------------------------------------------------
-	def _on_tray_button_pressed(self, event):
-		self.EndModal(_ID_FORM_DISPOSAL_TRAY_NOW)
+	def _on_export_button_pressed(self, event):
+		self.EndModal(_ID_FORM_DISPOSAL_EXPORT_NOW)
 	#--------------------------------------------------------
 	def _on_archive_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_ARCHIVE_NOW)
