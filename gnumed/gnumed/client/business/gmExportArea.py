@@ -395,7 +395,14 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		mugshot = pat.document_folder.latest_mugshot
-		mugshot_url = mugshot.export_to_file(directory = doc_dir)
+		if mugshot is None:
+			mugshot_url = u'documents/no-such-file.png'
+			mugshot_alt = _('no patient photograph available')
+			mugshot_title = u''
+		else:
+			mugshot_url = mugshot.export_to_file(directory = doc_dir)
+			mugshot_alt =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+			mugshot_title = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
@@ -408,8 +415,8 @@ class cExportArea(object):
 			u'pat_name': gmTools.html_escape_string(pat['description_gender']),
 			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
 			u'mugshot_url': mugshot_url,
-			u'mugshot_alt': _('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y'),
-			u'mugshot_title': gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y'),
+			u'mugshot_alt': mugshot_alt,
+			u'mugshot_title': mugshot_title,
 			u'docs_title': _('Documents')
 		})
 		# middle
