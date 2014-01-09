@@ -24,6 +24,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_show_item = wx.Button(self, wx.ID_ANY, _("&View"), style=wx.BU_EXACTFIT)
 		self._BTN_add_items = wx.Button(self, wx.ID_ANY, _(u"\u21a2 &Disk"), style=wx.BU_LEFT | wx.BU_EXACTFIT)
 		self._BTN_add_from_archive = wx.Button(self, wx.ID_ANY, _(u"\u21a2 &Archive"), style=wx.BU_LEFT | wx.BU_EXACTFIT)
+		self._BTN_scan_items = wx.Button(self, wx.ID_ANY, _(u"\u21a2 S&can"), style=wx.BU_LEFT | wx.BU_EXACTFIT)
 		self._BTN_remove_items = wx.Button(self, wx.ID_ANY, _("&Remove"), style=wx.BU_EXACTFIT)
 		self._BTN_print_items = wx.Button(self, wx.ID_ANY, _("&Print"), style=wx.BU_EXACTFIT)
 		self._BTN_burn_items = wx.Button(self, wx.ID_ANY, _("&Burn"), style=wx.BU_EXACTFIT)
@@ -39,6 +40,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_show_item_button_pressed, self._BTN_show_item)
 		self.Bind(wx.EVT_BUTTON, self._on_add_items_button_pressed, self._BTN_add_items)
 		self.Bind(wx.EVT_BUTTON, self._on_add_from_archive_button_pressed, self._BTN_add_from_archive)
+		self.Bind(wx.EVT_BUTTON, self._on_scan_items_button_pressed, self._BTN_scan_items)
 		self.Bind(wx.EVT_BUTTON, self._on_remove_items_button_pressed, self._BTN_remove_items)
 		self.Bind(wx.EVT_BUTTON, self._on_print_items_button_pressed, self._BTN_print_items)
 		self.Bind(wx.EVT_BUTTON, self._on_burn_items_button_pressed, self._BTN_burn_items)
@@ -53,6 +55,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_show_item.SetToolTipString(_("Show the topmost selected document."))
 		self._BTN_add_items.SetToolTipString(_("Add document(s) from file(s)."))
 		self._BTN_add_from_archive.SetToolTipString(_("Add document(s) from archive."))
+		self._BTN_scan_items.SetToolTipString(_("Acquire images from image source (scanner, ...)."))
 		self._BTN_remove_items.SetToolTipString(_("Remove the selected documents."))
 		self._BTN_print_items.SetToolTipString(_("Print selected/all documents."))
 		self._BTN_burn_items.SetToolTipString(_("Burn selected/all documents onto CD/DVD."))
@@ -71,6 +74,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		__szr_buttons_right.Add(self._BTN_show_item, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_buttons_right.Add(self._BTN_add_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_add_from_archive, 0, wx.BOTTOM | wx.EXPAND, 3)
+		__szr_buttons_right.Add(self._BTN_scan_items, 0, wx.BOTTOM | wx.EXPAND, 3)
 		__szr_buttons_right.Add(self._BTN_remove_items, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_buttons_right.Add((20, 20), 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons_right.Add(self._BTN_print_items, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
@@ -98,6 +102,10 @@ class wxgExportAreaPluginPnl(wx.Panel):
 
 	def _on_add_from_archive_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
 		print "Event handler '_on_add_from_archive_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_scan_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
+		print "Event handler '_on_scan_items_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_remove_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>

@@ -187,7 +187,10 @@ def generate_form_from_template(parent=None, template_types=None, edit=None, tem
 
 #------------------------------------------------------------
 def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=None, progress_note=None, review_copy_as_normal=False):
-	"""This function assumes that .generate_output() has already been called on each form."""
+	"""This function assumes that .generate_output() has already been called on each form.
+
+	It operates on the active patient.
+	"""
 
 	if len(forms) == 0:
 		return True
@@ -355,6 +358,10 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		soap_lines.append(_('Faxed to %s: %s') % (fax_number, u', '.join(form_names)))
 		return True
 	#-----------------------------
+	def export_forms():
+		pat = gmPerson.gmCurrentPatient()
+		return pat.export_area.add_forms(forms = forms)
+	#-----------------------------
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -431,8 +438,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		success = fax_forms(fax_number = fax_number)
 
 	elif action_code == _ID_FORM_DISPOSAL_EXPORT_NOW:
-		# not implemented
-		success = False
+		success = export_forms()
 
 	if not success:
 		return False

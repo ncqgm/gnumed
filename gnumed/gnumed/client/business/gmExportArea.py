@@ -310,17 +310,43 @@ class cExportArea(object):
 		self.__pk_identity = pk_identity
 
 	#--------------------------------------------------------
+	def add_form(self, form=None):
+
+		if len(form.final_output_filenames) == 0:
+			return True
+
+		items = []
+		for fname in form.final_output_filenames:
+			item = self.add_file(filename = fname)
+			if item is None:
+				for prev_item in items:
+					delete_export_item(pk_export_item = prev_item['pk_export_item'])
+				return False
+			items.append(item)
+			item['description'] = _(u'form: %s %s (%s)') % (form.template['name_long'], form.template['external_version'], fname)
+			item.save()
+
+		return True
+	#--------------------------------------------------------
+	def add_forms(self, forms=None):
+		all_ok = True
+		for form in forms:
+			all_ok = all_ok and self.add_form(form = form)
+
+		return all_ok
+	#--------------------------------------------------------
 	def add_file(self, filename=None):
 		try:
 			open(filename).close()
 		except StandardError:
 			_log.exception('cannot open file <%s>', filename)
-			return False
+			return None
 
-		file_md5 = gmTools.file2md5(filename = filename, return_hex = False)
-		if self.md5_exists(md5 = file_md5, include_document_parts = False):
+		file_md5 = gmTools.file2md5(filename = filename, return_hex = True)
+		existing_item = self.md5_exists(md5 = file_md5, include_document_parts = False)
+		if existing_item is not None:
 			_log.debug('md5 match (%s): %s already in export area', file_md5, filename)
-			return True
+			return existing_item
 
 		path, basename = os.path.split(filename)
 		item = create_export_item (
@@ -330,15 +356,15 @@ class cExportArea(object):
 		)
 
 		if item.update_data_from_file(filename = filename):
-			return True
+			return item
 
 		delete_export_item(pk_export_item = item['pk_export_item'])
-		return False
+		return None
 	#--------------------------------------------------------
 	def add_files(self, filenames=None):
 		all_ok = True
 		for fname in filenames:
-			all_ok = all_ok and self.add_file(filename = fname)
+			all_ok = all_ok and (self.add_file(filename = fname) is not None)
 
 		return all_ok
 	#--------------------------------------------------------
@@ -360,7 +386,7 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	def md5_exists(self, md5=None, include_document_parts=False):
 		where_parts = [
-			u'pk_patient = %(pat)s)',
+			u'pk_identity = %(pat)s',
 			u'md5_sum = %(md5)s'
 		]
 		args = {
@@ -371,10 +397,14 @@ class cExportArea(object):
 		if not include_document_parts:
 			where_parts.append(u'pk_doc_obj IS NULL')
 
-		cmd = u"SELECT EXISTS (SELECT 1 FROM clin.v_export_items WHERE %s)" % u' AND '.join(where_parts)
+		cmd = _SQL_get_export_items % u' AND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
-		return rows[0][0]
+		if len(rows) == 0:
+			return None
+
+		r = rows[0]
+		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
 	#--------------------------------------------------------
 	def export_with_meta_data(self, base_dir=None, items=None):
 

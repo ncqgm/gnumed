@@ -7,7 +7,6 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import os.path
-#codecs
 
 
 # 3rd party
@@ -39,7 +38,11 @@ _log = logging.getLogger('gm.ui')
 from Gnumed.wxGladeWidgets import wxgExportAreaPluginPnl
 
 class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
-	"""Panel holding a number of widgets. Used as notebook page."""
+	"""Panel holding a number of widgets.
+
+	Acts on the current patient.
+
+	Used as notebook page."""
 	def __init__(self, *args, **kwargs):
 		wxgExportAreaPluginPnl.wxgExportAreaPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
@@ -102,7 +105,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if not gmPerson.gmCurrentPatient().export_area.add_files(fnames):
 			gmGuiHelpers.gm_show_error (
 				title = _(u'Adding files to export area'),
-				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(fname)
+				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(fnames)
 			)
 	#--------------------------------------------------------
 	def _on_add_from_archive_button_pressed(self, event):
@@ -115,6 +118,18 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if selected_docs is None:
 			return
 		gmPerson.gmCurrentPatient().export_area.add_documents(documents = selected_docs)
+	#--------------------------------------------------------
+	def _on_scan_items_button_pressed(self, event):
+		event.Skip()
+		scans = gmDocumentWidgets.acquire_images_from_capture_device(calling_window = self)
+		if scans is None:
+			return
+
+		if not gmPerson.gmCurrentPatient().export_area.add_files(scans):
+			gmGuiHelpers.gm_show_error (
+				title = _(u'Scanning files into export area'),
+				error = _(u'Cannot add (some of) the following scans to the export area:\n%s ') % u'\n '.join(fnames)
+			)
 	#--------------------------------------------------------
 	def _on_remove_items_button_pressed(self, event):
 		event.Skip()
@@ -149,7 +164,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-#		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
+		self.save_soap_note(soap = _('Printed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
 	#--------------------------------------------------------
 	def _on_save_items_button_pressed(self, event):
@@ -162,7 +177,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				question = _('Truly export ALL items to disk (rather than just a selection) ?')
 			)
 			if not save_all:
-				return
+				return True
 			items = self._LCTRL_items.get_item_data()
 
 		dlg = wx.DirDialog (
@@ -173,19 +188,24 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		choice = dlg.ShowModal()
 		path = dlg.GetPath()
 		if choice != wx.ID_OK:
-			return
+			return True
 
 		if not gmTools.dir_is_empty(path):
 			path = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir', tmp_dir = path)
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
 
-#		soap_lines.append(_('Saved to %s: %s') % u', '.join(form_names))
+		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
+			export_dir,
+			u'\n - '.join([ i['description'] for i in items ])
+		))
 
 		gmGuiHelpers.gm_show_info (
 			title = _('Saving export area documents'),
 			info = _('Saved documents into directory:\n\n %s') % export_dir
 		)
+
+		return True
 	#--------------------------------------------------------
 	def _on_burn_items_button_pressed(self, event):
 		event.Skip()
@@ -201,7 +221,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				question = _('Truly burn ALL items to CD/DVD (rather than just a selection) ?')
 			)
 			if not burn_all:
-				return
+				return True
 			items = self._LCTRL_items.get_item_data()
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(items = items)
@@ -224,8 +244,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-#		soap_lines.append(_('Burned %s to CD/DVD: %s') % u', '.join(form_names))
-
+		self.save_soap_note(soap = _('Burned onto CD/DVD:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
 	#--------------------------------------------------------
 	def _on_archive_items_button_pressed(self, event):  # wxGlade: wxgExportAreaPluginPnl.<event_handler>
@@ -237,7 +256,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) == 0:
-			return
+			return True
 
 		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
 		if not found:
@@ -263,7 +282,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-#		soap_lines.append(_('Mailed: %s') % u', '.join(form_names))
+		self.save_soap_note(soap = _('Mailed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
 	#--------------------------------------------------------
 	def _on_fax_items_button_pressed(self, event):
@@ -306,9 +325,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			)
 			return False
 
-#		soap_lines.append(_('Faxed to %s: %s') % (fax_number, u', '.join(form_names)))
+		self.save_soap_note(soap = _('Faxed to [%s]:\n - %s') % (
+			fax_number,
+			u'\n - '.join([ i['description'] for i in items ])
+		))
 		return True
-#	#--------------------------------------------------------
+	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
 	#--------------------------------------------------------
@@ -317,7 +339,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	def __init_ui(self):
 		self._LCTRL_items.set_columns([_('By'), _('When'), _('Description')])
 
-		#self._BTN_save_items.Disable()
 		self._BTN_archive_items.Disable()
 
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
@@ -339,6 +360,55 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			self._BTN_burn_items.Disable()
 			self._BTN_burn_items.SetToolTipString (
 				self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
+			)
+
+		# make me and listctrl a file drop target
+		dt = gmGuiHelpers.cFileDropTarget(self)
+		self.SetDropTarget(dt)
+		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_items)
+		self._LCTRL_items.SetDropTarget(dt)
+		self._LCTRL_items.add_filenames = self.add_filenames_to_listctrl
+	#--------------------------------------------------------
+	def save_soap_note(self, soap=None):
+		if soap.strip() == u'':
+			return
+		emr = gmPerson.gmCurrentPatient().get_emr(allow_user_interaction = False)
+		epi = emr.add_episode(episode_name = u'administrative', is_open = False)
+		emr.add_clin_narrative (
+			soap_cat = None,
+			note = soap,
+			episode = epi
+		)
+	#--------------------------------------------------------
+	# file drop target API
+	#--------------------------------------------------------
+	def add_filenames_to_listctrl(self, filenames):
+		self.add_filenames(filenames = filenames)
+	#--------------------------------------------------------
+	def add_filenames(self, filenames):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot accept new documents. No active patient.'))
+			return
+
+		# dive into folders dropped onto us and extract files (one level deep only)
+		real_filenames = []
+		for pathname in filenames:
+			try:
+				files = os.listdir(pathname)
+				gmDispatcher.send(signal='statustext', msg=_('Extracting files from folder [%s] ...') % pathname)
+				for file in files:
+					fullname = os.path.join(pathname, file)
+					if not os.path.isfile(fullname):
+						continue
+					real_filenames.append(fullname)
+			except OSError:
+				real_filenames.append(pathname)
+
+		if not pat.export_area.add_files(real_filenames):
+			gmGuiHelpers.gm_show_error (
+				title = _(u'Adding files to export area'),
+				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(real_filenames)
 			)
 	#--------------------------------------------------------
 	# reget mixin API

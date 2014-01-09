@@ -140,12 +140,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'clin.family_history_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.procedure_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.vaccination_mod_db', receiver = self._on_post_patient_selection)
-		#gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_post_patient_selection)
+
+		# generic signal
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
 #		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
@@ -357,11 +359,22 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_documents(self, patient=None):
-		doc_folder = patient.get_document_folder()
 
 		list_items = []
 		list_data = []
 
+		# export area items
+		item_count = len(patient.export_area.items)
+		if item_count == 1:
+			list_items.append(_(u'Export area: 1 item'))
+			list_data.append(u'')
+		if item_count > 1:
+			list_items.append(_(u'Export area: %s items') % item_count)
+			list_data.append(u'')
+
+		doc_folder = patient.get_document_folder()
+
+		# unsigned docs first
 		docs = doc_folder.get_unsigned_documents()
 		no_of_unsigned = len(docs)
 		for doc in docs:
@@ -372,6 +385,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			))
 			list_data.append(doc)
 
+		# other, signed docs second
 		docs = doc_folder.get_documents(order_by = u'ORDER BY clin_when DESC', exclude_unsigned = True)
 		for doc in docs[:5]:
 			list_items.append(u'%s %s' % (
@@ -391,7 +405,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_documents.set_data(data = list_data)
 
 		if no_of_unsigned > 0:
-			for idx in range(no_of_unsigned):
+			start_idx = 0
+			if item_count > 0:
+				start_idx = 1
+			end_idx = no_of_unsigned + start_idx
+			for idx in range(start_idx, end_idx):
 				self._LCTRL_documents.SetItemTextColour(idx, wx.NamedColour('RED'))
 	#-----------------------------------------------------
 	def _calc_documents_list_item_tooltip(self, data):
