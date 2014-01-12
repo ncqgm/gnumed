@@ -1174,6 +1174,30 @@ class cAddressPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		return self.__address
 
 	person_address = property(__get_person_address, lambda x:x)
+
+#============================================================
+from Gnumed.wxGladeWidgets import wxgAddressSelectionDlg
+
+class cAddressSelectionDlg(wxgAddressSelectionDlg.wxgAddressSelectionDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgAddressSelectionDlg.wxgAddressSelectionDlg.__init__(self, *args, **kwargs)
+		self._PRW_address_searcher.SetFocus()
+	#--------------------------------------------------------
+	def _get_address(self):
+		return self._PRW_address_searcher.address
+
+	address = property(_get_address, lambda x:x)
+	#--------------------------------------------------------
+	def _set_message(self, msg):
+		self._LBL_msg.SetLabel(msg)
+
+	message = property(lambda x:x, _set_message)
+	#--------------------------------------------------------
+	def _on_manage_addresses_button_pressed(self, event):
+		event.Skip()
+		manage_addresses(parent = self)
+
 #================================================================
 # main
 #----------------------------------------------------------------

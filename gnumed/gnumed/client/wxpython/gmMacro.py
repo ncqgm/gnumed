@@ -54,6 +54,7 @@ from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 from Gnumed.wxpython import gmPraxisWidgets
+from Gnumed.wxpython import gmAddressWidgets
 
 
 _log = logging.getLogger('gm.scripting')
@@ -76,8 +77,10 @@ __known_variant_placeholders = {
 	# generic:
 	u'free_text': u"""show a dialog for entering some free text:
 		args: <message> shown in input dialog, must not contain '//' or '::'""",
+
 	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>""",
+
 	u'data_snippet': u"""a binary snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>//<optional target mime type>//<optional target extension>
 		returns full path to an exported copy of the
@@ -86,14 +89,25 @@ __known_variant_placeholders = {
 		target mime type: a mime type into which to convert the image, no conversion if not given
 		target extension: target file name extension, derived from target mime type if not given
 	""",
+
 	u'tex_escape': u"args: string to escape",
+
 	u'today': u"args: strftime format",
+
 	u'gender_mapper': u"""maps gender of patient to a string:
 		args: <value when person is male> // <is female> // <is other>
 		eg. 'male//female//other'
 		or: 'Lieber Patient//Liebe Patientin'""",
 	u'client_version': u"the version of the current client as a string (no 'v' in front)",
 
+	u'gen_adr_street': u"args: %s-style formatting template, cached",
+	u'gen_adr_number': u"args: %s-style formatting template, cached",
+	u'gen_adr_subunit': u"args: %s-style formatting template, cached",
+	u'gen_adr_location': u"args: %s-style formatting template, cached",
+	u'gen_adr_suburb': u"args: %s-style formatting template, cached",
+	u'gen_adr_postcode': u"args: %s-style formatting template, cached",
+	u'gen_adr_region': u"args: %s-style formatting template, cached",
+	u'gen_adr_country': u"args: %s-style formatting template, cached",
 
 	# patient demographics:
 	u'name': u"args: template for name parts arrangement",
@@ -831,6 +845,62 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(other_value)
 	#--------------------------------------------------------
 	# address related placeholders
+	#--------------------------------------------------------
+	def __get_variant_gen_adr_part(self, data=u'?', part=None):
+
+		msg = _('Select the address you want to use !')
+		template = u'%s'
+		values = data.split('//', 2)
+		if len(values) == 2:
+			template, msg = values
+		elif len(values) == 1:
+			template = values[0]
+
+		if template.strip() == u'':
+			template = u'%s'
+
+		cache_key = 'generic_address'
+		try:
+			adr2use = self.__cache[cache_key]
+			_log.debug('cache hit (%s): [%s]', cache_key, adr2use)
+		except KeyError:
+			adr2use = None
+
+		if adr2use is None:
+			dlg = gmAddressWidgets.cAddressSelectionDlg(None, -1)
+			dlg.message = msg
+			choice = dlg.ShowModal()
+			adr2use = dlg.address
+			dlg.Destroy()
+			if choice == wx.ID_CANCEL:
+				return u''
+			self.__cache[cache_key] = adr2use
+
+		return template % self._escape(adr2use[part])
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_street(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'street')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_number(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'number')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_subunit(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'subunit')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_location(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'urb')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_suburb(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'suburb')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_postcode(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'postcode')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_region(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_state')
+	#--------------------------------------------------------
+	def _get_variant_gen_adr_country(self, data=u'?'):
+		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
 	def _get_variant_patient_address(self, data=u''):
 
@@ -1986,7 +2056,8 @@ if __name__ == '__main__':
 			#u'$<reminders:://::>$'
 			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
-			u'$<praxis_address::::120>$'
+			#u'$<praxis_address::::120>$'
+			u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -2024,8 +2095,8 @@ if __name__ == '__main__':
 	#test_scripting()
 	#test_placeholder_regex()
 	#test()
-	#test_placeholder()
-	test_show_phs()
+	test_placeholder()
+	#test_show_phs()
 
 #=====================================================================
 
