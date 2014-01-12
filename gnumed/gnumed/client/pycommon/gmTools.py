@@ -10,6 +10,7 @@ import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
 import platform
 import subprocess
 import decimal
+import getpass
 import cPickle, zlib
 import xml.sax.saxutils as xml_tools
 
@@ -105,9 +106,12 @@ def handle_uncaught_exception_console(t, v, tb):
 #===========================================================================
 # path level operations
 #---------------------------------------------------------------------------
-def mkdir(directory=None):
+def mkdir(directory=None, mode=None):
 	try:
-		os.makedirs(directory)
+		if mode is None:
+			os.makedirs(directory)
+		else:
+			os.makedirs(directory, mode)
 	except OSError, e:
 		if (e.errno == 17) and not os.path.isdir(directory):
 			raise
@@ -195,13 +199,22 @@ class gmPaths(gmBorg.cBorg):
 		# temporary directory
 		try:
 			self.__tmp_dir_already_set
-			_log.debug('temp dir already set')
+			_log.debug(u'temp dir already set')
 		except AttributeError:
+			_log.info(u'initial temp dir: %s', tempfile.gettempdir())
+			# /tmp/gnumed/
 			tmp_base = os.path.join(tempfile.gettempdir(), app_name)
-			mkdir(tmp_base)
-			_log.info('previous temp dir: %s', tempfile.gettempdir())
+			old_umask = os.umask(0)
+			mkdir(tmp_base, 0o777)
+			os.umask(old_umask)
 			tempfile.tempdir = tmp_base
-			_log.info('intermediate temp dir: %s', tempfile.gettempdir())
+			_log.info(u'level 1 intermediate temp dir: %s', tempfile.gettempdir())
+			# /tmp/gnumed/$USER/
+			tmp_base = os.path.join(tempfile.gettempdir(), getpass.getuser())
+			mkdir(tmp_base)
+			tempfile.tempdir = tmp_base
+			_log.info(u'level 2 intermediate temp dir: %s', tempfile.gettempdir())
+			# /tmp/gnumed/$USER/gm-*/
 			self.tmp_dir = tempfile.mkdtemp(prefix = r'gm-')
 
 		self.__log_paths()
