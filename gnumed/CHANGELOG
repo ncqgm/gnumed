@@ -17,9 +17,12 @@ NEW: patient documents export area plugin
 
 	1.4.5
 
+FIX: permissions of ${TMP}/gnumed/ on multiuser systems [thanks Kalle]
+
 IMPROVED: lab results grid tooltips
 IMRPOVED: manage test types from lab results grid
 IMRPOVED: manage aggregates from test types listing
+IMPROVED: temporary directory
 
 	1.4.4
 
