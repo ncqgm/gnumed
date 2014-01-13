@@ -17,20 +17,21 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.4 (database v19.4)',
-	'GNUmed 1.4.4 Release Notes:
+	'Release Notes for GNUmed 1.4.5 (database v19.5)',
+	'GNUmed 1.4.5 Release Notes:
 
-	1.4.4
+	1.4.5
 
-FIX: gracefully recover from invalid URLs [thanks Jim]
-FIX: encounter editing from EMR browser [thanks Jim]
-FIX: faulty date access in test result EA [thanks Jim]
-FIX: a few minor bugs displaying test results
+	FIX: permissions of ${TMP}/gnumed/ on multiuser systems [thanks Kalle]
 
-IMPROVED: results formatting in episode synopsis of EMR tree
-IMPROVED: lots of details in the test results grid
+	IMPROVED: lab results grid tooltips
+	IMRPOVED: manage test types from lab results grid
+	IMRPOVED: manage aggregates from test types listing
+	IMPROVED: temporary directory
 
-	19.4 -- Requires PostgreSQL 9.1 !
+	19.5 -- Requires PostgreSQL 9.1 !
+
+	FIX: gm-adjust_db_settings.sh to work from non-CWD [thanks Marc]
 ');
 
 -- --------------------------------------------------------------

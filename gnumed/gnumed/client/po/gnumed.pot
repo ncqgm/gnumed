@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-28 17:33+0100\n"
+"POT-Creation-Date: 2014-01-13 11:45+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3245,6 +3245,9 @@ msgstr ""
 msgid "Manage panels"
 msgstr ""
 
+msgid "Manage types"
+msgstr ""
+
 msgid "&List"
 msgstr ""
 
@@ -3261,6 +3264,9 @@ msgid "&Actions ... "
 msgstr ""
 
 msgid "Manage test panels."
+msgstr ""
+
+msgid "Manage test types."
 msgstr ""
 
 msgid "Add measurments."
@@ -3290,6 +3296,9 @@ msgid "Invoke actions on the selected measurements."
 msgstr ""
 
 msgid "Spotlight &Panel:"
+msgstr ""
+
+msgid "Results:"
 msgstr ""
 
 msgid "Save the identity details."
@@ -3708,9 +3717,6 @@ msgid ""
 "(SQL)"
 msgstr ""
 
-msgid "Results:"
-msgstr ""
-
 msgid "<current allergy state>"
 msgstr ""
 
@@ -3726,7 +3732,7 @@ msgstr ""
 msgid "Has allergies"
 msgstr ""
 
-msgid "&Update / Con&firm"
+msgid "&Update / Confirm"
 msgstr ""
 
 msgid "Allergy state"
@@ -6318,6 +6324,24 @@ msgid " Panel \"%s\"             [#%s]\n"
 msgstr ""
 
 #, python-format
+msgid "Lab comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Lab comment: "
+msgstr ""
+
+#, python-format
+msgid "Praxis comment: %s\n"
+msgstr ""
+
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr ""
+
+#, python-format
 msgid "Result from %s             \n"
 msgstr ""
 
@@ -6362,33 +6386,15 @@ msgid "%.0f times the target upper limit"
 msgstr ""
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
+msgstr ""
+
+#, python-format
+msgid "Clinical target range: %s\n"
 msgstr ""
 
 #, python-format
 msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
 msgstr ""
 
 #, python-format
@@ -6443,16 +6449,16 @@ msgid "Test type details:\n"
 msgstr ""
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr ""
 
 msgid ""
 "\n"
 " Type comment:"
+msgstr ""
+
+#, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
 msgstr ""
 
 #, python-format
@@ -8345,7 +8351,7 @@ msgid "Currently %s entries in waiting list"
 msgstr ""
 
 #, python-format
-msgid "first: %s, %s"
+msgid "first (in GMd): %s, %s"
 msgstr ""
 
 #, python-format
@@ -12186,10 +12192,6 @@ msgid ""
 "You may not have write access to it."
 msgstr ""
 
-#, python-format
-msgid "Cannot start episode [%s]."
-msgstr ""
-
 msgid "Cannot create new document."
 msgstr ""
 
@@ -14326,6 +14328,14 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
+msgstr ""
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr ""
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
 
 msgid "generic / in house lab"

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-28 17:33+0100\n"
-"PO-Revision-Date: 2013-10-24 14:39+0100\n"
+"POT-Creation-Date: 2014-01-13 11:45+0100\n"
+"PO-Revision-Date: 2014-01-13 11:52+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -3618,6 +3618,9 @@ msgstr "Reaktion"
 msgid "Manage panels"
 msgstr "Profile verwalten"
 
+msgid "Manage types"
+msgstr "Verfahren verwalten"
+
 msgid "&List"
 msgstr "&Liste"
 
@@ -3635,6 +3638,9 @@ msgstr "Aufgaben ..."
 
 msgid "Manage test panels."
 msgstr "Meßwertprofile beabeiten."
+
+msgid "Manage test types."
+msgstr "Meßverfahren verwalten."
 
 msgid "Add measurments."
 msgstr "Meßwerte eingeben."
@@ -3672,6 +3678,9 @@ msgstr "Bestimmte Aufgaben mit den markierten Ergebnisse erledigen."
 
 msgid "Spotlight &Panel:"
 msgstr "Test&Profil zeigen:"
+
+msgid "Results:"
+msgstr "Ergebnisse:"
 
 msgid "Save the identity details."
 msgstr "Details zur Person speichern."
@@ -4132,9 +4141,6 @@ msgstr ""
 "Befehl\n"
 "(SQL)"
 
-msgid "Results:"
-msgstr "Ergebnisse:"
-
 msgid "<current allergy state>"
 msgstr "<jetziger Allergiezustand>"
 
@@ -4150,7 +4156,7 @@ msgstr "Keine Allergien bekannt"
 msgid "Has allergies"
 msgstr "Hat Allergien"
 
-msgid "&Update / Con&firm"
+msgid "&Update / Confirm"
 msgstr "&Bestätigen"
 
 msgid "Allergy state"
@@ -7111,6 +7117,28 @@ msgid " Panel \"%s\"             [#%s]\n"
 msgstr " Profil \"%s\"             [#%s]\n"
 
 #, python-format
+msgid "Lab comment: %s\n"
+msgstr "Laborkommentar: %s\n"
+
+msgid ""
+"\n"
+" Lab comment: "
+msgstr ""
+"\n"
+" Laborkommentar: "
+
+#, python-format
+msgid "Praxis comment: %s\n"
+msgstr "Praxiskommentar: %s\n"
+
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr ""
+"\n"
+" Praxiskommentar: "
+
+#, python-format
 msgid "Result from %s             \n"
 msgstr "Ergebnis von %s              \n"
 
@@ -7155,38 +7183,16 @@ msgid "%.0f times the target upper limit"
 msgstr "%.0f-mal der obere Zielwert"
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr "Normalbereich: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
+msgstr "Normalbereich: %s\n"
+
+#, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Zielbereich: %s\n"
 
 #, python-format
 msgid "Reference group: %s\n"
 msgstr "Referenzgruppe: %s\n"
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr "Zielbereich: %(clin_min_max)s%(clin_range)s  \n"
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr "Doc: %s\n"
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-"\n"
-" Doc: "
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr "Lab: %s\n"
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-"\n"
-" Lab: "
 
 #, python-format
 msgid "Episode: %s\n"
@@ -7240,11 +7246,6 @@ msgid "Test type details:\n"
 msgstr "Details zum Meßwert:\n"
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-"Gruppiert unter \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr "Verfahrenskommentar: %s\n"
 
@@ -7254,6 +7255,10 @@ msgid ""
 msgstr ""
 "\n"
 " Verfahrenskommentar:"
+
+#, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
+msgstr "Gruppiert (%s) unter: %s (%s)  [#%s]\n"
 
 #, python-format
 msgid "Group comment: %s\n"
@@ -9397,8 +9402,8 @@ msgid "Currently %s entries in waiting list"
 msgstr "Derzeit %s-Mal in Warteliste"
 
 #, python-format
-msgid "first: %s, %s"
-msgstr "erstmals: %s, %s"
+msgid "first (in GMd): %s, %s"
+msgstr "erstmals (in GMd): %s, %s"
 
 #, python-format
 msgid "last: %s, %s"
@@ -13912,10 +13917,6 @@ msgstr ""
 "\n"
 "Sie haben möglicherweise kein Schreibrecht dafür."
 
-#, python-format
-msgid "Cannot start episode [%s]."
-msgstr "Kann Episode [%s] nicht eröffnen."
-
 msgid "Cannot create new document."
 msgstr "Kann kein neues Dokument anlegen."
 
@@ -15450,6 +15451,10 @@ msgid ""
 "\n"
 "Leaving this unset will make GNUmed apply the most commonly used type.\n"
 msgstr ""
+"Wählen Sie die Voreinstellung für die Kontaktart.\n"
+"\n"
+"GNUmed verwendet die häufigste Kontaktart, wenn hier nichts eingestellt "
+"ist.\n"
 
 msgid ""
 "Do you want GNUmed to show the encounter\n"
@@ -16435,6 +16440,14 @@ msgstr "Zeige Meßmethoden."
 
 msgid "Org"
 msgstr "Organisation"
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr "%s &Zusammenfassen"
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
+msgstr "Zusammenfassungen (%s) von Meßverfahren in Gruppen verwalten."
 
 msgid "generic / in house lab"
 msgstr "generisch / praxisintern"
@@ -17925,6 +17938,34 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Doc: %s\n"
+#~ msgstr "Doc: %s\n"
+
+#~ msgid ""
+#~ "\n"
+#~ " Doc: "
+#~ msgstr ""
+#~ "\n"
+#~ " Doc: "
+
+#~ msgid "Lab: %s\n"
+#~ msgstr "Lab: %s\n"
+
+#~ msgid ""
+#~ "\n"
+#~ " Lab: "
+#~ msgstr ""
+#~ "\n"
+#~ " Lab: "
+
+#~ msgid ""
+#~ "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+#~ msgstr ""
+#~ "Gruppiert unter \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+
+#~ msgid "Cannot start episode [%s]."
+#~ msgstr "Kann Episode [%s] nicht eröffnen."
+
 #~ msgid ""
 #~ "... or ...\n"
 #~ "\n"
@@ -19196,9 +19237,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Editing substance intake"
 #~ msgstr "Substanzeinnahme bearbeiten"
-
-#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-#~ msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Beendigung wegen Allergie/Unverträglichkeit ?"
