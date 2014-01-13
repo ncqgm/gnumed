@@ -115,6 +115,7 @@ BACKUP=`basename ${BACKUP} .tar`
 echo ""
 echo "==> Restoring GNUmed data ..."
 LOG="${LOG_BASE}/restoring-data-${TARGET_DATABASE}-${TS}.log"
+export PGOPTIONS='-c default_transaction_read_only=off'
 sudo -u postgres psql -p ${GM_PORT} -d ${TARGET_DATABASE} --single-transaction -f ${BACKUP}-data_only.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore data. Aborting."
