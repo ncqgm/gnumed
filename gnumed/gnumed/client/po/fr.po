@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"POT-Creation-Date: 2014-01-13 19:35+0100\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -335,7 +335,7 @@ msgstr ""
 msgid "Check all parents"
 msgstr ""
 
-msgid "Check all parents of all childs"
+msgid "Check parents for checked children"
 msgstr ""
 
 msgid "Uncheck All"
@@ -350,6 +350,9 @@ msgstr ""
 #, fuzzy
 msgid "Uncheck all parents"
 msgstr "Signer toutes les pages"
+
+msgid "Check all parents of all childs"
+msgstr ""
 
 msgid "Checking not allowed when there is no timeline view."
 msgstr ""
@@ -539,6 +542,10 @@ msgstr "Créer une nouvelle chronologie"
 msgid "File Timeline..."
 msgstr "Fichier Timeline"
 
+#, fuzzy
+msgid "Numeric Timeline..."
+msgstr "Fichier Timeline"
+
 msgid "Directory Timeline..."
 msgstr "Répertoire Timeline"
 
@@ -592,6 +599,18 @@ msgstr "&Légende"
 msgid "&Balloons on hover"
 msgstr "&Ballons au survol"
 
+msgid "Zoom &In\tCtrl++"
+msgstr ""
+
+msgid "Zoom &Out\tCtrl+-"
+msgstr ""
+
+msgid "Vertical Zoom &In\tAlt++"
+msgstr ""
+
+msgid "Vertical Zoom &Out\tAlt+-"
+msgstr ""
+
 #, fuzzy
 msgid "&View"
 msgstr "Afficher le journal"
@@ -611,28 +630,29 @@ msgstr ""
 msgid "&Measure Distance between two Events..."
 msgstr ""
 
-msgid "Set Category on events without category..."
+msgid "Set Category on events &without category..."
 msgstr ""
 
 #, fuzzy
 msgid "Edit &Categories"
 msgstr "Catégorie"
 
-msgid "Read Only"
+msgid "&Read Only"
 msgstr ""
 
 msgid "&Timeline"
 msgstr "&Chronologie"
 
-msgid "Find First Event"
+#, fuzzy
+msgid "Find &First Event"
 msgstr "Trouver le premier événement"
 
 #, fuzzy
-msgid "Find Last Event"
+msgid "Find &Last Event"
 msgstr "Dernier spécifié"
 
 #, fuzzy
-msgid "Fit All Events"
+msgid "Fit &All Events"
 msgstr "Imprimer Tous Les Elements"
 
 msgid "&Navigate"
@@ -645,13 +665,15 @@ msgstr ""
 msgid "&Contents\tF1"
 msgstr "&Contacts"
 
-msgid "Getting started tutorial"
+#, fuzzy
+msgid "Getting started &tutorial"
 msgstr "Guide de démarrage"
 
-msgid "Give Feedback..."
+msgid "Give &Feedback..."
 msgstr ""
 
-msgid "Contact"
+#, fuzzy
+msgid "Co&ntact"
 msgstr "Contact"
 
 # msgstr "Modifications ..."
@@ -719,8 +741,14 @@ msgstr "Aucune chronologie ouverte."
 msgid "First time using Timeline?"
 msgstr "Première utilisation de Timeline ?"
 
+msgid "Getting started tutorial"
+msgstr "Guide de démarrage"
+
 msgid "Relevant help topics:"
 msgstr "Rubriques d'aide appropriées:"
+
+msgid "Contact"
+msgstr "Contact"
 
 msgid "View Categories Individually"
 msgstr ""
@@ -1000,7 +1028,7 @@ msgid ""
 "A Timeline can be Zoomed both horizontal (along time axis) and vertically "
 "(along event axis)\n"
 "\n"
-"To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
 "\n"
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
@@ -1274,7 +1302,8 @@ msgstr ""
 msgid "Go to &Today\tCtrl+T"
 msgstr "Aller à aujourd'hui\tCtrl+T"
 
-msgid "Go to D&ate...\tCtrl+G"
+#, fuzzy
+msgid "Go to &Date...\tCtrl+G"
 msgstr "Aller à la D&ate...\tCtrl+G"
 
 msgid "Backward\tPgUp"
@@ -3731,6 +3760,13 @@ msgstr "reactions"
 msgid "Manage panels"
 msgstr "&Gérer les orgas"
 
+msgid "All: by day"
+msgstr ""
+
+#, fuzzy
+msgid "Manage types"
+msgstr "&Gérer les orgas"
+
 msgid "&List"
 msgstr ""
 
@@ -3751,6 +3787,13 @@ msgstr "&Actions ... "
 
 msgid "Manage test panels."
 msgstr ""
+
+msgid "Switch between modes of the full results display."
+msgstr ""
+
+#, fuzzy
+msgid "Manage test types."
+msgstr "Modifier le vaccin"
 
 msgid "Add measurments."
 msgstr "Ajoutez des mesures."
@@ -3790,6 +3833,10 @@ msgstr "Agir sur les mesures sélectionnées"
 msgid "Spotlight &Panel:"
 msgstr ""
 
+#, fuzzy
+msgid "Results:"
+msgstr "Résultats"
+
 msgid "Save the identity details."
 msgstr "Enregistrer les informations personnelles."
 
@@ -3828,14 +3875,10 @@ msgstr ""
 msgid "Now (&F)"
 msgstr ""
 
-msgid "Tray"
+msgid "to patient export area"
 msgstr ""
 
-#, fuzzy
-msgid "export"
-msgstr "Exporter"
-
-msgid "Now (&T)"
+msgid "Now (&E)"
 msgstr ""
 
 msgid ""
@@ -3882,10 +3925,10 @@ msgid "Fax immediately without further ado."
 msgstr ""
 
 #, fuzzy
-msgid "Check here if you want to put a copy into the export tray."
+msgid "Check here if you want to put a copy into the export area."
 msgstr "Cocher si vous voulez modifier votre examen."
 
-msgid "Put into export tray immediately without further ado."
+msgid "Put into export area immediately without further ado."
 msgstr ""
 
 msgid "Select episode under which to archive a copy of the document(s)."
@@ -4162,6 +4205,76 @@ msgstr "Modifier l'objet sélectionné."
 msgid "Remove the selected item(s) from the list."
 msgstr "Supprimer le(s) objet(s) sélectionné(s) de la liste."
 
+msgid "↢ &Disk"
+msgstr ""
+
+msgid "↢ &Archive"
+msgstr ""
+
+msgid "↢ S&can"
+msgstr ""
+
+#, fuzzy
+msgid "&Remove"
+msgstr "Supprimer une partie"
+
+msgid "&Print"
+msgstr "&Imprimer"
+
+msgid "&Burn"
+msgstr ""
+
+msgid "&Save"
+msgstr "&Sauvegarder"
+
+msgid "E-&Mail"
+msgstr ""
+
+msgid "&Fax"
+msgstr ""
+
+msgid "⇶ Archive"
+msgstr ""
+
+#, fuzzy
+msgid "Show the topmost selected document."
+msgstr "Modifier l'objet sélectionné."
+
+#, fuzzy
+msgid "Add document(s) from file(s)."
+msgstr "Modifier les propriétés du document"
+
+#, fuzzy
+msgid "Add document(s) from archive."
+msgstr "Modifier les propriétés du document"
+
+msgid "Acquire images from image source (scanner, ...)."
+msgstr ""
+
+#, fuzzy
+msgid "Remove the selected documents."
+msgstr "Supprimer le(s) objet(s) sélectionné(s) de la liste."
+
+msgid "Print selected/all documents."
+msgstr ""
+
+msgid "Burn selected/all documents onto CD/DVD."
+msgstr ""
+
+#, fuzzy
+msgid "Save selected/all items to disk."
+msgstr "Déplacer les objets sélectionnés de la gauche vers la droite."
+
+msgid "E-mail selected/all documents."
+msgstr ""
+
+#, fuzzy
+msgid "Fax selected/all documents."
+msgstr "sauvegarder le document"
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
 msgid "Keep *this* patient"
 msgstr "Conserver *ce* patient"
 
@@ -4276,10 +4389,6 @@ msgstr ""
 "Commande\n"
 "(SQL)"
 
-#, fuzzy
-msgid "Results:"
-msgstr "Résultats"
-
 msgid "<current allergy state>"
 msgstr "<état des allergies>"
 
@@ -4295,7 +4404,8 @@ msgstr "Aucune allergies connues"
 msgid "Has allergies"
 msgstr "Possède des allergies"
 
-msgid "&Update / Con&firm"
+#, fuzzy
+msgid "&Update / Confirm"
 msgstr "&Mettre à jour / Con&firmer"
 
 msgid "Allergy state"
@@ -4429,9 +4539,6 @@ msgstr "&Effacer"
 
 msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
-
-msgid "&Save"
-msgstr "&Sauvegarder"
 
 msgid "&Filter by problem"
 msgstr "&filtre par problèmes"
@@ -6229,6 +6336,26 @@ msgstr "Unités"
 msgid "Factor"
 msgstr ""
 
+#, fuzzy
+msgid "Select the address you want to use:"
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
+
+#, fuzzy
+msgid "Address selection"
+msgstr "Enregistrer le patient actuel"
+
+#, fuzzy
+msgid "Manage addresses."
+msgstr "&Gérer les orgas"
+
+#, fuzzy
+msgid "Use the selected address."
+msgstr "Modifier l'objet sélectionné."
+
+#, fuzzy
+msgid "Abort address selection."
+msgstr "Enregistrer le patient actuel"
+
 msgid "Mandatory: Which hospital the patient was admitted to."
 msgstr "Obligatoire : quel hôpital a admis le patient ?"
 
@@ -6743,6 +6870,44 @@ msgstr ""
 
 msgid "<EMTPY>"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "form: %s %s (%s)"
+msgstr "Exporté: %s\n"
+
+#, fuzzy, python-format
+msgid "file: %s (%s/)"
+msgstr "Exporté: %s\n"
+
+#, fuzzy, python-format
+msgid "doc: %s"
+msgstr "   Doc: %s"
+
+#, fuzzy
+msgid "no patient photograph available"
+msgstr "aucun commentaire disponible"
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr ""
+
+#, fuzzy
+msgid "Patient data for"
+msgstr "Patient"
+
+msgid "born"
+msgstr ""
+
+#, fuzzy
+msgid "Patient data export"
+msgstr "Envoyer un rapport"
+
+msgid "Documents"
+msgstr "Documents"
+
+#, fuzzy
+msgid "Browse patient data"
+msgstr "Fusionner les patients"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -7268,6 +7433,26 @@ msgstr ""
 msgid " Panel \"%s\"             [#%s]\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "Lab comment: %s\n"
+msgstr "Dernière modification le : %s\n"
+
+#, fuzzy
+msgid ""
+"\n"
+" Lab comment: "
+msgstr "commentaire"
+
+#, fuzzy, python-format
+msgid "Praxis comment: %s\n"
+msgstr "Patient :"
+
+#, fuzzy
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr "commentaire"
+
 #, python-format
 msgid "Result from %s             \n"
 msgstr ""
@@ -7313,33 +7498,15 @@ msgid "%.0f times the target upper limit"
 msgstr ""
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Informations cliniques"
 
 #, python-format
 msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
 msgstr ""
 
 #, python-format
@@ -7394,10 +7561,6 @@ msgid "Test type details:\n"
 msgstr ""
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr ""
 
@@ -7405,6 +7568,10 @@ msgid ""
 "\n"
 " Type comment:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
+msgstr "Créé lors de la consultation du : %s (%s - %s) [#%s]"
 
 #, python-format
 msgid "Group comment: %s\n"
@@ -8020,9 +8187,6 @@ msgstr "Hôpital"
 #, fuzzy
 msgid "Procedures"
 msgstr "Procédure"
-
-msgid "Documents"
-msgstr "Documents"
 
 #, fuzzy
 msgid "Substances"
@@ -9431,6 +9595,14 @@ msgstr ""
 msgid "Deleting inbox message"
 msgstr "Message d'information générique"
 
+#, fuzzy
+msgid "Export area: 1 item"
+msgstr "Exporter"
+
+#, fuzzy, python-format
+msgid "Export area: %s items"
+msgstr "Exporté: %s\n"
+
 #, python-format
 msgid "%s %s more not shown %s"
 msgstr ""
@@ -9440,7 +9612,7 @@ msgid "Currently %s entries in waiting list"
 msgstr "Le patient actuellement sélectionné est :"
 
 #, fuzzy, python-format
-msgid "first: %s, %s"
+msgid "first (in GMd): %s, %s"
 msgstr "Unité : %s (%s)"
 
 #, fuzzy, python-format
@@ -9697,6 +9869,10 @@ msgstr ""
 #, python-format
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
+
+#, fuzzy
+msgid "Select the address you want to use !"
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
 
 msgid "no address type replacement selected"
 msgstr ""
@@ -12241,9 +12417,6 @@ msgstr "Jours"
 msgid "Rev EDC"
 msgstr ""
 
-msgid "&Print"
-msgstr "&Imprimer"
-
 msgid ""
 "\n"
 "\n"
@@ -13054,6 +13227,151 @@ msgstr "Abandon note clinique"
 msgid "clinical progress note"
 msgstr "note de progrès clinique"
 
+msgid "Select files to add to the export area"
+msgstr ""
+
+#, fuzzy
+msgid "Adding files to export area"
+msgstr "Ajouter un nouveau vaccin"
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following files to the export area:\n"
+"%s "
+msgstr ""
+
+#, fuzzy
+msgid "Select the documents to be put into the export area:"
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
+
+msgid "Scanning files into export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following scans to the export area:\n"
+"%s "
+msgstr ""
+
+#, fuzzy
+msgid "Deleting document from export area."
+msgstr "Chargement de la liste document"
+
+#, python-format
+msgid ""
+"Really remove %s selected document(s)\n"
+"from the patient export area ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error printing documents."
+msgstr "Modifier la vaccination"
+
+#, fuzzy, python-format
+msgid "Printing [%s]"
+msgstr "Imprimer"
+
+#, fuzzy, python-format
+msgid ""
+"Printed:\n"
+" - %s"
+msgstr "Exporté: %s\n"
+
+#, fuzzy
+msgid "Saving export area documents"
+msgstr "sauvegarder le document"
+
+msgid "Truly export ALL items to disk (rather than just a selection) ?"
+msgstr ""
+
+#, fuzzy
+msgid "Select the directory into which to export the documents."
+msgstr "Choisissez l'épisode vers lequel vous voulez déplacer le texte."
+
+#, fuzzy, python-format
+msgid ""
+"Saved to [%s]:\n"
+" - %s"
+msgstr "  risque: %s"
+
+#, python-format
+msgid ""
+"Saved documents into directory:\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid "Truly burn ALL items to CD/DVD (rather than just a selection) ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error burning documents to CD/DVD."
+msgstr "Modifier la vaccination"
+
+#, fuzzy
+msgid "Burning documents"
+msgstr "sauvegarder le document"
+
+#, python-format
+msgid ""
+"Burned onto CD/DVD:\n"
+" - %s"
+msgstr ""
+
+#, fuzzy
+msgid "Error mailing documents."
+msgstr "sauvegarder le document"
+
+#, fuzzy
+msgid "Mailing documents"
+msgstr "sauvegarder le document"
+
+#, fuzzy, python-format
+msgid ""
+"Mailed:\n"
+" - %s"
+msgstr "Fermé"
+
+msgid ""
+"Please enter the fax number here !\n"
+"\n"
+"It can be left empty if the external\n"
+"fax software knows how to get the number."
+msgstr ""
+
+#, fuzzy
+msgid "Faxing documents"
+msgstr "sauvegarder le document"
+
+#, fuzzy, python-format
+msgid ""
+"Error faxing documents to\n"
+"\n"
+"  %s"
+msgstr "Chargement de la liste document"
+
+#, fuzzy, python-format
+msgid ""
+"Faxed to [%s]:\n"
+" - %s"
+msgstr " option [%s]: %s"
+
+msgid "<gm-mail_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-fax_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Cannot accept new documents. No active patient."
+msgstr ""
+
+#, python-format
+msgid "Extracting files from folder [%s] ..."
+msgstr ""
+
 #, python-format
 msgid ""
 "Error exporting form template\n"
@@ -13112,50 +13430,17 @@ msgstr ""
 msgid "Saved to disk: %s"
 msgstr "  risque: %s"
 
-#, fuzzy
-msgid "Error printing documents."
-msgstr "Modifier la vaccination"
-
-#, fuzzy, python-format
-msgid "Printing [%s]"
-msgstr "Imprimer"
-
 #, fuzzy, python-format
 msgid "Printed: %s"
 msgstr "Exporté: %s\n"
-
-#, fuzzy
-msgid "Error mailing documents."
-msgstr "sauvegarder le document"
-
-#, fuzzy
-msgid "Mailing documents"
-msgstr "sauvegarder le document"
 
 #, fuzzy, python-format
 msgid "Mailed: %s"
 msgstr "Fermé"
 
 #, fuzzy, python-format
-msgid ""
-"Error faxing documents to\n"
-"\n"
-"  %s"
-msgstr "Chargement de la liste document"
-
-#, fuzzy
-msgid "Faxing documents"
-msgstr "sauvegarder le document"
-
-#, fuzzy, python-format
 msgid "Faxed to %s: %s"
 msgstr " option [%s]: %s"
-
-msgid "<gm-mail_doc(.bat) not found>"
-msgstr ""
-
-msgid "<gm-fax_doc(.bat) not found>"
-msgstr ""
 
 #, fuzzy
 msgid "Adding new form template"
@@ -13369,13 +13654,6 @@ msgstr ""
 msgid "Acquiring images"
 msgstr "acquisition d'une image"
 
-msgid "Cannot accept new documents. No active patient."
-msgstr ""
-
-#, python-format
-msgid "Extracting files from folder [%s] ..."
-msgstr ""
-
 #, fuzzy
 msgid "other documents"
 msgstr "Attacher des documents"
@@ -13479,10 +13757,6 @@ msgid ""
 "Cannot delete part in file [%s].\n"
 "\n"
 "You may not have write access to it."
-msgstr ""
-
-#, python-format
-msgid "Cannot start episode [%s]."
 msgstr ""
 
 msgid "Cannot create new document."
@@ -14353,6 +14627,12 @@ msgstr ""
 msgid "Write a letter for the current patient."
 msgstr ""
 
+msgid "Screenshot -> export area"
+msgstr ""
+
+msgid "Put a screenshot into the patient export area."
+msgstr ""
+
 #, fuzzy
 msgid "List Placeholders"
 msgstr "erreur avec le remplissage [%s]"
@@ -14607,6 +14887,10 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot put screenshot into export area. No active patient."
+msgstr "Impossible de lister les rencontres. Aucun patient actif."
 
 #, python-format
 msgid ""
@@ -15152,10 +15436,6 @@ msgstr ""
 msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr ""
 
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr ""
-
 msgid "[-9999]: <access violation test error>"
 msgstr ""
 
@@ -15283,6 +15563,10 @@ msgstr ""
 
 msgid "no patient"
 msgstr "Pas de patient"
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr ""
 
 msgid "GNUmed client"
 msgstr ""
@@ -15562,6 +15846,13 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
+#, fuzzy
+msgid "Time"
+msgstr "Durée :"
+
+msgid "Result"
+msgstr ""
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -15631,7 +15922,10 @@ msgstr ""
 msgid "Date / Time"
 msgstr ""
 
-msgid "Result"
+msgid "All: as &Grid"
+msgstr ""
+
+msgid "All: by &Day"
 msgstr ""
 
 #, fuzzy
@@ -15693,6 +15987,14 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
+msgstr ""
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr ""
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
 
 #, fuzzy
@@ -16728,12 +17030,20 @@ msgid "Global Search Of Contacts Database"
 msgstr "Recherche globale dans la base de données des contacts"
 
 #, fuzzy
-msgid "EMR Timeline"
-msgstr "Arbre DMP"
+msgid "Export Area"
+msgstr "Exporter"
 
 #, fuzzy, python-format
 msgid "loading plugin <%s>"
 msgstr "Chargement de la liste document"
+
+#, fuzzy
+msgid "E&xport area"
+msgstr "Exporter"
+
+#, fuzzy
+msgid "EMR Timeline"
+msgstr "Arbre DMP"
 
 msgid "Show &Timeline"
 msgstr ""
@@ -17071,6 +17381,10 @@ msgstr "Abandonner"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
 
+#, fuzzy
+#~ msgid "export"
+#~ msgstr "Exporter"
+
 #~ msgid ""
 #~ "... or ...\n"
 #~ "\n"
@@ -17242,9 +17556,6 @@ msgstr "Annuler et ne PAS se connecter a GNUmed."
 
 #~ msgid "Show messages:"
 #~ msgstr "Afficher les messages :"
-
-#~ msgid "   Doc: %s"
-#~ msgstr "   Doc: %s"
 
 #~ msgid "   MTA: %s"
 #~ msgstr "   MTA: %s"

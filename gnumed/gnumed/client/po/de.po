@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
-"PO-Revision-Date: 2013-10-24 14:39+0100\n"
+"POT-Creation-Date: 2014-01-13 19:35+0100\n"
+"PO-Revision-Date: 2014-01-13 20:49+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -311,7 +311,7 @@ msgstr ""
 msgid "Check all parents"
 msgstr ""
 
-msgid "Check all parents of all childs"
+msgid "Check parents for checked children"
 msgstr ""
 
 msgid "Uncheck All"
@@ -324,6 +324,9 @@ msgid "Uncheck all children"
 msgstr ""
 
 msgid "Uncheck all parents"
+msgstr ""
+
+msgid "Check all parents of all childs"
 msgstr ""
 
 msgid "Checking not allowed when there is no timeline view."
@@ -496,6 +499,9 @@ msgstr "Einen neuen Zeitstrahl erstellen"
 msgid "File Timeline..."
 msgstr "Zeitstrahl-Datei..."
 
+msgid "Numeric Timeline..."
+msgstr "Numerischer Zeitstrahl..."
+
 msgid "Directory Timeline..."
 msgstr "Zeitstrahl-Ordner..."
 
@@ -544,6 +550,18 @@ msgstr "&Legende"
 msgid "&Balloons on hover"
 msgstr ""
 
+msgid "Zoom &In\tCtrl++"
+msgstr ""
+
+msgid "Zoom &Out\tCtrl+-"
+msgstr ""
+
+msgid "Vertical Zoom &In\tAlt++"
+msgstr ""
+
+msgid "Vertical Zoom &Out\tAlt+-"
+msgstr ""
+
 msgid "&View"
 msgstr "&Ansicht"
 
@@ -562,26 +580,26 @@ msgstr ""
 msgid "&Measure Distance between two Events..."
 msgstr ""
 
-msgid "Set Category on events without category..."
+msgid "Set Category on events &without category..."
 msgstr ""
 
 msgid "Edit &Categories"
 msgstr "Kategorien bearbeiten"
 
-msgid "Read Only"
+msgid "&Read Only"
 msgstr ""
 
 msgid "&Timeline"
 msgstr "&Zeitstrahl"
 
-msgid "Find First Event"
-msgstr "Frühestes Ereignis suchen"
+msgid "Find &First Event"
+msgstr "&Frühestes Ereignis suchen"
 
-msgid "Find Last Event"
-msgstr "Spätestes Ereignis suchen"
+msgid "Find &Last Event"
+msgstr "&Spätestes Ereignis suchen"
 
-msgid "Fit All Events"
-msgstr "Alle Ereignisse ins Fenster einpassen"
+msgid "Fit &All Events"
+msgstr "&Alle Ereignisse ins Fenster einpassen"
 
 msgid "&Navigate"
 msgstr "&Position/Zoom"
@@ -592,14 +610,14 @@ msgstr ""
 msgid "&Contents\tF1"
 msgstr "&Inhalt\tF1"
 
-msgid "Getting started tutorial"
-msgstr "Tutorial"
+msgid "Getting started &tutorial"
+msgstr "&Tutorial"
 
-msgid "Give Feedback..."
+msgid "Give &Feedback..."
 msgstr ""
 
-msgid "Contact"
-msgstr "Kontakt"
+msgid "Co&ntact"
+msgstr "&Kontakt"
 
 msgid "&Help"
 msgstr "H&ilfe"
@@ -655,8 +673,14 @@ msgstr "Sie haben noch keinen Zeitstrahl geöffnet."
 msgid "First time using Timeline?"
 msgstr "Benutzen Sie Timeline zum ersten mal?"
 
+msgid "Getting started tutorial"
+msgstr "Tutorial"
+
 msgid "Relevant help topics:"
 msgstr "Relevante Hilfethemen:"
+
+msgid "Contact"
+msgstr "Kontakt"
 
 msgid "View Categories Individually"
 msgstr ""
@@ -922,7 +946,7 @@ msgid ""
 "A Timeline can be Zoomed both horizontal (along time axis) and vertically "
 "(along event axis)\n"
 "\n"
-"To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
 "\n"
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
@@ -1177,7 +1201,7 @@ msgstr "Zeitraum ist zu lang"
 msgid "Go to &Today\tCtrl+T"
 msgstr "Zum heutigen Datum springen\tStrg+T"
 
-msgid "Go to D&ate...\tCtrl+G"
+msgid "Go to &Date...\tCtrl+G"
 msgstr "Zu bestimmtem Datum springen\tStrg+G"
 
 msgid "Backward\tPgUp"
@@ -3618,6 +3642,12 @@ msgstr "Reaktion"
 msgid "Manage panels"
 msgstr "Profile verwalten"
 
+msgid "All: by day"
+msgstr "Alle: tageweise"
+
+msgid "Manage types"
+msgstr "Verfahren verwalten"
+
 msgid "&List"
 msgstr "&Liste"
 
@@ -3635,6 +3665,12 @@ msgstr "Aufgaben ..."
 
 msgid "Manage test panels."
 msgstr "Meßwertprofile beabeiten."
+
+msgid "Switch between modes of the full results display."
+msgstr "Umschalten des Anzeigemodus für alle Meßwerte."
+
+msgid "Manage test types."
+msgstr "Meßverfahren verwalten."
 
 msgid "Add measurments."
 msgstr "Meßwerte eingeben."
@@ -3673,6 +3709,9 @@ msgstr "Bestimmte Aufgaben mit den markierten Ergebnisse erledigen."
 msgid "Spotlight &Panel:"
 msgstr "Test&Profil zeigen:"
 
+msgid "Results:"
+msgstr "Ergebnisse:"
+
 msgid "Save the identity details."
 msgstr "Details zur Person speichern."
 
@@ -3709,14 +3748,11 @@ msgstr "Faxen an"
 msgid "Now (&F)"
 msgstr "jetzt (&F)"
 
-msgid "Tray"
-msgstr "Korb"
+msgid "to patient export area"
+msgstr "in Exportbereich"
 
-msgid "export"
-msgstr "exportieren"
-
-msgid "Now (&T)"
-msgstr "Jetzt (&T)"
+msgid "Now (&E)"
+msgstr "Jetzt (&E)"
 
 msgid ""
 "Archive\n"
@@ -3758,11 +3794,11 @@ msgstr "Geben Sie hier eine Faxnummer ein."
 msgid "Fax immediately without further ado."
 msgstr "Sofort und ausschließlich faxen."
 
-msgid "Check here if you want to put a copy into the export tray."
-msgstr "Hier ankreuzen, um eine Kopie in den Postausgang zu legen."
+msgid "Check here if you want to put a copy into the export area."
+msgstr "Hier ankreuzen, um eine Kopie in den Exportbereich zu legen."
 
-msgid "Put into export tray immediately without further ado."
-msgstr ""
+msgid "Put into export area immediately without further ado."
+msgstr "Sofort und ausschließlich in den Exportbereich legen."
 
 msgid "Select episode under which to archive a copy of the document(s)."
 msgstr "Wählen Sie die Episode, der die Dokumente zugeordnet werden sollen."
@@ -4021,6 +4057,69 @@ msgstr "Den markierten Eintrags ändern."
 msgid "Remove the selected item(s) from the list."
 msgstr "Gewählte Einträge aus der Liste löschen."
 
+msgid "↢ &Disk"
+msgstr "↢ &Festplatte"
+
+msgid "↢ &Archive"
+msgstr "↢ &Archiv"
+
+msgid "↢ S&can"
+msgstr "↢ S&can"
+
+msgid "&Remove"
+msgstr "&Entfernen"
+
+msgid "&Print"
+msgstr "&Drucken"
+
+msgid "&Burn"
+msgstr "&Brennen"
+
+msgid "&Save"
+msgstr "&Speichern"
+
+msgid "E-&Mail"
+msgstr "E-&Mail"
+
+msgid "&Fax"
+msgstr "&Fax"
+
+msgid "⇶ Archive"
+msgstr "⇶ Archiv"
+
+msgid "Show the topmost selected document."
+msgstr "Das zuoberste gewählte Dokument anzeigen."
+
+msgid "Add document(s) from file(s)."
+msgstr "Dokumente aus Dateien hinzufügen."
+
+msgid "Add document(s) from archive."
+msgstr "Dokumente aus dem Archiv holen."
+
+msgid "Acquire images from image source (scanner, ...)."
+msgstr "Bilder aus einer Bildquelle holen (Scanner, ...)."
+
+msgid "Remove the selected documents."
+msgstr "Gewählte Dokumente entfernen."
+
+msgid "Print selected/all documents."
+msgstr "Gewählte/alle Dokumente drucken."
+
+msgid "Burn selected/all documents onto CD/DVD."
+msgstr "Gewählte/alle Dokumente auf CD/DVD brennen."
+
+msgid "Save selected/all items to disk."
+msgstr "Gewählte/alle Dokumente auf Datenträger speichern."
+
+msgid "E-mail selected/all documents."
+msgstr "Gewählte/alle Dokumente mailen."
+
+msgid "Fax selected/all documents."
+msgstr "Gewählte/alle Dokumente faxen."
+
+msgid "Store selected/all documents in document archive."
+msgstr "Gewählte/alle Dokumente ins Archiv kopieren."
+
 msgid "Keep *this* patient"
 msgstr "*Diesen* Patienten behalten"
 
@@ -4132,9 +4231,6 @@ msgstr ""
 "Befehl\n"
 "(SQL)"
 
-msgid "Results:"
-msgstr "Ergebnisse:"
-
 msgid "<current allergy state>"
 msgstr "<jetziger Allergiezustand>"
 
@@ -4150,7 +4246,7 @@ msgstr "Keine Allergien bekannt"
 msgid "Has allergies"
 msgstr "Hat Allergien"
 
-msgid "&Update / Con&firm"
+msgid "&Update / Confirm"
 msgstr "&Bestätigen"
 
 msgid "Allergy state"
@@ -4282,9 +4378,6 @@ msgstr "&Löschen"
 
 msgid "<above, double-click problem to start entering SOAP note>"
 msgstr "<zum Eingeben von SOAP-Notizen oben ein Problem doppelklicken>"
-
-msgid "&Save"
-msgstr "&Speichern"
 
 msgid "&Filter by problem"
 msgstr "&Filtern anhand des Problems"
@@ -6087,6 +6180,21 @@ msgstr "Anzahl"
 msgid "Factor"
 msgstr "Faktor"
 
+msgid "Select the address you want to use:"
+msgstr "Wählen Sie die Adresse, die Sie verwenden wollen:"
+
+msgid "Address selection"
+msgstr "Adresswahl"
+
+msgid "Manage addresses."
+msgstr "Adressen verwalten."
+
+msgid "Use the selected address."
+msgstr "Gewählte Adresse verwenden."
+
+msgid "Abort address selection."
+msgstr "Adresswahl abbrechen."
+
 msgid "Mandatory: Which hospital the patient was admitted to."
 msgstr "Pflichfeld: In welches Krankenhaus wurde der Patient eingewiesen ?"
 
@@ -6596,6 +6704,40 @@ msgstr "HL7-%s-Feld"
 
 msgid "<EMTPY>"
 msgstr "<LEER>"
+
+#, python-format
+msgid "form: %s %s (%s)"
+msgstr "Formular: %s %s (%s)"
+
+#, python-format
+msgid "file: %s (%s/)"
+msgstr "Datei: %s (%s/)"
+
+#, python-format
+msgid "doc: %s"
+msgstr "Dokument: %s"
+
+msgid "no patient photograph available"
+msgstr "kein Patientenfoto verfügbar"
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr "Patientenbild von %s"
+
+msgid "Patient data for"
+msgstr "Patientendaten für"
+
+msgid "born"
+msgstr "geboren"
+
+msgid "Patient data export"
+msgstr "Export von Patientendaten"
+
+msgid "Documents"
+msgstr "Dokumente"
+
+msgid "Browse patient data"
+msgstr "Patientendaten durchblättern"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -7111,6 +7253,28 @@ msgid " Panel \"%s\"             [#%s]\n"
 msgstr " Profil \"%s\"             [#%s]\n"
 
 #, python-format
+msgid "Lab comment: %s\n"
+msgstr " Laborkommentar: %s\n"
+
+msgid ""
+"\n"
+" Lab comment: "
+msgstr ""
+"\n"
+" Laborkommentar: "
+
+#, python-format
+msgid "Praxis comment: %s\n"
+msgstr "Praxiskommentar: %s\n"
+
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr ""
+"\n"
+" Praxiskommentar: "
+
+#, python-format
 msgid "Result from %s             \n"
 msgstr "Ergebnis von %s              \n"
 
@@ -7155,38 +7319,16 @@ msgid "%.0f times the target upper limit"
 msgstr "%.0f-mal der obere Zielwert"
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
-msgstr "Normalbereich: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
+msgstr "Normalbereich: %s\n"
+
+#, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Zielbereich: %s\n"
 
 #, python-format
 msgid "Reference group: %s\n"
 msgstr "Referenzgruppe: %s\n"
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr "Zielbereich: %(clin_min_max)s%(clin_range)s  \n"
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr "Doc: %s\n"
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-"\n"
-" Doc: "
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr "Lab: %s\n"
-
-msgid ""
-"\n"
-" Lab: "
-msgstr ""
-"\n"
-" Lab: "
 
 #, python-format
 msgid "Episode: %s\n"
@@ -7240,11 +7382,6 @@ msgid "Test type details:\n"
 msgstr "Details zum Meßwert:\n"
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-"Gruppiert unter \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr "Verfahrenskommentar: %s\n"
 
@@ -7254,6 +7391,10 @@ msgid ""
 msgstr ""
 "\n"
 " Verfahrenskommentar:"
+
+#, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
+msgstr "Gruppiert (%s) unter: %s (%s)  [#%s]\n"
 
 #, python-format
 msgid "Group comment: %s\n"
@@ -7860,9 +8001,6 @@ msgstr "Krankenhausaufenthalte"
 
 msgid "Procedures"
 msgstr "Maßnahmen"
-
-msgid "Documents"
-msgstr "Dokumente"
 
 msgid "Substances"
 msgstr "Substanzen"
@@ -9388,6 +9526,13 @@ msgstr ""
 msgid "Deleting inbox message"
 msgstr "Lösche Nachricht"
 
+msgid "Export area: 1 item"
+msgstr "Exportbereich: 1 Dokument"
+
+#, python-format
+msgid "Export area: %s items"
+msgstr "Exportbereich: %s Dokumente"
+
 #, python-format
 msgid "%s %s more not shown %s"
 msgstr "%s %s weitere nicht dargestellt %s"
@@ -9397,8 +9542,8 @@ msgid "Currently %s entries in waiting list"
 msgstr "Derzeit %s-Mal in Warteliste"
 
 #, python-format
-msgid "first: %s, %s"
-msgstr "erstmals: %s, %s"
+msgid "first (in GMd): %s, %s"
+msgstr "erstmals (in Gmd): %s, %s"
 
 #, python-format
 msgid "last: %s, %s"
@@ -9672,6 +9817,9 @@ msgstr "Vorlage fehlt"
 #, python-format
 msgid "invalid gender mapping layout: [%s]"
 msgstr "ungültiges Format für geschlechtsabhängiges Mapping: [%s]"
+
+msgid "Select the address you want to use !"
+msgstr "Wählen Sie die Adresse, die Sie verwenden wollen !"
 
 msgid "no address type replacement selected"
 msgstr "Keine Ersatzadresse ausgewählt"
@@ -12432,9 +12580,6 @@ msgstr "Tage"
 msgid "Rev EDC"
 msgstr "Korr.Termin"
 
-msgid "&Print"
-msgstr "&Drucken"
-
 msgid ""
 "\n"
 "\n"
@@ -13417,6 +13562,173 @@ msgstr "Karteieintrag verwerfen"
 msgid "clinical progress note"
 msgstr "klinische Verlaufsnotiz"
 
+msgid "Select files to add to the export area"
+msgstr "Wählen Sie Dateien für die Aufnahme in den Exportbereich"
+
+msgid "Adding files to export area"
+msgstr "Dateien zum Exportbereich hinzufügen"
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following files to the export area:\n"
+"%s "
+msgstr ""
+"Kann einige der folgenden Dateien nicht in den Exportbereich aufnehmen:\n"
+"%s"
+
+msgid "Select the documents to be put into the export area:"
+msgstr ""
+"Wählen Sie die Dokumente, die dem Exportbereich hinzugefügt werden sollen:"
+
+msgid "Scanning files into export area"
+msgstr "Scannen von Dateien für den Exportbereich"
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following scans to the export area:\n"
+"%s "
+msgstr ""
+"Kann einige der folgenden Scans nicht in den Exportbereich aufnehmen:\n"
+"%s"
+
+msgid "Deleting document from export area."
+msgstr "Dokumente aus dem Exportbereich löschen."
+
+#, python-format
+msgid ""
+"Really remove %s selected document(s)\n"
+"from the patient export area ?"
+msgstr ""
+"Wirklich %s gewählte Dokumente aus\n"
+"dem Exportbereich löschen ?"
+
+msgid "Error printing documents."
+msgstr "Fehler beim Drucken der Dokumente."
+
+#, python-format
+msgid "Printing [%s]"
+msgstr "Drucke [%s]"
+
+#, python-format
+msgid ""
+"Printed:\n"
+" - %s"
+msgstr ""
+"Gedruckt:\n"
+" - %s"
+
+msgid "Saving export area documents"
+msgstr "Speichere Dokumente des Exportbereichs"
+
+msgid "Truly export ALL items to disk (rather than just a selection) ?"
+msgstr ""
+"Wirklich ALLE Dokumente auf einen Datenträger exportieren (und nicht nur "
+"einige ausgewählte) ?"
+
+msgid "Select the directory into which to export the documents."
+msgstr ""
+"Wählen Sie das Verzeichnis, in welches Dokumente aus dem Exportbereich "
+"gespeichert werden sollen."
+
+#, python-format
+msgid ""
+"Saved to [%s]:\n"
+" - %s"
+msgstr ""
+"In [%s] gespeichert:\n"
+" - %s"
+
+#, python-format
+msgid ""
+"Saved documents into directory:\n"
+"\n"
+" %s"
+msgstr ""
+"Dokumente in folgendes Verzeichnis gespeichtert:\n"
+"\n"
+" %s"
+
+msgid "Truly burn ALL items to CD/DVD (rather than just a selection) ?"
+msgstr ""
+"Wirklich ALLE Dokumenten auf CD/DVD brennen (und nicht nur einige "
+"ausgewählte) ?"
+
+msgid "Error burning documents to CD/DVD."
+msgstr "Fehler beim Brennen der Dokumente auf CD/DVD."
+
+msgid "Burning documents"
+msgstr "Dokumente brennen"
+
+#, python-format
+msgid ""
+"Burned onto CD/DVD:\n"
+" - %s"
+msgstr ""
+"Auf CD/DVD gebrannt:\n"
+" - %s"
+
+msgid "Error mailing documents."
+msgstr "Fehler beim Versenden der Dokumenten per E-Mail."
+
+msgid "Mailing documents"
+msgstr "Versende Dokumente per E-Mail"
+
+#, python-format
+msgid ""
+"Mailed:\n"
+" - %s"
+msgstr ""
+"Gemailt:\n"
+" - %s"
+
+msgid ""
+"Please enter the fax number here !\n"
+"\n"
+"It can be left empty if the external\n"
+"fax software knows how to get the number."
+msgstr ""
+"Geben Sie die Faxnummer ein !\n"
+"\n"
+"Wenn Sie keine Faxnummer eingeben, muß die\n"
+"Faxsoftware in der Lage sein, diese zu ermitteln."
+
+msgid "Faxing documents"
+msgstr "Faxe Dokumente"
+
+#, python-format
+msgid ""
+"Error faxing documents to\n"
+"\n"
+"  %s"
+msgstr ""
+"Fehler beim Faxen der Dokumente an\n"
+"\n"
+"  %s"
+
+#, python-format
+msgid ""
+"Faxed to [%s]:\n"
+" - %s"
+msgstr ""
+"An [%s] gefaxt:\n"
+" - %s"
+
+msgid "<gm-mail_doc(.bat) not found>"
+msgstr "<gm-mail_doc(.bat) nicht gefunden>"
+
+msgid "<gm-fax_doc(.bat) not found>"
+msgstr "<gm-fax_doc(.bat) nicht gefunden>"
+
+msgid "<gm-burn_doc(.bat) not found>"
+msgstr "<gm-burn_doc(.bat) nicht gefunden>"
+
+msgid "Cannot accept new documents. No active patient."
+msgstr "Kann Dokumente nicht zuordnen. Kein Patient aktiv."
+
+#, python-format
+msgid "Extracting files from folder [%s] ..."
+msgstr "Extrahiere Dateien aus dem Verzeichnis [%s] ..."
+
 #, python-format
 msgid ""
 "Error exporting form template\n"
@@ -13484,49 +13796,17 @@ msgstr "Wo soll das patientenspezifische Unterverzeichnis angelegt werden ?"
 msgid "Saved to disk: %s"
 msgstr "Auf Festplatte gespeichert: %s"
 
-msgid "Error printing documents."
-msgstr "Fehler beim Drucken der Dokumente."
-
-#, python-format
-msgid "Printing [%s]"
-msgstr "Drucke [%s]"
-
 #, python-format
 msgid "Printed: %s"
 msgstr "Gedruckt: %s"
-
-msgid "Error mailing documents."
-msgstr "Fehler beim Versenden der Dokumenten per E-Mail."
-
-msgid "Mailing documents"
-msgstr "Versende Dokumente per E-Mail"
 
 #, python-format
 msgid "Mailed: %s"
 msgstr "Gemailt: %s"
 
 #, python-format
-msgid ""
-"Error faxing documents to\n"
-"\n"
-"  %s"
-msgstr ""
-"Fehler beim Faxen der Dokumente an\n"
-"\n"
-"  %s"
-
-msgid "Faxing documents"
-msgstr "Faxe Dokumente"
-
-#, python-format
 msgid "Faxed to %s: %s"
 msgstr "An %s gefaxt: %s"
-
-msgid "<gm-mail_doc(.bat) not found>"
-msgstr "<gm-mail_doc(.bat) nicht gefunden>"
-
-msgid "<gm-fax_doc(.bat) not found>"
-msgstr "<gm-fax_doc(.bat) nicht gefunden>"
 
 msgid "Adding new form template"
 msgstr "Vorlage anlegen"
@@ -13773,13 +14053,6 @@ msgstr ""
 msgid "Acquiring images"
 msgstr "Hole Bilder"
 
-msgid "Cannot accept new documents. No active patient."
-msgstr "Kann Dokumente nicht zuordnen. Kein Patient aktiv."
-
-#, python-format
-msgid "Extracting files from folder [%s] ..."
-msgstr "Extrahiere Dateien aus dem Verzeichnis [%s] ..."
-
 msgid "other documents"
 msgstr "andere Dokumente"
 
@@ -13911,10 +14184,6 @@ msgstr ""
 "Kann Teil in Datei [%s] nicht löschen.\n"
 "\n"
 "Sie haben möglicherweise kein Schreibrecht dafür."
-
-#, python-format
-msgid "Cannot start episode [%s]."
-msgstr "Kann Episode [%s] nicht eröffnen."
 
 msgid "Cannot create new document."
 msgstr "Kann kein neues Dokument anlegen."
@@ -14818,6 +15087,12 @@ msgstr "&Brief schreiben"
 msgid "Write a letter for the current patient."
 msgstr "Einen Brief für den aktiven Patienten schreiben."
 
+msgid "Screenshot -> export area"
+msgstr "Bildschirmfoto in Exportbereich"
+
+msgid "Put a screenshot into the patient export area."
+msgstr "Ein Bildschirmfoto aufnehmen und in den Exportbereich aufnehmen."
+
 msgid "List Placeholders"
 msgstr "Platzhalter zeigen"
 
@@ -15081,6 +15356,9 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr "Kann keinen Brief schreiben. Kein Patient aktiv."
+
+msgid "Cannot put screenshot into export area. No active patient."
+msgstr "Kann kein Bildschirmfoto im Exportbereich ablegen. Kein Patient aktiv."
 
 #, python-format
 msgid ""
@@ -15861,10 +16139,6 @@ msgstr "Kann [%s] nicht ausführen !"
 msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr "Problem beim Zugriff auf das [arriba]-Ergebnis in [%s] !"
 
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr "BIldschirmphoto in Datei [%s] gespeichert."
-
 msgid "[-9999]: <access violation test error>"
 msgstr ""
 
@@ -15990,6 +16264,10 @@ msgstr ""
 
 msgid "no patient"
 msgstr "kein Patient"
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
+msgstr "BIldschirmphoto in Datei [%s] gespeichert."
 
 msgid "GNUmed client"
 msgstr "GNUmed: Hauptprogramm"
@@ -16288,6 +16566,12 @@ msgstr "Kann Standardvorlage [%s - %s] für Gnuplot nicht laden"
 msgid "Cannot plot without a plot script."
 msgstr "Kann Meßwerte nicht ohne Plotscript darstellen."
 
+msgid "Time"
+msgstr "Zeit"
+
+msgid "Result"
+msgstr "Ergebnis"
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -16373,8 +16657,11 @@ msgstr "Meßergebnisse auswählen"
 msgid "Date / Time"
 msgstr "Zeitpunkt"
 
-msgid "Result"
-msgstr "Ergebnis"
+msgid "All: as &Grid"
+msgstr "Alle: als &Tabelle"
+
+msgid "All: by &Day"
+msgstr "Alle: &tageweise"
 
 msgid "Perform on selected results:"
 msgstr "Auf markierte Ergebnisse anwenden:"
@@ -16435,6 +16722,14 @@ msgstr "Zeige Meßmethoden."
 
 msgid "Org"
 msgstr "Organisation"
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr "%s &Gruppieren"
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
+msgstr "Gruppierungen (%s) von Testverfahren verwalten."
 
 msgid "generic / in house lab"
 msgstr "generisch / praxisintern"
@@ -17586,12 +17881,18 @@ msgstr "&Kontakte"
 msgid "Global Search Of Contacts Database"
 msgstr ""
 
-msgid "EMR Timeline"
-msgstr "Kartei - Zeitstrahl"
+msgid "Export Area"
+msgstr "Exportbereich"
 
 #, python-format
 msgid "loading plugin <%s>"
 msgstr "lade Modul <%s>"
+
+msgid "E&xport area"
+msgstr "E&xportbereich"
+
+msgid "EMR Timeline"
+msgstr "Kartei - Zeitstrahl"
 
 msgid "Show &Timeline"
 msgstr "Zeige &Zeitstrahl"
@@ -17925,6 +18226,40 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Tray"
+#~ msgstr "Korb"
+
+#~ msgid "export"
+#~ msgstr "exportieren"
+
+#~ msgid "Now (&T)"
+#~ msgstr "Jetzt (&T)"
+
+#~ msgid ""
+#~ "\n"
+#~ " Doc: "
+#~ msgstr ""
+#~ "\n"
+#~ " Doc: "
+
+#~ msgid "Lab: %s\n"
+#~ msgstr "Lab: %s\n"
+
+#~ msgid ""
+#~ "\n"
+#~ " Lab: "
+#~ msgstr ""
+#~ "\n"
+#~ " Lab: "
+
+#~ msgid ""
+#~ "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+#~ msgstr ""
+#~ "Gruppiert unter \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
+
+#~ msgid "Cannot start episode [%s]."
+#~ msgstr "Kann Episode [%s] nicht eröffnen."
+
 #~ msgid ""
 #~ "... or ...\n"
 #~ "\n"
@@ -18072,9 +18407,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ "Fehler bei Erzeugen eines Dokuments zum Drucken.\n"
 #~ "\n"
 #~ "Kein Prozessor für diesen Typ Vorlage bekannt."
-
-#~ msgid "Printing document"
-#~ msgstr "Dokument drucken"
 
 #~ msgid "Error creating printable document."
 #~ msgstr "Fehler beim Erzeugen der Druckausgabe."
@@ -19196,9 +19528,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Editing substance intake"
 #~ msgstr "Substanzeinnahme bearbeiten"
-
-#~ msgid "Created during encounter: %s (%s - %s)   [#%s]\n"
-#~ msgstr "Angelegt während Konsultation: %s (%s - %s)   [#%s]\n"
 
 #~ msgid "Discontinuation due to allergy/intolerance ?"
 #~ msgstr "Beendigung wegen Allergie/Unverträglichkeit ?"
@@ -20469,9 +20798,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "acquire patient photograph"
 #~ msgstr "Patientenbild von Bildquelle holen"
-
-#~ msgid "remove patient photograph"
-#~ msgstr "entferne Patientenbild"
 
 #~ msgid "immune system disorder"
 #~ msgstr "Immundefekt"

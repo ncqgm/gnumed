@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"POT-Creation-Date: 2014-01-13 19:35+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -334,7 +334,7 @@ msgstr ""
 msgid "Check all parents"
 msgstr "Έλεγχος ενημερώσεων"
 
-msgid "Check all parents of all childs"
+msgid "Check parents for checked children"
 msgstr ""
 
 msgid "Uncheck All"
@@ -347,6 +347,9 @@ msgid "Uncheck all children"
 msgstr ""
 
 msgid "Uncheck all parents"
+msgstr ""
+
+msgid "Check all parents of all childs"
 msgstr ""
 
 msgid "Checking not allowed when there is no timeline view."
@@ -542,6 +545,10 @@ msgstr "Δημιουργία νέου"
 msgid "File Timeline..."
 msgstr ""
 
+#, fuzzy
+msgid "Numeric Timeline..."
+msgstr "Δημιουργία νέου"
+
 msgid "Directory Timeline..."
 msgstr ""
 
@@ -595,6 +602,18 @@ msgstr ""
 msgid "&Balloons on hover"
 msgstr ""
 
+msgid "Zoom &In\tCtrl++"
+msgstr ""
+
+msgid "Zoom &Out\tCtrl+-"
+msgstr ""
+
+msgid "Vertical Zoom &In\tAlt++"
+msgstr ""
+
+msgid "Vertical Zoom &Out\tAlt+-"
+msgstr ""
+
 #, fuzzy
 msgid "&View"
 msgstr "Προβολή  καταγραφής"
@@ -617,28 +636,31 @@ msgstr "Επεξεργασία του επιλεγμένου αντικειμέ�
 msgid "&Measure Distance between two Events..."
 msgstr ""
 
-msgid "Set Category on events without category..."
-msgstr ""
+#, fuzzy
+msgid "Set Category on events &without category..."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 #, fuzzy
 msgid "Edit &Categories"
 msgstr "Κατηγορία"
 
-msgid "Read Only"
+msgid "&Read Only"
 msgstr ""
 
 msgid "&Timeline"
 msgstr ""
 
-msgid "Find First Event"
-msgstr ""
-
 #, fuzzy
-msgid "Find Last Event"
+msgid "Find &First Event"
 msgstr "Τελευταίο έχει δοθεί"
 
-msgid "Fit All Events"
-msgstr ""
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "Τελευταίο έχει δοθεί"
+
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "ανενεργό"
 
 msgid "&Navigate"
 msgstr ""
@@ -650,13 +672,15 @@ msgstr ""
 msgid "&Contents\tF1"
 msgstr "&Επαφές"
 
-msgid "Getting started tutorial"
+msgid "Getting started &tutorial"
 msgstr ""
 
-msgid "Give Feedback..."
-msgstr ""
+#, fuzzy
+msgid "Give &Feedback..."
+msgstr "Μετάβαση πίσω"
 
-msgid "Contact"
+#, fuzzy
+msgid "Co&ntact"
 msgstr "Επαφή"
 
 msgid "&Help"
@@ -720,8 +744,14 @@ msgstr ""
 msgid "First time using Timeline?"
 msgstr ""
 
+msgid "Getting started tutorial"
+msgstr ""
+
 msgid "Relevant help topics:"
 msgstr ""
+
+msgid "Contact"
+msgstr "Επαφή"
 
 msgid "View Categories Individually"
 msgstr ""
@@ -990,7 +1020,7 @@ msgid ""
 "A Timeline can be Zoomed both horizontal (along time axis) and vertically "
 "(along event axis)\n"
 "\n"
-"To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
 "\n"
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
@@ -1217,8 +1247,9 @@ msgstr ""
 msgid "Go to &Today\tCtrl+T"
 msgstr ""
 
-msgid "Go to D&ate...\tCtrl+G"
-msgstr ""
+#, fuzzy
+msgid "Go to &Date...\tCtrl+G"
+msgstr "Τελευταία Ημέρα"
 
 msgid "Backward\tPgUp"
 msgstr ""
@@ -3517,6 +3548,13 @@ msgstr "Αντίδραση"
 msgid "Manage panels"
 msgstr "&Διαχείριση"
 
+msgid "All: by day"
+msgstr ""
+
+#, fuzzy
+msgid "Manage types"
+msgstr "&Διαχείριση"
+
 msgid "&List"
 msgstr ""
 
@@ -3535,6 +3573,13 @@ msgstr ""
 
 msgid "Manage test panels."
 msgstr ""
+
+msgid "Switch between modes of the full results display."
+msgstr ""
+
+#, fuzzy
+msgid "Manage test types."
+msgstr "Τύποι συνεδριών"
 
 #, fuzzy
 msgid "Add measurments."
@@ -3565,6 +3610,10 @@ msgstr ""
 
 msgid "Spotlight &Panel:"
 msgstr ""
+
+#, fuzzy
+msgid "Results:"
+msgstr "Αποτελέσματα"
 
 msgid "Save the identity details."
 msgstr ""
@@ -3604,14 +3653,10 @@ msgstr ""
 msgid "Now (&F)"
 msgstr ""
 
-msgid "Tray"
+msgid "to patient export area"
 msgstr ""
 
-#, fuzzy
-msgid "export"
-msgstr "Αναφορά"
-
-msgid "Now (&T)"
+msgid "Now (&E)"
 msgstr ""
 
 msgid ""
@@ -3656,10 +3701,10 @@ msgid "Fax immediately without further ado."
 msgstr ""
 
 #, fuzzy
-msgid "Check here if you want to put a copy into the export tray."
+msgid "Check here if you want to put a copy into the export area."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
-msgid "Put into export tray immediately without further ado."
+msgid "Put into export area immediately without further ado."
 msgstr ""
 
 msgid "Select episode under which to archive a copy of the document(s)."
@@ -3905,6 +3950,73 @@ msgstr "Επεξεργασία του επιλεγμένου αντικειμέ�
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
+msgid "↢ &Disk"
+msgstr ""
+
+msgid "↢ &Archive"
+msgstr ""
+
+msgid "↢ S&can"
+msgstr ""
+
+msgid "&Remove"
+msgstr ""
+
+msgid "&Print"
+msgstr "&Εκτύπωση"
+
+msgid "&Burn"
+msgstr ""
+
+msgid "&Save"
+msgstr "&Αποθήκευση"
+
+msgid "E-&Mail"
+msgstr ""
+
+msgid "&Fax"
+msgstr ""
+
+msgid "⇶ Archive"
+msgstr ""
+
+#, fuzzy
+msgid "Show the topmost selected document."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Add document(s) from file(s)."
+msgstr ""
+
+msgid "Add document(s) from archive."
+msgstr ""
+
+msgid "Acquire images from image source (scanner, ...)."
+msgstr ""
+
+#, fuzzy
+msgid "Remove the selected documents."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "Print selected/all documents."
+msgstr ""
+
+msgid "Burn selected/all documents onto CD/DVD."
+msgstr ""
+
+#, fuzzy
+msgid "Save selected/all items to disk."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+msgid "E-mail selected/all documents."
+msgstr ""
+
+#, fuzzy
+msgid "Fax selected/all documents."
+msgstr "Αποθήκευση εγγράφου"
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
 msgid "Keep *this* patient"
 msgstr "Κράτα *αυτόν* τον ασθενή"
 
@@ -3996,10 +4108,6 @@ msgid ""
 "(SQL)"
 msgstr ""
 
-#, fuzzy
-msgid "Results:"
-msgstr "Αποτελέσματα"
-
 msgid "<current allergy state>"
 msgstr "<τρέχουσα αλλεργική κατάσταση>"
 
@@ -4015,8 +4123,9 @@ msgstr "Χωρίς γνωστές αλλεργίες"
 msgid "Has allergies"
 msgstr "Έχει αλλεργίες"
 
-msgid "&Update / Con&firm"
-msgstr ""
+#, fuzzy
+msgid "&Update / Confirm"
+msgstr "Ημερομηνία γέννησης"
 
 msgid "Allergy state"
 msgstr "Αλλεργική κατάσταση"
@@ -4141,9 +4250,6 @@ msgstr "&Διαγραφή"
 
 msgid "<above, double-click problem to start entering SOAP note>"
 msgstr ""
-
-msgid "&Save"
-msgstr "&Αποθήκευση"
 
 #, fuzzy
 msgid "&Filter by problem"
@@ -5766,6 +5872,26 @@ msgstr "Μονάδες"
 msgid "Factor"
 msgstr ""
 
+#, fuzzy
+msgid "Select the address you want to use:"
+msgstr "Διαγραφή μηνύματος"
+
+#, fuzzy
+msgid "Address selection"
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
+
+#, fuzzy
+msgid "Manage addresses."
+msgstr "Αποθήκευση διεύθυνσης"
+
+#, fuzzy
+msgid "Use the selected address."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Abort address selection."
+msgstr "Τρέχουσα φαρμακευτική αγωγή"
+
 msgid "Mandatory: Which hospital the patient was admitted to."
 msgstr ""
 
@@ -6268,6 +6394,43 @@ msgstr ""
 
 msgid "<EMTPY>"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "form: %s %s (%s)"
+msgstr "Εργαστήριο: %s\n"
+
+#, fuzzy, python-format
+msgid "file: %s (%s/)"
+msgstr "Εργαστήριο: %s\n"
+
+#, fuzzy, python-format
+msgid "doc: %s"
+msgstr "   Έγγραφο: %s"
+
+msgid "no patient photograph available"
+msgstr ""
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr ""
+
+#, fuzzy
+msgid "Patient data for"
+msgstr "Ασθενής"
+
+msgid "born"
+msgstr ""
+
+#, fuzzy
+msgid "Patient data export"
+msgstr "Αποστολή αναφοράς"
+
+msgid "Documents"
+msgstr "Έγγραφα"
+
+#, fuzzy
+msgid "Browse patient data"
+msgstr "Αποθήκευση εγγράφου"
 
 #, python-format
 msgid "error with placeholder [%s]"
@@ -6782,6 +6945,26 @@ msgstr ""
 msgid " Panel \"%s\"             [#%s]\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "Lab comment: %s\n"
+msgstr " Σχόλιο: %s\n"
+
+#, fuzzy
+msgid ""
+"\n"
+" Lab comment: "
+msgstr " Σχόλιο: %s\n"
+
+#, fuzzy, python-format
+msgid "Praxis comment: %s\n"
+msgstr " Σχόλιο: %s\n"
+
+#, fuzzy
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr "σχόλιο"
+
 #, python-format
 msgid "Result from %s             \n"
 msgstr ""
@@ -6827,33 +7010,15 @@ msgid "%.0f times the target upper limit"
 msgstr ""
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "Κλινικές λεπτομέρειες"
 
 #, python-format
 msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr "Εργαστήριο: %s\n"
-
-msgid ""
-"\n"
-" Lab: "
 msgstr ""
 
 #, python-format
@@ -6908,10 +7073,6 @@ msgid "Test type details:\n"
 msgstr ""
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr ""
 
@@ -6919,6 +7080,10 @@ msgid ""
 "\n"
 " Type comment:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
+msgstr "RFE"
 
 #, python-format
 msgid "Group comment: %s\n"
@@ -7525,9 +7690,6 @@ msgstr "Νοσοκομείο"
 
 msgid "Procedures"
 msgstr ""
-
-msgid "Documents"
-msgstr "Έγγραφα"
 
 #, fuzzy
 msgid "Substances"
@@ -8882,6 +9044,14 @@ msgstr ""
 msgid "Deleting inbox message"
 msgstr "Μήνυμα γενικής πληροφορίας"
 
+#, fuzzy
+msgid "Export area: 1 item"
+msgstr "Αναφορά"
+
+#, fuzzy, python-format
+msgid "Export area: %s items"
+msgstr "Εξήχθηκε: %s\n"
+
 #, python-format
 msgid "%s %s more not shown %s"
 msgstr ""
@@ -8891,7 +9061,7 @@ msgid "Currently %s entries in waiting list"
 msgstr "Ο στιγμιαία επιλεγμένος ασθενής είναι:"
 
 #, fuzzy, python-format
-msgid "first: %s, %s"
+msgid "first (in GMd): %s, %s"
 msgstr "μέρος %s: %s"
 
 #, fuzzy, python-format
@@ -9146,6 +9316,10 @@ msgstr ""
 #, python-format
 msgid "invalid gender mapping layout: [%s]"
 msgstr ""
+
+#, fuzzy
+msgid "Select the address you want to use !"
+msgstr "Διαγραφή μηνύματος"
 
 msgid "no address type replacement selected"
 msgstr ""
@@ -11624,9 +11798,6 @@ msgstr "Μέρες"
 msgid "Rev EDC"
 msgstr ""
 
-msgid "&Print"
-msgstr "&Εκτύπωση"
-
 msgid ""
 "\n"
 "\n"
@@ -12458,6 +12629,150 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select files to add to the export area"
+msgstr ""
+
+#, fuzzy
+msgid "Adding files to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following files to the export area:\n"
+"%s "
+msgstr ""
+
+#, fuzzy
+msgid "Select the documents to be put into the export area:"
+msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
+
+msgid "Scanning files into export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following scans to the export area:\n"
+"%s "
+msgstr ""
+
+#, fuzzy
+msgid "Deleting document from export area."
+msgstr "Διαγραφή περιγραφής αρχείου"
+
+#, python-format
+msgid ""
+"Really remove %s selected document(s)\n"
+"from the patient export area ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error printing documents."
+msgstr "Τελευταίοι εμβολιασμοί"
+
+#, fuzzy, python-format
+msgid "Printing [%s]"
+msgstr "Εκτύπωση"
+
+#, fuzzy, python-format
+msgid ""
+"Printed:\n"
+" - %s"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy
+msgid "Saving export area documents"
+msgstr "Αποθήκευση εγγράφου"
+
+msgid "Truly export ALL items to disk (rather than just a selection) ?"
+msgstr ""
+
+msgid "Select the directory into which to export the documents."
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Saved to [%s]:\n"
+" - %s"
+msgstr "  κίνδυνος:%s"
+
+#, python-format
+msgid ""
+"Saved documents into directory:\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid "Truly burn ALL items to CD/DVD (rather than just a selection) ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error burning documents to CD/DVD."
+msgstr "Τελευταίοι εμβολιασμοί"
+
+#, fuzzy
+msgid "Burning documents"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid ""
+"Burned onto CD/DVD:\n"
+" - %s"
+msgstr ""
+
+#, fuzzy
+msgid "Error mailing documents."
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Mailing documents"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy, python-format
+msgid ""
+"Mailed:\n"
+" - %s"
+msgstr "Ημερομηνία: %s\n"
+
+msgid ""
+"Please enter the fax number here !\n"
+"\n"
+"It can be left empty if the external\n"
+"fax software knows how to get the number."
+msgstr ""
+
+#, fuzzy
+msgid "Faxing documents"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid ""
+"Error faxing documents to\n"
+"\n"
+"  %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Faxed to [%s]:\n"
+" - %s"
+msgstr "μέρος %s: %s"
+
+msgid "<gm-mail_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-fax_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Cannot accept new documents. No active patient."
+msgstr ""
+
+#, python-format
+msgid "Extracting files from folder [%s] ..."
+msgstr ""
+
 #, python-format
 msgid ""
 "Error exporting form template\n"
@@ -12516,50 +12831,17 @@ msgstr ""
 msgid "Saved to disk: %s"
 msgstr "  κίνδυνος:%s"
 
-#, fuzzy
-msgid "Error printing documents."
-msgstr "Τελευταίοι εμβολιασμοί"
-
-#, fuzzy, python-format
-msgid "Printing [%s]"
-msgstr "Εκτύπωση"
-
 #, fuzzy, python-format
 msgid "Printed: %s"
 msgstr "Ημερομηνία: %s\n"
-
-#, fuzzy
-msgid "Error mailing documents."
-msgstr "Αποθήκευση εγγράφου"
-
-#, fuzzy
-msgid "Mailing documents"
-msgstr "Αποθήκευση εγγράφου"
 
 #, fuzzy, python-format
 msgid "Mailed: %s"
 msgstr "Ημερομηνία: %s\n"
 
-#, python-format
-msgid ""
-"Error faxing documents to\n"
-"\n"
-"  %s"
-msgstr ""
-
-#, fuzzy
-msgid "Faxing documents"
-msgstr "Αποθήκευση εγγράφου"
-
 #, fuzzy, python-format
 msgid "Faxed to %s: %s"
 msgstr "μέρος %s: %s"
-
-msgid "<gm-mail_doc(.bat) not found>"
-msgstr ""
-
-msgid "<gm-fax_doc(.bat) not found>"
-msgstr ""
 
 #, fuzzy
 msgid "Adding new form template"
@@ -12768,13 +13050,6 @@ msgstr ""
 msgid "Acquiring images"
 msgstr ""
 
-msgid "Cannot accept new documents. No active patient."
-msgstr ""
-
-#, python-format
-msgid "Extracting files from folder [%s] ..."
-msgstr ""
-
 #, fuzzy
 msgid "other documents"
 msgstr "Επισύναψη αρχείων"
@@ -12878,10 +13153,6 @@ msgid ""
 "Cannot delete part in file [%s].\n"
 "\n"
 "You may not have write access to it."
-msgstr ""
-
-#, python-format
-msgid "Cannot start episode [%s]."
 msgstr ""
 
 msgid "Cannot create new document."
@@ -13752,6 +14023,12 @@ msgstr "&Συγγραφή επιστολής"
 msgid "Write a letter for the current patient."
 msgstr ""
 
+msgid "Screenshot -> export area"
+msgstr ""
+
+msgid "Put a screenshot into the patient export area."
+msgstr ""
+
 #, fuzzy
 msgid "List Placeholders"
 msgstr "σφάλμα στην κράτηση θέσης [%s]"
@@ -14004,6 +14281,10 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot put screenshot into export area. No active patient."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
 
 #, python-format
 msgid ""
@@ -14547,10 +14828,6 @@ msgstr ""
 msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr ""
 
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr ""
-
 msgid "[-9999]: <access violation test error>"
 msgstr ""
 
@@ -14677,6 +14954,10 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "GNUmed client"
@@ -14957,6 +15238,13 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
+#, fuzzy
+msgid "Time"
+msgstr "Ώρα:"
+
+msgid "Result"
+msgstr "Αποτέλεσμα"
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -15026,8 +15314,11 @@ msgstr ""
 msgid "Date / Time"
 msgstr "Ημερομηνία / Ώρα"
 
-msgid "Result"
-msgstr "Αποτέλεσμα"
+msgid "All: as &Grid"
+msgstr ""
+
+msgid "All: by &Day"
+msgstr ""
 
 #, fuzzy
 msgid "Perform on selected results:"
@@ -15087,6 +15378,14 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
+msgstr ""
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr ""
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
 
 #, fuzzy
@@ -16056,12 +16355,20 @@ msgid "Global Search Of Contacts Database"
 msgstr ""
 
 #, fuzzy
-msgid "EMR Timeline"
-msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
+msgid "Export Area"
+msgstr "Αναφορά"
 
 #, fuzzy, python-format
 msgid "loading plugin <%s>"
 msgstr "προσθήκη πρόσθετου ..."
+
+#, fuzzy
+msgid "E&xport area"
+msgstr "Αναφορά"
+
+#, fuzzy
+msgid "EMR Timeline"
+msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
 msgid "Show &Timeline"
@@ -16377,6 +16684,13 @@ msgstr "Ματαίωση"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
+#, fuzzy
+#~ msgid "export"
+#~ msgstr "Αναφορά"
+
+#~ msgid "Lab: %s\n"
+#~ msgstr "Εργαστήριο: %s\n"
+
 #~ msgid "copy"
 #~ msgstr "αντιγραφή"
 
@@ -16472,9 +16786,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 
 #~ msgid "Active-patient related"
 #~ msgstr "Σχετιζόμενο με τον ενεργό ασθενή"
-
-#~ msgid "   Doc: %s"
-#~ msgstr "   Έγγραφο: %s"
 
 #~ msgid "   MTA: %s"
 #~ msgstr "   MTA: %s"

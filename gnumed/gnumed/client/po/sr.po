@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-10-24 14:35+0200\n"
+"POT-Creation-Date: 2014-01-13 19:36+0100\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -311,7 +311,7 @@ msgstr ""
 msgid "Check all parents"
 msgstr ""
 
-msgid "Check all parents of all childs"
+msgid "Check parents for checked children"
 msgstr ""
 
 msgid "Uncheck All"
@@ -324,6 +324,9 @@ msgid "Uncheck all children"
 msgstr ""
 
 msgid "Uncheck all parents"
+msgstr ""
+
+msgid "Check all parents of all childs"
 msgstr ""
 
 msgid "Checking not allowed when there is no timeline view."
@@ -499,6 +502,10 @@ msgstr "Направи лажне вакцине"
 msgid "File Timeline..."
 msgstr ""
 
+#, fuzzy
+msgid "Numeric Timeline..."
+msgstr "Направи лажне вакцине"
+
 msgid "Directory Timeline..."
 msgstr ""
 
@@ -548,6 +555,18 @@ msgstr ""
 msgid "&Balloons on hover"
 msgstr ""
 
+msgid "Zoom &In\tCtrl++"
+msgstr ""
+
+msgid "Zoom &Out\tCtrl+-"
+msgstr ""
+
+msgid "Vertical Zoom &In\tAlt++"
+msgstr ""
+
+msgid "Vertical Zoom &Out\tAlt+-"
+msgstr ""
+
 msgid "&View"
 msgstr ""
 
@@ -567,27 +586,30 @@ msgstr ""
 msgid "&Measure Distance between two Events..."
 msgstr ""
 
-msgid "Set Category on events without category..."
+msgid "Set Category on events &without category..."
 msgstr ""
 
 #, fuzzy
 msgid "Edit &Categories"
 msgstr "неактиван"
 
-msgid "Read Only"
+msgid "&Read Only"
 msgstr ""
 
 msgid "&Timeline"
 msgstr ""
 
-msgid "Find First Event"
-msgstr ""
+#, fuzzy
+msgid "Find &First Event"
+msgstr "неактиван"
 
-msgid "Find Last Event"
-msgstr ""
+#, fuzzy
+msgid "Find &Last Event"
+msgstr "неактиван"
 
-msgid "Fit All Events"
-msgstr ""
+#, fuzzy
+msgid "Fit &All Events"
+msgstr "неактиван"
 
 msgid "&Navigate"
 msgstr ""
@@ -598,14 +620,15 @@ msgstr ""
 msgid "&Contents\tF1"
 msgstr ""
 
-msgid "Getting started tutorial"
+msgid "Getting started &tutorial"
 msgstr ""
 
-msgid "Give Feedback..."
+msgid "Give &Feedback..."
 msgstr ""
 
-msgid "Contact"
-msgstr ""
+#, fuzzy
+msgid "Co&ntact"
+msgstr "Документа: %s"
 
 msgid "&Help"
 msgstr ""
@@ -663,7 +686,13 @@ msgstr ""
 msgid "First time using Timeline?"
 msgstr ""
 
+msgid "Getting started tutorial"
+msgstr ""
+
 msgid "Relevant help topics:"
+msgstr ""
+
+msgid "Contact"
 msgstr ""
 
 msgid "View Categories Individually"
@@ -918,7 +947,7 @@ msgid ""
 "A Timeline can be Zoomed both horizontal (along time axis) and vertically "
 "(along event axis)\n"
 "\n"
-"To zoom vertically, hold down the Ctrl-key and scroll the mouse wheel.\n"
+"To zoom horizontal, hold down the Ctrl-key and scroll the mouse wheel.\n"
 "\n"
 "To zoom vertically, hold down the Alt-key and scroll the mouse wheel.\n"
 msgstr ""
@@ -1143,8 +1172,9 @@ msgstr ""
 msgid "Go to &Today\tCtrl+T"
 msgstr ""
 
-msgid "Go to D&ate...\tCtrl+G"
-msgstr ""
+#, fuzzy
+msgid "Go to &Date...\tCtrl+G"
+msgstr "Последњи датум"
 
 msgid "Backward\tPgUp"
 msgstr ""
@@ -3322,6 +3352,13 @@ msgstr "Реакција"
 msgid "Manage panels"
 msgstr "Уреди вакцинације"
 
+msgid "All: by day"
+msgstr ""
+
+#, fuzzy
+msgid "Manage types"
+msgstr "Уреди вакцинације"
+
 msgid "&List"
 msgstr ""
 
@@ -3339,6 +3376,13 @@ msgstr ""
 
 #, fuzzy
 msgid "Manage test panels."
+msgstr "Уреди вакцинације"
+
+msgid "Switch between modes of the full results display."
+msgstr ""
+
+#, fuzzy
+msgid "Manage test types."
 msgstr "Уреди вакцинације"
 
 msgid "Add measurments."
@@ -3369,6 +3413,10 @@ msgstr ""
 
 msgid "Spotlight &Panel:"
 msgstr ""
+
+#, fuzzy
+msgid "Results:"
+msgstr "Резултати теста"
 
 msgid "Save the identity details."
 msgstr ""
@@ -3406,14 +3454,10 @@ msgstr ""
 msgid "Now (&F)"
 msgstr ""
 
-msgid "Tray"
+msgid "to patient export area"
 msgstr ""
 
-#, fuzzy
-msgid "export"
-msgstr "Извештај"
-
-msgid "Now (&T)"
+msgid "Now (&E)"
 msgstr ""
 
 msgid ""
@@ -3457,10 +3501,10 @@ msgstr ""
 msgid "Fax immediately without further ado."
 msgstr ""
 
-msgid "Check here if you want to put a copy into the export tray."
+msgid "Check here if you want to put a copy into the export area."
 msgstr ""
 
-msgid "Put into export tray immediately without further ado."
+msgid "Put into export area immediately without further ado."
 msgstr ""
 
 msgid "Select episode under which to archive a copy of the document(s)."
@@ -3702,6 +3746,71 @@ msgstr ""
 msgid "Remove the selected item(s) from the list."
 msgstr ""
 
+msgid "↢ &Disk"
+msgstr ""
+
+msgid "↢ &Archive"
+msgstr ""
+
+msgid "↢ S&can"
+msgstr ""
+
+msgid "&Remove"
+msgstr ""
+
+msgid "&Print"
+msgstr ""
+
+msgid "&Burn"
+msgstr ""
+
+msgid "&Save"
+msgstr ""
+
+msgid "E-&Mail"
+msgstr ""
+
+msgid "&Fax"
+msgstr ""
+
+msgid "⇶ Archive"
+msgstr ""
+
+msgid "Show the topmost selected document."
+msgstr ""
+
+msgid "Add document(s) from file(s)."
+msgstr ""
+
+msgid "Add document(s) from archive."
+msgstr ""
+
+msgid "Acquire images from image source (scanner, ...)."
+msgstr ""
+
+#, fuzzy
+msgid "Remove the selected documents."
+msgstr " %s докумената\n"
+
+msgid "Print selected/all documents."
+msgstr ""
+
+msgid "Burn selected/all documents onto CD/DVD."
+msgstr ""
+
+msgid "Save selected/all items to disk."
+msgstr ""
+
+msgid "E-mail selected/all documents."
+msgstr ""
+
+#, fuzzy
+msgid "Fax selected/all documents."
+msgstr "Приказивање вакцина."
+
+msgid "Store selected/all documents in document archive."
+msgstr ""
+
 msgid "Keep *this* patient"
 msgstr ""
 
@@ -3792,10 +3901,6 @@ msgid ""
 "(SQL)"
 msgstr ""
 
-#, fuzzy
-msgid "Results:"
-msgstr "Резултати теста"
-
 msgid "<current allergy state>"
 msgstr ""
 
@@ -3811,8 +3916,9 @@ msgstr ""
 msgid "Has allergies"
 msgstr "Има алергије"
 
-msgid "&Update / Con&firm"
-msgstr ""
+#, fuzzy
+msgid "&Update / Confirm"
+msgstr "датум рођења"
 
 msgid "Allergy state"
 msgstr ""
@@ -3931,9 +4037,6 @@ msgid "&Delete"
 msgstr ""
 
 msgid "<above, double-click problem to start entering SOAP note>"
-msgstr ""
-
-msgid "&Save"
 msgstr ""
 
 msgid "&Filter by problem"
@@ -5472,6 +5575,23 @@ msgstr ""
 msgid "Factor"
 msgstr ""
 
+msgid "Select the address you want to use:"
+msgstr ""
+
+msgid "Address selection"
+msgstr ""
+
+#, fuzzy
+msgid "Manage addresses."
+msgstr "Уреди вакцинације"
+
+#, fuzzy
+msgid "Use the selected address."
+msgstr "Брисање вакцине"
+
+msgid "Abort address selection."
+msgstr ""
+
 msgid "Mandatory: Which hospital the patient was admitted to."
 msgstr ""
 
@@ -5952,6 +6072,41 @@ msgstr ""
 msgid "<EMTPY>"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "form: %s %s (%s)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy, python-format
+msgid "file: %s (%s/)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy, python-format
+msgid "doc: %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+msgid "no patient photograph available"
+msgstr ""
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr ""
+
+msgid "Patient data for"
+msgstr ""
+
+msgid "born"
+msgstr ""
+
+msgid "Patient data export"
+msgstr ""
+
+msgid "Documents"
+msgstr ""
+
+#, fuzzy
+msgid "Browse patient data"
+msgstr "Приказивање вакцина."
+
 #, python-format
 msgid "error with placeholder [%s]"
 msgstr ""
@@ -6421,6 +6576,26 @@ msgstr ""
 msgid " Panel \"%s\"             [#%s]\n"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "Lab comment: %s\n"
+msgstr "Документа: %s"
+
+#, fuzzy
+msgid ""
+"\n"
+" Lab comment: "
+msgstr "Коментар:"
+
+#, fuzzy, python-format
+msgid "Praxis comment: %s\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid ""
+"\n"
+" Praxis comment: "
+msgstr "Коментар"
+
 #, python-format
 msgid "Result from %s             \n"
 msgstr ""
@@ -6466,33 +6641,15 @@ msgid "%.0f times the target upper limit"
 msgstr ""
 
 #, python-format
-msgid "Standard normal range: %(norm_min_max)s%(norm_range)s  \n"
+msgid "Standard normal range: %s\n"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Clinical target range: %s\n"
+msgstr "клинички релевантно"
 
 #, python-format
 msgid "Reference group: %s\n"
-msgstr ""
-
-#, python-format
-msgid "Clinical target range: %(clin_min_max)s%(clin_range)s  \n"
-msgstr ""
-
-#, python-format
-msgid "Doc: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Doc: "
-msgstr ""
-
-#, python-format
-msgid "Lab: %s\n"
-msgstr ""
-
-msgid ""
-"\n"
-" Lab: "
 msgstr ""
 
 #, python-format
@@ -6547,10 +6704,6 @@ msgid "Test type details:\n"
 msgstr ""
 
 #, python-format
-msgid "Grouped under \"%(name_meta)s\" (%(abbrev_meta)s)  [#%(pk_u_type)s]\n"
-msgstr ""
-
-#, python-format
 msgid "Type comment: %s\n"
 msgstr ""
 
@@ -6558,6 +6711,10 @@ msgid ""
 "\n"
 " Type comment:"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Aggregated (%s) under: %s (%s)  [#%s]\n"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, python-format
 msgid "Group comment: %s\n"
@@ -7145,9 +7302,6 @@ msgid "Hospital stays"
 msgstr ""
 
 msgid "Procedures"
-msgstr ""
-
-msgid "Documents"
 msgstr ""
 
 #, fuzzy
@@ -8479,6 +8633,14 @@ msgstr ""
 msgid "Deleting inbox message"
 msgstr "генеричка порука за обавештење"
 
+#, fuzzy
+msgid "Export area: 1 item"
+msgstr "део"
+
+#, fuzzy, python-format
+msgid "Export area: %s items"
+msgstr "део"
+
 #, python-format
 msgid "%s %s more not shown %s"
 msgstr ""
@@ -8488,7 +8650,7 @@ msgid "Currently %s entries in waiting list"
 msgstr ""
 
 #, python-format
-msgid "first: %s, %s"
+msgid "first (in GMd): %s, %s"
 msgstr ""
 
 #, python-format
@@ -8738,6 +8900,9 @@ msgstr ""
 
 #, python-format
 msgid "invalid gender mapping layout: [%s]"
+msgstr ""
+
+msgid "Select the address you want to use !"
 msgstr ""
 
 msgid "no address type replacement selected"
@@ -11171,9 +11336,6 @@ msgstr ""
 msgid "Rev EDC"
 msgstr ""
 
-msgid "&Print"
-msgstr ""
-
 msgid ""
 "\n"
 "\n"
@@ -11968,6 +12130,148 @@ msgstr ""
 msgid "clinical progress note"
 msgstr ""
 
+msgid "Select files to add to the export area"
+msgstr ""
+
+#, fuzzy
+msgid "Adding files to export area"
+msgstr "Додавање нове вакцине"
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following files to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Select the documents to be put into the export area:"
+msgstr ""
+
+msgid "Scanning files into export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add (some of) the following scans to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "Deleting document from export area."
+msgstr ""
+
+#, python-format
+msgid ""
+"Really remove %s selected document(s)\n"
+"from the patient export area ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error printing documents."
+msgstr "Уређивање вакцинације"
+
+#, python-format
+msgid "Printing [%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Printed:\n"
+" - %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy
+msgid "Saving export area documents"
+msgstr "Приказивање вакцина."
+
+msgid "Truly export ALL items to disk (rather than just a selection) ?"
+msgstr ""
+
+msgid "Select the directory into which to export the documents."
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Saved to [%s]:\n"
+" - %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, python-format
+msgid ""
+"Saved documents into directory:\n"
+"\n"
+" %s"
+msgstr ""
+
+msgid "Truly burn ALL items to CD/DVD (rather than just a selection) ?"
+msgstr ""
+
+#, fuzzy
+msgid "Error burning documents to CD/DVD."
+msgstr "Уређивање вакцинације"
+
+#, fuzzy
+msgid "Burning documents"
+msgstr "Приказивање вакцина."
+
+#, python-format
+msgid ""
+"Burned onto CD/DVD:\n"
+" - %s"
+msgstr ""
+
+#, fuzzy
+msgid "Error mailing documents."
+msgstr "Приказивање вакцина."
+
+#, fuzzy
+msgid "Mailing documents"
+msgstr "Приказивање вакцина."
+
+#, fuzzy, python-format
+msgid ""
+"Mailed:\n"
+" - %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+msgid ""
+"Please enter the fax number here !\n"
+"\n"
+"It can be left empty if the external\n"
+"fax software knows how to get the number."
+msgstr ""
+
+#, fuzzy
+msgid "Faxing documents"
+msgstr "Приказивање вакцина."
+
+#, python-format
+msgid ""
+"Error faxing documents to\n"
+"\n"
+"  %s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid ""
+"Faxed to [%s]:\n"
+" - %s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+msgid "<gm-mail_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-fax_doc(.bat) not found>"
+msgstr ""
+
+msgid "<gm-burn_doc(.bat) not found>"
+msgstr ""
+
+msgid "Cannot accept new documents. No active patient."
+msgstr ""
+
+#, python-format
+msgid "Extracting files from folder [%s] ..."
+msgstr ""
+
 #, python-format
 msgid ""
 "Error exporting form template\n"
@@ -12023,50 +12327,17 @@ msgstr ""
 msgid "Saved to disk: %s"
 msgstr ""
 
-#, fuzzy
-msgid "Error printing documents."
-msgstr "Уређивање вакцинације"
-
-#, python-format
-msgid "Printing [%s]"
-msgstr ""
-
 #, fuzzy, python-format
 msgid "Printed: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
-
-#, fuzzy
-msgid "Error mailing documents."
-msgstr "Приказивање вакцина."
-
-#, fuzzy
-msgid "Mailing documents"
-msgstr "Приказивање вакцина."
 
 #, fuzzy, python-format
 msgid "Mailed: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
-#, python-format
-msgid ""
-"Error faxing documents to\n"
-"\n"
-"  %s"
-msgstr ""
-
-#, fuzzy
-msgid "Faxing documents"
-msgstr "Приказивање вакцина."
-
 #, fuzzy, python-format
 msgid "Faxed to %s: %s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
-
-msgid "<gm-mail_doc(.bat) not found>"
-msgstr ""
-
-msgid "<gm-fax_doc(.bat) not found>"
-msgstr ""
 
 #, fuzzy
 msgid "Adding new form template"
@@ -12279,13 +12550,6 @@ msgstr ""
 msgid "Acquiring images"
 msgstr ""
 
-msgid "Cannot accept new documents. No active patient."
-msgstr ""
-
-#, python-format
-msgid "Extracting files from folder [%s] ..."
-msgstr ""
-
 #, fuzzy
 msgid "other documents"
 msgstr " %s докумената\n"
@@ -12389,10 +12653,6 @@ msgid ""
 "Cannot delete part in file [%s].\n"
 "\n"
 "You may not have write access to it."
-msgstr ""
-
-#, python-format
-msgid "Cannot start episode [%s]."
 msgstr ""
 
 msgid "Cannot create new document."
@@ -13241,6 +13501,12 @@ msgstr ""
 msgid "Write a letter for the current patient."
 msgstr ""
 
+msgid "Screenshot -> export area"
+msgstr ""
+
+msgid "Put a screenshot into the patient export area."
+msgstr ""
+
 msgid "List Placeholders"
 msgstr ""
 
@@ -13491,6 +13757,10 @@ msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr ""
+
+#, fuzzy
+msgid "Cannot put screenshot into export area. No active patient."
+msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
 
 #, python-format
 msgid ""
@@ -14033,10 +14303,6 @@ msgstr ""
 msgid "There was a problem accessing the [arriba] result in [%s] !"
 msgstr ""
 
-#, python-format
-msgid "Saved screenshot to file [%s]."
-msgstr ""
-
 msgid "[-9999]: <access violation test error>"
 msgstr ""
 
@@ -14161,6 +14427,10 @@ msgid "This is so that you can inspect the console output at your leisure."
 msgstr ""
 
 msgid "no patient"
+msgstr ""
+
+#, python-format
+msgid "Saved screenshot to file [%s]."
 msgstr ""
 
 msgid "GNUmed client"
@@ -14431,6 +14701,12 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
+msgid "Time"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
 msgid ""
 "lab_grid_date_format::%Y\n"
 "%b %d"
@@ -14500,7 +14776,10 @@ msgstr ""
 msgid "Date / Time"
 msgstr ""
 
-msgid "Result"
+msgid "All: as &Grid"
+msgstr ""
+
+msgid "All: by &Day"
 msgstr ""
 
 msgid "Perform on selected results:"
@@ -14559,6 +14838,14 @@ msgid "Showing measurement types."
 msgstr ""
 
 msgid "Org"
+msgstr ""
+
+#, python-format
+msgid "%s &Aggregate"
+msgstr ""
+
+#, python-format
+msgid "Manage aggregations (%s) of tests into groups."
 msgstr ""
 
 msgid "generic / in house lab"
@@ -15512,11 +15799,19 @@ msgstr ""
 msgid "Global Search Of Contacts Database"
 msgstr ""
 
-msgid "EMR Timeline"
-msgstr ""
+#, fuzzy
+msgid "Export Area"
+msgstr "део"
 
 #, python-format
 msgid "loading plugin <%s>"
+msgstr ""
+
+#, fuzzy
+msgid "E&xport area"
+msgstr "део"
+
+msgid "EMR Timeline"
 msgstr ""
 
 msgid "Show &Timeline"
@@ -15826,6 +16121,10 @@ msgstr "Прекинути"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
+#, fuzzy
+#~ msgid "export"
+#~ msgstr "Извештај"
+
 #~ msgid ""
 #~ "... or ...\n"
 #~ "\n"
@@ -15875,10 +16174,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Cannot show items billed to patient. No active patient."
-#~ msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
-
-#, fuzzy
-#~ msgid "Cannot show bills for patient. No active patient."
 #~ msgstr "Не могу да додам вакцинацију. Није изабран активан пацијент."
 
 #~ msgid ""
