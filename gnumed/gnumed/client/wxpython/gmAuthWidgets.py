@@ -194,7 +194,7 @@ def connect_to_database(max_attempts=3, expected_version=None, require_version=T
 			continue
 
 		except gmPG2.dbapi.OperationalError, exc:
-			exc = make_pg_exception_fields_unicode(exc)
+			exc = gmPG2.make_pg_exception_fields_unicode(exc)
 			_log.error(u"login attempt failed: %s", exc)
 			msg = _(
 				"Unable to connect to database:\n\n"

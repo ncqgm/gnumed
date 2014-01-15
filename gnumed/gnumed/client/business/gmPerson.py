@@ -1241,6 +1241,19 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		)
 		return rows[0][0]
 	#----------------------------------------------------------------------
+	def current_birthday_passed(self):
+		now = gmDateTime.pydt_now_here()
+		if now.month < self['dob'].month:
+			return False
+		if now.month > self['dob'].month:
+			return True
+		# DOB is this month
+		if now.day < self['dob'].day:
+			return False
+		if now.day > self['dob'].day:
+			return True
+		return None
+	#----------------------------------------------------------------------
 	# practice related
 	#----------------------------------------------------------------------
 	def get_last_encounter(self):

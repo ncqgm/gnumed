@@ -73,6 +73,9 @@ class DummyMainFrame(object):
     def ok_to_edit(self):
         return False
 
+    def ok_to_edit(self):
+        return False
+
 
 class TimelineComponent(TimelinePanel):
 
