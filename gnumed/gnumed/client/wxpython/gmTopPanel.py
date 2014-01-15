@@ -127,21 +127,32 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		if self.curr_pat['deceased'] is None:
 
-			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
-				template = _('%s  %s (%s today !)')
+			now = gmDateTime.pydt_now_here()
+
+#			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
+			if self.curr_pat.get_formatted_dob(format = '%m-%d') == now.strftime('%m-%d'):
+				template = _('%(sex)s  %(dob)s (%s today !)')
 				tt += _("\nToday is the patient's birtday !\n\n")
 			else:
-				template = u'%s  %s (%s)'
+				age = gmDateTime.calculate_apparent_age(start = self.curr_pat['dob'], end = now)
+				if self.curr_pat.current_birthday_passed():
+					template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
+					tt += _(u'Birthday: %s ago\n') % gmDateTime.format_apparent_age_medically(age = (0,) + age[1:])
+				else:
+					template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
+					tt += _(u'Birtday: in %s\n') % gmDateTime.format_apparent_age_medically(age = (0,) + age[1:])
 
 			tt += _('Age: %s\n') % self.curr_pat['medical_age']
 
 			# FIXME: if the age is below, say, 2 hours we should fire
 			# a timer here that updates the age in increments of 1 minute ... :-)
-			age = template % (
-				gmPerson.map_gender2symbol[self.curr_pat['gender']],
-				self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
-				self.curr_pat['medical_age']
-			)
+			age = template % {
+				u'sex': gmPerson.map_gender2symbol[self.curr_pat['gender']],
+				u'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				u'age': self.curr_pat['medical_age'],
+				u'r_arr': gmTools.u_right_arrow,
+				u'l_arr': gmTools.u_left_arrow
+			}
 
 			# Easter Egg ;-)
 			if self.curr_pat['lastnames'] == u'Leibner':
@@ -151,14 +162,14 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		else:
 
-			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d.%b %Y')
+			tt += _('Died: %s\n') % gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y')
 			tt += _('At age: %s\n') % self.curr_pat['medical_age']
 
 			template = u'%s  %s - %s (%s)'
 			age = template % (
 				gmPerson.map_gender2symbol[self.curr_pat['gender']],
-				self.curr_pat.get_formatted_dob(format = '%d.%b %Y', encoding = gmI18N.get_encoding()),
-				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%Y %b %d'),
+				self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
+				gmDateTime.pydt_strftime(self.curr_pat['deceased'], '%d %b %Y'),
 				self.curr_pat['medical_age']
 			)
 

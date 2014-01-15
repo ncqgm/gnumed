@@ -73,6 +73,9 @@ class DummyMainFrame(object):
     def view_categories_individually(self):
         pass
 
+    def ok_to_edit(self):
+        return False
+
 
 class TimelineComponent(TimelinePanel):
 

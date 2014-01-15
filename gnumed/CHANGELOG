@@ -6,6 +6,13 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.6
+
+FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]
+FIX: missing method in TimeLine code
+
+IMPROVED: DOB/age display in top panel
+
 	1.4.5
 
 FIX: permissions of ${TMP}/gnumed/ on multiuser systems [thanks Kalle]
