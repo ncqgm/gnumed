@@ -1768,6 +1768,12 @@ def map_firstnames2gender(firstnames=None):
 
 	return rows[0][0]
 #============================================================
+def get_person_IDs():
+	cmd = u'SELECT pk FROM dem.identity'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = False)
+	return [ r[0] for r in rows ]
+
+#============================================================
 def get_persons_from_pks(pks=None):
 	return [ cIdentity(aPK_obj = pk) for pk in pks ]
 #============================================================
