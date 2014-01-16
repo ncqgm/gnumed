@@ -287,6 +287,48 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=
 		dt.second
 	)
 #---------------------------------------------------------------------------
+def pydt_replace(dt=None, year=None, month=None, day=None, hour=None, minute=None, second=None, microsecond=None, tzinfo=None, strict=True):
+
+	# normalization required because .replace() does not
+	# deal with keyword arguments being None ...
+	if year is None:
+		year = dt.year
+	if month is None:
+		month = dt.month
+	if day is None:
+		day = dt.day
+	if hour is None:
+		hour = dt.hour
+	if minute is None:
+		minute = dt.minute
+	if second is None:
+		second = dt.second
+	if microsecond is None:
+		microsecond = dt.microsecond
+	if tzinfo is None:
+		tzinfo = dt.tzinfo		# can fail on naive dt's
+
+	if strict:
+		return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
+
+	try:
+		return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
+	except ValueError:
+		_log.debug('error replacing datetime member(s): %s', locals())
+
+	# (target/existing) day did not exist in target month
+	if month == 2:
+		if day > 28:
+			if is_leap_year(year):
+				day = 29
+			else:
+				day = 28
+	else:
+		if day == 31:
+			day = 30
+
+	return dt.replace(year = year, month = month, day = day, hour = hour, minute = minute, second = second, microsecond = microsecond, tzinfo = tzinfo)
+#---------------------------------------------------------------------------
 def pydt_now_here():
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return pyDT.datetime.now(gmCurrentLocalTimezone)
@@ -653,8 +695,8 @@ def format_apparent_age_medically(age=None):
 			_('m::month_abbreviation').replace('::month_abbreviation', u'')
 		)
 
-	# more than 1 month ?
-	if months > 1:
+	# at least 1 month ?
+	if months > 0:
 		if days == 0:
 			return u'%s%s' % (
 				months,
