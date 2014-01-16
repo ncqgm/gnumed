@@ -111,7 +111,9 @@ def mkdir(directory=None, mode=None):
 		if mode is None:
 			os.makedirs(directory)
 		else:
+			old_umask = os.umask(0)
 			os.makedirs(directory, mode)
+			os.umask(old_umask)
 	except OSError, e:
 		if (e.errno == 17) and not os.path.isdir(directory):
 			raise
@@ -208,14 +210,12 @@ class gmPaths(gmBorg.cBorg):
 			_log.info(u'initial temp dir: %s', tempfile.gettempdir())
 			# /tmp/gnumed/
 			tmp_base = os.path.join(tempfile.gettempdir(), app_name)
-			old_umask = os.umask(0)
 			mkdir(tmp_base, 0o777)
-			os.umask(old_umask)
 			tempfile.tempdir = tmp_base
 			_log.info(u'level 1 intermediate temp dir: %s', tempfile.gettempdir())
 			# /tmp/gnumed/$USER/
 			tmp_base = os.path.join(tempfile.gettempdir(), getpass.getuser())
-			mkdir(tmp_base)
+			mkdir(tmp_base, 0x0700)
 			tempfile.tempdir = tmp_base
 			_log.info(u'level 2 intermediate temp dir: %s', tempfile.gettempdir())
 			# /tmp/gnumed/$USER/gm-*/

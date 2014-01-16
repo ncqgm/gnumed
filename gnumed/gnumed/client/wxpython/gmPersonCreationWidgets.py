@@ -29,7 +29,7 @@ from Gnumed.business import gmDemographicRecord
 
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython.gmDemographicsWidgets import _validate_dob_field, _validate_tob_field
+from Gnumed.wxpython.gmDemographicsWidgets import _validate_dob_field, _validate_tob_field, _empty_dob_allowed
 
 
 _log = logging.getLogger('gm.patient')

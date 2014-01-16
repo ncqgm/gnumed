@@ -118,7 +118,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_age_label(self):
 
-		tt = _('Gender: %s (%s) - %s\n') % (
+		tt = _(u'Gender: %s (%s) - %s\n') % (
 			self.curr_pat.gender_symbol,
 			self.curr_pat['gender'],
 			self.curr_pat.gender_string
@@ -134,13 +134,16 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				template = _('%(sex)s  %(dob)s (%s today !)')
 				tt += _("\nToday is the patient's birtday !\n\n")
 			else:
-				age = gmDateTime.calculate_apparent_age(start = self.curr_pat['dob'], end = now)
 				if self.curr_pat.current_birthday_passed():
 					template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
-					tt += _(u'Birthday: %s ago\n') % gmDateTime.format_apparent_age_medically(age = (0,) + age[1:])
+					tt += _(u'Birthday: %s ago\n') % gmDateTime.format_apparent_age_medically (
+						age = gmDateTime.calculate_apparent_age(start = self.curr_pat.dob_this_year, end = now)
+					)
 				else:
 					template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-					tt += _(u'Birtday: in %s\n') % gmDateTime.format_apparent_age_medically(age = (0,) + age[1:])
+					tt += _(u'Birtday: in %s\n') % gmDateTime.format_apparent_age_medically (
+						age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.dob_this_year)
+					)
 
 			tt += _('Age: %s\n') % self.curr_pat['medical_age']
 

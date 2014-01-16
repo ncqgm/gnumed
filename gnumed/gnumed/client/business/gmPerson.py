@@ -1254,6 +1254,16 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return True
 		return None
 	#----------------------------------------------------------------------
+	def _get_dob_this_year(self):
+		now = gmDateTime.pydt_now_here()
+		return gmDateTime.pydt_replace (
+			dt = self['dob'],
+			year = now.year,
+			strict = False
+		)
+
+	dob_this_year = property(_get_dob_this_year, lambda x:x)
+	#----------------------------------------------------------------------
 	# practice related
 	#----------------------------------------------------------------------
 	def get_last_encounter(self):
@@ -1619,7 +1629,7 @@ INSERT INTO dem.names (
 	return ident
 #============================================================
 def create_dummy_identity():
-	cmd = u"INSERT INTO dem.identity(gender) VALUES ('xxxDEFAULTxxx') RETURNING pk"
+	cmd = u"INSERT INTO dem.identity(gender) VALUES (NULL::text) RETURNING pk"
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [{'cmd': cmd}],
 		return_data = True
@@ -1670,8 +1680,9 @@ def get_gender_list():
 	global __gender_list
 
 	if __gender_list is None:
-		cmd = u"select tag, l10n_tag, label, l10n_label, sort_weight from dem.v_gender_labels order by sort_weight desc"
+		cmd = u"SELECT tag, l10n_tag, label, l10n_label, sort_weight FROM dem.v_gender_labels ORDER BY sort_weight DESC"
 		__gender_list, __gender_idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+		_log.debug(u'genders in database: %s' % __gender_list)
 
 	return (__gender_list, __gender_idx)
 #------------------------------------------------------------
@@ -1688,11 +1699,12 @@ map_gender2symbol = {
 	'm': u'\u2642',
 	'f': u'\u2640',
 	'tf': u'\u26A5\u2640',
-	'tm': u'\u26A5\u2642',
-	'h': u'\u26A5'
 #	'tf': u'\u2642\u2640-\u2640',
+	'tm': u'\u26A5\u2642',
 #	'tm': u'\u2642\u2640-\u2642',
-#	'h': u'\u2642\u2640'
+	'h': u'\u26A5',
+#	'h': u'\u2642\u2640',
+	None: u'?\u26A5?'
 }
 #------------------------------------------------------------
 def map_gender2string(gender=None):
@@ -1703,15 +1715,17 @@ def map_gender2string(gender=None):
 	if __gender2string_map is None:
 		genders, idx = get_gender_list()
 		__gender2string_map = {
-			'm': _('male'),
-			'f': _('female'),
-			'tf': u'',
-			'tm': u'',
-			'h': u''
+			u'm': _(u'male'),
+			u'f': _(u'female'),
+			u'tf': u'',
+			u'tm': u'',
+			u'h': u'',
+			None: _(u'unknown gender')
 		}
 		for g in genders:
 			__gender2string_map[g[idx['l10n_tag']]] = g[idx['l10n_label']]
 			__gender2string_map[g[idx['tag']]] = g[idx['l10n_label']]
+		_log.debug(u'gender -> string mapping: %s' % __gender2string_map)
 
 	return __gender2string_map[gender]
 #------------------------------------------------------------
@@ -1727,12 +1741,14 @@ def map_gender2salutation(gender=None):
 			'f': _('Mrs'),
 			'tf': u'',
 			'tm': u'',
-			'h': u''
+			'h': u'',
+			None: u''
 		}
 		for g in genders:
 			__gender2salutation_map[g[idx['l10n_tag']]] = __gender2salutation_map[g[idx['tag']]]
 			__gender2salutation_map[g[idx['label']]] = __gender2salutation_map[g[idx['tag']]]
 			__gender2salutation_map[g[idx['l10n_label']]] = __gender2salutation_map[g[idx['tag']]]
+		_log.debug(u'gender -> salutation mapping: %s' % __gender2salutation_map)
 
 	return __gender2salutation_map[gender]
 #------------------------------------------------------------
@@ -1743,7 +1759,7 @@ def map_firstnames2gender(firstnames=None):
 		return None
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{
-		'cmd': u"select gender from dem.name_gender_map where name ilike %(fn)s limit 1",
+		'cmd': u"SELECT gender FROM dem.name_gender_map WHERE name ILIKE %(fn)s LIMIT 1",
 		'args': {'fn': firstnames}
 	}])
 
