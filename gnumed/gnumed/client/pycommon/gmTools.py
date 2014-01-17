@@ -211,7 +211,7 @@ class gmPaths(gmBorg.cBorg):
 			_log.info(u'level 1 intermediate temp dir: %s', tempfile.gettempdir())
 			# /tmp/gnumed/$USER/
 			tmp_base = os.path.join(tempfile.gettempdir(), getpass.getuser())
-			mkdir(tmp_base, 0x0700)
+			mkdir(tmp_base, 0o700)
 			tempfile.tempdir = tmp_base
 			_log.info(u'level 2 intermediate temp dir: %s', tempfile.gettempdir())
 			# /tmp/gnumed/$USER/gm-*/
