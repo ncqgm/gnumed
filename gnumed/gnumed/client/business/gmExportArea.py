@@ -335,7 +335,7 @@ class cExportArea(object):
 
 		return all_ok
 	#--------------------------------------------------------
-	def add_file(self, filename=None):
+	def add_file(self, filename=None, hint=None):
 		try:
 			open(filename).close()
 		except StandardError:
@@ -350,7 +350,11 @@ class cExportArea(object):
 
 		path, basename = os.path.split(filename)
 		item = create_export_item (
-			description = _(u'file: %s (%s/)') % (basename, path),
+			description = u'%s: %s (%s/)' % (
+				gmTools.coalesce(hint, _(u'file'), u'%s'),
+				basename,
+				path
+			),
 			pk_identity = self.__pk_identity,
 			filename = filename
 		)
@@ -361,10 +365,10 @@ class cExportArea(object):
 		delete_export_item(pk_export_item = item['pk_export_item'])
 		return None
 	#--------------------------------------------------------
-	def add_files(self, filenames=None):
+	def add_files(self, filenames=None, hint=None):
 		all_ok = True
 		for fname in filenames:
-			all_ok = all_ok and (self.add_file(filename = fname) is not None)
+			all_ok = all_ok and (self.add_file(filename = fname, hint = hint) is not None)
 
 		return all_ok
 	#--------------------------------------------------------

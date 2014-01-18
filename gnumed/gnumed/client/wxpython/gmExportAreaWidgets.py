@@ -125,7 +125,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if scans is None:
 			return
 
-		if not gmPerson.gmCurrentPatient().export_area.add_files(scans):
+		if not gmPerson.gmCurrentPatient().export_area.add_files(scans, _('scan')):
 			gmGuiHelpers.gm_show_error (
 				title = _(u'Scanning files into export area'),
 				error = _(u'Cannot add (some of) the following scans to the export area:\n%s ') % u'\n '.join(fnames)
@@ -405,7 +405,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			except OSError:
 				real_filenames.append(pathname)
 
-		if not pat.export_area.add_files(real_filenames):
+		if not pat.export_area.add_files(real_filenames, hint = _(u'Drag&Drop')):
 			gmGuiHelpers.gm_show_error (
 				title = _(u'Adding files to export area'),
 				error = _(u'Cannot add (some of) the following files to the export area:\n%s ') % u'\n '.join(real_filenames)

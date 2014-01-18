@@ -20,6 +20,8 @@ for DB in ${DB_LIST} ; do
 	grep -v log_ ~/gm-schemadocs/${DB}/gnumed-schema.dot > ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
 
 	dot -Tpng -o ~/gm-schemadocs/${DB}/gnumed-schema.png ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
+	dot -Tpdf -o ~/gm-schemadocs/${DB}/gnumed-schema.pdf ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
+	dot -Tsvg -o ~/gm-schemadocs/${DB}/gnumed-schema.svg ~/gm-schemadocs/${DB}/gnumed-schema-no_audit.dot
 
 done
 

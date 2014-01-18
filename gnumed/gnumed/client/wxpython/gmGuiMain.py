@@ -1195,7 +1195,7 @@ class gmTopLevelFrame(wx.Frame):
 			return True
 
 		screenshot_file = self.__save_screenshot_to_file()
-		pat.export_area.add_file(filename = screenshot_file)
+		pat.export_area.add_file(filename = screenshot_file, hint = _(u'GMd screenshot'))
 	#----------------------------------------------
 	# help menu
 	#----------------------------------------------

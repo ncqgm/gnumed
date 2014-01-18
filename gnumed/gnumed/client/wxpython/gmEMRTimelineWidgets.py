@@ -55,6 +55,7 @@ from Gnumed.wxGladeWidgets import wxgEMRTimelinePluginPnl
 class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	"""Panel holding a number of widgets. Used as notebook page."""
 	def __init__(self, *args, **kwargs):
+		self.__tl_file = None
 		wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 #		self.__init_ui()
@@ -73,11 +74,11 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		self._PNL_timeline.clear_timeline()
 	#--------------------------------------------------------
 	def _on_refresh_button_pressed(self, event):
-		#event.Skip()
 		self._populate_with_data()
 	#--------------------------------------------------------
-	def _on_export_button_pressed(self, event):
-		#event.Skip()
+	def _on_save_button_pressed(self, event):
+		if self.__tl_file is None:
+			return
 		dlg = wx.FileDialog (
 			parent = self,
 			message = _("Save timeline as SVG image under..."),
@@ -94,9 +95,19 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		self._PNL_timeline.export_as_svg(filename = fname)
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
-		#event.Skip()
+		if self.__tl_file is None:
+			return
 		svg_file = self._PNL_timeline.export_as_svg()
 		gmMimeLib.call_viewer_on_file(aFile = svg_file, block = None)
+	#--------------------------------------------------------
+	def _on_export_area_button_pressed(self, event):
+		if self.__tl_file is None:
+			return
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		pat.export_area.add_file(filename = self._PNL_timeline.export_as_svg(), hint = _(u'timeline image'))
+		pat.export_area.add_file(filename = self.__tl_file, hint = _('timeline data'))
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self._populate_with_data()
@@ -118,12 +129,14 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 		if not pat.connected:
 			return True
 		try:
-			self._PNL_timeline.open_timeline(timeline.create_timeline_file(patient = pat))
+			self.__tl_file = timeline.create_timeline_file(patient = pat)
+			self._PNL_timeline.open_timeline(self.__tl_file)
 		except:
 #		except TimelineIOError:
 			_log.exception('cannot load EMR from timeline XML')
 			self._PNL_timeline.clear_timeline()
-			self._PNL_timeline.open_timeline(timeline.create_fake_timeline_file(patient = pat))
+			self.__tl_file = timeline.create_fake_timeline_file(patient = pat)
+			self._PNL_timeline.open_timeline(self.__tl_file)
 			return True
 
 		return True

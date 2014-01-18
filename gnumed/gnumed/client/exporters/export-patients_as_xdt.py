@@ -45,7 +45,6 @@ def export_patients_as_xdt(base_path=None):
 			suffix = u'.xdt',
 			tmp_dir = path
 		)
-		print u'xDT file:', filename
 		_log.info(u'file: %s', filename)
 		identity.export_as_gdt (
 			filename = filename,
@@ -68,10 +67,5 @@ if __name__ == '__main__':
 	if len(sys.argv) > 2:
 		path = sys.argv[2]
 
+	paths = gmTools.gmPaths(app_name = u'gnumed')
 	export_patients_as_xdt(base_path = path)
-
-
-#	# 14 / 20 / 138 / 58 / 20 / 5
-#	pat = gmPerson.gmCurrentPatient(gmPerson.cPatient(aPK_obj = 12))
-#	fname = u'~/tmp/gm2tl-%s.timeline' % pat.get_dirname()
-#	print create_timeline_file(patient = pat, filename = os.path.expanduser(fname))
