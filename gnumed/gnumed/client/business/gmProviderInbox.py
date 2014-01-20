@@ -331,17 +331,26 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk = %s"
 	_cmds_store_payload = [
 		u"""UPDATE ref.auto_hint SET
+				query = gm.nullify_empty_string(%(query)s),
+				title = gm.nullify_empty_string(%(title)s),
+				hint = gm.nullify_empty_string(%(hint)s),
+				url = gm.nullify_empty_string(%(url)s),
+				source = gm.nullify_empty_string(%(source)s),
 				is_active = %(is_active)s
 			WHERE
 				pk = %(pk)s
 					AND
 				xmin = %(xmin_auto_hint)s
 			RETURNING
-				pk,
 				xmin AS xmin_auto_hint
 		"""
 	]
 	_updatable_fields = [
+		u'query',
+		u'title',
+		u'hint',
+		u'url',
+		u'source',
 		u'is_active'
 	]
 	#--------------------------------------------------------
@@ -377,35 +386,42 @@ def get_dynamic_hints(order_by=None):
 	cmd = _SQL_get_dynamic_hints % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
 #------------------------------------------------------------
-#def create_xxx(xxx=None, xxx=None):
-#
-#	args = {
-#		u'xxx': xxx,
-#		u'xxx': xxx
-#	}
-#	cmd = u"""
-#		INSERT INTO xxx.xxx (
-#			xxx,
-#			xxx,
-#			xxx
-#		) VALUES (
-#			%(xxx)s,
-#			%(xxx)s,
-#			gm.nullify_empty_string(%(xxx)s)
-#		)
-#		RETURNING pk
-#	"""
-#	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-#
-#	return cDynamicHint(aPK_obj = rows[0]['pk'])
+def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source=None):
+	args = {
+		u'query': query,
+		u'title': title,
+		u'hint': hint,
+		u'source': source,
+		u'usr': gmStaff.gmCurrentProvider()['db_user']
+	}
+	cmd = u"""
+		INSERT INTO ref.auto_hint (
+			query,
+			title,
+			hint,
+			source,
+			lang
+		) VALUES (
+			gm.nullify_empty_string(%(query)s),
+			gm.nullify_empty_string(%(title)s),
+			gm.nullify_empty_string(%(hint)s),
+			gm.nullify_empty_string(%(source)s),
+			i18n.get_curr_lang(%(usr)s)
+		)
+		RETURNING *, xmin AS xmin_auto_hint
+	"""
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
+
+	return cDynamicHint(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk'})
+
 #------------------------------------------------------------
-#def delete_xxx(xxx=None):
-#	args = {'pk': xxx}
-#	cmd = u"DELETE FROM xxx.xxx WHERE pk = %(pk)s"
-#	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-#	return True
-#------------------------------------------------------------
+def delete_dynamic_hint(link_obj=None, pk_hint=None):
+	args = {'pk': pk_hint}
+	cmd = u"DELETE FROM ref.auto_hint WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	return True
 
 #------------------------------------------------------------
 def get_hints_for_patient(pk_identity=None):
