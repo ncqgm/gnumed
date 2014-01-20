@@ -1172,7 +1172,7 @@ class database:
 
 		# always re-create generic super signal (if exists)
 		print_msg("==> setting up generic notifications ...")
-		_log.debug('creating generic modification announcement triggers on all registered tables')
+		_log.debug('attempting to create generic modification announcement triggers on all registered tables')
 		curs = self.conn.cursor()
 		cmd = u"""
 			SELECT EXISTS (
@@ -1183,58 +1183,20 @@ class database:
 			)"""
 		curs.execute(cmd)
 		result = curs.fetchone()
-		if result[0] is True:
-			_log.debug('creating generic modification announcement triggers on registered tables')
-			cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
-			curs.execute(cmd)
-			result = curs.fetchone()
-			curs.close()
-			if result[0] is False:
-				_log.error('cannot create generic modification announcement triggers on all tables')
-				return None
-		else:
+		if result[0] is False:
 			curs.close()
 			_log.debug('NOT creating generic modification announcement triggers, functionality not available')
 
-		print_msg("==> setting up (old style) notifications ...")
-		# get configuration
-		tmp = cfg_get(self.section, 'notification disable')
-		# if this option is not given, assume we want notification
-		if tmp is not None:
-			# if we don't want notification on these tables, return without error
-			if int(tmp) == 1:
-				print_msg('    ... skipped (disabled)')
-				return True
-
-		# create notification schema
-		curs = self.conn.cursor()
-		notification_schema = notify_gen.create_notification_schema(curs)
-		notification_schema.extend(notify_gen.create_narrative_notification_schema(curs))
+		_log.debug('now creating generic modification announcement triggers on registered tables')
+		cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
+		curs.execute(cmd)
+		result = curs.fetchone()
 		curs.close()
-		if notification_schema is None:
-			_log.error('cannot generate notification schema for GNUmed database [%s]' % self.name)
+		if result[0] is False:
+			_log.error('cannot create generic modification announcement triggers on all tables')
 			return None
+		self.conn.commit()
 
-		# write schema to file
-		tmpfile = os.path.join(tempfile.gettempdir(), 'notification-schema.sql')
-		file = open (tmpfile, 'wb')
-		for line in notification_schema:
-			file.write("%s;\n" % line)
-		file.close()
-
-		# import notification schema
-		psql = gmPsql.Psql(self.conn)
-		if psql.run(tmpfile) != 0:
-			_log.error("cannot import notification schema definition for database [%s]" % (self.name))
-			return None
-
-		if _keep_temp_files:
-			return True
-
-		try:
-			os.remove(tmpfile)
-		except StandardError:
-			_log.exception('cannot remove notification schema file [%s]' % tmpfile)
 		return True
 #==================================================================
 class gmBundle:

@@ -114,10 +114,6 @@ audit trail table prefix = log_
 # all audited tables must inherit from this table
 audit fields table = audit_fields
 
-# setting this to 1 will disable creation
-# of change notification triggers/functions
-notification disable = 0
-
 # here you can import some schema files once per database
 # such as revision tracking, translation, auditing etc.
 schema = $schema$

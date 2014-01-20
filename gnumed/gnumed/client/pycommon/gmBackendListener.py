@@ -40,6 +40,8 @@ class gmBackendListener(gmBorg.cBorg):
 		except AttributeError:
 			pass
 
+		self.debug = False
+
 		_log.info('starting backend notifications listener thread')
 
 		# the listener thread will regularly try to acquire
@@ -245,6 +247,8 @@ class gmBackendListener(gmBorg.cBorg):
 				# 2) dynamically emulated old style table specific signals
 				if table is not None:
 					signal = u'%s_mod_db' % table
+					if self.debug:
+						_log.debug('emulating old-style table specific signal [%s]', signal)
 					try:
 						results = gmDispatcher.send (
 							signal = signal,
