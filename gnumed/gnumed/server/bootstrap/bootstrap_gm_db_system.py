@@ -79,9 +79,6 @@ from Gnumed.pycommon.gmExceptions import ConstructorError
 import gmAuditSchemaGenerator
 aud_gen = gmAuditSchemaGenerator
 
-import gmNotificationSchemaGenerator
-notify_gen = gmNotificationSchemaGenerator
-
 
 _log = logging.getLogger('gm.bootstrapper')
 _cfg = gmCfg2.gmCfgData()

@@ -9,6 +9,7 @@
 
 -- --------------------------------------------------------------
 alter table gm.notifying_tables drop column signal cascade;
+alter table gm.notifying_tables drop column carries_identity_pk cascade;
 
 --unique_entry
 

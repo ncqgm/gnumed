@@ -1445,6 +1445,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 IMPROVED: set clin.encounter.fk_location NOT NULL
 IMPROVED: set clin.test_type.fk_test_org NOT NULL
+IMPROVED: get rid of old-style schema notification
 
 ------------------------------------------------
 # gnumed_v19
