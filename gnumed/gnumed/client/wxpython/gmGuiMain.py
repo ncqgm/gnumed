@@ -1144,7 +1144,10 @@ class gmTopLevelFrame(wx.Frame):
 		if not has_narr:
 			if empty_aoe:
 				enc['assessment_of_encounter'] = _('only documents added')
-			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]['pk']
+			enc_rows = gmEMRStructItems.get_encounter_type(description = 'chart review')
+			if len(enc_rows) == 0:
+				return True
+			enc['pk_type'] = enc_rows[0]['pk']
 			# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
 			enc.save_payload()
 			return True

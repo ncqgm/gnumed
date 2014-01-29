@@ -6,13 +6,14 @@
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.6
+	1.4.6 (unreleased)
 
 FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]
 FIX: missing method in TimeLine code
 FIX: bug in new-person EA validation code
 FIX: creating dummy identities used faulty gender
 FIX: faulty apparent_age formatting (age between 1-2 month ignored)
+FIX: attempt to use "chart review" encounter type even if it does not exist [thanks Jim]
 
 IMPROVED: DOB/age display in top panel
 IMPROVED: deal with display of missing gender

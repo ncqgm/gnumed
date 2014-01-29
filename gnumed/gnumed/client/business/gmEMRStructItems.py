@@ -2704,8 +2704,8 @@ def get_encounter_types():
 
 #-----------------------------------------------------------
 def get_encounter_type(description=None):
-	cmd = u"SELECT * from clin.encounter_type where description = %s"
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}])
+	cmd = u"SELECT * FROM clin.encounter_type WHERE description = %s"
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [description]}], get_col_idx = False)
 	return rows
 
 #-----------------------------------------------------------
