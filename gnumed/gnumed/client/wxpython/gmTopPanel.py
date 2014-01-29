@@ -131,7 +131,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 #			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
 			if self.curr_pat.get_formatted_dob(format = '%m-%d') == now.strftime('%m-%d'):
-				template = _('%(sex)s  %(dob)s (%s today !)')
+				template = _('%(sex)s  %(dob)s (%(age)s today !)')
 				tt += _("\nToday is the patient's birtday !\n\n")
 			else:
 				if self.curr_pat.current_birthday_passed():
