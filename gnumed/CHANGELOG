@@ -6,7 +6,7 @@
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.6 (unreleased)
+	1.4.6
 
 FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]
 FIX: missing method in TimeLine code
