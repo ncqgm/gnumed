@@ -25,17 +25,17 @@ def is_cmd_in_path(cmd=None):
 		_log.info('command with full or relative path, not searching in PATH for binary')
 		return (None, None)
 
-	env_paths = os.environ['PATH']
-	_log.debug('${PATH}: %s', env_paths)
+	env_paths = unicode(os.environ['PATH'], encoding = sys.getfilesystemencoding(), errors = 'replace')
+	_log.debug(u'${PATH}: %s', env_paths)
 	for path in env_paths.split(os.pathsep):
-		candidate = os.path.join(path, cmd).encode(sys.getfilesystemencoding())
+		candidate = os.path.join(path, cmd)
 		if os.access(candidate, os.X_OK):
-			_log.debug('found [%s]', candidate)
-			return (True, candidate.decode(sys.getfilesystemencoding()))
+			_log.debug(u'found [%s]', candidate)
+			return (True, candidate)
 		else:
-			_log.debug('not found: %s', candidate)
+			_log.debug(u'not found: %s', candidate)
 
-	_log.debug('command not found in PATH')
+	_log.debug(u'command not found in PATH')
 
 	return (False, None)
 #===========================================================================

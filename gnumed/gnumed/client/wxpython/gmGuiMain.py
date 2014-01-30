@@ -728,17 +728,17 @@ class gmTopLevelFrame(wx.Frame):
 
 		ID_DICOM_VIEWER = wx.NewId()
 		viewer = _('no viewer installed')
-		if gmShellAPI.detect_external_binary(binary = 'ginkgocadx')[0]:
+		if gmShellAPI.detect_external_binary(binary = u'ginkgocadx')[0]:
 			viewer = u'Ginkgo CADx'
-		elif os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+		elif os.access(u'/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			viewer = u'OsiriX'
-		elif gmShellAPI.detect_external_binary(binary = 'aeskulap')[0]:
+		elif gmShellAPI.detect_external_binary(binary = u'aeskulap')[0]:
 			viewer = u'Aeskulap'
-		elif gmShellAPI.detect_external_binary(binary = 'amide')[0]:
+		elif gmShellAPI.detect_external_binary(binary = u'amide')[0]:
 			viewer = u'AMIDE'
-		elif gmShellAPI.detect_external_binary(binary = 'dicomscope')[0]:
+		elif gmShellAPI.detect_external_binary(binary = u'dicomscope')[0]:
 			viewer = u'DicomScope'
-		elif gmShellAPI.detect_external_binary(binary = 'xmedcon')[0]:
+		elif gmShellAPI.detect_external_binary(binary = u'xmedcon')[0]:
 			viewer = u'(x)medcon'
 		self.menu_tools.Append(ID_DICOM_VIEWER, _('DICOM viewer'), _('Start DICOM viewer (%s) for CD-ROM (X-Ray, CT, MR, etc). On Windows just insert CD.') % viewer)
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_dicom_viewer)
@@ -760,7 +760,7 @@ class gmTopLevelFrame(wx.Frame):
 		ID_DICOM_VIEWER = wx.NewId()
 		self.menu_tools.Append(ID_DICOM_VIEWER, u'arriba', _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
 		wx.EVT_MENU(self, ID_DICOM_VIEWER, self.__on_arriba)
-		if not gmShellAPI.detect_external_binary(binary = 'arriba')[0]:
+		if not gmShellAPI.detect_external_binary(binary = u'arriba')[0]:
 			_log.info('<arriba> not found, disabling "arriba" menu item')
 			self.menu_tools.Enable(id = ID_DICOM_VIEWER, enable = False)
 #		item = self.menu_tools.Append(-1, _('arriba'), _('arriba: cardiovascular risk assessment (%s).') % u'www.arriba-hausarzt.de')
@@ -2282,16 +2282,16 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_dicom_viewer(self, evt):
 
-		found, cmd = gmShellAPI.detect_external_binary(binary = 'ginkgocadx')
+		found, cmd = gmShellAPI.detect_external_binary(binary = u'ginkgocadx')
 		if found:
 			gmShellAPI.run_command_in_shell(cmd, blocking=False)
 			return
 
-		if os.access('/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
+		if os.access(u'/Applications/OsiriX.app/Contents/MacOS/OsiriX', os.X_OK):
 			gmShellAPI.run_command_in_shell('/Applications/OsiriX.app/Contents/MacOS/OsiriX', blocking = False)
 			return
 
-		for viewer in ['aeskulap', 'amide', 'dicomscope', 'xmedcon']:
+		for viewer in [u'aeskulap', u'amide', u'dicomscope', u'xmedcon']:
 			found, cmd = gmShellAPI.detect_external_binary(binary = viewer)
 			if found:
 				gmShellAPI.run_command_in_shell(cmd, blocking = False)
@@ -2523,7 +2523,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MenuReference')
 	#----------------------------------------------
 	def __on_pgadmin3(self, evt):
-		found, cmd = gmShellAPI.detect_external_binary(binary = 'pgadmin3')
+		found, cmd = gmShellAPI.detect_external_binary(binary = u'pgadmin3')
 		if found:
 			gmShellAPI.run_command_in_shell(cmd, blocking = False)
 			return
