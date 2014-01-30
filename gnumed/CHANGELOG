@@ -16,6 +16,10 @@ NEW: manage automatic dynamic hints
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.7 (unreleased)
+
+FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
+
 	1.4.6
 
 FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]

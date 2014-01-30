@@ -2,11 +2,8 @@
 #=====================================================
 # GNUmed KOrganizer link
 #=====================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gui/gmKOrganizerPlugin.py,v $
-# $Id: gmKOrganizerPlugin.py,v 1.4 2009-06-29 15:13:25 ncq Exp $
-__version__ = "$Revision: 1.4 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 import os, sys
 
@@ -33,7 +30,7 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	#--------------------------------------------------------
 	def __init__(self):
 		# detect KOrganizer
-		found, cmd = gmShellAPI.detect_external_binary(binary = 'konsolekalendar')
+		found, cmd = gmShellAPI.detect_external_binary(binary = u'konsolekalendar')
 		if not found:
 			raise gmExceptions.ConstructorError('cannot detect "konsolekalendar" via [%s]' % cmd)
 
@@ -52,21 +49,3 @@ class gmKOrganizerPlugin(gmPlugin.cNotebookPlugin):
 	def can_receive_focus(self):
 		return True
 #======================================================================
-# $Log: gmKOrganizerPlugin.py,v $
-# Revision 1.4  2009-06-29 15:13:25  ncq
-# - improved placement in menu hierarchy
-# - add active letters
-#
-# Revision 1.3  2008/01/14 20:46:20  ncq
-# - use detect_external_binary()
-#
-# Revision 1.2  2007/10/12 07:28:25  ncq
-# - lots of import related cleanup
-#
-# Revision 1.1  2007/07/09 11:10:24  ncq
-# - new plugin :-)
-#
-# Revision 1.1  2007/04/06 23:09:13  ncq
-# - this is new
-#
-#

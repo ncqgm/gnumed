@@ -305,7 +305,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
 		if len(files2mail) == 0:
 			return True
-		found, external_cmd = gmShellAPI.detect_external_binary('gm-mail_doc')
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-mail_doc')
 		if not found:
 			return False
 		# send mail
@@ -336,7 +336,7 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
 		if len(files2fax) == 0:
 			return True
-		found, external_cmd = gmShellAPI.detect_external_binary('gm-fax_doc')
+		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-fax_doc')
 		if not found:
 			return False
 		# send fax
@@ -509,7 +509,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	def __init_ui(self):
 		self._LCTRL_forms.set_columns([_('Form')])
 
-		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
+		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = u'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._LBL_mail.Disable()
 			self._CHBOX_mail.SetLabel(_('<gm-mail_doc(.bat) not found>'))
@@ -517,7 +517,7 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 			self._CHBOX_mail.Disable()
 			self._BTN_mail.Disable()
 
-		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
+		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = u'gm-fax_doc')
 		if not self.__fax_script_exists:
 			self._LBL_fax.Disable()
 			self._PRW_fax.SetText(_('<gm-fax_doc(.bat) not found>'), data = None)

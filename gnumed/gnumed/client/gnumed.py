@@ -271,7 +271,10 @@ def log_startup_info():
 		pass
 	_log.info('process environment:')
 	for key, val in os.environ.items():
-		_log.info(u' %s: %s', (u'${%s}' % key).rjust(30), val)
+		_log.info(u' %s: %s' % (
+			(u'${%s}' % key).rjust(30),
+			unicode(val, encoding = sys.getfilesystemencoding(), errors = 'replace')
+		))
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
