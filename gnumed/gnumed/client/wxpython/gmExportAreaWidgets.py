@@ -172,12 +172,6 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) == 0:
-			save_all = gmGuiHelpers.gm_show_question (
-				title = _('Saving export area documents'),
-				question = _('Truly export ALL items to disk (rather than just a selection) ?')
-			)
-			if not save_all:
-				return True
 			items = self._LCTRL_items.get_item_data()
 
 		dlg = wx.DirDialog (
@@ -191,7 +185,26 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			return True
 
 		if not gmTools.dir_is_empty(path):
-			path = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir', tmp_dir = path)
+			reuse_nonempty_dir = gmGuiHelpers.gm_show_question (
+				title = _(u'Saving export area documents'),
+				question = _(
+					u'The chosen export directory\n'
+					u'\n'
+					u' [%s]\n'
+					u'\n'
+					u'is not empty. Do you want to use it for saving the\n'
+					u'export area documents into, nevertheless ?\n'
+					u'\n'
+					u'(this can be useful for including external documents)\n'
+					u'\n'
+					u'[NO] will create a subdirectory for you and use that.'
+				) % path,
+				cancel_button = True
+			)
+			if reuse_nonempty_dir is None:
+				return True
+			if reuse_nonempty_dir is False:
+				path = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir', tmp_dir = path)
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
 
@@ -216,15 +229,22 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		items = self._LCTRL_items.get_selected_item_data(only_one = False)
 		if len(items) == 0:
-			burn_all = gmGuiHelpers.gm_show_question (
-				title = _('Saving export area documents'),
-				question = _('Truly burn ALL items to CD/DVD (rather than just a selection) ?')
-			)
-			if not burn_all:
-				return True
 			items = self._LCTRL_items.get_item_data()
 
-		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(items = items)
+		base_dir = None
+		dlg = wx.DirDialog (
+			self,
+			message = _('If you wish to include an existing directory select it here:'),
+			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+			style = wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST
+		)
+		choice = dlg.ShowModal()
+		path2include = dlg.GetPath()
+		if choice == wx.ID_OK:
+			if not gmTools.dir_is_empty(path2include):
+				base_dir = path2include
+
+		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = base_dir, items = items)
 		if export_dir is None:
 			return False
 

@@ -257,6 +257,12 @@ _html_start = u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 <h2>%(docs_title)s</h2>
 
 <ul>
+	<li><a href="./">%(browse_root)s</a></li>
+	<li><a href="documents/">%(browse_docs)s</a></li>
+	%(browse_dicomdir)s
+</ul>
+
+<ul>
 """
 
 # <li><a href="documents/filename-1.ext">document 1 description</a></li>
@@ -441,7 +447,12 @@ class cExportArea(object):
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
 		idx_file = codecs.open(idx_fname, u'wb', u'utf8')
+
 		# header
+		browse_dicomdir = u''
+		existing_files = os.listdir(base_dir)
+		if u'DICOMDIR' in existing_files:
+			browse_dicomdir = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
 		idx_file.write(_html_start % {
 			u'html_title_header': _('Patient data for'),
 			u'html_title_patient': gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
@@ -451,7 +462,10 @@ class cExportArea(object):
 			u'mugshot_url': mugshot_url,
 			u'mugshot_alt': mugshot_alt,
 			u'mugshot_title': mugshot_title,
-			u'docs_title': _('Documents')
+			u'docs_title': _(u'Documents'),
+			u'browse_root': _(u'browse storage medium'),
+			u'browse_docs': _(u'browse documents area'),
+			u'browse_dicomdir': browse_dicomdir
 		})
 		# middle
 		for item in items:
