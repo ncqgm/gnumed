@@ -1130,7 +1130,11 @@ class database:
 				target_column = 'pk',
 			)
 			if len(FKs) > 0:
-				_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_episode -> clin.episode.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+				#_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_episode -> clin.episode.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+				_log.info('%s FK(s) exist:', len(FKs))
+				for idx in range(len(FKs)):
+					FK = FKs[idx]
+					_log.info(u' #%s = %s.%s: %s.%s.%s -> %s.%s.%s', idx + 1, FK['constraint_schema'], FK['constraint_name'], FK['source_schema'], FK['source_table'], FK['source_column'], FK['target_schema'], FK['target_table'], FK['target_column'])
 			else:
 				_log.info('adding FK: %s.%s.fk_episode -> clin.episode.pk', child['namespace'], child['table'])
 				cmd = SQL_add_foreign_key % {
@@ -1154,7 +1158,11 @@ class database:
 				target_column = 'pk'
 			)
 			if len(FKs) > 0:
-				_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_encounter -> clin.encounter.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+				#_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_encounter -> clin.encounter.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
+				_log.info('%s FK(s) exist:', len(FKs))
+				for idx in range(len(FKs)):
+					FK = FKs[idx]
+					_log.info(u' #%s = %s.%s: %s.%s.%s -> %s.%s.%s', idx + 1, FK['constraint_schema'], FK['constraint_name'], FK['source_schema'], FK['source_table'], FK['source_column'], FK['target_schema'], FK['target_table'], FK['target_column'])
 			else:
 				_log.info('adding FK: %s.%s.fk_encounter -> clin.encounter.pk', child['namespace'], child['table'])
 				cmd = SQL_add_foreign_key % {
