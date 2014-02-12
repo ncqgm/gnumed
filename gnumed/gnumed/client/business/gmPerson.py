@@ -1254,7 +1254,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			return True
 		return None
 	#----------------------------------------------------------------------
-	def _get_dob_this_year(self):
+	def _get_birthday_this_year(self):
 		now = gmDateTime.pydt_now_here()
 		return gmDateTime.pydt_replace (
 			dt = self['dob'],
@@ -1262,7 +1262,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			strict = False
 		)
 
-	dob_this_year = property(_get_dob_this_year, lambda x:x)
+	birthday_this_year = property(_get_birthday_this_year, lambda x:x)
 	#----------------------------------------------------------------------
 	# practice related
 	#----------------------------------------------------------------------

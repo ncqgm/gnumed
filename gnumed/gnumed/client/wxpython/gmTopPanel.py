@@ -129,20 +129,20 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 			now = gmDateTime.pydt_now_here()
 
-#			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
 			if self.curr_pat.get_formatted_dob(format = '%m-%d') == now.strftime('%m-%d'):
 				template = _('%(sex)s  %(dob)s (%(age)s today !)')
 				tt += _("\nToday is the patient's birtday !\n\n")
 			else:
+				template = u'%(sex)s  %(dob)s (%(age)s)'
 				if self.curr_pat.current_birthday_passed():
-					template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
+					#template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
 					tt += _(u'Birthday: %s ago\n') % gmDateTime.format_apparent_age_medically (
-						age = gmDateTime.calculate_apparent_age(start = self.curr_pat.dob_this_year, end = now)
+						age = gmDateTime.calculate_apparent_age(start = self.curr_pat.birthday_this_year, end = now)
 					)
 				else:
-					template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-					tt += _(u'Birtday: in %s\n') % gmDateTime.format_apparent_age_medically (
-						age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.dob_this_year)
+					#template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
+					tt += _(u'Birthday: in %s\n') % gmDateTime.format_apparent_age_medically (
+						age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_this_year)
 					)
 
 			tt += _('Age: %s\n') % self.curr_pat['medical_age']
@@ -152,9 +152,9 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			age = template % {
 				u'sex': gmPerson.map_gender2symbol[self.curr_pat['gender']],
 				u'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
-				u'age': self.curr_pat['medical_age'],
-				u'r_arr': gmTools.u_right_arrow,
-				u'l_arr': gmTools.u_left_arrow
+				u'age': self.curr_pat['medical_age']
+				#,u'r_arr': gmTools.u_right_arrow,
+				#u'l_arr': gmTools.u_left_arrow
 			}
 
 			# Easter Egg ;-)
