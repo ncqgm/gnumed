@@ -1,0 +1,78 @@
+\documentclass[fromalign=center,fromrule=afteraddress,fromphone,fromemail,version=last,DIN]{scrlttr2}
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+\usepackage[ngerman]{babel}
+\usepackage{marvosym}
+\usepackage{textcomp}
+\usepackage{hyperref}
+
+\begin{document}
+
+\footnotetext {\tiny GNUmed $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Dokumentenvorlage: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+\newcommand{\leadingzero}[1]{\ifnum #1<10 0\the#1\else\the#1\fi}
+\setkomavar{fromname}{\large $<current_provider::::>$, FA für Allgemeinmedizin}
+\setkomavar{fromaddress}{\small $<praxis::%(branch)s, %(praxis)s::120>$\\$<praxis_address::%(street)s %(number)s (%(subunit)s), %(postcode)s %(urb)s::60>$}
+\setkomavar{fromphone}{\small $<praxis_comm::workphone::60>$}		% 01\,555666
+\setkomavar{fromemail}{\small $<praxis_comm::email::60>$}			% not quite provider email but rather praxis email
+\setkomavar{frombank}{\footnotesize Bankverbindung: Starship Trust\\KTO 000\,00\,00\,000\\BLZ 000\,000\,00\\IBAN xxxxxxxxxxxxxxxx}
+\setkomavar{backaddress}{$<current_provider::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
+\setkomavar{invoice}{$<bill::%(invoice_id)s::>$}
+\setkomavar{title}{Rechnung}
+\setkomavar{signature}{$<current_provider::::>$}
+\setkomavar{firstfoot}{\centering\def\\{, }\usekomavar{frombank}}
+\sffamily
+
+% an den Patienten:
+%\begin{letter}{
+%	$<title>$ $<firstname>$ $<lastname>$\\
+%	$<adr_street::billing::>$\ $<adr_number::billing::>$\\
+%	$<adr_postcode::billing::>$\ $<adr_location::billing::>$
+%}
+%
+%\opening{$<gender_mapper::Sehr geehrter Herr//Sehr geehrte Frau::>$\ $<title>$ $<lastname>$,}
+
+% an einen freien Empfänger und die "billing"-Adresse des Patienten
+%\begin{letter}{
+%	$<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$
+%	$<adr_street::billing::>$\ $<adr_number::billing::>$\\
+%	$<adr_postcode::billing::>$\ $<adr_location::billing::>$
+%}
+%
+%\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$,}
+
+% an einen in GNUmed wählbaren Empfänger inklusive wählbarer Adresse:
+\begin{letter}{
+	$<receiver_name::::>$\\
+	$<receiver_street::::>$\ $<receiver_number::::>$\\
+	$<receiver_postcode::::>$\ $<receiver_location::::>$
+}
+%
+\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<receiver_name::::>$,}
+
+hiermit erlaube ich mir, für
+\emph{$<title::::>$ $<firstname::::>$ $<lastname::::>$ ($<date_of_birth::%d.%B %Y::>$), $<adr_street::home::>$ $<adr_number::home::>$ in $<adr_postcode::home::>$ $<adr_location::home::>$},
+folgende von mir erbrachte Leistungen in Rechnung zu stellen:
+
+\begin{flushright}
+\begin{tabular}{llp{7cm}ccr}
+\hline
+Datum & Geb.-Nr. & Bezeichnung & Anz./Faktor & Betrag (\EUR) \\		%($<--bill::%(currency)s::-->$)
+\hline
+$<bill_item:: %(date_to_bill)s & %(billable_code)s & {\footnotesize %(billable_description)s, %(item_detail)s } & %(unit_count)s / %(amount_multiplier)s & %(total_amount)s \\::>$
+\hline
+ & & \textbf{Rechnungsendbetrag} & & \textbf{$<bill::%(total_amount)s::>$} \\
+\hline
+\hline
+\end{tabular}
+\end{flushright}
+
+\noindent Der Berechnung der Honorarleistungen liegt die GOÄ vom 01.01.2002 zugrunde.
+Ich bitte um Überweisung des vollständigen Betrags innerhalb von 10 Werktagen auf unten genanntes Konto.
+
+\closing{Mit freundlichen Grüßen}
+
+\end{letter}
+
+\end{document}

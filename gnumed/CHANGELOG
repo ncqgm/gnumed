@@ -11,6 +11,7 @@
 NEW: by-day display mode for test results including multi-line ones
 NEW: patient documents export area plugin
 NEW: manage automatic dynamic hints
+NEW: letter receiver placeholders $<receiver_*>$
 
 ------------------------------------------------
 # rel-1-4-patches

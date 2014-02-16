@@ -76,7 +76,8 @@ _injectable_placeholders = {
 __known_variant_placeholders = {
 	# generic:
 	u'free_text': u"""show a dialog for entering some free text:
-		args: <message> shown in input dialog, must not contain '//' or '::'""",
+		args: <message> shown in input dialog, must not contain '//' or '::',
+		will cache input per <message>""",
 
 	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
 		args: <snippet name>//<template>""",
@@ -108,6 +109,16 @@ __known_variant_placeholders = {
 	u'gen_adr_postcode': u"args: %s-style formatting template, cached",
 	u'gen_adr_region': u"args: %s-style formatting template, cached",
 	u'gen_adr_country': u"args: %s-style formatting template, cached",
+
+	u'receiver_name': u"args: %s-style formatting template, cached",
+	u'receiver_street': u"args: %s-style formatting template, cached",
+	u'receiver_number': u"args: %s-style formatting template, cached",
+	u'receiver_subunit': u"args: %s-style formatting template, cached",
+	u'receiver_location': u"args: %s-style formatting template, cached",
+	u'receiver_suburb': u"args: %s-style formatting template, cached",
+	u'receiver_postcode': u"args: %s-style formatting template, cached",
+	u'receiver_region': u"args: %s-style formatting template, cached",
+	u'receiver_country': u"args: %s-style formatting template, cached",
 
 	# patient demographics:
 	u'name': u"args: template for name parts arrangement",
@@ -222,6 +233,7 @@ __known_variant_placeholders = {
 		select:			if this is present allow selection of the branch rather than using the current branch""",
 
 	u'praxis_address': u"args: <optional formatting template>",
+	u'praxis_comm': u"args: <optional formatting template>",
 
 
 	# billing related:
@@ -902,6 +914,63 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	def _get_variant_gen_adr_country(self, data=u'?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_country')
 	#--------------------------------------------------------
+	def __get_variant_receiver_part(self, data=u'%s', part=None):
+
+		template = data
+		if template.strip() == u'':
+			template = u'%s'
+
+		cache_key = 'receiver'
+		try:
+			name, adr = self.__cache[cache_key]
+			_log.debug('cache hit (%s): [%s:%s]', cache_key, name, adr)
+		except KeyError:
+			name = None
+			adr = None
+
+		if name is None:
+			dlg = gmAddressWidgets.cReceiverSelectionDlg(None, -1)
+			dlg.patient = self.pat
+			choice = dlg.ShowModal()
+			name = dlg.name
+			adr = dlg.address
+			dlg.Destroy()
+			if choice == wx.ID_CANCEL:
+				return u''
+			self.__cache[cache_key] = (name, adr)
+
+		if part == u'name':
+			return template % self._escape(name)
+
+		return template % self._escape(adr[part])
+	#--------------------------------------------------------
+	def _get_variant_receiver_name(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'name')
+	#--------------------------------------------------------
+	def _get_variant_receiver_street(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'street')
+	#--------------------------------------------------------
+	def _get_variant_receiver_number(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'number')
+	#--------------------------------------------------------
+	def _get_variant_receiver_subunit(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'subunit')
+	#--------------------------------------------------------
+	def _get_variant_receiver_location(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'urb')
+	#--------------------------------------------------------
+	def _get_variant_receiver_suburb(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'suburb')
+	#--------------------------------------------------------
+	def _get_variant_receiver_postcode(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'postcode')
+	#--------------------------------------------------------
+	def _get_variant_receiver_region(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'l10n_state')
+	#--------------------------------------------------------
+	def _get_variant_receiver_country(self, data=u'%s'):
+		return self.__get_variant_receiver_part(data = data, part = 'l10n_country')
+	#--------------------------------------------------------
 	def _get_variant_patient_address(self, data=u''):
 
 		data_parts = data.split(u'//')
@@ -1526,29 +1595,34 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		else:
 			msg = data
 
-		dlg = gmGuiHelpers.cMultilineTextEntryDlg (
-			None,
-			-1,
-			title = _('Replacing <free_text> placeholder'),
-			msg = _('Below you can enter free text.\n\n [%s]') % msg
-		)
-		dlg.enable_user_formatting = True
-		decision = dlg.ShowModal()
-
-		if decision != wx.ID_SAVE:
+		cache_key = u'free_text::%s' % msg
+		try:
+			text = self.__cache[cache_key]
+		except KeyError:
+			dlg = gmGuiHelpers.cMultilineTextEntryDlg (
+				None,
+				-1,
+				title = _('Replacing <free_text> placeholder'),
+				msg = _('Below you can enter free text.\n\n [%s]') % msg
+			)
+			dlg.enable_user_formatting = True
+			decision = dlg.ShowModal()
+			text = dlg.value.strip()
+			is_user_formatted = dlg.is_user_formatted
 			dlg.Destroy()
-			if self.debug:
-				return self._escape(_('Text input cancelled by user.'))
-			return u''
 
-		text = dlg.value.strip()
-		if dlg.is_user_formatted:
-			dlg.Destroy()
-			return text
+			if decision != wx.ID_SAVE:
+				if self.debug:
+					text = _('Text input cancelled by user.')
+				else:
+					text = u''
 
-		dlg.Destroy()
+			if not is_user_formatted:
+				text = self._escape(text)
 
-		return self._escape(text)
+			self.__cache[cache_key] = text
+
+		return text
 	#--------------------------------------------------------
 	def _get_variant_bill(self, data=None):
 		try:
@@ -2057,7 +2131,13 @@ if __name__ == '__main__':
 			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
 			#u'$<praxis_address::::120>$'
-			u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
+			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
+			u'$<receiver_name::%s::120>$',
+			u'$<receiver_street::%s::120>$',
+			u'$<receiver_number:: %s::120>$',
+			u'$<receiver_postcode::%s::120>$',
+			u'$<receiver_location:: %s::120>$',
+			u'$<receiver_country::, %s::120>$'
 		]
 
 		handler = gmPlaceholderHandler()

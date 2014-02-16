@@ -11,6 +11,7 @@ import os.path
 
 
 import wx
+import wx.stc
 
 
 if __name__ == '__main__':
