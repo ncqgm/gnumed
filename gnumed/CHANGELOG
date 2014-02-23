@@ -10,6 +10,8 @@
 
 FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
 
+IMPROVED: logging when updating age label in top panel [thanks MAIN-USER]
+
 	1.4.6
 
 FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]

@@ -118,18 +118,27 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_age_label(self):
 
-		tt = _(u'Gender: %s (%s) - %s\n') % (
-			self.curr_pat.gender_symbol,
-			self.curr_pat['gender'],
-			self.curr_pat.gender_string
-		)
+		try:
+			symbol = u'%s' % self.curr_pat.gender_symbol
+			gender = u'%s' % self.curr_pat[u'gender']
+			gender_string = u'%s' % self.curr_pat.gender_string
+			tt = _(u'Gender: %s (%s) - %s\n') % (
+				symbol,
+				gender,
+#				gmTools.coalesce(, u'?'),
+				gender_string
+			)
+		except TypeError:
+			_log.exception('cannot update age label tooltip')
+			from Gnumed.pycommon import gmLog2
+			gmLog2.log_stack_trace()
+			tt = u'Please email the log file to the GNUmed developers !\n'
 		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
 
 		if self.curr_pat['deceased'] is None:
 
 			now = gmDateTime.pydt_now_here()
 
-#			if self.curr_pat.get_formatted_dob(format = '%m-%d') == pyDT.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone).strftime('%m-%d'):
 			if self.curr_pat.get_formatted_dob(format = '%m-%d') == now.strftime('%m-%d'):
 				template = _('%(sex)s  %(dob)s (%(age)s today !)')
 				tt += _("\nToday is the patient's birtday !\n\n")

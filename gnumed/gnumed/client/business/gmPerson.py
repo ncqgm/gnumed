@@ -457,7 +457,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	# identity API
 	#--------------------------------------------------------
 	def _get_gender_symbol(self):
-		return map_gender2symbol[self._payload[self._idx['gender']]]
+		return map_gender2symbol[self._payload[self._idx[u'gender']]]
 
 	gender_symbol = property(_get_gender_symbol, lambda x:x)
 	#--------------------------------------------------------
@@ -1698,13 +1698,13 @@ map_gender2mf = {
 #------------------------------------------------------------
 # Maps GNUmed related i18n-aware gender specifiers to a unicode symbol.
 map_gender2symbol = {
-	'm': u'\u2642',
-	'f': u'\u2640',
-	'tf': u'\u26A5\u2640',
+	u'm': u'\u2642',
+	u'f': u'\u2640',
+	u'tf': u'\u26A5\u2640',
 #	'tf': u'\u2642\u2640-\u2640',
-	'tm': u'\u26A5\u2642',
+	u'tm': u'\u26A5\u2642',
 #	'tm': u'\u2642\u2640-\u2642',
-	'h': u'\u26A5',
+	u'h': u'\u26A5',
 #	'h': u'\u2642\u2640',
 	None: u'?\u26A5?'
 }
