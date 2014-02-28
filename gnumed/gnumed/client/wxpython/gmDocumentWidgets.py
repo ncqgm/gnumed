@@ -1041,6 +1041,16 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			self.__reload_LBOX_doc_pages()
 		dlg.Destroy()
 	#--------------------------------------------------------
+	def _clipboard_btn_pressed(self, event):
+		event.Skip()
+		clip = gmGuiHelpers.clipboard2file()
+		if clip is None:
+			return
+		if clip is False:
+			return
+		self.acquired_pages.append(clip)
+		self.__reload_LBOX_doc_pages()
+	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
 		# did user select a page ?
 		page_idx = self._LBOX_doc_pages.GetSelection()
@@ -1559,6 +1569,9 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		item = self.__doc_context_menu.Append(-1, _('Add parts'))
 		self.Bind(wx.EVT_MENU, self.__add_part, item)
+
+		item = self.__doc_context_menu.Append(-1, _('Add part from clipboard'))
+		self.Bind(wx.EVT_MENU, self.__add_part_from_clipboard, item)
 
 		ID = wx.NewId()
 		self.__doc_context_menu.Append(ID, _('Print all parts'))
@@ -2395,6 +2408,21 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		if result != wx.ID_CANCEL:
 			self.__curr_node_data.add_parts_from_files(files = dlg.GetPaths(), reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
 		dlg.Destroy()
+	#--------------------------------------------------------
+	def __add_part_from_clipboard(self, evt):
+		clip = gmGuiHelpers.clipboard2file()
+		if clip is None:
+			return
+		if clip is False:
+			return
+		gmMimeLib.call_viewer_on_file(clip, block = False)
+		really_add = gmGuiHelpers.gm_show_question (
+			question = _('Really add the displayed clipboard item into the document ?'),
+			title = _('Document part from clipboard')
+		)
+		if not really_add:
+			return
+		self.__curr_node_data.add_parts_from_files(files = [clip], reviewer = gmStaff.gmCurrentProvider()['pk_staff'])
 	#--------------------------------------------------------
 	def __access_external_original(self, evt):
 

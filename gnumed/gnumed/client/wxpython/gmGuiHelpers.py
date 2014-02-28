@@ -284,6 +284,35 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._TCTRL_text.SetValue(self.original_text)
 
 # ========================================================================
+def clipboard2file():
+
+	if wx.TheClipboard.IsOpened():
+		return False
+
+	if not wx.TheClipboard.Open():
+		return False
+
+	do = wx.TextDataObject()
+	got_it = wx.TheClipboard.GetData(do)
+	if got_it:
+		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
+		target_file = open(fname, 'wb')
+		target_file.write(do.Text)
+		target_file.close()
+		wx.TheClipboard.Close()
+		return fname
+
+	do = wx.BitmapDataObject()
+	got_it = wx.TheClipboard.GetData(do)
+	if got_it:
+		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.png')
+		bmp = do.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+		wx.TheClipboard.Close()
+		return fname
+
+	wx.TheClipboard.Close()
+	return None
+# ========================================================================
 class cFileDropTarget(wx.FileDropTarget):
 	"""Generic file drop target class.
 
@@ -301,6 +330,7 @@ class cFileDropTarget(wx.FileDropTarget):
 	#-----------------------------------------------
 	def OnDropFiles(self, x, y, filenames):
 		self.target.add_filenames(filenames)
+
 # ========================================================================
 def file2scaled_image(filename=None, height=100):
 	img_data = None
@@ -325,6 +355,7 @@ def file2scaled_image(filename=None, height=100):
 		return None
 
 	return bitmap
+
 # ========================================================================
 def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 
@@ -439,7 +470,19 @@ if __name__ == '__main__':
 
 		return True
 	#------------------------------------------------------------------
+	def test_clipboard():
+		app = wx.PyWidgetTester(size = (200, 50))
+		result = clipboard2file()
+		if result is False:
+			print "problem opening clipboard"
+			return
+		if result is None:
+			print "no data in clipboard"
+			return
+		print "file:", result
+	#------------------------------------------------------------------
 	#test_scale_img()
-	test_sql_logic_prw()
+	#test_sql_logic_prw()
+	test_clipboard()
 
 #======================================================================
