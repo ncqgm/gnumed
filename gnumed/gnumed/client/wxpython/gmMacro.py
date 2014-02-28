@@ -929,7 +929,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			adr = None
 
 		if name is None:
-			dlg = gmAddressWidgets.cReceiverSelectionDlg(None, -1)
+			from Gnumed.wxpython import gmFormWidgets
+			dlg = gmFormWidgets.cReceiverSelectionDlg(None, -1)
 			dlg.patient = self.pat
 			choice = dlg.ShowModal()
 			name = dlg.name

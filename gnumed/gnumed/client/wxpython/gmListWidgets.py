@@ -1034,32 +1034,54 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(col = idx, width = width_type)
 	#------------------------------------------------------------
+	def remove_items_safely(self, max_tries=3):
+		tries = 0
+		while tries < max_tries:
+			if self.debug is not None:
+				_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
+			if not self.DeleteAllItems():
+				_log.debug('<%s>.DeleteAllItems() failed', self.debug)
+			item_count = self.GetItemCount()
+			if item_count == 0:
+				return True
+			wx.SafeYield(None, True)
+			_log.error('<%s>.GetItemCount() not 0 (rather: %s) after DeleteAllItems()', self.debug, item_count)
+			time.sleep(0.3)
+			wx.SafeYield(None, True)
+			tries += 1
+
+		_log.error('<%s>: unable to delete list items after looping %s times', self.debug, max_tries)
+		return False
+	#------------------------------------------------------------
 	def set_string_items(self, items=None):
 		"""All item members must be unicode()able or None."""
 
 		wx.BeginBusyCursor()
 		self._invalidate_sorting_metadata()
 
-		# remove existing items
-		loop = 0
-		while True:
-			if loop > 3:
-				_log.debug('unable to delete list items after looping 3 times, continuing and hoping for the best')
-				break
-			loop += 1
-			if self.debug is not None:
-				_log.debug('[round %s] GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', loop, self.GetItemCount(), self.debug, thread.get_ident())
-			if not self.DeleteAllItems():
-				_log.debug('DeleteAllItems() failed (%s)', self.debug)
-			item_count = self.GetItemCount()
-			if self.debug is not None:
-				_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
-			if item_count == 0:
-				break
-			wx.SafeYield(None, True)
-			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
-			time.sleep(0.3)
-			wx.SafeYield(None, True)
+		if not self.remove_items_safely(max_tries = 3):
+			_log.debug(", continuing and hoping for the best")
+
+#		# remove existing items
+#		loop = 0
+#		while True:
+#			if loop > 3:
+#				_log.debug('unable to delete list items after looping 3 times, continuing and hoping for the best')
+#				break
+#			loop += 1
+#			if self.debug is not None:
+#				_log.debug('[round %s] GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', loop, self.GetItemCount(), self.debug, thread.get_ident())
+#			if not self.DeleteAllItems():
+#				_log.debug('DeleteAllItems() failed (%s)', self.debug)
+#			item_count = self.GetItemCount()
+#			if self.debug is not None:
+#				_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
+#			if item_count == 0:
+#				break
+#			wx.SafeYield(None, True)
+#			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
+#			time.sleep(0.3)
+#			wx.SafeYield(None, True)
 
 		if items is None:
 			self.data = None

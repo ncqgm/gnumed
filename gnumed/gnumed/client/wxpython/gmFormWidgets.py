@@ -882,6 +882,186 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 		event.Skip()
 
 #============================================================
+from Gnumed.wxGladeWidgets import wxgReceiverSelectionDlg
+
+class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
+
+	def __init__(self, *args, **kwargs):
+		wxgReceiverSelectionDlg.wxgReceiverSelectionDlg.__init__(self, *args, **kwargs)
+		self.__patient = None
+		self.__init_ui()
+		self.__register_interests()
+
+	#------------------------------------------------------------
+	def __init_ui(self):
+		if self.__patient is None:
+			return
+		self._RBTN_patient.SetLabel(_('&Patient: %s') % self.__patient[u'description'])
+		self._RBTN_patient.SetToolTipString(self.__patient[u'description_gender'])
+		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
+
+		if (self.__patient[u'emergency_contact'] is None) and (self.__patient[u'pk_emergency_contact'] is None):
+			label = u'?'
+			tooltip = _('no emergency contact known')
+			self._RBTN_emergency_contact.Disable()
+		else:
+			self._RBTN_emergency_contact.Enable()
+			if self.__patient[u'emergency_contact'] is not None:
+				label = self.__patient[u'emergency_contact']
+				tooltip = self.__patient[u'emergency_contact']
+			else:
+				contact = self.__patient.emergency_contact_in_database
+				label = contact[u'description']
+				tooltip = contact[u'description_gender']
+		self._RBTN_emergency_contact.SetLabel(_(u'&Emergency contact: %s') % label)
+		self._RBTN_emergency_contact.SetToolTipString(tooltip)
+
+		prov = self.__patient.primary_provider
+		if prov is None:
+			self._RBTN_primary_provider.Disable()
+			self._RBTN_primary_provider.SetLabel(_(u'Primary doctor: ?'))
+			self._RBTN_primary_provider.SetToolTipString(_(u'primary doctor in this praxis not set for this patient'))
+		else:
+			self._RBTN_primary_provider.Enable()
+			self._RBTN_primary_provider.SetLabel(_('Primary &doctor: %s') % prov[u'short_alias'])
+			tooltip = _(
+				u'In-praxis primary provider [%s]\n'
+				u'\n'
+				u' %s'
+			) % (
+				prov[u'short_alias'],
+				prov.identity['description_gender']
+			)
+			self._RBTN_primary_provider.SetToolTipString(tooltip)
+
+		self._LCTRL_addresses.item_tooltip_callback = self._get_tooltip
+		self._LCTRL_addresses.activate_callback = self._on_address_activated_in_list
+		adrs = self.__patient.get_addresses()
+		self.__populate_address_list(addresses = adrs)
+
+		self.Layout()
+	#------------------------------------------------------------
+	def __register_interests(self):
+		self._PRW_other_address.add_callback_on_selection(self._on_address_selected)
+		self._PRW_org_unit.add_callback_on_set_focus(self._on_entering_org_unit)
+		self._PRW_org_unit.add_callback_on_selection(self._on_org_unit_selected)
+	#------------------------------------------------------------
+	def __populate_address_list(self, addresses=None):
+		self._LCTRL_addresses.Enable()
+		self._LCTRL_addresses.set_columns([_(u'Type'), _(u'Address')])
+		self._LCTRL_addresses.set_string_items ([
+			[a[u'l10n_address_type'], a.format(single_line = True, verbose = False, show_type = False)]
+			for a in addresses
+		])
+		self._LCTRL_addresses.set_data(addresses)
+	#------------------------------------------------------------
+	def _get_tooltip(self, data):
+		return u'\n'.join(data.format(show_type = True))
+	#------------------------------------------------------------
+	def _on_address_activated_in_list(self, evt):
+		evt.Skip()
+		adr = self._LCTRL_addresses.get_selected_item_data(only_one = True)
+		if adr is None:
+			return
+		self._PRW_other_address.address = adr[u'pk_address']
+		self._LBL_address_details.SetLabel(u'\n'.join(adr.format()))
+	#------------------------------------------------------------
+	#------------------------------------------------------------
+	def _on_address_selected(self, address):
+		if address is None:
+			self._LBL_address_details.SetLabel(u'')
+			return
+		self._LBL_address_details.SetLabel(u'\n'.join(self._PRW_other_address.address.format()))
+		self.Layout()
+	#------------------------------------------------------------
+	def _on_entering_org_unit(self):
+		self._LCTRL_addresses.Disable()
+	#------------------------------------------------------------
+	def _on_org_unit_selected(self, unit):
+		if unit is None:
+			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
+			self._PRW_other_address.address = None
+			self._LBL_address_details.SetLabel(u'')
+			return
+		unit = self._PRW_org_unit.GetData(as_instance = True)
+		adr = unit.address
+		if adr is None:
+			self._LCTRL_addresses.remove_items_safely(max_tries = 3)
+			self._PRW_other_address.address = None
+			self._LBL_address_details.SetLabel(u'')
+			return
+		self._TCTRL_final_name.SetValue(self._PRW_org_unit.GetValue().strip())
+		self._LCTRL_addresses.set_columns([_(u'Address')])
+		self._LCTRL_addresses.set_string_items([adr.format(single_line = True, verbose = False, show_type = False)])
+		self._LCTRL_addresses.set_data([adr])
+		self._PRW_other_address.address = adr[u'pk_address']
+		tmp = u'%s\n\n%s' % (
+			u'\n'.join(unit.format()),
+			u'\n'.join(adr.format())
+		)
+		self._LBL_address_details.SetLabel(tmp)
+		self.Layout()
+	#------------------------------------------------------------
+	#------------------------------------------------------------
+	def _on_patient_radiobutton_selected(self, event):
+		event.Skip()
+		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
+		adrs = self.__patient.get_addresses()
+		self.__populate_address_list(addresses = adrs)
+	#------------------------------------------------------------
+	def _on_emergency_contact_radiobutton_selected(self, event):
+		event.Skip()
+		if self.__patient[u'emergency_contact'] is not None:
+			name = self.__patient[u'emergency_contact']
+			adrs = []
+		else:
+			contact = self.__patient.emergency_contact_in_database
+			name = contact[u'description']
+			adrs = contact.get_addresses()
+		self._TCTRL_final_name.SetValue(name.strip())
+		self.__populate_address_list(addresses = adrs)
+	#------------------------------------------------------------
+	def _on_primary_provider_radiobutton_selected(self, event):
+		event.Skip()
+		identity = self.__patient.primary_provider.identity
+		self._TCTRL_final_name.SetValue(identity['description'].strip())
+		adrs = identity.get_addresses()
+		self.__populate_address_list(addresses = adrs)
+	#------------------------------------------------------------
+	def _on_manage_addresses_button_pressed(self, event):
+		event.Skip()
+		manage_addresses(parent = self)
+	#------------------------------------------------------------
+	def _on_manage_orgs_button_pressed(self, event):
+		event.Skip()
+		from Gnumed.wxpython.gmOrganizationWidgets import manage_orgs
+		manage_orgs(parent = self, no_parent = False)
+	#------------------------------------------------------------
+	def _on_ok_button_pressed(self, event):
+		if self._TCTRL_final_name.GetValue().strip() == u'':
+			return False
+		if self._PRW_other_address.address is None:
+			return False
+		event.Skip()
+		self.EndModal(wx.ID_OK)
+	#------------------------------------------------------------
+	def _set_patient(self, patient):
+		self.__patient = patient
+		self.__init_ui()
+
+	patient = property(lambda x:x, _set_patient)
+	#------------------------------------------------------------
+	def _get_name(self):
+		return self._TCTRL_final_name.GetValue().strip()
+
+	name = property(_get_name, lambda x:x)
+	#------------------------------------------------------------
+	def _get_address(self):
+		return self._PRW_other_address.address
+
+	address = property(_get_address, lambda x:x)
+
+#============================================================
 # main
 #------------------------------------------------------------
 if __name__ == '__main__':

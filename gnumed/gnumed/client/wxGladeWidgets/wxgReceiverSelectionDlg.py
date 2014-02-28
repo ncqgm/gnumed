@@ -14,6 +14,7 @@ import gettext
 from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 from Gnumed.wxpython.gmAddressWidgets import cAddressPhraseWheel
 from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
 # end wxGlade
 
 
@@ -26,18 +27,22 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		self._TCTRL_final_name = cTextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._PRW_other_address = cAddressPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._LBL_address_details = wx.StaticText(self, wx.ID_ANY, "")
-		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Manage addresses"), style=wx.BU_EXACTFIT)
+		self.__szr_info_staticbox = wx.StaticBox(self, wx.ID_ANY, "")
+		self._BTN_manage_addresses = wx.Button(self, wx.ID_ANY, _("&Addresses"), style=wx.BU_EXACTFIT)
+		self._BTN_manage_orgs = wx.Button(self, wx.ID_ANY, _("Or&Ganizations"), style=wx.BU_EXACTFIT)
 		self._RBTN_patient = wx.RadioButton(self, wx.ID_ANY, _("Patient:"))
 		self._RBTN_emergency_contact = wx.RadioButton(self, wx.ID_ANY, _("Emergency contact: ?"))
 		self._RBTN_primary_provider = wx.RadioButton(self, wx.ID_ANY, _("Primary doctor: ?"))
+		self._PRW_org_unit = cOrgUnitPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._LCTRL_addresses = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_SINGLE_SEL | wx.SUNKEN_BORDER | wx.NO_BORDER)
-		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
+		self._BTN_OK = wx.Button(self, wx.ID_OK, _("&OK"))
 		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
 		self.__set_properties()
 		self.__do_layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_manage_addresses_button_pressed, self._BTN_manage_addresses)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_orgs_button_pressed, self._BTN_manage_orgs)
 		self.Bind(wx.EVT_RADIOBUTTON, self._on_patient_radiobutton_selected, self._RBTN_patient)
 		self.Bind(wx.EVT_RADIOBUTTON, self._on_emergency_contact_radiobutton_selected, self._RBTN_emergency_contact)
 		self.Bind(wx.EVT_RADIOBUTTON, self._on_primary_provider_radiobutton_selected, self._RBTN_primary_provider)
@@ -50,10 +55,12 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		self.SetSize(wx.DLG_SZE(self, (275, 224)))
 		self._TCTRL_final_name.SetToolTipString(_("This name will be used.\n\nYou can edit the (or type another) name here, too."))
 		self._PRW_other_address.SetToolTipString(_("This address will be used.\n\nYou can also search for an arbitrary address in this field."))
-		self._BTN_manage_addresses.SetToolTipString(_("Manage list of all known addresses."))
+		self._BTN_manage_addresses.SetToolTipString(_("Manage generic list of all addresses."))
+		self._BTN_manage_orgs.SetToolTipString(_("Manage known organizations and units thereof."))
 		self._RBTN_patient.SetValue(1)
 		self._RBTN_emergency_contact.Enable(False)
 		self._RBTN_primary_provider.Enable(False)
+		self._PRW_org_unit.SetToolTipString(_("Select the organizational unit you want to write to."))
 		self._BTN_OK.SetToolTipString(_("Use the above name and address."))
 		self._BTN_cancel.SetToolTipString(_("Abort the receiver selection."))
 		# end wxGlade
@@ -64,7 +71,11 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_middle = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_selections = wx.BoxSizer(wx.VERTICAL)
+		__szr_org_unit = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_final_address = wx.BoxSizer(wx.VERTICAL)
+		__szr_mgmt_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		self.__szr_info_staticbox.Lower()
+		__szr_info = wx.StaticBoxSizer(self.__szr_info_staticbox, wx.HORIZONTAL)
 		__fgszr_selected = wx.FlexGridSizer(2, 2, 2, 3)
 		__szr_main.Add(self._LBL_message_top, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL, 3)
 		__lbl_final_address = wx.StaticText(self, wx.ID_ANY, _("Selected receiver"))
@@ -77,14 +88,23 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		__fgszr_selected.Add(self._PRW_other_address, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__fgszr_selected.AddGrowableCol(1)
 		__szr_final_address.Add(__fgszr_selected, 0, wx.BOTTOM | wx.EXPAND, 3)
-		__szr_final_address.Add(self._LBL_address_details, 1, wx.EXPAND, 0)
-		__szr_final_address.Add(self._BTN_manage_addresses, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_info.Add(self._LBL_address_details, 1, wx.EXPAND, 0)
+		__szr_final_address.Add(__szr_info, 1, wx.LEFT | wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 2)
+		__lbl_manage = wx.StaticText(self, wx.ID_ANY, _("Manage:"))
+		__szr_mgmt_buttons.Add(__lbl_manage, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_mgmt_buttons.Add(self._BTN_manage_addresses, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_mgmt_buttons.Add(self._BTN_manage_orgs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_final_address.Add(__szr_mgmt_buttons, 0, wx.TOP | wx.EXPAND, 3)
 		__szr_middle.Add(__szr_final_address, 1, wx.EXPAND, 5)
 		__lbl_quick_picks = wx.StaticText(self, wx.ID_ANY, _("Quick picks"))
 		__szr_selections.Add(__lbl_quick_picks, 0, wx.BOTTOM | wx.ALIGN_CENTER_HORIZONTAL, 3)
 		__szr_selections.Add(self._RBTN_patient, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_selections.Add(self._RBTN_emergency_contact, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_selections.Add(self._RBTN_primary_provider, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+		__lbl_org_unit = wx.StaticText(self, wx.ID_ANY, _("Org:"))
+		__szr_org_unit.Add(__lbl_org_unit, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_org_unit.Add(self._PRW_org_unit, 1, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_selections.Add(__szr_org_unit, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_selections.Add(self._LCTRL_addresses, 1, wx.EXPAND, 3)
 		__szr_middle.Add(__szr_selections, 1, wx.LEFT | wx.EXPAND, 5)
 		__szr_main.Add(__szr_middle, 1, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 3)
@@ -99,6 +119,10 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 
 	def _on_manage_addresses_button_pressed(self, event):  # wxGlade: wxgReceiverSelectionDlg.<event_handler>
 		print "Event handler '_on_manage_addresses_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_manage_orgs_button_pressed(self, event):  # wxGlade: wxgReceiverSelectionDlg.<event_handler>
+		print "Event handler '_on_manage_orgs_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_patient_radiobutton_selected(self, event):  # wxGlade: wxgReceiverSelectionDlg.<event_handler>
