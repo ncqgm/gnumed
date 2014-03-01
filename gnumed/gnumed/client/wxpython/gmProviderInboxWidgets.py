@@ -458,6 +458,11 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		#gmRegetMixin.cRegetOnPaintMixin.repopulate_ui(self)
 		return True
 	#--------------------------------------------------------
+	def filter_by_active_patient(self):
+		self._CHBOX_active_patient.SetValue(True)
+		self._TXT_inbox_item_comment.SetValue(u'')
+		self.__populate_inbox()
+	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_interests(self):

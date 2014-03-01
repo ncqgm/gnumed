@@ -13,6 +13,8 @@ NEW: patient documents export area plugin
 NEW: manage automatic dynamic hints
 NEW: letter receiver placeholders $<receiver_*>$
 
+IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
+
 ------------------------------------------------
 # rel-1-4-patches
 ------------------------------------------------

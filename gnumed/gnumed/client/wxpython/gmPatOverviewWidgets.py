@@ -329,14 +329,28 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
 
+		# if it is a dynamic hint open the URL for that
 		if isinstance(data, gmProviderInbox.cDynamicHint):
 			if data['url'] is not None:
 				gmNetworkTools.open_url_in_browser(data['url'])
 			return
 
+		# holding down <CTRL> when double-clicking an inbox
+		# item indicates the desire to delete it
 		# <ctrl> down ?
-		if not wx.GetKeyState(wx.WXK_CONTROL):
-			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+		if wx.GetKeyState(wx.WXK_CONTROL):
+			# better safe than sorry: can only delete real inbox items
+			if data is None:
+				return
+			if not isinstance(data, gmProviderInbox.cInboxMessage):
+				return
+			delete_it = gmGuiHelpers.gm_show_question (
+				question = _('Do you really want to\ndelete this inbox message ?'),
+				title = _('Deleting inbox message')
+			)
+			if not delete_it:
+				return
+			gmProviderInbox.delete_inbox_message(inbox_message = data['pk_inbox_message'])
 			return
 
 		if data is None:
@@ -347,14 +361,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
 			return
 
-		delete_it = gmGuiHelpers.gm_show_question (
-			question = _('Do you really want to\ndelete this inbox message ?'),
-			title = _('Deleting inbox message')
-		)
-		if not delete_it:
-			return
-
-		gmProviderInbox.delete_inbox_message(inbox_message = data['pk_inbox_message'])
+		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin', filter_by_active_patient = True)
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------

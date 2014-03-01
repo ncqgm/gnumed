@@ -41,4 +41,17 @@ class gmProviderInboxPlugin(gmPlugin.cNotebookPlugin):
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		return True
+	#--------------------------------------------------------
+	def _on_raise_by_signal(self, **kwds):
+		if not gmPlugin.cNotebookPlugin._on_raise_by_signal(self, **kwds):
+			return False
+
+		try:
+			if kwds['filter_by_active_patient'] is True:
+				self._widget.filter_by_active_patient()
+		except KeyError:
+			pass
+
+		return True
+
 #======================================================================
