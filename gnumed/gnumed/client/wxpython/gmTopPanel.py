@@ -129,7 +129,10 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				gender_string
 			)
 		except TypeError:
-			_log.exception('cannot update age label tooltip')
+			_log.error(u'symbol type: %s', type(self.curr_pat.gender_symbol))
+			_log.error(u'gender type: %s', type(self.curr_pat[u'gender']))
+			_log.error(u'gender_string type: %s', type(self.curr_pat.gender_string))
+			_log.exception(u'cannot update age label tooltip')
 			from Gnumed.pycommon import gmLog2
 			gmLog2.log_stack_trace()
 			tt = u'Please email the log file to the GNUmed developers !\n'
