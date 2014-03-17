@@ -136,6 +136,17 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			from Gnumed.pycommon import gmLog2
 			gmLog2.log_stack_trace()
 			tt = u'Please email the log file to the GNUmed developers !\n'
+			gmGuiHelpers.gm_show_error (
+				error = _(
+					u'There was a problem with updating\n'
+					u'the label showing the patient age.\n'
+					u'\n'
+					u'Please e-mail the log to the GNUmed developers.\n'
+					u' (Help -> Debugging -> Email log file)\n'
+					u'\n'
+					u'Thanks.'
+				)
+			)
 		tt += _('Born: %s\n') % self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding())
 
 		if self.curr_pat['deceased'] is None:

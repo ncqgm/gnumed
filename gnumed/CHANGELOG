@@ -11,6 +11,7 @@
 FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
 
 IMPROVED: logging when updating age label in top panel [thanks MAIN-USER]
+IMPROVED: hint to mail log on age label updating problem [thanks Sergio]
 
 	1.4.6
 
