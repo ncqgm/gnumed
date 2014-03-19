@@ -1229,6 +1229,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		)
 	#----------------------------------------------------------------------
 	def dob_in_range(self, min_distance=u'1 week', max_distance=u'1 week'):
+		if self['dob'] is None:
+			return False
 		cmd = u'select dem.dob_is_in_range(%(dob)s, %(min)s, %(max)s)'
 		rows, idx = gmPG2.run_ro_queries (
 			queries = [{
@@ -1239,6 +1241,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		return rows[0][0]
 	#----------------------------------------------------------------------
 	def current_birthday_passed(self):
+		if self['dob'] is None:
+			return None
 		now = gmDateTime.pydt_now_here()
 		if now.month < self['dob'].month:
 			return False
@@ -1252,6 +1256,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		return None
 	#----------------------------------------------------------------------
 	def _get_dob_this_year(self):
+		if self['dob'] is None:
+			return None
 		now = gmDateTime.pydt_now_here()
 		return gmDateTime.pydt_replace (
 			dt = self['dob'],
