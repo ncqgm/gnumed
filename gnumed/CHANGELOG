@@ -23,9 +23,7 @@ IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim
 	1.4.7 (unreleased)
 
 FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
-
-IMPROVED: logging when updating age label in top panel [thanks MAIN-USER]
-IMPROVED: hint to mail log on age label updating problem [thanks Sergio]
+FIX: longstanding cryptic age label update bug [thanks MAIN-USER, Sergio]
 
 	1.4.6
 
