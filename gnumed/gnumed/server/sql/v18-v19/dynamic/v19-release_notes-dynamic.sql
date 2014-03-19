@@ -17,22 +17,15 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.6 (database v19.6)',
-	'GNUmed 1.4.6 Release Notes:
+	'Release Notes for GNUmed 1.4.7 (database v19.7)',
+	'GNUmed 1.4.7 Release Notes:
 
-	1.4.6
+	1.4.7
 
-FIX: missing qualification of make_pg_exception_fields_unicode() [thanks Khalil]
-FIX: missing method in TimeLine code
-FIX: bug in new-person EA validation code
-FIX: creating dummy identities used faulty gender
-FIX: faulty apparent_age formatting (age between 1-2 month ignored)
-FIX: attempt to use "chart review" encounter type even if it does not exist [thanks Jim]
+FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
+FIX: longstanding cryptic age label update bug [thanks MAIN-USER, Sergio]
 
-IMPROVED: DOB/age display in top panel
-IMPROVED: deal with display of missing gender
-
-	19.6 -- Requires PostgreSQL 9.1 !
+	19.7 -- Requires PostgreSQL 9.1 !
 ');
 
 -- --------------------------------------------------------------
