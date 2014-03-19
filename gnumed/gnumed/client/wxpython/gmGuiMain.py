@@ -119,6 +119,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 from Gnumed.wxpython import gmPraxisWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmAutoHintWidgets
+from Gnumed.wxpython import gmPregWidgets
 
 
 try:
@@ -652,6 +653,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Encounters'), _('List all encounters including empty ones.'))
 		self.Bind(wx.EVT_MENU, self.__on_list_encounters, item)
+
+		item = menu_emr_edit.Append(-1, _('&Pregnancy'), _('Calculate EDC.'))
+		self.Bind(wx.EVT_MENU, self.__on_calc_edc, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
@@ -2680,12 +2684,31 @@ class gmTopLevelFrame(wx.Frame):
 		gmFamilyHistoryWidgets.manage_family_history(parent = self)
 		evt.Skip()
 	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage vaccinations'))
 	def __on_manage_measurements(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage measurements. No active patient.'))
 			return False
 		gmMeasurementWidgets.manage_measurements(parent = self, single_selection = True, emr = pat.emr)
+	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('calculate EDC'))
+	def __on_calc_edc(self, evt):
+		dlg = gmPregWidgets.cEdcCalculatorDlg(self, -1)
+		pat = gmPerson.gmCurrentPatient()
+		if pat.connected:
+			dlg.patient = pat
+			dlg.EDC = pat.emr.EDC
+		action = dlg.ShowModal()
+		edc = dlg.EDC
+		dlg.Destroy()
+		if not pat.connected:
+			return
+		if edc is None:
+			return
+		if action != wx.ID_SAVE:
+			return
+		pat.emr.EDC = edc
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()

@@ -12,6 +12,7 @@ NEW: by-day display mode for test results including multi-line ones
 NEW: patient documents export area plugin
 NEW: manage automatic dynamic hints
 NEW: letter receiver placeholders $<receiver_*>$
+NEW: EDC storage/calculator
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 

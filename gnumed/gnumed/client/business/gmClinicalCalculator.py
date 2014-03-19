@@ -11,6 +11,7 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import decimal
+import datetime as pydt
 
 
 if __name__ == '__main__':
@@ -166,6 +167,62 @@ class cClinicalCalculator(object):
 			return False
 	#--------------------------------------------------------
 	# formulae
+	#--------------------------------------------------------
+	def get_EDC(self, lmp=None, nullipara=True):
+
+		result = cClinicalResult(_('unknown EDC'))
+		result.formula_name = u'EDC (Mittendorf 1990)'
+		result.formula_source = u'Mittendorf, R. et al., "The length of uncomplicated human gestation," OB/GYN, Vol. 75, No., 6 June, 1990, pp. 907-932.'
+
+		if lmp is None:
+			result.message = _('EDC: unknown LMP')
+			return result
+
+		result.variables['LMP'] = lmp
+		result.variables['nullipara'] = nullipara
+		if nullipara:
+			result.variables['parity_offset'] = 15		# days
+		else:
+			result.variables['parity_offset'] = 10		# days
+
+		now = gmDateTime.pydt_now_here()
+		if lmp > now:
+			result.warnings.append(_(u'LMP in the future'))
+
+		if self.__patient is None:
+			result.warnings.append(_(u'cannot run sanity checks, no patient'))
+		else:
+			if self.__patient['dob'] is None:
+				result.warnings.append(_(u'cannot run sanity checks, no DOB'))
+			else:
+				years, months, days, hours, minutes, seconds = gmDateTime.calculate_apparent_age(start = self.__patient['dob'])
+				# 5 years -- Myth ?
+				# http://www.mirror.co.uk/news/uk-news/top-10-crazy-amazing-and-world-789842
+				if years < 10:
+					result.warnings.append(_(u'patient less than 10 years old'))
+			if self.__patient['gender'] in [None, u'm']:
+				result.warnings.append(_(u'atypical gender for pregnancy: %s') % self.__patient.gender_string)
+			if self.__patient['deceased'] is not None:
+				result.warnings.append(_(u'patient already passed away'))
+
+		if lmp.month > 3:
+			edc_month = lmp.month - 3
+			edc_year = lmp.year + 1
+		else:
+			edc_month = lmp.month + 9
+			edc_year = lmp.year
+
+		result.numeric_value = gmDateTime.pydt_replace(dt = lmp, year = edc_year, month = edc_month, strict = False) + pydt.timedelta(days = result.variables['parity_offset'])
+
+		result.message = _('EDC: %s') % gmDateTime.pydt_strftime (
+			result.numeric_value,
+			format = '%Y %b %d'
+		)
+		result.date_valid = now
+
+		_log.debug(u'%s' % result)
+
+		return result
 	#--------------------------------------------------------
 	def _get_egfr(self):
 		eGFR = self.eGFR_Schwartz
@@ -486,10 +543,11 @@ if __name__ == "__main__":
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 12)
 		calc = cClinicalCalculator(patient = pat)
-		result = calc.eGFR_MDRD_short
+		#result = calc.eGFR_MDRD_short
 		#result = calc.eGFR_Schwartz
 		#result = calc.eGFR
 		#result = calc.body_surface_area
-		print u'%s' % result
+		result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
+		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True)
 	#-----------------------------------------
 	test_clin_calc()

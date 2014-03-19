@@ -1,5 +1,149 @@
-"""GNUmed pregnancy related dates caculcator.
+"""GNUmed pregnancy related dates widgets.
+"""
+#====================================================================
+__author__ = "M. Bonert, R. Terry, I. Haywood, K.Hilbert"
+__licence__ = "GPL v2 or later"
 
+
+import sys
+import datetime as pydt
+
+
+import wx
+
+
+from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
+from Gnumed.business import gmClinicalCalculator
+
+
+
+#====================================================================
+from wxGladeWidgets import wxgEdcCalculatorDlg
+
+class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
+
+	def __init__(self, *args, **kwds):
+		wxgEdcCalculatorDlg.wxgEdcCalculatorDlg.__init__(self, *args, **kwds)
+		self.__calc = gmClinicalCalculator.cClinicalCalculator()
+		self.__init_ui()
+	#----------------------------------------------------------------
+	def __init_ui(self):
+		edc = self.__calc.get_EDC(lmp = None, nullipara = self._CHBOX_first_pregnancy.GetValue())
+		txt = _(
+			u'Algorithm: %s\n'
+			u'\n'
+			u'Source: %s'
+		) % (
+			edc.formula_name,
+			edc.formula_source
+		)
+		self._TCTRL_algo.SetValue(txt)
+		self._PRW_lmp.add_callback_on_selection(self._on_lmp_selected)
+		self._PRW_edc.add_callback_on_modified(self._on_edc_modified)
+
+		self._PRW_lmp.SetFocus()
+	#----------------------------------------------------------------
+	def _on_lmp_selected(self, data):
+		self.__recalculate()
+	#----------------------------------------------------------------
+	def _on_edc_modified(self):
+		self._PRW_lmp.SetData(None)
+		self._TCTRL_details.SetValue(u'')
+	#----------------------------------------------------------------
+	def _on_first_pregnancy_toggled(self, event):
+		event.Skip()
+		self.__recalculate()
+	#----------------------------------------------------------------
+	def _on_lmp_picked_in_calendar(self, event):
+		event.Skip()
+		self._PRW_lmp.SetData(gmDateTime.wxDate2py_dt(wxDate = self._CALCTRL.Date))
+		self.__recalculate()
+	#----------------------------------------------------------------
+	def _on_save_button_pressed(self, event):
+		event.Skip()
+		if self.__calc.patient is None:
+			return False
+		if self._PRW_edc.is_valid_timestamp(allow_empty = False):
+			self.EndModal(wx.ID_SAVE)
+			return True
+		return False
+	#----------------------------------------------------------------
+	def __recalculate(self):
+		lmp = self._PRW_lmp.date
+		if lmp is None:
+			self._PRW_edc.SetData(None)
+			self._TCTRL_details.SetValue(u'')
+			return
+
+		edc = self.__calc.get_EDC(lmp = lmp, nullipara = self._CHBOX_first_pregnancy.GetValue())
+
+		self._PRW_edc.SetData(edc.numeric_value)
+		details = u''
+		now = gmDateTime.pydt_now_here()
+		# Beulah Hunter, 375 days (http://www.reference.com/motif/health/longest-human-pregnancy-on-record)
+		if (lmp < now) and (edc.numeric_value > now + pydt.timedelta(days = 380)):
+			age = now - lmp
+			weeks, days = divmod(age.days, 7)
+			week = weeks
+			if days > 0:
+				week = weeks + 1
+			month, tmp = divmod(age.days, 28)
+			if days > 0:
+				month += 1
+			details += _(
+				u'Current age of pregnancy (%s):\n'
+				u' day %s = %s weeks %s days = week %s = month %s\n\n'
+			) % (
+				gmDateTime.pydt_strftime(now, '%Y %b %d'),
+				age.days,
+				int(weeks),
+				int(days),
+				week,
+				month
+			)
+
+		details += edc.format (
+			left_margin = 1,
+			width = 50,
+			with_formula = False,
+			with_warnings = True,
+			with_variables = True,
+			with_sub_results = True,
+			return_list = False
+		)
+		self._TCTRL_details.SetValue(details)
+	#----------------------------------------------------------------
+	# properties
+	#----------------------------------------------------------------
+	def _get_EDC(self):
+		return self._PRW_edc.date
+
+	def _set_EDC(self, edc):
+		self._PRW_edc.SetData(edc)
+		self._PRW_lmp.SetData(None)
+		self._TCTRL_details.SetValue(u'')
+
+	EDC = property(_get_EDC, _set_EDC)
+	#----------------------------------------------------------------
+	def _set_patient(self, patient):
+		self.__calc.patient = patient
+
+	patient = property(lambda x:x, _set_patient)
+
+#====================================================================
+#====================================================================
+# old code
+#====================================================================
+#====================================================================
+#====================================================================
+import math, zlib, cPickle, random, string, os.path
+
+
+import wx.lib.rcsizer
+import wx.calendar
+
+"""
 Calculates from LMP:
  - EDC
  - 18th week ultrasound scan
@@ -11,22 +155,7 @@ Enter Haywood's rule ;-), human gestation is defined as 24192000 seconds.
 TODO:
 ideally, tool should query backend for parity, race, etc. for exact measurement
 """
-#====================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmPregWidgets.py,v $
-# $Id: gmPregWidgets.py,v 1.6 2005-09-28 21:27:30 ncq Exp $
-__version__ = "$Revision: 1.6 $"
-__author__ = "M. Bonert, R. Terry, I. Haywood"
-__licence__ = "GPL"
 
-import math, zlib, cPickle, random, string, os.path
-
-try:
-	import wxversion
-	import wx
-except ImportError:
-	from wxPython import wx
-	from wxPython import calender
-	from wxPython.lib.rcsizer import RowColSizer
 
 LMP_FIELD = 0
 US_FIELD = 1
@@ -64,8 +193,8 @@ class cPregCalcFrame (wx.Frame):
 	#	make movement between fields possible with 'tab' & 'enter'
 
 	def __init__ (self, parent):
-		myStyle = wxMINIMIZE_BOX | wx.CAPTION | wx.ALIGN_CENTER | \
-			wxALIGN_CENTER_VERTICAL | wx.TAB_TRAVERSAL | wx.STAY_ON_TOP
+		myStyle = wx.MINIMIZE_BOX | wx.CAPTION | wx.ALIGN_CENTER | \
+			wx.ALIGN_CENTER_VERTICAL | wx.TAB_TRAVERSAL | wx.STAY_ON_TOP
 		wx.Frame.__init__(self, parent, -1, _("Pregnancy Calculator"), style=myStyle)
 
 		# initialization of variables used in the control & calculation
@@ -89,7 +218,7 @@ class cPregCalcFrame (wx.Frame):
 		icon.LoadFile(png_fname, wx.BITMAP_TYPE_PNG)
 		self.SetIcon(icon)
 
-		szr_rc = RowColSizer()
+		szr_rc = wx.lib.rcsizer.RowColSizer()
 
 		#------------------------------
 		# sizer holding the 'LMP' stuff
@@ -275,8 +404,8 @@ class cPregCalcFrame (wx.Frame):
 		#------------------------------
 		# Add calendar (stuff on the left)
 		#------------------------------
-		self.lmp_cal = wx.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
-		wx.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
+		self.lmp_cal = wx.calendar.CalendarCtrl (self, ID_LMP,style = wx.RAISED_BORDER)
+		wx.calendar.EVT_CALENDAR_SEL_CHANGED(self.lmp_cal, ID_LMP, self.OnCalcByLMP)
 
 		szr_main_lf = wx.BoxSizer(wx.VERTICAL)
 		szr_main_lf.Add(self.lmp_cal,0,wx.ALIGN_CENTRE_HORIZONTAL)
@@ -433,7 +562,6 @@ class cPregCalcFrame (wx.Frame):
 # Main
 #====================================================================
 if __name__ == '__main__':
-	wx.InitAllImageHandlers()
 	# set up dummy app
 	class TestApp (wx.App):
 		def OnInit (self):

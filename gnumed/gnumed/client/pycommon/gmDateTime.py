@@ -554,6 +554,25 @@ def format_interval_medically(interval=None):
 	if seconds == 0:
 		return '0:%02d' % int(minutes)
 	return "%s.%ss" % (int(minutes), int(seconds))
+
+#---------------------------------------------------------------------------
+def format_pregnancy_weeks(age):
+	weeks, days = divmod(age.days, 7)
+	return u'%s%s%s%s' % (
+		int(weeks),
+		_('interval_format_tag::weeks::w')[-1:],
+		interval.days,
+		_('interval_format_tag::days::d')[-1:]
+	)
+
+#---------------------------------------------------------------------------
+def format_pregnancy_months(age):
+	months, remainder = divmod(age.days, 28)
+	return u'%s%s' % (
+		int(months) + 1,
+		_('interval_format_tag::months::m')[-1:]
+	)
+
 #---------------------------------------------------------------------------
 def is_leap_year(year):
 	# year is multiple of 4 ?

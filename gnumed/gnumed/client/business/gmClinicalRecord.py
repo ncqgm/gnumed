@@ -179,6 +179,26 @@ class cClinicalRecord(object):
 			relation = relation
 		)
 	#--------------------------------------------------------
+	# API: pregnancy
+	#--------------------------------------------------------
+	def _get_EDC(self):
+		cmd = u'SELECT edc FROM clin.patient WHERE fk_identity = %(pat)s'
+		args = {'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		return rows[0]['edc']
+
+	def _set_EDC(self, edc):
+		if self.EDC is None:
+			cmd = u'INSERT INTO clin.patient (fk_identity, edc) VALUES (%(pat)s, %(edc)s)'
+		else:
+			cmd = u'UPDATE clin.patient SET edc = %(edc)s WHERE fk_identity = %(pat)s'
+		args = {'pat': self.pk_patient, 'edc': edc}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	EDC = property(_get_EDC, _set_EDC)
+	#--------------------------------------------------------
 	# API: performed procedures
 	#--------------------------------------------------------
 	def get_performed_procedures(self, episodes=None, issues=None):
