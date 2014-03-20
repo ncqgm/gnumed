@@ -75,9 +75,11 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 	def _on_merge_button_pressed(self, event):
 
 		if self._TCTRL_patient1.person is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No patient selected on the left.'), beep = True)
 			return
 
 		if self._TCTRL_patient2.person is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('No patient selected on the right.'), beep = True)
 			return
 
 		if self._RBTN_patient1.GetValue():
@@ -123,6 +125,7 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('Merging patients'))
 		if conn is None:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot merge patients without admin access.'), beep = True)
 			return
 
 		success, msg = patient2keep.assimilate_identity(other_identity = patient2merge, link_obj = conn)
@@ -131,41 +134,50 @@ class cMergePatientsDlg(wxgMergePatientsDlg.wxgMergePatientsDlg):
 			gmDispatcher.send(signal = 'statustext', msg = msg, beep = True)
 			return
 
-		# announce success, offer to activate kept patient if not active
-		doit = gmGuiHelpers.gm_show_question (
-			aMessage = _(
-				'The patient\n'
-				'\n'
-				' #%s: %s (%s, %s)\n'
-				'\n'
-				'has successfully been merged into\n'
-				'\n'
-				' #%s: %s (%s, %s)\n'
-				'\n'
-				'\n'
-				'Do you want to activate that patient\n'
-				'now for further modifications ?\n'
-			) % (
-				patient2merge.ID,
-				patient2merge['description_gender'],
-				patient2merge['gender'],
-				patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
-				patient2keep.ID,
-				patient2keep['description_gender'],
-				patient2keep['gender'],
-				patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
-			),
-			aTitle = _('Merging patients: success'),
-			cancel_button = False
+		msg = _(
+			'The patient\n'
+			'\n'
+			' #%s: %s (%s, %s)\n'
+			'\n'
+			'has successfully been merged into\n'
+			'\n'
+			' #%s: %s (%s, %s)'
+		) % (
+			patient2merge.ID,
+			patient2merge['description_gender'],
+			patient2merge['gender'],
+			patient2merge.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
+			patient2keep.ID,
+			patient2keep['description_gender'],
+			patient2keep['gender'],
+			patient2keep.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding())
 		)
-		if doit:
-			if not isinstance(patient2keep, gmPerson.gmCurrentPatient):
+		title = _('Merging patients: success')
+
+		curr_pat = gmPerson.gmCurrentPatient()
+		# announce success
+		if (curr_pat.connected) and (patient2keep.ID == curr_pat.ID):
+			gmGuiHelpers.gm_show_info(aMessage = msg, aTitle = title)
+		# and offer to activate kept patient if not active
+		else:
+			msg = msg + (
+			'\n\n\n'
+			'Do you want to activate that patient\n'
+			'now for further modifications ?\n'
+			)
+			doit = gmGuiHelpers.gm_show_question (
+				aMessage = msg,
+				aTitle = title,
+				cancel_button = False
+			)
+			if doit:
 				wx.CallAfter(set_active_patient, patient = patient2keep)
 
 		if self.IsModal():
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSelectPersonFromListDlg
 
@@ -822,7 +834,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		if curr_search_term == '':
 			return None
 
-		# same person anywys ?
+		# same person anyways ?
 		if self.person is not None:
 			if curr_search_term == self.person['description']:
 				return None

@@ -20,7 +20,11 @@ IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.7 (unreleased)
+	1.4.8 (unreleased)
+
+IMPROVED: patient merging dialog [thanks Harald]
+
+	1.4.7
 
 FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
 FIX: longstanding cryptic age label update bug [thanks MAIN-USER, Sergio]
