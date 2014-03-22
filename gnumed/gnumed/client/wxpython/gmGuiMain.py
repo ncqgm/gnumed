@@ -2435,7 +2435,7 @@ class gmTopLevelFrame(wx.Frame):
 	# Office
 	#----------------------------------------------
 	def __on_display_audit_trail(self, evt):
-		gmAccessPermissionWidgets.show_audit_trail(parent = self)
+		gmPraxisWidgets.show_audit_trail(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_show_all_bills(self, evt):
