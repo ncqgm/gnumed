@@ -22,6 +22,8 @@ IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim
 
 	1.4.8 (unreleased)
 
+FIX: exception on showing audit trail [thanks Jim]
+
 IMPROVED: patient merging dialog [thanks Harald]
 
 	1.4.7
