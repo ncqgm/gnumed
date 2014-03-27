@@ -526,7 +526,7 @@ class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPn
 				gmDateTime.pydt_strftime(r['clin_when'], '%H:%M'),
 				r['name_tt'],
 				u'%s%s%s%s' % (
-					gmTools.strip_empty_lines(text = ['unified_val'])[0],
+					gmTools.strip_empty_lines(text = r['unified_val'])[0],
 					gmTools.coalesce(r['val_unit'], u'', u' %s'),
 					gmTools.coalesce(r['abnormality_indicator'], u'', u' %s'),
 					review
