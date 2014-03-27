@@ -1379,12 +1379,15 @@ class cPatient(cIdentity):
 			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
 			time.sleep(0.5)
 			if not self.__emr_access_lock.acquire(False):
-				_log.debug('still failed to acquire EMR access lock, aborting')
+				_log.error('still failed to acquire EMR access lock, aborting')
 				raise AttributeError('cannot lock access to EMR')
 		try:
 			self.__db_cache['clinical record']
 		except KeyError:
 			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']], allow_user_interaction = allow_user_interaction)
+			self.__db_cache['clinical record'].gender = self['gender']
+			self.__db_cache['clinical record'].dob = self['dob']
+
 		self.__emr_access_lock.release()
 		return self.__db_cache['clinical record']
 

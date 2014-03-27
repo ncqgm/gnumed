@@ -39,6 +39,7 @@ from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmPregWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -574,27 +575,31 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		emr = patient.get_emr()
 
 		sort_key_list = []
+		date_format4sorting = '%Y %m %d %H %M %S'
 		data = {}
 
-		issues = [
-			i for i in emr.get_health_issues()
-			if ((i['clinically_relevant'] is False) or (i['is_active'] is False))
-		]
-		for issue in issues:
-			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
-			if last_encounter is None:
-				last = issue['modified_when'].strftime('%m/%Y')
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(issue['modified_when'], format = '%Y %m %d %H %M %S'), issue['pk_health_issue'])
+		# undated entries
+		# pregnancy
+		edc = emr.EDC
+		if edc is not None:
+			sort_key = u'99999 edc'
+			if emr.EDC_is_fishy:
+				label = _(u'EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				tt = _(
+					u'The Expected Date of Confinement is rather questionable.\n'
+					u'\n'
+					u'Please check patient age, patient gender, time until/since EDC.'
+				)
 			else:
-				last = last_encounter['last_affirmed'].strftime('%m/%Y')
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = '%Y %m %d %H %M %S'), issue['pk_health_issue'])
+				label = _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				tt = u''
 			sort_key_list.append(sort_key)
-			data[sort_key] = [u'%s %s' % (last, issue['description']), issue]
-		del issues
+			data[sort_key] = [label, tt]
 
+		# family history
 		fhxs = emr.get_family_history()
 		for fhx in fhxs:
-			sort_key = u'0000 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
+			sort_key = u'99998 %s::%s' % (fhx['l10n_relation'], fhx['pk_family_history'])
 			#gmDateTime.pydt_strftime(fhx['when_known_to_patient'], format = '%Y %m %d %H %M %S')
 			label = u'%s: %s%s' % (
 				fhx['l10n_relation'],
@@ -605,17 +610,28 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, fhx]
 		del fhxs
 
+		# dated entries
+		issues = [
+			i for i in emr.get_health_issues()
+			if ((i['clinically_relevant'] is False) or (i['is_active'] is False))
+		]
+		for issue in issues:
+			last_encounter = emr.get_last_encounter(issue_id = issue['pk_health_issue'])
+			if last_encounter is None:
+				last = gmDateTime.pydt_strftime(issue['modified_when'], format = '%Y %b')
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(issue['modified_when'], format = date_format4sorting), issue['pk_health_issue'])
+			else:
+				last = gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = '%Y %b')
+				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(last_encounter['last_affirmed'], format = date_format4sorting), issue['pk_health_issue'])
+			sort_key_list.append(sort_key)
+			data[sort_key] = [u'%s %s' % (last, issue['description']), issue]
+		del issues
+
 		stays = emr.get_hospital_stays()
 		for stay in stays:
-			if stay['discharge'] is None:
-				discharge = gmTools.u_ellipsis
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = '%Y %m %d %H %M %S'), stay['pk_hospital_stay'])
-			else:
-				discharge = u''
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['discharge'], format = '%Y %m %d %H %M %S'), stay['pk_hospital_stay'])
-			label = u'%s%s %s: %s' % (
-				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b %d'),
-				discharge,
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(stay['admission'], format = date_format4sorting), stay['pk_hospital_stay'])
+			label = u'%s %s: %s' % (
+				gmDateTime.pydt_strftime(stay['admission'], format = '%Y %b'),
 				stay['hospital'],
 				stay['episode']
 			)
@@ -625,12 +641,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		procs = emr.get_performed_procedures()
 		for proc in procs:
-			if proc['is_ongoing']:
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %m %d %H %M %S'), proc['pk_procedure'])
-			else:
-				sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_end'], format = '%Y %m %d %H %M %S'), proc['pk_procedure'])
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(proc['clin_when'], format = date_format4sorting), proc['pk_procedure'])
 			label = u'%s%s %s' % (
-				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b %d'),
+				gmDateTime.pydt_strftime(proc['clin_when'], format = '%Y %b'),
 				gmTools.bool2subst(proc['is_ongoing'], gmTools.u_ellipsis, u'', u''),
 				proc['performed_procedure']
 			)
@@ -641,7 +654,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		vaccs = emr.get_latest_vaccinations()
 		for ind, tmp in vaccs.items():
 			tmp, vacc = tmp
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %m %d %H %M %S'), vacc['pk_vaccination'])
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'])
 			label = _('%s Vacc: %s') % (
 				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
 				ind
@@ -693,11 +706,21 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				date_format = '%Y %b %d'
 			))
 
+		# EDC
+		if isinstance(data, basestring):
+			if data == u'':
+				return None
+			return data
+
 		return None
 	#-----------------------------------------------------
 	def _on_history_item_activated(self, event):
 		data = self._LCTRL_history.get_selected_item_data(only_one = True)
 		if data is None:
+			return
+
+		if isinstance(data, basestring):
+			gmPregWidgets.calculate_edc(parent = self, patient = gmPerson.gmCurrentPatient())
 			return
 
 		# <ctrl> down ?

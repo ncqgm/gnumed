@@ -2694,21 +2694,8 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('calculate EDC'))
 	def __on_calc_edc(self, evt):
-		dlg = gmPregWidgets.cEdcCalculatorDlg(self, -1)
 		pat = gmPerson.gmCurrentPatient()
-		if pat.connected:
-			dlg.patient = pat
-			dlg.EDC = pat.emr.EDC
-		action = dlg.ShowModal()
-		edc = dlg.EDC
-		dlg.Destroy()
-		if not pat.connected:
-			return
-		if edc is None:
-			return
-		if action != wx.ID_SAVE:
-			return
-		pat.emr.EDC = edc
+		gmPregWidgets.calculate_edc(parent = self, patient = pat)
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()

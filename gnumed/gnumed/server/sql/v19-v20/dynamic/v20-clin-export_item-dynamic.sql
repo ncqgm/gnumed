@@ -113,7 +113,7 @@ alter table clin.export_item drop constraint if exists FK_clin_export_item_fk_id
 
 alter table clin.export_item
 	add constraint FK_clin_export_item_fk_identity foreign key (fk_identity)
-		references dem.identity(pk)
+		references clin.patient(fk_identity)
 		on update cascade
 		on delete restrict
 ;

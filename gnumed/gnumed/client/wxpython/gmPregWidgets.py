@@ -16,7 +16,30 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.business import gmClinicalCalculator
 
+#====================================================================
+def calculate_edc(parent=None, patient=None):
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	dlg = cEdcCalculatorDlg(parent, -1)
+	if patient.connected:
+		dlg.patient = patient
+		dlg.EDC = patient.emr.EDC
+	action = dlg.ShowModal()
+	edc = dlg.EDC
+	dlg.Destroy()
+
+	if not patient.connected:
+		return
+
+	if edc is None:
+		return
+
+	if action != wx.ID_SAVE:
+		return
+
+	patient.emr.EDC = edc
 
 #====================================================================
 from wxGladeWidgets import wxgEdcCalculatorDlg
@@ -82,7 +105,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 		details = u''
 		now = gmDateTime.pydt_now_here()
 		# Beulah Hunter, 375 days (http://www.reference.com/motif/health/longest-human-pregnancy-on-record)
-		if (lmp < now) and (edc.numeric_value > now + pydt.timedelta(days = 380)):
+		if (lmp < now) and (edc.numeric_value > (now + pydt.timedelta(days = 380))):
 			age = now - lmp
 			weeks, days = divmod(age.days, 7)
 			week = weeks

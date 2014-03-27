@@ -143,7 +143,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""DELETE FROM ref.loinc_staging"""
+	cmd = u"""DELETE FROM staging.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()
@@ -153,7 +153,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
-	cmd = u"""INSERT INTO ref.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
+	cmd = u"""INSERT INTO staging.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
 	first = False
 	for loinc_line in loinc_reader:
 		if not first:
@@ -233,22 +233,22 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 				),
 				nullif(loinc_num, '')
 			FROM
-				ref.loinc_staging r_ls
+				staging.loinc_staging st_ls
 			WHERE NOT EXISTS (
 				SELECT 1 FROM ref.loinc r_l WHERE
 					r_l.fk_data_source = %(src_pk)s
 						AND
-					r_l.code = nullif(r_ls.loinc_num, '')
+					r_l.code = nullif(st_ls.loinc_num, '')
 						AND
 					r_l.term = 	coalesce (
-						nullif(r_ls.long_common_name, ''),
+						nullif(st_ls.long_common_name, ''),
 						(
-							coalesce(nullif(r_ls.component, '') || ':', '') ||
-							coalesce(nullif(r_ls.property, '') || ':', '') ||
-							coalesce(nullif(r_ls.time_aspect, '') || ':', '') ||
-							coalesce(nullif(r_ls.system, '') || ':', '') ||
-							coalesce(nullif(r_ls.scale_type, '') || ':', '') ||
-							coalesce(nullif(r_ls.method_type, '') || ':', '')
+							coalesce(nullif(st_ls.component, '') || ':', '') ||
+							coalesce(nullif(st_ls.property, '') || ':', '') ||
+							coalesce(nullif(st_ls.time_aspect, '') || ':', '') ||
+							coalesce(nullif(st_ls.system, '') || ':', '') ||
+							coalesce(nullif(st_ls.scale_type, '') || ':', '') ||
+							coalesce(nullif(st_ls.method_type, '') || ':', '')
 						)
 					)
 			)"""
@@ -257,67 +257,67 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 		'args': args,
 		'cmd': u"""
 			UPDATE ref.loinc SET
-				comment = nullif(r_ls.comments, ''),
-				component = nullif(r_ls.component, ''),
-				property = nullif(r_ls.property, ''),
-				time_aspect = nullif(r_ls.time_aspect, ''),
-				system = nullif(r_ls.system, ''),
-				scale_type = nullif(r_ls.scale_type, ''),
-				method_type = nullif(r_ls.method_type, ''),
-				related_names_1_old = nullif(r_ls.related_names_1_old, ''),
-				grouping_class = nullif(r_ls.class, ''),
-				loinc_internal_source = nullif(r_ls.source, ''),
-				dt_last_change = nullif(r_ls.dt_last_change, ''),
-				change_type = nullif(r_ls.change_type, ''),
-				answer_list = nullif(r_ls.answer_list, ''),
-				code_status = nullif(r_ls.status, ''),
-				maps_to = nullif(r_ls.map_to, ''),
-				scope = nullif(r_ls.scope, ''),
-				normal_range = nullif(r_ls.normal_range, ''),
-				ipcc_units = nullif(r_ls.ipcc_units, ''),
-				reference = nullif(r_ls.reference, ''),
-				exact_component_synonym = nullif(r_ls.exact_component_synonym, ''),
-				molar_mass = nullif(r_ls.molar_mass, ''),
-				grouping_class_type = nullif(r_ls.class_type, '')::smallint,
-				formula = nullif(r_ls.formula, ''),
-				species = nullif(r_ls.species, ''),
-				example_answers = nullif(r_ls.example_answers, ''),
-				acs_synonyms = nullif(r_ls.acs_synonyms, ''),
-				base_name = nullif(r_ls.base_name, ''),
-				final = nullif(r_ls.final, ''),
-				naa_ccr_id = nullif(r_ls.naa_ccr_id, ''),
-				code_table = nullif(r_ls.code_table, ''),
-				is_set_root = nullif(r_ls.is_set_root, '')::boolean,
-				panel_elements = nullif(r_ls.panel_elements, ''),
-				survey_question_text = nullif(r_ls.survey_question_text, ''),
-				survey_question_source = nullif(r_ls.survey_question_source, ''),
-				units_required = nullif(r_ls.units_required, ''),
-				submitted_units = nullif(r_ls.submitted_units, ''),
-				related_names_2 = nullif(r_ls.related_names_2, ''),
-				short_name = nullif(r_ls.short_name, ''),
-				order_obs = nullif(r_ls.order_obs, ''),
-				cdisc_common_tests = nullif(r_ls.cdisc_common_tests, ''),
-				hl7_field_subfield_id = nullif(r_ls.hl7_field_subfield_id, ''),
-				external_copyright_notice = nullif(r_ls.external_copyright_notice, ''),
-				example_units = nullif(r_ls.example_units, ''),
-				inpc_percentage = nullif(r_ls.inpc_percentage, ''),
-				long_common_name = nullif(r_ls.long_common_name, '')
+				comment = nullif(st_ls.comments, ''),
+				component = nullif(st_ls.component, ''),
+				property = nullif(st_ls.property, ''),
+				time_aspect = nullif(st_ls.time_aspect, ''),
+				system = nullif(st_ls.system, ''),
+				scale_type = nullif(st_ls.scale_type, ''),
+				method_type = nullif(st_ls.method_type, ''),
+				related_names_1_old = nullif(st_ls.related_names_1_old, ''),
+				grouping_class = nullif(st_ls.class, ''),
+				loinc_internal_source = nullif(st_ls.source, ''),
+				dt_last_change = nullif(st_ls.dt_last_change, ''),
+				change_type = nullif(st_ls.change_type, ''),
+				answer_list = nullif(st_ls.answer_list, ''),
+				code_status = nullif(st_ls.status, ''),
+				maps_to = nullif(st_ls.map_to, ''),
+				scope = nullif(st_ls.scope, ''),
+				normal_range = nullif(st_ls.normal_range, ''),
+				ipcc_units = nullif(st_ls.ipcc_units, ''),
+				reference = nullif(st_ls.reference, ''),
+				exact_component_synonym = nullif(st_ls.exact_component_synonym, ''),
+				molar_mass = nullif(st_ls.molar_mass, ''),
+				grouping_class_type = nullif(st_ls.class_type, '')::smallint,
+				formula = nullif(st_ls.formula, ''),
+				species = nullif(st_ls.species, ''),
+				example_answers = nullif(st_ls.example_answers, ''),
+				acs_synonyms = nullif(st_ls.acs_synonyms, ''),
+				base_name = nullif(st_ls.base_name, ''),
+				final = nullif(st_ls.final, ''),
+				naa_ccr_id = nullif(st_ls.naa_ccr_id, ''),
+				code_table = nullif(st_ls.code_table, ''),
+				is_set_root = nullif(st_ls.is_set_root, '')::boolean,
+				panel_elements = nullif(st_ls.panel_elements, ''),
+				survey_question_text = nullif(st_ls.survey_question_text, ''),
+				survey_question_source = nullif(st_ls.survey_question_source, ''),
+				units_required = nullif(st_ls.units_required, ''),
+				submitted_units = nullif(st_ls.submitted_units, ''),
+				related_names_2 = nullif(st_ls.related_names_2, ''),
+				short_name = nullif(st_ls.short_name, ''),
+				order_obs = nullif(st_ls.order_obs, ''),
+				cdisc_common_tests = nullif(st_ls.cdisc_common_tests, ''),
+				hl7_field_subfield_id = nullif(st_ls.hl7_field_subfield_id, ''),
+				external_copyright_notice = nullif(st_ls.external_copyright_notice, ''),
+				example_units = nullif(st_ls.example_units, ''),
+				inpc_percentage = nullif(st_ls.inpc_percentage, ''),
+				long_common_name = nullif(st_ls.long_common_name, '')
 			FROM
-				ref.loinc_staging r_ls
+				staging.loinc_staging st_ls
 			WHERE
 				fk_data_source = %(src_pk)s
 					AND
-				code = nullif(r_ls.loinc_num, '')
+				code = nullif(st_ls.loinc_num, '')
 					AND
 				term = coalesce (
-					nullif(r_ls.long_common_name, ''),
+					nullif(st_ls.long_common_name, ''),
 					(
-						coalesce(nullif(r_ls.component, '') || ':', '') ||
-						coalesce(nullif(r_ls.property, '') || ':', '') ||
-						coalesce(nullif(r_ls.time_aspect, '') || ':', '') ||
-						coalesce(nullif(r_ls.system, '') || ':', '') ||
-						coalesce(nullif(r_ls.scale_type, '') || ':', '') ||
-						coalesce(nullif(r_ls.method_type, '') || ':', '')
+						coalesce(nullif(st_ls.component, '') || ':', '') ||
+						coalesce(nullif(st_ls.property, '') || ':', '') ||
+						coalesce(nullif(st_ls.time_aspect, '') || ':', '') ||
+						coalesce(nullif(st_ls.system, '') || ':', '') ||
+						coalesce(nullif(st_ls.scale_type, '') || ':', '') ||
+						coalesce(nullif(st_ls.method_type, '') || ':', '')
 					)
 				)
 		"""
@@ -330,7 +330,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 
 	# clean out staging area
 	curs = conn.cursor()
-	cmd = u"""DELETE FROM ref.loinc_staging"""
+	cmd = u"""DELETE FROM staging.loinc_staging"""
 	gmPG2.run_rw_queries(link_obj = curs, queries = [{'cmd': cmd}])
 	curs.close()
 	conn.commit()

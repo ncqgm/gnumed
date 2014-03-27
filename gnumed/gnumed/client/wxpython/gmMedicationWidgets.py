@@ -1492,6 +1492,19 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			)
 			tt += _('GFR reported by path lab')
 
+		edc = emr.EDC
+		if edc is not None:
+			msg += u'\n\n'
+			if emr.EDC_is_fishy:
+				msg += _(u'EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+				tt += _(
+					u'The Expected Date of Confinement is rather questionable.\n'
+					u'\n'
+					u'Please check patient age, patient gender, time until/since EDC.'
+				)
+			else:
+				msg += _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
+
 		self._LBL_allergies.SetLabel(msg)
 		self._LBL_allergies.SetToolTipString(tt)
 	#----------------------------------------------------------------

@@ -2103,6 +2103,7 @@ if __name__ == '__main__':
 			#u'current_provider',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
+			u'$<current_provider_external_id::KV-LANR//KV::1234>$'
 			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
 			#u'form_name_long::::1234',
 			#u'form_name_long::::5',
@@ -2133,12 +2134,13 @@ if __name__ == '__main__':
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
 			#u'$<praxis_address::::120>$'
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
-			u'$<receiver_name::%s::120>$',
-			u'$<receiver_street::%s::120>$',
-			u'$<receiver_number:: %s::120>$',
-			u'$<receiver_postcode::%s::120>$',
-			u'$<receiver_location:: %s::120>$',
-			u'$<receiver_country::, %s::120>$'
+
+			#u'$<receiver_name::%s::120>$',
+			#u'$<receiver_street::%s::120>$',
+			#u'$<receiver_number:: %s::120>$',
+			#u'$<receiver_postcode::%s::120>$',
+			#u'$<receiver_location:: %s::120>$',
+			#u'$<receiver_country::, %s::120>$'
 		]
 
 		handler = gmPlaceholderHandler()

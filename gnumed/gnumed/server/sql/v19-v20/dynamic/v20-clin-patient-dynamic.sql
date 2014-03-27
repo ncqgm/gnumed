@@ -55,6 +55,11 @@ alter table clin.patient
 comment on column clin.patient.fk_identity is 'the dem.identity.pk of this patient';
 
 
+alter table clin.patient
+	alter column edc
+		set default null;
+
+
 -- helper functions
 create or replace function clin.get_dob(integer)
 	returns timestamp with time zone

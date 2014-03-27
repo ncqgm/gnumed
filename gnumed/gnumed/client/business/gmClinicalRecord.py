@@ -11,6 +11,7 @@ __license__ = "GPL v2 or later"
 # standard libs
 import sys
 import logging
+import datetime as pydt
 
 
 if __name__ == '__main__':
@@ -67,6 +68,8 @@ class cClinicalRecord(object):
 		- patient referenced by aPKey does not exist
 		"""
 		self.pk_patient = aPKey			# == identity.pk == primary key
+		self.gender = None
+		self.dob = None
 
 		# FIXME: delegate to worker thread
 		# log access to patient record (HIPAA, for example)
@@ -181,6 +184,34 @@ class cClinicalRecord(object):
 	#--------------------------------------------------------
 	# API: pregnancy
 	#--------------------------------------------------------
+	def _get_gender(self):
+		if self.__gender is not None:
+			return self.__gender
+		cmd = u'SELECT gender, dob FROM dem.v_basic_person WHERE pk_identity = %(pat)s'
+		args = {u'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, u'args': args}], get_col_idx = False)
+		self.__gender = rows[0][u'gender']
+		self.__dob = rows[0][u'dob']
+
+	def _set_gender(self, gender):
+		self.__gender = gender
+
+	gender = property(_get_gender, _set_gender)
+	#--------------------------------------------------------
+	def _get_dob(self):
+		if self.__dob is not None:
+			return self.__dob
+		cmd = u'SELECT gender, dob FROM dem.v_basic_person WHERE pk_identity = %(pat)s'
+		args = {u'pat': self.pk_patient}
+		rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, u'args': args}], get_col_idx = False)
+		self.__gender = rows[0][u'gender']
+		self.__dob = rows[0][u'dob']
+
+	def _set_dob(self, dob):
+		self.__dob = dob
+
+	dob = property(_get_dob, _set_dob)
+	#--------------------------------------------------------
 	def _get_EDC(self):
 		cmd = u'SELECT edc FROM clin.patient WHERE fk_identity = %(pat)s'
 		args = {'pat': self.pk_patient}
@@ -190,14 +221,47 @@ class cClinicalRecord(object):
 		return rows[0]['edc']
 
 	def _set_EDC(self, edc):
-		if self.EDC is None:
-			cmd = u'INSERT INTO clin.patient (fk_identity, edc) VALUES (%(pat)s, %(edc)s)'
-		else:
-			cmd = u'UPDATE clin.patient SET edc = %(edc)s WHERE fk_identity = %(pat)s'
+		cmd = u"""
+			INSERT INTO clin.patient (fk_identity, edc) SELECT
+				%(pat)s,
+				%(edc)s
+			WHERE NOT EXISTS (
+				SELECT 1 FROM clin.patient WHERE fk_identity = %(pat)s
+			)
+			RETURNING pk"""
 		args = {'pat': self.pk_patient, 'edc': edc}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+		if len(rows) == 0:
+			cmd = u'UPDATE clin.patient SET edc = %(edc)s WHERE fk_identity = %(pat)s'
+			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	EDC = property(_get_EDC, _set_EDC)
+	#--------------------------------------------------------
+	def _EDC_is_fishy(self):
+		edc = self.EDC
+		if edc is None:
+			return False
+		if self.gender != u'f':
+			return True
+		now = gmDateTime.pydt_now_here()
+		# mother too young
+		if (self.dob + pydt.timedelta(weeks = 5 * 52)) > now:
+			return True
+		# mother too old
+		if (self.dob + pydt.timedelta(weeks = 55 * 52)) < now:
+			return True
+		# Beulah Hunter, 375 days (http://www.reference.com/motif/health/longest-human-pregnancy-on-record)
+		# EDC too far in the future
+		if (edc - pydt.timedelta(days = 380)) > now:
+			return True
+		# even if the pregnancy would have *started* when it
+		# was documented to *end* it would be over by now by
+		# all accounts
+		# EDC too far in the past
+		if edc < (now - pydt.timedelta(days = 380)):
+			return True
+
+	EDC_is_fishy = property(_EDC_is_fishy, lambda x:x)
 	#--------------------------------------------------------
 	# API: performed procedures
 	#--------------------------------------------------------
