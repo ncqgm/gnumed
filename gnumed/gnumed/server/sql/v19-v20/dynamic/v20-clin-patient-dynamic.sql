@@ -18,6 +18,8 @@ select gm.register_notifying_table('clin', 'patient');
 select audit.register_table_for_auditing('clin', 'patient');
 
 
+revoke all on clin.patient from "public";
+--grant select on clin.patient to group "gm-staff";
 grant select, insert, update, delete on clin.patient to group "gm-doctors";
 
 

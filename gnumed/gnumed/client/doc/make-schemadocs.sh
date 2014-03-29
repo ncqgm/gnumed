@@ -35,5 +35,5 @@ for DB in ${DB_LIST} ; do
 
 done
 
-ln -s ~/gm-schemadocs/gnumed_v19 ~/gm-schemadocs/release
-ln -s ~/gm-schemadocs/gnumed_v20 ~/gm-schemadocs/devel
+ln -s -T ~/gm-schemadocs/gnumed_v19 ~/gm-schemadocs/release
+ln -s -T ~/gm-schemadocs/gnumed_v20 ~/gm-schemadocs/devel
