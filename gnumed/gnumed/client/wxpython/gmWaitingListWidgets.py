@@ -346,12 +346,9 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 	#--------------------------------------------------------
 	def _on_waiting_list_modified(self, *args, **kwargs):
 		self.__id_most_recently_activated_patient = None
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self, *args, **kwargs):
-		wx.CallAfter(self.__on_post_patient_selection)
-	#--------------------------------------------------------
-	def __on_post_patient_selection(self):
 		self._CHBOX_active_patient_only.Enable()
 		self._check_RFE()
 		self._schedule_data_reget()

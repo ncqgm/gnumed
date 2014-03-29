@@ -119,7 +119,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	# threads, dispatcher signals etc.
 	def __register_interests(self):
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		# database change signals
@@ -151,7 +151,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
-#		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+#		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 #		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 
 		self._PRW_encounter_range.add_callback_on_selection(callback = self._on_encounter_range_selected)
@@ -159,17 +159,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _on_encounter_range_selected(self, data):
 		wx.CallAfter(self.__refresh_encounters, patient = gmPerson.gmCurrentPatient())
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		# only empty out here, do NOT access the patient
 		# or else we will access the old patient while it
 		# may not be valid anymore ...
-		wx.CallAfter(self.__reset_ui_content)
+		self.__reset_ui_content()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
@@ -263,7 +263,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 #			if wx.GetKeyState(wx.WXK_CONTROL):
 #				if isinstance(data, gmProviderInbox.cInboxMessage):
 #					xxxxxxxxx
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
@@ -355,14 +355,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		if data is None:
-			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+			gmDispatcher.send(signal = 'display_widget', name = 'gmProviderInboxPlugin')
 			return
 
 		if not isinstance(data, gmProviderInbox.cInboxMessage):
-			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin')
+			gmDispatcher.send(signal = 'display_widget', name = 'gmProviderInboxPlugin')
 			return
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmProviderInboxPlugin', filter_by_active_patient = True)
+		gmDispatcher.send(signal = 'display_widget', name = 'gmProviderInboxPlugin', filter_by_active_patient = True)
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
@@ -441,7 +441,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 						gmDocumentWidgets.review_document(parent = self, document = data)
 					return
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs')
 		return
 	#-----------------------------------------------------
 	#-----------------------------------------------------
@@ -562,7 +562,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if type(data) == type({}):
 			key, val = data.items()[0]
 			if key == 'wlist':
-				wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmWaitingListPlugin')
+				gmDispatcher.send(signal = 'display_widget', name = 'gmWaitingListPlugin')
 				return
 			if key == 'stay':
 				wx.CallAfter(gmEMRStructWidgets.manage_hospital_stays, parent = self)
@@ -743,7 +743,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		if isinstance(data, gmEMRStructItems.cHealthIssue):
-			wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmEMRBrowserPlugin')
+			gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
 			return
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
 			FamilyHistoryWidgets.manage_family_history(parent = self)
@@ -821,7 +821,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
 				return
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_contacts(self, patient=None):
@@ -938,7 +938,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				if isinstance(data, gmStaff.cStaff):
 					pass
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_problems(self, patient=None):
@@ -1019,7 +1019,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					gmEMRStructWidgets.edit_episode(parent = self, episode = emr.problem2episode(data))
 					return
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmEMRBrowserPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmEMRBrowserPlugin')
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_identity(self, patient=None):
@@ -1096,7 +1096,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 						gmDemographicsWidgets.edit_occupation()
 						return
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 #============================================================
 # main
 #------------------------------------------------------------

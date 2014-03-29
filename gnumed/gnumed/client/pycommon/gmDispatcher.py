@@ -17,7 +17,7 @@ wx_core_PyDeadObjectError = None
 known_signals = [
 	u'current_encounter_modified',	# the current encounter was modified externally
 	u'current_encounter_switched',	# *another* encounter became the current one
-	u'pre_patient_selection',
+	u'pre_patient_unselection',
 	u'post_patient_selection',
 	u'patient_locked',
 	u'patient_unlocked',
@@ -50,9 +50,18 @@ known_signals.append(Any)
 class DispatcherError(exceptions.Exception):
 	def __init__(self, args=None):
 		self.args = args
+
 #=====================================================================
 # external API
 #---------------------------------------------------------------------
+__execute_in_main_thread = None
+
+def set_main_thread_caller(caller):
+	if not callable(caller):
+		raise TypeError('caller [%s] is not callable' % caller)
+	__execute_in_main_thread = caller
+
+#=====================================================================
 def connect(receiver=None, signal=Any, sender=Any, weak=1):
 	"""Connect receiver to sender for signal.
 
@@ -282,7 +291,12 @@ def _call(receiver, **kwds):
 		for arg in kwds.keys():
 			if arg not in acceptable_args:
 				del kwds[arg]
-	return receiver(**kwds)
+
+	if __execute_in_main_thread is None:
+		return receiver(**kwds)
+
+	# if a cross-thread executor is set
+	return __execute_in_main_thread(receiver, **kwds)
 #---------------------------------------------------------------------
 def _removeReceiver(receiver):
 	"""Remove receiver from connections."""

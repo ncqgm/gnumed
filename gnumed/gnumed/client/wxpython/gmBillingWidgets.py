@@ -1444,21 +1444,21 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 	# event handling
 	#-----------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'bill.bill_item_mod_db', receiver = self._on_bill_item_modified)
 
 		self._PRW_billable.add_callback_on_selection(self._on_billable_selected_in_prw)
 	#-----------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__reset_ui)
+	def _on_pre_patient_unselection(self):
+		self.__reset_ui()
 	#-----------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#-----------------------------------------------------
 	def _on_bill_item_modified(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#-----------------------------------------------------
 	def _on_non_invoiced_only_checkbox_toggled(self, event):
 		self._PNL_bill_items.show_non_invoiced_only = self._CHBOX_show_non_invoiced_only.GetValue()

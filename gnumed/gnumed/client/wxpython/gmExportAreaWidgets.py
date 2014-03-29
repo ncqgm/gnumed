@@ -52,14 +52,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_table_mod)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
-	def __on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		self._LCTRL_items.set_string_items([])
 	#--------------------------------------------------------
 	def _on_table_mod(self, *args, **kwargs):
@@ -73,10 +70,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 #		print "current patient ID:", pat.ID
 #		if kwargs['pk_identity'] == pat.ID:
 #			print "signal is about current patient"
-#			wx.CallAfter(self.__on_table_mod)
-		wx.CallAfter(self.__on_table_mod)
-	#--------------------------------------------------------
-	def __on_table_mod(self):
+#			self.__on_table_mod()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, event):

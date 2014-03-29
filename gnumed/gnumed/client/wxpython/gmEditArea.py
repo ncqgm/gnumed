@@ -493,7 +493,7 @@ class cEditAreaPopup(wx.Dialog):
 		wx.EVT_CLOSE(self, self._on_CANCEL_btn_pressed)
 
 		# client internal signals
-#		gmDispatcher.connect(signal = gmSignals.pre_patient_selection(), receiver = self._on_pre_patient_selection)
+#		gmDispatcher.connect(signal = gmSignals.pre_patient_unselection(), receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = gmSignals.application_closing(), receiver = self._on_application_closing)
 #		gmDispatcher.connect(signal = gmSignals.post_patient_selection(), receiver = self.on_post_patient_selection)
 
@@ -587,7 +587,7 @@ class cEditArea2(wx.Panel):
 	def __register_events(self):
 		# client internal signals
 		if self._patient.connected:
-			gmDispatcher.connect(signal = 'pre_patient_selection', receiver = self._on_pre_patient_selection)
+			gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 			gmDispatcher.connect(signal = 'post_patient_selection', receiver = self.on_post_patient_selection)
 		gmDispatcher.connect(signal = 'application_closing', receiver = self._on_application_closing)
 
@@ -597,7 +597,7 @@ class cEditArea2(wx.Panel):
 		return 1
 	#--------------------------------------------------------
 	def __deregister_events(self):
-		gmDispatcher.disconnect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.disconnect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.disconnect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
 		gmDispatcher.disconnect(signal = u'application_closing', receiver = self._on_application_closing)
 	#--------------------------------------------------------
@@ -644,7 +644,7 @@ class cEditArea2(wx.Panel):
 		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self, **kwds):
+	def _on_pre_patient_unselection(self, **kwds):
 		"""Just before new patient becomes active."""
 		# remember wxCallAfter
 		if not self._patient.connected:
@@ -994,7 +994,7 @@ class cEditArea(wx.Panel):
 		wx.EVT_SIZE (self.fields_pnl, self._on_resize_fields)
 
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'application_closing', receiver = self._on_application_closing)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.on_post_patient_selection)
 
@@ -1037,7 +1037,7 @@ class cEditArea(wx.Panel):
 		_log.error('[%s] lossage' % self.__class__.__name__)
 		return False
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self, **kwds):
+	def _on_pre_patient_unselection(self, **kwds):
 		# remember wxCallAfter
 		if not self._patient.connected:
 			return True

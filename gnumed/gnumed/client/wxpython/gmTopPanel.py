@@ -90,28 +90,23 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		return
 	#----------------------------------------------
 	def _on_tag_change(self):
-		wx.CallAfter(self.__update_tags)
+		self.__update_tags()
 	#----------------------------------------------
 	def _on_name_identity_change(self):
-		wx.CallAfter(self.__update_age_label)
+		self.__update_age_label()
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
-		# needed because GUI stuff can't be called from a thread (and that's
-		# where we are coming from via backend listener -> dispatcher)
-		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
+		self.__update_age_label()
+		self.__update_allergies()
+		self.__update_tags()
 	#-------------------------------------------------------
 	def _on_allergies_change(self, **kwargs):
-		wx.CallAfter(self.__update_allergies)
+		self.__update_allergies()
 	#-------------------------------------------------------
 	def _on_focus_patient_search(self, **kwargs):
 		wx.CallAfter(self._TCTRL_patient_selector.SetFocus)
 	#-------------------------------------------------------
 	# internal API
-	#-------------------------------------------------------
-	def __on_post_patient_selection(self, **kwargs):
-		self.__update_age_label()
-		self.__update_allergies()
-		self.__update_tags()
 	#-------------------------------------------------------
 	def __update_tags(self):
 		self._PNL_tags.refresh(patient = self.curr_pat)

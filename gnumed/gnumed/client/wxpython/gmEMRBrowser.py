@@ -898,15 +898,15 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	# event handlers
 	#--------------------------------------------------------
 	def _on_narrative_mod_db(self, *args, **kwargs):
-		wx.CallAfter(self.__update_text_for_selected_node)
+		self.__update_text_for_selected_node()
 	#--------------------------------------------------------
 	def _on_episode_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
-		wx.CallAfter(self.__populate_tree)
+		self.__populate_tree()
 	#--------------------------------------------------------
 	def _on_issue_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
-		wx.CallAfter(self.__populate_tree)
+		self.__populate_tree()
 	#--------------------------------------------------------
 	def _on_tree_item_expanding(self, event):
 		event.Skip()
@@ -1271,7 +1271,7 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 		self.editing = False
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
@@ -1297,19 +1297,16 @@ class cSplittedEMRTreeBrowserPnl(wxgSplittedEMRTreeBrowserPnl.wxgSplittedEMRTree
 	#--------------------------------------------------------
 	# event handler
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		self._pnl_emr_tree._emr_tree.patient = None
 		self._PNL_edit.patient = None
 		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self.__on_post_patient_selection)
-		return True
-	#--------------------------------------------------------
-	def __on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() != self:
 			return True
 		self.repopulate_ui()
+		return True
 	#--------------------------------------------------------
 	def _on_show_details_selected(self, event):
 		self._pnl_emr_tree._emr_tree.details_display_mode = u'details'
@@ -1394,24 +1391,21 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 	# internal helpers
 	#--------------------------------------------------------
 	def __register_events(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
 	#--------------------------------------------------------
 	# event handler
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		self._TCTRL_journal.SetValue(u'')
 		return True
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self.__on_post_patient_selection)
-		return True
-	#--------------------------------------------------------
-	def __on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() != self:
 			return True
 		self.repopulate_ui()
+		return True
 	#--------------------------------------------------------
 	def _on_order_by_encounter_selected(self, event):
 		self.repopulate_ui()

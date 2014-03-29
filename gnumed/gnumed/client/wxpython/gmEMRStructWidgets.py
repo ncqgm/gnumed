@@ -1184,10 +1184,10 @@ limit 30"""
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
 		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	#--------------------------------------------------------
-	def _pre_patient_selection(self):
+	def _pre_patient_unselection(self):
 		self.__patient_id = None
 		self.unset_context('pat')
 		self.SetData()
@@ -1527,10 +1527,10 @@ ORDER BY
 	# internal API
 	#--------------------------------------------------------
 	def __register_patient_change_signals(self):
-		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
 		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	#--------------------------------------------------------
-	def _pre_patient_selection(self):
+	def _pre_patient_unselection(self):
 		return True
 	#--------------------------------------------------------
 	def _post_patient_selection(self):

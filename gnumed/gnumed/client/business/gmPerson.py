@@ -1409,6 +1409,39 @@ class gmCurrentPatient(gmBorg.cBorg):
 	"""Patient Borg to hold currently active patient.
 
 	There may be many instances of this but they all share state.
+
+	The sequence of events when changing the active patient:
+
+		1) Registered callbacks are run.
+			Those are run synchronously. If a callback
+			returns False or throws an exception the
+			patient switch is aborted. Callback code
+			can rely on the patient still being active
+			and to not go away until it returns. It
+			is not passed any arguments and must return
+			False or True.
+
+		2) Signal "pre_patient_unselection" is sent.
+			This does not wait for nor check results.
+
+		3) the current patient is unset (gmNull.cNull)
+
+		4) Signal "current_patient_unset" is sent
+			At this point resetting GUI fields to
+			empty should be done. The active patient
+			is not there anymore.
+
+			This does not wait for nor check results.
+
+		5) The current patient is set to the new value.
+			The new patient can also remain gmNull.cNull
+			in case the calling code explicitely unset
+			the current patient.
+
+		6) Signal "post_patient_selection" is sent.
+			Code listening to this signal can
+			assume that the new patient is
+			already active.
 	"""
 	def __init__(self, patient=None, forced_reload=False):
 		"""Change or get currently active patient.
@@ -1429,7 +1462,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			# when we are controlled from a remote application
 			self.__lock_depth = 0
 			# initialize callback state
-			self.__pre_selection_callbacks = []
+			self.__callbacks_before_switching_away_from_patient = []
 
 		# user wants copy of current patient
 		if patient is None:
@@ -1443,12 +1476,15 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# user wants to explicitly unset current patient
 		if patient == -1:
 			_log.debug('explicitly unsetting current patient')
-			if not self.__run_pre_selection_callbacks():
+			if not self.__run_callbacks_before_switching_away_from_patient():
 				_log.debug('not unsetting current patient')
 				return None
-			self.__send_pre_selection_notification()
+			self.__send_pre_unselection_notification()
 			self.patient.cleanup()
 			self.patient = gmNull.cNull()
+			self.__send_unselection_notification()
+			# give it some time
+			time.sleep(0.5)
 			self.__send_selection_notification()
 			return None
 
@@ -1465,11 +1501,15 @@ class gmCurrentPatient(gmBorg.cBorg):
 		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
 		# everything seems swell
-		if not self.__run_pre_selection_callbacks():
+		if not self.__run_callbacks_before_switching_away_from_patient():
 			_log.debug('not changing current patient')
 			return None
-		self.__send_pre_selection_notification()
+		self.__send_pre_unselection_notification()
 		self.patient.cleanup()
+		self.patient = gmNull.cNull()
+		self.__send_unselection_notification()
+		# give it some time
+		time.sleep(0.5)
 		self.patient = patient
 		self.patient.get_emr()
 		self.__send_selection_notification()
@@ -1486,11 +1526,16 @@ class gmCurrentPatient(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def register_pre_selection_callback(self, callback=None):
+	def register_before_switching_from_patient_callback(self, callback=None):
+		# callbacks are run synchronously before
+		# switching *away* from the current patient,
+		# if a callback returns false the current
+		# patient will not be switched away from,
+		# callbacks will not be passed any arguments
 		if not callable(callback):
 			raise TypeError(u'callback [%s] not callable' % callback)
 
-		self.__pre_selection_callbacks.append(callback)
+		self.__callbacks_before_switching_away_from_patient.append(callback)
 	#--------------------------------------------------------
 	def _get_connected(self):
 		return (not isinstance(self.patient, gmNull.cNull))
@@ -1524,16 +1569,16 @@ class gmCurrentPatient(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
-	def __run_pre_selection_callbacks(self):
+	def __run_callbacks_before_switching_away_from_patient(self):
 		if isinstance(self.patient, gmNull.cNull):
 			return True
 
-		for call_back in self.__pre_selection_callbacks:
+		for call_back in self.__callbacks_before_switching_away_from_patient:
 			try:
 				successful = call_back()
 			except:
 				_log.exception('callback [%s] failed', call_back)
-				print "*** pre-selection callback failed ***"
+				print "*** pre-change callback failed ***"
 				print type(call_back)
 				print call_back
 				return False
@@ -1544,15 +1589,29 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		return True
 	#--------------------------------------------------------
-	def __send_pre_selection_notification(self):
-		"""Sends signal when another patient is about to become active.
+	def __send_pre_unselection_notification(self):
+		"""Sends signal when current patient is about to be unset.
 
 		This does NOT wait for signal handlers to complete.
 		"""
 		kwargs = {
-			'signal': u'pre_patient_selection',
+			'signal': u'pre_patient_unselection',
 			'sender': id(self.__class__),
 			'pk_identity': self.patient['pk_identity']
+		}
+		gmDispatcher.send(**kwargs)
+	#--------------------------------------------------------
+	def __send_unselection_notification(self):
+		"""Sends signal when the previously active patient has
+		   been unset during a change of active patient.
+
+		This is the time to initialize GUI fields to empty values.
+
+		This does NOT wait for signal handlers to complete.
+		"""
+		kwargs = {
+			'signal': u'current_patient_unset',
+			'sender': id(self.__class__)
 		}
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------

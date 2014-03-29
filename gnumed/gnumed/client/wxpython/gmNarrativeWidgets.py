@@ -1154,27 +1154,21 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __register_interests(self):
 		"""Configure enabled event signals."""
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'clin.episode_code_mod_db', receiver = self._on_episode_issue_mod_db)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-
-	def __on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		self.__reset_ui_content()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self.__on_post_patient_selection)
-
-	def __on_post_patient_selection(self):
 		self._schedule_data_reget()
 		self._PNL_editors.patient = self.__pat
 	#--------------------------------------------------------
 	def _on_episode_issue_mod_db(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#--------------------------------------------------------
 	# problem list specific events
 	#--------------------------------------------------------
@@ -1284,7 +1278,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 
 	def _set_patient(self, patient):
 		#if 
-		#	self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		#	self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 		self.__pat = patient
 		self.__refresh_encounter()
 		self.__refresh_soap_notebook()
@@ -1422,7 +1416,7 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		gmDispatcher.connect(signal = u'clin.rfe_code_mod_db', receiver = self._on_encounter_code_modified)
 		gmDispatcher.connect(signal = u'clin.aoe_code_mod_db', receiver = self._on_encounter_code_modified)
 	#--------------------------------------------------------
-	def _pre_selection_callback(self):
+	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
 
 		Patient change will not proceed before this returns True.
@@ -1467,20 +1461,17 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		return True
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
-		wx.CallAfter(self.__refresh_current_editor)
+		self.__refresh_current_editor()
 	#--------------------------------------------------------
 	def _on_encounter_code_modified(self):
-		wx.CallAfter(self.__on_encounter_code_modified)
-	#--------------------------------------------------------
-	def __on_encounter_code_modified(self):
 		self.__pat.emr.active_encounter.refetch_payload()
 		self.__refresh_encounter()
 	#--------------------------------------------------------
 	def _on_current_encounter_modified(self):
-		wx.CallAfter(self.__refresh_encounter)
+		self.__refresh_encounter()
 	#--------------------------------------------------------
 	def _on_current_encounter_switched(self):
-		wx.CallAfter(self.__refresh_encounter)
+		self.__refresh_encounter()
 	#--------------------------------------------------------
 	# SOAP editor specific buttons
 	#--------------------------------------------------------
@@ -1995,10 +1986,7 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 		for field in self.soap_fields:
 			wx_expando.EVT_ETC_LAYOUT_NEEDED(field, field.GetId(), self._on_expando_needs_layout)
 		wx_expando.EVT_ETC_LAYOUT_NEEDED(self._TCTRL_episode_summary, self._TCTRL_episode_summary.GetId(), self._on_expando_needs_layout)
-		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._refresh_visual_soap)
-	#--------------------------------------------------------
-	def _refresh_visual_soap(self):
-		wx.CallAfter(self.refresh_visual_soap)
+		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self.refresh_visual_soap)
 	#--------------------------------------------------------
 	def _on_expando_needs_layout(self, evt):
 		# need to tell ourselves to re-Layout to refresh scroll bars
@@ -2161,12 +2149,12 @@ class cSoapLineTextCtrl(wx_expando.ExpandoTextCtrl, gmKeywordExpansionWidgets.cK
 	#--------------------------------------------------------
 	def _after_on_focus(self):
 		# robustify against PyDeadObjectError - since we are called
-		# from wx.CallAfter this SoapCtrl may be gone by the time
+		# from wx's CallAfter this SoapCtrl may be gone by the time
 		# we get to handling this layout request, say, on patient
 		# change or some such
 		if not self:
 			return
-		#wx.CallAfter(self._adjustCtrl)
+		#wx. CallAfter(self._adjustCtrl)
 		evt = wx.PyCommandEvent(wx_expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
 		evt.SetEventObject(self)
 		#evt.height = None
@@ -2646,16 +2634,16 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 	def __register_interests(self):
 		"""Configure enabled event signals."""
 		# client internal signals
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
 		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
 
 		# synchronous signals
-		self.__curr_pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		self.__curr_pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#-----------------------------------------------------
-	def _pre_selection_callback(self):
+	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
 
 		Patient change will not proceed before this returns True.
@@ -2677,14 +2665,14 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot save SimpleNotes SOAP note.'), beep = True)
 		return
 	#-----------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__reset_ui)
+	def _on_pre_patient_unselection(self):
+		self.__reset_ui()
 	#-----------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#-----------------------------------------------------
 	def _on_episode_issue_mod_db(self):
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#-----------------------------------------------------
 	def _on_problem_activated(self, event):
 		self.__perhaps_save_soap()

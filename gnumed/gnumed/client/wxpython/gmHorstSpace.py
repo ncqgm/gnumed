@@ -148,7 +148,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			bias = u'user',
 			default = u'gmPatientOverviewPlugin'
 		)
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = default_plugin)
+		gmDispatcher.send(signal = 'display_widget', name = default_plugin)
 	#----------------------------------------------
 	def _on_notebook_page_changing(self, event):
 		"""Called before notebook page change is processed."""

@@ -1743,14 +1743,16 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		self._schedule_data_reget()
+	def _on_pre_patient_unselection(self):
+		self.__patient_notebook.identity = None
+		self.__patient_notebook.refresh()
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
+	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):

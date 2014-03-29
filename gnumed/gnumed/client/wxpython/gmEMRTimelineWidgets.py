@@ -64,13 +64,10 @@ class cEMRTimelinePluginPnl(wxgEMRTimelinePluginPnl.wxgEMRTimelinePluginPnl, gmR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 #		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
-	def __on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		self._PNL_timeline.clear_timeline()
 	#--------------------------------------------------------
 	def _on_refresh_button_pressed(self, event):

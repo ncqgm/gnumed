@@ -32,11 +32,6 @@ _log = logging.getLogger('gm.auto_hints')
 
 #================================================================
 def _display_clinical_reminders():
-	wx.CallAfter(__display_clinical_reminders)
-
-gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
-
-def __display_clinical_reminders():
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
@@ -91,6 +86,8 @@ def __display_clinical_reminders():
 			gmNetworkTools.open_url_in_browser(hint['url'], autoraise = False)
 
 	return
+
+gmDispatcher.connect(signal = u'post_patient_selection', receiver = _display_clinical_reminders)
 
 #================================================================
 def edit_dynamic_hint(parent=None, hint=None, single_entry=True):

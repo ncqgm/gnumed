@@ -315,11 +315,11 @@ class cProgressNoteInputNotebook(wx.Notebook, gmRegetMixin.cRegetOnPaintMixin):
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver=self._on_post_patient_selection)
 #		gmDispatcher.connect(signal = u'application_closing', receiver=self._on_application_closing)
 
-		self.__pat.register_pre_selection_callback(callback = self._pre_selection_callback)
+		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 
 		gmDispatcher.send(signal = u'register_pre_exit_callback', callback = self._pre_exit_callback)
 	#--------------------------------------------------------
-	def _pre_selection_callback(self):
+	def _before_switching_from_patient_callback(self):
 		"""Another patient is about to be activated.
 
 		Patient change will not proceed before this returns True.
@@ -1035,8 +1035,9 @@ class cSingleBoxSOAPPanel(wx.Panel):
 		wx.EVT_BUTTON(self.__BTN_discard, self.__BTN_discard.GetId(), self._on_discard_note)
 
 		# client internal signals
-		gmDispatcher.connect(signal = 'pre_patient_selection', receiver = self._save_note)
 		gmDispatcher.connect(signal = 'application_closing', receiver = self._save_note)
+		# really should be synchronous:
+		gmDispatcher.connect(signal = 'pre_patient_unselection', receiver = self._save_note)
 
 		return True
 	#--------------------------------------------------------
@@ -1054,6 +1055,9 @@ class cSingleBoxSOAPPanel(wx.Panel):
 	# internal helpers
 	#--------------------------------------------------------
 	def _save_note(self):
+		# xxxxxx
+		# FIXME: this should be a sync callback
+		# xxxxxx
 		wx.CallAfter(self.__save_note)
 	#--------------------------------------------------------
 	def __save_note(self):

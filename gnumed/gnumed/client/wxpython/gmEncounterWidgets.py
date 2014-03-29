@@ -575,21 +575,17 @@ class cActiveEncounterPnl(wxgActiveEncounterPnl.wxgActiveEncounterPnl):
 	def __register_events(self):
 		self._TCTRL_encounter.Bind(wx.EVT_LEFT_DCLICK, self._on_ldclick)
 
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._schedule_clear)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		# this would throw an exception due to concurrency issues:
-		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_refresh)
-		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._schedule_refresh)
-		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._schedule_refresh)
-		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._schedule_refresh)
+		#gmDispatcher.connect(signal = u'post_patient_selection', receiver = self.refresh)
+		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self.refresh)
+		gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self.refresh)
+		gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self.refresh)
 	#------------------------------------------------------------
 	# event handler
 	#------------------------------------------------------------
-	def _schedule_clear(self):
-		wx.CallAfter(self.clear)
-	#------------------------------------------------------------
-	def _schedule_refresh(self, *args, **kwargs):
-		wx.CallAfter(self.refresh)
-		return True
+	def _on_pre_patient_unselection(self):
+		self.clear()
 	#------------------------------------------------------------
 	def _on_ldclick(self, event):
 		pat = gmPerson.gmCurrentPatient()

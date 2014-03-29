@@ -36,13 +36,10 @@ class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._schedule_data_reget)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-	#--------------------------------------------------------
-	def __on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		pass
 	#--------------------------------------------------------
 	def repopulate_ui(self):
@@ -53,7 +50,6 @@ class cExamplePluginPnl(wxgExamplePluginPnl.wxgExamplePluginPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def __init_ui(self):
 		pass
-		
 	#--------------------------------------------------------
 	# reget mixin API
 	#--------------------------------------------------------

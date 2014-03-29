@@ -295,7 +295,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 		gmDispatcher.connect(signal = u'blobs.doc_type_mod_db', receiver = self._on_doc_type_mod_db)
 	#--------------------------------------------------------
 	def _on_doc_type_mod_db(self):
-		wx.CallAfter(self.repopulate_ui)
+		self.repopulate_ui()
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 
@@ -356,7 +356,7 @@ class cEditDocumentTypesPnl(wxgEditDocumentTypesPnl.wxgEditDocumentTypesPnl):
 	def _on_set_translation_button_pressed(self, event):
 		doc_type = self._LCTRL_doc_type.get_selected_item_data()
 		if doc_type.set_translation(translation = self._TCTRL_l10n_type.GetValue().strip()):
-			wx.CallAfter(self.repopulate_ui)
+			self.repopulate_ui()
 
 		return
 	#--------------------------------------------------------
@@ -832,7 +832,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	# patient change plugin API
 	#--------------------------------------------------------
-	def _pre_patient_selection(self, **kwds):
+	def _pre_patient_unselection(self, **kwds):
 		# FIXME: persist pending data from here
 		pass
 	#--------------------------------------------------------
@@ -1510,7 +1510,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 #		 wx.EVT_LEFT_DCLICK(self.tree, self.OnLeftDClick)
 
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._on_doc_page_mod_db)
@@ -1917,13 +1917,13 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 	#------------------------------------------------------------------------
 	def _on_doc_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#------------------------------------------------------------------------
 	def _on_doc_page_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState
-		wx.CallAfter(self._schedule_data_reget)
+		self._schedule_data_reget()
 	#------------------------------------------------------------------------
-	def _on_pre_patient_selection(self, *args, **kwargs):
+	def _on_pre_patient_unselection(self, *args, **kwargs):
 		# empty out tree
 		if self.root is not None:
 			self.DeleteAllItems()

@@ -603,33 +603,27 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	#--------------------------------------------------------
 	def _on_results_mod_db(self):
 		_log.debug('reviewed_test_results_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
+		self._on_message_inbox_mod_db()
 	#--------------------------------------------------------
 	def _on_identity_mod_db(self):
 		_log.debug('identity_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
+		self._on_message_inbox_mod_db()
 	#--------------------------------------------------------
 	def _on_doc_obj_review_mod_db(self):
 		_log.debug('doc_obj_review_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
+		self._on_message_inbox_mod_db()
 	#--------------------------------------------------------
 	def _on_doc_mod_db(self):
 		_log.debug('doc_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
+		self._on_message_inbox_mod_db()
 	#--------------------------------------------------------
 	def _on_message_inbox_mod_db(self, *args, **kwargs):
 		_log.debug('message_inbox_mod_db')
-		wx.CallAfter(self.__on_message_inbox_mod_db)
-
-	def __on_message_inbox_mod_db(self):
 		self._schedule_data_reget()
 		gmDispatcher.send(signal = u'request_user_attention', msg = _('Please check your GNUmed Inbox !'))
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		_log.debug('post_patient_selection')
-		wx.CallAfter(self.__on_post_patient_selection)
-
-	def __on_post_patient_selection(self):
 		self._CHBOX_active_patient.Enable()
 		self._schedule_data_reget()
 	#--------------------------------------------------------
@@ -841,7 +835,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmShowMedDocs', sort_mode = 'review')
 		return True
 	#--------------------------------------------------------
 	def _goto_measurements_review(self, pk_context=None, pk_patient=None):
@@ -869,7 +863,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmGuiHelpers.gm_show_error(msg, _('handling provider inbox item'))
 			return False
 
-		wx.CallAfter(gmDispatcher.send, signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
+		gmDispatcher.send(signal = 'display_widget', name = 'gmMeasurementsGridPlugin')
 		return True
 	#--------------------------------------------------------
 	def _goto_vaccination_review(self, pk_context=None, pk_patient=None):

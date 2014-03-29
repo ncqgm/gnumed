@@ -3173,7 +3173,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'pre_patient_selection', receiver = self._on_pre_patient_selection)
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._schedule_data_reget)
 		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_test_result_mod)
@@ -3181,15 +3181,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		# substance_brand_mod_db
 	#--------------------------------------------------------
 	def _on_test_result_mod(self):
-		wx.CallAfter(self.__on_test_result_mod)
-	#--------------------------------------------------------
-	def __on_test_result_mod(self):
 		self.__refresh_lab(patient = self._grid_substances.patient)
 	#--------------------------------------------------------
-	def _on_pre_patient_selection(self):
-		wx.CallAfter(self.__on_pre_patient_selection)
-
-	def __on_pre_patient_selection(self):
+	def _on_pre_patient_unselection(self):
 		dbcfg = gmCfg.cCfgSQL()
 		pk_panel = dbcfg.get2 (
 			option = u'horstspace.medications_plugin.lab_panel',
@@ -3204,9 +3198,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		self.__refresh_lab(patient = None)
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
-		wx.CallAfter(self.__on_post_patient_selection)
-
-	def __on_post_patient_selection(self):
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):

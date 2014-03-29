@@ -237,11 +237,11 @@ class cNotebookPlugin:
 class cPatientChange_PluginMixin:
 	"""This mixin adds listening to patient change signals."""
 	def __init__(self):
-		gmDispatcher.connect(self._pre_patient_selection, u'pre_patient_selection')
+		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
 		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
 	# -----------------------------------------------------
-	def _pre_patient_selection(self, **kwds):
-		print "%s._pre_patient_selection() not implemented" % self.__class__.__name__
+	def _pre_patient_unselection(self, **kwds):
+		print "%s._pre_patient_unselection() not implemented" % self.__class__.__name__
 		print "should usually be used to commit unsaved data"
 	# -----------------------------------------------------
 	def _post_patient_selection(self, **kwds):

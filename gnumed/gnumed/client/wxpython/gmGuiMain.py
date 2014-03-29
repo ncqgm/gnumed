@@ -950,7 +950,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
 
-		gmPerson.gmCurrentPatient().register_pre_selection_callback(callback = self._pre_selection_callback)
+		gmPerson.gmCurrentPatient().register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
 	#----------------------------------------------
 	def _on_plugin_loaded(self, plugin_name=None, class_name=None, menu_name=None, menu_item_name=None, menu_help_string=None):
 
@@ -1028,9 +1028,6 @@ class gmTopLevelFrame(wx.Frame):
 			wx.Bell()
 	#-----------------------------------------------
 	def _on_db_maintenance_warning(self):
-		wx.CallAfter(self.__on_db_maintenance_warning)
-	#-----------------------------------------------
-	def __on_db_maintenance_warning(self):
 
 		self.SetStatusText(_('The database will be shut down for maintenance in a few minutes.'))
 		wx.Bell()
@@ -1070,9 +1067,6 @@ class gmTopLevelFrame(wx.Frame):
 			wx.CallAfter(top_win.Close)
 	#-----------------------------------------------
 	def _on_request_user_attention(self, msg=None, urgent=False):
-		wx.CallAfter(self.__on_request_user_attention, msg, urgent)
-	#-----------------------------------------------
-	def __on_request_user_attention(self, msg=None, urgent=False):
 		# already in the foreground ?
 		if not wx.GetApp().IsActive():
 			if urgent:
@@ -1089,15 +1083,9 @@ class gmTopLevelFrame(wx.Frame):
 		gmHooks.run_hook_script(hook = u'request_user_attention')
 	#-----------------------------------------------
 	def _on_pat_name_changed(self):
-		wx.CallAfter(self.__on_pat_name_changed)
-	#-----------------------------------------------
-	def __on_pat_name_changed(self):
 		self.__update_window_title()
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
-		wx.CallAfter(self.__on_post_patient_selection, **kwargs)
-	#----------------------------------------------
-	def __on_post_patient_selection(self, **kwargs):
 		self.__update_window_title()
 		gmDispatcher.send(signal = 'statustext', msg = u'')
 		try:
@@ -1106,7 +1094,7 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot run script after patient activation.'))
 			raise
 	#----------------------------------------------
-	def _pre_selection_callback(self):
+	def _before_switching_from_patient_callback(self):
 		return self.__sanity_check_encounter()
 	#----------------------------------------------
 	def __sanity_check_encounter(self):
@@ -1190,15 +1178,10 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_save_screenshot_into_export_area(self, evt):
 		evt.Skip()
-		wx.CallAfter(self.__save_screenshot_into_export_area)
-	#----------------------------------------------
-	def __save_screenshot_into_export_area(self):
-
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot put screenshot into export area. No active patient.'), beep = True)
 			return True
-
 		screenshot_file = self.__save_screenshot_to_file()
 		pat.export_area.add_file(filename = screenshot_file, hint = _(u'GMd screenshot'))
 	#----------------------------------------------
@@ -2468,11 +2451,7 @@ class gmTopLevelFrame(wx.Frame):
 	# Help / Debugging
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
-		wx.CallAfter(self.__save_screenshot)
 		evt.Skip()
-	#----------------------------------------------
-	def __save_screenshot(self):
-
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		self.__save_screenshot_to_file(filename = fname)
 	#----------------------------------------------
@@ -3634,6 +3613,10 @@ def setup_safe_wxEndBusyCursor():
 	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
 #==============================================================================
 def main():
+
+	# make sure signals end up in the main thread,
+	# no matter the thread they came from
+	gmDispatcher.set_main_thread_caller(wx.CallAfter)
 
 	if _cfg.get(option = 'debug'):
 		gmDispatcher.connect(receiver = _signal_debugging_monitor)
