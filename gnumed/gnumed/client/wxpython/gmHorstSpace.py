@@ -204,6 +204,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		"""Called when notebook page changes."""
 
 		_log.debug('just after switching notebook tabs')
+		event.Skip()
 
 		id_evt_page_before_switch = event.GetOldSelection()
 		id_evt_page_after_switch = event.GetSelection()
@@ -224,7 +225,6 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			# activate toolbar of new page
 #			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
 			self.__new_page_already_checked = False
-			event.Skip()
 			return
 
 		# no, complain
@@ -239,11 +239,9 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 			new_page.receive_focus()
 			# activate toolbar of new page
 #			self.__gb['horstspace.top_panel'].ShowBar(new_page.__class__.__name__)
-			event.Skip()
 			return
 
 		_log.warning('new page cannot receive focus but too late for veto')
-		event.Skip()
 		return
 	#----------------------------------------------
 	def _on_right_click(self, evt):

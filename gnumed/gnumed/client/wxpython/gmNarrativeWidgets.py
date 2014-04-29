@@ -1678,18 +1678,20 @@ class cSoapNoteInputNotebook(wx.Notebook):
 			self.add_editor()
 	#--------------------------------------------------------
 	def save_current_editor(self, emr=None, episode_name_candidates=None, encounter=None):
-
 		page_idx = self.GetSelection()
+		_log.debug('saving editor on current page (#%s)', page_idx)
 		page = self.GetPage(page_idx)
-
 		if not page.save(emr = emr, episode_name_candidates = episode_name_candidates, encounter = encounter):
-			return
+			_log.debug('not saved, not deleting')
+			return False
 
+		_log.debug('deleting')
 		self.DeletePage(page_idx)
 
 		# always keep one unassociated editor open
 		if self.GetPageCount() == 0:
 			self.add_editor()
+		return True
 	#--------------------------------------------------------
 	def warn_on_unsaved_soap(self):
 		for page_idx in range(self.GetPageCount()):
@@ -1709,9 +1711,31 @@ class cSoapNoteInputNotebook(wx.Notebook):
 
 		_log.debug('saving editors: %s', self.GetPageCount())
 
-		all_closed = True
+		# always keep one unassociated editor open
+		if self.GetPageCount() == 0:
+			self.add_editor()
+			return True
+
+		# first of all save the current editor such
+		# as not to confuse the user by switching away
+		# from the page she invoked [save all] from
+		idx_of_current_page = self.GetSelection()
+		_log.debug('saving editor on current page (#%s)', idx_of_current_page)
+		all_closed = self.GetPage(idx_of_current_page).save(emr = emr, episode_name_candidates = episode_name_candidates)
+		if all_closed:
+			_log.debug('deleting')
+			self.DeletePage(idx_of_current_page)
+			idx_of_current_page = None
+		else:
+			_log.debug('not saved, not deleting')
+
+		# now save remaining editors from right to left
 		for page_idx in range((self.GetPageCount() - 1), -1, -1):
-			_log.debug('#%s of %s', page_idx, self.GetPageCount())
+			# skip current ?
+			if page_idx == idx_of_current_page:
+				# we tried and failed, no need to retry
+				continue
+			_log.debug('saving editor on page %s of %s', page_idx, self.GetPageCount())
 			try:
 				self.ChangeSelection(page_idx)
 				_log.debug('editor raised')
@@ -1719,7 +1743,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 				_log.exception('cannot raise editor')
 			page = self.GetPage(page_idx)
 			if page.save(emr = emr, episode_name_candidates = episode_name_candidates):
-				_log.debug('saved, deleting now')
+				_log.debug('saved, deleting')
 				self.DeletePage(page_idx)
 			else:
 				_log.debug('not saved, not deleting')
@@ -1732,24 +1756,16 @@ class cSoapNoteInputNotebook(wx.Notebook):
 		return (all_closed is True)
 	#--------------------------------------------------------
 	def clear_current_editor(self):
-		page_idx = self.GetSelection()
-		page = self.GetPage(page_idx)
-		page.clear()
+		self.GetCurrentPage().clear()
 	#--------------------------------------------------------
 	def get_current_problem(self):
-		page_idx = self.GetSelection()
-		page = self.GetPage(page_idx)
-		return page.problem
+		return self.GetCurrentPage().problem
 	#--------------------------------------------------------
 	def refresh_current_editor(self):
-		page_idx = self.GetSelection()
-		page = self.GetPage(page_idx)
-		page.refresh()
+		self.GetCurrentPage().refresh()
 	#--------------------------------------------------------
 	def add_visual_progress_note_to_current_problem(self):
-		page_idx = self.GetSelection()
-		page = self.GetPage(page_idx)
-		page.add_visual_progress_note()
+		self.GetCurrentPage().add_visual_progress_note()
 
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
@@ -1946,10 +1962,24 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			epi_name = candidate.strip().replace('\r', '//').replace('\n', '//')
 			break
 
+		if self.problem is None:
+			msg = _(
+				u'Enter a short working name for this new problem\n'
+				u'(which will become a new, unassociated episode):\n'
+			)
+		else:
+			issue = emr.problem2issue(self.problem)
+			msg = _(
+				u'Enter a short working name for this new\n'
+				u'episode under the existing health issue\n'
+				u'\n'
+				u'"%s":\n'
+			) % issue['description']
+
 		dlg = wx.TextEntryDialog (
 			parent = self,
-			message = _('Enter a short working name for this new problem:'),
-			caption = _('Creating a problem (episode) to save the notelet under ...'),
+			message = msg,
+			caption = _('Creating problem (episode) to save notelet under ...'),
 			defaultValue = epi_name,
 			style = wx.OK | wx.CANCEL | wx.CENTRE
 		)
