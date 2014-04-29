@@ -970,7 +970,7 @@ WHERE
 			epis.append(row[0])
 		return self.get_episodes(id_list=epis)
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False):
+	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False, allow_dupes=False):
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
@@ -979,7 +979,8 @@ WHERE
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
 			is_open = is_open,
-			encounter = self.current_encounter['pk_encounter']
+			encounter = self.current_encounter['pk_encounter'],
+			allow_dupes = allow_dupes
 		)
 		return episode
 	#--------------------------------------------------------

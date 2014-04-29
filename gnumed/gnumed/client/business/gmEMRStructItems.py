@@ -1567,7 +1567,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
 	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
 
-	episode = cEpisode(row={'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
+	episode = cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return episode
 #-----------------------------------------------------------
 def delete_episode(episode=None):

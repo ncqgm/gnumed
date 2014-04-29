@@ -1993,7 +1993,12 @@ class cSoapNoteExpandoEditAreaPnl(wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpan
 			return None
 
 		# create episode
-		new_episode = emr.add_episode(episode_name = epi_name[:45], pk_health_issue = None, is_open = True)
+		new_episode = emr.add_episode (
+			episode_name = epi_name[:45],
+			pk_health_issue = None,
+			is_open = True,
+			allow_dupes = True		# this ensures we get a new episode even if a same-name one already exists
+		)
 		new_episode['summary'] = self._TCTRL_episode_summary.GetValue().strip()
 		new_episode.save()
 
