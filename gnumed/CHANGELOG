@@ -25,6 +25,7 @@ IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim
 FIX: exception on showing audit trail [thanks Jim]
 
 IMPROVED: patient merging dialog [thanks Harald]
+IMPROVED: [SAVE ALL] behaviour in SOAP plugin [thanks Jim]
 
 	1.4.7
 
