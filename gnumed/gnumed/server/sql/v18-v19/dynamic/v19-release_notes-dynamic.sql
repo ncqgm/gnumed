@@ -17,16 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.7 (database v19.7)',
-	'GNUmed 1.4.7 Release Notes:
+	'Release Notes for GNUmed 1.4.8 (database v19.8)',
+	'GNUmed 1.4.8 Release Notes:
 
-	1.4.7
+	1.4.8
 
-FIX: failure to process non-ascii PATH entries looking for binaries [thanks admin-crb]
-FIX: longstanding cryptic age label update bug [thanks MAIN-USER, Sergio]
+FIX: exception on showing audit trail [thanks Jim]
+FIX: SOAP->episode misappropriation bug [thanks Jim]
 
-	19.7 -- Requires PostgreSQL 9.1 !
+IMPROVED: patient merging dialog [thanks Harald]
+IMPROVED: [SAVE ALL] behaviour in SOAP plugin [thanks Jim]
+
+	19.8 -- Requires PostgreSQL 9.1 !
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.rc2');
+select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.8');
