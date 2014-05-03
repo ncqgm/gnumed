@@ -17,7 +17,6 @@ from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 
 from Gnumed.business import gmOrganization
-from Gnumed.business import gmDemographicRecord
 
 
 _log = logging.getLogger('gm.praxis')

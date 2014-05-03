@@ -61,7 +61,7 @@ def set_func_ask_user(a_func = None):
 #============================================================
 class cClinicalRecord(object):
 
-	def __init__(self, aPKey=None, allow_user_interaction=True):
+	def __init__(self, aPKey=None, allow_user_interaction=True, encounter=None):
 		"""Fails if
 
 		- no connection to database possible
@@ -71,31 +71,17 @@ class cClinicalRecord(object):
 		self.gender = None
 		self.dob = None
 
-		# FIXME: delegate to worker thread
-		# log access to patient record (HIPAA, for example)
-		cmd = u'SELECT gm.log_access2emr(%(todo)s)'
-		args = {'todo': u'patient [%s]' % aPKey}
-		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-
 		from Gnumed.business import gmPraxis
 		global _here
 		if _here is None:
 			_here = gmPraxis.gmCurrentPraxisBranch()
 
-		# load current or create new encounter
-		if _func_ask_user is None:
-			_log.error('[_func_ask_user] is None')
-			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
-
-		# FIXME: delegate to worker thread ?
-		self.remove_empty_encounters()
-
-		self.__encounter = None
-		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
-			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
-
-		# FIXME: delegate to worker thread
-		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
+		if encounter is None:
+			self.__old_style_init()
+		else:
+			if not isinstance(encounter, gmEMRStructItems.cEncounter):
+				raise TypeError('not an encounter: %s' % encounter)
+			self.__encounter = encounter
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when
@@ -105,12 +91,43 @@ class cClinicalRecord(object):
 
 		_log.debug('Instantiated clinical record for patient [%s].' % self.pk_patient)
 	#--------------------------------------------------------
-	def __del__(self):
-		pass
+	def __old_style_init(self):
+
+		_log.error('%s.__old_style_init() used', self.__class__.__name__)
+		print u'*** GNUmed [%s]: __old_style_init() used ***' % self.__class__.__name__
+
+		# FIXME: delegate to worker thread
+		# log access to patient record (HIPAA, for example)
+		cmd = u'SELECT gm.log_access2emr(%(todo)s)'
+		args = {'todo': u'patient [%s]' % aPKey}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# load current or create new encounter
+		if _func_ask_user is None:
+			_log.error('[_func_ask_user] is None')
+			print "*** GNUmed [%s]: _func_ask_user is not set ***" % self.__class__.__name__
+
+#		# FIXME: delegate to worker thread ?
+		self.remove_empty_encounters()
+
+		self.__encounter = None
+		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
+			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
+
+#		# FIXME: delegate to worker thread
+		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
+
 	#--------------------------------------------------------
 	def cleanup(self):
 		_log.debug('cleaning up after clinical record for patient [%s]' % self.pk_patient)
 		return True
+	#--------------------------------------------------------
+	def log_access(self, action=None):
+		if action is None:
+			action = u'EMR access for pk_identity [%s]' % self.pk_patient
+		args = {'action': action}
+		cmd = u'SELECT gm.log_access2emr(%(action)s)'
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------

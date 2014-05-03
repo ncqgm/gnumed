@@ -15,12 +15,13 @@ NEW: letter receiver placeholders $<receiver_*>$
 NEW: EDC storage/calculator
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
+IMPROVED: robustness of patient change event sequence ordering
 
 ------------------------------------------------
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.8 (unreleased)
+	1.4.8
 
 FIX: exception on showing audit trail [thanks Jim]
 FIX: SOAP->episode misappropriation bug [thanks Jim]

@@ -3191,17 +3191,6 @@ class gmApp(wx.App):
 	#----------------------------------------------
 	# internal helpers
 	#----------------------------------------------
-	def _signal_debugging_monitor(*args, **kwargs):
-		try:
-			kwargs['originated_in_database']
-			print '==> got notification from database "%s":' % kwargs['signal']
-		except KeyError:
-			print '==> received signal from client: "%s"' % kwargs['signal']
-
-		del kwargs['signal']
-		for key in kwargs.keys():
-			print '    [%s]: %s' % (key, kwargs[key])
-	#----------------------------------------------
 	def _do_after_init(self):
 		self.__starting_up = False
 		gmClinicalRecord.set_func_ask_user(a_func = gmEncounterWidgets.ask_for_encounter_continuation)
@@ -3238,10 +3227,6 @@ class gmApp(wx.App):
 
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._on_user_activity)
 		self.Bind(wx.EVT_KEY_DOWN, self._on_user_activity)
-
-		if _cfg.get(option = 'debug'):
-			gmDispatcher.connect(receiver = self._signal_debugging_monitor)
-			_log.debug('connected signal monitor')
 	#----------------------------------------------
 	def __check_for_updates(self):
 
@@ -3583,6 +3568,7 @@ class gmApp(wx.App):
 		}])
 
 		return True
+
 #==============================================================================
 def _signal_debugging_monitor(*args, **kwargs):
 	try:
@@ -3596,6 +3582,7 @@ def _signal_debugging_monitor(*args, **kwargs):
 		# careful because of possibly limited console output encoding
 		try: print '    [%s]: %s' % (key, kwargs[key])
 		except: print 'cannot print signal information'
+
 #==============================================================================
 def _safe_wxEndBusyCursor():
 	try: _original_wxEndBusyCursor()
@@ -3611,6 +3598,12 @@ def setup_safe_wxEndBusyCursor():
 	wx.EndBusyCursor = _safe_wxEndBusyCursor
 	_log.debug('monkey patched wx.EndBusyCursor:')
 	_log.debug('[%s] -> [%s]', _original_wxEndBusyCursor, _safe_wxEndBusyCursor)
+
+#==============================================================================
+def setup_chart_puller():
+	from Gnumed.wxpython import gmChartPullingWidgets
+	gmPerson.set_chart_puller(gmChartPullingWidgets.pull_chart)
+
 #==============================================================================
 def main():
 
@@ -3624,7 +3617,8 @@ def main():
 
 	setup_safe_wxEndBusyCursor()
 
-	wx.InitAllImageHandlers()
+	setup_chart_puller()
+
 	# create an instance of our GNUmed main application
 	# - do not redirect stdio (yet)
 	# - allow signals to be delivered
@@ -3643,4 +3637,3 @@ if __name__ == '__main__':
 	main()
 
 #==============================================================================
-

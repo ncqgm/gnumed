@@ -750,7 +750,11 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		pk_patient = self.__focussed_msg['pk_patient']
 		if pk_patient is not None:
-			emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
+			#emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
+			from Gnumed.wxpython import gmChartPullingWidgets
+			emr = gmChartPullingWidgets.pull_chart(pk_patient)
+			if emr is None:
+				return False
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)
 			soap_cat = gmTools.bool2subst (
 				(self.__focussed_msg['category'] == u'clinical'),
@@ -764,6 +768,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if not self.provider.inbox.delete_message(self.__focussed_msg['pk_inbox_message']):
 			gmDispatcher.send(signal='statustext', msg=_('Problem removing message from Inbox.'))
 			return False
+
 		return True
 	#--------------------------------------------------------
 	def _on_edit_focussed_msg(self, evt):

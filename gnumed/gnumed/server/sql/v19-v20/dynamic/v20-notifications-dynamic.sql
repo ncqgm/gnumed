@@ -24,12 +24,12 @@ declare
 begin
 	_pk_accessor_SQL := TG_ARGV[1];
 	EXECUTE _pk_accessor_SQL INTO STRICT _pk_col_val USING NEW;
-	_payload := ''operation='' || TG_OP || ''::'' || TG_ARGV[0] || ''::row PK='' || _pk_col_val;
+	_payload := ''operation='' || TG_OP || ''::'' || TG_ARGV[0] || ''::row PK='' || coalesce(_pk_col_val::text, ''NULL'');
 
 	_identity_accessor_SQL := TG_ARGV[2];
 	if _identity_accessor_SQL <> ''<NULL>'' then
 		EXECUTE _identity_accessor_SQL INTO STRICT _pk_identity USING NEW;
-		_payload := _payload || ''::person PK='' || _pk_identity;
+		_payload := _payload || ''::person PK='' || coalesce(_pk_identity::text, ''NULL'');
 	end if;
 
 	perform pg_notify(''gm_table_mod'', _payload);
@@ -64,12 +64,12 @@ declare
 begin
 	_pk_accessor_SQL := TG_ARGV[1];
 	EXECUTE _pk_accessor_SQL INTO STRICT _pk_col_val USING OLD;
-	_payload := TG_ARGV[0] || ''::row PK='' || _pk_col_val;
+	_payload := TG_ARGV[0] || ''::row PK='' || coalesce(_pk_col_val::text, ''NULL'');
 
 	_identity_accessor_SQL := TG_ARGV[2];
 	if _identity_accessor_SQL <> ''<NULL>'' then
 		EXECUTE _identity_accessor_SQL INTO STRICT _pk_identity USING OLD;
-		_payload := _payload || ''::person PK='' || _pk_identity;
+		_payload := _payload || ''::person PK='' || coalesce(_pk_identity::text, ''NULL'');
 	end if;
 
 	perform pg_notify(''gm_table_mod'', _payload);
@@ -158,20 +158,16 @@ BEGIN
 				exit;
 			end if;
 		end loop;
-		if _accessor_col is NULL then
-			_identity_accessor_SQL := ''<NULL>'';
-		elsif _accessor_col = ''fk_encounter'' then
-			-- retrieve identity PK via fk_encounter
+		if _accessor_col = ''fk_encounter'' then					-- retrieve identity PK via fk_encounter
 			_identity_accessor_SQL := ''select fk_patient from clin.encounter where pk = $1.fk_encounter limit 1'';
-		elsif _accessor_col = ''fk_identity'' then
-			-- retrieve identity PK via fk_identity
+		elsif _accessor_col = ''fk_identity'' then					-- retrieve identity PK via fk_identity
 			_identity_accessor_SQL := ''select $1.fk_identity'';
-		elsif _accessor_col = ''fk_patient'' then
-			-- retrieve identity PK via fk_patient
+		elsif _accessor_col = ''fk_patient'' then					-- retrieve identity PK via fk_patient
 			_identity_accessor_SQL := ''select $1.fk_patient'';
-		elsif _accessor_col = ''id_identity'' then
-			-- retrieve identity PK via id_identity
+		elsif _accessor_col = ''id_identity'' then					-- retrieve identity PK via id_identity
 			_identity_accessor_SQL := ''select $1.id_identity'';
+		else
+			_identity_accessor_SQL := ''<NULL>'';
 		end if;
 	end if;
 
@@ -199,29 +195,23 @@ BEGIN
 	end if;
 
 	-- re-create triggers
+	-- 1) INSERT/UPDATE
 	_payload := ''table='' || _qualified_table || ''::PK name='' || _PK_col_name;
 	_cmd := ''create constraint trigger zzz_tr_announce_'' || _schema_name || ''_'' || _table_name || ''_ins_upd'';
 	_cmd := _cmd || '' after insert or update'';
 	_cmd := _cmd || '' on '' || _qualified_table;
 	_cmd := _cmd || '' deferrable'';
 	_cmd := _cmd || '' for each row'';
-	if _identity_accessor_SQL is NULL then
-		_cmd := _cmd || '' execute procedure gm.trf_announce_table_ins_upd('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', NULL);'';
-	else
-		_cmd := _cmd || '' execute procedure gm.trf_announce_table_ins_upd('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', '''''' || _identity_accessor_SQL || '''''');'';
-	end if;
+	_cmd := _cmd || '' execute procedure gm.trf_announce_table_ins_upd('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', '''''' || _identity_accessor_SQL || '''''');'';
 	execute _cmd;
+	-- 2) DELETE
 	_payload := ''operation=DELETE::'' || _payload;
 	_cmd := ''create constraint trigger zzz_tr_announce_'' || _schema_name || ''_'' || _table_name || ''_del'';
 	_cmd := _cmd || '' after delete'';
 	_cmd := _cmd || '' on '' || _qualified_table;
 	_cmd := _cmd || '' deferrable'';
 	_cmd := _cmd || '' for each row'';
-	if _identity_accessor_SQL is NULL then
-		_cmd := _cmd || '' execute procedure gm.trf_announce_table_del('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', NULL);'';
-	else
-		_cmd := _cmd || '' execute procedure gm.trf_announce_table_del('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', '''''' || _identity_accessor_SQL || '''''');'';
-	end if;
+	_cmd := _cmd || '' execute procedure gm.trf_announce_table_del('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', '''''' || _identity_accessor_SQL || '''''');'';
 	execute _cmd;
 
 

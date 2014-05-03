@@ -26,8 +26,9 @@ allergy_states = [
 #------------------------------------------------------------
 def ensure_has_allergy_state(encounter=None):
 
-	args = {'enc': encounter}
+	_log.debug('checking allergy state for pk_identity [%s]', encounter)
 
+	args = {'enc': encounter}
 	cmd_create = u"""
 		INSERT INTO clin.allergy_state (
 			fk_encounter,
@@ -43,11 +44,11 @@ def ensure_has_allergy_state(encounter=None):
 			)
 	"""
 	cmd_search = u"""
-select pk_allergy_state from clin.v_pat_allergy_state
-where pk_patient = (
-	select fk_patient from clin.encounter where pk = %(enc)s
-)"""
-
+		SELECT pk_allergy_state FROM clin.v_pat_allergy_state
+		WHERE pk_patient = (
+			SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+		)
+	"""
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd_create, 'args': args},

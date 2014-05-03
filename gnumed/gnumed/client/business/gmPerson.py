@@ -350,6 +350,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 	description = property(_get_description, lambda x:x)
+
 #============================================================
 class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
@@ -396,6 +397,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return self._payload[self._idx['pk_identity']]
 	def _set_ID(self, value):
 		raise AttributeError('setting ID of identity is not allowed')
+
 	ID = property(_get_ID, _set_ID)
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
@@ -430,21 +432,27 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		pass
 	#--------------------------------------------------------
 	def _get_is_patient(self):
-		cmd = u"""
-			SELECT EXISTS (
-				SELECT 1
-				FROM clin.v_emr_journal
-				WHERE
-					pk_patient = %(pat)s
-						AND
-					soap_cat IS NOT NULL
-		)"""
-		args = {'pat': self._payload[self._idx['pk_identity']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		return rows[0][0]
+		return identity_is_patient(self._payload[self._idx['pk_identity']])
 
 	def _set_is_patient(self, value):
-		raise AttributeError('setting is_patient status of identity is not allowed')
+		return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
+
+#	def _get_is_patient(self):
+#		cmd = u"""
+#			SELECT EXISTS (
+#				SELECT 1
+#				FROM clin.v_emr_journal
+#				WHERE
+#					pk_patient = %(pat)s
+#						AND
+#					soap_cat IS NOT NULL
+#		)"""
+#		args = {'pat': self._payload[self._idx['pk_identity']]}
+#		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+#		return rows[0][0]
+#
+#	def _set_is_patient(self, value):
+#		raise AttributeError('setting is_patient status of identity is not allowed')
 
 	is_patient = property(_get_is_patient, _set_is_patient)
 	#--------------------------------------------------------
@@ -1336,6 +1344,26 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	dirname = property(get_dirname, lambda x:x)
 
 #============================================================
+def identity_is_patient(pk_identity):
+	cmd = u'SELECT 1 FROM clin.patient WHERE fk_identity = %(pk_pat)s'
+	args = {'pk_pat': pk_identity}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) == 0:
+		return False
+	return True
+
+#------------------------------------------------------------
+def turn_identity_into_patient(pk_identity):
+	cmd = u"""
+		INSERT INTO clin.patient (fk_identity)
+		SELECT %(pk_ident)s WHERE NOT EXISTS (
+			SELECT 1 FROM clin.patient c_p WHERE fk_identity = %(pk_ident)s
+		)"""
+	args = {u'pk_ident': pk_identity}
+	queries = [{'cmd': cmd, 'args': args}]
+	gmPG2.run_rw_queries(queries = queries)
+
+#============================================================
 # helper functions
 #------------------------------------------------------------
 #_spin_on_emr_access = None
@@ -1350,6 +1378,16 @@ where id_identity = %(pat)s and id = %(pk)s"""
 #	global _spin_on_emr_access
 #	_spin_on_emr_access = func
 
+#------------------------------------------------------------
+_pull_chart = None
+
+def set_chart_puller(chart_puller):
+	if not callable(chart_puller):
+		raise TypeError('chart puller <%s> not callable' % chart_puller)
+	global _pull_chart
+	_pull_chart = chart_puller
+	_log.debug('setting chart puller to <%s>', chart_puller)
+
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -1358,21 +1396,56 @@ class cPatient(cIdentity):
 	- its use is to cache subobjects like EMR and document folder
 	"""
 	def __init__(self, aPK_obj=None, row=None):
-		cIdentity.__init__(self, aPK_obj=aPK_obj, row=row)
-		self.__db_cache = {}
+		cIdentity.__init__(self, aPK_obj = aPK_obj, row = row)
 		self.__emr_access_lock = threading.Lock()
+		self.__emr = None
+		self.__doc_folder = None
 	#--------------------------------------------------------
 	def cleanup(self):
 		"""Do cleanups before dying.
 
 		- note that this may be called in a thread
 		"""
-		if self.__db_cache.has_key('clinical record'):
-			self.__db_cache['clinical record'].cleanup()
-		if self.__db_cache.has_key('document folder'):
-			self.__db_cache['document folder'].cleanup()
+		if self.__emr is not None:
+			self.__emr.cleanup()
+		if self.__doc_folder is not None:
+			self.__doc_folder.cleanup()
 		cIdentity.cleanup(self)
 	#----------------------------------------------------------
+	def remove_empty_encounters(self, ttl=None):
+		_log.debug('removing empty encounters for pk_identity [%s]', self._payload[self._idx['pk_identity']])
+		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
+		args = {'pat': self._payload[self._idx['pk_identity']], 'ttl': ttl}
+		try:
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+		except:
+			_log.exception('error deleting empty encounters (ttl: %s', ttl)
+			return False
+		return True
+	#----------------------------------------------------------------
+	def ensure_has_allergy_state(self, pk_encounter=None):
+		from Gnumed.business.gmAllergy import ensure_has_allergy_state
+		ensure_has_allergy_state(encounter = pk_encounter)
+		return True
+	#----------------------------------------------------------
+	#----------------------------------------------------------
+#	def get_emr(self, allow_user_interaction=True):
+#		if not self.__emr_access_lock.acquire(False):
+#			# maybe something slow is happening on the machine
+#			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
+#			time.sleep(0.5)
+#			if not self.__emr_access_lock.acquire(False):
+#				_log.error('still failed to acquire EMR access lock, aborting')
+#				raise AttributeError('cannot lock access to EMR')
+#
+#		if self.__emr is None:
+#			self.__emr = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']], allow_user_interaction = allow_user_interaction)
+#			self.__emr.gender = self['gender']
+#			self.__emr.dob = self['dob']
+#
+#		self.__emr_access_lock.release()
+#		return self.__emr
+
 	def get_emr(self, allow_user_interaction=True):
 		if not self.__emr_access_lock.acquire(False):
 			# maybe something slow is happening on the machine
@@ -1381,26 +1454,22 @@ class cPatient(cIdentity):
 			if not self.__emr_access_lock.acquire(False):
 				_log.error('still failed to acquire EMR access lock, aborting')
 				raise AttributeError('cannot lock access to EMR')
-		try:
-			self.__db_cache['clinical record']
-		except KeyError:
-			self.__db_cache['clinical record'] = gmClinicalRecord.cClinicalRecord(aPKey = self._payload[self._idx['pk_identity']], allow_user_interaction = allow_user_interaction)
-			self.__db_cache['clinical record'].gender = self['gender']
-			self.__db_cache['clinical record'].dob = self['dob']
+
+		if self.__emr is None:
+			emr = _pull_chart(self._payload[self._idx['pk_identity']])
+			if emr is None:		# user aborted pulling chart
+				return None
+			self.__emr = emr
 
 		self.__emr_access_lock.release()
-		return self.__db_cache['clinical record']
+		return self.__emr
 
 	emr = property(get_emr, lambda x:x)
-	#--------------------------------------------------------
+	#----------------------------------------------------------
 	def get_document_folder(self):
-		try:
-			return self.__db_cache['document folder']
-		except KeyError:
-			pass
-
-		self.__db_cache['document folder'] = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
-		return self.__db_cache['document folder']
+		if self.__doc_folder is None:
+			self.__doc_folder = cDocumentFolder(aPKey = self._payload[self._idx['pk_identity']])
+		return self.__doc_folder
 
 	document_folder = property(get_document_folder, lambda x:x)
 
@@ -1551,21 +1620,21 @@ class gmCurrentPatient(gmBorg.cBorg):
 	def _set_locked(self, locked):
 		if locked:
 			self.__lock_depth = self.__lock_depth + 1
-			gmDispatcher.send(signal='patient_locked')
+			gmDispatcher.send(signal = 'patient_locked', sender = self.__class__.__name__)
 		else:
 			if self.__lock_depth == 0:
 				_log.error('lock/unlock imbalance, trying to refcount lock depth below 0')
 				return
 			else:
 				self.__lock_depth = self.__lock_depth - 1
-			gmDispatcher.send(signal='patient_unlocked')
+			gmDispatcher.send(signal = 'patient_unlocked', sender = self.__class__.__name__)
 
 	locked = property(_get_locked, _set_locked)
 	#--------------------------------------------------------
 	def force_unlock(self):
 		_log.info('forced patient unlock at lock depth [%s]' % self.__lock_depth)
 		self.__lock_depth = 0
-		gmDispatcher.send(signal='patient_unlocked')
+		gmDispatcher.send(signal = 'patient_unlocked', sender = self.__class__.__name__)
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
@@ -1596,7 +1665,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""
 		kwargs = {
 			'signal': u'pre_patient_unselection',
-			'sender': id(self.__class__),
+			'sender': self.__class__.__name__,
 			'pk_identity': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
@@ -1611,7 +1680,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""
 		kwargs = {
 			'signal': u'current_patient_unset',
-			'sender': id(self.__class__)
+			'sender': self.__class__.__name__
 		}
 		gmDispatcher.send(**kwargs)
 	#--------------------------------------------------------
@@ -1619,7 +1688,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""Sends signal when another patient has actually been made active."""
 		kwargs = {
 			'signal': u'post_patient_selection',
-			'sender': id(self.__class__),
+			'sender': self.__class__.__name__,
 			'pk_identity': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
@@ -1676,6 +1745,7 @@ def create_name(pk_person, firstnames, lastnames, active=False):
 	rows, idx = gmPG2.run_rw_queries(queries=queries, return_data=True)
 	name = cPersonName(aPK_obj = rows[0][0])
 	return name
+
 #============================================================
 def create_identity(gender=None, dob=None, lastnames=None, firstnames=None):
 
@@ -1696,6 +1766,7 @@ INSERT INTO dem.names (
 	ident = cIdentity(aPK_obj=rows[0][0])
 	gmHooks.run_hook_script(hook = u'post_person_creation')
 	return ident
+
 #============================================================
 def create_dummy_identity():
 	cmd = u"INSERT INTO dem.identity(gender) VALUES (NULL::text) RETURNING pk"
@@ -1704,6 +1775,14 @@ def create_dummy_identity():
 		return_data = True
 	)
 	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])
+
+#============================================================
+def identity_exists(pk_identity):
+	cmd = u'SELECT EXISTS(SELECT 1 FROM dem.identity where pk = %(pk)s)'
+	args = {'pk': pk_identity}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+
 #============================================================
 def set_active_patient(patient=None, forced_reload=False):
 	"""Set active patient.
@@ -1729,7 +1808,7 @@ def set_active_patient(patient=None, forced_reload=False):
 		try:
 			pat = cPatient(aPK_obj = pk)
 		except:
-			_log.exception('error changing active patient to [%s]' % patient)
+			_log.exception('identity [%s] not found' % patient)
 			return False
 
 	# attempt to switch

@@ -703,7 +703,7 @@ class cResizingSoapWin(gmResizingWidgets.cResizingWindow):
 			raise gmExceptions.ConstructorError, 'cannot generate note with field defs [%s]' % input_defs
 
 		# FIXME: *actually* this should be a session-local
-		# FIXME: holding store at the cClinicalRecord level
+		# FIXME: holding store at the c_ClinicalRecord level
 		self.__embedded_data_holder = cPopupDataHolder()
 
 		self.__input_defs = input_defs

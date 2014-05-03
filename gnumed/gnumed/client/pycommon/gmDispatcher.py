@@ -59,6 +59,7 @@ __execute_in_main_thread = None
 def set_main_thread_caller(caller):
 	if not callable(caller):
 		raise TypeError('caller [%s] is not callable' % caller)
+	global __execute_in_main_thread
 	__execute_in_main_thread = caller
 
 #=====================================================================
@@ -293,6 +294,7 @@ def _call(receiver, **kwds):
 				del kwds[arg]
 
 	if __execute_in_main_thread is None:
+		print 'DISPATCHER problem: no main-thread executor available'
 		return receiver(**kwds)
 
 	# if a cross-thread executor is set

@@ -41,6 +41,8 @@ class gmBackendListener(gmBorg.cBorg):
 			pass
 
 		self.debug = False
+		self.__notifications_received = 0
+		self.__messages_sent = 0
 
 		_log.info('starting backend notifications listener thread')
 
@@ -76,6 +78,9 @@ class gmBackendListener(gmBorg.cBorg):
 	# public API
 	#-------------------------------
 	def shutdown(self):
+		_log.debug('received %s notifications', self.__notifications_received)
+		_log.debug('sent %s messages', self.__messages_sent)
+
 		if self._listener_thread is None:
 			self.__shutdown_connection()
 			return
@@ -209,6 +214,10 @@ class gmBackendListener(gmBorg.cBorg):
 					notification = self._conn.notifies.pop()
 				finally:
 					self._conn_lock.release()
+				self.__notifications_received += 1
+				if self.debug:
+					print notification
+				_log.debug('#%s: %s', self.__notifications_received, notification)
 				# decode payload
 				payload = notification.payload.split(u'::')
 				operation = None
@@ -229,6 +238,7 @@ class gmBackendListener(gmBorg.cBorg):
 						pk_identity = item.split(u'=')[1]
 				# try sending intra-client signals:
 				# 1) generic signal
+				self.__messages_sent += 1
 				try:
 					results = gmDispatcher.send (
 						signal = notification.channel,
@@ -239,16 +249,18 @@ class gmBackendListener(gmBorg.cBorg):
 						operation = operation,
 						table = table,
 						pk_column = pk_column,
-						pk_row = pk_row
+						pk_row = pk_row,
+						message_index = self.__messages_sent,
+						notification_index = self.__notifications_received
 					)
 				except:
 					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.channel, notification.pid)
 					print sys.exc_info()
 				# 2) dynamically emulated old style table specific signals
 				if table is not None:
+					self.__messages_sent += 1
 					signal = u'%s_mod_db' % table
-					if self.debug:
-						_log.debug('emulating old-style table specific signal [%s]', signal)
+					_log.debug('emulating old-style table specific signal [%s]', signal)
 					try:
 						results = gmDispatcher.send (
 							signal = signal,
@@ -259,7 +271,9 @@ class gmBackendListener(gmBorg.cBorg):
 							operation = operation,
 							table = table,
 							pk_column = pk_column,
-							pk_row = pk_row
+							pk_row = pk_row,
+							message_index = self.__messages_sent,
+							notification_index = self.__notifications_received
 						)
 					except:
 						print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (signal, notification.pid)

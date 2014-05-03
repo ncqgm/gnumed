@@ -709,16 +709,16 @@ def input2int(initial=None, minval=None, maxval=None):
 		int_val = int(val)
 	except (TypeError, ValueError):
 		_log.exception('int(%s) failed', val)
-		return False, val
+		return False, initial
 
 	if minval is not None:
 		if int_val < minval:
 			_log.debug('%s < min (%s)', val, minval)
-			return False, val
+			return False, initial
 	if maxval is not None:
 		if int_val > maxval:
 			_log.debug('%s > max (%s)', val, maxval)
-			return False, val
+			return False, initial
 
 	return True, int_val
 #---------------------------------------------------------------------------
