@@ -214,25 +214,6 @@ BEGIN
 	_cmd := _cmd || '' execute procedure gm.trf_announce_table_del('''''' || _payload || '''''', '''''' || _pk_accessor_SQL || '''''', '''''' || _identity_accessor_SQL || '''''');'';
 	execute _cmd;
 
-
-	-- encounter vs episode patient link sanity check trigger
-	_cmd := ''drop trigger if exists tr_sanity_check_enc_epi_insert on '' || _qualified_table || '' cascade;'';
-	execute _cmd;
-	if exists (
-		select 1 from information_schema.columns where
-		table_schema = _schema_name and table_name = _table_name and column_name = ''fk_encounter''
-	) then
-		if exists (
-			select 1 from information_schema.columns where
-			table_schema = _schema_name and table_name = _table_name and column_name = ''fk_episode''
-		) then
-			_cmd := ''create trigger tr_sanity_check_enc_epi_insert before insert'';
-			_cmd := _cmd || '' on '' || _qualified_table;
-			_cmd := _cmd || '' for each row execute procedure clin.trf_sanity_check_enc_epi_insert();'';
-			execute _cmd;
-		end if;
-	end if;
-
 	return True;
 END;
 ';

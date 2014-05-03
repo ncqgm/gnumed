@@ -1466,6 +1466,7 @@ IMPROVED: set clin.test_type.fk_test_org NOT NULL
 IMPROVED: get rid of old-style schema notification
 IMPROVED: clin.patient
 IMPROVED: database docs now per schema
+IMRPOVED: auto-generation of episode/encounter FK sanity check triggers
 
 ------------------------------------------------
 # gnumed_v19

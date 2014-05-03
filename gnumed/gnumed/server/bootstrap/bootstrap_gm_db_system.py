@@ -1113,7 +1113,7 @@ class database:
 	def bootstrap_notifications(self):
 
 		# setup clin.clin_root_item child tables FK's
-		print_msg("==> verifying FKs on clin.clin_root_item child tables ...")
+		print_msg("==> setting up encounter/episode FKs on clin.clin_root_item child tables ...")
 		child_tables = gmPG2.get_child_tables(link_obj = self.conn, schema = 'clin', table = 'clin_root_item')
 		_log.info('clin.clin_root_item child tables:')
 		for child in child_tables:
@@ -1130,7 +1130,6 @@ class database:
 				target_column = 'pk',
 			)
 			if len(FKs) > 0:
-				#_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_episode -> clin.episode.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
 				_log.info('%s FK(s) exist:', len(FKs))
 				for idx in range(len(FKs)):
 					FK = FKs[idx]
@@ -1158,7 +1157,6 @@ class database:
 				target_column = 'pk'
 			)
 			if len(FKs) > 0:
-				#_log.info('%s FK(s) exist: [#1 = %s.%s] %s.%s.fk_encounter -> clin.encounter.pk', len(FKs), FKs[0]['constraint_schema'], FKs[0]['constraint_name'], child['namespace'], child['table'])
 				_log.info('%s FK(s) exist:', len(FKs))
 				for idx in range(len(FKs)):
 					FK = FKs[idx]
@@ -1175,24 +1173,37 @@ class database:
 				}
 				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
 
-		# always re-create generic super signal (if exists)
-		print_msg("==> setting up generic notifications ...")
-		_log.debug('attempting to create generic modification announcement triggers on all registered tables')
 		curs = self.conn.cursor()
-		cmd = u"""
-			SELECT EXISTS (
-				SELECT 1 FROM information_schema.routines WHERE
-					routine_name = 'create_all_table_mod_triggers'
-						AND
-					routine_schema = 'gm'
-			)"""
+
+		# re-create fk_encounter/fk_episode sanity check triggers on all tables
+		print_msg("==> setting up encounter/episode FK sanity check triggers on all tables ...")
+		_log.debug('attempting to set up sanity check triggers on all tables linking to encounter AND episode')
+		cmd = u'select gm.create_all_enc_epi_sanity_check_triggers()'
 		curs.execute(cmd)
 		result = curs.fetchone()
 		if result[0] is False:
+			_log.error('error creating sanity check triggers on all tables linking to clin.encounter AND clin.episode')
 			curs.close()
-			_log.debug('NOT creating generic modification announcement triggers, functionality not available')
+			return None
 
-		_log.debug('now creating generic modification announcement triggers on registered tables')
+		# always re-create generic super signal (if exists)
+		print_msg("==> setting up generic notifications ...")
+		_log.debug('attempting to create generic modification announcement triggers on all registered tables')
+#		cmd = u"""
+#			SELECT EXISTS (
+#				SELECT 1 FROM information_schema.routines WHERE
+#					routine_name = 'create_all_table_mod_triggers'
+#						AND
+#					routine_schema = 'gm'
+#			)"""
+#		curs.execute(cmd)
+#		result = curs.fetchone()
+#		if result[0] is False:
+#			curs.close()
+#			_log.debug('NOT creating generic modification announcement triggers, functionality not available')
+#			return False
+#
+#		_log.debug('now creating generic modification announcement triggers on registered tables')
 		cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
 		curs.execute(cmd)
 		result = curs.fetchone()
@@ -1200,8 +1211,8 @@ class database:
 		if result[0] is False:
 			_log.error('cannot create generic modification announcement triggers on all tables')
 			return None
-		self.conn.commit()
 
+		self.conn.commit()
 		return True
 #==================================================================
 class gmBundle:
