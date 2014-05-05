@@ -197,6 +197,7 @@ class XmlTimeline(MemoryDB):
                     Tag("start", SINGLE, parse_fn_store("tmp_start")),
                     Tag("end", SINGLE, parse_fn_store("tmp_end")),
                     Tag("text", SINGLE, parse_fn_store("tmp_text")),
+                    Tag("progress", OPTIONAL, parse_fn_store("tmp_progress")),
                     Tag("fuzzy", OPTIONAL, parse_fn_store("tmp_fuzzy")),
                     Tag("locked", OPTIONAL, parse_fn_store("tmp_locked")),
                     Tag("ends_today", OPTIONAL, parse_fn_store("tmp_ends_today")),
@@ -258,6 +259,7 @@ class XmlTimeline(MemoryDB):
         start = self._parse_time(tmp_dict.pop("tmp_start"))
         end = self._parse_time(tmp_dict.pop("tmp_end"))
         text = tmp_dict.pop("tmp_text")
+        progress = self._parse_optional_int(tmp_dict, "tmp_progress")
         fuzzy = self._parse_optional_bool(tmp_dict, "tmp_fuzzy")
         locked = self._parse_optional_bool(tmp_dict, "tmp_locked")
         ends_today = self._parse_optional_bool(tmp_dict, "tmp_ends_today")
@@ -291,6 +293,7 @@ class XmlTimeline(MemoryDB):
         event.set_data("icon", icon)
         event.set_data("alert", alert)
         event.set_data("hyperlink", hyperlink)
+        event.set_data("progress", int(progress))
         self.save_event(event)
 
     def _text_starts_with_added_space(self, text):
@@ -344,6 +347,12 @@ class XmlTimeline(MemoryDB):
             return tmp_dict.pop(id) == "True"
         else:
             return False
+
+    def _parse_optional_int(self, tmp_dict, id):
+        if tmp_dict.has_key(id):
+            return int(tmp_dict.pop(id))
+        else:
+            return 0
 
     def _parse_optional_color(self, tmp_dict, id):
         if tmp_dict.has_key(id):
@@ -423,14 +432,15 @@ class XmlTimeline(MemoryDB):
             if self._text_starts_with_container_tag(evt.text):
                 text = self._add_leading_space_to_text(evt.text)
             write_simple_tag(file, "text", text, INDENT3)
+        if evt.get_data("progress") is not None:
+            write_simple_tag(file, "progress", "%s" % evt.get_data("progress"), INDENT3)
         write_simple_tag(file, "fuzzy", "%s" % evt.fuzzy, INDENT3)
         write_simple_tag(file, "locked", "%s" % evt.locked, INDENT3)
         write_simple_tag(file, "ends_today", "%s" % evt.ends_today, INDENT3)
         if evt.category is not None:
             write_simple_tag(file, "category", evt.category.name, INDENT3)
         if evt.get_data("description") is not None:
-            write_simple_tag(file, "description", evt.get_data("description"),
-                             INDENT3)
+            write_simple_tag(file, "description", evt.get_data("description"), INDENT3)
         alert = evt.get_data("alert")
         if alert is not None:
             write_simple_tag(file, "alert", self.alert_string(alert),

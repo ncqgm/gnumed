@@ -57,6 +57,12 @@ class CustomCategoryTree(wx.ScrolledWindow):
         self.view_properties = view_properties
         self.model.set_categories(CategoriesFacade(db, view_properties))
 
+    def check_categories(self, categories):
+        self.view_properties.set_categories_visible(categories)
+
+    def uncheck_categories(self, categories):
+        self.view_properties.set_categories_visible(categories, False)
+
     def _has_timeline_view(self):
         return self.db is not None and self.view_properties is not None
 

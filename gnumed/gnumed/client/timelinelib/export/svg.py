@@ -55,7 +55,6 @@ class SVGDrawingAlgorithm(object):
         # SVG document size, maybe TODO
         self.metrics = dict({'widthpx':1052, 'heightpx':744});
         # SVG document handle
-        #print svg
         self.svg = svg(width="%dpx" % self.metrics['widthpx'], height="%dpx" % self.metrics['heightpx'])
         # Fonts and pens we use when drawing
         # SVG Text style

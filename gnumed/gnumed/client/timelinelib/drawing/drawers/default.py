@@ -27,6 +27,7 @@ from timelinelib.drawing.interface import Drawer
 from timelinelib.drawing.scene import TimelineScene
 from timelinelib.drawing.utils import darken_color
 from timelinelib.drawing.utils import get_default_font
+from timelinelib.drawing.drawers import get_progress_color
 
 
 OUTER_PADDING = 5 # Space between event boxes (pixels)
@@ -459,7 +460,7 @@ class DefaultDrawingAlgorithm(Drawer):
                 return
         self._draw_box(rect, event)
         self._draw_text(rect, event)
-        if event.has_data():
+        if event.has_balloon_data():
             self._draw_contents_indicator(event, rect)
         if view_properties.is_selected(event):
             self._draw_selection_and_handles(rect, event)
@@ -477,6 +478,8 @@ class DefaultDrawingAlgorithm(Drawer):
             self._draw_fuzzy_edges(rect, event)
         if event.locked:
             self._draw_locked_edges(rect, event)
+        if event.data.has_key("progress"):
+            self.draw_progress_box(rect, event)
         self.dc.DestroyClippingRegion()
 
     def _draw_fuzzy_edges(self, rect, event):
@@ -596,6 +599,15 @@ class DefaultDrawingAlgorithm(Drawer):
         gc.SetPen(self._get_box_pen(event))
         gc.StrokePath(path)
 
+    def draw_progress_box(self, rect, event):
+        base_color = self._get_base_color(event)
+        progress_color = get_progress_color(base_color)
+        self.dc.SetBrush(wx.Brush(wx.Colour(progress_color[0], progress_color[1], progress_color[2])))
+        w = rect.width * event.data["progress"] / 100.0
+        progress_rect = wx.Rect(rect.x, rect.y, w, rect.height)
+        self.dc.SetClippingRect(progress_rect)
+        self.dc.DrawRectangleRect(progress_rect)
+    
     def _draw_text(self, rect, event):
         # Ensure that we can't draw content outside inner rectangle
         rect_copy = wx.Rect(*rect)

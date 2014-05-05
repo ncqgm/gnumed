@@ -30,7 +30,10 @@ class NumTimePicker(wx.Panel):
         return self.time_picker.GetValue()
 
     def set_value(self, num_time):
-        self.time_picker.SetValue(int(round(num_time,0)))
+        if num_time is None:
+            self.time_picker.SetValue(0)
+        else:    
+            self.time_picker.SetValue(int(round(num_time,0)))
 
     def set_range(self, min, max):
         self.time_picker.SetRange(min, max)

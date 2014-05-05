@@ -19,11 +19,15 @@
 import os.path
 
 import wx
-import webbrowser
 
 from timelinelib.db.exceptions import TimelineIOError
 from timelinelib.db.utils import safe_locking
 from timelinelib.editors.event import EventEditor
+from timelinelib.editors.propertyeditors.descriptioneditor import DescriptionEditor
+from timelinelib.editors.propertyeditors.progresseditor import ProgressEditor
+from timelinelib.editors.propertyeditors.hyperlinkeditor import HyperlinkEditor
+from timelinelib.editors.propertyeditors.alerteditor import AlertEditor
+from timelinelib.editors.propertyeditors.iconeditor import IconEditor
 from timelinelib.repositories.dbwrapper import DbWrapperEventRepository
 from timelinelib.wxgui.components.categorychoice import CategoryChoice
 from timelinelib.wxgui.components.feedbackbutton import FeedbackButton
@@ -58,10 +62,10 @@ class EventEditorDialog(wx.Dialog):
 
     def _create_properties_box(self):
         properties_box = wx.BoxSizer(wx.VERTICAL)
-        self._create_propeties_controls(properties_box)
+        self._create_properties_controls(properties_box)
         return properties_box
 
-    def _create_propeties_controls(self, sizer):
+    def _create_properties_controls(self, sizer):
         groupbox = wx.StaticBox(self, wx.ID_ANY, _("Event Properties"))
         main_box_content = wx.StaticBoxSizer(groupbox, wx.VERTICAL)
         self._create_detail_content(main_box_content)
@@ -232,8 +236,13 @@ class EventEditorDialog(wx.Dialog):
         notebook = wx.Notebook(self, style=wx.BK_DEFAULT)
         for data_id in self.timeline.supported_event_data():
             self._add_editor(notebook, data_id)
+        self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._notebook_page_changed, notebook)
         return notebook
 
+    def _notebook_page_changed(self, evt):
+        _, editor = self.event_data[evt.Selection]
+        editor.focus()
+    
     def _add_editor(self, notebook, data_id):
         editor_class_decription = self._get_editor_class_description(data_id)
         if editor_class_decription is None:
@@ -245,7 +254,9 @@ class EventEditorDialog(wx.Dialog):
         editors = {"description" : (_("Description"), DescriptionEditor),
                    "alert" : (_("Alert"), AlertEditor),
                    "icon" : (_("Icon"), IconEditor),
-                   "hyperlink" :  (_("Hyperlink"), HyperlinkEditor),}
+                   "hyperlink" :  (_("Hyperlink"), HyperlinkEditor),
+                   "progress" :  (_("Progress"), ProgressEditor),
+                   }
         if editors.has_key(editor_class_id):
             return editors[editor_class_id]
         else:
@@ -433,305 +444,6 @@ class EventEditorDialog(wx.Dialog):
     def close(self):
         # TODO: Replace with EventRuntimeData
         self.EndModal(wx.ID_OK)
-
-
-class DescriptionEditor(wx.TextCtrl):
-
-    def __init__(self, parent, editor):
-        wx.TextCtrl.__init__(self, parent, style=wx.TE_MULTILINE)
-        self.Bind(wx.EVT_CHAR, self._on_char)
-
-    def get_data(self):
-        description = self.GetValue().strip()
-        if description != "":
-            return description
-        return None
-
-    def set_data(self, data):
-        self.SetValue(data)
-
-    def clear_data(self):
-        self.SetValue("")
-
-    def _on_char(self, evt):
-        if self._ctrl_a(evt):
-            self.SelectAll()
-        else: 
-            evt.Skip()
-        
-    def _ctrl_a(self, evt):
-        KEY_CODE_A = 1
-        return evt.ControlDown() and evt.KeyCode == KEY_CODE_A
-        
-
-class IconEditor(wx.Panel):
-
-    def __init__(self, parent, editor):
-        wx.Panel.__init__(self, parent)
-        self.MAX_SIZE = (128, 128)
-        # Controls
-        self.img_icon = wx.StaticBitmap(self, size=self.MAX_SIZE)
-        label = _("Images will be scaled to fit inside a %ix%i box.")
-        description = wx.StaticText(self, label=label % self.MAX_SIZE)
-        btn_select = wx.Button(self, wx.ID_OPEN)
-        btn_clear = wx.Button(self, wx.ID_CLEAR)
-        self.Bind(wx.EVT_BUTTON, self._btn_select_on_click, btn_select)
-        self.Bind(wx.EVT_BUTTON, self._btn_clear_on_click, btn_clear)
-        # Layout
-        sizer = wx.GridBagSizer(5, 5)
-        sizer.Add(description, wx.GBPosition(0, 0), wx.GBSpan(1, 2))
-        sizer.Add(btn_select, wx.GBPosition(1, 0), wx.GBSpan(1, 1))
-        sizer.Add(btn_clear, wx.GBPosition(1, 1), wx.GBSpan(1, 1))
-        sizer.Add(self.img_icon, wx.GBPosition(0, 2), wx.GBSpan(2, 1))
-        self.SetSizerAndFit(sizer)
-        # Data
-        self.bmp = None
-
-    def get_data(self):
-        return self.get_icon()
-
-    def set_data(self, data):
-        self.set_icon(data)
-
-    def clear_data(self):
-        self.set_icon(None)
-
-    def set_icon(self, bmp):
-        self.bmp = bmp
-        if self.bmp == None:
-            self.img_icon.SetBitmap(wx.EmptyBitmap(1, 1))
-        else:
-            self.img_icon.SetBitmap(bmp)
-        self.GetSizer().Layout()
-
-    def get_icon(self):
-        return self.bmp
-
-    def _btn_select_on_click(self, evt):
-        dialog = wx.FileDialog(self, message=_("Select Icon"),
-                               wildcard="*", style=wx.FD_OPEN)
-        if dialog.ShowModal() == wx.ID_OK:
-            path = dialog.GetPath()
-            if os.path.exists(path):
-                image = wx.EmptyImage(0, 0)
-                success = image.LoadFile(path)
-                # LoadFile will show error popup if not successful
-                if success:
-                    # Resize image if too large
-                    (w, h) = image.GetSize()
-                    (W, H) = self.MAX_SIZE
-                    if w > W:
-                        factor = float(W) / float(w)
-                        w = w * factor
-                        h = h * factor
-                    if h > H:
-                        factor = float(H) / float(h)
-                        w = w * factor
-                        h = h * factor
-                    image = image.Scale(w, h, wx.IMAGE_QUALITY_HIGH)
-                    self.set_icon(image.ConvertToBitmap())
-        dialog.Destroy()
-
-    def _btn_clear_on_click(self, evt):
-        self.set_icon(None)
-
-
-class AlertEditor(wx.Panel):
-
-    def __init__(self, parent, editor):
-        wx.Panel.__init__(self, parent)
-        self.editor = editor
-        self._create_gui()
-        self._initialize_data()
-
-    def _create_gui(self):
-        self._create_controls()
-        self._layout_controls()
-
-    def _initialize_data(self):
-        self._set_initial_time()
-        self._set_initial_text()
-        self._set_visible(False)
-
-    def _set_initial_time(self):
-        if self.editor.event is not None:
-            self.dtp_start.set_value(self.editor.event.time_period.start_time)
-        else:
-            self.dtp_start.set_value(self.editor.start)
-
-    def _set_initial_text(self):
-        self.text_data.SetValue("")
-
-    def _create_controls(self):
-        self.btn_add = self._create_add_button()
-        self.btn_clear = self._create_clear_button()
-        self.url_panel = self._create_input_controls()
-
-    def _layout_controls(self):
-        self._layout_input_controls(self.url_panel)
-        sizer = wx.GridBagSizer(5, 5)
-        sizer.Add(self.btn_add, wx.GBPosition(0, 0), wx.GBSpan(1, 1))
-        sizer.Add(self.btn_clear, wx.GBPosition(0, 1), wx.GBSpan(1, 1))
-        sizer.Add(self.url_panel, wx.GBPosition(1, 0), wx.GBSpan(4, 5))
-        self.SetSizerAndFit(sizer)
-
-    def _create_add_button(self):
-        btn_add = wx.Button(self, wx.ID_ADD)
-        self.Bind(wx.EVT_BUTTON, self._btn_add_on_click, btn_add)
-        return btn_add
-
-    def _create_clear_button(self):
-        btn_clear = wx.Button(self, wx.ID_CLEAR)
-        self.Bind(wx.EVT_BUTTON, self._btn_clear_on_click, btn_clear)
-        return btn_clear
-
-    def _create_input_controls(self):
-        alert_panel = wx.Panel(self)
-        time_type = self.editor.timeline.get_time_type()
-        self.dtp_start =  time_picker_for(time_type)(alert_panel, config=self.editor.config)
-        self.text_data = wx.TextCtrl(alert_panel, size=(300,80), style=wx.TE_MULTILINE)
-        return alert_panel
-
-    def _layout_input_controls(self, alert_panel):
-        when = wx.StaticText(alert_panel, label=_("When:"))
-        text = wx.StaticText(alert_panel, label=_("Text:"))
-        sizer = wx.GridBagSizer(5, 10)
-        sizer.Add(when, wx.GBPosition(0, 0), wx.GBSpan(1, 1))
-        sizer.Add(self.dtp_start, wx.GBPosition(0, 1), wx.GBSpan(1, 3))
-        sizer.Add(text, wx.GBPosition(1, 0), wx.GBSpan(1, 1))
-        sizer.Add(self.text_data, wx.GBPosition(1, 1), wx.GBSpan(1, 9))
-        alert_panel.SetSizerAndFit(sizer)
-
-    def get_data(self):
-        if self.url_visible:
-            time = self.dtp_start.get_value()
-            text = self.text_data.GetValue()
-            return (time, text)
-        else:
-            return None
-
-    def set_data(self, data):
-        if data == None:
-            self._set_visible(False)
-        else:
-            self._set_visible(True)
-            time, text = data
-            self.dtp_start.set_value(time)
-            self.text_data.SetValue(text)
-
-    def _btn_add_on_click(self, evt):
-        self._set_visible(True)
-
-    def _btn_clear_on_click(self, evt):
-        self.clear_data()
-
-    def clear_data(self):
-        self._set_initial_time()
-        self._set_initial_text()
-        self._set_visible(False)
-
-    def _set_visible(self, value):
-        self.url_visible = value
-        self.url_panel.Show(self.url_visible)
-        self.btn_add.Enable(not value)
-        self.btn_clear.Enable(value)
-        self.GetSizer().Layout()
-
-
-class HyperlinkEditor(wx.Panel):
-
-    def __init__(self, parent, editor):
-        wx.Panel.__init__(self, parent)
-        self.editor = editor
-        self._create_gui()
-        self._initialize_data()
-
-    def _create_gui(self):
-        self._create_controls()
-        self._layout_controls()
-
-    def _initialize_data(self):
-        self._set_initial_text()
-        self._set_visible(False)
-
-    def _set_initial_text(self):
-        self.text_data.SetValue("")
-
-    def _create_controls(self):
-        self.btn_add = self._create_add_button()
-        self.btn_clear = self._create_clear_button()
-        self.btn_test = self._create_test_button()
-        self.url_panel = self._create_input_controls()
-
-    def _layout_controls(self):
-        self._layout_input_controls(self.url_panel)
-        sizer = wx.GridBagSizer(5, 5)
-        sizer.Add(self.btn_add, wx.GBPosition(0, 0), wx.GBSpan(1, 1))
-        sizer.Add(self.btn_clear, wx.GBPosition(0, 1), wx.GBSpan(1, 1))
-        sizer.Add(self.btn_test, wx.GBPosition(0, 2), wx.GBSpan(1, 1))
-        sizer.Add(self.url_panel, wx.GBPosition(1, 0), wx.GBSpan(4, 5))
-        self.SetSizerAndFit(sizer)
-
-    def _create_add_button(self):
-        btn_add = wx.Button(self, wx.ID_ADD)
-        self.Bind(wx.EVT_BUTTON, self._btn_add_on_click, btn_add)
-        return btn_add
-
-    def _create_clear_button(self):
-        btn_clear = wx.Button(self, wx.ID_CLEAR)
-        self.Bind(wx.EVT_BUTTON, self._btn_clear_on_click, btn_clear)
-        return btn_clear
-
-    def _create_test_button(self):
-        btn_test = wx.Button(self, wx.ID_ANY, _("Test"))
-        self.Bind(wx.EVT_BUTTON, self._btn_test_on_click, btn_test)
-        return btn_test
-
-    def _create_input_controls(self):
-        alert_panel = wx.Panel(self)
-        self.text_data = wx.TextCtrl(alert_panel, size=(300,20))
-        return alert_panel
-
-    def _layout_input_controls(self, alert_panel):
-        text = wx.StaticText(alert_panel, label=_("URL:"))
-        sizer = wx.GridBagSizer(5, 10)
-        sizer.Add(text, wx.GBPosition(1, 0), wx.GBSpan(1, 1))
-        sizer.Add(self.text_data, wx.GBPosition(1, 1), wx.GBSpan(1, 9))
-        alert_panel.SetSizerAndFit(sizer)
-
-    def get_data(self):
-        if self.url_visible:
-            return self.text_data.GetValue()
-        else:
-            return None
-
-    def set_data(self, data):
-        if data == None:
-            self._set_visible(False)
-        else:
-            self._set_visible(True)
-            self.text_data.SetValue(data)
-
-    def _btn_add_on_click(self, evt):
-        self._set_visible(True)
-
-    def _btn_clear_on_click(self, evt):
-        self.clear_data()
-
-    def _btn_test_on_click(self, evt):
-        webbrowser.open(self.get_data())
-
-    def clear_data(self):
-        self._set_initial_text()
-        self._set_visible(False)
-
-    def _set_visible(self, value):
-        self.url_visible = value
-        self.url_panel.Show(self.url_visible)
-        self.btn_add.Enable(not value)
-        self.btn_clear.Enable(value)
-        self.btn_test.Enable(value)
-        self.GetSizer().Layout()
 
 
 def open_event_editor_for(parent, config, db, handle_db_error, event):

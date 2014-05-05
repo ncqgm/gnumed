@@ -139,7 +139,7 @@ class NumTimeType(TimeType):
         return delta / 24
 
     def eventtimes_equals(self, time1, time2):
-        return time_string(time1) == time_string(time2)
+        return self.time_string(time1) == self.time_string(time2)
 
     def event_date_string(self, time):
         return "%s" % time

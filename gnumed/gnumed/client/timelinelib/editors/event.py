@@ -234,10 +234,14 @@ class EventEditor(object):
     def _validate_and_save_end(self, end):
         if end == None:
             raise ValueError()
-        if end < self.start:
+        if self.ends_today:
+            end_time = self.time_type.now()
+        else:
+            end_time = end
+        if end_time < self.start:
             self.view.display_invalid_start(_("End must be > Start"))
             raise ValueError()
-        return end
+        return end_time
 
     def _validate_period(self):
         try:

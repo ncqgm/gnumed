@@ -114,9 +114,26 @@ class Event(object):
                 return True
         return False
 
+    def has_balloon_data(self):
+        """Return True if the event has associated data to be displayed in a balloon."""
+        return (self.get_data("description") is not None or
+                self.get_data("icon") is not None)
+
     def get_label(self):
         """Returns a unicode label describing the event."""
-        return u"%s (%s)" % (self.text, self.time_period.get_label())
+        event_label = u"%s (%s)" % (self.text, self.time_period.get_label())
+        duration_label = self._get_duration_label()
+        if duration_label != "":
+            return u"%s  %s: %s" % (event_label, _("Duration"), duration_label)
+        else:
+            return event_label
+
+    def _get_duration_label(self):
+        duration = self.time_period.end_time - self.time_period.start_time
+        label = self.time_type.format_delta(duration)
+        if label == "0":
+            label = ""
+        return label
 
     def clone(self):
         # Objects of type datetime are immutable.

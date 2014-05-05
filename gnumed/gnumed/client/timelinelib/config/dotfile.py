@@ -199,3 +199,12 @@ class Config(object):
     def set_use_inertial_scrolling(self, value):
         self.config_parser.set(DEFAULTSECT, USE_INERTIAL_SCROLLING, str(value))
     use_inertial_scrolling = property(get_use_inertial_scrolling, set_use_inertial_scrolling)
+
+    def get_shortcut_key(self, cfgid, default):
+        try:
+            return self.config_parser.get(DEFAULTSECT, cfgid)
+        except:
+            self.set_shortcut_key(cfgid, default)
+            return default
+    def set_shortcut_key(self, cfgid, value):
+        self.config_parser.set(DEFAULTSECT, cfgid, value)

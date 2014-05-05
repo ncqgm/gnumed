@@ -37,6 +37,9 @@ import timelinelib.time.timeline as timeline
 
 class GregorianTimeType(TimeType):
 
+    def __init__(self):
+        self.major_strip_is_decade = False
+        
     def __eq__(self, other):
         return isinstance(other, GregorianTimeType)
 
@@ -146,6 +149,7 @@ class GregorianTimeType(TimeType):
         """
         day_period = TimePeriod(self, timeline.Time(0, 0), timeline.Time(1, 0))
         one_day_width = metrics.calc_exact_width(day_period)
+        self.major_strip_is_decade = False
         if one_day_width > 600:
             return (StripDay(), StripHour())
         elif one_day_width > 45:
@@ -155,6 +159,7 @@ class GregorianTimeType(TimeType):
         elif one_day_width > 1.5:
             return (StripYear(), StripMonth())
         elif one_day_width > 0.12:
+            self.major_strip_is_decade = True
             return (StripDecade(), StripYear())
         elif one_day_width > 0.012:
             return (StripCentury(), StripDecade())
@@ -231,7 +236,13 @@ class GregorianTimeType(TimeType):
         return s1 == s2
 
     def adjust_for_bc_years(self, time):
-        return time
+        gregorian_time = gregorian.from_time(time)
+        if self.major_strip_is_decade:
+            if gregorian_time.year < 0:
+                gregorian_time.year += 2
+            elif gregorian_time.year < 10:
+                gregorian_time.year += 1
+        return gregorian_time.to_time()
 
 
 def go_to_today_fn(main_frame, current_period, navigation_fn):
@@ -519,7 +530,10 @@ class StripDecade(Strip):
         return gregorian_time.replace(year=gregorian_time.year+10).to_time()
 
     def _decade_start_year(self, year):
-        return (int(year) / 10) * 10
+        # The first start year must be to the left of the first visible
+        # year on the timeline in order to draw the first vertical decade
+        # line correctly. Therefore -10 in the calculation below
+        return (int(year) / 10) * 10 - 10
 
     def get_font(self, time_period):
         return get_default_font(8)
@@ -698,11 +712,10 @@ def format_year(year):
 
 
 def format_decade(start_year):
-    # TODO: This only works for English. Possible to localize?
-    if start_year <= 0:
-        return "%ds BC" % abs(start_year)
+    if start_year >= -10:
+        return str(start_year + 10) + "s"
     else:
-        return str(start_year) + "s"
+        return "%ds BC" % (abs(start_year) - 20)
 
 
 def move_period_num_days(period, num):

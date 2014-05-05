@@ -18,7 +18,6 @@
 
 import os.path
 
-import wx
 import wx.lib.newevent
 
 from timelinelib.application import TimelineApplication
@@ -58,6 +57,8 @@ from timelinelib.wxgui.utils import display_information_message
 from timelinelib.wxgui.utils import WildcardHelper
 import timelinelib.wxgui.utils as gui_utils
 from timelinelib.proxies.drawingarea import DrawingAreaProxy
+from timelinelib.proxies.sidebar import SidebarProxy
+from timelinelib.wxgui.dialogs.shortcutseditor import ShortcutsEditorDialog
 
 CatsViewChangedEvent, EVT_CATS_VIEW_CHANGED = wx.lib.newevent.NewCommandEvent()
 
@@ -80,11 +81,30 @@ ID_SET_READONLY = wx.NewId()
 ID_FIND_FIRST = wx.NewId()
 ID_FIND_LAST = wx.NewId()
 ID_FIT_ALL = wx.NewId()
+ID_EDIT_SHORTCUTS = wx.NewId()
+ID_TUTORIAL = wx.NewId()
+ID_FEEDBACK = wx.NewId()
+ID_CONTACT = wx.NewId()
+ID_IMPORT = wx.NewId()
+ID_EXPORT = wx.NewId()
+ID_EXPORT_ALL = wx.NewId()
+ID_EXPORT_SVG = wx.NewId()
+ID_NEW_NUMERIC = wx.NewId()
+ID_NEW_DIR = wx.NewId()
+ID_NEW = wx.ID_NEW
+ID_FIND = wx.ID_FIND
+ID_PREFERENCES = wx.ID_PREFERENCES
+ID_HELP = wx.ID_HELP
+ID_ABOUT = wx.ID_ABOUT
+ID_SAVEAS = wx.ID_SAVEAS
+ID_EXIT = wx.ID_EXIT
+ID_NAVIGATE = wx.NewId() + 100
 
 
 class GuiCreator(object):
 
     def _create_gui(self):
+        self.shortcut_items = {}
         self._create_status_bar()
         self._create_main_panel()
         self._create_main_menu_bar()
@@ -105,8 +125,14 @@ class GuiCreator(object):
         self._create_timeline_menu(main_menu_bar)
         self._create_navigate_menu(main_menu_bar)
         self._create_help_menu(main_menu_bar)
+        self._set_shortcuts()
         self.SetMenuBar(main_menu_bar)
 
+    def _set_shortcuts(self):
+        from timelinelib.config.shortcut import ShortcutController
+        self.shortcut_controller = ShortcutController(self.config, self.shortcut_items)
+        self.shortcut_controller.load_config_settings()
+        
     def _bind_frame_events(self):
         self.Bind(wx.EVT_CLOSE, self._window_on_close)
 
@@ -139,16 +165,19 @@ class GuiCreator(object):
         accel = accel.split("\t", 1)[1]
         file_new_menu.Append(
             wx.ID_NEW, _("File Timeline...") + "\t" + accel, _("File Timeline..."))
+        self.shortcut_items[wx.ID_NEW] = file_new_menu.FindItemById(wx.ID_NEW)
         self.Bind(wx.EVT_MENU, self._mnu_file_new_on_click, id=wx.ID_NEW)
 
     def _create_file_new_numtimeline_menu_item(self, file_new_menu):
         mnu_file_new_numeric = file_new_menu.Append(
-            wx.ID_ANY, _("Numeric Timeline..."), _("Numeric Timeline..."))
+            ID_NEW_NUMERIC, _("Numeric Timeline..."), _("Numeric Timeline..."))
+        self.shortcut_items[ID_NEW_NUMERIC] = mnu_file_new_numeric
         self.Bind(wx.EVT_MENU, self._mnu_file_new_numeric_on_click, mnu_file_new_numeric)
 
     def _create_file_new_dir_timeline_menu_item(self, file_new_menu):
         mnu_file_new_dir = file_new_menu.Append(
-            wx.ID_ANY, _("Directory Timeline..."), _("Directory Timeline..."))
+            ID_NEW_DIR, _("Directory Timeline..."), _("Directory Timeline..."))
+        self.shortcut_items[ID_NEW_DIR] = mnu_file_new_dir
         self.Bind(wx.EVT_MENU, self._mnu_file_new_dir_on_click, mnu_file_new_dir)
 
     def _create_file_open_menu_item(self, file_menu):
@@ -164,48 +193,71 @@ class GuiCreator(object):
 
     def _create_file_save_as_menu(self, file_menu):
         menu = file_menu.Append(wx.ID_SAVEAS, "", _("Save As..."))
+        self.shortcut_items[wx.ID_SAVEAS] = menu
         self.Bind(wx.EVT_MENU, self.mnu_file_save_as_on_click, id=wx.ID_SAVEAS)
 
     def _create_import_menu_item(self, file_menu):
         mnu_file_import = file_menu.Append(
-            wx.ID_ANY, _("Import timeline..."), _("Import timeline..."))
+            ID_IMPORT, _("Import timeline..."), _("Import timeline..."))
+        self.shortcut_items[ID_IMPORT] = mnu_file_import
         self.Bind(wx.EVT_MENU, self._mnu_file_import_on_click, mnu_file_import)
 
     def _create_file_export_to_image_menu_item(self, file_menu):
         mnu_file_export_view = file_menu.Append(
-            wx.ID_ANY, _("&Export Current view to Image..."), _("Export the current view to a PNG image"))
+            ID_EXPORT, _("&Export Current view to Image..."), _("Export the current view to a PNG image"))
+        self.shortcut_items[ID_EXPORT] = mnu_file_export_view
         self.menu_controller.add_menu_requiring_timeline(mnu_file_export_view)
         self.Bind(wx.EVT_MENU, self._mnu_file_export_view_on_click, mnu_file_export_view)
 
     def _create_file_export_to_images_menu_item(self, file_menu):
         mnu_file_export_all = file_menu.Append(
-            wx.ID_ANY, _("&Export Whole Timeline to Images..."), _("Export whole Timeline to PNG images"))
+            ID_EXPORT_ALL, _("&Export Whole Timeline to Images..."), _("Export whole Timeline to PNG images"))
+        self.shortcut_items[ID_EXPORT_ALL] = mnu_file_export_all
         self.menu_controller.add_menu_requiring_timeline(mnu_file_export_all)
         self.Bind(wx.EVT_MENU, self._mnu_file_export_all_on_click, mnu_file_export_all)
 
     def _create_file_export_to_svg_menu_item(self, file_menu):
         mnu_file_export_svg = file_menu.Append(
-            wx.ID_ANY, _("&Export to SVG..."), _("Export the current view to a SVG image"))
+            ID_EXPORT_SVG, _("&Export to SVG..."), _("Export the current view to a SVG image"))
+        self.shortcut_items[ID_EXPORT_SVG] = mnu_file_export_svg
         self.menu_controller.add_menu_requiring_timeline(mnu_file_export_svg)
         self.Bind(wx.EVT_MENU, self._mnu_file_export_svg_on_click, mnu_file_export_svg)
 
     def _create_file_exit_menu_item(self, file_menu):
         file_menu.Append(wx.ID_EXIT, "", _("Exit the program"))
+        self.shortcut_items[wx.ID_EXIT] = file_menu.FindItemById(wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self._mnu_file_exit_on_click, id=wx.ID_EXIT)
 
     def _create_edit_menu(self, main_menu_bar):
+        from timelinelib.wxgui.dialogs.categoryfind import CategoryFindDialog
+        def create_category_find_dialog():
+            return CategoryFindDialog(self, self.timeline)
         def find(evt):
-            self.main_panel.show_searchbar(True)
+            if mouse_in_sidebar():
+                gui_utils.show_modal(create_category_find_dialog, self.handle_db_error)
+            else:
+                self.main_panel.show_searchbar(True)
+        def mouse_in_sidebar():
+            if not self.config.show_sidebar:
+                return False
+            return SidebarProxy(self).mouse_over_sidebar()
         def preferences(evt):
             def edit_function():
                 dialog = PreferencesDialog(self, self.config)
                 dialog.ShowModal()
                 dialog.Destroy()
             safe_locking(self, edit_function)
+        def edit_shortcuts(evt):
+            def edit_function():
+                dialog = ShortcutsEditorDialog(self, self.shortcut_controller)
+                dialog.ShowModal()
+                dialog.Destroy()
+            safe_locking(self, edit_function)
         cbx = False
         items = ((wx.ID_FIND, find, None, cbx),
                  None,
-                 (wx.ID_PREFERENCES, preferences, None, cbx))
+                 (wx.ID_PREFERENCES, preferences, None, cbx),
+                 (ID_EDIT_SHORTCUTS, edit_shortcuts, _("Shortcuts..."), cbx))
         edit_menu = wx.Menu()
         self._create_menu_items(edit_menu, items)
         main_menu_bar.Append(edit_menu, _("&Edit"))
@@ -396,10 +448,10 @@ class GuiCreator(object):
         cbx = False
         items = [(wx.ID_HELP, contents, _("&Contents\tF1"), cbx),
                  None,
-                 (wx.ID_ANY, tutorial, _("Getting started &tutorial"), cbx),
+                 (ID_TUTORIAL, tutorial, _("Getting started &tutorial"), cbx),
                  None,
-                 (wx.ID_ANY, feedback, _("Give &Feedback..."), cbx),
-                 (wx.ID_ANY, contact, _("Co&ntact"), cbx),
+                 (ID_FEEDBACK, feedback, _("Give &Feedback..."), cbx),
+                 (ID_CONTACT, contact, _("Co&ntact"), cbx),
                  None,
                  (wx.ID_ABOUT, about, None, cbx)]
         help_menu = wx.Menu()
@@ -442,6 +494,7 @@ class GuiCreator(object):
                     item = menu.Append(item_id)
         else:
             item = menu.Append(item_id)
+        self.shortcut_items[item_id] = menu.FindItemById(item_id)
         self.Bind(wx.EVT_MENU, handler, item)
         return item
 
@@ -514,6 +567,7 @@ class MainFrameApiUsedByController(object):
         self._clear_navigation_menu_items()
         if self.timeline:
             self._create_navigation_menu_items()
+            self.shortcut_controller.add_navigation_functions()
 
     # Also used by TinmelineView
     def enable_disable_menus(self):
@@ -546,16 +600,26 @@ class MainFrameApiUsedByController(object):
     def _create_navigation_menu_items(self):
         item_data = self.timeline.get_time_type().get_navigation_functions()
         pos = 0
+        id_offset = self.get_navigation_id_offset()
         for (itemstr, fn) in item_data:
             if itemstr == "SEP":
                 item = self.mnu_navigate.InsertSeparator(pos)
             else:
-                item = self.mnu_navigate.Insert(pos, wx.ID_ANY, itemstr)
+                wxid = ID_NAVIGATE + id_offset
+                item = self.mnu_navigate.Insert(pos, wxid, itemstr)
                 self._navigation_functions_by_menu_item_id[item.GetId()] = fn
                 self.Bind(wx.EVT_MENU, self._navigation_menu_item_on_click, item)
+                self.shortcut_items[wxid] = item
+                id_offset += 1
             self._navigation_menu_items.append(item)
             pos += 1
 
+    def get_navigation_id_offset(self):
+        id_offset = 0
+        if self.timeline.get_time_type().get_name() == "numtime":
+            id_offset = 100
+        return id_offset
+    
     def _navigation_menu_item_on_click(self, evt):
         fn = self._navigation_functions_by_menu_item_id[evt.GetId()]
         time_period = self.main_panel.get_time_period()
@@ -929,10 +993,11 @@ class AlertController(object):
     def _time_has_expired(self, time):
         return time <= self.time_type.now()
 
-
     def _display_alert_dialog(self, alert, event):
         text = self._format_alert_text(alert, event)
         dialog = TextDisplayDialog("Alert", text)
+        dialog.SetWindowStyleFlag(dialog.GetWindowStyleFlag() | wx.STAY_ON_TOP)
+        wx.Bell()
         dialog.ShowModal()
         dialog.Destroy()
 
