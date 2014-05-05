@@ -184,34 +184,77 @@ order by
 
 # only works for single-column FKs but that's fine
 # needs gm-dbo, any-doc won't work
+#SQL_foreign_key_name = u"""SELECT
+#	tc.*,
+#	tc.constraint_schema,
+#	tc.constraint_name,
+#	tc.table_schema as source_schema,
+#	tc.table_name as source_table,
+#	kcu.column_name as source_column,
+#	ccu.table_schema as target_schema,
+#	ccu.table_name as target_table,
+#	ccu.column_name as target_column
+#FROM
+#	information_schema.table_constraints tc
+#		INNER JOIN information_schema.constraint_column_usage ccu USING (constraint_catalog, constraint_schema, constraint_name)
+#			INNER JOIN information_schema.key_column_usage kcu USING (constraint_catalog, constraint_schema, constraint_name)
+#WHERE
+#	tc.constraint_type = 'FOREIGN KEY'
+#		AND
+#	kcu.table_schema = %(src_schema)s
+#		AND
+#	kcu.table_name = %(src_tbl)s
+#		AND
+#	kcu.column_name = %(src_col)s
+#		AND
+#	ccu.table_schema = %(target_schema)s
+#		AND
+#	ccu.table_name = %(target_tbl)s
+#		AND
+#	ccu.column_name = %(target_col)s"""
+
+
 SQL_foreign_key_name = u"""SELECT
-	tc.*,
-	tc.constraint_schema,
-	tc.constraint_name,
-	tc.table_schema as source_schema,
-	tc.table_name as source_table,
-	kcu.column_name as source_column,
-	ccu.table_schema as target_schema,
-	ccu.table_name as target_table,
-	ccu.column_name as target_column
+	fk_tbl.*,
+	(SELECT nspname FROM pg_catalog.pg_namespace WHERE oid = fk_tbl.connamespace) AS constraint_schema,
+	fk_tbl.conname AS constraint_name,
+	(SELECT nspname FROM pg_catalog.pg_namespace WHERE oid = (SELECT relnamespace FROM pg_class where oid = fk_tbl.conrelid)) AS source_schema,
+	(SELECT relname FROM pg_catalog.pg_class where oid = fk_tbl.conrelid) AS source_table,
+	(SELECT attname FROM pg_catalog.pg_attribute WHERE attnum = fk_tbl.conkey[1] AND attrelid = (%(src_schema)s || '.' || %(src_tbl)s)::regclass) AS source_column,
+	(SELECT nspname FROM pg_catalog.pg_namespace WHERE oid = (SELECT relnamespace FROM pg_class where oid = fk_tbl.confrelid)) AS target_schema,
+	(SELECT relname FROM pg_catalog.pg_class where oid = fk_tbl.confrelid) AS target_table,
+	(SELECT attname FROM pg_catalog.pg_attribute WHERE attnum = fk_tbl.confkey[1] AND attrelid = (%(target_schema)s || '.' || %(target_tbl)s)::regclass) AS target_column
 FROM
-	information_schema.table_constraints tc
-		INNER JOIN information_schema.constraint_column_usage ccu USING (constraint_catalog, constraint_schema, constraint_name)
-			INNER JOIN information_schema.key_column_usage kcu USING (constraint_catalog, constraint_schema, constraint_name)
+	pg_catalog.pg_constraint fk_tbl
 WHERE
-	tc.constraint_type = 'FOREIGN KEY'
+	fk_tbl.contype = 'f'
 		AND
-	kcu.table_schema = %(src_schema)s
+	fk_tbl.conrelid = (%(src_schema)s || '.' || %(src_tbl)s)::regclass
 		AND
-	kcu.table_name = %(src_tbl)s
+	fk_tbl.conkey[1] = (
+		SELECT
+			col_tbl1.attnum
+		FROM
+			pg_catalog.pg_attribute col_tbl1
+		WHERE
+			col_tbl1.attname = %(src_col)s
+				AND
+			col_tbl1.attrelid = (%(src_schema)s || '.' || %(src_tbl)s)::regclass
+	)
 		AND
-	kcu.column_name = %(src_col)s
+	fk_tbl.confrelid = (%(target_schema)s || '.' || %(target_tbl)s)::regclass
 		AND
-	ccu.table_schema = %(target_schema)s
-		AND
-	ccu.table_name = %(target_tbl)s
-		AND
-	ccu.column_name = %(target_col)s"""
+	fk_tbl.confkey[1] = (
+		SELECT
+			col_tbl2.attnum
+		FROM
+			pg_catalog.pg_attribute col_tbl2
+		WHERE
+			col_tbl2.attname = %(target_col)s
+				AND
+			col_tbl2.attrelid = (%(target_schema)s || '.' || %(target_tbl)s)::regclass
+	)
+"""
 
 # =======================================================================
 # module globals API
@@ -2218,10 +2261,20 @@ if __name__ == "__main__":
 	def test_sanity_check_time_skew():
 		sanity_check_time_skew()
 	#--------------------------------------------------------------------
+	def test_get_foreign_key_names():
+		print get_foreign_key_names (
+			src_schema = u'clin',
+			src_table = u'vaccination',
+			src_column = u'fk_episode',
+			target_schema = u'clin',
+			target_table = u'episode',
+			target_column = u'pk'
+		)
+	#--------------------------------------------------------------------
 	def test_get_foreign_key_details():
 		for row in get_foreign_keys2column (
-			schema = u'dem',
-			table = u'identity',
+			schema = u'clin',
+			table = u'episode',
 			column = u'pk'
 		):
 			print '%s.%s references %s.%s.%s' % (
@@ -2350,11 +2403,12 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
 	#test_get_foreign_key_details()
+	test_get_foreign_key_names()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
 	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
-	test_row_locks()
+	#test_row_locks()
 
 # ======================================================================
