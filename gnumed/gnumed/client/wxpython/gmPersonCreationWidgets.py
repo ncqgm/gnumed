@@ -29,6 +29,7 @@ from Gnumed.business import gmDemographicRecord
 
 from Gnumed.wxpython import gmEditArea
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython.gmDemographicsWidgets import _validate_dob_field, _validate_tob_field, _empty_dob_allowed
 
 
@@ -36,6 +37,18 @@ _log = logging.getLogger('gm.patient')
 
 #============================================================
 def create_new_person(parent=None, activate=False):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	if activate:			# meaning we will switch away from the current patient if any
+		msg = _(
+			u'Before creating a new person review the encounter details\n'
+			u'of the patient you just worked on:\n'
+		)
+		gmEncounterWidgets.sanity_check_encounter_of_active_patient(parent = parent, msg = msg)
+
+		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
 
 	dbcfg = gmCfg.cCfgSQL()
 
@@ -56,9 +69,6 @@ def create_new_person(parent=None, activate=False):
 		countries = gmDemographicRecord.get_country_for_region(region = def_region)
 		if len(countries) == 1:
 			def_country = countries[0]['code_country']
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
 
 	ea = cNewPatientEAPnl(parent = parent, id = -1, country = def_country, region = def_region)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = True)

@@ -76,12 +76,14 @@ class cClinicalRecord(object):
 		if _here is None:
 			_here = gmPraxis.gmCurrentPraxisBranch()
 
+		self.__encounter = None
 		if encounter is None:
 			self.__old_style_init()
 		else:
 			if not isinstance(encounter, gmEMRStructItems.cEncounter):
 				raise TypeError('not an encounter: %s' % encounter)
-			self.__encounter = encounter
+			#self.__encounter = encounter
+			self.active_encounter = encounter
 
 		# register backend notification interests
 		# (keep this last so we won't hang on threads when

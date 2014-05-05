@@ -202,22 +202,27 @@ def _get_fairly_recent_encounter(pk_identity):
 		'\n'
 		"This patient's chart was worked on only recently:\n"
 		'\n'
-		' %s  %s - %s  (%s)\n'
+		' %s'
 		'\n'
-		' Reason for Encounter:\n'
-		'  %s\n'
-		' Assessment of Encounter:\n'
-		'  %s\n'
-		'\n'
-		'Do you want to continue that consultation\n'
-		'or do you want to start a new one ?\n'
+		'Do you want to continue that consultation ?\n'
+		' (if not a new one will be started)\n'
 	) % (
 		pat_str,
-		gmDateTime.pydt_strftime(encounter['started'], '%Y %b %d'),
-		gmDateTime.pydt_strftime(encounter['started'], '%H:%M'), gmDateTime.pydt_strftime(encounter['last_affirmed'], '%H:%M'),
-		encounter['l10n_type'],
-		gmTools.coalesce(encounter['reason_for_encounter'], _('none given')),
-		gmTools.coalesce(encounter['assessment_of_encounter'], _('none given')),
+		encounter.format (
+			episodes = None,
+			with_soap = False,
+			left_margin = 1,
+			patient = None,
+			issues = None,
+			with_docs = False,
+			with_tests = False,
+			fancy_header = False,
+			with_vaccinations = False,
+			with_rfe_aoe = True,
+			with_family_history = False,
+			with_co_encountlet_hints = False,
+			by_episode = False
+		)
 	)
 	attach = gmGuiHelpers.gm_show_question (
 		title = _('Pulling electronic chart'),
@@ -307,8 +312,6 @@ def pull_chart(pk_identity):
 	from Gnumed.business import gmClinicalRecord
 	emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_identity, allow_user_interaction = False, encounter = enc)
 	emr.log_access(action = u'chart pulled for patient [%s]' % pk_identity)
-	#emr.gender = patient['gender']
-	#emr.dob = patient['dob']
 
 	return emr
 

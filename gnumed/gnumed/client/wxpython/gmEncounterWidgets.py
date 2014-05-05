@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPerson
+from Gnumed.business import gmStaff
 
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmGuiHelpers
@@ -48,6 +49,76 @@ def start_new_encounter(emr=None):
 		_('\nA new encounter was started for the active patient.\n'),
 		_('Start of new encounter')
 	)
+
+#----------------------------------------------------------------
+def sanity_check_encounter_of_active_patient(parent=None, msg=None):
+
+	# FIXME: should consult a centralized security provider
+	# secretaries cannot edit encounters
+	if gmStaff.gmCurrentProvider()['role'] == u'secretary':
+		return True
+
+	pat = gmPerson.gmCurrentPatient()
+	if not pat.connected:
+		return True
+
+	dbcfg = gmCfg.cCfgSQL()
+	check_enc = bool(dbcfg.get2 (
+		option = 'encounter.show_editor_before_patient_change',
+		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+		bias = 'user',
+		default = True					# True: if needed, not always unconditionally
+	))
+
+	if not check_enc:
+		return True
+
+	emr = pat.get_emr()
+	enc = emr.active_encounter
+
+	# did we add anything to the EMR ?
+	has_narr = enc.has_narrative()
+	has_docs = enc.has_documents()
+
+	if (not has_narr) and (not has_docs):
+		return True
+
+	empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == u'')
+	zero_duration = (enc['last_affirmed'] == enc['started'])
+
+	# all is well anyway
+	if (not empty_aoe) and (not zero_duration):
+		return True
+
+	if zero_duration:
+		enc['last_affirmed'] = pydt.datetime.now(tz = gmDateTime.gmCurrentLocalTimezone)
+
+	# no narrative, presumably only import of docs and done
+	if not has_narr:
+		if empty_aoe:
+			enc['assessment_of_encounter'] = _('only documents added')
+		enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]['pk']
+		# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
+		enc.save_payload()
+		return True
+
+	# does have narrative
+	if empty_aoe:
+		# - work out suitable default
+		epis = emr.get_episodes_by_encounter()
+		if len(epis) > 0:
+			enc_summary = ''
+			for epi in epis:
+				enc_summary += '%s; ' % epi['description']
+			enc['assessment_of_encounter'] = enc_summary
+
+	if msg is None:
+		msg = _('Edit the encounter details of the active patient before moving on:')
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	edit_encounter(parent = parent, encounter = enc, msg = msg)
+
+	return True
 
 #----------------------------------------------------------------
 def ask_for_encounter_continuation(msg=None, caption=None, encounter=None, parent=None):

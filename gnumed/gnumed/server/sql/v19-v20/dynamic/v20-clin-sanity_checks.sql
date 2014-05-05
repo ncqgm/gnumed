@@ -34,10 +34,12 @@ begin
 	_cmd := ''select $1.'' || _fk_encounter_col;
 	EXECUTE _cmd INTO STRICT _enc_pk USING NEW;
 	select fk_patient into _identity_from_encounter from clin.encounter where pk = _enc_pk;
+--	raise notice ''%: % -> %'', _cmd, _enc_pk, _identity_from_encounter;
 
 	_cmd := ''select $1.'' || _fk_episode_col;
 	EXECUTE _cmd INTO STRICT _epi_pk USING NEW;
-	select fk_patient into _identity_from_episode from clin.encounter where pk = (select fk_encounter from clin.episode where pk = _enc_pk);
+	select fk_patient into _identity_from_episode from clin.encounter where pk = (select fk_encounter from clin.episode where pk = _epi_pk);
+--	raise notice ''%: % -> %'', _cmd, _epi_pk, _identity_from_episode;
 
 	if _identity_from_encounter <> _identity_from_episode then
 		raise exception ''% into %.%: Sanity check failed. %=% -> patient=%. %=% -> patient=%.'',

@@ -1095,69 +1095,11 @@ class gmTopLevelFrame(wx.Frame):
 			raise
 	#----------------------------------------------
 	def _before_switching_from_patient_callback(self):
-		return self.__sanity_check_encounter()
-	#----------------------------------------------
-	def __sanity_check_encounter(self):
-
-		# FIXME: should consult a centralized security provider
-		# secretaries cannot edit encounters
-		if _provider['role'] == u'secretary':
-			return True
-
-		dbcfg = gmCfg.cCfgSQL()
-		check_enc = bool(dbcfg.get2 (
-			option = 'encounter.show_editor_before_patient_change',
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-			bias = 'user',
-			default = True					# True: if needed, not always unconditionally
-		))
-
-		if not check_enc:
-			return True
-
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.get_emr()
-		enc = emr.active_encounter
-
-		# did we add anything to the EMR ?
-		has_narr = enc.has_narrative()
-		has_docs = enc.has_documents()
-
-		if (not has_narr) and (not has_docs):
-			return True
-
-		empty_aoe = (gmTools.coalesce(enc['assessment_of_encounter'], '').strip() == u'')
-		zero_duration = (enc['last_affirmed'] == enc['started'])
-
-		# all is well anyway
-		if (not empty_aoe) and (not zero_duration):
-			return True
-
-		if zero_duration:
-			enc['last_affirmed'] = pyDT.datetime.now(tz=gmDateTime.gmCurrentLocalTimezone)
-
-		# no narrative, presumably only import of docs and done
-		if not has_narr:
-			if empty_aoe:
-				enc['assessment_of_encounter'] = _('only documents added')
-			enc['pk_type'] = gmEMRStructItems.get_encounter_type(description = 'chart review')[0]['pk']
-			# "last_affirmed" should be latest modified_at of relevant docs but that's a lot more involved
-			enc.save_payload()
-			return True
-
-		# does have narrative
-		if empty_aoe:
-			# - work out suitable default
-			epis = emr.get_episodes_by_encounter()
-			if len(epis) > 0:
-				enc_summary = ''
-				for epi in epis:
-					enc_summary += '%s; ' % epi['description']
-				enc['assessment_of_encounter'] = enc_summary
-
-		msg = _('Edit the current encounter of the patient you are ABOUT TO LEAVE:')
-		gmEncounterWidgets.edit_encounter(parent = self, encounter = enc, msg = msg)
-
+		msg = _(
+			u'Before activation of another patient review the\n'
+			u'encounter details of the patient you just worked on:\n'
+		)
+		gmEncounterWidgets.sanity_check_encounter_of_active_patient(parent = self, msg = msg)
 		return True
 	#----------------------------------------------
 	# menu "paperwork"

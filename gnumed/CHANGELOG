@@ -17,6 +17,7 @@ NEW: EDC storage/calculator
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering
 IMPROVED: import upstream TimeLine 1.2.3 release
+IMPROVED: encounter editing before patient switch/creation
 
 ------------------------------------------------
 # rel-1-4-patches
