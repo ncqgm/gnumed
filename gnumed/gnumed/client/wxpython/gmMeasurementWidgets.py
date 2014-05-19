@@ -47,6 +47,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -1822,7 +1823,6 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		self._TCTRL_review_comment.Enable(self._CHBOX_review.GetValue())
 	#--------------------------------------------------------
 	def _on_test_info_button_pressed(self, event):
-
 		pk = self._PRW_test.GetData()
 		if pk is not None:
 			tt = gmPathLab.cMeasurementType(aPK_obj = pk)
@@ -1837,6 +1837,10 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 		search_term = search_term.replace(' ', u'+')
 
 		call_browser_on_measurement_type(measurement_type = search_term)
+	#--------------------------------------------------------
+	def _on_manage_episodes_button_pressed(self, event):
+		event.Skip()
+		gmEMRStructWidgets.manage_episodes(parent = self)
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------

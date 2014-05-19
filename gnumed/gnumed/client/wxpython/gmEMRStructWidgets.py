@@ -809,6 +809,76 @@ def edit_episode(parent=None, episode=None):
 	if dlg.ShowModal() == wx.ID_OK:
 		return True
 	return False
+
+#----------------------------------------------------------------
+def manage_episodes(parent=None):
+
+	pat = gmPerson.gmCurrentPatient()
+	emr = pat.get_emr()
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def edit(episode=None):
+		return edit_episode(parent = parent, episode = episode)
+	#-----------------------------------------
+	def delete(episode=None):
+		if gmEMRStructItems.delete_episode(episode = episode):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete episode.'),
+			beep = True
+		)
+		return False
+	#-----------------------------------------
+	def manage_issues(episode=None):
+		return select_health_issues(parent = None, emr = emr)
+	#-----------------------------------------
+	def get_tooltip(data):
+		if data is None:
+			return None
+		patient = gmPerson.cPatient(data.get_patient())
+		return data.format (
+			patient = patient,
+			with_summary = True,
+			with_codes = True,
+			with_encounters = False,
+			with_documents = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_health_issue = True
+		)
+	#-----------------------------------------
+	def refresh(lctrl):
+		epis = emr.get_episodes(order_by = u'description')
+		items = [
+			[	e['description'],
+				gmTools.bool2subst(e['episode_open'], _(u'ongoing'), _(u'closed'), u'<unknown>'),
+				gmDateTime.pydt_strftime(e.best_guess_start_date, '%Y %b %d'),
+				gmTools.coalesce(e['health_issue'], u'')
+			] for e in epis
+		]
+		lctrl.set_string_items(items = items)
+		lctrl.set_data(data = epis)
+	#-----------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nSelect the episode you want to edit !\n'),
+		caption = _('Editing episodes ...'),
+		columns = [_(u'Episode'), _('Status'), _('Started'), _(u'Health issue')],
+		single_selection = True,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip,
+		left_extra_button = (_('Manage issues'), _('Manage health issues'), manage_issues)
+	)
+
 #----------------------------------------------------------------
 def promote_episode_to_issue(parent=None, episode=None, emr=None):
 
@@ -879,6 +949,7 @@ def promote_episode_to_issue(parent=None, episode=None, emr=None):
 		return
 
 	return
+
 #----------------------------------------------------------------
 def move_episode_to_issue(episode=None, target_issue=None, save_to_backend=False):
 	"""Prepare changing health issue for an episode.
@@ -1329,6 +1400,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
+
 #================================================================
 # health issue related widgets/functions
 #----------------------------------------------------------------
@@ -1348,6 +1420,38 @@ def select_health_issues(parent=None, emr=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+	#-----------------------------------------
+	def edit(issue=None):
+		return edit_health_issue(parent = parent, issue = issue)
+	#-----------------------------------------
+	def delete(issue=None):
+		if gmEMRStructItems.delete_health_issue(health_issue = issue):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete health issue.'),
+			beep = True
+		)
+		return False
+	#-----------------------------------------
+	def get_tooltip(data):
+		if data is None:
+			return None
+		patient = gmPerson.cPatient(data['pk_patient'])
+		return data.format (
+			patient = patient,
+			with_summary = True,
+			with_codes = True,
+			with_episodes = True,
+			with_encounters = True,
+			with_medications = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_documents = False,
+			with_tests = False,
+			with_vaccinations = False
+		)
 	#-----------------------------------------
 	def refresh(lctrl):
 		issues = emr.get_health_issues()
@@ -1369,9 +1473,9 @@ def select_health_issues(parent=None, emr=None):
 		caption = _('Showing health issues ...'),
 		columns = [u'', _('Health issue'), u'', u'', u''],
 		single_selection = False,
-		#edit_callback = edit,
-		#new_callback = edit,
-		#delete_callback = delete,
+		edit_callback = edit,
+		new_callback = edit,
+		delete_callback = delete,
 		refresh_callback = refresh
 	)
 #----------------------------------------------------------------

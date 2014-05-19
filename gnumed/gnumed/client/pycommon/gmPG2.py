@@ -184,36 +184,6 @@ order by
 
 # only works for single-column FKs but that's fine
 # needs gm-dbo, any-doc won't work
-#SQL_foreign_key_name = u"""SELECT
-#	tc.*,
-#	tc.constraint_schema,
-#	tc.constraint_name,
-#	tc.table_schema as source_schema,
-#	tc.table_name as source_table,
-#	kcu.column_name as source_column,
-#	ccu.table_schema as target_schema,
-#	ccu.table_name as target_table,
-#	ccu.column_name as target_column
-#FROM
-#	information_schema.table_constraints tc
-#		INNER JOIN information_schema.constraint_column_usage ccu USING (constraint_catalog, constraint_schema, constraint_name)
-#			INNER JOIN information_schema.key_column_usage kcu USING (constraint_catalog, constraint_schema, constraint_name)
-#WHERE
-#	tc.constraint_type = 'FOREIGN KEY'
-#		AND
-#	kcu.table_schema = %(src_schema)s
-#		AND
-#	kcu.table_name = %(src_tbl)s
-#		AND
-#	kcu.column_name = %(src_col)s
-#		AND
-#	ccu.table_schema = %(target_schema)s
-#		AND
-#	ccu.table_name = %(target_tbl)s
-#		AND
-#	ccu.column_name = %(target_col)s"""
-
-
 SQL_foreign_key_name = u"""SELECT
 	fk_tbl.*,
 	(SELECT nspname FROM pg_catalog.pg_namespace WHERE oid = fk_tbl.connamespace) AS constraint_schema,

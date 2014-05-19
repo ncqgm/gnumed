@@ -50,7 +50,7 @@ care of all the pre- and post-GUI runtime environment setup.
  Show this help.
 """
 #==========================================================
-__author__  = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
+__author__ = "H. Herb <hherb@gnumed.net>, K. Hilbert <Karsten.Hilbert@gmx.net>, I. Haywood <i.haywood@ugrad.unimelb.edu.au>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # standard library

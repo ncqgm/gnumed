@@ -38,6 +38,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self._TCTRL_note_test_org = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._PRW_intended_reviewer = cProviderPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._PRW_problem = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+		self._BTN_manage_episodes = wx.Button(self, wx.ID_ANY, _("&Manage"), style=wx.BU_EXACTFIT)
 		self._TCTRL_narrative = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._CHBOX_review = wx.CheckBox(self, wx.ID_ANY, _("&Sign as:"))
 		self._CHBOX_abnormal = wx.CheckBox(self, wx.ID_ANY, _("&Abnormal"))
@@ -55,12 +56,13 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self.__do_layout()
 
 		self.Bind(wx.EVT_BUTTON, self._on_test_info_button_pressed, self._BTN_test_info)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_episodes_button_pressed, self._BTN_manage_episodes)
 		self.Bind(wx.EVT_CHECKBOX, self._on_review_box_checked, self._CHBOX_review)
 		# end wxGlade
 
 	def __set_properties(self):
 		# begin wxGlade: wxgMeasurementEditAreaPnl.__set_properties
-		self.SetSize((636, 396))
+		self.SetSize((640, 400))
 		self._PRW_test.SetToolTipString(_("Select, or enter for creation, the type of test or measurement this result is about."))
 		self._PRW_test.SetFocus()
 		self._BTN_test_info.SetToolTipString(_("Show a web search on this test type."))
@@ -74,6 +76,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		self._TCTRL_note_test_org.SetToolTipString(_("A technical comment on the result.\nUsually by the entering Medical Technical Assistant."))
 		self._PRW_intended_reviewer.SetToolTipString(_("The doctor in charge who will have to assess and sign off this result."))
 		self._PRW_problem.SetToolTipString(_("The medical problem this test results pertains to."))
+		self._BTN_manage_episodes.SetToolTipString(_("Manage episodes (and health issues)."))
 		self._TCTRL_narrative.SetToolTipString(_("A clinical assessment of the measurement.\nUsually by a doctor."))
 		self._CHBOX_review.SetToolTipString(_("Check if you want to save a review."))
 		self._CHBOX_abnormal.SetToolTipString(_("Check if this result is technically abnormal."))
@@ -97,6 +100,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		__szr_range_target = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_range_normal = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_review = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_problem = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_result = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_test = wx.BoxSizer(wx.HORIZONTAL)
 		_gszr_main.Add((20, 20), 0, wx.EXPAND, 0)
@@ -144,7 +148,9 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		__lbl_problem = wx.StaticText(self, wx.ID_ANY, _("Problem"))
 		__lbl_problem.SetForegroundColour(wx.Colour(204, 50, 50))
 		_gszr_main.Add(__lbl_problem, 0, wx.ALIGN_CENTER_VERTICAL, 3)
-		_gszr_main.Add(self._PRW_problem, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_problem.Add(self._PRW_problem, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_problem.Add(self._BTN_manage_episodes, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		_gszr_main.Add(__szr_problem, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__lbl_narrative = wx.StaticText(self, wx.ID_ANY, _("Comment"))
 		_gszr_main.Add(__lbl_narrative, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(self._TCTRL_narrative, 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
@@ -194,4 +200,7 @@ class wxgMeasurementEditAreaPnl(wx.Panel):
 		print "Event handler '_on_review_box_checked' not implemented!"
 		event.Skip()
 
+	def _on_manage_episodes_button_pressed(self, event):  # wxGlade: wxgMeasurementEditAreaPnl.<event_handler>
+		print "Event handler '_on_manage_episodes_button_pressed' not implemented!"
+		event.Skip()
 # end of class wxgMeasurementEditAreaPnl

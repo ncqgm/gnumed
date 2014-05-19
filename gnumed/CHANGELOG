@@ -18,6 +18,7 @@ IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim
 IMPROVED: robustness of patient change event sequence ordering
 IMPROVED: import upstream TimeLine 1.2.3 release
 IMPROVED: encounter editing before patient switch/creation
+IMPROVED: manage episodes from measurements EA [thanks Jim]
 
 ------------------------------------------------
 # rel-1-4-patches
