@@ -27,6 +27,7 @@ from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmExternalCare
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -141,6 +142,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'clin.family_history_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.procedure_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.vaccination_mod_db', receiver = self._on_post_patient_selection)
+		#gmDispatcher.connect(signal = u'clin.external_care_mod_db', receiver = self._on_post_patient_selection)
 
 		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_post_patient_selection)
@@ -865,6 +867,15 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('in-praxis: %s') % provider.identity['description_gender'])
 			list_data.append(provider)
 
+		care = emr.get_external_care_items()
+		for item in care:
+			list_items.append(_('care: %s%s@%s') % (
+				gmTools.coalesce(item['provider'], u'', u'%s, '),
+				item['unit'],
+				item['org']
+			))
+			list_data.append(item)
+
 		self._LCTRL_contacts.set_string_items(items = list_items)
 		self._LCTRL_contacts.set_data(data = list_data)
 		if is_in_hospital:
@@ -874,6 +885,30 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		if isinstance(data, gmEMRStructItems.cHospitalStay):
 			return data.format()
+
+		if isinstance(data, gmExternalCare.cExternalCareItem):
+			return u'\n'.join(data.format (
+				with_health_issue = True,
+				with_address = True,
+				with_comms = True
+			))
+#			parts = []
+#			if data['provider'] is not None:
+#				parts.append(_(u'Provider: %s') % data['provider'])
+#			parts.append(_(u'Location: %s@%s') % (data['unit'], data['org']))
+#			adr = data.org_unit.address
+#			if adr is not None:
+#				parts.extend(adr.format())
+#			for comm in data.org_unit.comm_channels:
+#				parts.append(u' %s: %s%s' % (
+#					comm['l10n_comm_type'],
+#					comm['url'],
+#					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
+#				))
+#			parts.append(u'')
+#			parts.append(_(u'Issue: %s') % data['issue'])
+#			parts.append(gmTools.coalesce(data['comment'], u'', u'\n%s'))
+#			return u'\n'.join(parts)
 
 		if isinstance(data, gmDemographicRecord.cPatientAddress):
 			return u'\n'.join(data.format())
@@ -950,6 +985,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		]
 
 		list_items = []
+		list_data = []
 		for problem in problems:
 			if problem['type'] == 'issue':
 				issue = emr.problem2issue(problem)
@@ -959,7 +995,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				list_items.append(u'%s: %s' % (problem['problem'], last))
-
 			elif problem['type'] == 'episode':
 				epi = emr.problem2episode(problem)
 				last_encounter = emr.get_last_encounter(episode_id = epi['pk_episode'])
@@ -968,11 +1003,27 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				else:
 					last = last_encounter['last_affirmed'].strftime('%m/%Y')
 				list_items.append(u'%s: %s' % (problem['problem'], last))
+			list_data.append(problem)
+
+		care = emr.get_external_care_items()
+		for item in care:
+			if item['pk_health_issue'] is not None:
+				continue
+			list_items.append(_('extrnl: %s (%s@%s)') % (
+				item['issue'],
+				item['unit'],
+				item['org']
+			))
+			list_data.append(item)
 
 		self._LCTRL_problems.set_string_items(items = list_items)
-		self._LCTRL_problems.set_data(data = problems)
+		self._LCTRL_problems.set_data(data = list_data)
 	#-----------------------------------------------------
 	def _calc_problem_list_item_tooltip(self, data):
+
+		if isinstance(data, gmExternalCare.cExternalCareItem):
+			return u'\n'.join(data.format(with_health_issue = True, with_comms = True))
+
 		emr = gmPerson.gmCurrentPatient().get_emr()
 
 		if data['type'] == 'issue':

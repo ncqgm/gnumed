@@ -18,7 +18,8 @@ def run(conn=None):
 	gmPG2.file2bytea (
 		query = u"""
 			UPDATE ref.paperwork_templates SET
-				data = %(data)s::bytea
+				data = %(data)s::bytea,
+				external_version = '20.0'
 			WHERE
 				name_long = 'Privatrechnung mit USt. (GNUmed-Vorgabe Deutschland)'""",
 		filename = os.path.join('..', 'sql', 'v19-v20', 'data', 'v20-GNUmed-default_invoice_template-de.tex'),
@@ -29,10 +30,23 @@ def run(conn=None):
 	gmPG2.file2bytea (
 		query = u"""
 			UPDATE ref.paperwork_templates SET
-				data = %(data)s::bytea
+				data = %(data)s::bytea,
+				external_version = '20.0'
 			WHERE
 				name_long = 'Privatrechnung ohne USt. (GNUmed-Vorgabe Deutschland)'""",
 		filename = os.path.join('..', 'sql', 'v19-v20', 'data', 'v20-GNUmed-default_invoice_template-de_no_vat.tex'),
+		conn = conn
+	)
+
+	# referral letter
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '20.0'
+			WHERE
+				name_long = 'Referral letter (GNUmed default) [Dr.Rogerio Luz]'""",
+		filename = os.path.join('..', 'sql', 'v19-v20', 'data', 'v20-GNUmed-default_referral_letter_template.tex'),
 		conn = conn
 	)
 

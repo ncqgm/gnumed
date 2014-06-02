@@ -82,7 +82,7 @@ def _check_for_provider_chart_access(person):
 			message_type = _('Privacy notice'),
 			message_category = u'administrative',
 			subject = _('%s: Your chart has been accessed by %s.') % (pat, prov),
-			person = person.ID
+			patient = person.ID
 		)
 		# notify /me about the staff member notification
 		gmProviderInbox.create_inbox_message (
@@ -115,7 +115,7 @@ def _ensure_person_is_patient(person):
 		cancel_button = False
 	)
 	if not make_it_patient:
-		_log.debug(u'user aborted turning person [%s] into patient', pk_identity)
+		_log.debug(u'user aborted turning person [%s] into patient', person.ID)
 		return False
 	person.is_patient = True
 	return True

@@ -37,6 +37,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
+from Gnumed.business import gmExternalCare
 from Gnumed.business.gmDemographicRecord import get_occupations
 
 
@@ -1004,6 +1005,11 @@ WHERE
 		return gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
 
 	allergy_state = property(_get_allergy_state, _set_allergy_state)
+	#--------------------------------------------------------
+	# API: external care
+	#--------------------------------------------------------
+	def get_external_care_items(self, order_by=None):
+		return gmExternalCare.get_external_care_items(pk_identity = self.pk_patient, order_by = order_by)
 	#--------------------------------------------------------
 	# API: episodes
 	#--------------------------------------------------------

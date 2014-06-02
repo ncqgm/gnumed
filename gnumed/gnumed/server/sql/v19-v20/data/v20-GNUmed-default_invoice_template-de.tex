@@ -34,22 +34,22 @@
 %\opening{$<gender_mapper::Sehr geehrter Herr//Sehr geehrte Frau::>$\ $<title>$ $<lastname>$,}
 
 % an einen freien Empfänger und die "billing"-Adresse des Patienten
-%\begin{letter}{
-%	$<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$
-%	$<adr_street::billing::>$\ $<adr_number::billing::>$\\
-%	$<adr_postcode::billing::>$\ $<adr_location::billing::>$
-%}
-%
-%\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$,}
+\begin{letter}{
+	$<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$
+	$<adr_street::billing::>$\ $<adr_number::billing::>$\\
+	$<adr_postcode::billing::>$\ $<adr_location::billing::>$
+}
+
+\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<free_text::Geben Sie den Namen des Rechnungsempfängers ein !>$,}
 
 % an einen in GNUmed wählbaren Empfänger inklusive wählbarer Adresse:
-\begin{letter}{
-	$<receiver_name::::>$\\
-	$<receiver_street::::>$\ $<receiver_number::::>$\\
-	$<receiver_postcode::::>$\ $<receiver_location::::>$
-}
+%\begin{letter}{
+%	$<receiver_name::::>$\\
+%	$<receiver_street::::>$\ $<receiver_number::::>$\\
+%	$<receiver_postcode::::>$\ $<receiver_location::::>$
+%}
 %
-\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<receiver_name::::>$,}
+%\opening{Sehr geehrter Herr//Sehr geehrte Frau\ $<receiver_name::::>$,}
 
 hiermit erlaube ich mir, für
 \emph{$<title::::>$ $<firstname::::>$ $<lastname::::>$ ($<date_of_birth::%d.%B %Y::>$), $<adr_street::home::>$ $<adr_number::home::>$ in $<adr_postcode::home::>$ $<adr_location::home::>$},

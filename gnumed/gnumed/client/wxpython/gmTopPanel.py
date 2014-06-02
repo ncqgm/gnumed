@@ -160,7 +160,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		# patient birthday ?
 		if self.curr_pat.get_formatted_dob(format = '%m-%d') == now.strftime('%m-%d'):
 			template = _('%(sex)s  %(dob)s (%(age)s today !)')
-			tt += _("\nToday is the patient's birtday !\n\n")
+			tt += _("\nToday is the patient's birthday !\n\n")
 		else:
 			if self.curr_pat.current_birthday_passed():
 				template = u'%(sex)s  %(dob)s%(l_arr)s (%(age)s)'
@@ -169,7 +169,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				)
 			else:
 				template = u'%(sex)s  %(r_arr)s%(dob)s (%(age)s)'
-				tt += _(u'Birtday: in %s\n') % gmDateTime.format_apparent_age_medically (
+				tt += _(u'Birthday: in %s\n') % gmDateTime.format_apparent_age_medically (
 					age = gmDateTime.calculate_apparent_age(start = now, end = self.curr_pat.birthday_this_year)
 				)
 

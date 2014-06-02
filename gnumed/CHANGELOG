@@ -13,6 +13,7 @@ NEW: patient documents export area plugin
 NEW: manage automatic dynamic hints
 NEW: letter receiver placeholders $<receiver_*>$
 NEW: EDC storage/calculator
+NEW: external care documentation
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering
@@ -1467,9 +1468,11 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 IMPROVED: set clin.encounter.fk_location NOT NULL
 IMPROVED: set clin.test_type.fk_test_org NOT NULL
 IMPROVED: get rid of old-style schema notification
-IMPROVED: clin.patient
 IMPROVED: database docs now per schema
 IMRPOVED: auto-generation of episode/encounter FK sanity check triggers
+
+NEW: clin.external_care
+NEW: clin.patient
 
 ------------------------------------------------
 # gnumed_v19

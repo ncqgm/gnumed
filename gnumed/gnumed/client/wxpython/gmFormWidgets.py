@@ -26,6 +26,7 @@ from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
+from Gnumed.business import gmExternalCare
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -896,48 +897,16 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 	def __init_ui(self):
 		if self.__patient is None:
 			return
-		self._RBTN_patient.SetLabel(_('&Patient: %s') % self.__patient[u'description'])
-		self._RBTN_patient.SetToolTipString(self.__patient[u'description_gender'])
-		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
 
-		if (self.__patient[u'emergency_contact'] is None) and (self.__patient[u'pk_emergency_contact'] is None):
-			label = u'?'
-			tooltip = _('no emergency contact known')
-			self._RBTN_emergency_contact.Disable()
-		else:
-			self._RBTN_emergency_contact.Enable()
-			if self.__patient[u'emergency_contact'] is not None:
-				label = self.__patient[u'emergency_contact']
-				tooltip = self.__patient[u'emergency_contact']
-			else:
-				contact = self.__patient.emergency_contact_in_database
-				label = contact[u'description']
-				tooltip = contact[u'description_gender']
-		self._RBTN_emergency_contact.SetLabel(_(u'&Emergency contact: %s') % label)
-		self._RBTN_emergency_contact.SetToolTipString(tooltip)
-
-		prov = self.__patient.primary_provider
-		if prov is None:
-			self._RBTN_primary_provider.Disable()
-			self._RBTN_primary_provider.SetLabel(_(u'Primary doctor: ?'))
-			self._RBTN_primary_provider.SetToolTipString(_(u'primary doctor in this praxis not set for this patient'))
-		else:
-			self._RBTN_primary_provider.Enable()
-			self._RBTN_primary_provider.SetLabel(_('Primary &doctor: %s') % prov[u'short_alias'])
-			tooltip = _(
-				u'In-praxis primary provider [%s]\n'
-				u'\n'
-				u' %s'
-			) % (
-				prov[u'short_alias'],
-				prov.identity['description_gender']
-			)
-			self._RBTN_primary_provider.SetToolTipString(tooltip)
+		self._LCTRL_candidates.item_tooltip_callback = self._get_candidate_tooltip
+		self.__populate_candidates_list()
 
 		self._LCTRL_addresses.item_tooltip_callback = self._get_tooltip
 		self._LCTRL_addresses.activate_callback = self._on_address_activated_in_list
 		adrs = self.__patient.get_addresses()
 		self.__populate_address_list(addresses = adrs)
+
+		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
 
 		self.Layout()
 	#------------------------------------------------------------
@@ -945,15 +914,74 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		self._PRW_other_address.add_callback_on_selection(self._on_address_selected)
 		self._PRW_org_unit.add_callback_on_set_focus(self._on_entering_org_unit)
 		self._PRW_org_unit.add_callback_on_selection(self._on_org_unit_selected)
+
+	#------------------------------------------------------------
+	def __populate_candidates_list(self):
+		list_items = [[_('Patient'), self.__patient[u'description_gender'].strip()]]
+		list_data = [(self.__patient[u'description'].strip(), self.__patient.get_addresses(), u'')]
+
+		candidate_type = _('Emergency contact')
+		if self.__patient[u'emergency_contact'] is not None:
+			name = self.__patient[u'emergency_contact'].strip()
+			list_items.append([candidate_type, name])
+			list_data.append((name, [], u''))
+		contact = self.__patient.emergency_contact_in_database
+		if contact is not None:
+			list_items.append([candidate_type, contact[u'description_gender']])
+			list_data.append((contact[u'description'].strip(), contact.get_addresses(), u''))
+
+		prov = self.__patient.primary_provider
+		if prov is not None:
+			ident = prov.identity
+			list_items.append([_('Primary doctor'), u'%s: %s' % (prov[u'short_alias'], ident['description_gender'])])
+			list_data.append((ident['description'].strip(), ident.get_addresses(), _(u'in-praxis primary provider')))
+
+		cares = gmExternalCare.get_external_care_items(pk_identity = self.__patient.ID)
+		candidate_type = _('External care')
+		for care in cares:
+			details = u'%s%s@%s (%s)' % (
+				gmTools.coalesce(care['provider'], u'', u'%s: '),
+				care['unit'],
+				care['org'],
+				care['issue']
+			)
+			name = gmTools.coalesce(care['provider'], u'').strip()
+			adr = care.org_unit.address
+			if adr is None:
+				addresses = []
+			else:
+				addresses = [adr]
+			list_items.append([candidate_type, details])
+			tt = u'\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
+			list_data.append((name, addresses, tt))
+
+		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
+		self._LCTRL_candidates.set_string_items(list_items)
+		self._LCTRL_candidates.set_column_widths()
+		self._LCTRL_candidates.set_data(list_data)
+
+	#------------------------------------------------------------
+	def _get_candidate_tooltip(self, data):
+		if data is None:
+			return u''
+		name, addresses, tt = data
+		return tt
 	#------------------------------------------------------------
 	def __populate_address_list(self, addresses=None):
 		self._LCTRL_addresses.Enable()
 		self._LCTRL_addresses.set_columns([_(u'Type'), _(u'Address')])
-		self._LCTRL_addresses.set_string_items ([
-			[a[u'l10n_address_type'], a.format(single_line = True, verbose = False, show_type = False)]
-			for a in addresses
-		])
+		list_items = []
+		for a in addresses:
+			try:
+				a_type = a[u'l10n_address_type']
+			except KeyError:
+				a_type = u''
+			list_items.append([a_type, a.format(single_line = True, verbose = False, show_type = False)])
+
+		self._LCTRL_addresses.set_string_items(list_items)
+		self._LCTRL_candidates.set_column_widths()
 		self._LCTRL_addresses.set_data(addresses)
+
 	#------------------------------------------------------------
 	def _get_tooltip(self, data):
 		return u'\n'.join(data.format(show_type = True))
@@ -1003,30 +1031,11 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 		self.Layout()
 	#------------------------------------------------------------
 	#------------------------------------------------------------
-	def _on_patient_radiobutton_selected(self, event):
+	def _on_candidate_selected(self, event):
 		event.Skip()
-		self._TCTRL_final_name.SetValue(self.__patient[u'description'].strip())
-		adrs = self.__patient.get_addresses()
-		self.__populate_address_list(addresses = adrs)
-	#------------------------------------------------------------
-	def _on_emergency_contact_radiobutton_selected(self, event):
-		event.Skip()
-		if self.__patient[u'emergency_contact'] is not None:
-			name = self.__patient[u'emergency_contact']
-			adrs = []
-		else:
-			contact = self.__patient.emergency_contact_in_database
-			name = contact[u'description']
-			adrs = contact.get_addresses()
+		name, addresses, tt = self._LCTRL_candidates.get_selected_item_data(only_one = True)
 		self._TCTRL_final_name.SetValue(name.strip())
-		self.__populate_address_list(addresses = adrs)
-	#------------------------------------------------------------
-	def _on_primary_provider_radiobutton_selected(self, event):
-		event.Skip()
-		identity = self.__patient.primary_provider.identity
-		self._TCTRL_final_name.SetValue(identity['description'].strip())
-		adrs = identity.get_addresses()
-		self.__populate_address_list(addresses = adrs)
+		self.__populate_address_list(addresses = addresses)
 	#------------------------------------------------------------
 	def _on_manage_addresses_button_pressed(self, event):
 		event.Skip()

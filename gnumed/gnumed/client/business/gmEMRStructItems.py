@@ -23,6 +23,7 @@ from Gnumed.business import gmClinNarrative
 from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmExternalCare
 
 
 _log = logging.getLogger('gm.emr')
@@ -288,7 +289,8 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 		with_family_history=True,
 		with_documents=True,
 		with_tests=True,
-		with_vaccinations=True
+		with_vaccinations=True,
+		with_external_care=True
 	):
 
 		if patient.ID != self._payload[self._idx['pk_patient']]:
@@ -501,12 +503,30 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 		del epis
 
+		if with_external_care:
+			care = self._get_external_care(order_by = u'org, unit, provider')
+			if len(care) > 0:
+				lines.append(u'')
+				lines.append(_('External care:'))
+			for item in care:
+				lines.append(u' %s%s@%s%s' % (
+					gmTools.coalesce(item['provider'], u'', u'%s: '),
+					item['unit'],
+					item['org'],
+					gmTools.coalesce(item['comment'], u'', u' (%s)')
+				))
+
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
 		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_external_care(self, order_by=None):
+		return gmExternalCare.get_external_care_items(pk_health_issue = self.pk_obj, order_by = order_by)
+
+	external_care = property(_get_external_care, lambda x:x)
 	#--------------------------------------------------------
 	episodes = property(get_episodes, lambda x:x)
 	#--------------------------------------------------------

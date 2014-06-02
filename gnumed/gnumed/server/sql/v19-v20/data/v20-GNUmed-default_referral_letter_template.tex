@@ -1,0 +1,106 @@
+%% GNUmed Referral Letter LaTeX template
+%% Copyright (c)2010 by Rogerio Luz Coelho,MD - Brasil - dr.rogerioluz@gmail.com
+%% This document is an integral part of the GNUmed project, find us at <wiki.gnumed.de>
+%------------------------------------------------------------------
+% License: GPL v2 or later
+%
+%------------------------------------------------------------------
+
+\documentclass[11pt,english]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ucs}
+\usepackage{array}
+%\usepackage{lmodern}
+%\usepackage{times}
+%\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{babel}
+
+\usepackage[a4paper]{geometry}
+\geometry{verbose,lmargin=2.54cm}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+%\fancyhead[L]
+\lhead {$<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)}
+\cfoot {\thepage}
+
+
+\setlength{\parskip}{\medskipamount}
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+
+\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
+\footnotetext {\tiny Template: $<form_name_long::::60>$ v$<form_version::::20>$}
+
+\title {Referral Letter concerning: \\ \emph {$<title::::>$ $<lastname::::>$, $<firstname::::>$}}
+\author {From $<current_provider::::>$ on:}
+\maketitle 
+
+%\begin{center}
+%{\LARGE Referral Letter concerning:}
+%{\LARGE \emph {$ <title::::>$ $ <lastname::::>$, $ <firstname::::> $}}
+%{\large From $ <current_provider::::> $ on $ <today::%Y %B %d::> $}
+%\end{center}
+
+
+\paragraph* {
+	$<receiver_name::::>$\\
+	$<receiver_street::::>$\ $<receiver_number::::>$\\
+	$<receiver_postcode::::>$\ $<receiver_location::::>$
+}
+
+
+\paragraph* {To whom this may concern,\\
+\\
+The above patient born on \emph {$<date_of_birth::%Y %B %d::>$} has been under my care.
+With due consideration to consent I will here disclose:
+}
+
+\begin{enumerate}
+
+	\item This patient's allergy state: $<allergy_state::::>$ (\emph {$<allergy_list::%(descriptor)s//, ::>$})
+
+	\item This patient has the following active health issues:
+
+	\begin{description}
+$<problems::		\item[%(problem)s] (%(diagnostic_certainty_classification)s) ::>$
+	\end{description}
+
+	\item The above patient is currently using: 
+	\begin{description}
+$<current_meds::		\item[%(substance)s] {\footnotesize (%(brand)s)} %(preparation)s %(amount)s%(unit)s: %(schedule)s ::>$
+	\end{description}
+
+\end{enumerate}
+
+\noindent \paragraph* {
+Lastly, we have discussed the following plan for the future which the
+patient may or may not have fully completed or followed:
+}
+
+\begin{itemize}
+$<progress_notes::p//	{\item %s} \\ ::>$
+\end{itemize}
+
+
+\noindent 
+$<lab_table::latex::>$
+
+
+\vfill{}
+
+\begin{tabular}{c}
+\rule{0pt}{10ex} \texttt {\textsl {\footnotesize <Practice Stamp / Signature>}}\\
+\rule{0pt}{4ex} {\footnotesize $<current_provider::::>$}\\
+\hline
+\tiny The above physician cannot be held responsible for unconfirmed content or alterations to this letter. \\
+\end{tabular}
+
+\end{document}
+
+%------------------------------------------------------------------

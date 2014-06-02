@@ -120,6 +120,7 @@ from Gnumed.wxpython import gmPraxisWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmAutoHintWidgets
 from Gnumed.wxpython import gmPregWidgets
+from Gnumed.wxpython import gmExternalCareWidgets
 
 
 try:
@@ -638,6 +639,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Hospitalizations'), _('Manage hospitalizations.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_hospital_stays, item)
+
+		item = menu_emr_edit.Append(-1, _('&External care'), _('Manage external care.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_external_care, item)
 
 		item = menu_emr_edit.Append(-1, _('&Procedures'), _('Manage procedures performed on the patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_performed_procedures, item)
@@ -2576,6 +2580,14 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage hospitalizations. No active patient.'))
 			return False
 		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+		evt.Skip()
+	#----------------------------------------------
+	def __on_manage_external_care(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage external care. No active patient.'))
+			return False
+		gmExternalCareWidgets.manage_external_care(parent = self)
 		evt.Skip()
 	#----------------------------------------------
 	def __on_edit_occupation(self, evt):
