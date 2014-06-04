@@ -1391,7 +1391,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		lines = []
 		for m in current_meds:
 			data = m.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
-			data['medically_formatted_start'] = self._escape(intake.medically_formatted_start)
+			data['medically_formatted_start'] = self._escape(m.medically_formatted_start)
 			lines.append(template % data)
 
 		return u'\n'.join(lines)
