@@ -872,7 +872,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('care: %s%s@%s') % (
 				gmTools.coalesce(item['provider'], u'', u'%s, '),
 				item['unit'],
-				item['org']
+				item['organization']
 			))
 			list_data.append(item)
 
@@ -892,23 +892,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_address = True,
 				with_comms = True
 			))
-#			parts = []
-#			if data['provider'] is not None:
-#				parts.append(_(u'Provider: %s') % data['provider'])
-#			parts.append(_(u'Location: %s@%s') % (data['unit'], data['org']))
-#			adr = data.org_unit.address
-#			if adr is not None:
-#				parts.extend(adr.format())
-#			for comm in data.org_unit.comm_channels:
-#				parts.append(u' %s: %s%s' % (
-#					comm['l10n_comm_type'],
-#					comm['url'],
-#					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
-#				))
-#			parts.append(u'')
-#			parts.append(_(u'Issue: %s') % data['issue'])
-#			parts.append(gmTools.coalesce(data['comment'], u'', u'\n%s'))
-#			return u'\n'.join(parts)
 
 		if isinstance(data, gmDemographicRecord.cPatientAddress):
 			return u'\n'.join(data.format())
@@ -1012,7 +995,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(_('extrnl: %s (%s@%s)') % (
 				item['issue'],
 				item['unit'],
-				item['org']
+				item['organization']
 			))
 			list_data.append(item)
 

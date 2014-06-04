@@ -71,7 +71,7 @@ def manage_external_care(parent=None):
 			gmTools.coalesce(c['provider'], u''),
 			u'%s @ %s' % (
 				c['unit'],
-				c['org']
+				c['organization']
 			),
 			gmTools.coalesce(c['comment'], u'')
 		] for c in care ]

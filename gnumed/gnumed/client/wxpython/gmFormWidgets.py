@@ -942,10 +942,10 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			details = u'%s%s@%s (%s)' % (
 				gmTools.coalesce(care['provider'], u'', u'%s: '),
 				care['unit'],
-				care['org'],
+				care['organization'],
 				care['issue']
 			)
-			name = gmTools.coalesce(care['provider'], u'').strip()
+			name = gmTools.coalesce(care['provider'], u'', u'%s @ %s' % (care['unit'], care['organization'])).strip()
 			adr = care.org_unit.address
 			if adr is None:
 				addresses = []
@@ -954,6 +954,14 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			list_items.append([candidate_type, details])
 			tt = u'\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
 			list_data.append((name, addresses, tt))
+
+		units = self.__patient.emr.get_labs_as_org_units()
+		for unit in units:
+			adr = unit.address
+			if adr is None:
+				continue
+			list_items.append([_('Lab'), u'%s @ %s' % (unit['unit'], unit['organization'])])
+			list_data.append((u'%s @ %s' % (unit['unit'], unit['organization']), [adr], u'\n'.join(unit.format())))
 
 		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
 		self._LCTRL_candidates.set_string_items(list_items)

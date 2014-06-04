@@ -38,6 +38,7 @@ from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmExternalCare
+from Gnumed.business import gmOrganization
 from Gnumed.business.gmDemographicRecord import get_occupations
 
 
@@ -728,7 +729,7 @@ order by
 	#--------------------------------------------------------
 	def format_summary(self):
 
-		cmd = u"SELECT dob from dem.v_basic_person where pk_identity = %(pk)s"
+		cmd = u"SELECT dob FROM dem.v_basic_person WHERE pk_identity = %(pk)s"
 		args = {'pk': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		dob = rows[0]['dob']
@@ -840,6 +841,21 @@ order by
 				gmTools.u_left_double_angle_quote,
 				vacc['batch_no'],
 				gmTools.u_right_double_angle_quote
+			)
+
+		care = self.get_external_care_items(order_by = u'issue, org, unit, provider')
+		if len(care) > 0:
+			txt += u'\n'
+			txt += _('External care')
+			txt += u'\n'
+		for item in care:
+			txt += u' %s: %s\n' % (
+				item['issue'],
+				gmTools.coalesce (
+					item['provider'],
+					u'%s@%s' % (item['unit'], item['organization']),
+					u'%%s (%s@%s)' % (item['unit'], item['organization'])
+				)
 			)
 
 		return txt
@@ -2266,6 +2282,17 @@ SELECT MIN(earliest) FROM (
 
 		return tr
 	#------------------------------------------------------------------
+	def get_labs_as_org_units(self):
+		where = u'pk_org_unit IN (%s)' % u"""
+			SELECT DISTINCT fk_org_unit FROM clin.test_org WHERE pk IN (
+				SELECT DISTINCT fk_test_org FROM clin.test_type WHERE pk IN (
+					SELECT DISTINCT fk_type FROM clin.test_result
+				)
+			)
+		"""
+		cmd = gmOrganization._SQL_get_org_unit % where
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------

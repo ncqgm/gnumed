@@ -177,7 +177,7 @@ select
 	d_ou.description
 		as unit,
 	d_o.description
-		as org,
+		as organization,
 	c_ec.comment
 		as comment,
 	c_ec.fk_health_issue

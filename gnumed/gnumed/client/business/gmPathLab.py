@@ -41,9 +41,11 @@ def _on_test_result_modified():
 gmDispatcher.connect(_on_test_result_modified, u'clin.test_result_mod_db')
 
 #============================================================
+_SQL_get_test_orgs = u"SELECT * FROM clin.v_test_orgs WHERE %s"
+
 class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one test org/lab."""
-	_cmd_fetch_payload = u"""SELECT * FROM clin.v_test_orgs WHERE pk_test_org = %s"""
+	_cmd_fetch_payload = _SQL_get_test_orgs % u'pk_test_org = %s'
 	_cmds_store_payload = [
 		u"""UPDATE clin.test_org SET
 				fk_org_unit = %(pk_org_unit)s,

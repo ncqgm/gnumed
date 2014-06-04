@@ -88,7 +88,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 				lines.append(u'  (' + _(u'also treated here') + u')')
 		if self._payload[self._idx['provider']] is not None:
 			lines.append(u' ' + _(u'Provider: %s') % self._payload[self._idx['provider']])
-		lines.append(u' ' + _(u'Location: %s@%s') % (self._payload[self._idx['unit']], self._payload[self._idx['org']]))
+		lines.append(u' ' + _(u'Location: %s@%s') % (self._payload[self._idx['unit']], self._payload[self._idx['organization']]))
 		unit = self.org_unit
 		if with_address:
 			adr = unit.address

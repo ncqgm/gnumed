@@ -512,7 +512,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 				lines.append(u' %s%s@%s%s' % (
 					gmTools.coalesce(item['provider'], u'', u'%s: '),
 					item['unit'],
-					item['org'],
+					item['organization'],
 					gmTools.coalesce(item['comment'], u'', u' (%s)')
 				))
 
