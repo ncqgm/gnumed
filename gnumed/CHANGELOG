@@ -6,7 +6,7 @@
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.9
+	1.4.9 (unreleased)
 
 FIX: bug in current_meds placeholder
 
@@ -1448,6 +1448,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.9 (unreleased)
+
+IMPROVED: add some indices to dem.org(_unit)
 
 	19.5
 
