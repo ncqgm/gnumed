@@ -25,7 +25,7 @@ IMPROVED: manage episodes from measurements EA [thanks Jim]
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.9
+	1.4.9 (unreleased)
 
 FIX: bug in current_meds placeholder
 
@@ -1481,6 +1481,10 @@ NEW: clin.patient
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.9 (unreleased)
+
+IMPROVED: add some indices to dem.org(_unit)
 
 	19.5
 

@@ -18,7 +18,6 @@ from Gnumed.pycommon import gmPG2
 
 
 _log = logging.getLogger('gm.ui')
-_log.info(__version__)
 
 
 # these are stripped from the fragment passed to the
