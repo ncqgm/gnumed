@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.9
+
+FIX: bug in current_meds placeholder
+
 	1.4.8
 
 FIX: exception on showing audit trail [thanks Jim]
