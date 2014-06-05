@@ -1485,6 +1485,7 @@ NEW: clin.patient
 	19.9 (unreleased)
 
 IMPROVED: add some indices to dem.org(_unit)
+IMPROVED: faster view for praxis branches
 
 	19.5
 
