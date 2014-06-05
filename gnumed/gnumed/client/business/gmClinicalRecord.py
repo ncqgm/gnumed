@@ -843,7 +843,7 @@ order by
 				gmTools.u_right_double_angle_quote
 			)
 
-		care = self.get_external_care_items(order_by = u'issue, org, unit, provider')
+		care = self.get_external_care_items(order_by = u'issue, organization, unit, provider')
 		if len(care) > 0:
 			txt += u'\n'
 			txt += _('External care')

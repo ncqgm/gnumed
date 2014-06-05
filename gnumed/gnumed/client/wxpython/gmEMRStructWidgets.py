@@ -1532,44 +1532,43 @@ class cIssueSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 		mp = gmMatchProvider.cMatchProvider_SQL2 (
 			# FIXME: consider clin.health_issue.clinically_relevant
-			queries = [
-u"""
-SELECT
-	data,
-	field_label,
-	list_label
-FROM ((
-	SELECT
-		pk_health_issue AS data,
-		description AS field_label,
-		description AS list_label
-	FROM clin.v_health_issues
-	WHERE
-		is_active IS true
-			AND
-		description %(fragment_condition)s
-			AND
-		%(ctxt_pat)s
+			queries = [u"""
+				SELECT
+					data,
+					field_label,
+					list_label
+				FROM ((
+					SELECT
+						pk_health_issue AS data,
+						description AS field_label,
+						description AS list_label
+					FROM clin.v_health_issues
+					WHERE
+						is_active IS true
+							AND
+						description %(fragment_condition)s
+							AND
+						%(ctxt_pat)s
 
-	) UNION (
+					) UNION (
 
-	SELECT
-		pk_health_issue AS data,
-		description AS field_label,
-		description || _(' (inactive)') AS list_label
-	FROM clin.v_health_issues
-	WHERE
-		is_active IS false
-			AND
-		description %(fragment_condition)s
-			AND
-		%(ctxt_pat)s
-)) AS union_query
-ORDER BY
-	list_label"""],
+					SELECT
+						pk_health_issue AS data,
+						description AS field_label,
+						description || _(' (inactive)') AS list_label
+					FROM clin.v_health_issues
+					WHERE
+						is_active IS false
+							AND
+						description %(fragment_condition)s
+							AND
+						%(ctxt_pat)s
+				)) AS union_query
+				ORDER BY
+					list_label"""
+			],
 			context = ctxt
 		)
-
 		try: kwargs['patient_id']
 		except KeyError: kwargs['patient_id'] = None
 
@@ -1627,6 +1626,28 @@ ORDER BY
 	#--------------------------------------------------------
 	def _data2instance(self):
 		return gmEMRStructItems.cHealthIssue(aPK_obj = self.GetData())
+	#--------------------------------------------------------
+	def _get_data_tooltip(self):
+		if self.GetData() is None:
+			return None
+		issue = self._data2instance()
+		if issue is None:
+			return None
+		return issue.format (
+			patient = None,
+			with_summary = True,
+			with_codes = False,
+			with_episodes = True,
+			with_encounters = True,
+			with_medications = False,
+			with_hospital_stays = False,
+			with_procedures = False,
+			with_family_history = False,
+			with_documents = False,
+			with_tests = False,
+			with_vaccinations = False,
+			with_external_care = True
+		)
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
