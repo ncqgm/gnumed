@@ -1452,6 +1452,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	19.9 (unreleased)
 
 IMPROVED: add some indices to dem.org(_unit)
+IMPROVED: faster view for praxis branches
 
 	19.5
 
