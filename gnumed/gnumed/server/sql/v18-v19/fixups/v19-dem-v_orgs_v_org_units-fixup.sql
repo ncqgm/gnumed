@@ -37,27 +37,6 @@ from
 
 drop view if exists dem.v_orgs_no_praxis_check cascade;
 
-create view dem.v_orgs_no_praxis_check as
-select
-	d_o.pk
-		as pk_org,
-	d_o.description
-		as organization,
-	d_oc.description
-		as category,
-	_(d_oc.description)
-		as l10n_category,
-	d_o.fk_category
-		as pk_category_org,
-	d_o.xmin
-		as xmin_org
-from
-	dem.org d_o
-		inner join dem.org_category d_oc on (d_o.fk_category = d_oc.pk)
-;
-
-grant select on dem.v_orgs_no_praxis_check to "gm-public";
-
 -- --------------------------------------------------------------
 -- we are only changing the join type, so no need to drop/recreate/cascade
 create or replace view dem.v_org_units as
@@ -98,19 +77,22 @@ create view dem.v_org_units_no_praxis_check as
 select
 	d_ou.pk
 		as pk_org_unit,
-	d_vo.organization,
+	d_o.description
+		as organization,
 	d_ou.description
 		as unit,
-	d_vo.category
+	d_oc_o.description
 		as organization_category,
-	_(d_vo.category)
+	_(d_oc_o.description)
 		as l10n_organization_category,
-	d_oc.description
+	d_oc_u.description
 		as unit_category,
-	_(d_oc.description)
+	_(d_oc_u.description)
 		as l10n_unit_category,
-	d_vo.pk_org,
-	d_vo.pk_category_org,
+	d_o.pk
+		as pk_org,
+	d_o.fk_category
+		as pk_category_org,
 	d_ou.fk_category
 		as pk_category_unit,
 	d_ou.fk_address
@@ -119,8 +101,10 @@ select
 		as xmin_org_unit
 from
 	dem.org_unit d_ou
-		inner join dem.v_orgs_no_praxis_check d_vo on (d_ou.fk_org = d_vo.pk_org)
-			inner join dem.org_category d_oc on (d_ou.fk_category = d_oc.pk)
+		inner join dem.org_category d_oc_u on (d_ou.fk_category = d_oc_u.pk)
+			inner join dem.org d_o on (d_o.pk = d_ou.fk_org)
+				inner join dem.org_category d_oc_o on (d_o.fk_category = d_oc_o.pk)
+
 ;
 
 grant select on dem.v_org_units_no_praxis_check to "gm-public";

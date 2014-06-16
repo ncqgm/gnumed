@@ -9,6 +9,7 @@
 	1.4.9 (unreleased)
 
 FIX: bug in current_meds placeholder
+FIX: utterly slow praxis branch PRW [thanks Jim]
 
 	1.4.8
 
@@ -1453,6 +1454,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 IMPROVED: add some indices to dem.org(_unit)
 IMPROVED: faster view for praxis branches
+IMPROVED: add pg_trgm extension
 
 	19.5
 

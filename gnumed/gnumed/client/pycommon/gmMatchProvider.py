@@ -10,7 +10,9 @@ __version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import re as regex, logging
+import re as regex
+import logging
+import datetime as pydt
 
 
 # GNUmed
@@ -488,6 +490,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 	def _find_matches(self, fragment_condition):
 		if self.print_queries:
 			print "----------------------"
+			print pydt.datetime.now()
 		matches = []
 		for query in self._queries:
 			where_fragments = {'fragment_condition': fragment_condition}
