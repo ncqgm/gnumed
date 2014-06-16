@@ -14,28 +14,48 @@ drop view if exists dem.v_praxis_branches cascade;
 create view dem.v_praxis_branches as
 
 select
-	d_pb.pk
-		as pk_praxis_branch,
-	d_vou.organization
-		as praxis,
-	d_vou.unit
-		as branch,
-	d_vou.organization_category,
-	d_vou.l10n_organization_category,
-	d_vou.unit_category,
-	d_vou.l10n_unit_category,
-	d_vou.pk_org,
-	d_pb.fk_org_unit
-		as pk_org_unit,
-	d_vou.pk_category_org,
-	d_vou.pk_category_unit,
-	d_vou.pk_address,
-	d_pb.xmin
-		as xmin_praxis_branch,
-	d_vou.xmin_org_unit
-from
-	dem.praxis_branch d_pb
-		inner join dem.v_org_units_no_praxis_check d_vou on (d_pb.fk_org_unit = d_vou.pk_org_unit)
+	branches_w_orgs.*,
+	d_ocat.description
+		as organization_category,
+	_(d_ocat.description)
+		as l10n_organization_category,
+	d_ucat.description
+		as unit_category,
+	_(d_ucat.description)
+		as l10n_unit_category
+from (
+	select
+		branches_w_units.*,
+		d_o.description
+				as praxis,
+		d_o.fk_category
+			as pk_category_org
+	from (
+		select
+			d_pb.pk
+				as pk_praxis_branch,
+			d_ou.description
+				as branch,
+			d_pb.fk_org_unit
+				as pk_org_unit,
+			d_ou.fk_category
+				as pk_category_unit,
+			d_ou.fk_address
+				as pk_address,
+			d_ou.fk_org
+				as pk_org,
+			d_pb.xmin
+				as xmin_praxis_branch,
+			d_ou.xmin
+				as xmin_org_unit
+		from
+			dem.praxis_branch d_pb
+				inner join dem.org_unit d_ou on (d_pb.fk_org_unit = d_ou.pk)
+		) as branches_w_units
+			inner join dem.org d_o on (d_o.pk = branches_w_units.pk_org)
+	) as branches_w_orgs
+		inner join dem.org_category d_ucat on (branches_w_orgs.pk_category_unit = d_ucat.pk)
+			inner join dem.org_category d_ocat on (branches_w_orgs.pk_category_org = d_ocat.pk)
 ;
 
 
