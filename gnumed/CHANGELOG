@@ -6,7 +6,7 @@
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.9 (unreleased)
+	1.4.9
 
 FIX: bug in current_meds placeholder
 FIX: utterly slow praxis branch PRW [thanks Jim]
@@ -1451,7 +1451,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v19
 ------------------------------------------------
 
-	19.9 (unreleased)
+	19.9
 
 IMPROVED: add some indices to dem.org(_unit)
 IMPROVED: faster view for praxis branches

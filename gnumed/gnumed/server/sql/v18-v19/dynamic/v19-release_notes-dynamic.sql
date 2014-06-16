@@ -17,18 +17,22 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.8 (database v19.8)',
-	'GNUmed 1.4.8 Release Notes:
+	'Release Notes for GNUmed 1.4.9 (database v19.9)',
+	'GNUmed 1.4.9 Release Notes:
 
-	1.4.8
+	1.4.9
 
-FIX: exception on showing audit trail [thanks Jim]
-FIX: SOAP->episode misappropriation bug [thanks Jim]
+FIX: bug in current_meds placeholder
+FIX: utterly slow praxis branch PRW [thanks Jim]
+FIX: bug with changing praxis definition
 
-IMPROVED: patient merging dialog [thanks Harald]
-IMPROVED: [SAVE ALL] behaviour in SOAP plugin [thanks Jim]
+	19.9 -- Requires PostgreSQL 9.1 !
 
-	19.8 -- Requires PostgreSQL 9.1 !
+IMPROVED: add some indices to dem.org(_unit)
+IMPROVED: faster view for praxis branches
+IMPROVED: add pg_trgm extension
+IMPROVED: speed of dem.v_org_units
+
 ');
 
 -- --------------------------------------------------------------
