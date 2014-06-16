@@ -633,11 +633,22 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				dem.v_praxis_branches
 			WHERE
 				praxis %(fragment_condition)s
+
+			)	UNION	(
+
+			SELECT
+				pk_praxis_branch AS data,
+				branch || ' (' || praxis || ')' AS field_label,
+				branch || coalesce(' (' || l10n_unit_category || ')', '') || ' of ' || l10n_organization_category || ' "' || praxis || '"' AS list_label
+			FROM
+				dem.v_praxis_branches
+			WHERE
+				l10n_unit_category %(fragment_condition)s
+
 			)
-			ORDER BY
-				list_label
-			LIMIT 50
-		"""
+		ORDER BY
+			list_label
+		LIMIT 50"""
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries=query)
 		mp.setThresholds(1, 2, 4)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
