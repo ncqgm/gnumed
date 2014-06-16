@@ -9,9 +9,12 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-\unset ON_ERROR_STOP
-drop view clin.v_pat_encounters cascade;
-\set ON_ERROR_STOP 1
+drop index if exists clin.idx_clin_encounter_fk_location cascade;
+
+create index idx_clin_encounter_fk_location on clin.encounter(fk_location);
+
+-- --------------------------------------------------------------
+drop view if exists clin.v_pat_encounters cascade;
 
 
 create view clin.v_pat_encounters as

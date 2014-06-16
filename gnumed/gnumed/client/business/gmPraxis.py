@@ -201,9 +201,10 @@ def delete_praxis_branches(pk_praxis_branches=None, except_pk_praxis_branches=No
 	else:
 		pks_to_lock = pk_praxis_branches[:]
 
-	for pk in except_pk_praxis_branches:
-		try: pks_to_lock.remove(pk)
-		except ValueError: pass
+	if except_pk_praxis_branches is not None:
+		for pk in except_pk_praxis_branches:
+			try: pks_to_lock.remove(pk)
+			except ValueError: pass
 
 	for pk in pks_to_lock:
 		if not lock_praxis_branch(pk_praxis_branch = pk, exclusive = True):
