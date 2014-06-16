@@ -1577,7 +1577,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 		except:
 			pass
 		if verbose:
-			__log_PG_settings(curs=curs)
+			_log_PG_settings(curs=curs)
 		curs.close()
 		conn.commit()
 
@@ -1840,7 +1840,7 @@ def sanity_check_database_settings():
 
 	return 0, u''
 #------------------------------------------------------------------------
-def __log_PG_settings(curs=None):
+def _log_PG_settings(curs=None):
 	# don't use any of the run_*()s since that might
 	# create a loop if we fail here
 	# FIXME: use pg_settings
@@ -1855,6 +1855,19 @@ def __log_PG_settings(curs=None):
 		return False
 	for setting in settings:
 		_log.debug(u'PG option [%s]: %s', setting[0], setting[1])
+
+	try:
+		curs.execute(u'select pg_available_extensions()')
+	except:
+		_log.exception(u'cannot log available PG extensions')
+		return False
+	extensions = curs.fetchall()
+	if extensions is None:
+		_log.error(u'no PG extensions available')
+		return False
+	for ext in extensions:
+		_log.debug(u'PG extension: %s', ext[0])
+
 	return True
 #========================================================================
 def make_pg_exception_fields_unicode(exc):

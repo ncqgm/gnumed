@@ -28,6 +28,7 @@ IMPROVED: manage episodes from measurements EA [thanks Jim]
 	1.4.9 (unreleased)
 
 FIX: bug in current_meds placeholder
+FIX: utterly slow praxis branch PRW [thanks Jim]
 
 	1.4.8
 
@@ -1486,6 +1487,7 @@ NEW: clin.patient
 
 IMPROVED: add some indices to dem.org(_unit)
 IMPROVED: faster view for praxis branches
+IMPROVED: add pg_trgm extension
 
 	19.5
 

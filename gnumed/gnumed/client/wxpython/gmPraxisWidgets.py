@@ -613,7 +613,7 @@ def manage_praxis_branches(parent=None):
 class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
-		query = u"""
+		query = """(
 			SELECT
 				pk_praxis_branch AS data,
 				branch || ' (' || praxis || ')' AS field_label,
@@ -622,10 +622,18 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 				dem.v_praxis_branches
 			WHERE
 				branch %(fragment_condition)s
-					OR
+
+			)	UNION	(
+
+			SELECT
+				pk_praxis_branch AS data,
+				branch || ' (' || praxis || ')' AS field_label,
+				branch || coalesce(' (' || l10n_unit_category || ')', '') || ' of ' || l10n_organization_category || ' "' || praxis || '"' AS list_label
+			FROM
+				dem.v_praxis_branches
+			WHERE
 				praxis %(fragment_condition)s
-					OR
-				l10n_unit_category %(fragment_condition)s
+			)
 			ORDER BY
 				list_label
 			LIMIT 50
@@ -636,6 +644,7 @@ class cPraxisBranchPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		self.SetToolTipString(_("Select a praxis branch."))
 		self.matcher = mp
 		self.selection_only = True
+		self.picklist_delay = 300
 	#--------------------------------------------------------
 	def _get_data_tooltip(self):
 		if self.GetData() is None:

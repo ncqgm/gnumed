@@ -693,6 +693,8 @@ class database:
 			curs.execute("alter database %s set ignore_checksum_failure to off" % self.name)
 		except:
 			_log.exception('PostgreSQL version < 9.3 does not support <ignore_checksum_failure>')
+
+		gmPG2._log_PG_settings(curs = curs)
 		curs.close()
 
 		self.conn.commit()
