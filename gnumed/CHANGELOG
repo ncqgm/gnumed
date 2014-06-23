@@ -25,7 +25,7 @@ IMPROVED: manage episodes from measurements EA [thanks Jim]
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.9 (unreleased)
+	1.4.9
 
 FIX: bug in current_meds placeholder
 FIX: utterly slow praxis branch PRW [thanks Jim]

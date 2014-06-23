@@ -33,9 +33,82 @@ alter table clin.encounter
 		on delete cascade
 ;
 
+-- --------------------------------------------------------------
+select i18n.upd_tx('de', 'generic praxis', 'generische Praxis');
+select i18n.upd_tx('de', 'generic praxis branch', 'generische Zweigstelle');
 
 -- --------------------------------------------------------------
--- add generic branch to use for all hitherto non-located encounters
+-- add org category to use for generic praxis if needed
+insert into dem.org_category (description)
+select
+	'Medical Practice'
+where
+	not exists (
+		select 1 from dem.org_category where description = 'Medical Practice'
+);
+
+
+-- if there is no praxis branch yet add a generic org off which
+-- to base a generic org unit to use as praxis branch
+insert into dem.org (description, fk_category)
+select
+	_('generic praxis'),
+	(select pk from dem.org_category where description = 'Medical Practice')
+where
+	not exists (select 1 from dem.praxis_branch)
+		and
+	not exists (
+		select 1 from dem.org
+		where
+			description = _('generic praxis')
+				and
+			fk_category = (select pk from dem.org_category where description = 'Medical Practice')
+	)
+;
+
+
+-- if there is no praxis branch yet add a generic
+-- org unit to the just created generic org
+insert into dem.org_unit (fk_org, description)
+select
+	(select pk from dem.org where description = _('generic praxis')),
+	_('generic praxis branch')
+where
+	not exists (select 1 from dem.praxis_branch)
+		and
+	not exists (
+		select 1 from dem.org_unit
+		where
+			description = _('generic praxis branch')
+				and
+			fk_org = (
+				select pk from dem.org where description = _('generic praxis')
+			)
+	)
+;
+
+
+-- if there is no praxis branch yet add generic one now
+insert into dem.praxis_branch (fk_org_unit)
+select
+	pk
+from
+	dem.org_unit
+where
+	description = _('generic praxis branch')
+		and
+	fk_org = (
+		select pk from dem.org where description = _('generic praxis')
+	)
+;
+
+
+-- now we have got a praxis branch, either by having
+-- created a generic one or because it already existed
+
+
+-- add generic org unit (if it does not exist) to use
+-- as praxis branch for all hitherto non-located encounters
 insert into dem.org_unit (fk_org, description)
 select
 	(select fk_org from dem.org_unit where pk = (
@@ -77,9 +150,6 @@ where
 alter table clin.encounter
 	alter column fk_location
 		set not null;
-
--- --------------------------------------------------------------
-select i18n.upd_tx('de', 'generic praxis branch', 'generische Zweigstelle');
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v20-clin-encounter-dynamic.sql', '20.0');

@@ -91,6 +91,78 @@ payload:
 ';
 
 -- --------------------------------------------------------------
+-- the function
+--		"clin.trf_sanity_check_enc_epi_insert()"
+-- used to be hardcoded in gmNotificationSchema.py and was
+-- re-created whenever that code was run
+--
+-- starting with gnumed_v20 we don't run (or even have)
+-- "gmNotificationSchema.py" anymore
+--
+-- during bootstrapping we still run the v19 SQL scripts,
+-- however (just like any other previous SQL)
+--
+-- the v19 notification SQL scripts includes a notification
+-- trigger generation function
+--		"gm.create_table_mod_triggers()"
+-- which was previously used to piggy-back creating another
+-- trigger to check encounter/episode consistency
+--
+-- *that* trigger, of course, still uses the old function
+--		"clin.trf_sanity_check_enc_epi_insert()"
+-- which is not created anymore because the script
+-- "gmNotificationSchema.py" is no longer with us
+--
+-- hence we need to provide 
+--		"clin.trf_sanity_check_enc_epi_insert()"
+-- here in order to make it available for any v19 created
+-- with the v20 bootstrapper (regardless of whether that v19
+-- will be put to use with a 1.4 client or whether it will
+-- only serve as the last stepping stone in bootstrapping v20
+-- at which point the old function will be dropped again :-)
+--
+--
+-- Do NOT backport this function to the 1.4/v19 branch !
+
+drop function if exists clin.trf_sanity_check_enc_epi_insert() cascade;
+
+create function clin.trf_sanity_check_enc_epi_insert()
+	returns trigger
+	 language 'plpgsql'
+	as '
+declare
+	_identity_from_encounter integer;
+	_identity_from_episode integer;
+begin
+	-- sometimes .fk_episode can actually be NULL (eg. clin.substance_intake)
+	-- in which case we do not need to run the sanity check
+	if NEW.fk_episode is NULL then
+		return NEW;
+	end if;
+
+	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
+
+	select fk_patient into _identity_from_episode from clin.encounter where pk = (
+		select fk_encounter from clin.episode where pk = NEW.fk_episode
+	);
+
+	if _identity_from_encounter <> _identity_from_episode then
+		raise exception ''INSERT into %.%: Sanity check failed. Encounter % patient = %. Episode % patient = %.'',
+			TG_TABLE_SCHEMA,
+			TG_TABLE_NAME,
+			NEW.fk_encounter,
+			_identity_from_encounter,
+			NEW.fk_episode,
+			_identity_from_episode
+		;
+		return NULL;
+	end if;
+
+	return NEW;
+end;
+';
+
+-- --------------------------------------------------------------
 create or replace function gm.create_table_mod_triggers(_schema_name name, _table_name name, _drop_old_triggers boolean)
 	returns boolean
 	language plpgsql

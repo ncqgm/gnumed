@@ -179,6 +179,14 @@ ALTER TABLE %(src_schema)s.%(src_tbl)s
 		ON DELETE RESTRICT
 ;"""
 
+SQL_add_index = u"""
+-- idempotent:
+DROP INDEX IF EXISTS %(idx_schema)s.%(idx_name)s CASCADE;
+
+CREATE INDEX %(idx_name)s ON %(idx_schema)s.%(idx_table)s(%(idx_col)s);
+"""
+
+
 #==================================================================
 def user_exists(cursor=None, user=None):
 	cmd = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
@@ -1115,7 +1123,7 @@ class database:
 	def bootstrap_notifications(self):
 
 		# setup clin.clin_root_item child tables FK's
-		print_msg("==> setting up encounter/episode FKs on clin.clin_root_item child tables ...")
+		print_msg("==> setting up encounter/episode FKs and IDXs ...")
 		child_tables = gmPG2.get_child_tables(link_obj = self.conn, schema = 'clin', table = 'clin_root_item')
 		_log.info('clin.clin_root_item child tables:')
 		for child in child_tables:
@@ -1147,6 +1155,22 @@ class database:
 					'target_col': 'pk'
 				}
 				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			# index on .fk_episode
+			idx_defs = gmPG2.get_index_name(indexed_table = u'%s.%s' % (child['namespace'], child['table']), indexed_column = u'fk_episode', link_obj = self.conn)
+			# drop any existing
+			for idx_def in idx_defs:
+				_log.info(u'dropping index %s.%s', idx_def['index_schema'], idx_def['index_name'])
+				cmd = u'DROP INDEX IF EXISTS %s.%s CASCADE' % (idx_def['index_schema'], idx_def['index_name'])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			# create
+			_log.info(u'creating index idx_%s_%s_fk_episode', child['namespace'], child['table'])
+			cmd = SQL_add_index % {
+				'idx_schema': child['namespace'],
+				'idx_name': u'idx_%s_%s_fk_episode' % (child['namespace'], child['table']),
+				'idx_table': child['table'],
+				'idx_col': u'fk_episode'
+			}
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
 
 			# .fk_encounter
 			FKs = gmPG2.get_foreign_key_names (
@@ -1174,45 +1198,49 @@ class database:
 					'target_col': 'pk'
 				}
 				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			# index on .fk_encounter
+			idx_defs = gmPG2.get_index_name(indexed_table = u'%s.%s' % (child['namespace'], child['table']), indexed_column = u'fk_encounter', link_obj = self.conn)
+			# drop any existing
+			for idx_def in idx_defs:
+				_log.info(u'dropping index %s.%s', idx_def['index_schema'], idx_def['index_name'])
+				cmd = u'DROP INDEX IF EXISTS %s.%s CASCADE' % (idx_def['index_schema'], idx_def['index_name'])
+				gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
+			# create
+			_log.info(u'creating index idx_%s_%s_fk_encounter', child['namespace'], child['table'])
+			cmd = SQL_add_index % {
+				'idx_schema': child['namespace'],
+				'idx_name': u'idx_%s_%s_fk_encounter' % (child['namespace'], child['table']),
+				'idx_table': child['table'],
+				'idx_col': u'fk_encounter'
+			}
+			gmPG2.run_rw_queries(link_obj = self.conn, queries = [{'cmd': cmd}])
 
 		curs = self.conn.cursor()
 
 		# re-create fk_encounter/fk_episode sanity check triggers on all tables
-		print_msg("==> setting up encounter/episode FK sanity check triggers on all tables ...")
-		_log.debug('attempting to set up sanity check triggers on all tables linking to encounter AND episode')
-		cmd = u'select gm.create_all_enc_epi_sanity_check_triggers()'
-		curs.execute(cmd)
-		result = curs.fetchone()
-		if result[0] is False:
-			_log.error('error creating sanity check triggers on all tables linking to clin.encounter AND clin.episode')
-			curs.close()
-			return None
+		if gmPG2.function_exists(link_obj = curs, schema = u'gm', function = u'create_all_enc_epi_sanity_check_triggers'):
+			print_msg("==> setting up encounter/episode FK sanity check triggers ...")
+			_log.debug('attempting to set up sanity check triggers on all tables linking to encounter AND episode')
+			cmd = u'select gm.create_all_enc_epi_sanity_check_triggers()'
+			curs.execute(cmd)
+			result = curs.fetchone()
+			if result[0] is False:
+				_log.error('error creating sanity check triggers on all tables linking to clin.encounter AND clin.episode')
+				curs.close()
+				return None
 
 		# always re-create generic super signal (if exists)
-		print_msg("==> setting up generic notifications ...")
-		_log.debug('attempting to create generic modification announcement triggers on all registered tables')
-#		cmd = u"""
-#			SELECT EXISTS (
-#				SELECT 1 FROM information_schema.routines WHERE
-#					routine_name = 'create_all_table_mod_triggers'
-#						AND
-#					routine_schema = 'gm'
-#			)"""
-#		curs.execute(cmd)
-#		result = curs.fetchone()
-#		if result[0] is False:
-#			curs.close()
-#			_log.debug('NOT creating generic modification announcement triggers, functionality not available')
-#			return False
-#
-#		_log.debug('now creating generic modification announcement triggers on registered tables')
-		cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
-		curs.execute(cmd)
-		result = curs.fetchone()
-		curs.close()
-		if result[0] is False:
-			_log.error('cannot create generic modification announcement triggers on all tables')
-			return None
+		if gmPG2.function_exists(link_obj = curs, schema = u'gm', function = u'create_all_table_mod_triggers'):
+			print_msg("==> setting up generic notifications ...")
+			_log.debug('attempting to create generic modification announcement triggers on all registered tables')
+
+			cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
+			curs.execute(cmd)
+			result = curs.fetchone()
+			curs.close()
+			if result[0] is False:
+				_log.error('cannot create generic modification announcement triggers on all tables')
+				return None
 
 		self.conn.commit()
 		return True

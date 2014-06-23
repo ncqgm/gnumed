@@ -226,6 +226,38 @@ WHERE
 	)
 """
 
+SQL_get_index_name = u"""
+SELECT
+	(SELECT nspname FROM pg_namespace WHERE pg_namespace.oid = pg_class.relnamespace)
+		AS index_schema,
+	pg_class.relname
+		AS index_name
+FROM
+	pg_class
+WHERE
+	pg_class.oid IN (
+		SELECT
+			indexrelid
+		FROM
+			pg_index
+		WHERE
+			pg_index.indrelid = %(idx_tbl)s::regclass
+				AND
+			pg_index.indnatts = 1		-- only one column in index
+				AND
+			pg_index.indkey[0] IN (
+				SELECT
+					pg_attribute.attnum
+				FROM
+					pg_attribute
+				WHERE
+					pg_attribute.attrelid = %(idx_tbl)s::regclass
+						AND
+					pg_attribute.attname = %(idx_col)s
+				)
+	)
+"""
+
 # =======================================================================
 # module globals API
 # =======================================================================
@@ -649,6 +681,21 @@ where
 	return rows
 
 #------------------------------------------------------------------------
+def get_index_name(indexed_table=None, indexed_column=None, link_obj=None):
+
+	args = {
+		'idx_tbl': indexed_table,
+		'idx_col': indexed_column
+	}
+	rows, idx = run_ro_queries (
+		link_obj = link_obj,
+		queries = [{'cmd': SQL_get_index_name, 'args': args}],
+		get_col_idx = False
+	)
+
+	return rows
+
+#------------------------------------------------------------------------
 def get_foreign_key_names(src_schema=None, src_table=None, src_column=None, target_schema=None, target_table=None, target_column=None, link_obj=None):
 
 	args = {
@@ -709,6 +756,23 @@ select exists (
 )"""
 	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': (schema, table)}])
 	return rows[0][0]
+
+#------------------------------------------------------------------------
+def function_exists(link_obj=None, schema=None, function=None):
+
+	cmd = u"""
+		SELECT EXISTS (
+			SELECT 1 FROM pg_proc
+			WHERE proname = %(func)s AND pronamespace = (SELECT oid FROM pg_namespace WHERE nspname = %(schema)s)
+		)
+	"""
+	args = {
+		'func': function,
+		'schema': schema
+	}
+	rows, idx = run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+
 #------------------------------------------------------------------------
 def get_col_indices(cursor = None):
 	if cursor.description is None:
@@ -2371,6 +2435,9 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 			target_table = 'identity',
 			target_column = 'pk'
 		)
+	#--------------------------------------------------------------------
+	def test_get_index_name():
+		print get_index_name(indexed_table = 'clin.vaccination', indexed_column = 'fk_episode')
 
 	#--------------------------------------------------------------------
 	# run tests
@@ -2386,7 +2453,8 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_is_pg_interval()
 	#test_sanity_check_time_skew()
 	#test_get_foreign_key_details()
-	test_get_foreign_key_names()
+	#test_get_foreign_key_names()
+	test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
 	#test_run_query()
