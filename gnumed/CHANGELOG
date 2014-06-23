@@ -1451,6 +1451,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v19
 ------------------------------------------------
 
+	19.10 (unreleased)
+
+FIX: overly eager INNER JOIN of dem.v_praxis_branch
+
 	19.9
 
 IMPROVED: add some indices to dem.org(_unit)

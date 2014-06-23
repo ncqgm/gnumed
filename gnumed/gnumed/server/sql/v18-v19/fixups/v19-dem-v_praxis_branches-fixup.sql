@@ -54,8 +54,9 @@ from (
 		) as branches_w_units
 			inner join dem.org d_o on (d_o.pk = branches_w_units.pk_org)
 	) as branches_w_orgs
-		inner join dem.org_category d_ucat on (branches_w_orgs.pk_category_unit = d_ucat.pk)
-			inner join dem.org_category d_ocat on (branches_w_orgs.pk_category_org = d_ocat.pk)
+		-- LEFT JOIN needed because org/unit might lack a category
+		left join dem.org_category d_ucat on (branches_w_orgs.pk_category_unit = d_ucat.pk)
+			left join dem.org_category d_ocat on (branches_w_orgs.pk_category_org = d_ocat.pk)
 ;
 
 
