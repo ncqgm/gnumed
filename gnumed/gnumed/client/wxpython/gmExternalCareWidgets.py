@@ -6,7 +6,6 @@ __license__ = "GPL v2 or later"
 # std lib
 import sys
 import logging
-#import os.path
 
 
 # 3rd party
@@ -19,18 +18,12 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
-#from Gnumed.pycommon import gmMimeLib
-#from Gnumed.pycommon import gmDateTime
-#from Gnumed.pycommon import gmPrinting
-#from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmPerson
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
-#from Gnumed.wxpython import gmRegetMixin
-#from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
@@ -49,7 +42,7 @@ def manage_external_care(parent=None):
 		return edit_external_care_item(parent = parent, external_care_item = external_care_item)
 	#-----------------------------------------
 	def delete(external_care_item=None):
-		if gmExternalCare.delete_external_care(pk_external_care = external_care_item['pk_external_care']):
+		if gmExternalCare.delete_external_care_item(pk_external_care = external_care_item['pk_external_care']):
 			return True
 
 		gmDispatcher.send (
@@ -91,8 +84,8 @@ def manage_external_care(parent=None):
 		new_callback = edit,
 		delete_callback = delete,
 		list_tooltip_callback = get_tooltip
-#		left_extra_button=None,
-#		middle_extra_button=None,
+#		left_extra_button=None,		# manage orgs
+#		middle_extra_button=None,	# manage issues
 #		right_extra_button=None
 	)
 
@@ -138,62 +131,48 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
 	def _valid_for_save(self):
-
-		# its best to validate bottom -> top such that the
-		# cursor ends up in the topmost failing field
-
-		# remove when implemented:
-		return False
-
 		validity = True
 
-		if self._TCTRL_xxx.GetValue().strip() == u'':
+		if self._PRW_care_location.GetData() is None:
 			validity = False
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = False)
-			self.status_message = _('No entry in field xxx.')
-			self._TCTRL_xxx.SetFocus()
+			self._PRW_care_location.display_as_valid(False)
+			self.status_message = _('No entry in field "Care Location".')
+			self._PRW_care_location.SetFocus()
 		else:
-			self.display_tctrl_as_valid(tctrl = self._TCTRL_xxx, valid = True)
+			self._PRW_care_location.display_as_valid(True)
 
-		if self._PRW_xxx.GetData() is None:
-			validity = False
-			self._PRW_xxx.display_as_valid(False)
-			self.status_message = _('No entry in field xxx.')
-			self._PRW_xxx.SetFocus()
+		if self._PRW_issue.GetData() is not None:
+			self._PRW_issue.display_as_valid(True)
 		else:
-			self._PRW_xxx.display_as_valid(True)
+			if self._PRW_issue.GetValue().strip() != u'':
+				self._PRW_issue.display_as_valid(True)
+			else:
+				validity = False
+				self._PRW_issue.display_as_valid(False)
+				self.status_message = _('No entry in field [Care Target].')
+				self._PRW_issue.SetFocus()
 
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-
-		# remove when implemented:
-		return False
-
-		# save the data as a new instance
-		data = gmXXXX.create_xxxx()
-
-		data[''] = self._
-		data[''] = self._
-
+		data = gmExternalCare.create_external_care_item (
+			pk_identity = gmPerson.gmCurrentPatient().ID,
+			pk_health_issue = self._PRW_issue.GetData(),
+			issue = self._PRW_issue.GetValue().strip(),
+			pk_org_unit = self._PRW_care_location.GetData()
+		)
+		data['provider'] = self._TCTRL_provider.GetValue().strip()
+		data['comment'] = self._TCTRL_comment.GetValue().strip()
 		data.save()
-
-		# must be done very late or else the property access
-		# will refresh the display such that later field
-		# access will return empty values
 		self.data = data
-		return False
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
-
-		# remove when implemented:
-		return False
-
-		# update self.data and save the changes
-		self.data[''] = self._TCTRL_xxx.GetValue().strip()
-		self.data[''] = self._PRW_xxx.GetData()
-		self.data[''] = self._CHBOX_xxx.GetValue()
+		self.data['pk_health_issue'] = self._PRW_issue.GetData()
+		self.data['issue'] = self._PRW_issue.GetValue().strip()
+		self.data['pk_org_unit'] = self._PRW_care_location.GetData()
+		self.data['provider'] = self._TCTRL_provider.GetValue().strip()
+		self.data['comment'] = self._TCTRL_comment.GetValue().strip()
 		self.data.save()
 		return True
 	#----------------------------------------------------------------

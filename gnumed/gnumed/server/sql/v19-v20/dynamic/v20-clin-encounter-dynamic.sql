@@ -95,6 +95,8 @@ select
 from
 	dem.org_unit
 where
+	not exists (select 1 from dem.praxis_branch)
+		and
 	description = _('generic praxis branch')
 		and
 	fk_org = (

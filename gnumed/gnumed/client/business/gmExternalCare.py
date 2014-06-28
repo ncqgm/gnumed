@@ -38,7 +38,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	Note: Upon saving .issue being non-empty and not None will
 	override .fk_health_issue (IOW, if your code wants to set
 	.fk_health_issue to something other than NULL it needs to
-	unset .issue explicitly).
+	unset .issue explicitly (to u'' or None)).
 	"""
 	_cmd_fetch_payload = _SQL_get_external_care_items % u"pk_external_care = %s"
 	_cmds_store_payload = [
@@ -66,7 +66,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING
 				xmin AS xmin_external_care
 		""",
-		_cmd_fetch_payload
+		_SQL_get_external_care_items % u"pk_external_care = %(pk_external_care)s"
 	]
 	_updatable_fields = [
 		u'pk_identity',
@@ -141,17 +141,19 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 	return [ cExternalCareItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_external_care'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_external_care_item(pk_identity=None, pk_health_issue=None, issue=None):
+def create_external_care_item(pk_identity=None, pk_health_issue=None, issue=None, pk_org_unit=None):
 	args = {
-		u'pk_pat': pk_identity,
-		u'pk_issue': pk_health_issue,
-		u'issue': issue
+		u'pk_identity': pk_identity,
+		u'pk_health_issue': pk_health_issue,
+		u'issue': issue,
+		u'pk_org_unit': pk_org_unit
 	}
 	cmd = u"""
 		INSERT INTO clin.external_care (
 			issue,
 			fk_health_issue,
-			fk_identity
+			fk_identity,
+			fk_org_unit
 		) VALUES (
 			gm.nullify_empty_string(%(issue)s),
 			(CASE
@@ -161,7 +163,8 @@ def create_external_care_item(pk_identity=None, pk_health_issue=None, issue=None
 			(CASE
 				WHEN gm.is_null_or_blank_string(%(issue)s) IS FALSE THEN %(pk_identity)s
 				ELSE NULL
-			END)::integer
+			END)::integer,
+			%(pk_org_unit)s
 		)
 		RETURNING pk"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)

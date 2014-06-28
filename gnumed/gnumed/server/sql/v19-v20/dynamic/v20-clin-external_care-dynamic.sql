@@ -6,6 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 comment on table clin.external_care is
@@ -106,7 +107,7 @@ alter table clin.external_care drop constraint if exists clin_ext_care_sane_comm
 
 alter table clin.external_care
 	add constraint clin_ext_care_sane_comment
-		check(gm.is_null_or_blank_string(comment) is false)
+		check(gm.is_null_or_non_empty_string(comment) is true)
 ;
 
 -- --------------------------------------------------------------

@@ -20,6 +20,7 @@ IMPROVED: robustness of patient change event sequence ordering
 IMPROVED: import upstream TimeLine 1.2.3 release
 IMPROVED: encounter editing before patient switch/creation
 IMPROVED: manage episodes from measurements EA [thanks Jim]
+IMPROVED: workflow when entering test result with new type
 
 ------------------------------------------------
 # rel-1-4-patches

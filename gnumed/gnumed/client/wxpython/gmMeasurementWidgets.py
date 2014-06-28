@@ -1656,11 +1656,20 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
+			abbrev = self._PRW_test.GetValue().strip()
+			name = self._PRW_test.GetValue().strip()
+			unit = gmTools.coalesce(self._PRW_units.GetData(), self._PRW_units.GetValue()).strip()
+			lab = manage_measurement_orgs (
+				parent = self,
+				msg = _('Please select (or create) a lab for the new test type [%s in %s]') % (name, unit)
+			)
+			if lab is not None:
+				lab = lab['pk_test_org']
 			tt = gmPathLab.create_measurement_type (
-				lab = None,
-				abbrev = self._PRW_test.GetValue().strip(),
-				name = self._PRW_test.GetValue().strip(),
-				unit = gmTools.coalesce(self._PRW_units.GetData(), self._PRW_units.GetValue()).strip()
+				lab = lab,
+				abbrev = abbrev,
+				name = name,
+				unit = unit
 			)
 			pk_type = tt['pk_test_type']
 
@@ -1732,11 +1741,20 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		pk_type = self._PRW_test.GetData()
 		if pk_type is None:
+			abbrev = self._PRW_test.GetValue().strip()
+			name = self._PRW_test.GetValue().strip()
+			unit = gmTools.coalesce(self._PRW_units.GetData(), self._PRW_units.GetValue()).strip()
+			lab = manage_measurement_orgs (
+				parent = self,
+				msg = _('Please select (or create) a lab for the new test type [%s in %s]') % (name, unit)
+			)
+			if lab is not None:
+				lab = lab['pk_test_org']
 			tt = gmPathLab.create_measurement_type (
 				lab = None,
-				abbrev = self._PRW_test.GetValue().strip(),
-				name = self._PRW_test.GetValue().strip(),
-				unit = gmTools.none_if(self._PRW_units.GetValue().strip(), u'')
+				abbrev = abbrev,
+				name = name,
+				unit = unit
 			)
 			pk_type = tt['pk_test_type']
 
@@ -2580,7 +2598,7 @@ def edit_measurement_org(parent=None, org=None):
 	dlg.Destroy()
 	return False
 #----------------------------------------------------------------
-def manage_measurement_orgs(parent=None):
+def manage_measurement_orgs(parent=None, msg=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
@@ -2601,9 +2619,12 @@ def manage_measurement_orgs(parent=None):
 		gmPathLab.delete_test_org(test_org = test_org['pk_test_org'])
 		return True
 	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
+	if msg is None:
+		msg = _('\nThese are the diagnostic orgs (path labs etc) currently defined in GNUmed.\n\n')
+
+	return gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _('\nThese are the diagnostic orgs (path labs etc) currently defined in GNUmed.\n\n'),
+		msg = msg,
 		caption = _('Showing diagnostic orgs.'),
 		columns = [_('Name'), _('Organization'), _('Contact'), _('Comment'), u'#'],
 		single_selection = True,

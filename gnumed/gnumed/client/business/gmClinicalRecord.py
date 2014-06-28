@@ -312,6 +312,14 @@ class cClinicalRecord(object):
 			procedure = procedure
 		)
 	#--------------------------------------------------------
+	def get_procedure_locations_as_org_units(self):
+		where = u'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_procedures_not_at_hospital WHERE pk_patient = %(pat)s)'
+		args = {'pat': self.pk_patient}
+		cmd = gmOrganization._SQL_get_org_unit % where
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+
+	#--------------------------------------------------------
 	# API: hospitalizations
 	#--------------------------------------------------------
 	def get_hospital_stays(self, episodes=None, issues=None, ongoing_only=False):
@@ -351,6 +359,14 @@ class cClinicalRecord(object):
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return rows
+	#--------------------------------------------------------
+	def get_attended_hospitals_as_org_units(self):
+		where = u'pk_org_unit IN (SELECT DISTINCT pk_org_unit FROM clin.v_hospital_stays WHERE pk_patient = %(pat)s)'
+		args = {'pat': self.pk_patient}
+		cmd = gmOrganization._SQL_get_org_unit % where
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+
 	#--------------------------------------------------------
 	# API: narrative
 	#--------------------------------------------------------
@@ -2285,14 +2301,13 @@ SELECT MIN(earliest) FROM (
 	def get_labs_as_org_units(self):
 		where = u'pk_org_unit IN (%s)' % u"""
 			SELECT DISTINCT fk_org_unit FROM clin.test_org WHERE pk IN (
-				SELECT DISTINCT fk_test_org FROM clin.test_type WHERE pk IN (
-					SELECT DISTINCT fk_type FROM clin.test_result
-				)
-			)
-		"""
+				SELECT DISTINCT pk_test_org FROM clin.v_test_results where pk_patient = %(pat)s
+			)"""
+		args = {'pat': self.pk_patient}
 		cmd = gmOrganization._SQL_get_org_unit % where
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------

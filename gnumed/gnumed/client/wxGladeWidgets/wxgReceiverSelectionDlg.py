@@ -48,7 +48,7 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 	def __set_properties(self):
 		# begin wxGlade: wxgReceiverSelectionDlg.__set_properties
 		self.SetTitle(_("Letter receiver selection"))
-		self.SetSize(wx.DLG_SZE(self, (360, 226)))
+		self.SetSize(wx.DLG_SZE(self, (360, 224)))
 		self._TCTRL_final_name.SetToolTipString(_("This name will be used.\n\nYou can edit the (or type another) name here, too."))
 		self._PRW_other_address.SetToolTipString(_("This address will be used.\n\nYou can also search for an arbitrary address in this field."))
 		self._BTN_manage_addresses.SetToolTipString(_("Manage generic list of all addresses."))
@@ -75,7 +75,7 @@ class wxgReceiverSelectionDlg(wx.Dialog):
 		__szr_final_address.Add(__lbl_final_address, 0, wx.BOTTOM | wx.ALIGN_CENTER_HORIZONTAL, 3)
 		__lbl_name = wx.StaticText(self, wx.ID_ANY, _("Name"))
 		__fgszr_selected.Add(__lbl_name, 0, wx.ALIGN_CENTER_VERTICAL, 5)
-		__fgszr_selected.Add(self._TCTRL_final_name, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+		__fgszr_selected.Add(self._TCTRL_final_name, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__lbl_address_search = wx.StaticText(self, wx.ID_ANY, _("Address"))
 		__fgszr_selected.Add(__lbl_address_search, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		__fgszr_selected.Add(self._PRW_other_address, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)

@@ -27,6 +27,7 @@ from Gnumed.pycommon import gmMimeLib
 from Gnumed.business import gmForms
 from Gnumed.business import gmPerson
 from Gnumed.business import gmExternalCare
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
@@ -930,14 +931,25 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			list_items.append([candidate_type, contact[u'description_gender']])
 			list_data.append((contact[u'description'].strip(), contact.get_addresses(), u''))
 
+		candidate_type = _('Primary doctor')
 		prov = self.__patient.primary_provider
 		if prov is not None:
 			ident = prov.identity
-			list_items.append([_('Primary doctor'), u'%s: %s' % (prov[u'short_alias'], ident['description_gender'])])
+			list_items.append([candidate_type, u'%s: %s' % (prov[u'short_alias'], ident['description_gender'])])
 			list_data.append((ident['description'].strip(), ident.get_addresses(), _(u'in-praxis primary provider')))
 
-		cares = gmExternalCare.get_external_care_items(pk_identity = self.__patient.ID)
+		candidate_type = _(u'This praxis')
+		branches = gmPraxis.get_praxis_branches(order_by = u'branch')
+		for branch in branches:
+			adr = branch.address
+			if adr is None:
+				continue
+			list_items.append([candidate_type, u'%s @ %s' % (branch['branch'], branch['praxis'])])
+			list_data.append((u'%s @ %s' % (branch['branch'], branch['praxis']), [adr], branch.format()))
+		del branches
+
 		candidate_type = _('External care')
+		cares = gmExternalCare.get_external_care_items(pk_identity = self.__patient.ID)
 		for care in cares:
 			details = u'%s%s@%s (%s)' % (
 				gmTools.coalesce(care['provider'], u'', u'%s: '),
@@ -945,7 +957,10 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 				care['organization'],
 				care['issue']
 			)
-			name = gmTools.coalesce(care['provider'], u'', u'%s @ %s' % (care['unit'], care['organization'])).strip()
+			name = (u'%s%s' % (
+				gmTools.coalesce(care['provider'], u'', u'%s, '),
+				u'%s @ %s' % (care['unit'], care['organization'])
+			)).strip()
 			adr = care.org_unit.address
 			if adr is None:
 				addresses = []
@@ -954,14 +969,39 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			list_items.append([candidate_type, details])
 			tt = u'\n'.join(care.format(with_health_issue = True, with_address = True, with_comms = True))
 			list_data.append((name, addresses, tt))
+		del cares
 
-		units = self.__patient.emr.get_labs_as_org_units()
-		for unit in units:
-			adr = unit.address
+		emr = self.__patient.emr
+
+		candidate_type = _('Hospital stay')
+		depts = emr.get_attended_hospitals_as_org_units()
+		for dept in depts:
+			adr = dept.address
 			if adr is None:
 				continue
-			list_items.append([_('Lab'), u'%s @ %s' % (unit['unit'], unit['organization'])])
-			list_data.append((u'%s @ %s' % (unit['unit'], unit['organization']), [adr], u'\n'.join(unit.format())))
+			list_items.append([candidate_type, u'%s @ %s' % (dept['unit'], dept['organization'])])
+			list_data.append((u'%s @ %s' % (dept['unit'], dept['organization']), [adr], u'\n'.join(dept.format())))
+		del depts
+
+		candidate_type = _('Procedure')
+		proc_locs = emr.get_procedure_locations_as_org_units()
+		for proc_loc in proc_locs:
+			adr = proc_loc.address
+			if adr is None:
+				continue
+			list_items.append([candidate_type, u'%s @ %s' % (proc_loc['unit'], proc_loc['organization'])])
+			list_data.append((u'%s @ %s' % (proc_loc['unit'], proc_loc['organization']), [adr], u'\n'.join(proc_loc.format())))
+		del proc_locs
+
+		candidate_type = _('Lab')
+		labs = emr.get_labs_as_org_units()
+		for lab in labs:
+			adr = lab.address
+			if adr is None:
+				continue
+			list_items.append([candidate_type, u'%s @ %s' % (lab['unit'], lab['organization'])])
+			list_data.append((u'%s @ %s' % (lab['unit'], lab['organization']), [adr], u'\n'.join(lab.format())))
+		del labs
 
 		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
 		self._LCTRL_candidates.set_string_items(list_items)
