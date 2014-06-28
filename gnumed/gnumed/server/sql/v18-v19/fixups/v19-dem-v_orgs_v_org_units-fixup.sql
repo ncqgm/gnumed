@@ -6,7 +6,7 @@
 --
 -- ==============================================================
 \set ON_ERROR_STOP 1
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
 -- we are only changing the join type, so no need to drop/recreate/cascade
@@ -31,7 +31,7 @@ select
 		as xmin_org
 from
 	dem.org d_o
-		inner join dem.org_category d_oc on (d_o.fk_category = d_oc.pk)
+		left join dem.org_category d_oc on (d_o.fk_category = d_oc.pk)
 ;
 
 
@@ -70,9 +70,9 @@ select
 		as xmin_org_unit
 from
 	dem.org_unit d_ou
-		inner join dem.org_category d_oc_u on (d_ou.fk_category = d_oc_u.pk)
-			inner join dem.org d_o on (d_o.pk = d_ou.fk_org)
-				inner join dem.org_category d_oc_o on (d_o.fk_category = d_oc_o.pk)
+		inner join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			left join dem.org_category d_oc_u on (d_ou.fk_category = d_oc_u.pk)
+				left join dem.org_category d_oc_o on (d_o.fk_category = d_oc_o.pk)
 ;
 
 grant select on dem.v_org_units to "gm-public";
@@ -108,13 +108,13 @@ select
 		as xmin_org_unit
 from
 	dem.org_unit d_ou
-		inner join dem.org_category d_oc_u on (d_ou.fk_category = d_oc_u.pk)
-			inner join dem.org d_o on (d_o.pk = d_ou.fk_org)
-				inner join dem.org_category d_oc_o on (d_o.fk_category = d_oc_o.pk)
+		inner join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			left join dem.org_category d_oc_u on (d_ou.fk_category = d_oc_u.pk)
+				left join dem.org_category d_oc_o on (d_o.fk_category = d_oc_o.pk)
 
 ;
 
 grant select on dem.v_org_units_no_praxis_check to "gm-public";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-dem-v_orgs_v_org_units-fixup.sql', '19.9');
+select gm.log_script_insertion('v19-dem-v_orgs_v_org_units-fixup.sql', '19.10');

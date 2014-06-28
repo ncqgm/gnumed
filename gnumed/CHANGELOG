@@ -25,6 +25,10 @@ IMPROVED: manage episodes from measurements EA [thanks Jim]
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.10
+
+IMPROVED: labelling of sign vs review in measurements EA [thanks Jim]
+
 	1.4.9
 
 FIX: bug in current_meds placeholder
@@ -1487,6 +1491,7 @@ NEW: clin.patient
 	19.10 (unreleased)
 
 FIX: overly eager INNER JOIN of dem.v_praxis_branch
+FIX: overly eager INNER JOINs of dem.v_orgs/dem.v_org_units [thanks Jim]
 
 	19.9
 
