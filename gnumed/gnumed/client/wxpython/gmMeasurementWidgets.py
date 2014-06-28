@@ -896,7 +896,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 			#	font.SetWeight(wx.FONTWEIGHT_BOLD)
 			#	self.SetCellFont(row_idx, col_idx, font)
 			if cell_has_out_of_bounds_value:
-				self.SetCellBackgroundColour(row_idx, col_idx, 'cornflower blue')
+				#self.SetCellBackgroundColour(row_idx, col_idx, 'cornflower blue')
+				self.SetCellBackgroundColour(row_idx, col_idx, 'PALE TURQUOISE')
 
 		self.AutoSize()
 		self.EndBatch()
