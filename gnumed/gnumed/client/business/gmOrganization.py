@@ -361,8 +361,11 @@ if __name__ == "__main__":
 		sys.exit()
 
 
-	for unit in get_org_units():
-		print unit
+	print cOrgUnit(aPK_obj = 21825)
+
+
+#	for unit in get_org_units():
+#		print unit
 
 	sys.exit(0)
 #============================================================
