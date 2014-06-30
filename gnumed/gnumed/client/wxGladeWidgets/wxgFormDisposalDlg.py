@@ -25,28 +25,14 @@ class wxgFormDisposalDlg(wx.Dialog):
 		wx.Dialog.__init__(self, *args, **kwds)
 		self._LBL_msg = wx.StaticText(self, wx.ID_ANY, _("What would you like to do with the following document(s) ?"))
 		self._LCTRL_forms = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_REPORT | wx.NO_BORDER)
-		self._BTN_show_forms = wx.Button(self, wx.ID_ANY, _("Show"), style=wx.BU_EXACTFIT)
-		self._BTN_delete_forms = wx.Button(self, wx.ID_ANY, _("Delete"), style=wx.BU_EXACTFIT)
-		self._LBL_print = wx.StaticText(self, wx.ID_ANY, _("Print"))
-		self._CHBOX_print = wx.CheckBox(self, wx.ID_ANY, _("to printer"))
-		self._BTN_print = wx.Button(self, wx.ID_ANY, _("Now (&P)"), style=wx.BU_EXACTFIT)
-		self._LBL_mail = wx.StaticText(self, wx.ID_ANY, _("Mail"))
-		self._CHBOX_mail = wx.CheckBox(self, wx.ID_ANY, _("to recipients"))
-		self._BTN_mail = wx.Button(self, wx.ID_ANY, _("Now (&M)"), style=wx.BU_EXACTFIT)
-		self._LBL_fax = wx.StaticText(self, wx.ID_ANY, _("Fax to"))
-		self._PRW_fax = cPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_fax = wx.Button(self, wx.ID_ANY, _("Now (&F)"), style=wx.BU_EXACTFIT)
-		self._LBL_export = wx.StaticText(self, wx.ID_ANY, _("Export"))
+		self._BTN_show_forms = wx.Button(self, wx.ID_OPEN, "", style=wx.BU_EXACTFIT)
+		self._BTN_delete_forms = wx.Button(self, wx.ID_DELETE, "", style=wx.BU_EXACTFIT)
 		self._CHBOX_export = wx.CheckBox(self, wx.ID_ANY, _("to patient export area"))
-		self._BTN_export = wx.Button(self, wx.ID_ANY, _("Now (&E)"), style=wx.BU_EXACTFIT)
-		self._LBL_archive = wx.StaticText(self, wx.ID_ANY, _("Archive\nunder"))
 		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_archive = wx.Button(self, wx.ID_ANY, _("Now (&A)"), style=wx.BU_EXACTFIT)
-		self._LBL_save = wx.StaticText(self, wx.ID_ANY, _("Save"))
-		self._CHBOX_save = wx.CheckBox(self, wx.ID_ANY, _("to file(s)"))
-		self._BTN_save = wx.Button(self, wx.ID_ANY, _("Now (&S)"), style=wx.BU_EXACTFIT)
 		self._TCTRL_soap = cTextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_OK = wx.Button(self, wx.ID_OK, "")
+		self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
+		self._BTN_export = wx.Button(self, wx.ID_ANY, _("&Export only"))
+		self._BTN_archive = wx.Button(self, wx.ID_ANY, _("&Archive only"))
 		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
 
 		self.__set_properties()
@@ -55,12 +41,8 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_show_forms_button_pressed, self._BTN_show_forms)
 		self.Bind(wx.EVT_BUTTON, self._on_delete_forms_button_pressed, self._BTN_delete_forms)
 		self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
-		self.Bind(wx.EVT_BUTTON, self._on_mail_button_pressed, self._BTN_mail)
-		self.Bind(wx.EVT_BUTTON, self._on_fax_button_pressed, self._BTN_fax)
 		self.Bind(wx.EVT_BUTTON, self._on_export_button_pressed, self._BTN_export)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_button_pressed, self._BTN_archive)
-		self.Bind(wx.EVT_BUTTON, self._on_save_button_pressed, self._BTN_save)
-		self.Bind(wx.EVT_BUTTON, self._on_ok_button_pressed, self._BTN_OK)
 		# end wxGlade
 
 	def __set_properties(self):
@@ -69,28 +51,20 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self.SetSize((550, 500))
 		self._BTN_show_forms.SetToolTipString(_("Show the selected form(s)."))
 		self._BTN_delete_forms.SetToolTipString(_("Delete the selected forms from the list."))
-		self._CHBOX_print.SetToolTipString(_("Check here for printing."))
-		self._BTN_print.SetToolTipString(_("Print immediately without further ado."))
-		self._BTN_print.SetDefault()
-		self._BTN_mail.SetToolTipString(_("Mail immediately without further ado."))
-		self._PRW_fax.SetToolTipString(_("Enter a fax number here."))
-		self._BTN_fax.SetToolTipString(_("Fax immediately without further ado."))
-		self._CHBOX_export.SetToolTipString(_("Check here if you want to put a copy into the export area."))
-		self._BTN_export.SetToolTipString(_("Put into export area immediately without further ado."))
+		self._CHBOX_export.SetToolTipString(_("Check here to put a copy into the export area."))
 		self._PRW_episode.SetToolTipString(_("Select episode under which to archive a copy of the document(s)."))
-		self._BTN_archive.SetToolTipString(_("Put copy into archive without further ado."))
-		self._CHBOX_save.SetToolTipString(_("Check here to save document(s) to file(s)."))
-		self._BTN_save.SetToolTipString(_("Save to file(s) immediately without further ado."))
 		self._TCTRL_soap.SetToolTipString(_("Enter a SOAP note to be put into the chart."))
-		self._BTN_OK.SetToolTipString(_("Act on the document(s) according to the above."))
+		self._BTN_print.SetToolTipString(_("Print document(s)\n(optionally copy to archive and export area)"))
+		self._BTN_export.SetToolTipString(_("Put into export area only (no printing, no archiving)."))
+		self._BTN_archive.SetToolTipString(_("Put copy into archive only (no printing, no export area)."))
 		self._BTN_cancel.SetToolTipString(_("Cancel any actions and close dialog."))
 		# end wxGlade
 
 	def __do_layout(self):
 		# begin wxGlade: wxgFormDisposalDlg.__do_layout
 		__szr_main = wx.BoxSizer(wx.VERTICAL)
-		sizer_1 = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_grid = wx.FlexGridSizer(7, 3, 2, 2)
+		__szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_grid = wx.FlexGridSizer(3, 2, 2, 2)
 		__szr_forms = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_forms_buttons = wx.BoxSizer(wx.VERTICAL)
 		__szr_main.Add(self._LBL_msg, 0, wx.ALL | wx.EXPAND, 3)
@@ -101,36 +75,25 @@ class wxgFormDisposalDlg(wx.Dialog):
 		__szr_forms_buttons.Add((20, 20), 1, wx.EXPAND, 0)
 		__szr_forms.Add(__szr_forms_buttons, 0, wx.EXPAND, 0)
 		__szr_main.Add(__szr_forms, 1, wx.LEFT | wx.RIGHT | wx.TOP | wx.EXPAND, 3)
-		__szr_grid.Add(self._LBL_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._CHBOX_print, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_print, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._LBL_mail, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._CHBOX_mail, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_mail, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._LBL_fax, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._PRW_fax, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_fax, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._LBL_export, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__lbl_export = wx.StaticText(self, wx.ID_ANY, _("Export"))
+		__szr_grid.Add(__lbl_export, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._CHBOX_export, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_export, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._LBL_archive, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__lbl_episode = wx.StaticText(self, wx.ID_ANY, _("Episode"))
+		__szr_grid.Add(__lbl_episode, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._PRW_episode, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_archive, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._LBL_save, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._CHBOX_save, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add(self._BTN_save, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
 		__lbl_soap = wx.StaticText(self, wx.ID_ANY, _("Note"))
 		__szr_grid.Add(__lbl_soap, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.Add(self._TCTRL_soap, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_grid.Add((20, 20), 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_grid.AddGrowableCol(1)
 		__szr_main.Add(__szr_grid, 1, wx.ALL | wx.EXPAND, 3)
-		sizer_1.Add((20, 20), 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		sizer_1.Add(self._BTN_OK, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		sizer_1.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		sizer_1.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		sizer_1.Add((20, 20), 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_main.Add(sizer_1, 0, wx.ALL | wx.EXPAND, 3)
+		__szr_buttons.Add((20, 20), 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_buttons.Add(self._BTN_print, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_buttons.Add(self._BTN_export, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_buttons.Add(self._BTN_archive, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_buttons.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_buttons.Add(self._BTN_cancel, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_buttons.Add((20, 20), 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_main.Add(__szr_buttons, 0, wx.ALL | wx.EXPAND, 3)
 		self.SetSizer(__szr_main)
 		self.Layout()
 		# end wxGlade
@@ -147,28 +110,12 @@ class wxgFormDisposalDlg(wx.Dialog):
 		print "Event handler '_on_print_button_pressed' not implemented!"
 		event.Skip()
 
-	def _on_mail_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
-		print "Event handler '_on_mail_button_pressed' not implemented!"
-		event.Skip()
-
-	def _on_fax_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
-		print "Event handler '_on_fax_button_pressed' not implemented!"
-		event.Skip()
-
 	def _on_export_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
 		print "Event handler '_on_export_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_archive_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
 		print "Event handler '_on_archive_button_pressed' not implemented!"
-		event.Skip()
-
-	def _on_save_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
-		print "Event handler '_on_save_button_pressed' not implemented!"
-		event.Skip()
-
-	def _on_ok_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
-		print "Event handler '_on_ok_button_pressed' not implemented!"
 		event.Skip()
 
 # end of class wxgFormDisposalDlg

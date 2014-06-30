@@ -38,12 +38,9 @@ from Gnumed.wxpython.gmDocumentWidgets import save_files_as_new_document
 
 _log = logging.getLogger('gm.ui')
 
-_ID_FORM_DISPOSAL_PRINT_NOW, \
-_ID_FORM_DISPOSAL_MAIL_NOW, \
-_ID_FORM_DISPOSAL_FAX_NOW, \
-_ID_FORM_DISPOSAL_EXPORT_NOW, \
-_ID_FORM_DISPOSAL_ARCHIVE_NOW, \
-_ID_FORM_DISPOSAL_SAVE_NOW = range(6)
+_ID_FORM_DISPOSAL_PRINT, \
+_ID_FORM_DISPOSAL_EXPORT_ONLY, \
+_ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(3)
 
 #============================================================
 # generic form generation and handling convenience functions
@@ -208,6 +205,8 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 	#-----------------------------
 	def save_soap(soap=None):
+		if episode_name is None:
+			return
 		if soap.strip() == u'':
 			return
 		pat = gmPerson.gmCurrentPatient()
@@ -245,39 +244,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 		return True
 	#-----------------------------
-	def save_forms():
-		# anything to do ?
-		files2save = []
-		form_names = []
-		for form in forms:
-			files2save.extend(form.final_output_filenames)
-			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
-		if len(files2save) == 0:
-			return True
-		# get path
-		path = os.path.expanduser(os.path.join('~', 'gnumed'))
-		dlg = wx.DirDialog (
-			parent = parent,
-			message = _('Select directory in which to create patient directory ...'),
-			defaultPath = path,
-			style = wx.DD_DEFAULT_STYLE
-		)
-		result = dlg.ShowModal()
-		path = dlg.GetPath()
-		dlg.Destroy()
-		if result != wx.ID_OK:
-			return
-		# save forms
-		pat = gmPerson.gmCurrentPatient()
-		path = os.path.join(path, pat.dirname)
-		gmTools.mkdir(path)
-		_log.debug('form saving path: %s', path)
-		for form in forms:
-			for filename in form.final_output_filenames:
-				shutil.copy2(filename, path)
-		soap_lines.append(_('Saved to disk: %s') % u', '.join(form_names))
-		return True
-	#-----------------------------
 	def print_forms():
 		# anything to do ?
 		files2print = []
@@ -296,68 +262,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			)
 			return False
 		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
-		return True
-	#-----------------------------
-	def mail_forms():
-		# anything to do ?
-		files2mail = []
-		form_names = []
-		for form in forms:
-			files2mail.extend(form.final_output_filenames)
-			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
-		if len(files2mail) == 0:
-			return True
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-mail_doc')
-		if not found:
-			return False
-		# send mail
-		cmd = u'%s %s' % (external_cmd, u' '.join(files2mail))
-		if os.name == 'nt':
-			blocking = True
-		else:
-			blocking = False
-		success = gmShellAPI.run_command_in_shell (
-			command = cmd,
-			blocking = blocking
-		)
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error mailing documents.'),
-				aTitle = _('Mailing documents')
-			)
-			return False
-		soap_lines.append(_('Mailed: %s') % u', '.join(form_names))
-		return True
-	#-----------------------------
-	def fax_forms(fax_number=None):
-		# anything to do ?
-		files2fax = []
-		form_names = []
-		for form in forms:
-			files2fax.extend(form.final_output_filenames)
-			form_names.append(u'%s (%s)' % (form.template['name_long'], form.template['external_version']))
-		if len(files2fax) == 0:
-			return True
-		found, external_cmd = gmShellAPI.detect_external_binary(u'gm-fax_doc')
-		if not found:
-			return False
-		# send fax
-		cmd = u'%s "%s" %s' % (external_cmd, fax_number, u' '.join(files2fax))
-		if os.name == 'nt':
-			blocking = True
-		else:
-			blocking = False
-		success = gmShellAPI.run_command_in_shell (
-			command = cmd,
-			blocking = blocking
-		)
-		if not success:
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Error faxing documents to\n\n  %s') % fax_number,
-				aTitle = _('Faxing documents')
-			)
-			return False
-		soap_lines.append(_('Faxed to %s: %s') % (fax_number, u', '.join(form_names)))
 		return True
 	#-----------------------------
 	def export_forms():
@@ -388,58 +292,23 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 
 	progress_note = dlg.progress_note
 	episode_name = dlg._PRW_episode.GetValue().strip()
-	do_save = dlg._CHBOX_save.GetValue()
-	do_print = dlg._CHBOX_print.GetValue()
-	do_mail = dlg._CHBOX_mail.GetValue()
-	fax_number = dlg._PRW_fax.GetValue().strip()
+	if episode_name == u'':
+		episode_name = None
+	also_export = dlg._CHBOX_export.GetValue()
 	dlg.Destroy()
 
-	if action_code == wx.ID_OK:
-		if episode_name != u'':
-			result = archive_forms(episode_name = episode_name)
-		if do_save:
-			result = save_forms()
-		if do_print:
-			result = print_forms()
-		if do_mail:
-			result = mail_forms()
-		if fax_number != u'':
-			result = fax_forms(fax_number = fax_number)
-		if progress_note != u'':
-			soap_lines.insert(0, progress_note)
-		if len(soap_lines) > 0:
-			save_soap(soap = u'\n'.join(soap_lines))
-		return result
-
 	success = False
-	keep_a_copy = False
-	if action_code == _ID_FORM_DISPOSAL_PRINT_NOW:
-		if episode_name != u'':
-			keep_a_copy = True
+	if action_code == _ID_FORM_DISPOSAL_PRINT:
 		success = print_forms()
+		if episode_name is not None:
+			archive_forms(episode_name = episode_name)
+		if also_export:
+			export_forms()
 
-	elif action_code == _ID_FORM_DISPOSAL_ARCHIVE_NOW:
-		if episode_name == u'':
-			episode_name = None
-		keep_a_copy = True
-		success = True
+	elif action_code == _ID_FORM_DISPOSAL_ARCHIVE_ONLY:
+		success = archive_forms(episode_name = episode_name)
 
-	elif action_code == _ID_FORM_DISPOSAL_SAVE_NOW:
-		if episode_name != u'':
-			keep_a_copy = True
-		success = save_forms()
-
-	elif action_code == _ID_FORM_DISPOSAL_MAIL_NOW:
-		if episode_name != u'':
-			keep_a_copy = True
-		success = mail_forms()
-
-	elif action_code == _ID_FORM_DISPOSAL_FAX_NOW:
-		if episode_name != u'':
-			keep_a_copy = True
-		success = fax_forms(fax_number = fax_number)
-
-	elif action_code == _ID_FORM_DISPOSAL_EXPORT_NOW:
+	elif action_code == _ID_FORM_DISPOSAL_EXPORT_ONLY:
 		success = export_forms()
 
 	if not success:
@@ -449,9 +318,6 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		soap_lines.insert(0, progress_note)
 	if len(soap_lines) > 0:
 		save_soap(soap = u'\n'.join(soap_lines))
-
-	if keep_a_copy:
-		archive_forms(episode_name = episode_name)
 
 	return True
 
@@ -510,55 +376,29 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_forms.set_columns([_('Form')])
-
-		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = u'gm-mail_doc')
-		if not self.__mail_script_exists:
-			self._LBL_mail.Disable()
-			self._CHBOX_mail.SetLabel(_('<gm-mail_doc(.bat) not found>'))
-			self._CHBOX_mail.SetValue(False)
-			self._CHBOX_mail.Disable()
-			self._BTN_mail.Disable()
-
-		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = u'gm-fax_doc')
-		if not self.__fax_script_exists:
-			self._LBL_fax.Disable()
-			self._PRW_fax.SetText(_('<gm-fax_doc(.bat) not found>'), data = None)
-			self._PRW_fax.display_as_disabled(True)
-			self._PRW_fax.Disable()
-			self._BTN_fax.Disable()
-
-		self._CHBOX_export.SetValue(False)
-
+		#self._CHBOX_export.SetValue(False)
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
-		self.EndModal(_ID_FORM_DISPOSAL_PRINT_NOW)
-	#--------------------------------------------------------
-	def _on_mail_button_pressed(self, event):
-		event.Skip()
-		if not self.__mail_script_exists:
-			return
-		self.EndModal(_ID_FORM_DISPOSAL_MAIL_NOW)
-	#--------------------------------------------------------
-	def _on_fax_button_pressed(self, event):
-		event.Skip()
-		if not self.__fax_script_exists:
-			return
-		self.EndModal(_ID_FORM_DISPOSAL_FAX_NOW)
+		self.EndModal(_ID_FORM_DISPOSAL_PRINT)
 	#--------------------------------------------------------
 	def _on_export_button_pressed(self, event):
-		self.EndModal(_ID_FORM_DISPOSAL_EXPORT_NOW)
+		self.EndModal(_ID_FORM_DISPOSAL_EXPORT_ONLY)
 	#--------------------------------------------------------
 	def _on_archive_button_pressed(self, event):
-		self.EndModal(_ID_FORM_DISPOSAL_ARCHIVE_NOW)
-	#--------------------------------------------------------
-	def _on_save_button_pressed(self, event):
-		self.EndModal(_ID_FORM_DISPOSAL_SAVE_NOW)
+		self.EndModal(_ID_FORM_DISPOSAL_ARCHIVE_ONLY)
 	#--------------------------------------------------------
 	def _on_show_forms_button_pressed(self, event):
 		event.Skip()
+		if self._LCTRL_forms.ItemCount == 0:
+			return
 		forms2show = self._LCTRL_forms.get_selected_item_data()
+		if len(forms2show) == 0:
+			data = self._LCTRL_forms.get_item_data(item_idx = 0)
+			if data is None:
+				return
+			forms2show = [data]
 		if len(forms2show) == 0:
 			return
 		for form in forms2show:
@@ -568,9 +408,6 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	def _on_delete_forms_button_pressed(self, event):
 		print "Event handler '_on_delete_forms_button_pressed' not implemented!"
 		event.Skip()
-	#--------------------------------------------------------
-	def _on_ok_button_pressed(self, event):
-		self.EndModal(wx.ID_OK)
 
 #============================================================
 # form template management

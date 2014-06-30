@@ -2216,7 +2216,10 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 
 		part_file = self.__curr_node_data.export_to_file(aChunkSize = chunksize)
 
-		cmd = u'%s %s' % (external_cmd, part_file)
+		if action == 'print':
+			cmd = u'%s generic_document %s' % (external_cmd, part_file)
+		else:
+			cmd = u'%s %s' % (external_cmd, part_file)
 		if os.name == 'nt':
 			blocking = True
 		else:
@@ -2363,7 +2366,15 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			blocking = True
 		else:
 			blocking = False
-		cmd = external_cmd + u' ' + u' '.join(part_files)
+
+		if action == 'print':
+			cmd = u'%s %s %s' % (
+				external_cmd,
+				u'generic_document',
+				u' '.join(part_files)
+			)
+		else:
+			cmd = external_cmd + u' ' + u' '.join(part_files)
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
 			blocking = blocking
