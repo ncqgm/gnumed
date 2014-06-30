@@ -1495,6 +1495,8 @@ NEW: clin.patient
 FIX: overly eager INNER JOIN of dem.v_praxis_branch
 FIX: overly eager INNER JOINs of dem.v_orgs/dem.v_org_units [thanks Jim]
 
+IMPROVED: more robust pg_trgm installation
+
 	19.9
 
 IMPROVED: add some indices to dem.org(_unit)
