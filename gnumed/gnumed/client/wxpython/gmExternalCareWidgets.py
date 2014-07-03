@@ -24,6 +24,7 @@ from Gnumed.business import gmPerson
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
+from Gnumed.wxpython import gmGuiHelpers
 
 
 _log = logging.getLogger('gm.ui')
@@ -194,4 +195,94 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment']))
 
 		self._TCTRL_comment.SetFocus()
-	#----------------------------------------------------------------
+
+#------------------------------------------------------------
+class cExternalCareMgrPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing a patient's external care.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__identity = kwargs['identity']
+			del kwargs['identity']
+		except KeyError:
+			self.__identity = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = self._add_care
+		self.edit_callback = self._edit_care
+		self.delete_callback = self._del_care
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__identity is None:
+			self._LCTRL_items.set_string_items()
+			return
+
+		emr = self.__identity.emr
+		care = emr.get_external_care_items(order_by = u'issue, provider, unit, organization')
+		items = [ [
+			u'%s @ %s' % (
+				c['unit'],
+				c['organization']
+			),
+			gmTools.coalesce(c['provider'], u''),
+			c['issue'],
+			gmTools.coalesce(c['comment'], u'')
+		] for c in care ]
+		self._LCTRL_items.set_string_items(items)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = care)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('Care location'),
+			_('Provider'),
+			_('Care issue'),
+			_('Comment')
+		])
+	#--------------------------------------------------------
+	def _add_care(self):
+		return edit_external_care_item(parent = self, external_care_item = None)
+	#--------------------------------------------------------
+	def _edit_care(self, external_care_item):
+		return edit_external_care_item(parent = self, external_care_item = external_care_item)
+	#--------------------------------------------------------
+	def _del_care(self, external_care_item):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'Do you really want to delete this\n'
+				'external care entry from the patient ?'),
+			_('Deleting external care entry')
+		)
+		if not go_ahead:
+			return False
+		if gmExternalCare.delete_external_care_item(pk_external_care = external_care_item['pk_external_care']):
+			return True
+		gmDispatcher.send (
+			signal = u'statustext',
+			msg = _('Cannot delete external care item.'),
+			beep = True
+		)
+		return False
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_identity(self):
+		return self.__identity
+
+	def _set_identity(self, identity):
+		self.__identity = identity
+		self.refresh()
+
+	identity = property(_get_identity, _set_identity)
+#------------------------------------------------------------

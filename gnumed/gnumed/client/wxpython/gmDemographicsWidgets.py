@@ -1516,6 +1516,8 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 			self._PRW_provider.SetText(value = u'', data = None)
 		else:
 			self._PRW_provider.SetData(data = self.__identity['pk_primary_provider'])
+
+		self._PNL_external_care.identity = self.__identity
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
