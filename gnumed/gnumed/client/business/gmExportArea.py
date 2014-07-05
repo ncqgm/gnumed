@@ -33,6 +33,8 @@ from Gnumed.business import gmDocuments
 
 _log = logging.getLogger('gm.exp_area')
 
+PRINT_JOB_DESIGNATION = u'print'
+
 #============================================================
 # export area item handling
 #------------------------------------------------------------
@@ -172,24 +174,47 @@ class cExportItem(gmBusinessDBObject.cBusinessDBObject):
 		return gmDocuments.cDocumentPart(aPK_obj = self._payload[self._idx['pk_doc_obj']])
 
 	document_part = property(_get_doc_part, lambda x:x)
-#------------------------------------------------------------
-def get_export_items(order_by=None, pk_identity=None):
+	#--------------------------------------------------------
+	def _get_is_print_job(self):
+		return self._payload[self._idx['designation']] == PRINT_JOB_DESIGNATION
 
-	args = {'pat': pk_identity}
-	where_parts = [u'TRUE']
+	def _set_is_print_job(self, is_print_job):
+		desig = gmTools.bool2subst(is_print_job, PRINT_JOB_DESIGNATION, None, None)
+		if self._payload[self._idx['designation']] == desig:
+			return
+		self['designation'] = desig
+		self.save()
+
+	is_print_job = property(_get_is_print_job, _set_is_print_job)
+#------------------------------------------------------------
+def get_export_items(order_by=None, pk_identity=None, designation=None):
+
+	args = {
+		'pat': pk_identity,
+		'desig': gmTools.coalesce(designation, PRINT_JOB_DESIGNATION)
+	}
+	where_parts = []
+	if pk_identity is not None:
+		where_parts.append(u'pk_identity = %(pat)s')
+	if designation is None:
+		where_parts.append(u"designation IS DISTINCT FROM %(desig)s")
+	else:
+		where_parts.append(u'designation = %(desig)s')
 
 	if order_by is None:
 		order_by = u''
 	else:
 		order_by = u' ORDER BY %s' % order_by
 
-	if pk_identity is not None:
-		where_parts.append(u'pk_identity = %(pat)s')
-
 	cmd = (_SQL_get_export_items % u' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'}) for r in rows ]
+
+#------------------------------------------------------------
+def get_print_jobs(order_by=None, pk_identity=None):
+	return get_export_items(order_by = order_by, pk_identity = pk_identity, designation = PRINT_JOB_DESIGNATION)
+
 #------------------------------------------------------------
 def create_export_item(description=None, pk_identity=None, pk_doc_obj=None, filename=None):
 
@@ -316,7 +341,7 @@ class cExportArea(object):
 		self.__pk_identity = pk_identity
 
 	#--------------------------------------------------------
-	def add_form(self, form=None):
+	def add_form(self, form=None, designation=None):
 
 		if len(form.final_output_filenames) == 0:
 			return True
@@ -330,14 +355,15 @@ class cExportArea(object):
 				return False
 			items.append(item)
 			item['description'] = _(u'form: %s %s (%s)') % (form.template['name_long'], form.template['external_version'], fname)
+			item['designation'] = designation
 			item.save()
 
 		return True
 	#--------------------------------------------------------
-	def add_forms(self, forms=None):
+	def add_forms(self, forms=None, designation=None):
 		all_ok = True
 		for form in forms:
-			all_ok = all_ok and self.add_form(form = form)
+			all_ok = all_ok and self.add_form(form = form, designation = designation)
 
 		return all_ok
 	#--------------------------------------------------------
@@ -504,10 +530,15 @@ class cExportArea(object):
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
-	def _get_items(self):
-		return get_export_items(order_by = u'designation, description', pk_identity = self.__pk_identity)
+	def get_items(self, designation=None, order_by=u'designation, description'):
+		return get_export_items(order_by = order_by, pk_identity = self.__pk_identity, designation = designation)
 
-	items = property(_get_items, lambda x:x)
+	items = property(get_items, lambda x:x)
+	#--------------------------------------------------------
+	def get_printouts(self, order_by=u'designation, description'):
+		return get_print_jobs(order_by = order_by, pk_identity = self.__pk_identity)
+
+	printouts = property(get_printouts, lambda x:x)
 
 #============================================================
 if __name__ == '__main__':
@@ -539,7 +570,8 @@ if __name__ == '__main__':
 	#---------------------------------------
 	def test_export_area():
 		exp = cExportArea(12)
-		print exp.export_with_meta_data()
+		#print exp.export_with_meta_data()
+		print exp.items
 	#---------------------------------------
 	#test_export_items()
 	test_export_area()

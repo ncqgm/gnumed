@@ -731,6 +731,7 @@ class gmTopLevelFrame(wx.Frame):
 		self.Bind(wx.EVT_MENU, self.__on_show_placeholders, item)
 
 		self.mainmenu.Append(menu_paperwork, _('&Correspondence'))
+		self.__gb['main.paperworkmenu'] = menu_paperwork
 
 		# -- menu "Tools" -------------------------
 		self.menu_tools = wx.Menu()

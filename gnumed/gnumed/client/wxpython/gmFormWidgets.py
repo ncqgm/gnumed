@@ -39,8 +39,9 @@ from Gnumed.wxpython.gmDocumentWidgets import save_files_as_new_document
 _log = logging.getLogger('gm.ui')
 
 _ID_FORM_DISPOSAL_PRINT, \
+_ID_FORM_DISPOSAL_REMOTE_PRINT, \
 _ID_FORM_DISPOSAL_EXPORT_ONLY, \
-_ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(3)
+_ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(4)
 
 #============================================================
 # generic form generation and handling convenience functions
@@ -264,9 +265,9 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 		soap_lines.append(_('Printed: %s') % u', '.join(form_names))
 		return True
 	#-----------------------------
-	def export_forms():
+	def export_forms(remote_print=False):
 		pat = gmPerson.gmCurrentPatient()
-		return pat.export_area.add_forms(forms = forms)
+		return pat.export_area.add_forms(forms = forms, designation = gmTools.bool2subst(remote_print, u'print', None, None))
 	#-----------------------------
 
 	if parent is None:
@@ -304,6 +305,11 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 			archive_forms(episode_name = episode_name)
 		if also_export:
 			export_forms()
+
+	if action_code == _ID_FORM_DISPOSAL_REMOTE_PRINT:
+		success = export_forms(remote_print = True)
+		if episode_name is not None:
+			archive_forms(episode_name = episode_name)
 
 	elif action_code == _ID_FORM_DISPOSAL_ARCHIVE_ONLY:
 		success = archive_forms(episode_name = episode_name)
@@ -382,6 +388,9 @@ class cFormDisposalDlg(wxgFormDisposalDlg.wxgFormDisposalDlg):
 	#--------------------------------------------------------
 	def _on_print_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_PRINT)
+	#--------------------------------------------------------
+	def _on_remote_print_button_pressed(self, event):
+		self.EndModal(_ID_FORM_DISPOSAL_REMOTE_PRINT)
 	#--------------------------------------------------------
 	def _on_export_button_pressed(self, event):
 		self.EndModal(_ID_FORM_DISPOSAL_EXPORT_ONLY)

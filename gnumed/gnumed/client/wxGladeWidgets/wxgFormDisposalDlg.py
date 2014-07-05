@@ -31,6 +31,7 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self._PRW_episode = cEpisodeSelectionPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._TCTRL_soap = cTextCtrl(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._BTN_print = wx.Button(self, wx.ID_PRINT, "")
+		self._BTN_remote_print = wx.Button(self, wx.ID_ANY, _("Print &remotely"))
 		self._BTN_export = wx.Button(self, wx.ID_ANY, _("&Export only"))
 		self._BTN_archive = wx.Button(self, wx.ID_ANY, _("&Archive only"))
 		self._BTN_cancel = wx.Button(self, wx.ID_CANCEL, "")
@@ -41,6 +42,7 @@ class wxgFormDisposalDlg(wx.Dialog):
 		self.Bind(wx.EVT_BUTTON, self._on_show_forms_button_pressed, self._BTN_show_forms)
 		self.Bind(wx.EVT_BUTTON, self._on_delete_forms_button_pressed, self._BTN_delete_forms)
 		self.Bind(wx.EVT_BUTTON, self._on_print_button_pressed, self._BTN_print)
+		self.Bind(wx.EVT_BUTTON, self._on_remote_print_button_pressed, self._BTN_remote_print)
 		self.Bind(wx.EVT_BUTTON, self._on_export_button_pressed, self._BTN_export)
 		self.Bind(wx.EVT_BUTTON, self._on_archive_button_pressed, self._BTN_archive)
 		# end wxGlade
@@ -48,15 +50,16 @@ class wxgFormDisposalDlg(wx.Dialog):
 	def __set_properties(self):
 		# begin wxGlade: wxgFormDisposalDlg.__set_properties
 		self.SetTitle(_("Form handling"))
-		self.SetSize((550, 500))
+		self.SetSize((609, 500))
 		self._BTN_show_forms.SetToolTipString(_("Show the selected form(s)."))
 		self._BTN_delete_forms.SetToolTipString(_("Delete the selected forms from the list."))
 		self._CHBOX_export.SetToolTipString(_("Check here to put a copy into the export area."))
 		self._PRW_episode.SetToolTipString(_("Select episode under which to archive a copy of the document(s)."))
 		self._TCTRL_soap.SetToolTipString(_("Enter a SOAP note to be put into the chart."))
 		self._BTN_print.SetToolTipString(_("Print document(s)\n(optionally copy to archive and export area)"))
-		self._BTN_export.SetToolTipString(_("Put into export area only (no printing, no archiving)."))
-		self._BTN_archive.SetToolTipString(_("Put copy into archive only (no printing, no export area)."))
+		self._BTN_remote_print.SetToolTipString(_("Remotely print document(s).\n(optionally copy to archive and export area)"))
+		self._BTN_export.SetToolTipString(_("Put into export area only.\n(no printing, no archiving)"))
+		self._BTN_archive.SetToolTipString(_("Put copy into archive only.\n(no printing, no export area)"))
 		self._BTN_cancel.SetToolTipString(_("Cancel any actions and close dialog."))
 		# end wxGlade
 
@@ -88,6 +91,7 @@ class wxgFormDisposalDlg(wx.Dialog):
 		__szr_main.Add(__szr_grid, 1, wx.ALL | wx.EXPAND, 3)
 		__szr_buttons.Add((20, 20), 2, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons.Add(self._BTN_print, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
+		__szr_buttons.Add(self._BTN_remote_print, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_buttons.Add(self._BTN_export, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_buttons.Add(self._BTN_archive, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
@@ -108,6 +112,10 @@ class wxgFormDisposalDlg(wx.Dialog):
 
 	def _on_print_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
 		print "Event handler '_on_print_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_remote_print_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>
+		print "Event handler '_on_remote_print_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_export_button_pressed(self, event):  # wxGlade: wxgFormDisposalDlg.<event_handler>

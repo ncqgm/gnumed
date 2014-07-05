@@ -38,7 +38,7 @@ _log = logging.getLogger('gm.ui')
 from Gnumed.wxGladeWidgets import wxgExportAreaPluginPnl
 
 class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
-	"""Panel holding a number of widgets.
+	"""Panel holding a number of items for further processing.
 
 	Acts on the current patient.
 
@@ -162,6 +162,9 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		for item in items:
 			files2print.append(item.export_to_file())
 
+		if len(files2print) == 0:
+			return
+
 		jobtype = u'export_area'
 		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
 		if not printed:
@@ -173,6 +176,12 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self.save_soap_note(soap = _('Printed:\n - %s') % u'\n - '.join([ i['description'] for i in items ]))
 		return True
+	#--------------------------------------------------------
+	def _on_remote_print_button_pressed(self, event):
+		event.Skip()
+		items = self._LCTRL_items.get_selected_item_data(only_one = False)
+		for item in items:
+			item.is_print_job = True
 	#--------------------------------------------------------
 	def _on_save_items_button_pressed(self, event):
 		event.Skip()
@@ -463,4 +472,164 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		self._LCTRL_items.SetFocus()
 
 		return True
+
 #============================================================
+from Gnumed.wxGladeWidgets import wxgPrintMgrPluginPnl
+
+class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
+	"""Panel holding print jobs.
+
+	Used as notebook page."""
+
+	def __init__(self, *args, **kwargs):
+		wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__init_ui()
+		self.__register_interests()
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_table_mod)
+	#--------------------------------------------------------
+	def _on_pre_patient_unselection(self):
+		self._RBTN_active_patient_only.Enable(False)
+		self._RBTN_all_patients.Value = True
+		self._BTN_export_printouts.Enable(False)
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		self._RBTN_active_patient_only.Enable(True)
+		self._BTN_export_printouts.Enable(True)
+	#--------------------------------------------------------
+	def _on_table_mod(self, *args, **kwargs):
+		if kwargs['table'] != 'clin.export_item':
+			return
+#		pat = gmPerson.gmCurrentPatient()
+#		if not pat.connected:
+#			return
+		# no idea why this does not work:
+#		print "patient pk in signal:", kwargs['pk_identity']
+#		print "current patient ID:", pat.ID
+#		if kwargs['pk_identity'] == pat.ID:
+#			print "signal is about current patient"
+#			self.__on_table_mod()
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_all_patients_selected(self, event):
+		event.Skip()
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_active_patient_only_selected(self, event):
+		event.Skip()
+		self._schedule_data_reget()
+	#--------------------------------------------------------
+	def _on_view_button_pressed(self, event):
+		event.Skip()
+		printout = self._LCTRL_printouts.get_selected_item_data(only_one = True)
+		if printout is None:
+			return
+		printout.display_via_mime(block = False)
+	#--------------------------------------------------------
+	def _on_print_button_pressed(self, event):
+		event.Skip()
+		printouts = self._LCTRL_printouts.get_selected_item_data(only_one = False)
+		if len(printouts) == 0:
+			return
+
+		files2print = []
+		for printout in printouts:
+			files2print.append(printout.export_to_file())
+
+		if len(files2print) == 0:
+			return
+
+		jobtype = u'print_manager'
+		printed = gmPrinting.print_files(filenames = files2print, jobtype = jobtype)
+		if not printed:
+			gmGuiHelpers.gm_show_error (
+				aMessage = _('Error printing documents.'),
+				aTitle = _('Printing [%s]') % jobtype
+			)
+			return False
+
+		return True
+	#--------------------------------------------------------
+	def _on_export_button_pressed(self, event):
+		event.Skip()
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		printouts = self._LCTRL_printouts.get_selected_item_data(only_one = False)
+		for printout in printouts:
+			printout.is_print_job = False
+	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+		event.Skip()
+		printouts = self._LCTRL_printouts.get_selected_item_data(only_one = False)
+		if len(printouts) == 0:
+			return
+		if len(printouts) > 1:
+			really_delete = gmGuiHelpers.gm_show_question (
+				title = _('Deleting document from export area.'),
+				question = _('Really remove %s selected document(s)\nfrom the patient export area ?') % len(printouts)
+			)
+			if not really_delete:
+				return
+		for printout in printouts:
+			gmExportArea.delete_export_item(pk_export_item = printout['pk_export_item'])
+	#--------------------------------------------------------
+	# internal API
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._BTN_export_printouts.Enable(False)
+	#--------------------------------------------------------
+	# reget mixin API
+	#
+	# remember to call
+	#	self._schedule_data_reget()
+	# whenever you learn of data changes from database
+	# listener threads, dispatcher signals etc.
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		if self._RBTN_all_patients.Value is True:
+			columns = [_('Patient'), _('Provider'), _('Description')]
+			printouts = gmExportArea.get_print_jobs(order_by = u'pk_identity, description')
+			items = [[
+				u'%s, %s (%s)' % (
+					p['lastnames'],
+					p['firstnames'],
+					p['gender']
+				),
+				p['created_by'],
+				p['description']
+			] for p in printouts ]
+		else:
+			pat = gmPerson.gmCurrentPatient()
+			if pat.connected:
+				columns = [_('Provider'), _('Created'), _('Description')]
+				printouts = pat.export_area.get_printouts(order_by = u'created_when, description')
+				items = [[
+					p['created_by'],
+					gmDateTime.pydt_strftime(p['created_when'], '%Y %b %d %H:%M'),
+					p['description']
+				] for p in printouts ]
+			else:
+				columns = [_('Patient'), _('Provider'), _('Description')]
+				printouts = gmExportArea.get_print_jobs(order_by = u'pk_identity, description')
+				items = [[
+					u'%s, %s (%s)' % (
+						p['lastnames'],
+						p['firstnames'],
+						p['gender']
+					),
+					p['created_by'],
+					p['description']
+				] for p in printouts ]
+		self._LCTRL_printouts.set_columns(columns)
+		self._LCTRL_printouts.set_string_items(items)
+		self._LCTRL_printouts.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
+		self._LCTRL_printouts.set_data(printouts)
+		self._LCTRL_printouts.SetFocus()
+		return True

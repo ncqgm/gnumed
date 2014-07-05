@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmKOrganizerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmXdtViewer"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"}'
 where
 	fk_item in (
 		select pk_cfg_item
@@ -23,7 +23,7 @@ where
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsGridPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmPrintManagerPlugin"}'
 where
 	fk_item in (
 		select pk_cfg_item
@@ -36,7 +36,7 @@ where
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmKOrganizerPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmScanIdxMedDocsPlugin","gmExportAreaPlugin"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmNotebookedPatientEditionPlugin","gmPrintManagerPlugin","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmKOrganizerPlugin"}'
 where
 	fk_item in (
 		select pk_cfg_item
