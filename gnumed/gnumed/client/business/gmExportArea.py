@@ -31,6 +31,7 @@ from Gnumed.pycommon import gmCfg2
 
 from Gnumed.business import gmDocuments
 
+
 _log = logging.getLogger('gm.exp_area')
 
 PRINT_JOB_DESIGNATION = u'print'
@@ -304,6 +305,7 @@ _html_end = u"""
 </html>
 """
 
+
 _autorun_inf = (
 u'[AutoRun]\r\n'						# needs \r\n for Windows
 u'label=%s\r\n'							# patient name/DOB
@@ -321,6 +323,22 @@ u'\r\n'
 u'[unused]\r\n'
 u'open=requires explicit executable\r\n'
 u'icon=use standard icon for storage unit\r\n'
+)
+
+
+_cd_inf = (
+u'[Patient Info]\r\n'					# needs \r\n for Windows
+u'PatientName=%s, %s\r\n'
+u'Gender=%s\r\n'
+u'BirthDate=%s\r\n'
+u'CreationDate=%s\r\n'
+u'PID=%s\r\n'
+u'EMR=GNUmed\r\n'
+u'Version=%s\r\n'
+u'\r\n'
+u'# name format: lastnames, firstnames\r\n'
+u'# date format: YYYY-MM-DD (ISO 8601)\r\n'
+u'# gender format: %s\r\n'
 )
 
 _README = u"""This is a patient data bundle created by the GNUmed Electronic Medical Record.
@@ -504,7 +522,7 @@ class cExportArea(object):
 		# footer
 		_cfg = gmCfg2.gmCfgData()
 		idx_file.write(_html_end % (
-			gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), u'%Y %B %d')),
+			gmTools.html_escape_string(gmDateTime.pydt_strftime(format = '%Y %B %d', encoding = u'utf8')),
 			gmTools.html_escape_string(_cfg.get(option = u'client_version'))
 		))
 		idx_file.close()
@@ -517,6 +535,21 @@ class cExportArea(object):
 			_('Browse patient data')
 		))
 		autorun_file.close()
+
+		# cd.inf
+		cd_inf_fname = os.path.join(base_dir, u'cd.inf')
+		cd_inf_file = codecs.open(cd_inf_fname, u'wb', u'utf8')
+		cd_inf_file.write(_cd_inf % (
+			pat['lastnames'],
+			pat['firstnames'],
+			gmTools.coalesce(pat['gender'], u'?'),
+			pat.get_formatted_dob('%Y-%m-%d'),
+			gmDateTime.pydt_strftime(format = '%Y-%m-%d', encoding = u'utf8'),
+			pat.ID,
+			_cfg.get(option = u'client_version'),
+			u' / '.join([ u'%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])
+		))
+		cd_inf_file.close()
 
 		# README
 		readme_fname = os.path.join(base_dir, u'README')

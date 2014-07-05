@@ -476,6 +476,12 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 
 	gender_string = property(_get_gender_string, lambda x:x)
 	#--------------------------------------------------------
+	def _get_gender_list(self):
+		gender_list, tmp = get_gender_list()
+		return gender_list
+
+	gender_list = property(_get_gender_list, lambda x:x)
+	#--------------------------------------------------------
 	def get_active_name(self):
 		names = self.get_names(active_only = True)
 		if len(names) == 0:
