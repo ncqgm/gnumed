@@ -257,7 +257,6 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 #===========================================================	
 if __name__ == "__main__":
-	wx.InitAllImageHandlers()
 	app = wxPyWidgetTester(size = (400, 200))
 	app.SetWidget(cMainTopPanel, -1)
 	app.SetWidget(cTopPanel, -1)
