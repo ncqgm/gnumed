@@ -21,7 +21,7 @@ import os.path
 import wx
 
 from timelinelib.config.paths import ICONS_DIR
-
+from timelinelib.wxgui.dialogs.eventlist import EventListDialog 
 
 class GuiCreator(object):
 
@@ -31,6 +31,7 @@ class GuiCreator(object):
         self._create_search_box()
         self._create_prev_button()
         self._create_next_button()
+        self._create_list_button()
         self._create_no_match_label()
         self._create_single_match_label()
         self.Realize()
@@ -62,10 +63,14 @@ class GuiCreator(object):
         self.Bind(wx.EVT_TOOL, self._btn_prev_on_click, id=wx.ID_BACKWARD)
 
     def _create_next_button(self):
-        next_bmp = wx.ArtProvider.GetBitmap(wx.ART_GO_FORWARD, wx.ART_TOOLBAR,
-                                            self.icon_size)
+        next_bmp = wx.ArtProvider.GetBitmap(wx.ART_GO_FORWARD, wx.ART_TOOLBAR, self.icon_size)
         self.AddLabelTool(wx.ID_FORWARD, "", next_bmp, shortHelp="")
         self.Bind(wx.EVT_TOOL, self._btn_next_on_click, id=wx.ID_FORWARD)
+
+    def _create_list_button(self):
+        list_bmp = wx.ArtProvider.GetBitmap(wx.ART_LIST_VIEW, wx.ART_TOOLBAR, self.icon_size)
+        self.AddLabelTool(wx.ID_MORE, "", list_bmp, shortHelp="")
+        self.Bind(wx.EVT_TOOL, self._btn_list_on_click, id=wx.ID_MORE)
 
     def _create_no_match_label(self):
         self.lbl_no_match = wx.StaticText(self, label=_("No match"))
@@ -91,6 +96,9 @@ class GuiCreator(object):
 
     def _btn_next_on_click(self, e):
         self.controller.next()
+
+    def _btn_list_on_click(self, e):
+        self.controller.list()
 
 
 class SearchBarController(object):
@@ -133,9 +141,16 @@ class SearchBarController(object):
             self.navigate_to_match()
             self.view.update_buttons()
 
+    def list(self):
+        event_list = [event.get_label() for event in self.result]
+        dlg = EventListDialog(self.view, event_list)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.result_index = dlg.get_selected_index()
+            self.navigate_to_match()
+        dlg.Destroy()
+    
     def navigate_to_match(self):
-        if (self.drawing_area_panel is not None and
-            self.result_index in range(len(self.result))):
+        if (self.drawing_area_panel is not None and self.result_index in range(len(self.result))):
             event = self.result[self.result_index]
             self.drawing_area_panel.navigate_timeline(lambda tp: tp.center(event.mean_time()))
 
@@ -144,6 +159,9 @@ class SearchBarController(object):
 
     def enable_forward(self):
         return bool(self.result and self.result_index < (len(self.result) - 1))
+
+    def enable_list(self):
+        return bool(len(self.result) > 0)
 
     def _on_first_match(self):
         return self.result > 0 and self.result_index == 0
@@ -175,3 +193,4 @@ class SearchBar(wx.ToolBar, GuiCreator):
     def update_buttons(self):
         self.EnableTool(wx.ID_BACKWARD, self.controller.enable_backward())
         self.EnableTool(wx.ID_FORWARD, self.controller.enable_forward())
+        self.EnableTool(wx.ID_MORE, self.controller.enable_list())

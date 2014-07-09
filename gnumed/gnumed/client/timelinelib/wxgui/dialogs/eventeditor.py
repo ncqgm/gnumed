@@ -43,6 +43,8 @@ class EventEditorDialog(wx.Dialog):
 
     def __init__(self, parent, config, title, timeline,
                  start=None, end=None, event=None):
+        self.TXT_ENLARGE = _("&Enlarge")
+        self.TXT_REDUCE = _("&Reduce")
         wx.Dialog.__init__(self, parent, title=title, name="event_editor",
                            style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
         self.start = start
@@ -280,6 +282,10 @@ class EventEditorDialog(wx.Dialog):
     def _create_buttons(self, properties_box):
         button_box = self.CreateStdDialogButtonSizer(wx.OK|wx.CANCEL)
         button_box.InsertStretchSpacer(0)
+        self.resizebutton = wx.Button(self, wx.ID_ANY, self.TXT_ENLARGE)
+        self.Bind(wx.EVT_BUTTON, self._on_resize, self.resizebutton)
+        button_box.Insert(0, self.resizebutton)
+        button_box.InsertStretchSpacer(0)
         button_box.Insert(0, FeedbackButton(
             self,
             info="What would make the event editor dialog better for you?",
@@ -287,6 +293,29 @@ class EventEditorDialog(wx.Dialog):
         self.Bind(wx.EVT_BUTTON, self._btn_ok_on_click, id=wx.ID_OK)
         properties_box.Add(button_box, flag=wx.EXPAND|wx.ALL, border=BORDER)
 
+    def _on_resize(self, evt):
+        if self.resizebutton.GetLabel() == self.TXT_ENLARGE:
+            self._enlarge()
+            self.resizebutton.SetLabel(self.TXT_REDUCE)
+        else:
+            self._reduce()
+            self.resizebutton.SetLabel(self.TXT_ENLARGE)
+                 
+    def _enlarge(self):
+        self.reduced_size = self.GetSize()
+        self.reduced_pos = self.GetPosition()
+        screen_width, screen_height = wx.DisplaySize()
+        dialog_size = (screen_width * 0.9, screen_height * 0.8) 
+        dialog_pos = (screen_width * 0.05, screen_height * 0.05)
+        self._set_position_and_size(dialog_pos, dialog_size)
+    
+    def _reduce(self):
+        self._set_position_and_size(self.reduced_pos, self.reduced_size)
+    
+    def _set_position_and_size(self, pos, size):
+        self.SetPosition(pos)
+        self.SetSize(size)
+        
     def on_return(self):
         self._btn_ok_on_click(None)
 

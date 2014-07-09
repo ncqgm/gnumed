@@ -112,7 +112,7 @@ class WxCategoryEdtiorDialog(wx.Dialog):
         self.colorpicker = colourselect.ColourSelect(self)
         self.fontcolorpicker = colourselect.ColourSelect(self)
         self.parentlistbox = wx.Choice(self, wx.ID_ANY)
-        grid = wx.FlexGridSizer(3, 2, BORDER, BORDER)
+        grid = wx.FlexGridSizer(4, 2, BORDER, BORDER)
         self._add_ctrl_to_grid(_("Name:"), self.txt_name, grid)
         self._add_ctrl_to_grid(_("Color:"), self.colorpicker, grid)
         self._add_ctrl_to_grid(_("Font Color:"), self.fontcolorpicker, grid)

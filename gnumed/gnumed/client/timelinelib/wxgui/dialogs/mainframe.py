@@ -91,6 +91,7 @@ ID_EXPORT_ALL = wx.NewId()
 ID_EXPORT_SVG = wx.NewId()
 ID_NEW_NUMERIC = wx.NewId()
 ID_NEW_DIR = wx.NewId()
+ID_FIND_CATEGORIES = wx.NewId()
 ID_NEW = wx.ID_NEW
 ID_FIND = wx.ID_FIND
 ID_PREFERENCES = wx.ID_PREFERENCES
@@ -233,10 +234,9 @@ class GuiCreator(object):
         def create_category_find_dialog():
             return CategoryFindDialog(self, self.timeline)
         def find(evt):
-            if mouse_in_sidebar():
-                gui_utils.show_modal(create_category_find_dialog, self.handle_db_error)
-            else:
-                self.main_panel.show_searchbar(True)
+            self.main_panel.show_searchbar(True)
+        def find_categories(evt):
+            gui_utils.show_modal(create_category_find_dialog, self.handle_db_error)
         def mouse_in_sidebar():
             if not self.config.show_sidebar:
                 return False
@@ -255,13 +255,21 @@ class GuiCreator(object):
             safe_locking(self, edit_function)
         cbx = False
         items = ((wx.ID_FIND, find, None, cbx),
+                 (ID_FIND_CATEGORIES, find_categories, _("Find Categories..."), cbx),
                  None,
                  (wx.ID_PREFERENCES, preferences, None, cbx),
                  (ID_EDIT_SHORTCUTS, edit_shortcuts, _("Shortcuts..."), cbx))
         edit_menu = wx.Menu()
         self._create_menu_items(edit_menu, items)
         main_menu_bar.Append(edit_menu, _("&Edit"))
+        self._add_edit_menu_items_to_controller(edit_menu)
 
+    def _add_edit_menu_items_to_controller(self, edit_menu):
+        find_item = edit_menu.FindItemById(ID_FIND)
+        find_categories_item = edit_menu.FindItemById(ID_FIND_CATEGORIES)
+        self.menu_controller.add_menu_requiring_timeline(find_item)
+        self.menu_controller.add_menu_requiring_timeline(find_categories_item)
+                
     def _create_view_menu(self, main_menu_bar):
         def sidebar(evt):
             self.config.set_show_sidebar(evt.IsChecked())

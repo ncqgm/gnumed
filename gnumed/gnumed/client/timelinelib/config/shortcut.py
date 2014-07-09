@@ -212,6 +212,8 @@ class ShortcutController(object):
                 modifier, shortcut_key = ("", shortcut) 
         except:
             modifier, shortcut_key = ("", "")
+        if shortcut_key not in SHORTCUT_KEYS:
+            modifier, shortcut_key = ("", "")
         return modifier, shortcut_key
     
     def _load_config_setting(self, metadata):

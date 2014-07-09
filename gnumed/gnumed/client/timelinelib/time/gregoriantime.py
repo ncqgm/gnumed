@@ -39,7 +39,7 @@ class GregorianTimeType(TimeType):
 
     def __init__(self):
         self.major_strip_is_decade = False
-        
+
     def __eq__(self, other):
         return isinstance(other, GregorianTimeType)
 
@@ -116,8 +116,8 @@ class GregorianTimeType(TimeType):
 
     def format_delta(self, delta):
         days = delta.get_days()
-        hours = delta.get_hours() 
-        minutes = delta.get_minutes() 
+        hours = delta.get_hours()
+        minutes = delta.get_minutes()
         collector = []
         if days == 1:
             collector.append(u"1 %s" % _("day"))
@@ -274,12 +274,29 @@ def _move_page_smart(current_period, navigation_fn, direction):
 
 
 def _whole_number_of_years(period):
-    start, end = period.start_time, period.end_time
-    year_diff = _calculate_year_diff(period)
-    old_start = gregorian.from_time(start)
-    new_start = old_start.replace(year=old_start.year + year_diff).to_time()
-    whole_years = new_start == end
-    return whole_years and year_diff > 0
+    """
+    >>> from specs.utils import gregorian_period
+    >>> from specs.utils import install_gettext_in_builtin_namespace
+
+    >>> _whole_number_of_years(gregorian_period("1 Jan 2013", "1 Jan 2014"))
+    True
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_years(gregorian_period("1 Jan 2013", "1 Jan 2015"))
+    True
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_years(gregorian_period("1 Feb 2013", "1 Feb 2014"))
+    False
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_years(gregorian_period("1 Jan 2013", "1 Feb 2014"))
+    False
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+    """
+    return (gregorian.from_time(period.start_time).is_jan_first() and
+            gregorian.from_time(period.end_time).is_jan_first() and
+            _calculate_year_diff(period) > 0)
 
 
 def _move_page_years(curret_period, navigation_fn, direction):
@@ -306,16 +323,38 @@ def _move_page_years(curret_period, navigation_fn, direction):
 
 
 def _calculate_year_diff(period):
-    return gregorian.from_time(period.end_time).year - gregorian.from_time(period.start_time).year
+    return (gregorian.from_time(period.end_time).year -
+            gregorian.from_time(period.start_time).year)
 
 
 def _whole_number_of_months(period):
+    """
+    >>> from specs.utils import gregorian_period
+    >>> from specs.utils import install_gettext_in_builtin_namespace
+
+    >>> _whole_number_of_months(gregorian_period("1 Jan 2013", "1 Jan 2014"))
+    True
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_months(gregorian_period("1 Jan 2013", "1 Mar 2014"))
+    True
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_months(gregorian_period("2 Jan 2013", "2 Mar 2014"))
+    False
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+
+    >>> _whole_number_of_months(gregorian_period("1 Jan 2013 12:00", "1 Mar 2014"))
+    False
+    >>> install_gettext_in_builtin_namespace() # Needed because REPL replaces _
+    """
     start, end = gregorian.from_time(period.start_time), gregorian.from_time(period.end_time)
     start_months = start.year * 12 + start.month
     end_months = end.year * 12 + end.month
     month_diff = end_months - start_months
-    whole_months = start.day == 1 and end.day == 1
-    return whole_months and month_diff > 0
+    return (start.is_first_of_month() and
+            end.is_first_of_month() and
+            month_diff > 0)
 
 
 def _move_page_months(curret_period, navigation_fn, direction):
@@ -413,14 +452,14 @@ def fit_millennium_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_millenium_max_year():
         year = get_millenium_max_year()
     else:
-        year = max(get_min_year(), int(mean.year/1000)*1000)
+        year = max(get_min_year_containing_jan_1(), int(mean.year/1000)*1000)
     start = gregorian.from_date(year, 1, 1).to_time()
     end = gregorian.from_date(year + 1000, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
 
 
-def get_min_year():
-    return gregorian.from_time(GregorianTimeType().get_min_time()[0]).year
+def get_min_year_containing_jan_1():
+    return gregorian.from_time(GregorianTimeType().get_min_time()[0]).year + 1
 
 
 def get_millenium_max_year():
@@ -436,7 +475,7 @@ def fit_century_fn(main_frame, current_period, navigation_fn):
     if mean.year > get_century_max_year():
         year = get_century_max_year()
     else:
-        year = max(get_min_year(), int(mean.year/100)*100)
+        year = max(get_min_year_containing_jan_1(), int(mean.year/100)*100)
     start = gregorian.from_date(year, 1, 1).to_time()
     end = gregorian.from_date(year + 100, 1, 1).to_time()
     navigation_fn(lambda tp: tp.update(start, end))
@@ -669,8 +708,8 @@ class StripWeekday(Strip):
                                     time.day,
                                     abbreviated_name_of_month(time.month),
                                     format_year(time.year))
-        return (abbreviated_name_of_weekday(time.get_day_of_week()) + 
-                " %s" % gregorian.from_time(time).day) 
+        return (abbreviated_name_of_weekday(time.get_day_of_week()) +
+                " %s" % gregorian.from_time(time).day)
 
     def start(self, time):
         gregorian_time = gregorian.from_time(time)

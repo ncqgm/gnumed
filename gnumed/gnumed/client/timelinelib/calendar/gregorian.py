@@ -57,6 +57,19 @@ class Gregorian(object):
         seconds = self.hour * 60 * 60 + self.minute * 60 + self.second
         return timeline.Time(days, seconds)
 
+    def is_jan_first(self):
+        return (self.month == 1 and
+                self.day == 1 and
+                self.hour == 0 and
+                self.minute == 0 and
+                self.second == 0)
+
+    def is_first_of_month(self):
+        return (self.day == 1 and
+                self.hour == 0 and
+                self.minute == 0 and
+                self.second == 0)
+
     def __eq__(self, other):
         return (isinstance(other, Gregorian) and
                 self.to_tuple() == other.to_tuple())
