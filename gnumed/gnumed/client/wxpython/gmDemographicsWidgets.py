@@ -737,7 +737,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
 
-		self.identity = None
+		self.id_holder = None
 
 		self.mode = 'new'
 		self.data = data
@@ -780,7 +780,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
 		data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
-		self.identity.add_external_id (
+		self.id_holder.add_external_id (
 			type_name = data['name'],
 			value = data['value'],
 			issuer = data['issuer'],
@@ -796,7 +796,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		self.data['issuer'] = gmTools.none_if(self._PRW_issuer.GetValue().strip(), u'')
 		self.data['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 
-		self.identity.update_external_id (
+		self.id_holder.update_external_id (
 			pk_id = self.data['pk_id'],
 			type = self.data['name'],
 			value = self.data['value'],
@@ -833,7 +833,7 @@ class cExternalIDEditAreaPnl(wxgExternalIDEditAreaPnl.wxgExternalIDEditAreaPnl, 
 		if pk_curr_type is None:
 			return True
 		rows, idx = gmPG2.run_ro_queries(queries = [{
-			'cmd': u"SELECT issuer from dem.enum_ext_id_types where pk = %s",
+			'cmd': u"SELECT issuer FROM dem.enum_ext_id_types WHERE pk = %s",
 			'args': [pk_curr_type]
 		}])
 		if len(rows) == 0:
@@ -1313,6 +1313,7 @@ class cPersonNamesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		self.refresh()
 
 	identity = property(_get_identity, _set_identity)
+
 #------------------------------------------------------------
 class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's external IDs.
@@ -1369,7 +1370,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _add_id(self):
 		ea = cExternalIDEditAreaPnl(self, -1)
-		ea.identity = self.__identity
+		ea.id_holder = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
 		dlg.SetTitle(_('Adding new external ID'))
 		if dlg.ShowModal() == wx.ID_OK:
@@ -1380,7 +1381,7 @@ class cPersonIDsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	#--------------------------------------------------------
 	def _edit_id(self, ext_id):
 		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
-		ea.identity = self.__identity
+		ea.id_holder = self.__identity
 		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
 		dlg.SetTitle(_('Editing external ID'))
 		if dlg.ShowModal() == wx.ID_OK:

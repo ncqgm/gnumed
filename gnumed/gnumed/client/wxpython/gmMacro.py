@@ -13,6 +13,7 @@ import types
 import logging
 import os
 import codecs
+import datetime
 
 
 import wx
@@ -233,7 +234,8 @@ __known_variant_placeholders = {
 		select:			if this is present allow selection of the branch rather than using the current branch""",
 
 	u'praxis_address': u"args: <optional formatting template>",
-	u'praxis_comm': u"args: <optional formatting template>",
+	u'praxis_comm': u"args: type//<optional formatting template>",
+	u'praxis_id': u"args: type//<optional formatting template>",
 
 
 	# billing related:
@@ -1189,6 +1191,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
 	#--------------------------------------------------------
+	def _get_variant_praxis_id(self, data=None):
+		options = data.split(u'//')
+		id_type = options[0]
+		template = u'%(name)s: %(value)s (%(issuer)s)'
+		if len(options) > 1:
+			template = options[1]
+
+		ids = gmPraxis.gmCurrentPraxisBranch().get_external_ids(id_type = id_type)
+		if len(ids) == 0:
+			if self.debug:
+				return template + u': ' + self._escape(_('no ID for type [%s]') % data)
+			return u''
+
+		return template % self._escape_dict(the_dict = ids[0], none_string = u'')
+	#--------------------------------------------------------
 	# provider related placeholders
 	#--------------------------------------------------------
 	def _get_variant_current_provider(self, data=None):
@@ -1659,6 +1676,46 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if self.__esc_func is None:
 			return text
 		return self.__esc_func(text)
+	#--------------------------------------------------------
+	def _escape_dict(self, the_dict=None, date_format='%Y %b %d  %H:%M', none_string=u'', bool_strings=None):
+		if bool_strings is None:
+			bools = {True: u'true', False: u'false'}
+		else:
+			bools = {True: bool_strings[0], False: bool_strings[1]}
+		data = {}
+		for field in the_dict.keys():
+			# FIXME: harden against BYTEA fields
+			#if type(self._payload[self._idx[field]]) == ...
+			#	data[field] = _('<%s bytes of binary data>') % len(self._payload[self._idx[field]])
+			#	continue
+			val = the_dict[field]
+			if val is None:
+				data[field] = none_string
+				continue
+			if isinstance(val, bool):
+				data[field] = bools[val]
+				continue
+			if isinstance(val, datetime.datetime):
+				data[field] = gmDateTime.pydt_strftime(val, format = date_format, encoding = 'utf8')
+				if self.__esc_style in [u'latex', u'tex']:
+					data[field] = gmTools.tex_escape_string(data[field])
+				elif self.__esc_style in [u'xetex', u'xelatex']:
+					data[field] = gmTools.xetex_escape_string(data[field])
+				continue
+			try:
+				data[field] = unicode(val, encoding = 'utf8', errors = 'replace')
+			except TypeError:
+				try:
+					data[field] = unicode(val)
+				except (UnicodeDecodeError, TypeError):
+					val = '%s' % str(val)
+					data[field] = val.decode('utf8', 'replace')
+			if self.__esc_style in [u'latex', u'tex']:
+				data[field] = gmTools.tex_escape_string(data[field])
+			elif self.__esc_style in [u'xetex', u'xelatex']:
+				data[field] = gmTools.xetex_escape_string(data[field])
+		return data
+
 #=====================================================================
 class cMacroPrimitives:
 	"""Functions a macro can legally use.
@@ -2103,7 +2160,7 @@ if __name__ == '__main__':
 			#u'current_provider',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
-			u'$<current_provider_external_id::KV-LANR//KV::1234>$'
+			#u'$<current_provider_external_id::KV-LANR//KV::1234>$'
 			#u'primary_praxis_provider_external_id::LANR//LÄK::1234'
 			#u'form_name_long::::1234',
 			#u'form_name_long::::5',
@@ -2133,6 +2190,7 @@ if __name__ == '__main__':
 			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
 			#u'$<praxis_address::::120>$'
+			u'$<praxis_id::::120>$'
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 
 			#u'$<receiver_name::%s::120>$',

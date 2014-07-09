@@ -15,6 +15,7 @@ NEW: letter receiver placeholders $<receiver_*>$
 NEW: EDC storage/calculator
 NEW: external care documentation
 NEW: print manager
+NEW: external IDs on organizational units
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering

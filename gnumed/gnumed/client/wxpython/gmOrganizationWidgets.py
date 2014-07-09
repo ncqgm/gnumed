@@ -6,7 +6,8 @@ copyright: authors
 __author__ = "K.Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import logging, sys
+import logging
+import sys
 
 
 import wx
@@ -14,6 +15,10 @@ import wx
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmDispatcher
@@ -26,6 +31,7 @@ from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmAddressWidgets
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython.gmDemographicsWidgets import cExternalIDEditAreaPnl
 
 
 _log = logging.getLogger('gm.organization')
@@ -246,6 +252,7 @@ class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		] for u in units ]
 
 		self._LCTRL_items.set_string_items(items)
+		self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_items.set_data(units)
 
 		for idx in range(len(units)):
@@ -382,6 +389,7 @@ class cOrgUnitEAPnl(wxgOrgUnitEAPnl.wxgOrgUnitEAPnl, gmEditArea.cGenericEditArea
 		self._PRW_org.SetText(value = org['organization'], data = org['pk_org'])
 
 	organization = property(lambda x:x, _set_org)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgOrgUnitAddressPnl
 
@@ -498,6 +506,105 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 		self.Layout()
 
 	message = property(_get_message, _set_message)
+
+#============================================================
+class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
+	"""A list for managing an org unit's external IDs.
+
+	Does NOT act on/listen to the current patient.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__unit = kwargs['unit']
+			del kwargs['unit']
+		except KeyError:
+			self.__unit = None
+
+		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
+
+		self.new_callback = self._add_id
+		self.edit_callback = self._edit_id
+		self.delete_callback = self._del_id
+		self.refresh_callback = self.refresh
+
+		self.__init_ui()
+		self.refresh()
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def refresh(self, *args, **kwargs):
+		if self.__unit is None:
+			self._LCTRL_items.set_string_items()
+			return
+
+		ids = self.__unit.external_ids
+		self._LCTRL_items.set_string_items (
+			items = [ [
+					i['name'],
+					i['value'],
+					gmTools.coalesce(i['issuer'], u''),
+					gmTools.coalesce(i['comment'], u'')
+				] for i in ids
+			]
+		)
+		self._LCTRL_items.set_column_widths()
+		self._LCTRL_items.set_data(data = ids)
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_items.set_columns(columns = [
+			_('ID Type'),
+			_('Value'),
+			_('Issuer'),
+			_('Comment')
+		])
+	#--------------------------------------------------------
+	def _add_id(self):
+		ea = cExternalIDEditAreaPnl(self, -1)
+		ea.id_holder = self.__unit
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea)
+		dlg.SetTitle(_('Adding new external ID'))
+		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
+			return True
+		dlg.Destroy()
+		return False
+	#--------------------------------------------------------
+	def _edit_id(self, ext_id):
+		ea = cExternalIDEditAreaPnl(self, -1, external_id = ext_id)
+		ea.id_holder = self.__unit
+		dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+		dlg.SetTitle(_('Editing external ID'))
+		if dlg.ShowModal() == wx.ID_OK:
+			dlg.Destroy()
+			return True
+		dlg.Destroy()
+		return False
+	#--------------------------------------------------------
+	def _del_id(self, ext_id):
+		go_ahead = gmGuiHelpers.gm_show_question (
+			_(	'Do you really want to delete this\n'
+				'external ID from the organizational unit ?'),
+			_('Deleting external ID')
+		)
+		if not go_ahead:
+			return False
+		self.__unit.delete_external_id(pk_ext_id = ext_id['pk_id'])
+		return True
+	#--------------------------------------------------------
+	# properties
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		return self.__unit
+
+	def _set_org_unit(self, org_unit):
+		self.__unit = org_unit
+		self.refresh()
+
+	org_unit = property(_get_org_unit, _set_org_unit)
+
 #============================================================
 # organizations API
 #------------------------------------------------------------
@@ -726,6 +833,7 @@ class cOrganizationsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 		orgs = gmOrganization.get_orgs(order_by = 'organization, l10n_category')
 		items = [ [o['organization'], o['l10n_category'], o['pk_org']] for o in orgs ]
 		self._LCTRL_items.set_string_items(items)
+		self._LCTRL_items.set_column_widths(widths = [wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])
 		self._LCTRL_items.set_data(orgs)
 
 		for idx in range(len(orgs)):
@@ -775,6 +883,7 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 		self._PNL_orgs.select_callback = self._on_org_selected
 		self._PNL_units.select_callback = self._on_unit_selected
 		self._PNL_comms.message = _('Communication channels')
+		self._PNL_ids.message = _('External IDs')
 
 		# FIXME: find proper button
 		#self._PNL_units.MoveAfterInTabOrder(self._PNL_orgs._BTN_)
@@ -791,10 +900,14 @@ class cOrganizationManagerDlg(wxgOrganizationManagerDlg.wxgOrganizationManagerDl
 	def _on_unit_selected(self, item):
 		self._PNL_address.unit = item
 		self._PNL_comms.channel_owner = item
+		self._PNL_ids.org_unit = item
 		if item is None:
 			self._PNL_comms._BTN_add.Enable(False)
+			self._PNL_ids.Enable(False)
 		else:
 			self._PNL_comms._BTN_add.Enable(True)
+			self._PNL_ids.Enable(True)
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -807,9 +920,6 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmPG2
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
 
 	#--------------------------------------------------------
 	def test_org_prw():

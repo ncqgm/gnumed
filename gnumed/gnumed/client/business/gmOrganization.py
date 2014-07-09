@@ -224,6 +224,124 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 			pk_org_unit = self.pk_obj
 		)
 	#--------------------------------------------------------
+	# external IDs
+	#--------------------------------------------------------
+	def get_external_ids(self, id_type=None, issuer=None):
+		where_parts = ['pk_org_unit = %(unit)s']
+		args = {'unit': self.pk_obj}
+
+		if id_type is not None:
+			where_parts.append(u'name = %(name)s')
+			args['name'] = id_type.strip()
+
+		if issuer is not None:
+			where_parts.append(u'issuer = %(issuer)s')
+			args['issuer'] = issuer.strip()
+
+		cmd = u"SELECT * FROM dem.v_external_ids4org_unit WHERE %s" % ' AND '.join(where_parts)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		return rows
+
+	external_ids = property(get_external_ids, lambda x:x)
+	#--------------------------------------------------------
+	def add_external_id(self, type_name=None, value=None, issuer=None, comment=None, pk_type=None):
+		"""Adds an external ID to an org unit.
+
+		creates ID type if necessary
+		"""
+		args = {
+			'unit': self.pk_obj,
+			'val': value,
+			'type_name': type_name,
+			'pk_type': pk_type,
+			'issuer': issuer,
+			'comment': comment
+		}
+		# check for existing ID
+		if pk_type is not None:
+			cmd = u"""
+				SELECT * FROM dem.v_external_ids4org_unit WHERE
+				pk_org_unit = %(unit)s
+					AND
+				pk_type = %(pk_type)s
+					AND
+				value = %(val)s"""
+		else:
+			# by type/value/issuer
+			if issuer is None:
+				cmd = u"""
+					SELECT * FROM dem.v_external_ids4org_unit WHERE
+					pk_org_unit = %(unit)s
+						AND
+					name = %(type_name)s
+						AND
+					value = %(val)s"""
+			else:
+				cmd = u"""
+					SELECT * FROM dem.v_external_ids4org_unit WHERE
+					pk_org_unit = %(unit)s
+						AND
+					name = %(type_name)s
+						AND
+					value = %(val)s
+						AND
+					issuer = %(issuer)s"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# create new ID if not found
+		if len(rows) == 0:
+			if pk_type is None:
+				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+					%(val)s,
+					(SELECT dem.add_external_id_type(%(type_name)s, %(issuer)s)),
+					%(comment)s,
+					%(unit)s
+				)"""
+			else:
+				cmd = u"""INSERT INTO dem.lnk_org_unit2ext_id (external_id, fk_type, comment, fk_org_unit) VALUES (
+					%(val)s,
+					%(pk_type)s,
+					%(comment)s,
+					%(unit)s
+				)"""
+			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+		# or update comment of existing ID
+		else:
+			row = rows[0]
+			if comment is not None:
+				# comment not already there ?
+				if gmTools.coalesce(row['comment'], '').find(comment.strip()) == -1:
+					comment = '%s%s' % (gmTools.coalesce(row['comment'], '', '%s // '), comment.strip)
+					cmd = u"UPDATE dem.lnk_org_unit2ext_id SET comment = %(comment)s WHERE pk = %(pk)s"
+					args = {'comment': comment, 'pk': row['pk_id']}
+					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
+		"""Edits an existing external ID.
+
+		Creates ID type if necessary.
+		"""
+		cmd = u"""
+			UPDATE dem.lnk_org_unit2ext_id SET
+				fk_type = (SELECT dem.add_external_id_type(%(type)s, %(issuer)s)),
+				external_id = %(value)s,
+				comment = gm.nullify_empty_string(%(comment)s)
+			WHERE
+				pk = %(pk)s
+		"""
+		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
+	def delete_external_id(self, pk_ext_id=None):
+		cmd = u"""
+			DELETE FROM dem.lnk_org_unit2ext_id
+			WHERE fk_org_unit = %(unit)s AND pk = %(pk)s
+		"""
+		args = {'unit': self.pk_obj, 'pk': pk_ext_id}
+		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#--------------------------------------------------------
 	# address API
 	#--------------------------------------------------------
 	def link_address(self, id_type=None, address=None):

@@ -1107,30 +1107,34 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _on_identity_item_activated(self, event):
 		data = self._LCTRL_identity.get_selected_item_data(only_one = True)
-		if data is not None:
-			# <ctrl> down ?
-			if wx.GetKeyState(wx.WXK_CONTROL):
-				if isinstance(data, gmPerson.cPersonName):
-					ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
-					dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-					dlg.SetTitle(_('Cloning name'))
-					dlg.ShowModal()
-					return
-				if isinstance(data, type({})):
-					key = data.keys()[0]
-					val = data[key]
-					if key == 'id':
-						ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)
-						ea.identity = gmPerson.gmCurrentPatient()
-						dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
-						dlg.SetTitle(_('Editing external ID'))
-						dlg.ShowModal()
-						return
-					if key == 'job':
-						gmDemographicsWidgets.edit_occupation()
-						return
+		if data is None:
+			gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
 
-		gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+		# <ctrl> down ?
+		if not wx.GetKeyState(wx.WXK_CONTROL):
+			gmDispatcher.send(signal = 'display_widget', name = 'gmNotebookedPatientEditionPlugin')
+
+		# <ctrl> down !
+		if isinstance(data, gmPerson.cPersonName):
+			ea = gmDemographicsWidgets.cPersonNameEAPnl(self, -1, name = data)
+			dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+			dlg.SetTitle(_('Cloning name'))
+			dlg.ShowModal()
+			return
+
+		if isinstance(data, type({})):
+			key = data.keys()[0]
+			val = data[key]
+			if key == 'id':
+				ea = gmDemographicsWidgets.cExternalIDEditAreaPnl(self, -1, external_id = val)
+				ea.id_holder = gmPerson.gmCurrentPatient()
+				dlg = gmEditArea.cGenericEditAreaDlg2(self, -1, edit_area = ea, single_entry = True)
+				dlg.SetTitle(_('Editing external ID'))
+				dlg.ShowModal()
+				return
+			if key == 'job':
+				gmDemographicsWidgets.edit_occupation()
+				return
 #============================================================
 # main
 #------------------------------------------------------------
