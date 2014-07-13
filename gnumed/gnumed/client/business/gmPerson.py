@@ -2054,6 +2054,11 @@ if __name__ == '__main__':
 		print person.export_area
 		print person.export_area.items
 	#--------------------------------------------------------
+	def test_ext_id():
+		person = cIdentity(aPK_obj = 9)
+		print person.get_external_ids(id_type=u'Fachgebiet', issuer=u'Ärztekammer')
+		#print person.get_external_ids()
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
@@ -2066,6 +2071,7 @@ if __name__ == '__main__':
 
 	#comms = get_comm_list()
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms
-	test_export_area()
+	#test_export_area()
+	test_ext_id()
 
 #============================================================

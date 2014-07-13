@@ -32,12 +32,11 @@ FILES="$@"			# this is / those are the file(s) to print
 # detect printer manager
 CALL_PRINTER_MANAGER=""
 
-# removed by KDE 4 :-(
-## kprinter ?
+# kprinter4 ?
 #if [ "${CALL_PRINTER_MANAGER}" = "" ]; then
-#	A=`which kprinter`
+#	A=`which kprinter4`
 #	if [ $? = 0 ]; then
-#		CALL_PRINTER_MANAGER="kprinter -c ${FILES}"
+#		CALL_PRINTER_MANAGER="kprinter4 -t \"GNUmed: ${TYPE}\" -c ${FILES}"
 #	fi
 #fi
 

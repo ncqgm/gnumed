@@ -188,6 +188,17 @@ except ImportError:
 	print "  INFO : note that you need v0.2.1 (not 0.2.2)"
 	print "  INFO :  <pip install pysvg==0.2.1>"
 
+print " faulthandler...",
+try:
+	import faulthandler
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: faulthandler not installed"
+	print "  INFO : this is used to capture catastrophic faults"
+	print "  INFO : GNUmed will still work without it"
+
 if missing:
 	print ""
 	print "sys.path is currently set as follows:"

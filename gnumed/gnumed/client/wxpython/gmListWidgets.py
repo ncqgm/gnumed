@@ -158,10 +158,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def set_column_widths(self, widths=None):
 		self._LCTRL_items.set_column_widths(widths = widths)
 	#------------------------------------------------------------
-	def set_string_items(self, items = None):
-		self._LCTRL_items.set_string_items(items = items)
+	def set_string_items(self, items=None, reshow=True):
+		self._LCTRL_items.set_string_items(items = items, reshow = reshow)
 		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.Select(0)
+		#self._LCTRL_items.Select(0)
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
@@ -219,7 +219,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
-		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one=True)):
+		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one = True)):
 			self._LCTRL_items.SetFocus()
 			return
 		if self.refresh_callback is None:
@@ -535,15 +535,15 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
 	#------------------------------------------------------------
-	def set_string_items(self, items = None):
-		self._LCTRL_items.set_string_items(items = items)
+	def set_string_items(self, items=None, reshow=True):
+		self._LCTRL_items.set_string_items(items = items, reshow = reshow)
 		self._LCTRL_items.set_column_widths()
 
 		if (items is None) or (len(items) == 0):
 			self._BTN_edit.Enable(False)
 			self._BTN_remove.Enable(False)
-		else:
-			self._LCTRL_items.Select(0)
+		#else:
+		#	self._LCTRL_items.Select(0)
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
@@ -796,10 +796,10 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 				cols = columns_right[:len(columns)]
 			self._LCTRL_right.set_columns(columns = cols)
 	#------------------------------------------------------------
-	def set_string_items(self, items = None):
-		self._LCTRL_left.set_string_items(items = items)
+	def set_string_items(self, items=None, reshow=True):
+		self._LCTRL_left.set_string_items(items = items, reshow = reshow)
 		self._LCTRL_left.set_column_widths()
-		self._LCTRL_right.set_string_items()
+		self._LCTRL_right.set_string_items(reshow = False)
 
 		self._BTN_left2right.Enable(False)
 		self._BTN_right2left.Enable(False)
@@ -807,13 +807,13 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	def set_selections(self, selections = None):
 		self._LCTRL_left.set_selections(selections = selections)
 	#------------------------------------------------------------
-	def set_choices(self, choices=None, data=None):
-		self.set_string_items(items = choices)
+	def set_choices(self, choices=None, data=None, reshow=True):
+		self.set_string_items(items = choices, reshow = reshow)
 		if data is not None:
 			self.set_data(data = data)
 	#------------------------------------------------------------
-	def set_picks(self, picks=None, data=None):
-		self._LCTRL_right.set_string_items(picks)
+	def set_picks(self, picks=None, data=None, reshow=True):
+		self._LCTRL_right.set_string_items(picks, reshow = reshow)
 		self._LCTRL_right.set_column_widths()
 		if data is not None:
 			self._LCTRL_right.set_data(data = data)
@@ -861,7 +861,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		if self.allow_duplicate_picks:
 			right_items.extend(selected_items)
 			right_data.extend(selected_data)
-			self._LCTRL_right.set_string_items(items = right_items)
+			self._LCTRL_right.set_string_items(items = right_items, reshow = True)
 			self._LCTRL_right.set_data(data = right_data)
 			self._LCTRL_right.set_column_widths()
 #			print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
@@ -873,7 +873,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 				continue
 			right_items.append(sel_item)
 			right_data.append(sel_data)
-		self._LCTRL_right.set_string_items(items = right_items)
+		self._LCTRL_right.set_string_items(items = right_items, reshow = True)
 		self._LCTRL_right.set_data(data = right_data)
 		self._LCTRL_right.set_column_widths()
 #		print u'%s <-> %s (items)' % (self._LCTRL_left.ItemCount, self._LCTRL_right.ItemCount)
@@ -1053,11 +1053,20 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		_log.error('<%s>: unable to delete list items after looping %s times', self.debug, max_tries)
 		return False
 	#------------------------------------------------------------
-	def set_string_items(self, items=None):
+	def set_string_items(self, items=None, reshow=True):
 		"""All item members must be unicode()able or None."""
 
 		wx.BeginBusyCursor()
 		self._invalidate_sorting_metadata()
+
+		if self.ItemCount == 0:
+			topmost_visible = 0
+		else:
+			topmost_visible = self.GetFirstSelected()
+			if topmost_visible == -1:
+				topmost_visible = self.GetFocusedItem()
+			if topmost_visible == -1:
+				topmost_visible = self.TopItem
 
 		if not self.remove_items_safely(max_tries = 3):
 			_log.debug(", continuing and hoping for the best")
@@ -1112,6 +1121,18 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				# cannot use errors='replace' since then None/ints/unicode strings fails to get encoded
 				col_val = unicode(item)
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
+
+		if reshow:
+			if self.ItemCount == 0:
+				self.EnsureVisible(0)
+				self.Focus(0)
+			else:
+				if topmost_visible < self.ItemCount:
+					self.EnsureVisible(topmost_visible)
+					self.Focus(topmost_visible)
+				else:
+					self.EnsureVisible(self.ItemCount - 1)
+					self.Focus(self.ItemCount - 1)
 
 		# set data to be a copy of items
 		self.data = items

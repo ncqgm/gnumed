@@ -93,8 +93,8 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 	def get_comm_channels(self, comm_medium=None):
 		return self.org_unit.get_comm_channels(comm_medium = comm_medium)
 	#--------------------------------------------------------
-	def get_external_ids(self, id_type=None):
-		return self.org_unit.get_external_ids(id_type = id_type)
+	def get_external_ids(self, id_type=None, issuer=None):
+		return self.org_unit.get_external_ids(id_type = id_type, issuer = issuer)
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

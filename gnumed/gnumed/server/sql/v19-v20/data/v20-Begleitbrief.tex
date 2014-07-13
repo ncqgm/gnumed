@@ -1,0 +1,176 @@
+%------------------------------------------------------------------
+% Based on:
+%
+% Deutsche LaTeX Briefvorlage von Jan-Philip Gehrcke
+% http://gehrcke.de -- jgehrcke@googlemail.com
+% November 2009, Aktualisierung Januar 2013
+%
+% Stark angepaßt von Karsten.Hilbert@gmx.net für GNUmed.
+%
+% use with pdflatex, NOT xelatex
+%
+% License: GPL v2 or later
+%------------------------------------------------------------------
+
+\documentclass[
+	paper=a4,
+	BCOR=0mm,							% keine BindeCORrektur
+	DIN,
+	version=last,
+	enlargefirstpage=on,
+	fontsize=11pt,
+	foldmarks=true,
+	foldmarks=HP,
+	parskip=full,						% Absätze mit Leerzeilen trennen, kein Einzug
+	fromurl=false,						% explizit in der Fußzeile
+	fromemail=false,					% explizit in der Fußzeile
+	fromfax=false,						% explizit in der Fußzeile
+	fromphone=false,					% explizit in der Fußzeile
+	fromlogo=true,
+	fromalign=center,
+	fromrule=afteraddress,
+	symbolicnames=true,
+	headsepline=true,
+	footsepline=true,
+	pagenumber=footright
+]{scrlttr2}
+\usepackage{scrlayer-scrpage}			% Kopf- und Fußzeilen
+\usepackage[cjkjis,graphics]{ucs}		% lots of UTF8 symbols, breaks with xelatex
+\usepackage[utf8x]{inputenc}			% content is UTF8, breaks with xelatex
+\usepackage[T1]{fontenc}				% fonts are T1
+\usepackage[ngerman]{babel}				% Deutsch und Trennung
+\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
+\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
+\usepackage{lmodern}					% sans serif Latin Modern
+\usepackage{longtable}					% Tabellen über mehrere Seiten
+\usepackage{tabu}						% bessere Tabellen
+\usepackage{graphicx}					% Grafiken laden (Logo und Unterschrift)
+\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
+\usepackage{lastpage}					% easy access to page number of last page
+\usepackage{calc}						% \widthof (für signature)
+\usepackage{hyperref}					% aktive URLs
+
+
+% Definiere Grundschrift: sans serif Latin Modern
+\renewcommand*\familydefault{\sfdefault}
+
+
+\begin{document}
+
+
+% Kopfzeile ab zweiter Seite
+\lehead{$<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\lohead{$<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%d.%B %Y::>$)}
+\cehead{}
+\cohead{}
+\rehead{Seite \thepage/\pageref{LastPage}}
+\rohead{Seite \thepage/\pageref{LastPage}}
+
+
+% Absenderdetails
+\setkomavar{fromname}{$<current_provider::::>$, FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$}
+\setkomavar{fromaddress}{\small
+	$<praxis::%(branch)s, %(praxis)s::120>$\\
+	$<praxis_address::%(street)s %(number)s (%(subunit)s), %(postcode)s %(urb)s::60>$
+}
+\setkomavar{fromlogo}{$<data_snippet::praxis-logo//\includegraphics[width=30mm]{%s}//image/png//.png::250>$}%$
+\setkomavar{backaddress}{$<current_provider::::>$\\$<praxis_address::%(street)s %(number)s\\%(postcode)s %(urb)s::60>$}
+
+
+% Geschäftszeile
+\setkomavar{yourref}{$<free_text::Angabe in "Ihr Zeichen"::40>$}
+\setkomavar{yourmail}{$<free_text::Angabe in "Ihr Schreiben vom"::20>$}
+\setkomavar{myref}{$<free_text::Angabe in "Unser Zeichen"::40>$}
+\setkomavar{date}{$<today::%d.%B %Y::50>$}
+\setkomavar{place}{$<praxis_address::%(urb)s::120>$, den}
+
+
+% Betreff, nämlich Patientendaten
+\setkomavar{subject}[]{
+	$<free_text::Betreff für den Brief::120>$\\
+	Patient: $<title::::>$ $<firstname::::>$ $<lastname::::>$ (geb $<date_of_birth::%d.%B %Y::>$)\\
+	Adresse: $<adr_street::home::>$ $<adr_number::home::>$, $<adr_postcode::home::>$ $<adr_location::home::>$
+}
+
+
+% Unterschrift
+\setkomavar{signature}{
+	\centering
+	$<data_snippet::autograph-$<<current_provider::::>>$//\includegraphics[width=30mm]{%s}\\//image/png//.png::250>$\rule{\widthof{\tiny (Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}}{.1pt}\\
+	$<current_provider::::>$\\
+	{\tiny (Der Unterzeichner haftet nicht für unsignierte Änderungen des Inhalts.)}
+}
+\renewcommand*{\raggedsignature}{\raggedright}
+\makeatletter
+\@setplength{sigbeforevskip}{1.8cm}							% Definiere vertikalen Abstand vor der Unterschrift
+\makeatother
+
+
+% Fußzeile 1.Seite
+\setkomavar{firstfoot}{%
+	\rule{\textwidth}{.3pt}
+	\parbox[t]{\textwidth}{
+		\tiny
+		\begin{tabular}[t]{ll}%
+%			\multicolumn{2}{l}{Erreichbarkeit:}\\
+			\Telefon       & $<praxis_comm::workphone::60>$\\
+			\FAX           & $<praxis_comm::fax::60>$\\
+			\Email         & \href{mailto:$<praxis_comm::email::60>$}{$<praxis_comm::email::60>$}\\
+			\ComputerMouse & \href{http://$<praxis_comm::web::60>$}{$<praxis_comm::web::60>$}\\
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{FA für $<current_provider_external_id::Fachgebiet//Ärztekammer::50>$}\\
+			BSNR       & $<praxis_id::KV-BSNR//KV//%(value)s::25>$\\
+			LANR       & $<current_provider_external_id::KV-LANR//KV::25>$\\
+			\multicolumn{2}{l}{GNUmed $<client_version::::>$ (\href{http://www.gnumed.org}{www.gnumed.org})}\\
+		\end{tabular}%
+		\hfill
+		\begin{tabular}[t]{ll}%
+			\multicolumn{2}{l}{$<praxis_id::Bankname//Bank//%(value)s::60>$}\\
+			IBAN       & $<praxis_id::IBAN//Bank//%(value)s::30>$\\
+			BIC        & $<praxis_id::BIC//Bank//%(value)s::30>$\\
+			\multicolumn{2}{l}{Vorlage $<form_name_long::::60>$ v$<form_version::::20>$}\\
+		\end{tabular}%
+	}
+}
+
+
+% Fußzeile ab zweiter Seite
+\lefoot{{\tiny $<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::120>$}}
+\lofoot{{\tiny $<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::120>$}}
+\cefoot{}
+\cofoot{}
+\refoot{{\tiny $<today::%d.%B %Y::50>$}}
+\rofoot{{\tiny $<today::%d.%B %Y::50>$}}
+
+
+% Definiere Brief und Empfaenger
+\begin{letter}{%
+	$<receiver_name::::>$\\
+	$<receiver_street::::>$\ $<receiver_number::::>$\ $<receiver_subunit::::>$\\
+	$<receiver_postcode::::>$\ $<receiver_location::::>$\\
+	$<receiver_country::::>$
+}%
+
+
+% Anrede
+\opening{Sehr $<gender_mapper::geehrter Herr//geehrte Frau//Hallo::>$ $<receiver_name::::>$,}
+
+
+% Brieftext
+\selectlanguage{ngerman}
+$<free_text::Der eigentliche Brieftext (in LaTeX !)::>$
+
+\closing{$<free_text::Grußformel, z.B. "Mit freundlichen Grüßen" (ohne Komma am Ende)::140>$,}
+
+% Anlagen
+%\setkomavar*{enclseparator}[Anlage(n)]					% Titel für Anlagebereich
+\encl{$<free_text::Liste von Anlagen::300>$}
+
+% kein Verteiler
+%\cc{}
+
+\end{letter}
+
+\end{document}

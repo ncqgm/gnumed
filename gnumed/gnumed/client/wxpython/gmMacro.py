@@ -235,7 +235,7 @@ __known_variant_placeholders = {
 
 	u'praxis_address': u"args: <optional formatting template>",
 	u'praxis_comm': u"args: type//<optional formatting template>",
-	u'praxis_id': u"args: type//<optional formatting template>",
+	u'praxis_id': u"args: <type of ID>//<issuer of ID>//<optional formatting template>",
 
 
 	# billing related:
@@ -945,7 +945,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if part == u'name':
 			return template % self._escape(name)
 
-		return template % self._escape(adr[part])
+		return template % self._escape(gmTools.coalesce(adr[part], u''))
 	#--------------------------------------------------------
 	def _get_variant_receiver_name(self, data=u'%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'name')
@@ -1193,18 +1193,30 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_praxis_id(self, data=None):
 		options = data.split(u'//')
-		id_type = options[0]
-		template = u'%(name)s: %(value)s (%(issuer)s)'
-		if len(options) > 1:
-			template = options[1]
+		id_type = options[0].strip()
+		if id_type == u'':
+			return self._escape(u'praxis external ID: type is missing')
 
-		ids = gmPraxis.gmCurrentPraxisBranch().get_external_ids(id_type = id_type)
+		if len(options) > 1:
+			issuer = options[1].strip()
+			if issuer == u'':
+				issue = None
+		else:
+			issuer = None
+
+		if len(options) > 2:
+			template = options[2]
+		else:
+			template = u'%(name)s: %(value)s (%(issuer)s)'
+
+		ids = gmPraxis.gmCurrentPraxisBranch().get_external_ids(id_type = id_type, issuer = issuer)
 		if len(ids) == 0:
 			if self.debug:
-				return template + u': ' + self._escape(_('no ID for type [%s]') % data)
+				return template + u': ' + self._escape(_('no external ID [%s] by [%s]') % (id_type, issuer))
 			return u''
 
 		return template % self._escape_dict(the_dict = ids[0], none_string = u'')
+
 	#--------------------------------------------------------
 	# provider related placeholders
 	#--------------------------------------------------------
@@ -2190,12 +2202,13 @@ if __name__ == '__main__':
 			#u'$<current_meds_for_rx::%(brand)s (%(contains)s): dispense %(amount2dispense)s ::>$'
 			#u'$<praxis::%(branch)s (%(praxis)s)::>$'
 			#u'$<praxis_address::::120>$'
-			u'$<praxis_id::::120>$'
+			#u'$<praxis_id::::120>$'
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 
 			#u'$<receiver_name::%s::120>$',
 			#u'$<receiver_street::%s::120>$',
 			#u'$<receiver_number:: %s::120>$',
+			u'$<receiver_subunit:: %s::120>$',
 			#u'$<receiver_postcode::%s::120>$',
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$'

@@ -50,6 +50,18 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# Begleitbrief
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '20.0'
+			WHERE
+				name_long = 'Begleitbrief ohne medizinische Daten [K.Hilbert]'""",
+		filename = os.path.join('..', 'sql', 'v19-v20', 'data', 'v20-Begleitbrief.tex'),
+		conn = conn
+	)
+
 	return True
 
 #==============================================================

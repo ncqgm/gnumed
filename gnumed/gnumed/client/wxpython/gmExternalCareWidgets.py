@@ -191,8 +191,8 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 	def _refresh_from_existing(self):
 		self._PRW_issue.SetText(value = self.data['issue'], data = self.data['pk_health_issue'], suppress_smarts = True)
 		self._PRW_care_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
-		self._TCTRL_provider.SetValue(gmTools.coalesce(self.data['provider']))
-		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment']))
+		self._TCTRL_provider.SetValue(gmTools.coalesce(self.data['provider'], u''))
+		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['comment'], u''))
 
 		self._TCTRL_comment.SetFocus()
 

@@ -910,6 +910,13 @@ class gmTopLevelFrame(wx.Frame):
 			except ImportError:
 				menu_debugging.Enable(id = ID, enable = False)
 
+			try:
+				import faulthandler
+				item = menu_debugging.Append(-1, _('Test fault handler'), _('Simulate a catastrophic fault (SIGSEGV).'))
+				self.Bind(wx.EVT_MENU, self.__on_test_segfault, item)
+			except ImportError:
+				pass
+
 		help_menu.AppendMenu(wx.NewId(), _('Debugging ...'), menu_debugging)
 
 		help_menu.AppendSeparator()
@@ -2403,8 +2410,12 @@ class gmTopLevelFrame(wx.Frame):
 		self.__save_screenshot_to_file(filename = fname)
 	#----------------------------------------------
 	def __on_test_exception(self, evt):
-		#import nonexistant_module
 		raise ValueError('raised ValueError to test exception handling')
+	#----------------------------------------------
+	def __on_test_segfault(self, evt):
+		import faulthandler
+		_log.debug('testing faulthandler via SIGSEGV')
+		faulthandler._sigsegv()
 	#----------------------------------------------
 	def __on_test_access_violation(self, evt):
 		raise gmExceptions.AccessDenied (

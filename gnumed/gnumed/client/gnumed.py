@@ -247,12 +247,27 @@ def setup_local_repo_path():
 	sys.path.insert(0, local_repo_path)
 	_log.debug('sys.path with repo:')
 	_log.debug(sys.path)
+
+#==========================================================
+def setup_fault_handler(target=None):
+	try:
+		import faulthandler
+	except ImportError:
+		print "Faulthandler not available ..."
+		return
+	if target is None:
+		faulthandler.enable()
+		return
+	faulthandler.enable(file = target)
+
 #==========================================================
 def setup_logging():
 	try:
 		from Gnumed.pycommon import gmLog2 as _gmLog2
 	except ImportError:
 		sys.exit(import_error_sermon % '\n '.join(sys.path))
+
+	setup_fault_handler(target = _gmLog2._logfile)
 
 	global gmLog2
 	gmLog2 = _gmLog2
@@ -598,6 +613,7 @@ def shutdown_tmp_dir():
 #==========================================================
 # main - launch the GNUmed wxPython GUI client
 #----------------------------------------------------------
+setup_fault_handler(target = None)
 setup_python_path()
 setup_logging()
 log_startup_info()
