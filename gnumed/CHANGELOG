@@ -1460,6 +1460,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 FIX: overly eager INNER JOIN of dem.v_praxis_branch
 FIX: overly eager INNER JOINs of dem.v_orgs/dem.v_org_units [thanks Jim]
+FIX: do not reuse tx after failure of "ignore_checksum_failure" on PG < 9.3
 
 IMPROVED: more robust pg_trgm installation
 
