@@ -695,16 +695,22 @@ class database:
 		curs.execute("alter database %s set default_transaction_read_only to on" % self.name)
 		# we want checking of function bodies
 		curs.execute("alter database %s set check_function_bodies to on" % self.name)
+		curs.close()
+		self.conn.commit()
+
 		# we want checking of data checksums if available
 		# remove exception handler when 9.3 is default
+		curs = self.conn.cursor()
 		try:
 			curs.execute("alter database %s set ignore_checksum_failure to off" % self.name)
 		except:
 			_log.exception('PostgreSQL version < 9.3 does not support <ignore_checksum_failure>')
+		curs.close()
+		self.conn.commit()
 
+		curs = self.conn.cursor()
 		gmPG2._log_PG_settings(curs = curs)
 		curs.close()
-
 		self.conn.commit()
 
 		return self.conn and 1
