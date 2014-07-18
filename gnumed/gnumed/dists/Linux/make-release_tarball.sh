@@ -269,8 +269,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-schema.html
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v20/gnumed-schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v20/gnumed-schema-no_audit.dot
 cd -
 
 
@@ -586,6 +586,23 @@ cp -R ../../server/sql/v18-v19/data/* ./gnumed-client.$CLIENTREV/server/sql/v18-
 cp -R ../../server/sql/v18-v19/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v18-v19/python
 cp -R ../../server/sql/v18-v19/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/fixups
 cp -R ../../server/sql/v18-v19/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v18-v19/superuser
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/python
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/fixups
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v19-v20/superuser
+
+cp ../../server/sql/v19-v20/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v19-v20
+cp -R ../../server/sql/v19-v20/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/dynamic
+cp -R ../../server/sql/v19-v20/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/static
+cp -R ../../server/sql/v19-v20/data/* ./gnumed-client.$CLIENTREV/server/sql/v19-v20/data
+cp -R ../../server/sql/v19-v20/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v19-v20/python
+#cp -R ../../server/sql/v19-v20/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/fixups
+#cp -R ../../server/sql/v19-v20/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/superuser
 
 #----------------------------------
 # weed out unnecessary stuff

@@ -1,0 +1,19 @@
+Fingerprinting GNUmed database ...
+
+                Name: gnumed_v20
+         Schema hash: 3790ad9a5278afc4caec50ccc7e94a8d
+                Size: 94 MB
+            Patients: 14
+            Contacts: 11
+            Episodes: 5
+              Issues: 2
+             Results: 5
+        Vaccinations: 1
+           Documents: 3
+             Objects: 4
+       Organizations: 12368
+Organizational units: 11484
+        Version (PG): 9.3.4
+       Encoding (PG): UTF8
+     LC_COLLATE (PG): de_DE.UTF-8
+       LC_CTYPE (PG): de_DE.UTF-8

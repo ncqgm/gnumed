@@ -1873,7 +1873,8 @@ def get_results_for_day(timestamp=None, patient=None):
 		WHERE
 			%s
 		ORDER BY
-			name_tt
+			abbrev_tt,
+			clin_when DESC
 	""" % u' AND '.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)

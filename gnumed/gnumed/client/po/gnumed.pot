@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-13 19:36+0100\n"
+"POT-Creation-Date: 2014-07-18 22:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,6 +190,9 @@ msgstr ""
 msgid "Start time can't be after end time"
 msgstr ""
 
+msgid "Duration"
+msgstr ""
+
 #, python-format
 msgid "Unable to save timeline data to '%s'. File left unmodified."
 msgstr ""
@@ -370,6 +373,15 @@ msgstr ""
 msgid "Show time"
 msgstr ""
 
+msgid "Found Events"
+msgstr ""
+
+msgid "&Enlarge"
+msgstr ""
+
+msgid "&Reduce"
+msgstr ""
+
 msgid "Event Properties"
 msgstr ""
 
@@ -415,20 +427,10 @@ msgstr ""
 msgid "Hyperlink"
 msgstr ""
 
+msgid "Progress"
+msgstr ""
+
 msgid "Add more events after this one"
-msgstr ""
-
-#, python-format
-msgid "Images will be scaled to fit inside a %ix%i box."
-msgstr ""
-
-msgid "Select Icon"
-msgstr ""
-
-msgid "Test"
-msgstr ""
-
-msgid "URL:"
 msgstr ""
 
 msgid "Edit Container"
@@ -521,6 +523,12 @@ msgid "Export the current view to a SVG image"
 msgstr ""
 
 msgid "Exit the program"
+msgstr ""
+
+msgid "Find Categories..."
+msgstr ""
+
+msgid "Shortcuts..."
 msgstr ""
 
 msgid "&Edit"
@@ -714,6 +722,15 @@ msgstr ""
 msgid "Sunday"
 msgstr ""
 
+msgid "Category Finder"
+msgstr ""
+
+msgid "Check"
+msgstr ""
+
+msgid "Uncheck"
+msgstr ""
+
 msgid "Feedback On Feature"
 msgstr ""
 
@@ -746,6 +763,18 @@ msgid "Could not find page '%s'."
 msgstr ""
 
 msgid "Container Properties"
+msgstr ""
+
+msgid "Edit Shortcuts"
+msgstr ""
+
+msgid "Functions:"
+msgstr ""
+
+msgid "Modifier:"
+msgstr ""
+
+msgid "Shortcut Key:"
 msgstr ""
 
 msgid "Unable to copy to clipboard."
@@ -788,7 +817,30 @@ msgstr ""
 msgid "Question"
 msgstr ""
 
+msgid "Both Modifier and Shortcut key must be given!"
+msgstr ""
+
+#, python-format
+msgid "The shortcut %s is already bound to function '%s'!"
+msgstr ""
+
 msgid "You must select a category!"
+msgstr ""
+
+msgid "Progress %:"
+msgstr ""
+
+msgid "Test"
+msgstr ""
+
+msgid "URL:"
+msgstr ""
+
+#, python-format
+msgid "Images will be scaled to fit inside a %ix%i box."
+msgstr ""
+
+msgid "Select Icon"
 msgstr ""
 
 msgid "You can't change time when the Event is locked"
@@ -1251,6 +1303,87 @@ msgid "1000-period"
 msgstr ""
 
 msgid "Go to Time"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "Navigate"
+msgstr ""
+
+msgid "Import..."
+msgstr ""
+
+msgid "Export Current view to Image..."
+msgstr ""
+
+msgid "Export Whole Timeline to Images..."
+msgstr ""
+
+msgid "Export to SVG..."
+msgstr ""
+
+msgid "Exit"
+msgstr ""
+
+msgid "Find"
+msgstr ""
+
+msgid "Shortcuts"
+msgstr ""
+
+msgid "Sidebar"
+msgstr ""
+
+msgid "Legend"
+msgstr ""
+
+msgid "Ballons on hover"
+msgstr ""
+
+msgid "Zoom In"
+msgstr ""
+
+msgid "Zoom Out"
+msgstr ""
+
+msgid "Vertical Zoom In"
+msgstr ""
+
+msgid "Vertical Zoom Out"
+msgstr ""
+
+msgid "Edit Selected Event"
+msgstr ""
+
+msgid "Duplicate Selected Event"
+msgstr ""
+
+msgid "Set Category on Selected Events"
+msgstr ""
+
+msgid "Measure Distance between two Events"
+msgstr ""
+
+msgid "Read Only"
+msgstr ""
+
+msgid "Contents"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Find First Event"
+msgstr ""
+
+msgid "Find Last Event"
+msgstr ""
+
+msgid "Find All Events"
 msgstr ""
 
 #, python-format
@@ -2536,6 +2669,39 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
+msgid "&First pregnancy"
+msgstr ""
+
+msgid "Due Date Calculator"
+msgstr ""
+
+msgid "Required: Enter the 1st day of the Last Menstrual Period."
+msgstr ""
+
+msgid "Check here if this is the first pregnancy."
+msgstr ""
+
+msgid ""
+"Expected Date of Confinement.\n"
+"\n"
+"You can also just enter a date here if one is known from external sources."
+msgstr ""
+
+msgid "Save the Expected Due Date."
+msgstr ""
+
+msgid "Close without saving."
+msgstr ""
+
+msgid "LMP (1st)"
+msgstr ""
+
+msgid "EDC"
+msgstr ""
+
+msgid "or pick 1st day of LMP:"
+msgstr ""
+
 msgid "&Manage orgs"
 msgstr ""
 
@@ -2554,10 +2720,46 @@ msgstr ""
 msgid "Org.Unit"
 msgstr ""
 
+msgid "All patients"
+msgstr ""
+
+msgid "&Active patient only"
+msgstr ""
+
+msgid "&Export"
+msgstr ""
+
+msgid "Select here to show documents for all patients."
+msgstr ""
+
+msgid "Select here to filter to the active patient (if any)."
+msgstr ""
+
+msgid "Show the topmost selected printout."
+msgstr ""
+
+msgid "Print selected/all printouts."
+msgstr ""
+
+msgid "Store selected printouts in patient export area (if applicable)."
+msgstr ""
+
+msgid "Delete the selected printouts"
+msgstr ""
+
+msgid "Show printouts for:"
+msgstr ""
+
+msgid "E&xport area"
+msgstr ""
+
 msgid "Refresh the timeline display."
 msgstr ""
 
-msgid "Export timeline as SVG image."
+msgid "Save timeline as SVG image."
+msgstr ""
+
+msgid "Put timeline into export area."
 msgstr ""
 
 msgid "Print timeline."
@@ -2659,19 +2861,16 @@ msgstr ""
 msgid "Template"
 msgstr ""
 
-msgid "Document Properties"
-msgstr ""
-
-msgid "Parts"
-msgstr ""
-
-msgid "Part Sources"
-msgstr ""
-
 msgid "&Scan page(s)"
 msgstr ""
 
 msgid "Pick &file(s)"
+msgstr ""
+
+msgid "&Clipboard"
+msgstr ""
+
+msgid "Part Sources"
 msgstr ""
 
 msgid "Intended reviewer:"
@@ -2686,10 +2885,16 @@ msgstr ""
 msgid "&clinically relevant"
 msgstr ""
 
+msgid "Document Properties"
+msgstr ""
+
 msgid "Show part"
 msgstr ""
 
 msgid "Remove part"
+msgstr ""
+
+msgid "Parts"
 msgstr ""
 
 msgid "Discard"
@@ -2702,6 +2907,9 @@ msgstr ""
 
 msgid ""
 "Add a file from the filesystem as a new part. Shows a file selector dialog."
+msgstr ""
+
+msgid "Load the topmost item from the clipboard."
 msgstr ""
 
 msgid "Required: The type of this document."
@@ -2770,6 +2978,33 @@ msgid "Associate to episode:"
 msgstr ""
 
 msgid "Comment / Identification:"
+msgstr ""
+
+msgid ""
+"Mandatory: Select a health issue or enter a new description for which care "
+"is rendered."
+msgstr ""
+
+msgid "Mandatory: The location care is rendered at."
+msgstr ""
+
+msgid "Manage organizations and units thereof."
+msgstr ""
+
+msgid ""
+"Optional: A specific, named provider rendering care at the care location."
+msgstr ""
+
+msgid "Optional: A comment on this external care relationship."
+msgstr ""
+
+msgid "Care Target"
+msgstr ""
+
+msgid "Location"
+msgstr ""
+
+msgid "Provider"
 msgstr ""
 
 msgid "left"
@@ -3014,9 +3249,6 @@ msgstr ""
 msgid ""
 "Codes relevant to the Assessment of Encounter\n"
 "separated by \";\"."
-msgstr ""
-
-msgid "Location"
 msgstr ""
 
 msgid "Started"
@@ -3340,51 +3572,16 @@ msgstr ""
 msgid "What would you like to do with the following document(s) ?"
 msgstr ""
 
-msgid "Show"
-msgstr ""
-
-msgid "Print"
-msgstr ""
-
-msgid "to printer"
-msgstr ""
-
-msgid "Now (&P)"
-msgstr ""
-
-msgid "Mail"
-msgstr ""
-
-msgid "to recipients"
-msgstr ""
-
-msgid "Now (&M)"
-msgstr ""
-
-msgid "Fax to"
-msgstr ""
-
-msgid "Now (&F)"
-msgstr ""
-
 msgid "to patient export area"
 msgstr ""
 
-msgid "Now (&E)"
+msgid "Print &remotely"
 msgstr ""
 
-msgid ""
-"Archive\n"
-"under"
+msgid "&Export only"
 msgstr ""
 
-msgid "Now (&A)"
-msgstr ""
-
-msgid "to file(s)"
-msgstr ""
-
-msgid "Now (&S)"
+msgid "&Archive only"
 msgstr ""
 
 msgid "Form handling"
@@ -3396,43 +3593,33 @@ msgstr ""
 msgid "Delete the selected forms from the list."
 msgstr ""
 
-msgid "Check here for printing."
-msgstr ""
-
-msgid "Print immediately without further ado."
-msgstr ""
-
-msgid "Mail immediately without further ado."
-msgstr ""
-
-msgid "Enter a fax number here."
-msgstr ""
-
-msgid "Fax immediately without further ado."
-msgstr ""
-
-msgid "Check here if you want to put a copy into the export area."
-msgstr ""
-
-msgid "Put into export area immediately without further ado."
+msgid "Check here to put a copy into the export area."
 msgstr ""
 
 msgid "Select episode under which to archive a copy of the document(s)."
 msgstr ""
 
-msgid "Put copy into archive without further ado."
-msgstr ""
-
-msgid "Check here to save document(s) to file(s)."
-msgstr ""
-
-msgid "Save to file(s) immediately without further ado."
-msgstr ""
-
 msgid "Enter a SOAP note to be put into the chart."
 msgstr ""
 
-msgid "Act on the document(s) according to the above."
+msgid ""
+"Print document(s)\n"
+"(optionally copy to archive and export area)"
+msgstr ""
+
+msgid ""
+"Remotely print document(s).\n"
+"(optionally copy to archive and export area)"
+msgstr ""
+
+msgid ""
+"Put into export area only.\n"
+"(no printing, no archiving)"
+msgstr ""
+
+msgid ""
+"Put copy into archive only.\n"
+"(no printing, no export area)"
 msgstr ""
 
 msgid "Cancel any actions and close dialog."
@@ -3515,7 +3702,7 @@ msgstr ""
 msgid "Issuer"
 msgstr ""
 
-msgid "&Sign as:"
+msgid "&Sign"
 msgstr ""
 
 msgid "&Abnormal"
@@ -3558,6 +3745,9 @@ msgid "The doctor in charge who will have to assess and sign off this result."
 msgstr ""
 
 msgid "The medical problem this test results pertains to."
+msgstr ""
+
+msgid "Manage episodes (and health issues)."
 msgstr ""
 
 msgid ""
@@ -3621,6 +3811,9 @@ msgstr ""
 msgid "Review"
 msgstr ""
 
+msgid "Mark as:"
+msgstr ""
+
 msgid "Reference information"
 msgstr ""
 
@@ -3663,10 +3856,16 @@ msgstr ""
 msgid "↢ S&can"
 msgstr ""
 
+msgid "↢ C&lipboard"
+msgstr ""
+
 msgid "&Remove"
 msgstr ""
 
 msgid "&Print"
+msgstr ""
+
+msgid "&Print Mgr"
 msgstr ""
 
 msgid "&Burn"
@@ -3696,10 +3895,16 @@ msgstr ""
 msgid "Acquire images from image source (scanner, ...)."
 msgstr ""
 
+msgid "Acquire images or text from the clipboard."
+msgstr ""
+
 msgid "Remove the selected documents."
 msgstr ""
 
 msgid "Print selected/all documents."
+msgstr ""
+
+msgid "Put selected/all documents into remote print manager."
 msgstr ""
 
 msgid "Burn selected/all documents onto CD/DVD."
@@ -3729,7 +3934,75 @@ msgstr ""
 msgid "Select this if you want to keep this patient."
 msgstr ""
 
-msgid "Details of the patients to merge:"
+msgid ""
+"Search for - and possible select - a patient in both the left and\n"
+"the right field. The left field will initially show the active patient\n"
+"(if there is one) but you can select a different patient on the\n"
+"left as well.\n"
+"\n"
+"Note that you cannot merge the active patient into another\n"
+"patient. You can, however, merge another patient into the\n"
+"active one."
+msgstr ""
+
+msgid "Details of the patients to merge"
+msgstr ""
+
+msgid "Select the paperwork receiver:"
+msgstr ""
+
+msgid "&Addresses"
+msgstr ""
+
+msgid "Or&Ganizations"
+msgstr ""
+
+msgid "&OK"
+msgstr ""
+
+msgid "Letter receiver selection"
+msgstr ""
+
+msgid ""
+"This name will be used.\n"
+"\n"
+"You can edit the (or type another) name here, too."
+msgstr ""
+
+msgid ""
+"This address will be used.\n"
+"\n"
+"You can also search for an arbitrary address in this field."
+msgstr ""
+
+msgid "Manage generic list of all addresses."
+msgstr ""
+
+msgid "Manage known organizations and units thereof."
+msgstr ""
+
+msgid "Select the organizational unit you want to write to."
+msgstr ""
+
+msgid "Use the above name and address."
+msgstr ""
+
+msgid "Abort the receiver selection."
+msgstr ""
+
+msgid "Selected receiver"
+msgstr ""
+
+msgid "Address"
+msgstr ""
+
+msgid "Manage:"
+msgstr ""
+
+msgid "Quick picks"
+msgstr ""
+
+msgid "Org:"
 msgstr ""
 
 msgid "Run"
@@ -3933,9 +4206,6 @@ msgid "Enter a new address and link it to the organizational unit."
 msgstr ""
 
 msgid "Browse all known addresses (loading can be slow)."
-msgstr ""
-
-msgid "Address"
 msgstr ""
 
 msgid "&Delete"
@@ -4457,9 +4727,6 @@ msgstr ""
 msgid "Sort documents by"
 msgstr ""
 
-msgid "File"
-msgstr ""
-
 msgid "Se&lect"
 msgstr ""
 
@@ -4654,9 +4921,6 @@ msgstr ""
 msgid "Schedule"
 msgstr ""
 
-msgid "Duration"
-msgstr ""
-
 msgid "Aim"
 msgstr ""
 
@@ -4803,6 +5067,60 @@ msgid ""
 msgstr ""
 
 msgid "Channel"
+msgstr ""
+
+msgid "Chec&k"
+msgstr ""
+
+msgid "is &active"
+msgstr ""
+
+msgid "Required: A concise, unique title for this automatic hint."
+msgstr ""
+
+msgid ""
+"Required: The full text to be displayed when the conditions for this "
+"automatic hint apply."
+msgstr ""
+
+msgid ""
+"Required: The SQL query to be run for checking whether this automatic hint "
+"applies and should be displayed.\n"
+"\n"
+"Must return TRUE / FALSE.\n"
+"\n"
+"Any occurrence of ID_ACTIVE_PATIENT will be replaced by the internal GNUmed "
+"ID of the currently active patient."
+msgstr ""
+
+msgid ""
+"Required: Who is responsible for this automatic hint (inhouse and possibly "
+"externally)."
+msgstr ""
+
+msgid "Optional: An URL under which additional information can be found."
+msgstr ""
+
+msgid "Explicitely check the URL given."
+msgstr ""
+
+msgid ""
+"Whether or not this automatic hint is active. If not active it will not be "
+"displayed even if the SQL-defined conditions do match."
+msgstr ""
+
+msgid ""
+"Conditions\n"
+"(SQL query)"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "URL"
+msgstr ""
+
+msgid "Options"
 msgstr ""
 
 msgid "Show non-invoiced only"
@@ -5186,6 +5504,9 @@ msgid "Urgent"
 msgstr ""
 
 msgid "With Sample"
+msgstr ""
+
+msgid "Print"
 msgstr ""
 
 msgid "Deactivate"
@@ -5622,6 +5943,35 @@ msgstr ""
 msgid "Intermediate results:"
 msgstr ""
 
+msgid "unknown EDC"
+msgstr ""
+
+msgid "EDC: unknown LMP"
+msgstr ""
+
+msgid "LMP in the future"
+msgstr ""
+
+msgid "cannot run sanity checks, no patient"
+msgstr ""
+
+msgid "cannot run sanity checks, no DOB"
+msgstr ""
+
+msgid "patient less than 10 years old"
+msgstr ""
+
+#, python-format
+msgid "atypical gender for pregnancy: %s"
+msgstr ""
+
+msgid "patient already passed away"
+msgstr ""
+
+#, python-format
+msgid "EDC: %s"
+msgstr ""
+
 msgid "unknown MDRD (4 vars/IDMS)"
 msgstr ""
 
@@ -5965,8 +6315,7 @@ msgstr ""
 msgid "form: %s %s (%s)"
 msgstr ""
 
-#, python-format
-msgid "file: %s (%s/)"
+msgid "file"
 msgstr ""
 
 #, python-format
@@ -5990,6 +6339,12 @@ msgid "Patient data export"
 msgstr ""
 
 msgid "Documents"
+msgstr ""
+
+msgid "browse storage medium"
+msgstr ""
+
+msgid "browse documents area"
 msgstr ""
 
 msgid "Browse patient data"
@@ -6227,6 +6582,9 @@ msgstr ""
 msgid "%s ago"
 msgstr ""
 
+msgid "External care"
+msgstr ""
+
 msgid "Allergies/Intolerances"
 msgstr ""
 
@@ -6336,6 +6694,32 @@ msgstr ""
 msgid ""
 "%s: %s by %.8s (v%s)\n"
 "%s"
+msgstr ""
+
+#, python-format
+msgid "External care               #%s"
+msgstr ""
+
+#, python-format
+msgid "Issue: %s"
+msgstr ""
+
+#, python-format
+msgid "Health issue: %s"
+msgstr ""
+
+msgid "also treated here"
+msgstr ""
+
+#, python-format
+msgid "Provider: %s"
+msgstr ""
+
+#, python-format
+msgid "Location: %s@%s"
+msgstr ""
+
+msgid " (confidential)"
 msgstr ""
 
 msgid "external patient source (name, gender, date of birth)"
@@ -6953,9 +7337,6 @@ msgstr ""
 msgid "Organization: %s (%s)"
 msgstr ""
 
-msgid " (confidential)"
-msgstr ""
-
 msgid "A: Sign"
 msgstr ""
 
@@ -7044,6 +7425,9 @@ msgid "Measurements and Results: %s"
 msgstr ""
 
 msgid "Vaccinations:"
+msgstr ""
+
+msgid "External care:"
 msgstr ""
 
 #, python-format
@@ -7347,6 +7731,23 @@ msgstr ""
 msgid "Editing an episode"
 msgstr ""
 
+msgid "Cannot delete episode."
+msgstr ""
+
+msgid ""
+"\n"
+"Select the episode you want to edit !\n"
+msgstr ""
+
+msgid "Editing episodes ..."
+msgstr ""
+
+msgid "Manage issues"
+msgstr ""
+
+msgid "Manage health issues"
+msgstr ""
+
 msgid "Promoting episode to health issue"
 msgstr ""
 
@@ -7440,6 +7841,9 @@ msgstr ""
 msgid "Editing a health issue"
 msgstr ""
 
+msgid "Cannot delete health issue."
+msgstr ""
+
 msgid "CONFIDENTIAL"
 msgstr ""
 
@@ -7499,9 +7903,6 @@ msgid "Sources of reference data registered in GNUmed."
 msgstr ""
 
 msgid "Showing data sources"
-msgstr ""
-
-msgid "Source"
 msgstr ""
 
 msgid "Select a data source / coding system."
@@ -7813,10 +8214,20 @@ msgstr ""
 msgid "Synopsis (%s)"
 msgstr ""
 
-msgid "Enter a short working name for this new problem:"
+msgid ""
+"Enter a short working name for this new problem\n"
+"(which will become a new, unassociated episode):\n"
 msgstr ""
 
-msgid "Creating a problem (episode) to save the notelet under ..."
+#, python-format
+msgid ""
+"Enter a short working name for this new\n"
+"episode under the existing health issue\n"
+"\n"
+"\"%s\":\n"
+msgstr ""
+
+msgid "Creating problem (episode) to save notelet under ..."
 msgstr ""
 
 msgid "Cannot save a new problem without a name."
@@ -8506,6 +8917,16 @@ msgid "Statistics cover period"
 msgstr ""
 
 #, python-format
+msgid "EDC (!?!): %s"
+msgstr ""
+
+msgid ""
+"The Expected Date of Confinement is rather questionable.\n"
+"\n"
+"Please check patient age, patient gender, time until/since EDC."
+msgstr ""
+
+#, python-format
 msgid "%s Vacc: %s"
 msgstr ""
 
@@ -8529,10 +8950,18 @@ msgstr ""
 msgid "in-praxis: %s"
 msgstr ""
 
+#, python-format
+msgid "care: %s%s@%s"
+msgstr ""
+
 msgid "*** CONFIDENTIAL ***"
 msgstr ""
 
 msgid " (confidential !)"
+msgstr ""
+
+#, python-format
+msgid "extrnl: %s (%s@%s)"
 msgstr ""
 
 #, python-format
@@ -8617,6 +9046,14 @@ msgid "Showing translatable database strings for target language [%s]."
 msgstr ""
 
 msgid "Contribute translations to GNUmed community by email."
+msgstr ""
+
+msgid ""
+"Before creating a new person review the encounter details\n"
+"of the patient you just worked on:\n"
+msgstr ""
+
+msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
 msgstr ""
 
 msgid "Adding new person"
@@ -9080,9 +9517,6 @@ msgstr ""
 msgid "Save list layout"
 msgstr ""
 
-msgid "Exit"
-msgstr ""
-
 #, python-format
 msgid "Your client (%s) is up to date."
 msgstr ""
@@ -9133,6 +9567,41 @@ msgid "Set \"%s\" to <False>."
 msgstr ""
 
 msgid "Abort the dialog and do not change the current setting."
+msgstr ""
+
+msgid "Cannot delete external care item."
+msgstr ""
+
+msgid "External care of this patient."
+msgstr ""
+
+msgid "Showing external care network."
+msgstr ""
+
+msgid "Care issue"
+msgstr ""
+
+msgid "Adding external care"
+msgstr ""
+
+msgid "Editing external care"
+msgstr ""
+
+msgid "No entry in field \"Care Location\"."
+msgstr ""
+
+msgid "No entry in field [Care Target]."
+msgstr ""
+
+msgid "Care location"
+msgstr ""
+
+msgid ""
+"Do you really want to delete this\n"
+"external care entry from the patient ?"
+msgstr ""
+
+msgid "Deleting external care entry"
 msgstr ""
 
 msgid "Adding new waiting list entry"
@@ -9500,9 +9969,6 @@ msgstr ""
 msgid "Specialty"
 msgstr ""
 
-msgid "Options"
-msgstr ""
-
 msgid "Meds"
 msgstr ""
 
@@ -9538,6 +10004,59 @@ msgid "Significant"
 msgstr ""
 
 msgid "Ok"
+msgstr ""
+
+msgid "Privacy check"
+msgstr ""
+
+#, python-format
+msgid ""
+"You have selected the chart of a member of staff,\n"
+"for whom privacy is especially important:\n"
+"\n"
+"  %s, %s\n"
+"\n"
+"This may be OK depending on circumstances.\n"
+"\n"
+"Please be aware that accessing person charts is\n"
+"logged and that %s%s will be\n"
+"notified of the access if you choose to proceed.\n"
+"\n"
+"Are you sure you want to draw this chart ?"
+msgstr ""
+
+msgid "Privacy notice"
+msgstr ""
+
+#, python-format
+msgid "%s: Your chart has been accessed by %s."
+msgstr ""
+
+#, python-format
+msgid "%s: Staff member %s has been notified of your chart access."
+msgstr ""
+
+msgid "Pulling electronic chart"
+msgstr ""
+
+#, python-format
+msgid ""
+"There is no chart for the following person yet:\n"
+"\n"
+" %s, %s\n"
+"Do you want to create a new chart and\n"
+"thusly turn this person into a patient ?"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"This patient's chart was worked on only recently:\n"
+"\n"
+" %s\n"
+"Do you want to continue that consultation ?\n"
+" (if not a new one will be started)\n"
 msgstr ""
 
 #, python-format
@@ -9698,31 +10217,6 @@ msgstr ""
 msgid "Select a message type."
 msgstr ""
 
-#, python-format
-msgid " - expires %s"
-msgstr ""
-
-#, python-format
-msgid ""
-"Due for %s (since %s%s):\n"
-"%s%s\n"
-"Patient: %s\n"
-"Reminder by: %s"
-msgstr ""
-
-msgid "Clinical reminder"
-msgstr ""
-
-msgid "Clinical hint"
-msgstr ""
-
-msgid "More info"
-msgstr ""
-
-#, python-format
-msgid "Go to [%s]"
-msgstr ""
-
 msgid "Message cannot expire before being due."
 msgstr ""
 
@@ -9846,32 +10340,6 @@ msgid ""
 "Supposedly there are conflicting vaccinations\n"
 "for patient [%s]. However, I cannot find\n"
 "that patient in the GNUmed database."
-msgstr ""
-
-msgid "Switching clinical hint activation"
-msgstr ""
-
-msgid ""
-"\n"
-"Dynamic hints registered with GNUmed.\n"
-msgstr ""
-
-msgid "Showing dynamic hints."
-msgstr ""
-
-msgid "Hint"
-msgstr ""
-
-msgid "(De)-Activate"
-msgstr ""
-
-msgid "Switch activation of the selected hint"
-msgstr ""
-
-msgid "Data packs"
-msgstr ""
-
-msgid "Browse and install clinical hints data packs"
 msgstr ""
 
 msgid "choose which lab will process the probe with the specified ID"
@@ -10026,6 +10494,9 @@ msgid "Showing billable items."
 msgstr ""
 
 msgid "Catalog"
+msgstr ""
+
+msgid "Data packs"
 msgstr ""
 
 msgid "Browse and install billing catalog (schedule of fees) data packs"
@@ -10349,9 +10820,6 @@ msgid ""
 "\n"
 "Please select the provider to fall back to in case\n"
 "no primary provider is configured for a patient.\n"
-msgstr ""
-
-msgid "Provider"
 msgstr ""
 
 msgid "Configuring fallback primary provider"
@@ -10928,6 +11396,17 @@ msgstr ""
 msgid "Linking selected address"
 msgstr ""
 
+msgid "Adding new external ID"
+msgstr ""
+
+msgid ""
+"Do you really want to delete this\n"
+"external ID from the organizational unit ?"
+msgstr ""
+
+msgid "Deleting external ID"
+msgstr ""
+
 msgid "Adding new organization"
 msgstr ""
 
@@ -10944,6 +11423,9 @@ msgid "Organizations registered in GNUmed."
 msgstr ""
 
 msgid "Communication channels"
+msgstr ""
+
+msgid "External IDs"
 msgstr ""
 
 msgid "generic multi choice dialog"
@@ -10991,6 +11473,12 @@ msgid ""
 msgstr ""
 
 msgid "Start of new encounter"
+msgstr ""
+
+msgid "only documents added"
+msgstr ""
+
+msgid "Edit the encounter details of the active patient before moving on:"
 msgstr ""
 
 msgid "Continue"
@@ -11096,6 +11584,20 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
+#, python-format
+msgid ""
+"Algorithm: %s\n"
+"\n"
+"Source: %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Current age of pregnancy (%s):\n"
+" day %s = %s weeks %s days = week %s = month %s\n"
+"\n"
+msgstr ""
+
 msgid "Pregnancy Calculator"
 msgstr ""
 
@@ -11106,9 +11608,6 @@ msgid "Click on calendar to enter the last menstrual period date"
 msgstr ""
 
 msgid "Gest."
-msgstr ""
-
-msgid "EDC"
 msgstr ""
 
 msgid "18 Week Ultrasound Scan"
@@ -11130,6 +11629,12 @@ msgid "Days"
 msgstr ""
 
 msgid "Rev EDC"
+msgstr ""
+
+msgid "No patient selected on the left."
+msgstr ""
+
+msgid "No patient selected on the right."
 msgstr ""
 
 msgid ""
@@ -11163,6 +11668,9 @@ msgstr ""
 msgid "Merging patients: confirmation"
 msgstr ""
 
+msgid "Cannot merge patients without admin access."
+msgstr ""
+
 #, python-format
 msgid ""
 "The patient\n"
@@ -11171,11 +11679,7 @@ msgid ""
 "\n"
 "has successfully been merged into\n"
 "\n"
-" #%s: %s (%s, %s)\n"
-"\n"
-"\n"
-"Do you want to activate that patient\n"
-"now for further modifications ?\n"
+" #%s: %s (%s, %s)"
 msgstr ""
 
 msgid "Merging patients: success"
@@ -11319,9 +11823,6 @@ msgid ""
 "age-related decisions.\n"
 msgstr ""
 
-msgid "Privacy check"
-msgstr ""
-
 #, python-format
 msgid ""
 "You have selected the chart of a member of staff,\n"
@@ -11336,17 +11837,6 @@ msgid ""
 "notified of the access if you choose to proceed.\n"
 "\n"
 "Are you sure you want to draw this chart ?"
-msgstr ""
-
-msgid "Privacy notice"
-msgstr ""
-
-#, python-format
-msgid "%s: Your chart has been accessed by %s."
-msgstr ""
-
-#, python-format
-msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 
 #, python-format
@@ -11893,6 +12383,9 @@ msgstr ""
 msgid "Enter a descriptive name for this new problem:"
 msgstr ""
 
+msgid "Creating a problem (episode) to save the notelet under ..."
+msgstr ""
+
 msgid "Error saving progress note."
 msgstr ""
 
@@ -11938,6 +12431,21 @@ msgstr ""
 msgid "Select the documents to be put into the export area:"
 msgstr ""
 
+msgid "clipboard"
+msgstr ""
+
+msgid "Loading clipboard item (saved to file) into export area"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot add the following clip to the export area:\n"
+"%s "
+msgstr ""
+
+msgid "scan"
+msgstr ""
+
 msgid "Scanning files into export area"
 msgstr ""
 
@@ -11969,13 +12477,24 @@ msgid ""
 " - %s"
 msgstr ""
 
+msgid "Select the directory into which to export the documents."
+msgstr ""
+
 msgid "Saving export area documents"
 msgstr ""
 
-msgid "Truly export ALL items to disk (rather than just a selection) ?"
-msgstr ""
-
-msgid "Select the directory into which to export the documents."
+#, python-format
+msgid ""
+"The chosen export directory\n"
+"\n"
+" [%s]\n"
+"\n"
+"is not empty. Do you want to use it for saving the\n"
+"export area documents into, nevertheless ?\n"
+"\n"
+"(this can be useful for including external documents)\n"
+"\n"
+"[NO] will create a subdirectory for you and use that."
 msgstr ""
 
 #, python-format
@@ -11991,7 +12510,7 @@ msgid ""
 " %s"
 msgstr ""
 
-msgid "Truly burn ALL items to CD/DVD (rather than just a selection) ?"
+msgid "If you wish to include an existing directory select it here:"
 msgstr ""
 
 msgid "Error burning documents to CD/DVD."
@@ -12057,6 +12576,12 @@ msgstr ""
 msgid "Extracting files from folder [%s] ..."
 msgstr ""
 
+msgid "Drag&Drop"
+msgstr ""
+
+msgid "Created"
+msgstr ""
+
 #, python-format
 msgid ""
 "Error exporting form template\n"
@@ -12105,23 +12630,8 @@ msgstr ""
 msgid "Generating document printout"
 msgstr ""
 
-msgid "Select directory in which to create patient directory ..."
-msgstr ""
-
-#, python-format
-msgid "Saved to disk: %s"
-msgstr ""
-
 #, python-format
 msgid "Printed: %s"
-msgstr ""
-
-#, python-format
-msgid "Mailed: %s"
-msgstr ""
-
-#, python-format
-msgid "Faxed to %s: %s"
 msgstr ""
 
 msgid "Adding new form template"
@@ -12174,6 +12684,24 @@ msgid "Choose a form template file"
 msgstr ""
 
 msgid "Enter a filename to save the template to"
+msgstr ""
+
+msgid "Emergency contact"
+msgstr ""
+
+msgid "Primary doctor"
+msgstr ""
+
+msgid "in-praxis primary provider"
+msgstr ""
+
+msgid "This praxis"
+msgstr ""
+
+msgid "Hospital stay"
+msgstr ""
+
+msgid "Receiver"
 msgstr ""
 
 msgid ""
@@ -12542,6 +13070,9 @@ msgstr ""
 msgid "Add parts"
 msgstr ""
 
+msgid "Add part from clipboard"
+msgstr ""
+
 msgid "Print all parts"
 msgstr ""
 
@@ -12686,6 +13217,12 @@ msgid ""
 "The command is passed a list of filenames to %(l10n_action)s."
 msgstr ""
 
+msgid "Really add the displayed clipboard item into the document ?"
+msgstr ""
+
+msgid "Document part from clipboard"
+msgstr ""
+
 msgid ""
 "Cannot access external document - access command not found.\n"
 "\n"
@@ -12816,9 +13353,6 @@ msgid "Check scope"
 msgstr ""
 
 msgid "When checking for updates, consider latest branch, too ?"
-msgstr ""
-
-msgid "URL"
 msgstr ""
 
 msgid "The URL to retrieve version information from."
@@ -13173,6 +13707,12 @@ msgstr ""
 msgid "Manage hospitalizations."
 msgstr ""
 
+msgid "&External care"
+msgstr ""
+
+msgid "Manage external care."
+msgstr ""
+
 msgid "&Procedures"
 msgstr ""
 
@@ -13201,6 +13741,12 @@ msgid "&Encounters"
 msgstr ""
 
 msgid "List all encounters including empty ones."
+msgstr ""
+
+msgid "&Pregnancy"
+msgstr ""
+
+msgid "Calculate EDC."
 msgstr ""
 
 msgid "&Add / Edit ..."
@@ -13448,6 +13994,12 @@ msgstr ""
 msgid "Invoke the widget hierarchy inspector (needs wxPython 2.8)."
 msgstr ""
 
+msgid "Test fault handler"
+msgstr ""
+
+msgid "Simulate a catastrophic fault (SIGSEGV)."
+msgstr ""
+
 msgid "Debugging ..."
 msgstr ""
 
@@ -13504,16 +14056,18 @@ msgstr ""
 msgid "Cannot run script after patient activation."
 msgstr ""
 
-msgid "only documents added"
-msgstr ""
-
-msgid "Edit the current encounter of the patient you are ABOUT TO LEAVE:"
+msgid ""
+"Before activation of another patient review the\n"
+"encounter details of the patient you just worked on:\n"
 msgstr ""
 
 msgid "Cannot write letter. No active patient."
 msgstr ""
 
 msgid "Cannot put screenshot into export area. No active patient."
+msgstr ""
+
+msgid "GMd screenshot"
 msgstr ""
 
 #, python-format
@@ -13959,7 +14513,7 @@ msgstr ""
 msgid "Branded drugs (as marketed)"
 msgstr ""
 
-msgid "Clinical hints"
+msgid "Dynamic automatic hints"
 msgstr ""
 
 msgid "Codes and their respective terms"
@@ -14108,6 +14662,9 @@ msgstr ""
 msgid "Cannot manage hospitalizations. No active patient."
 msgstr ""
 
+msgid "Cannot manage external care. No active patient."
+msgstr ""
+
 msgid "Cannot edit occupation. No active patient."
 msgstr ""
 
@@ -14121,6 +14678,9 @@ msgid "Cannot manage family history. No active patient."
 msgstr ""
 
 msgid "Cannot manage measurements. No active patient."
+msgstr ""
+
+msgid "calculate EDC"
 msgstr ""
 
 msgid "Cannot show EMR summary. No active patient."
@@ -14296,6 +14856,12 @@ msgstr ""
 msgid "Save timeline as SVG image under..."
 msgstr ""
 
+msgid "timeline image"
+msgstr ""
+
+msgid "timeline data"
+msgstr ""
+
 msgid "Cannot change notebook tabs. No active patient."
 msgstr ""
 
@@ -14305,26 +14871,18 @@ msgstr ""
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+msgid "<Age>"
+msgstr ""
+
+msgid "no patient selected"
+msgstr ""
+
 #, python-format
 msgid "Gender: %s (%s) - %s\n"
 msgstr ""
 
 #, python-format
 msgid "Born: %s\n"
-msgstr ""
-
-#, python-format
-msgid "%s  %s (%s today !)"
-msgstr ""
-
-msgid ""
-"\n"
-"Today is the patient's birtday !\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid "Age: %s\n"
 msgstr ""
 
 #, python-format
@@ -14339,11 +14897,109 @@ msgid " (date of birth and age are estimated)\n"
 msgstr ""
 
 #, python-format
+msgid "%(sex)s  %(dob)s (%(age)s today !)"
+msgstr ""
+
+msgid ""
+"\n"
+"Today is the patient's birthday !\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid "Birthday: %s ago\n"
+msgstr ""
+
+#, python-format
+msgid "Birthday: in %s\n"
+msgstr ""
+
+#, python-format
+msgid "Age: %s\n"
+msgstr ""
+
+#, python-format
 msgid "last confirmed %s\n"
 msgstr ""
 
 #, python-format
 msgid "Comment (%s): %%s"
+msgstr ""
+
+#, python-format
+msgid " - expires %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Due for %s (since %s%s):\n"
+"%s%s\n"
+"Patient: %s\n"
+"Reminder by: %s"
+msgstr ""
+
+msgid "Clinical reminder"
+msgstr ""
+
+msgid "Clinical hint"
+msgstr ""
+
+msgid "More info"
+msgstr ""
+
+#, python-format
+msgid "Go to [%s]"
+msgstr ""
+
+msgid "Adding automatic dynamic hint"
+msgstr ""
+
+msgid "Editing automatic dynamic hint"
+msgstr ""
+
+msgid "Deleting automatic dynamic hint"
+msgstr ""
+
+#, python-format
+msgid ""
+"Really delete this dynamic hint ?\n"
+"\n"
+" [%s]"
+msgstr ""
+
+msgid "deleting a dynamic hint"
+msgstr ""
+
+msgid ""
+"\n"
+"Dynamic hints registered with GNUmed.\n"
+msgstr ""
+
+msgid "Showing dynamic hints."
+msgstr ""
+
+msgid "Hint"
+msgstr ""
+
+msgid "Browse and install automatic dynamic hints data packs"
+msgstr ""
+
+msgid "No entry in field <Source>."
+msgstr ""
+
+msgid "No entry in field <Conditions>."
+msgstr ""
+
+msgid "No entry in field <Description>."
+msgstr ""
+
+msgid "No entry in field <Title>."
+msgstr ""
+
+msgid "creating a new dynamic hint"
+msgstr ""
+
+msgid "updating an existing dynamic hint"
 msgstr ""
 
 msgid "Cannot delete family history item."
@@ -14383,6 +15039,9 @@ msgid "Showing unmatched incoming data"
 msgstr ""
 
 msgid "Data ID"
+msgstr ""
+
+msgid "Show"
 msgstr ""
 
 msgid "Show formatted HL7"
@@ -14549,6 +15208,10 @@ msgid "Successfully saved measurement."
 msgstr ""
 
 msgid "Cannot save result. Invalid or missing essential input."
+msgstr ""
+
+#, python-format
+msgid "Please select (or create) a lab for the new test type [%s in %s]"
 msgstr ""
 
 #, python-format
@@ -15110,15 +15773,9 @@ msgstr ""
 msgid "ID type"
 msgstr ""
 
-msgid "Adding new external ID"
-msgstr ""
-
 msgid ""
 "Do you really want to delete this\n"
 "external ID from the patient ?"
-msgstr ""
-
-msgid "Deleting external ID"
 msgstr ""
 
 msgid "Cannot save identity. Incomplete information."
@@ -15512,9 +16169,6 @@ msgstr ""
 msgid "loading plugin <%s>"
 msgstr ""
 
-msgid "E&xport area"
-msgstr ""
-
 msgid "EMR Timeline"
 msgstr ""
 
@@ -15549,6 +16203,12 @@ msgid "EMR tree"
 msgstr ""
 
 msgid "EMR &Tree (topical)"
+msgstr ""
+
+msgid "Print Manager"
+msgstr ""
+
+msgid "&Print Manager"
 msgstr ""
 
 msgid "Appointments"

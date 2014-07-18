@@ -27,6 +27,8 @@ queries = [
 	("SELECT count(1) FROM clin.vaccination", "Vaccinations"),
 	("SELECT count(1) FROM blobs.doc_med", "Documents"),
 	("SELECT count(1) FROM blobs.doc_obj", "Objects"),
+	("SELECT count(1) FROM dem.org", "Organizations"),
+	("SELECT count(1) FROM dem.org_unit", "Organizational units"),
 	("SELECT setting FROM pg_settings WHERE name = 'server_version'", "Version (PG)"),
 	("SELECT setting FROM pg_settings WHERE name = 'server_encoding'", "Encoding (PG)"),
 	("SELECT setting FROM pg_settings WHERE name = 'lc_collate'", "LC_COLLATE (PG)"),
