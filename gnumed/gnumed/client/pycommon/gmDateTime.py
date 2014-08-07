@@ -262,6 +262,9 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=
 	except ValueError:
 		_log.exception('Python cannot strftime() this <datetime>')
 
+	if isinstance(dt, pyDT.date):
+		accuracy = acc_days
+
 	if accuracy == acc_days:
 		return u'%04d-%02d-%02d' % (
 			dt.year,

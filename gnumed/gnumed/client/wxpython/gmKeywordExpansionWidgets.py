@@ -26,7 +26,7 @@ from Gnumed.wxpython import gmListWidgets
 
 _log = logging.getLogger('gm.ui')
 
-_text_expansion_fillin_regex = r'\$\[.*\]\$'
+_text_expansion_fillin_regex = r'\$\[[^]]*\]\$'
 
 #============================================================
 class cKeywordExpansion_TextCtrlMixin():

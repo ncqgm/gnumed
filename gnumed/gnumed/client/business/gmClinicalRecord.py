@@ -387,13 +387,14 @@ class cClinicalRecord(object):
 
 		return True
 	#--------------------------------------------------------
-	def add_clin_narrative(self, note='', soap_cat='s', episode=None):
+	def add_clin_narrative(self, note='', soap_cat='s', episode=None, link_obj=None):
 		if note.strip() == '':
 			_log.info('will not create empty clinical note')
 			return None
 		if isinstance(episode, gmEMRStructItems.cEpisode):
 			episode = episode['pk_episode']
 		status, data = gmClinNarrative.create_clin_narrative (
+			link_obj = link_obj,
 			narrative = note,
 			soap_cat = soap_cat,
 			episode_id = episode,
@@ -1111,12 +1112,13 @@ WHERE
 			epis.append(row[0])
 		return self.get_episodes(id_list=epis)
 	#------------------------------------------------------------------
-	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False, allow_dupes=False):
+	def add_episode(self, episode_name=None, pk_health_issue=None, is_open=False, allow_dupes=False, link_obj=None):
 		"""Add episode 'episode_name' for a patient's health issue.
 
 		- silently returns if episode already exists
 		"""
 		episode = gmEMRStructItems.create_episode (
+			link_obj = link_obj,
 			pk_health_issue = pk_health_issue,
 			episode_name = episode_name,
 			is_open = is_open,
@@ -2271,7 +2273,7 @@ SELECT MIN(earliest) FROM (
 
 		return tests
 	#------------------------------------------------------------------
-	def add_test_result(self, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None):
+	def add_test_result(self, episode=None, type=None, intended_reviewer=None, val_num=None, val_alpha=None, unit=None, link_obj=None):
 
 		try:
 			epi = int(episode)
@@ -2283,10 +2285,8 @@ SELECT MIN(earliest) FROM (
 		except:
 			type = type['pk_test_type']
 
-		if intended_reviewer is None:
-			intended_reviewer = gmStaff.gmCurrentProvider()['pk_staff']
-
 		tr = gmPathLab.create_test_result (
+			link_obj = link_obj,
 			encounter = self.current_encounter['pk_encounter'],
 			episode = epi,
 			type = type,

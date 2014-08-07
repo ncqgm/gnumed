@@ -1208,7 +1208,7 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 
 	# insert the data
 	if conn is None:
-		conn = get_raw_connection(readonly=False)
+		conn = get_raw_connection(readonly = False)
 		close_conn = True
 	else:
 		close_conn = False

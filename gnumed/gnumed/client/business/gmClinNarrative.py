@@ -205,7 +205,7 @@ def search_text_across_emrs(search_term=None):
 
 	return rows
 #============================================================
-def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None):
+def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None, link_obj=None):
 	"""Creates a new clinical narrative entry
 
 		narrative - free text clinical narrative
@@ -242,7 +242,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 		'soap': soap_cat,
 		'narr': narrative
 	}
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 1:
 		narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
 		return (True, narrative)
@@ -257,13 +257,12 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 		 'args': [encounter_id, episode_id, narrative, soap_cat]
 		},
 		{'cmd': u"""
-			SELECT *
-			FROM clin.v_narrative
+			SELECT * FROM clin.v_narrative
 			WHERE
 				pk_narrative = currval(pg_get_serial_sequence('clin.clin_narrative', 'pk'))"""
 		}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data = True, get_col_idx = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True, get_col_idx = True)
 
 	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
 	return (True, narrative)

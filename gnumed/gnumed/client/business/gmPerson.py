@@ -44,6 +44,7 @@ from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
 from Gnumed.business.gmDocuments import cDocumentFolder
+from Gnumed.business.gmChartPulling import tui_chart_puller
 
 
 _log = logging.getLogger('gm.person')
@@ -99,6 +100,50 @@ class cDTO_person(object):
 	def delete_from_source(self):
 		pass
 	#--------------------------------------------------------
+	def is_unique(self):
+		where_snippets = [
+			u'firstnames = %(first)s',
+			u'lastnames = %(last)s'
+		]
+		args = {
+			'first': self.firstnames,
+			'last': self.lastnames
+		}
+		if self.dob is not None:
+			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s)")
+			args['dob'] = self.dob.replace(hour = 23, minute = 59, second = 59)
+		if self.gender is not None:
+			where_snippets.append('gender = %(sex)s')
+			args['sex'] = self.gender
+		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+
+		return rows[0][0] == 1
+
+	is_unique = property(is_unique, lambda x:x)
+	#--------------------------------------------------------
+	def exists(self):
+		where_snippets = [
+			u'firstnames = %(first)s',
+			u'lastnames = %(last)s'
+		]
+		args = {
+			'first': self.firstnames,
+			'last': self.lastnames
+		}
+		if self.dob is not None:
+			where_snippets.append(u"dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %(dob)s)")
+			args['dob'] = self.dob.replace(hour = 23, minute = 59, second = 59)
+		if self.gender is not None:
+			where_snippets.append('gender = %(sex)s')
+			args['sex'] = self.gender
+		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+
+		return rows[0][0] > 0
+
+	exists = property(exists, lambda x:x)
+	#--------------------------------------------------------
 	def get_candidate_identities(self, can_create=False):
 		"""Generate generic queries.
 
@@ -132,13 +177,13 @@ class cDTO_person(object):
 			args['sex'] = self.gender
 
 		cmd = u"""
-SELECT *, '%s' AS match_type
-FROM dem.v_basic_person
-WHERE
-	pk_identity IN (
-		SELECT pk_identity FROM dem.v_person_names WHERE %s
-	)
-ORDER BY lastnames, firstnames, dob""" % (
+			SELECT *, '%s' AS match_type
+			FROM dem.v_basic_person
+			WHERE
+				pk_identity IN (
+					SELECT pk_identity FROM dem.v_person_names WHERE %s
+				)
+			ORDER BY lastnames, firstnames, dob""" % (
 		_('external patient source (name, gender, date of birth)'),
 		' AND '.join(where_snippets)
 		)
@@ -282,6 +327,9 @@ ORDER BY lastnames, firstnames, dob""" % (
 		"""Do some sanity checks on self.* access."""
 
 		if attr == 'gender':
+			if val is None:
+				object.__setattr__(self, attr, val)
+				return
 			glist, idx = get_gender_list()
 			for gender in glist:
 				if str(val) in [gender[0], gender[1], gender[2], gender[3]]:
@@ -1380,9 +1428,10 @@ def turn_identity_into_patient(pk_identity):
 #
 #	global _spin_on_emr_access
 #	_spin_on_emr_access = func
+#
 
 #------------------------------------------------------------
-_pull_chart = None
+_pull_chart = tui_chart_puller
 
 def set_chart_puller(chart_puller):
 	if not callable(chart_puller):
