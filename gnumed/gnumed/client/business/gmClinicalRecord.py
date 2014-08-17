@@ -2149,10 +2149,11 @@ SELECT MIN(earliest) FROM (
 			patient = self.pk_patient
 		)
 	#------------------------------------------------------------------
-	def get_results_for_day(self, timestamp=None):
+	def get_results_for_day(self, timestamp=None, order_by=None):
 		return gmPathLab.get_results_for_day (
 			timestamp = timestamp,
-			patient = self.pk_patient
+			patient = self.pk_patient,
+			order_by = order_by
 		)
 	#------------------------------------------------------------------
 	def get_unsigned_results(self, order_by=None):

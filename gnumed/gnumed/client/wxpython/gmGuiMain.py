@@ -781,6 +781,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		menu_lab = wx.Menu()
 
+		item = menu_lab.Append(-1, _('Show HL7'), _('Show formatted data from HL7 file'))
+		self.Bind(wx.EVT_MENU, self.__on_show_hl7, item)
+
 		item = menu_lab.Append(-1, _('Unwrap XML'), _('Unwrap HL7 data from XML file (Excelleris, ...)'))
 		self.Bind(wx.EVT_MENU, self.__on_unwrap_hl7_from_xml, item)
 
@@ -2355,6 +2358,10 @@ class gmTopLevelFrame(wx.Frame):
 			doc.save()
 
 		return
+
+	#----------------------------------------------
+	def __on_show_hl7(self, evt):
+		gmMeasurementWidgets.show_hl7_file(parent = self)
 	#----------------------------------------------
 	def __on_unwrap_hl7_from_xml(self, evt):
 		gmMeasurementWidgets.unwrap_HL7_from_XML(parent = self)

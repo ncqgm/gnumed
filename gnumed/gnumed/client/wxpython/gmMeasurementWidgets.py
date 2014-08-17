@@ -56,6 +56,37 @@ _log = logging.getLogger('gm.ui')
 #================================================================
 # HL7 related widgets
 #================================================================
+def show_hl7_file(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# select file
+	paths = gmTools.gmPaths()
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Show HL7 file:'),
+		# make configurable:
+		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		wildcard = "hl7 files|*.hl7|HL7 files|*.HL7|all files|*",
+		style = wx.OPEN | wx.FILE_MUST_EXIST
+	)
+	choice = dlg.ShowModal()
+	hl7_name = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return False
+
+	formatted_name = gmHL7.format_hl7_file (
+		hl7_name,
+		skip_empty_fields = True,
+		return_filename = True,
+		fix_hl7 = True
+	)
+	gmMimeLib.call_viewer_on_file(aFile = formatted_name, block = False)
+	return True
+
+#================================================================
 def unwrap_HL7_from_XML(parent=None):
 
 	if parent is None:
@@ -68,7 +99,6 @@ def unwrap_HL7_from_XML(parent=None):
 		message = _('Extract HL7 from XML file:'),
 		# make configurable:
 		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
-#		defaultFile = fname,
 		wildcard = "xml files|*.xml|XML files|*.XML|all files|*",
 		style = wx.OPEN | wx.FILE_MUST_EXIST
 	)
@@ -98,6 +128,7 @@ def unwrap_HL7_from_XML(parent=None):
 		return False
 
 	return True
+
 #================================================================
 def stage_hl7_file(parent=None):
 
@@ -110,7 +141,6 @@ def stage_hl7_file(parent=None):
 		message = _('Select HL7 file for staging:'),
 		# make configurable:
 		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
-#		defaultFile = fname,
 		wildcard = ".hl7 files|*.hl7|.HL7 files|*.HL7|all files|*",
 		style = wx.OPEN | wx.FILE_MUST_EXIST
 	)
@@ -195,7 +225,7 @@ def browse_incoming_unmatched(parent=None):
 						u'\n'
 						u' %s\n'
 						u'\n'
-						u'If you select [NO] GNUmed will try to find a patient match.\n'
+						u'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
 					) % (
 						staged_item.patient_identification,
 						pat['description_gender']
@@ -241,14 +271,14 @@ def browse_incoming_unmatched(parent=None):
 	def refresh(lctrl):
 		incoming = gmHL7.get_incoming_data()
 		items = [ [
-			i['data_type'],
+			gmTools.coalesce(i['data_type'], u''),
 			u'%s, %s (%s) %s' % (
-				i['lastnames'],
-				i['firstnames'],
-				i['dob'],
-				i['gender']
+				gmTools.coalesce(i['lastnames'], u''),
+				gmTools.coalesce(i['firstnames'], u''),
+				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', accuracy = gmDateTime.acc_days, none_str = _('unknown DOB')),
+				gmTools.coalesce(i['gender'], u'')
 			),
-			i['external_data_id'],
+			gmTools.coalesce(i['external_data_id'], u''),
 			i['pk_incoming_data_unmatched']
 		] for i in incoming ]
 		lctrl.set_string_items(items)
@@ -633,7 +663,7 @@ class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPn
 				),
 				gmTools.coalesce(range_info, u'')
 			])
-			data.append({'data': r, 'formatted': r.format()})
+			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
 		self._LCTRL_results.set_string_items(items)
 		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])

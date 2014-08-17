@@ -1654,18 +1654,25 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	curs = conn.cursor()
 
 	# set access mode
+	conn.set_session(readonly = readonly)
+	conn.set_session(autocommit = readonly)
 	if readonly:
 		_log.debug('access mode [READ ONLY]')
-		cmd = 'set session characteristics as transaction READ ONLY'
-		curs.execute(cmd)
-		cmd = 'set default_transaction_read_only to on'
-		curs.execute(cmd)
+		#conn.set_session(readonly = True)
+		_log.debug('readonly: autocommit=True to avoid <IDLE IN TRANSACTION>')
+#		conn.autocommit = True
+#		cmd = 'set session characteristics as transaction READ ONLY'
+#		curs.execute(cmd)
+#		cmd = 'set default_transaction_read_only to on'
+#		curs.execute(cmd)
 	else:
 		_log.debug('access mode [READ WRITE]')
-		cmd = 'set session characteristics as transaction READ WRITE'
-		curs.execute(cmd)
-		cmd = 'set default_transaction_read_only to off'
-		curs.execute(cmd)
+#		conn.set_session(readonly = False)
+		_log.debug('readwrite: autocommit=False')
+#		cmd = 'set session characteristics as transaction READ WRITE'
+#		curs.execute(cmd)
+#		cmd = 'set default_transaction_read_only to off'
+#		curs.execute(cmd)
 
 	curs.close()
 	conn.commit()

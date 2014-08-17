@@ -61,14 +61,22 @@ PID_middlename = 2
 PID_dob = 7
 PID_gender = 8
 
+OBR_service_name = 4
+OBR_ts_requested = 6
+OBR_ts_started = 7
+OBR_ts_ended = 8
+OBR_ts_specimen_received = 14
+
 OBX_datatype = 2	# 2nd field
 OBX_type = 3
 OBX_LOINC = 0		# 0th part of 3rd field
 OBX_name = 1		# 1s part of 3rd field
+OBX_subid = 4
 OBX_value = 5
 OBX_unit = 6
 OBX_range = 7
 OBX_abnormal_flag = 8
+OBX_status = 11
 OBX_timestamp = 14
 
 NTE_set_id = 1
@@ -95,9 +103,11 @@ HL7_field_labels = {
 		0: 'Segment Type',
 		1: '<PID> Set ID',
 		2: 'Patient ID',
-		5: 'Patient name',
+		5: 'Patient Name',
 		7: 'Date/Time of birth',
-		8: 'Administrative gender'
+		8: 'Administrative Gender',
+		11: 'Patient Address',
+		13: 'Patient Phone Number - Home'
 	},
 	'OBR': {
 		0: 'Segment Type',
@@ -109,6 +119,9 @@ HL7_field_labels = {
 		7: 'Date/Time Observation started',
 		14: 'Date/Time Specimen received',
 		16: 'Ordering Provider',
+		18: 'Placer Field 1',
+		20: 'Filler Field 1',
+		21: 'Filler Field 2',
 		22: 'Date/Time Results reported/Status changed',
 		24: 'ID: Diagnostic Service Section',
 		25: 'Result Status',
@@ -133,6 +146,10 @@ HL7_field_labels = {
 		8: 'Abnormal Flags',
 		11: 'Result Status',
 		14: 'Date/Time of Observation'
+	},
+	'NTE': {
+		0: 'Segment Type',
+		3: 'Comment'
 	}
 }
 
@@ -453,8 +470,12 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol=u'\n '):
 	return eol.join([ u'%s: %s' % ((o[0] + (u' ' * max_len))[:max_len], o[1]) for o in output ])
 
 #------------------------------------------------------------
-def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filename=False):
-	hl7_file = codecs.open(filename, 'rb', 'utf8')
+def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filename=False, fix_hl7=False):
+	if fix_hl7:
+		fixed_name = __fix_malformed_hl7_file(filename)
+		hl7_file = codecs.open(fixed_name, 'rb', 'utf8')
+	else:
+		hl7_file = codecs.open(filename, 'rb', 'utf8')
 	output = format_hl7_message (
 		message = hl7_file.read(1024 * 1024 * 5),		# 5 MB max
 		skip_empty_fields = skip_empty_fields,
@@ -692,47 +713,26 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 
 	out1_fname = gmTools.get_unique_filename (
 		prefix = u'gm-fixed_hl7-pass_1-%s-' % gmTools.fname_stem(filename),
-		suffix = '.hl7'
+		suffix = u'.hl7'
 	)
 	hl7_in = codecs.open(filename, 'rb', encoding)
 	hl7_out = codecs.open(out1_fname, 'wb', 'utf8')
 
-	line_idx = 0
-	prev_line = None
+	is_first_line = True
 	for line in hl7_in:
-		line_idx += 1
-
 		# skip empty line
-		if line.strip().strip('\r').strip('\n').strip('\r').strip('\n').strip() == u'':
+		if line.strip().strip(u'\r').strip(u'\n').strip(u'\r').strip(u'\n').strip() == u'':
 			continue
 
-		# suspicious for non-terminating line ?
-		if line.endswith(u' \n'):
-			_log.debug('#%s: suspicious non-terminating line ("...<SPACE>\\n"): [%s...%s]', line_idx, line[:4], line[-7:])
-			if prev_line is None:
-				prev_line = line[:-1]
+		# starts with known segment ?
+		segment = line[:3]
+		if (segment in HL7_SEGMENTS) and (line[3] == u'|'):
+			if not is_first_line:
+				hl7_out.write(HL7_EOL)
 			else:
-				prev_line = prev_line + line[:-1]
-			continue
+				is_first_line = False
 
-		line = line.strip('\r').strip('\n').strip('\r').strip('\n')
-
-		# final continuation line ?
-		if line[3] != u'|':			# this fails if the 4th character happens to accidently actually be "|"
-			if prev_line is None:
-				raise ValueError('line #%s does not start with "<SEGMENT>|" but previous line did not end with BLANK either: [%s]' % (line_idx, line))
-			full_line = prev_line + line
-			hl7_out.write(full_line + HL7_EOL)
-			prev_line = None
-			continue
-
-		# start of a known segment ?
-		if line[:3] in HL7_SEGMENTS:
-			if prev_line is not None:
-				hl7_out.write(prev_line + HL7_EOL)
-				prev_line = None
-			hl7_out.write(line + HL7_EOL)
-			continue
+		hl7_out.write(line.rstrip('\r').rstrip('\n').rstrip('\r').rstrip('\n'))
 
 	hl7_out.close()
 	hl7_in.close()
@@ -891,12 +891,12 @@ def __find_or_create_lab(hl7_lab, link_obj=None):
 	return gm_lab
 
 #------------------------------------------------------------
-def __find_or_create_test_type(loinc, name, pk_lab, unit, link_obj=None):
+def __find_or_create_test_type(loinc=None, name=None, pk_lab=None, unit=None, link_obj=None, abbrev=None):
 
 	tt = gmPathLab.find_measurement_type(link_obj = link_obj, lab = pk_lab, name = name)
 	if tt is None:
 		_log.debug('test type [%s %s (%s)] not found for lab #%s, creating', name, unit, loinc, pk_lab)
-		tt = gmPathLab.create_measurement_type(link_obj = link_obj, lab = pk_lab, abbrev = name, unit = unit, name = name)
+		tt = gmPathLab.create_measurement_type(link_obj = link_obj, lab = pk_lab, abbrev = gmTools.coalesce(abbrev, name), unit = unit, name = name)
 
 	if loinc is None:
 		return tt
@@ -953,6 +953,25 @@ def __find_patient(PID=None):
 	return [gmPerson.cPatient(idents[0].ID)]
 
 #------------------------------------------------------------
+def __hl7dt2pydt(hl7dt):
+	if hl7dt == u'':
+		return None
+
+	if len(hl7dt) == 8:
+		tmp = time.strptime(hl7dt, '%Y%m%d')
+		return pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+	if len(hl7dt) == 12:
+		tmp = time.strptime(hl7dt, '%Y%m%d%H%M')
+		return pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tmp.tm_hour, tmp.tm_min, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+	if len(hl7dt) == 14:
+		tmp = time.strptime(hl7dt, '%Y%m%d%H%M%S')
+		return pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+	raise ValueError('Observation timestamp not parseable: [%s]', hl7dt)
+
+#------------------------------------------------------------
 def __import_single_PID_hl7_file(filename, emr=None):
 	"""Assumes single-PID/single-MSH HL7 file."""
 
@@ -970,11 +989,6 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	if len(HL7.segments('PID')) != 1:
 		_log.error('more than one PID segment')
 		return False
-	try:
-		HL7.segments('OBX')
-	except KeyError:
-		_log.error("HL7 does not contain OBX segments, nothing to do")
-		return True
 
 	# ensure lab is in database
 	hl7_lab = HL7.segment('MSH')[MSH_sending_lab][0]
@@ -1003,6 +1017,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	had_errors = False
 	msh_seen = False
 	pid_seen = False
+	obr = {}
 	for seg_idx in range(len(HL7)):
 		seg = HL7[seg_idx]
 		seg_type = seg[0][0]
@@ -1020,31 +1035,52 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			pid_seen = True
 
 		if seg_type in [u'MSH', u'PID']:
-			_log.info('ignoring segment, already handled')
+			_log.info('segment already handled')
 			previous_segment = seg_type
+			obr = {}
+			current_result = None
 			continue
 
-		if seg_type in [u'ORC', u'OBR']:
+		if seg_type in [u'ORC']:
 			_log.info('currently ignoring %s segments', seg_type)
 			previous_segment = seg_type
+			obr = {}
+			current_result = None
+			continue
+
+		if seg_type == u'OBR':
+			previous_segment = seg_type
+			current_result = None
+			obr['abbrev'] = seg[OBR_service_name][0].strip()
+			try:
+				obr['name'] = seg[OBR_service_name][1]
+				obr['name'] = obr['name'].strip()
+			except IndexError:
+				obr_name = obr_abbrev
+			for field_name in [OBR_ts_ended, OBR_ts_started, OBR_ts_specimen_received, OBR_ts_requested]:
+				obr['clin_when'] = seg[field_name][0].strip()
+				if obr['clin_when'] != u'':
+					break
 			continue
 
 		if seg_type == u'OBX':
 			current_result = None
-			test_field = seg[OBX_type]
-			unit = seg[OBX_unit][0].strip()
-			if unit == u'':
-				data_type = seg[OBX_datatype][0]
-				if data_type not in [u'TX', u'FT', u'ST']:
-					raise ValueError('HL7: no unit for data type [%s]' % data_type)
-				unit = None
-			test_type = __find_or_create_test_type(test_field[OBX_LOINC], test_field[OBX_name], gm_lab['pk_test_org'], unit)
+			# determine value
 			val_alpha = seg[OBX_value][0].strip()
 			is_num, val_num = gmTools.input2decimal(initial = val_alpha)
 			if is_num:
 				val_alpha = None
 			else:
 				val_num = None
+			# determine test type
+			test_field = seg[OBX_type]
+			unit = seg[OBX_unit][0].strip()
+			if unit == u'':
+				if is_num:
+					unit = u'1/1'
+				else:
+					unit = None
+			test_type = __find_or_create_test_type(test_field[OBX_LOINC], test_field[OBX_name], gm_lab['pk_test_org'], unit)
 			# eventually, episode should be read from lab_request
 			epi = emr.add_episode (
 				link_obj = conn,
@@ -1057,8 +1093,8 @@ def __import_single_PID_hl7_file(filename, emr=None):
 				episode = epi['pk_episode'],
 				type = test_type['pk_test_type'],
 				intended_reviewer = gmStaff.gmCurrentProvider()['pk_staff'],
-				val_num = val_alpha,
-				val_alpha = val_num,
+				val_num = val_num,
+				val_alpha = val_alpha,
 				unit = unit
 			)
 			# handle range information et al
@@ -1068,22 +1104,67 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			flag = seg[OBX_abnormal_flag][0].strip()
 			if flag != u'':
 				current_result['abnormality_indicator'] = flag
+			current_result['status'] = seg[OBX_status][0].strip()
+			current_result['val_grouping'] = seg[OBX_subid][0].strip()
+			current_result['source_data'] = unicode(seg)
 			clin_when = seg[OBX_timestamp][0].strip()
-			if clin_when != u'':
-				tmp = time.strptime(clin_when, '%Y%m%d%H%M%S')
-				current_result['clin_when'] = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+			if clin_when == u'':
+				_log.warning('no <Observation timestamp> in OBX, trying OBR timestamp')
+				clin_when = obr['clin_when']
+			try:
+				clin_when = __hl7dt2pydt(clin_when)
+			except ValueError:
+				_log.exception('clin_when from OBX or OBR not useable, assuming <today>')
+			if clin_when is not None:
+				current_result['clin_when'] = clin_when
 			current_result.save(conn = conn)
 			when_list[gmDateTime.pydt_strftime(current_result['clin_when'], '%Y %b %d')] = 1
 			previous_segment = seg_type
 			continue
 
 		if seg_type == u'NTE':
-			note = seg[NTE_note].strip()
+			note = seg[NTE_note][0].strip().replace('\.br\\', u'\n')
 			if note == u'':
 				_log.debug('empty NTE segment')
-				previous_segment = seg_type
+				previous_segment = seg_type			# maybe not ? (HL7 providers happen to use empty NTE segments to "structure" raw HL7 |-)
 				continue
+
+			# if this is an NTE following an OBR (IOW an order-related
+			# comment): make this a test result all of its own :-)
+			if previous_segment == u'OBR':
+				_log.debug('NTE following OBR: general note, using OBR timestamp [%s]', obr['clin_when'])
+				current_result = None
+				name = obr['name']
+				if name == u'':
+					name = _('Comment')
+				# FIXME: please suggest a LOINC for "order comment"
+				test_type = __find_or_create_test_type(name = name, pk_lab = gm_lab['pk_test_org'], abbrev = obr['abbrev'])
+				# eventually, episode should be read from lab_request
+				epi = emr.add_episode (
+					link_obj = conn,
+					episode_name = u'administrative',
+					is_open = False,
+					allow_dupes = False
+				)
+				nte_result = emr.add_test_result (
+					link_obj = conn,
+					episode = epi['pk_episode'],
+					type = test_type['pk_test_type'],
+					intended_reviewer = gmStaff.gmCurrentProvider()['pk_staff'],
+					val_alpha = note
+				)
+				#nte_result['val_grouping'] = seg[OBX_subid][0].strip()
+				nte_result['source_data'] = unicode(seg)
+				try:
+					nte_result['clin_when'] = __hl7dt2pydt(obr['clin_when'])
+				except ValueError:
+					_log.exception('no .clin_when from OBR for NTE pseudo-OBX available')
+				nte_result.save(conn = conn)
+				continue
+
 			if (previous_segment == u'OBX') and (current_result is not None):
+				current_result['source_data'] += u'\n'
+				current_result['source_data'] += unicode(seg)
 				current_result['note_test_org'] = gmTools.coalesce (
 					current_result['note_test_org'],
 					note,
@@ -1092,7 +1173,8 @@ def __import_single_PID_hl7_file(filename, emr=None):
 				current_result.save(conn = conn)
 				previous_segment = seg_type
 				continue
-			_log.error(u'NTE segment after non-OBX segment or no OBX seen yet')
+
+			_log.error(u'unexpected NTE segment')
 			had_errors = True
 			break
 
@@ -1108,6 +1190,10 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	conn.commit()
 
 	# record import in chart
+	try:
+		no_results = len(HL7.segments('OBX'))
+	except KeyError:
+		no_results = u'?'
 	soap = _(
 		'Imported HL7 file [%s]:\n'
 		' lab "%s" (%s@%s), %s results (%s)'
@@ -1116,7 +1202,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 		hl7_lab,
 		gm_lab['unit'],
 		gm_lab['organization'],
-		len(HL7.segments('OBX')),
+		no_results,
 		u' / '.join(when_list.keys())
 	)
 	epi = emr.add_episode (
@@ -1140,7 +1226,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	if len(hl7_docs) > 0:
 		# there should only ever be one unless the user manually creates more,
 		# also, it should always be the latest since "ORDER BY clin_when DESC"
-		hl7_doc = hl7_doc[0]
+		hl7_doc = hl7_docs[0]
 	else:
 		hl7_doc = folder.add_document (
 			document_type = u'HL7 data',
@@ -1282,11 +1368,11 @@ if __name__ == "__main__":
 				message = test
 			)
 	#-------------------------------------------------------
-	def test_format_hl7_file():
+	def test_format_hl7_file(filename):
 		print format_hl7_file (
-			sys.argv[2]
+			filename,
 #			skip_empty_fields = True
-			, return_filename = True
+			return_filename = True
 		)
 	#-------------------------------------------------------
 	def test___fix_malformed_hl7(filename):
@@ -1298,5 +1384,5 @@ if __name__ == "__main__":
 	#test_stage_hl7_from_xml()
 	#test_stage_hl7()
 	#test_format_hl7_message()
-	#test_format_hl7_file()
-	test___fix_malformed_hl7(sys.argv[2])
+	test_format_hl7_file(sys.argv[2])
+	#test___fix_malformed_hl7(sys.argv[2])

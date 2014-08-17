@@ -1031,7 +1031,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = "%s (*)|*|TIFFs (*.tif)|*.tif|JPEGs (*.jpg)|*.jpg|%s (*.*)|*.*" % (_('all files'), _('all files (Win)')),
-			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST | wx.MULTIPLE
+			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:

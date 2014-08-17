@@ -31,6 +31,9 @@ IMPROVED: updated to TimeLine 1.3.0 version
 IMPROVED: on list updates scroll to last selected row if possible
 IMPROVED: updated DVT Wells Score
 IMPROVED: enhance dynamic keyword text expansions
+IMPROVED: support test results status / source data
+IMPROVED: link to WHO ATC list from drug/substance EA [thanks Jim]
+IMPROVED: wxPython 3 compatibility
 
 ------------------------------------------------
 # rel-1-4-patches

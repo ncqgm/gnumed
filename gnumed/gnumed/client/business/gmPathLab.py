@@ -32,8 +32,23 @@ from Gnumed.pycommon import gmHooks
 from Gnumed.business import gmOrganization
 from Gnumed.business import gmCoding
 
-
 _log = logging.getLogger('gm.lab')
+
+
+HL7_RESULT_STATI = {
+	None: _(u'unknown'),
+	u'': _(u'empty status'),
+	u'C': _(u'C (HL7: Correction, replaces previous final)'),
+	u'D': _(u'D (HL7: Deletion)'),
+	u'F': _(u'F (HL7: Final)'),
+	u'I': _(u'I (HL7: pending, specimen In lab)'),
+	u'P': _(u'P (HL7: Preliminary)'),
+	u'R': _(u'R (HL7: result entered, not yet verified)'),
+	u'S': _(u'S (HL7: partial)'),
+	u'X': _(u'X (HL7: cannot obtain results for this observation)'),
+	u'U': _(u'U (HL7: mark as final (I/P/R/S -> F, value Unchanged)'),
+	u'W': _(u'W (HL7: original Wrong (say, wrong patient))')
+}
 
 #============================================================
 def _on_test_result_modified():
@@ -910,7 +925,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"select * from clin.v_test_results where pk_test_result = %s"
 
 	_cmds_store_payload = [
-		u"""update clin.test_result set
+		u"""UPDATE clin.test_result SET
 				clin_when = %(clin_when)s,
 				narrative = nullif(trim(%(comment)s), ''),
 				val_num = %(val_num)s,
@@ -927,15 +942,21 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				note_test_org = nullif(trim(%(note_test_org)s), ''),
 				material = nullif(trim(%(material)s), ''),
 				material_detail = nullif(trim(%(material_detail)s), ''),
+				status = gm.nullify_empty_string(%(status)s),
+				val_grouping = gm.nullify_empty_string(%(val_grouping)s),
+				source_data = gm.nullify_empty_string(%(source_data)s),
 				fk_intended_reviewer = %(pk_intended_reviewer)s,
 				fk_encounter = %(pk_encounter)s,
 				fk_episode = %(pk_episode)s,
 				fk_type = %(pk_test_type)s,
 				fk_request = %(pk_request)s
-			where
-				pk = %(pk_test_result)s and
-				xmin = %(xmin_test_result)s""",
-		u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_test_result)s"""
+			WHERE
+				pk = %(pk_test_result)s AND
+				xmin = %(xmin_test_result)s
+			RETURNING
+				xmin AS xmin_test_result
+		"""
+#		, u"""select xmin_test_result from clin.v_test_results where pk_test_result = %(pk_test_result)s"""
 	]
 
 	_updatable_fields = [
@@ -955,6 +976,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 		'note_test_org',
 		'material',
 		'material_detail',
+		'status',
+		'val_grouping',
+		'source_data',
 		'pk_intended_reviewer',
 		'pk_encounter',
 		'pk_episode',
@@ -973,7 +997,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			u' ' + gmTools.u_writing_hand,
 			u' ' + gmTools.u_writing_hand
 		)
-		txt = u'%s %s: %s%s%s%s%s' % (
+		txt = u'%s %s: %s%s%s%s%s%s' % (
 			gmDateTime.pydt_strftime (
 				self._payload[self._idx['clin_when']],
 				date_format
@@ -983,6 +1007,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			gmTools.coalesce(self._payload[self._idx['val_unit']], u'', u' %s'),
 			gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' %s'),
 			gmTools.coalesce(range_info, u'', u' (%s)'),
+			gmTools.coalesce(self._payload[self._idx['status']], u'', u' [%s]')[:2],
 			review
 		)
 		if with_notes:
@@ -994,7 +1019,7 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		return txt.strip(u'\n')
 	#--------------------------------------------------------
-	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, date_format='%Y %b %d %H:%M'):
+	def format(self, with_review=True, with_evaluation=True, with_ranges=True, with_episode=True, with_type_details=True, with_source_data=False, date_format='%Y %b %d %H:%M'):
 
 		# FIXME: add battery, request details
 
@@ -1016,6 +1041,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 			'ind': gmTools.coalesce(self._payload[self._idx['abnormality_indicator']], u'', u' (%s)'),
 			'pk_result': self._payload[self._idx['pk_test_result']]
 		})
+		if self._payload[self._idx['status']] is not None:
+			try:
+				stat = HL7_RESULT_STATI[self._payload[self._idx['status']]]
+			except KeyError:
+				stat = self._payload[self._idx['status']]
+			tt += u' ' + _(u'Status: %s\n') % stat
+		if self._payload[self._idx['val_grouping']] is not None:
+			tt += u' ' + _(u'Grouping: %s\n') % self._payload[self._idx['val_grouping']]
 
 		if with_evaluation:
 			norm_eval = None
@@ -1196,7 +1229,9 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 		# type
 		if with_type_details:
-			tt += _(u'Test type details:\n')
+			has_details = None not in [self._payload[self._idx['comment_tt']], self._payload[self._idx['pk_meta_test_type']], self._payload[self._idx['comment_meta']]]
+			if has_details:
+				tt += _(u'Test type details:\n')
 			if self._payload[self._idx['comment_tt']] is not None:
 				tt += u' ' + _(u'Type comment: %s\n') % _(u'\n Type comment:').join(self._payload[self._idx['comment_tt']].split(u'\n'))
 			if self._payload[self._idx['pk_meta_test_type']] is not None:
@@ -1208,7 +1243,14 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 				)
 			if self._payload[self._idx['comment_meta']] is not None:
 				tt += u' ' + _(u'Group comment: %s\n') % _(u'\n Group comment: ').join(self._payload[self._idx['comment_meta']].split(u'\n'))
-			tt += u'\n'
+			if has_details:
+				tt += u'\n'
+
+		if with_source_data:
+			if self._payload[self._idx['source_data']] is not None:
+				tt += _(u'Source data:\n')
+				tt += u' ' + self._payload[self._idx['source_data']]
+				tt += u'\n\n'
 
 		if with_review:
 			tt += _(u'Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s.') % ({
@@ -1507,19 +1549,60 @@ class cTestResult(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def _set_reference_range(self, ref_range):
+		"""Parse reference range from string.
+
+			Note: does NOT save the result.
+		"""
 		ref_range = ref_range.strip().replace(u' ', u'')
+
 		is_range = regex.match('-{0,1}\d+[.,]{0,1}\d*--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
-		if is_range is None:
-			self['val_normal_range'] = ref_range
+		if is_range is not None:
+			min_val = regex.match('-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip(u'-')
+			success, min_val = gmTools.input2decimal(min_val)
+			max_val = (regex.search('--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE).group(0))[1:]
+			success, max_val = gmTools.input2decimal(max_val)
+			self['val_normal_min'] = min_val
+			self['val_normal_max'] = max_val
 			return
-		min_val = regex.match('-{0,1}\d+[.,]{0,1}\d*-', ref_range, regex.UNICODE).group(0).rstrip(u'-')
-		success, min_val = gmTools.input2decimal(min_val)
-		max_val = regex.search('--{0,1}\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE).group(0)
-		if max_val.count(u'-') == 2:
-			max_val = max_val[1:]
-		success, max_val = gmTools.input2decimal(max_val)
-		self['val_normal_min'] = min_val
-		self['val_normal_max'] = max_val
+
+		if ref_range.startswith(u'<'):
+			is_range = regex.match('<\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			if is_range is not None:
+				max_val = ref_range[1:]
+				success, max_val = gmTools.input2decimal(max_val)
+				self['val_normal_min'] = 0
+				self['val_normal_max'] = max_val
+				return
+
+		if ref_range.startswith(u'<-'):
+			is_range = regex.match('<-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			if is_range is not None:
+				max_val = ref_range[1:]
+				success, max_val = gmTools.input2decimal(max_val)
+				self['val_normal_min'] = None
+				self['val_normal_max'] = max_val
+				return
+
+		if ref_range.startswith(u'>'):
+			is_range = regex.match('>\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			if is_range is not None:
+				min_val = ref_range[1:]
+				success, min_val = gmTools.input2decimal(min_val)
+				self['val_normal_min'] = min_val
+				self['val_normal_max'] = None
+				return
+
+		if ref_range.startswith(u'>-'):
+			is_range = regex.match('>-\d+[.,]{0,1}\d*$', ref_range, regex.UNICODE)
+			if is_range is not None:
+				min_val = ref_range[1:]
+				success, min_val = gmTools.input2decimal(min_val)
+				self['val_normal_min'] = min_val
+				self['val_normal_max'] = 0
+				return
+
+		self['val_normal_range'] = ref_range
+		return
 
 	reference_range = property(lambda x:x, _set_reference_range)
 	#--------------------------------------------------------
@@ -1878,7 +1961,7 @@ def get_result_at_timestamp(timestamp=None, test_type=None, loinc=None, toleranc
 	return cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': rows[0]})
 
 #------------------------------------------------------------
-def get_results_for_day(timestamp=None, patient=None):
+def get_results_for_day(timestamp=None, patient=None, order_by=None):
 
 	args = {
 		'pat': patient,
@@ -1895,6 +1978,7 @@ def get_results_for_day(timestamp=None, patient=None):
 		WHERE
 			%s
 		ORDER BY
+			val_grouping,
 			abbrev_tt,
 			clin_when DESC
 	""" % u' AND '.join(where_parts)
