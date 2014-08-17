@@ -8,6 +8,8 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
+drop view if exists clin.v_incoming_data_unmatched cascade;
+
 create view clin.v_incoming_data_unmatched as
 select
 	c_idu.pk
