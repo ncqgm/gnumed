@@ -21,6 +21,7 @@ from Gnumed.business import gmOrganization
 
 _log = logging.getLogger('gm.praxis')
 _cfg = gmCfg2.gmCfgData()
+
 #============================================================
 def delete_workplace(workplace=None, delete_config=False, conn=None):
 

@@ -1123,10 +1123,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				row_num = self.InsertStringItem(index = sys.maxint, label = col_val)
 
 		if reshow:
-			if self.ItemCount == 0:
-				self.EnsureVisible(0)
-				self.Focus(0)
-			else:
+			if self.ItemCount > 0:
 				if topmost_visible < self.ItemCount:
 					self.EnsureVisible(topmost_visible)
 					self.Focus(topmost_visible)

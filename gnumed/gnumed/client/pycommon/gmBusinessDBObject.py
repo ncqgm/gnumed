@@ -289,7 +289,7 @@ def delete_xxx(pk_XXX=None):
 
 	"""
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, row=None):
+	def __init__(self, aPK_obj=None, row=None, link_obj=None):
 		"""Init business object.
 
 		Call from child classes:
@@ -311,13 +311,13 @@ def delete_xxx(pk_XXX=None):
 		self.__class__._updatable_fields
 
 		if aPK_obj is not None:
-			self.__init_from_pk(aPK_obj=aPK_obj)
+			self.__init_from_pk(aPK_obj = aPK_obj, link_obj = link_obj)
 		else:
 			self._init_from_row_data(row=row)
 
 		self._is_modified = False
 	#--------------------------------------------------------
-	def __init_from_pk(self, aPK_obj=None):
+	def __init_from_pk(self, aPK_obj=None, link_obj=None):
 		"""Creates a new clinical item instance by its PK.
 
 		aPK_obj can be:
@@ -330,7 +330,7 @@ def delete_xxx(pk_XXX=None):
 				the single-value primary key
 		"""
 		self.pk_obj = aPK_obj
-		result = self.refetch_payload()
+		result = self.refetch_payload(link_obj = link_obj)
 		if result is True:
 			self.original_payload = {}
 			for field in self._idx.keys():
@@ -530,7 +530,7 @@ def delete_xxx(pk_XXX=None):
 	def format(self):
 		return u'%s' % self
 	#--------------------------------------------------------
-	def refetch_payload(self, ignore_changes=False):
+	def refetch_payload(self, ignore_changes=False, link_obj=None):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
@@ -547,6 +547,7 @@ def delete_xxx(pk_XXX=None):
 		else:
 			arg = [self.pk_obj]
 		rows, self._idx = gmPG2.run_ro_queries (
+			link_obj = link_obj,
 			queries = [{'cmd': self.__class__._cmd_fetch_payload, 'args': arg}],
 			get_col_idx = True
 		)

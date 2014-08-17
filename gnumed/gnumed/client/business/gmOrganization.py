@@ -21,7 +21,7 @@ from Gnumed.business import gmDemographicRecord
 _log = logging.getLogger('gm.org')
 
 #============================================================
-def create_org_category(category=None):
+def create_org_category(category=None, link_obj=None):
 	args = {'cat': category}
 	cmd1 = u"""INSERT INTO dem.org_category (description) SELECT %(cat)s
 WHERE NOT EXISTS (
@@ -32,7 +32,7 @@ WHERE NOT EXISTS (
 		{'cmd': cmd1, 'args': args},
 		{'cmd': cmd2, 'args': args}
 	]
-	rows, idx = gmPG2.run_rw_queries(queries = queries, get_col_idx = False, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = False, return_data = True)
 	return rows[0][0]
 
 #============================================================
@@ -82,7 +82,7 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 
 	units = property(_get_units, lambda x:x)
 #------------------------------------------------------------
-def org_exists(organization=None, category=None):
+def org_exists(organization=None, category=None, link_obj=None):
 	args = {'desc': organization, 'cat': category}
 
 	if isinstance(category, basestring):
@@ -93,15 +93,15 @@ def org_exists(organization=None, category=None):
 		cat_part = u'fk_category = %(cat)s'
 
 	cmd = u'SELECT pk FROM dem.org WHERE description = %%(desc)s AND %s' % cat_part
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	if len(rows) > 0:
 		return cOrg(aPK_obj = rows[0][0])
 
 	return None
 #------------------------------------------------------------
-def create_org(organization=None, category=None):
+def create_org(organization=None, category=None, link_obj=None):
 
-	org = org_exists(organization, category)
+	org = org_exists(link_obj = link_obj, organization = organization, category = category)
 	if org is not None:
 		return org
 
@@ -113,9 +113,9 @@ def create_org(organization=None, category=None):
 		cat_part = u'%(cat)s'
 
 	cmd = u'INSERT INTO dem.org (description, fk_category) VALUES (%%(desc)s, %s) RETURNING pk' % cat_part
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
-	return cOrg(aPK_obj = rows[0][0])
+	return cOrg(aPK_obj = rows[0][0], link_obj = link_obj)
 #------------------------------------------------------------
 def delete_org(organization=None):
 	args = {'pk': organization}
@@ -406,21 +406,22 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 
 	comm_channels = property(get_comm_channels, lambda x:x)
 #------------------------------------------------------------
-def create_org_unit(pk_organization=None, unit=None):
-
+def create_org_unit(pk_organization=None, unit=None, link_obj=None):
 	args = {'desc': unit, 'pk_org': pk_organization}
-
-	# exists ?
-	cmd = u'SELECT pk FROM dem.org_unit WHERE description = %(desc)s AND fk_org = %(pk_org)s'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-	if len(rows) > 0:
-		return cOrgUnit(aPK_obj = rows[0][0])
-
-	# no, create
-	cmd = u'INSERT INTO dem.org_unit (description, fk_org) VALUES (%(desc)s, %(pk_org)s) RETURNING pk'
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
-
-	return cOrgUnit(aPK_obj = rows[0][0])
+	cmd1 = u"""
+		INSERT INTO dem.org_unit (description, fk_org) SELECT
+			%(desc)s,
+			%(pk_org)s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM dem.org_unit WHERE description = %(desc)s AND fk_org = %(pk_org)s
+		)"""
+	cmd2 = _SQL_get_org_unit % u'unit = %(desc)s AND pk_org = %(pk_org)s'
+	queries = [
+		{'cmd': cmd1, 'args': args},
+		{'cmd': cmd2, 'args': args}
+	]
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
+	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_org_unit'})
 #------------------------------------------------------------
 def delete_org_unit(unit=None):
 	args = {'pk': unit}

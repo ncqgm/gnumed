@@ -39,6 +39,7 @@ from Gnumed.business import gmLOINC
 from Gnumed.business import gmForms
 from Gnumed.business import gmPersonSearch
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmHL7
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmEditArea
@@ -55,17 +56,49 @@ _log = logging.getLogger('gm.ui')
 #================================================================
 # HL7 related widgets
 #================================================================
-def import_Excelleris_HL7(parent=None):
+def show_hl7_file(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	# select file
+	paths = gmTools.gmPaths()
 	dlg = wx.FileDialog (
 		parent = parent,
-		message = 'Import Excelleris HL7 from XML file:',
-#		defaultDir = aDefDir,
-#		defaultFile = fname,
+		message = _('Show HL7 file:'),
+		# make configurable:
+		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		wildcard = "hl7 files|*.hl7|HL7 files|*.HL7|all files|*",
+		style = wx.OPEN | wx.FILE_MUST_EXIST
+	)
+	choice = dlg.ShowModal()
+	hl7_name = dlg.GetPath()
+	dlg.Destroy()
+	if choice != wx.ID_OK:
+		return False
+
+	formatted_name = gmHL7.format_hl7_file (
+		hl7_name,
+		skip_empty_fields = True,
+		return_filename = True,
+		fix_hl7 = True
+	)
+	gmMimeLib.call_viewer_on_file(aFile = formatted_name, block = False)
+	return True
+
+#================================================================
+def unwrap_HL7_from_XML(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	# select file
+	paths = gmTools.gmPaths()
+	dlg = wx.FileDialog (
+		parent = parent,
+		message = _('Extract HL7 from XML file:'),
+		# make configurable:
+		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
 		wildcard = "xml files|*.xml|XML files|*.XML|all files|*",
 		style = wx.OPEN | wx.FILE_MUST_EXIST
 	)
@@ -75,34 +108,40 @@ def import_Excelleris_HL7(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
-	# for now, localize gmHL7 import
-	from Gnumed.business import gmHL7
-
-	hl7 = gmHL7.extract_HL7_from_CDATA(xml_name, u'.//Message')
-	if hl7 is None:
-		gmGuiHelpers.gm_show_info (
-			u'File [%s]\ndoes not seem to contain HL7 wrapped in XML.' % xml_name,
-			u'Extracting HL7 from XML'
+	target_dir = os.path.split(xml_name)[0]
+	xml_path = u'.//Message'
+	hl7_name = gmHL7.extract_HL7_from_XML_CDATA(xml_name, xml_path, target_dir = target_dir)
+	if hl7_name is None:
+		gmGuiHelpers.gm_show_error (
+			title = _('Extracting HL7 from XML file'),
+			error = (
+			u'Cannot unwrap HL7 data from XML file\n'
+			u'\n'
+			u' [%s]\n'
+			u'\n'
+			u'(CDATA of [%s] nodes)'
+			) % (
+				xml_name,
+				xml_path
+			)
 		)
 		return False
-	fixed_hl7 = gmHL7.fix_HL7_stupidities(hl7)
-	PID_names = gmHL7.split_HL7_by_PID(fixed_hl7)
-	for name in PID_names:
-		gmHL7.stage_MSH_as_incoming_data(name, source = u'Excelleris')
+
+	return True
 
 #================================================================
-def import_HL7(parent=None):
+def stage_hl7_file(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	# select file
+	paths = gmTools.gmPaths()
 	dlg = wx.FileDialog (
 		parent = parent,
-		message = 'Import HL7 from file:',
-#		defaultDir = aDefDir,
-#		defaultFile = fname,
-		wildcard = "*.hl7|*.hl7|*.HL7|*.HL7|all files|*",
+		message = _('Select HL7 file for staging:'),
+		# make configurable:
+		defaultDir = os.path.join(paths.home_dir, 'gnumed'),
+		wildcard = ".hl7 files|*.hl7|.HL7 files|*.HL7|all files|*",
 		style = wx.OPEN | wx.FILE_MUST_EXIST
 	)
 	choice = dlg.ShowModal()
@@ -111,45 +150,135 @@ def import_HL7(parent=None):
 	if choice != wx.ID_OK:
 		return False
 
-	# for now, localize gmHL7 import
-	from Gnumed.business import gmHL7
+	target_dir = os.path.join(paths.home_dir, '.gnumed', 'hl7')
+	success, PID_names = gmHL7.split_hl7_file(hl7_name, target_dir = target_dir, encoding = 'utf8')
+	if not success:
+		gmGuiHelpers.gm_show_error (
+			title = _('Staging HL7 file'),
+			error = _(
+				'There was a problem with splitting the HL7 file\n'
+				'\n'
+				' %s'
+			) % hl7_name
+		)
+		return False
 
-	fixed_hl7 = gmHL7.fix_HL7_stupidities(hl7_name)
-	PID_names = gmHL7.split_HL7_by_PID(fixed_hl7)
-	for name in PID_names:
-		gmHL7.stage_MSH_as_incoming_data(name, source = u'generic')
+	failed_files = []
+	for PID_name in PID_names:
+		if not gmHL7.stage_single_PID_hl7_file(PID_name, source = _('generic'), encoding = 'utf8'):
+			failed_files.append(PID_name)
+	if len(failed_files) > 0:
+		gmGuiHelpers.gm_show_error (
+			title = _('Staging HL7 file'),
+			error = _(
+				'There was a problem with staging the following files\n'
+				'\n'
+				' %s'
+			) % u'\n '.join(failed_files)
+		)
+		return False
+
+	return True
 
 #================================================================
 def browse_incoming_unmatched(parent=None):
 
-	# for now, localize gmHL7 import
-	from Gnumed.business import gmHL7
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 	#------------------------------------------------------------
-	def show_hl7(data=None):
-		if data is None:
+	def show_hl7(staged_item):
+		if staged_item is None:
 			return False
-		filename = data.export_to_file()
+		if u'HL7' not in staged_item['data_type']:
+			return False
+		filename = staged_item.export_to_file()
 		if filename is None:
-			return False
-		formatted_hl7 = gmHL7.format_hl7_file(filename, return_filename = True)
-		gmMimeLib.call_viewer_on_file(aFile = formatted_hl7, block = False)
-
+			filename = gmTools.get_unique_filename()
+		tmp_file = codecs.open(filename, 'ab', 'utf8')
+		tmp_file.write(u'\n')
+		tmp_file.write(u'-' * 80)
+		tmp_file.write(u'\n')
+		tmp_file.write(gmTools.coalesce(staged_item['comment'], u''))
+		tmp_file.close()
+		gmMimeLib.call_viewer_on_file(aFile = filename, block = False)
 		return False
+	#------------------------------------------------------------
+	def import_hl7(staged_item):
+		if staged_item is None:
+			return False
+		if u'HL7' not in staged_item['data_type']:
+			return False
+		unset_identity_on_error = False
+		if staged_item['pk_identity_disambiguated'] is None:
+			pat = gmPerson.gmCurrentPatient()
+			if pat.connected:
+				answer = gmGuiHelpers.gm_show_question (
+					title = _('Importing HL7 data'),
+					question = _(
+						u'There has not been a patient explicitely associated\n'
+						u'with this chunk of HL7 data. However, the data file\n'
+						u'contains the following patient identification information:\n'
+						u'\n'
+						u' %s\n'
+						u'\n'
+						u'Do you want to import the HL7 under the current patient ?\n'
+						u'\n'
+						u' %s\n'
+						u'\n'
+						u'Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n'
+					) % (
+						staged_item.patient_identification,
+						pat['description_gender']
+					),
+					cancel_button = True
+				)
+				if answer is None:
+					return False
+				if answer is True:
+					unset_identity_on_error = True
+					staged_item['pk_identity_disambiguated'] = pat.ID
+
+		success, log_name = gmHL7.process_staged_single_PID_hl7_file(staged_item)
+		if success:
+			return True
+
+		if unset_identity_on_error:
+			staged_item['pk_identity_disambiguated'] = None
+			staged_item.save()
+
+		gmGuiHelpers.gm_show_error (
+			error = _('Error processing HL7 data.'),
+			title = _('Processing staged HL7 data.')
+		)
+		return False
+
+	#------------------------------------------------------------
+	def delete(staged_item):
+		if staged_item is None:
+			return False
+		do_delete = gmGuiHelpers.gm_show_question (
+			title = _('Deleting incoming data'),
+			question = _(
+				'Do you really want to delete the incoming data ?\n'
+				'\n'
+				'Note that deletion is not reversible.'
+			)
+		)
+		if not do_delete:
+			return False
+		return gmHL7.delete_incoming_data(pk_incoming_data = staged_item['pk_incoming_data_unmatched'])
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		incoming = gmHL7.get_incoming_data()
 		items = [ [
-			i['data_type'],
+			gmTools.coalesce(i['data_type'], u''),
 			u'%s, %s (%s) %s' % (
-				i['lastnames'],
-				i['firstnames'],
-				i['dob'],
-				i['gender']
+				gmTools.coalesce(i['lastnames'], u''),
+				gmTools.coalesce(i['firstnames'], u''),
+				gmDateTime.pydt_strftime(dt = i['dob'], format = '%Y %b %d', accuracy = gmDateTime.acc_days, none_str = _('unknown DOB')),
+				gmTools.coalesce(i['gender'], u'')
 			),
-			i['external_data_id'],
+			gmTools.coalesce(i['external_data_id'], u''),
 			i['pk_incoming_data_unmatched']
 		] for i in incoming ]
 		lctrl.set_string_items(items)
@@ -159,16 +288,16 @@ def browse_incoming_unmatched(parent=None):
 		parent = parent,
 		msg = None,
 		caption = _('Showing unmatched incoming data'),
-		columns = [ _('Type'), _('Patient'), _('Data ID'), '#' ],
+		columns = [ _('Type'), _('Identification'), _('Reference'), '#' ],
 		single_selection = True,
 		can_return_empty = False,
 		ignore_OK_button = True,
 		refresh_callback = refresh,
 #		edit_callback=None,
 #		new_callback=None,
-#		delete_callback=None,
-		left_extra_button = [_('Show'), _('Show formatted HL7'), show_hl7]
-#		middle_extra_button=None,
+		delete_callback = delete,
+		left_extra_button = [_('Show'), _('Show formatted HL7'), show_hl7],
+		middle_extra_button = [_('Import'), _('Import HL7 data into patient chart'), import_hl7]
 #		right_extra_button=None
 	)
 
@@ -534,7 +663,7 @@ class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPn
 				),
 				gmTools.coalesce(range_info, u'')
 			])
-			data.append({'data': r, 'formatted': r.format()})
+			data.append({'data': r, 'formatted': r.format(with_source_data = True)})
 
 		self._LCTRL_results.set_string_items(items)
 		self._LCTRL_results.set_column_widths([wx.LIST_AUTOSIZE_USEHEADER, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE])

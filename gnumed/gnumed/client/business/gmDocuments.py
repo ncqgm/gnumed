@@ -208,8 +208,8 @@ class cDocumentFolder:
 
 	documents = property(get_documents, lambda x:x)
 	#--------------------------------------------------------
-	def add_document(self, document_type=None, encounter=None, episode=None):
-		return create_document(document_type = document_type, encounter = encounter, episode = episode)
+	def add_document(self, document_type=None, encounter=None, episode=None, link_obj=None):
+		return create_document(link_obj = link_obj, document_type = document_type, encounter = encounter, episode = episode)
 #============================================================
 _sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 
@@ -312,13 +312,14 @@ order by
 	#--------------------------------------------------------
 	# store data
 	#--------------------------------------------------------
-	def update_data_from_file(self, fname=None):
+	def update_data_from_file(self, fname=None, link_obj=None):
 		# sanity check
 		if not (os.access(fname, os.R_OK) and os.path.isfile(fname)):
 			_log.error('[%s] is not a readable file' % fname)
 			return False
 
 		if not gmPG2.file2bytea (
+			conn = link_obj,
 			query = u"UPDATE blobs.doc_obj SET data = %(data)s::bytea WHERE pk = %(pk)s RETURNING md5(data) AS md5",
 			filename = fname,
 			args = {'pk': self.pk_obj},
@@ -327,7 +328,7 @@ order by
 			return False
 
 		# must update XMIN now ...
-		self.refetch_payload()
+		self.refetch_payload(link_obj = link_obj)
 		return True
 	#--------------------------------------------------------
 	def set_reviewed(self, technically_abnormal=None, clinically_relevant=None):
@@ -584,11 +585,11 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		'pk_encounter'			# mainly useful when moving visual progress notes to their respective encounters
 	]
 	#--------------------------------------------------------
-	def refetch_payload(self, ignore_changes=False):
+	def refetch_payload(self, ignore_changes=False, link_obj=None):
 		try: del self.__has_unreviewed_parts
 		except AttributeError: pass
 
-		return super(cDocument, self).refetch_payload(ignore_changes = ignore_changes)
+		return super(cDocument, self).refetch_payload(ignore_changes = ignore_changes, link_obj = link_obj)
 	#--------------------------------------------------------
 	def get_descriptions(self, max_lng=250):
 		"""Get document descriptions.
@@ -626,37 +627,34 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 
 	parts = property(_get_parts, lambda x:x)
 	#--------------------------------------------------------
-	def add_part(self, file=None):
+	def add_part(self, file=None, link_obj=None):
 		"""Add a part to the document."""
 		# create dummy part
 		cmd = u"""
-			insert into blobs.doc_obj (
+			INSERT INTO blobs.doc_obj (
 				fk_doc, data, seq_idx
 			) VALUES (
 				%(doc_id)s,
 				''::bytea,
-				(select coalesce(max(seq_idx)+1, 1) from blobs.doc_obj where fk_doc=%(doc_id)s)
-			)"""
+				(SELECT coalesce(max(seq_idx)+1, 1) FROM blobs.doc_obj WHERE fk_doc = %(doc_id)s)
+			) RETURNING pk"""
 		rows, idx = gmPG2.run_rw_queries (
-			queries = [
-				{'cmd': cmd, 'args': {'doc_id': self.pk_obj}},
-				{'cmd': u"select currval('blobs.doc_obj_pk_seq')"}
-			],
+			link_obj = link_obj,
+			queries = [{'cmd': cmd, 'args': {'doc_id': self.pk_obj}}],
 			return_data = True
 		)
 		# init document part instance
 		pk_part = rows[0][0]
-		new_part = cDocumentPart(aPK_obj = pk_part)
-		if not new_part.update_data_from_file(fname=file):
+		new_part = cDocumentPart(aPK_obj = pk_part, link_obj = link_obj)
+		if not new_part.update_data_from_file(link_obj = link_obj, fname = file):
 			_log.error('cannot import binary data from [%s] into document part' % file)
 			gmPG2.run_rw_queries (
-				queries = [
-					{'cmd': u"delete from blobs.doc_obj where pk = %s", 'args': [pk_part]}
-				]
+				link_obj = link_obj,
+				queries = [{'cmd': u"DELETE FROM blobs.doc_obj WHERE pk = %s", 'args': [pk_part]}]
 			)
 			return None
 		new_part['filename'] = file
-		new_part.save_payload()
+		new_part.save_payload(conn = link_obj)
 
 		return new_part
 	#--------------------------------------------------------
@@ -753,13 +751,13 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		)
 		return txt
 #------------------------------------------------------------
-def create_document(document_type=None, encounter=None, episode=None):
-	"""Returns new document instance or raises an exception.
-	"""
-	cmd = u"""INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
+def create_document(document_type=None, encounter=None, episode=None, link_obj=None):
+	"""Returns new document instance or raises an exception."""
 	try:
 		int(document_type)
+		cmd = u"""INSERT INTO blobs.doc_med (fk_type, fk_encounter, fk_episode) VALUES (%(type)s, %(enc)s, %(epi)s) RETURNING pk"""
 	except ValueError:
+		create_document_type(document_type = document_type)
 		cmd = u"""
 			INSERT INTO blobs.doc_med (
 				fk_type,
@@ -773,10 +771,9 @@ def create_document(document_type=None, encounter=None, episode=None):
 				%(enc)s,
 				%(epi)s
 			) RETURNING pk"""
-
 	args = {'type': document_type, 'enc': encounter, 'epi': episode}
-	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
-	doc = cDocument(aPK_obj = rows[0][0])
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
+	doc = cDocument(aPK_obj = rows[0][0], link_obj = link_obj)
 	return doc
 #------------------------------------------------------------
 def search_for_documents(patient_id=None, type_id=None, external_reference=None):
@@ -895,11 +892,12 @@ def get_document_type_pk(document_type=None):
 #------------------------------------------------------------
 def create_document_type(document_type=None):
 	# check for potential dupes:
-	cmd = u'select pk from blobs.doc_type where name = %s'
+	cmd = u'SELECT pk FROM blobs.doc_type WHERE name = %s'
 	rows, idx = gmPG2.run_ro_queries (
 		queries = [{'cmd': cmd, 'args': [document_type]}]
 	)
 	if len(rows) == 0:
+		_log.debug('creating document type [%s]', document_type)
 		cmd1 = u"INSERT INTO blobs.doc_type (name) VALUES (%s) RETURNING pk"
 		rows, idx = gmPG2.run_rw_queries (
 			queries = [{'cmd': cmd1, 'args': [document_type]}],

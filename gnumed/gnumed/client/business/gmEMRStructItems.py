@@ -913,7 +913,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		'diagnostic_certainty_classification'
 	]
 	#--------------------------------------------------------
-	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None, encounter=None):
+	def __init__(self, aPK_obj=None, id_patient=None, name='xxxDEFAULTxxx', health_issue=None, row=None, encounter=None, link_obj=None):
 		pk = aPK_obj
 		if pk is None and row is None:
 
@@ -926,7 +926,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				where_parts.append(u'pk_health_issue = %(issue)s')
 
 			if encounter is not None:
-				where_parts.append(u'pk_patient = (select fk_patient from clin.encounter where pk = %(enc)s)')
+				where_parts.append(u'pk_patient = (SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s)')
 
 			args = {
 				'pat': id_patient,
@@ -935,9 +935,10 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				'desc': name
 			}
 
-			cmd = u"select * from clin.v_pat_episodes where %s" % u' and '.join(where_parts)
+			cmd = u'SELECT * FROM clin.v_pat_episodes WHERE %s' % u' AND '.join(where_parts)
 
-			rows, idx = gmPG2.run_ro_queries(
+			rows, idx = gmPG2.run_ro_queries (
+				link_obj = link_obj,
 				queries = [{'cmd': cmd, 'args': args}],
 				get_col_idx=True
 			)
@@ -949,7 +950,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__init__(self, row=r)
 
 		else:
-			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row)
+			gmBusinessDBObject.cBusinessDBObject.__init__(self, aPK_obj=pk, row=row, link_obj = link_obj)
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1566,7 +1567,7 @@ FROM (
 
 	has_narrative = property(_get_has_narrative, lambda x:x)
 #============================================================
-def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None):
+def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None, link_obj=None):
 	"""Creates a new episode for a given patient's health issue.
 
 	pk_health_issue - given health issue PK
@@ -1574,7 +1575,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 	"""
 	if not allow_dupes:
 		try:
-			episode = cEpisode(name = episode_name, health_issue = pk_health_issue, encounter = encounter)
+			episode = cEpisode(name = episode_name, health_issue = pk_health_issue, encounter = encounter, link_obj = link_obj)
 			if episode['episode_open'] != is_open:
 				episode['episode_open'] = is_open
 				episode.save_payload()
@@ -1586,7 +1587,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 	cmd = u"INSERT INTO clin.episode (fk_health_issue, description, is_open, fk_encounter) VALUES (%s, %s, %s::boolean, %s)"
 	queries.append({'cmd': cmd, 'args': [pk_health_issue, episode_name, is_open, encounter]})
 	queries.append({'cmd': cEpisode._cmd_fetch_payload % u"currval('clin.episode_pk_seq')"})
-	rows, idx = gmPG2.run_rw_queries(queries = queries, return_data=True, get_col_idx=True)
+	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data=True, get_col_idx=True)
 
 	episode = cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return episode
