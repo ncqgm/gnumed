@@ -20,6 +20,7 @@ NEW: better logging of SEGFAULT et alii
 NEW: fully placeholdered general letter template
 NEW: HL7 lab results import
 NEW: Wells Score for pulmonary embolism
+NEW: algorithm for choosing an NSAR
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering
