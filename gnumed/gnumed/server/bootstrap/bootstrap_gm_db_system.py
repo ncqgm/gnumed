@@ -182,6 +182,45 @@ ALTER TABLE %(src_schema)s.%(src_tbl)s
 		ON DELETE RESTRICT
 ;"""
 
+SQL_sanity_check_trigger_func = u"""
+DROP FUNCTION IF EXISTS clin.trf_sanity_check_enc_epi_insert() CASCADE;
+
+create function clin.trf_sanity_check_enc_epi_insert()
+	returns trigger
+	 language 'plpgsql'
+	as '
+declare
+	_identity_from_encounter integer;
+	_identity_from_episode integer;
+begin
+	-- sometimes .fk_episode can actually be NULL (eg. clin.substance_intake)
+	-- in which case we do not need to run the sanity check
+	if NEW.fk_episode is NULL then
+		return NEW;
+	end if;
+
+	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
+
+	select fk_patient into _identity_from_episode from clin.encounter where pk = (
+		select fk_encounter from clin.episode where pk = NEW.fk_episode
+	);
+
+	if _identity_from_encounter <> _identity_from_episode then
+		raise exception ''INSERT into %.%: Sanity check failed. Encounter % patient = %. Episode % patient = %.'',
+			TG_TABLE_SCHEMA,
+			TG_TABLE_NAME,
+			NEW.fk_encounter,
+			_identity_from_encounter,
+			NEW.fk_episode,
+			_identity_from_episode
+		;
+		return NULL;
+	end if;
+
+	return NEW;
+end;
+';"""
+
 #==================================================================
 def user_exists(cursor=None, user=None):
 	cmd = "SELECT usename FROM pg_user WHERE usename = %(usr)s"
@@ -1201,6 +1240,7 @@ class database:
 		result = curs.fetchone()
 		if result[0] is True:
 			_log.debug('creating generic modification announcement triggers on registered tables')
+			curs.execute(SQL_sanity_check_trigger_func)
 			cmd = u"SELECT gm.create_all_table_mod_triggers(True::boolean)"
 			curs.execute(cmd)
 			result = curs.fetchone()

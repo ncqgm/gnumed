@@ -10,6 +10,7 @@
 
 IMPROVED: labelling of sign vs review in measurements EA [thanks Jim]
 IMPROVED: coloring of abnormals [thanks Jim]
+IMPROVED: wxpython 3 compatibility
 
 	1.4.9
 
@@ -1456,7 +1457,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v19
 ------------------------------------------------
 
-	19.10 (unreleased)
+	19.10
 
 FIX: overly eager INNER JOIN of dem.v_praxis_branch
 FIX: overly eager INNER JOINs of dem.v_orgs/dem.v_org_units [thanks Jim]
