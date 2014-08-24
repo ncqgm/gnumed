@@ -514,7 +514,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			include_without_provider = False
 
 		# get which messages to show
-		if self._RBTN_all_messages.GetValue():
+		if self._RBTN_relevant_messages.GetValue():
+			_log.debug('loading relevant messages')
+			self.__msgs = self.provider.inbox.get_relevant_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider
+			)
+		elif self._RBTN_all_messages.GetValue():
 			_log.debug('loading all but expired messages')
 			self.__msgs = self.provider.inbox.get_messages (
 				pk_patient = pk_patient,

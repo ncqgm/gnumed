@@ -35,6 +35,7 @@ IMPROVED: enhance dynamic keyword text expansions
 IMPROVED: support test results status / source data
 IMPROVED: link to WHO ATC list from drug/substance EA [thanks Jim]
 IMPROVED: wxPython 3 compatibility
+IMPROVED: "Relevant" messages mode in provider inbox
 
 ------------------------------------------------
 # rel-1-4-patches

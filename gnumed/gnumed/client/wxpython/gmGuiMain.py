@@ -26,20 +26,27 @@ import urllib2
 import subprocess
 import glob
 
+_log = logging.getLogger('gm.main')
 
 # 3rd party libs
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
 	import wxversion
+	_log.debug(u'wxPython versions available on this machine: %s', wxversion.getInstalled())
 	# we'll check options further down because we want to
-	# support 2.9 as well and while that supports unicode
+	# support 3.0 as well and while that supports unicode
 	# builds only anyway it don't respond well to requiring
 	# a "-unicode" option indicator, ... :-/
-	#wxversion.ensureMinimal('2.8-unicode', optionsRequired=True)
-	wxversion.ensureMinimal('2.8', optionsRequired = False)
+	# try to select wxPython 3 but fall back to 2.8 on failure
+	try:
+		wxversion.select(versions = '3.0')
+	except wxversion.VersionError:
+		_log.exception('cannot select wxPython 3.0')
+		wxversion.select(versions = '2.8-unicode', optionsRequired = True)
 
 try:
 	import wx
+	_log.info('wxPython version loaded: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -132,9 +139,6 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
-
-_log = logging.getLogger('gm.main')
-_log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 
 #==============================================================================
 class gmTopLevelFrame(wx.Frame):
