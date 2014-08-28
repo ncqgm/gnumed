@@ -3058,11 +3058,13 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		if crea is None:
 			gfr_3_months_older_than_crea = False
+		elif gfr is None:
+			gfr_3_months_older_than_crea = True
 		else:
 			three_months = pydt.timedelta(weeks = 14)
 			gfr_3_months_older_than_crea = (crea['clin_when'] - gfr['clin_when']) > three_months
 		# if GFR not found in results or old, then calculate
-		if (gfr is None) or gfr_3_months_older_than_crea:
+		if gfr_3_months_older_than_crea:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
 			gfr = calc.eGFR
