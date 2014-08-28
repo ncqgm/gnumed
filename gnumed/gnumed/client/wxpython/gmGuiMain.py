@@ -2365,6 +2365,11 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_show_hl7(self, evt):
+#		from Gnumed.business import gmClinicalCalculator
+#		calc = gmClinicalCalculator.cClinicalCalculator(patient = gmPerson.gmCurrentPatient())
+#		result = calc.eGFR_CKD_EPI
+#		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True, with_hints = True)
+#		return
 		gmMeasurementWidgets.show_hl7_file(parent = self)
 	#----------------------------------------------
 	def __on_unwrap_hl7_from_xml(self, evt):

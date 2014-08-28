@@ -1470,16 +1470,22 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				msg += _('GFR: unknown')
 			else:
 				msg += gfr.message
-				tt += gfr.format (
-					left_margin = 0,
-					width = 50,
-					eol = u'\n',
-					with_formula = True,
-					with_warnings = True,
-					with_variables = False,
-					with_sub_results = True,
-					return_list = False
-				)
+				egfrs = self.calc.eGFRs
+				tts = []
+				for egfr in egfrs:
+					if egfr.numeric_value is None:
+						continue
+					tts.append(egfr.format (
+						left_margin = 0,
+						width = 50,
+						eol = u'\n',
+						with_formula = False,
+						with_warnings = True,
+						with_variables = False,
+						with_sub_results = False,
+						return_list = False
+					))
+				tt += u'\n'.join(tts)
 		else:
 			msg += u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
@@ -3087,7 +3093,6 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				gfr_msg = _(u'%.1f (%s ago)') % (
 					gfr.numeric_value,
 					gmDateTime.format_interval_medically(now - gfr.date_valid)
-					#gmDateTime.pydt_strftime (gfr.date_valid, format = '%b %Y')
 				)
 			self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('blue'))
 			self._TCTRL_lab.AppendText(_('eGFR:'))
@@ -3140,16 +3145,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 						format = '%b %Y'
 					)
 				)
-				tt = gfr.format (
-					left_margin = 0,
-					width = 50,
-					eol = u'\n',
-					with_formula = True,
-					with_warnings = True,
-					with_variables = False,
-					with_sub_results = True,
-					return_list = False
-				)
+				egfrs = calc.eGFRs
+				tts = []
+				for egfr in egfrs:
+					if egfr.numeric_value is None:
+						continue
+					tts.append(egfr.format (
+						left_margin = 0,
+						width = 50,
+						eol = u'\n',
+						with_formula = False,
+						with_warnings = True,
+						with_variables = False,
+						with_sub_results = False,
+						return_list = False
+					))
+				tt = u'\n'.join(tts)
 		else:
 			msg = u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],

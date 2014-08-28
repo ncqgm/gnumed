@@ -36,6 +36,8 @@ IMPROVED: support test results status / source data
 IMPROVED: link to WHO ATC list from drug/substance EA [thanks Jim]
 IMPROVED: wxPython 3 compatibility
 IMPROVED: "Relevant" messages mode in provider inbox
+IMPROVED: GFR calculations
+IMPROVED: prevent deletion of messages not belonging to current provider
 
 ------------------------------------------------
 # rel-1-4-patches

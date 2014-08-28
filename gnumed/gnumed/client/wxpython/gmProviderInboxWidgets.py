@@ -583,7 +583,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		items = []
 		for m in self.__msgs:
-			item = [_indicator[m['importance']], gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d')]
+			item = [_indicator[m['importance']]]
+			item.append(u'%s: %s%s%s' % (
+				gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d'),
+				m['modified_by'],
+				gmTools.u_right_arrow,
+				gmTools.coalesce(m['provider'], _(u'all'))
+			))
 			if m['due_date'] is None:
 				item.append(u'')
 			else:
@@ -752,6 +758,11 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def _on_delete_focussed_msg(self, evt):
 		if self.__focussed_msg['is_virtual']:
 			gmDispatcher.send(signal = 'statustext', msg = _('You must deal with the reason for this message to remove it from your inbox.'), beep = True)
+			return False
+
+		# if not "to" current provider, then don't delete
+		if self.__focussed_msg['pk_staff'] != gmStaff.gmCurrentProvider()['pk_staff']:
+			gmDispatcher.send(signal = 'statustext', msg = _('This message can only be deleted by [%s].') % self.__focussed_msg['provider'], beep = True)
 			return False
 
 		pk_patient = self.__focussed_msg['pk_patient']
