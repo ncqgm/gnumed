@@ -41,6 +41,10 @@ IMPROVED: "Relevant" messages mode in provider inbox
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.11 (unreleased)
+
+FIX: failing Creatinine vs GFR age calculation
+
 	1.4.10
 
 IMPROVED: labelling of sign vs review in measurements EA [thanks Jim]
