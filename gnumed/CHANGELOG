@@ -38,6 +38,7 @@ IMPROVED: wxPython 3 compatibility
 IMPROVED: "Relevant" messages mode in provider inbox
 IMPROVED: GFR calculations
 IMPROVED: prevent deletion of messages not belonging to current provider
+IMRPOVED: display of medication related lab monitoring
 
 ------------------------------------------------
 # rel-1-4-patches

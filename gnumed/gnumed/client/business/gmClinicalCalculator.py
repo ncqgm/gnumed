@@ -254,15 +254,48 @@ class cClinicalCalculator(object):
 		CKD = self.eGFR_CKD_EPI
 		if CKD.numeric_value > 60:
 			return CKD
+
 		# CKD at or below 60
-		# geriatric ?
-		if CKD.variables['age@crea'] > 65:
-			return self.eGFR_Cockcroft_Gault
-		# non-geriatric
+		if self.__patient['dob'] is None:
+			return CKD			# no method will work, so return CKD anyway
+
+		CG = self.eGFR_Cockcroft_Gault
 		MDRD = self.eGFR_MDRD_short
+		age = None
+		if age is None:
+			try:
+				age = CKD.variables['age@crea']
+			except KeyError:
+				_log.warning('CKD-EPI: no age@crea')
+		if age is None:
+			try:
+				age = CG.variables['age@crea']
+			except KeyError:
+				_log.warning('CG: no age@crea')
+		if age is None:
+			try:
+				age = MDRD.variables['age@crea']
+			except KeyError:
+				_log.warning('MDRD: no age@crea')
+		if age is None:
+			age = gmDateTime.calculate_apparent_age(start = self.__patient['dob'])[0]
+
+		# geriatric ?
+		if age > 65:
+			if CG.numeric_value is not None:
+				return CG
+
+		# non-geriatric or CG not computable
+		if MDRD.numeric_value is None:
+			if (CKD.numeric_value is not None) or (CG.numeric_value is None):
+				return CKD
+			return CG
+
 		if MDRD.numeric_value > 60:
-			# probably normal after all (>60) -> use CKD-EPI
-			return CKD
+			if CKD.numeric_value is not None:
+				# probably normal after all (>60) -> use CKD-EPI
+				return CKD
+
 		return MDRD
 
 	eGFR = property(_get_egfr, lambda x:x)
