@@ -72,14 +72,14 @@ def manage_external_care(parent=None):
 		lctrl.set_string_items(items)
 		lctrl.set_data(care)
 	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
+	return gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('External care of this patient.'),
 		caption = _('Showing external care network.'),
 		columns = [ _('Location'), _('Provider'), _('Care issue'), _('Comment') ],
-		single_selection = True,
+		single_selection = False,
 		can_return_empty = True,
-		ignore_OK_button = True,
+		ignore_OK_button = False,
 		refresh_callback = refresh,
 		edit_callback = edit,
 		new_callback = edit,

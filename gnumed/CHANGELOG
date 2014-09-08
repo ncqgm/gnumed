@@ -22,6 +22,7 @@ NEW: HL7 lab results import
 NEW: Wells Score for pulmonary embolism
 NEW: algorithm for choosing an NSAR
 NEW: bill related reports
+NEW: $<external_care>$ placeholder
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering

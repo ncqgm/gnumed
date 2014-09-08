@@ -219,6 +219,9 @@ __known_variant_placeholders = {
 		args:	<template>//<date format>
 		template:	something %(field)s something else (do not include '//' or '::' itself in the template)""",
 
+	u'external_care': u"""External care entries:
+		args:	<template>
+		template:	something %(field)s something else (do not include '//' or '::' itself in the template)""",
 
 	# provider related:
 	u'current_provider': u"no arguments",
@@ -500,6 +503,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 
 		lines = [ template % r.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for r in reminders ]
+
+		return u'\n'.join(lines)
+	#--------------------------------------------------------
+	def _get_variant_external_care(self, data=None):
+
+		from Gnumed.wxpython import gmExternalCareWidgets
+		external_cares = gmExternalCareWidgets.manage_external_care()
+
+		if external_cares is None:
+			return u''
+
+		if len(external_cares) == 0:
+			return u''
+
+		template = data
+		lines = [ template % ext.fields_as_dict(escape_style = self.__esc_style) for ext in external_cares ]
 
 		return u'\n'.join(lines)
 	#--------------------------------------------------------
@@ -2208,10 +2227,11 @@ if __name__ == '__main__':
 			#u'$<receiver_name::%s::120>$',
 			#u'$<receiver_street::%s::120>$',
 			#u'$<receiver_number:: %s::120>$',
-			u'$<receiver_subunit:: %s::120>$',
+			#u'$<receiver_subunit:: %s::120>$',
 			#u'$<receiver_postcode::%s::120>$',
 			#u'$<receiver_location:: %s::120>$',
-			#u'$<receiver_country::, %s::120>$'
+			#u'$<receiver_country::, %s::120>$',
+			u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
 		]
 
 		handler = gmPlaceholderHandler()
