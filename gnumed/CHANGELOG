@@ -49,6 +49,7 @@ IMRPOVED: display of medication related lab monitoring
 	1.4.11 (unreleased)
 
 FIX: failing Creatinine vs GFR age calculation
+FIX: failure to handle pre-1900's measurements
 
 	1.4.10
 
