@@ -684,7 +684,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		]
 
 		emr = self.__patient.get_emr()
-		col_labels = [ gmDateTime.pydt_strftime(date[0], self.__date_format) for date in emr.get_dates_for_results (
+		col_labels = [ gmDateTime.pydt_strftime(date[0], self.__date_format, accuracy = gmDateTime.acc_days) for date in emr.get_dates_for_results (
 				tests = test_pks2show,
 				reverse_chronological = True
 		)]
@@ -712,7 +712,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				gmTools.bool2subst(result['is_fake_meta_type'], u'', gmTools.u_sum, u''),
 				result['unified_abbrev']
 			))
-			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format))
+			col_idx = col_labels.index(gmDateTime.pydt_strftime(result['clin_when'], self.__date_format, accuracy = gmDateTime.acc_days))
 
 			try:
 				self.__cell_data[col_idx]
