@@ -111,6 +111,18 @@ except ImportError:
 	print "  INFO : GNUmed will work but you will be unable"
 	print "  INFO : to visualize search results and lab data"
 
+#print " simplejson...",
+#try:
+#	import simplejson
+#	print "found"
+#except ImportError:
+#	missing = True
+#	print ""
+#	print "  ERROR: simplejson not installed"
+#	print "  INFO : this is needed for accessing eGK/KVK/PKVK cards"
+#	print "  INFO : GNUmed will work but you will be unable"
+#	print "  INFO : to read German chipcards"
+
 print " libxml2...",
 try:
 	import libxml2

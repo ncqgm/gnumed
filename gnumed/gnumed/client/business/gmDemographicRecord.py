@@ -510,6 +510,15 @@ def format_address(address=None, show_type=False):
 	txt = template % data
 	return txt.split('\n')
 #------------------------------------------------------------
+def create_address_type(address_type=None):
+	args = {'typ': address_type}
+	cmd = u'INSERT INTO dem.address_type (name) SELECT %(typ)s WHERE NOT EXISTS (SELECT 1 FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s)'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	cmd = u'SELECT id FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
+#------------------------------------------------------------
 def get_address_types(identity=None):
 	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])

@@ -5,17 +5,22 @@ These objects handle German patient cards (KVK and eGK).
 
 KVK: http://www.kbv.de/ita/register_G.html
 eGK: http://www.gematik.de/upload/gematik_Qop_eGK_Spezifikation_Teil1_V1_1_0_Kommentare_4_1652.pdf
-
-license: GPL v2 or later
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmKVK.py,v $
-# $Id: gmKVK.py,v 1.22 2010-01-08 13:49:43 ncq Exp $
-__version__ = "$Revision: 1.22 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
-# access our modules
-import sys, os, os.path, fileinput, codecs, time, datetime as pyDT, glob, re as regex, logging
+import sys
+import os
+import os.path
+import fileinput
+import codecs
+import time
+import glob
+import datetime as pyDT
+import re as regex
+import simplejson as json
+import logging
 
 
 # our modules
@@ -26,7 +31,6 @@ from Gnumed.pycommon import gmExceptions, gmDateTime, gmTools, gmPG2
 
 
 _log = logging.getLogger('gm.kvk')
-_log.info(__version__)
 
 true_egk_fields = [
 	'insurance_company',
@@ -96,9 +100,251 @@ map_kvkd_tags2dto = {
 	'Kommentar': 'comment'
 }
 
-issuer_template = u'%s (%s)'
-insurance_number_external_id_type = u'Versichertennummer'
-insurance_number_external_id_type_egk = u'Versichertennummer (eGK)'
+
+map_CCRdr_gender2gm = {
+	'M': 'm',
+	'W': 'f',
+	'U': None
+}
+
+
+map_CCRdr_region_code2country = {
+	u'D': 'DE'
+}
+
+
+EXTERNAL_ID_ISSUER_TEMPLATE = u'%s (%s)'
+EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER = u'Versichertennummer'
+EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER_EGK = u'Versichertennummer (eGK)'
+
+#============================================================
+class cDTO_CCRdr(gmPerson.cDTO_person):
+
+	def __init__(self, filename=None, strict=True):
+
+		gmPerson.cDTO_person.__init__(self)
+
+		self.filename = filename
+		self.date_format = '%Y%m%d'
+		self.valid_since = None
+		self.valid_until = None
+		self.card_is_rejected = False
+		self.card_is_expired = False
+
+		self.__load_vk_file()
+
+		# if we need to interpret KBV requirements by the
+		# letter we have to delete the file right here
+		#self.delete_from_source()
+
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def get_candidate_identities(self, can_create = False):
+		old_idents = gmPerson.cDTO_person.get_candidate_identities(self, can_create = can_create)
+
+		# look for candidates based on their Insuree Number
+		if not self.card_is_rejected:
+			cmd = u"""
+				SELECT pk_identity FROM dem.v_external_ids4identity WHERE
+					value = %(val)s AND
+					name = %(name)s AND
+					issuer = %(kk)s
+				"""
+			args = {
+				'val': self.insuree_number,
+				'name': u'%s (%s)' % (
+					EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
+					self.raw_data['Karte']
+				),
+				'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.raw_data['KostentraegerName'], self.raw_data['Kostentraegerkennung'])
+			}
+			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = None)
+
+			# weed out duplicates
+			name_candidate_ids = [ o.ID for o in old_idents ]
+			for r in rows:
+				if r[0] not in name_candidate_ids:
+					old_idents.append(gmPerson.cIdentity(aPK_obj = r[0]))
+
+		return old_idents
+
+	#--------------------------------------------------------
+	def delete_from_source(self):
+#		try:
+#			os.remove(self.filename)
+#			self.filename = None
+#		except:
+#			_log.exception('cannot delete CCReader file [%s]' % self.filename, verbose = False)
+		pass	# for now
+
+	#--------------------------------------------------------
+	def import_extra_data(self, identity=None, *args, **kwargs):
+		if not self.card_is_rejected:
+			args = {
+				'pat': identity.ID,
+				'dob': self.preformatted_dob,
+				'valid_until': self.valid_until,
+				'data': self.raw_data
+			}
+			cmd = u"""
+				INSERT INTO de_de.insurance_card (
+					fk_identity,
+					formatted_dob,
+					valid_until,
+					raw_data
+				) VALUES (
+					%(pat)s,
+					%(dob)s,
+					%(valid_until)s,
+					%(data)s
+				)"""
+			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __load_vk_file(self):
+
+		_log.debug('loading eGK/KVK/PKVK data from [%s]', self.filename)
+		vk_file = codecs.open(filename = self.filename, mode = 'rU', encoding = 'utf8')
+		self.raw_data = json.load(vk_file)
+		vk_file.close()
+
+		# rejection
+		if self.raw_data['AID'] == u'1':
+			self.card_is_rejected = True
+			_log.info('eGK may contain insurance information but KBV says it must be rejected because it is of generation 0')
+
+		# validity
+		# - since
+		tmp = time.strptime(self.raw_data['VersicherungsschutzBeginn'], self.date_format)
+		self.valid_since = pyDT.date(tmp.tm_year, tmp.tm_mon, tmp.tm_mday)
+		# - until
+		tmp = time.strptime(self.raw_data['VersicherungsschutzEnde'], self.date_format)
+		self.valid_until = pyDT.date(tmp.tm_year, tmp.tm_mon, tmp.tm_mday)
+		if self.valid_until < pyDT.date.today():
+			self.card_is_expired = True
+
+		# DTO source
+		src_attrs = []
+		if self.card_is_expired:
+			src_attrs.append(_('expired'))
+		if self.card_is_rejected:
+			_log.info('eGK contains insurance information but KBV says it must be rejected because it is of generation 0')
+			src_attrs.append(_('rejected'))
+		src_attrs.append(u'CCReader')
+		self.source = u'%s (%s)' % (
+			self.raw_data['Karte'],
+			u', '.join(src_attrs)
+		)
+
+		# name / gender
+		self.firstnames = self.raw_data['Vorname']
+		self.lastnames = self.raw_data['Nachname']
+		self.gender = map_CCRdr_gender2gm[self.raw_data['Geschlecht']]
+
+		# title
+		title_parts = []
+		for part in ['Titel', 'Namenszusatz', 'Vorsatzwort']:
+			tmp = self.raw_data[part].strip()
+			if tmp == u'':
+				continue
+			title_parts.append(tmp)
+		if len(title_parts) > 0:
+			self.title = u' '.join(title_parts)
+
+		# dob
+		dob_str = self.raw_data['Geburtsdatum']
+		year_str = dob_str[:4]
+		month_str = dob_str[4:6]
+		day_str = dob_str[6:8]
+		self.preformatted_dob = u'%s.%s.%s' % (day_str, month_str, year_str)	# pre-format for printing including "0"-parts
+		if year_str == u'0000':
+			self.dob = None			# redundant but explicit is good
+		else:
+			if day_str == u'00':
+				self.dob_is_estimated = True
+				day_str = u'01'
+			if month_str == u'00':
+				self.dob_is_estimated = True
+				month_str = u'01'
+			dob_str = year_str + month_str + day_str
+			tmp = time.strptime(dob_str, self.date_format)
+			self.dob = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, 11, 11, 11, 111, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
+		# addresses
+		# - street
+		try:
+			adr = self.raw_data['StrassenAdresse']
+			try:
+				self.remember_address (
+					adr_type = u'eGK (Wohnadresse)',
+					number = adr['Hausnummer'],
+					subunit = adr['Anschriftenzusatz'],
+					street = adr['Strasse'],
+					urb = adr['Ort'],
+					region = u'',
+					zip = adr['Postleitzahl'],
+					country = map_CCRdr_region_code2country[adr['Wohnsitzlaendercode']]
+				)
+			except ValueError:
+				_log.exception('invalid street address on card')
+			except KeyError:
+				_log.error('unknown country code [%s] on card in street address', adr['Wohnsitzlaendercode'])
+		except KeyError:
+			_log.warning('no street address on card')
+		# PO Box
+		try:
+			adr = self.raw_data['PostfachAdresse']
+			try:
+				self.remember_address (
+					adr_type = u'eGK (Postfach)',
+					number = adr['Postfach'],
+					#subunit = adr['Anschriftenzusatz'],
+					street = _('PO Box'),
+					urb = adr['PostfachOrt'],
+					region = u'',
+					zip = adr['PostfachPLZ'],
+					country = map_CCRdr_region_code2country[adr['PostfachWohnsitzlaendercode']]
+				)
+			except ValueError:
+				_log.exception('invalid PO Box address on card')
+			except KeyError:
+				_log.error('unknown country code [%s] on card in PO Box address', adr['Wohnsitzlaendercode'])
+		except KeyError:
+			_log.warning('no PO Box address on card')
+
+		if not (self.card_is_expired or self.card_is_rejected):
+			self.insuree_number = None
+			try:
+				self.insuree_number = self.raw_data['Versicherten_ID']
+			except KeyError:
+				pass
+			try:
+				self.insuree_number = self.raw_data['Versicherten_ID_KVK']
+			except KeyError:
+				pass
+			try:
+				self.insuree_number = self.raw_data['Versicherten_ID_PKV']
+			except KeyError:
+				pass
+			if self.insuree_number is not None:
+				try:
+					self.remember_external_id (
+						name = u'%s (%s)' % (
+							EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
+							self.raw_data['Karte']
+						),
+						value = self.insuree_number,
+						issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.raw_data['KostentraegerName'], self.raw_data['Kostentraegerkennung']),
+						comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse, gültig: %s - %s' % (
+							gmDateTime.pydt_strftime(self.valid_since, '%Y %b %d'),
+							gmDateTime.pydt_strftime(self.valid_until, '%Y %b %d')
+						)
+					)
+				except KeyError:
+					_log.exception('no insurance information on eGK')
 
 #============================================================
 class cDTO_eGK(gmPerson.cDTO_person):
@@ -106,7 +352,7 @@ class cDTO_eGK(gmPerson.cDTO_person):
 	kvkd_card_id_string = u'Elektronische Gesundheitskarte'
 
 	def __init__(self, filename=None, strict=True):
-		self.dto_type = 'eGK'
+		self.card_type = 'eGK'
 		self.dob_format = '%d%m%Y'
 		self.valid_since_format = '%d%m%Y'
 		self.last_read_time_format = '%H:%M:%S'
@@ -132,8 +378,8 @@ select pk_identity from dem.v_external_ids4identity where
 """
 		args = {
 			'val': self.insuree_number,
-			'name': insurance_number_external_id_type,
-			'kk': issuer_template % (self.insurance_company, self.insurance_number)
+			'name': EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
+			'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number)
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -154,9 +400,9 @@ select pk_identity from dem.v_external_ids4identity where
 
 		# Versicherungsnummer
 		identity.add_external_id (
-			type_name = insurance_number_external_id_type_egk,
+			type_name = EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER_EGK,
 			value = self.insuree_number,
-			issuer = issuer_template % (self.insurance_company, self.insurance_number),
+			issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number),
 			comment = u'Nummer (eGK) des Versicherten bei der Krankenkasse'
 		)
 		# address
@@ -236,13 +482,14 @@ select pk_identity from dem.v_external_ids4identity where
 
 		if not card_type_seen:
 			_log.warning('no line with card type found, unable to verify')
+
 #============================================================
 class cDTO_KVK(gmPerson.cDTO_person):
 
 	kvkd_card_id_string = u'Krankenversichertenkarte'
 
 	def __init__(self, filename=None, strict=True):
-		self.dto_type = 'KVK'
+		self.card_type = u'KVK'
 		self.dob_format = '%d%m%Y'
 		self.valid_until_format = '%d%m%Y'
 		self.last_read_time_format = '%H:%M:%S'
@@ -268,8 +515,8 @@ select pk_identity from dem.v_external_ids4identity where
 """
 		args = {
 			'val': self.insuree_number,
-			'name': insurance_number_external_id_type,
-			'kk': issuer_template % (self.insurance_company, self.insurance_number)
+			'name': EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
+			'kk': EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number)
 		}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
@@ -288,9 +535,9 @@ select pk_identity from dem.v_external_ids4identity where
 	def import_extra_data(self, identity=None, *args, **kwargs):
 		# Versicherungsnummer
 		identity.add_external_id (
-			type_name = insurance_number_external_id_type,
+			type_name = EXTERNAL_ID_TYPE_VK_INSUREE_NUMBER,
 			value = self.insuree_number,
-			issuer = issuer_template % (self.insurance_company, self.insurance_number),
+			issuer = EXTERNAL_ID_ISSUER_TEMPLATE % (self.insurance_company, self.insurance_number),
 			comment = u'Nummer des Versicherten bei der Krankenkasse'
 		)
 		# address
@@ -411,13 +658,28 @@ def get_available_egks_as_dtos(spool_dir = None):
 
 	return dtos
 #------------------------------------------------------------
-def get_available_cards_as_dtos(spool_dir = None):
+def get_available_CCRdr_files_as_dtos(spool_dir = None):
 
+	ccrdr_files = glob.glob(os.path.join(spool_dir, 'CCReader-*.dat'))
 	dtos = []
-	dtos.extend(get_available_kvks_as_dtos(spool_dir = spool_dir))
-	dtos.extend(get_available_egks_as_dtos(spool_dir = spool_dir))
+	for ccrdr_file in ccrdr_files:
+		try:
+			dto = cDTO_CCRdr(filename = ccrdr_file)
+		except:
+			_log.exception('probably not a CCReader file: [%s]' % ccrdr_file)
+			continue
+		dtos.append(dto)
 
 	return dtos
+#------------------------------------------------------------
+def get_available_cards_as_dtos(spool_dir = None):
+	dtos = []
+	dtos.extend(get_available_CCRdr_files_as_dtos(spool_dir = spool_dir))
+#	dtos.extend(get_available_kvks_as_dtos(spool_dir = spool_dir))
+#	dtos.extend(get_available_egks_as_dtos(spool_dir = spool_dir))
+
+	return dtos
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -427,6 +689,11 @@ if __name__ == "__main__":
 
 	gmI18N.activate_locale()
 	gmDateTime.init()
+
+	def test_vks():
+		dtos = get_available_CCRdr_files_as_dtos(spool_dir = sys.argv[2])
+		for dto in dtos:
+			print dto
 
 	def test_egk_dto():
 		# test cKVKd_file object
@@ -455,7 +722,8 @@ if __name__ == "__main__":
 		if len(sys.argv) < 3:
 			print "give name of KVKd file as first argument"
 			sys.exit(-1)
-		test_egk_dto()
+		test_vks()
+		#test_egk_dto()
 		#test_kvk_dto()
 		#test_get_available_kvks_as_dto()
 
@@ -481,90 +749,81 @@ if __name__ == "__main__":
 #	Ort        |  x     | str  | 2-23
 #	gültig bis |        | int  | 4      | MMYY
 
-#============================================================
-# $Log: gmKVK.py,v $
-# Revision 1.22  2010-01-08 13:49:43  ncq
-# - adjust to add-external-id() changes
-#
-# Revision 1.21  2009/04/03 09:31:37  ncq
-# - improved docs
-#
-# Revision 1.20  2008/08/28 18:30:28  ncq
-# - region_code -> urb_region_code
-# - support eGK now that libchipcard can read it :-)
-# - improved testing
-#
-# Revision 1.19  2008/02/25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.18  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.17  2007/12/26 12:35:30  ncq
-# - import_extra_data(..., *args, **kwargs)
-#
-# Revision 1.16  2007/11/12 22:54:26  ncq
-# - fix longstanding semantic bug ! KVK-Nummmer really is VKNR
-# - delete KVKd file after importing it
-# - improve get_candidate_identities()
-# - improve import_extra_data()
-# - implement delete_from_source()
-# - cleanup, improve docs
-#
-# Revision 1.15  2007/11/02 10:55:37  ncq
-# - syntax error fix
-#
-# Revision 1.14  2007/10/31 22:06:17  ncq
-# - teach about more fields in file
-# - start find_me_sql property
-#
-# Revision 1.13  2007/10/31 11:27:02  ncq
-# - fix it again
-# - test suite
-#
-# Revision 1.12  2007/05/11 14:10:19  ncq
-# - latin1 -> utf8
-#
-# Revision 1.11  2007/02/17 13:55:26  ncq
-# - consolidate, remove bitrot
-#
-# Revision 1.10  2007/02/15 14:54:47  ncq
-# - fix test suite
-# - true_kvk_fields list
-# - map_kvkd_tags2dto
-# - cDTO_KVK()
-# - get_available_kvks_as_dtos()
-#
-# Revision 1.9  2006/01/01 20:37:22  ncq
-# - cleanup
-#
-# Revision 1.8  2005/11/01 08:49:49  ncq
-# - naming fix
-#
-# Revision 1.7  2005/03/06 14:48:23  ncq
-# - patient pick list now works with 'field name' not 'data idx'
-#
-# Revision 1.6  2004/03/04 19:46:53  ncq
-# - switch to package based import: from Gnumed.foo import bar
-#
-# Revision 1.5  2004/03/02 10:21:10  ihaywood
-# gmDemographics now supports comm channels, occupation,
-# country of birth and martial status
-#
-# Revision 1.4  2004/02/25 09:46:20  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.3  2003/11/17 10:56:34  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:38  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.2  2003/04/19 22:53:46  ncq
-# - missing parameter for %s
-#
-# Revision 1.1  2003/04/09 16:15:24  ncq
-# - KVK classes and helpers
-#
+#------------------------------------------------------------
+# 0xNNNN$Meldung                                         // Returncode des
+# Lesegerätes, Meldung      bei ok = 0x9000, ansonsten Fehler = Abbruch, für
+# einen Fehlercode gibt es noch vorgeschriebene Meldungen
+# -------------------------------------------------------------------------------------------------------
+# 9999$%Karte                                                 // 0 = KVK oder
+# 1 = eGK oder 2 = Privatkarte
+# -------------------------------------------------------------------------------------------------------
+# 3004$ generation                                         // Feld 3004 -
+# Generation der eGK-Karte
+# -------------------------------------------------------------------------------------------------------
+# 3006$CDM_VERSION                                   // Feld nur bei eGK
+# belegt
+# -------------------------------------------------------------------------------------------------------
+# 3105$Versicherten_ID                                  // alte
+# Versichertennummer, nur KVK
+# -------------------------------------------------------------------------------------------------------
+# 3119$Versicherten_ID                                  // neu
+# Versihertennnummer eGK
+# -------------------------------------------------------------------------------------------------------
+# 3103$Geburtsdatum                                    // Geburtsdatum (8)
+# JJJJMMTT
+# -------------------------------------------------------------------------------------------------------
+# 3102$Vorname                                              // Vorname (45)
+# -------------------------------------------------------------------------------------------------------
+# 3101$Nachname                                           // Familienname (45)
+# -------------------------------------------------------------------------------------------------------
+# 3110$Geschlecht                                          // M oder W oder U
+# -------------------------------------------------------------------------------------------------------
+# 3120$Vorsatzwort                                        // Vorsatzwort (20)
+# -------------------------------------------------------------------------------------------------------
+# 3100$Namenszusatz                                    // Namenszusatz (20)
+# -------------------------------------------------------------------------------------------------------
+# 3104$Titel                                                      // Titel
+# (20)
+# -------------------------------------------------------------------------------------------------------
+# 3121$PostfachAdresse_Postleitzahl           // Postleitzahl (10)
+# -------------------------------------------------------------------------------------------------------
+# 3122$PostfachAdresse_Ort                         // Ort (40)
+# -------------------------------------------------------------------------------------------------------
+# 3123$PostfachAdresse_Postfach                // Postfach (8)
+# -------------------------------------------------------------------------------------------------------
+# 3124$PostfachAdresse_Wohnsitzlaendercode        // Wohnsitzlaendercode (3)
+# -------------------------------------------------------------------------------------------------------
+# 3112$StrassenAdresse_Postleitzahl                         // Postleitzahl
+# (10)
+# -------------------------------------------------------------------------------------------------------
+# 3113$StrassenAdresse_Ort                                       // Ort (40)
+# -------------------------------------------------------------------------------------------------------
+# 3107$StrassenAdresse_Strasse                                // Strasse (40)
+# -------------------------------------------------------------------------------------------------------
+# 3109$StrassenAdresse_Hausnummer                     // Hausnummer (9)
+# -------------------------------------------------------------------------------------------------------
+# 3115$StrassenAdresse_Anschriftenzusatz              // Anschriftenzusatz
+# (40)
+# -------------------------------------------------------------------------------------------------------
+# 3114$StrassenAdresse_Wohnsitzlaendercode       // Wohnsitzlaendercode (3)
+# -------------------------------------------------------------------------------------------------------
+# 3108$Versichertenart // Status (1) 1 oder 3 oder 5
+# -------------------------------------------------------------------------------------------------------
+# 3116$WOP // WOP (2)
+# -------------------------------------------------------------------------------------------------------
+# 4133$Beginn // VersicherungsBeginn (8) JJJJMMTT
+# -------------------------------------------------------------------------------------------------------
+# 4110$Ende // VersicherungsEnde (8) JJJJMMTT
+# -------------------------------------------------------------------------------------------------------
+# 4111$AbrechnenderKostentraeger_Kostentraegerkennung      // Krankenkassennr
+# IK (9)
+# -------------------------------------------------------------------------------------------------------
+# 4134$AbrechnenderKostentraeger_Name    // KostentraegerName (45)
+# -------------------------------------------------------------------------------------------------------
+# 4109$Einlesedatum in mobiles Lesegeraet                         // (8)
+# JJJJMMTT
+# -------------------------------------------------------------------------------------------------------
+# 4108$Zulassungsnummer mobiles Lesegeraet                   //
+# Zulassungsnumnmer (40)
+# -------------------------------------------------------------------------------------------------------
+# ENDE$                        // ENDE der Übertragung

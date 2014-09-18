@@ -4,11 +4,8 @@
 This maps xDT fields in various ways.
 """
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXdtMappings.py,v $
-# $Id: gmXdtMappings.py,v 1.45 2009-01-15 11:32:15 ncq Exp $
-__version__ = "$Revision: 1.45 $"
 __author__ = "S.Hilbert, K.Hilbert"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 try:
 	_('dummy-no-need-to-translate-but-make-epydoc-happy')
@@ -139,12 +136,13 @@ xdt_id_map = {
 	'3106': 'PLZ/Wohnort des Patienten',
 	'3107': 'Strasse/Hausnummer des Patienten',
 	'3108': 'Versichertenart MFR',				# 1=M,3=F,5=R
-	'3110': 'Geschlecht des Patienten',			# 1=M,2=W
+	'3110': 'Geschlecht des Patienten',			# 1=M,2=W or M/W/U
 	'3111': 'Geburtsjahr des Patienten',
 	'3112': 'PLZ des Patienten',
 	'3113': 'Wohnort des Patienten',
 	'3114': 'Wohnsitzländercode',
 	'3116': 'KV-Bereich',
+	'3119': 'Versicherten-ID (eGK)',
 	'3150': 'Arbeitgeber',						# nur bei header 0191
 	'3152': 'Unfallversicherungsträger',		# nur bei header 0191
 
@@ -600,7 +598,8 @@ map_gender_xdt2gm = {
 	'f': 'f',
 	'W': 'f',
 	'w': 'f',
-	'5': 'f'
+	'5': 'f',
+	'U': None
 }
 
 map_gender_gm2xdt = {

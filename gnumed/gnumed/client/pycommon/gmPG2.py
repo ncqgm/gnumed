@@ -2044,14 +2044,15 @@ class cAdapterPyDateTime(object):
 #-----------------------------------------------------------------------
 
 # make sure psycopg2 knows how to handle unicode ...
-# intended to become standard
-# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
+
+# turn dict()s into JSON
+psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY[]..." so we can support PG arrays

@@ -7586,11 +7586,11 @@ msgstr "<country> darf nicht leer sein"
 
 #, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
-msgstr "%(title)s%(last)s, %(first)s%(nick)s (%(sex)s)"
+msgstr "%(title)s %(last)s, %(first)s%(nick)s (%(sex)s)"
 
 #, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
-msgstr "%(title)s%(last)s, %(first)s%(nick)s"
+msgstr "%(title)s %(last)s, %(first)s%(nick)s"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."

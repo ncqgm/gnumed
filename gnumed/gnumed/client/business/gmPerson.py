@@ -91,11 +91,19 @@ class cDTO_person(object):
 		self.external_ids = []
 		self.comm_channels = []
 		self.addresses = []
+
+		self.firstnames = None
+		self.lastnames = None
+		self.title = None
+		self.gender = None
+		self.dob = None
+		self.dob_is_estimated = False
+		self.source = self.__class__.__name__
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def keys(self):
-		return 'firstnames lastnames dob gender'.split()
+		return 'firstnames lastnames dob gender title'.split()
 	#--------------------------------------------------------
 	def delete_from_source(self):
 		pass
@@ -116,7 +124,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] == 1
 
@@ -138,7 +146,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] > 0
 
@@ -221,6 +229,12 @@ class cDTO_person(object):
 		if self.identity is None:
 			return None
 
+		if self.dob_is_estimated:
+			self.identity['dob_is_estimated'] = True
+		if self.title is not None:
+			self.identity['title'] = self.title
+		self.identity.save()
+
 		for ext_id in self.external_ids:
 			try:
 				self.identity.add_external_id (
@@ -231,7 +245,7 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <external ID> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		for comm in self.comm_channels:
 			try:
@@ -241,12 +255,14 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <comm channel> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		for adr in self.addresses:
 			try:
 				self.identity.link_address (
+					adr_type = adr['type'],
 					number = adr['number'],
+					subunit = adr['subunit'],
 					street = adr['street'],
 					postcode = adr['zip'],
 					urb = adr['urb'],
@@ -255,7 +271,7 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <address> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		return self.identity
 	#--------------------------------------------------------
@@ -283,7 +299,7 @@ class cDTO_person(object):
 			raise ValueError(_('<channel> cannot be empty'))
 		self.comm_channels.append({'channel': channel, 'url': url})
 	#--------------------------------------------------------
-	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None):
+	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None, adr_type=None, subunit=None):
 		number = number.strip()
 		if number == u'':
 			raise ValueError(_('<number> cannot be empty'))
@@ -303,7 +319,9 @@ class cDTO_person(object):
 		if region == u'':
 			region = u'??'
 		self.addresses.append ({
+			u'type': adr_type,
 			u'number': number,
+			u'subunit': subunit,
 			u'street': street,
 			u'zip': zip,
 			u'urb': urb,
@@ -350,6 +368,7 @@ class cDTO_person(object):
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
+
 #============================================================
 class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_names WHERE pk_name = %s"
@@ -1116,7 +1135,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			for r in rows
 		]
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None, adr_type=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param id_type The primary key of the address type.
@@ -1153,6 +1172,9 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		linked_adr = gmDemographicRecord.cPatientAddress(aPK_obj = rows[0]['id_address'])
 
 		# possibly change type
+		if id_type is None:
+			if adr_type is not None:
+				id_type = gmDemographicRecord.create_address_type(address_type = adr_type)
 		if id_type is not None:
 			linked_adr['pk_address_type'] = id_type
 			linked_adr.save()

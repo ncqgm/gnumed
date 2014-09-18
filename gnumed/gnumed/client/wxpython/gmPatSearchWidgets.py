@@ -12,7 +12,11 @@ generator.
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
 
-import sys, os.path, glob, re as regex, logging
+import sys
+import os.path
+import glob
+import re as regex
+import logging
 
 
 import wx
@@ -288,7 +292,10 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			if dto.dob is None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
 			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+				if dto.dob_is_estimated:
+					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+				else:
+					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -342,13 +349,13 @@ def load_persons_from_ca_msva():
 			# FIXME: potentially return several persons per file
 			msva_dtos = gmCA_MSVA.read_persons_from_msva_file(filename = msva_file)
 		except StandardError:
-			gmGuiHelpers.gm_show_error (
-				_(
-				'Cannot load patient from Medical Manager MSVA file\n\n'
-				' [%s]'
-				) % msva_file,
-				_('Activating MSVA patient')
-			)
+#			gmGuiHelpers.gm_show_error (
+#				_(
+#				'Cannot load patient from Medical Manager MSVA file\n\n'
+#				' [%s]'
+#				) % msva_file,
+#				_('Activating MSVA patient')
+#			)
 			_log.exception('cannot read patient from MSVA file [%s]' % msva_file)
 			continue
 
@@ -538,11 +545,14 @@ def load_persons_from_kvks():
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		default = u'/var/spool/kvkd/'
+		#default = u'/var/spool/kvkd/'
+		default = u'/home/ncq/gnumed/'
 	)))
 	dtos = []
-	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
-		dtos.append({'dto': dto, 'source': 'KVK'})
+#	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
+#		dtos.append({'dto': dto, 'source': 'KVK'})
+	for dto in gmKVK.get_available_CCRdr_files_as_dtos(spool_dir = kvk_dir):
+		dtos.append({'dto': dto, 'source': dto.source})
 
 	return dtos
 #============================================================
