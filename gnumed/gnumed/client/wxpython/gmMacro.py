@@ -211,8 +211,14 @@ __known_variant_placeholders = {
 
 
 	# billing related:
-	u'bill': u"args: template for string replacement",
-	u'bill_item': u"args: template for string replacement"
+	u'bill': u"""retrieve a bill
+		args: <template>//<date format>
+		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
+		date format:	strftime date format""",
+	u'bill_item': u"""retrieve the items of a previously retrieved (and therefore cached until the next retrieval) bill
+		args: <template>//<date format>
+		template:		something %(field)s something else (do not include '//' or '::' itself in the template)
+		date format:	strftime date format"""
 }
 
 known_variant_placeholders = __known_variant_placeholders.keys()
@@ -1492,7 +1498,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return u''
 			self.__cache['bill'] = bill
 
-		return data % bill.fields_as_dict(date_format = '%Y %B %d', escape_style = self.__esc_style)
+		parts = data.split('//')
+		template = parts[0]
+		if len(parts) > 1:
+			date_format = parts[1]
+		else:
+			date_format = '%Y %B %d'
+
+		return template % bill.fields_as_dict(date_format = date_format, escape_style = self.__esc_style)
 	#--------------------------------------------------------
 	def _get_variant_bill_item(self, data=None):
 		try:
@@ -1506,7 +1519,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return u''
 			self.__cache['bill'] = bill
 
-		return u'\n'.join([ data % i.fields_as_dict(date_format = '%Y %B %d', escape_style = self.__esc_style) for i in bill.bill_items ])
+		parts = data.split('//')
+		template = parts[0]
+		if len(parts) > 1:
+			date_format = parts[1]
+		else:
+			date_format = '%Y %B %d'
+
+		return u'\n'.join([ template % i.fields_as_dict(date_format = date_format, escape_style = self.__esc_style) for i in bill.bill_items ])
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------

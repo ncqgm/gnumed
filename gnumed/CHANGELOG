@@ -6,10 +6,13 @@
 # rel-1-4-patches
 ------------------------------------------------
 
-	1.4.11 (unreleased)
+	1.4.11
 
 FIX: failing Creatinine vs GFR age calculation
 FIX: failure to handle pre-1900's measurements
+
+IMPROVED: date format in bill/bill_item placeholder [thanks Marc]
+IMPROVED: auto-selection of bill receiver address [thanks Marc]
 
 	1.4.10
 
@@ -1461,6 +1464,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v19
 ------------------------------------------------
+
+	19.11
+
+IMPROVED: sorting of bill item PKs in bills view [thanks Marc]
 
 	19.10
 

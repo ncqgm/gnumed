@@ -465,12 +465,22 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 
 	default_address = property(_get_default_address, lambda x:x)
 	#--------------------------------------------------------
+	def _get_home_address(self):
+		return gmDemographicRecord.get_patient_address_by_type (
+			pk_patient = self._payload[self._idx['pk_patient']],
+			adr_type = u'home'
+		)
+
+	home_address = property(_get_home_address, lambda x:x)
+	#--------------------------------------------------------
 	def set_missing_address_from_default(self):
 		if self._payload[self._idx['pk_receiver_address']] is not None:
 			return True
 		adr = self.default_address
 		if adr is None:
-			return False
+			adr = self.home_address
+			if adr is None:
+				return False
 		self['pk_receiver_address'] = adr['pk_lnk_person_org_address']
 		return self.save_payload()
 #------------------------------------------------------------
