@@ -212,7 +212,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 		vk_file.close()
 
 		# rejection
-		if self.raw_data['AID'] == u'1':
+		if self.raw_data['Ablehnen'] == u'ja':
 			self.card_is_rejected = True
 			_log.info('eGK may contain insurance information but KBV says it must be rejected because it is of generation 0')
 
