@@ -560,7 +560,7 @@ def get_patient_address(pk_patient_address=None):
 	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
 #-------------------------------------------------------------------
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
-	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND address_type = %(typ)s'
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
 	args = {'pat': pk_patient, 'typ': adr_type}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
