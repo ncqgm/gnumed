@@ -17,22 +17,20 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.10 (database v19.10)',
-	'GNUmed 1.4.10 Release Notes:
+	'Release Notes for GNUmed 1.4.11 (database v19.11)',
+	'GNUmed 1.4.11 Release Notes:
 
-	1.4.10
+	1.4.11
 
-IMPROVED: labelling of sign vs review in measurements EA [thanks Jim]
-IMPROVED: coloring of abnormals [thanks Jim]
-IMPROVED: wxpython 3 compatibility
+FIX: failing Creatinine vs GFR age calculation
+FIX: failure to handle pre-1900''s measurements
 
-	19.10 -- Requires PostgreSQL 9.1 !
+IMPROVED: date format in bill/bill_item placeholder [thanks Marc]
+IMPROVED: auto-selection of bill receiver address [thanks Marc]
 
-FIX: overly eager INNER JOIN of dem.v_praxis_branch
-FIX: overly eager INNER JOINs of dem.v_orgs/dem.v_org_units [thanks Jim]
-FIX: do not reuse tx after failure of "ignore_checksum_failure" on PG < 9.3
+	19.11 -- Requires PostgreSQL 9.1 !
 
-IMPROVED: more robust pg_trgm installation
+IMPROVED: sorting of bill item PKs in bills view [thanks Marc]
 ');
 
 -- --------------------------------------------------------------
