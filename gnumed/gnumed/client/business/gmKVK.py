@@ -211,6 +211,10 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 		self.raw_data = json.load(vk_file)
 		vk_file.close()
 
+		if self.raw_data['Fehlerbericht']['FehlerNr'] != u'0x9000':
+			_log.error('error [%s] reading VK: %s', self.raw_data['Fehlerbericht']['FehlerNr'], self.raw_data['Fehlerbericht']['Fehlermeldung'])
+			raise ValueError('error [%s] reading VK: %s' % (self.raw_data['Fehlerbericht']['FehlerNr'], self.raw_data['Fehlerbericht']['Fehlermeldung']))
+
 		# rejection
 		if self.raw_data['Ablehnen'] == u'ja':
 			self.card_is_rejected = True
@@ -674,9 +678,9 @@ def get_available_CCRdr_files_as_dtos(spool_dir = None):
 #------------------------------------------------------------
 def get_available_cards_as_dtos(spool_dir = None):
 	dtos = []
-	dtos.extend(get_available_CCRdr_files_as_dtos(spool_dir = spool_dir))
-#	dtos.extend(get_available_kvks_as_dtos(spool_dir = spool_dir))
-#	dtos.extend(get_available_egks_as_dtos(spool_dir = spool_dir))
+#	dtos.extend(get_available_CCRdr_files_as_dtos(spool_dir = spool_dir))
+	dtos.extend(get_available_kvks_as_dtos(spool_dir = spool_dir))
+	dtos.extend(get_available_egks_as_dtos(spool_dir = spool_dir))
 
 	return dtos
 
@@ -748,82 +752,3 @@ if __name__ == "__main__":
 #	PLZ        |  x     | int  | 4-7
 #	Ort        |  x     | str  | 2-23
 #	gültig bis |        | int  | 4      | MMYY
-
-#------------------------------------------------------------
-# 0xNNNN$Meldung                                         // Returncode des
-# Lesegerätes, Meldung      bei ok = 0x9000, ansonsten Fehler = Abbruch, für
-# einen Fehlercode gibt es noch vorgeschriebene Meldungen
-# -------------------------------------------------------------------------------------------------------
-# 9999$%Karte                                                 // 0 = KVK oder
-# 1 = eGK oder 2 = Privatkarte
-# -------------------------------------------------------------------------------------------------------
-# 3004$ generation                                         // Feld 3004 -
-# Generation der eGK-Karte
-# -------------------------------------------------------------------------------------------------------
-# 3006$CDM_VERSION                                   // Feld nur bei eGK
-# belegt
-# -------------------------------------------------------------------------------------------------------
-# 3105$Versicherten_ID                                  // alte
-# Versichertennummer, nur KVK
-# -------------------------------------------------------------------------------------------------------
-# 3119$Versicherten_ID                                  // neu
-# Versihertennnummer eGK
-# -------------------------------------------------------------------------------------------------------
-# 3103$Geburtsdatum                                    // Geburtsdatum (8)
-# JJJJMMTT
-# -------------------------------------------------------------------------------------------------------
-# 3102$Vorname                                              // Vorname (45)
-# -------------------------------------------------------------------------------------------------------
-# 3101$Nachname                                           // Familienname (45)
-# -------------------------------------------------------------------------------------------------------
-# 3110$Geschlecht                                          // M oder W oder U
-# -------------------------------------------------------------------------------------------------------
-# 3120$Vorsatzwort                                        // Vorsatzwort (20)
-# -------------------------------------------------------------------------------------------------------
-# 3100$Namenszusatz                                    // Namenszusatz (20)
-# -------------------------------------------------------------------------------------------------------
-# 3104$Titel                                                      // Titel
-# (20)
-# -------------------------------------------------------------------------------------------------------
-# 3121$PostfachAdresse_Postleitzahl           // Postleitzahl (10)
-# -------------------------------------------------------------------------------------------------------
-# 3122$PostfachAdresse_Ort                         // Ort (40)
-# -------------------------------------------------------------------------------------------------------
-# 3123$PostfachAdresse_Postfach                // Postfach (8)
-# -------------------------------------------------------------------------------------------------------
-# 3124$PostfachAdresse_Wohnsitzlaendercode        // Wohnsitzlaendercode (3)
-# -------------------------------------------------------------------------------------------------------
-# 3112$StrassenAdresse_Postleitzahl                         // Postleitzahl
-# (10)
-# -------------------------------------------------------------------------------------------------------
-# 3113$StrassenAdresse_Ort                                       // Ort (40)
-# -------------------------------------------------------------------------------------------------------
-# 3107$StrassenAdresse_Strasse                                // Strasse (40)
-# -------------------------------------------------------------------------------------------------------
-# 3109$StrassenAdresse_Hausnummer                     // Hausnummer (9)
-# -------------------------------------------------------------------------------------------------------
-# 3115$StrassenAdresse_Anschriftenzusatz              // Anschriftenzusatz
-# (40)
-# -------------------------------------------------------------------------------------------------------
-# 3114$StrassenAdresse_Wohnsitzlaendercode       // Wohnsitzlaendercode (3)
-# -------------------------------------------------------------------------------------------------------
-# 3108$Versichertenart // Status (1) 1 oder 3 oder 5
-# -------------------------------------------------------------------------------------------------------
-# 3116$WOP // WOP (2)
-# -------------------------------------------------------------------------------------------------------
-# 4133$Beginn // VersicherungsBeginn (8) JJJJMMTT
-# -------------------------------------------------------------------------------------------------------
-# 4110$Ende // VersicherungsEnde (8) JJJJMMTT
-# -------------------------------------------------------------------------------------------------------
-# 4111$AbrechnenderKostentraeger_Kostentraegerkennung      // Krankenkassennr
-# IK (9)
-# -------------------------------------------------------------------------------------------------------
-# 4134$AbrechnenderKostentraeger_Name    // KostentraegerName (45)
-# -------------------------------------------------------------------------------------------------------
-# 4109$Einlesedatum in mobiles Lesegeraet                         // (8)
-# JJJJMMTT
-# -------------------------------------------------------------------------------------------------------
-# 4108$Zulassungsnummer mobiles Lesegeraet                   //
-# Zulassungsnumnmer (40)
-# -------------------------------------------------------------------------------------------------------
-# ENDE$                        // ENDE der Übertragung

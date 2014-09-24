@@ -4,11 +4,13 @@
 # author: Karsten Hilbert
 # license: GPL v2 or later
 #
+# to be installed in /usr/bin/
+#
 #==============================================================
 
 #set -x
 
-CONF="/etc/gnumed/gm-read_insurance_card.sh"
+CONF="/etc/gnumed/gm-read_insurance_card.conf"
 
 #==============================================================
 # There really should not be any need to
@@ -24,9 +26,17 @@ else
 fi
 
 
-VK_READER_OUTPUT_FORMAT="4"		# JSON only
-VK_READER_PROTOKOLL="n"			# j/n, keeps XML
-VK_READER_DEBUG="n"				# j/n
+#CCREADER_PATH_JSON="$1"
+#TS=`date +%Y-%m-%d-%H-%M-%S`
+TARGET_DIR="$1"
+TARGET_FILE="$2"
+
+# internal config
+CCREADER_OUTPUT_FORMAT="4"		# JSON only
+CCREADER_PROTOKOLL="n"			# j/n, keeps XML
+CCREADER_DEBUG="n"				# j/n
 
 
-CCReader ${VK_READER_PORT} ${VK_READER_CTN} ${VK_READER_OUTPUT_FORMAT} ${VK_READER_PROTOKOLL} ${VK_READER_DEBUG}
+mkdir -p ${CCREADER_PATH_JSON}
+CCReader ${CCREADER_PORT} ${CCREADER_CTN} ${CCREADER_OUTPUT_FORMAT} ${CCREADER_PROTOKOLL} ${CCREADER_DEBUG} ${TARGET_DIR} ${TARGET_FILE}
+exit $?

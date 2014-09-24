@@ -545,14 +545,14 @@ def load_persons_from_kvks():
 		option = 'DE.KVK.spool_dir',
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
-		#default = u'/var/spool/kvkd/'
-		default = u'/home/ncq/gnumed/'
+		default = u'/var/spool/kvkd/'
+		#default = u'/home/ncq/gnumed/'
 	)))
 	dtos = []
-#	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
-#		dtos.append({'dto': dto, 'source': 'KVK'})
-	for dto in gmKVK.get_available_CCRdr_files_as_dtos(spool_dir = kvk_dir):
-		dtos.append({'dto': dto, 'source': dto.source})
+	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
+		dtos.append({'dto': dto, 'source': 'KVK'})
+#	for dto in gmKVK.get_available_CCRdr_files_as_dtos(spool_dir = kvk_dir):
+#		dtos.append({'dto': dto, 'source': dto.source})
 
 	return dtos
 #============================================================
