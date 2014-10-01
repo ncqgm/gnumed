@@ -769,7 +769,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if pk_patient is not None:
 			#emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
 			from Gnumed.wxpython import gmChartPullingWidgets
-			emr = gmChartPullingWidgets.pull_chart(pk_patient)
+			emr = gmChartPullingWidgets.pull_chart(gmPerson.cIdentity(pk_patient))
 			if emr is None:
 				return False
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)

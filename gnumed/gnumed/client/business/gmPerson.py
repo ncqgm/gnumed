@@ -15,6 +15,7 @@ import time
 import re as regex
 import datetime as pyDT
 import codecs
+import thread
 import threading
 import logging
 
@@ -499,27 +500,17 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_patient(self):
 		return identity_is_patient(self._payload[self._idx['pk_identity']])
 
-	def _set_is_patient(self, value):
-		return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
-
-#	def _get_is_patient(self):
-#		cmd = u"""
-#			SELECT EXISTS (
-#				SELECT 1
-#				FROM clin.v_emr_journal
-#				WHERE
-#					pk_patient = %(pat)s
-#						AND
-#					soap_cat IS NOT NULL
-#		)"""
-#		args = {'pat': self._payload[self._idx['pk_identity']]}
-#		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-#		return rows[0][0]
-#
-#	def _set_is_patient(self, value):
-#		raise AttributeError('setting is_patient status of identity is not allowed')
+	def _set_is_patient(self, turn_into_patient):
+		if turn_into_patient:
+			return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
+		return False
 
 	is_patient = property(_get_is_patient, _set_is_patient)
+	#--------------------------------------------------------
+	def _get_as_patient(self):
+		return cPatient(self._payload[self._idx['pk_identity']])
+
+	as_patient = property(_get_as_patient, lambda x:x)
 	#--------------------------------------------------------
 	def _get_staff_id(self):
 		cmd = u"SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
@@ -1435,6 +1426,7 @@ def turn_identity_into_patient(pk_identity):
 	args = {u'pk_ident': pk_identity}
 	queries = [{'cmd': cmd, 'args': args}]
 	gmPG2.run_rw_queries(queries = queries)
+	return True
 
 #============================================================
 # helper functions
@@ -1462,6 +1454,15 @@ def set_chart_puller(chart_puller):
 	_pull_chart = chart_puller
 	_log.debug('setting chart puller to <%s>', chart_puller)
 
+_yield = lambda x:x
+
+def set_yielder(yielder):
+	if not callable(yielder):
+		raise TypeError('yielder <%s> is not callable' % yielder)
+	global _yield
+	_yield = yielder
+	_log.debug('setting yielder to <%s>', yielder)
+
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -1485,17 +1486,6 @@ class cPatient(cIdentity):
 		if self.__doc_folder is not None:
 			self.__doc_folder.cleanup()
 		cIdentity.cleanup(self)
-	#----------------------------------------------------------
-	def remove_empty_encounters(self, ttl=None):
-		_log.debug('removing empty encounters for pk_identity [%s]', self._payload[self._idx['pk_identity']])
-		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
-		args = {'pat': self._payload[self._idx['pk_identity']], 'ttl': ttl}
-		try:
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		except:
-			_log.exception('error deleting empty encounters (ttl: %s', ttl)
-			return False
-		return True
 	#----------------------------------------------------------------
 	def ensure_has_allergy_state(self, pk_encounter=None):
 		from Gnumed.business.gmAllergy import ensure_has_allergy_state
@@ -1521,20 +1511,36 @@ class cPatient(cIdentity):
 #		return self.__emr
 
 	def get_emr(self, allow_user_interaction=True):
+		_log.debug('accessing EMR (thread %s)', thread.get_ident())
 		if not self.__emr_access_lock.acquire(False):
-			# maybe something slow is happening on the machine
-			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
-			time.sleep(0.5)
-			if not self.__emr_access_lock.acquire(False):
-				_log.error('still failed to acquire EMR access lock, aborting')
+			got_lock = False
+			for idx in range(100):
+				_yield()
+				time.sleep(0.1)
+				_yield()
+				if self.__emr_access_lock.acquire(False):
+					got_lock = True
+					break
+			if not got_lock:
+				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
 				raise AttributeError('cannot lock access to EMR')
 
+#			# maybe something slow is happening on the machine
+#			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
+#			time.sleep(0.5)
+#			if not self.__emr_access_lock.acquire(False):
+#				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
+#				raise AttributeError('cannot lock access to EMR')
+
 		if self.__emr is None:
-			emr = _pull_chart(self._payload[self._idx['pk_identity']])
+			_log.debug('pulling chart (thread %s)', thread.get_ident())
+			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
+			emr = _pull_chart(self)
 			if emr is None:		# user aborted pulling chart
 				return None
 			self.__emr = emr
 
+		_log.debug('returning EMR (thread %s)', thread.get_ident())
 		self.__emr_access_lock.release()
 		return self.__emr
 
@@ -1643,10 +1649,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# user wants different patient
 		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
-		# everything seems swell
 		if not self.__run_callbacks_before_switching_away_from_patient():
 			_log.debug('not changing current patient')
 			return None
+
+		# everything seems swell
 		self.__send_pre_unselection_notification()
 		self.patient.cleanup()
 		self.patient = gmNull.cNull()
@@ -1654,6 +1661,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# give it some time
 		time.sleep(0.5)
 		self.patient = patient
+		# for good measure ...
+		# however, actually we want to get rid of that
 		self.patient.get_emr()
 		self.__send_selection_notification()
 
@@ -1863,14 +1872,13 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	If patient is -1 the active patient will be UNset.
 	"""
+	if isinstance(patient, gmCurrentPatient):
+		return True
+
 	if isinstance(patient, cPatient):
 		pat = patient
 	elif isinstance(patient, cIdentity):
-		pat = cPatient(aPK_obj = patient['pk_identity'])
-#	elif isinstance(patient, cStaff):
-#		pat = cPatient(aPK_obj=patient['pk_identity'])
-	elif isinstance(patient, gmCurrentPatient):
-		pat = patient.patient
+		pat = pat.as_patient
 	elif patient == -1:
 		pat = patient
 	else:

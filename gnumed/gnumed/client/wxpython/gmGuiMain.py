@@ -3589,6 +3589,7 @@ def setup_safe_wxEndBusyCursor():
 def setup_chart_puller():
 	from Gnumed.wxpython import gmChartPullingWidgets
 	gmPerson.set_chart_puller(gmChartPullingWidgets.pull_chart)
+	gmPerson.set_yielder(wx.Yield)
 
 #==============================================================================
 def main():
