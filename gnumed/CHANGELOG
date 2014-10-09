@@ -24,6 +24,7 @@ NEW: algorithm for choosing an NSAR
 NEW: bill related reports
 NEW: $<external_care>$ placeholder
 NEW: read German eGK/KVK/PKVK on Windows
+NEW: per-patient suppression of dynamic hints
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering

@@ -665,6 +665,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('&Pregnancy'), _('Calculate EDC.'))
 		self.Bind(wx.EVT_MENU, self.__on_calc_edc, item)
 
+		item = menu_emr_edit.Append(-1, _('Suppressed hints'), _('Manage dynamic hints suppressed in this patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_suppressed_hints, item)
+
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
 		# - EMR /
@@ -2661,6 +2664,14 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_calc_edc(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		gmPregWidgets.calculate_edc(parent = self, patient = pat)
+	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage suppressed hints'))
+	def __on_manage_suppressed_hints(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage suppressed hints. No active patient.'))
+			return False
+		gmAutoHintWidgets.manage_suppressed_hints(parent = self, pk_identity = pat.ID)
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()

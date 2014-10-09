@@ -365,12 +365,12 @@ class cProviderInbox:
 #============================================================
 # dynamic hints API
 #------------------------------------------------------------
-_SQL_get_dynamic_hints = u"SELECT *, xmin AS xmin_auto_hint FROM ref.auto_hint WHERE %s"
+_SQL_get_dynamic_hints = u"SELECT * FROM ref.v_auto_hints WHERE %s"
 
 class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents dynamic hints to be run against the database."""
 
-	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk = %s"
+	_cmd_fetch_payload = _SQL_get_dynamic_hints % u"pk_auto_hint = %s"
 	_cmds_store_payload = [
 		u"""UPDATE ref.auto_hint SET
 				query = gm.nullify_empty_string(%(query)s),
@@ -380,7 +380,7 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 				source = gm.nullify_empty_string(%(source)s),
 				is_active = %(is_active)s
 			WHERE
-				pk = %(pk)s
+				pk = %(pk_auto_hint)s
 					AND
 				xmin = %(xmin_auto_hint)s
 			RETURNING
@@ -399,7 +399,7 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	def format(self):
 		txt = u'%s               [#%s]\n' % (
 			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Active clinical hint'), _('Inactive clinical hint')),
-			self._payload[self._idx['pk']]
+			self._payload[self._idx['pk_auto_hint']]
 		)
 		txt += u'\n'
 		txt += u'%s\n\n' % self._payload[self._idx['title']]
@@ -427,7 +427,7 @@ def get_dynamic_hints(order_by=None):
 
 	cmd = _SQL_get_dynamic_hints % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
 def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source=None):
@@ -452,11 +452,10 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 			gm.nullify_empty_string(%(source)s),
 			i18n.get_curr_lang(%(usr)s)
 		)
-		RETURNING *, xmin AS xmin_auto_hint
+		RETURNING pk
 	"""
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
-
-	return cDynamicHint(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk'})
+	return cDynamicHint(aPK_obj = rows[0]['pk'])
 
 #------------------------------------------------------------
 def delete_dynamic_hint(link_obj=None, pk_hint=None):
@@ -474,7 +473,98 @@ def get_hints_for_patient(pk_identity=None):
 	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
-	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
+
+#------------------------------------------------------------
+def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None):
+	args = {
+		'pat': pk_identity,
+		'hint': pk_hint,
+		'rationale': rationale
+	}
+	cmd = u"""
+		DELETE FROM clin.suppressed_hint
+		WHERE
+			fk_identity = %(pat)s
+				AND
+			fk_hint = %(hint)s
+	"""
+	queries = [{'cmd': cmd, 'args': args}]
+	cmd = u"""
+		INSERT INTO clin.suppressed_hint (
+			fk_identity,
+			fk_hint,
+			rationale,
+			md5_sum
+		) VALUES (
+			%(pat)s,
+			%(hint)s,
+			%(rationale)s,
+			(SELECT r_vah.md5_sum FROM ref.v_auto_hints r_vah WHERE r_vah.pk_auto_hint = %(hint)s)
+		)
+	"""
+	queries.append({'cmd': cmd, 'args': args})
+	gmPG2.run_rw_queries(queries = queries)
+	return True
+
+#------------------------------------------------------------
+# suppressed dynamic hints
+#------------------------------------------------------------
+_SQL_get_suppressed_hints = u"SELECT * FROM clin.v_suppressed_hints WHERE %s"
+
+class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
+	"""Represents suppressed dynamic hints per patient."""
+
+	_cmd_fetch_payload = _SQL_get_suppressed_hints % u"pk_suppressed_hint = %s"
+	_cmds_store_payload = []
+	_updatable_fields = []
+	#--------------------------------------------------------
+	def format(self):
+		txt = u'%s               [#%s]\n' % (
+			gmTools.bool2subst(self._payload[self._idx['is_active']], _('Suppressed active dynamic hint'), _('Suppressed inactive dynamic hint')),
+			self._payload[self._idx['pk_suppressed_hint']]
+		)
+		txt += u'\n'
+		txt += u'%s\n\n' % self._payload[self._idx['title']]
+		txt += _('Suppressed by: %s\n') % self._payload[self._idx['suppressed_by']]
+		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload[self._idx['suppressed_when']], '%Y %b %d')
+		txt += _('Hint #: %s\n') % self._payload[self._idx['pk_hint']]
+		txt += _('MD5 (currently): %s\n') % self._payload[self._idx['md5_hint']]
+		txt += _('MD5 (at suppression): %s\n') % self._payload[self._idx['md5_suppressed']]
+		txt += _('Source: %s\n') % self._payload[self._idx['source']]
+		txt += _('Language: %s\n') % self._payload[self._idx['lang']]
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['hint']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap (
+			gmTools.coalesce(self._payload[self._idx['url']], u''),
+			width = 50,
+			initial_indent = u' ',
+			subsequent_indent = u' '
+		)
+		txt += u'\n'
+		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		return txt
+
+#------------------------------------------------------------
+def get_suppressed_hints(pk_identity=None, order_by=None):
+	args = {'pat': pk_identity}
+	if pk_identity is None:
+		where = u'true'
+	else:
+		where = u'pk_identity = %(pat)s'
+	if order_by is not None:
+		order_by = u' ORDER BY %s' % order_by
+	cmd = (_SQL_get_suppressed_hints % where) + order_by
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	return [ cSuppressedHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_suppressed_hint'}) for r in rows ]
+
+#------------------------------------------------------------
+def delete_suppressed_hint(pk_suppressed_hint=None):
+	args = {'pk': pk_suppressed_hint}
+	cmd = u"DELETE FROM clin.suppressed_hint WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
 
 #============================================================
 if __name__ == '__main__':
@@ -509,7 +599,9 @@ if __name__ == '__main__':
 			print msg.format()
 	#---------------------------------------
 	def test_auto_hints():
-		for row in get_dynamic_hints(pk_identity = 13):
+#		for row in get_dynamic_hints():
+#			print row
+		for row in get_hints_for_patient(pk_identity = 12):
 			print row
 	#---------------------------------------
 	#test_inbox()
