@@ -656,16 +656,7 @@ def delete_bill(parent=None, bill=None):
 	if button_pressed == wx.ID_CANCEL:
 		return False
 
-	if button_pressed == wx.ID_YES:
-		for item in bill.bill_items:
-			item['pk_bill'] = None
-			item.save()
-
-	if button_pressed == wx.ID_NO:
-		for item in bill.bill_items:
-			item['pk_bill'] = None
-			item.save()
-			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
+	delete_items = (button_pressed == wx.ID_NO)
 
 	if delete_invoice:
 		if bill['pk_doc'] is not None:
@@ -674,7 +665,13 @@ def delete_bill(parent=None, bill=None):
 				encounter_id = gmPerson.cPatient(aPK_obj = bill['pk_patient']).emr.active_encounter['pk_encounter']
 			)
 
-	return gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+	items = bill['pk_bill_items']
+	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+	if delete_items:
+		for item in items:
+			gmBilling.delete_bill_item(pk_bill_item = item)
+
+	return success
 
 #----------------------------------------------------------------
 def remove_items_from_bill(parent=None, bill=None):
