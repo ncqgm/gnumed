@@ -322,10 +322,10 @@ def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cBillItem(aPK_obj = rows[0][0])
 #------------------------------------------------------------
-def delete_bill_item(pk_bill_item=None):
+def delete_bill_item(link_obj=None, pk_bill_item=None):
 	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
 	args = {'pk': pk_bill_item}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 #============================================================
 # bills
@@ -513,10 +513,10 @@ def create_bill(conn=None, invoice_id=None):
 
 	return cBill(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def delete_bill(pk_bill=None):
+def delete_bill(link_obj=None, pk_bill=None):
 	args = {'pk': pk_bill}
 	cmd = u"DELETE FROM bill.bill WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return True
 #------------------------------------------------------------
 def get_bill_receiver(pk_patient=None):
