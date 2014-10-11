@@ -267,8 +267,8 @@ cd -
 echo "downloading SQL schema documentation"
 mkdir -p ./gnumed-client.$CLIENTREV/client/doc/schema/
 cd ./gnumed-client.$CLIENTREV/client/doc/schema/
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-schema.html
-wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-schema-no_audit.dot
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-entire_schema.html
+wget -v -r -k -np -nd http://publicdb.gnumed.de/~ncq/gnumed/schema/gnumed_v19/gnumed-entire_schema-no_audit.dot
 cd -
 
 

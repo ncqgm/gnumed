@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.12
+
+FIX: failing deletion of bills [thanks Marc]
+
 	1.4.11
 
 FIX: failing Creatinine vs GFR age calculation
