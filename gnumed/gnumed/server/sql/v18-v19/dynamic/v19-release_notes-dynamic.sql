@@ -17,20 +17,14 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.11 (database v19.11)',
-	'GNUmed 1.4.11 Release Notes:
+	'Release Notes for GNUmed 1.4.12 (database v19.12)',
+	'GNUmed 1.4.12 Release Notes:
 
-	1.4.11
+	1.4.12
 
-FIX: failing Creatinine vs GFR age calculation
-FIX: failure to handle pre-1900''s measurements
+FIX: failing deletion of bills [thanks Marc]
 
-IMPROVED: date format in bill/bill_item placeholder [thanks Marc]
-IMPROVED: auto-selection of bill receiver address [thanks Marc]
-
-	19.11 -- Requires PostgreSQL 9.1 !
-
-IMPROVED: sorting of bill item PKs in bills view [thanks Marc]
+	19.12 -- Requires PostgreSQL 9.1 !
 ');
 
 -- --------------------------------------------------------------
