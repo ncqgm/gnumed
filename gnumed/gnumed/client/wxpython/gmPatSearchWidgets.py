@@ -550,6 +550,7 @@ def load_persons_from_pracsoft_au():
 			dtos.append({'dto': dto, 'source': pracsoft_file['source']})
 
 	return dtos
+
 #============================================================
 def load_persons_from_kvks():
 
@@ -568,6 +569,53 @@ def load_persons_from_kvks():
 #		dtos.append({'dto': dto, 'source': dto.source})
 
 	return dtos
+
+#============================================================
+def load_person_from_xml_linuxmednews_via_clipboard():
+
+	fname = gmGuiHelpers.clipboard2file()
+	if fname in [None, False]:
+		gmGuiHelpers.gm_show_info (
+			info = _('No patient in clipboard.'),
+			title = _('Activating external patient')
+		)
+		return
+
+	from Gnumed.business import gmLinuxMedNewsXML
+	dto = gmLinuxMedNewsXML.parse_xml_linuxmednews(filename = fname)
+	idents = dto.get_candidate_identities(can_create = True)
+	if len(idents) == 1:
+		ident = idents[0]
+		if not set_active_patient(patient = ident):
+			gmGuiHelpers.gm_show_info (_(
+				'Cannot activate patient:\n\n'
+				'%s %s (%s)\n'
+				'%s'
+				) % (
+					dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+				),
+				_('Activating external patient')
+			)
+		return
+
+	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg.set_persons(persons = idents)
+	result = dlg.ShowModal()
+	ident = dlg.get_selected_person()
+	dlg.Destroy()
+	if result == wx.ID_CANCEL:
+		return None
+	if not set_active_patient(patient = ident):
+		gmGuiHelpers.gm_show_info (_(
+			'Cannot activate patient:\n\n'
+			'%s %s (%s)\n'
+			'%s'
+			) % (
+				dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+			),
+			_('Activating external patient')
+		)
+
 #============================================================
 def get_person_from_external_sources(parent=None, search_immediately=False, activate_immediately=False):
 	"""Load patient from external source.
@@ -648,10 +696,10 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		dlg = cSelectPersonFromListDlg(parent=parent, id=-1)
 		dlg.set_persons(persons=idents)
 		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			return None
 		ident = dlg.get_selected_person()
 		dlg.Destroy()
+		if result == wx.ID_CANCEL:
+			return None
 
 	if activate_immediately:
 		if not set_active_patient(patient = ident):

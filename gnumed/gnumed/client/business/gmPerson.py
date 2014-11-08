@@ -18,6 +18,7 @@ import codecs
 import thread
 import threading
 import logging
+from xml.etree import ElementTree as etree
 
 
 # GNUmed
@@ -1013,6 +1014,102 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				file.write(template % (u'%03d' % (9 + len(external_id_type)), u'6333', external_id_type))
 
 		file.close()
+	#--------------------------------------------------------
+	def export_as_xml_linuxmednews(self, filename=None):
+
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = u'gm-LinuxMedNews_demographics-',
+				suffix = u'.xml'
+			)
+
+		dob_format = '%Y-%m-%d'
+		pat = etree.Element(u'patient')
+
+		first = etree.SubElement(pat, u'firstname')
+		first.text = gmTools.coalesce(self._payload[self._idx['firstnames']], u'')
+
+		last = etree.SubElement(pat, u'lastname')
+		last.text = gmTools.coalesce(self._payload[self._idx['lastnames']], u'')
+
+		middle = etree.SubElement(pat, u'middlename')
+		middle.set(u'comment', _('preferred name/call name/...'))
+		middle.text = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+
+		pref = etree.SubElement(pat, u'name_prefix')
+		pref.text = gmTools.coalesce(self._payload[self._idx['title']], u'')
+
+		suff = etree.SubElement(pat, u'name_suffix')
+		suff.text = u''
+
+		dob = etree.SubElement(pat, u'DOB')
+		dob.set(u'format', dob_format)
+		dob.text = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, encoding = 'utf8', accuracy = gmDateTime.acc_days, none_str = u'')
+
+		gender = etree.SubElement(pat, u'gender')
+		gender.set(u'comment', self.gender_string)
+		if self._payload[self._idx['gender']] is None:
+			gender.text = u''
+		else:
+			gender.text = map_gender2mf[self._payload[self._idx['gender']]]
+
+		home = etree.SubElement(pat, u'home_address')
+		adr = self.get_addresses(address_type = u'home')
+		if len(adr) > 0:
+			tag = etree.SubElement(home, u'address1')
+			tag = etree.SubElement(home, u'address2')
+			tag = etree.SubElement(home, u'address3')
+
+			city = etree.SubElement(home, u'city')
+			city.set(u'comment', adr['suburb'])
+			city.text = gmTools.coalesce(adr['urb'], u'')
+
+			state = etree.SubElement(home, u'state')
+			state.set(u'comment', adr['l10n_state'])
+			state.text = gmTools.coalesce(adr['code_state'], u'')
+
+			zip = etree.SubElement(home, u'postal_code')
+			zip.text = gmTools.coalesce(adr['postcode'], u'')
+
+			street = etree.SubElement(home, u'street')
+			street.set(u'comment', adr['notes_street'])
+			street.text = gmTools.coalesce(adr['street'], u'')
+
+			no = etree.SubElement(home, u'number')
+			no.set(u'subunit', adr['subunit'])
+			no.set(u'comment', adr['notes_subunit'])
+			no.text = gmTools.coalesce(adr['number'], u'')
+
+			country = etree.SubElement(home, u'country')
+			country.set(u'comment', adr['l10n_country'])
+			country.text = gmTools.coalesce(adr['code_country'], u'')
+
+		phone = etree.SubElement(pat, u'home_phone')
+		rec = self.get_comm_channels(comm_medium = u'homephone')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		phone = etree.SubElement(pat, u'work_phone')
+		rec = self.get_comm_channels(comm_medium = u'workphone')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		phone = etree.SubElement(pat, u'cell_phone')
+		rec = self.get_comm_channels(comm_medium = u'mobile')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		tree = etree.ElementTree(pat)
+		tree.write(filename, encoding = u'UTF-8')
+
+		return filename
+
 	#--------------------------------------------------------
 	# occupations API
 	#--------------------------------------------------------
@@ -2021,6 +2118,7 @@ def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 def get_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 	from Gnumed.business import gmPracSoftAU
 	return gmPracSoftAU.read_persons_from_pracsoft_file(filename=filename, encoding=encoding)
+
 #============================================================
 # main/testing
 #============================================================

@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-07-18 22:05+0200\n"
-"PO-Revision-Date: 2014-07-18 22:02+0100\n"
+"POT-Creation-Date: 2014-11-08 19:40+0100\n"
+"PO-Revision-Date: 2014-11-08 19:38+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 1.6.10\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -2677,6 +2677,12 @@ msgstr "Speichern:"
 msgid "Editor:"
 msgstr "Editor:"
 
+msgid "ATC Code"
+msgstr "ATC-Code"
+
+msgid "http://www.whocc.no/atc_ddd_index/"
+msgstr ""
+
 msgid ""
 "Enter the name of the consumable substance.\n"
 "\n"
@@ -2701,14 +2707,14 @@ msgstr ""
 msgid "Enter the amount of substance."
 msgstr "Geben Sie die Wirkstoffmenge ein."
 
+msgid "Browse ATC list."
+msgstr "Durchblättern der ATC-Liste."
+
 msgid "Substance"
 msgstr "Stoff"
 
 msgid "Amount"
 msgstr "Menge"
-
-msgid "ATC code"
-msgstr "ATC-Code"
 
 msgid "Fake brand"
 msgstr "Pseudoprodukt"
@@ -3407,6 +3413,9 @@ msgstr "Codes"
 msgid "Programmer must override this text."
 msgstr "Programmierer muß diesen Text überschreiben"
 
+msgid "&Relevant"
+msgstr "&Relevant"
+
 msgid "A&ll"
 msgstr "A&lle"
 
@@ -3430,6 +3439,11 @@ msgstr "Eigene"
 
 msgid "&Add"
 msgstr "&Hinzufügen"
+
+msgid ""
+"Show relevant messages only (excludes expired and not-yet-due messages)."
+msgstr ""
+"Zeige nur relevante Nachrichten (ohne verfallene und noch nicht fällige)."
 
 msgid "Show all (but expired) messages."
 msgstr "Alle (bis auf verfallene) Nachrichten zeigen."
@@ -4113,9 +4127,6 @@ msgstr "&Signieren"
 
 msgid "&Abnormal"
 msgstr "&Außerhalb Normbereich"
-
-msgid "&Relevant"
-msgstr "&Relevant"
 
 msgid ""
 "Select, or enter for creation, the type of test or measurement this result "
@@ -5940,6 +5951,9 @@ msgstr "Person aus der Liste wählen"
 msgid "Displays the list of persons to select from."
 msgstr "Zeigt die Liste der Personen zur Auswahl."
 
+msgid "Create a new patient."
+msgstr "Neuen Patienten anlegen."
+
 msgid "Select the person highlighted in the list above."
 msgstr "Den in der Liste markierten Patienten auswählen."
 
@@ -6588,6 +6602,51 @@ msgstr "Eingewiesen"
 msgid "Discharged"
 msgstr "Entlassen"
 
+msgid "<hint title>"
+msgstr ""
+
+msgid "<hint source>"
+msgstr ""
+
+msgid "Further information"
+msgstr "Weitere Informationen"
+
+msgid "http://www.duckduckgo.com"
+msgstr ""
+
+msgid ""
+"Previous\n"
+"rationale"
+msgstr ""
+"Vorherige\n"
+"Begründung"
+
+msgid "&Suppress"
+msgstr "Unter&drücken\t"
+
+msgid "Dynamic hint"
+msgstr "Dynamische Hinweise"
+
+msgid "Enter a rationale for suppressing this hint."
+msgstr "Geben Sie eine Begründung für die Unterdrückung des Hinweises ein."
+
+msgid "Dismiss this hint for now."
+msgstr "Diesen Hinweis vorerst unterdrücken."
+
+msgid "Suppress this hint in this patient (needs a rationale)."
+msgstr ""
+"Diesen Hinweis bei diesem Patienten unterdrücken (erfordert eine Begründung)."
+
+msgid "Manage dynamic hints."
+msgstr "Dynamische Hinweise verwalten."
+
+msgid ""
+"Rationale for\n"
+"suppression"
+msgstr ""
+"Begründung des\n"
+"Unterdrückens"
+
 msgid "Save &under"
 msgstr "Speichern unter"
 
@@ -6757,6 +6816,9 @@ msgstr "Termin: %s"
 msgid "unknown MDRD (4 vars/IDMS)"
 msgstr "unbekannter MDRD (4 Var/IDMS)"
 
+msgid "best @ 30 < GFR < 60 ml/min"
+msgstr "am besten bei 30 < GFR < 60ml/min"
+
 msgid "MDRD (4 vars/IDMS): no patient"
 msgstr "MDRD (4 Vars/IDMS): kein Patient"
 
@@ -6795,8 +6857,91 @@ msgstr "NICHT adaptiert auf echte KOF (Durchschnitt j= 1.73m²)"
 msgid "eGFR(MDRD): %.1f %s (%s) [4-vars, IDMS]"
 msgstr "eGFR(MDRD): %.1f %s (%s) [4 Vars, IDMS]"
 
+msgid "unknown CKD-EPI"
+msgstr "unbekannte CKD-EPI"
+
+msgid "best @ GFR > 60 ml/min"
+msgstr "am besten bei GFR > 60ml/min"
+
+msgid "CKD-EPI: no patient"
+msgstr "CKD-EPI: kein Patient"
+
+msgid "CKD-EPI: no DOB (no age)"
+msgstr "CKD-EPI: kein GebDatum (kein Alter)"
+
+msgid "CKD-EPI: neither male nor female"
+msgstr "CKD-EPI: weder männlich noch weiblich"
+
+#, python-format
+msgid "CKD-EPI: serum creatinine value not found (LOINC: %s)"
+msgstr "CKD-EPI: Serum-Kreatinin nicht gefunden (LOINC: %s)"
+
+msgid "CKD-EPI: creatinine value not numeric"
+msgstr "CKD-EPI: Kreatininangabe keine Zahl"
+
+#, python-format
+msgid "CKD-EPI: unknown serum creatinine unit (%s)"
+msgstr "CKD-EPI: unbekannte Einheit für Kreatinin (%s)"
+
+msgid ""
+"ethnicity: GNUmed does not know patient ethnicity, ignoring correction "
+"factor of 1.519 for \"black\""
+msgstr ""
+"Ethnizität: GNUmed kennt die Ethnizität des Patienten nicht, ignoriere "
+"Korrekturfaktor von 1.519 für \"Afrikanisch\""
+
+#, python-format
+msgid "eGFR(CKD-EPI): %.1f %s (%s)"
+msgstr "eGFR(CKD-EPI): %.1f %s (%s)"
+
+msgid "unknown Cockcroft-Gault"
+msgstr "unbekannte Cockcroft-Gault"
+
+msgid "best @ age >65"
+msgstr "am besten bei Alter >65"
+
+msgid "Cockcroft-Gault: no patient"
+msgstr "Cockcroft-Gault: kein Patient"
+
+msgid "Cockcroft-Gault: no DOB (no age)"
+msgstr "Cockcroft-Gault: kein Geburtstag (kein Alter)"
+
+msgid "Cockcroft-Gault: neither male nor female"
+msgstr "Cockcroft-Gault: weder männlich noch weiblich"
+
+#, python-format
+msgid "Cockcroft-Gault: serum creatinine value not found (LOINC: %s)"
+msgstr "Cockcroft-Gault: Serum-Kreatinin nicht gefunden (LOINC: %s)"
+
+msgid "Cockcroft-Gault: creatinine value not numeric"
+msgstr "Cockcroft-Gault: Kreatininwert keine Zahl"
+
+#, python-format
+msgid "Cockcroft-Gault: unknown serum creatinine unit (%s)"
+msgstr "Cockcroft-Gault: Einheit des Kreatinins unbekannt (%s)"
+
+#, python-format
+msgid "Cockcroft-Gault: formula does not apply at age [%s] (17 < age)"
+msgstr "Cockcroft-Gault: Formel nicht zutreffend für Alter [%s] (17 < Alter)"
+
+msgid "Cockcroft-Gault: weight not found"
+msgstr "Cockcroft-Gault: Gewicht nicht gefunden"
+
+msgid "Cockcroft-Gault: weight not numeric"
+msgstr "Cockcroft-Gault: Gewicht nicht in Zahlen"
+
+msgid "Cockcroft-Gault: weight not in kg or g"
+msgstr "Cockcroft-Gault: Gewicht nicht in kg oder g"
+
+#, python-format
+msgid "eGFR(CG): %.1f %s (%s)"
+msgstr "eGFR(CG): %.1f %s (%s)"
+
 msgid "unknown eGFR (Schwartz)"
 msgstr "unbekannte eGFR (Schwartz)"
+
+msgid "only applies @ age <18"
+msgstr "nur zutreffend bei Alter <18"
 
 msgid "eGFR (Schwartz): no patient"
 msgstr "eGFR (Schwartz): kein Patient"
@@ -6866,6 +7011,39 @@ msgstr "KOF: Gewicht nicht in kg oder g"
 #, python-format
 msgid "BSA (DuBois): %.2f %s"
 msgstr "KOF (DuBois): %.2f %s"
+
+msgid "unknown BMI"
+msgstr "unbekannter BMI"
+
+msgid "BMI: no patient"
+msgstr "BMI: kein Patient"
+
+msgid "BMI: height not found"
+msgstr "BMI: Größe nicht gefunden"
+
+msgid "BMI: height not numeric"
+msgstr "BMI: Größe nicht in Zahlen"
+
+msgid "BMI: height not in m, cm, or mm"
+msgstr "BMI: Größe nicht in m, cm oder mm"
+
+msgid "BMI: weight not found"
+msgstr "BMI: Gewicht nicht gefunden"
+
+msgid "BMI: weight not numeric"
+msgstr "BMI: Gewicht nicht in Zahlen"
+
+msgid "BMI: weight not in kg or g"
+msgstr "BMI: Gewicht nicht in kg oder g"
+
+#, python-format
+msgid "BMI (Quetelet): formula does not apply at age [%s] (age < 18)"
+msgstr ""
+"BMI (Quetelet): Formel trifft für Alter [%s] nicht zu (Alter muß <18 sein)"
+
+#, python-format
+msgid "BMI (Quetelet): %.2f %s"
+msgstr "BMI (Quetelet): %.2f %s"
 
 msgid "unknown allergy state"
 msgstr "Allergiestatus unbekannt"
@@ -7074,6 +7252,32 @@ msgstr "Quelle: %s\n"
 msgid "Language: %s\n"
 msgstr "Sprache: %s\n"
 
+msgid "Suppressed active dynamic hint"
+msgstr "Unterdrückter aktiver dynamischer Hinweis"
+
+msgid "Suppressed inactive dynamic hint"
+msgstr "Unterdrückter inaktiver dynamischen Hinweis"
+
+#, python-format
+msgid "Suppressed by: %s\n"
+msgstr "Unterdrückt von: %s\n"
+
+#, python-format
+msgid "Suppressed at: %s\n"
+msgstr "Unterdrückt am: %s\n"
+
+#, python-format
+msgid "Hint #: %s\n"
+msgstr "Hinweis-No: %s\n"
+
+#, python-format
+msgid "MD5 (currently): %s\n"
+msgstr "MD5 (jetzt): %s\n"
+
+#, python-format
+msgid "MD5 (at suppression): %s\n"
+msgstr "MD5 (bei Unterdrückung): %s\n"
+
 msgid "HL7 Message"
 msgstr "HL7-Nachricht"
 
@@ -7098,6 +7302,25 @@ msgstr "HL7-%s-Feld"
 
 msgid "<EMTPY>"
 msgstr "<LEER>"
+
+#, python-format
+msgid "failed import: %s\n"
+msgstr "fehlgeschlagener Import: %s\n"
+
+#, python-format
+msgid ""
+"Imported HL7 file [%s]:\n"
+" lab \"%s\" (%s@%s), %s results (%s)"
+msgstr ""
+"importierte HL7-Datei [%s]:\n"
+" Labor \"%s\" (%s@%s), %s Ergebnisse (%s)"
+
+msgid "list of imported HL7 data files"
+msgstr "Liste importierter HL7-Dateien"
+
+#, python-format
+msgid "Result dates: %s"
+msgstr "Ergebnistage: %s"
 
 #, python-format
 msgid "form: %s %s (%s)"
@@ -7439,6 +7662,15 @@ msgstr "nicht angegeben"
 msgid "Starting patient encounter"
 msgstr "beginne Arzt-Patienten-Kontakt"
 
+msgid "expired"
+msgstr "verfallen"
+
+msgid "rejected"
+msgstr "abgelehnt"
+
+msgid "PO Box"
+msgstr "Postfach"
+
 #, python-format
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -7489,6 +7721,21 @@ msgstr "Impedanz:"
 #, python-format
 msgid "Praxis branch                   #%s\n"
 msgstr "Praxis-Zweigstelle              #%s\n"
+
+msgid "Privacy notice"
+msgstr "Datenschutzhinweis"
+
+#, python-format
+msgid ""
+"%s: Your chart has been accessed by %s (without user interaction, probably "
+"by a script)."
+msgstr ""
+"%s: Ihre Karteikarte wurde von %s aufgerufen (ohne Nutzerinteraktion, "
+"wahrscheinlich durch ein Skript)."
+
+#, python-format
+msgid "%s: Staff member %s has been notified of your chart access."
+msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
 
 msgid "soap_S"
 msgstr "soap_A"
@@ -7601,6 +7848,9 @@ msgstr "zusammengeführt"
 msgid "merged"
 msgstr "zusammengeführt"
 
+msgid "preferred name/call name/..."
+msgstr "bevorzugter Name/Rufname/..."
+
 msgid "invalid age: DOB in the future"
 msgstr "ungültiges Alter: Geburtsdatum in der Zukunft"
 
@@ -7612,6 +7862,42 @@ msgstr "Herr"
 
 msgid "Mrs"
 msgstr "Frau"
+
+msgid "unknown"
+msgstr "unbekannt"
+
+msgid "empty status"
+msgstr "unbekannter Status"
+
+msgid "C (HL7: Correction, replaces previous final)"
+msgstr "C (HL7: Correktur, ersetzt vorheriges Final)"
+
+msgid "D (HL7: Deletion)"
+msgstr ""
+
+msgid "F (HL7: Final)"
+msgstr ""
+
+msgid "I (HL7: pending, specimen In lab)"
+msgstr "I (HL7: anhängig, Probe Im Labor)"
+
+msgid "P (HL7: Preliminary)"
+msgstr "P (HL7: präliminär)"
+
+msgid "R (HL7: result entered, not yet verified)"
+msgstr "R (HL7: Resultat erhoben, noch nicht verifiziert)"
+
+msgid "S (HL7: partial)"
+msgstr "S (HL7: stückweise)"
+
+msgid "X (HL7: cannot obtain results for this observation)"
+msgstr "X (HL7: für diesen Auftrag kann kein Ergebnis erstellt werden)"
+
+msgid "U (HL7: mark as final (I/P/R/S -> F, value Unchanged)"
+msgstr "U (HL7: markiere als Final (I/P/R/S -> F, Wert Unverändert)"
+
+msgid "W (HL7: original Wrong (say, wrong patient))"
+msgstr "W (HL7: Original falsch (z.B. falscher Patient))"
 
 #, python-format
 msgid "Test panel \"%s\"          [#%s]\n"
@@ -7713,6 +7999,14 @@ msgstr "Messung: \"%(name)s\" (%(abbr)s)  [#%(pk_type)s]\n"
 #, python-format
 msgid "Result: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
 msgstr "Ergebnis: %(val)s%(unit)s%(ind)s  [#%(pk_result)s]\n"
+
+#, python-format
+msgid "Status: %s\n"
+msgstr "Status: %s\n"
+
+#, python-format
+msgid "Grouping: %s\n"
+msgstr "Gruppierung: %s\n"
 
 #, python-format
 msgid "%.1f %% of the normal lower limit"
@@ -7834,6 +8128,9 @@ msgid ""
 msgstr ""
 "\n"
 " Gruppenkommentar: "
+
+msgid "Source data:\n"
+msgstr "Quelldaten:\n"
 
 #, python-format
 msgid "Revisions: %(row_ver)s, last %(mod_when)s by %(mod_by)s."
@@ -11212,65 +11509,6 @@ msgstr "signifikant"
 msgid "Ok"
 msgstr "Ok"
 
-msgid "Privacy check"
-msgstr "Datenschutzprüfung"
-
-#, python-format
-msgid ""
-"You have selected the chart of a member of staff,\n"
-"for whom privacy is especially important:\n"
-"\n"
-"  %s, %s\n"
-"\n"
-"This may be OK depending on circumstances.\n"
-"\n"
-"Please be aware that accessing person charts is\n"
-"logged and that %s%s will be\n"
-"notified of the access if you choose to proceed.\n"
-"\n"
-"Are you sure you want to draw this chart ?"
-msgstr ""
-"Sie haben die Karteikarte eines Mitarbeiters gewählt.\n"
-"Bei diesen ist der Schutz der Privatsphäre besonders wichtig:\n"
-"\n"
-"  %s, %s\n"
-"\n"
-"Unter Umständen ist dies beabsichtigt.\n"
-"\n"
-"Bedenken Sie, daß alle Karteizugriffe aufgezeichnet\n"
-"und daß %s%s über den Zugriff\n"
-"informiert wird, wenn Sie fortfahren.\n"
-"\n"
-"Wollen Sie dennoch diese Kartei aufrufen ?"
-
-msgid "Privacy notice"
-msgstr "Datenschutzhinweis"
-
-#, python-format
-msgid "%s: Your chart has been accessed by %s."
-msgstr "%s: Ihre Karteikarte wurde von %s aufgerufen."
-
-#, python-format
-msgid "%s: Staff member %s has been notified of your chart access."
-msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
-
-msgid "Pulling electronic chart"
-msgstr "Ziehen der elektronischen Karteikarte"
-
-#, python-format
-msgid ""
-"There is no chart for the following person yet:\n"
-"\n"
-" %s, %s\n"
-"Do you want to create a new chart and\n"
-"thusly turn this person into a patient ?"
-msgstr ""
-"Für diese Person gibt es noch keine Karteikarte:\n"
-"\n"
-" %s, %s\n"
-"Wollen Sie eine Karteikarte anlegen und\n"
-"diese Person somit als Patienten führen ?"
-
 #, python-format
 msgid ""
 "%s\n"
@@ -11288,6 +11526,9 @@ msgstr ""
 " %s\n"
 "Wollen Sie diese Konsultation fortsetzen ?\n"
 " (wenn nicht, wird eine neue Konsultation begonnen)\n"
+
+msgid "Pulling electronic chart"
+msgstr "Ziehen der elektronischen Karteikarte"
 
 #, python-format
 msgid ""
@@ -11512,8 +11753,8 @@ msgstr " Posteingang von %s %s%s"
 msgid ": %s message(s)"
 msgstr ": %s Nachricht(en)"
 
-msgid "expired"
-msgstr "verfallen"
+msgid "all"
+msgstr "alle"
 
 #, python-format
 msgid "%s overdue"
@@ -11563,6 +11804,10 @@ msgid ""
 msgstr ""
 "Sie müssen die Ursache dieser Nachricht beheben, damit sie aus dem "
 "Posteingang verschwindet."
+
+#, python-format
+msgid "This message can only be deleted by [%s]."
+msgstr "Diese Nachricht kann nur von [%s] gelöscht werden."
 
 #, python-format
 msgid ""
@@ -13109,8 +13354,12 @@ msgstr "Nein: - / 0"
 msgid "Unknown: ?"
 msgstr "Unbekannt: ?"
 
-msgid "unknown"
-msgstr "unbekannt"
+msgid "file2clipboard"
+msgstr "Datei2Zwischenablage"
+
+#, python-format
+msgid "The file [%s] has been copied into the clipboard."
+msgstr "Die Datei [%s] wurde in die Zwischenablage kopiert."
 
 #, python-format
 msgid ""
@@ -13263,19 +13512,6 @@ msgstr "gefunden über"
 
 #, python-format
 msgid ""
-"Cannot load patient from Medical Manager MSVA file\n"
-"\n"
-" [%s]"
-msgstr ""
-"Kann Patienten nicht aus Medical Manager MSVA-Datei laden\n"
-"\n"
-" [%s]"
-
-msgid "Activating MSVA patient"
-msgstr "MSVA-Patienten aktivieren"
-
-#, python-format
-msgid ""
 "Cannot access BDT file\n"
 "\n"
 " [%s]\n"
@@ -13305,21 +13541,8 @@ msgstr ""
 "\n"
 " [%s]"
 
-msgid "No patients found in external sources."
-msgstr "Keine Patienten in den externen Quellen gefunden."
-
-msgid "The only external patient is already active in GNUmed."
-msgstr "Der einzige extern verfügbare Patient ist schon in GNUmed aktiv."
-
-#, python-format
-msgid ""
-"Cannot create new patient:\n"
-"\n"
-" [%s %s (%s), %s]"
-msgstr ""
-"Kann neuen Patienten nicht anlegen:\n"
-"\n"
-" [%s %s (%s), %s]"
+msgid "No patient in clipboard."
+msgstr "Kein Patient in der Zwischenablage."
 
 msgid "Activating external patient"
 msgstr "Externen Patienten aktivieren"
@@ -13335,6 +13558,22 @@ msgstr ""
 "\n"
 "%s %s (%s)\n"
 "%s"
+
+msgid "No patients found in external sources."
+msgstr "Keine Patienten in den externen Quellen gefunden."
+
+msgid "The only external patient is already active in GNUmed."
+msgstr "Der einzige extern verfügbare Patient ist schon in GNUmed aktiv."
+
+#, python-format
+msgid ""
+"Cannot create new patient:\n"
+"\n"
+" [%s %s (%s), %s]"
+msgstr ""
+"Kann neuen Patienten nicht anlegen:\n"
+"\n"
+" [%s %s (%s), %s]"
 
 msgid ""
 "To search for a person, type any of:                   \n"
@@ -13409,28 +13648,8 @@ msgstr "Wieder zurück zur Suche."
 msgid "Create new patient."
 msgstr "Neuen Patienten anlegen."
 
-msgid "Checking date of birth"
-msgstr "Prüfe Geburtsdatum"
-
-#, python-format
-msgid ""
-"\n"
-" %s\n"
-"\n"
-"The date of birth for this patient is not known !\n"
-"\n"
-"You can proceed to work on the patient but\n"
-"GNUmed will be unable to assist you with\n"
-"age-related decisions.\n"
-msgstr ""
-"\n"
-" %s\n"
-"\n"
-"Der Geburtstag dieser Person ist unbekannt !\n"
-"\n"
-"Sie können trotzdem mit dieser Karteikarte arbeiten,\n"
-"aber GNUmed kann Sie dann bei altersbezogenen\n"
-"Entscheidungen nicht unterstützen.\n"
+msgid "Privacy check"
+msgstr "Datenschutzprüfung"
 
 #, python-format
 msgid ""
@@ -13459,6 +13678,33 @@ msgstr ""
 "informiert wird, wenn Sie fortfahren.\n"
 "\n"
 "Wollen Sie dennoch diese Kartei aufrufen ?"
+
+#, python-format
+msgid "%s: Your chart has been accessed by %s."
+msgstr "%s: Ihre Karteikarte wurde von %s aufgerufen."
+
+msgid "Checking date of birth"
+msgstr "Prüfe Geburtsdatum"
+
+#, python-format
+msgid ""
+"\n"
+" %s\n"
+"\n"
+"The date of birth for this patient is not known !\n"
+"\n"
+"You can proceed to work on the patient but\n"
+"GNUmed will be unable to assist you with\n"
+"age-related decisions.\n"
+msgstr ""
+"\n"
+" %s\n"
+"\n"
+"Der Geburtstag dieser Person ist unbekannt !\n"
+"\n"
+"Sie können trotzdem mit dieser Karteikarte arbeiten,\n"
+"aber GNUmed kann Sie dann bei altersbezogenen\n"
+"Entscheidungen nicht unterstützen.\n"
 
 #, python-format
 msgid ""
@@ -14025,6 +14271,12 @@ msgstr "Meßwerteprofil"
 msgid "Configuring medications plugin measurements panel"
 msgstr "Konfiguration des Laborprofils für die Medikamentenüberwachung"
 
+msgid "EDC (!?!):"
+msgstr "ET (!?!):"
+
+msgid "EDC:"
+msgstr "Termin:"
+
 #, python-format
 msgid "%.1f (%s ago)"
 msgstr "%.1f (vor %s)"
@@ -14033,12 +14285,8 @@ msgid "eGFR:"
 msgstr ""
 
 #, python-format
-msgid "%s: %s%s%s (%s ago)"
-msgstr "%s: %s%s%s (vor %s)"
-
-#, python-format
-msgid " %s%s%s (%s ago)"
-msgstr " %s%s%s (vor %s)"
+msgid "%s%s%s (%s ago)"
+msgstr "%s%s%s (vor %s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -15581,11 +15829,28 @@ msgstr "Als Nutzer aufnehmen"
 msgid "Enlist current person as GNUmed user"
 msgstr "Aktuelle Person als GNUmed-Nutzer aufnehmen"
 
-msgid "Export to GDT"
-msgstr "Als GDT exportieren"
+msgid "Export (GDT → file)"
+msgstr "Export (GDT → Datei)"
 
 msgid "Export demographics of currently active person into GDT file."
 msgstr "Stammdaten der aktiven Person als GDT-Datei exportieren."
+
+msgid "Export (XML → clipboard)"
+msgstr "Export (XML → Zwischenablage)"
+
+msgid ""
+"Export demographics of currently active person as XML (LinuxMedNews) into "
+"clipboard"
+msgstr ""
+"Stammdaten der aktiven Person als XML (LinuxMedNews) in die Zwischenablage "
+"legen."
+
+msgid "Import (clipboard → patient)"
+msgstr "Import (Zwischenablage → Patient)"
+
+msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
+msgstr ""
+"Importiere Stammdaten von der Zwischenablage (LinuxMedNews XML) als Patienten"
 
 msgid "&Past history (health issue / PMH)"
 msgstr "&Grunderkrankung (Eigenanamnese)"
@@ -15668,6 +15933,12 @@ msgstr "&Schwangerschaft"
 
 msgid "Calculate EDC."
 msgstr "Geburtstermin errechnen."
+
+msgid "Suppressed hints"
+msgstr "Unterdrückte Hinweise"
+
+msgid "Manage dynamic hints suppressed in this patient."
+msgstr "Verwalten der bei diesem Patienten unterdrückten dynamischen Hinweise."
 
 msgid "&Add / Edit ..."
 msgstr "Hinzufügen/Bearbeiten ..."
@@ -15778,6 +16049,33 @@ msgstr "Herzinfarkt-/Schlaganfallrisiko berechnen."
 #, python-format
 msgid "arriba: cardiovascular risk assessment (%s)."
 msgstr "arriba: Herz-Kreislauf-Risiko-Berechnung (%s)."
+
+msgid "Show HL7"
+msgstr "Zeige HL7"
+
+msgid "Show formatted data from HL7 file"
+msgstr "Formatiertes HL7 aus Datei zeigen"
+
+msgid "Unwrap XML"
+msgstr "XML auspacken"
+
+msgid "Unwrap HL7 data from XML file (Excelleris, ...)"
+msgstr "HL7-Daten aus XML-Datei extrahieren (Excelleris, ...)"
+
+msgid "Stage HL7"
+msgstr "HL7 vorbereiten"
+
+msgid "Stage HL7 data from file"
+msgstr "HL7-Daten aus Datei vorbereiten"
+
+msgid "Browse pending"
+msgstr "Wartende durchsehen"
+
+msgid "Browse pending (staged) incoming data"
+msgstr "Anhängige (vorbereitete) Eingangsdaten durchsehen"
+
+msgid "Lab results ..."
+msgstr "Laborergebnisse ..."
 
 msgid "&Tools"
 msgstr "&Werkzeuge"
@@ -16378,6 +16676,10 @@ msgid ""
 "\n"
 "Leaving this unset will make GNUmed apply the most commonly used type.\n"
 msgstr ""
+"Wählen Sie den voreingestellten Typ neuer Kontakte.\n"
+"\n"
+"Wenn diese Option nicht gesetzt ist, nimmt GNUmed den am häufigsten "
+"verwendeten Typ.\n"
 
 msgid ""
 "Do you want GNUmed to show the encounter\n"
@@ -16863,6 +17165,12 @@ msgstr "Kann Meßwerte nicht verwalten. Kein Patient aktiv."
 msgid "calculate EDC"
 msgstr "Geburtstermin errechnen"
 
+msgid "manage suppressed hints"
+msgstr "Unterdrückte Hinweise verwalten"
+
+msgid "Cannot manage suppressed hints. No active patient."
+msgstr "Kann Hinweisunterdrückungen nicht verwalten. Kein Patient aktiv."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr "Kann Karteizusammenfassung nicht zeigen. Kein Patient aktiv."
 
@@ -16901,6 +17209,14 @@ msgstr "Kann Patient nicht als GDT exportieren. Kein Patient aktiv."
 #, python-format
 msgid "Exported demographics to GDT file [%s]."
 msgstr "Stammdaten wurden in GDT-Datei [%s] geschrieben."
+
+msgid "Cannot export patient as XML (LinuxMedNews). No active patient."
+msgstr ""
+"Kann Patienten nicht als XML (LinuxMedNews) exportieren. Kein Patient aktiv."
+
+#, python-format
+msgid "Exported demographics to XML file [%s]."
+msgstr "Stammdaten wurden in XML-Datei [%s] geschrieben."
 
 msgid "Cannot add staff member. No active patient."
 msgstr "Kann Mitarbeiter nicht anlegen. Kein Patient aktiv."
@@ -17156,16 +17472,6 @@ msgstr ""
 msgid "Clinical reminder"
 msgstr "Klinische Erinnerung"
 
-msgid "Clinical hint"
-msgstr "Klinischer Tip"
-
-msgid "More info"
-msgstr "Weitere Info"
-
-#, python-format
-msgid "Go to [%s]"
-msgstr "Zu [%s] gehen"
-
 msgid "Adding automatic dynamic hint"
 msgstr "Füge dynamischen Hinweis hinzu"
 
@@ -17203,6 +17509,42 @@ msgstr "Tip"
 
 msgid "Browse and install automatic dynamic hints data packs"
 msgstr "Durchsuchen/Installieren von Datenpaketen mit dynamischen Hinweisen"
+
+msgid "Deleting suppressed dynamic hint"
+msgstr "Löschen der Unterdrückung eines dynamischen Hinweises"
+
+#, python-format
+msgid ""
+"Really delete the suppression of this dynamic hint ?\n"
+"\n"
+" [%s]"
+msgstr ""
+"Die Unterdrückung dieses dynamischen Hinweises wirklich löschen ?\n"
+"\n"
+" [%s]"
+
+msgid ""
+"\n"
+"Dynamic hints suppressed in this patient.\n"
+msgstr ""
+"\n"
+"Unterdrückte dynamische Hinweise bei diesem Patienten.\n"
+
+msgid "Showing suppressed dynamic hints."
+msgstr "Unterdrückte dynamische Hinweise zeigen."
+
+msgid "Rationale"
+msgstr "Begründung"
+
+msgid "Manage hints"
+msgstr "Hinweise verwalten"
+
+msgid "Manage automatic dynamic hints"
+msgstr "Automatische dynamische Hinweise verwalten"
+
+#, python-format
+msgid "By: %s"
+msgstr "Von: %s"
 
 msgid "No entry in field <Source>."
 msgstr "Kein Eintrag im Feld <Quelle>."
@@ -17255,17 +17597,108 @@ msgstr "Textauszug der Kartei"
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr "Derzeit kein Patient aktiviert. Kann keine Karteieinträge laden."
 
+msgid "Show HL7 file:"
+msgstr "Hl7-Datei anzeigen:"
+
+msgid "Extract HL7 from XML file:"
+msgstr "Extrahiere HL7-Daten aus der XML-Datei:"
+
+msgid "Extracting HL7 from XML file"
+msgstr "Hl7-Daten aus XML-Datei extrahieren"
+
+msgid "Select HL7 file for staging:"
+msgstr "HL7-Datei zum vorbereiten wählen:"
+
+msgid "Staging HL7 file"
+msgstr "Hl7-Datei für den Import einlesen"
+
+#, python-format
+msgid ""
+"There was a problem with splitting the HL7 file\n"
+"\n"
+" %s"
+msgstr ""
+"Es gab ein Problem beim Zerlegen der HL7-Datei\n"
+"\n"
+" %s"
+
+msgid "generic"
+msgstr "generisch"
+
+#, python-format
+msgid ""
+"There was a problem with staging the following files\n"
+"\n"
+" %s"
+msgstr ""
+"Es gab ein Problem beim Einlesen der folgenden Dateien\n"
+"\n"
+" %s"
+
+msgid "Importing HL7 data"
+msgstr "Importieren von HL7-Daten"
+
+#, python-format
+msgid ""
+"There has not been a patient explicitely associated\n"
+"with this chunk of HL7 data. However, the data file\n"
+"contains the following patient identification information:\n"
+"\n"
+" %s\n"
+"\n"
+"Do you want to import the HL7 under the current patient ?\n"
+"\n"
+" %s\n"
+"\n"
+"Selecting [NO] makes GNUmed try to find a patient matching the HL7 data.\n"
+msgstr ""
+"Diesen HL7-Daten wurde noch kein Patient explizit zuge-\n"
+"ordnet. Die HL7-Datei enthält allerdings die folgenden\n"
+"Patienteninformationen:\n"
+"\n"
+" %s\n"
+"\n"
+"Wollen Sie die HL7-Daten dem aktiven Patienten zuordnen ?\n"
+"\n"
+" %s\n"
+"\n"
+"[Nein] läßt GNUmed nach einem Patienten anhand der HL7-Daten suchen.\n"
+
+msgid "Error processing HL7 data."
+msgstr "Fehler beim Verarbeiten der HL7-Daten."
+
+msgid "Processing staged HL7 data."
+msgstr "Verarbeite vorbereitete HL7-Daten."
+
+msgid "Deleting incoming data"
+msgstr "Eingangsdaten löschen"
+
+msgid ""
+"Do you really want to delete the incoming data ?\n"
+"\n"
+"Note that deletion is not reversible."
+msgstr ""
+"Wollen Sie diese Eingangsdaten wirklich löschen ?\n"
+"\n"
+"Achtung, diese Löschung ist nicht umkehrbar."
+
+msgid "unknown DOB"
+msgstr "unbekanntes Geburtsdatum"
+
 msgid "Showing unmatched incoming data"
 msgstr "Zeige unzugeordnete Eingangsdaten"
 
-msgid "Data ID"
-msgstr "Daten-ID"
+msgid "Identification"
+msgstr "Identifikation"
 
 msgid "Show"
 msgstr "Zeige"
 
 msgid "Show formatted HL7"
 msgstr "Formatiertes HL7 zeigen"
+
+msgid "Import HL7 data into patient chart"
+msgstr "Importiere HL7-Daten in die Karteikarte"
 
 msgid "Updating LOINC data can take quite a while..."
 msgstr "Das Auffrischen der LOINC-Daten kann etwas dauern ..."
@@ -18993,6 +19426,76 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Export to GDT"
+#~ msgstr "Als GDT exportieren"
+
+#~ msgid ""
+#~ "You have selected the chart of a member of staff,\n"
+#~ "for whom privacy is especially important:\n"
+#~ "\n"
+#~ "  %s, %s\n"
+#~ "\n"
+#~ "This may be OK depending on circumstances.\n"
+#~ "\n"
+#~ "Please be aware that accessing person charts is\n"
+#~ "logged and that %s%s will be\n"
+#~ "notified of the access if you choose to proceed.\n"
+#~ "\n"
+#~ "Are you sure you want to draw this chart ?"
+#~ msgstr ""
+#~ "Sie haben die Karteikarte eines Mitarbeiters gewählt.\n"
+#~ "Bei diesen ist der Schutz der Privatsphäre besonders wichtig:\n"
+#~ "\n"
+#~ "  %s, %s\n"
+#~ "\n"
+#~ "Unter Umständen ist dies beabsichtigt.\n"
+#~ "\n"
+#~ "Bedenken Sie, daß alle Karteizugriffe aufgezeichnet\n"
+#~ "und daß %s%s über den Zugriff\n"
+#~ "informiert wird, wenn Sie fortfahren.\n"
+#~ "\n"
+#~ "Wollen Sie dennoch diese Kartei aufrufen ?"
+
+#~ msgid ""
+#~ "There is no chart for the following person yet:\n"
+#~ "\n"
+#~ " %s, %s\n"
+#~ "Do you want to create a new chart and\n"
+#~ "thusly turn this person into a patient ?"
+#~ msgstr ""
+#~ "Für diese Person gibt es noch keine Karteikarte:\n"
+#~ "\n"
+#~ " %s, %s\n"
+#~ "Wollen Sie eine Karteikarte anlegen und\n"
+#~ "diese Person somit als Patienten führen ?"
+
+#~ msgid ""
+#~ "Cannot load patient from Medical Manager MSVA file\n"
+#~ "\n"
+#~ " [%s]"
+#~ msgstr ""
+#~ "Kann Patienten nicht aus Medical Manager MSVA-Datei laden\n"
+#~ "\n"
+#~ " [%s]"
+
+#~ msgid "Activating MSVA patient"
+#~ msgstr "MSVA-Patienten aktivieren"
+
+#~ msgid "%s: %s%s%s (%s ago)"
+#~ msgstr "%s: %s%s%s (vor %s)"
+
+#~ msgid "Clinical hint"
+#~ msgstr "Klinischer Tip"
+
+#~ msgid "More info"
+#~ msgstr "Weitere Info"
+
+#~ msgid "Go to [%s]"
+#~ msgstr "Zu [%s] gehen"
+
+#~ msgid "Data ID"
+#~ msgstr "Daten-ID"
+
 #, fuzzy
 #~ msgid "no ID for type [%s]"
 #~ msgstr "keine Adresse für Typ [%s]"
@@ -19091,9 +19594,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Saved to disk: %s"
 #~ msgstr "Auf Festplatte gespeichert: %s"
-
-#~ msgid "Mailed: %s"
-#~ msgstr "Gemailt: %s"
 
 #~ msgid "Faxed to %s: %s"
 #~ msgstr "An %s gefaxt: %s"
@@ -19385,9 +19885,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "About active:"
 #~ msgstr "Über aktiven:"
-
-#~ msgid "All"
-#~ msgstr "Alle"
 
 #~ msgid "Active-patient related"
 #~ msgstr "über aktiven Patienten"
@@ -20355,9 +20852,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Problem summary"
 #~ msgstr "Zusammenfassung zum Problem"
 
-#~ msgid "Tips and hints"
-#~ msgstr "Tips und Hinweise"
-
 #~ msgid "... summary"
 #~ msgstr "... BE"
 
@@ -20554,9 +21048,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Serial #"
 #~ msgstr "Charge"
-
-#~ msgid "Site injected"
-#~ msgstr "Injektionsort"
 
 #~ msgid "Cannot save new vaccination: %s"
 #~ msgstr "Kann neue Impfung nicht speichern: %s"
@@ -21467,9 +21958,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "Class"
 #~ msgstr "Klasse (?)"
 
-#~ msgid "Generic"
-#~ msgstr "generisch"
-
 #~ msgid "Street1"
 #~ msgstr "Straße"
 
@@ -21580,9 +22068,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Dismiss"
 #~ msgstr "Schließen"
-
-#~ msgid "Dismiss this dialog."
-#~ msgstr "Diesen Dialog schließen."
 
 #~ msgid ""
 #~ "A fairly recent encounter exists for patient:\n"

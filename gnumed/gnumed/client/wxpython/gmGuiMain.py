@@ -612,8 +612,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		# FIXME: temporary until external program framework is active
 		ID = wx.NewId()
-		menu_person.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
+		menu_person.Append(ID, _(u'Export (GDT \u2192 file)'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
+
+		item = menu_person.Append(-1, _(u'Export (XML \u2192 clipboard)'), _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
+		self.Bind(wx.EVT_MENU, self.__on_export_as_xml_linuxmednews, item)
+
+		item = menu_person.Append(-1, _(u'Import (clipboard \u2192 patient)'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
 
 		menu_person.AppendSeparator()
 
@@ -2789,7 +2795,7 @@ class gmTopLevelFrame(wx.Frame):
 			bias = 'user',
 			default = 0
 		))
-		gmPatSearchWidgets.get_person_from_external_sources(parent=self, search_immediately=search_immediately, activate_immediately=True)
+		gmPatSearchWidgets.get_person_from_external_sources(parent = self, search_immediately = search_immediately, activate_immediately = True)
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2800,6 +2806,21 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
+
+	#----------------------------------------------
+	def __on_export_as_xml_linuxmednews(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as XML (LinuxMedNews). No active patient.'))
+			return False
+		fname = curr_pat.export_as_xml_linuxmednews()
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to XML file [%s].') % fname)
+		gmGuiHelpers.file2clipboard(filename = fname, announce_result = True)
+
+	#----------------------------------------------
+	def __on_import_xml_linuxmednews(self, evt):
+		gmPatSearchWidgets.load_person_from_xml_linuxmednews_via_clipboard()
+
 	#----------------------------------------------
 	def __on_search_person(self, evt):
 		gmDispatcher.send(signal = u'focus_patient_search')
