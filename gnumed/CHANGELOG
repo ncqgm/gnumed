@@ -26,6 +26,7 @@ NEW: $<external_care>$ placeholder
 NEW: read German eGK/KVK/PKVK on Windows
 NEW: per-patient suppression of dynamic hints
 NEW: clipboard-based XML-formatted demographics exchange (I.Valdes, LinuxMedNews)
+NEW: enable TLS on sending bug reports
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering
@@ -44,6 +45,7 @@ IMPROVED: "Relevant" messages mode in provider inbox
 IMPROVED: GFR calculations
 IMPROVED: prevent deletion of messages not belonging to current provider
 IMRPOVED: display of medication related lab monitoring
+IMPROVED: exception logging enhancements
 
 ------------------------------------------------
 # rel-1-4-patches
