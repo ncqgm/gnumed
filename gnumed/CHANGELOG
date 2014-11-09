@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.13
+
+FIX: attempt to remove all items from a bill [thanks Marc]
+
 	1.4.12
 
 FIX: failing deletion of bills [thanks Marc]

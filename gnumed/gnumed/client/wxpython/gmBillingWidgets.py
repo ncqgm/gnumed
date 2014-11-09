@@ -721,6 +721,20 @@ def remove_items_from_bill(parent=None, bill=None):
 	if items2remove is None:
 		return False
 
+	if len(items2remove) == len(list_items):
+		gmGuiHelpers.gm_show_info (
+			title = _('Removing items from bill'),
+			info = _(
+				'Cannot remove all items from a bill because\n'
+				'GNUmed does not support empty bills.\n'
+				'\n'
+				'You must delete the bill itself if you want to\n'
+				'remove all items (at which point you can opt to\n'
+				'keep the items and only delete the bill).'
+			)
+		)
+		return False
+
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
 		parent,	-1,
 		caption = _('Removing items from bill'),
