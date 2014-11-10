@@ -71,7 +71,7 @@
                         <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>0</border>
                         <option>1</option>
-                        <object class="gmMeasurementWidgets.cUnitPhraseWheel" name="_PRW_conversion_unit" base="EditTextCtrl">
+                        <object class="gmMeasurementWidgets.cUnitPhraseWheel" name="_PRW_reference_unit" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                             <tooltip>The base unit to convert results from different labs into when comparing time series.</tooltip>
                         </object>

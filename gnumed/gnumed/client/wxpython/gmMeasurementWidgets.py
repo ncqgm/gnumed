@@ -2218,7 +2218,7 @@ def manage_measurement_types(parent=None):
 		items = [ [
 			m['abbrev'],
 			m['name'],
-			gmTools.coalesce(m['conversion_unit'], u''),
+			gmTools.coalesce(m['reference_unit'], u''),
 			gmTools.coalesce(m['loinc'], u''),
 			gmTools.coalesce(m['comment_type'], u''),
 			gmTools.coalesce(m['name_org'], u'?'),
@@ -2357,7 +2357,7 @@ limit 50"""
 		self._PRW_abbrev.selection_only = False
 
 		# unit
-		self._PRW_conversion_unit.selection_only = False
+		self._PRW_reference_unit.selection_only = False
 
 		# loinc
 		mp = gmLOINC.cLOINCMatchProvider()
@@ -2373,20 +2373,20 @@ limit 50"""
 		test = self._PRW_name.GetValue().strip()
 
 		if test == u'':
-			self._PRW_conversion_unit.unset_context(context = u'test_name')
+			self._PRW_reference_unit.unset_context(context = u'test_name')
 			return
 
-		self._PRW_conversion_unit.set_context(context = u'test_name', val = test)
+		self._PRW_reference_unit.set_context(context = u'test_name', val = test)
 	#----------------------------------------------------------------
 	def _on_loinc_lost_focus(self):
 		loinc = self._PRW_loinc.GetData()
 
 		if loinc is None:
 			self._TCTRL_loinc_info.SetValue(u'')
-			self._PRW_conversion_unit.unset_context(context = u'loinc')
+			self._PRW_reference_unit.unset_context(context = u'loinc')
 			return
 
-		self._PRW_conversion_unit.set_context(context = u'loinc', val = loinc)
+		self._PRW_reference_unit.set_context(context = u'loinc', val = loinc)
 
 		info = gmLOINC.loinc2term(loinc = loinc)
 		if len(info) == 0:
@@ -2400,7 +2400,7 @@ limit 50"""
 	def _valid_for_save(self):
 
 		has_errors = False
-		for field in [self._PRW_name, self._PRW_abbrev, self._PRW_conversion_unit]:
+		for field in [self._PRW_name, self._PRW_abbrev, self._PRW_reference_unit]:
 			if field.GetValue().strip() in [u'', None]:
 				has_errors = True
 				field.display_as_valid(valid = False)
@@ -2423,8 +2423,8 @@ limit 50"""
 			abbrev = self._PRW_abbrev.GetValue().strip(),
 			name = self._PRW_name.GetValue().strip(),
 			unit = gmTools.coalesce (
-				self._PRW_conversion_unit.GetData(),
-				self._PRW_conversion_unit.GetValue()
+				self._PRW_reference_unit.GetData(),
+				self._PRW_reference_unit.GetValue()
 			).strip()
 		)
 		if self._PRW_loinc.GetData() is not None:
@@ -2451,9 +2451,9 @@ limit 50"""
 		self.data['pk_test_org'] = pk_org
 		self.data['abbrev'] = self._PRW_abbrev.GetValue().strip()
 		self.data['name'] = self._PRW_name.GetValue().strip()
-		self.data['conversion_unit'] = gmTools.coalesce (
-			self._PRW_conversion_unit.GetData(),
-			self._PRW_conversion_unit.GetValue()
+		self.data['reference_unit'] = gmTools.coalesce (
+			self._PRW_reference_unit.GetData(),
+			self._PRW_reference_unit.GetValue()
 		).strip()
 		if self._PRW_loinc.GetData() is not None:
 			self.data['loinc'] = gmTools.none_if(self._PRW_loinc.GetData().strip(), u'')
@@ -2471,7 +2471,7 @@ limit 50"""
 		self._PRW_name.SetText(u'', None, True)
 		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(u'', None, True)
-		self._PRW_conversion_unit.SetText(u'', None, True)
+		self._PRW_reference_unit.SetText(u'', None, True)
 		self._PRW_loinc.SetText(u'', None, True)
 		self._on_loinc_lost_focus()
 		self._TCTRL_comment_type.SetValue(u'')
@@ -2484,9 +2484,9 @@ limit 50"""
 		self._PRW_name.SetText(self.data['name'], self.data['name'], True)
 		self._on_name_lost_focus()
 		self._PRW_abbrev.SetText(self.data['abbrev'], self.data['abbrev'], True)
-		self._PRW_conversion_unit.SetText (
-			gmTools.coalesce(self.data['conversion_unit'], u''),
-			self.data['conversion_unit'],
+		self._PRW_reference_unit.SetText (
+			gmTools.coalesce(self.data['reference_unit'], u''),
+			self.data['reference_unit'],
 			True
 		)
 		self._PRW_loinc.SetText (
@@ -2531,7 +2531,7 @@ _SQL_units_from_test_results = u"""
 		(
 			val_unit %(fragment_condition)s
 				OR
-			conversion_unit %(fragment_condition)s
+			reference_unit %(fragment_condition)s
 		)
 		%(ctxt_type_pk)s
 		%(ctxt_test_name)s
@@ -2540,14 +2540,14 @@ _SQL_units_from_test_results = u"""
 _SQL_units_from_test_types = u"""
 	-- via clin.test_type (for types not yet used in results)
 	SELECT
-		conversion_unit AS data,
-		conversion_unit AS field_label,
-		conversion_unit || ' (' || name || ')' AS list_label,
+		reference_unit AS data,
+		reference_unit AS field_label,
+		reference_unit || ' (' || name || ')' AS list_label,
 		2 AS rank
 	FROM
 		clin.test_type
 	WHERE
-		conversion_unit %(fragment_condition)s
+		reference_unit %(fragment_condition)s
 		%(ctxt_ctt)s
 """
 

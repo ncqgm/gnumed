@@ -1523,6 +1523,7 @@ IMPROVED: set clin.test_type.fk_test_org NOT NULL
 IMPROVED: get rid of old-style schema notification
 IMPROVED: database docs now per schema
 IMRPOVED: auto-generation of episode/encounter FK sanity check triggers
+IMPROVED: clin.test_type.conversion_unit -> *.reference_unit
 
 NEW: clin.external_care
 NEW: clin.patient

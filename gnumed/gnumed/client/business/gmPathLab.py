@@ -410,7 +410,7 @@ class cMetaTestType(gmBusinessDBObject.cBusinessDBObject):
 				txt += u'  - %s (%s)%s%s%s      [#%s]\n' % (
 					ttype['name'],
 					ttype['abbrev'],
-					gmTools.coalesce(ttype['conversion_unit'], u'', ', %s'),
+					gmTools.coalesce(ttype['reference_unit'], u'', ', %s'),
 					gmTools.coalesce(ttype['name_org'], u'', u' (%s)'),
 					gmTools.coalesce(ttype['loinc'], u'', u', LOINC: %s'),
 					ttype['pk_test_type']
@@ -550,7 +550,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 				name = gm.nullify_empty_string(%(name)s),
 				loinc = gm.nullify_empty_string(%(loinc)s),
 				comment = gm.nullify_empty_string(%(comment_type)s),
-				conversion_unit = gm.nullify_empty_string(%(conversion_unit)s),
+				reference_unit = gm.nullify_empty_string(%(reference_unit)s),
 				fk_test_org = %(pk_test_org)s,
 				fk_meta_test_type = %(pk_meta_test_type)s
 			WHERE
@@ -566,7 +566,7 @@ class cMeasurementType(gmBusinessDBObject.cBusinessDBObject):
 		'name',
 		'loinc',
 		'comment_type',
-		'conversion_unit',
+		'reference_unit',
 		'pk_test_org',
 		'pk_meta_test_type'
 	]
@@ -758,7 +758,7 @@ LIMIT 1"""
 		)
 		tt += u'\n'
 		tt += gmTools.coalesce(self._payload[self._idx['loinc']], u'', u' LOINC: %s\n')
-		tt += gmTools.coalesce(self._payload[self._idx['conversion_unit']], u'', _(' Conversion unit: %s\n'))
+		tt += gmTools.coalesce(self._payload[self._idx['reference_unit']], u'', _(' Reference unit: %s\n'))
 		tt += gmTools.coalesce(self._payload[self._idx['comment_type']], u'', _(' Comment: %s\n'))
 
 		tt += u'\n'
@@ -897,7 +897,7 @@ def create_measurement_type(lab=None, abbrev=None, unit=None, name=None, link_ob
 
 	# unit
 	if unit is not None:
-		cols.append('conversion_unit')
+		cols.append('reference_unit')
 		val_snippets.append('%(unit)s')
 		vals['unit'] = unit
 

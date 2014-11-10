@@ -47,7 +47,7 @@ select
 	tr.val_num,
 	tr.val_alpha,
 	tr.val_unit,
-	c_vtt.conversion_unit,
+	c_vtt.reference_unit,
 	tr.val_normal_min,
 	tr.val_normal_max,
 	tr.val_normal_range,
