@@ -2394,13 +2394,24 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Duration / Until'),
 				_('Brand'),
 				_('Advice')
-			]
+			],
+			u'start': [
+				_('Episode'),
+				_('Substance'),
+				_('Strength'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration / Until'),
+				_('Brand'),
+				_('Advice')
+			],
 		}
 
 		self.__grouping2order_by_clauses = {
 			u'issue': u'pk_health_issue nulls first, substance, started',
 			u'episode': u'pk_health_issue nulls first, episode, substance, started',
-			u'brand': u'brand nulls last, substance, started'
+			u'brand': u'brand nulls last, substance, started',
+			u'start': u'started DESC, substance, episode'
 		}
 
 		self.__init_ui()
@@ -2516,7 +2527,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				attr.SetTextColour('grey')
 				self.SetRowAttr(row_idx, attr)
 
-			if self.__grouping_mode == u'episode':
+			if self.__grouping_mode in [u'episode', u'start']:
 				if med['pk_episode'] is None:
 					self.__prev_cell_0 = None
 					epi = gmTools.u_diameter
@@ -3032,9 +3043,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
+		self.__grouping_choice_labels = [
+			{u'label': _('Health issue'), u'data': u'issue'} ,
+			{u'label': _('Brand'), u'data': u'brand'},
+			{u'label': _('Episode'), u'data': u'episode'},
+			{u'label': _('Started'), u'data': u'start'}
+		]
 		self.__lab_panel = None
 
+		self.__init_ui()
 		self.__register_interests()
+	#-----------------------------------------------------
+	def __init_ui(self):
+		self._CHCE_grouping.Clear()
+		for option in self.__grouping_choice_labels:
+			self._CHCE_grouping.Append(option['label'], option['data'])
+		self._CHCE_grouping.SetSelection(0)
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
@@ -3257,14 +3281,12 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
 	#--------------------------------------------------------
-	def _on_issue_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'issue'
-	#--------------------------------------------------------
-	def _on_episode_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'episode'
-	#--------------------------------------------------------
-	def _on_brand_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'brand'
+	def _on_grouping_selected(self, event):
+		event.Skip()
+		selected_item_idx = self._CHCE_grouping.GetSelection()
+		if selected_item_idx is wx.NOT_FOUND:
+			return
+		self._grid_substances.grouping_mode = self._CHCE_grouping.GetClientData(selected_item_idx)
 	#--------------------------------------------------------
 	def _on_show_unapproved_checked(self, event):
 		self._grid_substances.filter_show_unapproved = self._CHBOX_show_unapproved.GetValue()
