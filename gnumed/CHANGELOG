@@ -55,6 +55,8 @@ IMPROVED: exception logging enhancements
 	1.4.13
 
 FIX: attempt to remove all items from a bill [thanks Marc]
+FIX: exception on adding improperly selected bill item [thanks Marc]
+FIX: exception on trying to add duplicate keyword expansion [thanks Marc]
 
 	1.4.12
 

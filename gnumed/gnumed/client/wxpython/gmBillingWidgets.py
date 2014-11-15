@@ -1475,6 +1475,12 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 		self._PNL_bill_items.show_non_invoiced_only = self._CHBOX_show_non_invoiced_only.GetValue()
 	#--------------------------------------------------------
 	def _on_insert_bill_item_button_pressed(self, event):
+		if self._PRW_billable.GetData() is None:
+			gmGuiHelpers.gm_show_warning (
+				_('No billable item selected.\n\nCannot insert bill item.'),
+				_('Inserting bill item')
+			)
+			return False
 		val = self._TCTRL_factor.GetValue().strip()
 		if val == u'':
 			factor = 1.0

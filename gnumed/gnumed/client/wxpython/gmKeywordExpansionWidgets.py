@@ -229,7 +229,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			public = self._RBTN_public.GetValue()
 		)
 
-		if expansion is None:
+		if expansion is False:
 			return False
 
 		expansion['is_encrypted'] = self._CHBOX_is_encrypted.IsChecked()

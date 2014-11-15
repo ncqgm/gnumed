@@ -293,6 +293,7 @@ def get_bill_items(pk_patient=None, non_invoiced_only=False):
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 
@@ -321,6 +322,7 @@ def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 	}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cBillItem(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
 def delete_bill_item(link_obj=None, pk_bill_item=None):
 	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
