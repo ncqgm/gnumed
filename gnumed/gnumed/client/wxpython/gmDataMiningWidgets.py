@@ -10,6 +10,8 @@ import sys
 import os
 import fileinput
 import logging
+import codecs
+import csv
 
 
 # 3rd party
@@ -449,78 +451,88 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 			pat.put_on_waiting_list (comment = comment, zone = zone)
 
 	#--------------------------------------------------------
+	def _on_save_results_button_pressed(self, event):
+		event.Skip()
+
+		user_query = self._TCTRL_query.GetValue().strip().strip(';')
+		if user_query == u'':
+			return
+
+		pat = None
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			pat = curr_pat.ID
+		success, hint, cols, rows = gmDataMining.run_report_query (
+			query = user_query,
+			limit = None,
+			pk_identity = pat
+		)
+
+		if not success:
+			return
+
+		if len(rows) == 0:
+			return
+
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _("Save SQL report query results as CSV in..."),
+			defaultDir = os.path.abspath(os.path.expanduser(os.path.join('~', 'gnumed'))),
+			defaultFile = u'gm-query_results.csv',
+			wildcard = u'%s (*.csv)|*.csv|%s (*)|*' % (_("CSV files"), _("all files")),
+			style = wx.SAVE
+		)
+		choice = dlg.ShowModal()
+		csv_name = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return
+
+		csv_file = codecs.open(csv_name, 'w', 'utf8')
+		csv_file.write(u'#-------------------------------------------------------------------------------------\n')
+		csv_file.write(u'# GNUmed SQL report results\n')
+		csv_file.write(u'#\n')
+		csv_file.write(u'# Report: "%s"\n' % self._PRW_report_name.GetValue().strip())
+		csv_file.write(u'#\n')
+		csv_file.write(u'# SQL:\n')
+		for line in user_query.split(u'\n'):
+			csv_file.write(u'# %s\n' % line)
+		csv_file.write(u'#\n')
+		csv_file.write(u'# ID of active patient: %s\n' % pat)
+		csv_file.write(u'#\n')
+		csv_file.write(u'# hits found: %s\n' % len(rows))
+		csv_file.write(u'#-------------------------------------------------------------------------------------\n')
+
+		csv_writer = csv.writer(csv_file)
+		csv_writer.writerow(cols)
+		for row in rows:
+			csv_writer.writerow(row)
+
+		csv_file.close()
+
+	#--------------------------------------------------------
 	def _on_run_button_pressed(self, evt):
 
 		self._BTN_visualize.Enable(False)
 		self._BTN_waiting_list.Enable(False)
+		self._BTN_save_results.Enable(False)
 
 		user_query = self._TCTRL_query.GetValue().strip().strip(';')
 		if user_query == u'':
 			return True
 
-		# FIXME: make LIMIT configurable
-		limit = u'1001'
-
-		wrapper_query = u"""
-			SELECT *
-			FROM (
-				%%s
-			) AS user_query
-			LIMIT %s
-		""" % limit
-
-		# does user want to insert current patient ID ?
-		patient_id_token = u'$<ID_active_patient>$'
-		if user_query.find(patient_id_token) != -1:
-			# she does, but is it possible ?
-			curr_pat = gmPerson.gmCurrentPatient()
-			if not curr_pat.connected:
-				gmGuiHelpers.gm_show_error (
-					aMessage = _(
-						'This query requires a patient to be\n'
-						'active in the client.\n'
-						'\n'
-						'Please activate the patient you are interested\n'
-						'in and re-run the query.\n'
-					),
-					aTitle = _('Active patient query')
-				)
-				return False
-			wrapper_query = u"""
-				SELECT
-					%s AS pk_patient,
-					*
-				FROM (
-					%%s
-				) AS user_query
-				LIMIT %s
-			""" % (str(curr_pat.ID), limit)
-			user_query = user_query.replace(patient_id_token, str(curr_pat.ID))
+		limit = 1001
+		pat = None
+		curr_pat = gmPerson.gmCurrentPatient()
+		if curr_pat.connected:
+			pat = curr_pat.ID
+		success, hint, cols, rows = gmDataMining.run_report_query (
+			query = user_query,
+			limit = limit,
+			pk_identity = pat
+		)
 
 		self._LCTRL_result.set_columns()
-
-		query = wrapper_query % user_query
-		try:
-			# read-only for safety reasons
-			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query}], get_col_idx = True)
-		except StandardError:
-			_log.exception('report query failed')
-			self._LCTRL_result.set_columns([_('Error')])
-			t, v = sys.exc_info()[:2]
-			rows = [
-				[_('The query failed.')],
-				[u''],
-				[unicode(t)]
-			]
-			for line in str(v).decode(gmI18N.get_encoding()).split('\n'):
-				rows.append([line])
-			rows.append([u''])
-			for line in user_query.split('\n'):
-				rows.append([line])
-			self._LCTRL_result.set_string_items(rows)
-			self._LCTRL_result.set_column_widths()
-			gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
-			return False
 
 		if len(rows) == 0:
 			self._LCTRL_result.set_columns([_('Results')])
@@ -534,23 +546,18 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if len(rows) == 1001:
 			gmGuiHelpers.gm_show_info (
 				aMessage = _(
-					'This query returned at least 1001 results.\n'
+					'This query returned at least %s results.\n'
 					'\n'
-					'GNUmed will only show the first 1000 rows.\n'
+					'GNUmed will only show the first %s rows.\n'
 					'\n'
 					'You may want to narrow down the WHERE conditions\n'
 					'or use LIMIT and OFFSET to batchwise go through\n'
 					'all the matching rows.'
-				),
+				) % (limit, limit-1),
 				aTitle = _('Report Generator')
 			)
 			rows = rows[:-1]		# make it true :-)
 
-		# swap (col_name, col_idx) to (col_idx, col_name) as needed by
-		# set_columns() and sort them according to position-in-query
-		cols = [ (value, key) for key, value in idx.items() ]
-		cols.sort()
-		cols = [ pair[1] for pair in cols ]
 		self._LCTRL_result.set_columns(cols)
 		for row in rows:
 			try:
@@ -580,8 +587,10 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		self.query_results = rows
 		self._BTN_visualize.Enable(True)
 		self._BTN_waiting_list.Enable(True)
+		self._BTN_save_results.Enable(True)
 
-		return True
+		return success
+
 #================================================================
 # main
 #----------------------------------------------------------------
