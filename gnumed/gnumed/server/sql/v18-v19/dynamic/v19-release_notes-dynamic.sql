@@ -17,14 +17,16 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.12 (database v19.12)',
-	'GNUmed 1.4.12 Release Notes:
+	'Release Notes for GNUmed 1.4.13 (database v19.13)',
+	'GNUmed 1.4.13 Release Notes:
 
-	1.4.12
+	1.4.13
 
-FIX: failing deletion of bills [thanks Marc]
+FIX: attempt to remove all items from a bill [thanks Marc]
+FIX: exception on adding improperly selected bill item [thanks Marc]
+FIX: exception on trying to add duplicate keyword expansion [thanks Marc]
 
-	19.12 -- Requires PostgreSQL 9.1 !
+	19.13 -- Requires PostgreSQL 9.1 !
 ');
 
 -- --------------------------------------------------------------
