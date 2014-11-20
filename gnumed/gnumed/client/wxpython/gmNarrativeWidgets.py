@@ -1184,6 +1184,9 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	#--------------------------------------------------------
 	def _on_problem_rclick(self, event):
 		problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		if problem is None:
+			return True
+
 		if problem['type'] == u'issue':
 			gmEMRStructWidgets.edit_health_issue(parent = self, issue = problem.get_as_health_issue())
 			return
