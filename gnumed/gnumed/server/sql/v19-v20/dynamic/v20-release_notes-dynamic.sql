@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.rc2 (database v20.rc2)',
-	'GNUmed 1.5.rc2 Release Notes:
+	'Release Notes for GNUmed 1.5.rc3 (database v20.rc3)',
+	'GNUmed 1.5.rc3 Release Notes:
 
-	1.5.rc2
+	1.5.rc3
 
 NEW: by-day display mode for test results including multi-line ones
 NEW: patient documents export area plugin
@@ -63,7 +63,7 @@ IMPROVED: prevent deletion of messages not belonging to current provider
 IMRPOVED: display of medication related lab monitoring
 IMPROVED: exception logging enhancements
 
-	20.rc2
+	20.rc3
 
 IMPROVED: set clin.encounter.fk_location NOT NULL
 IMPROVED: set clin.test_type.fk_test_org NOT NULL
@@ -77,4 +77,4 @@ NEW: clin.patient
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.rc2');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.rc3');
