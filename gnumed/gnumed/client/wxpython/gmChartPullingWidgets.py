@@ -24,103 +24,6 @@ from Gnumed.wxpython import gmGuiHelpers
 _log = logging.getLogger('gm.chart_pull')
 
 #================================================================
-def _check_for_provider_chart_access(person):
-
-	from Gnumed.business import gmStaff
-	curr_prov = gmStaff.gmCurrentProvider()
-
-	# can view my own chart
-	if person.ID == curr_prov['pk_identity']:
-		return True
-
-	# primary provider can view patient
-	if person['pk_primary_provider'] == curr_prov['pk_staff']:
-		return True
-
-	if person.ID not in [ s['pk_identity'] for s in gmStaff.get_staff_list() ]:
-		return True
-
-	proceed = gmGuiHelpers.gm_show_question (
-		aTitle = _('Privacy check'),
-		aMessage = _(
-			'You have selected the chart of a member of staff,\n'
-			'for whom privacy is especially important:\n'
-			'\n'
-			'  %s, %s\n'
-			'\n'
-			'This may be OK depending on circumstances.\n'
-			'\n'
-			'Please be aware that accessing person charts is\n'
-			'logged and that %s%s will be\n'
-			'notified of the access if you choose to proceed.\n'
-			'\n'
-			'Are you sure you want to draw this chart ?'
-		) % (
-			person.get_description_gender(),
-			person.get_formatted_dob(),
-			gmTools.coalesce(person['title'], u'', u'%s '),
-			person['lastnames']
-		)
-	)
-
-	if proceed:
-		prov = u'%s (%s%s %s)' % (
-			curr_prov['short_alias'],
-			gmTools.coalesce(curr_prov['title'], u'', u'%s '),
-			curr_prov['firstnames'],
-			curr_prov['lastnames']
-		)
-		pat = u'%s%s %s' % (
-			gmTools.coalesce(person['title'], u'', u'%s '),
-			person['firstnames'],
-			person['lastnames']
-		)
-		# notify the staff member
-		from Gnumed.business import gmProviderInbox
-		gmProviderInbox.create_inbox_message (
-			staff = person.staff_id,
-			message_type = _('Privacy notice'),
-			message_category = u'administrative',
-			subject = _('%s: Your chart has been accessed by %s.') % (pat, prov),
-			patient = person.ID
-		)
-		# notify /me about the staff member notification
-		gmProviderInbox.create_inbox_message (
-			staff = curr_prov['pk_staff'],
-			message_type = _('Privacy notice'),
-			message_category = u'administrative',
-			subject = _('%s: Staff member %s has been notified of your chart access.') % (prov, pat)
-		)
-
-	return proceed
-
-#----------------------------------------------------------------
-def _ensure_person_is_patient(person):
-	if person.is_patient:
-		return True
-
-	make_it_patient = gmGuiHelpers.gm_show_question (
-		title = _('Pulling electronic chart'),
-		question = _(
-			u'There is no chart for the following person yet:\n'
-			u'\n'
-			u' %s, %s'
-			u'\n'
-			u'Do you want to create a new chart and\n'
-			u'thusly turn this person into a patient ?'
-		) % (
-			person[u'description_gender'],
-			person.get_formatted_dob(),
-		),
-		cancel_button = False
-	)
-	if not make_it_patient:
-		_log.debug(u'user aborted turning person [%s] into patient', person.ID)
-		return False
-	person.is_patient = True
-	return True
-
-#----------------------------------------------------------------
 # encounter
 #----------------------------------------------------------------
 def _get_very_recent_encounter(pk_identity):
@@ -268,50 +171,29 @@ def _decide_on_active_encounter(pk_identity):
 	return enc
 
 #----------------------------------------------------------------
+def _do_tasks_after_pulling_chart(emr):
+	emr.log_access(action = u'chart pulled for patient [%s]' % emr.pk_patient)
+	emr.remove_empty_encounters()
+	# ask for gender/dob ?
+
+#----------------------------------------------------------------
 # main entry point
 #----------------------------------------------------------------
-def pull_chart(pk_identity):
+def pull_chart(person):
+	# provider chart access warning already
+	# done during set_ative_patient
 
-	_log.debug('pulling chart for identity [%s]', pk_identity)
+	_log.debug('pulling chart for identity [%s]', person.ID)
 
-	success, pk_identity = gmTools.input2int(initial = pk_identity, minval = 1)
-	if not success:
-		raise TypeError('<%s> is not an integer' % pk_identity)
-
-	from Gnumed.business import gmPerson
-	person = gmPerson.cIdentity(pk_identity)
-
-	# be careful about pulling charts of our own staff
-	if not _check_for_provider_chart_access(person):
-		return None
-
-	# create chart if necessary
-	if not _ensure_person_is_patient(person):
-		return None
-
-	del person
-
-	# cleanup old cruft
-	patient = gmPerson.cPatient(pk_identity)
-	cfg_db = gmCfg.cCfgSQL()
-	ttl = cfg_db.get2 (
-		option = u'encounter.ttl_if_empty',
-		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-		bias = u'user',
-		default = u'1 week'
-	)
-	patient.remove_empty_encounters(ttl = ttl)
-
-	# detect which encounter to use
-	enc = _decide_on_active_encounter(pk_identity)
-
-	# ensure has allergy state
-	patient.ensure_has_allergy_state(enc['pk_encounter'])
+	person.is_patient = True
+	enc = _decide_on_active_encounter(person.ID)
+	person.as_patient.ensure_has_allergy_state(enc['pk_encounter'])
 
 	# set encounter in EMR
 	from Gnumed.business import gmClinicalRecord
-	emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_identity, allow_user_interaction = False, encounter = enc)
-	emr.log_access(action = u'chart pulled for patient [%s]' % pk_identity)
+	emr = gmClinicalRecord.cClinicalRecord(aPKey = person.ID, allow_user_interaction = False, encounter = enc)
+
+	wx.CallAfter(_do_tasks_after_pulling_chart, emr)
 
 	return emr
 

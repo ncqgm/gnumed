@@ -45,6 +45,7 @@ class cClinicalResult(object):
 		self.variables = {}
 		self.sub_results = []
 		self.warnings = [_('THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE.')]
+		self.hints = []
 	#--------------------------------------------------------
 	def __unicode__(self):
 		txt = u'[cClinicalResult]: %s %s (%s)\n\n%s' % (
@@ -64,7 +65,7 @@ class cClinicalResult(object):
 		)
 		return txt
 	#--------------------------------------------------------
-	def format(self, left_margin=0, eol=u'\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, return_list=False):
+	def format(self, left_margin=0, eol=u'\n', width=None, with_formula=False, with_warnings=True, with_variables=False, with_sub_results=False, with_hints=True, return_list=False):
 		lines = []
 		lines.append(self.message)
 
@@ -98,8 +99,13 @@ class cClinicalResult(object):
 			for w in self.warnings:
 				txt = gmTools.wrap(text = w, width = width, initial_indent = u'  %s ' % gmTools.u_right_arrow, subsequent_indent = u'    ', eol = eol)
 				lines.append(txt)
-			if len(self.warnings) > 0:
-				lines.append(u'')
+
+		if with_hints:
+			if len(self.hints) > 0:
+				lines.append(u' Hints:')
+			for h in self.hints:
+				txt = gmTools.wrap(text = h, width = width, initial_indent = u'  %s ' % gmTools.u_right_arrow, subsequent_indent = u'    ', eol = eol)
+				lines.append(txt)
 
 		if with_variables:
 			if len(self.variables) > 0:
@@ -224,15 +230,78 @@ class cClinicalCalculator(object):
 
 		return result
 	#--------------------------------------------------------
+	def _get_egfrs(self):
+		egfrs = [
+			self.eGFR_MDRD_short,
+			self.eGFR_Cockcroft_Gault,
+			self.eGFR_CKD_EPI,
+			self.eGFR_Schwartz
+		]
+		return egfrs
+
+	eGFRs = property(_get_egfrs, lambda x:x)
+
+	#--------------------------------------------------------
 	def _get_egfr(self):
+
+		# < 18 ?
 		eGFR = self.eGFR_Schwartz
-		if eGFR.numeric_value is None:
-			eGFR = self.eGFR_MDRD_short
-		return eGFR
+		if eGFR.numeric_value is not None:
+			return eGFR
+
+		# this logic is based on "KVH aktuell 2/2014 Seite 10-15"
+		# expect normal GFR
+		CKD = self.eGFR_CKD_EPI
+		if CKD.numeric_value > 60:
+			return CKD
+
+		# CKD at or below 60
+		if self.__patient['dob'] is None:
+			return CKD			# no method will work, so return CKD anyway
+
+		CG = self.eGFR_Cockcroft_Gault
+		MDRD = self.eGFR_MDRD_short
+		age = None
+		if age is None:
+			try:
+				age = CKD.variables['age@crea']
+			except KeyError:
+				_log.warning('CKD-EPI: no age@crea')
+		if age is None:
+			try:
+				age = CG.variables['age@crea']
+			except KeyError:
+				_log.warning('CG: no age@crea')
+		if age is None:
+			try:
+				age = MDRD.variables['age@crea']
+			except KeyError:
+				_log.warning('MDRD: no age@crea')
+		if age is None:
+			age = gmDateTime.calculate_apparent_age(start = self.__patient['dob'])[0]
+
+		# geriatric ?
+		if age > 65:
+			if CG.numeric_value is not None:
+				return CG
+
+		# non-geriatric or CG not computable
+		if MDRD.numeric_value is None:
+			if (CKD.numeric_value is not None) or (CG.numeric_value is None):
+				return CKD
+			return CG
+
+		if MDRD.numeric_value > 60:
+			if CKD.numeric_value is not None:
+				# probably normal after all (>60) -> use CKD-EPI
+				return CKD
+
+		return MDRD
 
 	eGFR = property(_get_egfr, lambda x:x)
+
 	#--------------------------------------------------------
-	def _get_mdrd_short(self):
+	def _get_gfr_mdrd_short(self):
 
 		try:
 			return self.__cache['MDRD_short']
@@ -242,6 +311,7 @@ class cClinicalCalculator(object):
 		result = cClinicalResult(_('unknown MDRD (4 vars/IDMS)'))
 		result.formula_name = u'eGFR from 4-variables IDMS-MDRD'
 		result.formula_source = u'1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS)'
+		result.hints.append(_('best @ 30 < GFR < 60 ml/min'))
 
 		if self.__patient is None:
 			result.message = _('MDRD (4 vars/IDMS): no patient')
@@ -327,7 +397,212 @@ class cClinicalCalculator(object):
 
 		return result
 
-	eGFR_MDRD_short = property(_get_mdrd_short, lambda x:x)
+	eGFR_MDRD_short = property(_get_gfr_mdrd_short, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_gfr_ckd_epi(self):
+
+		try:
+			return self.__cache['CKD-EPI']
+		except KeyError:
+			pass
+
+		result = cClinicalResult(_('unknown CKD-EPI'))
+		result.formula_name = u'eGFR from CKD-EPI'
+		result.formula_source = u'8/2014: http://en.wikipedia.org/Renal_function'
+		result.hints.append(_('best @ GFR > 60 ml/min'))
+
+		if self.__patient is None:
+			result.message = _('CKD-EPI: no patient')
+			return result
+
+		if self.__patient['dob'] is None:
+			result.message = _('CKD-EPI: no DOB (no age)')
+			return result
+
+		# 1) gender
+		from Gnumed.business.gmPerson import map_gender2mf
+		result.variables['gender'] = self.__patient['gender']
+		result.variables['gender_mf'] = map_gender2mf[self.__patient['gender']]
+		if result.variables['gender_mf'] == 'm':
+			result.variables['gender_multiplier'] = self.d(1)
+			result.variables['k:gender_divisor'] = self.d('0.9')
+			result.variables['a:gender_power'] = self.d('-0.411')
+		elif result.variables['gender_mf'] == 'f':
+			result.variables['gender_multiplier'] = self.d('1.018')
+			result.variables['k:gender_divisor'] = self.d('0.7')
+			result.variables['a:gender_power'] = self.d('-0.329')
+		else:
+			result.message = _('CKD-EPI: neither male nor female')
+			return result
+
+		# 2) creatinine
+		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		if result.variables['serum_crea'] is None:
+			result.message = _('CKD-EPI: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
+			return result
+		if result.variables['serum_crea']['val_num'] is None:
+			result.message = _('CKD-EPI: creatinine value not numeric')
+			return result
+		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
+		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+			result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
+		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+			result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num']) / self.d('88.4')
+		else:
+			result.message = _('CKD-EPI: unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
+			return result
+
+		# 3) age (at creatinine evaluation)
+		result.variables['dob'] = self.__patient['dob']
+		result.variables['age@crea'] = self.d (
+			gmDateTime.calculate_apparent_age (
+				start = result.variables['dob'],
+				end = result.variables['serum_crea']['clin_when']
+			)[0]
+		)
+#		if (result.variables['age@crea'] > 84) or (result.variables['age@crea'] < 18):
+#			result.message = _('CKD-EPI: formula does not apply at age [%s] (17 < age < 85)') % result.variables['age@crea']
+#			return result
+
+		# 4) ethnicity
+		result.variables['ethnicity_multiplier'] = self.d(1)			# non-black
+		result.warnings.append(_('ethnicity: GNUmed does not know patient ethnicity, ignoring correction factor of 1.519 for "black"'))
+
+		# calculate
+		result.numeric_value = (
+			self.d(141) * \
+			pow(min((result.variables['serum_crea_val'] / result.variables['k:gender_divisor']), self.d(1)), result.variables['a:gender_power']) * \
+			pow(max((result.variables['serum_crea_val'] / result.variables['k:gender_divisor']), self.d(1)), self.d('-1.209')) * \
+			pow(self.d('0.993'), result.variables['age@crea']) * \
+			result.variables['gender_multiplier'] * \
+			result.variables['ethnicity_multiplier']
+		)
+		result.unit = u'ml/min/1.73m²'
+
+		result.message = _('eGFR(CKD-EPI): %.1f %s (%s)') % (
+			result.numeric_value,
+			result.unit,
+			gmDateTime.pydt_strftime (
+				result.variables['serum_crea']['clin_when'],
+				format = '%Y %b %d'
+			)
+		)
+		result.date_valid = result.variables['serum_crea']['clin_when']
+
+		self.__cache['CKD-EPI'] = result
+		_log.debug(u'%s' % result)
+
+		return result
+
+	eGFR_CKD_EPI = property(_get_gfr_ckd_epi, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_gfr_cockcroft_gault(self):
+
+		try:
+			return self.__cache['cockcroft_gault']
+		except KeyError:
+			pass
+
+		result = cClinicalResult(_('unknown Cockcroft-Gault'))
+		result.formula_name = u'eGFR from Cockcroft-Gault'
+		result.formula_source = u'8/2014: http://en.wikipedia.org/Renal_function'
+		result.hints.append(_('best @ age >65'))
+
+		if self.__patient is None:
+			result.message = _('Cockcroft-Gault: no patient')
+			return result
+
+		if self.__patient['dob'] is None:
+			result.message = _('Cockcroft-Gault: no DOB (no age)')
+			return result
+
+		# 1) gender
+		from Gnumed.business.gmPerson import map_gender2mf
+		result.variables['gender'] = self.__patient['gender']
+		result.variables['gender_mf'] = map_gender2mf[self.__patient['gender']]
+		if result.variables['gender_mf'] not in ['m', 'f']:
+			result.message = _('Cockcroft-Gault: neither male nor female')
+			return result
+
+		# 2) creatinine
+		result.variables['serum_crea'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+		if result.variables['serum_crea'] is None:
+			result.message = _('Cockcroft-Gault: serum creatinine value not found (LOINC: %s)') % gmLOINC.LOINC_creatinine_quantity
+			return result
+		if result.variables['serum_crea']['val_num'] is None:
+			result.message = _('Cockcroft-Gault: creatinine value not numeric')
+			return result
+		result.variables['serum_crea_val'] = self.d(result.variables['serum_crea']['val_num'])
+		if result.variables['serum_crea']['val_unit'] in [u'mg/dl', u'mg/dL']:
+			result.variables['unit_multiplier'] = self.d(72)
+			if result.variables['gender_mf'] == 'm':
+				result.variables['gender_multiplier'] = self.d('1')
+			else: #result.variables['gender_mf'] == 'f'
+				result.variables['gender_multiplier'] = self.d('0.85')
+		elif result.variables['serum_crea']['val_unit'] in [u'µmol/L', u'µmol/l']:
+			result.variables['unit_multiplier'] = self.d(1)
+			if result.variables['gender_mf'] == 'm':
+				result.variables['gender_multiplier'] = self.d('1.23')
+			else: #result.variables['gender_mf'] == 'f'
+				result.variables['gender_multiplier'] = self.d('1.04')
+		else:
+			result.message = _('Cockcroft-Gault: unknown serum creatinine unit (%s)') % result.variables['serum_crea']['val_unit']
+			return result
+
+		# 3) age (at creatinine evaluation)
+		result.variables['dob'] = self.__patient['dob']
+		result.variables['age@crea'] = self.d (
+			gmDateTime.calculate_apparent_age (
+				start = result.variables['dob'],
+				end = result.variables['serum_crea']['clin_when']
+			)[0]
+		)
+		if (result.variables['age@crea'] < 18):
+			result.message = _('Cockcroft-Gault: formula does not apply at age [%s] (17 < age)') % result.variables['age@crea']
+			return result
+
+		result.variables['weight'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_weight, no_of_results = 1)
+		if result.variables['weight'] is None:
+			result.message = _('Cockcroft-Gault: weight not found')
+			return result
+		if result.variables['weight']['val_num'] is None:
+			result.message = _('Cockcroft-Gault: weight not numeric')
+			return result
+		if result.variables['weight']['val_unit'] == u'kg':
+			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
+		elif result.variables['weight']['val_unit'] == u'g':
+			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'] / self.d(1000))
+		else:
+			result.message = _('Cockcroft-Gault: weight not in kg or g')
+			return result
+
+		# calculate
+		result.numeric_value = ((
+			(140 - result.variables['age@crea']) * result.variables['weight_kg'] * result.variables['gender_multiplier']) \
+					/								\
+			(result.variables['unit_multiplier'] * result.variables['serum_crea_val'])
+		)
+		result.unit = u'ml/min'		#/1.73m²
+
+		result.message = _('eGFR(CG): %.1f %s (%s)') % (
+			result.numeric_value,
+			result.unit,
+			gmDateTime.pydt_strftime (
+				result.variables['serum_crea']['clin_when'],
+				format = '%Y %b %d'
+			)
+		)
+		result.date_valid = result.variables['serum_crea']['clin_when']
+
+		self.__cache['cockroft_gault'] = result
+		_log.debug(u'%s' % result)
+
+		return result
+
+	eGFR_Cockcroft_Gault = property(_get_gfr_cockcroft_gault, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_gfr_schwartz(self):
 
@@ -339,6 +614,7 @@ class cClinicalCalculator(object):
 		result = cClinicalResult(_('unknown eGFR (Schwartz)'))
 		result.formula_name = u'eGFR from updated Schwartz "bedside" formula (age < 19yrs)'
 		result.formula_source = u'1/2013: http://en.wikipedia.org/Renal_function / http://www.ganfyd.org/index.php?title=Estimated_glomerular_filtration_rate (NHS) / doi 10.1681/ASN.2008030287 / doi: 10.2215/CJN.01640309'
+		result.hints.append(_('only applies @ age <18'))
 
 		if self.__patient is None:
 			result.message = _('eGFR (Schwartz): no patient')
@@ -433,6 +709,7 @@ class cClinicalCalculator(object):
 		return result
 
 	eGFR_Schwartz = property(_get_gfr_schwartz, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_body_surface_area(self):
 
@@ -503,6 +780,86 @@ class cClinicalCalculator(object):
 
 	body_surface_area = property(_get_body_surface_area, lambda x:x)
 	#--------------------------------------------------------
+	def _get_body_mass_index(self):
+
+		try:
+			return self.__cache['body_mass_index']
+		except KeyError:
+			pass
+
+		result = cClinicalResult(_('unknown BMI'))
+		result.formula_name = u'BMI/Quetelet Index'
+		result.formula_source = u'08/2014: https://en.wikipedia.org/wiki/Body_mass_index'
+
+		if self.__patient is None:
+			result.message = _('BMI: no patient')
+			return result
+
+		result.variables['height'] = self.__patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_height, no_of_results = 1)
+		if result.variables['height'] is None:
+			result.message = _('BMI: height not found')
+			return result
+		if result.variables['height']['val_num'] is None:
+			result.message = _('BMI: height not numeric')
+			return result
+		if result.variables['height']['val_unit'] == u'cm':
+			result.variables['height_m'] = self.d(result.variables['height']['val_num'] / self.d(100))
+		elif result.variables['height']['val_unit'] == u'mm':
+			result.variables['height_m'] = self.d(result.variables['height']['val_num'] / self.d(1000))
+		elif result.variables['height']['val_unit'] == u'm':
+			result.variables['height_m'] = self.d(result.variables['height']['val_num'])
+		else:
+			result.message = _('BMI: height not in m, cm, or mm')
+			return result
+
+		result.variables['weight'] = self.__patient.emr.get_result_at_timestamp (
+			timestamp = result.variables['height']['clin_when'],
+			loinc = gmLOINC.LOINC_weight,
+			tolerance_interval = '10 days'
+		)
+		if result.variables['weight'] is None:
+			result.message = _('BMI: weight not found')
+			return result
+		if result.variables['weight']['val_num'] is None:
+			result.message = _('BMI: weight not numeric')
+			return result
+		if result.variables['weight']['val_unit'] == u'kg':
+			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'])
+		elif result.variables['weight']['val_unit'] == u'g':
+			result.variables['weight_kg'] = self.d(result.variables['weight']['val_num'] / self.d(1000))
+		else:
+			result.message = _('BMI: weight not in kg or g')
+			return result
+
+		result.variables['dob'] = self.__patient['dob']
+		result.variables['age@height'] = self.d (
+			gmDateTime.calculate_apparent_age (
+				start = result.variables['dob'],
+				end = result.variables['height']['clin_when']
+			)[0]
+		)
+		if (result.variables['age@height'] < 18):
+			result.message = _('BMI (Quetelet): formula does not apply at age [%s] (age < 18)') % result.variables['age@height']
+			return result
+
+		# bmi = mass kg / height m2
+		result.numeric_value = result.variables['weight_kg'] / (result.variables['height_m'] * result.variables['height_m'])
+		result.unit = u'kg/m²'
+
+		result.message = _('BMI (Quetelet): %.2f %s') % (
+			result.numeric_value,
+			result.unit
+		)
+		result.date_valid = gmDateTime.pydt_now_here()
+
+		self.__cache['body_mass_index'] = result
+		_log.debug(u'%s' % result)
+
+		return result
+
+	body_mass_index = property(_get_body_mass_index, lambda x:x)
+	bmi = property(_get_body_mass_index, lambda x:x)
+	#--------------------------------------------------------
 	# helper functions
 	#--------------------------------------------------------
 	def d(self, initial):
@@ -547,7 +904,9 @@ if __name__ == "__main__":
 		#result = calc.eGFR_Schwartz
 		#result = calc.eGFR
 		#result = calc.body_surface_area
-		result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
+		#result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
+		#result = calc.body_mass_index
+		result = calc.eGFRs
 		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True)
 	#-----------------------------------------
 	test_clin_calc()

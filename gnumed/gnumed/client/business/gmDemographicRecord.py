@@ -510,6 +510,15 @@ def format_address(address=None, show_type=False):
 	txt = template % data
 	return txt.split('\n')
 #------------------------------------------------------------
+def create_address_type(address_type=None):
+	args = {'typ': address_type}
+	cmd = u'INSERT INTO dem.address_type (name) SELECT %(typ)s WHERE NOT EXISTS (SELECT 1 FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s)'
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	cmd = u'SELECT id FROM dem.address_type WHERE name = %(typ)s OR _(name) = %(typ)s'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	return rows[0][0]
+
+#------------------------------------------------------------
 def get_address_types(identity=None):
 	cmd = u'select id as pk, name, _(name) as l10n_name from dem.address_type'
 	rows, idx = gmPG2.run_rw_queries(queries=[{'cmd': cmd}])
@@ -551,7 +560,7 @@ def get_patient_address(pk_patient_address=None):
 	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
 #-------------------------------------------------------------------
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
-	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND address_type = %(typ)s'
+	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
 	args = {'pat': pk_patient, 'typ': adr_type}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:

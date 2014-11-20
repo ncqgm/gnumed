@@ -1,20 +1,20 @@
-"""GNUmed allergy related business object.
-"""
+"""GNUmed allergy related business object."""
 #============================================================
-__version__ = "$Revision: 1.34 $"
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 import types, sys, logging, datetime as pyDT
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmI18N, gmBusinessDBObject, gmDateTime
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmDateTime
 
 
 _log = logging.getLogger('gm.domain')
-_log.info(__version__)
 #============================================================
 # allergy state related code
 #============================================================
@@ -26,7 +26,7 @@ allergy_states = [
 #------------------------------------------------------------
 def ensure_has_allergy_state(encounter=None):
 
-	_log.debug('checking allergy state for pk_identity [%s]', encounter)
+	_log.debug('checking allergy state for identity of encounter [%s]', encounter)
 
 	args = {'enc': encounter}
 	cmd_create = u"""
@@ -133,7 +133,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy item.
 
-	Actually, those things are really things to *avoid*.
+	Actually, those things are really things to "avoid".
 	Allergy is just one of several reasons for that.
 	See Adrian's post on gm-dev.
 
@@ -249,5 +249,3 @@ if __name__ == '__main__':
 	print 'status:', status
 	print 'data:', data
 	print allg
-
-#============================================================

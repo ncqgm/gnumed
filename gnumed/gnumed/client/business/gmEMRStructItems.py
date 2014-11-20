@@ -2596,6 +2596,7 @@ def create_encounter(fk_patient=None, enc_type=None):
 
 #------------------------------------------------------------
 def lock_encounter(pk_encounter, exclusive=False, link_obj=None):
+	"""Used to protect against deletion of active encounter from another client."""
 	return gmPG2.lock_row(link_obj = link_obj, table = u'clin.encounter', pk = pk_encounter, exclusive = exclusive)
 
 #------------------------------------------------------------

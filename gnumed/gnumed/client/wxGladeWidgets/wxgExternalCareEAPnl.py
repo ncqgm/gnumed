@@ -10,15 +10,14 @@ import wx
 import gettext
 # end wxGlade
 
-# begin wxGlade: extracode
-from Gnumed.wxpython.gmEMRStructWidgets import cIssueSelectionPhraseWheel
-from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
-from Gnumed.wxpython.gmTextCtrl import cTextCtrl
-# end wxGlade
-
 
 class wxgExternalCareEAPnl(wx.ScrolledWindow):
 	def __init__(self, *args, **kwds):
+
+		from Gnumed.wxpython.gmEMRStructWidgets import cIssueSelectionPhraseWheel
+		from Gnumed.wxpython.gmOrganizationWidgets import cOrgUnitPhraseWheel
+		from Gnumed.wxpython.gmTextCtrl import cTextCtrl
+
 		# begin wxGlade: wxgExternalCareEAPnl.__init__
 		kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)

@@ -120,18 +120,42 @@ def flush():
 	root_logger = logging.getLogger()
 	for handler in root_logger.handlers:
 		handler.flush()
+
+#===============================================================
+#def log_exception_details():
+#
+#	t, v, tb = sys.exc_info()
+#	if t is None:
+#		logger.debug('no exception to detail')
+#		return
+#
+#	logger = logging.getLogger('gm.logging')
+#	logger.debug('exception: %s', v)
+#	logger.debug('type: %s', t)
+#	logger.debug('list of attributes:')
+#	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
+#		logger.debug('  %s: %s', attr, getattr(v, attr))
+
 #===============================================================
 def log_stack_trace(message=None):
 
 	logger = logging.getLogger('gm.logging')
 
-	tb = sys.exc_info()[2]
+	t, v, tb = sys.exc_info()
+	#tb = sys.exc_info()[2]
 	if tb is None:
 		try:
 			tb = sys.last_traceback
 		except AttributeError:
-			logger.debug(u'no stack to trace')
+			logger.debug(u'no stack to trace (no exception information available)')
 			return
+
+	# log exception details
+	logger.debug('exception: %s', v)
+	logger.debug('type: %s', t)
+	logger.debug('list of attributes:')
+	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
+		logger.debug('  %s: %s', attr, getattr(v, attr))
 
 	# recurse back to root caller
 	while 1:

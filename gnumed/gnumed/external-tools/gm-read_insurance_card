@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#==============================================================
+# author: Karsten Hilbert
+# license: GPL v2 or later
+#
+# to be installed in /usr/bin/
+#
+#==============================================================
+
+#set -x
+
+CONF="/etc/gnumed/gm-read_insurance_card.conf"
+
+#==============================================================
+# There really should not be any need to
+# change anything below this line.
+#==============================================================
+
+# load config file
+if [ -r ${CONF} ] ; then
+	. ${CONF}
+else
+	echo "Cannot read configuration file ${CONF}. Aborting."
+	exit 1
+fi
+
+
+#CCREADER_PATH_JSON="$1"
+#TS=`date +%Y-%m-%d-%H-%M-%S`
+TARGET_DIR="$1"
+TARGET_FILE="$2"
+
+# internal config
+CCREADER_OUTPUT_FORMAT="4"		# JSON only
+CCREADER_PROTOKOLL="n"			# j/n, keeps XML
+CCREADER_DEBUG="n"				# j/n
+
+
+mkdir -p ${CCREADER_PATH_JSON}
+CCReader ${CCREADER_PORT} ${CCREADER_CTN} ${CCREADER_OUTPUT_FORMAT} ${CCREADER_PROTOKOLL} ${CCREADER_DEBUG} ${TARGET_DIR} ${TARGET_FILE}
+exit $?

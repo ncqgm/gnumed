@@ -18,10 +18,8 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgCurrentSubstancesPnl.__init__
         kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._TCTRL_lab = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_MULTILINE | wx.TE_RICH2 | wx.NO_BORDER)
-        self._RBTN_issue = wx.RadioButton(self, wx.ID_ANY, _("Health issue"))
-        self._RBTN_brand = wx.RadioButton(self, wx.ID_ANY, _("Brand"))
-        self._RBTN_episode = wx.RadioButton(self, wx.ID_ANY, _("Episode"))
+        self._HLINE_lab = wx.StaticLine(self, wx.ID_ANY)
+        self._CHCE_grouping = wx.Choice(self, wx.ID_ANY, choices=[_("einlangerstring einlangerstring")])
         self._CHBOX_show_inactive = wx.CheckBox(self, wx.ID_ANY, _("Inactive"))
         self._CHBOX_show_unapproved = wx.CheckBox(self, wx.ID_ANY, _("Unapproved"))
         self._grid_substances = gmMedicationWidgets.cCurrentSubstancesGrid(self, wx.ID_ANY, size=(1, 1))
@@ -41,9 +39,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_RADIOBUTTON, self._on_issue_grouping_selected, self._RBTN_issue)
-        self.Bind(wx.EVT_RADIOBUTTON, self._on_brand_grouping_selected, self._RBTN_brand)
-        self.Bind(wx.EVT_RADIOBUTTON, self._on_episode_grouping_selected, self._RBTN_episode)
+        self.Bind(wx.EVT_CHOICE, self._on_grouping_selected, self._CHCE_grouping)
         self.Bind(wx.EVT_CHECKBOX, self._on_show_inactive_checked, self._CHBOX_show_inactive)
         self.Bind(wx.EVT_CHECKBOX, self._on_show_unapproved_checked, self._CHBOX_show_unapproved)
         self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
@@ -62,12 +58,8 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgCurrentSubstancesPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_lab.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-        self._TCTRL_lab.Hide()
-        self._RBTN_issue.SetToolTipString(_("Sort entries by the \"health issue\" for which they are taken, then \"substance\", then \"started\"."))
-        self._RBTN_issue.SetValue(1)
-        self._RBTN_brand.SetToolTipString(_("Sort entries by \"brand\", then \"substance\", then \"started\".\n\nThus each substance will only appear once unless it is really taken in more than one preparation."))
-        self._RBTN_episode.SetToolTipString(_("Sort entries by \"health issue\" and \"episode\" for which they are taken, then \"substance\", then \"started\"."))
+        self._HLINE_lab.Hide()
+        self._CHCE_grouping.SetSelection(0)
         self._CHBOX_show_inactive.SetToolTipString(_("Whether to show inactive substances, too, or only those which are assumed to currently be active."))
         self._CHBOX_show_inactive.SetValue(1)
         self._CHBOX_show_unapproved.SetToolTipString(_("Whether to show all substances or only those the intake of which is approved of."))
@@ -93,12 +85,12 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         __szr_buttons = wx.BoxSizer(wx.HORIZONTAL)
         __szr_grid = wx.BoxSizer(wx.HORIZONTAL)
         __szr_grouping = wx.BoxSizer(wx.HORIZONTAL)
-        __szr_main.Add(self._TCTRL_lab, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+        self._GSZR_lab = wx.GridSizer(0, 5, 2, 3)
+        __szr_main.Add(self._GSZR_lab, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+        __szr_main.Add(self._HLINE_lab, 0, wx.TOP | wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 2)
         __lbl_group = wx.StaticText(self, wx.ID_ANY, _("Sort by:"))
         __szr_grouping.Add(__lbl_group, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_grouping.Add(self._RBTN_issue, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_grouping.Add(self._RBTN_brand, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 5)
-        __szr_grouping.Add(self._RBTN_episode, 0, wx.ALIGN_CENTER_VERTICAL, 5)
+        __szr_grouping.Add(self._CHCE_grouping, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
         __SLINE_grouping = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
         __szr_grouping.Add(__SLINE_grouping, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 10)
         __lbl_filter = wx.StaticText(self, wx.ID_ANY, _("Include:"))
@@ -194,6 +186,9 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         print "Event handler `_on_button_heart_pressed' not implemented"
         event.Skip()
 
+    def _on_grouping_selected(self, event):  # wxGlade: wxgCurrentSubstancesPnl.<event_handler>
+        print "Event handler '_on_grouping_selected' not implemented!"
+        event.Skip()
 # end of class wxgCurrentSubstancesPnl
 
 

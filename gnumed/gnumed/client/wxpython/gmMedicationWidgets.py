@@ -1470,16 +1470,22 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				msg += _('GFR: unknown')
 			else:
 				msg += gfr.message
-				tt += gfr.format (
-					left_margin = 0,
-					width = 50,
-					eol = u'\n',
-					with_formula = True,
-					with_warnings = True,
-					with_variables = False,
-					with_sub_results = True,
-					return_list = False
-				)
+				egfrs = self.calc.eGFRs
+				tts = []
+				for egfr in egfrs:
+					if egfr.numeric_value is None:
+						continue
+					tts.append(egfr.format (
+						left_margin = 0,
+						width = 50,
+						eol = u'\n',
+						with_formula = False,
+						with_warnings = True,
+						with_variables = False,
+						with_sub_results = False,
+						return_list = False
+					))
+				tt += u'\n'.join(tts)
 		else:
 			msg += u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
@@ -2388,13 +2394,24 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Duration / Until'),
 				_('Brand'),
 				_('Advice')
-			]
+			],
+			u'start': [
+				_('Episode'),
+				_('Substance'),
+				_('Strength'),
+				_('Schedule'),
+				_('Started'),
+				_('Duration / Until'),
+				_('Brand'),
+				_('Advice')
+			],
 		}
 
 		self.__grouping2order_by_clauses = {
 			u'issue': u'pk_health_issue nulls first, substance, started',
 			u'episode': u'pk_health_issue nulls first, episode, substance, started',
-			u'brand': u'brand nulls last, substance, started'
+			u'brand': u'brand nulls last, substance, started',
+			u'start': u'started DESC, substance, episode'
 		}
 
 		self.__init_ui()
@@ -2510,7 +2527,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				attr.SetTextColour('grey')
 				self.SetRowAttr(row_idx, attr)
 
-			if self.__grouping_mode == u'episode':
+			if self.__grouping_mode in [u'episode', u'start']:
 				if med['pk_episode'] is None:
 					self.__prev_cell_0 = None
 					epi = gmTools.u_diameter
@@ -3026,10 +3043,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 
+		self.__grouping_choice_labels = [
+			{u'label': _('Health issue'), u'data': u'issue'} ,
+			{u'label': _('Brand'), u'data': u'brand'},
+			{u'label': _('Episode'), u'data': u'episode'},
+			{u'label': _('Started'), u'data': u'start'}
+		]
 		self.__lab_panel = None
-		self.__lab_default_text_color = self._TCTRL_lab.GetForegroundColour()
 
+		self.__init_ui()
 		self.__register_interests()
+	#-----------------------------------------------------
+	def __init_ui(self):
+		self._CHCE_grouping.Clear()
+		for option in self.__grouping_choice_labels:
+			self._CHCE_grouping.Append(option['label'], option['data'])
+		self._CHCE_grouping.SetSelection(0)
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------
@@ -3047,9 +3076,9 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 		return True
 	#--------------------------------------------------------
 	def __refresh_lab(self, patient):
-		self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
-		self._TCTRL_lab.SetValue(u'')
-		self._TCTRL_lab.Hide()
+
+		self._GSZR_lab.Clear()
+		self._HLINE_lab.Hide()
 
 		if patient is None:
 			self.Layout()
@@ -3059,23 +3088,44 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			self.Layout()
 			return
 
-		results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev')
-		if len(results) == 0:
+		most_recent_results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev')
+		edc = patient.emr.EDC
+		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+
+		if (len(most_recent_results) == 0) and (edc is None) and (gfr is None) and (crea is None):
 			self.Layout()
 			return
 
-		now = gmDateTime.pydt_now_here()
+		if edc is not None:
+			if emr.EDC_is_fishy:
+				lbl = wx.StaticText(self, -1, _(u'EDC (!?!):'))
+				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
+			else:
+				lbl = wx.StaticText(self, -1, _(u'EDC:'))
+				val = wx.StaticText(self, -1, gmDateTime.pydt_strftime(edc, format = '%Y %b %d'))
+			lbl.SetForegroundColour('blue')
+			szr = wx.BoxSizer(wx.HORIZONTAL)
+			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+			self._GSZR_lab.Add(szr)
 
-		# look for GFR
-		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
-		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
 		if crea is None:
 			gfr_3_months_older_than_crea = False
+			if gfr is not None:
+				most_recent_results = [gfr] + most_recent_results
+		elif gfr is None:
+			gfr_3_months_older_than_crea = True
 		else:
 			three_months = pydt.timedelta(weeks = 14)
 			gfr_3_months_older_than_crea = (crea['clin_when'] - gfr['clin_when']) > three_months
-		# if GFR not found in results or old, then calculate
-		if (gfr is None) or gfr_3_months_older_than_crea:
+			if not gfr_3_months_older_than_crea:
+				most_recent_results = [gfr] + most_recent_results
+
+		now = gmDateTime.pydt_now_here()
+
+		# if GFR not found in most_recent_results or old, then calculate
+		if gfr_3_months_older_than_crea:
 			calc = gmClinicalCalculator.cClinicalCalculator()
 			calc.patient = patient
 			gfr = calc.eGFR
@@ -3085,40 +3135,50 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 				gfr_msg = _(u'%.1f (%s ago)') % (
 					gfr.numeric_value,
 					gmDateTime.format_interval_medically(now - gfr.date_valid)
-					#gmDateTime.pydt_strftime (gfr.date_valid, format = '%b %Y')
 				)
-			self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('blue'))
-			self._TCTRL_lab.AppendText(_('eGFR:'))
-			self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
-			self._TCTRL_lab.AppendText(u' ' + gfr_msg)
-			self._TCTRL_lab.AppendText(u' || ')
+			lbl = wx.StaticText(self, -1, _('eGFR:'))
+			lbl.SetForegroundColour('blue')
+			val = wx.StaticText(self, -1, gfr_msg)
+			egfrs = calc.eGFRs
+			tts = []
+			for egfr in egfrs:
+				if egfr.numeric_value is None:
+					continue
+				tts.append(egfr.format (
+					left_margin = 0,
+					width = 50,
+					eol = u'\n',
+					with_formula = False,
+					with_warnings = True,
+					with_variables = False,
+					with_sub_results = False,
+					return_list = False
+				))
+				tt = u'\n'.join(tts)
+			val.SetToolTipString(tt)
+			szr = wx.BoxSizer(wx.HORIZONTAL)
+			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+			self._GSZR_lab.Add(szr)
 
-		for most_recent in results:
-			if most_recent.is_considered_abnormal:
-				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('red'))
-				txt = _('%s: %s%s%s (%s ago)') % (
-					most_recent['unified_abbrev'],
-					most_recent['unified_val'],
-					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
-					gmTools.coalesce(most_recent.formatted_abnormality_indicator, u'', u' %s'),
-					gmDateTime.format_interval_medically(now - most_recent['clin_when'])
-				)
-				self._TCTRL_lab.AppendText(txt)
-				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
-			else:
-				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr('blue'))
-				self._TCTRL_lab.AppendText(u'%s:' % most_recent['unified_abbrev'])
-				self._TCTRL_lab.SetDefaultStyle(wx.TextAttr(self.__lab_default_text_color))
-				txt = _(' %s%s%s (%s ago)') % (
-					most_recent['unified_val'],
-					gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
-					gmTools.coalesce(most_recent.formatted_abnormality_indicator, u'', u' %s'),
-					gmDateTime.format_interval_medically(now - most_recent['clin_when'])
-				)
-				self._TCTRL_lab.AppendText(txt)
-			self._TCTRL_lab.AppendText(u' || ')
+		for result in most_recent_results:
+			lbl = wx.StaticText(self, -1, u'%s:' % result['unified_abbrev'])
+			lbl.SetForegroundColour('blue')
+			val = wx.StaticText(self, -1, _(u'%s%s%s (%s ago)') % (
+				result['unified_val'],
+				gmTools.coalesce(result['val_unit'], u'', u' %s'),
+				gmTools.coalesce(result.formatted_abnormality_indicator, u'', u' %s'),
+				gmDateTime.format_interval_medically(now - result['clin_when'])
+			))
+			val.SetToolTipString(result.format())
+			if result.is_considered_abnormal:
+				val.SetForegroundColour('red')
+			szr = wx.BoxSizer(wx.HORIZONTAL)
+			szr.Add(lbl, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+			szr.Add(val, 1, wx.ALIGN_CENTER_VERTICAL)
+			self._GSZR_lab.Add(szr)
 
-		self._TCTRL_lab.Show()
+		self._HLINE_lab.Show()
 		self.Layout()
 	#--------------------------------------------------------
 	def __refresh_gfr(self, patient):
@@ -3138,16 +3198,22 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 						format = '%b %Y'
 					)
 				)
-				tt = gfr.format (
-					left_margin = 0,
-					width = 50,
-					eol = u'\n',
-					with_formula = True,
-					with_warnings = True,
-					with_variables = False,
-					with_sub_results = True,
-					return_list = False
-				)
+				egfrs = calc.eGFRs
+				tts = []
+				for egfr in egfrs:
+					if egfr.numeric_value is None:
+						continue
+					tts.append(egfr.format (
+						left_margin = 0,
+						width = 50,
+						eol = u'\n',
+						with_formula = False,
+						with_warnings = True,
+						with_variables = False,
+						with_sub_results = False,
+						return_list = False
+					))
+				tt = u'\n'.join(tts)
 		else:
 			msg = u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
@@ -3215,14 +3281,12 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	def _on_interactions_button_pressed(self, event):
 		self._grid_substances.check_interactions()
 	#--------------------------------------------------------
-	def _on_issue_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'issue'
-	#--------------------------------------------------------
-	def _on_episode_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'episode'
-	#--------------------------------------------------------
-	def _on_brand_grouping_selected(self, event):
-		self._grid_substances.grouping_mode = 'brand'
+	def _on_grouping_selected(self, event):
+		event.Skip()
+		selected_item_idx = self._CHCE_grouping.GetSelection()
+		if selected_item_idx is wx.NOT_FOUND:
+			return
+		self._grid_substances.grouping_mode = self._CHCE_grouping.GetClientData(selected_item_idx)
 	#--------------------------------------------------------
 	def _on_show_unapproved_checked(self, event):
 		self._grid_substances.filter_show_unapproved = self._CHBOX_show_unapproved.GetValue()

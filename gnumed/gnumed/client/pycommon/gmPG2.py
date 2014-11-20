@@ -117,8 +117,9 @@ known_schema_hashes = {
 	17: '161428ee97a00e3bf56168c3a15b7b50',
 	18: 'a0f9efcabdecfb4ddb6d8c0b69c02092',
 	#19: '419e5225259c53dd36ad80d82066ff02'	# 19.0 only
-	19: '9765373098b03fb208332498f34cd4b5',
-	20: 'c92cbe56c318fd3d896d2536b4534580'
+	#19: '9765373098b03fb208332498f34cd4b5' # until 19.11
+	19: '57f009a159f55f77525cc0291e0c8b60', # starting with 19.12
+	20: 'b6780c0f5ba385d685794b80cd90a3b3'
 }
 
 map_schema_hash2version = {
@@ -139,9 +140,10 @@ map_schema_hash2version = {
 	'0bcf44ca22c479b52976e5eda1de8161': 16,
 	'161428ee97a00e3bf56168c3a15b7b50': 17,
 	'a0f9efcabdecfb4ddb6d8c0b69c02092': 18,
-	#'419e5225259c53dd36ad80d82066ff02': 19	# 19.0. only
-	'9765373098b03fb208332498f34cd4b5': 19,
-	'c92cbe56c318fd3d896d2536b4534580': 20
+	#'419e5225259c53dd36ad80d82066ff02': 19	# 19.0 only
+	#'9765373098b03fb208332498f34cd4b5': 19 # until 19.11
+	'57f009a159f55f77525cc0291e0c8b60': 19, # starting with 19.12
+	'b6780c0f5ba385d685794b80cd90a3b3': 20
 }
 
 map_client_branch2required_db_version = {
@@ -2044,14 +2046,15 @@ class cAdapterPyDateTime(object):
 #-----------------------------------------------------------------------
 
 # make sure psycopg2 knows how to handle unicode ...
-# intended to become standard
-# test when Squeeze (and thus psycopg2 2.2 becomes Stable
 psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 
 # tell psycopg2 how to adapt datetime types with timestamps when locales are in use
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
+
+# turn dict()s into JSON
+psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY[]..." so we can support PG arrays

@@ -1,9 +1,6 @@
 #!/bin/bash
 
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/external-tools/gm-read_chipcard.sh,v $
-# $Id: gm-read_chipcard.sh,v 1.1 2009-09-08 12:21:54 ncq Exp $
-#
 # author: Karsten Hilbert
 # license: GPL v2 or later
 #
@@ -60,14 +57,3 @@ fi
 # - database NOTIFY ?
 
 #============================================================
-# $Log: gm-read_chipcard.sh,v $
-# Revision 1.1  2009-09-08 12:21:54  ncq
-# - moved here
-#
-# Revision 1.2  2009/01/17 23:09:55  ncq
-# - typo
-#
-# Revision 1.1  2008/08/28 18:04:04  ncq
-# - first checkin
-#
-#

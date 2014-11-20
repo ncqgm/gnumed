@@ -514,7 +514,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			include_without_provider = False
 
 		# get which messages to show
-		if self._RBTN_all_messages.GetValue():
+		if self._RBTN_relevant_messages.GetValue():
+			_log.debug('loading relevant messages')
+			self.__msgs = self.provider.inbox.get_relevant_messages (
+				pk_patient = pk_patient,
+				include_without_provider = include_without_provider
+			)
+		elif self._RBTN_all_messages.GetValue():
 			_log.debug('loading all but expired messages')
 			self.__msgs = self.provider.inbox.get_messages (
 				pk_patient = pk_patient,
@@ -577,7 +583,13 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		items = []
 		for m in self.__msgs:
-			item = [_indicator[m['importance']], gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d')]
+			item = [_indicator[m['importance']]]
+			item.append(u'%s: %s%s%s' % (
+				gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d'),
+				m['modified_by'],
+				gmTools.u_right_arrow,
+				gmTools.coalesce(m['provider'], _(u'all'))
+			))
 			if m['due_date'] is None:
 				item.append(u'')
 			else:
@@ -748,11 +760,16 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			gmDispatcher.send(signal = 'statustext', msg = _('You must deal with the reason for this message to remove it from your inbox.'), beep = True)
 			return False
 
+		# if not "to" current provider, then don't delete
+		if self.__focussed_msg['pk_staff'] != gmStaff.gmCurrentProvider()['pk_staff']:
+			gmDispatcher.send(signal = 'statustext', msg = _('This message can only be deleted by [%s].') % self.__focussed_msg['provider'], beep = True)
+			return False
+
 		pk_patient = self.__focussed_msg['pk_patient']
 		if pk_patient is not None:
 			#emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
 			from Gnumed.wxpython import gmChartPullingWidgets
-			emr = gmChartPullingWidgets.pull_chart(pk_patient)
+			emr = gmChartPullingWidgets.pull_chart(gmPerson.cIdentity(pk_patient))
 			if emr is None:
 				return False
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)

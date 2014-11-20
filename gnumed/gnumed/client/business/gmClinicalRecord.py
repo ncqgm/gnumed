@@ -124,6 +124,8 @@ class cClinicalRecord(object):
 	#--------------------------------------------------------
 	def cleanup(self):
 		_log.debug('cleaning up after clinical record for patient [%s]' % self.pk_patient)
+		if self.__encounter is not None:
+			self.__encounter.unlock(exclusive = False)
 		return True
 	#--------------------------------------------------------
 	def log_access(self, action=None):
@@ -2112,6 +2114,7 @@ SELECT MIN(earliest) FROM (
 		return gmEMRStructItems.cEncounter(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_encounter'})
 	#------------------------------------------------------------------
 	def remove_empty_encounters(self):
+		_log.debug('removing empty encounters for pk_identity [%s]', self.pk_patient)
 		cfg_db = gmCfg.cCfgSQL()
 		ttl = cfg_db.get2 (
 			option = u'encounter.ttl_if_empty',
@@ -2119,7 +2122,6 @@ SELECT MIN(earliest) FROM (
 			bias = u'user',
 			default = u'1 week'
 		)
-
 #		# FIXME: this should be done async
 		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
 		args = {'pat': self.pk_patient, 'ttl': ttl}
@@ -2127,8 +2129,10 @@ SELECT MIN(earliest) FROM (
 			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		except:
 			_log.exception('error deleting empty encounters')
+			return False
 
 		return True
+
 	#------------------------------------------------------------------
 	# API: measurements / test results
 	#------------------------------------------------------------------

@@ -35,6 +35,7 @@ def _display_clinical_reminders():
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
+	# reminders
 	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
 			exp = u''
@@ -64,26 +65,13 @@ def _display_clinical_reminders():
 			aTitle = _('Clinical reminder'),
 			aMessage = txt
 		)
+	# dynamic hints
+	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	for hint in pat.dynamic_hints:
-		txt = u'%s\n\n%s\n\n          %s' % (
-			hint['title'],
-			gmTools.wrap(hint['hint'], width = 50, initial_indent = u' ', subsequent_indent = u' '),
-			hint['source']
-		)
-		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
-			None,
-			-1,
-			caption = _('Clinical hint'),
-			question = txt,
-			button_defs = [
-				{'label': _('OK'), 'tooltip': _('OK'), 'default': True},
-				{'label': _('More info'), 'tooltip': _('Go to [%s]') % hint['url']}
-			]
-		)
-		button = dlg.ShowModal()
-		dlg.Destroy()
-		if button == wx.ID_NO:
-			gmNetworkTools.open_url_in_browser(hint['url'], autoraise = False)
+		hint_dlg.hint = hint
+		if hint_dlg.ShowModal() == wx.ID_APPLY:
+			pat.suppress_dynamic_hint(pk_hint = hint['pk_auto_hint'], rationale = hint_dlg.rationale)
+	hint_dlg.Destroy()
 
 	return
 
@@ -137,7 +125,7 @@ def manage_dynamic_hints(parent=None):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('deleting a dynamic hint'))
 		if conn is None:
 			return False
-		gmProviderInbox.delete_dynamic_hint(link_obj = conn, pk_hint = hint['pk'])
+		gmProviderInbox.delete_dynamic_hint(link_obj = conn, pk_hint = hint['pk_auto_hint'])
 		conn.commit()
 		conn.close()
 		return True
@@ -151,7 +139,7 @@ def manage_dynamic_hints(parent=None):
 			h['hint'][:60],
 			gmTools.coalesce(h['url'], u'')[:60],
 			h['lang'],
-			h['pk']
+			h['pk_auto_hint']
 		] for h in hints ]
 		lctrl.set_string_items(items)
 		lctrl.set_data(hints)
@@ -179,6 +167,154 @@ def manage_dynamic_hints(parent=None):
 		),
 		list_tooltip_callback = get_tooltip
 	)
+
+#================================================================
+def manage_suppressed_hints(parent=None, pk_identity=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
+	def manage_hints(item):
+		manage_dynamic_hints(parent = parent)
+		return True
+	#------------------------------------------------------------
+	def del_hint(hint=None):
+		if hint is None:
+			return False
+		really_delete = gmGuiHelpers.gm_show_question (
+			title = _('Deleting suppressed dynamic hint'),
+			question = _('Really delete the suppression of this dynamic hint ?\n\n [%s]') % hint['title']
+		)
+		if not really_delete:
+			return False
+		gmProviderInbox.delete_suppressed_hint(pk_suppressed_hint = hint['pk_suppressed_hint'])
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		hints = gmProviderInbox.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
+		items = [ [
+			h['title'],
+			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),
+			h['suppressed_by'],
+			h['rationale'],
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			h['source'][:30],
+			gmTools.coalesce(h['url'], u'')[:60],
+			h['pk_hint']
+		] for h in hints ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(hints)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nDynamic hints suppressed in this patient.\n'),
+		caption = _('Showing suppressed dynamic hints.'),
+		columns = [ _('Title'), _('When'), _('By'), _('Rationale'), _('Active'), _('Source'), u'URL', u'Hint #' ],
+		single_selection = True,
+		ignore_OK_button = True,
+		refresh_callback = refresh,
+		delete_callback = del_hint,
+		right_extra_button = (
+			_('Manage hints'),
+			_('Manage automatic dynamic hints'),
+			manage_hints
+		),
+		list_tooltip_callback = get_tooltip
+	)
+
+#================================================================
+from Gnumed.wxGladeWidgets import wxgDynamicHintDlg
+
+class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
+
+	def __init__(self, *args, **kwargs):
+
+		try:
+			self.__hint = kwargs['hint']
+			del kwargs['hint']
+		except KeyError:
+			self.__hint = None
+		wxgDynamicHintDlg.wxgDynamicHintDlg.__init__(self, *args, **kwargs)
+		self.__init_ui()
+	#------------------------------------------------------------
+	def _get_hint(self):
+		return self.__hint
+
+	def _set_hint(self, hint):
+		self.__hint = hint
+		self.__refresh()
+
+	hint = property(_get_hint, _set_hint)
+	#------------------------------------------------------------
+	def _get_rationale(self):
+		return self._TCTRL_rationale.GetValue().strip()
+
+	rationale = property(_get_rationale, lambda x:x)
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def __init_ui(self):
+		self._TCTRL_rationale.add_callback_on_modified(callback = self._on_rationale_modified)
+	#------------------------------------------------------------
+	def __refresh(self):
+		if self.__hint is None:
+			self._TCTRL_title.SetValue(u'')
+			self._TCTRL_hint.SetValue(u'')
+			self._URL_info.SetURL(u'')
+			self._URL_info.Disable()
+			self._TCTRL_source.SetValue(u'')
+			self._LBL_previous_rationale.Hide()
+			self._TCTRL_previous_rationale.Hide()
+		else:
+			self._TCTRL_title.SetValue(self.__hint['title'])
+			self._TCTRL_hint.SetValue(self.__hint['hint'])
+			if self.__hint['url'] is None:
+				self._URL_info.SetURL(u'')
+				self._URL_info.Disable()
+			else:
+				self._URL_info.SetURL(self.__hint['url'])
+				self._URL_info.Enable()
+			self._TCTRL_source.SetValue(_('By: %s') % self.__hint['source'])
+			if self.__hint['rationale4suppression'] is None:
+				self._LBL_previous_rationale.Hide()
+				self._TCTRL_previous_rationale.Hide()
+			else:
+				self._LBL_previous_rationale.Show()
+				self._TCTRL_previous_rationale.Show()
+				self._TCTRL_previous_rationale.SetValue(self.__hint['rationale4suppression'])
+
+		self._TCTRL_rationale.SetValue(u'')
+		self._BTN_suppress.Disable()
+		self._TCTRL_rationale.SetFocus()
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_rationale_modified(self):
+		if self._TCTRL_rationale.GetValue().strip() == u'':
+			self._BTN_suppress.Disable()
+		else:
+			self._BTN_suppress.Enable()
+	#------------------------------------------------------------
+	def _on_suppress_button_pressed(self, event):
+		event.Skip()
+		if self.__hint is None:
+			return
+		val = self._TCTRL_rationale.GetValue().strip()
+		if val == u'':
+			return
+		if self.IsModal():
+			self.EndModal(wx.ID_APPLY)
+		else:
+			self.Close()
+	#------------------------------------------------------------
+	def _on_manage_hints_button_pressed(self, event):
+		event.Skip()
+		manage_dynamic_hints(parent = self)
 
 #================================================================
 from Gnumed.wxGladeWidgets import wxgAutoHintEAPnl

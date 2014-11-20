@@ -361,13 +361,13 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 
 	# now add the attachments
 	if attachments is not None:
-		for a in attachments:
-			filename = os.path.basename(a[0])
+		for attmt in attachments:
+			filename = os.path.basename(attmt[0])
 			try:
-				mtype = a[1]
-				encoding = a[2]
+				mtype = attmt[1]
+				encoding = attmt[2]
 			except IndexError:
-				mtype, encoding = mimetypes.guess_type(a[0])
+				mtype, encoding = mimetypes.guess_type(attmt[0])
 				if mtype is None:
 					mtype = 'application/octet-stream'
 					encoding = 'base64'
@@ -379,20 +379,32 @@ def send_mail(sender=None, receiver=None, message=None, server=None, auth=None, 
 			part = writer.nextpart()
 			part.addheader('Content-Transfer-Encoding', encoding)
 			body = part.startbody("%s; name=%s" % (mtype, filename))
-			mimetools.encode(open(a[0], 'rb'), body, encoding)
+			mimetools.encode(open(attmt[0], 'rb'), body, encoding)
 
 	writer.lastpart()
 
 	import smtplib
-	session = smtplib.SMTP(server)
-	session.set_debuglevel(debug)
-	if auth is not None:
-		session.login(auth['user'], auth['password'])
-	refused = session.sendmail(sender, receiver, msg.getvalue())
-	session.quit()
+	failed = False
+	refused = []
+	try:
+		session = smtplib.SMTP(server)
+		session.set_debuglevel(debug)
+		session.starttls()
+		session.ehlo()
+		if auth is not None:
+			session.login(auth['user'], auth['password'])
+		refused = session.sendmail(sender, receiver, msg.getvalue())
+		session.quit()
+	except smtplib.SMTPException:
+		failed = True
+		_log.exception('cannot send mail')
+		gmLog2.log_stack_trace()
+
 	msg.close()
-	if len(refused) != 0:
+	if len(refused) > 0:
 		_log.error("refused recipients: %s" % refused)
+
+	if failed:
 		return False
 
 	return True
@@ -417,11 +429,12 @@ Subject: gmTools test suite mail
 This is a test mail from the gmTools.py module.
 """ % (default_mail_receiver, default_mail_sender)
 		print "mail sending succeeded:", send_mail (
+#			sender = 'abc@xyz.123',
 			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
 			message = msg,
 			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
 			debug = True,
-			attachments = [sys.argv[0]]
+			attachments = [[sys.argv[2]]]
 		)
 	#-----------------------------------------------------------------------
 	def test_check_for_update():
@@ -456,8 +469,8 @@ This is a test mail from the gmTools.py module.
 		open_url_in_browser(sys.argv[2], abc=222)
 	#-----------------------------------------------------------------------
 	#test_check_for_update()
-	#test_send_mail()
+	test_send_mail()
 	#test_dl_data_pack()
-	test_browser()
+	#test_browser()
 
 #===========================================================================

@@ -293,6 +293,7 @@ def get_bill_items(pk_patient=None, non_invoiced_only=False):
 	args = {'pat': pk_patient}
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBillItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill_item'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 
@@ -321,11 +322,12 @@ def create_bill_item(pk_encounter=None, pk_billable=None, pk_staff=None):
 	}
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return cBillItem(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
-def delete_bill_item(pk_bill_item=None):
+def delete_bill_item(link_obj=None, pk_bill_item=None):
 	cmd = u'DELETE FROM bill.bill_item WHERE pk = %(pk)s AND fk_bill IS NULL'
 	args = {'pk': pk_bill_item}
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 
 #============================================================
 # bills
@@ -465,12 +467,22 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 
 	default_address = property(_get_default_address, lambda x:x)
 	#--------------------------------------------------------
+	def _get_home_address(self):
+		return gmDemographicRecord.get_patient_address_by_type (
+			pk_patient = self._payload[self._idx['pk_patient']],
+			adr_type = u'home'
+		)
+
+	home_address = property(_get_home_address, lambda x:x)
+	#--------------------------------------------------------
 	def set_missing_address_from_default(self):
 		if self._payload[self._idx['pk_receiver_address']] is not None:
 			return True
 		adr = self.default_address
 		if adr is None:
-			return False
+			adr = self.home_address
+			if adr is None:
+				return False
 		self['pk_receiver_address'] = adr['pk_lnk_person_org_address']
 		return self.save_payload()
 #------------------------------------------------------------
@@ -503,10 +515,10 @@ def create_bill(conn=None, invoice_id=None):
 
 	return cBill(aPK_obj = rows[0]['pk'])
 #------------------------------------------------------------
-def delete_bill(pk_bill=None):
+def delete_bill(link_obj=None, pk_bill=None):
 	args = {'pk': pk_bill}
 	cmd = u"DELETE FROM bill.bill WHERE pk = %(pk)s"
-	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return True
 #------------------------------------------------------------
 def get_bill_receiver(pk_patient=None):

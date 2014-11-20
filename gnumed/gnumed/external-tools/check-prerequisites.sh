@@ -197,17 +197,27 @@ else
 	echo "found"
 fi
 
-# not available anymore:
-#echo -n " 'kprinter' command... "
-#BIN=`which kprinter`
-#if [ "x${BIN}x" == "xx" ]; then
-#	echo ""
-#	echo "  INFO : You don't seem to have the 'kprinter' command installed."
-#	echo "  INFO : It is used to print files from KDE."
-#	echo "  INFO : On Windows it is not needed."
-#else
-#	echo "found"
-#fi
+echo -n " 'kprinter4' command... "
+BIN=`which kprinter4`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'kprinter' command installed."
+	echo "  INFO : It is used to print files from KDE."
+	echo "  INFO : On Windows it is not needed."
+else
+	echo "found"
+fi
+
+echo -n " 'pdf2ps' command... "
+BIN=`which kprinter4`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'pdf2ps' command installed."
+	echo "  INFO : It is used to print files from KDE."
+	echo "  INFO : On Windows it is not needed."
+else
+	echo "found"
+fi
 
 echo -n " 'gtklp' command... "
 BIN=`which gtklp`

@@ -15,8 +15,10 @@ import time
 import re as regex
 import datetime as pyDT
 import codecs
+import thread
 import threading
 import logging
+from xml.etree import ElementTree as etree
 
 
 # GNUmed
@@ -91,11 +93,19 @@ class cDTO_person(object):
 		self.external_ids = []
 		self.comm_channels = []
 		self.addresses = []
+
+		self.firstnames = None
+		self.lastnames = None
+		self.title = None
+		self.gender = None
+		self.dob = None
+		self.dob_is_estimated = False
+		self.source = self.__class__.__name__
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
 	def keys(self):
-		return 'firstnames lastnames dob gender'.split()
+		return 'firstnames lastnames dob gender title'.split()
 	#--------------------------------------------------------
 	def delete_from_source(self):
 		pass
@@ -116,7 +126,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] == 1
 
@@ -138,7 +148,7 @@ class cDTO_person(object):
 			where_snippets.append('gender = %(sex)s')
 			args['sex'] = self.gender
 		cmd = u'SELECT count(1) FROM dem.v_person_names WHERE %s' % ' AND '.join(where_snippets)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx=True)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 		return rows[0][0] > 0
 
@@ -221,6 +231,12 @@ class cDTO_person(object):
 		if self.identity is None:
 			return None
 
+		if self.dob_is_estimated:
+			self.identity['dob_is_estimated'] = True
+		if self.title is not None:
+			self.identity['title'] = self.title
+		self.identity.save()
+
 		for ext_id in self.external_ids:
 			try:
 				self.identity.add_external_id (
@@ -231,7 +247,7 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <external ID> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		for comm in self.comm_channels:
 			try:
@@ -241,12 +257,14 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <comm channel> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		for adr in self.addresses:
 			try:
 				self.identity.link_address (
+					adr_type = adr['type'],
 					number = adr['number'],
+					subunit = adr['subunit'],
 					street = adr['street'],
 					postcode = adr['zip'],
 					urb = adr['urb'],
@@ -255,7 +273,7 @@ class cDTO_person(object):
 				)
 			except StandardError:
 				_log.exception('cannot import <address> from external data source')
-				_log.log_stack_trace()
+				gmLog2.log_stack_trace()
 
 		return self.identity
 	#--------------------------------------------------------
@@ -283,7 +301,7 @@ class cDTO_person(object):
 			raise ValueError(_('<channel> cannot be empty'))
 		self.comm_channels.append({'channel': channel, 'url': url})
 	#--------------------------------------------------------
-	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None):
+	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None, adr_type=None, subunit=None):
 		number = number.strip()
 		if number == u'':
 			raise ValueError(_('<number> cannot be empty'))
@@ -303,7 +321,9 @@ class cDTO_person(object):
 		if region == u'':
 			region = u'??'
 		self.addresses.append ({
+			u'type': adr_type,
 			u'number': number,
+			u'subunit': subunit,
 			u'street': street,
 			u'zip': zip,
 			u'urb': urb,
@@ -350,6 +370,7 @@ class cDTO_person(object):
 	#--------------------------------------------------------
 	def __getitem__(self, attr):
 		return getattr(self, attr)
+
 #============================================================
 class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_person_names WHERE pk_name = %s"
@@ -480,27 +501,17 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	def _get_is_patient(self):
 		return identity_is_patient(self._payload[self._idx['pk_identity']])
 
-	def _set_is_patient(self, value):
-		return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
-
-#	def _get_is_patient(self):
-#		cmd = u"""
-#			SELECT EXISTS (
-#				SELECT 1
-#				FROM clin.v_emr_journal
-#				WHERE
-#					pk_patient = %(pat)s
-#						AND
-#					soap_cat IS NOT NULL
-#		)"""
-#		args = {'pat': self._payload[self._idx['pk_identity']]}
-#		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-#		return rows[0][0]
-#
-#	def _set_is_patient(self, value):
-#		raise AttributeError('setting is_patient status of identity is not allowed')
+	def _set_is_patient(self, turn_into_patient):
+		if turn_into_patient:
+			return turn_identity_into_patient(self._payload[self._idx['pk_identity']])
+		return False
 
 	is_patient = property(_get_is_patient, _set_is_patient)
+	#--------------------------------------------------------
+	def _get_as_patient(self):
+		return cPatient(self._payload[self._idx['pk_identity']])
+
+	as_patient = property(_get_as_patient, lambda x:x)
 	#--------------------------------------------------------
 	def _get_staff_id(self):
 		cmd = u"SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
@@ -1004,6 +1015,102 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		file.close()
 	#--------------------------------------------------------
+	def export_as_xml_linuxmednews(self, filename=None):
+
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = u'gm-LinuxMedNews_demographics-',
+				suffix = u'.xml'
+			)
+
+		dob_format = '%Y-%m-%d'
+		pat = etree.Element(u'patient')
+
+		first = etree.SubElement(pat, u'firstname')
+		first.text = gmTools.coalesce(self._payload[self._idx['firstnames']], u'')
+
+		last = etree.SubElement(pat, u'lastname')
+		last.text = gmTools.coalesce(self._payload[self._idx['lastnames']], u'')
+
+		middle = etree.SubElement(pat, u'middlename')
+		middle.set(u'comment', _('preferred name/call name/...'))
+		middle.text = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+
+		pref = etree.SubElement(pat, u'name_prefix')
+		pref.text = gmTools.coalesce(self._payload[self._idx['title']], u'')
+
+		suff = etree.SubElement(pat, u'name_suffix')
+		suff.text = u''
+
+		dob = etree.SubElement(pat, u'DOB')
+		dob.set(u'format', dob_format)
+		dob.text = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, encoding = 'utf8', accuracy = gmDateTime.acc_days, none_str = u'')
+
+		gender = etree.SubElement(pat, u'gender')
+		gender.set(u'comment', self.gender_string)
+		if self._payload[self._idx['gender']] is None:
+			gender.text = u''
+		else:
+			gender.text = map_gender2mf[self._payload[self._idx['gender']]]
+
+		home = etree.SubElement(pat, u'home_address')
+		adr = self.get_addresses(address_type = u'home')
+		if len(adr) > 0:
+			tag = etree.SubElement(home, u'address1')
+			tag = etree.SubElement(home, u'address2')
+			tag = etree.SubElement(home, u'address3')
+
+			city = etree.SubElement(home, u'city')
+			city.set(u'comment', adr['suburb'])
+			city.text = gmTools.coalesce(adr['urb'], u'')
+
+			state = etree.SubElement(home, u'state')
+			state.set(u'comment', adr['l10n_state'])
+			state.text = gmTools.coalesce(adr['code_state'], u'')
+
+			zip = etree.SubElement(home, u'postal_code')
+			zip.text = gmTools.coalesce(adr['postcode'], u'')
+
+			street = etree.SubElement(home, u'street')
+			street.set(u'comment', adr['notes_street'])
+			street.text = gmTools.coalesce(adr['street'], u'')
+
+			no = etree.SubElement(home, u'number')
+			no.set(u'subunit', adr['subunit'])
+			no.set(u'comment', adr['notes_subunit'])
+			no.text = gmTools.coalesce(adr['number'], u'')
+
+			country = etree.SubElement(home, u'country')
+			country.set(u'comment', adr['l10n_country'])
+			country.text = gmTools.coalesce(adr['code_country'], u'')
+
+		phone = etree.SubElement(pat, u'home_phone')
+		rec = self.get_comm_channels(comm_medium = u'homephone')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		phone = etree.SubElement(pat, u'work_phone')
+		rec = self.get_comm_channels(comm_medium = u'workphone')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		phone = etree.SubElement(pat, u'cell_phone')
+		rec = self.get_comm_channels(comm_medium = u'mobile')
+		if len(rec) > 0:
+			if not rec['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
+				rec.text = rec['url']
+
+		tree = etree.ElementTree(pat)
+		tree.write(filename, encoding = u'UTF-8')
+
+		return filename
+
+	#--------------------------------------------------------
 	# occupations API
 	#--------------------------------------------------------
 	def get_occupations(self):
@@ -1116,7 +1223,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			for r in rows
 		]
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None, adr_type=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param id_type The primary key of the address type.
@@ -1153,6 +1260,9 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		linked_adr = gmDemographicRecord.cPatientAddress(aPK_obj = rows[0]['id_address'])
 
 		# possibly change type
+		if id_type is None:
+			if adr_type is not None:
+				id_type = gmDemographicRecord.create_address_type(address_type = adr_type)
 		if id_type is not None:
 			linked_adr['pk_address_type'] = id_type
 			linked_adr.save()
@@ -1357,6 +1467,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
 	#--------------------------------------------------------
+	def suppress_dynamic_hint(self, pk_hint = None, rationale=None):
+		return gmProviderInbox.suppress_dynamic_hint (
+			pk_identity = self._payload[self._idx['pk_identity']],
+			pk_hint = pk_hint,
+			rationale = rationale
+		)
+	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None
@@ -1413,6 +1530,7 @@ def turn_identity_into_patient(pk_identity):
 	args = {u'pk_ident': pk_identity}
 	queries = [{'cmd': cmd, 'args': args}]
 	gmPG2.run_rw_queries(queries = queries)
+	return True
 
 #============================================================
 # helper functions
@@ -1440,6 +1558,15 @@ def set_chart_puller(chart_puller):
 	_pull_chart = chart_puller
 	_log.debug('setting chart puller to <%s>', chart_puller)
 
+_yield = lambda x:x
+
+def set_yielder(yielder):
+	if not callable(yielder):
+		raise TypeError('yielder <%s> is not callable' % yielder)
+	global _yield
+	_yield = yielder
+	_log.debug('setting yielder to <%s>', yielder)
+
 #============================================================
 class cPatient(cIdentity):
 	"""Represents a person which is a patient.
@@ -1463,17 +1590,6 @@ class cPatient(cIdentity):
 		if self.__doc_folder is not None:
 			self.__doc_folder.cleanup()
 		cIdentity.cleanup(self)
-	#----------------------------------------------------------
-	def remove_empty_encounters(self, ttl=None):
-		_log.debug('removing empty encounters for pk_identity [%s]', self._payload[self._idx['pk_identity']])
-		cmd = u"SELECT clin.remove_old_empty_encounters(%(pat)s::INTEGER, %(ttl)s::INTERVAL)"
-		args = {'pat': self._payload[self._idx['pk_identity']], 'ttl': ttl}
-		try:
-			rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
-		except:
-			_log.exception('error deleting empty encounters (ttl: %s', ttl)
-			return False
-		return True
 	#----------------------------------------------------------------
 	def ensure_has_allergy_state(self, pk_encounter=None):
 		from Gnumed.business.gmAllergy import ensure_has_allergy_state
@@ -1499,20 +1615,36 @@ class cPatient(cIdentity):
 #		return self.__emr
 
 	def get_emr(self, allow_user_interaction=True):
+		_log.debug('accessing EMR (thread %s)', thread.get_ident())
 		if not self.__emr_access_lock.acquire(False):
-			# maybe something slow is happening on the machine
-			_log.debug('failed to acquire EMR access lock, sleeping for 500ms')
-			time.sleep(0.5)
-			if not self.__emr_access_lock.acquire(False):
-				_log.error('still failed to acquire EMR access lock, aborting')
+			got_lock = False
+			for idx in range(100):
+				_yield()
+				time.sleep(0.1)
+				_yield()
+				if self.__emr_access_lock.acquire(False):
+					got_lock = True
+					break
+			if not got_lock:
+				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
 				raise AttributeError('cannot lock access to EMR')
 
+#			# maybe something slow is happening on the machine
+#			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
+#			time.sleep(0.5)
+#			if not self.__emr_access_lock.acquire(False):
+#				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
+#				raise AttributeError('cannot lock access to EMR')
+
 		if self.__emr is None:
-			emr = _pull_chart(self._payload[self._idx['pk_identity']])
+			_log.debug('pulling chart (thread %s)', thread.get_ident())
+			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
+			emr = _pull_chart(self)
 			if emr is None:		# user aborted pulling chart
 				return None
 			self.__emr = emr
 
+		_log.debug('returning EMR (thread %s)', thread.get_ident())
 		self.__emr_access_lock.release()
 		return self.__emr
 
@@ -1621,10 +1753,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# user wants different patient
 		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
-		# everything seems swell
 		if not self.__run_callbacks_before_switching_away_from_patient():
 			_log.debug('not changing current patient')
 			return None
+
+		# everything seems swell
 		self.__send_pre_unselection_notification()
 		self.patient.cleanup()
 		self.patient = gmNull.cNull()
@@ -1632,6 +1765,8 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# give it some time
 		time.sleep(0.5)
 		self.patient = patient
+		# for good measure ...
+		# however, actually we want to get rid of that
 		self.patient.get_emr()
 		self.__send_selection_notification()
 
@@ -1841,14 +1976,13 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	If patient is -1 the active patient will be UNset.
 	"""
+	if isinstance(patient, gmCurrentPatient):
+		return True
+
 	if isinstance(patient, cPatient):
 		pat = patient
 	elif isinstance(patient, cIdentity):
-		pat = cPatient(aPK_obj = patient['pk_identity'])
-#	elif isinstance(patient, cStaff):
-#		pat = cPatient(aPK_obj=patient['pk_identity'])
-	elif isinstance(patient, gmCurrentPatient):
-		pat = patient.patient
+		pat = pat.as_patient
 	elif patient == -1:
 		pat = patient
 	else:
@@ -1984,6 +2118,7 @@ def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 def get_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 	from Gnumed.business import gmPracSoftAU
 	return gmPracSoftAU.read_persons_from_pracsoft_file(filename=filename, encoding=encoding)
+
 #============================================================
 # main/testing
 #============================================================

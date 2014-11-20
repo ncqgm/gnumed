@@ -11,6 +11,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import os
 import logging
 import sys
+import codecs
 
 
 import wx
@@ -284,6 +285,25 @@ class cMultilineTextEntryDlg(wxgMultilineTextEntryDlg.wxgMultilineTextEntryDlg):
 			self._TCTRL_text.SetValue(self.original_text)
 
 # ========================================================================
+def clipboard2text():
+
+	if wx.TheClipboard.IsOpened():
+		return False
+
+	if not wx.TheClipboard.Open():
+		return False
+
+	data_obj = wx.TextDataObject()
+	got_it = wx.TheClipboard.GetData(data_obj)
+	if got_it:
+		txt = data_obj.Text
+		wx.TheClipboard.Close()
+		return txt
+
+	wx.TheClipboard.Close()
+	return None
+
+#-------------------------------------------------------------------------
 def clipboard2file():
 
 	if wx.TheClipboard.IsOpened():
@@ -292,26 +312,50 @@ def clipboard2file():
 	if not wx.TheClipboard.Open():
 		return False
 
-	do = wx.TextDataObject()
-	got_it = wx.TheClipboard.GetData(do)
+	data_obj = wx.TextDataObject()
+	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
 		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
-		target_file = open(fname, 'wb')
-		target_file.write(do.Text)
+		target_file = codecs.open(fname, u'wb', u'utf8')
+		target_file.write(data_obj.Text)
 		target_file.close()
 		wx.TheClipboard.Close()
 		return fname
 
-	do = wx.BitmapDataObject()
-	got_it = wx.TheClipboard.GetData(do)
+	data_obj = wx.BitmapDataObject()
+	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
 		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.png')
-		bmp = do.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
+		bmp = data_obj.Bitmap.SaveFile(fname, wx.BITMAP_TYPE_PNG)
 		wx.TheClipboard.Close()
 		return fname
 
 	wx.TheClipboard.Close()
 	return None
+
+#-------------------------------------------------------------------------
+def file2clipboard(filename=None, announce_result=False):
+
+	if wx.TheClipboard.IsOpened():
+		return False
+
+	if not wx.TheClipboard.Open():
+		return False
+
+	f = codecs.open(filename, u'rU', u'utf8')
+	data_obj = wx.TextDataObject()
+	data_obj.SetText(f.read())
+	f.close()
+	wx.TheClipboard.SetData(data_obj)
+	wx.TheClipboard.Close()
+	if announce_result:
+		gm_show_info (
+			title = _('file2clipboard'),
+			info = _('The file [%s] has been copied into the clipboard.') % filename
+		)
+
+	return True
+
 # ========================================================================
 class cFileDropTarget(wx.FileDropTarget):
 	"""Generic file drop target class.

@@ -82,7 +82,6 @@ it could be possible to exist
 """
 #============================================================
 __license__ = "GPL"
-__version__ = "$Revision: 1.2 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 

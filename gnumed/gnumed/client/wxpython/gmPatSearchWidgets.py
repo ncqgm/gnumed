@@ -12,7 +12,11 @@ generator.
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://www.gnu.org/)'
 
-import sys, os.path, glob, re as regex, logging
+import sys
+import os.path
+import glob
+import re as regex
+import logging
 
 
 import wx
@@ -252,6 +256,19 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			self.EndModal(wx.ID_OK)
 		else:
 			self.Close()
+	#--------------------------------------------------------
+	def _on_new_patient_button_pressed(self, event):
+		event.Skip()
+		success = create_new_person(activate = True)
+		if success:
+			self.person = gmPerson.gmCurrentPatient()
+		else:
+			self.person = None
+		if self.IsModal():
+			self.EndModal(wx.ID_CANCEL)
+		else:
+			self.Close()
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSelectPersonDTOFromListDlg
 
@@ -288,7 +305,10 @@ class cSelectPersonDTOFromListDlg(wxgSelectPersonDTOFromListDlg.wxgSelectPersonD
 			if dto.dob is None:
 				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = u'')
 			else:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+				if dto.dob_is_estimated:
+					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.u_almost_equal_to + gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
+				else:
+					self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmDateTime.pydt_strftime(dto.dob, '%Y %b %d'))
 			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(dto.gender, ''))
 
 		for col in range(len(self.__cols)):
@@ -342,13 +362,13 @@ def load_persons_from_ca_msva():
 			# FIXME: potentially return several persons per file
 			msva_dtos = gmCA_MSVA.read_persons_from_msva_file(filename = msva_file)
 		except StandardError:
-			gmGuiHelpers.gm_show_error (
-				_(
-				'Cannot load patient from Medical Manager MSVA file\n\n'
-				' [%s]'
-				) % msva_file,
-				_('Activating MSVA patient')
-			)
+#			gmGuiHelpers.gm_show_error (
+#				_(
+#				'Cannot load patient from Medical Manager MSVA file\n\n'
+#				' [%s]'
+#				) % msva_file,
+#				_('Activating MSVA patient')
+#			)
 			_log.exception('cannot read patient from MSVA file [%s]' % msva_file)
 			continue
 
@@ -530,6 +550,7 @@ def load_persons_from_pracsoft_au():
 			dtos.append({'dto': dto, 'source': pracsoft_file['source']})
 
 	return dtos
+
 #============================================================
 def load_persons_from_kvks():
 
@@ -539,12 +560,62 @@ def load_persons_from_kvks():
 		workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
 		bias = 'workplace',
 		default = u'/var/spool/kvkd/'
+		#default = u'/home/ncq/gnumed/'
 	)))
 	dtos = []
 	for dto in gmKVK.get_available_kvks_as_dtos(spool_dir = kvk_dir):
 		dtos.append({'dto': dto, 'source': 'KVK'})
+#	for dto in gmKVK.get_available_CCRdr_files_as_dtos(spool_dir = kvk_dir):
+#		dtos.append({'dto': dto, 'source': dto.source})
 
 	return dtos
+
+#============================================================
+def load_person_from_xml_linuxmednews_via_clipboard():
+
+	fname = gmGuiHelpers.clipboard2file()
+	if fname in [None, False]:
+		gmGuiHelpers.gm_show_info (
+			info = _('No patient in clipboard.'),
+			title = _('Activating external patient')
+		)
+		return
+
+	from Gnumed.business import gmLinuxMedNewsXML
+	dto = gmLinuxMedNewsXML.parse_xml_linuxmednews(filename = fname)
+	idents = dto.get_candidate_identities(can_create = True)
+	if len(idents) == 1:
+		ident = idents[0]
+		if not set_active_patient(patient = ident):
+			gmGuiHelpers.gm_show_info (_(
+				'Cannot activate patient:\n\n'
+				'%s %s (%s)\n'
+				'%s'
+				) % (
+					dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+				),
+				_('Activating external patient')
+			)
+		return
+
+	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg.set_persons(persons = idents)
+	result = dlg.ShowModal()
+	ident = dlg.get_selected_person()
+	dlg.Destroy()
+	if result == wx.ID_CANCEL:
+		return None
+	if not set_active_patient(patient = ident):
+		gmGuiHelpers.gm_show_info (_(
+			'Cannot activate patient:\n\n'
+			'%s %s (%s)\n'
+			'%s'
+			) % (
+				dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+			),
+			_('Activating external patient')
+		)
+
 #============================================================
 def get_person_from_external_sources(parent=None, search_immediately=False, activate_immediately=False):
 	"""Load patient from external source.
@@ -625,10 +696,10 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 		dlg = cSelectPersonFromListDlg(parent=parent, id=-1)
 		dlg.set_persons(persons=idents)
 		result = dlg.ShowModal()
-		if result == wx.ID_CANCEL:
-			return None
 		ident = dlg.get_selected_person()
 		dlg.Destroy()
+		if result == wx.ID_CANCEL:
+			return None
 
 	if activate_immediately:
 		if not set_active_patient(patient = ident):
@@ -914,31 +985,13 @@ class cPersonSearchCtrl(wx.TextCtrl):
 
 		return None
 #============================================================
-def _check_has_dob(patient=None):
+def _verify_staff_chart_access(patient=None):
 
 	if patient is None:
-		return
+		return True
 
-	if patient['dob'] is None:
-		gmGuiHelpers.gm_show_warning (
-			aTitle = _('Checking date of birth'),
-			aMessage = _(
-				'\n'
-				' %s\n'
-				'\n'
-				'The date of birth for this patient is not known !\n'
-				'\n'
-				'You can proceed to work on the patient but\n'
-				'GNUmed will be unable to assist you with\n'
-				'age-related decisions.\n'
-			) % patient['description_gender']
-		)
-
-	return
-#------------------------------------------------------------
-def _check_for_provider_chart_access(patient=None):
-
-	if patient is None:
+	# staff ?
+	if patient.ID not in [ s['pk_identity'] for s in gmStaff.get_staff_list() ]:
 		return True
 
 	curr_prov = gmStaff.gmCurrentProvider()
@@ -947,7 +1000,8 @@ def _check_for_provider_chart_access(patient=None):
 	if patient.ID == curr_prov['pk_identity']:
 		return True
 
-	if patient.ID not in [ s['pk_identity'] for s in gmStaff.get_staff_list() ]:
+	# primary provider can view patient
+	if patient['pk_primary_provider'] == curr_prov['pk_staff']:
 		return True
 
 	proceed = gmGuiHelpers.gm_show_question (
@@ -1002,6 +1056,28 @@ def _check_for_provider_chart_access(patient=None):
 		)
 
 	return proceed
+
+#------------------------------------------------------------
+def _check_has_dob(patient=None):
+
+	if patient is None:
+		return
+
+	if patient['dob'] is None:
+		gmGuiHelpers.gm_show_warning (
+			aTitle = _('Checking date of birth'),
+			aMessage = _(
+				'\n'
+				' %s\n'
+				'\n'
+				'The date of birth for this patient is not known !\n'
+				'\n'
+				'You can proceed to work on the patient but\n'
+				'GNUmed will be unable to assist you with\n'
+				'age-related decisions.\n'
+			) % patient['description_gender']
+		)
+
 #------------------------------------------------------------
 def _check_birthday(patient=None):
 
@@ -1030,17 +1106,23 @@ def _check_birthday(patient=None):
 		'day_now': gmDateTime.pydt_strftime(now, '%d', enc, gmDateTime.acc_days)
 	}
 	gmDispatcher.send(signal = 'statustext', msg = msg)
+
+#------------------------------------------------------------
+def _do_after_setting_active_patient(patient=None):
+	_check_has_dob(patient = patient)
+	_check_birthday(patient = patient)
+
 #------------------------------------------------------------
 def set_active_patient(patient=None, forced_reload=False):
+
+	# already active ?
+	if isinstance(patient, gmPerson.gmCurrentPatient):
+		return True
 
 	if isinstance(patient, gmPerson.cPatient):
 		pass
 	elif isinstance(patient, gmPerson.cIdentity):
-		patient = gmPerson.cPatient(aPK_obj = patient['pk_identity'])
-#	elif isinstance(patient, cStaff):
-#		patient = cPatient(aPK_obj=patient['pk_identity'])
-	elif isinstance(patient, gmPerson.gmCurrentPatient):
-		patient = patient.patient
+		patient = patient.as_patient
 	elif patient == -1:
 		pass
 	else:
@@ -1055,9 +1137,7 @@ def set_active_patient(patient=None, forced_reload=False):
 			_log.exception('error changing active patient to [%s]' % patient)
 			return False
 
-	_check_has_dob(patient = patient)
-
-	if not _check_for_provider_chart_access(patient = patient):
+	if not _verify_staff_chart_access(patient = patient):
 		return False
 
 	success = gmPerson.set_active_patient(patient = patient, forced_reload = forced_reload)
@@ -1065,9 +1145,9 @@ def set_active_patient(patient=None, forced_reload=False):
 	if not success:
 		return False
 
-	_check_birthday(patient = patient)
-
+	wx.CallAfter(_do_after_setting_active_patient, patient)
 	return True
+
 #------------------------------------------------------------
 class cActivePatientSelector(cPersonSearchCtrl):
 

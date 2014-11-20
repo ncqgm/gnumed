@@ -656,16 +656,7 @@ def delete_bill(parent=None, bill=None):
 	if button_pressed == wx.ID_CANCEL:
 		return False
 
-	if button_pressed == wx.ID_YES:
-		for item in bill.bill_items:
-			item['pk_bill'] = None
-			item.save()
-
-	if button_pressed == wx.ID_NO:
-		for item in bill.bill_items:
-			item['pk_bill'] = None
-			item.save()
-			gmBilling.delete_bill_item(pk_bill_item = item['pk_bill_item'])
+	delete_items = (button_pressed == wx.ID_NO)
 
 	if delete_invoice:
 		if bill['pk_doc'] is not None:
@@ -674,7 +665,13 @@ def delete_bill(parent=None, bill=None):
 				encounter_id = gmPerson.cPatient(aPK_obj = bill['pk_patient']).emr.active_encounter['pk_encounter']
 			)
 
-	return gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+	items = bill['pk_bill_items']
+	success = gmBilling.delete_bill(pk_bill = bill['pk_bill'])
+	if delete_items:
+		for item in items:
+			gmBilling.delete_bill_item(pk_bill_item = item)
+
+	return success
 
 #----------------------------------------------------------------
 def remove_items_from_bill(parent=None, bill=None):
@@ -722,6 +719,20 @@ def remove_items_from_bill(parent=None, bill=None):
 	)
 
 	if items2remove is None:
+		return False
+
+	if len(items2remove) == len(list_items):
+		gmGuiHelpers.gm_show_info (
+			title = _('Removing items from bill'),
+			info = _(
+				'Cannot remove all items from a bill because\n'
+				'GNUmed does not support empty bills.\n'
+				'\n'
+				'You must delete the bill itself if you want to\n'
+				'remove all items (at which point you can opt to\n'
+				'keep the items and only delete the bill).'
+			)
+		)
 		return False
 
 	dlg = gmGuiHelpers.c3ButtonQuestionDlg (
@@ -1464,6 +1475,12 @@ class cBillingPluginPnl(wxgBillingPluginPnl.wxgBillingPluginPnl, gmRegetMixin.cR
 		self._PNL_bill_items.show_non_invoiced_only = self._CHBOX_show_non_invoiced_only.GetValue()
 	#--------------------------------------------------------
 	def _on_insert_bill_item_button_pressed(self, event):
+		if self._PRW_billable.GetData() is None:
+			gmGuiHelpers.gm_show_warning (
+				_('No billable item selected.\n\nCannot insert bill item.'),
+				_('Inserting bill item')
+			)
+			return False
 		val = self._TCTRL_factor.GetValue().strip()
 		if val == u'':
 			factor = 1.0

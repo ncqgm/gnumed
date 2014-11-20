@@ -26,20 +26,27 @@ import urllib2
 import subprocess
 import glob
 
+_log = logging.getLogger('gm.main')
 
 # 3rd party libs
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
 	import wxversion
+	_log.debug(u'wxPython versions available on this machine: %s', wxversion.getInstalled())
 	# we'll check options further down because we want to
-	# support 2.9 as well and while that supports unicode
+	# support 3.0 as well and while that supports unicode
 	# builds only anyway it don't respond well to requiring
 	# a "-unicode" option indicator, ... :-/
-	#wxversion.ensureMinimal('2.8-unicode', optionsRequired=True)
-	wxversion.ensureMinimal('2.8', optionsRequired = False)
+	# try to select wxPython 3 but fall back to 2.8 on failure
+	try:
+		wxversion.select(versions = '3.0')
+	except wxversion.VersionError:
+		_log.exception('cannot select wxPython 3.0')
+		wxversion.select(versions = '2.8-unicode', optionsRequired = True)
 
 try:
 	import wx
+	_log.info('wxPython version loaded: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 except ImportError:
 	print "GNUmed startup: Cannot import wxPython library."
 	print "GNUmed startup: Make sure wxPython is installed."
@@ -132,9 +139,6 @@ _cfg = gmCfg2.gmCfgData()
 _provider = None
 _scripting_listener = None
 _original_wxEndBusyCursor = None
-
-_log = logging.getLogger('gm.main')
-_log.info('wxPython GUI framework: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 
 #==============================================================================
 class gmTopLevelFrame(wx.Frame):
@@ -608,8 +612,14 @@ class gmTopLevelFrame(wx.Frame):
 
 		# FIXME: temporary until external program framework is active
 		ID = wx.NewId()
-		menu_person.Append(ID, _('Export to GDT'), _('Export demographics of currently active person into GDT file.'))
+		menu_person.Append(ID, _(u'Export (GDT \u2192 file)'), _('Export demographics of currently active person into GDT file.'))
 		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
+
+		item = menu_person.Append(-1, _(u'Export (XML \u2192 clipboard)'), _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
+		self.Bind(wx.EVT_MENU, self.__on_export_as_xml_linuxmednews, item)
+
+		item = menu_person.Append(-1, _(u'Import (clipboard \u2192 patient)'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
 
 		menu_person.AppendSeparator()
 
@@ -660,6 +670,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('&Pregnancy'), _('Calculate EDC.'))
 		self.Bind(wx.EVT_MENU, self.__on_calc_edc, item)
+
+		item = menu_emr_edit.Append(-1, _('Suppressed hints'), _('Manage dynamic hints suppressed in this patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_suppressed_hints, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
@@ -2361,6 +2374,11 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_show_hl7(self, evt):
+#		from Gnumed.business import gmClinicalCalculator
+#		calc = gmClinicalCalculator.cClinicalCalculator(patient = gmPerson.gmCurrentPatient())
+#		result = calc.eGFR_CKD_EPI
+#		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True, with_hints = True)
+#		return
 		gmMeasurementWidgets.show_hl7_file(parent = self)
 	#----------------------------------------------
 	def __on_unwrap_hl7_from_xml(self, evt):
@@ -2653,6 +2671,14 @@ class gmTopLevelFrame(wx.Frame):
 		pat = gmPerson.gmCurrentPatient()
 		gmPregWidgets.calculate_edc(parent = self, patient = pat)
 	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage suppressed hints'))
+	def __on_manage_suppressed_hints(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage suppressed hints. No active patient.'))
+			return False
+		gmAutoHintWidgets.manage_suppressed_hints(parent = self, pk_identity = pat.ID)
+	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2769,7 +2795,7 @@ class gmTopLevelFrame(wx.Frame):
 			bias = 'user',
 			default = 0
 		))
-		gmPatSearchWidgets.get_person_from_external_sources(parent=self, search_immediately=search_immediately, activate_immediately=True)
+		gmPatSearchWidgets.get_person_from_external_sources(parent = self, search_immediately = search_immediately, activate_immediately = True)
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2780,6 +2806,21 @@ class gmTopLevelFrame(wx.Frame):
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.gdt'))
 		curr_pat.export_as_gdt(filename = fname, encoding = enc)
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
+
+	#----------------------------------------------
+	def __on_export_as_xml_linuxmednews(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as XML (LinuxMedNews). No active patient.'))
+			return False
+		fname = curr_pat.export_as_xml_linuxmednews()
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to XML file [%s].') % fname)
+		gmGuiHelpers.file2clipboard(filename = fname, announce_result = True)
+
+	#----------------------------------------------
+	def __on_import_xml_linuxmednews(self, evt):
+		gmPatSearchWidgets.load_person_from_xml_linuxmednews_via_clipboard()
+
 	#----------------------------------------------
 	def __on_search_person(self, evt):
 		gmDispatcher.send(signal = u'focus_patient_search')
@@ -3580,6 +3621,7 @@ def setup_safe_wxEndBusyCursor():
 def setup_chart_puller():
 	from Gnumed.wxpython import gmChartPullingWidgets
 	gmPerson.set_chart_puller(gmChartPullingWidgets.pull_chart)
+	gmPerson.set_yielder(wx.Yield)
 
 #==============================================================================
 def main():
