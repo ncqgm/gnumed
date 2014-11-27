@@ -288,9 +288,9 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 					subunit = adr['Anschriftenzusatz'],
 					street = adr['Strasse'],
 					urb = adr['Ort'],
-					region = u'',
+					region_code = u'',
 					zip = adr['Postleitzahl'],
-					country = map_CCRdr_region_code2country[adr['Wohnsitzlaendercode']]
+					country_code = map_CCRdr_region_code2country[adr['Wohnsitzlaendercode']]
 				)
 			except ValueError:
 				_log.exception('invalid street address on card')
@@ -308,9 +308,9 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 					#subunit = adr['Anschriftenzusatz'],
 					street = _('PO Box'),
 					urb = adr['PostfachOrt'],
-					region = u'',
+					region_code = u'',
 					zip = adr['PostfachPLZ'],
-					country = map_CCRdr_region_code2country[adr['PostfachWohnsitzlaendercode']]
+					country_code = map_CCRdr_region_code2country[adr['PostfachWohnsitzlaendercode']]
 				)
 			except ValueError:
 				_log.exception('invalid PO Box address on card')
@@ -422,8 +422,8 @@ select pk_identity from dem.v_external_ids4identity where
 			street = street,
 			postcode = self.zip,
 			urb = self.urb,
-			state = u'??',
-			country = u'DE'			# actually: map urb_region_code
+			region_code = u'',			# actually: map urb2region ?
+			country_code = u'DE'		# actually: map urb+region2country_code
 		)
 		# FIXME: eGK itself
 	#--------------------------------------------------------
@@ -557,8 +557,8 @@ select pk_identity from dem.v_external_ids4identity where
 			street = street,
 			postcode = self.zip,
 			urb = self.urb,
-			state = u'??',
-			country = u'DE'		# actually: map urb_region_code
+			region_code = u'',
+			country_code = u'DE'		# actually: map urb_region_code
 		)
 		# FIXME: kvk itself
 	#--------------------------------------------------------

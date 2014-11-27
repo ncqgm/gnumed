@@ -571,6 +571,110 @@ def load_persons_from_kvks():
 	return dtos
 
 #============================================================
+def load_person_from_vcard_file():
+
+	wildcards = u'|'.join ([
+		u'%s (*.vcf)|*.vcf' % _('vcf files'),
+		u'%s (*.VCF)|*.VCF' % _('VCF files'),
+		u'%s (*)|*' % _('all files'),
+		u'%s (*.*)|*.*' % _('all files (Windows)')
+	])
+
+	dlg = wx.FileDialog (
+		parent = wx.GetApp().GetTopWindow(),
+		message = _('Choose a vCard file:'),
+		defaultDir = os.path.join(gmTools.gmPaths().home_dir, 'gnumed'),
+		wildcard = wildcards,
+		style = wx.OPEN | wx.FILE_MUST_EXIST
+	)
+	result = dlg.ShowModal()
+	fname = dlg.GetPath()
+	dlg.Destroy()
+	if result == wx.ID_CANCEL:
+		return
+
+	from Gnumed.business import gmVCard
+	dto = gmVCard.parse_vcard2dto(filename = fname)
+	idents = dto.get_candidate_identities(can_create = True)
+	if len(idents) == 1:
+		ident = idents[0]
+		if not set_active_patient(patient = ident):
+			gmGuiHelpers.gm_show_info (_(
+				'Cannot activate patient:\n\n'
+				'%s %s (%s)\n'
+				'%s'
+				) % (
+					dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+				),
+				_('Activating external patient')
+			)
+		return
+
+	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg.set_persons(persons = idents)
+	result = dlg.ShowModal()
+	ident = dlg.get_selected_person()
+	dlg.Destroy()
+	if result == wx.ID_CANCEL:
+		return
+	if not set_active_patient(patient = ident):
+		gmGuiHelpers.gm_show_info (_(
+			'Cannot activate patient:\n\n'
+			'%s %s (%s)\n'
+			'%s'
+			) % (
+				dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+			),
+			_('Activating external patient')
+		)
+
+#============================================================
+def load_person_from_vcard_via_clipboard():
+
+	fname = gmGuiHelpers.clipboard2file()
+	if fname in [None, False]:
+		gmGuiHelpers.gm_show_info (
+			info = _('No patient in clipboard.'),
+			title = _('Activating external patient')
+		)
+		return
+
+	from Gnumed.business import gmVCard
+	dto = gmVCard.parse_vcard2dto(filename = fname)
+	idents = dto.get_candidate_identities(can_create = True)
+	if len(idents) == 1:
+		ident = idents[0]
+		if not set_active_patient(patient = ident):
+			gmGuiHelpers.gm_show_info (_(
+				'Cannot activate patient:\n\n'
+				'%s %s (%s)\n'
+				'%s'
+				) % (
+					dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+				),
+				_('Activating external patient')
+			)
+		return
+
+	dlg = cSelectPersonFromListDlg(parent = wx.GetApp().GetTopWindow(), id = -1)
+	dlg.set_persons(persons = idents)
+	result = dlg.ShowModal()
+	ident = dlg.get_selected_person()
+	dlg.Destroy()
+	if result == wx.ID_CANCEL:
+		return
+	if not set_active_patient(patient = ident):
+		gmGuiHelpers.gm_show_info (_(
+			'Cannot activate patient:\n\n'
+			'%s %s (%s)\n'
+			'%s'
+			) % (
+				dto.firstnames, dto.lastnames, dto.gender, gmDateTime.pydt_strftime(dto.dob, '%Y %b %d')
+			),
+			_('Activating external patient')
+		)
+
+#============================================================
 def load_person_from_xml_linuxmednews_via_clipboard():
 
 	fname = gmGuiHelpers.clipboard2file()

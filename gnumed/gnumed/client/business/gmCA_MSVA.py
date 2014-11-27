@@ -148,9 +148,9 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 			number = '?',
 			street = street,
 			urb = line[142:167],
-			region = line[167:169],				# or "province"
+			region_code = line[167:169],				# or "province"
 			zip = line[169:178],
-			country = 'CA'
+			country_code = u'CA'
 		)
 
 		# channel types must correspond to GNUmed database comm type

@@ -1925,7 +1925,7 @@ def test_au():
 	'CLINICALNOTES':"""heard new murmur
 	Here's some
 crap to demonstrate how it can cover multiple lines.""",
-	'COPYADDRESS':'Karsten Hilbert\nLeipzig, Germany',
+	'COPYADDRESS':'Jack Jones\nHannover, Germany',
 	'ROUTINE':1,
 	'URGENT':0,
 	'FAX':1,

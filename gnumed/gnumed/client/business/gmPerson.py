@@ -268,8 +268,8 @@ class cDTO_person(object):
 					street = adr['street'],
 					postcode = adr['zip'],
 					urb = adr['urb'],
-					state = adr['region'],
-					country = adr['country']
+					region_code = adr['region_code'],
+					country_code = adr['country_code']
 				)
 			except StandardError:
 				_log.exception('cannot import <address> from external data source')
@@ -301,7 +301,7 @@ class cDTO_person(object):
 			raise ValueError(_('<channel> cannot be empty'))
 		self.comm_channels.append({'channel': channel, 'url': url})
 	#--------------------------------------------------------
-	def remember_address(self, number=None, street=None, urb=None, region=None, zip=None, country=None, adr_type=None, subunit=None):
+	def remember_address(self, number=None, street=None, urb=None, region_code=None, zip=None, country_code=None, adr_type=None, subunit=None):
 		number = number.strip()
 		if number == u'':
 			raise ValueError(_('<number> cannot be empty'))
@@ -314,12 +314,13 @@ class cDTO_person(object):
 		zip = zip.strip()
 		if zip == u'':
 			raise ValueError(_('<zip> cannot be empty'))
-		country = country.strip()
-		if country == u'':
-			raise ValueError(_('<country> cannot be empty'))
-		region = region.strip()
-		if region == u'':
-			region = u'??'
+		country_code = country_code.strip()
+		if country_code == u'':
+			raise ValueError(_('<country_code> cannot be empty'))
+		if region_code is not None:
+			region_code = region_code.strip()
+		if region_code in [None, u'']:
+			region_code = u'??'
 		self.addresses.append ({
 			u'type': adr_type,
 			u'number': number,
@@ -327,15 +328,16 @@ class cDTO_person(object):
 			u'street': street,
 			u'zip': zip,
 			u'urb': urb,
-			u'region': region,
-			u'country': country
+			u'region_code': region_code,
+			u'country_code': country_code
 		})
 	#--------------------------------------------------------
 	# customizing behaviour
 	#--------------------------------------------------------
 	def __str__(self):
-		return u'<%s @ %s: %s %s (%s) %s>' % (
+		return u'<%s (%s) @ %s: %s %s (%s) %s>' % (
 			self.__class__.__name__,
+			self.source,
 			id(self),
 			self.firstnames,
 			self.lastnames,
@@ -984,36 +986,44 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		template = u'%s%s%s\r\n'
 
-		file = codecs.open (
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = u'gm-patient2gdt-',
+				suffix = u'.gdt'
+			)
+
+		gdt_file = codecs.open (
 			filename = filename,
 			mode = 'wb',
 			encoding = encoding,
 			errors = 'strict'
 		)
 
-		file.write(template % (u'013', u'8000', u'6301'))
-		file.write(template % (u'013', u'9218', u'2.10'))
+		gdt_file.write(template % (u'013', u'8000', u'6301'))
+		gdt_file.write(template % (u'013', u'9218', u'2.10'))
 		if external_id_type is None:
-			file.write(template % (u'%03d' % (9 + len(str(self.ID))), u'3000', self.ID))
+			gdt_file.write(template % (u'%03d' % (9 + len(str(self.ID))), u'3000', self.ID))
 		else:
 			ext_ids = self.get_external_ids(id_type = external_id_type)
 			if len(ext_ids) > 0:
-				file.write(template % (u'%03d' % (9 + len(ext_ids[0]['value'])), u'3000', ext_ids[0]['value']))
-		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['lastnames']])), u'3101', self._payload[self._idx['lastnames']]))
-		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['firstnames']])), u'3102', self._payload[self._idx['firstnames']]))
-		file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
-		file.write(template % (u'010', u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
-		file.write(template % (u'025', u'6330', 'GNUmed::9206::encoding'))
-		file.write(template % (u'%03d' % (9 + len(encoding)), u'6331', encoding))
+				gdt_file.write(template % (u'%03d' % (9 + len(ext_ids[0]['value'])), u'3000', ext_ids[0]['value']))
+		gdt_file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['lastnames']])), u'3101', self._payload[self._idx['lastnames']]))
+		gdt_file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['firstnames']])), u'3102', self._payload[self._idx['firstnames']]))
+		gdt_file.write(template % (u'%03d' % (9 + len(self._payload[self._idx['dob']].strftime('%d%m%Y'))), u'3103', self._payload[self._idx['dob']].strftime('%d%m%Y')))
+		gdt_file.write(template % (u'010', u'3110', gmXdtMappings.map_gender_gm2xdt[self._payload[self._idx['gender']]]))
+		gdt_file.write(template % (u'025', u'6330', 'GNUmed::9206::encoding'))
+		gdt_file.write(template % (u'%03d' % (9 + len(encoding)), u'6331', encoding))
 		if external_id_type is None:
-			file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
-			file.write(template % (u'017', u'6333', u'internal'))
+			gdt_file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
+			gdt_file.write(template % (u'017', u'6333', u'internal'))
 		else:
 			if len(ext_ids) > 0:
-				file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
-				file.write(template % (u'%03d' % (9 + len(external_id_type)), u'6333', external_id_type))
+				gdt_file.write(template % (u'029', u'6332', u'GNUmed::3000::source'))
+				gdt_file.write(template % (u'%03d' % (9 + len(external_id_type)), u'6333', external_id_type))
 
-		file.close()
+		gdt_file.close()
+
+		return filename
 	#--------------------------------------------------------
 	def export_as_xml_linuxmednews(self, filename=None):
 
@@ -1087,23 +1097,23 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		phone = etree.SubElement(pat, u'home_phone')
 		rec = self.get_comm_channels(comm_medium = u'homephone')
 		if len(rec) > 0:
-			if not rec['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
-				rec.text = rec['url']
+			if not rec[0]['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				rec.text = rec[0]['url']
 
 		phone = etree.SubElement(pat, u'work_phone')
 		rec = self.get_comm_channels(comm_medium = u'workphone')
 		if len(rec) > 0:
-			if not rec['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
-				rec.text = rec['url']
+			if not rec[0]['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				rec.text = rec[0]['url']
 
 		phone = etree.SubElement(pat, u'cell_phone')
 		rec = self.get_comm_channels(comm_medium = u'mobile')
 		if len(rec) > 0:
-			if not rec['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec['comment'], u''))
-				rec.text = rec['url']
+			if not rec[0]['is_confidential']:
+				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				rec.text = rec[0]['url']
 
 		tree = etree.ElementTree(pat)
 		tree.write(filename, encoding = u'UTF-8')
@@ -1111,10 +1121,103 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		return filename
 
 	#--------------------------------------------------------
+	def export_as_vcard(self, filename=None):
+		# http://vobject.skyhouseconsulting.com/usage.html
+		# http://en.wikipedia.org/wiki/VCard
+		# http://svn.osafoundation.org/vobject/trunk/vobject/vcard.py
+		# http://www.ietf.org/rfc/rfc2426.txt
+
+		dob_format = '%Y%m%d'
+
+		import vobject
+
+		vc = vobject.vCard()
+		vc.add(u'kind')
+		vc.kind.value = u'individual'
+
+		vc.add(u'fn')
+		vc.fn.value = self.get_description()
+		vc.add(u'n')
+		vc.n.value = vobject.vcard.Name(family = self._payload[self._idx['lastnames']], given = self._payload[self._idx['firstnames']])
+		vc.add(u'nickname')
+		vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+		vc.add(u'title')
+		vc.title.value = gmTools.coalesce(self._payload[self._idx['title']], u'')
+		vc.add(u'gender')
+		# FIXME: dont know how to add gender_string after ';'
+		vc.gender.value = map_gender2vcard[self._payload[self._idx['gender']]]#, self.gender_string
+		vc.add(u'bday')
+		vc.bday.value = gmDateTime.pydt_strftime(self._payload[self._idx['dob']], dob_format, encoding = 'utf8', accuracy = gmDateTime.acc_days, none_str = u'')
+
+		channels = self.get_comm_channels(comm_medium = u'homephone')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'tel')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'HOME'
+		channels = self.get_comm_channels(comm_medium = u'workphone')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'tel')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'WORK'
+		channels = self.get_comm_channels(comm_medium = u'mobile')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'tel')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'CELL'
+		channels = self.get_comm_channels(comm_medium = u'fax')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'tel')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'FAX'
+		channels = self.get_comm_channels(comm_medium = u'email')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'email')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'INTERNET'
+		channels = self.get_comm_channels(comm_medium = u'web')
+		if len(channels) > 0:
+			if not channels[0]['is_confidential']:
+				vc.add(u'url')
+				vc.tel.value = channels[0]['url']
+				vc.tel.type_param = u'INTERNET'
+
+		adrs = self.get_addresses(address_type = u'home')
+		if len(adrs) > 0:
+			home_adr = adrs[0]
+			vc.add(u'adr')
+			vc.adr.type_param = u'HOME'
+			vc.adr.value = vobject.vcard.Address()
+			vc_adr = vc.adr.value
+			vc_adr.extended = gmTools.coalesce(home_adr['subunit'], u'')
+			vc_adr.street = gmTools.coalesce(home_adr['street'], u'', u'%s ') + gmTools.coalesce(adr['number'], u'')
+			vc_adr.region = gmTools.coalesce(home_adr['l10n_state'], u'')
+			vc_adr.code = gmTools.coalesce(home_adr['postcode'], u'')
+			vc_adr.city = gmTools.coalesce(home_adr['urb'], u'')
+			vc_adr.country = gmTools.coalesce(home_adr['l10n_country'], u'')
+
+		#photo (base64)
+
+		if filename is None:
+			filename = gmTools.get_unique_filename (
+				prefix = u'gm-patient2vcard-',
+				suffix = u'.vcf'
+			)
+		vcf = codecs.open(filename, mode = 'wb', encoding = 'utf8')
+		vcf.write(vc.serialize().decode('utf-8'))
+		vcf.close()
+
+		return filename
+	#--------------------------------------------------------
 	# occupations API
 	#--------------------------------------------------------
 	def get_occupations(self):
 		return gmDemographicRecord.get_occupations(pk_identity = self.pk_obj)
+
 	#--------------------------------------------------------
 	def link_occupation(self, occupation=None, activities=None):
 		"""Link an occupation with a patient, creating the occupation if it does not exists.
@@ -1223,15 +1326,15 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			for r in rows
 		]
 	#--------------------------------------------------------
-	def link_address(self, number=None, street=None, postcode=None, urb=None, state=None, country=None, subunit=None, suburb=None, id_type=None, address=None, adr_type=None):
+	def link_address(self, number=None, street=None, postcode=None, urb=None, region_code=None, country_code=None, subunit=None, suburb=None, id_type=None, address=None, adr_type=None):
 		"""Link an address with a patient, creating the address if it does not exists.
 
 		@param id_type The primary key of the address type.
 		"""
 		if address is None:
 			address = gmDemographicRecord.create_address (
-				country = country,
-				state = state,
+				country_code = country_code,
+				region_code = region_code,
 				urb = urb,
 				suburb = suburb,
 				postcode = postcode,
@@ -2019,6 +2122,7 @@ def get_gender_list():
 		_log.debug(u'genders in database: %s' % __gender_list)
 
 	return (__gender_list, __gender_idx)
+
 #------------------------------------------------------------
 map_gender2mf = {
 	'm': u'm',
@@ -2027,8 +2131,20 @@ map_gender2mf = {
 	'tm': u'm',
 	'h': u'mf'
 }
+
+# https://tools.ietf.org/html/rfc6350#section-6.2.7
+# M F O N U
+map_gender2vcard = {
+	u'm': u'M',
+	u'f': u'F',
+	u'tf': u'F',
+	u'tm': u'M',
+	u'h': u'O',
+	None: u'U'
+}
+
 #------------------------------------------------------------
-# Maps GNUmed related i18n-aware gender specifiers to a unicode symbol.
+# maps GNUmed related i18n-aware gender specifiers to a unicode symbol
 map_gender2symbol = {
 	u'm': u'\u2642',
 	u'f': u'\u2640',
@@ -2210,8 +2326,8 @@ if __name__ == '__main__':
 			street = 'test street',
 			postcode = 'test postcode',
 			urb = 'test urb',
-			state = 'SN',
-			country = 'DE'
+			region_code = u'SN',
+			country_code = u'DE'
 		)
 		print 'Identity addresses: %s' % new_identity.get_addresses()
 
@@ -2243,6 +2359,10 @@ if __name__ == '__main__':
 		print person.get_external_ids(id_type=u'Fachgebiet', issuer=u'Ärztekammer')
 		#print person.get_external_ids()
 	#--------------------------------------------------------
+	def test_vcf():
+		person = cIdentity(aPK_obj = 12)
+		print person.export_as_vcard()
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
@@ -2256,6 +2376,7 @@ if __name__ == '__main__':
 	#comms = get_comm_list()
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms
 	#test_export_area()
-	test_ext_id()
+	#test_ext_id()
+	test_vcf()
 
 #============================================================

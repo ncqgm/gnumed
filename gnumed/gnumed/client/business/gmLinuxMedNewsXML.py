@@ -46,7 +46,7 @@ def parse_xml_linuxmednews(xml_text=None, filename=None):
 	dto.source = u'LinuxMedNews XML'
 
 	#dto.remember_comm_channel(channel=None, url=None):
-	#dto.remember_address(number=None, street=None, urb=None, region=None, zip=None, country=None, adr_type=None, subunit=None)
+	#dto.remember_address(number=None, street=None, urb=None, region_code=None, zip=None, country_code=None, adr_type=None, subunit=None)
 
 	return dto
 

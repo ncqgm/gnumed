@@ -29,6 +29,7 @@ NEW: clipboard-based XML-formatted demographics exchange (I.Valdes, LinuxMedNews
 NEW: enable TLS on sending bug reports
 NEW: sort substance intake by start date [thanks Jim]
 NEW: save report generator results as CSV file
+NEW: vCard import/export (I.Valdes, LinuxMedNews)
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering

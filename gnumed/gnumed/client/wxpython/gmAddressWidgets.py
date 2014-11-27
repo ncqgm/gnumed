@@ -809,8 +809,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		try:
 			# will create or return address
 			address = gmDemographicRecord.create_address (
-				country = self._PRW_country.GetData(),
-				state = self._PRW_state.GetData(),
+				country_code = self._PRW_country.GetData(),
+				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
 				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
 				postcode = self._PRW_zip.GetValue().strip(),
@@ -852,8 +852,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		# address should it exist
 		try:
 			created_or_loaded_address = gmDemographicRecord.create_address (
-				country = self._PRW_country.GetData(),
-				state = self._PRW_state.GetData(),
+				country_code = self._PRW_country.GetData(),
+				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
 				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
 				postcode = self._PRW_zip.GetValue().strip(),

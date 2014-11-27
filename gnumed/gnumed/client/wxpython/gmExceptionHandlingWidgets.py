@@ -67,7 +67,7 @@ def __handle_exceptions_on_shutdown(t, v, tb):
 	if t == wx._core.PyDeadObjectError:
 		return True
 
-	gmLog2.log_stack_trace()
+	gmLog2.log_stack_trace('exception on shutdown', t, v, tb)
 	return True
 #-------------------------------------------------------------------------
 def __handle_import_error(t, v, tb):
@@ -173,8 +173,7 @@ def __handle_lost_db_connection(t, v, tb):
 	if not conn_lost:
 		return False
 
-	_log2.error('lost connection')
-	gmLog2.log_stack_trace()
+	gmLog2.log_stack_trace('lost connection', t, v, tb)
 	wx.EndBusyCursor()
 	gmLog2.flush()
 	gmGuiHelpers.gm_show_error (
@@ -222,7 +221,7 @@ def handle_uncaught_exception_wx(t, v, tb):
 	if __handle_lost_db_connection(t, v, tb):
 		return
 
-	gmLog2.log_stack_trace()
+	gmLog2.log_stack_trace(None, t, v, tb)
 
 	# only do this here or else we can invalidate the stack trace
 	# by Windows throwing an exception ... |-(

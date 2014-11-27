@@ -501,8 +501,8 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 					street = self._PRW_street.GetValue().strip(),
 					postcode = self._PRW_zip.GetValue().strip(),
 					urb = self._PRW_urb.GetValue().strip(),
-					state = self._PRW_region.GetData(),
-					country = self._PRW_country.GetData(),
+					region_code = self._PRW_region.GetData(),
+					country_code = self._PRW_country.GetData(),
 					subunit = gmTools.none_if(self._TCTRL_unit.GetValue().strip(), u''),
 					id_type = self._PRW_type.GetData()
 				)

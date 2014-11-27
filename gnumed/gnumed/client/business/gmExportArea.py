@@ -559,6 +559,11 @@ class cExportArea(object):
 		))
 		readme_file.close()
 
+		# patient demographics as GDT/XML/VCF
+		pat.export_as_gdt(filename = os.path.join(base_dir, u'patient.gdt'))
+		pat.export_as_xml_linuxmednews(filename = os.path.join(base_dir, u'patient.xml'))
+		pat.export_as_vcard(filename = os.path.join(base_dir, u'patient.vcf'))
+
 		return base_dir
 	#--------------------------------------------------------
 	# properties
