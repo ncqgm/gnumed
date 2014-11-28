@@ -16,16 +16,16 @@
                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxStaticText" name="__lbl_province" base="EditStaticText">
+                <object class="wxStaticText" name="__lbl_region" base="EditStaticText">
                     <attribute>0</attribute>
-                    <label>Province</label>
+                    <label>Region</label>
                 </object>
             </object>
             <object class="sizeritem">
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmAddressWidgets.cStateSelectionPhraseWheel" name="_PRW_province" base="EditTextCtrl">
+                <object class="gmAddressWidgets.cStateSelectionPhraseWheel" name="_PRW_region" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>
@@ -50,7 +50,7 @@
                         <option>1</option>
                         <object class="wxTextCtrl" name="_TCTRL_code" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>A code for this province.</tooltip>
+                            <tooltip>A code for this region.</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

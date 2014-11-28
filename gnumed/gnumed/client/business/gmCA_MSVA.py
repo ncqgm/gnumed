@@ -122,11 +122,11 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 		)
 		dto.lastnames = gmTools.capitalize(line[22:47].strip(), gmTools.CAPS_FIRST_ONLY)	# should be _NAMES
 
-		province = line[59:61]
+		region = line[59:61]
 		dto.remember_external_id (
-			name = u'PHN (%s.CA)' % province,
+			name = u'PHN (%s.CA)' % region,
 			value = line[47:57],
-			issuer = u'MOH (%s.CA)' % province
+			issuer = u'MOH (%s.CA)' % region
 		)
 
 		dob = time.strptime(line[65:73].strip(), MSVA_dob_format)
@@ -148,7 +148,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 			number = '?',
 			street = street,
 			urb = line[142:167],
-			region_code = line[167:169],				# or "province"
+			region_code = line[167:169],
 			zip = line[169:178],
 			country_code = u'CA'
 		)

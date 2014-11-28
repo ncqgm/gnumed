@@ -406,7 +406,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after person activation.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_initial_pat_plugin)
 
-		item = menu_cfg_pat_search.Append(-1, _('Default region'), _('Configure the default province/region/state for person creation.'))
+		item = menu_cfg_pat_search.Append(-1, _('Default region'), _('Configure the default region for person creation.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_default_region, item)
 
 		item = menu_cfg_pat_search.Append(-1, _('Default country'), _('Configure the default country for person creation.'))
@@ -2231,7 +2231,7 @@ class gmTopLevelFrame(wx.Frame):
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
-			'provinces': gmAddressWidgets.manage_provinces,
+			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
 			'substances_in_brands': gmMedicationWidgets.manage_drug_components,

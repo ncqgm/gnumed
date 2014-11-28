@@ -487,9 +487,9 @@ def map_region2code(region=None, country_code=None):
 	return rows[0][0]
 
 #------------------------------------------------------------
-def delete_province(province=None, delete_urbs=False):
+def delete_region(region=None, delete_urbs=False):
 
-	args = {'prov': province}
+	args = {'region': region}
 
 	queries = []
 	if delete_urbs:
@@ -497,7 +497,7 @@ def delete_province(province=None, delete_urbs=False):
 			'cmd': u"""
 				delete from dem.urb du
 				where
-					du.id_state = %(prov)s
+					du.id_state = %(region)s
 						and
 					not exists (select 1 from dem.street ds where ds.id_urb = du.id)""",
 			'args': args
@@ -507,7 +507,7 @@ def delete_province(province=None, delete_urbs=False):
 		'cmd': u"""
 			delete from dem.state ds
 			where
-				ds.id = %(prov)s
+				ds.id = %(region)s
 					and
 				not exists (select 1 from dem.urb du where du.id_state = ds.id)""",
 		'args': args
@@ -518,7 +518,7 @@ def delete_province(province=None, delete_urbs=False):
 	return True
 
 #------------------------------------------------------------
-def create_province(name=None, code=None, country=None):
+def create_region(name=None, code=None, country=None):
 
 	args = {'code': code, 'country': country, 'name': name}
 
@@ -536,7 +536,7 @@ def create_province(name=None, code=None, country=None):
 		)"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def get_provinces():
+def get_regions():
 	cmd = u"""
 		select
 			l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
