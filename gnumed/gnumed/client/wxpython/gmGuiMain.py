@@ -590,26 +590,15 @@ class gmTopLevelFrame(wx.Frame):
 		menu_person.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_person.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
-		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
-
-		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
-		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
-
-		ID_DEL_PAT = wx.NewId()
-		menu_person.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
-		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
-
-		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
-		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
-
-		menu_person.AppendSeparator()
-
-		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
-		menu_person.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
-		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
-
+		menu_person_import = wx.Menu()
+		item = menu_person_import.Append(-1, _('From &External sources'), _('Load and possibly create person from available external sources.'))
+		self.Bind(wx.EVT_MENU, self.__on_load_external_patient, item)
+		item = menu_person_import.Append(-1, _(u'&vCard file \u2192 patient'), _('Import demographics from .vcf vCard file as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_file, item)
+		item = menu_person_import.Append(-1, _(u'Clipboard (&XML) \u2192 patient'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
+		item = menu_person_import.Append(-1, _(u'Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
 
 		menu_person_export_clipboard = wx.Menu()
 		item = menu_person_export_clipboard.Append(-1, u'&GDT', _('Export demographics of currently active person as GDT into clipboard.'))
@@ -629,18 +618,25 @@ class gmTopLevelFrame(wx.Frame):
 		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
 		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &File as\u2026'), menu_person_export_file)
 
-
-		menu_person_import = wx.Menu()
-		item = menu_person_import.Append(-1, _(u'File (&vCard) \u2192 patient'), _('Import demographics from .vcf vCard file as patient'))
-		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_file, item)
-		item = menu_person_import.Append(-1, _(u'Clipboard (&XML) \u2192 patient'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
-		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
-		item = menu_person_import.Append(-1, _(u'Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
-		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
-
-
-		menu_person.AppendMenu(wx.NewId(), u'E&xport\u2026', menu_person_export)
 		menu_person.AppendMenu(wx.NewId(), u'&Import\u2026', menu_person_import)
+		menu_person.AppendMenu(wx.NewId(), u'E&xport\u2026', menu_person_export)
+
+		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
+		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
+
+		ID_DEL_PAT = wx.NewId()
+		menu_person.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
+		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
+
+		menu_person.AppendSeparator()
+
+		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
+
+		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
+		menu_person.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
+		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
+
 		menu_person.AppendSeparator()
 
 		self.mainmenu.Append(menu_person, '&Person')

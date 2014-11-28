@@ -44,11 +44,16 @@ def parse_vcard2dto(vc_text=None, filename=None):
 
 	dob_format = '%Y%m%d'
 
-	vc = vobject.readOne(vc_text)
+	try:
+		vc = vobject.readOne(vc_text)
+	except vobject.base.ParseError:
+		_log.exception('cannot parse, really a vcf ?')
+		return None
+
 	try:
 		if vc.kind.value.strip() != u'individual':
 			_log.warning('not a vCard for a single person (vCard.KIND=%s)', vc.kind.value)
-			return False
+			return None
 	except AttributeError:
 		_log.debug('vCard.KIND attribute not available')
 

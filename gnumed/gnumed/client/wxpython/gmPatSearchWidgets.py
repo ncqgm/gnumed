@@ -595,6 +595,10 @@ def load_person_from_vcard_file():
 
 	from Gnumed.business import gmVCard
 	dto = gmVCard.parse_vcard2dto(filename = fname)
+	if dto is None:
+		gmDispatcher.send(signal='statustext', msg=_('[%s] does not seem to contain a vCard.') % fname)
+		return
+
 	idents = dto.get_candidate_identities(can_create = True)
 	if len(idents) == 1:
 		ident = idents[0]
@@ -641,6 +645,10 @@ def load_person_from_vcard_via_clipboard():
 
 	from Gnumed.business import gmVCard
 	dto = gmVCard.parse_vcard2dto(filename = fname)
+	if dto is None:
+		gmDispatcher.send(signal='statustext', msg=_('Clipboard does not seem to contain a vCard.'))
+		return
+
 	idents = dto.get_candidate_identities(can_create = True)
 	if len(idents) == 1:
 		ident = idents[0]
@@ -687,6 +695,10 @@ def load_person_from_xml_linuxmednews_via_clipboard():
 
 	from Gnumed.business import gmLinuxMedNewsXML
 	dto = gmLinuxMedNewsXML.parse_xml_linuxmednews(filename = fname)
+	if dto is None:
+		gmDispatcher.send(signal='statustext', msg=_('Clipboard does not seem to contain LinuxMedNews XML.'))
+		return
+
 	idents = dto.get_candidate_identities(can_create = True)
 	if len(idents) == 1:
 		ident = idents[0]
