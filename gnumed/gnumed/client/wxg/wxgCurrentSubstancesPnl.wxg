@@ -247,7 +247,7 @@
                         <object class="wxButton" name="_BTN_heart" base="EditButton">
                             <style>wxBU_EXACTFIT</style>
                             <label>♥</label>
-                            <tooltip>Show &lt;www.qtdrugs.org&gt; information on handling of drugs / the selected drug in the presence of long Qt duration.</tooltip>
+                            <tooltip>Show &lt;http://www.qtsyndrome.ch&gt; information on handling of drugs in the presence of long Qt duration.</tooltip>
                             <font>
                                 <size>13</size>
                                 <family>default</family>

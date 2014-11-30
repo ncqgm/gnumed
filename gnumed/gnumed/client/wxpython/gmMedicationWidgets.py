@@ -1927,7 +1927,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		manage_consumable_substances(parent = self)
 	#----------------------------------------------------------------
 	def _on_heart_button_pressed(self, event):
-		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
+		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
 	#----------------------------------------------------------------
 	def _on_kidneys_button_pressed(self, event):
 		if self._PRW_component.GetData() is not None:
@@ -2699,7 +2699,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
 	#------------------------------------------------------------
 	def show_cardiac_info(self):
-		gmNetworkTools.open_url_in_browser(url = u'http://qtdrugs.org')
+		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
 	#------------------------------------------------------------
 	def report_ADR(self):
 		dbcfg = gmCfg.cCfgSQL()
