@@ -58,6 +58,7 @@ IMPROVED: exception logging enhancements
 
 FIX: exception on right-clicking empty space in problem list [thanks Daniel]
 FIX: exception on deleting address which is use in a bill [thanks Marc]
+FIX: qtdrugs.org is now reg-walled, switch to qtsyndrome.ch
 
 	1.4.13
 

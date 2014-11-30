@@ -70,7 +70,7 @@ class wxgCurrentSubstancesPnl(wx.ScrolledWindow):
         self._BTN_allergy.SetToolTipString(_("Discontinue selected entry due to an allergy or intolerance."))
         self._BTN_info.SetToolTipString(_("Show in-depth information on the selected substance if available."))
         self._BTN_heart.SetFont(wx.Font(13, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
-        self._BTN_heart.SetToolTipString(_("Show <www.qtdrugs.org> information on handling of drugs / the selected drug in the presence of long Qt duration."))
+        self._BTN_heart.SetToolTipString(_("Show <http://www.qtsyndrome.ch> information on handling of drugs in the presence of long Qt duration."))
         self._BTN_kidneys.SetToolTipString(_("Show <www.dosing.de> information on handling of drugs / the selected drug in the presence of renal insufficiency."))
         self._BTN_interactions.SetToolTipString(_("Check for interactions between selected drugs.\n\nIncludes all drugs if none selected."))
         self._BTN_rx.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
