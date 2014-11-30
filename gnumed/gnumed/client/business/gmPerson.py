@@ -1106,7 +1106,15 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			args = {'person': self.pk_obj, 'adr': address['pk_address']}
 		else:
 			args = {'person': self.pk_obj, 'adr': pk_address}
-		cmd = u"DELETE FROM dem.lnk_person_org_address WHERE id_identity = %(person)s AND id_address = %(adr)s"
+		cmd = u"""
+			DELETE FROM dem.lnk_person_org_address
+			WHERE
+				dem.lnk_person_org_address.id_identity = %(person)s
+					AND
+				dem.lnk_person_org_address.id_address = %(adr)s
+					AND
+				NOT EXISTS(SELECT 1 FROM bill.bill WHERE fk_receiver_address = dem.lnk_person_org_address.id)
+			"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	#----------------------------------------------------------------------
 	# relatives API
