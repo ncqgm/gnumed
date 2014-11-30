@@ -57,6 +57,7 @@ IMPROVED: exception logging enhancements
 	1.4.14
 
 FIX: exception on right-clicking empty space in problem list [thanks Daniel]
+FIX: exception on deleting address which is use in a bill [thanks Marc]
 
 	1.4.13
 
