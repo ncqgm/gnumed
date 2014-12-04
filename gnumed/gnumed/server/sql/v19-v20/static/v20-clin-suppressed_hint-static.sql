@@ -11,6 +11,7 @@
 create table clin.suppressed_hint (
 	pk serial primary key,
 	fk_identity integer,						-- not null
+	fk_encounter integer,						-- not null
 	fk_hint integer,							-- not null
 	suppressed_by name,							-- not null default CURRENT_USER,
 	suppressed_when timestamp with time zone,	-- not null default NOW

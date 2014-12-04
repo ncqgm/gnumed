@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-28 12:40+0100\n"
+"POT-Creation-Date: 2014-12-03 12:46+0100\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -2482,9 +2482,10 @@ msgstr "Прервать выбранную запись, относящуюся
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Показать подробную информацию по выбранному веществу, если имеется."
 
+#, fuzzy
 msgid ""
-"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
-"in the presence of long Qt duration."
+"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
+"presence of long Qt duration."
 msgstr ""
 "Показывает информацию  <www.qtdrugs.org> о действии препаратов / выбранного "
 "препарата при длительном применении Qt."
@@ -6063,9 +6064,6 @@ msgstr "Коэффициент:"
 #, fuzzy
 msgid "A code for this region."
 msgstr "Код для этой области."
-
-msgid "Province"
-msgstr "Область"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -11594,12 +11592,12 @@ msgstr "Нет, НЕ удалять ничего."
 
 #, fuzzy
 msgid ""
-"\n"
 "This list shows the regions known to GNUmed.\n"
 "\n"
 "In your jurisdiction \"region\" may correspond to either of \"state\",\n"
-"\"county\", \"province\", \"territory\", \"arrondissement\", or some such "
-"term.\n"
+"\"county\", \"province\", \"territory\", \"arrondissement\", \"department,"
+"\"\n"
+"\"prefecture\", \"kanton\", or some such term.\n"
 msgstr ""
 "\n"
 "Этот список показывает области, известные GNUmed.\n"
@@ -19977,6 +19975,9 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#~ msgid "Province"
+#~ msgstr "Область"
 
 #~ msgid "Type or select a state/region/province/territory."
 #~ msgstr "Введите или выберите штат, регион, область, край."

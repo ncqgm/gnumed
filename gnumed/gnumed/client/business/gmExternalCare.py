@@ -42,18 +42,13 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE clin.external_care SET
 				comment = gm.nullify_empty_string(%(comment)s),
+				fk_encounter = %(pk_encounter)s,
 				issue = gm.nullify_empty_string(%(issue)s),
 				provider = gm.nullify_empty_string(%(provider)s),
 				fk_org_unit = %(pk_org_unit)s,
 				fk_health_issue = (
 					CASE
 						WHEN gm.is_null_or_blank_string(%(issue)s) IS TRUE THEN %(pk_health_issue)s
-						ELSE NULL
-					END
-				)::integer,
-				fk_identity = (
-					CASE
-						WHEN gm.is_null_or_blank_string(%(issue)s) IS FALSE THEN %(pk_identity)s
 						ELSE NULL
 					END
 				)::integer
@@ -67,7 +62,7 @@ class cExternalCareItem(gmBusinessDBObject.cBusinessDBObject):
 		_SQL_get_external_care_items % u"pk_external_care = %(pk_external_care)s"
 	]
 	_updatable_fields = [
-		u'pk_identity',
+		u'pk_encounter',
 		u'pk_health_issue',
 		u'pk_org_unit',
 		u'issue',
@@ -139,18 +134,18 @@ def get_external_care_items(order_by=None, pk_identity=None, pk_health_issue=Non
 	return [ cExternalCareItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_external_care'}) for r in rows ]
 
 #------------------------------------------------------------
-def create_external_care_item(pk_identity=None, pk_health_issue=None, issue=None, pk_org_unit=None):
+def create_external_care_item(pk_health_issue=None, issue=None, pk_org_unit=None, pk_encounter=None):
 	args = {
-		u'pk_identity': pk_identity,
 		u'pk_health_issue': pk_health_issue,
 		u'issue': issue,
-		u'pk_org_unit': pk_org_unit
+		u'pk_org_unit': pk_org_unit,
+		u'enc': pk_encounter
 	}
 	cmd = u"""
 		INSERT INTO clin.external_care (
 			issue,
 			fk_health_issue,
-			fk_identity,
+			fk_encounter,
 			fk_org_unit
 		) VALUES (
 			gm.nullify_empty_string(%(issue)s),
@@ -158,10 +153,7 @@ def create_external_care_item(pk_identity=None, pk_health_issue=None, issue=None
 				WHEN gm.is_null_or_blank_string(%(issue)s) IS TRUE THEN %(pk_health_issue)s
 				ELSE NULL
 			END)::integer,
-			(CASE
-				WHEN gm.is_null_or_blank_string(%(issue)s) IS FALSE THEN %(pk_identity)s
-				ELSE NULL
-			END)::integer,
+			%(enc)s,
 			%(pk_org_unit)s
 		)
 		RETURNING pk"""
@@ -175,9 +167,6 @@ def delete_external_care_item(pk_external_care=None):
 	cmd = u"DELETE FROM clin.external_care WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
-
-#------------------------------------------------------------
-
 
 #============================================================
 # main

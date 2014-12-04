@@ -70,7 +70,7 @@ def _display_clinical_reminders():
 	for hint in pat.dynamic_hints:
 		hint_dlg.hint = hint
 		if hint_dlg.ShowModal() == wx.ID_APPLY:
-			pat.suppress_dynamic_hint(pk_hint = hint['pk_auto_hint'], rationale = hint_dlg.rationale)
+			pat.suppress_dynamic_hint(pk_hint = hint['pk_auto_hint'], rationale = hint_dlg.rationale, pk_encounter = pat.emr.current_encounter['pk_encounter'])
 	hint_dlg.Destroy()
 
 	return

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-28 12:39+0100\n"
+"POT-Creation-Date: 2014-12-03 12:46+0100\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -2432,8 +2432,8 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
-"in the presence of long Qt duration."
+"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
+"presence of long Qt duration."
 msgstr ""
 "Voir les informations sur <www.dosing.de>  pour l'utilisation des "
 "médicaments / Le médicament selectionné dans l'insuffisance rénale."
@@ -5934,9 +5934,6 @@ msgstr ""
 #, fuzzy
 msgid "A code for this region."
 msgstr "Un code pour cette région."
-
-msgid "Province"
-msgstr "Région."
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -11269,12 +11266,12 @@ msgstr ""
 
 #, fuzzy
 msgid ""
-"\n"
 "This list shows the regions known to GNUmed.\n"
 "\n"
 "In your jurisdiction \"region\" may correspond to either of \"state\",\n"
-"\"county\", \"province\", \"territory\", \"arrondissement\", or some such "
-"term.\n"
+"\"county\", \"province\", \"territory\", \"arrondissement\", \"department,"
+"\"\n"
+"\"prefecture\", \"kanton\", or some such term.\n"
 msgstr ""
 "\n"
 "Cette liste affiche les régions enregistrées dans GNUmed.\n"
@@ -18696,6 +18693,9 @@ msgstr "Abandonner"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
+
+#~ msgid "Province"
+#~ msgstr "Région."
 
 #, fuzzy
 #~ msgid ""

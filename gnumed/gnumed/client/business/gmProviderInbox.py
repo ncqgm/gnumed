@@ -476,11 +476,12 @@ def get_hints_for_patient(pk_identity=None):
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
-def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None):
+def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None, pk_encounter=None):
 	args = {
 		'pat': pk_identity,
 		'hint': pk_hint,
-		'rationale': rationale
+		'rationale': rationale,
+		'enc': pk_encounter
 	}
 	cmd = u"""
 		DELETE FROM clin.suppressed_hint
@@ -495,11 +496,13 @@ def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None):
 			fk_identity,
 			fk_hint,
 			rationale,
+			fk_encounter,
 			md5_sum
 		) VALUES (
 			%(pat)s,
 			%(hint)s,
 			%(rationale)s,
+			%(enc)s,
 			(SELECT r_vah.md5_sum FROM ref.v_auto_hints r_vah WHERE r_vah.pk_auto_hint = %(hint)s)
 		)
 	"""

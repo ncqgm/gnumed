@@ -34,7 +34,6 @@ select * from (
 			'clin.substance_intake',
 			'clin.family_history'
 		)
-		--and trim(coalesce(vpi.narrative, '')) != ''
 
 
 	union all
@@ -60,8 +59,6 @@ select * from (
 			as src_table
 	from
 		clin.substance_intake csi
---	where
---		trim(coalesce(narrative, '')) != ''
 
 
 	union all
@@ -86,6 +83,7 @@ select * from (
 		clin.procedure cpr
 	where
 		cpr.narrative is not NULL
+
 
 	union all
 	select		-- test results
@@ -141,8 +139,6 @@ select * from (
 			as src_table
 	from
 		clin.reviewed_test_results crtr
---	where
---		trim(coalesce(crtr.comment, '')) != ''
 
 
 	union all
@@ -232,9 +228,6 @@ select * from (
 		'clin.encounter' as src_table
 	from
 		clin.encounter cenc
---	where
---		trim(coalesce(cenc.reason_for_encounter, '')) != '' or
---		trim(coalesce(cenc.assessment_of_encounter, '')) != ''
 
 
 	union all	-- episodes
@@ -305,8 +298,6 @@ select * from (
 		'blobs.doc_obj' as src_table
 	from
 		blobs.v_obj4doc_no_data vo4d
---	where
---		trim(coalesce(vo4d.obj_comment, '')) != ''
 
 
 	union all	-- document descriptions
@@ -321,8 +312,6 @@ select * from (
 		'blobs.doc_desc' as src_table
 	from
 		blobs.v_doc_desc vdd
---	where
---		trim(coalesce(vdd.description, '')) != ''
 
 
 	union all	-- reviewed documents
@@ -337,8 +326,6 @@ select * from (
 		'blobs.v_reviewed_doc_objects' as src_table
 	from
 		blobs.v_reviewed_doc_objects vrdo
---	where
---		trim(coalesce(vrdo.comment, '')) != ''
 
 
 	union all	-- patient tags
@@ -377,7 +364,7 @@ select * from (
 				coalesce(c_vec.provider, '')
 				|| coalesce(' / ' || c_vec.comment, '')
 		end as narrative,
-		null
+		c_vec.pk_encounter
 			as pk_encounter,
 		null
 			as pk_episode,
@@ -416,6 +403,26 @@ select * from (
 	from
 		clin.v_export_items c_vei
 
+
+	union all	-- hint suppression rationale
+	select
+		c_sh.fk_identity
+			as pk_patient,
+		'p' as soap_cat,
+		c_sh.rationale
+			as narrative,
+		c_sh.fk_encounter
+			as pk_encounter,
+		null
+			as pk_episode,
+		null
+			as pk_health_issue,
+		c_sh.pk
+			as src_pk,
+		'clin.suppressed_hint'
+			as src_table
+	from
+		clin.suppressed_hint c_sh
 
 ) as union_table
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-28 12:40+0100\n"
+"POT-Creation-Date: 2014-12-03 12:46+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2409,8 +2409,8 @@ msgid "Show in-depth information on the selected substance if available."
 msgstr ""
 
 msgid ""
-"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
-"in the presence of long Qt duration."
+"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
+"presence of long Qt duration."
 msgstr ""
 
 msgid ""
@@ -5890,9 +5890,6 @@ msgstr ""
 #, fuzzy
 msgid "A code for this region."
 msgstr "Een commentaar op deze beoordeling."
-
-msgid "Province"
-msgstr "Provincie"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -11392,12 +11389,12 @@ msgstr "Nee, verwijder GEEN enkele uitslag."
 
 #, fuzzy
 msgid ""
-"\n"
 "This list shows the regions known to GNUmed.\n"
 "\n"
 "In your jurisdiction \"region\" may correspond to either of \"state\",\n"
-"\"county\", \"province\", \"territory\", \"arrondissement\", or some such "
-"term.\n"
+"\"county\", \"province\", \"territory\", \"arrondissement\", \"department,"
+"\"\n"
+"\"prefecture\", \"kanton\", or some such term.\n"
 msgstr ""
 "\n"
 "Deze lijst toont de provincies die bekend zijn bij GNUmed.\n"
@@ -19681,6 +19678,9 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#~ msgid "Province"
+#~ msgstr "Provincie"
 
 #, fuzzy
 #~ msgid "Type or select a state/region/province/territory."

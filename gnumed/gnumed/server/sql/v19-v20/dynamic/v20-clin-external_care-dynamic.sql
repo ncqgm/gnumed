@@ -20,16 +20,23 @@ grant select, insert, update, delete on clin.external_care to "gm-doctors";
 grant usage on clin.external_care_pk_seq to "gm-doctors";
 
 -- --------------------------------------------------------------
--- .fk_identity
-comment on column clin.external_care.fk_identity is 'link to the patient';
+-- .fk_encounter
+comment on column clin.external_care.fk_encounter is 'the encounter during which this external care item was first documented';
 
-alter table clin.external_care drop constraint if exists FK_clin_ext_care_fk_identity cascade;
+drop index if exists clin.idx_external_care_fk_encounter cascade;
+create index idx_external_care_fk_encounter on clin.external_care(fk_encounter);
 
 alter table clin.external_care
-	add constraint FK_clin_ext_care_fk_identity foreign key (fk_identity)
-		references clin.patient(fk_identity)
-		on update cascade
-		on delete restrict
+	alter column fk_encounter
+		set not null;
+
+alter table clin.external_care
+	drop constraint if exists FK_clin_external_care_fk_encounter cascade;
+alter table clin.external_care
+	add constraint FK_clin_external_care_fk_encounter foreign key (fk_encounter)
+		references clin.encounter(pk)
+		on update restrict
+		on delete cascade
 ;
 
 -- --------------------------------------------------------------
@@ -112,20 +119,6 @@ alter table clin.external_care
 
 -- --------------------------------------------------------------
 -- table constraints
-alter table clin.external_care drop constraint if exists clin_ext_care_issue_xor_identity_fk cascade;
-
-alter table clin.external_care
-	add constraint clin_ext_care_issue_xor_identity_fk
-		check (
-			(
-				(fk_health_issue is null) and (fk_identity is not null)
-			)	or	(
-				(fk_health_issue is not null) and (fk_identity is null)
-			)
-		)
-;
-
-
 alter table clin.external_care drop constraint if exists clin_ext_care_issue_xor_fk_issue cascade;
 
 alter table clin.external_care
@@ -139,21 +132,24 @@ alter table clin.external_care
 		)
 ;
 
+-- FIXME: enforce issue vs encounter in terms of fk_patient
+-- FIXME: enforce unique((issue-or-encounter).fk_patient, issue, fk_org_unit)
 
-alter table clin.external_care drop constraint if exists clin_ext_care_uniq_issue_per_identity_and_org cascade;
-
-alter table clin.external_care
-	add constraint clin_ext_care_uniq_issue_per_identity_and_org
-		unique(fk_identity, issue, fk_org_unit)
-;
-
-
-alter table clin.external_care drop constraint if exists clin_ext_care_uniq_fk_issue_per_identity_and_org cascade;
-
-alter table clin.external_care
-	add constraint clin_ext_care_uniq_fk_issue_per_identity_and_org
-		unique(fk_identity, fk_health_issue, fk_org_unit)
-;
+-- cannot easily enforce the following two (lacking direct access to fk_patient):
+--alter table clin.external_care drop constraint if exists clin_ext_care_uniq_issue_per_identity_and_org cascade;
+--
+--alter table clin.external_care
+--	add constraint clin_ext_care_uniq_issue_per_identity_and_org
+--		unique(fk_identity, issue, fk_org_unit)
+--;
+--
+--
+--alter table clin.external_care drop constraint if exists clin_ext_care_uniq_fk_issue_per_identity_and_org cascade;
+--
+--alter table clin.external_care
+--	add constraint clin_ext_care_uniq_fk_issue_per_identity_and_org
+--		unique(fk_identity, fk_health_issue, fk_org_unit)
+--;
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_external_care cascade;
@@ -163,10 +159,7 @@ create view clin.v_external_care as
 select
 	c_ec.pk
 		as pk_external_care,
-	coalesce (
-		c_ec.fk_identity,
-		(select fk_patient from clin.encounter where pk = (select fk_encounter from clin.health_issue where pk = c_ec.fk_health_issue))
-	)
+	(select fk_patient from clin.encounter where pk = c_ec.fk_encounter)
 		as pk_identity,
 	coalesce (
 		c_ec.issue,
@@ -185,8 +178,13 @@ select
 		as pk_health_issue,
 	c_ec.fk_org_unit
 		as pk_org_unit,
+	c_ec.fk_encounter
+		as pk_encounter,
 	c_ec.xmin
-		as xmin_external_care
+		as xmin_external_care,
+	c_ec.modified_when,
+	c_ec.modified_by,
+	c_ec.row_version
 from
 	clin.external_care c_ec
 		left join clin.health_issue c_hi on (c_hi.pk = c_ec.fk_health_issue)
@@ -198,21 +196,67 @@ revoke all on clin.v_external_care from public;
 grant select on clin.v_external_care to group "gm-doctors";
 
 -- --------------------------------------------------------------
+drop view if exists clin.v_external_care_journal cascade;
+
+create view clin.v_external_care_journal as
+select
+	c_vec.pk_identity
+		as pk_patient,
+	c_vec.modified_when
+		as modified_when,
+	c_vec.modified_when
+		as clin_when,
+	c_vec.modified_by
+		as modified_by,
+	's'::text
+		as soap_cat,
+	_('External care')
+		|| coalesce(' ' || _('by') || ' ' || c_vec.provider, '')
+		|| ' @ ' || c_vec.unit || ' ' || _('of') || ' ' || c_vec.organization || E'\n'
+		|| _('Issue:') || ' ' || c_vec.issue || E'\n'
+		|| coalesce(_('Comment:') || ' ' || c_vec.comment, '')
+		as narrative,
+	c_vec.pk_encounter
+		as pk_encounter,
+	NULL::integer
+		as pk_episode,
+	c_vec.pk_health_issue
+		as pk_health_issue,
+	c_vec.pk_external_care
+		as src_pk,
+	'clin.v_external_care'::text
+		as src_table,
+	c_vec.row_version
+		as row_version
+from
+	clin.v_external_care c_vec
+;
+
+revoke all on clin.v_external_care_journal from public;
+grant select on clin.v_external_care_journal to group "gm-doctors";
+
+-- --------------------------------------------------------------
 delete from clin.external_care where
-	fk_identity = (
-		select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+	fk_encounter in (
+		select pk from clin.encounter where fk_patient = (
+			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+		)
 	)
 ;
 
 insert into clin.external_care (
-	fk_identity,
+	fk_encounter,
 	issue,
 	fk_org_unit,
 	provider,
 	comment
 )
 select
-	(select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'),
+	(select pk
+	 from clin.encounter
+	 where fk_patient = (select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk')
+	limit 1
+	),
 	'intermittent mental disturbance',
 	(select pk from dem.org_unit where description = 'Enterprise Sickbay'),
 	'Spock',
@@ -226,12 +270,18 @@ where
 
 
 insert into clin.external_care (
+	fk_encounter,
 	fk_health_issue,
 	fk_org_unit,
 	provider,
 	comment
 )
 select
+	(select pk
+	 from clin.encounter
+	 where fk_patient = (select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk')
+	limit 1
+	),
 	(select pk_health_issue from clin.v_health_issues where description = '9/2000 extraterrestrial infection' and pk_patient = (select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk')),
 	(select pk from dem.org_unit where description = 'Enterprise Sickbay'),
 	'RN Chapel',
