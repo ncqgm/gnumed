@@ -32,9 +32,8 @@ select
 	lang
 		as lang,
 	-- this column is set from clin.get_hints_for_patient(),
-	-- it only exists in this view in order to enable the
-	-- syntax "returns setof ref.v_auto_hints" in that
-	-- function
+	-- it only exists in this view in order to enable the syntax
+	-- "returns setof ref.v_auto_hints" in that function
 	null::text
 		as rationale4suppression,
 	md5(coalesce(query, '')
@@ -63,10 +62,10 @@ DECLARE
 	_pk_identity ALIAS FOR $1;
 	_hint ref.v_auto_hints%rowtype;
 	_query text;
-	_suppressed_and_unchanged boolean;
 	_md5_suppressed text;
 	_rationale4suppression text;
-	_applies boolean;
+	_suppression_exists boolean;		-- does not mean that the suppression applies
+	_hint_currently_applies boolean;	-- regardless of whether suppressed or not
 --	_exc_state text;
 --	_exc_msg text;
 --	_exc_detail text;
@@ -76,22 +75,24 @@ BEGIN
 	FOR _hint IN SELECT * FROM ref.v_auto_hints WHERE is_active LOOP
 
 		-- is the hint suppressed ?
-		SELECT md5_sum, rationale INTO _md5_suppressed, _rationale4suppression FROM clin.suppressed_hint WHERE fk_identity = _pk_identity AND fk_hint = _hint.pk_auto_hint;
+		SELECT
+			md5_sum,
+			rationale INTO _md5_suppressed,
+			_rationale4suppression
+		FROM clin.suppressed_hint WHERE
+			fk_identity = _pk_identity
+				AND
+			fk_hint = _hint.pk_auto_hint;
 		IF FOUND THEN
-			-- is the hint unchanged ?
-			IF _md5_suppressed = _hint.md5_sum THEN
-				CONTINUE;
-			END IF;
-			_hint.rationale4suppression := _rationale4suppression;
+			_suppression_exists := TRUE;
+		ELSE
+			_suppression_exists := FALSE;
 		END IF;
 
+		-- does the hint currently apply ?
 		_query := replace(_hint.query, ''ID_ACTIVE_PATIENT'', _pk_identity::text);
 		BEGIN
-			EXECUTE _query INTO STRICT _applies;
-			--RAISE NOTICE ''Applies: %'', _applies;
-			IF _applies THEN
-				RETURN NEXT _hint;
-			END IF;
+			EXECUTE _query INTO STRICT _hint_currently_applies;
 		EXCEPTION
 			--WHEN insufficient_privilege THEN RAISE WARNING ''auto hint query failed: %'', _query;
 			WHEN others THEN
@@ -114,7 +115,77 @@ BEGIN
 				_hint.title := ''ERROR checking for ['' || _hint.title || ''] !'';
 				_hint.hint := _query;
 				RETURN NEXT _hint;
+				-- process next hint
+				CONTINUE;
 		END;
+
+		IF _suppression_exists THEN
+			-- is the hint definition still the same as at the time of suppression ?
+			IF _md5_suppressed = _hint.md5_sum THEN
+				-- yes, but does this hint currently apply ?
+				IF _hint_currently_applies THEN
+					-- suppressed, suppression valid, and hint applies: skip this hint
+					CONTINUE;
+				END IF;
+				-- suppressed, suppression valid, hint does NOT apply:
+				-- skip but invalidate suppression, because:
+				-- * previously the hint applied and the user suppressed it,
+				-- * then the patient changed such that the hint does not
+				--    apply anymore (but the suppression is still valid),
+				-- * when the patient changes again, the hint might apply again
+				-- * HOWEVER - since the suppression would still be valid - the
+				--   hint would magically get suppressed again (which is
+				--   medically unsafe) ...
+				-- after invalidation, the hint will no longer be suppressed,
+				-- however - since it does not currently apply it - it will
+				-- still not be returned until it applies again ...
+				--
+				-- UNFORTUNATELY, this is currently not _possible_ because we
+				-- are running inside a READONLY transaction (due to inherent
+				-- security risks when running arbitrary user queries [=the hint
+				-- SQL]	-- against the database) and we cannot execute a
+				-- sub-transaction as READWRITE :-/
+				--
+				--UPDATE clin.suppressed_hint
+				--SET md5_sum = ''invalidated''::text		-- will not ever match any md5 sum
+				--WHERE
+				--	fk_identity = _pk_identity
+				--		AND
+				--	fk_hint = _hint.pk_auto_hint;
+				--
+				-- hence our our workaround is to, indeed, return the hint but
+				-- tag it with a magic rationale, by means of which the client
+				-- can detect it to be in need of invalidation
+				_hint.title := ''HINT DOES NOT APPLY BUT NEEDS INVALIDATION OF EXISTING SUPPRESSION ['' || _hint.title || ''].'';
+				_hint.rationale4suppression := ''please_invalidate_suppression'';
+				RETURN NEXT _hint;
+				CONTINUE;
+			END IF;
+			-- suppression exists but hint definition must have changed
+			-- does the new hint apply ?
+			IF _hint_currently_applies THEN
+				-- yes: ignore the suppression but provide previous
+				-- rationale for suppression to the user
+				_hint.rationale4suppression := _rationale4suppression;
+				RETURN NEXT _hint;
+				CONTINUE;
+			END IF;
+			-- no, new hint does not apply, so ask for
+			-- invalidation of suppression (see above)
+			_hint.title := ''HINT DOES NOT APPLY BUT NEEDS INVALIDATION OF EXISTING SUPPRESSION ['' || _hint.title || ''].'';
+			_hint.rationale4suppression := ''please_invalidate_suppression'';
+			RETURN NEXT _hint;
+			CONTINUE;
+		END IF;
+
+		-- hint is not suppressed
+		-- does the hint currently apply ?
+		IF _hint_currently_applies THEN
+			-- yes: return it
+			RETURN NEXT _hint;
+		END IF;
+		-- no: ignore it and process next hint in LOOP
+
 	END LOOP;
 	RETURN;
 END;';

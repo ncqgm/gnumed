@@ -169,6 +169,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
+		self.data['pk_encounter'] = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter']
 		self.data['pk_health_issue'] = self._PRW_issue.GetData()
 		self.data['issue'] = self._PRW_issue.GetValue().strip()
 		self.data['pk_org_unit'] = self._PRW_care_location.GetData()

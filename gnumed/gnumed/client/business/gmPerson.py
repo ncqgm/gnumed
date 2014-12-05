@@ -1573,8 +1573,11 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def delete_message(self, pk=None):
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
-	def _get_dynamic_hints(self):
-		return gmProviderInbox.get_hints_for_patient(pk_identity = self._payload[self._idx['pk_identity']])
+	def _get_dynamic_hints(self, include_suppressed_needing_invalidation=False):
+		return gmProviderInbox.get_hints_for_patient (
+			pk_identity = self._payload[self._idx['pk_identity']],
+			include_suppressed_needing_invalidation = include_suppressed_needing_invalidation
+		)
 
 	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
 	#--------------------------------------------------------
@@ -1583,6 +1586,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			pk_identity = self._payload[self._idx['pk_identity']],
 			pk_hint = pk_hint,
 			rationale = rationale,
+			pk_encounter = pk_encounter
+		)
+	#--------------------------------------------------------
+	def invalidate_hint_suppression(self, pk_hint=None, pk_encounter=None):
+		return gmProviderInbox.invalidate_hint_suppression (
+			pk_identity = self._payload[self._idx['pk_identity']],
+			pk_hint = pk_hint,
 			pk_encounter = pk_encounter
 		)
 	#--------------------------------------------------------

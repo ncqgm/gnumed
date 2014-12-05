@@ -9,6 +9,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 import sys
+import logging
 
 
 if __name__ == '__main__':
@@ -19,6 +20,8 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmStaff
+
+_log = logging.getLogger('gm.inbox')
 
 #============================================================
 # provider message inbox
@@ -465,7 +468,7 @@ def delete_dynamic_hint(link_obj=None, pk_hint=None):
 	return True
 
 #------------------------------------------------------------
-def get_hints_for_patient(pk_identity=None):
+def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidation=False):
 	conn = gmPG2.get_connection()
 	curs = conn.cursor()
 	curs.callproc('clin.get_hints_for_patient', [pk_identity])
@@ -473,6 +476,8 @@ def get_hints_for_patient(pk_identity=None):
 	idx = gmPG2.get_col_indices(curs)
 	curs.close()
 	conn.rollback()
+	if not include_suppressed_needing_invalidation:
+		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'please_invalidate_suppression' ]
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -566,6 +571,27 @@ def get_suppressed_hints(pk_identity=None, order_by=None):
 def delete_suppressed_hint(pk_suppressed_hint=None):
 	args = {'pk': pk_suppressed_hint}
 	cmd = u"DELETE FROM clin.suppressed_hint WHERE pk = %(pk)s"
+	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	return True
+
+#------------------------------------------------------------
+def invalidate_hint_suppression(pk_identity=None, pk_hint=None, pk_encounter=None):
+	_log.debug('invalidating suppression of hint #%s', pk_hint)
+	args = {
+		'pk_hint': pk_hint,
+		'pk_identity': pk_identity,
+		'enc': pk_encounter,
+		'fake_md5': '***INVALIDATED***'			# only needs to NOT match ANY md5 sum
+	}
+	cmd = u"""
+		UPDATE clin.suppressed_hint SET
+			fk_encounter = %(enc)s,
+			md5_sum = %(fake_md5)s
+		WHERE
+			fk_hint = %(pk_hint)s
+				AND
+			fk_identity = %(pk_identity)s
+		"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True
 
