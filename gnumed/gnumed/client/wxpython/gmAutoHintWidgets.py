@@ -70,16 +70,12 @@ def _display_clinical_reminders():
 	for hint in pat._get_dynamic_hints(include_suppressed_needing_invalidation = True):
 		if hint['rationale4suppression'] == u'please_invalidate_suppression':
 			_log.debug('database asks for invalidation of suppression of hint [%s]', hint)
-			pat.invalidate_hint_suppression (
-				pk_hint = hint['pk_auto_hint'],
-				pk_encounter = pat.emr.current_encounter['pk_encounter']
-			)
+			hint.invalidate_suppression(pk_encounter = pat.emr.current_encounter['pk_encounter'])
 			continue
 		hint_dlg.hint = hint
 		if hint_dlg.ShowModal() == wx.ID_APPLY:
-			pat.suppress_dynamic_hint (
-				pk_hint = hint['pk_auto_hint'],
-				rationale = hint_dlg.rationale,
+			hint.suppress (
+				rationale = hint_dlg.rationale.strip(),
 				pk_encounter = pat.emr.current_encounter['pk_encounter']
 			)
 	hint_dlg.Destroy()

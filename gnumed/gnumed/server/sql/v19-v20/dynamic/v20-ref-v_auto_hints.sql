@@ -80,9 +80,11 @@ BEGIN
 			rationale INTO _md5_suppressed,
 			_rationale4suppression
 		FROM clin.suppressed_hint WHERE
-			fk_identity = _pk_identity
+			fk_hint = _hint.pk_auto_hint
 				AND
-			fk_hint = _hint.pk_auto_hint;
+			fk_encounter IN (
+				SELECT pk FROM clin.encounter WHERE fk_patient = _pk_identity
+			);
 		IF FOUND THEN
 			_suppression_exists := TRUE;
 		ELSE
@@ -149,7 +151,9 @@ BEGIN
 				--UPDATE clin.suppressed_hint
 				--SET md5_sum = ''invalidated''::text		-- will not ever match any md5 sum
 				--WHERE
-				--	fk_identity = _pk_identity
+				--	fk_encounter IN (
+				--		SELECT pk FROM clin.encounter WHERE fk_patient = _pk_identity
+				--	)
 				--		AND
 				--	fk_hint = _hint.pk_auto_hint;
 				--

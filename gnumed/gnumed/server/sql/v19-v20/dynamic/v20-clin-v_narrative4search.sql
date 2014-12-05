@@ -406,7 +406,7 @@ select * from (
 
 	union all	-- hint suppression rationale
 	select
-		c_sh.fk_identity
+		(select fk_patient from clin.encounter where pk = c_sh.fk_encounter)
 			as pk_patient,
 		'p' as soap_cat,
 		c_sh.rationale

@@ -27,29 +27,6 @@ GRANT USAGE ON SEQUENCE
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
--- .fk_identity
-comment on column clin.suppressed_hint.fk_identity is 'the patient this hint is suppressed in';
-
-
-drop index if exists clin.idx_suppressed_hint_fk_identity cascade;
-create index idx_suppressed_hint_fk_identity on clin.suppressed_hint(fk_identity);
-
-
-alter table clin.suppressed_hint
-	alter column fk_identity
-		set not null;
-
-
-alter table clin.suppressed_hint
-	drop constraint if exists FK_clin_suppressed_hint_fk_identity cascade;
-alter table clin.suppressed_hint
-	add constraint FK_clin_suppressed_hint_fk_identity foreign key (fk_identity)
-		references clin.patient(fk_identity)
-		on update restrict
-		on delete cascade
-;
-
--- --------------------------------------------------------------
 -- .fk_encounter
 comment on column clin.suppressed_hint.fk_encounter is 'the encounter during which this hint was first suppressed';
 
@@ -156,10 +133,12 @@ alter table clin.suppressed_hint
 		set default statement_timestamp();
 
 -- --------------------------------------------------------------
-alter table clin.suppressed_hint
-	drop constraint if exists clin_suppressed_hint_uniq_hint_ident cascade;
-alter table clin.suppressed_hint
-	add constraint clin_suppressed_hint_uniq_hint_ident unique(fk_hint, fk_identity);
+-- FIXME: cannot easily ensure this, need to write trigger to check (fk_encounter->fk_patient, fk_hint)
+
+--alter table clin.suppressed_hint
+--	drop constraint if exists clin_suppressed_hint_uniq_hint_ident cascade;
+--alter table clin.suppressed_hint
+--	add constraint clin_suppressed_hint_uniq_hint_ident unique(fk_hint, fk_identity);
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_suppressed_hints cascade;
@@ -167,7 +146,7 @@ drop view if exists clin.v_suppressed_hints cascade;
 
 create view clin.v_suppressed_hints as
 select
-	c_sh.fk_identity
+	(select fk_patient from clin.encounter where pk = c_sh.fk_encounter)
 		as pk_identity,
 	c_sh.pk
 		as pk_suppressed_hint,
@@ -204,8 +183,8 @@ drop view if exists clin.v_suppressed_hints_journal cascade;
 
 create view clin.v_suppressed_hints_journal as
 select
-	c_sh.fk_identity
-		as pk_patient,
+	(select fk_patient from clin.encounter where pk = c_sh.fk_encounter)
+		as pk_identity,
 	c_sh.modified_when
 		as modified_when,
 	c_sh.suppressed_when

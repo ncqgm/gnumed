@@ -420,6 +420,19 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		txt += u'\n'
 		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
 		return txt
+	#--------------------------------------------------------
+	def suppress(self, rationale=None, pk_encounter=None):
+		return suppress_dynamic_hint (
+			pk_hint = self._payload[self._idx['pk_auto_hint']],
+			pk_encounter = pk_encounter,
+			rationale = rationale
+		)
+	#--------------------------------------------------------
+	def invalidate_suppression(self, pk_encounter=None):
+		return invalidate_hint_suppression (
+			pk_hint = self._payload[self._idx['pk_auto_hint']],
+			pk_encounter = pk_encounter
+		)
 
 #------------------------------------------------------------
 def get_dynamic_hints(order_by=None):
@@ -481,9 +494,8 @@ def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidat
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
-def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None, pk_encounter=None):
+def suppress_dynamic_hint(pk_hint=None, rationale=None, pk_encounter=None):
 	args = {
-		'pat': pk_identity,
 		'hint': pk_hint,
 		'rationale': rationale,
 		'enc': pk_encounter
@@ -491,23 +503,25 @@ def suppress_dynamic_hint(pk_identity=None, pk_hint=None, rationale=None, pk_enc
 	cmd = u"""
 		DELETE FROM clin.suppressed_hint
 		WHERE
-			fk_identity = %(pat)s
-				AND
 			fk_hint = %(hint)s
+				AND
+			fk_encounter IN (
+				SELECT pk FROM clin.encounter WHERE fk_patient = (
+					SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+				)
+			)
 	"""
 	queries = [{'cmd': cmd, 'args': args}]
 	cmd = u"""
 		INSERT INTO clin.suppressed_hint (
-			fk_identity,
+			fk_encounter,
 			fk_hint,
 			rationale,
-			fk_encounter,
 			md5_sum
 		) VALUES (
-			%(pat)s,
+			%(enc)s,
 			%(hint)s,
 			%(rationale)s,
-			%(enc)s,
 			(SELECT r_vah.md5_sum FROM ref.v_auto_hints r_vah WHERE r_vah.pk_auto_hint = %(hint)s)
 		)
 	"""
@@ -537,6 +551,7 @@ class cSuppressedHint(gmBusinessDBObject.cBusinessDBObject):
 		txt += _('Suppressed by: %s\n') % self._payload[self._idx['suppressed_by']]
 		txt += _('Suppressed at: %s\n') % gmDateTime.pydt_strftime(self._payload[self._idx['suppressed_when']], '%Y %b %d')
 		txt += _('Hint #: %s\n') % self._payload[self._idx['pk_hint']]
+		txt += _('Patient #: %s\n') % self._payload[self._idx['pk_identity']]
 		txt += _('MD5 (currently): %s\n') % self._payload[self._idx['md5_hint']]
 		txt += _('MD5 (at suppression): %s\n') % self._payload[self._idx['md5_suppressed']]
 		txt += _('Source: %s\n') % self._payload[self._idx['source']]
@@ -560,7 +575,7 @@ def get_suppressed_hints(pk_identity=None, order_by=None):
 	if pk_identity is None:
 		where = u'true'
 	else:
-		where = u'pk_identity = %(pat)s'
+		where = u"pk_identity = %(pat)s"
 	if order_by is not None:
 		order_by = u' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
@@ -575,11 +590,10 @@ def delete_suppressed_hint(pk_suppressed_hint=None):
 	return True
 
 #------------------------------------------------------------
-def invalidate_hint_suppression(pk_identity=None, pk_hint=None, pk_encounter=None):
+def invalidate_hint_suppression(pk_hint=None, pk_encounter=None):
 	_log.debug('invalidating suppression of hint #%s', pk_hint)
 	args = {
 		'pk_hint': pk_hint,
-		'pk_identity': pk_identity,
 		'enc': pk_encounter,
 		'fake_md5': '***INVALIDATED***'			# only needs to NOT match ANY md5 sum
 	}
@@ -588,9 +602,16 @@ def invalidate_hint_suppression(pk_identity=None, pk_hint=None, pk_encounter=Non
 			fk_encounter = %(enc)s,
 			md5_sum = %(fake_md5)s
 		WHERE
-			fk_hint = %(pk_hint)s
-				AND
-			fk_identity = %(pk_identity)s
+			pk = (
+				SELECT pk_suppressed_hint
+				FROM clin.v_suppressed_hints
+				WHERE
+					pk_hint = %(pk_hint)s
+						AND
+					pk_identity = (
+						SELECT fk_patient FROM clin.encounter WHERE pk = %(enc)s
+					)
+			)
 		"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 	return True

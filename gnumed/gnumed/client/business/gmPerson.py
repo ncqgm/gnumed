@@ -1581,21 +1581,6 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
 	#--------------------------------------------------------
-	def suppress_dynamic_hint(self, pk_hint = None, rationale=None, pk_encounter=None):
-		return gmProviderInbox.suppress_dynamic_hint (
-			pk_identity = self._payload[self._idx['pk_identity']],
-			pk_hint = pk_hint,
-			rationale = rationale,
-			pk_encounter = pk_encounter
-		)
-	#--------------------------------------------------------
-	def invalidate_hint_suppression(self, pk_hint=None, pk_encounter=None):
-		return gmProviderInbox.invalidate_hint_suppression (
-			pk_identity = self._payload[self._idx['pk_identity']],
-			pk_hint = pk_hint,
-			pk_encounter = pk_encounter
-		)
-	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None
