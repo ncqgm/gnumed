@@ -132,7 +132,51 @@ alter table clin.external_care
 		)
 ;
 
--- FIXME: enforce issue vs encounter in terms of fk_patient
+
+create or replace function clin.trf_sanity_check_enc_issue_ins_upd()
+	returns trigger
+	 language 'plpgsql'
+	as '
+declare
+	_enc_pk integer;
+	_epi_pk integer;
+	_identity_from_encounter integer;
+	_identity_from_issue integer;
+	_cmd text;
+begin
+	select fk_patient into _identity_from_encounter from clin.encounter where pk = NEW.fk_encounter;
+--	raise notice ''%: % -> %'', _cmd, _enc_pk, _identity_from_encounter;
+	select fk_patient into _identity_from_issue
+	from clin.encounter where pk = (
+		select fk_encounter from clin.health_issue where pk = NEW.fk_health_issue
+	);
+
+	if _identity_from_encounter <> _identity_from_issue then
+		raise exception ''% into clin.external_care: Sanity check failed. fk_encounter=% -> patient=%. fk_health_issue=% -> patient=%.'',
+			TG_OP,
+			NEW.fk_encounter,
+			_identity_from_encounter,
+			NEW.fk_health_issue,
+			_identity_from_issue
+		;
+		return NULL;
+	end if;
+
+	return NEW;
+end;
+';
+
+
+DROP TRIGGER IF EXISTS tr_sanity_check_enc_issue_ins_upd ON clin.external_care CASCADE;
+
+
+CREATE CONSTRAINT TRIGGER tr_sanity_check_enc_issue_ins_upd
+	AFTER INSERT OR UPDATE ON clin.external_care
+	DEFERRABLE INITIALLY DEFERRED
+	FOR EACH ROW when (NEW.fk_health_issue IS NOT NULL)
+	EXECUTE PROCEDURE clin.trf_sanity_check_enc_issue_ins_upd();
+
+
 -- FIXME: enforce unique((issue-or-encounter).fk_patient, issue, fk_org_unit)
 
 -- cannot easily enforce the following two (lacking direct access to fk_patient):

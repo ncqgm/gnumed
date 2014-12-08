@@ -7,7 +7,8 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
+set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 comment on table clin.suppressed_hint is 'A table to hold hints suppressed per patient';
@@ -133,12 +134,45 @@ alter table clin.suppressed_hint
 		set default statement_timestamp();
 
 -- --------------------------------------------------------------
--- FIXME: cannot easily ensure this, need to write trigger to check (fk_encounter->fk_patient, fk_hint)
+create or replace function clin.trf_sanity_check_uniq_hint_per_pat_ins_upd()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_suppression_count integer;
+BEGIN
+	-- the count of suppressions for this hint in this patient
+	SELECT COUNT(1) INTO STRICT _suppression_count
+	FROM clin.suppressed_hint
+	WHERE
+		fk_hint = NEW.fk_hint
+			AND
+		fk_encounter IN (
+			SELECT pk FROM clin.encounter WHERE fk_patient = (
+				SELECT fk_patient FROM clin.encounter WHERE pk = NEW.fk_encounter
+			)
+		)
+	;
+	IF _suppression_count > 1 THEN
+		raise exception ''% into clin.suppressed_hint: Sanity check failed. Hint [%] suppressed more than once for patient of encounter [%].'',
+			TG_OP,
+			NEW.pk,
+			NEW.fk_encounter
+		;
+		return NULL;
+	END IF;
+	return NEW;
+END;
+';
 
---alter table clin.suppressed_hint
---	drop constraint if exists clin_suppressed_hint_uniq_hint_ident cascade;
---alter table clin.suppressed_hint
---	add constraint clin_suppressed_hint_uniq_hint_ident unique(fk_hint, fk_identity);
+
+DROP TRIGGER IF EXISTS tr_sanity_check_uniq_hint_per_pat_ins_upd ON clin.suppressed_hint CASCADE;
+
+
+CREATE CONSTRAINT TRIGGER tr_sanity_check_uniq_hint_per_pat_ins_upd
+	AFTER INSERT OR UPDATE ON clin.suppressed_hint
+	DEFERRABLE INITIALLY DEFERRED
+	FOR EACH ROW EXECUTE PROCEDURE clin.trf_sanity_check_uniq_hint_per_pat_ins_upd();
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_suppressed_hints cascade;
