@@ -55,6 +55,12 @@ where not exists (
 	)
 );
 
+-- .conversion_unit has been renamed to .reference_unit which
+-- makes the audit trigger fail on update, thus we need to
+-- disable this trigger for the update
+alter table clin.test_type
+	DISABLE TRIGGER zt_upd_test_type;
+
 -- update test types
 update clin.test_type set
 	fk_test_org = (
@@ -68,6 +74,9 @@ update clin.test_type set
 where
 	fk_test_org is null
 ;
+
+alter table clin.test_type
+	ENABLE TRIGGER zt_upd_test_type;
 
 -- set not null
 alter table clin.test_type
