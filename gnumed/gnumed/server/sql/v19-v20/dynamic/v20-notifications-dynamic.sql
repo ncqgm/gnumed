@@ -68,6 +68,7 @@ begin
 
 	_identity_accessor_SQL := TG_ARGV[2];
 	if _identity_accessor_SQL <> ''<NULL>'' then
+		--raise notice ''%.%: %'', TG_TABLE_SCHEMA, TG_TABLE_NAME, _identity_accessor_SQL;
 		EXECUTE _identity_accessor_SQL INTO STRICT _pk_identity USING OLD;
 		_payload := _payload || ''::person PK='' || coalesce(_pk_identity::text, ''NULL'');
 	end if;

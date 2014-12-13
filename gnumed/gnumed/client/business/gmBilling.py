@@ -392,7 +392,9 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 			'val': self._payload[self._idx['total_amount']]
 		}
 
-		if self._payload[self._idx['apply_vat']]:
+		if self._payload[self._idx['apply_vat']] is None:
+			txt += _(' VAT: undecided\n')
+		elif self._payload[self._idx['apply_vat']] is True:
 			txt += _(' VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n') % {
 				'perc_vat': self._payload[self._idx['percent_vat']],
 				'equals': gmTools.u_corresponds_to,
@@ -485,6 +487,7 @@ class cBill(gmBusinessDBObject.cBusinessDBObject):
 				return False
 		self['pk_receiver_address'] = adr['pk_lnk_person_org_address']
 		return self.save_payload()
+
 #------------------------------------------------------------
 def get_bills(order_by=None, pk_patient=None):
 
@@ -502,6 +505,7 @@ def get_bills(order_by=None, pk_patient=None):
 	cmd = (_SQL_get_bill_fields % u' AND '.join(where_parts)) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cBill(row = {'data': r, 'idx': idx, 'pk_field': 'pk_bill'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_bill(conn=None, invoice_id=None):
 
@@ -514,15 +518,18 @@ def create_bill(conn=None, invoice_id=None):
 	rows, idx = gmPG2.run_rw_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	return cBill(aPK_obj = rows[0]['pk'])
+
 #------------------------------------------------------------
 def delete_bill(link_obj=None, pk_bill=None):
 	args = {'pk': pk_bill}
 	cmd = u"DELETE FROM bill.bill WHERE pk = %(pk)s"
 	gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}])
 	return True
+
 #------------------------------------------------------------
 def get_bill_receiver(pk_patient=None):
 	pass
+
 #------------------------------------------------------------
 def get_invoice_id(pk_patient=None):
 	return u'GM%s / %s' % (
@@ -532,6 +539,7 @@ def get_invoice_id(pk_patient=None):
 			'%Y-%m-%d / %H%M%S'
 		)
 	)
+
 #============================================================
 # main
 #------------------------------------------------------------

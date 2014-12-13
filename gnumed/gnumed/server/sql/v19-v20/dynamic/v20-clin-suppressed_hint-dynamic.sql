@@ -47,7 +47,7 @@ alter table clin.suppressed_hint
 	add constraint FK_clin_suppressed_hint_fk_encounter foreign key (fk_encounter)
 		references clin.encounter(pk)
 		on update restrict
-		on delete cascade
+		on delete restrict
 ;
 
 -- --------------------------------------------------------------

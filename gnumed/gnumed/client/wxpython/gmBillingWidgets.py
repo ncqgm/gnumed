@@ -535,7 +535,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			)
 			return False
 
-	if None in [ bill['close_date'], bill['pk_receiver_address'] ]:
+	if None in [ bill['close_date'], bill['pk_receiver_address'], bill['apply_vat'] ]:
 		edit_bill(parent = parent, bill = bill, single_entry = True)
 		# cannot invoice open bills
 		if bill['close_date'] is None:
@@ -558,6 +558,18 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 					'Cannot create invoice from bill.\n'
 					'\n'
 					'There is no receiver address.'
+				)
+			)
+			return False
+		# cannot create invoice if applying VAT is undecided
+		if bill['apply_vat'] is None:
+			_log.error('cannot create invoice from bill, apply_vat undecided')
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Creating invoice'),
+				aMessage = _(
+					'Cannot create invoice from bill.\n'
+					'\n'
+					'You must decide on whether to apply VAT.'
 				)
 			)
 			return False
@@ -869,7 +881,8 @@ def manage_bills(parent=None, patient=None):
 				amount = gmTools.bool2subst (
 					b['apply_vat'],
 					_('%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)') % b,
-					u'%(currency)s%(total_amount)s' % b
+					u'%(currency)s%(total_amount)s' % b,
+					_('without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: %(currency)s%(total_amount_with_vat)s') % b
 				)
 			items.append ([
 				close_date,
@@ -922,6 +935,17 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if data is not None:
 			self.mode = 'edit'
 
+		self._3state2bool = {
+			wx.CHK_UNCHECKED: False,
+			wx.CHK_CHECKED: True,
+			wx.CHK_UNDETERMINED: None
+		}
+		self.bool_to_3state = {
+			False: wx.CHK_UNCHECKED,
+			True: wx.CHK_CHECKED,
+			None: wx.CHK_UNDETERMINED
+		}
+
 #		self.__init_ui()
 	#----------------------------------------------------------------
 #	def __init_ui(self):
@@ -935,6 +959,11 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if not self._PRW_close_date.is_valid_timestamp(allow_empty = False):
 			self._PRW_close_date.SetFocus()
 
+		# flag but do not count as wrong
+		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_UNDETERMINED:
+			self._CHBOX_vat_applies.SetFocus()
+			self._CHBOX_vat_applies.SetBackgroundColour('yellow')
+
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
@@ -943,7 +972,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		self.data['close_date'] = self._PRW_close_date.GetData()
-		self.data['apply_vat'] = self._CHBOX_vat_applies.GetValue()
+		self.data['apply_vat'] = self._3state2bool[self._CHBOX_vat_applies.ThreeStateValue]
 		self.data['comment'] = self._TCTRL_comment.GetValue()
 		self.data.save()
 		return True
@@ -966,15 +995,17 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 			self._TCTRL_address.SetValue(adr.format(single_line = True, show_type = False))
 
 		self._TCTRL_value.SetValue(u'%(currency)s%(total_amount)s' % self.data)
-		self._CHBOX_vat_applies.SetValue(self.data['apply_vat'])
+		self._CHBOX_vat_applies.ThreeStateValue = self.bool_to_3state[self.data['apply_vat']]
 		self._CHBOX_vat_applies.SetLabel(_('&VAT applies (%s%%)') % self.data['percent_vat'])
-		if self.data['apply_vat']:
+		if self.data['apply_vat'] is True:
 			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
 				gmTools.u_right_arrow,
 				gmTools.u_sum,
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
+		elif self.data['apply_vat'] is None:
+			self._TCTRL_value_with_vat.SetValue(u'?')
 		else:
 			self._TCTRL_value_with_vat.SetValue(u'')
 
@@ -985,13 +1016,16 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	# event handling
 	#----------------------------------------------------------------
 	def _on_vat_applies_box_checked(self, event):
-		if self._CHBOX_vat_applies.GetValue():
+		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_CHECKED:
 			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
 				gmTools.u_right_arrow,
 				gmTools.u_sum,
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
+			return
+		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_UNDETERMINED:
+			self._TCTRL_value_with_vat.SetValue(u'?')
 			return
 		self._TCTRL_value_with_vat.SetValue(u'')
 	#----------------------------------------------------------------

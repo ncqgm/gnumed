@@ -36,7 +36,7 @@ alter table clin.external_care
 	add constraint FK_clin_external_care_fk_encounter foreign key (fk_encounter)
 		references clin.encounter(pk)
 		on update restrict
-		on delete cascade
+		on delete restrict
 ;
 
 -- --------------------------------------------------------------

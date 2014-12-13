@@ -50,6 +50,7 @@ IMPROVED: GFR calculations
 IMPROVED: prevent deletion of messages not belonging to current provider
 IMRPOVED: display of medication related lab monitoring
 IMPROVED: exception logging enhancements
+IMPROVED: workflow creating bill w/ respect to VAT [thanks Marc]
 
 ------------------------------------------------
 # rel-1-4-patches
