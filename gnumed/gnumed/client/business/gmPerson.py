@@ -45,6 +45,7 @@ from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
+from Gnumed.business import gmBilling
 from Gnumed.business.gmDocuments import cDocumentFolder
 from Gnumed.business.gmChartPulling import tui_chart_puller
 
@@ -1392,6 +1393,16 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				NOT EXISTS(SELECT 1 FROM bill.bill WHERE fk_receiver_address = dem.lnk_person_org_address.id)
 			"""
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+	#----------------------------------------------------------------------
+	# bills API
+	#----------------------------------------------------------------------
+	def get_bills(self, order_by=None, pk_patient=None):
+		return gmBilling.get_bills (
+			order_by = order_by,
+			pk_patient = self.pk_obj
+		)
+
+	bills = property(get_bills, lambda x:x)
 	#----------------------------------------------------------------------
 	# relatives API
 	#----------------------------------------------------------------------

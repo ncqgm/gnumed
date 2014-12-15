@@ -43,6 +43,9 @@ alter table clin.external_care
 -- .fk_health_issue
 comment on column clin.external_care.fk_health_issue is 'link to a health issue, if any';
 
+drop index if exists clin.idx_external_care_fk_health_issue cascade;
+create index idx_external_care_fk_health_issue on clin.external_care(fk_health_issue);
+
 alter table clin.external_care drop constraint if exists FK_clin_ext_care_fk_health_issue cascade;
 
 alter table clin.external_care
@@ -50,13 +53,6 @@ alter table clin.external_care
 		references clin.health_issue(pk)
 		on update cascade
 		on delete restrict
-;
-
-alter table clin.external_care drop constraint if exists clin_ext_care_uniq_fk_issue cascade;
-
-alter table clin.external_care
-	add constraint clin_ext_care_uniq_fk_issue
-		unique(fk_health_issue)
 ;
 
 -- --------------------------------------------------------------
@@ -70,16 +66,12 @@ alter table clin.external_care
 		check(gm.is_null_or_non_empty_string(issue) is True)
 ;
 
-alter table clin.external_care drop constraint if exists clin_ext_care_uniq_issue cascade;
-
-alter table clin.external_care
-	add constraint clin_ext_care_uniq_issue
-		unique(issue)
-;
-
 -- --------------------------------------------------------------
 -- .fk_org_unit
 comment on column clin.external_care.fk_org_unit is 'link to the org unit where care is rendered';
+
+drop index if exists clin.idx_external_care_fk_org_unit cascade;
+create index idx_external_care_fk_org_unit on clin.external_care(fk_org_unit);
 
 alter table clin.external_care drop constraint if exists FK_clin_ext_care_fk_org_unit cascade;
 
@@ -118,7 +110,8 @@ alter table clin.external_care
 ;
 
 -- --------------------------------------------------------------
--- table constraints
+-- table constraints:
+-- explicit issue XOR linked issue
 alter table clin.external_care drop constraint if exists clin_ext_care_issue_xor_fk_issue cascade;
 
 alter table clin.external_care
@@ -133,6 +126,7 @@ alter table clin.external_care
 ;
 
 
+-- linked issue and encounter must belong to same patient
 create or replace function clin.trf_sanity_check_enc_issue_ins_upd()
 	returns trigger
 	 language 'plpgsql'
@@ -151,49 +145,81 @@ begin
 		select fk_encounter from clin.health_issue where pk = NEW.fk_health_issue
 	);
 
-	if _identity_from_encounter <> _identity_from_issue then
-		raise exception ''% into clin.external_care: Sanity check failed. fk_encounter=% -> patient=%. fk_health_issue=% -> patient=%.'',
+	IF _identity_from_encounter <> _identity_from_issue THEN
+		RAISE EXCEPTION ''% into clin.external_care: Sanity check failed. fk_encounter=% -> patient=%. fk_health_issue=% -> patient=%.'',
 			TG_OP,
 			NEW.fk_encounter,
 			_identity_from_encounter,
 			NEW.fk_health_issue,
 			_identity_from_issue
+			USING ERRCODE = ''check_violation''
 		;
 		return NULL;
-	end if;
+	END IF;
 
 	return NEW;
 end;
 ';
 
-
 DROP TRIGGER IF EXISTS tr_sanity_check_enc_issue_ins_upd ON clin.external_care CASCADE;
-
 
 CREATE CONSTRAINT TRIGGER tr_sanity_check_enc_issue_ins_upd
 	AFTER INSERT OR UPDATE ON clin.external_care
 	DEFERRABLE INITIALLY DEFERRED
-	FOR EACH ROW when (NEW.fk_health_issue IS NOT NULL)
+	FOR EACH ROW WHEN (NEW.fk_health_issue IS NOT NULL)
 	EXECUTE PROCEDURE clin.trf_sanity_check_enc_issue_ins_upd();
 
 
--- FIXME: enforce unique((issue-or-encounter).fk_patient, issue, fk_org_unit)
+-- linked issue (= linked patient) can only exist once per org unit
+alter table clin.external_care drop constraint if exists clin_ext_care_uniq_fk_issue_per_unit cascade;
 
--- cannot easily enforce the following two (lacking direct access to fk_patient):
---alter table clin.external_care drop constraint if exists clin_ext_care_uniq_issue_per_identity_and_org cascade;
---
---alter table clin.external_care
---	add constraint clin_ext_care_uniq_issue_per_identity_and_org
---		unique(fk_identity, issue, fk_org_unit)
---;
---
---
---alter table clin.external_care drop constraint if exists clin_ext_care_uniq_fk_issue_per_identity_and_org cascade;
---
---alter table clin.external_care
---	add constraint clin_ext_care_uniq_fk_issue_per_identity_and_org
---		unique(fk_identity, fk_health_issue, fk_org_unit)
---;
+alter table clin.external_care
+	add constraint clin_ext_care_uniq_fk_issue_per_unit
+		unique(fk_health_issue, fk_org_unit)
+;
+
+
+-- explicit issue only once per (patient, org_unit)
+create or replace function clin.trf_check_ext_care_uniq_issue_per_enc_and_unit_ins_upd()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_issue_count integer;
+BEGIN
+	SELECT COUNT(1) INTO STRICT _issue_count
+	FROM clin.external_care
+	WHERE
+		issue = NEW.issue
+			AND
+		fk_org_unit = NEW.fk_org_unit
+			AND
+		fk_encounter IN (
+			SELECT pk FROM clin.encounter WHERE fk_patient = (
+				SELECT fk_patient FROM clin.encounter WHERE pk = NEW.fk_encounter
+			)
+		)
+	;
+	IF _issue_count > 1 THEN
+		RAISE EXCEPTION ''% into clin.external_care: Sanity check failed. Cannot insert issue [%] more than once for patient of encounter [%] at org unit [%].'',
+			TG_OP,
+			NEW.issue,
+			NEW.fk_encounter,
+			NEW.fk_org_unit
+			USING ERRCODE = ''check_violation'';
+		return NULL;
+	END IF;
+	RETURN NEW;
+END;
+';
+
+DROP TRIGGER IF EXISTS tr_clin_ext_care_uniq_issue_per_enc_and_unit_ins_upd ON clin.external_care CASCADE;
+
+CREATE CONSTRAINT TRIGGER tr_clin_ext_care_uniq_issue_per_enc_and_unit_ins_upd
+	AFTER INSERT OR UPDATE ON clin.external_care
+	DEFERRABLE INITIALLY DEFERRED
+	FOR EACH ROW WHEN (NEW.fk_health_issue IS NULL)
+	EXECUTE PROCEDURE clin.trf_check_ext_care_uniq_issue_per_enc_and_unit_ins_upd();
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_external_care cascade;

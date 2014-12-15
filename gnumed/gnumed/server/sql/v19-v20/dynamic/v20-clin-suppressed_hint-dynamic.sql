@@ -154,11 +154,11 @@ BEGIN
 		)
 	;
 	IF _suppression_count > 1 THEN
-		raise exception ''% into clin.suppressed_hint: Sanity check failed. Hint [%] suppressed more than once for patient of encounter [%].'',
+		RAISE EXCEPTION ''% into clin.suppressed_hint: Sanity check failed. Hint [%] suppressed more than once for patient of encounter [%].'',
 			TG_OP,
 			NEW.pk,
 			NEW.fk_encounter
-		;
+			USING ERRCODE = ''check_violation'';
 		return NULL;
 	END IF;
 	return NEW;

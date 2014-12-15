@@ -125,38 +125,22 @@ def _decide_on_active_encounter(pk_identity):
 	return enc
 
 #------------------------------------------------------------
-def tui_chart_puller(pk_identity):
-	from Gnumed.business import gmPerson
+def tui_chart_puller(person):
 
-	_log.debug('pulling chart for identity [%s]', pk_identity)
-
-	success, pk_identity = gmTools.input2int(initial = pk_identity, minval = 1)
-	if not success:
-		raise TypeError('<%s> is not an integer' % pk_identity)
-
-	person = gmPerson.cIdentity(pk_identity)
+	_log.debug('pulling chart for identity [%s]', person.ID)
 
 	# be careful about pulling charts of our own staff
 	if not _check_for_provider_chart_access(person):
 		return None
 
-	# create chart if necessary
-	if not _ensure_person_is_patient(person):
-		return None
-
-	del person
-
-	# detect which encounter to use
-	enc = _decide_on_active_encounter(pk_identity)
-
-	# ensure has allergy state
-	patient = gmPerson.cPatient(pk_identity)
-	patient.ensure_has_allergy_state(enc['pk_encounter'])
+	person.is_patient = True
+	enc = _decide_on_active_encounter(person.ID)
+	person.as_patient.ensure_has_allergy_state(enc['pk_encounter'])
 
 	# set encounter in EMR
 	from Gnumed.business import gmClinicalRecord
-	emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_identity, allow_user_interaction = False, encounter = enc)
-	emr.log_access(action = u'chart pulled for patient [%s] (no user interaction)' % pk_identity)
+	emr = gmClinicalRecord.cClinicalRecord(aPKey = person.ID, allow_user_interaction = False, encounter = enc)
+	emr.log_access(action = u'chart pulled for patient [%s] (no user interaction)' % person.ID)
 
 	return emr
 

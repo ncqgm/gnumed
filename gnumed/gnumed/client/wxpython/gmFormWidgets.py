@@ -849,6 +849,20 @@ class cReceiverSelectionDlg(wxgReceiverSelectionDlg.wxgReceiverSelectionDlg):
 			list_data.append((u'%s @ %s' % (lab['unit'], lab['organization']), [adr], u'\n'.join(lab.format())))
 		del labs
 
+		candidate_type = _('Bill receiver')
+		bills = self.__patient.bills
+		adrs_seen = []
+		for bill in bills:
+			if bill['pk_receiver_address'] in adrs_seen:
+				continue
+			adr = bill.address
+			if adr is None:
+				continue
+			adrs_seen.append(bill['pk_receiver_address'])
+			details = u'%s%s' % (bill['invoice_id'], gmDateTime.pydt_strftime(dt = bill['close_date'], format = ' (%Y %b %d)', none_str = u''))
+			list_items.append([candidate_type, details])
+			list_data.append((u'', [adr], u'\n'.join(adr.format())))
+
 		self._LCTRL_candidates.set_columns([_(u'Receiver'), _(u'Details')])
 		self._LCTRL_candidates.set_string_items(list_items)
 		self._LCTRL_candidates.set_column_widths()
