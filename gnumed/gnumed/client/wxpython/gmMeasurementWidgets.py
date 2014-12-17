@@ -437,7 +437,18 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 				gmTools.coalesce(r['abnormality_indicator'], u'', u' %s')
 			),
 			r['unified_name'],
-			gmTools.coalesce(r['comment'], u''),
+			u'%s%s' % (
+				gmTools.bool2subst (
+					boolean = not r['reviewed'],
+					true_return = _('no review at all'),
+					false_return = gmTools.bool2subst (
+						boolean = (r['you_are_responsible'] and not r['review_by_you']),
+						true_return = _('no review by you (you are responsible)'),
+						false_return = _('reviewed')
+					)
+				),
+				gmTools.coalesce(r['comment'], u'', u' / %s')
+			),
 			r['pk_test_result']
 		] for r in results ]
 		lctrl.set_string_items(items)
