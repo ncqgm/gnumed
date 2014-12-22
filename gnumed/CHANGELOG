@@ -52,6 +52,7 @@ IMRPOVED: display of medication related lab monitoring
 IMPROVED: exception logging enhancements
 IMPROVED: workflow creating bill w/ respect to VAT [thanks Marc]
 IMRPOVED: workflow finding unreviewed test results [thanks Jim]
+IMPROVED: new-documents virtual inbox message
 
 ------------------------------------------------
 # rel-1-4-patches
@@ -1541,6 +1542,7 @@ IMPROVED: clin.test_type.conversion_unit -> *.reference_unit
 
 NEW: clin.external_care
 NEW: clin.patient
+NEW: bootstrapper now REINDEXes after upgrade
 
 ------------------------------------------------
 # gnumed_v19
