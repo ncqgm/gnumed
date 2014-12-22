@@ -431,12 +431,35 @@ if __name__ == "__main__":
 		sys.exit()
 
 	logging.basicConfig(level = logging.DEBUG)
+	#----------------------------------------------------------------------
+	def test_strcoll():
+		candidates = [
+#			(u'a', u'a'),
+#			(u'a', u'b'),
+#			(u'1', u'1'),
+#			(u'1', u'2'),
+#			(u'A', u'A'),
+#			(u'a', u'A'),
+			(u'\u270d', u'\u270d'),
+			(u'4', u'\u270d' + u'4'),
+			(u'4.4', u'\u270d' + u'4.4'),
+			(u'44', u'\u270d' + u'44'),
+			(u'4', u'\u270d' + u'9'),
+			(u'4', u'\u270d' + u'2'),
+#			(u'9', u'\u270d' + u'9'),
+#			(u'9', u'\u270d' + u'4'),
 
+		]
+		for cands in candidates:
+			print cands[0], u'<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1])
+#			print cands[1], u'<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0])
+
+	#----------------------------------------------------------------------
 	print "======================================================================"
 	print "GNUmed i18n"
 	print ""
 	print "authors:", __author__
-	print "license:", __license__, "; version:", __version__
+	print "license:", __license__
 	print "======================================================================"
 
 	activate_locale()
@@ -447,14 +470,17 @@ if __name__ == "__main__":
 		install_domain(domain = sys.argv[2])
 	else:
 		install_domain()
-	# ********************************************************
-	# == do not remove this line =============================
-	# it is needed to check for successful installation of
-	# the desired message catalog
-	# ********************************************************
-	tmp = _('Translate this or i18n into <en_EN> will not work properly !')
-	# ********************************************************
-	# ********************************************************
+
+	test_strcoll()
+
+	# ********************************************************************* #
+	# == do not remove this line ========================================== #
+	# it is needed to check for successful installation of                  #
+	# the desired message catalog                                           #
+	# ********************************************************************* #
+	tmp = _('Translate this or i18n into <en_EN> will not work properly !') #
+	# ********************************************************************* #
+	# ********************************************************************* #
 
 #=====================================================================
 

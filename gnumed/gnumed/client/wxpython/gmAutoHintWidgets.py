@@ -32,9 +32,11 @@ _log = logging.getLogger('gm.auto_hints')
 
 #================================================================
 def _display_clinical_reminders():
+
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
+
 	# reminders
 	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
@@ -65,6 +67,7 @@ def _display_clinical_reminders():
 			aTitle = _('Clinical reminder'),
 			aMessage = txt
 		)
+
 	# dynamic hints
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	for hint in pat._get_dynamic_hints(include_suppressed_needing_invalidation = True):
