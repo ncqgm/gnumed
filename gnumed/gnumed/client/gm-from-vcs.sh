@@ -29,7 +29,8 @@ fi
 
 
 # standard options
-LOG="--log-file=gm-from-vcs-$$.log"
+TS=`date +%m_%d-%H%M%S`
+LOG="--log-file=gm-vcs-${TS}-$$.log"
 CONF="--conf-file=gm-from-vcs.conf"
 
 # options useful for development and debugging:

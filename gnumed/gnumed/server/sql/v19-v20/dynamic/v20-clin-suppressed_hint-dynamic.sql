@@ -7,7 +7,8 @@
 -- ==============================================================
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
+--set default_transaction_read_only to off;
+set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 comment on table clin.suppressed_hint is 'A table to hold hints suppressed per patient';
@@ -27,26 +28,26 @@ GRANT USAGE ON SEQUENCE
 to group "gm-doctors";
 
 -- --------------------------------------------------------------
--- .fk_identity
-comment on column clin.suppressed_hint.fk_identity is 'the patient this hint is suppressed in';
+-- .fk_encounter
+comment on column clin.suppressed_hint.fk_encounter is 'the encounter during which this hint was first suppressed';
 
 
-drop index if exists clin.idx_suppressed_hint_fk_identity cascade;
-create index idx_suppressed_hint_fk_identity on clin.suppressed_hint(fk_identity);
+drop index if exists clin.idx_suppressed_hint_fk_encounter cascade;
+create index idx_suppressed_hint_fk_encounter on clin.suppressed_hint(fk_encounter);
 
 
 alter table clin.suppressed_hint
-	alter column fk_identity
+	alter column fk_encounter
 		set not null;
 
 
 alter table clin.suppressed_hint
-	drop constraint if exists FK_clin_suppressed_hint_fk_identity cascade;
+	drop constraint if exists FK_clin_suppressed_hint_fk_encounter cascade;
 alter table clin.suppressed_hint
-	add constraint FK_clin_suppressed_hint_fk_identity foreign key (fk_identity)
-		references clin.patient(fk_identity)
+	add constraint FK_clin_suppressed_hint_fk_encounter foreign key (fk_encounter)
+		references clin.encounter(pk)
 		on update restrict
-		on delete cascade
+		on delete restrict
 ;
 
 -- --------------------------------------------------------------
@@ -133,10 +134,45 @@ alter table clin.suppressed_hint
 		set default statement_timestamp();
 
 -- --------------------------------------------------------------
-alter table clin.suppressed_hint
-	drop constraint if exists clin_suppressed_hint_uniq_hint_ident cascade;
-alter table clin.suppressed_hint
-	add constraint clin_suppressed_hint_uniq_hint_ident unique(fk_hint, fk_identity);
+create or replace function clin.trf_sanity_check_uniq_hint_per_pat_ins_upd()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_suppression_count integer;
+BEGIN
+	-- the count of suppressions for this hint in this patient
+	SELECT COUNT(1) INTO STRICT _suppression_count
+	FROM clin.suppressed_hint
+	WHERE
+		fk_hint = NEW.fk_hint
+			AND
+		fk_encounter IN (
+			SELECT pk FROM clin.encounter WHERE fk_patient = (
+				SELECT fk_patient FROM clin.encounter WHERE pk = NEW.fk_encounter
+			)
+		)
+	;
+	IF _suppression_count > 1 THEN
+		RAISE EXCEPTION ''% into clin.suppressed_hint: Sanity check failed. Hint [%] suppressed more than once for patient of encounter [%].'',
+			TG_OP,
+			NEW.pk,
+			NEW.fk_encounter
+			USING ERRCODE = ''check_violation'';
+		return NULL;
+	END IF;
+	return NEW;
+END;
+';
+
+
+DROP TRIGGER IF EXISTS tr_sanity_check_uniq_hint_per_pat_ins_upd ON clin.suppressed_hint CASCADE;
+
+
+CREATE CONSTRAINT TRIGGER tr_sanity_check_uniq_hint_per_pat_ins_upd
+	AFTER INSERT OR UPDATE ON clin.suppressed_hint
+	DEFERRABLE INITIALLY DEFERRED
+	FOR EACH ROW EXECUTE PROCEDURE clin.trf_sanity_check_uniq_hint_per_pat_ins_upd();
 
 -- --------------------------------------------------------------
 drop view if exists clin.v_suppressed_hints cascade;
@@ -144,7 +180,7 @@ drop view if exists clin.v_suppressed_hints cascade;
 
 create view clin.v_suppressed_hints as
 select
-	c_sh.fk_identity
+	(select fk_patient from clin.encounter where pk = c_sh.fk_encounter)
 		as pk_identity,
 	c_sh.pk
 		as pk_suppressed_hint,
@@ -163,7 +199,63 @@ select
 	r_vah.md5_sum
 		as md5_hint,
 	c_sh.suppressed_by,
+	c_sh.suppressed_when,
+	c_sh.fk_encounter
+		as pk_encounter
+from
+	clin.suppressed_hint c_sh
+		join ref.v_auto_hints r_vah on c_sh.fk_hint = r_vah.pk_auto_hint
+;
+
+
+revoke all on clin.v_suppressed_hints from public;
+grant select on clin.v_suppressed_hints to group "gm-doctors";
+
+-- --------------------------------------------------------------
+drop view if exists clin.v_suppressed_hints_journal cascade;
+
+
+create view clin.v_suppressed_hints_journal as
+select
+	(select fk_patient from clin.encounter where pk = c_sh.fk_encounter)
+		as pk_identity,
+	c_sh.modified_when
+		as modified_when,
 	c_sh.suppressed_when
+		as clin_when,
+	c_sh.modified_by
+		as modified_by,
+	'p'::text
+		as soap_cat,
+	case
+		when r_vah.is_active is TRUE then
+			_('Active hint')
+		else
+			_('Inactive hint')
+	end
+		|| ' #' || c_sh.fk_hint || ' ' || _('suppressed by') || ' ' || c_sh.suppressed_by || E'\n'
+		|| coalesce(_('Title: ') || r_vah.title || E'\n', '')
+		|| coalesce(_('URL: ') || r_vah.url || E'\n', '')
+		|| coalesce(_('Source: ') || r_vah.source || E'\n', '')
+		|| coalesce(_('Rationale: ') || c_sh.rationale || E'\n', '')
+		|| case when c_sh.md5_sum <> r_vah.md5_sum
+			then _('Hint definition has been modified since suppression. Rationale for suppression may no longer apply.') || E'\n'
+			else ''
+		end
+		|| coalesce(_('Hint: ') || r_vah.hint, '')
+		as narrative,
+	c_sh.fk_encounter
+		as fk_encounter,
+	NULL::integer
+		as pk_episode,
+	NULL::integer
+		as pk_health_issue,
+	c_sh.pk
+		as src_pk,
+	'clin.suppressed_hint'::text
+		as src_table,
+	c_sh.row_version
+		as row_version
 from
 	clin.suppressed_hint c_sh
 		join ref.v_auto_hints r_vah on c_sh.fk_hint = r_vah.pk_auto_hint

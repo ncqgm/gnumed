@@ -1019,9 +1019,9 @@ class database:
 				_log.exception('cannot remove data import script module [%s], hoping for the best', import_script)
 
 		return True
+
 	#--------------------------------------------------------------
 	def verify_result_hash(self):
-		# verify template database hash
 		print_msg("==> verifying target database schema ...")
 		target_version = cfg_get(self.section, 'target version')
 		if target_version == 'devel':
@@ -1040,6 +1040,21 @@ class database:
 		_log.error('target database identity hash invalid')
 		print_msg("    ... failed (hash mismatch)")
 		return False
+
+	#--------------------------------------------------------------
+	def reindex_all(self):
+		print_msg("==> reindexing target database ...")
+
+		curs = self.conn.cursor()
+		cmd = 'REINDEX DATABASE %s' % self.name
+		try:
+			curs.execute(cmd)
+		except:
+			_log.exception(">>>[%s]<<< failed" % cmd)
+			curs.close()
+			return False
+		curs.close()
+		return True
 	#--------------------------------------------------------------
 	def transfer_users(self):
 		print_msg("==> transferring users ...")
@@ -1601,10 +1616,13 @@ def main():
 
 	global _bootstrapped_dbs
 
-	# verify result hash
 	db = _bootstrapped_dbs[_bootstrapped_dbs.keys()[0]]
+
 	if not db.verify_result_hash():
 		exit_with_msg("Bootstrapping failed: wrong result hash")
+
+	if not db.reindex_all():
+		exit_with_msg("Bootstrapping failed: cannot reindex")
 
 	if not db.check_data_plausibility():
 		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")

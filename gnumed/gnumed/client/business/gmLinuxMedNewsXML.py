@@ -30,10 +30,16 @@ _log = logging.getLogger('gm-LinuxMedNewsXML')
 def parse_xml_linuxmednews(xml_text=None, filename=None):
 	dob_format = '%Y-%m-%d'
 
-	if xml_text is None:
-		pat = etree.parse(filename)
-	else:
-		pat = etree.fromstring(xml_text)
+	try:
+		if xml_text is None:
+			_log.debug('parsing XML in [%s]', filename)
+			pat = etree.parse(filename)
+		else:
+			pat = etree.fromstring(xml_text)
+	except etree.ParseError:
+		_log.exception('Cannot parse, is this really XML ?')
+		return None
+
 	dto = gmPerson.cDTO_person()
 
 	dto.firstnames = pat.find('firstname').text
@@ -46,7 +52,7 @@ def parse_xml_linuxmednews(xml_text=None, filename=None):
 	dto.source = u'LinuxMedNews XML'
 
 	#dto.remember_comm_channel(channel=None, url=None):
-	#dto.remember_address(number=None, street=None, urb=None, region=None, zip=None, country=None, adr_type=None, subunit=None)
+	#dto.remember_address(number=None, street=None, urb=None, region_code=None, zip=None, country_code=None, adr_type=None, subunit=None)
 
 	return dto
 

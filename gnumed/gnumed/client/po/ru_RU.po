@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-08 19:05+0100\n"
+"POT-Creation-Date: 2014-12-26 20:29+0100\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -2245,7 +2245,10 @@ msgstr ""
 "Основной адрес: город, городское поселение, сельское поселение или жилой "
 "дом ..."
 
-msgid "Primary address: state/province/county/..."
+#, fuzzy
+msgid ""
+"Primary address: region (state/province/county/territory/arrondissement/"
+"prefecture/department/kanton/...)"
 msgstr "Основной адрес: штат, область или страна ..."
 
 msgid "Primary address: country of residence"
@@ -2417,14 +2420,8 @@ msgstr "Возраст."
 msgid "Edit Document Types"
 msgstr "Типы изменения документов"
 
-msgid "Health issue"
-msgstr "Медицинская проблема"
-
-msgid "Brand"
-msgstr "Производитель"
-
-msgid "Episode"
-msgstr "Эпизод"
+msgid "einlangerstring einlangerstring"
+msgstr ""
 
 msgid "Inactive"
 msgstr "Выключен"
@@ -2457,32 +2454,6 @@ msgid "ADR"
 msgstr "Побочная реакция на препарат (ADR - adverse drug reaction)"
 
 msgid ""
-"Sort entries by the \"health issue\" for which they are taken, then "
-"\"substance\", then \"started\"."
-msgstr ""
-"Сортирует записи по \"медицинской проблеме\", к которой они относятся, затем "
-"по \"веществу\", затем по \"началу\"."
-
-msgid ""
-"Sort entries by \"brand\", then \"substance\", then \"started\".\n"
-"\n"
-"Thus each substance will only appear once unless it is really taken in more "
-"than one preparation."
-msgstr ""
-"Сортировать записи по \"марке\", затем по \"веществу\", затем по \"началу"
-"\".\n"
-"\n"
-"Таким образом, каждое вещество будет представлено только один раз, если оно "
-"действительно принималось не более, чем в одном приготовлении."
-
-msgid ""
-"Sort entries by \"health issue\" and \"episode\" for which they are taken, "
-"then \"substance\", then \"started\"."
-msgstr ""
-"Сортировать записи по \"медицинской проблеме\" и \"эпизоду\", для которого "
-"имеется, затем по \"веществу\", затем по \"началу\"."
-
-msgid ""
 "Whether to show inactive substances, too, or only those which are assumed to "
 "currently be active."
 msgstr ""
@@ -2511,9 +2482,10 @@ msgstr "Прервать выбранную запись, относящуюся
 msgid "Show in-depth information on the selected substance if available."
 msgstr "Показать подробную информацию по выбранному веществу, если имеется."
 
+#, fuzzy
 msgid ""
-"Show <www.qtdrugs.org> information on handling of drugs / the selected drug "
-"in the presence of long Qt duration."
+"Show <http://www.qtsyndrome.ch> information on handling of drugs in the "
+"presence of long Qt duration."
 msgstr ""
 "Показывает информацию  <www.qtdrugs.org> о действии препаратов / выбранного "
 "препарата при длительном применении Qt."
@@ -2668,6 +2640,9 @@ msgstr "Сохранить рецензию."
 
 msgid "Cancel this review."
 msgstr "Отменить рецензию."
+
+msgid "Episode"
+msgstr "Эпизод"
 
 msgid "Date"
 msgstr "дата"
@@ -4738,8 +4713,8 @@ msgstr ""
 msgid "Org:"
 msgstr ""
 
-msgid "Run"
-msgstr "Запуск"
+msgid "&Run"
+msgstr ""
 
 msgid "Clear"
 msgstr "Очистить"
@@ -4764,15 +4739,19 @@ msgstr ""
 "Если хотите сохранить этот запрос в базе данных для последующего "
 "использования, введите здесь описательную маркировку."
 
+#, fuzzy
 msgid ""
-"Enter the SQL commands to run here. It doesn't matter whether or not you "
-"enter a trailing \";\".\n"
+"Enter the SQL commands to run here.\n"
+"\n"
+"It doesn't matter whether or not you enter a trailing \";\".\n"
 "\n"
 "Note that:\n"
 "- the query is run in a read-only transaction\n"
 "- the result list will be artificially limited to the first 1000 rows\n"
 "- you can include a column named \"pk_patient\" to make the result rows "
-"activate the corresponding patient on double-clicking"
+"activate the corresponding patient on double-clicking\n"
+"- by inserting $<ID_active_patient>$ you can access the patient ID of the "
+"patient active at the time of running the query"
 msgstr ""
 "Введите здесь команды SQL для запуска. Не имеет значение, вводите или нет "
 "последующее \";\".\n"
@@ -4821,6 +4800,9 @@ msgstr "Показывает данные из двух числовых сто�
 #, fuzzy
 msgid "Put all or selected results onto a waiting list."
 msgstr "Удалить выбранного пациента из списка ожидания."
+
+msgid "Save query results as a CSV file."
+msgstr ""
 
 msgid "Show the database schema definition in your web browser."
 msgstr "Показывает определение схемы базы данных в веб браузере."
@@ -6079,11 +6061,9 @@ msgstr "Пункт:"
 msgid "Factor:"
 msgstr "Коэффициент:"
 
-msgid "A code for this province."
+#, fuzzy
+msgid "A code for this region."
 msgstr "Код для этой области."
-
-msgid "Province"
-msgstr "Область"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -6165,6 +6145,9 @@ msgstr ""
 "- 100 мг в таблетке: количество = 100, ед. изм. = мг (в таблетке)\n"
 "- 10 мг/ампула: количество = 10, ед. изм. = мг (в ампуле)\n"
 "- 5 мг/мл раствор: количество = 5, ед. изм. = мг/мл"
+
+msgid "Brand"
+msgstr "Производитель"
 
 msgid "Add &another"
 msgstr "Добавить &another"
@@ -7582,6 +7565,10 @@ msgid "Hint #: %s\n"
 msgstr "В возрасте: %s\n"
 
 #, fuzzy, python-format
+msgid "Patient #: %s\n"
+msgstr "Пациент #%s"
+
+#, fuzzy, python-format
 msgid "MD5 (currently): %s\n"
 msgstr "Документы: %s"
 
@@ -8002,6 +7989,26 @@ msgstr ""
 msgid "PO Box"
 msgstr ""
 
+#, fuzzy
+msgid "Query needs active patient."
+msgstr "Нет активных пациентов."
+
+msgid "Active patient query"
+msgstr "Запрос активного пациента"
+
+msgid "This query requires a patient to be active in the client."
+msgstr ""
+
+#, fuzzy
+msgid "Please activate the patient you are interested"
+msgstr "Выберите текстовую часть, в которой заинтересованы ..."
+
+msgid "in and re-run the query."
+msgstr ""
+
+msgid "The query failed."
+msgstr "Запрос дал сбой."
+
 #, python-format
 msgid ""
 "Cannot add GNUmed user.\n"
@@ -8159,7 +8166,8 @@ msgstr "<urb> не может быть пустым"
 msgid "<zip> cannot be empty"
 msgstr "<индекс> не может быть пустым"
 
-msgid "<country> cannot be empty"
+#, fuzzy
+msgid "<country_code> cannot be empty"
 msgstr "<страна> не может быть пустой"
 
 #, python-format
@@ -8272,9 +8280,9 @@ msgstr " %s: %s%s%s"
 msgid "Test type \"%s\" (%s)          [#%s]\n"
 msgstr ""
 
-#, python-format
-msgid " Conversion unit: %s\n"
-msgstr " Преобразование единиц измерения: %s\n"
+#, fuzzy, python-format
+msgid " Reference unit: %s\n"
+msgstr "Группа сравнения:%s\n"
 
 #, fuzzy
 msgid "Lab details:\n"
@@ -8729,6 +8737,9 @@ msgstr " Закрытый: %s\n"
 msgid " Bill value: %(curr)s%(val)s\n"
 msgstr " Значение стоимости: %s %s\n"
 
+msgid " VAT: undecided\n"
+msgstr ""
+
 #, python-format
 msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
 msgstr ""
@@ -8981,6 +8992,9 @@ msgstr " Продолжительность: %s (%s - %s)"
 
 msgid "finished"
 msgstr "готово"
+
+msgid "Health issue"
+msgstr "Медицинская проблема"
 
 msgid "none associated"
 msgstr "связанные отсутствуют"
@@ -11531,19 +11545,25 @@ msgstr "Выберите страну по умолчанию для новог�
 msgid "Type or select a country."
 msgstr "Введите или выберите страну."
 
-msgid "Select the default region/province/state/territory for new persons.\n"
+#, fuzzy
+msgid ""
+"Select the default region (state/province/county/territory/arrondissement/"
+"prefecture/department/kanton/...) for new persons.\n"
 msgstr "Выберите по умолчанию регион, область, штат, край для нового лица.\n"
 
-msgid "Adding province"
+#, fuzzy
+msgid "Adding region"
 msgstr "Добавление области"
 
-msgid "Editing province"
-msgstr "Изменение области"
+#, fuzzy
+msgid "Editing region"
+msgstr "Изменение препаратов"
 
+#, fuzzy
 msgid ""
-"Are you sure you want to delete this province ?\n"
+"Are you sure you want to delete this region ?\n"
 "\n"
-"Deletion will only work if this province is not\n"
+"Deletion will only work if this region is not\n"
 "yet in use in any patient addresses."
 msgstr ""
 "Вы уверены, что нужно удалить эту область?\n"
@@ -11560,8 +11580,9 @@ msgstr ""
 "известные за этим штатом, как только в них\n"
 "исчезнет регистрация живущего последнего пациента."
 
-msgid "Deleting province"
-msgstr "Удаление области"
+#, fuzzy
+msgid "Deleting region"
+msgstr "Удаление опции"
 
 msgid "delete related townships"
 msgstr "удаляет связанные городки"
@@ -11569,20 +11590,21 @@ msgstr "удаляет связанные городки"
 msgid "Yes, delete"
 msgstr "Да, удалить"
 
-msgid "Delete province and possibly related townships."
+#, fuzzy
+msgid "Delete region and possibly related townships."
 msgstr "Удаляет область и возможные связанные городки."
 
 msgid "No, do NOT delete anything."
 msgstr "Нет, НЕ удалять ничего."
 
+#, fuzzy
 msgid ""
+"This list shows the regions known to GNUmed.\n"
 "\n"
-"This list shows the provinces known to GNUmed.\n"
-"\n"
-"In your jurisdiction \"province\" may correspond to either of \"state\",\n"
-"\"county\", \"region\", \"territory\", or some such term.\n"
-"\n"
-"Select the province you want to edit !\n"
+"In your jurisdiction \"region\" may correspond to either of \"state\",\n"
+"\"county\", \"province\", \"territory\", \"arrondissement\", \"department,"
+"\"\n"
+"\"prefecture\", \"kanton\", or some such term.\n"
 msgstr ""
 "\n"
 "Этот список показывает области, известные GNUmed.\n"
@@ -11592,11 +11614,15 @@ msgstr ""
 "\n"
 "Выберите область для изменения!\n"
 
-msgid "Editing provinces ..."
-msgstr "Изменение области ..."
+#, fuzzy
+msgid "Editing regions ..."
+msgstr "Редактирование эпизода"
 
-msgid "Type or select a state/region/province/territory."
-msgstr "Введите или выберите штат, регион, область, край."
+#, fuzzy
+msgid ""
+"Type or select a region (state/province/county/territory/arrondissement/"
+"prefecture/department/kanton/...)."
+msgstr "Основной адрес: штат, область или страна ..."
 
 msgid ""
 "Type or select a zip code (postcode).\n"
@@ -12054,24 +12080,12 @@ msgid ""
 "Transfer ALL patients from results to waiting list ?"
 msgstr "Удалить выбранного пациента из списка ожидания."
 
-msgid ""
-"This query requires a patient to be\n"
-"active in the client.\n"
-"\n"
-"Please activate the patient you are interested\n"
-"in and re-run the query.\n"
+msgid "Save SQL report query results as CSV in..."
 msgstr ""
-"Запрос требует, чтобы в клиенте\n"
-"пациент был активным.\n"
-"\n"
-"Активируйте нужного пациента\n"
-"и перезапустите запрос.\n"
 
-msgid "Active patient query"
-msgstr "Запрос активного пациента"
-
-msgid "The query failed."
-msgstr "Запрос дал сбой."
+#, fuzzy
+msgid "CSV files"
+msgstr "все файлы"
 
 msgid "Results"
 msgstr "Результаты"
@@ -12086,10 +12100,11 @@ msgstr "Для этого отчета нет возвращаемых данн�
 msgid "Found %s results."
 msgstr "Найдены результаты %s."
 
+#, fuzzy, python-format
 msgid ""
-"This query returned at least 1001 results.\n"
+"This query returned at least %s results.\n"
 "\n"
-"GNUmed will only show the first 1000 rows.\n"
+"GNUmed will only show the first %s rows.\n"
 "\n"
 "You may want to narrow down the WHERE conditions\n"
 "or use LIMIT and OFFSET to batchwise go through\n"
@@ -12573,6 +12588,16 @@ msgstr ""
 "\n"
 "Нет адреса получателя."
 
+#, fuzzy
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"You must decide on whether to apply VAT."
+msgstr ""
+"Не удалось создать счет из долга.\n"
+"\n"
+"Нет адреса получателя."
+
 msgid ""
 "Cannot create invoice from bill\n"
 "without an invoice template."
@@ -12641,6 +12666,15 @@ msgstr "Удаление пунктов из счета"
 msgid "Count"
 msgstr "Сумма"
 
+msgid ""
+"Cannot remove all items from a bill because\n"
+"GNUmed does not support empty bills.\n"
+"\n"
+"You must delete the bill itself if you want to\n"
+"remove all items (at which point you can opt to\n"
+"keep the items and only delete the bill)."
+msgstr ""
+
 #, python-format
 msgid ""
 "%s items selected from bill [%s]\n"
@@ -12702,6 +12736,12 @@ msgstr "Удаление пунктов из счета"
 
 #, python-format
 msgid "%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)"
+msgstr ""
+
+#, python-format
+msgid ""
+"without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: "
+"%(currency)s%(total_amount_with_vat)s"
 msgstr ""
 
 msgid "Showing bills."
@@ -12795,8 +12835,9 @@ msgstr ""
 "\n"
 "Не выбран адрес получателя."
 
+#, fuzzy
 msgid ""
-"\"Factor\" must be a number\n"
+"No billable item selected.\n"
 "\n"
 "Cannot insert bill item."
 msgstr ""
@@ -12806,6 +12847,15 @@ msgstr ""
 
 msgid "Inserting bill item"
 msgstr "Вставка пункта счета"
+
+msgid ""
+"\"Factor\" must be a number\n"
+"\n"
+"Cannot insert bill item."
+msgstr ""
+"\"Коэффициент\" должен быть числом.\n"
+"\n"
+"Не удалось вставить пункт счета."
 
 msgid "showing audit trail"
 msgstr "отображение аудиторского следа"
@@ -13925,11 +13975,20 @@ msgstr ""
 " [%s]"
 
 #, fuzzy
-msgid "No patient in clipboard."
-msgstr "Экспорт в &clipboard"
+msgid "vcf files"
+msgstr "конфигурационные файлы"
 
-msgid "Activating external patient"
-msgstr "Активация внешнего пациента"
+#, fuzzy
+msgid "VCF files"
+msgstr "все файлы"
+
+#, fuzzy
+msgid "Choose a vCard file:"
+msgstr "Выбрать файл"
+
+#, python-format
+msgid "[%s] does not seem to contain a vCard."
+msgstr ""
 
 #, python-format
 msgid ""
@@ -13942,6 +14001,19 @@ msgstr ""
 "\n"
 "%s %s (%s)\n"
 "%s"
+
+msgid "Activating external patient"
+msgstr "Активация внешнего пациента"
+
+#, fuzzy
+msgid "No patient in clipboard."
+msgstr "Экспорт в &clipboard"
+
+msgid "Clipboard does not seem to contain a vCard."
+msgstr ""
+
+msgid "Clipboard does not seem to contain LinuxMedNews XML."
+msgstr ""
 
 msgid "No patients found in external sources."
 msgstr "Во внешних источниках пациентов не найдено."
@@ -15113,6 +15185,10 @@ msgid "Hospital stay"
 msgstr "Больница"
 
 #, fuzzy
+msgid "Bill receiver"
+msgstr "Выбор пациента"
+
+#, fuzzy
 msgid "Receiver"
 msgstr " Получатель: #%s\n"
 
@@ -15930,9 +16006,9 @@ msgstr "Настраивает, какой плагин показать сра�
 msgid "Default region"
 msgstr "Регион по умолчанию"
 
-msgid "Configure the default province/region/state for person creation."
-msgstr ""
-"Настраивает по умолчанию область, регион или штат при создании персоны."
+#, fuzzy
+msgid "Configure the default region for person creation."
+msgstr "Настраивает по умолчанию страну при создании персоны."
 
 msgid "Default country"
 msgstr "Страна по умолчанию"
@@ -16196,47 +16272,37 @@ msgstr "&Register person"
 msgid "Register a new person with GNUmed"
 msgstr "Регистрировать новую персону GNUmed"
 
-msgid "&Load external"
-msgstr "&Load external"
+#, fuzzy
+msgid "From &External sources"
+msgstr "Внешний код"
 
-msgid "Load and possibly create person from an external source."
+#, fuzzy
+msgid "Load and possibly create person from available external sources."
 msgstr "Загрузить и, возможно, создать персону из внешнего источника."
 
-msgid "Add &tag"
-msgstr "Add &tag"
-
-msgid "Add a text/image tag to this person."
-msgstr "Добавляет тэг текста или изображения в эту персону."
-
-msgid "Deactivate record"
-msgstr "Отключенная регистрация"
-
-msgid "Deactivate (exclude from search) person record in database."
-msgstr "Отключает (исключает из поиска) регистрацию персоны в базе данных."
-
-msgid "&Merge persons"
-msgstr "&Merge persons"
-
-msgid "Merge two persons into one."
-msgstr "Объединяет два лица в одно."
-
-msgid "Enlist as user"
-msgstr "Зарегистрировать как пользователь"
-
-msgid "Enlist current person as GNUmed user"
-msgstr "Зарегистрировать текущее лицо как пользователя GNUmed"
+msgid "&vCard file → patient"
+msgstr ""
 
 #, fuzzy
-msgid "Export (GDT → file)"
-msgstr "Экспорт в &file"
+msgid "Import demographics from .vcf vCard file as patient"
+msgstr "Демографические сведения экспортированы в файл GDT [%s]."
 
-msgid "Export demographics of currently active person into GDT file."
+msgid "Clipboard (&XML) → patient"
+msgstr ""
+
+msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
+msgstr ""
+
+msgid "Clipboard (&vCard) → patient"
+msgstr ""
+
+msgid "Import demographics from clipboard (vCard) as patient"
+msgstr ""
+
+#, fuzzy
+msgid "Export demographics of currently active person as GDT into clipboard."
 msgstr ""
 "Экспортирует демографические сведения текущей активной персоны в файл GDT."
-
-#, fuzzy
-msgid "Export (XML → clipboard)"
-msgstr "Экспорт в &clipboard"
 
 #, fuzzy
 msgid ""
@@ -16245,11 +16311,50 @@ msgid ""
 msgstr ""
 "Экспортирует демографические сведения текущей активной персоны в файл GDT."
 
-msgid "Import (clipboard → patient)"
+#, fuzzy
+msgid "Export demographics of currently active person as vCard into clipboard"
+msgstr ""
+"Экспортирует демографические сведения текущей активной персоны в файл GDT."
+
+msgid "Export demographics of currently active person into GDT file."
+msgstr ""
+"Экспортирует демографические сведения текущей активной персоны в файл GDT."
+
+#, fuzzy
+msgid "Export demographics of currently active person into vCard file."
+msgstr ""
+"Экспортирует демографические сведения текущей активной персоны в файл GDT."
+
+#, fuzzy
+msgid "→ &Clipboard as…"
+msgstr "Экспорт в &clipboard"
+
+msgid "→ &File as…"
 msgstr ""
 
-msgid "Import demographics from clipboard (LinuxMedNews XML) as patient"
-msgstr ""
+msgid "&Merge persons"
+msgstr "&Merge persons"
+
+msgid "Merge two persons into one."
+msgstr "Объединяет два лица в одно."
+
+msgid "Deactivate record"
+msgstr "Отключенная регистрация"
+
+msgid "Deactivate (exclude from search) person record in database."
+msgstr "Отключает (исключает из поиска) регистрацию персоны в базе данных."
+
+msgid "Add &tag"
+msgstr "Add &tag"
+
+msgid "Add a text/image tag to this person."
+msgstr "Добавляет тэг текста или изображения в эту персону."
+
+msgid "Enlist as user"
+msgstr "Зарегистрировать как пользователь"
+
+msgid "Enlist current person as GNUmed user"
+msgstr "Зарегистрировать текущее лицо как пользователя GNUmed"
 
 msgid "&Past history (health issue / PMH)"
 msgstr "&Анамнез (медицинская проблема/перенесенные заболевания)"
@@ -17641,8 +17746,16 @@ msgstr "Изменяемый комментарий тэга"
 msgid "Cannot export patient as GDT. No active patient."
 msgstr "Не удалось экспортировать пациента как GDT. Нет активного пациента."
 
-#, python-format
-msgid "Exported demographics to GDT file [%s]."
+#, fuzzy
+msgid "Exported demographics as GDT to clipboard."
+msgstr "Демографические сведения экспортированы в файл GDT [%s]."
+
+#, fuzzy
+msgid "Cannot export patient as VCARD. No active patient."
+msgstr "Не удалось экспортировать пациента как GDT. Нет активного пациента."
+
+#, fuzzy
+msgid "Exported demographics as VCARD to clipboard."
 msgstr "Демографические сведения экспортированы в файл GDT [%s]."
 
 #, fuzzy
@@ -17651,6 +17764,14 @@ msgstr "Не удалось экспортировать пациента как
 
 #, fuzzy, python-format
 msgid "Exported demographics to XML file [%s]."
+msgstr "Демографические сведения экспортированы в файл GDT [%s]."
+
+#, python-format
+msgid "Exported demographics to GDT file [%s]."
+msgstr "Демографические сведения экспортированы в файл GDT [%s]."
+
+#, fuzzy, python-format
+msgid "Exported demographics to VCARD file [%s]."
 msgstr "Демографические сведения экспортированы в файл GDT [%s]."
 
 msgid "Cannot add staff member. No active patient."
@@ -17949,6 +18070,31 @@ msgstr "Подсказка"
 msgid "Browse and install automatic dynamic hints data packs"
 msgstr "Отображение и установка пакетов данных для клинических подсказок"
 
+#, fuzzy, python-format
+msgid "By: %s"
+msgstr "Родился: %s\n"
+
+msgid "No entry in field <Source>."
+msgstr ""
+
+msgid "No entry in field <Conditions>."
+msgstr ""
+
+#, fuzzy
+msgid "No entry in field <Description>."
+msgstr "Ошибка печати списка лекарств."
+
+msgid "No entry in field <Title>."
+msgstr ""
+
+#, fuzzy
+msgid "creating a new dynamic hint"
+msgstr "Отображение динамических подсказок."
+
+#, fuzzy
+msgid "updating an existing dynamic hint"
+msgstr "Открыть существующую хронологию"
+
 #, fuzzy
 msgid "Deleting suppressed dynamic hint"
 msgstr "Отображение динамических подсказок."
@@ -17983,31 +18129,6 @@ msgstr "Списки по управлению"
 #, fuzzy
 msgid "Manage automatic dynamic hints"
 msgstr "Отображение динамических подсказок."
-
-#, fuzzy, python-format
-msgid "By: %s"
-msgstr "Родился: %s\n"
-
-msgid "No entry in field <Source>."
-msgstr ""
-
-msgid "No entry in field <Conditions>."
-msgstr ""
-
-#, fuzzy
-msgid "No entry in field <Description>."
-msgstr "Ошибка печати списка лекарств."
-
-msgid "No entry in field <Title>."
-msgstr ""
-
-#, fuzzy
-msgid "creating a new dynamic hint"
-msgstr "Отображение динамических подсказок."
-
-#, fuzzy
-msgid "updating an existing dynamic hint"
-msgstr "Открыть существующую хронологию"
 
 msgid "Cannot delete family history item."
 msgstr "Не удалось удалить пункт семейного анамнеза."
@@ -19881,6 +20002,81 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#~ msgid "Province"
+#~ msgstr "Область"
+
+#~ msgid "Type or select a state/region/province/territory."
+#~ msgstr "Введите или выберите штат, регион, область, край."
+
+#~ msgid ""
+#~ "Sort entries by the \"health issue\" for which they are taken, then "
+#~ "\"substance\", then \"started\"."
+#~ msgstr ""
+#~ "Сортирует записи по \"медицинской проблеме\", к которой они относятся, "
+#~ "затем по \"веществу\", затем по \"началу\"."
+
+#~ msgid ""
+#~ "Sort entries by \"brand\", then \"substance\", then \"started\".\n"
+#~ "\n"
+#~ "Thus each substance will only appear once unless it is really taken in "
+#~ "more than one preparation."
+#~ msgstr ""
+#~ "Сортировать записи по \"марке\", затем по \"веществу\", затем по \"началу"
+#~ "\".\n"
+#~ "\n"
+#~ "Таким образом, каждое вещество будет представлено только один раз, если "
+#~ "оно действительно принималось не более, чем в одном приготовлении."
+
+#~ msgid ""
+#~ "Sort entries by \"health issue\" and \"episode\" for which they are "
+#~ "taken, then \"substance\", then \"started\"."
+#~ msgstr ""
+#~ "Сортировать записи по \"медицинской проблеме\" и \"эпизоду\", для "
+#~ "которого имеется, затем по \"веществу\", затем по \"началу\"."
+
+#~ msgid "Run"
+#~ msgstr "Запуск"
+
+#~ msgid " Conversion unit: %s\n"
+#~ msgstr " Преобразование единиц измерения: %s\n"
+
+#~ msgid "Editing province"
+#~ msgstr "Изменение области"
+
+#~ msgid "Deleting province"
+#~ msgstr "Удаление области"
+
+#~ msgid "Editing provinces ..."
+#~ msgstr "Изменение области ..."
+
+#~ msgid ""
+#~ "This query requires a patient to be\n"
+#~ "active in the client.\n"
+#~ "\n"
+#~ "Please activate the patient you are interested\n"
+#~ "in and re-run the query.\n"
+#~ msgstr ""
+#~ "Запрос требует, чтобы в клиенте\n"
+#~ "пациент был активным.\n"
+#~ "\n"
+#~ "Активируйте нужного пациента\n"
+#~ "и перезапустите запрос.\n"
+
+#~ msgid "Configure the default province/region/state for person creation."
+#~ msgstr ""
+#~ "Настраивает по умолчанию область, регион или штат при создании персоны."
+
+#~ msgid "&Load external"
+#~ msgstr "&Load external"
+
+#, fuzzy
+#~ msgid "Export (GDT → file)"
+#~ msgstr "Экспорт в &file"
+
+#, fuzzy
+#~ msgid "Export (XML → clipboard)"
+#~ msgstr "Экспорт в &clipboard"
 
 #~ msgid "Export to GDT"
 #~ msgstr "Экспорт в GDT"

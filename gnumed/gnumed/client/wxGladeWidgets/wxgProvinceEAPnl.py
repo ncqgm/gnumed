@@ -17,7 +17,7 @@ class wxgProvinceEAPnl(wx.ScrolledWindow):
         # begin wxGlade: wxgProvinceEAPnl.__init__
         kwds["style"] = wx.NO_BORDER|wx.TAB_TRAVERSAL
         wx.ScrolledWindow.__init__(self, *args, **kwds)
-        self._PRW_province = gmAddressWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_region = gmAddressWidgets.cStateSelectionPhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_code = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_country = gmAddressWidgets.cCountryPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 
@@ -28,16 +28,16 @@ class wxgProvinceEAPnl(wx.ScrolledWindow):
     def __set_properties(self):
         # begin wxGlade: wxgProvinceEAPnl.__set_properties
         self.SetScrollRate(10, 10)
-        self._TCTRL_code.SetToolTipString(_("A code for this province."))
+        self._TCTRL_code.SetToolTipString(_("A code for this region."))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: wxgProvinceEAPnl.__do_layout
         _gszr_main = wx.FlexGridSizer(3, 2, 1, 3)
         __szr_code = wx.BoxSizer(wx.HORIZONTAL)
-        __lbl_province = wx.StaticText(self, -1, _("Province"))
-        _gszr_main.Add(__lbl_province, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-        _gszr_main.Add(self._PRW_province, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
+        __lbl_region = wx.StaticText(self, -1, _("Region"))
+        _gszr_main.Add(__lbl_region, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+        _gszr_main.Add(self._PRW_region, 0, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)
         __lbl_code = wx.StaticText(self, -1, _("Code"))
         _gszr_main.Add(__lbl_code, 0, wx.ALIGN_CENTER_VERTICAL, 0)
         __szr_code.Add(self._TCTRL_code, 1, wx.EXPAND|wx.ALIGN_CENTER_VERTICAL, 0)

@@ -49,6 +49,7 @@ import sys
 import os
 import codecs
 import locale
+import datetime as pydt
 
 
 _logfile_name = None
@@ -137,13 +138,18 @@ def flush():
 #		logger.debug('  %s: %s', attr, getattr(v, attr))
 
 #===============================================================
-def log_stack_trace(message=None):
+def log_stack_trace(message=None, t=None, v=None, tb=None):
 
 	logger = logging.getLogger('gm.logging')
 
-	t, v, tb = sys.exc_info()
-	#tb = sys.exc_info()[2]
+	if t is None:
+		t = sys.exc_info()[0]
+	if v is None:
+		v = sys.exc_info()[1]
 	if tb is None:
+		tb = sys.exc_info()[2]
+	if tb is None:
+		logger.debug('sys.exc_info() did not return a traceback object, trying sys.last_traceback')
 		try:
 			tb = sys.last_traceback
 		except AttributeError:
@@ -157,17 +163,23 @@ def log_stack_trace(message=None):
 	for attr in [ a for a in dir(v) if not a.startswith('__') ]:
 		logger.debug('  %s: %s', attr, getattr(v, attr))
 
-	# recurse back to root caller
-	while 1:
-		if not tb.tb_next:
-			break
-		tb = tb.tb_next
-	# and put the frames on a stack
-	stack_of_frames = []
-	frame = tb.tb_frame
-	while frame:
-		stack_of_frames.append(frame)
-		frame = frame.f_back
+	# make sure we don't leave behind a bind
+	# to the traceback as warned against in
+	# sys.exc_info() documentation
+	try:
+		# recurse back to root caller
+		while 1:
+			if not tb.tb_next:
+				break
+			tb = tb.tb_next
+		# put the frames on a stack
+		stack_of_frames = []
+		frame = tb.tb_frame
+		while frame:
+			stack_of_frames.append(frame)
+			frame = frame.f_back
+	finally:
+		del tb
 	stack_of_frames.reverse()
 
 	if message is not None:
@@ -195,6 +207,7 @@ def log_stack_trace(message=None):
 					value = value.decode(_string_encoding, 'replace')
 
 			logger.debug(u'%20s = %s', varname, value)
+
 #===============================================================
 def set_string_encoding(encoding=None):
 
@@ -266,29 +279,33 @@ def __get_logfile_name():
 		return _logfile_name
 
 	def_log_basename = os.path.splitext(os.path.basename(sys.argv[0]))[0]
-	def_log_name = '%s-%s.log' % (def_log_basename, os.getpid())
+	default_logfile_name = '%s-%s-%s.log' % (
+		def_log_basename,
+		pydt.datetime.now().strftime('%Y_%m_%d-%H_%M_%S'),
+		os.getpid()
+	)
 
 	# given on command line ?
 	for option in sys.argv[1:]:
-		if option.startswith('--log-file='):
-			(name,value) = option.split('=')
-			(dir, name) = os.path.split(value)
-			if dir == '':
-				dir = '.'
-			if name == '':
-				name = def_log_name
-			_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir, name)))
+		if option.startswith(u'--log-file='):
+			(opt_name, value) = option.split(u'=')
+			(dir_name, file_name) = os.path.split(value)
+			if dir_name == u'':
+				dir_name = u'.'
+			if file_name == '':
+				file_name = default_logfile_name
+			_logfile_name = os.path.abspath(os.path.expanduser(os.path.join(dir_name, file_name)))
 			return True
 
-	# else store it in ~/.def_log_basename/def_log_name
-	dir = os.path.expanduser(os.path.join('~', '.' + def_log_basename))
+	# else store it in ~/.gm-logs/def_log_basename/default_logfile_name
+	dir_name = os.path.expanduser(os.path.join('~', '.gnumed-logs', def_log_basename))
 	try:
-		os.makedirs(dir)
+		os.makedirs(dir_name)
 	except OSError, e:
-		if (e.errno == 17) and not os.path.isdir(dir):
+		if (e.errno == 17) and not os.path.isdir(dir_name):
 			raise
 
-	_logfile_name = os.path.join(dir, def_log_name)
+	_logfile_name = os.path.join(dir_name, default_logfile_name)
 
 	return True
 #===============================================================

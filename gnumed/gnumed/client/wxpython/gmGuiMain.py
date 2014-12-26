@@ -406,7 +406,7 @@ class gmTopLevelFrame(wx.Frame):
 		menu_cfg_pat_search.Append(ID, _('Initial plugin'), _('Configure which plugin to show right after person activation.'))
 		wx.EVT_MENU(self, ID, self.__on_configure_initial_pat_plugin)
 
-		item = menu_cfg_pat_search.Append(-1, _('Default region'), _('Configure the default province/region/state for person creation.'))
+		item = menu_cfg_pat_search.Append(-1, _('Default region'), _('Configure the default region for person creation.'))
 		self.Bind(wx.EVT_MENU, self.__on_cfg_default_region, item)
 
 		item = menu_cfg_pat_search.Append(-1, _('Default country'), _('Configure the default country for person creation.'))
@@ -590,36 +590,52 @@ class gmTopLevelFrame(wx.Frame):
 		menu_person.Append(ID_CREATE_PATIENT, _('&Register person'), _("Register a new person with GNUmed"))
 		wx.EVT_MENU(self, ID_CREATE_PATIENT, self.__on_create_new_patient)
 
-		ID_LOAD_EXT_PAT = wx.NewId()
-		menu_person.Append(ID_LOAD_EXT_PAT, _('&Load external'), _('Load and possibly create person from an external source.'))
-		wx.EVT_MENU(self, ID_LOAD_EXT_PAT, self.__on_load_external_patient)
+		menu_person_import = wx.Menu()
+		item = menu_person_import.Append(-1, _('From &External sources'), _('Load and possibly create person from available external sources.'))
+		self.Bind(wx.EVT_MENU, self.__on_load_external_patient, item)
+		item = menu_person_import.Append(-1, _(u'&vCard file \u2192 patient'), _('Import demographics from .vcf vCard file as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_file, item)
+		item = menu_person_import.Append(-1, _(u'Clipboard (&XML) \u2192 patient'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
+		item = menu_person_import.Append(-1, _(u'Clipboard (&vCard) \u2192 patient'), _('Import demographics from clipboard (vCard) as patient'))
+		self.Bind(wx.EVT_MENU, self.__on_import_vcard_from_clipboard, item)
 
-		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
-		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
+		menu_person_export_clipboard = wx.Menu()
+		item = menu_person_export_clipboard.Append(-1, u'&GDT', _('Export demographics of currently active person as GDT into clipboard.'))
+		self.Bind(wx.EVT_MENU, self.__on_export_gdt2clipboard, item)
+		item = menu_person_export_clipboard.Append(-1, u'&XML (LinuxMedNews)', _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
+		self.Bind(wx.EVT_MENU, self.__on_export_linuxmednews_xml2clipboard, item)
+		item = menu_person_export_clipboard.Append(-1, u'&vCard', _('Export demographics of currently active person as vCard into clipboard'))
+		self.Bind(wx.EVT_MENU, self.__on_export_vcard2clipboard, item)
+
+		menu_person_export_file = wx.Menu()
+		item = menu_person_export_file.Append(-1, u'&GDT', _('Export demographics of currently active person into GDT file.'))
+		self.Bind(wx.EVT_MENU, self.__on_export_as_gdt, item)
+		item = menu_person_export_file.Append(-1, u'&vCard', _('Export demographics of currently active person into vCard file.'))
+		self.Bind(wx.EVT_MENU, self.__on_export_as_vcard, item)
+
+		menu_person_export = wx.Menu()
+		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &Clipboard as\u2026'), menu_person_export_clipboard)
+		menu_person_export.AppendMenu(wx.NewId(), _(u'\u2192 &File as\u2026'), menu_person_export_file)
+
+		menu_person.AppendMenu(wx.NewId(), u'&Import\u2026', menu_person_import)
+		menu_person.AppendMenu(wx.NewId(), u'E&xport\u2026', menu_person_export)
+
+		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
+		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
 
 		ID_DEL_PAT = wx.NewId()
 		menu_person.Append(ID_DEL_PAT, _('Deactivate record'), _('Deactivate (exclude from search) person record in database.'))
 		wx.EVT_MENU(self, ID_DEL_PAT, self.__on_delete_patient)
 
-		item = menu_person.Append(-1, _('&Merge persons'), _('Merge two persons into one.'))
-		self.Bind(wx.EVT_MENU, self.__on_merge_patients, item)
-
 		menu_person.AppendSeparator()
+
+		item = menu_person.Append(-1, _('Add &tag'), _('Add a text/image tag to this person.'))
+		self.Bind(wx.EVT_MENU, self.__on_add_tag2person, item)
 
 		ID_ENLIST_PATIENT_AS_STAFF = wx.NewId()
 		menu_person.Append(ID_ENLIST_PATIENT_AS_STAFF, _('Enlist as user'), _('Enlist current person as GNUmed user'))
 		wx.EVT_MENU(self, ID_ENLIST_PATIENT_AS_STAFF, self.__on_enlist_patient_as_staff)
-
-		# FIXME: temporary until external program framework is active
-		ID = wx.NewId()
-		menu_person.Append(ID, _(u'Export (GDT \u2192 file)'), _('Export demographics of currently active person into GDT file.'))
-		wx.EVT_MENU(self, ID, self.__on_export_as_gdt)
-
-		item = menu_person.Append(-1, _(u'Export (XML \u2192 clipboard)'), _('Export demographics of currently active person as XML (LinuxMedNews) into clipboard'))
-		self.Bind(wx.EVT_MENU, self.__on_export_as_xml_linuxmednews, item)
-
-		item = menu_person.Append(-1, _(u'Import (clipboard \u2192 patient)'), _('Import demographics from clipboard (LinuxMedNews XML) as patient'))
-		self.Bind(wx.EVT_MENU, self.__on_import_xml_linuxmednews, item)
 
 		menu_person.AppendSeparator()
 
@@ -2215,7 +2231,7 @@ class gmTopLevelFrame(wx.Frame):
 			'db_translations': gmI18nWidgets.manage_translations,
 			'codes': gmCodingWidgets.browse_coded_terms,
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
-			'provinces': gmAddressWidgets.manage_provinces,
+			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
 			'drugs': gmMedicationWidgets.manage_branded_drugs,
 			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
@@ -2796,6 +2812,38 @@ class gmTopLevelFrame(wx.Frame):
 			default = 0
 		))
 		gmPatSearchWidgets.get_person_from_external_sources(parent = self, search_immediately = search_immediately, activate_immediately = True)
+
+	#----------------------------------------------
+	def __on_export_gdt2clipboard(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as GDT. No active patient.'))
+			return False
+		enc = 'cp850'			# FIXME: configurable
+		gdt_name = curr_pat.export_as_gdt(encoding = enc)
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics as GDT to clipboard.'))
+		gmGuiHelpers.file2clipboard(filename = gdt_name, announce_result = True)
+
+	#----------------------------------------------
+	def __on_export_vcard2clipboard(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as VCARD. No active patient.'))
+			return False
+		vcf_name = curr_pat.export_as_vcard()
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics as VCARD to clipboard.'))
+		gmGuiHelpers.file2clipboard(filename = vcf_name, announce_result = True)
+
+	#----------------------------------------------
+	def __on_export_linuxmednews_xml2clipboard(self, event):
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as XML (LinuxMedNews). No active patient.'))
+			return False
+		fname = curr_pat.export_as_xml_linuxmednews()
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to XML file [%s].') % fname)
+		gmGuiHelpers.file2clipboard(filename = fname, announce_result = True)
+
 	#----------------------------------------------
 	def __on_export_as_gdt(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2808,18 +2856,26 @@ class gmTopLevelFrame(wx.Frame):
 		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to GDT file [%s].') % fname)
 
 	#----------------------------------------------
-	def __on_export_as_xml_linuxmednews(self, event):
+	def __on_export_as_vcard(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
 		if not curr_pat.connected:
-			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as XML (LinuxMedNews). No active patient.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export patient as VCARD. No active patient.'))
 			return False
-		fname = curr_pat.export_as_xml_linuxmednews()
-		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to XML file [%s].') % fname)
-		gmGuiHelpers.file2clipboard(filename = fname, announce_result = True)
+		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'current-patient.vcf'))
+		curr_pat.export_as_vcard(filename = fname)
+		gmDispatcher.send(signal = 'statustext', msg = _('Exported demographics to VCARD file [%s].') % fname)
 
 	#----------------------------------------------
 	def __on_import_xml_linuxmednews(self, evt):
 		gmPatSearchWidgets.load_person_from_xml_linuxmednews_via_clipboard()
+
+	#----------------------------------------------
+	def __on_import_vcard_from_clipboard(self, evt):
+		gmPatSearchWidgets.load_person_from_vcard_via_clipboard()
+
+	#----------------------------------------------
+	def __on_import_vcard_from_file(self, evt):
+		gmPatSearchWidgets.load_person_from_vcard_file()
 
 	#----------------------------------------------
 	def __on_search_person(self, evt):

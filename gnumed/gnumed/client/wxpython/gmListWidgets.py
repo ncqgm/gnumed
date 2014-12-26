@@ -24,6 +24,7 @@ import logging
 import thread
 import time
 import re as regex
+import locale
 
 
 import wx
@@ -1071,27 +1072,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if not self.remove_items_safely(max_tries = 3):
 			_log.debug(", continuing and hoping for the best")
 
-#		# remove existing items
-#		loop = 0
-#		while True:
-#			if loop > 3:
-#				_log.debug('unable to delete list items after looping 3 times, continuing and hoping for the best')
-#				break
-#			loop += 1
-#			if self.debug is not None:
-#				_log.debug('[round %s] GetItemCount() before DeleteAllItems(): %s (%s, thread [%s])', loop, self.GetItemCount(), self.debug, thread.get_ident())
-#			if not self.DeleteAllItems():
-#				_log.debug('DeleteAllItems() failed (%s)', self.debug)
-#			item_count = self.GetItemCount()
-#			if self.debug is not None:
-#				_log.debug('GetItemCount() after DeleteAllItems(): %s (%s)', item_count, self.debug)
-#			if item_count == 0:
-#				break
-#			wx.SafeYield(None, True)
-#			_log.debug('GetItemCount() not 0 after DeleteAllItems() (%s)', self.debug)
-#			time.sleep(0.3)
-#			wx.SafeYield(None, True)
-
 		if items is None:
 			self.data = None
 			wx.EndBusyCursor()
@@ -1152,7 +1132,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	def _get_data(self):
 		# slower than "return self.__data" but helps with detecting
-		# problems with len(__data)<>self.GetItemCount()
+		# problems with len(__data) <> self.GetItemCount()
 		return self.get_item_data() 		# returns all data if item_idx is None
 
 	data = property(_get_data, set_data)
@@ -1505,23 +1485,74 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		col_state.m_text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
 	#------------------------------------------------------------
-	def GetSecondarySortValues(self, primary_sort_col, item1_idx, item2_idx):
+	def GetSecondarySortValues(self, primary_sort_col, primary_item1_idx, primary_item2_idx):
+		return (primary_item1_idx, primary_item2_idx)
+
 		if self.__secondary_sort_col is None:
-			return (item1_idx, item2_idx)
+			return (primary_item1_idx, primary_item2_idx)
 		if self.__secondary_sort_col == primary_sort_col:
-			return (item1_idx, item2_idx)
-		val1 = self.itemDataMap[item1_idx][self.__secondary_sort_col]
-		val2 = self.itemDataMap[item2_idx][self.__secondary_sort_col]
-		order = cmp(val1, val2)
-		if order == 0:
-			return (item1_idx, item2_idx)
+			return (primary_item1_idx, primary_item2_idx)
+
+		secondary_val1 = self.itemDataMap[primary_item1_idx][self.__secondary_sort_col]
+		secondary_val2 = self.itemDataMap[primary_item2_idx][self.__secondary_sort_col]
+
+		if type(secondary_val1) == type(u'') and type(secondary_val2) == type(u''):
+			secondary_cmp_result = locale.strcoll(secondary_val1, secondary_val2)
+		elif type(secondary_val1) == type('') or type(secondary_val2) == type(''):
+			secondary_cmp_result = locale.strcoll(str(secondary_val1), str(secondary_val2))
+		else:
+			secondary_cmp_result = cmp(secondary_val1, secondary_val2)
+
+		if secondary_cmp_result == 0:
+			return (primary_item1_idx, primary_item2_idx)
+
 		# make the secondary column always sort ascending
 		currently_ascending = self._colSortFlag[primary_sort_col]
 		if currently_ascending:
-			val1, val2 = min(val1, val2), max(val1, val2)
+			secondary_val1, secondary_val2 = min(secondary_val1, secondary_val2), max(secondary_val1, secondary_val2)
 		else:
-			val1, val2 = max(val1, val2), min(val1, val2)
-		return (val1, val2)
+			secondary_val1, secondary_val2 = max(secondary_val1, secondary_val2), min(secondary_val1, secondary_val2)
+		return (secondary_val1, secondary_val2)
+
+	#------------------------------------------------------------
+	def _unicode_aware_column_sorter(self, item1, item2):
+		# http://jtauber.com/blog/2006/01/27/python_unicode_collation_algorithm/
+		# http://stackoverflow.com/questions/1097908/how-do-i-sort-unicode-strings-alphabetically-in-python
+		# PyICU
+		sort_col, is_ascending = self.GetSortState()
+		data1 = self.itemDataMap[item1][sort_col]
+		data2 = self.itemDataMap[item2][sort_col]
+		if type(data1) == type(u'') and type(data2) == type(u''):
+			cmp_result = locale.strcoll(data1, data2)
+		elif type(data1) == type('') or type(data2) == type(''):
+			cmp_result = locale.strcoll(str(data1), str(data2))
+		else:
+			cmp_result = cmp(data1, data2)
+
+		#direction = u'ASC'
+		if not is_ascending:
+			cmp_result = -1 * cmp_result
+			#direction = u'DESC'
+		# debug:
+#		if cmp_result < 0:
+#			op1 = u'\u2191 ' # up
+#			op2 = u'\u2193' # down
+#		elif cmp_result > 0:
+#			op2 = u'\u2191 ' # up
+#			op1 = u'\u2193' # down
+#		else:
+#			op1 = u' = '
+#			op2 = u''
+#		print u'%s: [%s]%s[%s]%s (%s)' % (direction, data1, op1, data2, op2, cmp_result)
+
+		return cmp_result
+
+	# defining our own column sorter does not seem to make
+	# a difference over the default one until we resort to
+	# something other than locale.strcoll/strxform/cmp for
+	# actual sorting
+	#def GetColumnSorter(self):
+	#	return self._unicode_aware_column_sorter
 	#------------------------------------------------------------
 	def _generate_map_for_sorting(self):
 		dict2sort = {}
@@ -1535,6 +1566,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				continue
 			for col_idx in range(col_count):
 				dict2sort[item_idx] += (self.GetItem(item_idx, col_idx).GetText(), )
+				# debugging:
+				#print u'[%s:%s] ' % (item_idx, col_idx), self.GetItem(item_idx, col_idx).GetText()
 
 		return dict2sort
 	#------------------------------------------------------------
@@ -1558,11 +1591,12 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
 		# for debugging:
-		# print "column clicked : %s" % (event.GetColumn())
-		# column, order = self.GetSortState()
-		# print "column %s sort %s" % (column, order)
-		# print self._colSortFlag
-		# print self.itemDataMap
+		sort_col, order = self.GetSortState()
+		print u'col clicked: %s / sort col: %s / sort direction: %s / sort flags: %s' % (event.GetColumn(), sort_col, order, self._colSortFlag)
+#		if self.itemDataMap is not None:
+#			print u'sort items data map:'
+#			for key, item in self.itemDataMap.items():
+#				print key, u' -- ', item
 		event.Skip()
 	#------------------------------------------------------------
 	def __get_secondary_sort_col(self):

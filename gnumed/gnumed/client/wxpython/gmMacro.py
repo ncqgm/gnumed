@@ -2245,13 +2245,13 @@ if __name__ == '__main__':
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 
 			#u'$<receiver_name::%s::120>$',
-			#u'$<receiver_street::%s::120>$',
+			u'$<receiver_street::%s::120>$',
 			#u'$<receiver_number:: %s::120>$',
 			#u'$<receiver_subunit:: %s::120>$',
 			#u'$<receiver_postcode::%s::120>$',
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$',
-			u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
+			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -2283,6 +2283,8 @@ if __name__ == '__main__':
 	def test_show_phs():
 		show_placeholders()
 	#--------------------------------------------------------
+
+	app = wx.App()
 
 	#test_placeholders()
 	#test_new_variant_placeholders()

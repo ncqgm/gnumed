@@ -5,16 +5,16 @@ This is mainly used by GNUmed/Archive.
 @copyright: GPL v2 or later
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmXmlDocDesc.py,v $
-# $Id: gmXmlDocDesc.py,v 1.6 2008-02-25 17:31:41 ncq Exp $
-__version__ = "$Revision: 1.6 $"
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, os.path, fileinput, types, string, logging
+import sys
+import os.path
+import fileinput
+import string
+import logging
 
 
 _log = logging.getLogger('gm.docs')
-_log.info(__version__)
 #============================================================
 class xmlDocDesc:
     # handlers for __getitem__()
@@ -167,7 +167,7 @@ class xmlDocDesc:
     #--------------------------------------------------------
     def __get_from_xml(self, aTag = None):
         # sanity
-        if not type(aTag) is types.StringType:
+        if not type(aTag) is type(u''):
             _log.error("Argument aTag (" + str(aTag) + ") is not a string.")
             return None
 
@@ -233,29 +233,3 @@ class xmlDocDesc:
 #============================================================
 # main
 #------------------------------------------------------------
-
-#============================================================
-# $Log: gmXmlDocDesc.py,v $
-# Revision 1.6  2008-02-25 17:31:41  ncq
-# - logging cleanup
-#
-# Revision 1.5  2008/01/30 13:34:50  ncq
-# - switch to std lib logging
-#
-# Revision 1.4  2004/03/19 17:07:20  shilbert
-# - import statement fixed
-#
-# Revision 1.3  2004/02/25 09:46:20  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.2  2003/11/17 10:56:35  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:38  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.1  2003/04/20 15:42:27  ncq
-# - first version
-#

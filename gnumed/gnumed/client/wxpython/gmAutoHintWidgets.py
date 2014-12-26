@@ -32,9 +32,11 @@ _log = logging.getLogger('gm.auto_hints')
 
 #================================================================
 def _display_clinical_reminders():
+
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
 		return
+
 	# reminders
 	for msg in pat.overdue_messages:
 		if msg['expiry_date'] is None:
@@ -65,12 +67,20 @@ def _display_clinical_reminders():
 			aTitle = _('Clinical reminder'),
 			aMessage = txt
 		)
+
 	# dynamic hints
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
-	for hint in pat.dynamic_hints:
+	for hint in pat._get_dynamic_hints(include_suppressed_needing_invalidation = True):
+		if hint['rationale4suppression'] == u'please_invalidate_suppression':
+			_log.debug('database asks for invalidation of suppression of hint [%s]', hint)
+			hint.invalidate_suppression(pk_encounter = pat.emr.current_encounter['pk_encounter'])
+			continue
 		hint_dlg.hint = hint
 		if hint_dlg.ShowModal() == wx.ID_APPLY:
-			pat.suppress_dynamic_hint(pk_hint = hint['pk_auto_hint'], rationale = hint_dlg.rationale)
+			hint.suppress (
+				rationale = hint_dlg.rationale.strip(),
+				pk_encounter = pat.emr.current_encounter['pk_encounter']
+			)
 	hint_dlg.Destroy()
 
 	return
@@ -164,65 +174,6 @@ def manage_dynamic_hints(parent=None):
 			_('Data packs'),
 			_('Browse and install automatic dynamic hints data packs'),
 			manage_data_packs
-		),
-		list_tooltip_callback = get_tooltip
-	)
-
-#================================================================
-def manage_suppressed_hints(parent=None, pk_identity=None):
-
-	if parent is None:
-		parent = wx.GetApp().GetTopWindow()
-	#------------------------------------------------------------
-	def get_tooltip(item):
-		if item is None:
-			return None
-		return item.format()
-	#------------------------------------------------------------
-	def manage_hints(item):
-		manage_dynamic_hints(parent = parent)
-		return True
-	#------------------------------------------------------------
-	def del_hint(hint=None):
-		if hint is None:
-			return False
-		really_delete = gmGuiHelpers.gm_show_question (
-			title = _('Deleting suppressed dynamic hint'),
-			question = _('Really delete the suppression of this dynamic hint ?\n\n [%s]') % hint['title']
-		)
-		if not really_delete:
-			return False
-		gmProviderInbox.delete_suppressed_hint(pk_suppressed_hint = hint['pk_suppressed_hint'])
-		return True
-	#------------------------------------------------------------
-	def refresh(lctrl):
-		hints = gmProviderInbox.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
-		items = [ [
-			h['title'],
-			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),
-			h['suppressed_by'],
-			h['rationale'],
-			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
-			h['source'][:30],
-			gmTools.coalesce(h['url'], u'')[:60],
-			h['pk_hint']
-		] for h in hints ]
-		lctrl.set_string_items(items)
-		lctrl.set_data(hints)
-	#------------------------------------------------------------
-	gmListWidgets.get_choices_from_list (
-		parent = parent,
-		msg = _('\nDynamic hints suppressed in this patient.\n'),
-		caption = _('Showing suppressed dynamic hints.'),
-		columns = [ _('Title'), _('When'), _('By'), _('Rationale'), _('Active'), _('Source'), u'URL', u'Hint #' ],
-		single_selection = True,
-		ignore_OK_button = True,
-		refresh_callback = refresh,
-		delete_callback = del_hint,
-		right_extra_button = (
-			_('Manage hints'),
-			_('Manage automatic dynamic hints'),
-			manage_hints
 		),
 		list_tooltip_callback = get_tooltip
 	)
@@ -463,9 +414,68 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = False)
 		else:
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_url, valid = True)
+
 #================================================================
+def manage_suppressed_hints(parent=None, pk_identity=None):
 
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+	#------------------------------------------------------------
+	def get_tooltip(item):
+		if item is None:
+			return None
+		return item.format()
+	#------------------------------------------------------------
+	def manage_hints(item):
+		manage_dynamic_hints(parent = parent)
+		return True
+	#------------------------------------------------------------
+	def del_hint(hint=None):
+		if hint is None:
+			return False
+		really_delete = gmGuiHelpers.gm_show_question (
+			title = _('Deleting suppressed dynamic hint'),
+			question = _('Really delete the suppression of this dynamic hint ?\n\n [%s]') % hint['title']
+		)
+		if not really_delete:
+			return False
+		gmProviderInbox.delete_suppressed_hint(pk_suppressed_hint = hint['pk_suppressed_hint'])
+		return True
+	#------------------------------------------------------------
+	def refresh(lctrl):
+		hints = gmProviderInbox.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
+		items = [ [
+			h['title'],
+			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),
+			h['suppressed_by'],
+			h['rationale'],
+			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
+			h['source'][:30],
+			gmTools.coalesce(h['url'], u'')[:60],
+			h['pk_hint']
+		] for h in hints ]
+		lctrl.set_string_items(items)
+		lctrl.set_data(hints)
+	#------------------------------------------------------------
+	gmListWidgets.get_choices_from_list (
+		parent = parent,
+		msg = _('\nDynamic hints suppressed in this patient.\n'),
+		caption = _('Showing suppressed dynamic hints.'),
+		columns = [ _('Title'), _('When'), _('By'), _('Rationale'), _('Active'), _('Source'), u'URL', u'Hint #' ],
+		single_selection = True,
+		ignore_OK_button = True,
+		refresh_callback = refresh,
+		delete_callback = del_hint,
+		right_extra_button = (
+			_('Manage hints'),
+			_('Manage automatic dynamic hints'),
+			manage_hints
+		),
+		list_tooltip_callback = get_tooltip
+	)
 
+#================================================================
+# main
 #================================================================
 if __name__ == '__main__':
 

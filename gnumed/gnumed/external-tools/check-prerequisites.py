@@ -211,6 +211,17 @@ except ImportError:
 	print "  INFO : this is used to capture catastrophic faults"
 	print "  INFO : GNUmed will still work without it"
 
+print " vobject...",
+try:
+	import vobject
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: vobject not installed"
+	print "  INFO : this is used to handle vCard data"
+	print "  INFO : GNUmed will still work without it"
+
 if missing:
 	print ""
 	print "sys.path is currently set as follows:"

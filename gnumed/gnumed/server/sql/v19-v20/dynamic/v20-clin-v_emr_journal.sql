@@ -63,6 +63,14 @@ union all
 union all
 
 	select * from clin.v_pat_vaccinations_journal
+
+union all
+
+	select * from clin.v_suppressed_hints_journal
+
+union all
+
+	select * from clin.v_external_care_journal
 ;
 
 comment on view clin.v_emr_journal is

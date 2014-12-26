@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.rc3 (database v20.rc3)',
-	'GNUmed 1.5.rc3 Release Notes:
+	'Release Notes for GNUmed 1.5.rc4 (database v20.rc4)',
+	'GNUmed 1.5.rc4 Release Notes:
 
-	1.5.rc3
+	1.5.rc4
 
 NEW: by-day display mode for test results including multi-line ones
 NEW: patient documents export area plugin
@@ -43,6 +43,8 @@ NEW: clipboard-based XML-formatted demographics exchange (I.Valdes, LinuxMedNews
 NEW: enable TLS on sending bug reports
 NEW: sort substance intake by start date [thanks Jim]
 NEW: save report generator results as CSV file
+NEW: vCard import/export (I.Valdes, LinuxMedNews)
+NEW: LQTS clinical probability score
 
 IMPROVED: filter inbox to active patient if called from waiting list [thanks Jim]
 IMPROVED: robustness of patient change event sequence ordering
@@ -62,8 +64,11 @@ IMPROVED: GFR calculations
 IMPROVED: prevent deletion of messages not belonging to current provider
 IMRPOVED: display of medication related lab monitoring
 IMPROVED: exception logging enhancements
+IMPROVED: workflow creating bill w/ respect to VAT [thanks Marc]
+IMRPOVED: workflow finding unreviewed test results [thanks Jim]
+IMPROVED: new-documents virtual inbox message
 
-	20.rc3
+	20.rc4
 
 IMPROVED: set clin.encounter.fk_location NOT NULL
 IMPROVED: set clin.test_type.fk_test_org NOT NULL
@@ -74,7 +79,8 @@ IMPROVED: clin.test_type.conversion_unit -> *.reference_unit
 
 NEW: clin.external_care
 NEW: clin.patient
+NEW: bootstrapper now REINDEXes after upgrade
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.rc3');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.rc4');

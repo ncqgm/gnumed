@@ -86,7 +86,7 @@ class wxgNewPatientEAPnl(wx.Panel):
 		self._TCTRL_number.SetToolTipString(_("Primary address: number"))
 		self._TCTRL_unit.SetToolTipString(_("Primary address: unit within the number (appt. / room / etc)."))
 		self._PRW_urb.SetToolTipString(_("Primary address: city/town/village/dwelling/..."))
-		self._PRW_region.SetToolTipString(_("Primary address: state/province/county/..."))
+		self._PRW_region.SetToolTipString(_("Primary address: region (state/province/county/territory/arrondissement/prefecture/department/kanton/...)"))
 		self._PRW_country.SetToolTipString(_("Primary address: country of residence"))
 		self._PRW_type.SetToolTipString(_("The category under which to store this address."))
 		self._PRW_channel_type.SetToolTipString(_("The type of the primary communication channel."))

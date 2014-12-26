@@ -150,39 +150,39 @@ LIMIT 25"""
 		self.selection_only = True
 
 #============================================================
-# province/state related widgets / functions
+# region related widgets / functions
 #============================================================
 def configure_default_region(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	provs = gmDemographicRecord.get_provinces()
+	regs = gmDemographicRecord.get_regions()
 
 	gmCfgWidgets.configure_string_from_list_option (
 		parent = parent,
-		message = _('Select the default region/province/state/territory for new persons.\n'),
+		message = _('Select the default region (state/province/county/territory/arrondissement/prefecture/department/kanton/...) for new persons.\n'),
 		option = 'person.create.default_region',
 		bias = 'user',
-		choices = [ (p['l10n_country'], p['l10n_state'], p['code_state']) for p in provs ],
+		choices = [ (r['l10n_country'], r['l10n_state'], r['code_state']) for r in regs ],
 		columns = [_('Country'), _('Region'), _('Code')],
-		data = [ p['state'] for p in provs ]
+		data = [ r['state'] for r in regs ]
 	)
 #============================================================
-def edit_province(parent=None, province=None):
-	ea = cProvinceEAPnl(parent = parent, id = -1, province = province)
-	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (province is not None))
-	dlg.SetTitle(gmTools.coalesce(province, _('Adding province'), _('Editing province')))
+def edit_region(parent=None, region=None):
+	ea = cProvinceEAPnl(parent = parent, id = -1, region = region)
+	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (region is not None))
+	dlg.SetTitle(gmTools.coalesce(region, _('Adding region'), _('Editing region')))
 	result = dlg.ShowModal()
 	dlg.Destroy()
 	return (result == wx.ID_OK)
 #============================================================
-def delete_province(parent=None, province=None):
+def delete_region(parent=None, region=None):
 
 	msg = _(
-		'Are you sure you want to delete this province ?\n'
+		'Are you sure you want to delete this region ?\n'
 		'\n'
-		'Deletion will only work if this province is not\n'
+		'Deletion will only work if this region is not\n'
 		'yet in use in any patient addresses.'
 	)
 
@@ -195,13 +195,13 @@ def delete_province(parent=None, province=None):
 	dlg = gmGuiHelpers.c2ButtonQuestionDlg (
 		parent,
 		-1,
-		caption = _('Deleting province'),
+		caption = _('Deleting region'),
 		question = msg,
 		show_checkbox = True,
 		checkbox_msg = _('delete related townships'),
 		checkbox_tooltip = tt,
 		button_defs = [
-			{'label': _('Yes, delete'), 'tooltip': _('Delete province and possibly related townships.'), 'default': False},
+			{'label': _('Yes, delete'), 'tooltip': _('Delete region and possibly related townships.'), 'default': False},
 			{'label': _('No'), 'tooltip': _('No, do NOT delete anything.'), 'default': True}
 		]
 	)
@@ -214,42 +214,40 @@ def delete_province(parent=None, province=None):
 	include_urbs = dlg.checkbox_is_checked()
 	dlg.Destroy()
 
-	return gmDemographicRecord.delete_province(province = province, delete_urbs = include_urbs)
+	return gmDemographicRecord.delete_region(region = region, delete_urbs = include_urbs)
 #============================================================
-def manage_provinces(parent=None):
+def manage_regions(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
 	#------------------------------------------------------------
-	def delete(province=None):
-		return delete_province(parent = parent, province = province['pk_state'])
+	def delete(region=None):
+		return delete_region(parent = parent, region = region['pk_state'])
 	#------------------------------------------------------------
-	def edit(province=None):
-		return edit_province(parent = parent, province = province)
+	def edit(region=None):
+		return edit_region(parent = parent, region = region)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		wx.BeginBusyCursor()
-		provinces = gmDemographicRecord.get_provinces()
+		provinces = gmDemographicRecord.get_regions()
 		lctrl.set_string_items([ (p['l10n_country'], p['l10n_state']) for p in provinces ])
 		lctrl.set_data(provinces)
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
 	msg = _(
+		'This list shows the regions known to GNUmed.\n'
 		'\n'
-		'This list shows the provinces known to GNUmed.\n'
-		'\n'
-		'In your jurisdiction "province" may correspond to either of "state",\n'
-		'"county", "region", "territory", or some such term.\n'
-		'\n'
-		'Select the province you want to edit !\n'
+		'In your jurisdiction "region" may correspond to either of "state",\n'
+		'"county", "province", "territory", "arrondissement", "department,"\n'
+		'"prefecture", "kanton", or some such term.\n'
 	)
 
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = msg,
-		caption = _('Editing provinces ...'),
-		columns = [_('Country'), _('Province')],
+		caption = _('Editing regions ...'),
+		columns = [_('Country'), _('Region')],
 		single_selection = True,
 		new_callback = edit,
 		#edit_callback = edit,
@@ -354,7 +352,7 @@ LIMIT 50"""
 
 		self.unset_context(context = u'zip')
 		self.unset_context(context = u'country_name')
-		self.SetToolTipString(_('Type or select a state/region/province/territory.'))
+		self.SetToolTipString(_('Type or select a region (state/province/county/territory/arrondissement/prefecture/department/kanton/...).'))
 		self.capitalisation_mode = gmTools.CAPS_FIRST
 		self.selection_only = True
 #====================================================================
@@ -365,8 +363,8 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 	def __init__(self, *args, **kwargs):
 
 		try:
-			data = kwargs['province']
-			del kwargs['province']
+			data = kwargs['region']
+			del kwargs['region']
 		except KeyError:
 			data = None
 
@@ -381,7 +379,7 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		self.__init_ui()
 	#----------------------------------------------------------------
 	def __init_ui(self):
-		self._PRW_province.selection_only = False
+		self._PRW_region.selection_only = False
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -389,16 +387,16 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 
 		validity = True
 
-		if self._PRW_province.GetData() is None:
-			if self._PRW_province.GetValue().strip() == u'':
+		if self._PRW_region.GetData() is None:
+			if self._PRW_region.GetValue().strip() == u'':
 				validity = False
-				self._PRW_province.display_as_valid(False)
+				self._PRW_region.display_as_valid(False)
 			else:
-				self._PRW_province.display_as_valid(True)
+				self._PRW_region.display_as_valid(True)
 		else:
-			self._PRW_province.display_as_valid(True)
+			self._PRW_region.display_as_valid(True)
 
-		if self._PRW_province.GetData() is None:
+		if self._PRW_region.GetData() is None:
 			if self._TCTRL_code.GetValue().strip() == u'':
 				validity = False
 				self._TCTRL_code.SetBackgroundColour(gmPhraseWheel.color_prw_invalid)
@@ -414,15 +412,15 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		return validity
 	#----------------------------------------------------------------
 	def _save_as_new(self):
-		gmDemographicRecord.create_province (
-			name = self._PRW_province.GetValue().strip(),
+		gmDemographicRecord.create_region (
+			name = self._PRW_region.GetValue().strip(),
 			code = self._TCTRL_code.GetValue().strip(),
 			country = self._PRW_country.GetData()
 		)
 
 		# EA is refreshed automatically after save, so need this ...
 		self.data = {
-			'l10n_state' : self._PRW_province.GetValue().strip(),
+			'l10n_state' : self._PRW_region.GetValue().strip(),
 			'code_state' : self._TCTRL_code.GetValue().strip(),
 			'l10n_country' : self._PRW_country.GetValue().strip(),
 			'code_country' : self._PRW_country.GetData().strip()
@@ -441,25 +439,25 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_province.SetText()
+		self._PRW_region.SetText()
 		self._TCTRL_code.SetValue(u'')
 		self._PRW_country.SetText()
 
-		self._PRW_province.SetFocus()
+		self._PRW_region.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_province.SetText(self.data['l10n_state'], self.data['code_state'])
+		self._PRW_region.SetText(self.data['l10n_state'], self.data['code_state'])
 		self._TCTRL_code.SetValue(self.data['code_state'])
 		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
 
-		self._PRW_province.SetFocus()
+		self._PRW_region.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
-		self._PRW_province.SetText()
+		self._PRW_region.SetText()
 		self._TCTRL_code.SetValue(u'')
 		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
 
-		self._PRW_province.SetFocus()
+		self._PRW_region.SetFocus()
 
 #============================================================
 # other address parts phrasewheels and widgets
@@ -809,8 +807,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		try:
 			# will create or return address
 			address = gmDemographicRecord.create_address (
-				country = self._PRW_country.GetData(),
-				state = self._PRW_state.GetData(),
+				country_code = self._PRW_country.GetData(),
+				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
 				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
 				postcode = self._PRW_zip.GetValue().strip(),
@@ -852,8 +850,8 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		# address should it exist
 		try:
 			created_or_loaded_address = gmDemographicRecord.create_address (
-				country = self._PRW_country.GetData(),
-				state = self._PRW_state.GetData(),
+				country_code = self._PRW_country.GetData(),
+				region_code = self._PRW_state.GetData(),
 				urb = self._PRW_urb.GetValue().strip(),
 				suburb = gmTools.none_if(self._PRW_suburb.GetValue().strip(), u''),
 				postcode = self._PRW_zip.GetValue().strip(),

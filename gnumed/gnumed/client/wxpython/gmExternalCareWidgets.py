@@ -157,7 +157,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		data = gmExternalCare.create_external_care_item (
-			pk_identity = gmPerson.gmCurrentPatient().ID,
+			pk_encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
 			pk_health_issue = self._PRW_issue.GetData(),
 			issue = self._PRW_issue.GetValue().strip(),
 			pk_org_unit = self._PRW_care_location.GetData()
@@ -169,6 +169,7 @@ class cExternalCareEAPnl(wxgExternalCareEAPnl.wxgExternalCareEAPnl, gmEditArea.c
 		return True
 	#----------------------------------------------------------------
 	def _save_as_update(self):
+		self.data['pk_encounter'] = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter']
 		self.data['pk_health_issue'] = self._PRW_issue.GetData()
 		self.data['issue'] = self._PRW_issue.GetValue().strip()
 		self.data['pk_org_unit'] = self._PRW_care_location.GetData()

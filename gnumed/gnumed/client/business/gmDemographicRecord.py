@@ -225,29 +225,271 @@ class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
 			return filename
 
 		return None
+
 #============================================================
+# country/region related
 #============================================================
 def get_countries():
 	cmd = u"""
-		select
-			_(name) as l10n_country, name, code, deprecated
-		from dem.country
-		order by l10n_country"""
+		SELECT
+			_(name) AS l10n_country, name, code, deprecated
+		FROM dem.country
+		ORDER BY l10n_country"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
-#============================================================
+
+#------------------------------------------------------------
 def get_country_for_region(region=None):
 	cmd = u"""
-SELECT code_country, l10n_country FROM dem.v_state WHERE l10n_state = %(region)s
+SELECT code_country, l10n_country FROM dem.v_state WHERE lower(l10n_state) = lower(%(region)s)
 	union
-SELECT code_country, l10n_country FROM dem.v_state WHERE state = %(region)s
+SELECT code_country, l10n_country FROM dem.v_state WHERE lower(state) = lower(%(region)s)
 """
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'region': region}}])
 	return rows
-#============================================================
-def delete_province(province=None, delete_urbs=False):
 
-	args = {'prov': province}
+#------------------------------------------------------------
+def map_country2code(country=None):
+	cmd = u"""
+		SELECT code FROM dem.country WHERE lower(_(name)) = lower(%(country)s)
+			UNION
+		SELECT code FROM dem.country WHERE lower(name) = lower(%(country)s)
+	"""
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'country': country}}], get_col_idx = False)
+	if len(rows) == 0:
+		return None
+	return rows[0][0]
+
+#------------------------------------------------------------
+def map_urb_zip_region2country(urb=None, zip=None, region=None):
+
+	args = {u'urb': urb, u'zip': zip, u'region': region}
+	cmd = u"""(
+		-- find by using all known details
+		SELECT
+			1 AS rank,
+			country,
+			l10n_country,
+			code_country
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			lower(urb) = lower(%(urb)s)
+				AND
+			(
+				(lower(state) = lower(coalesce(%(region)s, 'state/territory/province/region not available')))
+					OR
+				(lower(l10n_state) = lower(coalesce(%(region)s, _('state/territory/province/region not available'))))
+			)
+
+		) UNION (
+
+		-- find by using zip/urb
+		SELECT
+			2 AS rank,
+			country,
+			l10n_country,
+			code_country
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			lower(urb) = lower(%(urb)s)
+
+		) UNION (
+
+		-- find by using zip/region
+		SELECT
+			2 AS rank,
+			country,
+			l10n_country,
+			code_country
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			(
+				(lower(state) = lower(%(region)s))
+					OR
+				(lower(l10n_state) = lower(%(region)s))
+			)
+
+		) UNION (
+
+		-- find by using urb/region
+		SELECT
+			2 AS rank,
+			country,
+			l10n_country,
+			code_country
+		FROM dem.v_urb WHERE
+			lower(urb) = lower(%(urb)s)
+				AND
+			((lower(state) = lower(%(region)s))
+				OR
+			(lower(l10n_state) = lower(%(region)s)))
+
+		) UNION (
+
+		-- find by region
+		SELECT
+			2 AS rank,
+			country,
+			l10n_country,
+			code_country
+		FROM dem.v_state WHERE
+			lower(state) = lower(%(region)s)
+				OR
+			lower(l10n_state) = lower(%(region)s)
+
+		) ORDER BY rank"""
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) == 0:
+		_log.debug('zip [%s] / urb [%s] / region [%s] => ??', zip, urb, region)
+		return None
+	if len(rows) > 2:
+		_log.debug('zip [%s] / urb [%s] / region [%s] => [%s]', zip, urb, region, rows)
+		return None
+	country = rows[0]
+	_log.debug('zip [%s] / urb [%s] / region [%s] => [%s]', zip, urb, region, country)
+	return country
+
+#------------------------------------------------------------
+def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=None):
+
+	args = {u'urb': urb, u'zip': zip, u'country': country, u'country_code': country_code}
+	cmd = u"""(
+		-- find by using all known details
+		SELECT
+			1 AS rank,
+			state,
+			l10n_state,
+			code_state
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			lower(urb) = lower(%(urb)s)
+				AND
+			(
+				(lower(country) = lower(%(country)s))
+					OR
+				(lower(l10n_country) = lower(%(country)s))
+					OR
+				(code_country = %(country_code)s)
+			)
+
+		) UNION (
+
+		-- find by zip / urb
+		SELECT
+			2 AS rank,
+			state,
+			l10n_state,
+			code_state
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			lower(urb) = lower(%(urb)s)
+
+		) UNION (
+
+		-- find by zip / country
+		SELECT
+			2 AS rank,
+			state,
+			l10n_state,
+			code_state
+		FROM dem.v_urb WHERE
+			postcode_urb = %(zip)s
+				AND
+			(
+				(lower(country) = lower(%(country)s))
+					OR
+				(lower(l10n_country) = lower(%(country)s))
+					OR
+				(code_country = %(country_code)s)
+			)
+
+		) UNION (
+
+		-- find by urb / country
+		SELECT
+			2 AS rank,
+			state,
+			l10n_state,
+			code_state
+		FROM dem.v_urb WHERE
+			lower(urb) = lower(%(urb)s)
+				AND
+			(
+				(lower(country) = lower(%(country)s))
+					OR
+				(lower(l10n_country) = lower(%(country)s))
+					OR
+				(code_country = %(country_code)s)
+			)
+
+		) ORDER BY rank"""
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	if len(rows) == 0:
+		cmd = u"""
+		-- find by country (some countries will only have one region)
+		SELECT
+			1 AS rank,		-- dummy to conform with function result structure at Python level
+			state,
+			l10n_state,
+			code_state
+		FROM dem.v_state WHERE
+			(lower(country) = lower(%(country)s))
+				OR
+			(lower(l10n_country) = lower(%(country)s))
+				OR
+			(code_country = %(country_code)s)
+		"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 1:
+			region = rows[0]
+			_log.debug('zip [%s] / urb [%s] / country [%s] (%s) => [%s]', zip, urb, country, country_code, region)
+			return region
+		_log.debug('zip [%s] / urb [%s] / country [%s] (%s) => [??]', zip, urb, country, country_code)
+		return None
+
+	if len(rows) > 2:
+		_log.debug('zip [%s] / urb [%s] / country [%s] (%s) => [%s]', zip, urb, country, country_code, rows)
+		return None
+
+	region = rows[0]
+	_log.debug('zip [%s] / urb [%s] / country [%s] (%s) => [%s]', zip, urb, country, country_code, region)
+	return region
+
+#------------------------------------------------------------
+def map_region2code(region=None, country_code=None):
+	if country_code is None:
+		cmd = u"""
+			SELECT code FROM dem.state WHERE lower(_(name)) = lower(%(region)s)
+				UNION
+			SELECT code FROM dem.state WHERE lower(name) = lower(%(region)s)
+		"""
+	else:
+		cmd = u"""
+			SELECT code FROM dem.state WHERE lower(_(name)) = lower(%(region)s) AND lower(country) = lower(%(country_code)s)
+				UNION
+			SELECT code FROM dem.state WHERE lower(name) = %(region)s AND lower(country) = lower(%(country_code)s)
+		"""
+	args = {
+		'country_code': country_code,
+		'region': region
+	}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+	if len(rows) == 0:
+		return None
+	return rows[0][0]
+
+#------------------------------------------------------------
+def delete_region(region=None, delete_urbs=False):
+
+	args = {'region': region}
 
 	queries = []
 	if delete_urbs:
@@ -255,7 +497,7 @@ def delete_province(province=None, delete_urbs=False):
 			'cmd': u"""
 				delete from dem.urb du
 				where
-					du.id_state = %(prov)s
+					du.id_state = %(region)s
 						and
 					not exists (select 1 from dem.street ds where ds.id_urb = du.id)""",
 			'args': args
@@ -265,7 +507,7 @@ def delete_province(province=None, delete_urbs=False):
 		'cmd': u"""
 			delete from dem.state ds
 			where
-				ds.id = %(prov)s
+				ds.id = %(region)s
 					and
 				not exists (select 1 from dem.urb du where du.id_state = ds.id)""",
 		'args': args
@@ -274,8 +516,9 @@ def delete_province(province=None, delete_urbs=False):
 	gmPG2.run_rw_queries(queries = queries)
 
 	return True
+
 #------------------------------------------------------------
-def create_province(name=None, code=None, country=None):
+def create_region(name=None, code=None, country=None):
 
 	args = {'code': code, 'country': country, 'name': name}
 
@@ -293,7 +536,7 @@ def create_province(name=None, code=None, country=None):
 		)"""
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 #------------------------------------------------------------
-def get_provinces():
+def get_regions():
 	cmd = u"""
 		select
 			l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
@@ -301,6 +544,7 @@ def get_provinces():
 		order by l10n_country, l10n_state"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
+
 #============================================================
 # address related classes
 #------------------------------------------------------------
@@ -348,13 +592,14 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 		if single_line:
 			return format_address_single_line(address = self, show_type = False, verbose = verbose)
 		return format_address(address = self, show_type = False)
-#------------------------------------------------------------
-def address_exists(country=None, state=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
-	cmd = u"""SELECT dem.address_exists(%(country)s, %(state)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
+#------------------------------------------------------------
+def address_exists(country_code=None, region_code=None, urb=None, postcode=None, street=None, number=None, subunit=None):
+
+	cmd = u"""SELECT dem.address_exists(%(country_code)s, %(region_code)s, %(urb)s, %(postcode)s, %(street)s, %(number)s, %(subunit)s)"""
 	args = {
-		'country': country,
-		'state': state,
+		'country_code': country_code,
+		'region_code': region_code,
 		'urb': urb,
 		'postcode': postcode,
 		'street': street,
@@ -370,15 +615,16 @@ def address_exists(country=None, state=None, urb=None, postcode=None, street=Non
 		return None
 
 	return rows[0][0]
+
 #------------------------------------------------------------
-def create_address(country=None, state=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
+def create_address(country_code=None, region_code=None, urb=None, suburb=None, postcode=None, street=None, number=None, subunit=None):
 
 	if suburb is not None:
 		suburb = gmTools.none_if(suburb.strip(), u'')
 
 	pk_address = address_exists (
-		country = country,
-		state = state,
+		country_code = country_code,
+		region_code = region_code,
 		urb = urb,
 #		suburb = suburb,
 		postcode = postcode,
@@ -395,8 +641,8 @@ SELECT dem.create_address (
 	%(street)s,
 	%(postcode)s,
 	%(urb)s,
-	%(state)s,
-	%(country)s,
+	%(region_code)s,
+	%(country_code)s,
 	%(subunit)s
 )"""
 	args = {
@@ -404,8 +650,8 @@ SELECT dem.create_address (
 		'street': street,
 		'postcode': postcode,
 		'urb': urb,
-		'state': state,
-		'country': country,
+		'region_code': region_code,
+		'country_code': country_code,
 		'subunit': subunit
 	}
 	queries = [{'cmd': cmd, 'args': args}]
@@ -558,6 +804,7 @@ def get_patient_address(pk_patient_address=None):
 	if len(rows) == 0:
 		return None
 	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+
 #-------------------------------------------------------------------
 def get_patient_address_by_type(pk_patient=None, adr_type=None):
 	cmd = u'SELECT * FROM dem.v_pat_addresses WHERE pk_identity = %(pat)s AND (address_type = %(typ)s OR l10n_address_type = %(typ)s)'
@@ -566,6 +813,7 @@ def get_patient_address_by_type(pk_patient=None, adr_type=None):
 	if len(rows) == 0:
 		return None
 	return cPatientAddress(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_address'})
+
 #-------------------------------------------------------------------
 class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 
@@ -877,45 +1125,45 @@ if __name__ == "__main__":
 		addresses = [
 			{
 			'country': 'Germany',
-			'state': 'Sachsen',
-			'urb': 'Leipzig',
-			'postcode': '04318',
-			'street': u'Cunnersdorfer Strasse',
+			'region_code': 'Sachsen',
+			'urb': 'Hannover',
+			'postcode': '06672',
+			'street': u'Rommelsberger Strasse',
 			'number': '11'
 			},
 			{
 			'country': 'DE',
-			'state': 'SN',
-			'urb': 'Leipzig',
-			'postcode': '04317',
-			'street': u'Riebeckstraße',
+			'region_code': 'SN',
+			'urb': 'Hannover',
+			'postcode': '06671',
+			'street': u'Tonnenstraße',
 			'number': '65',
 			'subunit': 'Parterre'
 			},
 			{
 			'country': 'DE',
-			'state': 'SN',
-			'urb': 'Leipzig',
-			'postcode': '04317',
-			'street': u'Riebeckstraße',
+			'region_code': 'SN',
+			'urb': 'Hannover',
+			'postcode': '06671',
+			'street': u'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
 			{
 			'country': 'DE',
-			'state': 'SN',
-			'urb': 'Leipzig',
-			'postcode': '04317',
-			'street': u'Riebeckstraße',
+			'region_code': 'SN',
+			'urb': 'Hannover',
+			'postcode': '06671',
+			'street': u'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
 			{
 #			'country': 'DE',
-#			'state': 'SN',
-			'urb': 'Leipzig',
-			'postcode': '04317',
-			'street': u'Riebeckstraße',
+#			'region_code': 'HV',
+			'urb': 'Hannover',
+			'postcode': '06671',
+			'street': u'Tonnenstraße',
 			'number': '65',
 			'subunit': '1. Stock'
 			},
@@ -932,14 +1180,14 @@ if __name__ == "__main__":
 	#--------------------------------------------------------
 	def test_create_address():
 		address = create_address (
-			country ='DE',
-			state ='SN',
-			urb ='Leipzig',
-			suburb ='Sellerhausen',
-			postcode ='04318',
-			street = u'Cunnersdorfer Strasse',
+			country_code = u'DE',
+			region_code = u'SN',
+			urb ='Hannover',
+			suburb ='Grabenthal',
+			postcode ='06672',
+			street = u'Rommelsberger Strasse',
 			number = '11'
-#			,notes_subunit = '4.Stock rechts'
+#			,notes_subunit = '2.Stock oben'
 		)
 		print "created existing address"
 		print address.format()
@@ -947,14 +1195,14 @@ if __name__ == "__main__":
 		su = str(random.random())
 
 		address = create_address (
-			country ='DE',
-			state = 'SN',
-			urb ='Leipzig',
-			suburb ='Sellerhausen',
-			postcode ='04318',
-			street = u'Cunnersdorfer Strasse',
+			country_code = u'DE',
+			region_code = u'SN',
+			urb ='Hannover',
+			suburb ='Grabenthal',
+			postcode ='06672',
+			street = u'Rommelsberger Strasse',
 			number = '11',
-#			notes_subunit = '4.Stock rechts',
+#			notes_subunit = '2.Stock oben',
 			subunit = su
 		)
 		print "created new address with subunit", su
@@ -988,6 +1236,26 @@ if __name__ == "__main__":
 	def test_get_billing_address():
 		print get_patient_address_by_type(pk_patient = 12, adr_type = u'billing')
 	#--------------------------------------------------------
+	def test_map_urb_zip_region2country():
+		print map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = 'Hessen')
+		print map_urb_zip_region2country(urb = 'Kassel', zip = None, region = 'Hessen')
+		print map_urb_zip_region2country(urb = None, zip = '34119', region = 'Hessen')
+		print map_urb_zip_region2country(urb = 'Kassel', zip = '34119', region = None)
+	#--------------------------------------------------------
+	def test_map_urb_zip_country2region():
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = 'DE')
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Germany', country_code = None)
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = None)
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = 'DE')
+		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = None, country_code = None)
+
+#		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
+#		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
+#		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
+#		print map_urb_zip_country2region(urb = 'Kassel', zip = '34119', country = u'Deutschland', country_code = 'DE')
+
+	#--------------------------------------------------------
 	#gmPG2.get_connection()
 
 	#test_address_exists()
@@ -995,8 +1263,10 @@ if __name__ == "__main__":
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
-	test_tag_images()
+	#test_tag_images()
 	#test_get_billing_address()
+	#test_map_urb_zip_region2country()
+	test_map_urb_zip_country2region()
 
 	sys.exit()
 #============================================================

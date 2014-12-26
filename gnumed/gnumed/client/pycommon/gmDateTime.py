@@ -2388,6 +2388,7 @@ if __name__ == '__main__':
 	#-------------------------------------------------
 	def test_pydt_strftime():
 		dt = pydt_now_here()
+		print pydt_strftime(dt, '-(%Y %b %d)-')
 		print pydt_strftime(dt)
 		print pydt_strftime(dt, accuracy = acc_days)
 		print pydt_strftime(dt, accuracy = acc_minutes)
@@ -2415,8 +2416,8 @@ if __name__ == '__main__':
 	#test_str2interval()
 	#test_format_interval()
 	#test_format_interval_medically()
-	test_str2pydt()
-	#test_pydt_strftime()
+	#test_str2pydt()
+	test_pydt_strftime()
 	#test_calculate_apparent_age()
 	#test_is_leap_year()
 

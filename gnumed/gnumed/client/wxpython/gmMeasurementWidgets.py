@@ -431,12 +431,29 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 				accuracy = gmDateTime.acc_minutes
 			),
 			r['unified_abbrev'],
-			u'%s%s%s' % (
+			u'%s%s%s%s' % (
+				gmTools.bool2subst (
+					boolean = (not r['reviewed'] or (not r['review_by_you'] and r['you_are_responsible'])),
+					true_return = u'u' + gmTools.u_writing_hand,
+					false_return = u''
+				),
 				r['unified_val'],
 				gmTools.coalesce(r['val_unit'], u'', u' %s'),
 				gmTools.coalesce(r['abnormality_indicator'], u'', u' %s')
 			),
 			r['unified_name'],
+#			u'%s%s' % (
+#				gmTools.bool2subst (
+#					boolean = not r['reviewed'],
+#					true_return = _('no review at all'),
+#					false_return = gmTools.bool2subst (
+#						boolean = (r['you_are_responsible'] and not r['review_by_you']),
+#						true_return = _('no review by you (you are responsible)'),
+#						false_return = _('reviewed')
+#					)
+#				),
+#				gmTools.coalesce(r['comment'], u'', u' / %s')
+#			),
 			gmTools.coalesce(r['comment'], u''),
 			r['pk_test_result']
 		] for r in results ]

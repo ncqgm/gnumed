@@ -420,7 +420,7 @@
                         <option>0</option>
                         <object class="cStateSelectionPhraseWheel" name="_PRW_region" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
-                            <tooltip>Primary address: state/province/county/...</tooltip>
+                            <tooltip>Primary address: region (state/province/county/territory/arrondissement/prefecture/department/kanton/...)</tooltip>
                         </object>
                     </object>
                     <object class="sizeritem">

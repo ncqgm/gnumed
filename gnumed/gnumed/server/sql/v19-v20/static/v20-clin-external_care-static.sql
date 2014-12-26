@@ -10,7 +10,7 @@
 -- --------------------------------------------------------------
 create table clin.external_care (
 	pk serial primary key,
-	fk_identity integer,
+	fk_encounter integer,
 	fk_health_issue integer,
 	issue text,
 	fk_org_unit integer,
