@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-03 12:46+0100\n"
+"POT-Creation-Date: 2014-12-26 20:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -6486,6 +6486,10 @@ msgid "Hint #: %s\n"
 msgstr ""
 
 #, python-format
+msgid "Patient #: %s\n"
+msgstr ""
+
+#, python-format
 msgid "MD5 (currently): %s\n"
 msgstr ""
 
@@ -7541,6 +7545,9 @@ msgstr ""
 
 #, python-format
 msgid " Bill value: %(curr)s%(val)s\n"
+msgstr ""
+
+msgid " VAT: undecided\n"
 msgstr ""
 
 #, python-format
@@ -10881,6 +10888,12 @@ msgid ""
 msgstr ""
 
 msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"You must decide on whether to apply VAT."
+msgstr ""
+
+msgid ""
 "Cannot create invoice from bill\n"
 "without an invoice template."
 msgstr ""
@@ -10995,6 +11008,12 @@ msgstr ""
 
 #, python-format
 msgid "%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)"
+msgstr ""
+
+#, python-format
+msgid ""
+"without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: "
+"%(currency)s%(total_amount_with_vat)s"
 msgstr ""
 
 msgid "Showing bills."
@@ -13017,6 +13036,9 @@ msgid "This praxis"
 msgstr ""
 
 msgid "Hospital stay"
+msgstr ""
+
+msgid "Bill receiver"
 msgstr ""
 
 msgid "Receiver"
@@ -15388,6 +15410,28 @@ msgstr ""
 msgid "Browse and install automatic dynamic hints data packs"
 msgstr ""
 
+#, python-format
+msgid "By: %s"
+msgstr ""
+
+msgid "No entry in field <Source>."
+msgstr ""
+
+msgid "No entry in field <Conditions>."
+msgstr ""
+
+msgid "No entry in field <Description>."
+msgstr ""
+
+msgid "No entry in field <Title>."
+msgstr ""
+
+msgid "creating a new dynamic hint"
+msgstr ""
+
+msgid "updating an existing dynamic hint"
+msgstr ""
+
 msgid "Deleting suppressed dynamic hint"
 msgstr ""
 
@@ -15413,28 +15457,6 @@ msgid "Manage hints"
 msgstr ""
 
 msgid "Manage automatic dynamic hints"
-msgstr ""
-
-#, python-format
-msgid "By: %s"
-msgstr ""
-
-msgid "No entry in field <Source>."
-msgstr ""
-
-msgid "No entry in field <Conditions>."
-msgstr ""
-
-msgid "No entry in field <Description>."
-msgstr ""
-
-msgid "No entry in field <Title>."
-msgstr ""
-
-msgid "creating a new dynamic hint"
-msgstr ""
-
-msgid "updating an existing dynamic hint"
 msgstr ""
 
 msgid "Cannot delete family history item."

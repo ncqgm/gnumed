@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-03 12:46+0100\n"
+"POT-Creation-Date: 2014-12-26 20:29+0100\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -7565,6 +7565,10 @@ msgid "Hint #: %s\n"
 msgstr "В возрасте: %s\n"
 
 #, fuzzy, python-format
+msgid "Patient #: %s\n"
+msgstr "Пациент #%s"
+
+#, fuzzy, python-format
 msgid "MD5 (currently): %s\n"
 msgstr "Документы: %s"
 
@@ -8732,6 +8736,9 @@ msgstr " Закрытый: %s\n"
 #, fuzzy, python-format
 msgid " Bill value: %(curr)s%(val)s\n"
 msgstr " Значение стоимости: %s %s\n"
+
+msgid " VAT: undecided\n"
+msgstr ""
 
 #, python-format
 msgid " VAT: %(perc_vat)s%% %(equals)s %(curr)s%(vat)s\n"
@@ -12581,6 +12588,16 @@ msgstr ""
 "\n"
 "Нет адреса получателя."
 
+#, fuzzy
+msgid ""
+"Cannot create invoice from bill.\n"
+"\n"
+"You must decide on whether to apply VAT."
+msgstr ""
+"Не удалось создать счет из долга.\n"
+"\n"
+"Нет адреса получателя."
+
 msgid ""
 "Cannot create invoice from bill\n"
 "without an invoice template."
@@ -12719,6 +12736,12 @@ msgstr "Удаление пунктов из счета"
 
 #, python-format
 msgid "%(currency)s%(total_amount_with_vat)s (with %(percent_vat)s%% VAT)"
+msgstr ""
+
+#, python-format
+msgid ""
+"without VAT: %(currency)s%(total_amount)s / with %(percent_vat)s%% VAT: "
+"%(currency)s%(total_amount_with_vat)s"
 msgstr ""
 
 msgid "Showing bills."
@@ -15160,6 +15183,10 @@ msgstr "Ваше заключение"
 #, fuzzy
 msgid "Hospital stay"
 msgstr "Больница"
+
+#, fuzzy
+msgid "Bill receiver"
+msgstr "Выбор пациента"
 
 #, fuzzy
 msgid "Receiver"
@@ -18043,6 +18070,31 @@ msgstr "Подсказка"
 msgid "Browse and install automatic dynamic hints data packs"
 msgstr "Отображение и установка пакетов данных для клинических подсказок"
 
+#, fuzzy, python-format
+msgid "By: %s"
+msgstr "Родился: %s\n"
+
+msgid "No entry in field <Source>."
+msgstr ""
+
+msgid "No entry in field <Conditions>."
+msgstr ""
+
+#, fuzzy
+msgid "No entry in field <Description>."
+msgstr "Ошибка печати списка лекарств."
+
+msgid "No entry in field <Title>."
+msgstr ""
+
+#, fuzzy
+msgid "creating a new dynamic hint"
+msgstr "Отображение динамических подсказок."
+
+#, fuzzy
+msgid "updating an existing dynamic hint"
+msgstr "Открыть существующую хронологию"
+
 #, fuzzy
 msgid "Deleting suppressed dynamic hint"
 msgstr "Отображение динамических подсказок."
@@ -18077,31 +18129,6 @@ msgstr "Списки по управлению"
 #, fuzzy
 msgid "Manage automatic dynamic hints"
 msgstr "Отображение динамических подсказок."
-
-#, fuzzy, python-format
-msgid "By: %s"
-msgstr "Родился: %s\n"
-
-msgid "No entry in field <Source>."
-msgstr ""
-
-msgid "No entry in field <Conditions>."
-msgstr ""
-
-#, fuzzy
-msgid "No entry in field <Description>."
-msgstr "Ошибка печати списка лекарств."
-
-msgid "No entry in field <Title>."
-msgstr ""
-
-#, fuzzy
-msgid "creating a new dynamic hint"
-msgstr "Отображение динамических подсказок."
-
-#, fuzzy
-msgid "updating an existing dynamic hint"
-msgstr "Открыть существующую хронологию"
 
 msgid "Cannot delete family history item."
 msgstr "Не удалось удалить пункт семейного анамнеза."

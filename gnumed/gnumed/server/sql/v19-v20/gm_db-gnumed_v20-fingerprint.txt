@@ -1,10 +1,10 @@
 Fingerprinting GNUmed database ...
 
                 Name: gnumed_v20
-         Schema hash: 5383a0f0b4317b18695c36502bd6d0de
-                Size: 69 MB
+         Schema hash: baed1901ed4c2f272b56c8cb2c6d88e8
+                Size: 61 MB
             Patients: 15
-            Contacts: 10
+            Contacts: 8
             Episodes: 5
               Issues: 2
              Results: 5
@@ -13,7 +13,7 @@ Fingerprinting GNUmed database ...
              Objects: 4
        Organizations: 8
 Organizational units: 10
-        Version (PG): 9.3.4
+        Version (PG): 9.4.0
        Encoding (PG): UTF8
      LC_COLLATE (PG): de_DE.UTF-8
        LC_CTYPE (PG): de_DE.UTF-8
@@ -505,7 +505,7 @@ COL:clin.external_care.fk_org_unit::int4
 COL:clin.external_care.modified_by::name
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_health_issue)_REFERENCES_clin.health_issue(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_org_unit)_REFERENCES_dem.org_unit(pk)_ON_UPDATE_CASCADE_ON_DELETE_RESTRICT::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_RESTRICT_ON_DELETE_CASCADE::active=true
+CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_RESTRICT_ON_DELETE_RESTRICT::active=true
 TABLE:clin.form_data
 PK:clin.form_data.pk::integer
 COL:clin.form_data.fk_instance::int4
@@ -1486,7 +1486,6 @@ COL:clin.suppressed_hint.fk_encounter::int4
 COL:clin.suppressed_hint.md5_sum::text
 COL:clin.suppressed_hint.suppressed_when::timestamptz
 COL:clin.suppressed_hint.row_version::int4
-COL:clin.suppressed_hint.fk_identity::int4
 COL:clin.suppressed_hint.modified_when::timestamptz
 COL:clin.suppressed_hint.rationale::text
 COL:clin.suppressed_hint.pk::int4
@@ -1494,8 +1493,7 @@ COL:clin.suppressed_hint.pk_audit::int4
 COL:clin.suppressed_hint.modified_by::name
 COL:clin.suppressed_hint.suppressed_by::name
 CONSTRAINT:type=f:FOREIGN_KEY_(fk_hint)_REFERENCES_ref.auto_hint(pk)_ON_UPDATE_RESTRICT_ON_DELETE_CASCADE::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_RESTRICT_ON_DELETE_CASCADE::active=true
-CONSTRAINT:type=f:FOREIGN_KEY_(fk_identity)_REFERENCES_clin.patient(fk_identity)_ON_UPDATE_RESTRICT_ON_DELETE_CASCADE::active=true
+CONSTRAINT:type=f:FOREIGN_KEY_(fk_encounter)_REFERENCES_clin.encounter(pk)_ON_UPDATE_RESTRICT_ON_DELETE_RESTRICT::active=true
 TABLE:dem.urb
 PK:dem.urb.id::integer
 COL:dem.urb.name::text
