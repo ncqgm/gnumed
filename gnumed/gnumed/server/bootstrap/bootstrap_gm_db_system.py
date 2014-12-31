@@ -1045,6 +1045,8 @@ class database:
 	def reindex_all(self):
 		print_msg("==> reindexing target database ...")
 
+		old_iso = self.conn.isolation_level
+		self.conn.set_isolation_level(0)
 		curs = self.conn.cursor()
 		cmd = 'REINDEX DATABASE %s' % self.name
 		try:
@@ -1052,8 +1054,10 @@ class database:
 		except:
 			_log.exception(">>>[%s]<<< failed" % cmd)
 			curs.close()
+			self.conn.set_isolation_level(old_iso)
 			return False
 		curs.close()
+		self.conn.set_isolation_level(old_iso)
 		return True
 	#--------------------------------------------------------------
 	def transfer_users(self):
