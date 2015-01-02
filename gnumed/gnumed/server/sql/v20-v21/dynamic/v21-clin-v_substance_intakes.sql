@@ -59,7 +59,7 @@ select
 		when c_si.comment_on_start = '?' then true
 		else false
 	end::boolean
-		as start_is_unkown,
+		as start_is_unknown,
 	case
 		when c_si.comment_on_start is null then false
 		else true
@@ -176,7 +176,7 @@ select
 		when c_si.comment_on_start = '?' then true
 		else false
 	end::boolean
-		as start_is_unkown,
+		as start_is_unknown,
 	case
 		when c_si.comment_on_start is null then false
 		else true

@@ -250,15 +250,44 @@ class cPhraseWheelBase(wx.TextCtrl):
 		raise NotImplementedError('[%s]: set_from_pk()' % self.__class__.__name__)
 	#--------------------------------------------------------
 	def display_as_valid(self, valid=None, partially_invalid=False):
+
 		if valid is True:
-			self.SetBackgroundColour(self.__my_startup_color)
+			color2use = self.__my_startup_color
 		elif valid is False:
 			if partially_invalid:
-				self.SetBackgroundColour(color_prw_partially_invalid)
+				color2use = color_prw_partially_invalid
 			else:
-				self.SetBackgroundColour(color_prw_invalid)
+				color2use = color_prw_invalid
 		else:
 			raise ValueError(u'<valid> must be True or False')
+
+		if self.IsEnabled():
+			self.SetBackgroundColour(color2use)
+			self.Refresh()
+			return
+
+		self.__previous_enabled_bg_color = color2use
+	#--------------------------------------------------------
+	def Disable(self):
+		self.Enable(enable = False)
+	#--------------------------------------------------------
+	def Enable(self, enable=True):
+		if self.IsEnabled() is enable:
+			return
+
+		if self.IsEnabled():
+			self.__previous_enabled_bg_color = self.GetBackgroundColour()
+
+		super(cPhraseWheelBase, self).Enable(enable)
+
+		if enable is True:
+			#self.SetBackgroundColour(color_prw_valid)
+			self.SetBackgroundColour(self.__previous_enabled_bg_color)
+		elif enable is False:
+			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		else:
+			raise ValueError(u'<enable> must be True or False')
+
 		self.Refresh()
 	#--------------------------------------------------------
 	def display_as_disabled(self, disabled=None):

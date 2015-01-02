@@ -1595,13 +1595,15 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			else:
 				self._PRW_duration.display_as_valid(True)
 
-		# started must exist
-		started = self._DP_started.GetData()
-		if started is None:
-			self._DP_started.display_as_valid(False)
-			validity = False
-		else:
-			self._DP_started.display_as_valid(True)
+		# started must exist or be unknown
+		if self._CHBOX_start_unknown.IsChecked() is False:
+			started = self._DP_started.GetData()
+			if started is None:
+				self._DP_started.display_as_valid(False)
+				self._DP_started.SetFocus()
+				validity = False
+			else:
+				self._DP_started.display_as_valid(True)
 
 		if validity is False:
 			gmDispatcher.send(signal = 'statustext', msg = _('Input incomplete/invalid for saving as substance intake.'))
@@ -1665,6 +1667,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			return False
 
 		intake['started'] = self._DP_started.GetData()
+		if self._CHBOX_start_unknown.IsChecked():
+			intake['comment_on_start'] = u'?'
+		else:
+			intake['comment_on_start'] = self._PRW_start_certainty.GetValue().strip()
 		intake['discontinued'] = self._DP_discontinued.GetData()
 		if intake['discontinued'] is None:
 			intake['discontinue_reason'] = None
@@ -1692,6 +1698,10 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		# auto-applies to all components of a multi-component drug if any:
 		self.data['started'] = self._DP_started.GetData()
+		if self._CHBOX_start_unknown.IsChecked():
+			self.data['comment_on_start'] = u'?'
+		else:
+			self.data['comment_on_start'] = self._PRW_start_certainty.GetValue().strip()
 		self.data['discontinued'] = self._DP_discontinued.GetData()
 		if self.data['discontinued'] is None:
 			self.data['discontinue_reason'] = None
@@ -1748,7 +1758,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._CHBOX_long_term.SetValue(False)
 		self._CHBOX_approved.SetValue(True)
 
+		self._CHBOX_start_unknown.SetValue(False)
 		self._DP_started.SetData(gmDateTime.pydt_now_here())
+		self._DP_started.Enable(True)
+		self._PRW_start_certainty.SetText(u'', None)
+		self._PRW_start_certainty.Enable(True)
 		self._DP_discontinued.SetData(None)
 		self._PRW_discontinue_reason.SetValue(u'')
 
@@ -1794,6 +1808,16 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._CHBOX_approved.SetValue(self.data['intake_is_approved_of'])
 
 		self._DP_started.SetData(self.data['started'])
+		self._PRW_start_certainty.SetText(self.data['comment_on_start'], None)
+		if self.data['start_is_unknown']:
+			self._CHBOX_start_unknown.SetValue(True)
+			self._DP_started.Enable(False)
+			self._PRW_start_certainty.Enable(False)
+		else:
+			self._CHBOX_start_unknown.SetValue(False)
+			self._DP_started.Enable(True)
+			self._PRW_start_certainty.Enable(True)
+
 		self._DP_discontinued.SetData(self.data['discontinued'])
 		self._PRW_discontinue_reason.SetValue(gmTools.coalesce(self.data['discontinue_reason'], u''))
 		if self.data['discontinued'] is not None:
@@ -2001,6 +2025,19 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_discontinue_reason.Enable(True)
 
 		self.__refresh_allergies()
+
+	#----------------------------------------------------------------
+	def _on_start_unknown_checked(self, event):
+		event.Skip()
+		if self._CHBOX_start_unknown.IsChecked() is True:
+			self._DP_started.Enable(False)
+			self._PRW_start_certainty.Enable(False)
+		else:
+			self._DP_started.Enable(True)
+			self._PRW_start_certainty.Enable(True)
+
+		self.__refresh_allergies()
+
 	#----------------------------------------------------------------
 	def turn_into_allergy(self, data=None):
 		if not self.save():
@@ -2887,7 +2924,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
 
 		tt += _(' Started %s%s%s\n') % (
-			gmDateTime.pydt_strftime(entry['started'], '%Y %b %d'),
+			entry.medically_formatted_start,
 			duration,
 			gmTools.bool2subst(entry['is_long_term'], _(' (long-term)'), _(' (short-term)'), u'')
 		)

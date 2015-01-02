@@ -1711,6 +1711,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE clin.substance_intake SET
 				clin_when = %(started)s,
+				comment_on_start = gm.nullify_empty_string(%(comment_on_start)s),
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
 				schedule = gm.nullify_empty_string(%(schedule)s),
@@ -1753,6 +1754,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'started',
+		u'comment_on_start',
 		u'discontinued',
 		u'discontinue_reason',
 		u'preparation',
@@ -1967,30 +1969,44 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	containing_drug = property(_get_containing_drug, lambda x:x)
 	#--------------------------------------------------------
 	def _get_medically_formatted_start(self):
-		if self._payload[self._idx['started']] is None:
-			return u''
+		if self._payload[self._idx['comment_on_start']] == u'?':
+			return u'?'
+
+		start_prefix = u''
+		if self._payload[self._idx['comment_on_start']] is not None:
+			start_prefix = gmTools.u_almost_equal_to
 
 		duration_taken = gmDateTime.pydt_now_here() - self._payload[self._idx['started']]
 
 		three_months = pydt.timedelta(weeks = 13, days = 3)
 		if duration_taken < three_months:
-			return _('%s: %s ago') % (
+			return _('%s%s: %s ago%s') % (
+				start_prefix,
 				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b %d', u'utf8', gmDateTime.acc_days),
-				gmDateTime.format_interval_medically(duration_taken)
+				gmDateTime.format_interval_medically(duration_taken),
+				gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' (%s)')
 			)
 
 		five_years = pydt.timedelta(weeks = 265)
 		if duration_taken < five_years:
-			return _('%s: %s ago (%s)') % (
+			return _('%s%s: %s ago (%s)') % (
+				start_prefix,
 				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', u'utf8', gmDateTime.acc_months),
 				gmDateTime.format_interval_medically(duration_taken),
-				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days)
+				gmTools.coalesce (
+					self._payload[self._idx['comment_on_start']],
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days),
+				)
 			)
 
-		return _('%s: %s ago (%s)') % (
+		return _('%s%s: %s ago (%s)') % (
+			start_prefix,
 			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', u'utf8', gmDateTime.acc_years),
 			gmDateTime.format_interval_medically(duration_taken),
-			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_years)
+			gmTools.coalesce (
+				self._payload[self._idx['comment_on_start']],
+				gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days),
+			)
 		)
 
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
