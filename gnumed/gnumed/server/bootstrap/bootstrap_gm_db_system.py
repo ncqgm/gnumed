@@ -33,7 +33,7 @@ further details.
 # - rework under assumption that there is only one DB
 #==================================================================
 __author__ = "Karsten.Hilbert@gmx.net"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 # standard library
 import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile, logging
@@ -622,6 +622,11 @@ class database:
 			return False
 		curs.close()
 
+		# reindex db so upgrade doesn't fail on broken index
+		if not self.reindex_all():
+			_log.error('cannot REINDEX cloned target database')
+			return False
+
 		tmp = cfg_get(self.section, 'superuser schema')
 		if tmp is not None:
 			if not _import_schema(group=self.section, schema_opt='superuser schema', conn=self.conn):
@@ -772,7 +777,7 @@ class database:
 			if drop_existing:
 				print_msg("==> dropping pre-existing target database [%s] ..." % self.name)
 				_log.info('trying to drop target database')
-				cmd = 'drop database "%s"' % self.name
+				cmd = 'DROP DATABASE "%s"' % self.name
 				self.conn.set_isolation_level(0)
 				cursor = self.conn.cursor()
 				try:
@@ -796,39 +801,49 @@ class database:
 
 		tablespace = cfg_get(self.section, 'tablespace')
 		if tablespace is None:
-			cmd = """
-				create database \"%s\" with
+			create_db_cmd = """
+				CREATE DATABASE \"%s\" with
 					owner = \"%s\"
 					template = \"%s\"
 					encoding = 'unicode'
 				;""" % (self.name, self.owner.name, self.template_db)
 		else:
-			cmd = """
-				create database \"%s\" with
+			create_db_cmd = """
+				CREATE DATABASE \"%s\" with
 					owner = \"%s\"
 					template = \"%s\"
 					encoding = 'unicode'
 					tablespace = '%s'
 				;""" % (self.name, self.owner.name, self.template_db, tablespace)
 
-		# create database
+		# create DB must be run outside transactions
+		old_iso = self.conn.isolation_level
 		self.conn.set_isolation_level(0)
 		cursor = self.conn.cursor()
-		cursor.execute("select pg_size_pretty(pg_database_size('%s'))" % self.template_db)
+
+		# get size
+		size_cmd = "SELECT pg_size_pretty(pg_database_size('%s'))" % self.template_db
+		cursor.execute(size_cmd)
 		size = cursor.fetchone()[0]
+
+		# create database by cloning
 		print_msg("==> cloning [%s] (%s) as target database [%s] ..." % (self.template_db, size, self.name))
 		try:
-			cursor.execute(cmd)
+			cursor.execute(create_db_cmd)
 		except:
-			_log.exception(">>>[%s]<<< failed" % cmd)
+			_log.exception(">>>[%s]<<< failed" % create_db_cmd)
 			cursor.close()
+			self.conn.set_isolation_level(old_iso)
 			return False
 		cursor.close()
+
 		self.conn.commit()
+		self.conn.set_isolation_level(old_iso)
 
 		if not self.__db_exists():
 			return None
 		_log.info("Successfully created GNUmed database [%s]." % self.name)
+
 		return True
 	#--------------------------------------------------------------
 	def check_data_plausibility(self):
@@ -1044,7 +1059,7 @@ class database:
 	#--------------------------------------------------------------
 	def reindex_all(self):
 		print_msg("==> reindexing target database ...")
-
+		_log.info('REINDEXing cloned target database so upgrade does not fail because of a broken index')
 		old_iso = self.conn.isolation_level
 		self.conn.set_isolation_level(0)
 		curs = self.conn.cursor()
@@ -1624,9 +1639,6 @@ def main():
 
 	if not db.verify_result_hash():
 		exit_with_msg("Bootstrapping failed: wrong result hash")
-
-	if not db.reindex_all():
-		exit_with_msg("Bootstrapping failed: cannot reindex")
 
 	if not db.check_data_plausibility():
 		exit_with_msg("Bootstrapping failed: plausibility checks inconsistent")
