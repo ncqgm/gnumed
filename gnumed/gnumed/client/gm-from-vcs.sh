@@ -49,10 +49,10 @@ TARBALL_OPTS="--local-import --debug"
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
-python gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
+#python gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
 
 # - released tarball version:
-#python gnumed.py ${LOG} ${CONF} ${TARBALL_OPTS} $@
+python gnumed.py ${LOG} ${CONF} ${TARBALL_OPTS} $@
 
 # - production version:
 #python gnumed.py ${LOG} ${CONF} $@
