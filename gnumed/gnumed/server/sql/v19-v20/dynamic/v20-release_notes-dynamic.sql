@@ -17,10 +17,10 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.rc4 (database v20.rc4)',
-	'GNUmed 1.5.rc4 Release Notes:
+	'Release Notes for GNUmed 1.5.0 (database v20.0)',
+	'GNUmed 1.5.0 Release Notes:
 
-	1.5.rc4
+	1.5.0
 
 NEW: by-day display mode for test results including multi-line ones
 NEW: patient documents export area plugin
@@ -68,7 +68,7 @@ IMPROVED: workflow creating bill w/ respect to VAT [thanks Marc]
 IMRPOVED: workflow finding unreviewed test results [thanks Jim]
 IMPROVED: new-documents virtual inbox message
 
-	20.rc4
+	20.0
 
 IMPROVED: set clin.encounter.fk_location NOT NULL
 IMPROVED: set clin.test_type.fk_test_org NOT NULL
@@ -83,4 +83,4 @@ NEW: bootstrapper now REINDEXes after upgrade
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.rc4');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.0');
