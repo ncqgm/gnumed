@@ -2980,16 +2980,19 @@ class gmTopLevelFrame(wx.Frame):
 		curr_width, curr_height = self.GetClientSizeTuple()
 		_log.info('GUI size at shutdown: [%s:%s]' % (curr_width, curr_height))
 		dbcfg = gmCfg.cCfgSQL()
-		dbcfg.set (
-			option = 'main.window.width',
-			value = curr_width,
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-		)
-		dbcfg.set (
-			option = 'main.window.height',
-			value = curr_height,
-			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
-		)
+		try:
+			dbcfg.set (
+				option = 'main.window.width',
+				value = curr_width,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+			)
+			dbcfg.set (
+				option = 'main.window.height',
+				value = curr_height,
+				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace
+			)
+		except:
+			_log.exception('cannot save current client window size')
 
 		if _cfg.get(option = 'debug'):
 			print '---=== GNUmed shutdown ===---'

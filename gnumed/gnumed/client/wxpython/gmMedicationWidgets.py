@@ -1167,6 +1167,7 @@ class cBrandedDrugEAPnl(wxgBrandedDrugEAPnl.wxgBrandedDrugEAPnl, gmEditArea.cGen
 			if len(substs) > 0:
 				comps = u'- %s' % u'\n- '.join([ u'%s %s %s' % (s['description'], s['amount'], s['unit']) for s in substs ])
 			self._TCTRL_components.SetValue(comps)
+
 #============================================================
 class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -1201,18 +1202,45 @@ class cBrandedDrugPhraseWheel(gmPhraseWheel.cPhraseWheel):
 #============================================================
 # current substance intake widgets
 #------------------------------------------------------------
+class cBrandOrSubstancePhraseWheel(gmPhraseWheel.cPhraseWheel):
+
+	def __init__(self, *args, **kwargs):
+
+		mp = gmMedication.cBrandOrSubstanceMatchProvider()
+		mp.setThresholds(1, 2, 4)
+		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
+		self.SetToolTipString(_('A substance with optional strength or a brand.'))
+		self.matcher = mp
+		self.selection_only = False
+		self.phrase_separators = None
+		self.IS_BRAND = 1
+		self.IS_SUBSTANCE = 2
+		self.IS_COMPONENT = 3
+
+	#--------------------------------------------------------
+	def _data2instance(self):
+		entry_type, pk = self.GetData(as_instance = False, can_create = False)
+		if entry_type == 1:
+			return gmMedication.cBrandedDrug(aPK_obj = pk)
+		if entry_type == 2:
+			return gmMedication.cConsumableSubstance(aPK_obj = pk)
+		if entry_type == 3:
+			return gmMedication.cDrugComponent(aPK_obj = pk)
+		raise ValueError('entry type must be 1=brand or 2=substance or 3=component')
+
+#============================================================
 class cSubstanceSchedulePhraseWheel(gmPhraseWheel.cPhraseWheel):
 
 	def __init__(self, *args, **kwargs):
 
 		query = u"""
-SELECT DISTINCT ON (sched)
-	schedule as sched,
-	schedule
-FROM clin.substance_intake
-WHERE schedule %(fragment_condition)s
-ORDER BY sched
-LIMIT 50"""
+			SELECT DISTINCT ON (sched)
+				schedule as sched,
+				schedule
+			FROM clin.substance_intake
+			WHERE schedule %(fragment_condition)s
+			ORDER BY sched
+			LIMIT 50"""
 
 		mp = gmMatchProvider.cMatchProvider_SQL2(queries = query)
 		mp.setThresholds(1, 2, 4)
@@ -1420,15 +1448,14 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 	#----------------------------------------------------------------
 	def __init_ui(self):
 
-		self._PRW_component.add_callback_on_lose_focus(callback = self._on_leave_component)
-		self._PRW_component.selection_only = True
-
-		self._PRW_substance.add_callback_on_lose_focus(callback = self._on_leave_substance)
-		self._PRW_substance.selection_only = True
+		self._PRW_drug.add_callback_on_lose_focus(callback = self._on_leave_drug)
+		self._PRW_drug.selection_only = True
 
 		self._PRW_duration.display_accuracy = gmDateTime.acc_days
 
+		# this we want to adjust later
 		self._PRW_aim.add_callback_on_set_focus(callback = self._on_enter_aim)
+
 	#----------------------------------------------------------------
 	def __refresh_allergies(self):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -1514,19 +1541,66 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._LBL_allergies.SetLabel(msg)
 		self._LBL_allergies.SetToolTipString(tt)
 	#----------------------------------------------------------------
+	def __refresh_drug_details(self):
+
+		drug = self._PRW_drug.GetData(as_instance = True)
+		if drug is None:
+			self._TCTRL_drug_details.SetValue(u'')
+			self._TCTRL_drug_details.SetToolTipString(u'')
+			return
+
+		entry_type, pk = self._PRW_drug.GetData(as_instance = False)
+
+		if entry_type == self._PRW_drug.IS_SUBSTANCE:
+			self._TCTRL_drug_details.SetValue (u'%s %s%s%s' % (
+				drug['description'],
+				drug['amount'],
+				drug['unit'],
+				gmTools.coalesce(drug['atc_code'], u'', u' [%s]')
+			))
+			self._TCTRL_drug_details.SetToolTipString(u'')
+			return
+
+		if entry_type == self._PRW_drug.IS_COMPONENT:
+			component = drug
+			drug = component.containing_drug
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (
+				drug['brand'],
+				u'; '.join(drug['components'])
+			))
+			self._TCTRL_drug_details.SetToolTipString(component.format())
+			return
+
+		if entry_type == self._PRW_drug.IS_BRAND:
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (
+				drug['brand'],
+				u'; '.join(drug['components'])
+			))
+			self._TCTRL_drug_details.SetToolTipString(drug.format())
+			return
+
+	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
-	def _valid_for_save(self):
+	def _check_drug_is_valid(self):
 
-		validity = True
+		self._PRW_drug.display_as_valid(True)
 
-		has_component = (self._PRW_component.GetData() is not None)
-		has_substance = (self._PRW_substance.GetValue().strip() != u'')
+		# we aren't editing
+		if self.mode != 'new':
+			return True
 
-		self._PRW_component.display_as_valid(True)
+		selected_drug = self._PRW_drug.GetData(as_instance = True)
 
-		# cannot add duplicate components
-		if self.mode == 'new':
+		# no drug selected
+		if selected_drug is None:
+			self._PRW_drug.display_as_valid(False)
+			self._PRW_drug.SetFocus()
+			return False
+
+		# drug already exists as intake
+		if selected_drug.exists_as_intake(pk_patient = gmPerson.gmCurrentPatient().ID):
+			title = _('Adding substance intake entry')
 			msg = _(
 				'The patient is already taking\n'
 				'\n'
@@ -1534,43 +1608,26 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				'\n'
 				'You will want to adjust the schedule\n'
 				'rather than document the intake twice.'
-			)
-			title = _('Adding substance intake entry')
-			if has_component:
-				emr = gmPerson.gmCurrentPatient().get_emr()
-				if emr.substance_intake_exists(pk_component = self._PRW_component.GetData()):
-					gmGuiHelpers.gm_show_warning (
-						aTitle = title,
-						aMessage = msg % self._PRW_component.GetValue().strip()
-					)
-					self._PRW_component.display_as_valid(False)
-					validity = False
-			pk_substance = self._PRW_substance.GetData()
-			if pk_substance is not None:
-				emr = gmPerson.gmCurrentPatient().get_emr()
-				if emr.substance_intake_exists(pk_substance = pk_substance):
-					gmGuiHelpers.gm_show_warning (
-						aTitle = title,
-						aMessage = msg % self._PRW_substance.GetValue().strip()
-					)
-					self._PRW_substance.display_as_valid(False)
-					validity = False
+			) % self._PRW_drug.GetValue().strip()
+			gmGuiHelpers.gm_show_warning(aTitle = title, aMessage = msg)
+			self._PRW_drug.display_as_valid(False)
+			return False
 
-		# must have either brand or substance
-		if (has_component is False) and (has_substance is False):
-			self._PRW_substance.display_as_valid(False)
-			self._PRW_component.display_as_valid(False)
-			validity = False
-		else:
-			self._PRW_substance.display_as_valid(True)
+		entry_type, pk = self._PRW_drug.GetData(as_instance = False)
+		if entry_type in [self._PRW_drug.IS_COMPONENT, self._PRW_drug.IS_BRAND]:
+			self._PRW_preparation.display_as_valid(True)
+			return True
 
-		# brands already have a preparation, so only required for substances
-		if not has_component:
-			if self._PRW_preparation.GetValue().strip() == u'':
-				self._PRW_preparation.display_as_valid(False)
-				validity = False
-			else:
-				self._PRW_preparation.display_as_valid(True)
+		if self._PRW_preparation.GetValue().strip() == u'':
+			self._PRW_preparation.display_as_valid(False)
+			return False
+
+		return True
+
+	#----------------------------------------------------------------
+	def _valid_for_save(self):
+
+		validity = self._check_drug_is_valid()
 
 		# episode must be set if intake is to be approved of
 		if self._CHBOX_approved.IsChecked():
@@ -1648,19 +1705,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			# create new episode, Jim wants it to auto-open
 			epi = self._PRW_episode.GetData(can_create = True, is_open = True)
 
-		emr = gmPerson.gmCurrentPatient().get_emr()
-		if self._PRW_substance.GetData() is None:
-			# auto-creates all components as intakes
-			intake = emr.add_substance_intake (
-				pk_component = self._PRW_component.GetData(),
-				episode = epi
-			)
-		else:
-			intake = emr.add_substance_intake (
-				pk_substance = self._PRW_substance.GetData(),
-				episode = epi,
-				preparation = self._PRW_preparation.GetValue().strip()
-			)
+		selected_drug = self._PRW_drug.GetData(as_instance = True)
+		intake = selected_drug.turn_into_intake (
+			encounter = gmPerson.gmCurrentPatient().emr.current_encounter['pk_encounter'],
+			episode = epi,
+			preparation = self._PRW_preparation.GetValue().strip()
+		)
 
 		if intake is None:
 			gmDispatcher.send('statustext', msg = _('Cannot add duplicate of (maybe inactive) substance intake.'), beep = True)
@@ -1735,16 +1785,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		return True
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
-		self._PRW_component.SetText(u'', None)
-		self._LBL_component.Enable(True)
-		self._PRW_component.Enable(True)
-		self._TCTRL_brand_ingredients.SetValue(u'')
-		self._TCTRL_brand_ingredients.SetToolTipString(u'')
-
-		self._LBL_or.Enable(True)
-
-		self._PRW_substance.SetText(u'', None)
-		self._PRW_substance.Enable(True)
+		self._PRW_drug.SetText(u'', None)
 
 		self._PRW_preparation.SetText(u'', None)
 		self._PRW_preparation.Enable(True)
@@ -1766,25 +1807,27 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._DP_discontinued.SetData(None)
 		self._PRW_discontinue_reason.SetValue(u'')
 
+		self.__refresh_drug_details()
 		self.__refresh_allergies()
 
-		self._PRW_component.SetFocus()
+		self._PRW_drug.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
 
-		self._TCTRL_brand_ingredients.SetValue(u'')
-		self._TCTRL_brand_ingredients.SetToolTipString(u'')
-
 		if self.data['pk_brand'] is None:
-			self.__refresh_from_existing_substance()
+			self._PRW_drug.SetText (
+				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit'])
+				[self._PRW_drug.IS_SUBSTANCE, self.data['pk_substance']]
+			)
 		else:
-			self.__refresh_from_existing_component()
+			self._PRW_drug.SetText (
+				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
+				[self._PRW_drug.IS_COMPONENT, self.data['pk_drug_component']]
+			)
 
-		# no editing of substance or component
-		self._LBL_component.Enable(False)
-		self._PRW_component.Enable(False)
-		self._LBL_or.Enable(False)
-		self._PRW_substance.Enable(False)
+		self._PRW_drug.Disable()
+		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
+		self._PRW_preparation.Disable()
 
 		if self.data['is_long_term']:
 	 		self._CHBOX_long_term.SetValue(True)
@@ -1823,57 +1866,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if self.data['discontinued'] is not None:
 			self._PRW_discontinue_reason.Enable()
 
+		self.__refresh_drug_details()
 		self.__refresh_allergies()
 
 		self._PRW_schedule.SetFocus()
-	#----------------------------------------------------------------
-	def __refresh_from_existing_substance(self):
-		self._LBL_component.Enable(False)
-		self._PRW_component.Enable(False)
-		self._PRW_component.SetText(u'', None)
-		self._PRW_component.display_as_valid(True)
 
-		self._LBL_or.Enable(False)
-
-		# disable for 1.3 since we aren't saving
-		# the change which in combination spells
-		# doom for patient safety
-		#self._PRW_substance.Enable(True)
-		self._PRW_substance.Enable(False)
-		self._PRW_substance.SetText (
-			u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
-			self.data['pk_substance']
-		)
-
-		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
-		# see above
-		self._PRW_preparation.Enable(True)
-		self._PRW_preparation.Enable(False)
-	#----------------------------------------------------------------
-	def __refresh_from_existing_component(self):
-		self._LBL_component.Enable(True)
-		self._PRW_component.Enable(True)
-		self._PRW_component.SetText (
-			u'%s %s %s (%s)' % (self.data['substance'], self.data['amount'], self.data['unit'], self.data['brand']),
-			self.data['pk_drug_component']
-		)
-
-		brand = gmMedication.cBrandedDrug(aPK_obj = self.data['pk_brand'])
-		if brand['components'] is not None:
-			self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
-			tt = u'%s:\n\n- %s' % (
-				self.data['brand'],
-				u'\n- '.join(brand['components'])
-			)
-			self._TCTRL_brand_ingredients.SetToolTipString(tt)
-
-		self._LBL_or.Enable(False)
-		self._LBL_substance.Enable(False)
-		self._PRW_substance.SetText(u'', None)
-		self._PRW_substance.display_as_valid(True)
-
-		self._PRW_preparation.SetText(self.data['preparation'], self.data['preparation'])
-		self._PRW_preparation.Enable(False)
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_as_new()
@@ -1881,56 +1878,32 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_episode.SetData(self.data['pk_episode'])
 		self._DP_started.SetData(self.data['started'])
 
-		self._PRW_component.SetFocus()
+		self._PRW_drug.SetFocus()
 	#----------------------------------------------------------------
 	# event handlers
 	#----------------------------------------------------------------
-	def _on_leave_component(self):
-		if self._PRW_component.GetData() is None:
-			self._LBL_or.Enable(True)
-			self._PRW_component.SetText(u'', None)
-			self._LBL_substance.Enable(True)
-			self._PRW_substance.Enable(True)
-			self._LBL_preparation.Enable(True)
+	def _on_leave_drug(self):
+		self.__refresh_drug_details()
+
+		drug = self._PRW_drug.GetData(as_instance = True)
+		if drug is None:
 			self._PRW_preparation.Enable(True)
-			#self._PRW_preparation.SetText(u'', None)
-			self._TCTRL_brand_ingredients.SetValue(u'')
-			self._TCTRL_brand_ingredients.SetToolTipString(u'')
-		else:
-			self._LBL_or.Enable(False)
-			self._LBL_substance.Enable(False)
-			self._PRW_substance.SetText(u'', None)
-			self._PRW_substance.display_as_valid(True)
-			self._PRW_substance.Enable(False)
-			self._LBL_preparation.Enable(False)
+			return
+
+		if isinstance(drug, gmMedication.cConsumableSubstance):
+			self._PRW_preparation.Enable(True)
+			return
+
+		if isinstance(drug, gmMedication.cBrandedDrug):
+			self._PRW_preparation.SetValue(drug['preparation'])
 			self._PRW_preparation.Enable(False)
-			comp = gmMedication.cDrugComponent(aPK_obj = self._PRW_component.GetData())
-			self._PRW_preparation.SetText(comp['preparation'], comp['preparation'])
-			brand = comp.containing_drug
-			if brand['components'] is not None:
-				self._TCTRL_brand_ingredients.SetValue(u'; '.join(brand['components']))
-				tt = u'%s:\n\n- %s' % (
-					brand['brand'],
-					u'\n- '.join(brand['components'])
-				)
-				self._TCTRL_brand_ingredients.SetToolTipString(tt)
-	#----------------------------------------------------------------
-	def _on_leave_substance(self):
-		if self._PRW_substance.GetData() is None:
-			self._LBL_or.Enable(True)
-			self._LBL_component.Enable(True)
-			self._PRW_component.Enable(True)
-			self._PRW_substance.SetText(u'', None)
-		else:
-			self._LBL_or.Enable(False)
-			self._LBL_component.Enable(False)
-			self._PRW_component.SetText(u'', None)
-			self._PRW_component.display_as_valid(True)
-			self._PRW_component.Enable(False)
-			self._LBL_preparation.Enable(True)
-			self._PRW_preparation.Enable(True)
-			self._TCTRL_brand_ingredients.SetValue(u'')
-			self._TCTRL_brand_ingredients.SetToolTipString(u'')
+			return
+
+		if isinstance(drug, gmMedication.cDrugComponent):
+			self._PRW_preparation.SetValue(drug['preparation'])
+			self._PRW_preparation.Enable(False)
+			return
+
 	#----------------------------------------------------------------
 	def _on_enter_aim(self):
 		# when a drug component/substance is selected (that is, when .GetData()
@@ -1938,51 +1911,48 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# result because that will also have amount and unit appended, hence
 		# create the real component or substance instance and take the canonical
 		# substance name from there
-		subst = self._PRW_component.GetValue().strip()
-		if subst != u'':
-			comp = self._PRW_component.GetData(as_instance = True)
-			if comp is None:
-				self._PRW_aim.set_context(context = u'substance', val = subst)
-				return
-			self._PRW_aim.set_context(context = u'substance', val = comp['substance'])
-			return
-
-		subst = self._PRW_substance.GetValue().strip()
-		if subst == u'':
+		drug = self._PRW_drug.GetData(as_instance = True)
+		if drug is None:
 			self._PRW_aim.unset_context(context = u'substance')
 			return
-		comp = self._PRW_substance.GetData(as_instance = True)
-		if comp is None:
-			self._PRW_aim.set_context(context = u'substance', val = subst)
+		if isinstance(drug, gmMedication.cBrandedDrug):
+			self._PRW_aim.unset_context(context = u'substance')
 			return
-		self._PRW_aim.set_context(context = u'substance', val = comp['description'])
+		if isinstance(drug, gmMedication.cConsumableSubstance):
+			self._PRW_aim.set_context(context = u'substance', val = drug['description'])
+			return
+		if isinstance(drug, gmMedication.cDrugComponent):
+			self._PRW_aim.set_context(context = u'substance', val = drug['substance'])
+			return
+
 	#----------------------------------------------------------------
 	def _on_discontinued_date_changed(self, event):
 		if self._DP_discontinued.GetData() is None:
 			self._PRW_discontinue_reason.Enable(False)
 		else:
 			self._PRW_discontinue_reason.Enable(True)
+
 	#----------------------------------------------------------------
 	def _on_manage_brands_button_pressed(self, event):
 		manage_branded_drugs(parent = self, ignore_OK_button = True)
+
 	#----------------------------------------------------------------
 	def _on_manage_substances_button_pressed(self, event):
 		manage_consumable_substances(parent = self)
+
 	#----------------------------------------------------------------
 	def _on_heart_button_pressed(self, event):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.qtsyndrome.ch/drugs.html')
+
 	#----------------------------------------------------------------
 	def _on_kidneys_button_pressed(self, event):
-		if self._PRW_component.GetData() is not None:
-			search_term = self._PRW_component.GetData(as_instance = True)
-		elif self._PRW_substance.GetData() is not None:
-			search_term = self._PRW_substance.GetData(as_instance = True)
-		elif self._PRW_component.GetValue().strip() != u'':
-			search_term = self._PRW_component.GetValue().strip()
+		if self._PRW_drug.GetData() is None:
+			search_term = self._PRW_drug.GetValue().strip()
 		else:
-			search_term = self._PRW_substance.GetValue().strip()
+			search_term = self._PRW_drug.GetData(as_instance = True)
 
 		gmNetworkTools.open_url_in_browser(url = gmMedication.drug2renal_insufficiency_url(search_term = search_term))
+
 	#----------------------------------------------------------------
 	def _on_discontinued_as_planned_button_pressed(self, event):
 
@@ -2013,6 +1983,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._DP_discontinued.SetData(now)
 		self._PRW_discontinue_reason.Enable(True)
 		self._PRW_discontinue_reason.SetValue(u'')
+
 	#----------------------------------------------------------------
 	def _on_chbox_long_term_checked(self, event):
 		if self._CHBOX_long_term.IsChecked() is True:
@@ -3367,10 +3338,11 @@ if __name__ == '__main__':
 	gmPerson.set_active_patient(patient = pat)
 
 	#----------------------------------------
-	app = wx.PyWidgetTester(size = (600, 600))
+	app = wx.PyWidgetTester(size = (600, 300))
 #	#app.SetWidget(cATCPhraseWheel, -1)
-#	app.SetWidget(cSubstancePhraseWheel, -1)
-#	app.MainLoop()
-	manage_substance_intakes()
+	#app.SetWidget(cSubstancePhraseWheel, -1)
+	app.SetWidget(cBrandOrSubstancePhraseWheel, -1)
+	app.MainLoop()
+	#manage_substance_intakes()
 
 #============================================================

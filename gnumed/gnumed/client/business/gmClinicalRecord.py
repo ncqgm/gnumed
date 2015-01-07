@@ -1330,20 +1330,22 @@ WHERE
 
 		return meds
 	#--------------------------------------------------------
-	def add_substance_intake(self, pk_substance=None, pk_component=None, episode=None, preparation=None):
+	def add_substance_intake(self, pk_substance=None, pk_component=None, episode=None, preparation=None, pk_brand=None):
 		return gmMedication.create_substance_intake (
 			pk_substance = pk_substance,
 			pk_component = pk_component,
 			encounter = self.current_encounter['pk_encounter'],
 			episode = episode,
-			preparation = preparation
+			preparation = preparation,
+			pk_brand = pk_brand
 		)
 	#--------------------------------------------------------
-	def substance_intake_exists(self, pk_component=None, pk_substance=None):
+	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_brand=None):
 		return gmMedication.substance_intake_exists (
 			pk_component = pk_component,
 			pk_substance = pk_substance,
-			pk_identity = self.pk_patient
+			pk_identity = self.pk_patient,
+			pk_brand = pk_brand
 		)
 	#--------------------------------------------------------
 	# API: vaccinations

@@ -16,6 +16,7 @@ from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cIntervalPhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cDrugComponentPhraseWheel
+from Gnumed.wxpython.gmMedicationWidgets import cBrandOrSubstancePhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstancePhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstancePreparationPhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstanceSchedulePhraseWheel
@@ -29,16 +30,12 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._LBL_allergies = wx.StaticText(self, wx.ID_ANY, "")
-		self._LBL_component = wx.StaticText(self, wx.ID_ANY, _("Brand by component"))
-		self._PRW_component = cDrugComponentPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_database_brand = wx.Button(self, wx.ID_ANY, _("Brands"), style=wx.BU_EXACTFIT)
-		self._LBL_or = wx.StaticText(self, wx.ID_ANY, _("... or ..."))
-		self._TCTRL_brand_ingredients = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY | wx.NO_BORDER)
+		self._PRW_drug = cBrandOrSubstancePhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
+		self._TCTRL_drug_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.TE_READONLY | wx.NO_BORDER)
 		self._BTN_heart = wx.Button(self, wx.ID_ANY, _(u"\u2665"), style=wx.BU_EXACTFIT)
 		self._BTN_kidneys = wx.Button(self, wx.ID_ANY, _("Kidneys"), style=wx.BU_EXACTFIT)
-		self._LBL_substance = wx.StaticText(self, wx.ID_ANY, _("Unbranded substance"))
-		self._PRW_substance = cSubstancePhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
-		self._BTN_database_substance = wx.Button(self, wx.ID_ANY, _("Manage"), style=wx.BU_EXACTFIT)
+		self._BTN_database_brand = wx.Button(self, wx.ID_ANY, _("Brands"), style=wx.BU_EXACTFIT)
+		self._BTN_database_substance = wx.Button(self, wx.ID_ANY, _("Substances"), style=wx.BU_EXACTFIT)
 		self._LBL_preparation = wx.StaticText(self, wx.ID_ANY, _("Preparation"))
 		self._PRW_preparation = cSubstancePreparationPhraseWheel(self, wx.ID_ANY, "", style=wx.NO_BORDER)
 		self._CHBOX_start_unknown = wx.CheckBox(self, wx.ID_ANY, _("&Unknown or date:"))
@@ -59,9 +56,9 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		self.__set_properties()
 		self.__do_layout()
 
-		self.Bind(wx.EVT_BUTTON, self._on_manage_brands_button_pressed, self._BTN_database_brand)
 		self.Bind(wx.EVT_BUTTON, self._on_heart_button_pressed, self._BTN_heart)
 		self.Bind(wx.EVT_BUTTON, self._on_kidneys_button_pressed, self._BTN_kidneys)
+		self.Bind(wx.EVT_BUTTON, self._on_manage_brands_button_pressed, self._BTN_database_brand)
 		self.Bind(wx.EVT_BUTTON, self._on_manage_substances_button_pressed, self._BTN_database_substance)
 		self.Bind(wx.EVT_CHECKBOX, self._on_start_unknown_checked, self._CHBOX_start_unknown)
 		self.Bind(wx.EVT_CHECKBOX, self._on_chbox_long_term_checked, self._CHBOX_long_term)
@@ -72,16 +69,14 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgCurrentMedicationEAPnl.__set_properties
 		self.SetMinSize((660, 400))
 		self.SetScrollRate(10, 10)
-		self._LBL_component.SetForegroundColour(wx.Colour(255, 0, 0))
-		self._PRW_component.SetToolTipString(_("A component of a drug brand the patient is taking.\n\nLookup, and select, a single- (or multi-) component drug brand, by active ingredient name. All components of multi-component drugs will be displayed and automatically added to the patient's list."))
-		self._BTN_database_brand.SetToolTipString(_("Manage drug brands.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products/brands known to GNUmed from which you can select a component."))
-		self._TCTRL_brand_ingredients.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		self._TCTRL_brand_ingredients.SetToolTipString(_("The active ingredients of this brand."))
+		self._PRW_drug.SetToolTipString(_("A drug the patient is taking.\n\nLookup and select an intake by either of\n- a generic substance name\n- a drug brand name\n- an active ingredient of a drug\n\nNote that all components of multi-component drugs will be displayed and automatically added to the patient's list."))
+		self._TCTRL_drug_details.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		self._TCTRL_drug_details.SetToolTipString(_("Details on the selected drug."))
 		self._BTN_heart.SetToolTipString(_("Show cardiac information relevant to substance selection."))
 		self._BTN_kidneys.SetToolTipString(_("Show renal insufficiency information related to substance selection."))
-		self._LBL_substance.SetForegroundColour(wx.Colour(255, 0, 0))
-		self._PRW_substance.SetToolTipString(_("The non-branded medication or non-medication substance, with optional strength."))
+		self._BTN_database_brand.SetToolTipString(_("Manage drug brands.\n\nNote that this will not select a component for you. What it does is to let you manage (add/edit/delete) the drug products/brands known to GNUmed from which you can select a component."))
 		self._BTN_database_substance.SetToolTipString(_("Manage consumable substances.\n\nThis will not select a substance for you. It will, however, enable you to manage (add/edit/delete) the consumable substances available for selection."))
+		self._LBL_preparation.SetForegroundColour(wx.Colour(255, 0, 0))
 		self._PRW_preparation.SetToolTipString(_("The preparation or form of the substance."))
 		self._CHBOX_start_unknown.SetToolTipString(_("Check here if the start date simply isn't known."))
 		self._CHBOX_start_unknown.SetValue(1)
@@ -110,27 +105,27 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		__szr_discontinued_date = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_duration = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_started = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_substance = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_ingredient_details = wx.BoxSizer(wx.HORIZONTAL)
-		__szr_substance_buttons = wx.BoxSizer(wx.VERTICAL)
-		__szr_component = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_mgmt_buttons = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_main.Add(self._LBL_allergies, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 2)
 		__sline_top = wx.StaticLine(self, wx.ID_ANY)
 		__szr_main.Add(__sline_top, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
-		__gszr_main.Add(self._LBL_component, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_component.Add(self._PRW_component, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_component.Add(self._BTN_database_brand, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__gszr_main.Add(__szr_component, 1, wx.EXPAND, 0)
-		__gszr_main.Add(self._LBL_or, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_ingredient_details.Add(self._TCTRL_brand_ingredients, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_substance_buttons.Add(self._BTN_heart, 0, wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
-		__szr_substance_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_ingredient_details.Add(__szr_substance_buttons, 0, wx.EXPAND, 0)
-		__gszr_main.Add(__szr_ingredient_details, 1, wx.EXPAND, 0)
-		__gszr_main.Add(self._LBL_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_substance.Add(self._PRW_substance, 1, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
-		__szr_substance.Add(self._BTN_database_substance, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
-		__gszr_main.Add(__szr_substance, 1, wx.EXPAND, 0)
+		_LBL_drug = wx.StaticText(self, wx.ID_ANY, _("Drug"))
+		_LBL_drug.SetForegroundColour(wx.Colour(255, 0, 0))
+		__gszr_main.Add(_LBL_drug, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(self._PRW_drug, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+		__gszr_main.Add((20, 20), 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(self._TCTRL_drug_details, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
+		__gszr_main.Add((20, 20), 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__lbl_research = wx.StaticText(self, wx.ID_ANY, _("Research:"))
+		__szr_mgmt_buttons.Add(__lbl_research, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_mgmt_buttons.Add(self._BTN_heart, 0, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_mgmt_buttons.Add(self._BTN_kidneys, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_mgmt_buttons.Add((20, 20), 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
+		__lbl_manage = wx.StaticText(self, wx.ID_ANY, _("Manage:"))
+		__szr_mgmt_buttons.Add(__lbl_manage, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_mgmt_buttons.Add(self._BTN_database_brand, 0, wx.RIGHT | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_mgmt_buttons.Add(self._BTN_database_substance, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 0)
+		__gszr_main.Add(__szr_mgmt_buttons, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__gszr_main.Add(self._LBL_preparation, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		__gszr_main.Add(self._PRW_preparation, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 10)
 		__gszr_main.Add((20, 20), 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
@@ -178,16 +173,16 @@ class wxgCurrentMedicationEAPnl(wx.ScrolledWindow):
 		__szr_main.Fit(self)
 		# end wxGlade
 
-	def _on_manage_brands_button_pressed(self, event):  # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
-		print "Event handler '_on_manage_brands_button_pressed' not implemented!"
-		event.Skip()
-
 	def _on_heart_button_pressed(self, event):  # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
 		print "Event handler '_on_heart_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_kidneys_button_pressed(self, event):  # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
 		print "Event handler '_on_kidneys_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_manage_brands_button_pressed(self, event):  # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>
+		print "Event handler '_on_manage_brands_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_manage_substances_button_pressed(self, event):  # wxGlade: wxgCurrentMedicationEAPnl.<event_handler>

@@ -1416,6 +1416,16 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 		u'unit'
 	]
 	#--------------------------------------------------------
+	def format(self, left_margin=0):
+		return (u' ' * left_margin) + u'%s: %s %s%s%s' % (
+			_('Consumable substance'),
+			self._payload[self._idx['description']],
+			self._payload[self._idx['amount']],
+			self._payload[self._idx['unit']],
+			gmTools.coalesce(self._payload[self._idx['atc_code']], u'', u' [%s]')
+		)
+
+	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		success, data = super(self.__class__, self).save_payload(conn = conn)
 
@@ -1431,6 +1441,22 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 				)
 
 		return (success, data)
+	#--------------------------------------------------------
+	def exists_as_intake(self, pk_patient=None):
+		return substance_intake_exists (
+			pk_substance = self.pk_obj,
+			pk_identity = pk_patient
+		)
+
+	#--------------------------------------------------------
+	def turn_into_intake(self, encounter=None, episode=None, preparation=None):
+		return create_substance_intake (
+			pk_substance = self.pk_obj,
+			encounter = encounter,
+			episode = episode,
+			preparation = preparation
+		)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1698,6 +1724,301 @@ class cSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
 		else:
 			self._queries = [cSubstanceMatchProvider._normal_query]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%%%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+
+#------------------------------------------------------------
+class cBrandOrSubstanceMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
+
+	# by brand name
+	_query_brand_by_name = u"""
+		SELECT
+			ARRAY[1, pk]::INTEGER[]
+				AS data,
+			(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+				AS list_label,
+			(description || ' (' || preparation || ')' || coalesce(' [' || atc_code || ']', ''))
+				AS field_label,
+			1 AS rank
+		FROM ref.branded_drug
+		WHERE description %(fragment_condition)s
+		LIMIT 50
+	"""
+	_query_brand_by_name_and_strength = u"""
+		SELECT
+			ARRAY[1, pk_brand]::INTEGER[]
+				AS data,
+			(brand || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_brand || ']', ''))
+				AS list_label,
+			(brand || ' (' || preparation || %s || amount || unit || ' ' || substance || ')' || coalesce(' [' || atc_brand || ']', ''))
+				AS field_label,
+			1 AS rank
+		FROM
+			(SELECT *, brand AS description FROM ref.v_drug_components) AS _components
+		WHERE %%(fragment_condition)s
+		LIMIT 50
+	""" % (
+		_('w/'),
+		_('w/')
+	)
+
+	# by component
+	_query_component_by_name = u"""
+		SELECT
+			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
+				AS data,
+			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			|| ')'
+			)	AS field_label,
+			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			|| ')'
+			)	AS list_label,
+			1 AS rank
+		FROM
+			(SELECT *, brand AS description FROM ref.v_drug_components) AS r_vdc1
+		WHERE
+			r_vdc1.substance %(fragment_condition)s
+		LIMIT 50"""
+	_query_component_by_name_and_strength = u"""
+		SELECT
+			ARRAY[3, r_vdc1.pk_component]::INTEGER[]
+				AS data,
+			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			|| ')'
+			)	AS field_label,
+			(r_vdc1.substance || ' ' || r_vdc1.amount || r_vdc1.unit || ' ' || r_vdc1.preparation || ' ('
+				|| r_vdc1.brand || ' ['
+					|| (
+						SELECT array_to_string(array_agg(r_vdc2.amount), ' / ')
+						FROM ref.v_drug_components r_vdc2
+						WHERE r_vdc2.pk_brand = r_vdc1.pk_brand
+					)
+				|| ']'
+			|| ')'
+			)	AS list_label,
+			1 AS rank
+		FROM (SELECT *, substance AS description FROM ref.v_drug_components) AS r_vdc1
+		WHERE
+			%(fragment_condition)s
+		ORDER BY list_label
+		LIMIT 50"""
+
+	# by substance name
+	_query_substance_by_name = u"""
+		SELECT
+			data,
+			field_label,
+			list_label,
+			rank
+		FROM ((
+			-- first: substance intakes which match, because we tend to reuse them often
+			SELECT
+				ARRAY[2, pk_substance]::INTEGER[] AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
+				1 AS rank
+			FROM (
+				SELECT DISTINCT ON (description, amount, unit)
+					pk_substance,
+					substance AS description,
+					amount,
+					unit
+				FROM clin.v_nonbrand_intakes
+			) AS normalized_intakes
+			WHERE description %%(fragment_condition)s
+
+		) UNION ALL (
+
+			-- second: consumable substances which match but are not intakes
+			SELECT
+				ARRAY[2, pk]::INTEGER[] AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit) AS list_label,
+				2 AS rank
+			FROM ref.consumable_substance
+			WHERE
+				description %%(fragment_condition)s
+					AND
+				pk NOT IN (
+					SELECT fk_substance
+					FROM clin.substance_intake
+					WHERE fk_substance IS NOT NULL
+				)
+		)) AS candidates
+		--ORDER BY rank, list_label
+		LIMIT 50""" % _('in use')
+	_query_substance_by_name_and_strength = 	u"""
+		SELECT
+			data,
+			field_label,
+			list_label,
+			rank
+		FROM ((
+			SELECT
+				ARRAY[2, pk_substance]::INTEGER[] AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit || ' (%s)') AS list_label,
+				1 AS rank
+			FROM (
+				SELECT DISTINCT ON (description, amount, unit)
+					pk_substance,
+					substance AS description,
+					amount,
+					unit
+				FROM clin.v_nonbrand_intakes
+			) AS normalized_intakes
+			WHERE
+				%%(fragment_condition)s
+
+		) UNION ALL (
+
+			-- matching substances which are not in intakes
+			SELECT
+				ARRAY[2, pk]::INTEGER[] AS data,
+				(description || ' ' || amount || ' ' || unit) AS field_label,
+				(description || ' ' || amount || ' ' || unit) AS list_label,
+				2 AS rank
+			FROM ref.consumable_substance
+			WHERE
+				%%(fragment_condition)s
+					AND
+				pk NOT IN (
+					SELECT fk_substance
+					FROM clin.substance_intake
+					WHERE fk_substance IS NOT NULL
+				)
+		)) AS candidates
+		--ORDER BY rank, list_label
+		LIMIT 50""" % _('in use')
+
+	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
+
+	_master_query = u"""
+		SELECT
+			data, field_label, list_label, rank
+		FROM ((%s) UNION (%s) UNION (%s))
+			AS _union
+		ORDER BY rank, list_label
+		LIMIT 50
+	"""
+	#--------------------------------------------------------
+	def getMatchesByPhrase(self, aFragment):
+		"""Return matches for aFragment at start of phrases."""
+
+		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name,
+					cBrandOrSubstanceMatchProvider._query_component_by_name
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
+			fragment_condition = u"ILIKE %(fragment)s"
+			self._args['fragment'] = u"%s%%" % aFragment
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesByWord(self, aFragment):
+		"""Return matches for aFragment at start of words inside phrases."""
+
+		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+
+			desc = regex.sub(r'\s*\d+$', u'', aFragment)
+			desc = gmPG2.sanitize_pg_regex(expression = desc, escape_all = False)
+
+			fragment_condition = """description ~* %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+
+			self._args['desc'] = u"( %s)|(^%s)" % (desc, desc)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name,
+					cBrandOrSubstanceMatchProvider._query_component_by_name
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
+			fragment_condition = u"~* %(fragment)s"
+			aFragment = gmPG2.sanitize_pg_regex(expression = aFragment, escape_all = False)
+			self._args['fragment'] = u"( %s)|(^%s)" % (aFragment, aFragment)
+
+		return self._find_matches(fragment_condition)
+	#--------------------------------------------------------
+	def getMatchesBySubstr(self, aFragment):
+		"""Return matches for aFragment as a true substring."""
+
+		if cBrandOrSubstanceMatchProvider._pattern.match(aFragment):
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength,
+					cBrandOrSubstanceMatchProvider._query_component_by_name_and_strength
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name_and_strength]
+			fragment_condition = """description ILIKE %(desc)s
+				AND
+			amount::text ILIKE %(amount)s"""
+			self._args['desc'] = u'%%%s%%' % regex.sub(r'\s*\d+$', u'', aFragment)
+			self._args['amount'] = u'%s%%' % regex.sub(r'^\D+\s*', u'', aFragment)
+		else:
+			self._queries = [
+				cBrandOrSubstanceMatchProvider._master_query % (
+					cBrandOrSubstanceMatchProvider._query_brand_by_name,
+					cBrandOrSubstanceMatchProvider._query_substance_by_name,
+					cBrandOrSubstanceMatchProvider._query_component_by_name
+				)
+			]
+			#self._queries = [cBrandOrSubstanceMatchProvider._query_substance_by_name]
 			fragment_condition = u"ILIKE %(fragment)s"
 			self._args['fragment'] = u"%%%s%%" % aFragment
 
@@ -2025,42 +2346,94 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
 #------------------------------------------------------------
-def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None):
-	args = {'comp': pk_component, 'subst': pk_substance, 'pat': pk_identity}
+def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None, pk_brand=None):
 
-	where_clause = u"""
-		fk_encounter IN (
-			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
-		)
-			AND
-		"""
+	if [pk_substance, pk_component, pk_brand].count(None) != 2:
+		raise ValueError('only one of pk_substance, pk_component, and pk_brand can be non-NULL')
+
+	args = {
+		'comp': pk_component,
+		'subst': pk_substance,
+		'pat': pk_identity,
+		'brand': pk_brand
+	}
+
+	where_parts = [u'fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)']
+#	where_clause = u"""
+#		fk_encounter IN (
+#			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
+#		)
+#			AND
+#		"""
 
 	if pk_substance is not None:
-		where_clause += u'fk_substance = %(subst)s'
+		#where_clause += u'fk_substance = %(subst)s'
+		where_parts.append(u'fk_substance = %(subst)s')
 	if pk_component is not None:
-		where_clause += u'fk_drug_component = %(comp)s'
+		#where_clause += u'fk_drug_component = %(comp)s'
+		where_parts.append(u'fk_drug_component = %(comp)s')
+	if pk_brand is not None:
+		#where_clause += u'fk_drug_component IN (SELECT pk FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s)'
+		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s)')
 
-	cmd = u"""SELECT exists (
-	SELECT 1 FROM clin.substance_intake
-	WHERE
-		%s
-	LIMIT 1
-	)""" % where_clause
+	cmd = u"""
+		SELECT exists (
+			SELECT 1 FROM clin.substance_intake
+			WHERE
+				%s
+			LIMIT 1
+		)
+	""" % u'\nAND\n'.join(where_parts)
+#		)""" % where_clause
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
 #------------------------------------------------------------
-def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None):
+def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None, pk_brand=None):
+
+	if [pk_substance, pk_component, pk_brand].count(None) != 2:
+		raise ValueError('only one of pk_substance, pk_component, and pk_brand can be non-NULL')
 
 	args = {
 		'enc': encounter,
 		'epi': episode,
 		'comp': pk_component,
 		'subst': pk_substance,
+		'brand': pk_brand,
 		'prep': preparation
 	}
 
-	if pk_component is None:
+	if pk_brand is not None:
+		cmd = u"""
+			INSERT INTO clin.substance_intake (
+				fk_encounter,
+				fk_episode,
+				intake_is_approved_of,
+				fk_drug_component
+			) VALUES (
+				%(enc)s,
+				%(epi)s,
+				False,
+				(SELECT pk FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s LIMIT 1)
+			)
+			RETURNING pk"""
+
+	if pk_component is not None:
+		cmd = u"""
+			INSERT INTO clin.substance_intake (
+				fk_encounter,
+				fk_episode,
+				intake_is_approved_of,
+				fk_drug_component
+			) VALUES (
+				%(enc)s,
+				%(epi)s,
+				False,
+				%(comp)s
+			)
+			RETURNING pk"""
+
+	if pk_substance is not None:
 		cmd = u"""
 			INSERT INTO clin.substance_intake (
 				fk_encounter,
@@ -2074,20 +2447,6 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 				False,
 				%(subst)s,
 				%(prep)s
-			)
-			RETURNING pk"""
-	else:
-		cmd = u"""
-			INSERT INTO clin.substance_intake (
-				fk_encounter,
-				fk_episode,
-				intake_is_approved_of,
-				fk_drug_component
-			) VALUES (
-				%(enc)s,
-				%(epi)s,
-				False,
-				%(comp)s
 			)
 			RETURNING pk"""
 
@@ -2256,6 +2615,48 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_consumable_substance'
 	]
 	#--------------------------------------------------------
+	def format(self, left_margin=0):
+		lines = []
+		lines.append(u'%s %s%s' % (
+			self._payload[self._idx['substance']],
+			self._payload[self._idx['amount']],
+			self._payload[self._idx['unit']]
+		))
+		lines.append(_('Component of %s (%s)') % (
+			self._payload[self._idx['brand']],
+			self._payload[self._idx['preparation']]
+		))
+		if self._payload[self._idx['atc_substance']] is not None:
+			lines.append(_('ATC (substance): %s') % self._payload[self._idx['atc_substance']])
+		if self._payload[self._idx['atc_brand']] is not None:
+			lines.append(_('ATC (brand): %s') % self._payload[self._idx['atc_brand']])
+		if self._payload[self._idx['external_code_brand']] is not None:
+			lines.append(u'%s: %s' % (
+				self._payload[self._idx['external_code_type_brand']],
+				self._payload[self._idx['external_code_brand']]
+			))
+		if self._payload[self._idx['is_fake_brand']]:
+			lines.append(_('this is a component of a fake brand'))
+
+		return (u' ' * left_margin) + (u'\n' + (u' ' * left_margin)).join(lines)
+	#--------------------------------------------------------
+	def exists_as_intake(self, pk_patient=None):
+		return substance_intake_exists (
+			pk_component = self._payload[self._idx['pk_component']],
+			pk_identity = pk_patient
+		)
+
+	#--------------------------------------------------------
+	def turn_into_intake(self, emr=None, episode=None, preparation=None):
+		# preparation is ignored, only exists for uniformity with cConsumableSubstance
+		return create_substance_intake (
+			pk_component = self._payload[self._idx['pk_component']],
+			encounter = encounter,
+			episode = episode,
+			preparation = self._payload[self._idx['preparation']]
+		)
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_containing_drug(self):
@@ -2279,21 +2680,6 @@ def get_drug_components():
 	return [ cDrugComponent(row = {'data': r, 'idx': idx, 'pk_field': 'pk_component'}) for r in rows ]
 
 #------------------------------------------------------------
-_SQL_find_matching_drug_components_by_name = u"""
-SELECT
-	data,
-	field_label,
-	list_label,
-	rank
-FROM ((
-
-	) UNION ALL (
-
-	)) AS matches
-ORDER BY rank, list_label
-LIMIT 50"""
-
-
 class cDrugComponentMatchProvider(gmMatchProvider.cMatchProvider_SQL2):
 
 	_pattern = regex.compile(r'^\D+\s*\d+$', regex.UNICODE | regex.LOCALE)
@@ -2456,6 +2842,28 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_data_source'
 	]
 	#--------------------------------------------------------
+	def format(self, left_margin=0):
+		lines = []
+		lines.append(u'%s (%s)' % (
+			self._payload[self._idx['brand']],
+			self._payload[self._idx['preparation']]
+			)
+		)
+		if self._payload[self._idx['atc']] is not None:
+			lines.append(u'ATC: %s' % self._payload[self._idx['atc']])
+		if self._payload[self._idx['external_code']] is not None:
+			lines.append(u'%s: %s' % (self._payload[self._idx['external_code_type']], self._payload[self._idx['external_code']]))
+		lines.append(_('Components:'))
+		for comp in self._payload[self._idx['components']]:
+			lines.append(u' ' + comp)
+		if self._payload[self._idx['is_fake_brand']]:
+			lines.append(u'')
+			lines.append(_('this is a fake brand'))
+		if self.is_vaccine:
+			lines.append(_('this is a vaccine'))
+
+		return (u' ' * left_margin) + (u'\n' + (u' ' * left_margin)).join(lines)
+	#--------------------------------------------------------
 	def save_payload(self, conn=None):
 		success, data = super(self.__class__, self).save_payload(conn = conn)
 
@@ -2582,6 +2990,23 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		self.refetch_payload()
 
 		return True
+	#--------------------------------------------------------
+	def exists_as_intake(self, pk_patient=None):
+		return substance_intake_exists (
+			pk_brand = self._payload[self._idx['pk_brand']],
+			pk_identity = pk_patient
+		)
+
+	#--------------------------------------------------------
+	def turn_into_intake(self, emr=None, episode=None, preparation=None):
+		# preparation is ignored, only exists for uniformity with cConsumableSubstance
+		return create_substance_intake (
+			pk_brand = self._payload[self._idx['pk_brand']],
+			encounter = encounter,
+			episode = episode,
+			preparation = self._payload[self._idx['preparation']]
+		)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
