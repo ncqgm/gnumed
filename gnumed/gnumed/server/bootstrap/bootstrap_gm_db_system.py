@@ -792,7 +792,7 @@ class database:
 				use_existing = bool(int(cfg_get(self.section, 'use existing target database')))
 				if use_existing:
 					# FIXME: verify that database is owned by "gm-dbo"
-					print_msg("==> using pre-existing *target* database [%s] ..." % self.name)
+					print_msg("==> using pre-existing target database [%s] ..." % self.name)
 					_log.info('using existing database [%s]', self.name)
 					return True
 				else:
