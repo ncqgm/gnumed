@@ -2,8 +2,8 @@
 
 # ============================================
 
-PREV_VER="18"
-NEXT_VER="19"
+PREV_VER="19"
+NEXT_VER="20"
 
 INSTALL_BASE=~/".gnumed/server-installation"
 DL_BASE="http://www.gnumed.de/downloads/server"

@@ -2,7 +2,7 @@ Fingerprinting GNUmed database ...
 
                 Name: gnumed_v20
          Schema hash: baed1901ed4c2f272b56c8cb2c6d88e8
-                Size: 61 MB
+                Size: 62 MB
             Patients: 15
             Contacts: 8
             Episodes: 5
