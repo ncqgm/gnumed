@@ -407,6 +407,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	comm_channels = property(get_comm_channels, lambda x:x)
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None, link_obj=None):
+	_log.debug(u'creating org unit [%s:%s]', unit, pk_organization)
 	args = {'desc': unit, 'pk_org': pk_organization}
 	cmd1 = u"""
 		INSERT INTO dem.org_unit (description, fk_org) SELECT
@@ -422,6 +423,7 @@ def create_org_unit(pk_organization=None, unit=None, link_obj=None):
 	]
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, get_col_idx = True, return_data = True)
 	return cOrgUnit(row = {'data': rows[0], 'idx': idx, 'pk_field': u'pk_org_unit'})
+
 #------------------------------------------------------------
 def delete_org_unit(unit=None):
 	args = {'pk': unit}
