@@ -84,6 +84,8 @@ class cTestOrg(gmBusinessDBObject.cBusinessDBObject):
 #------------------------------------------------------------
 def create_test_org(name=None, comment=None, pk_org_unit=None, link_obj=None):
 
+	_log.debug(u'creating test org [%s:%s:%s]', name, comment, pk_org_unit)
+
 	if name is None:
 		name = u'unassigned lab'
 
