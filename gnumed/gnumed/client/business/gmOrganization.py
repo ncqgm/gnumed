@@ -299,6 +299,7 @@ def create_org_unit(pk_organization=None, unit=None):
 		return cOrgUnit(aPK_obj = rows[0][0])
 
 	# no, create
+	_log.debug(u'creating org unit [%s:%s]', unit, pk_organization)
 	cmd = u'INSERT INTO dem.org_unit (description, fk_org) VALUES (%(desc)s, %(pk_org)s) RETURNING pk'
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False, return_data = True)
 
