@@ -41,6 +41,7 @@ from Gnumed.wxpython import gmNarrativeWidgets
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
+from Gnumed.wxpython import gmFormWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -431,6 +432,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		# - root node
 		self.__root_context_popup = wx.Menu(title = _('EMR Actions:'))
 
+		item = self.__root_context_popup.Append(-1, _('Print EMR'))
+		self.Bind(wx.EVT_MENU, self.__print_emr, item)
+
 		menu_id = wx.NewId()
 		self.__root_context_popup.AppendItem(wx.MenuItem(self.__root_context_popup, menu_id, _('Create health issue')))
 		wx.EVT_MENU(self.__root_context_popup, menu_id, self.__create_issue)
@@ -774,6 +778,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.SortChildren(fake_issue_node)
 	#--------------------------------------------------------
 	# EMR level
+	#--------------------------------------------------------
+	def __print_emr(self, event):
+		gmFormWidgets.print_doc_from_template(parent = self)
 	#--------------------------------------------------------
 	def __create_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)

@@ -3219,6 +3219,14 @@ class gmApp(wx.App):
 			sys.stdout = sys.__stdout__
 			sys.stderr = sys.__stderr__
 
+		top_wins = wx.GetTopLevelWindows()
+		if len(top_wins) > 0:
+			_log.debug('%s top level windows still around in <app>.OnExit()', len(top_wins))
+			_log.debug(top_wins)
+			for win in top_wins:
+				_log.debug('destroying: %s', win)
+				win.Destroy()
+
 		_log.debug('gmApp.OnExit() end')
 	#----------------------------------------------
 	def _on_query_end_session(self, *args, **kwargs):
@@ -3702,6 +3710,7 @@ def main():
 	# - allow signals to be delivered
 	app = gmApp(redirect = False, clearSigInt = False)
 	app.MainLoop()
+
 #==============================================================================
 # Main
 #==============================================================================

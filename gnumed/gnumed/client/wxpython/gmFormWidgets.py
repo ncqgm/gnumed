@@ -63,11 +63,15 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None):
 	if form in [True, False]:	# returned by special OOo/LO handling
 		return form
 
+	if episode is None:
+		epi_name = u'administrative'
+	else:
+		epi_name = episode['description']
 	return act_on_generated_forms (
 		parent = parent,
 		forms = [form],
 		jobtype = jobtype,
-		episode_name = u'administrative',
+		episode_name = epi_name,
 		review_copy_as_normal = True
 	)
 

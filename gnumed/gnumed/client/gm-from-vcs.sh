@@ -29,12 +29,11 @@ fi
 
 
 # standard options
-TS=`date +%m_%d-%H%M%S`
-LOG="--log-file=gm-vcs-${TS}-$$.log"
 CONF="--conf-file=gm-from-vcs.conf"
 
 # options useful for development and debugging:
-DEV_OPTS="--override-schema-check --skip-update-check --local-import --debug"
+TS=`date +%m_%d-%H%M%S`
+DEV_OPTS="--log-file=gm-vcs-${TS}-$$.log --override-schema-check --skip-update-check --local-import --debug"
 # --profile=gm-from-vcs.prof
 
 # options for running from released tarballs:
@@ -49,16 +48,16 @@ TARBALL_OPTS="--local-import --debug"
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
-python gnumed.py ${LOG} ${CONF} ${DEV_OPTS} $@
+python gnumed.py ${CONF} ${DEV_OPTS} $@
 
-# - released tarball version:
-#python gnumed.py ${LOG} ${CONF} ${TARBALL_OPTS} $@
+# - *released* tarball version:
+#python gnumed.py ${CONF} ${TARBALL_OPTS} $@
 
 # - production version:
-#python gnumed.py ${LOG} ${CONF} $@
+#python gnumed.py ${CONF} $@
 
 # - production version with HIPAA support:
-#python gnumed.py ${LOG} ${CONF} --hipaa $@
+#python gnumed.py ${CONF} --hipaa $@
 
 
 # source systemwide shutdown extension shell script if it exists
