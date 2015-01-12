@@ -17,6 +17,10 @@ IMPROVED: shutdown with dangling top level windows
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.1
+
+FIX: include pregnancy widgets with tarball
+
 	1.5.0
 
 NEW: by-day display mode for test results including multi-line ones

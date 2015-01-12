@@ -59,7 +59,6 @@ FILES_REMOVE=\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmMultiSash.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmPatientHolder.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmPlugin_Patient.py "\
-"./gnumed-client.$CLIENTREV/client/wxpython/gmPregWidgets.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmSelectPerson.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmShadow.py "\
 "./gnumed-client.$CLIENTREV/client/wxpython/gmSQLListControl.py "\
