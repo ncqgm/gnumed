@@ -2053,8 +2053,8 @@ psycopg2.extensions.register_type(psycopg2._psycopg.UNICODEARRAY)
 # check in 0.9:
 psycopg2.extensions.register_adapter(pydt.datetime, cAdapterPyDateTime)
 
-# turn dict()s into JSON
-psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
+# turn dict()s into JSON - only works > 9.2
+#psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
 
 # do NOT adapt *lists* to "... IN (*) ..." syntax because we want
 # them adapted to "... ARRAY[]..." so we can support PG arrays
