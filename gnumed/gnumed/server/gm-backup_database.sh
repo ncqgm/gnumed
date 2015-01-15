@@ -119,6 +119,8 @@ if test -z ${GM_HOST} ; then
 	echo "-- copy of your original database. All other roles can"   >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- be commented out by prepending '-- ' to the relevant"  >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- In particular, you will very very likely want to"      >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	echo "-- comment out the 'postgres' role."                      >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
@@ -140,6 +142,8 @@ else
 		echo "-- copy of your original database. All other roles can"   >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- be commented out by prepending '-- ' to the relevant"  >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- lines above."                                          >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- In particular, you will very very likely want to"      >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		echo "-- comment out the 'postgres' role."                      >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`

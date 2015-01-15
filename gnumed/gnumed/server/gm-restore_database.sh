@@ -34,6 +34,7 @@ echo "==> Trying to restore a GNUmed backup ..."
 echo "    file: ${BACKUP}"
 if test ! -r ${BACKUP} ; then
 	echo "    ERROR: Cannot access backup file. Aborting."
+	echo "   "`ls -al ${BACKUP}`
 	exit 1
 fi
 
@@ -45,6 +46,7 @@ if [ -r ${CONF} ] ; then
 	. ${CONF}
 else
 	echo "    ERROR: Cannot read configuration file ${CONF}. Aborting."
+	echo "   "`ls -al ${CONF}`
 	exit 1
 fi
 
@@ -64,16 +66,15 @@ fi
 
 echo ""
 echo "==> Setting up workspace ..."
-TS=`date +%Y-%m-%d-%H-%M-%S`
-WORK_DIR="${WORK_DIR_BASE}/gm-restore-${TS}/"
-echo "    ${WORK_DIR}"
+TS=`date +%Y-%m-%d_%H-%M-%S`
+WORK_DIR="${WORK_DIR_BASE}/gm-restore_${TS}/"
+echo "    dir: ${WORK_DIR}"
 mkdir -p ${WORK_DIR}
 if test $? -ne 0 ; then
 	echo "    ERROR: Cannot create workspace. Aborting."
 	exit 1
 fi
 chmod +rx ${WORK_DIR}
-cd ${WORK_DIR}
 
 
 echo ""
@@ -81,41 +82,48 @@ echo "==> Creating copy of backup file ..."
 cp -v ${BACKUP} ${WORK_DIR}
 if test $? -ne 0 ; then
 	echo "    ERROR: Cannot copy backup file. Aborting."
+	echo "   "`ls -al ${BACKUP}`
 	exit 1
 fi
 
 
 echo ""
 echo "==> Unpacking backup file ..."
-BACKUP=${WORK_DIR}/`basename ${BACKUP}`
-if [[ "$BACKUP" =~ .*\.bz2 ]] ; then
+BACKUP=${WORK_DIR}`basename ${BACKUP}`
+if [[ "${BACKUP}" =~ .*\.bz2 ]] ; then
 	echo " => Decompressing (from bzip2) ..."
 	bunzip2 -v ${BACKUP}
 	if test $? -ne 0 ; then
 		echo "    ERROR: Cannot decompress bzip2 backup file. Aborting."
+		echo "    pwd: "`pwd`
+		echo "    file: ${BACKUP}"
 		exit 1
 	fi
-	BACKUP=`basename ${BACKUP} .bz2`
+	BACKUP=${WORK_DIR}`basename ${BACKUP} .bz2`
 fi
+
+
 echo " => Extracting (from tarball) ..."
-tar -xvvf ${BACKUP}
+tar -C ${WORK_DIR} -xvvf ${BACKUP}
 if test $? -ne 0 ; then
 	echo "    ERROR: Cannot unpack tarball backup file. Aborting."
+	echo "    pwd: "`pwd`
+	echo "    file: ${BACKUP}"
 	exit 1
 fi
-BACKUP=`basename ${BACKUP} .tar`
+BACKUP=${WORK_DIR}`basename ${BACKUP} .tar`
 rm ${BACKUP}.tar
-# need to give postgres appropriate permissions:
-chown -c postgres ${BACKUP}-*.sql
 
 
 echo ""
 echo "==> Adjusting GNUmed roles ..."
 echo ""
 echo "   You will now be shown the roles backup file. Please"
-echo "   edit it to only include the roles you need for GNUmed."
+echo "   edit it to only include the roles needed for GNUmed."
 echo ""
 echo "   Remember that in PostgreSQL scripts the comment marker is \"--\"."
+echo ""
+echo "   There are more instructions inside the file."
 echo ""
 read -e -p "   Press <ENTER> to start editing."
 editor ${BACKUP}-roles.sql
@@ -132,6 +140,7 @@ if test -z ${TARGET_DB} ; then
 	echo "    ERROR: Backup does not create target database ${TARGET_DB}. Aborting."
 	exit 1
 fi
+echo "    db: ${TARGET_DB}"
 if test `sudo -u postgres psql -l -p ${GM_PORT} | grep ${TARGET_DB} | wc -l` -ne 0 ; then
 	echo "    ERROR: Target database ${TARGET_DB} already exists. Aborting."
 	exit 1
@@ -139,12 +148,19 @@ fi
 
 
 echo ""
+echo "==> Setting data file permissions ..."
+chmod -c +r ${BACKUP}-*.sql
+chown -c postgres ${BACKUP}-*.sql
+
+
+echo ""
 echo "==> Restoring GNUmed roles ..."
 LOG="${LOG_BASE}/restoring-roles-${TS}.log"
-sudo -u postgres psql -e -E -p ${GM_PORT} --single-transaction -f ${BACKUP}-roles.sql &> ${LOG}
+#sudo -u postgres psql -e -E -p ${GM_PORT} --single-transaction -f ${BACKUP}-roles.sql &> ${LOG}
+sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: Failed to restore roles. Aborting."
-	echo "           see: ${LOG}"
+	echo "           log: ${LOG}"
 	chmod 0666 ${LOG}
 	exit 1
 fi
@@ -159,7 +175,7 @@ LOG="${LOG_BASE}/restoring-database-${TS}.log"
 sudo -u postgres psql -p ${GM_PORT} -f ${BACKUP}-database.sql &> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to restore database. Aborting."
-	echo "           see: ${LOG}"
+	echo "           log: ${LOG}"
 	chmod 0666 ${LOG}
 	exit 1
 fi
@@ -184,7 +200,6 @@ echo ""
 echo "==> Cleaning up ..."
 rm -vf ${WORK_DIR}/*
 rmdir -v ${WORK_DIR}
-cd -
 
 
 echo ""
