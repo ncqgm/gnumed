@@ -1554,6 +1554,10 @@ NEW: prevent deletion of staff records that are in use
 # gnumed_v20
 ------------------------------------------------
 
+	20.1
+
+IMPROVED: database restore script
+
 	20.0
 
 IMPROVED: set clin.encounter.fk_location NOT NULL
