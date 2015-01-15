@@ -9,6 +9,7 @@
 	1.5.1
 
 FIX: include pregnancy widgets with tarball
+FIX: do not require JSON in psycopg2 [thanks Jim]
 
 	1.5.0
 
@@ -1537,7 +1538,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	20.1
 
-IMPROVED: database restore script
+IMPROVED: database restore script [thanks Jim]
 
 	20.0
 
