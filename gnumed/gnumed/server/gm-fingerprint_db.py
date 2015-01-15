@@ -17,8 +17,12 @@ database = sys.argv[1]
 passwd = sys.argv[2]
 dsn = u'dbname=%s user=gm-dbo password=%s' % (database, passwd)
 queries = [
+	("SELECT pg_size_pretty(pg_database_size('%s'))" % database, "Size (DB)"),
 	("SELECT md5(gm.concat_table_structure())", "Schema hash"),
-	("SELECT pg_size_pretty(pg_database_size('%s'))" % database, "Size"),
+	("SELECT setting FROM pg_settings WHERE name = 'server_version'", "Version (PG)"),
+	("SELECT setting FROM pg_settings WHERE name = 'server_encoding'", "Encoding (PG)"),
+	("SELECT setting FROM pg_settings WHERE name = 'lc_collate'", "LC_COLLATE (PG)"),
+	("SELECT setting FROM pg_settings WHERE name = 'lc_ctype'", "LC_CTYPE (PG)"),
 	("SELECT count(1) FROM dem.identity", "Patients"),
 	("SELECT count(1) FROM clin.encounter", "Contacts"),
 	("SELECT count(1) FROM clin.episode", "Episodes"),
@@ -29,10 +33,8 @@ queries = [
 	("SELECT count(1) FROM blobs.doc_obj", "Objects"),
 	("SELECT count(1) FROM dem.org", "Organizations"),
 	("SELECT count(1) FROM dem.org_unit", "Organizational units"),
-	("SELECT setting FROM pg_settings WHERE name = 'server_version'", "Version (PG)"),
-	("SELECT setting FROM pg_settings WHERE name = 'server_encoding'", "Encoding (PG)"),
-	("SELECT setting FROM pg_settings WHERE name = 'lc_collate'", "LC_COLLATE (PG)"),
-	("SELECT setting FROM pg_settings WHERE name = 'lc_ctype'", "LC_CTYPE (PG)")
+	("SELECT max(modified_when) FROM audit.audit_fields", "Last .modified_when"),
+	("SELECT max(audit_when) FROM audit.audit_trail", "Last .audit_when")
 ]
 
 fname = u'gm_db-%s-fingerprint.log' % database
@@ -41,7 +43,7 @@ outfile = open(fname, 'wb')
 
 outfile.write("Fingerprinting GNUmed database ...\n")
 outfile.write("\n")
-outfile.write("%20s: %s\n" % ("Name", database))
+outfile.write("%20s: %s\n" % ("Name (DB)", database))
 
 conn = psycopg2.connect(dsn=dsn)
 curs = conn.cursor()
