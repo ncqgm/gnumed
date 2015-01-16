@@ -1536,6 +1536,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v20
 ------------------------------------------------
 
+	20.2
+
+FIX: setting of FK to clin.test_org on dangling test types
+
 	20.1
 
 IMPROVED: database restore script [thanks Jim]
