@@ -155,6 +155,7 @@ chown -c postgres ${BACKUP}-*.sql
 
 echo ""
 echo "==> Restoring GNUmed roles ..."
+mkdir -p ${LOG_BASE}
 LOG="${LOG_BASE}/restoring-roles-${TS}.log"
 #sudo -u postgres psql -e -E -p ${GM_PORT} --single-transaction -f ${BACKUP}-roles.sql &> ${LOG}
 sudo -u postgres psql -e -E -p ${GM_PORT} -f ${BACKUP}-roles.sql &> ${LOG}
@@ -200,6 +201,7 @@ echo ""
 echo "==> Cleaning up ..."
 rm -vf ${WORK_DIR}/*
 rmdir -v ${WORK_DIR}
+echo "    log dir: ${LOG_BASE}"
 
 
 echo ""

@@ -1059,7 +1059,7 @@ class database:
 	#--------------------------------------------------------------
 	def reindex_all(self):
 		print_msg("==> reindexing target database ...")
-		_log.info('REINDEXing cloned target database so upgrade does not fail because of a broken index')
+		_log.info('REINDEXing cloned target database so upgrade does not fail in case of a broken index')
 		old_iso = self.conn.isolation_level
 		self.conn.set_isolation_level(0)
 		curs = self.conn.cursor()

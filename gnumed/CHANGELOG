@@ -1551,6 +1551,8 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 NEW: prevent deletion of staff records that are in use
 
+IMPROVED: database restore default configuration
+
 ------------------------------------------------
 # gnumed_v20
 ------------------------------------------------

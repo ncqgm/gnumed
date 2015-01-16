@@ -340,7 +340,7 @@ cp -R ./gnumed-client.$CLIENTREV/client/doc/schema/ ./gnumed-client.$CLIENTREV/s
 # etc
 mkdir -p ./gnumed-client.$CLIENTREV/server/etc/gnumed/
 cp -R ../../client/etc/gnumed/gnumed-backup.conf.example ./gnumed-client.$CLIENTREV/server/etc/gnumed/
-cp -R ../../client/etc/gnumed/gnumed-restore.conf.example ./gnumed-client.$CLIENTREV/server/etc/gnumed/
+cp -R ../../client/etc/gnumed/gnumed-restore.conf ./gnumed-client.$CLIENTREV/server/etc/gnumed/
 
 
 # sql
