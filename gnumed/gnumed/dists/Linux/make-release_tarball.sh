@@ -3,10 +3,10 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-CLIENTREV="1.5.1"
+CLIENTREV="1.5.2"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="20.1"
+SRVREV="20.2"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 LANG_LIST="ar bg ca cs da de el en_AU en_CA es fr id it ka nb nl pl pt pt_BR ro ru ru_RU sq sr sv tr uk zh_TW"

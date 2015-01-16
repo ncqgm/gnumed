@@ -17,17 +17,12 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.1 (database v20.1)',
-	'GNUmed 1.5.1 Release Notes:
+	'Release Notes for GNUmed 1.5.2 (database v20.2)',
+	'GNUmed 1.5.2 Release Notes:
 
-	1.5.1
+	Database 20.2
 
-FIX: include pregnancy widgets with tarball
-FIX: do not require JSON in psycopg2 [thanks Jim]
-
-	20.1
-
-IMPROVED: database restore script [thanks Jim]
+FIX: setting of FK to clin.test_org on dangling test types
 ');
 
 -- --------------------------------------------------------------
