@@ -17,6 +17,10 @@ IMPROVED: shutdown with dangling top level windows
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.3
+
+IMPROVED: do not require simplejson in gmKVK
+
 	1.5.1
 
 FIX: include pregnancy widgets with tarball
@@ -1556,6 +1560,10 @@ IMPROVED: database restore default configuration
 ------------------------------------------------
 # gnumed_v20
 ------------------------------------------------
+
+	20.3
+
+FIX: setting FK to clin.test_org on dangling test types, really, this time
 
 	20.2
 
