@@ -162,10 +162,12 @@ fi
 
 # eventually attempt the upgrade
 echo_msg ""
-echo_msg "1) creating backup of existing database ..."
+echo_msg "1) creating backup of the database that is to be upgraded ..."
 if test "$SKIP_BACKUP" != "no-backup" ; then
-	echo_msg "   Note that this may take a substantial amount of time and disk space!"
-	echo_msg "   You may need to type in the password for gm-dbo."
+	#echo_msg "   Note that this may take a substantial amount of time and disk space!"
+	#echo_msg "   You may need to type in the password for gm-dbo."
+	echo_msg "   This step may take a substantial amount of time and disk space."
+	echo_msg "   (you will be prompted if you need to type in the password for gm-dbo)"
 	if test "$BZIP_BACKUP" != "no-compression" ; then
 		pg_dump -C -U gm-dbo ${PORT_DEF} gnumed_v${PREV_VER} | bzip2 -z9 > ${BAK_FILE}.bz2
 		ARCHIVED="$?"

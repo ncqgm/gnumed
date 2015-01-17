@@ -40,7 +40,7 @@ where not exists (
 -- create "unknown test org"
 insert into clin.test_org (fk_org_unit, comment)
 select
-	(select 1 from dem.org_unit where
+	(select pk from dem.org_unit where
 		description = 'branch of unknown laboratory'
 			and
 		fk_org = (select pk from dem.org where description = 'unknown laboratory')
@@ -84,4 +84,4 @@ alter table clin.test_type
 		set not null;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-clin-test_type-dynamic.sql', '20.0');
+select gm.log_script_insertion('v20-clin-test_type-dynamic.sql', '20.3');

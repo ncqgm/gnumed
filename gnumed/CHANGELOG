@@ -6,6 +6,10 @@
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.3
+
+IMPROVED: do not require simplejson in gmKVK
+
 	1.5.1
 
 FIX: include pregnancy widgets with tarball
@@ -1535,6 +1539,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v20
 ------------------------------------------------
+
+	20.3
+
+FIX: setting FK to clin.test_org on dangling test types, really, this time
 
 	20.2
 
