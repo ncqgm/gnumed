@@ -1027,6 +1027,10 @@ class cEMRJournalExporter:
 			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
 			patient.get_medical_age()
 		))
+		for ext_id in patient.external_ids:
+			target.write(u'%s: %s (@%s)\n' % (ext_id['name'], ext_id['value'], ext_id['issuer']))
+		for ch in patient.comm_channels:
+			target.write(u'%s: %s\n' % (ch['l10n_comm_type'], ch['url']))
 		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
 		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Encounter'), _('Doc'), _('Narrative')))
 		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))

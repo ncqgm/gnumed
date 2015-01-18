@@ -1285,6 +1285,8 @@ where id_identity = %(pat)s and id = %(pk)s"""
 					'idx': idx
 				}) for r in filtered
 			]
+
+	comm_channels = property(get_comm_channels, lambda x:x)
 	#--------------------------------------------------------
 	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_channel_type=None):
 		"""Link a communication medium with a patient.
