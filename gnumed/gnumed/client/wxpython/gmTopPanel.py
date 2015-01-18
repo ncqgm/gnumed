@@ -9,6 +9,7 @@ import sys
 import os.path
 import datetime as pyDT
 import logging
+import decimal
 
 
 import wx
@@ -17,6 +18,7 @@ import wx
 from Gnumed.pycommon import gmGuiBroker
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmI18N
@@ -24,6 +26,10 @@ from Gnumed.pycommon import gmI18N
 from Gnumed.business import gmPerson
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmAllergy
+from Gnumed.business import gmLOINC
+from Gnumed.business import gmClinicalCalculator
+from Gnumed.business import gmPathLab
+from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -64,6 +70,18 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 				mac_font = wx.FontFromNativeInfo(curr_font.NativeFontInfo)
 				mac_font.SetPointSize(pointSize = int(curr_font.GetPointSize() / 0.8))
 				ctrl.SetFont(mac_font)
+
+		# get panel to use
+		dbcfg = gmCfg.cCfgSQL()
+		pk_panel = dbcfg.get2 (
+			option = u'horstspace.top_panel.lab_panel',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+		if pk_panel is None:
+			self.__lab_panel = None
+		else:
+			self.__lab_panel = gmPathLab.cTestPanel(aPK_obj = pk_panel)
 	#-------------------------------------------------------
 	def __register_interests(self):
 		# events
@@ -71,11 +89,15 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.allgergy_mod_db', receiver = self._on_allergies_change)
-		gmDispatcher.connect(signal = u'clin.allergy_state_mod_db', receiver = self._on_allergies_change)
+
 		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
 		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
 		gmDispatcher.connect(signal = u'dem.identity_tag_mod_db', receiver = self._on_tag_change)
+
+		gmDispatcher.connect(signal = u'clin.allgergy_mod_db', receiver = self._on_allergies_change)
+		gmDispatcher.connect(signal = u'clin.allergy_state_mod_db', receiver = self._on_allergies_change)
+		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_lab_change)
+		gmDispatcher.connect(signal = u'clin.patient_mod_db', receiver = self._on_lab_change)
 
 		gmDispatcher.connect(signal = u'focus_patient_search', receiver = self._on_focus_patient_search)
 	#----------------------------------------------
@@ -96,12 +118,21 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		self.__update_age_label()
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
+		wx.CallAfter(self.__on_post_patient_selection)
+	#-------------------------------------------------------
+	def __on_post_patient_selection(self):
 		self.__update_age_label()
-		self.__update_allergies()
 		self.__update_tags()
+		self.__update_allergies()
+		self.__update_lab()
+		self.Layout()
 	#-------------------------------------------------------
 	def _on_allergies_change(self, **kwargs):
 		self.__update_allergies()
+	#-------------------------------------------------------
+	def _on_lab_change(self, **kwargs):
+		self.__update_lab()
+		self.Layout()
 	#-------------------------------------------------------
 	def _on_focus_patient_search(self, **kwargs):
 		wx.CallAfter(self._TCTRL_patient_selector.SetFocus)
@@ -110,6 +141,63 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_tags(self):
 		self._PNL_tags.refresh(patient = self.curr_pat)
+	#-------------------------------------------------------
+	def __update_lab(self):
+
+		if not self.curr_pat.connected:
+			self._LBL_lab.SetLabel(u'')
+			return
+
+		tests2show = []
+
+		rr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_rr_quantity, no_of_results = 1)
+		if rr is None:
+			tests2show.append(_(u'RR ?'))
+		else:
+			#tests2show.append(_(u'%s%s') % (rr['unified_val'], rr['val_unit']))
+			tests2show.append(rr['unified_val'])
+
+		hr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_heart_rate_quantity, no_of_results = 1)
+		if hr is not None:
+			tests2show.append(u'%s %s' % (hr['abbrev_tt'], hr['unified_val']))
+
+		bmi = self.curr_pat.emr.bmi
+		if bmi.numeric_value is not None:
+			tests2show.append(_(u'BMI %s') % bmi.numeric_value.quantize(decimal.Decimal('1.')))
+		else:
+			weight = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_weight, no_of_results = 1)
+			if weight is None:
+				tests2show.append(_(u'BMI ?'))
+			else:
+				tests2show.append(u'%s%s' % (weight['unified_val'], weight['val_unit']))
+
+		gfr_or_crea = self.curr_pat.emr.best_gfr_or_crea
+		if gfr_or_crea is None:
+			tests2show.append(_(u'GFR ?'))
+		else:
+			try:
+				tests2show.append(_(u'GFR %s') % gfr_or_crea.numeric_value.quantize(decimal.Decimal('1.')))
+			except AttributeError:
+				tests2show.append(u'%s %s' % (gfr_or_crea['abbrev_tt'], gfr_or_crea['unified_val']))
+
+		edc = self.curr_pat.emr.EDC
+		if edc is not None:
+			if self.curr_pat.emr.EDC_is_fishy:
+				tests2show.append(_(u'?EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
+			else:
+				tests2show.append(_(u'EDC %s') % gmDateTime.pydt_strftime(edc, '%Y-%b-%d', accuracy = gmDateTime.acc_days))
+
+		inr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_inr_quantity, no_of_results = 1)
+		if inr is not None:
+			tests2show.append(u'%s %s' % (hr['abbrev_tt'], hr['unified_val']))
+
+		# include panel if configured, only show if exist
+		if self.__lab_panel is not None:
+			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = u'unified_abbrev'):
+				tests2show.append(u'%s %s' % (result['abbrev_tt'], result['unified_val']))
+
+		self._LBL_lab.SetLabel(u'; '.join(tests2show))
+
 	#-------------------------------------------------------
 	def __update_age_label(self):
 

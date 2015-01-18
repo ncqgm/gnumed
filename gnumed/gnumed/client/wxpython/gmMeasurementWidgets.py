@@ -49,6 +49,7 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmOrganizationWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
+from Gnumed.wxpython import gmCfgWidgets
 
 
 _log = logging.getLogger('gm.ui')
@@ -476,6 +477,29 @@ def manage_measurements(parent=None, single_selection=False, emr=None):
 		list_tooltip_callback = get_tooltip,
 		left_extra_button = (_('Review'), _('Review current selection'), do_review, True),
 		middle_extra_button = (_('Plot'), _('Plot current selection'), do_plot, True)
+	)
+
+#================================================================
+def configure_default_top_lab_panel(parent=None):
+
+	if parent is None:
+		parent = wx.GetApp().GetTopWindow()
+
+	panels = gmPathLab.get_test_panels(order_by = u'description')
+	gmCfgWidgets.configure_string_from_list_option (
+		parent = parent,
+		message = _(
+			'\n'
+			'Select the measurements panel to show in the top pane.'
+			'\n'
+		),
+		option = u'horstspace.top_panel.lab_panel',
+		bias = 'user',
+		default_value = None,
+		choices = [ u'%s%s' % (p['description'], gmTools.coalesce(p['comment'], u'', u' (%s)')) for p in panels ],
+		columns = [_('General lab panel')],
+		data = [ p['pk_test_panel'] for p in panels ],
+		caption = _('Configuring general measurements panel')
 	)
 
 #================================================================

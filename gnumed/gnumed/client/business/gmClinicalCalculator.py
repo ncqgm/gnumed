@@ -27,6 +27,7 @@ if __name__ == '__main__':
 	gmDateTime.init()
 
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmBorg
 from Gnumed.business import gmLOINC
 
 
@@ -245,9 +246,9 @@ class cClinicalCalculator(object):
 	def _get_egfr(self):
 
 		# < 18 ?
-		eGFR = self.eGFR_Schwartz
-		if eGFR.numeric_value is not None:
-			return eGFR
+		Schwartz = self.eGFR_Schwartz
+		if Schwartz.numeric_value is not None:
+			return Schwartz
 
 		# this logic is based on "KVH aktuell 2/2014 Seite 10-15"
 		# expect normal GFR
@@ -897,16 +898,18 @@ if __name__ == "__main__":
 	from Gnumed.pycommon import gmLog2
 	#-----------------------------------------
 	def test_clin_calc():
+		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
+		praxis = gmCurrentPraxisBranch()
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = 12)
 		calc = cClinicalCalculator(patient = pat)
 		#result = calc.eGFR_MDRD_short
 		#result = calc.eGFR_Schwartz
-		#result = calc.eGFR
+		result = calc.eGFR
 		#result = calc.body_surface_area
 		#result = calc.get_EDC(lmp = gmDateTime.pydt_now_here())
 		#result = calc.body_mass_index
-		result = calc.eGFRs
+		#result = calc.eGFRs
 		print u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True)
 	#-----------------------------------------
 	test_clin_calc()

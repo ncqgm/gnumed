@@ -93,6 +93,8 @@ class cClinicalRecord(object):
 		if not self._register_interests():
 			raise gmExceptions.ConstructorError, "cannot register signal interests"
 
+		self.__calculator = None
+
 		_log.debug('Instantiated clinical record for patient [%s].' % self.pk_patient)
 	#--------------------------------------------------------
 	def __old_style_init(self):
@@ -127,6 +129,7 @@ class cClinicalRecord(object):
 		if self.__encounter is not None:
 			self.__encounter.unlock(exclusive = False)
 		return True
+
 	#--------------------------------------------------------
 	def log_access(self, action=None):
 		if action is None:
@@ -134,6 +137,17 @@ class cClinicalRecord(object):
 		args = {'action': action}
 		cmd = u'SELECT gm.log_access2emr(%(action)s)'
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	#--------------------------------------------------------
+	def _get_calculator(self):
+		if self.__calculator is None:
+			from Gnumed.business.gmClinicalCalculator import cClinicalCalculator
+			from Gnumed.business.gmPerson import cPatient
+			self.__calculator = cClinicalCalculator()
+			self.__calculator.patient = cPatient(self.pk_patient)
+		return self.__calculator
+
+	calculator = property(_get_calculator, lambda x:x)
 	#--------------------------------------------------------
 	# messaging
 	#--------------------------------------------------------
@@ -2314,7 +2328,48 @@ SELECT MIN(earliest) FROM (
 		cmd = gmOrganization._SQL_get_org_unit % where
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		return [ gmOrganization.cOrgUnit(row = {'pk_field': 'pk_org_unit', 'data': r, 'idx': idx}) for r in rows ]
+	#------------------------------------------------------------------
+	def _get_best_gfr_or_crea(self):
 
+		measured_gfr = self.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
+		crea = self.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)
+
+		if (measured_gfr is None) and (crea is None):
+			return None
+
+		if (measured_gfr is not None) and (crea is None):
+			return measured_gfr
+
+		# from here, Crea cannot be None anymore
+		if measured_gfr is None:
+			eGFR = self.calculator.eGFR
+			if eGFR.numeric_value is None:
+				return crea
+			return eGFR
+
+		# from here, measured_gfr cannot be None anymore, either
+		two_weeks = pydt.timedelta(weeks = 2)
+		gfr_too_old = (crea['clin_when'] - measured_gfr['clin_when']) > two_weeks
+		if not gfr_too_old:
+			return measured_gfr
+
+		# from here, measured_gfr is considered too
+		# old, so attempt a more timely estimate
+		eGFR = self.calculator.eGFR
+		if eGFR.numeric_value is None:
+			# return crea since we cannot get a
+			# better estimate for some reason
+			return crea
+
+		return eGFR
+
+	best_gfr_or_crea = property(_get_best_gfr_or_crea, lambda x:x)
+
+	#------------------------------------------------------------------
+	def _get_bmi(self):
+		return self.calculator.bmi
+
+	bmi = property(_get_bmi, lambda x:x)
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
 	#------------------------------------------------------------------
