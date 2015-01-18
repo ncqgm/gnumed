@@ -9,6 +9,7 @@
 	1.5.3
 
 IMPROVED: do not require simplejson in gmKVK
+IMPROVED: show ext IDs/comm channels in EMR Journal Export
 
 	1.5.1
 
