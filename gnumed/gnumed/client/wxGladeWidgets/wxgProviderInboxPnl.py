@@ -48,7 +48,6 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._lst_item_selected, self._LCTRL_provider_inbox)
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._lst_item_activated, self._LCTRL_provider_inbox)
 		self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._lst_item_focused, self._LCTRL_provider_inbox)
-		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._lst_item_right_clicked, self._LCTRL_provider_inbox)
 		# end wxGlade
 
 	def __set_properties(self):
@@ -130,10 +129,6 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 
 	def _lst_item_focused(self, event):  # wxGlade: wxgProviderInboxPnl.<event_handler>
 		print "Event handler '_lst_item_focused' not implemented!"
-		event.Skip()
-
-	def _lst_item_right_clicked(self, event):  # wxGlade: wxgProviderInboxPnl.<event_handler>
-		print "Event handler '_lst_item_right_clicked' not implemented!"
 		event.Skip()
 
 # end of class wxgProviderInboxPnl

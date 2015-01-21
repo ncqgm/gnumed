@@ -480,6 +480,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		self._LCTRL_provider_inbox.set_columns([u'', _('Sent'), _('Status'), _('Category - Type'), _('Message')])
 		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4]
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
+		self._LCTRL_provider_inbox.extend_popup_menu_callback = self._extend_popup_menu
 
 		self.__update_greeting()
 
@@ -695,29 +696,21 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 
 		self._TXT_inbox_item_comment.SetValue(tmp)
 	#--------------------------------------------------------
-	def _lst_item_right_clicked(self, evt):
+	def _extend_popup_menu(self, menu=None):
 		tmp = self._LCTRL_provider_inbox.get_selected_item_data(only_one = True)
 		if tmp is None:
 			return
 		self.__focussed_msg = tmp
 
-		# build menu
-		menu = wx.Menu(title = _('Inbox Message Actions:'))
-
 		if self.__focussed_msg['pk_patient'] is not None:
-			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Activate patient')))
-			wx.EVT_MENU(menu, ID, self._on_goto_patient)
+			menu_item = menu.Append(-1, _('Activate patient'))
+			self.Bind(wx.EVT_MENU, self._on_goto_patient, menu_item)
 
 		if not self.__focussed_msg['is_virtual']:
-			# - delete message
-			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Delete')))
-			wx.EVT_MENU(menu, ID, self._on_delete_focussed_msg)
-			# - edit message
-			ID = wx.NewId()
-			menu.AppendItem(wx.MenuItem(menu, ID, _('Edit')))
-			wx.EVT_MENU(menu, ID, self._on_edit_focussed_msg)
+			menu_item = menu.Append(-1, _('Delete'))
+			self.Bind(wx.EVT_MENU, self._on_delete_focussed_msg, menu_item)
+			menu_item = menu.Append(-1, _('Edit'))
+			self.Bind(wx.EVT_MENU, self._on_edit_focussed_msg, menu_item)
 
 #		if self.__focussed_msg['pk_staff'] is not None:
 #			# - distribute to other providers
@@ -725,9 +718,6 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 #			menu.AppendItem(wx.MenuItem(menu, ID, _('Distribute')))
 #			wx.EVT_MENU(menu, ID, self._on_distribute_focussed_msg)
 
-		# show menu
-		self.PopupMenu(menu, wx.DefaultPosition)
-		menu.Destroy()
 	#--------------------------------------------------------
 	def _on_message_range_radiobutton_selected(self, event):
 		self._TXT_inbox_item_comment.SetValue(u'')

@@ -10,6 +10,7 @@
 
 NEW: print EMR from EMR tree
 NEW: always display select measurements in top panel
+NEW: copy-to-clipboard list content via popup menu
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows

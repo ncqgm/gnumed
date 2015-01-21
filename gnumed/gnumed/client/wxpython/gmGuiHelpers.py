@@ -23,6 +23,7 @@ from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
 from Gnumed.wxpython import gmPhraseWheel
 
 
@@ -334,27 +335,30 @@ def clipboard2file():
 	return None
 
 #-------------------------------------------------------------------------
-def file2clipboard(filename=None, announce_result=False):
-
+def text2clipboard(text=None, announce_result=False):
 	if wx.TheClipboard.IsOpened():
 		return False
-
 	if not wx.TheClipboard.Open():
 		return False
-
-	f = codecs.open(filename, u'rU', u'utf8')
 	data_obj = wx.TextDataObject()
-	data_obj.SetText(f.read())
-	f.close()
+	data_obj.SetText(text)
 	wx.TheClipboard.SetData(data_obj)
 	wx.TheClipboard.Close()
+	if announce_result:
+		gmDispatcher.send(signal = 'statustext', msg = _('The text has been copied into the clipboard.'), beep = False)
+	return True
+
+#-------------------------------------------------------------------------
+def file2clipboard(filename=None, announce_result=False):
+	f = codecs.open(filename, u'rU', u'utf8')
+	result = text2clipboard(text = f.read(), announce_result = False)
+	f.close()
 	if announce_result:
 		gm_show_info (
 			title = _('file2clipboard'),
 			info = _('The file [%s] has been copied into the clipboard.') % filename
 		)
-
-	return True
+	return result
 
 # ========================================================================
 class cFileDropTarget(wx.FileDropTarget):

@@ -957,6 +957,7 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 	def __init_ui(self):
 		self._LCTRL_active_problems.set_columns([_('Last'), _('Problem'), _('In health issue')])
 		self._LCTRL_active_problems.set_string_items()
+		self._LCTRL_active_problems.extend_popup_menu_callback = self._extend_popup_menu
 
 		self._splitter_main.SetSashGravity(0.5)
 		self._splitter_left.SetSashGravity(0.5)
@@ -966,6 +967,20 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
 		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
+
+	#--------------------------------------------------------
+	def _extend_popup_menu(self, menu=None):
+		problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
+		if problem is None:
+			return
+		self.__focussed_problem = problem
+
+		menu_item = menu.Append(-1, _('Edit'))
+		if self.__focussed_problem['type'] == u'issue':
+			self.Bind(wx.EVT_MENU, self._on_edit_issue, menu_item)
+		if self.__focussed_problem['type'] == u'episode':
+			self.Bind(wx.EVT_MENU, self._on_edit_episode, menu_item)
+
 	#--------------------------------------------------------
 	def __reset_ui_content(self):
 		"""Clear all information from input panel."""
@@ -1176,20 +1191,13 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		"""Show related note at the bottom."""
 		pass
 	#--------------------------------------------------------
-	def _on_problem_rclick(self, event):
-		problem = self._LCTRL_active_problems.get_selected_item_data(only_one = True)
-		if problem is None:
-			return True
+	def _on_edit_issue(self, evt):
+		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__focussed_problem.get_as_health_issue())
 
-		if problem['type'] == u'issue':
-			gmEMRStructWidgets.edit_health_issue(parent = self, issue = problem.get_as_health_issue())
-			return
+	#--------------------------------------------------------
+	def _on_edit_episode(self, evt):
+		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__focussed_problem.get_as_episode())
 
-		if problem['type'] == u'episode':
-			gmEMRStructWidgets.edit_episode(parent = self, episode = problem.get_as_episode())
-			return
-
-		event.Skip()
 	#--------------------------------------------------------
 	def _on_problem_selected(self, event):
 		"""Show related note at the bottom."""

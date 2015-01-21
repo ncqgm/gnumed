@@ -969,15 +969,16 @@ class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins
 		self.__widths = None
 		self.__data = None
 		self.__activate_callback = None
-		self.__rightclick_callback = None
-
+		self.__extend_popup_menu_callback = None
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
 		self.__tt_static_part = _("""Select the items you want to work on.
 
 A discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking.""")
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
+		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
 
+		# search related:
 		self.__next_line_to_search = 0
 		self.__search_data = None
 		self.__search_dlg = None
@@ -1157,6 +1158,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		return selections
 
 	selections = property(__get_selections, set_selections)
+
 	#------------------------------------------------------------
 	# getters
 	#------------------------------------------------------------
@@ -1258,8 +1260,38 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def _on_list_item_rightclicked(self, event):
 		event.Skip()
-		if self.__rightclick_callback is not None:
-			self.__rightclick_callback(event)
+
+		col_headers = []
+		self._rclicked_row_cells = []
+		for col_idx in range(self.ColumnCount):
+			cell_content = self.GetItemText(event.Index, col_idx).strip()
+			if cell_content == u'':
+				continue
+			col_headers.append(self.GetColumn(col_idx).m_text)
+			self._rclicked_row_cells.append(cell_content)
+		self._rclicked_row_data = self.get_item_data(item_idx = event.Index)
+
+		# build menu
+		clip_menu = wx.Menu()
+		menu_item = clip_menu.Append(-1, _('Entire row'))
+		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
+		for col_idx in range(len(col_headers)):
+			menu_item = clip_menu.Append(-1, _('[%8.8s] %s') % (col_headers[col_idx], self._rclicked_row_cells[col_idx]))
+			self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
+		if hasattr(self._rclicked_row_data, 'format'):
+			menu_item = clip_menu.Append(-1, _('Row data (formatted as text)'))
+			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
+		self._popup_menu = wx.Menu(title = _('List Item Actions:'))
+		self._popup_menu.AppendMenu(-1, _('Copy to clipboard...'), clip_menu)
+
+		if self.__extend_popup_menu_callback is not None:
+			self.__extend_popup_menu_callback(menu = self._popup_menu)
+
+		# show menu
+		self.PopupMenu(self._popup_menu, wx.DefaultPosition)
+		self._popup_menu.Destroy()
+		return
+
 	#------------------------------------------------------------
 	def _on_char(self, evt):
 
@@ -1374,6 +1406,48 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		self.SetToolTipString(dyna_tt)
 	#------------------------------------------------------------
+	def _row2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u' // '.join(self._rclicked_row_cells))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _data2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		txt = self._rclicked_row_data.format()
+		if type(txt) == type([]):
+			txt = u'\n'.join(txt)
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _col2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(self._popup_menu.FindItemById(evt.Id).ItemLabel[11:])
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	# search related methods
 	#------------------------------------------------------------
 	def _on_search_dlg_closed(self, evt):
@@ -1429,20 +1503,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
 	#------------------------------------------------------------
-	def _get_rightclick_callback(self):
-		return self.__rightclick_callback
-
-	def _set_rightclick_callback(self, callback):
-		if callback is None:
-			self.Unbind(wx.EVT_LIST_ITEM_RIGHT_CLICK)
-		else:
-			if not callable(callback):
-				raise ValueError('<rightclick> callback is not a callable: %s' % callback)
-			self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
-		self.__rightclick_callback = callback
-
-	rightclick_callback = property(_get_rightclick_callback, _set_rightclick_callback)
-	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
 		if callback is not None:
 			if not callable(callback):
@@ -1454,6 +1514,15 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	# the callback must return None if no item tooltip is to be shown
 	# otherwise it must return a string (possibly with \n)
 	item_tooltip_callback = property(lambda x:x, _set_item_tooltip_callback)
+
+	#------------------------------------------------------------
+	def _set_extend_popup_menu_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<extend_popup_menu> callback is not a callable: %s' % callback)
+		self.__extend_popup_menu_callback = callback
+
+	extend_popup_menu_callback = property(lambda x:x, _set_extend_popup_menu_callback)
 	#------------------------------------------------------------
 	def _set_searchable_cols(self, cols):
 		# zero-based list of which columns to search
