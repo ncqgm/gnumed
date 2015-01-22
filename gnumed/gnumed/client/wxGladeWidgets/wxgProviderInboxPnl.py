@@ -88,7 +88,7 @@ class wxgProviderInboxPnl(wx.ScrolledWindow):
 		__szr_items.Add(self._RBTN_expired_messages, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
 		__vline1_options = wx.StaticLine(self, wx.ID_ANY, style=wx.LI_VERTICAL)
 		__szr_items.Add(__vline1_options, 0, wx.LEFT | wx.RIGHT | wx.EXPAND, 3)
-		__lbl_audience = wx.StaticText(self, wx.ID_ANY, _("Only:"))
+		__lbl_audience = wx.StaticText(self, wx.ID_ANY, _("Limit to:"))
 		__szr_items.Add(__lbl_audience, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_items.Add(self._CHBOX_active_patient, 0, wx.RIGHT | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 5)
 		__szr_items.Add(self._CHBOX_active_provider, 0, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
