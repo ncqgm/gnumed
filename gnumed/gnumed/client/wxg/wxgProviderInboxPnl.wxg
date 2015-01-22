@@ -138,7 +138,7 @@
                         <option>0</option>
                         <object class="wxStaticText" name="__lbl_audience" base="EditStaticText">
                             <attribute>0</attribute>
-                            <label>Only:</label>
+                            <label>Limit to:</label>
                         </object>
                     </object>
                     <object class="sizeritem">

@@ -477,7 +477,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 	def __init_ui(self):
 		self._LCTRL_provider_inbox.debug = 'provider inbox list'
 
-		self._LCTRL_provider_inbox.set_columns([u'', _('Sent'), _('Status'), _('Category - Type'), _('Message')])
+		self._LCTRL_provider_inbox.set_columns([u'', _('Created'), _('Status'), _('Category - Type'), _('Message')])
 		self._LCTRL_provider_inbox.searchable_columns = [2, 3, 4]
 		self._LCTRL_provider_inbox.item_tooltip_callback = self._get_msg_tooltip
 

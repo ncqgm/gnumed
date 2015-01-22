@@ -139,6 +139,8 @@ def get_reminders(pk_patient=None, order_by=None):
 	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
 		order_by % u' AND '.join(where_parts)
 	)
+	_log.debug('SQL: %s', cmd)
+	_log.debug('args: %s', args)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -160,6 +162,8 @@ def get_overdue_messages(pk_patient=None, order_by=None):
 	cmd = u"SELECT * FROM dem.v_message_inbox WHERE %s" % (
 		order_by % u' AND '.join(where_parts)
 	)
+	_log.debug('SQL: %s', cmd)
+	_log.debug('args: %s', args)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -197,6 +201,8 @@ def get_relevant_messages(pk_staff=None, pk_patient=None, include_without_provid
 	cmd = _SQL_get_inbox_messages % (
 		order_by % u' AND '.join(where_parts)
 	)
+	_log.debug('SQL: %s', cmd)
+	_log.debug('args: %s', args)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
@@ -241,6 +247,8 @@ def get_inbox_messages(pk_staff=None, pk_patient=None, include_without_provider=
 	cmd = _SQL_get_inbox_messages % (
 		order_by % u' AND '.join(where_parts)
 	)
+	_log.debug('SQL: %s', cmd)
+	_log.debug('args: %s', args)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 	return [ cInboxMessage(row = {'data': r, 'idx': idx, 'pk_field': 'pk_inbox_message'}) for r in rows ]
