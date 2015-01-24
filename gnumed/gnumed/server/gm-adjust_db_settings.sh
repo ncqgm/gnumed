@@ -11,12 +11,18 @@
 #
 #==============================================================
 
-SQL_FILE="/tmp/gnumed/gm-db-settings-$$.sql"
+# if your PostgreSQL server is running on another port
+GM_PORT="5432"
+
+# set this to a writable directory on a drive where
+# there is some disk space available
+WORK_DIR="/tmp/gnumed"
 
 #==============================================================
 # There really should not be any need to
 # change anything below this line.
 #==============================================================
+SQL_FILE="${WORK_DIR}/gm-db-settings-$$.sql"
 
 TARGET_DB="$1"
 if test -z ${TARGET_DB} ; then
@@ -33,7 +39,7 @@ echo ""
 echo "==> Creating database settings adjustment SQL script ..."
 echo "    ${SQL_FILE}"
 
-mkdir -p /tmp/gnumed
+mkdir -p ${WORK_DIR}
 
 echo "-- GNUmed database settings adjustment script" > $SQL_FILE
 echo "-- (created by: $0 $*)" >> $SQL_FILE
@@ -77,10 +83,10 @@ echo "-- 6) wal_sync_method = <see PostgreSQL docs>" >> $SQL_FILE
 echo "" >> $SQL_FILE
 echo "-- cannot be changed without an initdb (pg_dropcluster):" >> $SQL_FILE
 echo "-- lc_ctype = *.UTF-8" >> $SQL_FILE
-echo "-- server_encoding = UTF8"
+echo "-- server_encoding = UTF8" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '19.1');" >> $SQL_FILE
+echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '20.3');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
@@ -94,10 +100,13 @@ echo "-- current relevant settings:" >> $SQL_FILE
 echo "select name, setting from pg_settings where name in ('allow_system_table_mods', 'log_connections', 'log_disconnections', 'fsync', 'full_page_writes', 'wal_sync_method', 'lc_ctype', 'server_encoding', 'hba_file', 'config_file');" >> $SQL_FILE
 echo "" >> $SQL_FILE
 
+
 echo ""
 echo "==> Adjusting settings of database ${TARGET_DB} ..."
-LOG="/tmp/gnumed/$(basename $0)-$$.log"
-sudo -u postgres psql -d ${TARGET_DB} -f ${SQL_FILE} &> ${LOG}
+LOG="${WORK_DIR}/$(basename $0)-$$.log"
+sudo -u postgres psql -e -E -p ${GM_PORT} -f ${SQL_FILE} -d ${TARGET_DB} &> ${LOG}
+echo "=====================================================================================" >> ${LOG}
+cat $SQL_FILE >> ${LOG}
 if test $? -ne 0 ; then
 	echo "    ERROR: failed to adjust database settings. Aborting."
 	echo "    LOG  : ${LOG}"
