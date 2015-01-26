@@ -220,7 +220,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if reuse_nonempty_dir is None:
 				return True
 			if reuse_nonempty_dir is False:
-				path = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir', tmp_dir = path)
+				path = gmTools.get_unique_filename (
+					prefix = u'export-%s-' % gmPerson.gmCurrentPatient().dirname,
+					suffix = '.dir',
+					tmp_dir = path
+				)
 
 		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
 

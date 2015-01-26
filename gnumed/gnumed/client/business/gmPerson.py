@@ -1065,30 +1065,27 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			gender.text = map_gender2mf[self._payload[self._idx['gender']]]
 
 		home = etree.SubElement(pat, u'home_address')
-		adr = self.get_addresses(address_type = u'home')
-		if len(adr) > 0:
-			tag = etree.SubElement(home, u'address1')
-			tag = etree.SubElement(home, u'address2')
-			tag = etree.SubElement(home, u'address3')
-
+		adrs = self.get_addresses(address_type = u'home')
+		if len(adrs) > 0:
+			adr = adrs[0]
 			city = etree.SubElement(home, u'city')
-			city.set(u'comment', adr['suburb'])
+			city.set(u'comment', gmTools.coalesce(adr['suburb'], u''))
 			city.text = gmTools.coalesce(adr['urb'], u'')
 
 			state = etree.SubElement(home, u'state')
-			state.set(u'comment', adr['l10n_state'])
+			state.set(u'comment', gmTools.coalesce(adr['l10n_state'], u''))
 			state.text = gmTools.coalesce(adr['code_state'], u'')
 
-			zip = etree.SubElement(home, u'postal_code')
-			zip.text = gmTools.coalesce(adr['postcode'], u'')
+			zipcode = etree.SubElement(home, u'postal_code')
+			zipcode.text = gmTools.coalesce(adr['postcode'], u'')
 
 			street = etree.SubElement(home, u'street')
-			street.set(u'comment', adr['notes_street'])
+			street.set(u'comment', gmTools.coalesce(adr['notes_street'], u''))
 			street.text = gmTools.coalesce(adr['street'], u'')
 
 			no = etree.SubElement(home, u'number')
-			no.set(u'subunit', adr['subunit'])
-			no.set(u'comment', adr['notes_subunit'])
+			no.set(u'subunit', gmTools.coalesce(adr['subunit'], u''))
+			no.set(u'comment', gmTools.coalesce(adr['notes_subunit'], u''))
 			no.text = gmTools.coalesce(adr['number'], u'')
 
 			country = etree.SubElement(home, u'country')
@@ -1099,22 +1096,22 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		rec = self.get_comm_channels(comm_medium = u'homephone')
 		if len(rec) > 0:
 			if not rec[0]['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
-				rec.text = rec[0]['url']
+				phone.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				phone.text = rec[0]['url']
 
 		phone = etree.SubElement(pat, u'work_phone')
 		rec = self.get_comm_channels(comm_medium = u'workphone')
 		if len(rec) > 0:
 			if not rec[0]['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
-				rec.text = rec[0]['url']
+				phone.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				phone.text = rec[0]['url']
 
 		phone = etree.SubElement(pat, u'cell_phone')
 		rec = self.get_comm_channels(comm_medium = u'mobile')
 		if len(rec) > 0:
 			if not rec[0]['is_confidential']:
-				rec.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
-				rec.text = rec[0]['url']
+				phone.set(u'comment', gmTools.coalesce(rec[0]['comment'], u''))
+				phone.text = rec[0]['url']
 
 		tree = etree.ElementTree(pat)
 		tree.write(filename, encoding = u'UTF-8')
@@ -1195,7 +1192,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			vc.adr.value = vobject.vcard.Address()
 			vc_adr = vc.adr.value
 			vc_adr.extended = gmTools.coalesce(home_adr['subunit'], u'')
-			vc_adr.street = gmTools.coalesce(home_adr['street'], u'', u'%s ') + gmTools.coalesce(adr['number'], u'')
+			vc_adr.street = gmTools.coalesce(home_adr['street'], u'', u'%s ') + gmTools.coalesce(home_adr['number'], u'')
 			vc_adr.region = gmTools.coalesce(home_adr['l10n_state'], u'')
 			vc_adr.code = gmTools.coalesce(home_adr['postcode'], u'')
 			vc_adr.city = gmTools.coalesce(home_adr['urb'], u'')

@@ -468,16 +468,16 @@ class cExportArea(object):
 		if len(items) == 0:
 			return None
 
+		from Gnumed.business.gmPerson import cPatient
+		pat = cPatient(aPK_obj = self.__pk_identity)
 		if base_dir is None:
-			base_dir = gmTools.get_unique_filename(prefix = u'gm-patient_export-', suffix = '.dir')
+			base_dir = gmTools.get_unique_filename(prefix = u'export-%s-' % pat.dirname, suffix = '.dir')
 
 		_log.debug('base dir: %s', base_dir)
 
 		doc_dir = os.path.join(base_dir, r'documents')
 		gmTools.mkdir(doc_dir)
 
-		from Gnumed.business.gmPerson import cPatient
-		pat = cPatient(aPK_obj = self.__pk_identity)
 		mugshot = pat.document_folder.latest_mugshot
 		if mugshot is None:
 			mugshot_url = u'documents/no-such-file.png'

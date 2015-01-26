@@ -22,6 +22,8 @@ IMPROVED: shutdown with dangling top level windows
 	1.5.3
 
 FIX: HL7 import [thanks Jim]
+FIX: VCF export with address/phone
+FIX: LinuxMedNews XML export with address/phone
 
 IMPROVED: do not require simplejson in gmKVK
 IMPROVED: show ext IDs/comm channels in EMR Journal Export
