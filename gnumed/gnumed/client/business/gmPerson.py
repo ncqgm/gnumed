@@ -173,10 +173,10 @@ class cDTO_person(object):
 		where_snippets = []
 		args = {}
 
-		where_snippets.append(u'firstnames = %(first)s')
+		where_snippets.append(u'lower(firstnames) = lower(%(first)s)')
 		args['first'] = self.firstnames
 
-		where_snippets.append(u'lastnames = %(last)s')
+		where_snippets.append(u'lower(lastnames) = lower(%(last)s)')
 		args['last'] = self.lastnames
 
 		if self.dob is not None:
@@ -184,7 +184,7 @@ class cDTO_person(object):
 			args['dob'] = self.dob.replace(hour = 23, minute = 59, second = 59)
 
 		if self.gender is not None:
-			where_snippets.append('gender = %(sex)s')
+			where_snippets.append(u'lower(gender) = lower(%(sex)s)')
 			args['sex'] = self.gender
 
 		cmd = u"""
