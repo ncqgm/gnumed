@@ -52,36 +52,38 @@ HL7_segment2field_count = {
 	u'ORC': 19
 }
 
-MSH_sending_lab = 3
+MSH_field__sending_lab = 3
 
-PID_name = 5
-PID_lastname = 0
-PID_firstname = 1
-PID_middlename = 2
-PID_dob = 7
-PID_gender = 8
+PID_field__name = 5
+PID_field__dob = 7
+PID_field__gender = 8
+PID_component__lastname = 1
+PID_component__firstname = 2
+PID_component__middlename = 3
 
-OBR_service_name = 4
-OBR_ts_requested = 6
-OBR_ts_started = 7
-OBR_ts_ended = 8
-OBR_ts_specimen_received = 14
+OBR_field__service_name = 4
+OBR_field__ts_requested = 6
+OBR_field__ts_started = 7
+OBR_field__ts_ended = 8
+OBR_field__ts_specimen_received = 14
 
-OBX_datatype = 2	# 2nd field
-OBX_type = 3
-OBX_LOINC = 0		# 0th part of 3rd field
-OBX_name = 1		# 1s part of 3rd field
-OBX_subid = 4
-OBX_value = 5
-OBX_unit = 6
-OBX_range = 7
-OBX_abnormal_flag = 8
-OBX_status = 11
-OBX_timestamp = 14
+OBX_field__set_id = 1
+OBX_field__datatype = 2
+OBX_field__type = 3
+# components of 3rd field:
+OBX_component__loinc = 1
+OBX_component__name = 2
+OBX_field__subid = 4
+OBX_field__value = 5
+OBX_field__unit = 6
+OBX_field__range = 7
+OBX_field__abnormal_flag = 8
+OBX_field__status = 11
+OBX_field__timestamp = 14
 
-NTE_set_id = 1
-NTE_src = 2
-NTE_note = 3
+NET_field__set_id = 1
+NET_field__src = 2
+NET_field__note = 3
 
 HL7_field_labels = {
 	'MSH': {
@@ -92,17 +94,22 @@ HL7_field_labels = {
 		4: 'Sending Facility',
 		5: 'Receiving Application',
 		6: 'Receiving Facility',
+		7: 'Date/Time of Message',
 		8: 'Security',
 		9: 'Message Type',
 		10: 'ID: Message Control',
 		11: 'ID: Processing',
+		12: 'ID: Version',
 		14: 'Continuation Pointer',
-		15: 'Accept Acknowledgement Type'
+		15: 'Accept Acknowledgement Type',
+		16: 'Application Acknowledgement Type'
 	},
 	'PID': {
 		0: 'Segment Type',
 		1: '<PID> Set ID',
-		2: 'Patient ID',
+		2: 'Patient ID (external)',
+		3: 'Patient ID (internal)',
+		4: 'Patient ID (alternate)',
 		5: 'Patient Name',
 		7: 'Date/Time of birth',
 		8: 'Administrative Gender',
@@ -322,7 +329,7 @@ def extract_HL7_from_XML_CDATA(filename, xml_path, target_dir=None):
 	try:
 		open(filename).close()
 		orig_dir = os.path.split(filename)[0]
-		work_filename = gmTools.get_unique_filename(prefix = u'gm-xml2hl7-%s-' % gmTools.fname_stem(filename), suffix = '.hl7')
+		work_filename = gmTools.get_unique_filename(prefix = u'gm-x2h-%s-' % gmTools.fname_stem(filename), suffix = '.hl7')
 		if target_dir is None:
 			target_dir = os.path.join(orig_dir, u'HL7')
 			done_dir = os.path.join(orig_dir, u'done')
@@ -349,7 +356,7 @@ def extract_HL7_from_XML_CDATA(filename, xml_path, target_dir=None):
 	_log.debug('unwrapping HL7 from XML into [%s]', work_filename)
 	hl7_file = codecs.open(work_filename, 'wb', 'utf8')
 	for node in nodes:
-		hl7_file.write(node.text)
+		hl7_file.write(node.text.rstrip(u'\r').rstrip(u'\n').rstrip(u'\r').rstrip(u'\n') + HL7_EOL)
 	hl7_file.close()
 
 	target_fname = os.path.join(target_dir, os.path.split(work_filename)[1])
@@ -406,13 +413,13 @@ def split_hl7_file(filename, target_dir=None, encoding='utf8'):
 	try:
 		shutil.copy(filename, work_filename)
 		fixed_filename = __fix_malformed_hl7_file(work_filename, encoding = encoding)
-		MSH_names = __split_hl7_file_by_MSH(fixed_filename, encoding)
-		PID_names = []
-		for MSH_name in MSH_names:
-			PID_names.extend(__split_MSH_by_PID(MSH_name))
-		for PID_name in PID_names:
-			shutil.move(PID_name, target_dir)
-			target_names.append(os.path.join(target_dir, os.path.split(PID_name)[1]))
+		MSH_fnames = __split_hl7_file_by_MSH(fixed_filename, encoding)
+		PID_fnames = []
+		for MSH_fname in MSH_fnames:
+			PID_fnames.extend(__split_MSH_by_PID(MSH_fname))
+		for PID_fname in PID_fnames:
+			shutil.move(PID_fname, target_dir)
+			target_names.append(os.path.join(target_dir, os.path.split(PID_fname)[1]))
 	except StandardError:
 		_log.exception('cannot split HL7 file')
 		for target_name in target_names:
@@ -422,31 +429,33 @@ def split_hl7_file(filename, target_dir=None, encoding='utf8'):
 		shutil.move(local_log_name, error_dir)
 		return False, None
 
-	shutil.move(filename, done_dir)
 	_log.info('successfully split')
 	root_logger.removeHandler(local_logger)
-	shutil.move(local_log_name, done_dir)
+	try:
+		shutil.move(filename, done_dir)
+		shutil.move(local_log_name, done_dir)
+	except shutil.Error:
+		_log.exception('cannot move hl7 file or log file to holding area')
 	return True, target_names
 
 #------------------------------------------------------------
 def format_hl7_message(message=None, skip_empty_fields=True, eol=u'\n '):
 	# a segment is a line starting with a type
-
 	msg = pyhl7.parse(message)
 
 	output = [[_('HL7 Message'), _(' %s segments (lines)%s') % (len(msg), gmTools.bool2subst(skip_empty_fields, _(', skipping empty fields'), u''))]]
 
 	max_len = 0
-	for s_idx in range(len(msg)):
-		seg = msg[s_idx]
+	for seg_idx in range(len(msg)):
+		seg = msg[seg_idx]
 		seg_type = seg[0][0]
 
-		output.append([_('Segment #%s <%s>') % (s_idx, seg_type), _('%s fields') % len(seg)])
+		output.append([_('Segment #%s <%s>') % (seg_idx, seg_type), _('%s fields') % len(seg)])
 
-		for f_idx in range(len(seg)):
-			field = seg[f_idx]
+		for field_idx in range(len(seg)):
+			field = seg[field_idx]
 			try:
-				label = HL7_field_labels[seg_type][f_idx]
+				label = HL7_field_labels[seg_type][field_idx]
 			except KeyError:
 				label = _('HL7 %s field') % seg_type
 
@@ -454,14 +463,18 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol=u'\n '):
 
 			if len(field) == 0:
 				if not skip_empty_fields:
-					output.append([u'%2s - %s' % (f_idx, label), _('<EMTPY>')])
+					output.append([u'%2s - %s' % (field_idx, label), _('<EMTPY>')])
 				continue
-			if (len(field) == 1) and (field[0].strip() == u''):
+			if (len(field) == 1) and ((u'%s' % field[0]).strip() == u''):
 				if not skip_empty_fields:
-					output.append([u'%2s - %s' % (f_idx, label), _('<EMTPY>')])
+					output.append([u'%2s - %s' % (field_idx, label), _('<EMTPY>')])
 				continue
 
-			output.append([u'%2s - %s' % (f_idx, label), u'%s' % field])
+			content_lines = (u'%s' % field).split(u'\.br\\')
+			output.append([u'%2s - %s' % (field_idx, label), content_lines[0]])
+			for line in content_lines[1:]:
+				output.append([u'', line])
+			#output.append([u'%2s - %s' % (field_idx, label), u'%s' % field])
 
 	if eol is None:
 		return output
@@ -497,6 +510,7 @@ def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filenam
 	return out_name
 
 #------------------------------------------------------------
+# this is used in the main code:
 def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	"""Multi-step processing of HL7 files.
 
@@ -515,8 +529,8 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	local_logger.setLevel(logging.DEBUG)
 	root_logger = logging.getLogger('')
 	root_logger.addHandler(local_logger)
-	_log.info('staging [%s] as unmatched incoming HL7%s', filename, gmTools.coalesce(source, u'', u' (%s)'))
-	_log.debug('log file: %s', local_log_name)
+	_log.info(u'staging [%s] as unmatched incoming HL7%s', filename, gmTools.coalesce(source, u'', u' (%s)'))
+	_log.debug(u'log file: %s', local_log_name)
 
 	# sanity checks/setup
 	try:
@@ -535,14 +549,14 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	try:
 		inc = create_incoming_data(u'HL7%s' % gmTools.coalesce(source, u'', u' (%s)'), filename)
 		if inc is None:
-			_log.error('cannot stage PID file: %s', filename)
+			_log.error(u'cannot stage PID file: %s', filename)
 			root_logger.removeHandler(local_logger)
 			shutil.move(filename, error_dir)
 			shutil.move(local_log_name, error_dir)
 			return False
 		inc.update_data_from_file(fname = filename)
 	except StandardError:
-		_log.exception('error staging PID file')
+		_log.exception(u'error staging PID file')
 		root_logger.removeHandler(local_logger)
 		shutil.move(filename, error_dir)
 		shutil.move(local_log_name, error_dir)
@@ -550,14 +564,16 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 
 	# set additional data
 	MSH_file = codecs.open(filename, 'rb', 'utf8')
-	HL7 = pyhl7.parse(MSH_file.read(1024 * 1024 * 5))	# 5 MB max
+	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
 	shutil.move(filename, done_dir)
 	inc['comment'] = format_hl7_message (
-		message = HL7,
+		message = raw_hl7,
 		skip_empty_fields = True,
 		eol = u'\n'
 	)
+	HL7 = pyhl7.parse(raw_hl7)
+	del raw_hl7
 	inc['comment'] += u'\n'
 	inc['comment'] += (u'-' * 80)
 	inc['comment'] += u'\n\n'
@@ -565,19 +581,19 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	inc['comment'] += log.read()
 	log.close()
 	try:
-		# set fields if known
-		PID = HL7.segment('PID')
-		name = PID[PID_name]
-		inc['lastnames'] = gmTools.coalesce(name[PID_lastname], u'')
-		inc['firstnames'] = gmTools.coalesce(name[PID_firstname], u'')
-		if len(name) > 2:
+		inc['lastnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname)
+		inc['firstnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__firstname)
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__middlename)
+		if val is not None:
 			inc['firstnames'] += u' '
-			inc['firstnames'] += name[PID_middlename]
-		if PID[PID_dob] is not None:
-			tmp = time.strptime(PID[PID_dob][0], '%Y%m%d')
+			inc['firstnames'] += val
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__dob)
+		if val is not None:
+			tmp = time.strptime(val, '%Y%m%d')
 			inc['dob'] = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
-		if PID[PID_gender] is not None:
-			inc['gender'] = PID[PID_gender][0]
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__gender)
+		if val is not None:
+			inc['gender'] = val
 		inc['external_data_id'] = filename
 		#u'fk_patient_candidates',
 		#	u'request_id',						# request ID as found in <data>
@@ -588,10 +604,10 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		#	u'comment',							# a free text comment on this row, eg. why is it here, error logs etc
 		#	u'fk_provider_disambiguated'		# The provider the data is relevant to.
 	except StandardError:
-		_log.exception('cannot add more data')
+		_log.exception(u'cannot add more data')
 	inc.save()
 
-	_log.info('successfully staged')
+	_log.info(u'successfully staged')
 	root_logger.removeHandler(local_logger)
 	shutil.move(local_log_name, done_dir)
 	return True
@@ -683,36 +699,16 @@ def import_single_PID_hl7_file(filename):
 #============================================================
 # internal helpers
 #============================================================
-def __extract_HL7_from_XML_CDATA(filename, xml_path):
-
-	_log.debug('extracting HL7 from CDATA of <%s> nodes in XML file [%s]', xml_path, filename)
-
-	hl7_xml = pyxml.ElementTree()
-	try:
-		hl7_xml.parse(filename)
-	except pyxml.ParseError:
-		_log.exception('cannot parse [%s]' % filename)
-		return None
-	nodes = hl7_xml.findall(xml_path)
-	if len(nodes) == 0:
-		_log.debug('no data found')
-		return None
-
-	out_fname = gmTools.get_unique_filename(prefix = u'%s-' % gmTools.fname_stem(filename), suffix = '.hl7')
-	_log.debug('writing HL7 to [%s]', out_fname)
-	hl7_file = codecs.open(out_fname, 'wb', 'utf8')
-	for node in nodes:
-		hl7_file.write(node.text)
-
-	return out_fname
-
-#------------------------------------------------------------
 def __fix_malformed_hl7_file(filename, encoding='utf8'):
 
-	_log.debug('fixing HL7 in: %s', filename)
+	_log.debug(u'fixing HL7 file [%s]', filename)
 
+	# first pass:
+	# - remove empty lines
+	# - normalize line endings
+	# - unwrap wrapped segments
 	out1_fname = gmTools.get_unique_filename (
-		prefix = u'gm-fixed_hl7-pass_1-%s-' % gmTools.fname_stem(filename),
+		prefix = u'gm_fix1-%s-' % gmTools.fname_stem(filename),
 		suffix = u'.hl7'
 	)
 	hl7_in = codecs.open(filename, 'rb', encoding)
@@ -732,14 +728,15 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 			else:
 				is_first_line = False
 
-		hl7_out.write(line.rstrip('\r').rstrip('\n').rstrip('\r').rstrip('\n'))
+		hl7_out.write(line.rstrip(u'\r').rstrip(u'\n').rstrip(u'\r').rstrip(u'\n'))
 
 	hl7_out.close()
 	hl7_in.close()
 
-	# second pass: no of fields per line
+	# second pass:
+	# - normalize # of fields per line
 	out2_fname = gmTools.get_unique_filename (
-		prefix = u'gm-fixed_hl7-pass_2-%s-' % gmTools.fname_stem(filename),
+		prefix = u'gm_fix2-%s-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
 	hl7_in = codecs.open(out1_fname, 'rb', 'utf8')
@@ -761,7 +758,73 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 	hl7_out.close()
 	hl7_in.close()
 
-	return out2_fname
+	# third pass:
+	# - unsplit same-name, same-time, text-type OBX segments
+	out3_fname = gmTools.get_unique_filename (
+		prefix = u'gm_fix3-%s-' % gmTools.fname_stem(filename),
+		suffix = '.hl7'
+	)
+	hl7_in = codecs.open(out2_fname, 'rb', 'utf8')
+	hl7_out = codecs.open(out3_fname, 'wb', 'utf8')
+
+	prev_identity = None
+	prev_fields = None
+	for line in hl7_in:
+		if not line.startswith(u'OBX|'):
+			if prev_fields is not None:
+				hl7_out.write(u'|'.join(prev_fields) + HL7_EOL)
+			hl7_out.write(line)
+			prev_identity = None
+			prev_fields = None
+			curr_fields = None
+			continue
+		line = line.strip(HL7_EOL)
+		# first OBX
+		curr_fields = line.split(u'|')
+		if curr_fields[OBX_field__datatype] != u'FT':
+			hl7_out.write(line + HL7_EOL)
+			prev_identity = None
+			prev_fields = None
+			curr_fields = None
+			continue
+		# first FT type OBX
+		if prev_fields is None:
+			prev_fields = line.split(u'|')
+			prev_identity = line.split(u'|')
+			prev_identity[OBX_field__set_id] = u''
+			prev_identity[OBX_field__subid] = u''
+			prev_identity[OBX_field__value] = u''
+			prev_identity = u'|'.join(prev_identity)
+			continue
+		# non-first FT type OBX
+		curr_identity = line.split(u'|')
+		curr_identity[OBX_field__set_id] = u''
+		curr_identity[OBX_field__subid] = u''
+		curr_identity[OBX_field__value] = u''
+		curr_identity = u'|'.join(curr_identity)
+		if curr_identity != prev_identity:
+			# write out previous line
+			hl7_out.write(u'|'.join(prev_fields) + HL7_EOL)
+			# keep current fields, since it may start a "repeat FT type OBX block"
+			prev_fields = curr_fields
+			prev_identity = curr_identity
+			continue
+		if prev_fields[OBX_field__value].endswith(u'\.br\\'):
+			prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+		else:
+			if curr_fields[OBX_field__value].startswith(u'\.br\\'):
+				prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+			else:
+				prev_fields[OBX_field__value] += u'\.br\\'
+				prev_fields[OBX_field__value] += curr_fields[OBX_field__value]
+
+	if prev_fields is not None:
+		hl7_out.write(u'|'.join(prev_fields) + HL7_EOL)
+
+	hl7_out.close()
+	hl7_in.close()
+
+	return out3_fname
 
 #------------------------------------------------------------
 def __split_hl7_file_by_MSH(filename, encoding='utf8'):
@@ -915,32 +978,43 @@ def __find_or_create_test_type(loinc=None, name=None, pk_lab=None, unit=None, li
 #------------------------------------------------------------
 def __ensure_hl7_test_types_exist_in_gnumed(link_obj=None, hl7_data=None, pk_test_org=None):
 	try:
-		OBXs = hl7_data.segments('OBX')
+		OBX_count = len(hl7_data.segments('OBX'))
 	except KeyError:
 		_log.error("HL7 does not contain OBX segments, nothing to do")
 		return
-	for OBX in OBXs:
-		testtype_field = OBX[OBX_type]
-		unit = OBX[OBX_unit][0]
+	for OBX_idx in range(OBX_count):
+		unit = hl7_data.extract_field(segment = u'OBX', segment_num = OBX_idx, field_num = OBX_field__unit)
 		if unit == u'':
 			unit = None
-		tt = __find_or_create_test_type(testtype_field[OBX_LOINC], testtype_field[OBX_name], pk_test_org, unit, link_obj = link_obj)
+		LOINC = hl7_data.extract_field(segment = u'OBX', segment_num = OBX_idx, field_num = OBX_field__type, component_num = OBX_component__loinc)
+		tname = hl7_data.extract_field(segment = u'OBX', segment_num = OBX_idx, field_num = OBX_field__type, component_num = OBX_component__name)
+		tt = __find_or_create_test_type (
+			loinc = LOINC,
+			name = tname,
+			pk_lab = pk_test_org,
+			unit = unit,
+			link_obj = link_obj
+		)
 
 #------------------------------------------------------------
-def __find_patient(PID=None):
-	name = PID[PID_name]
-	pat_lname = name[PID_lastname]
-	pat_fname = name[PID_firstname]
-	pat_mname = None
-	if len(name) > 2:
-		pat_mname = name[PID_middlename]
-	_log.debug('patient data from PID segment: first=%s (middle=%s) last=%s', pat_fname, pat_mname, pat_lname)
+def __PID2dto(HL7=None):
+	pat_lname = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname)
+	pat_fname = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__firstname)
+	pat_mname = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__middlename)
+	if pat_mname is not None:
+		pat_fname += u' '
+		pat_fname += pat_mname
+	_log.debug(u'patient data from PID segment: first=%s (middle=%s) last=%s', pat_fname, pat_mname, pat_lname)
+
 	dto = gmPerson.cDTO_person()
 	dto.firstnames = pat_fname
 	dto.lastnames = pat_lname
-	dto.gender = HL7_GENDERS[PID[PID_gender][0]]
-	dob = time.strptime(PID[PID_dob][0], '%Y%m%d')
-	dto.dob = pyDT.datetime(dob.tm_year, dob.tm_mon, dob.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+	dto.gender = HL7_GENDERS[HL7.extract_field('PID', segment_num = 1, field_num = PID_field__gender)]
+	hl7_dob = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__dob)
+	if hl7_dob is not None:
+		tmp = time.strptime(hl7_dob, '%Y%m%d')
+		dto.dob = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
+
 	idents = dto.get_candidate_identities()
 	if len(idents) == 0:
 		_log.warning('no match candidate, not auto-importing')
@@ -991,7 +1065,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 		return False
 
 	# ensure lab is in database
-	hl7_lab = HL7.segment('MSH')[MSH_sending_lab][0]
+	hl7_lab = HL7.extract_field('MSH', field_num = MSH_field__sending_lab)
 	gm_lab = __find_or_create_lab(hl7_lab)
 
 	# ensure test types exist
@@ -1000,8 +1074,8 @@ def __import_single_PID_hl7_file(filename, emr=None):
 
 	# find patient
 	if emr is None:
-		PID = HL7.segment('PID')
-		pats = __find_patient(PID = PID)
+		#PID = HL7.segment('PID')
+		pats = __PID2dto(HL7 = HL7)
 		if len(pats) == 0:
 			conn.rollback()
 			return False
@@ -1017,6 +1091,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	had_errors = False
 	msh_seen = False
 	pid_seen = False
+	last_obr = None
 	obr = {}
 	for seg_idx in range(len(HL7)):
 		seg = HL7[seg_idx]
@@ -1050,14 +1125,14 @@ def __import_single_PID_hl7_file(filename, emr=None):
 
 		if seg_type == u'OBR':
 			previous_segment = seg_type
+			last_obr = seg
 			current_result = None
-			obr['abbrev'] = seg[OBR_service_name][0].strip()
+			obr['abbrev'] = (u'%s' % seg[OBR_field__service_name][0]).strip()
 			try:
-				obr['name'] = seg[OBR_service_name][1]
-				obr['name'] = obr['name'].strip()
+				obr['name'] = (u'%s' % seg[OBR_field__service_name][1]).strip()
 			except IndexError:
-				obr_name = obr_abbrev
-			for field_name in [OBR_ts_ended, OBR_ts_started, OBR_ts_specimen_received, OBR_ts_requested]:
+				obr['name'] = obr['abbrev']
+			for field_name in [OBR_field__ts_ended, OBR_field__ts_started, OBR_field__ts_specimen_received, OBR_field__ts_requested]:
 				obr['clin_when'] = seg[field_name][0].strip()
 				if obr['clin_when'] != u'':
 					break
@@ -1066,21 +1141,26 @@ def __import_single_PID_hl7_file(filename, emr=None):
 		if seg_type == u'OBX':
 			current_result = None
 			# determine value
-			val_alpha = seg[OBX_value][0].strip()
+			val_alpha = seg[OBX_field__value][0].strip()
 			is_num, val_num = gmTools.input2decimal(initial = val_alpha)
 			if is_num:
 				val_alpha = None
 			else:
 				val_num = None
+				val_alpha = val_alpha.replace('\.br\\', u'\n')
 			# determine test type
-			test_field = seg[OBX_type]
-			unit = seg[OBX_unit][0].strip()
+			unit = seg[OBX_field__unit][0].strip()
 			if unit == u'':
 				if is_num:
 					unit = u'1/1'
 				else:
 					unit = None
-			test_type = __find_or_create_test_type(test_field[OBX_LOINC], test_field[OBX_name], gm_lab['pk_test_org'], unit)
+			test_type = __find_or_create_test_type (
+				loinc = u'%s' % seg[OBX_field__type][0][OBX_component__loinc-1],
+				name = u'%s' % seg[OBX_field__type][0][OBX_component__name-1],
+				pk_lab = gm_lab['pk_test_org'],
+				unit = unit
+			)
 			# eventually, episode should be read from lab_request
 			epi = emr.add_episode (
 				link_obj = conn,
@@ -1098,16 +1178,20 @@ def __import_single_PID_hl7_file(filename, emr=None):
 				unit = unit
 			)
 			# handle range information et al
-			ref_range = seg[OBX_range][0].strip()
+			ref_range = seg[OBX_field__range][0].strip()
 			if ref_range != u'':
 				current_result.reference_range = ref_range
-			flag = seg[OBX_abnormal_flag][0].strip()
+			flag = seg[OBX_field__abnormal_flag][0].strip()
 			if flag != u'':
 				current_result['abnormality_indicator'] = flag
-			current_result['status'] = seg[OBX_status][0].strip()
-			current_result['val_grouping'] = seg[OBX_subid][0].strip()
-			current_result['source_data'] = unicode(seg)
-			clin_when = seg[OBX_timestamp][0].strip()
+			current_result['status'] = seg[OBX_field__status][0].strip()
+			current_result['val_grouping'] = seg[OBX_field__subid][0].strip()
+			current_result['source_data'] = u''
+			if last_obr is not None:
+				current_result['source_data'] += unicode(last_obr)
+				current_result['source_data'] += u'\n'
+			current_result['source_data'] += unicode(seg)
+			clin_when = seg[OBX_field__timestamp][0].strip()
 			if clin_when == u'':
 				_log.warning('no <Observation timestamp> in OBX, trying OBR timestamp')
 				clin_when = obr['clin_when']
@@ -1123,7 +1207,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			continue
 
 		if seg_type == u'NTE':
-			note = seg[NTE_note][0].strip().replace('\.br\\', u'\n')
+			note = seg[NET_field__note][0].strip().replace('\.br\\', u'\n')
 			if note == u'':
 				_log.debug('empty NTE segment')
 				previous_segment = seg_type			# maybe not ? (HL7 providers happen to use empty NTE segments to "structure" raw HL7 |-)
@@ -1153,7 +1237,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 					intended_reviewer = gmStaff.gmCurrentProvider()['pk_staff'],
 					val_alpha = note
 				)
-				#nte_result['val_grouping'] = seg[OBX_subid][0].strip()
+				#nte_result['val_grouping'] = seg[OBX_field__subid][0].strip()
 				nte_result['source_data'] = unicode(seg)
 				try:
 					nte_result['clin_when'] = __hl7dt2pydt(obr['clin_when'])
@@ -1239,10 +1323,12 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	part = hl7_doc.add_part(file = filename)
 	part['obj_comment'] = _('Result dates: %s') % u' / '.join(when_list.keys())
 	part.save()
+	hl7_doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
 
 	return True
 
 #------------------------------------------------------------
+# this is only used for testing here in this file
 def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 	"""Consumes single-MSH single-PID HL7 files."""
 
@@ -1250,19 +1336,22 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 
 	# parse HL7
 	MSH_file = codecs.open(filename, 'rb', 'utf8')
-	HL7 = pyhl7.parse(MSH_file.read(1024 * 1024 * 5))	# 5 MB max
+	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
+	formatted_hl7 = format_hl7_message (
+		message = raw_hl7,
+		skip_empty_fields = True,
+		eol = u'\n'
+	)
+	HL7 = pyhl7.parse(raw_hl7)
+	del raw_hl7
 
 	# import file
 	inc = create_incoming_data(u'HL7%s' % gmTools.coalesce(source, u'', u' (%s)'), filename)
 	if inc is None:
 		return None
 	inc.update_data_from_file(fname = filename)
-	inc['comment'] = format_hl7_message (
-		message = HL7,
-		skip_empty_fields = True,
-		eol = u'\n'
-	)
+	inc['comment'] = formatted_hl7
 	if logfile is not None:
 		log = codecs.open(logfile, 'r', 'utf8')
 		inc['comment'] += u'\n'
@@ -1271,19 +1360,19 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 		inc['comment'] += log.read()
 		log.close()
 	try:
-		# set fields if known
-		PID = HL7.segment('PID')
-		name = PID[PID_name]
-		inc['lastnames'] = gmTools.coalesce(name[PID_lastname], u'')
-		inc['firstnames'] = gmTools.coalesce(name[PID_firstname], u'')
-		if len(name) > 2:
+		inc['lastnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__lastname)
+		inc['firstnames'] = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__firstname)
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__name, component_num = PID_component__middlename)
+		if val is not None:
 			inc['firstnames'] += u' '
-			inc['firstnames'] += name[PID_middlename]
-		if PID[PID_dob] is not None:
-			tmp = time.strptime(PID[PID_dob][0], '%Y%m%d')
+			inc['firstnames'] += val
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__dob)
+		if val is not None:
+			tmp = time.strptime(val, '%Y%m%d')
 			inc['dob'] = pyDT.datetime(tmp.tm_year, tmp.tm_mon, tmp.tm_mday, tzinfo = gmDateTime.gmCurrentLocalTimezone)
-		if PID[PID_gender] is not None:
-			inc['gender'] = PID[PID_gender][0]
+		val = HL7.extract_field('PID', segment_num = 1, field_num = PID_field__gender)
+		if val is not None:
+			inc['gender'] = val
 		inc['external_data_id'] = filename
 		#u'fk_patient_candidates',
 		#	u'request_id',						# request ID as found in <data>
@@ -1324,38 +1413,43 @@ if __name__ == "__main__":
 			print "error with", filename
 	#-------------------------------------------------------
 	def test_xml_extract():
-		hl7 = __extract_HL7_from_CDATA(sys.argv[2], u'.//Message')
+		hl7 = extract_HL7_from_XML_CDATA(sys.argv[2], u'.//Message')
 		print "HL7:", hl7
-		fixed = __fix_malformed_hl7_file(hl7)
-		print "fixed HL7:", fixed
-		PID_names = split_HL7_by_PID(fixed, encoding='utf8')
-		print "per-PID MSH files:"
-		for name in PID_names:
-			print " ", name
+		#result, PID_fnames = split_hl7_file(hl7)
+		#print "result:", result
+		#print "per-PID MSH files:"
+		#for name in PID_fnames:
+		#	print " ", name
 	#-------------------------------------------------------
 	def test_incoming_data():
 		for d in get_incoming_data():
 			print d
 	#-------------------------------------------------------
 	def test_stage_hl7_from_xml():
-		hl7 = __extract_HL7_from_CDATA(sys.argv[2], u'.//Message')
+		hl7 = extract_HL7_from_XML_CDATA(sys.argv[2], u'.//Message')
 		print "HL7:", hl7
-		fixed = __fix_malformed_hl7_file(hl7)
-		print "fixed HL7:", fixed
-		PID_names = split_HL7_by_PID(fixed, encoding='utf8')
+		result, PID_fnames = split_hl7_file(hl7)
+		print "result:", result
 		print "staging per-PID HL7 files:"
-		for name in PID_names:
+		for name in PID_fnames:
 			print " file:", name
-			print "", __stage_MSH_as_incoming_data(name, source = u'Excelleris')
+			__stage_MSH_as_incoming_data(name, source = u'Excelleris')
+	#-------------------------------------------------------
+	def test_split_hl7_file():
+		result, PID_fnames = split_hl7_file(sys.argv[2])
+		print "result:", result
+		print "per-PID HL7 files:"
+		for name in PID_fnames:
+			print " file:", name
 	#-------------------------------------------------------
 	def test_stage_hl7():
 		fixed = __fix_malformed_hl7_file(sys.argv[2])
 		print "fixed HL7:", fixed
-		PID_names = split_HL7_by_PID(fixed, encoding='utf8')
+		PID_fnames = split_HL7_by_PID(fixed, encoding='utf8')
 		print "staging per-PID HL7 files:"
-		for name in PID_names:
+		for name in PID_fnames:
 			print " file:", name
-			print "", __stage_MSH_as_incoming_data(name, source = u'?')
+			#print "", __stage_MSH_as_incoming_data(name, source = u'?')
 	#-------------------------------------------------------
 	def test_format_hl7_message():
 		tests = [
@@ -1369,20 +1463,22 @@ if __name__ == "__main__":
 			)
 	#-------------------------------------------------------
 	def test_format_hl7_file(filename):
+		fixed = __fix_malformed_hl7_file(filename)
 		print format_hl7_file (
-			filename,
+			fixed,
 #			skip_empty_fields = True
 			return_filename = True
 		)
 	#-------------------------------------------------------
-	def test___fix_malformed_hl7(filename):
+	def test___fix_malformed_hl7():
 		print "fixed HL7:", __fix_malformed_hl7_file(sys.argv[2])
 	#-------------------------------------------------------
 	#test_import_HL7(sys.argv[2])
-	#test_xml_extract()
+	test_xml_extract()
 	#test_incoming_data()
 	#test_stage_hl7_from_xml()
 	#test_stage_hl7()
 	#test_format_hl7_message()
-	test_format_hl7_file(sys.argv[2])
-	#test___fix_malformed_hl7(sys.argv[2])
+	#test_format_hl7_file(sys.argv[2])
+	#test___fix_malformed_hl7()
+	#test_split_hl7_file()

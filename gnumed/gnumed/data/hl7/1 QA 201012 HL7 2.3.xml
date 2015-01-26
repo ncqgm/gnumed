@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HL7Messages MessageFormat="ORUR01" MessageCount="11" Version="2.3"><Message MsgID="1"><![CDATA[MSH|^~\&|PATHL7|VIHA|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516828|P|2.3|||ER|AL
+PID||9039039033|1112200||EXCELLERIS^IPATIENT||19611202|F|||||(250)876-7676
+ORC|RE||10-121-121200-DIM-0|||||||||90909^MDCARE^BOB
+OBR|1||10-121-121200-DIM-0|DIM^D-Dimer|RT|20100217155300|20100217143000|||||||20100217155300||90909^MDCARE^BOB||||||20100217165603||HAEM3|F||^^^^^RT|90909^MDCARE^BOB
+OBX|1|NM|7799-0^D-Dimer Quantitative||<0.50|mg/L FEU|0.00-0.49|N|||F|||20100217165602
+NTE|||The D Dimer is not useful as a screening test in making the diagnosis of DVT/PE.\.br\A D Dimer result of less than 0.50 mg/L FEU has a negative predictive value of approximately 99% for the exclusion of Venous Thromboembolism, if clinical risk stratification indicates low or moderate risk of DVT or PE.\.br\
+]]></Message><Message MsgID="2"><![CDATA[MSH|^~\&|PATHL7|LIFELABS|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516830|P|2.3|||ER|AL
+PID||9061222333||GFC127369|EXCELLERIS^AAPATIENT||19521120|F|||||(604)944-4444
+ORC|RE||10-121212444-GCM-1|||||||||90909^MDCARE^BOB
+OBR|1||10-121212444-GCM-1|GCM^General Information||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||GENERAL|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+NTE|||DAY 3\.br\
+ORC|RE||10-121212444-HP-1|||||||||90909^MDCARE^BOB
+OBR|2||10-121212444-HP-1|HP^Hematology Panel||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||HAEM1|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|6690-2^WBC||5.0|giga/L|4.0-10.0|N|||F|||20100513112056
+OBX|2|ST|789-8^RBC||4.84|tera/L|3.80-4.80|A|||F|||20100513112056
+OBX|3|ST|718-7^Hemoglobin||131|g/L|120-150|N|||F|||20100513112056
+OBX|4|ST|4544-3^Hematocrit||0.40||0.35-0.43|N|||F|||20100513112056
+OBX|5|ST|787-2^MCV||82|fl|82-98|N|||F|||20100513112056
+OBX|6|ST|785-6^MCH||27.1|pg|27.5-33.5|A|||F|||20100513112056
+OBX|7|ST|786-4^MCHC||329|g/L|305-365|N|||F|||20100513112056
+OBX|8|ST|788-0^RDW||18.3|%|11.5-14.5|A|||F|||20100513112056
+OBX|9|ST|777-3^Platelet Count||225|giga/L|150-400|N|||F|||20100513112056
+OBX|10|ST|751-8^Neutrophils||3.2|giga/L|2.0-7.5|N|||F|||20100513112056
+OBX|11|ST|731-0^Lymphocytes||1.3|giga/L|1.0-4.0|N|||F|||20100513112056
+OBX|12|ST|742-7^Monocytes||0.4|giga/L|0.1-0.8|N|||F|||20100513112056
+OBX|13|ST|711-2^Eosinophils||0.1|giga/L|0.0-0.7|N|||F|||20100513112056
+OBX|14|ST|704-7^Basophils||0.0|giga/L|0.0-0.2|N|||F|||20100513112056
+OBX|15|FT|6742-1^RBC Morphology||ELLIPTOCYTES      present        \.br\PLATELETS         normal\.br\||||||F|||20100513112056
+OBX|16|FT|14869-2^Pathologist Comments||Reviewed by Pathologist\.br\Note 40 g / L increase in hemoglobin\.br\since 01 Feb 2010. Hb investigation to\.br\follow.\.br\||||||F|||20100513112056
+ORC|RE||10-121212444-THALSCRN-1|||||||||90909^MDCARE^BOB
+OBR|3||10-121212444-THALSCRN-1|THALSCRN^Thalassemia Screen||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||HAEM2|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|FT|X1051^Thalassemia Screen||Thalassemia work up to follow.\.br\||||||F|||20100513112056
+ORC|RE||10-121212444-HBM-1|||||||||90909^MDCARE^BOB
+OBR|4||10-121212444-HBM-1|HBM^Hemoglobin Investigation||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||HAEM2|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|4551-8^HB A2||2.7|%|2.0-3.5|N|||F|||20100513112056
+OBX|2|ST|4576-5^HB F||0.9|%|<2.0|N|||F|||20100513112056
+OBX|3|FT|X514^HB HPLC||Reviewed by Pathologist\.br\High performance liquid chromatography\.br\analysis of hemoglobin is normal.\.br\||||||F|||20100513112056
+ORC|RE||10-121212444-TSR-1|||||||||90909^MDCARE^BOB
+OBR|5||10-121212444-TSR-1|TSR^TSH||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||CHEM11|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|3016-3^TSH||4.4|mU/L|0.38-5.5|N|||F|||20100513112056
+NTE|||TSH values of 3.5-5.5 may be associated\.br\with preclinical hypothyroidism in \.br\some cases.\.br\\.br\
+ORC|RE||10-121212444-FSH-1|||||||||90909^MDCARE^BOB
+OBR|6||10-121212444-FSH-1|FSH^Follicle Stimulating Hormone (FSH)||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||CHEM12|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|2286-3^FSH||7.2|IU/L|||||F|||20100513112056
+NTE|||Prepubertal:       <3.0 IU/L\.br\Follicular/Luteal: <9.0 IU/L\.br\Midcycle:         4.0 - 20.0 IU/L\.br\Postmenopausal:  20.0 - 135 IU/L\.br\
+ORC|RE||10-121212444-PRL-1|||||||||90909^MDCARE^BOB
+OBR|7||10-121212444-PRL-1|PRL^Prolactin||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||CHEM12|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|2842-3^Prolactin||19.0|ug/L|<25|N|||F|||20100513112056
+ORC|RE||10-121212444-ESD-1|||||||||90909^MDCARE^BOB
+OBR|8||10-121212444-ESD-1|ESD^Estradiol||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||CHEM15|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+OBX|1|ST|14715-7^Estradiol||160|pmol/L|||||F|||20100513112056
+ORC|RE||10-121212444-VARI-1|||||||||90909^MDCARE^BOB
+OBR|9||10-121212444-VARI-1|VARI^Varicella Zoster Virus||20100504093100|20100504093100|||||||20100504093100||90909^MDCARE^BOB||||||20100513112056||REFER1|F|||C1747^GRANVILLE MEDICAL^CLINIC~90909^MDCARE^BOB
+NTE|||Varicella Serology\.br\Sent to BC Centre for Disease Control\.br\(Prov Lab) Telephone: 1-877-747-2522.\.br\(1-877-PHSALAB)
+]]></Message><Message MsgID="3"><![CDATA[MSH|^~\&|PATHL7|PHC|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516831|P|2.3|||ER|AL
+PID||9111494949|21415047||EXCELLERIS^HHPATIENT||19550824|M|||||604-687-6123
+ORC|RE||PB10-55-AP1156244-BMR-1|||||||||90909^MDCARE^BOB
+OBR|1||PB10-55-AP1156244-BMR-1|BMR^Bone Marrow Report|||20100506090000|||||||20100506102700||90909^MDCARE^BOB||||||20100507162331||CELLPATH|F|||90909^MDCARE^BOB
+OBX|1|FT|27898-6^Pathology Studies|1|SPECIMENS RECEIVED:||||||F|||20100507162331
+OBX|2|FT|27898-6^Pathology Studies|2|\.br\||||||F|||20100507162331
+OBX|3|FT|27898-6^Pathology Studies|3|A: Bone Marrow Aspirate||||||F|||20100507162331
+OBX|4|FT|27898-6^Pathology Studies|4|B: Bone Marrow biopsy||||||F|||20100507162331
+OBX|5|FT|27898-6^Pathology Studies|5|\.br\||||||F|||20100507162331
+OBX|6|FT|27898-6^Pathology Studies|6|FINAL DIAGNOSIS:||||||F|||20100507162331
+OBX|7|FT|27898-6^Pathology Studies|7|\.br\||||||F|||20100507162331
+OBX|8|FT|27898-6^Pathology Studies|8|Peripheral blood, bone marrow aspirate and biopsy showing:||||||F|||20100507162331
+OBX|9|FT|27898-6^Pathology Studies|9|1.	Findings consistent with mixed phenotype acute leukemia, B/myeloid.||||||F|||20100507162331
+OBX|10|FT|27898-6^Pathology Studies|10|\.br\||||||F|||20100507162331
+OBX|11|FT|27898-6^Pathology Studies|11|2.   Cytogenetics pending||||||F|||20100507162331
+OBX|12|FT|27898-6^Pathology Studies|12|\.br\||||||F|||20100507162331
+OBX|13|FT|27898-6^Pathology Studies|13|/mhp||||||F|||20100507162331
+OBX|14|FT|27898-6^Pathology Studies|14|\.br\||||||F|||20100507162331
+OBX|15|FT|27898-6^Pathology Studies|15|Case Pathologist: Dr. XXX||||||F|||20100507162331
+OBX|16|FT|27898-6^Pathology Studies|16|\.br\||||||F|||20100507162331
+OBX|17|FT|27898-6^Pathology Studies|17|\.br\||||||F|||20100507162331
+OBX|18|FT|27898-6^Pathology Studies|18|Electronically authorized by MMM||||||F|||20100507162331
+OBX|19|FT|27898-6^Pathology Studies|19|for Dr. XXX||||||F|||20100507162331
+OBX|20|FT|27898-6^Pathology Studies|20|May 7, 2010 16:23:30||||||F|||20100507162331
+OBX|21|FT|27898-6^Pathology Studies|21|\.br\||||||F|||20100507162331
+OBX|22|FT|27898-6^Pathology Studies|22|CLINICAL SUMMARY AS PROVIDED BY SUBMITTING PHYSICIAN:||||||F|||20100507162331
+OBX|23|FT|27898-6^Pathology Studies|23|\.br\||||||F|||20100507162331
+OBX|24|FT|27898-6^Pathology Studies|24|\.br\||||||F|||20100507162331
+OBX|25|FT|27898-6^Pathology Studies|25|Fifty-four year old man with known history of non-Hodgkin's lymphoma treated||||||F|||20100507162331
+OBX|26|FT|27898-6^Pathology Studies|26|approximately two years ago.  Currently presents with thrombocytopenia and||||||F|||20100507162331
+OBX|27|FT|27898-6^Pathology Studies|27|constitutional symptoms.||||||F|||20100507162331
+OBX|28|FT|27898-6^Pathology Studies|28|\.br\||||||F|||20100507162331
+OBX|29|FT|27898-6^Pathology Studies|29|PERIPHERAL BLOOD FINDINGS:||||||F|||20100507162331
+OBX|30|FT|27898-6^Pathology Studies|30|\.br\||||||F|||20100507162331
+OBX|31|FT|27898-6^Pathology Studies|31|\.br\||||||F|||20100507162331
+OBX|32|FT|27898-6^Pathology Studies|32|CBC \T\ Differential||||||F|||20100507162331
+OBX|33|FT|27898-6^Pathology Studies|33|WBC Count              9.6      [4.0-11.0]    giga/L||||||F|||20100507162331
+OBX|34|FT|27898-6^Pathology Studies|34|Corrected for NRBCs||||||F|||20100507162331
+OBX|35|FT|27898-6^Pathology Studies|35|RBC Count              4.27     [4.20-5.80]   tera/L||||||F|||20100507162331
+OBX|36|FT|27898-6^Pathology Studies|36|Hemoglobin             135      [135-170]     g/L||||||F|||20100507162331
+OBX|37|FT|27898-6^Pathology Studies|37|Hematocrit          *  0.38     [0.40-0.50]||||||F|||20100507162331
+OBX|38|FT|27898-6^Pathology Studies|38|MCV                    89       [82-98]       fL||||||F|||20100507162331
+OBX|39|FT|27898-6^Pathology Studies|39|\.br\||||||F|||20100507162331
+OBX|40|FT|27898-6^Pathology Studies|40|\.br\||||||F|||20100507162331
+OBX|41|FT|27898-6^Pathology Studies|41|RDW                    14.2     [11.0-15.0]   %||||||F|||20100507162331
+OBX|42|FT|27898-6^Pathology Studies|42|Platelet Count      ** 17       [150-400]     giga/L||||||F|||20100507162331
+OBX|43|FT|27898-6^Pathology Studies|43|Neutrophils            4.61     [2.0-8.0]     giga/L||||||F|||20100507162331
+OBX|44|FT|27898-6^Pathology Studies|44|Eosinophils            0.10     [0.0-0.7]     giga/L||||||F|||20100507162331
+OBX|45|FT|27898-6^Pathology Studies|45|Lymphocytes         *  4.23     [1.2-3.5]     giga/L||||||F|||20100507162331
+OBX|46|FT|27898-6^Pathology Studies|46|Monocytes              0.29     [0.2-1.0]     giga/L||||||F|||20100507162331
+OBX|47|FT|27898-6^Pathology Studies|47|Blast Cells         *  0.38     [0]           giga/L||||||F|||20100507162331
+OBX|48|FT|27898-6^Pathology Studies|48|NRBC Absolute       *  0.2      [0]           giga/L||||||F|||20100507162331
+OBX|49|FT|27898-6^Pathology Studies|49|RBC Morphology         Normal||||||F|||20100507162331
+OBX|50|FT|27898-6^Pathology Studies|50|\.br\||||||F|||20100507162331
+OBX|51|FT|27898-6^Pathology Studies|51|Reticulocyte Count||||||F|||20100507162331
+OBX|52|FT|27898-6^Pathology Studies|52|Retic Count            36       [10-90]       giga/L||||||F|||20100507162331
+OBX|53|FT|27898-6^Pathology Studies|53|Immature Retic Fraction||||||F|||20100507162331
+OBX|54|FT|27898-6^Pathology Studies|54|13.1     [2.3-13.4]    %||||||F|||20100507162331
+OBX|55|FT|27898-6^Pathology Studies|55|Red cell and neutrophil morphology is unremarkable. There is||||||F|||20100507162331
+OBX|56|FT|27898-6^Pathology Studies|56|thrombocytopenia with occasional large platelet form. A small number of||||||F|||20100507162331
+OBX|57|FT|27898-6^Pathology Studies|57|circulating blasts are present. Large granular and atypical lymphocytes are||||||F|||20100507162331
+OBX|58|FT|27898-6^Pathology Studies|58|frequent.||||||F|||20100507162331
+OBX|59|FT|27898-6^Pathology Studies|59|\.br\||||||F|||20100507162331
+OBX|60|FT|27898-6^Pathology Studies|60|BONE MARROW GROSS DESCRIPTION:||||||F|||20100507162331
+OBX|61|FT|27898-6^Pathology Studies|61|\.br\||||||F|||20100507162331
+OBX|62|FT|27898-6^Pathology Studies|62|Received is a single container of B+ fixative from patient "EXCELLERIS, HHPATIENT"||||||F|||20100507162331
+OBX|63|FT|27898-6^Pathology Studies|63|The specimen consists of a core of tan bony tissue measuring 1.4||||||F|||20100507162331
+OBX|64|FT|27898-6^Pathology Studies|64|x up to 0.2 cm.  Submitted in toto.||||||F|||20100507162331
+OBX|65|FT|27898-6^Pathology Studies|65|\.br\||||||F|||20100507162331
+OBX|66|FT|27898-6^Pathology Studies|66|/ds||||||F|||20100507162331
+OBX|67|FT|27898-6^Pathology Studies|67|\.br\||||||F|||20100507162331
+OBX|68|FT|27898-6^Pathology Studies|68|Bone marrow performed by DrAAA||||||F|||20100507162331
+OBX|69|FT|27898-6^Pathology Studies|69|\.br\||||||F|||20100507162331
+OBX|70|FT|27898-6^Pathology Studies|70|BONE MARROW MICROSCOPY:||||||F|||20100507162331
+OBX|71|FT|27898-6^Pathology Studies|71|\.br\||||||F|||20100507162331
+OBX|72|FT|27898-6^Pathology Studies|72|\.br\||||||F|||20100507162331
+OBX|73|FT|27898-6^Pathology Studies|73|Neutrophils     *  0.06     [0.22-0.42]   fraction||||||F|||20100507162331
+OBX|74|FT|27898-6^Pathology Studies|74|Myelocytes         0.01     [0.0-0.10]    fraction||||||F|||20100507162331
+OBX|75|FT|27898-6^Pathology Studies|75|Blast Cells     *  0.85     [0.0-0.02]    fraction||||||F|||20100507162331
+OBX|76|FT|27898-6^Pathology Studies|76|Lymphocytes        0.06     [0.04-0.16]   fraction||||||F|||20100507162331
+OBX|77|FT|27898-6^Pathology Studies|77|Erythroblast    *  0.02     [0.16-0.40]   fraction||||||F|||20100507162331
+OBX|78|FT|27898-6^Pathology Studies|78|\.br\||||||F|||20100507162331
+OBX|79|FT|27898-6^Pathology Studies|79|BONE MARROW:||||||F|||20100507162331
+OBX|80|FT|27898-6^Pathology Studies|80|The bone marrow aspirate is an excellent granular specimen.  Granules||||||F|||20100507162331
+OBX|81|FT|27898-6^Pathology Studies|81|packed with leukemic cells that account for 85%maroow cellularity.  Blasts||||||F|||20100507162331
+OBX|82|FT|27898-6^Pathology Studies|82|are large with irregular nuclear outlines, moderate NC ratio, occasional||||||F|||20100507162331
+OBX|83|FT|27898-6^Pathology Studies|83|prominent single nucleolus, and agranular cytoplasm. Trilineage||||||F|||20100507162331
+OBX|84|FT|27898-6^Pathology Studies|84|hematopoiesis is almost completely replaced by leukemic infiltrate with||||||F|||20100507162331
+OBX|85|FT|27898-6^Pathology Studies|85|only an occasional erythroid and myeloid precursors found.  Iron stain||||||F|||20100507162331
+OBX|86|FT|27898-6^Pathology Studies|86|shows normal iron stores and no ring sideroblasts.||||||F|||20100507162331
+OBX|87|FT|27898-6^Pathology Studies|87|\.br\||||||F|||20100507162331
+OBX|88|FT|27898-6^Pathology Studies|88|The biopsy is an excellent specimen. Cellularity is more than 90% due to||||||F|||20100507162331
+OBX|89|FT|27898-6^Pathology Studies|89|leukemic infiltrate. Trilineage hematopoiesis is effaced. Blasts are large||||||F|||20100507162331
+OBX|90|FT|27898-6^Pathology Studies|90|with prominent eosinophilic nucleoli.||||||F|||20100507162331
+OBX|91|FT|27898-6^Pathology Studies|91|Flow cytometry shows presence of blasts positive for CD34, HLA-DR, TDT, MPO||||||F|||20100507162331
+OBX|92|FT|27898-6^Pathology Studies|92|and CD79a consistent with acute leukemia of mixed lineage, B/myeloid.||||||F|||20100507162331
+OBX|93|FT|27898-6^Pathology Studies|93|This is an unusual case of acute mixed phenotype leukemia presenting in a||||||F|||20100507162331
+OBX|94|FT|27898-6^Pathology Studies|94|patient with recent history of non-Hodgkin's lymphoma. The relation of||||||F|||20100507162331
+OBX|95|FT|27898-6^Pathology Studies|95|current leukemia to the previous lymphoma or it's treatment is unclear.||||||F|||20100507162331
+OBX|96|FT|27898-6^Pathology Studies|96|Cytogenetics and molecular studies are pending and would be of interest for||||||F|||20100507162331
+OBX|97|FT|27898-6^Pathology Studies|97|possible MLL gene involvement.||||||F|||20100507162331
+OBX|98|FT|27898-6^Pathology Studies|98|\.br\||||||F|||20100507162331
+]]></Message><Message MsgID="4"><![CDATA[MSH|^~\&|PATHL7|FHAM|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516832|P|2.3|||ER|AL
+PID||9876432456|SM00000426||EXCELLERIS^GPATIENT||19750926|M|||||(604)687-7507
+ORC|RE||10-00085555-HP-99|||||||||90909^MDCARE^BOB
+OBR|1||10-00085555-HP-99|HP^Hematology Panel|R|20100512163300|20100512163300|||||||20100512163300||90909^MDCARE^BOB||||||20100512163800||HAEM1|F||^^^^^R|90909^MDCARE^BOB
+OBX|1|ST|30313-1^Hemoglogin (arterial blood)||130|g/L||N|||F|||20100512163300
+ORC|RE||10-00085555-BGAS-99|||||||||90909^MDCARE^BOB
+OBR|2||10-00085555-BGAS-99|BGAS^Blood Gases|R|20100512163300|20100512163300|||||||20100512163300||90909^MDCARE^BOB||||||20100512163800||CHEM3.5|F||^^^^^R|90909^MDCARE^BOB
+OBX|1|ST|2744-1^Arterial pH||7.38||7.35-7.45|N|||F|||20100512163800
+OBX|2|ST|2019-8^Arterial pCO2||42|mmHg|35-45|N|||F|||20100512163800
+OBX|3|ST|2703-7^Arterial pO2||98|mmHg|83-108|N|||F|||20100512163800
+OBX|4|ST|1960-4^Arterial HCO3||22|mmol/L|22-26|N|||F|||20100512163800
+OBX|5|ST|1925-7^Arterial Base Excess||2|mmol/L|-4 to 3|N|||F|||20100512163800
+OBX|6|ST|2708-6^Arterial O2 Saturation||95|%|94-98|N|||F|||20100512163800
+ORC|RE||10-00085555-BCHEM-99|||||||||90909^MDCARE^BOB
+OBR|3||10-00085555-BCHEM-99|BCHEM^Whole Blood Analysis|R|20100512163300|20100512163300|||||||20100512163300||90909^MDCARE^BOB||||||20100512163800||CHEM3.7|F||^^^^^R|90909^MDCARE^BOB
+OBX|1|ST|15074-8^Glucose||5.0|mmol/L|3.6-8.3|N|||F|||20100512163300
+OBX|2|ST|2947-0^Sodium||142|mmol/L|135-145|N|||F|||20100512163300
+OBX|3|ST|6298-4^Potassium||4.0|mmol/L|3.5-5.0|N|||F|||20100512163300
+OBX|4|ST|32693-4^Lactate||2.0|mmol/L|0.5-2.2|N|||F|||20100512163300
+OBX|5|ST|47598-8^Calcium Ionized Adjusted To pH 7.4||1.30|mmol/L|1.15-1.32|N|||F|||20100512163300
+NTE|||Sample pH within range 7.2 - 7.6 Ionized Calcium normalized\.br\to pH 7.4
+]]></Message><Message MsgID="5"><![CDATA[MSH|^~\&|PATHL7|VIHA|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516833|P|2.3|||ER|AL
+PID||9222456789|3042561||EXCELLERIS^JJCHILD||19950414|M|||||(250)658-1122
+ORC|RE||10-999-001666-ACARN-0|||||||||90909^MDCARE^BOB
+OBR|1||10-999-001666-ACARN-0|ACARN^Acyl Carnitine|RT|20100713081500|20100713074200|||||||20100713081500||90909^MDCARE^BOB||||||20100808112546||REFER1|F||^^^^^RT|90909^MDCARE^BOB~00000^B.C. Childrens' Hospital^Health Records Dept.
+OBX|1|FT|X50335^Acyl Carnitine Blood Dot||Bloodspot, Acylcarnitine, (umol/L); \.br\\.br\Date of Assay:14Jul2010  \.br\\.br\Carnitine:24.9\.br\Reference Range (umol/L): 10.9 - 29.8\.br\\.br\\.br\C2:18.6\.br\Reference Range (umol/L): 7.1 - 28.0\.br\\.br\C3:1.58\.br\Reference Range (umol/L): 0.60 - 2.87\.br\\.br\C4:0.32\.br\Reference Range (umol/L): 0.12 - 0.47\.br\\.br\C5:1:0.02 \.br\Reference Range (umol/L): less than 0.08\.br\\.br\C5:0.14\.br\Reference Range (umol/L): 0.05 - 0.24\.br\\.br\C4 OH:0.12\.br\Reference Range (umol/L): 0.05 - 0.27\.br\\.br\C6:0.04\.br\Reference Range (umol/L): 0.02 - 0.12\.br\\.br\C5 OH:0.29\.br\Reference Range (umol/L): 0.05 - 0.40\.br\\.br\C8:1:0.23   H\.br\Reference Range (umol/L): less than 0.22\.br\\.br\C8:0.05\.br\Reference Range (umol/L):0.01 - 0.12\.br\\.br\Malonyl:0.10   H\.br\Reference Range (umol/L): less than 0.06\.br\\.br\C10:1:0.05\.br\Reference Range (umol/L): less than 0.12\.br\\.br\C10:0.05\.br\Reference Range (umol/L): 0.03 - 0.17\.br\\.br\C4DC:0.19\.br\Reference Range (umol/L): 0.07 - 0.30\.br\\.br\Glutaryl DC:0.05\.br\Reference Range (umol/L): less than 0.07\.br\\.br\C12:1:0.04\.br\Reference Range (umol/L): less than 0.16\.br\\.br\C12:0.15\.br\Reference Range (umol/L): 0.04 - 0.42\.br\\.br\C6DC:0.01\.br\Reference Range (umol/L): less than 0.05\.br\\.br\C12:1OH:0.02\.br\Reference Range (umol/L): less than 0.08\.br\\.br\C12 OH:0.02\.br\Reference Range (umol/L): less than 0.07\.br\\.br\C14:2:0.08\.br\Reference Range (umol/L): 0.02 - 0.16\.br\\.br\C14:1:0.23\.br\Reference Range (umol/L): 0.08 - 0.81\.br\\.br\C14:0.19\.br\Reference Range (umol/L): 0.06 - 0.41\.br\\.br\C8DC:0.01\.br\Reference Range (umol/L): less than 0.05\.br\\.br\C14:1 OH:0.04\.br\Reference Range (umol/L): less than 0.08\.br\\.br\C14 OH:0.03\.br\Reference Range (umol/L): less than 0.05\.br\\.br\C16:0.77\.br\Reference Range (umol/L): 0.33 - 1.52\.br\\.br\C16:1 OH0.06\.br\Reference Range (umol/L): less than 0.11\.br\\.br\C16 OH:0.02\.br\Reference Range (umol/L): less than 0.06\.br\\.br\C18:2:0.41\.br\Reference Range (umol/L):0.13 - 0.50\.br\\.br\C18:1:1.06\.br\Reference Range (umol/L): 0.57 - 2.04\.br\\.br\C18:0.60\.br\Reference Range (umol/L): 0.23 - 1.00\.br\\.br\C18:2 OH:0.01\.br\Reference Range (umol/L): less than 0.03\.br\\.br\C18:1 OH:0.02\.br\Reference Range (umol/L): less than 0.04\.br\\.br\C16DC:None Detected\.br\Reference Range (umol/L): less than 0.03\.br\\.br\C18:1 DC:0.01\.br\Reference Range (umol/L): less than 0.04\.br\\.br\Total Acyl Carnitines:23.7\.br\Reference Range (umol/L): 9.8 - 34.4\.br\\.br\Total Carnitine:48.5\.br\Reference Range (umol/L): 21.8 - 62.5\.br\\.br\Fraction:0.49\.br\Reference Range (umol/L): 0.38 - 0.62\.br\\.br\C8/C10 Ratio:0.97\.br\Reference Range (umol/L): 0.31 - 1.11\.br\\.br\C3/C2 Ratio:0.09\.br\Reference Range (umol/L): 0.04 - 0.18\.br\\.br\C3/C16 Ratio:2.10\.br\Reference Range (umol/L): 0.53 - 3.36\.br\\.br\C8/C2 Ratio:None Detected\.br\Reference Range (umol/L): less than 0.02\.br\\.br\C0/(C16+C18) Ratio:18.10\.br\Reference Range (umol/L): 6.86 - 27.26\.br\\.br\(C16+C18:1)/C2 Ratio:0.10\.br\Reference Range (umol/L): 0.09 - 0.25\.br\\.br\C14:1/C12:1 Ratio:5.70\.br\Reference Range (umol/L): less than 16.39\.br\\.br\C16 OH/C16 Ratio:0.03\.br\Reference Range (umol/L): less than 0.07|||N|||F|||20100808112546
+NTE|||Analyzed at BC Children's Hospital
+OBX|2|FT|X10011^Pathologist Comments||Comment: Unremarkable acylcarnitine profile in bloodspot. No evidence for a fatty acid oxidation disorder.\.br\Dr. VVV, MD, FRCP(C), FCCMG\.br\Biochemical Genetics Lab 1-604-875-23|||N|||F|||20100808112546
+]]></Message><Message MsgID="6"><![CDATA[MSH|^~\&|PATHL7|PRH|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516834|P|2.3|||ER|AL
+PID||9040555789|PR00049945||EXCELLERIS^KPATIENT||19700603|M|||||(604)212-1122
+ORC|RE||1108:UA00077R-22200-GCM-1|||||||||90909^MDCARE^BOB
+OBR|1||1108:UA00077R-22200-GCM-1|GCM^General Information|||20100811151700|||||||20100820090100||90909^MDCARE^BOB||||||20100820090100||GENERAL|F|||90909^MDCARE^BOB
+NTE|||Provinical Health Care No. : 9040555789
+ORC|RE||1108:UA00077R-22200-UPH-1|||||||||90909^MDCARE^BOB
+OBR|2||1108:UA00077R-22200-UPH-1|UPH^Urine pH Timed|||20100811151700|||||||20100820090100||90909^MDCARE^BOB||||||20100820090100||CHEM9|F|||90909^MDCARE^BOB
+OBX|1|NM|27378-9^pH by Meter||5.5|||N|||F|||20100820090100
+]]></Message><Message MsgID="7"><![CDATA[MSH|^~\&|PATHL7|BCB|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516835|P|2.3|||ER|AL
+PID||9101321654|||EXCELLERIS^BPATIENT||19430102|F|||||604-658-2107
+ORC|RE||T10-1212111-URC-0|||||||||90909^MDCARE^BOB
+OBR|1||T10-1212111-URC-0|URC^Urine Culture||20100814162800|20100813162800|||||||20100814162800||90909^MDCARE^BOB||101384630||||20100818103200||MICRO3|F|||90909^MDCARE^BOB~H06284^PITT MEADOWS^MEDICAL CLINIC
+NTE|||\.br\\.br\Reviewed by Microbiologist.(604-507-5000).
+OBX|1|FT|19803-6^Site||Urine, Midstream||||||F|||20100814162900
+OBX|2|FT|6463-4^Organism|1|>100 mega CFU/Litre Klebsiella pneumoniae|||A|||F|||20100818085300
+OBX|3|FT|28-1^Ampicillin|1|R||||||F|||20100818085300
+OBX|4|FT|20-8^Amoxicillin-Clavulanate|1|I||||||F|||20100818085300
+OBX|5|FT|76-0^Cefazolin|1|S||||||F|||20100818085300
+OBX|6|FT|80-2^Cefixime|1|S||||||F|||20100818085300
+OBX|7|FT|108-1^Cefotaxime|1|S||||||F|||20100818085300
+OBX|8|FT|412-7^Piperacillin-Tazobactam|1|S||||||F|||20100818085300
+OBX|9|FT|6652-2^Meropenem|1|S||||||F|||20100818085300
+OBX|10|FT|516-5^Trimethoprim-Sulfa|1|S||||||F|||20100818085300
+OBX|11|FT|185-9^Ciprofloxacin|1|S||||||F|||20100818085300
+OBX|12|FT|267-5^Gentamicin|1|S||||||F|||20100818085300
+OBX|13|FT|12-5^Amikacin|1|S||||||F|||20100818085300
+OBX|14|FT|363-2^Nitrofurantoin|1|R||||||F|||20100818085300
+OBX|15|FT|6463-4^Organism|2|>100 mega CFU/Litre Escherichia coli|||A|||F|||20100818085300
+OBX|16|FT|28-1^Ampicillin|2|S||||||F|||20100818085300
+OBX|17|FT|20-8^Amoxicillin-Clavulanate|2|S||||||F|||20100818085300
+OBX|18|FT|80-2^Cefixime|2|S||||||F|||20100818085300
+OBX|19|FT|108-1^Cefotaxime|2|S||||||F|||20100818085300
+OBX|20|FT|412-7^Piperacillin-Tazobactam|2|S||||||F|||20100818085300
+OBX|21|FT|6652-2^Meropenem|2|S||||||F|||20100818085300
+OBX|22|FT|516-5^Trimethoprim-Sulfa|2|S||||||F|||20100818085300
+OBX|23|FT|185-9^Ciprofloxacin|2|R||||||F|||20100818085300
+OBX|24|FT|267-5^Gentamicin|2|S||||||F|||20100818085300
+OBX|25|FT|12-5^Amikacin|2|S||||||F|||20100818085300
+OBX|26|FT|363-2^Nitrofurantoin|2|S||||||F|||20100818085300
+]]></Message><Message MsgID="8"><![CDATA[MSH|^~\&|PATHL7|VCH|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516836|P|2.3|||ER|AL
+PID||9080060306|2325603||EXCELLERIS^FPATIENT||19210523|F|||||604-878-2669
+ORC|RE||M121288-13951597-URC-1|||||||||90909^MDCARE^BOB
+OBR|1||M121288-13951597-URC-1|URC^Urine Culture||20100830164800|20100830161500|||||||20100830164800||90909^MDCARE^BOB||||||20100902132501||MICRO3|F|||90909^MDCARE^BOB
+OBX|1|FT|19803-6^Site||Urine||||||F|||20100830164831
+OBX|2|FT|X10095^Special Requests||None||||||F|||20100830164831
+OBX|3|FT|X10114^Report Status||Final\.br\02Sep2010||||||F|||20100902132501
+OBX|4|FT|6463-4^Culture|1|>100 million CFU/L E. coli||||||F|||20100902080251
+OBX|5|FT|28-1^Ampicillin|1|S||||||F|||20100901090918
+OBX|6|FT|20-8^Amoxicillin-Clavulanate|1|S||||||F|||20100901090918
+OBX|7|FT|X10042^Cephalothin/Cephalexin|1|S||||||F|||20100901090918
+OBX|8|FT|145-3^Cefuroxime Parenteral|1|S||||||F|||20100901090918
+OBX|9|FT|412-7^Piperacillin-Tazobactam|1|S||||||F|||20100901090918
+OBX|10|FT|279-0^Imipenem|1|S||||||F|||20100901090918
+OBX|11|FT|516-5^Trimethoprim-Sulfa|1|S||||||F|||20100901090918
+OBX|12|FT|185-9^Ciprofloxacin|1|S||||||F|||20100901090918
+OBX|13|FT|267-5^Gentamicin|1|S||||||F|||20100901090918
+OBX|14|FT|496-0^Tetracycline|1|S||||||F|||20100901090918
+OBX|15|FT|363-2^Nitrofurantoin|1|S||||||F|||20100901090918
+OBX|16|FT|6463-4^Culture|2|80 million CFU/L Enterococcus faecalis||||||F|||20100902080251
+OBX|17|FT|28-1^Ampicillin|2|S||||||F|||20100902080251
+OBX|18|FT|185-9^Ciprofloxacin|2|R||||||F|||20100902080251
+OBX|19|FT|496-0^Tetracycline|2|R||||||F|||20100902080251
+OBX|20|FT|363-2^Nitrofurantoin|2|S||||||F|||20100902080251
+]]></Message><Message MsgID="9"><![CDATA[MSH|^~\&|PATHL7|PHC|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516837|P|2.3|||ER|AL
+PID||9142767676|4384129||EXCELLERIS^HPATIENT||19460810|F|||||250-876-4567
+ORC|RE||F121266-14100890-RUE-1|||||||||90909^MDCARE^BOB
+OBR|1||F121266-14100890-RUE-1|RUE^Urine Immunofixation Random||20100924104500|20100924104300|||||||20100924112500||90909^MDCARE^BOB||||||20100928172644||CHEM10|F|||90909^MDCARE^BOB
+OBX|1|NM|2888-6^Urine Protein||0.05|g/L|||||F|||20100924122733
+OBX|2|FT|X10011^Pathologist Comments||Negative for BJ proteinuria.\.br\Dr. NNN||||||F|||20100928172644
+]]></Message><Message MsgID="10"><![CDATA[MSH|^~\&|PATHL7|FHAM|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516838|P|2.3|||ER|AL
+PID||9876432456|BH02502488||EXCELLERIS^GPATIENT||19750926|M|||||(604)687-7507
+ORC|RE||10-9999BME3-HP-12|||||||||90909^MDCARE^BOB
+OBR|1||10-9999BME3-HP-12|HP^Hematology Panel||20101028000300|20101028060000|||||||20101028070400||90909^MDCARE^BOB||||||20101028125400||HAEM1|F|||90909^MDCARE^BOB
+NTE|||List of add on tests: BME\.br\Requested by: PATHOLOGIST\.br\BONE MARROW PATIENT
+OBX|1|ST|12227-5^WBC||36.3|x10*9/L|4.0-11.0|H|||F|||20101028092000
+NTE|||****   CORRECTED RESULT  ****\.br\---  22/10/10 0919 ---\.br\WBC previously reported as: 38.8  H x10*9/L\.br\\.br\\.br\Reason: PRESENCE OF NRBCS
+OBX|2|ST|789-8^RBC||2.72|x10*12/L|3.50-5.00|L|||F|||20101028072500
+OBX|3|ST|718-7^Hemoglobin||86|g/L|115-160|L|||F|||20101028072500
+OBX|4|ST|4544-3^Hematocrit||0.25|L/L|0.35-0.47|L|||F|||20101028072500
+OBX|5|ST|787-2^MCV||94|fl|80-100|N|||F|||20101028072500
+OBX|6|ST|777-3^Platelet Count||197|x10*9/L|150-400|N|||F|||20101028072500
+OBX|7|ST|751-8^Neutrophils||18.7|x10*9/L|2.0-8.0|H|||F|||20101028092000
+OBX|8|ST|731-0^Lymphocytes||3.4|x10*9/L|1.0-4.0|N|||F|||20101028092000
+OBX|9|ST|742-7^Monocytes||12.5|x10*9/L|0.1-0.8|H|||F|||20101028092000
+OBX|10|ST|711-2^Eosinophils||< 0.1|x10*9/L|<0.6|N|||F|||20101028092000
+OBX|11|ST|704-7^Basophils||< 0.1|x10*9/L|<0.2|N|||F|||20101028092000
+OBX|12|ST|763-3^Band Neutrophils||Incr'd|||H|||F|||20101028093400
+OBX|13|ST|739-3^Metamyelocytes||1.3|x10*9/L|0.0|H|||F|||20101028092000
+OBX|14|ST|748-4^Myelocytes||0.4|x10*9/L|0.0|H|||F|||20101028092000
+OBX|15|ST|771-6^Nucleated RBC||2.5|x10*9/L|None Seen|H|||F|||20101028092000
+OBX|16|ST|X10163^Toxic Changes||Present|||H|||F|||20101028093400
+OBX|17|ST|10378-8^Polychromasia||+2|||H|||F|||20101028125200
+OBX|18|ST|703-9^Basophilic Stippling||Present|||H|||F|||20101028125400
+OBX|19|ST|9317-9^Platelet Estimate||Normal|||N|||F|||20101028093400
+ORC|RE||10-9999BME3-RET-12|||||||||90909^MDCARE^BOB
+OBR|2||10-9999BME3-RET-12|RET^Absolute Retic||20101028000300|20101028060000|||||||20101028070400||90909^MDCARE^BOB||||||20101028125400||HAEM1|F|||90909^MDCARE^BOB
+NTE|||List of add on tests: BME\.br\Requested by: PATHOLOGIST\.br\BONE MARROW PATIENT
+OBX|1|ST|14196-0^Reticulocytes||166|x10*9/L|35-120|H|||F|||20101028110300
+]]></Message><Message MsgID="11"><![CDATA[MSH|^~\&|PATHL7|VML|HTTPCLIENT|vendor1|20101216161517||ORU^R01|ENG20101216161516839|P|2.3|||ER|AL
+PID||9012050878|||EXCELLERIS^CCPATIENT||19391016|M|||||(250)764-6666
+ORC|RE||101212999-GCM-0|||||||||90909^MDCARE^BOB
+OBR|1||101212999-GCM-0|GCM^General Information||20101130102341|20101130102341|||||||20101130102341||90909^MDCARE^BOB||||||20101130161639||GENERAL|F|||90909^MDCARE^BOB
+NTE|||RESULTS VERIFIED\.br\Prelim results to be phoned to Dr Office  \.br\\.br\Results to be PHD/FAXED to Doctors Office.  \.br\\.br\faxed Dr's BBB and SSS; phoned Dr.SSS's Nov 30 2:20 em  \.br\\.br\PATHOLOGIST COMMENT\.br\Macrocytic anemia with mild thrombocytopenia.  The blood film does not suggest a specific cause i.e. no neoplastic cells, overt polychromasia, dysplastic changes, etc.  The ddx includes B12 deficiency, liver disease, marrow pathology, medication or EtOH effect, blood loss, and combinations thereof.  Follow up suggested.\.br\MD  \.br\
+ORC|RE||101212999-HP-0|||||||||90909^MDCARE^BOB
+OBR|2||101212999-HP-0|HP^Hematology Panel|R|20101130102511|20101130102341|||||||20101130102341||90909^MDCARE^BOB||||||20101130161639||HAEM1|R||^^^^^R|90909^MDCARE^BOB
+OBX|1|NM|12227-5^WBC||6.3|*10E 9/L|4.0 - 10.0|N|||F|||20101130102341
+OBX|2|NM|789-8^RBC||2.40|*10E12/L|4.60 - 6.20|L|||F|||20101130102341
+OBX|3|NM|718-7^Hemoglobin||88|g/L|140 - 180|!L|||F|||20101130102341
+OBX|4|NM|4544-3^Hematocrit||0.256|L/L|0.420 - 0.520|L|||F|||20101130102341
+OBX|5|NM|787-2^MCV||107|fl|80 - 97|H|||F|||20101130102341
+OBX|6|NM|785-6^MCH||36.7|pg|27.0 - 31.0|H|||F|||20101130102341
+OBX|7|NM|786-4^MCHC||344|g/L|320 - 360|N|||F|||20101130102341
+OBX|8|NM|777-3^Platelet Count||139|*10E 9/L|150 - 400|L|||F|||20101130102341
+OBX|9|NM|751-8^Neutrophils||3.5|*10E 9/L|2.0 - 7.5|N|||F|||20101130102341
+OBX|10|NM|731-0^Lymphocytes||2.0|*10E 9/L|1.5 - 4.0|N|||F|||20101130102341
+OBX|11|NM|742-7^Monocytes||0.6|*10E 9/L|0.2 - 0.8|N|||F|||20101130102341
+OBX|12|NM|711-2^Eosinophils||0.3|*10E 9/L|0.0 - 0.4|N|||F|||20101130102341
+OBX|13|NM|704-7^Basophils||0.0|*10E 9/L|0.0 - 0.1|N|||F|||20101130102341
+OBX|14|ST|38892-6^Anisocytosis||Slight|||N|||F|||20101130102341
+OBX|15|ST|30424-6^Macrocytosis||+2|||N|||F|||20101130102341
+OBX|16|ST|10378-8^Polychromasia||Slight|||N|||F|||20101130102341
+OBX|17|ST|9317-9^Platelet Estimate||Normal|||N|||F|||20101130102341
+ORC|RE||101212999-RET-0|||||||||90909^MDCARE^BOB
+OBR|3||101212999-RET-0|RET^Absolute Retic|R|20101130130324|20101130102341|||||||20101130102341||90909^MDCARE^BOB||||||20101130161639||HAEM1|F||^^^^^R|90909^MDCARE^BOB
+OBX|1|NM|14196-0^Reticulocytes||97|*10E 9/L|25 - 100|N|||F|||20101130102341
+]]></Message></HL7Messages>

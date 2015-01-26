@@ -127,6 +127,7 @@ def unwrap_HL7_from_XML(parent=None):
 		)
 		return False
 
+	gmDispatcher.send(signal = 'statustext', msg = _('Unwrapped HL7 into [%s] from [%s].') % (hl7_name, xml_name), beep = False)
 	return True
 
 #================================================================
@@ -178,6 +179,7 @@ def stage_hl7_file(parent=None):
 		)
 		return False
 
+	gmDispatcher.send(signal = 'statustext', msg = _('Staged HL7 from [%s].') % hl7_name, beep = False)
 	return True
 
 #================================================================

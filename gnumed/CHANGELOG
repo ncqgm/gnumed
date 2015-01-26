@@ -8,6 +8,8 @@
 
 	1.5.3
 
+FIX: HL7 import [thanks Jim]
+
 IMPROVED: do not require simplejson in gmKVK
 IMPROVED: show ext IDs/comm channels in EMR Journal Export
 IMPROVED: provider inbox labels [thanks Jim]
