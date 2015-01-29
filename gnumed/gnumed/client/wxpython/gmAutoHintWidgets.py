@@ -341,13 +341,15 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		if conn is None:
 			return False
 
+		curs = conn.cursor()
 		data = gmProviderInbox.create_dynamic_hint (
-			link_obj = conn,
+			link_obj = curs,		# it seems this MUST be a cursor or else the successfully created row will not show up -- but why ?!?
 			query = self._TCTRL_query.GetValue().strip(),
 			title = self._TCTRL_title.GetValue().strip(),
 			hint = self._TCTRL_hint.GetValue().strip(),
 			source = self._TCTRL_source.GetValue().strip()
 		)
+		curs.close()
 		url = self._TCTRL_url.GetValue().strip()
 		if url != u'':
 			data['url'] = url
@@ -359,6 +361,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		self.data = data
 
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('updating an existing dynamic hint'))
@@ -376,6 +379,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 		conn.close()
 
 		return True
+
 	#----------------------------------------------------------------
 	def _refresh_as_new(self):
 		self._TCTRL_title.SetValue(u'')

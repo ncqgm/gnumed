@@ -369,7 +369,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			parent = self,
 			message = _('Choose the file containing the data snippet'),
 			wildcard = '|'.join(wildcards),
-			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+			style = wx.OPEN | wx.FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:

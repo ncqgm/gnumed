@@ -443,14 +443,14 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 #------------------------------------------------------------
-def get_dynamic_hints(order_by=None):
+def get_dynamic_hints(order_by=None, link_obj=None):
 	if order_by is None:
 		order_by = u'true'
 	else:
 		order_by = u'true ORDER BY %s' % order_by
 
 	cmd = _SQL_get_dynamic_hints % order_by
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
+	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------
@@ -479,7 +479,7 @@ def create_dynamic_hint(link_obj=None, query=None, title=None, hint=None, source
 		RETURNING pk
 	"""
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = True)
-	return cDynamicHint(aPK_obj = rows[0]['pk'])
+	return cDynamicHint(aPK_obj = rows[0]['pk'], link_obj = link_obj)
 
 #------------------------------------------------------------
 def delete_dynamic_hint(link_obj=None, pk_hint=None):

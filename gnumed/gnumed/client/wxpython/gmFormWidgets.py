@@ -686,7 +686,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
-			style = wx.OPEN | wx.HIDE_READONLY | wx.FILE_MUST_EXIST
+			style = wx.OPEN | wx.FILE_MUST_EXIST
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
@@ -719,7 +719,7 @@ class cFormTemplateEAPnl(wxgFormTemplateEditAreaPnl.wxgFormTemplateEditAreaPnl, 
 			defaultDir = os.path.expanduser(os.path.join('~', 'gnumed')),
 			defaultFile = '',
 			wildcard = '|'.join(wildcards),
-			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT | wx.HIDE_READONLY
+			style = wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT
 		)
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
