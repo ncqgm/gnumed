@@ -13,7 +13,8 @@ FIX: VCF export with address/phone
 FIX: LinuxMedNews XML export with address/phone
 FIX: wx.HIDE_READONLY is no more
 FIX: wxp2.8 doesn't yet have GetToolTipString()
-FIX: creating dynamic hints [thsnk Jim]
+FIX: creating dynamic hints [thanks Jim]
+FIX: editing-from-encounter-list w/o encounter selected [thanks Jim]
 
 IMPROVED: do not require simplejson in gmKVK
 IMPROVED: show ext IDs/comm channels in EMR Journal Export

@@ -200,6 +200,8 @@ def select_encounters(parent=None, patient=None, single_selection=True, encounte
 		return False
 	#--------------------
 	def edit(enc=None):
+		if enc is None:
+			return False
 		return edit_encounter(parent = parent, encounter = enc)
 	#--------------------
 	def edit_active(enc=None):
