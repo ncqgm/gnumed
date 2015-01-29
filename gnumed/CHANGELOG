@@ -24,10 +24,14 @@ IMPROVED: shutdown with dangling top level windows
 FIX: HL7 import [thanks Jim]
 FIX: VCF export with address/phone
 FIX: LinuxMedNews XML export with address/phone
+FIX: wx.HIDE_READONLY is no more
+FIX: wxp2.8 doesn't yet have GetToolTipString()
+FIX: creating dynamic hints [thsnk Jim]
 
 IMPROVED: do not require simplejson in gmKVK
 IMPROVED: show ext IDs/comm channels in EMR Journal Export
 IMPROVED: provider inbox labels [thanks Jim]
+IMPROVED: most recent test result display in patient overview [thanks Jim]
 
 	1.5.1
 

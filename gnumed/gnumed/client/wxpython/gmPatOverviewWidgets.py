@@ -209,23 +209,19 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		now = gmDateTime.pydt_now_here()
-		list_items.append(_('Latest: %s ago (%s %s %s %s%s)') % (
+		list_items.append(_('Latest: %s ago (%s %s%s%s%s)') % (
 			gmDateTime.format_interval_medically(now - most_recent['clin_when']),
 			most_recent['unified_abbrev'],
 			most_recent['unified_val'],
-			most_recent['val_unit'],
+			gmTools.coalesce(most_recent['val_unit'], u'', u' %s'),
 			gmTools.coalesce(most_recent['abnormality_indicator'], u'', u' %s'),
-			gmTools.bool2subst(most_recent['reviewed'], u'', u' %s' % gmTools.u_writing_hand)
+			gmTools.bool2subst(most_recent['reviewed'], u'', (u' %s' % gmTools.u_writing_hand))
 		))
 		list_data.append(most_recent)
 		most_recent_needs_red = False
-		#if most_recent['is_technically_abnormal'] is True:
 		if most_recent.is_considered_abnormal is True:
 			if most_recent['is_clinically_relevant']:
 				most_recent_needs_red = True
-#		else:
-#			if most_recent['abnormality_indicator'] not in [None, u'']:
-#				most_recent_needs_red = True
 
 		unsigned = emr.get_unsigned_results(order_by = u"(trim(coalesce(abnormality_indicator), '') <> '') DESC NULLS LAST, unified_abbrev")
 		no_of_reds = 0
@@ -235,10 +231,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			if result['abnormality_indicator'] is not None:
 				if result['abnormality_indicator'].strip() != u'':
 					no_of_reds += 1
-			list_items.append(_('%s %s %s %s (%s ago, %s)') % (
+			list_items.append(_('%s %s%s%s (%s ago, %s)') % (
 				result['unified_abbrev'],
 				result['unified_val'],
-				result['val_unit'],
+				gmTools.coalesce(result['val_unit'], u'', u' %s'),
 				gmTools.coalesce(result['abnormality_indicator'], u'', u' %s'),
 				gmDateTime.format_interval_medically(gmDateTime.pydt_now_here() - result['clin_when']),
 				gmTools.u_writing_hand

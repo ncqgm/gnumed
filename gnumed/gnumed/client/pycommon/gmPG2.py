@@ -1431,7 +1431,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 		curs = conn.cursor()
 		curs_close = curs.close
 	else:
-		raise ValueError('link_obj must be cursor, connection or None and not [%s]' % link_obj)
+		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
 	for query in queries:
 		if type(query['cmd']) is not types.UnicodeType:

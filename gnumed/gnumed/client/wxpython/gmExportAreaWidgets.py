@@ -381,26 +381,33 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 
 		self._BTN_archive_items.Disable()
 
+		# there's no GetToolTipString() in wx2.8
 		self.__mail_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-mail_doc')
 		if not self.__mail_script_exists:
 			self._BTN_mail_items.Disable()
-			self._BTN_mail_items.SetToolTipString (
-				self._BTN_mail_items.GetToolTipString() + u'\n\n' + _('<gm-mail_doc(.bat) not found>')
-			)
+			try:
+				tt = self._BTN_mail_items.GetToolTipString() + u'\n\n' + _('<gm-mail_doc(.bat) not found>')
+			except AttributeError:
+				tt = _('<gm-mail_doc(.bat) not found>')
+			self._BTN_mail_items.SetToolTipString(tt)
 
 		self.__fax_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-fax_doc')
 		if not self.__fax_script_exists:
 			self._BTN_fax_items.Disable()
-			self._BTN_fax_items.SetToolTipString (
-				self._BTN_fax_items.GetToolTipString() + u'\n\n' + _('<gm-fax_doc(.bat) not found>')
-			)
+			try:
+				tt = self._BTN_fax_items.GetToolTipString() + u'\n\n' + _('<gm-fax_doc(.bat) not found>')
+			except AttributeError:
+				tt = _('<gm-fax_doc(.bat) not found>')
+			self._BTN_fax_items.SetToolTipString(tt)
 
 		self.__burn_script_exists, path = gmShellAPI.detect_external_binary(binary = r'gm-burn_doc')
 		if not self.__burn_script_exists:
 			self._BTN_burn_items.Disable()
-			self._BTN_burn_items.SetToolTipString (
-				self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
-			)
+			try:
+				tt = self._BTN_burn_items.GetToolTipString() + u'\n\n' + _('<gm-burn_doc(.bat) not found>')
+			except AttributeError:
+				tt = _('<gm-burn_doc(.bat) not found>')
+			self._BTN_burn_items.SetToolTipString(tt)
 
 		# make me and listctrl a file drop target
 		dt = gmGuiHelpers.cFileDropTarget(self)
@@ -408,6 +415,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_items)
 		self._LCTRL_items.SetDropTarget(dt)
 		self._LCTRL_items.add_filenames = self.add_filenames_to_listctrl
+
 	#--------------------------------------------------------
 	def save_soap_note(self, soap=None):
 		if soap.strip() == u'':
@@ -419,6 +427,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			note = soap,
 			episode = epi
 		)
+
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
