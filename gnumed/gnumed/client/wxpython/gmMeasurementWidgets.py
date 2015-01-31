@@ -652,11 +652,15 @@ class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPn
 		self._LCTRL_days.set_columns([_('Day')])
 		self._LCTRL_results.set_columns([_('Time'), _('Test'), _('Result'), _('Reference')])
 
-		self._LCTRL_days.activate_callback = self._on_day_activated
+		#self._LCTRL_days.activate_callback = self._on_day_activated
 
 	#------------------------------------------------------------
-	def _on_day_activated(self, evt):
-		day = self._LCTRL_days.get_item_data(item_idx = evt.Index)
+	#def _on_day_activated(self, event):
+
+	def _on_day_selected(self, event):
+		event.Skip()
+
+		day = self._LCTRL_days.get_item_data(item_idx = event.Index)
 		results = self.__patient.emr.get_results_for_day(timestamp = day)
 		items = []
 		data = []
@@ -690,7 +694,7 @@ class cMeasurementsDetailsPnl(wxgMeasurementsDetailsPnl.wxgMeasurementsDetailsPn
 		self._LCTRL_results.Select(idx = 0, on = 1)
 		self._TCTRL_measurements.SetValue(self._LCTRL_results.get_item_data(item_idx = 0)['formatted'])
 
-		self._LCTRL_results.SetFocus()
+		#self._LCTRL_results.SetFocus()
 	#------------------------------------------------------------
 	def _on_result_selected(self, event):
 		event.Skip()

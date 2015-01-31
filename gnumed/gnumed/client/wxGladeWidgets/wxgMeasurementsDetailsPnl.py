@@ -27,6 +27,7 @@ class wxgMeasurementsDetailsPnl(wx.Panel):
 		self.__set_properties()
 		self.__do_layout()
 
+		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_day_selected, self._LCTRL_days)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_result_selected, self._LCTRL_results)
 		# end wxGlade
 
@@ -44,6 +45,10 @@ class wxgMeasurementsDetailsPnl(wx.Panel):
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
 		# end wxGlade
+
+	def _on_day_selected(self, event):  # wxGlade: wxgMeasurementsDetailsPnl.<event_handler>
+		print "Event handler '_on_day_selected' not implemented!"
+		event.Skip()
 
 	def _on_result_selected(self, event):  # wxGlade: wxgMeasurementsDetailsPnl.<event_handler>
 		print "Event handler '_on_result_selected' not implemented!"
