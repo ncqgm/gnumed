@@ -33,6 +33,7 @@ IMPROVED: do not require simplejson in gmKVK
 IMPROVED: show ext IDs/comm channels in EMR Journal Export
 IMPROVED: provider inbox labels [thanks Jim]
 IMPROVED: most recent test result display in patient overview [thanks Jim]
+IMPROVED: select-day shows results in by-day test results panel [thanks Jim]
 
 	1.5.1
 
