@@ -827,6 +827,7 @@ def tex_escape_string(text=None, replace_known_unicode=True):
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
 	text = text.replace(u'_', u'\\_')
+	text = text.replace(u'\n', u'\\\\ \n')
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex
@@ -1206,7 +1207,7 @@ second line\n
 		print xml_escape_string(u'&')
 	#-----------------------------------------------------------------------
 	def test_tex_escape():
-		tests = [u'\\', u'^', u'~', u'{', u'}', u'%',  u'&', u'#', u'$', u'_', u_euro]
+		tests = [u'\\', u'^', u'~', u'{', u'}', u'%',  u'&', u'#', u'$', u'_', u_euro, u'abc\ndef\n\n1234']
 		tests.append(u'  '.join(tests))
 		for test in tests:
 			print u'%s:' % test, tex_escape_string(test)
@@ -1274,7 +1275,7 @@ second line\n
 	#test_gpg_decrypt()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
-	#test_tex_escape()
-	test_dir_is_empty()
+	test_tex_escape()
+	#test_dir_is_empty()
 
 #===========================================================================
