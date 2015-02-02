@@ -92,7 +92,7 @@ __known_variant_placeholders = {
 		target extension: target file name extension, derived from target mime type if not given
 	""",
 
-	u'tex_escape': u"args: string to escape",
+	u'tex_escape': u"args: string to escape, mostly obsolete now",
 
 	u'today': u"args: strftime format",
 
@@ -102,24 +102,118 @@ __known_variant_placeholders = {
 		or: 'Lieber Patient//Liebe Patientin'""",
 	u'client_version': u"the version of the current client as a string (no 'v' in front)",
 
-	u'gen_adr_street': u"args: %s-style formatting template, cached",
-	u'gen_adr_number': u"args: %s-style formatting template, cached",
-	u'gen_adr_subunit': u"args: %s-style formatting template, cached",
-	u'gen_adr_location': u"args: %s-style formatting template, cached",
-	u'gen_adr_suburb': u"args: %s-style formatting template, cached",
-	u'gen_adr_postcode': u"args: %s-style formatting template, cached",
-	u'gen_adr_region': u"args: %s-style formatting template, cached",
-	u'gen_adr_country': u"args: %s-style formatting template, cached",
+	u'gen_adr_street': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_number': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_subunit': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_location': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_suburb': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_postcode': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_region': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'gen_adr_country': u"""part of a generic address, cached, selected from database:
+		args: optional template//optional selection message//optional cache ID
+		template: %s-style formatting template
+		message: text message shown in address selection list
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
 
-	u'receiver_name': u"args: %s-style formatting template, cached",
-	u'receiver_street': u"args: %s-style formatting template, cached",
-	u'receiver_number': u"args: %s-style formatting template, cached",
-	u'receiver_subunit': u"args: %s-style formatting template, cached",
-	u'receiver_location': u"args: %s-style formatting template, cached",
-	u'receiver_suburb': u"args: %s-style formatting template, cached",
-	u'receiver_postcode': u"args: %s-style formatting template, cached",
-	u'receiver_region': u"args: %s-style formatting template, cached",
-	u'receiver_country': u"args: %s-style formatting template, cached",
+	u'receiver_name': u"""the receiver name, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_street': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_number': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_subunit': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_location': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_suburb': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_postcode': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_region': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
+	u'receiver_country': u"""part of a receiver address, cached, selected from database:
+		receivers are presented for selection from people/addresses related
+		to the patient in some way or other,
+		args: optional template//optional cache ID
+		template: %s-style formatting template
+		cache ID: used to differentiate separate cached invocations of this placeholder
+	""",
 
 	# patient demographics:
 	u'name': u"args: template for name parts arrangement",
@@ -887,18 +981,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def __get_variant_gen_adr_part(self, data=u'?', part=None):
 
-		msg = _('Select the address you want to use !')
 		template = u'%s'
-		values = data.split('//', 2)
-		if len(values) == 2:
-			template, msg = values
-		elif len(values) == 1:
-			template = values[0]
+		msg = _('Select the address you want to use !')
+		cache_id = u''
+		options = data.split('//', 4)
+		if len(options) > 0:
+			template = options[0]
+			if template.strip() == u'':
+				template = u'%s'
+		if len(options) > 1:
+			msg = options[1]
+		if len(options) > 2:
+			cache_id = options[2]
 
-		if template.strip() == u'':
-			template = u'%s'
-
-		cache_key = 'generic_address'
+		cache_key = 'generic_address::' + cache_id
 		try:
 			adr2use = self.__cache[cache_key]
 			_log.debug('cache hit (%s): [%s]', cache_key, adr2use)
@@ -943,11 +1039,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def __get_variant_receiver_part(self, data=u'%s', part=None):
 
-		template = data
-		if template.strip() == u'':
-			template = u'%s'
+		template = u'%s'
+		cache_id = u''
+		options = data.split('//', 3)
+		if len(options) > 0:
+			template = options[0]
+			if template.strip() == u'':
+				template = u'%s'
+		if len(options) > 1:
+			cache_id = options[1]
 
-		cache_key = 'receiver'
+		cache_key = 'receiver::' + cache_id
 		try:
 			name, adr = self.__cache[cache_key]
 			_log.debug('cache hit (%s): [%s:%s]', cache_key, name, adr)
@@ -2245,10 +2347,10 @@ if __name__ == '__main__':
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 
 			#u'$<receiver_name::%s::120>$',
-			u'$<receiver_street::%s::120>$',
-			#u'$<receiver_number:: %s::120>$',
+			u'$<receiver_street::%s//a::120>$',
+			u'$<receiver_number:: %s//a::120>$',
 			#u'$<receiver_subunit:: %s::120>$',
-			#u'$<receiver_postcode::%s::120>$',
+			u'$<receiver_postcode::%s//b::120>$',
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$',
 			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
