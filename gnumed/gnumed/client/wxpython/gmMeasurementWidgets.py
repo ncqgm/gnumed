@@ -1077,6 +1077,9 @@ class cMeasurementsGrid(wx.grid.Grid):
 
 		self.AutoSize()
 		self.EndBatch()
+
+		self.ForceRefresh()
+
 		return
 
 	#------------------------------------------------------------
@@ -1140,10 +1143,12 @@ class cMeasurementsGrid(wx.grid.Grid):
 	# internal helpers
 	#------------------------------------------------------------
 	def __init_ui(self):
+		#self.SetMinSize(wx.DefaultSize)
+		self.SetMinSize((10, 10))
+
 		self.CreateGrid(0, 1)
 		self.EnableEditing(0)
 		self.EnableDragGridSize(1)
-		self.SetMinSize(wx.DefaultSize)
 
 		# column labels
 		# setting this screws up the labels: they are cut off and displaced
@@ -1470,6 +1475,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	# internal API
 	#--------------------------------------------------------
 	def __init_ui(self):
+		self.SetMinSize((10, 10))
+
 		self.__action_button_popup = wx.Menu(title = _('Perform on selected results:'))
 
 		menu_id = wx.NewId()
