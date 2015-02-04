@@ -3151,6 +3151,11 @@ class gmApp(wx.App):
 
 	def OnInit(self):
 
+		if _cfg.get(option = 'debug'):
+			self.SetAssertMode(wx.PYAPP_ASSERT_EXCEPTION | wx.PYAPP_ASSERT_LOG)
+		else:
+			self.SetAssertMode(wx.PYAPP_ASSERT_SUPPRESS)
+
 		self.__starting_up = True
 
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
