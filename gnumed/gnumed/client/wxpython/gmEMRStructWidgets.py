@@ -838,9 +838,8 @@ def manage_episodes(parent=None):
 	def get_tooltip(data):
 		if data is None:
 			return None
-		patient = gmPerson.cPatient(data.get_patient())
 		return data.format (
-			patient = patient,
+			patient = pat,
 			with_summary = True,
 			with_codes = True,
 			with_encounters = False,
