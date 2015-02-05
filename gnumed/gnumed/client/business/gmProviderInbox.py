@@ -584,7 +584,9 @@ def get_suppressed_hints(pk_identity=None, order_by=None):
 		where = u'true'
 	else:
 		where = u"pk_identity = %(pat)s"
-	if order_by is not None:
+	if order_by is None:
+		order_by = u''
+	else:
 		order_by = u' ORDER BY %s' % order_by
 	cmd = (_SQL_get_suppressed_hints % where) + order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)

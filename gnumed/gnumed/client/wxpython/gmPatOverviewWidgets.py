@@ -303,6 +303,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			list_items.append(hint['title'])
 			list_data.append(hint)
 
+		hints = patient.suppressed_hints
+		if len(hints) > 0:
+			list_items.append(_("suppr'd:") + u' ' + u','.join([h['title'][:7] + gmTools.u_ellipsis for h in hints]))
+			list_data.append(_('Suppressed hints:\n') + u'\n'.join([h['title'] for h in hints]))
+
 		self._LCTRL_inbox.set_string_items(items = list_items)
 		self._LCTRL_inbox.set_data(data = list_data)
 
@@ -321,6 +326,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
 				data['source']
 			)
+
+		if isinstance(data, type(u'')):
+			return data
 
 		return None
 	#-----------------------------------------------------

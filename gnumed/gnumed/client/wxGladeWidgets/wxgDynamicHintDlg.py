@@ -66,7 +66,7 @@ class wxgDynamicHintDlg(wx.Dialog):
 		__szr_main.Add(self._TCTRL_hint, 1, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 3)
 		__szr_main.Add(self._TCTRL_source, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM | wx.EXPAND, 3)
 		__szr_main.Add(self._URL_info, 0, wx.BOTTOM | wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
-		__lbl_rationale = wx.StaticText(self, wx.ID_ANY, _("Rationale for\nsuppression"))
+		__lbl_rationale = wx.StaticText(self, wx.ID_ANY, _("Rationale for\nsuppression\nfor this patient"))
 		__gszr_rationale.Add(__lbl_rationale, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 		__gszr_rationale.Add(self._TCTRL_rationale, 1, wx.EXPAND | wx.ALIGN_CENTER_VERTICAL, 0)
 		__gszr_rationale.Add(self._LBL_previous_rationale, 0, wx.ALIGN_CENTER_VERTICAL, 3)
