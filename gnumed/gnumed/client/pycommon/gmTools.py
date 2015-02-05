@@ -813,7 +813,7 @@ def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
 	return xml_tools.escape(text)
 #---------------------------------------------------------------------------
-def tex_escape_string(text=None, replace_known_unicode=True):
+def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, keep_visual_eol=False):
 	"""check for special TeX characters and transform them"""
 
 	text = text.replace(u'\\', u'\\textbackslash')
@@ -827,7 +827,11 @@ def tex_escape_string(text=None, replace_known_unicode=True):
 	text = text.replace(u'#', u'\\#')
 	text = text.replace(u'$', u'\\$')
 	text = text.replace(u'_', u'\\_')
-	text = text.replace(u'\n', u'\\\\ \n')
+	if replace_eol:
+		if keep_visual_eol:
+			text = text.replace(u'\n', u'\\newline \n')
+		else:
+			text = text.replace(u'\n', u'\\newline ')
 
 	if replace_known_unicode:
 		# this should NOT be replaced for Xe(La)Tex

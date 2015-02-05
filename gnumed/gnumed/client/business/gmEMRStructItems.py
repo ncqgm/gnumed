@@ -2000,13 +2000,37 @@ limit 1
 		if date_format is None:
 			date_format = '%A, %b %d %Y'
 
-		tex = u'\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
+		tex =  u'% -------------------------------------------------------------\n'
+		tex += u'% much recommended: \\usepackage(tabu)\n'
+		tex += u'% much recommended: \\usepackage(longtable)\n'
+		tex += u'% best wrapped in: "\\begin{longtabu} to \\textwidth {lX[,L]}"\n'
+		tex += u'% -------------------------------------------------------------\n'
+		tex += u'\\hline \n'
+		tex += u'\\multicolumn{2}{l}{%s: %s ({\\footnotesize %s - %s})} \\tabularnewline \n' % (
 			gmTools.tex_escape_string(self._payload[self._idx['l10n_type']]),
-			self._payload[self._idx['started']].strftime(date_format).decode(gmI18N.get_encoding()),
-			self._payload[self._idx['started']].strftime('%H:%M'),
-			self._payload[self._idx['last_affirmed']].strftime('%H:%M')
+			gmTools.tex_escape_string (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['started']],
+					date_format,
+					accuracy = gmDateTime.acc_days
+				)
+			),
+			gmTools.tex_escape_string (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['started']],
+					'%H:%M',
+					accuracy = gmDateTime.acc_minutes
+				)
+			),
+			gmTools.tex_escape_string (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['last_affirmed']],
+					'%H:%M',
+					accuracy = gmDateTime.acc_minutes
+				)
+			)
 		)
-		tex += u'\\hline \\tabularnewline \n'
+		tex += u'\\hline \n'
 
 		for epi in self.get_episodes():
 			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
@@ -2015,28 +2039,32 @@ limit 1
 			tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
 				gmTools.tex_escape_string(_('Problem')),
 				gmTools.tex_escape_string(epi['description']),
-				gmTools.coalesce (
-					initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
-					instead = u'',
-					template_initial = u' {\\footnotesize [%s]}',
-					none_equivalents = [None, u'']
+				gmTools.tex_escape_string (
+					gmTools.coalesce (
+						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification']),
+						instead = u'',
+						template_initial = u' {\\footnotesize [%s]}',
+						none_equivalents = [None, u'']
+					)
 				)
 			)
 			if epi['pk_health_issue'] is not None:
 				tex += u'\\multicolumn{2}{l}{\\emph{%s: %s%s}} \\tabularnewline \n' % (
 					gmTools.tex_escape_string(_('Health issue')),
 					gmTools.tex_escape_string(epi['health_issue']),
-					gmTools.coalesce (
-						initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
-						instead = u'',
-						template_initial = u' {\\footnotesize [%s]}',
-						none_equivalents = [None, u'']
+					gmTools.tex_escape_string (
+						gmTools.coalesce (
+							initial = diagnostic_certainty_classification2str(epi['diagnostic_certainty_classification_issue']),
+							instead = u'',
+							template_initial = u' {\\footnotesize [%s]}',
+							none_equivalents = [None, u'']
+						)
 					)
 				)
 			for soap in soaps:
 				tex += u'{\\small %s} & %s \\tabularnewline \n' % (
-					gmClinNarrative.soap_cat2l10n[soap['soap_cat']],
-					gmTools.tex_escape_string(soap['narrative'].strip(u'\n'))
+					gmTools.tex_escape_string(gmClinNarrative.soap_cat2l10n[soap['soap_cat']]),
+					gmTools.tex_escape_string(soap['narrative'], replace_eol = True)
 				)
 			tex += u' & \\tabularnewline \n'
 
@@ -2051,7 +2079,6 @@ limit 1
 				gmTools.tex_escape_string(self._payload[self._idx['assessment_of_encounter']])
 			)
 
-		tex += u'\\hline \\tabularnewline \n'
 		tex += u' & \\tabularnewline \n'
 
 		return tex
@@ -3356,12 +3383,12 @@ if __name__ == '__main__':
 	# run them
 	#test_episode()
 	#test_problem()
-	test_encounter()
+	#test_encounter()
 	#test_health_issue()
 	#test_hospital_stay()
 	#test_performed_procedure()
 	#test_diagnostic_certainty_classification_map()
-	#test_encounter2latex()
+	test_encounter2latex()
 	#test_episode_codes()
 #============================================================
 

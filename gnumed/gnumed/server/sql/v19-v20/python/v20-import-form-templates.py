@@ -62,6 +62,18 @@ def run(conn=None):
 		conn = conn
 	)
 
+	# consultation report
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea,
+				external_version = '20.4'
+			WHERE
+				name_long = 'Consultation report (GNUmed default)'""",
+		filename = os.path.join('..', 'sql', 'v19-v20', 'data', 'v20-GNUmed-default_consultation_report_template.tex'),
+		conn = conn
+	)
+
 	return True
 
 #==============================================================

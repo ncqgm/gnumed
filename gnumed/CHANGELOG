@@ -19,6 +19,12 @@ IMPROVED: shutdown with dangling top level windows
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.4
+
+FIX: LaTeX output of $soap_for_encounter$ [thanks Jim]
+
+IMPROVED: default consultation report
+
 	1.5.3
 
 FIX: HL7 import [thanks Jim]
