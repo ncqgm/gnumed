@@ -9,6 +9,7 @@
 	1.5.4
 
 FIX: LaTeX output of $soap_for_encounter$ [thanks Jim]
+FIX: streamline fairly-recent encounter activation
 
 IMPROVED: default consultation report
 

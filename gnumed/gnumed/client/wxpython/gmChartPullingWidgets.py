@@ -137,7 +137,10 @@ def _get_fairly_recent_encounter(pk_identity):
 		_log.debug('user decided not to attach to encounter [%s] despite it being fairly recent', encounter['pk_encounter'])
 		return None
 
-	_log.debug('"fairly recent" encounter re-activated')
+	encounter['last_affirmed'] = gmDateTime.pydt_now_here()
+	encounter.save()
+
+	_log.debug('"fairly recent" encounter reactivated and reaffirmed')
 	return encounter
 
 #----------------------------------------------------------------
@@ -174,20 +177,19 @@ def _decide_on_active_encounter(pk_identity):
 def _do_tasks_after_pulling_chart(emr):
 	emr.log_access(action = u'chart pulled for patient [%s]' % emr.pk_patient)
 	emr.remove_empty_encounters()
-	# ask for gender/dob ?
 
 #----------------------------------------------------------------
 # main entry point
 #----------------------------------------------------------------
 def pull_chart(person):
 	# provider chart access warning already
-	# done during set_ative_patient
-
+	# done during set_active_patient
 	_log.debug('pulling chart for identity [%s]', person.ID)
 
 	person.is_patient = True
 	enc = _decide_on_active_encounter(person.ID)
-	person.as_patient.ensure_has_allergy_state(enc['pk_encounter'])
+	# already done elsewhere
+	#person.as_patient.ensure_has_allergy_state(enc['pk_encounter'])
 
 	# set encounter in EMR
 	from Gnumed.business import gmClinicalRecord
