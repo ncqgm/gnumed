@@ -15,6 +15,7 @@ NEW: copy-to-clipboard list content via popup menu
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows
 IMPROVED: list suppressed dynamic hints in patient overview [thanks Jim]
+IMPROVED: top panel active encounter area layout [thanks Jim]
 
 ------------------------------------------------
 # rel-1-5-patches

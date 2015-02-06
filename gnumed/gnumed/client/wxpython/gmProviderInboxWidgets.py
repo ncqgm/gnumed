@@ -545,7 +545,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 				order_by = u'due_date, importance DESC, received_when DESC'
 			)
 		elif self._RBTN_scheduled_messages.GetValue():
-			_log.debug('loading overdue messages only')
+			_log.debug('loading scheduled messages only')
 			self.__msgs = self.provider.inbox.get_messages (
 				pk_patient = pk_patient,
 				include_without_provider = include_without_provider,
