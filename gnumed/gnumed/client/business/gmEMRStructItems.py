@@ -2032,6 +2032,17 @@ limit 1
 		)
 		tex += u'\\hline \n'
 
+		if self._payload[self._idx['reason_for_encounter']] is not None:
+			tex += u'%s & %s \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('RFE')),
+				gmTools.tex_escape_string(self._payload[self._idx['reason_for_encounter']])
+			)
+		if self._payload[self._idx['assessment_of_encounter']] is not None:
+			tex += u'%s & %s \\tabularnewline \n' % (
+				gmTools.tex_escape_string(_('AOE')),
+				gmTools.tex_escape_string(self._payload[self._idx['assessment_of_encounter']])
+			)
+
 		for epi in self.get_episodes():
 			soaps = epi.get_narrative(soap_cats = soap_cats, encounters = [self.pk_obj], order_by = soap_order)
 			if len(soaps) == 0:
@@ -2062,24 +2073,11 @@ limit 1
 					)
 				)
 			for soap in soaps:
-				tex += u'{\\small %s} & %s \\tabularnewline \n' % (
+				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
 					gmTools.tex_escape_string(gmClinNarrative.soap_cat2l10n[soap['soap_cat']]),
 					gmTools.tex_escape_string(soap['narrative'], replace_eol = True)
 				)
 			tex += u' & \\tabularnewline \n'
-
-		if self._payload[self._idx['reason_for_encounter']] is not None:
-			tex += u'%s & %s \\tabularnewline \n' % (
-				gmTools.tex_escape_string(_('RFE')),
-				gmTools.tex_escape_string(self._payload[self._idx['reason_for_encounter']])
-			)
-		if self._payload[self._idx['assessment_of_encounter']] is not None:
-			tex += u'%s & %s \\tabularnewline \n' % (
-				gmTools.tex_escape_string(_('AOE')),
-				gmTools.tex_escape_string(self._payload[self._idx['assessment_of_encounter']])
-			)
-
-		tex += u' & \\tabularnewline \n'
 
 		return tex
 	#--------------------------------------------------------
