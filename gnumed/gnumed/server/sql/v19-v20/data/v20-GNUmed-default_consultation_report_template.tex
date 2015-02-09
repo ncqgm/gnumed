@@ -4,6 +4,9 @@
 % License: GPL v2 or later
 %------------------------------------------------------------------
 
+% debugging
+\listfiles
+
 \documentclass[10pt,english]{article}
 
 \usepackage[utf8x]{inputenc}
@@ -25,10 +28,30 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{{\tiny Consultation Report on $<title::::>$ $<lastname::::>$, $<firstname::::>$ ($<date_of_birth::%Y %B %d::>$)}}
-\rhead{{\tiny page \thepage/\pageref{LastPage}}}
-\lfoot{{\tiny $<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::120>$}}
-\rfoot{{\tiny $<today::%d.%B %Y::50>$}}
+\lhead{\scriptsize
+	$<praxis::%(branch)s, %(praxis)s::120>$ \\
+	Consultation Report
+}
+\rhead{\scriptsize
+	$<title::::>$ $<lastname::::>$, $<firstname::::>$ \\
+	born $<date_of_birth::%Y %B %d::>$
+}
+\lfoot{\tiny $<current_provider::::>$, $<today::%d.%B %Y::50>$}
+\rfoot{\tiny page \thepage\ of \pageref{LastPage}}
+\renewcommand{\footrulewidth}{0.1pt}
+\fancypagestyle{fancyfirstpage}{
+	\fancyhf{}
+	\renewcommand{\headrulewidth}{0pt}
+	\lfoot{\tiny
+		\href {http://www.gnumed.org}{GNUmed} $<client_version::::>$\\
+		\href {http://www.gnumed.org}{www.gnumed.org}
+	}
+	\cfoot{\tiny
+		Document template:\\
+		$<form_name_long::::60>$ v$<form_version::::20>$
+	}
+	\rfoot{\tiny page \thepage\ of \pageref{LastPage}}
+}
 
 
 \setlength{\parskip}{\medskipamount}
@@ -37,16 +60,19 @@
 
 \begin{document}
 
-\footnotetext {\href {http://www.gnumed.org}{GNUmed} $<client_version::::>$ -- \href {http://www.gnumed.org}{www.gnumed.org}}
-\footnotetext {\tiny Document template: $<form_name_long::::60>$ v$<form_version::::20>$}
-
 
 \title {Consultation Report for: \\ \emph {$<title::::>$ $<lastname::::>$, $<firstname::::>$}}
-\author {From $<current_provider::::>$, written on:}
+\author {
+	From $<current_provider::::>$\\
+	($<praxis::%(branch)s, %(praxis)s::120>$)
+}
 \maketitle 
 
 
-\noindent
+% use fancyhdr on this page as well;
+\thispagestyle{fancyfirstpage}
+
+
 \begin{longtabu} to \textwidth {lX[,L]}
 \multicolumn{2}{r}{\tiny continued on next page...}
 \endfoot
