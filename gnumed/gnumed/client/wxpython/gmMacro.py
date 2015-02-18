@@ -375,13 +375,18 @@ default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
 #=====================================================================
 def show_placeholders():
+
 	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
 	ph_file = codecs.open(filename = fname, mode = 'wb', encoding = 'utf8', errors = 'replace')
 
 	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
 	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
 
-	ph_file.write(u'Variable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	ph_file.write(u'Variable placeholders:\n')
+	ph_file.write(u'Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')
+	ph_file.write(u' REGION_DEFINITION:\n')
+	ph_file.write(u'* a single number specifying the maximum output lenght or\n')
+	ph_file.write(u'* a number, a "-", followed by a second number specifying the region of the string to return\n')
 	for ph in known_variant_placeholders:
 		txt = __known_variant_placeholders[ph]
 		ph_file.write(u'\n')
@@ -480,6 +485,38 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	first_order_placeholder_regex = property(lambda x: first_order_placeholder_regex, lambda x:x)
 	second_order_placeholder_regex = property(lambda x: second_order_placeholder_regex, lambda x:x)
 	third_order_placeholder_regex = property(lambda x: third_order_placeholder_regex, lambda x:x)
+
+	#--------------------------------------------------------
+	def __parse_region_definition(self, region_str):
+		region_str = region_str.strip()
+
+		if region_str == u'':
+			return None, None
+
+		try:
+			pos_last_char = int(region_str)
+			return 0, pos_last_char
+		except (TypeError, ValueError):
+			_log.debug('region definition not a simple length')
+
+		# note that we only check for "legality", not for reasonable bounds
+		first_last = region_str.split('-')
+		if len(first_last) != 2:
+			_log.error('invalid placeholder region definition: %s', region_str)
+			raise ValueError
+
+		try:
+			pos_first_char = int(first_last[0].strip())
+			pos_last_char = int(first_last[1].strip())
+		except (TypeError, ValueError):
+			_log.error('invalid placeholder region definition: %s', region_str)
+			raise ValueError
+
+		# user says 1,2,... (= character position in string), Python needs 0,1,... (indexes 0-based)
+		if pos_first_char > 0:
+			pos_first_char -= 1
+
+		return pos_first_char, pos_last_char
 	#--------------------------------------------------------
 	# __getitem__ API
 	#--------------------------------------------------------
@@ -494,7 +531,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		"""
 		_log.debug('replacing [%s]', placeholder)
 
-		original_placeholder = placeholder
+		original_placeholder_def = placeholder
 
 		# remove leading/trailing '$<(<<)' and '(>>)>$'
 		if placeholder.startswith(default_placeholder_start):
@@ -504,64 +541,70 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			else:
 				_log.error('placeholder must either start with [%s] and end with [%s] or neither of both', default_placeholder_start, default_placeholder_end)
 				if self.debug:
-					return self._escape(self.invalid_placeholder_template % original_placeholder)
+					return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 				return None
 
 		# injectable placeholder ?
 		parts = placeholder.split('::::', 1)
 		if len(parts) == 2:
-			name, lng = parts
+			ph_name, region_str = parts
 			is_an_injectable = True
 			try:
-				val = _injectable_placeholders[name]
+				val = _injectable_placeholders[ph_name]
 			except KeyError:
 				is_an_injectable = False
 			except:
-				_log.exception('injectable placeholder handling error: %s', original_placeholder)
+				_log.exception('injectable placeholder handling error: %s', original_placeholder_def)
 				if self.debug:
-					return self._escape(self.invalid_placeholder_template % original_placeholder)
+					return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 				return None
 			if is_an_injectable:
 				if val is None:
 					if self.debug:
-						return self._escape(u'injectable placeholder [%s]: no value available' % name)
+						return self._escape(u'injectable placeholder [%s]: no value available' % ph_name)
 					return placeholder
 				try:
-					lng = int(lng.strip())
-				except (TypeError, ValueError):
-					lng = len(val)
-				return val[:lng]
+					pos_first_char, pos_last_char = self.__parse_region_definition(region_str)
+				except ValueError:
+					if self.debug:
+						return self._escape(self.invalid_placeholder_template % original_placeholder_def)
+					return None
+				if pos_last_char is None:
+					return val
+				return val[pos_first_char:pos_last_char]
 
 		# variable placeholders
 		if len(placeholder.split('::', 2)) < 3:
-			_log.error('invalid placeholder structure: %s', original_placeholder)
+			_log.error('invalid placeholder structure: %s', original_placeholder_def)
 			if self.debug:
-				return self._escape(self.invalid_placeholder_template % original_placeholder)
+				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 			return None
 
-		name, data = placeholder.split('::', 1)
-		data, lng_str = data.rsplit('::', 1)
-		_log.debug('placeholder parts: name=[%s]; length=[%s]; options=>>>%s<<<', name, lng_str, data)
+		ph_name, data_and_lng = placeholder.split('::', 1)		# split IS lsplit
+		options, region_str = data_and_lng.rsplit('::', 1)
+		_log.debug('placeholder parts: name=[%s]; region_def=[%s]; options=>>>%s<<<', ph_name, region_str, options)
 		try:
-			lng = int(lng_str.strip())
-		except (TypeError, ValueError):
-			lng = None
+			pos_first_char, pos_last_char = self.__parse_region_definition(region_str)
+		except ValueError:
+			if self.debug:
+				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
+			return None
 
-		handler = getattr(self, '_get_variant_%s' % name, None)
+		handler = getattr(self, '_get_variant_%s' % ph_name, None)
 		if handler is None:
-			_log.warning('no handler <_get_variant_%s> for placeholder %s', name, original_placeholder)
+			_log.warning('no handler <_get_variant_%s> for placeholder %s', ph_name, original_placeholder_def)
 			if self.debug:
-				return self._escape(self.invalid_placeholder_template % original_placeholder)
+				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 			return None
 
 		try:
-			if lng is None:
-				return handler(data = data)
-			return handler(data = data)[:lng]
+			if pos_last_char is None:
+				return handler(data = options)
+			return handler(data = options)[pos_first_char:pos_last_char]
 		except:
-			_log.exception('placeholder handling error: %s', original_placeholder)
+			_log.exception('placeholder handling error: %s', original_placeholder_def)
 			if self.debug:
-				return self._escape(self.invalid_placeholder_template % original_placeholder)
+				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 			return None
 
 		_log.error('something went wrong, should never get here')
