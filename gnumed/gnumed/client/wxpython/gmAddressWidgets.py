@@ -528,7 +528,7 @@ class cStreetPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			SELECT DISTINCT ON (data)
 				name AS data,
 				name AS field_label,
-				name || ' (' || postcode || coalesce(', ' || suburb, '') || ')' AS list_label,
+				name || ' (' || coalesce(postcode, '') || coalesce(', ' || suburb, '') || ')' AS list_label,
 				2 AS rank
 			FROM dem.street
 			WHERE

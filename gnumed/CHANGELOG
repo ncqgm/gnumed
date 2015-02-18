@@ -8,6 +8,7 @@
 
 	1.4.15
 
+FIX: street PRW exception on streets w/o postcode
 FIX: exception on moving SOAP between encounters
 
 	1.4.14
