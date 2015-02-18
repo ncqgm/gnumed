@@ -11,6 +11,7 @@
 FIX: LaTeX output of $soap_for_encounter$ [thanks Jim]
 FIX: streamline fairly-recent encounter activation
 FIX: patient instantiation in episode management tooltips
+FIX: street PRW exception on streets w/o postcode
 
 IMPROVED: default consultation report
 
