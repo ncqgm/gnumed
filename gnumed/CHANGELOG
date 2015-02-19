@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.16
+
+FIX: exception in staff list if there is staff with deleted DB account
+
 	1.4.15
 
 FIX: street PRW exception on streets w/o postcode

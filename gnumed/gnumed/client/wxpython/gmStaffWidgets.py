@@ -86,7 +86,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		for staff in staff_list:
 			row_num = self._LCTRL_staff.InsertStringItem(pos, label=staff['short_alias'])
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 1, label = staff['db_user'])
-			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = staff['l10n_role'])
+			self._LCTRL_staff.SetStringItem(index = row_num, col = 2, label = gmTools.coalesce(staff['l10n_role'], _('no current role')))
 			title = gmTools.coalesce(staff['title'], '')
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 3, label = '%s %s, %s' % (title, staff['lastnames'], staff['firstnames']))
 			self._LCTRL_staff.SetStringItem(index = row_num, col = 4, label = gmTools.coalesce(staff['comment'], ''))
@@ -135,7 +135,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		self._TCTRL_name.SetValue('%s.%s %s' % (staff['title'], staff['firstnames'], staff['lastnames']))
 		self._TCTRL_alias.SetValue(staff['short_alias'])
 		self._TCTRL_account.SetValue(staff['db_user'])
-		self._PRW_user_role.SetText(value = staff['l10n_role'], data = staff['role'], suppress_smarts = True)
+		self._PRW_user_role.SetText(value = gmTools.coalesce(staff['l10n_role'], u''), data = staff['role'], suppress_smarts = True)
 		self._TCTRL_comment.SetValue(gmTools.coalesce(staff['comment'], ''))
 	#--------------------------------------------------------
 	def _on_listitem_deselected(self, evt):
@@ -214,6 +214,7 @@ class cEditStaffListDlg(wxgEditStaffListDlg.wxgEditStaffListDlg):
 		conn.close()
 		self.__init_ui_data()
 		return True
+
 #==========================================================================
 from Gnumed.wxGladeWidgets import wxgAddPatientAsStaffDlg
 
