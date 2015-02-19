@@ -428,15 +428,39 @@ class cClinicalRecord(object):
 
 		if issues is not None:
 			where_parts.append(u'pk_health_issue IN %(issues)s')
-			args['issues'] = tuple(issues)
+			if len(issues) == 0:
+				args['issues'] = tuple()
+			else:
+				if isinstance(issues[0], gmEMRStructItems.cHealthIssue):
+					args['issues'] = tuple([ i['pk_health_issue'] for i in issues ])
+				elif isinstance(issues[0], int):
+					args['issues'] = tuple(issues)
+				else:
+					raise ValueError('<issues> must of of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
 
 		if episodes is not None:
 			where_parts.append(u'pk_episode IN %(epis)s')
-			args['epis'] = tuple(episodes)
+			if len(episodes) == 0:
+				args['epis'] = tuple()
+			else:
+				if isinstance(episodes[0], gmEMRStructItems.cEpisode):
+					args['epis'] = tuple([ e['pk_episode'] for e in episodes ])
+				elif isinstance(episodes[0], int):
+					args['epis'] = tuple(episodes)
+				else:
+					raise ValueError('<episodes> must of of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
 
 		if encounters is not None:
 			where_parts.append(u'pk_encounter IN %(encs)s')
-			args['encs'] = tuple(encounters)
+			if len(episodes) == 0:
+				args['encs'] = tuple()
+			else:
+				if isinstance(encounters[0], gmEMRStructItems.cEncounter):
+					args['encs'] = tuple([ e['pk_encounter'] for e in encounters ])
+				elif isinstance(encounters[0], int):
+					args['encs'] = tuple(encounters)
+				else:
+					raise ValueError('<encounters> must of of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
 
 		if soap_cats is not None:
 			where_parts.append(u'c_vn.soap_cat IN %(cats)s')

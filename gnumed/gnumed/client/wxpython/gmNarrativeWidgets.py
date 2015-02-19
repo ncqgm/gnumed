@@ -79,12 +79,15 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 	emr = patient.get_emr()
 
 	if encounters is None:
-		encs = emr.get_encounters(episodes = episodes)
+		all_encs_in_epi = emr.get_encounters(episodes = episodes, skip_empty = True)
+		# nothing to do ?
+		if len(all_encs_in_epi) == 0:
+			return True
 		encounters = gmEncounterWidgets.select_encounters (
 			parent = parent,
 			patient = patient,
 			single_selection = False,
-			encounters = encs
+			encounters = all_encs_in_epi
 		)
 		# cancelled
 		if encounters is None:
