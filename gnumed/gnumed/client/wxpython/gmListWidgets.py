@@ -161,6 +161,10 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def set_string_items(self, items = None):
 		self._LCTRL_items.set_string_items(items = items)
 		self._LCTRL_items.set_column_widths()
+		if items is None:
+			return
+		if len(items) == 0:
+			return
 		self._LCTRL_items.Select(0)
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
