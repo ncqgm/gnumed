@@ -6,6 +6,10 @@
 # rel-1-4-patches
 ------------------------------------------------
 
+	1.4.15
+
+FIX: exception on moving SOAP between encounters
+
 	1.4.14
 
 FIX: exception on right-clicking empty space in problem list [thanks Daniel]
