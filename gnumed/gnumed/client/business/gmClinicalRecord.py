@@ -175,8 +175,11 @@ class cClinicalRecord(object):
 		# we must fail propagating the change, however, if
 		# there are local changes
 		if self.current_encounter.is_modified():
-			_log.debug('unsaved changes in active encounter, cannot switch to another one')
-			raise ValueError('unsaved changes in active encounter, cannot switch to another one')
+			_log.error('current in client: %s', self.current_encounter)
+			raise ValueError('unsaved changes in active encounter [%s], cannot switch to another one [%s]' % (
+				self.current_encounter['pk_encounter'],
+				curr_enc_in_db['pk_encounter']
+			))
 
 		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
 			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
@@ -1721,8 +1724,11 @@ WHERE
 			_log.debug('switching of active encounter')
 			# fail if the currently active encounter has unsaved changes
 			if self.__encounter.is_modified():
-				_log.debug('unsaved changes in active encounter, cannot switch to another one')
-				raise ValueError('unsaved changes in active encounter, cannot switch to another one')
+				_log.error('current in client: %s', self.__encounter)
+				raise ValueError('unsaved changes in active encounter [%s], cannot switch to another one [%s]' % (
+					self.__encounter['pk_encounter'],
+					encounter['pk_encounter']
+				))
 
 		# be more conservative, it seems to have brought about
 		# races involving encounter mod signals which made GNUmed crash
