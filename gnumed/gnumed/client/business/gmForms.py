@@ -1135,11 +1135,11 @@ class cLaTeXForm(cFormEngine):
 
 		# LaTeX can need up to three runs to get cross references et al right
 		if platform.system() == 'Windows':
-			draft_cmd = r'pdflatex.exe -draftmode -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
-			final_cmd = r'pdflatex.exe -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			draft_cmd = r'pdflatex.exe -draftmode -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'pdflatex.exe -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		else:
-			draft_cmd = r'pdflatex -draftmode -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
-			final_cmd = r'pdflatex -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			draft_cmd = r'pdflatex -draftmode -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
+			final_cmd = r'pdflatex -recorder -interaction=nonstopmode -output-directory=%s %s' % (self.__sandbox_dir, self.instance_filename)
 		for run_cmd in [draft_cmd, draft_cmd, final_cmd]:
 			if not gmShellAPI.run_command_in_shell(command = run_cmd, blocking = True, acceptable_return_codes = [0, 1]):
 				_log.error('problem running pdflatex, cannot generate form output')

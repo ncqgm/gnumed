@@ -33,6 +33,7 @@ FIX: exception in staff list if there is staff with deleted DB account (1.4.16)
 
 IMPROVED: default consultation report
 IMPROVED: logging of unexpected encounter changes
+IMPROVED: run pdflatex with -recorder so package "currfile" can be used
 
 	1.5.3
 
