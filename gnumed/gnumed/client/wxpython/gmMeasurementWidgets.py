@@ -1051,10 +1051,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 				#self.SetCellBackgroundColour(row_idx, col_idx, 'cornflower blue')
 				self.SetCellBackgroundColour(row_idx, col_idx, 'PALE TURQUOISE')
 
-		self.AutoSize()
 		self.EndBatch()
 
+		self.AutoSize()
+		self.AdjustScrollbars()
 		self.ForceRefresh()
+
+		#self.Fit()
 
 		return
 
@@ -1366,8 +1369,8 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
-		self.data_grid.patient = None
-		self.panel_data_grid.patient = None
+		self._GRID_results_all.patient = None
+		self._GRID_results_battery.patient = None
 	#--------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		edit_measurement(parent = self, measurement = None)
@@ -1385,9 +1388,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	#--------------------------------------------------------
 	def _on_select_button_pressed(self, evt):
 		if self._RBTN_my_unsigned.GetValue() is True:
-			self.data_grid.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
+			self._GRID_results_all.select_cells(unsigned_only = True, accountables_only = True, keep_preselections = False)
 		elif self._RBTN_all_unsigned.GetValue() is True:
-			self.data_grid.select_cells(unsigned_only = True, accountables_only = False, keep_preselections = False)
+			self._GRID_results_all.select_cells(unsigned_only = True, accountables_only = False, keep_preselections = False)
 	#--------------------------------------------------------
 	def _on_manage_panels_button_pressed(self, event):
 		manage_test_panels(parent = self)
@@ -1397,27 +1400,29 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		if self.__display_mode == u'grid':
 			self._BTN_display_mode.SetLabel(_('All: as &Grid'))
 			self.__display_mode = u'day'
-			self.data_grid.Hide()
-			if self.data_panel.patient is None:
-				self.data_panel.patient = self.data_grid.patient
-			self.data_panel.Show()
+			#self._GRID_results_all.Hide()
+			self._PNL_results_all_grid.Hide()
+			if self._PNL_results_all_listed.patient is None:
+				self._PNL_results_all_listed.patient = self._GRID_results_all.patient
+			self._PNL_results_all_listed.Show()
 		else:
 			self._BTN_display_mode.SetLabel(_('All: by &Day'))
 			self.__display_mode = u'grid'
-			self.data_panel.Hide()
-			if self.data_grid.patient is None:
-				self.data_grid.patient = self.data_panel.patient
-			self.data_grid.Show()
+			self._PNL_results_all_listed.Hide()
+			if self._GRID_results_all.patient is None:
+				self._GRID_results_all.patient = self._PNL_results_all_listed.patient
+			#self._GRID_results_all.Show()
+			self._PNL_results_all_grid.Show()
 		self.Layout()
 	#--------------------------------------------------------
 	def __on_sign_current_selection(self, evt):
-		self.data_grid.sign_current_selection()
+		self._GRID_results_all.sign_current_selection()
 	#--------------------------------------------------------
 	def __on_plot_current_selection(self, evt):
-		self.data_grid.plot_current_selection()
+		self._GRID_results_all.plot_current_selection()
 	#--------------------------------------------------------
 	def __on_delete_current_selection(self, evt):
-		self.data_grid.delete_current_selection()
+		self._GRID_results_all.delete_current_selection()
 	#--------------------------------------------------------
 	def _on_panel_selected(self, panel):
 		wx.CallAfter(self.__on_panel_selected, panel=panel)
@@ -1425,18 +1430,21 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_panel_selected(self, panel):
 		if panel is None:
 			self._TCTRL_panel_comment.SetValue(u'')
-			self.panel_data_grid.panel_to_show = None
-			self.panel_data_grid.Hide()
+			self._GRID_results_battery.panel_to_show = None
+			#self._GRID_results_battery.Hide()
+			self._PNL_results_battery_grid.Hide()
 		else:
 			pnl = self._PRW_panel.GetData(as_instance = True)
 			self._TCTRL_panel_comment.SetValue(gmTools.coalesce (
 				pnl['comment'],
 				u''
 			))
-			self.panel_data_grid.panel_to_show = pnl
-			self.panel_data_grid.Show()
+			self._GRID_results_battery.panel_to_show = pnl
+			#self._GRID_results_battery.Show()
+			self._PNL_results_battery_grid.Show()
+		self._GRID_results_battery.Fit()
+		self._GRID_results_all.Fit()
 		self.Layout()
-		#self.Refresh()
 	#--------------------------------------------------------
 	def _on_panel_selection_modified(self):
 		wx.CallAfter(self.__on_panel_selection_modified)
@@ -1444,8 +1452,9 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def __on_panel_selection_modified(self):
 		self._TCTRL_panel_comment.SetValue(u'')
 		if self._PRW_panel.GetValue().strip() == u'':
-			self.panel_data_grid.panel_to_show = None
-			self.panel_data_grid.Hide()
+			self._GRID_results_battery.panel_to_show = None
+			#self._GRID_results_battery.Hide()
+			self._PNL_results_battery_grid.Hide()
 			self.Layout()
 	#--------------------------------------------------------
 	# internal API
@@ -1465,12 +1474,12 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &file')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self.data_grid.current_selection_to_file)
+		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_file)
 		self.__action_button_popup.Enable(id = menu_id, enable = False)
 
 		menu_id = wx.NewId()
 		self.__action_button_popup.AppendItem(wx.MenuItem(self.__action_button_popup, menu_id, _('Export to &clipboard')))
-		#wx.EVT_MENU(self.__action_button_popup, menu_id, self.data_grid.current_selection_to_clipboard)
+		#wx.EVT_MENU(self.__action_button_popup, menu_id, self._GRID_results_all.current_selection_to_clipboard)
 		self.__action_button_popup.Enable(id = menu_id, enable = False)
 
 		menu_id = wx.NewId()
@@ -1483,12 +1492,14 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 		self._PRW_panel.add_callback_on_selection(callback = self._on_panel_selected)
 		self._PRW_panel.add_callback_on_modified(callback = self._on_panel_selection_modified)
 
-		self.panel_data_grid.show_by_panel = True
-		self.panel_data_grid.panel_to_show = None
-		self.panel_data_grid.Hide()
+		self._GRID_results_battery.show_by_panel = True
+		self._GRID_results_battery.panel_to_show = None
+		#self._GRID_results_battery.Hide()
+		self._PNL_results_battery_grid.Hide()
 		self._BTN_display_mode.SetLabel(_('All: by &Day'))
-		self.data_grid.Show()
-		self.data_panel.Hide()
+		#self._GRID_results_all.Show()
+		self._PNL_results_all_grid.Show()
+		self._PNL_results_all_listed.Hide()
 		self.Layout()
 
 		self._PRW_panel.SetFocus()
@@ -1498,17 +1509,17 @@ class cMeasurementsPnl(wxgMeasurementsPnl.wxgMeasurementsPnl, gmRegetMixin.cRege
 	def _populate_with_data(self):
 		pat = gmPerson.gmCurrentPatient()
 		if pat.connected:
-			self.panel_data_grid.patient = pat
+			self._GRID_results_battery.patient = pat
 			if self.__display_mode == u'grid':
-				self.data_grid.patient = pat
-				self.data_panel.patient = None
+				self._GRID_results_all.patient = pat
+				self._PNL_results_all_listed.patient = None
 			else:
-				self.data_grid.patient = None
-				self.data_panel.patient = pat
+				self._GRID_results_all.patient = None
+				self._PNL_results_all_listed.patient = pat
 		else:
-			self.panel_data_grid.patient = None
-			self.data_grid.patient = None
-			self.data_panel.patient = None
+			self._GRID_results_battery.patient = None
+			self._GRID_results_all.patient = None
+			self._PNL_results_all_listed.patient = None
 		return True
 
 #================================================================
