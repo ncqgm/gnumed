@@ -1396,7 +1396,12 @@ class cGnuplotForm(cFormEngine):
 		else:
 			exec_name = 'gnuplot'
 
-		args = [exec_name, '-p', self.conf_filename, self.template_filename]
+		args = [
+			exec_name,
+			'-p',					# let plot window persist after main gnuplot process exits
+			self.conf_filename,		# contains the gm2gpl_datafile setting which, in turn, contains the actual data
+			self.template_filename	# contains the plotting instructions (IOW a user provided gnuplot script)
+		]
 		_log.debug('plotting args: %s' % str(args))
 
 		try:

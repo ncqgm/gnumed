@@ -1,0 +1,73 @@
+#----------------------------------------------------
+# GNUmed gnuplot graphing script example:
+#
+# plot two test result types into one plot
+#----------------------------------------------------
+
+# uncomment for debugging:
+#gm2gpl_datafile = './x-data-2.txt'
+
+
+# general
+#set title "your special title for this template"
+set grid xtics noytics
+#set grid xtics ytics y2tics
+set autoscale
+set datafile missing '<?>'
+set key off
+set key tmargin center vertical Left autotitle columnheader
+set bmargin 7
+
+
+# x axis
+set xtics rotate by -45
+set xdata time
+set timefmt "%Y-%m-%d_%H:%M"
+
+
+# y2 axis
+set autoscale y2
+set ytics nomirror
+set y2tics
+
+
+# plot
+plot gm2gpl_datafile using 1:2:(valid(4) ? column(4) : column(2)):(valid(5) ? column(5) : column(2)):xticlabels(10) index 0 with yerrorbars pointtype 2, \
+     gm2gpl_datafile using 1:2:(sprintf("%s%s", stringcolumn(2), stringcolumn(3))) index 0 notitle with labels offset 0, 1 , \
+     gm2gpl_datafile using 1:2:(valid(4) ? column(4) : $2):(valid(5) ? column(5) : $2):xticlabels(10) index 1 with yerrorbars pointtype 3 axes x1y2, \
+     gm2gpl_datafile using 1:2:(sprintf("%s%s", stringcolumn(2), stringcolumn(3))) index 1 notitle with labels offset 0, 1 axes x1y2
+
+
+# detect and adjust x range by 10% of entire time span
+time_span = GPVAL_X_MAX - GPVAL_X_MIN
+range_offset = time_span * 10 / 100
+set xrange [(GPVAL_X_MIN - range_offset):(GPVAL_X_MAX + range_offset)]
+
+
+# detect and adjust y range by 5%
+five_percent = abs(GPVAL_Y_MIN * 5 / 100)
+loffset = (GPVAL_Y_MIN == 0) ? 1 : five_percent
+hoffset = (GPVAL_Y_MAX == 0) ? 1 : five_percent
+set yrange [(GPVAL_Y_MIN - loffset):(GPVAL_Y_MAX + hoffset)]
+
+five_percent = abs(GPVAL_Y2_MIN * 5 / 100)
+loffset = (GPVAL_Y2_MIN == 0) ? 1 : five_percent
+hoffset = (GPVAL_Y2_MAX == 0) ? 1 : five_percent
+set y2range [(GPVAL_Y2_MIN - loffset):(GPVAL_Y2_MAX + hoffset)]
+
+
+# redraw with adjusted ranges
+replot
+
+# comment out for debugging
+exit
+
+# .png output:
+set terminal png enhanced transparent nointerlace truecolor #medium #crop
+set output "./gnumed-lab.png"
+replot
+
+# ASCII art output:
+set terminal dumb size 120,40 enhanced
+set output "./gnumed-lab.txt"
+replot
