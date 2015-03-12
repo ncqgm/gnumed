@@ -19,6 +19,7 @@ IMPROVED: list suppressed dynamic hints in patient overview [thanks Jim]
 IMPROVED: top panel active encounter area layout [thanks Jim]
 IMPROVED: measurements plots layout
 IMPROVED: injectable placeholders: support arbitrary names if desired
+IMPROVED: placeholder nesting regexen
 
 ------------------------------------------------
 # rel-1-5-patches

@@ -363,13 +363,21 @@ known_variant_placeholders.sort()
 	# followed by any number of numbers
 	# followed by ">"
 	# followed by "$"
-default_placeholder_regex = r'\$<[^<:]+::.*?::\d*?>\$'		# this one works [except that OOo cannot be non-greedy |-(    ]
-first_order_placeholder_regex =   r'\$<<<[^<:]+?::.*::\d*?>>>\$'
-second_order_placeholder_regex = r'\$<<[^<:]+?::.*::\d*?>>\$'
-third_order_placeholder_regex =  r'\$<[^<:]+::.*?::\d*?>\$'
 
-
-#default_placeholder_regex = r'\$<(?:(?!\$<).)+>\$'		# non-greedy equivalent, uses lookahead (but not supported by LO either |-o  )
+# previous:
+default_placeholder_regex = r'\$<[^<:]+::.*?::\d*?>\$|\$<[^<:]+::.*?::\d+-\d+>\$'         # this one works [except that OOo cannot be non-greedy |-(    ]
+first_pass_placeholder_regex = r'|'.join ([
+	r'\$<[^<:]+::.*?(?=::\d*?>\$)::\d*?>\$',
+	r'\$<[^<:]+::.*?(?=::\d+-\d+>\$)::\d+-\d+>\$'
+])
+second_pass_placeholder_regex = r'|'.join ([
+	r'\$<<[^<:]+?::.*?(?=::\d*?>>\$)::\d*?>>\$',
+	r'\$<<[^<:]+?::.*?(?=::\d+-\d+>>\$)::\d+-\d+>>\$'
+])
+third_pass_placeholder_regex = r'|'.join ([
+	r'\$<<<[^<:]+?::.*?(?=::\d*?>>>\$)::\d*?>>>\$',
+	r'\$<<<[^<:]+?::.*?(?=::\d+-\d+>>>\$)::\d+-\d+>>>\$'
+])
 
 default_placeholder_start = u'$<'
 default_placeholder_end = u'>$'
@@ -492,9 +500,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
 
-	first_order_placeholder_regex = property(lambda x: first_order_placeholder_regex, lambda x:x)
-	second_order_placeholder_regex = property(lambda x: second_order_placeholder_regex, lambda x:x)
-	third_order_placeholder_regex = property(lambda x: third_order_placeholder_regex, lambda x:x)
+	first_pass_placeholder_regex = property(lambda x: first_pass_placeholder_regex, lambda x:x)
+	second_pass_placeholder_regex = property(lambda x: second_pass_placeholder_regex, lambda x:x)
+	third_pass_placeholder_regex = property(lambda x: third_pass_placeholder_regex, lambda x:x)
 
 	#--------------------------------------------------------
 	def __parse_region_definition(self, region_str):
@@ -2333,19 +2341,160 @@ if __name__ == '__main__':
 #			u'junk   $<date_of_birth::%Y %B %d::>$   $<date_of_birth::%Y %B %d::20>$   $<<date_of_birth::%Y %B %d::20>>$',
 #			u'junk   $<date_of_birth::::20>$',
 #			u'junk   $<date_of_birth::::>$',
-			u'$<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$',
+			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::>>>$ junk',
+			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::250>>>$ junk',
+			u'junk $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-4>>>$ junk',
+
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::->>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3->>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-4>>>$ should fail',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail->>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::-should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-4>>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::3-should_fail>>>$ junk',
+			u'should fail $<<<current_meds::%(brand)s (%(substance)s): Dispense $<free_text::Dispense how many of %(brand)s %(preparation)s (%(substance)s) ?::20>$ (%(preparation)s) \\n::should_fail-should_fail>>>$ junk',
 		]
 
-		print "testing placeholder regex:", first_order_placeholder_regex
-		print ""
+		tests = [
+			u'junk $<<<should pass::template::>>>$ junk',
+			u'junk $<<<should pass::template::10>>>$ junk',
+			u'junk $<<<should pass::template::10-20>>>$ junk',
+			u'junk $<<<should pass::template $<<dummy::template 2::10>>$::>>>$ junk',
+			u'junk $<<<should pass::template $<dummy::template 2::10>$::>>>$ junk',
 
-		for t in tests:
-			print 'line: "%s"' % t
-			phs = regex.findall(first_order_placeholder_regex, t, regex.IGNORECASE)
-			print " %s placeholders:" % len(phs)
-			for p in phs:
-				print ' => "%s"' % p
-			print " "
+			u'junk $<<<should pass::template::>>>$ junk $<<<should pass 2::template 2::>>>$ junk',
+			u'junk $<<<should pass::template::>>>$ junk $<<should pass 2::template 2::>>$ junk',
+			u'junk $<<<should pass::template::>>>$ junk $<should pass 2::template 2::>$ junk',
+
+			u'junk $<<<should fail::template $<<<dummy::template 2::10>>>$::>>>$ junk',
+
+			u'junk $<<<should fail::template::10->>>$ junk',
+			u'junk $<<<should fail::template::10->>>$ junk',
+			u'junk $<<<should fail::template::10->>>$ junk',
+			u'junk $<<<should fail::template::10->>>$ junk',
+			u'junk $<first_pass::junk $<<<3rd_pass::template::20>>>$ junk::8-10>$ junk'
+		]
+
+		#print "testing placeholder regex:", first_pass_placeholder_regex
+		##print "testing placeholder regex:", second_pass_placeholder_regex
+		##print "testing placeholder regex:", third_pass_placeholder_regex
+		#print ""
+		#for t in tests:
+		#	print 'line: "%s"' % t
+		#	phs = regex.findall(first_pass_placeholder_regex, t, regex.IGNORECASE)
+		#	#phs = regex.findall(second_pass_placeholder_regex, t, regex.IGNORECASE)
+		#	#phs = regex.findall(third_pass_placeholder_regex, t, regex.IGNORECASE)
+		#	print " %s placeholders:" % len(phs)
+		#	for p in phs:
+		#		print ' => ', p
+		#	print " "
+
+		all_tests = {
+			first_pass_placeholder_regex: [
+				# different lengths/regions
+				(u'junk $<first_level::template::>$ junk', [u'$<first_level::template::>$']),
+				(u'junk $<first_level::template::10>$ junk', [u'$<first_level::template::10>$']),
+				(u'junk $<first_level::template::10-12>$ junk', [u'$<first_level::template::10-12>$']),
+
+				# inside is other-level:
+				(u'junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', [u'$<first_level::$<<insert::insert_template::0>>$::10-12>$']),
+				(u'junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', [u'$<first_level::$<<<insert::insert_template::0>>>$::10-12>$']),
+
+				# outside is other-level:
+				(u'junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', [u'$<insert::insert_template::0>$']),
+				(u'junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', [u'$<insert::insert_template::0>$']),
+
+				# other level on same line
+				(u'junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<first_level 1::template 1::>$']),
+				(u'junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<first_level 1::template 1::>$']),
+
+				# this should produce 2 matches
+				(u'junk $<first_level 1::template 1::>$ junk $<first_level 2::template 2::>$ junk', [u'$<first_level 1::template 1::>$', u'$<first_level 2::template 2::>$']),
+
+				# this will produce a mismatch, due to illegal nesting of same-level placeholders
+				(u'returns illegal match: junk $<first_level::$<insert::insert_template::0>$::10-12>$ junk', [u'$<first_level::$<insert::insert_template::0>$::10-12>$']),
+			],
+			second_pass_placeholder_regex: [
+				# different lengths/regions
+				(u'junk $<<second_level::template::>>$ junk', [u'$<<second_level::template::>>$']),
+				(u'junk $<<second_level::template::10>>$ junk', [u'$<<second_level::template::10>>$']),
+				(u'junk $<<second_level::template::10-12>>$ junk', [u'$<<second_level::template::10-12>>$']),
+
+				# inside is other-level:
+				(u'junk $<<second_level::$<insert::insert_template::0>$::10-12>>$ junk', [u'$<<second_level::$<insert::insert_template::0>$::10-12>>$']),
+				(u'junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', [u'$<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$']),
+
+				# outside is other-level:
+				(u'junk $<first_level::$<<insert::insert_template::0>>$::10-12>$ junk', [u'$<<insert::insert_template::0>>$']),
+				(u'junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', [u'$<<insert::insert_template::0>>$']),
+
+				# other level on same line
+				(u'junk $<first_level 1::template 1::>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<<second_level 2::template 2::>>$']),
+				(u'junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<second_level 1::template 1::>>$']),
+
+				# this should produce 2 matches
+				(u'junk $<<second_level 1::template 1::>>$ junk $<<second_level 2::template 2::>>$ junk', [u'$<<second_level 1::template 1::>>$', u'$<<second_level 2::template 2::>>$']),
+
+				# this will produce a mismatch, due to illegal nesting of same-level placeholders
+				(u'returns illegal match: junk $<<second_level::$<<insert::insert_template::0>>$::10-12>>$ junk', [u'$<<second_level::$<<insert::insert_template::0>>$::10-12>>$']),
+
+			],
+			third_pass_placeholder_regex: [
+				# different lengths/regions
+				(u'junk $<<<third_level::template::>>>$ junk', [u'$<<<third_level::template::>>>$']),
+				(u'junk $<<<third_level::template::10>>>$ junk', [u'$<<<third_level::template::10>>>$']),
+				(u'junk $<<<third_level::template::10-12>>>$ junk', [u'$<<<third_level::template::10-12>>>$']),
+
+				# inside is other-level:
+				(u'junk $<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$ junk', [u'$<<<third_level::$<<insert::insert_template::0>>$::10-12>>>$']),
+				(u'junk $<<<third_level::$<insert::insert_template::0>$::10-12>>>$ junk', [u'$<<<third_level::$<insert::insert_template::0>$::10-12>>>$']),
+
+				# outside is other-level:
+				(u'junk $<<second_level::$<<<insert::insert_template::0>>>$::10-12>>$ junk', [u'$<<<insert::insert_template::0>>>$']),
+				(u'junk $<first_level::$<<<insert::insert_template::0>>>$::10-12>$ junk', [u'$<<<insert::insert_template::0>>>$']),
+
+				# other level on same line
+				(u'junk $<first_level 1::template 1::>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<<third_level 2::template 2::>>>$']),
+				(u'junk $<<second_level 1::template 1::>>$ junk $<<<third_level 2::template 2::>>>$ junk', [u'$<<<third_level 2::template 2::>>>$']),
+
+				# this will produce a mismatch, due to illegal nesting of same-level placeholders
+				(u'returns illegal match: junk $<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$ junk', [u'$<<<third_level::$<<<insert::insert_template::0>>>$::10-12>>>$']),
+			]
+		}
+
+		for pattern in [first_pass_placeholder_regex, second_pass_placeholder_regex, third_pass_placeholder_regex]:
+			print ""
+			print "-----------------------------"
+			print "regex:", pattern
+			tests = all_tests[pattern]
+			for t in tests:
+				line, expected_results = t
+				phs = regex.findall(pattern, line, regex.IGNORECASE)
+				if len(phs) > 0:
+					if phs == expected_results:
+						continue
+
+				print ""
+				print "failed"
+				print "line:", line
+
+				if len(phs) == 0:
+					print "no match"
+					continue
+
+				if len(phs) > 1:
+					print "several matches"
+					for r in expected_results:
+						print "expected:", r
+					for p in phs:
+						print "found:", p
+					continue
+
+				print "unexpected match"
+				print "expected:", expected_results
+				print "found:   ", phs
+
 	#--------------------------------------------------------
 	def test_placeholder():
 
@@ -2363,7 +2512,7 @@ if __name__ == '__main__':
 			#u'adr_suburb::fehlt-auch::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'primary_praxis_provider',
-			#u'current_provider',
+			u'current_provider::::3-5',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
 			#u'$<current_provider_external_id::KV-LANR//KV::1234>$'
@@ -2400,10 +2549,10 @@ if __name__ == '__main__':
 			#u'$<gen_adr_street::Street = %s//Wählen Sie die Empfängeradresse !::120>$', u'$<gen_adr_location::Ort = %s::120>$', u'$<gen_adr_country::::120>$'
 
 			#u'$<receiver_name::%s::120>$',
-			u'$<receiver_street::%s//a::120>$',
-			u'$<receiver_number:: %s//a::120>$',
+			#u'$<receiver_street::%s//a::120>$',
+			#u'$<receiver_number:: %s//a::120>$',
 			#u'$<receiver_subunit:: %s::120>$',
-			u'$<receiver_postcode::%s//b::120>$',
+			#u'$<receiver_postcode::%s//b::120>$',
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$',
 			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
@@ -2444,9 +2593,9 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	#test_placeholder_regex()
+	test_placeholder_regex()
 	#test()
-	test_placeholder()
+	#test_placeholder()
 	#test_show_phs()
 
 #=====================================================================
