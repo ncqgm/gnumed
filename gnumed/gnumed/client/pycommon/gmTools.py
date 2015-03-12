@@ -814,11 +814,20 @@ def xml_escape_string(text=None):
 	return xml_tools.escape(text)
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, keep_visual_eol=False):
-	"""check for special TeX characters and transform them"""
+	"""check for special TeX characters and transform them
 
-	text = text.replace(u'\\', u'\\textbackslash')
-	text = text.replace(u'^', u'\\textasciicircum')
-	text = text.replace(u'~', u'\\textasciitilde')
+		replace_eol:
+			replaces "\n" with "\\newline"
+		keep_visual_eol:
+			replaces "\n" with "\\newline \n" such that
+			both LaTeX will know to place a line break
+			at this point as well as the visual formatting
+			is preserved in the LaTeX source (think multi-
+			row table cells)
+	"""
+	text = text.replace(u'\\', u'\\textbackslash')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace(u'^', u'\\textasciicircum')			# requires \usepackage{textcomp} in LaTeX source
+	text = text.replace(u'~', u'\\textasciitilde')			# requires \usepackage{textcomp} in LaTeX source
 
 	text = text.replace(u'{', u'\\{')
 	text = text.replace(u'}', u'\\}')
