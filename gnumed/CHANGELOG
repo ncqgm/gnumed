@@ -18,6 +18,7 @@ IMPROVED: shutdown with dangling top level windows
 IMPROVED: list suppressed dynamic hints in patient overview [thanks Jim]
 IMPROVED: top panel active encounter area layout [thanks Jim]
 IMPROVED: measurements plots layout
+IMPROVED: injectable placeholders: support arbitrary names if desired
 
 ------------------------------------------------
 # rel-1-5-patches

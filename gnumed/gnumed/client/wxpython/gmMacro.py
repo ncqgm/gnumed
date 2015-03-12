@@ -66,11 +66,11 @@ _cfg = gmCfg2.gmCfgData()
 # using them, in use they must conform to the "placeholder::::max length" syntax,
 # as long as they resolve to None they return their respective names so the
 # developers can know which placeholder was not set
-_injectable_placeholders = {
-	u'form_name_long': None,
-	u'form_name_short': None,
-	u'form_version': None
-}
+known_injectable_placeholders = [
+	u'form_name_long',
+	u'form_name_short',
+	u'form_version'
+]
 
 
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
@@ -396,8 +396,8 @@ def show_placeholders():
 		ph_file.write('\n\n')
 	ph_file.write(u'\n')
 
-	ph_file.write(u'Injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
-	for ph in _injectable_placeholders:
+	ph_file.write(u'Known injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')
+	for ph in known_injectable_placeholders:
 		ph_file.write(u' %s\n' % ph)
 	ph_file.write(u'\n')
 
@@ -424,7 +424,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		- they must be set up before use by set_placeholder()
 		- they should be removed after use by unset_placeholder()
 		- the syntax is like extended static placeholders
-		- they are listed in _injectable_placeholders
+		- known ones are listed in known_injectable_placeholders
+		- per-form ones can be used but must exist before
+		  the form is processed
 
 	variant placeholders
 		- those are listed in known_variant_placeholders
@@ -442,6 +444,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		self.invalid_placeholder_template = _('invalid placeholder >>>>>%s<<<<<')
 
+		self.__injected_placeholders = {}
 		self.__cache = {}
 
 		self.__esc_style = None
@@ -449,13 +452,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def set_placeholder(self, key=None, value=None):
-		_injectable_placeholders[key]
-		_injectable_placeholders[key] = value
+	def set_placeholder(self, key=None, value=None, strict=True):
+		try:
+			known_injectable_placeholders[key]
+		except KeyError:
+			_log.exception(u'injectable placeholder [%s] unknown', key)
+			if strict:
+				raise
+		self.__injected_placeholders[key] = value
 	#--------------------------------------------------------
 	def unset_placeholder(self, key=None):
-		_injectable_placeholders[key]
-		_injectable_placeholders[key] = None
+		try:
+			del self.__injected_placeholders[key]
+		except KeyError:
+			_log.exception(u'injectable placeholder [%s] unknown', key)
 	#--------------------------------------------------------
 	def set_cache_value(self, key=None, value=None):
 		self.__cache[key] = value
@@ -550,7 +560,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			ph_name, region_str = parts
 			is_an_injectable = True
 			try:
-				val = _injectable_placeholders[ph_name]
+				val = self.__injected_placeholders[ph_name]
 			except KeyError:
 				is_an_injectable = False
 			except:
