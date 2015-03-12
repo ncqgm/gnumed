@@ -285,6 +285,10 @@ __known_variant_placeholders = {
 			%(contains)s -- list of components
 			%(amount2dispense)s -- how much/many to dispense""",
 
+	u'current_meds_AMTS': u"""
+		emits LaTeX longtable lines with appropriate page breaks
+	""",
+
 	u'current_meds_table': u"emits a LaTeX table, no arguments",
 	u'current_meds_notes': u"emits a LaTeX table, no arguments",
 	u'lab_table': u"emits a LaTeX table, no arguments",
@@ -1544,6 +1548,40 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return self._escape(_('template is missing'))
 
 		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
+	#--------------------------------------------------------
+	def _get_variant_current_meds_AMTS(self, data=None):
+
+		emr = self.pat.get_emr()
+		from Gnumed.wxpython import gmMedicationWidgets
+		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
+		if intakes2export is None:
+			return u''
+
+		# make them unique:
+		unique_intakes = {}
+		for intake in intakes2export:
+			if intake['pk_brand'] is None:
+				unique_intakes[intake['pk_substance']] = intake
+			else:
+				unique_intakes[intake['brand']] = intake
+		del intakes2export
+
+		# create AMTS-LaTeX per intake
+		data_rows = []
+		for key, intake in unique_intakes.items():
+			data_rows.append(intake.as_amts_latex)
+		del unique_intakes
+
+		# insert \newpage after each group of 15 rows
+		table_rows = data_rows[:15]
+		if len(data_rows) > 15:
+			table_rows.append(u'\\newpage')
+			table_rows.extend(data_rows[15:30])
+		if len(data_rows) > 30:
+			table_rows.append(u'\\newpage')
+			table_rows.extend(data_rows[30:45])
+
+		return u'\n'.join(table_rows)
 	#--------------------------------------------------------
 	def _get_variant_current_meds_for_rx(self, data=None):
 		if data is None:

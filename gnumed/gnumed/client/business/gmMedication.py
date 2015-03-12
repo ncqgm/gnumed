@@ -2331,6 +2331,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_as_amts_latex(self):
+		return format_substance_intake_as_amts_latex(intake = self)
+
+	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
@@ -2388,6 +2395,7 @@ def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=No
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]
+
 #------------------------------------------------------------
 def create_substance_intake(pk_substance=None, pk_component=None, preparation=None, encounter=None, episode=None, pk_brand=None):
 
@@ -2468,6 +2476,71 @@ def delete_substance_intake(substance=None):
 	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
 
+#------------------------------------------------------------
+# AMTS formatting
+#------------------------------------------------------------
+def format_substance_intake_as_amts_latex(intake=None):
+
+	_esc = gmTools.tex_escape_string
+
+	# %(contains)s & %(brand)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
+	# _esc(intake.medically_formatted_start)
+	cells = []
+	if intake['pk_brand'] is None:
+		# components
+		cells.append(_esc(intake['substance'][:80]))
+		# brand
+		cells.append(u'')
+		# Wirkstärke
+		cells.append(_esc(u'%s%s' % (intake['amount'], intake['unit'])))
+	else:
+		# components
+		components = [ c.split('::') for c in intake.containing_drug['components'] ]
+		if len(components) > 3:
+			cells.append(_esc(u'WS-Kombi.'))
+		elif len(components) == 1:
+			cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
+		else:
+			cells.append(u'\\newline'.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+		# brand
+		cells.append(_esc(intake['brand'][:50]))
+		# Wirkstärken
+		if len(components) > 3:
+			cells.append(u'')
+		elif len(components) == 1:
+			cells.append(_esc((u'%s%s' % (c[1], c[2]))[:11]))
+		else:
+			cells.append(u'\\newline'.join([_esc((u'%s%s' % (c[1], c[2]))[:11]) for c in components]))
+	# preparation
+	cells.append(_esc(intake['preparation'][:7]))
+	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
+	cells.append(u'\\multicolumn{4}{l|}{%s}' % _esc(intake['schedule'][:20]))
+	# Einheit to take
+	cells.append(u'')#[:20]
+	# notes
+	cells.append(_esc(intake['notes'][:80]))
+	# aim
+	cells.append(_esc(intake['aim'][:50]))
+
+	table_row = u' & '.join(cells)
+	table_row += u'\\tabularnewline \\hline'
+
+	return table_row
+
+#------------------------------------------------------------
+def format_substance_intake_as_amts_data(intake=None):
+	fields = []
+	# wirkstoffe 3x ~ 80
+	# brand 50
+	# staerken 3x ~ 11
+	# form 7
+	# schema 20
+	# einheit 20
+	# hinweise 80
+	# grund 50
+
+#------------------------------------------------------------
+# other formatting
 #------------------------------------------------------------
 def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
