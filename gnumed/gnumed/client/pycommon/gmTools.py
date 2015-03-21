@@ -122,6 +122,16 @@ def mkdir(directory=None, mode=None):
 	return True
 
 #---------------------------------------------------------------------------
+def mk_sandbox_dir(tmp_dir=None):
+	dirname = get_unique_filename (
+		prefix = u'gm-',
+		suffix = u'dir',
+		tmp_dir = tmp_dir
+	)
+	mkdir(directory = dirname)
+	return dirname
+
+#---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
 	return len(os.listdir(directory)) == 0
 
@@ -498,6 +508,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	f.close()
 
 	return filename
+
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""
@@ -529,6 +540,7 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 			sys.path.remove(module_path)
 
 	return module
+
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------

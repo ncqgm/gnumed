@@ -32,6 +32,7 @@ from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMimeLib
+from Gnumed.pycommon import gmShellAPI
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -90,6 +91,10 @@ __known_variant_placeholders = {
 		template: string template for outputting the path
 		target mime type: a mime type into which to convert the image, no conversion if not given
 		target extension: target file name extension, derived from target mime type if not given
+	""",
+
+	u'range_of': u"""select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
+		args: <enclosed text>
 	""",
 
 	u'tex_escape': u"args: string to escape, mostly obsolete now",
@@ -286,7 +291,23 @@ __known_variant_placeholders = {
 			%(amount2dispense)s -- how much/many to dispense""",
 
 	u'current_meds_AMTS': u"""
-		emits LaTeX longtable lines with appropriate page breaks
+		emits LaTeX longtable lines with appropriate page breaks,
+		also creates per-page AMTS QR codes and sets the following
+		internal placeholders:
+			amts_png_file_1
+			amts_png_file_2
+			amts_png_file_3
+			amts_data_file_1
+			amts_data_file_2
+			amts_data_file_3
+			amts_png_file_current_page
+		the last of which contains the LaTeX command \\thepage (such that
+		LaTeX can use this in, say, page headers) but omitting the .png
+		(for which LaTeX will look by itself),
+		note that you will have to use the 2nd- or 3rd-pass placeholder
+		format if you plan to insert the above because they will only be
+		available by first (or second) pass processing of the initial
+		placeholder "current_meds_AMTS"
 	""",
 
 	u'current_meds_table': u"emits a LaTeX table, no arguments",
@@ -464,20 +485,22 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
-	def set_placeholder(self, key=None, value=None, strict=True):
+	def set_placeholder(self, key=None, value=None, known_only=True):
+		_log.debug('setting [%s]', key)
 		try:
-			known_injectable_placeholders[key]
-		except KeyError:
-			_log.exception(u'injectable placeholder [%s] unknown', key)
-			if strict:
+			known_injectable_placeholders.index(key)
+		except ValueError:
+			_log.debug(u'injectable placeholder [%s] unknown', key)
+			if known_only:
 				raise
 		self.__injected_placeholders[key] = value
 	#--------------------------------------------------------
 	def unset_placeholder(self, key=None):
+		_log.debug('unsetting [%s]', key)
 		try:
 			del self.__injected_placeholders[key]
 		except KeyError:
-			_log.exception(u'injectable placeholder [%s] unknown', key)
+			_log.debug(u'injectable placeholder [%s] unknown', key)
 	#--------------------------------------------------------
 	def set_cache_value(self, key=None, value=None):
 		self.__cache[key] = value
@@ -1551,6 +1574,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_current_meds_AMTS(self, data=None):
 
+		# select intakes
 		emr = self.pat.get_emr()
 		from Gnumed.wxpython import gmMedicationWidgets
 		intakes2export = gmMedicationWidgets.manage_substance_intakes(emr = emr)
@@ -1565,23 +1589,130 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			else:
 				unique_intakes[intake['brand']] = intake
 		del intakes2export
+		unique_intakes = unique_intakes.values()
 
 		# create AMTS-LaTeX per intake
-		data_rows = []
-		for key, intake in unique_intakes.items():
-			data_rows.append(intake.as_amts_latex)
+		intake_as_latex_rows = []
+		for intake in unique_intakes:
+			intake_as_latex_rows.append(intake.as_amts_latex)
+
+		# create data files / QR code files
+		self.__create_amts_datamatrix_files(intakes = unique_intakes)
 		del unique_intakes
 
 		# insert \newpage after each group of 15 rows
-		table_rows = data_rows[:15]
-		if len(data_rows) > 15:
+		table_rows = intake_as_latex_rows[:15]
+		if len(intake_as_latex_rows) > 15:
 			table_rows.append(u'\\newpage')
-			table_rows.extend(data_rows[15:30])
-		if len(data_rows) > 30:
+			table_rows.extend(intake_as_latex_rows[15:30])
+		if len(intake_as_latex_rows) > 30:
 			table_rows.append(u'\\newpage')
-			table_rows.extend(data_rows[30:45])
+			table_rows.extend(intake_as_latex_rows[30:45])
 
 		return u'\n'.join(table_rows)
+
+	#--------------------------------------------------------
+	def __create_amts_datamatrix_files(self, intakes=None):
+
+		# setup dummy files
+		for idx in [1,2,3]:
+			self.set_placeholder (
+				key = u'amts_data_file_%s' % idx,
+				value = 'missing-file.dat',
+				known_only = False
+			)
+			self.set_placeholder (
+				key = u'amts_png_file_%s' % idx,
+				value = 'missing-file.png',
+				known_only = False
+			)
+		self.set_placeholder (
+			key = u'amts_png_file_current_page',
+			value = 'missing-file.png_',
+			known_only = False
+		)
+
+		# find processor
+		found, dmtx_creator = gmShellAPI.detect_external_binary(binary = u'gm-create_datamatrix')
+		_log.debug(dmtx_creator)
+		if not found:
+			_log.error(u'gm-create_datamatrix(.bat/.exe) not found')
+			return
+
+		total_pages = (len(intakes) / 15.0)
+		if total_pages > int(total_pages):
+			total_pages += 1
+		total_pages = int(total_pages)
+
+		_log.debug('total pages: %s', total_pages)
+
+		from Gnumed.business import gmForms
+		work_dir = gmTools.mk_sandbox_dir()
+		png_file_base = os.path.join(work_dir, 'amts-qr_code-page_')
+		for this_page in range(1,total_pages+1):
+			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
+			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(work_dir = work_dir)
+			_log.debug('amts data template definition file: %s', amts_data_template_def_file)
+			form = gmForms.cTextForm(template_file = amts_data_template_def_file)
+			intakes_as_amts_data = []
+			for intake in intakes_this_page:
+				intakes_as_amts_data.append(intake.as_amts_data)
+			self.set_placeholder (
+				key = u'amts_intakes_as_data',
+				value = u'|'.join(intakes_as_amts_data),
+				known_only = False
+			)
+			self.set_placeholder (
+				key = u'amts_check_symbol',
+				value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes_this_page),
+				known_only = False
+			)
+			self.set_placeholder (
+				key = u'amts_page_idx',
+				value = u'%s' % this_page,
+				known_only = False
+			)
+			self.set_placeholder (
+				key = u'amts_total_pages',
+				value = u'%s' % total_pages,
+				known_only = False
+			)
+			success = form.substitute_placeholders(data_source = self)
+			self.unset_placeholder(key = u'amts_intakes_as_data')
+			self.unset_placeholder(key = u'amts_check_symbol')
+			self.unset_placeholder(key = u'amts_page_idx')
+			self.unset_placeholder(key = u'amts_total_pages')
+			if not success:
+				_log.error(u'cannot process amts data file form template')
+				return
+
+			data_file = form.re_editable_filenames[0]
+			png_file = u'%s%s.png' % (png_file_base, this_page)
+			cmd = dmtx_creator + u' %s %s' % (data_file, png_file)
+			success = gmShellAPI.run_command_in_shell (command = cmd, blocking = True)
+			if not success:
+				_log.error(u'error running [%s]' % cmd)
+				return
+
+			# cache file names for later use in \embedfile
+			self.set_placeholder (
+				key = u'amts_data_file_%s' % this_page,
+				value = data_file,
+				known_only = False
+			)
+			self.set_placeholder (
+				key = u'amts_png_file_%s' % this_page,
+				value = png_file,
+				known_only = False
+			)
+
+		self.set_placeholder (
+			key = u'amts_png_file_current_page',
+			value = png_file_base + u'\\thepage',
+			known_only = False
+		)
+
+		return
 	#--------------------------------------------------------
 	def _get_variant_current_meds_for_rx(self, data=None):
 		if data is None:
@@ -1843,6 +1974,14 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return template % filename
 
 		return template % target_fname
+	#--------------------------------------------------------
+	def _get_variant_range_of(self, data=None):
+		if data is None:
+			return None
+		# wrapper code already takes care of actually
+		# selecting the range so all we need to do here
+		# is to return the data itself
+		return data
 	#--------------------------------------------------------
 	def _get_variant_free_text(self, data=None):
 

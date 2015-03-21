@@ -964,12 +964,15 @@ class cTextForm(cFormEngine):
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		try:
-			post_processor = self.form_definition['form::post processor'] % self.instance_filename
+			post_processor = self.form_definition['form::post processor'] % {
+				'input_name': self.instance_filename,
+				'output_name': self.instance_filename + u'.output'
+			}
 		except KeyError:
 			_log.debug('no explicit post processor defined for text template')
 			return True
 
-		self.final_output_filenames = [self.instance_filename]
+		self.final_output_filenames = [self.instance_filename + u'.output']
 
 		return gmShellAPI.run_command_in_shell(command = post_processor, blocking = True)
 #------------------------------------------------------------
@@ -1016,78 +1019,80 @@ class cLaTeXForm(cFormEngine):
 
 		filenames = [
 			self.template_filename,
-			r'%s-result_run1%s' % (path, ext),
-			r'%s-result_run2%s' % (path, ext),
-			r'%s-result_run3%s' % (path, ext)
+			r'%s-result_pass_1%s' % (path, ext),
+			r'%s-result_pass_2%s' % (path, ext),
+			r'%s-result_pass_3%s' % (path, ext)
+		]
+		regexen = [
+			'dummy',
+			data_source.first_pass_placeholder_regex,
+			data_source.second_pass_placeholder_regex,
+			data_source.third_pass_placeholder_regex
 		]
 
-		found_placeholders = True
-		current_run = 1
-		while found_placeholders and (current_run < 4):
-			_log.debug('placeholder substitution run #%s', current_run)
+		current_pass = 1
+		while current_pass < 4:
+			_log.debug('placeholder substitution pass #%s', current_pass)
 			found_placeholders = self.__substitute_placeholders (
-				input_filename = filenames[current_run-1],
-				output_filename = filenames[current_run],
-				data_source = data_source
+				input_filename = filenames[current_pass-1],
+				output_filename = filenames[current_pass],
+				data_source = data_source,
+				placeholder_regex = regexen[current_pass]
 			)
-			current_run += 1
+			current_pass += 1
 
-		if self.template is not None:
-			# remove temporary placeholders
-			data_source.unset_placeholder(u'form_name_long')
-			data_source.unset_placeholder(u'form_name_short')
-			data_source.unset_placeholder(u'form_version')
+		# remove temporary placeholders
+		data_source.unset_placeholder(u'form_name_long')
+		data_source.unset_placeholder(u'form_name_short')
+		data_source.unset_placeholder(u'form_version')
 
 		self.instance_filename = self.re_editable_filenames[0]
 
 		return
 	#--------------------------------------------------------
-	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None):
+	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None, placeholder_regex=None):
 
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
-
-		found_placeholders = False
+		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
 		template_file = codecs.open(input_filename, 'rU', 'utf8')
 		instance_file = codecs.open(output_filename, 'wb', 'utf8')
 
 		for line in template_file:
-
-			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:		# empty lines
+			# empty lines
+			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
 				instance_file.write(line)
 				continue
-			if line.lstrip().startswith('%'):		# TeX comment
+			# TeX-comment-only lines
+			if line.lstrip().startswith('%'):
 				instance_file.write(line)
 				continue
 
-			for placeholder_regex in [data_source.first_order_placeholder_regex, data_source.second_order_placeholder_regex, data_source.third_order_placeholder_regex]:
-				# 1) find placeholders in this line
-				placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
-				if len(placeholders_in_line) == 0:
-					continue
-				_log.debug('%s placeholders found with pattern: %s', len(placeholders_in_line), placeholder_regex)
-				found_placeholders = True
-				# 2) replace them
-				for placeholder in placeholders_in_line:
-					try:
-						val = data_source[placeholder]
-					except:
-						_log.exception('error with placeholder [%s]', placeholder)
-						val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
+			# 1) find placeholders in this line
+			placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
+			if len(placeholders_in_line) == 0:
+				instance_file.write(line)
+				continue
 
-					if val is None:
-						_log.debug('error with placeholder [%s]', placeholder)
-						val = _('error with placeholder [%s]') % gmTools.tex_escape_string(placeholder)
-
-					line = line.replace(placeholder, val)
-
+			# 2) replace them
+			_log.debug('%s placeholders found in this line', len(placeholders_in_line))
+			for placeholder in placeholders_in_line:
+				try:
+					val = data_source[placeholder]
+				except:
+					_log.exception('error with placeholder [%s]', placeholder)
+					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
+				if val is None:
+					_log.debug('error with placeholder [%s]', placeholder)
+					val = gmTools.tex_escape_string(_('error with placeholder [%s]') % placeholder)
+				line = line.replace(placeholder, val)
 			instance_file.write(line)
 
 		instance_file.close()
 		self.re_editable_filenames = [output_filename]
 		template_file.close()
 
-		return found_placeholders
+		return
 	#--------------------------------------------------------
 	def edit(self):
 
@@ -1251,7 +1256,7 @@ class cXeTeXForm(cFormEngine):
 				instance_file.write(line)
 				continue
 
-			for placeholder_regex in [data_source.first_order_placeholder_regex, data_source.second_order_placeholder_regex, data_source.third_order_placeholder_regex]:
+			for placeholder_regex in [data_source.first_pass_placeholder_regex, data_source.second_pass_placeholder_regex, data_source.third_pass_placeholder_regex]:
 				# 1) find placeholders in this line
 				placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
 				if len(placeholders_in_line) == 0:
@@ -2136,6 +2141,13 @@ if __name__ == '__main__':
 		print "final file is:", final_name
 	#--------------------------------------------------------
 	def test_text_form():
+
+		from Gnumed.business import gmPraxis
+
+		branches = gmPraxis.get_praxis_branches()
+		praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
+		print praxis
+
 		pat = gmPersonSearch.ask_for_patient()
 		if pat is None:
 			return
@@ -2150,6 +2162,7 @@ if __name__ == '__main__':
 		ph = gmMacro.gmPlaceholderHandler()
 		ph.debug = True
 		print "placeholder substitution worked:", form.substitute_placeholders(data_source = ph)
+		print form.re_editable_filenames
 		form.edit()
 		form.generate_output()
 	#--------------------------------------------------------
@@ -2169,9 +2182,9 @@ if __name__ == '__main__':
 
 	#test_cFormTemplate()
 	#set_template_from_file()
-	test_latex_form()
+	#test_latex_form()
 	#test_pdf_form()
 	#test_abiword_form()
-	#test_text_form()
+	test_text_form()
 
 #============================================================

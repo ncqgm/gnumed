@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# ===========================================================
+# Create a datamatrix QR code from a text file.
+#
+# The GNUmed client expects to be able to run this command
+# in a systemwide way, ie. it needs to be accessible in the
+# executable $PATH (such that "which gm-create_datamatrix"
+# gives a useful answer). There can be several copies per
+# system in which way users can override a system default
+# script with their own.
+#
+# Typical locations for this script would be
+#
+#	/usr/bin/
+#	/usr/local/bin/
+#	~/bin/
+#
+# This is just an example. You must install
+#	"dmtx-utils"
+#		or
+#	"iec16022"
+# to actually use it.
+#
+# ===========================================================
+INPUT_FILE="$1"
+OUTPUT_FILE="$2"
+
+# ----------------------------------------------------------
+if test -z ${OUTPUT_FILE} ; then
+	echo "=============================================================================================="
+	echo "Usage:"
+	echo " $0 <input filename> <output filename>"
+	echo ""
+	echo "Given:"
+	echo " $0 ${INPUT_FILE} ${OUTPUT_FILE}"
+	echo "=============================================================================================="
+	exit 1
+fi
+
+
+#CONVERTER="iec16022"
+#OPTIONS="-f PNG -i ${INPUT_FILE} -o ${OUTPUT_FILE}"
+CONVERTER="dmtxwrite"
+OPTIONS="--encoding=a --margin=2 --format=PNG --output=${OUTPUT_FILE}.png --symbol-size=s --verbose ${INPUT_FILE}"
+LOG="${INPUT_FILE}.${CONVERTER}.log"
+RUN_CONVERTER="${CONVERTER} ${OPTIONS}"
+
+
+rm -f ${OUTPUT_FILE}
+rm -f ${OUTPUT_FILE}.png
+${RUN_CONVERTER} &> ${LOG}
+if test "$?" != "0" ; then
+	rm -f ${OUTPUT_FILE}.png
+	exit 1
+fi
+
+sync
+mv -f ${OUTPUT_FILE}.png ${OUTPUT_FILE}
+
+exit 0
+# ===========================================================

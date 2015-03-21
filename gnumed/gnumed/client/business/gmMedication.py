@@ -2339,6 +2339,12 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
 	#--------------------------------------------------------
+	def _get_as_amts_data(self):
+		return format_substance_intake_as_amts_data(intake = self)
+
+	as_amts_data = property(_get_as_amts_data, lambda x:x)
+
+	#--------------------------------------------------------
 	def _get_parsed_schedule(self):
 		tests = [
 			# lead, trail
@@ -2484,7 +2490,6 @@ def format_substance_intake_as_amts_latex(intake=None):
 	_esc = gmTools.tex_escape_string
 
 	# %(contains)s & %(brand)s & %(amount)s%(unit)s & %(preparation)s & \multicolumn{4}{l|}{%(schedule)s} & Einheit & %(notes)s & %(aim)s \tabularnewline \hline
-	# _esc(intake.medically_formatted_start)
 	cells = []
 	if intake['pk_brand'] is None:
 		# components
@@ -2501,7 +2506,7 @@ def format_substance_intake_as_amts_latex(intake=None):
 		elif len(components) == 1:
 			cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
 		else:
-			cells.append(u'\\newline'.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+			cells.append(u'\\newline\\ '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
 		# brand
 		cells.append(_esc(intake['brand'][:50]))
 		# Wirkstärken
@@ -2510,11 +2515,11 @@ def format_substance_intake_as_amts_latex(intake=None):
 		elif len(components) == 1:
 			cells.append(_esc((u'%s%s' % (c[1], c[2]))[:11]))
 		else:
-			cells.append(u'\\newline'.join([_esc((u'%s%s' % (c[1], c[2]))[:11]) for c in components]))
+			cells.append(u'\\newline\\ '.join([_esc((u'%s%s' % (c[1], c[2]))[:11]) for c in components]))
 	# preparation
 	cells.append(_esc(intake['preparation'][:7]))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
-	cells.append(u'\\multicolumn{4}{l|}{%s}' % _esc(intake['schedule'][:20]))
+	cells.append(u'\\multicolumn{4}{l|}{%s}' % _esc(intake['schedule']))	# spec says [:20] but implementation guide says: never trim
 	# Einheit to take
 	cells.append(u'')#[:20]
 	# notes
@@ -2530,14 +2535,125 @@ def format_substance_intake_as_amts_latex(intake=None):
 #------------------------------------------------------------
 def format_substance_intake_as_amts_data(intake=None):
 	fields = []
-	# wirkstoffe 3x ~ 80
-	# brand 50
-	# staerken 3x ~ 11
-	# form 7
-	# schema 20
-	# einheit 20
-	# hinweise 80
-	# grund 50
+
+	if intake['pk_brand'] is None:
+		# components
+		fields.append(intake['substance'][:80])
+		# brand
+		fields.append(u'')
+		# Wirkstärke
+		fields.append((u'%s%s' % (intake['amount'], intake['unit']))[:11])
+	else:
+		# components
+		components = [ c.split('::') for c in intake.containing_drug['components'] ]
+		if len(components) > 3:
+			fields.append(u'WS-Kombi.')
+		elif len(components) == 1:
+			fields.append(c[0][:80])
+		else:
+			fields.append(u'~'.join([c[0][:80] for c in components]))
+		# brand
+		fields.append(intake['brand'][:50])
+		# Wirkstärken
+		if len(components) > 3:
+			fields.append(u'')
+		elif len(components) == 1:
+			fields.append((u'%s%s' % (c[1], c[2]))[:11])
+		else:
+			fields.append(u'~'.join([(u'%s%s' % (c[1], c[2]))[:11] for c in components]))
+	# preparation
+	fields.append(intake['preparation'][:7])
+	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
+	fields.append(intake['schedule'][:20])
+	# Einheit to take
+	fields.append(u'')#[:20]
+	# notes
+	fields.append(intake['notes'][:80])
+	# aim
+	fields.append(intake['aim'][:50])
+
+	return u'|'.join(fields)
+
+#------------------------------------------------------------
+def calculate_amts_data_check_symbol(intakes=None):
+
+	# first char of generic substance or brand name
+	first_chars = []
+	for intake in intakes:
+		if intake['pk_brand'] is None:
+			first_chars.append(intake['substance'][0])
+		else:
+			first_chars.append(intake['brand'][0])
+
+	# add up_per page
+	val_sum = 0
+	for first_char in first_chars:
+		# ziffer: ascii+7
+		if first_char.isdigit():
+			val_sum += (ord(first_char) + 7)
+		# großbuchstabe: ascii
+		# kleinbuchstabe ascii(großbuchstabe)
+		if first_char.isalpha():
+			val_sum += ord(first_char.upper())
+		# other: 0
+
+	# get remainder of sum mod 36
+	tmp, remainder = divmod(val_sum, 36)
+	# 0-9 -> '0' - '9'
+	if remainder < 10:
+		return u'%s' % remainder
+	# 10-35 -> 'A' - 'Z'
+	return chr(remainder + 55)
+
+#------------------------------------------------------------
+def generate_amts_data_template_definition_file(work_dir=None):
+
+	amts_fields = [
+		u'MP',
+		u'020',	# Version
+		u'DE',	# Land
+		u'DE',	# Sprache
+		u'1',	# Zeichensatz 1 = Ext ASCII (fest) = ISO8859-1 = Latin1
+		u'$<today::%Y%m%d::8>$',
+		u'$<amts_page_idx::::1>$',				# to be set by code using the template
+		u'$<amts_total_pages::::1>$',			# to be set by code using the template
+		u'0',	# Zertifizierungsstatus
+
+		u'$<name::%(firstnames)s::45>$',
+		u'$<name::%(lastnames)s::45>$',
+		u'',	# Patienten-ID
+		u'$<date_of_birth::%Y%m%d::8>$',
+
+		u'$<<range_of::$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$::30>>$',
+		u'$<praxis_address::%(street)s %(number)s %(subunit)s|%(postcode)s|%(urb)s::57>$',		# 55+2 because of 2 embedded "|"s
+		u'$<praxis_comm::workphone::20>$',
+		u'$<praxis_comm::email::80>$',
+
+		u'264 $<allergy_state::::21>$', # param 1, Allergien 25-4 (4 for "264 ", spec says max of 25)
+		u'', # param 2, not used currently
+		u'', # param 3, not used currently
+
+		# Medikationseinträge
+		u'$<amts_intakes_as_data::::9999999>$',
+
+		u'$<amts_check_symbol::::1>$',	# Prüfzeichen, value to be set by code using the template, *per page* !
+		u'#@',							# Endesymbol
+	]
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = codecs.open(amts_fname, 'wb', 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u'|'.join(amts_fields))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
 
 #------------------------------------------------------------
 # other formatting

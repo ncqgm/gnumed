@@ -1,5 +1,5 @@
 %------------------------------------------------------------------
-% Medikationsplan gemäß AMTS 2.0
+% Medikationsplan gemäß AMTS 2.0 für GNUmed (http://www.gnumed.de)
 %
 % License: GPL v2 or later
 %
@@ -42,15 +42,15 @@
 \usepackage{embedfile}					% store copy of data file for producing data matrix inside PDF
 \usepackage{array}						% improved column styles
 \usepackage[abspath]{currfile}			% generically refer to input file
-%\usepackage{qrcode}					% used to create the 2D data matrix
+\usepackage{graphicx}					% Grafiken laden (datamatrix)
+\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
+\usepackage[export]{adjustbox}			% improved options for \includegraphics
 \usepackage{hyperref}					% aktive URLs
 
 % debugging:
 %\usepackage{showkeys}
 
 %\usepackage{marvosym}					% Symbole: Handy, Telefon, E-Mail
-%\usepackage{graphicx}					% Grafiken laden (Logo und Unterschrift)
-%\usepackage[space]{grffile}			% besserer Zugriff auf Grafikdateien
 %\usepackage{calc}						% \widthof (für signature)
 
 %------------------------------------------------------------------
@@ -85,18 +85,14 @@
 \renewcommand{\rmdefault}{phv}
 \renewcommand{\sfdefault}{phv}
 
-% - data matrix
-%\qrset{level=Q}
-%\qrset{version=15}
-
 
 % - header = top part
 \lohead{
 	\upshape
 	% debugging (with vertical lines):
-	%\begin{tabu} to \textwidth {p{7cm}|X[-1,L]|@{\hspace{1cm}}|X[-1,R]|p{4.3cm}}
+	%\begin{tabu} to \textwidth {p{7cm}|X[-1,L]|@{\hspace{1cm}}|X[-1,R]|p{4.6cm}}
 	\begin{tabu} to \textwidth {p{7cm}X[-1,L]@{\hspace{1cm}}X[-1,R]p{4.3cm}}
-			{\fontsize{20pt}{22pt}\selectfont \textbf{Medikationsplan}}\newline
+			{\fontsize{20pt}{22pt}\selectfont \textbf{\href{http://www.akdae.de/AMTS/Medikationsplan/}{Medikationsplan}}}\newline
 			\ \newline
 			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}}
 		&
@@ -105,7 +101,7 @@
 			$<name::\textbf{%(firstnames)s %(lastnames)s}::38-90>$\  \newline
 			ausgedruckt von: $<current_provider::::30>$ \newline
 			\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
-			% use \mbox{...} to prevent ... from getting hyphenated
+			% use \mbox{TEXT} to prevent TEXT from getting hyphenated
 			\mbox{$<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>$}\ \newline
 			$<praxis_comm::workphone::20>$\ \newline
 			{\fontsize{12pt}{14pt}\selectfont \href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email::80>$}\ }
@@ -114,13 +110,12 @@
 			geb.\ am: \textbf{$<date_of_birth::%d.%m.%Y::10>$}\newline
 			\ \newline
 			\ \newline
+			Allergie: $<allergy_state::::15>$\newline
 			\ \newline											%Gewicht: 125 kg\newline		::25
 			\ \newline											%schwanger / stillend\newline	::25
-			Allergie: $<allergy_state::::15>$\newline			%Allergie: Katzenhaare\newline
 			ausgedruckt am: $<today::%d.%m.%Y::10>$
 		&
-			% debugging:
-			%---data matrix---
+			\includegraphics[valign=t,raise=6ex,max totalheight=4cm,max totalwidth=4cm,center]{$<<amts_png_file_current_page::::>>$}
 		\tabularnewline
 	\end{tabu}
 }
@@ -179,9 +174,8 @@
 \refoot{}
 \rofoot{}
 
-
+%------------------------------------------------------------------
 \begin{document}
-
 
 % middle part: Medikationsliste
 \begin{longtable} {|
@@ -199,7 +193,6 @@
 }
 % Tabellenkopf:
 \hline
-{
 	\fontsize{12pt}{14pt}\selectfont
 	\centering Wirkstoff &
 	\centering Handelsname &
@@ -212,7 +205,6 @@
 	\centering Einheit &
 	\centering Hinweise &
 	\centering Grund
-}
 \endhead
 \hline
 \endfoot
@@ -220,39 +212,64 @@
 \endlastfoot
 % Tabelleninhalt:
 \hline
-{
 	\fontsize{12pt}{14pt}\selectfont
 	$<current_meds_AMTS::::999999999>$
-}
 \end{longtable}
 
-
+%------------------------------------------------------------------
 % include data in PDF for easier processing:
-
-% 1) data file from which QR code was generated
-%\embedfile[
-%	desc=Medikationsplan als QR-Code-Datendatei,
-%	mimetype=text/plain
-%]{./qr-code-data-file.txt}
-
-% 2) LaTeX source code from which the PDF was produced
+% LaTeX source code from which the PDF was produced
 \embedfile[
-	desc=Medikationsplan als LaTeX-Quellcode,
-	mimetype=text/plain
+	desc=LaTeX-Quellcode des Medikationsplans (übersetzbar mit "pdflatex -recorder -interaction=nonstopmode \currfilename\ "),
+	mimetype=text/plain,
+	ucfilespec=\currfilename
 ]{\currfileabspath}
 
-% 3) QR code as PNG
-%\embedfile[
-%	desc=QR-Code des Medikationsplan als PNG-Datei,
-%	mimetype=image/png
-%]{qr-code.png}
+% QR codes as PNG
+\embedfile[
+	desc=QR-Code (Bild) für Seite 1,
+	mimetype=image/png,
+	ucfilespec=AMTS-QR-Code-Seite-1.png
+]{$<<amts_png_file_1::::>>$}
 
-% 4) VCF of creator
-%\embedfile[
-%	desc=digitale Visitenkarte des Erstellers,
-%	mimetype=text/vcf
-%]{praxis.vcf}
+\embedfile[
+	desc=QR-Code (Bild) für Seite 2,
+	mimetype=image/png,
+	ucfilespec=AMTS-QR-Code-Seite-2.png
+]{$<<amts_png_file_2::::>>$}
 
+\embedfile[
+	desc=QR-Code (Bild) für Seite 3,
+	mimetype=image/png,
+	ucfilespec=AMTS-QR-Code-Seite-3.png
+]{$<<amts_png_file_3::::>>$}
+
+% data files from which QR codes were generated
+\embedfile[
+	desc=QR-Code (Daten) für Seite 1,
+	mimetype=text/plain,
+	ucfilespec=AMTS-QR-Code-Daten-Seite-1.txt
+]{$<<amts_data_file_1::::>>$}
+
+\embedfile[
+	desc=QR-Code (Daten) für Seite 2,
+	mimetype=text/plain,
+	ucfilespec=AMTS-QR-Code-Daten-Seite-2.txt
+]{$<<amts_data_file_2::::>>$}
+
+\embedfile[
+	desc=QR-Code (Daten) für Seite 3,
+	mimetype=text/plain,
+	ucfilespec=AMTS-QR-Code-Daten-Seite-3.txt
+]{$<<amts_data_file_3::::>>$}
+
+% VCF of creator
+\embedfile[
+	desc=digitale Visitenkarte des Erstellers des Medikationsplans,
+	mimetype=text/vcf,
+	ucfilespec=AMTS-Medikationsplan-Ersteller.vcf
+]{praxis.vcf}
+%------------------------------------------------------------------
 
 \end{document}
 %------------------------------------------------------------------
