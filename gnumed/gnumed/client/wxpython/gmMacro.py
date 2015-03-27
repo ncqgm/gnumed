@@ -1618,17 +1618,17 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		for idx in [1,2,3]:
 			self.set_placeholder (
 				key = u'amts_data_file_%s' % idx,
-				value = 'missing-file.dat',
+				value = './missing-file.dat',
 				known_only = False
 			)
 			self.set_placeholder (
 				key = u'amts_png_file_%s' % idx,
-				value = 'missing-file.png',
+				value = './missing-file.png',
 				known_only = False
 			)
 		self.set_placeholder (
 			key = u'amts_png_file_current_page',
-			value = 'missing-file.png_',
+			value = './missing-file-current-page.png',
 			known_only = False
 		)
 
@@ -1646,12 +1646,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.debug('total pages: %s', total_pages)
 
+		png_dir = gmTools.mk_sandbox_dir()
+		_log.debug('sandboxing AMTS QR Code PNGs in: %s', png_dir)
+		png_file_base = os.path.join(png_dir, 'gm4amts-qr_code-page_')
 		from Gnumed.business import gmForms
-		work_dir = gmTools.mk_sandbox_dir()
-		png_file_base = os.path.join(work_dir, 'amts-qr_code-page_')
 		for this_page in range(1,total_pages+1):
 			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
-			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(work_dir = work_dir)
+			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file()
 			_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 			form = gmForms.cTextForm(template_file = amts_data_template_def_file)
 			intakes_as_amts_data = []

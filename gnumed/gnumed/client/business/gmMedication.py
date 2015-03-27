@@ -2497,7 +2497,7 @@ def format_substance_intake_as_amts_latex(intake=None):
 		# brand
 		cells.append(u'')
 		# Wirkstärke
-		cells.append(_esc(u'%s%s' % (intake['amount'], intake['unit'])))
+		cells.append(_esc(u'%s%s' % (intake['amount'].replace(u'.', u','), intake['unit'])))
 	else:
 		# components
 		components = [ c.split('::') for c in intake.containing_drug['components'] ]
@@ -2506,20 +2506,24 @@ def format_substance_intake_as_amts_latex(intake=None):
 		elif len(components) == 1:
 			cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
 		else:
-			cells.append(u'\\newline\\ '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
 		# brand
 		cells.append(_esc(intake['brand'][:50]))
 		# Wirkstärken
 		if len(components) > 3:
 			cells.append(u'')
 		elif len(components) == 1:
-			cells.append(_esc((u'%s%s' % (c[1], c[2]))[:11]))
+			cells.append(_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]))
 		else:
-			cells.append(u'\\newline\\ '.join([_esc((u'%s%s' % (c[1], c[2]))[:11]) for c in components]))
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]) for c in components]))
 	# preparation
 	cells.append(_esc(intake['preparation'][:7]))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
-	cells.append(u'\\multicolumn{4}{l|}{%s}' % _esc(intake['schedule']))	# spec says [:20] but implementation guide says: never trim
+	# spec says [:20] but implementation guide says: never trim
+	if len(intake['schedule']) > 20:
+		cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{\\fontsize{10pt}{12pt}\selectfont %s}' % _esc(intake['schedule']))
+	else:
+		cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{%s}' % _esc(intake['schedule']))
 	# Einheit to take
 	cells.append(u'')#[:20]
 	# notes
@@ -2528,7 +2532,7 @@ def format_substance_intake_as_amts_latex(intake=None):
 	cells.append(_esc(intake['aim'][:50]))
 
 	table_row = u' & '.join(cells)
-	table_row += u'\\tabularnewline \\hline'
+	table_row += u'\\tabularnewline\n\\hline'
 
 	return table_row
 

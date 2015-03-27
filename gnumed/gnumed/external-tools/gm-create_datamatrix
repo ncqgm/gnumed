@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # ===========================================================
 # Create a datamatrix QR code from a text file.
@@ -47,16 +47,19 @@ LOG="${INPUT_FILE}.${CONVERTER}.log"
 RUN_CONVERTER="${CONVERTER} ${OPTIONS}"
 
 
-rm -f ${OUTPUT_FILE}
-rm -f ${OUTPUT_FILE}.png
-${RUN_CONVERTER} &> ${LOG}
+echo "Running datamatrix converter" &> ${LOG}
+rm -vf ${OUTPUT_FILE} &>> ${LOG}
+rm -vf ${OUTPUT_FILE}.png &>> ${LOG}
+echo "${RUN_CONVERTER}" &>> ${LOG}
+${RUN_CONVERTER} &>> ${LOG}
 if test "$?" != "0" ; then
-	rm -f ${OUTPUT_FILE}.png
+	echo "running converter failed" &>> ${LOG}
+	rm -vf ${OUTPUT_FILE}.png &>> ${LOG}
 	exit 1
 fi
 
 sync
-mv -f ${OUTPUT_FILE}.png ${OUTPUT_FILE}
+mv -vf ${OUTPUT_FILE}.png ${OUTPUT_FILE} &>> ${LOG}
 
 exit 0
 # ===========================================================

@@ -880,20 +880,39 @@ class cTextForm(cFormEngine):
 	"""A forms engine outputting data as text for further processing."""
 
 	def __init__(self, template_file=None):
+
 		super(self.__class__, self).__init__(template_file = template_file)
 
-		# generate real template file from .ini file
-		cfg_file = codecs.open(filename = self.template_filename, mode = 'rU', encoding = u'utf8')
+		# create sandbox to play in (and don't assume much
+		# of anything about the template_file except that it
+		# is at our disposal for reading)
+		self.__sandbox_dir = gmTools.mk_sandbox_dir()
+		_log.debug('sandbox directory: [%s]', self.__sandbox_dir)
+
+		# parse template file which is an INI style config
+		# file containing the actual template plus metadata
+		self.form_definition_filename = self.template_filename
+		_log.debug('form definition file: [%s]', self.form_definition_filename)
+		cfg_file = codecs.open(filename = self.form_definition_filename, mode = 'rU', encoding = u'utf8')
 		self.form_definition = gmCfg2.parse_INI_stream(stream = cfg_file)
 		cfg_file.close()
-		self.form_definition['form::template']
+
+		# extract actual template into a file
+		template_text = self.form_definition['form::template']
+		if isinstance(template_text, type([])):
+			template_text = u'\n'.join(self.form_definition['form::template'])
+		self.template_filename = gmTools.get_unique_filename (
+			prefix = 'gm-',
+			suffix = '.txt',
+			tmp_dir = self.__sandbox_dir
+		)
+		_log.debug('template file: [%s]', self.template_filename)
+		f = codecs.open(self.template_filename, 'wb', 'utf8')
+		f.write(template_text)
+		f.close()
+
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
-		self.instance_filename = gmTools.get_unique_filename (
-			prefix = 'gm-T-instance-',
-			suffix = '.txt'
-		)
-		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
 
 		if self.template is not None:
 			# inject placeholder values
@@ -901,45 +920,80 @@ class cTextForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
 
-		if isinstance(self.form_definition['form::template'], type([])):
-			template_text = self.form_definition['form::template']
-		else:
-			template_text = self.form_definition['form::template'].split('\n')
+		base = os.path.join(self.__sandbox_dir, gmTools.fname_stem(self.template_filename))
+		filenames = [
+			self.template_filename,
+			r'%s-result_pass_1.txt' % base,
+			r'%s-result_pass_2.txt' % base,
+			r'%s-result_pass_3.txt' % base
+		]
+		regexen = [
+			'dummy',
+			data_source.first_pass_placeholder_regex,
+			data_source.second_pass_placeholder_regex,
+			data_source.third_pass_placeholder_regex
+		]
 
-		no_errors = True
-		for line in template_text:
+		current_pass = 1
+		while current_pass < 4:
+			_log.debug('placeholder substitution pass #%s', current_pass)
+			found_placeholders = self.__substitute_placeholders (
+				input_filename = filenames[current_pass-1],
+				output_filename = filenames[current_pass],
+				data_source = data_source,
+				placeholder_regex = regexen[current_pass]
+			)
+			current_pass += 1
+
+		# remove temporary placeholders
+		data_source.unset_placeholder(u'form_name_long')
+		data_source.unset_placeholder(u'form_name_short')
+		data_source.unset_placeholder(u'form_version')
+
+		self.instance_filename = self.re_editable_filenames[0]
+
+		return True
+
+	#--------------------------------------------------------
+	def __substitute_placeholders(self, data_source=None, input_filename=None, output_filename=None, placeholder_regex=None):
+
+		_log.debug('[%s] -> [%s]', input_filename, output_filename)
+		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
+
+		template_file = codecs.open(input_filename, 'rU', 'utf8')
+		instance_file = codecs.open(output_filename, 'wb', 'utf8')
+
+		for line in template_file:
+			# empty lines
 			if line.strip() in [u'', u'\r', u'\n', u'\r\n']:
-				instance_file.write('%s\n' % line)
+				instance_file.write(line)
 				continue
 
 			# 1) find placeholders in this line
-			placeholders_in_line = regex.findall(data_source.placeholder_regex, line, regex.IGNORECASE)
-			# 2) and replace them
+			placeholders_in_line = regex.findall(placeholder_regex, line, regex.IGNORECASE)
+			if len(placeholders_in_line) == 0:
+				instance_file.write(line)
+				continue
+
+			# 2) replace them
+			_log.debug('%s placeholders found in this line', len(placeholders_in_line))
 			for placeholder in placeholders_in_line:
 				try:
 					val = data_source[placeholder]
 				except:
 					val = _('error with placeholder [%s]') % placeholder
 					_log.exception(val)
-					no_errors = False
-
 				if val is None:
 					val = _('error with placeholder [%s]') % placeholder
 
 				line = line.replace(placeholder, val)
 
-			instance_file.write(u'%s\n' % line)
+			instance_file.write(line)
 
 		instance_file.close()
-		self.re_editable_filenames = [self.instance_filename]
+		self.re_editable_filenames = [output_filename]
+		template_file.close()
 
-		if self.template is not None:
-			# remove temporary placeholders
-			data_source.unset_placeholder(u'form_name_long')
-			data_source.unset_placeholder(u'form_name_short')
-			data_source.unset_placeholder(u'form_version')
-
-		return no_errors
 	#--------------------------------------------------------
 	def edit(self):
 
@@ -961,6 +1015,7 @@ class cTextForm(cFormEngine):
 		self.re_editable_filenames = [self.instance_filename]
 
 		return result
+
 	#--------------------------------------------------------
 	def generate_output(self, format=None):
 		try:
@@ -988,7 +1043,7 @@ class cLaTeXForm(cFormEngine):
 
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
-		# is at our disposal)
+		# is at our disposal for reading)
 		sandbox_dir = gmTools.get_unique_filename (
 			prefix = gmTools.fname_stem(template_file) + '_',
 			suffix = '.dir'
@@ -1001,6 +1056,7 @@ class cLaTeXForm(cFormEngine):
 		super(self.__class__, self).__init__(template_file = template_file)
 
 		self.__sandbox_dir = sandbox_dir
+
 	#--------------------------------------------------------
 	def substitute_placeholders(self, data_source=None):
 
@@ -1093,6 +1149,7 @@ class cLaTeXForm(cFormEngine):
 		template_file.close()
 
 		return
+
 	#--------------------------------------------------------
 	def edit(self):
 

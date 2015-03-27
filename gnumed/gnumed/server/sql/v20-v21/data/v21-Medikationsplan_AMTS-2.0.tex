@@ -3,6 +3,9 @@
 %
 % License: GPL v2 or later
 %
+% Author: karsten.hilbert@gmx.net
+% Thanks to: G.Hellmann
+%
 % requires pdflatex to be run with -recorder option
 %------------------------------------------------------------------
 
@@ -14,10 +17,10 @@
 	version=last,
 	paper=landscape,
 	paper=a4,
-	DIV=9,								% help typearea find a good Satzspiegel
-	BCOR=0mm,							% keine BindeCORrektur
-	fontsize=12pt,						% per spec
-	parskip=full,						% Absätze mit Leerzeilen trennen, kein Einzug
+	DIV=9,									% help typearea find a good Satzspiegel
+	BCOR=0mm,								% keine BindeCORrektur
+	fontsize=12pt,							% per spec
+	parskip=full,							% Absätze mit Leerzeilen trennen, kein Einzug
 	headsepline=off,
 	footsepline=off,
 	titlepage=false
@@ -25,27 +28,28 @@
 
 %------------------------------------------------------------------
 % packages
-\usepackage{scrlayer-scrpage}			% Kopf- und Fußzeilen
-\usepackage{geometry}					% setup margins
-\usepackage{microtype}					% micro-adjustments to typesetting
-\usepackage[cjkjis,graphics]{ucs}		% lots of UTF8 symbols, breaks with xelatex
-\usepackage[T1]{fontenc}				% fonts are T1
-\usepackage[ngerman]{babel}				% Deutsch und Trennung
-\usepackage[utf8x]{inputenc}			% content is UTF8, breaks with xelatex
-\usepackage{textcomp}					% Symbole für Textmodus zum Escapen
-\usepackage{ragged2e}					% improved alignment, needed for raggedleft in header table cell
-\usepackage{tabularx}					% bessere Tabellen
-\usepackage{tabu}						% bessere Tabellen
-\usepackage{longtable}					% Tabellen über mehrere Seiten
-\usepackage{helvet}						% Arial alike Helvetica
-\usepackage{lastpage}					% easy access to page number of last page
-\usepackage{embedfile}					% store copy of data file for producing data matrix inside PDF
-\usepackage{array}						% improved column styles
-\usepackage[abspath]{currfile}			% generically refer to input file
-\usepackage{graphicx}					% Grafiken laden (datamatrix)
-\usepackage[space]{grffile}				% besserer Zugriff auf Grafikdateien
-\usepackage[export]{adjustbox}			% improved options for \includegraphics
-\usepackage{hyperref}					% aktive URLs
+\usepackage{scrlayer-scrpage}				% Kopf- und Fußzeilen
+\usepackage{geometry}						% setup margins
+\usepackage{microtype}						% micro-adjustments to typesetting
+\usepackage[cjkjis,graphics]{ucs}			% lots of UTF8 symbols, breaks with xelatex
+\usepackage[T1]{fontenc}					% fonts are T1
+\usepackage[ngerman]{babel}					% Deutsch und Trennung
+\usepackage[utf8x]{inputenc}				% content is UTF8, breaks with xelatex
+\usepackage{textcomp}						% Symbole für Textmodus zum Escapen
+\usepackage{ragged2e}						% improved alignment, needed for raggedleft in header table cell
+\usepackage{tabularx}						% bessere Tabellen
+\usepackage{tabu}							% bessere Tabellen
+\usepackage{longtable}						% Tabellen über mehrere Seiten
+\usepackage{helvet}							% Arial alike Helvetica
+\usepackage{lastpage}						% easy access to page number of last page
+\usepackage{embedfile}						% store copy of data file for producing data matrix inside PDF
+\usepackage{array}							% improved column styles
+\usepackage[abspath]{currfile}				% generically refer to input file
+\usepackage{graphicx}						% Grafiken laden (datamatrix)
+\usepackage[space]{grffile}					% besserer Zugriff auf Grafikdateien
+\usepackage[export]{adjustbox}				% improved options for \includegraphics
+%\usepackage[ocgcolorlinks=true]{hyperref}	% aktive URLs, needs to be loaded last, most of the time
+\usepackage{hyperref}						% aktive URLs, needs to be loaded last, most of the time
 
 % debugging:
 %\usepackage{showkeys}
@@ -56,7 +60,10 @@
 %------------------------------------------------------------------
 % setup:
 % - debugging
-\tracingtabu=2
+%\tracingtabu=2
+%\hypersetup{debug=true}
+
+% set lots of pdf* hyperref options
 
 % - precise positioning of things to satisfy spec
 \setlength{\tabcolsep}{0pt}
@@ -90,11 +97,12 @@
 \lohead{
 	\upshape
 	% debugging (with vertical lines):
-	%\begin{tabu} to \textwidth {p{7cm}|X[-1,L]|@{\hspace{1cm}}|X[-1,R]|p{4.6cm}}
-	\begin{tabu} to \textwidth {p{7cm}X[-1,L]@{\hspace{1cm}}X[-1,R]p{4.3cm}}
-			{\fontsize{20pt}{22pt}\selectfont \textbf{\href{http://www.akdae.de/AMTS/Medikationsplan/}{Medikationsplan}}}\newline
+	%\begin{tabu} to \textwidth {>{\raggedleft\arraybackslash}p{7cm}|X[-1,L]|@{\hspace{1cm}}|X[-1,R]|p{4.6cm}}
+	\begin{tabu} to \textwidth {>{\raggedleft\arraybackslash}p{7cm}@{\hspace{1.5mm}}X[-1,L]@{\hspace{1cm}}X[-1,R]p{4.3cm}}
+			{\fontsize{20pt}{22pt}\selectfont \textbf{\href{http://www.akdae.de/AMTS/Medikationsplan/}{Medikationsplan}}} \newline
 			\ \newline
-			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}}
+			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}\ 
+			}
 		&
 			\fontsize{14pt}{16pt}\selectfont
 			für:\ \textbf{$<name::%(firstnames)s %(lastnames)s::1-37>$} \newline
@@ -102,9 +110,9 @@
 			ausgedruckt von: $<current_provider::::30>$ \newline
 			\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
 			% use \mbox{TEXT} to prevent TEXT from getting hyphenated
-			\mbox{$<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>$}\ \newline
-			$<praxis_comm::workphone::20>$\ \newline
-			{\fontsize{12pt}{14pt}\selectfont \href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email::80>$}\ }
+			\href{http://www.openstreetmap.org}{\mbox{$<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>$}} \newline
+			$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone::20>$}::>>$\  \newline
+			$<<praxis_comm::email//{\fontsize{12pt}{14pt}\selectfont \href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email::80>$}}::>>$
 		&
 			\fontsize{14pt}{16pt}\selectfont
 			geb.\ am: \textbf{$<date_of_birth::%d.%m.%Y::10>$}\newline
@@ -115,7 +123,7 @@
 			\ \newline											%schwanger / stillend\newline	::25
 			ausgedruckt am: $<today::%d.%m.%Y::10>$
 		&
-			\includegraphics[valign=t,raise=6ex,max totalheight=4cm,max totalwidth=4cm,center]{$<<amts_png_file_current_page::::>>$}
+			\includegraphics[valign=t,raise=6ex,max height=4cm,max width=4cm,center]{$<<amts_png_file_current_page::::>>$}
 		\tabularnewline
 	\end{tabu}
 }
@@ -179,40 +187,40 @@
 
 % middle part: Medikationsliste
 \begin{longtable} {|
-	p{4cm}|		% Wirkstoff
-	p{4.4cm}|	% Handelsname
-	p{1.8cm}|	% Stärke
-	p{1.8cm}|	% Form
-	p{0.8cm}|	% Dosierung: morgens
-	p{0.8cm}|	% Dosierung: mittags
-	p{0.8cm}|	% Dosierung: abends
-	p{0.8cm}|	% Dosierung: zur Nacht
-	p{2cm}|		% Einheit
-	p{6.4cm}|	% Hinweise
-	p{4.3cm}|	% Grund
+	% column definition
+	p{4cm}|									% Wirkstoff
+	p{4.4cm}|								% Handelsname
+	>{\RaggedLeft}p{1.8cm}|					% Stärke
+	p{1.8cm}|								% Form
+	p{0.8cm}|								% Dosierung: morgens
+	p{0.8cm}|								% Dosierung: mittags
+	p{0.8cm}|								% Dosierung: abends
+	p{0.8cm}|								% Dosierung: zur Nacht
+	p{2.0cm}|								% Einheit
+	p{6.4cm}|								% Hinweise
+	p{4.3cm}|								% Grund
 }
-% Tabellenkopf:
-\hline
-	\fontsize{12pt}{14pt}\selectfont
-	\centering Wirkstoff &
-	\centering Handelsname &
-	\centering Stärke &
-	\centering Form &
-	\centering Mo &
-	\centering Mi &
-	\centering Ab &
-	\centering zN &
-	\centering Einheit &
-	\centering Hinweise &
-	\centering Grund
-\endhead
-\hline
-\endfoot
-\hline
-\endlastfoot
-% Tabelleninhalt:
-\hline
-	\fontsize{12pt}{14pt}\selectfont
+	% Tabellenkopf:
+	\hline
+	\rule{0pt}{4.5mm}						% vertical strut to ensure 14pt doesn't touch top \hline
+	\fontsize{14pt}{16pt}\selectfont \centering Wirkstoff &
+	\fontsize{14pt}{16pt}\selectfont \centering Handelsname &
+	\fontsize{14pt}{16pt}\selectfont \centering Stärke &
+	\fontsize{14pt}{16pt}\selectfont \centering Form &
+	\fontsize{14pt}{16pt}\selectfont \centering Mo &
+	\fontsize{14pt}{16pt}\selectfont \centering Mi &
+	\fontsize{14pt}{16pt}\selectfont \centering Ab &
+	\fontsize{14pt}{16pt}\selectfont \centering zN &
+	\fontsize{14pt}{16pt}\selectfont \centering Einheit &
+	\fontsize{14pt}{16pt}\selectfont \centering Hinweise &
+	\fontsize{14pt}{16pt}\selectfont \centering Grund
+	\endhead
+	% Tabellenende auf 1. und 2. Seite
+	\endfoot
+	% Tabellenende auf letzter (3.) Seite
+	\endlastfoot
+	% Tabelleninhalt:
+	\hline
 	$<current_meds_AMTS::::999999999>$
 \end{longtable}
 
@@ -232,17 +240,21 @@
 	ucfilespec=AMTS-QR-Code-Seite-1.png
 ]{$<<amts_png_file_1::::>>$}
 
-\embedfile[
-	desc=QR-Code (Bild) für Seite 2,
-	mimetype=image/png,
-	ucfilespec=AMTS-QR-Code-Seite-2.png
-]{$<<amts_png_file_2::::>>$}
+\IfFileExists{$<<amts_png_file_2::::>>$}{
+	\embedfile[
+		desc=QR-Code (Bild) für Seite 2,
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-Seite-2.png
+	]{$<<amts_png_file_2::::>>$}
+}{\typeout{[$<<amts_png_file_2::::>>$] not found}}
 
-\embedfile[
-	desc=QR-Code (Bild) für Seite 3,
-	mimetype=image/png,
-	ucfilespec=AMTS-QR-Code-Seite-3.png
-]{$<<amts_png_file_3::::>>$}
+\IfFileExists{$<<amts_png_file_3::::>>$}{
+	\embedfile[
+		desc=QR-Code (Bild) für Seite 3,
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-Seite-3.png
+	]{$<<amts_png_file_3::::>>$}
+}{\typeout{[$<<amts_png_file_3::::>>$] not found}}
 
 % data files from which QR codes were generated
 \embedfile[
@@ -251,24 +263,30 @@
 	ucfilespec=AMTS-QR-Code-Daten-Seite-1.txt
 ]{$<<amts_data_file_1::::>>$}
 
-\embedfile[
-	desc=QR-Code (Daten) für Seite 2,
-	mimetype=text/plain,
-	ucfilespec=AMTS-QR-Code-Daten-Seite-2.txt
-]{$<<amts_data_file_2::::>>$}
+\IfFileExists{$<<amts_data_file_2::::>>$}{
+	\embedfile[
+		desc=QR-Code (Daten) für Seite 2,
+		mimetype=text/plain,
+		ucfilespec=AMTS-QR-Code-Daten-Seite-2.txt
+	]{$<<amts_data_file_2::::>>$}
+}{\typeout{[$<<amts_data_file_2::::>>$] not found}}
 
-\embedfile[
-	desc=QR-Code (Daten) für Seite 3,
-	mimetype=text/plain,
-	ucfilespec=AMTS-QR-Code-Daten-Seite-3.txt
-]{$<<amts_data_file_3::::>>$}
+\IfFileExists{$<<amts_data_file_3::::>>$}{
+	\embedfile[
+		desc=QR-Code (Daten) für Seite 3,
+		mimetype=text/plain,
+		ucfilespec=AMTS-QR-Code-Daten-Seite-3.txt
+	]{$<<amts_data_file_3::::>>$}
+}{\typeout{[$<<amts_data_file_3::::>>$] not found}}
 
 % VCF of creator
-\embedfile[
-	desc=digitale Visitenkarte des Erstellers des Medikationsplans,
-	mimetype=text/vcf,
-	ucfilespec=AMTS-Medikationsplan-Ersteller.vcf
-]{praxis.vcf}
+\IfFileExists{./praxis.vcf}{
+	\embedfile[
+		desc=digitale Visitenkarte des Erstellers des Medikationsplans,
+		mimetype=text/vcf,
+		ucfilespec=AMTS-Medikationsplan-Ersteller.vcf
+	]{praxis.vcf}
+}{\typeout{[praxis.vcf] not found}}
 %------------------------------------------------------------------
 
 \end{document}
