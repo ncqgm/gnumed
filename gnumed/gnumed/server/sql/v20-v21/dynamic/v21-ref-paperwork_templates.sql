@@ -19,6 +19,7 @@ insert into ref.paperwork_templates (
 	external_version,
 	engine,
 	filename,
+	edit_after_substitution,
 	data
 ) values (
 	(select pk from ref.form_types where name = 'current medication list'),
@@ -28,6 +29,7 @@ insert into ref.paperwork_templates (
 	'DE-DE-Version 2.0 vom 15.12.2014',
 	'L',
 	'amts-med-plan.tex',
+	false,
 	'real template missing'::bytea
 );
 

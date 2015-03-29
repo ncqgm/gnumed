@@ -11,7 +11,9 @@ import platform
 import subprocess
 import decimal
 import getpass
-import cPickle, zlib
+import codecs
+import cPickle
+import zlib
 import xml.sax.saxutils as xml_tools
 
 
@@ -371,6 +373,30 @@ class gmPaths(gmBorg.cBorg):
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
+def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', target_encoding=None, base_dir=None):
+	if target_encoding is None:
+		return source_file
+	if target_encoding == source_encoding:
+		return source_file
+	if target_file is None:
+		target_file = get_unique_filename (
+			prefix = u'%s-%s_%s-' % (fname_stem(source_file), source_encoding, target_encoding),
+			suffix = fname_extension(source_file, u'.txt'),
+			tmp_dir = base_dir
+		)
+
+	_log.debug('[%s] -> [%s] (%s -> %s)', source_encoding, target_encoding, source_file, target_file)
+
+	in_file = codecs.open(source_file, 'rU', source_encoding)
+	out_file = codecs.open(target_file, 'wb', target_encoding, 'replace')
+	for line in in_file:
+		out_file.write(line)
+	out_file.close()
+	in_file.close()
+
+	return target_file
+
+#---------------------------------------------------------------------------
 def gpg_decrypt_file(filename=None, passphrase=None):
 
 	if platform.system() == 'Windows':
@@ -406,6 +432,7 @@ def gpg_decrypt_file(filename=None, passphrase=None):
 		return None
 
 	return filename_decrypted
+
 #---------------------------------------------------------------------------
 def file2md5(filename=None, return_hex=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
@@ -425,6 +452,7 @@ def file2md5(filename=None, return_hex=True):
 	if return_hex:
 		return md5.hexdigest()
 	return md5.digest()
+
 #---------------------------------------------------------------------------
 def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 	for line in unicode_csv_data:
@@ -472,6 +500,18 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 #---------------------------------------------------------------------------
 def fname_stem(filename):
 	return os.path.splitext(os.path.basename(filename))[0]
+
+#---------------------------------------------------------------------------
+def fname_extension(filename=None, fallback=None):
+	ext = os.path.splitext(filename)[1]
+	if fallback is None:
+		return ext
+	if ext.strip() in [u'.', u'']:
+		return fallback
+
+#---------------------------------------------------------------------------
+def fname_dir(filename):
+	return os.path.split(filename)[0]
 
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
@@ -824,9 +864,10 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
 	return xml_tools.escape(text)
+
 #---------------------------------------------------------------------------
 def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, keep_visual_eol=False):
-	"""check for special TeX characters and transform them
+	"""Check for special TeX characters and transform them.
 
 		replace_eol:
 			replaces "\n" with "\\newline"
@@ -864,6 +905,7 @@ def xetex_escape_string(text=None):
 	# a web search did not reveal anything else for Xe(La)Tex
 	# as opposed to LaTeX, except true unicode chars
 	return tex_escape_string(text = text, replace_known_unicode = False)
+
 #---------------------------------------------------------------------------
 __html_escape_table = {
 	u"&": u"&amp;",

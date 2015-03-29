@@ -2339,8 +2339,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_as_amts_data(self):
-		return format_substance_intake_as_amts_data(intake = self)
+	def _get_as_amts_data(self, enhanced=False):
+		return format_substance_intake_as_amts_data(intake = self, enhanced = enhanced)
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
@@ -2537,7 +2537,7 @@ def format_substance_intake_as_amts_latex(intake=None):
 	return table_row
 
 #------------------------------------------------------------
-def format_substance_intake_as_amts_data(intake=None):
+def format_substance_intake_as_amts_data(intake=None, enhanced=False):
 	fields = []
 
 	if intake['pk_brand'] is None:
@@ -2646,6 +2646,58 @@ def generate_amts_data_template_definition_file(work_dir=None):
 
 	amts_fname = gmTools.get_unique_filename (
 		prefix = 'gm2amts_data-',
+		suffix = '.txt',
+		tmp_dir = work_dir
+	)
+	amts_template = codecs.open(amts_fname, 'wb', 'utf8')
+	amts_template.write(u'[form]\n')
+	amts_template.write(u'template = $template$\n')
+	amts_template.write(u'|'.join(amts_fields))
+	amts_template.write(u'\n')
+	amts_template.write(u'$template$\n')
+	amts_template.close()
+
+	return amts_fname
+
+#------------------------------------------------------------
+def generate_enhanced_amts_data_template_definition_file(work_dir=None):
+
+	amts_fields = [
+		u'MP',
+		u'020',	# Version
+		u'DE',	# Land
+		u'DE',	# Sprache
+		u'1',	# Zeichensatz 1 = Ext ASCII (fest) = ISO8859-1 = Latin1
+		u'$<today::%Y%m%d::8>$',
+		u'1',	# idx of this page
+		u'1',	# total pages
+		u'0',	# Zertifizierungsstatus
+
+		u'$<name::%(firstnames)s::>$',
+		u'$<name::%(lastnames)s::>$',
+		u'',	# Patienten-ID
+		u'$<date_of_birth::%Y%m%d::8>$',
+
+		u'$<praxis::%(praxis)s,%(branch)s::>$,$<current_provider::::>$',
+		u'$<praxis_address::%(street)s %(number)s %(subunit)s::>$',
+		u'$<praxis_address::%(postcode)s::>$',
+		u'$<praxis_address::%(urb)s::>$',
+		u'$<praxis_comm::workphone::>$',
+		u'$<praxis_comm::email::>$',
+
+		u'264 $<allergy_state::::>$', # param 1, Allergien
+		u'', # param 2, not used currently
+		u'', # param 3, not used currently
+
+		# Medikationseinträge
+		u'$<amts_intakes_as_data_enhanced::::>$',
+
+		u'$<amts_check_symbol::::1>$',	# Prüfzeichen, value to be set by code using the template, *per page* !
+		u'#@',							# Endesymbol
+	]
+
+	amts_fname = gmTools.get_unique_filename (
+		prefix = 'gm2amts_data-utf8-not_abridged-',
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)

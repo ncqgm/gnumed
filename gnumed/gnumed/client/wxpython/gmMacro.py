@@ -78,7 +78,8 @@ known_injectable_placeholders = [
 __known_variant_placeholders = {
 	# generic:
 	u'free_text': u"""show a dialog for entering some free text:
-		args: <message> shown in input dialog, must not contain '//' or '::',
+		args: <message> shown in input dialog, must not contain either
+		of '::' and whatever the arguments divider is set to (default '//'),
 		will cache input per <message>""",
 
 	u'text_snippet': u"""a text snippet, taken from the keyword expansion mechanism:
@@ -95,6 +96,22 @@ __known_variant_placeholders = {
 
 	u'range_of': u"""select range of enclosed text (note that this cannot take into account non-length characters such as enclosed LaTeX code
 		args: <enclosed text>
+	""",
+
+	u'ph_cfg': u"""Set placeholder handler options.
+		args: option name//option value//macro return string
+		option names:
+			ellipsis: what to use as ellipsis (if anything) when
+				shortening strings or string regions, setting the
+				value to NONE will switch off ellipis handling,
+				default is switched off
+			argumentsdivider: what to use as divider when splitting
+				an argument string into parts, default is '//',
+				note that the 'config' placeholder will ALWAYS
+				use '//' to split its argument string, regardless
+				of which setting of <argumentsdivider> is in effect,
+				use DEFAULT to reset this setting back to the
+				default '//'
 	""",
 
 	u'tex_escape': u"args: string to escape, mostly obsolete now",
@@ -237,7 +254,7 @@ __known_variant_placeholders = {
 	u'patient_comm': u"args: <comm channel type as per database>//<%(field)s-template>",
 	u'patient_tags': u"args: <%(field)s-template>//<separator>",
 	#u'patient_tags_table': u"no args",
-	u'patient_photo': u"""outputs URL to exported patient photo:
+	u'patient_photo': u"""outputs URL to exported patient photo (cached per mime type and extension):
 		args: <template>//<optional target mime type>//<optional target extension>,
 		returns full path to an exported copy of the
 		image rather than the image data itself,
@@ -290,10 +307,9 @@ __known_variant_placeholders = {
 			%(contains)s -- list of components
 			%(amount2dispense)s -- how much/many to dispense""",
 
-	u'current_meds_AMTS': u"""
-		emits LaTeX longtable lines with appropriate page breaks,
-		also creates per-page AMTS QR codes and sets the following
-		internal placeholders:
+	u'current_meds_AMTS': u"""emit LaTeX longtable lines with appropriate page breaks:
+		also creates per-page AMTS QR codes and sets the
+		following internal placeholders:
 			amts_png_file_1
 			amts_png_file_2
 			amts_png_file_3
@@ -301,6 +317,8 @@ __known_variant_placeholders = {
 			amts_data_file_2
 			amts_data_file_3
 			amts_png_file_current_page
+			amts_data_file_utf8
+			amts_png_file_utf8
 		the last of which contains the LaTeX command \\thepage (such that
 		LaTeX can use this in, say, page headers) but omitting the .png
 		(for which LaTeX will look by itself),
@@ -358,7 +376,10 @@ __known_variant_placeholders = {
 	u'praxis_address': u"args: <optional formatting template>",
 	u'praxis_comm': u"args: type//<optional formatting template>",
 	u'praxis_id': u"args: <type of ID>//<issuer of ID>//<optional formatting template>",
-
+	u'praxis_vcf': u"""returns path to VCF for current praxis branch
+		args: <template>
+		template: %s-template for path
+	""",
 
 	# billing related:
 	u'bill': u"""retrieve a bill
@@ -418,8 +439,14 @@ def show_placeholders():
 	ph_file.write(u'Variable placeholders:\n')
 	ph_file.write(u'Usage: $<PLACEHOLDER_NAME::ARGUMENTS::REGION_DEFINITION>$)\n')
 	ph_file.write(u' REGION_DEFINITION:\n')
-	ph_file.write(u'* a single number specifying the maximum output lenght or\n')
+	ph_file.write(u'* a single number specifying the maximum output length or\n')
 	ph_file.write(u'* a number, a "-", followed by a second number specifying the region of the string to return\n')
+	ph_file.write(u'ARGUMENTS:\n')
+	ph_file.write(u'* depend on the actual placeholder (see there)\n')
+	ph_file.write(u'* if a template is supported it will be used to %-format the output\n')
+	ph_file.write(u'* templates may be either %s-style or %(name)s-style\n')
+	ph_file.write(u'* templates cannot contain "::"\n')
+	ph_file.write(u'* templates cannot contain whatever the arguments divider is set to (default "//")\n')
 	for ph in known_variant_placeholders:
 		txt = __known_variant_placeholders[ph]
 		ph_file.write(u'\n')
@@ -482,6 +509,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		self.__esc_style = None
 		self.__esc_func = lambda x:x
+
+		self.__ellipsis = None
+		self.__args_divider = u'//'
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -524,6 +554,20 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return
 
 	escape_function = property(lambda x:x, _set_escape_function)
+	#--------------------------------------------------------
+	def _set_ellipsis(self, ellipsis):
+		if ellipsis == u'NONE':
+			ellipsis = None
+		self.__ellipsis = ellipsis
+
+	ellipsis = property(lambda x: self.__ellipsis, _set_ellipsis)
+	#--------------------------------------------------------
+	def _set_arguments_divider(self, divider):
+		if divider == u'DEFAULT':
+			divider = u'//'
+		self.__args_divider = divider
+
+	arguments_divider = property(lambda x: self.__args_divider, _set_arguments_divider)
 	#--------------------------------------------------------
 	placeholder_regex = property(lambda x: default_placeholder_regex, lambda x:x)
 
@@ -616,6 +660,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					return None
 				if pos_last_char is None:
 					return val
+				# ellipsis needed ?
+				if len(val) > (pos_last_char - pos_first_char):
+					# ellipsis wanted ?
+					if self.__ellipsis is not None:
+						return val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis
 				return val[pos_first_char:pos_last_char]
 
 		# variable placeholders
@@ -625,7 +674,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				return self._escape(self.invalid_placeholder_template % original_placeholder_def)
 			return None
 
-		ph_name, data_and_lng = placeholder.split('::', 1)		# split IS lsplit
+		ph_name, data_and_lng = placeholder.split('::', 1)		# note: split _is_ lsplit
 		options, region_str = data_and_lng.rsplit('::', 1)
 		_log.debug('placeholder parts: name=[%s]; region_def=[%s]; options=>>>%s<<<', ph_name, region_str, options)
 		try:
@@ -643,9 +692,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return None
 
 		try:
+			val = handler(data = options)
 			if pos_last_char is None:
-				return handler(data = options)
-			return handler(data = options)[pos_first_char:pos_last_char]
+				return val
+			# ellipsis needed ?
+			if len(val) > (pos_last_char - pos_first_char):
+				# ellipsis wanted ?
+				if self.__ellipsis is not None:
+					return val[pos_first_char:(pos_last_char-len(self.__ellipsis))] + self.__ellipsis
+			return val[pos_first_char:pos_last_char]
 		except:
 			_log.exception('placeholder handling error: %s', original_placeholder_def)
 			if self.debug:
@@ -656,6 +711,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return None
 	#--------------------------------------------------------
 	# placeholder handlers
+	#--------------------------------------------------------
+	def _get_variant_ph_cfg(self, data=None):
+		options = data.split(u'//')		# ALWAYS use '//' for splitting, regardless of self.__args_divider
+		name = options[0]
+		val = options[1]
+		if name == u'ellipsis':
+			self.ellipsis = val
+		elif name == u'argumentsdivider':
+			self.arguments_divider = val
+		if len(options) > 2:
+			return options[2] % {'name': name, 'value': val}
+		return u''
 	#--------------------------------------------------------
 	def _get_variant_client_version(self, data=None):
 		return self._escape (
@@ -1191,7 +1258,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_patient_address(self, data=u''):
 
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 
 		# address type
 		adr_type = data_parts[0].strip()
@@ -1280,7 +1347,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		comm_type = None
 		template = u'%(url)s'
 		if data is not None:
-			data_parts = data.split(u'//')
+			data_parts = data.split(self.__args_divider)
 			if len(data_parts) > 0:
 				comm_type = data_parts[0]
 			if len(data_parts) > 1:
@@ -1300,7 +1367,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		target_mime = None
 		target_ext = None
 		if data is not None:
-			parts = data.split(u'//')
+			parts = data.split(self.__args_divider)
 			template = parts[0]
 			if len(parts) > 1:
 				target_mime = parts[1].strip()
@@ -1310,21 +1377,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 				if target_mime is not None:
 					target_ext = gmMimeLib.guess_ext_by_mimetype(mimetype = target_mime)
 
-		mugshot = self.pat.document_folder.latest_mugshot
-		if mugshot is None:
-			if self.debug:
-				return self._escape(_('no mugshot available'))
-			return u''
-
-		fname = mugshot.export_to_file (
-			target_mime = target_mime,
-			target_extension = target_ext,
-			ignore_conversion_problems = True
-		)
-		if fname is None:
-			if self.debug:
-				return self._escape(_('cannot export or convert latest mugshot'))
-			return u''
+		cache_key = u'patient_photo_path::%s::%s' % (target_mime, target_ext)
+		try:
+			fname = self.__cache[cache_key]
+			_log.debug('cache hit on [%s]: %s', cache_key, fname)
+		except KeyError:
+			mugshot = self.pat.document_folder.latest_mugshot
+			if mugshot is None:
+				if self.debug:
+					return self._escape(_('no mugshot available'))
+				return u''
+			fname = mugshot.export_to_file (
+				target_mime = target_mime,
+				target_extension = target_ext,
+				ignore_conversion_problems = True
+			)
+			if fname is None:
+				if self.debug:
+					return self._escape(_('cannot export or convert latest mugshot'))
+				return u''
+			self.__cache[cache_key] = fname
 
 		return template % fname
 	#--------------------------------------------------------
@@ -1351,7 +1423,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	# praxis related placeholders
 	#--------------------------------------------------------
 	def _get_variant_praxis(self, data=None):
-		options = data.split(u'//')
+		options = data.split(self.__args_divider)
 
 		if u'select' in options:
 			options.remove(u'select')
@@ -1368,9 +1440,26 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return template % branch.fields_as_dict(escape_style = self.__esc_style)
 
 	#--------------------------------------------------------
+	def _get_variant_praxis_vcf(self, data=None):
+
+		cache_key = 'current_branch_vcf_path'
+		try:
+			vcf_name = self.__cache[cache_key]
+			_log.debug('cache hit (%s): [%s]', cache_key, vcf_name)
+		except KeyError:
+			vcf_name = gmPraxis.gmCurrentPraxisBranch().vcf
+			self.__cache[cache_key] = vcf_name
+
+		template = u'%s'
+		if data.strip() != u'':
+			template = data
+
+		return template % vcf_name
+
+	#--------------------------------------------------------
 	def _get_variant_praxis_address(self, data=u''):
 
-		options = data.split(u'//')
+		options = data.split(self.__args_divider)
 
 		# formatting template
 		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
@@ -1392,7 +1481,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return None
 	#--------------------------------------------------------
 	def _get_variant_praxis_comm(self, data=None):
-		options = data.split(u'//')
+		options = data.split(self.__args_divider)
 		comm_type = options[0]
 		template = u'%(url)s'
 		if len(options) > 1:
@@ -1407,7 +1496,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return template % comms[0].fields_as_dict(escape_style = self.__esc_style)
 	#--------------------------------------------------------
 	def _get_variant_praxis_id(self, data=None):
-		options = data.split(u'//')
+		options = data.split(self.__args_divider)
 		id_type = options[0].strip()
 		if id_type == u'':
 			return self._escape(u'praxis external ID: type is missing')
@@ -1451,7 +1540,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_variant_current_provider_external_id(self, data=u''):
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
 			return self._escape(u'current provider external ID: template is missing')
 
@@ -1491,7 +1580,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(tmp)
 	#--------------------------------------------------------
 	def _get_variant_primary_praxis_provider_external_id(self, data=u''):
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
 			return self._escape(u'primary in-praxis provider external ID: template is missing')
 
@@ -1519,7 +1608,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self._escape(ids[0]['value'])
 	#--------------------------------------------------------
 	def _get_variant_external_id(self, data=u''):
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 		if len(data_parts) < 2:
 			return self._escape(u'patient external ID: template is missing')
 
@@ -1618,7 +1707,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		for idx in [1,2,3]:
 			self.set_placeholder (
 				key = u'amts_data_file_%s' % idx,
-				value = './missing-file.dat',
+				value = './missing-file.txt',
 				known_only = False
 			)
 			self.set_placeholder (
@@ -1631,6 +1720,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			value = './missing-file-current-page.png',
 			known_only = False
 		)
+		self.set_placeholder (
+			key = u'amts_png_file_utf8',
+			value = './missing-file-utf8.png',
+			known_only = False
+		)
+		self.set_placeholder (
+			key = u'amts_data_file_utf8',
+			value = './missing-file-utf8.txt',
+			known_only = False
+		)
 
 		# find processor
 		found, dmtx_creator = gmShellAPI.detect_external_binary(binary = u'gm-create_datamatrix')
@@ -1639,17 +1738,61 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.error(u'gm-create_datamatrix(.bat/.exe) not found')
 			return
 
+		png_dir = gmTools.mk_sandbox_dir()
+		_log.debug('sandboxing AMTS QR Code PNGs in: %s', png_dir)
+
+		from Gnumed.business import gmForms
+
+		# generate GNUmed-enhanced non-conformant data file and QR code
+		# for embedding (utf8, unabridged data fields)
+		amts_data_template_def_file = gmMedication.generate_enhanced_amts_data_template_definition_file()
+		_log.debug('amts data template definition file: %s', amts_data_template_def_file)
+		form = gmForms.cTextForm(template_file = amts_data_template_def_file)
+		intakes_as_amts_data = []
+		for intake in intakes:
+			intakes_as_amts_data.append(intake._get_as_amts_data(enhanced = True))
+		self.set_placeholder (
+			key = u'amts_intakes_as_data_enhanced',
+			value = u'|'.join(intakes_as_amts_data),
+			known_only = False
+		)
+		self.set_placeholder (
+			key = u'amts_check_symbol',
+			value = gmMedication.calculate_amts_data_check_symbol(intakes = intakes),
+			known_only = False
+		)
+		success = form.substitute_placeholders(data_source = self)
+		self.unset_placeholder(key = u'amts_intakes_as_data')
+		self.unset_placeholder(key = u'amts_check_symbol')
+		if not success:
+			_log.error(u'cannot substitute into amts data file form template')
+			return
+		data_file = form.re_editable_filenames[0]
+		png_file = os.path.join(png_dir, 'gm4amts-qr_code-utf8.png')
+		cmd = u'%s %s %s' % (dmtx_creator, data_file, png_file)
+		success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
+		if not success:
+			_log.error(u'error running [%s]' % cmd)
+			return
+		self.set_placeholder (
+			key = u'amts_data_file_utf8',
+			value = data_file,
+			known_only = False
+		)
+		self.set_placeholder (
+			key = u'amts_png_file_utf8',
+			value = png_file,
+			known_only = False
+		)
+
+		# generate conformant per-page files:
 		total_pages = (len(intakes) / 15.0)
 		if total_pages > int(total_pages):
 			total_pages += 1
 		total_pages = int(total_pages)
-
 		_log.debug('total pages: %s', total_pages)
 
-		png_dir = gmTools.mk_sandbox_dir()
-		_log.debug('sandboxing AMTS QR Code PNGs in: %s', png_dir)
 		png_file_base = os.path.join(png_dir, 'gm4amts-qr_code-page_')
-		from Gnumed.business import gmForms
 		for this_page in range(1,total_pages+1):
 			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
 			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file()
@@ -1684,13 +1827,19 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			self.unset_placeholder(key = u'amts_page_idx')
 			self.unset_placeholder(key = u'amts_total_pages')
 			if not success:
-				_log.error(u'cannot process amts data file form template')
+				_log.error(u'cannot substitute into amts data file form template')
 				return
 
 			data_file = form.re_editable_filenames[0]
 			png_file = u'%s%s.png' % (png_file_base, this_page)
-			cmd = dmtx_creator + u' %s %s' % (data_file, png_file)
-			success = gmShellAPI.run_command_in_shell (command = cmd, blocking = True)
+			latin1_data_file = gmTools.recode_file (
+				source_file = data_file,
+				source_encoding = u'utf8',
+				target_encoding = u'latin1',
+				base_dir = os.path.split(data_file)[0]
+			)
+			cmd = u'%s %s %s' % (dmtx_creator, latin1_data_file, png_file)
+			success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 			if not success:
 				_log.error(u'error running [%s]' % cmd)
 				return
@@ -1698,7 +1847,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			# cache file names for later use in \embedfile
 			self.set_placeholder (
 				key = u'amts_data_file_%s' % this_page,
-				value = data_file,
+				value = latin1_data_file,
 				known_only = False
 			)
 			self.set_placeholder (
@@ -1754,7 +1903,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if data is None:
 			return self._escape(_('template is missing'))
 
-		parts = data.split(u'//')
+		parts = data.split(self.__args_divider)
 		template = parts[0]
 		ask_user = False
 		if len(parts) > 1:
@@ -1809,7 +1958,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		date_format = '%Y %b %d %H:%M'
 		separator = u'\n'
 
-		options = data.split(u'//')
+		options = data.split(self.__args_divider)
 		try:
 			template = options[0].strip()
 			date_format = options[1]
@@ -1863,7 +2012,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		_log.debug('arguments: %s', data)
 
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 		template = u'%s'
 		separator = u'\n'
 		date_format = '%Y %b %d'
@@ -1904,7 +2053,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return gmTools.tex_escape_string(text = data)
 	#--------------------------------------------------------
 	def _get_variant_text_snippet(self, data=None):
-		data_parts = data.split(u'//')
+		data_parts = data.split(self.__args_divider)
 		keyword = data_parts[0]
 		template = u'%s'
 		if len(data_parts) > 1:
@@ -1921,7 +2070,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return template % expansion
 	#--------------------------------------------------------
 	def _get_variant_data_snippet(self, data=None):
-		parts = data.split(u'//')
+		parts = data.split(self.__args_divider)
 		keyword = parts[0]
 		template = u'%s'
 		target_mime = None

@@ -6,6 +6,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 import logging
+import codecs
 
 
 if __name__ == '__main__':
@@ -120,6 +121,36 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 #		self.save()
 #	address = property(_get_address, _set_address)
 
+	#--------------------------------------------------------
+	def _get_vcf(self):
+		vcf_fields = [
+			u'BEGIN:VCARD',
+			u'VERSION:4.0',
+			u'KIND:org',
+			_(u'FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s %(praxis)s') % self,
+			u'N:%(praxis)s;%(branch)s' % self
+		]
+		adr = self.address
+		if adr is not None:
+			vcf_fields.append(u'ADR:;%(subunit)s;%(street)s %(number)s;%(urb)s;%(l10n_state)s;%(postcode)s;%(l10n_country)s' % adr)
+		comms = self.get_comm_channels(comm_medium = u'workphone')
+		if len(comms) > 0:
+			vcf_fields.append(u'TEL;VALUE=uri;TYPE=work:tel:%(url)s' % comms[0])
+		comms = self.get_comm_channels(comm_medium = u'email')
+		if len(comms) > 0:
+			vcf_fields.append(u'EMAIL:%(url)s' % comms[0])
+		vcf_fields.append(u'END:VCARD')
+		vcf_fname = gmTools.get_unique_filename (
+			prefix = 'gm_praxis2vcf-',
+			suffix = '.vcf'
+		)
+		vcf_file = codecs.open(vcf_fname, 'wb', 'utf8')
+		vcf_file.write(u'\n'.join(vcf_fields))
+		vcf_file.write(u'\n')
+		vcf_file.close()
+		return vcf_fname
+
+	vcf = property(_get_vcf, lambda x:x)
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
 	return gmPG2.lock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)

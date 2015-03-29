@@ -63,7 +63,21 @@
 %\tracingtabu=2
 %\hypersetup{debug=true}
 
-% set lots of pdf* hyperref options
+
+% - placeholder handler options
+% switch on ellipsis handling:
+$<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
+
+
+% - PDF metadata
+\hypersetup{
+	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
+	pdfsubject = {Medikationsplan (AMTS)},
+	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$ ($<form_version::::>$)},
+	pdfdisplaydoctitle = true
+}
+
 
 % - precise positioning of things to satisfy spec
 \setlength{\tabcolsep}{0pt}
@@ -71,6 +85,7 @@
 \setlength{\topskip}{0pt}
 \setlength{\marginparwidth}{0pt}
 \setlength{\marginparsep}{0pt}
+
 
 % - page
 \geometry{
@@ -101,26 +116,47 @@
 	\begin{tabu} to \textwidth {>{\raggedleft\arraybackslash}p{7cm}@{\hspace{1.5mm}}X[-1,L]@{\hspace{1cm}}X[-1,R]p{4.3cm}}
 			{\fontsize{20pt}{22pt}\selectfont \textbf{\href{http://www.akdae.de/AMTS/Medikationsplan/}{Medikationsplan}}} \newline
 			\ \newline
-			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}\ 
-			}
+			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}} \newline
+			% as long as we aren't certified we can put here any image we want :-)
+			% after certification we would replace this with the certification image...
+			\includegraphics[scale=5,max height=2.4cm,center]{$<patient_photo::%s//image/png//.png::>$}
 		&
+			% line 1
 			\fontsize{14pt}{16pt}\selectfont
+			$<ph_cfg::ellipsis//NONE//%% <%(name)s> set to [%(value)s]::>$		% switch off ellipsis handling so first range of name does not get one if too long
 			für:\ \textbf{$<name::%(firstnames)s %(lastnames)s::1-37>$} \newline
+			$<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$			% but reenable in case second line of name still too long so that we need an ellipsis
+			% line 2
 			$<name::\textbf{%(firstnames)s %(lastnames)s}::38-90>$\  \newline
+			% line 3
 			ausgedruckt von: $<current_provider::::30>$ \newline
+			% line 4
 			\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
-			% use \mbox{TEXT} to prevent TEXT from getting hyphenated
-			\href{http://www.openstreetmap.org}{\mbox{$<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>$}} \newline
+			% line 5: use \mbox{TEXT} to prevent TEXT from getting hyphenated
+			%\href{http://www.openstreetmap.org}{\mbox{$<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>$}}\ \newline
+			$<ph_cfg::argumentsdivider//||//%% <%(name)s> set to [%(value)s]::>$
+			$<praxis_address::\href{http://www.openstreetmap.org}{\mbox{$<<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>>$}}::>$
+			$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>$
+			\ \newline
+			% line 6
 			$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone::20>$}::>>$\  \newline
+			% line 7
 			$<<praxis_comm::email//{\fontsize{12pt}{14pt}\selectfont \href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email::80>$}}::>>$
 		&
+			% line 1
 			\fontsize{14pt}{16pt}\selectfont
 			geb.\ am: \textbf{$<date_of_birth::%d.%m.%Y::10>$}\newline
+			% line 2
 			\ \newline
+			% line 3
 			\ \newline
+			% line 4
 			Allergie: $<allergy_state::::15>$\newline
+			% line 5
 			\ \newline											%Gewicht: 125 kg\newline		::25
+			% line 6
 			\ \newline											%schwanger / stillend\newline	::25
+			% line 7
 			ausgedruckt am: $<today::%d.%m.%Y::10>$
 		&
 			\includegraphics[valign=t,raise=6ex,max height=4cm,max width=4cm,center]{$<<amts_png_file_current_page::::>>$}
@@ -147,7 +183,7 @@
 			% middle part: Herstellerfeld
 			\parbox[t][1cm][t]{17cm}{
 				\centering
-				GNUmed $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}
+				GNUmed $<client_version::::>$ --- \href{http://www.gnumed.org}{www.gnumed.org}
 			}
 		} & {
 			% right side: Freifeld, must be empty
@@ -168,7 +204,7 @@
 			% middle part: Herstellerfeld
 			\parbox[t][1cm][t]{17cm}{
 				\centering
-				GNUmed $<client_version::::>$ -- \href{http://www.gnumed.org}{www.gnumed.org}
+				GNUmed $<client_version::::>$ --- \href{http://www.gnumed.org}{www.gnumed.org}
 			}
 		} & {
 			% right side: Freifeld, must be empty
@@ -226,67 +262,101 @@
 
 %------------------------------------------------------------------
 % include data in PDF for easier processing:
+
+% VCF of creator
+\IfFileExists{$<praxis_vcf::::>$}{
+	\embedfile[
+		desc=01) digitale Visitenkarte des Erstellers des Medikationsplans,
+		mimetype=text/vcf,
+		ucfilespec=AMTS-Medikationsplan-Ersteller.vcf
+	]{$<praxis_vcf::::>$}
+}{\typeout{[$<praxis_vcf::::>$] not found}}
+
 % LaTeX source code from which the PDF was produced
 \embedfile[
-	desc=LaTeX-Quellcode des Medikationsplans (übersetzbar mit "pdflatex -recorder -interaction=nonstopmode \currfilename\ "),
+	desc=02) LaTeX-Quellcode des Medikationsplans (übersetzbar mit "pdflatex -recorder -interaction=nonstopmode \currfilename\ "),
 	mimetype=text/plain,
 	ucfilespec=\currfilename
 ]{\currfileabspath}
 
-% QR codes as PNG
-\embedfile[
-	desc=QR-Code (Bild) für Seite 1,
-	mimetype=image/png,
-	ucfilespec=AMTS-QR-Code-Seite-1.png
-]{$<<amts_png_file_1::::>>$}
+% enhanced QR code
+\IfFileExists{$<<amts_png_file_utf8::::>>$}{
+	\embedfile[
+		desc=03) QR-Code (Bild) für alle Seiten (lesbar mit "dmtxread -U -v $<<amts_png_file_utf8::::>>$ > $<<amts_png_file_utf8::::>>$.txt"),
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-utf8-alle-Seiten.png
+	]{$<<amts_png_file_utf8::::>>$}
+}{\typeout{[$<<amts_png_file_utf8::::>>$] (all pages) not found}}
 
+\IfFileExists{$<<amts_data_file_utf8::::>>$}{
+	\embedfile[
+		desc=04) QR-Code (Daten) für alle Seiten (übersetzbar mit "dmtxwrite -e a -m 2 -f PNG -o $<<amts_data_file_utf8::::>>$.png -s =s -v $<<amts_data_file_utf8::::>>$"),
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-utf8-alle-Seiten.txt
+	]{$<<amts_data_file_utf8::::>>$}
+}{\typeout{[$<<amts_data_file_utf8::::>>$] (all pages) not found}}
+
+% per-page QR codes
+% page 1
+\IfFileExists{$<<amts_png_file_1::::>>$}{
+	\embedfile[
+		desc=05) QR-Code (Bild) für Seite 1 (lesbar mit "dmtxread -U -v $<<amts_png_file_1::::>>$ > $<<amts_png_file_1::::>>$.txt"),
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-Seite-1.png
+	]{$<<amts_png_file_1::::>>$}
+}{\typeout{[$<<amts_png_file_1::::>>$] (page 1) not found}}
+
+\IfFileExists{$<<amts_data_file_1::::>>$}{
+	\embedfile[
+		desc=06) QR-Code (Daten) für Seite 1 (übersetzbar mit "dmtxwrite -e a -m 2 -f PNG -o $<<amts_data_file_1::::>>$.png -s =s -v $<<amts_data_file_1::::>>$"),
+		mimetype=text/plain,
+		ucfilespec=AMTS-QR-Code-Daten-Seite-1.txt
+	]{$<<amts_data_file_1::::>>$}
+}{\typeout{[$<<amts_data_file_1::::>>$] (page 1) not found}}
+
+% page 2
 \IfFileExists{$<<amts_png_file_2::::>>$}{
 	\embedfile[
-		desc=QR-Code (Bild) für Seite 2,
+		desc=07) QR-Code (Bild) für Seite 2 (lesbar mit "dmtxread -U -v $<<amts_png_file_1::::>>$ > $<<amts_png_file_2::::>>$.txt"),
 		mimetype=image/png,
 		ucfilespec=AMTS-QR-Code-Seite-2.png
 	]{$<<amts_png_file_2::::>>$}
-}{\typeout{[$<<amts_png_file_2::::>>$] not found}}
-
-\IfFileExists{$<<amts_png_file_3::::>>$}{
-	\embedfile[
-		desc=QR-Code (Bild) für Seite 3,
-		mimetype=image/png,
-		ucfilespec=AMTS-QR-Code-Seite-3.png
-	]{$<<amts_png_file_3::::>>$}
-}{\typeout{[$<<amts_png_file_3::::>>$] not found}}
-
-% data files from which QR codes were generated
-\embedfile[
-	desc=QR-Code (Daten) für Seite 1,
-	mimetype=text/plain,
-	ucfilespec=AMTS-QR-Code-Daten-Seite-1.txt
-]{$<<amts_data_file_1::::>>$}
+}{\typeout{[$<<amts_png_file_2::::>>$] (page 2) not found}}
 
 \IfFileExists{$<<amts_data_file_2::::>>$}{
 	\embedfile[
-		desc=QR-Code (Daten) für Seite 2,
+		desc=08) QR-Code (Daten) für Seite 2 (übersetzbar mit "dmtxwrite -e a -m 2 -f PNG -o $<<amts_data_file_2::::>>$.png -s =s -v $<<amts_data_file_2::::>>$"),
 		mimetype=text/plain,
 		ucfilespec=AMTS-QR-Code-Daten-Seite-2.txt
 	]{$<<amts_data_file_2::::>>$}
-}{\typeout{[$<<amts_data_file_2::::>>$] not found}}
+}{\typeout{[$<<amts_data_file_2::::>>$] (page 2) not found}}
+
+% page 3
+\IfFileExists{$<<amts_png_file_3::::>>$}{
+	\embedfile[
+		desc=09) QR-Code (Bild) für Seite 3 (lesbar mit "dmtxread -U -v $<<amts_png_file_1::::>>$ > $<<amts_png_file_3::::>>$.txt"),
+		mimetype=image/png,
+		ucfilespec=AMTS-QR-Code-Seite-3.png
+	]{$<<amts_png_file_3::::>>$}
+}{\typeout{[$<<amts_png_file_3::::>>$] (page 3) not found}}
 
 \IfFileExists{$<<amts_data_file_3::::>>$}{
 	\embedfile[
-		desc=QR-Code (Daten) für Seite 3,
+		desc=10) QR-Code (Daten) für Seite 3 (übersetzbar mit "dmtxwrite -e a -m 2 -f PNG -o $<<amts_data_file_3::::>>$.png -s =s -v $<<amts_data_file_3::::>>$"),
 		mimetype=text/plain,
 		ucfilespec=AMTS-QR-Code-Daten-Seite-3.txt
 	]{$<<amts_data_file_3::::>>$}
-}{\typeout{[$<<amts_data_file_3::::>>$] not found}}
+}{\typeout{[$<<amts_data_file_3::::>>$] (page 3) not found}}
 
-% VCF of creator
-\IfFileExists{./praxis.vcf}{
+% patient photo
+\IfFileExists{$<patient_photo::%s//image/png//.png::>$}{
 	\embedfile[
-		desc=digitale Visitenkarte des Erstellers des Medikationsplans,
-		mimetype=text/vcf,
-		ucfilespec=AMTS-Medikationsplan-Ersteller.vcf
-	]{praxis.vcf}
-}{\typeout{[praxis.vcf] not found}}
+		desc=11) Patientenphoto,
+		mimetype=image/png,
+		ucfilespec=Patientenphoto.png
+	]{$<patient_photo::%s//image/png//.png::>$}
+}{\typeout{[$<patient_photo::%s//image/png//.png::>$] (patient photo) not found}}
+
 %------------------------------------------------------------------
 
 \end{document}
