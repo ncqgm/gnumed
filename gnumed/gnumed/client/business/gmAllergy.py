@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """GNUmed allergy related business object."""
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>"
@@ -12,6 +13,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmTools
 
 
 _log = logging.getLogger('gm.domain')
@@ -58,6 +60,7 @@ def ensure_has_allergy_state(encounter=None):
 	)
 
 	return cAllergyState(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
 class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents the allergy state of one patient."""
@@ -67,7 +70,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		u"""update clin.allergy_state set
 				last_confirmed = %(last_confirmed)s,
 				has_allergy = %(has_allergy)s,
-				comment = %(comment)s
+				comment = gm.nullify_empty_string(%(comment)s)
 			where
 				pk = %(pk_allergy_state)s and
 				xmin = %(xmin_allergy_state)s""",
@@ -95,6 +98,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		raise AttributeError('invalid to set allergy state string')
 
 	state_string = property(_get_as_string, _set_string)
+
 	#--------------------------------------------------------
 	def _get_as_symbol(self):
 		if self._payload[self._idx['has_allergy']] is None:
@@ -113,6 +117,51 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		return _('ERROR: unknown allergy state [%s]') % self._payload[self._idx['has_allergy']]
 
 	state_symbol = property(_get_as_symbol, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_as_amts_latex(self, strict=True):
+		table_rows = []
+		# Zwischenüberschrift: 31 Zeichen, $..., 14pt, no frame, \textwidth
+		state = u'%s (%s)' % (
+			self.state_string,
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y')
+		)
+		if strict:
+			state = state[:31]
+		table_rows.append(u'\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{\\rule{0pt}{4.5mm} \\fontsize{14pt}{16pt}\selectfont %s\label{AnchorAllergieDetails}}\\tabularnewline' % gmTools.tex_escape_string(state))
+		# Freitextzeile: 200 Zeichen, @..., \textwidth
+		if self['comment'] is not None:
+			if strict:
+				cmt = self['comment'].strip()[:200]
+			else:
+				cmt = self['comment'].strip()
+			table_rows.append(u'\\multicolumn{11}{>{\\RaggedRight}p{27.9cm}}{%s}\\tabularnewline') % gmTools.tex_escape_string(cmt)
+		return table_rows
+
+	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_as_amts_data(self, strict=True):
+		lines = []
+		# Zwischenüberschrift: 31 Zeichen, $..., \textwidth
+		txt = u'$%s (%s)' % (
+			self.state_string,
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%b %Y')
+		)
+		if strict:
+			lines.append(txt[:32])
+		else:
+			lines.append(txt)
+		# Freitextzeile: 200 Zeichen, @..., \textwidth
+		if self['comment'] is not None:
+			if strict:
+				lines.append(u'@%s' % self['comment'][:200])
+			else:
+				lines.append(u'@%s' % self['comment'])
+		return lines
+
+	as_amts_data = property(_get_as_amts_data, lambda x:x)
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == u'comment':
@@ -129,6 +178,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 				raise ValueError('invalid allergy state [%s]' % value)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
 #============================================================
 class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one allergy item.
@@ -178,6 +228,38 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 				value = rows[0][0]
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
+	#--------------------------------------------------------
+	def _get_as_amts_latex(self, strict=True):
+		# Freitextzeile: 200 Zeichen, @...
+		cells = [u'\\multicolumn{1}{>{\\RaggedRight}p{4cm}}{%s}' % gmTools.tex_escape_string(self['descriptor'])]
+		txt = u'%s%s' % (
+			self['l10n_type'],
+			gmTools.coalesce(self['reaction'], u'', u': %s')
+		)
+		if strict:
+			txt = txt[:(200-len(self['descriptor']))]
+		cells.append(u'\\multicolumn{10}{>{\\RaggedRight}p{23.9cm}}{%s}' % gmTools.tex_escape_string(txt))
+		table_row = u' & '.join(cells)
+		table_row += u'\\tabularnewline'
+		return table_row
+
+	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_as_amts_data(self, strict=True):
+		# Freitextzeile: 200 Zeichen, @..., \textwidth
+		txt = u'@%s %s%s' % (
+			self['descriptor'],
+			self['l10n_type'],
+			gmTools.coalesce(self['reaction'], u'', u': %s')
+		)
+		if strict:
+			return txt[:200]
+		return txt
+
+	as_amts_data = property(_get_as_amts_data, lambda x:x)
+
 #============================================================
 # convenience functions
 #------------------------------------------------------------

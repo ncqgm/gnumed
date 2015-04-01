@@ -150,8 +150,8 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\ \newline
 			% line 3
 			\ \newline
-			% line 4
-			Allergie: $<allergy_state::::15>$\newline
+			% line 4			%$<allergy_state::::15>$
+			Allergie: Seite \pageref{LastPage}\ \hyperref[AnchorAllergieDetails]{unten}\newline
 			% line 5
 			\ \newline											%Gewicht: 125 kg\newline		::25
 			% line 6
@@ -282,7 +282,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 % enhanced QR code
 \IfFileExists{$<<amts_png_file_utf8::::>>$}{
 	\embedfile[
-		desc=03) QR-Code (Bild) für alle Seiten (lesbar mit "dmtxread -U -v $<<amts_png_file_utf8::::>>$ > $<<amts_png_file_utf8::::>>$.txt"),
+		desc=03) QR-Code (Bild) für alle Seiten (lesbar mit "dmtxread -v $<<amts_png_file_utf8::::>>$ > $<<amts_png_file_utf8::::>>$.txt"),
 		mimetype=image/png,
 		ucfilespec=AMTS-QR-Code-utf8-alle-Seiten.png
 	]{$<<amts_png_file_utf8::::>>$}

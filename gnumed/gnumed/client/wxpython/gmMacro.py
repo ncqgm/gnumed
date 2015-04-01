@@ -1680,14 +1680,21 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		del intakes2export
 		unique_intakes = unique_intakes.values()
 
+		# create data files / QR code files
+		self.__create_amts_datamatrix_files(intakes = unique_intakes)
+
 		# create AMTS-LaTeX per intake
 		intake_as_latex_rows = []
 		for intake in unique_intakes:
 			intake_as_latex_rows.append(intake.as_amts_latex)
-
-		# create data files / QR code files
-		self.__create_amts_datamatrix_files(intakes = unique_intakes)
 		del unique_intakes
+
+		# append allergy information
+		# - state
+		intake_as_latex_rows.extend(emr.allergy_state.as_amts_latex)
+		# - allergies
+		for allg in emr.get_allergies():
+			intake_as_latex_rows.append(allg.as_amts_latex)
 
 		# insert \newpage after each group of 15 rows
 		table_rows = intake_as_latex_rows[:15]
@@ -1745,12 +1752,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		# generate GNUmed-enhanced non-conformant data file and QR code
 		# for embedding (utf8, unabridged data fields)
-		amts_data_template_def_file = gmMedication.generate_enhanced_amts_data_template_definition_file()
+		amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = False)
 		_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 		form = gmForms.cTextForm(template_file = amts_data_template_def_file)
 		intakes_as_amts_data = []
 		for intake in intakes:
-			intakes_as_amts_data.append(intake._get_as_amts_data(enhanced = True))
+			intakes_as_amts_data.append(intake._get_as_amts_data(strict = False))
+		emr = self.pat.get_emr()
+		intakes_as_amts_data.extend(emr.allergy_state._get_as_amts_data(strict = False))
+		for allg in emr.get_allergies():
+			intakes_as_amts_data.append(allg._get_as_amts_data(strict = False))
 		self.set_placeholder (
 			key = u'amts_intakes_as_data_enhanced',
 			value = u'|'.join(intakes_as_amts_data),
@@ -1762,7 +1773,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			known_only = False
 		)
 		success = form.substitute_placeholders(data_source = self)
-		self.unset_placeholder(key = u'amts_intakes_as_data')
+		self.unset_placeholder(key = u'amts_intakes_as_data_enhanced')
 		self.unset_placeholder(key = u'amts_check_symbol')
 		if not success:
 			_log.error(u'cannot substitute into amts data file form template')
@@ -1795,12 +1806,16 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		png_file_base = os.path.join(png_dir, 'gm4amts-qr_code-page_')
 		for this_page in range(1,total_pages+1):
 			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
-			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file()
+			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = True)
 			_log.debug('amts data template definition file: %s', amts_data_template_def_file)
 			form = gmForms.cTextForm(template_file = amts_data_template_def_file)
 			intakes_as_amts_data = []
 			for intake in intakes_this_page:
 				intakes_as_amts_data.append(intake.as_amts_data)
+			if this_page == total_pages:
+				intakes_as_amts_data.extend(emr.allergy_state._get_as_amts_data(strict = True))
+				for allg in emr.get_allergies():
+					intakes_as_amts_data.append(allg._get_as_amts_data(strict = True))
 			self.set_placeholder (
 				key = u'amts_intakes_as_data',
 				value = u'|'.join(intakes_as_amts_data),

@@ -2339,8 +2339,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_as_amts_data(self, enhanced=False):
-		return format_substance_intake_as_amts_data(intake = self, enhanced = enhanced)
+	def _get_as_amts_data(self, strict=True):
+		return format_substance_intake_as_amts_data(intake = self, strict = strict)
 
 	as_amts_data = property(_get_as_amts_data, lambda x:x)
 
@@ -2537,7 +2537,12 @@ def format_substance_intake_as_amts_latex(intake=None):
 	return table_row
 
 #------------------------------------------------------------
-def format_substance_intake_as_amts_data(intake=None, enhanced=False):
+def format_substance_intake_as_amts_data(intake=None, strict=True):
+
+	if not strict:
+		pass
+		# relax length checks
+
 	fields = []
 
 	if intake['pk_brand'] is None:
@@ -2610,7 +2615,10 @@ def calculate_amts_data_check_symbol(intakes=None):
 	return chr(remainder + 55)
 
 #------------------------------------------------------------
-def generate_amts_data_template_definition_file(work_dir=None):
+def generate_amts_data_template_definition_file(work_dir=None, strict=True):
+
+	if not strict:
+		return __generate_enhanced_amts_data_template_definition_file(work_dir = work_dir)
 
 	amts_fields = [
 		u'MP',
@@ -2633,7 +2641,8 @@ def generate_amts_data_template_definition_file(work_dir=None):
 		u'$<praxis_comm::workphone::20>$',
 		u'$<praxis_comm::email::80>$',
 
-		u'264 $<allergy_state::::21>$', # param 1, Allergien 25-4 (4 for "264 ", spec says max of 25)
+		#u'264 $<allergy_state::::21>$',				# param 1, Allergien 25-4 (4 for "264 ", spec says max of 25)
+		u'264 Seite $<amts_total_pages::::1>$ unten',	# param 1, Allergien 25-4 (4 for "264 ", spec says max of 25)
 		u'', # param 2, not used currently
 		u'', # param 3, not used currently
 
@@ -2660,7 +2669,7 @@ def generate_amts_data_template_definition_file(work_dir=None):
 	return amts_fname
 
 #------------------------------------------------------------
-def generate_enhanced_amts_data_template_definition_file(work_dir=None):
+def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
 
 	amts_fields = [
 		u'MP',
@@ -2685,7 +2694,8 @@ def generate_enhanced_amts_data_template_definition_file(work_dir=None):
 		u'$<praxis_comm::workphone::>$',
 		u'$<praxis_comm::email::>$',
 
-		u'264 $<allergy_state::::>$', # param 1, Allergien
+		#u'264 $<allergy_state::::>$', 					# param 1, Allergien
+		u'264 Seite 1 unten',							# param 1, Allergien
 		u'', # param 2, not used currently
 		u'', # param 3, not used currently
 
@@ -2697,7 +2707,7 @@ def generate_enhanced_amts_data_template_definition_file(work_dir=None):
 	]
 
 	amts_fname = gmTools.get_unique_filename (
-		prefix = 'gm2amts_data-utf8-not_abridged-',
+		prefix = 'gm2amts_data-utf8-unabridged-',
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
