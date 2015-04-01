@@ -2902,7 +2902,7 @@ class cDrugComponent(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def turn_into_intake(self, emr=None, episode=None, preparation=None):
+	def turn_into_intake(self, emr=None, encounter=None, episode=None, preparation=None):
 		# preparation is ignored, only exists for uniformity with cConsumableSubstance
 		return create_substance_intake (
 			pk_component = self._payload[self._idx['pk_component']],
@@ -3253,7 +3253,7 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def turn_into_intake(self, emr=None, episode=None, preparation=None):
+	def turn_into_intake(self, emr=None, encounter=None, episode=None, preparation=None):
 		# preparation is ignored, only exists for uniformity with cConsumableSubstance
 		return create_substance_intake (
 			pk_brand = self._payload[self._idx['pk_brand']],
