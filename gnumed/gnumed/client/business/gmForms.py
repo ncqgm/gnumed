@@ -923,9 +923,9 @@ class cTextForm(cFormEngine):
 		base = os.path.join(self.__sandbox_dir, gmTools.fname_stem(self.template_filename))
 		filenames = [
 			self.template_filename,
-			r'%s-result_pass_1.txt' % base,
-			r'%s-result_pass_2.txt' % base,
-			r'%s-result_pass_3.txt' % base
+			r'%s-result-pass-1.txt' % base,
+			r'%s-result-pass-2.txt' % base,
+			r'%s-result-pass-3.txt' % base
 		]
 		regexen = [
 			'dummy',
@@ -1075,9 +1075,9 @@ class cLaTeXForm(cFormEngine):
 
 		filenames = [
 			self.template_filename,
-			r'%s-result_pass_1%s' % (path, ext),
-			r'%s-result_pass_2%s' % (path, ext),
-			r'%s-result_pass_3%s' % (path, ext)
+			r'%s-result-pass-1%s' % (path, ext),
+			r'%s-result-pass-2%s' % (path, ext),
+			r'%s-result-pass-3%s' % (path, ext)
 		]
 		regexen = [
 			'dummy',

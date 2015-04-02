@@ -46,7 +46,7 @@ _ID_FORM_DISPOSAL_ARCHIVE_ONLY = range(4)
 #============================================================
 # generic form generation and handling convenience functions
 #------------------------------------------------------------
-def print_doc_from_template(parent=None, jobtype=None, episode=None):
+def print_doc_from_template(parent=None, jobtype=None, episode=None, edit_form=None):
 
 	form = generate_form_from_template (
 		parent = parent,
@@ -55,7 +55,7 @@ def print_doc_from_template(parent=None, jobtype=None, episode=None):
 			u'visual progress note',
 			u'invoice'
 		],
-		edit = True
+		edit = edit_form			# default None = respect template setting
 	)
 	if form is None:
 		return False

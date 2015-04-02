@@ -71,9 +71,9 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 
 % - PDF metadata
 \hypersetup{
-	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%m.%Y::>$},
+	pdftitle = {Medikationsplan: $<name::%(firstnames)s %(lastnames)s::>$, $<date_of_birth::%d.%b %Y::>$},
 	pdfauthor = {$<current_provider::::>$, $<praxis::%(branch)s, %(praxis)s::>$},
-	pdfsubject = {Medikationsplan (AMTS)},
+	pdfsubject = {Medikationsplan (AMTS, NICHT KONFORM)},
 	pdfproducer = {GNUmed $<client_version::::>$, Vorlage $<form_name_long::::>$ ($<form_version::::>$)},
 	pdfdisplaydoctitle = true
 }
@@ -117,8 +117,8 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			{\fontsize{20pt}{22pt}\selectfont \textbf{\href{http://www.akdae.de/AMTS/Medikationsplan/}{Medikationsplan}}} \newline
 			\ \newline
 			{\fontsize{14pt}{16pt}\selectfont Seite \thepage\ von \pageref{LastPage}} \newline
-			% after certification we would replace this with the certification image...
-			%\includegraphics[scale=5,max height=2.4cm,center]{certification-image}
+			% as long as we aren't certified we can put here any image we want :-)
+			\includegraphics[scale=5,max height=2.4cm,center]{$<patient_photo::%s//image/png//.png::>$}
 		&
 			% line 1
 			\fontsize{14pt}{16pt}\selectfont
@@ -137,13 +137,13 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>$
 			\ \newline
 			% line 6
-			$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone::20>$}::>>$\  \newline
+			$<<praxis_comm::workphone//\href{tel:$<praxis_comm::workphone::>$}{$<praxis_comm::workphone::50>$}::>>$\  \newline
 			% line 7
 			$<<praxis_comm::email//{\fontsize{12pt}{14pt}\selectfont \href{mailto:$<praxis_comm::email::>$}{$<praxis_comm::email::80>$}}::>>$\ 
 		&
 			\fontsize{14pt}{16pt}\selectfont			% alle Zeilen
 			% line 1
-			geb.\ am: \textbf{$<date_of_birth::%d.%m.%Y::10>$}\newline
+			geb.\ am: \textbf{$<date_of_birth::%d.%b %Y::>$}\newline
 			% line 2
 			\ \newline
 			% line 3
@@ -155,7 +155,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			% line 6
 			\ \newline											%schwanger / stillend\newline	::25
 			% line 7: soll eigentlich linksbündig ...
-			ausgedruckt am: $<today::%d.%m.%Y::10>$
+			ausgedruckt am: $<today::%d.%b %Y::>$
 		&
 			\includegraphics[valign=t,raise=6ex,max height=4cm,max width=4cm,center]{$<<amts_png_file_current_page::::>>$}
 %		\tabularnewline
@@ -176,7 +176,8 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\raggedright
 			\fontsize{10pt}{12pt}\selectfont
 			\upshape
-			DE-DE-Version 2.0 vom 15.12.2014
+			%DE-DE-Version 2.0 vom 15.12.2014
+			NICHT KONFORM (2.0)
 		} & {
 			% middle part: Herstellerfeld
 			\parbox[t][1cm][t]{17cm}{
@@ -197,7 +198,8 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\raggedright
 			\fontsize{10pt}{12pt}\selectfont
 			\upshape
-			DE-DE-Version 2.0 vom 15.12.2014
+			%DE-DE-Version 2.0 vom 15.12.2014
+			NICHT KONFORM (2.0)
 		} & {
 			% middle part: Herstellerfeld
 			\parbox[t][1cm][t]{17cm}{
@@ -255,7 +257,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 	\endlastfoot
 	% Tabelleninhalt:
 \hline
-$<current_meds_AMTS::::999999999>$
+$<current_meds_AMTS_enhanced::::>$
 \end{longtable}
 
 %------------------------------------------------------------------

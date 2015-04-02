@@ -2333,8 +2333,8 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
 
 	#--------------------------------------------------------
-	def _get_as_amts_latex(self):
-		return format_substance_intake_as_amts_latex(intake = self)
+	def _get_as_amts_latex(self, strict=True):
+		return format_substance_intake_as_amts_latex(intake = self, strict=strict)
 
 	as_amts_latex = property(_get_as_amts_latex, lambda x:x)
 
@@ -2485,7 +2485,7 @@ def delete_substance_intake(substance=None):
 #------------------------------------------------------------
 # AMTS formatting
 #------------------------------------------------------------
-def format_substance_intake_as_amts_latex(intake=None):
+def format_substance_intake_as_amts_latex(intake=None, strict=True):
 
 	_esc = gmTools.tex_escape_string
 
@@ -2493,7 +2493,10 @@ def format_substance_intake_as_amts_latex(intake=None):
 	cells = []
 	if intake['pk_brand'] is None:
 		# components
-		cells.append(_esc(intake['substance'][:80]))
+		if strict:
+			cells.append(_esc(intake['substance'][:80]))
+		else:
+			cells.append(_esc(intake['substance']))
 		# brand
 		cells.append(u'')
 		# Wirkstärke
@@ -2504,20 +2507,40 @@ def format_substance_intake_as_amts_latex(intake=None):
 		if len(components) > 3:
 			cells.append(_esc(u'WS-Kombi.'))
 		elif len(components) == 1:
-			cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
+			c = components[0]
+			if strict:
+				cells.append(u'\\mbox{%s}' % _esc(c[0][:80]))
+			else:
+				cells.append(u'\\mbox{%s}' % _esc(c[0]))
 		else:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+			if strict:
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0][:80]) for c in components]))
+			else:
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline '.join([u'\\mbox{%s}' % _esc(c[0]) for c in components]))
 		# brand
-		cells.append(_esc(intake['brand'][:50]))
+		if strict:
+			cells.append(_esc(intake['brand'][:50]))
+		else:
+			cells.append(_esc(intake['brand']))
 		# Wirkstärken
 		if len(components) > 3:
 			cells.append(u'')
 		elif len(components) == 1:
-			cells.append(_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]))
+			c = components[0]
+			if strict:
+				cells.append(_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]))
+			else:
+				cells.append(_esc(u'%s%s' % (c[1].replace(u'.', u','), c[2])))
 		else:
-			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]) for c in components]))
+			if strict:
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]) for c in components]))
+			else:
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc(u'%s%s' % (c[1].replace(u'.', u','), c[2])) for c in components]))
 	# preparation
-	cells.append(_esc(intake['preparation'][:7]))
+	if strict:
+		cells.append(_esc(intake['preparation'][:7]))
+	else:
+		cells.append(_esc(intake['preparation']))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
 	# spec says [:20] but implementation guide says: never trim
 	if len(intake['schedule']) > 20:
@@ -2527,9 +2550,15 @@ def format_substance_intake_as_amts_latex(intake=None):
 	# Einheit to take
 	cells.append(u'')#[:20]
 	# notes
-	cells.append(_esc(intake['notes'][:80]))
+	if strict:
+		cells.append(_esc(intake['notes'][:80]))
+	else:
+		cells.append(_esc(intake['notes']))
 	# aim
-	cells.append(_esc(intake['aim'][:50]))
+	if strict:
+		cells.append(_esc(intake['aim'][:50]))
+	else:
+		cells.append(_esc(intake['aim']))
 
 	table_row = u' & '.join(cells)
 	table_row += u'\\tabularnewline\n\\hline'
@@ -2558,6 +2587,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		if len(components) > 3:
 			fields.append(u'WS-Kombi.')
 		elif len(components) == 1:
+			c = components[0]
 			fields.append(c[0][:80])
 		else:
 			fields.append(u'~'.join([c[0][:80] for c in components]))
@@ -2567,6 +2597,7 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 		if len(components) > 3:
 			fields.append(u'')
 		elif len(components) == 1:
+			c = components[0]
 			fields.append((u'%s%s' % (c[1], c[2]))[:11])
 		else:
 			fields.append(u'~'.join([(u'%s%s' % (c[1], c[2]))[:11] for c in components]))
@@ -2729,7 +2760,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex = u'\\noindent %s\n' % _('Additional notes')
 	tex += u'%%%% requires "\\usepackage{longtable}"\n'
 	tex += u'%%%% requires "\\usepackage{tabu}"\n'
-	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|l|X[,L]|}\n'
+	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[,L]|r|X[,L]|}\n'
 	tex += u'\\hline\n'
 	tex += u'%s {\\scriptsize (%s)} & %s & %s \\tabularnewline \n' % (_('Substance'), _('Brand'), _('Strength'), _('Aim'))
 	tex += u'\\hline\n'
@@ -2749,7 +2780,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 		if med['brand'] is None:
 			brand = u''
 		else:
-			brand = u': {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
+			brand = u'{\\small :} {\\tiny %s}' % gmTools.tex_escape_string(med['brand'])
 		if med['aim'] is None:
 			aim = u''
 		else:
@@ -2768,13 +2799,18 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 #------------------------------------------------------------
 def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-brand'):
 
-	tex = u'\\noindent %s {\\tiny (%s)\\par}\n' % (_('Medication list'), _('ordered by brand'))
-	tex += u'%%%% requires "\\usepackage{longtable}"\n'
-	tex += u'%%%% requires "\\usepackage{tabu}"\n'
-	tex += u'\\noindent \\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
+	tex = u'\\noindent %s {\\tiny (%s)}\n' % (
+		gmTools.tex_escape_string(_('Medication list')),
+		gmTools.tex_escape_string(_('ordered by brand'))
+	)
+	tex += u'%% requires "\\usepackage{longtable}"\n'
+	tex += u'%% requires "\\usepackage{tabu}"\n'
+	tex += u'\\begin{longtabu} to \\textwidth {|X[-1,L]|X[2.5,L]|}\n'
 	tex += u'\\hline\n'
-	tex += u'%s & %s \\tabularnewline \n' % (_('Drug'), _('Regimen / Advice'))
-	tex += u'\\hline\n'
+	tex += u'%s & %s \\tabularnewline \n' % (
+		gmTools.tex_escape_string(_('Drug')),
+		gmTools.tex_escape_string(_('Regimen / Advice'))
+	)
 	tex += u'\\hline\n'
 	tex += u'%s\n'
 	tex += u'\\end{longtabu}\n'
@@ -2808,9 +2844,9 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	# create lines
 	already_seen = []
 	lines = []
-	line1_template = u'%s %s             & %s \\tabularnewline'
-	line2_template = u' {\\tiny %s\\par} & {\\scriptsize %s\\par} \\tabularnewline'
-	line3_template = u'                  & {\\scriptsize %s\\par} \\tabularnewline'
+	line1_template = u'\\rule{0pt}{3ex}{\\Large %s} %s & %s \\tabularnewline'
+	line2_template = u'{\\tiny %s}                     & {\\scriptsize %s} \\tabularnewline'
+	line3_template = u'                                & {\\scriptsize %s} \\tabularnewline'
 
 	for med in current_meds:
 		identifier = gmTools.coalesce(med['brand'], med['substance'])

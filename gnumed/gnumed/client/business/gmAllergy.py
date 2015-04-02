@@ -121,6 +121,8 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
 		table_rows = []
+		# Trennzeile als leere Zeile für bessere Lesbarkeit
+		table_rows.append(u'\\multicolumn{11}{l}{}\\tabularnewline')
 		# Zwischenüberschrift: 31 Zeichen, $..., 14pt, no frame, \textwidth
 		state = u'%s (%s)' % (
 			self.state_string,
@@ -143,6 +145,8 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_as_amts_data(self, strict=True):
 		lines = []
+		# Trennzeile für bessere Lesbarkeit als leere Zwischenüberschrift
+		lines.append(u'$ ')
 		# Zwischenüberschrift: 31 Zeichen, $..., \textwidth
 		txt = u'$%s (%s)' % (
 			self.state_string,

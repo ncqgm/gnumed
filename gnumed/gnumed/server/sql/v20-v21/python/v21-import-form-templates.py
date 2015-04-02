@@ -18,11 +18,32 @@ def run(conn=None):
 	gmPG2.file2bytea (
 		query = u"""
 			UPDATE ref.paperwork_templates SET
-				data = %(data)s::bytea,
-				external_version = 'DE-DE-Version 2.0 vom 15.12.2014'
+				data = %(data)s::bytea
 			WHERE
-				name_long = 'Medikationsplan (AMTS Deutschland)'""",
+				name_long = 'Medikationsplan (Deutschland, AMTS)'""",
 		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-Medikationsplan_AMTS-2.0.tex'),
+		conn = conn
+	)
+
+	# AMTS Medikationsplan (nicht konform)
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea
+			WHERE
+				name_long = 'Medikationsplan (Deutschland, NICHT konform zu AMTS)'""",
+		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-Medikationsplan_AMTS-2.0-nicht_konform.tex'),
+		conn = conn
+	)
+
+	# German current meds list
+	gmPG2.file2bytea (
+		query = u"""
+			UPDATE ref.paperwork_templates SET
+				data = %(data)s::bytea
+			WHERE
+				name_long = 'Liste aktueller Medikamente (GNUmed)'""",
+		filename = os.path.join('..', 'sql', 'v20-v21', 'data', 'v21-aktuelle-Medikationsliste.tex'),
 		conn = conn
 	)
 

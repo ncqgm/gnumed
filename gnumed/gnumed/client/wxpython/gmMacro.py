@@ -327,6 +327,10 @@ __known_variant_placeholders = {
 		available by first (or second) pass processing of the initial
 		placeholder "current_meds_AMTS"
 	""",
+	u'current_meds_AMTS_enhanced': u"""emit LaTeX longtable lines with appropriate page breaks:
+		this returns the same content as current_meds_AMTS except that
+		it does not truncate output data whenever possible
+	""",
 
 	u'current_meds_table': u"emits a LaTeX table, no arguments",
 	u'current_meds_notes': u"emits a LaTeX table, no arguments",
@@ -1660,8 +1664,13 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return self._escape(_('template is missing'))
 
 		return u'\n'.join([ data % a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for a in self.pat.emr.get_allergies() ])
+
 	#--------------------------------------------------------
-	def _get_variant_current_meds_AMTS(self, data=None):
+	def _get_variant_current_meds_AMTS_enhanced(self, data=None):
+		return self._get_variant_current_meds_AMTS(data=data, strict=False)
+
+	#--------------------------------------------------------
+	def _get_variant_current_meds_AMTS(self, data=None, strict=True):
 
 		# select intakes
 		emr = self.pat.get_emr()
@@ -1686,15 +1695,15 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		# create AMTS-LaTeX per intake
 		intake_as_latex_rows = []
 		for intake in unique_intakes:
-			intake_as_latex_rows.append(intake.as_amts_latex)
+			intake_as_latex_rows.append(intake._get_as_amts_latex(strict = strict))
 		del unique_intakes
 
 		# append allergy information
 		# - state
-		intake_as_latex_rows.extend(emr.allergy_state.as_amts_latex)
+		intake_as_latex_rows.extend(emr.allergy_state._get_as_amts_latex(strict = strict))
 		# - allergies
 		for allg in emr.get_allergies():
-			intake_as_latex_rows.append(allg.as_amts_latex)
+			intake_as_latex_rows.append(allg._get_as_amts_latex(strict = strict))
 
 		# insert \newpage after each group of 15 rows
 		table_rows = intake_as_latex_rows[:15]
@@ -1702,6 +1711,18 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			table_rows.append(u'\\newpage')
 			table_rows.extend(intake_as_latex_rows[15:30])
 		if len(intake_as_latex_rows) > 30:
+			table_rows.append(u'\\newpage')
+			table_rows.extend(intake_as_latex_rows[30:45])
+
+		if strict:
+			return u'\n'.join(table_rows)
+
+		# allow two more pages in enhanced mode
+		if len(intake_as_latex_rows) > 45:
+			table_rows.append(u'\\newpage')
+			table_rows.extend(intake_as_latex_rows[30:45])
+
+		if len(intake_as_latex_rows) > 60:
 			table_rows.append(u'\\newpage')
 			table_rows.extend(intake_as_latex_rows[30:45])
 
@@ -1779,7 +1800,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			_log.error(u'cannot substitute into amts data file form template')
 			return
 		data_file = form.re_editable_filenames[0]
-		png_file = os.path.join(png_dir, 'gm4amts-qr_code-utf8.png')
+		png_file = os.path.join(png_dir, 'gm4amts-qrcode-utf8.png')
 		cmd = u'%s %s %s' % (dmtx_creator, data_file, png_file)
 		success = gmShellAPI.run_command_in_shell(command = cmd, blocking = True)
 		if not success:
@@ -1803,7 +1824,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		total_pages = int(total_pages)
 		_log.debug('total pages: %s', total_pages)
 
-		png_file_base = os.path.join(png_dir, 'gm4amts-qr_code-page_')
+		png_file_base = os.path.join(png_dir, 'gm4amts-qrcode-page-')
 		for this_page in range(1,total_pages+1):
 			intakes_this_page = intakes[(this_page-1)*15:this_page*15]
 			amts_data_template_def_file = gmMedication.generate_amts_data_template_definition_file(strict = True)
