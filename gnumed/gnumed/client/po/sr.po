@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-26 20:29+0100\n"
+"POT-Creation-Date: 2015-04-03 22:22+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -3253,8 +3253,9 @@ msgstr ""
 msgid "Messages:"
 msgstr ""
 
-msgid "Only:"
-msgstr ""
+#, fuzzy
+msgid "Limit to:"
+msgstr "Подеси на:"
 
 msgid "&Myself … or:"
 msgstr ""
@@ -4945,20 +4946,19 @@ msgstr ""
 msgid "Show:"
 msgstr ""
 
-msgid "Brand by component"
+msgid "Kidneys"
 msgstr ""
 
 msgid "Brands"
 msgstr ""
 
-msgid "Kidneys"
-msgstr ""
+#, fuzzy
+msgid "Substances"
+msgstr "Супстанца"
 
-msgid "Unbranded substance"
-msgstr ""
-
-msgid "Manage"
-msgstr ""
+#, fuzzy
+msgid "&Unknown or date:"
+msgstr "непозната реакција"
 
 msgid "Approved of"
 msgstr ""
@@ -4973,23 +4973,20 @@ msgid "... Reason"
 msgstr ""
 
 msgid ""
-"A component of a drug brand the patient is taking.\n"
+"A drug the patient is taking.\n"
 "\n"
-"Lookup, and select, a single- (or multi-) component drug brand, by active "
-"ingredient name. All components of multi-component drugs will be displayed "
-"and automatically added to the patient's list."
+"Lookup and select an intake by either of\n"
+"- a generic substance name\n"
+"- a drug brand name\n"
+"- an active ingredient of a drug\n"
+"\n"
+"Note that all components of multi-component drugs will be displayed and "
+"automatically added to the patient's list."
 msgstr ""
 
-msgid ""
-"Manage drug brands.\n"
-"\n"
-"Note that this will not select a component for you. What it does is to let "
-"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
-"which you can select a component."
-msgstr ""
-
-msgid "The active ingredients of this brand."
-msgstr ""
+#, fuzzy
+msgid "Details on the selected drug."
+msgstr "Брисање вакцине"
 
 msgid "Show cardiac information relevant to substance selection."
 msgstr ""
@@ -4998,8 +4995,11 @@ msgid "Show renal insufficiency information related to substance selection."
 msgstr ""
 
 msgid ""
-"The non-branded medication or non-medication substance, with optional "
-"strength."
+"Manage drug brands.\n"
+"\n"
+"Note that this will not select a component for you. What it does is to let "
+"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
+"which you can select a component."
 msgstr ""
 
 msgid ""
@@ -5012,9 +5012,17 @@ msgstr ""
 msgid "The preparation or form of the substance."
 msgstr ""
 
+msgid "Check here if the start date simply isn't known."
+msgstr ""
+
 msgid ""
 "When was this substance started to be consumed or - if not known - the "
 "earliest it is known to have been be consumed."
+msgstr ""
+
+msgid ""
+"A coment on the certainty of the start date, such as \"+/- 3 weeks\", "
+"\"spring of 2002\", \"shortly after Easter 1996\", ...."
 msgstr ""
 
 msgid "Whether this substance is taken by advice."
@@ -5048,6 +5056,15 @@ msgid "Press if discontinuation was as planned."
 msgstr ""
 
 msgid "Reason for discontinuation."
+msgstr ""
+
+msgid "Drug"
+msgstr "Лек"
+
+msgid "Research:"
+msgstr ""
+
+msgid "Certainty:"
 msgstr ""
 
 msgid "Schedule"
@@ -5749,19 +5766,19 @@ msgstr "Мерења и резултати: %s"
 msgid "Documents:"
 msgstr "Документа:"
 
+msgid "&L"
+msgstr ""
+
 msgid "&N"
 msgstr ""
 
-msgid "&L"
+msgid "List all encounters."
 msgstr ""
 
 msgid "The encounter."
 msgstr ""
 
 msgid "Start a new encounter for the active patient."
-msgstr ""
-
-msgid "List all encounters."
 msgstr ""
 
 msgid "Clinically relevant"
@@ -6017,10 +6034,14 @@ msgstr ""
 msgid "Manage dynamic hints."
 msgstr "Приказивање вакцина."
 
+#, fuzzy
 msgid ""
 "Rationale for\n"
-"suppression"
+"suppression\n"
+"for this patient"
 msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
 
 msgid "Save &under"
 msgstr ""
@@ -6412,7 +6433,13 @@ msgstr "Рецепти"
 msgid "prescription data"
 msgstr "Рецепти"
 
+msgid "Consumable substance"
+msgstr ""
+
 msgid "in use"
+msgstr ""
+
+msgid "w/"
 msgstr ""
 
 msgid "long-term"
@@ -6526,11 +6553,11 @@ msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s: %s ago"
+msgid "%s%s: %s ago%s"
 msgstr "Документа: %s"
 
 #, fuzzy, python-format
-msgid "%s: %s ago (%s)"
+msgid "%s%s: %s ago (%s)"
 msgstr "Документа: %s"
 
 msgid "Additional notes"
@@ -6545,11 +6572,34 @@ msgstr "Листа лекова"
 msgid "ordered by brand"
 msgstr ""
 
-msgid "Drug"
-msgstr "Лек"
-
 msgid "Regimen / Advice"
 msgstr ""
+
+#, fuzzy, python-format
+msgid "Component of %s (%s)"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+#, fuzzy, python-format
+msgid "ATC (substance): %s"
+msgstr "Супстанца"
+
+#, python-format
+msgid "ATC (brand): %s"
+msgstr ""
+
+msgid "this is a component of a fake brand"
+msgstr ""
+
+#, fuzzy
+msgid "Components:"
+msgstr "неактиван"
+
+msgid "this is a fake brand"
+msgstr ""
+
+#, fuzzy
+msgid "this is a vaccine"
+msgstr "вакцина"
 
 msgid "units"
 msgstr "једиице"
@@ -7051,6 +7101,12 @@ msgstr ""
 
 #, python-format
 msgid "Praxis branch                   #%s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s "
+"%(praxis)s"
 msgstr ""
 
 msgid "Privacy notice"
@@ -8039,10 +8095,6 @@ msgstr ""
 
 msgid "Procedures"
 msgstr ""
-
-#, fuzzy
-msgid "Substances"
-msgstr "Супстанца"
 
 msgid "Life events"
 msgstr ""
@@ -9377,12 +9429,12 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Latest: %s ago (%s %s %s %s%s)"
+msgid "Latest: %s ago (%s %s%s%s%s)"
 msgstr "  ваше време: %s - %s  (@%s = %s%s)\n"
 
-#, python-format
-msgid "%s %s %s %s (%s ago, %s)"
-msgstr ""
+#, fuzzy, python-format
+msgid "%s %s%s%s (%s ago, %s)"
+msgstr "Документа: %s"
 
 #, fuzzy, python-format
 msgid "overdue %s: %s"
@@ -9390,6 +9442,13 @@ msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 #, fuzzy, python-format
 msgid "due in %s%s"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
+msgid "suppr'd:"
+msgstr ""
+
+#, fuzzy
+msgid "Suppressed hints:\n"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid ""
@@ -10736,7 +10795,7 @@ msgstr "Пацијент: %s (%s), Бр: %s\n"
 msgid "Reminders for the current patient"
 msgstr "Додај вакцинацију(е) за тренутног пацијента."
 
-msgid "Sent"
+msgid "Generated"
 msgstr ""
 
 msgid "Category - Type"
@@ -10782,9 +10841,6 @@ msgstr ""
 msgid ""
 "Message: %s\n"
 "Data: %s"
-msgstr ""
-
-msgid "Inbox Message Actions:"
 msgstr ""
 
 msgid "Activate patient"
@@ -11985,6 +12041,22 @@ msgstr ""
 msgid "generic multi choice dialog"
 msgstr ""
 
+msgid "Entire row"
+msgstr ""
+
+#, python-format
+msgid "[%8.8s] %s"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+msgid "List Item Actions:"
+msgstr ""
+
+msgid "Copy to clipboard..."
+msgstr ""
+
 #, fuzzy
 msgid "Search in list"
 msgstr "Листа лекова"
@@ -12137,6 +12209,9 @@ msgid "No: - / 0"
 msgstr ""
 
 msgid "Unknown: ?"
+msgstr ""
+
+msgid "The text has been copied into the clipboard."
 msgstr ""
 
 msgid "file2clipboard"
@@ -12700,6 +12775,9 @@ msgid ""
 "except in the case of fake (generic) vaccines."
 msgstr ""
 
+msgid "A substance with optional strength or a brand."
+msgstr ""
+
 msgid "The medical aim for consuming this substance."
 msgstr ""
 
@@ -12757,6 +12835,9 @@ msgstr ""
 msgid "GFR reported by path lab"
 msgstr ""
 
+msgid "Adding substance intake entry"
+msgstr ""
+
 #, python-format
 msgid ""
 "The patient is already taking\n"
@@ -12765,9 +12846,6 @@ msgid ""
 "\n"
 "You will want to adjust the schedule\n"
 "rather than document the intake twice."
-msgstr ""
-
-msgid "Adding substance intake entry"
 msgstr ""
 
 msgid "Input incomplete/invalid for saving as substance intake."
@@ -13627,9 +13705,6 @@ msgstr ""
 msgid "Showing documents."
 msgstr "Приказивање вакцина."
 
-msgid "Generated"
-msgstr ""
-
 msgid "Ref #"
 msgstr ""
 
@@ -13944,6 +14019,16 @@ msgstr "Листа лекова"
 
 msgid "Select the measurements panel to show in the medications plugin."
 msgstr ""
+
+#, fuzzy
+msgid "General measurements"
+msgstr "Листа лекова"
+
+#, fuzzy
+msgid "Select the measurements panel to show in the top pane."
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
 
 msgid "Review dialog"
 msgstr ""
@@ -15617,6 +15702,31 @@ msgstr ""
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+msgid "RR ?"
+msgstr ""
+
+#, python-format
+msgid "BMI %s"
+msgstr ""
+
+msgid "BMI ?"
+msgstr ""
+
+msgid "GFR ?"
+msgstr ""
+
+#, python-format
+msgid "GFR %s"
+msgstr ""
+
+#, python-format
+msgid "?EDC %s"
+msgstr ""
+
+#, python-format
+msgid "EDC %s"
+msgstr ""
+
 msgid "<Age>"
 msgstr ""
 
@@ -15824,6 +15934,10 @@ msgstr ""
 msgid "Extracting HL7 from XML file"
 msgstr ""
 
+#, python-format
+msgid "Unwrapped HL7 into [%s] from [%s]."
+msgstr ""
+
 msgid "Select HL7 file for staging:"
 msgstr ""
 
@@ -15846,6 +15960,10 @@ msgid ""
 "There was a problem with staging the following files\n"
 "\n"
 " %s"
+msgstr ""
+
+#, python-format
+msgid "Staged HL7 from [%s]."
 msgstr ""
 
 msgid "Importing HL7 data"
@@ -15940,6 +16058,22 @@ msgstr ""
 
 msgid "Plot current selection"
 msgstr ""
+
+#, fuzzy
+msgid ""
+"Select the measurements panel to show in the top pane for continuous "
+"monitoring."
+msgstr ""
+"\n"
+"Комплетна историја вакцинације овог пацијента.\n"
+
+#, fuzzy
+msgid "Lab panel"
+msgstr "Уреди вакцинације"
+
+#, fuzzy
+msgid "Configuring continuous monitoring measurements panel"
+msgstr "Мерења и резултати: %s"
 
 msgid "No default Gnuplot script template selected."
 msgstr ""
@@ -16240,6 +16374,10 @@ msgstr ""
 msgid "EMR Actions:"
 msgstr ""
 
+#, fuzzy
+msgid "Print EMR"
+msgstr "Пацијент: %s (%s), Бр: %s\n"
+
 msgid "Create health issue"
 msgstr ""
 
@@ -16460,6 +16598,9 @@ msgid "Showing patient tags"
 msgstr "Приказивање вакцина."
 
 msgid "Tag"
+msgstr ""
+
+msgid "Manage"
 msgstr ""
 
 #, fuzzy
@@ -17384,8 +17525,12 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
 #, fuzzy
-#~ msgid "%s: %s%s%s (%s ago)"
-#~ msgstr "Документа: %s"
+#~ msgid ""
+#~ "\n"
+#~ "Select the measurements panel to show in the top pane.\n"
+#~ msgstr ""
+#~ "\n"
+#~ "Комплетна историја вакцинације овог пацијента.\n"
 
 #, fuzzy
 #~ msgid "Clinical hint"

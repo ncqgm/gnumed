@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-26 20:29+0100\n"
+"POT-Creation-Date: 2015-04-03 22:22+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -3415,7 +3415,7 @@ msgstr ""
 msgid "Messages:"
 msgstr ""
 
-msgid "Only:"
+msgid "Limit to:"
 msgstr ""
 
 msgid "&Myself … or:"
@@ -5156,20 +5156,18 @@ msgstr ""
 msgid "Show:"
 msgstr ""
 
-msgid "Brand by component"
+msgid "Kidneys"
 msgstr ""
 
 msgid "Brands"
 msgstr ""
 
-msgid "Kidneys"
+msgid "Substances"
 msgstr ""
 
-msgid "Unbranded substance"
-msgstr ""
-
-msgid "Manage"
-msgstr ""
+#, fuzzy
+msgid "&Unknown or date:"
+msgstr "okänd reaktion"
 
 msgid "Approved of"
 msgstr ""
@@ -5184,23 +5182,20 @@ msgid "... Reason"
 msgstr ""
 
 msgid ""
-"A component of a drug brand the patient is taking.\n"
+"A drug the patient is taking.\n"
 "\n"
-"Lookup, and select, a single- (or multi-) component drug brand, by active "
-"ingredient name. All components of multi-component drugs will be displayed "
-"and automatically added to the patient's list."
+"Lookup and select an intake by either of\n"
+"- a generic substance name\n"
+"- a drug brand name\n"
+"- an active ingredient of a drug\n"
+"\n"
+"Note that all components of multi-component drugs will be displayed and "
+"automatically added to the patient's list."
 msgstr ""
 
-msgid ""
-"Manage drug brands.\n"
-"\n"
-"Note that this will not select a component for you. What it does is to let "
-"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
-"which you can select a component."
-msgstr ""
-
-msgid "The active ingredients of this brand."
-msgstr ""
+#, fuzzy
+msgid "Details on the selected drug."
+msgstr "Duplicera den Markerade Händelsen"
 
 msgid "Show cardiac information relevant to substance selection."
 msgstr ""
@@ -5209,8 +5204,11 @@ msgid "Show renal insufficiency information related to substance selection."
 msgstr ""
 
 msgid ""
-"The non-branded medication or non-medication substance, with optional "
-"strength."
+"Manage drug brands.\n"
+"\n"
+"Note that this will not select a component for you. What it does is to let "
+"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
+"which you can select a component."
 msgstr ""
 
 msgid ""
@@ -5223,9 +5221,17 @@ msgstr ""
 msgid "The preparation or form of the substance."
 msgstr ""
 
+msgid "Check here if the start date simply isn't known."
+msgstr ""
+
 msgid ""
 "When was this substance started to be consumed or - if not known - the "
 "earliest it is known to have been be consumed."
+msgstr ""
+
+msgid ""
+"A coment on the certainty of the start date, such as \"+/- 3 weeks\", "
+"\"spring of 2002\", \"shortly after Easter 1996\", ...."
 msgstr ""
 
 msgid "Whether this substance is taken by advice."
@@ -5260,6 +5266,16 @@ msgstr ""
 
 msgid "Reason for discontinuation."
 msgstr ""
+
+msgid "Drug"
+msgstr "Medicin"
+
+msgid "Research:"
+msgstr ""
+
+#, fuzzy
+msgid "Certainty:"
+msgstr "Behållare:"
 
 msgid "Schedule"
 msgstr ""
@@ -5973,19 +5989,19 @@ msgstr ""
 msgid "Documents:"
 msgstr "Dokument:"
 
+msgid "&L"
+msgstr ""
+
 msgid "&N"
 msgstr ""
 
-msgid "&L"
+msgid "List all encounters."
 msgstr ""
 
 msgid "The encounter."
 msgstr ""
 
 msgid "Start a new encounter for the active patient."
-msgstr ""
-
-msgid "List all encounters."
 msgstr ""
 
 msgid "Clinically relevant"
@@ -6241,10 +6257,12 @@ msgstr ""
 msgid "Manage dynamic hints."
 msgstr "Öppna en befintlig tidslinje"
 
+#, fuzzy
 msgid ""
 "Rationale for\n"
-"suppression"
-msgstr ""
+"suppression\n"
+"for this patient"
+msgstr "externt patient-ID"
 
 msgid "Save &under"
 msgstr ""
@@ -6644,7 +6662,13 @@ msgstr "Beskrivning"
 msgid "prescription data"
 msgstr "Beskrivning"
 
+msgid "Consumable substance"
+msgstr ""
+
 msgid "in use"
+msgstr ""
+
+msgid "w/"
 msgstr ""
 
 msgid "long-term"
@@ -6758,11 +6782,11 @@ msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s: %s ago"
+msgid "%s%s: %s ago%s"
 msgstr "Enhet: %s (%s)"
 
 #, fuzzy, python-format
-msgid "%s: %s ago (%s)"
+msgid "%s%s: %s ago (%s)"
 msgstr "Enhet: %s (%s)"
 
 msgid "Additional notes"
@@ -6777,10 +6801,32 @@ msgstr "Medicinlista"
 msgid "ordered by brand"
 msgstr "sorterad med avseende på märke"
 
-msgid "Drug"
-msgstr "Medicin"
-
 msgid "Regimen / Advice"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Component of %s (%s)"
+msgstr "Enhet: %s (%s)"
+
+#, python-format
+msgid "ATC (substance): %s"
+msgstr ""
+
+#, python-format
+msgid "ATC (brand): %s"
+msgstr ""
+
+msgid "this is a component of a fake brand"
+msgstr ""
+
+#, fuzzy
+msgid "Components:"
+msgstr "&Innehåll\tF1"
+
+msgid "this is a fake brand"
+msgstr ""
+
+msgid "this is a vaccine"
 msgstr ""
 
 msgid "units"
@@ -7308,6 +7354,12 @@ msgstr "Impedans:"
 
 #, python-format
 msgid "Praxis branch                   #%s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s "
+"%(praxis)s"
 msgstr ""
 
 msgid "Privacy notice"
@@ -8318,9 +8370,6 @@ msgid "Hospital stays"
 msgstr ""
 
 msgid "Procedures"
-msgstr ""
-
-msgid "Substances"
 msgstr ""
 
 msgid "Life events"
@@ -9659,13 +9708,13 @@ msgstr ""
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
-#, python-format
-msgid "Latest: %s ago (%s %s %s %s%s)"
-msgstr ""
+#, fuzzy, python-format
+msgid "Latest: %s ago (%s %s%s%s%s)"
+msgstr " Spann: %s (%s - %s)"
 
-#, python-format
-msgid "%s %s %s %s (%s ago, %s)"
-msgstr ""
+#, fuzzy, python-format
+msgid "%s %s%s%s (%s ago, %s)"
+msgstr "Enhet: %s (%s)"
 
 #, python-format
 msgid "overdue %s: %s"
@@ -9674,6 +9723,13 @@ msgstr ""
 #, python-format
 msgid "due in %s%s"
 msgstr ""
+
+msgid "suppr'd:"
+msgstr ""
+
+#, fuzzy
+msgid "Suppressed hints:\n"
+msgstr "Exporterat: %s\n"
 
 msgid ""
 "Do you really want to\n"
@@ -11017,7 +11073,7 @@ msgstr ""
 msgid "Reminders for the current patient"
 msgstr ""
 
-msgid "Sent"
+msgid "Generated"
 msgstr ""
 
 #, fuzzy
@@ -11064,9 +11120,6 @@ msgstr ""
 msgid ""
 "Message: %s\n"
 "Data: %s"
-msgstr ""
-
-msgid "Inbox Message Actions:"
 msgstr ""
 
 msgid "Activate patient"
@@ -12250,6 +12303,24 @@ msgstr "externt patient-ID"
 msgid "generic multi choice dialog"
 msgstr ""
 
+msgid "Entire row"
+msgstr ""
+
+#, python-format
+msgid "[%8.8s] %s"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+#, fuzzy
+msgid "List Item Actions:"
+msgstr "Undesökningsåtgärder:"
+
+#, fuzzy
+msgid "Copy to clipboard..."
+msgstr "Misslyckades med att kopiera till klippbordet"
+
 #, fuzzy
 msgid "Search in list"
 msgstr "Medicinlista"
@@ -12405,6 +12476,9 @@ msgid "No: - / 0"
 msgstr ""
 
 msgid "Unknown: ?"
+msgstr ""
+
+msgid "The text has been copied into the clipboard."
 msgstr ""
 
 msgid "file2clipboard"
@@ -12966,6 +13040,9 @@ msgid ""
 "except in the case of fake (generic) vaccines."
 msgstr ""
 
+msgid "A substance with optional strength or a brand."
+msgstr ""
+
 msgid "The medical aim for consuming this substance."
 msgstr ""
 
@@ -13024,6 +13101,9 @@ msgstr "Okänd"
 msgid "GFR reported by path lab"
 msgstr ""
 
+msgid "Adding substance intake entry"
+msgstr ""
+
 #, python-format
 msgid ""
 "The patient is already taking\n"
@@ -13032,9 +13112,6 @@ msgid ""
 "\n"
 "You will want to adjust the schedule\n"
 "rather than document the intake twice."
-msgstr ""
-
-msgid "Adding substance intake entry"
 msgstr ""
 
 msgid "Input incomplete/invalid for saving as substance intake."
@@ -13887,9 +13964,6 @@ msgstr ""
 msgid "Showing documents."
 msgstr ""
 
-msgid "Generated"
-msgstr ""
-
 msgid "Ref #"
 msgstr ""
 
@@ -14202,6 +14276,16 @@ msgstr "Medicinlista"
 
 msgid "Select the measurements panel to show in the medications plugin."
 msgstr ""
+
+#, fuzzy
+msgid "General measurements"
+msgstr "Medicinlista"
+
+#, fuzzy
+msgid "Select the measurements panel to show in the top pane."
+msgstr ""
+"Bocka i detta val om du vill att GNUmed skall registrera ditt val och inte "
+"ånyo fråga dig i fortsättningen."
 
 msgid "Review dialog"
 msgstr ""
@@ -15930,6 +16014,31 @@ msgstr ""
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+msgid "RR ?"
+msgstr ""
+
+#, python-format
+msgid "BMI %s"
+msgstr ""
+
+msgid "BMI ?"
+msgstr ""
+
+msgid "GFR ?"
+msgstr ""
+
+#, python-format
+msgid "GFR %s"
+msgstr ""
+
+#, python-format
+msgid "?EDC %s"
+msgstr ""
+
+#, python-format
+msgid "EDC %s"
+msgstr ""
+
 msgid "<Age>"
 msgstr ""
 
@@ -16132,6 +16241,10 @@ msgstr ""
 msgid "Extracting HL7 from XML file"
 msgstr ""
 
+#, python-format
+msgid "Unwrapped HL7 into [%s] from [%s]."
+msgstr ""
+
 msgid "Select HL7 file for staging:"
 msgstr ""
 
@@ -16154,6 +16267,10 @@ msgid ""
 "There was a problem with staging the following files\n"
 "\n"
 " %s"
+msgstr ""
+
+#, python-format
+msgid "Staged HL7 from [%s]."
 msgstr ""
 
 msgid "Importing HL7 data"
@@ -16252,6 +16369,22 @@ msgstr "Den för närvarande valda patienten är:"
 #, fuzzy
 msgid "Plot current selection"
 msgstr "Den för närvarande valda patienten är:"
+
+#, fuzzy
+msgid ""
+"Select the measurements panel to show in the top pane for continuous "
+"monitoring."
+msgstr ""
+"Bocka i detta val om du vill att GNUmed skall registrera ditt val och inte "
+"ånyo fråga dig i fortsättningen."
+
+#, fuzzy
+msgid "Lab panel"
+msgstr "Labsvar"
+
+#, fuzzy
+msgid "Configuring continuous monitoring measurements panel"
+msgstr "Provtagningar och resultat:"
 
 msgid "No default Gnuplot script template selected."
 msgstr ""
@@ -16547,6 +16680,10 @@ msgstr ""
 msgid "EMR Actions:"
 msgstr ""
 
+#, fuzzy
+msgid "Print EMR"
+msgstr "Skriv ut"
+
 msgid "Create health issue"
 msgstr ""
 
@@ -16764,6 +16901,9 @@ msgid "Showing patient tags"
 msgstr ""
 
 msgid "Tag"
+msgstr ""
+
+msgid "Manage"
 msgstr ""
 
 msgid "Manage available tags."
@@ -17707,8 +17847,12 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
 
 #, fuzzy
-#~ msgid "%s: %s%s%s (%s ago)"
-#~ msgstr "Enhet: %s (%s)"
+#~ msgid ""
+#~ "\n"
+#~ "Select the measurements panel to show in the top pane.\n"
+#~ msgstr ""
+#~ "Bocka i detta val om du vill att GNUmed skall registrera ditt val och "
+#~ "inte ånyo fråga dig i fortsättningen."
 
 #, fuzzy
 #~ msgid "to file(s)"

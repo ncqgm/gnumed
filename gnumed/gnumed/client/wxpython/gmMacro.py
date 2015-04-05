@@ -252,6 +252,16 @@ __known_variant_placeholders = {
 	u'adr_country': u"args: <type of address>, cached per type",
 
 	u'patient_comm': u"args: <comm channel type as per database>//<%(field)s-template>",
+
+	u'patient_vcf': u"""returns path to VCF for current patient
+		args: <template>
+		template: %s-template for path
+	""",
+	u'patient_gdt': u"""returns path to GDT for current patient
+		args: <template>
+		template: %s-template for path
+	""",
+
 	u'patient_tags': u"args: <%(field)s-template>//<separator>",
 	#u'patient_tags_table': u"no args",
 	u'patient_photo': u"""outputs URL to exported patient photo (cached per mime type and extension):
@@ -1403,6 +1413,25 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			self.__cache[cache_key] = fname
 
 		return template % fname
+
+	#--------------------------------------------------------
+	def _get_variant_patient_vcf(self, data):
+		options = data.split(self.__args_divider)
+		template = options[0].strip()
+		if template == u'':
+			template = u'%s'
+
+		return template % self.pat.export_as_vcard()
+
+	#--------------------------------------------------------
+	def _get_variant_patient_gdt(self, data):
+		options = data.split(self.__args_divider)
+		template = options[0].strip()
+		if template == u'':
+			template = u'%s'
+
+		return template % self.pat.export_as_gdt()
+
 	#--------------------------------------------------------
 	def _get_variant_patient_tags(self, data=u'%s//\\n'):
 		if len(self.pat.tags) == 0:

@@ -1202,7 +1202,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 
 		if filename is None:
 			filename = gmTools.get_unique_filename (
-				prefix = u'gm-patient2vcard-',
+				prefix = u'gm-pat2vcf-',
 				suffix = u'.vcf'
 			)
 		vcf = codecs.open(filename, mode = 'wb', encoding = 'utf8')

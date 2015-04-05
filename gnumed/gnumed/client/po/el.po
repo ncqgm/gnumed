@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-26 20:28+0100\n"
+"POT-Creation-Date: 2015-04-03 22:21+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -3442,8 +3442,9 @@ msgstr ""
 msgid "Messages:"
 msgstr "Μήνυμα"
 
-msgid "Only:"
-msgstr ""
+#, fuzzy
+msgid "Limit to:"
+msgstr "Θέστε σε:"
 
 msgid "&Myself … or:"
 msgstr ""
@@ -5217,23 +5218,21 @@ msgstr ""
 msgid "Show:"
 msgstr ""
 
-msgid "Brand by component"
-msgstr ""
+#, fuzzy
+msgid "Kidneys"
+msgstr "Νεφρός"
 
 #, fuzzy
 msgid "Brands"
 msgstr "Μάρκα"
 
 #, fuzzy
-msgid "Kidneys"
-msgstr "Νεφρός"
-
-msgid "Unbranded substance"
-msgstr ""
+msgid "Substances"
+msgstr "Ουσία"
 
 #, fuzzy
-msgid "Manage"
-msgstr "&Διαχείριση"
+msgid "&Unknown or date:"
+msgstr "Άγνωστη αντίδραση"
 
 msgid "Approved of"
 msgstr "Εγκρίθηκε από"
@@ -5248,23 +5247,20 @@ msgid "... Reason"
 msgstr "...αιτία"
 
 msgid ""
-"A component of a drug brand the patient is taking.\n"
+"A drug the patient is taking.\n"
 "\n"
-"Lookup, and select, a single- (or multi-) component drug brand, by active "
-"ingredient name. All components of multi-component drugs will be displayed "
-"and automatically added to the patient's list."
+"Lookup and select an intake by either of\n"
+"- a generic substance name\n"
+"- a drug brand name\n"
+"- an active ingredient of a drug\n"
+"\n"
+"Note that all components of multi-component drugs will be displayed and "
+"automatically added to the patient's list."
 msgstr ""
 
-msgid ""
-"Manage drug brands.\n"
-"\n"
-"Note that this will not select a component for you. What it does is to let "
-"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
-"which you can select a component."
-msgstr ""
-
-msgid "The active ingredients of this brand."
-msgstr "Η ενεργός ουσία για αυτό το σκεύασμα."
+#, fuzzy
+msgid "Details on the selected drug."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 msgid "Show cardiac information relevant to substance selection."
 msgstr ""
@@ -5273,8 +5269,11 @@ msgid "Show renal insufficiency information related to substance selection."
 msgstr ""
 
 msgid ""
-"The non-branded medication or non-medication substance, with optional "
-"strength."
+"Manage drug brands.\n"
+"\n"
+"Note that this will not select a component for you. What it does is to let "
+"you manage (add/edit/delete) the drug products/brands known to GNUmed from "
+"which you can select a component."
 msgstr ""
 
 msgid ""
@@ -5288,9 +5287,17 @@ msgstr ""
 msgid "The preparation or form of the substance."
 msgstr "Ο σκοπός της χρήσης αυτής της ουσίας."
 
+msgid "Check here if the start date simply isn't known."
+msgstr ""
+
 msgid ""
 "When was this substance started to be consumed or - if not known - the "
 "earliest it is known to have been be consumed."
+msgstr ""
+
+msgid ""
+"A coment on the certainty of the start date, such as \"+/- 3 weeks\", "
+"\"spring of 2002\", \"shortly after Easter 1996\", ...."
 msgstr ""
 
 msgid "Whether this substance is taken by advice."
@@ -5326,6 +5333,17 @@ msgstr "Πίεσε εάν η διακοπή ήταν προγραμματισμ�
 
 msgid "Reason for discontinuation."
 msgstr "Λόγος διακοπής."
+
+msgid "Drug"
+msgstr "Φάρμακο"
+
+#, fuzzy
+msgid "Research:"
+msgstr "Αναζήτηση"
+
+#, fuzzy
+msgid "Certainty:"
+msgstr "Συνέχεια"
 
 msgid "Schedule"
 msgstr "Προγραμματισμός"
@@ -6058,12 +6076,16 @@ msgstr "Μετρήσεις"
 msgid "Documents:"
 msgstr "Αρχεία:"
 
+msgid "&L"
+msgstr ""
+
 #, fuzzy
 msgid "&N"
 msgstr "&Νέο"
 
-msgid "&L"
-msgstr ""
+#, fuzzy
+msgid "List all encounters."
+msgstr "%s: συνεδρία (%s)"
 
 #, fuzzy
 msgid "The encounter."
@@ -6072,10 +6094,6 @@ msgstr "Συνεδρία"
 #, fuzzy
 msgid "Start a new encounter for the active patient."
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
-
-#, fuzzy
-msgid "List all encounters."
-msgstr "%s: συνεδρία (%s)"
 
 msgid "Clinically relevant"
 msgstr "Κλινικά συναφές"
@@ -6337,10 +6355,12 @@ msgstr ""
 msgid "Manage dynamic hints."
 msgstr "Αποθήκευση εγγράφου"
 
+#, fuzzy
 msgid ""
 "Rationale for\n"
-"suppression"
-msgstr ""
+"suppression\n"
+"for this patient"
+msgstr "Κράτα *αυτόν* τον ασθενή"
 
 #, fuzzy
 msgid "Save &under"
@@ -6750,8 +6770,14 @@ msgstr "Συνταγές"
 msgid "prescription data"
 msgstr "Συνταγές"
 
+msgid "Consumable substance"
+msgstr ""
+
 msgid "in use"
 msgstr "σε χρήση"
+
+msgid "w/"
+msgstr ""
 
 msgid "long-term"
 msgstr "μακροπρόθεσμο"
@@ -6864,11 +6890,11 @@ msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s: %s ago"
+msgid "%s%s: %s ago%s"
 msgstr "Ημερομηνία: %s\n"
 
 #, fuzzy, python-format
-msgid "%s: %s ago (%s)"
+msgid "%s%s: %s ago (%s)"
 msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
@@ -6885,12 +6911,35 @@ msgstr "Λίστα φαρμάκων"
 msgid "ordered by brand"
 msgstr "ταξινόμηση ανά μάρκα"
 
-msgid "Drug"
-msgstr "Φάρμακο"
-
 #, fuzzy
 msgid "Regimen / Advice"
 msgstr "Αγωγή"
+
+#, fuzzy, python-format
+msgid "Component of %s (%s)"
+msgstr "Συστατικά"
+
+#, fuzzy, python-format
+msgid "ATC (substance): %s"
+msgstr "Ουσία"
+
+#, python-format
+msgid "ATC (brand): %s"
+msgstr ""
+
+msgid "this is a component of a fake brand"
+msgstr ""
+
+#, fuzzy
+msgid "Components:"
+msgstr "Συστατικά"
+
+msgid "this is a fake brand"
+msgstr ""
+
+#, fuzzy
+msgid "this is a vaccine"
+msgstr "εμβόλιο"
 
 msgid "units"
 msgstr "μονάδες"
@@ -7439,6 +7488,12 @@ msgstr "Αντίσταση"
 #, fuzzy, python-format
 msgid "Praxis branch                   #%s\n"
 msgstr " Όνομα: %s (%s)%s #%s\n"
+
+#, python-format
+msgid ""
+"FN:%(l10n_unit_category)s %(branch)s of %(l10n_organization_category)s "
+"%(praxis)s"
+msgstr ""
 
 #, fuzzy
 msgid "Privacy notice"
@@ -8454,10 +8509,6 @@ msgstr "Νοσοκομείο"
 
 msgid "Procedures"
 msgstr ""
-
-#, fuzzy
-msgid "Substances"
-msgstr "Ουσία"
 
 msgid "Life events"
 msgstr ""
@@ -9815,11 +9866,11 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Latest: %s ago (%s %s %s %s%s)"
+msgid "Latest: %s ago (%s %s%s%s%s)"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
 
 #, fuzzy, python-format
-msgid "%s %s %s %s (%s ago, %s)"
+msgid "%s %s%s%s (%s ago, %s)"
 msgstr ""
 "%s: %s από  %.8s (v%s)\n"
 "%s"
@@ -9831,6 +9882,13 @@ msgstr "σε %d μέρα(ες): %s"
 #, fuzzy, python-format
 msgid "due in %s%s"
 msgstr "σε %d μέρα(ες): %s"
+
+msgid "suppr'd:"
+msgstr ""
+
+#, fuzzy
+msgid "Suppressed hints:\n"
+msgstr "σημειώσεις προόδου"
 
 msgid ""
 "Do you really want to\n"
@@ -11190,8 +11248,9 @@ msgstr "σε %d μέρα(ες): %s"
 msgid "Reminders for the current patient"
 msgstr "Αρχή νέας συνεδρίας για τον ενεργό ασθενή αμέσως τώρα."
 
-msgid "Sent"
-msgstr ""
+#, fuzzy
+msgid "Generated"
+msgstr "Γενικευμένο"
 
 #, fuzzy
 msgid "Category - Type"
@@ -11238,9 +11297,6 @@ msgstr "Μήνυμα: %s"
 msgid ""
 "Message: %s\n"
 "Data: %s"
-msgstr ""
-
-msgid "Inbox Message Actions:"
 msgstr ""
 
 msgid "Activate patient"
@@ -12471,6 +12527,24 @@ msgstr "ID εξωτερικού ασθενούς"
 msgid "generic multi choice dialog"
 msgstr ""
 
+msgid "Entire row"
+msgstr ""
+
+#, python-format
+msgid "[%8.8s] %s"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+#, fuzzy
+msgid "List Item Actions:"
+msgstr "Κατευθύνσεις"
+
+#, fuzzy
+msgid "Copy to clipboard..."
+msgstr "Εξαγωγή στο &πρόχειρο"
+
 #, fuzzy
 msgid "Search in list"
 msgstr "Αποτελέσματα αναζήτησης"
@@ -12630,6 +12704,9 @@ msgstr ""
 #, fuzzy
 msgid "Unknown: ?"
 msgstr "'Αγνωστο"
+
+msgid "The text has been copied into the clipboard."
+msgstr ""
 
 #, fuzzy
 msgid "file2clipboard"
@@ -13206,6 +13283,9 @@ msgid ""
 "except in the case of fake (generic) vaccines."
 msgstr ""
 
+msgid "A substance with optional strength or a brand."
+msgstr ""
+
 #, fuzzy
 msgid "The medical aim for consuming this substance."
 msgstr "Ο σκοπός της χρήσης αυτής της ουσίας."
@@ -13267,6 +13347,10 @@ msgstr "άγνωστο"
 msgid "GFR reported by path lab"
 msgstr ""
 
+#, fuzzy
+msgid "Adding substance intake entry"
+msgstr "Πρόσθεση καταγραφής της χρήσης μιας φαρμακευτικής αγωγής/ουσίας."
+
 #, python-format
 msgid ""
 "The patient is already taking\n"
@@ -13276,10 +13360,6 @@ msgid ""
 "You will want to adjust the schedule\n"
 "rather than document the intake twice."
 msgstr ""
-
-#, fuzzy
-msgid "Adding substance intake entry"
-msgstr "Πρόσθεση καταγραφής της χρήσης μιας φαρμακευτικής αγωγής/ουσίας."
 
 msgid "Input incomplete/invalid for saving as substance intake."
 msgstr ""
@@ -14157,10 +14237,6 @@ msgstr ""
 msgid "Showing documents."
 msgstr "Αποθήκευση εγγράφου"
 
-#, fuzzy
-msgid "Generated"
-msgstr "Γενικευμένο"
-
 msgid "Ref #"
 msgstr ""
 
@@ -14488,6 +14564,14 @@ msgstr "Μετρήσεις"
 
 #, fuzzy
 msgid "Select the measurements panel to show in the medications plugin."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "General measurements"
+msgstr "Μετρήσεις"
+
+#, fuzzy
+msgid "Select the measurements panel to show in the top pane."
 msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
 
 msgid "Review dialog"
@@ -16188,6 +16272,31 @@ msgstr "προσθήκη πρόσθετου ..."
 msgid "Cannot activate Allergy Manager. No active patient."
 msgstr ""
 
+msgid "RR ?"
+msgstr ""
+
+#, python-format
+msgid "BMI %s"
+msgstr ""
+
+msgid "BMI ?"
+msgstr ""
+
+msgid "GFR ?"
+msgstr ""
+
+#, python-format
+msgid "GFR %s"
+msgstr ""
+
+#, python-format
+msgid "?EDC %s"
+msgstr ""
+
+#, python-format
+msgid "EDC %s"
+msgstr ""
+
 msgid "<Age>"
 msgstr ""
 
@@ -16399,6 +16508,10 @@ msgstr ""
 msgid "Extracting HL7 from XML file"
 msgstr ""
 
+#, python-format
+msgid "Unwrapped HL7 into [%s] from [%s]."
+msgstr ""
+
 msgid "Select HL7 file for staging:"
 msgstr ""
 
@@ -16421,6 +16534,10 @@ msgid ""
 "There was a problem with staging the following files\n"
 "\n"
 " %s"
+msgstr ""
+
+#, python-format
+msgid "Staged HL7 from [%s]."
 msgstr ""
 
 msgid "Importing HL7 data"
@@ -16519,6 +16636,20 @@ msgstr "Ο στιγμιαία επιλεγμένος ασθενής είναι:"
 #, fuzzy
 msgid "Plot current selection"
 msgstr "Τρέχουσα φαρμακευτική αγωγή"
+
+#, fuzzy
+msgid ""
+"Select the measurements panel to show in the top pane for continuous "
+"monitoring."
+msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#, fuzzy
+msgid "Lab panel"
+msgstr "&Διαχείριση"
+
+#, fuzzy
+msgid "Configuring continuous monitoring measurements panel"
+msgstr "Μετρήσεις"
 
 msgid "No default Gnuplot script template selected."
 msgstr ""
@@ -16828,6 +16959,10 @@ msgstr ""
 msgid "EMR Actions:"
 msgstr "Αντίδραση"
 
+#, fuzzy
+msgid "Print EMR"
+msgstr "&Εκτύπωση"
+
 msgid "Create health issue"
 msgstr ""
 
@@ -17055,6 +17190,10 @@ msgstr "Αποθήκευση εγγράφου"
 #, fuzzy
 msgid "Tag"
 msgstr "ηλικία"
+
+#, fuzzy
+msgid "Manage"
+msgstr "&Διαχείριση"
 
 msgid "Manage available tags."
 msgstr ""
@@ -17994,6 +18133,15 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "Select the measurements panel to show in the top pane.\n"
+#~ msgstr "Επέλεξε πρότυπο για την εκτύπωση της φαρμακευτικής αγωγής."
+
+#~ msgid "The active ingredients of this brand."
+#~ msgstr "Η ενεργός ουσία για αυτό το σκεύασμα."
 
 #~ msgid "Province"
 #~ msgstr "Επαρχία:"
