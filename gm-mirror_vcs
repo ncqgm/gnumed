@@ -12,7 +12,8 @@ if [ -d gnumed ]; then
 	git pull -v
 	cd ..
 else
-	git clone git://gitorious.org/gnumed/gnumed.git
+	#git clone git://gitorious.org/gnumed/gnumed.git
+	git clone https://github.com/ncqgm/gnumed.git
 fi
 
 date > timestamp.txt
