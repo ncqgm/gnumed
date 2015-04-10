@@ -385,6 +385,7 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	_cmds_store_payload = [
 		u"""UPDATE ref.auto_hint SET
 				query = gm.nullify_empty_string(%(query)s),
+				recommendation_query = gm.nullify_empty_string(%(recommendation_query)s),
 				title = gm.nullify_empty_string(%(title)s),
 				hint = gm.nullify_empty_string(%(hint)s),
 				url = gm.nullify_empty_string(%(url)s),
@@ -400,6 +401,7 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 	]
 	_updatable_fields = [
 		u'query',
+		u'recommendation_query',
 		u'title',
 		u'hint',
 		u'url',
@@ -427,6 +429,9 @@ class cDynamicHint(gmBusinessDBObject.cBusinessDBObject):
 		)
 		txt += u'\n'
 		txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
+		if self._payload[self._idx['recommendation_query']] is not None:
+			txt += u'\n'
+			txt += u'%s\n' % gmTools.wrap(self._payload[self._idx['recommendation_query']], width = 50, initial_indent = u' ', subsequent_indent = u' ')
 		return txt
 	#--------------------------------------------------------
 	def suppress(self, rationale=None, pk_encounter=None):
@@ -498,7 +503,7 @@ def get_hints_for_patient(pk_identity=None, include_suppressed_needing_invalidat
 	curs.close()
 	conn.rollback()
 	if not include_suppressed_needing_invalidation:
-		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'please_invalidate_suppression' ]
+		return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows if r['rationale4suppression'] != 'magic_tag::please_invalidate_suppression' ]
 	return [ cDynamicHint(row = {'data': r, 'idx': idx, 'pk_field': 'pk_auto_hint'}) for r in rows ]
 
 #------------------------------------------------------------

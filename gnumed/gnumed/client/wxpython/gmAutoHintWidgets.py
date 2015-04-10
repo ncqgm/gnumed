@@ -71,7 +71,7 @@ def _display_clinical_reminders():
 	# dynamic hints
 	hint_dlg = cDynamicHintDlg(wx.GetApp().GetTopWindow(), -1)
 	for hint in pat._get_dynamic_hints(include_suppressed_needing_invalidation = True):
-		if hint['rationale4suppression'] == u'please_invalidate_suppression':
+		if hint['rationale4suppression'] == u'magic_tag::please_invalidate_suppression':
 			_log.debug('database asks for invalidation of suppression of hint [%s]', hint)
 			hint.invalidate_suppression(pk_encounter = pat.emr.current_encounter['pk_encounter'])
 			continue

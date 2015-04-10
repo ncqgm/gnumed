@@ -146,7 +146,7 @@ class gmPaths(gmBorg.cBorg):
 	.working_dir
 	.user_config_dir
 	.system_config_dir
-	.system_app_data_dir
+	.system_app_data_dir	(not writable)
 	.tmp_dir
 	"""
 	def __init__(self, app_name=None, wx=None):
@@ -370,6 +370,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__tmp_dir
 
 	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
+
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
@@ -504,10 +505,11 @@ def fname_stem(filename):
 #---------------------------------------------------------------------------
 def fname_extension(filename=None, fallback=None):
 	ext = os.path.splitext(filename)[1]
-	if fallback is None:
+	if ext.strip() not in [u'.', u'']:
 		return ext
-	if ext.strip() in [u'.', u'']:
-		return fallback
+	if fallback is None:
+		return u''
+	return fallback
 
 #---------------------------------------------------------------------------
 def fname_dir(filename):
