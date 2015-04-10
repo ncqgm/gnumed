@@ -33,6 +33,10 @@ IMPROVED: enable nested placeholders in text engine, too
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.5
+
+FIX: exception in emr.get_clin_narrative (encounters is None) [thanks Marc]
+
 	1.5.4
 
 FIX: LaTeX output of $soap_for_encounter$ [thanks Jim]

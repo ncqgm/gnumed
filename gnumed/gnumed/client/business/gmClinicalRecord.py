@@ -424,13 +424,9 @@ class cClinicalRecord(object):
 			return None
 		return data
 	#--------------------------------------------------------
-	def get_clin_narrative(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None):
+	def get_clin_narrative(self, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None):
 		"""Get SOAP notes pertinent to this encounter.
 
-			since
-				- initial date for narrative items
-			until
-				- final date for narrative items
 			encounters
 				- list of encounters whose narrative are to be retrieved
 			episodes
@@ -469,7 +465,7 @@ class cClinicalRecord(object):
 
 		if encounters is not None:
 			where_parts.append(u'pk_encounter IN %(encs)s')
-			if len(episodes) == 0:
+			if len(encounters) == 0:
 				args['encs'] = tuple()
 			else:
 				if isinstance(encounters[0], gmEMRStructItems.cEncounter):
@@ -501,12 +497,6 @@ class cClinicalRecord(object):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
-
-		if since is not None:
-			filtered_narrative = filter(lambda narr: narr['date'] >= since, filtered_narrative)
-
-		if until is not None:
-			filtered_narrative = filter(lambda narr: narr['date'] < until, filtered_narrative)
 
 		if providers is not None:
 			filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
