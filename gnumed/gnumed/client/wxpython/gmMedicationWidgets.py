@@ -3085,7 +3085,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 	#--------------------------------------------------------
 	def __refresh_lab(self, patient):
 
-		self._GSZR_lab.Clear()
+		self._GSZR_lab.Clear(True)		# also delete child windows
 		self._HLINE_lab.Hide()
 
 		if patient is None:
@@ -3096,7 +3096,7 @@ class cCurrentSubstancesPnl(wxgCurrentSubstancesPnl.wxgCurrentSubstancesPnl, gmR
 			self.Layout()
 			return
 
-		most_recent_results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev')
+		most_recent_results = self.__lab_panel.get_most_recent_results(pk_patient = patient.ID, order_by = u'unified_abbrev', group_by_meta_type = True)
 		edc = patient.emr.EDC
 		gfr = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		crea = patient.emr.get_most_recent_results(loinc = gmLOINC.LOINC_creatinine_quantity, no_of_results = 1)

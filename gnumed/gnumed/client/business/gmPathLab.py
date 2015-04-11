@@ -21,6 +21,8 @@ from Gnumed.pycommon import gmDateTime
 if __name__ == '__main__':
 	from Gnumed.pycommon import gmLog2
 	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 	gmDateTime.init()
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmBusinessDBObject
@@ -331,13 +333,16 @@ class cTestPanel(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
+
 	#--------------------------------------------------------
-	def get_most_recent_results(self, pk_patient=None, order_by=None):
+	def get_most_recent_results(self, pk_patient=None, order_by=None, group_by_meta_type=False):
 		return get_most_recent_results_for_panel (
 			pk_patient = pk_patient,
 			pk_panel = self._payload[self._idx['pk_test_panel']],
-			order_by = order_by
+			order_by = order_by,
+			group_by_meta_type = group_by_meta_type
 		)
+
 #------------------------------------------------------------
 def get_test_panels(order_by=None):
 	if order_by is None:
@@ -1888,7 +1893,7 @@ def get_test_results(pk_patient=None, encounters=None, episodes=None, order_by=N
 	return tests
 
 #------------------------------------------------------------
-def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=None):
+def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=None, group_by_meta_type=False):
 
 	if order_by is None:
 		order_by = u''
@@ -1899,7 +1904,36 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 		'pat': pk_patient,
 		'pnl': pk_panel
 	}
-	cmd = u"""
+
+	if group_by_meta_type:
+		# return most recent results in panel grouped by
+		# meta test type if any, non-grouped results are
+		# returned ungrouped :-)
+		cmd = u"""
+			SELECT c_vtr.*
+			FROM (
+				-- max(clin_when) per test_type-in-panel for patient
+				SELECT
+					pk_meta_test_type,
+					MAX(clin_when) AS max_clin_when
+				FROM clin.v_test_results
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					pk_meta_test_type IS DISTINCT FROM NULL
+						AND
+					pk_test_type = ANY (
+						(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
+					)
+				GROUP BY pk_meta_test_type
+			) AS latest_results
+				INNER JOIN clin.v_test_results c_vtr ON
+					c_vtr.pk_meta_test_type = latest_results.pk_meta_test_type
+						AND
+					c_vtr.clin_when = latest_results.max_clin_when
+
+		UNION ALL
+
 		SELECT c_vtr.*
 		FROM (
 			-- max(clin_when) per test_type-in-panel for patient
@@ -1908,16 +1942,52 @@ def get_most_recent_results_for_panel(pk_patient=None, pk_panel=None, order_by=N
 				MAX(clin_when) AS max_clin_when
 			FROM clin.v_test_results
 			WHERE
-				pk_patient = %%(pat)s
+				pk_patient = %(pat)s
+					AND
+				pk_meta_test_type IS NULL
 					AND
 				pk_test_type = ANY (
-					(SELECT fk_test_types FROM clin.test_panel WHERE pk = %%(pnl)s)::int[]
+					(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
 				)
 			GROUP BY pk_test_type
 		) AS latest_results
-			INNER JOIN clin.v_test_results c_vtr ON c_vtr.pk_test_type = latest_results.pk_test_type AND c_vtr.clin_when = latest_results.max_clin_when
-		%s
-	""" % order_by
+			INNER JOIN clin.v_test_results c_vtr ON
+				c_vtr.pk_test_type = latest_results.pk_test_type
+					AND
+				c_vtr.clin_when = latest_results.max_clin_when
+		"""
+	else:
+		# return most recent results in panel regardless of whether
+		# distinct test types in this panel are grouped under the
+		# same meta test type
+		cmd = u"""
+			SELECT c_vtr.*
+			FROM (
+				-- max(clin_when) per test_type-in-panel for patient
+				SELECT
+					pk_test_type,
+					MAX(clin_when) AS max_clin_when
+				FROM clin.v_test_results
+				WHERE
+					pk_patient = %(pat)s
+						AND
+					pk_test_type = ANY (
+						(SELECT fk_test_types FROM clin.test_panel WHERE pk = %(pnl)s)::int[]
+					)
+				GROUP BY pk_test_type
+			) AS latest_results
+				-- this INNER join makes certain we do not expand
+				-- the row selection beyond the patient's rows
+				-- which we constrained to inside the SELECT
+				-- producing "latest_results"
+				INNER JOIN clin.v_test_results c_vtr ON
+					c_vtr.pk_test_type = latest_results.pk_test_type
+						AND
+					c_vtr.clin_when = latest_results.max_clin_when
+			"""
+
+	cmd += order_by
+
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	tests = [ cTestResult(row = {'pk_field': 'pk_test_result', 'idx': idx, 'data': r}) for r in rows ]
 	return tests
@@ -2954,12 +3024,29 @@ if __name__ == '__main__':
 		print tp.format()
 	#--------------------------------------------------------
 	def test_get_most_recent_results_for_panel():
-		tp = cTestPanel(aPK_obj = 1)
+		#tp = cTestPanel(aPK_obj = 1)
+		tp = cTestPanel(aPK_obj = 3)
 		print tp.format()
-		print len(tp.get_most_recent_results(pk_patient=12))
+		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = False)
+		most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = False)
+		print len(most_recent)
+		#most_recent = tp.get_most_recent_results(pk_patient = 12, group_by_meta_type = True)
+		most_recent = tp.get_most_recent_results(pk_patient = 138, group_by_meta_type = True)
+		print len(most_recent)
+
+		return
+
+		for t in most_recent:
+			print '--------------'
+			if t['pk_meta_test_type'] is None:
+				print "standalone"
+			else:
+				print "meta"
+			print t.format()
+
 	#--------------------------------------------------------
 
-	test_result()
+	#test_result()
 	#test_create_test_result()
 	#test_delete_test_result()
 	#test_create_measurement_type()
@@ -2973,6 +3060,6 @@ if __name__ == '__main__':
 	#test_format_test_results()
 	#test_calculate_bmi()
 	#test_test_panel()
-	#test_get_most_recent_results_for_panel()
+	test_get_most_recent_results_for_panel()
 
 #============================================================

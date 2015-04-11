@@ -193,7 +193,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		# include panel if configured, only show if exist
 		if self.__lab_panel is not None:
-			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = u'unified_abbrev'):
+			for result in self.__lab_panel.get_most_recent_results(pk_patient = self.curr_pat.ID, order_by = u'unified_abbrev', group_by_meta_type = True):
 				tests2show.append(u'%s %s' % (result['abbrev_tt'], result['unified_val']))
 
 		self._LBL_lab.SetLabel(u'; '.join(tests2show))

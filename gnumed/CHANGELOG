@@ -28,6 +28,7 @@ IMPROVED: measurements plots layout
 IMPROVED: injectable placeholders: support arbitrary names if desired
 IMPROVED: placeholder nesting regexen
 IMPROVED: enable nested placeholders in text engine, too
+IMPROVED: lab_panel.most_recent_results() can now respect meta types
 
 ------------------------------------------------
 # rel-1-5-patches
