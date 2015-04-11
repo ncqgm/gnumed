@@ -2500,7 +2500,7 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		# brand
 		cells.append(u'')
 		# Wirkstärke
-		cells.append(_esc(u'%s%s' % (intake['amount'].replace(u'.', u','), intake['unit'])))
+		cells.append(_esc(u'%s%s' % ((u'%s' % intake['amount']).replace(u'.', u','), intake['unit'])))
 	else:
 		# components
 		components = [ c.split('::') for c in intake.containing_drug['components'] ]
@@ -2528,37 +2528,40 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 		elif len(components) == 1:
 			c = components[0]
 			if strict:
-				cells.append(_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]))
+				cells.append(_esc((u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2]))[:11]))
 			else:
-				cells.append(_esc(u'%s%s' % (c[1].replace(u'.', u','), c[2])))
+				cells.append(_esc(u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2])))
 		else:
 			if strict:
-				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % (c[1].replace(u'.', u','), c[2]))[:11]) for c in components]))
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc((u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2]))[:11]) for c in components]))
 			else:
-				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc(u'%s%s' % (c[1].replace(u'.', u','), c[2])) for c in components]))
+				cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % u'\\newline\\ '.join([_esc(u'%s%s' % ((u'%s' % c[1]).replace(u'.', u','), c[2])) for c in components]))
 	# preparation
 	if strict:
 		cells.append(_esc(intake['preparation'][:7]))
 	else:
 		cells.append(_esc(intake['preparation']))
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
-	# spec says [:20] but implementation guide says: never trim
-	if len(intake['schedule']) > 20:
-		cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{\\fontsize{10pt}{12pt}\selectfont %s}' % _esc(intake['schedule']))
+	if intake['schedule'] is None:
+		cells.append(u'\\multicolumn{4}{p{3.2cm}|}{\\ }')
 	else:
-		cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{%s}' % _esc(intake['schedule']))
+		# spec says [:20] but implementation guide says: never trim
+		if len(intake['schedule']) > 20:
+			cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{\\fontsize{10pt}{12pt}\selectfont %s}' % _esc(intake['schedule']))
+		else:
+			cells.append(u'\\multicolumn{4}{>{\\RaggedRight}p{3.2cm}|}{%s}' % _esc(intake['schedule']))
 	# Einheit to take
 	cells.append(u'')#[:20]
 	# notes
 	if strict:
-		cells.append(_esc(intake['notes'][:80]))
+		cells.append(_esc(gmTools.coalesce(intake['notes'], u'')[:80]))
 	else:
-		cells.append(_esc(intake['notes']))
+		cells.append(_esc(gmTools.coalesce(intake['notes'], u'')))
 	# aim
 	if strict:
-		cells.append(_esc(intake['aim'][:50]))
+		cells.append(_esc(gmTools.coalesce(intake['aim'], u'')[:50]))
 	else:
-		cells.append(_esc(intake['aim']))
+		cells.append(_esc(gmTools.coalesce(intake['aim'], u'')))
 
 	table_row = u' & '.join(cells)
 	table_row += u'\\tabularnewline\n\\hline'
@@ -2604,13 +2607,13 @@ def format_substance_intake_as_amts_data(intake=None, strict=True):
 	# preparation
 	fields.append(intake['preparation'][:7])
 	# schedule - for now be simple - maybe later parse 1-1-1-1 etc
-	fields.append(intake['schedule'][:20])
+	fields.append(gmTools.coalesce(intake['schedule'], u'')[:20])
 	# Einheit to take
 	fields.append(u'')#[:20]
 	# notes
-	fields.append(intake['notes'][:80])
+	fields.append(gmTools.coalesce(intake['notes'], u'')[:80])
 	# aim
-	fields.append(intake['aim'][:50])
+	fields.append(gmTools.coalesce(intake['aim'], u'')[:50])
 
 	return u'|'.join(fields)
 
