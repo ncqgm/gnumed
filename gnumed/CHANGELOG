@@ -19,6 +19,7 @@ NEW: placeholder $ph_cfg$
 NEW: placeholder $current_meds_AMTS$
 NEW: placeholder $praxis_vcf$
 NEW: add appdata.xml
+NEW: placeholder $url_escape$
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows

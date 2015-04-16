@@ -133,7 +133,7 @@ $<ph_cfg::ellipsis//…//%% <%(name)s> set to [%(value)s]::>$
 			\href{http://$<praxis_comm::web::>$}{$<praxis::%(branch)s, %(praxis)s::50>$} \newline
 			% line 5: use \mbox{TEXT} to prevent TEXT from getting hyphenated
 			$<ph_cfg::argumentsdivider//||//%% <%(name)s> set to [%(value)s]::>$
-			$<praxis_address::\href{http://nominatim.openstreetmap.org/search/$<<praxis_address::%(country)s/%(urb)s/%(street)s/%(number)s::>>$?limit=3}{\mbox{$<<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>>$}}::>$
+			$<praxis_address::\href{http://nominatim.openstreetmap.org/search/$<<<url_escape::$<<praxis_address::%(country)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(urb)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(street)s::>>$::>>>$/$<<<url_escape::$<<praxis_address::%(number)s::>>$::>>>$?limit=3}{\mbox{$<<praxis_address::%(street)s %(number)s %(subunit)s,%(postcode)s %(urb)s::55>>$}}::>$
 			$<ph_cfg::argumentsdivider//DEFAULT//%% <%(name)s> set to [%(value)s]::>$
 			\ \newline
 			% line 6

@@ -14,6 +14,7 @@ import logging
 import os
 import codecs
 import datetime
+import urllib
 
 
 import wx
@@ -115,6 +116,10 @@ __known_variant_placeholders = {
 	""",
 
 	u'tex_escape': u"args: string to escape, mostly obsolete now",
+
+	u'url_escape': u"""Escapes a string suitable for use as _data_ in an URL
+		args: text to escape
+	""",
 
 	u'today': u"args: strftime format",
 
@@ -2116,6 +2121,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
 		return gmTools.tex_escape_string(text = data)
+
+	#--------------------------------------------------------
+	def _get_variant_url_escape(self, data=None):
+		return self._escape(urllib.quote(data.encode('utf8')))
+
 	#--------------------------------------------------------
 	def _get_variant_text_snippet(self, data=None):
 		data_parts = data.split(self.__args_divider)
@@ -2904,7 +2914,7 @@ if __name__ == '__main__':
 			#u'adr_suburb::fehlt-auch::1234',
 			#u'external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'primary_praxis_provider',
-			u'current_provider::::3-5',
+			#u'current_provider::::3-5',
 			#u'current_provider_external_id::Starfleet Serial Number//Star Fleet Central Staff Office::1234',
 			#u'current_provider_external_id::LANR//LÄK::1234'
 			#u'$<current_provider_external_id::KV-LANR//KV::1234>$'
@@ -2947,7 +2957,8 @@ if __name__ == '__main__':
 			#u'$<receiver_postcode::%s//b::120>$',
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$',
-			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$'
+			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$',
+			u'$<url_escape::hello world ü::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -2985,9 +2996,9 @@ if __name__ == '__main__':
 	#test_placeholders()
 	#test_new_variant_placeholders()
 	#test_scripting()
-	test_placeholder_regex()
+	#test_placeholder_regex()
 	#test()
-	#test_placeholder()
+	test_placeholder()
 	#test_show_phs()
 
 #=====================================================================

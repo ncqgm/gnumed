@@ -2553,15 +2553,21 @@ def format_substance_intake_as_amts_latex(intake=None, strict=True):
 	# Einheit to take
 	cells.append(u'')#[:20]
 	# notes
-	if strict:
-		cells.append(_esc(gmTools.coalesce(intake['notes'], u'')[:80]))
+	if intake['notes'] is None:
+		cells.append(u' ')
 	else:
-		cells.append(_esc(gmTools.coalesce(intake['notes'], u'')))
+		if strict:
+			cells.append(_esc(intake['notes'][:80]))
+		else:
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['notes']))
 	# aim
-	if strict:
-		cells.append(_esc(gmTools.coalesce(intake['aim'], u'')[:50]))
+	if intake['aim'] is None:
+		cells.append(u' ')
 	else:
-		cells.append(_esc(gmTools.coalesce(intake['aim'], u'')))
+		if strict:
+			cells.append(_esc(intake['aim'][:50]))
+		else:
+			cells.append(u'\\fontsize{10pt}{12pt}\selectfont %s ' % _esc(intake['aim']))
 
 	table_row = u' & '.join(cells)
 	table_row += u'\\tabularnewline\n\\hline'

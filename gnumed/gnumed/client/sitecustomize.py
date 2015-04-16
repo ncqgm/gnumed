@@ -33,7 +33,8 @@ do_set_encoding = False
 # - most European countries but shouldn't
 #   hurt in US-ASCII countries, either
 # - includes the EURO symbol
-def_encoding = 'iso8859-15'
+#def_encoding = 'iso8859-15'
+def_encoding = 'utf-8'
 
 # - for testing
 #def_encoding = 'ascii'
@@ -58,32 +59,3 @@ if do_set_encoding:
 		print "GNUmed startup: Python string encoding must have been set already ?!?"
 
 #==============================================================
-# $Log: sitecustomize.py,v $
-# Revision 1.8  2009-12-21 14:56:39  ncq
-# - typo fix
-#
-# Revision 1.7  2007/05/08 11:14:11  ncq
-# - make utf8
-# - some cleanup
-#
-# Revision 1.6  2006/10/23 13:27:37  ncq
-# - this is only an example, don't activate it by default
-#
-# Revision 1.5  2005/09/28 21:18:36  ncq
-# - need to explicitely set encoding on our reference platform
-#   (Debian Sarge with wx2.6 from testing)
-#
-# Revision 1.4  2005/06/20 20:55:00  ncq
-# - apparently wxPython or something messes with the encoding so
-#   while testing the encoding works the same code fails after
-#   wxPython startup, so don't test, use explicit flag, default False
-#
-# Revision 1.3  2005/06/20 20:41:30  ncq
-# - improved again, it might even work
-#
-# Revision 1.2  2005/06/20 19:42:25  ncq
-# - improved
-#
-# Revision 1.1  2005/06/20 18:54:32  ncq
-# - can be used as an example
-#
