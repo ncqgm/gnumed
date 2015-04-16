@@ -533,7 +533,6 @@ def manage_praxis_branches(parent=None):
 		_('Manage organizations and their units'),
 		manage_orgs
 	)
-	picker.allow_duplicate_picks = False
 	picker.left_item_tooltip_callback = get_unit_tooltip
 	picker.right_item_tooltip_callback = get_unit_tooltip
 	picker.set_columns(columns = [_('Units of "%s"') % praxis], columns_right = [_('Branches of your praxis')])

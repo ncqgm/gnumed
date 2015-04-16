@@ -757,6 +757,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self._BTN_extra_right.Show()
 
 	right_extra_button = property(lambda x:x, _set_right_extra_button)
+
 #================================================================
 from Gnumed.wxGladeWidgets import wxgItemPickerDlg
 
@@ -777,7 +778,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		else:
 			self._LBL_msg.SetLabel(msg)
 
-		self.allow_duplicate_picks = True
+		self.ignore_dupes_on_picking = True
 
 		self._LCTRL_left.activate_callback = self.__pick_selected
 		self.__extra_button_callback = None
@@ -859,7 +860,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 		selected_items = self._LCTRL_left.get_selected_string_items(only_one = False)
 		selected_data = self._LCTRL_left.get_selected_item_data(only_one = False)
 
-		if self.allow_duplicate_picks:
+		if self.ignore_dupes_on_picking is False:
 			right_items.extend(selected_items)
 			right_data.extend(selected_data)
 			self._LCTRL_right.set_string_items(items = right_items, reshow = True)

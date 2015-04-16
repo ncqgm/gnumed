@@ -838,6 +838,7 @@ def manage_components_of_branded_drug(parent=None, brand=None):
 		brand.set_substances_as_components(substances = substs)
 
 	return (True, substs)
+
 #------------------------------------------------------------
 def manage_branded_drugs(parent=None, ignore_OK_button=False):
 
@@ -2311,7 +2312,7 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	dlg = gmListWidgets.cItemPickerDlg (
+	picker = gmListWidgets.cItemPickerDlg (
 		parent,
 		-1,
 		msg = _(
@@ -2321,18 +2322,18 @@ def update_substance_intake_list_from_prescription(parent=None, prescribed_drugs
 			'Please select those you want added to the medication list.'
 		)
 	)
-	dlg.set_columns (
+	picker.set_columns (
 		columns = [_('Newly prescribed drugs')],
 		columns_right = [_('Add to medication list')]
 	)
 	choices = [ (u'%s %s (%s)' % (d['brand'], d['preparation'], u'; '.join(d['components']))) for d in new_drugs ]
-	dlg.set_choices (
+	picker.set_choices (
 		choices = choices,
 		data = new_drugs
 	)
-	dlg.ShowModal()
-	drugs2add = dlg.get_picks()
-	dlg.Destroy()
+	picker.ShowModal()
+	drugs2add = picker.get_picks()
+	picker.Destroy()
 
 	if drugs2add is None:
 		return

@@ -30,6 +30,7 @@ IMPROVED: injectable placeholders: support arbitrary names if desired
 IMPROVED: placeholder nesting regexen
 IMPROVED: enable nested placeholders in text engine, too
 IMPROVED: lab_panel.most_recent_results() can now respect meta types
+IMPROVED: ignore_dupes_on_picking seems a better item picker default
 
 ------------------------------------------------
 # rel-1-5-patches
