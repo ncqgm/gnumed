@@ -25,6 +25,7 @@ import os
 import sys
 import stat
 import logging
+import io
 
 
 # GNUmed libs
@@ -89,8 +90,8 @@ def import_hook_module(reimport=False):
 
 	if not os.access(full_script, os.F_OK):
 		_log.warning('creating default hook script')
-		f = open(full_script, 'w')
-		f.write("""
+		f = io.open(full_script, mode = u'wt', encoding = u'utf8')
+		f.write(u"""
 # known hooks:
 #  %s
 

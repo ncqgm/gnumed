@@ -234,7 +234,7 @@ class cResizingWindow(wx.ScrolledWindow):
 		# FIXME: adapt to cSTCval
 		for line in self.__input_lines:
 			for widget in line:
-				if values.has_key(widget['ID']):
+				if widget['ID'] in values:
 					if isinstance(widget['instance'], wx.stc.StyledTextCtrl):
 						widget['instance'].SetText(values[widget['ID']])
 					elif isinstance(widget['instance'], (wx.Choice, wx.RadioBox)):

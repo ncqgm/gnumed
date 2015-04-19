@@ -372,7 +372,7 @@ def delete_xxx(pk_XXX=None):
 			self.original_payload[field] = self._payload[self._idx[field]]
 	#--------------------------------------------------------
 	def __del__(self):
-		if self.__dict__.has_key('_is_modified'):
+		if u'_is_modified' in self.__dict__:
 			if self._is_modified:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				_log.debug('original: %s' % self.original_payload)
@@ -692,7 +692,7 @@ def jsonclasshintify(obj):
 			if not attribute.startswith("get_"):
 				continue
 			k = attribute[4:]
-			if res.has_key(k):
+			if k in res:
 				continue
 			getter = getattr(obj, attribute, None)
 			if callable(getter):

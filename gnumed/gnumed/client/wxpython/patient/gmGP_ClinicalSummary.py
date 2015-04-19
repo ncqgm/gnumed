@@ -155,7 +155,7 @@ g\xef\xc7!\xe6\xf7$\xb0@?\x92\x04\x8ez\x1eu\xcf-\xe0 ,S\x87\xe5\x1e\xcf\x98\
 		if anIconID == None:
 			return self.__icons[_("""icon_clinical_summary""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_clinical_summary""")]

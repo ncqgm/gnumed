@@ -20,7 +20,7 @@ audited table.
 __author__ = "Horst Herb, Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"		# (details at http://www.gnu.org)
 
-import sys, os.path, string, logging
+import sys, os.path, string, logging, io
 
 
 from Gnumed.pycommon import gmPG2
@@ -298,7 +298,7 @@ if __name__ == "__main__" :
 		print "error creating schema"
 		sys.exit(-1)
 
-	file = open ('audit-trail-schema.sql', 'wb')
+	file = io.open('audit-trail-schema.sql', mode = 'wb', encoding = 'utf8')
 	for line in schema:
 		file.write("%s;\n" % line)
 	file.close()

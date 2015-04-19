@@ -37,7 +37,7 @@ class Extract:
 		f = self._f
 		f.seek(st0)
 		version, filelen = struct.unpack('>xxxBL', f.read(8))
-		if verbose:sys.stderr.write("version is " + str(version) + " length "+ str(filelen)+"\n")		
+		if verbose:sys.stderr.write(u"version is " + str(version) + " length "+ str(filelen)+"\n")		
 		bytes = f.read(filelen)
 
 		return bytes
@@ -70,23 +70,23 @@ class Extract:
 			if os.path.exists(path):
 				if verbose: sys.stderr.write( path + " already exists .")
 				if self._keep_existing:
-					sys.stderr.write(' keeping\n')
+					sys.stderr.write(u' keeping\n')
 					return
 				else:
-					sys.stderr.write(' overwriting\n')
+					sys.stderr.write(u' overwriting\n')
 
                         file(path , 'wb').write( bytes) 
 			sys.stderr.write( "from block "+ str(block) + ",  wrote "+ str(filelen) +  " bytes to "+ path+'\n')
 		else:
 			of = self._outfile		
-			of.write('block='+str(block) + '\n')
-			of.write('len='+str(filelen) +'\n' )
+			of.write(u'block='+str(block) + '\n')
+			of.write(u'len='+str(filelen) +'\n' )
                         if process :
                            fn, arg = process
                            bytes = fn(bytes, arg)
 
 			of.write( bytes  )
-			of.write('\n\n\n')
+			of.write(u'\n\n\n')
 
 			
 if __name__ == '__main__':

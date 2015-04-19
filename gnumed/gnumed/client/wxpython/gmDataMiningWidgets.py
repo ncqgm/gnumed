@@ -10,7 +10,7 @@ import sys
 import os
 import fileinput
 import logging
-import codecs
+import io
 import csv
 
 
@@ -79,19 +79,19 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 
 		_log.debug('identifier column not configured, trying to detect')
 
-		if data.has_key('pk_patient'):
+		if u'pk_patient' in data:
 			return u'pk_patient'
 
-		if data.has_key('fk_patient'):
+		if u'fk_patient' in data:
 			return u'fk_patient'
 
-		if data.has_key('pk_identity'):
+		if u'pk_identity' in data:
 			return u'pk_identity'
 
-		if data.has_key('fk_identity'):
+		if u'fk_identity' in data:
 			return u'fk_identity'
 
-		if data.has_key('id_identity'):
+		if u'id_identity' in data:
 			return u'id_identity'
 
 		return gmListWidgets.get_choices_from_list (
@@ -488,7 +488,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		if choice != wx.ID_OK:
 			return
 
-		csv_file = codecs.open(csv_name, 'w', 'utf8')
+		csv_file = io.open(csv_name, mode = 'wt', encoding = 'utf8')
 		csv_file.write(u'#-------------------------------------------------------------------------------------\n')
 		csv_file.write(u'# GNUmed SQL report results\n')
 		csv_file.write(u'#\n')

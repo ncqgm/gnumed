@@ -13,7 +13,7 @@ TODO:
 #=============================================================================
 __author__ = "S.Hilbert, K.Hilbert"
 
-import sys, os, os.path, codecs, logging
+import sys, os, os.path, io, logging
 
 
 import wx
@@ -98,7 +98,7 @@ class cXdtListPnl(wxgXdtListPnl.wxgXdtListPnl):
 			_log.warning('xDT file [%s] does not define an encoding, assuming [%s]' % (filename, encoding))
 
 		try:
-			xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding, errors='replace')
+			xdt_file = io.open(filename, mode = 'rt', encoding = encoding, errors = 'replace')
 		except IOError:
 			gmGuiHelpers.gm_show_error (
 				_('Cannot access xDT file\n\n'

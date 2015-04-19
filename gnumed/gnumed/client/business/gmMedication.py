@@ -9,11 +9,12 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 import sys
 import logging
 import csv
-import codecs
+import io
 import os
 import re as regex
 import subprocess
 import decimal
+import io
 from xml.etree import ElementTree as etree
 import datetime as pydt
 
@@ -193,7 +194,7 @@ class cGelbeListeCSVFile(object):
 
 		_log.debug('reading Gelbe Liste/MMI drug data from [%s]', self.filename)
 
-		self.csv_file = codecs.open(filename = filename, mode = 'rUb', encoding = cGelbeListeCSVFile.default_encoding)
+		self.csv_file = io.open(filename, mode = 'rt', encoding = cGelbeListeCSVFile.default_encoding)
 
 		self.csv_lines = gmTools.unicode_csv_reader (
 			self.csv_file,
@@ -605,7 +606,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 </FreeDiams>
 """
 
-		xml_file = codecs.open(self.__fd2gm_filename, 'wb', 'utf8')
+		xml_file = io.open(self.__fd2gm_filename, mode = 'wt', encoding = 'utf8')
 		xml_file.write(xml % u'\n\t\t'.join(drug_snippets))
 		xml_file.close()
 
@@ -620,7 +621,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		else:
 			mode = u'select-only'
 
-		xml_file = codecs.open(self.__gm2fd_filename, 'wb', 'utf8')
+		xml_file = io.open(self.__gm2fd_filename, mode = 'wt', encoding = 'utf8')
 
 		xml = u"""<?xml version="1.0" encoding="UTF-8"?>
 
@@ -1094,7 +1095,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 			}
 
 		try:
-			version_file = open(self.data_date_filename, 'rU')
+			version_file = io.open(self.data_date_filename, mode = 'rt', encoding = 'utf8')
 		except StandardError:
 			_log.error('problem querying the MMI drug database for version information')
 			_log.exception('cannot open MMI drug database version file [%s]', self.data_date_filename)
@@ -1247,7 +1248,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		if drug_ids_list < 2:
 			return
 
-		bdt_file = codecs.open(filename = self.interactions_filename, mode = 'wb', encoding = cGelbeListeWindowsInterface.default_encoding)
+		bdt_file = io.open(self.interactions_filename, mode = 'wt', encoding = cGelbeListeWindowsInterface.default_encoding)
 
 		for pzn in drug_ids_list:
 			pzn = pzn.strip()
@@ -1307,7 +1308,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 	def print_transfer_file(self, filename=None):
 
 		try:
-			csv_file = open(filename, 'rb')						# FIXME: encoding ?
+			csv_file = io.open(filename, mode = 'rt', encoding = 'latin1')						# FIXME: encoding correct ?
 		except:
 			_log.exception('cannot access [%s]', filename)
 			csv_file = None
@@ -2698,7 +2699,7 @@ def generate_amts_data_template_definition_file(work_dir=None, strict=True):
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = codecs.open(amts_fname, 'wb', 'utf8')
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write(u'[form]\n')
 	amts_template.write(u'template = $template$\n')
 	amts_template.write(u'|'.join(amts_fields))
@@ -2751,7 +2752,7 @@ def __generate_enhanced_amts_data_template_definition_file(work_dir=None):
 		suffix = '.txt',
 		tmp_dir = work_dir
 	)
-	amts_template = codecs.open(amts_fname, 'wb', 'utf8')
+	amts_template = io.open(amts_fname, mode = 'wt', encoding = 'utf8')
 	amts_template.write(u'[form]\n')
 	amts_template.write(u'template = $template$\n')
 	amts_template.write(u'|'.join(amts_fields))

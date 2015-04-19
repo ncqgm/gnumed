@@ -17,6 +17,7 @@ import mimetools
 import StringIO
 import zipfile
 import webbrowser
+import io
 
 
 # GNUmed libs
@@ -70,7 +71,7 @@ def download_data_pack(pack_url, filename=None, md5_url=None):
 	_log.debug('downloading MD5 from: %s', md5_url)
 	md5_fname = download_file(md5_url, filename = dp_fname + u'.md5')
 
-	md5_file = open(md5_fname, 'rU')
+	md5_file = io.open(md5_fname, mode = 'rt', encoding = 'utf8')
 	md5_expected = md5_file.readline().strip('\n')
 	md5_file.close()
 	_log.debug('expected MD5: %s', md5_expected)

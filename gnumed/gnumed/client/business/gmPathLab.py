@@ -9,7 +9,7 @@ __license__ = "GPL"
 import types
 import sys
 import logging
-import codecs
+import io
 import decimal
 import re as regex
 
@@ -2376,7 +2376,7 @@ def export_results_for_gnuplot(results=None, filename=None, show_year=True):
 		except KeyError:
 			series[r['unified_name']] = [r]
 
-	gp_data = codecs.open(filename, 'wb', 'utf8')
+	gp_data = io.open(filename, mode = 'wt', encoding = 'utf8')
 
 	gp_data.write(u'# %s\n' % _('GNUmed test results export for Gnuplot plotting'))
 	gp_data.write(u'# -------------------------------------------------------------\n')

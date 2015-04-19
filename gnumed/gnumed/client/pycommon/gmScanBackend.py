@@ -11,7 +11,7 @@ import os.path
 import os
 import time
 import shutil
-import codecs
+import io
 import glob
 import logging
 #import stat
@@ -413,8 +413,8 @@ class cXSaneScanner:
 
 		# our closest bet, might contain umlauts
 		enc = gmI18N.get_encoding()
-		fread = codecs.open(self._gm_custom_xsanerc, mode = "rU", encoding = enc)
-		fwrite = codecs.open(session_xsanerc, mode = "w", encoding = enc)
+		fread = io.open(self._gm_custom_xsanerc, mode = "rt", encoding = enc)
+		fwrite = io.open(session_xsanerc, mode = "wt", encoding = enc)
 
 		paths = gmTools.gmPaths()
 		val_dict = {

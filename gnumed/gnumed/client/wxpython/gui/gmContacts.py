@@ -559,27 +559,25 @@ class cContactsPanel(wx.wx.Panel):
 			return
 		x = self.list_organisations.GetItemCount()
 		self._insert_org_data( x, key, data)
-		
+
 		if showPersons:
 			m = org.getPersonMap(reload=False)
 			# create _isPersonIndex, which maps a row index to
 			# a tuple of a person and a person's parent org.
 			# 
 			for id, demRecord in m.items():
-				if self._tmpPerson.has_key(demRecord.getID()):
+				if demRecord.getID() in self._tmpPerson:
 					person = self._tmpPerson[demRecord.getID()]
 				else:  
 					person = self._helper.createOrgPerson()
 					person.setDemographicRecord(demRecord)
-				
+
 				key, data = self.getOrgKeyData(person)
 				ix = self.list_organisations.GetItemCount()
 				self._insert_org_data(ix, key, data)
 				person.setParent(org)
 				self._isPersonIndex[ix] = person
 
-			
-			
 
 
 	def update_org(self, org):
@@ -587,7 +585,6 @@ class cContactsPanel(wx.wx.Panel):
 		is preferable, as it uses org's cached in the orgHelper, and person's cached
 		in self._tmpPerson.
 		"""
-			
 		key, data = self.getOrgKeyData(org)
 		if key is None:
 			return
@@ -595,11 +592,11 @@ class cContactsPanel(wx.wx.Panel):
 		l = self.list_organisations
 		max = l.GetItemCount()
 	
-		for n in xrange( 0, max):
+		for n in range( 0, max):
 			isPerson = self._helper.isPerson(org) 
 			if l.GetItemData(n) == key and (
-			(not isPerson and not self._isPersonIndex.has_key(n) )
-				or (isPerson and self._isPersonIndex.has_key(n) )  ):
+			(not isPerson and n not in self._isPersonIndex )
+				or (isPerson and n in self._isPersonIndex )  ):
 				break
 
 		if n == max:
@@ -653,7 +650,7 @@ class cContactsPanel(wx.wx.Panel):
 	
 	def _update_org_data( self, n, key, data):
 		l = self.list_organisations
-		for i in xrange(0, 4):
+		for i in range(0, 4):
 			l.SetStringItem(i, data[i])
 		l.SetItemData(n, key)
 	
@@ -691,25 +688,24 @@ class cContactsPanel(wx.wx.Panel):
 		elif self.getCurrent() is None:
 				return
 		else:
-			
+
 			c = l.GetItemCount()
 			key = self.getCurrent().getId()
 			i , nexti = 0, -1
-			while  nexti <> i and (i < l.GetItemCount()  or self._isPersonIndex.has_key(i)):
+			while  nexti <> i and (i < l.GetItemCount() or i in self._isPersonIndex):
 				i = nexti
 				nexti = l.FindItemData(i, key)
-				
 				#print i
-	
-		for j in xrange(0, 2):	  
+
+		for j in range(0, 2):
 			if i + 1 < l.GetItemCount():
 				i += 1
-	
+
 		l.EnsureVisible(i)
-		
+
 	def _insert_example_data(self):
 		items = organisationsdata.items()
-		for i in xrange(0,len(items)):
+		for i in range(0,len(items)):
 			key, data = items[i]
 			self._insert_org_data(i, key, data)
 
@@ -723,12 +719,12 @@ class cContactsPanel(wx.wx.Panel):
 	
 		self.setLastSelected(None)  # clear the last selected person.
 		
-		if self._isPersonIndex.has_key(ix):
+		if ix in self._isPersonIndex:
 			self._person_selected( self._isPersonIndex[ix])
 			return
 		else:
 			self._currentPerson = None
-		
+
 		org = self._helper.getFromCache(key)
 		self.clearForm()
 		if org == None:
@@ -737,38 +733,34 @@ class cContactsPanel(wx.wx.Panel):
 			database will be in the helper cache.
 			"""
 			org = self._helper.create()
-			data = [ self.list_organisations.GetItem(ix,n).GetText() for n in xrange(0,5) ]
-			
+			data = [ self.list_organisations.GetItem(ix,n).GetText() for n in range(0,5) ]
+
 			org['name'] = data[0].strip()
 			org['subtype'] = data[1].strip()
 			j = 1
 			while org['name'] == '' and j <= ix:
 				org['name'] = self.list_organisations.GetItem(ix-j, 0).GetText().strip()
 				j += 1
-	
+
 			if org['subtype'] <> '':
 				org.setParent( org.getHelper().findOrgsByName(org['name'])[0] )
-			
+
 			#TODO remove this test filter
 			if  data[3].lower().find('hospital') >= 0:  data[3] = 'hospital'
-	
+
 			org['category'] = data[3]
-			
 			org['phone'] = data[4]
-		
+
 			try:
-	
 				l = data[2].split(' ')
-				
 				# if no numerals in first token assume no address number
 				if l[0].isalpha():
 					l = [''] + l
 				# if no numerals in last token asssume no postcode 	
 				if l[-1].isalpha():
 					l.append('')
-				
 				urb_start_idx = -2
-			
+
 				# scan back , UPPERCASE words assumed to be part of suburb name
 				while urb_start_idx > -len(l) and l[urb_start_idx-1].isupper():
 					urb_start_idx -= 1

@@ -48,7 +48,7 @@ TARBALL_OPTS="--local-import --debug"
 echo "-------------------------------------------------"
 echo "Running from Git branch: "`git branch | grep \*`
 echo "-------------------------------------------------"
-python gnumed.py ${CONF} ${DEV_OPTS} $@
+python -Q warn -3 gnumed.py ${CONF} ${DEV_OPTS} $@ |& tee gm-vcs-py2to3_warnings.log
 
 # - *released* tarball version:
 #python gnumed.py ${CONF} ${TARBALL_OPTS} $@

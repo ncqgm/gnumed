@@ -18,8 +18,6 @@
 #	almost everything
 #      
 ############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_FamilyHistory.py,v $
-__version__ = "$Revision: 1.11 $"
 __author__  = "R.Terry <rterry@gnumed.net>, H.Herb <hherb@gnumed.net>, S.Tan"
 
 try:
@@ -188,7 +186,7 @@ class gmGP_FamilyHistory(gmPlugin_Patient.wxPatientPlugin):
 		if anIconID == None:
 			return self.__icons[_("""icon_two_people""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_two_people""")]
@@ -202,39 +200,5 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(FamilyHistoryPanel, -1)
 	app.MainLoop()
+
 #======================================================================# 
-# $Log: gmGP_FamilyHistory.py,v $
-# Revision 1.11  2008-04-13 14:39:49  ncq
-# - no more old style logging
-#
-# Revision 1.10  2005/09/26 18:01:53  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.9  2004/07/18 20:30:54  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.8  2004/06/25 13:28:00  ncq
-# - logically separate notebook and clinical window plugins completely
-#
-# Revision 1.7  2003/11/17 10:56:41  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.2  2003/10/25 08:29:40  sjtan
-#
-# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
-# yaml serializer to store editarea data in  narrative text field of clin_root_item until
-# clin_root_item schema stabilizes.
-#
-# Revision 1.1  2003/10/23 06:02:40  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.6  2003/06/01 12:50:46  ncq
-# - cleanup, CVS keywords
-#
-# @change log:
-#	    10.06.2002 rterry initial implementation, untested
-#           30.07.2002 rterry initial implementation, untested

@@ -7,7 +7,7 @@ __license__ = "GPL v2 or later"
 
 import sys
 import os
-import codecs
+import io
 import logging
 import time
 import shutil
@@ -354,7 +354,7 @@ def extract_HL7_from_XML_CDATA(filename, xml_path, target_dir=None):
 		return None
 
 	_log.debug('unwrapping HL7 from XML into [%s]', work_filename)
-	hl7_file = codecs.open(work_filename, 'wb', 'utf8')
+	hl7_file = io.open(work_filename, mode = 'wt', encoding = 'utf8')
 	for node in nodes:
 		hl7_file.write(node.text.rstrip(u'\r').rstrip(u'\n').rstrip(u'\r').rstrip(u'\n') + HL7_EOL)
 	hl7_file.close()
@@ -486,9 +486,9 @@ def format_hl7_message(message=None, skip_empty_fields=True, eol=u'\n '):
 def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filename=False, fix_hl7=False):
 	if fix_hl7:
 		fixed_name = __fix_malformed_hl7_file(filename)
-		hl7_file = codecs.open(fixed_name, 'rb', 'utf8')
+		hl7_file = io.open(fixed_name, mode = 'rt', encoding = 'utf8')
 	else:
-		hl7_file = codecs.open(filename, 'rb', 'utf8')
+		hl7_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 	output = format_hl7_message (
 		message = hl7_file.read(1024 * 1024 * 5),		# 5 MB max
 		skip_empty_fields = skip_empty_fields,
@@ -503,7 +503,7 @@ def format_hl7_file(filename, skip_empty_fields=True, eol=u'\n ', return_filenam
 		output = u'\n '.join([ u'%s: %s' % ((o[0] + (u' ' * max_len))[:max_len], o[1]) for o in output ])
 
 	out_name = gmTools.get_unique_filename(prefix = 'gm-formatted_hl7-', suffix = u'.hl7')
-	out_file = codecs.open(out_name, 'wb', 'utf8')
+	out_file = io.open(out_name, mode = 'wt', encoding = 'utf8')
 	out_file.write(output)
 	out_file.close()
 
@@ -563,7 +563,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		return False
 
 	# set additional data
-	MSH_file = codecs.open(filename, 'rb', 'utf8')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
 	shutil.move(filename, done_dir)
@@ -577,7 +577,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 	inc['comment'] += u'\n'
 	inc['comment'] += (u'-' * 80)
 	inc['comment'] += u'\n\n'
-	log = codecs.open(local_log_name, 'r', 'utf8')
+	log = io.open(local_log_name, mode = 'rt', encoding = 'utf8')
 	inc['comment'] += log.read()
 	log.close()
 	try:
@@ -657,7 +657,7 @@ def process_staged_single_PID_hl7_file(staged_item):
 		staged_item['comment'] += u'\n'
 		staged_item['comment'] += (u'-' * 80)
 		staged_item['comment'] += u'\n\n'
-		log = codecs.open(log_name, 'r', 'utf8')
+		log = io.open(log_name, mode = 'rt', encoding = 'utf8')
 		staged_item['comment'] += log.read()
 		log.close()
 		staged_item['comment'] += u'\n'
@@ -711,8 +711,8 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		prefix = u'gm_fix1-%s-' % gmTools.fname_stem(filename),
 		suffix = u'.hl7'
 	)
-	hl7_in = codecs.open(filename, 'rb', encoding)
-	hl7_out = codecs.open(out1_fname, 'wb', 'utf8')
+	hl7_in = io.open(filename, mode = 'rt', encoding = encoding)
+	hl7_out = io.open(out1_fname, mode = 'wt', encoding = 'utf8')
 
 	is_first_line = True
 	for line in hl7_in:
@@ -739,8 +739,8 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		prefix = u'gm_fix2-%s-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
-	hl7_in = codecs.open(out1_fname, 'rb', 'utf8')
-	hl7_out = codecs.open(out2_fname, 'wb', 'utf8')
+	hl7_in = io.open(out1_fname, mode = 'rt', encoding = 'utf8')
+	hl7_out = io.open(out2_fname, mode = 'wt', encoding = 'utf8')
 
 	for line in hl7_in:
 		line = line.strip(HL7_EOL)
@@ -764,8 +764,8 @@ def __fix_malformed_hl7_file(filename, encoding='utf8'):
 		prefix = u'gm_fix3-%s-' % gmTools.fname_stem(filename),
 		suffix = '.hl7'
 	)
-	hl7_in = codecs.open(out2_fname, 'rb', 'utf8')
-	hl7_out = codecs.open(out3_fname, 'wb', 'utf8')
+	hl7_in = io.open(out2_fname, mode = 'rt', encoding = 'utf8')
+	hl7_out = io.open(out3_fname, mode = 'wt', encoding = 'utf8')
 
 	prev_identity = None
 	prev_fields = None
@@ -831,7 +831,7 @@ def __split_hl7_file_by_MSH(filename, encoding='utf8'):
 
 	_log.debug('splitting [%s] into single-MSH files', filename)
 
-	hl7_in = codecs.open(filename, 'rb', encoding)
+	hl7_in = io.open(filename, mode = 'rt', encoding = encoding)
 
 	idx = 0
 	first_line = True
@@ -860,7 +860,7 @@ def __split_hl7_file_by_MSH(filename, encoding='utf8'):
 			out_fname = gmTools.get_unique_filename(prefix = u'%s-MSH_%s-' % (gmTools.fname_stem(filename), idx), suffix = 'hl7')
 			_log.debug('writing message %s to [%s]', idx, out_fname)
 			MSH_fnames.append(out_fname)
-			MSH_file = codecs.open(out_fname, 'wb', 'utf8')
+			MSH_file = io.open(out_fname, mode = 'wt', encoding = 'utf8')
 		# ignore BTS / FTS lines
 		if line.startswith(u'BTS|'):
 			_log.debug('ignoring BTS')
@@ -889,7 +889,7 @@ def __split_MSH_by_PID(filename):
 	"""
 	_log.debug('splitting single-MSH file [%s] into single-PID files', filename)
 
-	MSH_in = codecs.open(filename, 'rb', 'utf8')
+	MSH_in = io.open(filename, mode = 'rt', encoding = 'utf8')
 
 	looking_for_MSH = True
 	MSH_line = None
@@ -927,7 +927,7 @@ def __split_MSH_by_PID(filename):
 			out_fname = gmTools.get_unique_filename(prefix = u'%s-PID_%s-' % (gmTools.fname_stem(filename), idx), suffix = 'hl7')
 			_log.debug('writing message for PID %s to [%s]', idx, out_fname)
 			PID_fnames.append(out_fname)
-			PID_file = codecs.open(out_fname, 'wb', 'utf8')
+			PID_file = io.open(out_fname, mode = 'wt', encoding = 'utf8')
 			PID_file.write(MSH_line)
 		# else write line to new file
 		PID_file.write(line.strip('\n').strip('\r').strip('\n').strip('\r') + HL7_EOL)
@@ -1052,7 +1052,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 	_log.debug('importing single-PID single-MSH HL7 data from [%s]', filename)
 
 	# read the file
-	MSH_file = codecs.open(filename, 'rb', 'utf8')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 	HL7 = pyhl7.parse(MSH_file.read(1024 * 1024 * 5))	# 5 MB max
 	MSH_file.close()
 
@@ -1335,7 +1335,7 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 	_log.debug('staging [%s] as unmatched incoming HL7%s', gmTools.coalesce(source, u'', u' (%s)'), filename)
 
 	# parse HL7
-	MSH_file = codecs.open(filename, 'rb', 'utf8')
+	MSH_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 	raw_hl7 = MSH_file.read(1024 * 1024 * 5)	# 5 MB max
 	MSH_file.close()
 	formatted_hl7 = format_hl7_message (
@@ -1353,7 +1353,7 @@ def __stage_MSH_as_incoming_data(filename, source=None, logfile=None):
 	inc.update_data_from_file(fname = filename)
 	inc['comment'] = formatted_hl7
 	if logfile is not None:
-		log = codecs.open(logfile, 'r', 'utf8')
+		log = io.open(logfile, mode = 'rt', encoding = 'utf8')
 		inc['comment'] += u'\n'
 		inc['comment'] += (u'-' * 80)
 		inc['comment'] += u'\n\n'

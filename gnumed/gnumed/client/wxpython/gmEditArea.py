@@ -745,7 +745,7 @@ class cEditArea2(wx.Panel):
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
 		if None in (line, pos, widget):
 			_log.error('argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
-		if not self.fields.has_key(line):
+		if line not in self.fields:
 			self.fields[line] = {}
 		self.fields[line][pos] = (widget, weight)
 	#----------------------------------------------------------------
@@ -887,7 +887,11 @@ class cEditArea(wx.Panel):
 			try:
 				vszr.Add(self.field_line_szr[line], self.prompts[line][2], flag = wx.EXPAND) # use same lineweight as prompts
 			except KeyError:
-				_log.error("Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (line, self.field_line_szr.has_key(line), self.prompts.has_key(line) ) )
+				_log.error("Error with line=%s, self.field_line_szr has key:%s; self.prompts has key: %s" % (
+					line,
+					(line in self.field_line_szr),
+					(line in self.prompts)
+				))
 		# put them on the panel
 		self.fields_pnl.SetSizer(vszr)
 		vszr.Fit(self.fields_pnl)
@@ -947,7 +951,7 @@ class cEditArea(wx.Panel):
 	def _add_field(self, line=None, pos=None, widget=None, weight=0):
 		if None in (line, pos, widget):
 			_log.error('argument error in [%s]: line=%s, pos=%s, widget=%s' % (self.__class__.__name__, line, pos, widget))
-		if not self.fields.has_key(line):
+		if line not in self.fields:
 			self.fields[line] = {}
 		self.fields[line][pos] = (widget, weight)
 	#----------------------------------------------------------------
@@ -1224,11 +1228,10 @@ class gmEditArea(cEditArea):
 	def _makeExtraColumns(self , parent, lines, weightMap = {} ):
 		"""this is a utlity method to add extra columns"""
 		#add an extra column if the class has attribute "extraColumns"
-		if self.__class__.__dict__.has_key("extraColumns"):
+		if u"extraColumns" in self.__class__.__dict__:
 			for x in self.__class__.extraColumns:
 				lines = self._addColumn(parent, lines, x, weightMap)
 		return lines
-	
 
 
 	def _addColumn(self, parent, lines, extra, weightMap = {}, existingWeight = 5 , extraWeight = 2):
@@ -1240,33 +1243,30 @@ class gmEditArea(cEditArea):
 		# 	; extra is a list  of tuples of  format -
 			# (	key for input_fields, widget label , widget class to instantiate ) 
 		"""
-		
 		newlines = []
 		i = 0
 		for x in lines:
 			# adjust weight if line has specific weightings.
-			if weightMap.has_key( x):
+			if x in weightMap:
 				(existingWeight, extraWeight) = weightMap[x]
 
 			szr = wx.BoxSizer(wx.HORIZONTAL)
 			szr.Add( x, existingWeight, wx.EXPAND)
-			if i < len(extra) and  extra[i] <> None:
-				
+			if i < len(extra) and  extra[i] is not None:
 				(inputKey, widgetLabel, aclass) = extra[i]
 				if aclass.__name__ in CONTROLS_WITHOUT_LABELS:
 					szr.Add( self._make_prompt(parent,  widgetLabel, richards_blue)  )
 					widgetLabel = ""
 
-					
 				w = aclass( parent, -1, widgetLabel)
 				if not aclass.__name__ in CONTROLS_WITHOUT_LABELS:
 					w.SetForegroundColour(richards_blue)
-				
+
 				szr.Add(w, extraWeight , wx.EXPAND)
 
 				# make sure the widget is locatable via input_fields
 				self.input_fields[inputKey] = w
-				
+
 			newlines.append(szr)
 			i += 1
 		return newlines	

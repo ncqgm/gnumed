@@ -151,7 +151,7 @@ I\xdc![\x89\x8f\xd8!\x8f\xba\xf0\xb0\xf3\xa8\x899\xb2\x96Z\xe6~\x88<\x85\xe7\
 		if anIconID == None:
 			return self.__icons[_("""icon_talking_head""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_talking_head""")]

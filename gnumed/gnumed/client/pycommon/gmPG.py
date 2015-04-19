@@ -177,7 +177,7 @@ class ConnectionPool:
 
 		# either get a cached read-only connection
 		if readonly:
-			if ConnectionPool.__ro_conns.has_key(service):
+			if service in ConnectionPool.__ro_conns:
 				try:
 					ConnectionPool.__conn_use_count[service] += 1
 				except KeyError:
@@ -203,7 +203,7 @@ class ConnectionPool:
 	#-----------------------------
 	def ReleaseConnection(self, service):
 		"""decrease reference counter of active connection"""
-		if ConnectionPool.__ro_conns.has_key(service):
+		if service in ConnectionPool.__ro_conns:
 			try:
 				ConnectionPool.__conn_use_count[service] -= 1
 			except:

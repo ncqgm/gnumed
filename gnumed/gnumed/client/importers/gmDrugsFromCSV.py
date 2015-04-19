@@ -1,7 +1,7 @@
 # creates SQL to imports a list of mono-component drugs from a CSV file
 
 import sys
-import codecs
+import io
 
 
 # GNUmed
@@ -152,7 +152,7 @@ COMMIT;
 #---------------------------------------------------------------------------------------------------
 def create_sql(filename):
 
-	csv_file = codecs.open(filename = filename, mode = 'rUb', encoding = u'utf8')
+	csv_file = io.open(filename, mode = 'rt', encoding = u'utf8')
 
 	csv_lines = gmTools.unicode_csv_reader (
 		csv_file,

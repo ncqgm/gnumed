@@ -108,7 +108,7 @@ class cDrug:
 		if groupName is None:
 			return None
 
-		if self.__mQueryGroupHandlers.has_key(groupName):
+		if groupName in self.__mQueryGroupHandlers:
 			# get query group data
 			result = self.__mQueryGroupHandlers[groupName].getData(refresh)
 			return result
@@ -171,7 +171,7 @@ class cDrug:
 				continue
 
 			# add new query group to QueryGroups dictionary
-			if not self.__mQueryGroups.has_key(qname):
+			if qname not in self.__mQueryGroups:
 				self.__mQueryGroups[qname] = cQueryGroup()
 			self.__mQueryGroups[qname].addEntry(entry_group)
 
@@ -266,7 +266,7 @@ class cQueryGroupHandler:
 			VarNumMax = len(VarNames)
 			# init missing vars (keys) in data cache dict
 			for vn in VarNames:
-				if not self.__mData.has_key(vn):
+				if vn not in self.__mData:
 					self.__mData[vn] = []
 
 			# if we got just one row in the result

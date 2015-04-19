@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
-import codecs, sys
+import sys
+import io
 
 fname = sys.argv[1]
 
@@ -46,10 +47,10 @@ SQL_INSERT = u"""INSERT INTO ref.icpc_thesaurus (synonym, fk_code) VALUES (
 );
 """
 #================================================================================
-outfile = codecs.open('v15-ref-icpc2_de-thesaurus.sql', 'w', 'utf8')
+outfile = io.open('v15-ref-icpc2_de-thesaurus.sql', mode = 'wt', encoding = 'utf8')
 outfile.write(SQL_SCRIPT_START)
 
-infile = codecs.open(fname, 'rUb', 'cp1252')
+infile = io.open(fname, mode = 'rt', encoding = 'cp1252')
 
 for line in infile:
 

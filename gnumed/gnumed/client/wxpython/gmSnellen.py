@@ -186,7 +186,7 @@ class cSnellenChart(wx.Frame):
 		"""
 		n = 5 # can change here
 		list = []
-		for i in xrange (0, n):
+		for i in range (0, n):
 			theta = (i+0.00001)/n*2*math.pi # points on a circle inside the 5x5 grid
 			x = 2.5 + 2.5*math.sin (theta)
 			y = 2.5 - 2.5*math.cos (theta)

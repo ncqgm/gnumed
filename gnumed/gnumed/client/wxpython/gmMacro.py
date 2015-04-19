@@ -12,7 +12,7 @@ import random
 import types
 import logging
 import os
-import codecs
+import io
 import datetime
 import urllib
 
@@ -450,7 +450,7 @@ default_placeholder_end = u'>$'
 def show_placeholders():
 
 	fname = gmTools.get_unique_filename(prefix = 'gm-placeholders-', suffix = '.txt')
-	ph_file = codecs.open(filename = fname, mode = 'wb', encoding = 'utf8', errors = 'replace')
+	ph_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	ph_file.write(u'Here you can find some more documentation on placeholder use:\n')
 	ph_file.write(u'\n http://wiki.gnumed.de/bin/view/Gnumed/GmManualLettersForms\n\n\n')
@@ -472,7 +472,7 @@ def show_placeholders():
 		ph_file.write(u'	---=== %s ===---\n' % ph)
 		ph_file.write(u'\n')
 		ph_file.write(txt)
-		ph_file.write('\n\n')
+		ph_file.write(u'\n\n')
 	ph_file.write(u'\n')
 
 	ph_file.write(u'Known injectable placeholders (use like: $<PLACEHOLDER_NAME::ARGUMENTS::MAX OUTPUT LENGTH>$):\n')

@@ -6,9 +6,6 @@
 #
 # @copyright: author
 #======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Immunisation.py,v $
-# $Id: gmGP_Immunisation.py,v 1.35 2004-07-17 11:00:31 ncq Exp $
-__version__ = "$Revision: 1.35 $"
 __author__ = "R.Terry, S.J.Tan, K.Hilbert"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
@@ -36,7 +33,7 @@ Mc4\x85\x9f%\xfc\xae\x93!\xd5K_\xd4\x86\xf8\xa1?\x88\x12\xf9\x00 =F\x87'
 		if anIconID is None:
 			return self.__icons[_("""icon_syringe""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_syringe""")]

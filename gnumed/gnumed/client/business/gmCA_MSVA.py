@@ -86,7 +86,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # stdlib
-import sys, codecs, time, datetime as pyDT
+import sys, io, time, datetime as pyDT
 
 
 # GNUmed modules
@@ -105,7 +105,7 @@ def read_persons_from_msva_file(filename=None, encoding=None):
 	if encoding is None:
 		encoding = MSVA_encoding
 
-	pats_file = codecs.open(filename = filename, mode = 'rU', encoding = encoding)
+	pats_file = io.open(filename, mode = 'rt', encoding = encoding)
 
 	dtos = []
 

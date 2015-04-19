@@ -182,9 +182,9 @@ class Parser:
 		return l
 
 	def get_index(self, field, update = False):
-		if not self._msize.has_key(field):
+		if field not in self._msize:
 			return None
-		if not update and self._indexes.has_key(field):
+		if not update and field in self._indexes:
 			m2 = {}
 			m2.update(self._indexes[field])
 			return m2 
@@ -201,7 +201,7 @@ class Parser:
 			self._f.seek( pos)
 			self._f.seek ( offset, 1)
 			id = str(self._f.read(sz)).strip()
-			if not m.has_key(id):
+			if id not in m:
 				m[id]= [ pos]
 			else:
 				m[id].append(pos)
@@ -230,17 +230,17 @@ class Parser:
 
 		ival = str(ival).strip()
 
-		if not self._indexes.has_key(field):
+		if field not in self._indexes:
 			m = self.get_index(field)
 		else:
 			m = self._indexes[field]
 
-		if not m or not m.has_key(ival):
+		if not m or ival not in m:
 			return None
 
 		l = m[ival]
 		return l
-		
+
 	def find_rec( self, field, ival, ipos = 0):
 		"""finds the record on the list position ipos having ival at field"""
 
@@ -248,33 +248,25 @@ class Parser:
 
 		if not l:
 			return None
-		
 		if   len(l) <= ipos:
 			return None
 
-		
 		recpos  = l[ipos]
 
 		self._f.seek(recpos+1)
-		
 		return self._read_rec()	
-		
 
 	def next(self, memo_data = False):
 		if self._recno >= self._numrecs:
 			return None, None
-			
 		m = {}
 		self._f.read(1)
-		
 		d, m = self._read_rec(memo_data)
 
 		self._recno += 1
 
 		return d,m
 
-		
-		
 	def _read_rec(self, get_memo = False):
 		data = []
 		m = {}
@@ -407,8 +399,8 @@ def save_ddl(pp):
 	f = file(fn, 'w')
 	for p in pp.values():
 		f.write(p.get_ddl_sql())
-		f.write(';')
-		f.write('\n')
+		f.write(u';')
+		f.write(u'\n')
 	
 	f.close()
 
@@ -634,7 +626,7 @@ if __name__ == "__main__":
 					break
 				#print "executing ", stmt
 				#sys.stdout.write(str(p._recno)+' ')
-				sys.stdout.write('.')
+				sys.stdout.write(u'.')
 				try:
 					cu.execute(stmt)
 					c.commit()

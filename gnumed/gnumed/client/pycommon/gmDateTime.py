@@ -190,9 +190,10 @@ def init():
 
 	global gmCurrentLocalTimezone
 	gmCurrentLocalTimezone = cFixedOffsetTimezone (
-		offset = (current_local_utc_offset_in_seconds / 60),
+		offset = (current_local_utc_offset_in_seconds // 60),
 		name = current_local_iso_numeric_timezone_string
 	)
+
 #===========================================================================
 # mxDateTime conversions
 #---------------------------------------------------------------------------

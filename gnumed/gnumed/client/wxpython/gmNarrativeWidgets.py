@@ -966,10 +966,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 		self._splitter_left.SetSashGravity(0.5)
 
 		splitter_size = self._splitter_main.GetSizeTuple()[0]
-		self._splitter_main.SetSashPosition(splitter_size * 3 / 10, True)
+		self._splitter_main.SetSashPosition(splitter_size * 3 // 10, True)
 
 		splitter_size = self._splitter_left.GetSizeTuple()[1]
-		self._splitter_left.SetSashPosition(splitter_size * 6 / 20, True)
+		self._splitter_left.SetSashPosition(splitter_size * 6 // 20, True)
 
 	#--------------------------------------------------------
 	def _extend_popup_menu(self, menu=None):
@@ -2594,7 +2594,7 @@ class cSimpleSoapPluginPnl(wxgSimpleSoapPluginPnl.wxgSimpleSoapPluginPnl, gmRege
 
 		self._splitter_main.SetSashGravity(0.5)
 		splitter_width = self._splitter_main.GetSizeTuple()[0]
-		self._splitter_main.SetSashPosition(splitter_width / 2, True)
+		self._splitter_main.SetSashPosition(splitter_width // 2, True)
 
 		self._TCTRL_soap.Disable()
 		self._BTN_save_soap.Disable()

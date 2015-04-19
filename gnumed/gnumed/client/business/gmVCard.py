@@ -6,7 +6,7 @@ __license__ = "GPL v2"
 
 # std lib
 import sys
-import codecs
+import io
 import datetime as pyDT
 import logging
 
@@ -33,7 +33,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 		_log.info('trying to parse vCard from [%s]', filename)
 		for encoding in ['utf8', 'Windows-1252']:
 			try:
-				vcf = codecs.open(filename, mode = u'rB', encoding = encoding)
+				vcf = io.open(filename, mode = u'rt', encoding = encoding)
 				vc_text = vcf.read()
 				vcf.close()
 				break
@@ -128,7 +128,7 @@ def parse_vcard2dto(vc_text=None, filename=None):
 	except AttributeError:
 		_log.debug('vCard.TEL attribute not available')
 	if tel is not None:
-		if vc.tel.params.has_key(u'TYPE'):
+		if u'TYPE' in vc.tel.params:
 			channel = (vc.tel.params[u'TYPE'][0]).lower()
 			if not channel.endswith('phone'):
 				channel += 'phone'

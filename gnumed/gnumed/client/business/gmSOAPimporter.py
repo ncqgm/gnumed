@@ -110,7 +110,7 @@ class cSOAPImporter:
 		)
 
 #		# attach types
-#		if soap_entry.has_key(soap_bundle_TYPES_KEY):
+#		if soap_bundle_TYPES_KEY in soap_entry:
 #			print "code missing to attach types to imported narrative"
 
 		return status

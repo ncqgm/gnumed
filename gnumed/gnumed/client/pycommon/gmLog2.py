@@ -47,6 +47,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import logging
 import sys
 import os
+import io
 import codecs
 import locale
 import datetime as pydt
@@ -256,7 +257,7 @@ def __setup_logging():
 	else:
 		fmt = u'%(asctime)s  %(levelname)-8s  %(name)s (%(pathname)s::%(funcName)s() #%(lineno)d): %(message)s'
 
-	_logfile = codecs.open(filename = _logfile_name, mode = 'wb', encoding = 'utf8', errors = 'replace')
+	_logfile = io.open(_logfile_name, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	logging.basicConfig (
 		format = fmt,

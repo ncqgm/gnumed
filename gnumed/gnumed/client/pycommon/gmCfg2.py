@@ -7,7 +7,7 @@ __licence__ = "GPL"
 
 import logging
 import sys
-import codecs
+import io
 import re as regex
 import shutil
 import os
@@ -80,7 +80,7 @@ def __set_opt_in_INI_file(src=None, sink=None, group=None, option=None, value=No
 
 	# need to add group ?
 	if not group_seen:
-		sink.write('[%s]\n' % group)
+		sink.write(u'[%s]\n' % group)
 
 	# We either just added the group or it was the last group
 	# but did not contain the option. It must have been the
@@ -112,9 +112,9 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 			# our option ?
 			if regex.match('%s(\s|\t)*=(\s|\t)*\$%s\$' % (option, option), line.strip()) is not None:
 				sink.write(line)										# list header
-				sink.write('\n'.join(value))
-				sink.write('\n')
-				sink.write('$%s$\n' % option)							# list footer
+				sink.write(u'\n'.join(value))
+				sink.write(u'\n')
+				sink.write(u'$%s$\n' % option)							# list footer
 				our_list_seen = True
 				inside_our_list = True
 				continue
@@ -124,10 +124,10 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 				# our list already handled ?  (if so must already be finished)
 				if not our_list_seen:
 					# no, so need to add our list to the group before ...
-					sink.write('%s = $%s$\n' % (option, option))		# list header
-					sink.write('\n'.join(value))
-					sink.write('\n')
-					sink.write('$%s$\n' % option)						# list footer
+					sink.write(u'%s = $%s$\n' % (option, option))		# list header
+					sink.write(u'\n'.join(value))
+					sink.write(u'\n')
+					sink.write(u'$%s$\n' % option)						# list footer
 					our_list_seen = True
 					inside_our_list = False
 				# ... starting the next group
@@ -150,17 +150,17 @@ def __set_list_in_INI_file(src=None, sink=None, group=None, option=None, value=N
 
 	# looped over all lines but did not find our group, so add group
 	if not our_group_seen:
-		sink.write('[%s]\n' % group)
+		sink.write(u'[%s]\n' % group)
 
 	if not our_list_seen:
 		# We either just added the group or it was the last group
 		# but did not contain the option. It must have been the
 		# last group then or else the group following it would have
 		# triggered the option writeout.
-		sink.write('%s = $%s$\n' % (option, option))
-		sink.write('\n'.join(value))
-		sink.write('\n')
-		sink.write('$%s$\n' % option)
+		sink.write(u'%s = $%s$\n' % (option, option))
+		sink.write(u'\n'.join(value))
+		sink.write(u'\n')
+		sink.write(u'$%s$\n' % option)
 
 #==================================================================
 def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, value=None):
@@ -193,8 +193,8 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			if our_group_seen and (match.group('list_name') == option):
 				option_seen = True
 				sink.write(line)
-				sink.write('\n'.join(value))
-				sink.write('\n')
+				sink.write(u'\n'.join(value))
+				sink.write(u'\n')
 				continue
 			sink.write(line)
 			continue
@@ -216,9 +216,9 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 			# next group but option not seen yet ?
 			if our_group_seen and not option_seen:
 				option_seen = True
-				sink.write('%s = $%s$\n' % (option, option))
-				sink.write('\n'.join(value))
-				sink.write('\n')
+				sink.write(u'%s = $%s$\n' % (option, option))
+				sink.write(u'\n'.join(value))
+				sink.write(u'\n')
 				continue
 			sink.write(line)
 			continue
@@ -232,27 +232,28 @@ def __set_list_in_INI_file_old(src=None, sink=None, group=None, option=None, val
 
 	# need to add group ?
 	if not our_group_seen:
-		sink.write('[%s]\n' % group)
+		sink.write(u'[%s]\n' % group)
 
 	# We either just added the group or it was the last group
 	# but did not contain the option. It must have been the
 	# last group then or else the following group would have
 	# triggered the option writeout.
-	sink.write('%s = $%s$\n' % (option, option))
-	sink.write('\n'.join(value))
-	sink.write('\n')
-	sink.write('$%s$\n' % option)
+	sink.write(u'%s = $%s$\n' % (option, option))
+	sink.write(u'\n'.join(value))
+	sink.write(u'\n')
+	sink.write(u'$%s$\n' % option)
+
 #==================================================================
 def set_option_in_INI_file(filename=None, group=None, option=None, value=None, encoding='utf8'):
 
 	_log.debug('setting option "%s" to "%s" in group [%s]', option, value, group)
 	_log.debug('file: %s (%s)', filename, encoding)
 
-	src = codecs.open(filename = filename, mode = 'rU', encoding = encoding)
+	src = io.open(filename, mode = 'rt', encoding = encoding)
 	# FIXME: add "." right before the *name* part of filename - this
 	# FIXME: requires proper parsing (think of /home/lala/ -> ./home/lala vs /home/lala/gnumed/.gnumed.conf)
 	sink_name = '%s.gmCfg2.new.conf' % filename
-	sink = codecs.open(filename = sink_name, mode = 'wb', encoding = encoding)
+	sink = io.open(sink_name, mode = 'wt', encoding = encoding)
 
 	# is value a list ?
 	if isinstance(value, type([])):
@@ -265,6 +266,7 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 
 	shutil.copy2(sink_name, filename)
 	os.remove(sink_name)
+
 #==================================================================
 def parse_INI_stream(stream=None):
 	"""Parse an iterable for INI-style data.
@@ -329,7 +331,7 @@ def parse_INI_stream(stream=None):
 
 		current_option = name
 		current_option_path = '%s::%s' % (current_group, current_option)
-		if data.has_key(current_option_path):
+		if current_option_path in data:
 			_log.warning(u'duplicate option [%s]', current_option_path)
 
 		value = remainder.split(u'#', 1)[0].strip()
@@ -434,7 +436,7 @@ class gmCfgData(gmBorg.cBorg):
 			_log.exception('error parsing source <%s> from [%s]', source, stream)
 			raise
 
-		if self.__cfg_data.has_key(source):
+		if source in self.__cfg_data:
 			_log.warning('overriding source <%s> with [%s]', source, stream)
 
 		self.__cfg_data[source] = data
@@ -453,13 +455,13 @@ class gmCfgData(gmBorg.cBorg):
 		cfg_file = None
 		if file is not None:
 			try:
-				cfg_file = codecs.open(filename = file, mode = 'rU', encoding = encoding)
+				cfg_file = io.open(file, mode = 'rt', encoding = encoding)
 			except IOError:
 				_log.error('cannot open [%s], keeping as dummy source', file)
 
 		if cfg_file is None:
 			file = None
-			if self.__cfg_data.has_key(source):
+			if source in self.__cfg_data:
 				_log.warning('overriding source <%s> with dummy', source)
 			self.__cfg_data[source] = {}
 		else:

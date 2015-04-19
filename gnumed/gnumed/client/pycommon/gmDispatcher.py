@@ -110,7 +110,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 		receiver = safeRef(receiver)
 	senderkey = id(sender)
 	signals = {}
-	if connections.has_key(senderkey):
+	if senderkey in connections:
 		signals = connections[senderkey]
 	else:
 		connections[senderkey] = signals
@@ -126,7 +126,7 @@ def connect(receiver=None, signal=Any, sender=Any, weak=1):
 			except:
 				pass
 	receivers = []
-	if signals.has_key(signal):
+	if signal in signals:
 		receivers = signals[signal]
 	else:
 		signals[signal] = receivers
@@ -223,9 +223,9 @@ def safeRef(object):
 			# Keep track of these instances for lookup by disconnect().
 			selfkey = object.im_self
 			funckey = object.im_func
-			if not _boundMethods.has_key(selfkey):
+			if selfkey not in _boundMethods:
 				_boundMethods[selfkey] = weakref.WeakKeyDictionary()
-			if not _boundMethods[selfkey].has_key(funckey):
+			if funckey not in _boundMethods[selfkey]:
 				_boundMethods[selfkey][funckey] = \
 				BoundMethodWeakref(boundMethod=object)
 			return _boundMethods[selfkey][funckey]

@@ -310,8 +310,8 @@ class ConfigDefinition:
 		
 	#------------------------------------------------------------------------
 	def hasParameter(self, aParameterName = None):
-		return self.__mParameterDefinitions.has_key(aParameterName)
-		
+		return aParameterName in self.__mParameterDefinitions
+
 	#------------------------------------------------------------------------
 	def isValid(self,aParameterName=None,aValue=None):
 		if self.hasParameter(aParameterName):
@@ -521,12 +521,11 @@ class ConfigDataDB(ConfigData):
 		in order to change this parameter afterwards.
 		"""
 		# make sure that the pameter does not exist yet
-		if self.mConfigData.has_key(aParameterName):
+		if aParameterName in self.mConfigData:
 			return None
-		
 		# now we have to split the parameter name into 
 		# option and cookie part
-		
+
 		pNameParts  = string.split(aParameterName,".")
 		# check if we have a cookie
 		if pNameParts[-1][0] == '_':
@@ -771,7 +770,7 @@ def exportDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 	except:
 		_log.Log(gmLog.lErr, "Cannot open output file %s." % (filename))
 		raise
-		
+
 	paramList = expConfigSource.getAllParamNames()
 	if paramList is None:
 		_log.Log(gmLog.lInfo, "DB-set [%s,%s]contained no data." % (aUser,aWorkplace))
@@ -787,7 +786,7 @@ def exportDBSet(filename,aUser = None, aWorkplace = 'xxxDEFAULTxxx'):
 			valuestr = value
 		else:
 			valuestr = pickle.dumps(value)
-			
+
 		file.write( "[%s]\ntype = %s\ndescription = %s\nvalue = %s\n\n" % \
 			(param,cType,description,value))
 	return len(paramList)

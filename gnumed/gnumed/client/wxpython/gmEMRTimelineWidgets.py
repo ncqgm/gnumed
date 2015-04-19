@@ -10,7 +10,6 @@ __license__ = "GPL v2 or later"
 import sys
 import logging
 import os.path
-#codecs
 
 
 # 3rd party

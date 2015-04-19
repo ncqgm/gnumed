@@ -200,7 +200,7 @@ i\x8e\xa7.^te\xe7\x8e\xe6\xab\x99\x861Vt\xb4\x8c\xb63&\xba\xfeo\x92EI\xc3\
 		if anIconID == None:
 			return self.__icons[_("""icon-future_mom""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon-future_mom""")]

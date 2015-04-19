@@ -219,7 +219,7 @@ class gmGP_Measurements (gmPlugin_Patient.wxPatientPlugin):
 		if anIconID == None:
 			return self.__icons[_("""icon_Set_Square""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_Set_Square""")]

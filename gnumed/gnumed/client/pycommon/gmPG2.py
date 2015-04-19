@@ -18,6 +18,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 import time
 import sys
 import os
+import io
 import codecs
 import types
 import logging
@@ -465,7 +466,7 @@ def request_login_params():
 	# are we inside X ?
 	# (if we aren't wxGTK will crash hard at
 	# C-level with "can't open Display")
-	if os.environ.has_key('DISPLAY'):
+	if u'DISPLAY' in os.environ:
 		# try wxPython GUI
 		try: return __request_login_params_gui_wx()
 		except: pass
@@ -790,7 +791,7 @@ def get_col_indices(cursor = None):
 		# a query like "select 1,2;" will return two columns of the same name !
 		# hence adjust to that, note, however, that dict-style access won't work
 		# on results of such queries ...
-		if col_indices.has_key(col_name):
+		if col_name in col_indices:
 			col_name = '%s_%s' % (col_name, col_index)
 		col_indices[col_name] = col_index
 		col_index += 1
@@ -825,7 +826,7 @@ def get_col_names(link_obj=None, schema='public', table=None):
 # i18n functions
 #------------------------------------------------------------------------
 def export_translations_from_database(filename=None):
-	tx_file = codecs.open(filename, 'wb', 'utf8')
+	tx_file = io.open(filename, mode = 'wt', encoding = 'utf8')
 	tx_file.write(u'-- GNUmed database string translations exported %s\n' % gmDateTime.pydt_now_here().strftime('%Y-%m-%d %H:%M'))
 	tx_file.write(u'-- - contains translations for each of [%s]\n' % u', '.join(get_translation_languages()))
 	tx_file.write(u'-- - user database language is set to [%s]\n\n' % get_current_user_language())
@@ -850,6 +851,7 @@ def export_translations_from_database(filename=None):
 	tx_file.close()
 
 	return True
+
 #------------------------------------------------------------------------
 def delete_translation_from_database(link_obj=None, language=None, original=None):
 	cmd = u'DELETE FROM i18n.translations WHERE lang = %(lang)s AND orig = %(orig)s'

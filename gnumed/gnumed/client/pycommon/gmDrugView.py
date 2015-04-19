@@ -154,9 +154,8 @@ class DrugView:
 			textPart = self.__getTextPart(pos)
 			if textPart != '':
 				piText += textPart
-				if self.__mHeading.has_key(pos):
+				if pos in self.__mHeading:
 					headings.append(self.__mHeading[pos])
-                    
 
 		# if no part contained data, no info is available
 		piTotalLen = len(piText)         
@@ -209,18 +208,17 @@ class DrugView:
 
 	        # if the drug ID has not changed for this query group, use cached data
 		refresh=0
-		if not self.mLastId.has_key(group):
+		if group not in self.mLastId:
 			self.mLastId[group] = -1
 		if self.mLastId[group] != self.mCurrId:
 			refresh=1
 			self.mLastId[group] = self.mCurrId
-            
 # DEBUG
 #		print "TextPart: ",group, " ", format_type
 
 		# do the query
 		queryResult = self.mDrugInterface.GetData(group,refresh)
-		
+
 		# check result for empty fields in UsedVarsList
 		# if all fields are empty, we wont show anything
 		resultTotalLen = 0
@@ -228,7 +226,7 @@ class DrugView:
 			usedVars = self.__mUsedVars[pos]
 			if not queryResult is None:
 				for item in usedVars:
-					if not queryResult.has_key(item):
+					if item not in queryResult:
 						_log.Log(gmLog.lWarn, "Variable name invalid: %s" % item)
 					else:
 						value = queryResult[item]

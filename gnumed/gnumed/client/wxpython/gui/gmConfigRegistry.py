@@ -196,7 +196,7 @@ class cConfTree(wx.TreeCtrl):
 				branchName = branchName + "." + part			
 			# get subtree dict
 			tmpDict = eval(tmpFunc)[1]
-			if not tmpDict.has_key(part):
+			if part not in tmpDict:
 				# initialize new branch
 				tmpDict[part]=[]
 				tmpDict[part].append({ 'type': 'branch', 'name': branchName })

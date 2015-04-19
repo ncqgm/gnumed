@@ -11,15 +11,12 @@ fixed width fields.
 This implementation is in the sole responsibility of the authors.
 """
 #============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/business/gmPracSoftAU.py,v $
-# $Id: gmPracSoftAU.py,v 1.2 2007-02-13 17:05:22 ncq Exp $
-__license__ = "GPL"
-__version__ = "$Revision: 1.2 $"
+__license__ = "GPL v2 or later"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 
 # stdlib
-import sys, codecs, time, datetime as pyDT
+import sys, io, time, datetime as pyDT
 
 
 # GNUmed modules
@@ -34,7 +31,7 @@ PATIENTS_IN_dob_format = '%d/%m/%Y'
 #============================================================
 def read_persons_from_pracsoft_file(filename=None, encoding='ascii'):
 
-	pats_file = codecs.open(filename=filename, mode='rU', encoding=encoding)
+	pats_file = io.open(filename, mode = 'rt', encoding = encoding)
 	dtos = []
 
 	for line in pats_file:

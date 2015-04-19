@@ -9,7 +9,7 @@ __author__ = "Ian Haywood"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # stdlib
-import sys, os, string, re, urllib2, logging
+import sys, os, string, re, urllib2, logging, io
 
 
 _log = logging.getLogger('gm.bootstrapper')
@@ -77,7 +77,7 @@ class Psql:
 				return 1
 		else:
 			if os.access (filename, os.R_OK):
-				self.file = open(filename)
+				self.file = io.open(filename, mode = 'rt', encoding = 'utf8')
 			else:
 				_log.error(u"cannot open file [%s]" % filename)
 				return 1

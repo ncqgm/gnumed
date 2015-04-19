@@ -62,7 +62,7 @@ import signal
 import os.path
 import shutil
 import stat
-import codecs
+import io
 
 
 # do not run as module
@@ -453,13 +453,13 @@ the hidden directory "%s/".""" % (
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', '.gnumed', 'error_logs')))
 	gmTools.mkdir(os.path.expanduser(os.path.join('~', 'gnumed')))
 
-	README = codecs.open(os.path.expanduser(os.path.join('~', 'gnumed', '00_README')), 'wb', 'utf8')
+	README = io.open(os.path.expanduser(os.path.join('~', 'gnumed', '00_README')), mode = 'wt', encoding = 'utf8')
 	README.write(gnumed_DIR_README_TEXT)
 	README.close()
 
 	paths = gmTools.gmPaths(app_name = u'gnumed')
 
-	open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), 'a+').close()
+	io.open(os.path.expanduser(os.path.join('~', '.gnumed', 'gnumed.conf')), mode = 'a+t').close()
 #==========================================================
 def setup_date_time():
 	gmDateTime.init()
@@ -591,10 +591,10 @@ def shutdown_logging():
 #			pairs.reverse()
 #			return pairs
 
-#		rcfile = open('./gm-refcount.lst', 'wb')
+#		rcfile = io.open('./gm-refcount.lst', 'wt', encoding = 'utf8')
 #		for refcount, class_ in get_refcounts():
 #			if not class_.__name__.startswith('wx'):
-#				rcfile.write('%10d %s\n' % (refcount, class_.__name__))
+#				rcfile.write(u'%10d %s\n' % (refcount, class_.__name__))
 #		rcfile.close()
 
 	# do not choke on Windows

@@ -8,7 +8,7 @@ import logging
 import sys
 import os
 import subprocess
-import codecs
+import io
 import time
 
 
@@ -196,12 +196,12 @@ def _print_files_by_gsprint_exe(filenames=None):
 	).encode(sys.getfilesystemencoding())
 
 	for filename in filenames:
-		conf_file = codecs.open(conf_filename, 'wb', 'utf8')
-		conf_file.write('-color\n')
-		conf_file.write('-query\n')				# printer setup dialog
-		conf_file.write('-all\n')				# all pages
-		conf_file.write('-copies 1\n')
-		conf_file.write('%s\n' % os.path.normpath(filename))
+		conf_file = io.open(conf_filename, mode = 'wt', encoding = 'utf8')
+		conf_file.write(u'-color\n')
+		conf_file.write(u'-query\n')			# printer setup dialog
+		conf_file.write(u'-all\n')				# all pages
+		conf_file.write(u'-copies 1\n')
+		conf_file.write(u'%s\n' % os.path.normpath(filename))
 		conf_file.close()
 
 		cmd_line = [

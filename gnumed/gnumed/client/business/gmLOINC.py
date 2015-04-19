@@ -9,7 +9,7 @@ license: GPL v2 or later
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
-import codecs
+import io
 import logging
 import csv
 import re as regex
@@ -96,15 +96,15 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 		data_fname = gmTools.get_unique_filename(prefix = 'loinc_data-', suffix = '.csv')
 	_log.debug('LOINC data: %s', data_fname)
 
-	loinc_file = codecs.open(input_fname, 'rU', encoding = file_encoding, errors = 'replace')
-	out_file = codecs.open(license_fname, 'w', encoding = 'utf8', errors = 'replace')
+	loinc_file = io.open(input_fname, mode = 'rt', encoding = file_encoding, errors = 'replace')
+	out_file = io.open(license_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 
 	for line in loinc_file:
 
 		if license_delimiter in line:
 			out_file.write(line)
 			out_file.close()
-			out_file = codecs.open(data_fname, 'w', encoding = 'utf8', errors = 'replace')
+			out_file = io.open(data_fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 			continue
 
 		out_file.write(line)
@@ -112,18 +112,20 @@ def split_LOINCDBTXT(input_fname=None, data_fname=None, license_fname=None):
 	out_file.close()
 
 	return data_fname, license_fname
+
 #============================================================
 def map_field_names(data_fname='loinc_data.csv'):
 
-	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	first_line = csv_file.readline()
 	sniffer = csv.Sniffer()
 	if sniffer.has_header(first_line):
 		pass
+
 #============================================================
 def get_version(license_fname='loinc_license.txt'):
 
-	in_file = codecs.open(license_fname, 'rU', encoding = 'utf8', errors = 'replace')
+	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 
 	version = None
 	for line in in_file:
@@ -133,6 +135,7 @@ def get_version(license_fname='loinc_license.txt'):
 
 	in_file.close()
 	return version
+
 #============================================================
 def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, lang='en_EN'):
 
@@ -153,7 +156,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table emptied')
 
 	# import data from csv file into staging table
-	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	loinc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = "\t", quotechar = '"')
 	curs = conn.cursor()
 	cmd = u"""INSERT INTO staging.loinc_staging values (%s%%s)""" % (u'%s, ' * (len(loinc_fields) - 1))
@@ -169,7 +172,7 @@ def loinc_import(data_fname=None, license_fname=None, version=None, conn=None, l
 	_log.debug('staging table loaded')
 
 	# create data source record
-	in_file = codecs.open(license_fname, 'rU', encoding = 'utf8', errors = 'replace')
+	in_file = io.open(license_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	desc = in_file.read()
 	in_file.close()
 	args = {'ver': version, 'desc': desc, 'url': origin_url, 'name_long': name_long, 'name_short': name_short, 'lang': lang}

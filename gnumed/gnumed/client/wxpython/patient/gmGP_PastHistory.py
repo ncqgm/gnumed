@@ -258,7 +258,7 @@ E\xbd\x08\x95\x1d\xf9:\xeci\x83\x84\xe6my\xb2\xae\xb2\xe8\xa4e\xbb\xadO\x14\
 		if anIconID == None:
 			return self.__icons[_("""icon_hx_ship""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_hx_ship""")]

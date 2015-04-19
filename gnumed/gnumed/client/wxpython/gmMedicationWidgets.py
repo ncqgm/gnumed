@@ -166,7 +166,7 @@ def jump_to_ifap(import_drugs=False):
 		))
 		# file must exist for Ifap to write into it
 		try:
-			f = open(transfer_file, 'w+b').close()
+			f = io.open(transfer_file, mode = 'wt').close()
 		except IOError:
 			_log.exception('Cannot create IFAP <-> GNUmed transfer file [%s]', transfer_file)
 			gmDispatcher.send('statustext', msg = _('Cannot create IFAP <-> GNUmed transfer file [%s].') % transfer_file)
@@ -180,7 +180,7 @@ def jump_to_ifap(import_drugs=False):
 		# COMMENT: this file must exist PRIOR to invoking IFAP
 		# COMMENT: or else IFAP will not write data into it ...
 		try:
-			csv_file = open(transfer_file, 'rb')						# FIXME: encoding
+			csv_file = io.open(transfer_file, mode = 'rt', encoding = 'latin1')						# FIXME: encoding unknown
 		except:
 			_log.exception('cannot access [%s]', fname)
 			csv_file = None
@@ -2444,13 +2444,13 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		selected_cells += list (
 			(row, col)
 				for row in sel_rows
-				for col in xrange(self.GetNumberCols())
+				for col in range(self.GetNumberCols())
 		)
 
 		# selected columns
 		selected_cells += list (
 			(row, col)
-				for row in xrange(self.GetNumberRows())
+				for row in range(self.GetNumberRows())
 				for col in sel_cols
 		)
 
@@ -2458,8 +2458,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
 			selected_cells += [
 				(row, col)
-					for row in xrange(top_left[0], bottom_right[0] + 1)
-					for col in xrange(top_left[1], bottom_right[1] + 1)
+					for row in range(top_left[0], bottom_right[0] + 1)
+					for col in range(top_left[1], bottom_right[1] + 1)
 			]
 
 		return set(selected_cells)
@@ -2994,7 +2994,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		# use this logic to prevent tooltips outside the actual cells
 		# apply to GetRowSize, too
 #        tot = 0
-#        for col in xrange(self.NumberCols):
+#        for col in range(self.NumberCols):
 #            tot += self.GetColSize(col)
 #            if xpos <= tot:
 #                self.tool_tip.Tip = 'Tool tip for Column %s' % (

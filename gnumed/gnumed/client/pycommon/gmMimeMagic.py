@@ -27,7 +27,7 @@ __version__ = '0.1'
 __author__ = "Jason Petrone <jp@demonseed.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
-import re, struct, string
+import re, struct, string, io
 #=================================================================
 magic = [
 	[0L, 'leshort', '=', 1538L, 'application/x-alan-adventure-game'],
@@ -1011,7 +1011,7 @@ class magicTest:
 
 def load(file):
 	global magicNumbers
-	lines = open(file).readlines()
+	lines = io.open(file, mode = u'rt', encoding = 'utf8').readlines()
 	last = { 0: None }
 	for line in lines:
 		if re.match(r'\s*#', line):
@@ -1106,7 +1106,7 @@ def file(file):
 
 #### BUILD DATA ####
 #load('mime-magic')
-#f = open('out', 'w')
+#f = io.open('out', mode = 'wt', encoding = 'utf8')
 #for m in magicNumbers:
 #  f.write(str([m.offset, m.type, m.op, m.value, m.msg]) + ',\n')
 #f.close
@@ -1125,24 +1125,3 @@ if __name__ == '__main__':
 		else:
 			print arg + ': unknown'
 #=================================================================
-# $Log: gmMimeMagic.py,v $
-# Revision 1.2  2009-09-13 18:31:57  ncq
-# - proper mimetype for bitmaps
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.3  2003/11/17 10:56:36  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.2  2003/02/27 09:18:48  ncq
-# - added TODO
-#
-# Revision 1.1  2003/02/14 00:32:21  ncq
-# - Mime magic data
-#

@@ -14,7 +14,7 @@ import os.path
 import time
 import re as regex
 import datetime as pyDT
-import codecs
+import io
 import thread
 import threading
 import logging
@@ -993,12 +993,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				suffix = u'.gdt'
 			)
 
-		gdt_file = codecs.open (
-			filename = filename,
-			mode = 'wb',
-			encoding = encoding,
-			errors = 'strict'
-		)
+		gdt_file = io.open(filename, mode = 'wt', encoding = encoding, errors = 'strict')
 
 		gdt_file.write(template % (u'013', u'8000', u'6301'))
 		gdt_file.write(template % (u'013', u'9218', u'2.10'))
@@ -1205,7 +1200,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 				prefix = u'gm-pat2vcf-',
 				suffix = u'.vcf'
 			)
-		vcf = codecs.open(filename, mode = 'wb', encoding = 'utf8')
+		vcf = io.open(filename, mode = 'wt', encoding = 'utf8')
 		vcf.write(vc.serialize().decode('utf-8'))
 		vcf.close()
 
@@ -1447,7 +1442,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 #		relative.copy_addresses(self)
 		relative.add_name( '**?**', self.get_names()['lastnames'])
 		# and link the two
-		if self._ext_cache.has_key('relatives'):
+		if u'relatives' in self._ext_cache:
 			del self._ext_cache['relatives']
 		cmd = u"""
 			insert into dem.lnk_person2relative (

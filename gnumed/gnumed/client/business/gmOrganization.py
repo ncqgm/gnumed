@@ -519,7 +519,7 @@ def get_comm_channels_data_for_org_ids( idList):
 		return None 
 	m = {}
 	for (id_org, id_type, url) in result:
-		if not m.has_key(id_org):
+		if id_org not in m:
 			m[id_org] = []
 		m[id_org].append( (id_type, url) )
 
@@ -849,7 +849,7 @@ if __name__ == '__main__':
 			("""drop table del_org""", [])
 
 			]
-		result =  gmPG.run_commit("personalia", cmds) <> None
+		result = (gmPG.run_commit("personalia", cmds) is not None)
 
 		return result
 
@@ -929,7 +929,7 @@ if __name__ == '__main__':
 	def create_temp_categories( categories = ['hospital']):
 		print "NEED TO CREATE TEMPORARY ORG_CATEGORY.\n\n ** PLEASE ENTER administrator login  : e.g  user 'gm-dbo' and  his password"
 		#get a admin login
-		for i in xrange(0, 4):
+		for i in range(0, 4):
 			result ,tmplogin = login_admin_user()
 			if result:
 				break
@@ -980,7 +980,7 @@ if __name__ == '__main__':
 		Please enter login for administrator:
 		"""
 		if adminlogin is None:
-			for i in xrange(0, 4):
+			for i in range(0, 4):
 				result, adminlogin = login_admin_user()
 				if  result:
 					break
@@ -1012,7 +1012,7 @@ if __name__ == '__main__':
 
 		conn = None
 		p.ReleaseConnection(service)
-		if failed_remove <> []:
+		if failed_remove != []:
 			print "FAILED TO REMOVE ", failed_remove
 		return failed_remove
 
@@ -1214,7 +1214,7 @@ if __name__ == '__main__':
 		if result == categories:
 			print "Unable to create temporary org_category. Test aborted"
 			sys.exit(-1)
-		if result <> []:
+		if result != []:
 			print "UNABLE TO CREATE THESE CATEGORIES"
 			if not raw_input("Continue ?") in ['y', 'Y'] :
 				sys.exit(-1)
@@ -1245,7 +1245,7 @@ if __name__ == '__main__':
 
 			# cleanup after the test case
 		for (result , org) in results:
-			if not result and org.getId() <> None:
+			if not result and org.getId() is not None:
 				print "trying cleanup"
 				if  org.shallow_del(): print " 	may have succeeded"
 				else:

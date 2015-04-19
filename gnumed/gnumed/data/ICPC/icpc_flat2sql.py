@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
-import codecs, sys
+import sys
+import io
 
 fname = sys.argv[1]
 
@@ -264,10 +265,10 @@ def init_record():
 		u'see_also': NULL
 	}
 #================================================================================
-outfile = codecs.open('v15-ref-icpc2_de-data.sql', 'w', 'utf8')
+outfile = io.open('v15-ref-icpc2_de-data.sql', mode = 'wt', encoding = 'utf8')
 outfile.write(SQL_SCRIPT_START)
 
-infile = codecs.open(fname, 'rUb', 'utf8')
+infile = io.open(fname, mode = 'rt', encoding = 'utf8')
 
 current_record = None
 for line in infile:

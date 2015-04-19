@@ -11,7 +11,7 @@ Usage: just run it
 __version__ = "$Revision: 1.9 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, string, codecs, logging
+import sys, string, io, logging
 
 
 _log = logging.getLogger('gm.i18n_db')
@@ -40,7 +40,7 @@ if __name__ == '__main__':
 		print "nothing to translate"
 		sys.exit(0)
 	# write strings to file
-	dump = codecs.open('gnumed-db_translation.sql', 'wb', 'utf8')
+	dump = io.open('gnumed-db_translation.sql', mode = 'wt', encoding = 'utf8')
 	dump.write('set default_transaction_read_only to off\n\n')
 	dump.write('\unset ON_ERROR_STOP\n\n')
 	for row in rows:

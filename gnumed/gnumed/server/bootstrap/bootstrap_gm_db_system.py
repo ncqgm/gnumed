@@ -36,7 +36,9 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile, logging
+import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile,
+import io
+import logging
 
 
 # adjust Python path
@@ -941,8 +943,7 @@ class database:
 		_log.info('hba file: %s', hba_file)
 
 		try:
-			f = open(hba_file, 'r')
-			f.close()
+			f = io.open(hba_file, mode = 'rt').close()
 		except StandardError:
 			_log.exception('cannot check pg_hba.conf for authentication information - not readable')
 			return
@@ -1139,10 +1140,10 @@ class database:
 			return None
 		# write schema to file
 		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
-		file = open(tmpfile, 'wb')
+		f = io.open(tmpfile, mode = 'wt', encoding = 'utf8')
 		for line in audit_schema:
-			file.write("%s;\n" % line)
-		file.close()
+			f.write("%s;\n" % line)
+		f.close()
 
 		# import auditing schema
 		psql = gmPsql.Psql(self.conn)

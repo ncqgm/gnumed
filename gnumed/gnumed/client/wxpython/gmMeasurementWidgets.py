@@ -10,7 +10,7 @@ import datetime as pyDT
 import decimal
 import os
 import subprocess
-import codecs
+import io
 import os.path
 
 
@@ -197,7 +197,7 @@ def browse_incoming_unmatched(parent=None):
 		filename = staged_item.export_to_file()
 		if filename is None:
 			filename = gmTools.get_unique_filename()
-		tmp_file = codecs.open(filename, 'ab', 'utf8')
+		tmp_file = io.open(filename, mode = 'at', encoding = 'utf8')
 		tmp_file.write(u'\n')
 		tmp_file.write(u'-' * 80)
 		tmp_file.write(u'\n')
@@ -855,13 +855,13 @@ class cMeasurementsGrid(wx.grid.Grid):
 		selected_cells += list (
 			(row, col)
 				for row in sel_rows
-				for col in xrange(self.GetNumberCols())
+				for col in range(self.GetNumberCols())
 		)
 
 		# selected columns
 		selected_cells += list (
 			(row, col)
-				for row in xrange(self.GetNumberRows())
+				for row in range(self.GetNumberRows())
 				for col in sel_cols
 		)
 
@@ -869,8 +869,8 @@ class cMeasurementsGrid(wx.grid.Grid):
 		for top_left, bottom_right in zip(self.GetSelectionBlockTopLeft(), self.GetSelectionBlockBottomRight()):
 			selected_cells += [
 				(row, col)
-					for row in xrange(top_left[0], bottom_right[0] + 1)
-					for col in xrange(top_left[1], bottom_right[1] + 1)
+					for row in range(top_left[0], bottom_right[0] + 1)
+					for col in range(top_left[1], bottom_right[1] + 1)
 			]
 
 		return set(selected_cells)
@@ -981,7 +981,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 				self.__cell_data[col_idx] = {}
 
 			# the tooltip always shows the youngest sub result details
-			if self.__cell_data[col_idx].has_key(row_idx):
+			if row_idx in self.__cell_data[col_idx]:
 				self.__cell_data[col_idx][row_idx].append(result)
 				self.__cell_data[col_idx][row_idx].sort(key = lambda x: x['clin_when'], reverse = True)
 			else:
@@ -1322,7 +1322,7 @@ class cMeasurementsGrid(wx.grid.Grid):
 		# use this logic to prevent tooltips outside the actual cells
 		# apply to GetRowSize, too
 #        tot = 0
-#        for col in xrange(self.NumberCols):
+#        for col in range(self.NumberCols):
 #            tot += self.GetColSize(col)
 #            if xpos <= tot:
 #                self.tool_tip.Tip = 'Tool tip for Column %s' % (

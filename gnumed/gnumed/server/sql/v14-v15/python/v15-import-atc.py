@@ -7,7 +7,8 @@
 # Author: karsten.hilbert@gmx.net
 # 
 #==============================================================
-import os, codecs
+import os
+import io
 
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmTools
@@ -101,7 +102,7 @@ def run(conn=None):
 	data_sources = rows[0]
 
 	data_fname = os.path.join('..', 'sql', 'v14-v15', 'data', 'atc_only-utf8.csv')
-	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"', dict = True, fieldnames = [u'atc', u'en', u'fr', u'de'])
 
 	for atc_line in atc_reader:

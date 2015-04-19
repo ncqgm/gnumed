@@ -439,7 +439,7 @@ class DrugDisplay(wx.Panel):
 		self.listctrl_drugchoice.ClearAll ()
 		self.__mListCtrlItems = {}
 
-		if aDataDict is None or not (aDataDict.has_key('id') & aDataDict.has_key('name')):
+		if aDataDict is None or not (u'id' in aDataDict & u'name' in aDataDict):
 			_log.Log(gmLog.lWarn, "No data to build list control.")
 			return None
 		#print "1:", aDataDict['id']

@@ -6,14 +6,22 @@ __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
-import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
+import sys
+import os
+import os.path
+import csv
+import tempfile
+import logging
+import hashlib
 import platform
 import subprocess
 import decimal
 import getpass
-import codecs
 import cPickle
 import zlib
+import io
+import functools
+import re as regex
 import xml.sax.saxutils as xml_tools
 
 
@@ -374,7 +382,7 @@ class gmPaths(gmBorg.cBorg):
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
-def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', target_encoding=None, base_dir=None):
+def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', target_encoding=None, base_dir=None, error_mode='replace'):
 	if target_encoding is None:
 		return source_file
 	if target_encoding == source_encoding:
@@ -388,8 +396,8 @@ def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', tar
 
 	_log.debug('[%s] -> [%s] (%s -> %s)', source_encoding, target_encoding, source_file, target_file)
 
-	in_file = codecs.open(source_file, 'rU', source_encoding)
-	out_file = codecs.open(target_file, 'wb', target_encoding, 'replace')
+	in_file = io.open(source_file, mode = 'rt', encoding = source_encoding)
+	out_file = io.open(target_file, mode = 'wt', encoding = target_encoding, errors = error_mode)
 	for line in in_file:
 		out_file.write(line)
 	out_file.close()
@@ -439,7 +447,7 @@ def file2md5(filename=None, return_hex=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
 	_log.debug('md5(%s): <%s> byte blocks', filename, blocksize)
 
-	f = open(filename, 'rb')
+	f = io.open(filename, mode = 'rb')
 
 	md5 = hashlib.md5()
 	while True:
@@ -447,6 +455,7 @@ def file2md5(filename=None, return_hex=True):
 		if not data:
 			break
 		md5.update(data)
+	f.close()
 
 	_log.debug('md5(%s): %s', filename, md5.hexdigest())
 
@@ -821,7 +830,7 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 	"""
 	if width is None:
 		return text
-	wrapped = initial_indent + reduce (
+	wrapped = initial_indent + functools.reduce (
 		lambda line, word, width=width: '%s%s%s' % (
 			line,
 			' \n'[(len(line) - line.rfind('\n') - 1 + len(word.split('\n',1)[0]) >= width)],

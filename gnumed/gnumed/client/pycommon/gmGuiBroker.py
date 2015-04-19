@@ -54,7 +54,7 @@ class GuiBroker:
 		if not key:
 		# create a new sequential key that doesn't exist yet
 			key = GuiBroker.__keycounter + 1
-			while GuiBroker.__objects.has_key(key):
+			while key in GuiBroker.__objects:
 				key +=1
 		GuiBroker.__keycounter = key
 		GuiBroker.__objects[key]=widget
@@ -67,7 +67,7 @@ class GuiBroker:
 		return GuiBroker.__objects[key]
 
 	def has_key( self, key):
-		return GuiBroker.__objects.has_key(key)
+		return key in GuiBroker.__objects
 
 
 

@@ -1681,7 +1681,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if not intermediate_nodes.has_key(inter_label):
+				if inter_label not in intermediate_nodes:
 					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
 					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
 					self.SetItemPyData(intermediate_nodes[inter_label], None)
@@ -1697,7 +1697,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' %s %%s' % gmTools.u_right_arrow))
 				)
-				if not intermediate_nodes.has_key(inter_label):
+				if inter_label not in intermediate_nodes:
 					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
 					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
 					self.SetItemPyData(intermediate_nodes[inter_label], None)
@@ -1716,7 +1716,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
 					no_parts
 				)
-				if not intermediate_nodes.has_key(inter_label):
+				if inter_label not in intermediate_nodes:
 					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)
 					self.SetItemBold(intermediate_nodes[inter_label], bold = True)
 					self.SetItemPyData(intermediate_nodes[inter_label], None)

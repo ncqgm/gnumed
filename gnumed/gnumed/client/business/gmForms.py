@@ -14,12 +14,13 @@ import sys
 import time
 import os.path
 import logging
-import codecs
 import re as regex
 import shutil
 import random
 import platform
 import subprocess
+import io
+import codecs
 import socket										# needed for OOo on Windows
 #, libxml2, libxslt
 import shlex
@@ -789,8 +790,8 @@ class cAbiWordForm(cFormEngine):
 			ext = r'.abw'
 		self.instance_filename = r'%s-instance%s' % (path, ext)
 
-		template_file = codecs.open(self.template_filename, 'rU', 'utf8')
-		instance_file = codecs.open(self.instance_filename, 'wb', 'utf8')
+		template_file = io.open(self.template_filename, mode = 'rt', encoding = 'utf8')
+		instance_file = io.open(self.instance_filename, mode = 'wt', encoding = 'utf8')
 
 		if self.template is not None:
 			# inject placeholder values
@@ -893,7 +894,7 @@ class cTextForm(cFormEngine):
 		# file containing the actual template plus metadata
 		self.form_definition_filename = self.template_filename
 		_log.debug('form definition file: [%s]', self.form_definition_filename)
-		cfg_file = codecs.open(filename = self.form_definition_filename, mode = 'rU', encoding = u'utf8')
+		cfg_file = io.open(self.form_definition_filename, mode = 'rt', encoding = u'utf8')
 		self.form_definition = gmCfg2.parse_INI_stream(stream = cfg_file)
 		cfg_file.close()
 
@@ -907,7 +908,7 @@ class cTextForm(cFormEngine):
 			tmp_dir = self.__sandbox_dir
 		)
 		_log.debug('template file: [%s]', self.template_filename)
-		f = codecs.open(self.template_filename, 'wb', 'utf8')
+		f = io.open(self.template_filename, mode = 'wt', encoding = 'utf8')
 		f.write(template_text)
 		f.close()
 
@@ -960,8 +961,8 @@ class cTextForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = codecs.open(input_filename, 'rU', 'utf8')
-		instance_file = codecs.open(output_filename, 'wb', 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 			# empty lines
@@ -1111,8 +1112,8 @@ class cLaTeXForm(cFormEngine):
 		_log.debug('[%s] -> [%s]', input_filename, output_filename)
 		_log.debug('searching for placeholders with pattern: %s', placeholder_regex)
 
-		template_file = codecs.open(input_filename, 'rU', 'utf8')
-		instance_file = codecs.open(output_filename, 'wb', 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 			# empty lines
@@ -1301,8 +1302,8 @@ class cXeTeXForm(cFormEngine):
 
 		found_placeholders = False
 
-		template_file = codecs.open(input_filename, 'rU', 'utf8')
-		instance_file = codecs.open(output_filename, 'wb', 'utf8')
+		template_file = io.open(input_filename, mode = 'rt', encoding = 'utf8')
+		instance_file = io.open(output_filename, mode = 'wt', encoding = 'utf8')
 
 		for line in template_file:
 
@@ -1447,9 +1448,9 @@ class cGnuplotForm(cFormEngine):
 		Expects .data_filename to be set.
 		"""
 		self.conf_filename = gmTools.get_unique_filename(prefix = 'gm2gpl-', suffix = '.conf')
-		conf_file = codecs.open(self.conf_filename, 'wb', 'utf8')
-		conf_file.write('# setting the gnuplot data file\n')
-		conf_file.write("gm2gpl_datafile = '%s'\n" % self.data_filename)
+		conf_file = io.open(self.conf_filename, mode = 'wt', encoding = 'utf8')
+		conf_file.write(u'# setting the gnuplot data file\n')
+		conf_file.write(u"gm2gpl_datafile = '%s'\n" % self.data_filename)
 		conf_file.close()
 
 		# FIXME: cater for configurable path
@@ -1545,8 +1546,8 @@ class cPDFForm(cFormEngine):
 
 		# parse dumped FDF file for "/V (...)" records
 		# and replace placeholders therein
-		fdf_dumped_file = open(self.fdf_dumped_filename, 'rbU')
-		fdf_replaced_file = codecs.open(self.fdf_replaced_filename, 'wb')
+		fdf_dumped_file = io.open(self.fdf_dumped_filename, mode = 'rt', encoding = u'utf8')
+		fdf_replaced_file = io.open(self.fdf_replaced_filename, mode = 'wt', encoding = u'utf8')
 
 		string_value_regex = r'\s*/V\s*\(.+\)\s*$'
 		for line in fdf_dumped_file:
@@ -1600,10 +1601,10 @@ class cPDFForm(cFormEngine):
 
 			replaced_line = '\x00\\n'.join(replaced_lines)
 
-			fdf_replaced_file.write('/V (')
+			fdf_replaced_file.write(u'/V (')
 			fdf_replaced_file.write(codecs.BOM_UTF16_BE)
 			fdf_replaced_file.write(replaced_line)
-			fdf_replaced_file.write(')\n')
+			fdf_replaced_file.write(u')\n')
 
 		fdf_replaced_file.close()
 		fdf_dumped_file.close()
@@ -1835,7 +1836,7 @@ class cXSLTFormEngine(cFormEngine):
 		fname = gmTools.get_unique_filename(prefix = u'gm_XSLT_form-', suffix = u'.html')
 		#html_file = os.open(fname, 'wb')
 		#html_file.write(self._FormData.encode('UTF-8'))
-		html_file = codecs.open(fname, 'wb', 'utf8', 'strict')		# or 'replace' ?
+		html_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'strict')		# or 'replace' ?
 		html_file.write(self._FormData)
 		html_file.close()
 
@@ -1980,7 +1981,7 @@ $DISEASELIST
 
 
 def test_au():
-	f = open('../../test-area/ian/terry-form.tex')
+	f = io.open('../../test-area/ian/terry-form.tex')
 	params = {
 	'RECIPIENT': "Dr. R. Terry\n1 Main St\nNewcastle",
 	'DOCTORSNAME': 'Ian Haywood',
@@ -2028,7 +2029,7 @@ def test_au2 ():
 	form.cleanup ()
 #------------------------------------------------------------
 def test_de():
-		template = open('../../test-area/ian/Formularkopf-DE.tex')
+		template = io.open('../../test-area/ian/Formularkopf-DE.tex')
 		form = LaTeXForm(template=template.read())
 		params = {
 				'PATIENT LASTNAME': 'Kirk',

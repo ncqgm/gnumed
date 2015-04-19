@@ -6,7 +6,7 @@ __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
 import sys
 import logging
-import codecs
+import io
 
 
 if __name__ == '__main__':
@@ -144,7 +144,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 			prefix = 'gm_praxis2vcf-',
 			suffix = '.vcf'
 		)
-		vcf_file = codecs.open(vcf_fname, 'wb', 'utf8')
+		vcf_file = io.open(vcf_fname, mode = 'wt', encoding = 'utf8')
 		vcf_file.write(u'\n'.join(vcf_fields))
 		vcf_file.write(u'\n')
 		vcf_file.close()

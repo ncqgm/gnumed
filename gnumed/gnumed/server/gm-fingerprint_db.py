@@ -12,6 +12,7 @@
 
 import sys
 import psycopg2
+import io
 
 database = sys.argv[1]
 passwd = sys.argv[2]
@@ -39,7 +40,7 @@ queries = [
 
 fname = u'gm_db-%s-fingerprint.log' % database
 #==============================================================
-outfile = open(fname, 'wb')
+outfile = io.open(fname, mode = 'wt', encoding = 'utf8')
 
 outfile.write("Fingerprinting GNUmed database ...\n")
 outfile.write("\n")
@@ -61,4 +62,6 @@ if len(sys.argv) > 3:
 
 curs.close()
 conn.rollback()
+
+outfile.close()
 #==============================================================

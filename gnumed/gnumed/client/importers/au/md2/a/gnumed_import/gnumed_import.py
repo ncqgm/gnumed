@@ -256,7 +256,7 @@ class pg_importer:
 		return cu.fetchall()
 
 	def get_all_background(self, ur_no):
-		if self.background.has_key(ur_no):
+		if ur_no in self.background:
 			return self.background[ur_no]
 		del self.background
 		self.background = {}
@@ -1468,7 +1468,7 @@ def process_patient_documents(ur_no, pat_id):
 
 
 		
-		if not doc_pks.has_key(doc_no):
+		if doc_no not in doc_pks:
 				# create a new encounter and episode for the document
 				# get new_doc_id
 				# insert into blobs.doc_med  , patient_id, fk_encounter, fk_episode, type, comment, date, ext_ref

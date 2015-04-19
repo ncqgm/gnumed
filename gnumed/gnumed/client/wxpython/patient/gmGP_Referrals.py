@@ -6,9 +6,6 @@
 # @copyright: author
 # @license: GPL v2 or later (details at http://www.gnu.org)
 ############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/patient/gmGP_Referrals.py,v $
-# $Id: gmGP_Referrals.py,v 1.14 2008-04-13 14:39:49 ncq Exp $
-__version__ = "$Revision: 1.14 $"
 __author__ = "R.Terry, I.Haywood"
 
 try:
@@ -87,7 +84,7 @@ C\x96[C\xe8\xd4P\xfb\xff\xa7\x1a\xb5P/\x85\xf6!\xc2\xf7\xdd\xbbA\xcf\xdbs\
 		if anIconID == None:
 			return self.__icons[_("""icon_writing_pen""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_writing_pen""")]
@@ -100,48 +97,5 @@ if __name__ == "__main__":
 	app = wxPyWidgetTester(size = (600, 600))
 	app.SetWidget(ReferralsPanel, -1)
 	app.MainLoop()
+
 #==============================================================
-# $Log: gmGP_Referrals.py,v $
-# Revision 1.14  2008-04-13 14:39:49  ncq
-# - no more old style logging
-#
-# Revision 1.13  2005/09/26 18:01:53  ncq
-# - use proper way to import wx26 vs wx2.4
-# - note: THIS WILL BREAK RUNNING THE CLIENT IN SOME PLACES
-# - time for fixup
-#
-# Revision 1.12  2004/07/18 20:30:54  ncq
-# - wxPython.true/false -> Python.True/False as Python tells us to do
-#
-# Revision 1.11  2004/06/25 13:28:00  ncq
-# - logically separate notebook and clinical window plugins completely
-#
-# Revision 1.10  2004/03/10 14:16:47  ncq
-# - readability, comments
-#
-# Revision 1.9  2004/03/10 12:56:01  ihaywood
-# fixed sudden loss of main.shadow
-# more work on referrals,
-#
-# Revision 1.8  2004/03/09 07:34:51  ihaywood
-# reactivating plugins
-#
-# Revision 1.7  2003/11/17 10:56:42  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.2  2003/10/25 08:29:40  sjtan
-#
-# uses gmDispatcher to send new currentPatient objects to toplevel gmGP_ widgets. Proprosal to use
-# yaml serializer to store editarea data in  narrative text field of clin_root_item until
-# clin_root_item schema stabilizes.
-#
-# Revision 1.1  2003/10/23 06:02:40  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.6  2003/02/02 13:34:28  ncq
-# - cvs keyword metadata
-#
-# @change log:
-#	    01.08.2002 rterry initial implementation, untested

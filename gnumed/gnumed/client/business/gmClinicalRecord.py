@@ -613,7 +613,7 @@ order by
 		for item in rows:
 			src_table = item[view_col_idx['src_table']]
 			pk_item = item[view_col_idx['pk_item']]
-			if not items_by_table.has_key(src_table):
+			if src_table not in items_by_table:
 				items_by_table[src_table] = {}
 			items_by_table[src_table][pk_item] = item
 
@@ -667,7 +667,7 @@ order by
 				except:
 					issue_name = view_row[view_col_idx['pk_health_issue']]
 
-				if not emr_data.has_key(age):
+				if age not in emr_data:
 					emr_data[age] = []
 
 				emr_data[age].append(
@@ -2599,19 +2599,19 @@ if __name__ == "__main__":
 #	print ''
 
 	#dump = record.get_missing_vaccinations()
-	#f = open('vaccs.lst', 'wb')
+	#f = io.open('vaccs.lst', 'wb')
 	#if dump is not None:
 	#	print "=== due ==="
-	#	f.write("=== due ===\n")
+	#	f.write(u"=== due ===\n")
 	#	for row in dump['due']:
 	#		print row
 	#		f.write(repr(row))
-	#		f.write('\n')
+	#		f.write(u'\n')
 	#	print "=== overdue ==="
-	#	f.write("=== overdue ===\n")
+	#	f.write(u"=== overdue ===\n")
 	#	for row in dump['overdue']:
 	#		print row
 	#		f.write(repr(row))
-	#		f.write('\n')
+	#		f.write(u'\n')
 	#f.close()
 

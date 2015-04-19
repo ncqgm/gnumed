@@ -8,7 +8,7 @@ __version__ = "$Revision: 1.33 $"
 __author__ = "K.Hilbert, S.Hilbert"
 __license__ = "GPL"
 
-import os.path, sys, linecache, codecs, re as regex, time, datetime as pyDT, logging
+import os.path, sys, linecache, io, re as regex, time, datetime as pyDT, logging, io
 
 
 import mx.DateTime as mxDT
@@ -31,7 +31,7 @@ class cDTO_xdt_person(gmPerson.cDTO_person):
 #==============================================================
 def determine_xdt_encoding(filename=None, default_encoding=None):
 
-	f = codecs.open(filename=filename, mode='rU', encoding='utf8', errors='ignore')
+	f = io.open(filename, mode = 'rt', encoding = 'utf8', errors = 'ignore')
 
 	file_encoding = None
 	for line in f:
@@ -77,7 +77,7 @@ def read_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	if encoding is None:
 		encoding = determine_xdt_encoding(filename=filename)
 
-	xdt_file = codecs.open(filename=filename, mode='rU', encoding=encoding)
+	xdt_file = io.open(filename, mode = 'rt', encoding = encoding)
 
 	for line in xdt_file:
 
@@ -181,7 +181,7 @@ class cLDTFile(object):
 		if self.__header is not None:
 			return self.__header
 
-		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		ldt_file = io.open(self.filename, mode = 'rt', encoding = self.encoding)
 		self.__header = []
 		for line in ldt_file:
 			length, field, content = line[:3], line[3:7], line[7:].replace('\015','').replace('\012','')
@@ -201,7 +201,7 @@ class cLDTFile(object):
 		if self.__tail is not None:
 			return self.__tail
 
-		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		ldt_file = io.open(self.filename, mode = 'rt', encoding = self.encoding)
 		self.__tail = []
 		in_tail = False
 		for line in ldt_file:
@@ -225,7 +225,7 @@ class cLDTFile(object):
 	#----------------------------------------------------------
 	def split_by_patient(self, dir=None, file=None):
 
-		ldt_file = codecs.open(filename = self.filename, mode = 'rU', encoding = self.encoding)
+		ldt_file = io.open(self.filename, mode = 'rt', encoding = self.encoding)
 		out_file = None
 
 		in_patient = False
@@ -245,7 +245,7 @@ class cLDTFile(object):
 					if out_file is not None:
 						out_file.write(u''.join(self.tail))
 						out_file.close()
-					#out_file = codecs.open(filename=filename_xxxx, mode=xxxx_'rU', encoding=self.encoding)
+					#out_file = io.open(filename=filename_xxxx, mode=xxxx_'rU', encoding=self.encoding)
 					out_file.write(u''.join(self.header))
 				else:
 					in_patient = False
@@ -365,7 +365,7 @@ def get_rand_fname(aDir):
 #==============================================================
 def write_xdt_pat_data(data, aDir):
 	"""write record for this patient to new file"""
-	pat_file = open(os.path.join(aDir, get_rand_fname(aDir)), "w")
+	pat_file = io.open(os.path.join(aDir, get_rand_fname(aDir)), mode = "wt", encoding = 'utf8')
 	map(pat_file.write, data)
 	pat_file.close()
 	return fname

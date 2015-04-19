@@ -11,7 +11,7 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 import os
 import logging
 import sys
-import codecs
+import io
 
 
 import wx
@@ -317,7 +317,7 @@ def clipboard2file():
 	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
 		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
-		target_file = codecs.open(fname, u'wb', u'utf8')
+		target_file = io.open(fname, mode = u'wt', encoding = u'utf8')
 		target_file.write(data_obj.Text)
 		target_file.close()
 		wx.TheClipboard.Close()
@@ -350,7 +350,7 @@ def text2clipboard(text=None, announce_result=False):
 
 #-------------------------------------------------------------------------
 def file2clipboard(filename=None, announce_result=False):
-	f = codecs.open(filename, u'rU', u'utf8')
+	f = io.open(filename, mode = u'rt', encoding = u'utf8')
 	result = text2clipboard(text = f.read(), announce_result = False)
 	f.close()
 	if announce_result:

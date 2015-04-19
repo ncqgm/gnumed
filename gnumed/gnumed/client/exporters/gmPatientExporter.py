@@ -12,7 +12,7 @@ TODO:
 __author__ = "Carlos Moro"
 __license__ = 'GPL'
 
-import os.path, sys, types, time, codecs, datetime as pyDT, logging, shutil
+import os.path, sys, types, time, io, datetime as pyDT, logging, shutil
 
 
 import mx.DateTime.Parser as mxParser
@@ -761,10 +761,10 @@ class cEmrExport:
         if len(unlinked_episodes) > 0:
             h_issues.insert(0, {'description':_('Unattributed episodes'), 'pk_health_issue':None})        
         for a_health_issue in h_issues:
-            self.__target.write('\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
+            self.__target.write(u'\n' + 3*' ' + 'Health Issue: ' + a_health_issue['description'] + '\n')
             episodes = emr.get_episodes(id_list=self.__constraints['episodes'], issues = [a_health_issue['pk_health_issue']])
             for an_episode in episodes:
-               self.__target.write('\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
+               self.__target.write(u'\n' + 6*' ' + 'Episode: ' + an_episode['description'] + '\n')
                if a_health_issue['pk_health_issue'] is None:
                   issues = None
                else:
@@ -803,14 +803,14 @@ class cEmrExport:
                 'Please check the log file for details.'
             ))
             return None
-        self.__target.write('\nOverview\n')
-        self.__target.write('--------\n')
-        self.__target.write("1) Allergy status (for details, see below):\n\n")
+        self.__target.write(u'\nOverview\n')
+        self.__target.write(u'--------\n')
+        self.__target.write(u"1) Allergy status (for details, see below):\n\n")
         for allergy in       emr.get_allergies():
-            self.__target.write("    " + allergy['descriptor'] + "\n\n")
-        self.__target.write("2) Vaccination status (* indicates booster):\n")
+            self.__target.write(u"    " + allergy['descriptor'] + "\n\n")
+        self.__target.write(u"2) Vaccination status (* indicates booster):\n")
 #        self.get_vacc_table()
-        self.__target.write("\n3) Historical:\n\n")
+        self.__target.write(u"\n3) Historical:\n\n")
         self.dump_historical_tree()
 
         try:
@@ -825,23 +825,23 @@ class cEmrExport:
         """
         doc_folder = self.__patient.get_document_folder()
 
-        self.__target.write('\n4) Medical documents: (date) reference - type "comment"\n')
-        self.__target.write('                          object - comment')
+        self.__target.write(u'\n4) Medical documents: (date) reference - type "comment"\n')
+        self.__target.write(u'                          object - comment')
 
         docs = doc_folder.get_documents()
         for doc in docs:
-            self.__target.write('\n\n    (%s) %s - %s "%s"' % (
+            self.__target.write(u'\n\n    (%s) %s - %s "%s"' % (
                 doc['clin_when'].strftime('%Y-%m-%d'),
                 doc['ext_ref'],
                 doc['l10n_type'],
                 doc['comment'])
             )
             for part in doc.parts:
-                self.__target.write('\n         %s - %s' % (
+                self.__target.write(u'\n         %s - %s' % (
                     part['seq_idx'],
                     part['obj_comment'])
                 )
-        self.__target.write('\n\n')
+        self.__target.write(u'\n\n')
     #--------------------------------------------------------     
     def dump_demographic_record(self, all = False):
         """
@@ -855,20 +855,20 @@ class cEmrExport:
             ))
             return None
 
-        self.__target.write('\n\n\nDemographics')
-        self.__target.write('\n------------\n')
-        self.__target.write('    Id: %s \n' % self.__patient['pk_identity'])
+        self.__target.write(u'\n\n\nDemographics')
+        self.__target.write(u'\n------------\n')
+        self.__target.write(u'    Id: %s \n' % self.__patient['pk_identity'])
         cont = 0
         for name in self.__patient.get_names():
             if cont == 0:
-                self.__target.write('    Name (Active): %s, %s\n' % (name['firstnames'], name['lastnames']) )
+                self.__target.write(u'    Name (Active): %s, %s\n' % (name['firstnames'], name['lastnames']) )
             else:
-                self.__target.write('    Name %s: %s, %s\n' % (cont, name['firstnames'], name['lastnames']))
+                self.__target.write(u'    Name %s: %s, %s\n' % (cont, name['firstnames'], name['lastnames']))
             cont += 1
-        self.__target.write('    Gender: %s\n' % self.__patient['gender'])
-        self.__target.write('    Title: %s\n' % self.__patient['title'])
-        self.__target.write('    Dob: %s\n' % self.__patient.get_formatted_dob(format = '%Y-%m-%d'))
-        self.__target.write('    Medical age: %s\n' % self.__patient.get_medical_age())
+        self.__target.write(u'    Gender: %s\n' % self.__patient['gender'])
+        self.__target.write(u'    Title: %s\n' % self.__patient['title'])
+        self.__target.write(u'    Dob: %s\n' % self.__patient.get_formatted_dob(format = '%Y-%m-%d'))
+        self.__target.write(u'    Medical age: %s\n' % self.__patient.get_medical_age())
     #--------------------------------------------------------
     def dump_constraints(self):
         """
@@ -877,27 +877,27 @@ class cEmrExport:
         self.__first_constraint = True
         if not self.__constraints['since'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nSince: %s' % self.__constraints['since'].strftime('%Y-%m-%d'))
+            self.__target.write(u'\nSince: %s' % self.__constraints['since'].strftime('%Y-%m-%d'))
 
         if not self.__constraints['until'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nUntil: %s' % self.__constraints['until'].strftime('%Y-%m-%d'))
+            self.__target.write(u'\nUntil: %s' % self.__constraints['until'].strftime('%Y-%m-%d'))
 
         if not self.__constraints['encounters'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nEncounters: ')
+            self.__target.write(u'\nEncounters: ')
             for enc in self.__constraints['encounters']:
                 self.__target.write(str(enc) + ' ')
 
         if not self.__constraints['episodes'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nEpisodes: ')
+            self.__target.write(u'\nEpisodes: ')
             for epi in self.__constraints['episodes']:
                 self.__target.write(str(epi) + ' ')
 
         if not self.__constraints['issues'] is None:
             self.dump_constraints_header()
-            self.__target.write('\nIssues: ')
+            self.__target.write(u'\nIssues: ')
             for iss in self.__constraints['issues']:
                 self.__target.write(str(iss) + ' ')
     #--------------------------------------------------------
@@ -906,9 +906,10 @@ class cEmrExport:
             Dumps constraints header
         """
         if self.__first_constraint == True:
-            self.__target.write('\nClinical items dump constraints\n')
-            self.__target.write('-'*(len(head_txt)-2))
+            self.__target.write(u'\nClinical items dump constraints\n')
+            self.__target.write(u'-'*(len(head_txt)-2))
             self.__first_constraint = False
+
 #============================================================
 class cEMRJournalExporter:
 	"""Exports patient EMR into a simple chronological journal.
@@ -929,7 +930,7 @@ class cEMRJournalExporter:
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_by_mod_time-', suffix = '.txt')
 
-		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8', errors = 'replace')
+		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
 
 		self.__part_len = 80
 
@@ -937,7 +938,7 @@ class cEMRJournalExporter:
 		txt = _('EMR Journal sorted by last modification time\n')
 		f.write(txt)
 		f.write(u'=' * (len(txt)-1))
-		f.write('\n')
+		f.write(u'\n')
 		f.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		f.write(_('Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
@@ -998,7 +999,7 @@ class cEMRJournalExporter:
 			)
 			path = os.path.expanduser(os.path.join('~', 'gnumed', patient['dirname'], filename))
 
-		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'utf8', errors = 'replace')
+		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
 		self.export(target = f, patient = patient)
 		f.close()
 		return filename
@@ -1021,7 +1022,7 @@ class cEMRJournalExporter:
 		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
-		target.write('\n')
+		target.write(u'\n')
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
@@ -1134,7 +1135,7 @@ class cMedistarSOAPExporter:
 				self.__pat.get_formatted_dob(format = '%Y-%m-%d')
 			)
 
-		f = codecs.open(filename = filename, mode = 'w+b', encoding = 'cp437', errors='replace')
+		f = io.open(filename, mode = 'w+t', encoding = 'cp437', errors='replace')
 		status = self.__export(target = f, encounter = encounter, soap_cats = soap_cats)
 		f.close()
 
@@ -1169,12 +1170,12 @@ class cMedistarSOAPExporter:
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in soap_cats:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
-			target.write('*MD%s*\r\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
+			target.write(u'*MD%s*\r\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
 			for row in rows:
 				text = row[0]
 				if text is None:
 					continue
-				target.write('%s\r\n' % gmTools.wrap (
+				target.write(u'%s\r\n' % gmTools.wrap (
 					text = text,
 					width = 64,
 					eol = u'\r\n'

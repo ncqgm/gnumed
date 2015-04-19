@@ -325,7 +325,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	# - $(<script-name>_DIR)/
 	env_key = "%s_DIR" % os.path.splitext(os.path.basename(sys.argv[0]))[0].upper()
 	_log.debug('looking at ${%s}' % env_key)
-	if os.environ.has_key(env_key):
+	if env_key in os.environ:
 		loc_dir = os.path.abspath(os.path.join(os.environ[env_key], 'po'))
 		_log.debug('${%s} = "%s" -> [%s]' % (env_key, os.environ[env_key], loc_dir))
 		candidates.append(loc_dir)

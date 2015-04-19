@@ -9,7 +9,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 import sys
 import logging
-import codecs
+import io
 import os
 
 
@@ -401,7 +401,7 @@ def create_timeline_file(patient=None, filename=None):
 	else:
 		timeline_fname = filename
 	_log.debug('exporting EMR as timeline into [%s]', timeline_fname)
-	timeline = codecs.open(timeline_fname, mode = 'wb', encoding = 'utf8', errors = 'xmlcharrefreplace')
+	timeline = io.open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
 	timeline.write(xml_start % (
 		_('Health issues'),
 		_('Episodes'),
@@ -547,7 +547,7 @@ def create_fake_timeline_file(patient=None, filename=None):
 		timeline_fname = filename
 
 	_log.debug('creating dummy timeline in [%s]', timeline_fname)
-	timeline = codecs.open(timeline_fname, mode = 'wb', encoding = 'utf8', errors = 'xmlcharrefreplace')
+	timeline = io.open(timeline_fname, mode = 'wt', encoding = 'utf8', errors = 'xmlcharrefreplace')
 
 	timeline.write(__fake_timeline_start)
 

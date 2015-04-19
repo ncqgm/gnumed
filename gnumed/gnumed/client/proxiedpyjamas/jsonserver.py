@@ -167,9 +167,9 @@ class SimpleJSONRPCRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         list.sort(key=lambda a: a.lower())
         f = StringIO()
         displaypath = cgi.escape(urllib.unquote(self.path))
-        f.write("<title>Directory listing for %s</title>\n" % displaypath)
-        f.write("<h2>Directory listing for %s</h2>\n" % displaypath)
-        f.write("<hr>\n<ul>\n")
+        f.write(u"<title>Directory listing for %s</title>\n" % displaypath)
+        f.write(u"<h2>Directory listing for %s</h2>\n" % displaypath)
+        f.write(u"<hr>\n<ul>\n")
         for name in list:
             fullname = os.path.join(path, name)
             displayname = linkname = name
@@ -180,10 +180,10 @@ class SimpleJSONRPCRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             if os.path.islink(fullname):
                 displayname = name + "@"
                 # Note: a link to a directory displays with @ and links with /
-            f.write('<li><a href="%s">%s</a>\n'
+            f.write(u'<li><a href="%s">%s</a>\n'
                     % (urllib.quote(linkname), cgi.escape(displayname)))
-        f.write("</ul>\n<hr>\n")
-        f.write("\n<hr>\nCookies: %s\n<hr>\n" % str(self.headers.get("Cookie", None)))
+        f.write(u"</ul>\n<hr>\n")
+        f.write(u"\n<hr>\nCookies: %s\n<hr>\n" % str(self.headers.get("Cookie", None)))
         length = f.tell()
         f.seek(0)
         self.send_response(200)

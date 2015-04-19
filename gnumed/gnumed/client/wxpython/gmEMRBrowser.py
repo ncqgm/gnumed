@@ -7,7 +7,7 @@ __license__ = "GPL v2 or later"
 import sys
 import os.path
 import StringIO
-import codecs
+import io
 import logging
 
 
@@ -83,7 +83,7 @@ def export_emr_to_ascii(parent=None):
 
 	_log.debug('exporting EMR to [%s]', fname)
 
-	output_file = codecs.open(fname, 'wb', encoding='utf8', errors='replace')
+	output_file = io.open(fname, mode = 'wt', encoding = 'utf8', errors = 'replace')
 	exporter = gmPatientExporter.cEmrExport(patient = pat)
 	exporter.set_output_file(output_file)
 	exporter.dump_constraints()
@@ -1387,7 +1387,7 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 			txt.close()
 		else:
 			fname = exporter.export_to_file_by_mod_time()
-			f = codecs.open(filename = fname, mode = 'rU', encoding = 'utf8', errors = 'replace')
+			f = io.open(fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 			for line in f:
 				self._TCTRL_journal.AppendText(line)
 			f.close()

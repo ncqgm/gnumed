@@ -14,7 +14,7 @@ import sys
 import logging
 import shutil
 import os
-import codecs
+import io
 
 
 if __name__ == '__main__':
@@ -490,7 +490,7 @@ class cExportArea(object):
 
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
-		idx_file = codecs.open(idx_fname, u'wb', u'utf8')
+		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
 
 		# header
 		browse_dicomdir = u''
@@ -529,7 +529,7 @@ class cExportArea(object):
 
 		# autorun.inf
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
-		autorun_file = codecs.open(autorun_fname, u'wb', u'utf8')
+		autorun_file = io.open(autorun_fname, mode = u'wt', encoding = u'utf8')
 		autorun_file.write(_autorun_inf % (
 			(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')).strip(),
 			_('Browse patient data')
@@ -538,7 +538,7 @@ class cExportArea(object):
 
 		# cd.inf
 		cd_inf_fname = os.path.join(base_dir, u'cd.inf')
-		cd_inf_file = codecs.open(cd_inf_fname, u'wb', u'utf8')
+		cd_inf_file = io.open(cd_inf_fname, mode = u'wt', encoding = u'utf8')
 		cd_inf_file.write(_cd_inf % (
 			pat['lastnames'],
 			pat['firstnames'],
@@ -553,7 +553,7 @@ class cExportArea(object):
 
 		# README
 		readme_fname = os.path.join(base_dir, u'README')
-		readme_file = codecs.open(readme_fname, u'wb', u'utf8')
+		readme_file = io.open(readme_fname, mode = u'wt', encoding = u'utf8')
 		readme_file.write(_README % (
 			pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
 		))

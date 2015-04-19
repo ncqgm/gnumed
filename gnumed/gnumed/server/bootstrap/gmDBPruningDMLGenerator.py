@@ -17,12 +17,10 @@ It is useful to pre-process the dump with:
 to weed out superfluous cruft.
 """
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/bootstrap/gmDBPruningDMLGenerator.py,v $
-__version__ = "$Revision: 1.3 $"
 __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
-import sys, os.path, codecs, logging
+import sys, os.path, io, logging
 
 
 _log = logging.getLogger('gm.bootstrapper')
@@ -32,11 +30,11 @@ _log.info(__version__)
 def generate_pruning_dml(filename=None):
 
 	# FIXME: encoding may need configuration
-	backup_file = codecs.open(filename = filename, mode = 'rU', encoding = 'utf8')
+	backup_file = io.open(filename, mode = 'rt', encoding = 'utf8')
 	backup_path, name = os.path.split(filename)
 	name, ext = os.path.splitext(name)
 	dml_name = os.path.join(backup_path, '%s-prune_tables.sql' % name)
-	dml_file = codecs.open(filename = dml_name, mode = 'w', encoding = 'utf8')
+	dml_file = io.open(dml_name, mode = 'wt', encoding = 'utf8')
 
 	prev_table = None
 	idx = 1

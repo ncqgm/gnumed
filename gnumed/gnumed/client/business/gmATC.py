@@ -12,7 +12,7 @@ license: GPL v2 or later
 __version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 
-import sys, codecs, logging, csv, re as regex, os.path
+import sys, io, logging, csv, re as regex, os.path
 
 
 if __name__ == '__main__':
@@ -158,7 +158,7 @@ insert into ref.data_source (name_long, name_short, version, description, lang, 
 	_log.debug('ATC data source record created, pk is #%s', data_src_pk)
 
 	# import data
-	csv_file = codecs.open(data_fname, 'rU', 'utf8', 'replace')
+	csv_file = io.open(data_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
 	atc_reader = gmTools.unicode_csv_reader(csv_file, delimiter = ",", quotechar = '"')
 
 	# clean out staging area

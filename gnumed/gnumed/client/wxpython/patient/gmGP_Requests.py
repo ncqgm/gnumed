@@ -164,7 +164,7 @@ class gmGP_Requests (gmPlugin_Patient.wxPatientPlugin):
 		if anIconID == None:
 			return self.__icons[_("""icon_blood_sample""")]
 		else:
-			if self.__icons.has_key(anIconID):
+			if anIconID in self.__icons:
 				return self.__icons[anIconID]
 			else:
 				return self.__icons[_("""icon_blood_sample""")]

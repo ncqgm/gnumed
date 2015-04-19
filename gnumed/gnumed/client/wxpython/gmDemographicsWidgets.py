@@ -6,7 +6,7 @@ __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 # standard library
 import sys
 import sys
-import codecs
+import io
 import re as regex
 import logging
 import os
@@ -441,7 +441,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 		except OSError: pass
 		gmShellAPI.run_command_in_shell(command=self.reload_cmd, blocking=True)
 		try:
-			csv_file = codecs.open(self.fname , mode = 'rU', encoding = 'utf8', errors = 'replace')
+			csv_file = io.open(self.fname , mode = 'rt', encoding = 'utf8', errors = 'replace')
 		except IOError:
 			gmDispatcher.send(signal = u'statustext', msg = _('Cannot access KOrganizer transfer file [%s]') % self.fname, beep = True)
 			return
