@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 __doc__ = """GNUmed client launcher.
 
 This is the launcher for the GNUmed GUI client. It takes
@@ -67,22 +69,22 @@ import io
 
 # do not run as module
 if __name__ != "__main__":
-	print "GNUmed startup: This is not intended to be imported as a module !"
-	print "-----------------------------------------------------------------"
-	print __doc__
+	print ("GNUmed startup: This is not intended to be imported as a module !")
+	print ("-----------------------------------------------------------------")
+	print (__doc__)
 	sys.exit(1)
 
 
 # do not run as root
 if os.name in ['posix'] and os.geteuid() == 0:
-	print """
+	print ("""
 GNUmed startup: GNUmed should not be run as root.
 -------------------------------------------------
 
 Running GNUmed as <root> can potentially put all
 your medical data at risk. It is strongly advised
 against. Please run GNUmed as a non-root user.
-"""
+""")
 	sys.exit(1)
 
 #----------------------------------------------------------
@@ -177,19 +179,19 @@ def setup_python_path():
 	local_python_base_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
 	)
-	print "Running from local source tree (%s) ..." % local_python_base_dir
+	print ("Running from local source tree (%s) ..." % local_python_base_dir)
 
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)
 	link_name = os.path.join(local_python_base_dir, 'Gnumed')
 	if not os.path.exists(link_name):
 		real_dir = os.path.join(local_python_base_dir, 'client')
-		print "Creating module import symlink ..."
-		print ' real dir:', real_dir
-		print '     link:', link_name
+		print ('Creating module import symlink ...')
+		print (' real dir:', real_dir)
+		print ('     link:', link_name)
 		os.symlink(real_dir, link_name)
 
-	print "Adjusting PYTHONPATH ..."
+	print ("Adjusting PYTHONPATH ...")
 	sys.path.insert(0, local_python_base_dir)
 #==========================================================
 def setup_local_repo_path():
@@ -243,7 +245,7 @@ def setup_local_repo_path():
 			_log.error('insecure repo: permissions not 0600')
 			return
 
-	print "Activating local wxGlade widgets repository (%s) ..." % local_wxGladeWidgets_path
+	print ("Activating local wxGlade widgets repository (%s) ..." % local_wxGladeWidgets_path)
 	sys.path.insert(0, local_repo_path)
 	_log.debug('sys.path with repo:')
 	_log.debug(sys.path)
@@ -253,7 +255,7 @@ def setup_fault_handler(target=None):
 	try:
 		import faulthandler
 	except ImportError:
-		print "Faulthandler not available ..."
+		print ("Faulthandler not available ...")
 		return
 	if target is None:
 		faulthandler.enable()
@@ -360,9 +362,9 @@ def setup_cli():
 def handle_sig_term(signum, frame):
 	_log.critical('SIGTERM (SIG%s) received, shutting down ...' % signum)
 	gmLog2.flush()
-	print 'GNUmed: SIGTERM (SIG%s) received, shutting down ...' % signum
+	print ('GNUmed: SIGTERM (SIG%s) received, shutting down ...' % signum)
 	if frame is not None:
-		print '%s::%s@%s' % (frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno)
+		print ('%s::%s@%s' % (frame.f_code.co_filename, frame.f_code.co_name, frame.f_lineno))
 
 	# FIXME: need to do something useful here
 
@@ -396,11 +398,11 @@ def handle_help_request():
 	)
 
 	if help_requested:
-		print _(
+		print (_(
 			'Help requested\n'
 			'--------------'
-		)
-		print __doc__
+		))
+		print (__doc__)
 		sys.exit(0)
 #==========================================================
 def handle_version_request():
@@ -415,11 +417,11 @@ def handle_version_request():
 
 		from Gnumed.pycommon.gmPG2 import map_client_branch2required_db_version, known_schema_hashes
 
-		print 'GNUmed version information'
-		print '--------------------------'
-		print 'client     : %s on branch [%s]' % (current_client_version, current_client_branch)
-		print 'database   : %s' % map_client_branch2required_db_version[current_client_branch]
-		print 'schema hash: %s' % known_schema_hashes[map_client_branch2required_db_version[current_client_branch]]
+		print ('GNUmed version information')
+		print ('--------------------------')
+		print ('client     : %s on branch [%s]' % (current_client_version, current_client_branch))
+		print ('database   : %s' % map_client_branch2required_db_version[current_client_branch])
+		print ('schema hash: %s' % known_schema_hashes[map_client_branch2required_db_version[current_client_branch]])
 		sys.exit(0)
 
 #==========================================================
@@ -540,7 +542,7 @@ def setup_ui_type():
 	if ui_type not in _known_ui_types:
 		_log.error('unknown UI type: %s', ui_type)
 		_log.debug('known UI types: %s', str(_known_ui_types))
-		print "GNUmed startup: Unknown UI type (%s). Defaulting to wxPython client." % ui_type
+		print ("GNUmed startup: Unknown UI type (%s). Defaulting to wxPython client." % ui_type)
 		ui_type = 'wxp'
 
 	_log.debug('UI type: %s', ui_type)
