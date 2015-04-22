@@ -3167,6 +3167,25 @@ class gmApp(wx.App):
 		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = u'gnumed')
 
+		# warn users running on Python < 2.7
+		# for transitioning to Python 3
+		# in GNUmed 1.6 make this fail startup
+		# unless --debug is given
+		if sys.hexversion < 0x02070000:
+			_log.debug('Python version < 2.7')
+			gmGuiHelpers.gm_show_warning (
+				aTitle = _('Python version check'),
+				aMessage = _(
+					'You are running Python version\n'
+					' %s\n'
+					'\n'
+					'However, GNUmed wants Python 2.7 to\n'
+					'facilitate migration to Python 3.\n'
+					'\n'
+					'Please upgrade your Python interpreter !'
+				) % sys.version
+			)
+
 		if not self.__setup_prefs_file():
 			return False
 
