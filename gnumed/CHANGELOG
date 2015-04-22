@@ -10,6 +10,8 @@
 
 FIX: exception in emr.get_clin_narrative (encounters is None) [thanks Marc]
 
+NEW: startup notice to ensure users are running Python 2.7
+
 	1.5.4
 
 FIX: LaTeX output of $soap_for_encounter$ [thanks Jim]
