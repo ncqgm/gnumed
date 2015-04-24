@@ -174,7 +174,7 @@ class cTagImageEAPnl(wxgTagImageEAPnl.wxgTagImageEAPnl, gmEditArea.cGenericEditA
 		if self.__selected_image_file is not None:
 			try:
 				open(self.__selected_image_file).close()
-			except StandardError:
+			except Exception:
 				valid = False
 				self.__selected_image_file = None
 				gmDispatcher.send(signal = 'statustext', msg = _('Cannot open the image file [%s].') % self.__selected_image_file, beep = True)

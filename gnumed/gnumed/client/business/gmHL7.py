@@ -338,7 +338,7 @@ def extract_HL7_from_XML_CDATA(filename, xml_path, target_dir=None):
 		_log.debug('target dir: %s', target_dir)
 		gmTools.mkdir(target_dir)
 		gmTools.mkdir(done_dir)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot setup unwrapping environment')
 		return None
 
@@ -403,7 +403,7 @@ def split_hl7_file(filename, target_dir=None, encoding='utf8'):
 			target_dir = os.path.join(orig_dir, u'PID')
 		_log.debug('target dir: %s', target_dir)
 		gmTools.mkdir(target_dir)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot setup splitting environment')
 		root_logger.removeHandler(local_logger)
 		return False, None
@@ -420,7 +420,7 @@ def split_hl7_file(filename, target_dir=None, encoding='utf8'):
 		for PID_fname in PID_fnames:
 			shutil.move(PID_fname, target_dir)
 			target_names.append(os.path.join(target_dir, os.path.split(PID_fname)[1]))
-	except StandardError:
+	except Exception:
 		_log.exception('cannot split HL7 file')
 		for target_name in target_names:
 			try: os.remove(target_name)
@@ -540,7 +540,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		gmTools.mkdir(done_dir)
 		error_dir = os.path.join(orig_dir, u'failed')
 		gmTools.mkdir(error_dir)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot setup staging environment')
 		root_logger.removeHandler(local_logger)
 		return False
@@ -555,7 +555,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 			shutil.move(local_log_name, error_dir)
 			return False
 		inc.update_data_from_file(fname = filename)
-	except StandardError:
+	except Exception:
 		_log.exception(u'error staging PID file')
 		root_logger.removeHandler(local_logger)
 		shutil.move(filename, error_dir)
@@ -603,7 +603,7 @@ def stage_single_PID_hl7_file(filename, source=None, encoding='utf8'):
 		#	u'fk_identity_disambiguated',
 		#	u'comment',							# a free text comment on this row, eg. why is it here, error logs etc
 		#	u'fk_provider_disambiguated'		# The provider the data is relevant to.
-	except StandardError:
+	except Exception:
 		_log.exception(u'cannot add more data')
 	inc.save()
 
@@ -649,7 +649,7 @@ def process_staged_single_PID_hl7_file(staged_item):
 			root_logger.removeHandler(import_logger)
 			return True, log_name
 		_log.error('error when importing single-PID/single-MSH file')
-	except StandardError:
+	except Exception:
 		_log.exception('error when importing single-PID/single-MSH file')
 
 	if not success:
@@ -690,7 +690,7 @@ def import_single_PID_hl7_file(filename):
 		success = __import_single_PID_hl7_file(filename)
 		if not success:
 			_log.error('error when importing single-PID/single-MSH file')
-	except StandardError:
+	except Exception:
 		_log.exception('error when importing single-PID/single-MSH file')
 
 	root_logger.removeHandler(import_logger)

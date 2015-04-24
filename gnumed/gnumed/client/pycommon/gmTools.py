@@ -579,7 +579,7 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 
 	try:
 		module = __import__(module_name)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot __import__() module [%s] from [%s]' % (module_name, module_path))
 		while module_path in sys.path:
 			sys.path.remove(module_path)

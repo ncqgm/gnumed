@@ -388,7 +388,7 @@ class cExportArea(object):
 	def add_file(self, filename=None, hint=None):
 		try:
 			open(filename).close()
-		except StandardError:
+		except Exception:
 			_log.exception('cannot open file <%s>', filename)
 			return None
 

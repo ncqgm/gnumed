@@ -410,7 +410,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 		gp.ylabel(y_col)
 		try:
 			gp.plot([ [r[x_col], r[y_col]] for r in self.query_results ])
-		except StandardError:
+		except Exception:
 			_log.exception('unable to plot results from [%s:%s]' % (x_col, y_col))
 			gmDispatcher.send(signal = 'statustext', msg = _('Error plotting data.'), beep = True)
 

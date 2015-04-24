@@ -1234,7 +1234,7 @@ if __name__ == "__main__":
 #		app.SetWidget(cSingleBoxSOAPPanel, -1)
 #		app.MainLoop()
 
-	except StandardError:
+	except Exception:
 		_log.exception("unhandled exception caught !")
 		# but re-raise them
 		raise

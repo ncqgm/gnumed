@@ -1305,7 +1305,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		try:
 			return template % adr.fields_as_dict(escape_style = self.__esc_style)
-		except StandardError:
+		except Exception:
 			_log.exception('error formatting address')
 			_log.error('template: %s', template)
 
@@ -1512,7 +1512,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			return u''
 		try:
 			return template % adr.fields_as_dict(escape_style = self.__esc_style)
-		except StandardError:
+		except Exception:
 			_log.exception('error formatting address')
 			_log.error('template: %s', template)
 
@@ -2478,7 +2478,7 @@ class cMacroPrimitives:
 		searcher = gmPersonSearch.cPatientSearcher_SQL()
 		if type(search_params) == types.DictType:
 			idents = searcher.get_identities(search_dict=search_params)
-			raise StandardError("must use dto, not search_dict")
+			raise Exception("must use dto, not search_dict")
 		else:
 			idents = searcher.get_identities(search_term=search_params)
 		if idents is None:

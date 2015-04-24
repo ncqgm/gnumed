@@ -131,7 +131,7 @@ def run_script(hook=None):
 
 	try:
 		tmp = gmTools.import_module_from_directory(script_path, script_name)
-	except StandardError:
+	except Exception:
 		_log.exception('cannot import hook script')
 		return False
 
@@ -165,7 +165,7 @@ def run_hook_script(hook=None):
 
 	try:
 		hook_module.run_script(hook = hook)
-	except StandardError:
+	except Exception:
 		_log.exception('error running hook script for [%s]', hook)
 		gmDispatcher.send (
 			signal = u'statustext',

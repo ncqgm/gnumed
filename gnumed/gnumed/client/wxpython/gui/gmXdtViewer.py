@@ -430,7 +430,7 @@ if __name__ == '__main__':
 	try:
 		app = TestApp ()
 		app.MainLoop ()
-	except StandardError:
+	except Exception:
 		_log.exception('Unhandled exception.')
 		raise
 

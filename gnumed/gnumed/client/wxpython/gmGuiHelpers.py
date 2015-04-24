@@ -396,7 +396,7 @@ def file2scaled_image(filename=None, height=100):
 		img_data.Rescale(rescaled_width, rescaled_height, quality = wx.IMAGE_QUALITY_HIGH)		# w, h
 		bitmap = wx.BitmapFromImage(img_data)
 		del img_data
-	except StandardError:
+	except Exception:
 		_log.exception('cannot load image from [%s]', filename)
 		del img_data
 		del bitmap

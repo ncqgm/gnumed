@@ -825,7 +825,7 @@ class cResizingSTC(wx.stc.StyledTextCtrl):
 				style = wx.SUNKEN_BORDER,
 				data_sink = self.__popup_keywords[kwd]['widget_data_sink']
 			)
-		except StandardError:
+		except Exception:
 			_log.exception('cannot call [%s] on keyword [%s] to create widget' % (create_widget, kwd))
 			gmGuiHelpers.gm_show_error (
 				aMessage = _('Cannot invoke [%s] for keyword [%s].') % (create_widget, kwd),

@@ -944,7 +944,7 @@ class database:
 
 		try:
 			f = io.open(hba_file, mode = 'rt').close()
-		except StandardError:
+		except Exception:
 			_log.exception('cannot check pg_hba.conf for authentication information - not readable')
 			return
 
@@ -1156,7 +1156,7 @@ class database:
 
 		try:
 			os.remove(tmpfile)
-		except StandardError:
+		except Exception:
 			_log.exception('cannot remove audit trail schema file [%s]' % tmpfile)
 		return True
 
@@ -1670,7 +1670,7 @@ if __name__ == "__main__":
 
 	try:
 		main()
-	except StandardError:
+	except Exception:
 		for c in conn_ref_count:
 			if c.closed == 0:
 				print 'closing open connection from:', c.cookie

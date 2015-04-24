@@ -39,7 +39,7 @@ for row in rows:
 	cmd = u"set timezone to '%s'" % tz
 	try:
 		curs.execute(cmd)
-	except StandardError, e:
+	except Exception, e:
 		print "cannot SET time zone to", row
 		curs.close()
 		conn.rollback()
@@ -50,7 +50,7 @@ for row in rows:
 		curs.execute(cmd)
 		curs.fetchone()
 		print "%s (%s / %s / %s) works" % (tz, row[1], row[2], row[3])
-	except StandardError, e:
+	except Exception, e:
 		print "%s (%s / %s / %s) failed in SELECT" % (tz, row[1], row[2], row[3])
 		print " ", e
 

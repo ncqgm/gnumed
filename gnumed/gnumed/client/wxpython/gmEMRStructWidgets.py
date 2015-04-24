@@ -2132,7 +2132,7 @@ if __name__ == '__main__':
 		# lauch emr dialogs test application
 #		app = testapp(0)
 #		app.MainLoop()
-#	except StandardError:
+#	except Exception:
 #		_log.exception("unhandled exception caught !")
 		# but re-raise them
 #		raise

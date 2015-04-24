@@ -239,7 +239,7 @@ if __name__ == '__main__':
 	try:
 		app = TestApp ()
 		app.MainLoop ()
-	except StandardError:
+	except Exception:
 		_log.LogException('Unhandled exception.', sys.exc_info(), fatal=1)
 		raise
 
@@ -264,40 +264,3 @@ else:
 			return 1
 
 #===========================================
-# $Log: gmConfigeditor.py,v $
-# Revision 1.13  2004-02-25 09:46:36  ncq
-# - import from pycommon now, not python-common
-#
-# Revision 1.12  2003/04/16 14:31:26  ncq
-# - renamed some variables
-# - removed one level of option control dicts
-# - make lists/multiline controls work
-#
-# Revision 1.11  2003/04/15 18:41:19  shilbert
-# - now handles options as lists if applicable
-#
-# Revision 1.10  2003/04/15 02:31:13  ncq
-# - some cleanup
-#
-# Revision 1.9  2003/04/14 20:47:04  shilbert
-# - reworked layout, asks for file if none given
-#
-# Revision 1.8  2003/04/14 10:06:07  ncq
-# - manually reworked sizers to make more sense
-#
-# Revision 1.7  2003/04/13 17:42:00  shilbert
-# - typos in panel names fixed
-#
-# Revision 1.6  2003/04/13 17:37:47  shilbert
-#  - now save changes
-#
-# Revision 1.5  2003/04/13 15:08:17  ncq
-# - some cleanup, added comments
-#
-# Revision 1.4  2003/04/12 17:07:17  shilbert
-# complete rewrite
-# converted from static to dynamic
-#
-# Revision 1.3  2003/04/05 00:22:05  shilbert
-# clean up
-#

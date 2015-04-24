@@ -2396,7 +2396,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 
 	try:
 		open(filename, 'r').close()
-	except StandardError:
+	except Exception:
 		_log.exception('problem accessing visual progress note file [%s]', filename)
 		gmGuiHelpers.gm_show_error (
 			_(

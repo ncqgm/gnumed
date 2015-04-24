@@ -1074,7 +1074,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 				}
 		try:
 			open(self.data_date_filename, 'wb').close()
-		except StandardError:
+		except Exception:
 			_log.error('problem querying the MMI drug database for version information')
 			_log.exception('cannot create MMI drug database version file [%s]', self.data_date_filename)
 			self.__data_date = None
@@ -1096,7 +1096,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 
 		try:
 			version_file = io.open(self.data_date_filename, mode = 'rt', encoding = 'utf8')
-		except StandardError:
+		except Exception:
 			_log.error('problem querying the MMI drug database for version information')
 			_log.exception('cannot open MMI drug database version file [%s]', self.data_date_filename)
 			self.__data_date = None

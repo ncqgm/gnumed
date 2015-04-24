@@ -491,7 +491,7 @@ if __name__ == '__main__':
 				patient.cleanup()
 			except:
 				print "error cleaning up patient"
-	except StandardError:
+	except Exception:
 		_log.LogException("unhandled exception caught !", sys.exc_info(), 1)
 		# but re-raise them
 		raise

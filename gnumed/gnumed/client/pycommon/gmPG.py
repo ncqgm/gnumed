@@ -484,7 +484,7 @@ class ConnectionPool:
 		try:
 			# FIXME: eventually use UTF or UTF8 for READONLY connections _only_
 			conn = dbapi.connect(dsn=dsn, client_encoding=(string_encoding, 'strict'), unicode_results=1)
-		except StandardError:
+		except Exception:
 			_log.LogException("database connection failed: DSN = [%s], host:port = [%s]" % (dsn, hostport), sys.exc_info(), verbose = 1)
 			return None
 

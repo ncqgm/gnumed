@@ -95,7 +95,7 @@ def run_report_query(query=None, limit=None, pk_identity=None):
 	try:
 		# read-only for safety reasons
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': wrapped_query}], get_col_idx = True)
-	except StandardError:
+	except Exception:
 		_log.exception('report query failed')
 		gmDispatcher.send('statustext', msg = _('The query failed.'), beep = True)
 		cols = [_('Error')]

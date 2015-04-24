@@ -558,7 +558,7 @@ def log_auth_environment():
 				_log.debug('$PGPASSFILE=%s exists', pgpass_var)
 			else:
 				_log.debug('$PGPASSFILE=%s not found')
-	except StandardError:
+	except Exception:
 		_log.exception('cannot detect .pgpass and or $PGPASSFILE')
 # =======================================================================
 # netadata API

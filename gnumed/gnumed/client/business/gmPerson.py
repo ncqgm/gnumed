@@ -246,7 +246,7 @@ class cDTO_person(object):
 					issuer = ext_id['issuer'],
 					comment = ext_id['comment']
 				)
-			except StandardError:
+			except Exception:
 				_log.exception('cannot import <external ID> from external data source')
 				gmLog2.log_stack_trace()
 
@@ -256,7 +256,7 @@ class cDTO_person(object):
 					comm_medium = comm['channel'],
 					url = comm['url']
 				)
-			except StandardError:
+			except Exception:
 				_log.exception('cannot import <comm channel> from external data source')
 				gmLog2.log_stack_trace()
 
@@ -272,7 +272,7 @@ class cDTO_person(object):
 					region_code = adr['region_code'],
 					country_code = adr['country_code']
 				)
-			except StandardError:
+			except Exception:
 				_log.exception('cannot import <address> from external data source')
 				gmLog2.log_stack_trace()
 

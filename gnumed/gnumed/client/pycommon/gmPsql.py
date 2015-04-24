@@ -151,7 +151,7 @@ class Psql:
 						copyline += 1
 					self.conn.commit ()
 					curs.close ()
-				except StandardError, error:
+				except Exception, error:
 					_log.error(u"%s: %d: %s" % (copyfile, copyline, error))
 					if self.vars['ON_ERROR_STOP']:
 						return 1
@@ -229,7 +229,7 @@ class Psql:
 							else:
 								curs.execute (curr_cmd)
 #								if not transaction_started:
-					except StandardError, error:
+					except Exception, error:
 						_log.debug(curr_cmd)
 						if re.match (r"^NOTICE:.*", str(error)):
 							_log.warning(self.fmt_msg(error))

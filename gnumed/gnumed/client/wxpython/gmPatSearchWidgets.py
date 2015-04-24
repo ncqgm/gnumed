@@ -361,7 +361,7 @@ def load_persons_from_ca_msva():
 		try:
 			# FIXME: potentially return several persons per file
 			msva_dtos = gmCA_MSVA.read_persons_from_msva_file(filename = msva_file)
-		except StandardError:
+		except Exception:
 #			gmGuiHelpers.gm_show_error (
 #				_(
 #				'Cannot load patient from Medical Manager MSVA file\n\n'

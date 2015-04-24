@@ -259,7 +259,7 @@ class cHorstSpaceLayoutMgr(wx.Panel):
 		for plugin_name in plugin_list:
 			try:
 				plugin = gmPlugin.instantiate_plugin('gui', plugin_name)
-			except StandardError:
+			except Exception:
 				continue
 			# not a plugin
 			if not isinstance(plugin, gmPlugin.cNotebookPlugin):
