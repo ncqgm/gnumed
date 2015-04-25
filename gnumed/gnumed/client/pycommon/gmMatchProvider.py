@@ -1,4 +1,5 @@
-"""Base classes for match providers.
+
+__doc__ = """Base classes for match providers.
 
 They are used by business objects to give
 phrasewheels the ability to guess phrases.
@@ -6,16 +7,18 @@ phrasewheels the ability to guess phrases.
 Copyright (C) GNUMed developers
 license: GPL v2 or later
 """
-__version__ = "$Revision: 1.34 $"
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>, I.Haywood <ihaywood@gnu.org>, S.J.Tan <sjtan@bigpond.com>"
 
 # std lib
-import re as regex
+import sys
 import logging
+import re as regex
 import datetime as pydt
 
 
 # GNUmed
+if __name__ == "__main__":
+	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmPG2
 
 
@@ -568,8 +571,7 @@ class cMatchProvider_SQL2(cMatchProvider):
 
 		# none found whatsoever
 		return (False, [])
+
 #================================================================
 if __name__ == '__main__':
 	pass
-
-#================================================================

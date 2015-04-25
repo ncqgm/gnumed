@@ -191,6 +191,12 @@ def run_hook_script(hook=None):
 # ========================================================================
 if __name__ == '__main__':
 
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
 	run_hook_script(hook = 'shutdown-post-GUI')
 	run_hook_script(hook = 'invalid hook')
 

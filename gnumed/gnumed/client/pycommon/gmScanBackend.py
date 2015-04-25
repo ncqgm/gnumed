@@ -1,6 +1,9 @@
 #==================================================
 # GNUmed SANE/TWAIN scanner classes
 #==================================================
+
+from __future__ import print_function
+
 __license__ = "GPL v2 or later"
 __author__ = """Sebastian Hilbert <Sebastian.Hilbert@gmx.net>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"""
 
@@ -499,8 +502,8 @@ if __name__ == '__main__':
 
 		logging.basicConfig(level=logging.DEBUG)
 
-		print "devices:"
-		print get_devices()
+		print("devices:")
+		print(get_devices())
 
 		sys.exit()
 
@@ -512,10 +515,10 @@ if __name__ == '__main__':
 
 		idx = 1
 		for setup in setups:
-			print "scanning page #%s from device [%s]" % (idx, setup['dev'])
+			print("scanning page #%s from device [%s]" % (idx, setup['dev']))
 			idx += 1
 			fnames = acquire_pages_into_files(device = setup['dev'], filename = setup['file'], delay = (idx*5))
 			if fnames is False:
-				print "error, cannot acquire page"
+				print("error, cannot acquire page")
 			else:
-				print " image files:", fnames
+				print(" image files:", fnames)

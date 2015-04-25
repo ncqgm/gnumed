@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
 __doc__ = """GNUmed internetworking tools."""
 
 #===========================================================================
@@ -429,14 +432,14 @@ Subject: gmTools test suite mail
 
 This is a test mail from the gmTools.py module.
 """ % (default_mail_receiver, default_mail_sender)
-		print "mail sending succeeded:", send_mail (
+		print("mail sending succeeded:", send_mail (
 #			sender = 'abc@xyz.123',
 			receiver = [default_mail_receiver, u'karsten.hilbert@gmx.net'],
 			message = msg,
 			auth = {'user': default_mail_sender, 'password': u'gnumed-at-gmx-net'}, # u'gm/bugs/gmx'
 			debug = True,
 			attachments = [[sys.argv[2]]]
-		)
+		))
 	#-----------------------------------------------------------------------
 	def test_check_for_update():
 
@@ -449,9 +452,9 @@ This is a test mail from the gmTools.py module.
 		]
 
 		for test in test_data:
-			print "arguments:", test
+			print("arguments:", test)
 			found, msg = check_for_update(test[0], test[1], test[2], test[3])
-			print msg
+			print(msg)
 
 		return
 	#-----------------------------------------------------------------------
@@ -460,13 +463,13 @@ This is a test mail from the gmTools.py module.
 		#url = 'missing-file.zip'
 		url = 'gmTools.py'
 		dl_name = download_data_pack(url)
-		print url, "->", dl_name
+		print(url, "->", dl_name)
 		unzip_dir = unzip_data_pack(dl_name)
-		print "unzipped into", unzip_dir
+		print("unzipped into", unzip_dir)
 	#-----------------------------------------------------------------------
 	def test_browser():
 		success = open_url_in_browser(sys.argv[2])
-		print success
+		print(success)
 		open_url_in_browser(sys.argv[2], abc=222)
 	#-----------------------------------------------------------------------
 	#test_check_for_update()

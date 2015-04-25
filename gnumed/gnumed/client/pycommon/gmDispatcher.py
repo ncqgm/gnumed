@@ -1,4 +1,7 @@
-"""GNUmed client internal signal handling.
+
+from __future__ import print_function
+
+__doc__ = """GNUmed client internal signal handling.
 
 # this code has been written by Patrick O'Brien <pobrien@orbtech.com>
 # downloaded from http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/87056
@@ -150,13 +153,13 @@ def disconnect(receiver, signal=Any, sender=Any, weak=1):
 		receivers = connections[senderkey][signal]
 	except KeyError:
 		_log.error('no receivers for signal %(sig)s from sender %(sender)s', {'sig': repr(signal), 'sender': sender})
-		print 'DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender)
+		print('DISPATCHER ERROR: no receivers for signal %s from sender %s' % (repr(signal), sender))
 		return
 	try:
 		receivers.remove(receiver)
 	except ValueError:
 		_log.error('receiver [%(rx)s] not connected to signal [%(sig)s] from [%(sender)s]', {'rx': receiver, 'sig': repr(signal), 'sender': sender})
-		print "DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender)
+		print("DISPATCHER ERROR: receiver [%s] not connected to signal [%s] from [%s]" % (receiver, repr(signal), sender))
 	_cleanupConnections(senderkey, signal)
 #---------------------------------------------------------------------
 def send(signal=None, sender=None, **kwds):
@@ -285,7 +288,7 @@ def _call(receiver, **kwds):
 		acceptable_args = fc.co_varnames[0:fc.co_argcount]
 	else:
 		_log.error('<%(rx)s> must be instance, method or function', {'rx': str(receiver)})
-		print 'DISPATCHER ERROR: _call(): <%s> must be instance, method or function' % str(receiver)
+		print('DISPATCHER ERROR: _call(): <%s> must be instance, method or function' % str(receiver))
 	if not (fc.co_flags & 8):
 		# fc does not have a **kwds type parameter, therefore 
 		# remove unacceptable arguments.
@@ -294,7 +297,7 @@ def _call(receiver, **kwds):
 				del kwds[arg]
 
 	if __execute_in_main_thread is None:
-		print 'DISPATCHER problem: no main-thread executor available'
+		print('DISPATCHER problem: no main-thread executor available')
 		return receiver(**kwds)
 
 	# if a cross-thread executor is set

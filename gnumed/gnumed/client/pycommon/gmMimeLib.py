@@ -319,7 +319,7 @@ if __name__ == "__main__":
 		filename = sys.argv[2]
 
 		_get_system_startfile_cmd(filename)
-		print _system_startfile_cmd
-		#print guess_mimetype(filename)
-		#print get_viewer_cmd(guess_mimetype(filename), filename)
-		#print guess_ext_by_mimetype(mimetype=filename)
+		print(_system_startfile_cmd)
+		#print(guess_mimetype(filename))
+		#print(get_viewer_cmd(guess_mimetype(filename), filename))
+		#print(guess_ext_by_mimetype(mimetype=filename))

@@ -1,4 +1,7 @@
-"""GNUmed database object business class.
+
+from __future__ import print_function
+
+__doc__ = """GNUmed database object business class.
 
 Overview
 --------
@@ -687,7 +690,7 @@ def jsonclasshintify(obj):
 		for k in obj.get_fields():
 			t = jsonclasshintify(obj[k])
 			res[k] = t
-		print "props", res, dir(obj)
+		print("props", res, dir(obj))
 		for attribute in dir(obj):
 			if not attribute.startswith("get_"):
 				continue
@@ -731,9 +734,9 @@ if __name__ == '__main__':
 		'data': [-1, 'bogus_data', datetime.datetime.now()]
 	}
 	obj = cTestObj(row=data)
-	#print obj['wrong_field']
-	#print jsonclasshintify(obj)
+	#print(obj['wrong_field'])
+	#print(jsonclasshintify(obj))
 	#obj['wrong_field'] = 1
-	print obj.fields_as_dict()
+	print(obj.fields_as_dict())
 
 #============================================================

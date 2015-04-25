@@ -1,8 +1,10 @@
-"""GNUmed printing."""
-# =======================================================================
+
+from __future__ import print_function
+
+__doc__ = """GNUmed printing."""
+
 __author__  = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
-
 # =======================================================================
 import logging
 import sys
@@ -52,7 +54,7 @@ def print_files(filenames=None, jobtype=None, print_api=None):
 			return False
 
 	if jobtype not in known_printjob_types:
-		print "unregistered print job type <%s>" % jobtype
+		print("unregistered print job type <%s>" % jobtype)
 		_log.warning('print job type "%s" not registered', jobtype)
 
 	if print_api not in external_print_APIs:
@@ -210,13 +212,13 @@ def _print_files_by_gsprint_exe(filenames=None):
 		]
 		_log.debug('printing with %s' % cmd_line)
 		try:
-			gsprint = subprocess.Popen(cmd_line)
+			gsprint_process = subprocess.Popen(cmd_line)
 		except OSError:
 			_log.debug('cannot run <gsprint.exe>')
 			return False
-		gsprint.communicate()
-		if gsprint.returncode != 0:
-			_log.error('<gsprint.exe> returned [%s], failed to print', gsprint.returncode)
+		gsprint_process.communicate()
+		if gsprint_process.returncode != 0:
+			_log.error('<gsprint.exe> returned [%s], failed to print', gsprint_process.returncode)
 			return False
 
 	return True
@@ -355,10 +357,10 @@ if __name__ == '__main__':
 		print_files(filenames = [sys.argv[2], sys.argv[2]], jobtype = u'generic_document', print_api = u'gtklp')
 	#--------------------------------------------------------------------
 	def test_print_files_by_mac_preview():
-		print "testing printing via Mac Preview"
+		print("testing printing via Mac Preview")
 		_print_files_by_mac_preview(filenames = [sys.argv[0]])
 	#--------------------------------------------------------------------
-	print test_print_files()
+	print(test_print_files())
 	#test_print_files_by_gtklp()
 	#test_print_files_by_mac_preview()
 

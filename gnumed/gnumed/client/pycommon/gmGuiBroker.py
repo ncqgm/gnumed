@@ -1,4 +1,7 @@
-"""GNUMed GUI element brokerage
+
+from __future__ import print_function
+
+__doc__ = """GNUmed GUI element brokerage
 
 This module provides wrappers for the equivalent of global
 variables needed for a gnumed GUI client interface
@@ -7,10 +10,7 @@ variables needed for a gnumed GUI client interface
 @version: 0.2
 @copyright: GPL v2 or later
 """
-#-----------------------------------------------------------
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmGuiBroker.py,v $
-# $Id: gmGuiBroker.py,v 1.4 2004-06-20 15:44:28 ncq Exp $
-__version__ = "$Revision: 1.4 $"
+
 __author__ = "H.Herb <hherb@gnumed.net>, H.Berger <Hilmar.Berger@gmx.de>"
 #===========================================================
 if __name__ == '__main__':
@@ -100,99 +100,69 @@ class GuiBroker:
 		return self.addobject(object, key)
 
 #===========================================================
-# you can test this module by invoking it as main program
 if __name__ == "__main__":
-    print '>>> gmGuiBroker.GuiBroker test'
-    test = GuiBroker()
 
-    print '>>> test.addobject("something", 3)'
-    var = test.addobject("something", 3)
-    print var, "\n"
+	import sys
 
-    print '>>> test.addobject("something else without a specified key")'
-    var = test.addobject("something else without a specified key")
-    print var, "\n"
+	if len(sys.argv) < 2:
+		sys.exit()
 
-    print '>>> test.addobject(test)'
-    testreference = test.addobject(test)
-    print testreference, "\n"
+	if sys.argv[1] != u'test':
+		sys.exit()
 
-    print '>>> test.addobject(100, "hundred)'
-    var = test.addobject(100, "hundred")
-    print var, "\n"
+	# you can test this module by invoking it as main program
+	print('>>> gmGuiBroker.GuiBroker test')
+	test = GuiBroker()
 
-    print ">>> test.keylist()"
-    var = test.keylist()
-    print var, "\n"
+	print('>>> test.addobject("something", 3)')
+	var = test.addobject("something", 3)
+	print(var, "\n")
 
-    print ">>> test.valuelist()"
-    var = test.valuelist()
-    print var, "\n"
+	print('>>> test.addobject("something else without a specified key")')
+	var = test.addobject("something else without a specified key")
+	print(var, "\n")
 
-    print ">>> test.itemlist()"
-    var = test.itemlist()
-    print var, "\n"
+	print('>>> test.addobject(test)')
+	testreference = test.addobject(test)
+	print(testreference, "\n")
 
-    print ">>> test[3]"
-    var = test[3]
-    print var, "\n"
+	print('>>> test.addobject(100, "hundred)')
+	var = test.addobject(100, "hundred")
+	print(var, "\n")
 
-    print ">>> test[testreference].getobject('hundred')"
-    var = test[testreference].getobject('hundred')
-    print var, "\n"
+	print(">>> test.keylist()")
+	var = test.keylist()
+	print(var, "\n")
 
-    print ">>> var = test[testreference]"
-    var = test[testreference]
-    print var, "\n"
+	print(">>> test.valuelist()")
+	var = test.valuelist()
+	print(var, "\n")
 
-    print ">>> var = var['hundred']"
-    var = var['hundred']
-    print var, "\n"
+	print(">>> test.itemlist()")
+	var = test.itemlist()
+	print(var, "\n")
 
-    print '>>> try: test.addobject["duplicate key", 3]'
-    print '>>> except KeyError: print "Duplicate keys not allowed!"'
-    try: test["duplicate key", 3]
-    except KeyError: print "Duplicate keys not allowed!"
+	print(">>> test[3]")
+	var = test[3]
+	print(var, "\n")
 
-    print ">>> test['key']='value'"
-    test['key']='value'
-    print test['key']
+	print(">>> test[testreference].getobject('hundred')")
+	var = test[testreference].getobject('hundred')
+	print(var, "\n")
 
-#===========================================================
-# $Log: gmGuiBroker.py,v $
-# Revision 1.4  2004-06-20 15:44:28  ncq
-# - we need to be more careful in pleasing epydoc
-#
-# Revision 1.3  2004/06/20 06:49:21  ihaywood
-# changes required due to Epydoc's OCD
-#
-# Revision 1.2  2004/03/10 00:14:04  ncq
-# - fix imports
-#
-# Revision 1.1  2004/02/25 09:30:13  ncq
-# - moved here from python-common
-#
-# Revision 1.8  2003/11/17 10:56:36  sjtan
-#
-# synced and commiting.
-#
-# Revision 1.1  2003/10/23 06:02:39  sjtan
-#
-# manual edit areas modelled after r.terry's specs.
-#
-# Revision 1.7  2003/02/09 11:48:59  ncq
-# - just some silly cvs keyword
-#
-# Revision 1.6  2003/02/09 09:41:57  sjtan
-#
-# clean up new code, make it less intrusive.
-#
-# Revision 1.5  2003/01/16 14:45:03  ncq
-# - debianized
-#
-# Revision 1.4  2003/01/12 00:20:04  ncq
-# - fixed __author__
-#
-# Revision 1.3  2003/01/12 00:17:44  ncq
-# - fixed typo, added CVS keywords
-#
+	print(">>> var = test[testreference]")
+	var = test[testreference]
+	print(var, "\n")
+
+	print(">>> var = var['hundred']")
+	var = var['hundred']
+	print(var, "\n")
+
+	print('>>> try: test.addobject["duplicate key", 3]')
+	print('>>> except KeyError: print("Duplicate keys not allowed!"')
+	try: test["duplicate key", 3]
+	except KeyError: print("Duplicate keys not allowed!")
+
+	print(">>> test['key']='value'")
+	test['key']='value'
+	print(test['key'])

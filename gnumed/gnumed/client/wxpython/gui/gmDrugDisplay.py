@@ -526,7 +526,7 @@ class DrugDisplay(wx.Panel):
 
 	# handler implementations for DrugDisplay
 
-	def OnPrint (self, event):
+	def OnPrint(self, event):
 		"""
 		If product info is available, print it.
 		"""

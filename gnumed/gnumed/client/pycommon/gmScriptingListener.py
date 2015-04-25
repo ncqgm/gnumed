@@ -108,7 +108,7 @@ class cScriptingListener:
 				try:
 					self._server.handle_request()
 				except:
-					print "cannot serve RPC"
+					print("cannot serve RPC")
 					break
 				if self._quit_lock.acquire(0):
 					break

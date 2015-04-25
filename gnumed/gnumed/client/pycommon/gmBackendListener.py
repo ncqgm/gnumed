@@ -1,4 +1,7 @@
-"""GNUmed database backend listener.
+
+from __future__ import print_function
+
+__doc__ = """GNUmed database backend listener.
 
 This module implements threaded listening for asynchronuous
 notifications from the database backend.
@@ -97,7 +100,7 @@ class gmBackendListener(gmBorg.cBorg):
 			except:
 				pass
 		except:
-			print sys.exc_info()
+			print(sys.exc_info())
 
 		self._listener_thread = None
 
@@ -216,7 +219,7 @@ class gmBackendListener(gmBorg.cBorg):
 					self._conn_lock.release()
 				self.__notifications_received += 1
 				if self.debug:
-					print notification
+					print(notification)
 				_log.debug('#%s: %s', self.__notifications_received, notification)
 				# decode payload
 				payload = notification.payload.split(u'::')
@@ -254,8 +257,8 @@ class gmBackendListener(gmBorg.cBorg):
 						notification_index = self.__notifications_received
 					)
 				except:
-					print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.channel, notification.pid)
-					print sys.exc_info()
+					print("problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (notification.channel, notification.pid))
+					print(sys.exc_info())
 				# 2) dynamically emulated old style table specific signals
 				if table is not None:
 					self.__messages_sent += 1
@@ -276,8 +279,8 @@ class gmBackendListener(gmBorg.cBorg):
 							notification_index = self.__notifications_received
 						)
 					except:
-						print "problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (signal, notification.pid)
-						print sys.exc_info()
+						print("problem routing notification [%s] from backend [%s] to intra-client dispatcher" % (signal, notification.pid))
+						print(sys.exc_info())
 
 				# there *may* be more pending notifications but
 				# we don't care when quitting
@@ -317,16 +320,16 @@ if __name__ == "__main__":
 			global notifies
 			notifies += 1
 			sys.stdout.flush()
-			print "\nBackend says: patient data has been modified (%s. notification)" % notifies
+			print("\nBackend says: patient data has been modified (%s. notification)" % notifies)
 		#-------------------------------
 		try:
 			n = int(sys.argv[2])
 		except:
-			print "You can set the number of iterations\nwith the second command line argument"
+			print("You can set the number of iterations\nwith the second command line argument")
 			n = 100000
 
 		# try loop without backend listener
-		print "Looping", n, "times through dummy function"
+		print("Looping", n, "times through dummy function")
 		i = 0
 		t1 = time.time()
 		while i < n:
@@ -334,21 +337,21 @@ if __name__ == "__main__":
 			i += 1
 		t2 = time.time()
 		t_nothreads = t2-t1
-		print "Without backend thread, it took", t_nothreads, "seconds"
+		print("Without backend thread, it took", t_nothreads, "seconds")
 
 		listener = gmBackendListener(conn = gmPG2.get_raw_connection())
 
 		# now try with listener to measure impact
-		print "Now in a new shell connect psql to the"
-		print "database <gnumed_v9> on localhost, return"
-		print "here and hit <enter> to continue."
+		print("Now in a new shell connect psql to the")
+		print("database <gnumed_v9> on localhost, return")
+		print("here and hit <enter> to continue.")
 		raw_input('hit <enter> when done starting psql')
-		print "You now have about 30 seconds to go"
-		print "to the psql shell and type"
-		print " notify patient_changed<enter>"
-		print "several times."
-		print "This should trigger our backend listening callback."
-		print "You can also try to stop the demo with Ctrl-C !"
+		print("You now have about 30 seconds to go")
+		print("to the psql shell and type")
+		print(" notify patient_changed<enter>")
+		print("several times.")
+		print("This should trigger our backend listening callback.")
+		print("You can also try to stop the demo with Ctrl-C !")
 
 		listener.register_callback('patient_changed', OnPatientModified)
 
@@ -358,8 +361,8 @@ if __name__ == "__main__":
 				counter += 1
 				time.sleep(1)
 				sys.stdout.flush()
-				print '.',
-			print "Looping",n,"times through dummy function"
+				print('.', end=' ')
+			print("Looping",n,"times through dummy function")
 			i = 0
 			t1 = time.time()
 			while i < n:
@@ -367,49 +370,49 @@ if __name__ == "__main__":
 				i += 1
 			t2 = time.time()
 			t_threaded = t2-t1
-			print "With backend thread, it took", t_threaded, "seconds"
-			print "Difference:", t_threaded-t_nothreads
+			print("With backend thread, it took", t_threaded, "seconds")
+			print("Difference:", t_threaded-t_nothreads)
 		except KeyboardInterrupt:
-			print "cancelled by user"
+			print("cancelled by user")
 
 		listener.shutdown()
 		listener.unregister_callback('patient_changed', OnPatientModified)
 	#-------------------------------
 	def run_monitor():
 
-		print "starting up backend notifications monitor"
+		print("starting up backend notifications monitor")
 
 		def monitoring_callback(*args, **kwargs):
 			try:
 				kwargs['originated_in_database']
-				print '==> got notification from database "%s":' % kwargs['signal']
+				print('==> got notification from database "%s":' % kwargs['signal'])
 			except KeyError:
-				print '==> received signal from client: "%s"' % kwargs['signal']
+				print('==> received signal from client: "%s"' % kwargs['signal'])
 			del kwargs['signal']
 			for key in kwargs.keys():
-				print '    [%s]: %s' % (key, kwargs[key])
+				print('    [%s]: %s' % (key, kwargs[key]))
 
 		gmDispatcher.connect(receiver = monitoring_callback)
 
 		listener = gmBackendListener(conn = gmPG2.get_raw_connection())
-		print "listening for the following notifications:"
-		print "1) unspecific:"
+		print("listening for the following notifications:")
+		print("1) unspecific:")
 		for sig in listener.unspecific_notifications:
-			print '   - %s' % sig
+			print('   - %s' % sig)
 
 		while True:
 			pat = gmPersonSearch.ask_for_patient()
 			if pat is None:
 				break
-			print "found patient", pat
+			print("found patient", pat)
 			gmPerson.set_active_patient(patient=pat)
-			print "now waiting for notifications, hit <ENTER> to select another patient"
+			print("now waiting for notifications, hit <ENTER> to select another patient")
 			raw_input()
 
-		print "cleanup"
+		print("cleanup")
 		listener.shutdown()
 
-		print "shutting down backend notifications monitor"
+		print("shutting down backend notifications monitor")
 
 	#-------------------------------
 	if sys.argv[1] == 'monitor':

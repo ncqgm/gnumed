@@ -51,18 +51,18 @@ try:
 	import wx
 	_log.info('wxPython version loaded: %s %s' % (wx.VERSION_STRING, wx.PlatformInfo))
 except ImportError:
-	print ('GNUmed startup: Cannot import wxPython library.')
-	print ('GNUmed startup: Make sure wxPython is installed.')
-	print ('CRITICAL ERROR: Error importing wxPython. Halted.')
+	print('GNUmed startup: Cannot import wxPython library.')
+	print('GNUmed startup: Make sure wxPython is installed.')
+	print('CRITICAL ERROR: Error importing wxPython. Halted.')
 	raise
 
 # do this check just in case, so we can make sure
 # py2exe and friends include the proper version, too
 version = int(u'%s%s' % (wx.MAJOR_VERSION, wx.MINOR_VERSION))
 if (version < 28) or ('unicode' not in wx.PlatformInfo):
-	print ('GNUmed startup: Unsupported wxPython version (%s: %s).' % (wx.VERSION_STRING, wx.PlatformInfo))
-	print ('GNUmed startup: wxPython 2.8+ with unicode support is required.')
-	print ('CRITICAL ERROR: Proper wxPython version not found. Halted.')
+	print('GNUmed startup: Unsupported wxPython version (%s: %s).' % (wx.VERSION_STRING, wx.PlatformInfo))
+	print('GNUmed startup: wxPython 2.8+ with unicode support is required.')
+	print('CRITICAL ERROR: Proper wxPython version not found. Halted.')
 	raise ValueError('wxPython 2.8+ with unicode support not found')
 
 
@@ -1041,7 +1041,7 @@ class gmTopLevelFrame(wx.Frame):
 		_log.warning('unhandled event detected: QUERY_END_SESSION')
 		_log.info('we should be saving ourselves from here')
 		gmLog2.flush()
-		print ('unhandled event detected: QUERY_END_SESSION')
+		print('unhandled event detected: QUERY_END_SESSION')
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -1049,7 +1049,7 @@ class gmTopLevelFrame(wx.Frame):
 		wx.Bell()
 		_log.warning('unhandled event detected: END_SESSION')
 		gmLog2.flush()
-		print ('unhandled event detected: END_SESSION')
+		print('unhandled event detected: END_SESSION')
 	#-----------------------------------------------
 	def _register_pre_exit_callback(self, callback=None):
 		if not callable(callback):
@@ -2402,7 +2402,7 @@ class gmTopLevelFrame(wx.Frame):
 #		from Gnumed.business import gmClinicalCalculator
 #		calc = gmClinicalCalculator.cClinicalCalculator(patient = gmPerson.gmCurrentPatient())
 #		result = calc.eGFR_CKD_EPI
-#		print (u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True, with_hints = True))
+#		print(u'%s' % result.format(with_formula = True, with_warnings = True, with_variables = True, with_sub_results = True, with_hints = True))
 #		return
 		gmMeasurementWidgets.show_hl7_file(parent = self)
 	#----------------------------------------------
@@ -2975,8 +2975,8 @@ class gmTopLevelFrame(wx.Frame):
 			try:
 				call_back()
 			except:
-				print ('*** pre-exit callback failed ***')
-				print ('%s' % call_back)
+				print('*** pre-exit callback failed ***')
+				print('%s' % call_back)
 				_log.exception('callback [%s] failed', call_back)
 
 		# signal imminent demise to plugins
@@ -3004,14 +3004,14 @@ class gmTopLevelFrame(wx.Frame):
 			_log.exception('cannot save current client window size')
 
 		if _cfg.get(option = 'debug'):
-			print ('---=== GNUmed shutdown ===---')
+			print('---=== GNUmed shutdown ===---')
 			try:
-				print (_('You have to manually close this window to finalize shutting down GNUmed.'))
-				print (_('This is so that you can inspect the console output at your leisure.'))
+				print(_('You have to manually close this window to finalize shutting down GNUmed.'))
+				print(_('This is so that you can inspect the console output at your leisure.'))
 			except UnicodeEncodeError:
-				print ('You have to manually close this window to finalize shutting down GNUmed.')
-				print ('This is so that you can inspect the console output at your leisure.')
-			print ('---=== GNUmed shutdown ===---')
+				print('You have to manually close this window to finalize shutting down GNUmed.')
+				print('This is so that you can inspect the console output at your leisure.')
+			print('---=== GNUmed shutdown ===---')
 
 		# shutdown GUI exception handling
 		gmExceptionHandlingWidgets.uninstall_wx_exception_handler()
@@ -3225,9 +3225,9 @@ class gmApp(wx.App):
 			self.SetOutputWindowAttributes(title = _('GNUmed stdout/stderr window'))
 			# print this so people know what this window is for
 			# and don't get suprised when it pops up later
-			print ('---=== GNUmed startup ===---')
-			print (_('redirecting STDOUT/STDERR to this log window'))
-			print ('---=== GNUmed startup ===---')
+			print('---=== GNUmed startup ===---')
+			print(_('redirecting STDOUT/STDERR to this log window'))
+			print('---=== GNUmed startup ===---')
 
 		self.__setup_user_activity_timer()
 		self.__register_events()
@@ -3269,7 +3269,7 @@ class gmApp(wx.App):
 		_log.warning('unhandled event detected: QUERY_END_SESSION')
 		_log.info('we should be saving ourselves from here')
 		gmLog2.flush()
-		print ('unhandled event detected: QUERY_END_SESSION')
+		print('unhandled event detected: QUERY_END_SESSION')
 	#----------------------------------------------
 	def _on_end_session(self, *args, **kwargs):
 		wx.Bell()
@@ -3277,7 +3277,7 @@ class gmApp(wx.App):
 		wx.Bell()
 		_log.warning('unhandled event detected: END_SESSION')
 		gmLog2.flush()
-		print ('unhandled event detected: END_SESSION')
+		print('unhandled event detected: END_SESSION')
 	#----------------------------------------------
 	def _on_app_activated(self, evt):
 		if evt.GetActive():
@@ -3302,7 +3302,7 @@ class gmApp(wx.App):
 			self.elapsed_inactivity_slices += 1
 		else:
 			if self.elapsed_inactivity_slices >= self.max_user_inactivity_slices:
-#				print ("User was inactive for 30 seconds.")
+#				print("User was inactive for 30 seconds.")
 				pass
 
 		self.user_activity_timer.Start(oneShot = True)
@@ -3691,15 +3691,15 @@ class gmApp(wx.App):
 def _signal_debugging_monitor(*args, **kwargs):
 	try:
 		kwargs['originated_in_database']
-		print ('==> got notification from database "%s":' % kwargs['signal'])
+		print('==> got notification from database "%s":' % kwargs['signal'])
 	except KeyError:
-		print ('==> received signal from client: "%s"' % kwargs['signal'])
+		print('==> received signal from client: "%s"' % kwargs['signal'])
 
 	del kwargs['signal']
 	for key in kwargs:
 		# careful because of possibly limited console output encoding
-		try: print ('    [%s]: %s' % (key, kwargs[key]))
-		except: print ('cannot print signal information')
+		try: print('    [%s]: %s' % (key, kwargs[key]))
+		except: print('cannot print signal information')
 
 #==============================================================================
 def _safe_wxEndBusyCursor():
@@ -3710,7 +3710,7 @@ def setup_safe_wxEndBusyCursor():
 	# monkey patch wxPython, needed on Windows ...
 	if os.name != 'nt':
 		return
-	print ('GNUmed startup: Monkey patching wx.EndBusyCursor...')
+	print('GNUmed startup: Monkey patching wx.EndBusyCursor...')
 	global _original_wxEndBusyCursor
 	_original_wxEndBusyCursor = wx.EndBusyCursor
 	wx.EndBusyCursor = _safe_wxEndBusyCursor

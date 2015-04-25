@@ -441,7 +441,7 @@ def __request_login_params_gui_wx():
 	# OK, wxPython was already loaded. But has the main Application instance
 	# been initialized yet ? if not, the exception will kick us out
 	if wx.GetApp() is None:
-		raise gmExceptions.NoGuiError(_("The wxPython GUI framework hasn't been initialized yet!"))
+		raise AssertionError(_("The wxPython GUI framework hasn't been initialized yet!"))
 
 	# Let's launch the login dialog
 	# if wx was not initialized /no main App loop, an exception should be raised anyway

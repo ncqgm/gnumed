@@ -76,7 +76,7 @@ class BasePlugin:
 		register(). The instance returned is the
 		active object for event handling purposes.
 		"""
-		raise gmExceptions.PureVirtualFunction()
+		raise AttributeError('no such patient plugin - GetWidget')
 	#-----------------------------------------------------
 	def MenuInfo (self):
 		"""Return tuple of (menuname, menuitem).
@@ -90,12 +90,12 @@ class BasePlugin:
 		If you return "None" no entry will be placed
 		in any menu.
 		"""
-		raise gmExceptions.PureVirtualFunction()
+		raise AttributeError('no such patient plugin - MenuInfo')
 	#-----------------------------------------------------
 	def Raise (self):
 		"""Raises this plugin to the top level if not visible.
 		"""
-		raise gmExceptions.PureVirtualFunction()
+		raise AttributeError('no such patient plugin - Raise')
 	#-----------------------------------------------------
 	def ReceiveFocus(self):
 		"""Called whenever this module receives focus and is thus shown onscreen.

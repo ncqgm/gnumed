@@ -400,6 +400,8 @@ class cGenericEditAreaDlg2(wxgGenericEditAreaDlg2.wxgGenericEditAreaDlg2):
 		self._BTN_extra_left.Show()
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
+
+
 #====================================================================
 #====================================================================
 #====================================================================
@@ -618,7 +620,7 @@ class cEditArea2(wx.Panel):
 			else:
 				self._save_modified_entry()
 				self.reset_ui()
-		except gmExceptions.InvalidInputError, err:
+		except Exception as err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
 			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
@@ -1016,7 +1018,7 @@ class cEditArea(wx.Panel):
 			else:
 				self._save_modified_entry()
 				self.set_data()
-		except gmExceptions.InvalidInputError, err:
+		except Exception as err:
 			# nasty evil popup dialogue box
 			# but for invalid input we want to interrupt user
 			gmGuiHelpers.gm_show_error (err, _("Invalid Input"))
@@ -1637,16 +1639,16 @@ class gmReferralEditArea(gmEditArea):
 		We are always saving a "new entry" here because data_ID is always None
 		"""
 		if not self.recipient:
-			raise gmExceptions.InvalidInputError(_('must have a recipient'))
+			raise UserWarning(_('must have a recipient'))
 		if self.fld_address.GetSelection() == -1:
-			raise gmExceptions.InvalidInputError(_('must select address'))
+			raise UserWarning(_('must select address'))
 		channel, addr = self.fld_address.GetClientData (self.fld_address.GetSelection())
 		text = self.fld_text.GetValue()
 		flags = {}
 		flags['meds'] = self.fld_med.GetValue()
 		flags['pasthx'] = self.fld_past.GetValue()
 		if not gmReferral.create_referral (self._patient, self.recipient, channel, addr, text, flags):
-			raise gmExceptions.InvalidInputError('error sending form')
+			raise UserWarning('error sending form')
 
 #====================================================================
 #====================================================================

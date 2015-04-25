@@ -1000,7 +1000,7 @@ class magicTest:
 			elif self.type == 'belong':
 				[data] = struct.unpack('>l', data[self.offset : self.offset + 4])
 			else:
-				#print 'UNKNOWN TYPE: ' + self.type
+				#print('UNKNOWN TYPE: ' + self.type)
 				pass
 		except:
 			return None
@@ -1037,11 +1037,11 @@ def load(file):
 				l = last[level - 1].subTests
 			if offset[0] == '(':
 				# don't handle indirect offsets just yet
-				print 'SKIPPING ' + string.join(list(line[3:]))
+				print('SKIPPING ' + string.join(list(line[3:])))
 				pass
 			elif offset[0] == '&':
 				# don't handle relative offsets just yet
-				print 'SKIPPING ' + string.join(list(line[3:]))
+				print('SKIPPING ' + string.join(list(line[3:])))
 				pass
 			else:
 				operands = ['=', '<', '>', '&']
@@ -1069,7 +1069,7 @@ def load(file):
 				else:
 					if value.count('&') != 0:
 						mask = value[(value.index('&') + 1):]
-						print 'MASK: ' + mask
+						print('MASK: ' + mask)
 						value = value[:(value.index('&')+1)]
 					try: value = strToNum(value)
 					except: continue

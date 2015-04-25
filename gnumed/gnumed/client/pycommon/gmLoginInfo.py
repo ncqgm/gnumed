@@ -154,4 +154,13 @@ class LoginInfo:
 
 #====================================================================
 if __name__ == "__main__" :
-	print "Please somebody write a module test function here!"
+
+	import sys
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != u'test':
+		sys.exit()
+
+	print("Please somebody write a module test function here!")

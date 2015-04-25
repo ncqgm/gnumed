@@ -302,7 +302,7 @@ def __get_logfile_name():
 	dir_name = os.path.expanduser(os.path.join('~', '.gnumed', 'logs', def_log_basename))
 	try:
 		os.makedirs(dir_name)
-	except OSError, e:
+	except OSError as e:
 		if (e.errno == 17) and not os.path.isdir(dir_name):
 			raise
 

@@ -41,8 +41,6 @@ Karsten Hilbert
 July 2004
 """
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.6 $"
 __author__ = "Dinu C. Gherman"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -63,8 +61,8 @@ class cNull:
 	"""
 	_warn = 0
 
-	# object constructing
-	
+	# object construction
+
 	def __init__(self, *args, **kwargs):
 		"Ignore parameters."
 		try:
@@ -78,7 +76,7 @@ class cNull:
 	def __call__(self, *args, **kwargs):
 		"Ignore method calls."
 		if cNull._warn:
-			print "cNull.__call__()"
+			print("cNull.__call__()")
 		return self
 
 	# attribute handling
@@ -86,19 +84,19 @@ class cNull:
 	def __getattr__(self, mname):
 		"Ignore attribute requests."
 		if cNull._warn:
-			print "cNull.__getattr__()"
+			print("cNull.__getattr__()")
 		return self
 
 	def __setattr__(self, name, value):
 		"Ignore attribute setting."
 		if cNull._warn:
-			print "cNull.__setattr__()"
+			print("cNull.__setattr__()")
 		return self
 
 	def __delattr__(self, name):
 		"Ignore deleting attributes."
 		if cNull._warn:
-			print "cNull.__delattr__()"
+			print("cNull.__delattr__()")
 		return self
 
 	# misc.
@@ -106,24 +104,24 @@ class cNull:
 	def __repr__(self):
 		"Return a string representation."
 		if cNull._warn:
-			print "cNull.__repr__()"
+			print("cNull.__repr__()")
 		return "<cNull instance @ %s>" % id(self)
 
 	def __str__(self):
 		"Convert to a string and return it."
 		if cNull._warn:
-			print "cNull.__str__()"
+			print("cNull.__str__()")
 		return "cNull instance"
 
 	def __nonzero__(self):
 		if cNull._warn:
-			print "cNull.__nonzero__()"
+			print("cNull.__nonzero__()")
 		return 0
-        
+
 	def __len__(self):
 		if cNull._warn:
-			print "cNull.__len__()"
-		return 0        
+			print("cNull.__len__()")
+		return 0
 
 #==============================================================
 def test():
@@ -164,32 +162,18 @@ def test():
 
 	# comparing
 	if n == 1:
-		print "Null object == 1"
+		print("Null object == 1")
 	else:
-		print "Null object != 1"
+		print("Null object != 1")
 #--------------------------------------------------------------
 if __name__ == '__main__':
-	test()
 
-#==============================================================
-# $Log: gmNull.py,v $
-# Revision 1.6  2005-06-28 14:12:55  cfmoro
-# Integration in space fixes
-#
-# Revision 1.5  2004/12/22 08:40:01  ncq
-# - make output more obvious
-#
-# Revision 1.4  2004/11/24 15:49:11  ncq
-# - use 0/1 not False/True so we can run on older pythons
-#
-# Revision 1.3  2004/08/20 08:38:47  ncq
-# - robustify while working on allowing inactive patient after search
-#
-# Revision 1.2  2004/07/21 07:51:47  ncq
-# - tabified
-# - __nonzero__ added
-# - if keyword argument 'warn' is True: warn on use of Null class
-#
-# Revision 1.1	2004/07/06 00:08:31	 ncq
-# - null design pattern from python cookbook
-#
+	import sys
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	test()

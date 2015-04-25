@@ -824,6 +824,7 @@ FROM (
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
+
 #============================================================
 def create_health_issue(description=None, encounter=None, patient=None):
 	"""Creates a new health issue for a given patient.
@@ -847,19 +848,22 @@ def create_health_issue(description=None, encounter=None, patient=None):
 	h_issue = cHealthIssue(aPK_obj = rows[0][0])
 
 	return h_issue
+
 #-----------------------------------------------------------
 def delete_health_issue(health_issue=None):
 	if isinstance(health_issue, cHealthIssue):
-		pk = health_issue['pk_health_issue']
+		args = {'pk': health_issue['pk_health_issue']}
 	else:
-		pk = int(health_issue)
-
+		args = {'pk': int(health_issue)}
 	try:
-		gmPG2.run_rw_queries(queries = [{'cmd': u'delete from clin.health_issue where pk=%(pk)s', 'args': {'pk': pk}}])
+		gmPG2.run_rw_queries(queries = [{'cmd': u'DELETE FROM clin.health_issue WHERE pk = %(pk)s', 'args': args}])
 	except gmPG2.dbapi.IntegrityError:
 		# should be parsing pgcode/and or error message
 		_log.exception('cannot delete health issue')
-		raise gmExceptions.DatabaseObjectInUseError('cannot delete health issue, it is in use')
+		return False
+
+	return True
+
 #------------------------------------------------------------
 # use as dummy for unassociated episodes
 def get_dummy_health_issue():
@@ -876,6 +880,7 @@ def get_dummy_health_issue():
 		'grouping': None
 	}
 	return issue
+
 #-----------------------------------------------------------
 def health_issue2problem(health_issue=None, allow_irrelevant=False):
 	return cProblem (

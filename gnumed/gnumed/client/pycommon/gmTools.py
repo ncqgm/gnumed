@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+from __future__ import print_function
+
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
@@ -27,12 +30,8 @@ import xml.sax.saxutils as xml_tools
 
 # GNUmed libs
 if __name__ == '__main__':
-	# for testing:
-	logging.basicConfig(level = logging.DEBUG)
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmI18N
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+
 
 from Gnumed.pycommon import gmBorg
 
@@ -108,11 +107,11 @@ u_link_symbol = u'\u1f517'
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
-	print ".========================================================"
-	print "| Unhandled exception caught !"
-	print "| Type :", t
-	print "| Value:", v
-	print "`========================================================"
+	print(".========================================================")
+	print("| Unhandled exception caught !")
+	print("| Type :", t)
+	print("| Value:", v)
+	print("`========================================================")
 	_log.critical('unhandled exception caught', exc_info = (t,v,tb))
 	sys.__excepthook__(t,v,tb)
 #===========================================================================
@@ -736,7 +735,7 @@ def capitalize(text=None, mode=CAPS_NAMES):
 		#return regex.sub(r'\w+', __cap_name, text)
 		return capitalize(text=text, mode=CAPS_FIRST)		# until fixed
 
-	print "ERROR: invalid capitalization mode: [%s], leaving input as is" % mode
+	print("ERROR: invalid capitalization mode: [%s], leaving input as is" % mode)
 	return text
 #---------------------------------------------------------------------------
 def input2decimal(initial=None):
@@ -1014,6 +1013,12 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	# for testing:
+	logging.basicConfig(level = logging.DEBUG)
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain()
+
 	#-----------------------------------------------------------------------
 	def test_input2decimal():
 
@@ -1064,27 +1069,27 @@ if __name__ == '__main__':
 					if result == test[2]:
 						continue
 					else:
-						print "ERROR (conversion result wrong): >%s<, expected >%s<, got >%s<" % (test[0], test[2], result)
+						print("ERROR (conversion result wrong): >%s<, expected >%s<, got >%s<" % (test[0], test[2], result))
 				else:
-					print "ERROR (conversion worked but was expected to fail): >%s<, got >%s<" % (test[0], result)
+					print("ERROR (conversion worked but was expected to fail): >%s<, got >%s<" % (test[0], result))
 			else:
 				if not expected2work:
 					continue
 				else:
-					print "ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2])
+					print("ERROR (conversion failed but was expected to work): >%s<, expected >%s<" % (test[0], test[2]))
 	#-----------------------------------------------------------------------
 	def test_input2int():
-		print input2int(0)
-		print input2int('0')
-		print input2int(u'0', 0, 0)
+		print(input2int(0))
+		print(input2int('0'))
+		print(input2int(u'0', 0, 0))
 	#-----------------------------------------------------------------------
 	def test_coalesce():
 
 		import datetime as dt
-		print coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d'))
+		print(coalesce(initial = dt.datetime.now(), template_initial = u'-- %s --', function_initial = ('strftime', u'%Y-%m-%d')))
 
-		print 'testing coalesce()'
-		print "------------------"
+		print('testing coalesce()')
+		print("------------------")
 		tests = [
 			[None, 'something other than <None>', None, None, 'something other than <None>'],
 			['Captain', 'Mr.', '%s.'[:4], 'Mr.', 'Capt.'],
@@ -1102,20 +1107,20 @@ if __name__ == '__main__':
 				template_instead = test[3]
 			)
 			if result != test[4]:
-				print "ERROR"
-				print "coalesce: (%s, %s, %s, %s)" % (test[0], test[1], test[2], test[3])
-				print "expected:", test[4]
-				print "received:", result
+				print("ERROR")
+				print("coalesce: (%s, %s, %s, %s)" % (test[0], test[1], test[2], test[3]))
+				print("expected:", test[4])
+				print("received:", result)
 				passed = False
 
 		if passed:
-			print "passed"
+			print("passed")
 		else:
-			print "failed"
+			print("failed")
 		return passed
 	#-----------------------------------------------------------------------
 	def test_capitalize():
-		print 'testing capitalize() ...'
+		print('testing capitalize() ...')
 		success = True
 		pairs = [
 			# [original, expected result, CAPS mode]
@@ -1139,45 +1144,45 @@ if __name__ == '__main__':
 			result = capitalize(pair[0], pair[2])
 			if result != pair[1]:
 				success = False
-				print 'ERROR (caps mode %s): "%s" -> "%s", expected "%s"' % (pair[2], pair[0], result, pair[1])
+				print('ERROR (caps mode %s): "%s" -> "%s", expected "%s"' % (pair[2], pair[0], result, pair[1]))
 
 		if success:
-			print "... SUCCESS"
+			print("... SUCCESS")
 
 		return success
 	#-----------------------------------------------------------------------
 	def test_import_module():
-		print "testing import_module_from_directory()"
+		print("testing import_module_from_directory()")
 		path = sys.argv[1]
 		name = sys.argv[2]
 		try:
 			mod = import_module_from_directory(module_path = path, module_name = name)
 		except:
-			print "module import failed, see log"
+			print("module import failed, see log")
 			return False
 
-		print "module import succeeded", mod
-		print dir(mod)
+		print("module import succeeded", mod)
+		print(dir(mod))
 		return True
 	#-----------------------------------------------------------------------
 	def test_mkdir():
-		print "testing mkdir()"
+		print("testing mkdir(%s)" % sys.argv[1])
 		mkdir(sys.argv[1])
 	#-----------------------------------------------------------------------
 	def test_gmPaths():
-		print "testing gmPaths()"
-		print "-----------------"
+		print("testing gmPaths()")
+		print("-----------------")
 		paths = gmPaths(wx=None, app_name='gnumed')
-		print "user     config dir:", paths.user_config_dir
-		print "system   config dir:", paths.system_config_dir
-		print "local      base dir:", paths.local_base_dir
-		print "system app data dir:", paths.system_app_data_dir
-		print "working directory  :", paths.working_dir
-		print "temp directory     :", paths.tmp_dir
+		print("user     config dir:", paths.user_config_dir)
+		print("system   config dir:", paths.system_config_dir)
+		print("local      base dir:", paths.local_base_dir)
+		print("system app data dir:", paths.system_app_data_dir)
+		print("working directory  :", paths.working_dir)
+		print("temp directory     :", paths.tmp_dir)
 	#-----------------------------------------------------------------------
 	def test_none_if():
-		print "testing none_if()"
-		print "-----------------"
+		print("testing none_if()")
+		print("-----------------")
 		tests = [
 			[None, None, None],
 			['a', 'a', None],
@@ -1192,7 +1197,7 @@ if __name__ == '__main__':
 
 		for test in tests:
 			if none_if(value = test[0], none_equivalent = test[1]) != test[2]:
-				print 'ERROR: none_if(%s) returned [%s], expected [%s]' % (test[0], none_if(test[0], test[1]), test[2])
+				print('ERROR: none_if(%s) returned [%s], expected [%s]' % (test[0], none_if(test[0], test[1]), test[2]))
 
 		return True
 	#-----------------------------------------------------------------------
@@ -1203,29 +1208,29 @@ if __name__ == '__main__':
 		]
 		for test in tests:
 			if bool2str(test[0], test[1], test[2]) != test[3]:
-				print 'ERROR: bool2str(%s, %s, %s) returned [%s], expected [%s]' % (test[0], test[1], test[2], bool2str(test[0], test[1], test[2]), test[3])
+				print('ERROR: bool2str(%s, %s, %s) returned [%s], expected [%s]' % (test[0], test[1], test[2], bool2str(test[0], test[1], test[2]), test[3]))
 
 		return True
 	#-----------------------------------------------------------------------
 	def test_bool2subst():
 
-		print bool2subst(True, 'True', 'False', 'is None')
-		print bool2subst(False, 'True', 'False', 'is None')
-		print bool2subst(None, 'True', 'False', 'is None')
+		print(bool2subst(True, 'True', 'False', 'is None'))
+		print(bool2subst(False, 'True', 'False', 'is None'))
+		print(bool2subst(None, 'True', 'False', 'is None'))
 	#-----------------------------------------------------------------------
 	def test_get_unique_filename():
-		print get_unique_filename()
-		print get_unique_filename(prefix='test-')
-		print get_unique_filename(suffix='tst')
-		print get_unique_filename(prefix='test-', suffix='tst')
-		print get_unique_filename(tmp_dir='/home/ncq/Archiv/')
+		print(get_unique_filename())
+		print(get_unique_filename(prefix='test-'))
+		print(get_unique_filename(suffix='tst'))
+		print(get_unique_filename(prefix='test-', suffix='tst'))
+		print(get_unique_filename(tmp_dir='/home/ncq/Archiv/'))
 	#-----------------------------------------------------------------------
 	def test_size2str():
-		print "testing size2str()"
-		print "------------------"
+		print("testing size2str()")
+		print("------------------")
 		tests = [0, 1, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000, 10000000000000]
 		for test in tests:
-			print size2str(test)
+			print(size2str(test))
 	#-----------------------------------------------------------------------
 	def test_unwrap():
 
@@ -1237,63 +1242,63 @@ second line\n
 6th
 
 """
-		print unwrap(text = test, max_length = 25)
+		print(unwrap(text = test, max_length = 25))
 	#-----------------------------------------------------------------------
 	def test_wrap():
 		test = 'line 1\nline 2\nline 3'
 
-		print "wrap 5-6-7 initial 0, subsequent 0"
-		print wrap(test, 5)
-		print
-		print wrap(test, 6)
-		print
-		print wrap(test, 7)
-		print "-------"
+		print("wrap 5-6-7 initial 0, subsequent 0")
+		print(wrap(test, 5))
+		print()
+		print(wrap(test, 6))
+		print()
+		print(wrap(test, 7))
+		print("-------")
 		raw_input()
-		print "wrap 5 initial 1-1-3, subsequent 1-3-1"
-		print wrap(test, 5, u' ', u' ')
-		print
-		print wrap(test, 5, u' ', u'   ')
-		print
-		print wrap(test, 5, u'   ', u' ')
-		print "-------"
+		print("wrap 5 initial 1-1-3, subsequent 1-3-1")
+		print(wrap(test, 5, u' ', u' '))
+		print()
+		print(wrap(test, 5, u' ', u'   '))
+		print()
+		print(wrap(test, 5, u'   ', u' '))
+		print("-------")
 		raw_input()
-		print "wrap 6 initial 1-1-3, subsequent 1-3-1"
-		print wrap(test, 6, u' ', u' ')
-		print
-		print wrap(test, 6, u' ', u'   ')
-		print
-		print wrap(test, 6, u'   ', u' ')
-		print "-------"
+		print("wrap 6 initial 1-1-3, subsequent 1-3-1")
+		print(wrap(test, 6, u' ', u' '))
+		print()
+		print(wrap(test, 6, u' ', u'   '))
+		print()
+		print(wrap(test, 6, u'   ', u' '))
+		print("-------")
 		raw_input()
-		print "wrap 7 initial 1-1-3, subsequent 1-3-1"
-		print wrap(test, 7, u' ', u' ')
-		print
-		print wrap(test, 7, u' ', u'   ')
-		print
-		print wrap(test, 7, u'   ', u' ')
+		print("wrap 7 initial 1-1-3, subsequent 1-3-1")
+		print(wrap(test, 7, u' ', u' '))
+		print()
+		print(wrap(test, 7, u' ', u'   '))
+		print()
+		print(wrap(test, 7, u'   ', u' '))
 	#-----------------------------------------------------------------------
 	def test_md5():
-		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
+		print('%s: %s' % (sys.argv[2], file2md5(sys.argv[2])))
 	#-----------------------------------------------------------------------
 	def test_unicode():
-		print u_link_symbol * 10
+		print(u_link_symbol * 10)
 	#-----------------------------------------------------------------------
 	def test_xml_escape():
-		print xml_escape_string(u'<')
-		print xml_escape_string(u'>')
-		print xml_escape_string(u'&')
+		print(xml_escape_string(u'<'))
+		print(xml_escape_string(u'>'))
+		print(xml_escape_string(u'&'))
 	#-----------------------------------------------------------------------
 	def test_tex_escape():
 		tests = [u'\\', u'^', u'~', u'{', u'}', u'%',  u'&', u'#', u'$', u'_', u_euro, u'abc\ndef\n\n1234']
 		tests.append(u'  '.join(tests))
 		for test in tests:
-			print u'%s:' % test, tex_escape_string(test)
+			print(u'%s:' % test, tex_escape_string(test))
 	#-----------------------------------------------------------------------
 	def test_gpg_decrypt():
 		fname = gpg_decrypt_file(filename = sys.argv[2], passphrase = sys.argv[3])
 		if fname is not None:
-			print "successfully decrypted:", fname
+			print("successfully decrypted:", fname)
 	#-----------------------------------------------------------------------
 	def test_strip_trailing_empty_lines():
 		tests = [
@@ -1301,19 +1306,19 @@ second line\n
 			u'one line\nwith embedded\nline\nbreaks\n   '
 		]
 		for test in tests:
-			print 'as list:'
-			print strip_trailing_empty_lines(text = test, eol=u'\n', return_list = True)
-			print 'as string:'
-			print u'>>>%s<<<' % strip_trailing_empty_lines(text = test, eol=u'\n', return_list = False)
+			print('as list:')
+			print(strip_trailing_empty_lines(text = test, eol=u'\n', return_list = True))
+			print('as string:')
+			print(u'>>>%s<<<' % strip_trailing_empty_lines(text = test, eol=u'\n', return_list = False))
 		tests = [
 			['list', 'without', 'empty', 'trailing', 'lines'],
 			['list', 'with', 'empty', 'trailing', 'lines', '', '  ', '']
 		]
 		for test in tests:
-			print 'as list:'
-			print strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = True)
-			print 'as string:'
-			print strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = False)
+			print('as list:')
+			print(strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = True))
+			print('as string:')
+			print(strip_trailing_empty_lines(lines = test, eol = u'\n', return_list = False))
 	#-----------------------------------------------------------------------
 	def test_fname_stem():
 		tests = [
@@ -1328,10 +1333,10 @@ second line\n
 			r'tmp.txt'
 		]
 		for t in tests:
-			print "[%s] -> [%s]" % (t, fname_stem(t))
+			print("[%s] -> [%s]" % (t, fname_stem(t)))
 	#-----------------------------------------------------------------------
 	def test_dir_is_empty():
-		print sys.argv[2], 'empty:', dir_is_empty(sys.argv[2])
+		print(sys.argv[2], 'empty:', dir_is_empty(sys.argv[2]))
 	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()

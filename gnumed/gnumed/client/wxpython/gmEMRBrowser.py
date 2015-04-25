@@ -721,10 +721,9 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		dlg.Destroy()
 
-		try:
-			gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data)
-		except gmExceptions.DatabaseObjectInUseError:
+		if not gmEMRStructItems.delete_health_issue(health_issue = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete health issue. There is still clinical data recorded for it.'))
+
 	#--------------------------------------------------------
 	def __expand_issue_to_encounter_level(self, evt):
 

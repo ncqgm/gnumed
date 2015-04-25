@@ -1,4 +1,7 @@
-"""GNUmed client internationalization/localization.
+
+from __future__ import print_function
+
+__doc__ = """GNUmed client internationalization/localization.
 
 All i18n/l10n issues should be handled through this modules.
 
@@ -53,8 +56,14 @@ __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 
 # stdlib
-import sys, os.path, os, re as regex, locale, gettext, logging, codecs
-
+import sys
+import os.path
+import os
+import locale
+import gettext
+import logging
+import codecs
+import re as regex
 
 _log = logging.getLogger('gm.i18n')
 
@@ -419,6 +428,7 @@ def get_encoding():
 		_encoding_mismatch_already_logged = True
 
 	return locale.getpreferredencoding(do_setlocale=False)
+
 #===========================================================================
 # Main
 #---------------------------------------------------------------------------
@@ -451,20 +461,20 @@ if __name__ == "__main__":
 
 		]
 		for cands in candidates:
-			print cands[0], u'<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1])
-#			print cands[1], u'<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0])
+			print(cands[0], u'<vs>', cands[1], '=', locale.strcoll(cands[0], cands[1]))
+#			print(cands[1], u'<vs>', cands[0], '=', locale.strcoll(cands[1], cands[0]))
 
 	#----------------------------------------------------------------------
-	print "======================================================================"
-	print "GNUmed i18n"
-	print ""
-	print "authors:", __author__
-	print "license:", __license__
-	print "======================================================================"
+	print("======================================================================")
+	print("GNUmed i18n")
+	print("")
+	print("authors:", __author__)
+	print("license:", __license__)
+	print("======================================================================")
 
 	activate_locale()
-	print "system locale: ", system_locale, "; levels:", system_locale_level
-	print "likely encoding:", get_encoding()
+	print("system locale: ", system_locale, "; levels:", system_locale_level)
+	print("likely encoding:", get_encoding())
 
 	if len(sys.argv) > 1:
 		install_domain(domain = sys.argv[2])
@@ -481,6 +491,3 @@ if __name__ == "__main__":
 	tmp = _('Translate this or i18n into <en_EN> will not work properly !') #
 	# ********************************************************************* #
 	# ********************************************************************* #
-
-#=====================================================================
-

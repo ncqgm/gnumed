@@ -1,3 +1,6 @@
+
+from __future__ import print_function
+
 __doc__ = """GNUmed general tools."""
 
 #===========================================================================
@@ -269,25 +272,25 @@ if __name__ == '__main__':
 	def test_detect_external_binary():
 		found, path = detect_external_binary(binary = sys.argv[2])
 		if found:
-			print "found as:", path
+			print("found as:", path)
 		else:
-			print sys.argv[2], "not found"
+			print(sys.argv[2], "not found")
 	#---------------------------------------------------------
 	def test_run_command_in_shell():
-		print "-------------------------------------"
-		print "running:", sys.argv[2]
+		print("-------------------------------------")
+		print("running:", sys.argv[2])
 		if run_command_in_shell(command=sys.argv[2], blocking=False):
-			print "-------------------------------------"
-			print "success"
+			print("-------------------------------------")
+			print("success")
 		else:
-			print "-------------------------------------"
-			print "failure, consult log"
+			print("-------------------------------------")
+			print("failure, consult log")
 	#---------------------------------------------------------
 	def test_is_cmd_in_path():
-		print is_cmd_in_path(cmd = sys.argv[2])
+		print(is_cmd_in_path(cmd = sys.argv[2]))
 	#---------------------------------------------------------
 	def test_is_executable_by_wine():
-		print is_executable_by_wine(cmd = sys.argv[2])
+		print(is_executable_by_wine(cmd = sys.argv[2]))
 	#---------------------------------------------------------
 	test_run_command_in_shell()
 	#test_detect_external_binary()

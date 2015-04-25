@@ -14,13 +14,13 @@ set data using SetConfigData.
 License: GNU Public License 
 """
 #==================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmConfigCommon.py,v $
-__version__ = "$Revision: 1.10 $"
 __author__ = "H.Berger,K.Hilbert"
 
 import sys, os, string, types, pickle
 
-from Gnumed.pycommon import gmCfg, gmPG2
+if __name__ == "__main__":
+	sys.path.insert(0, '../../')
+from Gnumed.pycommon import gmCfg, gmPG2, gmLog
 
 _log = gmLog.gmDefLog
 if __name__ == '__main__':
@@ -67,7 +67,6 @@ class ConfigSource:
 	# TODO : get definition source table from cfg file if available
 	def __getDefinitionSourceTable(self):
 		return _defaultDefSourceTable
-			
 	#------------------------------------------------------------------------
 	def getParamType(self, aParam = None):
 		""" get type of parameter value """
@@ -696,7 +695,6 @@ class ConfigDataFile(ConfigData):
 		fetch names and parameter data from config file. Returns list of
 		parameter names where group and option name are concatenated.
 		"""
-		
 		# this returns name,cookie, owner (TODO), type and description 
 		# of a parameter. 
 		# We combine group + option name to one single name. 

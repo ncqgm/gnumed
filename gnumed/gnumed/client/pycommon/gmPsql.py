@@ -59,8 +59,8 @@ class Psql:
 			global unformattable_error_id
 			tmp = u"%s:%d: <cannot unicode(msg), printing on console with ID [#%d]>" % (self.filename, self.lineno-1, unformattable_error_id)
 			try:
-				print 'ERROR: GNUmed bootstrap #%d:' % unformattable_error_id
-				print aMsg
+				print('ERROR: GNUmed bootstrap #%d:' % unformattable_error_id)
+				print(aMsg)
 			except: pass
 			unformattable_error_id += 1
 		return tmp
@@ -256,7 +256,14 @@ class Psql:
 #===================================================================
 # testing code
 if __name__ == '__main__':
-	from pyPgSQL import PgSQL
+
+	if len(sys.argv) < 2:
+		sys.exit()
+
+	if sys.argv[1] != 'test':
+		sys.exit()
+
+	#from pyPgSQL import PgSQL
 	conn = PgSQL.connect (user='gm-dbo', database = 'gnumed')
 	psql = Psql (conn)
 	psql.run (sys.argv[1])

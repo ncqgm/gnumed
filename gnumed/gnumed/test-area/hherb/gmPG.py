@@ -1,4 +1,6 @@
 
+from __future__ import print_function
+
 # This remains for documentation only.
 raise ImportError('This module is deprecated. Use gmPG2.py.')
 
@@ -21,12 +23,12 @@ def resultset_functional_batchgenerator(cursor, size=100):
 			yield rec
 """
 # =======================================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmPG.py,v $
-__version__ = "$Revision: 1.90 $"
 __author__  = "H.Herb <hherb@gnumed.net>, I.Haywood <i.haywood@ugrad.unimelb.edu.au>, K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
-print "gmPG phased out, please replace with gmPG2"
+
+print("gmPG phased out, please replace with gmPG2")
+
 
 import sys
 sys.exit
