@@ -1,3 +1,6 @@
+
+from __future__ import print_function
+
 __doc__ = """
 GNUmed date/time handling.
 
@@ -1414,6 +1417,7 @@ def str2pydt_matches(str2parse=None, patterns=None):
 	matches.extend(__single_char2py_dt(str2parse))
 	matches.extend(__explicit_offset2py_dt(str2parse))
 
+	# no more with Python3
 	# try mxDT parsers
 	try:
 		date = mxDT.Parser.DateFromString (
@@ -2125,10 +2129,10 @@ class cFuzzyTimestamp:
 		if accuracy == acc_subseconds:
 			return unicode(self.timestamp)
 
-		raise ValueError, '%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
+		raise ValueError('%s.format_accurately(): <accuracy> (%s) must be between 1 and 7' % (
 			self.__class__.__name__,
 			accuracy
-		)
+		))
 	#-----------------------------------------------------------------------
 	def get_mxdt(self):
 		return self.timestamp
@@ -2183,7 +2187,7 @@ if __name__ == '__main__':
 		for tmp in intervals_as_str:
 			intv = str2interval(str_interval = tmp)
 			for acc in _accuracy_strings.keys():
-				print '[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc))
+				print ('[%s]: "%s" -> "%s"' % (acc, tmp, format_interval(intv, acc)))
 	#-----------------------------------------------------------------------
 	def test_format_interval_medically():
 
@@ -2250,159 +2254,159 @@ if __name__ == '__main__':
 
 		idx = 1
 		for intv in intervals:
-			print '%s) %s -> %s' % (idx, intv, format_interval_medically(intv))
+			print ('%s) %s -> %s' % (idx, intv, format_interval_medically(intv)))
 			idx += 1
 	#-----------------------------------------------------------------------
 	def test_str2interval():
-		print "testing str2interval()"
-		print "----------------------"
+		print ("testing str2interval()")
+		print ("----------------------")
 
 		for interval_as_str in intervals_as_str:
-			print "input: <%s>" % interval_as_str
-			print "  ==>", str2interval(str_interval=interval_as_str)
+			print ("input: <%s>" % interval_as_str)
+			print ("  ==>", str2interval(str_interval=interval_as_str))
 
 		return True
 	#-------------------------------------------------
 	def test_date_time():
-		print "DST currently in effect:", dst_currently_in_effect
-		print "current UTC offset:", current_local_utc_offset_in_seconds, "seconds"
-		print "current timezone (interval):", current_local_timezone_interval
-		print "current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string
-		print "local timezone class:", cLocalTimezone
-		print ""
+		print ("DST currently in effect:", dst_currently_in_effect)
+		print ("current UTC offset:", current_local_utc_offset_in_seconds, "seconds")
+		print ("current timezone (interval):", current_local_timezone_interval)
+		print ("current timezone (ISO conformant numeric string):", current_local_iso_numeric_timezone_string)
+		print ("local timezone class:", cLocalTimezone)
+		print ("")
 		tz = cLocalTimezone()
-		print "local timezone instance:", tz
-		print " (total) UTC offset:", tz.utcoffset(pyDT.datetime.now())
-		print " DST adjustment:", tz.dst(pyDT.datetime.now())
-		print " timezone name:", tz.tzname(pyDT.datetime.now())
-		print ""
-		print "current local timezone:", gmCurrentLocalTimezone
-		print " (total) UTC offset:", gmCurrentLocalTimezone.utcoffset(pyDT.datetime.now())
-		print " DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now())
-		print " timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now())
-		print ""
-		print "now here:", pydt_now_here()
-		print ""
+		print ("local timezone instance:", tz)
+		print (" (total) UTC offset:", tz.utcoffset(pyDT.datetime.now()))
+		print (" DST adjustment:", tz.dst(pyDT.datetime.now()))
+		print (" timezone name:", tz.tzname(pyDT.datetime.now()))
+		print ("")
+		print ("current local timezone:", gmCurrentLocalTimezone)
+		print (" (total) UTC offset:", gmCurrentLocalTimezone.utcoffset(pyDT.datetime.now()))
+		print (" DST adjustment:", gmCurrentLocalTimezone.dst(pyDT.datetime.now()))
+		print (" timezone name:", gmCurrentLocalTimezone.tzname(pyDT.datetime.now()))
+		print ("")
+		print ("now here:", pydt_now_here())
+		print ("")
 	#-------------------------------------------------
 	def test_str2fuzzy_timestamp_matches():
-		print "testing function str2fuzzy_timestamp_matches"
-		print "--------------------------------------------"
+		print ("testing function str2fuzzy_timestamp_matches")
+		print ("--------------------------------------------")
 
 		val = None
 		while val != 'exit':
 			val = raw_input('Enter date fragment ("exit" quits): ')
 			matches = str2fuzzy_timestamp_matches(str2parse = val)
 			for match in matches:
-				print 'label shown  :', match['label']
-				print 'data attached:', match['data'], match['data'].timestamp
-				print ""
-			print "---------------"
+				print ('label shown  :', match['label'])
+				print ('data attached:', match['data'], match['data'].timestamp)
+				print ("")
+			print ("---------------")
 	#-------------------------------------------------
 	def test_cFuzzyTimeStamp():
-		print "testing fuzzy timestamp class"
-		print "-----------------------------"
+		print ("testing fuzzy timestamp class")
+		print ("-----------------------------")
 
 		ts = mxDT.now()
-		print "mx.DateTime timestamp", type(ts)
-		print "  print ...       :", ts
-		print "  print '%%s' %% ...: %s" % ts
-		print "  str()           :", str(ts)
-		print "  repr()          :", repr(ts)
+		print ("mx.DateTime timestamp", type(ts))
+		print ("  print ...       :", ts)
+		print ("  print '%%s' %% ...: %s" % ts)
+		print ("  str()           :", str(ts))
+		print ("  repr()          :", repr(ts))
 
 		fts = cFuzzyTimestamp()
-		print "\nfuzzy timestamp <%s '%s'>" % ('class', fts.__class__.__name__)
+		print ("\nfuzzy timestamp <%s '%s'>" % ('class', fts.__class__.__name__))
 		for accuracy in range(1,8):
 			fts.accuracy = accuracy
-			print "  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy])
-			print "  format_accurately:", fts.format_accurately()
-			print "  strftime()       :", fts.strftime('%Y %b %d  %H:%M:%S')
-			print "  print ...        :", fts
-			print "  print '%%s' %% ... : %s" % fts
-			print "  str()            :", str(fts)
-			print "  repr()           :", repr(fts)
+			print ("  accuracy         : %s (%s)" % (accuracy, _accuracy_strings[accuracy]))
+			print ("  format_accurately:", fts.format_accurately())
+			print ("  strftime()       :", fts.strftime('%Y %b %d  %H:%M:%S'))
+			print ("  print ...        :", fts)
+			print ("  print '%%s' %% ... : %s" % fts)
+			print ("  str()            :", str(fts))
+			print ("  repr()           :", repr(fts))
 			raw_input('press ENTER to continue')
 	#-------------------------------------------------
 	def test_get_pydt():
-		print "testing platform for handling dates before 1970"
-		print "-----------------------------------------------"
+		print ("testing platform for handling dates before 1970")
+		print ("-----------------------------------------------")
 		ts = mxDT.DateTime(1935, 4, 2)
 		fts = cFuzzyTimestamp(timestamp=ts)
-		print "fts           :", fts
-		print "fts.get_pydt():", fts.get_pydt()
+		print ("fts           :", fts)
+		print ("fts.get_pydt():", fts.get_pydt())
 	#-------------------------------------------------
 	def test_calculate_apparent_age():
 		# test leap year glitches
 		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
 		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 27)
-		print "start is leap year: 29.2.2000"
-		print " ", calculate_apparent_age(start = start, end = end)
-		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+		print ("start is leap year: 29.2.2000")
+		print (" ", calculate_apparent_age(start = start, end = end))
+		print (" ", format_apparent_age_medically(calculate_apparent_age(start = start)))
 
 		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
 		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
-		print "end is leap year: 29.2.2012"
-		print " ", calculate_apparent_age(start = start, end = end)
-		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+		print ("end is leap year: 29.2.2012")
+		print (" ", calculate_apparent_age(start = start, end = end))
+		print (" ", format_apparent_age_medically(calculate_apparent_age(start = start)))
 
 		start = pydt_now_here().replace(year = 2000).replace(month = 2).replace(day = 29)
 		end = pydt_now_here().replace(year = 2012).replace(month = 2).replace(day = 29)
-		print "start is leap year: 29.2.2000"
-		print "end is leap year: 29.2.2012"
-		print " ", calculate_apparent_age(start = start, end = end)
-		print " ", format_apparent_age_medically(calculate_apparent_age(start = start))
+		print ("start is leap year: 29.2.2000")
+		print ("end is leap year: 29.2.2012")
+		print (" ", calculate_apparent_age(start = start, end = end))
+		print (" ", format_apparent_age_medically(calculate_apparent_age(start = start)))
 
-		print "leap year tests worked"
+		print ("leap year tests worked")
 
 		start = pydt_now_here().replace(month = 10).replace(day = 23).replace(year = 1974)
-		print calculate_apparent_age(start = start)
-		print format_apparent_age_medically(calculate_apparent_age(start = start))
+		print (calculate_apparent_age(start = start))
+		print (format_apparent_age_medically(calculate_apparent_age(start = start)))
 
 		start = pydt_now_here().replace(month = 3).replace(day = 13).replace(year = 1979)
-		print calculate_apparent_age(start = start)
-		print format_apparent_age_medically(calculate_apparent_age(start = start))
+		print (calculate_apparent_age(start = start))
+		print (format_apparent_age_medically(calculate_apparent_age(start = start)))
 
 		start = pydt_now_here().replace(month = 2, day = 2).replace(year = 1979)
 		end = pydt_now_here().replace(month = 3).replace(day = 31).replace(year = 1979)
-		print calculate_apparent_age(start = start, end = end)
+		print (calculate_apparent_age(start = start, end = end))
 
 		start = pydt_now_here().replace(month = 7, day = 21).replace(year = 2009)
-		print format_apparent_age_medically(calculate_apparent_age(start = start))
+		print (format_apparent_age_medically(calculate_apparent_age(start = start)))
 
-		print "-------"
+		print ("-------")
 		start = pydt_now_here().replace(month = 1).replace(day = 23).replace(hour = 12).replace(minute = 11).replace(year = 2011)
-		print calculate_apparent_age(start = start)
-		print format_apparent_age_medically(calculate_apparent_age(start = start))
+		print (calculate_apparent_age(start = start))
+		print (format_apparent_age_medically(calculate_apparent_age(start = start)))
 	#-------------------------------------------------
 	def test_str2pydt():
-		print "testing function str2pydt_matches"
-		print "---------------------------------"
+		print ("testing function str2pydt_matches")
+		print ("---------------------------------")
 
 		val = None
 		while val != 'exit':
 			val = raw_input('Enter date fragment ("exit" quits): ')
 			matches = str2pydt_matches(str2parse = val)
 			for match in matches:
-				print 'label shown  :', match['label']
-				print 'data attached:', match['data']
-				print ""
-			print "---------------"
+				print ('label shown  :', match['label'])
+				print ('data attached:', match['data'])
+				print ("")
+			print ("---------------")
 	#-------------------------------------------------
 	def test_pydt_strftime():
 		dt = pydt_now_here()
-		print pydt_strftime(dt, '-(%Y %b %d)-')
-		print pydt_strftime(dt)
-		print pydt_strftime(dt, accuracy = acc_days)
-		print pydt_strftime(dt, accuracy = acc_minutes)
-		print pydt_strftime(dt, accuracy = acc_seconds)
+		print (pydt_strftime(dt, '-(%Y %b %d)-'))
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt, accuracy = acc_days))
+		print (pydt_strftime(dt, accuracy = acc_minutes))
+		print (pydt_strftime(dt, accuracy = acc_seconds))
 		dt = dt.replace(year = 1899)
-		print pydt_strftime(dt)
-		print pydt_strftime(dt, accuracy = acc_days)
-		print pydt_strftime(dt, accuracy = acc_minutes)
-		print pydt_strftime(dt, accuracy = acc_seconds)
+		print (pydt_strftime(dt))
+		print (pydt_strftime(dt, accuracy = acc_days))
+		print (pydt_strftime(dt, accuracy = acc_minutes))
+		print (pydt_strftime(dt, accuracy = acc_seconds))
 	#-------------------------------------------------
 	def test_is_leap_year():
 		for year in range(1995, 2017):
-			print year, "leaps:", is_leap_year(year)
+			print (year, "leaps:", is_leap_year(year))
 	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()

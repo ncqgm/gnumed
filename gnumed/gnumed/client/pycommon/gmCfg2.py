@@ -546,8 +546,8 @@ if __name__ == "__main__":
 		cfg = gmCfgData()
 		cfg.add_cli(short_options=u'h?', long_options=[u'help', u'conf-file='])
 		cfg.set_option('internal option', True)
-		print cfg.get(option = '--help', source_order = [('cli', 'return')])
-		print cfg.get(option = '-?', source_order = [('cli', 'return')])
+		print (cfg.get(option = '--help', source_order = [('cli', 'return')]))
+		print (cfg.get(option = '-?', source_order = [('cli', 'return')]))
 		fname = cfg.get(option = '--conf-file', source_order = [('cli', 'return')])
 		if fname is not None:
 			cfg.add_file_source(source = 'explicit', file = fname)

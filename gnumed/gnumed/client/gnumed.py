@@ -193,6 +193,7 @@ def setup_python_path():
 
 	print("Adjusting PYTHONPATH ...")
 	sys.path.insert(0, local_python_base_dir)
+
 #==========================================================
 def setup_local_repo_path():
 
@@ -276,6 +277,7 @@ def setup_logging():
 
 	global _log
 	_log = logging.getLogger('gm.launcher')
+
 #==========================================================
 def log_startup_info():
 	_log.info(u'GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
@@ -290,13 +292,16 @@ def log_startup_info():
 	for key, val in os.environ.items():
 		_log.info(u' %s: %s' % (
 			(u'${%s}' % key).rjust(30),
-			unicode(val, encoding = sys.getfilesystemencoding(), errors = 'replace')
+			# this won't work in Python3 because that'll be a byte sequence, not a string and thus will need .ENcode
+			val.decode(encoding = sys.getfilesystemencoding(), errors = 'replace')
 		))
+
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
 
 	sys.excepthook = handle_uncaught_exception_console
+
 #==========================================================
 def setup_cli():
 	from Gnumed.pycommon import gmCfg2
@@ -650,13 +655,13 @@ if ui_type == u'wxp':
 		profile.run('gmGuiMain.main()', profile_file)
 	else:
 		gmGuiMain.main()
-elif ui_type == u'web':
-	from Gnumed.proxiedpyjamas import gmWebGuiServer
-	gmWebGuiServer.main()
+#elif ui_type == u'web':
+#	from Gnumed.proxiedpyjamas import gmWebGuiServer
+#	gmWebGuiServer.main()
 
-elif ui_type == u'chweb':
-	from Gnumed.CherryPy import gmGuiWeb
-	gmGuiWeb.main()
+#elif ui_type == u'chweb':
+#	from Gnumed.CherryPy import gmGuiWeb
+#	gmGuiWeb.main()
 
 gmHooks.run_hook_script(hook = u'shutdown-post-GUI')
 

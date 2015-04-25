@@ -20,7 +20,7 @@ import platform
 import subprocess
 import decimal
 import getpass
-import cPickle
+import pickle
 import zlib
 import io
 import functools
@@ -125,7 +125,7 @@ def mkdir(directory=None, mode=None):
 			old_umask = os.umask(0)
 			os.makedirs(directory, mode)
 			os.umask(old_umask)
-	except OSError, e:
+	except OSError as e:
 		if (e.errno == 17) and not os.path.isdir(directory):
 			raise
 	return True
@@ -729,7 +729,8 @@ def capitalize(text=None, mode=CAPS_NAMES):
 		return text[0].upper() + text[1:].lower()
 
 	if mode == CAPS_WORDS:
-		return regex.sub(ur'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
+		#return regex.sub(ur'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
+		return regex.sub(r'(\w)(\w+)', lambda x: x.group(1).upper() + x.group(2).lower(), text)
 
 	if mode == CAPS_NAMES:
 		#return regex.sub(r'\w+', __cap_name, text)
@@ -991,7 +992,7 @@ def get_icon(wx=None):
 
 	if found_as is None:
 		_log.warning('no icon file found, falling back to builtin (ugly) icon')
-		icon_bmp_data = wx.BitmapFromXPMData(cPickle.loads(zlib.decompress(__icon_serpent)))
+		icon_bmp_data = wx.BitmapFromXPMData(pickle.loads(zlib.decompress(__icon_serpent)))
 		icon.CopyFromBitmap(icon_bmp_data)
 	else:
 		_log.debug('icon found in [%s]', found_as)

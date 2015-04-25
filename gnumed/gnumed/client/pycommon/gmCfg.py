@@ -25,7 +25,7 @@ The database config objects auto-sync with the backend.
 __author__ = "Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 
 # standard modules
-import sys, types, cPickle, decimal, logging, re as regex
+import sys, types, pickle, decimal, logging, re as regex
 
 
 # gnumed modules
@@ -186,7 +186,7 @@ class cCfgSQL:
 		rows, idx = gmPG2.run_ro_queries(link_obj=self.ro_conn, queries = [{'cmd': cmd, 'args': args}])
 		if len(rows) > 0:
 			if cfg_table_type_suffix == u'data':
-				return cPickle.loads(str(rows[0][0]))
+				return pickle.loads(str(rows[0][0]))
 			return rows[0][0]
 
 		_log.warning('no user AND workplace specific value for option [%s] in config database' % option)
@@ -224,7 +224,7 @@ class cCfgSQL:
 				value = rows[0][0]
 			)
 			if cfg_table_type_suffix == u'data':
-				return cPickle.loads(str(rows[0][0]))
+				return pickle.loads(str(rows[0][0]))
 			return rows[0][0]
 
 		_log.warning('no user OR workplace specific value for option [%s] in config database' % option)
@@ -250,7 +250,7 @@ class cCfgSQL:
 				value = rows[0]['value']
 			)
 			if cfg_table_type_suffix == u'data':
-				return cPickle.loads(str(rows[0]['value']))
+				return pickle.loads(str(rows[0]['value']))
 			return rows[0]['value']
 
 		_log.warning('no default site policy value for option [%s] in config database' % option)
@@ -346,9 +346,9 @@ limit 1""" % where_clause
 			pass
 		else:
 			try:
-				opt_value = gmPG2.dbapi.Binary(cPickle.dumps(value))
+				opt_value = gmPG2.dbapi.Binary(pickle.dumps(value))
 				sql_type_cast = '::bytea'
-			except cPickle.PicklingError:
+			except pickle.PicklingError:
 				_log.error("cannot pickle option of type [%s] (key: %s, value: %s)", type(value), alias, str(value))
 				raise
 			except:
