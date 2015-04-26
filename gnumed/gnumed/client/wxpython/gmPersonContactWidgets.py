@@ -4,7 +4,8 @@ __author__ = "R.Terry, SJ Tan, I Haywood, Carlos Moro <cfmoro1976@yahoo.es>"
 __license__ = 'GPL v2 or later (details at http://www.gnu.org)'
 
 # standard library
-import sys, logging
+import sys
+import logging
 
 
 import wx
@@ -14,6 +15,8 @@ import wx
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmNetworkTools
+
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEditArea
@@ -67,6 +70,7 @@ def select_address(missing=None, person=None):
 		single_selection = True,
 		list_tooltip_callback = calculate_tooltip
 	)
+
 #============================================================
 class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing a person's addresses.
@@ -136,6 +140,12 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			_('Country'),
 			_('Comment')
 		])
+
+		self.left_extra_button = (
+			_('Map'),
+			_('Show selected address on map'),
+			self._show_address_on_map
+		)
 	#--------------------------------------------------------
 	def _add_address(self):
 		ea = gmAddressWidgets.cAddressEAPnl(self, -1)
@@ -174,6 +184,11 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 			return False
 		self.__identity.unlink_address(address = address)
 		return True
+	#--------------------------------------------------------
+	def _show_address_on_map(self, address):
+		if address is None:
+			return False
+		gmNetworkTools.open_url_in_browser(address.as_map_url, new = 2, autoraise = True)
 	#--------------------------------------------------------
 	def _calculate_tooltip(self, address):
 		tt = u'\n'.join(address.format())

@@ -14,6 +14,7 @@ import sys
 import os
 import os.path
 import logging
+import urllib
 
 
 # GNUmed
@@ -593,6 +594,18 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 			return format_address_single_line(address = self, show_type = False, verbose = verbose)
 		return format_address(address = self, show_type = False)
 
+	#--------------------------------------------------------
+	def _get_as_map_url(self):
+		url = u'http://nominatim.openstreetmap.org/search/%s/%s/%s/%s?limit=3' % (
+			urllib.quote(self['country'].encode('utf8')),
+			urllib.quote(self['urb'].encode('utf8')),
+			urllib.quote(self['street'].encode('utf8')),
+			urllib.quote(self['number'].encode('utf8'))
+		)
+		return url
+
+	as_map_url = property(_get_as_map_url, lambda x:x)
+
 #------------------------------------------------------------
 def address_exists(country_code=None, region_code=None, urb=None, postcode=None, street=None, number=None, subunit=None):
 
@@ -844,6 +857,12 @@ class cPatientAddress(gmBusinessDBObject.cBusinessDBObject):
 		return cAddress(aPK_obj = self._payload[self._idx['pk_address']])
 
 	address = property(_get_address, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_as_map_url(self):
+		return self.address.as_map_url
+
+	as_map_url = property(_get_as_map_url, lambda x:x)
 
 #===================================================================
 # communication channels API
@@ -1208,6 +1227,7 @@ if __name__ == "__main__":
 		print "created new address with subunit", su
 		print address
 		print address.format()
+		print address.as_map_url
 		print "deleted address:", delete_address(pk_address = address['pk_address'])
 	#--------------------------------------------------------
 	def test_get_countries():
@@ -1259,15 +1279,11 @@ if __name__ == "__main__":
 	#gmPG2.get_connection()
 
 	#test_address_exists()
-	#test_create_address()
+	test_create_address()
 	#test_get_countries()
 	#test_get_country_for_region()
 	#test_delete_tag()
 	#test_tag_images()
 	#test_get_billing_address()
 	#test_map_urb_zip_region2country()
-	test_map_urb_zip_country2region()
-
-	sys.exit()
-#============================================================
-
+	#test_map_urb_zip_country2region()

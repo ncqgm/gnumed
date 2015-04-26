@@ -1715,6 +1715,7 @@ class cPatOccupationsPanel(wx.Panel):
 				self.__ident.unlink_occupation(occupation = job['l10n_occupation'])
 			self.__ident.link_occupation(occupation = new_job)
 		return True
+
 #============================================================
 class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 	"""Patient demographics plugin for main notebook.
@@ -1767,6 +1768,7 @@ class cNotebookedPatEditionPanel(wx.Panel, gmRegetMixin.cRegetOnPaintMixin):
 			self.__patient_notebook.identity = None
 		self.__patient_notebook.refresh()
 		return True
+
 #============================================================
 #============================================================
 if __name__ == "__main__":
