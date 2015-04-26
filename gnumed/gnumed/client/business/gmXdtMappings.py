@@ -1138,22 +1138,22 @@ kvdt_Packungsgroesse_map = {
 	'kA': 'keine Angabe'
 }
 # Heilmittel : 0925
-#kvdt_Heilmittel_map = {
-#	'01': 'Massagetherapie',
-#	'02': 'Bewegungstherapie',
-#	'03': 'Krankengymnastik',
-#	'04': 'Elektrotherapie',
-#	'06': 'Thermotherapie(Wärme- und Kältetherapie)',
-#	'08': 'Kohlensäurebäder',
-#	'09': 'Inhalalationtherapie',
-#	'10': 'Traktionsbehandlung',
-#	'20': 'Stimmtherapie',
-#	'25': 'Sprechtherapie',
-#	'30': 'Sprachtherapie',
-#	'35': 'Sprech- und/oder Sprachtherapie bei Kindern und Jugendlichen',
-#	'40': 'Beschäftigungs- und Arbeitstherapie (Ergotherapie)',
-#	'90': 'Sonstiges',
-#}
+kvdt_Heilmittel_map = {
+	'01': 'Massagetherapie',
+	'02': 'Bewegungstherapie',
+	'03': 'Krankengymnastik',
+	'04': 'Elektrotherapie',
+	'06': 'Thermotherapie(Wärme- und Kältetherapie)',
+	'08': 'Kohlensäurebäder',
+	'09': 'Inhalalationtherapie',
+	'10': 'Traktionsbehandlung',
+	'20': 'Stimmtherapie',
+	'25': 'Sprechtherapie',
+	'30': 'Sprachtherapie',
+	'35': 'Sprech- und/oder Sprachtherapie bei Kindern und Jugendlichen',
+	'40': 'Beschäftigungs- und Arbeitstherapie (Ergotherapie)',
+	'90': 'Sonstiges'
+}
 
 # Kennzeichnung gebührenpflichtig, aut idem, noctu
 kvdt_Kennzeichnung_map = {

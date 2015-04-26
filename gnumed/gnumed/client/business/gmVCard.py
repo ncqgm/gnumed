@@ -22,7 +22,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmDemographicRecord
 
 
-_log = logging.getLogger('gm-LinuxMedNewsXML')
+_log = logging.getLogger('gm-vcf')
 
 #============================================================
 def parse_vcard2dto(vc_text=None, filename=None):
