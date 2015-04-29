@@ -1910,12 +1910,12 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 
 		self.data = tr
 
-		wx.CallAfter (
-			plot_adjacent_measurements,
-			test = self.data,
-			plot_singular_result = False,
-			use_default_template = True
-		)
+#		wx.CallAfter (
+#			plot_adjacent_measurements,
+#			test = self.data,
+#			plot_singular_result = False,
+#			use_default_template = True
+#		)
 
 		return True
 	#--------------------------------------------------------
@@ -1992,12 +1992,12 @@ class cMeasurementEditAreaPnl(wxgMeasurementEditAreaPnl.wxgMeasurementEditAreaPn
 				make_me_responsible = False
 			)
 
-		wx.CallAfter (
-			plot_adjacent_measurements,
-			test = self.data,
-			plot_singular_result = False,
-			use_default_template = True
-		)
+#		wx.CallAfter (
+#			plot_adjacent_measurements,
+#			test = self.data,
+#			plot_singular_result = False,
+#			use_default_template = True
+#		)
 
 		return True
 	#--------------------------------------------------------
