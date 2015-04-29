@@ -33,6 +33,7 @@ IMPROVED: enable nested placeholders in text engine, too
 IMPROVED: lab_panel.most_recent_results() can now respect meta types
 IMPROVED: ignore_dupes_on_picking seems a better item picker default
 IMPROVED: overall code towards Python 3 compatibility
+IMPROVED: CODE: cIdentity(Tag) -> cPerson(Tag)
 
 ------------------------------------------------
 # rel-1-5-patches

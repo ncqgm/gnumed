@@ -903,7 +903,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 	#--------------------------------------------------------
 	def _remember_ident(self, ident=None):
 
-		if not isinstance(ident, gmPerson.cIdentity):
+		if not isinstance(ident, gmPerson.cPerson):
 			return False
 
 		# only unique identities
@@ -1237,7 +1237,7 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	if isinstance(patient, gmPerson.cPatient):
 		pass
-	elif isinstance(patient, gmPerson.cIdentity):
+	elif isinstance(patient, gmPerson.cPerson):
 		patient = patient.as_patient
 	elif patient == -1:
 		pass
@@ -1245,7 +1245,7 @@ def set_active_patient(patient=None, forced_reload=False):
 		# maybe integer ?
 		success, pk = gmTools.input2int(initial = patient, minval = 1)
 		if not success:
-			raise ValueError('<patient> must be either -1, >0, or a cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+			raise ValueError('<patient> must be either -1, >0, or a cPatient, cPerson or gmCurrentPatient instance, is: %s' % patient)
 		# but also valid patient ID ?
 		try:
 			patient = gmPerson.cPatient(aPK_obj = pk)

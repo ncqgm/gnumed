@@ -908,7 +908,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				parts.append(data['comment'])
 			return u'\n'.join(parts)
 
-		if isinstance(data, gmPerson.cIdentity):
+		if isinstance(data, gmPerson.cPerson):
 			return u'%s\n\n%s' % (
 				data['description_gender'],
 				u'\n'.join([
@@ -955,7 +955,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				if isinstance(data, gmDemographicRecord.cCommChannel):
 					gmContactWidgets.edit_comm_channel(parent = self, comm_channel = data, channel_owner = gmPerson.gmCurrentPatient())
 					return
-				if isinstance(data, gmPerson.cIdentity):
+				if isinstance(data, gmPerson.cPerson):
 					pass
 				if isinstance(data, gmStaff.cStaff):
 					pass

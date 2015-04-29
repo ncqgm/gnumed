@@ -1054,7 +1054,7 @@ class cPersonNameEAPnl(wxgPersonNameEAPnl.wxgPersonNameEAPnl, gmEditArea.cGeneri
 
 		try:
 			data = kwargs['name']
-			identity = gmPerson.cIdentity(aPK_obj = data['pk_identity'])
+			identity = gmPerson.cPerson(aPK_obj = data['pk_identity'])
 			del kwargs['name']
 		except KeyError:
 			data = None
@@ -1494,7 +1494,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 
 		self._TCTRL_er_contact.SetValue(gmTools.coalesce(self.__identity['emergency_contact'], u''))
 		if self.__identity['pk_emergency_contact'] is not None:
-			ident = gmPerson.cIdentity(aPK_obj = self.__identity['pk_emergency_contact'])
+			ident = gmPerson.cPerson(aPK_obj = self.__identity['pk_emergency_contact'])
 			self._TCTRL_person.person = ident
 			tt = u'%s\n\n%s\n\n%s' % (
 				tt,

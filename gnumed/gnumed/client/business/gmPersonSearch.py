@@ -87,7 +87,7 @@ class cPatientSearcher_SQL:
 			if len(rows) == 0:
 				continue
 			identities.extend (
-				[ gmPerson.cIdentity(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
+				[ gmPerson.cPerson(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
 			)
 
 		pks = []

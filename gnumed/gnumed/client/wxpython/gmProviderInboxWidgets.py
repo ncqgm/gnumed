@@ -323,7 +323,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 				if self.data['pk_patient'] is None:
 					self._PRW_patient.person = None
 				else:
-					self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+					self._PRW_patient.person = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		else:
 			self._CHBOX_active_patient.Enable(False)
 			self._CHBOX_active_patient.SetValue(False)
@@ -331,7 +331,7 @@ class cInboxMessageEAPnl(wxgInboxMessageEAPnl.wxgInboxMessageEAPnl, gmEditArea.c
 			if self.data['pk_patient'] is None:
 				self._PRW_patient.person = None
 			else:
-				self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+				self._PRW_patient.person = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 
 		self._PRW_due.SetText(data = self.data['due_date'])
 		self._PRW_expiry.SetText(data = self.data['expiry_date'])
@@ -759,7 +759,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		if pk_patient is not None:
 			#emr = gmClinicalRecord.cClinicalRecord(aPKey = pk_patient, allow_user_interaction = False)
 			from Gnumed.wxpython import gmChartPullingWidgets
-			emr = gmChartPullingWidgets.pull_chart(gmPerson.cIdentity(pk_patient))
+			emr = gmChartPullingWidgets.pull_chart(gmPerson.cPerson(pk_patient))
 			if emr is None:
 				return False
 			epi = emr.add_episode(episode_name = 'administrative', is_open = False)
@@ -802,7 +802,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		) % pk_patient
 
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+			pat = gmPerson.cPerson(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
@@ -832,7 +832,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wx.BeginBusyCursor()
 
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+			pat = gmPerson.cPerson(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
@@ -860,7 +860,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wx.BeginBusyCursor()
 
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+			pat = gmPerson.cPerson(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)
@@ -888,7 +888,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 		wx.BeginBusyCursor()
 
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = pk_patient)
+			pat = gmPerson.cPerson(aPK_obj = pk_patient)
 		except gmExceptions.ConstructorError:
 			wx.EndBusyCursor()
 			_log.exception('patient [%s] not found', pk_patient)

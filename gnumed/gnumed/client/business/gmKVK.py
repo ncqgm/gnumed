@@ -165,7 +165,7 @@ class cDTO_CCRdr(gmPerson.cDTO_person):
 			name_candidate_ids = [ o.ID for o in old_idents ]
 			for r in rows:
 				if r[0] not in name_candidate_ids:
-					old_idents.append(gmPerson.cIdentity(aPK_obj = r[0]))
+					old_idents.append(gmPerson.cPerson(aPK_obj = r[0]))
 
 		return old_idents
 
@@ -393,7 +393,7 @@ select pk_identity from dem.v_external_ids4identity where
 			for oid in old_idents:
 				if r[0] == oid.ID:
 					break
-			new_idents.append(gmPerson.cIdentity(aPK_obj = r['pk_identity']))
+			new_idents.append(gmPerson.cPerson(aPK_obj = r['pk_identity']))
 
 		old_idents.extend(new_idents)
 
@@ -530,7 +530,7 @@ select pk_identity from dem.v_external_ids4identity where
 			for oid in old_idents:
 				if r[0] == oid.ID:
 					break
-			new_idents.append(gmPerson.cIdentity(aPK_obj = r['pk_identity']))
+			new_idents.append(gmPerson.cPerson(aPK_obj = r['pk_identity']))
 
 		old_idents.extend(new_idents)
 

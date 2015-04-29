@@ -215,7 +215,7 @@ class cDTO_person(object):
 				return None
 			identities = [ident]
 		else:
-			identities = [ cIdentity(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
+			identities = [ cPerson(row = {'pk_field': 'pk_identity', 'data': row, 'idx': idx}) for row in rows ]
 
 		return identities
 	#--------------------------------------------------------
@@ -424,7 +424,7 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	description = property(_get_description, lambda x:x)
 
 #============================================================
-class cIdentity(gmBusinessDBObject.cBusinessDBObject):
+class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.identity SET
@@ -630,10 +630,10 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			order_by = u'ORDER BY %s' % order_by
 
-		cmd = gmDemographicRecord._SQL_get_identity_tags % (u'pk_identity = %%(pat)s %s' % order_by)
+		cmd = gmDemographicRecord._SQL_get_person_tags % (u'pk_identity = %%(pat)s %s' % order_by)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {u'pat': self.ID}}], get_col_idx = True)
 
-		return [ gmDemographicRecord.cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
+		return [ gmDemographicRecord.cPersonTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
 
 	tags = property(get_tags, lambda x:x)
 	#--------------------------------------------------------
@@ -647,7 +647,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		cmd = u"SELECT pk FROM dem.identity_tag WHERE fk_tag = %(tag)s AND fk_identity = %(identity)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) > 0:
-			return gmDemographicRecord.cIdentityTag(aPK_obj = rows[0]['pk'])
+			return gmDemographicRecord.cPersonTag(aPK_obj = rows[0]['pk'])
 
 		# no, add
 		cmd = u"""
@@ -661,7 +661,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 			RETURNING pk
 		"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
-		return gmDemographicRecord.cIdentityTag(aPK_obj = rows[0]['pk'])
+		return gmDemographicRecord.cPersonTag(aPK_obj = rows[0]['pk'])
 	#--------------------------------------------------------
 	def remove_tag(self, tag):
 		cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
@@ -671,7 +671,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 	#
 	# since external IDs are not treated as first class
 	# citizens (classes in their own right, that is), we
-	# handle them *entirely* within cIdentity, also they
+	# handle them *entirely* within cPerson, also they
 	# only make sense with one single person (like names)
 	# and are not reused (like addresses), so they are
 	# truly added/deleted, not just linked/unlinked
@@ -1431,13 +1431,13 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		if len(rows) == 0:
 			return []
-		return [(row[0], cIdentity(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk'})) for row in rows]
+		return [(row[0], cPerson(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk'})) for row in rows]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
 		id_new_relative = create_dummy_identity()
 
-		relative = cIdentity(aPK_obj=id_new_relative)
+		relative = cPerson(aPK_obj=id_new_relative)
 		# pre-fill with data from ourselves
 #		relative.copy_addresses(self)
 		relative.add_name( '**?**', self.get_names()['lastnames'])
@@ -1460,7 +1460,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	def _get_emergency_contact_from_database(self):
 		if self._payload[self._idx['pk_emergency_contact']] is None:
 			return None
-		return cIdentity(aPK_obj = self._payload[self._idx['pk_emergency_contact']])
+		return cPerson(aPK_obj = self._payload[self._idx['pk_emergency_contact']])
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1685,14 +1685,14 @@ def set_yielder(yielder):
 	_log.debug('setting yielder to <%s>', yielder)
 
 #============================================================
-class cPatient(cIdentity):
+class cPatient(cPerson):
 	"""Represents a person which is a patient.
 
-	- a specializing subclass of cIdentity turning it into a patient
+	- a specializing subclass of cPerson turning it into a patient
 	- its use is to cache subobjects like EMR and document folder
 	"""
 	def __init__(self, aPK_obj=None, row=None):
-		cIdentity.__init__(self, aPK_obj = aPK_obj, row = row)
+		cPerson.__init__(self, aPK_obj = aPK_obj, row = row)
 		self.__emr_access_lock = threading.Lock()
 		self.__emr = None
 		self.__doc_folder = None
@@ -1706,7 +1706,7 @@ class cPatient(cIdentity):
 			self.__emr.cleanup()
 		if self.__doc_folder is not None:
 			self.__doc_folder.cleanup()
-		cIdentity.cleanup(self)
+		cPerson.cleanup(self)
 	#----------------------------------------------------------------
 	def ensure_has_allergy_state(self, pk_encounter=None):
 		from Gnumed.business.gmAllergy import ensure_has_allergy_state
@@ -2067,7 +2067,7 @@ INSERT INTO dem.names (
 		],
 		return_data = True
 	)
-	ident = cIdentity(aPK_obj=rows[0][0])
+	ident = cPerson(aPK_obj=rows[0][0])
 	gmHooks.run_hook_script(hook = u'post_person_creation')
 	return ident
 
@@ -2078,7 +2078,7 @@ def create_dummy_identity():
 		queries = [{'cmd': cmd}],
 		return_data = True
 	)
-	return gmDemographicRecord.cIdentity(aPK_obj = rows[0][0])
+	return gmDemographicRecord.cPerson(aPK_obj = rows[0][0])
 
 #============================================================
 def identity_exists(pk_identity):
@@ -2098,7 +2098,7 @@ def set_active_patient(patient=None, forced_reload=False):
 
 	if isinstance(patient, cPatient):
 		pat = patient
-	elif isinstance(patient, cIdentity):
+	elif isinstance(patient, cPerson):
 		pat = pat.as_patient
 	elif patient == -1:
 		pat = patient
@@ -2106,7 +2106,7 @@ def set_active_patient(patient=None, forced_reload=False):
 		# maybe integer ?
 		success, pk = gmTools.input2int(initial = patient, minval = 1)
 		if not success:
-			raise ValueError('<patient> must be either -1, >0, or a cPatient, cIdentity or gmCurrentPatient instance, is: %s' % patient)
+			raise ValueError('<patient> must be either -1, >0, or a cPatient, cPerson or gmCurrentPatient instance, is: %s' % patient)
 		# but also valid patient ID ?
 		try:
 			pat = cPatient(aPK_obj = pk)
@@ -2239,7 +2239,7 @@ def get_person_IDs():
 
 #============================================================
 def get_persons_from_pks(pks=None):
-	return [ cIdentity(aPK_obj = pk) for pk in pks ]
+	return [ cPerson(aPK_obj = pk) for pk in pks ]
 #============================================================
 def get_person_from_xdt(filename=None, encoding=None, dob_format=None):
 	from Gnumed.business import gmXdtObjects
@@ -2269,7 +2269,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_set_active_pat():
 
-		ident = cIdentity(1)
+		ident = cPerson(1)
 		print "setting active patient with", ident
 		set_active_patient(patient=ident)
 
@@ -2314,7 +2314,7 @@ if __name__ == '__main__':
 		new_identity['title'] = 'test title';
 		new_identity['gender'] = 'f';
 		new_identity.save_payload()
-		print 'Refetching identity from db: %s' % cIdentity(aPK_obj=new_identity['pk_identity'])
+		print 'Refetching identity from db: %s' % cPerson(aPK_obj=new_identity['pk_identity'])
 
 		print '\nGetting all names...'
 		for a_name in new_identity.get_names():
@@ -2363,18 +2363,18 @@ if __name__ == '__main__':
 			print "%s, %s, %s" % (gender[idx['tag']], gender[idx['l10n_label']], gender[idx['sort_weight']])
 	#--------------------------------------------------------
 	def test_export_area():
-		person = cIdentity(aPK_obj = 12)
+		person = cPerson(aPK_obj = 12)
 		print person
 		print person.export_area
 		print person.export_area.items
 	#--------------------------------------------------------
 	def test_ext_id():
-		person = cIdentity(aPK_obj = 9)
+		person = cPerson(aPK_obj = 9)
 		print person.get_external_ids(id_type=u'Fachgebiet', issuer=u'Ärztekammer')
 		#print person.get_external_ids()
 	#--------------------------------------------------------
 	def test_vcf():
-		person = cIdentity(aPK_obj = 12)
+		person = cPerson(aPK_obj = 12)
 		print person.export_as_vcard()
 	#--------------------------------------------------------
 	#test_dto_person()

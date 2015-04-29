@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
 	from Gnumed.business import gmPerson
 
-	gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
+	gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 
 	arriba = cArriba()
 	print arriba

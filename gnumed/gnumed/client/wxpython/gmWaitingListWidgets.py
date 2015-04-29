@@ -118,7 +118,7 @@ class cWaitingListEntryEditAreaPnl(wxgWaitingListEntryEditAreaPnl.wxgWaitingList
 		self._SPCTRL_urgency.SetValue(0)
 	#--------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_patient.person = gmPerson.cIdentity(aPK_obj = self.data['pk_identity'])
+		self._PRW_patient.person = gmPerson.cPerson(aPK_obj = self.data['pk_identity'])
 		self._PRW_patient.Enable(False)
 		self._PRW_patient._display_name()
 
@@ -359,7 +359,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Waiting list'),
@@ -379,7 +379,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Waiting list'),
@@ -397,7 +397,7 @@ class cWaitingListPnl(wxgWaitingListPnl.wxgWaitingListPnl, gmRegetMixin.cRegetOn
 		if item is None:
 			return
 		try:
-			pat = gmPerson.cIdentity(aPK_obj = item['pk_identity'])
+			pat = gmPerson.cPerson(aPK_obj = item['pk_identity'])
 		except gmExceptions.ConstructorError:
 			gmGuiHelpers.gm_show_info (
 				aTitle = _('Waiting list'),

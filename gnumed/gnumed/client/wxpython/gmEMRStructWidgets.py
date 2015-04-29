@@ -1369,7 +1369,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		if self.data is None:
 			ident = gmPerson.gmCurrentPatient()
 		else:
-			ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+			ident = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 		self._PRW_issue.SetText()
 		self._PRW_description.SetText()
@@ -1379,7 +1379,7 @@ class cEpisodeEditAreaPnl(gmEditArea.cGenericEditAreaMixin, wxgEpisodeEditAreaPn
 		self._PRW_codes.SetText()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		ident = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+		ident = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		self._TCTRL_patient.SetValue(ident.get_description_gender())
 
 		if self.data['pk_health_issue'] is not None:

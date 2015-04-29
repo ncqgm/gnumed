@@ -983,7 +983,7 @@ class cEMRJournalExporter:
 		"""Export medical record into a file.
 
 		@type filename: None (creates filename by itself) or string
-		@type patient: None (use currently active patient) or <gmPerson.cIdentity> instance
+		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
@@ -1011,7 +1011,7 @@ class cEMRJournalExporter:
 		Export medical record into a Python object.
 
 		@type target: a python object supporting the write() API
-		@type patient: None (use currently active patient) or <gmPerson.cIdentity> instance
+		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
 		"""
 		if patient is None:
 			patient = gmPerson.gmCurrentPatient()
@@ -1115,8 +1115,8 @@ class cMedistarSOAPExporter:
 		if patient is None:
 			self.__pat = gmPerson.gmCurrentPatient()
 		else:
-			if not isinstance(patient, gmPerson.cIdentity):
-				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cIdentity>, but is: %s' % type(patient)
+			if not isinstance(patient, gmPerson.cPerson):
+				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(patient)
 			self.__pat = patient
 	#--------------------------------------------------------
 	# external API

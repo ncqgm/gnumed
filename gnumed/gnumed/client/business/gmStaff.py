@@ -111,7 +111,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_identity(self):
 		from Gnumed.business import gmPerson
-		return gmPerson.cIdentity(aPK_obj = self._payload[self._idx['pk_identity']])
+		return gmPerson.cPerson(aPK_obj = self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
 	#--------------------------------------------------------

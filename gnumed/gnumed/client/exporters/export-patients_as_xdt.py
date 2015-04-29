@@ -38,7 +38,7 @@ def export_patients_as_xdt(base_path=None):
 
 	for ID in gmPerson.get_person_IDs():
 		_log.info(u'exporting patient #%s', ID)
-		identity = gmPerson.cIdentity(aPK_obj = ID)
+		identity = gmPerson.cPerson(aPK_obj = ID)
 		_log.info(u'identity: %s', identity)
 		filename = gmTools.get_unique_filename (
 			prefix = u'gm_exp-%s-' % identity.dirname,

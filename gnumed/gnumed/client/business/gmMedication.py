@@ -3517,14 +3517,14 @@ if __name__ == "__main__":
 	# FreeDiams
 	#--------------------------------------------------------
 	def test_fd_switch_to():
-		gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
+		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
 #		fd.switch_to_frontend(blocking = True)
 		fd.import_fd2gm_file_as_drugs(filename = sys.argv[2])
 	#--------------------------------------------------------
 	def test_fd_show_interactions():
-		gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = 12))
+		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
 		fd.check_interactions(substances = fd.patient.get_emr().get_current_substance_intakes(include_unapproved = True))

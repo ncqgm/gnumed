@@ -125,7 +125,7 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 		pat_data = data[pk_pat_col]
 		try:
 			pat_pk = int(pat_data)
-			pat = gmPerson.cIdentity(aPK_obj = pat_pk)
+			pat = gmPerson.cPerson(aPK_obj = pat_pk)
 		except (ValueError, TypeError):
 			searcher = gmPersonSearch.cPatientSearcher_SQL()
 			idents = searcher.get_identities(pat_data)
@@ -447,7 +447,7 @@ class cDataMiningPnl(wxgDataMiningPnl.wxgDataMiningPnl):
 
 		comment = self._PRW_report_name.GetValue().strip()
 		for item in data:
-			pat = gmPerson.cIdentity(aPK_obj = item[pat_pk_key])
+			pat = gmPerson.cPerson(aPK_obj = item[pat_pk_key])
 			pat.put_on_waiting_list (comment = comment, zone = zone)
 
 	#--------------------------------------------------------

@@ -11,7 +11,7 @@ class cDocumentType(Proxy):
 class cPersonName(Proxy):
     pass
 
-class cIdentity(Proxy):
+class cPerson(Proxy):
     pass
 
 class cDocument(Proxy):

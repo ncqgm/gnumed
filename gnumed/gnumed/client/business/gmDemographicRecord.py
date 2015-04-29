@@ -173,11 +173,11 @@ def delete_tag_image(tag_image=None):
 	return True
 
 #============================================================
-_SQL_get_identity_tags = u"""SELECT * FROM dem.v_identity_tags WHERE %s"""
+_SQL_get_person_tags = u"""SELECT * FROM dem.v_identity_tags WHERE %s"""
 
-class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
+class cPersonTag(gmBusinessDBObject.cBusinessDBObject):
 
-	_cmd_fetch_payload = _SQL_get_identity_tags % u"pk_identity_tag = %s"
+	_cmd_fetch_payload = _SQL_get_person_tags % u"pk_identity_tag = %s"
 	_cmds_store_payload = [
 		u"""
 			UPDATE dem.identity_tag SET
@@ -209,7 +209,7 @@ class cIdentityTag(gmBusinessDBObject.cBusinessDBObject):
 					suffix = None
 			# get unique filename
 			filename = gmTools.get_unique_filename (
-				prefix = 'gm-identity_tag-',
+				prefix = 'gm-person_tag-',
 				suffix = suffix
 			)
 

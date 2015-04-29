@@ -276,7 +276,7 @@ def search_narrative_across_emrs(parent=None):
 		return
 
 	items = [ [
-		gmPerson.cIdentity(aPK_obj = r['pk_patient'])['description_gender'],
+		gmPerson.cPerson(aPK_obj = r['pk_patient'])['description_gender'],
 		r['narrative'],
 		r['src_table']
 	] for r in results ]
@@ -294,7 +294,7 @@ def search_narrative_across_emrs(parent=None):
 	if selected_patient is None:
 		return
 
-	wx.CallAfter(set_active_patient, patient = gmPerson.cIdentity(aPK_obj = selected_patient))
+	wx.CallAfter(set_active_patient, patient = gmPerson.cPerson(aPK_obj = selected_patient))
 #------------------------------------------------------------
 def search_narrative_in_emr(parent=None, patient=None):
 

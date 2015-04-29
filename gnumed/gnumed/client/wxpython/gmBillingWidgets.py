@@ -1032,7 +1032,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 	def _on_select_address_button_pressed(self, event):
 		adr = gmPersonContactWidgets.select_address (
 			missing = _('billing'),
-			person = gmPerson.cIdentity(aPK_obj = self.data['pk_patient'])
+			person = gmPerson.cPerson(aPK_obj = self.data['pk_patient'])
 		)
 		if adr is None:
 			gmGuiHelpers.gm_show_info (

@@ -68,7 +68,7 @@ def run_importer():
 #		return False
 #	pk_patient = rows[0][0]
 
-	gmPerson.set_active_patient(patient = gmPerson.cIdentity(aPK_obj = pk_patient))
+	gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = pk_patient))
 
 	# ensure structure of EMR
 	curr_pat = gmPerson.gmCurrentPatient()
