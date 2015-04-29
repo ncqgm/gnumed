@@ -1045,12 +1045,8 @@ class cLaTeXForm(cFormEngine):
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
 		# is at our disposal for reading)
-		sandbox_dir = gmTools.get_unique_filename (
-			prefix = gmTools.fname_stem(template_file) + '_',
-			suffix = '.dir'
-		)
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(template_file) + '_')
 		_log.debug('LaTeX sandbox directory: [%s]', sandbox_dir)
-		gmTools.mkdir(sandbox_dir)
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
 
@@ -1241,12 +1237,8 @@ class cXeTeXForm(cFormEngine):
 		# create sandbox for LaTeX to play in (and don't assume
 		# much of anything about the template_file except that it
 		# is at our disposal)
-		sandbox_dir = gmTools.get_unique_filename (
-			prefix = gmTools.fname_stem(template_file) + '_',
-			suffix = '.dir'
-		)
+		sandbox_dir = gmTools.mk_sandbox_dir(prefix = gmTools.fname_stem(template_file) + '_')
 		_log.debug('Xe(La)TeX sandbox directory: [%s]', sandbox_dir)
-		gmTools.mkdir(sandbox_dir)
 		shutil.copy(template_file, sandbox_dir)
 		template_file = os.path.join(sandbox_dir, os.path.split(template_file)[1])
 

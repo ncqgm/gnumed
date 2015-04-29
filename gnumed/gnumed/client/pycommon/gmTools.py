@@ -131,14 +131,17 @@ def mkdir(directory=None, mode=None):
 	return True
 
 #---------------------------------------------------------------------------
-def mk_sandbox_dir(tmp_dir=None):
-	dirname = get_unique_filename (
-		prefix = u'gm-',
-		suffix = u'dir',
-		tmp_dir = tmp_dir
+def mk_sandbox_dir(prefix=None, base_dir=None):
+	if prefix is None:
+		if base_dir is None:
+			prefix = u'sandbox-'
+		else:
+			prefix = u'gm_sandbox-'
+	return tempfile.mkdtemp (
+		prefix = prefix,
+		suffix = u'',
+		dir = base_dir
 	)
-	mkdir(directory = dirname)
-	return dirname
 
 #---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
@@ -229,18 +232,13 @@ class gmPaths(gmBorg.cBorg):
 			_log.debug(u'temp dir already set')
 		except AttributeError:
 			_log.info(u'initial temp dir: %s', tempfile.gettempdir())
-			# /tmp/gnumed/
-			tmp_base = os.path.join(tempfile.gettempdir(), app_name)
-			mkdir(tmp_base, 0o777)
-			tempfile.tempdir = tmp_base
-			_log.info(u'level 1 intermediate temp dir: %s', tempfile.gettempdir())
-			# /tmp/gnumed/$USER/
-			tmp_base = os.path.join(tempfile.gettempdir(), getpass.getuser())
+			# $TMP/gnumed-$USER/
+			tmp_base = os.path.join(tempfile.gettempdir(), app_name + r'-' + getpass.getuser())
 			mkdir(tmp_base, 0o700)
 			tempfile.tempdir = tmp_base
-			_log.info(u'level 2 intermediate temp dir: %s', tempfile.gettempdir())
-			# /tmp/gnumed/$USER/gm-*/
-			self.tmp_dir = tempfile.mkdtemp(prefix = r'gm-')
+			_log.info(u'intermediate temp dir: %s', tempfile.gettempdir())
+			# $TMP/gnumed-$USER/g$UNIQUE/
+			self.tmp_dir = tempfile.mkdtemp(prefix = r'g')
 
 		self.__log_paths()
 		if wx is None:
@@ -371,6 +369,7 @@ class gmPaths(gmBorg.cBorg):
 		_log.debug('previous temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir = path
 		tempfile.tempdir = self.__tmp_dir
+		_log.debug('current temp dir: %s', tempfile.gettempdir())
 		self.__tmp_dir_already_set = True
 
 	def _get_tmp_dir(self):

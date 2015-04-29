@@ -34,6 +34,7 @@ IMPROVED: lab_panel.most_recent_results() can now respect meta types
 IMPROVED: ignore_dupes_on_picking seems a better item picker default
 IMPROVED: overall code towards Python 3 compatibility
 IMPROVED: CODE: cIdentity(Tag) -> cPerson(Tag)
+IMPROVED: security of tmp/sandbox dir setup
 
 ------------------------------------------------
 # rel-1-5-patches
