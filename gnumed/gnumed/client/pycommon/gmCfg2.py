@@ -11,6 +11,7 @@ import io
 import re as regex
 import shutil
 import os
+import tempfile
 
 
 if __name__ == "__main__":
@@ -249,10 +250,10 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	_log.debug('setting option "%s" to "%s" in group [%s]', option, value, group)
 	_log.debug('file: %s (%s)', filename, encoding)
 
+	sink = tempfile.NamedTemporaryFile(suffix = '.cfg', delete = True)
+	sink_name = sink.name
+	sink.close()	# close it so it gets deleted so we can safely open it again
 	src = io.open(filename, mode = 'rt', encoding = encoding)
-	# FIXME: add "." right before the *name* part of filename - this
-	# FIXME: requires proper parsing (think of /home/lala/ -> ./home/lala vs /home/lala/gnumed/.gnumed.conf)
-	sink_name = '%s.gmCfg2.new.conf' % filename
 	sink = io.open(sink_name, mode = 'wt', encoding = encoding)
 
 	# is value a list ?
@@ -265,7 +266,6 @@ def set_option_in_INI_file(filename=None, group=None, option=None, value=None, e
 	src.close()
 
 	shutil.copy2(sink_name, filename)
-	os.remove(sink_name)
 
 #==================================================================
 def parse_INI_stream(stream=None):
