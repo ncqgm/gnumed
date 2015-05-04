@@ -12,6 +12,9 @@ set check_function_bodies to on;
 
 -- --------------------------------------------------------------
 alter table ref.auto_hint
+	drop constraint if exists ref_auto_hint_sane_rec_query;
+
+alter table ref.auto_hint
 	add constraint ref_auto_hint_sane_rec_query check (
 		gm.is_null_or_non_empty_string(recommendation_query)
 	);
@@ -268,6 +271,42 @@ BEGIN
 	END;
 	RETURN _recommendation;
 END;';
+
+-- --------------------------------------------------------------
+DELETE FROM ref.auto_hint WHERE title = 'Lack of smoking status documentation';
+
+INSERT INTO ref.auto_hint(query, title, hint, source, lang) VALUES (
+	'SELECT EXISTS(SELECT 1 FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT AND smoking_ever IS NULL);',
+	'Lack of smoking status documentation',
+	'There has never been any smoking status recorded for this patient.',
+	'AWMF NVL Schädlicher Tabakgebrauch',
+	'en'
+);
+
+
+DELETE FROM ref.auto_hint WHERE title = 'Outdated smoking status documentation';
+
+INSERT INTO ref.auto_hint(title, hint, source, lang, query, recommendation_query) VALUES (
+	'Outdated smoking status documentation',
+	'Smoking status was last recorded more than one year ago for this smoker.',
+	'AWMF NVL Schädlicher Tabakgebrauch',
+	'en',
+	'SELECT EXISTS (
+		SELECT 1 FROM clin.patient
+		WHERE
+			fk_identity = ID_ACTIVE_PATIENT
+				AND
+			smoking_ever IS TRUE
+				AND
+			smoking_details->''quit_when'' IS NULL
+				AND
+			smoking_details->''last_checked'' IS DISTINCT FROM NULL
+				AND
+			(smoking_details->''last_checked'' < (now() - ''1 year''::interval))
+	)',
+	'SELECT ''Smoking status last checked: '' || to_char(clin.patient.smoking_details->''last_checked'', ''YYYY Mon DD'')
+	 FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT;'
+);
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v21-ref-v_auto_hints.sql', '21.0');
