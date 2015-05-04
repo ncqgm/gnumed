@@ -6,6 +6,10 @@
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.6
+
+FIX: exception on removing temporary config file [thanks Vaibhav]
+
 	1.5.5
 
 FIX: exception in emr.get_clin_narrative (encounters is None) [thanks Marc]
