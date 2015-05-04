@@ -538,7 +538,12 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 			_log.warning('cannot find temporary dir [%s], using system default', tmp_dir)
 			tmp_dir = None
 
-	kwargs = {'dir': tmp_dir}
+	kwargs = {
+		'dir': tmp_dir,
+		#  make sure file gets deleted as soon as
+		# .close()d so we can safely open it again
+		'delete': True
+	}
 
 	if prefix is None:
 		kwargs['prefix'] = 'gnumed-'

@@ -36,7 +36,7 @@ __author__ = "Karsten.Hilbert@gmx.net"
 __license__ = "GPL v2 or later"
 
 # standard library
-import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile,
+import sys, string, os.path, fileinput, os, time, getpass, glob, re as regex, tempfile
 import io
 import logging
 
@@ -1142,7 +1142,7 @@ class database:
 		tmpfile = os.path.join(tempfile.gettempdir(), 'audit-trail-schema.sql')
 		f = io.open(tmpfile, mode = 'wt', encoding = 'utf8')
 		for line in audit_schema:
-			f.write("%s;\n" % line)
+			f.write(u'%s;\n' % line)
 		f.close()
 
 		# import auditing schema

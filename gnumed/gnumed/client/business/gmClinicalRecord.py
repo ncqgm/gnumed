@@ -97,7 +97,7 @@ class cClinicalRecord(object):
 
 		_log.debug('Instantiated clinical record for patient [%s].' % self.pk_patient)
 	#--------------------------------------------------------
-	def __old_style_init(self):
+	def __old_style_init(self, allow_user_interaction=True):
 
 		_log.error('%s.__old_style_init() used', self.__class__.__name__)
 		print u'*** GNUmed [%s]: __old_style_init() used ***' % self.__class__.__name__
@@ -105,7 +105,7 @@ class cClinicalRecord(object):
 		# FIXME: delegate to worker thread
 		# log access to patient record (HIPAA, for example)
 		cmd = u'SELECT gm.log_access2emr(%(todo)s)'
-		args = {'todo': u'patient [%s]' % aPKey}
+		args = {'todo': u'patient [%s]' % self.pk_patient}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 		# load current or create new encounter
@@ -118,7 +118,7 @@ class cClinicalRecord(object):
 
 		self.__encounter = None
 		if not self.__initiate_active_encounter(allow_user_interaction = allow_user_interaction):
-			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % aPKey
+			raise gmExceptions.ConstructorError, "cannot activate an encounter for patient [%s]" % self.pk_patient
 
 #		# FIXME: delegate to worker thread
 		gmAllergy.ensure_has_allergy_state(encounter = self.current_encounter['pk_encounter'])
@@ -237,6 +237,7 @@ class cClinicalRecord(object):
 		self.__gender = gender
 
 	gender = property(_get_gender, _set_gender)
+
 	#--------------------------------------------------------
 	def _get_dob(self):
 		if self.__dob is not None:
@@ -251,6 +252,7 @@ class cClinicalRecord(object):
 		self.__dob = dob
 
 	dob = property(_get_dob, _set_dob)
+
 	#--------------------------------------------------------
 	def _get_EDC(self):
 		cmd = u'SELECT edc FROM clin.patient WHERE fk_identity = %(pat)s'
@@ -276,6 +278,7 @@ class cClinicalRecord(object):
 			gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	EDC = property(_get_EDC, _set_EDC)
+
 	#--------------------------------------------------------
 	def _EDC_is_fishy(self):
 		edc = self.EDC
@@ -1884,6 +1887,7 @@ WHERE
 		self.current_encounter = encounter
 		_log.debug('"fairly recent" encounter re-activated')
 		return True
+
 	#------------------------------------------------------------------
 	def start_new_encounter(self):
 		cfg_db = gmCfg.cCfgSQL()
@@ -1901,6 +1905,7 @@ WHERE
 		enc.save()
 		self.current_encounter = enc
 		_log.debug('new encounter [%s] initiated' % self.current_encounter['pk_encounter'])
+
 	#------------------------------------------------------------------
 	def get_encounters(self, since=None, until=None, id_list=None, episodes=None, issues=None, skip_empty=False):
 		"""Retrieves patient's encounters.
