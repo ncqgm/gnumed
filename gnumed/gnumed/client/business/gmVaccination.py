@@ -1,7 +1,6 @@
 """GNUmed vaccination related business objects.
 """
 #============================================================
-__version__ = "$Revision: 1.38 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL"
 
@@ -15,7 +14,6 @@ from Gnumed.business import gmMedication
 
 
 _log = logging.getLogger('gm.vaccination')
-_log.info(__version__)
 
 #============================================================
 def get_indications(order_by=None, pk_indications=None):
@@ -33,6 +31,7 @@ def get_indications(order_by=None, pk_indications=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	return rows
+
 #============================================================
 _sql_fetch_vaccine = u"""SELECT *, xmin_vaccine FROM clin.v_vaccines WHERE %s"""
 
@@ -128,6 +127,7 @@ class cVaccine(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_in_use = property(_get_is_in_use, lambda x:x)
+
 #------------------------------------------------------------
 def create_vaccine(pk_brand=None, brand_name=None, indications=None, pk_indications=None):
 

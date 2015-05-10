@@ -659,11 +659,13 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		vaccs = emr.get_latest_vaccinations()
 		for ind, tmp in vaccs.items():
-			tmp, vacc = tmp
-			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'])
-			label = _('%s Vacc: %s') % (
+			no_of_shots, vacc = tmp
+			sort_key = u'%s::%s::%s' % (gmDateTime.pydt_strftime(vacc['date_given'], format = date_format4sorting), vacc['pk_vaccination'], ind)
+			label = _('%s Vacc: %s (%s%s)') % (
 				gmDateTime.pydt_strftime(vacc['date_given'], format = '%Y %b'),
-				ind
+				ind,
+				gmTools.u_sum,
+				no_of_shots
 			)
 			sort_key_list.append(sort_key)
 			data[sort_key] = [label, vacc]

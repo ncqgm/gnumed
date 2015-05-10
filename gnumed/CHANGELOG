@@ -36,6 +36,7 @@ IMPROVED: overall code towards Python 3 compatibility
 IMPROVED: CODE: cIdentity(Tag) -> cPerson(Tag)
 IMPROVED: security of tmp/sandbox dir setup
 IMPROVED: do not auto-plot results from edit area
+IMPROVED: much faster access to latest vaccinations
 
 ------------------------------------------------
 # rel-1-5-patches
