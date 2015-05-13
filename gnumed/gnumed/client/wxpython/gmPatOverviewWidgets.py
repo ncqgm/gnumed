@@ -770,13 +770,27 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	#-----------------------------------------------------
 	def __refresh_meds(self, patient=None):
-		# list by brand or substance:
+
 		emr = patient.get_emr()
-		intakes = emr.get_current_substance_intakes(include_inactive = False, include_unapproved = True, order_by = u'substance')
 
 		list_items = []
-		multi_brands_already_seen = []
 		data_items = []
+		first_red = False
+
+		# smoking
+		ever, details = emr.smoking_status
+		if ever is True:
+			if details['quit_when'] is None:
+				first_red = True
+				list_items.append(_('current smoker'))
+				data_items.append (_(u'Last checked: %s%s') % (
+					gmDateTime.pydt_strftime(details['last_checked'], '%Y %b'),
+					gmTools.coalesce(details['comment'], u'', u'\n\n%s')
+				))
+
+		# list by brand or substance:
+		intakes = emr.get_current_substance_intakes(include_inactive = False, include_unapproved = True, order_by = u'substance')
+		multi_brands_already_seen = []
 		for intake in intakes:
 			brand = intake.containing_drug
 			if brand is None or len(brand['pk_components']) == 1:
@@ -805,10 +819,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 					)
 				))
 				data_items.append(intake)
+
 		self._LCTRL_meds.set_string_items(items = list_items)
 		self._LCTRL_meds.set_data(data = data_items)
+
+		if first_red:
+			self._LCTRL_meds.SetItemTextColour(0, wx.NamedColour('RED'))
+
 	#-----------------------------------------------------
 	def _calc_meds_list_item_tooltip(self, data):
+		if isinstance(data, basestring):
+			return data
 		emr = gmPerson.gmCurrentPatient().get_emr()
 		atcs = []
 		if data['atc_substance'] is not None:
@@ -823,11 +844,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
 		data = self._LCTRL_meds.get_selected_item_data(only_one = True)
-		if data is not None:
-			# <ctrl> down ?
-			if wx.GetKeyState(wx.WXK_CONTROL):
-				wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
-				return
+
+		if data is None:
+			return
+
+		if isinstance(data, basestring):
+			return
+
+		# <ctrl> down ?
+		if wx.GetKeyState(wx.WXK_CONTROL):
+			wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
+			return
 
 		gmDispatcher.send(signal = 'display_widget', name = 'gmCurrentSubstancesPlugin')
 	#-----------------------------------------------------

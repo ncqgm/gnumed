@@ -24,6 +24,8 @@ import pickle
 import zlib
 import io
 import functools
+import json
+import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
 
@@ -932,6 +934,16 @@ __html_escape_table = {
 
 def html_escape_string(text=None):
 	return "".join(__html_escape_table.get(char, char) for char in text)
+
+#---------------------------------------------------------------------------
+def dict2json(obj):
+	return json.dumps(obj, default = json_serialize)
+
+#---------------------------------------------------------------------------
+def json_serialize(obj):
+	if isinstance(obj, pydt.datetime):
+		return obj.isoformat()
+	raise TypeError('cannot json_serialize(%s)' % type(obj))
 
 #---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):

@@ -348,6 +348,7 @@ def pydt_max_here():
 def wx_now_here(wx=None):
 	"""Returns NOW @ HERE (IOW, in the local timezone."""
 	return py_dt2wxDate(py_dt = pydt_now_here(), wx = wx)
+
 #===========================================================================
 # wxPython conversions
 #---------------------------------------------------------------------------
@@ -389,6 +390,7 @@ def py_dt2wxDate(py_dt=None, wx=None):
 	# month, and year at once
 	wxdt = wx.DateTimeFromDMY(py_dt.day, py_dt.month-1, py_dt.year)
 	return wxdt
+
 #===========================================================================
 # interval related
 #---------------------------------------------------------------------------

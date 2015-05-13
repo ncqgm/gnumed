@@ -305,6 +305,66 @@ class cClinicalRecord(object):
 			return True
 
 	EDC_is_fishy = property(_EDC_is_fishy, lambda x:x)
+
+	#--------------------------------------------------------
+	def __normalize_smoking_details(self, details):
+		try:
+			details['quit_when']
+		except KeyError:
+			details['quit_when'] = None
+		try:
+			details['last_checked']
+		except KeyError:
+			details['last_checked'] = None
+		try:
+			details['comment']
+		except KeyError:
+			details['comment'] = None
+
+		return details
+
+	#--------------------------------------------------------
+	def _get_smoking_status(self):
+		# caching does not take into account status changed from elsewhere
+		try:
+			self.__smoking_status
+		except AttributeError:
+			self.__smoking_status = None
+
+		if self.__smoking_status is not None:
+			return self.__smoking_status
+
+		args = {'pat': self.pk_patient}
+		cmd = u"SELECT smoking_ever, smoking_details, (smoking_details->>'last_checked')::timestamp with time zone AS ts_last, (smoking_details->>'quit_when')::timestamp with time zone AS ts_quit FROM clin.patient WHERE fk_identity = %(pat)s"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		ever = rows[0]['smoking_ever']
+		details = rows[0]['smoking_details']
+		if ever is not None:
+			details['last_checked'] = rows[0]['ts_last']
+			details['quit_when'] = None
+
+		self.__smoking_status = (ever, details)
+		return self.__smoking_status
+
+	def _set_smoking_status(self, status):
+		self.__smoking_status = None
+		ever, details = status
+		args = {'pat': self.pk_patient}
+		if ever is None:
+			cmd = u'UPDATE clin.patient SET smoking_ever = NULL, smoking_details = NULL WHERE fk_identity = %(pat)s'
+		elif ever is False:
+			details['quit_when'] = None
+			args['details'] = gmTools.dict2json(self.__normalize_smoking_details(details))
+			cmd = u'UPDATE clin.patient SET smoking_ever = FALSE, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
+		else:
+			args['details'] = gmTools.dict2json(self.__normalize_smoking_details(details))
+			cmd = u'UPDATE clin.patient SET smoking_ever = TRUE, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	smoking_status = property(_get_smoking_status, _set_smoking_status)
+
 	#--------------------------------------------------------
 	# API: performed procedures
 	#--------------------------------------------------------
@@ -2453,6 +2513,10 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
+
+	from Gnumed.business import gmPraxis
+	branches = gmPraxis.get_praxis_branches()
+	praxis = gmPraxis.gmCurrentPraxisBranch(branches[0])
 	#-----------------------------------------
 	def test_allergy_state():
 		emr = cClinicalRecord(aPKey=1)
@@ -2577,11 +2641,22 @@ if __name__ == "__main__":
 		pat = cPatient(aPK_obj = 12)
 		print emr.format_as_journal(left_margin = 1, patient = pat)
 	#-----------------------------------------
+	def test_smoking():
+		emr = cClinicalRecord(aPKey=12)
+		#print emr.is_or_was_smoker
+		smoking, details = emr.smoking_status
+		print 'status:', smoking
+		print 'details:'
+		print details
+		emr.smoking_status = (True, {'comment': '2', 'last_checked': gmDateTime.pydt_now_here()})
+		print emr.smoking_status
+
+	#-----------------------------------------
 
 	#test_allergy_state()
 	#test_is_allergic_to()
 
-	test_get_test_names()
+	#test_get_test_names()
 	#test_get_dates_for_results()
 	#test_get_measurements()
 	#test_get_test_results_by_date()
@@ -2595,6 +2670,7 @@ if __name__ == "__main__":
 	#test_get_most_recent()
 	#test_episodes()
 	#test_format_as_journal()
+	test_smoking()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

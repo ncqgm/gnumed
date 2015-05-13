@@ -16,6 +16,9 @@ alter table clin.substance_intake
 		set default NULL;
 
 alter table clin.substance_intake
+	drop constraint if exists clin_substance_intake_sane_start_comment;
+
+alter table clin.substance_intake
 	add constraint clin_substance_intake_sane_start_comment check (
 		gm.is_null_or_non_empty_string(comment_on_start)
 	);
