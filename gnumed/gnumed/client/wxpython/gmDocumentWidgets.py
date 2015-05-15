@@ -1055,21 +1055,24 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# did user select a page ?
 		page_idx = self._LBOX_doc_pages.GetSelection()
 		if page_idx == -1:
-			gmGuiHelpers.gm_show_info (
-				aMessage = _('You must select a part before you can view it.'),
-				aTitle = _('displaying part')
-			)
+#			gmGuiHelpers.gm_show_info (
+#				aMessage = _('You must select a part before you can view it.'),
+#				aTitle = _('displaying part')
+#			)
 			return None
-		# now, which file was that again ?
-		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 
-		(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
-		if not result:
-			gmGuiHelpers.gm_show_warning (
-				aMessage = _('Cannot display document part:\n%s') % msg,
-				aTitle = _('displaying part')
-			)
-			return None
+		page_fnames = [ self._LBOX_doc_pages.GetClientData(idx) for idx in self._LBOX_doc_pages.GetSelections() ]
+		## now, which file was that again ?
+		#page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
+
+		for page_fname in page_fnames:
+			(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
+			if not result:
+				gmGuiHelpers.gm_show_warning (
+					aMessage = _('Cannot display document part:\n%s') % msg,
+					aTitle = _('displaying part')
+				)
+
 		return 1
 	#--------------------------------------------------------
 	def _del_btn_pressed(self, event):
