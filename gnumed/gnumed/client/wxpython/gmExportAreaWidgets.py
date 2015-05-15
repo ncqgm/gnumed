@@ -208,10 +208,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 					u'\n'
 					u' [%s]\n'
 					u'\n'
-					u'is not empty. Do you want to use it for saving the\n'
-					u'export area documents into, nevertheless ?\n'
+					u'already contains files. Do you still want to save the\n'
+					u'selected export area documents into that directory ?\n'
 					u'\n'
-					u'(this can be useful for including external documents)\n'
+					u'(this is useful for including the external documents\n'
+					u' already stored in or below this directory)\n'
 					u'\n'
 					u'[NO] will create a subdirectory for you and use that.'
 				) % path,
@@ -220,13 +221,24 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if reuse_nonempty_dir is None:
 				return True
 			if reuse_nonempty_dir is False:
-				path = gmTools.get_unique_filename (
+				path = gmTools.mk_sandbox_dir (
 					prefix = u'export-%s-' % gmPerson.gmCurrentPatient().dirname,
-					suffix = '.dir',
-					tmp_dir = path
+					base_dir = path
 				)
 
-		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = path, items = items)
+		include_metadata = gmGuiHelpers.gm_show_question (
+			title = _(u'Saving export area documents'),
+			question = _(
+				u'Create descriptive metadata files\n'
+				u'and save them alongside the\n'
+				u'selected export area documents ?'
+			) % path,
+			cancel_button = True
+		)
+		if include_metadata is None:
+			return True
+
+		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = path, items = items, with_metadata = include_metadata)
 
 		self.save_soap_note(soap = _('Saved to [%s]:\n - %s') % (
 			export_dir,
@@ -264,7 +276,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 			if not gmTools.dir_is_empty(path2include):
 				base_dir = path2include
 
-		export_dir = gmPerson.gmCurrentPatient().export_area.export_with_meta_data(base_dir = base_dir, items = items)
+		export_dir = gmPerson.gmCurrentPatient().export_area.export(base_dir = base_dir, items = items, with_metadata = True)
 		if export_dir is None:
 			return False
 

@@ -460,7 +460,7 @@ class cExportArea(object):
 		r = rows[0]
 		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
 	#--------------------------------------------------------
-	def export_with_meta_data(self, base_dir=None, items=None):
+	def export(self, base_dir=None, items=None, with_metadata=True):
 
 		if items is None:
 			items_found = self.items
@@ -471,7 +471,7 @@ class cExportArea(object):
 		from Gnumed.business.gmPerson import cPatient
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if base_dir is None:
-			base_dir = gmTools.get_unique_filename(prefix = u'export-%s-' % pat.dirname, suffix = '.dir')
+			base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
 
 		_log.debug('base dir: %s', base_dir)
 
