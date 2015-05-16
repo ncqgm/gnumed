@@ -799,6 +799,7 @@ def remove_items_from_bill(parent=None, bill=None):
 		gmBilling.delete_bill(pk_bill = bill['pk_bill'])
 
 	return True
+
 #----------------------------------------------------------------
 def manage_bills(parent=None, patient=None):
 

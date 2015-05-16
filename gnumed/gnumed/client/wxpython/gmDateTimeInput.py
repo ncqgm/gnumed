@@ -6,7 +6,6 @@ this module.
 @copyright: author(s)
 """
 #==============================================================================
-__version__ = "$Revision: 1.66 $"
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -70,6 +69,7 @@ _log = logging.getLogger('gm.ui')
 #	def getAllMatches(self):
 #		matches = (False, [])
 #		return matches
+
 #============================================================
 class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -159,6 +159,7 @@ class cIntervalPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			self._set_data_to_first_match()
 
 		return super(cIntervalPhraseWheel, self).GetData()
+
 #============================================================
 class cCalendarDatePickerDlg(wx.Dialog):
 	"""Shows a calendar control from which the user can pick a date."""
@@ -304,6 +305,7 @@ class cDateMatchProvider(gmMatchProvider.cMatchProvider):
 #		dlg.Destroy()
 #
 #		return matches
+
 #============================================================
 class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 
@@ -490,6 +492,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 #		)
 
 	date = property(_get_date, _set_date)
+
 #============================================================
 class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def __init__(self):
@@ -542,6 +545,7 @@ class cMatchProvider_FuzzyTimestamp(gmMatchProvider.cMatchProvider):
 	def getAllMatches(self):
 		"""Return all items."""
 		return (False, [])
+
 #==================================================
 class cFuzzyTimestampInput(gmPhraseWheel.cPhraseWheel):
 

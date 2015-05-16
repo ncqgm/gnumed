@@ -41,6 +41,7 @@ from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmDocumentWidgets
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmPregWidgets
+from Gnumed.wxpython import gmHabitWidgets
 
 
 _log = logging.getLogger('gm.patient')
@@ -782,7 +783,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if ever is True:
 			if details['quit_when'] is None:
 				first_red = True
-				list_items.append(_('current smoker'))
+				list_items.append(_('current tobacco use'))
 				data_items.append (_(u'Last checked: %s%s') % (
 					gmDateTime.pydt_strftime(details['last_checked'], '%Y %b'),
 					gmTools.coalesce(details['comment'], u'', u'\n\n%s')
@@ -849,9 +850,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return
 
 		if isinstance(data, basestring):
+			gmHabitWidgets.manage_smoking_status(parent = self, patient = gmPerson.gmCurrentPatient())
 			return
 
-		# <ctrl> down ?
+		# <ctrl> down ? -> edit
 		if wx.GetKeyState(wx.WXK_CONTROL):
 			wx.CallAfter(gmMedicationWidgets.edit_intake_of_substance, parent = self, substance = data)
 			return

@@ -14,9 +14,12 @@ import logging
 import datetime as pydt
 
 
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDateTime
+
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	from Gnumed.pycommon import gmLog2, gmDateTime, gmI18N
+	from Gnumed.pycommon import gmLog2
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
 	gmDateTime.init()
@@ -24,10 +27,8 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmDispatcher
-from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmTools
-from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
@@ -312,12 +313,18 @@ class cClinicalRecord(object):
 			details['quit_when']
 		except KeyError:
 			details['quit_when'] = None
+
 		try:
 			details['last_checked']
+			if details['last_checked'] is None:
+				details['last_checked'] = gmDateTime.pydt_now_here()
 		except KeyError:
-			details['last_checked'] = None
+			details['last_checked'] = gmDateTime.pydt_now_here()
+
 		try:
 			details['comment']
+			if details['comment'].strip == u'':
+				details['comment'] = None
 		except KeyError:
 			details['comment'] = None
 

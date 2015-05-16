@@ -131,6 +131,7 @@ from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmAutoHintWidgets
 from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmExternalCareWidgets
+from Gnumed.wxpython import gmHabitWidgets
 
 
 try:
@@ -695,6 +696,9 @@ class gmTopLevelFrame(wx.Frame):
 
 		item = menu_emr_edit.Append(-1, _('Suppressed hints'), _('Manage dynamic hints suppressed in this patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_suppressed_hints, item)
+
+		item = menu_emr_edit.Append(-1, _('Smoking status'), _('Manage smoking status of this patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_smoking_status, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
@@ -2674,6 +2678,7 @@ class gmTopLevelFrame(wx.Frame):
 		gmVaccWidgets.manage_vaccinations(parent = self)
 		evt.Skip()
 	#----------------------------------------------
+	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage family history'))
 	def __on_manage_fhx(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2695,6 +2700,7 @@ class gmTopLevelFrame(wx.Frame):
 	def __on_calc_edc(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		gmPregWidgets.calculate_edc(parent = self, patient = pat)
+
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('full clinical access', activity = _('manage suppressed hints'))
 	def __on_manage_suppressed_hints(self, evt):
@@ -2703,6 +2709,15 @@ class gmTopLevelFrame(wx.Frame):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage suppressed hints. No active patient.'))
 			return False
 		gmAutoHintWidgets.manage_suppressed_hints(parent = self, pk_identity = pat.ID)
+
+	#----------------------------------------------
+	def __on_manage_smoking_status(self, evt):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage smoking status. No active patient.'))
+			return False
+		gmHabitWidgets.manage_smoking_status(parent = self, patient = pat)
+
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
 		pat = gmPerson.gmCurrentPatient()
