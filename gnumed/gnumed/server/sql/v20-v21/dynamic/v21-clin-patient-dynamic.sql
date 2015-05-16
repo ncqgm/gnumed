@@ -25,9 +25,9 @@ BEGIN
 	END IF;
 
 	-- all required fields available ?
-	IF (details ?& ARRAY[''quit_when'', ''last_checked'', ''comment'']) IS FALSE THEN
+	IF (details ?& ARRAY[''quit_when'', ''last_confirmed'', ''comment'']) IS FALSE THEN
 		RAISE EXCEPTION
-			''clin.validate_smoking_details(details jsonb): must contain <quit_when>, <last_checked>, <comment> but contains: [%]'',
+			''clin.validate_smoking_details(details jsonb): must contain <quit_when>, <last_confirmed>, <comment> but contains: [%]'',
 			array_to_string(array(select jsonb_object_keys(details)), '','')
 			USING ERRCODE = ''check_violation''
 		;
@@ -39,8 +39,8 @@ BEGIN
 		PERFORM (details->>''quit_when'')::timestamp with time zone;
 	END IF;
 
-	-- last_checked is valid timestamp
-	PERFORM (details->>''last_checked'')::timestamp with time zone;
+	-- last_confirmed is valid timestamp
+	PERFORM (details->>''last_confirmed'')::timestamp with time zone;
 
 	-- comment is NULL or not empty
 	IF gm.is_null_or_non_empty_string(details->>''comment'') IS FALSE THEN
@@ -51,13 +51,15 @@ BEGIN
 		RETURN FALSE;
 	END IF;
 	-- comment is of type STRING
-	IF jsonb_typeof(details->''comment'') <> ''string'' THEN
-		RAISE EXCEPTION
-			''clin.validate_smoking_details(details jsonb): <comment> must be a string but is [%]'',
-			jsonb_typeof(details->''comment'')
-			USING ERRCODE = ''check_violation''
-		;
-		RETURN FALSE;
+	IF (details->>''comment'') IS DISTINCT FROM NULL THEN
+		IF jsonb_typeof(details->''comment'') <> ''string'' THEN
+			RAISE EXCEPTION
+				''clin.validate_smoking_details(details jsonb): <comment> must be a string but is [%]'',
+				jsonb_typeof(details->''comment'')
+				USING ERRCODE = ''check_violation''
+			;
+			RETURN FALSE;
+		END IF;
 	END IF;
 
 	RETURN TRUE;
@@ -69,7 +71,7 @@ comment on function clin.validate_smoking_details(details jsonb) is
 
 -- --------------------------------------------------------------
 comment on column clin.patient.smoking_ever is 'Smoking status: NULL=unknown, FALSE=never, TRUE=now or previously';
-comment on column clin.patient.smoking_details is 'Application level details on smoking: .quit_when / .last_checked / .details (comment, pack years, n per day, type of consumption)';
+comment on column clin.patient.smoking_details is 'Application level details on smoking: .quit_when / .last_confirmed / .details (comment, pack years, n per day, type of consumption)';
 
 
 alter table clin.patient

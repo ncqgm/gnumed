@@ -303,15 +303,15 @@ INSERT INTO ref.auto_hint(title, hint, source, lang, query, recommendation_query
 			((smoking_details->>''quit_when'')::timestamp with time zone IS NULL)
 				AND
 			-- status has been checked at all
-			((smoking_details ? ''last_checked'') IS DISTINCT FROM NULL)
+			((smoking_details ? ''last_confirmed'') IS DISTINCT FROM NULL)
 				AND
 			-- but has been checked more than one year ago
-			((smoking_details->>''last_checked'')::timestamp with time zone < (now() - ''1 year''::interval))
+			((smoking_details->>''last_confirmed'')::timestamp with time zone < (now() - ''1 year''::interval))
 	);',
 	'SELECT
 		''Smoking status last checked: ''
-		|| to_char((clin.patient.smoking_details->>''last_checked'')::timestamp with time zone, ''Mon YYYY'')
-		|| coalesce(E''\n\nDetails:\n'' || clin.patient.smoking_details->>''comment'', '''')
+		|| to_char((clin.patient.smoking_details->>''last_confirmed'')::timestamp with time zone, ''Mon YYYY'')
+		|| coalesce(E''\nDetails:\n'' || (clin.patient.smoking_details->>''comment'')::text, '''')
 	FROM
 		clin.patient
 	WHERE fk_identity = ID_ACTIVE_PATIENT;'

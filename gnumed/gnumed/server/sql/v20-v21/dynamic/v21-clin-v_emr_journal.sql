@@ -71,6 +71,11 @@ union all
 union all
 
 	select * from clin.v_external_care_journal
+
+union all
+
+	select * from clin.v_smoking_journal
+
 ;
 
 comment on view clin.v_emr_journal is

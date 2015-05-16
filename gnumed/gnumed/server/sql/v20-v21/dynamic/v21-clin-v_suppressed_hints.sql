@@ -24,6 +24,7 @@ select
 		as pk_hint,
 	r_vah.title,
 	r_vah.hint,
+	r_vah.recommendation,
 	r_vah.url,
 	r_vah.is_active,
 	r_vah.source,
@@ -78,7 +79,8 @@ select
 			then _('Hint definition has been modified since suppression. Rationale for suppression may no longer apply.') || E'\n'
 			else ''
 		end
-		|| coalesce(_('Hint: ') || r_vah.hint, '')
+		|| coalesce(_('Hint: ') || r_vah.hint || E'\n', '')
+		|| coalesce(_('Recommendation: ') || r_vah.recommendation, '')
 		as narrative,
 	c_sh.fk_encounter
 		as fk_encounter,

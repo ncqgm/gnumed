@@ -315,15 +315,15 @@ class cClinicalRecord(object):
 			details['quit_when'] = None
 
 		try:
-			details['last_checked']
-			if details['last_checked'] is None:
-				details['last_checked'] = gmDateTime.pydt_now_here()
+			details['last_confirmed']
+			if details['last_confirmed'] is None:
+				details['last_confirmed'] = gmDateTime.pydt_now_here()
 		except KeyError:
-			details['last_checked'] = gmDateTime.pydt_now_here()
+			details['last_confirmed'] = gmDateTime.pydt_now_here()
 
 		try:
 			details['comment']
-			if details['comment'].strip == u'':
+			if details['comment'].strip() == u'':
 				details['comment'] = None
 		except KeyError:
 			details['comment'] = None
@@ -342,14 +342,14 @@ class cClinicalRecord(object):
 			return self.__smoking_status
 
 		args = {'pat': self.pk_patient}
-		cmd = u"SELECT smoking_ever, smoking_details, (smoking_details->>'last_checked')::timestamp with time zone AS ts_last, (smoking_details->>'quit_when')::timestamp with time zone AS ts_quit FROM clin.patient WHERE fk_identity = %(pat)s"
+		cmd = u"SELECT smoking_ever, smoking_details, (smoking_details->>'last_confirmed')::timestamp with time zone AS ts_last, (smoking_details->>'quit_when')::timestamp with time zone AS ts_quit FROM clin.patient WHERE fk_identity = %(pat)s"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		if len(rows) == 0:
 			return None
 		ever = rows[0]['smoking_ever']
 		details = rows[0]['smoking_details']
 		if ever is not None:
-			details['last_checked'] = rows[0]['ts_last']
+			details['last_confirmed'] = rows[0]['ts_last']
 			details['quit_when'] = None
 
 		self.__smoking_status = (ever, details)
@@ -2655,7 +2655,7 @@ if __name__ == "__main__":
 		print 'status:', smoking
 		print 'details:'
 		print details
-		emr.smoking_status = (True, {'comment': '2', 'last_checked': gmDateTime.pydt_now_here()})
+		emr.smoking_status = (True, {'comment': '2', 'last_confirmed': gmDateTime.pydt_now_here()})
 		print emr.smoking_status
 
 	#-----------------------------------------

@@ -26,7 +26,7 @@ class wxgSmokingEAPnl(wx.ScrolledWindow):
 		self._RBTN_smokes = wx.RadioButton(self, wx.ID_ANY, _("&Smokes or smoked"))
 		self._TCTRL_comment = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._DPRW_quit_when = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._DPRW_last_checked = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._DPRW_last_confirmed = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 
 		self.__set_properties()
 		self.__do_layout()
@@ -41,7 +41,7 @@ class wxgSmokingEAPnl(wx.ScrolledWindow):
 		self._RBTN_smokes.SetToolTipString(_("Select if the patient did or does smoke."))
 		self._TCTRL_comment.SetToolTipString(_("A comment on the smoking habits:\n- type of product used\n- frequency\n- amount\n- when started\n- attempts to quit\n..."))
 		self._DPRW_quit_when.SetToolTipString(_("When did the patient quit smoking ?\n\nYou can also set a target quit date here."))
-		self._DPRW_last_checked.SetToolTipString(_("When was smoking status last checked (mostly \"today\") ?"))
+		self._DPRW_last_confirmed.SetToolTipString(_("When was smoking status last confirmed (mostly \"today\") ?"))
 		# end wxGlade
 
 	def __do_layout(self):
@@ -60,9 +60,9 @@ class wxgSmokingEAPnl(wx.ScrolledWindow):
 		__lbl_quit_when = wx.StaticText(self, wx.ID_ANY, _("Quit date"))
 		_gszr_main.Add(__lbl_quit_when, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(self._DPRW_quit_when, 0, wx.EXPAND, 0)
-		__lbl_last_checked = wx.StaticText(self, wx.ID_ANY, _("Last checked"))
-		_gszr_main.Add(__lbl_last_checked, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		_gszr_main.Add(self._DPRW_last_checked, 0, wx.EXPAND, 0)
+		__lbl_last_confirmed = wx.StaticText(self, wx.ID_ANY, _("Last confirmed"))
+		_gszr_main.Add(__lbl_last_confirmed, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		_gszr_main.Add(self._DPRW_last_confirmed, 0, wx.EXPAND, 0)
 		self.SetSizer(_gszr_main)
 		_gszr_main.Fit(self)
 		_gszr_main.AddGrowableCol(1)

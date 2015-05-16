@@ -19,7 +19,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
-from Gnumed.business import gmProviderInbox
+from Gnumed.business import gmAutoHints
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmAuthWidgets
@@ -135,13 +135,13 @@ def manage_dynamic_hints(parent=None):
 		conn = gmAuthWidgets.get_dbowner_connection(procedure = _('deleting a dynamic hint'))
 		if conn is None:
 			return False
-		gmProviderInbox.delete_dynamic_hint(link_obj = conn, pk_hint = hint['pk_auto_hint'])
+		gmAutoHints.delete_dynamic_hint(link_obj = conn, pk_hint = hint['pk_auto_hint'])
 		conn.commit()
 		conn.close()
 		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		hints = gmProviderInbox.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
+		hints = gmAutoHints.get_dynamic_hints(order_by = u'is_active DESC, source, hint')
 		items = [ [
 			gmTools.bool2subst(h['is_active'], gmTools.u_checkmark_thin, u''),
 			h['title'],
@@ -223,7 +223,10 @@ class cDynamicHintDlg(wxgDynamicHintDlg.wxgDynamicHintDlg):
 			self._TCTRL_previous_rationale.Hide()
 		else:
 			self._TCTRL_title.SetValue(self.__hint['title'])
-			self._TCTRL_hint.SetValue(self.__hint['hint'])
+			self._TCTRL_hint.SetValue(u'%s%s' % (
+				self.__hint['hint'],
+				gmTools.coalesce(self.__hint['recommendation'], u'', u'\n\n%s')
+			))
 			if self.__hint['url'] is None:
 				self._URL_info.SetURL(u'')
 				self._URL_info.Disable()
@@ -342,7 +345,7 @@ class cAutoHintEAPnl(wxgAutoHintEAPnl.wxgAutoHintEAPnl, gmEditArea.cGenericEditA
 			return False
 
 		curs = conn.cursor()
-		data = gmProviderInbox.create_dynamic_hint (
+		data = gmAutoHints.create_dynamic_hint (
 			link_obj = curs,		# it seems this MUST be a cursor or else the successfully created row will not show up -- but why ?!?
 			query = self._TCTRL_query.GetValue().strip(),
 			title = self._TCTRL_title.GetValue().strip(),
@@ -443,11 +446,11 @@ def manage_suppressed_hints(parent=None, pk_identity=None):
 		)
 		if not really_delete:
 			return False
-		gmProviderInbox.delete_suppressed_hint(pk_suppressed_hint = hint['pk_suppressed_hint'])
+		gmAutoHints.delete_suppressed_hint(pk_suppressed_hint = hint['pk_suppressed_hint'])
 		return True
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		hints = gmProviderInbox.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
+		hints = gmAutoHints.get_suppressed_hints(pk_identity = pk_identity, order_by = u'title')
 		items = [ [
 			h['title'],
 			gmDateTime.pydt_strftime(h['suppressed_when'], '%Y %b %d'),

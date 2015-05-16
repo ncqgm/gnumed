@@ -97,18 +97,18 @@
                 <flag>wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="wxStaticText" name="__lbl_last_checked" base="EditStaticText">
+                <object class="wxStaticText" name="__lbl_last_confirmed" base="EditStaticText">
                     <attribute>0</attribute>
-                    <label>Last checked</label>
+                    <label>Last confirmed</label>
                 </object>
             </object>
             <object class="sizeritem">
                 <flag>wxEXPAND</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="cDateInputPhraseWheel" name="_DPRW_last_checked" base="EditTextCtrl">
+                <object class="cDateInputPhraseWheel" name="_DPRW_last_confirmed" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
-                    <tooltip>When was smoking status last checked (mostly "today") ?</tooltip>
+                    <tooltip>When was smoking status last confirmed (mostly "today") ?</tooltip>
                 </object>
             </object>
         </object>

@@ -28,6 +28,7 @@ from Gnumed.business import gmVaccination
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExternalCare
+from Gnumed.business import gmAutoHints
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -320,10 +321,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if isinstance(data, gmProviderInbox.cInboxMessage):
 			return data.format()
 
-		if isinstance(data, gmProviderInbox.cDynamicHint):
-			return u'%s\n\n%s\n\n%s          %s' % (
+		if isinstance(data, gmAutoHints.cDynamicHint):
+			return u'%s\n\n%s%s\n\n%s          %s' % (
 				data['title'],
 				gmTools.wrap(data['hint'], width = 50),
+				gmTools.wrap(gmTools.coalesce(data['recommendation'], u'', u'\n\n%s'), width =  50),
 				gmTools.wrap(gmTools.coalesce(data['url'], u'', u'%s\n\n'), width = 50),
 				data['source']
 			)
@@ -338,7 +340,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		data = self._LCTRL_inbox.get_selected_item_data(only_one = True)
 
 		# if it is a dynamic hint open the URL for that
-		if isinstance(data, gmProviderInbox.cDynamicHint):
+		if isinstance(data, gmAutoHints.cDynamicHint):
 			if data['url'] is not None:
 				gmNetworkTools.open_url_in_browser(data['url'])
 			return
@@ -783,9 +785,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if ever is True:
 			if details['quit_when'] is None:
 				first_red = True
-				list_items.append(_('current tobacco use'))
-				data_items.append (_(u'Last checked: %s%s') % (
-					gmDateTime.pydt_strftime(details['last_checked'], '%Y %b'),
+				list_items.append (
+					_('active tobacco use (%s)') % gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b')
+				)
+				data_items.append (_(u'Last confirmed: %s%s') % (
+					gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d'),
 					gmTools.coalesce(details['comment'], u'', u'\n\n%s')
 				))
 

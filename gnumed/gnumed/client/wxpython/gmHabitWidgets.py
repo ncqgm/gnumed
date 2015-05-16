@@ -66,9 +66,9 @@ class cSmokingEAPnl(wxgSmokingEAPnl.wxgSmokingEAPnl, gmEditArea.cGenericEditArea
 	def _valid_for_save(self):
 		validity = True
 
-		if not self._DPRW_last_checked.is_valid_timestamp(allow_empty = False):
+		if not self._DPRW_last_confirmed.is_valid_timestamp(allow_empty = False):
 			validity = False
-			self._DPRW_last_checked.SetFocus()
+			self._DPRW_last_confirmed.SetFocus()
 
 		if not self._DPRW_quit_when.is_valid_timestamp(allow_empty = True):
 			validity = False
@@ -88,7 +88,7 @@ class cSmokingEAPnl(wxgSmokingEAPnl.wxgSmokingEAPnl, gmEditArea.cGenericEditArea
 		details = {
 			'comment': self._TCTRL_comment.GetValue(),
 			'quit_when': self._DPRW_quit_when.date,
-			'last_checked': self._DPRW_last_checked.date
+			'last_confirmed': self._DPRW_last_confirmed.date
 		}
 
 		self.data.smoking_status = (ever, details)
@@ -102,7 +102,7 @@ class cSmokingEAPnl(wxgSmokingEAPnl.wxgSmokingEAPnl, gmEditArea.cGenericEditArea
 		self._RBTN_unknown_smoking_status.SetValue(True)
 		self._TCTRL_comment.SetValue(u'')
 		self._DPRW_quit_when.SetText(u'', None)
-		self._DPRW_last_checked.SetText(data = gmDateTime.pydt_now_here())
+		self._DPRW_last_confirmed.SetText(data = gmDateTime.pydt_now_here())
 	#----------------------------------------------------------------
 	def _refresh_as_new_from_existing(self):
 		self._refresh_from_existing()
@@ -117,9 +117,9 @@ class cSmokingEAPnl(wxgSmokingEAPnl.wxgSmokingEAPnl, gmEditArea.cGenericEditArea
 			self._RBTN_smokes.SetValue(True)
 
 		if details is not None:
-			self._TCTRL_comment.SetValue(gmTools.coalesce(details['comment']))
+			self._TCTRL_comment.SetValue(gmTools.coalesce(details['comment'], u''))
 			self._DPRW_quit_when.SetText(data = details['quit_when'])
-			self._DPRW_last_checked.SetText(data = details['last_checked'])
+			self._DPRW_last_confirmed.SetText(data = details['last_confirmed'])
 
 		self._TCTRL_comment.SetFocus()
 	#----------------------------------------------------------------

@@ -46,6 +46,7 @@ from Gnumed.business import gmXdtMappings
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExportArea
 from Gnumed.business import gmBilling
+from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDocuments import cDocumentFolder
 from Gnumed.business.gmChartPulling import tui_chart_puller
 
@@ -1579,7 +1580,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		return gmProviderInbox.delete_inbox_message(inbox_message = pk)
 	#--------------------------------------------------------
 	def _get_dynamic_hints(self, include_suppressed_needing_invalidation=False):
-		return gmProviderInbox.get_hints_for_patient (
+		return gmAutoHints.get_hints_for_patient (
 			pk_identity = self._payload[self._idx['pk_identity']],
 			include_suppressed_needing_invalidation = include_suppressed_needing_invalidation
 		)
@@ -1587,7 +1588,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 	dynamic_hints = property(_get_dynamic_hints, lambda x:x)
 	#--------------------------------------------------------
 	def _get_suppressed_hints(self):
-		return gmProviderInbox.get_suppressed_hints(pk_identity = self._payload[self._idx['pk_identity']])
+		return gmAutoHints.get_suppressed_hints(pk_identity = self._payload[self._idx['pk_identity']])
 
 	suppressed_hints = property(_get_suppressed_hints, lambda x:x)
 	#--------------------------------------------------------
