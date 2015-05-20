@@ -499,6 +499,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._LBL_message.Show()
 
 	message = property(lambda x:x, _set_message)
+
 #================================================================
 from Gnumed.wxGladeWidgets import wxgGenericListManagerPnl
 
@@ -573,6 +574,11 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			if self.__select_callback is not None:
 				self.__select_callback(None)
 	#------------------------------------------------------------
+	def _on_list_item_activated(self, event):
+		if self.edit_callback is None:
+			return
+		self._on_edit_button_pressed(event)
+	#------------------------------------------------------------
 	def _on_add_button_pressed(self, event):
 		if not self.new_callback():
 			return
@@ -583,11 +589,6 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self.refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
-	#------------------------------------------------------------
-	def _on_list_item_activated(self, event):
-		if self.edit_callback is None:
-			return
-		self._on_edit_button_pressed(event)
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
@@ -1263,25 +1264,28 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		event.Skip()
 
 		col_headers = []
+		self._rclicked_row_idx = event.Index
+		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
 		self._rclicked_row_cells = []
 		for col_idx in range(self.ColumnCount):
-			cell_content = self.GetItemText(event.Index, col_idx).strip()
+			cell_content = self.GetItemText(self._rclicked_row_idx, col_idx).strip()
 			if cell_content == u'':
 				continue
 			col_headers.append(self.GetColumn(col_idx).m_text)
 			self._rclicked_row_cells.append(cell_content)
-		self._rclicked_row_data = self.get_item_data(item_idx = event.Index)
 
 		# build menu
 		clip_menu = wx.Menu()
-		menu_item = clip_menu.Append(-1, _('Entire row'))
+		menu_item = clip_menu.Append(-1, _('Row tooltip'))
+		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
+		if hasattr(self._rclicked_row_data, 'format'):
+			menu_item = clip_menu.Append(-1, _('Row data (as text)'))
+			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
+		menu_item = clip_menu.Append(-1, _('Row fields (as text)'))
 		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
 		for col_idx in range(len(col_headers)):
 			menu_item = clip_menu.Append(-1, _('[%8.8s] %s') % (col_headers[col_idx], self._rclicked_row_cells[col_idx]))
 			self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_menu.Append(-1, _('Row data (formatted as text)'))
-			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
 		self._popup_menu = wx.Menu(title = _('List Item Actions:'))
 		self._popup_menu.AppendMenu(-1, _('Copy to clipboard...'), clip_menu)
 
@@ -1406,6 +1410,27 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 
 		self.SetToolTipString(dyna_tt)
+	#------------------------------------------------------------
+	def _tooltip2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			txt = self.__tt_static_part
+		else:
+			txt = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(self._rclicked_row_idx)])
+			if txt is None:
+				txt = self.__tt_static_part
+
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
 	#------------------------------------------------------------
 	def _row2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():

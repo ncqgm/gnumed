@@ -97,4 +97,18 @@ alter table clin.patient
 	);
 
 -- --------------------------------------------------------------
+UPDATE clin.patient SET
+	smoking_ever = True,
+	smoking_details = '{"last_confirmed":"20051111","quit_when":null,"comment":"enjoys an occasional pipe of Old Toby"}'::jsonb
+WHERE
+	fk_identity = (
+		SELECT pk_identity FROM dem.v_persons
+		WHERE
+			firstnames = 'James Tiberius'
+				AND
+			lastnames = 'Kirk'
+	)
+;
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v21-clin-patient-dynamic.sql', '21.0');
