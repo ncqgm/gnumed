@@ -94,6 +94,7 @@ def export_emr_to_ascii(parent=None):
 
 	gmDispatcher.send('statustext', msg = _('EMR successfully exported to file: %s') % fname, beep = False)
 	return fname
+
 #============================================================
 class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	"""This wx.TreeCtrl derivative displays a tree view of a medical record."""
@@ -1362,6 +1363,7 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 	def __init__(self, *args, **kwds):
 
 		wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl.__init__(self, *args, **kwds)
+		self._TCTRL_journal.disable_keyword_expansions()
 		self._TCTRL_journal.SetValue(u'')
 	#--------------------------------------------------------
 	# external API
@@ -1400,24 +1402,32 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		return True
+
 	#--------------------------------------------------------
-	# event handler
+	# event handlers
 	#--------------------------------------------------------
 	def _on_pre_patient_unselection(self):
 		self._TCTRL_journal.SetValue(u'')
 		return True
+
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
 		if self.GetParent().GetCurrentPage() != self:
 			return True
 		self.repopulate_ui()
 		return True
+
 	#--------------------------------------------------------
 	def _on_order_by_encounter_selected(self, event):
 		self.repopulate_ui()
+
 	#--------------------------------------------------------
 	def _on_order_by_last_mod_selected(self, event):
 		self.repopulate_ui()
+
+	#--------------------------------------------------------
+	def _on_button_find_pressed(self, event):
+		self._TCTRL_journal.show_find_dialog(title = _('Find text in EMR Journal'))
 
 #================================================================
 # MAIN

@@ -2750,9 +2750,7 @@ class gmTopLevelFrame(wx.Frame):
 			return False
 		# get file name
 		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
-		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed', pat['dirname']))
-		gmTools.mkdir(aDefDir)
-		# FIXME: make configurable
+		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed'))
 		fname = '%s-%s_%s.txt' % (_('emr-journal'), pat['lastnames'], pat['firstnames'])
 		dlg = wx.FileDialog (
 			parent = self,

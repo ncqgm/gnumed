@@ -1,4 +1,4 @@
-"""GNUmed TextCtrl sbuclass."""
+__doc__ = """GNUmed TextCtrl sbuclass."""
 #===================================================
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
@@ -18,11 +18,110 @@ from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 _log = logging.getLogger('gm.txtctrl')
 
-#===================================================
+
+#============================================================
+class cTextSearch_TextCtrlMixin():
+
+	def __init__(self):
+		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
+
+		self.__mixin_find_replace_data = None
+		self.__mixin_find_replace_dlg = None
+		self.__mixin_find_replace_last_match_start = 0
+		self.__mixin_find_replace_last_match_end = 0
+		self.__mixin_find_replace_last_match_attr = None
+
+	#--------------------------------------------------------
+	def show_find_dialog(self, title=None):
+
+		if self.__mixin_find_replace_dlg is not None:
+			return self.__mixin_find_replace_dlg
+
+		self.__mixin_find_replace_last_match_end = 0
+
+		if title is None:
+			title = _('Find text')
+		self.__mixin_find_replace_data = wx.FindReplaceData()
+		self.__mixin_find_replace_dlg = wx.FindReplaceDialog (
+			self,
+			self.__mixin_find_replace_data,
+			title,
+			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
+		)
+		self.__mixin_find_replace_dlg.Bind(wx.EVT_FIND, self._mixin_on_find)
+		self.__mixin_find_replace_dlg.Bind(wx.EVT_FIND_NEXT, self._mixin_on_find)
+		self.__mixin_find_replace_dlg.Bind(wx.EVT_FIND_CLOSE, self._mixin_on_find_close)
+		self.__mixin_find_replace_dlg.Show()
+		return self.__mixin_find_replace_dlg
+
+	#--------------------------------------------------------
+	# events
+	#--------------------------------------------------------
+	def _mixin_on_find(self, evt):
+
+		# reset style of previous match
+		if self.__mixin_find_replace_last_match_attr is not None:
+			self.SetStyle (
+				self.__mixin_find_replace_last_match_start,
+				self.__mixin_find_replace_last_match_end,
+				self.__mixin_find_replace_last_match_attr
+			)
+
+		# find current match
+		search_term = self.__mixin_find_replace_data.GetFindString().lower()
+		match_start = self.Value.lower().find(search_term, self.__mixin_find_replace_last_match_end)
+		if match_start == -1:
+			# wrap around
+			self.__mixin_find_replace_last_match_start = 0
+			self.__mixin_find_replace_last_match_end = 0
+			wx.Bell()
+			return
+
+		# remember current match for next time around
+		attr = wx.TextAttr()
+		if self.GetStyle(match_start, attr):
+			self.__mixin_find_replace_last_match_attr = attr
+		else:
+			self.__mixin_find_replace_last_match_attr = None
+		self.__mixin_find_replace_last_match_start = match_start
+		self.__mixin_find_replace_last_match_end = match_start + len(search_term)
+
+		# react to current match
+		self.Freeze()
+		self.SetStyle (
+			self.__mixin_find_replace_last_match_start,
+			self.__mixin_find_replace_last_match_end,
+			wx.TextAttr("red", "black")
+		)
+		self.ShowPosition(0)
+		self.ShowPosition(self.__mixin_find_replace_last_match_end)
+		self.Thaw()
+
+	#--------------------------------------------------------
+	def _mixin_on_find_close(self, evt):
+		# cleanup after last match if any
+		if self.__mixin_find_replace_last_match_attr is not None:
+			self.SetStyle (
+				self.__mixin_find_replace_last_match_start,
+				self.__mixin_find_replace_last_match_end,
+				self.__mixin_find_replace_last_match_attr
+			)
+		# deactivate the events
+		self.__mixin_find_replace_dlg.Unbind(wx.EVT_FIND)
+		self.__mixin_find_replace_dlg.Unbind(wx.EVT_FIND_NEXT)
+		self.__mixin_find_replace_dlg.Unbind(wx.EVT_FIND_CLOSE)
+		# unshow dialog
+		self.__mixin_find_replace_dlg.Destroy()
+		self.__mixin_find_replace_data = None
+		self.__mixin_find_replace_dlg = None
+		self.__mixin_find_replace_last_match_end = 0
+
+#============================================================
 color_tctrl_invalid = 'pink'
 color_tctrl_partially_invalid = 'yellow'
 
-class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin):
+class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin):
 
 	def __init__(self, *args, **kwargs):
 
@@ -36,6 +135,8 @@ class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtr
 
 		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
 		self.enable_keyword_expansions()
+
+		cTextSearch_TextCtrlMixin.__init__(self)
 
 	#--------------------------------------------------------
 	# callback API

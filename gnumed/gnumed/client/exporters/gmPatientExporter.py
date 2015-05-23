@@ -913,11 +913,10 @@ class cEmrExport:
 #============================================================
 class cEMRJournalExporter:
 	"""Exports patient EMR into a simple chronological journal.
-
-	Note that this export will emit u'' strings only.
 	"""
 	def __init__(self):
-		self.__part_len = 72
+		self.__narrative_wrap_len = 72
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -932,7 +931,7 @@ class cEMRJournalExporter:
 
 		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
 
-		self.__part_len = 80
+		self.__narrative_wrap_len = 80
 
 		# write header
 		txt = _('EMR Journal sorted by last modification time\n')
@@ -956,28 +955,40 @@ class cEMRJournalExporter:
 		"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pat': patient['pk_identity']}}])
 
-		f.write ((u'-' * 100) + u'\n')
-		f.write (u'%16.16s | %9.9s | %1.1s | %s \n' % (_('Last modified'), _('By'), u' ', _('Entry')))
-		f.write ((u'-' * 100) + u'\n')
+		f.write ((gmTools.u_box_horiz_single * 100) + u'\n')
+		f.write (u'%16.16s %s %9.9s %s %1.1s %s %s \n' % (
+			_('Last modified'),
+			gmTools.u_box_vert_light,
+			_('By'),
+			gmTools.u_box_vert_light,
+			u' ',
+			gmTools.u_box_vert_light,
+			_('Entry')
+		))
+		f.write ((gmTools.u_box_horiz_single * 100) + u'\n')
 
 		for r in rows:
-			txt = u'%16.16s | %9.9s | %1.1s | %s \n' % (
+			txt = u'%16.16s %s %9.9s %s %1.1s %s %s \n' % (
 				r['date_modified'],
+				gmTools.u_box_vert_light,
 				r['modified_by'],
+				gmTools.u_box_vert_light,
 				gmClinNarrative.soap_cat2l10n[r['soap_cat']],
+				gmTools.u_box_vert_light,
 				gmTools.wrap (
 					text = r['narrative'].replace(u'\r', u'') + u' (%s: %s)' % (_('When'), gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d %H:%M')),
-					width = self.__part_len,
-					subsequent_indent = u'%31.31s%1.1s | ' % (u' ', gmClinNarrative.soap_cat2l10n[r['soap_cat']])
+					width = self.__narrative_wrap_len,
+					subsequent_indent = u'%31.31s%1.1s %s ' % (u' ', gmClinNarrative.soap_cat2l10n[r['soap_cat']], gmTools.u_box_vert_light)
 				)
 			)
 			f.write(txt)
 
-		f.write((u'-' * 100) + u'\n\n')
+		f.write ((gmTools.u_box_horiz_single * 100) + u'\n')
 		f.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %b %d  %H:%M:%S'))
 
 		f.close()
 		return filename
+
 	#--------------------------------------------------------
 	def export_to_file(self, filename=None, patient=None):
 		"""Export medical record into a file.
@@ -1003,6 +1014,7 @@ class cEMRJournalExporter:
 		self.export(target = f, patient = patient)
 		f.close()
 		return filename
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -1018,11 +1030,11 @@ class cEMRJournalExporter:
 			if not patient.connected:
 				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
 
-		# write header
 		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
 		target.write(u'\n')
+		# demographics
 		target.write(_('Patient: %s (%s), No: %s\n') % (patient['description'], patient['gender'], patient['pk_identity']))
 		target.write(_('Born   : %s, age: %s\n\n') % (
 			patient.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()),
@@ -1032,10 +1044,36 @@ class cEMRJournalExporter:
 			target.write(u'%s: %s (@%s)\n' % (ext_id['name'], ext_id['value'], ext_id['issuer']))
 		for ch in patient.comm_channels:
 			target.write(u'%s: %s\n' % (ch['l10n_comm_type'], ch['url']))
-		target.write(u'.-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-		target.write(u'| %10.10s | %9.9s |     | %s\n' % (_('Encounter'), _('Doc'), _('Narrative')))
-		target.write(u'|-%10.10s---%9.9s-------%72.72s\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
-
+		# table header
+		target.write(u'%s%12.12s%s%11.11s%s%s%s%72.72s\n' % (
+			gmTools.u_box_top_left_arc,
+			gmTools.u_box_horiz_single * 12,
+			gmTools.u_box_T_down,
+			gmTools.u_box_horiz_single * 11,
+			gmTools.u_box_T_down,
+			gmTools.u_box_horiz_single * 5,
+			gmTools.u_box_T_down,
+			gmTools.u_box_horiz_single * self.__narrative_wrap_len
+		))
+		target.write(u'%s %10.10s %s %9.9s %s     %s %s\n' % (
+			gmTools.u_box_vert_light,
+			_('Encounter'),
+			gmTools.u_box_vert_light,
+			_('Doc'),
+			gmTools.u_box_vert_light,
+			gmTools.u_box_vert_light,
+			_('Narrative')
+		))
+		target.write(u'%s%12.12s%s%11.11s%s%s%s%72.72s\n' % (
+			gmTools.u_box_T_right,
+			gmTools.u_box_horiz_single * 12,
+			gmTools.u_box_plus,
+			gmTools.u_box_horiz_single * 11,
+			gmTools.u_box_plus,
+			gmTools.u_box_horiz_single * 5,
+			gmTools.u_box_plus,
+			gmTools.u_box_horiz_single * self.__narrative_wrap_len
+		))
 		# get data
 		cmd = u"""
 			SELECT
@@ -1060,7 +1098,7 @@ class cEMRJournalExporter:
 
 			txt = gmTools.wrap (
 				text = row['narrative'].replace(u'\r', u'') + (u' (%s)' % row['date_modified']),
-				width = self.__part_len
+				width = self.__narrative_wrap_len
 			).split('\n')
 
 			# same provider ?
@@ -1087,10 +1125,14 @@ class cEMRJournalExporter:
 				curr_date = u''
 
 			# display first part
-			target.write(u'| %10.10s | %9.9s | %3.3s | %s\n' % (
+			target.write(u'%s %10.10s %s %9.9s %s %3.3s %s %s\n' % (
+				gmTools.u_box_vert_light,
 				curr_date,
+				gmTools.u_box_vert_light,
 				curr_doc,
+				gmTools.u_box_vert_light,
 				gmClinNarrative.soap_cat2l10n[curr_soap],
+				gmTools.u_box_vert_light,
 				txt[0]
 			))
 
@@ -1098,16 +1140,36 @@ class cEMRJournalExporter:
 			if len(txt) == 1:
 				continue
 
-			template = u'| %10.10s | %9.9s | %3.3s | %s\n'
+			template = u'%s %10.10s %s %9.9s %s %3.3s %s %s\n'
 			for part in txt[1:]:
-				line = template % (u'', u'', u' ', part)
+				line = template % (
+					gmTools.u_box_vert_light,
+					u'',
+					gmTools.u_box_vert_light,
+					u'',
+					gmTools.u_box_vert_light,
+					u' ',
+					gmTools.u_box_vert_light,
+					part
+				)
 				target.write(line)
 
 		# write footer
-		target.write(u'`-%10.10s---%9.9s-------%72.72s\n\n' % (u'-' * 10, u'-' * 9, u'-' * self.__part_len))
+		target.write(u'%s%12.12s%s%11.11s%s%5.5s%s%72.72s\n\n' % (
+			gmTools.u_box_bottom_left_arc,
+			gmTools.u_box_horiz_single * 12,
+			gmTools.u_box_T_up,
+			gmTools.u_box_horiz_single * 11,
+			gmTools.u_box_T_up,
+			gmTools.u_box_horiz_single * 5,
+			gmTools.u_box_T_up,
+			gmTools.u_box_horiz_single * self.__narrative_wrap_len
+		))
+
 		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(pyDT.datetime.now(), '%Y %b %d  %H:%M:%S'))
 
 		return
+
 #============================================================
 class cMedistarSOAPExporter:
 	"""Export SOAP data per encounter into Medistar import format."""
