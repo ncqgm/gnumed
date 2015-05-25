@@ -1,4 +1,4 @@
-"""GNUmed list controls and widgets.
+__doc__ = """GNUmed list controls and widgets.
 
 TODO:
 
@@ -193,6 +193,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		if self.delete_callback is not None:
 			self._BTN_delete.Enable(True)
+
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
@@ -201,6 +202,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 				self._BTN_ok.Enable(False)
 			self._BTN_edit.Enable(False)
 			self._BTN_delete.Enable(False)
+
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
 		if not self.new_callback():
@@ -216,6 +218,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
@@ -233,27 +236,53 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
 		# if the delete button *can* be pressed there are *supposed*
 		# to be both an item selected and a deletor configured
-		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
-		if item_data is None:
-			self._LCTRL_items.SetFocus()
+
+		no_items = len(self._LCTRL_items.get_selected_items(only_one = False))
+		if no_items > 1:
+			style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
+			title = _('Deleting list items')
+			question = _(
+				'You have selected %s list items.\n'
+				'\n'
+				'Really delete all %s items ?'
+			) % (no_items, no_items)
+			dlg = wx.MessageDialog(None, question, title, style)
+			btn_pressed = dlg.ShowModal()
+			dlg.Destroy()
+			if btn_pressed == wx.ID_NO:
+				self._LCTRL_items.SetFocus()
+				return
+			if btn_pressed == wx.ID_CANCEL:
+				self._LCTRL_items.SetFocus()
+				return
+
+		any_deleted = False
+		for item_data in self._LCTRL_items.get_selected_item_data(only_one = False):
+			if item_data is None:
+				continue
+			if self.delete_callback(item_data):
+				any_deleted = True
+
+		self._LCTRL_items.SetFocus()
+
+		if any_deleted is False:
 			return
-		if not self.delete_callback(item_data):
-			self._LCTRL_items.SetFocus()
-			return
+
 		if self.refresh_callback is None:
-			self._LCTRL_items.SetFocus()
 			return
+
 		wx.BeginBusyCursor()
 		try:
 			self.refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
 		if self.__left_extra_button_wants_list:
@@ -273,6 +302,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
 		if self.__middle_extra_button_wants_list:
@@ -292,6 +322,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
 		if self.__right_extra_button_wants_list:
@@ -311,6 +342,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -1170,16 +1202,20 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			col = self.GetColumn(col = col_idx)
 			labels.append(col.GetText())
 		return labels
+
 	#------------------------------------------------------------
 	def get_item(self, item_idx=None):
 		if item_idx is not None:
 			return self.GetItem(item_idx)
+
 	#------------------------------------------------------------
 	def get_items(self):
 		return [ self.GetItem(item_idx) for item_idx in range(self.GetItemCount()) ]
+
 	#------------------------------------------------------------
 	def get_string_items(self):
 		return [ self.GetItemText(item_idx) for item_idx in range(self.GetItemCount()) ]
+
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
 
@@ -1193,6 +1229,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetNextSelected(idx)
 
 		return items
+
 	#------------------------------------------------------------
 	def get_selected_string_items(self, only_one=False):
 
@@ -1206,6 +1243,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetNextSelected(idx)
 
 		return items
+
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx=None):
 		if self.__data is None:	# this isn't entirely clean
@@ -1218,6 +1256,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# in case of len(__data) <> self.GetItemCount() this
 		# gives the chance to figure out what is going on
 		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.GetItemCount()) ]
+
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 
@@ -1238,9 +1277,11 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetNextSelected(idx)
 
 		return data
+
 	#------------------------------------------------------------
 	def deselect_selected_item(self):
 		self.Select(idx = self.GetFirstSelected(), on = 0)
+
 	#------------------------------------------------------------
 	def remove_item(self, item_idx=None):
 		# do NOT remove the corresponding data because even if
@@ -1252,6 +1293,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.DeleteItem(item_idx)
 		self.__tt_last_item = None
 		self._invalidate_sorting_metadata()
+
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
@@ -1259,6 +1301,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		event.Skip()
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
+
 	#------------------------------------------------------------
 	def _on_list_item_rightclicked(self, event):
 		event.Skip()
@@ -1327,6 +1370,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
 		)
 		self.__search_dlg.Show(True)
+
 	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
 		"""Update tooltip on mouse motion.
@@ -1410,6 +1454,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 
 		self.SetToolTipString(dyna_tt)
+
 	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
@@ -1479,6 +1524,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def _on_search_dlg_closed(self, evt):
 		self.__search_dlg.Destroy()
 		self.__search_dlg = None
+
 	#------------------------------------------------------------
 #	def _on_lost_focus(self, evt):
 #		evt.Skip()
@@ -1487,6 +1533,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 ##		print self.FindFocus()
 ##		print self.__search_dlg
 #		#self.__search_dlg.Close()
+
 	#------------------------------------------------------------
 	def __on_search_match(self, search_term):
 		for row_idx in range(self.__next_line_to_search, self.ItemCount):
@@ -1506,12 +1553,15 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# wrap around
 		self.__next_line_to_search = 0
 		return False
+
 	#------------------------------------------------------------
 	def _on_search_first_match(self, evt):
 		self.__on_search_match(evt.GetFindString())
+
 	#------------------------------------------------------------
 	def _on_search_next_match(self, evt):
 		self.__on_search_match(evt.GetFindString())
+
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -1528,6 +1578,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__activate_callback = callback
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
+
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
 		if callback is not None:
@@ -1549,6 +1600,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__extend_popup_menu_callback = callback
 
 	extend_popup_menu_callback = property(lambda x:x, _set_extend_popup_menu_callback)
+
 	#------------------------------------------------------------
 	def _set_searchable_cols(self, cols):
 		# zero-based list of which columns to search
@@ -1564,6 +1616,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__searchable_cols = new_cols.keys()
 
 	searchable_columns = property(lambda x:x, _set_searchable_cols)
+
 	#------------------------------------------------------------
 	# ColumnSorterMixin API
 	#------------------------------------------------------------
@@ -1571,6 +1624,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		if self.itemDataMap is None:
 			self._update_sorting_metadata()
 		return self								# required
+
 	#------------------------------------------------------------
 	def OnSortOrderChanged(self):
 		self._cleanup_column_headers()
@@ -1579,6 +1633,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		col_state = self.GetColumn(col_idx)
 		col_state.m_text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)
+
 	#------------------------------------------------------------
 	def GetSecondarySortValues(self, primary_sort_col, primary_item1_idx, primary_item2_idx):
 		return (primary_item1_idx, primary_item2_idx)
@@ -1665,6 +1720,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				#print u'[%s:%s] ' % (item_idx, col_idx), self.GetItem(item_idx, col_idx).GetText()
 
 		return dict2sort
+
 	#------------------------------------------------------------
 	def _cleanup_column_headers(self):
 		for col_idx in range(self.ColumnCount):
@@ -1674,15 +1730,18 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			if col_state.m_text.endswith(self.sort_order_tags[False]):
 				col_state.m_text = col_state.m_text[:-len(self.sort_order_tags[False])]
 			self.SetColumn(col_idx, col_state)
+
 	#------------------------------------------------------------
 	def _invalidate_sorting_metadata(self):
 		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
 		self._cleanup_column_headers()
+
 	#------------------------------------------------------------
 	def _update_sorting_metadata(self):
 		# MUST have this name
 		self.itemDataMap = self._generate_map_for_sorting()
+
 	#------------------------------------------------------------
 	def _on_col_click(self, event):
 		# for debugging:
