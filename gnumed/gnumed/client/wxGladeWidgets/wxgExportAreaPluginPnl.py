@@ -60,7 +60,7 @@ class wxgExportAreaPluginPnl(wx.Panel):
 		self._BTN_add_items.SetToolTipString(_("Add document(s) from file(s)."))
 		self._BTN_add_from_archive.SetToolTipString(_("Add document(s) from archive."))
 		self._BTN_scan_items.SetToolTipString(_("Acquire images from image source (scanner, ...)."))
-		self._BTN_clipboard_items.SetToolTipString(_("Acquire images or text from the clipboard."))
+		self._BTN_clipboard_items.SetToolTipString(_("Acquire file or text from the clipboard."))
 		self._BTN_remove_items.SetToolTipString(_("Remove the selected documents."))
 		self._BTN_print_items.SetToolTipString(_("Print selected/all documents."))
 		self._BTN_remote_print.SetToolTipString(_("Put selected/all documents into remote print manager."))

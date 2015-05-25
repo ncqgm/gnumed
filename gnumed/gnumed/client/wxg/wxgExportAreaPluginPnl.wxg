@@ -92,7 +92,7 @@
                         <object class="wxButton" name="_BTN_clipboard_items" base="EditButton">
                             <style>wxBU_LEFT|wxBU_EXACTFIT</style>
                             <label>↢ C&amp;lipboard</label>
-                            <tooltip>Acquire images or text from the clipboard.</tooltip>
+                            <tooltip>Acquire file or text from the clipboard.</tooltip>
                             <events>
                                 <handler event="EVT_BUTTON">_on_clipboard_items_button_pressed</handler>
                             </events>

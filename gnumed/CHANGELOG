@@ -43,6 +43,7 @@ IMPROVED: show all selected parts at once in new-document plugin
 IMPROVED: ask whether to create metadata when saving export area documents
 IMPROVED: EMR journal formatting
 IMPROVED: support deleting more than one list item at a time
+IMPROVED: put file from filename in clipboard into export area
 
 ------------------------------------------------
 # rel-1-5-patches

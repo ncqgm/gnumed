@@ -112,10 +112,11 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		if selected_docs is None:
 			return
 		gmPerson.gmCurrentPatient().export_area.add_documents(documents = selected_docs)
+
 	#--------------------------------------------------------
 	def _on_clipboard_items_button_pressed(self, event):
 		event.Skip()
-		clip = gmGuiHelpers.clipboard2file()
+		clip = gmGuiHelpers.clipboard2file(check_for_filename = True)
 		if clip is None:
 			return
 		if clip is False:
@@ -125,6 +126,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				title = _(u'Loading clipboard item (saved to file) into export area'),
 				error = _(u'Cannot add the following clip to the export area:\n%s ') % clip
 			)
+
 	#--------------------------------------------------------
 	def _on_scan_items_button_pressed(self, event):
 		event.Skip()
@@ -137,6 +139,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				title = _(u'Scanning files into export area'),
 				error = _(u'Cannot add (some of) the following scans to the export area:\n%s ') % u'\n '.join(fnames)
 			)
+
 	#--------------------------------------------------------
 	def _on_remove_items_button_pressed(self, event):
 		event.Skip()

@@ -305,7 +305,7 @@ def clipboard2text():
 	return None
 
 #-------------------------------------------------------------------------
-def clipboard2file():
+def clipboard2file(check_for_filename=False):
 
 	if wx.TheClipboard.IsOpened():
 		return False
@@ -316,11 +316,18 @@ def clipboard2file():
 	data_obj = wx.TextDataObject()
 	got_it = wx.TheClipboard.GetData(data_obj)
 	if got_it:
+		clipboard_text_content = data_obj.Text
+		wx.TheClipboard.Close()
+		if check_for_filename:
+			try:
+				io.open(clipboard_text_content).close()
+				return clipboard_text_content
+			except IOError:
+				_log.exception('clipboard does not seem to hold filename: %s', clipboard_text_content)
 		fname = gmTools.get_unique_filename(prefix = u'gm-clipboard-', suffix = u'.txt')
 		target_file = io.open(fname, mode = u'wt', encoding = u'utf8')
-		target_file.write(data_obj.Text)
+		target_file.write(clipboard_text_content)
 		target_file.close()
-		wx.TheClipboard.Close()
 		return fname
 
 	data_obj = wx.BitmapDataObject()
@@ -427,6 +434,7 @@ def gm_show_error(aMessage=None, aTitle = None, error=None, title=None):
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
+
 #-------------------------------------------------------------------------
 def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 
@@ -449,6 +457,7 @@ def gm_show_info(aMessage=None, aTitle=None, info=None, title=None):
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
+
 #-------------------------------------------------------------------------
 def gm_show_warning(aMessage=None, aTitle=None):
 	if aMessage is None:
@@ -466,6 +475,7 @@ def gm_show_warning(aMessage=None, aTitle=None):
 	dlg.ShowModal()
 	dlg.Destroy()
 	return True
+
 #-------------------------------------------------------------------------
 def gm_show_question(aMessage='programmer forgot to specify question', aTitle='generic user question dialog', cancel_button=False, question=None, title=None):
 	if cancel_button:
