@@ -452,7 +452,7 @@ class cExportArea(object):
 			where_parts.append(u'pk_doc_obj IS NULL')
 
 		cmd = _SQL_get_export_items % u' AND '.join(where_parts)
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		if len(rows) == 0:
 			return None
