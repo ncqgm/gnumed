@@ -23,6 +23,7 @@ NEW: placeholder $url_escape$
 NEW: show patient address in openstreetmap
 NEW: support for smoking status documentation
 NEW: search in EMR journal view
+NEW: put EMR journal into export area
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows

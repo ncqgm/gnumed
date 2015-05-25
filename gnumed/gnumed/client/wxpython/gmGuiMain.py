@@ -712,7 +712,6 @@ class gmTopLevelFrame(wx.Frame):
 #		# - EMR / Show as /
 #		menu_emr_show = wx.Menu()
 
-#		item = menu_emr_show.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
 		item = menu_emr.Append(-1, _('Statistics'), _('Show a high-level statistic summary of the EMR.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_emr_summary, item)
 
@@ -724,29 +723,23 @@ class gmTopLevelFrame(wx.Frame):
 		# -- EMR / Export as
 		menu_emr_export = wx.Menu()
 
-		ID_EXPORT_EMR_ASCII = wx.NewId()
-		menu_emr_export.Append (
-			ID_EXPORT_EMR_ASCII,
-			_('Text document'),
-			_("Export the EMR of the active patient into a text file")
-		)
-		wx.EVT_MENU(self, ID_EXPORT_EMR_ASCII, self.OnExportEMR)
+		item = menu_emr_export.Append(-1, _('Journal (encounters) to file'), _("Save the EMR of the active patient as a chronological journal into a text file"))
+		self.Bind(wx.EVT_MENU, self.__on_save_emr_as_journal, item)
 
-		ID_EXPORT_EMR_JOURNAL = wx.NewId()
-		menu_emr_export.Append (
-			ID_EXPORT_EMR_JOURNAL,
-			_('Journal'),
-			_("Export the EMR of the active patient as a chronological journal into a text file")
-		)
-		wx.EVT_MENU(self, ID_EXPORT_EMR_JOURNAL, self.__on_export_emr_as_journal)
+		item = menu_emr_export.Append(-1, _('Journal (encounters) to export area'), _("Copy EMR of the active patient as a chronological journal into export area"))
+		self.Bind(wx.EVT_MENU, self.__on_export_emr_as_journal, item)
 
-		ID_EXPORT_MEDISTAR = wx.NewId()
-		menu_emr_export.Append (
-			ID_EXPORT_MEDISTAR,
-			_('MEDISTAR import format'),
-			_("GNUmed -> MEDISTAR. Export progress notes of active patient's active encounter into a text file.")
-		)
-		wx.EVT_MENU(self, ID_EXPORT_MEDISTAR, self.__on_export_for_medistar)
+		item = menu_emr_export.Append(-1, _('Journal (mod time) to file'), _("Save the EMR of the active patient as journal by last modification time into a text file"))
+		self.Bind(wx.EVT_MENU, self.__on_save_emr_by_last_mod, item)
+
+		item = menu_emr_export.Append(-1, _('Journal (mod time) to export area'), _("Copy EMR of the active patient as journal by last modification time into export area"))
+		self.Bind(wx.EVT_MENU, self.__on_export_emr_by_last_mod, item)
+
+		item = menu_emr_export.Append(-1, _('Text document'), _("Save the EMR of the active patient into a text file"))
+		self.Bind(wx.EVT_MENU, self.__on_save_emr_as_textfile, item)
+
+		item = menu_emr_export.Append(-1, _('MEDISTAR import format'), _("GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter into a text file."))
+		self.Bind(wx.EVT_MENU, self.__on_export_for_medistar, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('Export as ...'), menu_emr_export)
 
@@ -2577,17 +2570,13 @@ class gmTopLevelFrame(wx.Frame):
 		self.Destroy()
 		_log.debug('gmTopLevelFrame.OnClose() end')
 		return True
-	#----------------------------------------------
-	def OnExportEMR(self, event):
-		"""
-		Export selected patient EMR to a file
-		"""
-		gmEMRBrowser.export_emr_to_ascii(parent=self)
+
 	#----------------------------------------------
 	def __dermtool (self, event):
 		import Gnumed.wxpython.gmDermTool as DT
 		frame = DT.DermToolDialog(None, -1)
 		frame.Show(True)
+
 	#----------------------------------------------
 	def __on_start_new_encounter(self, evt):
 		pat = gmPerson.gmCurrentPatient()
@@ -2741,8 +2730,60 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_search_across_emrs(self, event):
 		gmNarrativeWidgets.search_narrative_across_emrs(parent=self)
+
 	#----------------------------------------------
-	def __on_export_emr_as_journal(self, event):
+	def __on_save_emr_as_textfile(self, event):
+		gmEMRBrowser.export_emr_to_ascii(parent=self)
+
+	#----------------------------------------------
+	def __on_save_emr_by_last_mod(self, event):
+		# sanity checks
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR journal by last modification time. No active patient.'))
+			return False
+
+		# get file name
+		aWildcard = "%s (*.txt)|*.txt|%s (*)|*" % (_("text files"), _("all files"))
+		aDefDir = os.path.expanduser(os.path.join('~', 'gnumed'))
+		fname = '%s-%s_%s.txt' % (_('journal_by_last_mod_time'), pat['lastnames'], pat['firstnames'])
+		dlg = wx.FileDialog (
+			parent = self,
+			message = _("Save patient's EMR journal as..."),
+			defaultDir = aDefDir,
+			defaultFile = fname,
+			wildcard = aWildcard,
+			style = wx.SAVE
+		)
+		choice = dlg.ShowModal()
+		fname = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+
+		_log.debug('exporting EMR journal (by last mod) to [%s]' % fname)
+
+		exporter = gmPatientExporter.cEMRJournalExporter()
+
+		wx.BeginBusyCursor()
+		try:
+			fname = exporter.export_to_file_by_mod_time(filename = fname, patient = pat)
+		except:
+			wx.EndBusyCursor()
+			_log.exception('error exporting EMR')
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting patient EMR as journal by last modification time.'),
+				_('EMR journal export')
+			)
+			return
+		wx.EndBusyCursor()
+
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported EMR as journal by last modification time into file [%s].') % fname, beep=False)
+
+		return True
+
+	#----------------------------------------------
+	def __on_save_emr_as_journal(self, event):
 		# sanity checks
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
@@ -2772,19 +2813,73 @@ class gmTopLevelFrame(wx.Frame):
 
 		wx.BeginBusyCursor()
 		try:
-			fname = exporter.export_to_file(filename = fname)
+			fname = exporter.export_to_file_by_encounter(filename = fname, patient = pat)
 		except:
 			wx.EndBusyCursor()
+			_log.exception('error exporting EMR')
 			gmGuiHelpers.gm_show_error (
 				_('Error exporting patient EMR as chronological journal.'),
 				_('EMR journal export')
 			)
-			raise
+			return
 		wx.EndBusyCursor()
 
 		gmDispatcher.send(signal = 'statustext', msg = _('Successfully exported EMR as chronological journal into file [%s].') % fname, beep=False)
 
 		return True
+
+	#----------------------------------------------
+	def __on_export_emr_by_last_mod(self, event):
+		# sanity checks
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR journal by last modification time. No active patient.'))
+			return False
+
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		wx.BeginBusyCursor()
+		try:
+			fname = exporter.export_to_file_by_mod_time(patient = pat)
+		except:
+			wx.EndBusyCursor()
+			_log.exception('error exporting EMR')
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting patient EMR as journal by last modification time.'),
+				_('EMR journal export')
+			)
+			return
+		wx.EndBusyCursor()
+
+		pat.export_area.add_file(filename = fname, hint = _(u'EMR journal by last modification time'))
+
+		return True
+
+	#----------------------------------------------
+	def __on_export_emr_as_journal(self, event):
+		# sanity checks
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			gmDispatcher.send(signal = 'statustext', msg = _('Cannot export EMR journal. No active patient.'))
+			return False
+
+		exporter = gmPatientExporter.cEMRJournalExporter()
+		wx.BeginBusyCursor()
+		try:
+			fname = exporter.export_to_file_by_encounter(patient = pat)
+		except:
+			wx.EndBusyCursor()
+			_log.exception('error exporting EMR')
+			gmGuiHelpers.gm_show_error (
+				_('Error exporting patient EMR as chronological journal.'),
+				_('EMR journal export')
+			)
+			return
+		wx.EndBusyCursor()
+
+		pat.export_area.add_file(filename = fname, hint = _(u'EMR journal by encounter'))
+
+		return True
+
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
 		gmNarrativeWidgets.export_narrative_for_medistar_import (
@@ -2792,6 +2887,7 @@ class gmTopLevelFrame(wx.Frame):
 			soap_cats = u'soapu',
 			encounter = None			# IOW, the current one
 		)
+
 	#----------------------------------------------
 	def __on_add_tag2person(self, event):
 		curr_pat = gmPerson.gmCurrentPatient()
@@ -2824,6 +2920,7 @@ class gmTopLevelFrame(wx.Frame):
 			tag['comment'] = comment.strip()
 
 		tag.save()
+
 	#----------------------------------------------
 	def __on_load_external_patient(self, event):
 		dbcfg = gmCfg.cCfgSQL()

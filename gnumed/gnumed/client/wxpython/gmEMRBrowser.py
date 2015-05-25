@@ -1372,26 +1372,14 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 		self._TCTRL_journal.SetValue(u'')
 		exporter = gmPatientExporter.cEMRJournalExporter()
 		if self._RBTN_by_encounter.GetValue():
-			txt = StringIO.StringIO()
-			# FIXME: if journal is large this will error out, use generator/yield etc
-			# FIXME: turn into proper list
-			try:
-				exporter.export(txt)
-				self._TCTRL_journal.SetValue(txt.getvalue())
-			except ValueError:
-				_log.exception('cannot get EMR journal')
-				self._TCTRL_journal.SetValue (_(
-					'An error occurred while retrieving the EMR\n'
-					'in journal form for the active patient.\n\n'
-					'Please check the log file for details.'
-				))
-			txt.close()
+			fname = exporter.export_to_file_by_encounter(patient = gmPerson.gmCurrentPatient())
 		else:
-			fname = exporter.export_to_file_by_mod_time()
-			f = io.open(fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
-			for line in f:
-				self._TCTRL_journal.AppendText(line)
-			f.close()
+			fname = exporter.export_to_file_by_mod_time(patient = gmPerson.gmCurrentPatient())
+
+		f = io.open(fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+		for line in f:
+			self._TCTRL_journal.AppendText(line)
+		f.close()
 
 		self._TCTRL_journal.ShowPosition(self._TCTRL_journal.GetLastPosition())
 		return True

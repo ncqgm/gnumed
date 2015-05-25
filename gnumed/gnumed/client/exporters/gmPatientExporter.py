@@ -1,35 +1,37 @@
-"""GNUmed simple ASCII EMR export tool.
+__doc__ = """GNUmed simple ASCII EMR export tool.
 
 TODO:
-- GUI mode:
-  - post-0.1 !
-  - allow user to select patient
-  - allow user to pick episodes/encounters/etc from list
 - output modes:
   - HTML - post-0.1 !
 """
 #============================================================
-__author__ = "Carlos Moro"
-__license__ = 'GPL'
+__author__ = "Carlos Moro, Karsten Hilbert"
+__license__ = 'GPL v2 or later'
 
-import os.path, sys, types, time, io, datetime as pyDT, logging, shutil
-
-
-import mx.DateTime.Parser as mxParser
-import mx.DateTime as mxDT
+import os.path
+import sys
+import types
+import time
+import io
+import logging
+import shutil
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-
 from Gnumed.pycommon import gmI18N
-
 if __name__ == '__main__':
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+from Gnumed.pycommon import gmExceptions
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDateTime
 
-from Gnumed.pycommon import gmExceptions, gmNull, gmPG2, gmTools, gmDateTime
-from Gnumed.business import gmClinicalRecord, gmPerson, gmAllergy, gmDemographicRecord, gmClinNarrative, gmPersonSearch
+from Gnumed.business import gmClinicalRecord
+from Gnumed.business import gmAllergy
+from Gnumed.business import gmDemographicRecord
+from Gnumed.business import gmClinNarrative
 
 
 _log = logging.getLogger('gm.export')
@@ -244,16 +246,16 @@ class cEmrExport:
                 if len(vaccinations[indication]) > vacc_regimes[cont]['shots']: # boosters given
                     all_vreg_boosters[cont] = vaccinations[indication][len(vaccinations[indication])-1]['date'].strftime('%Y-%m-%d') # show last given booster date
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
-                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                                        
-                    if booster_date < mxDT.today():
+                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']
+                    if booster_date < gmDateTime.pydt_now_here():
                         all_next_boosters[cont] = '<(' + booster_date.strftime('%Y-%m-%d') + ')>' # next booster is due
                     else:
                         all_next_boosters[cont] = booster_date.strftime('%Y-%m-%d')
                 elif len(vaccinations[indication]) == vacc_regimes[cont]['shots']: # just finished vaccinations, begin boosters
                     all_vreg_boosters[cont] = column_widths[cont+1] * ' '
                     scheduled_booster = vaccinations4regimes[indication][len(vaccinations4regimes[indication])-1]
-                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']                    
-                    if booster_date < mxDT.today():
+                    booster_date = vaccinations[indication][len(vaccinations[indication])-1]['date'] + scheduled_booster['min_interval']
+                    if booster_date < gmDateTime.pydt_now_here():
                         all_next_boosters[cont] = '<(' + booster_date.strftime('%Y-%m-%d') + ')>' # next booster is due
                     else:
                         all_next_boosters[cont] = booster_date.strftime('%Y-%m-%d')
@@ -922,9 +924,7 @@ class cEMRJournalExporter:
 	#--------------------------------------------------------
 	def export_to_file_by_mod_time(self, filename=None, patient=None):
 		if patient is None:
-			patient = gmPerson.gmCurrentPatient()
-			if not patient.connected:
-				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
+			raise ValueError('[%s].export_to_file_by_mod_time(): no patient' % self.__class__.__name__)
 
 		if filename is None:
 			filename = gmTools.get_unique_filename(prefix = 'gm-emr_by_mod_time-', suffix = '.txt')
@@ -990,46 +990,33 @@ class cEMRJournalExporter:
 		return filename
 
 	#--------------------------------------------------------
-	def export_to_file(self, filename=None, patient=None):
+	def export_to_file_by_encounter(self, filename=None, patient=None):
 		"""Export medical record into a file.
 
 		@type filename: None (creates filename by itself) or string
-		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		@type patient: <cPerson> instance
 		"""
 		if patient is None:
-			patient = gmPerson.gmCurrentPatient()
-			if not patient.connected:
-				raise ValueError('[%s].export_to_file(): no active patient' % self.__class__.__name__)
+			raise ValueError('[%s].export_to_file_by_encounter(): no patient' % self.__class__.__name__)
 
 		if filename is None:
-			filename = u'%s-%s-%s-%s.txt' % (
-				_('emr-journal'),
-				patient['lastnames'].replace(u' ', u'_'),
-				patient['firstnames'].replace(u' ', u'_'),
-				patient.get_formatted_dob(format = '%Y-%m-%d')
-			)
-			path = os.path.expanduser(os.path.join('~', 'gnumed', patient['dirname'], filename))
+			filename = gmTools.get_unique_filename(prefix = 'gm-emr_journal-', suffix = '.txt')
 
 		f = io.open(filename, mode = 'w+t', encoding = 'utf8', errors = 'replace')
-		self.export(target = f, patient = patient)
+		self.__export_by_encounter(target = f, patient = patient)
 		f.close()
 		return filename
 
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
-	def export(self, target=None, patient=None):
+	def __export_by_encounter(self, target=None, patient=None):
 		"""
 		Export medical record into a Python object.
 
 		@type target: a python object supporting the write() API
-		@type patient: None (use currently active patient) or <gmPerson.cPerson> instance
+		@type patient: <cPerson> instance
 		"""
-		if patient is None:
-			patient = gmPerson.gmCurrentPatient()
-			if not patient.connected:
-				raise ValueError('[%s].export(): no active patient' % self.__class__.__name__)
-
 		txt = _('Chronological EMR Journal\n')
 		target.write(txt)
 		target.write(u'=' * (len(txt)-1))
@@ -1166,20 +1153,19 @@ class cEMRJournalExporter:
 			gmTools.u_box_horiz_single * self.__narrative_wrap_len
 		))
 
-		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(pyDT.datetime.now(), '%Y %b %d  %H:%M:%S'))
+		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(format = '%Y %b %d  %H:%M:%S'))
 
 		return
 
 #============================================================
 class cMedistarSOAPExporter:
 	"""Export SOAP data per encounter into Medistar import format."""
+
 	def __init__(self, patient=None):
 		if patient is None:
-			self.__pat = gmPerson.gmCurrentPatient()
-		else:
-			if not isinstance(patient, gmPerson.cPerson):
-				raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(patient)
-			self.__pat = patient
+			raise gmExceptions.ConstructorError, '<patient> argument must be instance of <cPerson>, but is: %s' % type(patient)
+		self.__pat = patient
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1243,6 +1229,7 @@ class cMedistarSOAPExporter:
 					eol = u'\r\n'
 				))
 		return True
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1269,7 +1256,6 @@ def run():
         if patient is None:
             break
         # FIXME: needed ?
-#        gmPerson.set_active_patient(patient=patient)
         exporter = cEMRJournalExporter()
         exporter.export_to_file(patient=patient)
 #        export_tool.set_patient(patient)
@@ -1287,12 +1273,13 @@ def run():
             patient.cleanup()
         except:
             print "error cleaning up patient"
+
 #============================================================
 # main
 #------------------------------------------------------------
 if __name__ == "__main__":
-	gmI18N.activate_locale()
-	gmI18N.install_domain()
+
+	from Gnumed.business import gmPersonSearch
 
 	#--------------------------------------------------------
 	def export_journal():
@@ -1305,7 +1292,7 @@ if __name__ == "__main__":
 				break
 
 			exporter = cEMRJournalExporter()
-			print "exported into file:", exporter.export_to_file(patient=patient)
+			print "exported into file:", exporter.export_to_file_by_encounter(patient = patient)
 
 			if patient is not None:
 				try:
