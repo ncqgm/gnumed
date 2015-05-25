@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-03 22:21+0200\n"
+"POT-Creation-Date: 2015-05-25 16:37+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1688,29 +1688,6 @@ msgstr "%s Bytes"
 
 #, python-format
 msgid ""
-"Cannot connect to configuration database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-"No ha sido posible conectar con la base de datos de configuración:\n"
-"\n"
-"[%s]"
-
-#, python-format
-msgid ""
-"Cannot connect to database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-"No ha sido posible conectar con la base de datos:\n"
-"\n"
-"[%s]"
-
-msgid "No product information available."
-msgstr "No se dispone de información acerca del producto"
-
-#, python-format
-msgid ""
 "Cannot retrieve version information from:\n"
 "\n"
 "%s"
@@ -2065,106 +2042,6 @@ msgstr " opción [%s]: %s"
 #, python-format
 msgid "  risk: %s"
 msgstr "  riesgo: %s"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Are you sure you have got a local database installed ?\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-"No pude conectar a la base de datos:\n"
-"\n"
-"%s\n"
-"\n"
-"¿Está seguro que tiene una base de datos instalada?\n"
-"\n"
-"Por favor, reinténtelo con una identificación adecuada o cancele.\n"
-"\n"
-"También puede revisar la configuración de autentificación \n"
-"con el cliente de PostgreSQL en pg_hba.conf. Para una\n"
-"explicación detallada, vea en:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-"No pude conectar a la base de datos:\n"
-"\n"
-"%s\n"
-"\n"
-"Reintente con las credenciales apropiadas o cancele por favor.\n"
-"\n"
-"Podría ser necesario verificar la configuración de autentificación\n"
-"del cliente en pg_hba.conf.\n"
-"Para más detalles, vea:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-
-msgid "Connecting to backend"
-msgstr "Conecto con banco de datos"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry another backend / user / password combination !\n"
-msgstr ""
-"No puedo conectar con la base de datos:\n"
-"\n"
-"%s\n"
-"\n"
-"Intente otra combinación usuario/contraseña!\n"
-
-msgid "programmer forgot to specify error message"
-msgstr "el programador olvidó especificar el mensaje de error"
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-"\n"
-"\n"
-"¡Por favor, para más información, consulte el registro de error!"
-
-msgid "generic error message"
-msgstr "mensaje genérico de error"
-
-msgid "programmer forgot to specify info message"
-msgstr "el programador olvidó especificar un mensaje informativo"
-
-msgid "generic info message"
-msgstr "mensaje de información genérico"
-
-msgid "programmer forgot to specify warning"
-msgstr "el programador olvidó especificar una advertencia"
-
-msgid "generic warning message"
-msgstr "mensaje genérico de advertencia"
 
 msgid "no hook specified, please report bug"
 msgstr ""
@@ -3396,8 +3273,9 @@ msgstr "&clínicamente relevante"
 msgid "Document Properties"
 msgstr "Propiedades del Documento"
 
-msgid "Show part"
-msgstr "Mostrar parte"
+#, fuzzy
+msgid "Show"
+msgstr "Muestre:"
 
 msgid "Remove part"
 msgstr "Eliminar parte"
@@ -4600,8 +4478,9 @@ msgstr "Editar las propiedades del documento"
 msgid "Acquire images from image source (scanner, ...)."
 msgstr ""
 
-msgid "Acquire images or text from the clipboard."
-msgstr ""
+#, fuzzy
+msgid "Acquire file or text from the clipboard."
+msgstr "Remover el( los) ítem(es) seleccionado(s) de la lista."
 
 #, fuzzy
 msgid "Remove the selected documents."
@@ -6109,6 +5988,56 @@ msgstr ""
 msgid "A code for this region."
 msgstr "Código para esta provincia."
 
+#, fuzzy
+msgid "&Unknown"
+msgstr "Desconocido"
+
+msgid "&Never smoked"
+msgstr ""
+
+msgid "&Smokes or smoked"
+msgstr ""
+
+msgid "Select if the smoking status is unknown (say, unasked so far)."
+msgstr ""
+
+msgid ""
+"Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
+"smoker)."
+msgstr ""
+
+#, fuzzy
+msgid "Select if the patient did or does smoke."
+msgstr "Seleccione ésto si el paciente no tiene alergias conocidas."
+
+msgid ""
+"A comment on the smoking habits:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit smoking ?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+#, fuzzy
+msgid "When was smoking status last confirmed (mostly \"today\") ?"
+msgstr "¿Cuándo fue confirmado por última vez el estado de la alergia?"
+
+#, fuzzy
+msgid "Quit date"
+msgstr "Exudado"
+
+#, fuzzy
+msgid "Last confirmed"
+msgstr "Último confirmado:"
+
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
 "this relative."
@@ -7107,6 +7036,23 @@ msgstr ""
 "\n"
 "Si desea deshabilitar ese diálogo deje vacío el mensaje."
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Última modificación:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+#, fuzzy
+msgid "Show search dialog."
+msgstr "Cerrar este diálogo."
+
+msgid "Order by:"
+msgstr ""
+
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
 
@@ -7614,54 +7560,6 @@ msgid "Expires: %s\n"
 msgstr "Exportado: %s\n"
 
 #, fuzzy
-msgid "Active clinical hint"
-msgstr "Problemas activos"
-
-#, fuzzy
-msgid "Inactive clinical hint"
-msgstr "guardar nota clínica en RME"
-
-#, python-format
-msgid "Source: %s\n"
-msgstr "Fuente: %s\n"
-
-#, fuzzy, python-format
-msgid "Language: %s\n"
-msgstr "Lenguaje"
-
-#, fuzzy
-msgid "Suppressed active dynamic hint"
-msgstr "Mostrnado vacunas."
-
-#, fuzzy
-msgid "Suppressed inactive dynamic hint"
-msgstr "Mostrnado vacunas."
-
-#, fuzzy, python-format
-msgid "Suppressed by: %s\n"
-msgstr "expedido por"
-
-#, fuzzy, python-format
-msgid "Suppressed at: %s\n"
-msgstr "Fuente: %s\n"
-
-#, fuzzy, python-format
-msgid "Hint #: %s\n"
-msgstr "Fecha: %s\n"
-
-#, fuzzy, python-format
-msgid "Patient #: %s\n"
-msgstr "Paciente #%s"
-
-#, fuzzy, python-format
-msgid "MD5 (currently): %s\n"
-msgstr "Documentos: %s"
-
-#, python-format
-msgid "MD5 (at suppression): %s\n"
-msgstr ""
-
-#, fuzzy
 msgid "HL7 Message"
 msgstr "Mensaje"
 
@@ -8116,6 +8014,54 @@ msgstr ""
 "la base de datos aún contiene un vínculo relacionado con él.\n"
 "\n"
 "La cuenta será desactivada, alternativamente."
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Problemas activos"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "guardar nota clínica en RME"
+
+#, python-format
+msgid "Source: %s\n"
+msgstr "Fuente: %s\n"
+
+#, fuzzy, python-format
+msgid "Language: %s\n"
+msgstr "Lenguaje"
+
+#, fuzzy
+msgid "Suppressed active dynamic hint"
+msgstr "Mostrnado vacunas."
+
+#, fuzzy
+msgid "Suppressed inactive dynamic hint"
+msgstr "Mostrnado vacunas."
+
+#, fuzzy, python-format
+msgid "Suppressed by: %s\n"
+msgstr "expedido por"
+
+#, fuzzy, python-format
+msgid "Suppressed at: %s\n"
+msgstr "Fuente: %s\n"
+
+#, fuzzy, python-format
+msgid "Hint #: %s\n"
+msgstr "Fecha: %s\n"
+
+#, fuzzy, python-format
+msgid "Patient #: %s\n"
+msgstr "Paciente #%s"
+
+#, fuzzy, python-format
+msgid "MD5 (currently): %s\n"
+msgstr "Documentos: %s"
+
+#, python-format
+msgid "MD5 (at suppression): %s\n"
+msgstr ""
 
 #, python-format
 msgid "Device(%s):"
@@ -9294,9 +9240,6 @@ msgstr "Cuándo"
 #, python-format
 msgid "Exported: %s\n"
 msgstr "Exportado: %s\n"
-
-msgid "emr-journal"
-msgstr "Diario del RME"
 
 msgid "Chronological EMR Journal\n"
 msgstr "Diario Cronológico de la HC\n"
@@ -10760,6 +10703,10 @@ msgstr "atrasada %.0dyrs %.0dwks: vacunación %s en %s en programa \"%s\" (%s)"
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "vence ahora: estímulo para %s en programa \"%s\" (%s)"
 
+#, fuzzy
+msgid "Editing smoking status"
+msgstr "Eliminando ingreso a la lista de espera"
+
 #, fuzzy, python-format
 msgid "Latest: %s ago (%s %s%s%s%s)"
 msgstr "  su tiempo: %s - %s  (@%s = %s%s)\n"
@@ -10838,8 +10785,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s"
+msgid "%s Vacc: %s (%s%s)"
 msgstr "parte %s: %s"
+
+#, python-format
+msgid "active tobacco use (%s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Last confirmed: %s%s"
+msgstr "Último confirmado:"
 
 #, fuzzy, python-format
 msgid "%s %s %s%s"
@@ -13530,6 +13485,14 @@ msgstr "Elija el tipo de documento"
 msgid "List of addresses related to this person."
 msgstr "Lista de direcciones relacionadas con esta persona."
 
+#, fuzzy
+msgid "Map"
+msgstr "Señor"
+
+#, fuzzy
+msgid "Show selected address on map"
+msgstr "debe elegir una dirección"
+
 msgid "Adding new address"
 msgstr "Agregando una nueva dirección"
 
@@ -13733,16 +13696,31 @@ msgstr "ID externo"
 msgid "generic multi choice dialog"
 msgstr "diálogo de opciones múltiples"
 
-msgid "Entire row"
+#, fuzzy
+msgid "Deleting list items"
+msgstr "Eliminar todos los Items"
+
+#, python-format
+msgid ""
+"You have selected %s list items.\n"
+"\n"
+"Really delete all %s items ?"
 msgstr ""
+
+msgid "Row tooltip"
+msgstr ""
+
+#, fuzzy
+msgid "Row data (as text)"
+msgstr "No reformatee texto"
+
+#, fuzzy
+msgid "Row fields (as text)"
+msgstr "No reformatee texto"
 
 #, python-format
 msgid "[%8.8s] %s"
 msgstr ""
-
-#, fuzzy
-msgid "Row data (formatted as text)"
-msgstr "No reformatee texto"
 
 #, fuzzy
 msgid "List Item Actions:"
@@ -13933,6 +13911,33 @@ msgstr "Exporte a &block de notas"
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr ""
+
+msgid "programmer forgot to specify error message"
+msgstr "el programador olvidó especificar el mensaje de error"
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+"\n"
+"\n"
+"¡Por favor, para más información, consulte el registro de error!"
+
+msgid "generic error message"
+msgstr "mensaje genérico de error"
+
+msgid "programmer forgot to specify info message"
+msgstr "el programador olvidó especificar un mensaje informativo"
+
+msgid "generic info message"
+msgstr "mensaje de información genérico"
+
+msgid "programmer forgot to specify warning"
+msgstr "el programador olvidó especificar una advertencia"
+
+msgid "generic warning message"
+msgstr "mensaje genérico de advertencia"
 
 #, python-format
 msgid ""
@@ -15064,12 +15069,19 @@ msgid ""
 "\n"
 " [%s]\n"
 "\n"
-"is not empty. Do you want to use it for saving the\n"
-"export area documents into, nevertheless ?\n"
+"already contains files. Do you still want to save the\n"
+"selected export area documents into that directory ?\n"
 "\n"
-"(this can be useful for including external documents)\n"
+"(this is useful for including the external documents\n"
+" already stored in or below this directory)\n"
 "\n"
 "[NO] will create a subdirectory for you and use that."
+msgstr ""
+
+msgid ""
+"Create descriptive metadata files\n"
+"and save them alongside the\n"
+"selected export area documents ?"
 msgstr ""
 
 #, fuzzy, python-format
@@ -15582,12 +15594,6 @@ msgstr "Elija un archivo"
 msgid "all files (Win)"
 msgstr "todos los archivos (Win)"
 
-msgid "You must select a part before you can view it."
-msgstr "Debe seleccionar una parte antes de poder verla."
-
-msgid "displaying part"
-msgstr "mostrando la parte"
-
 #, python-format
 msgid ""
 "Cannot display document part:\n"
@@ -15595,6 +15601,9 @@ msgid ""
 msgstr ""
 "No se puede mostrar la parte del documento:\n"
 "%s"
+
+msgid "displaying part"
+msgstr "mostrando la parte"
 
 msgid "You must select a part before you can delete it."
 msgstr "Debe seleccionar una parte antes de borrarla."
@@ -16611,6 +16620,14 @@ msgstr "notas de progreso"
 msgid "Manage dynamic hints suppressed in this patient."
 msgstr "Maneja procedimientos llevados a cabo en el paciente."
 
+#, fuzzy
+msgid "Smoking status"
+msgstr "estado"
+
+#, fuzzy
+msgid "Manage smoking status of this patient."
+msgstr "Un comentario sobre este paciente."
+
 msgid "&Add / Edit ..."
 msgstr "&Agrega / Edita ..."
 
@@ -16632,28 +16649,65 @@ msgstr "Estadísticas"
 msgid "Show a high-level statistic summary of the EMR."
 msgstr "Muestra un resumen estadístico a grandes rasgos del RME."
 
-msgid "Text document"
-msgstr "Documento de texto"
+msgid "Journal (encounters) to file"
+msgstr ""
 
-msgid "Export the EMR of the active patient into a text file"
-msgstr "Exporta el RME del paciente activo a una archivo de texto"
-
-msgid "Journal"
-msgstr "Diario"
-
+#, fuzzy
 msgid ""
-"Export the EMR of the active patient as a chronological journal into a text "
+"Save the EMR of the active patient as a chronological journal into a text "
 "file"
 msgstr ""
 "Exporta el RME del paciente activo como relación cronológica a un archivo de "
 "texto."
 
+#, fuzzy
+msgid "Journal (encounters) to export area"
+msgstr "Activando paciente del resultado del reporte"
+
+#, fuzzy
+msgid ""
+"Copy EMR of the active patient as a chronological journal into export area"
+msgstr ""
+"Exporta el RME del paciente activo como relación cronológica a un archivo de "
+"texto."
+
+msgid "Journal (mod time) to file"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Save the EMR of the active patient as journal by last modification time into "
+"a text file"
+msgstr ""
+"Exporta el RME del paciente activo como relación cronológica a un archivo de "
+"texto."
+
+#, fuzzy
+msgid "Journal (mod time) to export area"
+msgstr "Activando paciente del resultado del reporte"
+
+#, fuzzy
+msgid ""
+"Copy EMR of the active patient as journal by last modification time into "
+"export area"
+msgstr ""
+"Exporta el RME del paciente activo como relación cronológica a un archivo de "
+"texto."
+
+msgid "Text document"
+msgstr "Documento de texto"
+
+#, fuzzy
+msgid "Save the EMR of the active patient into a text file"
+msgstr "Exporta el RME del paciente activo a una archivo de texto"
+
 msgid "MEDISTAR import format"
 msgstr "Formato de importación MEDISTAR"
 
+#, fuzzy
 msgid ""
-"GNUmed -> MEDISTAR. Export progress notes of active patient's active "
-"encounter into a text file."
+"GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
+"into a text file."
 msgstr ""
 "GNUmed -> MEDISTAR. Exporte notas de progreso de los contactos activos del "
 "paciente activo a un archivo de texto."
@@ -17843,6 +17897,10 @@ msgstr "Administre vacunas"
 msgid "Cannot add vaccinations. No active patient."
 msgstr "No puedo agregar vacunaciones. No existe paciente activo."
 
+#, fuzzy
+msgid "manage family history"
+msgstr "Administrar historia familiar"
+
 msgid "Cannot manage family history. No active patient."
 msgstr "No puedo manejar historial familar. No existe paciente activo."
 
@@ -17861,27 +17919,58 @@ msgstr "Administrando la nota de progreso"
 msgid "Cannot manage suppressed hints. No active patient."
 msgstr "No puedo agregar medición. No existe paciente activo."
 
+#, fuzzy
+msgid "Cannot manage smoking status. No active patient."
+msgstr "No puedo agregar medición. No existe paciente activo."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr "No puedo mostrar resumen de RME. No existe paciente activo."
 
 msgid "EMR Summary"
 msgstr "Resumen RME"
 
-msgid "Cannot export EMR journal. No active patient."
+#, fuzzy
+msgid "Cannot export EMR journal by last modification time. No active patient."
 msgstr "No puedo exportar RME pediódico. No existe paciente activo."
+
+msgid "journal_by_last_mod_time"
+msgstr ""
 
 msgid "Save patient's EMR journal as..."
 msgstr "Guarde RME periódico del paciente como ..."
 
-msgid "Error exporting patient EMR as chronological journal."
+#, fuzzy
+msgid "Error exporting patient EMR as journal by last modification time."
 msgstr "Error al exportar RME del paciente como registro cronológico."
 
 msgid "EMR journal export"
 msgstr "Exportación de RME"
 
+#, fuzzy, python-format
+msgid ""
+"Successfully exported EMR as journal by last modification time into file "
+"[%s]."
+msgstr "RME exportado exitosamente como registro periódico al archivo [%s]."
+
+msgid "Cannot export EMR journal. No active patient."
+msgstr "No puedo exportar RME pediódico. No existe paciente activo."
+
+msgid "emr-journal"
+msgstr "Diario del RME"
+
+msgid "Error exporting patient EMR as chronological journal."
+msgstr "Error al exportar RME del paciente como registro cronológico."
+
 #, python-format
 msgid "Successfully exported EMR as chronological journal into file [%s]."
 msgstr "RME exportado exitosamente como registro periódico al archivo [%s]."
+
+msgid "EMR journal by last modification time"
+msgstr ""
+
+#, fuzzy
+msgid "EMR journal by encounter"
+msgstr "Exportación de RME"
 
 msgid "Cannot add tag to person. No active patient."
 msgstr "No puedo agregar etiqueta a la persona. No existe paciente activo."
@@ -17943,6 +18032,20 @@ msgstr "no existe paciente activo"
 #, python-format
 msgid "Saved screenshot to file [%s]."
 msgstr "Captura de pantalla guardada en archivo [%s]."
+
+msgid "Python version check"
+msgstr ""
+
+#, python-format
+msgid ""
+"You are running Python version\n"
+" %s\n"
+"\n"
+"However, GNUmed wants Python 2.7 to\n"
+"facilitate migration to Python 3.\n"
+"\n"
+"Please upgrade your Python interpreter !"
+msgstr ""
 
 msgid "GNUmed client"
 msgstr "Cliente GNUmed"
@@ -18434,10 +18537,6 @@ msgstr ""
 #, fuzzy
 msgid "Identification"
 msgstr "Indicación"
-
-#, fuzzy
-msgid "Show"
-msgstr "Muestre:"
 
 msgid "Show formatted HL7"
 msgstr ""
@@ -19026,16 +19125,8 @@ msgstr "Navegar"
 msgid "&New notes %s"
 msgstr "&Notas"
 
-msgid ""
-"An error occurred while retrieving the EMR\n"
-"in journal form for the active patient.\n"
-"\n"
-"Please check the log file for details."
+msgid "Find text in EMR Journal"
 msgstr ""
-"Ha ocurrido un error al cargar el RME\n"
-"para el paciente activo.\n"
-"\n"
-"Por favor, revise el archivo de registro para ver los detalles."
 
 msgid "Editing tag"
 msgstr "Editando etiqueta"
@@ -19549,6 +19640,9 @@ msgstr ""
 "Para más detalles, vea:\n"
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+msgid "Connecting to backend"
+msgstr "Conecto con banco de datos"
 
 #, fuzzy, python-format
 msgid ""
@@ -20172,6 +20266,10 @@ msgstr "Módulo de plantilla"
 msgid "Show &ExamplePlugin"
 msgstr "Muestro Módulo de &Ejemplo"
 
+#, fuzzy
+msgid "Find text"
+msgstr "Último dado"
+
 msgid "gm_ctl_client: starting slave GNUmed client"
 msgstr "gm_ctl_client: ejecutando cliente GNUmed esclavo"
 
@@ -20205,6 +20303,114 @@ msgstr "Abortar"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Cancelar y NO conectar a GNUMed."
+
+#~ msgid ""
+#~ "Cannot connect to configuration database with:\n"
+#~ "\n"
+#~ "[%s]"
+#~ msgstr ""
+#~ "No ha sido posible conectar con la base de datos de configuración:\n"
+#~ "\n"
+#~ "[%s]"
+
+#~ msgid ""
+#~ "Cannot connect to database with:\n"
+#~ "\n"
+#~ "[%s]"
+#~ msgstr ""
+#~ "No ha sido posible conectar con la base de datos:\n"
+#~ "\n"
+#~ "[%s]"
+
+#~ msgid "No product information available."
+#~ msgstr "No se dispone de información acerca del producto"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Are you sure you have got a local database installed ?\n"
+#~ "\n"
+#~ "Please retry with proper credentials or cancel.\n"
+#~ "\n"
+#~ "You may also need to check the PostgreSQL client\n"
+#~ "authentication configuration in pg_hba.conf. For\n"
+#~ "details see:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+#~ msgstr ""
+#~ "No pude conectar a la base de datos:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "¿Está seguro que tiene una base de datos instalada?\n"
+#~ "\n"
+#~ "Por favor, reinténtelo con una identificación adecuada o cancele.\n"
+#~ "\n"
+#~ "También puede revisar la configuración de autentificación \n"
+#~ "con el cliente de PostgreSQL en pg_hba.conf. Para una\n"
+#~ "explicación detallada, vea en:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry with proper credentials or cancel.\n"
+#~ "\n"
+#~ "You may also need to check the PostgreSQL client\n"
+#~ "authentication configuration in pg_hba.conf. For\n"
+#~ "details see:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+#~ msgstr ""
+#~ "No pude conectar a la base de datos:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Reintente con las credenciales apropiadas o cancele por favor.\n"
+#~ "\n"
+#~ "Podría ser necesario verificar la configuración de autentificación\n"
+#~ "del cliente en pg_hba.conf.\n"
+#~ "Para más detalles, vea:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry another backend / user / password combination !\n"
+#~ msgstr ""
+#~ "No puedo conectar con la base de datos:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Intente otra combinación usuario/contraseña!\n"
+
+#~ msgid "Show part"
+#~ msgstr "Mostrar parte"
+
+#~ msgid "You must select a part before you can view it."
+#~ msgstr "Debe seleccionar una parte antes de poder verla."
+
+#~ msgid "Journal"
+#~ msgstr "Diario"
+
+#~ msgid ""
+#~ "An error occurred while retrieving the EMR\n"
+#~ "in journal form for the active patient.\n"
+#~ "\n"
+#~ "Please check the log file for details."
+#~ msgstr ""
+#~ "Ha ocurrido un error al cargar el RME\n"
+#~ "para el paciente activo.\n"
+#~ "\n"
+#~ "Por favor, revise el archivo de registro para ver los detalles."
 
 #, fuzzy
 #~ msgid ""

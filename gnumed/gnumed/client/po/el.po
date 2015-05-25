@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-03 22:21+0200\n"
+"POT-Creation-Date: 2015-05-25 16:36+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -1577,23 +1577,6 @@ msgstr "%s Bytes"
 
 #, python-format
 msgid ""
-"Cannot connect to configuration database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot connect to database with:\n"
-"\n"
-"[%s]"
-msgstr ""
-
-msgid "No product information available."
-msgstr "Δεν υπάρχουν διαθέσιμες  πληροφορίες για το προϊόν."
-
-#, python-format
-msgid ""
 "Cannot retrieve version information from:\n"
 "\n"
 "%s"
@@ -1930,107 +1913,6 @@ msgstr ""
 #, python-format
 msgid "  risk: %s"
 msgstr "  κίνδυνος:%s"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Are you sure you have got a local database installed ?\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-"Αδύνατη η σύνδεση με τη βάση δεδομένων:\n"
-"\n"
-"% s\n"
-"\n"
-"Είσαι σίγουρος ότι έχεις εγκαταστήσει τοπικά μια βάση δεδομένων;\n"
-"\n"
-"Δοκιμάστε ξανά με την κατάλληλη εντολή ή ακυρώστε.\n"
-"\n"
-"Μπορεί επίσης να χρειαστεί έλεγχος του πελάτη της PostgreSQL\n"
-"για την διαμόρφωση της ταυτότητας στο pg_hba.conf. Για\n"
-"λεπτομέρειες βλέπε:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry with proper credentials or cancel.\n"
-"\n"
-"You may also need to check the PostgreSQL client\n"
-"authentication configuration in pg_hba.conf. For\n"
-"details see:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-msgstr ""
-"Αδύνατον να συνδεθώ με τη βάση δεδομένων\n"
-"\n"
-"%s\n"
-"\n"
-"Παρακαλώ προσπαθείστε ξανά με τα απαιτούμενα δικαιώματα ή ακυρώστε\n"
-"\n"
-"Επίσης ίσως χρειάζεται να ελέγξετε την ρύθμιση πιστοποίησης του πελάτη\n"
-"της  PostgreSQL στο αρχείο pg_hba.conf. Για λεπτομέρειες δείτε:\n"
-"\n"
-"wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
-
-msgid "Connecting to backend"
-msgstr "Σύνδεση στο σύστημα υποστήριξης"
-
-#, python-format
-msgid ""
-"Unable to connect to database:\n"
-"\n"
-"%s\n"
-"\n"
-"Please retry another backend / user / password combination !\n"
-msgstr ""
-"Δεν είναι δυνατή η σύνδεση με βάση δεδομένων:\n"
-"\n"
-"%s\n"
-"\n"
-"Παρακαλούμε προσπαθήστε ξανά σε άλλο σύστημα υποστήριξης/ χρήστη / κωδικό "
-"πρόσβασης συνδυασμό!\n"
-
-msgid "programmer forgot to specify error message"
-msgstr "ο προγραμματιστής ξέχασε να καθορίσει το μήνυμα σφάλματος"
-
-msgid ""
-"\n"
-"\n"
-"Please consult the error log for all the gory details !"
-msgstr ""
-"\n"
-"\n"
-"Παρακαλούμε συμβουλευθείτε το αρχείο καταγραφής σφαλμάτων για όλες τις "
-"αιματοβαμμένες λεπτομέρειες!"
-
-msgid "generic error message"
-msgstr "Μήνυμα γενικού σφάλματος"
-
-msgid "programmer forgot to specify info message"
-msgstr "ο προγραμματιστής ξέχασε να διευκρινίσει το μήνυμα πληροφοριών"
-
-msgid "generic info message"
-msgstr "Μήνυμα γενικής πληροφορίας"
-
-msgid "programmer forgot to specify warning"
-msgstr "προγραμματιστής ξέχασε να διευκρινίσει μια προειδοποίηση"
-
-msgid "generic warning message"
-msgstr "γενικό μήνυμα προειδοποίησης"
 
 msgid "no hook specified, please report bug"
 msgstr ""
@@ -3156,8 +3038,9 @@ msgstr "&κλινικά συναφές"
 msgid "Document Properties"
 msgstr ""
 
-msgid "Show part"
-msgstr ""
+#, fuzzy
+msgid "Show"
+msgstr "Εμφάνιση μηνυμάτων:"
 
 msgid "Remove part"
 msgstr ""
@@ -4226,8 +4109,9 @@ msgstr ""
 msgid "Acquire images from image source (scanner, ...)."
 msgstr ""
 
-msgid "Acquire images or text from the clipboard."
-msgstr ""
+#, fuzzy
+msgid "Acquire file or text from the clipboard."
+msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
 msgid "Remove the selected documents."
@@ -5590,6 +5474,56 @@ msgstr ""
 msgid "A code for this region."
 msgstr ""
 
+#, fuzzy
+msgid "&Unknown"
+msgstr "'Αγνωστο"
+
+msgid "&Never smoked"
+msgstr ""
+
+msgid "&Smokes or smoked"
+msgstr ""
+
+msgid "Select if the smoking status is unknown (say, unasked so far)."
+msgstr ""
+
+msgid ""
+"Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
+"smoker)."
+msgstr ""
+
+#, fuzzy
+msgid "Select if the patient did or does smoke."
+msgstr "Επιλέξτε αυτό αν ο ασθενής δεν έχει γνωστές αλλεργίες."
+
+msgid ""
+"A comment on the smoking habits:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit smoking ?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+#, fuzzy
+msgid "When was smoking status last confirmed (mostly \"today\") ?"
+msgstr "Πότε η αλλεργική κατάσταση επιβεβαιώθηκε για τελευταία φορά."
+
+#, fuzzy
+msgid "Quit date"
+msgstr "ημέρα"
+
+#, fuzzy
+msgid "Last confirmed"
+msgstr "<τελευταία επιβεβαιώμένη>"
+
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
 "this relative."
@@ -6472,6 +6406,23 @@ msgid ""
 "To disable that popup leave the message empty."
 msgstr ""
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Τελευταία τροποποίηση:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+#, fuzzy
+msgid "Show search dialog."
+msgstr "Κλείσιμο αυτού του διαλόγου."
+
+msgid "Order by:"
+msgstr ""
+
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
 
@@ -6976,54 +6927,6 @@ msgid "Expires: %s\n"
 msgstr "Εξήχθηκε: %s\n"
 
 #, fuzzy
-msgid "Active clinical hint"
-msgstr "Πρόβλημα"
-
-#, fuzzy
-msgid "Inactive clinical hint"
-msgstr "αποθήκευση κλινικής σημείωσης στον ΗΙΦ"
-
-#, python-format
-msgid "Source: %s\n"
-msgstr "Προέλευση:%s\n"
-
-#, fuzzy, python-format
-msgid "Language: %s\n"
-msgstr "Γλώσσα"
-
-#, fuzzy
-msgid "Suppressed active dynamic hint"
-msgstr "Αποθήκευση εγγράφου"
-
-#, fuzzy
-msgid "Suppressed inactive dynamic hint"
-msgstr "Αποθήκευση εγγράφου"
-
-#, fuzzy, python-format
-msgid "Suppressed by: %s\n"
-msgstr "Προέλευση:%s\n"
-
-#, fuzzy, python-format
-msgid "Suppressed at: %s\n"
-msgstr "Προέλευση:%s\n"
-
-#, fuzzy, python-format
-msgid "Hint #: %s\n"
-msgstr "Ημερομηνία: %s\n"
-
-#, fuzzy, python-format
-msgid "Patient #: %s\n"
-msgstr "Ασθενής"
-
-#, fuzzy, python-format
-msgid "MD5 (currently): %s\n"
-msgstr "Αρχεία:%s"
-
-#, python-format
-msgid "MD5 (at suppression): %s\n"
-msgstr ""
-
-#, fuzzy
 msgid "HL7 Message"
 msgstr "Μήνυμα"
 
@@ -7461,6 +7364,54 @@ msgid ""
 "database still contains data linked to it.\n"
 "\n"
 "The account was deactivated instead."
+msgstr ""
+
+#, fuzzy
+msgid "Active clinical hint"
+msgstr "Πρόβλημα"
+
+#, fuzzy
+msgid "Inactive clinical hint"
+msgstr "αποθήκευση κλινικής σημείωσης στον ΗΙΦ"
+
+#, python-format
+msgid "Source: %s\n"
+msgstr "Προέλευση:%s\n"
+
+#, fuzzy, python-format
+msgid "Language: %s\n"
+msgstr "Γλώσσα"
+
+#, fuzzy
+msgid "Suppressed active dynamic hint"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy
+msgid "Suppressed inactive dynamic hint"
+msgstr "Αποθήκευση εγγράφου"
+
+#, fuzzy, python-format
+msgid "Suppressed by: %s\n"
+msgstr "Προέλευση:%s\n"
+
+#, fuzzy, python-format
+msgid "Suppressed at: %s\n"
+msgstr "Προέλευση:%s\n"
+
+#, fuzzy, python-format
+msgid "Hint #: %s\n"
+msgstr "Ημερομηνία: %s\n"
+
+#, fuzzy, python-format
+msgid "Patient #: %s\n"
+msgstr "Ασθενής"
+
+#, fuzzy, python-format
+msgid "MD5 (currently): %s\n"
+msgstr "Αρχεία:%s"
+
+#, python-format
+msgid "MD5 (at suppression): %s\n"
 msgstr ""
 
 #, python-format
@@ -8618,9 +8569,6 @@ msgstr "Πότε"
 #, python-format
 msgid "Exported: %s\n"
 msgstr "Εξήχθηκε: %s\n"
-
-msgid "emr-journal"
-msgstr "τεπ-ημερολόγιο"
 
 msgid "Chronological EMR Journal\n"
 msgstr "Χρονολογική Εφημερίδα Ηλεκτρονικού Ιατρικού Φακέλου\n"
@@ -9865,6 +9813,10 @@ msgstr ""
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
+#, fuzzy
+msgid "Editing smoking status"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
 #, fuzzy, python-format
 msgid "Latest: %s ago (%s %s%s%s%s)"
 msgstr "  Ο χρόνος:%s - %s (@%s = %s%s)\n"
@@ -9944,8 +9896,16 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s"
+msgid "%s Vacc: %s (%s%s)"
 msgstr "μέρος %s: %s"
+
+#, python-format
+msgid "active tobacco use (%s)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Last confirmed: %s%s"
+msgstr " (τελευταία επιβεβαίωση %s)"
 
 #, fuzzy, python-format
 msgid "%s %s %s%s"
@@ -12336,6 +12296,14 @@ msgstr "Διαγραφή μηνύματος"
 msgid "List of addresses related to this person."
 msgstr "Δεν υπάρχουν συνεδρίες για αυτό το επεισόδιο."
 
+#, fuzzy
+msgid "Map"
+msgstr "Κύριος"
+
+#, fuzzy
+msgid "Show selected address on map"
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
 msgid "Adding new address"
 msgstr ""
 
@@ -12527,14 +12495,28 @@ msgstr "ID εξωτερικού ασθενούς"
 msgid "generic multi choice dialog"
 msgstr ""
 
-msgid "Entire row"
+#, fuzzy
+msgid "Deleting list items"
+msgstr "Διαγραφή ονόματος"
+
+#, python-format
+msgid ""
+"You have selected %s list items.\n"
+"\n"
+"Really delete all %s items ?"
+msgstr ""
+
+msgid "Row tooltip"
+msgstr ""
+
+msgid "Row data (as text)"
+msgstr ""
+
+msgid "Row fields (as text)"
 msgstr ""
 
 #, python-format
 msgid "[%8.8s] %s"
-msgstr ""
-
-msgid "Row data (formatted as text)"
 msgstr ""
 
 #, fuzzy
@@ -12715,6 +12697,34 @@ msgstr "Εξαγωγή στο &πρόχειρο"
 #, python-format
 msgid "The file [%s] has been copied into the clipboard."
 msgstr ""
+
+msgid "programmer forgot to specify error message"
+msgstr "ο προγραμματιστής ξέχασε να καθορίσει το μήνυμα σφάλματος"
+
+msgid ""
+"\n"
+"\n"
+"Please consult the error log for all the gory details !"
+msgstr ""
+"\n"
+"\n"
+"Παρακαλούμε συμβουλευθείτε το αρχείο καταγραφής σφαλμάτων για όλες τις "
+"αιματοβαμμένες λεπτομέρειες!"
+
+msgid "generic error message"
+msgstr "Μήνυμα γενικού σφάλματος"
+
+msgid "programmer forgot to specify info message"
+msgstr "ο προγραμματιστής ξέχασε να διευκρινίσει το μήνυμα πληροφοριών"
+
+msgid "generic info message"
+msgstr "Μήνυμα γενικής πληροφορίας"
+
+msgid "programmer forgot to specify warning"
+msgstr "προγραμματιστής ξέχασε να διευκρινίσει μια προειδοποίηση"
+
+msgid "generic warning message"
+msgstr "γενικό μήνυμα προειδοποίησης"
 
 #, python-format
 msgid ""
@@ -13696,12 +13706,19 @@ msgid ""
 "\n"
 " [%s]\n"
 "\n"
-"is not empty. Do you want to use it for saving the\n"
-"export area documents into, nevertheless ?\n"
+"already contains files. Do you still want to save the\n"
+"selected export area documents into that directory ?\n"
 "\n"
-"(this can be useful for including external documents)\n"
+"(this is useful for including the external documents\n"
+" already stored in or below this directory)\n"
 "\n"
 "[NO] will create a subdirectory for you and use that."
+msgstr ""
+
+msgid ""
+"Create descriptive metadata files\n"
+"and save them alongside the\n"
+"selected export area documents ?"
 msgstr ""
 
 #, fuzzy, python-format
@@ -14143,16 +14160,13 @@ msgstr "Επιλέξτε ένα αρχείο"
 msgid "all files (Win)"
 msgstr ""
 
-msgid "You must select a part before you can view it."
-msgstr ""
-
-msgid "displaying part"
-msgstr ""
-
 #, python-format
 msgid ""
 "Cannot display document part:\n"
 "%s"
+msgstr ""
+
+msgid "displaying part"
 msgstr ""
 
 msgid "You must select a part before you can delete it."
@@ -15069,6 +15083,14 @@ msgstr "σημειώσεις προόδου"
 msgid "Manage dynamic hints suppressed in this patient."
 msgstr ""
 
+#, fuzzy
+msgid "Smoking status"
+msgstr "κατάσταση"
+
+#, fuzzy
+msgid "Manage smoking status of this patient."
+msgstr "Κράτα *αυτόν* τον ασθενή"
+
 msgid "&Add / Edit ..."
 msgstr "&Προσθήκη / Επεξεργασία ..."
 
@@ -15093,26 +15115,52 @@ msgstr ""
 msgid "Show a high-level statistic summary of the EMR."
 msgstr ""
 
-msgid "Text document"
-msgstr "Έγγραφο κειμένου"
-
-msgid "Export the EMR of the active patient into a text file"
-msgstr ""
-
-msgid "Journal"
+msgid "Journal (encounters) to file"
 msgstr ""
 
 msgid ""
-"Export the EMR of the active patient as a chronological journal into a text "
+"Save the EMR of the active patient as a chronological journal into a text "
 "file"
 msgstr ""
+
+#, fuzzy
+msgid "Journal (encounters) to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+msgid ""
+"Copy EMR of the active patient as a chronological journal into export area"
+msgstr ""
+
+msgid "Journal (mod time) to file"
+msgstr ""
+
+msgid ""
+"Save the EMR of the active patient as journal by last modification time into "
+"a text file"
+msgstr ""
+
+#, fuzzy
+msgid "Journal (mod time) to export area"
+msgstr "Προσθήκη νέου ονόματος"
+
+msgid ""
+"Copy EMR of the active patient as journal by last modification time into "
+"export area"
+msgstr ""
+
+msgid "Text document"
+msgstr "Έγγραφο κειμένου"
+
+#, fuzzy
+msgid "Save the EMR of the active patient into a text file"
+msgstr "Δεν είναι δυνατή η συγχώνευση ενεργού ασθενή σε άλλον ασθενή."
 
 msgid "MEDISTAR import format"
 msgstr ""
 
 msgid ""
-"GNUmed -> MEDISTAR. Export progress notes of active patient's active "
-"encounter into a text file."
+"GNUmed -> MEDISTAR. Save progress notes of active patient's active encounter "
+"into a text file."
 msgstr ""
 
 msgid "Export as ..."
@@ -16040,6 +16088,10 @@ msgid "Cannot add vaccinations. No active patient."
 msgstr ""
 
 #, fuzzy
+msgid "manage family history"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+#, fuzzy
 msgid "Cannot manage family history. No active patient."
 msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
 
@@ -16058,27 +16110,57 @@ msgstr "Αποθήκευση διεύθυνσης"
 msgid "Cannot manage suppressed hints. No active patient."
 msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
 
+#, fuzzy
+msgid "Cannot manage smoking status. No active patient."
+msgstr "Δεν μπορώ να εισάγω την φαρμακευτική αγωγή. Κανείς ενεργός ασθενής."
+
 msgid "Cannot show EMR summary. No active patient."
 msgstr ""
 
 msgid "EMR Summary"
 msgstr "Περίληψη ΗΙΦ"
 
-msgid "Cannot export EMR journal. No active patient."
+#, fuzzy
+msgid "Cannot export EMR journal by last modification time. No active patient."
+msgstr "Δεν μπορώ να εξάγω τον ΗΙΦ. Χωρίς ενεργό ασθενή."
+
+msgid "journal_by_last_mod_time"
 msgstr ""
 
 msgid "Save patient's EMR journal as..."
 msgstr ""
 
-msgid "Error exporting patient EMR as chronological journal."
+msgid "Error exporting patient EMR as journal by last modification time."
 msgstr ""
 
 msgid "EMR journal export"
 msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
 
 #, python-format
+msgid ""
+"Successfully exported EMR as journal by last modification time into file "
+"[%s]."
+msgstr ""
+
+msgid "Cannot export EMR journal. No active patient."
+msgstr ""
+
+msgid "emr-journal"
+msgstr "τεπ-ημερολόγιο"
+
+msgid "Error exporting patient EMR as chronological journal."
+msgstr ""
+
+#, python-format
 msgid "Successfully exported EMR as chronological journal into file [%s]."
 msgstr ""
+
+msgid "EMR journal by last modification time"
+msgstr ""
+
+#, fuzzy
+msgid "EMR journal by encounter"
+msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
 
 msgid "Cannot add tag to person. No active patient."
 msgstr ""
@@ -16138,6 +16220,20 @@ msgstr ""
 
 #, python-format
 msgid "Saved screenshot to file [%s]."
+msgstr ""
+
+msgid "Python version check"
+msgstr ""
+
+#, python-format
+msgid ""
+"You are running Python version\n"
+" %s\n"
+"\n"
+"However, GNUmed wants Python 2.7 to\n"
+"facilitate migration to Python 3.\n"
+"\n"
+"Please upgrade your Python interpreter !"
 msgstr ""
 
 msgid "GNUmed client"
@@ -16584,10 +16680,6 @@ msgstr ""
 #, fuzzy
 msgid "Identification"
 msgstr "Ένδειξη"
-
-#, fuzzy
-msgid "Show"
-msgstr "Εμφάνιση μηνυμάτων:"
 
 msgid "Show formatted HL7"
 msgstr ""
@@ -17117,11 +17209,7 @@ msgstr ""
 msgid "&New notes %s"
 msgstr "&Σημειώσεις"
 
-msgid ""
-"An error occurred while retrieving the EMR\n"
-"in journal form for the active patient.\n"
-"\n"
-"Please check the log file for details."
+msgid "Find text in EMR Journal"
 msgstr ""
 
 msgid "Editing tag"
@@ -17536,6 +17624,9 @@ msgstr ""
 "της  PostgreSQL στο αρχείο pg_hba.conf. Για λεπτομέρειες δείτε:\n"
 "\n"
 "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+msgid "Connecting to backend"
+msgstr "Σύνδεση στο σύστημα υποστήριξης"
 
 #, fuzzy, python-format
 msgid ""
@@ -18106,6 +18197,10 @@ msgstr "Πρόσθετο προτύπων"
 msgid "Show &ExamplePlugin"
 msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
 
+#, fuzzy
+msgid "Find text"
+msgstr "Τελευταίο έχει δοθεί"
+
 msgid "gm_ctl_client: starting slave GNUmed client"
 msgstr ""
 
@@ -18133,6 +18228,76 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#~ msgid "No product information available."
+#~ msgstr "Δεν υπάρχουν διαθέσιμες  πληροφορίες για το προϊόν."
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Are you sure you have got a local database installed ?\n"
+#~ "\n"
+#~ "Please retry with proper credentials or cancel.\n"
+#~ "\n"
+#~ "You may also need to check the PostgreSQL client\n"
+#~ "authentication configuration in pg_hba.conf. For\n"
+#~ "details see:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+#~ msgstr ""
+#~ "Αδύνατη η σύνδεση με τη βάση δεδομένων:\n"
+#~ "\n"
+#~ "% s\n"
+#~ "\n"
+#~ "Είσαι σίγουρος ότι έχεις εγκαταστήσει τοπικά μια βάση δεδομένων;\n"
+#~ "\n"
+#~ "Δοκιμάστε ξανά με την κατάλληλη εντολή ή ακυρώστε.\n"
+#~ "\n"
+#~ "Μπορεί επίσης να χρειαστεί έλεγχος του πελάτη της PostgreSQL\n"
+#~ "για την διαμόρφωση της ταυτότητας στο pg_hba.conf. Για\n"
+#~ "λεπτομέρειες βλέπε:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry with proper credentials or cancel.\n"
+#~ "\n"
+#~ "You may also need to check the PostgreSQL client\n"
+#~ "authentication configuration in pg_hba.conf. For\n"
+#~ "details see:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+#~ msgstr ""
+#~ "Αδύνατον να συνδεθώ με τη βάση δεδομένων\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Παρακαλώ προσπαθείστε ξανά με τα απαιτούμενα δικαιώματα ή ακυρώστε\n"
+#~ "\n"
+#~ "Επίσης ίσως χρειάζεται να ελέγξετε την ρύθμιση πιστοποίησης του πελάτη\n"
+#~ "της  PostgreSQL στο αρχείο pg_hba.conf. Για λεπτομέρειες δείτε:\n"
+#~ "\n"
+#~ "wiki.gnumed.de/bin/view/Gnumed/ConfigurePostgreSQL"
+
+#~ msgid ""
+#~ "Unable to connect to database:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please retry another backend / user / password combination !\n"
+#~ msgstr ""
+#~ "Δεν είναι δυνατή η σύνδεση με βάση δεδομένων:\n"
+#~ "\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Παρακαλούμε προσπαθήστε ξανά σε άλλο σύστημα υποστήριξης/ χρήστη / κωδικό "
+#~ "πρόσβασης συνδυασμό!\n"
 
 #, fuzzy
 #~ msgid ""
