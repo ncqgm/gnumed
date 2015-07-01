@@ -24,6 +24,21 @@ alter table clin.substance_intake
 	);
 
 -- --------------------------------------------------------------
+comment on column clin.substance_intake.harmful_use_type is
+	'NULL=not considered=medication, 0=no or not considered harmful, 1=presently harmful use, 2=presently addicted, 3=previously addicted';
+
+
+alter table clin.substance_intake
+	drop constraint if exists clin_patient_sane_use_type;
+
+alter table clin.substance_intake
+	add constraint clin_patient_sane_use_type check (
+		(harmful_use_type IS NULL)
+			OR
+		(harmful_use_type between 0 and 3)
+	);
+
+-- --------------------------------------------------------------
 drop view if exists clin.v_brand_intakes cascade;
 
 create view clin.v_brand_intakes as
@@ -69,6 +84,9 @@ select
 	end::boolean
 		as start_is_approximate,
 	c_si.intake_is_approved_of,
+	c_si.harmful_use_type,
+	NULL::timestamp with time zone
+		as last_checked_when,
 	c_si.schedule,
 	c_si.duration,
 	c_si.discontinued,
@@ -135,7 +153,7 @@ from
 				left join clin.episode cep on (c_si.fk_episode = cep.pk)
 					left join clin.health_issue c_hi on (c_hi.pk = cep.fk_health_issue)
 where
-	c_si.fk_drug_component is not null
+	c_si.fk_drug_component IS NOT NULL
 
 ;
 
@@ -186,6 +204,12 @@ select
 	end::boolean
 		as start_is_approximate,
 	c_si.intake_is_approved_of,
+	c_si.harmful_use_type,
+	CASE
+		WHEN c_si.harmful_use_type IS NULL THEN NULL::timestamp with time zone
+		ELSE c_enc.started
+	END
+		AS last_checked_when,
 	c_si.schedule,
 	c_si.duration,
 	c_si.discontinued,
@@ -249,8 +273,9 @@ from
 		inner join ref.consumable_substance r_cs on (c_si.fk_substance = r_cs.pk)
 			left join clin.episode cep on (c_si.fk_episode = cep.pk)
 				left join clin.health_issue c_hi on (c_hi.pk = cep.fk_health_issue)
+					left join clin.encounter c_enc on (c_si.fk_encounter = c_enc.pk)
 where
-	c_si.fk_drug_component is null
+	c_si.fk_drug_component IS NULL
 ;
 
 grant select on clin.v_nonbrand_intakes to group "gm-doctors";
@@ -265,6 +290,113 @@ select * from clin.v_nonbrand_intakes
 ;
 
 grant select on clin.v_substance_intakes to group "gm-doctors";
+
+-- --------------------------------------------------------------
+INSERT INTO ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+)	SELECT
+		'nicotine',
+		'N07BA01',
+		'1',
+		'piece'
+	WHERE
+		NOT EXISTS (SELECT 1 FROM ref.consumable_substance WHERE atc_code = 'N07BA01' and description = 'nicotine')
+;
+
+INSERT INTO clin.substance_intake (
+	clin_when,
+	comment_on_start,
+	fk_encounter,
+	fk_substance,
+	preparation,
+	narrative,
+	intake_is_approved_of,
+	harmful_use_type
+)	SELECT
+		'20051111'::timestamp,
+		'?',
+		(select pk from clin.encounter where fk_patient = (
+			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+		) limit 1),
+		(select pk from ref.consumable_substance where atc_code = 'N07BA01' limit 1),
+		'tobacco',
+		'enjoys an occasional pipe of Old Toby',
+		FALSE,
+		0
+;
+
+INSERT INTO ref.consumable_substance (
+	description,
+	atc_code,
+	amount,
+	unit
+)	SELECT
+		'ethanol',
+		'V03AB16',
+		'1',
+		'l'
+	WHERE
+		NOT EXISTS (SELECT 1 FROM ref.consumable_substance WHERE atc_code = 'V03AB16' and description = 'ethanol')
+;
+
+INSERT INTO clin.substance_intake (
+	clin_when,
+	comment_on_start,
+	fk_encounter,
+	fk_substance,
+	preparation,
+	narrative,
+	intake_is_approved_of,
+	harmful_use_type
+)	SELECT
+		'20051111'::timestamp,
+		'?',
+		(select pk from clin.encounter where fk_patient = (
+			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+		) limit 1),
+		(select pk from ref.consumable_substance where atc_code = 'V03AB16' limit 1),
+		'liquid',
+		'occasionally relishes a fine glass of Saurian Brandy and will not forego a pint of Romulan Ale',
+		FALSE,
+		3
+;
+
+INSERT INTO ref.consumable_substance (
+	description,
+	amount,
+	unit
+)	SELECT
+		'other drugs',
+		'1',
+		'/1'
+	WHERE
+		NOT EXISTS (SELECT 1 FROM ref.consumable_substance WHERE description = 'other drugs')
+;
+
+INSERT INTO clin.substance_intake (
+	clin_when,
+	comment_on_start,
+	fk_encounter,
+	fk_substance,
+	preparation,
+	narrative,
+	intake_is_approved_of,
+	harmful_use_type
+)	SELECT
+		'20051111'::timestamp,
+		'?',
+		(select pk from clin.encounter where fk_patient = (
+			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+		) limit 1),
+		(select pk from ref.consumable_substance where description = 'other drugs' limit 1),
+		'piece',
+		'possibly experimented with cordrazine at one point',
+		FALSE,
+		0
+;
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v21-clin-v_substance_intakes.sql', '21.0');

@@ -74,10 +74,6 @@ union all
 
 union all
 
-	select * from clin.v_smoking_journal
-
-union all
-
 	select * from clin.v_edc_journal
 
 ;

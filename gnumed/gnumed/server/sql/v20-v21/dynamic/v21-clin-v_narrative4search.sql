@@ -405,37 +405,6 @@ select * from (
 	from
 		clin.suppressed_hint c_sh
 
-	union all	-- smoking status
-	select
-		c_p.fk_identity
-			as pk_patient,
-		's'
-			as soap_cat,
-		(c_p.smoking_details->>'comment')::text
-			as narrative,
-		(
-			select c_e.pk
-			from clin.encounter c_e
-			where c_e.fk_patient = c_p.fk_identity
-			order by started desc
-			limit 1
-		)
-			as pk_encounter,
-		null
-			as pk_episode,
-		null
-			as pk_health_issue,
-		c_p.pk
-			as src_pk,
-		'clin.patient'::text
-			as src_table
-	from
-		clin.patient c_p
-	where
-		c_p.smoking_ever is not null
-			and
-		(c_p.smoking_details->>'comment') IS DISTINCT FROM NULL
-
 ) as union_table
 
 where

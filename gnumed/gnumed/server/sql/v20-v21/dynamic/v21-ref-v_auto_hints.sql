@@ -276,7 +276,7 @@ END;';
 DELETE FROM ref.auto_hint WHERE title = 'Lack of smoking status documentation';
 
 INSERT INTO ref.auto_hint(query, title, hint, source, lang) VALUES (
-	'SELECT EXISTS(SELECT 1 FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT AND smoking_ever IS NULL);',
+	'SELECT NOT EXISTS(SELECT 1 FROM clin.v_nonbrand_intakes WHERE pk_patient = ID_ACTIVE_PATIENT AND atc_substance = ''N07BA01'' AND harmful_use_type IS NOT NULL)',
 	'Lack of smoking status documentation',
 	'There has never been any smoking status recorded for this patient.',
 	'AWMF NVL Schädlicher Tabakgebrauch',
@@ -292,29 +292,30 @@ INSERT INTO ref.auto_hint(title, hint, source, lang, query, recommendation_query
 	'AWMF NVL Schädlicher Tabakgebrauch',
 	'en',
 	'SELECT EXISTS (
-		SELECT 1 FROM clin.patient
-		WHERE
-			(fk_identity = ID_ACTIVE_PATIENT)
+		SELECT 1 FROM clin.v_nonbrand_intakes WHERE
+			(pk_patient = ID_ACTIVE_PATIENT)
 				AND
-			-- current or previous smoker
-			(smoking_ever IS TRUE)
+			(atc_substance = ''N07BA01'')
 				AND
-			-- NOT documented to have quit or plan quitting
-			((smoking_details->>''quit_when'')::timestamp with time zone IS NULL)
+			(coalesce(harmful_use_type, -1) > 0)
 				AND
-			-- status has been checked at all
-			((smoking_details ? ''last_confirmed'') IS DISTINCT FROM NULL)
+			((discontinued IS NULL) OR (discontinued > now()))
 				AND
-			-- but has been checked more than one year ago
-			((smoking_details->>''last_confirmed'')::timestamp with time zone < (now() - ''1 year''::interval))
+			(last_checked_when < now() - ''1 year''::interval)
 	);',
 	'SELECT
-		''Smoking status last checked: ''
-		|| to_char((clin.patient.smoking_details->>''last_confirmed'')::timestamp with time zone, ''Mon YYYY'')
-		|| coalesce(E''\nDetails:\n'' || (clin.patient.smoking_details->>''comment'')::text, '''')
+		_(''Smoking status'') || E''\n''
+		|| '' '' || _(''Last checked:'') || '' '' || to_char(last_checked_when, ''Mon YYYY'')
+		|| (case
+				when harmful_use_type = 1 then E''\n'' || _(''harmful use'')
+				when harmful_use_type = 2 then E''\n'' || _(''addiction'')
+				when harmful_use_type = 3 then E''\n'' || _(''previous addiction'')
+			end)
+		|| coalesce(E''\n '' || _(''Quit date:'') || '' '' || to_char(discontinued, ''YYYY Mon DD''), '''')
+		|| coalesce(E''\n '' || _(''Notes:'') || '' '' || notes, '''')
 	FROM
-		clin.patient
-	WHERE fk_identity = ID_ACTIVE_PATIENT;'
+		clin.v_nonbrand_intakes
+	WHERE pk_patient = ID_ACTIVE_PATIENT;'
 );
 
 -- --------------------------------------------------------------
