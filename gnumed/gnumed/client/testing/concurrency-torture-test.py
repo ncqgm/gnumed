@@ -70,11 +70,11 @@ def mutate_narr(narr=None):
 		else:
 			print " => unknown cause: ", msg
 		for key in narr.get_updatable_fields():
-			if (narr[key] != narr.original_payload[key]) or (narr[key] != narr.modified_payload[key]):
-				print 'conflict in: [%s]' % key
-				print 'originally : "%s"' % narr.original_payload[key]
-				print 'currently  : "%s"' % narr[key]
-				print 'we wanted  : "%s"' % narr.modified_payload[key]
+			if (narr[key] != narr.payload_most_recently_fetched[key]) or (narr[key] != narr.payload_most_recently_attempted_to_store[key]):
+				print 'conflict in          : [%s]' % key
+				print 'most recently fetched: "%s"' % narr.payload_most_recently_fetched[key]
+				print 'currently            : "%s"' % narr[key]
+				print 'we wanted to store   : "%s"' % narr.payload_most_recently_attempted_to_store[key]
 	else:
 		print "=> another error"
 		print "error", err
@@ -106,7 +106,3 @@ if __name__ == '__main__':
 	print "Done."
 
 #============================================================
-# $Log: concurrency-torture-test.py,v $
-# Revision 1.1  2005-06-09 21:16:50  ncq
-# - torture-test our concurrency conflict detection
-#

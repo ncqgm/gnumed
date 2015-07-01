@@ -84,10 +84,10 @@ episode, encounter).
 
 One can offer all the data to the user:
 
-self.original_payload
+self.payload_most_recently_fetched
 - contains the data at the last successful refetch
 
-self.modified_payload
+self.payload_most_recently_attempted_to_store
 - contains the modified payload just before the last
   failure of save_payload() - IOW what is currently
   in the database
@@ -335,9 +335,9 @@ def delete_xxx(pk_XXX=None):
 		self.pk_obj = aPK_obj
 		result = self.refetch_payload(link_obj = link_obj)
 		if result is True:
-			self.original_payload = {}
+			self.payload_most_recently_fetched = {}
 			for field in self._idx.keys():
-				self.original_payload[field] = self._payload[self._idx[field]]
+				self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 			return True
 
 		if result is False:
@@ -370,15 +370,15 @@ def delete_xxx(pk_XXX=None):
 			_log.critical('faulty <row> argument structure: %s' % row)
 			raise gmExceptions.ConstructorError, "[%s:??]: error loading instance from row data" % self.__class__.__name__
 
-		self.original_payload = {}
+		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
-			self.original_payload[field] = self._payload[self._idx[field]]
+			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 	#--------------------------------------------------------
 	def __del__(self):
 		if u'_is_modified' in self.__dict__:
 			if self._is_modified:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.debug('original: %s' % self.original_payload)
+				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
 				_log.debug('modified: %s' % self._payload)
 	#--------------------------------------------------------
 	def __str__(self):
@@ -539,7 +539,7 @@ def delete_xxx(pk_XXX=None):
 		if self._is_modified:
 			if ignore_changes:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.debug('original: %s' % self.original_payload)
+				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
 				_log.debug('modified: %s' % self._payload)
 			else:
 				_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
@@ -582,7 +582,7 @@ def delete_xxx(pk_XXX=None):
 		args = {}
 		for field in self._idx.keys():
 			args[field] = self._payload[self._idx[field]]
-		self.modified_payload = args
+		self.payload_most_recently_attempted_to_store = args
 
 		close_conn = self.__noop
 		if conn is None:
@@ -628,10 +628,9 @@ def delete_xxx(pk_XXX=None):
 		close_conn()
 
 		self._is_modified = False
-		# update to new "original" payload
-		self.original_payload = {}
+		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
-			self.original_payload[field] = self._payload[self._idx[field]]
+			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
 
 		return (True, None)
 

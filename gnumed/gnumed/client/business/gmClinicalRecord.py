@@ -13,12 +13,13 @@ import sys
 import logging
 import datetime as pydt
 
+if __name__ == '__main__':
+	sys.path.insert(0, '../../')
 
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmDateTime
 
 if __name__ == '__main__':
-	sys.path.insert(0, '../../')
 	from Gnumed.pycommon import gmLog2
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
@@ -332,45 +333,238 @@ class cClinicalRecord(object):
 
 	#--------------------------------------------------------
 	def _get_smoking_status(self):
-		# caching does not take into account status changed from elsewhere
-		try:
-			self.__smoking_status
-		except AttributeError:
-			self.__smoking_status = None
-
-		if self.__smoking_status is not None:
-			return self.__smoking_status
-
-		args = {'pat': self.pk_patient}
-		cmd = u"SELECT smoking_ever, smoking_details, (smoking_details->>'last_confirmed')::timestamp with time zone AS ts_last, (smoking_details->>'quit_when')::timestamp with time zone AS ts_quit FROM clin.patient WHERE fk_identity = %(pat)s"
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
-		if len(rows) == 0:
+		use = self.harmful_substance_use
+		if use is None:
 			return None
-		ever = rows[0]['smoking_ever']
-		details = rows[0]['smoking_details']
-		if ever is not None:
-			details['last_confirmed'] = rows[0]['ts_last']
-			details['quit_when'] = None
-
-		self.__smoking_status = (ever, details)
-		return self.__smoking_status
+		return use['tobacco']
 
 	def _set_smoking_status(self, status):
-		self.__smoking_status = None
-		ever, details = status
-		args = {'pat': self.pk_patient}
-		if ever is None:
-			cmd = u'UPDATE clin.patient SET smoking_ever = NULL, smoking_details = NULL WHERE fk_identity = %(pat)s'
-		elif ever is False:
+		# valid ?
+		status_flag, details = status
+		self.__harmful_substance_use = None
+		args = {
+			'pat': self.pk_patient,
+			'status': status_flag
+		}
+		if status_flag is None:
+			cmd = u'UPDATE clin.patient SET smoking_status = %(status)s, smoking_details = NULL WHERE fk_identity = %(pat)s'
+		elif status_flag == 0:
 			details['quit_when'] = None
 			args['details'] = gmTools.dict2json(self.__normalize_smoking_details(details))
-			cmd = u'UPDATE clin.patient SET smoking_ever = FALSE, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
+			cmd = u'UPDATE clin.patient SET smoking_status = %(status)s, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
 		else:
 			args['details'] = gmTools.dict2json(self.__normalize_smoking_details(details))
-			cmd = u'UPDATE clin.patient SET smoking_ever = TRUE, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
+			cmd = u'UPDATE clin.patient SET smoking_status = %(status)s, smoking_details = %(details)s WHERE fk_identity = %(pat)s'
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	smoking_status = property(_get_smoking_status, _set_smoking_status)
+
+	#--------------------------------------------------------
+	def _get_alcohol_status(self):
+		use = self.harmful_substance_use
+		if use is None:
+			return None
+		return use['alcohol']
+
+	def _set_alcohol_status(self, status):
+		# valid ?
+		harmful, details = status
+		self.__harmful_substance_use = None
+		args = {'pat': self.pk_patient}
+		if harmful is None:
+			cmd = u'UPDATE clin.patient SET c2_currently_harmful_use = NULL, c2_details = NULL WHERE fk_identity = %(pat)s'
+		elif harmful is False:
+			cmd = u'UPDATE clin.patient SET c2_currently_harmful_use = FALSE, c2_details = gm.nullify_empty_string(%(details)s) WHERE fk_identity = %(pat)s'
+		else:
+			cmd = u'UPDATE clin.patient SET c2_currently_harmful_use = TRUE, c2_details = gm.nullify_empty_string(%(details)s) WHERE fk_identity = %(pat)s'
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	alcohol_status = property(_get_alcohol_status, _set_alcohol_status)
+
+	#--------------------------------------------------------
+	def _get_drugs_status(self):
+		use = self.harmful_substance_use
+		if use is None:
+			return None
+		return use['drugs']
+
+	def _set_drugs_status(self, status):
+		# valid ?
+		harmful, details = status
+		self.__harmful_substance_use = None
+		args = {'pat': self.pk_patient}
+		if harmful is None:
+			cmd = u'UPDATE clin.patient SET drugs_currently_harmful_use = NULL, drugs_details = NULL WHERE fk_identity = %(pat)s'
+		elif harmful is False:
+			cmd = u'UPDATE clin.patient SET drugs_currently_harmful_use = FALSE, drugs_details = gm.nullify_empty_string(%(details)s) WHERE fk_identity = %(pat)s'
+		else:
+			cmd = u'UPDATE clin.patient SET drugs_currently_harmful_use = TRUE, drugs_details = gm.nullify_empty_string(%(details)s) WHERE fk_identity = %(pat)s'
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+
+	drugs_status = property(_get_drugs_status, _set_drugs_status)
+
+	#--------------------------------------------------------
+	def _get_harmful_substance_use(self):
+		# caching does not take into account status changes from elsewhere
+		try:
+			self.__harmful_substance_use
+		except AttributeError:
+			self.__harmful_substance_use = None
+
+		if self.__harmful_substance_use is not None:
+			return self.__harmful_substance_use
+
+		args = {'pat': self.pk_patient}
+		cmd = u"""
+			SELECT
+				-- tobacco use
+				smoking_status,
+				smoking_details,
+				(smoking_details->>'last_confirmed')::timestamp with time zone
+					AS ts_last,
+				(smoking_details->>'quit_when')::timestamp with time zone
+					AS ts_quit,
+				-- c2 use
+				c2_currently_harmful_use,
+				c2_details,
+				-- other drugs use
+				drugs_currently_harmful_use,
+				drugs_details
+			FROM clin.patient
+			WHERE fk_identity = %(pat)s
+		"""
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
+		if len(rows) == 0:
+			return None
+		# disentangle smoking
+		status = rows[0]['smoking_status']
+		details = rows[0]['smoking_details']
+		if status is not None:
+			details['last_confirmed'] = rows[0]['ts_last']
+			details['quit_when'] = rows[0]['ts_quit']
+		# set fields
+		self.__harmful_substance_use = {
+			'tobacco':  (status, details),
+			'alcohol': (rows[0]['c2_currently_harmful_use'], rows[0]['c2_details']),
+			'drugs': (rows[0]['drugs_currently_harmful_use'], rows[0]['drugs_details'])
+		}
+
+		return self.__harmful_substance_use
+
+
+	def _get_harmful_substance_use2(self):
+		cmd = u'SELECT * FROM clin.v_substance_intakes WHERE harmful_use_type  = %s'
+
+	harmful_substance_use = property(_get_harmful_substance_use, lambda x:x)
+
+	#--------------------------------------------------------
+	def format_harmful_substance_use(self, include_tobacco=True, include_alcohol=True, include_drugs=True, include_nonuse=True, include_unknown=True):
+		use = self.harmful_substance_use
+		if use is None:
+			return []
+
+		lines = []
+
+		if include_tobacco:
+			status, details = use['tobacco']
+			add_details = False
+			if status is None:
+				if include_unknown:
+					lines.append(_('unknown smoking status'))
+			elif status == 0:
+				if include_nonuse:
+					lines.append(u'%s (%s)' % (_('non-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+			elif status == 1:		# now or previous
+				if details['quit_when'] is None:
+					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+				elif details['quit_when'] < gmDateTime.pydt_now_here():
+					if include_nonuse:
+						lines.append(u'%s (%s)' % (_('ex-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+						add_details = True
+				else:
+					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+			elif status == 2:		# addicted
+				lines.append(u'%s (%s)' % (_('tobacco addiction'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+				add_details = True
+			if add_details:
+				if details['quit_when'] is not None:
+					lines.append(u' %s: %s' % (_('Quit date'), gmDateTime.pydt_strftime(details['quit_when'], '%Y %b %d')))
+				if details['comment'] is not None:
+					lines.append(u' %s' % details['comment'])
+
+		if include_alcohol:
+			status, details = use['alcohol']
+			if status is False:
+				if include_nonuse:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('no or non-harmful alcohol use'))
+					lines.append(u' %s' % details)
+			elif status is True:
+				if len(lines) > 0:
+					lines.append(u'')
+				lines.append(_('harmful alcohol use'))
+				lines.append(u' %s' % details)
+			else:
+				if include_unknown:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('unknown alcohol use'))
+					lines.append(u' %s' % details)
+
+		if include_drugs:
+			status, details = use['drugs']
+			if status is False:
+				if include_nonuse:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('no or non-harmful drug use'))
+					lines.append(u' %s' % details)
+			elif status is True:
+				if len(lines) > 0:
+					lines.append(u'')
+				lines.append(_('harmful drug use'))
+				lines.append(u' %s' % details)
+			else:
+				if include_unknown:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('unknown drug use'))
+					lines.append(u' %s' % details)
+
+		return lines
+
+	#--------------------------------------------------------
+	def _get_currently_abuses_substances(self):
+		# returns True / False / None (= unknown)
+
+		use = self.harmful_substance_use
+		# we know that at least one group is used:
+		if use['alcohol'][0] is True:
+			return True
+		if use['drugs'][0] is True:
+			return True
+		if use['tobacco'][0] > 0:
+		# is True:
+			if use['tobacco'][1]['quit_when'] is None:
+				return True
+		# at this point no group is currently used for sure
+		# we don't know about some of the groups so we can NOT say: no abuse at all:
+		if use['alcohol'][0] is None:
+			return None
+		if use['drugs'][0] is None:
+			return None
+		if use['tobacco'][0] is None:
+			return None
+		# at this point all groups must be FALSE, except for
+		# tobacco which can also be TRUE _but_, if so, a quit
+		# date has been set, which is considered non-abuse
+		return False
+
+	currently_abuses_substances = property(_get_currently_abuses_substances, lambda x:x)
 
 	#--------------------------------------------------------
 	# API: performed procedures
@@ -907,7 +1101,7 @@ order by
 				gmTools.coalesce(allg['reaction'], _('unknown reaction'))
 			)
 
-		meds = self.get_current_substance_intakes(order_by = u'intake_is_approved_of DESC, substance')
+		meds = self.get_current_medications(order_by = u'intake_is_approved_of DESC, substance')
 		if len(meds) > 0:
 			txt += u'\n'
 			txt += _('Medications and Substances')
@@ -1400,16 +1594,48 @@ WHERE
 	#--------------------------------------------------------
 	# API: substance intake
 	#--------------------------------------------------------
-	def get_current_substance_intakes(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None):
+	def get_current_medications(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None):
+		return self._get_current_substance_intakes (
+			include_inactive = include_inactive,
+			include_unapproved = include_unapproved,
+			order_by = order_by,
+			episodes = episodes,
+			issues = issues,
+			exclude_medications = False,
+			exclude_potential_abuses = True
+		)
+
+	#--------------------------------------------------------
+	def _get_currently_abused_substances(self, order_by=None):
+		return self._get_current_substance_intakes (
+			include_inactive = True,
+			include_unapproved = True,
+			order_by = order_by,
+			episodes = None,
+			issues = None,
+			exclude_medications = True,
+			exclude_potential_abuses = False
+		)
+
+	currently_abused_substances = property(_get_currently_abused_substances, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_current_substance_intakes(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
 
 		where_parts = [u'pk_patient = %(pat)s']
 		args = {'pat': self.pk_patient}
 
 		if not include_inactive:
-			where_parts.append(u'is_currently_active IN (true, null)')
+			where_parts.append(u'is_currently_active IN (TRUE, NULL)')
 
 		if not include_unapproved:
-			where_parts.append(u'intake_is_approved_of IN (true, null)')
+			where_parts.append(u'intake_is_approved_of IN (TRUE, NULL)')
+
+		if exclude_potential_abuses:
+			where_parts.append(u'harmful_use_type IS NULL')
+
+		if exclude_medications:
+			where_parts.append(u'harmful_use_type IS NOT NULL')
 
 		if order_by is None:
 			order_by = u''
@@ -1421,15 +1647,16 @@ WHERE
 			order_by
 		)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		meds = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
+		intakes = [ gmMedication.cSubstanceIntakeEntry(row = {'idx': idx, 'data': r, 'pk_field': 'pk_substance_intake'})  for r in rows ]
 
 		if episodes is not None:
-			meds = filter(lambda s: s['pk_episode'] in episodes, meds)
+			intakes = filter(lambda s: s['pk_episode'] in episodes, intakes)
 
 		if issues is not None:
-			meds = filter(lambda s: s['pk_health_issue'] in issues, meds)
+			intakes = filter(lambda s: s['pk_health_issue'] in issues, intakes)
 
-		return meds
+		return intakes
+
 	#--------------------------------------------------------
 	def add_substance_intake(self, pk_substance=None, pk_component=None, episode=None, preparation=None, pk_brand=None):
 		return gmMedication.create_substance_intake (
@@ -1440,6 +1667,7 @@ WHERE
 			preparation = preparation,
 			pk_brand = pk_brand
 		)
+
 	#--------------------------------------------------------
 	def substance_intake_exists(self, pk_component=None, pk_substance=None, pk_brand=None):
 		return gmMedication.substance_intake_exists (
@@ -2618,8 +2846,13 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_meds():
 		emr = cClinicalRecord(aPKey=12)
-		for med in emr.get_current_substance_intakes():
+		for med in emr.get_current_medications():
 			print med
+	#-----------------------------------------
+	def test_get_abuses():
+		emr = cClinicalRecord(aPKey=12)
+		for med in emr.currently_abused_substances:
+			print med.format(one_line = True)
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)
@@ -2657,6 +2890,8 @@ if __name__ == "__main__":
 		print details
 		emr.smoking_status = (True, {'comment': '2', 'last_confirmed': gmDateTime.pydt_now_here()})
 		print emr.smoking_status
+		print emr.alcohol_status
+		print emr.drugs_status
 
 	#-----------------------------------------
 
@@ -2677,7 +2912,8 @@ if __name__ == "__main__":
 	#test_get_most_recent()
 	#test_episodes()
 	#test_format_as_journal()
-	test_smoking()
+	#test_smoking()
+	test_get_abuses()
 
 #	emr = cClinicalRecord(aPKey = 12)
 

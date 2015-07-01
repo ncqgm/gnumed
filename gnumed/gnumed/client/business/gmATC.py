@@ -5,25 +5,33 @@ http://who.no
 
 There is no DDD handling because DDD explicitely
 does not carry clinical meaning.
-
-license: GPL v2 or later
 """
 #============================================================
-__version__ = "$Revision: 1.7 $"
 __author__ = "K.Hilbert <Karsten.Hilbert@gmx.net>"
+__license__ = "GPL v2 or later"
 
-import sys, io, logging, csv, re as regex, os.path
+import sys
+import io
+import logging
+import csv
+import os.path
+import re as regex
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmTools, gmCfg2
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmCfg2
 
 
 _log = logging.getLogger('gm.atc')
-_log.info(__version__)
-
 _cfg = gmCfg2.gmCfgData()
+
+
+ATC_NICOTINE = u'N07BA01'
+ATC_ETHANOL  = u'V03AB16'
+
 #============================================================
 def propagate_atc(substance=None, atc=None):
 
@@ -53,6 +61,7 @@ def propagate_atc(substance=None, atc=None):
 	gmPG2.run_rw_queries(queries = queries)
 
 	return atc
+
 #============================================================
 def text2atc(text=None, fuzzy=False):
 
@@ -256,6 +265,7 @@ from
 	_log.debug('ATC staging table emptied')
 
 	return True
+
 #============================================================
 # main
 #------------------------------------------------------------

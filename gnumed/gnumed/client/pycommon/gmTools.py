@@ -160,9 +160,9 @@ def dir_is_empty(directory=None):
 class gmPaths(gmBorg.cBorg):
 	"""This class provides the following paths:
 
-	.home_dir
-	.local_base_dir
-	.working_dir
+	.home_dir				user home
+	.local_base_dir			script installation dir
+	.working_dir			current dir
 	.user_config_dir
 	.system_config_dir
 	.system_app_data_dir	(not writable)

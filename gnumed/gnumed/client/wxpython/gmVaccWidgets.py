@@ -1289,5 +1289,5 @@ if __name__ == "__main__":
 		sys.exit()
 
 	app = wx.PyWidgetTester(size = (600, 600))
-	app.SetWidget(cATCPhraseWheel, -1)
+	app.SetWidget(cXxxPhraseWheel, -1)
 	app.MainLoop()

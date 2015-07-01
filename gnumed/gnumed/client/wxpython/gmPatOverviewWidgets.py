@@ -780,21 +780,14 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		data_items = []
 		first_red = False
 
-		# smoking
-		ever, details = emr.smoking_status
-		if ever is True:
-			if details['quit_when'] is None:
-				first_red = True
-				list_items.append (
-					_('active tobacco use (%s)') % gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b')
-				)
-				data_items.append (_(u'Last confirmed: %s%s') % (
-					gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d'),
-					gmTools.coalesce(details['comment'], u'', u'\n\n%s')
-				))
+		# harmful substance use ?
+		abuses = emr.currently_abused_substances
+		if len([ a for a in abuses if a['harmful_use_type'] in [1, 2] ]) > 0:
+			list_items.append(_('active substance abuse'))
+			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', one_line=True) for a in abuses ]))
 
 		# list by brand or substance:
-		intakes = emr.get_current_substance_intakes(include_inactive = False, include_unapproved = True, order_by = u'substance')
+		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = u'substance')
 		multi_brands_already_seen = []
 		for intake in intakes:
 			brand = intake.containing_drug
@@ -853,9 +846,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		if data is None:
 			return
 
-		if isinstance(data, basestring):
-			gmHabitWidgets.manage_smoking_status(parent = self, patient = gmPerson.gmCurrentPatient())
-			return
+#		if isinstance(data, basestring):
+#			gmHabitWidgets.manage_substance_abuse(parent = self, patient = gmPerson.gmCurrentPatient())
+#			return
 
 		# <ctrl> down ? -> edit
 		if wx.GetKeyState(wx.WXK_CONTROL):

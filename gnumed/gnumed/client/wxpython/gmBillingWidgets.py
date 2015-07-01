@@ -1572,6 +1572,5 @@ if __name__ == '__main__':
 
 	#----------------------------------------
 	app = wx.PyWidgetTester(size = (600, 600))
-	#app.SetWidget(cATCPhraseWheel, -1)
-	#app.SetWidget(cSubstancePhraseWheel, -1)
+	#app.SetWidget(cXxxPhraseWheel, -1)
 	app.MainLoop()

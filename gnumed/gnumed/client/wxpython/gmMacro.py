@@ -1986,7 +1986,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if current_meds is None:
 				return u''
 		else:
-			current_meds = emr.get_current_substance_intakes (
+			current_meds = emr.get_current_medications (
 				include_inactive = False,
 				include_unapproved = True,
 				order_by = u'brand, substance'

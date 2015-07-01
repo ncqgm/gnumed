@@ -421,7 +421,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 
 			# medications
 			if with_medications:
-				meds = emr.get_current_substance_intakes (
+				meds = emr.get_current_medications (
 					issues = [ self._payload[self._idx['pk_health_issue']] ],
 					order_by = u'is_currently_active DESC, started, substance'
 				)

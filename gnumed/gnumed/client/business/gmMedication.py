@@ -233,6 +233,7 @@ class cGelbeListeCSVFile(object):
 		return (gmTools.default_csv_reader_rest_key in self.csv_fieldnames)
 
 	has_unknown_fields = property(_get_has_unknown_fields, lambda x:x)
+
 #============================================================
 class cDrugDataSourceInterface(object):
 
@@ -499,7 +500,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 				# do fail because __export_latest_prescription() should not have been called without patient
 				return False
 			emr = self.patient.get_emr()
-			substance_intakes = emr.get_current_substance_intakes (
+			substance_intakes = emr.get_current_medications (
 				include_inactive = False,
 				include_unapproved = True
 			)
@@ -1034,6 +1035,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 					amount = data['amount'],
 					unit = data['unit']
 				)
+
 #============================================================
 class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 	"""Support v8.2 CSV file interface only."""
@@ -1280,6 +1282,7 @@ class cGelbeListeWindowsInterface(cDrugDataSourceInterface):
 		open(self.interactions_filename, 'wb').close()
 
 		self.switch_to_frontend(cmd = cmd)
+
 #============================================================
 class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 
@@ -1298,6 +1301,7 @@ class cGelbeListeWineInterface(cGelbeListeWindowsInterface):
 		self.default_csv_filename_arg = r'c:\windows\temp\mmi2gm.csv'
 		self.interactions_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'windows', 'temp', 'gm2mmi.bdt')
 		self.data_date_filename = os.path.join(paths.home_dir, '.wine', 'drive_c', 'Programme', 'MMI PHARMINDEX', 'datadate.txt')
+
 #============================================================
 class cIfapInterface(cDrugDataSourceInterface):
 	"""empirical CSV interface"""
@@ -1342,6 +1346,7 @@ class cIfapInterface(cDrugDataSourceInterface):
 #					line['Hersteller'].strip(),
 #					line['PZN'].strip()
 #				)
+
 #============================================================
 drug_data_source_interfaces = {
 	'Deutschland: Gelbe Liste/MMI (Windows)': cGelbeListeWindowsInterface,
@@ -1506,6 +1511,7 @@ class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	is_drug_component = property(_get_is_drug_component, lambda x:x)
+
 #------------------------------------------------------------
 def get_consumable_substances(order_by=None):
 	if order_by is None:
@@ -1515,6 +1521,7 @@ def get_consumable_substances(order_by=None):
 	cmd = _SQL_get_consumable_substance % order_by
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx = True)
 	return [ cConsumableSubstance(row = {'data': r, 'idx': idx, 'pk_field': 'pk'}) for r in rows ]
+
 #------------------------------------------------------------
 def create_consumable_substance(substance=None, atc=None, amount=None, unit=None):
 
@@ -1556,6 +1563,7 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 	gmATC.propagate_atc(substance = substance, atc = atc)
 
 	return cConsumableSubstance(aPK_obj = rows[0]['pk'])
+
 #------------------------------------------------------------
 def delete_consumable_substance(substance=None):
 	args = {'pk': substance}
@@ -2040,7 +2048,11 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				aim = gm.nullify_empty_string(%(aim)s),
 				narrative = gm.nullify_empty_string(%(notes)s),
 				intake_is_approved_of = %(intake_is_approved_of)s,
+				harmful_use_type = %(harmful_use_type)s,
 				fk_episode = %(pk_episode)s,
+				-- only used to document "last checked" such that
+				-- .clin_when -> .started does not have to change meaning
+				fk_encounter = %(pk_encounter)s,
 
 				preparation = (
 					case
@@ -2086,19 +2098,37 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'aim',
 		u'is_long_term',
 		u'notes',
-		u'pk_episode'
+		u'pk_episode',
+		u'pk_encounter',
+		u'harmful_use_type'
 	]
 	#--------------------------------------------------------
 	def format(self, left_margin=0, date_format='%Y %b %d', one_line=True, allergy=None, show_all_brand_components=False):
-		if one_line:
-			return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines (
-			left_margin = left_margin,
-			date_format = date_format,
-			allergy = allergy,
-			show_all_brand_components = show_all_brand_components
+		if self._payload[self._idx['harmful_use_type']] is None:
+			if one_line:
+				return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
+			return self.format_as_multiple_lines (
+				left_margin = left_margin,
+				date_format = date_format,
+				allergy = allergy,
+				show_all_brand_components = show_all_brand_components
+			)
+
+		if one_line:
+			return self.format_as_one_line_abuse(left_margin = left_margin, date_format = date_format)
+
+		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format)
+
+	#--------------------------------------------------------
+	def format_as_one_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
+		return u'%s%s: %s (%s)' % (
+			u' ' * left_margin,
+			self._payload[self._idx['substance']],
+			self.harmful_use_type_string,
+			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %Y')
 		)
+
 	#--------------------------------------------------------
 	def format_as_one_line(self, left_margin=0, date_format='%Y %b %d'):
 
@@ -2131,6 +2161,88 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		return line
+
+	#--------------------------------------------------------
+	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d'):
+#	def format_harmful_substance_use(self, include_tobacco=True, include_alcohol=True, include_drugs=True, include_nonuse=True, include_unknown=True):
+		use = self.harmful_substance_use
+		if use is None:
+			return []
+
+		lines = []
+
+		if include_tobacco:
+			status, details = use['tobacco']
+			add_details = False
+			if status is None:
+				if include_unknown:
+					lines.append(_('unknown smoking status'))
+			elif status == 0:
+				if include_nonuse:
+					lines.append(u'%s (%s)' % (_('non-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+			elif status == 1:		# now or previous
+				if details['quit_when'] is None:
+					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+				elif details['quit_when'] < gmDateTime.pydt_now_here():
+					if include_nonuse:
+						lines.append(u'%s (%s)' % (_('ex-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+						add_details = True
+				else:
+					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+					add_details = True
+			elif status == 2:		# addicted
+				lines.append(u'%s (%s)' % (_('tobacco addiction'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
+				add_details = True
+			if add_details:
+				if details['quit_when'] is not None:
+					lines.append(u' %s: %s' % (_('Quit date'), gmDateTime.pydt_strftime(details['quit_when'], '%Y %b %d')))
+				if details['comment'] is not None:
+					lines.append(u' %s' % details['comment'])
+
+		if include_alcohol:
+			status, details = use['alcohol']
+			if status is False:
+				if include_nonuse:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('no or non-harmful alcohol use'))
+					lines.append(u' %s' % details)
+			elif status is True:
+				if len(lines) > 0:
+					lines.append(u'')
+				lines.append(_('harmful alcohol use'))
+				lines.append(u' %s' % details)
+			else:
+				if include_unknown:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('unknown alcohol use'))
+					lines.append(u' %s' % details)
+
+		if include_drugs:
+			status, details = use['drugs']
+			if status is False:
+				if include_nonuse:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('no or non-harmful drug use'))
+					lines.append(u' %s' % details)
+			elif status is True:
+				if len(lines) > 0:
+					lines.append(u'')
+				lines.append(_('harmful drug use'))
+				lines.append(u' %s' % details)
+			else:
+				if include_unknown:
+					if len(lines) > 0:
+						lines.append(u'')
+					lines.append(_('unknown drug use'))
+					lines.append(u' %s' % details)
+
+		return lines
+
 	#--------------------------------------------------------
 	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_brand_components=False):
 
@@ -2231,6 +2343,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		}
 
 		return txt
+
 	#--------------------------------------------------------
 	def turn_into_allergy(self, encounter_id=None, allergy_type='allergy'):
 		allg = gmAllergy.create_allergy (
@@ -2261,6 +2374,22 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return allg
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_harmful_use_type_string(self):
+
+		if self._payload[self._idx['harmful_use_type']] is None:
+			return _('medication, not abuse')
+		if self._payload[self._idx['harmful_use_type']] == 0:
+			return _('no or non-harmful use')
+		if self._payload[self._idx['harmful_use_type']] == 1:
+			return _('presently harmful use')
+		if self._payload[self._idx['harmful_use_type']] == 2:
+			return _('presently addicted')
+		if self._payload[self._idx['harmful_use_type']] == 3:
+			return _('previously addicted')
+
+	harmful_use_type_string = property(_get_harmful_use_type_string)
+
 	#--------------------------------------------------------
 	def _get_external_code(self):
 		drug = self.containing_drug
@@ -2778,7 +2907,7 @@ def format_substance_intake_notes(emr=None, output_format=u'latex', table_type=u
 	tex += u'%s\n'
 	tex += u'\\end{longtabu}\n'
 
-	current_meds = emr.get_current_substance_intakes (
+	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		include_unapproved = False,
 		order_by = u'brand, substance'
@@ -2825,7 +2954,7 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 	tex += u'%s\n'
 	tex += u'\\end{longtabu}\n'
 
-	current_meds = emr.get_current_substance_intakes (
+	current_meds = emr.get_current_medications (
 		include_inactive = False,
 		include_unapproved = False,
 		order_by = u'brand, substance'
@@ -3527,7 +3656,7 @@ if __name__ == "__main__":
 		gmPerson.set_active_patient(patient = gmPerson.cPerson(aPK_obj = 12))
 		fd = cFreeDiamsInterface()
 		fd.patient = gmPerson.gmCurrentPatient()
-		fd.check_interactions(substances = fd.patient.get_emr().get_current_substance_intakes(include_unapproved = True))
+		fd.check_interactions(substances = fd.patient.get_emr().get_current_medications(include_unapproved = True))
 	#--------------------------------------------------------
 	# generic
 	#--------------------------------------------------------

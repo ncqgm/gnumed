@@ -52,22 +52,13 @@ if err == 2:
 	elif msg == 'd':
 		print "someone *deleted* our row"
 	for key in note.get_updatable_fields():
-		if (note[key] != note.original_payload[key]) or (note[key] != note.modified_payload[key]):
-			print 'originally: "%s"' % note.original_payload[key]
-			print 'currently : "%s"' % note[key]
-			print 'we wanted : "%s"' % note.modified_payload[key]
+		if (note[key] != note.payload_most_recently_fetched[key]) or (note[key] != note.payload_most_recently_attempted_to_store[key]):
+			print 'most recently fetched: "%s"' % note.payload_most_recently_fetched[key]
+			print 'currently            : "%s"' % note[key]
+			print 'we wanted to store   : "%s"' % note.payload_most_recently_attempted_to_store[key]
 else:
 	print "other error"
 
 db.StopListeners()
 
 #============================================================
-# $Log: detect-concurrency.py,v $
-# Revision 1.2  2006-05-04 09:49:20  ncq
-# - get_clinical_record() -> get_emr()
-# - adjust to changes in set_active_patient()
-# - need explicit set_active_patient() after ask_for_patient() if wanted
-#
-# Revision 1.1  2005/04/11 17:59:41  ncq
-# - write a test which proves our concurrency detection works
-#
