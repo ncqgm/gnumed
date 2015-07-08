@@ -54,6 +54,7 @@ IMPROVED: put file from filename in clipboard into export area
 
 FIX: exception on removing temporary config file [thanks Vaibhav]
 FIX: exception on importing duplicate file into export area
+FIX: exception on merging patients under wxPython 3 [thanks max]
 
 	1.5.5
 
