@@ -17,19 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.5 (database v20.5)',
-	'GNUmed 1.5.5 Release Notes:
+	'Release Notes for GNUmed 1.5.6 (database v20.6)',
+	'GNUmed 1.5.6 Release Notes:
 
-	1.5.5
+	1.5.6
 
-FIX: exception in emr.get_clin_narrative (encounters is None) [thanks Marc]
+FIX: exception on removing temporary config file [thanks Vaibhav]
+FIX: exception on importing duplicate file into export area
+FIX: exception on merging patients under wxPython 3 [thanks max]
 
-NEW: startup notice to ensure users are running Python 2.7
-
-	20.5
+	20.6
 
 no changes
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.5');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.6');
