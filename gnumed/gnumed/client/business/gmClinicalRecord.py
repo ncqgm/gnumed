@@ -687,16 +687,17 @@ class cClinicalRecord(object):
 			_log.error(str(data))
 			return None
 		return data
+
 	#--------------------------------------------------------
 	def get_clin_narrative(self, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None):
 		"""Get SOAP notes pertinent to this encounter.
 
 			encounters
-				- list of encounters whose narrative are to be retrieved
+				- list of encounters the narrative of which are to be retrieved
 			episodes
-				- list of episodes whose narrative are to be retrieved
+				- list of episodes the narrative of which are to be retrieved
 			issues
-				- list of health issues whose narrative are to be retrieved
+				- list of health issues the narrative of which are to be retrieved
 			soap_cats
 				- list of SOAP categories of the narrative to be retrieved
 		"""
@@ -713,7 +714,7 @@ class cClinicalRecord(object):
 				elif isinstance(issues[0], int):
 					args['issues'] = tuple(issues)
 				else:
-					raise ValueError('<issues> must of of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
+					raise ValueError('<issues> must be list of type int (=pk) or cHealthIssue, but 1st issue is: %s' % issues[0])
 
 		if episodes is not None:
 			where_parts.append(u'pk_episode IN %(epis)s')
@@ -725,7 +726,7 @@ class cClinicalRecord(object):
 				elif isinstance(episodes[0], int):
 					args['epis'] = tuple(episodes)
 				else:
-					raise ValueError('<episodes> must of of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
+					raise ValueError('<episodes> must be list of type int (=pk) or cEpisode, but 1st episode is: %s' % episodes[0])
 
 		if encounters is not None:
 			where_parts.append(u'pk_encounter IN %(encs)s')
@@ -737,7 +738,7 @@ class cClinicalRecord(object):
 				elif isinstance(encounters[0], int):
 					args['encs'] = tuple(encounters)
 				else:
-					raise ValueError('<encounters> must of of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
+					raise ValueError('<encounters> must be list of type int (=pk) or cEncounter, but 1st encounter is: %s' % encounters[0])
 
 		if soap_cats is not None:
 			where_parts.append(u'c_vn.soap_cat IN %(cats)s')
@@ -746,6 +747,10 @@ class cClinicalRecord(object):
 			if None in soap_cats:
 				args['cats'].append(None)
 			args['cats'] = tuple(args['cats'])
+
+		if providers is not None:
+			where_parts.append(u'c_vn.modified_by IN %(docs)')
+			args['docs'] = tuple(providers)
 
 		cmd = u"""
 			SELECT
@@ -759,13 +764,8 @@ class cClinicalRecord(object):
 		""" % u' AND '.join(where_parts)
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		return [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
 
-		filtered_narrative = [ gmClinNarrative.cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': row}) for row in rows ]
-
-		if providers is not None:
-			filtered_narrative = filter(lambda narr: narr['modified_by'] in providers, filtered_narrative)
-
-		return filtered_narrative
 	#--------------------------------------------------------
 	def get_as_journal(self, since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, order_by=None, time_range=None):
 		return gmClinNarrative.get_as_journal (
