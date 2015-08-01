@@ -1105,11 +1105,10 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 						with_rfe_aoe = True
 					)
 
-		tmp = emr.active_encounter.format_soap (
-			soap_cats = 'soapu',
-			emr = emr,
-			issues = [ problem['pk_health_issue'] ],
-		)
+		if problem['pk_health_issue'] is None:
+			tmp = emr.active_encounter.format_soap(soap_cats = 'soapu', emr = emr)
+		else:
+			tmp = emr.active_encounter.format_soap(soap_cats = 'soapu', emr = emr, issues = [problem['pk_health_issue']])
 		if len(tmp) > 0:
 			soap += _('Current encounter:') + u'\n'
 			soap += u'\n'.join(tmp) + u'\n'
