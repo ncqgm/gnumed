@@ -354,7 +354,7 @@ where
 		curs.execute(cmd, args)
 		rows = curs.fetchall()
 		if len(rows) > 0:
-			result = rows[0][0]
+			result = rows[0]['name']
 			_log.debug(u'[%s] maps to [%s]', timezone, result)
 	except:
 		_log.exception(u'cannot expand timezone abbreviation [%s]', timezone)
@@ -1605,6 +1605,7 @@ def get_raw_connection(dsn=None, verbose=False, readonly=True):
 
 	try:
 		conn = dbapi.connect(dsn=dsn, connection_factory=psycopg2.extras.DictConnection)
+		#conn = dbapi.connect(dsn=dsn, cursor_factory=psycopg2.extras.RealDictCursor)
 	except dbapi.OperationalError, e:
 
 		t, v, tb = sys.exc_info()
@@ -1932,7 +1933,7 @@ def _log_PG_settings(curs=None):
 		_log.error(u'cannot log PG settings (>>>show all<<< did not return rows)')
 		return False
 	for setting in settings:
-		_log.debug(u'PG option [%s]: %s', setting[0], setting[1])
+		_log.debug(u'PG option [%s]: %s', setting['name'], setting['setting'])
 
 	try:
 		curs.execute(u'select pg_available_extensions()')
@@ -1944,7 +1945,7 @@ def _log_PG_settings(curs=None):
 		_log.error(u'no PG extensions available')
 		return False
 	for ext in extensions:
-		_log.debug(u'PG extension: %s', ext[0])
+		_log.debug(u'PG extension: %s', ext['pg_available_extensions'])
 
 	return True
 #========================================================================

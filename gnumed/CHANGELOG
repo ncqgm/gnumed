@@ -53,6 +53,9 @@ IMPROVED: put file from filename in clipboard into export area
 	1.5.7
 
 FIX: one more nonissue-problem tooltip exception in SOAP editor [thanks Marc]
+FIX: encounter change exception on patient change w/ multiple clients [thanks Marc]
+
+IMPROVED: logging of payload changes in case of conflict
 
 	1.5.6
 

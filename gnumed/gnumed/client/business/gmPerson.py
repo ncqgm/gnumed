@@ -1733,7 +1733,7 @@ class cPatient(cPerson):
 #		return self.__emr
 
 	def get_emr(self, allow_user_interaction=True):
-		_log.debug('accessing EMR (thread %s)', thread.get_ident())
+		_log.debug('accessing EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
 		if not self.__emr_access_lock.acquire(False):
 			got_lock = False
 			for idx in range(100):
@@ -1745,7 +1745,7 @@ class cPatient(cPerson):
 					break
 			if not got_lock:
 				_log.error('still failed to acquire EMR access lock, aborting (thread %s)', thread.get_ident())
-				raise AttributeError('cannot lock access to EMR')
+				raise AttributeError('cannot lock access to EMR for identity [%s]', self._payload[self._idx['pk_identity']])
 
 #			# maybe something slow is happening on the machine
 #			_log.debug('failed to acquire EMR access lock, sleeping for 500ms (thread %s)', thread.get_ident())
@@ -1755,14 +1755,14 @@ class cPatient(cPerson):
 #				raise AttributeError('cannot lock access to EMR')
 
 		if self.__emr is None:
-			_log.debug('pulling chart (thread %s)', thread.get_ident())
+			_log.debug('pulling chart for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
 			#emr = _pull_chart(self._payload[self._idx['pk_identity']])
 			emr = _pull_chart(self)
 			if emr is None:		# user aborted pulling chart
 				return None
 			self.__emr = emr
 
-		_log.debug('returning EMR (thread %s)', thread.get_ident())
+		_log.debug('returning EMR for identity [%s] (thread %s)', self._payload[self._idx['pk_identity']], thread.get_ident())
 		self.__emr_access_lock.release()
 		return self.__emr
 

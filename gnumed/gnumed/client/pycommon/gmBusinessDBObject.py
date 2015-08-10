@@ -537,10 +537,11 @@ def delete_xxx(pk_XXX=None):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
+			gmTools.compare_dict_likes(self.original_payload, self.fields_as_dict(), u'original payload', u'modified paylaod')
 			if ignore_changes:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
-				_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
-				_log.debug('modified: %s' % self._payload)
+				#_log.debug('most recently fetched: %s' % self.payload_most_recently_fetched)
+				#_log.debug('modified: %s' % self._payload)
 			else:
 				_log.critical('[%s:%s]: cannot reload, payload changed' % (self.__class__.__name__, self.pk_obj))
 				return False
@@ -607,10 +608,11 @@ def delete_xxx(pk_XXX=None):
 		if len(rows) == 0:
 			return (False, (u'cannot update row', _('[%s:%s]: row not updated (nothing returned), row in use ?') % (self.__class__.__name__, self.pk_obj)))
 
-		# update cached values from should-be-first-and-only result
-		# row of last query,
+		# update cached values from should-be-first-and-only
+		# result row of last query,
 		# update all fields returned such that computed
-		# columns see their new values
+		# columns see their new values (given they are
+		# returned by the query)
 		row = rows[0]
 		for key in idx:
 			try:
@@ -624,10 +626,15 @@ def delete_xxx(pk_XXX=None):
 				_log.error(args)
 				raise
 
+		# only at conn.commit() time will data actually
+		# get committed (and thusly trigger based notifications
+		# be sent out), so reset the local modification flag
+		# right before that
+		self._is_modified = False
 		conn.commit()
 		close_conn()
 
-		self._is_modified = False
+		# update to new "original" payload
 		self.payload_most_recently_fetched = {}
 		for field in self._idx.keys():
 			self.payload_most_recently_fetched[field] = self._payload[self._idx[field]]
