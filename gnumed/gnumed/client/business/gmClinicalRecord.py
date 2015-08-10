@@ -138,9 +138,69 @@ class cClinicalRecord(object):
 	# messaging
 	#--------------------------------------------------------
 	def _register_interests(self):
-		gmDispatcher.connect(signal = u'clin.encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
+		#gmDispatcher.connect(signal = u'clin.encounter_mod_db', receiver = self.db_callback_encounter_mod_db)
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self.db_modification_callback)
 
 		return True
+	#--------------------------------------------------------
+	def db_modification_callback(self, **kwds):
+
+		if kwds['table'] != u'clin.encounter':
+			return True
+		if self.current_encounter is None:
+			_log.debug('no local current-encounter, ignoring encounter modification signal')
+			return True
+		if int(kwds['pk_row']) <> self.current_encounter['pk_encounter']:
+			_log.debug('modified encounter [%s] != local encounter [%s], ignoring signal', kwds['pk_row'], self.current_encounter['pk_encounter'])
+			return True
+
+		# get the current encounter as an extra instance
+		# from the database to check for changes
+		curr_enc_in_db = gmEMRStructItems.cEncounter(aPK_obj = self.current_encounter['pk_encounter'])
+
+		# the encounter just retrieved and the active encounter
+		# have got the same transaction ID so there's no change
+		# in the database, there could be a local change in
+		# the active encounter but that doesn't matter because
+		# no one else can have written to the DB so far
+		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
+			_log.debug('same XMIN, there really should not be any difference between DB and in-client instance of current encounter')
+			if self.current_encounter.is_modified():
+				_log.error('encounter modification signal from DB with same XMIN as in local in-client instance of encounter BUT local instance ALSO has .is_modified()=True')
+				_log.error('this hints at an error in .is_modified handling')
+				gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
+			return True
+
+		# there must have been a change to the active encounter
+		# committed to the database from elsewhere,
+		# we must fail propagating the change, however, if
+		# there are local changes pending
+		if self.current_encounter.is_modified():
+			gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
+			raise ValueError('unsaved changes in locally active encounter [%s], cannot switch to DB state of encounter [%s]' % (
+				self.current_encounter['pk_encounter'],
+				curr_enc_in_db['pk_encounter']
+			))
+
+		# don't do this: same_payload() does not compare _all_ fields
+		# so we can get into a reality disconnect if we don't
+		# announce the mod
+#		if self.current_encounter.same_payload(another_object = curr_enc_in_db):
+#			_log.debug('clin.encounter_mod_db received but no change to active encounter payload')
+#			return True
+
+		# there was a change in the database from elsewhere,
+		# locally, however, we don't have any pending changes,
+		# therefore we can propagate the remote change locally
+		# without losing anything
+		# this really should be the standard case
+		gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
+		_log.debug('active encounter modified remotely, no locally pending changes, reloading from DB and locally announcing the remote modification')
+		self.current_encounter.refetch_payload()
+		gmDispatcher.send(u'current_encounter_modified')
+
+		return True
+
 	#--------------------------------------------------------
 	def db_callback_encounter_mod_db(self, **kwds):
 
@@ -151,7 +211,8 @@ class cClinicalRecord(object):
 		# the encounter just retrieved and the active encounter
 		# have got the same transaction ID so there's no change
 		# in the database, there could be a local change in
-		# the active encounter but that doesn't matter
+		# the active encounter but that doesn't matter because
+		# no one else can have written to the DB so far
 		# THIS DOES NOT WORK
 #		if curr_enc_in_db['xmin_encounter'] == self.current_encounter['xmin_encounter']:
 #			return True
@@ -161,8 +222,9 @@ class cClinicalRecord(object):
 		# we must fail propagating the change, however, if
 		# there are local changes
 		if self.current_encounter.is_modified():
+			gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
 			_log.error('current in client: %s', self.current_encounter)
-			raise ValueError('unsaved changes in active encounter [%s], cannot switch to another one [%s]' % (
+			raise ValueError('unsaved changes in active encounter [%s], cannot switch [%s]' % (
 				self.current_encounter['pk_encounter'],
 				curr_enc_in_db['pk_encounter']
 			))
@@ -175,7 +237,8 @@ class cClinicalRecord(object):
 		# locally, however, we don't have any changes, therefore
 		# we can propagate the remote change locally without
 		# losing anything
-		_log.debug('active encounter modified remotely, reloading and announcing the modification')
+		gmTools.compare_dict_likes(self.current_encounter.fields_as_dict(), curr_enc_in_db.fields_as_dict(), 'modified enc in client', 'enc loaded from DB')
+		_log.debug('active encounter modified remotely, reloading from DB and locally announcing the modification')
 		self.current_encounter.refetch_payload()
 		gmDispatcher.send(u'current_encounter_modified')
 
@@ -1698,6 +1761,7 @@ WHERE
 			_log.debug('switching of active encounter')
 			# fail if the currently active encounter has unsaved changes
 			if self.__encounter.is_modified():
+				gmTools.compare_dict_likes(self.__encounter, encounter, 'modified enc in client', 'enc to switch to')
 				_log.error('current in client: %s', self.__encounter)
 				raise ValueError('unsaved changes in active encounter [%s], cannot switch to another one [%s]' % (
 					self.__encounter['pk_encounter'],

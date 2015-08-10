@@ -1625,7 +1625,7 @@ def episode2problem(episode=None, allow_closed=False):
 class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one encounter."""
 
-	_cmd_fetch_payload = u"select * from clin.v_pat_encounters where pk_encounter = %s"
+	_cmd_fetch_payload = u"SELECT * FROM clin.v_pat_encounters WHERE pk_encounter = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.encounter SET
 				started = %(started)s,
@@ -1639,7 +1639,7 @@ class cEncounter(gmBusinessDBObject.cBusinessDBObject):
 				xmin = %(xmin_encounter)s
 			""",
 		# need to return all fields so we can survive in-place upgrades
-		u"""select * from clin.v_pat_encounters where pk_encounter = %(pk_encounter)s"""
+		u"SELECT * FROM clin.v_pat_encounters WHERE pk_encounter = %(pk_encounter)s"
 	]
 	_updatable_fields = [
 		'started',

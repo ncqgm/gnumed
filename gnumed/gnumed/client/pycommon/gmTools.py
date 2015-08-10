@@ -6,13 +6,21 @@ __author__ = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
 # std libs
-import re as regex, sys, os, os.path, csv, tempfile, logging, hashlib
+import sys
+import os
+import os.path
+import csv
+import tempfile
+import logging
+import hashlib
 import platform
 import subprocess
 import decimal
 import getpass
-import cPickle, zlib
+import re as regex
 import xml.sax.saxutils as xml_tools
+# old:
+import cPickle, zlib
 
 
 # GNUmed libs
@@ -105,6 +113,7 @@ def handle_uncaught_exception_console(t, v, tb):
 	print "`========================================================"
 	_log.critical('unhandled exception caught', exc_info = (t,v,tb))
 	sys.__excepthook__(t,v,tb)
+
 #===========================================================================
 # path level operations
 #---------------------------------------------------------------------------
@@ -358,6 +367,7 @@ class gmPaths(gmBorg.cBorg):
 		return self.__tmp_dir
 
 	tmp_dir = property(_get_tmp_dir, _set_tmp_dir)
+
 #===========================================================================
 # file related tools
 #---------------------------------------------------------------------------
@@ -415,6 +425,7 @@ def file2md5(filename=None, return_hex=True):
 	if return_hex:
 		return md5.hexdigest()
 	return md5.digest()
+
 #---------------------------------------------------------------------------
 def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
 	for line in unicode_csv_data:
@@ -498,6 +509,7 @@ def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):
 	f.close()
 
 	return filename
+
 #===========================================================================
 def import_module_from_directory(module_path=None, module_name=None, always_remove_path=False):
 	"""Import a module from any location."""
@@ -529,6 +541,7 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 			sys.path.remove(module_path)
 
 	return module
+
 #===========================================================================
 # text related tools
 #---------------------------------------------------------------------------
@@ -855,6 +868,39 @@ __html_escape_table = {
 def html_escape_string(text=None):
 	return "".join(__html_escape_table.get(char, char) for char in text)
 
+#---------------------------------------------------------------------------
+#---------------------------------------------------------------------------
+def compare_dict_likes(d1, d2, title1=None, title2=None):
+	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title1, u'', u'"%s" '), type(d1), coalesce(title2, u'', u'"%s" '), type(d2))
+	k1 = frozenset(d1)
+	k2 = frozenset(d2)
+	different = False
+	if len(k1) != len(k2):
+		_log.info('different number of keys: %s vs %s', len(k1), len(k2))
+		different = True
+	for key in k1:
+		if key in k2:
+			if d2[key] == d1[key]:
+				_log.info(u'%25.25s:  both = [%s]' % (key, d1[key]))
+			else:
+				_log.info(u'%25.25s: dict1 = [%s]' % (key, d1[key]))
+				_log.info(u'%25.25s  dict2 = [%s]' % (u'', d2[key]))
+				different = True
+		else:
+			_log.info(u'%25.25s: %50.50s | <MISSING>' % (key, u'[%s]' % d1[key]))
+			different = True
+	for key in k2:
+		if key in k1:
+			continue
+		_log.info(u'%25.25s: %50.50s | %.50s' % (key, u'<MISSING>', u'[%s]' % d2[key]))
+		different = True
+	if different:
+		_log.info('dict-likes appear to be different from each other')
+		return False
+	_log.info('dict-likes appear equal to each other')
+	return True
+
+#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):
 	"""Obtains entry from standard input.
@@ -1259,6 +1305,27 @@ second line\n
 	def test_dir_is_empty():
 		print sys.argv[2], 'empty:', dir_is_empty(sys.argv[2])
 	#-----------------------------------------------------------------------
+	def test_compare_dicts():
+		d1 = {}
+		d2 = {}
+		d1[1] = 1
+		d1[2] = 2
+		d1[3] = 3
+		# 4
+		d1[5] = 5
+
+		d2[1] = 1
+		d2[2] = None
+		# 3
+		d2[4] = 4
+
+		compare_dict_likes(d1, d2)
+
+		d1 = {1: 1, 2: 2}
+		d2 = {1: 1, 2: 2}
+
+		compare_dict_likes(d1, d2, 'same1', 'same2')
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1279,7 +1346,8 @@ second line\n
 	#test_gpg_decrypt()
 	#test_strip_trailing_empty_lines()
 	#test_fname_stem()
-	test_tex_escape()
+	#test_tex_escape()
 	#test_dir_is_empty()
+	test_compare_dicts()
 
 #===========================================================================

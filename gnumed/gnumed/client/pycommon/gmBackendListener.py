@@ -57,7 +57,7 @@ class gmBackendListener(gmBorg.cBorg):
 
 		self._conn = conn
 		self.backend_pid = self._conn.get_backend_pid()
-		_log.debug('connection has backend PID [%s]', self.backend_pid)
+		_log.debug('notification listener connection has backend PID [%s]', self.backend_pid)
 		self._conn.set_isolation_level(0)		# autocommit mode = psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT
 		self._cursor = self._conn.cursor()
 		try:
@@ -217,7 +217,7 @@ class gmBackendListener(gmBorg.cBorg):
 				self.__notifications_received += 1
 				if self.debug:
 					print notification
-				_log.debug('#%s: %s', self.__notifications_received, notification)
+				_log.debug('#%s: %s (first param is PID of sending backend)', self.__notifications_received, notification)
 				# decode payload
 				payload = notification.payload.split(u'::')
 				operation = None
