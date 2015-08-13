@@ -1076,7 +1076,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			if self.debug is not None:
 				_log.debug('[round %s] <%s>.GetItemCount() before DeleteAllItems(): %s (thread [%s])', tries, self.debug, self.GetItemCount(), thread.get_ident())
 			if not self.DeleteAllItems():
-				_log.debug('<%s>.DeleteAllItems() failed', self.debug)
+				_log.error('<%s>.DeleteAllItems() failed', self.debug)
 			item_count = self.GetItemCount()
 			if item_count == 0:
 				return True
@@ -1105,7 +1105,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				topmost_visible = self.TopItem
 
 		if not self.remove_items_safely(max_tries = 3):
-			_log.debug(", continuing and hoping for the best")
+			_log.error("cannot remove items (?), continuing and hoping for the best")
 
 		if items is None:
 			self.data = None

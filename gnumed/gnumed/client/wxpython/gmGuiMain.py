@@ -991,18 +991,51 @@ class gmTopLevelFrame(wx.Frame):
 		wx.EVT_END_SESSION(self, self._on_end_session)
 
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_pat_name_changed)
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_pat_name_changed)
-		gmDispatcher.connect(signal = u'dem.praxis_branch_mod_db', receiver = self._on_pat_name_changed)
 		gmDispatcher.connect(signal = u'statustext', receiver = self._on_set_statustext)
 		gmDispatcher.connect(signal = u'request_user_attention', receiver = self._on_request_user_attention)
-		# FIXME: xxxxxxx signal
-		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
 		gmDispatcher.connect(signal = u'register_pre_exit_callback', receiver = self._register_pre_exit_callback)
 		gmDispatcher.connect(signal = u'plugin_loaded', receiver = self._on_plugin_loaded)
 
+		gmDispatcher.connect(signal = u'db_maintenance_warning', receiver = self._on_db_maintenance_warning)
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
+		# FIXME: xxxxxxx signal
+
 		gmPerson.gmCurrentPatient().register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
+
 	#----------------------------------------------
+	def _on_database_signal(self, **kwds):
+
+		if kwds['table'] == u'dem.praxis_branch':
+			if kwds['operation'] != u'UPDATE':
+				return True
+			branch = gmPraxis.gmCurrentPraxisBranch()
+			if branch['pk_praxis_branch'] != kwds['pk_row']:
+				return True
+			self.__update_window_title()
+			return True
+
+		if kwds['table'] == u'dem.names':
+			pat = gmPerson.gmCurrentPatient()
+			if pat.connected:
+				if pat.ID != kwds['pk_identity']:
+					return True
+			self.__update_window_title()
+			return True
+
+		if kwds['table'] == u'dem.identity':
+			if kwds['operation'] != u'UPDATE':
+				return True
+			pat = gmPerson.gmCurrentPatient()
+			if pat.connected:
+				if pat.ID != kwds['pk_identity']:
+					return True
+			self.__update_window_title()
+			return True
+
+		return True
+
+	#-----------------------------------------------
 	def _on_plugin_loaded(self, plugin_name=None, class_name=None, menu_name=None, menu_item_name=None, menu_help_string=None):
 
 		_log.debug('registering plugin with menu system')
@@ -1132,9 +1165,6 @@ class gmTopLevelFrame(wx.Frame):
 			wx.Bell()
 
 		gmHooks.run_hook_script(hook = u'request_user_attention')
-	#-----------------------------------------------
-	def _on_pat_name_changed(self):
-		self.__update_window_title()
 	#-----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		self.__update_window_title()

@@ -89,17 +89,10 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		# client internal signals
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
-
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_name_identity_change)
-		gmDispatcher.connect(signal = u'dem.identity_tag_mod_db', receiver = self._on_tag_change)
-
-		gmDispatcher.connect(signal = u'clin.allgergy_mod_db', receiver = self._on_allergies_change)
-		gmDispatcher.connect(signal = u'clin.allergy_state_mod_db', receiver = self._on_allergies_change)
-		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_lab_change)
-		gmDispatcher.connect(signal = u'clin.patient_mod_db', receiver = self._on_lab_change)
-
 		gmDispatcher.connect(signal = u'focus_patient_search', receiver = self._on_focus_patient_search)
+
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
 	#----------------------------------------------
 	# event handling
 	#----------------------------------------------
@@ -111,28 +104,53 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 		dlg.ShowModal()
 		return
 	#----------------------------------------------
-	def _on_tag_change(self):
-		self.__update_tags()
-	#----------------------------------------------
-	def _on_name_identity_change(self):
-		self.__update_age_label()
+	def _on_database_signal(self, **kwds):
+
+		if kwds['table'] not in [u'dem.identity', u'dem.names', u'dem.identity_tag', u'clin.allergy', u'clin.allergy_state', u'clin.test_result', u'clin.patient']:
+			return True
+
+		if self.curr_pat.connected:
+			# signal is not about our patient: ignore signal
+			if int(kwds['pk_identity']) != self.curr_pat.ID:
+				return True
+
+		if kwds['table'] == u'dem.identity':
+			# we don't care about newly INSERTed or DELETEd patients
+			if kwds['operation'] != 'UPDATE':
+				return True
+			self.__update_age_label()
+			return True
+
+		if kwds['table'] == u'dem.names':
+			self.__update_age_label()
+			return True
+
+		if kwds['table'] == u'dem.identity_tag':
+			self.__update_tags()
+			return True
+
+		if kwds['table'] in [u'clin.allergy', u'clin.allergy_state']:
+			self.__update_allergies()
+			return True
+
+		if kwds['table'] in [u'clin.test_result', u'clin.patient']:
+			self.__update_lab()
+			return True
+
+		return True
+
 	#----------------------------------------------
 	def _on_post_patient_selection(self, **kwargs):
 		wx.CallAfter(self.__on_post_patient_selection)
+
 	#-------------------------------------------------------
 	def __on_post_patient_selection(self):
 		self.__update_age_label()
+		self.__update_allergies()
 		self.__update_tags()
-		self.__update_allergies()
 		self.__update_lab()
 		self.Layout()
-	#-------------------------------------------------------
-	def _on_allergies_change(self, **kwargs):
-		self.__update_allergies()
-	#-------------------------------------------------------
-	def _on_lab_change(self, **kwargs):
-		self.__update_lab()
-		self.Layout()
+
 	#-------------------------------------------------------
 	def _on_focus_patient_search(self, **kwargs):
 		wx.CallAfter(self._TCTRL_patient_selector.SetFocus)

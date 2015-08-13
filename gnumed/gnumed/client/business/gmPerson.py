@@ -621,8 +621,15 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		active name.
 		@param nickname The preferred/nick/warrior name to set.
 		"""
-		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"select dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
-		self.refetch_payload()
+		if self._payload[self._idx['preferred']] == nickname:
+			return True
+		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
+		# setting nickname doesn't change dem.identity, so other fields
+		# of dem.v_basic_person do not get changed as a consequence of
+		# setting the nickname, hence locally setting nickname matches
+		# in-database reality
+		self._payload[self._idx['preferred']] = nickname
+		#self.refetch_payload()
 		return True
 	#--------------------------------------------------------
 	def get_tags(self, order_by=None):
@@ -1848,7 +1855,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		if patient == -1:
 			_log.debug('explicitly unsetting current patient')
 			if not self.__run_callbacks_before_switching_away_from_patient():
-				_log.debug('not unsetting current patient')
+				_log.error('not unsetting current patient, at least one pre-change callback failed')
 				return None
 			self.__send_pre_unselection_notification()
 			self.patient.cleanup()
@@ -1869,10 +1876,10 @@ class gmCurrentPatient(gmBorg.cBorg):
 			return None
 
 		# user wants different patient
-		_log.debug('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
+		_log.info('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])
 
 		if not self.__run_callbacks_before_switching_away_from_patient():
-			_log.debug('not changing current patient')
+			_log.error('not changing current patient, at least one pre-change callback failed')
 			return None
 
 		# everything seems swell
@@ -1891,12 +1898,30 @@ class gmCurrentPatient(gmBorg.cBorg):
 		return None
 	#--------------------------------------------------------
 	def __register_interests(self):
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_identity_change)
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_identity_change)
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
 	#--------------------------------------------------------
-	def _on_identity_change(self):
-		"""Listen for patient *data* change."""
+	def _on_database_signal(self, **kwds):
+		# we don't have a patient: don't process signals
+		if isinstance(self.patient, gmNull.cNull):
+			return True
+
+		# we only care about identity and name changes
+		if kwds['table'] not in [u'dem.identity', u'dem.names']:
+			return True
+
+		# signal is not about our patient: ignore signal
+		if int(kwds['pk_identity']) != self.patient.ID:
+			return True
+
+		if kwds['table'] == u'dem.identity':
+			# we don't care about newly INSERTed or DELETEd patients
+			if kwds['operation'] != 'UPDATE':
+				return True
+
 		self.patient.refetch_payload()
+		return True
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -1928,7 +1953,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			gmDispatcher.send(signal = 'patient_locked', sender = self.__class__.__name__)
 		else:
 			if self.__lock_depth == 0:
-				_log.error('lock/unlock imbalance, trying to refcount lock depth below 0')
+				_log.error('lock/unlock imbalance, tried to refcount lock depth below 0')
 				return
 			else:
 				self.__lock_depth = self.__lock_depth - 1
@@ -1958,7 +1983,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 				return False
 
 			if not successful:
-				_log.debug('callback [%s] returned False', call_back)
+				_log.error('callback [%s] returned False', call_back)
 				return False
 
 		return True
@@ -2061,14 +2086,16 @@ INSERT INTO dem.names (
 ) VALUES (
 	currval('dem.identity_pk_seq'), coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx')
 ) RETURNING id_identity"""
+#	cmd2 = u"select dem.add_name(currval('dem.identity_pk_seq')::integer, coalesce(%s, 'xxxDEFAULTxxx'), coalesce(%s, 'xxxDEFAULTxxx'), True)"
 	rows, idx = gmPG2.run_rw_queries (
 		queries = [
 			{'cmd': cmd1, 'args': [gender, dob]},
 			{'cmd': cmd2, 'args': [lastnames, firstnames]}
+			#{'cmd': cmd2, 'args': [firstnames, lastnames]}
 		],
 		return_data = True
 	)
-	ident = cPerson(aPK_obj=rows[0][0])
+	ident = cPerson(aPK_obj = rows[0][0])
 	gmHooks.run_hook_script(hook = u'post_person_creation')
 	return ident
 

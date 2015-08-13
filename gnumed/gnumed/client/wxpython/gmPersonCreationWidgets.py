@@ -474,20 +474,23 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 			lastnames = self._PRW_lastname.GetValue().strip(),
 			firstnames = self._PRW_firstnames.GetValue().strip()
 		)
-		_log.debug('identity created: %s' % new_identity)
+		_log.info('identity created: %s' % new_identity)
 
 		new_identity['dob_is_estimated'] = self._CHBOX_estimated_dob.GetValue()
 		val = self._TCTRL_tob.GetValue().strip()
 		if val != u'':
 			new_identity['tob'] = pydt.time(int(val[:2]), int(val[3:5]))
 		new_identity['title'] = gmTools.none_if(self._PRW_title.GetValue().strip())
-		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
 
 		prov = self._PRW_primary_provider.GetData()
 		if prov is not None:
 			new_identity['pk_primary_provider'] = prov
 		new_identity['comment'] = gmTools.none_if(self._TCTRL_comment.GetValue().strip(), u'')
 		new_identity.save()
+		_log.info('new identity updated: %s' % new_identity)
+
+		new_identity.set_nickname(nickname = gmTools.none_if(self._PRW_nickname.GetValue().strip(), u''))
+		_log.info('nickname set on new identity: %s' % new_identity)
 
 		# address
 		# if we reach this the address cannot be completely empty
