@@ -123,34 +123,17 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 
+		# generic database change signal
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
 		# database change signals
-		gmDispatcher.connect(signal = u'dem.identity_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.names_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.comm_channel_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'dem.job_mod_db', receiver = self._on_post_patient_selection)
 		# no signal for external IDs yet
 		# no signal for address yet
-		#gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
-		#gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
+		##gmDispatcher.connect(signal = u'current_encounter_modified', receiver = self._on_current_encounter_modified)
+		##gmDispatcher.connect(signal = u'current_encounter_switched', receiver = self._on_current_encounter_switched)
 
-		gmDispatcher.connect(signal = u'clin.episode_mod_db', receiver = self._on_episode_issue_mod_db)
-		gmDispatcher.connect(signal = u'clin.health_issue_mod_db', receiver = self._on_episode_issue_mod_db)
-
-		gmDispatcher.connect(signal = u'clin.substance_intake_mod_db', receiver = self._on_post_patient_selection)
-
-		gmDispatcher.connect(signal = u'clin.hospital_stay_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.family_history_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.procedure_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.vaccination_mod_db', receiver = self._on_post_patient_selection)
-		#gmDispatcher.connect(signal = u'clin.external_care_mod_db', receiver = self._on_post_patient_selection)
-
-		gmDispatcher.connect(signal = u'dem.message_inbox_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'clin.test_result_mod_db', receiver = self._on_post_patient_selection)
+		# doesn't have pk_identity:
 		gmDispatcher.connect(signal = u'clin.reviewed_test_results_mod_db', receiver = self._on_post_patient_selection)
-		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_post_patient_selection)
-
-		# generic signal
-		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_post_patient_selection)
 
 		# synchronous signals
 #		self.__pat.register_before_switching_from_patient_callback(callback = self._before_switching_from_patient_callback)
@@ -170,8 +153,41 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _on_post_patient_selection(self):
 		self._schedule_data_reget()
 	#--------------------------------------------------------
-	def _on_episode_issue_mod_db(self):
-		self._schedule_data_reget()
+	def _on_database_signal(self, **kwds):
+
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			# probably not needed:
+			#self._schedule_data_reget()
+			return True
+
+		if kwds['pk_identity'] != pat.ID:
+			return True
+
+		if kwds['table'] == u'dem.identity':
+			if kwds['operation'] != u'UPDATE':
+				return True
+
+		if kwds['table'] in [
+			u'dem.identity',
+			u'dem.names',
+			u'dem.lnk_identity2comm',
+			u'dem.lnk_job2person',
+			u'clin.substance_intake',
+			u'clin.hospital_stay',
+			u'clin.procedure',
+			u'clin.vaccination',
+			u'clin.family_history',
+			u'clin.test_result',
+			u'blobs.doc_med',
+			u'dem.message_inbox',
+			u'clin.episode',
+			u'clin.health_issue'
+		]:
+			self._schedule_data_reget()
+			return True
+
+		return True
 	#-----------------------------------------------------
 	# reget-on-paint mixin API
 	#-----------------------------------------------------

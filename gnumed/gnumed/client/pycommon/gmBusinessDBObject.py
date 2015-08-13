@@ -141,7 +141,9 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon.gmDateTime import pydt_strftime
-from Gnumed.pycommon.gmTools import tex_escape_string, xetex_escape_string
+from Gnumed.pycommon.gmTools import tex_escape_string, xetex_escape_string, compare_dict_likes
+from Gnumed.pycommon.gmTools import xetex_escape_string
+from Gnumed.pycommon.gmTools import compare_dict_likes
 
 
 _log = logging.getLogger('gm.db')
@@ -483,7 +485,7 @@ def delete_xxx(pk_XXX=None):
 	#--------------------------------------------------------
 	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string=u'', escape_style=None, bool_strings=None):
 		if bool_strings is None:
-			bools = {True: u'true', False: u'false'}
+			bools = {True: u'True', False: u'False'}
 		else:
 			bools = {True: bool_strings[0], False: bool_strings[1]}
 		data = {}
@@ -501,6 +503,9 @@ def delete_xxx(pk_XXX=None):
 				continue
 
 			if isinstance(val, datetime.datetime):
+				if date_format is None:
+					data[field] = val
+					continue
 				data[field] = pydt_strftime(val, format = date_format, encoding = 'utf8')
 				if escape_style in [u'latex', u'tex']:
 					data[field] = tex_escape_string(data[field])
@@ -534,7 +539,7 @@ def delete_xxx(pk_XXX=None):
 		"""Fetch field values from backend.
 		"""
 		if self._is_modified:
-			gmTools.compare_dict_likes(self.original_payload, self.fields_as_dict(), u'original payload', u'modified paylaod')
+			compare_dict_likes(self.original_payload, self.fields_as_dict(date_format = None, none_string = None), u'original payload', u'modified payload')
 			if ignore_changes:
 				_log.critical('[%s:%s]: loosing payload changes' % (self.__class__.__name__, self.pk_obj))
 				#_log.debug('original: %s' % self.original_payload)

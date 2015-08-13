@@ -880,19 +880,24 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 		different = True
 	for key in k1:
 		if key in k2:
-			if d2[key] == d1[key]:
-				_log.info(u'%25.25s:  both = [%s]' % (key, d1[key]))
+			if type(d1[key]) != type(d2[key]):
+				_log.info(u'%25.25s: type(dict1) = %s = >>>%s<<<' % (key, type(d1[key]), d1[key]))
+				_log.info(u'%25.25s  type(dict2) = %s = >>>%s<<<' % (u'', type(d2[key]), d2[key]))
+				different = True
+				continue
+			if d1[key] == d2[key]:
+				_log.info(u'%25.25s:  both = >>>%s<<<' % (key, d1[key]))
 			else:
-				_log.info(u'%25.25s: dict1 = [%s]' % (key, d1[key]))
-				_log.info(u'%25.25s  dict2 = [%s]' % (u'', d2[key]))
+				_log.info(u'%25.25s: dict1 = >>>%s<<<' % (key, d1[key]))
+				_log.info(u'%25.25s  dict2 = >>>%s<<<' % (u'', d2[key]))
 				different = True
 		else:
-			_log.info(u'%25.25s: %50.50s | <MISSING>' % (key, u'[%s]' % d1[key]))
+			_log.info(u'%25.25s: %50.50s | <MISSING>' % (key, u'>>>%s<<<' % d1[key]))
 			different = True
 	for key in k2:
 		if key in k1:
 			continue
-		_log.info(u'%25.25s: %50.50s | %.50s' % (key, u'<MISSING>', u'[%s]' % d2[key]))
+		_log.info(u'%25.25s: %50.50s | %.50s' % (key, u'<MISSING>', u'>>>%s<<<' % d2[key]))
 		different = True
 	if different:
 		_log.info('dict-likes appear to be different from each other')
