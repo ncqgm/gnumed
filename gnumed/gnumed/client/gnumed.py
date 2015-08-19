@@ -90,6 +90,7 @@ current_client_version = u'1.5.6'
 current_client_branch = u'1.5'
 
 _log = None
+_pre_log_buffer = []
 _cfg = None
 _old_sig_term = None
 _known_short_options = u'h?V'
@@ -170,25 +171,32 @@ Cannot run GNUmed without any of them.
 def setup_python_path():
 
 	if not u'--local-import' in sys.argv:
+		_pre_log_buffer.append('running against systemwide install')
 		return
 
-	local_python_base_dir = os.path.dirname (
+	local_python_import_dir = os.path.dirname (
 		os.path.abspath(os.path.join(sys.argv[0], '..'))
 	)
-	print "Running from local source tree (%s) ..." % local_python_base_dir
+	print "Running from local source tree (%s) ..." % local_python_import_dir
+	_pre_log_buffer.append("running from local source tree: %s" % local_python_import_dir)
 
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)
-	link_name = os.path.join(local_python_base_dir, 'Gnumed')
+	link_name = os.path.join(local_python_import_dir, 'Gnumed')
 	if not os.path.exists(link_name):
-		real_dir = os.path.join(local_python_base_dir, 'client')
-		print "Creating module import symlink ..."
+		real_dir = os.path.join(local_python_import_dir, 'client')
+		print "Creating local module import symlink ..."
 		print ' real dir:', real_dir
 		print '     link:', link_name
 		os.symlink(real_dir, link_name)
+		_pre_log_buffer.append('created local module import dir symlink: link [%s] => dir [%s]' % (link_name, real_dir))
+	else:
+		_pre_log_buffer.append('local module import dir symlink exists: %s' % link_name)
 
 	print "Adjusting PYTHONPATH ..."
-	sys.path.insert(0, local_python_base_dir)
+	sys.path.insert(0, local_python_import_dir)
+	_pre_log_buffer.append('sys.path with local module import base dir prepended: %s' % sys.path)
+
 #==========================================================
 def setup_local_repo_path():
 
@@ -252,10 +260,13 @@ def setup_fault_handler(target=None):
 		import faulthandler
 	except ImportError:
 		print "Faulthandler not available ..."
+		_pre_log_buffer.append('<faulthandler> not available')
 		return
 	if target is None:
 		faulthandler.enable()
+		_pre_log_buffer.append('<faulthandler> enabled, target = [console]: %s (%s)' % (faulthandler, faulthandler.__version__))
 		return
+	_pre_log_buffer.append('<faulthandler> enabled, target = [%s]: %s (%s)' % (target, faulthandler, faulthandler.__version__))
 	faulthandler.enable(file = target)
 
 #==========================================================
@@ -272,27 +283,37 @@ def setup_logging():
 
 	global _log
 	_log = logging.getLogger('gm.launcher')
+
 #==========================================================
 def log_startup_info():
+	global _pre_log_buffer
+	if len(_pre_log_buffer) > 0:
+		_log.info('early startup log buffer:')
+	for line in _pre_log_buffer:
+		_log.info(u' ' + line)
+	del _pre_log_buffer
 	_log.info(u'GNUmed client version [%s] on branch [%s]', current_client_version, current_client_branch)
 	_log.info(u'Platform: %s', platform.uname())
-	_log.info(u'Python %s on %s (%s)', sys.version, sys.platform, os.name)
+	_log.info((u'Python %s on %s (%s)' % (sys.version, sys.platform, os.name)).replace(u'\n', u'<\\n>'))
 	try:
 		import lsb_release
-		_log.info(u'%s' % lsb_release.get_distro_information())
+		_log.info(u'lsb_release: %s', lsb_release.get_distro_information())
 	except ImportError:
 		pass
+	_log.info('os.getcwd(): [%s]', os.getcwd())
 	_log.info('process environment:')
 	for key, val in os.environ.items():
 		_log.info(u' %s: %s' % (
 			(u'${%s}' % key).rjust(30),
 			unicode(val, encoding = sys.getfilesystemencoding(), errors = 'replace')
 		))
+
 #==========================================================
 def setup_console_exception_handler():
 	from Gnumed.pycommon.gmTools import handle_uncaught_exception_console
 
 	sys.excepthook = handle_uncaught_exception_console
+
 #==========================================================
 def setup_cli():
 	from Gnumed.pycommon import gmCfg2
@@ -368,10 +389,12 @@ def handle_sig_term(signum, frame):
 		sys.exit(signal.SIGTERM)
 	else:
 		_old_sig_term(signum, frame)
+
 #----------------------------------------------------------
 def setup_signal_handlers():
 	global _old_sig_term
 	old_sig_term = signal.signal(signal.SIGTERM, handle_sig_term)
+
 #==========================================================
 def setup_locale():
 	gmI18N.activate_locale()
