@@ -57,6 +57,7 @@ FIX: encounter change exception on patient change w/ multiple clients [thanks Ma
 FIX: patient overview tooltip exception on patient change [thanks Marc]
 
 IMPROVED: logging of payload changes in case of conflict
+IMPROVED: early startup logging
 
 	1.5.6
 
