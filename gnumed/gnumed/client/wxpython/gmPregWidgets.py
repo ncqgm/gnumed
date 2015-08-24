@@ -42,7 +42,7 @@ def calculate_edc(parent=None, patient=None):
 	patient.emr.EDC = edc
 
 #====================================================================
-from wxGladeWidgets import wxgEdcCalculatorDlg
+from Gnumed.wxGladeWidgets import wxgEdcCalculatorDlg
 
 class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 
