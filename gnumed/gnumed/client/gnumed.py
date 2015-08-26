@@ -168,6 +168,21 @@ Cannot run GNUmed without any of them.
 #==========================================================
 # convenience functions
 #==========================================================
+def _symlink_windows(source, link_name):
+	import ctypes
+	csl = ctypes.windll.kernel32.CreateSymbolicLinkW
+	csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
+	csl.restype = ctypes.c_ubyte
+	if os.path.isdir(source):
+		flags = 1
+	else:
+		flags = 0
+	ret_code = csl(link_name, source.replace('/', '\\'), flags)
+	if ret_code == 0:
+		raise ctypes.WinError()
+	return ret_code
+
+#==========================================================
 def setup_python_path():
 
 	if not u'--local-import' in sys.argv:
@@ -183,15 +198,20 @@ def setup_python_path():
 	# does the path exist at all, physically ?
 	# (*broken* links are reported as False)
 	link_name = os.path.join(local_python_import_dir, 'Gnumed')
-	if not os.path.exists(link_name):
+	if os.path.exists(link_name):
+		_pre_log_buffer.append('local module import dir symlink exists: %s' % link_name)
+	else:
 		real_dir = os.path.join(local_python_import_dir, 'client')
 		print "Creating local module import symlink ..."
 		print ' real dir:', real_dir
 		print '     link:', link_name
-		os.symlink(real_dir, link_name)
+		try:
+			os.symlink(real_dir, link_name)
+		except AttributeError:
+			_pre_log_buffer.append('Windows does not have os.symlink(), resorting to ctypes')
+			result = _symlink_windows(real_dir, link_name)
+			_pre_log_buffer.append('ctypes.windll.kernel32.CreateSymbolicLinkW() exit code: %s', result)
 		_pre_log_buffer.append('created local module import dir symlink: link [%s] => dir [%s]' % (link_name, real_dir))
-	else:
-		_pre_log_buffer.append('local module import dir symlink exists: %s' % link_name)
 
 	print "Adjusting PYTHONPATH ..."
 	sys.path.insert(0, local_python_import_dir)
@@ -276,6 +296,7 @@ def setup_logging():
 	except ImportError:
 		sys.exit(import_error_sermon % '\n '.join(sys.path))
 
+	print "Log file: %s" % _gmLog2._logfile.name
 	setup_fault_handler(target = _gmLog2._logfile)
 
 	global gmLog2
