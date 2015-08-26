@@ -8,8 +8,8 @@ REM mklink /J ..\Gnumed ..\client
 REM # hence we use xcopy: http://commandwindows.com/xcopy.htm
 REM # but need to remove old link first (if any)
 fsutil reparsepoint delete ..\Gnumed
-REM # or
-REM rmdir ..\Gnumed
+REM # if it still exists it shouldn't be a link, so remove the directory now
+rmdir ..\Gnumed /s
 xcopy ..\client ..\Gnumed /E /I /F /H /O /Y
 
 set PYTHONPATH=..;%PYTHONPATH%
