@@ -45,6 +45,7 @@ IMPROVED: ask whether to create metadata when saving export area documents
 IMPROVED: EMR journal formatting
 IMPROVED: support deleting more than one list item at a time
 IMPROVED: put file from filename in clipboard into export area
+IMPROVED: startup shell script
 
 ------------------------------------------------
 # rel-1-5-patches
