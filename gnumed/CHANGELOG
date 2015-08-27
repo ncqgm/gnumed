@@ -21,7 +21,7 @@ NEW: placeholder $praxis_vcf$
 NEW: add appdata.xml
 NEW: placeholder $url_escape$
 NEW: show patient address in openstreetmap
-NEW: support for smoking status documentation
+NEW: support for substance abuse status (nicotine, ethanol, other)
 NEW: search in EMR journal view
 NEW: put EMR journal into export area
 

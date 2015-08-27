@@ -207,9 +207,22 @@ class cDocumentFolder:
 		return [ cDocument(row = {'pk_field': 'pk_doc', 'idx': idx, 'data': r}) for r in rows ]
 
 	documents = property(get_documents, lambda x:x)
+
 	#--------------------------------------------------------
 	def add_document(self, document_type=None, encounter=None, episode=None, link_obj=None):
 		return create_document(link_obj = link_obj, document_type = document_type, encounter = encounter, episode = episode)
+
+	#--------------------------------------------------------
+	def add_prescription(self, encounter=None, episode=None, link_obj=None):
+		return self.add_document (
+			link_obj = link_obj,
+			document_type = create_document_type (
+				document_type = DOCUMENT_TYPE_PRESCRIPTION
+			)['pk_doc_type'],
+			encounter = encounter,
+			episode = episode
+		)
+
 #============================================================
 _sql_fetch_document_part_fields = u"select * from blobs.v_obj4doc_no_data where %s"
 

@@ -32,6 +32,7 @@ import glob
 _log = logging.getLogger('gm.main')
 
 # 3rd party libs
+# maybe show HTML page if wxversion/wx cannot be imported (and thus needs to be installed) ?
 # wxpython version cannot be enforced inside py2exe and friends
 if not hasattr(sys, 'frozen'):
 	import wxversion
@@ -132,6 +133,7 @@ from Gnumed.wxpython import gmAutoHintWidgets
 from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmExternalCareWidgets
 from Gnumed.wxpython import gmHabitWidgets
+from Gnumed.wxpython import gmSubstanceMgmtWidgets
 
 
 try:
@@ -697,8 +699,8 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_emr_edit.Append(-1, _('Suppressed hints'), _('Manage dynamic hints suppressed in this patient.'))
 		self.Bind(wx.EVT_MENU, self.__on_manage_suppressed_hints, item)
 
-		item = menu_emr_edit.Append(-1, _('Smoking status'), _('Manage smoking status of this patient.'))
-		self.Bind(wx.EVT_MENU, self.__on_manage_smoking_status, item)
+		item = menu_emr_edit.Append(-1, _('Substance abuse'), _('Manage substance abuse documentation of this patient.'))
+		self.Bind(wx.EVT_MENU, self.__on_manage_substance_abuse, item)
 
 		menu_emr.AppendMenu(wx.NewId(), _('&Add / Edit ...'), menu_emr_edit)
 
@@ -1432,7 +1434,8 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_configure_drug_data_source(self, evt):
-		gmMedicationWidgets.configure_drug_data_source(parent = self)
+		gmSubstanceMgmtWidgets.configure_drug_data_source(parent = self)
+
 	#----------------------------------------------
 	def __on_configure_adr_url(self, evt):
 
@@ -2269,8 +2272,8 @@ class gmTopLevelFrame(wx.Frame):
 			'enc_types': gmEncounterWidgets.manage_encounter_types,
 			'provinces': gmAddressWidgets.manage_regions,
 			'workplaces': gmPraxisWidgets.configure_workplace_plugins,
-			'drugs': gmMedicationWidgets.manage_branded_drugs,
-			'substances_in_brands': gmMedicationWidgets.manage_drug_components,
+			'drugs': gmSubstanceMgmtWidgets.manage_branded_drugs,
+			'substances_in_brands': gmSubstanceMgmtWidgets.manage_drug_components,
 			'labs': gmMeasurementWidgets.manage_measurement_orgs,
 			'test_types': gmMeasurementWidgets.manage_measurement_types,
 			'meta_test_types': gmMeasurementWidgets.manage_meta_test_types,
@@ -2278,7 +2281,7 @@ class gmTopLevelFrame(wx.Frame):
 			'vacc_indications': gmVaccWidgets.manage_vaccination_indications,
 			'orgs': gmOrganizationWidgets.manage_orgs,
 			'adr': gmAddressWidgets.manage_addresses,
-			'substances': gmMedicationWidgets.manage_consumable_substances,
+			'substances': gmSubstanceMgmtWidgets.manage_consumable_substances,
 			'patient_tags': gmDemographicsWidgets.manage_tag_images,
 			'communication_channel_types': gmContactWidgets.manage_comm_channel_types,
 			'billables': gmBillingWidgets.manage_billables,
@@ -2462,36 +2465,43 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_medical_links(self, evt):
 		gmNetworkTools.open_url_in_browser(url = 'http://wiki.gnumed.de/bin/view/Gnumed/MedicalContentLinks#AnchorLocaleI%s' % gmI18N.system_locale_level['language'])
+
 	#----------------------------------------------
 	def __on_jump_to_drug_db(self, evt):
-		gmMedicationWidgets.jump_to_drug_database()
+		curr_pat = gmPerson.gmCurrentPatient()
+		if not curr_pat.connected:
+			curr_pat = None
+		gmSubstanceMgmtWidgets.jump_to_drug_database(parent = self, patient = curr_pat)
+
 	#----------------------------------------------
 	def __on_kompendium_ch(self, evt):
 		gmNetworkTools.open_url_in_browser(url = u'http://www.kompendium.ch')
+
 	#----------------------------------------------
 	# Office
 	#----------------------------------------------
 	def __on_display_audit_trail(self, evt):
 		gmPraxisWidgets.show_audit_trail(parent = self)
-		evt.Skip()
+
 	#----------------------------------------------
 	def __on_show_all_bills(self, evt):
 		gmBillingWidgets.manage_bills(parent = self)
-		evt.Skip()
+
 	#----------------------------------------------
 	def __on_manage_orgs(self, evt):
 		gmOrganizationWidgets.manage_orgs(parent = self)
-		evt.Skip()
+
 	#----------------------------------------------
 	# Help / Debugging
 	#----------------------------------------------
 	def __on_save_screenshot(self, evt):
-		evt.Skip()
 		fname = os.path.expanduser(os.path.join('~', 'gnumed', 'gnumed-screenshot-%s.png')) % pyDT.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 		self.__save_screenshot_to_file(filename = fname)
+
 	#----------------------------------------------
 	def __on_test_exception(self, evt):
 		raise ValueError('raised ValueError to test exception handling')
+
 	#----------------------------------------------
 	def __on_test_segfault(self, evt):
 		import faulthandler
@@ -2730,12 +2740,12 @@ class gmTopLevelFrame(wx.Frame):
 		gmAutoHintWidgets.manage_suppressed_hints(parent = self, pk_identity = pat.ID)
 
 	#----------------------------------------------
-	def __on_manage_smoking_status(self, evt):
+	def __on_manage_substance_abuse(self, evt):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot manage smoking status. No active patient.'))
 			return False
-		gmHabitWidgets.manage_smoking_status(parent = self, patient = pat)
+		gmHabitWidgets.manage_substance_abuse(parent = self, patient = pat)
 
 	#----------------------------------------------
 	def __on_show_emr_summary(self, event):
@@ -3068,17 +3078,21 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_update_loinc(self, evt):
 		gmMeasurementWidgets.update_loinc_reference_data()
+
 	#----------------------------------------------
 	def __on_update_atc(self, evt):
-		gmMedicationWidgets.update_atc_reference_data()
+		gmSubstanceMgmtWidgets.update_atc_reference_data()
+
 	#----------------------------------------------
 	def __on_install_data_packs(self, evt):
 		gmDataPackWidgets.manage_data_packs(parent = self)
+
 	#----------------------------------------------
 	def __on_generate_vaccines(self, evt):
 		wx.BeginBusyCursor()
 		gmVaccination.regenerate_generic_vaccines()
 		wx.EndBusyCursor()
+
 	#----------------------------------------------
 	def _clean_exit(self):
 		"""Cleanup helper.

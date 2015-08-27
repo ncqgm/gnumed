@@ -33,7 +33,7 @@
                         <flag>wxRIGHT|wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                         <border>5</border>
                         <option>1</option>
-                        <object class="gmMedicationWidgets.cBrandedDrugPhraseWheel" name="_PRW_brand" base="EditTextCtrl">
+                        <object class="gmSubstanceMgmtWidgets.cBrandedDrugPhraseWheel" name="_PRW_brand" base="EditTextCtrl">
                             <style>wxNO_BORDER</style>
                         </object>
                     </object>
@@ -168,7 +168,7 @@
                 <flag>wxEXPAND</flag>
                 <border>0</border>
                 <option>1</option>
-                <object class="gmMedicationWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
+                <object class="gmSubstanceMgmtWidgets.cATCPhraseWheel" name="_PRW_atc" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                     <tooltip>The ATC for this vaccine.</tooltip>
                 </object>

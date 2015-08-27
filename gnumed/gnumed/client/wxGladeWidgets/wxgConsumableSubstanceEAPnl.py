@@ -13,7 +13,7 @@ import gettext
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmTextCtrl import cTextCtrl
 from Gnumed.wxpython.gmMeasurementWidgets import cUnitPhraseWheel
-from Gnumed.wxpython.gmMedicationWidgets import cATCPhraseWheel
+from Gnumed.wxpython.gmSubstanceMgmtWidgets import cATCPhraseWheel
 # end wxGlade
 
 

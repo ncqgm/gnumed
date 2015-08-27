@@ -15,9 +15,9 @@ from Gnumed.wxpython.gmPhraseWheel import cPhraseWheel
 from Gnumed.wxpython.gmEMRStructWidgets import cEpisodeSelectionPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 from Gnumed.wxpython.gmDateTimeInput import cIntervalPhraseWheel
-from Gnumed.wxpython.gmMedicationWidgets import cDrugComponentPhraseWheel
+from Gnumed.wxpython.gmSubstanceMgmtWidgets import cDrugComponentPhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cBrandOrSubstancePhraseWheel
-from Gnumed.wxpython.gmMedicationWidgets import cSubstancePhraseWheel
+from Gnumed.wxpython.gmSubstanceMgmtWidgets import cSubstancePhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstancePreparationPhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstanceSchedulePhraseWheel
 from Gnumed.wxpython.gmMedicationWidgets import cSubstanceAimPhraseWheel

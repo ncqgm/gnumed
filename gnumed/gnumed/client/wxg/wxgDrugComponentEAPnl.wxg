@@ -81,7 +81,7 @@
                 <flag>wxEXPAND|wxALIGN_CENTER_VERTICAL</flag>
                 <border>0</border>
                 <option>0</option>
-                <object class="gmMedicationWidgets.cSubstancePhraseWheel" name="_PRW_substance" base="EditTextCtrl">
+                <object class="gmSubstanceMgmtWidgets.cSubstancePhraseWheel" name="_PRW_substance" base="EditTextCtrl">
                     <style>wxNO_BORDER</style>
                 </object>
             </object>

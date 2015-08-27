@@ -14,7 +14,6 @@ import os
 import re as regex
 import subprocess
 import decimal
-import io
 from xml.etree import ElementTree as etree
 import datetime as pydt
 
@@ -34,8 +33,6 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmCoding
-from Gnumed.business.gmDocuments import DOCUMENT_TYPE_PRESCRIPTION
-from Gnumed.business.gmDocuments import create_document_type
 
 
 _log = logging.getLogger('gm.meds')
@@ -745,10 +742,7 @@ class cFreeDiamsInterface(cDrugDataSourceInterface):
 		docs = self.patient.get_document_folder()
 		emr = self.patient.get_emr()
 
-		prescription = docs.add_document (
-			document_type = create_document_type (
-				document_type = DOCUMENT_TYPE_PRESCRIPTION
-			)['pk_doc_type'],
+		prescription = docs.add_prescription (
 			encounter = emr.active_encounter['pk_encounter'],
 			episode = emr.add_episode (
 				episode_name = DEFAULT_MEDICATION_HISTORY_EPISODE,
@@ -1525,7 +1519,6 @@ def get_consumable_substances(order_by=None):
 #------------------------------------------------------------
 def create_consumable_substance(substance=None, atc=None, amount=None, unit=None):
 
-	substance = substance
 	if atc is not None:
 		atc = atc.strip()
 
@@ -1561,6 +1554,39 @@ def create_consumable_substance(substance=None, atc=None, amount=None, unit=None
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 
 	gmATC.propagate_atc(substance = substance, atc = atc)
+
+	return cConsumableSubstance(aPK_obj = rows[0]['pk'])
+
+#------------------------------------------------------------
+def create_consumable_substance_by_atc(substance=None, atc=None, amount=None, unit=None):
+
+	atc = atc.strip()
+	if atc == u'':
+		raise ValueError('<atc> cannot be empty: [%s]', atc)
+	converted, amount = gmTools.input2decimal(amount)
+	if not converted:
+		raise ValueError('<amount> must be a number: %s (%s)', amount, type(amount))
+	args = {
+		'desc': substance.strip(),
+		'amount': amount,
+		'unit': unit.strip(),
+		'atc': atc
+	}
+	cmd = u"""
+		INSERT INTO ref.consumable_substance (description, atc_code, amount, unit)
+			SELECT
+				%(desc)s,
+				%(atc)s,
+				%(amount)s,
+				gm.nullify_empty_string(%(unit)s)
+			WHERE NOT EXISTS (
+				SELECT 1 FROM ref.consumable_substance WHERE atc = %(atc)s
+			)
+		RETURNING pk"""
+	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
+	if len(rows) == 0:
+		cmd = u"SELECT pk FROM ref.consumable_substance WHERE atc = %(atc)s LIMIT 1"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return cConsumableSubstance(aPK_obj = rows[0]['pk'])
 
@@ -2126,7 +2152,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			u' ' * left_margin,
 			self._payload[self._idx['substance']],
 			self.harmful_use_type_string,
-			gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %Y')
+			gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%b %Y')
 		)
 
 	#--------------------------------------------------------
@@ -2164,84 +2190,33 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 
 	#--------------------------------------------------------
 	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d'):
-#	def format_harmful_substance_use(self, include_tobacco=True, include_alcohol=True, include_drugs=True, include_nonuse=True, include_unknown=True):
-		use = self.harmful_substance_use
-		if use is None:
-			return []
 
-		lines = []
+		txt = _('Substance abuse entry                                              [#%s]\n') % self._payload[self._idx['pk_substance_intake']]
+		txt += u' ' + _('Substance: %s [#%s]%s\n') % (
+			self._payload[self._idx['substance']],
+			self._payload[self._idx['pk_substance']],
+			gmTools.coalesce(self._payload[self._idx['atc_substance']], u'', ' ATC %s')
+		)
+		txt += u' ' + _('Use type: %s\n') % self.harmful_use_type_string
+		txt += u' ' + _('Last checked: %s\n') % gmDateTime.pydt_strftime(self._payload[self._idx['last_checked_when']], '%Y %b %d')
+		if self._payload[self._idx['discontinued']] is not None:
+			txt += _(' Discontinued %s\n') % (
+				gmDateTime.pydt_strftime (
+					self._payload[self._idx['discontinued']],
+					format = date_format,
+					accuracy = gmDateTime.acc_days
+				)
+			)
+		txt += u'\n'
+		txt += gmTools.coalesce(self._payload[self._idx['notes']], u'', ' %s\n')
+		txt += u'\n'
+		txt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+			'row_ver': self._payload[self._idx['row_version']],
+			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
+			'mod_by': self._payload[self._idx['modified_by']]
+		}
 
-		if include_tobacco:
-			status, details = use['tobacco']
-			add_details = False
-			if status is None:
-				if include_unknown:
-					lines.append(_('unknown smoking status'))
-			elif status == 0:
-				if include_nonuse:
-					lines.append(u'%s (%s)' % (_('non-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
-					add_details = True
-			elif status == 1:		# now or previous
-				if details['quit_when'] is None:
-					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
-					add_details = True
-				elif details['quit_when'] < gmDateTime.pydt_now_here():
-					if include_nonuse:
-						lines.append(u'%s (%s)' % (_('ex-smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
-						add_details = True
-				else:
-					lines.append(u'%s (%s)' % (_('current smoker'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
-					add_details = True
-			elif status == 2:		# addicted
-				lines.append(u'%s (%s)' % (_('tobacco addiction'), gmDateTime.pydt_strftime(details['last_confirmed'], '%Y %b %d')))
-				add_details = True
-			if add_details:
-				if details['quit_when'] is not None:
-					lines.append(u' %s: %s' % (_('Quit date'), gmDateTime.pydt_strftime(details['quit_when'], '%Y %b %d')))
-				if details['comment'] is not None:
-					lines.append(u' %s' % details['comment'])
-
-		if include_alcohol:
-			status, details = use['alcohol']
-			if status is False:
-				if include_nonuse:
-					if len(lines) > 0:
-						lines.append(u'')
-					lines.append(_('no or non-harmful alcohol use'))
-					lines.append(u' %s' % details)
-			elif status is True:
-				if len(lines) > 0:
-					lines.append(u'')
-				lines.append(_('harmful alcohol use'))
-				lines.append(u' %s' % details)
-			else:
-				if include_unknown:
-					if len(lines) > 0:
-						lines.append(u'')
-					lines.append(_('unknown alcohol use'))
-					lines.append(u' %s' % details)
-
-		if include_drugs:
-			status, details = use['drugs']
-			if status is False:
-				if include_nonuse:
-					if len(lines) > 0:
-						lines.append(u'')
-					lines.append(_('no or non-harmful drug use'))
-					lines.append(u' %s' % details)
-			elif status is True:
-				if len(lines) > 0:
-					lines.append(u'')
-				lines.append(_('harmful drug use'))
-				lines.append(u' %s' % details)
-			else:
-				if include_unknown:
-					if len(lines) > 0:
-						lines.append(u'')
-					lines.append(_('unknown drug use'))
-					lines.append(u' %s' % details)
-
-		return lines
+		return txt
 
 	#--------------------------------------------------------
 	def format_as_multiple_lines(self, left_margin=0, date_format='%Y %b %d', allergy=None, show_all_brand_components=False):
@@ -2502,32 +2477,48 @@ def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=No
 	}
 
 	where_parts = [u'fk_encounter IN (SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s)']
-#	where_clause = u"""
-#		fk_encounter IN (
-#			SELECT pk FROM clin.encounter WHERE fk_patient = %(pat)s
-#		)
-#			AND
-#		"""
 
 	if pk_substance is not None:
-		#where_clause += u'fk_substance = %(subst)s'
 		where_parts.append(u'fk_substance = %(subst)s')
 	if pk_component is not None:
-		#where_clause += u'fk_drug_component = %(comp)s'
 		where_parts.append(u'fk_drug_component = %(comp)s')
 	if pk_brand is not None:
-		#where_clause += u'fk_drug_component IN (SELECT pk FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s)'
 		where_parts.append(u'fk_drug_component IN (SELECT pk FROM ref.lnk_substance2brand WHERE fk_brand = %(brand)s)')
 
 	cmd = u"""
-		SELECT exists (
+		SELECT EXISTS (
 			SELECT 1 FROM clin.substance_intake
 			WHERE
 				%s
 			LIMIT 1
 		)
 	""" % u'\nAND\n'.join(where_parts)
-#		)""" % where_clause
+
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
+	return rows[0][0]
+
+#------------------------------------------------------------
+def substance_intake_exists_by_atc(pk_identity=None, atc=None):
+
+	if (atc is None) or (pk_identity is None):
+		raise ValueError('atc and pk_identity cannot be None')
+
+	args = {
+		'pat': pk_identity,
+		'atc': atc
+	}
+	where_parts = [
+		u'pk_patient = %(pat)s)',
+		u'(atc_substance = %(atc)s) OR (atc_brand = %(atc)s)'
+	]
+	cmd = u"""
+		SELECT EXISTS (
+			SELECT 1 FROM clin.v_substance_intakes
+			WHERE
+				%s
+			LIMIT 1
+		)
+	""" % u'\nAND\n'.join(where_parts)
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	return rows[0][0]

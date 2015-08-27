@@ -12,7 +12,6 @@ import wx
 class wxgDrugComponentEAPnl(wx.ScrolledWindow):
     def __init__(self, *args, **kwds):
 
-        from Gnumed.wxpython import gmMedicationWidgets
         from Gnumed.wxpython import gmMeasurementWidgets
 
         # begin wxGlade: wxgDrugComponentEAPnl.__init__
@@ -21,7 +20,7 @@ class wxgDrugComponentEAPnl(wx.ScrolledWindow):
         self._TCTRL_brand = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_components = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
         self._TCTRL_codes = wx.TextCtrl(self, -1, "", style=wx.TE_READONLY|wx.NO_BORDER)
-        self._PRW_substance = gmMedicationWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
+        self._PRW_substance = gmSubstanceMgmtWidgets.cSubstancePhraseWheel(self, -1, "", style=wx.NO_BORDER)
         self._TCTRL_amount = wx.TextCtrl(self, -1, "", style=wx.NO_BORDER)
         self._PRW_unit = gmMeasurementWidgets.cUnitPhraseWheel(self, -1, "", style=wx.NO_BORDER)
 

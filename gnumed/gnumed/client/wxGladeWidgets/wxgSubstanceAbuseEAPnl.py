@@ -13,7 +13,7 @@ import gettext
 # begin wxGlade: extracode
 from Gnumed.wxpython.gmDateTimeInput import cDateInputPhraseWheel
 from Gnumed.wxpython.gmTextCtrl import cTextCtrl
-from Gnumed.wxpython.gmMedicationWidgets import cSubstancePhraseWheel
+from Gnumed.wxpython.gmSubstanceMgmtWidgets import cSubstancePhraseWheel
 # end wxGlade
 
 
@@ -24,16 +24,16 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._RBTN_tobacco = wx.RadioButton(self, wx.ID_ANY, _("&Nicotine"))
 		self._RBTN_c2 = wx.RadioButton(self, wx.ID_ANY, _("&Alcohol"))
-		self._RBTN_other_substance = wx.RadioButton(self, wx.ID_ANY, _("&Other"))
-		self._PRW_substance = cSubstancePRW(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._RBTN_nonharmful_use = wx.RadioButton(self, wx.ID_ANY, _("&Non-harmful use"))
+		self._RBTN_other_substance = wx.RadioButton(self, wx.ID_ANY, _("&Other:"))
+		self._PRW_substance = cSubstancePhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
+		self._RBTN_nonharmful_use = wx.RadioButton(self, wx.ID_ANY, _("&Non-harmful use"), style=wx.RB_GROUP)
 		self._RBTN_harmful_use = wx.RadioButton(self, wx.ID_ANY, _("&Harmful use"))
 		self._RBTN_presently_addicted = wx.RadioButton(self, wx.ID_ANY, _("Presently &addicted"))
 		self._RBTN_previously_addicted = wx.RadioButton(self, wx.ID_ANY, _("Previously &addicted"))
 		self._TCTRL_comment = cTextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
 		self._DPRW_quit_when = cDateInputPhraseWheel(self, wx.ID_ANY, "", style=wx.BORDER_NONE)
-		self._LBL_confirm_date = wx.StaticText(self, wx.ID_ANY, "")
-		self._CHBOX_confirm = wx.CheckBox(self, wx.ID_ANY, _("&Confirmed"))
+		self._LBL_confirm_date = wx.StaticText(self, wx.ID_ANY, _("?"))
+		self._CHBOX_confirm = wx.CheckBox(self, wx.ID_ANY, _("&Reconfirm as of today"))
 
 		self.__set_properties()
 		self.__do_layout()
@@ -47,12 +47,9 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgSubstanceAbuseEAPnl.__set_properties
 		self.SetScrollRate(10, 10)
 		self._RBTN_tobacco.SetToolTipString(_("Select for documenting smoking status."))
-		self._RBTN_tobacco.Enable(False)
 		self._RBTN_tobacco.SetValue(1)
 		self._RBTN_c2.SetToolTipString(_("Select for documenting alcohol use status."))
-		self._RBTN_c2.Enable(False)
 		self._RBTN_other_substance.SetToolTipString(_("Select for documenting use of substances other than nicotine or alcohol."))
-		self._RBTN_other_substance.Enable(False)
 		self._PRW_substance.SetToolTipString(_("Select the abused substance."))
 		self._PRW_substance.Enable(False)
 		self._RBTN_nonharmful_use.SetToolTipString(_("Select if the substance use is not considered harmful (say, no use or non-harmful use)."))
@@ -68,8 +65,9 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 
 	def __do_layout(self):
 		# begin wxGlade: wxgSubstanceAbuseEAPnl.__do_layout
-		_gszr_main = wx.FlexGridSizer(5, 2, 1, 3)
+		_gszr_main = wx.FlexGridSizer(7, 2, 1, 3)
 		__szr_confirm = wx.BoxSizer(wx.HORIZONTAL)
+		__szr_addiction = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_status = wx.BoxSizer(wx.HORIZONTAL)
 		__szr_substance = wx.BoxSizer(wx.HORIZONTAL)
 		__lbl_substance = wx.StaticText(self, wx.ID_ANY, _("Substance"))
@@ -77,17 +75,20 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 		_gszr_main.Add(__lbl_substance, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_substance.Add(self._RBTN_tobacco, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_substance.Add(self._RBTN_c2, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_substance.Add(self._RBTN_other_substance, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_substance.Add(self._PRW_substance, 1, wx.EXPAND, 0)
+		__szr_substance.Add(self._RBTN_other_substance, 0, wx.ALIGN_CENTER_VERTICAL, 5)
 		_gszr_main.Add(__szr_substance, 1, 0, 0)
+		_gszr_main.Add((20, 20), 1, wx.EXPAND, 0)
+		_gszr_main.Add(self._PRW_substance, 1, wx.EXPAND, 0)
 		__lbl_status = wx.StaticText(self, wx.ID_ANY, _("Status"))
 		__lbl_status.SetForegroundColour(wx.Colour(255, 0, 0))
 		_gszr_main.Add(__lbl_status, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_status.Add(self._RBTN_nonharmful_use, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_status.Add(self._RBTN_harmful_use, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_status.Add(self._RBTN_presently_addicted, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
-		__szr_status.Add(self._RBTN_previously_addicted, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_status.Add(self._RBTN_harmful_use, 0, wx.ALIGN_CENTER_VERTICAL, 3)
 		_gszr_main.Add(__szr_status, 1, 0, 0)
+		_gszr_main.Add((20, 20), 1, wx.EXPAND, 0)
+		__szr_addiction.Add(self._RBTN_presently_addicted, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_addiction.Add(self._RBTN_previously_addicted, 0, wx.ALIGN_CENTER_VERTICAL, 3)
+		_gszr_main.Add(__szr_addiction, 1, 0, 0)
 		__lbl_comment = wx.StaticText(self, wx.ID_ANY, _("Comment"))
 		_gszr_main.Add(__lbl_comment, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(self._TCTRL_comment, 0, wx.EXPAND, 0)
@@ -96,7 +97,7 @@ class wxgSubstanceAbuseEAPnl(wx.ScrolledWindow):
 		_gszr_main.Add(self._DPRW_quit_when, 0, wx.EXPAND, 0)
 		__lbl_last_confirmed = wx.StaticText(self, wx.ID_ANY, _("Last confirmed"))
 		_gszr_main.Add(__lbl_last_confirmed, 0, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_confirm.Add(self._LBL_confirm_date, 1, wx.ALIGN_CENTER_VERTICAL | wx.EXPAND | wx.RIGHT, 5)
+		__szr_confirm.Add(self._LBL_confirm_date, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_confirm.Add(self._CHBOX_confirm, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		_gszr_main.Add(__szr_confirm, 1, 0, 0)
 		self.SetSizer(_gszr_main)

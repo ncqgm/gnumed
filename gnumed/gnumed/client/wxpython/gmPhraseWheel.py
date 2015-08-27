@@ -252,21 +252,21 @@ class cPhraseWheelBase(wx.TextCtrl):
 	def display_as_valid(self, valid=None, partially_invalid=False):
 
 		if valid is True:
-			color2use = self.__my_startup_color
+			color2show = self.__my_startup_color
 		elif valid is False:
 			if partially_invalid:
-				color2use = color_prw_partially_invalid
+				color2show = color_prw_partially_invalid
 			else:
-				color2use = color_prw_invalid
+				color2show = color_prw_invalid
 		else:
 			raise ValueError(u'<valid> must be True or False')
 
 		if self.IsEnabled():
-			self.SetBackgroundColour(color2use)
+			self.SetBackgroundColour(color2show)
 			self.Refresh()
 			return
 
-		self.__previous_enabled_bg_color = color2use
+		self.__previous_enabled_bg_color = color2show
 	#--------------------------------------------------------
 	def Disable(self):
 		self.Enable(enable = False)
