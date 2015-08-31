@@ -145,6 +145,17 @@ _scripting_listener = None
 _original_wxEndBusyCursor = None
 
 #==============================================================================
+class cLog_wx2gm(wx.PyLog):
+	# redirect wx.LogXXX() calls to python logging log
+	def DoLogTextAtLevel(self, level, msg):
+		_log.log(level, msg)
+
+__wxlog = cLog_wx2gm()
+_log.info('redirecting wx.Log to [%s]', __wxlog)
+wx.Log_SetActiveTarget(__wxlog)
+#wx.LogDebug('test message')
+
+#==============================================================================
 class gmTopLevelFrame(wx.Frame):
 	"""GNUmed client's main windows frame.
 
@@ -241,6 +252,7 @@ class gmTopLevelFrame(wx.Frame):
 			_log.error('cannot switch font from [%s] (%s) to [%s]', font.GetNativeFontInfoUserDesc(), font.GetNativeFontInfoDesc(), font_face)
 
 		return
+
 	#----------------------------------------------
 	def __set_GUI_size(self):
 		"""Try to get previous window size from backend."""

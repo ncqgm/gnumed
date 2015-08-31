@@ -63,6 +63,7 @@ IMPROVED: logging of payload changes in case of conflict
 IMPROVED: early startup logging
 IMPROVED: show low file location during startup
 IMPROVED: windows startup batch file
+IMPROVED: redirect wxPython log to python logging
 
 	1.5.6
 
