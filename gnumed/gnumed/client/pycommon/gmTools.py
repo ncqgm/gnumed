@@ -991,6 +991,31 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 	return True
 
 #---------------------------------------------------------------------------
+def format_dict_like(d, relevant_keys=None, template=None):
+	if template is not None:
+		# all keys in template better exist in d
+		try:
+			return template % d
+		except KeyError:
+			if relevant_keys is not None:
+				for key in relevant_keys:
+					try:
+						d[key]
+					except KeyError:
+						d[key] = u'<[%s] MISSING>' % key
+				return template % d
+
+	if relevant_keys is None:
+		relevant_keys = d.keys()
+	lines = []
+	for key in relevant_keys:
+		try:
+			lines.append(u'%s: >>>%s<<<' % (key, d[key]))
+		except KeyError:
+			pass
+	return u'\n'.join(lines)
+
+#---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
 def prompted_input(prompt=None, default=None):
 	"""Obtains entry from standard input.
@@ -1421,6 +1446,8 @@ second line\n
 		d2 = {1: 1, 2: 2}
 
 		compare_dict_likes(d1, d2, 'same1', 'same2')
+		print(format_dict_like(d1))
+		print(format_dict_like(d2))
 	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
