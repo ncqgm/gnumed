@@ -45,6 +45,7 @@ IMPROVED: ask whether to create metadata when saving export area documents
 IMPROVED: EMR journal formatting
 IMPROVED: support deleting more than one list item at a time
 IMPROVED: put file from filename in clipboard into export area
+IMPROVED: startup shell script
 
 ------------------------------------------------
 # rel-1-5-patches
@@ -62,6 +63,7 @@ IMPROVED: logging of payload changes in case of conflict
 IMPROVED: early startup logging
 IMPROVED: show low file location during startup
 IMPROVED: windows startup batch file
+IMPROVED: redirect wxPython log to python logging
 
 	1.5.6
 
