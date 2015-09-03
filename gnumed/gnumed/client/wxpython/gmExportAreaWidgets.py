@@ -65,12 +65,8 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			return
-		# no idea why this does not work:
-#		print "patient pk in signal:", kwargs['pk_identity']
-#		print "current patient ID:", pat.ID
-#		if kwargs['pk_identity'] == pat.ID:
-#			print "signal is about current patient"
-#			self.__on_table_mod()
+		if kwargs['pk_identity'] != pat.ID:
+			return
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_list_item_selected(self, event):
@@ -534,15 +530,14 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 	def _on_table_mod(self, *args, **kwargs):
 		if kwargs['table'] != 'clin.export_item':
 			return
-#		pat = gmPerson.gmCurrentPatient()
-#		if not pat.connected:
-#			return
-		# no idea why this does not work:
-#		print "patient pk in signal:", kwargs['pk_identity']
-#		print "current patient ID:", pat.ID
-#		if kwargs['pk_identity'] == pat.ID:
-#			print "signal is about current patient"
-#			self.__on_table_mod()
+		if self._RBTN_all_patients.Value is True
+			self._schedule_data_reget()
+			return
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		if kwargs['pk_identity'] != pat.ID:
+			return
 		self._schedule_data_reget()
 	#--------------------------------------------------------
 	def _on_all_patients_selected(self, event):
@@ -614,11 +609,6 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 		self._BTN_export_printouts.Enable(False)
 	#--------------------------------------------------------
 	# reget mixin API
-	#
-	# remember to call
-	#	self._schedule_data_reget()
-	# whenever you learn of data changes from database
-	# listener threads, dispatcher signals etc.
 	#--------------------------------------------------------
 	def _populate_with_data(self):
 		if self._RBTN_all_patients.Value is True:

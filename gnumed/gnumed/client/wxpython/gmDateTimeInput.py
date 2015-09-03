@@ -472,7 +472,7 @@ class cDateInputPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			return False
 
 		date = self.GetData()
-		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))
+		self.SetValue(gmDateTime.pydt_strftime(date, format = '%Y-%m-%d', accuracy = gmDateTime.acc_days))#, none_str = u'')
 		self.display_as_valid(True)
 		return True
 	#--------------------------------------------------------

@@ -258,7 +258,8 @@ def pydt_strftime(dt=None, format='%Y %b %d  %H:%M.%S', encoding=None, accuracy=
 	if dt is None:
 		if none_str is not None:
 			return none_str
-		dt = pydt_now_here()
+		raise ArgumentError('must provide <none_str> if <dt>=None is to be dealt with')
+		#dt = pydt_now_here()
 
 	if encoding is None:
 		encoding = gmI18N.get_encoding()

@@ -25,12 +25,12 @@ from Gnumed.wxpython import gmListWidgets
 _log = logging.getLogger('gm.ui')
 
 #================================================================
-def edit_substance_abuse(parent=None, intake=None):
+def edit_substance_abuse(parent=None, intake=None, patient=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	ea = cSubstanceAbuseEAPnl(parent = parent, id = -1, intake = intake)
+	ea = cSubstanceAbuseEAPnl(parent = parent, id = -1, intake = intake, patient = patient)
 	dlg = gmEditArea.cGenericEditAreaDlg2(parent = parent, id = -1, edit_area = ea, single_entry = (intake is not None))
 	dlg.SetTitle(gmTools.coalesce(intake, _('Adding substance abuse'), _('Editing substance abuse')))
 	if dlg.ShowModal() == wx.ID_OK:
@@ -54,15 +54,11 @@ def manage_substance_abuse(parent=None, patient=None):
 #		return True
 #	#------------------------------------------------------------
 	def edit(intake=None):
-		return edit_substance_abuse(parent = parent, intake = intake)
+		return edit_substance_abuse(parent = parent, intake = intake, patient = patient)
 
-#	#------------------------------------------------------------
-#	def delete(substance):
-#		if substance.is_in_use_by_patients:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete this substance. It is in use.'), beep = True)
-#			return False
-#
-#		return gmMedication.delete_consumable_substance(substance = substance['pk'])
+	#------------------------------------------------------------
+	def delete(intake):
+		return intake.delete()
 
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
@@ -92,7 +88,7 @@ def manage_substance_abuse(parent=None, patient=None):
 		single_selection = False,
 		new_callback = edit,
 		edit_callback = edit,
-#		delete_callback = delete,
+		delete_callback = delete,
 		refresh_callback = refresh,
 		list_tooltip_callback = get_tooltip
 	)
@@ -106,13 +102,17 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		try:
 			data = kwargs['intake']
 			del kwargs['intake']
-			self.__patient = None
-			self.__patient_pk = data['pk_patient']
 		except KeyError:
 			data = None
-			self.__patient = kwargs['patient']
-			self.__patient_pk = self.__patient.ID
-			del kwargs['patient']
+
+		self.__patient = kwargs['patient']
+		del kwargs['patient']
+
+		if data is not None:
+			if data['pk_patient'] != self.__patient.ID:
+				_log.error('intake: %s', data)
+				_log.error('patient: %s', self.__patient)
+				raise ArgumentError('<intake> does not belong to <patient>')
 
 		wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl.__init__(self, *args, **kwargs)
 		gmEditArea.cGenericEditAreaMixin.__init__(self)
@@ -145,20 +145,6 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			else:
 				self._PRW_substance.display_as_valid(valid = True)
 
-#		# new
-#		if self.data is None:
-#			if self._RBTN_tobacco.GetValue() is True:
-#				# set pk_identity from intake[...]
-#				if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient, atc = gmATC.ATC_NICOTINE):
-#					validity = False
-#					self.status_message = _('Smoking status already recorded.')
-#					self._RBTN_tobacco.SetFocus()
-#			elif self._RBTN_c2.GetValue() is True:
-#				if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient, atc = gmATC.ATC_ETHANOL):
-#					validity = False
-#					self.status_message = _('Alcohol use already recorded.')
-#					self._RBTN_c2.SetFocus()
-
 		return validity
 
 	#----------------------------------------------------------------
@@ -181,13 +167,20 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			)['pk_substance']
 
 		elif self._RBTN_other_substance.GetValue() is True:
-			pk_substance = self._PRW_substance.GetValue()
+			pk_substance = self._PRW_substance.GetData()
+			if pk_substance is None:
+				pk_substance = gmMedication.create_consumable_substance (
+					substance = self._PRW_substance.GetValue().strip(),
+					amount = 1,
+					unit = _('units')
+				)['pk']
 
-		intake = create_substance_intake (
+		pk_encounter = self.__patient.emr.active_encounter['pk_encounter']
+		intake = gmMedication.create_substance_intake (
 			pk_substance = pk_substance,
 			preparation = _('unit'),
-			encounter = self.__patient.emr.active_encounter['pk_encounter'],
-			episode = gmMedication.DEFAULT_MEDICATION_HISTORY_EPISODE
+			encounter = pk_encounter,
+			episode = gmMedication.create_default_medication_history_episode(encounter = pk_encounter)['pk_episode']
 		)
 
 		if self._RBTN_nonharmful_use.GetValue() is True:
@@ -198,11 +191,9 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			intake['harmful_use_type'] = 2
 		elif self._RBTN_previously_addicted.GetValue() is True:
 			intake['harmful_use_type'] = 3
-		intake['notes'] = self._TCTRL_comment.GetValue.strip()
+		intake['notes'] = self._TCTRL_comment.GetValue().strip()
 		if self._DPRW_quit_when.is_valid_timestamp(allow_empty = False):
 			intake['discontinued'] = self._DPRW_quit_when.date
-		if self._CHBOX_confirm.GetValue() is True:
-			intake['last_checked_when'] = gmDateTime.pydt_now_here()
 		intake.save()
 
 		self.data = intake
@@ -212,9 +203,6 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
-		if self._RBTN_other_substance.GetValue() is True:
-			self.data['pk_substance'] = self._PRW_substance.GetValue()
-
 		if self._RBTN_nonharmful_use.GetValue() is True:
 			self.data['harmful_use_type'] = 0
 		elif self._RBTN_harmful_use.GetValue() is True:
@@ -223,11 +211,12 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self.data['harmful_use_type'] = 2
 		elif self._RBTN_previously_addicted.GetValue() is True:
 			self.data['harmful_use_type'] = 3
-		self.data['notes'] = self._TCTRL_comment.GetValue.strip()
+		self.data['notes'] = self._TCTRL_comment.GetValue().strip()
 		if self._DPRW_quit_when.is_valid_timestamp(allow_empty = False):
 			self.data['discontinued'] = self._DPRW_quit_when.date
 		if self._CHBOX_confirm.GetValue() is True:
-			self.data['last_checked_when'] = gmDateTime.pydt_now_here()
+			self.data['pk_encounter'] = self.__patient.emr.active_encounter['pk_encounter']
+
 		self.data.save()
 
 		return True
@@ -250,12 +239,12 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		self._CHBOX_confirm.SetValue(True)
 		self._CHBOX_confirm.Disable()
 
-		if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient, atc = gmATC.ATC_NICOTINE):
+		if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient.ID, atc = gmATC.ATC_NICOTINE):
 			self._RBTN_tobacco.Disable()
 		else:
 			self._RBTN_tobacco.Enable()
 
-		if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient, atc = gmATC.ATC_ETHANOL):
+		if gmMedication.substance_intake_exists_by_atc(pk_identity = self.__patient.ID, atc = gmATC.ATC_ETHANOL):
 			self._RBTN_c2.Disable()
 		else:
 			self._RBTN_c2.Enable()
@@ -272,25 +261,23 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 		self._RBTN_tobacco.Disable()
 		self._RBTN_c2.Disable()
 		self._RBTN_other_substance.Disable()
+		self._PRW_substance.Disable()
 
 		if self.data['atc_substance'] == gmATC.ATC_NICOTINE:
 			self._RBTN_tobacco.SetValue(True)
 			self._RBTN_c2.SetValue(False)
 			self._RBTN_other_substance.SetValue(False)
 			self._PRW_substance.SetText(u'', None)
-			self._PRW_substance.Disable()
 		elif self.data['atc_substance'] == gmATC.ATC_ETHANOL:
 			self._RBTN_tobacco.SetValue(False)
 			self._RBTN_c2.SetValue(True)
 			self._RBTN_other_substance.SetValue(False)
 			self._PRW_substance.SetText(u'', None)
-			self._PRW_substance.Disable()
 		else:
 			self._RBTN_tobacco.SetValue(False)
 			self._RBTN_c2.SetValue(False)
 			self._RBTN_other_substance.SetValue(True)
 			self._PRW_substance.SetText(self.data['substance'], self.data['pk_substance'])
-			self._PRW_substance.Enable()
 
 		if self.data['harmful_use_type'] == 0:
 			self._RBTN_nonharmful_use.SetValue(True)
@@ -314,8 +301,9 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 			self._RBTN_previously_addicted.SetValue(True)
 
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes']))
-		self._DPRW_quit_when.SetText(data = self.data['last_checked_when'])
+		self._DPRW_quit_when.SetText(data = self.data['discontinued'])
 		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d'))
+		self._CHBOX_confirm.Enable()
 		self._CHBOX_confirm.SetValue(True)
 
 		self._TCTRL_comment.SetFocus()

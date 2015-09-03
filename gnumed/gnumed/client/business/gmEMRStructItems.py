@@ -1571,6 +1571,7 @@ FROM (
 		return rows[0][0]
 
 	has_narrative = property(_get_has_narrative, lambda x:x)
+
 #============================================================
 def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow_dupes=False, encounter=None, link_obj=None):
 	"""Creates a new episode for a given patient's health issue.
@@ -1596,6 +1597,7 @@ def create_episode(pk_health_issue=None, episode_name=None, is_open=False, allow
 
 	episode = cEpisode(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_episode'})
 	return episode
+
 #-----------------------------------------------------------
 def delete_episode(episode=None):
 	if isinstance(episode, cEpisode):

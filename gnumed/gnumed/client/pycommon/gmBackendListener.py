@@ -236,9 +236,9 @@ class gmBackendListener(gmBorg.cBorg):
 					if item.startswith(u'PK name='):
 						pk_column = item.split(u'=')[1]
 					if item.startswith(u'row PK='):
-						pk_row = item.split(u'=')[1]
+						pk_row = int(item.split(u'=')[1])
 					if item.startswith(u'person PK='):
-						pk_identity = item.split(u'=')[1]
+						pk_identity = int(item.split(u'=')[1])
 				# try sending intra-client signals:
 				# 1) generic signal
 				self.__messages_sent += 1

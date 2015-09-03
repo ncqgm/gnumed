@@ -29,6 +29,7 @@ from Gnumed.business import gmDocuments
 from Gnumed.business import gmProviderInbox
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmAutoHints
+from Gnumed.business import gmMedication
 
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmDemographicsWidgets
@@ -116,10 +117,6 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	#-----------------------------------------------------
 	# event handling
 	#-----------------------------------------------------
-	# remember to call
-	#	self._schedule_data_reget()
-	# whenever you learn of data changes from database listener
-	# threads, dispatcher signals etc.
 	def __register_interests(self):
 		# client internal signals
 		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
@@ -690,6 +687,12 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, vacc]
 		del vaccs
 
+		for abuse in [ a for a in emr.currently_abused_substances if a['harmful_use_type'] == 3 ]:
+			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
+			label = _('Hx of addiction: %s') % abuse['substance']
+			sort_key_list.append(sort_key)
+			data[sort_key] = [label, abuse]
+
 		sort_key_list.sort()
 		sort_key_list.reverse()
 		list_items = []
@@ -715,6 +718,9 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 				with_tests = False,
 				with_vaccinations = False
 			).strip(u'\n')
+
+		if isinstance(data, gmMedication.cSubstanceIntakeEntry):
+			return data.format(one_line = False)
 
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
 			return data.format(include_episode = True, include_comment = True)

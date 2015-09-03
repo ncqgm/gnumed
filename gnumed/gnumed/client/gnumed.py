@@ -300,7 +300,7 @@ def setup_logging():
 	except ImportError:
 		sys.exit(import_error_sermon % '\n '.join(sys.path))
 
-	print "Log file: %s" % _gmLog2._logfile.name
+	print("Log file:", _gmLog2._logfile.name)
 	setup_fault_handler(target = _gmLog2._logfile)
 
 	global gmLog2

@@ -111,7 +111,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		if self.curr_pat.connected:
 			# signal is not about our patient: ignore signal
-			if int(kwds['pk_identity']) != self.curr_pat.ID:
+			if kwds['pk_identity'] != self.curr_pat.ID:
 				return True
 
 		if kwds['table'] == u'dem.identity':

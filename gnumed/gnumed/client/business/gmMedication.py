@@ -33,6 +33,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmATC
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmCoding
+from Gnumed.business import gmEMRStructItems
 
 
 _log = logging.getLogger('gm.meds')
@@ -1357,7 +1358,6 @@ _SQL_get_consumable_substance = u"""
 	FROM ref.consumable_substance
 	WHERE %s
 """
-
 class cConsumableSubstance(gmBusinessDBObject.cBusinessDBObject):
 
 	_cmd_fetch_payload = _SQL_get_consumable_substance % u"pk = %s"
@@ -2066,7 +2066,15 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 	_cmd_fetch_payload = u"SELECT * FROM clin.v_substance_intakes WHERE pk_substance_intake = %s"
 	_cmds_store_payload = [
 		u"""UPDATE clin.substance_intake SET
-				clin_when = %(started)s,
+				-- if .comment_on_start = '?' then .started will be mapped to NULL
+				-- in the view, also, .started CANNOT be NULL any other way so far,
+				-- so do not attempt to set .clin_when if .started is NULL
+				clin_when = (
+					CASE
+						WHEN %(started)s IS NULL THEN clin_when
+						ELSE %(started)s
+					END
+				)::timestamp with time zone,
 				comment_on_start = gm.nullify_empty_string(%(comment_on_start)s),
 				discontinued = %(discontinued)s,
 				discontinue_reason = gm.nullify_empty_string(%(discontinue_reason)s),
@@ -2348,6 +2356,10 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		allg.save()
 		return allg
 	#--------------------------------------------------------
+	def delete(self):
+		return delete_substance_intake(substance = self._payload[self._idx['pk_substance_intake']])
+
+	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
 	def _get_harmful_use_type_string(self):
@@ -2463,6 +2475,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		pattern = "^(\d\d|/\d|\d/\d|\d)[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}[\s-]{1,5}\d{0,2}$"
 		for test in tests:
 			print test.strip(), ":", regex.match(pattern, test.strip())
+
 #------------------------------------------------------------
 def substance_intake_exists(pk_component=None, pk_substance=None, pk_identity=None, pk_brand=None):
 
@@ -2508,8 +2521,8 @@ def substance_intake_exists_by_atc(pk_identity=None, atc=None):
 		'atc': atc
 	}
 	where_parts = [
-		u'pk_patient = %(pat)s)',
-		u'(atc_substance = %(atc)s) OR (atc_brand = %(atc)s)'
+		u'pk_patient = %(pat)s',
+		u'((atc_substance = %(atc)s) OR (atc_brand = %(atc)s))'
 	]
 	cmd = u"""
 		SELECT EXISTS (
@@ -2598,10 +2611,12 @@ def create_substance_intake(pk_substance=None, pk_component=None, preparation=No
 		raise
 
 	return cSubstanceIntakeEntry(aPK_obj = rows[0][0])
+
 #------------------------------------------------------------
 def delete_substance_intake(substance=None):
-	cmd = u'delete from clin.substance_intake where pk = %(pk)s'
+	cmd = u'DELETE FROM clin.substance_intake WHERE pk = %(pk)s'
 	gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': substance}}])
+	return True
 
 #------------------------------------------------------------
 # AMTS formatting
@@ -3005,6 +3020,17 @@ def format_substance_intake(emr=None, output_format=u'latex', table_type=u'by-br
 		lines.append(u'\\hline')
 
 	return tex % u'\n'.join(lines)
+
+#------------------------------------------------------------
+def create_default_medication_history_episode(pk_health_issue=None, encounter=None, link_obj=None):
+	return gmEMRStructItems.create_episode (
+		pk_health_issue = pk_health_issue,
+		episode_name = DEFAULT_MEDICATION_HISTORY_EPISODE,
+		is_open = False,
+		allow_dupes = False,
+		encounter = encounter,
+		link_obj = link_obj
+	)
 
 #============================================================
 _SQL_get_drug_components = u'SELECT * FROM ref.v_drug_components WHERE %s'

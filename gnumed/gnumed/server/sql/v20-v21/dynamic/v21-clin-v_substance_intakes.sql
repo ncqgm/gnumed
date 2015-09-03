@@ -292,6 +292,72 @@ select * from clin.v_nonbrand_intakes
 grant select on clin.v_substance_intakes to group "gm-doctors";
 
 -- --------------------------------------------------------------
+-- DELETE substance intake
+drop function if exists clin.trf_delete_intake_document_deleted() cascade;
+
+create function clin.trf_delete_intake_document_deleted()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_row record;
+	_pk_episode integer;
+BEGIN
+	select
+		* into _row
+	from
+		clin.v_substance_intake_journal
+	where
+		src_pk = OLD.pk;
+
+	_pk_episode := _row.pk_episode;
+
+	-- create episode if needed
+	if _pk_episode is null then
+		select pk into _pk_episode
+		from clin.episode
+		where
+			description = _(''Medication history'')
+				and
+			fk_encounter in (
+				select pk from clin.encounter where fk_patient = _row.pk_patient
+			);
+		if not found then
+			insert into clin.episode (
+				description,
+				is_open,
+				fk_encounter
+			) values (
+				_(''Medication history''),
+				FALSE,
+				OLD.fk_encounter
+			) returning pk into _pk_episode;
+		end if;
+	end if;
+
+	insert into clin.clin_narrative (
+		fk_encounter,
+		fk_episode,
+		soap_cat,
+		narrative
+	) values (
+		_row.pk_encounter,
+		_pk_episode,
+		NULL,
+		_(''Deletion of'') || '' '' || _row.narrative
+	);
+
+	return OLD;
+END;';
+
+comment on function clin.trf_delete_intake_document_deleted() is
+	'Document the deletion of a substance intake.';
+
+create trigger tr_delete_intake_document_deleted
+	before delete on clin.substance_intake
+	for each row execute procedure clin.trf_delete_intake_document_deleted();
+
+-- --------------------------------------------------------------
 INSERT INTO ref.consumable_substance (
 	description,
 	atc_code,
