@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-25 16:36+0200\n"
-"PO-Revision-Date: 2015-05-25 16:48+0100\n"
+"POT-Creation-Date: 2015-09-03 23:53+0200\n"
+"PO-Revision-Date: 2015-09-04 00:09+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 1.7.6\n"
+"X-Generator: Poedit 1.8.3\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -4865,6 +4865,97 @@ msgstr "ATC"
 msgid "Age range"
 msgstr "Altersbereich"
 
+msgid "&Nicotine"
+msgstr "&Nikotin"
+
+msgid "&Alcohol"
+msgstr "&Alkohol"
+
+msgid "&Other:"
+msgstr "&Andere:"
+
+msgid "&Non-harmful use"
+msgstr "&Unschädlicher Gebrauch"
+
+msgid "&Harmful use"
+msgstr "&Schädlicher Gebrauch"
+
+msgid "Presently &addicted"
+msgstr "Derzeit &abhängig"
+
+msgid "Previously &addicted"
+msgstr "&Frühere Abhängigkeit"
+
+msgid "&Reconfirm as of today"
+msgstr "&Heute nachgehakt"
+
+msgid "Select for documenting smoking status."
+msgstr "Auswählen, um Raucherstatus zu dokumentieren."
+
+msgid "Select for documenting alcohol use status."
+msgstr "Auswählen, um Alkoholgebrauch zu dokumentieren."
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+"Auswählen, um Substanzmißbrauch (außer Alkohol oder Nikotin) zu "
+"dokumentieren."
+
+msgid "Select the abused substance."
+msgstr "Wählen Sie die mißbrauchte Substanz."
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+"Auswählen, wenn der Substanzgebrauch nicht schädlich erscheint (kein oder "
+"nicht mißbräuchlicher Gebrauch)."
+
+msgid "Select if substance is use considered harmful."
+msgstr "Auswählen, wenn Substanzgebrauch als schädlich eingeschätzt wird."
+
+msgid "Select if the patient is presently addicted to this substance."
+msgstr ""
+"Hier wählen, wenn der Patient derzeit von dieser Substand abhängig ist."
+
+msgid "Select if the patient was previously addicted to this substance."
+msgstr "Hier wählen, wenn der Patient früher von dieser Substanz abhängig war."
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+"Ein Kommentar zum Substanzgebrauch:\n"
+"- Art der Substanz\n"
+"- Häufigkeit\n"
+"- Menge\n"
+"- wann angefangen\n"
+"- Versuche aufzuhören\n"
+"..."
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+"Wann hat der Patient den Gebrauch beendet ?\n"
+"\n"
+"Sie können hier auch ein Zieldatum eingeben."
+
+msgid "Check here to confirm for today."
+msgstr "Hier markieren, wenn der Status heute überprüft wurde."
+
+msgid "Quit date"
+msgstr "Stopdatum"
+
+msgid "Last confirmed"
+msgstr "Zuletzt überprüft"
+
 msgid "Closed episodes"
 msgstr "Beendete Episoden"
 
@@ -5672,65 +5763,6 @@ msgstr "Faktor:"
 
 msgid "A code for this region."
 msgstr "Ein Code für dieses Bundesland."
-
-msgid "&Unknown"
-msgstr "&Unbekannt"
-
-msgid "&Never smoked"
-msgstr "&Nie geraucht"
-
-msgid "&Smokes or smoked"
-msgstr "&Rauch(te)"
-
-msgid "Select if the smoking status is unknown (say, unasked so far)."
-msgstr ""
-"Hier markieren, wenn der Rauchstatus unbekannt ist (z.B. bislang nicht "
-"erfragt)."
-
-msgid ""
-"Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
-"smoker)."
-msgstr ""
-"Hier markieren, wenn der Patient nie (\"einmal probiert\" zählt nicht) "
-"geraucht hat (nicht: Ex-Raucher)."
-
-msgid "Select if the patient did or does smoke."
-msgstr "Hier wählen, wenn der Patient raucht(e)."
-
-msgid ""
-"A comment on the smoking habits:\n"
-"- type of product used\n"
-"- frequency\n"
-"- amount\n"
-"- when started\n"
-"- attempts to quit\n"
-"..."
-msgstr ""
-"Ein Kommentar zum Rauchstatus:\n"
-"- Art der Rauchware\n"
-"- Häufigkeit\n"
-"- Menge\n"
-"- wann angefangen\n"
-"- Versuche aufzuhören\n"
-"..."
-
-msgid ""
-"When did the patient quit smoking ?\n"
-"\n"
-"You can also set a target quit date here."
-msgstr ""
-"Wann hat der Patient das Rauchen aufgegeben ?\n"
-"\n"
-"Sie können hier auch ein Zieldatum eingeben."
-
-msgid "When was smoking status last confirmed (mostly \"today\") ?"
-msgstr "Wann wurde der Rauchstatus zuletzt überprüft (meist \"heute\") ?"
-
-msgid "Quit date"
-msgstr "Stopdatum"
-
-msgid "Last confirmed"
-msgstr "Zuletzt überprüft"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -7054,6 +7086,31 @@ msgid "?ongoing"
 msgstr "andauernd ?"
 
 #, python-format
+msgid ""
+"Substance abuse entry                                              [#%s]\n"
+msgstr "Substanzmißbrauch                                              [#%s]\n"
+
+#, python-format
+msgid "Substance: %s [#%s]%s\n"
+msgstr "Substanz: %s   [#%s]%s\n"
+
+#, python-format
+msgid "Use type: %s\n"
+msgstr "Gebrauchsweise: %s\n"
+
+#, python-format
+msgid "Last checked: %s\n"
+msgstr "Zuletzt überprüft: %s\n"
+
+#, python-format
+msgid " Discontinued %s\n"
+msgstr " Beendet %s\n"
+
+#, python-format
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+
+#, python-format
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr "Substanzgebrauch (%s, %s)   [#%s]                     \n"
 
@@ -7118,10 +7175,6 @@ msgid " (short-term)"
 msgstr " (kurzzeitig)"
 
 #, python-format
-msgid " Discontinued %s\n"
-msgstr " Beendet %s\n"
-
-#, python-format
 msgid " Reason: %s\n"
 msgstr " Grund: %s\n"
 
@@ -7141,9 +7194,20 @@ msgstr " Grunderkrankung: %s\n"
 msgid " Advice: %s\n"
 msgstr " Hinweis: %s\n"
 
-#, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
-msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
+msgid "medication, not abuse"
+msgstr "Medikation, kein Mißbrauch"
+
+msgid "no or non-harmful use"
+msgstr "kein oder kein schädlicher Gebrauch"
+
+msgid "presently harmful use"
+msgstr "derzeit schädlicher Gebrauch"
+
+msgid "presently addicted"
+msgstr "derzeit abhängig"
+
+msgid "previously addicted"
+msgstr "früher abhängig"
 
 #, python-format
 msgid "%s%s: %s ago%s"
@@ -7455,6 +7519,39 @@ msgstr "berichtigtes Ergebnis"
 
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
+
+msgid "unknown smoking status"
+msgstr "Rauchstatus nicht bekannt"
+
+msgid "non-smoker"
+msgstr "Nichtraucher"
+
+msgid "current smoker"
+msgstr "aktiver Raucher"
+
+msgid "ex-smoker"
+msgstr "Exraucher"
+
+msgid "tobacco addiction"
+msgstr "Tabakabhängigkeit"
+
+msgid "no or non-harmful alcohol use"
+msgstr "kein oder unschädlicher Alkoholgebrauch"
+
+msgid "harmful alcohol use"
+msgstr "schädlicher Alkoholgebrauch"
+
+msgid "unknown alcohol use"
+msgstr "Alkoholgebrauch nicht bekannt"
+
+msgid "no or non-harmful drug use"
+msgstr "kein oder unschädlicher Gebrauch sonstiger Substanzen"
+
+msgid "harmful drug use"
+msgstr "schädlicher Gebrauch sonstiger Substanzen"
+
+msgid "unknown drug use"
+msgstr "Substanzgebrauch nicht bekannt"
 
 msgid "original entry"
 msgstr "Originaleintrag"
@@ -10276,8 +10373,26 @@ msgstr ""
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "jetzt fällig: Booster gegen %s nach Impfplan \"%s\" (%s)"
 
-msgid "Editing smoking status"
-msgstr "Rauchstatus bearbeiten"
+msgid "Adding substance abuse"
+msgstr "Substanzgebrauch hinzufügen"
+
+msgid "Editing substance abuse"
+msgstr "Substanzgebrauch bearbeiten"
+
+msgid "Substances abused by the patient:"
+msgstr "Substanzgebrauch dieses Patienten:"
+
+msgid "Showing abused substances."
+msgstr "Zeige Substanzmißbrauch."
+
+msgid "Intake"
+msgstr "Einnahme"
+
+msgid "nicotine"
+msgstr "Nikotin"
+
+msgid "unit"
+msgstr "Einheit"
 
 #, python-format
 msgid "Latest: %s ago (%s %s%s%s%s)"
@@ -10359,12 +10474,11 @@ msgid "%s Vacc: %s (%s%s)"
 msgstr "%s Impfg: %s (%s%s)"
 
 #, python-format
-msgid "active tobacco use (%s)"
-msgstr "aktiver Tabakgebrauch (%s)"
+msgid "Hx of addiction: %s"
+msgstr "Abhängigkeit (früher): %s"
 
-#, python-format
-msgid "Last confirmed: %s%s"
-msgstr "Zuletzt überprüft: %s%s"
+msgid "active substance abuse"
+msgstr "aktiver Substanzmißbrauch"
 
 #, python-format
 msgid "%s %s %s%s"
@@ -13878,321 +13992,8 @@ msgstr "<hier Patienten suchen>"
 msgid "In case of emergency contact:"
 msgstr "Im Notfall verständigen:"
 
-msgid ""
-"\n"
-"Please select the default drug data source from the list below.\n"
-"\n"
-"Note that to actually use it you need to have the database installed, too."
-msgstr ""
-"\n"
-"Wählen Sie die gewünschte Medikamentenquelle aus der Liste.\n"
-"\n"
-"Sie müssen zur Benutzung diese Quelle natürlich auch installiert haben."
-
-msgid "Drug data source"
-msgstr "Medikamentenquelle"
-
-msgid "Configuring default drug data source"
-msgstr "Einstellen der Medikamentenquelle"
-
-msgid "No default drug database configured."
-msgstr "Es ist keine Medikamentendatenbank voreingestellt."
-
-msgid "There is no default drug database configured."
-msgstr "Es ist keine Medikamentendatenbank eingestellt."
-
-msgid "Jumping to drug database"
-msgstr "Medikamentendatenbank aufrufen"
-
-#, python-format
-msgid "Cannot call IFAP via [%s]."
-msgstr "Kann IFAP nicht mittels [%s] starten."
-
-#, python-format
-msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
-msgstr "Kann Transferdatei [%s] (IFAP <-> GNUmed) nicht anlegen."
-
-msgid "Current medication"
-msgstr "Derzeitige Medikation"
-
-msgid ""
-"\n"
-"The ATC codes as known to GNUmed.\n"
-msgstr ""
-"\n"
-"Die GNUmed bekannten ATC-Codes.\n"
-
-msgid "Showing ATC codes."
-msgstr "Zeige ATC-Codes."
-
-msgid "Choose an ATC import config file"
-msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
-
-msgid "config files"
-msgstr "Konfigurationsdateien"
-
-msgid "importing ATC reference data"
-msgstr "Import von ATC-Referenzdaten"
-
-msgid "Successfully imported ATC reference data."
-msgstr "ATC-Referenzdaten erfolgreich importiert."
-
-msgid "Importing ATC reference data failed."
-msgstr "Import von ATC-Referenzdaten schlug fehl."
-
-msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
-msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
-
-msgid "Cannot delete this substance. It is in use."
-msgstr "Kann Substanz nicht löschen, da sie in Benutzung ist."
-
-msgid ""
-"\n"
-"These are the consumable substances registered with GNUmed.\n"
-msgstr ""
-"\n"
-"Diese Substanzen sind derzeit in GNUmed hinterlegt.\n"
-
-msgid "Showing consumable substances."
-msgstr "Zeige Substanzen (Wirkstoffe)."
-
-msgid "Import"
-msgstr "Import"
-
-msgid "Import consumable substances from a drug database."
-msgstr "Substanzen aus externer Datenbank holen."
-
-msgid "Cannot edit this substance. It is in use."
-msgstr "Kann Substanz nicht verändern. Es ist in Benutzung."
-
-msgid "Adding new consumable substance"
-msgstr "Neue Substanz hinzufügen"
-
-msgid "Editing consumable substance"
-msgstr "Substanz bearbeiten"
-
-msgid "Cannot save consumable substance. Missing essential input."
-msgstr "Kann Substanz nicht speichern. Es fehlen Angaben."
-
-#, python-format
-msgid "Cannot save consumable substance. %s"
-msgstr "Kann Substanz nicht speichern. %s"
-
-msgid "Cannot remove this component from the drug. It is in use."
-msgstr ""
-"Kann Medikamentenbestandteil nicht entfernen. Das Medikament ist in "
-"Benutzung."
-
-msgid ""
-"\n"
-"These are the components in the drug brands known to GNUmed.\n"
-msgstr ""
-"\n"
-"Diese Medikamentenbestandteile sind derzeit in GNUmed hinterlegt.\n"
-
-msgid "Showing drug brand components."
-msgstr "Zeige Medikamentenbestandteile (Wirkstoffe)."
-
-msgid "Adding new drug component"
-msgstr "Medikamentenbestandteil hinzufügen"
-
-msgid "Editing drug component"
-msgstr "Medikamentenbestandteil bearbeiten"
-
-msgid "Cannot edit drug component. It is in use."
-msgstr ""
-"Kann Medikamentenbestandteil nicht verändern. Das Medikament ist in "
-"Benutzung."
-
-msgid "Cannot save drug component. Invalid or missing essential input."
-msgstr ""
-"Kann Medikamentenbestandteil nicht speichern. Ungültige oder fehlende "
-"Angaben."
-
-msgid "A drug component with optional strength."
-msgstr "Ein Arzneibestandteil, optional mit Dosis."
-
 msgid "The preparation (form) of the substance or brand."
 msgstr "Die Darreichungs-/Zubereitungsform der Substanz/des Medikaments."
-
-msgid "The substance with optional strength."
-msgstr "Der Wirkstoff, optional mit Dosisangabe."
-
-msgid "Managing components of a drug"
-msgstr "Die Bestandteile eines Medikaments verwalten"
-
-#, python-format
-msgid ""
-"Cannot manage the components of the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-"Kann die Bestandteile des Arzneiprodukts\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"nicht verwalten, da es derzeit von Patienten eingenommen wird.\n"
-
-msgid "Pick the substances which are components of this drug."
-msgstr "Wählen Sie die Bestandteile des Arzneiprodukts."
-
-msgid "Components of drug"
-msgstr "Arzneibestandteile"
-
-#, python-format
-msgid ""
-"Adjust the components of \"%s\"\n"
-"\n"
-"The drug must contain at least one component. Any given\n"
-"substance can only be included once per drug."
-msgstr ""
-"Anpassen der Bestandteile von \"%s\"\n"
-"\n"
-"Das Medikament muß mindestens einen Bestandteil enthalten.\n"
-"Jeder Bestandteil kann nur einmal enthalten sein."
-
-msgid "Managing components of a drug ..."
-msgstr "Die Bestandteile eines Medikaments verwalten..."
-
-msgid "not in use"
-msgstr "nicht in Gebrauch"
-
-#, python-format
-msgid "ATC: %s\n"
-msgstr "ATC: %s\n"
-
-msgid "Editing medication"
-msgstr "Bearbeite Medikation"
-
-#, python-format
-msgid ""
-"Cannot edit the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
-msgstr ""
-"Kann den Impfstoff\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"nicht verändern. Bearbeiten Sie\n"
-"Impfstoffe bitte in der Impfverwaltung !\n"
-
-msgid "Deleting medication"
-msgstr "Medikament löschen"
-
-#, python-format
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
-"Kann dieses Medikament nicht löschen\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"weil es sich um einen Impfstoff handelt. Löschen\n"
-"Sie Impfstoffe bitte in der Impfverwaltung !\n"
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-"\n"
-"Die derzeit in GNUmed hinterlegten, handelsüblichen Medikamente.\n"
-
-msgid "Showing branded drugs."
-msgstr "Zeige Medikamente."
-
-msgid "Import substances and brands from a drug database."
-msgstr "Substanzen und Medikamente aus einer Datenbank importieren."
-
-msgid "Editing drug"
-msgstr "Medikament bearbeiten"
-
-#, python-format
-msgid ""
-"Cannot edit the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-"Kann das Arzneiprodukt\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"nicht bearbeiten, da es in Gebrauch ist.\n"
-
-msgid "Adding new drug brand"
-msgstr "Füge neues Medikament hinzu"
-
-msgid "Editing drug brand"
-msgstr "Bearbeite Medikament"
-
-msgid "Manage consumable substances"
-msgstr "Wirkstoffe verwalten"
-
-msgid "Cannot edit drug brand. It is in use."
-msgstr "Kann Medikament nicht verändern. Es ist in Benutzung."
-
-msgid "Checking brand data"
-msgstr "Prüfe Produktdaten"
-
-#, python-format
-msgid ""
-"The brand information you entered:\n"
-"\n"
-" [%s %s]\n"
-"\n"
-"already exists as a drug product."
-msgstr ""
-"Ihre Eingabendaten:\n"
-"\n"
-" [%s %s]\n"
-"existieren bereits als Medikament."
-
-msgid ""
-"You have not selected any substances\n"
-"as drug components.\n"
-"\n"
-"Without components you will not be able to\n"
-"use this drug for documenting patient care.\n"
-"\n"
-"Are you sure you want to save\n"
-"it without components ?"
-msgstr ""
-"Sie haben dem Medikament keine Wirkstoffe\n"
-"als Bestandteile zugeordnet.\n"
-"\n"
-"Ohne diese Zuordnung können Sie das\n"
-"Medikament keinem Patienten zuordnen.\n"
-"\n"
-"Wollen Sie das Medikament trotzdem\n"
-"ohne Bestandteile speichern ?"
-
-msgid "Cannot save branded drug. Invalid or missing essential input."
-msgstr "Kann Medikament nicht speichert. Ungültige oder fehlende Angaben."
-
-msgid ""
-"The brand name of the drug.\n"
-"\n"
-"Note: a brand name will need to be linked to\n"
-"one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
-msgstr ""
-"Der Produktname des Medikaments.\n"
-"\n"
-"Achtung: Dem Produkt müssen eine oder mehrere\n"
-"Substanzen zugeordnet werden, ehe es verwendet\n"
-"werden kann (außer bei generischen Impfstoffen)."
 
 msgid "A substance with optional strength or a brand."
 msgstr "Ein Wirkstoff, optional mit Stärke, oder ein Produkt."
@@ -14237,8 +14038,8 @@ msgstr "abgelehnt"
 msgid "Substances consumed by the patient:"
 msgstr "Vom Patienten konsumierte Substanzen:"
 
-msgid "Intake"
-msgstr "Einnahme"
+msgid "Showing consumable substances."
+msgstr "Zeige Substanzen (Wirkstoffe)."
 
 msgid "Application"
 msgstr "Anwendung"
@@ -15756,6 +15557,9 @@ msgstr "Meßmethoden-URL"
 msgid "URL for measurements encyclopedia."
 msgstr "URL zum Lexikon mit Meßmethoden."
 
+msgid "Drug data source"
+msgstr "Medikamentenquelle"
+
 msgid "Select the drug data source."
 msgstr "Wählen Sie die Medikamentenquelle."
 
@@ -16130,11 +15934,11 @@ msgstr "Unterdrückte Hinweise"
 msgid "Manage dynamic hints suppressed in this patient."
 msgstr "Verwalten der bei diesem Patienten unterdrückten dynamischen Hinweise."
 
-msgid "Smoking status"
-msgstr "Rauchstatus"
+msgid "Substance abuse"
+msgstr "Substanzmißbrauch"
 
-msgid "Manage smoking status of this patient."
-msgstr "Rauchstatus dieses Patienten bearbeiten."
+msgid "Manage substance abuse documentation of this patient."
+msgstr "Dokumentation zum Substanzgebrauch dieses Patienten bearbeiten."
 
 msgid "&Add / Edit ..."
 msgstr "Hinzufügen/Bearbeiten ..."
@@ -17903,6 +17707,316 @@ msgstr "Familienanamnese hinzufügen"
 
 msgid "Editing family history"
 msgstr "Familienanamnese bearbeiten"
+
+msgid ""
+"\n"
+"Please select the default drug data source from the list below.\n"
+"\n"
+"Note that to actually use it you need to have the database installed, too."
+msgstr ""
+"\n"
+"Wählen Sie die gewünschte Medikamentenquelle aus der Liste.\n"
+"\n"
+"Sie müssen zur Benutzung diese Quelle natürlich auch installiert haben."
+
+msgid "Configuring default drug data source"
+msgstr "Einstellen der Medikamentenquelle"
+
+msgid "No default drug database configured."
+msgstr "Es ist keine Medikamentendatenbank voreingestellt."
+
+msgid "There is no default drug database configured."
+msgstr "Es ist keine Medikamentendatenbank eingestellt."
+
+msgid "Jumping to drug database"
+msgstr "Medikamentendatenbank aufrufen"
+
+msgid "Cannot import drugs from IFAP into chart without chart."
+msgstr ""
+
+#, python-format
+msgid "Cannot call IFAP via [%s]."
+msgstr "Kann IFAP nicht mittels [%s] starten."
+
+#, python-format
+msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
+msgstr "Kann Transferdatei [%s] (IFAP <-> GNUmed) nicht anlegen."
+
+msgid "Current medication"
+msgstr "Derzeitige Medikation"
+
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
+msgstr ""
+"\n"
+"Die GNUmed bekannten ATC-Codes.\n"
+
+msgid "Showing ATC codes."
+msgstr "Zeige ATC-Codes."
+
+msgid "Choose an ATC import config file"
+msgstr "Wählen Sie eine Konfigurationsdatei für den ATC-Import"
+
+msgid "config files"
+msgstr "Konfigurationsdateien"
+
+msgid "importing ATC reference data"
+msgstr "Import von ATC-Referenzdaten"
+
+msgid "Successfully imported ATC reference data."
+msgstr "ATC-Referenzdaten erfolgreich importiert."
+
+msgid "Importing ATC reference data failed."
+msgstr "Import von ATC-Referenzdaten schlug fehl."
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr "Wählen Sie einen ATC (Anatomisch-Therapeutisch-Chemischen) Code."
+
+msgid "Cannot edit this substance. It is in use."
+msgstr "Kann Substanz nicht verändern. Es ist in Benutzung."
+
+msgid "Adding new consumable substance"
+msgstr "Neue Substanz hinzufügen"
+
+msgid "Editing consumable substance"
+msgstr "Substanz bearbeiten"
+
+msgid "Cannot delete this substance. It is in use."
+msgstr "Kann Substanz nicht löschen, da sie in Benutzung ist."
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+"\n"
+"Diese Substanzen sind derzeit in GNUmed hinterlegt.\n"
+
+msgid "Import"
+msgstr "Import"
+
+msgid "Import consumable substances from a drug database."
+msgstr "Substanzen aus externer Datenbank holen."
+
+msgid "Cannot save consumable substance. Missing essential input."
+msgstr "Kann Substanz nicht speichern. Es fehlen Angaben."
+
+#, python-format
+msgid "Cannot save consumable substance. %s"
+msgstr "Kann Substanz nicht speichern. %s"
+
+msgid "The substance with optional strength."
+msgstr "Der Wirkstoff, optional mit Dosisangabe."
+
+msgid "Cannot remove this component from the drug. It is in use."
+msgstr ""
+"Kann Medikamentenbestandteil nicht entfernen. Das Medikament ist in "
+"Benutzung."
+
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr ""
+"\n"
+"Diese Medikamentenbestandteile sind derzeit in GNUmed hinterlegt.\n"
+
+msgid "Showing drug brand components."
+msgstr "Zeige Medikamentenbestandteile (Wirkstoffe)."
+
+msgid "Adding new drug component"
+msgstr "Medikamentenbestandteil hinzufügen"
+
+msgid "Editing drug component"
+msgstr "Medikamentenbestandteil bearbeiten"
+
+msgid "Cannot edit drug component. It is in use."
+msgstr ""
+"Kann Medikamentenbestandteil nicht verändern. Das Medikament ist in "
+"Benutzung."
+
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr ""
+"Kann Medikamentenbestandteil nicht speichern. Ungültige oder fehlende "
+"Angaben."
+
+msgid "A drug component with optional strength."
+msgstr "Ein Arzneibestandteil, optional mit Dosis."
+
+msgid "Editing drug"
+msgstr "Medikament bearbeiten"
+
+#, python-format
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+"Kann das Arzneiprodukt\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht bearbeiten, da es in Gebrauch ist.\n"
+
+msgid "Adding new drug brand"
+msgstr "Füge neues Medikament hinzu"
+
+msgid "Editing drug brand"
+msgstr "Bearbeite Medikament"
+
+msgid "Manage consumable substances"
+msgstr "Wirkstoffe verwalten"
+
+msgid "not in use"
+msgstr "nicht in Gebrauch"
+
+#, python-format
+msgid "ATC: %s\n"
+msgstr "ATC: %s\n"
+
+msgid "Editing medication"
+msgstr "Bearbeite Medikation"
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann den Impfstoff\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht verändern. Bearbeiten Sie\n"
+"Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid "Deleting medication"
+msgstr "Medikament löschen"
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+"Kann dieses Medikament nicht löschen\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"weil es sich um einen Impfstoff handelt. Löschen\n"
+"Sie Impfstoffe bitte in der Impfverwaltung !\n"
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+"\n"
+"Die derzeit in GNUmed hinterlegten, handelsüblichen Medikamente.\n"
+
+msgid "Showing branded drugs."
+msgstr "Zeige Medikamente."
+
+msgid "Import substances and brands from a drug database."
+msgstr "Substanzen und Medikamente aus einer Datenbank importieren."
+
+msgid "Managing components of a drug"
+msgstr "Die Bestandteile eines Medikaments verwalten"
+
+#, python-format
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+"Kann die Bestandteile des Arzneiprodukts\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"nicht verwalten, da es derzeit von Patienten eingenommen wird.\n"
+
+msgid "Pick the substances which are components of this drug."
+msgstr "Wählen Sie die Bestandteile des Arzneiprodukts."
+
+msgid "Components of drug"
+msgstr "Arzneibestandteile"
+
+#, python-format
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+"Anpassen der Bestandteile von \"%s\"\n"
+"\n"
+"Das Medikament muß mindestens einen Bestandteil enthalten.\n"
+"Jeder Bestandteil kann nur einmal enthalten sein."
+
+msgid "Managing components of a drug ..."
+msgstr "Die Bestandteile eines Medikaments verwalten..."
+
+msgid "Cannot edit drug brand. It is in use."
+msgstr "Kann Medikament nicht verändern. Es ist in Benutzung."
+
+msgid "Checking brand data"
+msgstr "Prüfe Produktdaten"
+
+#, python-format
+msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+"Ihre Eingabendaten:\n"
+"\n"
+" [%s %s]\n"
+"existieren bereits als Medikament."
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
+msgstr ""
+"Sie haben dem Medikament keine Wirkstoffe\n"
+"als Bestandteile zugeordnet.\n"
+"\n"
+"Ohne diese Zuordnung können Sie das\n"
+"Medikament keinem Patienten zuordnen.\n"
+"\n"
+"Wollen Sie das Medikament trotzdem\n"
+"ohne Bestandteile speichern ?"
+
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr "Kann Medikament nicht speichert. Ungültige oder fehlende Angaben."
+
+msgid ""
+"The brand name of the drug.\n"
+"\n"
+"Note: a brand name will need to be linked to\n"
+"one or more components before it can be used,\n"
+"except in the case of fake (generic) vaccines."
+msgstr ""
+"Der Produktname des Medikaments.\n"
+"\n"
+"Achtung: Dem Produkt müssen eine oder mehrere\n"
+"Substanzen zugeordnet werden, ehe es verwendet\n"
+"werden kann (außer bei generischen Impfstoffen)."
 
 msgid "No EMR data loaded."
 msgstr "Keine Karteieinträge geladen."
@@ -19764,6 +19878,39 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "&Unknown"
+#~ msgstr "&Unbekannt"
+
+#~ msgid "&Never smoked"
+#~ msgstr "&Nie geraucht"
+
+#~ msgid "&Smokes or smoked"
+#~ msgstr "&Rauch(te)"
+
+#~ msgid "Select if the smoking status is unknown (say, unasked so far)."
+#~ msgstr ""
+#~ "Hier markieren, wenn der Rauchstatus unbekannt ist (z.B. bislang nicht "
+#~ "erfragt)."
+
+#~ msgid ""
+#~ "Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
+#~ "smoker)."
+#~ msgstr ""
+#~ "Hier markieren, wenn der Patient nie (\"einmal probiert\" zählt nicht) "
+#~ "geraucht hat (nicht: Ex-Raucher)."
+
+#~ msgid "When was smoking status last confirmed (mostly \"today\") ?"
+#~ msgstr "Wann wurde der Rauchstatus zuletzt überprüft (meist \"heute\") ?"
+
+#~ msgid "active tobacco use (%s)"
+#~ msgstr "aktiver Tabakgebrauch (%s)"
+
+#~ msgid "Last confirmed: %s%s"
+#~ msgstr "Zuletzt überprüft: %s%s"
+
+#~ msgid "Smoking status"
+#~ msgstr "Rauchstatus"
+
 #~ msgid "Journal"
 #~ msgstr "Journal"
 
@@ -20096,9 +20243,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Now (&S)"
 #~ msgstr "jetzt (&S)"
-
-#~ msgid "Check here for printing."
-#~ msgstr "Hier markieren für Ausdruck."
 
 #~ msgid "Print immediately without further ado."
 #~ msgstr "Sofort und ausschließlich ausdrucken."
@@ -20665,10 +20809,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid " Code: %s\n"
 #~ msgstr " Code: %s\n"
 
-#~ msgid ""
-#~ "Measurement details:                                               \n"
-#~ msgstr "Meßwertdetails:                                                    \n"
-
 #~ msgid "Amount per dose: %s%s"
 #~ msgstr "Menge pro Dosis: %s%s"
 
@@ -20715,9 +20855,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid " %s hospital stays"
 #~ msgstr " %s Krankenhausaufenthalt(e)"
-
-#~ msgid " Type: %s"
-#~ msgstr " Typ: %s"
 
 #~ msgid "Hospital stays: %s"
 #~ msgstr "Krankenhausaufenthalte: %s"
@@ -21018,9 +21155,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "<--GI-->"
 #~ msgstr "←Magen-Darm→"
-
-#~ msgid "Other:"
-#~ msgstr "Sonstige:"
 
 #~ msgid "FreeDiams path"
 #~ msgstr "FreeDiams-Pfad"
@@ -21503,9 +21637,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "&Provinces"
 #~ msgstr "&Bundesländer"
-
-#~ msgid "Manage substances in use."
-#~ msgstr "Substanzen (Wirkstoffe) verwalten."
 
 #~ msgid "Drugs"
 #~ msgstr "Medikamente"
