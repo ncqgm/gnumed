@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# ===========================================================
+# Create a DICOMDIR file from a tree of DICOM instance files
+# ===========================================================
+DICOMDIR_FILE="$1"
+RECURSE_BASE="$2"
+LOG="${DICOMDIR_FILE}.log"
+
+OPTS="--verbose"
+OPTS="${OPTS} --fileset-id GNUMED_PATIENT"
+#OPTS="${OPTS} --descriptor=FILESET_DESCRIPTOR_FILENAME_SUCH_AS_README.TXT"
+OPTS="${OPTS} --recurse --input-directory ${RECURSE_BASE} --pattern IM*"
+OPTS="${OPTS} --replace --output-file ${DICOMDIR_FILE}"
+OPTS="${OPTS} --warn-inconsist-files"
+#OPTS="${OPTS} --abort-inconsist-file"			# would be preferable but aborts on 'Last^First' vs 'Last^First^^'
+OPTS="${OPTS} --map-filenames"
+OPTS="${OPTS} --allow-retired-sop"
+OPTS="${OPTS} --no-xfer-check"
+OPTS="${OPTS} --invent"
+
+RUN_CMD="dcmgpdir ${OPTS}"
+echo "${RUN_CMD}" > ${LOG} 2>&1
+${RUN_CMD} >> ${LOG} 2>&1

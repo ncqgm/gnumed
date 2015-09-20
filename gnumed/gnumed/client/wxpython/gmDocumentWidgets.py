@@ -26,12 +26,14 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmHooks
+from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmDocuments
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPraxis
+from Gnumed.business import gmDICOM
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmRegetMixin
@@ -40,6 +42,7 @@ from Gnumed.wxpython import gmPlugin
 from Gnumed.wxpython import gmEMRStructWidgets
 from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmListWidgets
+from Gnumed.wxpython import gmRegetMixin
 
 
 _log = logging.getLogger('gm.ui')
@@ -2542,6 +2545,359 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 			emr = curr_pat.get_emr()
 			enc = emr.active_encounter
 			gmDocuments.delete_document(document_id = self.__curr_node_data['pk_doc'], encounter_id = enc['pk_encounter'])
+
+
+#============================================================
+# PACS
+#============================================================
+from Gnumed.wxGladeWidgets.wxgPACSPluginPnl import wxgPACSPluginPnl
+
+class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
+
+	def __init__(self, *args, **kwargs):
+		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
+		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
+		self.__pacs = None
+		self.__patient = None
+
+		self.__init_ui()
+		self.__register_interests()
+
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __init_ui(self):
+		self._LCTRL_studies.set_columns(columns = [_('Study date'), _('Description'), _('Study time'), _('Patient'), _('DOB'), _('Gender')])
+		self._LCTRL_series.set_columns(columns = [_('Description'), _('Date'), _('Time')])
+
+	#--------------------------------------------------------
+	def __reset_patient_data(self):
+		self._LBL_patient_identification.SetLabel(u'')
+		self._LBL_no_of_studies.SetLabel(u'')
+		self._BTN_browse_patient.Disable()
+		self._BTN_browse_study.Disable()
+		self._BTN_export_study.Disable()
+		self._BTN_export_all_studies.Disable()
+		self._LCTRL_studies.set_string_items(items = [])
+		self._LCTRL_series.set_string_items(items = [])
+		self.Layout()
+
+	#--------------------------------------------------------
+	def __reset_server_identification(self):
+		self._LBL_PACS_identification.SetLabel(_('<not connected>'))
+
+	#--------------------------------------------------------
+	def __reset_ui_content(self):
+		self.__reset_server_identification()
+		self.__reset_patient_data()
+
+	#-----------------------------------------------------
+	def __connect(self):
+		self.__pacs = None
+
+		self.__reset_server_identification()
+
+		host = self._TCTRL_host.Value.strip()
+		port = self._TCTRL_port.Value.strip()
+		if port is u'':
+			self._LBL_PACS_identification.SetLabel(_('Cannot connect without port (try 8042).'))
+			return False
+
+		user = self._TCTRL_user.Value
+		if user == u'':
+			user = None
+		self._LBL_PACS_identification.SetLabel(_('Connect to [%s] @ port %s as "%s".') % (host, port, user))
+		password = self._TCTRL_password.Value
+		if password == u'':
+			password = None
+
+		pacs = gmDICOM.cOrthancServer()
+		if not pacs.connect(host = host, port = port, user = user, password = password):		#, expected_aet = 'another AET'
+			self._LBL_PACS_identification.SetLabel(_('Cannot connect to PACS.'))
+			_log.error('error connecting to server:', pacs.connect_error)
+			return False
+
+		self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, DB v%s)') % (
+			pacs.server_identification['Name'],
+			pacs.server_identification['DicomAet'],
+			pacs.server_identification['Version'],
+			pacs.server_identification['DatabaseVersion']
+		))
+
+		self.__pacs = pacs
+		return True
+
+	#--------------------------------------------------------
+	def __refresh_patient_data(self):
+
+		self.__reset_patient_data()
+
+		if not self.__connect():
+			return False
+
+		info_lines = []
+		person = gmPerson.gmCurrentPatient()
+		for pacs_id in person.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
+			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s]') % pacs_id)
+
+		# try to find patient
+		matching_pats = self.__pacs.get_matching_patients(person = person)
+		if len(matching_pats) == 0:
+			info_lines.append(_('PACS: no patients with matching IDs found'))
+		no_of_studies = 0
+		for pat in matching_pats:
+			info_lines.append (u'%s [#%s]' % (
+				gmTools.format_dict_like (
+					pat['MainDicomTags'],
+					relevant_keys = [u'PatientName', u'PatientSex', u'PatientBirthDate', u'PatientID'],
+					template = u'PACS patient: "%(PatientID)s" = %(PatientName)s (%(PatientSex)s) %(PatientBirthDate)s',
+					missing_key_template = u'?'
+				),
+				pat['ID']
+			))
+			no_of_studies += len(pat['Studies'])
+		if len(matching_pats) > 1:
+			info_lines.append(_('PACS: more than one patient with matching IDs found, carefully check studies'))
+
+		self._LBL_patient_identification.SetLabel(u'\n'.join(info_lines))
+
+		# get studies
+		study_list_items = []
+		study_list_data = []
+		if len(matching_pats) > 0:
+			self.__patient = matching_pats[0]
+			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
+				for study in pat['studies']:
+					study_list_items.append( [
+						study['date'],
+						gmTools.coalesce (
+							gmTools.none_if(study['description'], u'(null)', True),
+							_(u'%s series') % len(study['series']),
+							_(u'%%s (%s series)') % len(study['series'])
+						),
+						study['time'],
+						pat['name'],
+						pat['date_of_birth'],
+						pat['gender']
+					] )
+					study_list_data.append(study)
+
+		self._LCTRL_studies.set_string_items(items = study_list_items)
+		self._LCTRL_studies.set_column_widths()
+		self._LCTRL_studies.set_data(data = study_list_data)
+
+		if len(study_list_items) > 0:
+			self._LBL_no_of_studies.SetLabel(_('%s studies') % len(study_list_items))
+			self._BTN_browse_patient.Enable()
+			self._BTN_browse_study.Enable()
+			self._BTN_export_study.Enable()
+			self._BTN_export_all_studies.Enable()
+
+		self.Layout()
+		return True
+
+	#--------------------------------------------------------
+	# reget-on-paint mixin API
+	#--------------------------------------------------------
+	def _populate_with_data(self):
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			self.__reset_ui_content()
+			return True
+
+		if not self.__refresh_patient_data():
+			return False
+
+		return True
+
+	#--------------------------------------------------------
+	# event handling
+	#--------------------------------------------------------
+	def __register_interests(self):
+		# client internal signals
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+
+		# generic database change signal
+		gmDispatcher.connect(signal = u'gm_table_mod', receiver = self._on_database_signal)
+
+	#--------------------------------------------------------
+	def _on_pre_patient_unselection(self):
+		# only empty out here, do NOT access the patient
+		# or else we will access the old patient while it
+		# may not be valid anymore ...
+		self.__reset_ui_content()
+
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		self._schedule_data_reget()
+
+	#--------------------------------------------------------
+	def _on_database_signal(self, **kwds):
+
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			# probably not needed:
+			#self._schedule_data_reget()
+			return True
+
+		if kwds['pk_identity'] != pat.ID:
+			return True
+
+		if kwds['table'] == u'dem.lnk_identity2ext_id':
+			self._schedule_data_reget()
+			return True
+
+		return True
+
+	#--------------------------------------------------------
+	def _on_connect_button_pressed(self, event):
+		event.Skip()
+
+		if not self.__connect():
+			return False
+
+		if not self.__refresh_patient_data():
+			return False
+
+		return True
+
+	#--------------------------------------------------------
+	def _on_browse_pacs_button_pressed(self, event):
+		event.Skip()
+		if self.__connect() is False:
+			return
+		gmNetworkTools.open_url_in_browser(self.__pacs.url_browse_patients)
+
+	#--------------------------------------------------------
+	def _on_browse_patient_button_pressed(self, event):
+		event.Skip()
+		if self.__connect() is False:
+			return
+		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__patient['ID']))
+
+	#--------------------------------------------------------
+	def _on_browse_study_button_pressed(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		if study_data is None:
+			return
+		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_study(study_id = study_data['orthanc_id']))
+
+	#--------------------------------------------------------
+	def _on_export_study_button_pressed(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) == 0:
+			return
+
+		wx.BeginBusyCursor()
+		filename = self.__pacs.get_studies_as_zip_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ])
+		wx.EndBusyCursor()
+
+		if filename is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Exporting DICOM studies'),
+				error = _('Unable to export selected studies.')
+			)
+			return
+
+		# check size and confirm if huge
+		zip_size = os.path.getsize(filename)
+		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
+			really_export = gmGuiHelpers.gm_show_question (
+				title = _('Exporting DICOM studies'),
+				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
+				cancel_button = False
+			)
+			if not really_export:
+				wx.BeginBusyCursor()
+				gmTools.remove_file(filename)
+				wx.EndBusyCursor()
+				return
+
+		# import into export area
+		wx.BeginBusyCursor()
+		person = gmPerson.gmCurrentPatient()
+		person.export_area.add_file (
+			filename = filename,
+			hint = _('DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+				self.__patient['MainDicomTags']['PatientID'],
+				self.__pacs.server_identification['Name'],
+				self.__pacs.server_identification['DicomAet']
+			)
+		)
+		gmTools.remove_file(filename)
+		wx.EndBusyCursor()
+
+	#--------------------------------------------------------
+	def _on_export_all_studies_button_pressed(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		wx.BeginBusyCursor()
+		filename = self.__pacs.get_studies_as_zip_with_dicomdir(patient_id = self.__patient['ID'])
+		wx.EndBusyCursor()
+
+		if filename is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Exporting DICOM studies'),
+				error = _('Unable to export studies.')
+			)
+			return
+
+		# check size and confirm if huge
+		zip_size = os.path.getsize(filename)
+		if zip_size > (300 * gmTools._MB):		# ~ 1/2 CD-ROM
+			really_export = gmGuiHelpers.gm_show_question (
+				title = _('Exporting DICOM studies'),
+				question = _('The DICOM studies are %s in compressed size.\n\nReally copy to export area ?') % gmTools.size2str(zip_size),
+				cancel_button = False
+			)
+			if not really_export:
+				wx.BeginBusyCursor()
+				gmTools.remove_file(filename)
+				wx.EndBusyCursor()
+				return
+
+		# import into export area
+		wx.BeginBusyCursor()
+		person = gmPerson.gmCurrentPatient()
+		person.export_area.add_file (
+			filename = filename,
+			hint = _('All DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
+				self.__patient['MainDicomTags']['PatientID'],
+				self.__pacs.server_identification['Name'],
+				self.__pacs.server_identification['DicomAet']
+			)
+		)
+		gmTools.remove_file(filename)
+		wx.EndBusyCursor()
+
+	#--------------------------------------------------------
+	def _on_studies_list_item_selected(self, event):
+		event.Skip()
+		if self.__pacs is None:
+			return
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = True)
+		if study_data is None:
+			return
+		series_list_items = []
+		series_list_data = []
+		for series in study_data['series']:
+			series_list_items.append([ _(u'%s%s: %s images') % (series['modality'], gmTools.coalesce(series['body_part'], u'', _(u' of %s')), series['instances']), series['date'], series['time']])
+			series_list_data.append(series)
+
+		self._LCTRL_series.set_string_items(items = series_list_items)
+		self._LCTRL_series.set_column_widths()
+		self._LCTRL_series.set_data(data = series_list_data)
+
 #============================================================
 # main
 #------------------------------------------------------------

@@ -6,7 +6,13 @@ license: GPL v2 or later
 #============================================================
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, <karsten.hilbert@gmx.net>"
 
-import types, sys, string, datetime, logging, time, pprint
+import types
+import sys
+import string
+import datetime
+import logging
+import time
+import pprint
 
 
 if __name__ == '__main__':
@@ -771,7 +777,7 @@ FROM (
 			__current_version[col] = rows[0][col]
 		txt += u'-' * 20 + '\n'
 		txt += _('\ncurrent values:\n')
-		txt += pprint.pformat(__current_version)
+		txt += gmTools.format_dict_like(__current_version, tabular = False, value_delimiters = None, left_margin = 1)
 		txt += u'\n'
 		if __current_version['row_version'] == 0:
 			txt += u'-' * 20 + '\n'
@@ -1499,7 +1505,7 @@ FROM (
 			__current_version[col] = rows[0][col]
 		txt += u'-' * 20 + '\n'
 		txt += _('\ncurrent values:\n')
-		txt += pprint.pformat(__current_version)			# pprint.pformat automatically sorts dictionary
+		txt += gmTools.format_dict_like(__current_version, tabular = False, value_delimiters = None, left_margin = 1)
 		txt += u'\n'
 		if __current_version['row_version'] == 0:
 			txt += u'-' * 20 + '\n'
@@ -2572,7 +2578,7 @@ limit 1
 			__current_version[col] = rows[0][col]
 		txt += u'-' * 20 + '\n'
 		txt += _('\ncurrent values:\n')
-		txt += pprint.pformat(__current_version)			# pprint.pformat automatically sorts dictionary
+		txt += gmTools.format_dict_like(__current_version, tabular = False, value_delimiters = None, left_margin = 1)
 		txt += u'\n'
 		if __current_version['row_version'] == 0:
 			txt += u'-' * 20 + '\n'

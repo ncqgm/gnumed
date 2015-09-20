@@ -460,7 +460,7 @@ class cExportArea(object):
 		r = rows[0]
 		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
 	#--------------------------------------------------------
-	def export(self, base_dir=None, items=None, with_metadata=True):
+	def export(self, base_dir=None, items=None, with_metadata=True, expand_compressed=False):
 
 		if items is None:
 			items_found = self.items
@@ -522,7 +522,7 @@ class cExportArea(object):
 		# footer
 		_cfg = gmCfg2.gmCfgData()
 		idx_file.write(_html_end % (
-			gmTools.html_escape_string(gmDateTime.pydt_strftime(format = '%Y %B %d', encoding = u'utf8')),
+			gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = u'utf8')),
 			gmTools.html_escape_string(_cfg.get(option = u'client_version'))
 		))
 		idx_file.close()
@@ -544,7 +544,7 @@ class cExportArea(object):
 			pat['firstnames'],
 			gmTools.coalesce(pat['gender'], u'?'),
 			pat.get_formatted_dob('%Y-%m-%d'),
-			gmDateTime.pydt_strftime(format = '%Y-%m-%d', encoding = u'utf8'),
+			gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y-%m-%d', encoding = u'utf8'),
 			pat.ID,
 			_cfg.get(option = u'client_version'),
 			u' / '.join([ u'%s = %s (%s)' % (g['tag'], g['label'], g['l10n_label']) for g in pat.gender_list ])

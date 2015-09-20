@@ -23,6 +23,7 @@ import getpass
 import io
 import functools
 import json
+import shutil
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
@@ -141,6 +142,21 @@ def mkdir(directory=None, mode=None):
 	return True
 
 #---------------------------------------------------------------------------
+def rmdir(directory):
+	#-------------------------------
+	def _on_rm_error(func, path, exc):
+		_log.error(u'error while shutil.rmtree(%s)', path, exc_info=exc)
+		return True
+	#-------------------------------
+	error_count = 0
+	try:
+		shutil.rmtree(directory, False, _on_rm_error)
+	except StandardError:
+		_log.exception('cannot shutil.rmtree(%s)', directory)
+		error_count += 1
+	return error_count
+
+#---------------------------------------------------------------------------
 def mk_sandbox_dir(prefix=None, base_dir=None):
 	if prefix is None:
 		if base_dir is None:
@@ -152,6 +168,16 @@ def mk_sandbox_dir(prefix=None, base_dir=None):
 		suffix = u'',
 		dir = base_dir
 	)
+
+#---------------------------------------------------------------------------
+def parent_dir(directory):
+	return os.path.abspath(os.path.join(directory, '..'))
+
+#---------------------------------------------------------------------------
+def dirname_stem(directory):
+	# /home/user/dir/ -> dir
+	# /home/user/dir  -> dir
+	return os.path.basename(os.path.normpath(directory))		# normpath removes trailing slashes if any
 
 #---------------------------------------------------------------------------
 def dir_is_empty(directory=None):
@@ -414,6 +440,18 @@ def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', tar
 	return target_file
 
 #---------------------------------------------------------------------------
+def remove_file(filename, log_error=True):
+	# attempt file remove and ignore (but log) errors
+	try:
+		os.remove(filename)
+	except StandardError:
+		if log_error:
+			_log.exception('cannot os.remove(%s)', filename)
+		return False
+
+	return True
+
+#---------------------------------------------------------------------------
 def gpg_decrypt_file(filename=None, passphrase=None):
 
 	if platform.system() == 'Windows':
@@ -517,10 +555,18 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, encoding='utf-8', **
 
 #---------------------------------------------------------------------------
 def fname_stem(filename):
+	# /home/user/dir/filename.ext -> filename
 	return os.path.splitext(os.path.basename(filename))[0]
 
 #---------------------------------------------------------------------------
+def fname_stem_with_path(filename):
+	# /home/user/dir/filename.ext -> /home/user/dir/filename
+	return os.path.splitext(filename)[0]
+
+#---------------------------------------------------------------------------
 def fname_extension(filename=None, fallback=None):
+	# /home/user/dir/filename.ext -> .ext
+	# '' or '.' -> fallback if any else ''
 	ext = os.path.splitext(filename)[1]
 	if ext.strip() not in [u'.', u'']:
 		return ext
@@ -530,6 +576,7 @@ def fname_extension(filename=None, fallback=None):
 
 #---------------------------------------------------------------------------
 def fname_dir(filename):
+	# /home/user/dir/filename.ext -> /home/user/dir
 	return os.path.split(filename)[0]
 
 #---------------------------------------------------------------------------
@@ -613,6 +660,7 @@ _MB = 1024 * _kB
 _GB = 1024 * _MB
 _TB = 1024 * _GB
 _PB = 1024 * _TB
+
 #---------------------------------------------------------------------------
 def size2str(size=0, template=u'%s'):
 	if size == 1:
@@ -628,6 +676,7 @@ def size2str(size=0, template=u'%s'):
 	if size < _PB:
 		return template % u'%.1f TB' % (float(size) / _TB)
 	return template % u'%.1f PB' % (float(size) / _PB)
+
 #---------------------------------------------------------------------------
 def bool2subst(boolean=None, true_return=True, false_return=False, none_return=None):
 	if boolean is None:
@@ -637,6 +686,7 @@ def bool2subst(boolean=None, true_return=True, false_return=False, none_return=N
 	if not boolean:
 		return false_return
 	raise ValueError('bool2subst(): <boolean> arg must be either of True, False, None')
+
 #---------------------------------------------------------------------------
 def bool2str(boolean=None, true_str='True', false_str='False'):
 	return bool2subst (
@@ -644,6 +694,7 @@ def bool2str(boolean=None, true_str='True', false_str='False'):
 		true_return = true_str,
 		false_return = false_str
 	)
+
 #---------------------------------------------------------------------------
 def none_if(value=None, none_equivalent=None, strip_string=False):
 	"""Modelled after the SQL NULLIF function."""
@@ -656,6 +707,7 @@ def none_if(value=None, none_equivalent=None, strip_string=False):
 	if stripped == none_equivalent:
 		return None
 	return value
+
 #---------------------------------------------------------------------------
 def coalesce(initial=None, instead=None, template_initial=None, template_instead=None, none_equivalents=None, function_initial=None):
 	"""Modelled after the SQL coalesce function.
@@ -991,29 +1043,57 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 	return True
 
 #---------------------------------------------------------------------------
-def format_dict_like(d, relevant_keys=None, template=None):
+def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=u'<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=(u'>>>', u'<<<')):
 	if template is not None:
 		# all keys in template better exist in d
 		try:
 			return template % d
 		except KeyError:
-			if relevant_keys is not None:
-				for key in relevant_keys:
-					try:
-						d[key]
-					except KeyError:
-						d[key] = u'<[%s] MISSING>' % key
-				return template % d
+			# or else
+			_log.exception('template contains %%()s key(s) which do not exist in dict')
+		# try to extend dict <d> to contain all required keys,
+		# for that to work <relevant_keys> better list all
+		# keys used in <template>
+		if relevant_keys is not None:
+			for key in relevant_keys:
+				try:
+					d[key]
+				except KeyError:
+					d[key] = missing_key_template % {u'key': key}
+			return template % d
 
 	if relevant_keys is None:
 		relevant_keys = d.keys()
 	lines = []
+	if value_delimiters is None:
+		delim_left = u''
+		delim_right = u''
+	else:
+		delim_left, delim_right = value_delimiters
+	if tabular:
+		max_len = max([ len(i) for i in relevant_keys ])
+		max_len_str = u'%s.%s' % (max_len, max_len)
+		line_template = (u' ' * left_margin) + u'%' + max_len_str + ('s: %s%%s%s' % (delim_left, delim_right))
+	else:
+		line_template = (u' ' * left_margin) + u'%%s: %s%%s%s' % (delim_left, delim_right)
 	for key in relevant_keys:
 		try:
-			lines.append(u'%s: >>>%s<<<' % (key, d[key]))
+			lines.append(line_template % (key, d[key]))
 		except KeyError:
 			pass
 	return u'\n'.join(lines)
+
+#---------------------------------------------------------------------------
+def normalize_dict_like(d, required_keys, missing_key_template=u'<[%(key)s] MISSING>'):
+	for key in required_keys:
+		try:
+			d[key]
+		except KeyError:
+			if missing_key_template is None:
+				d[key] = None
+			else:
+				d[key] = missing_key_template % {'key': key}
+	return d
 
 #---------------------------------------------------------------------------
 #---------------------------------------------------------------------------
@@ -1448,6 +1528,10 @@ second line\n
 		compare_dict_likes(d1, d2, 'same1', 'same2')
 		print(format_dict_like(d1))
 		print(format_dict_like(d2))
+
+	#-----------------------------------------------------------------------
+	def test_rm_dir():
+		rmdir('c:\windows\system32')
 	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
@@ -1471,6 +1555,7 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	test_compare_dicts()
+	#test_compare_dicts()
+	test_rm_dir()
 
 #===========================================================================

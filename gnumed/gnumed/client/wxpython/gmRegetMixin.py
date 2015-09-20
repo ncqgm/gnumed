@@ -141,6 +141,7 @@ class cRegetOnPaintMixin:
 	def repopulate_ui(self):
 		"""Just a glue method to make this compatible with notebook plugins."""
 		self.__repopulate_ui()
+
 #===========================================================================
 # main
 #---------------------------------------------------------------------------

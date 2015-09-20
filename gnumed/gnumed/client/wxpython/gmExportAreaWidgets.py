@@ -231,7 +231,7 @@ class cExportAreaPluginPnl(wxgExportAreaPluginPnl.wxgExportAreaPluginPnl, gmRege
 				u'Create descriptive metadata files\n'
 				u'and save them alongside the\n'
 				u'selected export area documents ?'
-			) % path,
+			),
 			cancel_button = True
 		)
 		if include_metadata is None:
@@ -530,7 +530,7 @@ class cPrintMgrPluginPnl(wxgPrintMgrPluginPnl.wxgPrintMgrPluginPnl, gmRegetMixin
 	def _on_table_mod(self, *args, **kwargs):
 		if kwargs['table'] != 'clin.export_item':
 			return
-		if self._RBTN_all_patients.Value is True
+		if self._RBTN_all_patients.Value is True:
 			self._schedule_data_reget()
 			return
 		pat = gmPerson.gmCurrentPatient()

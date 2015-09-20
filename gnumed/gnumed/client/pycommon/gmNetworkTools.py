@@ -39,6 +39,7 @@ _log = logging.getLogger('gm.net')
 #---------------------------------------------------------------------------
 def open_url_in_browser(url, new=2, autoraise=True, *args, **kwargs):
 	# url, new=0, autoraise=True
+	# new=2: open new tab if possible
 	try:
 		webbrowser.open(url, new = new, autoraise = autoraise, **kwargs)
 	except (webbrowser.Error, OSError, UnicodeEncodeError):
