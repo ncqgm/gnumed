@@ -167,26 +167,6 @@ else
 	echo "found"
 fi
 
-echo -n " 'gm-print_doc' command... "
-BIN=`which gm-print_doc`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'gm-print_doc' command installed."
-	echo "  INFO : It is used to print files from GNUmed."
-else
-	echo "found"
-fi
-
-echo -n " 'gm-convert_file' command... "
-BIN=`which gm-convert_file`
-if [ "x${BIN}x" == "xx" ]; then
-	echo ""
-	echo "  INFO : You don't seem to have the 'gm-convert_file' command installed."
-	echo "  INFO : It is used to convert files between formats from within GNUmed."
-else
-	echo "found"
-fi
-
 echo -n " 'pdflatex' command... "
 BIN=`which pdflatex`
 if [ "x${BIN}x" == "xx" ]; then
@@ -251,5 +231,86 @@ if [ "x${BIN}x" == "xx" ]; then
 else
 	echo "found"
 fi
+
+echo -n " 'gm-print_doc' command... "
+BIN=`which gm-print_doc`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-print_doc' command installed."
+	echo "  INFO : It is used to print files from GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-fax_doc' command... "
+BIN=`which gm-fax_doc`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-fax_doc' command installed."
+	echo "  INFO : It is used to fax files from GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-mail_doc' command... "
+BIN=`which gm-mail_doc`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-mail_doc' command installed."
+	echo "  INFO : It is used to e-mail files from GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-burn_doc' command... "
+BIN=`which gm-burn_doc`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-burn_doc' command installed."
+	echo "  INFO : It is used to burn to disk an ISO image of files from GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-convert_file' command... "
+BIN=`which gm-convert_file`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-convert_file' command installed."
+	echo "  INFO : It is used to convert files between formats from within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-create_datamatrix' command... "
+BIN=`which gm-create_datamatrix`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-create_datamatrix' command installed."
+	echo "  INFO : It is used to create data matrix barcodes from within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'gm-create_dicomdir' command... "
+BIN=`which gm-create_dicomdir`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'gm-create_dicomdir' command installed."
+	echo "  INFO : It is used to create DICOMDIR files from within GNUmed."
+else
+	echo "found"
+fi
+
+# obsolete
+#echo -n " 'gm-download_data' command... "
+#BIN=`which gm-download_data`
+#if [ "x${BIN}x" == "xx" ]; then
+#	echo ""
+#	echo "  INFO : You don't seem to have the 'gm-download_data' command installed."
+#	echo "  INFO : It is used to download data files from within GNUmed."
+#else
+#	echo "found"
+#fi
 
 #=================================================================
