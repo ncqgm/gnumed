@@ -49,18 +49,21 @@ _log = logging.getLogger('gm.ui')
 # EMR access helper functions
 #----------------------------------------------------------------
 def emr_access_spinner(time2spin=0):
-	"""Spin time in seconds."""
+	"""Spin time in seconds but let wx go on."""
 	if time2spin == 0:
 		return
-	sleep_time = 0.1
+	sleep_time = 0.1			# 100ms
 	total_rounds = int(time2spin / sleep_time)
 	if total_rounds < 1:
+		wx.Yield()
+		time.sleep(sleep_time)
 		return
 	rounds = 0
 	while rounds < total_rounds:
 		wx.Yield()
 		time.sleep(sleep_time)
 		rounds += 1
+
 #================================================================
 # performed procedure related widgets/functions
 #----------------------------------------------------------------
@@ -85,10 +88,10 @@ def manage_performed_procedures(parent=None):
 			beep = True
 		)
 		return False
+
 	#-----------------------------------------
 	def refresh(lctrl):
 		procs = emr.get_performed_procedures()
-
 		items = [
 			[
 				u'%s%s' % (
@@ -104,25 +107,27 @@ def manage_performed_procedures(parent=None):
 						)
 					)
 				),
+				p['performed_procedure'],
 				u'%s @ %s' % (p['unit'], p['organization']),
-				p['episode'],
-				p['performed_procedure']
+				p['episode']
 			] for p in procs
 		]
 		lctrl.set_string_items(items = items)
 		lctrl.set_data(data = procs)
+
 	#-----------------------------------------
 	gmListWidgets.get_choices_from_list (
 		parent = parent,
 		msg = _('\nSelect the procedure you want to edit !\n'),
 		caption = _('Editing performed procedures ...'),
-		columns = [_('When'), _('Where'), _('Episode'), _('Procedure')],
+		columns = [_('When'), _('Procedure'), _('Where'), _('Episode')],
 		single_selection = True,
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
 		refresh_callback = refresh
 	)
+
 #----------------------------------------------------------------
 def edit_procedure(parent=None, procedure=None):
 	ea = cProcedureEAPnl(parent = parent, id = -1)
@@ -135,6 +140,7 @@ def edit_procedure(parent=None, procedure=None):
 		return True
 	dlg.Destroy()
 	return False
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgProcedureEAPnl
 
