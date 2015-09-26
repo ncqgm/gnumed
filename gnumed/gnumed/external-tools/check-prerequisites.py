@@ -222,6 +222,17 @@ except ImportError:
 	print "  INFO : this is used to handle vCard data"
 	print "  INFO : GNUmed will still work without it"
 
+print " unidecode...",
+try:
+	import unidecode
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: unidecode not installed"
+	print "  INFO : this is used to transliterate names"
+	print "  INFO : GNUmed will still work without it"
+
 if missing:
 	print ""
 	print "sys.path is currently set as follows:"

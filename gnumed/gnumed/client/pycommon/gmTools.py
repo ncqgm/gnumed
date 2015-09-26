@@ -24,6 +24,7 @@ import io
 import functools
 import json
 import shutil
+import zipfile
 import datetime as pydt
 import re as regex
 import xml.sax.saxutils as xml_tools
@@ -438,6 +439,21 @@ def recode_file(source_file=None, target_file=None, source_encoding=u'utf8', tar
 	in_file.close()
 
 	return target_file
+
+#---------------------------------------------------------------------------
+def unzip_archive(archive_name, target_dir=None, remove_archive=False):
+	_log.debug('unzipping [%s] -> [%s]', archive_name, target_dir)
+	success = False
+	try:
+		with zipfile.ZipFile(archive_name) as archive:
+			archive.extractall(target_dir)
+		success = True
+	except StandardError:
+		_log.exception('cannot unzip')
+		return False
+	if remove_archive:
+		remove_file(archive_name)
+	return success
 
 #---------------------------------------------------------------------------
 def remove_file(filename, log_error=True):

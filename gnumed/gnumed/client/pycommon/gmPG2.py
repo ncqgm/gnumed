@@ -1088,6 +1088,7 @@ def bytea2file(data_query=None, filename=None, chunk_size=0, data_size=None, dat
 	result = bytea2file_object(data_query=data_query, file_obj=outfile, chunk_size=chunk_size, data_size=data_size, data_size_query=data_size_query)
 	outfile.close()
 	return result
+
 #------------------------------------------------------------------------
 def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=None, data_size_query=None):
 	"""Store data from a bytea field into a file.
@@ -1186,6 +1187,7 @@ def bytea2file_object(data_query=None, file_obj=None, chunk_size=0, data_size=No
 
 	conn.rollback()
 	return True
+
 #------------------------------------------------------------------------
 def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 	"""Store data from a file into a bytea field.
@@ -1236,6 +1238,218 @@ def file2bytea(query=None, filename=None, args=None, conn=None, file_md5=None):
 		conn.close()
 
 	return success_status
+
+#------------------------------------------------------------------------
+def file2lo(filename=None, conn=None, check_md5=False):
+	# 1 GB limit unless 64 bit Python build ...
+	file_size = os.path.getsize(filename)
+	if file_size > (1024 * 1024) * 1024:
+		_log.debug(u'file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
+#		return -1
+
+	if conn is None:
+		conn = get_raw_connection(readonly = False)
+		close_conn = conn.close
+	else:
+		close_conn = __noop
+	_log.debug(u'[%s] -> large object', filename)
+
+	# insert the data
+	lo = conn.lobject(0, 'w', 0, filename)
+	lo_oid = lo.oid
+	lo.close()
+	_log.debug('large object OID: %s', lo_oid)
+
+	# verify
+	if file_md5 is None:
+		conn.commit()
+		close_conn()
+		return lo_oid
+	cmd = u'SELECT md5(lo_get(%(loid)s::oid))'
+	args = {'loid': lo_oid}
+	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+	db_md5 = rows[0][0]
+	if file_md5 == db_md5:
+		conn.commit()
+		close_conn()
+		_log.debug('MD5 sums of data file and database large object match: [file::%s] = [DB::%s]', file_md5, db_md5)
+		return lo_oid
+	conn.rollback()
+	close_conn()
+	_log.error('MD5 sums of data file and database large object [%s] do not match: [file::%s] <> [DB::%s]', lo_oid, file_md5, db_md5)
+	return -1
+
+#------------------------------------------------------------------------
+def file2bytea_lo(filename=None, conn=None, file_md5=None):
+	# 1 GB limit unless 64 bit Python build ...
+	file_size = os.path.getsize(filename)
+	if file_size > (1024 * 1024) * 1024:
+		_log.debug(u'file size of [%s] > 1 GB, supposedly not supported by psycopg2 large objects (but seems to work anyway ?)', file_size)
+#		return -1
+
+	if conn is None:
+		conn = get_raw_connection(readonly = False)
+		close_conn = conn.close
+	else:
+		close_conn = __noop
+	_log.debug(u'[%s] -> large object', filename)
+
+	# insert the data
+	lo = conn.lobject(0, 'w', 0, filename)
+	lo_oid = lo.oid
+	lo.close()
+	_log.debug('large object OID: %s', lo_oid)
+
+	# verify
+	if file_md5 is None:
+		conn.commit()
+		close_conn()
+		return lo_oid
+	cmd = u'SELECT md5(lo_get(%(loid)s::oid))'
+	args = {'loid': lo_oid}
+	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': cmd, 'args': args}])
+	db_md5 = rows[0][0]
+	if file_md5 == db_md5:
+		conn.commit()
+		close_conn()
+		_log.debug('MD5 sums of data file and database large object match: [file::%s] = [DB::%s]', file_md5, db_md5)
+		return lo_oid
+	conn.rollback()
+	close_conn()
+	_log.error('MD5 sums of data file and database large object [%s] do not match: [file::%s] <> [DB::%s]', lo_oid, file_md5, db_md5)
+	return -1
+
+#------------------------------------------------------------------------
+def file2bytea_copy_from(table=None, columns=None, filename=None, conn=None, md5_query=None, file_md5=None):
+	# md5_query: dict{'cmd': ..., 'args': ...}
+
+	# UNTESTED
+
+	chunk_size = 32 * (1024 * 1024)
+	_log.debug('[%s] (%s bytes) --(%s bytes)-> %s(%s)', filename, os.path.getsize(filename), chunk_size, table, columns)
+	if conn is None:
+		conn = get_raw_connection(readonly = False)
+		close_conn = True
+	else:
+		close_conn = False
+	curs = conn.cursor()
+	# write
+	infile = file(filename, "rb")
+	curs.copy_from(infile, table, size = chunk_size, columns = columns)
+	infile.close()
+	curs.close()
+	if None in [file_md5, md5_query]:
+		conn.commit()
+		close_conn()
+		return True
+	# verify
+	rows, idx = run_ro_queries(link_obj = conn, queries = [md5_query])
+	db_md5 = rows[0][0]
+	if file_md5 == db_md5:
+		conn.commit()
+		close_conn()
+		_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
+		return True
+	close_conn()
+	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+	return False
+
+#------------------------------------------------------------------------
+def file2bytea_overlay(query=None, args=None, filename=None, conn=None, md5_query=None, file_md5=None):
+	"""Store data from a file into a bytea field.
+
+	The query must:
+	- 'cmd' must be in unicode
+	- 'cmd' must contain a format spec identifying the row (eg
+	  a primary key) matching <args> if it is an UPDATE
+	- 'cmd' must contain "... SET ... <some_bytea_field> = OVERLAY(some_bytea_field PLACING %(data)s::bytea FROM %(start)s FOR %(size)s) ..."
+	- 'args' must be a dict matching 'cmd'
+
+	The query CAN return the MD5 of the inserted data:
+		RETURNING md5(<field>) AS md5
+	in which case it will compare it to the md5
+	of the file.
+
+	UPDATE
+		the_table
+	SET
+		bytea_field = OVERLAY (
+			coalesce(bytea_field, '':bytea),
+			PLACING
+				%(data)s::bytea
+			FROM
+				%(start)s
+			FOR
+				%(size)s
+		)
+	WHERE
+		primary_key = pk_value
+
+	SELECT md5(bytea_field) FROM the_table WHERE primary_key = pk_value
+	"""
+	chunk_size = 32 * (1024 * 1024)
+	file_size = os.path.getsize(filename)
+	if file_size <= chunk_size:
+		chunk_size = file_size
+	needed_chunks, remainder = divmod(file_size, chunk_size)
+	_log.debug('file data: %s bytes, chunks: %s, chunk size: %s bytes, remainder: %s bytes', file_size, needed_chunks, chunk_size, remainder)
+
+	if conn is None:
+		conn = get_raw_connection(readonly = False)
+		close_conn = conn.close
+	else:
+		close_conn = __noop
+
+	infile = file(filename, "rb")
+	# write chunks
+	for chunk_id in range(needed_chunks):
+		chunk_start = (chunk_id * chunk_size) + 1
+		args['start'] = chunk_start
+		args['size'] = chunk_size
+		data_as_byte_string = infile.read(chunk_size)
+		args['data'] = buffer(data_as_byte_string)
+		del(data_as_byte_string)
+		try:
+			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
+		except StandardError:
+			_log.exception('cannot write chunk [%s/%s] of size [%s], try decreasing chunk size', chunk_id+1, needed_chunks, chunk_size)
+			conn.rollback()
+			close_conn()
+			infile.close()
+			raise
+	# write remainder
+	if remainder > 0:
+		chunk_start = (needed_chunks * chunk_size) + 1
+		args['start'] = chunk_start
+		args['size'] = remainder
+		data_as_byte_string = infile.read(remainder)
+		args['data'] = buffer(data_as_byte_string)
+		del(data_as_byte_string)
+		try:
+			rows, idx = run_rw_queries(link_obj = conn, queries = [{'cmd': query, 'args': args}], end_tx = False, return_data = False)
+		except StandardError:
+			_log.error('cannot retrieve remaining [%s] bytes' % remainder)
+			conn.rollback()
+			close_conn()
+			infile.close()
+			raise
+	infile.close()
+	if None in [file_md5, md5_query]:
+		conn.commit()
+		close_conn()
+		return True
+	# verify
+	rows, idx = run_ro_queries(link_obj = conn, queries = [{'cmd': md5_query, 'args': args}])
+	db_md5 = rows[0][0]
+	if file_md5 == db_md5:
+		conn.commit()
+		close_conn()
+		_log.debug('MD5 sums of data file and database BYTEA field match: [file::%s] = [DB::%s]', file_md5, db_md5)
+		return True
+	close_conn()
+	_log.error('MD5 sums of data file and database BYTEA field do not match: [file::%s] <> [DB::%s]', file_md5, db_md5)
+	return False
+
 #------------------------------------------------------------------------
 def sanitize_pg_regex(expression=None, escape_all=False):
 	"""Escape input for use in a PostgreSQL regular expression.
@@ -1262,6 +1476,7 @@ def sanitize_pg_regex(expression=None, escape_all=False):
 			'*', '\*'
 		)
 		#']', '\]',			# not needed
+
 #------------------------------------------------------------------------
 def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True, get_col_idx=False):
 	"""Run read-only queries.
@@ -1277,15 +1492,24 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 		curs = link_obj
 		curs_close = __noop
 		tx_rollback = __noop
+		readonly_rollback_just_in_case = __noop
 	elif isinstance(link_obj, dbapi._psycopg.connection):
 		curs = link_obj.cursor()
 		curs_close = curs.close
 		tx_rollback = link_obj.rollback
+		if link_obj.autocommit is True:		# readonly connection ?
+			readonly_rollback_just_in_case = link_obj.rollback
+		else:
+			# do not rollback readonly queries on passed-in readwrite
+			# connections just in case because they may have already
+			# seen fully legitimate write action which would get lost
+			readonly_rollback_just_in_case = __noop
 	elif link_obj is None:
 		conn = get_connection(readonly=True, verbose=verbose)
 		curs = conn.cursor()
 		curs_close = curs.close
 		tx_rollback = conn.rollback
+		readonly_rollback_just_in_case = conn.rollback
 	else:
 		raise ValueError('link_obj must be cursor, connection or None but not [%s]' % link_obj)
 
@@ -1360,8 +1584,9 @@ def run_ro_queries(link_obj=None, queries=None, verbose=False, return_data=True,
 			col_idx = get_col_indices(curs)
 
 	curs_close()
-	tx_rollback()		# rollback just so that we don't stay IDLE IN TRANSACTION forever
+	readonly_rollback_just_in_case()
 	return (data, col_idx)
+
 #------------------------------------------------------------------------
 def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, get_col_idx=False, verbose=False):
 	"""Convenience function for running a transaction
@@ -1513,6 +1738,7 @@ def run_rw_queries(link_obj=None, queries=None, end_tx=False, return_data=None, 
 	conn_close()
 
 	return (data, col_idx)
+
 #------------------------------------------------------------------------
 def run_insert(link_obj=None, schema=None, table=None, values=None, returning=None, end_tx=False, get_col_idx=False, verbose=False):
 	"""Generates SQL for an INSERT query.
@@ -1556,6 +1782,7 @@ def run_insert(link_obj=None, schema=None, table=None, values=None, returning=No
 		get_col_idx = get_col_idx,
 		verbose = verbose
 	)
+
 # =======================================================================
 # connection handling API
 # -----------------------------------------------------------------------
@@ -1587,6 +1814,7 @@ class cConnectionPool(psycopg2.pool.PersistentConnectionPool):
 		for conn_key in self._used.keys():
 			_log.debug('closing pooled database connection, pool key: %s, backend PID: %s', conn_key, self._used[conn_key].get_backend_pid())
 			self._used[conn_key].original_close()
+
 # -----------------------------------------------------------------------
 def get_raw_connection(dsn=None, verbose=False, readonly=True):
 	"""Get a raw, unadorned connection.
@@ -2071,22 +2299,99 @@ if __name__ == "__main__":
 	if sys.argv[1] != 'test':
 		sys.exit()
 
+	from Gnumed.pycommon.gmTools import file2md5
+
 	logging.basicConfig(level=logging.DEBUG)
+
 	#--------------------------------------------------------------------
 	def test_file2bytea():
 		run_rw_queries(queries = [
+			{'cmd': u'drop table if exists test_bytea'},
 			{'cmd': u'create table test_bytea (data bytea)'}
 		])
 
-		cmd = u'insert into test_bytea values (%(data)s::bytea)'
 		try:
-			file2bytea(query = cmd, filename = sys.argv[2])
+			file2bytea(query = u'insert into test_bytea values (%(data)s::bytea) returning md5(data) as md5', filename = sys.argv[2], file_md5 = file2md5(sys.argv[2], True))
 		except:
 			_log.exception('error')
 
 		run_rw_queries(queries = [
 			{'cmd': u'drop table test_bytea'}
 		])
+
+	#--------------------------------------------------------------------
+	def test_file2bytea_lo():
+		lo_oid = file2bytea_lo (
+			filename = sys.argv[2]
+			#, file_md5 = file2md5(sys.argv[2], True)
+		)
+		print lo_oid
+#		if lo_oid != -1:
+#			run_rw_queries(queries = [
+#				{'cmd': u'select lo_unlink(%(loid)s::oid)', 'args': {'loid': lo_oid}}
+#			])
+
+	#--------------------------------------------------------------------
+	def test_file2bytea_copy_from():
+
+		run_rw_queries(queries = [
+			{'cmd': u'drop table if exists test_bytea'},
+			{'cmd': u'create table test_bytea (pk serial primary key, data bytea)'},
+			{'cmd': u"insert into test_bytea (data) values (NULL::bytea)"}
+		])
+
+		md5_query = {
+			'cmd': u'select md5(data) AS md5 FROM test_bytea WHERE pk = %(pk)s',
+			'args': {'pk': 1}
+		}
+
+		file2bytea_copy_from (
+			table = u'test_bytea',
+			columns = [u'data'],
+			filename = sys.argv[2],
+			md5_query = md5_query,
+			file_md5 = file2md5(sys.argv[2], True)
+		)
+
+		run_rw_queries(queries = [
+			{'cmd': u'drop table if exists test_bytea'}
+		])
+
+	#--------------------------------------------------------------------
+	def test_file2bytea_overlay():
+
+		run_rw_queries(queries = [
+			{'cmd': u'drop table if exists test_bytea'},
+			{'cmd': u'create table test_bytea (pk serial primary key, data bytea)'},
+			{'cmd': u"insert into test_bytea (data) values (NULL::bytea)"}
+		])
+
+		cmd = u"""
+		update test_bytea
+		set data = overlay (
+			coalesce(data, ''::bytea)
+			placing %(data)s::bytea
+			from %(start)s
+			for %(size)s
+		)
+		where
+			pk > %(pk)s
+		"""
+		md5_cmd = u'select md5(data) from test_bytea'
+		args = {'pk': 0}
+		file2bytea_overlay (
+			query = cmd,
+			args = args,
+			filename = sys.argv[2],
+			conn = None,
+			md5_query = md5_cmd,
+			file_md5 = file2md5(sys.argv[2], True)
+		)
+
+		run_rw_queries(queries = [
+			{'cmd': u'drop table test_bytea'}
+		])
+
 	#--------------------------------------------------------------------
 	def test_get_connection():
 		print "testing get_connection()"
@@ -2457,7 +2762,6 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 
 	#--------------------------------------------------------------------
 	# run tests
-	#test_file2bytea()
 	#test_get_connection()
 	#test_exceptions()
 	#test_ro_queries()
@@ -2470,12 +2774,16 @@ SELECT to_timestamp (foofoo,'YYMMDD.HH24MI') FROM (
 	#test_sanity_check_time_skew()
 	#test_get_foreign_key_details()
 	#test_get_foreign_key_names()
-	test_get_index_name()
+	#test_get_index_name()
 	#test_set_user_language()
 	#test_get_schema_revision_history()
 	#test_run_query()
 	#test_schema_exists()
 	#test_get_foreign_key_names()
 	#test_row_locks()
+	#test_file2bytea()
+	#test_file2bytea_overlay()
+	#test_file2bytea_copy_from()
+	test_file2bytea_lo()
 
 # ======================================================================

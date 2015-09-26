@@ -29,8 +29,6 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
-#from Gnumed.pycommon import gmPG2
-#from Gnumed.pycommon import gmBusinessDBObject
 #from Gnumed.pycommon import gmHooks
 #from Gnumed.pycommon import gmDispatcher
 
@@ -142,17 +140,34 @@ class cOrthancServer:
 			return []
 
 		if len(pacs_ids) == 1:
-			pats = self.get_patients_by_external_id(external_id = pacs_ids[0]['value'])
+			pacs_id = pacs_ids[0]['value']
+			_log.debug('using stored PACS ID [%s]', pacs_id)
+			used_explicit_pacs_id = True
+		else:		# == 0
+			pacs_id = person.get_external_id_suggestion(target = u'PACS')
+			_log.info('no PACS ID stored for this patient, trying generic per-patient PACS ID [%s]', pacs_id)
+			used_explicit_pacs_id = False
+
+		pats = self.get_patients_by_external_id(external_id = pacs_id)
+		if len(pats) > 1:
+			_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_id)
+		if len(pats) > 0:
+			return pats
+
+		_log.debug('no external patient matches stored PACS ID: %s', pacs_id)
+		if used_explicit_pacs_id:
+			pacs_id = person.get_external_id_suggestion(target = u'PACS')
+			_log.info('trying generic per-patient PACS ID [%s]', pacs_id)
+			pats = self.get_patients_by_external_id(external_id = pacs_id)
 			if len(pats) > 1:
-				_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_ids[0])
+				_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_id)
 			if len(pats) > 0:
 				return pats
-			_log.debug('no external patient matches PACS ID: %s', pacs_ids[0])
-			# return find type ? especially useful for non-matches on ID
 
-		elif len(pacs_ids) == 0:
-			_log.info('no PACS ID known for this patient')
-			# search by name
+		_log.debug('no matching patient found in PACS')
+		# return find type ? especially useful for non-matches on ID
+
+		# search by name
 
 #		# then look for name parts
 #		name = person.get_active_name()
@@ -304,19 +319,29 @@ class cOrthancServer:
 			return filename
 
 	#--------------------------------------------------------
-	def get_studies_as_zip_with_dicomdir(self, study_ids=None, patient_id=None, filename=None):
+	def get_studies_with_dicomdir(self, study_ids=None, patient_id=None, target_dir=None, filename=None, create_zip=False):
+
 		if filename is None:
-			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
+			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip', tmp_dir = target_dir)
 
+		# all studies
 		if study_ids is None:
-			_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
-			f = io.open(filename, 'wb')
-			url = '%s/patients/%s/media' % (self.__server_url, patient_id)
-			_log.debug(url)
-			f.write(self.__run_GET(url = url))
-			f.close()
-			return filename
+			if study_ids is None:
+				_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
+				f = io.open(filename, 'wb')
+				url = '%s/patients/%s/media' % (self.__server_url, patient_id)
+				_log.debug(url)
+				f.write(self.__run_GET(url = url))
+				f.close()
+				if create_zip:
+					return filename
+				if target_dir is None:
+					target_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+				if not gmTools.unzip_archive(filename, target_dir = target_dir, remove_archive = True):
+					return False
+				return target_dir
 
+		# a selection of studies
 #		return u'get range of studies as zip with dicomdir not implemented, either all or one'
 
 		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
@@ -325,34 +350,42 @@ class cOrthancServer:
 			_log.error('[%s] not found', dicomdir_cmd)
 			return False
 
-		_log.info(u'exporting studies [%s] into [%s]', study_ids, filename)
-		sandbox = gmTools.mk_sandbox_dir(prefix = u'dcm-')
-		_log.debug(u'sandbox dir: %s', sandbox)
+		dicomdir_cmd = u'gm-create_dicomdir'		# args: 1) name of DICOMDIR to create 2) base directory where to start recursing for DICOM files
+		found, external_cmd = gmShellAPI.detect_external_binary(dicomdir_cmd)
+		if not found:
+			_log.error('[%s] not found', dicomdir_cmd)
+			return False
+
+		if create_zip:
+			sandbox_dir = gmTools.mk_sandbox_dir(prefix = u'dcm-')
+			_log.info(u'exporting studies [%s] into [%s] (sandbox [%s])', study_ids, filename, sandbox_dir)
+		else:
+			sandbox_dir = target_dir
+			_log.info(u'exporting studies [%s] into [%s]', study_ids, sandbox_dir)
+		_log.debug(u'sandbox dir: %s', sandbox_dir)
 		idx = 0
 		for study_id in study_ids:
 			study_zip_name = gmTools.get_unique_filename(prefix = u'dcm-', suffix = u'.zip')
 			# getting with DICOMDIR returns DICOMDIR compatible subdirs and filenames
 			study_zip_name = self.get_study_as_zip_with_dicomdir(study_id = study_id, filename = study_zip_name)
-			study_zip = zipfile.ZipFile(study_zip_name)
-			# need to extract into per-study subdir because get-with-dicomdir
-			# returns identical-across-studies subdirs / filenames,
-			idx += 1
-			study_unzip_dir = os.path.join(sandbox, 'STUDY%s' % idx)
 			# non-beautiful per-study dir name required by subsequent DICOMDIR generation
-			study_zip.extractall(study_unzip_dir)
-			study_zip.close()
-			gmTools.remove_file(study_zip_name)
+			idx += 1
+			study_unzip_dir = os.path.join(sandbox_dir, 'STUDY%s' % idx)
 			_log.debug(u'study [%s] -> %s -> %s', study_id, study_zip_name, study_unzip_dir)
+			# need to extract into per-study subdir because get-with-dicomdir
+			# returns identical-across-studies subdirs / filenames
+			if not gmTools.unzip_archive(study_zip_name, target_dir = study_unzip_dir, remove_archive = True):
+				return False
 
 		# create DICOMDIR across all studies,
 		# we simply ignore the already existing per-study DICOMDIR files
-		target_dicomdir_name = os.path.join(sandbox, 'DICOMDIR')
+		target_dicomdir_name = os.path.join(sandbox_dir, 'DICOMDIR')
 		gmTools.remove_file(target_dicomdir_name, log_error = False)	# better safe than sorry
 		_log.debug('generating [%s]', target_dicomdir_name)
 		cmd = u'%(cmd)s %(DICOMDIR)s %(startdir)s' % {
 			'cmd': external_cmd,
 			'DICOMDIR': target_dicomdir_name,
-			'startdir': sandbox
+			'startdir': sandbox_dir
 		}
 		success = gmShellAPI.run_command_in_shell (
 			command = cmd,
@@ -368,16 +401,21 @@ class cOrthancServer:
 			_log.error('[%s] not generated, aborting', target_dicomdir_name)
 			return False
 
+		# return path to extracted studies
+		if not create_zip:
+			return sandbox_dir
+
+		# else return ZIP of all studies
 		studies_zip = shutil.make_archive (
 			gmTools.fname_stem_with_path(filename),
 			'zip',
-			root_dir = gmTools.parent_dir(sandbox),
-			base_dir = gmTools.dirname_stem(sandbox),
+			root_dir = gmTools.parent_dir(sandbox_dir),
+			base_dir = gmTools.dirname_stem(sandbox_dir),
 			logger = _log
 		)
 		_log.debug(u'archived all studies with one DICOMDIR into: %s', studies_zip)
 		# studies can be _large_ so attempt to get rid of intermediate files
-		gmTools.rmdir(sandbox)
+		gmTools.rmdir(sandbox_dir)
 		return studies_zip
 
 	#--------------------------------------------------------
@@ -417,21 +455,40 @@ class cOrthancServer:
 	#--------------------------------------------------------
 	def get_studies_list_by_orthanc_patient_list(self, orthanc_patients=None):
 		studies_by_patient = []
+		study_keys = {}
+		study_keys_m = {}
+		series_keys = {}
+		series_keys_m = {}
 		for pat in orthanc_patients:
 			pat_dict = {
 				'orthanc_id': pat['ID'],
 				'name': pat['MainDicomTags']['PatientName'],
-				'date_of_birth': pat['MainDicomTags']['PatientBirthDate'],
-				'gender': pat['MainDicomTags']['PatientSex'],
 				'external_id': pat['MainDicomTags']['PatientID'],
 				'studies': []
 			}
+			try:
+				pat_dict['date_of_birth'] = pat['MainDicomTags']['PatientBirthDate']
+			except KeyError:
+				pat_dict['date_of_birth'] = None
+			try:
+				pat_dict['gender'] = pat['MainDicomTags']['PatientSex']
+			except KeyError:
+				pat_dict['gender'] = None
+			for key in pat_dict:
+				if pat_dict[key] == u'unknown':
+					pat_dict[key] = None
+				if pat_dict[key] == u'(null)':
+					pat_dict[key] = None
 			studies_by_patient.append(pat_dict)
 			o_studies = self.__run_GET(url = u'%s/patients/%s/studies' % (self.__server_url, pat['ID']))
 			if o_studies is False:
 				_log.error('cannot retrieve studies')
 				return []
 			for o_study in o_studies:
+				for key in o_study.keys():
+					study_keys[key] = True
+				for key in o_study['MainDicomTags'].keys():
+					study_keys_m[key] = True
 				study_dict = {
 					'orthanc_id': o_study['ID'],
 					'date': o_study['MainDicomTags'][u'StudyDate'],
@@ -442,12 +499,21 @@ class cOrthancServer:
 					study_dict['description'] = o_study['MainDicomTags'][u'StudyDescription']
 				except KeyError:
 					study_dict['description'] = None
+				for key in study_dict:
+					if study_dict[key] == u'unknown':
+						study_dict[key] = None
+					if study_dict[key] == u'(null)':
+						study_dict[key] = None
 				pat_dict['studies'].append(study_dict)
 				for o_series_id in o_study['Series']:
 					o_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, o_series_id))
 					if o_series is False:
 						_log.error('cannot retrieve series')
 						return []
+					for key in o_series.keys():
+						series_keys[key] = True
+					for key in o_series['MainDicomTags'].keys():
+						series_keys_m[key] = True
 					series_dict = {
 						'orthanc_id': o_series['ID'],
 						'date': o_series['MainDicomTags']['SeriesDate'],
@@ -455,14 +521,43 @@ class cOrthancServer:
 						'instances': len(o_series['Instances'])
 					}
 					try:
+						series_dict['description'] = o_series['MainDicomTags'][u'SeriesDescription']
+					except KeyError:
+						series_dict['description'] = None
+					try:
 						series_dict['time'] = o_series['MainDicomTags']['SeriesTime']
 					except KeyError:
 						series_dict['time'] = None
+					if series_dict['time'] is not None:
+						if series_dict['time'].strip() == u'':
+							series_dict['time'] = None
 					try:
 						series_dict['body_part'] = o_series['MainDicomTags']['BodyPartExamined']
 					except KeyError:
 						series_dict['body_part'] = None
+					try:
+						series_dict['protocol'] = o_series['MainDicomTags']['ProtocolName']
+					except KeyError:
+						series_dict['protocol'] = None
+					if series_dict['description'] == series_dict['protocol']:
+						_log.debug('<series description> matches <series protocol>, ignoring description')
+						series_dict['description'] = None
+					try:
+						series_dict['station'] = o_series['MainDicomTags']['StationName']
+					except KeyError:
+						series_dict['station'] = None
+					for key in series_dict:
+						if series_dict[key] == u'unknown':
+							series_dict[key] = None
+						if series_dict[key] == u'(null)':
+							series_dict[key] = None
 					study_dict['series'].append(series_dict)
+
+		#_log.debug('study: %s', study_keys.keys())
+		#_log.debug('study(MainDicomTags): %s', study_keys_m.keys())
+		#_log.debug('series: %s', series_keys.keys())
+		#_log.debug('series(MainDicomTags): %s', series_keys_m.keys())
+
 		return studies_by_patient
 
 	#--------------------------------------------------------
@@ -584,8 +679,6 @@ def DoDelete(uri):
         except:
             return content
 
-
-
 #============================================================
 # main
 #------------------------------------------------------------
@@ -634,7 +727,14 @@ if __name__ == "__main__":
 				for study in pat['studies']:
 					print(u' ', gmTools.format_dict_like(study, relevant_keys = ['orthanc_id', 'date', 'time'], template = u'study [%%(orthanc_id)s] at %%(date)s %%(time)s contains %s series' % len(study['series'])))
 					for series in study['series']:
-						print(u'  ', gmTools.format_dict_like(series, relevant_keys = ['orthanc_id', 'date', 'time', 'modality', 'instances', 'body_part'], template = u'series [%(orthanc_id)s] at %(date)s %(time)s: %(modality)s of body part "%(body_part)s" holds %(instances)s images'))
+						print (
+							u'  ',
+							gmTools.format_dict_like (
+								series,
+								relevant_keys = ['orthanc_id', 'date', 'time', 'modality', 'instances', 'body_part', 'protocol', 'description', 'station'],
+								template = u'series [%(orthanc_id)s] at %(date)s %(time)s: "%(description)s" %(modality)s@%(station)s (%(protocol)s) of body part "%(body_part)s" holds %(instances)s images'
+							)
+						)
 				#print(orthanc.get_study_as_zip_with_dicomdir(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
 				#print(orthanc.get_study_as_zip(study_id = study['orthanc_id'], filename = 'study_%s.zip' % study['orthanc_id']))
 				#print(orthanc.get_studies_as_zip_with_dicomdir(study_ids = [ s['orthanc_id'] for s in pat['studies'] ], filename = 'studies_of_%s.zip' % pat['orthanc_id']))

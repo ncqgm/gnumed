@@ -2568,7 +2568,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __init_ui(self):
 		self._LCTRL_studies.set_columns(columns = [_('Study date'), _('Description'), _('Study time'), _('Patient'), _('DOB'), _('Gender')])
-		self._LCTRL_series.set_columns(columns = [_('Description'), _('Date'), _('Time')])
+		self._LCTRL_series.set_columns(columns = [_(u'Method'), _(u'Body part'), _('Description'), _('Time'), _('Date')])
 
 	#--------------------------------------------------------
 	def __reset_patient_data(self):
@@ -2578,6 +2578,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._BTN_browse_study.Disable()
 		self._BTN_export_study.Disable()
 		self._BTN_export_all_studies.Disable()
+		self._BTN_save_selected_studies.Disable()
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
 		self.Layout()
@@ -2598,9 +2599,11 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self.__reset_server_identification()
 
 		host = self._TCTRL_host.Value.strip()
-		port = self._TCTRL_port.Value.strip()
-		if port is u'':
+		port = self._TCTRL_port.Value.strip()[:6]
+		if port == u'':
 			self._LBL_PACS_identification.SetLabel(_('Cannot connect without port (try 8042).'))
+			return False
+		if len(port) < 4:
 			return False
 
 		user = self._TCTRL_user.Value
@@ -2635,10 +2638,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		if not self.__connect():
 			return False
 
-		info_lines = []
 		person = gmPerson.gmCurrentPatient()
+		info_lines = [_(u'GNUmed patient: %s (generic PACS ID)') % person.get_external_id_suggestion(target = u'PACS')]
 		for pacs_id in person.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
-			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s]') % pacs_id)
+			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s] (stored PACS ID)') % pacs_id)
 
 		# try to find patient
 		matching_pats = self.__pacs.get_matching_patients(person = person)
@@ -2669,13 +2672,21 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
 				for study in pat['studies']:
 					study_list_items.append( [
-						study['date'],
+						u'%s-%s-%s' % (
+							study['date'][:4],
+							study['date'][4:6],
+							study['date'][6:8]
+						),
 						gmTools.coalesce (
-							gmTools.none_if(study['description'], u'(null)', True),
+							study['description'],
 							_(u'%s series') % len(study['series']),
 							_(u'%%s (%s series)') % len(study['series'])
 						),
-						study['time'],
+						u'%s:%s:%s' % (
+							study['time'][:2],
+							study['time'][2:4],
+							study['time'][4:6]
+						),
 						pat['name'],
 						pat['date_of_birth'],
 						pat['gender']
@@ -2686,12 +2697,20 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_studies.set_column_widths()
 		self._LCTRL_studies.set_data(data = study_list_data)
 
-		if len(study_list_items) > 0:
+		if len(study_list_items) == 0:
+			self._LBL_no_of_studies.SetLabel(_('no studies'))
+			self._BTN_browse_patient.Disable()
+			self._BTN_browse_study.Disable()
+			self._BTN_export_study.Disable()
+			self._BTN_export_all_studies.Disable()
+			self._BTN_save_selected_studies.Disable()
+		else:
 			self._LBL_no_of_studies.SetLabel(_('%s studies') % len(study_list_items))
 			self._BTN_browse_patient.Enable()
 			self._BTN_browse_study.Enable()
 			self._BTN_export_study.Enable()
 			self._BTN_export_all_studies.Enable()
+			self._BTN_save_selected_studies.Enable()
 
 		self.Layout()
 		return True
@@ -2797,7 +2816,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		wx.BeginBusyCursor()
-		filename = self.__pacs.get_studies_as_zip_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ])
+		filename = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], create_zip = True)
 		wx.EndBusyCursor()
 
 		if filename is False:
@@ -2836,13 +2855,48 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		wx.EndBusyCursor()
 
 	#--------------------------------------------------------
+	def _on_save_selected_studies_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		event.Skip()
+		if self.__pacs is None:
+			return
+
+		study_data = self._LCTRL_studies.get_selected_item_data(only_one = False)
+		if len(study_data) == 0:
+			return
+
+		# get target dir
+		person = gmPerson.gmCurrentPatient()
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', person.dirname)
+		gmTools.mkdir(default_path)
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory into which to save the DICOM studies.'),
+			defaultPath = default_path
+		)
+		choice = dlg.ShowModal()
+		target_dir = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+
+		wx.BeginBusyCursor()
+		target_dir = self.__pacs.get_studies_with_dicomdir(study_ids = [ s['orthanc_id'] for s in study_data ], target_dir = target_dir)
+		wx.EndBusyCursor()
+
+		if target_dir is False:
+			gmGuiHelpers.gm_show_error (
+				title = _('Saving DICOM studies'),
+				error = _('Unable to save selected studies.')
+			)
+
+	#--------------------------------------------------------
 	def _on_export_all_studies_button_pressed(self, event):
 		event.Skip()
 		if self.__pacs is None:
 			return
 
 		wx.BeginBusyCursor()
-		filename = self.__pacs.get_studies_as_zip_with_dicomdir(patient_id = self.__patient['ID'])
+		filename = self.__pacs.get_studies_with_dicomdir(patient_id = self.__patient['ID'], create_zip = True)
 		wx.EndBusyCursor()
 
 		if filename is False:
@@ -2891,7 +2945,36 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		series_list_items = []
 		series_list_data = []
 		for series in study_data['series']:
-			series_list_items.append([ _(u'%s%s: %s images') % (series['modality'], gmTools.coalesce(series['body_part'], u'', _(u' of %s')), series['instances']), series['date'], series['time']])
+			series_time = u''
+			if series['time'] is not None:
+				if series['time'] != study_data['time']:
+					series_time = u'%s:%s:%s' % (
+						series['time'][:2],
+						series['time'][2:4],
+						series['time'][4:6]
+					)
+			series_date = u''
+			if series['date'] is not None:
+				if series['date'] != study_data['date']:
+					series_date = u'%s-%s-%s' % (
+						series['date'][:4],
+						series['date'][4:6],
+						series['date'][6:8]
+					)
+			series_list_items.append ([
+				u'%s%s%s' % (
+					series['modality'],
+					gmTools.coalesce(series['protocol'], u'', u' [%s]'),
+					gmTools.coalesce(series['station'], u'', u' @ %s')
+				),
+				gmTools.coalesce(series['body_part'], u''),
+				_(u'%s%s images') % (
+					gmTools.coalesce(series['description'], u'', u'%s: '),
+					series['instances']
+				),
+				series_time,
+				series_date
+			])
 			series_list_data.append(series)
 
 		self._LCTRL_series.set_string_items(items = series_list_items)

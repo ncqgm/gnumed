@@ -34,6 +34,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._BTN_export_all_studies = wx.Button(self, wx.ID_ANY, _("Export all"), style=wx.BU_EXACTFIT)
 		self._BTN_browse_study = wx.Button(self, wx.ID_ANY, _("Browse"), style=wx.BU_EXACTFIT)
 		self._BTN_export_study = wx.Button(self, wx.ID_ANY, _("Export"), style=wx.BU_EXACTFIT)
+		self._BTN_save_selected_studies = wx.Button(self, wx.ID_ANY, _("Save"), style=wx.BU_EXACTFIT)
 		self._LCTRL_studies = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._LCTRL_series = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 
@@ -46,6 +47,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self.Bind(wx.EVT_BUTTON, self._on_export_all_studies_button_pressed, self._BTN_export_all_studies)
 		self.Bind(wx.EVT_BUTTON, self._on_browse_study_button_pressed, self._BTN_browse_study)
 		self.Bind(wx.EVT_BUTTON, self._on_export_study_button_pressed, self._BTN_export_study)
+		self.Bind(wx.EVT_BUTTON, self._on_save_selected_studies_button_pressed, self._BTN_save_selected_studies)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_studies_list_item_selected, self._LCTRL_studies)
 		# end wxGlade
 
@@ -65,6 +67,8 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._BTN_browse_study.Enable(False)
 		self._BTN_export_study.SetToolTipString(_("Copy selected studies into export area."))
 		self._BTN_export_study.Enable(False)
+		self._BTN_save_selected_studies.SetToolTipString(_("Save selected studies to disk."))
+		self._BTN_save_selected_studies.Enable(False)
 		# end wxGlade
 
 	def __do_layout(self):
@@ -96,9 +100,10 @@ class wxgPACSPluginPnl(wx.Panel):
 		__szr_buttons.Add(__lbl_selected_study, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add(self._BTN_browse_study, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add(self._BTN_export_study, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_buttons.Add(self._BTN_save_selected_studies, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_main.Add(__szr_buttons, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._LCTRL_studies, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
-		__szr_main.Add(self._LCTRL_series, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+		__szr_main.Add(self._LCTRL_studies, 2, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
+		__szr_main.Add(self._LCTRL_series, 3, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
 		self.Layout()
@@ -126,6 +131,10 @@ class wxgPACSPluginPnl(wx.Panel):
 
 	def _on_export_study_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print "Event handler '_on_export_study_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_save_selected_studies_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		print "Event handler '_on_save_selected_studies_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_studies_list_item_selected(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>

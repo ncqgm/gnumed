@@ -760,6 +760,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 					cmd = u"update dem.lnk_identity2ext_id set comment = %(comment)s where id=%(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
 		"""Edits an existing external ID.
@@ -776,6 +777,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		args = {'pk': pk_id, 'value': value, 'type': type, 'issuer': issuer, 'comment': comment}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def get_external_ids(self, id_type=None, issuer=None):
 		where_parts = ['pk_identity = %(pat)s']
@@ -795,13 +797,41 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return rows
 
 	external_ids = property(get_external_ids, lambda x:x)
+
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
 		cmd = u"""
-delete from dem.lnk_identity2ext_id
-where id_identity = %(pat)s and id = %(pk)s"""
+			DELETE FROM dem.lnk_identity2ext_id
+			WHERE id_identity = %(pat)s AND id = %(pk)s"""
 		args = {'pat': self.ID, 'pk': pk_ext_id}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
+	#--------------------------------------------------------
+	def get_external_id_suggestion(self, target=None, encoding=None):
+		name = self.active_name
+		last = u' '.join(p for p in name['lastnames'].split(u'-'))
+		last = u''.join(p for p in name['lastnames'].split(u' '))
+		first = u' '.join(p for p in name['firstnames'].split(u'-'))
+		first = u''.join(p for p in name['firstnames'].split(u' '))
+		suggestion = u'GMd-%s%s%s%s%s' % (
+			gmTools.coalesce(target, u'', u'%s-'),
+			last,
+			first,
+			self.get_formatted_dob(format = '-%Y%m%d', none_string = u''),
+			gmTools.coalesce(self['gender'], u'', u'-%s')
+		)
+		try:
+			import unidecode
+			return unidecode.unidecode(suggestion)
+		except ImportError:
+			_log.debug('cannot transliterate external ID suggestion, <unidecode> module not installed')
+		if encoding is None:
+			return suggestion
+		return suggestion.encode(encoding)
+
+	external_id_suggestion = property(get_external_id_suggestion, lambda x:x)
+
+	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def assimilate_identity(self, other_identity=None, link_obj=None):
 		"""Merge another identity into this one.
@@ -2150,6 +2180,7 @@ def set_active_patient(patient=None, forced_reload=False):
 		return False
 
 	return True
+
 #============================================================
 # gender related
 #------------------------------------------------------------
@@ -2405,6 +2436,10 @@ if __name__ == '__main__':
 		person = cPerson(aPK_obj = 12)
 		print person.export_as_vcard()
 	#--------------------------------------------------------
+	def test_ext_id():
+		person = cPerson(aPK_obj = 12)
+		print person.get_external_id_suggestion(target = u'Orthanc')
+	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()
 	#test_set_active_pat()
@@ -2419,6 +2454,7 @@ if __name__ == '__main__':
 	#print "\n\nRetrieving communication media enum (id, description): %s" % comms
 	#test_export_area()
 	#test_ext_id()
-	test_vcf()
+	#test_vcf()
+	test_ext_id()
 
 #============================================================

@@ -1153,7 +1153,7 @@ class cEMRJournalExporter:
 			gmTools.u_box_horiz_single * self.__narrative_wrap_len
 		))
 
-		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(format = '%Y %b %d  %H:%M:%S'))
+		target.write(_('Exported: %s\n') % gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %b %d  %H:%M:%S'))
 
 		return
 
