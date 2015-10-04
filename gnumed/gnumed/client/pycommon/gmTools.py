@@ -806,8 +806,8 @@ def capitalize(text=None, mode=CAPS_NAMES):
 		return text.upper()
 
 	if mode == CAPS_FIRST_ONLY:
-		if len(text) == 1:
-			return text[0].upper()
+#		if len(text) == 1:
+#			return text[0].upper()
 		return text[0].upper() + text[1:].lower()
 
 	if mode == CAPS_WORDS:

@@ -807,12 +807,16 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	#--------------------------------------------------------
-	def get_external_id_suggestion(self, target=None, encoding=None):
+	def suggest_external_id(self, target=None, encoding=None):
 		name = self.active_name
-		last = u' '.join(p for p in name['lastnames'].split(u'-'))
-		last = u''.join(p for p in name['lastnames'].split(u' '))
-		first = u' '.join(p for p in name['firstnames'].split(u'-'))
-		first = u''.join(p for p in name['firstnames'].split(u' '))
+		last = u' '.join(p for p in name['lastnames'].split(u"-"))
+		last = u' '.join(p for p in last.split(u"."))
+		last = u' '.join(p for p in last.split(u"'"))
+		last = u''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in last.split(u' '))
+		first = u' '.join(p for p in name['firstnames'].split(u"-"))
+		first = u' '.join(p for p in first.split(u"."))
+		first = u' '.join(p for p in first.split(u"'"))
+		first = u''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in first.split(u' '))
 		suggestion = u'GMd-%s%s%s%s%s' % (
 			gmTools.coalesce(target, u'', u'%s-'),
 			last,
@@ -829,7 +833,37 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return suggestion
 		return suggestion.encode(encoding)
 
-	external_id_suggestion = property(get_external_id_suggestion, lambda x:x)
+	external_id_suggestion = property(suggest_external_id, lambda x:x)
+
+	#--------------------------------------------------------
+	def suggest_external_ids(self, target=None, encoding=None):
+		names2use = [self.active_name]
+		names2use.extend(self.get_names(active_only = False, exclude_active = True))
+		target = gmTools.coalesce(target, u'', u'%s-')
+		dob = self.get_formatted_dob(format = '-%Y%m%d', none_string = u'')
+		gender = gmTools.coalesce(self['gender'], u'', u'-%s')
+		suggestions = []
+		for name in names2use:
+			last = u' '.join(p for p in name['lastnames'].split(u"-"))
+			last = u' '.join(p for p in last.split(u"."))
+			last = u' '.join(p for p in last.split(u"'"))
+			last = u''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in last.split(u' '))
+			first = u' '.join(p for p in name['firstnames'].split(u"-"))
+			first = u' '.join(p for p in first.split(u"."))
+			first = u' '.join(p for p in first.split(u"'"))
+			first = u''.join(gmTools.capitalize(text = p, mode = gmTools.CAPS_FIRST_ONLY) for p in first.split(u' '))
+			suggestion = u'GMd-%s%s%s%s%s' % (target, last, first, dob, gender)
+			try:
+				import unidecode
+				suggestions.append(unidecode.unidecode(suggestion))
+				continue
+			except ImportError:
+				_log.debug('cannot transliterate external ID suggestion, <unidecode> module not installed')
+			if encoding is None:
+				suggestions.append(suggestion)
+			else:
+				suggestions.append(suggestion.encode(encoding))
+		return suggestions
 
 	#--------------------------------------------------------
 	#--------------------------------------------------------
@@ -2438,7 +2472,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	def test_ext_id():
 		person = cPerson(aPK_obj = 12)
-		print person.get_external_id_suggestion(target = u'Orthanc')
+		print person.suggest_external_id(target = u'Orthanc')
 	#--------------------------------------------------------
 	#test_dto_person()
 	#test_identity()

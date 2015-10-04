@@ -139,25 +139,14 @@ class cOrthancServer:
 			_log.error('the PACS ID is expected to be unique per PACS')
 			return []
 
+		pacs_ids2use = []
+
 		if len(pacs_ids) == 1:
-			pacs_id = pacs_ids[0]['value']
-			_log.debug('using stored PACS ID [%s]', pacs_id)
-			used_explicit_pacs_id = True
-		else:		# == 0
-			pacs_id = person.get_external_id_suggestion(target = u'PACS')
-			_log.info('no PACS ID stored for this patient, trying generic per-patient PACS ID [%s]', pacs_id)
-			used_explicit_pacs_id = False
+			pacs_ids2use.append(pacs_ids[0]['value'])
+		pacs_ids2use.extend(person.suggest_external_ids(target = u'PACS'))
 
-		pats = self.get_patients_by_external_id(external_id = pacs_id)
-		if len(pats) > 1:
-			_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_id)
-		if len(pats) > 0:
-			return pats
-
-		_log.debug('no external patient matches stored PACS ID: %s', pacs_id)
-		if used_explicit_pacs_id:
-			pacs_id = person.get_external_id_suggestion(target = u'PACS')
-			_log.info('trying generic per-patient PACS ID [%s]', pacs_id)
+		for pacs_id in pacs_ids2use:
+			_log.debug('using PACS ID [%s]', pacs_id)
 			pats = self.get_patients_by_external_id(external_id = pacs_id)
 			if len(pats) > 1:
 				_log.warning('more than one Orthanc patient matches PACS ID: %s', pacs_id)
@@ -419,23 +408,77 @@ class cOrthancServer:
 		return studies_zip
 
 	#--------------------------------------------------------
-	# on-server API
+	# server-side API
 	#--------------------------------------------------------
 	def protect_patient(self, orthanc_id):
 		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
 		if self.__run_GET(url) == 1:
+			_log.debug('patient already protected: %s', orthanc_id)
 			return True
 		_log.warning(u'patient [%s] not protected against recycling, enabling protection now', orthanc_id)
-		self.__run_PUT(url = url, data = 1)
+		self.__run_PUT(url = url, data = '1')
 		if self.__run_GET(url) == 1:
 			return True
 		_log.error(u'cannot protect patient [%s] against recycling', orthanc_id)
 		return False
 
 	#--------------------------------------------------------
-	def modify_patient_id(self, old_patient_id, new_patient_id):
-		pass
+	def unprotect_patient(self, orthanc_id):
+		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
+		if self.__run_GET(url) == 0:
+			return True
+		_log.info(u'patient [%s] protected against recycling, disabling protection now', orthanc_id)
+		self.__run_PUT(url = url, data = '0')
+		if self.__run_GET(url) == 0:
+			return True
+		_log.error(u'cannot unprotect patient [%s] against recycling', orthanc_id)
+		return False
 
+	#--------------------------------------------------------
+	def patient_is_protected(self, orthanc_id):
+		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
+		return (self.__run_GET(url) == 1)
+
+	#--------------------------------------------------------
+	def modify_patient_id(self, old_patient_id, new_patient_id):
+
+		if old_patient_id == new_patient_id:
+			return True
+
+		modify_data = {
+			u'Replace': {
+				u'PatientID': new_patient_id
+			}
+		}
+		o_pats = self.get_patients_by_external_id(external_id = old_patient_id)
+		all_modified = True
+		for o_pat in o_pats:
+			_log.info('modifying Orthanc patient [%s]: DICOM ID [%s] -> [%s]', o_pat['ID'], old_patient_id, new_patient_id)
+			if self.patient_is_protected(o_pat['ID']):
+				_log.debug('patient protected: %s, unprotecting for modification', o_pat['ID'])
+				if not self.unprotect_patient(o_pat['ID']):
+					_log.error('cannot unlock patient [%s], skipping', o_pat['ID'])
+					all_modified = False
+					continue
+				was_protected = True
+			else:
+				was_protected = False
+			pat_url = u'%s/patients/%s' % (self.__server_url, o_pat['ID'])
+			modify_url = u'%s/modify' % pat_url
+			result = self.__run_POST(modify_url, data = modify_data)
+			_log.debug('modified: %s', result)
+			if result is False:
+				_log.error('cannot modify patient [%s]', o_pat['ID'])
+				all_modified = False
+				continue
+			newly_created_patient_id = result['ID']
+			_log.debug('newly created Orthanc patient ID: %s', newly_created_patient_id)
+			_log.debug('deleting archived patient: %s', self.__run_DELETE(pat_url))
+			if was_protected:
+				if not self.protect_patient(newly_created_patient_id):
+					_log.error('cannot re-lock (new) patient [%s]', newly_created_patient_id)
+
+		return all_modified
 	#--------------------------------------------------------
 	# upload API
 	#--------------------------------------------------------
@@ -561,6 +604,8 @@ class cOrthancServer:
 		return studies_by_patient
 
 	#--------------------------------------------------------
+	# generic REST helpers
+	#--------------------------------------------------------
 	def __run_GET(self, url=None, data=None):
 		if data is None:
 			data = {}
@@ -587,11 +632,11 @@ class cOrthancServer:
 			return content
 
 	#--------------------------------------------------------
-	def __run_POST(self, url=None, data=None, contentType=u''):
+	def __run_POST(self, url=None, data=None, content_type=u''):
 		if isinstance(data, str):
 			body = data
-			if len(contentType) != 0:
-				headers = { 'content-type' : contentType }
+			if len(content_type) != 0:
+				headers = { 'content-type' : content_type }
 			else:
 				headers = { 'content-type' : 'text/plain' }
 		else:
@@ -600,10 +645,10 @@ class cOrthancServer:
 		try:
 			response, content = self.__conn.request(url, 'POST', body = body, headers = headers)
 		except httplib.ResponseNotReady:
-			_log.exception('cannot POST: %s', full_url)
+			_log.exception('cannot POST: %s', url)
 			return False
 		except socket.error:
-			_log.exception('cannot POST: %s', full_url)
+			_log.exception('cannot POST: %s', url)
 			return False
 
 		if response.status == 404:
@@ -619,11 +664,11 @@ class cOrthancServer:
 			return content
 
 	#--------------------------------------------------------
-	def __run_PUT(self, url=None, data=None, contentType=u''):
+	def __run_PUT(self, url=None, data=None, content_type=u''):
 		if isinstance(data, str):
 			body = data
-			if len(contentType) != 0:
-				headers = { 'content-type' : contentType }
+			if len(content_type) != 0:
+				headers = { 'content-type' : content_type }
 			else:
 				headers = { 'content-type' : 'text/plain' }
 		else:
@@ -632,10 +677,10 @@ class cOrthancServer:
 		try:
 			response, content = self.__conn.request(url, 'PUT', body = body, headers = headers)
 		except httplib.ResponseNotReady:
-			_log.exception('cannot PUT: %s', full_url)
+			_log.exception('cannot PUT: %s', url)
 			return False
 		except socket.error:
-			_log.exception('cannot PUT: %s', full_url)
+			_log.exception('cannot PUT: %s', url)
 			return False
 
 		if response.status == 404:
@@ -650,34 +695,25 @@ class cOrthancServer:
 		except StandardError:
 			return content
 
+	#--------------------------------------------------------
+	def __run_DELETE(self, url=None):
+		try:
+			response, content = self.__conn.request(url, 'DELETE')
+		except httplib.ResponseNotReady:
+			_log.exception('cannot DELETE: %s', url)
+			return False
+		except socket.error:
+			_log.exception('cannot DELETE: %s', url)
+			return False
 
-#============================================================
-# orthanc RestToolBox.py (for reference, not in use):
-#============================================================
-_credentials = None
-
-def SetCredentials(username, password):
-    global _credentials
-    _credentials = (username, password)
-
-def _SetupCredentials(h):
-    global _credentials
-    if _credentials != None:
-        h.add_credentials(_credentials[0], _credentials[1])
-
-
-def DoDelete(uri):
-    h = httplib2.Http()
-    _SetupCredentials(h)
-    resp, content = h.request(uri, 'DELETE')
-
-    if not (resp.status in [ 200 ]):
-        raise Exception(resp.status)
-    else:
-        try:
-            return json.loads(content)
-        except:
-            return content
+		if not (response.status in [ 200 ]):
+			_log.error('cannot DELETE: %s', url)
+			_log.error('response: %s', response)
+			return False
+		try:
+			return json.loads(content)
+		except StandardError:
+			return content
 
 #============================================================
 # main
@@ -721,6 +757,11 @@ if __name__ == "__main__":
 					print(pat)
 				continue
 
+			pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
+			for pat in pats:
+				print(pat)
+				continue
+
 			pats = orthanc.get_studies_list_by_patient_name(name_parts = entered_name.split(), fuzzy = True)
 			for pat in pats:
 				print(pat['name'])
@@ -741,10 +782,52 @@ if __name__ == "__main__":
 				print(u'--------')
 
 	#--------------------------------------------------------
-	try:
-		host = sys.argv[2]
-		port = sys.argv[3]
-	except IndexError:
-		host = None
-		port = '8042'
-	orthanc_console(host, port)
+	def run_console():
+		try:
+			host = sys.argv[2]
+			port = sys.argv[3]
+		except IndexError:
+			host = None
+			port = '8042'
+		orthanc_console(host, port)
+	#--------------------------------------------------------
+	def test_modify_patient_id():
+		try:
+			host = sys.argv[2]
+			port = sys.argv[3]
+		except IndexError:
+			host = None
+			port = '8042'
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			return False
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
+		print('Please enter patient name parts, separated by SPACE.')
+
+		entered_name = gmTools.prompted_input(prompt = "\nEnter person search term or leave blank to exit")
+		if entered_name in ['exit', 'quit', 'bye', None]:
+			print("user cancelled patient search")
+			return
+
+		pats = orthanc.get_patients_by_name(name_parts = entered_name.split(), fuzzy = True)
+		if len(pats) == 0:
+			print('no patient found')
+			return
+
+		pat = pats[0]
+		print('test patient:')
+		print(pat)
+		old_id = pat['MainDicomTags']['PatientID']
+		new_id = old_id + u'-1'
+		print('setting [%s] to [%s]:' % (old_id, new_id), orthanc.modify_patient_id(old_id, new_id))
+
+	#--------------------------------------------------------
+	#run_console()
+	test_modify_patient_id()

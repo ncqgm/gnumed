@@ -27,6 +27,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._TCTRL_password = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_PASSWORD)
 		self._BTN_connect = wx.Button(self, wx.ID_ANY, _("&Connect"), style=wx.BU_EXACTFIT)
 		self._BTN_browse_pacs = wx.Button(self, wx.ID_ANY, _("&Browse"), style=wx.BU_EXACTFIT)
+		self._BTN_modify_orthanc_content = wx.Button(self, wx.ID_ANY, _("Edit"), style=wx.BU_EXACTFIT)
 		self._LBL_PACS_identification = wx.StaticText(self, wx.ID_ANY, _("<not connected>"))
 		self._LBL_patient_identification = wx.StaticText(self, wx.ID_ANY, "")
 		self._LBL_no_of_studies = wx.StaticText(self, wx.ID_ANY, "")
@@ -43,6 +44,7 @@ class wxgPACSPluginPnl(wx.Panel):
 
 		self.Bind(wx.EVT_BUTTON, self._on_connect_button_pressed, self._BTN_connect)
 		self.Bind(wx.EVT_BUTTON, self._on_browse_pacs_button_pressed, self._BTN_browse_pacs)
+		self.Bind(wx.EVT_BUTTON, self._on_modify_orthanc_content_button_pressed, self._BTN_modify_orthanc_content)
 		self.Bind(wx.EVT_BUTTON, self._on_browse_patient_button_pressed, self._BTN_browse_patient)
 		self.Bind(wx.EVT_BUTTON, self._on_export_all_studies_button_pressed, self._BTN_export_all_studies)
 		self.Bind(wx.EVT_BUTTON, self._on_browse_study_button_pressed, self._BTN_browse_study)
@@ -59,6 +61,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._TCTRL_password.SetToolTipString(_("Enter the PACS password. It will not be shown."))
 		self._BTN_connect.SetToolTipString(_("Connect to PACS."))
 		self._BTN_browse_pacs.SetToolTipString(_("Browse PACS at top level."))
+		self._BTN_modify_orthanc_content.SetToolTipString(_("Modify some of Orthanc content (such as patient IDs)."))
 		self._BTN_browse_patient.SetToolTipString(_("Browse overview of studies for this patient."))
 		self._BTN_browse_patient.Enable(False)
 		self._BTN_export_all_studies.SetToolTipString(_("Copy all studies into export area."))
@@ -88,8 +91,9 @@ class wxgPACSPluginPnl(wx.Panel):
 		__lbl_password = wx.StaticText(self, wx.ID_ANY, _("Password"))
 		__szr_PACS_details.Add(__lbl_password, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_PACS_details.Add(self._TCTRL_password, 1, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_PACS_details.Add(self._BTN_connect, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 0)
-		__szr_PACS_details.Add(self._BTN_browse_pacs, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_PACS_details.Add(self._BTN_connect, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_PACS_details.Add(self._BTN_browse_pacs, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_PACS_details.Add(self._BTN_modify_orthanc_content, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_main.Add(__szr_PACS_details, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 		__szr_main.Add(self._LBL_PACS_identification, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 		__szr_main.Add(self._LBL_patient_identification, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
@@ -115,6 +119,10 @@ class wxgPACSPluginPnl(wx.Panel):
 
 	def _on_browse_pacs_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
 		print "Event handler '_on_browse_pacs_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_modify_orthanc_content_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>
+		print "Event handler '_on_modify_orthanc_content_button_pressed' not implemented!"
 		event.Skip()
 
 	def _on_browse_patient_button_pressed(self, event):  # wxGlade: wxgPACSPluginPnl.<event_handler>

@@ -2639,7 +2639,9 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return False
 
 		person = gmPerson.gmCurrentPatient()
-		info_lines = [_(u'GNUmed patient: %s (generic PACS ID)') % person.get_external_id_suggestion(target = u'PACS')]
+		info_lines = []
+		for pacs_id in person.suggest_external_ids(target = u'PACS'):
+			info_lines.append(_(u'GNUmed patient: %s (generic PACS ID)') % pacs_id)
 		for pacs_id in person.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
 			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s] (stored PACS ID)') % pacs_id)
 
@@ -2980,6 +2982,96 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._LCTRL_series.set_string_items(items = series_list_items)
 		self._LCTRL_series.set_column_widths()
 		self._LCTRL_series.set_data(data = series_list_data)
+
+	#--------------------------------------------------------
+	def _on_modify_orthanc_content_button_pressed(self, event):
+		event.Skip()
+		dlg = cModifyOrthancContentDlg(self, -1, server = self.__pacs)
+		dlg.ShowModal()
+		dlg.Destroy()
+		self._schedule_data_reget()
+
+#------------------------------------------------------------
+from Gnumed.wxGladeWidgets.wxgModifyOrthancContentDlg import wxgModifyOrthancContentDlg
+
+class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
+	def __init__(self, *args, **kwds):
+		self.__srv = kwds['server']
+		del kwds['server']
+		kwds['title'] = _('Editing Orthanc content')
+		wxgModifyOrthancContentDlg.__init__(self, *args, **kwds)
+		self._LCTRL_patients.set_columns( [_('Patient ID'), _('Name'), _('Birth date'), _('Gender'), _('Orthanc')] )
+
+	#--------------------------------------------------------
+	def __refresh_patient_list(self):
+		self._LCTRL_patients.set_string_items()
+		search_term = self._TCTRL_search_term.Value.strip()
+		if search_term == u'':
+			return
+		pats = self.__srv.get_patients_by_name(name_parts = search_term.split(), fuzzy = True)
+		if len(pats) == 0:
+			return
+		list_items = []
+		list_data = []
+		for pat in pats:
+			mt = pat['MainDicomTags']
+			try:
+				gender = mt['PatientSex']
+			except KeyError:
+				gender = u''
+			try:
+				dob = mt['PatientBirthDate']
+			except KeyError:
+				dob = u''
+			list_items.append([mt['PatientID'], mt['PatientName'], dob, gender, pat['ID']])
+			list_data.append(mt['PatientID'])
+		self._LCTRL_patients.set_string_items(list_items)
+		self._LCTRL_patients.set_column_widths()
+		self._LCTRL_patients.set_data(list_data)
+
+	#--------------------------------------------------------
+	def _on_search_patients_button_pressed(self, event):
+		event.Skip()
+		self.__refresh_patient_list()
+
+	#--------------------------------------------------------
+	def _on_suggest_patient_id_button_pressed(self, event):
+		event.Skip()
+		pat = gmPerson.gmCurrentPatient()
+		if not pat.connected:
+			return
+		self._TCTRL_new_patient_id.Value = pat.suggest_external_id(target = u'PACS')
+
+	#--------------------------------------------------------
+	def _on_set_patient_id_button_pressed(self, event):
+		event.Skip()
+		new_id = self._TCTRL_new_patient_id.Value.strip()
+		if new_id == u'':
+			return
+		pats = self._LCTRL_patients.get_selected_item_data(only_one = False)
+		if len(pats) == 0:
+			return
+		really_modify = gmGuiHelpers.gm_show_question (
+			title = _('Modifying patient ID'),
+			question = _(
+				'Really modify %s patient(s) to have the\n'
+				'new patient ID [%s]\n'
+				'stored in the Orthanc DICOM server ?'
+			) % (
+				len(pats),
+				new_id
+			),
+			cancel_button = True
+		)
+		if not really_modify:
+			return
+		all_modified = True
+		for pat in pats:
+			success = self.__srv.modify_patient_id(old_patient_id = pat, new_patient_id = new_id)
+			if not success:
+				all_modified = False
+		self.__refresh_patient_list()
+		return all_modified
 
 #============================================================
 # main
