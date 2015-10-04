@@ -126,7 +126,7 @@ if test -z ${GM_HOST} ; then
 	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 	echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-	pg_dump -C -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
+	pg_dump -C -v --column-inserts -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 else
 	# remotely
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
@@ -149,7 +149,7 @@ else
 		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 		echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-		pg_dump -C -v -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
+		pg_dump -C --column-inserts -v -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 	else
 		echo "Cannot ping database host ${GM_HOST}."
 		exit 1

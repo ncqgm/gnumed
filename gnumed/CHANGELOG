@@ -1651,6 +1651,7 @@ NEW: smoking support in clin.patient
 NEW: constraints on audit trail to be in the past
 
 IMPROVED: database restore default configuration
+IMPROVED: more resilient backups
 
 ------------------------------------------------
 # gnumed_v20

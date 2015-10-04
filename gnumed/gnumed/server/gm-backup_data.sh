@@ -99,7 +99,7 @@ fi
 
 
 # data only
-pg_dump --data-only -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql ${GM_DATABASE} 2> /dev/null
+pg_dump --data-only --column-inserts -v -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-data_only.sql ${GM_DATABASE} 2> /dev/null
 
 
 # tar and test it
