@@ -448,6 +448,8 @@ class cOrthancServer:
 		modify_data = {
 			u'Replace': {
 				u'PatientID': new_patient_id
+				#,u'0010,0021': praxis.name / "GNUmed vX.X.X"
+				#,u'0010,1002': series of (old) patient IDs
 			}
 		}
 		o_pats = self.get_patients_by_external_id(external_id = old_patient_id)
