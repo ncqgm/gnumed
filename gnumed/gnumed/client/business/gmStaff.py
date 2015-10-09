@@ -244,6 +244,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 #============================================================
 def set_current_provider_to_logged_on_user():
 	gmCurrentProvider(provider = cStaff())
+
 #============================================================
 class gmCurrentProvider(gmBorg.cBorg):
 	"""Staff member Borg to hold currently logged on provider.
@@ -271,13 +272,13 @@ class gmCurrentProvider(gmBorg.cBorg):
 		if not isinstance(provider, cStaff):
 			raise ValueError, 'cannot set logged on provider to [%s], must be either None or cStaff instance' % str(provider)
 
-		# same ID, no change needed
-		if self.provider['pk_staff'] == provider['pk_staff']:
-			return None
-
 		# first invocation
 		if isinstance(self.provider, gmNull.cNull):
 			self.provider = provider
+			return None
+
+		# same ID, no change needed
+		if self.provider['pk_staff'] == provider['pk_staff']:
 			return None
 
 		# user wants different provider

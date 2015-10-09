@@ -23,6 +23,7 @@ from xml.etree import ElementTree as etree
 
 # GNUmed
 if __name__ == '__main__':
+	logging.basicConfig(level = logging.DEBUG)
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmDispatcher
@@ -1895,7 +1896,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""
 		# make sure we do have a patient pointer
 		try:
-			tmp = self.patient
+			self.patient
 		except AttributeError:
 			self.patient = gmNull.cNull()
 			self.__register_interests()
@@ -1999,14 +2000,13 @@ class gmCurrentPatient(gmBorg.cBorg):
 			raise TypeError(u'callback [%s] not callable' % callback)
 
 		self.__callbacks_before_switching_away_from_patient.append(callback)
+
 	#--------------------------------------------------------
 	def _get_connected(self):
 		return (not isinstance(self.patient, gmNull.cNull))
 
-	def _set_connected(self):
-		raise AttributeError(u'invalid to set <connected> state')
+	connected = property(_get_connected, lambda x:x)
 
-	connected = property(_get_connected, _set_connected)
 	#--------------------------------------------------------
 	def _get_locked(self):
 		return (self.__lock_depth > 0)
@@ -2024,11 +2024,13 @@ class gmCurrentPatient(gmBorg.cBorg):
 			gmDispatcher.send(signal = 'patient_unlocked', sender = self.__class__.__name__)
 
 	locked = property(_get_locked, _set_locked)
+
 	#--------------------------------------------------------
 	def force_unlock(self):
 		_log.info('forced patient unlock at lock depth [%s]' % self.__lock_depth)
 		self.__lock_depth = 0
 		gmDispatcher.send(signal = 'patient_unlocked', sender = self.__class__.__name__)
+
 	#--------------------------------------------------------
 	# patient change handling
 	#--------------------------------------------------------
@@ -2051,6 +2053,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 				return False
 
 		return True
+
 	#--------------------------------------------------------
 	def __send_pre_unselection_notification(self):
 		"""Sends signal when current patient is about to be unset.
@@ -2063,6 +2066,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'pk_identity': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
+
 	#--------------------------------------------------------
 	def __send_unselection_notification(self):
 		"""Sends signal when the previously active patient has
@@ -2077,6 +2081,7 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'sender': self.__class__.__name__
 		}
 		gmDispatcher.send(**kwargs)
+
 	#--------------------------------------------------------
 	def __send_selection_notification(self):
 		"""Sends signal when another patient has actually been made active."""
@@ -2086,14 +2091,24 @@ class gmCurrentPatient(gmBorg.cBorg):
 			'pk_identity': self.patient['pk_identity']
 		}
 		gmDispatcher.send(**kwargs)
+
 	#--------------------------------------------------------
 	# __getattr__ handling
 	#--------------------------------------------------------
 	def __getattr__(self, attribute):
+		# override __getattr__ here, not __getattribute__ because
+		# the former is used _after_ ordinary attribute lookup
+		# failed while the latter is applied _before_ ordinary
+		# lookup (and is easy to drive into infinite recursion),
+		# this is also why subsequent access to self.patient
+		# simply returns the .patient member value :-)
 		if attribute == 'patient':
 			raise AttributeError
-		if not isinstance(self.patient, gmNull.cNull):
-			return getattr(self.patient, attribute)
+		if isinstance(self.patient, gmNull.cNull):
+			_log.error("[%s]: cannot getattr(%s, '%s'), patient attribute not connected to a patient", self, self.patient, attribute)
+			raise AttributeError("[%s]: cannot getattr(%s, '%s'), patient attribute not connected to a patient" % (self, self.patient, attribute))
+		return getattr(self.patient, attribute)
+
 	#--------------------------------------------------------
 	# __get/setitem__ handling
 	#--------------------------------------------------------
@@ -2101,9 +2116,11 @@ class gmCurrentPatient(gmBorg.cBorg):
 		"""Return any attribute if known how to retrieve it by proxy.
 		"""
 		return self.patient[attribute]
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		self.patient[attribute] = value
+
 #============================================================
 # match providers
 #============================================================
@@ -2469,6 +2486,12 @@ if __name__ == '__main__':
 	def test_vcf():
 		person = cPerson(aPK_obj = 12)
 		print person.export_as_vcard()
+
+	#--------------------------------------------------------
+	def test_current_patient():
+		pat = gmCurrentPatient()
+		print "pat.get_emr()", pat.get_emr()
+
 	#--------------------------------------------------------
 	def test_ext_id():
 		person = cPerson(aPK_obj = 12)
@@ -2490,5 +2513,6 @@ if __name__ == '__main__':
 	#test_ext_id()
 	#test_vcf()
 	test_ext_id()
+	test_current_patient()
 
 #============================================================

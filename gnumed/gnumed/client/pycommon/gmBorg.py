@@ -2,7 +2,7 @@
 # Thanks to Python Patterns !
 # ---------------------------
 __author__ = "Karsten.Hilbert@gmx.net"
-__license__ = "GPL"
+__license__ = "GPL v2 or later"
 
 #===================================================
 class cBorg(object):
@@ -10,7 +10,7 @@ class cBorg(object):
 
 	- mixin this class with your class' ancestors to borg it
 
-	- there may be many instances of this - PER CHILD CLASS - but they all share state
+	- there may be many _instances_ of this - PER CHILD CLASS - but they all share _state_
 	"""
 	_instances = {}
 
