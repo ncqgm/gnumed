@@ -103,6 +103,12 @@ u_kanji_yen = u'\u5186'						# Yen kanji
 u_replacement_character = u'\ufffd'
 u_link_symbol = u'\u1f517'
 
+_kB = 1024
+_MB = 1024 * _kB
+_GB = 1024 * _MB
+_TB = 1024 * _GB
+_PB = 1024 * _TB
+
 #===========================================================================
 def handle_uncaught_exception_console(t, v, tb):
 
@@ -406,6 +412,7 @@ def gpg_decrypt_file(filename=None, passphrase=None):
 		return None
 
 	return filename_decrypted
+
 #---------------------------------------------------------------------------
 def file2md5(filename=None, return_hex=True):
 	blocksize = 2**10 * 128			# 128k, since md5 uses 128 byte blocks
@@ -425,6 +432,25 @@ def file2md5(filename=None, return_hex=True):
 	if return_hex:
 		return md5.hexdigest()
 	return md5.digest()
+
+#---------------------------------------------------------------------------
+def file2chunked_md5(filename=None, chunk_size=500*_MB):
+	_log.debug('chunked_md5(%s, chunk_size=%s bytes)', filename, chunk_size)
+	md5_concat = u''
+	f = open(filename, 'rb')
+	while True:
+		md5 = hashlib.md5()
+		data = f.read(chunk_size)
+		if not data:
+			break
+		md5.update(data)
+		md5_concat += md5.hexdigest()
+	f.close()
+	md5 = hashlib.md5()
+	md5.update(md5_concat)
+	hex_digest = md5.hexdigest()
+	_log.debug('md5("%s"): %s', md5_concat, hex_digest)
+	return hex_digest
 
 #---------------------------------------------------------------------------
 def unicode2charset_encoder(unicode_csv_data, encoding='utf-8'):
@@ -544,12 +570,6 @@ def import_module_from_directory(module_path=None, module_name=None, always_remo
 
 #===========================================================================
 # text related tools
-#---------------------------------------------------------------------------
-_kB = 1024
-_MB = 1024 * _kB
-_GB = 1024 * _MB
-_TB = 1024 * _GB
-_PB = 1024 * _TB
 #---------------------------------------------------------------------------
 def size2str(size=0, template=u'%s'):
 	if size == 1:
@@ -1251,7 +1271,8 @@ second line\n
 		print wrap(test, 7, u'   ', u' ')
 	#-----------------------------------------------------------------------
 	def test_md5():
-		print '%s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
+		print 'md5 %s: %s' % (sys.argv[2], file2md5(sys.argv[2]))
+		print 'chunked md5 %s: %s' % (sys.argv[2], file2chunked_md5(sys.argv[2]))
 	#-----------------------------------------------------------------------
 	def test_unicode():
 		print u_link_symbol * 10
@@ -1345,7 +1366,7 @@ second line\n
 	#test_input2decimal()
 	#test_input2int()
 	#test_unwrap()
-	#test_md5()
+	test_md5()
 	#test_unicode()
 	#test_xml_escape()
 	#test_gpg_decrypt()
@@ -1353,6 +1374,6 @@ second line\n
 	#test_fname_stem()
 	#test_tex_escape()
 	#test_dir_is_empty()
-	test_compare_dicts()
+	#test_compare_dicts()
 
 #===========================================================================

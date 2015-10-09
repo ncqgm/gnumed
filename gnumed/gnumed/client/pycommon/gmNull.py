@@ -35,19 +35,19 @@ combinations of these words: Null, object, design and pattern.
 Dinu C. Gherman,
 August 2001
 
-For modifications see CVS changelog below.
-
 Karsten Hilbert
 July 2004
 """
 #==============================================================
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/pycommon/gmNull.py,v $
-__version__ = "$Revision: 1.6 $"
-__author__ = "Dinu C. Gherman"
+__author__ = "Dinu C. Gherman, Karsten Hilbert"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
 
+import logging
+
+_log = logging.getLogger('cNull')
+
 #==============================================================
-class cNull:
+class cNull(object):
 	"""A class for implementing Null objects.
 
 	This class ignores all parameters passed when constructing or 
@@ -61,69 +61,67 @@ class cNull:
 	on the environment and, hence, these special methods are not
 	provided here.
 	"""
-	_warn = 0
-
 	# object constructing
-	
 	def __init__(self, *args, **kwargs):
 		"Ignore parameters."
-		try:
-			cNull._warn = kwargs['warn']
-		except KeyError:
-			pass
-		return None
+		_log.debug(u'args: %s', args)
+		_log.debug(u'kwargs: %s', kwargs)
 
 	# object calling
-
 	def __call__(self, *args, **kwargs):
 		"Ignore method calls."
-		if cNull._warn:
-			print "cNull.__call__()"
+		_log.debug(u'args: %s', args)
+		_log.debug(u'kwargs: %s', kwargs)
 		return self
 
 	# attribute handling
-
-	def __getattr__(self, mname):
+	def __getattr__(self, attribute):
 		"Ignore attribute requests."
-		if cNull._warn:
-			print "cNull.__getattr__()"
+		_log.debug(u'%s.%s', self, attribute)
 		return self
 
-	def __setattr__(self, name, value):
+	def __setattr__(self, attribute, value):
 		"Ignore attribute setting."
-		if cNull._warn:
-			print "cNull.__setattr__()"
+		_log.debug(u'%s.%s = %s', self, attribute, value)
 		return self
 
-	def __delattr__(self, name):
+	def __delattr__(self, attribute):
 		"Ignore deleting attributes."
-		if cNull._warn:
-			print "cNull.__delattr__()"
+		_log.debug(u'%s.%s', self, attribute)
+		return self
+
+	# item handling
+	def __getitem__(self, item):
+		"Ignore item requests."
+		_log.debug(u'%s[%s]', self, item)
+		return self
+
+	def __setitem__(self, item, value):
+		"Ignore item setting."
+		_log.debug(u'%s[%s] = %s', self, item, value)
+		return self
+
+	def __delitem__(self, item):
+		"Ignore deleting items."
+		_log.debug(u'%s[%s]', self, item)
 		return self
 
 	# misc.
-
 	def __repr__(self):
 		"Return a string representation."
-		if cNull._warn:
-			print "cNull.__repr__()"
 		return "<cNull instance @ %s>" % id(self)
 
 	def __str__(self):
 		"Convert to a string and return it."
-		if cNull._warn:
-			print "cNull.__str__()"
-		return "cNull instance"
+		return 'cNull instance'
 
 	def __nonzero__(self):
-		if cNull._warn:
-			print "cNull.__nonzero__()"
+		_log.debug(u'returns 0')
 		return 0
-        
+
 	def __len__(self):
-		if cNull._warn:
-			print "cNull.__len__()"
-		return 0        
+		_log.debug(u'0')
+		return 0
 
 #==============================================================
 def test():
@@ -133,7 +131,7 @@ def test():
 
 	n = cNull()
 	n = cNull('value')
-	n = cNull('value', param='value', warn=1)
+	n = cNull('value', param='value')
 
 	n()
 	n('value')
@@ -154,6 +152,10 @@ def test():
 	n.attr1 = 'value'
 	n.attr1.attr2 = 'value'
 
+	n['1']
+	n['2'] = '123'
+	del n['3']
+
 	del n.attr1
 	del n.attr1.attr2.attr3
 
@@ -167,29 +169,7 @@ def test():
 		print "Null object == 1"
 	else:
 		print "Null object != 1"
-#--------------------------------------------------------------
-if __name__ == '__main__':
-	test()
 
 #==============================================================
-# $Log: gmNull.py,v $
-# Revision 1.6  2005-06-28 14:12:55  cfmoro
-# Integration in space fixes
-#
-# Revision 1.5  2004/12/22 08:40:01  ncq
-# - make output more obvious
-#
-# Revision 1.4  2004/11/24 15:49:11  ncq
-# - use 0/1 not False/True so we can run on older pythons
-#
-# Revision 1.3  2004/08/20 08:38:47  ncq
-# - robustify while working on allowing inactive patient after search
-#
-# Revision 1.2  2004/07/21 07:51:47  ncq
-# - tabified
-# - __nonzero__ added
-# - if keyword argument 'warn' is True: warn on use of Null class
-#
-# Revision 1.1	2004/07/06 00:08:31	 ncq
-# - null design pattern from python cookbook
-#
+if __name__ == '__main__':
+	test()

@@ -6,6 +6,11 @@
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.8
+
+FIX: SQL formatting when retrieving clinical narrative [thanks Marc]
+FIX: strange case of "curr_pat is None" in top panel [thanks Marc]
+
 	1.5.7
 
 FIX: one more nonissue-problem tooltip exception in SOAP editor [thanks Marc]

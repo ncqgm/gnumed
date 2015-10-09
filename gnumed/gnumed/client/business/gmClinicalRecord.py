@@ -534,7 +534,7 @@ class cClinicalRecord(object):
 			args['cats'] = tuple(args['cats'])
 
 		if providers is not None:
-			where_parts.append(u'c_vn.modified_by IN %(docs)')
+			where_parts.append(u'c_vn.modified_by IN %(docs)s')
 			args['docs'] = tuple(providers)
 
 		cmd = u"""

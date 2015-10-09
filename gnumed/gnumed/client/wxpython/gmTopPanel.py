@@ -224,6 +224,13 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 	#-------------------------------------------------------
 	def __update_allergies(self, **kwargs):
 
+		if not self.curr_pat.connected:
+			self._LBL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetForegroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_WINDOWTEXT))
+			self._TCTRL_allergies.SetValue(u'')
+			self._TCTRL_allergies.SetToolTipString(u'')
+			return
+
 		show_red = True
 
 		emr = self.curr_pat.get_emr()
