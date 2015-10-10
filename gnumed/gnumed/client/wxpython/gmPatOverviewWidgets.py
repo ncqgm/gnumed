@@ -1060,7 +1060,11 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 	def _calc_problem_list_item_tooltip(self, data):
 
 		if isinstance(data, gmExternalCare.cExternalCareItem):
-			return u'\n'.join(data.format(with_health_issue = True, with_comms = True))
+			return u'\n'.join(data.format (
+				with_health_issue = True,
+				with_address = True,
+				with_comms = True
+			))
 
 		emr = gmPerson.gmCurrentPatient().get_emr()
 

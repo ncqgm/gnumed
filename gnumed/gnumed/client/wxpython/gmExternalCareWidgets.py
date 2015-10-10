@@ -56,7 +56,8 @@ def manage_external_care(parent=None):
 	def get_tooltip(data):
 		if data is None:
 			return None
-		return u'\n'.join(data.format(with_health_issue = True))
+		return u'\n'.join(data.format(with_health_issue = True, with_address = True, with_comms = True))
+
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		care = emr.get_external_care_items(order_by = u'issue, provider, unit, organization')
