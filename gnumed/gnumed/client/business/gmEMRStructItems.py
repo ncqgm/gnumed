@@ -3109,8 +3109,9 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__setitem__(self, 'pk_hospital_stay', None)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
 	#-------------------------------------------------------
-	def format(self, left_margin=0, include_episode=True, include_codes=False):
+	def format(self, left_margin=0, include_episode=True, include_codes=False, include_address=False, include_comm=False):
 
 		if self._payload[self._idx['is_ongoing']]:
 			end = _(' (ongoing)')
@@ -3131,6 +3132,17 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		)
 		if include_episode:
 			line = u'%s (%s)' % (line, self._payload[self._idx['episode']])
+
+		if include_comm:
+			for channel in self.org_unit.comm_channels:
+				line += (u'\n%(comm_type)s: %(url)s' % channel)
+
+		if include_address:
+			adr = self.org_unit.address
+			if adr is not None:
+				line += u'\n'
+				line += u'\n'.join(adr.format(single_line = False, show_type = False))
+				line += u'\n'
 
 		if include_codes:
 			codes = self.generic_codes
@@ -3167,8 +3179,23 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	# properties
+	#--------------------------------------------------------
+	def _get_stay(self):
+		if self._payload[self._idx['pk_hospital_stay']] is None:
+			return None
+		return cHospitalStay(aPK_obj = self._payload[self._idx['pk_hospital_stay']])
+
+	hospital_stay = property(_get_stay, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
+
+	org_unit = property(_get_org_unit, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_generic_codes(self):
 		if len(self._payload[self._idx['pk_generic_codes']]) == 0:
@@ -3206,6 +3233,7 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
+
 #-----------------------------------------------------------
 def get_performed_procedures(patient=None):
 

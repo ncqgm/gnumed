@@ -74,9 +74,23 @@ def manage_performed_procedures(parent=None):
 
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
+
+	#-----------------------------------------
+	def get_tooltip(procedure=None):
+		if procedure is None:
+			return None
+		return procedure.format (
+			left_margin = 1,
+			include_episode = False,
+			include_codes = False,
+			include_address = True,
+			include_comm = True
+		)
+
 	#-----------------------------------------
 	def edit(procedure=None):
 		return edit_procedure(parent = parent, procedure = procedure)
+
 	#-----------------------------------------
 	def delete(procedure=None):
 		if gmEMRStructItems.delete_performed_procedure(procedure = procedure['pk_procedure']):
@@ -125,7 +139,8 @@ def manage_performed_procedures(parent=None):
 		edit_callback = edit,
 		new_callback = edit,
 		delete_callback = delete,
-		refresh_callback = refresh
+		refresh_callback = refresh,
+		list_tooltip_callback = get_tooltip
 	)
 
 #----------------------------------------------------------------

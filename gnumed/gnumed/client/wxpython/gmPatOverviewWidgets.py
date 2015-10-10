@@ -209,6 +209,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self.__refresh_documents(patient = pat)
 
 		return True
+
 	#-----------------------------------------------------
 	# internal helpers
 	#-----------------------------------------------------
@@ -729,7 +730,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			return data.format()
 
 		if isinstance(data, gmEMRStructItems.cPerformedProcedure):
-			return data.format(include_episode = True)
+			return data.format(include_episode = True, include_codes = False, include_address = True, include_comm = True)
 
 		if isinstance(data, gmVaccination.cVaccination):
 			return u'\n'.join(data.format (

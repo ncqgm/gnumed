@@ -568,7 +568,7 @@ class cAddress(gmBusinessDBObject.cBusinessDBObject):
 	whom it is attached. In many cases you will want to create a *new*
 	address and link it to a person instead of the old address.
 	"""
-	_cmd_fetch_payload = u"select * from dem.v_address where pk_address = %s"
+	_cmd_fetch_payload = u"SELECT * FROM dem.v_address WHERE pk_address = %s"
 	_cmds_store_payload = [
 		u"""UPDATE dem.address SET
 				aux_street = %(notes_street)s,
@@ -698,6 +698,7 @@ def delete_address(pk_address=None):
 		"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': pk_address}}])
 	return True
+
 #------------------------------------------------------------
 def format_address_single_line(address=None, verbose=False, show_type=False):
 	data = {
@@ -730,6 +731,7 @@ def format_address_single_line(address=None, verbose=False, show_type=False):
 			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
 
 	return template % data
+
 #------------------------------------------------------------
 def format_address(address=None, show_type=False):
 	data = {
@@ -768,6 +770,7 @@ def format_address(address=None, show_type=False):
 		)
 	txt = template % data
 	return txt.split('\n')
+
 #------------------------------------------------------------
 def create_address_type(address_type=None):
 	args = {'typ': address_type}

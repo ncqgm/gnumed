@@ -25,6 +25,7 @@ NEW: support for substance abuse status (nicotine, ethanol, other)
 NEW: search in EMR journal view
 NEW: put EMR journal into export area
 NEW: limited PACS access (Orthanc DICOM server)
+NEW: tooltip in procedures list
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows
@@ -47,6 +48,7 @@ IMPROVED: EMR journal formatting
 IMPROVED: support deleting more than one list item at a time
 IMPROVED: put file from filename in clipboard into export area
 IMPROVED: startup shell script
+IMPROVED: procedure tooltip in patient overview Hx box
 
 ------------------------------------------------
 # rel-1-5-patches

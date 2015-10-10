@@ -81,6 +81,7 @@ class cOrg(gmBusinessDBObject.cBusinessDBObject):
 		return get_org_units(order_by = u'unit', org = self._payload[self._idx['pk_org']])
 
 	units = property(_get_units, lambda x:x)
+
 #------------------------------------------------------------
 def org_exists(organization=None, category=None, link_obj=None):
 	args = {'desc': organization, 'cat': category}
@@ -200,6 +201,9 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					'idx': idx
 				}) for r in rows
 			]
+
+	comm_channels = property(get_comm_channels, lambda x:x)
+
 	#--------------------------------------------------------
 	def link_comm_channel(self, comm_medium=None, url=None, is_confidential=False, pk_channel_type=None):
 		"""Link a communication medium with this org unit.
@@ -384,6 +388,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 					gmTools.bool2subst(comm['is_confidential'], _(' (confidential)'), u'', u'')
 				))
 		return lines
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -397,6 +402,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 		self.save()
 
 	address = property(_get_address, _set_address)
+
 	#--------------------------------------------------------
 	def _get_org(self):
 		return cOrg(aPK_obj = self._payload[self._idx['pk_org']])
@@ -405,6 +411,7 @@ class cOrgUnit(gmBusinessDBObject.cBusinessDBObject):
 	org = property(_get_org, lambda x:x)
 
 	comm_channels = property(get_comm_channels, lambda x:x)
+
 #------------------------------------------------------------
 def create_org_unit(pk_organization=None, unit=None, link_obj=None):
 	_log.debug(u'creating org unit [%s:%s]', unit, pk_organization)
