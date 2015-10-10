@@ -2,8 +2,6 @@
 -- database GIS - spanish counties, according to National Institute of Statistics (http://www.ine.es)
 
 -- ===================================================================
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/es/gmDemographics-Data.es.sql,v $
--- $Id: gmDemographics-Data.es.sql,v 1.7 2006-01-09 13:46:19 ncq Exp $
 -- author: Carlos Moro
 -- license: GPL v2 or later
 
@@ -11,9 +9,8 @@
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set client_encoding to 'LATIN1';
 -- ===================================================================
-select i18n.upd_tx('es_ES', 'Spain', 'EspaÒa');
+select i18n.upd_tx('es_ES', 'Spain', 'Espa√±a');
 
 -- Carlos, please reconcile:
 --INSERT into dem.state(code, country, name) VALUES ('AN','ES',i18n.i18n('Andalusia'));
@@ -35,35 +32,35 @@ select i18n.upd_tx('es_ES', 'Spain', 'EspaÒa');
 --INSERT into dem.state(code, country, name) VALUES ('VA','ES',i18n.i18n('Valencia'));
 
 -- spanish geographic information (mostly of type 'state')
-INSERT into dem.state(code,country,name) VALUES ('01','ES',i18n.i18n('¡lava'));
+INSERT into dem.state(code,country,name) VALUES ('01','ES',i18n.i18n('√Ålava'));
 INSERT into dem.state(code,country,name) VALUES ('02','ES',i18n.i18n('Albacete'));
 INSERT into dem.state(code,country,name) VALUES ('03','ES',i18n.i18n('Alicante'));
-INSERT into dem.state(code,country,name) VALUES ('04','ES',i18n.i18n('AlmerÌa'));
+INSERT into dem.state(code,country,name) VALUES ('04','ES',i18n.i18n('Almer√≠a'));
 INSERT into dem.state(code,country,name) VALUES ('33','ES',i18n.i18n('Asturias'));
-INSERT into dem.state(code,country,name) VALUES ('05','ES',i18n.i18n('¡vila'));
+INSERT into dem.state(code,country,name) VALUES ('05','ES',i18n.i18n('√Åvila'));
 INSERT into dem.state(code,country,name) VALUES ('06','ES',i18n.i18n('Badajoz'));
 INSERT into dem.state(code,country,name) VALUES ('07','ES',i18n.i18n('Baleares'));
 INSERT into dem.state(code,country,name) VALUES ('08','ES',i18n.i18n('Barcelona'));
 INSERT into dem.state(code,country,name) VALUES ('09','ES',i18n.i18n('Burgos'));
-INSERT into dem.state(code,country,name) VALUES ('10','ES',i18n.i18n('C·ceres'));
-INSERT into dem.state(code,country,name) VALUES ('11','ES',i18n.i18n('C·diz'));
-INSERT into dem.state(code,country,name) VALUES ('12','ES',i18n.i18n('CastellÛn'));
+INSERT into dem.state(code,country,name) VALUES ('10','ES',i18n.i18n('C√°ceres'));
+INSERT into dem.state(code,country,name) VALUES ('11','ES',i18n.i18n('C√°diz'));
+INSERT into dem.state(code,country,name) VALUES ('12','ES',i18n.i18n('Castell√≥n'));
 INSERT into dem.state(code,country,name) VALUES ('13','ES',i18n.i18n('Ciudad Real'));
-INSERT into dem.state(code,country,name) VALUES ('14','ES',i18n.i18n('CÛrdoba'));
-INSERT into dem.state(code,country,name) VALUES ('15','ES',i18n.i18n('CoruÒa'));
+INSERT into dem.state(code,country,name) VALUES ('14','ES',i18n.i18n('C√≥rdoba'));
+INSERT into dem.state(code,country,name) VALUES ('15','ES',i18n.i18n('Coru√±a'));
 INSERT into dem.state(code,country,name) VALUES ('16','ES',i18n.i18n('Cuenca'));
 INSERT into dem.state(code,country,name) VALUES ('17','ES',i18n.i18n('Gerona'));
 INSERT into dem.state(code,country,name) VALUES ('18','ES',i18n.i18n('Granada'));
 INSERT into dem.state(code,country,name) VALUES ('19','ES',i18n.i18n('Guadalajara'));
-INSERT into dem.state(code,country,name) VALUES ('20','ES',i18n.i18n('Guip˙zcoa'));
+INSERT into dem.state(code,country,name) VALUES ('20','ES',i18n.i18n('Guip√∫zcoa'));
 INSERT into dem.state(code,country,name) VALUES ('21','ES',i18n.i18n('Huelva'));
 INSERT into dem.state(code,country,name) VALUES ('22','ES',i18n.i18n('Huesca'));
-INSERT into dem.state(code,country,name) VALUES ('23','ES',i18n.i18n('JaÈn'));
-INSERT into dem.state(code,country,name) VALUES ('24','ES',i18n.i18n('LeÛn'));
-INSERT into dem.state(code,country,name) VALUES ('25','ES',i18n.i18n('LÈrida'));
+INSERT into dem.state(code,country,name) VALUES ('23','ES',i18n.i18n('Ja√©n'));
+INSERT into dem.state(code,country,name) VALUES ('24','ES',i18n.i18n('Le√≥n'));
+INSERT into dem.state(code,country,name) VALUES ('25','ES',i18n.i18n('L√©rida'));
 INSERT into dem.state(code,country,name) VALUES ('27','ES',i18n.i18n('Lugo'));
 INSERT into dem.state(code,country,name) VALUES ('28','ES',i18n.i18n('Madrid'));
-INSERT into dem.state(code,country,name) VALUES ('29','ES',i18n.i18n('M·laga'));
+INSERT into dem.state(code,country,name) VALUES ('29','ES',i18n.i18n('M√°laga'));
 INSERT into dem.state(code,country,name) VALUES ('30','ES',i18n.i18n('Murcia'));
 INSERT into dem.state(code,country,name) VALUES ('31','ES',i18n.i18n('Navarra'));
 INSERT into dem.state(code,country,name) VALUES ('32','ES',i18n.i18n('Orense'));
@@ -91,34 +88,3 @@ select dem.gm_upd_default_states();
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: gmDemographics-Data.es.sql,v $';
 INSERT INTO gm_schema_revision (filename, version) VALUES ('$RCSfile: gmDemographics-Data.es.sql,v $', '$Revision: 1.7 $');
-
--- ===================================================================
--- $Log: gmDemographics-Data.es.sql,v $
--- Revision 1.7  2006-01-09 13:46:19  ncq
--- - adjust to schema "i18n" qualification
---
--- Revision 1.6  2006/01/06 10:12:03  ncq
--- - add missing grants
--- - add_table_for_audit() now in "audit" schema
--- - demographics now in "dem" schema
--- - add view v_inds4vaccine
--- - move staff_role from clinical into demographics
--- - put add_coded_term() into "clin" schema
--- - put German things into "de_de" schema
---
--- Revision 1.5  2005/09/25 17:52:45  ncq
--- - carlos needs to take a look, his data and the data from Jim's file
---   are different
---
--- Revision 1.4  2005/09/19 16:27:05  ncq
--- - update default states
---
--- Revision 1.3  2005/07/14 21:31:43  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.2  2005/06/10 07:22:53  ncq
--- - translate Spain into Spanish
---
--- Revision 1.1  2005/05/15 12:03:51  ncq
--- - Spanish counties/states
---

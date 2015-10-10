@@ -1,9 +1,6 @@
 -- =============================================
 -- GNUmed German translations
 
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/gmUebersetzung.sql,v $
--- $Revision: 1.13 $
-
 -- license: GPL v2 or later
 -- author (of script file): Karsten Hilbert <Karsten.Hilbert@gmx.net>
 
@@ -14,7 +11,7 @@
 set client_encoding to 'LATIN1';
 -- =============================================
 select i18n.upd_tx('de_DE', 'Germany', 'Deutschland');
-select i18n.upd_tx('de_DE', 'Austria', 'Österreich');
+select i18n.upd_tx('de_DE', 'Austria', 'Ã–sterreich');
 select i18n.upd_tx('de_DE', 'Spain', 'Spanien');
 select i18n.upd_tx('de_DE', 'Australia', 'Australien');
 select i18n.upd_tx('de_DE', 'Canada', 'Kanada');
@@ -68,7 +65,7 @@ select i18n.upd_tx
 select i18n.upd_tx
 	('de_DE', 'referral report neuro', 'Arztbrief Neuro');
 select i18n.upd_tx
-	('de_DE', 'referral report radiology', 'Arztbrief Röntgen');
+	('de_DE', 'referral report radiology', 'Arztbrief RÃ¶ntgen');
 select i18n.upd_tx
 	('de_DE', 'referral report other', 'sonstiger Arztbrief');
 select i18n.upd_tx
@@ -91,12 +88,12 @@ select i18n.upd_tx
 
 -- =============================================
 -- confidentiality levels
-select i18n.upd_tx ('de_DE', 'public', 'öffentlich');
-select i18n.upd_tx ('de_DE', 'relatives', 'Angehörige');
+select i18n.upd_tx ('de_DE', 'public', 'Ã¶ffentlich');
+select i18n.upd_tx ('de_DE', 'relatives', 'AngehÃ¶rige');
 select i18n.upd_tx ('de_DE', 'receptionist', 'Personal');
 select i18n.upd_tx ('de_DE', 'clinical staff', 'klinisches Personal');
-select i18n.upd_tx ('de_DE', 'doctors', 'Ärzte');
-select i18n.upd_tx ('de_DE', 'doctors of practice only', 'Ärzte dieser Einrichtung');
+select i18n.upd_tx ('de_DE', 'doctors', 'Ã„rzte');
+select i18n.upd_tx ('de_DE', 'doctors of practice only', 'Ã„rzte dieser Einrichtung');
 select i18n.upd_tx ('de_DE', 'treating doctor', 'behandelnder Arzt');
 
 -- =============================================
@@ -149,7 +146,7 @@ select i18n.upd_tx('de_DE', 'other encounter', 'anderer Kontakt');
 --select i18n.upd_tx
 --	('de_DE', 'clinician', 'Mediziner');
 --select i18n.upd_tx
---	('de_DE', 'relative', 'Angehörige');
+--	('de_DE', 'relative', 'AngehÃ¶rige');
 --select i18n.upd_tx
 --	('de_DE', 'carer', 'Pflegeperson');
 --select i18n.upd_tx
@@ -160,11 +157,11 @@ select i18n.upd_tx('de_DE', 'other encounter', 'anderer Kontakt');
 -- =============================================
 -- allergy types
 select i18n.upd_tx('de_DE', 'allergy', 'Allergie');
-select i18n.upd_tx('de_DE', 'sensitivity', 'Unverträglichkeit');
+select i18n.upd_tx('de_DE', 'sensitivity', 'UnvertrÃ¤glichkeit');
 
 -- =============================================
 -- vaccination routes
-select i18n.upd_tx('de_DE', 'intramuscular', 'intramuskulär');
+select i18n.upd_tx('de_DE', 'intramuscular', 'intramuskulÃ¤r');
 select i18n.upd_tx('de_DE', 'subcutaneous', 'subkutan');
 
 -- =============================================
@@ -174,7 +171,7 @@ select i18n.upd_tx
 select i18n.upd_tx
 	('de_DE', 'mumps', 'Mumps');
 select i18n.upd_tx 
-	('de_DE', 'rubella', 'Röteln');
+	('de_DE', 'rubella', 'RÃ¶teln');
 select i18n.upd_tx 
 	('de_DE', 'tetanus', 'Tetanus');
 select i18n.upd_tx 
@@ -201,9 +198,9 @@ select i18n.upd_tx
 -- =============================================
 -- Status Laborergebnis
 select i18n.upd_tx ('de_DE', 'pending', 'ausstehend');
-select i18n.upd_tx ('de_DE', 'final', 'endgültig');
-select i18n.upd_tx ('de_DE', 'preliminary', 'vorläufig');
-select i18n.upd_tx ('de_DE', 'partial', 'unvollständig');
+select i18n.upd_tx ('de_DE', 'final', 'endgÃ¼ltig');
+select i18n.upd_tx ('de_DE', 'preliminary', 'vorlÃ¤ufig');
+select i18n.upd_tx ('de_DE', 'partial', 'unvollstÃ¤ndig');
 
 -- =============================================
 -- names of interpersonal relations translated into German
@@ -262,74 +259,32 @@ select i18n.upd_tx('de_DE', 'name', 'Name');
 select i18n.upd_tx('de_DE', 'value', 'Wert');
 
 select i18n.upd_tx('de_DE', 'm', 'm');
-select i18n.upd_tx('de_DE', 'male', 'männlich');
+select i18n.upd_tx('de_DE', 'male', 'mÃ¤nnlich');
 select i18n.upd_tx('de_DE', 'f', 'w');
 select i18n.upd_tx('de_DE', 'female', 'weiblich');
 select i18n.upd_tx('de_DE', 'tm', 'tm');
-select i18n.upd_tx('de_DE', 'transsexual phenotype male', 'transsexuell, männlicher Phänotyp');
+select i18n.upd_tx('de_DE', 'transsexual phenotype male', 'transsexuell, mÃ¤nnlicher PhÃ¤notyp');
 select i18n.upd_tx('de_DE', 'tf', 'tf');
-select i18n.upd_tx('de_DE', 'transsexual phenotype female', 'transsexuell, weiblicher Phänotyp');
+select i18n.upd_tx('de_DE', 'transsexual phenotype female', 'transsexuell, weiblicher PhÃ¤notyp');
 select i18n.upd_tx('de_DE', 'h', 'h');
 select i18n.upd_tx('de_DE', 'hermaphrodite', 'Hermaphrodit');
 
 select i18n.upd_tx('de_DE', 'doctor', 'Arzt');
 select i18n.upd_tx('de_DE', 'nurse', 'Arzthelferin');
-select i18n.upd_tx('de_DE', 'secretary', 'Sekretärin');
+select i18n.upd_tx('de_DE', 'secretary', 'SekretÃ¤rin');
 
 select i18n.upd_tx('de_DE', 'clinical', 'medizinisch');
-select i18n.upd_tx('de_DE', 'personal', 'persönlich');
+select i18n.upd_tx('de_DE', 'personal', 'persÃ¶nlich');
 select i18n.upd_tx('de_DE', 'administrative', 'Verwaltung');
 select i18n.upd_tx('de_DE', 'review lab', 'Labor durchsehen');
 select i18n.upd_tx('de_DE', 'review docs', 'Dokumente durchsehen');
 select i18n.upd_tx('de_DE', 'FYI', 'zur Kenntnisnahme');
 select i18n.upd_tx('de_DE', 'memo', 'Memo');
 select i18n.upd_tx('de_DE', 'noted at age', 'aufgefallen im Alter von');
-select i18n.upd_tx('de_DE', 'unreviewed documents for patient', 'neue Dokumente für Patient');
+select i18n.upd_tx('de_DE', 'unreviewed documents for patient', 'neue Dokumente fÃ¼r Patient');
 
 select i18n.upd_tx('de_DE', ' (closed)', ' (beendet)');
 
 -- =============================================
 -- do simple revision tracking
 select log_script_insertion('$RCSfile: gmUebersetzung.sql,v $', '$Revision: 1.13 $');
-
--- =============================================
--- $Log: gmUebersetzung.sql,v $
--- Revision 1.13  2006-05-24 12:11:00  ncq
--- - missing ;
---
--- Revision 1.12  2006/05/20 18:56:20  ncq
--- - translate "closed" for episodes
---
--- Revision 1.11  2006/05/16 16:01:35  ncq
--- - translate a bunch of strings
---
--- Revision 1.10  2006/01/09 13:46:19  ncq
--- - adjust to schema "i18n" qualification
---
--- Revision 1.9  2005/09/19 16:38:52  ncq
--- - adjust to removed is_core from gm_schema_revision
---
--- Revision 1.8  2005/07/14 21:31:43  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.7  2005/06/10 07:22:09  ncq
--- - translate Canada to German
---
--- Revision 1.6  2005/06/07 20:58:48  ncq
--- - add some translated countries
---
--- Revision 1.5  2005/05/17 08:18:22  ncq
--- - RFE -> BA
---
--- Revision 1.4  2005/05/04 08:57:33  ncq
--- - translate "Germany"
---
--- Revision 1.3  2005/04/14 18:26:53  ncq
--- - translate gender stuff
---
--- Revision 1.2  2005/04/12 10:08:57  ncq
--- - add some translations
---
--- Revision 1.1  2005/03/31 19:15:41  ncq
--- - consolidate translations
---

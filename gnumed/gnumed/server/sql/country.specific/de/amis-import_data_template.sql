@@ -3,12 +3,8 @@
 -- information provided by the german AMIS database
 -- into Postgres tables
 
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/amis-import_data_template.sql,v $
 -- author: Horst Herb, Hilmar Berger, Karsten Hilbert
--- version: $Revision: 1.1 $
 -- license: GPL v2 or later
-
-set client_encoding to 'LATIN1';
 
 -- =====================================================================================
 -- amis_praeparate : table of preparations
@@ -93,25 +89,3 @@ CREATE INDEX idx_substance_name ON amis_substances_names (substance_name);
 CREATE INDEX idx_drug_desc_text_key on amis_drug_description (text_key);
 
 -- ===============================================
--- $Log: amis-import_data_template.sql,v $
--- Revision 1.1  2003-10-26 16:07:07  hinnef
--- initial AMIS-schema and data import
---
--- Revision 1.5  2002/11/11 08:22:42  ncq
--- - amis_orig -> amis-orig
---
--- Revision 1.4  2002/11/10 22:31:11  hinnef
--- removed some useless lines
---
--- Revision 1.3  2002/11/10 16:15:06  ncq
--- - added index
---
--- Revision 1.2  2002/11/10 14:13:25  ncq
--- - source dir for taxe_her.ami was wrong
---
--- Revision 1.1  2002/10/24 12:56:38  ncq
--- - initial checkin
--- - split into creation of tables and import of data so people
---   without the data can still import the structure
--- - fix whitespace and typos, make layout more consistent
---

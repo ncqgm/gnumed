@@ -1654,9 +1654,11 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 NEW: prevent deletion of staff records that are in use
 NEW: smoking support in clin.patient
 NEW: constraints on audit trail to be in the past
+NEW: check for track_commit_timestamp on PG > 9.5
 
 IMPROVED: database restore default configuration
 IMPROVED: more resilient backups
+IMPROVED: all input files now utf8 (io.open() Py3 preps)
 
 ------------------------------------------------
 # gnumed_v20

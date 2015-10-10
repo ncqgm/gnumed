@@ -5,8 +5,6 @@
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL v2 or later
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-Typhus.sql,v $
--- $Id: Impfplan-Typhus.sql,v 1.2 2006-03-04 16:24:39 ncq Exp $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -42,13 +40,3 @@ values (
 
 -- =============================================
 select log_script_insertion('$RCSfile: Impfplan-Typhus.sql,v $', '$Revision: 1.2 $');
-
--- =============================================
--- $Log: Impfplan-Typhus.sql,v $
--- Revision 1.2  2006-03-04 16:24:39  ncq
--- - adjust to table name changes
---
--- Revision 1.1  2006/02/27 17:31:30  ncq
--- - Typhus-Impfplan
---
---

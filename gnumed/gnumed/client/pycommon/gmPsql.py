@@ -31,6 +31,7 @@ def shell(str):
 	performs backtick shell extension in a string
 	"""
 	return re.sub (r"`(.*)`", shellrun, str)
+
 #===================================================================
 class Psql:
 
@@ -69,17 +70,18 @@ class Psql:
 		"""
 		filename: a file, containg semicolon-separated SQL commands
 		"""
+		_log.debug('processing [%s]', filename)
 		if re.match ("http://.*", filename) or re.match ("ftp://.*", filename) or re.match ("gopher://.*", filename):
 			try:
 				self.file = urllib2.urlopen (filename)
 			except URLError:
-				_log.error(u"cannot access %s" % filename)
+				_log.error(u"cannot access [%s]", filename)
 				return 1
 		else:
 			if os.access (filename, os.R_OK):
 				self.file = io.open(filename, mode = 'rt', encoding = 'utf8')
 			else:
-				_log.error(u"cannot open file [%s]" % filename)
+				_log.error(u"cannot open file [%s]", filename)
 				return 1
 
 		self.lineno = 0
@@ -88,7 +90,7 @@ class Psql:
 		bracketlevel = 0
 		curr_cmd = ''
 		curs = self.conn.cursor ()
-#		transaction_started = False
+##		transaction_started = False
 		for self.line in self.file.readlines():
 			self.lineno += 1
 			if len(self.line.strip()) == 0:
@@ -115,57 +117,6 @@ class Psql:
 			# \unset
 			if self.match (r"^\\unset (\S+)"):
 				self.vars[self.groups[0]] = None
-				continue
-			# \connect
-			if self.match (r"^\\connect.*"):
-				_log.error(self.fmt_msg(u"\\connect not yet supported in scripts"))
-				continue
-			# \lo_import
-			if self.match (r"^\\lo_import.*"):
-				_log.error(self.fmt_msg(u"\\lo_import not yet supported"))
-				# no sense to continue here
-				return 1
-			# \copy ... to ...
-			if self.match (r"^\\copy .* to '(\S+)' .*"):
-				_log.error(self.fmt_msg(u"\\copy to not implemented"))
-				return 1
-			# \copy ... from ...
-			if self.match (r"^\\copy .* from '(\S+)' .*"):
-				copyfile = self.groups[0]
-				try:
-					copyfd = file (os.path.join (os.path.dirname (self.filename), copyfile))
-				except error:
-					_log.error(self.fmt_msg(error))
-					return 1
-				self.line = self.line[1:].strip() # lop off leading slash
-				self.line.replace ("'%s'" % copyfile, 'stdin')
-				# now we have a command that the backend understands
-				copyline = 0
-				try:
-					curs = self.conn.cursor ()
-					# send the COPY command
-					curs.execute (self.line)
-					# send the data
-					for i in copyfd.readlines ():
-						curs.execute (i)
-						copyline += 1
-					self.conn.commit ()
-					curs.close ()
-				except Exception, error:
-					_log.error(u"%s: %d: %s" % (copyfile, copyline, error))
-					if self.vars['ON_ERROR_STOP']:
-						return 1
-				continue
-
-			# \i
-			if self.match (r"^\\i (\S+)"):
-				# create another interpreter instance in same connection
-				Psql(self.conn).run (os.path.join (os.path.dirname (self.filename), self.groups[0]))
-				continue
-
-			# \encoding
-			if self.match (r"^\\encoding.*"):
-				_log.error(self.fmt_msg(u"\\encoding not yet supported"))
 				continue
 
 			# other '\' commands

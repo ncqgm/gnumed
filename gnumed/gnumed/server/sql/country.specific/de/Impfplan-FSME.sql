@@ -5,8 +5,6 @@
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL v2 or later
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/Impfplan-FSME.sql,v $
--- $Revision: 1.6 $
 -- =============================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
@@ -38,7 +36,7 @@ values (
 	'13 months'::interval,
 	'12 years'::interval,
 	'1 month'::interval,
-	'frühestmögliche Serokonversion in 14 Tagen, 1-3 Monate nach 1.Impfung'
+	'frÃ¼hestmÃ¶gliche Serokonversion in 14 Tagen, 1-3 Monate nach 1.Impfung'
 );
 
 insert into clin.vaccination_definition
@@ -79,7 +77,7 @@ values (
 	'12 months 7 days'::interval,
 	'12 years'::interval,
 	'7 days'::interval,
-	'am Tag 7 nach 1.Impfung, frühestmögliche Serokonversion in 14 Tagen'
+	'am Tag 7 nach 1.Impfung, frÃ¼hestmÃ¶gliche Serokonversion in 14 Tagen'
 );
 
 insert into clin.vaccination_definition
@@ -97,24 +95,3 @@ values (
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: Impfplan-FSME.sql,v $';
 INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: Impfplan-FSME.sql,v $', '$Revision: 1.6 $');
-
--- =============================================
--- $Log: Impfplan-FSME.sql,v $
--- Revision 1.6  2006-03-04 16:24:39  ncq
--- - adjust to table name changes
---
--- Revision 1.5  2005/11/25 15:07:28  ncq
--- - create schema "clin" and move all things clinical into it
---
--- Revision 1.4  2005/09/19 16:38:51  ncq
--- - adjust to removed is_core from gm_schema_revision
---
--- Revision 1.3  2005/07/14 21:31:43  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.2  2004/04/14 13:33:04  ncq
--- - need to adjust min_interval for seq_no=1 after tightening interval checks
---
--- Revision 1.1  2004/03/27 18:38:55  ncq
--- - FSME schedule
---

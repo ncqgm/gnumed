@@ -2,20 +2,17 @@
 
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL v2 or later
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/country.specific/de/PLZ.sql,v $
--- $Revision: 1.13 $
 
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set client_encoding to 'LATIN1';
 -- ===================================================================
 delete from dem.urb where id_state = (select id from dem.state where code='SN' and country='DE');
 delete from dem.state where country='DE';
 
--- Deutschland (Bundesl‰nder)
-insert into dem.state (code, country, name) values ('BW', 'DE', 'Baden-W¸rttemberg');
+-- Deutschland (Bundesl√§nder)
+insert into dem.state (code, country, name) values ('BW', 'DE', 'Baden-W√ºrttemberg');
 insert into dem.state (code, country, name) values ('BY', 'DE', 'Bayern');
 insert into dem.state (code, country, name) values ('BE', 'DE', 'Berlin');
 insert into dem.state (code, country, name) values ('BB', 'DE', 'Brandenburg');
@@ -30,20 +27,20 @@ insert into dem.state (code, country, name) values ('SL', 'DE', 'Saarland');
 insert into dem.state (code, country, name) values ('SN', 'DE', 'Sachsen');
 insert into dem.state (code, country, name) values ('ST', 'DE', 'Sachsen-Anhalt');
 insert into dem.state (code, country, name) values ('SH', 'DE', 'Schleswig-Holstein');
-insert into dem.state (code, country, name) values ('TH', 'DE', 'Th¸ringen');
+insert into dem.state (code, country, name) values ('TH', 'DE', 'Th√ºringen');
 
--- ÷sterreich (Bundesl‰nder)
+-- √ñsterreich (Bundesl√§nder)
 insert into dem.state (code, country, name) values ('Wien', 'AT', 'Wien');				-- Vienna
 insert into dem.state (code, country, name) values ('Tirol', 'AT', 'Tirol');			-- the Tyrol
-insert into dem.state (code, country, name) values ('O÷', 'AT', 'Oberˆsterreich');		-- Upper Austria
-insert into dem.state (code, country, name) values ('N÷', 'AT', 'Niederˆsterreich');	-- Lower Austria
+insert into dem.state (code, country, name) values ('O√ñ', 'AT', 'Ober√∂sterreich');		-- Upper Austria
+insert into dem.state (code, country, name) values ('N√ñ', 'AT', 'Nieder√∂sterreich');	-- Lower Austria
 insert into dem.state (code, country, name) values ('Stmk', 'AT', 'Steiermark');		-- Styria
 insert into dem.state (code, country, name) values ('Sbg', 'AT', 'Salzburg');
 insert into dem.state (code, country, name) values ('Vlbg', 'AT', 'Vorarlberg');
 insert into dem.state (code, country, name) values ('Bgld', 'AT', 'Burgenland');
-insert into dem.state (code, country, name) values ('Ktn', 'AT', 'K‰rnten');			-- Carinthia
+insert into dem.state (code, country, name) values ('Ktn', 'AT', 'K√§rnten');			-- Carinthia
 
--- jo, wos is jetz dˆs ?
+-- jo, wos is jetz d√∂s ?
 --INSERT into dem.state(code, country, name) VALUES ('BU','AT',i18n.i18n('Burgenland'));
 --INSERT into dem.state(code, country, name) VALUES ('CA','AT',i18n.i18n('Carinthia'));
 --INSERT into dem.state(code, country, name) VALUES ('NI','AT',i18n.i18n('Niederoesterreich'));
@@ -57,11 +54,11 @@ insert into dem.state (code, country, name) values ('Ktn', 'AT', 'K‰rnten');			-
 select dem.gm_upd_default_states();
 
 ------------------
--- Groﬂ S‰rchen --
+-- Gro√ü S√§rchen --
 ------------------
 insert into dem.urb (id_state, name, postcode) values (
 	(select id from dem.state where code = 'SN' and country='DE'),
-	'Groﬂ S‰rchen',
+	'Gro√ü S√§rchen',
 	'02999'
 );
 
@@ -96,7 +93,7 @@ insert into dem.street (
 
 insert into dem.street (id_urb, name, postcode) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Riebeckstraﬂe',
+	'Riebeckstra√üe',
 	'04317'
 );
 
@@ -108,7 +105,7 @@ insert into dem.street (id_urb, name, postcode) values (
 
 insert into dem.street (id_urb, name, postcode) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Ferdinand-Jost-Straﬂe',
+	'Ferdinand-Jost-Stra√üe',
 	'04299'
 );
 
@@ -126,7 +123,7 @@ insert into dem.street (
 
 insert into dem.street (id_urb, name, postcode) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Wurzener Straﬂe',
+	'Wurzener Stra√üe',
 	'04315'
 );
 
@@ -137,14 +134,14 @@ insert into dem.street (
 	postcode
 ) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Wurzener Straﬂe',
+	'Wurzener Stra√üe',
 	'Sellerhausen',
 	'04318'
 );
 
 insert into dem.street (id_urb, name, postcode) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Eilenburger Straﬂe',
+	'Eilenburger Stra√üe',
 	'04317'
 );
 
@@ -155,7 +152,7 @@ insert into dem.street (
 	postcode
 ) values (
 	(select id from dem.urb where name='Leipzig' limit 1),
-	'Cunnersdorfer Straﬂe',
+	'Cunnersdorfer Stra√üe',
 	'Sellerhausen',
 	'04318'
 );
@@ -164,52 +161,3 @@ insert into dem.street (
 -- do simple revision tracking
 delete from gm_schema_revision where filename = '$RCSfile: PLZ.sql,v $';
 INSERT INTO gm_schema_revision (filename, version) VALUES('$RCSfile: PLZ.sql,v $', '$Revision: 1.13 $');
-
--- =============================================
--- $Log: PLZ.sql,v $
--- Revision 1.13  2006-01-09 13:46:19  ncq
--- - adjust to schema "i18n" qualification
---
--- Revision 1.12  2006/01/06 10:12:02  ncq
--- - add missing grants
--- - add_table_for_audit() now in "audit" schema
--- - demographics now in "dem" schema
--- - add view v_inds4vaccine
--- - move staff_role from clinical into demographics
--- - put add_coded_term() into "clin" schema
--- - put German things into "de_de" schema
---
--- Revision 1.11  2005/10/19 11:29:09  ncq
--- - when selecting state pks must give country, too, or else duplicates exist
---
--- Revision 1.10  2005/09/25 17:52:09  ncq
--- - add commented out alternative state information for AT
---
--- Revision 1.9  2005/09/19 16:26:07  ncq
--- - update default states
---
--- Revision 1.8  2005/07/14 21:31:43  ncq
--- - partially use improved schema revision tracking
---
--- Revision 1.7  2005/06/10 07:21:35  ncq
--- - better docs
---
--- Revision 1.6  2005/06/07 20:59:18  ncq
--- - Austrian states
---
--- Revision 1.5  2005/05/24 19:44:31  ncq
--- - use proper state abbreviations
---
--- Revision 1.4  2005/05/17 08:17:53  ncq
--- - Bundesl‰nder
---
--- Revision 1.3  2004/09/20 21:17:39  ncq
--- - add a few suburbs
---
--- Revision 1.2  2004/04/07 18:16:06  ncq
--- - move grants into re-runnable scripts
--- - update *.conf accordingly
---
--- Revision 1.1  2003/12/29 15:15:01  uid66147
--- - a few German post codes
---

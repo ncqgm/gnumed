@@ -59,6 +59,11 @@ echo "\unset ON_ERROR_STOP" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';     -- comment out if the script fails" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "" >> $SQL_FILE
+echo "-- starting with 9.5 (remove when 9.5 is required):" >> $SQL_FILE
+echo "\unset ON_ERROR_STOP" >> $SQL_FILE
+echo "alter database ${TARGET_DB} set track_commit_timestamp to 'on';     -- comment out if the script fails" >> $SQL_FILE
+echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
+echo "" >> $SQL_FILE
 echo "-- < PG 9.0 only:" >> $SQL_FILE
 echo "--\unset ON_ERROR_STOP" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE

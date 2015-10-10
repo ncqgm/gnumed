@@ -713,6 +713,16 @@ class database:
 		except:
 			_log.exception('PostgreSQL version < 9.3 does not support <ignore_checksum_failure>')
 		curs.close()
+
+		# we want to track commit timestamps if available
+		# remove exception handler when 9.5 is default
+		curs = self.conn.cursor()
+		try:
+			curs.execute("alter database %s set track_commit_timestamp to on" % self.name)
+		except:
+			_log.exception('PostgreSQL version < 9.5 does not support <track_commit_timestamp>')
+		curs.close()
+
 		self.conn.commit()
 
 		curs = self.conn.cursor()

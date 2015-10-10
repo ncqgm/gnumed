@@ -2097,7 +2097,8 @@ def sanity_check_database_settings():
 		#u'regex_flavor': [u'advanced', u'query breakage', False],					# 9.0 doesn't support this anymore, default now advanced anyway
 		u'synchronous_commit': [u'on', u'data loss/corruption', False],
 		u'sql_inheritance': [u'on', u'query breakage, data loss/corruption', True],
-		u'ignore_checksum_failure': [u'off', u'data loss/corruption', False]		# starting with PG 9.3
+		u'ignore_checksum_failure': [u'off', u'data loss/corruption', False],		# starting with PG 9.3
+		u'track_commit_timestamp': [u'on', u'suboptimal auditing', False]			# starting with PG 9.3
 	}
 
 	from Gnumed.pycommon import gmCfg2

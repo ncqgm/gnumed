@@ -6,16 +6,11 @@
 -- author: Karsten Hilbert <Karsten.Hilbert@gmx.net>
 -- license: GPL v2 or later
 --
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/test-data/test_data-Kirk_hospital_stay-dynamic.sql,v $
--- $Revision: 1.2 $
 -- =============================================
 
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
-set default_transaction_read_only to off;
-
---begin;
 -- =============================================
 delete from clin.episode where
 	fk_encounter in (
@@ -89,19 +84,3 @@ insert into clin.hospital_stay (
 -- =============================================
 -- do simple schema revision tracking
 select gm.log_script_insertion('$RCSfile: test_data-Kirk_hospital_stay-dynamic.sql,v $', '$Revision: 1.2 $');
-
--- comment out the "rollback" if you want to
--- really store the above patient data
---rollback;
---commit;
-
--- =============================================
--- $Log: test_data-Kirk_hospital_stay-dynamic.sql,v $
--- Revision 1.2  2009-07-09 16:50:01  ncq
--- - cleanup
--- - properly detect episode
---
--- Revision 1.1  2009/05/13 10:34:58  ncq
--- - add a hospital stay
---
---

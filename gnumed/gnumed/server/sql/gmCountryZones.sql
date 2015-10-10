@@ -6,16 +6,11 @@
 -- as an external database taken from 'tealow_zencart'.
 
 -- license: GPL v2 or later (details at http://gnu.org)
-
--- $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/server/sql/gmCountryZones.sql,v $
--- $Id: gmCountryZones.sql,v 1.4 2006-01-09 13:46:19 ncq Exp $
 -- ===================================================================
 -- force terminate + exit(3) on errors if non-interactive
 \set ON_ERROR_STOP 1
 
 -- ===================================================================
-set client_encoding to latin1;
-
 select i18n.i18n('state/territory/province/region not available');
 
 -- country AD
@@ -516,10 +511,10 @@ INSERT into dem.state(code, country, name) VALUES ('BE','CH',i18n.i18n('Bern'));
 INSERT into dem.state(code, country, name) VALUES ('FR','CH',i18n.i18n('Freiburg'));
 INSERT into dem.state(code, country, name) VALUES ('GE','CH',i18n.i18n('Geneve'));
 INSERT into dem.state(code, country, name) VALUES ('GL','CH',i18n.i18n('Glarus'));
-INSERT into dem.state(code, country, name) VALUES ('GR','CH',i18n.i18n('Graubünden'));
+INSERT into dem.state(code, country, name) VALUES ('GR','CH',i18n.i18n('GraubÃ¼nden'));
 INSERT into dem.state(code, country, name) VALUES ('JU','CH',i18n.i18n('Jura'));
 INSERT into dem.state(code, country, name) VALUES ('LU','CH',i18n.i18n('Luzern'));
-INSERT into dem.state(code, country, name) VALUES ('NE','CH',i18n.i18n('Neuchâtel'));
+INSERT into dem.state(code, country, name) VALUES ('NE','CH',i18n.i18n('Neuchatel'));
 INSERT into dem.state(code, country, name) VALUES ('NW','CH',i18n.i18n('Nidwalden'));
 INSERT into dem.state(code, country, name) VALUES ('OW','CH',i18n.i18n('Obwalden'));
 INSERT into dem.state(code, country, name) VALUES ('SG','CH',i18n.i18n('Sankt Gallen'));
@@ -678,7 +673,7 @@ INSERT into dem.state(code, country, name) VALUES ('RO','DK',i18n.i18n('Roskilde
 INSERT into dem.state(code, country, name) VALUES ('SO','DK',i18n.i18n('Sonderjylland'));
 INSERT into dem.state(code, country, name) VALUES ('ST','DK',i18n.i18n('Storstrom'));
 INSERT into dem.state(code, country, name) VALUES ('VE','DK',i18n.i18n('Vejle'));
-INSERT into dem.state(code, country, name) VALUES ('VJ','DK',i18n.i18n('Vestjælland'));
+INSERT into dem.state(code, country, name) VALUES ('VJ','DK',i18n.i18n('VestjÃ¦lland'));
 INSERT into dem.state(code, country, name) VALUES ('VI','DK',i18n.i18n('Viborg'));
 -- country DM
 INSERT into dem.state(code, country, name) VALUES ('DM-1','DM',i18n.i18n('Dominica territory'));
@@ -2442,25 +2437,3 @@ INSERT into dem.state(code, country, name) VALUES ('MI','ZW',i18n.i18n('Midlands
 -- =============================================
 -- do simple schema revision tracking
 select log_script_insertion('$RCSfile: gmCountryZones.sql,v $', '$Revision: 1.4 $');
-
--- =============================================
--- $Log: gmCountryZones.sql,v $
--- Revision 1.4  2006-01-09 13:46:19  ncq
--- - adjust to schema "i18n" qualification
---
--- Revision 1.3  2006/01/06 10:12:02  ncq
--- - add missing grants
--- - add_table_for_audit() now in "audit" schema
--- - demographics now in "dem" schema
--- - add view v_inds4vaccine
--- - move staff_role from clinical into demographics
--- - put add_coded_term() into "clin" schema
--- - put German things into "de_de" schema
---
--- Revision 1.2  2005/10/12 22:29:11  ncq
--- - comment out states/add in countries which (would) error out
---
--- Revision 1.1  2005/09/25 17:45:16  ncq
--- - we now got states for pretty much every country
---
---
