@@ -311,6 +311,10 @@ __known_variant_placeholders = {
 		line length:   the maximum length of individual lines, not the total placeholder length
 		time range:		the number of weeks going back in time if given as a single number, or else it must be a valid PostgreSQL interval definition (w/o the ::interval)""",
 
+	u'substance_abuse': u"""returns substance abuse entries:
+		args: line template
+	""",
+
 	u'current_meds': u"""returns current medications:
 		args: line template//<select>
 		<select>: if this is present the user will be asked which meds to export""",
@@ -1967,6 +1971,23 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			intakes2dispense[brand] = intake
 
 		return u'\n'.join([ data % intake for intake in intakes2dispense.values() ])
+
+	#--------------------------------------------------------
+	def _get_variant_substance_abuse(self, data=None):
+		if data is None:
+			return self._escape(_('template is missing'))
+		template = data
+		from Gnumed.wxpython import gmHabitWidgets
+		abuses = gmHabitWidgets.manage_substance_abuse(patient = self.pat)
+		if abuses is None:
+			return u''
+		lines = []
+		for a in abuses:
+			fields = a.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style)
+			fields['harmful_use_type'] = a.harmful_use_type_string
+			lines.append(template % fields)
+		return u'\n'.join(lines)
+
 	#--------------------------------------------------------
 	def _get_variant_current_meds(self, data=None):
 
@@ -2958,7 +2979,8 @@ if __name__ == '__main__':
 			#u'$<receiver_location:: %s::120>$',
 			#u'$<receiver_country::, %s::120>$',
 			#u'$<external_care::%(issue)s: %(provider)s of %(unit)s@%(organization)s (%(comment)s)::1024>$',
-			u'$<url_escape::hello world ü::>$'
+			#u'$<url_escape::hello world ü::>$',
+			u'$<substance_abuse::%(substance)s (%(harmful_use_type)s) last=%(last_checked_when)s stop=%(discontinued)s // %(notes)s::>$'
 		]
 
 		handler = gmPlaceholderHandler()
@@ -3000,6 +3022,3 @@ if __name__ == '__main__':
 	#test()
 	test_placeholder()
 	#test_show_phs()
-
-#=====================================================================
-
