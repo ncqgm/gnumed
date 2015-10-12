@@ -287,7 +287,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 			u'sex': self.curr_pat.gender_symbol,
 			u'dob': self.curr_pat.get_formatted_dob(format = '%d %b %Y', encoding = gmI18N.get_encoding()),
 			u'age': self.curr_pat['medical_age'],
-			u'r_arr': gmTools.u_right_arrow,
+			u'r_arr': gmTools.u_arrow2right,
 			u'l_arr': gmTools.u_left_arrow
 		}
 

@@ -1701,7 +1701,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 					doc['clin_when'].strftime('%m/%Y'),
 					no_parts,
 					gmTools.coalesce(initial = doc['comment'], instead = u'', template_initial = u' %s'),
-					u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' %s %%s' % gmTools.u_right_arrow))
+					u'%s%s' % (doc['episode'], gmTools.coalesce(doc['health_issue'], u'', u' %s %%s' % gmTools.u_arrow2right))
 				)
 				if inter_label not in intermediate_nodes:
 					intermediate_nodes[inter_label] = self.AppendItem(parent = self.root, text = inter_label)

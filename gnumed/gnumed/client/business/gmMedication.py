@@ -20,7 +20,9 @@ import datetime as pydt
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-	_ = lambda x:x
+	from Gnumed.pycommon import gmI18N
+	gmI18N.activate_locale()
+	gmI18N.install_domain('gnumed')
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
@@ -2185,7 +2187,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		line = u'%s%s (%s %s): %s %s%s %s (%s)' % (
 			u' ' * left_margin,
 			self.medically_formatted_start,
-			gmTools.u_right_arrow,
+			gmTools.u_arrow2right,
 			duration,
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['amount']],
@@ -2287,12 +2289,12 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		txt += gmTools.coalesce(self._payload[self._idx['schedule']], u'', _(' Regimen: %s\n'))
 
 		if self._payload[self._idx['is_long_term']]:
-			duration = u' %s %s' % (gmTools.u_right_arrow, gmTools.u_infinity)
+			duration = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
 		else:
 			if self._payload[self._idx['duration']] is None:
 				duration = u''
 			else:
-				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
+				duration = u' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days))
 
 		txt += _(' Started %s%s%s\n') % (
 			self.medically_formatted_start,
@@ -2308,7 +2310,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					accuracy = gmDateTime.acc_days
 				)
 			)
-			txt += _(' Reason: %s\n') % self._payload[self._idx['discontinue_reason']]
+			txt += gmTools.coalesce(self._payload[self._idx['discontinue_reason']], u'', _(' Reason: %s\n'))
 
 		txt += u'\n'
 
@@ -2448,6 +2450,112 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	medically_formatted_start = property(_get_medically_formatted_start, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_medically_formatted_start_end(self):
+
+		now = gmDateTime.pydt_now_here()
+
+		if self._payload[self._idx['comment_on_start']] is None:
+			start_prefix = u''
+		else:
+			start_prefix = gmTools.u_almost_equal_to
+
+		# ongoing medication
+		if self._payload[self._idx['discontinued']] is None:
+			# calculate start string
+			if self._payload[self._idx['started']] is None:
+				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+			else:
+				started_ago = now - self._payload[self._idx['started']]
+				three_months = pydt.timedelta(weeks = 13, days = 3)
+				five_years = pydt.timedelta(weeks = 265)
+				if started_ago < three_months:
+					start = _('%s%s%s (%s ago)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmDateTime.format_interval_medically(started_ago)
+					)
+				elif started_ago < five_years:
+					start = _('%s%s%s (%s ago, %s)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y %b', u'utf8', gmDateTime.acc_months),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days)
+					)
+				else:
+					start = _('%s%s%s (%s ago, %s)') % (
+						start_prefix,
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%Y', u'utf8', gmDateTime.acc_years),
+						gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]'),
+						gmDateTime.format_interval_medically(started_ago),
+						gmDateTime.pydt_strftime(self._payload[self._idx['started']], '%b %d', u'utf8', gmDateTime.acc_days),
+					)
+
+			# calculate end string
+			if self._payload[self._idx['is_long_term']]:
+				end = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
+				if self._payload[self._idx['duration']] is not None:
+					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
+					if self._payload[self._idx['started']] is None:
+						planned_end_str = u''
+					else:
+						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
+						else:
+							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
+						planned_end_str = _(u', until %s (%s)') % (
+							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
+							planned_end_from_now_str
+						)
+					end += _(u' (planned for %s%s)') % (duration, planned_end_str)
+			else:
+				if self._payload[self._idx['duration']] is None:
+					end = u' %s ?' % gmTools.u_arrow2right
+				else:
+					duration = gmDateTime.format_interval(self._payload[self._idx['duration']], gmDateTime.acc_days)
+					if self._payload[self._idx['started']] is None:
+						planned_end_str = u''
+					else:
+						planned_end = self._payload[self._idx['started']] + self._payload[self._idx['duration']]
+						if planned_end < now:
+							planned_end_from_now_str = _(u'%s ago') % gmDateTime.format_interval(now - planned_end, gmDateTime.acc_days)
+						else:
+							planned_end_from_now_str = _(u'in %s') % gmDateTime.format_interval(planned_end - now, gmDateTime.acc_days)
+						planned_end_str = _(u', until %s (%s)') % (
+							gmDateTime.pydt_strftime(planned_end, '%Y %b %d', u'utf8', gmDateTime.acc_days),
+							planned_end_from_now_str
+						)
+					end = _(u', planned for %s%s') % (duration, planned_end_str)
+
+			txt = u'%s%s' % (start, end)
+
+		# stopped medication
+		else:
+			duration_taken = self._payload[self._idx['discontinued']] - self._payload[self._idx['started']]
+			if self._payload[self._idx['started']] is None:
+				start = gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'?')
+			else:
+				start = u'%s%s%s' % (
+					start_prefix,
+					gmDateTime.pydt_strftime(self._payload[self._idx['started']], format = '%Y %b %d', encoding = u'utf8', accuracy = gmDateTime.acc_days),
+					gmTools.coalesce(self._payload[self._idx['comment_on_start']], u'', u' [%s]')
+				)
+			ended_ago = now - self._payload[self._idx['discontinued']]
+			txt = _(u'%s ago (for %s: %s %s %s)') % (
+				gmDateTime.format_interval_medically(ended_ago),
+				gmDateTime.format_interval_medically(duration_taken),
+				start,
+				gmTools.u_arrow2right,
+				gmDateTime.pydt_strftime(self._payload[self._idx['discontinued']], '%Y %b %d', u'utf8', gmDateTime.acc_days)
+			)
+
+		return txt
+
+	medically_formatted_start_end = property(_get_medically_formatted_start_end, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_as_amts_latex(self, strict=True):
@@ -3605,7 +3713,7 @@ if __name__ == "__main__":
 		sys.exit()
 
 	from Gnumed.pycommon import gmLog2
-	from Gnumed.pycommon import gmI18N
+	#from Gnumed.pycommon import gmI18N
 	from Gnumed.business import gmPerson
 
 	gmI18N.activate_locale()
@@ -3697,6 +3805,18 @@ if __name__ == "__main__":
 	def test_drug2renal_insufficiency_url():
 		drug2renal_insufficiency_url(search_term = 'Metoprolol')
 	#--------------------------------------------------------
+	def test_medically_formatted_start_end():
+		cmd = u"SELECT pk_substance_intake FROM clin.v_substance_intakes"
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
+		for row in rows:
+			entry = cSubstanceIntakeEntry(row['pk_substance_intake'])
+			print u'==============================================================='
+			print entry.format(left_margin = 1, one_line = False, show_all_brand_components = True)
+			print u'--------------------------------'
+			print entry.medically_formatted_start_end
+			gmTools.prompted_input()
+
+	#--------------------------------------------------------
 	# MMI/Gelbe Liste
 	#test_MMI_interface()
 	#test_MMI_file()
@@ -3706,7 +3826,7 @@ if __name__ == "__main__":
 	#test_mmi_import_drugs()
 
 	# FreeDiams
-	test_fd_switch_to()
+	#test_fd_switch_to()
 	#test_fd_show_interactions()
 
 	# generic
@@ -3716,4 +3836,4 @@ if __name__ == "__main__":
 	#test_get_consumable_substances()
 
 	#test_drug2renal_insufficiency_url()
-#============================================================
+	test_medically_formatted_start_end()

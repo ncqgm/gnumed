@@ -76,7 +76,7 @@ def show_audit_trail(parent=None):
 				r['event_by'],
 				u'%s %s %s' % (
 					gmTools.coalesce(r['row_version_before'], gmTools.u_diameter),
-					gmTools.u_right_arrow,
+					gmTools.u_arrow2right,
 					gmTools.coalesce(r['row_version_after'], gmTools.u_diameter)
 				),
 				r['event_table'],

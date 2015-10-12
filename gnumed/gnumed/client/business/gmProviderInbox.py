@@ -82,7 +82,7 @@ class cInboxMessage(gmBusinessDBObject.cBusinessDBObject):
 
 		tt += u'%s %s %s\n' % (
 			self._payload[self._idx['modified_by']],
-			gmTools.u_right_arrow,
+			gmTools.u_arrow2right,
 			gmTools.coalesce(self._payload[self._idx['provider']], _('everyone'))
 		)
 

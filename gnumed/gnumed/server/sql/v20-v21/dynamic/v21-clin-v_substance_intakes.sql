@@ -9,6 +9,19 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
+-- clin.substance_intake.fk_episode
+-- for some unknown reason fk_episode remained at NOT NULL
+-- in my personal production database despite that constraint
+-- having been dropped in v12 when the sane_fk_episode constraint
+-- was introduced and .fk_episode never having been touched after
+-- that (as far as I can tell from grepping the VCS),
+-- also I do think I remember a field report along the same
+-- lines by Jim, so better be safe than sorry and DROP it again
+alter table clin.substance_intake
+	alter column fk_episode
+		drop not null;
+
+-- --------------------------------------------------------------
 comment on column clin.substance_intake.comment_on_start is 'Comment (uncertainty level) on .clin_when = started. "?" = "entirely unknown".';
 
 alter table clin.substance_intake

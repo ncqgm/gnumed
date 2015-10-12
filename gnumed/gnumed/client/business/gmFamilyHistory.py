@@ -152,7 +152,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			line += gmTools.coalesce(self._payload[self._idx['age_noted']], u'', u' (@ %s)')
 		if self._payload[self._idx['contributed_to_death']]:
 			line += u' %s %s' % (
-				gmTools.u_right_arrow,
+				gmTools.u_arrow2right,
 				gmTools.u_skull_and_crossbones
 			)
 

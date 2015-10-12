@@ -281,7 +281,7 @@ def manage_substance_intakes(parent=None, emr=None):
 				),
 				u'%s%s%s' % (
 					started,
-					gmTools.coalesce(i['schedule'], u'', u' %%s %s' % gmTools.u_right_arrow),
+					gmTools.coalesce(i['schedule'], u'', u' %%s %s' % gmTools.u_arrow2right),
 					gmTools.coalesce(i['duration'], u'', u' %s')
 				),
 				u'%s' % (
@@ -1270,8 +1270,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Substance'),
 				_('Strength'),
 				_('Schedule'),
-				_('Started'),
-				_('Duration / Until'),
+				_('Timeframe'),
+#				_('Started'),
+#				_('Duration / Until'),
 				_('Brand'),
 				_('Advice')
 			],
@@ -1280,8 +1281,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Schedule'),
 				_('Substance'),
 				_('Strength'),
-				_('Started'),
-				_('Duration / Until'),
+				_('Timeframe'),
+#				_('Started'),
+#				_('Duration / Until'),
 				_('Health issue'),
 				_('Advice')
 			],
@@ -1290,8 +1292,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Substance'),
 				_('Strength'),
 				_('Schedule'),
-				_('Started'),
-				_('Duration / Until'),
+				_('Timeframe'),
+#				_('Started'),
+#				_('Duration / Until'),
 				_('Brand'),
 				_('Advice')
 			],
@@ -1300,8 +1303,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				_('Substance'),
 				_('Strength'),
 				_('Schedule'),
-				_('Started'),
-				_('Duration / Until'),
+				_('Timeframe'),
+#				_('Started'),
+#				_('Duration / Until'),
 				_('Brand'),
 				_('Advice')
 			],
@@ -1408,9 +1412,9 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				atcs = []
 				if med['atc_substance'] is not None:
 					atcs.append(med['atc_substance'])
-#				if med['atc_brand'] is not None:
-#					atcs.append(med['atc_brand'])
-#				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
+				#if med['atc_brand'] is not None:
+				#	atcs.append(med['atc_brand'])
+				#allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],), brand = med['brand'])
 				allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (med['substance'],))
 				if allg not in [None, False]:
 					attr = self.GetOrCreateCellAttr(row_idx, 0)
@@ -1442,18 +1446,20 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
-				if med['is_long_term']:
-					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-				else:
-					if med['discontinued'] is None:
-						if med['duration'] is None:
-							self.SetCellValue(row_idx, 5, u'')
-						else:
-							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-					else:
-						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
+#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
+#
+#				if med['is_long_term']:
+#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+#				else:
+#					if med['discontinued'] is None:
+#						if med['duration'] is None:
+#							self.SetCellValue(row_idx, 5, u'')
+#						else:
+#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+#					else:
+#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
@@ -1468,7 +1474,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 							gmTools.coalesce(med['brand'], u''),
 							med['preparation']
 						)
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = brand, width = 35))
 
 			elif self.__grouping_mode == u'issue':
 				if med['pk_health_issue'] is None:
@@ -1488,18 +1495,20 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, med['substance'])
 				self.SetCellValue(row_idx, 2, u'%s %s' % (med['amount'], med['unit']))
 				self.SetCellValue(row_idx, 3, gmTools.coalesce(med['schedule'], u''))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
-				if med['is_long_term']:
-					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-				else:
-					if med['discontinued'] is None:
-						if med['duration'] is None:
-							self.SetCellValue(row_idx, 5, u'')
-						else:
-							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-					else:
-						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
+#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
+#
+#				if med['is_long_term']:
+#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+#				else:
+#					if med['discontinued'] is None:
+#						if med['duration'] is None:
+#							self.SetCellValue(row_idx, 5, u'')
+#						else:
+#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+#					else:
+#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_brand'] is None:
 					brand = u'%s (%s)' % (gmTools.u_diameter, med['preparation'])
@@ -1514,7 +1523,8 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 							gmTools.coalesce(med['brand'], u''),
 							med['preparation']
 						)
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = brand, width = 35))
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = brand, width = 35))
 
 			elif self.__grouping_mode == u'brand':
 
@@ -1544,18 +1554,20 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 				self.SetCellValue(row_idx, 1, gmTools.coalesce(med['schedule'], u''))
 				self.SetCellValue(row_idx, 2, med['substance'])
 				self.SetCellValue(row_idx, 3, u'%s %s' % (med['amount'], med['unit']))
-				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
 
-				if med['is_long_term']:
-					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
-				else:
-					if med['discontinued'] is None:
-						if med['duration'] is None:
-							self.SetCellValue(row_idx, 5, u'')
-						else:
-							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
-					else:
-						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
+				self.SetCellValue(row_idx, 4, med.medically_formatted_start_end)
+#				self.SetCellValue(row_idx, 4, med.medically_formatted_start)
+#
+#				if med['is_long_term']:
+#					self.SetCellValue(row_idx, 5, gmTools.u_infinity)
+#				else:
+#					if med['discontinued'] is None:
+#						if med['duration'] is None:
+#							self.SetCellValue(row_idx, 5, u'')
+#						else:
+#							self.SetCellValue(row_idx, 5, gmDateTime.format_interval(med['duration'], gmDateTime.acc_days))
+#					else:
+#						self.SetCellValue(row_idx, 5, med['discontinued'].strftime('%Y-%m-%d'))
 
 				if med['pk_health_issue'] is None:
 					issue = u'%s%s' % (
@@ -1564,13 +1576,15 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 					)
 				else:
 					issue = gmTools.coalesce(med['health_issue'], u'')
-				self.SetCellValue(row_idx, 6, gmTools.wrap(text = issue, width = 40))
+#				self.SetCellValue(row_idx, 6, gmTools.wrap(text = issue, width = 40))
+				self.SetCellValue(row_idx, 5, gmTools.wrap(text = issue, width = 40))
 
 			else:
 				raise ValueError('unknown grouping mode [%s]' % self.__grouping_mode)
 
 			if med['notes'] is not None:
-				self.SetCellValue(row_idx, 7, gmTools.wrap(text = med['notes'], width = 50))
+#				self.SetCellValue(row_idx, 7, gmTools.wrap(text = med['notes'], width = 50))
+				self.SetCellValue(row_idx, 6, gmTools.wrap(text = med['notes'], width = 50))
 
 			if self.__filter_show_unapproved:
 				self.SetCellValue (
@@ -1779,12 +1793,12 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 		tt += gmTools.coalesce(entry['schedule'], u'', _(' Regimen: %s\n'))
 
 		if entry['is_long_term']:
-			duration = u' %s %s' % (gmTools.u_right_arrow, gmTools.u_infinity)
+			duration = u' %s %s' % (gmTools.u_arrow2right, gmTools.u_infinity)
 		else:
 			if entry['duration'] is None:
 				duration = u''
 			else:
-				duration = u' %s %s' % (gmTools.u_right_arrow, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
+				duration = u' %s %s' % (gmTools.u_arrow2right, gmDateTime.format_interval(entry['duration'], gmDateTime.acc_days))
 
 		tt += _(' Started %s%s%s\n') % (
 			entry.medically_formatted_start,
@@ -1794,7 +1808,7 @@ class cCurrentSubstancesGrid(wx.grid.Grid):
 
 		if entry['discontinued'] is not None:
 			tt += _(' Discontinued %s\n') % gmDateTime.pydt_strftime(entry['discontinued'], '%Y %b %d')
-			tt += _(' Reason: %s\n') % entry['discontinue_reason']
+			tt += gmTools.coalesce(entry['discontinue_reason'], u'', _(' Reason: %s\n'))
 
 		tt += u'\n'
 

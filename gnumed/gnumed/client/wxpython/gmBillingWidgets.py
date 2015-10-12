@@ -1001,7 +1001,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self.data['apply_vat'] is True:
 			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
-				gmTools.u_right_arrow,
+				gmTools.u_arrow2right,
 				gmTools.u_sum,
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)
@@ -1020,7 +1020,7 @@ class cBillEAPnl(wxgBillEAPnl.wxgBillEAPnl, gmEditArea.cGenericEditAreaMixin):
 		if self._CHBOX_vat_applies.ThreeStateValue == wx.CHK_CHECKED:
 			tmp = u'%s %%(currency)s%%(total_vat)s %s %s %%(currency)s%%(total_amount_with_vat)s' % (
 				gmTools.u_corresponds_to,
-				gmTools.u_right_arrow,
+				gmTools.u_arrow2right,
 				gmTools.u_sum,
 			)
 			self._TCTRL_value_with_vat.SetValue(tmp % self.data)

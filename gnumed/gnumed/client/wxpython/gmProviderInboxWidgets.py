@@ -588,7 +588,7 @@ class cProviderInboxPnl(wxgProviderInboxPnl.wxgProviderInboxPnl, gmRegetMixin.cR
 			item.append(u'%s: %s%s%s' % (
 				gmDateTime.pydt_strftime(m['received_when'], '%Y-%m-%d'),
 				m['modified_by'],
-				gmTools.u_right_arrow,
+				gmTools.u_arrow2right,
 				gmTools.coalesce(m['provider'], _(u'all'))
 			))
 			if m['due_date'] is None:

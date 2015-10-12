@@ -74,7 +74,7 @@ u_numero = u'\u2116'						# No. / # sign
 u_down_left_arrow = u'\u21B5'				# <-'
 u_left_arrow = u'\u2190'					# <--
 u_up_arrow = u'\u2191'
-u_right_arrow = u'\u2192'					# -->
+u_arrow2right = u'\u2192'					# -->
 u_down_arrow = u'\u2193'
 u_left_arrow_with_tail = u'\u21a2'			# <--<
 u_sum = u'\u2211'							# sigma
@@ -1591,6 +1591,6 @@ second line\n
 	#test_tex_escape()
 	#test_dir_is_empty()
 	#test_compare_dicts()
-	test_rm_dir()
+	#test_rm_dir()
 
 #===========================================================================

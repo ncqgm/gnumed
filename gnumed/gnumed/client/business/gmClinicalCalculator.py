@@ -98,14 +98,14 @@ class cClinicalResult(object):
 			if len(self.warnings) > 0:
 				lines.append(u' Caveat:')
 			for w in self.warnings:
-				txt = gmTools.wrap(text = w, width = width, initial_indent = u'  %s ' % gmTools.u_right_arrow, subsequent_indent = u'    ', eol = eol)
+				txt = gmTools.wrap(text = w, width = width, initial_indent = u'  %s ' % gmTools.u_arrow2right, subsequent_indent = u'    ', eol = eol)
 				lines.append(txt)
 
 		if with_hints:
 			if len(self.hints) > 0:
 				lines.append(u' Hints:')
 			for h in self.hints:
-				txt = gmTools.wrap(text = h, width = width, initial_indent = u'  %s ' % gmTools.u_right_arrow, subsequent_indent = u'    ', eol = eol)
+				txt = gmTools.wrap(text = h, width = width, initial_indent = u'  %s ' % gmTools.u_arrow2right, subsequent_indent = u'    ', eol = eol)
 				lines.append(txt)
 
 		if with_variables:
@@ -113,7 +113,7 @@ class cClinicalResult(object):
 				lines.append(u' %s' % _('Variables:'))
 			for key in self.variables.keys():
 				txt = u'  %s %s: %s' % (
-					gmTools.u_right_arrow,
+					gmTools.u_arrow2right,
 					key,
 					self.variables[key]
 				)
