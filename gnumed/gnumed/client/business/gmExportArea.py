@@ -459,6 +459,7 @@ class cExportArea(object):
 
 		r = rows[0]
 		return cExportItem(row = {'data': r, 'idx': idx, 'pk_field': 'pk_export_item'})
+
 	#--------------------------------------------------------
 	def export(self, base_dir=None, items=None, with_metadata=True, expand_compressed=False):
 
@@ -472,45 +473,41 @@ class cExportArea(object):
 		pat = cPatient(aPK_obj = self.__pk_identity)
 		if base_dir is None:
 			base_dir = gmTools.mk_sandbox_dir(prefix = u'exp-%s-' % pat.dirname)
-
 		_log.debug('base dir: %s', base_dir)
 
 		doc_dir = os.path.join(base_dir, r'documents')
 		gmTools.mkdir(doc_dir)
 
+		_html_start_data = {
+			u'html_title_header': _('Patient data for'),
+			u'html_title_patient': gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			u'title': _('Patient data export'),
+			u'pat_name': gmTools.html_escape_string(pat['description_gender']),
+			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			u'mugshot_url': u'documents/no-such-file.png',
+			u'mugshot_alt': _('no patient photograph available'),
+			u'mugshot_title': u'',
+			u'docs_title': _(u'Documents'),
+			u'browse_root': _(u'browse storage medium'),
+			u'browse_docs': _(u'browse documents area'),
+			u'browse_dicomdir': u''
+		}
+
 		mugshot = pat.document_folder.latest_mugshot
-		if mugshot is None:
-			mugshot_url = u'documents/no-such-file.png'
-			mugshot_alt = _('no patient photograph available')
-			mugshot_title = u''
-		else:
-			mugshot_url = mugshot.export_to_file(directory = doc_dir)
-			mugshot_alt =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
-			mugshot_title = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+		if mugshot is not None:
+			_html_start_data['mugshot_url'] = mugshot.export_to_file(directory = doc_dir)
+			_html_start_data['mugshot_alt'] =_('patient photograph from %s') % gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
+			_html_start_data['mugshot_title'] = gmDateTime.pydt_strftime(mugshot['date_generated'], '%B %Y')
 
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
 		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
 
 		# header
-		browse_dicomdir = u''
 		existing_files = os.listdir(base_dir)
 		if u'DICOMDIR' in existing_files:
-			browse_dicomdir = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
-		idx_file.write(_html_start % {
-			u'html_title_header': _('Patient data for'),
-			u'html_title_patient': gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
-			u'title': _('Patient data export'),
-			u'pat_name': gmTools.html_escape_string(pat['description_gender']),
-			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
-			u'mugshot_url': mugshot_url,
-			u'mugshot_alt': mugshot_alt,
-			u'mugshot_title': mugshot_title,
-			u'docs_title': _(u'Documents'),
-			u'browse_root': _(u'browse storage medium'),
-			u'browse_docs': _(u'browse documents area'),
-			u'browse_dicomdir': browse_dicomdir
-		})
+			_html_start_data[u'browse_dicomdir'] = u'	<li><a href="./DICOMDIR">browse DICOMDIR</a></li>'
+		idx_file.write(_html_start % _html_start_data)
 		# middle
 		for item in items:
 			item_path = item.export_to_file(directory = doc_dir)

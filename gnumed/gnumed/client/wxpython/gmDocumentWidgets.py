@@ -2558,7 +2558,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		wxgPACSPluginPnl.__init__(self, *args, **kwargs)
 		gmRegetMixin.cRegetOnPaintMixin.__init__(self)
 		self.__pacs = None
-		self.__patient = None
+		self.__patient = gmPerson.gmCurrentPatient()
 
 		self.__init_ui()
 		self.__register_interests()
@@ -2581,7 +2581,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		self._BTN_save_selected_studies.Disable()
 		self._LCTRL_studies.set_string_items(items = [])
 		self._LCTRL_series.set_string_items(items = [])
-		self.Layout()
+		#self.Layout()
 
 	#--------------------------------------------------------
 	def __reset_server_identification(self):
@@ -2633,20 +2633,21 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def __refresh_patient_data(self):
 
-		self.__reset_patient_data()
+		if not self.__patient.connected:
+			self.__reset_patient_data()
+			return True
 
 		if not self.__connect():
 			return False
 
-		person = gmPerson.gmCurrentPatient()
 		info_lines = []
-		for pacs_id in person.suggest_external_ids(target = u'PACS'):
+		for pacs_id in self.__patient.suggest_external_ids(target = u'PACS'):
 			info_lines.append(_(u'GNUmed patient: %s (generic PACS ID)') % pacs_id)
-		for pacs_id in person.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
+		for pacs_id in self.__patient.get_external_ids(id_type = u'PACS', issuer = self.__pacs.as_external_id_issuer):
 			info_lines.append(_(u'GNUmed patient: "%(value)s" @ [%(issuer)s] (stored PACS ID)') % pacs_id)
 
 		# try to find patient
-		matching_pats = self.__pacs.get_matching_patients(person = person)
+		matching_pats = self.__pacs.get_matching_patients(person = self.__patient)
 		if len(matching_pats) == 0:
 			info_lines.append(_('PACS: no patients with matching IDs found'))
 		no_of_studies = 0
@@ -2670,7 +2671,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		study_list_items = []
 		study_list_data = []
 		if len(matching_pats) > 0:
-			self.__patient = matching_pats[0]
+			self.__orthanc_patient = matching_pats[0]
 			for pat in self.__pacs.get_studies_list_by_orthanc_patient_list(orthanc_patients = matching_pats):
 				for study in pat['studies']:
 					study_list_items.append( [
@@ -2721,8 +2722,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	# reget-on-paint mixin API
 	#--------------------------------------------------------
 	def _populate_with_data(self):
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
+		if not self.__patient.connected:
 			self.__reset_ui_content()
 			return True
 
@@ -2747,7 +2747,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		# only empty out here, do NOT access the patient
 		# or else we will access the old patient while it
 		# may not be valid anymore ...
-		self.__reset_ui_content()
+		self.__reset_patient_data()
 
 	#--------------------------------------------------------
 	def _on_post_patient_selection(self):
@@ -2756,8 +2756,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 	#--------------------------------------------------------
 	def _on_database_signal(self, **kwds):
 
-		pat = gmPerson.gmCurrentPatient()
-		if not pat.connected:
+		if not self.__patient.connected:
 			# probably not needed:
 			#self._schedule_data_reget()
 			return True
@@ -2795,7 +2794,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		event.Skip()
 		if self.__connect() is False:
 			return
-		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__patient['ID']))
+		gmNetworkTools.open_url_in_browser(self.__pacs.get_url_browse_patient(patient_id = self.__orthanc_patient['ID']))
 
 	#--------------------------------------------------------
 	def _on_browse_study_button_pressed(self, event):
@@ -2844,11 +2843,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# import into export area
 		wx.BeginBusyCursor()
-		person = gmPerson.gmCurrentPatient()
-		person.export_area.add_file (
+		self.__patient.export_area.add_file (
 			filename = filename,
 			hint = _('DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
-				self.__patient['MainDicomTags']['PatientID'],
+				self.__orthanc_patient['MainDicomTags']['PatientID'],
 				self.__pacs.server_identification['Name'],
 				self.__pacs.server_identification['DicomAet']
 			)
@@ -2867,8 +2865,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		# get target dir
-		person = gmPerson.gmCurrentPatient()
-		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', person.dirname)
+		default_path = os.path.join(gmTools.gmPaths().home_dir, 'gnumed', self.__patient.dirname)
 		gmTools.mkdir(default_path)
 		dlg = wx.DirDialog (
 			self,
@@ -2898,7 +2895,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			return
 
 		wx.BeginBusyCursor()
-		filename = self.__pacs.get_studies_with_dicomdir(patient_id = self.__patient['ID'], create_zip = True)
+		filename = self.__pacs.get_studies_with_dicomdir(patient_id = self.__orthanc_patient['ID'], create_zip = True)
 		wx.EndBusyCursor()
 
 		if filename is False:
@@ -2924,11 +2921,10 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 
 		# import into export area
 		wx.BeginBusyCursor()
-		person = gmPerson.gmCurrentPatient()
-		person.export_area.add_file (
+		self.__patient.export_area.add_file (
 			filename = filename,
 			hint = _('All DICOM studies of [%s] from Orthanc PACS "%s" (AET "%s")') % (
-				self.__patient['MainDicomTags']['PatientID'],
+				self.__orthanc_patient['MainDicomTags']['PatientID'],
 				self.__pacs.server_identification['Name'],
 				self.__pacs.server_identification['DicomAet']
 			)
@@ -2990,6 +2986,49 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		dlg.ShowModal()
 		dlg.Destroy()
 		self._schedule_data_reget()
+
+	#--------------------------------------------------------
+	def _on_upload_button_pressed(self, event):
+		event.Skip()
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory from which to recursively upload DICOM files.'),
+			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+		)
+		choice = dlg.ShowModal()
+		dicom_dir = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+		wx.BeginBusyCursor()
+		try:
+			uploaded, not_uploaded = self.__pacs.upload_from_directory (
+				directory = dicom_dir,
+				recursive = True,
+				check_mime_type = False,
+				ignore_other_files = True
+			)
+		finally:
+			wx.EndBusyCursor()
+		if len(not_uploaded) == 0:
+			q = _('Delete the uploaded DICOM files now ?')
+		else:
+			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
+			_log.error(u'not uploaded:')
+			for f in not_uploaded:
+				_log.error(f)
+
+		delete_uploaded = gmGuiHelpers.gm_show_question (
+			title = _('Uploading DICOM files'),
+			question = q,
+			cancel_button = False
+		)
+		if not delete_uploaded:
+			return
+		wx.BeginBusyCursor()
+		for f in uploaded:
+			gmTools.remove_file(f)
+		wx.EndBusyCursor()
 
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets.wxgModifyOrthancContentDlg import wxgModifyOrthancContentDlg
@@ -3054,8 +3093,8 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		really_modify = gmGuiHelpers.gm_show_question (
 			title = _('Modifying patient ID'),
 			question = _(
-				'Really modify %s patient(s) to have the\n'
-				'new patient ID [%s]\n'
+				'Really modify %s patient(s) to have the\n\n'
+				'new patient ID [%s]}\n\n'
 				'stored in the Orthanc DICOM server ?'
 			) % (
 				len(pats),

@@ -29,6 +29,7 @@ if __name__ == '__main__':
 	sys.path.insert(0, '../../')
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmShellAPI
+from Gnumed.pycommon import gmMimeLib
 #from Gnumed.pycommon import gmHooks
 #from Gnumed.pycommon import gmDispatcher
 
@@ -57,7 +58,7 @@ class cOrthancServer:
 	def connect(self, host, port, user, password, expected_minimal_version=None, expected_name=None, expected_aet=None):
 		if (host is None) or (host.strip() == u''):
 			host = u'localhost'
-		self.__server_url = u'http://%s:%s' % (host, port)
+		self.__server_url = str('http://%s:%s' % (host, port))
 		self.__user = user
 		self.__password = password
 		_log.info('connecting as [%s] to Orthanc server at [%s]', self.__user, self.__server_url)
@@ -112,19 +113,19 @@ class cOrthancServer:
 	def _get_url_browse_patients(self):
 		if self.__user is None:
 			return self.__server_url
-		return self.__server_url.replace(u'http://', u'http://%s@' % self.__user)
+		return self.__server_url.replace('http://', 'http://%s@' % self.__user)
 
 	url_browse_patients = property(_get_url_browse_patients, lambda x:x)
 
 	#--------------------------------------------------------
 	def get_url_browse_patient(self, patient_id):
 		# http://localhost:8042/#patient?uuid=0da01e38-cf792452-65c1e6af-b77faf5a-b637a05b
-		return u'%s/#patient?uuid=%s' % (self.url_browse_patients, patient_id)
+		return str('%s/#patient?uuid=%s' % (self.url_browse_patients, patient_id))
 
 	#--------------------------------------------------------
 	def get_url_browse_study(self, study_id):
 		# http://localhost:8042/#study?uuid=0da01e38-cf792452-65c1e6af-b77faf5a-b637a05b
-		return u'%s/#study?uuid=%s' % (self.url_browse_patients, study_id)
+		return str('%s/#study?uuid=%s' % (self.url_browse_patients, study_id))
 
 	#--------------------------------------------------------
 	# download API
@@ -175,7 +176,7 @@ class cOrthancServer:
 			'Query': {'PatientID': external_id.strip(u'*')}
 		}
 		_log.info(u'server-side C-FIND SCU over REST search, mogrified search data: %s', search_data)
-		matches = self.__run_POST(url = u'%s/tools/find' % self.__server_url, data = search_data)
+		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
 
 		# paranoia
 		for match in matches:
@@ -218,7 +219,7 @@ class cOrthancServer:
 		if dob is not None:
 			search_data['Query']['PatientBirthDate'] = dob.strftime('%Y%m%d')
 		_log.info(u'server-side C-FIND SCU over REST search, mogrified search data: %s', search_data)
-		matches = self.__run_POST(url = u'%s/tools/find' % self.__server_url, data = search_data)
+		matches = self.__run_POST(url = '%s/tools/find' % self.__server_url, data = search_data)
 		return matches
 
 	#--------------------------------------------------------
@@ -282,7 +283,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = '%s/studies/%s/archive' % (self.__server_url, study_id)))
+		f.write(self.__run_GET(url = '%s/studies/%s/archive' % (self.__server_url, str(study_id))))
 		f.close()
 		return filename
 
@@ -292,7 +293,7 @@ class cOrthancServer:
 			filename = gmTools.get_unique_filename(prefix = r'DCM-', suffix = r'.zip')
 		_log.info('exporting study [%s] into [%s]', study_id, filename)
 		f = io.open(filename, 'wb')
-		f.write(self.__run_GET(url = '%s/studies/%s/media' % (self.__server_url, study_id)))
+		f.write(self.__run_GET(url = '%s/studies/%s/media' % (self.__server_url, str(study_id))))
 		f.close()
 		return filename
 
@@ -303,7 +304,7 @@ class cOrthancServer:
 		if study_ids is None:
 			_log.info('exporting all studies of patient [%s] into [%s]', patient_id, filename)
 			f = io.open(filename, 'wb')
-			f.write(self.__run_GET(url = '%s/patients/%s/archive' % (self.__server_url, patient_id)))
+			f.write(self.__run_GET(url = '%s/patients/%s/archive' % (self.__server_url, str(patient_id))))
 			f.close()
 			return filename
 
@@ -318,7 +319,7 @@ class cOrthancServer:
 			if study_ids is None:
 				_log.info(u'exporting all studies of patient [%s] into [%s]', patient_id, filename)
 				f = io.open(filename, 'wb')
-				url = '%s/patients/%s/media' % (self.__server_url, patient_id)
+				url = '%s/patients/%s/media' % (self.__server_url, str(patient_id))
 				_log.debug(url)
 				f.write(self.__run_GET(url = url))
 				f.close()
@@ -411,7 +412,7 @@ class cOrthancServer:
 	# server-side API
 	#--------------------------------------------------------
 	def protect_patient(self, orthanc_id):
-		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
+		url = '%s/patients/%s/protected' % (self.__server_url, str(orthanc_id))
 		if self.__run_GET(url) == 1:
 			_log.debug('patient already protected: %s', orthanc_id)
 			return True
@@ -424,7 +425,7 @@ class cOrthancServer:
 
 	#--------------------------------------------------------
 	def unprotect_patient(self, orthanc_id):
-		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
+		url = '%s/patients/%s/protected' % (self.__server_url, str(orthanc_id))
 		if self.__run_GET(url) == 0:
 			return True
 		_log.info(u'patient [%s] protected against recycling, disabling protection now', orthanc_id)
@@ -436,7 +437,7 @@ class cOrthancServer:
 
 	#--------------------------------------------------------
 	def patient_is_protected(self, orthanc_id):
-		url = u'%s/patients/%s/protected' % (self.__server_url, orthanc_id)
+		url = '%s/patients/%s/protected' % (self.__server_url, str(orthanc_id))
 		return (self.__run_GET(url) == 1)
 
 	#--------------------------------------------------------
@@ -465,8 +466,8 @@ class cOrthancServer:
 				was_protected = True
 			else:
 				was_protected = False
-			pat_url = u'%s/patients/%s' % (self.__server_url, o_pat['ID'])
-			modify_url = u'%s/modify' % pat_url
+			pat_url = '%s/patients/%s' % (self.__server_url, o_pat['ID'])
+			modify_url = '%s/modify' % pat_url
 			result = self.__run_POST(modify_url, data = modify_data)
 			_log.debug('modified: %s', result)
 			if result is False:
@@ -481,18 +482,100 @@ class cOrthancServer:
 					_log.error('cannot re-lock (new) patient [%s]', newly_created_patient_id)
 
 		return all_modified
+
 	#--------------------------------------------------------
 	# upload API
 	#--------------------------------------------------------
-	def upload_dicom_files(self, files=None):
-		pass
+	def upload_dicom_file(self, filename, check_mime_type=False):
+		if gmTools.fname_stem(filename) == u'DICOMDIR':
+			_log.debug('ignoring [%s], no use uploading DICOMDIR files to Orthanc', filename)
+			return True
+
+		if check_mime_type:
+			if gmMimeLib.guess_mimetype(filename) != u'application/dicom':
+				_log.error(u'not considered a DICOM file: %s', filename)
+				return False
+		try:
+			f = io.open(filename, 'rb')
+		except StandardError:
+			_log.exception('cannot open [%s]', filename)
+			return False
+		dcm_data = f.read()
+		f.close()
+		upload_url = '%s/instances' % self.__server_url
+		uploaded = self.__run_POST(upload_url, data = dcm_data, content_type = 'application/dicom')
+		if uploaded is False:
+			_log.error('cannot upload [%s]', filename)
+			return False
+		_log.debug(uploaded)
+		if uploaded[u'Status'] == u'AlreadyStored':
+			# paranoia, as is our custom
+			available_fields_url = '%s%s/attachments/dicom' % (self.__server_url, uploaded[u'Path'])	# u'Path': u'/instances/1440110e-9cd02a98-0b1c0452-087d35db-3fd5eb05'
+			available_fields = self.__run_GET(available_fields_url)
+			if 'md5' not in available_fields:
+				_log.debug('md5 of instance not available in Orthanc, cannot compare against file md5, trusting Orthanc')
+				return True
+			md5_url = '%s/md5' % available_fields_url
+			md5_db = self.__run_GET(md5_url)
+			md5_file = gmTools.file2md5(filename)
+			if md5_file != md5_db:
+				_log.error('local md5: %s', md5_file)
+				_log.error('in-db md5: %s', md5_db)
+				_log.error('MD5 mismatch !')
+				return False
+			_log.error('MD5 match between file and database')
+		return True
 
 	#--------------------------------------------------------
-	def upload_from_directory(self, directory=None, search_subdirectories=False):
-		pass
+	def upload_dicom_files(self, files=None, check_mime_type=False):
+		uploaded = []
+		not_uploaded = []
+		for filename in files:
+			success = self.upload_dicom_file(filename, check_mime_type = check_mime_type)
+			if success:
+				uploaded.append(filename)
+				continue
+			not_uploaded.append(filename)
+
+		if len(not_uploaded) > 0:
+			_log.error('not all files uploaded')
+		return (uploaded, not_uploaded)
 
 	#--------------------------------------------------------
-	def upload_with_DICOMDIR(self, DICOMDIR=None):
+	def upload_from_directory(self, directory=None, recursive=False, check_mime_type=False, ignore_other_files=True):
+
+		#--------------------
+		def _on_error(exc):
+			_log.error('DICOM (?) file not accessible: %s', exc.filename)
+			_log.error(exc)
+		#--------------------
+
+		_log.debug('uploading DICOM files from [%s]', directory)
+		if not recursive:
+			files2try = os.listdir(directory)
+			if ignore_other_files:
+				files2try = [ f for f in files2try if gmMimeLib.guess_mimetype(f) == u'application/dicom' ]
+			return self.upload_dicom_files(files = files2try, check_mime_type = check_mime_type)
+
+		_log.debug('recursing for DICOM files')
+		uploaded = []
+		not_uploaded = []
+		for curr_root, curr_root_subdirs, curr_root_files in os.walk(directory, onerror = _on_error):
+			_log.debug('recursing into [%s]', curr_root)
+			files2try = [ os.path.join(curr_root, f) for f in curr_root_files ]
+			if ignore_other_files:
+				files2try = [ f for f in files2try if gmMimeLib.guess_mimetype(f) == u'application/dicom' ]
+			up, not_up = self.upload_dicom_files (
+				files = files2try,
+				check_mime_type = check_mime_type
+			)
+			uploaded.extend(up)
+			not_uploaded.extend(not_up)
+
+		return (uploaded, not_uploaded)
+
+	#--------------------------------------------------------
+	def upload_by_DICOMDIR(self, DICOMDIR=None):
 		pass
 
 	#--------------------------------------------------------
@@ -831,5 +914,30 @@ if __name__ == "__main__":
 		print('setting [%s] to [%s]:' % (old_id, new_id), orthanc.modify_patient_id(old_id, new_id))
 
 	#--------------------------------------------------------
+	def test_upload_files():
+#		try:
+#			host = sys.argv[2]
+#			port = sys.argv[3]
+#		except IndexError:
+		host = None
+		port = '8042'
+
+		orthanc = cOrthancServer()
+		if not orthanc.connect(host, port, user = None, password = None):		#, expected_aet = 'another AET'
+			print('error connecting to server:', orthanc.connect_error)
+			return False
+		print('Connected to Orthanc server "%s" (AET [%s] - version [%s] - DB [%s])' % (
+			orthanc.server_identification['Name'],
+			orthanc.server_identification['DicomAet'],
+			orthanc.server_identification['Version'],
+			orthanc.server_identification['DatabaseVersion']
+		))
+		print('')
+
+		#orthanc.upload_dicom_file(sys.argv[2])
+		orthanc.upload_from_directory(directory = sys.argv[2], recursive = True, check_mime_type = False, ignore_other_files = True)
+
+	#--------------------------------------------------------
 	#run_console()
-	test_modify_patient_id()
+	#test_modify_patient_id()
+	test_upload_files()

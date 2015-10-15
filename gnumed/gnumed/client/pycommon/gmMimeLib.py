@@ -19,12 +19,15 @@ import logging
 # GNUmed
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-import gmShellAPI, gmTools, gmCfg2
+import gmShellAPI
+import gmTools
+import gmCfg2
 
 
 _log = logging.getLogger('gm.docs')
+
 #=======================================================================================
-def guess_mimetype(aFileName = None):
+def guess_mimetype(filename = None):
 	"""Guess mime type of arbitrary file.
 
 	filenames are supposed to be in Unicode
@@ -35,19 +38,19 @@ def guess_mimetype(aFileName = None):
 	try:
 		import extractor
 		xtract = extractor.Extractor()
-		props = xtract.extract(filename = aFileName)
+		props = xtract.extract(filename = filename)
 		for prop, val in props:
 			if (prop == 'mimetype') and (val != worst_case):
 				return val
 	except ImportError:
-		_log.exception('Python wrapper for libextractor not installed.')
+		_log.debug('module <extractor> (python wrapper for libextractor) not installed')
 
 	ret_code = -1
 
 	# 2) use "file" system command
 	#    -i get mime type
 	#    -b don't display a header
-	mime_guesser_cmd = u'file -i -b "%s"' % aFileName
+	mime_guesser_cmd = u'file -i -b "%s"' % filename
 	# this only works on POSIX with 'file' installed (which is standard, however)
 	# it might work on Cygwin installations
 	aPipe = os.popen(mime_guesser_cmd.encode(sys.getfilesystemencoding()), 'r')
@@ -59,12 +62,12 @@ def guess_mimetype(aFileName = None):
 		if ret_code is None:
 			_log.debug('[%s]: <%s>' % (mime_guesser_cmd, pipe_output))
 			if pipe_output not in [u'', worst_case]:
-				return pipe_output
+				return pipe_output.split(u';')[0].strip()
 		else:
 			_log.error('[%s] on %s (%s): failed with exit(%s)' % (mime_guesser_cmd, os.name, sys.platform, ret_code))
 
 	# 3) use "extract" shell level libextractor wrapper
-	mime_guesser_cmd = 'extract -p mimetype "%s"' % aFileName
+	mime_guesser_cmd = 'extract -p mimetype "%s"' % filename
 	aPipe = os.popen(mime_guesser_cmd.encode(sys.getfilesystemencoding()), 'r')
 	if aPipe is None:
 		_log.debug("cannot open pipe to [%s]" % mime_guesser_cmd)
@@ -85,10 +88,10 @@ def guess_mimetype(aFileName = None):
 	_log.info("OS level mime detection failed, falling back to built-in magic")
 
 	import gmMimeMagic
-	mime_type = gmTools.coalesce(gmMimeMagic.file(aFileName), worst_case)
+	mime_type = gmTools.coalesce(gmMimeMagic.file(filename), worst_case)
 	del gmMimeMagic
 
-	_log.debug('"%s" -> <%s>' % (aFileName, mime_type))
+	_log.debug('"%s" -> <%s>' % (filename, mime_type))
 	return mime_type
 #-----------------------------------------------------------------------------------
 def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
@@ -311,15 +314,23 @@ def call_viewer_on_file(aFile = None, block=None):
 #		os.remove(file_to_display)
 
 	return True, ''
+
 #=======================================================================================
 if __name__ == "__main__":
 
-	if len(sys.argv) > 1 and sys.argv[1] == u'test':
+	if len(sys.argv) < 2:
+		sys.exit()
 
-		filename = sys.argv[2]
+	if sys.argv[1] != 'test':
+		sys.exit()
 
-		_get_system_startfile_cmd(filename)
-		print(_system_startfile_cmd)
-		#print(guess_mimetype(filename))
-		#print(get_viewer_cmd(guess_mimetype(filename), filename))
-		#print(guess_ext_by_mimetype(mimetype=filename))
+	# for testing:
+	logging.basicConfig(level = logging.DEBUG)
+
+	filename = sys.argv[2]
+
+	#_get_system_startfile_cmd(filename)
+	#print(_system_startfile_cmd)
+	print(guess_mimetype(filename))
+	#print(get_viewer_cmd(guess_mimetype(filename), filename))
+	#print(guess_ext_by_mimetype(mimetype=filename))
