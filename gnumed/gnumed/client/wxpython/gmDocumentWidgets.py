@@ -2761,7 +2761,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 			#self._schedule_data_reget()
 			return True
 
-		if kwds['pk_identity'] != pat.ID:
+		if kwds['pk_identity'] != self.__patient.ID:
 			return True
 
 		if kwds['table'] == u'dem.lnk_identity2ext_id':

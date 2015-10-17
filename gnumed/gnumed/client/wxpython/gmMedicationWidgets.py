@@ -347,10 +347,12 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_aim.add_callback_on_set_focus(callback = self._on_enter_aim)
 
 	#----------------------------------------------------------------
-	def __refresh_allergies(self):
+	def __refresh_precautions(self):
+
 		curr_pat = gmPerson.gmCurrentPatient()
 		emr = curr_pat.emr
 
+		# allergies
 		state = emr.allergy_state
 		if state['last_confirmed'] is None:
 			confirmed = _('never')
@@ -358,9 +360,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			confirmed = gmDateTime.pydt_strftime(state['last_confirmed'], '%Y %b %d')
 		msg = _(u'%s, last confirmed %s\n') % (state.state_string, confirmed)
 		msg += gmTools.coalesce(state['comment'], u'', _('Comment (%s): %%s\n') % state['modified_by'])
-
-		tt = u''
-
+		tooltip = u''
 		allgs = emr.get_allergies()
 		if len(allgs) > 0:
 			msg += u'\n'
@@ -370,15 +370,30 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				allergy['l10n_type'],
 				gmTools.bool2subst(allergy['definite'], _('definite'), _('suspected'), u'?')
 			)
-			tt += u'%s: %s\n' % (
+			tooltip += u'%s: %s\n' % (
 				allergy['descriptor'],
 				gmTools.coalesce(allergy['reaction'], _('reaction not recorded'))
 			)
-
 		if len(allgs) > 0:
 			msg += u'\n'
-			tt += u'\n'
+			tooltip += u'\n'
+		del allgs
 
+		# history of substance abuse
+		abuses = emr.abused_substances
+		for abuse in abuses:
+			tooltip += abuse.format(one_line = False, include_metadata = False)
+			tooltip += u'\n'
+			if abuse['harmful_use_type'] in [None, 0]:
+				continue
+			msg += abuse.format(one_line = True)
+			msg += u'\n'
+		if len(abuses) > 0:
+			msg += u'\n'
+			tooltip += u'\n'
+		del abuses
+
+		# kidney function
 		gfr = emr.get_most_recent_results(loinc = gmLOINC.LOINC_gfr_quantity, no_of_results = 1)
 		if gfr is None:
 			self.calc.patient = curr_pat
@@ -402,7 +417,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 						with_sub_results = False,
 						return_list = False
 					))
-				tt += u'\n'.join(tts)
+				tooltip += u'\n'.join(tts)
 		else:
 			msg += u'%s: %s %s (%s)\n' % (
 				gfr['unified_abbrev'],
@@ -413,14 +428,15 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 					format = '%Y %b %d'
 				)
 			)
-			tt += _('GFR reported by path lab')
+			tooltip += _('GFR reported by path lab')
 
+		# pregnancy
 		edc = emr.EDC
 		if edc is not None:
 			msg += u'\n\n'
 			if emr.EDC_is_fishy:
 				msg += _(u'EDC (!?!): %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
-				tt += _(
+				tooltip += _(
 					u'The Expected Date of Confinement is rather questionable.\n'
 					u'\n'
 					u'Please check patient age, patient gender, time until/since EDC.'
@@ -429,7 +445,8 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 				msg += _(u'EDC: %s') % gmDateTime.pydt_strftime(edc, format = '%Y %b %d')
 
 		self._LBL_allergies.SetLabel(msg)
-		self._LBL_allergies.SetToolTipString(tt)
+		self._LBL_allergies.SetToolTipString(tooltip)
+
 	#----------------------------------------------------------------
 	def __refresh_drug_details(self):
 
@@ -454,18 +471,16 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		if entry_type == self._PRW_drug.IS_COMPONENT:
 			component = drug
 			drug = component.containing_drug
-			self._TCTRL_drug_details.SetValue(u'%s: %s' % (
-				drug['brand'],
-				u'; '.join(drug['components'])
-			))
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['brand'], u'; '.join(drug['components'])))
 			self._TCTRL_drug_details.SetToolTipString(component.format())
 			return
 
 		if entry_type == self._PRW_drug.IS_BRAND:
-			self._TCTRL_drug_details.SetValue(u'%s: %s' % (
-				drug['brand'],
-				u'; '.join(drug['components'])
-			))
+			if drug['components'] is not None:
+				comps = u'; '.join(drug['components'])
+			else:
+				comps = _(u'<no components>')
+			self._TCTRL_drug_details.SetValue(u'%s: %s' % (drug['brand'], comps))
 			self._TCTRL_drug_details.SetToolTipString(drug.format())
 			return
 
@@ -698,7 +713,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		self._PRW_discontinue_reason.SetValue(u'')
 
 		self.__refresh_drug_details()
-		self.__refresh_allergies()
+		self.__refresh_precautions()
 
 		self._PRW_drug.SetFocus()
 	#----------------------------------------------------------------
@@ -757,7 +772,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._PRW_discontinue_reason.Enable()
 
 		self.__refresh_drug_details()
-		self.__refresh_allergies()
+		self.__refresh_precautions()
 
 		self._PRW_schedule.SetFocus()
 
@@ -848,7 +863,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		now = gmDateTime.pydt_now_here()
 
-		self.__refresh_allergies()
+		self.__refresh_precautions()
 
 		if self.data is None:
 			return
@@ -885,7 +900,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._BTN_discontinued_as_planned.Enable(True)
 			self._PRW_discontinue_reason.Enable(True)
 
-		self.__refresh_allergies()
+		self.__refresh_precautions()
 
 	#----------------------------------------------------------------
 	def _on_start_unknown_checked(self, event):
@@ -897,7 +912,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 			self._DP_started.Enable(True)
 			self._PRW_start_certainty.Enable(True)
 
-		self.__refresh_allergies()
+		self.__refresh_precautions()
 
 	#----------------------------------------------------------------
 	def turn_into_allergy(self, data=None):

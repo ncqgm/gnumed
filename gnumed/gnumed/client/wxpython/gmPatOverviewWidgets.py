@@ -687,7 +687,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			data[sort_key] = [label, vacc]
 		del vaccs
 
-		for abuse in [ a for a in emr.currently_abused_substances if a['harmful_use_type'] == 3 ]:
+		for abuse in [ a for a in emr.abused_substances if a['harmful_use_type'] == 3 ]:
 			sort_key = u'%s::%s' % (gmDateTime.pydt_strftime(abuse['last_checked_when'], format = date_format4sorting), abuse['substance'])
 			label = _('Hx of addiction: %s') % abuse['substance']
 			sort_key_list.append(sort_key)
@@ -803,7 +803,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		first_red = False
 
 		# harmful substance use ?
-		abuses = emr.currently_abused_substances
+		abuses = emr.abused_substances
 		if len([ a for a in abuses if a['harmful_use_type'] in [1, 2] ]) > 0:
 			list_items.append(_('active substance abuse'))
 			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', one_line=True) for a in abuses ]))

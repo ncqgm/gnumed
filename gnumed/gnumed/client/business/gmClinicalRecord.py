@@ -1669,7 +1669,7 @@ WHERE
 		)
 
 	#--------------------------------------------------------
-	def _get_currently_abused_substances(self, order_by=None):
+	def _get_abused_substances(self, order_by=None):
 		return self._get_current_substance_intakes (
 			include_inactive = True,
 			include_unapproved = True,
@@ -1680,7 +1680,7 @@ WHERE
 			exclude_potential_abuses = False
 		)
 
-	currently_abused_substances = property(_get_currently_abused_substances, lambda x:x)
+	abused_substances = property(_get_abused_substances, lambda x:x)
 
 	#--------------------------------------------------------
 	def _get_current_substance_intakes(self, include_inactive=True, include_unapproved=False, order_by=None, episodes=None, issues=None, exclude_potential_abuses=False, exclude_medications=False):
@@ -2915,7 +2915,7 @@ if __name__ == "__main__":
 	#-----------------------------------------
 	def test_get_abuses():
 		emr = cClinicalRecord(aPKey=12)
-		for med in emr.currently_abused_substances:
+		for med in emr.abused_substances:
 			print med.format(one_line = True)
 	#-----------------------------------------
 	def test_is_allergic_to():

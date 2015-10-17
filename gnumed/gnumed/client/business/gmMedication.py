@@ -2139,8 +2139,9 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'harmful_use_type'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %b %d', one_line=True, allergy=None, show_all_brand_components=False):
+	def format(self, left_margin=0, date_format='%Y %b %d', one_line=True, allergy=None, show_all_brand_components=False, include_metadata=True):
 
+		# medication
 		if self._payload[self._idx['harmful_use_type']] is None:
 			if one_line:
 				return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
@@ -2151,10 +2152,11 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 				show_all_brand_components = show_all_brand_components
 			)
 
+		# abuse
 		if one_line:
 			return self.format_as_one_line_abuse(left_margin = left_margin, date_format = date_format)
 
-		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format)
+		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format, include_metadata = include_metadata)
 
 	#--------------------------------------------------------
 	def format_as_one_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
@@ -2199,9 +2201,11 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		return line
 
 	#--------------------------------------------------------
-	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d'):
+	def format_as_multiple_lines_abuse(self, left_margin=0, date_format='%Y %b %d', include_metadata=True):
 
-		txt = _('Substance abuse entry                                              [#%s]\n') % self._payload[self._idx['pk_substance_intake']]
+		txt = u''
+		if include_metadata:
+			txt = _('Substance abuse entry                                              [#%s]\n') % self._payload[self._idx['pk_substance_intake']]
 		txt += u' ' + _('Substance: %s [#%s]%s\n') % (
 			self._payload[self._idx['substance']],
 			self._payload[self._idx['pk_substance']],
@@ -2217,14 +2221,14 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 					accuracy = gmDateTime.acc_days
 				)
 			)
-		txt += u'\n'
-		txt += gmTools.coalesce(self._payload[self._idx['notes']], u'', ' %s\n')
-		txt += u'\n'
-		txt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
-			'row_ver': self._payload[self._idx['row_version']],
-			'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
-			'mod_by': self._payload[self._idx['modified_by']]
-		}
+		txt += gmTools.coalesce(self._payload[self._idx['notes']], u'', _(' Notes: %s\n'))
+		if include_metadata:
+			txt += u'\n'
+			txt += _(u'Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s.') % {
+				'row_ver': self._payload[self._idx['row_version']],
+				'mod_when': gmDateTime.pydt_strftime(self._payload[self._idx['modified_when']]),
+				'mod_by': self._payload[self._idx['modified_by']]
+			}
 
 		return txt
 
@@ -3408,9 +3412,10 @@ class cBrandedDrug(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(u'ATC: %s' % self._payload[self._idx['atc']])
 		if self._payload[self._idx['external_code']] is not None:
 			lines.append(u'%s: %s' % (self._payload[self._idx['external_code_type']], self._payload[self._idx['external_code']]))
-		lines.append(_('Components:'))
-		for comp in self._payload[self._idx['components']]:
-			lines.append(u' ' + comp)
+		if self._payload[self._idx['components']] is not None:
+			lines.append(_('Components:'))
+			for comp in self._payload[self._idx['components']]:
+				lines.append(u' ' + comp)
 		if self._payload[self._idx['is_fake_brand']]:
 			lines.append(u'')
 			lines.append(_('this is a fake brand'))

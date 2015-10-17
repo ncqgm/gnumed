@@ -66,7 +66,7 @@ def manage_substance_abuse(parent=None, patient=None):
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
-		intakes = patient.emr.currently_abused_substances
+		intakes = patient.emr.abused_substances
 		items = []
 		for i in intakes:
 			items.append ([
