@@ -216,7 +216,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		self._PRW_urb.SetText(value = adr['urb'], data = adr['urb'])
 		self._PRW_urb.set_context(context = u'zip', val = adr['postcode'])
 
-		self._PRW_region.SetText(value = adr['l10n_state'], data = adr['code_state'])
+		self._PRW_region.SetText(value = adr['l10n_region'], data = adr['code_region'])
 		self._PRW_region.set_context(context = u'zip', val = adr['postcode'])
 
 		self._PRW_country.SetText(value = adr['l10n_country'], data = adr['code_country'])
@@ -431,7 +431,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 		mapping = [
 			(self._PRW_street, 'street'),
 			(self._PRW_urb, 'urb'),
-			(self._PRW_region, 'l10n_state')
+			(self._PRW_region, 'l10n_region')
 		]
 		# loop through fields and invalidate address searcher if different
 		for ctrl, field in mapping:
@@ -515,7 +515,7 @@ class cNewPatientEAPnl(wxgNewPatientEAPnl.wxgNewPatientEAPnl, gmEditArea.cGeneri
 				_log.debug('street: >>%s<<', self._PRW_street.GetValue().strip())
 				_log.debug('postcode: >>%s<<', self._PRW_zip.GetValue().strip())
 				_log.debug('urb: >>%s<<', self._PRW_urb.GetValue().strip())
-				_log.debug('state: >>%s<<', self._PRW_region.GetData().strip())
+				_log.debug('region: >>%s<<', self._PRW_region.GetData().strip())
 				_log.debug('country: >>%s<<', self._PRW_country.GetData().strip())
 				_log.exception('cannot link address')
 				gmGuiHelpers.gm_show_error (

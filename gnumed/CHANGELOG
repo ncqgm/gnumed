@@ -1665,6 +1665,9 @@ NEW: chunked md5() for large objects
 IMPROVED: database restore default configuration
 IMPROVED: more resilient backups
 IMPROVED: all input files now utf8 (io.open() Py3 preps)
+IMPROVED: dem.state -> dem.region
+IMPROVED: dem.region.id -> dem.region.pk
+IMPROVED: dem.urb.id_state -> dem.urb.fk_region
 
 ------------------------------------------------
 # gnumed_v20

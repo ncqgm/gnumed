@@ -9,10 +9,17 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-select gm.register_notifying_table('dem', 'lnk_identity2ext_id');
+alter table dem.state rename to region;
+alter table dem.region rename column id to pk;
+
+
+alter table audit.log_state rename to log_region;
+alter table audit.log_region rename column id to pk;
 
 -- --------------------------------------------------------------
-drop function if exists dem.new_pupic() cascade;
+alter table dem.urb rename column id_state to fk_region;
+
+alter table audit.log_urb rename column id_state to fk_region;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-dem-external_id-dynamic.sql', '21.0');
+select gm.log_script_insertion('v21-dem-region-static.sql', '21.0');

@@ -1210,7 +1210,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self.__get_variant_gen_adr_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
 	def _get_variant_gen_adr_region(self, data=u'?'):
-		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_state')
+		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
 	def _get_variant_gen_adr_country(self, data=u'?'):
 		return self.__get_variant_gen_adr_part(data = data, part = 'l10n_country')
@@ -1274,7 +1274,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self.__get_variant_receiver_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
 	def _get_variant_receiver_region(self, data=u'%s'):
-		return self.__get_variant_receiver_part(data = data, part = 'l10n_state')
+		return self.__get_variant_receiver_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
 	def _get_variant_receiver_country(self, data=u'%s'):
 		return self.__get_variant_receiver_part(data = data, part = 'l10n_country')
@@ -1302,7 +1302,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		adr = self.pat.get_addresses(address_type = adr_type)[0]
 
 		# formatting template
-		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
+		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
 		if len(data_parts) > 1:
 			if data_parts[1].strip() != u'':
 				template = data_parts[1]
@@ -1361,7 +1361,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		return self.__get_variant_adr_part(data = data, part = 'postcode')
 	#--------------------------------------------------------
 	def _get_variant_adr_region(self, data=u'?'):
-		return self.__get_variant_adr_part(data = data, part = 'l10n_state')
+		return self.__get_variant_adr_part(data = data, part = 'l10n_region')
 	#--------------------------------------------------------
 	def _get_variant_adr_country(self, data=u'?'):
 		return self.__get_variant_adr_part(data = data, part = 'l10n_country')
@@ -1504,7 +1504,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		options = data.split(self.__args_divider)
 
 		# formatting template
-		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s')
+		template = _('%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, %(l10n_country)s')
 		if len(options) > 0:
 			if options[0].strip() != u'':
 				template = options[0]

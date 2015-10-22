@@ -132,7 +132,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		]
 		adr = self.address
 		if adr is not None:
-			vcf_fields.append(u'ADR:;%(subunit)s;%(street)s %(number)s;%(urb)s;%(l10n_state)s;%(postcode)s;%(l10n_country)s' % adr)
+			vcf_fields.append(u'ADR:;%(subunit)s;%(street)s %(number)s;%(urb)s;%(l10n_region)s;%(postcode)s;%(l10n_country)s' % adr)
 		comms = self.get_comm_channels(comm_medium = u'workphone')
 		if len(comms) > 0:
 			vcf_fields.append(u'TEL;VALUE=uri;TYPE=work:tel:%(url)s' % comms[0])

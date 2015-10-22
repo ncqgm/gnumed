@@ -105,8 +105,8 @@ def parse_vcard2dto(vc_text=None, filename=None):
 			if region is None:
 				region_row = gmDemographicRecord.map_urb_zip_country2region(urb = adr.city, zip = adr.code, country_code = country_code)
 				if region_row is not None:
-					region = region_row['state']
-					region_code = region_row['code_state']
+					region = region_row['region']
+					region_code = region_row['code_region']
 			else:
 				region_code = gmDemographicRecord.map_region2code(region = region, country_code = country_code)
 			if region_code is None:

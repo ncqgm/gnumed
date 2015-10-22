@@ -149,7 +149,7 @@ class cContactsPanel(wx.wx.Panel):
 		self.lbl_Type = BlueLabel(self,-1,_("Office"))
 		self.lbl_org_street = BlueLabel(self,-1,("Street"))
 		self.lbl_org_suburb = BlueLabel(self,-1,_("Suburb"))
-		self.lbl_org_state = BlueLabel(self,-1,_("State"))                   #eg NSW
+		self.lbl_org_state = BlueLabel(self,-1,_("Region"))                   #eg NSW
 		self.lbl_org_zip = wx.wxStaticText(self,id,_("Zip"), wx.wxDefaultPosition, wx.wxDefaultSize, wx.wxALIGN_CENTRE)
 		self.lbl_org_zip.SetFont(wx.wxFont(12, wx.wxSWISS, wx.wx.NORMAL, wx.wx.BOLD,False,''))
 		self.lbl_org_zip.SetForegroundColour(wx.wxColour(0,0,131))
@@ -319,7 +319,7 @@ class cContactsPanel(wx.wx.Panel):
 			self.sizer_line2.Add(0,0,4)
 		self.sizer_line2.AddSizer(self.sizer_line2_rightside,44, wx.wxEXPAND)
 		#----------------------------------------------------
-		#line three:suburb, state, zip code, organisation fax
+		#line three:suburb, region, zip code, organisation fax
 		#----------------------------------------------------
 		self.sizer_line3.Add(self.lbl_org_suburb,4, wx.wxEXPAND| wx.wxALIGN_CENTER_VERTICAL)
 		self.sizer_line3.Add(self.txt_org_suburb,40, wx.wxEXPAND)
@@ -540,7 +540,7 @@ class cContactsPanel(wx.wx.Panel):
 		vals = [ f[n].GetValue() for n in ['street', 'urb', 'postcode'] ]
 		# split the street value into 2 parts, number and street. ? Have a separate number field instead.
 		addr = [ vals[0].split(' ')[0] , ' '.join( vals[0].split(' ')[1:] ) ] + vals[1:] + [None,None]
-		# [None, None] is state and country at the moment
+		# [None, None] is region and country at the moment
 		return addr 
 	
 	def get_org_values(self):

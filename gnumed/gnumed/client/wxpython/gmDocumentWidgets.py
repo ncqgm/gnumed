@@ -3093,8 +3093,8 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 		really_modify = gmGuiHelpers.gm_show_question (
 			title = _('Modifying patient ID'),
 			question = _(
-				'Really modify %s patient(s) to have the\n\n'
-				'new patient ID [%s]}\n\n'
+				'Really modify %s patient(s) to have the new patient ID\n\n'
+				' [%s]\n\n'
 				'stored in the Orthanc DICOM server ?'
 			) % (
 				len(pats),
@@ -3111,6 +3111,50 @@ class cModifyOrthancContentDlg(wxgModifyOrthancContentDlg):
 				all_modified = False
 		self.__refresh_patient_list()
 		return all_modified
+
+#------------------------------------------------------------
+def upload_files():
+#	_on_upload_button_pressed(self, event)
+		event.Skip()
+		dlg = wx.DirDialog (
+			self,
+			message = _('Select the directory from which to recursively upload DICOM files.'),
+			defaultPath = os.path.join(gmTools.gmPaths().home_dir, 'gnumed')
+		)
+		choice = dlg.ShowModal()
+		dicom_dir = dlg.GetPath()
+		dlg.Destroy()
+		if choice != wx.ID_OK:
+			return True
+		wx.BeginBusyCursor()
+		try:
+			uploaded, not_uploaded = self.__pacs.upload_from_directory (
+				directory = dicom_dir,
+				recursive = True,
+				check_mime_type = False,
+				ignore_other_files = True
+			)
+		finally:
+			wx.EndBusyCursor()
+		if len(not_uploaded) == 0:
+			q = _('Delete the uploaded DICOM files now ?')
+		else:
+			q = _('Some files have not been uploaded.\n\nDo you want to delete those DICOM files which have been sent to the PACS successfully ?')
+			_log.error(u'not uploaded:')
+			for f in not_uploaded:
+				_log.error(f)
+
+		delete_uploaded = gmGuiHelpers.gm_show_question (
+			title = _('Uploading DICOM files'),
+			question = q,
+			cancel_button = False
+		)
+		if not delete_uploaded:
+			return
+		wx.BeginBusyCursor()
+		for f in uploaded:
+			gmTools.remove_file(f)
+		wx.EndBusyCursor()
 
 #============================================================
 # main

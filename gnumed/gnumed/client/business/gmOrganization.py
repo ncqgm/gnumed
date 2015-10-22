@@ -538,7 +538,7 @@ def get_address_data_for_org_ids( idList):
 	"""
 
 	ids = ", ".join( [ str(x) for x in idList]) 
-	cmd = """select l.id_org, number, street, city, postcode, state, country 
+	cmd = """select l.id_org, number, street, city, postcode, region, country 
 			from dem.v_basic_address v , dem.lnk_org2address l 
 				where v.addr_id = l.id_address and
 				l.id_org in ( select id from dem.org where id in (%s) ) """ % ids 
@@ -743,7 +743,7 @@ if __name__ == '__main__':
 
 		print """testing single level orgs"""
 		f = [ "name", "office", "subtype",  "memo", "category", "phone", "fax", "email","mobile"]
-		a = ["number", "street", "urb", "postcode", "state", "country"]
+		a = ["number", "street", "urb", "postcode", 'region', "country"]
 		h = cOrgImpl1()
 
 		h.set(*f1)

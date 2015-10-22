@@ -723,16 +723,13 @@ def find_or_insert_address(cu, id, no, st, urb, pcode) :
 	no = esc(no)
 	if urb.find('MT') == 0 and urb[2] in ['.',' '] and len(urb) >= 4:
 		urb = 'MOUNT ' + urb[3:]
-		
-		
-	stmt_state = "select code, country from dem.state s, dem.urb u where u.name ilike '%s' and u.postcode ilike '%s' and u.id_state = s.id" % (urb , pcode)
+	stmt_state = "select code, country from dem.region d_r, dem.urb u where u.name ilike '%s' and u.postcode ilike '%s' and u.fk_region = d_r.pk" % (urb , pcode)
 	print stmt_state
 	cu.execute(stmt_state)
 	result = cu.fetchone()
 	if not result:
 		return False
 	[statecode, countrycode] = result
-	
 	stmt_insert_address = "select dem.create_address( '%s', '%s', '%s', '%s', '%s', '%s' ) " % ( no, st, pcode, urb, statecode, countrycode )
 	print stmt_insert_address
 	cu.execute(stmt_insert_address)
@@ -745,8 +742,6 @@ def find_or_insert_address(cu, id, no, st, urb, pcode) :
 	stmt_insert_lnk_id_address = "insert into dem.lnk_person_org_address( id_identity, id_address, address_source) values ( %d, %d, 'import program')" % (id, id_address)
 	print stmt_insert_lnk_id_address
 	cu.execute(stmt_insert_lnk_id_address)
-	 
-	
 	return True
 
 

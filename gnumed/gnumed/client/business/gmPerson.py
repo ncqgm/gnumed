@@ -1140,9 +1140,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			city.set(u'comment', gmTools.coalesce(adr['suburb'], u''))
 			city.text = gmTools.coalesce(adr['urb'], u'')
 
-			state = etree.SubElement(home, u'state')
-			state.set(u'comment', gmTools.coalesce(adr['l10n_state'], u''))
-			state.text = gmTools.coalesce(adr['code_state'], u'')
+			region = etree.SubElement(home, u'region')
+			region.set(u'comment', gmTools.coalesce(adr['l10n_region'], u''))
+			region.text = gmTools.coalesce(adr['code_region'], u'')
 
 			zipcode = etree.SubElement(home, u'postal_code')
 			zipcode.text = gmTools.coalesce(adr['postcode'], u'')
@@ -1205,8 +1205,8 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vc.fn.value = self.get_description()
 		vc.add(u'n')
 		vc.n.value = vobject.vcard.Name(family = self._payload[self._idx['lastnames']], given = self._payload[self._idx['firstnames']])
-		vc.add(u'nickname')
-		vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+#		vc.add(u'nickname')
+#		vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
 		vc.add(u'title')
 		vc.title.value = gmTools.coalesce(self._payload[self._idx['title']], u'')
 		vc.add(u'gender')
@@ -1261,7 +1261,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			vc_adr = vc.adr.value
 			vc_adr.extended = gmTools.coalesce(home_adr['subunit'], u'')
 			vc_adr.street = gmTools.coalesce(home_adr['street'], u'', u'%s ') + gmTools.coalesce(home_adr['number'], u'')
-			vc_adr.region = gmTools.coalesce(home_adr['l10n_state'], u'')
+			vc_adr.region = gmTools.coalesce(home_adr['l10n_region'], u'')
 			vc_adr.code = gmTools.coalesce(home_adr['postcode'], u'')
 			vc_adr.city = gmTools.coalesce(home_adr['urb'], u'')
 			vc_adr.country = gmTools.coalesce(home_adr['l10n_country'], u'')

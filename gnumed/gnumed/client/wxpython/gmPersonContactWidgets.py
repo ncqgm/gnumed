@@ -113,7 +113,7 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 					a['postcode'],
 					a['urb'],
 					gmTools.coalesce(a['suburb'], u''),
-					a['l10n_state'],
+					a['l10n_region'],
 					a['l10n_country'],
 					gmTools.coalesce(a['notes_subunit'], u'')
 				] for a in adrs

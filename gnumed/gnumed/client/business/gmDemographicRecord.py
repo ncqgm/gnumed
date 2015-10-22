@@ -242,9 +242,9 @@ def get_countries():
 #------------------------------------------------------------
 def get_country_for_region(region=None):
 	cmd = u"""
-SELECT code_country, l10n_country FROM dem.v_state WHERE lower(l10n_state) = lower(%(region)s)
+SELECT code_country, l10n_country FROM dem.v_region WHERE lower(l10n_region) = lower(%(region)s)
 	union
-SELECT code_country, l10n_country FROM dem.v_state WHERE lower(state) = lower(%(region)s)
+SELECT code_country, l10n_country FROM dem.v_region WHERE lower(region) = lower(%(region)s)
 """
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'region': region}}])
 	return rows
@@ -278,9 +278,9 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 			lower(urb) = lower(%(urb)s)
 				AND
 			(
-				(lower(state) = lower(coalesce(%(region)s, 'state/territory/province/region not available')))
+				(lower(region) = lower(coalesce(%(region)s, 'state/territory/province/region not available')))
 					OR
-				(lower(l10n_state) = lower(coalesce(%(region)s, _('state/territory/province/region not available'))))
+				(lower(l10n_region) = lower(coalesce(%(region)s, _('state/territory/province/region not available'))))
 			)
 
 		) UNION (
@@ -308,9 +308,9 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 			postcode_urb = %(zip)s
 				AND
 			(
-				(lower(state) = lower(%(region)s))
+				(lower(region) = lower(%(region)s))
 					OR
-				(lower(l10n_state) = lower(%(region)s))
+				(lower(l10n_region) = lower(%(region)s))
 			)
 
 		) UNION (
@@ -324,9 +324,9 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 		FROM dem.v_urb WHERE
 			lower(urb) = lower(%(urb)s)
 				AND
-			((lower(state) = lower(%(region)s))
+			((lower(region) = lower(%(region)s))
 				OR
-			(lower(l10n_state) = lower(%(region)s)))
+			(lower(l10n_region) = lower(%(region)s)))
 
 		) UNION (
 
@@ -336,10 +336,10 @@ def map_urb_zip_region2country(urb=None, zip=None, region=None):
 			country,
 			l10n_country,
 			code_country
-		FROM dem.v_state WHERE
-			lower(state) = lower(%(region)s)
+		FROM dem.v_region WHERE
+			lower(region) = lower(%(region)s)
 				OR
-			lower(l10n_state) = lower(%(region)s)
+			lower(l10n_region) = lower(%(region)s)
 
 		) ORDER BY rank"""
 
@@ -362,9 +362,9 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 		-- find by using all known details
 		SELECT
 			1 AS rank,
-			state,
-			l10n_state,
-			code_state
+			region,
+			l10n_region,
+			code_region
 		FROM dem.v_urb WHERE
 			postcode_urb = %(zip)s
 				AND
@@ -383,9 +383,9 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 		-- find by zip / urb
 		SELECT
 			2 AS rank,
-			state,
-			l10n_state,
-			code_state
+			region,
+			l10n_region,
+			code_region
 		FROM dem.v_urb WHERE
 			postcode_urb = %(zip)s
 				AND
@@ -396,9 +396,9 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 		-- find by zip / country
 		SELECT
 			2 AS rank,
-			state,
-			l10n_state,
-			code_state
+			region,
+			l10n_region,
+			code_region
 		FROM dem.v_urb WHERE
 			postcode_urb = %(zip)s
 				AND
@@ -415,9 +415,9 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 		-- find by urb / country
 		SELECT
 			2 AS rank,
-			state,
-			l10n_state,
-			code_state
+			region,
+			l10n_region,
+			code_region
 		FROM dem.v_urb WHERE
 			lower(urb) = lower(%(urb)s)
 				AND
@@ -438,10 +438,10 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 		-- find by country (some countries will only have one region)
 		SELECT
 			1 AS rank,		-- dummy to conform with function result structure at Python level
-			state,
-			l10n_state,
-			code_state
-		FROM dem.v_state WHERE
+			region,
+			l10n_region,
+			code_region
+		FROM dem.v_region WHERE
 			(lower(country) = lower(%(country)s))
 				OR
 			(lower(l10n_country) = lower(%(country)s))
@@ -468,15 +468,15 @@ def map_urb_zip_country2region(urb=None, zip=None, country=None, country_code=No
 def map_region2code(region=None, country_code=None):
 	if country_code is None:
 		cmd = u"""
-			SELECT code FROM dem.state WHERE lower(_(name)) = lower(%(region)s)
+			SELECT code FROM dem.region WHERE lower(_(name)) = lower(%(region)s)
 				UNION
-			SELECT code FROM dem.state WHERE lower(name) = lower(%(region)s)
+			SELECT code FROM dem.region WHERE lower(name) = lower(%(region)s)
 		"""
 	else:
 		cmd = u"""
-			SELECT code FROM dem.state WHERE lower(_(name)) = lower(%(region)s) AND lower(country) = lower(%(country_code)s)
+			SELECT code FROM dem.region WHERE lower(_(name)) = lower(%(region)s) AND lower(country) = lower(%(country_code)s)
 				UNION
-			SELECT code FROM dem.state WHERE lower(name) = %(region)s AND lower(country) = lower(%(country_code)s)
+			SELECT code FROM dem.region WHERE lower(name) = %(region)s AND lower(country) = lower(%(country_code)s)
 		"""
 	args = {
 		'country_code': country_code,
@@ -498,7 +498,7 @@ def delete_region(region=None, delete_urbs=False):
 			'cmd': u"""
 				delete from dem.urb du
 				where
-					du.id_state = %(region)s
+					du.fk_region = %(region)s
 						and
 					not exists (select 1 from dem.street ds where ds.id_urb = du.id)""",
 			'args': args
@@ -506,11 +506,11 @@ def delete_region(region=None, delete_urbs=False):
 
 	queries.append ({
 		'cmd': u"""
-			delete from dem.state ds
-			where
-				ds.id = %(region)s
-					and
-				not exists (select 1 from dem.urb du where du.id_state = ds.id)""",
+			DELETE FROM dem.region d_r
+			WHERE
+				d_r.pk = %(region)s
+					AND
+				NOT EXISTS (SELECT 1 FROM dem.urb du WHERE du.fk_region = d_r.pk)""",
 		'args': args
 	})
 
@@ -523,14 +523,14 @@ def create_region(name=None, code=None, country=None):
 
 	args = {'code': code, 'country': country, 'name': name}
 
-	cmd = u"""SELECT EXISTS (SELECT 1 FROM dem.state WHERE name = %(name)s)"""
+	cmd = u"""SELECT EXISTS (SELECT 1 FROM dem.region WHERE name = %(name)s)"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 
 	if rows[0][0]:
 		return
 
 	cmd = u"""
-		INSERT INTO dem.state (
+		INSERT INTO dem.region (
 			code, country, name
 		) VALUES (
 			%(code)s, %(country)s, %(name)s
@@ -540,9 +540,9 @@ def create_region(name=None, code=None, country=None):
 def get_regions():
 	cmd = u"""
 		select
-			l10n_state, l10n_country, state, code_state, code_country, pk_state, country_deprecated
-		from dem.v_state
-		order by l10n_country, l10n_state"""
+			l10n_region, l10n_country, region, code_region, code_country, pk_region, country_deprecated
+		from dem.v_region
+		order by l10n_country, l10n_region"""
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}])
 	return rows
 
@@ -711,8 +711,8 @@ def format_address_single_line(address=None, verbose=False, show_type=False):
 		'zip': address['postcode'],
 		'urb': address['urb'],
 		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
-		'l10n_state': address['l10n_state'],
-		'code_state': address['code_state'],
+		'l10n_region': address['l10n_region'],
+		'code_region': address['code_region'],
 		'l10n_country': address['l10n_country'],
 		'code_country': address['code_country']
 	}
@@ -721,14 +721,14 @@ def format_address_single_line(address=None, verbose=False, show_type=False):
 
 	if verbose:
 		if show_type:
-			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_region)s, %(code_country)s')
 		else:
-			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_state)s, %(code_country)s')
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, %(code_region)s, %(code_country)s')
 	else:
 		if show_type:
-			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+			template = _('%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, %(code_country)s')
 		else:
-			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, %(code_country)s')
+			template = _('%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, %(code_country)s')
 
 	return template % data
 
@@ -744,8 +744,8 @@ def format_address(address=None, show_type=False):
 		'zip': address['postcode'],
 		'urb': address['urb'],
 		'suburb': gmTools.coalesce(address['suburb'], u'', u' (%s)'),
-		'l10n_state': address['l10n_state'],
-		'code_state': address['code_state'],
+		'l10n_region': address['l10n_region'],
+		'code_region': address['code_region'],
 		'l10n_country': address['l10n_country'],
 		'code_country': address['code_country']
 	}
@@ -756,7 +756,7 @@ def format_address(address=None, show_type=False):
 			' Street: %(street)s%(notes_street)s\n'
 			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
 			' Location: %(zip)s %(urb)s%(suburb)s\n'
-			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Region: %(l10n_region)s, %(code_region)s\n'
 			' Country: %(l10n_country)s, %(code_country)s'
 		)
 	else:
@@ -765,7 +765,7 @@ def format_address(address=None, show_type=False):
 			' Street: %(street)s%(notes_street)s\n'
 			' Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n'
 			' Location: %(zip)s %(urb)s%(suburb)s\n'
-			' Region: %(l10n_state)s, %(code_state)s\n'
+			' Region: %(l10n_region)s, %(code_region)s\n'
 			' Country: %(l10n_country)s, %(code_country)s'
 		)
 	txt = template % data
@@ -1059,14 +1059,14 @@ def getRelationshipTypes():
 def getUrb (id_urb):
 	cmd = """
 select
-	dem.state.name,
+	dem.region.name,
 	dem.urb.postcode
 from
 	dem.urb,
-	dem.state
+	dem.region
 where
 	dem.urb.id = %s and
-	dem.urb.id_state = dem.state.id"""
+	dem.urb.fk_region = dem.region.pk"""
 	row_list = gmPG.run_ro_query('personalia', cmd, None, id_urb)
 	if not row_list:
 		return None
@@ -1076,17 +1076,17 @@ where
 def getStreet (id_street):
 	cmd = """
 select
-	dem.state.name,
+	dem.region.name,
 	coalesce (dem.street.postcode, dem.urb.postcode),
 	dem.urb.name
 from
 	dem.urb,
-	dem.state,
+	dem.region,
 	dem.street
 where
 	dem.street.id = %s and
 	dem.street.id_urb = dem.urb.id and
-	dem.urb.id_state = dem.state.id
+	dem.urb.fk_region = dem.region.pk
 """
 	row_list = gmPG.run_ro_query('personalia', cmd, None, id_street)
 	if not row_list:
@@ -1105,18 +1105,18 @@ def get_town_data (town):
 	row_list = gmPG.run_ro_query ('personalia', """
 select
 	dem.urb.postcode,
-	dem.state.code,
-	dem.state.name,
+	dem.region.code,
+	dem.region.name,
 	dem.country.code,
 	dem.country.name
 from
 	dem.urb,
-	dem.state,
+	dem.region,
 	dem.country
 where
 	dem.urb.name = %s and
-	dem.urb.id_state = dem.state.id and
-	dem.state.country = dem.country.code""", None, town)
+	dem.urb.fk_region = dem.region.pk and
+	dem.region.country = dem.country.code""", None, town)
 	if not row_list:
 		return (None, None, None, None, None)
 	else:

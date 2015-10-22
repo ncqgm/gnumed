@@ -245,7 +245,6 @@ def activate_locale():
 	"""Get system locale from environment."""
 	global system_locale
 
-	# logging state of affairs
 	__log_locale_settings('unmodified startup locale settings (should be [C])')
 
 	# activate user-preferred locale
@@ -264,7 +263,6 @@ def activate_locale():
 	except:
 		_log.exception('error activating user-default locale')
 
-	# logging state of affairs
 	__log_locale_settings('locale settings after activating user-default locale')
 
 	# did we find any locale setting ? assume en_EN if not

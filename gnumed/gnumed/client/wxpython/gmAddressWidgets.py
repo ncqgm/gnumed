@@ -164,9 +164,9 @@ def configure_default_region(parent=None):
 		message = _('Select the default region (state/province/county/territory/arrondissement/prefecture/department/kanton/...) for new persons.\n'),
 		option = 'person.create.default_region',
 		bias = 'user',
-		choices = [ (r['l10n_country'], r['l10n_state'], r['code_state']) for r in regs ],
+		choices = [ (r['l10n_country'], r['l10n_region'], r['code_region']) for r in regs ],
 		columns = [_('Country'), _('Region'), _('Code')],
-		data = [ r['state'] for r in regs ]
+		data = [ r['region'] for r in regs ]
 	)
 #============================================================
 def edit_region(parent=None, region=None):
@@ -223,7 +223,7 @@ def manage_regions(parent=None):
 
 	#------------------------------------------------------------
 	def delete(region=None):
-		return delete_region(parent = parent, region = region['pk_state'])
+		return delete_region(parent = parent, region = region['pk_region'])
 	#------------------------------------------------------------
 	def edit(region=None):
 		return edit_region(parent = parent, region = region)
@@ -231,7 +231,7 @@ def manage_regions(parent=None):
 	def refresh(lctrl):
 		wx.BeginBusyCursor()
 		provinces = gmDemographicRecord.get_regions()
-		lctrl.set_string_items([ (p['l10n_country'], p['l10n_state']) for p in provinces ])
+		lctrl.set_string_items([ (p['l10n_country'], p['l10n_region']) for p in provinces ])
 		lctrl.set_data(provinces)
 		wx.EndBusyCursor()
 	#------------------------------------------------------------
@@ -288,59 +288,59 @@ FROM (
 		list_label,
 		rank
 	FROM (
-			-- 1: find states based on name, context: zip and country name
+			-- 1: find regions based on name, context: zip and country name
 			SELECT
-				code_state AS data,
-				state AS field_label,
-				state || ' (' || code_state || '), ' || l10n_country || ' (' || code_country || ')' AS list_label,
+				code_region AS data,
+				region AS field_label,
+				region || ' (' || code_region || '), ' || l10n_country || ' (' || code_country || ')' AS list_label,
 				1 AS rank
 			FROM dem.v_zip2data
 			WHERE
-				state %(fragment_condition)s
+				region %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
 		UNION ALL
 
-			-- 2: find states based on code, context: zip and country name
+			-- 2: find regions based on code, context: zip and country name
 			SELECT
-				code_state AS data,
-				state AS field_label,
-				code_state || ': ' || state || ' (' || l10n_country || ', ' || code_country || ')' AS list_label,
+				code_region AS data,
+				region AS field_label,
+				code_region || ': ' || region || ' (' || l10n_country || ', ' || code_country || ')' AS list_label,
 				2 AS rank
 			FROM dem.v_zip2data
 			WHERE
-				code_state %(fragment_condition)s
+				code_region %(fragment_condition)s
 				%(ctxt_country_name)s
 				%(ctxt_zip)s
 
 		UNION ALL
 
-			-- 3: find states based on name, context: country
+			-- 3: find regions based on name, context: country
 			SELECT
 				code AS data,
 				name AS field_label,
 				name || ' (' || code || '), ' || country AS list_label,
 				3 AS rank
-			FROM dem.state
+			FROM dem.region
 			WHERE
 				name %(fragment_condition)s
 				%(ctxt_country_code)s
 
 		UNION ALL
 
-			-- 4: find states based on code, context: country
+			-- 4: find regions based on code, context: country
 			SELECT
 				code AS data,
 				name AS field_label,
 				code || ': ' || name || ', ' || country AS list_label,
 				3 AS rank
-			FROM dem.state
+			FROM dem.region
 			WHERE
 				code %(fragment_condition)s
 				%(ctxt_country_code)s
 
-	) AS candidate_states
+	) AS candidate_regions
 ) AS distinct_matches
 ORDER BY rank, list_label
 LIMIT 50"""
@@ -420,8 +420,8 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 
 		# EA is refreshed automatically after save, so need this ...
 		self.data = {
-			'l10n_state' : self._PRW_region.GetValue().strip(),
-			'code_state' : self._TCTRL_code.GetValue().strip(),
+			'l10n_region' : self._PRW_region.GetValue().strip(),
+			'code_region' : self._TCTRL_code.GetValue().strip(),
 			'l10n_country' : self._PRW_country.GetValue().strip(),
 			'code_country' : self._PRW_country.GetData().strip()
 		}
@@ -446,8 +446,8 @@ class cProvinceEAPnl(wxgProvinceEAPnl.wxgProvinceEAPnl, gmEditArea.cGenericEditA
 		self._PRW_region.SetFocus()
 	#----------------------------------------------------------------
 	def _refresh_from_existing(self):
-		self._PRW_region.SetText(self.data['l10n_state'], self.data['code_state'])
-		self._TCTRL_code.SetValue(self.data['code_state'])
+		self._PRW_region.SetText(self.data['l10n_region'], self.data['code_region'])
+		self._TCTRL_code.SetValue(self.data['code_region'])
 		self._PRW_country.SetText(self.data['l10n_country'], self.data['code_country'])
 
 		self._PRW_region.SetFocus()
@@ -586,7 +586,7 @@ class cUrbPhraseWheel(gmPhraseWheel.cPhraseWheel):
 			SELECT
 				urb AS data,
 				urb AS field_label,
-				urb || ' (' || zip || ', ' || state || ', ' || l10n_country || ')' AS list_label,
+				urb || ' (' || zip || ', ' || region || ', ' || l10n_country || ')' AS list_label,
 				1 AS rank
 			FROM dem.v_zip2data
 			WHERE
@@ -683,7 +683,7 @@ def manage_addresses(parent=None):
 				a['postcode'],
 				a['urb'],
 				gmTools.coalesce(a['suburb'], u''),
-				a['l10n_state'],
+				a['l10n_region'],
 				a['l10n_country'],
 				gmTools.coalesce(a['notes_subunit'], u'')
 			] for a in adrs
@@ -820,7 +820,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 			_log.exception('cannot save address')
 			gmGuiHelpers.gm_show_error (
 				_('Cannot save address.\n\n'
-				  'Does the state [%s]\n'
+				  'Does the region [%s]\n'
 				  'exist in country [%s] ?'
 				) % (
 					self._PRW_state.GetValue().strip(),
@@ -863,7 +863,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 			_log.exception('cannot save address')
 			gmGuiHelpers.gm_show_error (
 				_('Cannot save address.\n\n'
-				  'Does the state [%s]\n'
+				  'Does the region [%s]\n'
 				  'exist in country [%s] ?'
 				) % (
 					self._PRW_state.GetValue().strip(),
@@ -911,7 +911,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		self._PRW_street.SetText(self.data['street'], data = self.data['street'])
 		self._PRW_suburb.SetText(gmTools.coalesce(self.data['suburb'], ''))
 		self._PRW_urb.SetText(self.data['urb'], data = self.data['urb'])
-		self._PRW_state.SetText(self.data['l10n_state'], data = self.data['code_state'])
+		self._PRW_state.SetText(self.data['l10n_region'], data = self.data['code_region'])
 		self._PRW_country.SetText(self.data['l10n_country'], data = self.data['code_country'])
 
 		if self.__type_is_editable:
@@ -931,7 +931,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 		self._TCTRL_subunit.SetValue(gmTools.coalesce(self.data['subunit'], ''))
 		self._PRW_suburb.SetText(gmTools.coalesce(self.data['suburb'], ''))
 		self._PRW_urb.SetText(self.data['urb'], data = self.data['urb'])
-		self._PRW_state.SetText(self.data['l10n_state'], data = self.data['code_state'])
+		self._PRW_state.SetText(self.data['l10n_region'], data = self.data['code_region'])
 		self._PRW_country.SetText(self.data['l10n_country'], data = self.data['code_country'])
 		self._TCTRL_notes_subunit.SetValue(gmTools.coalesce(self.data['notes_subunit'], ''))
 
@@ -943,7 +943,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 	# event handling
 	#----------------------------------------------------------------
 	def _on_zip_set(self):
-		"""Set the street, town, state and country according to entered zip code."""
+		"""Set the street, town, region and country according to entered zip code."""
 		zip_code = self._PRW_zip.GetValue()
 		if zip_code.strip() == u'':
 			self._PRW_street.unset_context(context = u'zip')
@@ -957,7 +957,7 @@ class cAddressEAPnl(wxgGenericAddressEditAreaPnl.wxgGenericAddressEditAreaPnl, g
 			self._PRW_country.set_context(context = u'zip', val = zip_code)
 	#----------------------------------------------------------------
 	def _on_country_set(self):
-		"""Set the states according to entered country."""
+		"""Set the regions according to entered country."""
 		country = self._PRW_country.GetData()
 		if country is None:
 			self._PRW_state.unset_context(context = 'country')
@@ -1014,7 +1014,7 @@ SELECT * FROM (
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
 				|| urb || coalesce(' (' || suburb || ')', '') || ', '
 				|| postcode || ', '
-				|| l10n_state || ', '
+				|| l10n_region || ', '
 				|| l10n_country
 				|| coalesce(', ' || notes_street, '')
 				|| coalesce(', ' || notes_subunit, '')
@@ -1036,7 +1036,7 @@ SELECT * FROM (
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
 				|| urb || coalesce(' (' || suburb || ')', '') || ', '
 				|| postcode || ', '
-				|| l10n_state || ', '
+				|| l10n_region || ', '
 				|| l10n_country
 				|| coalesce(', ' || notes_street, '')
 				|| coalesce(', ' || notes_subunit, '')
@@ -1058,7 +1058,7 @@ SELECT * FROM (
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
 				|| urb || coalesce(' (' || suburb || ')', '') || ', '
 				|| postcode || ', '
-				|| l10n_state || ', '
+				|| l10n_region || ', '
 				|| l10n_country
 				|| coalesce(', ' || notes_street, '')
 				|| coalesce(', ' || notes_subunit, '')
@@ -1088,7 +1088,7 @@ LIMIT 50"""
 		(street || ' ' || number || coalesce(' (' || subunit || ')', '') || ', '
 				|| urb || coalesce(' (' || suburb || ')', '') || ', '
 				|| postcode || ', '
-				|| l10n_state || ', '
+				|| l10n_region || ', '
 				|| l10n_country
 				|| coalesce(', ' || notes_street, '')
 				|| coalesce(', ' || notes_subunit, '')
@@ -1219,7 +1219,7 @@ if __name__ == '__main__':
 		app.frame.Show(True)
 		app.MainLoop()
 	#--------------------------------------------------------
-	def test_state_prw():
+	def test_region_prw():
 		app = wx.PyWidgetTester(size = (200, 50))
 		pw = cStateSelectionPhraseWheel(app.frame, -1)
 		pw.set_context(context = u'zip', val = u'04318')
@@ -1272,7 +1272,7 @@ if __name__ == '__main__':
 	#--------------------------------------------------------
 	#test_address_type_prw()
 	#test_zipcode_prw()
-	#test_state_prw()
+	#test_region_prw()
 	#test_street_prw()
 	#test_suburb_prw()
 	#test_country_prw()
