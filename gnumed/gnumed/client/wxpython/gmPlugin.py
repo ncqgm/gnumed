@@ -65,6 +65,7 @@ class cLoadProgressBar (wx.ProgressDialog):
 					plugin))
 		self.prev_plugin = plugin
 		self.idx += 1
+
 #==================================================================
 # This is for NOTEBOOK plugins. Please write other base
 # classes for other types of plugins.
@@ -233,20 +234,32 @@ class cNotebookPlugin:
 	# -----------------------------------------------------
 	def __register_events(self):
 		gmDispatcher.connect(signal = 'display_widget', receiver = self._on_raise_by_signal)
+
 #==================================================================
 class cPatientChange_PluginMixin:
 	"""This mixin adds listening to patient change signals."""
 	def __init__(self):
 		gmDispatcher.connect(self._pre_patient_unselection, u'pre_patient_unselection')
+		gmDispatcher.connect(self._on_current_patient_unset, u'current_patient_unset')
 		gmDispatcher.connect(self._post_patient_selection, u'post_patient_selection')
+
 	# -----------------------------------------------------
 	def _pre_patient_unselection(self, **kwds):
-		print "%s._pre_patient_unselection() not implemented" % self.__class__.__name__
-		print "should usually be used to commit unsaved data"
+#		print "%s._pre_patient_unselection() not implemented" % self.__class__.__name__
+#		print "should usually be used to commit unsaved data"
+		pass
+
+	# -----------------------------------------------------
+	def _on_current_patient_unset(self, **kwds):
+#		print "%s._on_current_patient_unset() not implemented" % self.__class__.__name__
+#		print "should usually be used to empty to UI"
+		pass
+
 	# -----------------------------------------------------
 	def _post_patient_selection(self, **kwds):
 		print "%s._post_patient_selection() not implemented" % self.__class__.__name__
-		print "should usually be used to initialize state"
+		print "should usually be used to schedule reloading the UI"
+
 #==================================================================
 # some convenience functions
 #------------------------------------------------------------------

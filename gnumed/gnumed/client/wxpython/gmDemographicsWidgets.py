@@ -1648,6 +1648,7 @@ class cPersonDemographicsEditorNb(wx.Notebook):
 		self.__identity = identity
 
 	identity = property(_get_identity, _set_identity)
+
 #============================================================
 # old occupation widgets
 #============================================================

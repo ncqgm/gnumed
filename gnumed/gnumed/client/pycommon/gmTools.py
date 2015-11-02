@@ -791,6 +791,7 @@ def coalesce(initial=None, instead=None, template_initial=None, template_instead
 		return template_initial % initial
 	except TypeError:
 		return template_initial
+
 #---------------------------------------------------------------------------
 def __cap_name(match_obj=None):
 	val = match_obj.group(0).lower()
@@ -802,6 +803,7 @@ def __cap_name(match_obj=None):
 		if len(val) > len(part) and val[:len(part)] == part:
 			buf[len(part)] = buf[len(part)].upper()
 	return ''.join(buf)
+
 #---------------------------------------------------------------------------
 def capitalize(text=None, mode=CAPS_NAMES):
 	"""Capitalize the first character but leave the rest alone.
@@ -838,6 +840,7 @@ def capitalize(text=None, mode=CAPS_NAMES):
 
 	print("ERROR: invalid capitalization mode: [%s], leaving input as is" % mode)
 	return text
+
 #---------------------------------------------------------------------------
 def input2decimal(initial=None):
 
@@ -860,6 +863,7 @@ def input2decimal(initial=None):
 		return True, d
 	except (TypeError, decimal.InvalidOperation):
 		return False, val
+
 #---------------------------------------------------------------------------
 def input2int(initial=None, minval=None, maxval=None):
 
@@ -886,6 +890,36 @@ def input2int(initial=None, minval=None, maxval=None):
 			return False, initial
 
 	return True, int_val
+
+#---------------------------------------------------------------------------
+def strip_prefix(text, prefix, remove_repeats=False, remove_whitespace=False):
+	if remove_repeats:
+		if remove_whitespace:
+			while text.lstrip().startswith(prefix):
+				text = text.lstrip().replace(prefix, u'', 1).lstrip()
+			return text
+		while text.startswith(prefix):
+			text = text.replace(prefix, u'', 1)
+		return text
+	if remove_whitespace:
+		return text.lstrip().replace(prefix, u'', 1).lstrip()
+	return text.replace(prefix, u'', 1)
+
+#---------------------------------------------------------------------------
+def strip_suffix(text, suffix, remove_repeats=False, remove_whitespace=False):
+	suffix_len = len(suffix)
+	if remove_repeats:
+		if remove_whitespace:
+			while text.rstrip().endswith(suffix):
+				text = text.rstrip()[:-suffix_len].rstrip()
+			return text
+		while text.endswith(suffix):
+			text = text[:-suffix_len]
+		return text
+	if remove_whitespace:
+		return text.rstrip()[:-suffix_len].rstrip()
+	return text[:-suffix_len]
+
 #---------------------------------------------------------------------------
 def strip_leading_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	if lines is None:
@@ -900,6 +934,7 @@ def strip_leading_empty_lines(lines=None, text=None, eol=u'\n', return_list=True
 		return lines
 
 	return eol.join(lines)
+
 #---------------------------------------------------------------------------
 def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	if lines is None:
@@ -914,6 +949,7 @@ def strip_trailing_empty_lines(lines=None, text=None, eol=u'\n', return_list=Tru
 		return lines
 
 	return eol.join(lines)
+
 #---------------------------------------------------------------------------
 def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 	return strip_trailing_empty_lines (
@@ -922,6 +958,7 @@ def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 		eol = eol,
 		return_list = return_list
 	)
+
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):
 	"""A word-wrap function that preserves existing line breaks
@@ -946,6 +983,7 @@ def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u
 		wrapped = wrapped.replace('\n', eol)
 
 	return wrapped
+
 #---------------------------------------------------------------------------
 def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines=True, line_separator = u' // '):
 
@@ -971,6 +1009,7 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 	text = text.rstrip(line_separator)
 
 	return text
+
 #---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
@@ -1011,6 +1050,7 @@ def tex_escape_string(text=None, replace_known_unicode=True, replace_eol=False, 
 		text = text.replace(u_euro, u'\\EUR')
 
 	return text
+
 #---------------------------------------------------------------------------
 def xetex_escape_string(text=None):
 	# a web search did not reveal anything else for Xe(La)Tex
@@ -1568,6 +1608,21 @@ second line\n
 	def test_rm_dir():
 		rmdir('cx:\windows\system32xxxxxxxxxxxxx')
 	#-----------------------------------------------------------------------
+	def test_strip_prefix():
+		tests = [
+			(u'', u'', u''),
+			(u'a', u'a', u''),
+			(u'\.br\MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\', u'\.br\\', u'MICROCYTES+1\.br\SPHEROCYTES       present\.br\POLYCHROMASIAmoderate\.br\\')
+		]
+		for test in tests:
+			text, prefix, expect = test
+			result = strip_prefix(text, prefix)
+			if result == expect:
+				continue
+			print('test failed:', test)
+			print('result:', result)
+
+	#-----------------------------------------------------------------------
 	#test_coalesce()
 	#test_capitalize()
 	#test_import_module()
@@ -1582,7 +1637,7 @@ second line\n
 	#test_input2decimal()
 	#test_input2int()
 	#test_unwrap()
-	test_md5()
+	#test_md5()
 	#test_unicode()
 	#test_xml_escape()
 	#test_gpg_decrypt()
@@ -1592,5 +1647,6 @@ second line\n
 	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
+	test_strip_prefix()
 
 #===========================================================================

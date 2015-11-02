@@ -207,7 +207,7 @@ class cTopPnl(wxgTopPnl.wxgTopPnl):
 
 		inr = self.curr_pat.emr.get_most_recent_results(loinc = gmLOINC.LOINC_inr_quantity, no_of_results = 1)
 		if inr is not None:
-			tests2show.append(u'%s %s' % (hr['abbrev_tt'], hr['unified_val']))
+			tests2show.append(u'%s %s' % (inr['abbrev_tt'], inr['unified_val']))
 
 		# include panel if configured, only show if exist
 		if self.__lab_panel is not None:

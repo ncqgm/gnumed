@@ -135,8 +135,8 @@
                         <flag>wxEXPAND</flag>
                         <border>0</border>
                         <option>3</option>
-                        <object class="cMeasurementsDetailsPnl" name="_PNL_results_all_listed" base="EditPanel" no_custom_class="1">
-                            <extracode>from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsDetailsPnl</extracode>
+                        <object class="cMeasurementsByDayPnl" name="_PNL_results_all_listed" base="EditPanel" no_custom_class="1">
+                            <extracode>from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsByDayPnl</extracode>
                             <style>wxNO_BORDER|wxTAB_TRAVERSAL</style>
                             <no_custom_class>1</no_custom_class>
                             <hidden>1</hidden>

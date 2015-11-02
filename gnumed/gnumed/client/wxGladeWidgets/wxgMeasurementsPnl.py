@@ -18,7 +18,7 @@ import gettext
 class wxgMeasurementsPnl(wx.Panel):
 	def __init__(self, *args, **kwds):
 
-		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsDetailsPnl
+		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsByDayPnl
 		from Gnumed.wxpython.gmMeasurementWidgets import cMeasurementsGrid
 		from Gnumed.wxpython.gmMeasurementWidgets import cTestPanelPRW
 
@@ -33,7 +33,7 @@ class wxgMeasurementsPnl(wx.Panel):
 		self._GRID_results_battery = cMeasurementsGrid(self._PNL_results_battery_grid, wx.ID_ANY, size=(100, 100))
 		self._PNL_results_all_grid = wx.Panel(self, wx.ID_ANY, style=wx.NO_BORDER)
 		self._GRID_results_all = cMeasurementsGrid(self._PNL_results_all_grid, wx.ID_ANY, size=(100, 100))
-		self._PNL_results_all_listed = cMeasurementsDetailsPnl(self, wx.ID_ANY, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
+		self._PNL_results_all_listed = cMeasurementsByDayPnl(self, wx.ID_ANY, style=wx.NO_BORDER | wx.TAB_TRAVERSAL)
 		self._BTN_manage_types = wx.Button(self, wx.ID_ANY, _("Manage types"), style=wx.BU_EXACTFIT)
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_list = wx.Button(self, wx.ID_ANY, _("&List"))

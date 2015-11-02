@@ -578,22 +578,32 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		names = [ cPersonName(row = {'idx': idx, 'data': r, 'pk_field': 'pk_name'}) for r in rows ]
 		return names
 	#--------------------------------------------------------
-	def get_description_gender(self):
-		return _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)') % {
+	def get_description_gender(self, with_nickname=True):
+		if with_nickname:
+			template = _(u'%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)')
+		else:
+			template = _(u'%(last)s,%(title)s %(first)s (%(sex)s)')
+		return template % {
 			'last': self._payload[self._idx['lastnames']],
 			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'"),
 			'sex': self.gender_symbol
 		}
+
 	#--------------------------------------------------------
-	def get_description(self):
-		return _(u'%(last)s,%(title)s %(first)s%(nick)s') % {
+	def get_description(self, with_nickname=True):
+		if with_nickname:
+			template = _(u'%(last)s,%(title)s %(first)s%(nick)s')
+		else:
+			template = _(u'%(last)s,%(title)s %(first)s')
+		return template % {
 			'last': self._payload[self._idx['lastnames']],
 			'title': gmTools.coalesce(self._payload[self._idx['title']], u'', u' %s'),
 			'first': self._payload[self._idx['firstnames']],
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'")
 		}
+
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
 		"""Add a name.
@@ -1111,9 +1121,10 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		last = etree.SubElement(pat, u'lastname')
 		last.text = gmTools.coalesce(self._payload[self._idx['lastnames']], u'')
 
-		middle = etree.SubElement(pat, u'middlename')
-		middle.set(u'comment', _('preferred name/call name/...'))
-		middle.text = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+		# privacy
+		#middle = etree.SubElement(pat, u'middlename')
+		#middle.set(u'comment', _('preferred name/call name/...'))
+		#middle.text = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
 
 		pref = etree.SubElement(pat, u'name_prefix')
 		pref.text = gmTools.coalesce(self._payload[self._idx['title']], u'')
@@ -1205,8 +1216,9 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		vc.fn.value = self.get_description()
 		vc.add(u'n')
 		vc.n.value = vobject.vcard.Name(family = self._payload[self._idx['lastnames']], given = self._payload[self._idx['firstnames']])
-#		vc.add(u'nickname')
-#		vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
+		# privacy
+		#vc.add(u'nickname')
+		#vc.nickname.value = gmTools.coalesce(self._payload[self._idx['preferred']], u'')
 		vc.add(u'title')
 		vc.title.value = gmTools.coalesce(self._payload[self._idx['title']], u'')
 		vc.add(u'gender')
@@ -1676,10 +1688,12 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_dirname(self):
 		"""Format patient demographics into patient specific path name fragment."""
-		return (u'%s-%s%s-%s' % (
+		#return (u'%s-%s%s-%s' % (
+		return (u'%s-%s-%s' % (
 			self._payload[self._idx['lastnames']].replace(u' ', u'_'),
 			self._payload[self._idx['firstnames']].replace(u' ', u'_'),
-			gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)').replace(u' ', u'_'),
+			# privacy
+			#gmTools.coalesce(self._payload[self._idx['preferred']], u'', template_initial = u'-(%s)').replace(u' ', u'_'),
 			self.get_formatted_dob(format = '%Y-%m-%d', encoding = gmI18N.get_encoding())
 		)).replace (
 			u"'", u""
@@ -1866,6 +1880,9 @@ class gmCurrentPatient(gmBorg.cBorg):
 
 		2) Signal "pre_patient_unselection" is sent.
 			This does not wait for nor check results.
+			The keyword pk_identity contains the
+			PK of the person being switched away
+			from.
 
 		3) the current patient is unset (gmNull.cNull)
 

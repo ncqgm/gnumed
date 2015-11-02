@@ -480,9 +480,9 @@ class cExportArea(object):
 
 		_html_start_data = {
 			u'html_title_header': _('Patient data for'),
-			u'html_title_patient': gmTools.html_escape_string(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
+			u'html_title_patient': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
 			u'title': _('Patient data export'),
-			u'pat_name': gmTools.html_escape_string(pat['description_gender']),
+			u'pat_name': gmTools.html_escape_string(pat.get_description_gender(with_nickname = False)),
 			u'pat_dob': gmTools.html_escape_string(_(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')),
 			u'mugshot_url': u'documents/no-such-file.png',
 			u'mugshot_alt': _('no patient photograph available'),
@@ -528,7 +528,7 @@ class cExportArea(object):
 		autorun_fname = os.path.join(base_dir, u'autorun.inf')
 		autorun_file = io.open(autorun_fname, mode = u'wt', encoding = u'utf8')
 		autorun_file.write(_autorun_inf % (
-			(pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')).strip(),
+			(pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')).strip(),
 			_('Browse patient data')
 		))
 		autorun_file.close()
@@ -552,7 +552,7 @@ class cExportArea(object):
 		readme_fname = os.path.join(base_dir, u'README')
 		readme_file = io.open(readme_fname, mode = u'wt', encoding = u'utf8')
 		readme_file.write(_README % (
-			pat['description_gender'] + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
+			pat.get_description_gender(with_nickname = False) + u', ' + _(u'born') + u' ' + pat.get_formatted_dob('%Y %B %d')
 		))
 		readme_file.close()
 
