@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-03 23:53+0200\n"
-"PO-Revision-Date: 2015-09-04 00:09+0200\n"
+"POT-Creation-Date: 2015-11-09 09:55+0100\n"
+"PO-Revision-Date: 2015-11-09 12:48+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -2218,6 +2218,30 @@ msgstr "Sortierung:"
 msgid "Include:"
 msgstr "Einschließen:"
 
+msgid "&Search"
+msgstr "&Suchen"
+
+msgid "Suggest"
+msgstr ""
+
+msgid "Set"
+msgstr "Setzen"
+
+msgid "dialog_1"
+msgstr ""
+
+msgid "Search patients in Orthanc DICOM store."
+msgstr "Patienten im Orthanc DICOM-Archiv suchen."
+
+msgid "Suggest a patient ID based on the active patient."
+msgstr "Basierend auf dem aktiven Patienten eine neuen Nummer vorschlagen."
+
+msgid "Search term:"
+msgstr "Suchbegriff:"
+
+msgid "New patient ID:"
+msgstr "Neue Patientennummer:"
+
 msgid "Your review"
 msgstr "Ihre Bewertung"
 
@@ -2571,6 +2595,86 @@ msgstr "Stoff"
 msgid "Amount"
 msgstr "Menge"
 
+msgid "&Connect"
+msgstr "&Verbinden"
+
+msgid "&Browse"
+msgstr "&Blättern"
+
+msgid "<not connected>"
+msgstr "<nicht verbunden>"
+
+msgid "Browse all"
+msgstr "Alle durchblättern"
+
+msgid "Export all"
+msgstr "Alle exportieren"
+
+msgid "Browse"
+msgstr "Stöbern"
+
+msgid "Export"
+msgstr "Export"
+
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Enter the PACS host address."
+msgstr "Geben Sie den Computernamen (host address) des PACS ein."
+
+msgid "Enter the PACS port."
+msgstr "Geben Sie den Port des PACS ein."
+
+msgid "Enter the PACS user."
+msgstr "Geben Sie den Nutzernamen für das PACS ein."
+
+msgid "Enter the PACS password. It will not be shown."
+msgstr ""
+"Geben Sie das Passwort für den PACS-Benutzer ein (es wird nicht angezeigt)."
+
+msgid "Connect to PACS."
+msgstr "Mit PACS verbinden."
+
+msgid "Browse PACS at top level."
+msgstr "PACS auf der obersten Ebene durchsuchen."
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
+msgstr "Einige Orthanc-Inhalte (z.B.Patienten-IDs) bearbeiten."
+
+msgid "Browse overview of studies for this patient."
+msgstr "Studienübersicht dieses Patienten durchblättern."
+
+msgid "Copy all studies into export area."
+msgstr "Alle Studien in Exportbereich kopieren."
+
+msgid "Browse topmost selected study."
+msgstr "Die zuoberst gewählte Studie durchblättern."
+
+msgid "Copy selected studies into export area."
+msgstr "Gewählte Studien in Exportbereich kopieren."
+
+msgid "Save selected studies to disk."
+msgstr "Gewählte Studien auf Datenträger speichern."
+
+msgid ""
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+msgstr "DICOM-Dateien rekursiv aus einem Verzeichnis ins Orthanc PACS laden."
+
+msgid "Host:"
+msgstr "Server:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "User:"
+msgstr "Nutzer:"
+
+msgid "Password"
+msgstr "Passwort"
+
+msgid "Selected studies:"
+msgstr "Gewählte Studien:"
+
 msgid "Fake brand"
 msgstr "Pseudoprodukt"
 
@@ -2917,9 +3021,6 @@ msgstr "generische Verarbeitung von Text"
 
 msgid "&Load"
 msgstr "&Laden"
-
-msgid "Export"
-msgstr "Export"
 
 msgid "A long, descriptive name for this form template."
 msgstr "Eine lange, sprechende Bezeichnung für diese Schriftstück-Vorlage."
@@ -3641,9 +3742,6 @@ msgstr "Nutzerdetails:"
 
 msgid "Account"
 msgstr "Konto"
-
-msgid "Password"
-msgstr "Passwort"
 
 msgid "Password, again"
 msgstr "nochmals das Passwort"
@@ -4526,9 +4624,6 @@ msgstr "&Zuordnen"
 
 msgid "Link &new"
 msgstr "&Neue zuordnen"
-
-msgid "Browse"
-msgstr "Stöbern"
 
 msgid ""
 "Search for matches among existing addresses and [Link] a selection, or [Link "
@@ -6690,6 +6785,12 @@ msgstr "Eintrag:"
 msgid "Encounter:"
 msgstr "Kontakt:"
 
+msgid "Manage"
+msgstr "Verwalten"
+
+msgid "&Panel:"
+msgstr ""
+
 msgid "&Pick"
 msgstr "&Wählen"
 
@@ -7107,6 +7208,10 @@ msgid " Discontinued %s\n"
 msgstr " Beendet %s\n"
 
 #, python-format
+msgid " Notes: %s\n"
+msgstr " Notizen: %s\n"
+
+#, python-format
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr "Revision: #%(row_ver)s, %(mod_when)s durch %(mod_by)s."
 
@@ -7217,6 +7322,38 @@ msgstr "%s%s: vor %s%s"
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%s: vor %s (%s)"
 
+#, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%s%s (vor %s)"
+
+#, python-format
+msgid "%s%s%s (%s ago, %s)"
+msgstr "%s%s%s (vor %s, %s)"
+
+#, python-format
+msgid "%s ago"
+msgstr "vor %s"
+
+#, python-format
+msgid "in %s"
+msgstr "in %s"
+
+#, python-format
+msgid ", until %s (%s)"
+msgstr ", bis %s (%s)"
+
+#, python-format
+msgid " (planned for %s%s)"
+msgstr " (geplant für %s%s)"
+
+#, python-format
+msgid ", planned for %s%s"
+msgstr ", geplant für %s%s"
+
+#, python-format
+msgid "%s ago (for %s: %s %s %s)"
+msgstr "vor %s (für %s: %s %s %s)"
+
 msgid "Additional notes"
 msgstr "Zusätzliche Angaben"
 
@@ -7288,6 +7425,16 @@ msgstr "Verfallen: %s\n"
 msgid "Expires: %s\n"
 msgstr "Verfällt: %s\n"
 
+msgid "HL7 Source"
+msgstr "HL7-Quelle"
+
+msgid "HL7 data size"
+msgstr "Größe der HL7-Daten"
+
+#, python-format
+msgid "%s bytes"
+msgstr "%s Byte"
+
 msgid "HL7 Message"
 msgstr "HL7-Nachricht"
 
@@ -7343,13 +7490,6 @@ msgstr "Datei"
 msgid "doc: %s"
 msgstr "Dokument: %s"
 
-msgid "no patient photograph available"
-msgstr "kein Patientenfoto verfügbar"
-
-#, python-format
-msgid "patient photograph from %s"
-msgstr "Patientenbild von %s"
-
 msgid "Patient data for"
 msgstr "Patientendaten für"
 
@@ -7359,6 +7499,9 @@ msgstr "geboren"
 msgid "Patient data export"
 msgstr "Export von Patientendaten"
 
+msgid "no patient photograph available"
+msgstr "kein Patientenfoto verfügbar"
+
 msgid "Documents"
 msgstr "Dokumente"
 
@@ -7367,6 +7510,10 @@ msgstr "Datenträger durchsuchen"
 
 msgid "browse documents area"
 msgstr "Dokumentenbereich durchblättern"
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr "Patientenbild von %s"
 
 msgid "Browse patient data"
 msgstr "Patientendaten durchblättern"
@@ -7402,26 +7549,30 @@ msgstr "Fehler mit pdftk. Kann PDF-Formular nicht versiegeln."
 #, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
+"%(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, %(l10n_country)s"
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s"
 msgstr ""
+"%(l10n_type)s: %(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 
 #, python-format
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
 "%(code_country)s"
 msgstr ""
+"%(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, %(l10n_country)s"
 
 #, python-format
 msgid ""
@@ -7429,14 +7580,14 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 "Adresse (%(type)s)       [#%(pk_adr)s]\n"
 " Straße: %(street)s%(notes_street)s\n"
 " Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Ort: %(zip)s %(urb)s%(suburb)s\n"
-" Land: %(l10n_state)s, %(code_state)s\n"
+" Land: %(l10n_region)s, %(code_region)s\n"
 " Staat: %(l10n_country)s, %(code_country)s"
 
 #, python-format
@@ -7445,14 +7596,14 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 "Adresse [#%(pk_adr)s]\n"
 " Straße: %(street)s%(notes_street)s\n"
 " Nummer: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Ort: %(zip)s %(urb)s%(suburb)s\n"
-" Land: %(l10n_state)s, %(code_state)s\n"
+" Land: %(l10n_region)s, %(code_region)s\n"
 " Staat: %(l10n_country)s, %(code_country)s"
 
 msgid "Textual keyword expansion"
@@ -7654,10 +7805,6 @@ msgstr "Berufe"
 
 msgid "Vaccinations"
 msgstr "Impfungen"
-
-#, python-format
-msgid "%s ago"
-msgstr "vor %s"
 
 msgid "External care"
 msgstr "Externe Mitbetreuung"
@@ -7949,8 +8096,16 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr "%(title)s %(last)s, %(first)s%(nick)s (%(sex)s)"
 
 #, python-format
+msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
+msgstr "%(title)s %(last)s, %(first)s (%(sex)s)"
+
+#, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
 msgstr "%(title)s %(last)s, %(first)s%(nick)s"
+
+#, python-format
+msgid "%(last)s,%(title)s %(first)s"
+msgstr "%(title)s %(last)s, %(first)s"
 
 msgid "Cannot merge active patient into another patient."
 msgstr "Kann aktiven Patienten nicht in einen anderen Patienten einfügen."
@@ -7960,9 +8115,6 @@ msgstr "zusammengeführt"
 
 msgid "merged"
 msgstr "zusammengeführt"
-
-msgid "preferred name/call name/..."
-msgstr "bevorzugter Name/Rufname/..."
 
 msgid "invalid age: DOB in the future"
 msgstr "ungültiges Alter: Geburtsdatum in der Zukunft"
@@ -8052,7 +8204,7 @@ msgstr "Meßmethode \"%s\" (%s)          [#%s]\n"
 
 #, python-format
 msgid " Reference unit: %s\n"
-msgstr " Referenzgruppe: %s\n"
+msgstr " Referenzeinheit: %s\n"
 
 msgid "Lab details:\n"
 msgstr "Labordetails:\n"
@@ -10470,8 +10622,8 @@ msgstr ""
 "Überprüfen Sie Alter, Geschlecht und Zeit seit/bis Termin."
 
 #, python-format
-msgid "%s Vacc: %s (%s%s)"
-msgstr "%s Impfg: %s (%s%s)"
+msgid "%s Vacc: %s (latest of %s)"
+msgstr "%s Impfg: %s (jüngste von %s)"
 
 #, python-format
 msgid "Hx of addiction: %s"
@@ -10765,9 +10917,11 @@ msgstr "Keine Ersatzadresse ausgewählt"
 
 #, python-format
 msgid ""
-"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 msgstr ""
-"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 
 #, python-format
 msgid "no URL for comm channel [%s]"
@@ -11403,7 +11557,7 @@ msgstr "Kontaktdaten speichern."
 msgid ""
 "Cannot save address.\n"
 "\n"
-"Does the state [%s]\n"
+"Does the region [%s]\n"
 "exist in country [%s] ?"
 msgstr ""
 "Kann Adresse nicht speichern.\n"
@@ -14064,6 +14218,9 @@ msgstr "GFR: unbekannt"
 msgid "GFR reported by path lab"
 msgstr "GFR stammt aus Labor"
 
+msgid "<no components>"
+msgstr "<keine Bestandteile>"
+
 msgid "Adding substance intake entry"
 msgstr "Substanzeinnahme hinzufügen"
 
@@ -14196,8 +14353,8 @@ msgstr "Neu verschriebene Medikamente"
 msgid "Add to medication list"
 msgstr "In Medikationsliste eintragen"
 
-msgid "Duration / Until"
-msgstr "Dauer / Bis"
+msgid "Timeframe"
+msgstr "Zeitraum"
 
 #, python-format
 msgid "%s <fake>"
@@ -14238,10 +14395,6 @@ msgstr "%.1f (vor %s)"
 
 msgid "eGFR:"
 msgstr ""
-
-#, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%s%s (vor %s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -15378,6 +15531,158 @@ msgstr "Sind Sie sicher, daß das Dokument gelöscht werden soll ?"
 
 msgid "Deleting document"
 msgstr "Dokument löschen"
+
+msgid "Study date"
+msgstr "Datum der Studie"
+
+msgid "Study time"
+msgstr "Zeit der Studie"
+
+msgid "Method"
+msgstr "Methode"
+
+msgid "Body part"
+msgstr "Körperteil"
+
+msgid "Time"
+msgstr "Zeit"
+
+msgid "Cannot connect without port (try 8042)."
+msgstr "Kann ohne Port nicht verbinden (versuchen Sie 8042)."
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr "Verbinden mit [%s] @ port %s als \"%s\"."
+
+msgid "Cannot connect to PACS."
+msgstr "Kann keine Verbindung zum PACS herstellen."
+
+#, python-format
+msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: %s (generic PACS ID)"
+msgstr "GNUmed-Patient: %s (generische PACS ID)"
+
+#, python-format
+msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgstr "GNUmed-Patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+
+msgid "PACS: no patients with matching IDs found"
+msgstr "PACS: kein Patient mit passender ID gefunden"
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+"PACS: mehr als ein Patient mit passender ID gefunden, sorgfältig die Studien "
+"durchsehen"
+
+#, python-format
+msgid "%s series"
+msgstr "%s Serien"
+
+#, python-format
+msgid "%%s (%s series)"
+msgstr "%%s (%s Serien)"
+
+msgid "no studies"
+msgstr "keine Studien"
+
+#, python-format
+msgid "%s studies"
+msgstr "%s Studien"
+
+msgid "Exporting DICOM studies"
+msgstr "DICOM-Studien exportieren"
+
+msgid "Unable to export selected studies."
+msgstr "Kann gewählte Studien nicht exportieren."
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really copy to export area ?"
+msgstr ""
+"Die DICOM-Studien sind %s in komprimierter Größe.\n"
+"\n"
+"Wirklich in den Exportbereich kopieren ?"
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr "DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\")"
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+"Wählen Sie das Verzeichnis, in welches die Studien gespeichert werden sollen."
+
+msgid "Saving DICOM studies"
+msgstr "Speichere DICOM-Studien"
+
+msgid "Unable to save selected studies."
+msgstr "Kann gewählte Studien nicht speichern."
+
+msgid "Unable to export studies."
+msgstr "Kann Studien nicht exportieren."
+
+#, python-format
+msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr "Alle DICOM-Studien zu [%s] aus dem Orthanc PACS \"%s\" (AET \"%s\")"
+
+#, python-format
+msgid "%s%s images"
+msgstr "%s%s Bilder"
+
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr ""
+"Wählen Sie das Verzeichnis, aus welchem DICOM-Dateien rekursiv hochgeladen "
+"werden sollen."
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr "Die hochgeladenen DICOM-Dateien jetzt löschen ?"
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which have been sent to the PACS "
+"successfully ?"
+msgstr ""
+"Einige Dateien wurden nicht hochgeladen.\n"
+"\n"
+"Wollen Sie die erfolgreich hochgeladenen DICOM-Dateien jetzt löschen ?"
+
+msgid "Uploading DICOM files"
+msgstr "Lade DICOM-Dateien hoch"
+
+msgid "Editing Orthanc content"
+msgstr "Orthanc-Inhalt bearbeiten"
+
+msgid "Patient ID"
+msgstr "Patienten-ID"
+
+msgid "Birth date"
+msgstr "Geburtsdatum"
+
+msgid "Orthanc"
+msgstr ""
+
+msgid "Modifying patient ID"
+msgstr "Patienten-ID bearbeiten"
+
+#, python-format
+msgid ""
+"Really modify %s patient(s) to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
+msgstr ""
+"Wirklich %s Patienten so verändern, daß als neue Nummer\n"
+"\n"
+" [%s]\n"
+"\n"
+"im Orthanc DICOM-Server gespeichert wird ?"
 
 #, python-format
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
@@ -17422,9 +17727,6 @@ msgstr ""
 msgid "Checking database language settings"
 msgstr "Prüfen der Spracheinstellungen der Datenbank"
 
-msgid "Set"
-msgstr "Setzen"
-
 #, python-format
 msgid "Set your database language to [%s]."
 msgstr "Datenbank auf Sprache [%s] einstellen."
@@ -18211,11 +18513,26 @@ msgstr "Kann Standardvorlage [%s - %s] für Gnuplot nicht laden"
 msgid "Cannot plot without a plot script."
 msgstr "Kann Meßwerte nicht ohne Plotscript darstellen."
 
-msgid "Time"
-msgstr "Zeit"
-
 msgid "Result"
 msgstr "Ergebnis"
+
+msgid "Perform on selected results:"
+msgstr "Auf markierte Ergebnisse anwenden:"
+
+msgid "Review and &sign"
+msgstr "&Bewerten und abzeichnen"
+
+msgid "Export to &file"
+msgstr "In &Datei exportieren"
+
+msgid "Export to &clipboard"
+msgstr "In die &Zwischenablage kopieren"
+
+msgid "Panels"
+msgstr "Profile"
+
+msgid "List"
+msgstr "Liste"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -18307,18 +18624,6 @@ msgstr "Alle: als &Tabelle"
 
 msgid "All: by &Day"
 msgstr "Alle: &tageweise"
-
-msgid "Perform on selected results:"
-msgstr "Auf markierte Ergebnisse anwenden:"
-
-msgid "Review and &sign"
-msgstr "&Bewerten und abzeichnen"
-
-msgid "Export to &file"
-msgstr "In &Datei exportieren"
-
-msgid "Export to &clipboard"
-msgstr "In die &Zwischenablage kopieren"
 
 #, python-format
 msgid "%s results selected. Too many to list individually."
@@ -18746,9 +19051,6 @@ msgstr "Zeige Patientensymbole"
 
 msgid "Tag"
 msgstr "Symbol"
-
-msgid "Manage"
-msgstr "Verwalten"
 
 msgid "Manage available tags."
 msgstr "Verfügbare Symbole verwalten"
@@ -19479,9 +19781,6 @@ msgstr "Organisation"
 msgid "Office"
 msgstr "Praxis"
 
-msgid "State"
-msgstr "Bundesland"
-
 msgid "Zip"
 msgstr "PLZ"
 
@@ -19587,6 +19886,12 @@ msgstr "Laborbuch"
 
 msgid "Show &lab journal"
 msgstr "Zeige Laborbuch"
+
+msgid "PACS"
+msgstr ""
+
+msgid "&PACS"
+msgstr ""
 
 msgid "Cardiac Devices"
 msgstr "PM/ICD"
@@ -19877,6 +20182,15 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "preferred name/call name/..."
+#~ msgstr "bevorzugter Name/Rufname/..."
+
+#~ msgid "Duration / Until"
+#~ msgstr "Dauer / Bis"
+
+#~ msgid "State"
+#~ msgstr "Bundesland"
 
 #~ msgid "&Unknown"
 #~ msgstr "&Unbekannt"
@@ -20268,9 +20582,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "&Sign as:"
 #~ msgstr "&Unterschreiben:"
 
-#~ msgid "file: %s (%s/)"
-#~ msgstr "Datei: %s (%s/)"
-
 #~ msgid "Switching clinical hint activation"
 #~ msgstr "Aktivzustand des klinischen Tips umschalten"
 
@@ -20395,9 +20706,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "SQL: %s"
 #~ msgstr "SQL: %s"
-
-#~ msgid "cannot connect to service [%s]"
-#~ msgstr "kann keine Verbindung zum Dienst [%s] herstellen"
 
 #~ msgid "When was this substance started to be consumed."
 #~ msgstr "Seit wann wird diese Substanz konsumiert."

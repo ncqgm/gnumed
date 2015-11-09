@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-25 16:37+0200\n"
+"POT-Creation-Date: 2015-11-09 09:55+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -2320,6 +2320,34 @@ msgstr ""
 msgid "Include:"
 msgstr ""
 
+#, fuzzy
+msgid "&Search"
+msgstr "Zoeken"
+
+msgid "Suggest"
+msgstr ""
+
+msgid "Set"
+msgstr "Instellen"
+
+msgid "dialog_1"
+msgstr ""
+
+msgid "Search patients in Orthanc DICOM store."
+msgstr ""
+
+#, fuzzy
+msgid "Suggest a patient ID based on the active patient."
+msgstr "Begin een niewe ontmoeting voor de actieve patiënt."
+
+#, fuzzy
+msgid "Search term:"
+msgstr "Geef zoekterm in:"
+
+#, fuzzy
+msgid "New patient ID:"
+msgstr "interne patiëntennummer"
+
 msgid "Your review"
 msgstr "Uw beoordeling"
 
@@ -2657,6 +2685,103 @@ msgstr "Stof"
 #, fuzzy
 msgid "Amount"
 msgstr "Account"
+
+#, fuzzy
+msgid "&Connect"
+msgstr "Context"
+
+#, fuzzy
+msgid "&Browse"
+msgstr "GeneesmiddelenBladeraar"
+
+#, fuzzy
+msgid "<not connected>"
+msgstr "instellingen bewaren"
+
+#, fuzzy
+msgid "Browse all"
+msgstr "GeneesmiddelenBladeraar"
+
+#, fuzzy
+msgid "Export all"
+msgstr "teken alle delen af"
+
+#, fuzzy
+msgid "Browse"
+msgstr "GeneesmiddelenBladeraar"
+
+#, fuzzy
+msgid "Export"
+msgstr "Rapport"
+
+#, fuzzy
+msgid "Upload"
+msgstr "Herladen"
+
+#, fuzzy
+msgid "Enter the PACS host address."
+msgstr "Geef het huisnummer voor dit adres in."
+
+msgid "Enter the PACS port."
+msgstr ""
+
+msgid "Enter the PACS user."
+msgstr ""
+
+#, fuzzy
+msgid "Enter the PACS password. It will not be shown."
+msgstr "Kan niet verbinden als de database eigenaar <gm-dbo>"
+
+#, fuzzy
+msgid "Connect to PACS."
+msgstr "Verbinden met GNUmed"
+
+msgid "Browse PACS at top level."
+msgstr ""
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
+msgstr ""
+
+#, fuzzy
+msgid "Browse overview of studies for this patient."
+msgstr "Bewerk details van het beroep voor de huidige patiënt."
+
+#, fuzzy
+msgid "Copy all studies into export area."
+msgstr "patiënt activeren van rapportresultaat"
+
+#, fuzzy
+msgid "Browse topmost selected study."
+msgstr "Bewerk het geselecteerde item."
+
+#, fuzzy
+msgid "Copy selected studies into export area."
+msgstr "patiënt activeren van rapportresultaat"
+
+#, fuzzy
+msgid "Save selected studies to disk."
+msgstr "Verwijder de geselecteerde items van de lijst."
+
+msgid ""
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+msgstr ""
+
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+#, fuzzy
+msgid "User:"
+msgstr "Gebruiker1"
+
+msgid "Password"
+msgstr "Wachtwoord"
+
+#, fuzzy
+msgid "Selected studies:"
+msgstr "Patiënt selecteren"
 
 msgid "Fake brand"
 msgstr ""
@@ -3013,10 +3138,6 @@ msgstr "algemene fout"
 
 msgid "&Load"
 msgstr ""
-
-#, fuzzy
-msgid "Export"
-msgstr "Rapport"
 
 msgid "A long, descriptive name for this form template."
 msgstr "Een langere, beschrijvende naam voor dit template."
@@ -3765,9 +3886,6 @@ msgstr "Parameters"
 
 msgid "Account"
 msgstr "Account"
-
-msgid "Password"
-msgstr "Wachtwoord"
 
 msgid "Password, again"
 msgstr "Wachtwoord, nogmaals"
@@ -4676,10 +4794,6 @@ msgstr ""
 msgid "Link &new"
 msgstr ""
 
-#, fuzzy
-msgid "Browse"
-msgstr "GeneesmiddelenBladeraar"
-
 msgid ""
 "Search for matches among existing addresses and [Link] a selection, or [Link "
 "(a) new] address."
@@ -5004,6 +5118,90 @@ msgstr ""
 #, fuzzy
 msgid "Age range"
 msgstr "bereik"
+
+msgid "&Nicotine"
+msgstr ""
+
+msgid "&Alcohol"
+msgstr ""
+
+#, fuzzy
+msgid "&Other:"
+msgstr "Eigenaar"
+
+msgid "&Non-harmful use"
+msgstr ""
+
+msgid "&Harmful use"
+msgstr ""
+
+msgid "Presently &addicted"
+msgstr ""
+
+#, fuzzy
+msgid "Previously &addicted"
+msgstr "Ontmoeting"
+
+msgid "&Reconfirm as of today"
+msgstr ""
+
+#, fuzzy
+msgid "Select for documenting smoking status."
+msgstr "Bewerk details van het geselecteerde staflid."
+
+msgid "Select for documenting alcohol use status."
+msgstr ""
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+
+#, fuzzy
+msgid "Select the abused substance."
+msgstr "Selecteer het soort adres."
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+
+msgid "Select if substance is use considered harmful."
+msgstr ""
+
+#, fuzzy
+msgid "Select if the patient is presently addicted to this substance."
+msgstr "Selecteer dit als de reactie een allergie is."
+
+#, fuzzy
+msgid "Select if the patient was previously addicted to this substance."
+msgstr "Selecteer dit als de reactie een allergie is."
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+msgid "Check here to confirm for today."
+msgstr ""
+
+#, fuzzy
+msgid "Quit date"
+msgstr "datum"
+
+#, fuzzy
+msgid "Last confirmed"
+msgstr "Laatst gewijzigd:"
 
 #, fuzzy
 msgid "Closed episodes"
@@ -5785,55 +5983,6 @@ msgstr ""
 #, fuzzy
 msgid "A code for this region."
 msgstr "Een commentaar op deze beoordeling."
-
-#, fuzzy
-msgid "&Unknown"
-msgstr "Onbekend"
-
-msgid "&Never smoked"
-msgstr ""
-
-msgid "&Smokes or smoked"
-msgstr ""
-
-msgid "Select if the smoking status is unknown (say, unasked so far)."
-msgstr ""
-
-msgid ""
-"Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
-"smoker)."
-msgstr ""
-
-#, fuzzy
-msgid "Select if the patient did or does smoke."
-msgstr "Selecteer dit als de reactie een allergie is."
-
-msgid ""
-"A comment on the smoking habits:\n"
-"- type of product used\n"
-"- frequency\n"
-"- amount\n"
-"- when started\n"
-"- attempts to quit\n"
-"..."
-msgstr ""
-
-msgid ""
-"When did the patient quit smoking ?\n"
-"\n"
-"You can also set a target quit date here."
-msgstr ""
-
-msgid "When was smoking status last confirmed (mostly \"today\") ?"
-msgstr ""
-
-#, fuzzy
-msgid "Quit date"
-msgstr "datum"
-
-#, fuzzy
-msgid "Last confirmed"
-msgstr "Laatst gewijzigd:"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -6743,6 +6892,12 @@ msgstr "Niet relevant"
 msgid "Encounter:"
 msgstr "Ontmoeting"
 
+msgid "Manage"
+msgstr ""
+
+msgid "&Panel:"
+msgstr ""
+
 msgid "&Pick"
 msgstr ""
 
@@ -7140,6 +7295,35 @@ msgstr "inactief"
 msgid "?ongoing"
 msgstr "?doorgaand"
 
+#, fuzzy, python-format
+msgid ""
+"Substance abuse entry                                              [#%s]\n"
+msgstr "laden lijst van plugins                               "
+
+#, fuzzy, python-format
+msgid "Substance: %s [#%s]%s\n"
+msgstr "Stof"
+
+#, fuzzy, python-format
+msgid "Use type: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy, python-format
+msgid "Last checked: %s\n"
+msgstr "Laatst gewerkt aan: %s\n"
+
+#, python-format
+msgid " Discontinued %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Notes: %s\n"
+msgstr "Geexporteerd: %s\n"
+
+#, python-format
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
 #, python-format
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
@@ -7207,10 +7391,6 @@ msgstr ""
 msgid " (short-term)"
 msgstr ""
 
-#, python-format
-msgid " Discontinued %s\n"
-msgstr ""
-
 #, fuzzy, python-format
 msgid " Reason: %s\n"
 msgstr " Nieuwe versie: \"%s\"\n"
@@ -7231,8 +7411,20 @@ msgstr "gezondheidsprobleem: %s"
 msgid " Advice: %s\n"
 msgstr ""
 
-#, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+#, fuzzy
+msgid "medication, not abuse"
+msgstr "Lijst met medicatie"
+
+msgid "no or non-harmful use"
+msgstr ""
+
+msgid "presently harmful use"
+msgstr ""
+
+msgid "presently addicted"
+msgstr ""
+
+msgid "previously addicted"
 msgstr ""
 
 #, fuzzy, python-format
@@ -7242,6 +7434,38 @@ msgstr "Geexporteerd: %s\n"
 #, fuzzy, python-format
 msgid "%s%s: %s ago (%s)"
 msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago, %s)"
+msgstr "%s%7s %s: %s (%s part(s), %s)"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "in %s"
+msgstr "Documenten: %s"
+
+#, fuzzy, python-format
+msgid ", until %s (%s)"
+msgstr "SQL: %s"
+
+#, fuzzy, python-format
+msgid " (planned for %s%s)"
+msgstr "geen patiënt gevonden voor [%s]/%s"
+
+#, fuzzy, python-format
+msgid ", planned for %s%s"
+msgstr "geen patiënt gevonden voor [%s]/%s"
+
+#, fuzzy, python-format
+msgid "%s ago (for %s: %s %s %s)"
+msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid "Additional notes"
 msgstr "Overige aantekeningen"
@@ -7320,6 +7544,17 @@ msgid "Expires: %s\n"
 msgstr "Geexporteerd: %s\n"
 
 #, fuzzy
+msgid "HL7 Source"
+msgstr "HTML-broncode"
+
+msgid "HL7 data size"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s bytes"
+msgstr "%s Bytes"
+
+#, fuzzy
 msgid "HL7 Message"
 msgstr "bericht"
 
@@ -7375,14 +7610,6 @@ msgid "doc: %s"
 msgstr "   Doc: %s"
 
 #, fuzzy
-msgid "no patient photograph available"
-msgstr "geen toelichting beschikbaar"
-
-#, fuzzy, python-format
-msgid "patient photograph from %s"
-msgstr "Kan patiëntenfoto niet instellen van [%s]."
-
-#, fuzzy
 msgid "Patient data for"
 msgstr "Patiëntendetails"
 
@@ -7393,6 +7620,10 @@ msgstr ""
 msgid "Patient data export"
 msgstr "Patiëntendetails"
 
+#, fuzzy
+msgid "no patient photograph available"
+msgstr "geen toelichting beschikbaar"
+
 msgid "Documents"
 msgstr "Documenten"
 
@@ -7402,6 +7633,10 @@ msgstr ""
 #, fuzzy
 msgid "browse documents area"
 msgstr "alleen documenten toegevoegd"
+
+#, fuzzy, python-format
+msgid "patient photograph from %s"
+msgstr "Kan patiëntenfoto niet instellen van [%s]."
 
 #, fuzzy
 msgid "Browse patient data"
@@ -7443,24 +7678,24 @@ msgstr ""
 #, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
 "%(code_country)s"
 msgstr ""
 
@@ -7470,7 +7705,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -7480,7 +7715,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -7552,6 +7787,43 @@ msgstr "verbeterde uitslag"
 
 msgid "missing, reported later"
 msgstr "vermist, rapport volgt"
+
+#, fuzzy
+msgid "unknown smoking status"
+msgstr "Bewerk details van het geselecteerde staflid."
+
+msgid "non-smoker"
+msgstr ""
+
+#, fuzzy
+msgid "current smoker"
+msgstr "Huidige medicatie"
+
+msgid "ex-smoker"
+msgstr ""
+
+msgid "tobacco addiction"
+msgstr ""
+
+msgid "no or non-harmful alcohol use"
+msgstr ""
+
+msgid "harmful alcohol use"
+msgstr ""
+
+#, fuzzy
+msgid "unknown alcohol use"
+msgstr "Onbekende allergie status"
+
+msgid "no or non-harmful drug use"
+msgstr ""
+
+msgid "harmful drug use"
+msgstr ""
+
+#, fuzzy
+msgid "unknown drug use"
+msgstr "Onbekende allergie status"
 
 msgid "original entry"
 msgstr "orginele invoer"
@@ -7657,10 +7929,6 @@ msgstr "Beroep"
 
 msgid "Vaccinations"
 msgstr "Vaccinaties"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
 
 #, fuzzy
 msgid "External care"
@@ -7955,7 +8223,15 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr ""
 
 #, python-format
+msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
+msgstr ""
+
+#, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
+#, python-format
+msgid "%(last)s,%(title)s %(first)s"
 msgstr ""
 
 msgid "Cannot merge active patient into another patient."
@@ -7967,9 +8243,6 @@ msgstr ""
 #, fuzzy
 msgid "merged"
 msgstr "bereik"
-
-msgid "preferred name/call name/..."
-msgstr ""
 
 #, fuzzy
 msgid "invalid age: DOB in the future"
@@ -10438,8 +10711,29 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "gepland nu: booster voor %s in schema \"%s\" (%s)"
 
 #, fuzzy
-msgid "Editing smoking status"
-msgstr "Bewerk details van het geselecteerde staflid."
+msgid "Adding substance abuse"
+msgstr "Bewerk het geselecteerde item."
+
+#, fuzzy
+msgid "Editing substance abuse"
+msgstr "Naam bewerken"
+
+msgid "Substances abused by the patient:"
+msgstr ""
+
+#, fuzzy
+msgid "Showing abused substances."
+msgstr "Meting bewerken"
+
+msgid "Intake"
+msgstr ""
+
+msgid "nicotine"
+msgstr ""
+
+#, fuzzy
+msgid "unit"
+msgstr "eenheden"
 
 #, fuzzy, python-format
 msgid "Latest: %s ago (%s %s%s%s%s)"
@@ -10521,16 +10815,15 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (%s%s)"
+msgid "%s Vacc: %s (latest of %s)"
 msgstr "part %2s"
 
-#, python-format
-msgid "active tobacco use (%s)"
-msgstr ""
-
 #, fuzzy, python-format
-msgid "Last confirmed: %s%s"
-msgstr "Laatst gewijzigd:"
+msgid "Hx of addiction: %s"
+msgstr "&Vaccinaties"
+
+msgid "active substance abuse"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "%s %s %s%s"
@@ -10817,7 +11110,8 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 msgstr ""
 
 #, python-format
@@ -11473,7 +11767,7 @@ msgstr "Contactgegevens bewaren"
 msgid ""
 "Cannot save address.\n"
 "\n"
-"Does the state [%s]\n"
+"Does the region [%s]\n"
 "exist in country [%s] ?"
 msgstr ""
 
@@ -13927,294 +14221,9 @@ msgstr ""
 msgid "In case of emergency contact:"
 msgstr ""
 
-msgid ""
-"\n"
-"Please select the default drug data source from the list below.\n"
-"\n"
-"Note that to actually use it you need to have the database installed, too."
-msgstr ""
-
-#, fuzzy
-msgid "Drug data source"
-msgstr "&Geneesmiddelen Bronnen"
-
-#, fuzzy
-msgid "Configuring default drug data source"
-msgstr "Database taal instellen"
-
-msgid "No default drug database configured."
-msgstr ""
-
-msgid "There is no default drug database configured."
-msgstr ""
-
-#, fuzzy
-msgid "Jumping to drug database"
-msgstr "Opstarten van geneesmidellengevens bladeraar"
-
-#, python-format
-msgid "Cannot call IFAP via [%s]."
-msgstr "Kan IFAP niet aanroepen via [%s]."
-
-#, python-format
-msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
-msgstr "Kan niet IFAP <-> GNUmed transfer file [%s] creëeren."
-
-msgid "Current medication"
-msgstr "Huidige medicatie"
-
-msgid ""
-"\n"
-"The ATC codes as known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing ATC codes."
-msgstr ""
-
-#, fuzzy
-msgid "Choose an ATC import config file"
-msgstr "Kies een formuliersjabloon bestand"
-
-#, fuzzy
-msgid "config files"
-msgstr "logboek bestanden"
-
-msgid "importing ATC reference data"
-msgstr ""
-
-#, fuzzy
-msgid "Successfully imported ATC reference data."
-msgstr "Succesvol docment opgeslagen."
-
-msgid "Importing ATC reference data failed."
-msgstr ""
-
-msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot delete this substance. It is in use."
-msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
-
-msgid ""
-"\n"
-"These are the consumable substances registered with GNUmed.\n"
-msgstr ""
-
-#, fuzzy
-msgid "Showing consumable substances."
-msgstr "Meting bewerken"
-
-#, fuzzy
-msgid "Import"
-msgstr "Rapport"
-
-msgid "Import consumable substances from a drug database."
-msgstr ""
-
-#, fuzzy
-msgid "Cannot edit this substance. It is in use."
-msgstr "Kan beroep niet bewerken. Geen actieve patiënt."
-
-#, fuzzy
-msgid "Adding new consumable substance"
-msgstr "Nieuw contmoetingstype toevoegen"
-
-#, fuzzy
-msgid "Editing consumable substance"
-msgstr "Naam bewerken"
-
-#, fuzzy
-msgid "Cannot save consumable substance. Missing essential input."
-msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
-
-#, fuzzy, python-format
-msgid "Cannot save consumable substance. %s"
-msgstr "Kan laboratoriumverzoek niet opslaan"
-
-#, fuzzy
-msgid "Cannot remove this component from the drug. It is in use."
-msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
-
-#, fuzzy
-msgid ""
-"\n"
-"These are the components in the drug brands known to GNUmed.\n"
-msgstr "Lijst met momenteel bestaande stafleden."
-
-msgid "Showing drug brand components."
-msgstr ""
-
-#, fuzzy
-msgid "Adding new drug component"
-msgstr "Nieuwe patiënt toevoegen"
-
-#, fuzzy
-msgid "Editing drug component"
-msgstr "Meting bewerken"
-
-#, fuzzy
-msgid "Cannot edit drug component. It is in use."
-msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
-
-#, fuzzy
-msgid "Cannot save drug component. Invalid or missing essential input."
-msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
-
-msgid "A drug component with optional strength."
-msgstr ""
-
 #, fuzzy
 msgid "The preparation (form) of the substance or brand."
 msgstr "De eenheid waarin dit resultaat komt."
-
-msgid "The substance with optional strength."
-msgstr ""
-
-msgid "Managing components of a drug"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot manage the components of the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-
-msgid "Pick the substances which are components of this drug."
-msgstr ""
-
-msgid "Components of drug"
-msgstr ""
-
-#, python-format
-msgid ""
-"Adjust the components of \"%s\"\n"
-"\n"
-"The drug must contain at least one component. Any given\n"
-"substance can only be included once per drug."
-msgstr ""
-
-#, fuzzy
-msgid "Managing components of a drug ..."
-msgstr "Ontmoetingstypes bewerken ..."
-
-#, fuzzy
-msgid "not in use"
-msgstr "In gebruik"
-
-#, fuzzy, python-format
-msgid "ATC: %s\n"
-msgstr "   MTA: %s"
-
-#, fuzzy
-msgid "Editing medication"
-msgstr "Kan geen beschrijving van het document toevoegen."
-
-#, python-format
-msgid ""
-"Cannot edit the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
-msgstr ""
-
-#, fuzzy
-msgid "Deleting medication"
-msgstr "Kan geen beschrijving van het document toevoegen."
-
-#, python-format
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing branded drugs."
-msgstr ""
-
-msgid "Import substances and brands from a drug database."
-msgstr ""
-
-#, fuzzy
-msgid "Editing drug"
-msgstr "Adres wijzigen"
-
-#, fuzzy, python-format
-msgid ""
-"Cannot edit the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-"Kan documenttype\n"
-" [%s]\n"
-"niet verwijderen omdat het in gebruik is."
-
-#, fuzzy
-msgid "Adding new drug brand"
-msgstr "Nieuwe patiënt toevoegen"
-
-#, fuzzy
-msgid "Editing drug brand"
-msgstr "opslaan voortgangsrapport"
-
-#, fuzzy
-msgid "Manage consumable substances"
-msgstr "Meting bewerken"
-
-#, fuzzy
-msgid "Cannot edit drug brand. It is in use."
-msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
-
-#, fuzzy
-msgid "Checking brand data"
-msgstr "Controleren voor frontend updates"
-
-#, python-format
-msgid ""
-"The brand information you entered:\n"
-"\n"
-" [%s %s]\n"
-"\n"
-"already exists as a drug product."
-msgstr ""
-
-msgid ""
-"You have not selected any substances\n"
-"as drug components.\n"
-"\n"
-"Without components you will not be able to\n"
-"use this drug for documenting patient care.\n"
-"\n"
-"Are you sure you want to save\n"
-"it without components ?"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot save branded drug. Invalid or missing essential input."
-msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
-
-msgid ""
-"The brand name of the drug.\n"
-"\n"
-"Note: a brand name will need to be linked to\n"
-"one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
-msgstr ""
 
 msgid "A substance with optional strength or a brand."
 msgstr ""
@@ -14254,8 +14263,9 @@ msgstr ""
 msgid "Substances consumed by the patient:"
 msgstr ""
 
-msgid "Intake"
-msgstr ""
+#, fuzzy
+msgid "Showing consumable substances."
+msgstr "Meting bewerken"
 
 #, fuzzy
 msgid "Application"
@@ -14282,6 +14292,10 @@ msgstr "Onbekend"
 
 msgid "GFR reported by path lab"
 msgstr ""
+
+#, fuzzy
+msgid "<no components>"
+msgstr "Afspraken"
 
 #, fuzzy
 msgid "Adding substance intake entry"
@@ -14412,8 +14426,8 @@ msgid "Add to medication list"
 msgstr "Indicatie"
 
 #, fuzzy
-msgid "Duration / Until"
-msgstr "Operatie"
+msgid "Timeframe"
+msgstr "Titel"
 
 #, python-format
 msgid "%s <fake>"
@@ -14455,10 +14469,6 @@ msgstr "Geexporteerd: %s\n"
 
 msgid "eGFR:"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -15626,6 +15636,159 @@ msgstr ""
 msgid "Deleting document"
 msgstr "verwijderen documenttype"
 
+#, fuzzy
+msgid "Study date"
+msgstr "datum"
+
+#, fuzzy
+msgid "Study time"
+msgstr "Begin nieuw"
+
+msgid "Method"
+msgstr ""
+
+#, fuzzy
+msgid "Body part"
+msgstr "patiënt"
+
+#, fuzzy
+msgid "Time"
+msgstr "Titel"
+
+#, fuzzy
+msgid "Cannot connect without port (try 8042)."
+msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot connect to PACS."
+msgstr "kan niet verbinden met service [%s]"
+
+#, python-format
+msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: %s (generic PACS ID)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgstr ""
+
+msgid "PACS: no patients with matching IDs found"
+msgstr ""
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+
+#, python-format
+msgid "%s series"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%%s (%s series)"
+msgstr "%s (%s dit jaar)"
+
+msgid "no studies"
+msgstr ""
+
+#, python-format
+msgid "%s studies"
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to export selected studies."
+msgstr "moet adres selecteren"
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really copy to export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy
+msgid "Select the directory into which to save the DICOM studies."
+msgstr "Selecteer de episode waaronder dit document bewaard moet worden..."
+
+#, fuzzy
+msgid "Saving DICOM studies"
+msgstr "opslaan voortgangsrapport"
+
+#, fuzzy
+msgid "Unable to save selected studies."
+msgstr "moet adres selecteren"
+
+#, fuzzy
+msgid "Unable to export studies."
+msgstr "Niet gelukt om patiënt in te schrijven voor %s"
+
+#, python-format
+msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s%s images"
+msgstr "Geexporteerd: %s\n"
+
+#, fuzzy
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr "Selecteer de episode waaronder dit document bewaard moet worden..."
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr ""
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which have been sent to the PACS "
+"successfully ?"
+msgstr ""
+
+#, fuzzy
+msgid "Uploading DICOM files"
+msgstr "laden xDT bestand"
+
+#, fuzzy
+msgid "Editing Orthanc content"
+msgstr "Naam bewerken"
+
+#, fuzzy
+msgid "Patient ID"
+msgstr "Patiënt"
+
+#, fuzzy
+msgid "Birth date"
+msgstr "datum"
+
+msgid "Orthanc"
+msgstr ""
+
+#, fuzzy
+msgid "Modifying patient ID"
+msgstr "Patiënt selecteren"
+
+#, python-format
+msgid ""
+"Really modify %s patient(s) to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
+msgstr ""
+
 #, python-format
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "U bent ingelogd als %s%s.%s (%s). DB account <%s>."
@@ -15822,6 +15985,10 @@ msgstr "Metingen"
 
 msgid "URL for measurements encyclopedia."
 msgstr ""
+
+#, fuzzy
+msgid "Drug data source"
+msgstr "&Geneesmiddelen Bronnen"
 
 #, fuzzy
 msgid "Select the drug data source."
@@ -16264,11 +16431,11 @@ msgid "Manage dynamic hints suppressed in this patient."
 msgstr "voeg een nieuw verzoek toe voor actieve patiënt"
 
 #, fuzzy
-msgid "Smoking status"
-msgstr "status"
+msgid "Substance abuse"
+msgstr "Stof"
 
 #, fuzzy
-msgid "Manage smoking status of this patient."
+msgid "Manage substance abuse documentation of this patient."
 msgstr "Een aantekening bij deze patiënt."
 
 msgid "&Add / Edit ..."
@@ -17770,9 +17937,6 @@ msgstr ""
 msgid "Checking database language settings"
 msgstr "Controleren databasetaal instellingen"
 
-msgid "Set"
-msgstr "Instellen"
-
 #, python-format
 msgid "Set your database language to [%s]."
 msgstr "Stel de taal van de database in op [%s]."
@@ -18062,6 +18226,286 @@ msgstr "Indicatie"
 msgid "Editing family history"
 msgstr "Indicatie"
 
+msgid ""
+"\n"
+"Please select the default drug data source from the list below.\n"
+"\n"
+"Note that to actually use it you need to have the database installed, too."
+msgstr ""
+
+#, fuzzy
+msgid "Configuring default drug data source"
+msgstr "Database taal instellen"
+
+msgid "No default drug database configured."
+msgstr ""
+
+msgid "There is no default drug database configured."
+msgstr ""
+
+#, fuzzy
+msgid "Jumping to drug database"
+msgstr "Opstarten van geneesmidellengevens bladeraar"
+
+msgid "Cannot import drugs from IFAP into chart without chart."
+msgstr ""
+
+#, python-format
+msgid "Cannot call IFAP via [%s]."
+msgstr "Kan IFAP niet aanroepen via [%s]."
+
+#, python-format
+msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
+msgstr "Kan niet IFAP <-> GNUmed transfer file [%s] creëeren."
+
+msgid "Current medication"
+msgstr "Huidige medicatie"
+
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing ATC codes."
+msgstr ""
+
+#, fuzzy
+msgid "Choose an ATC import config file"
+msgstr "Kies een formuliersjabloon bestand"
+
+#, fuzzy
+msgid "config files"
+msgstr "logboek bestanden"
+
+msgid "importing ATC reference data"
+msgstr ""
+
+#, fuzzy
+msgid "Successfully imported ATC reference data."
+msgstr "Succesvol docment opgeslagen."
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot edit this substance. It is in use."
+msgstr "Kan beroep niet bewerken. Geen actieve patiënt."
+
+#, fuzzy
+msgid "Adding new consumable substance"
+msgstr "Nieuw contmoetingstype toevoegen"
+
+#, fuzzy
+msgid "Editing consumable substance"
+msgstr "Naam bewerken"
+
+#, fuzzy
+msgid "Cannot delete this substance. It is in use."
+msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Import"
+msgstr "Rapport"
+
+msgid "Import consumable substances from a drug database."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save consumable substance. Missing essential input."
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+
+#, fuzzy, python-format
+msgid "Cannot save consumable substance. %s"
+msgstr "Kan laboratoriumverzoek niet opslaan"
+
+msgid "The substance with optional strength."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot remove this component from the drug. It is in use."
+msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
+
+#, fuzzy
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr "Lijst met momenteel bestaande stafleden."
+
+msgid "Showing drug brand components."
+msgstr ""
+
+#, fuzzy
+msgid "Adding new drug component"
+msgstr "Nieuwe patiënt toevoegen"
+
+#, fuzzy
+msgid "Editing drug component"
+msgstr "Meting bewerken"
+
+#, fuzzy
+msgid "Cannot edit drug component. It is in use."
+msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
+
+#, fuzzy
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+
+msgid "A drug component with optional strength."
+msgstr ""
+
+#, fuzzy
+msgid "Editing drug"
+msgstr "Adres wijzigen"
+
+#, fuzzy, python-format
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+"Kan documenttype\n"
+" [%s]\n"
+"niet verwijderen omdat het in gebruik is."
+
+#, fuzzy
+msgid "Adding new drug brand"
+msgstr "Nieuwe patiënt toevoegen"
+
+#, fuzzy
+msgid "Editing drug brand"
+msgstr "opslaan voortgangsrapport"
+
+#, fuzzy
+msgid "Manage consumable substances"
+msgstr "Meting bewerken"
+
+#, fuzzy
+msgid "not in use"
+msgstr "In gebruik"
+
+#, fuzzy, python-format
+msgid "ATC: %s\n"
+msgstr "   MTA: %s"
+
+#, fuzzy
+msgid "Editing medication"
+msgstr "Kan geen beschrijving van het document toevoegen."
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+#, fuzzy
+msgid "Deleting medication"
+msgstr "Kan geen beschrijving van het document toevoegen."
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing branded drugs."
+msgstr ""
+
+msgid "Import substances and brands from a drug database."
+msgstr ""
+
+msgid "Managing components of a drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Pick the substances which are components of this drug."
+msgstr ""
+
+msgid "Components of drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+
+#, fuzzy
+msgid "Managing components of a drug ..."
+msgstr "Ontmoetingstypes bewerken ..."
+
+#, fuzzy
+msgid "Cannot edit drug brand. It is in use."
+msgstr "Kan ontmoeting [%s] niet verwijderen. Het is in gebruik."
+
+#, fuzzy
+msgid "Checking brand data"
+msgstr "Controleren voor frontend updates"
+
+#, python-format
+msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr "Kan uitslag niet bewaren. Essentiele ingave ontbreekt."
+
+msgid ""
+"The brand name of the drug.\n"
+"\n"
+"Note: a brand name will need to be linked to\n"
+"one or more components before it can be used,\n"
+"except in the case of fake (generic) vaccines."
+msgstr ""
+
 msgid "No EMR data loaded."
 msgstr "Geen EMD gegevens geladen."
 
@@ -18251,12 +18695,27 @@ msgstr "Kan medicatie niet toevoegen. Geen actieve patiënt."
 msgid "Cannot plot without a plot script."
 msgstr "Kan patiënt niet verwijderen. Geen actieve patiënt."
 
-#, fuzzy
-msgid "Time"
-msgstr "Titel"
-
 msgid "Result"
 msgstr "Uitslag"
+
+#, fuzzy
+msgid "Perform on selected results:"
+msgstr "Handel naar geselecteerde uitslagen"
+
+msgid "Review and &sign"
+msgstr "Beoordeel en &onderteken"
+
+msgid "Export to &file"
+msgstr "Exporteren naar &bestand"
+
+msgid "Export to &clipboard"
+msgstr "Exporteren naar &clipboard"
+
+msgid "Panels"
+msgstr ""
+
+msgid "List"
+msgstr ""
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -18346,19 +18805,6 @@ msgstr ""
 
 msgid "All: by &Day"
 msgstr ""
-
-#, fuzzy
-msgid "Perform on selected results:"
-msgstr "Handel naar geselecteerde uitslagen"
-
-msgid "Review and &sign"
-msgstr "Beoordeel en &onderteken"
-
-msgid "Export to &file"
-msgstr "Exporteren naar &bestand"
-
-msgid "Export to &clipboard"
-msgstr "Exporteren naar &clipboard"
 
 #, python-format
 msgid "%s results selected. Too many to list individually."
@@ -18835,9 +19281,6 @@ msgstr "Patiëntendetails"
 #, fuzzy
 msgid "Tag"
 msgstr "leeftijd"
-
-msgid "Manage"
-msgstr ""
 
 #, fuzzy
 msgid "Manage available tags."
@@ -19513,9 +19956,6 @@ msgstr "Organisatie"
 msgid "Office"
 msgstr "Kantoor"
 
-msgid "State"
-msgstr "Provincie"
-
 msgid "Zip"
 msgstr "Postcode"
 
@@ -19631,6 +20071,12 @@ msgstr "laboratoriumjournaal"
 
 msgid "Show &lab journal"
 msgstr "Toon &laboratoriumjournaal"
+
+msgid "PACS"
+msgstr ""
+
+msgid "&PACS"
+msgstr ""
 
 msgid "Cardiac Devices"
 msgstr ""
@@ -19938,6 +20384,25 @@ msgstr "Afbreken"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
+#, fuzzy
+#~ msgid "&Unknown"
+#~ msgstr "Onbekend"
+
+#, fuzzy
+#~ msgid "Last confirmed: %s%s"
+#~ msgstr "Laatst gewijzigd:"
+
+#, fuzzy
+#~ msgid "Duration / Until"
+#~ msgstr "Operatie"
+
+#, fuzzy
+#~ msgid "Smoking status"
+#~ msgstr "status"
+
+#~ msgid "State"
+#~ msgstr "Provincie"
+
 #~ msgid ""
 #~ "Cannot connect to configuration database with:\n"
 #~ "\n"
@@ -20168,10 +20633,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #~ msgstr "&Aantekenen als:"
 
 #, fuzzy
-#~ msgid "file: %s (%s/)"
-#~ msgstr "SQL: %s"
-
-#, fuzzy
 #~ msgid "Switching clinical hint activation"
 #~ msgstr "Wijzigen beroep"
 
@@ -20249,9 +20710,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 
 #~ msgid "SQL: %s"
 #~ msgstr "SQL: %s"
-
-#~ msgid "cannot connect to service [%s]"
-#~ msgstr "kan niet verbinden met service [%s]"
 
 #, fuzzy
 #~ msgid "The episode this substance is taken under."
@@ -20455,10 +20913,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #~ msgid "   unreviewed"
 #~ msgstr "   niet bekeken"
 
-#, fuzzy
-#~ msgid "Date: %s\n"
-#~ msgstr "Geexporteerd: %s\n"
-
 #~ msgid "Employees"
 #~ msgstr "Werknemers"
 
@@ -20600,11 +21054,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "unknown test results table formatting style [%s]"
 #~ msgstr "onbekende test status [%s]"
-
-#, fuzzy
-#~ msgid ""
-#~ "Measurement details:                                               \n"
-#~ msgstr "laden lijst van plugins                               "
 
 #~ msgid "Owner"
 #~ msgstr "Eigenaar"

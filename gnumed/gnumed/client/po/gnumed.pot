@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-03 23:53+0200\n"
+"POT-Creation-Date: 2015-11-09 09:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2085,6 +2085,30 @@ msgstr ""
 msgid "Include:"
 msgstr ""
 
+msgid "&Search"
+msgstr ""
+
+msgid "Suggest"
+msgstr ""
+
+msgid "Set"
+msgstr ""
+
+msgid "dialog_1"
+msgstr ""
+
+msgid "Search patients in Orthanc DICOM store."
+msgstr ""
+
+msgid "Suggest a patient ID based on the active patient."
+msgstr ""
+
+msgid "Search term:"
+msgstr ""
+
+msgid "New patient ID:"
+msgstr ""
+
 msgid "Your review"
 msgstr ""
 
@@ -2384,6 +2408,85 @@ msgid "Substance"
 msgstr ""
 
 msgid "Amount"
+msgstr ""
+
+msgid "&Connect"
+msgstr ""
+
+msgid "&Browse"
+msgstr ""
+
+msgid "<not connected>"
+msgstr ""
+
+msgid "Browse all"
+msgstr ""
+
+msgid "Export all"
+msgstr ""
+
+msgid "Browse"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Enter the PACS host address."
+msgstr ""
+
+msgid "Enter the PACS port."
+msgstr ""
+
+msgid "Enter the PACS user."
+msgstr ""
+
+msgid "Enter the PACS password. It will not be shown."
+msgstr ""
+
+msgid "Connect to PACS."
+msgstr ""
+
+msgid "Browse PACS at top level."
+msgstr ""
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
+msgstr ""
+
+msgid "Browse overview of studies for this patient."
+msgstr ""
+
+msgid "Copy all studies into export area."
+msgstr ""
+
+msgid "Browse topmost selected study."
+msgstr ""
+
+msgid "Copy selected studies into export area."
+msgstr ""
+
+msgid "Save selected studies to disk."
+msgstr ""
+
+msgid ""
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+msgstr ""
+
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+msgid "User:"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Selected studies:"
 msgstr ""
 
 msgid "Fake brand"
@@ -2699,9 +2802,6 @@ msgid "Text (generic processing)"
 msgstr ""
 
 msgid "&Load"
-msgstr ""
-
-msgid "Export"
 msgstr ""
 
 msgid "A long, descriptive name for this form template."
@@ -3312,9 +3412,6 @@ msgid "User parameters:"
 msgstr ""
 
 msgid "Account"
-msgstr ""
-
-msgid "Password"
 msgstr ""
 
 msgid "Password, again"
@@ -4102,9 +4199,6 @@ msgid "&Link"
 msgstr ""
 
 msgid "Link &new"
-msgstr ""
-
-msgid "Browse"
 msgstr ""
 
 msgid ""
@@ -5932,6 +6026,12 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
+msgid "Manage"
+msgstr ""
+
+msgid "&Panel:"
+msgstr ""
+
 msgid "&Pick"
 msgstr ""
 
@@ -6327,6 +6427,10 @@ msgid " Discontinued %s\n"
 msgstr ""
 
 #, python-format
+msgid " Notes: %s\n"
+msgstr ""
+
+#, python-format
 msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
 msgstr ""
 
@@ -6437,6 +6541,38 @@ msgstr ""
 msgid "%s%s: %s ago (%s)"
 msgstr ""
 
+#, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+
+#, python-format
+msgid "%s%s%s (%s ago, %s)"
+msgstr ""
+
+#, python-format
+msgid "%s ago"
+msgstr ""
+
+#, python-format
+msgid "in %s"
+msgstr ""
+
+#, python-format
+msgid ", until %s (%s)"
+msgstr ""
+
+#, python-format
+msgid " (planned for %s%s)"
+msgstr ""
+
+#, python-format
+msgid ", planned for %s%s"
+msgstr ""
+
+#, python-format
+msgid "%s ago (for %s: %s %s %s)"
+msgstr ""
+
 msgid "Additional notes"
 msgstr ""
 
@@ -6508,6 +6644,16 @@ msgstr ""
 msgid "Expires: %s\n"
 msgstr ""
 
+msgid "HL7 Source"
+msgstr ""
+
+msgid "HL7 data size"
+msgstr ""
+
+#, python-format
+msgid "%s bytes"
+msgstr ""
+
 msgid "HL7 Message"
 msgstr ""
 
@@ -6561,13 +6707,6 @@ msgstr ""
 msgid "doc: %s"
 msgstr ""
 
-msgid "no patient photograph available"
-msgstr ""
-
-#, python-format
-msgid "patient photograph from %s"
-msgstr ""
-
 msgid "Patient data for"
 msgstr ""
 
@@ -6577,6 +6716,9 @@ msgstr ""
 msgid "Patient data export"
 msgstr ""
 
+msgid "no patient photograph available"
+msgstr ""
+
 msgid "Documents"
 msgstr ""
 
@@ -6584,6 +6726,10 @@ msgid "browse storage medium"
 msgstr ""
 
 msgid "browse documents area"
+msgstr ""
+
+#, python-format
+msgid "patient photograph from %s"
 msgstr ""
 
 msgid "Browse patient data"
@@ -6620,24 +6766,24 @@ msgstr ""
 #, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
 "%(code_country)s"
 msgstr ""
 
@@ -6647,7 +6793,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -6657,7 +6803,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -6848,10 +6994,6 @@ msgid "Occupations"
 msgstr ""
 
 msgid "Vaccinations"
-msgstr ""
-
-#, python-format
-msgid "%s ago"
 msgstr ""
 
 msgid "External care"
@@ -7116,7 +7258,15 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr ""
 
 #, python-format
+msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
+msgstr ""
+
+#, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
+#, python-format
+msgid "%(last)s,%(title)s %(first)s"
 msgstr ""
 
 msgid "Cannot merge active patient into another patient."
@@ -7126,9 +7276,6 @@ msgid "assimilated"
 msgstr ""
 
 msgid "merged"
-msgstr ""
-
-msgid "preferred name/call name/..."
 msgstr ""
 
 msgid "invalid age: DOB in the future"
@@ -9366,7 +9513,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "%s Vacc: %s (%s%s)"
+msgid "%s Vacc: %s (latest of %s)"
 msgstr ""
 
 #, python-format
@@ -9630,7 +9777,8 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 msgstr ""
 
 #, python-format
@@ -10217,7 +10365,7 @@ msgstr ""
 msgid ""
 "Cannot save address.\n"
 "\n"
-"Does the state [%s]\n"
+"Does the region [%s]\n"
 "exist in country [%s] ?"
 msgstr ""
 
@@ -12437,6 +12585,9 @@ msgstr ""
 msgid "GFR reported by path lab"
 msgstr ""
 
+msgid "<no components>"
+msgstr ""
+
 msgid "Adding substance intake entry"
 msgstr ""
 
@@ -12552,7 +12703,7 @@ msgstr ""
 msgid "Add to medication list"
 msgstr ""
 
-msgid "Duration / Until"
+msgid "Timeframe"
 msgstr ""
 
 #, python-format
@@ -12590,10 +12741,6 @@ msgid "%.1f (%s ago)"
 msgstr ""
 
 msgid "eGFR:"
-msgstr ""
-
-#, python-format
-msgid "%s%s%s (%s ago)"
 msgstr ""
 
 #, python-format
@@ -13529,6 +13676,142 @@ msgid "Are you sure you want to delete the document ?"
 msgstr ""
 
 msgid "Deleting document"
+msgstr ""
+
+msgid "Study date"
+msgstr ""
+
+msgid "Study time"
+msgstr ""
+
+msgid "Method"
+msgstr ""
+
+msgid "Body part"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Cannot connect without port (try 8042)."
+msgstr ""
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr ""
+
+msgid "Cannot connect to PACS."
+msgstr ""
+
+#, python-format
+msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: %s (generic PACS ID)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgstr ""
+
+msgid "PACS: no patients with matching IDs found"
+msgstr ""
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+
+#, python-format
+msgid "%s series"
+msgstr ""
+
+#, python-format
+msgid "%%s (%s series)"
+msgstr ""
+
+msgid "no studies"
+msgstr ""
+
+#, python-format
+msgid "%s studies"
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+msgid "Unable to export selected studies."
+msgstr ""
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really copy to export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+msgid "Select the directory into which to save the DICOM studies."
+msgstr ""
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+msgid "Unable to save selected studies."
+msgstr ""
+
+msgid "Unable to export studies."
+msgstr ""
+
+#, python-format
+msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, python-format
+msgid "%s%s images"
+msgstr ""
+
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr ""
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr ""
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which have been sent to the PACS "
+"successfully ?"
+msgstr ""
+
+msgid "Uploading DICOM files"
+msgstr ""
+
+msgid "Editing Orthanc content"
+msgstr ""
+
+msgid "Patient ID"
+msgstr ""
+
+msgid "Birth date"
+msgstr ""
+
+msgid "Orthanc"
+msgstr ""
+
+msgid "Modifying patient ID"
+msgstr ""
+
+#, python-format
+msgid ""
+"Really modify %s patient(s) to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
 msgstr ""
 
 #, python-format
@@ -15262,9 +15545,6 @@ msgstr ""
 msgid "Checking database language settings"
 msgstr ""
 
-msgid "Set"
-msgstr ""
-
 #, python-format
 msgid "Set your database language to [%s]."
 msgstr ""
@@ -15939,10 +16219,25 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
-msgid "Time"
+msgid "Result"
 msgstr ""
 
-msgid "Result"
+msgid "Perform on selected results:"
+msgstr ""
+
+msgid "Review and &sign"
+msgstr ""
+
+msgid "Export to &file"
+msgstr ""
+
+msgid "Export to &clipboard"
+msgstr ""
+
+msgid "Panels"
+msgstr ""
+
+msgid "List"
 msgstr ""
 
 msgid ""
@@ -16017,18 +16312,6 @@ msgid "All: as &Grid"
 msgstr ""
 
 msgid "All: by &Day"
-msgstr ""
-
-msgid "Perform on selected results:"
-msgstr ""
-
-msgid "Review and &sign"
-msgstr ""
-
-msgid "Export to &file"
-msgstr ""
-
-msgid "Export to &clipboard"
 msgstr ""
 
 #, python-format
@@ -16420,9 +16703,6 @@ msgid "Showing patient tags"
 msgstr ""
 
 msgid "Tag"
-msgstr ""
-
-msgid "Manage"
 msgstr ""
 
 msgid "Manage available tags."
@@ -16950,9 +17230,6 @@ msgstr ""
 msgid "Office"
 msgstr ""
 
-msgid "State"
-msgstr ""
-
 msgid "Zip"
 msgstr ""
 
@@ -17057,6 +17334,12 @@ msgid "lab journal"
 msgstr ""
 
 msgid "Show &lab journal"
+msgstr ""
+
+msgid "PACS"
+msgstr ""
+
+msgid "&PACS"
 msgstr ""
 
 msgid "Cardiac Devices"

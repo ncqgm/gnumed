@@ -9,6 +9,7 @@
 --set default_transaction_read_only to off;
 
 set check_function_bodies to on;
+
 -- --------------------------------------------------------------
 drop function if exists dem.trf_prevent_deletion_of_in_use_staff() cascade;
 
@@ -50,6 +51,91 @@ drop trigger if exists tr_prevent_deletion_of_in_use_staff on dem.staff cascade;
 create trigger tr_prevent_deletion_of_in_use_staff
 	before delete on dem.staff
 	for each row execute procedure dem.trf_prevent_deletion_of_in_use_staff();
+
+-- --------------------------------------------------------------
+drop view if exists dem.v_staff cascade;
+
+
+create view dem.v_staff as
+select
+	d_vp.pk_identity
+		as pk_identity,
+	d_s.pk
+		as pk_staff,
+	d_vp.title
+		as title,
+	d_vp.firstnames
+		as firstnames,
+	d_vp.lastnames
+		as lastnames,
+	d_s.short_alias
+		as short_alias,
+	case
+		when (select exists(select 1 from pg_group where
+			groname = 'gm-doctors'
+				and
+			(select usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+		)) then 'full clinical access'
+		when (select exists(select 1 from pg_group where
+			groname = 'gm-nurses'
+				and
+			(select usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+		)) then 'limited clinical access'
+		when (select exists(select 1 from pg_group where
+			groname = 'gm-staff'
+				and
+			(select usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+		)) then 'non-clinical access'
+		when (select exists(select 1 from pg_group where
+			groname = 'gm-public'
+				and
+			(select usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+		)) then 'public access'
+	end as role,
+	d_vp.dob
+		as dob,
+	d_vp.gender
+		as gender,
+	d_vp.duplicates_discriminator
+		as duplicates_discriminator,
+	d_s.db_user
+		as db_user,
+	d_s.comment
+		as comment,
+	d_s.is_active
+		as is_active,
+	(select (
+		select exists (
+			SELECT 1
+			from pg_group
+			where
+				(SELECT usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+					and
+				groname = current_database()
+		)
+	) AND (
+		select exists (
+			SELECT 1
+			from pg_group
+			where
+				(SELECT usesysid from pg_user where usename = d_s.db_user) = any(grolist)
+					and
+				groname = 'gm-logins'
+		)
+	)) as can_login,
+	d_s.xmin
+		as xmin_staff
+from
+	dem.staff d_s
+		join dem.v_persons d_vp on d_s.fk_identity = d_vp.pk_identity
+;
+
+
+comment on view dem.v_staff is 'Denormalized staff data.';
+
+
+revoke all on dem.v_staff from public;
+grant select on dem.v_staff to group "gm-public";
 
 -- --------------------------------------------------------------
 select gm.log_script_insertion('v21-dem-staff-dynamic.sql', '21.0');

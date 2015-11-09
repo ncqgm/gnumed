@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-25 16:37+0200\n"
+"POT-Creation-Date: 2015-11-09 09:56+0100\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -2251,6 +2251,34 @@ msgstr ""
 msgid "Include:"
 msgstr ""
 
+#, fuzzy
+msgid "&Search"
+msgstr "Pesquisa"
+
+msgid "Suggest"
+msgstr ""
+
+msgid "Set"
+msgstr ""
+
+msgid "dialog_1"
+msgstr ""
+
+msgid "Search patients in Orthanc DICOM store."
+msgstr ""
+
+#, fuzzy
+msgid "Suggest a patient ID based on the active patient."
+msgstr "Iniciado nova consulta para o paciente ativo."
+
+#, fuzzy
+msgid "Search term:"
+msgstr "Pesquisa"
+
+#, fuzzy
+msgid "New patient ID:"
+msgstr "ID interna do paciente"
+
 msgid "Your review"
 msgstr "Sua revisão"
 
@@ -2586,6 +2614,101 @@ msgstr "Substância"
 
 msgid "Amount"
 msgstr ""
+
+#, fuzzy
+msgid "&Connect"
+msgstr "&Contactos"
+
+msgid "&Browse"
+msgstr ""
+
+#, fuzzy
+msgid "<not connected>"
+msgstr "Acrescenta uma empresa"
+
+msgid "Browse all"
+msgstr ""
+
+#, fuzzy
+msgid "Export all"
+msgstr "Relatório"
+
+msgid "Browse"
+msgstr ""
+
+#, fuzzy
+msgid "Export"
+msgstr "Relatório"
+
+#, fuzzy
+msgid "Upload"
+msgstr "Atualizar"
+
+#, fuzzy
+msgid "Enter the PACS host address."
+msgstr "Preencha o número para esse endereço."
+
+msgid "Enter the PACS port."
+msgstr ""
+
+#, fuzzy
+msgid "Enter the PACS user."
+msgstr "Digite a quantidade de substância."
+
+#, fuzzy
+msgid "Enter the PACS password. It will not be shown."
+msgstr "Não foi possível conectar como o dono do banco de dados <gm-dbo>."
+
+#, fuzzy
+msgid "Connect to PACS."
+msgstr "Ligação ao GNUmed"
+
+msgid "Browse PACS at top level."
+msgstr ""
+
+msgid "Modify some of Orthanc content (such as patient IDs)."
+msgstr ""
+
+#, fuzzy
+msgid "Browse overview of studies for this patient."
+msgstr "Detalhes da fila de espera para esse paciente."
+
+#, fuzzy
+msgid "Copy all studies into export area."
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "Browse topmost selected study."
+msgstr "Editar o item selecionado."
+
+#, fuzzy
+msgid "Copy selected studies into export area."
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "Save selected studies to disk."
+msgstr "Invocar Inspetor"
+
+msgid ""
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+msgstr ""
+
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
+msgstr ""
+
+#, fuzzy
+msgid "User:"
+msgstr "Utilizador1"
+
+msgid "Password"
+msgstr "Senha"
+
+#, fuzzy
+msgid "Selected studies:"
+msgstr "Selecione"
 
 msgid "Fake brand"
 msgstr "Marca falsa"
@@ -2940,10 +3063,6 @@ msgstr "mensagem de erro genérica"
 
 msgid "&Load"
 msgstr ""
-
-#, fuzzy
-msgid "Export"
-msgstr "Relatório"
 
 msgid "A long, descriptive name for this form template."
 msgstr "Um nome longo descrevendo esse modelo."
@@ -3655,9 +3774,6 @@ msgstr "Parâmetros do utilizador:"
 
 msgid "Account"
 msgstr "Conta"
-
-msgid "Password"
-msgstr "Senha"
 
 msgid "Password, again"
 msgstr "Senha, de novo"
@@ -4525,9 +4641,6 @@ msgstr ""
 msgid "Link &new"
 msgstr ""
 
-msgid "Browse"
-msgstr ""
-
 msgid ""
 "Search for matches among existing addresses and [Link] a selection, or [Link "
 "(a) new] address."
@@ -4831,6 +4944,89 @@ msgstr ""
 
 msgid "Age range"
 msgstr ""
+
+msgid "&Nicotine"
+msgstr ""
+
+msgid "&Alcohol"
+msgstr ""
+
+msgid "&Other:"
+msgstr ""
+
+msgid "&Non-harmful use"
+msgstr ""
+
+msgid "&Harmful use"
+msgstr ""
+
+msgid "Presently &addicted"
+msgstr ""
+
+#, fuzzy
+msgid "Previously &addicted"
+msgstr "Consultas anteriores"
+
+msgid "&Reconfirm as of today"
+msgstr ""
+
+#, fuzzy
+msgid "Select for documenting smoking status."
+msgstr "Editando canal de comunicações"
+
+msgid "Select for documenting alcohol use status."
+msgstr ""
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+
+#, fuzzy
+msgid "Select the abused substance."
+msgstr "Digite a quantidade de substância."
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+
+msgid "Select if substance is use considered harmful."
+msgstr ""
+
+#, fuzzy
+msgid "Select if the patient is presently addicted to this substance."
+msgstr "Seleccione se este paciente não tem alergias conhecidas."
+
+#, fuzzy
+msgid "Select if the patient was previously addicted to this substance."
+msgstr "Seleccione se este paciente não tem alergias conhecidas."
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+msgid "Check here to confirm for today."
+msgstr ""
+
+#, fuzzy
+msgid "Quit date"
+msgstr "Exsudato"
+
+#, fuzzy
+msgid "Last confirmed"
+msgstr "Última confirmação:"
 
 msgid "Closed episodes"
 msgstr ""
@@ -5583,56 +5779,6 @@ msgstr ""
 #, fuzzy
 msgid "A code for this region."
 msgstr "Um comentário dessa revisão."
-
-#, fuzzy
-msgid "&Unknown"
-msgstr "Desconhecido"
-
-msgid "&Never smoked"
-msgstr ""
-
-msgid "&Smokes or smoked"
-msgstr ""
-
-msgid "Select if the smoking status is unknown (say, unasked so far)."
-msgstr ""
-
-msgid ""
-"Select if the patient never EVER (except \"tried once\") smoked (NOT ex-"
-"smoker)."
-msgstr ""
-
-#, fuzzy
-msgid "Select if the patient did or does smoke."
-msgstr "Seleccione se este paciente não tem alergias conhecidas."
-
-msgid ""
-"A comment on the smoking habits:\n"
-"- type of product used\n"
-"- frequency\n"
-"- amount\n"
-"- when started\n"
-"- attempts to quit\n"
-"..."
-msgstr ""
-
-msgid ""
-"When did the patient quit smoking ?\n"
-"\n"
-"You can also set a target quit date here."
-msgstr ""
-
-#, fuzzy
-msgid "When was smoking status last confirmed (mostly \"today\") ?"
-msgstr "Quando foi que o estado alérgico foi confirmado pela última vez."
-
-#, fuzzy
-msgid "Quit date"
-msgstr "Exsudato"
-
-#, fuzzy
-msgid "Last confirmed"
-msgstr "Última confirmação:"
 
 msgid ""
 "Required: Enter or select the type of relationship between the patient and "
@@ -6514,6 +6660,12 @@ msgstr ""
 msgid "Encounter:"
 msgstr ""
 
+msgid "Manage"
+msgstr ""
+
+msgid "&Panel:"
+msgstr ""
+
 msgid "&Pick"
 msgstr ""
 
@@ -6903,6 +7055,35 @@ msgid "?ongoing"
 msgstr "?em progresso"
 
 #, python-format
+msgid ""
+"Substance abuse entry                                              [#%s]\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Substance: %s [#%s]%s\n"
+msgstr "Substância"
+
+#, fuzzy, python-format
+msgid "Use type: %s\n"
+msgstr "Tipo:"
+
+#, fuzzy, python-format
+msgid "Last checked: %s\n"
+msgstr "Última consulta a: %s\n"
+
+#, python-format
+msgid " Discontinued %s\n"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " Notes: %s\n"
+msgstr "Paciente"
+
+#, python-format
+msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+msgstr ""
+
+#, python-format
 msgid "Substance intake entry (%s, %s)   [#%s]                     \n"
 msgstr ""
 
@@ -6967,10 +7148,6 @@ msgid " (short-term)"
 msgstr ""
 
 #, python-format
-msgid " Discontinued %s\n"
-msgstr ""
-
-#, python-format
 msgid " Reason: %s\n"
 msgstr ""
 
@@ -6990,8 +7167,20 @@ msgstr "problema de saúde: %s"
 msgid " Advice: %s\n"
 msgstr ""
 
-#, python-format
-msgid "Revision: #%(row_ver)s, %(mod_when)s by %(mod_by)s."
+#, fuzzy
+msgid "medication, not abuse"
+msgstr "Lista de medicamentos"
+
+msgid "no or non-harmful use"
+msgstr ""
+
+msgid "presently harmful use"
+msgstr ""
+
+msgid "presently addicted"
+msgstr ""
+
+msgid "previously addicted"
 msgstr ""
 
 #, fuzzy, python-format
@@ -7003,6 +7192,42 @@ msgid "%s%s: %s ago (%s)"
 msgstr ""
 "%s: %s by %.8s\n"
 "%s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago)"
+msgstr ""
+"%s: %s by %.8s\n"
+"%s"
+
+#, fuzzy, python-format
+msgid "%s%s%s (%s ago, %s)"
+msgstr ""
+"%s: %s by %.8s\n"
+"%s"
+
+#, python-format
+msgid "%s ago"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "in %s"
+msgstr "Comentário: %s"
+
+#, fuzzy, python-format
+msgid ", until %s (%s)"
+msgstr "&Local"
+
+#, python-format
+msgid " (planned for %s%s)"
+msgstr ""
+
+#, python-format
+msgid ", planned for %s%s"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s ago (for %s: %s %s %s)"
+msgstr "Consultas: %s (%s - %s):"
 
 msgid "Additional notes"
 msgstr "Notas adicionais"
@@ -7080,6 +7305,17 @@ msgstr "Exportado: %s\n"
 msgid "Expires: %s\n"
 msgstr "Exportado: %s\n"
 
+#, fuzzy
+msgid "HL7 Source"
+msgstr "Fontes das Porções"
+
+msgid "HL7 data size"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s bytes"
+msgstr "%s Bytes"
+
 msgid "HL7 Message"
 msgstr ""
 
@@ -7134,13 +7370,6 @@ msgstr "Arquivo de Log"
 msgid "doc: %s"
 msgstr "   Doc: %s"
 
-msgid "no patient photograph available"
-msgstr ""
-
-#, python-format
-msgid "patient photograph from %s"
-msgstr ""
-
 #, fuzzy
 msgid "Patient data for"
 msgstr "Paciente"
@@ -7152,6 +7381,9 @@ msgstr ""
 msgid "Patient data export"
 msgstr "Enviar relatório"
 
+msgid "no patient photograph available"
+msgstr ""
+
 msgid "Documents"
 msgstr ""
 
@@ -7161,6 +7393,10 @@ msgstr ""
 #, fuzzy
 msgid "browse documents area"
 msgstr "somente documentos adicionados"
+
+#, python-format
+msgid "patient photograph from %s"
+msgstr ""
 
 #, fuzzy
 msgid "Browse patient data"
@@ -7208,24 +7444,24 @@ msgstr ""
 #, python-format
 msgid ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_state)s, %(code_country)s"
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
-"%(code_country)s"
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s"
 msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_state)s, "
+"%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
 "%(code_country)s"
 msgstr ""
 
@@ -7235,7 +7471,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -7245,7 +7481,7 @@ msgid ""
 " Street: %(street)s%(notes_street)s\n"
 " Number/Unit: %(number)s%(subunit)s%(notes_subunit)s\n"
 " Location: %(zip)s %(urb)s%(suburb)s\n"
-" Region: %(l10n_state)s, %(code_state)s\n"
+" Region: %(l10n_region)s, %(code_region)s\n"
 " Country: %(l10n_country)s, %(code_country)s"
 msgstr ""
 
@@ -7315,6 +7551,43 @@ msgstr "resultado corrigido"
 
 msgid "missing, reported later"
 msgstr "em falta, relatado mais tarde"
+
+#, fuzzy
+msgid "unknown smoking status"
+msgstr "Editando canal de comunicações"
+
+msgid "non-smoker"
+msgstr ""
+
+#, fuzzy
+msgid "current smoker"
+msgstr "Consulta Atual"
+
+msgid "ex-smoker"
+msgstr ""
+
+msgid "tobacco addiction"
+msgstr ""
+
+msgid "no or non-harmful alcohol use"
+msgstr ""
+
+msgid "harmful alcohol use"
+msgstr ""
+
+#, fuzzy
+msgid "unknown alcohol use"
+msgstr "Alergia de origem desconhecida"
+
+msgid "no or non-harmful drug use"
+msgstr ""
+
+msgid "harmful drug use"
+msgstr ""
+
+#, fuzzy
+msgid "unknown drug use"
+msgstr "Alergia de origem desconhecida"
 
 msgid "original entry"
 msgstr "entrada original"
@@ -7422,10 +7695,6 @@ msgstr "Profissão"
 
 msgid "Vaccinations"
 msgstr "Vacinas"
-
-#, python-format
-msgid "%s ago"
-msgstr ""
 
 #, fuzzy
 msgid "External care"
@@ -7715,7 +7984,15 @@ msgid "%(last)s,%(title)s %(first)s%(nick)s (%(sex)s)"
 msgstr ""
 
 #, python-format
+msgid "%(last)s,%(title)s %(first)s (%(sex)s)"
+msgstr ""
+
+#, python-format
 msgid "%(last)s,%(title)s %(first)s%(nick)s"
+msgstr ""
+
+#, python-format
+msgid "%(last)s,%(title)s %(first)s"
 msgstr ""
 
 msgid "Cannot merge active patient into another patient."
@@ -7727,9 +8004,6 @@ msgstr ""
 #, fuzzy
 msgid "merged"
 msgstr "Agrupar"
-
-msgid "preferred name/call name/..."
-msgstr ""
 
 #, fuzzy
 msgid "invalid age: DOB in the future"
@@ -10047,8 +10321,29 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
 #, fuzzy
-msgid "Editing smoking status"
-msgstr "Editando canal de comunicações"
+msgid "Adding substance abuse"
+msgstr "Adicionando novo nome"
+
+#, fuzzy
+msgid "Editing substance abuse"
+msgstr "Editando endereço"
+
+msgid "Substances abused by the patient:"
+msgstr ""
+
+#, fuzzy
+msgid "Showing abused substances."
+msgstr "Agrupar pacientes"
+
+msgid "Intake"
+msgstr ""
+
+msgid "nicotine"
+msgstr ""
+
+#, fuzzy
+msgid "unit"
+msgstr "unidades"
 
 #, fuzzy, python-format
 msgid "Latest: %s ago (%s %s%s%s%s)"
@@ -10132,16 +10427,15 @@ msgid ""
 msgstr ""
 
 #, fuzzy, python-format
-msgid "%s Vacc: %s (%s%s)"
+msgid "%s Vacc: %s (latest of %s)"
 msgstr "Fechado"
 
-#, python-format
-msgid "active tobacco use (%s)"
-msgstr ""
-
 #, fuzzy, python-format
-msgid "Last confirmed: %s%s"
-msgstr "Última confirmação:"
+msgid "Hx of addiction: %s"
+msgstr "Hospitalizações: %s"
+
+msgid "active substance abuse"
+msgstr ""
 
 #, fuzzy, python-format
 msgid "%s %s %s%s"
@@ -10399,7 +10693,8 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_state)s, %(l10n_country)s"
+"%(street)s %(number)s, %(postcode)s %(urb)s, %(l10n_region)s, "
+"%(l10n_country)s"
 msgstr ""
 
 #, python-format
@@ -11032,7 +11327,7 @@ msgstr "Salvando dados do contato"
 msgid ""
 "Cannot save address.\n"
 "\n"
-"Does the state [%s]\n"
+"Does the region [%s]\n"
 "exist in country [%s] ?"
 msgstr ""
 
@@ -13354,260 +13649,7 @@ msgstr ""
 msgid "In case of emergency contact:"
 msgstr ""
 
-msgid ""
-"\n"
-"Please select the default drug data source from the list below.\n"
-"\n"
-"Note that to actually use it you need to have the database installed, too."
-msgstr ""
-
-msgid "Drug data source"
-msgstr ""
-
-msgid "Configuring default drug data source"
-msgstr ""
-
-msgid "No default drug database configured."
-msgstr ""
-
-msgid "There is no default drug database configured."
-msgstr ""
-
-msgid "Jumping to drug database"
-msgstr ""
-
-#, python-format
-msgid "Cannot call IFAP via [%s]."
-msgstr "Cannot call IFAP via [%s]."
-
-#, python-format
-msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
-msgstr "Cannot create IFAP <-> GNUmed transfer file [%s]."
-
-msgid "Current medication"
-msgstr "Medicação atual"
-
-msgid ""
-"\n"
-"The ATC codes as known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing ATC codes."
-msgstr ""
-
-msgid "Choose an ATC import config file"
-msgstr ""
-
-msgid "config files"
-msgstr ""
-
-msgid "importing ATC reference data"
-msgstr ""
-
-msgid "Successfully imported ATC reference data."
-msgstr ""
-
-msgid "Importing ATC reference data failed."
-msgstr ""
-
-msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
-msgstr ""
-
-msgid "Cannot delete this substance. It is in use."
-msgstr ""
-
-msgid ""
-"\n"
-"These are the consumable substances registered with GNUmed.\n"
-msgstr ""
-
-msgid "Showing consumable substances."
-msgstr ""
-
-msgid "Import"
-msgstr ""
-
-msgid "Import consumable substances from a drug database."
-msgstr ""
-
-msgid "Cannot edit this substance. It is in use."
-msgstr ""
-
-msgid "Adding new consumable substance"
-msgstr ""
-
-msgid "Editing consumable substance"
-msgstr ""
-
-msgid "Cannot save consumable substance. Missing essential input."
-msgstr ""
-
-#, python-format
-msgid "Cannot save consumable substance. %s"
-msgstr ""
-
-msgid "Cannot remove this component from the drug. It is in use."
-msgstr ""
-
-msgid ""
-"\n"
-"These are the components in the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing drug brand components."
-msgstr ""
-
-msgid "Adding new drug component"
-msgstr ""
-
-msgid "Editing drug component"
-msgstr ""
-
-msgid "Cannot edit drug component. It is in use."
-msgstr ""
-
-msgid "Cannot save drug component. Invalid or missing essential input."
-msgstr ""
-
-msgid "A drug component with optional strength."
-msgstr ""
-
 msgid "The preparation (form) of the substance or brand."
-msgstr ""
-
-msgid "The substance with optional strength."
-msgstr ""
-
-msgid "Managing components of a drug"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot manage the components of the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-
-msgid "Pick the substances which are components of this drug."
-msgstr ""
-
-msgid "Components of drug"
-msgstr ""
-
-#, python-format
-msgid ""
-"Adjust the components of \"%s\"\n"
-"\n"
-"The drug must contain at least one component. Any given\n"
-"substance can only be included once per drug."
-msgstr ""
-
-msgid "Managing components of a drug ..."
-msgstr ""
-
-msgid "not in use"
-msgstr ""
-
-#, python-format
-msgid "ATC: %s\n"
-msgstr ""
-
-msgid "Editing medication"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot edit the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please edit it\n"
-"from the vaccine management section !\n"
-msgstr ""
-
-msgid "Deleting medication"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot delete the medication\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is a vaccine. Please delete it\n"
-"from the vaccine management section !\n"
-msgstr ""
-
-msgid ""
-"\n"
-"These are the drug brands known to GNUmed.\n"
-msgstr ""
-
-msgid "Showing branded drugs."
-msgstr ""
-
-msgid "Import substances and brands from a drug database."
-msgstr ""
-
-msgid "Editing drug"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot edit the branded drug product\n"
-"\n"
-" \"%s\" (%s)\n"
-"\n"
-"because it is currently taken by patients.\n"
-msgstr ""
-
-msgid "Adding new drug brand"
-msgstr ""
-
-msgid "Editing drug brand"
-msgstr ""
-
-msgid "Manage consumable substances"
-msgstr ""
-
-msgid "Cannot edit drug brand. It is in use."
-msgstr ""
-
-#, fuzzy
-msgid "Checking brand data"
-msgstr "Checando por atualizações do cliente"
-
-#, python-format
-msgid ""
-"The brand information you entered:\n"
-"\n"
-" [%s %s]\n"
-"\n"
-"already exists as a drug product."
-msgstr ""
-
-msgid ""
-"You have not selected any substances\n"
-"as drug components.\n"
-"\n"
-"Without components you will not be able to\n"
-"use this drug for documenting patient care.\n"
-"\n"
-"Are you sure you want to save\n"
-"it without components ?"
-msgstr ""
-
-msgid "Cannot save branded drug. Invalid or missing essential input."
-msgstr ""
-
-msgid ""
-"The brand name of the drug.\n"
-"\n"
-"Note: a brand name will need to be linked to\n"
-"one or more components before it can be used,\n"
-"except in the case of fake (generic) vaccines."
 msgstr ""
 
 msgid "A substance with optional strength or a brand."
@@ -13647,7 +13689,7 @@ msgstr "Aprovado de"
 msgid "Substances consumed by the patient:"
 msgstr ""
 
-msgid "Intake"
+msgid "Showing consumable substances."
 msgstr ""
 
 #, fuzzy
@@ -13674,6 +13716,10 @@ msgstr "Desconhecido"
 
 msgid "GFR reported by path lab"
 msgstr ""
+
+#, fuzzy
+msgid "<no components>"
+msgstr "&Contactos"
 
 msgid "Adding substance intake entry"
 msgstr ""
@@ -13797,7 +13843,7 @@ msgstr "Prescrito para"
 msgid "Add to medication list"
 msgstr "Lista de medicamentos"
 
-msgid "Duration / Until"
+msgid "Timeframe"
 msgstr ""
 
 #, python-format
@@ -13838,12 +13884,6 @@ msgstr "&Local"
 
 msgid "eGFR:"
 msgstr ""
-
-#, fuzzy, python-format
-msgid "%s%s%s (%s ago)"
-msgstr ""
-"%s: %s by %.8s\n"
-"%s"
 
 #, python-format
 msgid "eGFR: %.1f (%s)"
@@ -14852,6 +14892,156 @@ msgstr "Você realmente quer apagar esse documento?"
 msgid "Deleting document"
 msgstr "Apagando documento"
 
+#, fuzzy
+msgid "Study date"
+msgstr "Exsudato"
+
+#, fuzzy
+msgid "Study time"
+msgstr "Iniciar Nova"
+
+msgid "Method"
+msgstr ""
+
+#, fuzzy
+msgid "Body part"
+msgstr "(%s pacientes)"
+
+msgid "Time"
+msgstr ""
+
+msgid "Cannot connect without port (try 8042)."
+msgstr ""
+
+#, python-format
+msgid "Connect to [%s] @ port %s as \"%s\"."
+msgstr ""
+
+#, fuzzy
+msgid "Cannot connect to PACS."
+msgstr "não foi possível obter ligação ao serviço [%s]"
+
+#, python-format
+msgid "PACS: Orthanc \"%s\" (AET \"%s\", Version %s, DB v%s)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: %s (generic PACS ID)"
+msgstr ""
+
+#, python-format
+msgid "GNUmed patient: \"%(value)s\" @ [%(issuer)s] (stored PACS ID)"
+msgstr ""
+
+msgid "PACS: no patients with matching IDs found"
+msgstr ""
+
+msgid ""
+"PACS: more than one patient with matching IDs found, carefully check studies"
+msgstr ""
+
+#, python-format
+msgid "%s series"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%%s (%s series)"
+msgstr "%s (%s este ano)"
+
+msgid "no studies"
+msgstr ""
+
+#, python-format
+msgid "%s studies"
+msgstr ""
+
+msgid "Exporting DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to export selected studies."
+msgstr "obrigatório selecionar endereço"
+
+#, python-format
+msgid ""
+"The DICOM studies are %s in compressed size.\n"
+"\n"
+"Really copy to export area ?"
+msgstr ""
+
+#, python-format
+msgid "DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy
+msgid "Select the directory into which to save the DICOM studies."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+msgid "Saving DICOM studies"
+msgstr ""
+
+#, fuzzy
+msgid "Unable to save selected studies."
+msgstr "obrigatório selecionar endereço"
+
+#, fuzzy
+msgid "Unable to export studies."
+msgstr "Falha ao alocar paciente ao regime de %s"
+
+#, python-format
+msgid "All DICOM studies of [%s] from Orthanc PACS \"%s\" (AET \"%s\")"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "%s%s images"
+msgstr "&Local"
+
+#, fuzzy
+msgid "Select the directory from which to recursively upload DICOM files."
+msgstr "Selecione o episódio para o qual você quer mover a descrição"
+
+msgid "Delete the uploaded DICOM files now ?"
+msgstr ""
+
+msgid ""
+"Some files have not been uploaded.\n"
+"\n"
+"Do you want to delete those DICOM files which have been sent to the PACS "
+"successfully ?"
+msgstr ""
+
+#, fuzzy
+msgid "Uploading DICOM files"
+msgstr "Carregando ficheiro xDT"
+
+#, fuzzy
+msgid "Editing Orthanc content"
+msgstr "Editar os detalhes da consulta abaixo:"
+
+#, fuzzy
+msgid "Patient ID"
+msgstr "Paciente"
+
+#, fuzzy
+msgid "Birth date"
+msgstr "Exsudato"
+
+msgid "Orthanc"
+msgstr ""
+
+#, fuzzy
+msgid "Modifying patient ID"
+msgstr "Agrupar pacientes"
+
+#, python-format
+msgid ""
+"Really modify %s patient(s) to have the new patient ID\n"
+"\n"
+" [%s]\n"
+"\n"
+"stored in the Orthanc DICOM server ?"
+msgstr ""
+
 #, python-format
 msgid "You are logged in as %s%s.%s (%s). DB account <%s>."
 msgstr "Você está logado como %s%s.%s (%s). Conta BD <%s>."
@@ -15038,6 +15228,9 @@ msgid "Measurements URL"
 msgstr ""
 
 msgid "URL for measurements encyclopedia."
+msgstr ""
+
+msgid "Drug data source"
 msgstr ""
 
 msgid "Select the drug data source."
@@ -15430,11 +15623,11 @@ msgid "Manage dynamic hints suppressed in this patient."
 msgstr ""
 
 #, fuzzy
-msgid "Smoking status"
-msgstr "rever estado"
+msgid "Substance abuse"
+msgstr "Substância"
 
 #, fuzzy
-msgid "Manage smoking status of this patient."
+msgid "Manage substance abuse documentation of this patient."
 msgstr "Um comentário sobre esse paciente."
 
 msgid "&Add / Edit ..."
@@ -16772,9 +16965,6 @@ msgstr ""
 msgid "Checking database language settings"
 msgstr ""
 
-msgid "Set"
-msgstr ""
-
 #, python-format
 msgid "Set your database language to [%s]."
 msgstr ""
@@ -17052,6 +17242,256 @@ msgstr ""
 msgid "Editing family history"
 msgstr ""
 
+msgid ""
+"\n"
+"Please select the default drug data source from the list below.\n"
+"\n"
+"Note that to actually use it you need to have the database installed, too."
+msgstr ""
+
+msgid "Configuring default drug data source"
+msgstr ""
+
+msgid "No default drug database configured."
+msgstr ""
+
+msgid "There is no default drug database configured."
+msgstr ""
+
+msgid "Jumping to drug database"
+msgstr ""
+
+msgid "Cannot import drugs from IFAP into chart without chart."
+msgstr ""
+
+#, python-format
+msgid "Cannot call IFAP via [%s]."
+msgstr "Cannot call IFAP via [%s]."
+
+#, python-format
+msgid "Cannot create IFAP <-> GNUmed transfer file [%s]."
+msgstr "Cannot create IFAP <-> GNUmed transfer file [%s]."
+
+msgid "Current medication"
+msgstr "Medicação atual"
+
+msgid ""
+"\n"
+"The ATC codes as known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing ATC codes."
+msgstr ""
+
+msgid "Choose an ATC import config file"
+msgstr ""
+
+msgid "config files"
+msgstr ""
+
+msgid "importing ATC reference data"
+msgstr ""
+
+msgid "Successfully imported ATC reference data."
+msgstr ""
+
+msgid "Importing ATC reference data failed."
+msgstr ""
+
+msgid "Select an ATC (Anatomical-Therapeutic-Chemical) code."
+msgstr ""
+
+msgid "Cannot edit this substance. It is in use."
+msgstr ""
+
+msgid "Adding new consumable substance"
+msgstr ""
+
+msgid "Editing consumable substance"
+msgstr ""
+
+msgid "Cannot delete this substance. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the consumable substances registered with GNUmed.\n"
+msgstr ""
+
+msgid "Import"
+msgstr ""
+
+msgid "Import consumable substances from a drug database."
+msgstr ""
+
+msgid "Cannot save consumable substance. Missing essential input."
+msgstr ""
+
+#, python-format
+msgid "Cannot save consumable substance. %s"
+msgstr ""
+
+msgid "The substance with optional strength."
+msgstr ""
+
+msgid "Cannot remove this component from the drug. It is in use."
+msgstr ""
+
+msgid ""
+"\n"
+"These are the components in the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing drug brand components."
+msgstr ""
+
+msgid "Adding new drug component"
+msgstr ""
+
+msgid "Editing drug component"
+msgstr ""
+
+msgid "Cannot edit drug component. It is in use."
+msgstr ""
+
+msgid "Cannot save drug component. Invalid or missing essential input."
+msgstr ""
+
+msgid "A drug component with optional strength."
+msgstr ""
+
+msgid "Editing drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Adding new drug brand"
+msgstr ""
+
+msgid "Editing drug brand"
+msgstr ""
+
+msgid "Manage consumable substances"
+msgstr ""
+
+msgid "not in use"
+msgstr ""
+
+#, python-format
+msgid "ATC: %s\n"
+msgstr ""
+
+msgid "Editing medication"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot edit the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please edit it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid "Deleting medication"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot delete the medication\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is a vaccine. Please delete it\n"
+"from the vaccine management section !\n"
+msgstr ""
+
+msgid ""
+"\n"
+"These are the drug brands known to GNUmed.\n"
+msgstr ""
+
+msgid "Showing branded drugs."
+msgstr ""
+
+msgid "Import substances and brands from a drug database."
+msgstr ""
+
+msgid "Managing components of a drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Cannot manage the components of the branded drug product\n"
+"\n"
+" \"%s\" (%s)\n"
+"\n"
+"because it is currently taken by patients.\n"
+msgstr ""
+
+msgid "Pick the substances which are components of this drug."
+msgstr ""
+
+msgid "Components of drug"
+msgstr ""
+
+#, python-format
+msgid ""
+"Adjust the components of \"%s\"\n"
+"\n"
+"The drug must contain at least one component. Any given\n"
+"substance can only be included once per drug."
+msgstr ""
+
+msgid "Managing components of a drug ..."
+msgstr ""
+
+msgid "Cannot edit drug brand. It is in use."
+msgstr ""
+
+#, fuzzy
+msgid "Checking brand data"
+msgstr "Checando por atualizações do cliente"
+
+#, python-format
+msgid ""
+"The brand information you entered:\n"
+"\n"
+" [%s %s]\n"
+"\n"
+"already exists as a drug product."
+msgstr ""
+
+msgid ""
+"You have not selected any substances\n"
+"as drug components.\n"
+"\n"
+"Without components you will not be able to\n"
+"use this drug for documenting patient care.\n"
+"\n"
+"Are you sure you want to save\n"
+"it without components ?"
+msgstr ""
+
+msgid "Cannot save branded drug. Invalid or missing essential input."
+msgstr ""
+
+msgid ""
+"The brand name of the drug.\n"
+"\n"
+"Note: a brand name will need to be linked to\n"
+"one or more components before it can be used,\n"
+"except in the case of fake (generic) vaccines."
+msgstr ""
+
 msgid "No EMR data loaded."
 msgstr "Não há dados abertos no Prontuário."
 
@@ -17239,11 +17679,28 @@ msgstr ""
 msgid "Cannot plot without a plot script."
 msgstr ""
 
-msgid "Time"
-msgstr ""
-
 msgid "Result"
 msgstr ""
+
+#, fuzzy
+msgid "Perform on selected results:"
+msgstr "resultado corrigido"
+
+msgid "Review and &sign"
+msgstr ""
+
+msgid "Export to &file"
+msgstr ""
+
+msgid "Export to &clipboard"
+msgstr ""
+
+msgid "Panels"
+msgstr ""
+
+#, fuzzy
+msgid "List"
+msgstr "Lista de espera"
 
 msgid ""
 "lab_grid_date_format::%Y\n"
@@ -17318,19 +17775,6 @@ msgid "All: as &Grid"
 msgstr ""
 
 msgid "All: by &Day"
-msgstr ""
-
-#, fuzzy
-msgid "Perform on selected results:"
-msgstr "resultado corrigido"
-
-msgid "Review and &sign"
-msgstr ""
-
-msgid "Export to &file"
-msgstr ""
-
-msgid "Export to &clipboard"
 msgstr ""
 
 #, python-format
@@ -17767,9 +18211,6 @@ msgstr "Agrupar pacientes"
 #, fuzzy
 msgid "Tag"
 msgstr "idade"
-
-msgid "Manage"
-msgstr ""
 
 msgid "Manage available tags."
 msgstr ""
@@ -18405,9 +18846,6 @@ msgstr "Organização"
 msgid "Office"
 msgstr "Escritório"
 
-msgid "State"
-msgstr "Estado"
-
 msgid "Zip"
 msgstr "Código postal"
 
@@ -18519,6 +18957,12 @@ msgid "lab journal"
 msgstr ""
 
 msgid "Show &lab journal"
+msgstr ""
+
+msgid "PACS"
+msgstr ""
+
+msgid "&PACS"
 msgstr ""
 
 msgid "Cardiac Devices"
@@ -18803,6 +19247,25 @@ msgstr "Interromper"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Imterromper e NÃO ligar ao GNUmed"
 
+#, fuzzy
+#~ msgid "&Unknown"
+#~ msgstr "Desconhecido"
+
+#, fuzzy
+#~ msgid "When was smoking status last confirmed (mostly \"today\") ?"
+#~ msgstr "Quando foi que o estado alérgico foi confirmado pela última vez."
+
+#, fuzzy
+#~ msgid "Last confirmed: %s%s"
+#~ msgstr "Última confirmação:"
+
+#, fuzzy
+#~ msgid "Smoking status"
+#~ msgstr "rever estado"
+
+#~ msgid "State"
+#~ msgstr "Estado"
+
 #~ msgid ""
 #~ "Cannot connect to configuration database with:\n"
 #~ "\n"
@@ -18972,10 +19435,6 @@ msgstr "Imterromper e NÃO ligar ao GNUmed"
 #~ msgstr "&Assinar como:"
 
 #, fuzzy
-#~ msgid "file: %s (%s/)"
-#~ msgstr "&Local"
-
-#, fuzzy
 #~ msgid "Switching clinical hint activation"
 #~ msgstr "Acrescenta uma empresa"
 
@@ -19021,9 +19480,6 @@ msgstr "Imterromper e NÃO ligar ao GNUmed"
 
 #~ msgid "SQL: %s"
 #~ msgstr "SQL: %s"
-
-#~ msgid "cannot connect to service [%s]"
-#~ msgstr "não foi possível obter ligação ao serviço [%s]"
 
 #~ msgid "When was this substance started to be consumed."
 #~ msgstr "Quando foi que a substância começou a ser consumida."
@@ -19253,10 +19709,6 @@ msgstr "Imterromper e NÃO ligar ao GNUmed"
 
 #~ msgid "S/P"
 #~ msgstr "S/P"
-
-#, fuzzy
-#~ msgid " Type: %s"
-#~ msgstr "Tipo:"
 
 #, fuzzy
 #~ msgid "Do you truly want to irrevocably delete this bill ?"
