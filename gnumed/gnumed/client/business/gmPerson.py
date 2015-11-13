@@ -18,6 +18,7 @@ import io
 import thread
 import threading
 import logging
+import io
 from xml.etree import ElementTree as etree
 
 
@@ -60,6 +61,20 @@ __gender_idx = None
 __gender2salutation_map = None
 __gender2string_map = None
 
+#============================================================
+_MERGE_SCRIPT_HEADER = u"""-- GNUmed patient merge script
+-- created: %(date)s
+-- patient to keep : #%(pat2keep)s
+-- patient to merge: #%(pat2del)s
+--
+-- You can EASILY cause mangled data by uncritically applying this script, so ...
+-- ... BE POSITIVELY SURE YOU UNDERSTAND THE FULL EXTENT OF WHAT IT DOES !
+
+
+--set default_transaction_read_only to off;
+
+BEGIN;
+"""
 
 #============================================================
 def external_id_exists(pk_issuer, value):
@@ -913,12 +928,26 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'args': args
 		})
 
+		# merge patient proxy
+		queries.append ({
+			'cmd': u"""
+				UPDATE clin.patient SET
+					edc = coalesce (
+						edc,
+						(SELECT edc FROM clin.patient WHERE fk_identity = %(pat2del)s)
+					)
+				WHERE
+					fk_identity = %(pat2keep)s
+			""",
+			'args': args
+		})
+
 		# transfer names
 		# 1) disambiguate names in old pat
 		queries.append ({
 			'cmd': u"""
 				UPDATE dem.names d_n1 SET
-					lastnames = lastnames || ' (%s)'
+					lastnames = lastnames || ' (%s %s)'
 				WHERE
 					d_n1.id_identity = %%(pat2del)s
 						AND
@@ -930,7 +959,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 							d_n2.lastnames = d_n1.lastnames
 								AND
 							d_n2.firstnames = d_n1.firstnames
-					)""" % _('assimilated'),
+					)""" % (_('assimilated'), gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
 			'args': args
 		})
 		# 2) move inactive ones (but beware of dupes)
@@ -946,10 +975,11 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'cmd': u"""
 				INSERT INTO dem.names (
 					id_identity, active, lastnames, firstnames, preferred, comment
-				) SELECT
-					%(pat2keep)s, false, lastnames, firstnames, preferred, comment
-				FROM dem.names d_n
-				WHERE d_n.id_identity = %(pat2del)s AND d_n.active IS true""",
+				)
+					SELECT
+						%(pat2keep)s, false, lastnames, firstnames, preferred, comment
+					FROM dem.names d_n
+					WHERE d_n.id_identity = %(pat2del)s AND d_n.active IS true""",
 			'args': args
 		})
 
@@ -973,7 +1003,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 						SELECT 1 FROM dem.lnk_identity2comm d_li2c
 						WHERE d_li2c.fk_identity = %%(pat2keep)s AND d_li2c.url = url
 					)
-				""" % (_('merged'),	gmDateTime.pydt_strftime()),
+				""" % (_('merged'),	gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
 			'args': args
 		})
 		# - same-value external IDs
@@ -993,7 +1023,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 								AND
 							d_li2e.fk_origin = fk_origin
 					)
-				""" % (_('merged'),	gmDateTime.pydt_strftime()),
+				""" % (_('merged'),	gmDateTime.pydt_strftime(gmDateTime.pydt_now_here())),
 			'args': args
 		})
 		# - same addresses
@@ -1014,12 +1044,18 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# generate UPDATEs
 		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
 		for FK in FKs:
-			if FK['referencing_table'] == u'dem.names':
+			if FK['referencing_table'] in [u'dem.names', u'clin.patient']:
 				continue
 			queries.append ({
 				'cmd': cmd_template % (FK['referencing_table'], FK['referencing_column'], FK['referencing_column']),
 				'args': args
 			})
+
+		# delete old patient proxy
+		queries.append ({
+			'cmd': u'DELETE FROM clin.patient WHERE fk_identity = %(pat2del)s',
+			'args': args
+		})
 
 		# remove old identity entry
 		queries.append ({
@@ -1027,7 +1063,18 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'args': args
 		})
 
-		_log.warning('identity [%s] is about to assimilate identity [%s]', self.ID, other_identity.ID)
+		script_name = gmTools.get_unique_filename(prefix = u'gm-assimilate-%(pat2del)s-into-%(pat2keep)s-' % args, suffix = u'.sql')
+		_log.warning('identity [%s] is about to assimilate identity [%s], SQL script [%s]', self.ID, other_identity.ID, script_name)
+
+		script = io.open(script_name, 'wt')
+		args['date'] = gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), '%Y %B %d  %H:%M')
+		script.write(_MERGE_SCRIPT_HEADER % args)
+		for query in queries:
+			script.write((query['cmd'].lstrip()) % args)
+			script.write(u';\n')
+		script.write(u'\nROLLBACK;\n')
+		script.write(u'--COMMIT;\n')
+		script.close()
 
 		gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, end_tx = True)
 

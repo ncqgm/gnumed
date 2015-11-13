@@ -58,6 +58,10 @@ IMPROVED: layout of measurements plugin
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.9
+
+FIX: patient merging [thanks Marc]
+
 	1.5.8
 
 FIX: SQL formatting when retrieving clinical narrative [thanks Marc]
