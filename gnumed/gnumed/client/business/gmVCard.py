@@ -41,6 +41,18 @@ def parse_vcard2dto(vc_text=None, filename=None):
 				_log.exception('vCard not encoded as [%s]', encoding)
 		if vc_text is None:
 			return None
+		vcf_lines = []
+		found_first = False
+		for line in vc_text.split(u'\n'):
+			if not found_first:
+				if line.strip() == u'BEGIN:VCARD':
+					found_first = True
+					vcf_lines.append(line)
+				continue
+			vcf_lines.append(line)
+			if line.strip() == u'END:VCARD':
+				break
+		vc_text = u'\n'.join(vcf_lines)
 
 	dob_format = '%Y%m%d'
 
@@ -60,8 +72,10 @@ def parse_vcard2dto(vc_text=None, filename=None):
 	dto = gmPerson.cDTO_person()
 	dto.firstnames = vc.n.value.given.strip()
 	dto.lastnames = vc.n.value.family.strip()
-	if vc.title:
+	try:
 		dto.title = vc.title.value.strip()
+	except AttributeError:
+		_log.debug('vCard.TITLE attribute not available')
 	try:
 		gender = vc.gender.value.strip().lower()
 		if gender != u'':
@@ -167,7 +181,6 @@ if __name__ == '__main__':
 
 	from Gnumed.pycommon import gmLog2
 
-	#import datetime
 	gmDateTime.init()
 
 	def test():
