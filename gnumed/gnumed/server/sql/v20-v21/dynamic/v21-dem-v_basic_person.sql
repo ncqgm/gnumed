@@ -31,8 +31,6 @@ select
 		as dob,
 	i.tob
 		as tob,
-	i.duplicates_discriminator
-		as duplicates_discriminator,
 	i.deceased
 		as deceased,
 	i.cob

@@ -1779,10 +1779,12 @@ WHERE
 				c_v_pv.*,
 				c_v_plv4i.l10n_indication,
 				c_v_plv4i.no_of_shots
+				--c_v_plv4i.indication_count as no_of_shots
 			FROM
 				clin.v_pat_vaccinations c_v_pv
 					JOIN clin.v_pat_last_vacc4indication c_v_plv4i ON (c_v_pv.pk_vaccination = c_v_plv4i.pk_vaccination)
-		"""
+			WHERE %s
+		""" % u'\nAND '.join(where_parts)
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 
 		# none found

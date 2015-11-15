@@ -96,8 +96,6 @@ select
 		as dob,
 	d_vp.gender
 		as gender,
-	d_vp.duplicates_discriminator
-		as duplicates_discriminator,
 	d_s.db_user
 		as db_user,
 	d_s.comment

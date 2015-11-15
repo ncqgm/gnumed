@@ -10,13 +10,6 @@
 
 -- --------------------------------------------------------------
 alter table dem.identity
-	add column duplicates_discriminator text;
-
-alter table audit.log_identity
-	add column duplicates_discriminator text;
-
-
-alter table dem.identity
 	drop column pupic cascade;
 
 alter table audit.log_identity

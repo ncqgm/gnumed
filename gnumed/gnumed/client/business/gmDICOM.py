@@ -408,6 +408,15 @@ class cOrthancServer:
 		gmTools.rmdir(sandbox_dir)
 		return studies_zip
 
+		#> > I finally implemented your request to create a ZIP-with-DICOMDIR from
+		#> > several patients/studies.
+		#> > 
+		#> > You have to make a POST request against URI "/tools/create-media", with a
+		#> > JSON body that contains the array of the resources of interest (as Orthanc
+		#> > identifiers). Here is a sample command-line:
+		#> > 
+		#> > # curl -X POST http://localhost:8042/tools/create-media -d '["8c4663df-c3e66066-9e20a8fc-dd14d1e5-251d3d84","2cd4848d-02f0005f-812ffef6-a210bbcf-3f01a00a","6eeded74-75005003-c3ae9738-d4a06a4f-6beedeb8","8a622020-c058291c-7693b63f-bc67aa2e-0a02e69c"]' -v > /tmp/a.zip
+
 	#--------------------------------------------------------
 	# server-side API
 	#--------------------------------------------------------

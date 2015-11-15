@@ -11,9 +11,10 @@
 set check_function_bodies to on;
 
 -- --------------------------------------------------------------
--- .duplicates_discriminator
-comment on column dem.identity.duplicates_discriminator is
-	'A value to discriminate patients which are otherwise\n
+comment on column dem.identity.comment is
+	'A free-text comment on this identity.\n
+\n
+Can be used to to discriminate patients which are otherwise\n
 identical regarding name and date of birth.\n
 Should be something non-ephemereal and unique to the person\n
 itself across time, place and database instance.\n
@@ -28,17 +29,11 @@ Bad: nickname (will change, can dupe as well)\n
 Bad: favourite food\n
 not-quite-so-bad: occupation';
 
-
-alter table dem.identity
-	drop constraint if exists dem_identity_sane_duplicates_discriminator cascade;
-
-alter table dem.identity
-	add constraint dem_identity_sane_duplicates_discriminator check (
-		gm.is_null_or_non_empty_string(duplicates_discriminator)
-	);
+-- --------------------------------------------------------------
+drop function if exists dem.new_pupic() cascade;
 
 -- --------------------------------------------------------------
-drop function if exists dem.trf_sane_identity_duplicates_discriminator() cascade;
+drop function if exists dem.trf_sane_identity_comment() cascade;
 
 -- test inserts to be converted later
 insert into dem.identity (dob, gender) values ('1931-03-21', 'm');
@@ -50,7 +45,7 @@ alter table dem.identity
 
 -- de-duplicate
 update dem.identity set
-	duplicates_discriminator = 'auto-set by <v21-dem-identity-dynamic.sql>: ' || clock_timestamp()
+	comment = coalesce(comment, '') || '[auto-set by <v21-dem-identity-dynamic.sql>: ' || clock_timestamp() || ']'
 where
 	pk in (
 		select pk_identity
@@ -80,7 +75,7 @@ where
 ;
 
 -- create function and trigger
-create function clin.trf_sane_identity_duplicates_discriminator()
+create function clin.trf_sane_identity_comment()
 	returns trigger
 	language 'plpgsql'
 	as '
@@ -90,7 +85,7 @@ DECLARE
 BEGIN
 	if TG_TABLE_NAME = ''identity'' then
 		if TG_OP = ''UPDATE'' then
-			if NEW.duplicates_discriminator = OLD.duplicates_discriminator then
+			if NEW.comment IS NOT DISTINCT FROM OLD.comment then
 				return NEW;
 			end if;
 		end if;
@@ -118,21 +113,21 @@ BEGIN
 		dob_only is not distinct from _identity_row.dob
 			and
 		-- same discriminator
-		duplicates_discriminator is not distinct from _identity_row.duplicates_discriminator
+		comment is not distinct from _identity_row.comment
 			and
 		-- but not the currently updated or inserted row
 		pk_identity != _identity_row.pk
 	;
 	if FOUND then
 		RAISE EXCEPTION
-			''% on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (discriminator=%)'',
+			''% on %.%: More than one person with (firstnames=%), (lastnames=%), (dob=%), (comment=%)'',
 				TG_OP,
 				TG_TABLE_SCHEMA,
 				TG_TABLE_NAME,
 				_names_row.firstnames,
 				_names_row.lastnames,
 				_identity_row.dob,
-				_identity_row.duplicates_discriminator
+				_identity_row.comment
 			USING ERRCODE = ''unique_violation''
 		;
 		RETURN NULL;
@@ -141,18 +136,18 @@ BEGIN
 	return NEW;
 END;';
 
-comment on function clin.trf_sane_identity_duplicates_discriminator() is
-	'Ensures unique(identity.dob, names.firstnames, names.lastnames, identity.duplicates_discriminator)';
+comment on function clin.trf_sane_identity_comment() is
+	'Ensures unique(identity.dob, names.firstnames, names.lastnames, identity.comment)';
 
 
-create trigger tr_sane_identity_duplicates_discriminator
+create trigger tr_sane_identity_comment
 	after insert or update on dem.identity
-	for each row execute procedure clin.trf_sane_identity_duplicates_discriminator();
+	for each row execute procedure clin.trf_sane_identity_comment();
 
 
-create trigger tr_sane_identity_duplicates_discriminator
+create trigger tr_sane_identity_comment
 	after insert or update on dem.names
-	for each row execute procedure clin.trf_sane_identity_duplicates_discriminator();
+	for each row execute procedure clin.trf_sane_identity_comment();
 
 
 

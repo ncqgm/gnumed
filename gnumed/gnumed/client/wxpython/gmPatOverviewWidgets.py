@@ -551,6 +551,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		self._LCTRL_encounters.set_data(data = list_data)
 		if is_waiting:
 			self._LCTRL_encounters.SetItemTextColour(0, wx.NamedColour('RED'))
+
 	#-----------------------------------------------------
 	def _calc_encounters_list_item_tooltip(self, data):
 		emr = gmPerson.gmCurrentPatient().get_emr()

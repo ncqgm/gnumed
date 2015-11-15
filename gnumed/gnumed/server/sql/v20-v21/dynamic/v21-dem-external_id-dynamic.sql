@@ -12,7 +12,4 @@
 select gm.register_notifying_table('dem', 'lnk_identity2ext_id');
 
 -- --------------------------------------------------------------
-drop function if exists dem.new_pupic() cascade;
-
--- --------------------------------------------------------------
 select gm.log_script_insertion('v21-dem-external_id-dynamic.sql', '21.0');

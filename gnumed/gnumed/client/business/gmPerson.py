@@ -486,6 +486,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		raise AttributeError('setting ID of identity is not allowed')
 
 	ID = property(_get_ID, _set_ID)
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 
@@ -514,9 +515,11 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 						return
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
 	#--------------------------------------------------------
 	def cleanup(self):
 		pass
+
 	#--------------------------------------------------------
 	def _get_is_patient(self):
 		return identity_is_patient(self._payload[self._idx['pk_identity']])
@@ -527,11 +530,13 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return False
 
 	is_patient = property(_get_is_patient, _set_is_patient)
+
 	#--------------------------------------------------------
 	def _get_as_patient(self):
 		return cPatient(self._payload[self._idx['pk_identity']])
 
 	as_patient = property(_get_as_patient, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_staff_id(self):
 		cmd = u"SELECT pk FROM dem.staff WHERE fk_identity = %(pk)s"
@@ -542,6 +547,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return rows[0][0]
 
 	staff_id = property(_get_staff_id, lambda x:x)
+
 	#--------------------------------------------------------
 	# identity API
 	#--------------------------------------------------------

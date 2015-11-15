@@ -62,6 +62,7 @@ ID_BTN_AddNew = wx.NewId()
 def merge_patients(parent=None):
 	dlg = cMergePatientsDlg(parent, -1)
 	result = dlg.ShowModal()
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgMergePatientsDlg
 
@@ -191,20 +192,21 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 		wxgSelectPersonFromListDlg.wxgSelectPersonFromListDlg.__init__(self, *args, **kwargs)
 
 		self.__cols = [
-			_('Title'),
 			_('Lastname'),
 			_('Firstname'),
-			_('Nickname'),
 			_('DOB'),
-			_('Gender'),
+			u'%s%s' % (gmTools.u_female, gmTools.u_male),
 			_('last visit'),
+			_('Nickname / Comment'),
 			_('found via')
 		]
 		self.__init_ui()
+
 	#--------------------------------------------------------
 	def __init_ui(self):
 		for col in range(len(self.__cols)):
 			self._LCTRL_persons.InsertColumn(col, self.__cols[col])
+
 	#--------------------------------------------------------
 	def set_persons(self, persons=None):
 		self._LCTRL_persons.DeleteAllItems()
@@ -214,32 +216,40 @@ class cSelectPersonFromListDlg(wxgSelectPersonFromListDlg.wxgSelectPersonFromLis
 			return False
 
 		for person in persons:
-			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['lastnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person['firstnames'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['preferred'], ''))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = person.get_formatted_dob(format = '%Y %b %d', encoding = gmI18N.get_encoding()))
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = gmTools.coalesce(person['l10n_gender'], '?'))
+			row_num = self._LCTRL_persons.InsertStringItem(pos, label = gmTools.coalesce(person['title'], person['lastnames'], u'%s, %%s' % person['lastnames']))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 1, label = person['firstnames'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 2, label = person.get_formatted_dob(format = '%Y %b %d', encoding = 'utf8'))
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 3, label = gmTools.coalesce(person['l10n_gender'], u'?'))
+
 			label = u''
 			if person.is_patient:
 				enc = person.get_last_encounter()
 				if enc is not None:
 					label = u'%s (%s)' % (gmDateTime.pydt_strftime(enc['started'], '%Y %b %d'), enc['l10n_type'])
-			self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = label)
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 4, label = label)
+
+			parts = []
+			if person['preferred'] is not None:
+				parts.append(person['preferred'])
+			if person['comment'] is not None:
+				parts.append(person['comment'])
+			self._LCTRL_persons.SetStringItem(index = row_num, col = 5, label = u' / '.join(parts))
+
 			try:
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = person['match_type'])
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = person['match_type'])
 			except KeyError:
 				_log.warning('cannot set match_type field')
-				self._LCTRL_persons.SetStringItem(index = row_num, col = 7, label = u'??')
+				self._LCTRL_persons.SetStringItem(index = row_num, col = 6, label = u'??')
 
 		for col in range(len(self.__cols)):
-			self._LCTRL_persons.SetColumnWidth(col=col, width=wx.LIST_AUTOSIZE)
+			self._LCTRL_persons.SetColumnWidth(col = col, width = wx.LIST_AUTOSIZE)
 
 		self._BTN_select.Enable(False)
 		self._LCTRL_persons.SetFocus()
 		self._LCTRL_persons.Select(0)
 
-		self._LCTRL_persons.set_data(data=persons)
+		self._LCTRL_persons.set_data(data = persons)
+
 	#--------------------------------------------------------
 	def get_selected_person(self):
 		return self._LCTRL_persons.get_item_data(self._LCTRL_persons.GetFirstSelected())

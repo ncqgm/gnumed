@@ -34,8 +34,8 @@ select
 		as gender,
 	_(d_i.gender)
 		as l10n_gender,
-	d_i.duplicates_discriminator
-		as duplicates_discriminator,
+	d_i.comment
+		as comment_identity,
 	c_wl.registered
 		as registered,
 	(select now() - c_wl.registered)
