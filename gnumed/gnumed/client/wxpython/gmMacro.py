@@ -71,9 +71,10 @@ _cfg = gmCfg2.gmCfgData()
 known_injectable_placeholders = [
 	u'form_name_long',
 	u'form_name_short',
-	u'form_version'
+	u'form_version',
+	u'form_version_internal',
+	u'form_last_modified'
 ]
-
 
 # the following must satisfy the pattern "$<name::args::(optional) max string length>$" when used
 __known_variant_placeholders = {

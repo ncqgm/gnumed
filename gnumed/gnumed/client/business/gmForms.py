@@ -43,6 +43,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
@@ -798,6 +799,8 @@ class cAbiWordForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_style = u'xml'
 		data_source.escape_function = None			# gmTools.xml_escape_text() ?
@@ -833,6 +836,8 @@ class cAbiWordForm(cFormEngine):
 			data_source.unset_placeholder(u'form_name_long')
 			data_source.unset_placeholder(u'form_name_short')
 			data_source.unset_placeholder(u'form_version')
+			data_source.unset_placeholder(u'form_version_internal')
+			data_source.unset_placeholder(u'form_last_modified')
 
 		return
 	#--------------------------------------------------------
@@ -920,6 +925,8 @@ class cTextForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		base = os.path.join(self.__sandbox_dir, gmTools.fname_stem(self.template_filename))
 		filenames = [
@@ -950,6 +957,8 @@ class cTextForm(cFormEngine):
 		data_source.unset_placeholder(u'form_name_long')
 		data_source.unset_placeholder(u'form_name_short')
 		data_source.unset_placeholder(u'form_version')
+		data_source.unset_placeholder(u'form_version_internal')
+		data_source.unset_placeholder(u'form_last_modified')
 
 		self.instance_filename = self.re_editable_filenames[0]
 
@@ -1062,6 +1071,8 @@ class cLaTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_function = gmTools.tex_escape_string
 		data_source.escape_style = u'latex'
@@ -1098,6 +1109,8 @@ class cLaTeXForm(cFormEngine):
 		data_source.unset_placeholder(u'form_name_long')
 		data_source.unset_placeholder(u'form_name_short')
 		data_source.unset_placeholder(u'form_version')
+		data_source.unset_placeholder(u'form_version_internal')
+		data_source.unset_placeholder(u'form_last_modified')
 
 		self.instance_filename = self.re_editable_filenames[0]
 
@@ -1253,6 +1266,8 @@ class cXeTeXForm(cFormEngine):
 			data_source.set_placeholder(u'form_name_long', self.template['name_long'])
 			data_source.set_placeholder(u'form_name_short', self.template['name_short'])
 			data_source.set_placeholder(u'form_version', self.template['external_version'])
+			data_source.set_placeholder(u'form_version_internal', self.template['gnumed_revision'])
+			data_source.set_placeholder(u'form_last_modified', gmDateTime.pydt_strftime(self.template['last_modified'], '%Y-%b-%d %H:%M'))
 
 		data_source.escape_function = gmTools.xetex_escape_string
 		data_source.escape_style = u'xetex'
@@ -1284,6 +1299,8 @@ class cXeTeXForm(cFormEngine):
 			data_source.unset_placeholder(u'form_name_long')
 			data_source.unset_placeholder(u'form_name_short')
 			data_source.unset_placeholder(u'form_version')
+			data_source.unset_placeholder(u'form_version_internal')
+			data_source.unset_placeholder(u'form_last_modified')
 
 		self.instance_filename = self.re_editable_filenames[0]
 
@@ -2046,7 +2063,6 @@ if __name__ == '__main__':
 	if sys.argv[1] != 'test':
 		sys.exit()
 
-	from Gnumed.pycommon import gmDateTime
 	gmDateTime.init()
 
 	#--------------------------------------------------------
