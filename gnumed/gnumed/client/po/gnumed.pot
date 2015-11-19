@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-26 20:29+0100\n"
+"POT-Creation-Date: 2015-11-19 21:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3145,7 +3145,7 @@ msgstr ""
 msgid "Messages:"
 msgstr ""
 
-msgid "Only:"
+msgid "Limit to:"
 msgstr ""
 
 msgid "&Myself … or:"
@@ -4473,6 +4473,82 @@ msgid "ATC"
 msgstr ""
 
 msgid "Age range"
+msgstr ""
+
+msgid "&Nicotine"
+msgstr ""
+
+msgid "&Alcohol"
+msgstr ""
+
+msgid "&Other"
+msgstr ""
+
+msgid "&Non-harmful use"
+msgstr ""
+
+msgid "&Harmful use"
+msgstr ""
+
+msgid "Presently &addicted"
+msgstr ""
+
+msgid "Previously &addicted"
+msgstr ""
+
+msgid "&Confirmed"
+msgstr ""
+
+msgid "Select for documenting smoking status."
+msgstr ""
+
+msgid "Select for documenting alcohol use status."
+msgstr ""
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+
+msgid "Select the abused substance."
+msgstr ""
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+
+msgid "Select if substance is use considered harmful."
+msgstr ""
+
+msgid "Select if the patient is presently addicted to this substance."
+msgstr ""
+
+msgid "Select if the patient was previously addicted to this substance."
+msgstr ""
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+msgid "Check here to confirm for today."
+msgstr ""
+
+msgid "Quit date"
+msgstr ""
+
+msgid "Last confirmed"
 msgstr ""
 
 msgid "Closed episodes"
@@ -8920,6 +8996,9 @@ msgstr ""
 msgid "can not login"
 msgstr ""
 
+msgid "no current role"
+msgstr ""
+
 msgid "Activating GNUmed user."
 msgstr ""
 
@@ -9163,11 +9242,11 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
 #, python-format
-msgid "Latest: %s ago (%s %s %s %s%s)"
+msgid "Latest: %s ago (%s %s%s%s%s)"
 msgstr ""
 
 #, python-format
-msgid "%s %s %s %s (%s ago, %s)"
+msgid "%s %s%s%s (%s ago, %s)"
 msgstr ""
 
 #, python-format
@@ -10494,7 +10573,7 @@ msgstr ""
 msgid "Reminders for the current patient"
 msgstr ""
 
-msgid "Sent"
+msgid "Generated"
 msgstr ""
 
 msgid "Category - Type"
@@ -13320,9 +13399,6 @@ msgstr ""
 msgid "Showing documents."
 msgstr ""
 
-msgid "Generated"
-msgstr ""
-
 msgid "Ref #"
 msgstr ""
 
@@ -15152,6 +15228,20 @@ msgstr ""
 msgid "Saved screenshot to file [%s]."
 msgstr ""
 
+msgid "Python version check"
+msgstr ""
+
+#, python-format
+msgid ""
+"You are running Python version\n"
+" %s\n"
+"\n"
+"However, GNUmed wants Python 2.7 to\n"
+"facilitate migration to Python 3.\n"
+"\n"
+"Please upgrade your Python interpreter !"
+msgstr ""
+
 msgid "GNUmed client"
 msgstr ""
 
@@ -15475,6 +15565,10 @@ msgstr ""
 msgid "Extracting HL7 from XML file"
 msgstr ""
 
+#, python-format
+msgid "Unwrapped HL7 into [%s] from [%s]."
+msgstr ""
+
 msgid "Select HL7 file for staging:"
 msgstr ""
 
@@ -15496,6 +15590,10 @@ msgid ""
 "There was a problem with staging the following files\n"
 "\n"
 " %s"
+msgstr ""
+
+#, python-format
+msgid "Staged HL7 from [%s]."
 msgstr ""
 
 msgid "Importing HL7 data"

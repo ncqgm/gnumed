@@ -10,6 +10,8 @@
 
 FIX: patient merging [thanks Marc]
 
+IMPROVED: update ES translations [thanks Uwe]
+
 	1.5.8
 
 FIX: SQL formatting when retrieving clinical narrative [thanks Marc]
