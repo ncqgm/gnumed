@@ -17,18 +17,19 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.8 (database v20.8)',
-	'GNUmed 1.5.8 Release Notes:
+	'Release Notes for GNUmed 1.5.9 (database v20.9)',
+	'GNUmed 1.5.9 Release Notes:
 
-	1.5.8
+	1.5.9
 
-FIX: SQL formatting when retrieving clinical narrative [thanks Marc]
-FIX: strange case of "curr_pat is None" in top panel [thanks Marc]
+FIX: patient merging [thanks Marc]
 
-	20.8
+IMPROVED: update ES translations [thanks Uwe]
+
+	20.9
 
 no changes
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.8');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.9');
