@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-12-26 20:28+0100\n"
-"PO-Revision-Date: 2014-12-26 20:48+0100\n"
+"POT-Creation-Date: 2015-11-21 19:53+0100\n"
+"PO-Revision-Date: 2015-11-21 19:59+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.3\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Poedit 1.8.3\n"
 
 #, python-format
 msgid "unknown test status [%s]"
@@ -438,7 +438,7 @@ msgid "Icon"
 msgstr "Bildchen"
 
 msgid "Hyperlink"
-msgstr ""
+msgstr "Weblink"
 
 msgid "Progress"
 msgstr ""
@@ -3455,8 +3455,8 @@ msgstr "Zeigt die eingegangene Nachricht komplett."
 msgid "Messages:"
 msgstr "Nachrichten:"
 
-msgid "Only:"
-msgstr "Nur:"
+msgid "Limit to:"
+msgstr "Begrenze auf:"
 
 msgid "&Myself … or:"
 msgstr "&Mich … oder:"
@@ -4985,6 +4985,82 @@ msgstr "ATC"
 
 msgid "Age range"
 msgstr "Altersbereich"
+
+msgid "&Nicotine"
+msgstr "&Nikotin"
+
+msgid "&Alcohol"
+msgstr "&Alkohol"
+
+msgid "&Other"
+msgstr ""
+
+msgid "&Non-harmful use"
+msgstr "&Unschädlicher Gebrauch"
+
+msgid "&Harmful use"
+msgstr "&Schädlicher Gebrauch"
+
+msgid "Presently &addicted"
+msgstr ""
+
+msgid "Previously &addicted"
+msgstr ""
+
+msgid "&Confirmed"
+msgstr "&Bestätigt"
+
+msgid "Select for documenting smoking status."
+msgstr ""
+
+msgid "Select for documenting alcohol use status."
+msgstr ""
+
+msgid ""
+"Select for documenting use of substances other than nicotine or alcohol."
+msgstr ""
+
+msgid "Select the abused substance."
+msgstr ""
+
+msgid ""
+"Select if the substance use is not considered harmful (say, no use or non-"
+"harmful use)."
+msgstr ""
+
+msgid "Select if substance is use considered harmful."
+msgstr ""
+
+msgid "Select if the patient is presently addicted to this substance."
+msgstr ""
+
+msgid "Select if the patient was previously addicted to this substance."
+msgstr ""
+
+msgid ""
+"A comment on this substance use:\n"
+"- type of product used\n"
+"- frequency\n"
+"- amount\n"
+"- when started\n"
+"- attempts to quit\n"
+"..."
+msgstr ""
+
+msgid ""
+"When did the patient quit?\n"
+"\n"
+"You can also set a target quit date here."
+msgstr ""
+
+msgid "Check here to confirm for today."
+msgstr ""
+
+msgid "Quit date"
+msgstr ""
+
+msgid "Last confirmed"
+msgstr "Zuletzt überprüft"
 
 msgid "Closed episodes"
 msgstr "Beendete Episoden"
@@ -9995,6 +10071,9 @@ msgstr "Anmeldung möglich"
 msgid "can not login"
 msgstr "keine Anmeldung möglich"
 
+msgid "no current role"
+msgstr "Keine aktive Rolle"
+
 msgid "Activating GNUmed user."
 msgstr "GNUmed-Nutzer aktivieren."
 
@@ -10274,12 +10353,12 @@ msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "jetzt fällig: Booster gegen %s nach Impfplan \"%s\" (%s)"
 
 #, python-format
-msgid "Latest: %s ago (%s %s %s %s%s)"
-msgstr "Zuletzt: vor %s (%s %s %s %s%s)"
+msgid "Latest: %s ago (%s %s%s%s%s)"
+msgstr "Zuletzt: vor %s (%s %s%s%s%s)"
 
 #, python-format
-msgid "%s %s %s %s (%s ago, %s)"
-msgstr "%s %s %s %s (vor %s, %s)"
+msgid "%s %s%s%s (%s ago, %s)"
+msgstr "%s %s%s%s (%s ago, %s)"
 
 #, python-format
 msgid "overdue %s: %s"
@@ -11745,8 +11824,8 @@ msgstr "fällig in %s"
 msgid "Reminders for the current patient"
 msgstr "Erinnerungen für den aktiven Patienten"
 
-msgid "Sent"
-msgstr "Gesendet"
+msgid "Generated"
+msgstr "Erstellt"
 
 msgid "Category - Type"
 msgstr "Kategorie - Typ"
@@ -15179,9 +15258,6 @@ msgstr "Dokumentenliste dieses Patienten."
 msgid "Showing documents."
 msgstr "Zeige Dokumente"
 
-msgid "Generated"
-msgstr "Erstellt"
-
 msgid "Ref #"
 msgstr "Ref-No"
 
@@ -17345,6 +17421,27 @@ msgstr "kein Patient"
 msgid "Saved screenshot to file [%s]."
 msgstr "BIldschirmphoto in Datei [%s] gespeichert."
 
+msgid "Python version check"
+msgstr ""
+
+#, python-format
+msgid ""
+"You are running Python version\n"
+" %s\n"
+"\n"
+"However, GNUmed wants Python 2.7 to\n"
+"facilitate migration to Python 3.\n"
+"\n"
+"Please upgrade your Python interpreter !"
+msgstr ""
+"Sie benutzen Python in Version\n"
+" %s\n"
+"\n"
+"GNUmed bevorzugt jedoch Python 2.7 um\n"
+"die Umstellung auf Python 3 zu bahnen.\n"
+"\n"
+"Bitte erneuern Sie Ihre Python !"
+
 msgid "GNUmed client"
 msgstr "GNUmed: Hauptprogramm"
 
@@ -17710,6 +17807,10 @@ msgstr "Extrahiere HL7-Daten aus der XML-Datei:"
 msgid "Extracting HL7 from XML file"
 msgstr "Hl7-Daten aus XML-Datei extrahieren"
 
+#, python-format
+msgid "Unwrapped HL7 into [%s] from [%s]."
+msgstr "HL7 nach [%s] ausgepackt (von [%s])."
+
 msgid "Select HL7 file for staging:"
 msgstr "HL7-Datei zum vorbereiten wählen:"
 
@@ -17738,6 +17839,10 @@ msgstr ""
 "Es gab ein Problem beim Einlesen der folgenden Dateien\n"
 "\n"
 " %s"
+
+#, python-format
+msgid "Staged HL7 from [%s]."
+msgstr "HL7-Daten aus [%s] vorbereitet."
 
 msgid "Importing HL7 data"
 msgstr "Importieren von HL7-Daten"
@@ -19530,6 +19635,12 @@ msgstr "Abbrechen"
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
+#~ msgid "Only:"
+#~ msgstr "Nur:"
+
+#~ msgid "Sent"
+#~ msgstr "Gesendet"
+
 #~ msgid "Province"
 #~ msgstr "Bundesland"
 
@@ -19714,9 +19825,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Now (&S)"
 #~ msgstr "jetzt (&S)"
-
-#~ msgid "Check here for printing."
-#~ msgstr "Hier markieren für Ausdruck."
 
 #~ msgid "Print immediately without further ado."
 #~ msgstr "Sofort und ausschließlich ausdrucken."
@@ -19918,9 +20026,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "A comment on this test panel."
 #~ msgstr "Ein Kommentar zu diesem Meßprofil."
-
-#~ msgid "Select the test types for this panel."
-#~ msgstr "Wählen Sie die Meßmethoden für dieses Profil."
 
 #~ msgid "Add (a) measurement result(s) for the current patient."
 #~ msgstr "Meßergebnisse für den aktiven Patienten erfassen."
