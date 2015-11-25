@@ -288,16 +288,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__root_tooltip = u' '
 
 		return root_item
+
 	#--------------------------------------------------------
 	def __update_text_for_selected_node(self):
 		"""Displays information for the selected tree node."""
 
 		if self.__soap_display is None:
-			self.__img_display.clear()
 			return
 
+		self.__soap_display.Clear()
+		self.__img_display.clear()
+
 		if self.__curr_node is None:
-			self.__img_display.clear()
 			return
 
 		if not self.__curr_node.IsOk():
@@ -326,13 +328,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				txt = node_data.format_as_journal(left_margin = 1)
 			if self.__soap_display_mode == u'revisions':
 				txt = node_data.formatted_revision_history
-			self.__img_display.refresh (
-				document_folder = doc_folder,
-				episodes = [ epi['pk_episode'] for epi in node_data.episodes ]
-			)
+			epis = node_data.episodes
+			if len(epis) > 0:
+				self.__img_display.refresh (
+					document_folder = doc_folder,
+					episodes = [ epi['pk_episode'] for epi in epis ]
+				)
+			self.__soap_display.WriteText(txt)
+			self.__soap_display.ShowPosition(0)
+			return
 
 		# unassociated episodes		# FIXME: turn into real dummy issue
-		elif isinstance(node_data, type({})):
+		if isinstance(node_data, type({})):
 			self.__cb__enable_display_mode_selection(True)
 			if self.__soap_display_mode == u'details':
 				txt = _('Pool of unassociated episodes "%s":\n') % node_data['description']
@@ -378,9 +385,11 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 					)
 					txt += u'\n'
 					txt += epi.format_as_journal(left_margin = 2)
-			self.__img_display.clear()
+			self.__soap_display.WriteText(txt)
+			self.__soap_display.ShowPosition(0)
+			return
 
-		elif isinstance(node_data, gmEMRStructItems.cEpisode):
+		if isinstance(node_data, gmEMRStructItems.cEpisode):
 			self.__cb__enable_display_mode_selection(True)
 			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
@@ -391,10 +400,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				txt = node_data.formatted_revision_history
 			self.__img_display.refresh (
 				document_folder = doc_folder,
-				episodes = [node_data['pk_episode']]
+				episodes = [ node_data['pk_episode'] ]
 			)
+			self.__soap_display.WriteText(txt)
+			self.__soap_display.ShowPosition(0)
+			return
 
-		elif isinstance(node_data, gmEMRStructItems.cEncounter):
+		if isinstance(node_data, gmEMRStructItems.cEncounter):
 			#self.__cb__enable_display_mode_selection(False)
 			self.__cb__enable_display_mode_selection(True)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
@@ -410,23 +422,23 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				)
 			self.__img_display.refresh (
 				document_folder = doc_folder,
-				episodes = [epi['pk_episode']],
+				episodes = [ epi['pk_episode'] ],
 				encounter = node_data['pk_encounter']
 			)
+			self.__soap_display.WriteText(txt)
+			self.__soap_display.ShowPosition(0)
+			return
 
 		# root node == EMR level
+		self.__cb__enable_display_mode_selection(True)
+		if self.__soap_display_mode == u'details':
+			emr = self.__pat.get_emr()
+			txt = emr.format_summary()
 		else:
-			self.__cb__enable_display_mode_selection(True)
-			if self.__soap_display_mode == u'details':
-				emr = self.__pat.get_emr()
-				txt = emr.format_summary()
-			else:
-				txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
-			self.__img_display.clear()
-
-		self.__soap_display.Clear()
+			txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
 		self.__soap_display.WriteText(txt)
 		self.__soap_display.ShowPosition(0)
+
 	#--------------------------------------------------------
 	def __make_popup_menus(self):
 

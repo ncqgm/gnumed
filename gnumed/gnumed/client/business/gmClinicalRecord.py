@@ -805,11 +805,7 @@ class cClinicalRecord(object):
 
 		if soap_cats is not None:
 			where_parts.append(u'c_vn.soap_cat IN %(cats)s')
-			soap_cats = list(soap_cats)
-			args['cats'] = [ cat.lower() for cat in soap_cats if cat is not None ]
-			if None in soap_cats:
-				args['cats'].append(None)
-			args['cats'] = tuple(args['cats'])
+			args['cats'] = tuple(gmClinNarrative.soap_cats2list(soap_cats))
 
 		if providers is not None:
 			where_parts.append(u'c_vn.modified_by IN %(docs)s')

@@ -3,12 +3,17 @@
 __author__ = "Carlos Moro <cfmoro1976@yahoo.es>, Karsten Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = 'GPL v2 or later (for details see http://gnu.org)'
 
-import sys, logging
+import sys
+import logging
 
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
-from Gnumed.pycommon import gmPG2, gmExceptions, gmBusinessDBObject, gmTools, gmDispatcher, gmHooks
+from Gnumed.pycommon import gmPG2
+from Gnumed.pycommon import gmBusinessDBObject
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmHooks
 from Gnumed.business import gmCoding
 
 
@@ -21,6 +26,11 @@ except NameError:
 _log = logging.getLogger('gm.emr')
 
 
+# SOAP category definitions
+known_soap_cats = list(u'soapu')
+known_soap_cats.append(None)
+
+
 soap_cat2l10n = {
 	u's': _('soap_S').replace(u'soap_', u''),
 	u'o': _('soap_O').replace(u'soap_', u''),
@@ -28,8 +38,9 @@ soap_cat2l10n = {
 	u'p': _('soap_P').replace(u'soap_', u''),
 	u'u': _('soap_U').replace(u'soap_', u''),
 #	u'u': u'?',
-	None: gmTools.u_ellipsis,
-	u'': gmTools.u_ellipsis
+	u' ': gmTools.u_ellipsis,
+	u'': gmTools.u_ellipsis,
+	None: gmTools.u_ellipsis
 }
 
 soap_cat2l10n_str = {
@@ -38,6 +49,8 @@ soap_cat2l10n_str = {
 	u'a': _('soap_Assessment').replace(u'soap_', u''),
 	u'p': _('soap_Plan').replace(u'soap_', u''),
 	u'u': _('soap_Unspecified').replace(u'soap_', u''),
+	u' ': _('soap_Administrative').replace(u'soap_', u''),
+	u'': _('soap_Administrative').replace(u'soap_', u''),
 	None: _('soap_Administrative').replace(u'soap_', u'')
 }
 
@@ -189,21 +202,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		return
 
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
-#============================================================
-# convenience functions
-#============================================================
-def search_text_across_emrs(search_term=None):
 
-	if search_term is None:
-		return []
-
-	if search_term.strip() == u'':
-		return []
-
-	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
-
-	return rows
 #============================================================
 def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None, link_obj=None):
 	"""Creates a new clinical narrative entry
@@ -266,12 +265,14 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 
 	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
 	return (True, narrative)
+
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
 	"""Deletes a clin.clin_narrative row by it's PK."""
 	cmd = u"delete from clin.clin_narrative where pk=%s"
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': [narrative]}])
 	return True
+
 #------------------------------------------------------------
 def get_narrative(since=None, until=None, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None, patient=None, order_by=None):
 	"""Get SOAP notes pertinent to this encounter.
@@ -428,6 +429,50 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return rows
+
+#============================================================
+# convenience functions
+#============================================================
+def search_text_across_emrs(search_term=None):
+
+	if search_term is None:
+		return []
+
+	if search_term.strip() == u'':
+		return []
+
+	cmd = u'select * from clin.v_narrative4search where narrative ~* %(term)s order by pk_patient limit 1000'
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
+
+	return rows
+
+#------------------------------------------------------------
+def soap_cats2list(soap_cats):
+	"""Normalizes a string or list of SOAP categories, preserving order.
+
+		None -> known_soap_cats (all)
+		[] -> []
+		u'' -> []
+		u' ' -> [None]	(admin)
+	"""
+	if soap_cats is None:
+		return known_soap_cats
+
+	normalized_cats = []
+	for cat in soap_cats:
+		if cat in [u' ', None]:
+			if None in normalized_cats:
+				continue
+			normalized_cats.append(None)
+			continue
+		cat = cat.lower()
+		if cat in known_soap_cats:
+			if cat in normalized_cats:
+				continue
+			normalized_cats.append(cat)
+
+	return normalized_cats
+
 #============================================================
 # main
 #------------------------------------------------------------

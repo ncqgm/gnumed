@@ -526,11 +526,11 @@ insert into blobs.reviewed_doc_objs (
 			if suffix == u'':
 				suffix = '.dat'
 
-		fname = 'gm-doc_part-%s-%s-%s--pg_%s' % (
+		fname = 'gm_doc-part_%s-%s-%s-%s-' % (
+			self._payload[self._idx['seq_idx']],
 			patient_part,
 			self._payload[self._idx['l10n_type']].replace(' ', '_'),
-			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days),
-			self._payload[self._idx['seq_idx']],
+			gmDateTime.pydt_strftime(self._payload[self._idx['date_generated']], '%Y-%b-%d', 'utf-8', gmDateTime.acc_days)
 			#,gmTools.coalesce(self.__curr_node_data['ext_ref'], '', '-%s').replace(' ', '_')
 		)
 

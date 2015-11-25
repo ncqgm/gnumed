@@ -2458,6 +2458,7 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 
 	return doc
+
 #============================================================
 class cVisualSoapTemplatePhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Phrasewheel to allow selection of visual SOAP template."""
@@ -2494,6 +2495,7 @@ LIMIT 15
 			return None
 
 		return gmForms.cFormTemplate(aPK_obj = self.GetData())
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgVisualSoapPresenterPnl
 
@@ -2509,47 +2511,55 @@ class cVisualSoapPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPn
 	def refresh(self, document_folder=None, episodes=None, encounter=None):
 
 		self.clear()
-		if document_folder is not None:
-			soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
-			if len(soap_docs) > 0:
-				for soap_doc in soap_docs:
-					parts = soap_doc.parts
-					if len(parts) == 0:
-						continue
-					part = parts[0]
-					fname = part.export_to_file()
-					if fname is None:
-						continue
+		if document_folder is None:
+			self.GetParent().Layout()
+			return
 
-					# create bitmap
-					img = gmGuiHelpers.file2scaled_image (
-						filename = fname,
-						height = 30
-					)
-					#bmp = wx.StaticBitmap(self, -1, img, style = wx.NO_BORDER)
-					bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+		soap_docs = document_folder.get_visual_progress_notes(episodes = episodes, encounter = encounter)
+		if len(soap_docs) == 0:
+			self.GetParent().Layout()
+			return
 
-					# create tooltip
-					img = gmGuiHelpers.file2scaled_image (
-						filename = fname,
-						height = 150
-					)
-					tip = agw_stt.SuperToolTip (
-						u'',
-						bodyImage = img,
-						header = _('Created: %s') % gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'),
-						footer = gmTools.coalesce(part['doc_comment'], u'').strip()
-					)
-					tip.SetTopGradientColor('white')
-					tip.SetMiddleGradientColor('white')
-					tip.SetBottomGradientColor('white')
-					tip.SetTarget(bmp)
+		for soap_doc in soap_docs:
+			parts = soap_doc.parts
+			if len(parts) == 0:
+				continue
+			parts_str = u''
+			if len(parts) > 1:
+				parts_str = _(' [part 1 of %s]') % len(parts)
+			part = parts[0]
+			fname = part.export_to_file()
+			if fname is None:
+				continue
 
-					bmp.doc_part = part
-					bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
-					# FIXME: add context menu for Delete/Clone/Add/Configure
-					self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
-					self.__bitmaps.append(bmp)
+			# create bitmap
+			img = gmGuiHelpers.file2scaled_image (
+				filename = fname,
+				height = 30
+			)
+			bmp = wx_genstatbmp.GenStaticBitmap(self, -1, img, style = wx.NO_BORDER)
+
+			# create tooltip
+			img = gmGuiHelpers.file2scaled_image (
+				filename = fname,
+				height = 150
+			)
+			tip = agw_stt.SuperToolTip (
+				u'',
+				bodyImage = img,
+				header = _('Created: %s%s') % (gmDateTime.pydt_strftime(part['date_generated'], '%Y %b %d'), parts_str),
+				footer = gmTools.coalesce(part['doc_comment'], u'').strip()
+			)
+			tip.SetTopGradientColor('white')
+			tip.SetMiddleGradientColor('white')
+			tip.SetBottomGradientColor('white')
+			tip.SetTarget(bmp)
+
+			bmp.doc_part = part
+			bmp.Bind(wx.EVT_LEFT_UP, self._on_bitmap_leftclicked)
+			# FIXME: add context menu for Delete/Clone/Add/Configure
+			self._SZR_soap.Add(bmp, 0, wx.LEFT | wx.RIGHT | wx.TOP | wx.BOTTOM | wx.EXPAND, 3)
+			self.__bitmaps.append(bmp)
 
 		self.GetParent().Layout()
 	#--------------------------------------------------------

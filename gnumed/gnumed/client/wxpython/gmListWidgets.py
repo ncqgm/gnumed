@@ -122,6 +122,7 @@ def get_choices_from_list (
 		return sels
 
 	return None
+
 #----------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 
@@ -1310,27 +1311,89 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self._rclicked_row_idx = event.Index
 		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
 		self._rclicked_row_cells = []
+		self._rclicked_row_cells_w_hdr = []
 		for col_idx in range(self.ColumnCount):
 			cell_content = self.GetItemText(self._rclicked_row_idx, col_idx).strip()
-			if cell_content == u'':
-				continue
-			col_headers.append(self.GetColumn(col_idx).m_text)
+			col_header = self.GetColumn(col_idx).m_text.strip()
+			col_headers.append(col_header)
 			self._rclicked_row_cells.append(cell_content)
+			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
 
-		# build menu
+		# build menus
+
+		# set clipboard to item
 		clip_menu = wx.Menu()
+		# row tooltip
 		menu_item = clip_menu.Append(-1, _('Row tooltip'))
 		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
+		# row data as formatted text if available
 		if hasattr(self._rclicked_row_data, 'format'):
-			menu_item = clip_menu.Append(-1, _('Row data (as text)'))
+			menu_item = clip_menu.Append(-1, _('Row data (formatted as text)'))
 			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
-		menu_item = clip_menu.Append(-1, _('Row fields (as text)'))
+		# all fields of the list row as one line of text
+		menu_item = clip_menu.Append(-1, _('Row fields (as one line)'))
 		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
-		for col_idx in range(len(col_headers)):
-			menu_item = clip_menu.Append(-1, _('[%8.8s] %s') % (col_headers[col_idx], self._rclicked_row_cells[col_idx]))
-			self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
+		# all fields of the list row as multiple lines of text
+		menu_item = clip_menu.Append(-1, _('Row fields (as multiple lines)'))
+		self.Bind(wx.EVT_MENU, self._row_list2clipboard, menu_item)
+		# each field of the list row as text with and without header
+		clip_menu.AppendSeparator()
+		for col_idx in range(self.ColumnCount):
+			# skip empty field
+			if self._rclicked_row_cells[col_idx] == u'':
+				continue
+			col_header = col_headers[col_idx]
+			if col_header == u'':
+				# without column header
+				menu_item = clip_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
+			else:
+				# with full column header
+				menu_item = clip_menu.Append(-1, u'%s: "%s: %s"' % (col_idx+1, shorten_text(col_header, 8), shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._col_w_hdr2clipboard, menu_item)
+				# without column header
+				menu_item = clip_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
+			clip_menu.AppendSeparator()
+
+		# add item to clipboard item
+		clip_add_menu = wx.Menu()
+		# row tooltip
+		menu_item = clip_add_menu.Append(-1, _('Row tooltip'))
+		self.Bind(wx.EVT_MENU, self._add_tooltip2clipboard, menu_item)
+		# row data as formatted text if available
+		if hasattr(self._rclicked_row_data, 'format'):
+			menu_item = clip_add_menu.Append(-1, _('Row data (formatted as text)'))
+			self.Bind(wx.EVT_MENU, self._add_data2clipboard, menu_item)
+		# all fields of the list row as one line of text
+		menu_item = clip_add_menu.Append(-1, _('Row fields (as one line)'))
+		self.Bind(wx.EVT_MENU, self._add_row2clipboard, menu_item)
+		# all fields of the list row as multiple lines of text
+		menu_item = clip_add_menu.Append(-1, _('Row fields (as multiple lines)'))
+		self.Bind(wx.EVT_MENU, self._add_row_list2clipboard, menu_item)
+		# each field of the list row as text
+		clip_add_menu.AppendSeparator()
+		for col_idx in range(self.ColumnCount):
+			# skip empty field
+			if self._rclicked_row_cells[col_idx] == u'':
+				continue
+			col_header = col_headers[col_idx]
+			if col_header == u'':
+				# without column header
+				menu_item = clip_add_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
+			else:
+				# with full column header
+				menu_item = clip_add_menu.Append(-1, u'%s: "%s: %s"' % (col_idx+1, shorten_text(col_header, 8), shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._add_col_w_hdr2clipboard, menu_item)
+				# without column header
+				menu_item = clip_add_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
+			clip_add_menu.AppendSeparator()
+
 		self._popup_menu = wx.Menu(title = _('List Item Actions:'))
 		self._popup_menu.AppendMenu(-1, _('Copy to clipboard...'), clip_menu)
+		self._popup_menu.AppendMenu(-1, _('Append to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
 			self.__extend_popup_menu_callback(menu = self._popup_menu)
@@ -1490,6 +1553,19 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _row_list2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u'\n'.join(self._rclicked_row_cells_w_hdr))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _data2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1514,7 +1590,187 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			_log.debug('cannot open clipboard')
 			return
 		data_obj = wx.TextDataObject()
-		data_obj.SetText(self._popup_menu.FindItemById(evt.Id).ItemLabel[11:])
+
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		txt = self._rclicked_row_cells[col_idx]
+
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _col_w_hdr2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		txt = self._rclicked_row_cells_w_hdr[col_idx]
+
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	# add to clipboard:
+	#------------------------------------------------------------
+	def _add_tooltip2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		if (self.__data is None) or (self.__item_tooltip_callback is None):
+			txt += self.__tt_static_part
+		else:
+			tmp = self.__item_tooltip_callback(self.__data[self.map_item_idx2data_idx(self._rclicked_row_idx)])
+			if tmp is None:
+				txt += self.__tt_static_part
+			else:
+				txt += tmp
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_row2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		txt += u' // '.join(self._rclicked_row_cells)
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_row_list2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		txt += u'\n'.join(self._rclicked_row_cells_w_hdr)
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_data2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		tmp = self._rclicked_row_data.format()
+		if type(tmp) == type([]):
+			txt += u'\n'.join(tmp)
+		else:
+			txt += tmp
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_col2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		txt += self._rclicked_row_cells[col_idx]
+
+		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _add_col_w_hdr2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		txt = u''
+		# get previous text
+		got_it = wx.TheClipboard.GetData(data_obj)
+		if got_it:
+			txt = data_obj.Text + u'\n'
+
+		# add text
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		txt += self._rclicked_row_cells_w_hdr[col_idx]
+
+		# set text
+		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
@@ -1765,6 +2021,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__secondary_sort_col = col
 
 	secondary_sort_column = property(__get_secondary_sort_col, __set_secondary_sort_col)
+
+#================================================================
+def shorten_text(text=None, max_length=None):
+	if len(text) <= max_length:
+		return text
+	return text[:max_length-1] + u'\u2026'
+
 
 #================================================================
 # main

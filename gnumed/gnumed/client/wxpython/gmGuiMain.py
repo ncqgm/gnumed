@@ -82,6 +82,7 @@ from Gnumed.pycommon import gmBackendListener
 from Gnumed.pycommon import gmCfg2
 from Gnumed.pycommon import gmLog2
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon import gmMimeLib
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmClinicalRecord
@@ -916,15 +917,24 @@ class gmTopLevelFrame(wx.Frame):
 		menu_debugging.Append(ID_SCREENSHOT, _('Screenshot'), _('Save a screenshot of this GNUmed client.'))
 		wx.EVT_MENU(self, ID_SCREENSHOT, self.__on_save_screenshot)
 
-		item = menu_debugging.Append(-1, _('Show log file'), _('Show the log file in text viewer.'))
+		item = menu_debugging.Append(-1, _('Show log file'), _('Show log file in text viewer.'))
 		self.Bind(wx.EVT_MENU, self.__on_show_log_file, item)
 
 		ID = wx.NewId()
-		menu_debugging.Append(ID, _('Backup log file'), _('Backup the content of the log to another file.'))
+		menu_debugging.Append(ID, _('Backup log file'), _('Backup content of the log to another file.'))
 		wx.EVT_MENU(self, ID, self.__on_backup_log_file)
 
-		item = menu_debugging.Append(-1, _('Email log file'), _('Send the log file to the authors for help.'))
+		item = menu_debugging.Append(-1, _('Email log file'), _('Send log file to the authors for help.'))
 		self.Bind(wx.EVT_MENU, self.__on_email_log_file, item)
+
+		item = menu_debugging.Append(-1, _('Browse tmp dir'), _('Browse temporary directory [%s].') % gmTools.gmPaths().tmp_dir)
+		self.Bind(wx.EVT_MENU, self.__on_browse_tmp_dir, item)
+
+		item = menu_debugging.Append(-1, _('Browse work dir'), _('Browse user working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'gnumed'))
+		self.Bind(wx.EVT_MENU, self.__on_browse_work_dir, item)
+
+		item = menu_debugging.Append(-1, _('Browse internal work dir'), _('Browse internal working directory [%s].') % os.path.join(gmTools.gmPaths().home_dir, u'.gnumed'))
+		self.Bind(wx.EVT_MENU, self.__on_browse_internal_work_dir, item)
 
 		ID = wx.NewId()
 		menu_debugging.Append(ID, _('Bug tracker'), _('Go to the GNUmed bug tracker on the web.'))
@@ -2578,7 +2588,6 @@ class gmTopLevelFrame(wx.Frame):
 			curr_pat.locked = True
 	#----------------------------------------------
 	def __on_show_log_file(self, evt):
-		from Gnumed.pycommon import gmMimeLib
 		gmLog2.flush()
 		gmMimeLib.call_viewer_on_file(gmLog2._logfile_name, block = False)
 	#----------------------------------------------
@@ -2609,6 +2618,19 @@ class gmTopLevelFrame(wx.Frame):
 	#----------------------------------------------
 	def __on_email_log_file(self, evt):
 		gmExceptionHandlingWidgets.mail_log(parent = self)
+
+	#----------------------------------------------
+	def __on_browse_tmp_dir(self, evt):
+		gmMimeLib.call_viewer_on_file(gmTools.gmPaths().tmp_dir, block = False)
+
+	#----------------------------------------------
+	def __on_browse_work_dir(self, evt):
+		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, u'gnumed'), block = False)
+
+	#----------------------------------------------
+	def __on_browse_internal_work_dir(self, evt):
+		gmMimeLib.call_viewer_on_file(os.path.join(gmTools.gmPaths().home_dir, u'.gnumed'), block = False)
+
 	#----------------------------------------------
 	# GNUmed /
 	#----------------------------------------------

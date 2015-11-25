@@ -1955,7 +1955,7 @@ limit 1
 	def format_soap(self, episodes=None, left_margin=0, soap_cats='soapu', emr=None, issues=None):
 
 		lines = []
-		for soap_cat in soap_cats:
+		for soap_cat in gmClinNarrative.soap_cats2list(soap_cats):
 			soap_cat_narratives = emr.get_clin_narrative (
 				episodes = episodes,
 				issues = issues,
@@ -2237,7 +2237,7 @@ limit 1
 				lines.extend(self.format_soap (
 					episodes = [pk],
 					left_margin = left_margin,
-					soap_cats = 'soapu',
+					soap_cats = None,		# meaning: all
 					emr = emr,
 					issues = issues
 				))
@@ -2355,7 +2355,7 @@ limit 1
 				lines.extend(self.format_soap (
 					episodes = episodes,
 					left_margin = left_margin,
-					soap_cats = 'soapu',
+					soap_cats = None,		# meaning: all
 					emr = emr,
 					issues = issues
 				))
@@ -2452,6 +2452,7 @@ limit 1
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------

@@ -251,13 +251,14 @@ def call_viewer_on_file(aFile = None, block=None):
 
 	block: try to detach from viewer or not, None means to use mailcap default
 	"""
-	# does this file exist, actually ?
-	try:
-		open(aFile).close()
-	except:
-		_log.exception('cannot read [%s]', aFile)
-		msg = _('[%s] is not a readable file') % aFile
-		return False, msg
+	if not os.path.isdir(aFile):
+		# is the file accessible at all ?
+		try:
+			open(aFile).close()
+		except:
+			_log.exception('cannot read [%s]', aFile)
+			msg = _('[%s] is not a readable file') % aFile
+			return False, msg
 
 	# try to detect any of the UNIX openers
 	found, startfile_cmd = _get_system_startfile_cmd(aFile)
@@ -269,7 +270,7 @@ def call_viewer_on_file(aFile = None, block=None):
 	viewer_cmd = get_viewer_cmd(mime_type, aFile)
 
 	if viewer_cmd is not None:
-		if gmShellAPI.run_command_in_shell(command=viewer_cmd, blocking=block):
+		if gmShellAPI.run_command_in_shell(command = viewer_cmd, blocking = block):
 			return True, ''
 
 	_log.warning("no viewer found via standard mailcap system")
@@ -331,6 +332,7 @@ if __name__ == "__main__":
 
 	#_get_system_startfile_cmd(filename)
 	#print(_system_startfile_cmd)
-	print(guess_mimetype(filename))
+	#print(guess_mimetype(filename))
 	#print(get_viewer_cmd(guess_mimetype(filename), filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
+	call_viewer_on_file(aFile = filename, block=None)

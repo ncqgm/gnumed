@@ -1014,6 +1014,14 @@ def unwrap(text=None, max_length=None, strip_whitespace=True, remove_empty_lines
 	return text
 
 #---------------------------------------------------------------------------
+def shorten_text(text=None, max_length=None):
+
+	if len(text) <= max_length:
+		return text
+
+	return text[:max_length-1] + u_ellipsis
+
+#---------------------------------------------------------------------------
 def xml_escape_string(text=None):
 	"""check for special XML characters and transform them"""
 	return xml_tools.escape(text)
@@ -1624,6 +1632,23 @@ second line\n
 				continue
 			print('test failed:', test)
 			print('result:', result)
+	#-----------------------------------------------------------------------
+	def test_shorten_text():
+		tst = [
+			('123', 1),
+			('123', 2),
+			('123', 3),
+			('123', 4),
+			('', 1),
+			('1', 1),
+			('12', 1),
+			('', 2),
+			('1', 2),
+			('12', 2),
+			('123', 2)
+		]
+		for txt, lng in tst:
+			print(u'max', lng, 'of', txt, '=', shorten_text(txt, lng))
 
 	#-----------------------------------------------------------------------
 	#test_coalesce()
@@ -1650,6 +1675,7 @@ second line\n
 	#test_dir_is_empty()
 	#test_compare_dicts()
 	#test_rm_dir()
-	test_strip_prefix()
+	#test_strip_prefix()
+	test_shorten_text()
 
 #===========================================================================
