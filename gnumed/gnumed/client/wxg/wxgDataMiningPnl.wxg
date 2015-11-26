@@ -61,7 +61,7 @@
                                 <option>0</option>
                                 <object class="cTextCtrl" name="_TCTRL_query" base="EditTextCtrl">
                                     <style>wxTE_MULTILINE|wxTE_WORDWRAP|wxNO_BORDER</style>
-                                    <tooltip>Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing ";".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named "pk_patient" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $&lt;ID_active_patient&gt;$ you can access the patient ID of the patient active at the time of running the query</tooltip>
+                                    <tooltip>Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing ";".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named "pk_patient" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $&lt;ID_ACTIVE_PATIENT&gt;$ you can access the patient ID of the patient active at the time of running the query</tooltip>
                                 </object>
                             </object>
                             <object class="sizeritem">

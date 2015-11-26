@@ -29,6 +29,7 @@ NEW: tooltip in procedures list
 NEW: placeholder <form_version_internal>
 NEW: placeholder <form_last_modified>
 NEW: browse tmp dir, ~/gnumed/, ~/.gnumed/ from client
+NEW: dynamic hint on outdated / questionable EDC
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows
@@ -59,6 +60,9 @@ IMPROVED: layout of measurements plugin
 IMPROVED: properly show visual progress notes for empty issues in EMR tree
 IMPROVED: support for invoking file manager on a directory
 IMPROVED: show admin SOAP in EMR tree at encounter level
+IMPROVED: ACEI/pregnancy dynamic hint
+IMPROVED: data mining SQL now wants $<ID_ACTIVE_PATIENT>$ rather than $<ID_active_patient>$
+IMPROVED: can now delete EDC
 
 ------------------------------------------------
 # rel-1-5-patches

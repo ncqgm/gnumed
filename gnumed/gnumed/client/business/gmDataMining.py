@@ -51,7 +51,7 @@ def delete_report_definition(name=None):
 def run_report_query(query=None, limit=None, pk_identity=None):
 	"""Returns (status, hint, cols, rows)"""
 
-	PATIENT_ID_TOKEN = u'$<ID_active_patient>$'
+	PATIENT_ID_TOKEN = u'$<ID_ACTIVE_PATIENT>$'
 	if limit is None:
 		limit = u''
 	else:

@@ -319,4 +319,87 @@ INSERT INTO ref.auto_hint(title, hint, source, lang, query, recommendation_query
 );
 
 -- --------------------------------------------------------------
+DELETE FROM ref.auto_hint WHERE title = 'Kontraindikation: ACE/Sartan <-> Schwangerschaft';
+DELETE FROM ref.auto_hint WHERE title = 'Contraindication: ACEI/Sartan <-> Pregnancy';
+
+insert into ref.auto_hint(query, title, hint, url, source, lang, recommendation_query) values (
+	'SELECT EXISTS (
+	-- substance check
+	SELECT 1 FROM clin.v_substance_intakes WHERE
+		pk_patient = ID_ACTIVE_PATIENT
+			AND
+		-- on Sartan or ACEI
+		(
+			substance ~* ''.*sartan.*''
+				OR
+			substance ~* ''.*angiotensin.*''
+				OR
+			substance ~ ''.*ACE.*''
+				OR
+			-- might result in false positives (.Prilocarpin)
+			substance ~* ''.+pril.*''
+				OR
+			atc_brand ~* ''^C09.*''
+				OR
+			atc_substance ~* ''^C09.*''
+	)
+) AND EXISTS (
+	-- pregnancy check
+	SELECT 1 FROM clin.patient WHERE
+		fk_identity = ID_ACTIVE_PATIENT
+			AND
+		coalesce(edc BETWEEN now() - ''1 month''::interval AND now() + ''11 months''::interval, FALSE)
+);',
+	'Contraindication: ACEI/Sartan <-> Pregnancy',
+	'ACEI and Sartans can cause severe fetopathies if used during 2nd and 3rd trimenon.',
+	'http://www.akdae.de/Arzneimittelsicherheit/Bekanntgaben/Archiv/2010/201010151.pdf',
+	'GNUmed default (AkdÄ 2012)',
+	'en',
+	'SELECT _(''EDC: '') || to_char(edc, ''YYYY Mon DD'') FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT;'
+);
+
+-- --------------------------------------------------------------
+DELETE FROM ref.auto_hint WHERE title = 'Outdated or questionable EDC';
+
+insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query) values (
+	'Outdated or questionable EDC',
+	'The EDC documented for this patient is outdated or too far in the future.',
+	'GNUmed default',
+	'en',
+	'SELECT EXISTS (
+	SELECT 1 FROM clin.patient WHERE
+		fk_identity = ID_ACTIVE_PATIENT
+			AND
+		coalesce((
+			-- longer than 3 months ago
+			edc < now() - ''3 months''::interval
+				OR
+			-- 2 years in the future
+			edc > now() + ''2 years''::interval
+		), FALSE)
+);',
+	'SELECT _(''EDC: '') || to_char(edc, ''YYYY Mon DD'') FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT;'
+);
+
+-- --------------------------------------------------------------
+DELETE FROM ref.auto_hint WHERE title = 'Questionable EDC';
+
+insert into ref.auto_hint(title, hint, source, lang, query, recommendation_query) values (
+	'Questionable EDC',
+	'There is an EDC documented for this MALE patient.',
+	'GNUmed default',
+	'en',
+	'SELECT (
+	SELECT d_i.gender = ''m'' FROM dem.identity d_i WHERE
+		d_i.pk = ID_ACTIVE_PATIENT
+) AND EXISTS (
+	SELECT 1 FROM clin.patient WHERE
+		fk_identity = ID_ACTIVE_PATIENT
+			AND
+		edc IS NOT NULL
+);',
+	'SELECT _(''EDC: '') || to_char(edc, ''YYYY Mon DD'') FROM clin.patient WHERE fk_identity = ID_ACTIVE_PATIENT;'
+);
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v21-ref-v_auto_hints.sql', '21.0');

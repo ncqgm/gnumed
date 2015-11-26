@@ -15,6 +15,7 @@ import wx
 from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmTools
 from Gnumed.business import gmClinicalCalculator
+from Gnumed.wxpython import gmGuiHelpers
 
 #====================================================================
 def calculate_edc(parent=None, patient=None):
@@ -23,23 +24,43 @@ def calculate_edc(parent=None, patient=None):
 		parent = wx.GetApp().GetTopWindow()
 
 	dlg = cEdcCalculatorDlg(parent, -1)
+	prev_edc = None
 	if patient.connected:
+		prev_edc = patient.emr.EDC
 		dlg.patient = patient
-		dlg.EDC = patient.emr.EDC
+		dlg.EDC = prev_edc
 	action = dlg.ShowModal()
-	edc = dlg.EDC
+	new_edc = dlg.EDC
 	dlg.Destroy()
 
-	if not patient.connected:
-		return
-
-	if edc is None:
-		return
-
+	# cancelled ?
 	if action != wx.ID_SAVE:
 		return
 
-	patient.emr.EDC = edc
+	# but have we got a patient ?
+	if not patient.connected:
+		return
+
+	# ignore setting EDC from NULL to NULL
+	if (new_edc is None) and (prev_edc is None):
+		return
+
+	# setting from X to NULL -> is a deletion intended ?
+	# (prev_edc MUST be not None due to the previous condition)
+	if new_edc is None:
+		delete_edc = gmGuiHelpers.gm_show_question (
+			title = _('Editing EDC'),
+			question = _(
+				'Really delete the EDC documented previously ?\n'
+				'\n'
+				' EDC: %s'
+			) % gmDateTime.pydt_strftime(prev_edc, '%Y %b %d'),
+			cancel_button = False
+		)
+		if not delete_edc:
+			return
+
+	patient.emr.EDC = new_edc
 
 #====================================================================
 from Gnumed.wxGladeWidgets import wxgEdcCalculatorDlg
@@ -87,7 +108,7 @@ class cEdcCalculatorDlg(wxgEdcCalculatorDlg.wxgEdcCalculatorDlg):
 		event.Skip()
 		if self.__calc.patient is None:
 			return False
-		if self._PRW_edc.is_valid_timestamp(allow_empty = False):
+		if self._PRW_edc.is_valid_timestamp(allow_empty = True):
 			self.EndModal(wx.ID_SAVE)
 			return True
 		return False

@@ -56,7 +56,7 @@ class wxgDataMiningPnl(wx.ScrolledWindow):
 		# begin wxGlade: wxgDataMiningPnl.__set_properties
 		self.SetScrollRate(10, 10)
 		self._PRW_report_name.SetToolTipString(_("If you want to save this query into the database for later use you must provide a descriptive label for it here."))
-		self._TCTRL_query.SetToolTipString(_("Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing \";\".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named \"pk_patient\" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $<ID_active_patient>$ you can access the patient ID of the patient active at the time of running the query"))
+		self._TCTRL_query.SetToolTipString(_("Enter the SQL commands to run here.\n\nIt doesn't matter whether or not you enter a trailing \";\".\n\nNote that:\n- the query is run in a read-only transaction\n- the result list will be artificially limited to the first 1000 rows\n- you can include a column named \"pk_patient\" to make the result rows activate the corresponding patient on double-clicking\n- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the patient active at the time of running the query"))
 		self._BTN_run.SetToolTipString(_("Run the query and present the results below."))
 		self._BTN_run.SetDefault()
 		self._BTN_clear.SetToolTipString(_("Clear all fields."))

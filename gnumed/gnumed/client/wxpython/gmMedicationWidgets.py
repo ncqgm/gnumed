@@ -721,7 +721,7 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 
 		if self.data['pk_brand'] is None:
 			self._PRW_drug.SetText (
-				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit'])
+				u'%s %s %s' % (self.data['substance'], self.data['amount'], self.data['unit']),
 				[self._PRW_drug.IS_SUBSTANCE, self.data['pk_substance']]
 			)
 		else:
