@@ -120,7 +120,7 @@ class MultiColumnList( wx.Grid):
 				cols.append(rows)
 				rows = []
 		
-		if rows <> []:
+		if rows != []:
 			cols.append(rows)
 
 		table = self.GetTable()

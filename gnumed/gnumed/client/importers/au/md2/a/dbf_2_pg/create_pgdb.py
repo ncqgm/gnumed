@@ -83,7 +83,7 @@ def psycopg_dsn(dsn):
 	vals = dsn.split(':')
 	l = []
 	for i,x in enumerate(vals):
-		if x <> '':
+		if x != '':
 			l.append( "%s='%s'" % (elems[i], x) )
 	
 	return " ".join(l)
@@ -440,7 +440,7 @@ if __name__ == "__main__":
 
 	f = file('config.txt', 'r')
 	for l in f:
-		if l.strip() > 0 and l.find('=') > 0 and l.strip()[0] <> '#':
+		if l.strip() > 0 and l.find('=') > 0 and l.strip()[0] != '#':
 			words = l.split('=')
 			words[0] = '-'+words[0]
 			arguments.extend(words)

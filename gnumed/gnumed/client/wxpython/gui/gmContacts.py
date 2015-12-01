@@ -491,7 +491,7 @@ class cContactsPanel(wx.wx.Panel):
 		keyEvent.Skip()
 		
 	def doPaste(self):			
-		if self.getCurrent() <> None and self._cutPerson <> None:
+		if self.getCurrent() != None and self._cutPerson != None:
 			p = self._cutPerson
 			o = p.getParent()
 			o.unlinkPerson(p.getDemographicRecord() )
@@ -661,7 +661,7 @@ class cContactsPanel(wx.wx.Panel):
 		#pos = self.list_organisations.GetScrollPos(wx.wx.VERTICAL)
 		self.list_organisations.DeleteAllItems()
 		#self._insert_example_data()   , removing this as it is confusing
-		if self._isPersonIndex <> {}:
+		if self._isPersonIndex != {}:
 			self._tmpPerson = {}
 			for person  in self._isPersonIndex.values():
 				self._tmpPerson[person.getId()] = person
@@ -692,7 +692,7 @@ class cContactsPanel(wx.wx.Panel):
 			c = l.GetItemCount()
 			key = self.getCurrent().getId()
 			i , nexti = 0, -1
-			while  nexti <> i and (i < l.GetItemCount() or i in self._isPersonIndex):
+			while  nexti != i and (i < l.GetItemCount() or i in self._isPersonIndex):
 				i = nexti
 				nexti = l.FindItemData(i, key)
 				#print i
@@ -742,7 +742,7 @@ class cContactsPanel(wx.wx.Panel):
 				org['name'] = self.list_organisations.GetItem(ix-j, 0).GetText().strip()
 				j += 1
 
-			if org['subtype'] <> '':
+			if org['subtype'] != '':
 				org.setParent( org.getHelper().findOrgsByName(org['name'])[0] )
 
 			#TODO remove this test filter

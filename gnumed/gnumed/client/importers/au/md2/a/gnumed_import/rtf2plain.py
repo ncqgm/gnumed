@@ -41,7 +41,7 @@ def rtf2plain(input_s, out =None , write_all = True):
 	   l = y
 	   
 	   #for z in y.split('\\plain'):
-	   #	if len(z) and z[0] <> '\\':
+	   #	if len(z) and z[0] != '\\':
 	   #		l.append(z)
 	   #	elif len(z):
 	   #		z2 = z.split(' ')
@@ -117,9 +117,9 @@ def rtf2plain(input_s, out =None , write_all = True):
 		for y in l:
 			z = y.split(' ')
 			l2.append(y)
-			if len(z) and len(z[-1]) > 3 and y[-1] <> '.':
+			if len(z) and len(z[-1]) > 3 and y[-1] != '.':
 				l2.append('.\n')
-			elif len(y) and y[-1] <> '.':
+			elif len(y) and y[-1] != '.':
 				l2.append('. ')
 		x = ''.join(l2)
 		

@@ -994,7 +994,7 @@ times.
 		"""
 
 		datepart = ''
-		if visitdate and str(visitdate).strip() <> '':
+		if visitdate and str(visitdate).strip() != '':
 			print "visit date is ", visitdate
 			datepart = str(visitdate).split(' ')[0]
 
@@ -1110,10 +1110,10 @@ and inserted as clin_narratives
 				cat[state].append(x[:n])
 
 			if n >= 0:
-				if cat['s'] <> [] :
+				if cat['s'] != [] :
 					score  = 0
 					for k in [ 'o', 'a', 'p' ]:
-						if cat[k] <> []:
+						if cat[k] != []:
 							score += 1
 					if score >= 2:  
 						# assume the second __history is another problem ? 
@@ -1332,7 +1332,7 @@ def process_patient_history( ur_no, pat_id) :
 		cu2.execute(real_stmt)
 
 		# insert condition comment as an episode of health issue where the dr made a comment
-		if comment and comment.strip() <> '':
+		if comment and comment.strip() != '':
 			
 			stmt2 = """
 				insert into clin.episode (  modified_when, fk_health_issue, description, is_open) values
@@ -1477,11 +1477,11 @@ def process_patient_documents(ur_no, pat_id):
 				date = None
 				if docdate:
 					docdate = str(docdate).strip()
-				if  docdate and docdate <> '' and len(docdate.split(' ')) == 2:
+				if  docdate and docdate != '' and len(docdate.split(' ')) == 2:
 					date = docdate.split(' ')[0]
 				if update:
 					update = str(update).strip()
-				if not date and update and update <> '' and len(update) >= 8:
+				if not date and update and update != '' and len(update) >= 8:
 					date = update[:8]
 
 				if not date:
@@ -1615,7 +1615,7 @@ def process_patient_pathol(ur_no, pat_id):
 		cnt_blanks = 0
 		ww2 = []
 		for w in ww:
-			if w <> '':
+			if w != '':
 				ww2.append(w.lower())
 			else:
 				cnt_blanks += 1
@@ -1660,7 +1660,7 @@ def process_patient_pathol(ur_no, pat_id):
 		r=  cu2.fetchone()
 		doc_med_pk = r and r[0]
 
-		if not doc_med_pk and (not curr_enc or reportdate <> last_reportdate or labname <> last_labname) :
+		if not doc_med_pk and (not curr_enc or reportdate != last_reportdate or labname != last_labname) :
 			if not doc_pk_encounter:
 				doc_pk_encounter = create_doc_encounter(cu2, pat_id)
 				doc_pk_episode = create_doc_episode(cu2, pat_id)
@@ -1729,11 +1729,11 @@ def transfer_patients(startref = None):
 		started = startref == None
 		rr = importer.get_next_demographics()
 		totalpats = 1		
-		while rr <> None:
+		while rr != None:
 			for r in rr:
 				print "processing patient #", totalpats
 				ur_no = r[0]
-				if not started and ur_no.lower() <> startref.lower():
+				if not started and ur_no.lower() != startref.lower():
 					print "skipping ", ur_no
 				elif  not started:
 					started = True
@@ -1783,7 +1783,7 @@ def do_patient_relations():
 		cu.execute(stmt)
 		rr = cu.fetchall()
 		for r in rr:
-			if link_to and link_to.strip() <> '':
+			if link_to and link_to.strip() != '':
 			
 				# link identities in lnk_person2relative using ur_no stored in lnk_identity2ext_id
 				

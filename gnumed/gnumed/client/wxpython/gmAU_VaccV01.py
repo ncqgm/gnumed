@@ -38,14 +38,14 @@ def stringify_days( d):
 				unit =  ' months'
 				d /= 30
 				
-				if d <> int (d/10) * 10:
+				if d != int (d/10) * 10:
 					d = int( d* 10) / 10
 					
 				if  d > 23 :
 					unit = ' years'
 					d = orig_d / 365
 				
-					if d <> int (d/10) * 10:
+					if d != int (d/10) * 10:
 						d = int (  d * 10) / 10
 				
 			return str(d) + unit
@@ -513,7 +513,7 @@ class cAU_VaccV01Panel(wx.Panel):
 		
 			s += ' ; min interval: ' + stringify_days(v['min_interval'])
 								
-			if v['min_age_due'] <> last_min_age:
+			if v['min_age_due'] != last_min_age:
 				
 				age_node = t.AppendItem(  rec_node, 'Minimum age due : ' + stringify_days(v['min_age_due']) )
 				last_min_age = v['min_age_due']

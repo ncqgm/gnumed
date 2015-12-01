@@ -371,7 +371,7 @@ class DrugDisplay(wx.Panel):
 				if self.whichWidget == 'listctrl_drugchoice':
 					self.ToggleWidget ()
 					self.Display_PI (self.mId)
-				elif self.mId <> self.mLastId: # don't change unless different drug
+				elif self.mId != self.mLastId: # don't change unless different drug
 					self.Display_PI (self.mId)
 					self.mLastId = self.mId
 			# if we found a generic substance name, show all brands

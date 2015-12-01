@@ -1168,7 +1168,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	def _get_data(self):
 		# slower than "return self.__data" but helps with detecting
-		# problems with len(__data) <> self.GetItemCount()
+		# problems with len(__data) != self.GetItemCount()
 		return self.get_item_data() 		# returns all data if item_idx is None
 
 	data = property(_get_data, set_data)
@@ -1254,7 +1254,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return self.__data[self.map_item_idx2data_idx(item_idx)]
 
 		# if <idx> is None return all data up to item_count,
-		# in case of len(__data) <> self.GetItemCount() this
+		# in case of len(__data) != self.GetItemCount() this
 		# gives the chance to figure out what is going on
 		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.GetItemCount()) ]
 
