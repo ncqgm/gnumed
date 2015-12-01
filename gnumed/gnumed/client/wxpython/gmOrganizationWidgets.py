@@ -167,6 +167,7 @@ class cOrgUnitPhraseWheel(gmPhraseWheel.cPhraseWheel):
 		if self.GetData() is None:
 			return None
 		return gmOrganization.cOrgUnit(aPK_obj = self.GetData())
+
 #============================================================
 class cOrgUnitsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 	"""A list for managing organizational units."""

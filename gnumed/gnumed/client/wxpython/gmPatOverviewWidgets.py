@@ -721,7 +721,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 			).strip(u'\n')
 
 		if isinstance(data, gmMedication.cSubstanceIntakeEntry):
-			return data.format(one_line = False)
+			return data.format(single_line = False)
 
 		if isinstance(data, gmFamilyHistory.cFamilyHistory):
 			return data.format(include_episode = True, include_comment = True)
@@ -807,7 +807,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		abuses = emr.abused_substances
 		if len([ a for a in abuses if a['harmful_use_type'] in [1, 2] ]) > 0:
 			list_items.append(_('active substance abuse'))
-			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', one_line=True) for a in abuses ]))
+			data_items.append(u'\n'.join([ a.format(left_margin=0, date_format='%Y %b %d', single_line=True) for a in abuses ]))
 
 		# list by brand or substance:
 		intakes = emr.get_current_medications(include_inactive = False, include_unapproved = True, order_by = u'substance')
@@ -861,7 +861,7 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 		allg = emr.is_allergic_to(atcs = tuple(atcs), inns = (data['substance'],))
 		if allg is False:
 			allg = None
-		return data.format(one_line = False, allergy = allg, show_all_brand_components = True)
+		return data.format(single_line = False, allergy = allg, show_all_brand_components = True)
 	#-----------------------------------------------------
 	def _on_meds_item_activated(self, event):
 		data = self._LCTRL_meds.get_selected_item_data(only_one = True)

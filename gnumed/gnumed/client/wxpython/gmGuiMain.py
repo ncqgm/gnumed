@@ -2371,7 +2371,8 @@ class gmTopLevelFrame(wx.Frame):
 		doc = gmDocumentWidgets.save_file_as_new_document (
 			parent = self,
 			filename = arriba.pdf_result,
-			document_type = _('risk assessment')
+			document_type = _('risk assessment'),
+			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 		)
 
 		try: os.remove(arriba.pdf_result)
@@ -2434,7 +2435,8 @@ class gmTopLevelFrame(wx.Frame):
 			doc = gmDocumentWidgets.save_file_as_new_document (
 				parent = self,
 				filename = pdf,
-				document_type = u'risk assessment'
+				document_type = u'risk assessment',
+				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 			)
 
 			try:

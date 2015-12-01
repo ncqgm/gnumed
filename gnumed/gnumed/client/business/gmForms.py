@@ -656,7 +656,8 @@ class cOOoLetter(object):
 			signal = u'import_document_from_file',
 			filename = filename,
 			document_type = self.instance_type,
-			unlock_patient = True
+			unlock_patient = True,
+			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 		)
 		self.ooo_doc = None
 	#--------------------------------------------------------

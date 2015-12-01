@@ -119,6 +119,7 @@ def manage_document_descriptions(parent=None, document=None):
 	)
 
 	return True
+
 #============================================================
 def _save_file_as_new_document(**kwargs):
 	try:
@@ -136,17 +137,18 @@ def _save_files_as_new_document(**kwargs):
 		pass
 	wx.CallAfter(save_files_as_new_document, **kwargs)
 #----------------------
-def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False):
+def save_file_as_new_document(parent=None, filename=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, pk_org_unit=None):
 	return save_files_as_new_document (
 		parent = parent,
 		filenames = [filename],
 		document_type = document_type,
 		unlock_patient = unlock_patient,
 		episode = episode,
-		review_as_normal = review_as_normal
+		review_as_normal = review_as_normal,
+		pk_org_unit = pk_org_unit
 	)
 #----------------------
-def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None):
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -184,7 +186,9 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	)
 	if reference is not None:
 		doc['ext_ref'] = reference
-		doc.save()
+	if pk_org_unit is not None:
+		doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+	doc.save()
 	doc.add_parts_from_files(files = filenames)
 
 	if review_as_normal:
@@ -777,6 +781,7 @@ def acquire_images_from_capture_device(device=None, calling_window=None):
 	_log.debug('acquired %s images', len(fnames))
 
 	return fnames
+
 #------------------------------------------------------------
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
@@ -1025,6 +1030,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.__reload_LBOX_doc_pages()
 
 		return True
+
 	#--------------------------------------------------------
 	def _load_btn_pressed(self, evt):
 		# patient file chooser
@@ -1043,6 +1049,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				self.acquired_pages.append(file)
 			self.__reload_LBOX_doc_pages()
 		dlg.Destroy()
+
 	#--------------------------------------------------------
 	def _clipboard_btn_pressed(self, event):
 		event.Skip()
@@ -1053,30 +1060,35 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return
 		self.acquired_pages.append(clip)
 		self.__reload_LBOX_doc_pages()
+
 	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
-		# did user select a page ?
-		page_idx = self._LBOX_doc_pages.GetSelection()
-		if page_idx == -1:
-#			gmGuiHelpers.gm_show_info (
-#				aMessage = _('You must select a part before you can view it.'),
-#				aTitle = _('displaying part')
-#			)
-			return None
 
-		page_fnames = [ self._LBOX_doc_pages.GetClientData(idx) for idx in self._LBOX_doc_pages.GetSelections() ]
-		## now, which file was that again ?
-		#page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
+		# nothing to do
+		if len(self.acquired_pages) == 0:
+			return
+
+		# only one page, show that, regardless of whether selected or not
+		if len(self.acquired_pages) == 1:
+			page_fnames = [ self._LBOX_doc_pages.GetClientData(0) ]
+		else:
+			# did user select one of multiple pages ?
+			page_idx = self._LBOX_doc_pages.GetSelection()
+			if page_idx == -1:
+				gmDispatcher.send(signal = 'statustext', msg = _('No part selected for viewing.'), beep = True)
+				return
+			page_fnames = [ self._LBOX_doc_pages.GetClientData(idx) for idx in self._LBOX_doc_pages.GetSelections() ]
 
 		for page_fname in page_fnames:
-			(result, msg) = gmMimeLib.call_viewer_on_file(page_fname)
-			if not result:
+			(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
+			if not success:
 				gmGuiHelpers.gm_show_warning (
 					aMessage = _('Cannot display document part:\n%s') % msg,
 					aTitle = _('displaying part')
 				)
 
-		return 1
+		return
+
 	#--------------------------------------------------------
 	def _del_btn_pressed(self, event):
 		page_idx = self._LBOX_doc_pages.GetSelection()
@@ -1124,6 +1136,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				)
 
 		return 1
+
 	#--------------------------------------------------------
 	def _save_btn_pressed(self, evt):
 
@@ -1162,11 +1175,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				default = False
 			)
 		)
-		ref = None
 		if generate_uuid:
-			ref = gmDocuments.get_ext_ref()
-		if ref is not None:
-			new_doc['ext_ref'] = ref
+			new_doc['ext_ref'] = gmDocuments.get_ext_ref()
+		# - source
+		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
 		# - comment
 		comment = self._PRW_doc_comment.GetLineText(0).strip()
 		if comment != u'':
@@ -1223,7 +1235,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		)
 		wx.EndBusyCursor()
 		if show_id:
-			if ref is None:
+			if new_doc['ext_ref'] is None:
 				msg = _('Successfully saved the new document.')
 			else:
 				msg = _(
@@ -1235,13 +1247,13 @@ You probably want to write it down on the
 original documents.
 
 If you don't care about the ID you can switch
-off this message in the GNUmed configuration.""") % ref
+off this message in the GNUmed configuration.""") % new_doc['ext_ref']
 			gmGuiHelpers.gm_show_info (
 				aMessage = msg,
 				aTitle = _('Saving document')
 			)
 		else:
-			gmDispatcher.send(signal='statustext', msg=_('Successfully saved new document.'))
+			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
 
 		self.__init_ui_data()
 		return True
@@ -1260,6 +1272,7 @@ off this message in the GNUmed configuration.""") % ref
 		else:
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
+
 #============================================================
 def display_document_part(parent=None, part=None):
 

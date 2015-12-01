@@ -1166,7 +1166,7 @@ order by
 			txt += _('Medications and Substances')
 			txt += u'\n'
 		for m in meds:
-			txt += u'%s\n' % m.format_as_one_line(left_margin = 1)
+			txt += u'%s\n' % m.format_as_single_line(left_margin = 1)
 
 		fhx = self.get_family_history()
 		if len(fhx) > 0:
@@ -2914,7 +2914,7 @@ if __name__ == "__main__":
 	def test_get_abuses():
 		emr = cClinicalRecord(aPKey=12)
 		for med in emr.abused_substances:
-			print med.format(one_line = True)
+			print med.format(single_line = True)
 	#-----------------------------------------
 	def test_is_allergic_to():
 		emr = cClinicalRecord(aPKey = 12)

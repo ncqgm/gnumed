@@ -15,8 +15,15 @@ import wx, wx.lib.imagebrowser
 
 
 # GNUmed
-from Gnumed.pycommon import gmDispatcher, gmTools, gmI18N, gmDateTime
-from Gnumed.business import gmDocuments, gmPerson
+from Gnumed.pycommon import gmDispatcher
+from Gnumed.pycommon import gmTools
+from Gnumed.pycommon import gmI18N
+from Gnumed.pycommon import gmDateTime
+
+from Gnumed.business import gmDocuments
+from Gnumed.business import gmPerson
+from Gnumed.business import gmPraxis
+
 from Gnumed.wxpython import gmGuiHelpers
 
 
@@ -143,11 +150,14 @@ class cPatientPicture(wx.StaticBitmap):
 				episode = epi['pk_episode'],
 				encounter = enc['pk_encounter']
 			)
+			doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+			doc.save()
 		else:
 			doc = docs[0]
 
-		obj = doc.add_part(file=fname)
+		obj = doc.add_part(file = fname)
 		return True
+
 	#-----------------------------------------------------------------
 	def __reload_photo(self):
 		"""(Re)fetch patient picture from DB."""

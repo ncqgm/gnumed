@@ -2139,12 +2139,12 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'harmful_use_type'
 	]
 	#--------------------------------------------------------
-	def format(self, left_margin=0, date_format='%Y %b %d', one_line=True, allergy=None, show_all_brand_components=False, include_metadata=True):
+	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_brand_components=False, include_metadata=True):
 
 		# medication
 		if self._payload[self._idx['harmful_use_type']] is None:
-			if one_line:
-				return self.format_as_one_line(left_margin = left_margin, date_format = date_format)
+			if single_line:
+				return self.format_as_single_line(left_margin = left_margin, date_format = date_format)
 			return self.format_as_multiple_lines (
 				left_margin = left_margin,
 				date_format = date_format,
@@ -2153,13 +2153,13 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 			)
 
 		# abuse
-		if one_line:
-			return self.format_as_one_line_abuse(left_margin = left_margin, date_format = date_format)
+		if single_line:
+			return self.format_as_single_line_abuse(left_margin = left_margin, date_format = date_format)
 
 		return self.format_as_multiple_lines_abuse(left_margin = left_margin, date_format = date_format, include_metadata = include_metadata)
 
 	#--------------------------------------------------------
-	def format_as_one_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
+	def format_as_single_line_abuse(self, left_margin=0, date_format='%Y %b %d'):
 		return u'%s%s: %s (%s)' % (
 			u' ' * left_margin,
 			self._payload[self._idx['substance']],
@@ -2168,7 +2168,7 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 	#--------------------------------------------------------
-	def format_as_one_line(self, left_margin=0, date_format='%Y %b %d'):
+	def format_as_single_line(self, left_margin=0, date_format='%Y %b %d'):
 
 		if self._payload[self._idx['is_currently_active']]:
 			if self._payload[self._idx['duration']] is None:
@@ -3816,7 +3816,7 @@ if __name__ == "__main__":
 		for row in rows:
 			entry = cSubstanceIntakeEntry(row['pk_substance_intake'])
 			print u'==============================================================='
-			print entry.format(left_margin = 1, one_line = False, show_all_brand_components = True)
+			print entry.format(left_margin = 1, single_line = False, show_all_brand_components = True)
 			print u'--------------------------------'
 			print entry.medically_formatted_start_end
 			gmTools.prompted_input()

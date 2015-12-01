@@ -259,7 +259,7 @@ def manage_substance_intakes(parent=None, emr=None):
 #		return gmMedication.delete_consumable_substance(substance = substance['pk'])
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
-		return intake.format(one_line = False, show_all_brand_components = True)
+		return intake.format(single_line = False, show_all_brand_components = True)
 	#------------------------------------------------------------
 	def refresh(lctrl):
 		intakes = emr.get_current_medications (
@@ -382,11 +382,11 @@ class cSubstanceIntakeEAPnl(wxgCurrentMedicationEAPnl.wxgCurrentMedicationEAPnl,
 		# history of substance abuse
 		abuses = emr.abused_substances
 		for abuse in abuses:
-			tooltip += abuse.format(one_line = False, include_metadata = False)
+			tooltip += abuse.format(single_line = False, include_metadata = False)
 			tooltip += u'\n'
 			if abuse['harmful_use_type'] in [None, 0]:
 				continue
-			msg += abuse.format(one_line = True)
+			msg += abuse.format(single_line = True)
 			msg += u'\n'
 		if len(abuses) > 0:
 			msg += u'\n'

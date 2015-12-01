@@ -244,7 +244,8 @@ def act_on_generated_forms(parent=None, forms=None, jobtype=None, episode_name=N
 				unlock_patient = False,
 				episode = epi,
 				review_as_normal = review_copy_as_normal,
-				reference = None
+				reference = None,
+				pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 			)
 
 		return True

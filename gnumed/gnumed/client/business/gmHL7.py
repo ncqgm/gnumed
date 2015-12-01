@@ -30,6 +30,7 @@ from Gnumed.pycommon import gmDateTime
 
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmPerson
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmStaff
 
 
@@ -1336,6 +1337,7 @@ def __import_single_PID_hl7_file(filename, emr=None):
 			episode = epi['pk_episode']
 		)
 		hl7_doc['comment'] = _('list of imported HL7 data files')
+		hl7_doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 	hl7_doc['clin_when'] = gmDateTime.pydt_now_here()
 	hl7_doc.save()
 	part = hl7_doc.add_part(file = filename)

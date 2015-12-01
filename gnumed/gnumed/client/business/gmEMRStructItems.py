@@ -1096,6 +1096,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 
 		eol_w_margin = u'\n%s' % left_margin
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+
 	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None,
 		with_summary=True,
@@ -1275,12 +1276,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				lines.append('')
 				lines.append(_('Documents: %s') % len(docs))
 			for d in docs:
-				lines.append(u' %s %s:%s%s' % (
-					d['clin_when'].strftime('%Y-%m-%d'),
-					d['l10n_type'],
-					gmTools.coalesce(d['comment'], u'', u' "%s"'),
-					gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-				))
+				lines.append(u' ' + d.format(single_line = True))
 			del docs
 
 		# hospitalizations
@@ -2301,13 +2297,7 @@ limit 1
 					lines.append(u'')
 					lines.append(_('Documents:'))
 				for d in docs:
-					lines.append(u' %s %s:%s%s' % (
-						d['clin_when'].strftime('%Y-%m-%d'),
-						d['l10n_type'],
-						gmTools.coalesce(d['comment'], u'', u' "%s"'),
-						gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-					))
-
+					lines.append(u' ' + d.format(single_line = True))
 				del docs
 
 		return lines
@@ -2420,19 +2410,11 @@ limit 1
 					episodes = episodes,
 					encounter = self._payload[self._idx['pk_encounter']]
 				)
-
 				if len(docs) > 0:
 					lines.append(u'')
 					lines.append(_('Documents:'))
-
 				for d in docs:
-					lines.append(u' %s %s:%s%s' % (
-						d['clin_when'].strftime('%Y-%m-%d'),
-						d['l10n_type'],
-						gmTools.coalesce(d['comment'], u'', u' "%s"'),
-						gmTools.coalesce(d['ext_ref'], u'', u' (%s)')
-					))
-
+					lines.append(u' ' + d.format(single_line = True))
 				del docs
 
 			# co-encountlets

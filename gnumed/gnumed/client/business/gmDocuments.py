@@ -15,12 +15,15 @@ from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmMimeLib
 from Gnumed.pycommon import gmDateTime
 
+from Gnumed.business import gmOrganization
+
 
 _log = logging.getLogger('gm.docs')
 
 MUGSHOT=26
 DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE = u'visual progress note'
 DOCUMENT_TYPE_PRESCRIPTION = u'prescription'
+
 #============================================================
 class cDocumentFolder:
 	"""Represents a folder with medical documents for a single patient."""
@@ -302,7 +305,7 @@ class cDocumentPart(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def get_reviews(self):
 		cmd = u"""
-select
+SELECT
 	reviewer,
 	reviewed_when,
 	is_technically_abnormal,
@@ -310,9 +313,9 @@ select
 	is_review_by_responsible_reviewer,
 	is_your_review,
 	coalesce(comment, '')
-from blobs.v_reviewed_doc_objects
-where pk_doc_obj = %s
-order by
+FROM blobs.v_reviewed_doc_objects
+WHERE pk_doc_obj = %s
+ORDER BY
 	is_your_review desc,
 	is_review_by_responsible_reviewer desc,
 	reviewed_when desc
@@ -479,6 +482,7 @@ insert into blobs.reviewed_doc_objs (
 			gmTools.coalesce(self._payload[self._idx['doc_comment']], u'', u' ("%s")')
 		)
 		return txt
+
 	#--------------------------------------------------------
 	def format(self, single_line=False):
 		if single_line:
@@ -506,12 +510,19 @@ insert into blobs.reviewed_doc_objs (
 		)
 
 		if self._payload[self._idx['filename']] is not None:
-			txt += _(' Filename: %s\n') % self._payload[self._idx['filename']]
+			path, fname = os.path.split(self._payload[self._idx['filename']])
+			if not path.endswith(os.path.sep):
+				if path != u'':
+					path += os.path.sep
+			if path != u'':
+				path = u' (%s)' % path
+			txt += _(' Filename: %s%s\n') % (fname, path)
 
 		if self._payload[self._idx['obj_comment']] is not None:
 			txt += u'\n%s\n' % self._payload[self._idx['obj_comment']]
 
 		return txt
+
 	#--------------------------------------------------------
 	def get_useful_filename(self, patient=None, make_unique=False, directory=None):
 		patient_part = ''
@@ -568,8 +579,7 @@ _sql_fetch_document_fields = u"""
 		FROM
 			blobs.v_doc_med b_vdm
 		WHERE
-			%s
-"""
+			%s"""
 
 class cDocument(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one medical document."""
@@ -580,6 +590,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				fk_type = %(pk_type)s,
 				fk_episode = %(pk_episode)s,
 				fk_encounter = %(pk_encounter)s,
+				fk_org_unit = %(pk_org_unit)s,
 				clin_when = %(clin_when)s,
 				comment = gm.nullify_empty_string(%(comment)s),
 				ext_ref = gm.nullify_empty_string(%(ext_ref)s)
@@ -595,7 +606,8 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		'clin_when',
 		'ext_ref',
 		'pk_episode',
-		'pk_encounter'			# mainly useful when moving visual progress notes to their respective encounters
+		'pk_encounter',			# mainly useful when moving visual progress notes to their respective encounters
+		'pk_org_unit'
 	]
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False, link_obj=None):
@@ -735,8 +747,49 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				_log.error(str(data))
 				return False
 		return True
+
 	#--------------------------------------------------------
-	def format(self):
+	def format_single_line(self):
+
+		part_count = len(self._payload[self._idx['seq_idx_list']])
+		if part_count == 0:
+			parts = _('no parts')
+		elif part_count == 1:
+			parts = _('1 part')
+		else:
+			parts = _('%s parts') % part_count
+
+		detail = u''
+		if self._payload[self._idx['ext_ref']] is not None:
+			detail = self._payload[self._idx['ext_ref']]
+		if self._payload[self._idx['unit']] is not None:
+			template = _(u'%s of %s')
+			if detail == u'':
+				detail = _(u'%s of %s') % (
+					self._payload[self._idx['unit']],
+					self._payload[self._idx['organization']]
+				)
+			else:
+				detail += (u' @ ' + template % (
+					self._payload[self._idx['unit']],
+					self._payload[self._idx['organization']]
+				))
+		if detail != u'':
+			detail = u' (%s)' % detail
+
+		return u'%s %s (%s):%s%s' % (
+			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d', accuracy = gmDateTime.acc_days),
+			self._payload[self._idx['l10n_type']],
+			parts,
+			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' "%s"'),
+			detail
+		)
+
+	#--------------------------------------------------------
+	def format(self, single_line=False):
+		if single_line:
+			return self.format_single_line()
+
 		part_count = len(self._payload[self._idx['seq_idx_list']])
 		if part_count == 0:
 			parts = _('no parts')
@@ -746,9 +799,9 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			parts = _('%s parts') % part_count
 		txt = _(
 			'%s (%s)   #%s\n'
-			'\n'
 			' Created: %s\n'
 			' Episode: %s\n'
+			'%s'
 			'%s'
 			'%s'
 			'%s'
@@ -760,9 +813,17 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['episode']],
 			gmTools.coalesce(self._payload[self._idx['health_issue']], u'', _(' Health issue: %s\n')),
 			gmTools.coalesce(self._payload[self._idx['ext_ref']], u'', _(' External reference: %s\n')),
+			gmTools.coalesce(self._payload[self._idx['unit']], u'', _(' Organization: %%s @ %s\n') % self._payload[self._idx['organization']]),
 			gmTools.coalesce(self._payload[self._idx['comment']], u'', u' %s')
 		)
 		return txt
+
+	#--------------------------------------------------------
+	def _get_org_unit(self):
+		return gmOrganization.cOrgUnit(self._payload[self._idx['pk_org_unit']])
+
+	org_unit = property(_get_org_unit, lambda x:x)
+
 #------------------------------------------------------------
 def create_document(document_type=None, encounter=None, episode=None, link_obj=None):
 	"""Returns new document instance or raises an exception."""
@@ -788,6 +849,7 @@ def create_document(document_type=None, encounter=None, episode=None, link_obj=N
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	doc = cDocument(aPK_obj = rows[0][0], link_obj = link_obj)
 	return doc
+
 #------------------------------------------------------------
 def search_for_documents(patient_id=None, type_id=None, external_reference=None):
 	"""Searches for documents with the given patient and type ID."""
@@ -806,6 +868,7 @@ def search_for_documents(patient_id=None, type_id=None, external_reference=None)
 	cmd = _sql_fetch_document_fields % u' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	return [ cDocument(row = {'data': r, 'idx': idx, 'pk_field': 'pk_doc'}) for r in rows ]
+
 #------------------------------------------------------------
 def delete_document(document_id=None, encounter_id=None):
 	# cascades to doc_obj and doc_desc but not bill.bill
@@ -816,6 +879,7 @@ def delete_document(document_id=None, encounter_id=None):
 		_log.error('cannot delete document [%s]', document_id)
 		return False
 	return True
+
 #------------------------------------------------------------
 def reclassify_documents_by_type(original_type=None, target_type=None):
 
@@ -938,6 +1002,7 @@ def get_ext_ref():
 	# extract name for dir
 	path, doc_ID = os.path.split(dirname)
 	return doc_ID
+
 #============================================================
 # main
 #------------------------------------------------------------
@@ -1002,8 +1067,12 @@ if __name__ == '__main__':
 
 		docs = doc_folder.get_documents()
 		for doc in docs:
-			print type(doc), doc
-			print doc.parts
+			#print type(doc), doc
+			#print doc.parts
+			#print doc.format_single_line()
+			print u'--------------------------'
+			print doc.format(single_line = True)
+			print doc.format()
 		#pprint(gmBusinessDBObject.jsonclasshintify(docs))
 	#--------------------------------------------------------
 	from Gnumed.pycommon import gmI18N
@@ -1015,6 +1084,3 @@ if __name__ == '__main__':
 	test_get_documents()
 
 #	print get_ext_ref()
-
-#============================================================
-

@@ -494,6 +494,7 @@ def create_bill_from_items(bill_items=None):
 	bill.set_missing_address_from_default()
 
 	return bill
+
 #----------------------------------------------------------------
 def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_copy=True):
 
@@ -623,6 +624,7 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			reference = bill['invoice_id']
 		)
 		bill['pk_doc'] = doc['pk_doc']
+		bill['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 		bill.save()
 
 	if not print_it:

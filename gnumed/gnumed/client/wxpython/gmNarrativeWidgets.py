@@ -2453,7 +2453,8 @@ def edit_visual_progress_note(filename=None, episode=None, discard_unmodified=Fa
 		filename = filename,
 		document_type = gmDocuments.DOCUMENT_TYPE_VISUAL_PROGRESS_NOTE,
 		episode = episode,
-		unlock_patient = False
+		unlock_patient = False,
+		pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 	)
 	doc.set_reviewed(technically_abnormal = False, clinically_relevant = True)
 

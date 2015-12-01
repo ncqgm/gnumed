@@ -62,7 +62,7 @@ def manage_substance_abuse(parent=None, patient=None):
 
 	#------------------------------------------------------------
 	def get_tooltip(intake=None):
-		return intake.format(one_line = False)
+		return intake.format(single_line = False)
 
 	#------------------------------------------------------------
 	def refresh(lctrl):
