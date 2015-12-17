@@ -323,7 +323,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__cb__enable_display_mode_selection(True)
 			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
-				txt = node_data.format(left_margin=1, patient = self.__pat)
+				txt = node_data.format(left_margin = 1, patient = self.__pat)
 			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
 			if self.__soap_display_mode == u'revisions':

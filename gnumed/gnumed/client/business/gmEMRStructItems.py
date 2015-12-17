@@ -3105,16 +3105,15 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			else:
 				end = u' - %s' % gmDateTime.pydt_strftime(end, '%Y %b %d')
 
-		line = u'%s%s%s (%s @ %s): %s' % (
+		line = u'%s%s%s: %s%s [%s @ %s]' % (
 			(u' ' * left_margin),
 			gmDateTime.pydt_strftime(self._payload[self._idx['clin_when']], '%Y %b %d'),
 			end,
+			self._payload[self._idx['performed_procedure']],
+			gmTools.bool2str(include_episode, u' (%s)' % self._payload[self._idx['episode']], u''),
 			self._payload[self._idx['unit']],
-			self._payload[self._idx['organization']],
-			self._payload[self._idx['performed_procedure']]
+			self._payload[self._idx['organization']]
 		)
-		if include_episode:
-			line = u'%s (%s)' % (line, self._payload[self._idx['episode']])
 
 		if include_comm:
 			for channel in self.org_unit.comm_channels:
