@@ -841,6 +841,11 @@ where id_identity = %(pat)s and id = %(pk)s"""
 					has_allergy = greatest (
 						(SELECT has_allergy FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2del)s),
 						(SELECT has_allergy FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2keep)s)
+					),
+					-- perhaps use least() to play it safe and make it appear longer ago than it might have been, actually ?
+					last_confirmed = greatest (
+						(SELECT last_confirmed FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2del)s),
+						(SELECT last_confirmed FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2keep)s)
 					)
 				WHERE
 					pk = (SELECT pk_allergy_state FROM clin.v_pat_allergy_state WHERE pk_patient = %(pat2keep)s)
