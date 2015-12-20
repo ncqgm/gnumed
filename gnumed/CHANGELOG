@@ -70,6 +70,10 @@ IMPROVED: support documenting which organization a document originated from
 # rel-1-5-patches
 ------------------------------------------------
 
+	1.5.10
+
+FIX: patient merging, again [thanks Marc]
+
 	1.5.9
 
 FIX: patient merging [thanks Marc]
