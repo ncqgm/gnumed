@@ -113,7 +113,7 @@ class cNull(object):
 
 	def __str__(self):
 		"Convert to a string and return it."
-		return 'cNull instance'
+		return '<cNull instance>'
 
 	def __nonzero__(self):
 		_log.debug(u'returns 0')
@@ -162,7 +162,7 @@ def test():
 	# representation and conversion to a string
 	tmp = '<cNull instance @ %s>' % id(n)
 	assert repr(n) == tmp
-	assert str(n) == 'cNull instance'
+	assert str(n) == '<cNull instance>'
 
 	# comparing
 	if n == 1:

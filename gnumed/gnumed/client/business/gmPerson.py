@@ -608,6 +608,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 			'first': self._payload[self._idx['firstnames']],
 			'nick': gmTools.coalesce(self._payload[self._idx['preferred']], u'', u" '%s'")
 		}
+
 	#--------------------------------------------------------
 	def add_name(self, firstnames, lastnames, active=True):
 		"""Add a name.
@@ -621,6 +622,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		if active:
 			self.refetch_payload()
 		return name
+
 	#--------------------------------------------------------
 	def delete_name(self, name=None):
 		cmd = u"delete from dem.names where id = %(name)s and id_identity = %(pat)s"
@@ -629,6 +631,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		# can't have been the active name as that would raise an
 		# exception (since no active name would be left) so no
 		# data refetch needed
+
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
@@ -646,6 +649,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		self._payload[self._idx['preferred']] = nickname
 		#self.refetch_payload()
 		return True
+
 	#--------------------------------------------------------
 	def get_tags(self, order_by=None):
 		if order_by is None:
@@ -659,6 +663,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return [ gmDemographicRecord.cIdentityTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
 
 	tags = property(get_tags, lambda x:x)
+
 	#--------------------------------------------------------
 	def add_tag(self, tag):
 		args = {
@@ -685,10 +690,12 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 		return gmDemographicRecord.cIdentityTag(aPK_obj = rows[0]['pk'])
+
 	#--------------------------------------------------------
 	def remove_tag(self, tag):
 		cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': tag}}])
+
 	#--------------------------------------------------------
 	# external ID API
 	#
@@ -775,6 +782,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 					cmd = u"update dem.lnk_identity2ext_id set comment = %(comment)s where id=%(pk)s"
 					args = {'comment': comment, 'pk': row['pk_id']}
 					rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def update_external_id(self, pk_id=None, type=None, value=None, issuer=None, comment=None):
 		"""Edits an existing external ID.
@@ -810,6 +818,7 @@ class cIdentity(gmBusinessDBObject.cBusinessDBObject):
 		return rows
 
 	external_ids = property(get_external_ids, lambda x:x)
+
 	#--------------------------------------------------------
 	def delete_external_id(self, pk_ext_id=None):
 		cmd = u"""
@@ -817,6 +826,7 @@ delete from dem.lnk_identity2ext_id
 where id_identity = %(pat)s and id = %(pk)s"""
 		args = {'pat': self.ID, 'pk': pk_ext_id}
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
+
 	#--------------------------------------------------------
 	def assimilate_identity(self, other_identity=None, link_obj=None):
 		"""Merge another identity into this one.
@@ -913,13 +923,6 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			'args': args
 		})
 
-		# find FKs pointing to identity
-		FKs = gmPG2.get_foreign_keys2column (
-			schema = u'dem',
-			table = u'identity',
-			column = u'pk'
-		)
-
 		# disambiguate potential dupes
 		# - same-url comm channels
 		queries.append ({
@@ -971,6 +974,19 @@ where id_identity = %(pat)s and id = %(pk)s"""
 			'args': args
 		})
 
+		# find FKs pointing to dem.identity.pk
+		FKs = gmPG2.get_foreign_keys2column (
+			schema = u'dem',
+			table = u'identity',
+			column = u'pk'
+		)
+		# find FKs pointing to clin.patient.fk_identity
+		FKs.extend (gmPG2.get_foreign_keys2column (
+			schema = u'clin',
+			table = u'patient',
+			column = u'fk_identity'
+		))
+
 		# generate UPDATEs
 		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
 		for FK in FKs:
@@ -1015,6 +1031,7 @@ where id_identity = %(pat)s and id = %(pk)s"""
 		)
 
 		return True, None
+
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def put_on_waiting_list(self, urgency=0, comment=None, zone=None):
