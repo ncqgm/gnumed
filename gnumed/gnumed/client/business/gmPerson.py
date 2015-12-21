@@ -638,6 +638,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		if active:
 			self.refetch_payload()
 		return name
+
 	#--------------------------------------------------------
 	def delete_name(self, name=None):
 		cmd = u"delete from dem.names where id = %(name)s and id_identity = %(pat)s"
@@ -646,6 +647,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		# can't have been the active name as that would raise an
 		# exception (since no active name would be left) so no
 		# data refetch needed
+
 	#--------------------------------------------------------
 	def set_nickname(self, nickname=None):
 		"""
@@ -663,6 +665,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		self._payload[self._idx['preferred']] = nickname
 		#self.refetch_payload()
 		return True
+
 	#--------------------------------------------------------
 	def get_tags(self, order_by=None):
 		if order_by is None:
@@ -676,6 +679,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return [ gmDemographicRecord.cPersonTag(row = {'data': r, 'idx': idx, 'pk_field': 'pk_identity_tag'}) for r in rows ]
 
 	tags = property(get_tags, lambda x:x)
+
 	#--------------------------------------------------------
 	def add_tag(self, tag):
 		args = {
@@ -702,10 +706,12 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		"""
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 		return gmDemographicRecord.cPersonTag(aPK_obj = rows[0]['pk'])
+
 	#--------------------------------------------------------
 	def remove_tag(self, tag):
 		cmd = u"DELETE FROM dem.identity_tag WHERE pk = %(pk)s"
 		gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': {'pk': tag}}])
+
 	#--------------------------------------------------------
 	# external ID API
 	#
@@ -994,13 +1000,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'args': args
 		})
 
-		# find FKs pointing to identity
-		FKs = gmPG2.get_foreign_keys2column (
-			schema = u'dem',
-			table = u'identity',
-			column = u'pk'
-		)
-
 		# disambiguate potential dupes
 		# - same-url comm channels
 		queries.append ({
@@ -1052,6 +1051,19 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			'args': args
 		})
 
+		# find FKs pointing to dem.identity.pk
+		FKs = gmPG2.get_foreign_keys2column (
+			schema = u'dem',
+			table = u'identity',
+			column = u'pk'
+		)
+		# find FKs pointing to clin.patient.fk_identity
+		FKs.extend (gmPG2.get_foreign_keys2column (
+			schema = u'clin',
+			table = u'patient',
+			column = u'fk_identity'
+		))
+
 		# generate UPDATEs
 		cmd_template = u'UPDATE %s SET %s = %%(pat2keep)s WHERE %s = %%(pat2del)s'
 		for FK in FKs:
@@ -1096,6 +1108,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		)
 
 		return True, None
+
 	#--------------------------------------------------------
 	#--------------------------------------------------------
 	def put_on_waiting_list(self, urgency=0, comment=None, zone=None):
