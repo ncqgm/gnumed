@@ -363,7 +363,6 @@ drop view if exists dem.v_street cascade;
 
 
 create view dem.v_street as
-
 select
 	d_st.id as pk_street,
 	d_st.name as street,

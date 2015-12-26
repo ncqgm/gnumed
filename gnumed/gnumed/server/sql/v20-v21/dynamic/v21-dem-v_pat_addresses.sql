@@ -13,19 +13,18 @@ drop view if exists dem.v_pat_adresses cascade;
 
 create or replace view dem.v_pat_addresses as
 select
-	d_vbp.pk_identity,
+	d_vp.pk_identity,
 	d_va.pk_address,
 	d_at.name as address_type,
 	_(d_at.name) as l10n_address_type,
 
-	d_vbp.title,
-	d_vbp.firstnames,
-	d_vbp.lastnames,
-	d_vbp.dob,
-	d_vbp.cob,
-	d_vbp.gender,
-	d_vbp.l10n_gender,
-	d_vbp.preferred,
+	d_vp.title,
+	d_vp.firstnames,
+	d_vp.lastnames,
+	d_vp.dob,
+	d_vp.gender,
+	d_vp.l10n_gender,
+	d_vp.preferred,
 
 	d_va.street,
 	d_va.postcode,
@@ -58,10 +57,10 @@ select
 from
 	dem.v_address d_va,
 	dem.lnk_person_org_address d_lpoa,
-	dem.v_basic_person d_vbp,
+	dem.v_persons d_vp,
 	dem.address_type d_at
 where
-	d_lpoa.id_identity = d_vbp.pk_identity and
+	d_lpoa.id_identity = d_vp.pk_identity and
 	d_lpoa.id_address = d_va.pk_address and
 	d_lpoa.id_type = d_at.id
 ;

@@ -12,7 +12,6 @@
 drop view if exists clin.v_export_items cascade;
 
 create view clin.v_export_items as
-
 select
 	inner_export_items.*,
 	d_vp.title,
