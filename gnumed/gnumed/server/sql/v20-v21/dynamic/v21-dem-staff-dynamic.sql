@@ -127,7 +127,7 @@ select
 		as xmin_staff
 from
 	dem.staff d_s
-		join dem.v_persons d_vp on d_s.fk_identity = d_vp.pk_identity
+		join dem.v_all_persons d_vp on d_s.fk_identity = d_vp.pk_identity
 ;
 
 

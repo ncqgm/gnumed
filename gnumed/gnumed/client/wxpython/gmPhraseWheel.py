@@ -1427,7 +1427,7 @@ if __name__ == '__main__':
 				firstnames || ' ' || lastnames || ', ' || to_char(dob, 'YYYY-MM-DD'),
 				firstnames || ' ' || lastnames
 			from
-				dem.v_basic_person
+				dem.v_active_persons
 			where
 				firstnames || lastnames %(fragment_condition)s
 		"""

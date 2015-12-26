@@ -89,7 +89,7 @@ def _get_fairly_recent_encounter(pk_identity):
 	encounter = gmEMRStructItems.cEncounter(aPK_obj = rows[0][0])
 	cmd = u"""
 		SELECT title, firstnames, lastnames, gender, dob
-		FROM dem.v_basic_person WHERE pk_identity = %(pat)s"""
+		FROM dem.v_active_persons WHERE pk_identity = %(pat)s"""
 	pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 	pat = pats[0]
 	pat_str = u'%s %s %s (%s), %s  [#%s]' % (

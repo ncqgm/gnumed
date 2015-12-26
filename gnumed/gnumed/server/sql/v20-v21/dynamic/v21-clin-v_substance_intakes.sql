@@ -398,7 +398,7 @@ INSERT INTO clin.substance_intake (
 		'20051111'::timestamp,
 		'?',
 		(select pk from clin.encounter where fk_patient = (
-			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
 		) limit 1),
 		(select pk from ref.consumable_substance where atc_code = 'N07BA01' limit 1),
 		'tobacco',
@@ -434,7 +434,7 @@ INSERT INTO clin.substance_intake (
 		'20051111'::timestamp,
 		'?',
 		(select pk from clin.encounter where fk_patient = (
-			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
 		) limit 1),
 		(select pk from ref.consumable_substance where atc_code = 'V03AB16' limit 1),
 		'liquid',
@@ -468,7 +468,7 @@ INSERT INTO clin.substance_intake (
 		'20051111'::timestamp,
 		'?',
 		(select pk from clin.encounter where fk_patient = (
-			select pk_identity from dem.v_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
 		) limit 1),
 		(select pk from ref.consumable_substance where description = 'other drugs' limit 1),
 		'piece',

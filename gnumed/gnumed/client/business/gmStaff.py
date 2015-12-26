@@ -49,7 +49,6 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	def __init__(self, aPK_obj=None, row=None):
 		# by default get staff corresponding to CURRENT_USER
 		if (aPK_obj is None) and (row is None):
-			#cmd = u"select *, _(role) AS l10n_role from dem.v_staff where "
 			cmd = _SQL_fetch_staff_fields % u"db_user = CURRENT_USER"
 			try:
 				rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd}], get_col_idx=True)
@@ -110,8 +109,8 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	inbox = property(_get_inbox, _set_inbox)
 	#--------------------------------------------------------
 	def _get_identity(self):
-		from Gnumed.business.gmPerson import person
-		return person(self._payload[self._idx['pk_identity']], allow_disabled = True)
+		from Gnumed.business.gmPerson import cPerson
+		return cPerson(self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
 	#--------------------------------------------------------

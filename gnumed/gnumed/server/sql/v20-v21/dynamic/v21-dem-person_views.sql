@@ -9,9 +9,9 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-drop view if exists dem.v_persons cascade;
+drop view if exists dem.v_all_persons cascade;
 
-create view dem.v_persons as
+create view dem.v_all_persons as
 select
 	d_i.pk
 		as pk_identity,
@@ -63,31 +63,43 @@ from
 			left outer join dem.marital_status d_ms on (d_i.fk_marital_status = d_ms.pk)
 ;
 
-
-comment on view dem.v_persons is
+comment on view dem.v_all_persons is
 	'This view denormalizes persons with their active name.';
 
-
-revoke all on dem.v_persons from public;
-grant select on dem.v_persons to group "gm-public";
+revoke all on dem.v_all_persons from public;
+grant select on dem.v_all_persons to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_deleted_persons cascade;
 
 create or replace view dem.v_deleted_persons as
 select d_vp.*
-from dem.v_persons d_vp
+from dem.v_all_persons d_vp
 where
 	d_vp.is_deleted is true
 ;
 
-
 comment on view dem.v_deleted_persons is
 	'This view denormalizes "deleted" persons with their active name.';
-
 
 revoke all on dem.v_deleted_persons from public;
 grant select on dem.v_deleted_persons to group "gm-doctors";
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-dem-v_persons.sql', '21.0');
+drop view if exists dem.v_active_persons cascade;
+
+create or replace view dem.v_active_persons as
+select d_vp.*
+from dem.v_all_persons d_vp
+where
+	d_vp.is_deleted is false
+;
+
+comment on view dem.v_active_persons is
+	'This view denormalizes non-deleted persons with their active name.';
+
+revoke all on dem.v_active_persons from public;
+grant select on dem.v_active_persons to group "gm-public";
+
+-- --------------------------------------------------------------
+select gm.log_script_insertion('v21-dem-person_views.sql', '21.0');

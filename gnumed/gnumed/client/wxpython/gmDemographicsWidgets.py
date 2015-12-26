@@ -46,7 +46,6 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDateTimeInput
 from Gnumed.wxpython import gmDataMiningWidgets
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
 
 # constant defs
@@ -594,6 +593,7 @@ def disable_identity(identity=None):
 	gmPerson.disable_identity(identity['pk_identity'])
 
 	# change active patient to logged on staff = myself
+	from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 	wx.CallAfter(set_active_patient, patient = prov.identity)
 
 	return True
@@ -1586,7 +1586,8 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 	def _on_button_activate_contact_pressed(self, event):
 		ident = self._TCTRL_person.person
 		if ident is not None:
-			set_active_patient(patient = ident, forced_reload = False)
+			from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
+			wx.CallAfter(set_active_patient, patient = ident)
 
 		event.Skip()
 
@@ -1839,6 +1840,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
+		from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 		set_active_patient(patient = patient)
 		return patient
 	#--------------------------------------------------------

@@ -98,7 +98,7 @@ BEGIN
 
 	-- any row with
 	PERFORM 1 FROM
-		dem.v_persons
+		dem.v_all_persons
 	WHERE
 		-- same firstname
 		firstnames = _names_row.firstnames

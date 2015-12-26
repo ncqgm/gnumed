@@ -84,7 +84,7 @@ def external_id_exists(pk_issuer, value):
 	return rows[0][0]
 
 #============================================================
-def person_exists(lastnames, dob, firstnames=None):
+def person_exists(lastnames, dob, firstnames=None, active_only=True):
 	args = {
 		'last': lastnames,
 		'dob': dob
@@ -98,7 +98,10 @@ def person_exists(lastnames, dob, firstnames=None):
 			#where_parts.append(u"position(%(first)s in firstnames) = 1")
 			where_parts.append(u"firstnames ~* %(first)s")
 			args['first'] = u'\\m' + firstnames
-	cmd = u"""SELECT COUNT(1) FROM dem.v_basic_person WHERE %s""" % u' AND '.join(where_parts)
+	if active_only:
+		cmd = u"""SELECT COUNT(1) FROM dem.v_active_persons WHERE %s""" % u' AND '.join(where_parts)
+	else:
+		cmd = u"""SELECT COUNT(1) FROM dem.v_all_persons WHERE %s""" % u' AND '.join(where_parts)
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 	return rows[0][0]
 
@@ -204,9 +207,10 @@ class cDTO_person(object):
 			where_snippets.append(u'lower(gender) = lower(%(sex)s)')
 			args['sex'] = self.gender
 
+		# FIXME: allow disabled persons ?
 		cmd = u"""
 			SELECT *, '%s' AS match_type
-			FROM dem.v_basic_person
+			FROM dem.v_active_persons
 			WHERE
 				pk_identity IN (
 					SELECT pk_identity FROM dem.v_person_names WHERE %s
@@ -441,11 +445,11 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	description = property(_get_description, lambda x:x)
 
 #============================================================
-_SQL_get_basic_person = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
-_SQL_get_any_person = u"SELECT * FROM dem.v_persons WHERE pk_identity = %s"
+_SQL_get_active_person = u"SELECT * FROM dem.v_active_persons WHERE pk_identity = %s"
+_SQL_get_any_person = u"SELECT * FROM dem.v_all_persons WHERE pk_identity = %s"
 
 class cPerson(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = _SQL_get_basic_person
+	_cmd_fetch_payload = _SQL_get_any_person
 	_cmds_store_payload = [
 		u"""UPDATE dem.identity SET
 				gender = %(gender)s,
@@ -662,7 +666,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 			return True
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': u"SELECT dem.set_nickname(%s, %s)", 'args': [self.ID, nickname]}])
 		# setting nickname doesn't change dem.identity, so other fields
-		# of dem.v_basic_person do not get changed as a consequence of
+		# of dem.v_active_persons do not get changed as a consequence of
 		# setting the nickname, hence locally setting nickname matches
 		# in-database reality
 		self._payload[self._idx['preferred']] = nickname
@@ -730,7 +734,6 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 
 		creates ID type if necessary
 		"""
-
 		# check for existing ID
 		if pk_type is not None:
 			cmd = u"""
@@ -1561,36 +1564,30 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	#----------------------------------------------------------------------
 	def get_relatives(self):
 		cmd = u"""
-			select
-				t.description,
-				vbp.pk_identity as id,
-				title,
-				firstnames,
-				lastnames,
-				dob,
-				cob,
-				gender,
-				pupic,
-				pk_marital_status,
-				marital_status,
-				xmin_identity,
-				preferred
-			from
-				dem.v_basic_person vbp, dem.relation_types t, dem.lnk_person2relative l
-			where
-				(
-					l.id_identity = %(pk)s and
-					vbp.pk_identity = l.id_relative and
-					t.id = l.id_relation_type
+			SELECT
+				d_rt.description,
+				d_vap.*
+			FROM
+				dem.v_all_persons d_vap,
+				dem.relation_types d_rt,
+				dem.lnk_person2relative d_lp2r
+			WHERE
+				(	d_lp2r.id_identity = %(pk)s
+						AND
+					d_vap.pk_identity = d_lp2r.id_relative
+						AND
+					d_rt.id = d_lp2r.id_relation_type
 				) or (
-					l.id_relative = %(pk)s and
-					vbp.pk_identity = l.id_identity and
-					t.inverse = l.id_relation_type
+					d_lp2r.id_relative = %(pk)s
+						AND
+					d_vap.pk_identity = d_lp2r.id_identity
+						AND
+					d_rt.inverse = d_lp2r.id_relation_type
 				)"""
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'pk': self.pk_obj}}])
 		if len(rows) == 0:
 			return []
-		return [(row[0], cPerson(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk'})) for row in rows]
+		return [(row[0], cPerson(row = {'data': row[1:], 'idx':idx, 'pk_field': 'pk_identity'})) for row in rows]
 	#--------------------------------------------------------
 	def link_new_relative(self, rel_type = 'parent'):
 		# create new relative
@@ -1619,7 +1616,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_emergency_contact_from_database(self):
 		if self._payload[self._idx['pk_emergency_contact']] is None:
 			return None
-		return person(self._payload[self._idx['pk_emergency_contact']], allow_disabled = True)
+		return cPerson(self._payload[self._idx['pk_emergency_contact']])
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1754,7 +1751,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_primary_provider_identity(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
 			return None
-		cmd = u"SELECT * FROM dem.v_persons WHERE pk_identity = (SELECT pk_identity FROM dem.v_staff WHERE pk_staff = %(pk_staff)s)"
+		cmd = u"SELECT * FROM dem.v_all_persons WHERE pk_identity = (SELECT pk_identity FROM dem.v_staff WHERE pk_staff = %(pk_staff)s)"
 		args = {'pk_staff': self._payload[self._idx['pk_primary_provider']]}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		if len(rows) == 0:
@@ -1824,19 +1821,6 @@ def turn_identity_into_patient(pk_identity):
 	queries = [{'cmd': cmd, 'args': args}]
 	gmPG2.run_rw_queries(queries = queries)
 	return True
-
-#------------------------------------------------------------
-def person(pk_identity, allow_disabled=False):
-	args = [pk_identity]
-	if allow_disabled:
-		cmd = _SQL_get_any_person
-	else:
-		cmd = _SQL_get_basic_person
-	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-	if len(rows) == 0:
-		_log.info('person(%s, disabled=%s) -> no person found', pk_identity, allow_disabled)
-		return None
-	return cPerson(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_identity'})
 
 #============================================================
 # helper functions
@@ -1965,9 +1949,11 @@ class cPatient(cPerson):
 
 #============================================================
 class gmCurrentPatient(gmBorg.cBorg):
-	"""Patient Borg to hold currently active patient.
+	"""Patient Borg to hold the currently active patient.
 
 	There may be many instances of this but they all share state.
+
+	The underlying dem.identity row must have .deleted set to FALSE.
 
 	The sequence of events when changing the active patient:
 
@@ -2058,6 +2044,10 @@ class gmCurrentPatient(gmBorg.cBorg):
 		# same ID, no change needed
 		if (self.patient['pk_identity'] == patient['pk_identity']) and not forced_reload:
 			return None
+
+		if patient['is_deleted']:
+			_log.error('cannot set active patient to disabled dem.identity row: %s', patient)
+			raise ValueError('gmPerson.gmCurrentPatient.__init__(): <patient> is disabled: %s' % patient)
 
 		# user wants different patient
 		_log.info('patient change [%s] -> [%s] requested', self.patient['pk_identity'], patient['pk_identity'])

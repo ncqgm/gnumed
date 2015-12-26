@@ -64,7 +64,7 @@ from (
 	from
 		clin.export_item c_ei
 	) as inner_export_items
-	join dem.v_persons d_vp on d_vp.pk_identity = inner_export_items.pk_identity
+	join dem.v_all_persons d_vp on d_vp.pk_identity = inner_export_items.pk_identity
 ;
 
 

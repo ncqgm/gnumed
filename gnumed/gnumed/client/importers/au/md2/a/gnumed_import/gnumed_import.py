@@ -403,7 +403,7 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 	if dob is None:
 		dob = ''
 	# check for already existing identities
-	stmt = "select  pk_identity from dem.v_basic_person where  coalesce('%s',dob ) between dob - '1 day'::interval  and   dob + '1 days'::interval and firstnames = '%s' and lastnames = '%s' " % ( dob, esc(firstnames), esc(surname) )
+	stmt = "select  pk_identity from dem.v_all_persons where coalesce('%s',dob ) between dob - '1 day'::interval  and   dob + '1 days'::interval and firstnames = '%s' and lastnames = '%s' " % ( dob, esc(firstnames), esc(surname) )
 
 	cu.execute(stmt)
 	rr = cu.fetchall()

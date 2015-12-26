@@ -169,12 +169,12 @@ class cPatientSearcher_SQL:
 			_log.debug("[%s]: a PK or DOB" % raw)
 			tmp = raw.strip()
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
+				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			if len(tmp) > 7:	# DOB needs at least 8 digits
 				queries.append ({
-					'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+					'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 					'args': [_('date of birth'), tmp.replace(',', '.')]
 				})
 			queries.append ({
@@ -182,7 +182,7 @@ class cPatientSearcher_SQL:
 					SELECT vba.*, %s::text AS match_type
 					FROM
 						dem.lnk_identity2ext_id li2ext_id,
-						dem.v_basic_person vba
+						dem.v_active_persons vba
 					WHERE
 						vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
 					ORDER BY
@@ -196,13 +196,13 @@ class cPatientSearcher_SQL:
 		if regex.match(u"^(\d|\s|\t)+$", raw, flags = regex.LOCALE | regex.UNICODE):
 			_log.debug("[%s]: a DOB or PK" % raw)
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 				'args': [_('date of birth'), raw.replace(',', '.')]
 			})
 			tmp = raw.replace(u' ', u'')
 			tmp = tmp.replace(u'\t', u'')
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE pk_identity LIKE %s%%",
+				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity LIKE %s%%",
 				'args': [_('internal patient ID'), tmp]
 			})
 			return queries
@@ -216,7 +216,7 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace(u'\t', u'')
 			# this seemingly stupid query ensures the PK actually exists
 			queries.append ({
-				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_basic_person WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
+				'cmd': u"SELECT *, %s::text AS match_type FROM dem.v_active_persons WHERE pk_identity = %s ORDER BY lastnames, firstnames, dob",
 				'args': [_('internal patient ID'), tmp]
 			})
 			# but might also be an external ID
@@ -227,7 +227,7 @@ class cPatientSearcher_SQL:
 			tmp = tmp.replace(u'***DUMMY***', u'(\s|\t|-|/)*')
 			queries.append ({
 				'cmd': u"""
-					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_basic_person vba
+					SELECT vba.*, %s::text AS match_type FROM dem.lnk_identity2ext_id li2ext_id, dem.v_active_persons vba
 					WHERE vba.pk_identity = li2ext_id.id_identity and lower(li2ext_id.external_id) ~* lower(%s)
 					ORDER BY lastnames, firstnames, dob""",
 				'args': [_('external patient ID'), tmp]
@@ -251,7 +251,7 @@ class cPatientSearcher_SQL:
 						%s::text AS match_type
 					FROM
 						dem.lnk_identity2ext_id li2ext_id,
-						dem.v_basic_person vba
+						dem.v_active_persons vba
 					WHERE
 						vba.pk_identity = li2ext_id.id_identity
 							AND
@@ -272,7 +272,7 @@ class cPatientSearcher_SQL:
 			#tmp = tmp.replace('-', '.')
 			#tmp = tmp.replace('/', '.')
 			queries.append ({
-				'cmd': u"SELECT *, %s AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'cmd': u"SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp.replace(',', '.')]
 			})
 			return queries
@@ -284,13 +284,13 @@ class cPatientSearcher_SQL:
 			cmd = u"""
 SELECT DISTINCT ON (pk_identity) * FROM (
 	SELECT *, %s AS match_type FROM ((
-		SELECT vbp.*
-		FROM dem.names, dem.v_basic_person vbp
-		WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+		SELECT d_vap.*
+		FROM dem.names, dem.v_active_persons d_vap
+		WHERE dem.names.firstnames ~ %s and d_vap.pk_identity = dem.names.id_identity
 	) union all (
-		SELECT vbp.*
-		FROM dem.names, dem.v_basic_person vbp
-		WHERE dem.names.firstnames ~ %s and vbp.pk_identity = dem.names.id_identity
+		SELECT d_vap.*
+		FROM dem.names, dem.v_active_persons d_vap
+		WHERE dem.names.firstnames ~ %s and d_vap.pk_identity = dem.names.id_identity
 	)) AS super_list ORDER BY lastnames, firstnames, dob
 ) AS sorted_list"""
 			queries.append ({
@@ -305,7 +305,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			tmp = raw.replace(u'*', u'')
 			tmp = tmp.replace(u'$', u'')
 			queries.append ({
-				'cmd': u"SELECT *, %s AS match_type FROM dem.v_basic_person WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
+				'cmd': u"SELECT *, %s AS match_type FROM dem.v_active_persons WHERE dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone) ORDER BY lastnames, firstnames, dob",
 				'args': [_('date of birth'), tmp.replace(u',', u'.')]
 			})
 			return queries
@@ -349,7 +349,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			return None
 
 		cmd = u"""
-			SELECT *, %%s AS match_type FROM dem.v_basic_person
+			SELECT *, %%s AS match_type FROM dem.v_active_persons
 			WHERE pk_identity in (
 				SELECT id_identity FROM dem.names WHERE %s
 			) ORDER BY lastnames, firstnames, dob""" % ' and '.join(where_snippets)
@@ -392,26 +392,26 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				SELECT DISTINCT ON (pk_identity) * FROM (
 					SELECT * FROM ((
 						-- lastname
-						SELECT vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n
-						WHERE vbp.pk_identity = n.id_identity and lower(n.lastnames) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
+						WHERE d_vap.pk_identity = n.id_identity and lower(n.lastnames) ~* lower(%s)
 					) union all (
 						-- firstname
-						SELECT vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n
-						WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
+						WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s)
 					) union all (
 						-- nickname
-						SELECT vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n
-						WHERE vbp.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s)
+						SELECT d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n
+						WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s)
 					) union all (
 						-- anywhere in name
 						SELECT
-							vbp.*,
+							d_vap.*,
 							%s::text AS match_type
 						FROM
-							dem.v_basic_person vbp,
+							dem.v_active_persons d_vap,
 							dem.names n
 						WHERE
-							vbp.pk_identity = n.id_identity
+							d_vap.pk_identity = n.id_identity
 								AND
 							lower(n.firstnames || ' ' || n.lastnames || ' ' || coalesce(n.preferred, '')) ~* lower(%s)
 					)) AS super_list ORDER BY lastnames, firstnames, dob
@@ -468,31 +468,31 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if date_count == 0:
 					# assumption: first last
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: first-last'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: first-last'), '^' + name_parts[0], '^' + name_parts[1]]
 					})
 					# assumption: last first
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: last-first'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-first'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
 					print "before nick"
 					print queries
 					# assumption: last nick
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.preferred ~ %s AND n.lastnames ~ %s",
 						'args': [_('name: last-nick'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES)]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.preferred) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s)",
 						'args': [_('name: last-nick'), '^' + name_parts[1], '^' + name_parts[0]]
 					})
 					print "after nick"
@@ -500,13 +500,13 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 					# name parts anywhere inside name - third order query ...
 					queries.append ({
 						'cmd': u"""SELECT DISTINCT ON (id_identity)
-									vbp.*,
+									d_vap.*,
 									%s::text AS match_type
 								FROM
-									dem.v_basic_person vbp,
+									dem.v_active_persons d_vap,
 									dem.names n
 								WHERE
-									vbp.pk_identity = n.id_identity
+									d_vap.pk_identity = n.id_identity
 										AND
 									-- name_parts[0]
 									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
@@ -526,32 +526,32 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 				if date_count == 1:
 					# assumption: first, last, dob - first order
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 						'args': [_('names: first-last, date of birth'), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), date_part.replace(u',', u'.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 						'args': [_('names: first-last, date of birth'), '^' + name_parts[0], '^' + name_parts[1], date_part.replace(u',', u'.')]
 					})
 					# assumption: last, first, dob - second order query
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and n.firstnames ~ %s AND n.lastnames ~ %s AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 						'args': [_('names: last-first, date of birth'), '^' + gmTools.capitalize(name_parts[1], mode=gmTools.CAPS_NAMES), '^' + gmTools.capitalize(name_parts[0], mode=gmTools.CAPS_NAMES), date_part.replace(u',', u'.')]
 					})
 					queries.append ({
-						'cmd': u"SELECT DISTINCT ON (id_identity) vbp.*, %s::text AS match_type FROM dem.v_basic_person vbp, dem.names n WHERE vbp.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
+						'cmd': u"SELECT DISTINCT ON (id_identity) d_vap.*, %s::text AS match_type FROM dem.v_active_persons d_vap, dem.names n WHERE d_vap.pk_identity = n.id_identity and lower(n.firstnames) ~* lower(%s) AND lower(n.lastnames) ~* lower(%s) AND dem.date_trunc_utc('day'::text, dob) = dem.date_trunc_utc('day'::text, %s::timestamp with time zone)",
 						'args': [_('names: last-first, dob'), '^' + name_parts[1], '^' + name_parts[0], date_part.replace(u',', u'.')]
 					})
 					# name parts anywhere in name - third order query ...
 					queries.append ({
 						'cmd': u"""SELECT DISTINCT ON (id_identity)
-									vbp.*,
+									d_vap.*,
 									%s::text AS match_type
 								FROM
-									dem.v_basic_person vbp,
+									dem.v_active_persons d_vap,
 									dem.names n
 								WHERE
-									vbp.pk_identity = n.id_identity
+									d_vap.pk_identity = n.id_identity
 										AND
 									lower(n.firstnames || ' ' || n.lastnames) ~* lower(%s)
 										AND
@@ -706,7 +706,7 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 			# and finally generate the queries ...
 			for where_part in where_parts:
 				queries.append ({
-					'cmd': u"SELECT *, %%s::text AS match_type FROM dem.v_basic_person WHERE %s" % where_part['conditions'],
+					'cmd': u"SELECT *, %%s::text AS match_type FROM dem.v_active_persons WHERE %s" % where_part['conditions'],
 					'args': where_part['args']
 				})
 			return queries
@@ -721,19 +721,19 @@ SELECT DISTINCT ON (pk_identity) * FROM (
 		args = []
 		# FIXME: split on more than just ' '
 		for arg in search_term.strip().split():
-			where_clause += u" AND lower(coalesce(vbp.title, '') || ' ' || vbp.firstnames || ' ' || vbp.lastnames) ~* lower(%s)"
+			where_clause += u" AND lower(coalesce(d_vap.title, '') || ' ' || d_vap.firstnames || ' ' || d_vap.lastnames) ~* lower(%s)"
 			args.append(arg)
 
 		query = u"""
 SELECT DISTINCT ON (pk_identity) * FROM (
 	SELECT
-		vbp.*,
+		d_vap.*,
 		'%s'::text AS match_type
 	FROM
-		dem.v_basic_person vbp,
+		dem.v_active_persons d_vap,
 		dem.names n
 	WHERE
-		vbp.pk_identity = n.id_identity
+		d_vap.pk_identity = n.id_identity
 		%s
 	ORDER BY
 		lastnames,

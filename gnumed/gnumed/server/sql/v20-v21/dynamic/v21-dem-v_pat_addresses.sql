@@ -57,7 +57,7 @@ select
 from
 	dem.v_address d_va,
 	dem.lnk_person_org_address d_lpoa,
-	dem.v_persons d_vp,
+	dem.v_all_persons d_vp,
 	dem.address_type d_at
 where
 	d_lpoa.id_identity = d_vp.pk_identity and

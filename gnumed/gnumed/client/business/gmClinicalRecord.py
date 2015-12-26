@@ -292,7 +292,7 @@ class cClinicalRecord(object):
 	def _get_gender(self):
 		if self.__gender is not None:
 			return self.__gender
-		cmd = u'SELECT gender, dob FROM dem.v_basic_person WHERE pk_identity = %(pat)s'
+		cmd = u'SELECT gender, dob FROM dem.v_all_persons WHERE pk_identity = %(pat)s'
 		args = {u'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, u'args': args}], get_col_idx = False)
 		self.__gender = rows[0][u'gender']
@@ -307,7 +307,7 @@ class cClinicalRecord(object):
 	def _get_dob(self):
 		if self.__dob is not None:
 			return self.__dob
-		cmd = u'SELECT gender, dob FROM dem.v_basic_person WHERE pk_identity = %(pat)s'
+		cmd = u'SELECT gender, dob FROM dem.v_all_persons WHERE pk_identity = %(pat)s'
 		args = {u'pat': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{u'cmd': cmd, u'args': args}], get_col_idx = False)
 		self.__gender = rows[0][u'gender']
@@ -1102,7 +1102,7 @@ order by
 	#--------------------------------------------------------
 	def format_summary(self):
 
-		cmd = u"SELECT dob FROM dem.v_basic_person WHERE pk_identity = %(pk)s"
+		cmd = u"SELECT dob FROM dem.v_all_persons WHERE pk_identity = %(pk)s"
 		args = {'pk': self.pk_patient}
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = False)
 		dob = rows[0]['dob']
@@ -2224,7 +2224,7 @@ WHERE
 		# ask user whether to attach or not
 		cmd = u"""
 			SELECT title, firstnames, lastnames, gender, dob
-			FROM dem.v_basic_person WHERE pk_identity=%s"""
+			FROM dem.v_all_persons WHERE pk_identity=%s"""
 		pats, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': [self.pk_patient]}])
 		pat = pats[0]
 		pat_str = u'%s %s %s (%s), %s  [#%s]' % (
