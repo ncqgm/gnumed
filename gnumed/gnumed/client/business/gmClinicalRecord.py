@@ -1399,6 +1399,9 @@ WHERE
 	#--------------------------------------------------------
 	def get_external_care_items(self, order_by=None):
 		return gmExternalCare.get_external_care_items(pk_identity = self.pk_patient, order_by = order_by)
+
+	external_care_items = property(get_external_care_items, lambda x:x)
+
 	#--------------------------------------------------------
 	# API: episodes
 	#--------------------------------------------------------

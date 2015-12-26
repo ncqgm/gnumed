@@ -1616,7 +1616,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_emergency_contact_from_database(self):
 		if self._payload[self._idx['pk_emergency_contact']] is None:
 			return None
-		return cPerson(aPK_obj = self._payload[self._idx['pk_emergency_contact']])
+		return get_any_person(self._payload[self._idx['pk_emergency_contact']])
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1746,6 +1746,20 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return gmAutoHints.get_suppressed_hints(pk_identity = self._payload[self._idx['pk_identity']])
 
 	suppressed_hints = property(_get_suppressed_hints, lambda x:x)
+
+	#--------------------------------------------------------
+	def _get_primary_provider_identity(self):
+		if self._payload[self._idx['pk_primary_provider']] is None:
+			return None
+		cmd = u"SELECT * FROM dem.v_persons WHERE pk_identity = (SELECT pk_identity FROM dem.v_staff WHERE pk_staff = %(pk_staff)s)"
+		args = {'pk_staff': self._payload[self._idx['pk_primary_provider']]}
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+		if len(rows) == 0:
+			return None
+		return cPerson(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_identity'})
+
+	primary_provider_identity = property(_get_primary_provider_identity, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_primary_provider(self):
 		if self._payload[self._idx['pk_primary_provider']] is None:
@@ -1754,6 +1768,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 		return gmStaff.cStaff(aPK_obj = self._payload[self._idx['pk_primary_provider']])
 
 	primary_provider = property(_get_primary_provider, lambda x:x)
+
 	#----------------------------------------------------------------------
 	# convenience
 	#----------------------------------------------------------------------
@@ -1806,6 +1821,15 @@ def turn_identity_into_patient(pk_identity):
 	queries = [{'cmd': cmd, 'args': args}]
 	gmPG2.run_rw_queries(queries = queries)
 	return True
+
+#------------------------------------------------------------
+def get_any_person(pk_identity):
+	cmd = u"SELECT * FROM dem.v_persons WHERE pk_identity = %(pk)s"
+	args = {'pk': pk_identity}
+	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
+	if len(rows) == 0:
+		return None
+	return cPerson(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_identity'})
 
 #============================================================
 # helper functions

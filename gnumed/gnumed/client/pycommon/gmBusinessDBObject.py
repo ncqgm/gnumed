@@ -354,7 +354,7 @@ def delete_xxx(pk_XXX=None):
 			- data: the field values in a list (as returned by
 			  cursor.fetchone() in the DB-API)
 
-		row = {'data': row, 'idx': idx, 'pk_field': 'the PK column name'}
+		row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_XXX (the PK column name)'}
 
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 		objects = [ cChildClass(row = {'data': r, 'idx': idx, 'pk_field': 'the PK column name'}) for r in rows ]

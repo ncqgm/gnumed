@@ -111,7 +111,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	#--------------------------------------------------------
 	def _get_identity(self):
 		from Gnumed.business import gmPerson
-		return gmPerson.cPerson(aPK_obj = self._payload[self._idx['pk_identity']])
+		return gmPerson.get_any_person(self._payload[self._idx['pk_identity']])
 
 	identity = property(_get_identity, lambda x:x)
 	#--------------------------------------------------------
@@ -137,6 +137,7 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 		return True
 
 	role = property(lambda x:x, set_role)
+
 #============================================================
 def get_staff_list(active_only=False):
 	if active_only:
@@ -153,6 +154,7 @@ def get_staff_list(active_only=False):
 		}
 		staff_list.append(cStaff(row=obj_row))
 	return staff_list
+
 #------------------------------------------------------------
 def create_staff(conn=None, db_account=None, password=None, identity=None, short_alias=None):
 	args = {
@@ -191,6 +193,7 @@ def create_staff(conn=None, db_account=None, password=None, identity=None, short
 		raise
 
 	return True, None
+
 #------------------------------------------------------------
 def delete_staff(conn=None, pk_staff=None):
 	queries = [{'cmd': u'DELETE FROM dem.staff WHERE pk = %(pk)s', 'args': {'pk': pk_staff}}]
@@ -209,6 +212,7 @@ def delete_staff(conn=None, pk_staff=None):
 		raise
 
 	return True, None
+
 #------------------------------------------------------------
 def activate_staff(conn=None, pk_staff=None):
 	# 1) activate staff entry
@@ -225,6 +229,7 @@ def activate_staff(conn=None, pk_staff=None):
 	)
 
 	return True
+
 #------------------------------------------------------------
 def deactivate_staff(conn=None, pk_staff=None):
 
@@ -241,6 +246,7 @@ def deactivate_staff(conn=None, pk_staff=None):
 	)
 
 	return True
+
 #============================================================
 def set_current_provider_to_logged_on_user():
 	gmCurrentProvider(provider = cStaff())

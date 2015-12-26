@@ -919,11 +919,10 @@ class cPatientOverviewPnl(wxgPatientOverviewPnl.wxgPatientOverviewPnl, gmRegetMi
 
 		provider = patient.primary_provider
 		if provider is not None:
-			list_items.append(_('in-praxis: %s') % provider.identity['description_gender'])
+			list_items.append(_('in-praxis: %s') % patient.primary_provider_identity['description_gender'])
 			list_data.append(provider)
 
-		care = emr.get_external_care_items()
-		for item in care:
+		for item in emr.external_care_items:
 			list_items.append(_('care: %s%s@%s') % (
 				gmTools.coalesce(item['provider'], u'', u'%s, '),
 				item['unit'],
