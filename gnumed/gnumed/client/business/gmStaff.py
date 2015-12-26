@@ -110,8 +110,8 @@ class cStaff(gmBusinessDBObject.cBusinessDBObject):
 	inbox = property(_get_inbox, _set_inbox)
 	#--------------------------------------------------------
 	def _get_identity(self):
-		from Gnumed.business import gmPerson
-		return gmPerson.get_any_person(self._payload[self._idx['pk_identity']])
+		from Gnumed.business.gmPerson import person
+		return person(self._payload[self._idx['pk_identity']], allow_disabled = True)
 
 	identity = property(_get_identity, lambda x:x)
 	#--------------------------------------------------------
@@ -309,6 +309,7 @@ class gmCurrentProvider(gmBorg.cBorg):
 		if not isinstance(self.provider, gmNull.cNull):
 			return getattr(self.provider, attribute)
 #		raise AttributeError
+
 #============================================================
 # main/testing
 #============================================================

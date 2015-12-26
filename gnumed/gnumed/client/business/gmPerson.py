@@ -441,8 +441,11 @@ class cPersonName(gmBusinessDBObject.cBusinessDBObject):
 	description = property(_get_description, lambda x:x)
 
 #============================================================
+_SQL_get_basic_person = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
+_SQL_get_any_person = u"SELECT * FROM dem.v_persons WHERE pk_identity = %s"
+
 class cPerson(gmBusinessDBObject.cBusinessDBObject):
-	_cmd_fetch_payload = u"SELECT * FROM dem.v_basic_person WHERE pk_identity = %s"
+	_cmd_fetch_payload = _SQL_get_basic_person
 	_cmds_store_payload = [
 		u"""UPDATE dem.identity SET
 				gender = %(gender)s,
@@ -1616,7 +1619,7 @@ class cPerson(gmBusinessDBObject.cBusinessDBObject):
 	def _get_emergency_contact_from_database(self):
 		if self._payload[self._idx['pk_emergency_contact']] is None:
 			return None
-		return get_any_person(self._payload[self._idx['pk_emergency_contact']])
+		return person(self._payload[self._idx['pk_emergency_contact']], allow_disabled = True)
 
 	emergency_contact_in_database = property(_get_emergency_contact_from_database, lambda x:x)
 	#----------------------------------------------------------------------
@@ -1823,11 +1826,15 @@ def turn_identity_into_patient(pk_identity):
 	return True
 
 #------------------------------------------------------------
-def get_any_person(pk_identity):
-	cmd = u"SELECT * FROM dem.v_persons WHERE pk_identity = %(pk)s"
-	args = {'pk': pk_identity}
+def person(pk_identity, allow_disabled=False):
+	args = [pk_identity]
+	if allow_disabled:
+		cmd = _SQL_get_any_person
+	else:
+		cmd = _SQL_get_basic_person
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 0:
+		_log.info('person(%s, disabled=%s) -> no person found', pk_identity, allow_disabled)
 		return None
 	return cPerson(row = {'data': rows[0], 'idx': idx, 'pk_field': 'pk_identity'})
 
@@ -2257,6 +2264,7 @@ class cMatchProvider_Provider(gmMatchProvider.cMatchProvider_SQL2):
 			]
 		)
 		self.setThresholds(1, 2, 3)
+
 #============================================================
 # convenience functions
 #============================================================
@@ -2291,6 +2299,16 @@ INSERT INTO dem.names (
 	ident = cPerson(aPK_obj = rows[0][0])
 	gmHooks.run_hook_script(hook = u'post_person_creation')
 	return ident
+
+#============================================================
+def disable_identity(pk_identity):
+	_log.info('disabling identity [%s]', pk_identity)
+	cmd = u"UPDATE dem.identity SET deleted = true WHERE pk = %(pk)s"
+	args = {'pk': identity['pk_identity']}
+	gmPG2.run_rw_queries(queries = [
+		{'cmd': cmd, 'args': args}
+	])
+	return True
 
 #============================================================
 def create_dummy_identity():

@@ -102,6 +102,8 @@ select
 		as comment,
 	d_s.is_active
 		as is_active,
+	d_vp.is_deleted
+		as person_is_deleted,
 	(select (
 		select exists (
 			SELECT 1

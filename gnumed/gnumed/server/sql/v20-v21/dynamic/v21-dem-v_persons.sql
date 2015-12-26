@@ -72,4 +72,22 @@ revoke all on dem.v_persons from public;
 grant select on dem.v_persons to group "gm-public";
 
 -- --------------------------------------------------------------
+drop view if exists dem.v_deleted_persons cascade;
+
+create or replace view dem.v_deleted_persons as
+select d_vp.*
+from dem.v_persons d_vp
+where
+	d_vp.is_deleted is true
+;
+
+
+comment on view dem.v_deleted_persons is
+	'This view denormalizes "deleted" persons with their active name.';
+
+
+revoke all on dem.v_deleted_persons from public;
+grant select on dem.v_deleted_persons to group "gm-doctors";
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v21-dem-v_persons.sql', '21.0');

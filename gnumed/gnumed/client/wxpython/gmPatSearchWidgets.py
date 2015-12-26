@@ -1246,8 +1246,13 @@ def set_active_patient(patient=None, forced_reload=False):
 		return True
 
 	if isinstance(patient, gmPerson.cPatient):
-		pass
+		if patient['is_deleted']:
+			_log.error('patient is disabled, will not use as active patient: %s', patient)
+			return False
 	elif isinstance(patient, gmPerson.cPerson):
+		if patient['is_deleted']:
+			_log.error('patient is disabled, will not use as active patient: %s', patient)
+			return False
 		patient = patient.as_patient
 	elif patient == -1:
 		pass

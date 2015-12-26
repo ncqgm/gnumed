@@ -3092,7 +3092,7 @@ class gmTopLevelFrame(wx.Frame):
 		if not pat.connected:
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete patient. No patient active.'))
 			return False
-		gmDemographicsWidgets.disable_identity(identity=pat)
+		gmDemographicsWidgets.disable_identity(identity = pat)
 		return True
 	#----------------------------------------------
 	def __on_merge_patients(self, event):

@@ -46,6 +46,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmDateTimeInput
 from Gnumed.wxpython import gmDataMiningWidgets
 from Gnumed.wxpython import gmGuiHelpers
+from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
 
 # constant defs
@@ -402,6 +403,7 @@ class cImageTagPresenterPnl(wxgVisualSoapPresenterPnl.wxgVisualSoapPresenterPnl)
 		self.__current_tag = evt.GetEventObject().tag
 		self.PopupMenu(self.__context_popup, pos = wx.DefaultPosition)
 		self.__current_tag = None
+
 #============================================================
 #============================================================
 class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
@@ -474,6 +476,7 @@ class cKOrganizerSchedulePnl(gmDataMiningWidgets.cPatientListingPnl):
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		self.reload_appointments()
+
 #============================================================
 # occupation related widgets / functions
 #============================================================
@@ -536,6 +539,21 @@ def document_death_of_patient(identity=None):
 
 #------------------------------------------------------------
 def disable_identity(identity=None):
+
+	# already disabled ?
+	if identity['is_deleted']:
+		_log.debug('identity already deleted: %s', identity)
+		return True
+
+	# logged in staff ?
+	# if so -> return
+	prov = gmStaff.gmCurrentProvider()
+	if prov['pk_identity'] == identity['pk_identity']:
+		_log.warning('identity cannot delete itself while being logged on as staff member')
+		_log.debug('identity to delete: %s', identity)
+		_log.debug('logged on staff: %s', prov)
+		return False
+
 	# ask user for assurance
 	go_ahead = gmGuiHelpers.gm_show_question (
 		_('Are you sure you really, positively want\n'
@@ -552,28 +570,31 @@ def disable_identity(identity=None):
 			identity.get_formatted_dob(),
 			gmTools.bool2subst (
 				identity.is_patient,
-				_('This patient DID receive care.'),
-				_('This person did NOT receive care.')
+				_('This patient DID receive care here.'),
+				_('This person did NOT receive care here.')
 			)
 		),
 		_('Disabling person')
 	)
 	if not go_ahead:
-		return True
+		return False
 
 	# get admin connection
 	conn = gmAuthWidgets.get_dbowner_connection (
-		procedure = _('Disabling patient')
+		procedure = _('Disabling person')
 	)
 	# - user cancelled
 	if conn is False:
-		return True
+		return False
 	# - error
 	if conn is None:
-		return False
+		return None
 
-	# now disable patient
-	gmPG2.run_rw_queries(queries = [{'cmd': u"update dem.identity set deleted=True where pk=%s", 'args': [identity['pk_identity']]}])
+	# disable patient
+	gmPerson.disable_identity(identity['pk_identity'])
+
+	# change active patient to logged on staff = myself
+	wx.CallAfter(set_active_patient, patient = prov.identity)
 
 	return True
 
@@ -1565,8 +1586,7 @@ class cPersonSocialNetworkManagerPnl(wxgPersonSocialNetworkManagerPnl.wxgPersonS
 	def _on_button_activate_contact_pressed(self, event):
 		ident = self._TCTRL_person.person
 		if ident is not None:
-			from Gnumed.wxpython import gmPatSearchWidgets
-			gmPatSearchWidgets.set_active_patient(patient = ident, forced_reload = False)
+			set_active_patient(patient = ident, forced_reload = False)
 
 		event.Skip()
 
@@ -1819,8 +1839,7 @@ if __name__ == "__main__":
 		if patient is None:
 			print "No patient. Exiting gracefully..."
 			sys.exit(0)
-		from Gnumed.wxpython import gmPatSearchWidgets
-		gmPatSearchWidgets.set_active_patient(patient=patient)
+		set_active_patient(patient = patient)
 		return patient
 	#--------------------------------------------------------
 	if len(sys.argv) > 1 and sys.argv[1] == 'test':
