@@ -13,14 +13,11 @@ drop view if exists dem.v_basic_person cascade;
 
 create or replace view dem.v_basic_person as
 select d_vap.*
-from dem.v_all_persons d_vap
-where
-	d_vap.is_deleted is false
-;
+from dem.v_active_persons d_vap;
 
 
 comment on view dem.v_basic_person is
-	'This view denormalizes non-deleted persons with their active name.';
+	'DEPRECATED (use dem.v_active_persons): This view denormalizes non-deleted persons with their active name.';
 
 
 revoke all on dem.v_basic_person from public;

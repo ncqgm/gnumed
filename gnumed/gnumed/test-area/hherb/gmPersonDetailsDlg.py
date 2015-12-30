@@ -285,7 +285,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 		Then using map formatting of sql command strings to get relevant insert or update
 		sql statement. If no personId , then an insert statement is needed, otherwise 
 		a update statements. 
-		Updates and Inserts are done through view triggers for v_basic_person, v_basic_address,
+		Updates and Inserts are done through view triggers for v_active_persons, v_basic_address,
 		see gmidentity.sql and gmgis.sql in sql directory for details. 
 		"""
 	
@@ -303,7 +303,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 		if self.personId == None or self.personId == -1:
 
-				queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )
+				queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob, cob )
 					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
 
 
@@ -354,7 +354,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 
 		else:
-			queries.append("""update v_basic_person set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
+			queries.append("""update v_active_persons set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
 						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
 
 

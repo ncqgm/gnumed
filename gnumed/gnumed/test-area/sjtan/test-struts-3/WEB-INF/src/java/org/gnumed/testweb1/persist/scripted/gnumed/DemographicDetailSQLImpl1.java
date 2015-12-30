@@ -1072,7 +1072,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		try {
 			PreparedStatement stmt = conn
 					.prepareStatement("select v.pk_identity,  firstnames, lastnames , dob, gender , number, street, urb, postcode, state, country "
-							+ "from  v_basic_person v left  join (select * from lnk_person_org_address l, v_basic_address a where l.id_address= a.id) as la on v.pk_identity=la.id_identity  "
+							+ "from  v_active_persons v left  join (select * from lnk_person_org_address l, v_basic_address a where l.id_address= a.id) as la on v.pk_identity=la.id_identity  "
 							+ " where "
 							+ " strpos( upper(firstnames), upper( ? ) ) > 0 "
 							+ "and strpos(upper(lastnames), upper( ?  ) ) > 0");
@@ -1129,7 +1129,7 @@ public class DemographicDetailSQLImpl1 implements DemographicDetailSQL,
 		    DemographicDetail detail = getDataObjectFactory()
 			.createDemographicDetail();
 		    
-			String selectDetailNamesAddress = "select * from v_basic_person p " +
+			String selectDetailNamesAddress = "select * from v_active_persons p " +
 			"left join lnk_person_org_address l on (p.pk_identity = l.id_identity) " +
 			"left join v_basic_address a on (l.id_address = a.id) " +
 		// can't access publicdb to change view, so resort to application selection of comms.

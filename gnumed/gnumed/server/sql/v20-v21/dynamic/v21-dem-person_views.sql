@@ -102,4 +102,34 @@ revoke all on dem.v_active_persons from public;
 grant select on dem.v_active_persons to group "gm-public";
 
 -- --------------------------------------------------------------
+drop view if exists dem.v_basic_person cascade;
+
+-- --------------------------------------------------------------
+update cfg.report_query c_rq set
+	cmd = replace(cmd, 'v_basic_person', 'v_active_persons')
+where
+	c_rq.cmd is not null
+		and
+	position('v_basic_person' in c_rq.cmd) > 0
+;
+
+-- --------------------------------------------------------------
+update ref.auto_hint r_ah set
+	query = replace(query, 'v_basic_person', 'v_active_persons')
+where
+	r_ah.query is not null
+		and
+	position('v_basic_person' in r_ah.query) > 0
+;
+
+-- --------------------------------------------------------------
+update ref.auto_hint r_ah set
+	recommendation_query = replace(recommendation_query, 'v_basic_person', 'v_active_persons')
+where
+	r_ah.recommendation_query is not null
+		and
+	position('v_basic_person' in r_ah.recommendation_query) > 0
+;
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v21-dem-person_views.sql', '21.0');

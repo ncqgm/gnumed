@@ -1678,7 +1678,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 
 	21.0
 
-NEW: dem.v_basic_person deprecated
+NEW: dem.v_basic_person -> dem.v_active_persons
 NEW: prevent deletion of staff records that are in use
 NEW: smoking support in clin.patient
 NEW: constraints on audit trail to be in the past

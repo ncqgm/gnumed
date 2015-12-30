@@ -32,9 +32,9 @@ days_of_week = (_("Monday"),
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 pat_by_names_query = \
-	"select id, lastnames, firstnames, dob from v_basic_person where lastnames ILIKE '%s%%' and firstnames ILIKE '%s%%'"
+	"select id, lastnames, firstnames, dob from v_active_persons where lastnames ILIKE '%s%%' and firstnames ILIKE '%s%%'"
 pat_by_surnames_query = \
-	"select id, lastnames, firstnames, dob from v_basic_person where lastnames ILIKE '%s%%'"
+	"select id, lastnames, firstnames, dob from v_active_persons where lastnames ILIKE '%s%%'"
 
 def ParseTimeInterval(interval):
 	res = []
@@ -586,7 +586,7 @@ class ScheduleGrid(wxGrid): ##, wxGridAutoEditMixin):
 			   IsoDate(self.Date), \
 			   IsoDate(self.AddDays(self.days, self.Date)) )
 		#print query
-		patquery = "select * from v_basic_person where id = %d"
+		patquery = "select * from v_active_persons where id = %d"
 		cur = self.db.cursor() #for the appointment
 		pc = self.db.cursor() #for the patient
 		cur.execute(query)

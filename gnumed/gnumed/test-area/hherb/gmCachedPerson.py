@@ -31,7 +31,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 			self.cache.db = conn.GetConnection('demographica')
 
 		gmDBCache.CachedDBObject.__init__(self, self.cache, id=-1, db=db,
-		                          querystr="select * from v_basic_person where id = %d")
+		                          querystr="select * from v_active_persons where id = %d")
 
 	def get(self, id=None, by_reference=0, refresh_only=0):
 		#allow only searches when the id is available
@@ -58,7 +58,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 				"""create a person through sql , but no transaction statements"""
 		                queries = []
 
-                                queries.append( """insert into v_basic_person ( title,lastnames, firstnames,  gender, dob, cob )        
+                                queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob, cob )        
 	                               values ('%(title)s', '%(lastnames)s', '%(firstnames)s',  '%(gender)s', '%(dob)s', '%(cob)s')"""%map) 
 				cursor = db.cursor()
 
@@ -68,7 +68,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 
 	def update_person(self, personMap, db):
 			queries = []
-			queries.append("""update v_basic_person set title='%(title)s',  lastnames='%(lastnames)s', firstnames='%(firstnames)s',
+			queries.append("""update v_active_persons set title='%(title)s',  lastnames='%(lastnames)s', firstnames='%(firstnames)s',
 				gender= '%(gender)s',  dob='%(dob)s', cob ='%(cob)s' where id=%(id)d""" %personMap )
 
                         cursor = db.cursor()

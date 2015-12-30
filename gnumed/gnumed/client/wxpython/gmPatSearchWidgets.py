@@ -47,7 +47,6 @@ from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmEditArea
-from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython.gmPersonCreationWidgets import create_new_person
 
 
@@ -844,6 +843,7 @@ def get_person_from_external_sources(parent=None, search_immediately=False, acti
 	dto.delete_from_source()
 
 	return ident
+
 #============================================================
 class cPersonSearchCtrl(wx.TextCtrl):
 	"""Widget for smart search for persons."""
@@ -1110,6 +1110,7 @@ class cPersonSearchCtrl(wx.TextCtrl):
 		wx.EndBusyCursor()
 
 		return None
+
 #============================================================
 def _verify_staff_chart_access(patient=None):
 

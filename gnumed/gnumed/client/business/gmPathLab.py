@@ -2554,10 +2554,11 @@ class cLabResult(gmBusinessDBObject.cBusinessDBObject):
 				vbp.firstnames,
 				vbp.lastnames,
 				vbp.dob
-			from v_basic_person vbp
-			where vbp.pk_identity=%%s""" % self._payload[self._idx['pk_patient']]
+			from v_active_persons vbp
+			where vbp.pk_identity = %%s""" % self._payload[self._idx['pk_patient']]
 		pat = gmPG.run_ro_query('historica', cmd, None, self._payload[self._idx['pk_patient']])
 		return pat[0]
+
 #============================================================
 class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 	"""Represents one lab request."""
@@ -2635,7 +2636,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 	def get_patient(self):
 		cmd = """
 			select vpi.pk_patient, vbp.title, vbp.firstnames, vbp.lastnames, vbp.dob
-			from v_pat_items vpi, v_basic_person vbp
+			from v_pat_items vpi, v_active_persons vbp
 			where
 				vpi.pk_item=%s
 					and
@@ -2648,6 +2649,7 @@ class cLabRequest(gmBusinessDBObject.cBusinessDBObject):
 			_log.error('no patient associated with lab request [%s]' % self._payload[self._idx['pk_item']])
 			return None
 		return pat[0]
+
 #============================================================
 # convenience functions
 #------------------------------------------------------------
