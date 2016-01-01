@@ -415,7 +415,6 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 
 		self._PRW_encounter_type.SetText(self.__encounter['l10n_type'], data = self.__encounter['pk_type'])
 		self._PRW_location.Enable(True)
-		self._PRW_location.display_as_disabled(False)
 		branch = self.__encounter.praxis_branch
 		if branch is None:		# None or old entry because praxis has been re-configured
 			unit = self.__encounter.org_unit
@@ -423,7 +422,6 @@ class cEncounterEditAreaPnl(wxgEncounterEditAreaPnl.wxgEncounterEditAreaPnl):
 				self._PRW_location.SetText(u'', data = None)
 			else:										# old entry
 				self._PRW_location.Enable(False)
-				self._PRW_location.display_as_disabled(True)
 				self._PRW_location.SetText(_('old praxis branch: %s (%s)') % (unit['unit'], unit['organization']), data = None)
 		else:
 			self._PRW_location.SetText(self.__encounter['praxis_branch'], data = branch['pk_praxis_branch'])

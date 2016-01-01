@@ -31,16 +31,43 @@ _text_expansion_fillin_regex = r'\$\[[^]]*\]\$'
 #============================================================
 class cKeywordExpansion_TextCtrlMixin():
 
-	def __init__(self):
+	def __init__(self, *args, **kwargs):
 		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
 			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
+
 	#--------------------------------------------------------
 	def enable_keyword_expansions(self):
 		self.__keyword_separators = regex.compile("[!?'\".,:;)}\]\r\n\s\t]+")
 		self.Bind(wx.EVT_CHAR, self.__on_char_in_keyword_expansion_mixin)
+
 	#--------------------------------------------------------
 	def disable_keyword_expansions(self):
 		self.Unbind(wx.EVT_CHAR)
+
+	#--------------------------------------------------------
+	def attempt_expansion(self, show_list_if_needed=False):
+
+		caret_pos_in_line, line_no = self.PositionToXY(self.InsertionPoint)
+		line = self.GetLineText(line_no)
+		keyword_candidate = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
+
+		if (
+			(show_list_if_needed is False)
+				and
+			(keyword_candidate != u'$$steffi')			# Easter Egg ;-)
+				and
+			(keyword_candidate not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
+		):
+			return
+
+		# why does this work despite the wx.TextCtrl docs saying that
+		# InsertionPoint values cannot be used as indices into strings ?
+		# because we never cross an EOL which is the only documented
+		# reason for insertion point to be off the string index
+		start = self.InsertionPoint - len(keyword_candidate)
+		wx.CallAfter(self.__replace_keyword_with_expansion, keyword = keyword_candidate, position = start, show_list_if_needed = show_list_if_needed)
+		return
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
@@ -53,59 +80,53 @@ class cKeywordExpansion_TextCtrlMixin():
 
 		char = unichr(evt.GetUnicodeKey())
 
-		explicit_expansion = False
+		user_wants_expansion_attempt = False
 		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
-			if evt.GetKeyCode() == wx.WXK_RETURN:		# CTRL-ALT-ENTER
-				explicit_expansion = True
-			elif evt.GetKeyCode() == 20:				# CTRL-ALT-T
-				explicit_expansion = True
+			if evt.GetKeyCode() == wx.WXK_RETURN:			# CTRL-ALT-ENTER
+				user_wants_expansion_attempt = True
+			elif evt.GetKeyCode() == 20:					# CTRL-ALT-T
+				user_wants_expansion_attempt = True
 			else:
 				return
 
-		if not explicit_expansion:
+		if user_wants_expansion_attempt is False:
 			# user did not press CTRL-ALT-ENTER,
 			# however, did they last enter a
 			# "keyword separator", active character ?
 			if self.__keyword_separators.match(char) is None:
 				return
 
-		caret_pos_in_document = self.InsertionPoint
-		if isinstance(self, wx.stc.StyledTextCtrl):
-			caret_pos_in_line = self.GetCurrentPos()
-			line_no = self.GetCurrentLine()
-			# reimplement PositionToXY() as LineFromPos()/GetColumn(GetCurrentPos)
-		else:
-			caret_pos_in_line, line_no = self.PositionToXY(caret_pos_in_document)
-		line = self.GetLineText(line_no)
-		keyword = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
+#		caret_pos_in_line, line_no = self.PositionToXY(self.InsertionPoint)
+#		line = self.GetLineText(line_no)
+#		keyword_candidate = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
+#
+#		if (
+#			(user_wants_expansion_attempt is False)
+#				and
+#			(keyword_candidate != u'$$steffi')			# Easter Egg ;-)
+#				and
+#			(keyword_candidate not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
+#		):
+#			return
+#
+#		# why does this work despite the wx.TextCtrl docs saying that
+#		# InsertionPoint values cannot be used as indices into strings ?
+#		# because we never cross an EOL which is the only documented
+#		# reason for insertion point to be off the string index
+#		start = self.InsertionPoint - len(keyword)
+#		wx.CallAfter(self.__replace_keyword_with_expansion, keyword, start, user_wants_expansion_attempt)
 
-		if (
-			(not explicit_expansion)
-				and
-			(keyword != u'$$steffi')			# Easter Egg ;-)
-				and
-			(keyword not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
-		):
-			return
-
-		# why does this work despite the wx.TextCtrl docs saying that
-		# InsertionPoint values cannot be used as indices into strings ?
-		# because we never cross an EOL which is the only documented
-		# reason for insertion point to be off the string index
-		start = self.InsertionPoint - len(keyword)
-		wx.CallAfter(self.__replace_keyword_with_expansion, keyword, start, explicit_expansion)
-
+		self.attempt_expansion(show_list_if_needed = user_wants_expansion_attempt)
 		return
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
-	def __replace_keyword_with_expansion(self, keyword=None, position=None, show_list=False):
+	def __replace_keyword_with_expansion(self, keyword=None, position=None, show_list_if_needed=False):
 
-		expansion = expand_keyword(parent = self, keyword = keyword, show_list = show_list)
-
+		expansion = expand_keyword(parent = self, keyword = keyword, show_list_if_needed = show_list_if_needed)
 		if expansion is None:
 			return
-
 		if expansion == u'':
 			return
 
@@ -178,9 +199,11 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 		self.__register_interests()
 
 		self.__data_filename = None
+
 	#--------------------------------------------------------
 #	def __init_ui(self, expansion=None):
 #		self._BTN_select_data_file.Enable(False)
+
 	#----------------------------------------------------------------
 	# generic Edit Area mixin API
 	#----------------------------------------------------------------
@@ -220,6 +243,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 			self.display_tctrl_as_valid(tctrl = self._TCTRL_keyword, valid = True)
 
 		return validity
+
 	#----------------------------------------------------------------
 	def _save_as_new(self):
 		expansion = gmKeywordExpansion.create_keyword_expansion (
@@ -237,6 +261,7 @@ class cTextExpansionEditAreaPnl(wxgTextExpansionEditAreaPnl.wxgTextExpansionEdit
 
 		self.data = expansion
 		return True
+
 	#----------------------------------------------------------------
 	def _save_as_update(self):
 
@@ -431,6 +456,7 @@ def configure_keyword_text_expansion(parent=None):
 		refresh_callback = refresh,
 		list_tooltip_callback = tooltip
 	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgTextExpansionFillInDlg
 
@@ -572,8 +598,9 @@ class cTextExpansionFillInDlg(wxgTextExpansionFillInDlg.wxgTextExpansionFillInDl
 	#---------------------------------------------
 	def _on_forward_button_pressed(self, event):
 		self.__goto_next_fillin()
+
 #============================================================
-def expand_keyword(parent=None, keyword=None, show_list=False):
+def expand_keyword(parent=None, keyword=None, show_list_if_needed=False):
 	"""Expand keyword and replace inside it.
 
 	Returns:
@@ -583,11 +610,10 @@ def expand_keyword(parent=None, keyword=None, show_list=False):
 	"""
 	if keyword is None:
 		return None
-
 	if parent is None:
 		parent = wx.GetApp().GetTopWindow()
 
-	if show_list:
+	if show_list_if_needed:
 		candidates = gmKeywordExpansion.get_matching_textual_keywords(fragment = keyword)
 		if len(candidates) == 0:
 			return None

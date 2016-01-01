@@ -46,7 +46,7 @@ from Gnumed.business import gmKeywordExpansion
 from Gnumed.business import gmPraxis
 
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmPersonContactWidgets
 from Gnumed.wxpython import gmPlugin
@@ -1014,9 +1014,9 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 					template = data_parts[2]
 
 		if mode == u'issue':
-			narr = gmNarrativeWidgets.select_narrative_by_issue(soap_cats = cats)
+			narr = gmNarrativeWorkflows.select_narrative_by_issue(soap_cats = cats)
 		else:
-			narr = gmNarrativeWidgets.select_narrative_by_episode(soap_cats = cats)
+			narr = gmNarrativeWorkflows.select_narrative_by_episode(soap_cats = cats)
 
 		if narr is None:
 			return u''
@@ -1078,8 +1078,8 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 			if len(data_parts) > 1:
 				template = data_parts[1]
 
-		#narr = gmNarrativeWidgets.select_narrative_from_episodes(soap_cats = cats)
-		narr = gmNarrativeWidgets.select_narrative(soap_cats = cats)
+		#narr = gmNarrativeWorkflows.select_narrative_from_episodes(soap_cats = cats)
+		narr = gmNarrativeWorkflows.select_narrative(soap_cats = cats)
 
 		if narr is None:
 			return u''
@@ -2137,9 +2137,11 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		probs = self.pat.emr.get_problems()
 
 		return u'\n'.join([ data % p.fields_as_dict(date_format = '%Y %b %d', escape_style = self.__esc_style) for p in probs ])
+
 	#--------------------------------------------------------
 	def _get_variant_today(self, data='%Y %b %d'):
 		return self._escape(gmDateTime.pydt_now_here().strftime(str(data)).decode(gmI18N.get_encoding()))
+
 	#--------------------------------------------------------
 	def _get_variant_tex_escape(self, data=None):
 		return gmTools.tex_escape_string(text = data)
@@ -2156,7 +2158,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 		if len(data_parts) > 1:
 			template = data_parts[1]
 
-		expansion = gmKeywordExpansionWidgets.expand_keyword(keyword = keyword, show_list = True)
+		expansion = gmKeywordExpansionWidgets.expand_keyword(keyword = keyword, show_list_if_needed = True)
 
 		if expansion is None:
 			if self.debug:
@@ -2165,6 +2167,7 @@ class gmPlaceholderHandler(gmBorg.cBorg):
 
 		#return template % self._escape(expansion)
 		return template % expansion
+
 	#--------------------------------------------------------
 	def _get_variant_data_snippet(self, data=None):
 		parts = data.split(self.__args_divider)

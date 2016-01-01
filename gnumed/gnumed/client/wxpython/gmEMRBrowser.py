@@ -38,6 +38,7 @@ from Gnumed.wxpython import gmSOAPWidgets
 from Gnumed.wxpython import gmAllergyWidgets
 from Gnumed.wxpython import gmDemographicsWidgets
 from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
@@ -587,7 +588,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	def __move_encounters(self, event):
 		episode = self.GetPyData(self.__curr_node)
 
-		gmNarrativeWidgets.move_progress_notes_to_another_encounter (
+		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
 			episodes = [episode['pk_episode']],
 			move_all = True
@@ -667,7 +668,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		node_parent = self.GetItemParent(self.__curr_node)
 		episode = self.GetPyData(node_parent)
 
-		gmNarrativeWidgets.move_progress_notes_to_another_encounter (
+		gmNarrativeWorkflows.move_progress_notes_to_another_encounter (
 			parent = self,
 			encounters = [encounter['pk_encounter']],
 			episodes = [episode['pk_episode']]
@@ -678,7 +679,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		node_parent = self.GetItemParent(self.__curr_node)
 		episode = self.GetPyData(node_parent)
 
-		gmNarrativeWidgets.manage_progress_notes (
+		gmNarrativeWorkflows.manage_progress_notes (
 			parent = self,
 			encounters = [encounter['pk_encounter']],
 			episodes = [episode['pk_episode']]
@@ -886,7 +887,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
 	#--------------------------------------------------------
 	def __export_encounter_for_medistar(self, evt):
-		gmNarrativeWidgets.export_narrative_for_medistar_import (
+		gmNarrativeWorkflows.export_narrative_for_medistar_import (
 			parent = self,
 			soap_cats = u'soapu',
 			encounter = self.__curr_node_data

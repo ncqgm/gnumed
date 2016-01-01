@@ -9,7 +9,7 @@ class wxgSplittedEMRTreeBrowserPnl(wx.Panel):
     def __init__(self, *args, **kwds):
 
         from Gnumed.wxpython import gmEMRBrowser
-        from Gnumed.wxpython.gmNarrativeWidgets import cVisualSoapPresenterPnl
+        from Gnumed.wxpython.gmVisualProgressNoteWidgets import cVisualSoapPresenterPnl
         from Gnumed.wxpython.gmNarrativeWidgets import cFancySoapEditorPnl
 
         # begin wxGlade: wxgSplittedEMRTreeBrowserPnl.__init__

@@ -196,32 +196,24 @@ limit 25
 		if stay is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_location.Enable(True)
-			self._PRW_location.display_as_disabled(False)
 			self._PRW_episode.Enable(True)
-			self._PRW_episode.display_as_disabled(False)
 			self._LBL_hospital_details.SetLabel(u'')
 		else:
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
-			self._PRW_location.display_as_disabled(True)
 			self._PRW_episode.SetText()
 			self._PRW_episode.Enable(False)
-			self._PRW_episode.display_as_disabled(True)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = stay).format())
 	#----------------------------------------------------------------
 	def _on_location_lost_focus(self):
 		loc = self._PRW_location.GetData()
 		if loc is None:
 			self._PRW_hospital_stay.Enable(True)
-			self._PRW_hospital_stay.display_as_disabled(False)
 			self._PRW_episode.Enable(False)
-			self._PRW_episode.display_as_disabled(True)
 		else:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._PRW_hospital_stay.display_as_disabled(True)
 			self._PRW_episode.Enable(True)
-			self._PRW_episode.display_as_disabled(False)
 	#----------------------------------------------------------------
 	def _on_start_lost_focus(self):
 		if not self._DPRW_date.is_valid_timestamp():
@@ -404,23 +396,17 @@ limit 25
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._PRW_hospital_stay.display_as_disabled(True)
 			self._LBL_hospital_details.SetLabel(u'')
 			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
 			self._PRW_location.Enable(True)
-			self._PRW_location.display_as_disabled(False)
 			self._PRW_episode.Enable(True)
-			self._PRW_episode.display_as_disabled(False)
 		else:
 			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
 			self._PRW_hospital_stay.Enable(True)
-			self._PRW_hospital_stay.display_as_disabled(False)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
-			self._PRW_location.display_as_disabled(True)
 			self._PRW_episode.Enable(False)
-			self._PRW_episode.display_as_disabled(True)
 
 		val, data = self._PRW_codes.generic_linked_codes2item_dict(self.data.generic_codes)
 		self._PRW_codes.SetText(val, data)
@@ -435,23 +421,17 @@ limit 25
 		if self.data['pk_hospital_stay'] is None:
 			self._PRW_hospital_stay.SetText()
 			self._PRW_hospital_stay.Enable(False)
-			self._PRW_hospital_stay.display_as_disabled(True)
 			self._LBL_hospital_details.SetLabel(u'')
 			self._PRW_location.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_org_unit'])
 			self._PRW_location.Enable(True)
-			self._PRW_location.display_as_disabled(False)
 			self._PRW_episode.Enable(True)
-			self._PRW_episode.display_as_disabled(False)
 		else:
 			self._PRW_hospital_stay.SetText(value = u'%s @ %s' % (self.data['unit'], self.data['organization']), data = self.data['pk_hospital_stay'])
 			self._PRW_hospital_stay.Enable(True)
-			self._PRW_hospital_stay.display_as_disabled(False)
 			self._LBL_hospital_details.SetLabel(gmEMRStructItems.cHospitalStay(aPK_obj = self.data['pk_hospital_stay']).format())
 			self._PRW_location.SetText()
 			self._PRW_location.Enable(False)
-			self._PRW_location.display_as_disabled(True)
 			self._PRW_episode.Enable(False)
-			self._PRW_episode.display_as_disabled(True)
 
 		self._PRW_procedure.SetFocus()
 	#----------------------------------------------------------------

@@ -409,7 +409,6 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 			self.message = _('<no unit selected>')
 			self._PRW_address_searcher.SetText(u'', None)
 			self._PRW_address_searcher.Enable(False)
-			self._PRW_address_searcher.display_as_disabled(True)
 			self._BTN_save_picked_address.Enable(False)
 			self._BTN_add_new_address.Enable(False)
 		else:
@@ -430,7 +429,6 @@ class cOrgUnitAddressPnl(wxgOrgUnitAddressPnl.wxgOrgUnitAddressPnl):
 			self._PRW_address_searcher.Enable(True)
 			self._PRW_address_searcher.address = self.__unit['pk_address']
 			self._PRW_address_searcher.Enable(True)
-			self._PRW_address_searcher.display_as_disabled(False)
 			self._BTN_save_picked_address.Enable(True)
 			self._BTN_add_new_address.Enable(True)
 	#--------------------------------------------------------

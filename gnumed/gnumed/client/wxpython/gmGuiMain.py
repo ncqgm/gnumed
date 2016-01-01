@@ -106,7 +106,7 @@ from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmProviderInboxWidgets
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmExceptionHandlingWidgets
-from Gnumed.wxpython import gmNarrativeWidgets
+from Gnumed.wxpython import gmNarrativeWorkflows
 from Gnumed.wxpython import gmPhraseWheel
 from Gnumed.wxpython import gmMedicationWidgets
 from Gnumed.wxpython import gmStaffWidgets
@@ -135,6 +135,7 @@ from Gnumed.wxpython import gmPregWidgets
 from Gnumed.wxpython import gmExternalCareWidgets
 from Gnumed.wxpython import gmHabitWidgets
 from Gnumed.wxpython import gmSubstanceMgmtWidgets
+from Gnumed.wxpython import gmVisualProgressNoteWidgets
 
 
 try:
@@ -1603,7 +1604,7 @@ class gmTopLevelFrame(wx.Frame):
 		)
 	#----------------------------------------------
 	def __on_configure_visual_soap_cmd(self, event):
-		gmNarrativeWidgets.configure_visual_progress_note_editor()
+		gmVisualProgressNoteWidgets.configure_visual_progress_note_editor()
 	#----------------------------------------------
 	def __on_configure_freediams_cmd(self, event):
 
@@ -2802,10 +2803,10 @@ class gmTopLevelFrame(wx.Frame):
 		return True
 	#----------------------------------------------
 	def __on_search_emr(self, event):
-		return gmNarrativeWidgets.search_narrative_in_emr(parent=self)
+		return gmNarrativeWorkflows.search_narrative_in_emr(parent=self)
 	#----------------------------------------------
 	def __on_search_across_emrs(self, event):
-		gmNarrativeWidgets.search_narrative_across_emrs(parent=self)
+		gmNarrativeWorkflows.search_narrative_across_emrs(parent=self)
 
 	#----------------------------------------------
 	def __on_save_emr_as_textfile(self, event):
@@ -2958,7 +2959,7 @@ class gmTopLevelFrame(wx.Frame):
 
 	#----------------------------------------------
 	def __on_export_for_medistar(self, event):
-		gmNarrativeWidgets.export_narrative_for_medistar_import (
+		gmNarrativeWorkflows.export_narrative_for_medistar_import (
 			parent = self,
 			soap_cats = u'soapu',
 			encounter = None			# IOW, the current one

@@ -46,6 +46,7 @@ WEB_CHARS = "a-zA-Z0-9\.\-_/:"
 
 
 _timers = []
+
 #============================================================
 def shutdown():
 	"""It can be useful to call this early from your shutdown code to avoid hangs on Notify()."""
@@ -66,6 +67,7 @@ class _cPRWTimer(wx.Timer):
 
 	def Notify(self):
 		self.callback()
+
 #============================================================
 # FIXME: merge with gmListWidgets
 class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
@@ -101,6 +103,7 @@ class cPhraseWheelListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin):
 		if sel_idx == -1:
 			return None
 		return self.__data[sel_idx]['list_label']
+
 #============================================================
 # base class for both single- and multi-phrase phrase wheels
 #------------------------------------------------------------
@@ -289,15 +292,7 @@ class cPhraseWheelBase(wx.TextCtrl):
 			raise ValueError(u'<enable> must be True or False')
 
 		self.Refresh()
-	#--------------------------------------------------------
-	def display_as_disabled(self, disabled=None):
-		if disabled is True:
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		elif disabled is False:
-			self.SetBackgroundColour(color_prw_valid)
-		else:
-			raise ValueError(u'<disabled> must be True or False')
-		self.Refresh()
+
 	#--------------------------------------------------------
 	# callback API
 	#--------------------------------------------------------

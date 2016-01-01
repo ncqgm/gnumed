@@ -58,7 +58,7 @@
                 <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                 <border>3</border>
                 <option>0</option>
-                <object class="cSoapLineTextCtrl" name="_TCTRL_Soap" base="EditTextCtrl">
+                <object class="cExpandoTextCtrl" name="_TCTRL_Soap" base="EditTextCtrl">
                     <style>wxTE_WORDWRAP|wxNO_BORDER</style>
                 </object>
             </object>
@@ -112,7 +112,7 @@
                 <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                 <border>3</border>
                 <option>0</option>
-                <object class="cSoapLineTextCtrl" name="_TCTRL_sOap" base="EditTextCtrl">
+                <object class="cExpandoTextCtrl" name="_TCTRL_sOap" base="EditTextCtrl">
                     <style>wxTE_WORDWRAP|wxNO_BORDER</style>
                 </object>
             </object>
@@ -166,7 +166,7 @@
                 <flag>wxLEFT|wxRIGHT|wxEXPAND</flag>
                 <border>3</border>
                 <option>0</option>
-                <object class="cSoapLineTextCtrl" name="_TCTRL_soAp" base="EditTextCtrl">
+                <object class="cExpandoTextCtrl" name="_TCTRL_soAp" base="EditTextCtrl">
                     <style>wxTE_WORDWRAP|wxNO_BORDER</style>
                 </object>
             </object>
@@ -220,7 +220,7 @@
                 <flag>wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND</flag>
                 <border>3</border>
                 <option>0</option>
-                <object class="cSoapLineTextCtrl" name="_TCTRL_soaP" base="EditTextCtrl">
+                <object class="cExpandoTextCtrl" name="_TCTRL_soaP" base="EditTextCtrl">
                     <style>wxTE_WORDWRAP|wxNO_BORDER</style>
                 </object>
             </object>
@@ -290,7 +290,7 @@
                 <flag>wxLEFT|wxRIGHT|wxBOTTOM|wxEXPAND</flag>
                 <border>3</border>
                 <option>0</option>
-                <object class="cSoapLineTextCtrl" name="_TCTRL_episode_summary" base="EditTextCtrl">
+                <object class="cExpandoTextCtrl" name="_TCTRL_episode_summary" base="EditTextCtrl">
                     <style>wxTE_WORDWRAP|wxNO_BORDER</style>
                     <tooltip>Here you can modify the cumulative summary (status) of the episode this SOAP narrative belongs to.</tooltip>
                 </object>

@@ -8,6 +8,7 @@ import sys
 
 
 import wx
+import wx.lib.expando
 
 
 if __name__ == '__main__':
@@ -18,13 +19,92 @@ from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 _log = logging.getLogger('gm.txtctrl')
 
+#============================================================
+color_tctrl_invalid = 'pink'
+color_tctrl_partially_invalid = 'yellow'
+
+class cColoredStatus_TextCtrlMixin():
+	"""Mixin for setting background color based on validity of content.
+
+	Note that due to Python MRO classes using this mixin must
+	list it before their base class (because we override Enable/Disable).
+	"""
+	def __init__(self, *args, **kwargs):
+
+		if not isinstance(self, (wx.TextCtrl)):
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl, not [%s]' % (cColoredStatus_TextCtrlMixin, self.__class__.__name__))
+
+		self.__initial_background_color = self.GetBackgroundColour()
+		self.__previous_enabled_bg_color = self.__initial_background_color
+
+	#--------------------------------------------------------
+	def display_as_valid(self, valid=None):
+		if valid is True:
+			color2show = self.__initial_background_color
+		elif valid is False:
+			color2show = color_tctrl_invalid
+		elif valid is None:
+			color2show = color_tctrl_partially_invalid
+		else:
+			raise ValueError(u'<valid> must be True or False or None')
+
+		if self.IsEnabled():
+			self.SetBackgroundColour(color2show)
+			self.Refresh()
+			return
+
+		# remember for when it gets enabled
+		self.__previous_enabled_bg_color = color2show
+
+	#--------------------------------------------------------
+	def display_as_disabled(self, disabled=None):
+		current_enabled_state = self.IsEnabled()
+		desired_enabled_state = disabled is False
+		if current_enabled_state is desired_enabled_state:
+			return
+
+		if disabled is True:
+			self.__previous_enabled_bg_color = self.GetBackgroundColour()
+			color2show = wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND)
+		elif disabled is False:
+			color2show = self.__previous_enabled_bg_color
+		else:
+			raise ValueError(u'<disabled> must be True or False')
+
+		self.SetBackgroundColour(color2show)
+		self.Refresh()
+
+	#--------------------------------------------------------
+	def Disable(self):
+		self.Enable(enable = False)
+
+	#--------------------------------------------------------
+	def Enable(self, enable=True):
+
+		if self.IsEnabled() is enable:
+			return
+
+		wx.TextCtrl.Enable(self, enable)
+
+		if enable is True:
+			self.SetBackgroundColour(self.__previous_enabled_bg_color)
+		elif enable is False:
+			self.__previous_enabled_bg_color = self.GetBackgroundColour()
+			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
+		else:
+			raise ValueError(u'<enable> must be True or False')
+
+		self.Refresh()
 
 #============================================================
 class cTextSearch_TextCtrlMixin():
-
-	def __init__(self):
+	"""Code using classes with this mixin must call
+	   show_find_dialog() at appropriate times. Everything
+	   else will be handled.
+	"""
+	def __init__(self, *args, **kwargs):
 		if not isinstance(self, (wx.TextCtrl, wx.stc.StyledTextCtrl)):
-			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cKeywordExpansion_TextCtrlMixin, self.__class__.__name__))
+			raise TypeError('[%s]: can only be applied to wx.TextCtrl or wx.stc.StyledTextCtrl, not [%s]' % (cTextSearch_TextCtrlMixin, self.__class__.__name__))
 
 		self.__mixin_find_replace_data = None
 		self.__mixin_find_replace_dlg = None
@@ -118,26 +198,20 @@ class cTextSearch_TextCtrlMixin():
 		self.__mixin_find_replace_last_match_end = 0
 
 #============================================================
-color_tctrl_invalid = 'pink'
-color_tctrl_partially_invalid = 'yellow'
-
-class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin):
+class cTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin, cColoredStatus_TextCtrlMixin, wx.TextCtrl):
 
 	def __init__(self, *args, **kwargs):
-
-		wx.TextCtrl.__init__(self, *args, **kwargs)
 
 		self._on_set_focus_callbacks = []
 		self._on_lose_focus_callbacks = []
 		self._on_modified_callbacks = []
 
-		self.__initial_background_color = self.GetBackgroundColour()
-
+		wx.TextCtrl.__init__(self, *args, **kwargs)
 		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
-		self.enable_keyword_expansions()
-
 		cTextSearch_TextCtrlMixin.__init__(self)
+		cColoredStatus_TextCtrlMixin.__init__(self)
 
+		self.enable_keyword_expansions()
 	#--------------------------------------------------------
 	# callback API
 	#--------------------------------------------------------
@@ -170,30 +244,7 @@ class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtr
 		self._on_modified_callbacks.append(callback)
 		if len(self._on_modified_callbacks) == 1:
 			self.Bind(wx.EVT_TEXT, self._on_text_update)
-			#wx.EVT_TEXT(self, self.GetId(), self._on_text_update)
-	#--------------------------------------------------------
-	# state display API
-	#--------------------------------------------------------
-	def display_as_valid(self, valid=None, partially_invalid=False):
-		if valid is True:
-			self.SetBackgroundColour(self.__initial_background_color)
-		elif valid is False:
-			if partially_invalid:
-				self.SetBackgroundColour(color_tctrl_partially_invalid)
-			else:
-				self.SetBackgroundColour(color_tctrl_invalid)
-		else:
-			raise ValueError(u'<valid> must be True or False')
-		self.Refresh()
-	#--------------------------------------------------------
-	def display_as_disabled(self, disabled=None):
-		if disabled is True:
-			self.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
-		elif disabled is False:
-			self.SetBackgroundColour(self.__initial_background_color)
-		else:
-			raise ValueError(u'<disabled> must be True or False')
-		self.Refresh()
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
@@ -226,6 +277,144 @@ class cTextCtrl(wx.TextCtrl, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtr
 			callback()
 		return
 
+#============================================================
+# expando based text ctrl classes
+#============================================================
+class cExpandoTextCtrlHandling_PanelMixin():
+	"""Mixin for panels wishing to handel expand text ctrls within themselves.
+
+	Panels using this mixin will need to call
+
+		self.bind_expando_layout_event(<expando_field>)
+
+	on each <expando_field> they wish to auto-expand.
+	"""
+	#--------------------------------------------------------
+	def bind_expando_layout_event(self, expando):
+		wx.lib.expando.EVT_ETC_LAYOUT_NEEDED(expando, expando.GetId(), self._on_expando_needs_layout)
+
+	#--------------------------------------------------------
+	def _on_expando_needs_layout(self, evt):
+		# need to tell ourselves to re-Layout to refresh scroll bars
+
+		# provoke adding scrollbar if needed
+		#self.Fit()				# works on Linux but not on Windows
+		self.FitInside()		# needed on Windows rather than self.Fit()
+
+		if self.HasScrollbar(wx.VERTICAL):
+			# scroll panel to show cursor
+			expando = self.FindWindowById(evt.GetId())
+			y_expando = expando.GetPositionTuple()[1]
+			h_expando = expando.GetSizeTuple()[1]
+			line_cursor = expando.PositionToXY(expando.GetInsertionPoint())[1] + 1
+			if expando.NumberOfLines == 0:
+				no_of_lines = 1
+			else:
+				no_of_lines = expando.NumberOfLines
+			y_cursor = int(round((float(line_cursor) / no_of_lines) * h_expando))
+			y_desired_visible = y_expando + y_cursor
+
+			y_view = self.ViewStart[1]
+			h_view = self.GetClientSizeTuple()[1]
+
+#			print "expando:", y_expando, "->", h_expando, ", lines:", expando.NumberOfLines
+#			print "cursor :", y_cursor, "at line", line_cursor, ", insertion point:", expando.GetInsertionPoint()
+#			print "wanted :", y_desired_visible
+#			print "view-y :", y_view
+#			print "scroll2:", h_view
+
+			# expando starts before view
+			if y_desired_visible < y_view:
+#				print "need to scroll up"
+				self.Scroll(0, y_desired_visible)
+
+			if y_desired_visible > h_view:
+#				print "need to scroll down"
+				self.Scroll(0, y_desired_visible)
+
+#============================================================
+class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, cTextSearch_TextCtrlMixin, cColoredStatus_TextCtrlMixin, wx.lib.expando.ExpandoTextCtrl):
+	"""Expando based text ctrl
+
+	- auto-sizing on input
+	- keyword based text expansion
+	- text search on show_find_dialog()
+	- (on demand) status based background color
+
+	Parent panels should apply the cExpandoTextCtrlHandling_PanelMixin.
+	"""
+	def __init__(self, *args, **kwargs):
+
+		wx.lib.expando.ExpandoTextCtrl.__init__(self, *args, **kwargs)
+		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
+		cTextSearch_TextCtrlMixin.__init__(self)
+		cColoredStatus_TextCtrlMixin.__init__(self)
+
+		self.__register_interests()
+		self.enable_keyword_expansions()
+
+	#------------------------------------------------
+	# event handling
+	#------------------------------------------------
+	def __register_interests(self):
+		wx.EVT_SET_FOCUS(self, self.__cExpandoTextCtrl_on_focus)
+
+	#--------------------------------------------------------
+	def __cExpandoTextCtrl_on_focus(self, evt):
+		evt.Skip()	# allow other processing to happen
+		wx.CallAfter(self._cExpandoTextCtrl_after_on_focus)
+
+	#--------------------------------------------------------
+	def _cExpandoTextCtrl_after_on_focus(self):
+		# robustify against PyDeadObjectError - since we are called
+		# from wx's CallAfter this SoapCtrl may be gone by the time
+		# we get to handling this layout request, say, on patient
+		# change or some such
+		if not self:
+			return
+
+		#wx. CallAfter(self._adjustCtrl)
+		evt = wx.PyCommandEvent(wx.lib.expando.wxEVT_ETC_LAYOUT_NEEDED, self.GetId())
+		evt.SetEventObject(self)
+		#evt.height = None
+		#evt.numLines = None
+		#evt.height = self.GetSize().height
+		#evt.numLines = self.GetNumberOfLines()
+		self.GetEventHandler().ProcessEvent(evt)
+
+	#------------------------------------------------
+	# fix platform expando.py if needed
+	#------------------------------------------------
+	def _wrapLine(self, line, dc, width):
+
+		if (wx.MAJOR_VERSION >= 2) and (wx.MINOR_VERSION > 8):
+			return wx.lib.expando.ExpandoTextCtrl._wrapLine(line, dc, width)
+
+		# THIS FIX LIFTED FROM TRUNK IN SVN:
+		# Estimate where the control will wrap the lines and
+		# return the count of extra lines needed.
+		partial_text_extents = dc.GetPartialTextExtents(line)
+		max_width -= wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X)
+		idx = 0
+		start = 0
+		count_of_extra_lines_needed = 0
+		idx_of_last_blank = -1
+		while idx < len(partial_text_extents):
+		    if line[idx] == ' ':
+		        idx_of_last_blank = idx
+		    if (partial_text_extents[idx] - start) > max_width:
+		        # we've reached the max width, add a new line
+		        count_of_extra_lines_needed += 1
+		        # did we see a space? if so restart the count at that pos
+		        if idx_of_last_blank != -1:
+		            idx = idx_of_last_blank + 1
+		            idx_of_last_blank = -1
+		        if idx < len(partial_text_extents):
+		            start = partial_text_extents[idx]
+		    else:
+		        idx += 1
+		return count_of_extra_lines_needed
+
 #===================================================
 # main
 #---------------------------------------------------
@@ -246,10 +435,9 @@ if __name__ == '__main__':
 		app = wx.PyWidgetTester(size = (200, 50))
 		tc = cTextCtrl(parent = app.frame, id = -1)
 		#tc.enable_keyword_expansions()
+		tc.Enable(False)
 		app.frame.Show(True)
 		app.MainLoop()
 		return True
 	#-----------------------------------------------
 	test_gm_textctrl()
-
-#---------------------------------------------------
