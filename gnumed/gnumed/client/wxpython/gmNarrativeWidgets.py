@@ -39,8 +39,7 @@ from Gnumed.wxpython import gmEncounterWidgets
 from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
-from Gnumed.wxpython import gmSoapExpandoWidgets
-from Gnumed.wxpython import gmSoapSTCWidgets
+from Gnumed.wxpython import gmProgressNotesEAWidgets
 from Gnumed.wxpython.gmPatSearchWidgets import set_active_patient
 
 from Gnumed.exporters import gmPatientExporter
@@ -461,13 +460,15 @@ class cSoapPluginPnl(wxgSoapPluginPnl.wxgSoapPluginPnl, gmRegetMixin.cRegetOnPai
 from Gnumed.wxGladeWidgets import wxgFancySoapEditorPnl
 
 class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
-	"""A panel holding everything needed to edit
+	"""A panel holding everything needed to edit in context:
 
 		- encounter metadata
-		- textual progress notes (expando text controls)
-		- visual progress notes
+		- progress notes
+			- textual
+			- visual
+		- episode summary
 
-	in context. Does NOT act on the current patient.
+	Does NOT act on the current patient.
 	"""
 	def __init__(self, *args, **kwargs):
 
@@ -554,12 +555,14 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 			if not epi['episode_open']:
 				continue
 			self._NB_soap_editors.add_editor(problem = epi)
+
 	#--------------------------------------------------------
 	def __reset_encounter_fields(self):
 		self._TCTRL_rfe.SetValue(u'')
 		self._PRW_rfe_codes.SetText(suppress_smarts = True)
 		self._TCTRL_aoe.SetValue(u'')
 		self._PRW_aoe_codes.SetText(suppress_smarts = True)
+
 	#--------------------------------------------------------
 	def __refresh_encounter(self):
 		"""Update encounter fields."""
@@ -583,9 +586,11 @@ class cFancySoapEditorPnl(wxgFancySoapEditorPnl.wxgFancySoapEditorPnl):
 		self._PRW_rfe_codes.Refresh()
 		self._TCTRL_aoe.Refresh()
 		self._PRW_aoe_codes.Refresh()
+
 	#--------------------------------------------------------
 	def __refresh_current_editor(self):
 		self._NB_soap_editors.refresh_current_editor()
+
 #	#--------------------------------------------------------
 #	def __encounter_modified(self):
 #		"""Assumes that the field data is valid."""
@@ -805,7 +810,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 
 		# new unassociated problem or dupes allowed
 		if allow_same_problem:
-			new_page = gmSoapExpandoWidgets.cSoapNoteExpandoEAPnl(parent = self, id = -1, problem = problem_to_add)
+			new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(parent = self, id = -1, problem = problem_to_add)
 			result = self.AddPage (
 				page = new_page,
 				text = label,
@@ -846,7 +851,7 @@ class cSoapNoteInputNotebook(wx.Notebook):
 				continue
 
 		# - or add new editor
-		new_page = gmSoapExpandoWidgets.cSoapNoteExpandoEAPnl(parent = self, id = -1, problem = problem_to_add)
+		new_page = gmProgressNotesEAWidgets.cProgressNotesEAPnl(parent = self, id = -1, problem = problem_to_add)
 		result = self.AddPage (
 			page = new_page,
 			text = label,

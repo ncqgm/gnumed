@@ -27,8 +27,8 @@ _log = logging.getLogger('gm.emr')
 
 
 # SOAP category definitions
-known_soap_cats = list(u'soapu')
-known_soap_cats.append(None)
+KNOWN_SOAP_CATS = list(u'soapu')
+KNOWN_SOAP_CATS.append(None)
 
 
 soap_cat2l10n = {
@@ -204,7 +204,56 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	generic_codes = property(_get_generic_codes, _set_generic_codes)
 
 #============================================================
-def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encounter_id=None, link_obj=None):
+def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj=None):
+	"""Create clinical narrative entries.
+
+	<soap>
+		must be a dict, the keys being SOAP categories (including U and
+		None=admin) and the values being text (possibly multi-line)
+
+	Existing but empty ('' or None) categories are skipped.
+	"""
+	if soap is None:
+		return True
+
+	if link_obj is None:
+		link_obj = gmPG2.get_connection(readonly = False)
+		conn_rollback = link_obj.rollback
+		conn_commit = link_obj.commit
+		conn_close = link_obj.close
+	else:
+		conn_rollback = lambda x:x
+		conn_commit = lambda x:x
+		conn_close = lambda x:x
+
+	instances = {}
+	for cat in soap:
+		if cat not in KNOWN_SOAP_CATS:
+			conn_rollback()
+			conn_close()
+			raise ValueError(u'invalid SOAP category [%s] in <soap> dictionary: %s', cat, soap)
+		val = soap[cat]
+		if val is None:
+			continue
+		if u''.join([ v.strip() for v in val ]) == u'':
+			continue
+		instance = create_narrative_item (
+			narrative = u'\n'.join([ v.strip() for v in val ]),
+			soap_cat = cat,
+			episode_id = episode_id,
+			encounter_id = encounter_id,
+			link_obj = link_obj
+		)
+		if instance is None:
+			continue
+		instances[cat] = instance
+
+	conn_commit()
+	conn_close()
+	return instances
+
+#============================================================
+def create_narrative_item(narrative=None, soap_cat=None, episode_id=None, encounter_id=None, link_obj=None):
 	"""Creates a new clinical narrative entry
 
 		narrative - free text clinical narrative
@@ -219,7 +268,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	# 1) silently do not insert empty narrative
 	narrative = narrative.strip()
 	if narrative == u'':
-		return (True, None)
+		return None
 
 	# 2) also, silently do not insert true duplicates
 	# FIXME: this should check for .provider = current_user but
@@ -244,7 +293,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	rows, idx = gmPG2.run_ro_queries(link_obj = link_obj, queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
 	if len(rows) == 1:
 		narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'data': rows[0], 'idx': idx})
-		return (True, narrative)
+		return narrative
 
 	# insert new narrative
 	queries = [
@@ -264,7 +313,7 @@ def create_clin_narrative(narrative=None, soap_cat=None, episode_id=None, encoun
 	rows, idx = gmPG2.run_rw_queries(link_obj = link_obj, queries = queries, return_data = True, get_col_idx = True)
 
 	narrative = cNarrative(row = {'pk_field': 'pk_narrative', 'idx': idx, 'data': rows[0]})
-	return (True, narrative)
+	return narrative
 
 #------------------------------------------------------------
 def delete_clin_narrative(narrative=None):
@@ -450,13 +499,13 @@ def search_text_across_emrs(search_term=None):
 def soap_cats2list(soap_cats):
 	"""Normalizes a string or list of SOAP categories, preserving order.
 
-		None -> known_soap_cats (all)
+		None -> KNOWN_SOAP_CATS (all)
 		[] -> []
 		u'' -> []
 		u' ' -> [None]	(admin)
 	"""
 	if soap_cats is None:
-		return known_soap_cats
+		return KNOWN_SOAP_CATS
 
 	normalized_cats = []
 	for cat in soap_cats:
@@ -466,7 +515,7 @@ def soap_cats2list(soap_cats):
 			normalized_cats.append(None)
 			continue
 		cat = cat.lower()
-		if cat in known_soap_cats:
+		if cat in KNOWN_SOAP_CATS:
 			if cat in normalized_cats:
 				continue
 			normalized_cats.append(cat)
@@ -503,7 +552,7 @@ if __name__ == '__main__':
 		#print "codes:", diagnose.get_codes()
 
 		#print "creating narrative..."
-		#status, new_narrative = create_clin_narrative(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
+		#new_narrative = create_narrative_item(narrative = 'Test narrative', soap_cat = 'a', episode_id=1, encounter_id=2)
 		#print new_narrative
 
 	#-----------------------------------------

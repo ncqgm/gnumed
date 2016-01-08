@@ -102,7 +102,7 @@ class cSOAPImporter:
 			enc_id = enc['pk_encounter']
 
 		# create narrative row
-		status, narr = gmClinNarrative.create_clin_narrative (
+		narr = gmClinNarrative.create_narrative_item (
 			narrative = soap_entry[soap_bundle_TEXT_KEY],
 			soap_cat = soap_entry[soap_bundle_SOAP_CAT_KEY],
 			episode_id = epi_id,
@@ -113,7 +113,7 @@ class cSOAPImporter:
 #		if soap_bundle_TYPES_KEY in soap_entry:
 #			print "code missing to attach types to imported narrative"
 
-		return status
+		return (narr is not None)
 	#-----------------------------------------------------------
 	def __verify_soap_entry(self, soap_entry):
 		"""Perform basic integrity check of a supplied SOAP entry.

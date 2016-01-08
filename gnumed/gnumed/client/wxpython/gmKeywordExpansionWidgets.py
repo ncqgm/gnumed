@@ -96,28 +96,7 @@ class cKeywordExpansion_TextCtrlMixin():
 			if self.__keyword_separators.match(char) is None:
 				return
 
-#		caret_pos_in_line, line_no = self.PositionToXY(self.InsertionPoint)
-#		line = self.GetLineText(line_no)
-#		keyword_candidate = self.__keyword_separators.split(line[:caret_pos_in_line])[-1]
-#
-#		if (
-#			(user_wants_expansion_attempt is False)
-#				and
-#			(keyword_candidate != u'$$steffi')			# Easter Egg ;-)
-#				and
-#			(keyword_candidate not in [ r[0] for r in gmKeywordExpansion.get_textual_expansion_keywords() ])
-#		):
-#			return
-#
-#		# why does this work despite the wx.TextCtrl docs saying that
-#		# InsertionPoint values cannot be used as indices into strings ?
-#		# because we never cross an EOL which is the only documented
-#		# reason for insertion point to be off the string index
-#		start = self.InsertionPoint - len(keyword)
-#		wx.CallAfter(self.__replace_keyword_with_expansion, keyword, start, user_wants_expansion_attempt)
-
 		self.attempt_expansion(show_list_if_needed = user_wants_expansion_attempt)
-		return
 
 	#--------------------------------------------------------
 	# internal helpers

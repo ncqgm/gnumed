@@ -32,10 +32,12 @@ class cWxTextCtrlCompatibility_StcMixin():
 	# wx.TextCtrl compatibility
 	#--------------------------------------------------
 	def GetValue(self):
+		_log.debug(u'%s.GetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
 		return self.GetText()
 
 	#--------------------------------------------------
 	def SetValue(self, value):
+		_log.debug(u'%s.SetValue() - %s', cWxTextCtrlCompatibility_StcMixin, self.__class__.__name__)
 		return self.SetText(value)
 
 	#--------------------------------------------------
@@ -92,6 +94,22 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 	_MARKER_U = 5
 	_MARKER_LINE_BG_LIGHT_GREY = 31
 
+	_DEFINED_MARKERS_MASK = (
+		_MARKER_ADM
+			|
+		_MARKER_S
+			|
+		_MARKER_O
+			|
+		_MARKER_A
+			|
+		_MARKER_P
+			|
+		_MARKER_U
+			|
+		_MARKER_LINE_BG_LIGHT_GREY
+	)
+
 	_DEFINED_MARKER_NUMS = [
 		_MARKER_ADM,
 		_MARKER_S,
@@ -141,9 +159,14 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		_MARKER_U: True
 	}
 
-	def __init__(self, parent, ID):
+	def __init__(self, *args, **kwargs):
 
-		wx.stc.StyledTextCtrl.__init__(self, parent, ID)
+		# normalize wxGlade output
+		if args[2] == u'':
+			l_args = list(args)
+			l_args[2] = wx.DefaultPosition
+			args = tuple(l_args)
+		wx.stc.StyledTextCtrl.__init__(self, *args, **kwargs)
 		cWxTextCtrlCompatibility_StcMixin.__init__(self)
 		gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin.__init__(self)
 
@@ -161,7 +184,8 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		self.SetViewEOL(0)
 
 		# whitespace handling
-		self.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEAFTERINDENT)	# visual debugging
+		#self.SetViewWhiteSpace(wx.stc.STC_WS_VISIBLEAFTERINDENT)	# visual debugging
+		self.SetViewWhiteSpace(wx.stc.STC_WS_INVISIBLE)
 		#self.SetWhitespaceBackground(1, a_color)					# 1 = override lexer
 		#self.SetWhitespaceForeground(1, a_color)					# 1 = override lexer
 
@@ -169,22 +193,30 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		self.SetCaretLineBack('light goldenrod yellow')
 		self.SetCaretLineVisible(1)
 
+		# margins
+		# left margin: 0 pixel widths
+		self.SetMarginLeft(0)
 		# margin 0: SOAP markers
 		self.SetMarginType(0, wx.stc.STC_MARGIN_SYMBOL)
 		self.SetMarginWidth(0, 16)
-		# margin 1 and 2: additional 2-letter markers
+		self.SetMarginMask(0, cSoapSTC._DEFINED_MARKERS_MASK)
+		# margin 1 and 2: additional 2-letter markers (not yet supported)
 		self.SetMarginType(1, wx.stc.STC_MARGIN_SYMBOL)
+		self.SetMarginMask(1, 0)
+		self.SetMarginWidth(1, 0)
 		self.SetMarginType(2, wx.stc.STC_MARGIN_SYMBOL)
-		#self.SetMarginWidth(1, 16)									# default
-		#self.SetMarginWidth(2, 16)									# default
+		self.SetMarginMask(2, 0)
+		self.SetMarginWidth(2, 0)
+
+		# markers
 		# can only use ASCII so far, so must make sure translations are ASCII:
-		self.MarkerDefine(cSoapSTC._MARKER_ADM, wx.stc.STC_MARK_CHARACTER + ord(u'.'), 'red', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_S, wx.stc.STC_MARK_CHARACTER + ord(u'S'), 'red', 'light grey')
-		self.MarkerDefine(cSoapSTC._MARKER_O, wx.stc.STC_MARK_CHARACTER + ord(u'O'), 'red', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_A, wx.stc.STC_MARK_CHARACTER + ord(u'A'), 'red', 'light grey')
-		self.MarkerDefine(cSoapSTC._MARKER_P, wx.stc.STC_MARK_CHARACTER + ord(u'P'), 'red', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_U, wx.stc.STC_MARK_CHARACTER + ord(u'U'), 'red', 'light grey')
-		self.MarkerDefine(cSoapSTC._MARKER_LINE_BG_LIGHT_GREY, wx.stc.STC_MARK_BACKGROUND, 'light grey', 'light grey')
+		self.MarkerDefine(cSoapSTC._MARKER_ADM, wx.stc.STC_MARK_CHARACTER + ord(u'.'), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_S, wx.stc.STC_MARK_CHARACTER + ord(u'S'), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_O, wx.stc.STC_MARK_CHARACTER + ord(u'O'), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_A, wx.stc.STC_MARK_CHARACTER + ord(u'A'), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_P, wx.stc.STC_MARK_CHARACTER + ord(u'P'), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_U, wx.stc.STC_MARK_CHARACTER + ord(u'U'), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_LINE_BG_LIGHT_GREY, wx.stc.STC_MARK_BACKGROUND, 'grey96', 'grey96')
 
 		# unset hotkeys we want to re-define
 		#self.CmdKeyClear('t', wx.stc.STC_SCMOD_CTRL)
@@ -205,12 +237,54 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		self.enable_keyword_expansions()
 
 	#-------------------------------------------------------
+	# SOAP-enhanced text setting
+	#-------------------------------------------------------
+	def SetText(self, *args, **kwargs):
+		_log.debug(u'%s.SetText()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.SetText(self, *args, **kwargs)
+
+	def AddText(self, *args, **kwargs):
+		_log.debug(u'%s.AddText()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.AddText(self, *args, **kwargs)
+
+	def AddStyledText(self, *args, **kwargs):
+		_log.debug(u'%s.AddStyledText()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.AddStyledText(self, *args, **kwargs)
+
+	def InsertText(self, *args, **kwargs):
+		_log.debug(u'%s.InsertText()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.InsertText(self, *args, **kwargs)
+
+	#-------------------------------------------------------
+	def ReplaceSelection(self, text):
+		sel_start, sel_end = self.GetSelection()
+		start_line = self.LineFromPosition(sel_start)
+		end_line = start_line + text.count(u'\n')
+		start_line_soap_cat = self.MarkerGet(start_line)
+		#_log.debug(u'replacing @ pos %s-%s with %s lines (line %s to line %s)', sel_start, sel_end, text.count(u'\n'), start_line, end_line)
+		wx.stc.StyledTextCtrl.ReplaceSelection(self, text)
+		if start_line != end_line:
+			for target_line in range(start_line, end_line):
+				self.MarkerDelete(target_line, -1)
+				self.__set_markers_of_line(target_line, start_line_soap_cat)
+
+	#-------------------------------------------------------
+	def ReplaceTarget(self, *args, **kwargs):
+		_log.debug(u'%s.ReplaceTarget()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.ReplaceTarget(self, *args, **kwargs)
+
+	def ReplaceTargetRE(self, *args, **kwargs):
+		_log.debug(u'%s.ReplaceTargetRE()', self.__class__.__name__)
+		wx.stc.StyledTextCtrl.ReplaceTargetRE(self, *args, **kwargs)
+
+	#-------------------------------------------------------
 	# external API
 	#-------------------------------------------------------
 	def SetText_from_SOAP(self, soap=None, sort_order=None):
 		# defaults
 		if soap is None:
-			soap = {None: [u'']} # 'soap' will be added below by normalization
+			#soap = {None: [u'']} # 'soap' will be added below by normalization
+			soap = {}
 		if sort_order is None:
 			sort_order = [u's', u'o', u'a', u'p', None, u'u']
 
@@ -253,6 +327,7 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 				soap_lines.append(line.strip())
 				line_categories.append(cat)
 
+		_log.debug(u'%s.SetText_from_SOAP(): 1 controlled use of .SetText() follows', self.__class__.__name__)
 		self.SetText(u'\n'.join(soap_lines))
 
 		for idx in range(len(line_categories)):
@@ -277,9 +352,8 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 	def _get_empty(self):
 		soap = self.GetText_as_SOAP()
 		for cat in soap:
-			if len(soap[cat]) > 0:
+			if u''.join([ l.strip() for l in soap[cat] ]) != u'':
 				return False
-
 		return True
 
 	empty = property(_get_empty, lambda x:x)
@@ -292,11 +366,6 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 	def Replace(self, start, end, replacement):
 		self.SetSelection(start, end)
 		self.ReplaceSelection(replacement)
-		start_line = self.LineFromPosition(start)
-		end_line = start_line + replacement.count(u'\n')
-		if start_line != end_line:
-			for target in range(start_line + 1, end_line + 1):
-				self._clone_markers(start_line, target)
 		wx.CallAfter(self.SetSelection, 0, 0)
 
 	#-------------------------------------------------------
@@ -793,13 +862,6 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 					self.__changing_SOAP_cat = True
 					return
 
-#		# CTRL-S: Sort
-#		if key == ord('S'):
-#			if evt.HasModifiers():
-#				if evt.CmdDown():		# CTRL-S or APPLE-S
-#					self.sort_by_SOAP()
-#					return
-
 		evt.Skip()			# make sure unhandled keys get to the STC
 
 	#-------------------------------------------------------
@@ -1102,7 +1164,7 @@ if __name__ == '__main__':
 	def test_stc():
 		app = wx.PyWidgetTester(size = (600, 600))
 		wx.lib.colourdb.updateColourDB()
-		#print wx.lib.colourdb.getColourList()
+		print wx.lib.colourdb.getColourList()
 		app.SetWidget(cSoapSTC, -1)
 		app.MainLoop()
 		return True

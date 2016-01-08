@@ -717,21 +717,19 @@ class cClinicalRecord(object):
 	# API: narrative
 	#--------------------------------------------------------
 	def add_notes(self, notes=None, episode=None, encounter=None):
-
 		enc = gmTools.coalesce (
 			encounter,
 			self.current_encounter['pk_encounter']
 		)
-
 		for note in notes:
-			success, data = gmClinNarrative.create_clin_narrative (
+			gmClinNarrative.create_narrative_item (
 				narrative = note[1],
 				soap_cat = note[0],
 				episode_id = episode,
 				encounter_id = enc
 			)
-
 		return True
+
 	#--------------------------------------------------------
 	def add_clin_narrative(self, note='', soap_cat='s', episode=None, link_obj=None):
 		if note.strip() == '':
@@ -739,17 +737,14 @@ class cClinicalRecord(object):
 			return None
 		if isinstance(episode, gmEMRStructItems.cEpisode):
 			episode = episode['pk_episode']
-		status, data = gmClinNarrative.create_clin_narrative (
+		instance = gmClinNarrative.create_narrative_item (
 			link_obj = link_obj,
 			narrative = note,
 			soap_cat = soap_cat,
 			episode_id = episode,
 			encounter_id = self.current_encounter['pk_encounter']
 		)
-		if not status:
-			_log.error(str(data))
-			return None
-		return data
+		return instance
 
 	#--------------------------------------------------------
 	def get_clin_narrative(self, encounters=None, episodes=None, issues=None, soap_cats=None, providers=None):

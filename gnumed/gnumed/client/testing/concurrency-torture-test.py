@@ -25,7 +25,7 @@ def create_narr():
 	# don't worry about which patient we chose, just be consistent
 	cmd = "select pk_episode, pk_encounter from v_pat_narrative limit 1"
 	data = gmPG.run_ro_query('historica', cmd)
-	narr = gmClinNarrative.create_clin_narrative (
+	narr = gmClinNarrative.create_narrative_item (
 		narrative = magic_string,
 		soap_cat = 's',
 		episode_id = data[0][0],

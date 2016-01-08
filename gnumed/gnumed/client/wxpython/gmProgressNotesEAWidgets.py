@@ -22,32 +22,39 @@ if __name__ == '__main__':
 
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmDateTime
+from Gnumed.pycommon import gmCfg
 
 from Gnumed.business import gmPerson
+from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
 
 from Gnumed.wxpython import gmGuiHelpers
-from Gnumed.wxpython import gmVisualProgressNoteWidgets
 from Gnumed.wxpython import gmTextCtrl
+from Gnumed.wxpython import gmVisualProgressNoteWidgets
 
 _log = logging.getLogger('gm.ui')
 
 #============================================================
-from Gnumed.wxGladeWidgets import wxgSoapNoteExpandoEditAreaPnl
+from Gnumed.wxGladeWidgets import wxgProgressNotesEAPnl
 
-class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl):
+class cProgressNotesEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgProgressNotesEAPnl.wxgProgressNotesEAPnl):
 	"""An Edit Area like panel for entering progress notes.
 
-	Subjective:					Codes:
-		expando text ctrl
-	Objective:					Codes:
-		expando text ctrl
-	Assessment:					Codes:
-		expando text ctrl
-	Plan:						Codes:
-		expando text ctrl
-	visual progress notes
-		panel with images
+	(
+		Subjective:					Codes:
+			expando text ctrl
+		Objective:					Codes:
+			expando text ctrl
+		Assessment:					Codes:
+			expando text ctrl
+		Plan:						Codes:
+			expando text ctrl
+	)
+		OR
+	SOAP editor (StyledTextCtrl)
+		AND
+	visual progress notes (panel with images)
+		AND
 	Episode synopsis:			Codes:
 		expando text ctrl
 
@@ -62,29 +69,54 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 		except KeyError:
 			self.problem = None
 
-		wxgSoapNoteExpandoEditAreaPnl.wxgSoapNoteExpandoEditAreaPnl.__init__(self, *args, **kwargs)
+		wxgProgressNotesEAPnl.wxgProgressNotesEAPnl.__init__(self, *args, **kwargs)
 
-		self.__init_ui()
+		dbcfg = gmCfg.cCfgSQL()
+		self.__use_soap_fields = bool(dbcfg.get2 (
+			option = u'horstspace.soap_editor.use_one_field_per_soap_category',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = u'user',
+			default = True
+		))
 
-		self.soap_fields = [
+		self.__soap_fields = [
 			self._TCTRL_Soap,
 			self._TCTRL_sOap,
 			self._TCTRL_soAp,
 			self._TCTRL_soaP
 		]
+
+		self.__init_ui()
 		self.__register_interests()
+
+		return
 
 	#--------------------------------------------------------
 	def __init_ui(self):
+		if self.__use_soap_fields is False:
+			for field in self.__soap_fields:
+				field.Hide()
+			self._LBL_Soap.Hide()
+			self._PRW_Soap_codes.Hide()
+			self._LBL_sOap.Hide()
+			self._PRW_sOap_codes.Hide()
+			self._LBL_soAp.Hide()
+			self._PRW_soAp_codes.Hide()
+			self._LBL_soaP.Hide()
+			self._PRW_soaP_codes.Hide()
+			self._STC_soap.Show()
+
 		self.refresh_summary()
 		if self.problem is not None:
 			if self.problem['summary'] is None:
 				self._TCTRL_episode_summary.SetValue(u'')
 		self.refresh_visual_soap()
+
 	#--------------------------------------------------------
 	def refresh(self):
 		self.refresh_summary()
 		self.refresh_visual_soap()
+
 	#--------------------------------------------------------
 	def refresh_summary(self):
 		self._TCTRL_episode_summary.SetValue(u'')
@@ -114,6 +146,7 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 
 		val, data = self._PRW_episode_codes.generic_linked_codes2item_dict(self.problem.generic_codes)
 		self._PRW_episode_codes.SetText(val, data)
+
 	#--------------------------------------------------------
 	def refresh_visual_soap(self):
 		if self.problem is None:
@@ -134,6 +167,7 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 				encounter = emr.active_encounter['pk_encounter']
 			)
 			return
+
 	#--------------------------------------------------------
 	def clear(self):
 		self._TCTRL_episode_summary.SetValue(u'')
@@ -141,8 +175,12 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 		self._PRW_episode_codes.SetText(u'', self._PRW_episode_codes.list2data_dict([]))
 		self._PNL_visual_soap.clear()
 
-		for field in self.soap_fields:
-			field.SetValue(u'')
+		if self.__use_soap_fields:
+			for field in self.__soap_fields:
+				field.SetValue(u'')
+		else:
+			self._STC_soap.SetText_from_SOAP()
+
 	#--------------------------------------------------------
 	def add_visual_progress_note(self):
 		fname, discard_unmodified = gmVisualProgressNoteWidgets.select_visual_progress_note_template(parent = self)
@@ -166,6 +204,7 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 			discard_unmodified = discard_unmodified,
 			health_issue = issue
 		)
+
 	#--------------------------------------------------------
 	def save(self, emr=None, episode_name_candidates=None, encounter=None):
 
@@ -196,32 +235,16 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 		# codes for episode
 		episode.generic_codes = [ d['data'] for d in self._PRW_episode_codes.GetData() ]
 
-		self._save_soap(pk_episode = episode['pk_episode'], pk_encounter = encounter)
+		gmClinNarrative.create_progress_note (
+			soap = self.soap,
+			episode_id = episode['pk_episode'],
+			encounter_id = encounter
+		)
 
 		return True
+
 	#--------------------------------------------------------
 	# internal helpers
-	#--------------------------------------------------------
-	def _save_soap(self, pk_episode, pk_encounter):
-		soap = self.soap
-		for cat in soap:
-			if len(soap[cat]) == 0:
-				continue
-			saved, data = gmClinNarrative.create_clin_narrative (
-				soap_cat = cat,
-				narrative = soap[cat],
-				episode_id = pk_episode,
-				encounter_id = pk_encounter
-			)
-
-		# codes per narrative !
-#		for note in soap_notes:
-#			if note['soap_cat'] == u's':
-#				codes = self._PRW_Soap_codes
-#			elif note['soap_cat'] == u'o':
-#			elif note['soap_cat'] == u'a':
-#			elif note['soap_cat'] == u'p':
-
 	#--------------------------------------------------------
 	def __create_new_episode(self, emr=None, episode_name_candidates=None):
 
@@ -293,12 +316,14 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 				)
 
 		return new_episode
+
 	#--------------------------------------------------------
 	# event handling
 	#--------------------------------------------------------
 	def __register_interests(self):
-		for field in self.soap_fields:
-			self.bind_expando_layout_event(field)
+		if self.__use_soap_fields:
+			for field in self.__soap_fields:
+				self.bind_expando_layout_event(field)
 		self.bind_expando_layout_event(self._TCTRL_episode_summary)
 		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self.refresh_visual_soap)
 
@@ -306,34 +331,33 @@ class cSoapNoteExpandoEAPnl(gmTextCtrl.cExpandoTextCtrlHandling_PanelMixin, wxgS
 	# properties
 	#--------------------------------------------------------
 	def _get_soap(self):
+		if not self.__use_soap_fields:
+			return self._STC_soap.soap
 
 		soap = {}
-
 		tmp = self._TCTRL_Soap.GetValue().strip()
 		if tmp != u'':
 			soap['s'] = [tmp]
-
 		tmp = self._TCTRL_sOap.GetValue().strip()
 		if tmp != u'':
 			soap['o'] = [tmp]
-
 		tmp = self._TCTRL_soAp.GetValue().strip()
 		if tmp != u'':
 			soap['a'] = [tmp]
-
 		tmp = self._TCTRL_soaP.GetValue().strip()
 		if tmp != u'':
 			soap['p'] = [tmp]
-
 		return soap
 
 	soap = property(_get_soap, lambda x:x)
 	#--------------------------------------------------------
 	def _get_empty(self):
-
-		# soap fields
-		for field in self.soap_fields:
-			if field.GetValue().strip() != u'':
+		if self.__use_soap_fields:
+			for field in self.__soap_fields:
+				if field.GetValue().strip() != u'':
+					return False
+		else:
+			if not self._STC_soap.empty:
 				return False
 
 		# summary
@@ -384,12 +408,12 @@ if __name__ == '__main__':
 		sys.exit()
 
 	#----------------------------------------
-	def test_cSoapNoteExpandoEAPnl():
+	def test_cProgressNotesEAPnl():
 		pat = gmPersonSearch.ask_for_patient()
 		application = wx.PyWidgetTester(size=(800,500))
-		soap_input = cSoapNoteExpandoEAPnl(application.frame, -1)
+		soap_input = cProgressNotesEAPnl(application.frame, -1)
 		application.frame.Show(True)
 		application.MainLoop()
 	#----------------------------------------
 
-	test_cSoapNoteExpandoEAPnl()
+	test_cProgressNotesEAPnl()
