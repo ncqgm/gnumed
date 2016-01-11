@@ -1490,6 +1490,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v19
 ------------------------------------------------
 
+	19.12
+
+FIX: pg_trgm placement and use
+
 	19.11
 
 IMPROVED: sorting of bill item PKs in bills view [thanks Marc]
