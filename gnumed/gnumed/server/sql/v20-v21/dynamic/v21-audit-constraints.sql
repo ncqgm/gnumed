@@ -23,6 +23,27 @@ alter table audit.audit_fields
 ;
 
 
+-- add a foreign key which is, however, NOT ENFORCED
+-- this should cue in pg_dump about the needed order
+-- of dumping dem.staff vs other tables ...
+--
+-- actually, this needs to be put into all child tables
+-- and link against dem.staff.db_user (but not be enforced)
+--
+--alter table audit.audit_fields
+--	drop constraint if exists fk_audit_audit_fields_dem_staff_db_user cascade
+--;
+--
+--alter table audit.audit_fields
+--	add constraint fk_audit_audit_fields_dem_staff_db_user
+--		foreign key (modified_by)
+--		references dem.staff(db_user)
+--		on update restrict
+--		on delete restrict
+--		not valid
+--;
+
+
 create or replace function gm.account_is_dbowner_or_staff(_account name)
 	returns boolean
 	language plpgsql
@@ -59,23 +80,8 @@ BEGIN
 		RETURN TRUE;
 	END IF;
 
-	-- neither
-	RAISE EXCEPTION
-		''gm.account_is_dbowner_or_staff(NAME): <%> is neither database owner, nor <postgres>, nor on staff'', _account
-		USING ERRCODE = ''integrity_constraint_violation''
-	;
 	RETURN FALSE;
 END;';
-
-
-alter table audit.audit_fields
-	drop constraint if exists
-		audit_audit_fields_sane_modified_by cascade;
-
-alter table audit.audit_fields
-	add constraint audit_audit_fields_sane_modified_by check
-		(gm.account_is_dbowner_or_staff(modified_by) IS TRUE)
-;
 
 -- --------------------------------------------------------------
 -- audit.audit_trail

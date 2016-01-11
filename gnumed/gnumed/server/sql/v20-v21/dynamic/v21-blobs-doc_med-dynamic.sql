@@ -15,10 +15,14 @@ comment on column blobs.doc_med.fk_org_unit is
 Note that the document may contain data from several units but\n
 there will always be one "sender".';
 
+alter table blobs.doc_med
+	drop constraint if exists fk_blobs_doc_med_dem_org_unit_pk cascade
+;
 
 alter table blobs.doc_med
-	add foreign key (fk_org_unit)
-	references dem.org_unit(pk)
+	add constraint fk_blobs_doc_med_dem_org_unit_pk
+		foreign key (fk_org_unit)
+		references dem.org_unit(pk)
 		on update cascade
 		on delete restrict
 ;

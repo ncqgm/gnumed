@@ -58,7 +58,19 @@ create FUNCTION audit.ft_ins_%s()
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
 	AS '
+DECLARE
+	_is_allowed_inserter boolean;
 BEGIN
+	-- is the session user allowed to insert data ?
+	SELECT gm.account_is_dbowner_or_staff(SESSION_USER) INTO STRICT _is_allowed_inserter;
+	IF _is_allowed_inserter IS FALSE THEN
+		RAISE EXCEPTION
+			''INSERT: gm.account_is_dbowner_or_staff(NAME): <%%> is neither database owner, nor <postgres>, nor on staff'', SESSION_USER
+			USING ERRCODE = ''integrity_constraint_violation''
+		;
+		return NEW;
+	END IF;
+
 	NEW.row_version := 0;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
@@ -80,7 +92,19 @@ create FUNCTION audit.ft_upd_%s()
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
 	AS '
+DECLARE
+	_is_allowed_updater boolean;
 BEGIN
+	-- is the session user allowed to update data ?
+	SELECT gm.account_is_dbowner_or_staff(SESSION_USER) INTO STRICT _is_allowed_updater;
+	IF _is_allowed_updater IS FALSE THEN
+		RAISE EXCEPTION
+			''UPDATE: gm.account_is_dbowner_or_staff(NAME): <%%> is neither database owner, nor <postgres>, nor on staff'', SESSION_USER
+			USING ERRCODE = ''integrity_constraint_violation''
+		;
+		return NEW;
+	END IF;
+
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
@@ -110,7 +134,19 @@ create FUNCTION audit.ft_del_%s()
 	LANGUAGE 'plpgsql'
 	SECURITY DEFINER
 	AS '
+DECLARE
+	_is_allowed_deleter boolean;
 BEGIN
+	-- is the session user allowed to delete data ?
+	SELECT gm.account_is_dbowner_or_staff(SESSION_USER) INTO STRICT _is_allowed_deleter;
+	IF _is_allowed_deleter IS FALSE THEN
+		RAISE EXCEPTION
+			''DELETE: gm.account_is_dbowner_or_staff(NAME): <%%> is neither database owner, nor <postgres>, nor on staff'', SESSION_USER
+			USING ERRCODE = ''integrity_constraint_violation''
+		;
+		return OLD;
+	END IF;
+
 	INSERT INTO audit.%s (
 		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
 		%s
