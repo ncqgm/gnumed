@@ -9,9 +9,12 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
-create extension if not exists pg_trgm with schema pg_catalog;
+drop schema if exists pgtrgm cascade;
+create schema pgtrgm;
+grant usage on schema pgtrgm to "gm-dbo";
 
-alter extension pg_trgm set schema pg_catalog;
+drop extension if exists pg_trgm cascade;
+create extension pg_trgm with schema pgtrgm;
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-install-pg_trgm.sql', '19.10');
+select gm.log_script_insertion('v19-install-pg_trgm.sql', '19.12');
