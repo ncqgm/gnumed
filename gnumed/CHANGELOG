@@ -1618,6 +1618,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v20
 ------------------------------------------------
 
+	20.10
+
+FIX: pg_trgm placement and use
+
 	20.3
 
 FIX: setting FK to clin.test_org on dangling test types, really, this time
