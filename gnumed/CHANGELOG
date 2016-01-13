@@ -1490,7 +1490,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v19
 ------------------------------------------------
 
-	19.12
+	19.16
 
 FIX: pg_trgm placement and use
 
