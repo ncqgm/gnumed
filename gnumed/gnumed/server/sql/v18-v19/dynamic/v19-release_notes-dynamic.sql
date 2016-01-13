@@ -17,16 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.4.15 (database v19.15)',
-	'GNUmed 1.4.15 Release Notes:
+	'Release Notes for GNUmed 1.4.16 (database v19.16)',
+	'GNUmed 1.4.16 Release Notes:
 
-	1.4.15
+	1.4.16
 
-FIX: street PRW exception on streets w/o postcode
-FIX: exception on moving SOAP between encounters
+FIX: exception in staff list if there is staff with deleted DB account
 
-	19.15 -- Requires PostgreSQL 9.1 !
+	19.16 -- Requires PostgreSQL 9.1 !
+
+FIX: pg_trgm placement and use
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.8');
+select gm.log_script_insertion('v19-release_notes-dynamic.sql', '19.16');
