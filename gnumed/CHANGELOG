@@ -1651,7 +1651,7 @@ NEW: bootstrapper now REINDEXes after upgrade
 # gnumed_v19
 ------------------------------------------------
 
-	19.12
+	19.16
 
 FIX: pg_trgm placement and use
 
