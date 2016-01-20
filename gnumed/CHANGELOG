@@ -1621,6 +1621,7 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 	20.10
 
 FIX: pg_trgm placement and use
+FIX: clin.substance_intake.fk_episode SET NOT NULL
 
 	20.3
 
