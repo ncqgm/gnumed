@@ -9,19 +9,6 @@
 --set default_transaction_read_only to off;
 
 -- --------------------------------------------------------------
--- clin.substance_intake.fk_episode
--- for some unknown reason fk_episode remained at NOT NULL
--- in my personal production database despite that constraint
--- having been dropped in v12 when the sane_fk_episode constraint
--- was introduced and .fk_episode never having been touched after
--- that (as far as I can tell from grepping the VCS),
--- also I do think I remember a field report along the same
--- lines by Jim, so better be safe than sorry and DROP it again
-alter table clin.substance_intake
-	alter column fk_episode
-		drop not null;
-
--- --------------------------------------------------------------
 comment on column clin.substance_intake.comment_on_start is 'Comment (uncertainty level) on .clin_when = started. "?" = "entirely unknown".';
 
 alter table clin.substance_intake
@@ -385,10 +372,33 @@ INSERT INTO ref.consumable_substance (
 		NOT EXISTS (SELECT 1 FROM ref.consumable_substance WHERE atc_code = 'N07BA01' and description = 'nicotine')
 ;
 
+INSERT INTO clin.episode
+	(description, is_open, fk_encounter, summary)
+SELECT
+	'substance use',
+	false,
+	-- most recent encounter
+	(select pk from clin.encounter where fk_patient = (
+		select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+	 )
+	 order by last_affirmed desc limit 1
+	),
+	'[substance use] (auto-added by v21.0 @ ' || clock_timestamp()::text || ')'
+WHERE NOT EXISTS (
+	SELECT 1 FROM clin.v_pat_episodes
+	WHERE
+		summary ILIKE '%[substance use]%'
+			AND
+		pk_patient = (
+			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+		)
+);
+
 INSERT INTO clin.substance_intake (
 	clin_when,
 	comment_on_start,
 	fk_encounter,
+	fk_episode,
 	fk_substance,
 	preparation,
 	narrative,
@@ -399,7 +409,14 @@ INSERT INTO clin.substance_intake (
 		'?',
 		(select pk from clin.encounter where fk_patient = (
 			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
-		) limit 1),
+		) order by last_affirmed desc limit 1),
+		(SELECT 1 FROM clin.v_pat_episodes WHERE
+			summary ILIKE '%[substance use]%'
+				AND
+			pk_patient = (
+				select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			)
+		),
 		(select pk from ref.consumable_substance where atc_code = 'N07BA01' limit 1),
 		'tobacco',
 		'enjoys an occasional pipe of Old Toby',
@@ -425,6 +442,7 @@ INSERT INTO clin.substance_intake (
 	clin_when,
 	comment_on_start,
 	fk_encounter,
+	fk_episode,
 	fk_substance,
 	preparation,
 	narrative,
@@ -435,7 +453,14 @@ INSERT INTO clin.substance_intake (
 		'?',
 		(select pk from clin.encounter where fk_patient = (
 			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
-		) limit 1),
+		) order by last_affirmed desc limit 1),
+		(SELECT 1 FROM clin.v_pat_episodes WHERE
+			summary ILIKE '%[substance use]%'
+				AND
+			pk_patient = (
+				select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			)
+		),
 		(select pk from ref.consumable_substance where atc_code = 'V03AB16' limit 1),
 		'liquid',
 		'occasionally relishes a fine glass of Saurian Brandy and will not forego a pint of Romulan Ale',
@@ -459,6 +484,7 @@ INSERT INTO clin.substance_intake (
 	clin_when,
 	comment_on_start,
 	fk_encounter,
+	fk_episode,
 	fk_substance,
 	preparation,
 	narrative,
@@ -469,7 +495,14 @@ INSERT INTO clin.substance_intake (
 		'?',
 		(select pk from clin.encounter where fk_patient = (
 			select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
-		) limit 1),
+		) order by last_affirmed desc limit 1),
+		(SELECT 1 FROM clin.v_pat_episodes WHERE
+			summary ILIKE '%[substance use]%'
+				AND
+			pk_patient = (
+				select pk_identity from dem.v_all_persons where firstnames = 'James Tiberius' and lastnames = 'Kirk'
+			)
+		),
 		(select pk from ref.consumable_substance where description = 'other drugs' limit 1),
 		'piece',
 		'possibly experimented with cordrazine at one point',
