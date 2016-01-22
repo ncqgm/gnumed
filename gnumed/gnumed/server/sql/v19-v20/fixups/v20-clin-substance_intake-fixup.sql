@@ -18,35 +18,42 @@ create or replace function gm._add_substance_use_episodes()
 	as '
 DECLARE
 	_curr_pat_id integer;
-	_intake_id integer;
-	_pseudo_episode_id integer;
+	_curr_intake_id integer;
+	_substance_use_episode_id integer;
 BEGIN
 	-- loop over intakes w/o episode
-	FOR _intake_id, _curr_pat_id IN select pk_substance_intake, pk_patient from clin.v_nonbrand_intakes where pk_episode is null LOOP
+	FOR
+		_curr_intake_id, _curr_pat_id
+	IN
+		select pk_substance_intake, pk_patient from clin.v_nonbrand_intakes where pk_episode is null
+	LOOP
 
-		-- add pseudo episode
-		insert into clin.episode (description, is_open, fk_encounter)
-		select
-			''substance use'',
-			False,
-			-- most recent encounter
-			(select pk from clin.encounter where fk_patient = _curr_pat_id order by last_affirmed desc limit 1)
-		 where not exists (
-			select 1 from clin.v_pat_episodes where description = ''substance use'' and pk_patient = _curr_pat_id
-		);
-
-		-- get newly created or preexisting episode
-		select pk_episode INTO STRICT _pseudo_episode_id from clin.v_pat_episodes
+		-- select substance use episode
+		select pk_episode INTO STRICT _substance_use_episode_id from clin.v_pat_episodes
 		where
-			description = ''substance use''
+			summary ilike ''%[substance use]%''
 				and
 			pk_patient = _curr_pat_id;
 
+		--- create substance use episode
+		IF NOT FOUND THEN
+			insert into clin.episode
+				(description, is_open, fk_encounter, summary)
+			values (
+				''substance use'',
+				False,
+				-- most recent encounter
+				(select pk from clin.encounter where fk_patient = _curr_pat_id order by last_affirmed desc limit 1),
+				''[substance use] (auto-added by v20.10 @ '' || clock_timestamp()::text || '')''
+			)
+			returning pk into strict _substance_use_episode_id;
+		END IF;
+
 		-- update intake
 		update clin.substance_intake set
-			fk_episode = _pseudo_episode_id
+			fk_episode = _substance_use_episode_id
 		where
-			pk = _intake_id;
+			pk = _curr_intake_id;
 
 	END LOOP;
 	RETURN true;
