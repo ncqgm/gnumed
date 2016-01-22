@@ -55,10 +55,10 @@ Monitor: $[Monitor ?  Yes/No]$
 Diagnostic hints:
  typically at 5-10 days after begin of exposure platelets fall to
    < 150x10^9/l
-     (occurs in 85-90% of patient developing HIT)
+     (occurs in 85-90% of patients developing HIT)
  or to
    30-50% of pre-exposure value even if > 150x10^9/l
-     (occurs in 90-95% of patient developing HIT)
+     (occurs in 90-95% of patients developing HIT)
 ');
 
 -- --------------------------------------------------------------
