@@ -252,7 +252,7 @@
                         <object class="wxButton" name="_BTN_upload" base="EditButton">
                             <style>wxBU_EXACTFIT</style>
                             <label>Upload</label>
-                            <tooltip>Upload DICOM files from a directory, recursively, into the Orthanc PACS.</tooltip>
+                            <tooltip>Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nThe currently active patient does not matter. Orthanc will associate uploaded files with the patient found within the DICOM metadata. It will create new patients as needed.</tooltip>
                             <events>
                                 <handler event="EVT_BUTTON">_on_upload_button_pressed</handler>
                             </events>

@@ -2630,7 +2630,7 @@ class cPACSPluginPnl(wxgPACSPluginPnl, gmRegetMixin.cRegetOnPaintMixin):
 		pacs = gmDICOM.cOrthancServer()
 		if not pacs.connect(host = host, port = port, user = user, password = password):		#, expected_aet = 'another AET'
 			self._LBL_PACS_identification.SetLabel(_('Cannot connect to PACS.'))
-			_log.error('error connecting to server:', pacs.connect_error)
+			_log.error('error connecting to server: %s', pacs.connect_error)
 			return False
 
 		self._LBL_PACS_identification.SetLabel(_('PACS: Orthanc "%s" (AET "%s", Version %s, DB v%s)') % (

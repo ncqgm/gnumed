@@ -74,7 +74,7 @@ class wxgPACSPluginPnl(wx.Panel):
 		self._BTN_export_study.Enable(False)
 		self._BTN_save_selected_studies.SetToolTipString(_("Save selected studies to disk."))
 		self._BTN_save_selected_studies.Enable(False)
-		self._BTN_upload.SetToolTipString(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS."))
+		self._BTN_upload.SetToolTipString(_("Upload DICOM files from a directory, recursively, into the Orthanc PACS\n\nThe currently active patient does not matter. Orthanc will associate uploaded files with the patient found within the DICOM metadata. It will create new patients as needed."))
 		# end wxGlade
 
 	def __do_layout(self):
