@@ -672,7 +672,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		pk_part = rows[0][0]
 		new_part = cDocumentPart(aPK_obj = pk_part, link_obj = link_obj)
 		if not new_part.update_data_from_file(link_obj = link_obj, fname = file):
-			_log.error('cannot import binary data from [%s] into document part' % file)
+			_log.error(u'cannot import binary data from [%s] into document part' % file)
 			gmPG2.run_rw_queries (
 				link_obj = link_obj,
 				queries = [{'cmd': u"DELETE FROM blobs.doc_obj WHERE pk = %s", 'args': [pk_part]}]
@@ -690,7 +690,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		for filename in files:
 			new_part = self.add_part(file = filename)
 			if new_part is None:
-				msg = 'cannot instantiate document part object'
+				msg = u'cannot instantiate document part object from [%s]' filename
 				_log.error(msg)
 				return (False, msg, filename)
 			new_parts.append(new_part)
@@ -699,7 +699,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 				new_part['pk_intended_reviewer'] = reviewer			# None == Null
 				success, data = new_part.save_payload()
 				if not success:
-					msg = 'cannot set reviewer to [%s]' % reviewer
+					msg = u'cannot set reviewer to [%s] on [%s]' % (reviewer, filename)
 					_log.error(msg)
 					_log.error(str(data))
 					return (False, msg, filename)

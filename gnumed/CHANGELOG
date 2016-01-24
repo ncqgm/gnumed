@@ -67,6 +67,7 @@ IMPROVED: can now delete EDC
 IMPROVED: support documenting which organization a document originated from
 IMPROVED: workflow for disabling an identity
 IMPROVED: EMR Journal formatting of hospital stays
+IMPROVED: new-document workflow
 
 ------------------------------------------------
 # rel-1-5-patches

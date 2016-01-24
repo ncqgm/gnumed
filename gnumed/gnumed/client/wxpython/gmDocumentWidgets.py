@@ -147,8 +147,9 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 		review_as_normal = review_as_normal,
 		pk_org_unit = pk_org_unit
 	)
+
 #----------------------
-def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None):
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None, date_generated=None, comment=None, reviewer=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -176,6 +177,8 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 					pat.locked = False
 				return None
 
+	wx.BeginBusyCursor()
+
 	doc_type = gmDocuments.create_document_type(document_type = document_type)
 
 	docs_folder = pat.get_document_folder()
@@ -184,12 +187,33 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		encounter = emr.active_encounter['pk_encounter'],
 		episode = episode['pk_episode']
 	)
+	if doc is None:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = _('Cannot create new document.'),
+			aTitle = _('saving document')
+		)
+		return False
+
 	if reference is not None:
 		doc['ext_ref'] = reference
 	if pk_org_unit is not None:
 		doc['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
+	if date_generated is not None:
+		doc['clin_when'] = date_generated
+	if comment is not None:
+		if comment != u'':
+			doc['comment'] = comment
 	doc.save()
-	doc.add_parts_from_files(files = filenames)
+
+	success, msg, filename = doc.add_parts_from_files (files = filenames, reviewer = reviewer)
+	if not success:
+		wx.EndBusyCursor()
+		gmGuiHelpers.gm_show_error (
+			aMessage = msg,
+			aTitle = _('saving document')
+		)
+		return False
 
 	if review_as_normal:
 		doc.set_reviewed(technically_abnormal = False, clinically_relevant = False)
@@ -199,7 +223,58 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 
 	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
 
+	# inform user
+	show_id = bool (
+		cfg.get2 (
+			option = 'horstspace.scan_index.show_doc_id',
+			workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+			bias = 'user'
+		)
+	)
+
+	wx.EndBusyCursor()
+
+	if not show_id:
+		gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
+	else:
+		if reference is None:
+			msg = _('Successfully saved the new document.')
+		else:
+			msg = _(u'The reference ID for the new document is:\n'
+					u'\n'
+					u' <%s>\n'
+					u'\n'
+					u'You probably want to write it down on the\n'
+					u'original documents.\n'
+					u'\n'
+					u"If you don't care about the ID you can switch\n"
+					u'off this message in the GNUmed configuration.\n'
+			) % reference
+		gmGuiHelpers.gm_show_info (
+			aMessage = msg,
+			aTitle = _('Saving document')
+		)
+
+	# remove non-temp files
+	tmp_dir = gmTools.gmPaths().tmp_dir
+	files2remove = [ f for f in filenames if not f.startswith(tmp_dir) ]
+	if len(files2remove) > 0:
+		do_delete = gmGuiHelpers.gm_show_question (
+			_(	u'Successfully imported files as document.\n'
+				u'\n'
+				u'Do you want to delete imported\n'
+				u'files from the filesystem ?\n'
+				u'\n'
+				u' %s'
+			) % u'\n '.join(files2remove),
+			_('Removing files')
+		)
+		if do_delete:
+			for fname in self.acquired_pages:
+				gmTools.remove_file(fname)
+
 	return doc
+
 #----------------------
 gmDispatcher.connect(signal = u'import_document_from_file', receiver = _save_file_as_new_document)
 gmDispatcher.connect(signal = u'import_document_from_files', receiver = _save_files_as_new_document)
@@ -1143,29 +1218,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if not self.__valid_for_save():
 			return False
 
-		wx.BeginBusyCursor()
+#		wx.BeginBusyCursor()
 
-		pat = gmPerson.gmCurrentPatient()
-		doc_folder = pat.get_document_folder()
-		emr = pat.get_emr()
-
-		# create new document
-		pk_episode = self._PhWheel_episode.GetData(can_create = True, is_open = True)
-		encounter = emr.active_encounter['pk_encounter']
-		document_type = self._PhWheel_doc_type.GetData()
-		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
-		if new_doc is None:
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot create new document.'),
-				aTitle = _('saving document')
-			)
-			return False
-
-		# update business object with metadata
-		# - date of generation
-		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
-		# - external reference
+		#xxxxxxxxxxxx
+		# external reference
 		cfg = gmCfg.cCfgSQL()
 		generate_uuid = bool (
 			cfg.get2 (
@@ -1176,24 +1232,65 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			)
 		)
 		if generate_uuid:
-			new_doc['ext_ref'] = gmDocuments.get_ext_ref()
-		# - source
-		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
-		# - comment
-		comment = self._PRW_doc_comment.GetLineText(0).strip()
-		if comment != u'':
-			new_doc['comment'] = comment
-		# - save it
-		if not new_doc.save_payload():
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = _('Cannot update document metadata.'),
-				aTitle = _('saving document')
-			)
+			ext_ref = gmDocuments.get_ext_ref()
+		else:
+			ext_ref = None
+
+		new_doc = save_files_as_new_document (
+			parent = self,
+			filenames = self.acquired_pages,
+			document_type = self._PhWheel_doc_type.GetData(),
+			unlock_patient = False,
+			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True),
+			review_as_normal = False,
+			reference = ext_ref,
+			pk_org_unit = self._PhWheel_source.GetData(),
+			date_generated = self._PhWheel_doc_date.GetData().get_pydt(),
+			comment = self._PRW_doc_comment.GetLineText(0).strip(),
+			reviewer = self._PhWheel_reviewer.GetData()
+		)
+
+#		pat = gmPerson.gmCurrentPatient()
+#		doc_folder = pat.get_document_folder()
+#		emr = pat.get_emr()
+#
+#		# create new document
+#		pk_episode = self._PhWheel_episode.GetData(can_create = True, is_open = True)
+#		encounter = emr.active_encounter['pk_encounter']
+#		document_type = self._PhWheel_doc_type.GetData()
+#		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
+		if new_doc is None:
+#			wx.EndBusyCursor()
+#			gmGuiHelpers.gm_show_error (
+#				aMessage = _('Cannot create new document.'),
+#				aTitle = _('saving document')
+#			)
 			return False
+
+		# update business object with metadata
+#		# - date of generation
+#		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
+#		# - external reference
+#		if generate_uuid:
+#			new_doc['ext_ref'] = gmDocuments.get_ext_ref()
+#		# - source
+#		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
+#		# - comment
+#		comment = self._PRW_doc_comment.GetLineText(0).strip()
+#		if comment != u'':
+#			new_doc['comment'] = comment
+#		# - save it
+#		if not new_doc.save_payload():
+#			wx.EndBusyCursor()
+#			gmGuiHelpers.gm_show_error (
+#				aMessage = _('Cannot update document metadata.'),
+#				aTitle = _('saving document')
+#			)
+#			return False
+
 		# - long description
 		description = self._TBOX_description.GetValue().strip()
-		if description != '':
+		if description != u'':
 			if not new_doc.add_description(description):
 				wx.EndBusyCursor()
 				gmGuiHelpers.gm_show_error (
@@ -1202,18 +1299,18 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				)
 				return False
 
-		# add document parts from files
-		success, msg, filename = new_doc.add_parts_from_files (
-			files = self.acquired_pages,
-			reviewer = self._PhWheel_reviewer.GetData()
-		)
-		if not success:
-			wx.EndBusyCursor()
-			gmGuiHelpers.gm_show_error (
-				aMessage = msg,
-				aTitle = _('saving document')
-			)
-			return False
+#		# add document parts from files
+#		success, msg, filename = new_doc.add_parts_from_files (
+#			files = self.acquired_pages,
+#			reviewer = self._PhWheel_reviewer.GetData()
+#		)
+#		if not success:
+#			wx.EndBusyCursor()
+#			gmGuiHelpers.gm_show_error (
+#				aMessage = msg,
+#				aTitle = _('saving document')
+#			)
+#			return False
 
 		# set reviewed status
 		if self._ChBOX_reviewed.GetValue():
@@ -1225,45 +1322,60 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		gmHooks.run_hook_script(hook = u'after_new_doc_created')
 
-		# inform user
-		show_id = bool (
-			cfg.get2 (
-				option = 'horstspace.scan_index.show_doc_id',
-				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-				bias = 'user'
-			)
-		)
-		wx.EndBusyCursor()
-		if show_id:
-			if new_doc['ext_ref'] is None:
-				msg = _('Successfully saved the new document.')
-			else:
-				msg = _(
-"""The reference ID for the new document is:
+#		# inform user
+#		show_id = bool (
+#			cfg.get2 (
+#				option = 'horstspace.scan_index.show_doc_id',
+#				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
+#				bias = 'user'
+#			)
+#		)
+#		wx.EndBusyCursor()
+#		if show_id:
+#			if new_doc['ext_ref'] is None:
+#				msg = _('Successfully saved the new document.')
+#			else:
+#				msg = _(
+#"""The reference ID for the new document is:
+#
+# <%s>
+#
+#You probably want to write it down on the
+#original documents.
+#
+#If you don't care about the ID you can switch
+#off this message in the GNUmed configuration.""") % new_doc['ext_ref']
+#			gmGuiHelpers.gm_show_info (
+#				aMessage = msg,
+#				aTitle = _('Saving document')
+#			)
+#		else:
+#			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
 
- <%s>
-
-You probably want to write it down on the
-original documents.
-
-If you don't care about the ID you can switch
-off this message in the GNUmed configuration.""") % new_doc['ext_ref']
-			gmGuiHelpers.gm_show_info (
-				aMessage = msg,
-				aTitle = _('Saving document')
-			)
-		else:
-			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
+#		do_delete = gmGuiHelpers.gm_show_question (
+#			_(	u'Successfully imported files as document.\n'
+#				u'\n'
+#				u'Do you want to delete the imported files\n'
+#				u'from the filesystem ?'
+#			),
+#			_('Removing files')
+#		)
+#		if do_delete:
+#			for fname in self.acquired_pages:
+#				gmTools.remove_file(fname)
 
 		self.__init_ui_data()
 		return True
+
 	#--------------------------------------------------------
 	def _startover_btn_pressed(self, evt):
 		self.__init_ui_data()
+
 	#--------------------------------------------------------
 	def _reviewed_box_checked(self, evt):
 		self._ChBOX_abnormal.Enable(enable = self._ChBOX_reviewed.GetValue())
 		self._ChBOX_relevant.Enable(enable = self._ChBOX_reviewed.GetValue())
+
 	#--------------------------------------------------------
 	def _on_doc_type_loses_focus(self):
 		pk_doc_type = self._PhWheel_doc_type.GetData()
