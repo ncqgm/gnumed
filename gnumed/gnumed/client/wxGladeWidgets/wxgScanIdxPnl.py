@@ -17,7 +17,12 @@ import gettext
 class wxgScanIdxPnl(wx.Panel):
 	def __init__(self, *args, **kwds):
 
-		from Gnumed.wxpython import gmDocumentWidgets, gmPhraseWheel, gmDateTimeInput, gmEMRStructWidgets, gmOrganizationWidgets
+		from Gnumed.wxpython import gmDocumentWidgets
+		from Gnumed.wxpython import gmPhraseWheel
+		from Gnumed.wxpython import gmDateTimeInput
+		from Gnumed.wxpython import gmEMRStructWidgets
+		from Gnumed.wxpython import gmOrganizationWidgets
+		from Gnumed.wxpython import gmListWidgets
 
 		# begin wxGlade: wxgScanIdxPnl.__init__
 		kwds["style"] = wx.TAB_TRAVERSAL
@@ -37,7 +42,7 @@ class wxgScanIdxPnl(wx.Panel):
 		self._ChBOX_abnormal = wx.CheckBox(self, wx.ID_ANY, _("&technically abnormal"))
 		self._ChBOX_relevant = wx.CheckBox(self, wx.ID_ANY, _("&clinically relevant"))
 		self.__szr_top_middle_staticbox = wx.StaticBox(self, wx.ID_ANY, _("Document Properties"))
-		self._LBOX_doc_pages = wx.ListBox(self, wx.ID_ANY, choices=[], style=wx.LB_EXTENDED | wx.LB_HSCROLL | wx.LB_MULTIPLE | wx.LB_NEEDED_SB)
+		self._LCTRL_doc_pages = gmListWidgets.cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self.__btn_show_page = wx.Button(self, wx.ID_ANY, _("Show"))
 		self.__btn_del_page = wx.Button(self, wx.ID_ANY, _("Remove part"))
 		self.__szr_top_right_staticbox = wx.StaticBox(self, wx.ID_ANY, _("Parts"))
@@ -77,7 +82,7 @@ class wxgScanIdxPnl(wx.Panel):
 		self._ChBOX_abnormal.Enable(False)
 		self._ChBOX_relevant.SetToolTipString(_("Whether this document reports clinically relevant results. Note that both normal and abnormal resuslts can be relevant."))
 		self._ChBOX_relevant.Enable(False)
-		self._LBOX_doc_pages.SetToolTipString(_("This field lists the parts belonging to the current document."))
+		self._LCTRL_doc_pages.SetToolTipString(_("This field lists the parts belonging to the current document."))
 		self.__btn_show_page.SetToolTipString(_("View the part selected in the above list."))
 		self.__btn_del_page.SetToolTipString(_("Remove the part selected in the above list. Will ask before physical deletion from disk."))
 		self._TBOX_description.SetToolTipString(_("Optional: A free-text document description."))
@@ -124,7 +129,7 @@ class wxgScanIdxPnl(wx.Panel):
 		__szr_top_middle.Add(self._ChBOX_abnormal, 0, wx.LEFT, 9)
 		__szr_top_middle.Add(self._ChBOX_relevant, 0, wx.LEFT, 9)
 		__szr_top_third.Add(__szr_top_middle, 1, wx.EXPAND | wx.LEFT, 5)
-		__szr_top_right.Add(self._LBOX_doc_pages, 1, wx.EXPAND | wx.LEFT, 3)
+		__szr_top_right.Add(self._LCTRL_doc_pages, 1, wx.EXPAND | wx.LEFT, 3)
 		__szr_page_actions.Add(self.__btn_show_page, 0, wx.RIGHT, 5)
 		__szr_page_actions.Add(self.__btn_del_page, 0, 0, 0)
 		__szr_top_right.Add(__szr_page_actions, 0, wx.EXPAND | wx.TOP, 4)

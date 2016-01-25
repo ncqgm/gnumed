@@ -149,7 +149,7 @@ def save_file_as_new_document(parent=None, filename=None, document_type=None, un
 	)
 
 #----------------------
-def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None, date_generated=None, comment=None, reviewer=None):
+def save_files_as_new_document(parent=None, filenames=None, document_type=None, unlock_patient=False, episode=None, review_as_normal=False, reference=None, pk_org_unit=None, date_generated=None, comment=None, reviewer=None, pk_document_type=None):
 
 	pat = gmPerson.gmCurrentPatient()
 	if not pat.connected:
@@ -179,11 +179,12 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 
 	wx.BeginBusyCursor()
 
-	doc_type = gmDocuments.create_document_type(document_type = document_type)
+	if pk_document_type is None:
+		pk_document_type = gmDocuments.create_document_type(document_type = document_type)['pk_doc_type']
 
 	docs_folder = pat.get_document_folder()
 	doc = docs_folder.add_document (
-		document_type = doc_type['pk_doc_type'],
+		document_type = pk_document_type,
 		encounter = emr.active_encounter['pk_encounter'],
 		episode = episode['pk_episode']
 	)
@@ -206,7 +207,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 			doc['comment'] = comment
 	doc.save()
 
-	success, msg, filename = doc.add_parts_from_files (files = filenames, reviewer = reviewer)
+	success, msg, filename = doc.add_parts_from_files(files = filenames, reviewer = reviewer)
 	if not success:
 		wx.EndBusyCursor()
 		gmGuiHelpers.gm_show_error (
@@ -224,6 +225,7 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 	gmDispatcher.send(signal = 'statustext', msg = _('Imported new document from %s.') % filenames, beep = True)
 
 	# inform user
+	cfg = gmCfg.cCfgSQL()
 	show_id = bool (
 		cfg.get2 (
 			option = 'horstspace.scan_index.show_doc_id',
@@ -262,15 +264,16 @@ def save_files_as_new_document(parent=None, filenames=None, document_type=None, 
 		do_delete = gmGuiHelpers.gm_show_question (
 			_(	u'Successfully imported files as document.\n'
 				u'\n'
-				u'Do you want to delete imported\n'
-				u'files from the filesystem ?\n'
+				u'Do you want to delete imported files from the filesystem ?\n'
 				u'\n'
-				u' %s'
+				u' %s\n'
+				u'\n'
+				u'Note that temporary files will be deleted anyway.'
 			) % u'\n '.join(files2remove),
 			_('Removing files')
 		)
 		if do_delete:
-			for fname in self.acquired_pages:
+			for fname in files2remove:
 				gmTools.remove_file(fname)
 
 	return doc
@@ -873,19 +876,21 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# make me and listctrl a file drop target
 		dt = gmGuiHelpers.cFileDropTarget(self)
 		self.SetDropTarget(dt)
-		dt = gmGuiHelpers.cFileDropTarget(self._LBOX_doc_pages)
-		self._LBOX_doc_pages.SetDropTarget(dt)
-		self._LBOX_doc_pages.add_filenames = self.add_filenames_to_listbox
+		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_doc_pages)
+		self._LCTRL_doc_pages.SetDropTarget(dt)
+		self._LCTRL_doc_pages.add_filenames = self.add_filenames_to_listbox
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
 		from Gnumed.pycommon import gmScanBackend
 		self.scan_module = gmScanBackend
+
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
 	def add_filenames_to_listbox(self, filenames):
 		self.add_filenames(filenames=filenames)
+
 	#--------------------------------------------------------
 	def add_filenames(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
@@ -898,7 +903,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
-				gmDispatcher.send(signal='statustext', msg=_('Extracting files from folder [%s] ...') % pathname)
+				gmDispatcher.send(signal = 'statustext', msg = _('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
 					if not os.path.isfile(fullname):
@@ -907,20 +912,23 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			except OSError:
 				real_filenames.append(pathname)
 
-		self.acquired_pages.extend(real_filenames)
-		self.__reload_LBOX_doc_pages()
+		self.append_files(real_filenames)
+
 	#--------------------------------------------------------
 	def repopulate_ui(self):
 		pass
+
 	#--------------------------------------------------------
 	# patient change plugin API
 	#--------------------------------------------------------
 	def _pre_patient_unselection(self, **kwds):
 		# FIXME: persist pending data from here
 		pass
+
 	#--------------------------------------------------------
 	def _post_patient_selection(self, **kwds):
 		self.__init_ui_data()
+
 	#--------------------------------------------------------
 	# internal API
 	#--------------------------------------------------------
@@ -951,22 +959,30 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._TBOX_description.SetValue('')
 		# -----------------------------
 		# the list holding our page files
-		self._LBOX_doc_pages.Clear()
-		self.acquired_pages = []
+		self._LCTRL_doc_pages.remove_items_safely()
+		self._LCTRL_doc_pages.set_columns([ u'#', _('filename')])
+		self._LCTRL_doc_pages.set_column_widths()
+		#self.acquired_pages = []
 
 		self._PhWheel_doc_type.SetFocus()
+
 	#--------------------------------------------------------
-	def __reload_LBOX_doc_pages(self):
-		self._LBOX_doc_pages.Clear()
-		if len(self.acquired_pages) > 0:
-			for i in range(len(self.acquired_pages)):
-				fname = self.acquired_pages[i]
-				self._LBOX_doc_pages.Append(_('part %s: %s') % (i+1, fname), fname)
+	def append_files(self, filenames):
+		rows = gmTools.coalesce(self._LCTRL_doc_pages.string_items, [])
+		data = gmTools.coalesce(self._LCTRL_doc_pages.data, [])
+		offset = len(rows)
+		for idx in range(len(filenames)):
+			rows.append([u'%s' % (offset + idx + 1), filenames[idx]])
+			data.append(filenames[idx])
+		self._LCTRL_doc_pages.string_items = rows
+		self._LCTRL_doc_pages.data = data
+		self._LCTRL_doc_pages.set_column_widths()
+
 	#--------------------------------------------------------
 	def __valid_for_save(self):
 		title = _('saving document')
 
-		if self.acquired_pages is None or len(self.acquired_pages) == 0:
+		if self._LCTRL_doc_pages.ItemCount == 0:
 			dbcfg = gmCfg.cCfgSQL()
 			allow_empty = bool(dbcfg.get2 (
 				option =  u'horstspace.scan_index.allow_partless_documents',
@@ -1019,6 +1035,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return False
 
 		return True
+
 	#--------------------------------------------------------
 	def get_device_to_use(self, reconfigure=False):
 
@@ -1069,6 +1086,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		# FIXME: add support for actually reconfiguring
 		return device[0]
+
 	#--------------------------------------------------------
 	# event handling API
 	#--------------------------------------------------------
@@ -1101,9 +1119,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(fnames) == 0:		# no pages scanned
 			return True
 
-		self.acquired_pages.extend(fnames)
-		self.__reload_LBOX_doc_pages()
-
+		self.append_files(fnames)
 		return True
 
 	#--------------------------------------------------------
@@ -1120,9 +1136,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		result = dlg.ShowModal()
 		if result != wx.ID_CANCEL:
 			files = dlg.GetPaths()
-			for file in files:
-				self.acquired_pages.append(file)
-			self.__reload_LBOX_doc_pages()
+			self.append_files(files)
 		dlg.Destroy()
 
 	#--------------------------------------------------------
@@ -1133,26 +1147,24 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return
 		if clip is False:
 			return
-		self.acquired_pages.append(clip)
-		self.__reload_LBOX_doc_pages()
+		self.append_files([clip])
 
 	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
 
 		# nothing to do
-		if len(self.acquired_pages) == 0:
+		if self._LCTRL_doc_pages.ItemCount == 0:
 			return
 
 		# only one page, show that, regardless of whether selected or not
-		if len(self.acquired_pages) == 1:
-			page_fnames = [ self._LBOX_doc_pages.GetClientData(0) ]
+		if self._LCTRL_doc_pages.ItemCount == 1:
+			page_fnames = [ self._LCTRL_doc_pages.get_item_data(0) ]
 		else:
 			# did user select one of multiple pages ?
-			page_idx = self._LBOX_doc_pages.GetSelection()
-			if page_idx == -1:
+			page_fnames = self._LCTRL_doc_pages.get_selected_item_data()
+			if len(page_fnames) == 0:
 				gmDispatcher.send(signal = 'statustext', msg = _('No part selected for viewing.'), beep = True)
 				return
-			page_fnames = [ self._LBOX_doc_pages.GetClientData(idx) for idx in self._LBOX_doc_pages.GetSelections() ]
 
 		for page_fname in page_fnames:
 			(success, msg) = gmMimeLib.call_viewer_on_file(page_fname)
@@ -1161,54 +1173,54 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 					aMessage = _('Cannot display document part:\n%s') % msg,
 					aTitle = _('displaying part')
 				)
-
 		return
 
 	#--------------------------------------------------------
 	def _del_btn_pressed(self, event):
-		page_idx = self._LBOX_doc_pages.GetSelection()
-		if page_idx == -1:
+
+		if len(self._LCTRL_doc_pages.selected_items) == 0:
 			gmGuiHelpers.gm_show_info (
 				aMessage = _('You must select a part before you can delete it.'),
 				aTitle = _('deleting part')
 			)
 			return None
-		page_fname = self._LBOX_doc_pages.GetClientData(page_idx)
 
-		# 1) del item from self.acquired_pages
-		self.acquired_pages[page_idx:(page_idx+1)] = []
+		page_fname = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
+		sel_idx = self._LCTRL_doc_pages.GetFirstSelected()
+		rows = self._LCTRL_doc_pages.string_items
+		data = self._LCTRL_doc_pages.data
+		del rows[sel_idx]
+		del data[sel_idx]
+		self._LCTRL_doc_pages.string_items = rows
+		self._LCTRL_doc_pages.data = data
+		self._LCTRL_doc_pages.set_column_widths()
 
-		# 2) reload list box
-		self.__reload_LBOX_doc_pages()
-
-		# 3) optionally kill file in the file system
-		do_delete = gmGuiHelpers.gm_show_question (
-			_('The part has successfully been removed from the document.\n'
-			  '\n'
-			  'Do you also want to permanently delete the file\n'
-			  '\n'
-			  ' [%s]\n'
-			  '\n'
-			  'from which this document part was loaded ?\n'
-			  '\n'
-			  'If it is a temporary file for a page you just scanned\n'
-			  'this makes a lot of sense. In other cases you may not\n'
-			  'want to lose the file.\n'
-			  '\n'
-			  'Pressing [YES] will permanently remove the file\n'
-			  'from your computer.\n'
-			) % page_fname,
-			_('Removing document part')
-		)
-		if do_delete:
-			try:
-				os.remove(page_fname)
-			except:
-				_log.exception('Error deleting file.')
-				gmGuiHelpers.gm_show_error (
-					aMessage = _('Cannot delete part in file [%s].\n\nYou may not have write access to it.') % page_fname,
-					aTitle = _('deleting part')
-				)
+		if page_fname.startswith(gmTools.gmPaths().tmp_dir):
+			do_delete = gmGuiHelpers.gm_show_question (
+				_('The part has successfully been removed from the document.\n'
+				  '\n'
+				  'Do you also want to permanently delete the file\n'
+				  '\n'
+				  ' [%s]\n'
+				  '\n'
+				  'from which this document part was loaded ?\n'
+				  '\n'
+				  'If it is a temporary file for a page you just scanned\n'
+				  'this makes a lot of sense. In other cases you may not\n'
+				  'want to lose the file.\n'
+				  '\n'
+				  'Pressing [YES] will permanently remove the file\n'
+				  'from your computer.\n'
+				) % page_fname,
+				_('Removing document part')
+			)
+			if do_delete:
+				if not gmTools.remove_file(page_fname):
+					_log.error(u'error deleting file [%s]', page_fname)
+					gmGuiHelpers.gm_show_error (
+						aMessage = _('Cannot delete part in file [%s].\n\nYou may not have write access to it.') % page_fname,
+						aTitle = _('deleting part')
+					)
 
 		return 1
 
@@ -1218,9 +1230,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if not self.__valid_for_save():
 			return False
 
-#		wx.BeginBusyCursor()
-
-		#xxxxxxxxxxxx
 		# external reference
 		cfg = gmCfg.cCfgSQL()
 		generate_uuid = bool (
@@ -1236,12 +1245,14 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		else:
 			ext_ref = None
 
+		# create document
 		new_doc = save_files_as_new_document (
 			parent = self,
-			filenames = self.acquired_pages,
-			document_type = self._PhWheel_doc_type.GetData(),
+			filenames = self._LCTRL_doc_pages.data,
+			document_type = self._PhWheel_doc_type.GetValue().strip(),
+			pk_document_type = self._PhWheel_doc_type.GetData(),
 			unlock_patient = False,
-			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True),
+			episode = self._PhWheel_episode.GetData(can_create = True, is_open = True, as_instance = True),
 			review_as_normal = False,
 			reference = ext_ref,
 			pk_org_unit = self._PhWheel_source.GetData(),
@@ -1249,44 +1260,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			comment = self._PRW_doc_comment.GetLineText(0).strip(),
 			reviewer = self._PhWheel_reviewer.GetData()
 		)
-
-#		pat = gmPerson.gmCurrentPatient()
-#		doc_folder = pat.get_document_folder()
-#		emr = pat.get_emr()
-#
-#		# create new document
-#		pk_episode = self._PhWheel_episode.GetData(can_create = True, is_open = True)
-#		encounter = emr.active_encounter['pk_encounter']
-#		document_type = self._PhWheel_doc_type.GetData()
-#		new_doc = doc_folder.add_document(document_type, encounter, pk_episode)
 		if new_doc is None:
-#			wx.EndBusyCursor()
-#			gmGuiHelpers.gm_show_error (
-#				aMessage = _('Cannot create new document.'),
-#				aTitle = _('saving document')
-#			)
 			return False
-
-		# update business object with metadata
-#		# - date of generation
-#		new_doc['clin_when'] = self._PhWheel_doc_date.GetData().get_pydt()
-#		# - external reference
-#		if generate_uuid:
-#			new_doc['ext_ref'] = gmDocuments.get_ext_ref()
-#		# - source
-#		new_doc['pk_org_unit'] = self._PhWheel_source.GetData()
-#		# - comment
-#		comment = self._PRW_doc_comment.GetLineText(0).strip()
-#		if comment != u'':
-#			new_doc['comment'] = comment
-#		# - save it
-#		if not new_doc.save_payload():
-#			wx.EndBusyCursor()
-#			gmGuiHelpers.gm_show_error (
-#				aMessage = _('Cannot update document metadata.'),
-#				aTitle = _('saving document')
-#			)
-#			return False
 
 		# - long description
 		description = self._TBOX_description.GetValue().strip()
@@ -1299,19 +1274,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 				)
 				return False
 
-#		# add document parts from files
-#		success, msg, filename = new_doc.add_parts_from_files (
-#			files = self.acquired_pages,
-#			reviewer = self._PhWheel_reviewer.GetData()
-#		)
-#		if not success:
-#			wx.EndBusyCursor()
-#			gmGuiHelpers.gm_show_error (
-#				aMessage = msg,
-#				aTitle = _('saving document')
-#			)
-#			return False
-
 		# set reviewed status
 		if self._ChBOX_reviewed.GetValue():
 			if not new_doc.set_reviewed (
@@ -1320,51 +1282,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			):
 				msg = _('Error setting "reviewed" status of new document.')
 
+		self.__init_ui_data()
+
 		gmHooks.run_hook_script(hook = u'after_new_doc_created')
 
-#		# inform user
-#		show_id = bool (
-#			cfg.get2 (
-#				option = 'horstspace.scan_index.show_doc_id',
-#				workplace = gmPraxis.gmCurrentPraxisBranch().active_workplace,
-#				bias = 'user'
-#			)
-#		)
-#		wx.EndBusyCursor()
-#		if show_id:
-#			if new_doc['ext_ref'] is None:
-#				msg = _('Successfully saved the new document.')
-#			else:
-#				msg = _(
-#"""The reference ID for the new document is:
-#
-# <%s>
-#
-#You probably want to write it down on the
-#original documents.
-#
-#If you don't care about the ID you can switch
-#off this message in the GNUmed configuration.""") % new_doc['ext_ref']
-#			gmGuiHelpers.gm_show_info (
-#				aMessage = msg,
-#				aTitle = _('Saving document')
-#			)
-#		else:
-#			gmDispatcher.send(signal = 'statustext', msg = _('Successfully saved new document.'))
-
-#		do_delete = gmGuiHelpers.gm_show_question (
-#			_(	u'Successfully imported files as document.\n'
-#				u'\n'
-#				u'Do you want to delete the imported files\n'
-#				u'from the filesystem ?'
-#			),
-#			_('Removing files')
-#		)
-#		if do_delete:
-#			for fname in self.acquired_pages:
-#				gmTools.remove_file(fname)
-
-		self.__init_ui_data()
 		return True
 
 	#--------------------------------------------------------

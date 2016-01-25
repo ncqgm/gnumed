@@ -1078,6 +1078,7 @@ class cEpisodeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = episodes)
+
 #----------------------------------------------------------------
 class cEpisodeDescriptionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode *description*.
@@ -1120,6 +1121,7 @@ LIMIT 30
 		)
 		gmPhraseWheel.cPhraseWheel.__init__(self, *args, **kwargs)
 		self.matcher = mp
+
 #----------------------------------------------------------------
 class cEpisodeSelectionPhraseWheel(gmPhraseWheel.cPhraseWheel):
 	"""Let user select an episode.

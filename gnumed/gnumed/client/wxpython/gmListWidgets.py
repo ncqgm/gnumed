@@ -1023,6 +1023,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.Bind(wx.EVT_FIND_CLOSE, self._on_search_dlg_closed)
 		self.Bind(wx.EVT_FIND, self._on_search_first_match)
 		self.Bind(wx.EVT_FIND_NEXT, self._on_search_next_match)
+
 	#------------------------------------------------------------
 	# setters
 	#------------------------------------------------------------
@@ -1039,6 +1040,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self.InsertColumn(idx, columns[idx])
 
 		self._invalidate_sorting_metadata()
+
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		"""Set the column width policy.
@@ -1070,6 +1072,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			width_type = wx.LIST_AUTOSIZE
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(col = idx, width = width_type)
+
 	#------------------------------------------------------------
 	def remove_items_safely(self, max_tries=3):
 		tries = 0
@@ -1089,6 +1092,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		_log.error('<%s>: unable to delete list items after looping %s times', self.debug, max_tries)
 		return False
+
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
 		"""All item members must be unicode()able or None."""
@@ -1151,6 +1155,22 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.data = items
 
 		wx.EndBusyCursor()
+
+	#-------------------------------------
+	def get_string_items(self):
+		rows = []
+		for row_idx in range(self.ItemCount):
+			row = []
+			for col_idx in range(self.ColumnCount):
+				row.append(self.GetItem(row_idx, col_idx).GetText())
+			rows.append(row)
+		return rows
+
+		# old: only returned first column
+		#return [ self.GetItemText(item_idx) for item_idx in range(self.GetItemCount()) ]
+
+	string_items = property(get_string_items, set_string_items)
+
 	#------------------------------------------------------------
 	def set_data(self, data=None):
 		"""<data> assumed to be a list corresponding to the item indices"""
@@ -1168,10 +1188,13 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	def _get_data(self):
 		# slower than "return self.__data" but helps with detecting
-		# problems with len(__data) != self.GetItemCount()
-		return self.get_item_data() 		# returns all data if item_idx is None
+		# problems with len(__data) != self.GetItemCount(),
+		# also takes care of returning data in the order corresponding
+		# to the order get_string_items returns rows
+		return self.get_item_data() 		# returns all data since item_idx is None
 
 	data = property(_get_data, set_data)
+
 	#------------------------------------------------------------
 	def set_selections(self, selections=None):
 		# not sure why this is done:
@@ -1204,6 +1227,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			labels.append(col.GetText())
 		return labels
 
+	column_labels = property(get_column_labels, lambda x:x)
+
 	#------------------------------------------------------------
 	def get_item(self, item_idx=None):
 		if item_idx is not None:
@@ -1212,10 +1237,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	#------------------------------------------------------------
 	def get_items(self):
 		return [ self.GetItem(item_idx) for item_idx in range(self.GetItemCount()) ]
-
-	#------------------------------------------------------------
-	def get_string_items(self):
-		return [ self.GetItemText(item_idx) for item_idx in range(self.GetItemCount()) ]
 
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
@@ -1230,6 +1251,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetNextSelected(idx)
 
 		return items
+
+	selected_items = property(get_selected_items, lambda x:x)
 
 	#------------------------------------------------------------
 	def get_selected_string_items(self, only_one=False):

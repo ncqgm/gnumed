@@ -690,7 +690,7 @@ class cDocument(gmBusinessDBObject.cBusinessDBObject):
 		for filename in files:
 			new_part = self.add_part(file = filename)
 			if new_part is None:
-				msg = u'cannot instantiate document part object from [%s]' filename
+				msg = u'cannot instantiate document part object from [%s]' % filename
 				_log.error(msg)
 				return (False, msg, filename)
 			new_parts.append(new_part)
