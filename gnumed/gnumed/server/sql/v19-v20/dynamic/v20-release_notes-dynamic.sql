@@ -17,19 +17,18 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.9 (database v20.9)',
-	'GNUmed 1.5.9 Release Notes:
+	'Release Notes for GNUmed 1.5.10 (database v20.10)',
+	'GNUmed 1.5.10 Release Notes:
 
-	1.5.9
+	1.5.10
 
-FIX: patient merging [thanks Marc]
+FIX: patient merging, again [thanks Marc]
 
-IMPROVED: update ES translations [thanks Uwe]
+	20.10
 
-	20.9
-
-no changes
+FIX: pg_trgm placement and use
+FIX: clin.substance_intake.fk_episode SET NOT NULL
 ');
 
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.9');
+select gm.log_script_insertion('v20-release_notes-dynamic.sql', '20.10');
