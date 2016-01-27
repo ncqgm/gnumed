@@ -59,11 +59,6 @@ echo "\unset ON_ERROR_STOP" >> $SQL_FILE
 echo "alter database ${TARGET_DB} set ignore_checksum_failure to 'off';     -- comment out if the script fails" >> $SQL_FILE
 echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
 echo "" >> $SQL_FILE
-echo "-- starting with 9.5 (remove when 9.5 is required):" >> $SQL_FILE
-echo "\unset ON_ERROR_STOP" >> $SQL_FILE
-echo "alter database ${TARGET_DB} set track_commit_timestamp to 'on';     -- comment out if the script fails" >> $SQL_FILE
-echo "\set ON_ERROR_STOP 1" >> $SQL_FILE
-echo "" >> $SQL_FILE
 echo "-- < PG 9.0 only:" >> $SQL_FILE
 echo "--\unset ON_ERROR_STOP" >> $SQL_FILE
 echo "--alter database ${TARGET_DB} set regex_flavor to 'advanced';" >> $SQL_FILE
@@ -78,6 +73,8 @@ echo "-- 3) log_disconnections = on (only needed for HIPAA compliance)" >> $SQL_
 echo "-- 4) fsync = on" >> $SQL_FILE
 echo "-- 5) full_page_writes = on" >> $SQL_FILE
 echo "-- 6) wal_sync_method = <see PostgreSQL docs>" >> $SQL_FILE
+echo "-- 7) track_commit_timestamp = on" >> $SQL_FILE
+echo "" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- cannot be changed without an initdb (pg_dropcluster):" >> $SQL_FILE
