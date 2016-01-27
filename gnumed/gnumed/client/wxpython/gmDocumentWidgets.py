@@ -864,6 +864,7 @@ def acquire_images_from_capture_device(device=None, calling_window=None):
 from Gnumed.wxGladeWidgets import wxgScanIdxPnl
 
 class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_PluginMixin):
+
 	def __init__(self, *args, **kwds):
 		wxgScanIdxPnl.wxgScanIdxPnl.__init__(self, *args, **kwds)
 		gmPlugin.cPatientChange_PluginMixin.__init__(self)
@@ -878,7 +879,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self.SetDropTarget(dt)
 		dt = gmGuiHelpers.cFileDropTarget(self._LCTRL_doc_pages)
 		self._LCTRL_doc_pages.SetDropTarget(dt)
-		self._LCTRL_doc_pages.add_filenames = self.add_filenames_to_listbox
+		self._LCTRL_doc_pages.add_filenames = self._add_parts_from_dropped_path_or_files
 
 		# do not import globally since we might want to use
 		# this module without requiring any scanner to be available
@@ -888,11 +889,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	#--------------------------------------------------------
 	# file drop target API
 	#--------------------------------------------------------
-	def add_filenames_to_listbox(self, filenames):
-		self.add_filenames(filenames=filenames)
-
-	#--------------------------------------------------------
-	def add_filenames(self, filenames):
+	def _add_parts_from_dropped_path_or_files(self, filenames):
 		pat = gmPerson.gmCurrentPatient()
 		if not pat.connected:
 			gmDispatcher.send(signal='statustext', msg=_('Cannot accept new documents. No active patient.'))
@@ -903,6 +900,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
+				source = _('directory drop')
 				gmDispatcher.send(signal = 'statustext', msg = _('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
@@ -910,9 +908,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 						continue
 					real_filenames.append(fullname)
 			except OSError:
+				source = _('file drop')
 				real_filenames.append(pathname)
 
-		self.append_files(real_filenames)
+		self.add_parts_from_files(real_filenames, source)
 
 	#--------------------------------------------------------
 	def repopulate_ui(self):
@@ -960,20 +959,17 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# -----------------------------
 		# the list holding our page files
 		self._LCTRL_doc_pages.remove_items_safely()
-		self._LCTRL_doc_pages.set_columns([ u'#', _('filename')])
+		self._LCTRL_doc_pages.set_columns([_('source'), _('filename')])
 		self._LCTRL_doc_pages.set_column_widths()
-		#self.acquired_pages = []
 
 		self._PhWheel_doc_type.SetFocus()
 
 	#--------------------------------------------------------
-	def append_files(self, filenames):
+	def add_parts_from_files(self, filenames, source=u''):
 		rows = gmTools.coalesce(self._LCTRL_doc_pages.string_items, [])
 		data = gmTools.coalesce(self._LCTRL_doc_pages.data, [])
-		offset = len(rows)
-		for idx in range(len(filenames)):
-			rows.append([u'%s' % (offset + idx + 1), filenames[idx]])
-			data.append(filenames[idx])
+		rows.extend([ [source, f] for f in filenames ])
+		data.extend(filenames)
 		self._LCTRL_doc_pages.string_items = rows
 		self._LCTRL_doc_pages.data = data
 		self._LCTRL_doc_pages.set_column_widths()
@@ -1119,7 +1115,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(fnames) == 0:		# no pages scanned
 			return True
 
-		self.append_files(fnames)
+		self.add_parts_from_files(fnames, _('image capture'))
 		return True
 
 	#--------------------------------------------------------
@@ -1134,10 +1130,12 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			style = wx.OPEN | wx.FILE_MUST_EXIST | wx.MULTIPLE
 		)
 		result = dlg.ShowModal()
-		if result != wx.ID_CANCEL:
-			files = dlg.GetPaths()
-			self.append_files(files)
-		dlg.Destroy()
+		files = dlg.GetPaths()
+		if result == wx.ID_CANCEL:
+			dlg.Destroy()
+			return
+
+		self.add_parts_from_files(files, _('disk pick'))
 
 	#--------------------------------------------------------
 	def _clipboard_btn_pressed(self, event):
@@ -1147,7 +1145,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return
 		if clip is False:
 			return
-		self.append_files([clip])
+		self.add_parts_from_files([clip], _('clipboard paste'))
 
 	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
@@ -1179,13 +1177,9 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def _del_btn_pressed(self, event):
 
 		if len(self._LCTRL_doc_pages.selected_items) == 0:
-			gmGuiHelpers.gm_show_info (
-				aMessage = _('You must select a part before you can delete it.'),
-				aTitle = _('deleting part')
-			)
-			return None
+			gmDispatcher.send(signal = 'statustext', msg = _('No part selected for removal.'), beep = True)
+			return
 
-		page_fname = self._LCTRL_doc_pages.get_selected_item_data(only_one = True)
 		sel_idx = self._LCTRL_doc_pages.GetFirstSelected()
 		rows = self._LCTRL_doc_pages.string_items
 		data = self._LCTRL_doc_pages.data
@@ -1195,34 +1189,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.data = data
 		self._LCTRL_doc_pages.set_column_widths()
 
-		if page_fname.startswith(gmTools.gmPaths().tmp_dir):
-			do_delete = gmGuiHelpers.gm_show_question (
-				_('The part has successfully been removed from the document.\n'
-				  '\n'
-				  'Do you also want to permanently delete the file\n'
-				  '\n'
-				  ' [%s]\n'
-				  '\n'
-				  'from which this document part was loaded ?\n'
-				  '\n'
-				  'If it is a temporary file for a page you just scanned\n'
-				  'this makes a lot of sense. In other cases you may not\n'
-				  'want to lose the file.\n'
-				  '\n'
-				  'Pressing [YES] will permanently remove the file\n'
-				  'from your computer.\n'
-				) % page_fname,
-				_('Removing document part')
-			)
-			if do_delete:
-				if not gmTools.remove_file(page_fname):
-					_log.error(u'error deleting file [%s]', page_fname)
-					gmGuiHelpers.gm_show_error (
-						aMessage = _('Cannot delete part in file [%s].\n\nYou may not have write access to it.') % page_fname,
-						aTitle = _('deleting part')
-					)
-
-		return 1
+		return
 
 	#--------------------------------------------------------
 	def _save_btn_pressed(self, evt):
@@ -1429,6 +1396,7 @@ def manage_documents(parent=None, msg=None, single_selection=True):
 		refresh_callback = refresh
 		#,left_extra_button = (_('Import'), _('Import consumable substances from a drug database.'), add_from_db)
 	)
+
 #============================================================
 from Gnumed.wxGladeWidgets import wxgSelectablySortedDocTreePnl
 
@@ -1566,6 +1534,7 @@ class cDocTree(wx.TreeCtrl, gmRegetMixin.cRegetOnPaintMixin, treemixin.Expansion
 		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
 		gmDispatcher.connect(signal = u'blobs.doc_med_mod_db', receiver = self._on_doc_mod_db)
 		gmDispatcher.connect(signal = u'blobs.doc_obj_mod_db', receiver = self._on_doc_page_mod_db)
+
 	#--------------------------------------------------------
 	def __build_context_menus(self):
 
