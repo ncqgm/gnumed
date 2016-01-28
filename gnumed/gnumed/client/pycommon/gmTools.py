@@ -85,7 +85,7 @@ u_diameter = u'\u2300'
 u_checkmark_crossed_out = u'\u237B'
 u_box_vert_left = u'\u23b8'
 u_box_vert_right = u'\u23b9'
-u_box_horiz_single = u'\u2500'
+u_box_horiz_single = u'\u2500'				# -
 u_box_vert_light = u'\u2502'
 u_box_horiz_4dashes = u'\u2508'
 u_box_T_right = u'\u251c'
@@ -622,6 +622,11 @@ def fname_extension(filename=None, fallback=None):
 def fname_dir(filename):
 	# /home/user/dir/filename.ext -> /home/user/dir
 	return os.path.split(filename)[0]
+
+#---------------------------------------------------------------------------
+def fname_from_path(filename):
+	# /home/user/dir/filename.ext -> filename.ext
+	return os.path.split(filename)[1]
 
 #---------------------------------------------------------------------------
 def get_unique_filename(prefix=None, suffix=None, tmp_dir=None):

@@ -900,7 +900,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		for pathname in filenames:
 			try:
 				files = os.listdir(pathname)
-				source = _('directory drop')
+				source = _('directory dropped on client')
 				gmDispatcher.send(signal = 'statustext', msg = _('Extracting files from folder [%s] ...') % pathname)
 				for file in files:
 					fullname = os.path.join(pathname, file)
@@ -908,7 +908,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 						continue
 					real_filenames.append(fullname)
 			except OSError:
-				source = _('file drop')
+				source = _('file dropped on client')
 				real_filenames.append(pathname)
 
 		self.add_parts_from_files(real_filenames, source)
@@ -959,7 +959,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# -----------------------------
 		# the list holding our page files
 		self._LCTRL_doc_pages.remove_items_safely()
-		self._LCTRL_doc_pages.set_columns([_('source'), _('filename')])
+		self._LCTRL_doc_pages.set_columns([_('file'), _('path')])
 		self._LCTRL_doc_pages.set_column_widths()
 
 		self._PhWheel_doc_type.SetFocus()
@@ -968,8 +968,8 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 	def add_parts_from_files(self, filenames, source=u''):
 		rows = gmTools.coalesce(self._LCTRL_doc_pages.string_items, [])
 		data = gmTools.coalesce(self._LCTRL_doc_pages.data, [])
-		rows.extend([ [source, f] for f in filenames ])
-		data.extend(filenames)
+		rows.extend([ [gmTools.fname_from_path(f), gmTools.fname_dir(f)] for f in filenames ])
+		data.extend([ [f, source] for f in filenames ])
 		self._LCTRL_doc_pages.string_items = rows
 		self._LCTRL_doc_pages.data = data
 		self._LCTRL_doc_pages.set_column_widths()
@@ -1115,7 +1115,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		if len(fnames) == 0:		# no pages scanned
 			return True
 
-		self.add_parts_from_files(fnames, _('image capture'))
+		self.add_parts_from_files(fnames, _('captured by imaging device'))
 		return True
 
 	#--------------------------------------------------------
@@ -1135,7 +1135,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			dlg.Destroy()
 			return
 
-		self.add_parts_from_files(files, _('disk pick'))
+		self.add_parts_from_files(files, _('picked from storage media'))
 
 	#--------------------------------------------------------
 	def _clipboard_btn_pressed(self, event):
@@ -1145,7 +1145,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 			return
 		if clip is False:
 			return
-		self.add_parts_from_files([clip], _('clipboard paste'))
+		self.add_parts_from_files([clip], _('pasted from clipboard'))
 
 	#--------------------------------------------------------
 	def _show_btn_pressed(self, evt):
@@ -1272,6 +1272,22 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		else:
 			self._PRW_doc_comment.set_context(context = 'pk_doc_type', val = pk_doc_type)
 		return True
+
+	#--------------------------------------------------------
+	def _on_part_selected(self, event):
+		event.Skip()
+		fname, source = self._LCTRL_doc_pages.get_item_data(item_idx = event.Index)
+		status, desc = gmMimeLib.describe_file(fname)
+		self._TCTRL_metadata.SetValue (_(
+			u'Source: %s\n'
+			u'File: %s\n'
+			u'\n'
+			u'%s'
+		) % (
+			source,
+			fname,
+			desc
+		))
 
 #============================================================
 def display_document_part(parent=None, part=None):

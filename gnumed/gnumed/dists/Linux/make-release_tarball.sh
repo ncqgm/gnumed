@@ -192,6 +192,7 @@ cp -R ../../client/doc/man-pages/gm_ctl_client.1 ./gnumed-client.$CLIENTREV/clie
 cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/client/doc/gm-install_arriba.8
 cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-convert_file.1 ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/doc/man-pages/gm-describe_file.1 ./gnumed-client.$CLIENTREV/client/doc/
 
 
 # etc
@@ -601,6 +602,24 @@ cp -R ../../server/sql/v19-v20/data/* ./gnumed-client.$CLIENTREV/server/sql/v19-
 cp -R ../../server/sql/v19-v20/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v19-v20/python
 cp -R ../../server/sql/v19-v20/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/fixups
 cp -R ../../server/sql/v19-v20/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/superuser
+
+
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/python
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/fixups
+
+cp ../../server/sql/v20_v21/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v20_v21
+cp -R ../../server/sql/v20_v21/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/dynamic
+cp -R ../../server/sql/v20_v21/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/static
+cp -R ../../server/sql/v20_v21/data/* ./gnumed-client.$CLIENTREV/server/sql/v20_v21/data
+cp -R ../../server/sql/v20_v21/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v20_v21/python
+cp -R ../../server/sql/v20_v21/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/superuser
+#cp -R ../../server/sql/v20_v21/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/fixups
+
 
 #----------------------------------
 # weed out unnecessary stuff

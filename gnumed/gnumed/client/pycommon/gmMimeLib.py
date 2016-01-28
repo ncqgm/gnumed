@@ -14,6 +14,7 @@ import mimetypes
 import subprocess
 import shutil
 import logging
+import io
 
 
 # GNUmed
@@ -93,6 +94,7 @@ def guess_mimetype(filename = None):
 
 	_log.debug('"%s" -> <%s>' % (filename, mime_type))
 	return mime_type
+
 #-----------------------------------------------------------------------------------
 def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	"""Return command for viewer for this mime type complete with this file"""
@@ -110,6 +112,7 @@ def get_viewer_cmd(aMimeType = None, aFileName = None, aToken = None):
 	_log.debug("<%s> viewer: [%s]" % (aMimeType, viewer))
 
 	return viewer
+
 #-----------------------------------------------------------------------------------
 def get_editor_cmd(mimetype=None, filename=None):
 
@@ -127,6 +130,7 @@ def get_editor_cmd(mimetype=None, filename=None):
 	_log.debug("<%s> editor: [%s]" % (mimetype, editor))
 
 	return editor
+
 #-----------------------------------------------------------------------------------
 def guess_ext_by_mimetype(mimetype=''):
 	"""Return file extension based on what the OS thinks a file of this mimetype should end in."""
@@ -171,6 +175,7 @@ def guess_ext_for_file(aFile=None):
 		return None
 
 	return f_ext
+
 #-----------------------------------------------------------------------------------
 _system_startfile_cmd = None
 
@@ -207,6 +212,7 @@ def _get_system_startfile_cmd(filename):
 
 	_system_startfile_cmd = u''
 	return False, None
+
 #-----------------------------------------------------------------------------------
 def convert_file(filename=None, target_mime=None, target_filename=None, target_extension=None):
 	"""Convert file from one format into another.
@@ -245,6 +251,51 @@ def convert_file(filename=None, target_mime=None, target_filename=None, target_e
 		return False
 
 	return True
+
+#-----------------------------------------------------------------------------------
+def describe_file(filename):
+
+	base_name = u'gm-describe_file'
+
+	paths = gmTools.gmPaths()
+	local_script = os.path.join(paths.local_base_dir, '..', 'external-tools', base_name)
+
+	candidates = [ base_name, local_script ]		#, base_name + u'.bat'
+	found, binary = gmShellAPI.find_first_binary(binaries = candidates)
+	if not found:
+		#binary = base_name# + r'.bat'
+		_log.debug(u'cannot find <%s(.bat)>', base_name)
+		return (False, _(u'<%s(.bat)> not found') % base_name)
+
+	desc_fname = gmTools.get_unique_filename()
+
+	cmd_line = [
+		binary,
+		filename,
+		desc_fname
+	]
+	_log.debug('describing: %s', cmd_line)
+	try:
+		gm_describe = subprocess.Popen(cmd_line)
+	except OSError:
+		_log.debug('cannot run <%s>', binary)
+		return (False, _(u'problem with <%s>') % binary)
+
+	gm_describe.communicate()
+	if gm_describe.returncode != 0:
+		_log.error('<%s> returned [%s], failed to convert', binary, gm_describe.returncode)
+		return (False, _(u'problem with <%s>') % binary)
+
+	try:
+		desc_file = io.open(desc_fname, mode = 'rt', encoding = 'utf8', errors = 'replace')
+	except IOError:
+		_log.exception('cannot open [%s]', desc_fname)
+		return (False, _(u'problem with <%s>') % binary)
+
+	desc = u''.join(desc_file.readlines())
+	desc_file.close()
+	return (True, desc)
+
 #-----------------------------------------------------------------------------------
 def call_viewer_on_file(aFile = None, block=None):
 	"""Try to find an appropriate viewer with all tricks and call it.
@@ -335,4 +386,7 @@ if __name__ == "__main__":
 	#print(guess_mimetype(filename))
 	#print(get_viewer_cmd(guess_mimetype(filename), filename))
 	#print(guess_ext_by_mimetype(mimetype=filename))
-	call_viewer_on_file(aFile = filename, block=None)
+	#call_viewer_on_file(aFile = filename, block=None)
+	status, desc = describe_file(filename)
+	print status
+	print desc
