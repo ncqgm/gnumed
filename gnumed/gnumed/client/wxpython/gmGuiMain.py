@@ -447,6 +447,9 @@ class gmTopLevelFrame(wx.Frame):
 		item = menu_cfg_soap_editing.Append(-1, _('Auto-open editors'), _('Configure auto-opening editors for recent problems.'))
 		self.Bind(wx.EVT_MENU, self.__on_allow_auto_open_episodes, item)
 
+		item = menu_cfg_soap_editing.Append(-1, _('SOAP fields'), _('Configure SOAP editor - individual SOAP fields vs text editor like'))
+		self.Bind(wx.EVT_MENU, self.__on_use_fields_in_soap_editor, item)
+
 		menu_cfg_ui.AppendMenu(wx.NewId(), _('Progress notes handling ...'), menu_cfg_soap_editing)
 
 		menu_config.AppendMenu(wx.NewId(), _('User interface ...'), menu_cfg_ui)
@@ -1795,6 +1798,25 @@ class gmTopLevelFrame(wx.Frame):
 				_('No, only auto-open one editor for a new, unassociated problem.')
 			]
 		)
+
+	#----------------------------------------------
+	def __on_use_fields_in_soap_editor(self, evt):
+		gmCfgWidgets.configure_boolean_option (
+			parent = self,
+			question = _(
+				'When editing progress notes, do you want GNUmed to\n'
+				'show individual fields for each of the SOAP categories\n'
+				'or do you want to use a text-editor like field for\n'
+				'all SOAP categories which can then be set per line\n'
+				'of input ?'
+			),
+			option = u'horstspace.soap_editor.use_one_field_per_soap_category',
+			button_tooltips = [
+				_('Yes, show a dedicated field per SOAP category.'),
+				_('No, use one field for all SOAP categories.')
+			]
+		)
+
 	#----------------------------------------------
 	def __on_configure_initial_pat_plugin(self, evt):
 

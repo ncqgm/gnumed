@@ -83,6 +83,12 @@ class cWxTextCtrlCompatibility_StcMixin():
 			# reimplement for wxPython 2.8
 			return (self.GetColumn(position), self.LineFromPosition(position))
 
+	#--------------------------------------------------
+	def Replace(self, start, end, replacement):
+		self.SetSelection(start, end)
+		self.ReplaceSelection(replacement)
+		wx.CallAfter(self.SetSelection, 0, 0)
+
 #----------------------------------------------------------------------
 class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin, wx.stc.StyledTextCtrl):
 
@@ -331,7 +337,8 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		self.SetText(u'\n'.join(soap_lines))
 
 		for idx in range(len(line_categories)):
-			self.set_soap_cat_of_line(idx, line_categories[idx], unconditionally = True)
+			#self.set_soap_cat_of_line(idx, line_categories[idx], unconditionally = True)
+			self.set_soap_cat_of_line(idx, line_categories[idx])
 
 	#-------------------------------------------------------
 	def GetText_as_SOAP(self):
@@ -362,11 +369,12 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 	def sort_by_SOAP(self, sort_order=None):
 		self.SetText_from_SOAP(self.GetText_as_SOAP(), sort_order)
 
-	#--------------------------------------------------
-	def Replace(self, start, end, replacement):
-		self.SetSelection(start, end)
-		self.ReplaceSelection(replacement)
-		wx.CallAfter(self.SetSelection, 0, 0)
+	#-------------------------------------------------------
+	def append_soap_line(self, soap_cat):
+		caret_pos = self.CurrentPos
+		self.GotoPos(self.Length)
+		self.AddText(u'\n')
+		self.set_soap_cat_of_line(self.LineCount, soap_cat, True)
 
 	#-------------------------------------------------------
 	# generic helpers
@@ -595,13 +603,20 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		return -1		# should only happen when deleting all lines -> STC empties out INCLUDING existing markers ...
 
 	#-------------------------------------------------------
-	def set_soap_cat_of_line(self, line, soap_category, unconditionally=False):
+#	def set_soap_cat_of_line(self, line, soap_category, unconditionally=False):
+	def set_soap_cat_of_line(self, line, soap_category):
 
-		if not unconditionally:
+		readd_soap_line = False
+		prev_soap_cat = u'-'
+#		if not unconditionally:
+		if True:
 			# need to keep at least one of previous SOAP
 			prev_soap_marker = self.get_soap_marker_of_line(line)
-			if self.marker_count(prev_soap_marker) < 2:
-				return False
+			if prev_soap_marker != -1:
+				if self.marker_count(prev_soap_marker) < 2:
+					prev_soap_cat = cSoapSTC._MARKER2SOAP[prev_soap_marker]
+					readd_soap_line = True
+#				return False
 
 		# remove all SOAP markers of this line
 		for marker_num in cSoapSTC._SOAP_MARKER_NUMS:
@@ -615,6 +630,9 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 
 		# for some reason the marker is now set but the change is not always displayed ?
 		# -> this happens if wx.CallAfter is used on this method
+
+		if readd_soap_line:
+			wx.CallAfter(self.append_soap_line, prev_soap_cat)
 
 		return True
 

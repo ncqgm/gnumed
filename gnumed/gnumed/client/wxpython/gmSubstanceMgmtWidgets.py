@@ -12,9 +12,6 @@ import logging
 import sys
 import os.path
 import decimal
-#import io
-#import csv
-#import datetime as pydt
 
 
 import wx
@@ -30,30 +27,16 @@ from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmCfg
 from Gnumed.pycommon import gmShellAPI
 from Gnumed.pycommon import gmTools
-#from Gnumed.pycommon import gmDateTime
 from Gnumed.pycommon import gmMatchProvider
-#from Gnumed.pycommon import gmI18N
-#from Gnumed.pycommon import gmPrinting
-#from Gnumed.pycommon import gmCfg2
-#from Gnumed.pycommon import gmNetworkTools
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmATC
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmMedication
-#from Gnumed.business import gmForms
-#from Gnumed.business import gmStaff
-#from Gnumed.business import gmDocuments
-#from Gnumed.business import gmLOINC
-#from Gnumed.business import gmClinicalRecord
-#from Gnumed.business import gmClinicalCalculator
-#from Gnumed.business import gmPathLab
 
 from Gnumed.wxpython import gmGuiHelpers
-#from Gnumed.wxpython import gmRegetMixin
 from Gnumed.wxpython import gmAuthWidgets
 from Gnumed.wxpython import gmEditArea
-#from Gnumed.wxpython import gmMacro
 from Gnumed.wxpython import gmCfgWidgets
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmPhraseWheel

@@ -27,6 +27,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.business import gmPerson
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmEMRStructItems
+from Gnumed.business import gmClinNarrative
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmTextCtrl
