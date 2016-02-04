@@ -1069,22 +1069,36 @@ class database:
 
 	#--------------------------------------------------------------
 	def reindex_all(self):
-		print_msg("==> reindexing target database ...")
+
+		print_msg("==> reindexing target database (can take a while) ...")
 		_log.info('REINDEXing cloned target database so upgrade does not fail in case of a broken index')
+		_log.info('this may potentially take "quite a long time" depending on how much data there is in the database')
+		_log.info('you may want to monitor the PostgreSQL log for signs of progress')
+
 		old_iso = self.conn.isolation_level
 		self.conn.set_isolation_level(0)
 		curs = self.conn.cursor()
-		cmd = 'REINDEX DATABASE %s' % self.name
+		cmd = 'REINDEX (VERBOSE) DATABASE %s' % self.name
 		try:
 			curs.execute(cmd)
 		except:
 			_log.exception(">>>[%s]<<< failed" % cmd)
 			curs.close()
-			self.conn.set_isolation_level(old_iso)
-			return False
+			# re-attempt w/o VERBOSE
+			_log.info('attempting REINDEXing without VERBOSE')
+			curs = self.conn.cursor()
+			cmd = 'REINDEX DATABASE %s' % self.name
+			try:
+				curs.execute(cmd)
+			except:
+				_log.exception(">>>[%s]<<< failed" % cmd)
+				curs.close()
+				self.conn.set_isolation_level(old_iso)
+				return False
 		curs.close()
 		self.conn.set_isolation_level(old_iso)
 		return True
+
 	#--------------------------------------------------------------
 	def transfer_users(self):
 		print_msg("==> transferring users ...")
@@ -1114,6 +1128,7 @@ class database:
 		_log.error('error transferring user from [%s] to [%s]' % (self.template_db, self.name))
 		print_msg("    ... failed")
 		return False
+
 	#--------------------------------------------------------------
 	def bootstrap_auditing(self):
 		print_msg("==> setting up auditing ...")
