@@ -119,6 +119,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		self.__make_popup_menus()
 		self.__register_events()
+
 	#--------------------------------------------------------
 	# external API
 	#--------------------------------------------------------
@@ -129,6 +130,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__soap_display = soap_display
 
 	soap_display = property(_get_soap_display, _set_soap_display)
+
 	#--------------------------------------------------------
 	def _get_image_display(self):
 		return self.__img_display
@@ -137,11 +139,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__img_display = image_display
 
 	image_display = property(_get_image_display, _set_image_display)
+
 	#--------------------------------------------------------
 	def set_enable_display_mode_selection_callback(self, callback):
 		if not callable(callback):
 			raise ValueError('callback [%s] not callable' % callback)
 		self.__cb__enable_display_mode_selection = callback
+
 	#--------------------------------------------------------
 	def _set_edit_mode_selector(self, callback):
 		if callback is None:
@@ -151,6 +155,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__cb__select_edit_mode = callback
 
 	edit_mode_selector = property(lambda x:x, _set_edit_mode_selector)
+
 	#--------------------------------------------------------
 	def _set_soap_editor_adder(self, callback):
 		if callback is None:
@@ -160,6 +165,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		self.__cb__add_soap_editor = callback
 
 	soap_editor_adder = property(lambda x:x, _set_soap_editor_adder)
+
 	#--------------------------------------------------------
 	# ExpansionState mixin API
 	#--------------------------------------------------------
@@ -193,6 +199,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return u'dummy node::%s' % self.__pat.ID
 		# root node == EMR level
 		return u'root node::%s' % self.__pat.ID
+
 	#--------------------------------------------------------
 	# internal helpers
 	#--------------------------------------------------------
@@ -211,10 +218,12 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		gmDispatcher.connect(signal = 'clin.episode_mod_db', receiver = self._on_episode_mod_db)
 		gmDispatcher.connect(signal = 'clin.health_issue_mod_db', receiver = self._on_issue_mod_db)
 		gmDispatcher.connect(signal = 'clin.family_history_mod_db', receiver = self._on_issue_mod_db)
+
 	#--------------------------------------------------------
 	def clear_tree(self):
 		self.DeleteAllItems()
 		self.__expanded_nodes = None
+
 	#--------------------------------------------------------
 	def __populate_tree(self):
 		"""Updates EMR browser data."""
@@ -225,6 +234,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if self.__pat is None:
 			self.clear_tree()
+			self.__expanded_nodes = None
 			wx.EndBusyCursor()
 			return True
 
@@ -408,7 +418,6 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			return
 
 		if isinstance(node_data, gmEMRStructItems.cEncounter):
-			#self.__cb__enable_display_mode_selection(False)
 			self.__cb__enable_display_mode_selection(True)
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
 			if self.__soap_display_mode == u'revisions':
@@ -568,20 +577,25 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		item = self.__enc_context_popup.Append(-1, _('Export for Medistar'))
 		self.Bind(wx.EVT_MENU, self.__export_encounter_for_medistar, item)
+
 	#--------------------------------------------------------
 	def __handle_root_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__root_context_popup, pos)
+
 	#--------------------------------------------------------
 	def __handle_issue_context(self, pos=wx.DefaultPosition):
 #		self.__issue_context_popup.SetTitle(_('Episode %s') % episode['description'])
 		self.PopupMenu(self.__issue_context_popup, pos)
+
 	#--------------------------------------------------------
 	def __handle_episode_context(self, pos=wx.DefaultPosition):
 #		self.__epi_context_popup.SetTitle(_('Episode %s') % self.__curr_node_data['description'])
 		self.PopupMenu(self.__epi_context_popup, pos)
+
 	#--------------------------------------------------------
 	def __handle_encounter_context(self, pos=wx.DefaultPosition):
 		self.PopupMenu(self.__enc_context_popup, pos)
+
 	#--------------------------------------------------------
 	# episode level
 	#--------------------------------------------------------
@@ -593,12 +607,15 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			episodes = [episode['pk_episode']],
 			move_all = True
 		)
+
 	#--------------------------------------------------------
 	def __edit_episode(self, event):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = self.__curr_node_data)
+
 	#--------------------------------------------------------
 	def __promote_episode_to_issue(self, evt):
 		gmEMRStructWidgets.promote_episode_to_issue(parent=self, episode = self.__curr_node_data, emr = self.__pat.emr)
+
 	#--------------------------------------------------------
 	def __delete_episode(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -621,6 +638,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		if not gmEMRStructItems.delete_episode(episode = self.__curr_node_data):
 			gmDispatcher.send(signal = 'statustext', msg = _('Cannot delete episode. There is still clinical data recorded for it.'))
+
 	#--------------------------------------------------------
 	def __expand_episode_node(self, episode_node=None):
 		self.DeleteChildren(episode_node)
@@ -660,6 +678,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.SetItemHasChildren(encounter_node, False)
 
 		self.SortChildren(episode_node)
+
 	#--------------------------------------------------------
 	# encounter level
 	#--------------------------------------------------------
@@ -712,6 +731,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 	#--------------------------------------------------------
 	def __edit_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = self.__curr_node_data)
+
 	#--------------------------------------------------------
 	def __delete_issue(self, event):
 		dlg = gmGuiHelpers.c2ButtonQuestionDlg (
@@ -750,6 +770,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 		while epi.IsOk():
 			self.Expand(epi)
 			epi, epi_cookie = self.GetNextChild(self.__curr_node, epi_cookie)
+
 	#--------------------------------------------------------
 	def __expand_issue_node(self, issue_node=None):
 		self.DeleteChildren(issue_node)
@@ -769,6 +790,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.SetItemHasChildren(episode_node, True)
 
 		self.SortChildren(issue_node)
+
 	#--------------------------------------------------------
 	def __expand_pseudo_issue_node(self, fake_issue_node=None):
 		self.DeleteChildren(fake_issue_node)
@@ -789,21 +811,26 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.SetItemHasChildren(episode_node, True)
 
 		self.SortChildren(fake_issue_node)
+
 	#--------------------------------------------------------
 	# EMR level
 	#--------------------------------------------------------
 	def __print_emr(self, event):
 		gmFormWidgets.print_doc_from_template(parent = self)
+
 	#--------------------------------------------------------
 	def __create_issue(self, event):
 		gmEMRStructWidgets.edit_health_issue(parent = self, issue = None)
+
 	#--------------------------------------------------------
 	def __create_episode(self, event):
 		gmEMRStructWidgets.edit_episode(parent = self, episode = None)
+
 	#--------------------------------------------------------
 	def __create_soap_editor(self, event):
 		self.__cb__select_edit_mode(True)
 		self.__cb__add_soap_editor(problem = self.__curr_node_data, allow_same_problem = False)
+
 	#--------------------------------------------------------
 	def __document_allergy(self, event):
 		dlg = gmAllergyWidgets.cAllergyManagerDlg(parent=self, id=-1)
@@ -813,21 +840,27 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			self.__populate_tree()
 		dlg.Destroy()
 		return
+
 	#--------------------------------------------------------
 	def __manage_procedures(self, event):
 		gmEMRStructWidgets.manage_performed_procedures(parent = self)
+
 	#--------------------------------------------------------
 	def __manage_family_history(self, event):
 		gmFamilyHistoryWidgets.manage_family_history(parent = self)
+
 	#--------------------------------------------------------
 	def __manage_hospital_stays(self, event):
 		gmEMRStructWidgets.manage_hospital_stays(parent = self)
+
 	#--------------------------------------------------------
 	def __manage_occupation(self, event):
 		gmDemographicsWidgets.edit_occupation()
+
 	#--------------------------------------------------------
 	def __manage_vaccinations(self, event):
 		gmVaccWidgets.manage_vaccinations(parent = self)
+
 	#--------------------------------------------------------
 	def __expand_to_issue_level(self, evt):
 
@@ -847,6 +880,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				self.Collapse(epi)
 				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
 			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+
 	#--------------------------------------------------------
 	def __expand_to_episode_level(self, evt):
 
@@ -866,6 +900,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				self.Collapse(epi)
 				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
 			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+
 	#--------------------------------------------------------
 	def __expand_to_encounter_level(self, evt):
 
@@ -885,6 +920,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 				self.Expand(epi)
 				epi, epi_cookie = self.GetNextChild(issue, epi_cookie)
 			issue, issue_cookie = self.GetNextChild(root_item, issue_cookie)
+
 	#--------------------------------------------------------
 	def __export_encounter_for_medistar(self, evt):
 		gmNarrativeWorkflows.export_narrative_for_medistar_import (
@@ -899,14 +935,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		issues = [{
 			'description': _('Unattributed episodes'),
+			'laterality': None,
+			'diagnostic_certainty_classification': None,
 			'has_open_episode': False,
 			'pk_health_issue': None
 		}]
-
 		issues.extend(self.__pat.emr.health_issues)
-
 		for issue in issues:
-			issue_node =  self.AppendItem(root_node, issue['description'])
+			issue_node =  self.AppendItem(root_node, u'%s%s%s' % (
+				issue['description'],
+				gmTools.coalesce(issue['laterality'], u'', u' [%s]', none_equivalents = [None, u'na']),
+				gmTools.coalesce(issue['diagnostic_certainty_classification'], u'', u' [%s]')
+			))
 			self.SetItemBold(issue_node, issue['has_open_episode'])
 			self.SetItemPyData(issue_node, issue)
 			# fake it so we can expand it
@@ -914,11 +954,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 		self.SetItemHasChildren(root_node, (len(issues) != 0))
 		self.SortChildren(root_node)
+
 	#--------------------------------------------------------
 	# event handlers
 	#--------------------------------------------------------
 	def _on_narrative_mod_db(self, *args, **kwargs):
 		self.__update_text_for_selected_node()
+
 	#--------------------------------------------------------
 	def _on_episode_mod_db(self, *args, **kwargs):
 		self.__expanded_nodes = self.ExpansionState

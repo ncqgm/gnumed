@@ -68,7 +68,6 @@ to_trait_map = { 'id': (s[0], 0),
 		'country_code': (s[4], 6),
 		'telephone_home': (s[5], 0),
 		'telephone_business': (s[6], 0),
-		'cob': (s[7],0),
 		'deathdateandtime': (s[8], 0)
 	 }
 
@@ -79,7 +78,6 @@ in_trait_map = {
 
 hl7.SEX : 'gender',
 hl7.DATE_TIME_OF_BIRTH : 'dob',
-hl7.NATIONALITY : 'cob',
 hl7.PATIENT_DEATH_DATE_AND_TIME : 'deceased'
 }
 
@@ -101,7 +99,7 @@ weight_OR_threshold = 0.5
 
 global sql_identity
 
-sql_identity = "select  id,  ni.lastnames , ni.firstnames , ni.preferred  , ni.title, ni.gender,to_char( ni.dob, 'YYYYMMDDHH24MISS') as datetimeofbirth, ni.cob, to_char(ni.deceased, 'YYYYMMDDHH24MISS') as deathdateandtime  from (select * from identity i, (select id_identity , lastnames, preferred , firstnames,   active from names) as na where i.id = na.id_identity and na.active = true ) as ni"
+sql_identity = "select  id,  ni.lastnames , ni.firstnames , ni.preferred  , ni.title, ni.gender,to_char( ni.dob, 'YYYYMMDDHH24MISS') as datetimeofbirth, to_char(ni.deceased, 'YYYYMMDDHH24MISS') as deathdateandtime  from (select * from identity i, (select id_identity , lastnames, preferred , firstnames,   active from names) as na where i.id = na.id_identity and na.active = true ) as ni"
 
 
 sql_address = "select * from (select  id, id_street, number from address) as a natural left join (select id as id_street,   id_urb, name as street from street) as foo  natural left join (select id as id_urb, name as urb_name , postcode, id_state from urb) as urbfoo natural left join (select id as id_state , name as state, country as country_code from state) as statefoo "
@@ -111,7 +109,7 @@ sql_comm = "select cc.id, url, description as type from comm_channel cc left joi
 sql_traits = """select * from
 (
   select i.id ,  lastnames, firstnames, preferred, title,
-  gender, cob,
+  gender,
   a.number, s.name as street,
   u.name as urb_name , u.postcode,
   state.code as state, state.country as country_code,
@@ -151,7 +149,7 @@ or ( telephone_home <> ''
 )"""
 
 
-sql_traits_old = "select * from (select i.id ,  lastnames, firstnames, preferred, title, gender, datetimeofbirth, cob, deathdateandtime, a.number, a.street, a.urb_name, a.postcode, a.state, a.country_code, trim(both ' ' from c.url) as telephone_home,  c.type as tel_home_type, trim (both ' ' from c2.url2) as telephone_business,  c2.type2 as tel_bus_type from (  select  id, ni.lastnames , ni.firstnames , ni.preferred  , ni.title, ni.gender,to_char( ni.dob, 'YYYYMMDDHH24MISS') as datetimeofbirth, ni.cob, to_char(ni.deceased, 'YYYYMMDDHH24MISS') as deathdateandtime  from (select * from identity i, (select id_identity , lastnames, preferred , firstnames,   active from names) as na where i.id = na.id_identity and na.active = true ) as ni ) as i  left join lnk_person2address l1 on (i.id = l1.id_identity) left outer join (select * from (select  id, id_street, number from address) as a natural left join (select id as id_street,   id_urb, name as street from street) as foo  natural left join (select id as id_urb, name as urb_name , postcode, id_state from urb) as urbfoo natural left join (select id as id_state , name as state, country as country_code from state) as statefoo) as a on (l1.id_address = a.id) left outer join lnk_person2comm_channel l2 on (l2.id_identity = i.id) left join (select cc.id, cc.id_type, url, description as type from comm_channel cc left join enum_comm_types ecc on ( cc.id_type = ecc.id)) as c on (c.id = l2.id_comm and c.id_type = 1) left join  lnk_person2comm_channel l3 on (l3.id_identity = i.id) left join  ( select cc2.id as id2, cc2.id_type , url as url2 , description as type2 from comm_channel cc2 left join enum_comm_types ecc2 on ( cc2.id_type = ecc2.id)) as c2 on (c2.id2 = l3.id_comm and c2.id_type = 2)) as tr  where not exists ( select id from lnk_person2comm_channel l4 where l4.id_identity = tr.id)  or ( telephone_business <> '' and telephone_home <> '') or ( telephone_business <> '' and not exists( select l5.id from lnk_person2comm_channel l5, comm_channel cc3  where l5.id_identity  = tr.id and l5.id_comm = cc3.id and cc3.id_type = 1)) or ( telephone_home <> '' and not exists( select l6.id from lnk_person2comm_channel l6, comm_channel cc4 where l6.id_identity = tr.id and l6.id_comm = cc4.id and cc4.id_type=2))"
+sql_traits_old = "select * from (select i.id ,  lastnames, firstnames, preferred, title, gender, datetimeofbirth, deathdateandtime, a.number, a.street, a.urb_name, a.postcode, a.state, a.country_code, trim(both ' ' from c.url) as telephone_home,  c.type as tel_home_type, trim (both ' ' from c2.url2) as telephone_business,  c2.type2 as tel_bus_type from (  select  id, ni.lastnames , ni.firstnames , ni.preferred  , ni.title, ni.gender,to_char( ni.dob, 'YYYYMMDDHH24MISS') as datetimeofbirth, to_char(ni.deceased, 'YYYYMMDDHH24MISS') as deathdateandtime  from (select * from identity i, (select id_identity , lastnames, preferred , firstnames,   active from names) as na where i.id = na.id_identity and na.active = true ) as ni ) as i  left join lnk_person2address l1 on (i.id = l1.id_identity) left outer join (select * from (select  id, id_street, number from address) as a natural left join (select id as id_street,   id_urb, name as street from street) as foo  natural left join (select id as id_urb, name as urb_name , postcode, id_state from urb) as urbfoo natural left join (select id as id_state , name as state, country as country_code from state) as statefoo) as a on (l1.id_address = a.id) left outer join lnk_person2comm_channel l2 on (l2.id_identity = i.id) left join (select cc.id, cc.id_type, url, description as type from comm_channel cc left join enum_comm_types ecc on ( cc.id_type = ecc.id)) as c on (c.id = l2.id_comm and c.id_type = 1) left join  lnk_person2comm_channel l3 on (l3.id_identity = i.id) left join  ( select cc2.id as id2, cc2.id_type , url as url2 , description as type2 from comm_channel cc2 left join enum_comm_types ecc2 on ( cc2.id_type = ecc2.id)) as c2 on (c2.id2 = l3.id_comm and c2.id_type = 2)) as tr  where not exists ( select id from lnk_person2comm_channel l4 where l4.id_identity = tr.id)  or ( telephone_business <> '' and telephone_home <> '') or ( telephone_business <> '' and not exists( select l5.id from lnk_person2comm_channel l5, comm_channel cc3  where l5.id_identity  = tr.id and l5.id_comm = cc3.id and cc3.id_type = 1)) or ( telephone_home <> '' and not exists( select l6.id from lnk_person2comm_channel l6, comm_channel cc4 where l6.id_identity = tr.id and l6.id_comm = cc4.id and cc4.id_type=2))"
 
 trait_to_sql_trait_field = {
 	pids.INTERNAL_ID :['id'],
@@ -161,7 +159,6 @@ trait_to_sql_trait_field = {
 	hl7.PATIENT_ADDRESS : [ 'number', 'street', 'urb_name', 'state', 'postcode', 'country_code' ],
 	hl7.PHONE_NUMBER_HOME : ['telephone_home'],
 	hl7.PHONE_NUMBER_BUSINESS : ['telephone_business'],
-	hl7.NATIONALITY : ['cob'],
 	hl7.PATIENT_DEATH_DATE_AND_TIME : ['deathdateandtime']
 }
 """this maps the HL7Version2_3 names to field positions in the gnumed traits view."""

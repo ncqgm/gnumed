@@ -234,7 +234,7 @@ class cPatientSearcher_SQL:
 			})
 			return queries
 
-		# "#<di/git s or c-hars>" - external ID (or PUPIC)
+		# "#<di/git s or c-hars>" - external ID
 		if regex.match(u"^(\s|\t)*#.+$", raw, flags = regex.LOCALE | regex.UNICODE):
 			_log.debug("[%s]: an external ID" % raw)
 			tmp = raw.replace(u'#', u'')

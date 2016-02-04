@@ -437,7 +437,7 @@ def insert_identity(cu, firstnames, surname, preferred,  dob, sex, title, dec_da
 			stmt = "select xfk_identity from blobs.xlnk_identity where xfk_identity = %d" % xfk[0]
 			cu.execute(stmt)
 			if not cu.fetchone():
-				stmt = "insert into blobs.xlnk_identity(xfk_identity, pupic) values ( %d, '%d')" % ( xfk[0], xfk[0] )
+				stmt = "insert into blobs.xlnk_identity(xfk_identity) values ( %d )" % ( xfk[0] )
 				cu.execute(stmt)
 	
 			stmts = [   
@@ -1248,7 +1248,7 @@ def ensure_xlnk_identity(id_patient):
 		if n == 1:
 			break
 		if n == 0:
-			stmt = "insert into clin.xlnk_identity( xfk_identity , pupic) values ( %d , '%d')" % ( id_patient, id_patient)
+			stmt = "insert into clin.xlnk_identity( xfk_identity ) values ( %d  )" % ( id_patient )
 			print
 			cu2.execute(stmt)
 	
@@ -1402,7 +1402,7 @@ def ensure_blobs_xlnk_identity(cu2, pat_id):
 
 				if not cu2.fetchone():
 					stmt = """
-						insert into blobs.xlnk_identity ( xfk_identity, pupic) values ( %d, coalesce( (select pupic from dem.identity where pk = %d), '%d'::text) ) 
+						insert into blobs.xlnk_identity ( xfk_identity) values ( %d ) 
 							"""
 					stmt = stmt % ( pat_id, pat_id, pat_id)
 

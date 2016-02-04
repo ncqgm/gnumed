@@ -299,7 +299,13 @@ _html_list_item = u"""	<li><a href="documents/%s">%s</a></li>
 _html_end = u"""
 </ul>
 
-%s, GNUmed version %s
+<p>
+%(date)s<br>
+%(branch)s @ %(praxis)s
+%(adr)s
+</p>
+
+(<a href="http://www.gnumed.de">GNUmed</a> version %(gm_ver)s)
 
 </body>
 </html>
@@ -464,7 +470,7 @@ class cExportArea(object):
 	def export(self, base_dir=None, items=None, with_metadata=True, expand_compressed=False):
 
 		if items is None:
-			items_found = self.items
+			items = self.items
 
 		if len(items) == 0:
 			return None
@@ -502,7 +508,6 @@ class cExportArea(object):
 		# index.html
 		idx_fname = os.path.join(base_dir, u'index.html')
 		idx_file = io.open(idx_fname, mode = u'wt', encoding = u'utf8')
-
 		# header
 		existing_files = os.listdir(base_dir)
 		if u'DICOMDIR' in existing_files:
@@ -518,10 +523,31 @@ class cExportArea(object):
 			))
 		# footer
 		_cfg = gmCfg2.gmCfgData()
-		idx_file.write(_html_end % (
-			gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = u'utf8')),
-			gmTools.html_escape_string(_cfg.get(option = u'client_version'))
-		))
+		from Gnumed.business.gmPraxis import gmCurrentPraxisBranch
+		prax = gmCurrentPraxisBranch()
+		lines = []
+		adr = prax.branch.org_unit.address
+		if adr is not None:
+			lines.extend(adr.format())
+		for comm in prax.branch.org_unit.comm_channels:
+			if comm['is_confidential'] is True:
+				continue
+			lines.append(u'%s: %s' % (
+				comm['l10n_comm_type'],
+				comm['url']
+			))
+		adr = u''
+		if len(lines) > 0:
+			adr = gmTools.html_escape_string(u'\n'.join(lines), replace_eol = True, keep_visual_eol = True)
+		_html_end_data = {
+			'branch': gmTools.html_escape_string(prax['branch']),
+			'praxis': gmTools.html_escape_string(prax['praxis']),
+			'date' : gmTools.html_escape_string(gmDateTime.pydt_strftime(gmDateTime.pydt_now_here(), format = '%Y %B %d', encoding = u'utf8')),
+			'gm_ver': gmTools.html_escape_string(_cfg.get(option = u'client_version')),
+			#'gm_ver': 'git HEAD',				# for testing
+			'adr': adr
+		}
+		idx_file.write(_html_end % _html_end_data)
 		idx_file.close()
 
 		# autorun.inf
@@ -561,6 +587,9 @@ class cExportArea(object):
 		pat.export_as_xml_linuxmednews(filename = os.path.join(base_dir, u'patient.xml'))
 		pat.export_as_vcard(filename = os.path.join(base_dir, u'patient.vcf'))
 
+		# praxis VCF
+		shutil.move(prax.vcf, os.path.join(base_dir, u'praxis.vcf'))
+
 		return base_dir
 	#--------------------------------------------------------
 	# properties
@@ -585,9 +614,10 @@ if __name__ == '__main__':
 		sys.exit()
 
 	from Gnumed.pycommon import gmI18N
-
 	gmI18N.activate_locale()
 	gmI18N.install_domain()
+
+	from Gnumed.business import gmPraxis
 
 	#---------------------------------------
 	def test_export_items():
@@ -606,7 +636,12 @@ if __name__ == '__main__':
 	def test_export_area():
 		exp = cExportArea(12)
 		#print exp.export_with_meta_data()
-		print exp.items
+		#print exp.items
+		exp.add_file(sys.argv[2])
+		prax = gmPraxis.gmCurrentPraxisBranch(branch = gmPraxis.cPraxisBranch(1))
+		print prax
+		print prax.branch
+		print exp.export(with_metadata = True)
 	#---------------------------------------
 	#test_export_items()
 	test_export_area()

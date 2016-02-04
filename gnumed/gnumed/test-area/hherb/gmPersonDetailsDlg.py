@@ -303,8 +303,8 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 		if self.personId == None or self.personId == -1:
 
-				queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob, cob )
-					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s', '%(Cob)s')"""%personMap)
+				queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob)
+					values ('%(Title)s', '%(Surnames)s', '%(Given Names)s',  '%(Gender)s', '%(Dob)s')"""%personMap)
 
 
 				queries.append( """insert into v_basic_address(number, street, street2, city, state,  country, postcode, address_at )
@@ -355,7 +355,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 
 		else:
 			queries.append("""update v_active_persons set title='%(Title)s',  lastnames='%(Surnames)s', firstnames='%(Given Names)s',
-						gender= '%(Gender)s',  dob='%(Dob)s', cob ='%(Cob)s' where id=%(id)d""" %personMap )
+						gender= '%(Gender)s',  dob='%(Dob)s' where id=%(id)d""" %personMap )
 
 
 			queries.append("""update v_basic_address set number= '%(Street No)s',street= '%(Street)s',
@@ -456,8 +456,7 @@ class PersonDetailsDlg(gmPersonDetails.PnlPersonDetails):
 					   { 'name': 'Aka', 'control' : self.tcAka },
 					   { 'name': 'PreferredName', 'control' : self.chPreferredName, 'op': self.getChoiceSelection },
 					   { 'name': 'Gender' , 'control': self.chGender , 'op': self.getChoiceSelection },
-					   { 'name': 'Dob' , 'control': self.tcDob },
-					   { 'name': 'Cob' , 'control': self.cbCob }
+					   { 'name': 'Dob' , 'control': self.tcDob }
 					 ]
 		return self.personMapping
 

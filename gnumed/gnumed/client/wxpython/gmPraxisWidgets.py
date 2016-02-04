@@ -485,7 +485,7 @@ def set_active_praxis_branch(parent=None, no_parent=False):
 	#--------------------
 	branch = gmListWidgets.get_choices_from_list (
 		parent = parent,
-		msg = _("Select branch (of praxis [%s]) which you are logging in from.\n") % branches[0]['praxis'],
+		msg = _("Select the branch of praxis [%s] which you are logging in from.\n") % branches[0]['praxis'],
 		caption = _('Praxis branch selection ...'),
 		columns = [_('Branch'), _('Branch type')],
 		can_return_empty = False,

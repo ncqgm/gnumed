@@ -58,8 +58,8 @@ class CachedPerson(gmDBCache.CachedDBObject):
 				"""create a person through sql , but no transaction statements"""
 		                queries = []
 
-                                queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob, cob )        
-	                               values ('%(title)s', '%(lastnames)s', '%(firstnames)s',  '%(gender)s', '%(dob)s', '%(cob)s')"""%map) 
+                                queries.append( """insert into v_active_persons ( title,lastnames, firstnames,  gender, dob)        
+	                               values ('%(title)s', '%(lastnames)s', '%(firstnames)s',  '%(gender)s', '%(dob)s')"""%map) 
 				cursor = db.cursor()
 
 				for x in queries:
@@ -69,7 +69,7 @@ class CachedPerson(gmDBCache.CachedDBObject):
 	def update_person(self, personMap, db):
 			queries = []
 			queries.append("""update v_active_persons set title='%(title)s',  lastnames='%(lastnames)s', firstnames='%(firstnames)s',
-				gender= '%(gender)s',  dob='%(dob)s', cob ='%(cob)s' where id=%(id)d""" %personMap )
+				gender= '%(gender)s',  dob='%(dob)s' where id=%(id)d""" %personMap )
 
                         cursor = db.cursor()
 

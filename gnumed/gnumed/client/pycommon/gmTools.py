@@ -1082,8 +1082,14 @@ __html_escape_table = {
 	u"<": u"&lt;",
 }
 
-def html_escape_string(text=None):
-	return "".join(__html_escape_table.get(char, char) for char in text)
+def html_escape_string(text=None, replace_eol=False, keep_visual_eol=False):
+	text = u''.join(__html_escape_table.get(char, char) for char in text)
+	if replace_eol:
+		if keep_visual_eol:
+			text = text.replace(u'\n', u'<br>\n')
+		else:
+			text = text.replace(u'\n', u'<br>')
+	return text
 
 #---------------------------------------------------------------------------
 def dict2json(obj):

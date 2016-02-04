@@ -104,6 +104,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return gmOrganization.cOrgUnit(aPK_obj = self._payload[self._idx['pk_org_unit']])
 
 	org_unit = property(_get_org_unit, lambda x:x)
+
 	#--------------------------------------------------------
 	def _get_org(self):
 		return gmOrganization.cOrg(aPK_obj = self._payload[self._idx['pk_org']])
@@ -151,6 +152,7 @@ class cPraxisBranch(gmBusinessDBObject.cBusinessDBObject):
 		return vcf_fname
 
 	vcf = property(_get_vcf, lambda x:x)
+
 #------------------------------------------------------------
 def lock_praxis_branch(pk_praxis_branch=None, exclusive=False):
 	return gmPG2.lock_row(table = u'dem.praxis_branch', pk = pk_praxis_branch, exclusive = exclusive)
@@ -304,15 +306,18 @@ class gmCurrentPraxisBranch(gmBorg.cBorg):
 		if attribute in ['branch', 'waiting_list_patients', 'help_desk', 'db_logon_banner', 'active_workplace', 'workplaces', 'user_email']:
 			return getattr(self, attribute)
 		return getattr(self.branch, attribute)
+
 	#--------------------------------------------------------
 	# __get/setitem__ handling
 	#--------------------------------------------------------
 	def __getitem__(self, attribute = None):
 		"""Return any attribute if known how to retrieve it by proxy."""
 		return self.branch[attribute]
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		self.branch[attribute] = value
+
 	#--------------------------------------------------------
 	# waiting list handling
 	#--------------------------------------------------------
@@ -369,6 +374,7 @@ where
 		return rows
 
 	waiting_list_patients = property (_get_waiting_list_patients, lambda x:x)
+
 	#--------------------------------------------------------
 	def _set_helpdesk(self, helpdesk):
 		return
@@ -396,6 +402,7 @@ where
 		return self.__helpdesk
 
 	helpdesk = property(_get_helpdesk, _set_helpdesk)
+
 	#--------------------------------------------------------
 	def _get_db_logon_banner(self):
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': u'select _(message) from cfg.db_logon_banner'}])
@@ -415,6 +422,7 @@ where
 		rows, idx = gmPG2.run_rw_queries(queries = queries, end_tx = True)
 
 	db_logon_banner = property(_get_db_logon_banner, _set_db_logon_banner)
+
 	#--------------------------------------------------------
 	def _set_workplace(self, workplace):
 		# maybe later allow switching workplaces on the fly
@@ -446,6 +454,7 @@ where
 		return self.__active_workplace
 
 	active_workplace = property(_get_workplace, _set_workplace)
+
 	#--------------------------------------------------------
 	def _set_workplaces(self, val):
 		pass
@@ -455,6 +464,7 @@ where
 		return [ r[0] for r in rows ]
 
 	workplaces = property(_get_workplaces, _set_workplaces)
+
 	#--------------------------------------------------------
 	def _get_user_email(self):
 		# FIXME: get this from the current users staff record in the database
