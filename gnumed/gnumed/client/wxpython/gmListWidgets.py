@@ -964,7 +964,7 @@ class cItemPickerDlg(wxgItemPickerDlg.wxgItemPickerDlg):
 	right_item_tooltip_callback = property(lambda x:x, _set_right_item_tooltip_callback)
 
 #================================================================
-class cReportListCtrl(wx.ListCtrl, listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorterMixin):
+class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorterMixin, wx.ListCtrl):
 
 	# sorting: at set_string_items() time all items will be
 	# adorned with their initial row number as wxPython data,
@@ -1072,6 +1072,14 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			width_type = wx.LIST_AUTOSIZE
 		for idx in range(self.GetColumnCount()):
 			self.SetColumnWidth(col = idx, width = width_type)
+
+	#------------------------------------------------------------
+	def set_resize_column(self, column='LAST'):
+		if column != 'LAST':
+			if column > self.ColumnCount:
+				return
+		# this column will take up all remaining space courtesy of the width mixin
+		self.setResizeColumn(column)
 
 	#------------------------------------------------------------
 	def remove_items_safely(self, max_tries=3):
