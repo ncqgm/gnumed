@@ -2560,7 +2560,7 @@ class gmTopLevelFrame(wx.Frame):
 			_('[-9999]: <access violation test error>'),
 			source = u'GNUmed code',
 			code = -9999,
-			details = _('This is a deliberate AcessDenied exception thrown to test the handling of access violations by means of a decorator.')
+			details = _('This is a deliberate AccessDenied exception thrown to test the handling of access violations by means of a decorator.')
 		)
 	#----------------------------------------------
 	@gmAccessPermissionWidgets.verify_minimum_required_role('admin', activity = _('testing access check for non-existant <admin> role'))
@@ -2569,7 +2569,7 @@ class gmTopLevelFrame(wx.Frame):
 			_('[-9999]: <access violation test error>'),
 			source = u'GNUmed code',
 			code = -9999,
-			details = _('This is a deliberate AcessDenied exception. You should not see this message because the role is checked in a decorator.')
+			details = _('This is a deliberate AccessDenied exception. You should not see this message because the role is checked in a decorator.')
 		)
 	#----------------------------------------------
 	def __on_invoke_inspector(self, evt):
@@ -3377,9 +3377,16 @@ class gmApp(wx.App):
 		gmExceptionHandlingWidgets.install_wx_exception_handler()
 		gmExceptionHandlingWidgets.set_client_version(_cfg.get(option = 'client_version'))
 
-		# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
-		self.SetAppName(u'gnumed')
-		self.SetVendorName(u'The GNUmed Development Community.')
+		self.SetAppName(u'gnumed')				# set this so things like "wx.StandardPaths.GetDataDir()" work as expected
+		self.SetVendorName(u'gnumed_community')
+		try:
+			self.SetAppDisplayName(u'GNUmed %s' % _cfg.get(option = 'client_version'))
+		except AttributeError:
+			_log.info('SetAppDisplayName() not supported')
+		try:
+			self.SetVendorDisplayName(u'The GNUmed Development Community.')
+		except AttributeError:
+			_log.info('SetVendorDisplayName() not supported')
 		paths = gmTools.gmPaths(app_name = u'gnumed', wx = wx)
 		paths.init_paths(wx = wx, app_name = u'gnumed')
 
