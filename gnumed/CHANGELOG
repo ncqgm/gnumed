@@ -70,6 +70,7 @@ IMPROVED: workflow for disabling an identity
 IMPROVED: EMR Journal formatting of hospital stays
 IMPROVED: new-document workflow
 IMPROVED: German referral letter
+IMPROVED: include clinical reminders with EMR Journal
 
 ------------------------------------------------
 # rel-1-5-patches
