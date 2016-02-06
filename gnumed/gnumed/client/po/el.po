@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-09 09:55+0100\n"
+"POT-Creation-Date: 2016-02-06 19:15+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -1546,6 +1546,14 @@ msgstr ""
 "[%s:%s]: γραμμή δεν ενημερώνεται (τίποτα δεν επιστρέφεται), γραμμή σε χρήση;"
 
 #, python-format
+msgid "<%s(.bat)> not found"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "problem with <%s>"
+msgstr "Πρόβλημα"
+
+#, python-format
 msgid "[%s] is not a readable file"
 msgstr ""
 
@@ -2711,7 +2719,11 @@ msgid "Save selected studies to disk."
 msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
 
 msgid ""
-"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
+"\n"
+"The currently active patient does not matter. Orthanc will associate "
+"uploaded files with the patient found within the DICOM metadata. It will "
+"create new patients as needed."
 msgstr ""
 
 msgid "Host:"
@@ -3166,9 +3178,6 @@ msgstr "Εμφάνιση μηνυμάτων:"
 msgid "Remove part"
 msgstr ""
 
-msgid "Parts"
-msgstr ""
-
 msgid "Discard"
 msgstr "Απόρριψη"
 
@@ -3196,6 +3205,10 @@ msgstr ""
 msgid "Required: The primary episode this document is to be listed under."
 msgstr ""
 
+#, fuzzy
+msgid "Optional: The organization (unit) this document originated from."
+msgstr "Η εμπορική ονομασία του φάρμακου που λαμβάνει ο ασθενής."
+
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
 "idea of the content and source of the document."
@@ -3220,6 +3233,9 @@ msgid ""
 "normal and abnormal resuslts can be relevant."
 msgstr ""
 
+msgid "Optional: A free-text document description."
+msgstr ""
+
 msgid "This field lists the parts belonging to the current document."
 msgstr ""
 
@@ -3229,9 +3245,6 @@ msgstr ""
 msgid ""
 "Remove the part selected in the above list. Will ask before physical "
 "deletion from disk."
-msgstr ""
-
-msgid "Optional: A free-text document description."
 msgstr ""
 
 msgid "Save finished document."
@@ -3250,6 +3263,10 @@ msgstr "Ημερομηνία δημιουργίας:"
 
 msgid "Associate to episode:"
 msgstr ""
+
+#, fuzzy
+msgid "Document source:"
+msgstr "Αρχεία:"
 
 #, fuzzy
 msgid "Comment / Identification:"
@@ -3567,11 +3584,12 @@ msgstr ""
 msgid "Purpose"
 msgstr ""
 
+#, fuzzy
+msgid "Please supply your email address here !"
+msgstr "Παρακαλώ εισάγετε μια διεύθυνση Email."
+
 msgid "Details"
 msgstr "Λεπτομέρειες"
-
-msgid "<Please supply your email address here !>"
-msgstr ""
 
 msgid "Keep running"
 msgstr "Συνέχιση εκτέλεσης"
@@ -3594,9 +3612,11 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Please enter your email address so we can provide feedback directly to you. "
-"Otherwise, feedback will be given on the GNUmed mailing list (http://lists."
-"gnu.org/mailman/listinfo/gnumed-bugs)."
+"Please enter your email address so we can provide help to you directly.\n"
+"\n"
+"Otherwise, feedback can be given on the GNUmed mailing list (http://lists."
+"gnu.org/mailman/listinfo/gnumed-bugs) ONLY to which you will then have to "
+"subscribe."
 msgstr ""
 
 msgid "Find help on http://wiki.gnumed.de, too."
@@ -4389,7 +4409,7 @@ msgid ""
 "- the result list will be artificially limited to the first 1000 rows\n"
 "- you can include a column named \"pk_patient\" to make the result rows "
 "activate the corresponding patient on double-clicking\n"
-"- by inserting $<ID_active_patient>$ you can access the patient ID of the "
+"- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the "
 "patient active at the time of running the query"
 msgstr ""
 
@@ -4605,27 +4625,17 @@ msgid ""
 "left."
 msgstr ""
 
-msgid "label_1"
-msgstr ""
+msgid "Subjective"
+msgstr "Υποκειμενικό"
 
-msgid "→"
-msgstr "→"
+msgid "Objective"
+msgstr "Αντικειμενικό"
 
-#, fuzzy
-msgid "←"
-msgstr "→"
+msgid "Assessment"
+msgstr "Αξιολόγηση"
 
-msgid "Extra"
-msgstr ""
-
-msgid "Move selected items from left to right."
-msgstr ""
-
-msgid "Move selected items from right to left."
-msgstr ""
-
-msgid "Cancel picking items."
-msgstr ""
+msgid "Plan"
+msgstr "Σχέδιο"
 
 #, fuzzy
 msgid "Episode synopsis"
@@ -4666,21 +4676,31 @@ msgid ""
 "narrative belongs to."
 msgstr ""
 
-msgid "Subjective"
-msgstr "Υποκειμενικό"
-
 #, fuzzy
 msgid "Codes:"
 msgstr " Κωδικός: %s\n"
 
-msgid "Objective"
-msgstr "Αντικειμενικό"
+msgid "label_1"
+msgstr ""
 
-msgid "Assessment"
-msgstr "Αξιολόγηση"
+msgid "→"
+msgstr "→"
 
-msgid "Plan"
-msgstr "Σχέδιο"
+#, fuzzy
+msgid "←"
+msgstr "→"
+
+msgid "Extra"
+msgstr ""
+
+msgid "Move selected items from left to right."
+msgstr ""
+
+msgid "Move selected items from right to left."
+msgstr ""
+
+msgid "Cancel picking items."
+msgstr ""
 
 msgid "1"
 msgstr "1"
@@ -8216,7 +8236,7 @@ msgstr ""
 "%s"
 
 #, fuzzy, python-format
-msgid " Filename: %s\n"
+msgid " Filename: %s%s\n"
 msgstr "Όνομα αρχείου"
 
 #, fuzzy
@@ -8231,18 +8251,25 @@ msgstr "μέρος"
 msgid "%s parts"
 msgstr "μέρος"
 
+#, fuzzy, python-format
+msgid "%s of %s"
+msgstr " %s Αρχείο\n"
+
 #, python-format
 msgid ""
 "%s (%s)   #%s\n"
-"\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s"
+"%s%s%s%s"
 msgstr ""
 
 #, python-format
 msgid " External reference: %s\n"
 msgstr ""
+
+#, fuzzy, python-format
+msgid " Organization: %%s @ %s\n"
+msgstr "Ογανισμός: %s (%s)"
 
 msgid "Cannot run [arriba] !"
 msgstr "Δεν μπορεί να τρέξει το [Arriba]!"
@@ -9126,6 +9153,138 @@ msgstr ""
 msgid "Select one or more codes that apply."
 msgstr ""
 
+msgid "Select the narrative you are interested in ..."
+msgstr ""
+
+msgid "when"
+msgstr "πότε"
+
+msgid "who"
+msgstr "ποιος"
+
+msgid "entry"
+msgstr "καταχώρηση"
+
+msgid "There is no narrative for this episode in this encounter."
+msgstr ""
+
+msgid "Must select episode to move narrative to first."
+msgstr ""
+
+msgid "Last"
+msgstr "Τελευταίο"
+
+#, fuzzy
+msgid "In health issue"
+msgstr "Θέμα υγείας"
+
+msgid "Most recent notes on selected problem"
+msgstr ""
+
+#, python-format
+msgid "%s (active+potential) problems"
+msgstr ""
+
+#, python-format
+msgid "%s active problems"
+msgstr ""
+
+msgid "Current encounter:"
+msgstr ""
+
+msgid "Cumulative summary"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Most recent info on %s%s%s"
+msgstr " Πιο πρόσφατο:%s-%s"
+
+#, python-format
+msgid ""
+"Cannot open progress note editor for\n"
+"\n"
+"[%s].\n"
+"\n"
+msgstr ""
+
+msgid "opening progress note editor"
+msgstr ""
+
+msgid "Cannot save all editors. Some were kept open."
+msgstr ""
+
+msgid "new problem"
+msgstr ""
+
+msgid ""
+"Are you sure you really want to\n"
+"discard this progress note ?\n"
+msgstr ""
+
+msgid "Discarding progress note"
+msgstr ""
+
+msgid "There are unsaved progress notes !\n"
+msgstr ""
+
+msgid "Unsaved progress notes"
+msgstr ""
+
+#, fuzzy
+msgid "Problem list"
+msgstr "Πρόβλημα"
+
+msgid "Saving SOAP note"
+msgstr ""
+
+msgid "Do you want to save the SOAP note ?"
+msgstr ""
+
+#, python-format
+msgid "&Filter by problem %s%s%s"
+msgstr ""
+
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Progress note: %s%s"
+msgstr "Σημειώσεις προόδου"
+
+#, fuzzy
+msgid "Please enter a name for the new problem:"
+msgstr "Παρακαλώ δώστε τον κωδικό πρόσβασης σας:"
+
+#, fuzzy
+msgid "Adding a problem"
+msgstr "πρόβλημα"
+
+msgid "Cannot delete problem. There is still clinical data recorded for it."
+msgstr ""
+
+#, python-format
+msgid "GNUmed: configuring [%s] (%s plugins)"
+msgstr ""
+
+msgid "loading list of plugins                               "
+msgstr ""
+
+msgid "failed"
+msgstr "απέτυχε"
+
+msgid "success"
+msgstr "επιτυχία"
+
+#, python-format
+msgid ""
+"previous: %s (%s)\n"
+"current (%s/%s): %s"
+msgstr ""
+
+#, python-format
+msgid "Cannot switch to [%s]: no patient selected"
+msgstr ""
+
 msgid "Cannot move progress notes. No active patient."
 msgstr ""
 
@@ -9137,15 +9296,6 @@ msgid ""
 " Select the progress notes to move from the list !\n"
 "\n"
 msgstr ""
-
-msgid "when"
-msgstr "πότε"
-
-msgid "who"
-msgstr "ποιος"
-
-msgid "entry"
-msgstr "καταχώρηση"
 
 msgid "Cannot edit progress notes. No active patient."
 msgstr ""
@@ -9353,261 +9503,6 @@ msgid ""
 " This is the narrative (type %s) for the chosen episodes.\n"
 "\n"
 " Now, mark the entries you want to include in your report.\n"
-msgstr ""
-
-msgid "Select the narrative you are interested in ..."
-msgstr ""
-
-msgid "There is no narrative for this episode in this encounter."
-msgstr ""
-
-msgid "Must select episode to move narrative to first."
-msgstr ""
-
-msgid "Last"
-msgstr "Τελευταίο"
-
-#, fuzzy
-msgid "In health issue"
-msgstr "Θέμα υγείας"
-
-msgid "Most recent notes on selected problem"
-msgstr ""
-
-#, python-format
-msgid "%s (active+potential) problems"
-msgstr ""
-
-#, python-format
-msgid "%s active problems"
-msgstr ""
-
-msgid "Current encounter:"
-msgstr ""
-
-msgid "Cumulative summary"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Most recent info on %s%s%s"
-msgstr " Πιο πρόσφατο:%s-%s"
-
-#, python-format
-msgid ""
-"Cannot open progress note editor for\n"
-"\n"
-"[%s].\n"
-"\n"
-msgstr ""
-
-msgid "opening progress note editor"
-msgstr ""
-
-msgid "Cannot save all editors. Some were kept open."
-msgstr ""
-
-msgid "new problem"
-msgstr ""
-
-msgid ""
-"Are you sure you really want to\n"
-"discard this progress note ?\n"
-msgstr ""
-
-msgid "Discarding progress note"
-msgstr ""
-
-msgid "There are unsaved progress notes !\n"
-msgstr ""
-
-msgid "Unsaved progress notes"
-msgstr ""
-
-#, python-format
-msgid "Synopsis (%s)"
-msgstr ""
-
-msgid ""
-"Enter a short working name for this new problem\n"
-"(which will become a new, unassociated episode):\n"
-msgstr ""
-
-#, python-format
-msgid ""
-"Enter a short working name for this new\n"
-"episode under the existing health issue\n"
-"\n"
-"\"%s\":\n"
-msgstr ""
-
-msgid "Creating problem (episode) to save notelet under ..."
-msgstr ""
-
-msgid "Cannot save a new problem without a name."
-msgstr ""
-
-msgid "saving progress note"
-msgstr ""
-
-#, python-format
-msgid ""
-"The new episode:\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"will remain unassociated despite the editor\n"
-"having been invoked from the health issue:\n"
-"\n"
-" \"%s\""
-msgstr ""
-
-msgid "You need to actually set an editor."
-msgstr ""
-
-#, python-format
-msgid "The command [%s] is not found."
-msgstr "Η εντολή [%s] δεν έχει βρεθεί."
-
-#, python-format
-msgid ""
-"Enter the shell command with which to start\n"
-"the image editor for visual progress notes.\n"
-"\n"
-"Any \"%(img)s\" included with the arguments\n"
-"will be replaced by the file name of the\n"
-"note template."
-msgstr ""
-
-msgid "Choose file to use as template for new visual progress note"
-msgstr ""
-
-#, fuzzy
-msgid "Visual progress note source"
-msgstr "σημειώσεις προόδου"
-
-msgid "From which source do you want to pick the image template ?"
-msgstr ""
-
-msgid "Database"
-msgstr "Βάση δεδομένων"
-
-msgid "List of templates in the database."
-msgstr ""
-
-msgid "Files in the filesystem."
-msgstr "Αρχεία στο σύστημα αρχείων."
-
-msgid "Device"
-msgstr "Συσκευή"
-
-msgid "Image capture devices (scanners, cameras, etc)"
-msgstr ""
-
-#, python-format
-msgid "Cannot export visual progress note template for [%s]."
-msgstr ""
-
-msgid "Cannot export visual progress note to file."
-msgstr ""
-
-msgid "Editor for visual progress note not configured."
-msgstr ""
-
-#, python-format
-msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-
-msgid "Editing visual progress note"
-msgstr ""
-
-#, python-format
-msgid ""
-"There was a problem reading the visual\n"
-"progress note from the file:\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-
-msgid "Saving visual progress note"
-msgstr ""
-
-msgid ""
-"You either created a visual progress note from a template\n"
-"in the database (rather than from a file on disk) or you\n"
-"edited an existing visual progress note.\n"
-"\n"
-"The template/original was not modified at all, however.\n"
-"\n"
-"Do you still want to save the unmodified image as a\n"
-"visual progress note into the EMR of the patient ?\n"
-msgstr ""
-
-msgid "visual progress notes"
-msgstr ""
-
-#, python-format
-msgid "Created: %s"
-msgstr ""
-
-#, fuzzy
-msgid "Problem list"
-msgstr "Πρόβλημα"
-
-msgid "Saving SOAP note"
-msgstr ""
-
-msgid "Do you want to save the SOAP note ?"
-msgstr ""
-
-#, python-format
-msgid "&Filter by problem %s%s%s"
-msgstr ""
-
-msgid "Cannot save SimpleNotes SOAP note."
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Progress note: %s%s"
-msgstr "Σημειώσεις προόδου"
-
-#, fuzzy
-msgid "Please enter a name for the new problem:"
-msgstr "Παρακαλώ δώστε τον κωδικό πρόσβασης σας:"
-
-#, fuzzy
-msgid "Adding a problem"
-msgstr "πρόβλημα"
-
-msgid "Cannot delete problem. There is still clinical data recorded for it."
-msgstr ""
-
-#, python-format
-msgid "GNUmed: configuring [%s] (%s plugins)"
-msgstr ""
-
-msgid "loading list of plugins                               "
-msgstr ""
-
-msgid "failed"
-msgstr "απέτυχε"
-
-msgid "success"
-msgstr "επιτυχία"
-
-#, python-format
-msgid ""
-"previous: %s (%s)\n"
-"current (%s/%s): %s"
-msgstr ""
-
-#, python-format
-msgid "Cannot switch to [%s]: no patient selected"
 msgstr ""
 
 msgid "Pick a date ..."
@@ -10090,6 +9985,44 @@ msgstr ""
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr ""
 
+#, python-format
+msgid "Synopsis (%s)"
+msgstr ""
+
+msgid ""
+"Enter a short working name for this new problem\n"
+"(which will become a new, unassociated episode):\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Enter a short working name for this new\n"
+"episode under the existing health issue\n"
+"\n"
+"\"%s\":\n"
+msgstr ""
+
+msgid "Creating problem (episode) to save notelet under ..."
+msgstr ""
+
+msgid "Cannot save a new problem without a name."
+msgstr ""
+
+msgid "saving progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"The new episode:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"will remain unassociated despite the editor\n"
+"having been invoked from the health issue:\n"
+"\n"
+" \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Adding substance abuse"
 msgstr "Πρόσθεση καταγραφής της χρήσης μιας φαρμακευτικής αγωγής/ουσίας."
@@ -10382,6 +10315,104 @@ msgid ""
 "\n"
 "You will have to add it via the Demographics plugin.\n"
 msgstr ""
+
+msgid "You need to actually set an editor."
+msgstr ""
+
+#, python-format
+msgid "The command [%s] is not found."
+msgstr "Η εντολή [%s] δεν έχει βρεθεί."
+
+#, python-format
+msgid ""
+"Enter the shell command with which to start\n"
+"the image editor for visual progress notes.\n"
+"\n"
+"Any \"%(img)s\" included with the arguments\n"
+"will be replaced by the file name of the\n"
+"note template."
+msgstr ""
+
+msgid "Choose file to use as template for new visual progress note"
+msgstr ""
+
+#, fuzzy
+msgid "Visual progress note source"
+msgstr "σημειώσεις προόδου"
+
+msgid "From which source do you want to pick the image template ?"
+msgstr ""
+
+msgid "Database"
+msgstr "Βάση δεδομένων"
+
+msgid "List of templates in the database."
+msgstr ""
+
+msgid "Files in the filesystem."
+msgstr "Αρχεία στο σύστημα αρχείων."
+
+msgid "Device"
+msgstr "Συσκευή"
+
+msgid "Image capture devices (scanners, cameras, etc)"
+msgstr ""
+
+#, python-format
+msgid "Cannot export visual progress note template for [%s]."
+msgstr ""
+
+msgid "Cannot export visual progress note to file."
+msgstr ""
+
+msgid "Editor for visual progress note not configured."
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem with running the editor\n"
+"for visual progress notes.\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+msgid "Editing visual progress note"
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem reading the visual\n"
+"progress note from the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+msgid "Saving visual progress note"
+msgstr ""
+
+msgid ""
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
+"\n"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
+msgstr ""
+
+msgid "visual progress notes"
+msgstr ""
+
+#, fuzzy, python-format
+msgid " [part 1 of %s]"
+msgstr "μέρος %s: %s"
+
+#, fuzzy, python-format
+msgid "Created: %s%s"
+msgstr "Δημιουργία νέου"
 
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
@@ -12277,7 +12308,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgid "Select the branch of praxis [%s] which you are logging in from.\n"
 msgstr ""
 
 msgid "Praxis branch selection ..."
@@ -12807,14 +12838,13 @@ msgstr ""
 msgid "Row tooltip"
 msgstr ""
 
-msgid "Row data (as text)"
+msgid "Row data (formatted as text)"
 msgstr ""
 
-msgid "Row fields (as text)"
+msgid "Row fields (as one line)"
 msgstr ""
 
-#, python-format
-msgid "[%8.8s] %s"
+msgid "Row fields (as multiple lines)"
 msgstr ""
 
 #, fuzzy
@@ -12823,6 +12853,10 @@ msgstr "Κατευθύνσεις"
 
 #, fuzzy
 msgid "Copy to clipboard..."
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Append to clipboard..."
 msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
@@ -13024,6 +13058,17 @@ msgstr "προγραμματιστής ξέχασε να διευκρινίσε�
 msgid "generic warning message"
 msgstr "γενικό μήνυμα προειδοποίησης"
 
+#, fuzzy
+msgid "Editing EDC"
+msgstr "Επεξεργασία φαρμακευτικής αγωγής"
+
+#, python-format
+msgid ""
+"Really delete the EDC documented previously ?\n"
+"\n"
+" EDC: %s"
+msgstr ""
+
 #, python-format
 msgid ""
 "Algorithm: %s\n"
@@ -13134,14 +13179,15 @@ msgstr "Επώνυμο"
 msgid "Firstname"
 msgstr "Όνομα"
 
-msgid "Nickname"
-msgstr "Ψευδώνυμο"
-
 msgid "DOB"
 msgstr ""
 
 msgid "last visit"
 msgstr "τελευταία επίσκεψη"
+
+#, fuzzy
+msgid "Nickname / Comment"
+msgstr "Ψευδώνυμο"
 
 msgid "found via"
 msgstr ""
@@ -14013,9 +14059,53 @@ msgstr ""
 msgid "Select the episode under which to file the document ..."
 msgstr ""
 
+msgid "Cannot create new document."
+msgstr ""
+
+msgid "saving document"
+msgstr "Αποθήκευση εγγράφου"
+
 #, python-format
 msgid "Imported new document from %s."
 msgstr ""
+
+msgid "Successfully saved new document."
+msgstr ""
+
+msgid "Successfully saved the new document."
+msgstr ""
+
+#, python-format
+msgid ""
+"The reference ID for the new document is:\n"
+"\n"
+" <%s>\n"
+"\n"
+"You probably want to write it down on the\n"
+"original documents.\n"
+"\n"
+"If you don't care about the ID you can switch\n"
+"off this message in the GNUmed configuration.\n"
+msgstr ""
+
+#, fuzzy
+msgid "Saving document"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid ""
+"Successfully imported files as document.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s\n"
+"\n"
+"Note that temporary files will be deleted anyway."
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "αρχεία καταγραφής"
 
 msgid "Enter a comment on the document."
 msgstr ""
@@ -14135,16 +14225,18 @@ msgstr ""
 msgid "Acquiring images"
 msgstr ""
 
+msgid "directory dropped on client"
+msgstr ""
+
+msgid "file dropped on client"
+msgstr ""
+
 #, fuzzy
 msgid "other documents"
 msgstr "Επισύναψη αρχείων"
 
-#, python-format
-msgid "part %s: %s"
-msgstr "μέρος %s: %s"
-
-msgid "saving document"
-msgstr "Αποθήκευση εγγράφου"
+msgid "path"
+msgstr ""
 
 msgid "No parts to save. Really save an empty document as a reference ?"
 msgstr ""
@@ -14188,11 +14280,25 @@ msgstr ""
 msgid "acquiring page"
 msgstr ""
 
+msgid "captured by imaging device"
+msgstr ""
+
 msgid "Choose a file"
 msgstr "Επιλέξτε ένα αρχείο"
 
 msgid "all files (Win)"
 msgstr ""
+
+msgid "picked from storage media"
+msgstr ""
+
+#, fuzzy
+msgid "pasted from clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "No part selected for viewing."
+msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
 
 #, python-format
 msgid ""
@@ -14203,45 +14309,9 @@ msgstr ""
 msgid "displaying part"
 msgstr ""
 
-msgid "You must select a part before you can delete it."
-msgstr ""
-
-msgid "deleting part"
-msgstr ""
-
-#, python-format
-msgid ""
-"The part has successfully been removed from the document.\n"
-"\n"
-"Do you also want to permanently delete the file\n"
-"\n"
-" [%s]\n"
-"\n"
-"from which this document part was loaded ?\n"
-"\n"
-"If it is a temporary file for a page you just scanned\n"
-"this makes a lot of sense. In other cases you may not\n"
-"want to lose the file.\n"
-"\n"
-"Pressing [YES] will permanently remove the file\n"
-"from your computer.\n"
-msgstr ""
-
-msgid "Removing document part"
-msgstr ""
-
-#, python-format
-msgid ""
-"Cannot delete part in file [%s].\n"
-"\n"
-"You may not have write access to it."
-msgstr ""
-
-msgid "Cannot create new document."
-msgstr ""
-
-msgid "Cannot update document metadata."
-msgstr ""
+#, fuzzy
+msgid "No part selected for removal."
+msgstr "Διαγραφή της επιλεγμένης αλλεργίας από την λίστα στην βάση δεδομένων."
 
 msgid "Cannot add document description."
 msgstr ""
@@ -14249,28 +14319,13 @@ msgstr ""
 msgid "Error setting \"reviewed\" status of new document."
 msgstr ""
 
-msgid "Successfully saved the new document."
-msgstr ""
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The reference ID for the new document is:\n"
+"Source: %s\n"
+"File: %s\n"
 "\n"
-" <%s>\n"
-"\n"
-"You probably want to write it down on the\n"
-"original documents.\n"
-"\n"
-"If you don't care about the ID you can switch\n"
-"off this message in the GNUmed configuration."
-msgstr ""
-
-#, fuzzy
-msgid "Saving document"
-msgstr "Αποθήκευση εγγράφου"
-
-msgid "Successfully saved new document."
-msgstr ""
+"%s"
+msgstr "Προέλευση:%s\n"
 
 msgid "Document part does not seem to exist in database !"
 msgstr ""
@@ -14858,6 +14913,13 @@ msgid "Auto-open editors"
 msgstr ""
 
 msgid "Configure auto-opening editors for recent problems."
+msgstr ""
+
+#, fuzzy
+msgid "SOAP fields"
+msgstr "Πεδίο αγνοούμενο"
+
+msgid "Configure SOAP editor - individual SOAP fields vs text editor like"
 msgstr ""
 
 msgid "Progress notes handling ..."
@@ -15521,19 +15583,42 @@ msgstr ""
 msgid "Show log file"
 msgstr ""
 
-msgid "Show the log file in text viewer."
+msgid "Show log file in text viewer."
 msgstr ""
 
 msgid "Backup log file"
 msgstr ""
 
-msgid "Backup the content of the log to another file."
+msgid "Backup content of the log to another file."
 msgstr ""
 
 msgid "Email log file"
 msgstr ""
 
-msgid "Send the log file to the authors for help."
+msgid "Send log file to the authors for help."
+msgstr ""
+
+#, fuzzy
+msgid "Browse tmp dir"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid "Browse temporary directory [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Αποθήκευση εγγράφου"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Browse internal work dir"
+msgstr ""
+
+#, python-format
+msgid "Browse internal working directory [%s]."
 msgstr ""
 
 msgid "Bug tracker"
@@ -15878,6 +15963,20 @@ msgid "No, only auto-open one editor for a new, unassociated problem."
 msgstr ""
 
 msgid ""
+"When editing progress notes, do you want GNUmed to\n"
+"show individual fields for each of the SOAP categories\n"
+"or do you want to use a text-editor like field for\n"
+"all SOAP categories which can then be set per line\n"
+"of input ?"
+msgstr ""
+
+msgid "Yes, show a dedicated field per SOAP category."
+msgstr ""
+
+msgid "No, use one field for all SOAP categories."
+msgstr ""
+
+msgid ""
 "When a patient is activated GNUmed can\n"
 "be told to switch to a specific plugin.\n"
 "\n"
@@ -16207,7 +16306,7 @@ msgid "[-9999]: <access violation test error>"
 msgstr ""
 
 msgid ""
-"This is a deliberate AcessDenied exception thrown to test the handling of "
+"This is a deliberate AccessDenied exception thrown to test the handling of "
 "access violations by means of a decorator."
 msgstr ""
 
@@ -16215,7 +16314,7 @@ msgid "testing access check for non-existant <admin> role"
 msgstr ""
 
 msgid ""
-"This is a deliberate AcessDenied exception. You should not see this message "
+"This is a deliberate AccessDenied exception. You should not see this message "
 "because the role is checked in a decorator."
 msgstr ""
 
@@ -17037,6 +17136,108 @@ msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr ""
 
 #, fuzzy
+msgid "SOAP Editor Actions:"
+msgstr "Εμβολιασμοί:"
+
+#, fuzzy
+msgid "&Sort lines"
+msgstr "Δημιουργία νέου"
+
+msgid "Sort lines by SOAP category"
+msgstr ""
+
+msgid "e&Xpand keyword"
+msgstr ""
+
+msgid "Expand keyword / macro"
+msgstr ""
+
+#, fuzzy
+msgid "&Subjective"
+msgstr "Υποκειμενικό"
+
+msgid "Set line to category \"Subjective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Objective"
+msgstr "Αντικειμενικό"
+
+msgid "Set line to category \"Objective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Assessment"
+msgstr "Αξιολόγηση"
+
+msgid "Set line to category \"Assessment\""
+msgstr ""
+
+#, fuzzy
+msgid "&Plan"
+msgstr "Σχέδιο"
+
+msgid "Set line to category \"Plan\""
+msgstr ""
+
+msgid "&Unspecified"
+msgstr ""
+
+msgid "Set line to category \"unspecified\""
+msgstr ""
+
+#, fuzzy
+msgid "ad&Ministrative"
+msgstr "Διοικητικό"
+
+msgid "Set line to category \"administrative\""
+msgstr ""
+
+#, fuzzy
+msgid "→ &Clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Copy line to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "→ +Clipboard+"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Add line to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Copy content to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Add content to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Copy selection to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "Add selection to clipboard"
+msgstr "Εξαγωγή στο &πρόχειρο"
+
+#, fuzzy
+msgid "&Line ..."
+msgstr "Εμβόλιο ..."
+
+#, fuzzy
+msgid "&Text ..."
+msgstr "&Χρήστες ..."
+
+#, fuzzy
+msgid "&Region ..."
+msgstr "Περιοχή"
+
+#, fuzzy
 msgid "Show HL7 file:"
 msgstr "Εμφάνιση μηνυμάτων:"
 
@@ -17784,16 +17985,13 @@ msgid ""
 "%s\n"
 msgstr ""
 
-msgid "This patient DID receive care."
+msgid "This patient DID receive care here."
 msgstr ""
 
-msgid "This person did NOT receive care."
+msgid "This person did NOT receive care here."
 msgstr ""
 
 msgid "Disabling person"
-msgstr ""
-
-msgid "Disabling patient"
 msgstr ""
 
 msgid "Type or select a last name (family name/surname)."

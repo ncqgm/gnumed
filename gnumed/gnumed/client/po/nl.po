@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-09 09:55+0100\n"
+"POT-Creation-Date: 2016-02-06 19:16+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1571,6 +1571,14 @@ msgstr ""
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
+#, fuzzy, python-format
+msgid "<%s(.bat)> not found"
+msgstr "pgAdmin III niet gevonden."
+
+#, fuzzy, python-format
+msgid "problem with <%s>"
+msgstr "Probleem"
+
 #, python-format
 msgid "[%s] is not a readable file"
 msgstr "[%s] is geen leesbaar bestand"
@@ -2763,7 +2771,11 @@ msgid "Save selected studies to disk."
 msgstr "Verwijder de geselecteerde items van de lijst."
 
 msgid ""
-"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
+"\n"
+"The currently active patient does not matter. Orthanc will associate "
+"uploaded files with the patient found within the DICOM metadata. It will "
+"create new patients as needed."
 msgstr ""
 
 msgid "Host:"
@@ -3245,9 +3257,6 @@ msgstr "toon onderdeel"
 msgid "Remove part"
 msgstr "verwijder onderdeel"
 
-msgid "Parts"
-msgstr "Onderdelen"
-
 msgid "Discard"
 msgstr "Verwerpen"
 
@@ -3286,6 +3295,10 @@ msgstr ""
 "Benodigd: de primaire episode waar dit document onder vermeld dient te "
 "worden."
 
+#, fuzzy
+msgid "Optional: The organization (unit) this document originated from."
+msgstr "instellingen bewaren"
+
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
 "idea of the content and source of the document."
@@ -3320,6 +3333,9 @@ msgstr ""
 "Of dit document klinisch relevante uitslagen rapporteert. Merk op dat zowel "
 "normale en afwijkende resultaten relevant kunnen zijn."
 
+msgid "Optional: A free-text document description."
+msgstr "Optioneel: een documentbeschrijving vrij in te vullen"
+
 msgid "This field lists the parts belonging to the current document."
 msgstr "Dit veld noemt de delen die bij het huidige document horen."
 
@@ -3332,9 +3348,6 @@ msgid ""
 msgstr ""
 "Verwijder het hierboven geselecteerde deel uit de lijst. Voordat het van de "
 "harde schijf gewist wordt zal er toestemming gevraagd worden."
-
-msgid "Optional: A free-text document description."
-msgstr "Optioneel: een documentbeschrijving vrij in te vullen"
 
 msgid "Save finished document."
 msgstr "Bewaar voltooid document."
@@ -3352,6 +3365,10 @@ msgstr "Creatiedatum:"
 
 msgid "Associate to episode:"
 msgstr "Associeren met episode:"
+
+#, fuzzy
+msgid "Document source:"
+msgstr "Documenten"
 
 #, fuzzy
 msgid "Comment / Identification:"
@@ -3690,12 +3707,12 @@ msgstr "Beeindigd"
 msgid "Purpose"
 msgstr "Opties ..."
 
+#, fuzzy
+msgid "Please supply your email address here !"
+msgstr "Voer uw emailadres in."
+
 msgid "Details"
 msgstr "Bijzonderheden"
-
-#, fuzzy
-msgid "<Please supply your email address here !>"
-msgstr "Voer uw emailadres in."
 
 msgid "Keep running"
 msgstr "Blijf draaien"
@@ -3719,9 +3736,11 @@ msgstr "Geef overige informatie of commentaar zoals wat u wilde doen."
 
 #, fuzzy
 msgid ""
-"Please enter your email address so we can provide feedback directly to you. "
-"Otherwise, feedback will be given on the GNUmed mailing list (http://lists."
-"gnu.org/mailman/listinfo/gnumed-bugs)."
+"Please enter your email address so we can provide help to you directly.\n"
+"\n"
+"Otherwise, feedback can be given on the GNUmed mailing list (http://lists."
+"gnu.org/mailman/listinfo/gnumed-bugs) ONLY to which you will then have to "
+"subscribe."
 msgstr ""
 "Geef alstublieft uw emailadres in zodat we u feedback kunnen geven. Anders "
 "zal de feedback gegeven worden op de GNUmed mailinglijs (http://lists.gnu."
@@ -4603,7 +4622,7 @@ msgid ""
 "- the result list will be artificially limited to the first 1000 rows\n"
 "- you can include a column named \"pk_patient\" to make the result rows "
 "activate the corresponding patient on double-clicking\n"
-"- by inserting $<ID_active_patient>$ you can access the patient ID of the "
+"- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the "
 "patient active at the time of running the query"
 msgstr ""
 
@@ -4852,29 +4871,17 @@ msgstr ""
 "Vink dit aan als u instemt met de huidige beslissing over de klinische "
 "relevantie van de uitslagen."
 
-msgid "label_1"
-msgstr ""
+msgid "Subjective"
+msgstr "Anamnese"
 
-msgid "→"
-msgstr ""
+msgid "Objective"
+msgstr "Bevindingen"
 
-msgid "←"
-msgstr ""
+msgid "Assessment"
+msgstr "Conclusie"
 
-msgid "Extra"
-msgstr ""
-
-#, fuzzy
-msgid "Move selected items from left to right."
-msgstr "Verwijder de geselecteerde items van de lijst."
-
-#, fuzzy
-msgid "Move selected items from right to left."
-msgstr "Verwijder de geselecteerde items van de lijst."
-
-#, fuzzy
-msgid "Cancel picking items."
-msgstr "Annuleer deze beoordeling."
+msgid "Plan"
+msgstr "Plan"
 
 #, fuzzy
 msgid "Episode synopsis"
@@ -4915,21 +4922,33 @@ msgid ""
 "narrative belongs to."
 msgstr ""
 
-msgid "Subjective"
-msgstr "Anamnese"
-
 #, fuzzy
 msgid "Codes:"
 msgstr "Code"
 
-msgid "Objective"
-msgstr "Bevindingen"
+msgid "label_1"
+msgstr ""
 
-msgid "Assessment"
-msgstr "Conclusie"
+msgid "→"
+msgstr ""
 
-msgid "Plan"
-msgstr "Plan"
+msgid "←"
+msgstr ""
+
+msgid "Extra"
+msgstr ""
+
+#, fuzzy
+msgid "Move selected items from left to right."
+msgstr "Verwijder de geselecteerde items van de lijst."
+
+#, fuzzy
+msgid "Move selected items from right to left."
+msgstr "Verwijder de geselecteerde items van de lijst."
+
+#, fuzzy
+msgid "Cancel picking items."
+msgstr "Annuleer deze beoordeling."
 
 msgid "1"
 msgstr ""
@@ -8609,7 +8628,7 @@ msgid " Part %s: %s %s(%s Bytes)\n"
 msgstr "%s%7s %s: %s (%s part(s), %s)"
 
 #, fuzzy, python-format
-msgid " Filename: %s\n"
+msgid " Filename: %s%s\n"
 msgstr "Bestandsnaam"
 
 #, fuzzy
@@ -8624,18 +8643,25 @@ msgstr "deel"
 msgid "%s parts"
 msgstr "patiënt"
 
+#, fuzzy, python-format
+msgid "%s of %s"
+msgstr " Uw versie: \"%s\"\n"
+
 #, python-format
 msgid ""
 "%s (%s)   #%s\n"
-"\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s"
+"%s%s%s%s"
 msgstr ""
 
 #, python-format
 msgid " External reference: %s\n"
 msgstr ""
+
+#, fuzzy, python-format
+msgid " Organization: %%s @ %s\n"
+msgstr "Organisatie"
 
 msgid "Cannot run [arriba] !"
 msgstr "kan [arriba] niet uitvoeren!"
@@ -9590,6 +9616,161 @@ msgstr "Bewerk details van staf"
 msgid "Select one or more codes that apply."
 msgstr ""
 
+msgid "Select the narrative you are interested in ..."
+msgstr "Selecteer het verhaal waarin u geïnteresserd bent..."
+
+msgid "when"
+msgstr "wanneer"
+
+msgid "who"
+msgstr "wie"
+
+msgid "entry"
+msgstr "ingave"
+
+msgid "There is no narrative for this episode in this encounter."
+msgstr "Er is geen verhaal voor de episode in deze ontmoeting."
+
+msgid "Must select episode to move narrative to first."
+msgstr "Moet eerst episode selecteren om verhaal naar te verplaatsen."
+
+#, fuzzy
+msgid "Last"
+msgstr "Achternaam"
+
+#, fuzzy
+msgid "In health issue"
+msgstr "Inactief gezondheidsprobleem"
+
+#, fuzzy
+msgid "Most recent notes on selected problem"
+msgstr "meest recente bovenaan"
+
+#, fuzzy, python-format
+msgid "%s (active+potential) problems"
+msgstr "Actieve problemen"
+
+#, fuzzy, python-format
+msgid "%s active problems"
+msgstr "Actieve problemen"
+
+#, fuzzy
+msgid "Current encounter:"
+msgstr "Huidige medicatie"
+
+#, fuzzy
+msgid "Cumulative summary"
+msgstr "Verzoek samenvatting"
+
+#, fuzzy, python-format
+msgid "Most recent info on %s%s%s"
+msgstr " Meest recent: %s%s%s"
+
+#, python-format
+msgid ""
+"Cannot open progress note editor for\n"
+"\n"
+"[%s].\n"
+"\n"
+msgstr ""
+"Kan voortgangsrapport editor niet openen voor\n"
+"\n"
+"[%s].\n"
+"\n"
+
+msgid "opening progress note editor"
+msgstr "voortgangsrapporteditor openen"
+
+#, fuzzy
+msgid "Cannot save all editors. Some were kept open."
+msgstr "Kan allergie niet toevoegen. Geen actieve patiënt."
+
+#, fuzzy
+msgid "new problem"
+msgstr "probleem"
+
+msgid ""
+"Are you sure you really want to\n"
+"discard this progress note ?\n"
+msgstr ""
+"Weet u heel zeker dat u dit \n"
+"voortgangsrapport wilt gegooien?\n"
+
+msgid "Discarding progress note"
+msgstr "Weggooien voortgangsrapport"
+
+#, fuzzy
+msgid "There are unsaved progress notes !\n"
+msgstr "Bewaar alle overgebleven onopgeslagen voortgangsrapporten."
+
+#, fuzzy
+msgid "Unsaved progress notes"
+msgstr "Niet opgeslagen voortgangsrapport"
+
+#, fuzzy
+msgid "Problem list"
+msgstr "Probleem"
+
+#, fuzzy
+msgid "Saving SOAP note"
+msgstr "opslaan voortgangsrapport"
+
+#, fuzzy
+msgid "Do you want to save the SOAP note ?"
+msgstr ""
+"Weet u zeker dat u dit BSN\n"
+"van deze patiënt wilt verwijderen?"
+
+#, python-format
+msgid "&Filter by problem %s%s%s"
+msgstr ""
+
+#, fuzzy
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr "Kan laboratoriumverzoek niet opslaan"
+
+#, fuzzy, python-format
+msgid "Progress note: %s%s"
+msgstr "Voortgangsrapport"
+
+#, fuzzy
+msgid "Please enter a name for the new problem:"
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
+
+#, fuzzy
+msgid "Adding a problem"
+msgstr "Nieuwe episode toevoegen"
+
+#, fuzzy
+msgid "Cannot delete problem. There is still clinical data recorded for it."
+msgstr ""
+"Kan episode niet verwijderen. Er zijn nog klinische gegevens in opgeslagen."
+
+#, python-format
+msgid "GNUmed: configuring [%s] (%s plugins)"
+msgstr "GNUmed: instellen [%s] (%s plugins)"
+
+msgid "loading list of plugins                               "
+msgstr "laden lijst van plugins                               "
+
+msgid "failed"
+msgstr "mislukt"
+
+msgid "success"
+msgstr "succes"
+
+#, python-format
+msgid ""
+"previous: %s (%s)\n"
+"current (%s/%s): %s"
+msgstr ""
+"vorige: %s (%s)\n"
+"huidge: (%s/%s): %s"
+
+#, python-format
+msgid "Cannot switch to [%s]: no patient selected"
+msgstr "Kan niet wisselen naar [%s]: geen patiënt geselecteerd"
+
 #, fuzzy
 msgid "Cannot move progress notes. No active patient."
 msgstr "Kan documenten niet laden. Geen actieve patiënt."
@@ -9606,15 +9787,6 @@ msgid ""
 msgstr ""
 "\n"
 "Selecteer het ontmoetingstype dat u wilt bewerken!\n"
-
-msgid "when"
-msgstr "wanneer"
-
-msgid "who"
-msgstr "wie"
-
-msgid "entry"
-msgstr "ingave"
 
 #, fuzzy
 msgid "Cannot edit progress notes. No active patient."
@@ -9864,302 +10036,6 @@ msgstr ""
 " Dit is het verhaal (type %s) voor de gekozen episodes.\n"
 "\n"
 " Markeer nu de ingaven die u in uw rapport wilt.\n"
-
-msgid "Select the narrative you are interested in ..."
-msgstr "Selecteer het verhaal waarin u geïnteresserd bent..."
-
-msgid "There is no narrative for this episode in this encounter."
-msgstr "Er is geen verhaal voor de episode in deze ontmoeting."
-
-msgid "Must select episode to move narrative to first."
-msgstr "Moet eerst episode selecteren om verhaal naar te verplaatsen."
-
-#, fuzzy
-msgid "Last"
-msgstr "Achternaam"
-
-#, fuzzy
-msgid "In health issue"
-msgstr "Inactief gezondheidsprobleem"
-
-#, fuzzy
-msgid "Most recent notes on selected problem"
-msgstr "meest recente bovenaan"
-
-#, fuzzy, python-format
-msgid "%s (active+potential) problems"
-msgstr "Actieve problemen"
-
-#, fuzzy, python-format
-msgid "%s active problems"
-msgstr "Actieve problemen"
-
-#, fuzzy
-msgid "Current encounter:"
-msgstr "Huidige medicatie"
-
-#, fuzzy
-msgid "Cumulative summary"
-msgstr "Verzoek samenvatting"
-
-#, fuzzy, python-format
-msgid "Most recent info on %s%s%s"
-msgstr " Meest recent: %s%s%s"
-
-#, python-format
-msgid ""
-"Cannot open progress note editor for\n"
-"\n"
-"[%s].\n"
-"\n"
-msgstr ""
-"Kan voortgangsrapport editor niet openen voor\n"
-"\n"
-"[%s].\n"
-"\n"
-
-msgid "opening progress note editor"
-msgstr "voortgangsrapporteditor openen"
-
-#, fuzzy
-msgid "Cannot save all editors. Some were kept open."
-msgstr "Kan allergie niet toevoegen. Geen actieve patiënt."
-
-#, fuzzy
-msgid "new problem"
-msgstr "probleem"
-
-msgid ""
-"Are you sure you really want to\n"
-"discard this progress note ?\n"
-msgstr ""
-"Weet u heel zeker dat u dit \n"
-"voortgangsrapport wilt gegooien?\n"
-
-msgid "Discarding progress note"
-msgstr "Weggooien voortgangsrapport"
-
-#, fuzzy
-msgid "There are unsaved progress notes !\n"
-msgstr "Bewaar alle overgebleven onopgeslagen voortgangsrapporten."
-
-#, fuzzy
-msgid "Unsaved progress notes"
-msgstr "Niet opgeslagen voortgangsrapport"
-
-#, python-format
-msgid "Synopsis (%s)"
-msgstr ""
-
-#, fuzzy
-msgid ""
-"Enter a short working name for this new problem\n"
-"(which will become a new, unassociated episode):\n"
-msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
-
-#, fuzzy, python-format
-msgid ""
-"Enter a short working name for this new\n"
-"episode under the existing health issue\n"
-"\n"
-"\"%s\":\n"
-msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
-
-#, fuzzy
-msgid "Creating problem (episode) to save notelet under ..."
-msgstr ""
-"U moet een episode selecteren waar dit document onder bewaard moet worden."
-
-#, fuzzy
-msgid "Cannot save a new problem without a name."
-msgstr "Kan geen nieuwe episode toevoegen zonder een naam."
-
-msgid "saving progress note"
-msgstr "opslaan voortgangsrapport"
-
-#, python-format
-msgid ""
-"The new episode:\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"will remain unassociated despite the editor\n"
-"having been invoked from the health issue:\n"
-"\n"
-" \"%s\""
-msgstr ""
-
-msgid "You need to actually set an editor."
-msgstr ""
-
-#, fuzzy, python-format
-msgid "The command [%s] is not found."
-msgstr ""
-"Het commando [%s] werd niet gevonden. Dit kan wel of niet een probleem zijn."
-
-#, python-format
-msgid ""
-"Enter the shell command with which to start\n"
-"the image editor for visual progress notes.\n"
-"\n"
-"Any \"%(img)s\" included with the arguments\n"
-"will be replaced by the file name of the\n"
-"note template."
-msgstr ""
-
-#, fuzzy
-msgid "Choose file to use as template for new visual progress note"
-msgstr ""
-"Weet u heel zeker dat u dit \n"
-"voortgangsrapport wilt gegooien?\n"
-
-#, fuzzy
-msgid "Visual progress note source"
-msgstr "voortgangsrapport"
-
-msgid "From which source do you want to pick the image template ?"
-msgstr ""
-
-#, fuzzy
-msgid "Database"
-msgstr "Database ..."
-
-#, fuzzy
-msgid "List of templates in the database."
-msgstr "Bewerk het (eerste of enige) item geselecteerd in de lijst hierboven."
-
-msgid "Files in the filesystem."
-msgstr ""
-
-msgid "Device"
-msgstr "Apparaat"
-
-msgid "Image capture devices (scanners, cameras, etc)"
-msgstr ""
-
-#, fuzzy, python-format
-msgid "Cannot export visual progress note template for [%s]."
-msgstr ""
-"Kan voortgangsrapport editor niet openen voor\n"
-"\n"
-"[%s].\n"
-"\n"
-
-#, fuzzy
-msgid "Cannot export visual progress note to file."
-msgstr "Wis deze editor voor het voortgangsrapport."
-
-msgid "Editor for visual progress note not configured."
-msgstr ""
-
-#, python-format
-msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Editing visual progress note"
-msgstr "klinisch voortgangsrapport"
-
-#, python-format
-msgid ""
-"There was a problem reading the visual\n"
-"progress note from the file:\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-
-#, fuzzy
-msgid "Saving visual progress note"
-msgstr "opslaan voortgangsrapport"
-
-msgid ""
-"You either created a visual progress note from a template\n"
-"in the database (rather than from a file on disk) or you\n"
-"edited an existing visual progress note.\n"
-"\n"
-"The template/original was not modified at all, however.\n"
-"\n"
-"Do you still want to save the unmodified image as a\n"
-"visual progress note into the EMR of the patient ?\n"
-msgstr ""
-
-#, fuzzy
-msgid "visual progress notes"
-msgstr "voortgangsrapport"
-
-#, fuzzy, python-format
-msgid "Created: %s"
-msgstr "Geexporteerd: %s\n"
-
-#, fuzzy
-msgid "Problem list"
-msgstr "Probleem"
-
-#, fuzzy
-msgid "Saving SOAP note"
-msgstr "opslaan voortgangsrapport"
-
-#, fuzzy
-msgid "Do you want to save the SOAP note ?"
-msgstr ""
-"Weet u zeker dat u dit BSN\n"
-"van deze patiënt wilt verwijderen?"
-
-#, python-format
-msgid "&Filter by problem %s%s%s"
-msgstr ""
-
-#, fuzzy
-msgid "Cannot save SimpleNotes SOAP note."
-msgstr "Kan laboratoriumverzoek niet opslaan"
-
-#, fuzzy, python-format
-msgid "Progress note: %s%s"
-msgstr "Voortgangsrapport"
-
-#, fuzzy
-msgid "Please enter a name for the new problem:"
-msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
-
-#, fuzzy
-msgid "Adding a problem"
-msgstr "Nieuwe episode toevoegen"
-
-#, fuzzy
-msgid "Cannot delete problem. There is still clinical data recorded for it."
-msgstr ""
-"Kan episode niet verwijderen. Er zijn nog klinische gegevens in opgeslagen."
-
-#, python-format
-msgid "GNUmed: configuring [%s] (%s plugins)"
-msgstr "GNUmed: instellen [%s] (%s plugins)"
-
-msgid "loading list of plugins                               "
-msgstr "laden lijst van plugins                               "
-
-msgid "failed"
-msgstr "mislukt"
-
-msgid "success"
-msgstr "succes"
-
-#, python-format
-msgid ""
-"previous: %s (%s)\n"
-"current (%s/%s): %s"
-msgstr ""
-"vorige: %s (%s)\n"
-"huidge: (%s/%s): %s"
-
-#, python-format
-msgid "Cannot switch to [%s]: no patient selected"
-msgstr "Kan niet wisselen naar [%s]: geen patiënt geselecteerd"
 
 msgid "Pick a date ..."
 msgstr ""
@@ -10710,6 +10586,48 @@ msgstr "te laat %.0dyrs %.0dwks: spuit %s voor %s in schema \"%s\" (%s)"
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "gepland nu: booster voor %s in schema \"%s\" (%s)"
 
+#, python-format
+msgid "Synopsis (%s)"
+msgstr ""
+
+#, fuzzy
+msgid ""
+"Enter a short working name for this new problem\n"
+"(which will become a new, unassociated episode):\n"
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
+
+#, fuzzy, python-format
+msgid ""
+"Enter a short working name for this new\n"
+"episode under the existing health issue\n"
+"\n"
+"\"%s\":\n"
+msgstr "Geef een beschrijvende naam voor de nieuwe episode:"
+
+#, fuzzy
+msgid "Creating problem (episode) to save notelet under ..."
+msgstr ""
+"U moet een episode selecteren waar dit document onder bewaard moet worden."
+
+#, fuzzy
+msgid "Cannot save a new problem without a name."
+msgstr "Kan geen nieuwe episode toevoegen zonder een naam."
+
+msgid "saving progress note"
+msgstr "opslaan voortgangsrapport"
+
+#, python-format
+msgid ""
+"The new episode:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"will remain unassociated despite the editor\n"
+"having been invoked from the health issue:\n"
+"\n"
+" \"%s\""
+msgstr ""
+
 #, fuzzy
 msgid "Adding substance abuse"
 msgstr "Bewerk het geselecteerde item."
@@ -11019,6 +10937,118 @@ msgid ""
 "\n"
 "You will have to add it via the Demographics plugin.\n"
 msgstr ""
+
+msgid "You need to actually set an editor."
+msgstr ""
+
+#, fuzzy, python-format
+msgid "The command [%s] is not found."
+msgstr ""
+"Het commando [%s] werd niet gevonden. Dit kan wel of niet een probleem zijn."
+
+#, python-format
+msgid ""
+"Enter the shell command with which to start\n"
+"the image editor for visual progress notes.\n"
+"\n"
+"Any \"%(img)s\" included with the arguments\n"
+"will be replaced by the file name of the\n"
+"note template."
+msgstr ""
+
+#, fuzzy
+msgid "Choose file to use as template for new visual progress note"
+msgstr ""
+"Weet u heel zeker dat u dit \n"
+"voortgangsrapport wilt gegooien?\n"
+
+#, fuzzy
+msgid "Visual progress note source"
+msgstr "voortgangsrapport"
+
+msgid "From which source do you want to pick the image template ?"
+msgstr ""
+
+#, fuzzy
+msgid "Database"
+msgstr "Database ..."
+
+#, fuzzy
+msgid "List of templates in the database."
+msgstr "Bewerk het (eerste of enige) item geselecteerd in de lijst hierboven."
+
+msgid "Files in the filesystem."
+msgstr ""
+
+msgid "Device"
+msgstr "Apparaat"
+
+msgid "Image capture devices (scanners, cameras, etc)"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Cannot export visual progress note template for [%s]."
+msgstr ""
+"Kan voortgangsrapport editor niet openen voor\n"
+"\n"
+"[%s].\n"
+"\n"
+
+#, fuzzy
+msgid "Cannot export visual progress note to file."
+msgstr "Wis deze editor voor het voortgangsrapport."
+
+msgid "Editor for visual progress note not configured."
+msgstr ""
+
+#, python-format
+msgid ""
+"There was a problem with running the editor\n"
+"for visual progress notes.\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Editing visual progress note"
+msgstr "klinisch voortgangsrapport"
+
+#, python-format
+msgid ""
+"There was a problem reading the visual\n"
+"progress note from the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+
+#, fuzzy
+msgid "Saving visual progress note"
+msgstr "opslaan voortgangsrapport"
+
+msgid ""
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
+"\n"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
+msgstr ""
+
+#, fuzzy
+msgid "visual progress notes"
+msgstr "voortgangsrapport"
+
+#, fuzzy, python-format
+msgid " [part 1 of %s]"
+msgstr "part %2s"
+
+#, fuzzy, python-format
+msgid "Created: %s%s"
+msgstr "Geexporteerd: %s\n"
 
 msgid "You must select a value from the picklist or type an exact match."
 msgstr ""
@@ -13065,7 +13095,7 @@ msgid ""
 msgstr ""
 
 #, python-format
-msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+msgid "Select the branch of praxis [%s] which you are logging in from.\n"
 msgstr ""
 
 msgid "Praxis branch selection ..."
@@ -13634,14 +13664,13 @@ msgstr ""
 msgid "Row tooltip"
 msgstr ""
 
-msgid "Row data (as text)"
+msgid "Row data (formatted as text)"
 msgstr ""
 
-msgid "Row fields (as text)"
+msgid "Row fields (as one line)"
 msgstr ""
 
-#, python-format
-msgid "[%8.8s] %s"
+msgid "Row fields (as multiple lines)"
 msgstr ""
 
 #, fuzzy
@@ -13650,6 +13679,10 @@ msgstr "Episode %s"
 
 #, fuzzy
 msgid "Copy to clipboard..."
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Append to clipboard..."
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
@@ -13870,6 +13903,17 @@ msgstr "programmeur vergat waarschuwing te specificeren"
 msgid "generic warning message"
 msgstr "algemene waarschuwing"
 
+#, fuzzy
+msgid "Editing EDC"
+msgstr "Naam bewerken"
+
+#, python-format
+msgid ""
+"Really delete the EDC documented previously ?\n"
+"\n"
+" EDC: %s"
+msgstr ""
+
 #, python-format
 msgid ""
 "Algorithm: %s\n"
@@ -13983,14 +14027,15 @@ msgstr "Achternaam"
 msgid "Firstname"
 msgstr "Voornaam"
 
-msgid "Nickname"
-msgstr "Bijnaam"
-
 msgid "DOB"
 msgstr ""
 
 msgid "last visit"
 msgstr "laatste bezoek"
+
+#, fuzzy
+msgid "Nickname / Comment"
+msgstr "Bijnaam"
 
 msgid "found via"
 msgstr "gevonden via"
@@ -14964,9 +15009,63 @@ msgstr "Kan geen beschrijving van het document toevoegen."
 msgid "Select the episode under which to file the document ..."
 msgstr "Selecteer de episode waaronder dit document bewaard moet worden..."
 
+msgid "Cannot create new document."
+msgstr "Kan geen nieuw document creëeren."
+
+msgid "saving document"
+msgstr "document bewaren"
+
 #, fuzzy, python-format
 msgid "Imported new document from %s."
 msgstr "Kan documenttype niet veranderen naar [%s]."
+
+msgid "Successfully saved new document."
+msgstr "Succesvol docment opgeslagen."
+
+#, fuzzy
+msgid "Successfully saved the new document."
+msgstr "Succesvol docment opgeslagen."
+
+#, fuzzy, python-format
+msgid ""
+"The reference ID for the new document is:\n"
+"\n"
+" <%s>\n"
+"\n"
+"You probably want to write it down on the\n"
+"original documents.\n"
+"\n"
+"If you don't care about the ID you can switch\n"
+"off this message in the GNUmed configuration.\n"
+msgstr ""
+"Het referentie ID voor het nieuwe document is:\n"
+"\n"
+" <%s>\n"
+"\n"
+"U wilt het waarschijnlijk op het originele document \n"
+"schrijven.\n"
+"\n"
+"Als u het ID niet belangrijk vindt kunt u dit bericht\n"
+"uitzetten bij de GNUmed instellingen."
+
+#, fuzzy
+msgid "Saving document"
+msgstr "document bewaren"
+
+#, python-format
+msgid ""
+"Successfully imported files as document.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s\n"
+"\n"
+"Note that temporary files will be deleted anyway."
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Adres verwijderen"
 
 #, fuzzy
 msgid "Enter a comment on the document."
@@ -15124,16 +15223,18 @@ msgstr ""
 msgid "Acquiring images"
 msgstr "pagina ophalen"
 
+msgid "directory dropped on client"
+msgstr ""
+
+msgid "file dropped on client"
+msgstr ""
+
 #, fuzzy
 msgid "other documents"
 msgstr "Document bijvoegen"
 
-#, fuzzy, python-format
-msgid "part %s: %s"
-msgstr "part %2s"
-
-msgid "saving document"
-msgstr "document bewaren"
+msgid "path"
+msgstr ""
 
 msgid "No parts to save. Really save an empty document as a reference ?"
 msgstr ""
@@ -15192,11 +15293,26 @@ msgstr ""
 msgid "acquiring page"
 msgstr "pagina ophalen"
 
+#, fuzzy
+msgid "captured by imaging device"
+msgstr "Inlezen van scanner/ fototoestel"
+
 msgid "Choose a file"
 msgstr "Kies een bestand"
 
 msgid "all files (Win)"
 msgstr "alle bestanden (Win)"
+
+msgid "picked from storage media"
+msgstr ""
+
+#, fuzzy
+msgid "pasted from clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "No part selected for viewing."
+msgstr "Geen uitslagen geselecteerd voor verwijdering."
 
 #, python-format
 msgid ""
@@ -15209,61 +15325,9 @@ msgstr ""
 msgid "displaying part"
 msgstr "deel weergeven"
 
-msgid "You must select a part before you can delete it."
-msgstr "U moet een onderdeel selecteren voordat u het kunt verwijderen."
-
-msgid "deleting part"
-msgstr "deel verwijderen"
-
-#, fuzzy, python-format
-msgid ""
-"The part has successfully been removed from the document.\n"
-"\n"
-"Do you also want to permanently delete the file\n"
-"\n"
-" [%s]\n"
-"\n"
-"from which this document part was loaded ?\n"
-"\n"
-"If it is a temporary file for a page you just scanned\n"
-"this makes a lot of sense. In other cases you may not\n"
-"want to lose the file.\n"
-"\n"
-"Pressing [YES] will permanently remove the file\n"
-"from your computer.\n"
-msgstr ""
-"Wilt u definitief het bestand\n"
-"\n"
-" [%s]\n"
-"\n"
-"van uw computer verwijderen?\n"
-"\n"
-"Als het een tijdelijk bestand is voor een pagina die u\n"
-"zojuist gescand heeft is dit logisch.In andere gevallen\n"
-"wilt u wellicht het bestand niet verliezen.\n"
-"\n"
-"Door op JA te drukken verwijderd u het bestand\n"
-"definitief van uw computer."
-
 #, fuzzy
-msgid "Removing document part"
-msgstr "Verwerken documentonderdeel: %s"
-
-#, python-format
-msgid ""
-"Cannot delete part in file [%s].\n"
-"\n"
-"You may not have write access to it."
-msgstr ""
-"Kan onderdeel in het bestand [%s] niet verwijderen.\n"
-"\n"
-"Wellicht heeft u geen schrijfrechten hiervoor."
-
-msgid "Cannot create new document."
-msgstr "Kan geen nieuw document creëeren."
-
-msgid "Cannot update document metadata."
-msgstr "Kan document metadata niet uploaden."
+msgid "No part selected for removal."
+msgstr "Geen uitslagen geselecteerd voor verwijdering."
 
 msgid "Cannot add document description."
 msgstr "Kan geen beschrijving van het document toevoegen."
@@ -15272,38 +15336,13 @@ msgid "Error setting \"reviewed\" status of new document."
 msgstr ""
 "Fout bij het instellen van de \"beoordeeld\" status van dit nieuwe document."
 
-#, fuzzy
-msgid "Successfully saved the new document."
-msgstr "Succesvol docment opgeslagen."
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The reference ID for the new document is:\n"
+"Source: %s\n"
+"File: %s\n"
 "\n"
-" <%s>\n"
-"\n"
-"You probably want to write it down on the\n"
-"original documents.\n"
-"\n"
-"If you don't care about the ID you can switch\n"
-"off this message in the GNUmed configuration."
-msgstr ""
-"Het referentie ID voor het nieuwe document is:\n"
-"\n"
-" <%s>\n"
-"\n"
-"U wilt het waarschijnlijk op het originele document \n"
-"schrijven.\n"
-"\n"
-"Als u het ID niet belangrijk vindt kunt u dit bericht\n"
-"uitzetten bij de GNUmed instellingen."
-
-#, fuzzy
-msgid "Saving document"
-msgstr "document bewaren"
-
-msgid "Successfully saved new document."
-msgstr "Succesvol docment opgeslagen."
+"%s"
+msgstr "Bron"
 
 msgid "Document part does not seem to exist in database !"
 msgstr "Documentonderdeel lijkt niet te bestaan in de database!"
@@ -15961,6 +16000,13 @@ msgid "Auto-open editors"
 msgstr ""
 
 msgid "Configure auto-opening editors for recent problems."
+msgstr ""
+
+#, fuzzy
+msgid "SOAP fields"
+msgstr "XDT veld"
+
+msgid "Configure SOAP editor - individual SOAP fields vs text editor like"
 msgstr ""
 
 msgid "Progress notes handling ..."
@@ -16707,20 +16753,45 @@ msgstr "Bewaar een schermafdruk van deze GNUmed frontend."
 msgid "Show log file"
 msgstr "logboek bestanden"
 
-msgid "Show the log file in text viewer."
-msgstr ""
+#, fuzzy
+msgid "Show log file in text viewer."
+msgstr "logboek bestanden"
 
 msgid "Backup log file"
 msgstr "Logboekbestand backuppen"
 
-msgid "Backup the content of the log to another file."
+#, fuzzy
+msgid "Backup content of the log to another file."
 msgstr "Backup de inhoud van het logboekbestand naar een ander bestand."
 
 #, fuzzy
 msgid "Email log file"
 msgstr "logboek bestanden"
 
-msgid "Send the log file to the authors for help."
+msgid "Send log file to the authors for help."
+msgstr ""
+
+#, fuzzy
+msgid "Browse tmp dir"
+msgstr "Patiëntendetails"
+
+#, python-format
+msgid "Browse temporary directory [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Patiëntendetails"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Browse internal work dir"
+msgstr ""
+
+#, python-format
+msgid "Browse internal working directory [%s]."
 msgstr ""
 
 msgid "Bug tracker"
@@ -17151,6 +17222,20 @@ msgid "Yes, auto-open editors for all problems of the most recent encounter."
 msgstr ""
 
 msgid "No, only auto-open one editor for a new, unassociated problem."
+msgstr ""
+
+msgid ""
+"When editing progress notes, do you want GNUmed to\n"
+"show individual fields for each of the SOAP categories\n"
+"or do you want to use a text-editor like field for\n"
+"all SOAP categories which can then be set per line\n"
+"of input ?"
+msgstr ""
+
+msgid "Yes, show a dedicated field per SOAP category."
+msgstr ""
+
+msgid "No, use one field for all SOAP categories."
 msgstr ""
 
 msgid ""
@@ -17624,7 +17709,7 @@ msgid "[-9999]: <access violation test error>"
 msgstr ""
 
 msgid ""
-"This is a deliberate AcessDenied exception thrown to test the handling of "
+"This is a deliberate AccessDenied exception thrown to test the handling of "
 "access violations by means of a decorator."
 msgstr ""
 
@@ -17632,7 +17717,7 @@ msgid "testing access check for non-existant <admin> role"
 msgstr ""
 
 msgid ""
-"This is a deliberate AcessDenied exception. You should not see this message "
+"This is a deliberate AccessDenied exception. You should not see this message "
 "because the role is checked in a decorator."
 msgstr ""
 
@@ -18516,6 +18601,109 @@ msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr "Er is geen actieve patiënt. Kan geen EMD tekst ophalen."
 
 #, fuzzy
+msgid "SOAP Editor Actions:"
+msgstr "Vaccinaties"
+
+#, fuzzy
+msgid "&Sort lines"
+msgstr "Nieuw"
+
+msgid "Sort lines by SOAP category"
+msgstr ""
+
+msgid "e&Xpand keyword"
+msgstr ""
+
+msgid "Expand keyword / macro"
+msgstr ""
+
+#, fuzzy
+msgid "&Subjective"
+msgstr "Anamnese"
+
+msgid "Set line to category \"Subjective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Objective"
+msgstr "Bevindingen"
+
+msgid "Set line to category \"Objective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Assessment"
+msgstr "Conclusie"
+
+msgid "Set line to category \"Assessment\""
+msgstr ""
+
+#, fuzzy
+msgid "&Plan"
+msgstr "Plan"
+
+msgid "Set line to category \"Plan\""
+msgstr ""
+
+#, fuzzy
+msgid "&Unspecified"
+msgstr "soap_Bevindingen"
+
+msgid "Set line to category \"unspecified\""
+msgstr ""
+
+#, fuzzy
+msgid "ad&Ministrative"
+msgstr "Beheer"
+
+msgid "Set line to category \"administrative\""
+msgstr ""
+
+#, fuzzy
+msgid "→ &Clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Copy line to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "→ +Clipboard+"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Add line to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Copy content to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Add content to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Copy selection to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "Add selection to clipboard"
+msgstr "Exporteren naar &clipboard"
+
+#, fuzzy
+msgid "&Line ..."
+msgstr "Vaccin"
+
+#, fuzzy
+msgid "&Text ..."
+msgstr "&Waarnemingen"
+
+#, fuzzy
+msgid "&Region ..."
+msgstr "Regio"
+
+#, fuzzy
 msgid "Show HL7 file:"
 msgstr "logboek bestanden"
 
@@ -19355,17 +19543,14 @@ msgstr ""
 " %s %s %s\n"
 " geboren %s\n"
 
-msgid "This patient DID receive care."
+msgid "This patient DID receive care here."
 msgstr ""
 
-msgid "This person did NOT receive care."
+msgid "This person did NOT receive care here."
 msgstr ""
 
 #, fuzzy
 msgid "Disabling person"
-msgstr "Patiënt op non-aktief zetten"
-
-msgid "Disabling patient"
 msgstr "Patiënt op non-aktief zetten"
 
 msgid "Type or select a last name (family name/surname)."
@@ -20383,6 +20568,64 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#~ msgid "Parts"
+#~ msgstr "Onderdelen"
+
+#~ msgid "You must select a part before you can delete it."
+#~ msgstr "U moet een onderdeel selecteren voordat u het kunt verwijderen."
+
+#~ msgid "deleting part"
+#~ msgstr "deel verwijderen"
+
+#, fuzzy
+#~ msgid ""
+#~ "The part has successfully been removed from the document.\n"
+#~ "\n"
+#~ "Do you also want to permanently delete the file\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "from which this document part was loaded ?\n"
+#~ "\n"
+#~ "If it is a temporary file for a page you just scanned\n"
+#~ "this makes a lot of sense. In other cases you may not\n"
+#~ "want to lose the file.\n"
+#~ "\n"
+#~ "Pressing [YES] will permanently remove the file\n"
+#~ "from your computer.\n"
+#~ msgstr ""
+#~ "Wilt u definitief het bestand\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "van uw computer verwijderen?\n"
+#~ "\n"
+#~ "Als het een tijdelijk bestand is voor een pagina die u\n"
+#~ "zojuist gescand heeft is dit logisch.In andere gevallen\n"
+#~ "wilt u wellicht het bestand niet verliezen.\n"
+#~ "\n"
+#~ "Door op JA te drukken verwijderd u het bestand\n"
+#~ "definitief van uw computer."
+
+#, fuzzy
+#~ msgid "Removing document part"
+#~ msgstr "Verwerken documentonderdeel: %s"
+
+#~ msgid ""
+#~ "Cannot delete part in file [%s].\n"
+#~ "\n"
+#~ "You may not have write access to it."
+#~ msgstr ""
+#~ "Kan onderdeel in het bestand [%s] niet verwijderen.\n"
+#~ "\n"
+#~ "Wellicht heeft u geen schrijfrechten hiervoor."
+
+#~ msgid "Cannot update document metadata."
+#~ msgstr "Kan document metadata niet uploaden."
+
+#~ msgid "Disabling patient"
+#~ msgstr "Patiënt op non-aktief zetten"
 
 #, fuzzy
 #~ msgid "&Unknown"

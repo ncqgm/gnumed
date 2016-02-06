@@ -41,14 +41,14 @@ if [ -f "${LANGNAME}.po" ]; then
 	echo "    translatable strings: ${POTNAME}"
 	echo ""
 	echo "        old translations: ${LANGNAME}.po"
-	TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
+	TMP=`msgfmt -v --check-header --check-domain --check-accelerators --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
 	rm -f tmp.pot
 	echo "              statistics: ${TMP}"
 
 	if [ -f "${AUXNAME}" ]; then
 		echo ""
 		echo " additional translations: ${AUXNAME}"
-		TMP=`msgfmt -v -c --statistics -o tmp.pot ${AUXNAME} 2>&1`
+		TMP=`msgfmt -v --check-header --check-domain --check-accelerators --statistics -o tmp.pot ${AUXNAME} 2>&1`
 		rm -f tmp.pot
 		echo "              statistics: ${TMP}"
 	fi
@@ -67,7 +67,7 @@ fi;
 
 echo ""
 echo "  final translation file: ${LANGNAME}.po"
-TMP=`msgfmt -v -c --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
+TMP=`msgfmt -v --check-header --check-domain --check-accelerators --statistics -o tmp.pot ${LANGNAME}.po 2>&1`
 echo "              statistics: ${TMP}"
 rm -f tmp.pot
 echo ""

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-11-20 11:19+0100\n"
+"POT-Creation-Date: 2016-02-06 19:15+0100\n"
 "PO-Revision-Date: 2015-11-19 20:28-0300\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1624,6 +1624,14 @@ msgstr ""
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: fila no actualizada (nada devuelto), ¿ fila en uso ?"
 
+#, fuzzy, python-format
+msgid "<%s(.bat)> not found"
+msgstr "<gm-fax_doc(.bat) no encontrado>"
+
+#, fuzzy, python-format
+msgid "problem with <%s>"
+msgstr "Lista de problemas"
+
 #, python-format
 msgid "[%s] is not a readable file"
 msgstr "[%s] no es un archivo leible"
@@ -2871,7 +2879,11 @@ msgid "Save selected studies to disk."
 msgstr "Guarda el/todos los ítem(s) en disco."
 
 msgid ""
-"Upload DICOM files from a directory, recursively, into the Orthanc PACS."
+"Upload DICOM files from a directory, recursively, into the Orthanc PACS\n"
+"\n"
+"The currently active patient does not matter. Orthanc will associate "
+"uploaded files with the patient found within the DICOM metadata. It will "
+"create new patients as needed."
 msgstr ""
 
 msgid "Host:"
@@ -3349,9 +3361,6 @@ msgstr "Muestra"
 msgid "Remove part"
 msgstr "Eliminar parte"
 
-msgid "Parts"
-msgstr "Partes"
-
 msgid "Discard"
 msgstr "Descartar"
 
@@ -3385,6 +3394,10 @@ msgstr ""
 
 msgid "Required: The primary episode this document is to be listed under."
 msgstr "Requerido: el episodio primario al cual pertenece este documento."
+
+#, fuzzy
+msgid "Optional: The organization (unit) this document originated from."
+msgstr "Selecciona la unidad organizacional a la que Ud. le quiere escribir."
 
 msgid ""
 "Optional: A short comment identifying the document. Good comments give an "
@@ -3421,6 +3434,9 @@ msgstr ""
 "Acaso este documento reporta resultados clínicamente relevantes. Note que "
 "resultados normales, como anormales, pueden ser relevantes."
 
+msgid "Optional: A free-text document description."
+msgstr "Opcional: una descripción del documento en texto libre."
+
 msgid "This field lists the parts belonging to the current document."
 msgstr "Este campo lista las partes pertenecientes al documento actual."
 
@@ -3433,9 +3449,6 @@ msgid ""
 msgstr ""
 "Eliminar las partes seleccionadas en la lista de arriba. Preguntará antes "
 "del borrado físico del disco."
-
-msgid "Optional: A free-text document description."
-msgstr "Opcional: una descripción del documento en texto libre."
 
 msgid "Save finished document."
 msgstr "Guardar el documento terminado."
@@ -3451,6 +3464,10 @@ msgstr "Fecha de creación del documento:"
 
 msgid "Associate to episode:"
 msgstr "Asociar al episodio:"
+
+#, fuzzy
+msgid "Document source:"
+msgstr "Documentos:"
 
 msgid "Comment / Identification:"
 msgstr "Comentarios / Identificación:"
@@ -3771,11 +3788,12 @@ msgstr "Terminada"
 msgid "Purpose"
 msgstr "Propósito"
 
+#, fuzzy
+msgid "Please supply your email address here !"
+msgstr "<¡Introduzca su dirección de correo electrónico aquí!>"
+
 msgid "Details"
 msgstr "Detalles"
-
-msgid "<Please supply your email address here !>"
-msgstr "<¡Introduzca su dirección de correo electrónico aquí!>"
 
 msgid "Keep running"
 msgstr "Mantener ejecutando"
@@ -3799,10 +3817,13 @@ msgstr ""
 "Ingrese datos o comentarios que desee agregar, tales como qué esté a punto "
 "de hacer."
 
+#, fuzzy
 msgid ""
-"Please enter your email address so we can provide feedback directly to you. "
-"Otherwise, feedback will be given on the GNUmed mailing list (http://lists."
-"gnu.org/mailman/listinfo/gnumed-bugs)."
+"Please enter your email address so we can provide help to you directly.\n"
+"\n"
+"Otherwise, feedback can be given on the GNUmed mailing list (http://lists."
+"gnu.org/mailman/listinfo/gnumed-bugs) ONLY to which you will then have to "
+"subscribe."
 msgstr ""
 "Ingrese su correo electrónico para que podamos enviar seguimiento. De otra "
 "forma el seguimiento será enviado a la lista de correo GNUmed (http://lists."
@@ -4661,6 +4682,7 @@ msgstr ""
 "Si desea guardar esta búsqueda para uso posterior debe proporcionar una "
 "etiqueta descriptiva acá."
 
+#, fuzzy
 msgid ""
 "Enter the SQL commands to run here.\n"
 "\n"
@@ -4671,7 +4693,7 @@ msgid ""
 "- the result list will be artificially limited to the first 1000 rows\n"
 "- you can include a column named \"pk_patient\" to make the result rows "
 "activate the corresponding patient on double-clicking\n"
-"- by inserting $<ID_active_patient>$ you can access the patient ID of the "
+"- by inserting $<ID_ACTIVE_PATIENT>$ you can access the patient ID of the "
 "patient active at the time of running the query"
 msgstr ""
 "Ingrese los comandos SQL a ejecutar aquí.\n"
@@ -4923,26 +4945,17 @@ msgstr ""
 "Marque acá si Ud. desea filtrar el diario por el problema seleccionado a la "
 "izquierda."
 
-msgid "label_1"
-msgstr "label_1"
+msgid "Subjective"
+msgstr "Subjetivo"
 
-msgid "→"
-msgstr "→"
+msgid "Objective"
+msgstr "Objetivo"
 
-msgid "←"
-msgstr "←"
+msgid "Assessment"
+msgstr "Apreciación"
 
-msgid "Extra"
-msgstr "Extra"
-
-msgid "Move selected items from left to right."
-msgstr "Desplaza los elementos seleccionados de izquierda a derecha."
-
-msgid "Move selected items from right to left."
-msgstr "Desplaza los elementos seleccionados de derecha a izquierda."
-
-msgid "Cancel picking items."
-msgstr "Cancele elección de ítems."
+msgid "Plan"
+msgstr "Procedimiento"
 
 msgid "Episode synopsis"
 msgstr "Sinopsis del episodio"
@@ -4989,20 +5002,29 @@ msgstr ""
 "Acá usted puede modificar el resumen acumulativo (estado) del episodio al "
 "cual pertenece esta narración SOAP."
 
-msgid "Subjective"
-msgstr "Subjetivo"
-
 msgid "Codes:"
 msgstr "Códigos:"
 
-msgid "Objective"
-msgstr "Objetivo"
+msgid "label_1"
+msgstr "label_1"
 
-msgid "Assessment"
-msgstr "Apreciación"
+msgid "→"
+msgstr "→"
 
-msgid "Plan"
-msgstr "Procedimiento"
+msgid "←"
+msgstr "←"
+
+msgid "Extra"
+msgstr "Extra"
+
+msgid "Move selected items from left to right."
+msgstr "Desplaza los elementos seleccionados de izquierda a derecha."
+
+msgid "Move selected items from right to left."
+msgstr "Desplaza los elementos seleccionados de derecha a izquierda."
+
+msgid "Cancel picking items."
+msgstr "Cancele elección de ítems."
 
 msgid "1"
 msgstr "1"
@@ -8763,8 +8785,8 @@ msgstr "No revisado"
 msgid " Part %s: %s %s(%s Bytes)\n"
 msgstr " Parte %s: %s %s(%s Bytes)\n"
 
-#, python-format
-msgid " Filename: %s\n"
+#, fuzzy, python-format
+msgid " Filename: %s%s\n"
 msgstr "Nombre del archivo: %s\n"
 
 msgid "no parts"
@@ -8777,13 +8799,16 @@ msgstr "1 parte"
 msgid "%s parts"
 msgstr "%s partes"
 
-#, python-format
+#, fuzzy, python-format
+msgid "%s of %s"
+msgstr "Unidad de: %s"
+
+#, fuzzy, python-format
 msgid ""
 "%s (%s)   #%s\n"
-"\n"
 " Created: %s\n"
 " Episode: %s\n"
-"%s%s%s"
+"%s%s%s%s"
 msgstr ""
 "%s (%s)   #%s\n"
 "\n"
@@ -8794,6 +8819,10 @@ msgstr ""
 #, python-format
 msgid " External reference: %s\n"
 msgstr " Referencia externa: %s\n"
+
+#, fuzzy, python-format
+msgid " Organization: %%s @ %s\n"
+msgstr "Organización: %s (%s)"
 
 msgid "Cannot run [arriba] !"
 msgstr "No se puede ejecutar [arriba] !"
@@ -9709,6 +9738,142 @@ msgstr "Codificando detalles del sistema"
 msgid "Select one or more codes that apply."
 msgstr "Seleccione uno o más códigos que apliquen."
 
+msgid "Select the narrative you are interested in ..."
+msgstr "Seleccione el relato en el cual está interesado ..."
+
+msgid "when"
+msgstr "cuándo"
+
+msgid "who"
+msgstr "quién"
+
+msgid "entry"
+msgstr "ingreso"
+
+msgid "There is no narrative for this episode in this encounter."
+msgstr "No hay relato para el episodio en este contacto."
+
+msgid "Must select episode to move narrative to first."
+msgstr "Debe seleccionar un episodio para poder mover el relato."
+
+msgid "Last"
+msgstr "Último/a"
+
+msgid "In health issue"
+msgstr "En problema de salud"
+
+msgid "Most recent notes on selected problem"
+msgstr "Notas más recientes en problema seleccionado"
+
+#, python-format
+msgid "%s (active+potential) problems"
+msgstr "%s problemas (activos y protenciales)"
+
+#, python-format
+msgid "%s active problems"
+msgstr "%s problemas activos"
+
+msgid "Current encounter:"
+msgstr "Contacto actual:"
+
+msgid "Cumulative summary"
+msgstr "Resumen"
+
+#, python-format
+msgid "Most recent info on %s%s%s"
+msgstr "Información más reciente sobre %s%s%s"
+
+#, python-format
+msgid ""
+"Cannot open progress note editor for\n"
+"\n"
+"[%s].\n"
+"\n"
+msgstr ""
+"No puedo abrir nota de progreso para\n"
+"\n"
+"[%s]\n"
+"\n"
+
+msgid "opening progress note editor"
+msgstr "Abriendo editor de nota de progreso"
+
+msgid "Cannot save all editors. Some were kept open."
+msgstr "No puedo guardar los editores. Alguno está abierto."
+
+msgid "new problem"
+msgstr "Problema nuevo"
+
+msgid ""
+"Are you sure you really want to\n"
+"discard this progress note ?\n"
+msgstr ""
+"¿Está seguro que realmente desea\n"
+"descartar esta nota de progreso?\n"
+
+msgid "Discarding progress note"
+msgstr "Descarto nota de progreso"
+
+msgid "There are unsaved progress notes !\n"
+msgstr "¡Existen notas de progreso no guardadas!\n"
+
+msgid "Unsaved progress notes"
+msgstr "Notas de progreso no guardadas"
+
+msgid "Problem list"
+msgstr "Lista de problemas"
+
+msgid "Saving SOAP note"
+msgstr "Guardo nota SOAP"
+
+msgid "Do you want to save the SOAP note ?"
+msgstr "¿Desea guardar la nota SOAP?"
+
+#, python-format
+msgid "&Filter by problem %s%s%s"
+msgstr "&Filtra por problema %s%s%s"
+
+msgid "Cannot save SimpleNotes SOAP note."
+msgstr "No puedo guardar nota SimpleNotes SOAP."
+
+#, python-format
+msgid "Progress note: %s%s"
+msgstr "Nota de rpogreso: %s%s"
+
+msgid "Please enter a name for the new problem:"
+msgstr "Por favor, ingrese un nombre para el nuevo problema:"
+
+msgid "Adding a problem"
+msgstr "Agrego un nombre"
+
+msgid "Cannot delete problem. There is still clinical data recorded for it."
+msgstr "No puedo eliminar el problema. Aún hay datos clínicos guardados en él."
+
+#, python-format
+msgid "GNUmed: configuring [%s] (%s plugins)"
+msgstr "GNUmed: configurando [%s] (módulos %s)"
+
+msgid "loading list of plugins                               "
+msgstr "cargando lista de módulos                               "
+
+msgid "failed"
+msgstr "falló"
+
+msgid "success"
+msgstr "éxito"
+
+#, python-format
+msgid ""
+"previous: %s (%s)\n"
+"current (%s/%s): %s"
+msgstr ""
+"anterior: %s (%s)\n"
+"actual (%s/%s): %s"
+
+#, python-format
+msgid "Cannot switch to [%s]: no patient selected"
+msgstr "No ha sido posible cambiar a [%s]: no hay ningún paciente activo"
+
 msgid "Cannot move progress notes. No active patient."
 msgstr "No puedo mover notas de progreso. No existe paciente activo."
 
@@ -9723,15 +9888,6 @@ msgstr ""
 "\n"
 " ¡Seleccione la nota de progreso a ser movida desde la lista!\n"
 "\n"
-
-msgid "when"
-msgstr "cuándo"
-
-msgid "who"
-msgstr "quién"
-
-msgid "entry"
-msgstr "ingreso"
 
 msgid "Cannot edit progress notes. No active patient."
 msgstr "No puedo editar las notas de progreso. No existe paciente activo."
@@ -9965,304 +10121,6 @@ msgstr ""
 " Estos son los ingresos (type %s) para los episodios seleccionados.\n"
 "\n"
 " Ahora, marque los ingresos que desea incluir en su informe.\n"
-
-msgid "Select the narrative you are interested in ..."
-msgstr "Seleccione el relato en el cual está interesado ..."
-
-msgid "There is no narrative for this episode in this encounter."
-msgstr "No hay relato para el episodio en este contacto."
-
-msgid "Must select episode to move narrative to first."
-msgstr "Debe seleccionar un episodio para poder mover el relato."
-
-msgid "Last"
-msgstr "Último/a"
-
-msgid "In health issue"
-msgstr "En problema de salud"
-
-msgid "Most recent notes on selected problem"
-msgstr "Notas más recientes en problema seleccionado"
-
-#, python-format
-msgid "%s (active+potential) problems"
-msgstr "%s problemas (activos y protenciales)"
-
-#, python-format
-msgid "%s active problems"
-msgstr "%s problemas activos"
-
-msgid "Current encounter:"
-msgstr "Contacto actual:"
-
-msgid "Cumulative summary"
-msgstr "Resumen"
-
-#, python-format
-msgid "Most recent info on %s%s%s"
-msgstr "Información más reciente sobre %s%s%s"
-
-#, python-format
-msgid ""
-"Cannot open progress note editor for\n"
-"\n"
-"[%s].\n"
-"\n"
-msgstr ""
-"No puedo abrir nota de progreso para\n"
-"\n"
-"[%s]\n"
-"\n"
-
-msgid "opening progress note editor"
-msgstr "Abriendo editor de nota de progreso"
-
-msgid "Cannot save all editors. Some were kept open."
-msgstr "No puedo guardar los editores. Alguno está abierto."
-
-msgid "new problem"
-msgstr "Problema nuevo"
-
-msgid ""
-"Are you sure you really want to\n"
-"discard this progress note ?\n"
-msgstr ""
-"¿Está seguro que realmente desea\n"
-"descartar esta nota de progreso?\n"
-
-msgid "Discarding progress note"
-msgstr "Descarto nota de progreso"
-
-msgid "There are unsaved progress notes !\n"
-msgstr "¡Existen notas de progreso no guardadas!\n"
-
-msgid "Unsaved progress notes"
-msgstr "Notas de progreso no guardadas"
-
-#, python-format
-msgid "Synopsis (%s)"
-msgstr "Sinopsis (%s)"
-
-msgid ""
-"Enter a short working name for this new problem\n"
-"(which will become a new, unassociated episode):\n"
-msgstr ""
-"Ingrese un nombre de trabajo corto para este nuevo problema\n"
-"(el cual se convertirá en un nuevo episodio no asociado):\n"
-
-#, python-format
-msgid ""
-"Enter a short working name for this new\n"
-"episode under the existing health issue\n"
-"\n"
-"\"%s\":\n"
-msgstr ""
-"Ingrese un nombre de trabajo corto para este nuevo\n"
-"episodio respecto al tema de salud existente\n"
-"\n"
-"\"%s\":\n"
-
-msgid "Creating problem (episode) to save notelet under ..."
-msgstr "Creo problema (episodio) para guardar díptico como ..."
-
-msgid "Cannot save a new problem without a name."
-msgstr "No se puede guardar un nuevo problema sin un nombre."
-
-msgid "saving progress note"
-msgstr "guardando nota de progreso"
-
-#, python-format
-msgid ""
-"The new episode:\n"
-"\n"
-" \"%s\"\n"
-"\n"
-"will remain unassociated despite the editor\n"
-"having been invoked from the health issue:\n"
-"\n"
-" \"%s\""
-msgstr ""
-"El nuevo episodio:\n"
-"\n"
-"\"%s\"\n"
-"\n"
-"quedará sin asociación, a pesar que el editor\n"
-"ha sido invocado desde el problema de salud:\n"
-"\n"
-" \"%s\""
-
-msgid "You need to actually set an editor."
-msgstr "Necestia realmente seleccionar un editor."
-
-#, python-format
-msgid "The command [%s] is not found."
-msgstr "No se encuentra el comando [%s]."
-
-#, python-format
-msgid ""
-"Enter the shell command with which to start\n"
-"the image editor for visual progress notes.\n"
-"\n"
-"Any \"%(img)s\" included with the arguments\n"
-"will be replaced by the file name of the\n"
-"note template."
-msgstr ""
-"Ingrese el comando de ambiente con el cual iniciar\n"
-"el editor de imagen para las notas visuales de progreso.\n"
-"\n"
-"Cualesquier \"%(img)s\" incluidas con los argumentos\n"
-"serán reemplazadas por el nombre del archivo de la\n"
-"plantilla de nota."
-
-msgid "Choose file to use as template for new visual progress note"
-msgstr ""
-"Elija un archivo para ser usado como plantilla para la nueva nota visual de "
-"progreso."
-
-msgid "Visual progress note source"
-msgstr "Fuente de la nota visual de progeso"
-
-msgid "From which source do you want to pick the image template ?"
-msgstr "¿De qué fuente desea elegir la plantilla de imagen?"
-
-msgid "Database"
-msgstr "Base de datos"
-
-msgid "List of templates in the database."
-msgstr "Lista de plantillas en la base de datos"
-
-msgid "Files in the filesystem."
-msgstr "Archivos en el sistema de archivos"
-
-msgid "Device"
-msgstr "Dispositivo"
-
-msgid "Image capture devices (scanners, cameras, etc)"
-msgstr "Dispositivos capuradores de imagen (escáneres, cámaras, etc.)"
-
-#, python-format
-msgid "Cannot export visual progress note template for [%s]."
-msgstr "No puedo exportar la plantilla de nota visual de progreso [%s]."
-
-msgid "Cannot export visual progress note to file."
-msgstr "No puedo exportar nota visual de progreso a un archivo."
-
-msgid "Editor for visual progress note not configured."
-msgstr "Editor no configurado para nota visual de progreso."
-
-#, python-format
-msgid ""
-"There was a problem with running the editor\n"
-"for visual progress notes.\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-"Ha ocurrido un error al correr el editor\n"
-"para la nota visual de progreso.\n"
-"\n"
-" [%s]\n"
-"\n"
-
-msgid "Editing visual progress note"
-msgstr "Editando nota visual de progeso"
-
-#, python-format
-msgid ""
-"There was a problem reading the visual\n"
-"progress note from the file:\n"
-"\n"
-" [%s]\n"
-"\n"
-msgstr ""
-"Ha ocurrido un error al leer la nota\n"
-"visual de progreso desde el archivo:\n"
-"\n"
-" [%s]\n"
-"\n"
-
-msgid "Saving visual progress note"
-msgstr "Guardando la nota visual de progreso"
-
-msgid ""
-"You either created a visual progress note from a template\n"
-"in the database (rather than from a file on disk) or you\n"
-"edited an existing visual progress note.\n"
-"\n"
-"The template/original was not modified at all, however.\n"
-"\n"
-"Do you still want to save the unmodified image as a\n"
-"visual progress note into the EMR of the patient ?\n"
-msgstr ""
-"O creó una nota visual de progreso desde una plantilla\n"
-"de la base de datos (más que desde un archivo o disco) o\n"
-"ha editado una nota visual de progreso existente.\n"
-"\n"
-"La plantilla/original, sin embargo, no fue modificada para nada.\n"
-"\n"
-"¿Aún desea guardar la imagen no modificada como\n"
-"una nota visual de progreso en el RME del paciente?\n"
-
-msgid "visual progress notes"
-msgstr "nota visual de progreso"
-
-#, python-format
-msgid "Created: %s"
-msgstr "Creada: %s"
-
-msgid "Problem list"
-msgstr "Lista de problemas"
-
-msgid "Saving SOAP note"
-msgstr "Guardo nota SOAP"
-
-msgid "Do you want to save the SOAP note ?"
-msgstr "¿Desea guardar la nota SOAP?"
-
-#, python-format
-msgid "&Filter by problem %s%s%s"
-msgstr "&Filtra por problema %s%s%s"
-
-msgid "Cannot save SimpleNotes SOAP note."
-msgstr "No puedo guardar nota SimpleNotes SOAP."
-
-#, python-format
-msgid "Progress note: %s%s"
-msgstr "Nota de rpogreso: %s%s"
-
-msgid "Please enter a name for the new problem:"
-msgstr "Por favor, ingrese un nombre para el nuevo problema:"
-
-msgid "Adding a problem"
-msgstr "Agrego un nombre"
-
-msgid "Cannot delete problem. There is still clinical data recorded for it."
-msgstr "No puedo eliminar el problema. Aún hay datos clínicos guardados en él."
-
-#, python-format
-msgid "GNUmed: configuring [%s] (%s plugins)"
-msgstr "GNUmed: configurando [%s] (módulos %s)"
-
-msgid "loading list of plugins                               "
-msgstr "cargando lista de módulos                               "
-
-msgid "failed"
-msgstr "falló"
-
-msgid "success"
-msgstr "éxito"
-
-#, python-format
-msgid ""
-"previous: %s (%s)\n"
-"current (%s/%s): %s"
-msgstr ""
-"anterior: %s (%s)\n"
-"actual (%s/%s): %s"
-
-#, python-format
-msgid "Cannot switch to [%s]: no patient selected"
-msgstr "No ha sido posible cambiar a [%s]: no hay ningún paciente activo"
 
 msgid "Pick a date ..."
 msgstr "Elegir un dato ..."
@@ -10822,6 +10680,58 @@ msgstr "atrasada %.0dyrs %.0dwks: vacunación %s en %s en programa \"%s\" (%s)"
 msgid "due now: booster for %s in schedule \"%s\" (%s)"
 msgstr "vence ahora: estímulo para %s en programa \"%s\" (%s)"
 
+#, python-format
+msgid "Synopsis (%s)"
+msgstr "Sinopsis (%s)"
+
+msgid ""
+"Enter a short working name for this new problem\n"
+"(which will become a new, unassociated episode):\n"
+msgstr ""
+"Ingrese un nombre de trabajo corto para este nuevo problema\n"
+"(el cual se convertirá en un nuevo episodio no asociado):\n"
+
+#, python-format
+msgid ""
+"Enter a short working name for this new\n"
+"episode under the existing health issue\n"
+"\n"
+"\"%s\":\n"
+msgstr ""
+"Ingrese un nombre de trabajo corto para este nuevo\n"
+"episodio respecto al tema de salud existente\n"
+"\n"
+"\"%s\":\n"
+
+msgid "Creating problem (episode) to save notelet under ..."
+msgstr "Creo problema (episodio) para guardar díptico como ..."
+
+msgid "Cannot save a new problem without a name."
+msgstr "No se puede guardar un nuevo problema sin un nombre."
+
+msgid "saving progress note"
+msgstr "guardando nota de progreso"
+
+#, python-format
+msgid ""
+"The new episode:\n"
+"\n"
+" \"%s\"\n"
+"\n"
+"will remain unassociated despite the editor\n"
+"having been invoked from the health issue:\n"
+"\n"
+" \"%s\""
+msgstr ""
+"El nuevo episodio:\n"
+"\n"
+"\"%s\"\n"
+"\n"
+"quedará sin asociación, a pesar que el editor\n"
+"ha sido invocado desde el problema de salud:\n"
+"\n"
+" \"%s\""
+
 #, fuzzy
 msgid "Adding substance abuse"
 msgstr "Agrego ingreso de ingesta de substancia"
@@ -11134,6 +11044,129 @@ msgstr ""
 "No se ha grabado la dirección.\n"
 "\n"
 "Tendrá que añadirla mediante el complemento de Demografía.\n"
+
+msgid "You need to actually set an editor."
+msgstr "Necestia realmente seleccionar un editor."
+
+#, python-format
+msgid "The command [%s] is not found."
+msgstr "No se encuentra el comando [%s]."
+
+#, python-format
+msgid ""
+"Enter the shell command with which to start\n"
+"the image editor for visual progress notes.\n"
+"\n"
+"Any \"%(img)s\" included with the arguments\n"
+"will be replaced by the file name of the\n"
+"note template."
+msgstr ""
+"Ingrese el comando de ambiente con el cual iniciar\n"
+"el editor de imagen para las notas visuales de progreso.\n"
+"\n"
+"Cualesquier \"%(img)s\" incluidas con los argumentos\n"
+"serán reemplazadas por el nombre del archivo de la\n"
+"plantilla de nota."
+
+msgid "Choose file to use as template for new visual progress note"
+msgstr ""
+"Elija un archivo para ser usado como plantilla para la nueva nota visual de "
+"progreso."
+
+msgid "Visual progress note source"
+msgstr "Fuente de la nota visual de progeso"
+
+msgid "From which source do you want to pick the image template ?"
+msgstr "¿De qué fuente desea elegir la plantilla de imagen?"
+
+msgid "Database"
+msgstr "Base de datos"
+
+msgid "List of templates in the database."
+msgstr "Lista de plantillas en la base de datos"
+
+msgid "Files in the filesystem."
+msgstr "Archivos en el sistema de archivos"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Image capture devices (scanners, cameras, etc)"
+msgstr "Dispositivos capuradores de imagen (escáneres, cámaras, etc.)"
+
+#, python-format
+msgid "Cannot export visual progress note template for [%s]."
+msgstr "No puedo exportar la plantilla de nota visual de progreso [%s]."
+
+msgid "Cannot export visual progress note to file."
+msgstr "No puedo exportar nota visual de progreso a un archivo."
+
+msgid "Editor for visual progress note not configured."
+msgstr "Editor no configurado para nota visual de progreso."
+
+#, python-format
+msgid ""
+"There was a problem with running the editor\n"
+"for visual progress notes.\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+"Ha ocurrido un error al correr el editor\n"
+"para la nota visual de progreso.\n"
+"\n"
+" [%s]\n"
+"\n"
+
+msgid "Editing visual progress note"
+msgstr "Editando nota visual de progeso"
+
+#, python-format
+msgid ""
+"There was a problem reading the visual\n"
+"progress note from the file:\n"
+"\n"
+" [%s]\n"
+"\n"
+msgstr ""
+"Ha ocurrido un error al leer la nota\n"
+"visual de progreso desde el archivo:\n"
+"\n"
+" [%s]\n"
+"\n"
+
+msgid "Saving visual progress note"
+msgstr "Guardando la nota visual de progreso"
+
+msgid ""
+"You either created a visual progress note from a template\n"
+"in the database (rather than from a file on disk) or you\n"
+"edited an existing visual progress note.\n"
+"\n"
+"The template/original was not modified at all, however.\n"
+"\n"
+"Do you still want to save the unmodified image as a\n"
+"visual progress note into the EMR of the patient ?\n"
+msgstr ""
+"O creó una nota visual de progreso desde una plantilla\n"
+"de la base de datos (más que desde un archivo o disco) o\n"
+"ha editado una nota visual de progreso existente.\n"
+"\n"
+"La plantilla/original, sin embargo, no fue modificada para nada.\n"
+"\n"
+"¿Aún desea guardar la imagen no modificada como\n"
+"una nota visual de progreso en el RME del paciente?\n"
+
+msgid "visual progress notes"
+msgstr "nota visual de progreso"
+
+#, fuzzy, python-format
+msgid " [part 1 of %s]"
+msgstr "parte %s: %s"
+
+#, fuzzy, python-format
+msgid "Created: %s%s"
+msgstr "Creada: %s"
 
 msgid "You must select a value from the picklist or type an exact match."
 msgstr "Ha de elegir un valor de la lista o escribir una coincidencia exacta."
@@ -13217,8 +13250,8 @@ msgstr ""
 "DEBE seleccionar una unidad de una organización para constituir la\n"
 "sucursal inicial (sitio, oficina) desde la cual se está conectando."
 
-#, python-format
-msgid "Select branch (of praxis [%s]) which you are logging in from.\n"
+#, fuzzy, python-format
+msgid "Select the branch of praxis [%s] which you are logging in from.\n"
 msgstr ""
 "Seleccione la sucursal (de consulta [%s]) desde la cual se está "
 "conectadnto.\n"
@@ -13841,14 +13874,14 @@ msgstr ""
 msgid "Row tooltip"
 msgstr ""
 
-msgid "Row data (as text)"
+#, fuzzy
+msgid "Row data (formatted as text)"
+msgstr "No reformatee texto"
+
+msgid "Row fields (as one line)"
 msgstr ""
 
-msgid "Row fields (as text)"
-msgstr ""
-
-#, python-format
-msgid "[%8.8s] %s"
+msgid "Row fields (as multiple lines)"
 msgstr ""
 
 #, fuzzy
@@ -13857,6 +13890,10 @@ msgstr "Acciones para el Episodio:"
 
 #, fuzzy
 msgid "Copy to clipboard..."
+msgstr "No es posible copiar al portapapeles."
+
+#, fuzzy
+msgid "Append to clipboard..."
 msgstr "No es posible copiar al portapapeles."
 
 msgid "Search in list"
@@ -14069,6 +14106,17 @@ msgstr "el programador olvidó especificar una advertencia"
 
 msgid "generic warning message"
 msgstr "mensaje genérico de advertencia"
+
+#, fuzzy
+msgid "Editing EDC"
+msgstr "Editando etiqueta"
+
+#, python-format
+msgid ""
+"Really delete the EDC documented previously ?\n"
+"\n"
+" EDC: %s"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -15200,9 +15248,61 @@ msgstr "Gestión de descripciones de documentos"
 msgid "Select the episode under which to file the document ..."
 msgstr "Seleccione el episodio bajo el cual desea archivar el documento ..."
 
+msgid "Cannot create new document."
+msgstr "No se ha podido crear un documento nuevo."
+
+msgid "saving document"
+msgstr "guardando documento"
+
 #, python-format
 msgid "Imported new document from %s."
 msgstr "Importé nuevo documento desde %s."
+
+msgid "Successfully saved new document."
+msgstr "Se guardó con éxito el nuevo documento"
+
+msgid "Successfully saved the new document."
+msgstr "Doumento nuevo grabado exitosamente."
+
+#, fuzzy, python-format
+msgid ""
+"The reference ID for the new document is:\n"
+"\n"
+" <%s>\n"
+"\n"
+"You probably want to write it down on the\n"
+"original documents.\n"
+"\n"
+"If you don't care about the ID you can switch\n"
+"off this message in the GNUmed configuration.\n"
+msgstr ""
+"La indexación del nuevo documento es:\n"
+"\n"
+" <%s>\n"
+"\n"
+"Probablemente usted desee anotarla en los\n"
+"documentos originales.\n"
+"\n"
+"Si prefiere trabajar sin indexación, usted puede\n"
+"deshabilitar este mensaje en la configuración de GNUmed."
+
+msgid "Saving document"
+msgstr "Guardando documento"
+
+#, python-format
+msgid ""
+"Successfully imported files as document.\n"
+"\n"
+"Do you want to delete imported files from the filesystem ?\n"
+"\n"
+" %s\n"
+"\n"
+"Note that temporary files will be deleted anyway."
+msgstr ""
+
+#, fuzzy
+msgid "Removing files"
+msgstr "Eliminando dirección"
 
 msgid "Enter a comment on the document."
 msgstr "Introduzca un comentario sobre el documento."
@@ -15355,15 +15455,17 @@ msgstr ""
 msgid "Acquiring images"
 msgstr "Obteniendo imágenes"
 
+msgid "directory dropped on client"
+msgstr ""
+
+msgid "file dropped on client"
+msgstr ""
+
 msgid "other documents"
 msgstr "otros documentos"
 
-#, python-format
-msgid "part %s: %s"
-msgstr "parte %s: %s"
-
-msgid "saving document"
-msgstr "guardando documento"
+msgid "path"
+msgstr ""
 
 msgid "No parts to save. Really save an empty document as a reference ?"
 msgstr ""
@@ -15419,11 +15521,27 @@ msgstr ""
 msgid "acquiring page"
 msgstr "obteniendo página"
 
+#, fuzzy
+msgid "captured by imaging device"
+msgstr "Adquirir desde dispositivos de imagen"
+
 msgid "Choose a file"
 msgstr "Elija un archivo"
 
 msgid "all files (Win)"
 msgstr "todos los archivos (Win)"
+
+#, fuzzy
+msgid "picked from storage media"
+msgstr "reviso medio de almacenamiento"
+
+#, fuzzy
+msgid "pasted from clipboard"
+msgstr "Agrego parte desde el portapapeles"
+
+#, fuzzy
+msgid "No part selected for viewing."
+msgstr "No hay resultados elegidos para eliminar."
 
 #, python-format
 msgid ""
@@ -15436,62 +15554,9 @@ msgstr ""
 msgid "displaying part"
 msgstr "mostrando la parte"
 
-msgid "You must select a part before you can delete it."
-msgstr "Debe seleccionar una parte antes de borrarla."
-
-msgid "deleting part"
-msgstr "borrando parte"
-
-#, python-format
-msgid ""
-"The part has successfully been removed from the document.\n"
-"\n"
-"Do you also want to permanently delete the file\n"
-"\n"
-" [%s]\n"
-"\n"
-"from which this document part was loaded ?\n"
-"\n"
-"If it is a temporary file for a page you just scanned\n"
-"this makes a lot of sense. In other cases you may not\n"
-"want to lose the file.\n"
-"\n"
-"Pressing [YES] will permanently remove the file\n"
-"from your computer.\n"
-msgstr ""
-"La parte ha sido borrada exitosamente del documento.\n"
-"\n"
-"¿También desea borrar permanentemente el archivo\n"
-"\n"
-" [%s]\n"
-"\n"
-"desde el cual este documento fue cargado?\n"
-"\n"
-"Si la página escaneada proviniera de un archivo temporal,\n"
-"esto tendría mucho sentido. En otros casos, usted podría\n"
-"preferir no perder el archivo.\n"
-"\n"
-"Oprimir [Sí] borrará definitivamente el  archivo\n"
-"en su computadora.\n"
-
-msgid "Removing document part"
-msgstr "Eliminación de parte del documento"
-
-#, python-format
-msgid ""
-"Cannot delete part in file [%s].\n"
-"\n"
-"You may not have write access to it."
-msgstr ""
-"No puedo borrar una parte del archivo [%s].\n"
-"\n"
-"Puede que no tenga permiso de escritura."
-
-msgid "Cannot create new document."
-msgstr "No se ha podido crear un documento nuevo."
-
-msgid "Cannot update document metadata."
-msgstr "No se pueden actualizar los metadatos del documento."
+#, fuzzy
+msgid "No part selected for removal."
+msgstr "No hay resultados elegidos para eliminar."
 
 msgid "Cannot add document description."
 msgstr "No se ha podido añadir una descripción del documento."
@@ -15499,36 +15564,13 @@ msgstr "No se ha podido añadir una descripción del documento."
 msgid "Error setting \"reviewed\" status of new document."
 msgstr "Error al fijar el estado \"revisado\" del nuevo documento."
 
-msgid "Successfully saved the new document."
-msgstr "Doumento nuevo grabado exitosamente."
-
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"The reference ID for the new document is:\n"
+"Source: %s\n"
+"File: %s\n"
 "\n"
-" <%s>\n"
-"\n"
-"You probably want to write it down on the\n"
-"original documents.\n"
-"\n"
-"If you don't care about the ID you can switch\n"
-"off this message in the GNUmed configuration."
-msgstr ""
-"La indexación del nuevo documento es:\n"
-"\n"
-" <%s>\n"
-"\n"
-"Probablemente usted desee anotarla en los\n"
-"documentos originales.\n"
-"\n"
-"Si prefiere trabajar sin indexación, usted puede\n"
-"deshabilitar este mensaje en la configuración de GNUmed."
-
-msgid "Saving document"
-msgstr "Guardando documento"
-
-msgid "Successfully saved new document."
-msgstr "Se guardó con éxito el nuevo documento"
+"%s"
+msgstr "Fuente: %s\n"
 
 msgid "Document part does not seem to exist in database !"
 msgstr "¡Parte de documento parece no existir en la base de datos!"
@@ -16163,6 +16205,13 @@ msgstr "Autoapertura de editores"
 
 msgid "Configure auto-opening editors for recent problems."
 msgstr "Configura editores de autoapertura para problemas recientes."
+
+#, fuzzy
+msgid "SOAP fields"
+msgstr "%s campos"
+
+msgid "Configure SOAP editor - individual SOAP fields vs text editor like"
+msgstr ""
 
 msgid "Progress notes handling ..."
 msgstr "Manejo de notas de progreso ..."
@@ -16828,20 +16877,46 @@ msgstr "Guarde una captura de pantalla de este cliente GNUmed."
 msgid "Show log file"
 msgstr "Muestre archivo de registro"
 
-msgid "Show the log file in text viewer."
+#, fuzzy
+msgid "Show log file in text viewer."
 msgstr "Muestre el archivo de registro en el visor de texto."
 
 msgid "Backup log file"
 msgstr "Respaldo de archivo de registros"
 
-msgid "Backup the content of the log to another file."
+#, fuzzy
+msgid "Backup content of the log to another file."
 msgstr "respalde el contenido de los registros en otro archivo."
 
 msgid "Email log file"
 msgstr "Envíe el archivo de registros por correo electrónico"
 
-msgid "Send the log file to the authors for help."
+#, fuzzy
+msgid "Send log file to the authors for help."
 msgstr "Envía el archivo de registros al autor para ayuda."
+
+#, fuzzy
+msgid "Browse tmp dir"
+msgstr "Vistazo pendiente"
+
+#, python-format
+msgid "Browse temporary directory [%s]."
+msgstr ""
+
+#, fuzzy
+msgid "Browse work dir"
+msgstr "Vistazo pendiente"
+
+#, python-format
+msgid "Browse user working directory [%s]."
+msgstr ""
+
+msgid "Browse internal work dir"
+msgstr ""
+
+#, python-format
+msgid "Browse internal working directory [%s]."
+msgstr ""
 
 msgid "Bug tracker"
 msgstr "Rastreador de errores"
@@ -17320,6 +17395,20 @@ msgstr ""
 "No, solo abra por sí mismo un editor para un problema nuevo, no asociado."
 
 msgid ""
+"When editing progress notes, do you want GNUmed to\n"
+"show individual fields for each of the SOAP categories\n"
+"or do you want to use a text-editor like field for\n"
+"all SOAP categories which can then be set per line\n"
+"of input ?"
+msgstr ""
+
+msgid "Yes, show a dedicated field per SOAP category."
+msgstr ""
+
+msgid "No, use one field for all SOAP categories."
+msgstr ""
+
+msgid ""
 "When a patient is activated GNUmed can\n"
 "be told to switch to a specific plugin.\n"
 "\n"
@@ -17781,8 +17870,9 @@ msgstr "¡Hubo un problema accediendo el resultado [arriba] en [%s]!"
 msgid "[-9999]: <access violation test error>"
 msgstr "[-9999]: <error de test de violación de accese>"
 
+#, fuzzy
 msgid ""
-"This is a deliberate AcessDenied exception thrown to test the handling of "
+"This is a deliberate AccessDenied exception thrown to test the handling of "
 "access violations by means of a decorator."
 msgstr ""
 "Esta es una excepción de AccesoDenegado deliberada lanzada para verificar el "
@@ -17791,8 +17881,9 @@ msgstr ""
 msgid "testing access check for non-existant <admin> role"
 msgstr "verificado acceso para rol no existente de <admin>"
 
+#, fuzzy
 msgid ""
-"This is a deliberate AcessDenied exception. You should not see this message "
+"This is a deliberate AccessDenied exception. You should not see this message "
 "because the role is checked in a decorator."
 msgstr ""
 "Esta es una excepción de AccesoDenegado deliberada. No debería ver este "
@@ -18689,6 +18780,109 @@ msgstr "Extracto textual del RME"
 msgid "Currently there is no active patient. Cannot retrieve EMR text."
 msgstr "No es posible obtener el texto del RME. No hay ningún paciente activo."
 
+#, fuzzy
+msgid "SOAP Editor Actions:"
+msgstr "Acciones sobre parte:"
+
+#, fuzzy
+msgid "&Sort lines"
+msgstr "Importa línea de tiempo"
+
+msgid "Sort lines by SOAP category"
+msgstr ""
+
+msgid "e&Xpand keyword"
+msgstr ""
+
+msgid "Expand keyword / macro"
+msgstr ""
+
+#, fuzzy
+msgid "&Subjective"
+msgstr "Subjetivo"
+
+msgid "Set line to category \"Subjective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Objective"
+msgstr "Objetivo"
+
+msgid "Set line to category \"Objective\""
+msgstr ""
+
+#, fuzzy
+msgid "&Assessment"
+msgstr "Apreciación"
+
+msgid "Set line to category \"Assessment\""
+msgstr ""
+
+#, fuzzy
+msgid "&Plan"
+msgstr "Procedimiento"
+
+msgid "Set line to category \"Plan\""
+msgstr ""
+
+#, fuzzy
+msgid "&Unspecified"
+msgstr "soap_Inespecífico"
+
+msgid "Set line to category \"unspecified\""
+msgstr ""
+
+#, fuzzy
+msgid "ad&Ministrative"
+msgstr "Administrativo"
+
+msgid "Set line to category \"administrative\""
+msgstr ""
+
+#, fuzzy
+msgid "→ &Clipboard"
+msgstr "↢ &Portapapeles"
+
+#, fuzzy
+msgid "Copy line to clipboard"
+msgstr "No es posible copiar al portapapeles."
+
+#, fuzzy
+msgid "→ +Clipboard+"
+msgstr "↢ &Portapapeles"
+
+#, fuzzy
+msgid "Add line to clipboard"
+msgstr "Agrego parte desde el portapapeles"
+
+#, fuzzy
+msgid "Copy content to clipboard"
+msgstr "No es posible copiar al portapapeles."
+
+#, fuzzy
+msgid "Add content to clipboard"
+msgstr "Agrego parte desde el portapapeles"
+
+#, fuzzy
+msgid "Copy selection to clipboard"
+msgstr "No es posible copiar al portapapeles."
+
+#, fuzzy
+msgid "Add selection to clipboard"
+msgstr "Agrego parte desde el portapapeles"
+
+#, fuzzy
+msgid "&Line ..."
+msgstr "Vacuna ..."
+
+#, fuzzy
+msgid "&Text ..."
+msgstr "&Usuarios ..."
+
+#, fuzzy
+msgid "&Region ..."
+msgstr "Región"
+
 msgid "Show HL7 file:"
 msgstr "Muestro archivo HL7"
 
@@ -19497,17 +19691,16 @@ msgstr ""
 "\n"
 "%s\n"
 
-msgid "This patient DID receive care."
+#, fuzzy
+msgid "This patient DID receive care here."
 msgstr "Este paciente SÍ recibió cuidados."
 
-msgid "This person did NOT receive care."
+#, fuzzy
+msgid "This person did NOT receive care here."
 msgstr "Este paciente NO ha sido atendido acá."
 
 msgid "Disabling person"
 msgstr "Deshabilitando persona"
-
-msgid "Disabling patient"
-msgstr "Deshabilitando paciente"
 
 msgid "Type or select a last name (family name/surname)."
 msgstr "Escriba o seleccione un apellido (nombre de la familia/apellido)."
@@ -20556,6 +20749,64 @@ msgstr "Abortar"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abortar y NO conectar a GNUMed."
+
+#~ msgid "Parts"
+#~ msgstr "Partes"
+
+#~ msgid "You must select a part before you can delete it."
+#~ msgstr "Debe seleccionar una parte antes de borrarla."
+
+#~ msgid "deleting part"
+#~ msgstr "borrando parte"
+
+#~ msgid ""
+#~ "The part has successfully been removed from the document.\n"
+#~ "\n"
+#~ "Do you also want to permanently delete the file\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "from which this document part was loaded ?\n"
+#~ "\n"
+#~ "If it is a temporary file for a page you just scanned\n"
+#~ "this makes a lot of sense. In other cases you may not\n"
+#~ "want to lose the file.\n"
+#~ "\n"
+#~ "Pressing [YES] will permanently remove the file\n"
+#~ "from your computer.\n"
+#~ msgstr ""
+#~ "La parte ha sido borrada exitosamente del documento.\n"
+#~ "\n"
+#~ "¿También desea borrar permanentemente el archivo\n"
+#~ "\n"
+#~ " [%s]\n"
+#~ "\n"
+#~ "desde el cual este documento fue cargado?\n"
+#~ "\n"
+#~ "Si la página escaneada proviniera de un archivo temporal,\n"
+#~ "esto tendría mucho sentido. En otros casos, usted podría\n"
+#~ "preferir no perder el archivo.\n"
+#~ "\n"
+#~ "Oprimir [Sí] borrará definitivamente el  archivo\n"
+#~ "en su computadora.\n"
+
+#~ msgid "Removing document part"
+#~ msgstr "Eliminación de parte del documento"
+
+#~ msgid ""
+#~ "Cannot delete part in file [%s].\n"
+#~ "\n"
+#~ "You may not have write access to it."
+#~ msgstr ""
+#~ "No puedo borrar una parte del archivo [%s].\n"
+#~ "\n"
+#~ "Puede que no tenga permiso de escritura."
+
+#~ msgid "Cannot update document metadata."
+#~ msgstr "No se pueden actualizar los metadatos del documento."
+
+#~ msgid "Disabling patient"
+#~ msgstr "Deshabilitando paciente"
 
 #~ msgid ""
 #~ "Cannot connect to configuration database with:\n"
