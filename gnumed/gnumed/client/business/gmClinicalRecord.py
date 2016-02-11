@@ -63,6 +63,90 @@ def set_func_ask_user(a_func = None):
 	_func_ask_user = a_func
 
 #============================================================
+_map_clin_root_item2type_str = {
+	'clin.encounter': _(u'Encounter'),
+	'clin.episode': _(u'Episode'),
+	'clin.health_issue': _('Health issue'),
+	'clin.external_care': _('External care'),
+	'clin.vaccination': _('Vaccination'),
+	'clin.clin_narrative': _('Clinical narrative'),
+	'clin.test_result': _('Test result'),
+	'clin.substance_intake': _('Substance intake'),
+	'clin.hospital_stay': _('Hospital stay'),
+	'clin.procedure': _('Performed procedure'),
+	'clin.allergy': _('Allergy'),
+	'clin.allergy_state': _('Allergy state'),
+	'clin.family_history': _('Family history'),
+	'blobs.doc_med': _('Document')
+}
+
+def format_clin_root_item_type(table):
+	try:
+		return _map_clin_root_item2type_str[table]
+	except KeyError:
+		return _(u'unmapped entry type from table [%s]') % table
+
+#------------------------------------------------------------
+from Gnumed.business.gmDocuments import cDocument
+
+_map_table2class = {
+	'clin.encounter': gmEMRStructItems.cEncounter,
+	'clin.episode': gmEMRStructItems.cEpisode,
+	'clin.health_issue': gmEMRStructItems.cHealthIssue,
+	'clin.external_care': gmExternalCare.cExternalCareItem,
+	'clin.vaccination': gmVaccination.cVaccination,
+	'clin.clin_narrative': gmClinNarrative.cNarrative,
+	'clin.test_result': gmPathLab.cTestResult,
+	'clin.substance_intake': gmMedication.cSubstanceIntakeEntry,
+	'clin.hospital_stay': gmEMRStructItems.cHospitalStay,
+	'clin.procedure': gmEMRStructItems.cPerformedProcedure,
+	'clin.allergy': gmAllergy.cAllergy,
+	'clin.allergy_state': gmAllergy.cAllergyState,
+	'clin.family_history': gmFamilyHistory.cFamilyHistory,
+	'blobs.doc_med': cDocument
+}
+
+def instantiate_clin_root_item(table, pk):
+	try:
+		item_class = _map_table2class[table]
+	except KeyError:
+		_log.error('unmapped clin_root_item entry [%s], cannot instantiate', table)
+		return None
+
+	return item_class(aPK_obj = pk)
+
+#------------------------------------------------------------
+def format_clin_root_item(table, pk, patient=None):
+
+	instance = instantiate_clin_root_item(table, pk)
+	if instance is None:
+		return _('cannot instantiate clinical root item <%s(%s)>' % (table, pk))
+
+#	if patient is not None:
+#		if patient.ID != instance['pk_patient']:
+#			raise ValueError(u'patient passed in: [%s], but instance is: [%s:%s:%s]' % (patient.ID, table, pk, instance['pk_patient']))
+
+	if hasattr(instance, 'format_maximum_information'):
+		return u'\n'.join(instance.format_maximum_information(patient = patient))
+
+	if hasattr(instance, 'format'):
+		try:
+			formatted = instance.format(patient = patient)
+		except TypeError:
+			formatted = instance.format()
+		if type(formatted) == type([]):
+			return u'\n'.join(formatted)
+		return formatted
+
+	d = instance.fields_as_dict (
+		date_format = '%Y %b %d  %H:%M',
+		none_string = gmTools.u_diameter,
+		escape_style = None,
+		bool_strings = [_('True'), _('False')]
+	)
+	return gmTools.format_dict_like(d, tabular = True, value_delimiters = None)
+
+#============================================================
 class cClinicalRecord(object):
 
 	def __init__(self, aPKey=None, allow_user_interaction=True, encounter=None):
@@ -834,6 +918,7 @@ class cClinicalRecord(object):
 			order_by = order_by,
 			time_range = time_range
 		)
+
 	#--------------------------------------------------------
 	def search_narrative_simple(self, search_term=''):
 
@@ -842,25 +927,25 @@ class cClinicalRecord(object):
 			return []
 
 		cmd = u"""
-SELECT
-	*,
-	coalesce((SELECT description FROM clin.episode WHERE pk = vn4s.pk_episode), vn4s.src_table)
-		as episode,
-	coalesce((SELECT description FROM clin.health_issue WHERE pk = vn4s.pk_health_issue), vn4s.src_table)
-		as health_issue,
-	(SELECT started FROM clin.encounter WHERE pk = vn4s.pk_encounter)
-		as encounter_started,
-	(SELECT last_affirmed FROM clin.encounter WHERE pk = vn4s.pk_encounter)
-		as encounter_ended,
-	(SELECT _(description) FROM clin.encounter_type WHERE pk = (SELECT fk_type FROM clin.encounter WHERE pk = vn4s.pk_encounter))
-		as encounter_type
-from clin.v_narrative4search vn4s
-WHERE
-	pk_patient = %(pat)s and
-	vn4s.narrative ~ %(term)s
-order by
-	encounter_started
-"""		# case sensitive
+			SELECT
+				*,
+				coalesce((SELECT description FROM clin.episode WHERE pk = vn4s.pk_episode), vn4s.src_table)
+					as episode,
+				coalesce((SELECT description FROM clin.health_issue WHERE pk = vn4s.pk_health_issue), vn4s.src_table)
+					as health_issue,
+				(SELECT started FROM clin.encounter WHERE pk = vn4s.pk_encounter)
+					as encounter_started,
+				(SELECT last_affirmed FROM clin.encounter WHERE pk = vn4s.pk_encounter)
+					as encounter_ended,
+				(SELECT _(description) FROM clin.encounter_type WHERE pk = (SELECT fk_type FROM clin.encounter WHERE pk = vn4s.pk_encounter))
+					as encounter_type
+			from clin.v_narrative4search vn4s
+			WHERE
+				pk_patient = %(pat)s and
+				vn4s.narrative ~ %(term)s
+			order by
+				encounter_started
+		""" # case sensitive
 		rows, idx = gmPG2.run_ro_queries(queries = [
 			{'cmd': cmd, 'args': {'pat': self.pk_patient, 'term': search_term}}
 		])

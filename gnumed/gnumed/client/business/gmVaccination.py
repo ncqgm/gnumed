@@ -229,6 +229,7 @@ def regenerate_generic_vaccines():
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd}], return_data = True)
 
 	return rows[0][0]
+
 #============================================================
 # vaccination related classes
 #============================================================
@@ -271,6 +272,16 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_encounter',
 		u'pk_episode'
 	]
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return self.format (
+			with_indications = True,
+			with_comment = True,
+			with_reaction = True,
+			date_format = '%Y %b %d'
+		)
+
 	#--------------------------------------------------------
 	def format(self, with_indications=False, with_comment=False, with_reaction=False, date_format='%Y-%m-%d'):
 
@@ -295,11 +306,13 @@ class cVaccination(gmBusinessDBObject.cBusinessDBObject):
 			lines.append(u'   %s' % u' / '.join(self._payload[self._idx['indications']]))
 
 		return lines
+
 	#--------------------------------------------------------
 	def _get_vaccine(self):
 		return cVaccine(aPK_obj = self._payload[self._idx['pk_vaccine']])
 
 	vaccine = property(_get_vaccine, lambda x:x)
+
 #------------------------------------------------------------
 def create_vaccination(encounter=None, episode=None, vaccine=None, batch_no=None):
 

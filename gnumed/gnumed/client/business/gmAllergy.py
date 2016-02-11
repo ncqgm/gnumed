@@ -81,6 +81,18 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		'has_allergy',			# verified against allergy_states (see above)
 		'comment'				# u'' maps to None / NULL
 	]
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		lines = []
+		lines.append(u'%s (%s)' % (
+			self.state_string,
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%Y %b %d')
+		))
+		if self._payload[self._idx['comment']] is not None:
+			lines.append(u' %s' % self._payload[self._idx['comment']])
+		return lines
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -223,6 +235,14 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 		'definite',
 		'reaction'
 	]
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return [u'%s (%s)%s' % (
+			self._payload[self._idx['descriptor']],
+			self._payload[self._idx['l10n_type']],
+			gmTools.coalesce(self._payload[self._idx['reaction']], u'', u': %s')
+		)]
+
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):
 		if attribute == 'pk_type':

@@ -1041,6 +1041,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	def format_as_journal(self, left_margin=0, date_format='%a, %b %d %Y'):
 		rows = gmClinNarrative.get_as_journal (
@@ -1098,6 +1099,30 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		return left_margin + eol_w_margin.join(lines) + u'\n'
 
 	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		if patient is None:
+			from Gnumed.business.gmPerson import gmCurrentPatient, cPerson
+			if self._payload[self._idx['pk_patient']] == gmCurrentPatient().ID:
+				patient = gmCurrentPatient()
+			else:
+				patient = cPerson(self._payload[self._idx['pk_patient']])
+
+		return self.format (
+			patient = patient,
+			with_summary = True,
+			with_codes = True,
+			with_encounters = True,
+			with_documents = True,
+			with_hospital_stays = True,
+			with_procedures = True,
+			with_family_history = True,
+			with_tests = False,		# does not inform on the episode itself
+			with_vaccinations = True,
+			with_health_issue = True,
+			return_list = True
+		)
+
+	#--------------------------------------------------------
 	def format(self, left_margin=0, patient=None,
 		with_summary=True,
 		with_codes=True,
@@ -1108,16 +1133,27 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 		with_family_history=True,
 		with_tests=True,
 		with_vaccinations=True,
-		with_health_issue=False
+		with_health_issue=False,
+		return_list=False
 	):
 
-		if patient.ID != self._payload[self._idx['pk_patient']]:
-			msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
-				patient.ID,
-				self._payload[self._idx['pk_episode']],
-				self._payload[self._idx['pk_patient']]
-			)
-			raise ValueError(msg)
+		if patient is not None:
+			if patient.ID != self._payload[self._idx['pk_patient']]:
+				msg = '<patient>.ID = %s but episode %s belongs to patient %s' % (
+					patient.ID,
+					self._payload[self._idx['pk_episode']],
+					self._payload[self._idx['pk_patient']]
+				)
+				raise ValueError(msg)
+			emr = patient.get_emr()
+		else:
+			with_encounters = False
+			with_documents = False
+			with_hospital_stays = False
+			with_procedures = False
+			with_family_history = False
+			with_tests = False
+			with_vaccinations = False
 
 		lines = []
 
@@ -1137,25 +1173,25 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			self._payload[self._idx['pk_encounter']]
 		))
 
-		emr = patient.get_emr()
-		encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
-		first_encounter = None
-		last_encounter = None
-		if (encs is not None) and (len(encs) > 0):
-			first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
-			last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
-			if self._payload[self._idx['episode_open']]:
-				end = gmDateTime.pydt_now_here()
-				end_str = gmTools.u_ellipsis
-			else:
-				end = last_encounter['last_affirmed']
-				end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
-			age = gmDateTime.format_interval_medically(end - first_encounter['started'])
-			lines.append(_(' Duration: %s (%s - %s)') % (
-				age,
-				first_encounter['started'].strftime('%m/%Y'),
-				end_str
-			))
+		if patient is not None:
+			encs = emr.get_encounters(episodes = [self._payload[self._idx['pk_episode']]])
+			first_encounter = None
+			last_encounter = None
+			if (encs is not None) and (len(encs) > 0):
+				first_encounter = emr.get_first_encounter(episode_id = self._payload[self._idx['pk_episode']])
+				last_encounter = emr.get_last_encounter(episode_id = self._payload[self._idx['pk_episode']])
+				if self._payload[self._idx['episode_open']]:
+					end = gmDateTime.pydt_now_here()
+					end_str = gmTools.u_ellipsis
+				else:
+					end = last_encounter['last_affirmed']
+					end_str = last_encounter['last_affirmed'].strftime('%m/%Y')
+				age = gmDateTime.format_interval_medically(end - first_encounter['started'])
+				lines.append(_(' Duration: %s (%s - %s)') % (
+					age,
+					first_encounter['started'].strftime('%m/%Y'),
+					end_str
+				))
 
 		lines.append(u' ' + _('Status') + u': %s%s' % (
 			gmTools.bool2subst(self._payload[self._idx['episode_open']], _('active'), _('finished')),
@@ -1346,10 +1382,14 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 				))
 			del vaccs
 
+		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
+		if return_list:
+			return lines
+
 		left_margin = u' ' * left_margin
 		eol_w_margin = u'\n%s' % left_margin
-		lines = gmTools.strip_trailing_empty_lines(lines = lines, eol = u'\n')
 		return left_margin + eol_w_margin.join(lines) + u'\n'
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -1947,6 +1987,9 @@ limit 1
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
+	#--------------------------------------------------------
+	# data formatting
 	#--------------------------------------------------------
 	def format_soap(self, episodes=None, left_margin=0, soap_cats='soapu', emr=None, issues=None):
 
@@ -1993,6 +2036,7 @@ limit 1
 				lines.append('')
 
 		return lines
+
 	#--------------------------------------------------------
 	def format_latex(self, date_format=None, soap_cats=None, soap_order=None):
 
@@ -2089,6 +2133,7 @@ limit 1
 			tex += u' & \\tabularnewline \n'
 
 		return tex
+
 	#--------------------------------------------------------
 	def __format_header_fancy(self, left_margin=0):
 		lines = []
@@ -2203,11 +2248,14 @@ limit 1
 			del codes
 
 		return lines
+
 	#--------------------------------------------------------
 	def format_by_episode(self, episodes=None, issues=None, left_margin=0, patient=None, with_soap=False, with_tests=True, with_docs=True, with_vaccinations=True, with_family_history=True):
 
+		if patient is not None:
+			emr = patient.emr
+
 		lines = []
-		emr = patient.emr
 		if episodes is None:
 			episodes = [ e['pk_episode'] for e in self.episodes ]
 
@@ -2229,7 +2277,6 @@ limit 1
 						self._payload[self._idx['pk_patient']]
 					)
 					raise ValueError(msg)
-
 				lines.extend(self.format_soap (
 					episodes = [pk],
 					left_margin = left_margin,
@@ -2301,8 +2348,32 @@ limit 1
 				del docs
 
 		return lines
+
 	#--------------------------------------------------------
-	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True, by_episode=False):
+	def format_maximum_information(self, patient=None):
+		if patient is None:
+			from Gnumed.business.gmPerson import gmCurrentPatient, cPerson
+			if self._payload[self._idx['pk_patient']] == gmCurrentPatient().ID:
+				patient = gmCurrentPatient()
+			else:
+				patient = cPerson(self._payload[self._idx['pk_patient']])
+
+		return self.format (
+			patient = patient,
+			fancy_header = True,
+			with_rfe_aoe = True,
+			with_soap = True,
+			with_docs = True,
+			with_tests = False,
+			with_vaccinations = True,
+			with_co_encountlet_hints = True,
+			with_family_history = True,
+			by_episode = False,
+			return_list = True
+		)
+
+	#--------------------------------------------------------
+	def format(self, episodes=None, with_soap=False, left_margin=0, patient=None, issues=None, with_docs=True, with_tests=True, fancy_header=True, with_vaccinations=True, with_co_encountlet_hints=False, with_rfe_aoe=False, with_family_history=True, by_episode=False, return_list=False):
 		"""Format an encounter.
 
 		with_co_encountlet_hints:
@@ -2314,6 +2385,13 @@ limit 1
 			left_margin = left_margin,
 			with_rfe_aoe = with_rfe_aoe
 		)
+
+		if patient is None:
+			_log.debug('no patient, cannot load patient related data')
+			with_soap = False
+			with_tests = False
+			with_vaccinations = False
+			with_docs = False
 
 		if by_episode:
 			lines.extend(self.format_by_episode (
@@ -2327,11 +2405,9 @@ limit 1
 				with_vaccinations = with_vaccinations,
 				with_family_history = with_family_history
 			))
-
 		else:
 			if with_soap:
 				lines.append(u'')
-
 				if patient.ID != self._payload[self._idx['pk_patient']]:
 					msg = '<patient>.ID = %s but encounter %s belongs to patient %s' % (
 						patient.ID,
@@ -2339,9 +2415,7 @@ limit 1
 						self._payload[self._idx['pk_patient']]
 					)
 					raise ValueError(msg)
-
 				emr = patient.get_emr()
-
 				lines.extend(self.format_soap (
 					episodes = episodes,
 					left_margin = left_margin,
@@ -2375,10 +2449,8 @@ limit 1
 				if len(tests) > 0:
 					lines.append('')
 					lines.append(_('Measurements and Results:'))
-
 				for t in tests:
 					lines.append(t.format())
-
 				del tests
 
 			# vaccinations
@@ -2389,11 +2461,9 @@ limit 1
 					encounters = [ self._payload[self._idx['pk_encounter']] ],
 					order_by = u'date_given DESC, vaccine'
 				)
-
 				if len(vaccs) > 0:
 					lines.append(u'')
 					lines.append(_('Vaccinations:'))
-
 				for vacc in vaccs:
 					lines.extend(vacc.format (
 						with_indications = True,
@@ -2431,6 +2501,9 @@ limit 1
 							gmTools.u_right_double_angle_quote,
 							gmTools.coalesce(epi['health_issue'], u'', u' (%s)')
 						))
+
+		if return_list:
+			return lines
 
 		eol_w_margin = u'\n%s' % (u' ' * left_margin)
 		return u'%s\n' % eol_w_margin.join(lines)
@@ -2982,6 +3055,14 @@ class cHospitalStay(gmBusinessDBObject.cBusinessDBObject):
 		'pk_encounter',
 		'comment'
 	]
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return self.format (
+			include_procedures = True,
+			include_docs = True
+		).split(u'\n')
+
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_procedures=False, include_docs=False):
 
@@ -3092,6 +3173,15 @@ class cPerformedProcedure(gmBusinessDBObject.cBusinessDBObject):
 			gmBusinessDBObject.cBusinessDBObject.__setitem__(self, 'pk_hospital_stay', None)
 
 		gmBusinessDBObject.cBusinessDBObject.__setitem__(self, attribute, value)
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return self.format (
+			include_episode = True,
+			include_codes = True,
+			include_address = True,
+			include_comm = True
+		).split(u'\n')
 
 	#-------------------------------------------------------
 	def format(self, left_margin=0, include_episode=True, include_codes=False, include_address=False, include_comm=False):

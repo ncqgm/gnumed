@@ -73,8 +73,8 @@ gmDispatcher.connect(_on_soap_modified, u'clin.clin_narrative_mod_db')
 
 #============================================================
 class cNarrative(gmBusinessDBObject.cBusinessDBObject):
-	"""Represents one clinical free text entry.
-	"""
+	"""Represents one clinical free text entry."""
+
 	_cmd_fetch_payload = u"SELECT * FROM clin.v_narrative WHERE pk_narrative = %s"
 	_cmds_store_payload = [
 		u"""update clin.clin_narrative set
@@ -100,10 +100,13 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 	]
 
 	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return self.format(fancy = True, width = 70).split(u'\n')
+
+	#--------------------------------------------------------
 	def format(self, left_margin=u'', fancy=False, width=75):
 
 		if fancy:
-			# FIXME: add revision
 			txt = gmTools.wrap (
 				text = _('%s: %s by %.8s (v%s)\n%s') % (
 					self._payload[self._idx['date']].strftime('%x %H:%M'),
@@ -127,6 +130,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 				txt = txt[:width] + gmTools.u_ellipsis
 
 		return txt
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -153,6 +157,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -163,6 +168,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
@@ -417,7 +423,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 		raise ValueError('at least one of <patient>, <episodes>, <issues>, <encounters> must not be None')
 
 	if order_by is None:
-		order_by = u'ORDER BY vemrj.clin_when, vemrj.pk_episode, scr, vemrj.src_table'
+		order_by = u'ORDER BY c_vej.clin_when, c_vej.pk_episode, scr, c_vej.modified_when, c_vej.src_table'
 	else:
 		order_by = u'ORDER BY %s' % order_by
 
@@ -425,50 +431,68 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 	args = {}
 
 	if patient is not None:
-		where_parts.append(u'pk_patient = %(pat)s')
+		where_parts.append(u'c_vej.pk_patient = %(pat)s')
 		args['pat'] = patient
 
 	if soap_cats is not None:
 		# work around bug in psycopg2 not being able to properly
 		# adapt None to NULL inside tuples
 		if None in soap_cats:
-			where_parts.append(u'((vemrj.soap_cat IN %(soap_cat)s) OR (vemrj.soap_cat IS NULL))')
+			where_parts.append(u'((c_vej.soap_cat IN %(soap_cat)s) OR (c_vej.soap_cat IS NULL))')
 			soap_cats.remove(None)
 		else:
-			where_parts.append(u'vemrj.soap_cat IN %(soap_cat)s')
+			where_parts.append(u'c_vej.soap_cat IN %(soap_cat)s')
 		args['soap_cat'] = tuple(soap_cats)
 
 	if time_range is not None:
-		where_parts.append(u"vemrj.clin_when > (now() - '%s days'::interval)" % time_range)
+		where_parts.append(u"c_vej.clin_when > (now() - '%s days'::interval)" % time_range)
 
 	if episodes is not None:
-		where_parts.append(u"vemrj.pk_episode IN %(epis)s")
+		where_parts.append(u"c_vej.pk_episode IN %(epis)s")
 		args['epis'] = tuple(episodes)
 
 	if issues is not None:
-		where_parts.append(u"vemrj.pk_health_issue IN %(issues)s")
+		where_parts.append(u"c_vej.pk_health_issue IN %(issues)s")
 		args['issues'] = tuple(issues)
 
 	# FIXME: implement more constraints
 
 	cmd = u"""
 		SELECT
-			to_char(vemrj.clin_when, 'YYYY-MM-DD') AS date,
-			vemrj.clin_when,
-			coalesce(vemrj.soap_cat, '') as soap_cat,
-			vemrj.narrative,
-			vemrj.src_table,
+			to_char(c_vej.clin_when, 'YYYY-MM-DD') AS date,
+			c_vej.clin_when,
+			coalesce(c_vej.soap_cat, '') as soap_cat,
+			c_vej.narrative,
+			c_vej.src_table,
 
-			(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = vemrj.soap_cat) AS scr,
+			(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = c_vej.soap_cat) AS scr,
 
-			vemrj.modified_when,
-			to_char(vemrj.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified,
-			vemrj.modified_by,
-			vemrj.row_version,
-			vemrj.pk_episode,
-			vemrj.pk_encounter,
-			vemrj.soap_cat as real_soap_cat
-		FROM clin.v_emr_journal vemrj
+			c_vej.modified_when,
+			to_char(c_vej.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified,
+			c_vej.modified_by,
+			c_vej.row_version,
+			c_vej.pk_episode,
+			c_vej.pk_encounter,
+			c_vej.soap_cat as real_soap_cat,
+			c_vej.src_pk,
+			c_vej.pk_health_issue,
+
+			c_vpepi.health_issue,
+			c_vpepi.description AS episode,
+			c_vpepi.issue_active,
+			c_vpepi.issue_clinically_relevant,
+			c_vpepi.episode_open,
+
+			c_vpenc.started
+				as encounter_started,
+			c_vpenc.last_affirmed
+				as encounter_last_affirmed,
+			c_vpenc.l10n_type
+				as encounter_l10n_type
+		FROM
+			clin.v_emr_journal c_vej
+				left join clin.v_pat_episodes c_vpepi on (c_vej.pk_episode = c_vpepi.pk_episode)
+					left join clin.v_pat_encounters c_vpenc on (c_vej.pk_encounter = c_vpenc.pk_encounter)
 		WHERE
 			%s
 		%s""" % (

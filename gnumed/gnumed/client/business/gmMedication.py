@@ -2138,6 +2138,16 @@ class cSubstanceIntakeEntry(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_encounter',
 		u'harmful_use_type'
 	]
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+		return self.format (
+			single_line = False,
+			show_all_brand_components = True,
+			include_metadata = True,
+			date_format = '%Y %b %d'
+		).split(u'\n')
+
 	#--------------------------------------------------------
 	def format(self, left_margin=0, date_format='%Y %b %d', single_line=True, allergy=None, show_all_brand_components=False, include_metadata=True):
 

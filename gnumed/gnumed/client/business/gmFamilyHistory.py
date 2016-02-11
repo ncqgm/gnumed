@@ -54,6 +54,7 @@ def create_relationship_type(relationship=None, genetic=None):
 	"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True)
 	return rows[0]
+
 #============================================================
 # Family History item handling
 #------------------------------------------------------------
@@ -99,6 +100,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		u'pk_fhx_relation_type',
 		u'comment'
 	]
+
 	#--------------------------------------------------------
 	def add_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -125,6 +127,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return
+
 	#--------------------------------------------------------
 	def remove_code(self, pk_code=None):
 		"""<pk_code> must be a value from ref.coding_system_root.pk_coding_system (clin.lnk_code2item_root.fk_generic_code)"""
@@ -135,6 +138,18 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 		}
 		rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}])
 		return True
+
+	#--------------------------------------------------------
+	def format_maximum_information(self, patient=None):
+
+		# include more fields from clin.v_family_history
+
+		return self.format (
+			include_episode = True,
+			include_comment = True,
+			include_codes = True
+		).split(u'\n')
+
 	#--------------------------------------------------------
 	def format(self, left_margin=0, include_episode=False, include_comment=False, include_codes=False):
 
@@ -185,6 +200,7 @@ class cFamilyHistory(gmBusinessDBObject.cBusinessDBObject):
 			del codes
 
 		return line
+
 	#--------------------------------------------------------
 	# properties
 	#--------------------------------------------------------
