@@ -30,6 +30,8 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
 from Gnumed.business import gmSOAPimporter
 from Gnumed.business import gmPersonSearch
+from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmClinicalRecord
 
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -43,6 +45,7 @@ from Gnumed.wxpython import gmPatSearchWidgets
 from Gnumed.wxpython import gmVaccWidgets
 from Gnumed.wxpython import gmFamilyHistoryWidgets
 from Gnumed.wxpython import gmFormWidgets
+from Gnumed.wxpython import gmTimer
 
 
 _log = logging.getLogger('gm.ui')
@@ -1471,6 +1474,214 @@ class cEMRJournalPluginPnl(wxgEMRJournalPluginPnl.wxgEMRJournalPluginPnl):
 	#--------------------------------------------------------
 	def _on_button_find_pressed(self, event):
 		self._TCTRL_journal.show_find_dialog(title = _('Find text in EMR Journal'))
+
+#================================================================
+from Gnumed.wxGladeWidgets import wxgEMRListJournalPluginPnl
+
+class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl):
+
+	def __init__(self, *args, **kwds):
+
+		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
+
+		self._LCTRL_journal.set_columns([_('Date'), u'', _('Entry'), _('Who / When')])
+		self._LCTRL_journal.set_resize_column(3)
+		self._LCTRL_journal.on_select_callback = self._on_row_selected
+		self._TCTRL_details.SetValue(u'')
+
+		self.__load_timer = gmTimer.cTimer(callback = self._on_load_details, delay = 1000, cookie = 'EMRListJournalPluginDBLoadTimer')
+
+		self.__data = {}
+
+	#--------------------------------------------------------
+	# external API
+	#--------------------------------------------------------
+	def repopulate_ui(self):
+		self._LCTRL_journal.remove_items_safely()
+		self._TCTRL_details.SetValue(u'')
+
+		pat = gmPerson.gmCurrentPatient()
+		emr = pat.emr
+		journal = emr.get_as_journal()
+
+		items = []
+		data = []
+		self.__data = {}
+		prev_date = None
+		for entry in journal:
+			if entry['narrative'].strip() == u'':
+				continue
+			soap_cat = gmClinNarrative.soap_cat2l10n[entry['soap_cat']]
+			who = u'%s (%s)' % (entry['modified_by'], entry['date_modified'])
+			if entry['date'] == prev_date:
+				date2show = u''
+			else:
+				date2show = entry['date']
+				prev_date = entry['date']
+			lines = entry['narrative'].strip().split(u'\n')
+			entry_line = lines[0].rstrip()
+			items.append([date2show, soap_cat, entry_line, who])
+			try:
+				self.__data[entry['src_table']]
+			except KeyError:
+				self.__data[entry['src_table']] = {}
+			try:
+				self.__data[entry['src_table']][entry['src_pk']]
+			except KeyError:
+				self.__data[entry['src_table']][entry['src_pk']] = {}
+				self.__data[entry['src_table']][entry['src_pk']]['entry'] = entry
+				self.__data[entry['src_table']][entry['src_pk']]['formatted_instance'] = None
+				if entry['encounter_started'] is None:
+					enc_duration = gmTools.u_diameter
+				else:
+					enc_duration = u'%s - %s' % (
+						gmDateTime.pydt_strftime(entry['encounter_started'], '%Y %b %d  %H:%M'),
+						gmDateTime.pydt_strftime(entry['encounter_last_affirmed'], '%H:%M')
+					)
+				self.__data[entry['src_table']][entry['src_pk']]['formatted_header'] = _(
+					u'Chart entry: %s       [#%s in %s]\n'
+					u' Modified: %s by %s (%s rev %s)\n'
+					u'\n'
+					u'Health issue: %s%s\n'
+					u'Episode: %s%s\n'
+					u'Encounter: %s%s'
+				) % (
+					gmClinicalRecord.format_clin_root_item_type(entry['src_table']),
+					entry['src_pk'],
+					entry['src_table'],
+					entry['date_modified'],
+					entry['modified_by'],
+					gmTools.u_arrow2right,
+					entry['row_version'],
+					gmTools.coalesce(entry['health_issue'], gmTools.u_diameter, u'%s'),
+					gmTools.bool2subst(entry['issue_active'], u' (' + _('active') + u')', u' (' + _('inactive') + u')', u''),
+					gmTools.coalesce(entry['episode'], gmTools.u_diameter, u'%s'),
+					gmTools.bool2subst(entry['episode_open'], u' (' +  _('open') + u')', u' (' +  _('closed') + u')', u''),
+					enc_duration,
+					gmTools.coalesce(entry['encounter_l10n_type'], u'', u' (%s)'),
+				)
+				self.__data[entry['src_table']][entry['src_pk']]['formatted_root_item'] = _(
+					u'%s\n'
+					u'\n'
+					u'                        rev %s (%s) by %s in <%s>'
+				) % (
+					entry['narrative'].strip(),
+					entry['row_version'],
+					entry['date_modified'],
+					entry['modified_by'],
+					entry['src_table']
+				)
+			data.append ({
+				'table': entry['src_table'],
+				'pk': entry['src_pk']
+			})
+			if len(lines) > 1:
+				lines = lines[1:]
+				idx = 0
+				last_line = len(lines)
+				for entry_line in lines:
+					idx += 1
+					if entry_line.strip() == u'':
+						continue
+					if idx == last_line:
+						bar = gmTools.u_box_bottom_left_arc
+					else:
+						bar = gmTools.u_box_vert_light_4dashes
+					items.append([u'', bar, entry_line.rstrip(), who])
+					data.append ({
+						'table': entry['src_table'],
+						'pk': entry['src_pk']
+					})
+
+		self._LCTRL_journal.set_string_items(items)
+		self._LCTRL_journal.set_column_widths([wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE, wx.LIST_AUTOSIZE_USEHEADER])
+		self._LCTRL_journal.set_data(data)
+
+		self._LCTRL_journal.SetFocus()
+		return True
+
+	#--------------------------------------------------------
+	# internal helpers
+	#--------------------------------------------------------
+	def __register_events(self):
+		gmDispatcher.connect(signal = u'pre_patient_unselection', receiver = self._on_pre_patient_unselection)
+		gmDispatcher.connect(signal = u'post_patient_selection', receiver = self._on_post_patient_selection)
+		return True
+
+	#--------------------------------------------------------
+	# event handlers
+	#--------------------------------------------------------
+	def _on_pre_patient_unselection(self):
+		self._LCTRL_journal.remove_items_safely()
+		self._TCTRL_details.SetValue(u'')
+		self.__data = {}
+		return True
+
+	#--------------------------------------------------------
+	def _on_post_patient_selection(self):
+		if self.GetParent().GetCurrentPage() != self:
+			return True
+		self.repopulate_ui()
+		return True
+
+	#--------------------------------------------------------
+	def _on_row_selected(self, evt):
+		# FIXME: work on all selected
+		data = self._LCTRL_journal.get_item_data(item_idx = evt.Index)
+		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
+			txt = _(
+				u'%s\n'
+				u'%s\n'
+				u'%s'
+			) % (
+				self.__data[data['table']][data['pk']]['formatted_header'],
+				gmTools.u_box_horiz_4dashes * 40,
+				self.__data[data['table']][data['pk']]['formatted_root_item']
+			)
+
+			self._TCTRL_details.SetValue(txt)
+			self.__load_timer.Stop()
+			self.__load_timer.Start(oneShot = True)
+			return
+
+		txt = _(
+			u'%s\n'
+			u'%s\n'
+			u'%s'
+		) % (
+			self.__data[data['table']][data['pk']]['formatted_header'],
+			gmTools.u_box_horiz_4dashes * 40,
+			self.__data[data['table']][data['pk']]['formatted_instance']
+		)
+		self._TCTRL_details.SetValue(txt)
+
+	#--------------------------------------------------------
+	def _on_load_details(self, cookie):
+		data = self._LCTRL_journal.get_selected_item_data(only_one = True)
+		if self.__data[data['table']][data['pk']]['formatted_instance'] is None:
+			self.__data[data['table']][data['pk']]['formatted_instance'] = gmClinicalRecord.format_clin_root_item(data['table'], data['pk'], patient = gmPerson.gmCurrentPatient())
+		txt = _(
+			u'%s\n'
+			u'%s\n'
+			u'%s'
+		) % (
+			self.__data[data['table']][data['pk']]['formatted_header'],
+			gmTools.u_box_horiz_4dashes * 40,
+			self.__data[data['table']][data['pk']]['formatted_instance']
+		)
+		wx.CallAfter(self._TCTRL_details.SetValue, txt)
+
+	#--------------------------------------------------------
+#	def _on_order_by_encounter_selected(self, event):
+#		self.repopulate_ui()
+
+	#--------------------------------------------------------
+#	def _on_order_by_last_mod_selected(self, event):
+#		self.repopulate_ui()
+
+	#--------------------------------------------------------
+#	def _on_button_find_pressed(self, event):
+#		self._TCTRL_details.show_find_dialog(title = _('Find text in EMR Journal'))
 
 #================================================================
 # MAIN

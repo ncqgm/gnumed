@@ -32,6 +32,7 @@ NEW: browse tmp dir, ~/gnumed/, ~/.gnumed/ from client
 NEW: dynamic hint on outdated / questionable EDC
 NEW: HIT risk assessment algorithm
 NEW: text editor like SOAP editor (STC based)
+NEW: list based EMR journal
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows
