@@ -35,10 +35,6 @@ drop function if exists dem.new_pupic() cascade;
 -- --------------------------------------------------------------
 drop function if exists dem.trf_sane_identity_comment() cascade;
 
--- test inserts to be converted later
-insert into dem.identity (dob, gender) values ('1931-03-21', 'm');
-insert into dem.names (id_identity, firstnames, lastnames, comment) values (currval(pg_get_serial_sequence('dem.identity', 'pk')), 'James Tiberius', 'Kirk', 'deduplication canary');
-
 -- disable audit trigger for update (because table layout has changed)
 alter table dem.identity
 	disable trigger zt_upd_identity;
@@ -66,13 +62,6 @@ where
 	)
 ;
 
--- rename canary to something inauspicious
-update dem.names set
-	lastnames = 'can-be-deleted ' || clock_timestamp(),
-	firstnames = 'can-be-deleted ' || clock_timestamp()
-where
-	comment = 'deduplication canary'
-;
 
 -- create function and trigger
 create function clin.trf_sane_identity_comment()
@@ -148,7 +137,6 @@ create trigger tr_sane_identity_comment
 create trigger tr_sane_identity_comment
 	after insert or update on dem.names
 	for each row execute procedure clin.trf_sane_identity_comment();
-
 
 
 -- tob nullable

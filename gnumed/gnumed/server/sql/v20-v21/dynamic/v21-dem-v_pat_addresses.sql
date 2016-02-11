@@ -66,7 +66,7 @@ where
 ;
 
 
-comment on view dem.v_pat_addresses is 'denormalized addresses per patient';
+comment on view dem.v_pat_addresses is 'denormalized addresses per person';
 
 
 revoke all on dem.v_pat_addresses from public;
