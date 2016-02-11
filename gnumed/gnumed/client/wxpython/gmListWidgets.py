@@ -1004,6 +1004,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__widths = None
 		self.__data = None
 		self.__activate_callback = None
+		self.__on_select_callback = None
 		self.__extend_popup_menu_callback = None
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
@@ -1118,7 +1119,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				topmost_visible = self.TopItem
 
 		if not self.remove_items_safely(max_tries = 3):
-			_log.error("cannot remove items (?), continuing and hoping for the best")
+			_log.error("cannot remove items (!?), continuing and hoping for the best")
 
 		if items is None:
 			self.data = None
@@ -1164,7 +1165,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		wx.EndBusyCursor()
 
-	#-------------------------------------
+	#--------------------------
 	def get_string_items(self):
 		rows = []
 		for row_idx in range(self.ItemCount):
@@ -1246,6 +1247,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def get_items(self):
 		return [ self.GetItem(item_idx) for item_idx in range(self.GetItemCount()) ]
 
+	items = property(get_items, lambda x:x)
+
 	#------------------------------------------------------------
 	def get_selected_items(self, only_one=False):
 
@@ -1276,6 +1279,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 		return items
 
+	selected_string_items = property(get_selected_string_items, lambda x:x)
+
 	#------------------------------------------------------------
 	def get_item_data(self, item_idx=None):
 		if self.__data is None:	# this isn't entirely clean
@@ -1288,6 +1293,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		# in case of len(__data) != self.GetItemCount() this
 		# gives the chance to figure out what is going on
 		return [ self.__data[self.map_item_idx2data_idx(item_idx)] for item_idx in range(self.GetItemCount()) ]
+
+	item_data = property(get_item_data, lambda x:x)
 
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
@@ -1309,6 +1316,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			idx = self.GetNextSelected(idx)
 
 		return data
+
+	selected_item_data = property(get_selected_item_data, lambda x:x)
 
 	#------------------------------------------------------------
 	def deselect_selected_item(self):
@@ -1333,6 +1342,12 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		event.Skip()
 		if self.__activate_callback is not None:
 			self.__activate_callback(event)
+
+	#------------------------------------------------------------
+	def _on_list_item_selected(self, event):
+		event.Skip()
+		if self.__on_select_callback is not None:
+			self.__on_select_callback(event)
 
 	#------------------------------------------------------------
 	def _on_list_item_rightclicked(self, event):
@@ -1362,32 +1377,40 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			menu_item = clip_menu.Append(-1, _('Row data (formatted as text)'))
 			self.Bind(wx.EVT_MENU, self._data2clipboard, menu_item)
 		# all fields of the list row as one line of text
-		menu_item = clip_menu.Append(-1, _('Row fields (as one line)'))
+		menu_item = clip_menu.Append(-1, _('Row content (as one line)'))
 		self.Bind(wx.EVT_MENU, self._row2clipboard, menu_item)
 		# all fields of the list row as multiple lines of text
-		menu_item = clip_menu.Append(-1, _('Row fields (as multiple lines)'))
+		menu_item = clip_menu.Append(-1, _('Row content (one line per column)'))
 		self.Bind(wx.EVT_MENU, self._row_list2clipboard, menu_item)
 		# each field of the list row as text with and without header
 		clip_menu.AppendSeparator()
 		for col_idx in range(self.ColumnCount):
+			col_content = self._rclicked_row_cells[col_idx].strip()
 			# skip empty field
-			if self._rclicked_row_cells[col_idx] == u'':
+			if col_content == u'':
 				continue
 			col_header = col_headers[col_idx]
 			if col_header == u'':
+				# skip one-character fields without header,
+				# actually, no, because in ideographic languages
+				# one character may mean a lot
+				#if len(col_content) == 1:
+				#	continue
 				# without column header
-				menu_item = clip_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = clip_menu.Append(-1, _(u'Column &%s: "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
 			else:
+				col_menu = wx.Menu()
 				# with full column header
-				menu_item = clip_menu.Append(-1, u'%s: "%s: %s"' % (col_idx+1, shorten_text(col_header, 8), shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = col_menu.Append(-1, u'"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col_w_hdr2clipboard, menu_item)
 				# without column header
-				menu_item = clip_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = col_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._col2clipboard, menu_item)
-			clip_menu.AppendSeparator()
+				clip_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_menu)
+		clip_menu.AppendSeparator()
 
-		# add item to clipboard item
+		# append item to current clipboard item
 		clip_add_menu = wx.Menu()
 		# row tooltip
 		menu_item = clip_add_menu.Append(-1, _('Row tooltip'))
@@ -1397,34 +1420,37 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			menu_item = clip_add_menu.Append(-1, _('Row data (formatted as text)'))
 			self.Bind(wx.EVT_MENU, self._add_data2clipboard, menu_item)
 		# all fields of the list row as one line of text
-		menu_item = clip_add_menu.Append(-1, _('Row fields (as one line)'))
+		menu_item = clip_add_menu.Append(-1, _('Row content (as one line)'))
 		self.Bind(wx.EVT_MENU, self._add_row2clipboard, menu_item)
 		# all fields of the list row as multiple lines of text
-		menu_item = clip_add_menu.Append(-1, _('Row fields (as multiple lines)'))
+		menu_item = clip_add_menu.Append(-1, _('Row content (one line per column)'))
 		self.Bind(wx.EVT_MENU, self._add_row_list2clipboard, menu_item)
-		# each field of the list row as text
+		# each field of the list row as text with and without header
 		clip_add_menu.AppendSeparator()
 		for col_idx in range(self.ColumnCount):
+			col_content = self._rclicked_row_cells[col_idx].strip()
 			# skip empty field
-			if self._rclicked_row_cells[col_idx] == u'':
+			if col_content == u'':
 				continue
 			col_header = col_headers[col_idx]
 			if col_header == u'':
 				# without column header
-				menu_item = clip_add_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = clip_add_menu.Append(-1, _(u'Column &%s: "%s" [#%s]') % (col_idx+1, shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
 			else:
+				col_add_menu = wx.Menu()
 				# with full column header
-				menu_item = clip_add_menu.Append(-1, u'%s: "%s: %s"' % (col_idx+1, shorten_text(col_header, 8), shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = col_add_menu.Append(-1, u'"%s: %s" [#%s]' % (shorten_text(col_header, 8), shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col_w_hdr2clipboard, menu_item)
 				# without column header
-				menu_item = clip_add_menu.Append(-1, u'%s: "%s"' % (col_idx+1, shorten_text(self._rclicked_row_cells[col_idx], 35)))
+				menu_item = col_add_menu.Append(-1, u'"%s" [#%s]' % (shorten_text(col_content, 35), col_idx))
 				self.Bind(wx.EVT_MENU, self._add_col2clipboard, menu_item)
-			clip_add_menu.AppendSeparator()
+				clip_add_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_add_menu)
+		clip_add_menu.AppendSeparator()
 
 		self._popup_menu = wx.Menu(title = _('List Item Actions:'))
-		self._popup_menu.AppendMenu(-1, _('Copy to clipboard...'), clip_menu)
-		self._popup_menu.AppendMenu(-1, _('Append to clipboard...'), clip_add_menu)
+		self._popup_menu.AppendMenu(-1, _('Copy to &clipboard...'), clip_menu)
+		self._popup_menu.AppendMenu(-1, _('&Append to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
 			self.__extend_popup_menu_callback(menu = self._popup_menu)
@@ -1622,7 +1648,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 		data_obj = wx.TextDataObject()
 
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt = self._rclicked_row_cells[col_idx]
 
 		data_obj.SetText(txt)
@@ -1639,7 +1666,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			return
 		data_obj = wx.TextDataObject()
 
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt = self._rclicked_row_cells_w_hdr[col_idx]
 
 		data_obj.SetText(txt)
@@ -1772,7 +1800,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			txt = data_obj.Text + u'\n'
 
 		# add text
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt += self._rclicked_row_cells[col_idx]
 
 		# set text
@@ -1797,7 +1826,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			txt = data_obj.Text + u'\n'
 
 		# add text
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt += self._rclicked_row_cells_w_hdr[col_idx]
 
 		# set text
@@ -1858,13 +1888,30 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def _set_activate_callback(self, callback):
 		if callback is None:
 			self.Unbind(wx.EVT_LIST_ITEM_ACTIVATED)
-		else:
-			if not callable(callback):
-				raise ValueError('<activate> callback is not a callable: %s' % callback)
-			self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated)
+			self.__activate_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<activate> callback is not a callable: %s' % callback)
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated)
 		self.__activate_callback = callback
 
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
+
+	#------------------------------------------------------------
+	def _get_on_select_callback(self):
+		return self.__on_select_callback
+
+	def _set_on_select_callback(self, callback):
+		if callback is None:
+			self.Unbind(wx.EVT_LIST_ITEM_SELECTED)
+			self.__on_select_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<selected> callback is not a callable: %s' % callback)
+		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected)
+		self.__on_select_callback = callback
+
+	on_select_callback = property(_get_on_select_callback, _set_on_select_callback)
 
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
@@ -1914,7 +1961,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	#------------------------------------------------------------
 	def OnSortOrderChanged(self):
-		self._cleanup_column_headers()
+		self._remove_sorting_indicators_from_column_headers()
 		# annotate sort column
 		col_idx, is_ascending = self.GetSortState()
 		col_state = self.GetColumn(col_idx)
@@ -2009,7 +2056,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		return dict2sort
 
 	#------------------------------------------------------------
-	def _cleanup_column_headers(self):
+	def _remove_sorting_indicators_from_column_headers(self):
 		for col_idx in range(self.ColumnCount):
 			col_state = self.GetColumn(col_idx)
 			if col_state.m_text.endswith(self.sort_order_tags[True]):
@@ -2022,7 +2069,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def _invalidate_sorting_metadata(self):
 		self.itemDataMap = None
 		self.SetColumnCount(self.GetColumnCount())
-		self._cleanup_column_headers()
+		self._remove_sorting_indicators_from_column_headers()
 
 	#------------------------------------------------------------
 	def _update_sorting_metadata(self):
@@ -2030,8 +2077,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.itemDataMap = self._generate_map_for_sorting()
 
 	#------------------------------------------------------------
+	# for debugging:
 	def _on_col_click(self, event):
-		# for debugging:
 		sort_col, order = self.GetSortState()
 		print u'col clicked: %s / sort col: %s / sort direction: %s / sort flags: %s' % (event.GetColumn(), sort_col, order, self._colSortFlag)
 #		if self.itemDataMap is not None:

@@ -2,10 +2,7 @@
 
 @copyright: author(s)
 """
-############################################################################
-# $Source: /home/ncq/Projekte/cvs2git/vcs-mirror/gnumed/gnumed/client/wxpython/gmTimer.py,v $
-# $Id: gmTimer.py,v 1.13 2008-12-26 16:04:12 ncq Exp $
-__version__ = "$Revision: 1.13 $"
+#===========================================================================
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __licence__ = "GPL v2 or later (details at http://www.gnu.org)"
 
@@ -18,6 +15,7 @@ import wx
 
 _log = logging.getLogger('gm.timers')
 _timers = []
+
 #===========================================================================
 def shutdown():
 	global _timers
@@ -26,6 +24,7 @@ def shutdown():
 		_log.debug('timer [%s]', timer.cookie)
 		timer.Stop()
 	_timers = []
+
 #===========================================================================
 class cTimer(wx.Timer):
 	"""wx.Timer proxy.
@@ -63,15 +62,18 @@ class cTimer(wx.Timer):
 		if milliseconds == -1:
 			milliseconds = self.__delay
 		wx.Timer.Start(self, milliseconds=milliseconds, oneShot=oneShot)
+
 	#-----------------------------------------------------------------------
 	def Notify(self):
 		self.__callback(self.cookie)
+
 	#-----------------------------------------------------------------------
 	def set_cookie(self, cookie=None):
 		if cookie is None:
 			self.cookie = id(self)
 		else:
 			self.cookie = cookie
+
 #===========================================================================
 if __name__ == '__main__':
 	import time

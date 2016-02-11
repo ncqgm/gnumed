@@ -87,6 +87,7 @@ u_box_vert_left = u'\u23b8'
 u_box_vert_right = u'\u23b9'
 u_box_horiz_single = u'\u2500'				# -
 u_box_vert_light = u'\u2502'
+u_box_vert_light_4dashes = u'\u2506'
 u_box_horiz_4dashes = u'\u2508'
 u_box_T_right = u'\u251c'
 u_box_T_down = u'\u252c'
@@ -966,6 +967,26 @@ def strip_empty_lines(lines=None, text=None, eol=u'\n', return_list=True):
 		eol = eol,
 		return_list = return_list
 	)
+
+#---------------------------------------------------------------------------
+def list2text(lines, initial_indent=u'', subsequent_indent=u'', eol=u'\n', strip_leading_empty_lines=True, strip_trailing_empty_lines=True, strip_trailing_whitespace=True):
+
+	if len(lines) == 0:
+		return u''
+
+	if strip_leading_empty_lines:
+		lines = strip_leading_empty_lines(lines = lines, eol = eol, return_list = True)
+
+	if strip_trailing_empty_lines:
+		lines = strip_trailing_empty_lines(lines = lines, eol = eol, return_list = True)
+
+	if strip_trailing_whitespace:
+		lines = [ l.rstrip() for l in lines ]
+
+	indented_lines = [initial_indent + lines[0]]
+	indented_lines.extend([ subsequent_indent + l for l in lines[1:] ])
+
+	return eol.join(indented_lines)
 
 #---------------------------------------------------------------------------
 def wrap(text=None, width=None, initial_indent=u'', subsequent_indent=u'', eol=u'\n'):

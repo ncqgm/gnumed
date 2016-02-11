@@ -144,9 +144,10 @@ if __name__ == '__main__':
 from Gnumed.pycommon import gmExceptions
 from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon.gmDateTime import pydt_strftime
-from Gnumed.pycommon.gmTools import tex_escape_string, xetex_escape_string, compare_dict_likes
+from Gnumed.pycommon.gmTools import tex_escape_string
 from Gnumed.pycommon.gmTools import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
+from Gnumed.pycommon.gmTools import format_dict_like
 
 
 _log = logging.getLogger('gm.db')
@@ -395,6 +396,7 @@ def delete_xxx(pk_XXX=None):
 			#return '[%s:%s]:\n %s' % (self.__class__.__name__, self.pk_obj, '\n '.join(lines))
 		except:
 			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
+
 	#--------------------------------------------------------
 	def __unicode__(self):
 		lines = []
@@ -407,6 +409,7 @@ def delete_xxx(pk_XXX=None):
 			return '[%s:%s]:\n%s' % (self.__class__.__name__, self.pk_obj, u'\n'.join(lines))
 		except:
 			return 'nascent [%s @ %s], cannot show payload and primary key' %(self.__class__.__name__, id(self))
+
 	#--------------------------------------------------------
 	def __getitem__(self, attribute):
 		# use try: except: as it is faster and we want this as fast as possible
@@ -476,15 +479,18 @@ def delete_xxx(pk_XXX=None):
 	#--------------------------------------------------------
 	def is_modified(self):
 		return self._is_modified
+
 	#--------------------------------------------------------
 	def get_fields(self):
 		try:
 			return self._idx.keys()
 		except AttributeError:
 			return 'nascent [%s @ %s], cannot return keys' %(self.__class__.__name__, id(self))
+
 	#--------------------------------------------------------
 	def get_updatable_fields(self):
 		return self.__class__._updatable_fields
+
 	#--------------------------------------------------------
 	def fields_as_dict(self, date_format='%Y %b %d  %H:%M', none_string=u'', escape_style=None, bool_strings=None):
 		if bool_strings is None:
@@ -534,9 +540,17 @@ def delete_xxx(pk_XXX=None):
 	def get_patient(self):
 		_log.error('[%s:%s]: forgot to override get_patient()' % (self.__class__.__name__, self.pk_obj))
 		return None
+
 	#--------------------------------------------------------
-	def format(self):
-		return u'%s' % self
+	def format(self, *args, **kwargs):
+		return format_dict_like (
+			self.fields_as_dict(none_string = u'<?>'),
+			tabular = True,
+			value_delimiters = None
+			#value_delimiters=(u'>>>', u'<<<')
+			#left_margin = 0,
+		).split(u'\n')
+
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False, link_obj=None):
 		"""Fetch field values from backend.
@@ -748,6 +762,7 @@ if __name__ == '__main__':
 	#print(obj['wrong_field'])
 	#print(jsonclasshintify(obj))
 	#obj['wrong_field'] = 1
-	print(obj.fields_as_dict())
+	#print(obj.fields_as_dict())
+	print(obj.format())
 
 #============================================================
