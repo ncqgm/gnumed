@@ -522,10 +522,10 @@ class cOrgUnitIDsMgrPnl(gmListWidgets.cGenericListManagerPnl):
 
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
+		self.refresh_callback = self.refresh
 		self.new_callback = self._add_id
 		self.edit_callback = self._edit_id
 		self.delete_callback = self._del_id
-		self.refresh_callback = self.refresh
 
 		self.__init_ui()
 		self.refresh()

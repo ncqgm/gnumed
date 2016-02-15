@@ -20,10 +20,10 @@ class wxgGenericListManagerPnl(wx.Panel):
 		from Gnumed.wxpython.gmListWidgets import cReportListCtrl
 
 		# begin wxGlade: wxgGenericListManagerPnl.__init__
-		kwds["style"] = wx.NO_BORDER | wx.TAB_TRAVERSAL
+		kwds["style"] = wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.Panel.__init__(self, *args, **kwds)
-		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "", style=wx.ALIGN_CENTRE)
-		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.LC_REPORT | wx.LC_HRULES | wx.NO_BORDER)
+		self._LBL_message = wx.StaticText(self, wx.ID_ANY, "", style=wx.ALIGN_CENTER)
+		self._LCTRL_items = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_HRULES | wx.LC_REPORT)
 		self._BTN_add = wx.Button(self, wx.ID_ADD, "")
 		self._BTN_edit = wx.Button(self, -1, _("&Edit"))
 		self._BTN_remove = wx.Button(self, wx.ID_REMOVE, "")
@@ -35,7 +35,6 @@ class wxgGenericListManagerPnl(wx.Panel):
 		self.__do_layout()
 
 		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self._on_list_item_deselected, self._LCTRL_items)
-		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected, self._LCTRL_items)
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self._on_list_item_activated, self._LCTRL_items)
 		self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self._on_list_item_focused, self._LCTRL_items)
 		self.Bind(wx.EVT_BUTTON, self._on_add_button_pressed, self._BTN_add)
@@ -75,21 +74,18 @@ class wxgGenericListManagerPnl(wx.Panel):
 		__szr_buttons.Add((20, 20), 1, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons.Add(self._BTN_remove, 0, wx.ALIGN_CENTER_VERTICAL, 0)
 		__szr_buttons.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_buttons.Add(self._BTN_extra_left, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
-		__szr_buttons.Add(self._BTN_extra_middle, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
-		__szr_buttons.Add(self._BTN_extra_right, 0, wx.RIGHT | wx.ALIGN_CENTER_VERTICAL, 3)
+		__szr_buttons.Add(self._BTN_extra_left, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_buttons.Add(self._BTN_extra_middle, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_buttons.Add(self._BTN_extra_right, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
 		__szr_buttons.Add((20, 20), 2, wx.ALIGN_CENTER_VERTICAL, 0)
-		__szr_main.Add(__szr_buttons, 0, wx.TOP | wx.EXPAND, 3)
+		__szr_main.Add(__szr_buttons, 0, wx.EXPAND | wx.TOP, 3)
 		self.SetSizer(__szr_main)
 		__szr_main.Fit(self)
+		self.Layout()
 		# end wxGlade
 
 	def _on_list_item_deselected(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>
 		print "Event handler '_on_list_item_deselected' not implemented!"
-		event.Skip()
-
-	def _on_list_item_selected(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>
-		print "Event handler '_on_list_item_selected' not implemented!"
 		event.Skip()
 
 	def _on_list_item_activated(self, event):  # wxGlade: wxgGenericListManagerPnl.<event_handler>

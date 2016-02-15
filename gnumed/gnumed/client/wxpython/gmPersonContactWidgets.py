@@ -87,10 +87,10 @@ class cPersonAddressesManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
+		self.refresh_callback = self.refresh
 		self.new_callback = self._add_address
 		self.edit_callback = self._edit_address
 		self.delete_callback = self._del_address
-		self.refresh_callback = self.refresh
 
 		self.__init_ui()
 		self.refresh()

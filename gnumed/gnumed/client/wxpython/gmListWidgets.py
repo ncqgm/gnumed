@@ -129,8 +129,6 @@ from Gnumed.wxGladeWidgets import wxgGenericListSelectorDlg
 class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDlg):
 	"""A dialog holding a list and a few buttons to act on the items."""
 
-	# FIXME: configurable callback on double-click action
-
 	def __init__(self, *args, **kwargs):
 
 		try:
@@ -153,17 +151,24 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 
 		self.can_return_empty = False
 		self.ignore_OK_button = False			# by default do show/use the OK button
+
+		self.select_callback = None				# called when an item is selected, data of topmost selected item passed in
+		self._LCTRL_items.select_callback = self._on_list_item_selected_in_listctrl
+
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
+
 	#------------------------------------------------------------
 	def set_column_widths(self, widths=None):
 		self._LCTRL_items.set_column_widths(widths = widths)
+
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
 		self._LCTRL_items.set_string_items(items = items, reshow = reshow)
 		self._LCTRL_items.set_column_widths()
 		#self._LCTRL_items.Select(0)
+
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
@@ -175,26 +180,17 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			return
 		self._BTN_ok.Enable(True)
 		self._BTN_ok.SetDefault()
+
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_items.set_data(data = data)
+
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 		return self._LCTRL_items.get_selected_item_data(only_one=only_one)
+
 	#------------------------------------------------------------
 	# event handlers
-	#------------------------------------------------------------
-	def _on_list_item_selected(self, event):
-		if not self.__ignore_OK_button:
-			self._BTN_ok.SetDefault()
-			self._BTN_ok.Enable(True)
-
-		if self.edit_callback is not None:
-			self._BTN_edit.Enable(True)
-
-		if self.delete_callback is not None:
-			self._BTN_delete.Enable(True)
-
 	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
 		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
@@ -204,39 +200,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			self._BTN_edit.Enable(False)
 			self._BTN_delete.Enable(False)
 
+		event.Skip()
+
 	#------------------------------------------------------------
 	def _on_new_button_pressed(self, event):
-		if not self.new_callback():
-			self._LCTRL_items.SetFocus()
-			return
-		if self.refresh_callback is None:
-			self._LCTRL_items.SetFocus()
-			return
-		wx.BeginBusyCursor()
-		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
-		finally:
-			wx.EndBusyCursor()
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.SetFocus()
+		self.__do_insert()
+		event.Skip()
 
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		# if the edit button *can* be pressed there are *supposed*
 		# to be both an item selected and an editor configured
-		if not self.edit_callback(self._LCTRL_items.get_selected_item_data(only_one = True)):
-			self._LCTRL_items.SetFocus()
-			return
-		if self.refresh_callback is None:
-			self._LCTRL_items.SetFocus()
-			return
-		wx.BeginBusyCursor()
-		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
-		finally:
-			wx.EndBusyCursor()
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.SetFocus()
+		self.__do_edit()
+		event.Skip()
 
 	#------------------------------------------------------------
 	def _on_delete_button_pressed(self, event):
@@ -244,6 +220,9 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		# to be both an item selected and a deletor configured
 
 		no_items = len(self._LCTRL_items.get_selected_items(only_one = False))
+		if no_items == 0:
+			return
+
 		if no_items > 1:
 			style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
 			title = _('Deleting list items')
@@ -262,27 +241,8 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 				self._LCTRL_items.SetFocus()
 				return
 
-		any_deleted = False
-		for item_data in self._LCTRL_items.get_selected_item_data(only_one = False):
-			if item_data is None:
-				continue
-			if self.delete_callback(item_data):
-				any_deleted = True
-
-		self._LCTRL_items.SetFocus()
-
-		if any_deleted is False:
-			return
-
-		if self.refresh_callback is None:
-			return
-
-		wx.BeginBusyCursor()
-		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
-		finally:
-			wx.EndBusyCursor()
-		self._LCTRL_items.set_column_widths()
+		self.__do_delete()
+		event.Skip()
 
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
@@ -293,12 +253,12 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if not self.__left_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
@@ -313,12 +273,12 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if not self.__middle_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
@@ -333,16 +293,100 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if not self.__right_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def _on_list_item_selected_in_listctrl(self, event):
+		event.Skip()
+		if not self.__ignore_OK_button:
+			self._BTN_ok.SetDefault()
+			self._BTN_ok.Enable(True)
+		if self.edit_callback is not None:
+			self._BTN_edit.Enable(True)
+		if self.delete_callback is not None:
+			self._BTN_delete.Enable(True)
+		if self.__select_callback is not None:
+			item = self._LCTRL_items.get_selected_item_data(only_one = True)
+			self.__select_callback(item)
+
+	#------------------------------------------------------------
+	def _on_delete_key_pressed_in_listctrl(self):
+		self.__do_delete()
+
+	#------------------------------------------------------------
+	def __do_delete(self):
+		any_deleted = False
+		for item_data in self._LCTRL_items.get_selected_item_data(only_one = False):
+			if item_data is None:
+				continue
+			if self.__delete_callback(item_data):
+				any_deleted = True
+
+		self._LCTRL_items.SetFocus()
+
+		if any_deleted is False:
+			return
+
+		if self.__refresh_callback is None:
+			return
+
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+		finally:
+			wx.EndBusyCursor()
+
+	#------------------------------------------------------------
+	def _on_edit_invoked_in_listctrl(self):
+		self.__do_edit()
+
+	#------------------------------------------------------------
+	def __do_edit(self):
+		if not self.__edit_callback(self._LCTRL_items.get_selected_item_data(only_one = True)):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.__refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
+		finally:
+			wx.EndBusyCursor()
+
+	#------------------------------------------------------------
+	def _on_insert_key_pressed_in_listctrl(self):
+		self.__do_insert()
+
+	#------------------------------------------------------------
+	def __do_insert(self):
+		if not self.__new_callback():
+			self._LCTRL_items.SetFocus()
+			return
+		if self.__refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
+		finally:
+			wx.EndBusyCursor()
 
 	#------------------------------------------------------------
 	# properties
@@ -362,6 +406,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 					self._BTN_cancel.SetDefault()
 
 	ignore_OK_button = property(lambda x:x, _set_ignore_OK_button)
+
 	#------------------------------------------------------------
 	def _set_left_extra_button(self, definition):
 		if definition is None:
@@ -387,6 +432,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._BTN_extra_left.Show()
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
+
 	#------------------------------------------------------------
 	def _set_middle_extra_button(self, definition):
 		if definition is None:
@@ -412,6 +458,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._BTN_extra_middle.Show()
 
 	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
+
 	#------------------------------------------------------------
 	def _set_right_extra_button(self, definition):
 		if definition is None:
@@ -437,13 +484,14 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		self._BTN_extra_right.Show()
 
 	right_extra_button = property(lambda x:x, _set_right_extra_button)
+
 	#------------------------------------------------------------
 	def _get_new_callback(self):
 		return self.__new_callback
 
 	def _set_new_callback(self, callback):
 		if callback is not None:
-			if self.refresh_callback is None:
+			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before new callback can be set')
 			if not callable(callback):
 				raise ValueError('<new> callback is not a callable: %s' % callback)
@@ -452,11 +500,14 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if callback is None:
 			self._BTN_new.Enable(False)
 			self._BTN_new.Hide()
+			self._LCTRL_items.new_callback = None
 		else:
 			self._BTN_new.Enable(True)
 			self._BTN_new.Show()
+			self._LCTRL_items.new_callback = self._on_insert_key_pressed_in_listctrl
 
 	new_callback = property(_get_new_callback, _set_new_callback)
+
 	#------------------------------------------------------------
 	def _get_edit_callback(self):
 		return self.__edit_callback
@@ -470,31 +521,36 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 		if callback is None:
 			self._BTN_edit.Enable(False)
 			self._BTN_edit.Hide()
+			self._LCTRL_items.edit_callback = None
 		else:
 			self._BTN_edit.Enable(True)
 			self._BTN_edit.Show()
+			self._LCTRL_items.edit_callback = self._on_edit_invoked_in_listctrl
 
 	edit_callback = property(_get_edit_callback, _set_edit_callback)
+
 	#------------------------------------------------------------
 	def _get_delete_callback(self):
 		return self.__delete_callback
 
 	def _set_delete_callback(self, callback):
 		if callback is not None:
-			if self.refresh_callback is None:
+			if self.__refresh_callback is None:
 				raise ValueError('refresh callback must be set before delete callback can be set')
 			if not callable(callback):
 				raise ValueError('<delete> callback is not a callable: %s' % callback)
 		self.__delete_callback = callback
-
 		if callback is None:
 			self._BTN_delete.Enable(False)
 			self._BTN_delete.Hide()
+			self._LCTRL_items.delete_callback = None
 		else:
 			self._BTN_delete.Enable(True)
 			self._BTN_delete.Show()
+			self._LCTRL_items.delete_callback = self._on_delete_key_pressed_in_listctrl
 
 	delete_callback = property(_get_delete_callback, _set_delete_callback)
+
 	#------------------------------------------------------------
 	def _get_refresh_callback(self):
 		return self.__refresh_callback
@@ -502,7 +558,7 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 	def _set_refresh_callback_helper(self):
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
@@ -516,6 +572,19 @@ class cGenericListSelectorDlg(wxgGenericListSelectorDlg.wxgGenericListSelectorDl
 			wx.CallAfter(self._set_refresh_callback_helper)
 
 	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
+
+	#------------------------------------------------------------
+	def _get_select_callback(self):
+		return self.__select_callback
+
+	def _set_select_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<select> callback is not a callable: %s' % callback)
+		self.__select_callback = callback
+
+	select_callback = property(_get_select_callback, _set_select_callback)
+
 	#------------------------------------------------------------
 	def _set_list_tooltip_callback(self, callback):
 		self._LCTRL_items.item_tooltip_callback = callback
@@ -553,22 +622,25 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		else:
 			self._LBL_message.SetLabel(msg)
 
-		# new/edit/delete must return True/False to enable refresh
-		self.__new_callback = None				# called when NEW button pressed, no argument passed in
-		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
-		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
-		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
-
-		self.__select_callback = None			# called when an item is selected, data of topmost selected item passed in
-
 		self.left_extra_button = None
 		self.middle_extra_button = None
 		self.right_extra_button = None
+
+		# new/edit/delete must return True/False to enable refresh
+		self.refresh_callback = None			# called when new/edit/delete callbacks return True (IOW were not cancelled)
+		self.new_callback = None				# called when NEW button pressed, no argument passed in
+		self.edit_callback = None				# called when EDIT button pressed, data of topmost selected item passed in
+		self.delete_callback = None				# called when DELETE button pressed, data of topmost selected item passed in
+
+		self.select_callback = None				# called when an item is selected, data of topmost selected item passed in
+		self._LCTRL_items.select_callback = self._on_list_item_selected_in_listctrl
+
 	#------------------------------------------------------------
 	# external API
 	#------------------------------------------------------------
 	def set_columns(self, columns=None):
 		self._LCTRL_items.set_columns(columns = columns)
+
 	#------------------------------------------------------------
 	def set_string_items(self, items=None, reshow=True):
 		self._LCTRL_items.set_string_items(items = items, reshow = reshow)
@@ -579,125 +651,193 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 			self._BTN_remove.Enable(False)
 		#else:
 		#	self._LCTRL_items.Select(0)
+
 	#------------------------------------------------------------
 	def set_selections(self, selections = None):
 		self._LCTRL_items.set_selections(selections = selections)
+
 	#------------------------------------------------------------
 	def set_data(self, data = None):
 		self._LCTRL_items.set_data(data = data)
+
 	#------------------------------------------------------------
 	def get_selected_item_data(self, only_one=False):
 		return self._LCTRL_items.get_selected_item_data(only_one=only_one)
+
+	#------------------------------------------------------------
+	# internal helpers
+	#------------------------------------------------------------
+	def _on_list_item_selected_in_listctrl(self, event):
+		event.Skip()
+		if self.__edit_callback is not None:
+			self._BTN_edit.Enable(True)
+		if self.__delete_callback is not None:
+			self._BTN_remove.Enable(True)
+		if self.__select_callback is not None:
+			item = self._LCTRL_items.get_selected_item_data(only_one = True)
+			self.__select_callback(item)
+
+	#------------------------------------------------------------
+	def _on_delete_key_pressed_in_listctrl(self):
+		self.__do_delete()
+
+	#------------------------------------------------------------
+	def __do_delete(self):
+		if not self.__delete_callback(self._LCTRL_items.get_selected_item_data(only_one = True)):
+			return
+		if self.__refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
+		finally:
+			wx.EndBusyCursor()
+
+	#------------------------------------------------------------
+	def _on_edit_invoked_in_listctrl(self):
+		self.__do_edit()
+
+	#------------------------------------------------------------
+	def __do_edit(self):
+		if not self.__edit_callback(self._LCTRL_items.get_selected_item_data(only_one = True)):
+			self._LCTRL_items.SetFocus()
+			return
+		if self.__refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
+		finally:
+			wx.EndBusyCursor()
+
+	#------------------------------------------------------------
+	def _on_insert_key_pressed_in_listctrl(self):
+		self.__do_insert()
+
+	#------------------------------------------------------------
+	def __do_insert(self):
+		if not self.__new_callback():
+			self._LCTRL_items.SetFocus()
+			return
+		if self.__refresh_callback is None:
+			self._LCTRL_items.SetFocus()
+			return
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
+		finally:
+			wx.EndBusyCursor()
+
 	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
-	def _on_list_item_selected(self, event):
-		if self.edit_callback is not None:
-			self._BTN_edit.Enable(True)
-		if self.delete_callback is not None:
-			self._BTN_remove.Enable(True)
-		if self.__select_callback is not None:
-			item = self._LCTRL_items.get_selected_item_data(only_one=True)
-			self.__select_callback(item)
-	#------------------------------------------------------------
 	def _on_list_item_deselected(self, event):
-		if self._LCTRL_items.get_selected_items(only_one=True) == -1:
+		event.Skip()
+		if self._LCTRL_items.get_selected_items(only_one = True) == -1:
 			self._BTN_edit.Enable(False)
 			self._BTN_remove.Enable(False)
 			if self.__select_callback is not None:
 				self.__select_callback(None)
+
 	#------------------------------------------------------------
 	def _on_list_item_activated(self, event):
-		if self.edit_callback is None:
+		event.Skip()
+		if self.__edit_callback is None:
 			return
 		self._on_edit_button_pressed(event)
+
 	#------------------------------------------------------------
 	def _on_add_button_pressed(self, event):
-		if not self.new_callback():
+		if not self.__new_callback():
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
+
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
 		item = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if item is None:
 			return
-		if not self.edit_callback(item):
+		if not self.__edit_callback(item):
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
+
 	#------------------------------------------------------------
 	def _on_remove_button_pressed(self, event):
-		item = self._LCTRL_items.get_selected_item_data(only_one=True)
-		if item is None:
+		if len(self._LCTRL_items.get_selected_items(only_one = True)) == 0:
 			return
-		if not self.delete_callback(item):
-			return
-		if self.refresh_callback is None:
-			return
-		wx.BeginBusyCursor()
-		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
-		finally:
-			wx.EndBusyCursor()
+		self.__do_delete()
+
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__left_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
 			wx.EndBusyCursor()
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__middle_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
+			self._LCTRL_items.set_column_widths()
+			self._LCTRL_items.SetFocus()
 			wx.EndBusyCursor()
-		self._LCTRL_items.set_column_widths()
-		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	def _on_right_extra_button_pressed(self, event):
 		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
 		if not self.__right_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
-		if self.refresh_callback is None:
+		if self.__refresh_callback is None:
 			self._LCTRL_items.SetFocus()
 			return
 		wx.BeginBusyCursor()
 		try:
-			self.refresh_callback(lctrl = self._LCTRL_items)
+			self.__refresh_callback(lctrl = self._LCTRL_items)
 		finally:
 			wx.EndBusyCursor()
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.SetFocus()
+
 	#------------------------------------------------------------
 	# properties
 	#------------------------------------------------------------
@@ -706,12 +846,88 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	def _set_new_callback(self, callback):
 		if callback is not None:
+			if self.__refresh_callback is None:
+				raise ValueError('refresh callback must be set before new callback can be set')
 			if not callable(callback):
 				raise ValueError('<new> callback is not a callable: %s' % callback)
 		self.__new_callback = callback
-		self._BTN_add.Enable(callback is not None)
+
+		if callback is None:
+			self._BTN_add.Enable(False)
+			self._BTN_add.Hide()
+			self._LCTRL_items.new_callback = None
+		else:
+			self._BTN_add.Enable(True)
+			self._BTN_add.Show()
+			self._LCTRL_items.new_callback = self._on_insert_key_pressed_in_listctrl
 
 	new_callback = property(_get_new_callback, _set_new_callback)
+
+	#------------------------------------------------------------
+	def _get_edit_callback(self):
+		return self.__edit_callback
+
+	def _set_edit_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<edit> callback is not a callable: %s' % callback)
+		self.__edit_callback = callback
+
+		if callback is None:
+			self._BTN_edit.Enable(False)
+			self._BTN_edit.Hide()
+			self._LCTRL_items.edit_callback = None
+		else:
+			self._BTN_edit.Enable(True)
+			self._BTN_edit.Show()
+			self._LCTRL_items.edit_callback = self._on_edit_invoked_in_listctrl
+
+	edit_callback = property(_get_edit_callback, _set_edit_callback)
+
+	#------------------------------------------------------------
+	def _get_delete_callback(self):
+		return self.__delete_callback
+
+	def _set_delete_callback(self, callback):
+		if callback is not None:
+			if self.__refresh_callback is None:
+				raise ValueError('refresh callback must be set before delete callback can be set')
+			if not callable(callback):
+				raise ValueError('<delete> callback is not a callable: %s' % callback)
+		self.__delete_callback = callback
+		if callback is None:
+			self._BTN_remove.Enable(False)
+			self._BTN_remove.Hide()
+			self._LCTRL_items.delete_callback = None
+		else:
+			self._BTN_remove.Enable(True)
+			self._BTN_remove.Show()
+			self._LCTRL_items.delete_callback = self._on_delete_key_pressed_in_listctrl
+
+	delete_callback = property(_get_delete_callback, _set_delete_callback)
+
+	#------------------------------------------------------------
+	def _get_refresh_callback(self):
+		return self.__refresh_callback
+
+	def _set_refresh_callback_helper(self):
+		wx.BeginBusyCursor()
+		try:
+			self.__refresh_callback(lctrl = self._LCTRL_items)
+		finally:
+			wx.EndBusyCursor()
+		self._LCTRL_items.set_column_widths()
+
+	def _set_refresh_callback(self, callback):
+		if callback is not None:
+			if not callable(callback):
+				raise ValueError('<refresh> callback is not a callable: %s' % callback)
+		self.__refresh_callback = callback
+		if callback is not None:
+			wx.CallAfter(self._set_refresh_callback_helper)
+
+	refresh_callback = property(_get_refresh_callback, _set_refresh_callback)
+
 	#------------------------------------------------------------
 	def _get_select_callback(self):
 		return self.__select_callback
@@ -723,6 +939,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.__select_callback = callback
 
 	select_callback = property(_get_select_callback, _set_select_callback)
+
 	#------------------------------------------------------------
 	def _get_message(self):
 		return self._LBL_message.GetLabel()
@@ -737,6 +954,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self.Layout()
 
 	message = property(_get_message, _set_message)
+
 	#------------------------------------------------------------
 	def _set_left_extra_button(self, definition):
 		if definition is None:
@@ -755,6 +973,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self._BTN_extra_left.Show()
 
 	left_extra_button = property(lambda x:x, _set_left_extra_button)
+
 	#------------------------------------------------------------
 	def _set_middle_extra_button(self, definition):
 		if definition is None:
@@ -773,6 +992,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 		self._BTN_extra_middle.Show()
 
 	middle_extra_button = property(lambda x:x, _set_middle_extra_button)
+
 	#------------------------------------------------------------
 	def _set_right_extra_button(self, definition):
 		if definition is None:
@@ -1001,29 +1221,47 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# for debugging sorting:
 		#self.Bind(wx.EVT_LIST_COL_CLICK, self._on_col_click, self)
 
+		# cols/rows
 		self.__widths = None
 		self.__data = None
+
+		# event callbacks
+		self.__select_callback = None
 		self.__activate_callback = None
-		self.__on_select_callback = None
+		self.__new_callback = None
+		self.__edit_callback = None
+		self.__delete_callback = None
+
+		# context menu
 		self.__extend_popup_menu_callback = None
+		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)	# (also handled by MENU key on EVT_LIST_KEY_DOWN)
+
+		# row tooltips
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
-		self.__tt_static_part = _("""Select the items you want to work on.
-
-A discontinuous selection may depend on your holding down a platform-dependent modifier key (<ctrl>, <alt>, etc) or key combination (eg. <ctrl-shift> or <ctrl-alt>) while clicking.""")
+		self.__tt_static_part = _(
+			u'Select the items you want to work on.\n'
+			u'\n'
+			u'A discontinuous selection may depend on your holding '
+			u'down a platform-dependent modifier key (<CTRL>, <ALT>, '
+			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
+			u'while clicking.'
+		)
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
-		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self._on_list_item_rightclicked)
 
 		# search related:
 		self.__next_line_to_search = 0
 		self.__search_data = None
 		self.__search_dlg = None
 		self.__searchable_cols = None
-#		self.Bind(wx.EVT_KILL_FOCUS, self._on_lost_focus)
-		self.Bind(wx.EVT_CHAR, self._on_char)
 		self.Bind(wx.EVT_FIND_CLOSE, self._on_search_dlg_closed)
 		self.Bind(wx.EVT_FIND, self._on_search_first_match)
 		self.Bind(wx.EVT_FIND_NEXT, self._on_search_next_match)
+
+		# general event handling
+#		self.Bind(wx.EVT_KILL_FOCUS, self._on_lost_focus)
+		self.Bind(wx.EVT_CHAR, self._on_char)						# CTRL-F -> Find dlg
+		self.Bind(wx.EVT_LIST_KEY_DOWN, self._on_list_key_down)		# context menu key -> context menu / DEL / INS
 
 	#------------------------------------------------------------
 	# setters
@@ -1336,25 +1574,32 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self._invalidate_sorting_metadata()
 
 	#------------------------------------------------------------
-	# event handlers
+	# internal helpers
 	#------------------------------------------------------------
-	def _on_list_item_activated(self, event):
-		event.Skip()
-		if self.__activate_callback is not None:
-			self.__activate_callback(event)
+	def __show_context_menu(self, item_idx):
 
-	#------------------------------------------------------------
-	def _on_list_item_selected(self, event):
-		event.Skip()
-		if self.__on_select_callback is not None:
-			self.__on_select_callback(event)
+		# build context menu
+		self._context_menu = wx.Menu(title = _('List Item Actions:'))
 
-	#------------------------------------------------------------
-	def _on_list_item_rightclicked(self, event):
-		event.Skip()
+		needs_separator = False
+		if self.__new_callback is not None:
+			menu_item = self._context_menu.Append(-1, _('Add (<INS>)'))
+			self.Bind(wx.EVT_MENU, self._on_add_row, menu_item)
+			needs_separator = True
+		if self.__edit_callback is not None:
+			menu_item = self._context_menu.Append(-1, _('Edit'))
+			self.Bind(wx.EVT_MENU, self._on_edit_row, menu_item)
+			needs_separator = True
+		if self.__delete_callback is not None:
+			menu_item = self._context_menu.Append(-1, _('Delete (<DEL>)'))
+			self.Bind(wx.EVT_MENU, self._on_delete_row, menu_item)
+			needs_separator = True
+		if needs_separator:
+			self._context_menu.AppendSeparator()
 
+		clip_menu = wx.Menu()
 		col_headers = []
-		self._rclicked_row_idx = event.Index
+		self._rclicked_row_idx = item_idx
 		self._rclicked_row_data = self.get_item_data(item_idx = self._rclicked_row_idx)
 		self._rclicked_row_cells = []
 		self._rclicked_row_cells_w_hdr = []
@@ -1365,10 +1610,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			self._rclicked_row_cells.append(cell_content)
 			self._rclicked_row_cells_w_hdr.append(u'%s: %s' % (col_header, cell_content))
 
-		# build menus
-
-		# set clipboard to item
-		clip_menu = wx.Menu()
+		# 1) set clipboard to item
 		# row tooltip
 		menu_item = clip_menu.Append(-1, _('Row tooltip'))
 		self.Bind(wx.EVT_MENU, self._tooltip2clipboard, menu_item)
@@ -1410,7 +1652,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				clip_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_menu)
 		clip_menu.AppendSeparator()
 
-		# append item to current clipboard item
+		# 2) append item to current clipboard item
 		clip_add_menu = wx.Menu()
 		# row tooltip
 		menu_item = clip_add_menu.Append(-1, _('Row tooltip'))
@@ -1448,17 +1690,98 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 				clip_add_menu.AppendMenu(-1, _(u'Column &%s: %s') % (col_idx+1, col_header), col_add_menu)
 		clip_add_menu.AppendSeparator()
 
-		self._popup_menu = wx.Menu(title = _('List Item Actions:'))
-		self._popup_menu.AppendMenu(-1, _('Copy to &clipboard...'), clip_menu)
-		self._popup_menu.AppendMenu(-1, _('&Append to clipboard...'), clip_add_menu)
+		# show menu
+		self._context_menu.AppendMenu(-1, _('&Copy to clipboard...'), clip_menu)
+		self._context_menu.AppendMenu(-1, _('Append (&+) to clipboard...'), clip_add_menu)
 
 		if self.__extend_popup_menu_callback is not None:
-			self.__extend_popup_menu_callback(menu = self._popup_menu)
+			self.__extend_popup_menu_callback(menu = self._context_menu)
 
 		# show menu
-		self.PopupMenu(self._popup_menu, wx.DefaultPosition)
-		self._popup_menu.Destroy()
+		self.PopupMenu(self._context_menu, wx.DefaultPosition)
+		self._context_menu.Destroy()
 		return
+
+	#------------------------------------------------------------
+	def __handle_delete(self):
+		if self.__delete_callback is None:
+			return
+
+		no_items = len(self.get_selected_items(only_one = False))
+		if no_items == 0:
+			return
+
+		if no_items > 1:
+			question = _(
+				'%s list items are selected.\n'
+				'\n'
+				'Really delete all %s items ?'
+			) % (no_items, no_items)
+			title = _('Deleting list items')
+			style = wx.YES_NO | wx.CANCEL | wx.ICON_QUESTION | wx.STAY_ON_TOP
+			dlg = wx.MessageDialog(None, question, title, style)
+			btn_pressed = dlg.ShowModal()
+			dlg.Destroy()
+			if btn_pressed == wx.ID_NO:
+				self.SetFocus()
+				return
+			if btn_pressed == wx.ID_CANCEL:
+				self.SetFocus()
+				return
+
+		self.__delete_callback()
+		return
+
+	#------------------------------------------------------------
+	def __handle_insert(self):
+		if self.__new_callback is None:
+			return
+		self.__new_callback()
+
+	#------------------------------------------------------------
+	def __handle_edit(self):
+		if self.__edit_callback is None:
+			return
+		self.__edit_callback()
+
+	#------------------------------------------------------------
+	# event handlers
+	#------------------------------------------------------------
+	def _on_list_item_activated(self, event):
+		event.Skip()
+		if self.__activate_callback is not None:
+			self.__activate_callback(event)
+			return
+		# default double-click / ENTER action: edit
+		self.__handle_edit()
+
+	#------------------------------------------------------------
+	def _on_list_item_selected(self, event):
+		if self.__select_callback is not None:
+			self.__select_callback(event)
+		else:
+			event.Skip()
+
+	#------------------------------------------------------------
+	def _on_list_item_rightclicked(self, event):
+		event.Skip()
+		self.__show_context_menu(event.Index)
+
+	#------------------------------------------------------------
+	def _on_list_key_down(self, evt):
+		evt.Skip()
+
+		if evt.KeyCode == wx.WXK_DELETE:
+			self.__handle_delete()
+			return
+
+		if evt.KeyCode == wx.WXK_INSERT:
+			self.__handle_insert()
+			return
+
+		if evt.KeyCode == wx.WXK_MENU:
+			self.__show_context_menu(evt.Index)
+			return
 
 	#------------------------------------------------------------
 	def _on_char(self, evt):
@@ -1471,17 +1794,24 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			evt.Skip()
 			return
 
+		print "search key invoked"
+
 		if self.__search_dlg is not None:
 			self.__search_dlg.Close()
 			return
 
+		print "no seach dialog existed"
+
 		if self.__searchable_cols is None:
+			print "setting searchable cols to all (arg=None)"
 			self.searchable_columns = None
 
 		if len(self.__searchable_cols) == 0:
+			print "no cols to search"
 			return
 
 		if self.__search_data is None:
+			print "new search"
 			self.__search_data = wx.FindReplaceData()
 		self.__search_dlg = wx.FindReplaceDialog (
 			self,
@@ -1489,6 +1819,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			_('Search in list'),
 			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
 		)
+		print "showing newly created search dlg"
 		self.__search_dlg.Show(True)
 
 	#------------------------------------------------------------
@@ -1576,6 +1907,23 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.SetToolTipString(dyna_tt)
 
 	#------------------------------------------------------------
+	# context menu event hendlers
+	#------------------------------------------------------------
+	def _on_add_row(self, evt):
+		evt.Skip()
+		self.__handle_insert()
+
+	#------------------------------------------------------------
+	def _on_edit_row(self, evt):
+		evt.Skip()
+		self.__handle_edit()
+
+	#------------------------------------------------------------
+	def _on_delete_row(self, evt):
+		evt.Skip()
+		self.__handle_delete()
+
+	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1596,86 +1944,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
 
-	#------------------------------------------------------------
-	def _row2clipboard(self, evt):
-		if wx.TheClipboard.IsOpened():
-			_log.debug('clipboard already open')
-			return
-		if not wx.TheClipboard.Open():
-			_log.debug('cannot open clipboard')
-			return
-		data_obj = wx.TextDataObject()
-		data_obj.SetText(u' // '.join(self._rclicked_row_cells))
-		wx.TheClipboard.SetData(data_obj)
-		wx.TheClipboard.Close()
-
-	#------------------------------------------------------------
-	def _row_list2clipboard(self, evt):
-		if wx.TheClipboard.IsOpened():
-			_log.debug('clipboard already open')
-			return
-		if not wx.TheClipboard.Open():
-			_log.debug('cannot open clipboard')
-			return
-		data_obj = wx.TextDataObject()
-		data_obj.SetText(u'\n'.join(self._rclicked_row_cells_w_hdr))
-		wx.TheClipboard.SetData(data_obj)
-		wx.TheClipboard.Close()
-
-	#------------------------------------------------------------
-	def _data2clipboard(self, evt):
-		if wx.TheClipboard.IsOpened():
-			_log.debug('clipboard already open')
-			return
-		if not wx.TheClipboard.Open():
-			_log.debug('cannot open clipboard')
-			return
-		data_obj = wx.TextDataObject()
-		txt = self._rclicked_row_data.format()
-		if type(txt) == type([]):
-			txt = u'\n'.join(txt)
-		data_obj.SetText(txt)
-		wx.TheClipboard.SetData(data_obj)
-		wx.TheClipboard.Close()
-
-	#------------------------------------------------------------
-	def _col2clipboard(self, evt):
-		if wx.TheClipboard.IsOpened():
-			_log.debug('clipboard already open')
-			return
-		if not wx.TheClipboard.Open():
-			_log.debug('cannot open clipboard')
-			return
-		data_obj = wx.TextDataObject()
-
-		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
-		txt = self._rclicked_row_cells[col_idx]
-
-		data_obj.SetText(txt)
-		wx.TheClipboard.SetData(data_obj)
-		wx.TheClipboard.Close()
-
-	#------------------------------------------------------------
-	def _col_w_hdr2clipboard(self, evt):
-		if wx.TheClipboard.IsOpened():
-			_log.debug('clipboard already open')
-			return
-		if not wx.TheClipboard.Open():
-			_log.debug('cannot open clipboard')
-			return
-		data_obj = wx.TextDataObject()
-
-		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
-		txt = self._rclicked_row_cells_w_hdr[col_idx]
-
-		data_obj.SetText(txt)
-		wx.TheClipboard.SetData(data_obj)
-		wx.TheClipboard.Close()
-
-	#------------------------------------------------------------
-	# add to clipboard:
 	#------------------------------------------------------------
 	def _add_tooltip2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
@@ -1708,6 +1976,19 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _row2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u' // '.join(self._rclicked_row_cells))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _add_row2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1732,6 +2013,19 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _row_list2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		data_obj.SetText(u'\n'.join(self._rclicked_row_cells_w_hdr))
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _add_row_list2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1751,6 +2045,22 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		txt += u'\n'.join(self._rclicked_row_cells_w_hdr)
 
 		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _data2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+		txt = self._rclicked_row_data.format()
+		if type(txt) == type([]):
+			txt = u'\n'.join(txt)
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
@@ -1784,6 +2094,24 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		wx.TheClipboard.Close()
 
 	#------------------------------------------------------------
+	def _col2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		txt = self._rclicked_row_cells[col_idx]
+
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
 	def _add_col2clipboard(self, evt):
 		if wx.TheClipboard.IsOpened():
 			_log.debug('clipboard already open')
@@ -1800,11 +2128,29 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			txt = data_obj.Text + u'\n'
 
 		# add text
-		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt += self._rclicked_row_cells[col_idx]
 
 		# set text
+		data_obj.SetText(txt)
+		wx.TheClipboard.SetData(data_obj)
+		wx.TheClipboard.Close()
+
+	#------------------------------------------------------------
+	def _col_w_hdr2clipboard(self, evt):
+		if wx.TheClipboard.IsOpened():
+			_log.debug('clipboard already open')
+			return
+		if not wx.TheClipboard.Open():
+			_log.debug('cannot open clipboard')
+			return
+		data_obj = wx.TextDataObject()
+
+		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		txt = self._rclicked_row_cells_w_hdr[col_idx]
+
 		data_obj.SetText(txt)
 		wx.TheClipboard.SetData(data_obj)
 		wx.TheClipboard.Close()
@@ -1826,8 +2172,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 			txt = data_obj.Text + u'\n'
 
 		# add text
-		#col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
-		col_idx = int(self._popup_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
+		#col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.split(u':', 1)[0].rstrip(u':')) - 1
+		col_idx = int(self._context_menu.FindItemById(evt.Id).ItemLabel.rsplit(u'#', 1)[1].rstrip(u']'))
 		txt += self._rclicked_row_cells_w_hdr[col_idx]
 
 		# set text
@@ -1841,6 +2187,7 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	def _on_search_dlg_closed(self, evt):
 		self.__search_dlg.Destroy()
 		self.__search_dlg = None
+		self.__search_data = None
 
 	#------------------------------------------------------------
 #	def _on_lost_focus(self, evt):
@@ -1852,7 +2199,8 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 #		#self.__search_dlg.Close()
 
 	#------------------------------------------------------------
-	def __on_search_match(self, search_term):
+	def _on_search_match(self, search_term):
+		print "on searching for match"
 		for row_idx in range(self.__next_line_to_search, self.ItemCount):
 			for col_idx in range(self.ColumnCount):
 				if col_idx not in self.__searchable_cols:
@@ -1873,11 +2221,33 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 
 	#------------------------------------------------------------
 	def _on_search_first_match(self, evt):
-		self.__on_search_match(evt.GetFindString())
+		print "on searching for FIRST match"
+		self.__next_line_to_search = 0
+		self._on_search_match(evt.GetFindString())
 
 	#------------------------------------------------------------
 	def _on_search_next_match(self, evt):
-		self.__on_search_match(evt.GetFindString())
+		print "on searching for NEXT match"
+		self._on_search_match(evt.GetFindString())
+
+	#------------------------------------------------------------
+	def _set_searchable_cols(self, cols):
+		print "setting searchable cols to:", cols
+		# zero-based list of which columns to search
+		if cols is None:
+			print "setting searchable cols to:", range(self.ColumnCount)
+			self.__searchable_cols = range(self.ColumnCount)
+			return
+		# weed out columns to be searched which
+		# don't exist and uniquify them
+		new_cols = {}
+		for col in cols:
+			if col < self.ColumnCount:
+				new_cols[col] = True
+		print "actually setting searchable cols to:", new_cols.keys()
+		self.__searchable_cols = new_cols.keys()
+
+	searchable_columns = property(lambda x:x, _set_searchable_cols)
 
 	#------------------------------------------------------------
 	# properties
@@ -1898,20 +2268,64 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 	activate_callback = property(_get_activate_callback, _set_activate_callback)
 
 	#------------------------------------------------------------
-	def _get_on_select_callback(self):
-		return self.__on_select_callback
+	def _get_select_callback(self):
+		return self.__select_callback
 
-	def _set_on_select_callback(self, callback):
+	def _set_select_callback(self, callback):
 		if callback is None:
 			self.Unbind(wx.EVT_LIST_ITEM_SELECTED)
-			self.__on_select_callback = None
+			self.__select_callback = None
 			return
 		if not callable(callback):
 			raise ValueError('<selected> callback is not a callable: %s' % callback)
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected)
-		self.__on_select_callback = callback
+		self.__select_callback = callback
 
-	on_select_callback = property(_get_on_select_callback, _set_on_select_callback)
+	select_callback = property(_get_select_callback, _set_select_callback)
+
+	#------------------------------------------------------------
+	def _get_delete_callback(self):
+		return self.__delete_callback
+
+	def _set_delete_callback(self, callback):
+		if callback is None:
+			#self.Unbind(wx.EVT_LIST_ITEM_SELECTED)
+			self.__delete_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<delete> callback is not a callable: %s' % callback)
+		#self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_list_item_selected)
+		self.__delete_callback = callback
+
+	delete_callback = property(_get_delete_callback, _set_delete_callback)
+
+	#------------------------------------------------------------
+	def _get_new_callback(self):
+		return self.__new_callback
+
+	def _set_new_callback(self, callback):
+		if callback is None:
+			self.__new_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<new> callback is not a callable: %s' % callback)
+		self.__new_callback = callback
+
+	new_callback = property(_get_new_callback, _set_new_callback)
+
+	#------------------------------------------------------------
+	def _get_edit_callback(self):
+		return self.__edit_callback
+
+	def _set_edit_callback(self, callback):
+		if callback is None:
+			self.__edit_callback = None
+			return
+		if not callable(callback):
+			raise ValueError('<edit> callback is not a callable: %s' % callback)
+		self.__edit_callback = callback
+
+	edit_callback = property(_get_edit_callback, _set_edit_callback)
 
 	#------------------------------------------------------------
 	def _set_item_tooltip_callback(self, callback):
@@ -1934,22 +2348,6 @@ A discontinuous selection may depend on your holding down a platform-dependent m
 		self.__extend_popup_menu_callback = callback
 
 	extend_popup_menu_callback = property(lambda x:x, _set_extend_popup_menu_callback)
-
-	#------------------------------------------------------------
-	def _set_searchable_cols(self, cols):
-		# zero-based list of which columns to search
-		if cols is None:
-			self.__searchable_cols = range(self.ColumnCount)
-			return
-		# weed out columns to be searched which
-		# don't exist and uniquify them
-		new_cols = {}
-		for col in cols:
-			if col < self.ColumnCount:
-				new_cols[col] = True
-		self.__searchable_cols = new_cols.keys()
-
-	searchable_columns = property(lambda x:x, _set_searchable_cols)
 
 	#------------------------------------------------------------
 	# ColumnSorterMixin API

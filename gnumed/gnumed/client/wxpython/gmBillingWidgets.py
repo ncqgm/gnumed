@@ -1142,10 +1142,10 @@ class cPersonBillItemsManagerPnl(gmListWidgets.cGenericListManagerPnl):
 
 		gmListWidgets.cGenericListManagerPnl.__init__(self, *args, **kwargs)
 
+		self.refresh_callback = self.refresh
 		self.new_callback = self._add_item
 		self.edit_callback = self._edit_item
 		self.delete_callback = self._del_item
-		self.refresh_callback = self.refresh
 
 		self.__show_non_invoiced_only = True
 
