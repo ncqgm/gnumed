@@ -1239,7 +1239,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		# row tooltips
 		self.__item_tooltip_callback = None
 		self.__tt_last_item = None
-		self.__tt_static_part = _(
+		self.__tt_static_part_base = _(
 			u'Select the items you want to work on.\n'
 			u'\n'
 			u'A discontinuous selection may depend on your holding '
@@ -1247,20 +1247,17 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			u'etc) or key combination (eg. <CTRL-SHIFT> or <CTRL-ALT>) '
 			u'while clicking.'
 		)
+		self.__tt_static_part = self.__tt_static_part_base
 		self.Bind(wx.EVT_MOTION, self._on_mouse_motion)
 
 		# search related:
+		self.__search_term = None
 		self.__next_line_to_search = 0
-		self.__search_data = None
-		self.__search_dlg = None
 		self.__searchable_cols = None
-		self.Bind(wx.EVT_FIND_CLOSE, self._on_search_dlg_closed)
-		self.Bind(wx.EVT_FIND, self._on_search_first_match)
-		self.Bind(wx.EVT_FIND_NEXT, self._on_search_next_match)
 
 		# general event handling
 #		self.Bind(wx.EVT_KILL_FOCUS, self._on_lost_focus)
-		self.Bind(wx.EVT_CHAR, self._on_char)						# CTRL-F -> Find dlg
+		self.Bind(wx.EVT_CHAR, self._on_char)						# CTRL-F / CTRL-N (LIST_KEY_DOWN does not support modifiers)
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self._on_list_key_down)		# context menu key -> context menu / DEL / INS
 
 	#------------------------------------------------------------
@@ -1587,7 +1584,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			self.Bind(wx.EVT_MENU, self._on_add_row, menu_item)
 			needs_separator = True
 		if self.__edit_callback is not None:
-			menu_item = self._context_menu.Append(-1, _('Edit'))
+			menu_item = self._context_menu.Append(-1, _('&Edit'))
 			self.Bind(wx.EVT_MENU, self._on_edit_row, menu_item)
 			needs_separator = True
 		if self.__delete_callback is not None:
@@ -1596,6 +1593,14 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 			needs_separator = True
 		if needs_separator:
 			self._context_menu.AppendSeparator()
+
+		menu_item = self._context_menu.Append(-1, _('Find (<CTRL-F>)'))
+		self.Bind(wx.EVT_MENU, self._on_show_search_dialog, menu_item)
+		if self.__search_term is not None:
+			if self.__search_term.strip() != u'':
+				menu_item = self._context_menu.Append(-1, _('Find next [%s] (<CTRL-N>)') % self.__search_term)
+				self.Bind(wx.EVT_MENU, self._on_search_match, menu_item)
+		self._context_menu.AppendSeparator()
 
 		clip_menu = wx.Menu()
 		col_headers = []
@@ -1745,6 +1750,38 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self.__edit_callback()
 
 	#------------------------------------------------------------
+	def __show_search_dialog(self):
+		#print "showing search dlg"
+		if self.__search_term is None:
+			#print "no prev search term"
+			default = u''
+		else:
+			#print "prev search term:", self.__search_term
+			default = self.__search_term
+		search_term = wx.GetTextFromUser (
+			_(u'Enter the search term:'),
+			_(u'List search'),
+			default_value = default
+		)
+		if search_term.strip() == u'':
+			#print "empty search term"
+			self.__search_term = None
+			self.__tt_static_part = self.__tt_static_part_base
+			return
+
+		#print "search term:", search_term
+		self.__search_term = search_term
+		self.__tt_static_part = _(
+			u'Current search term: [[%s]]\n'
+			u'\n'
+			u'%s'
+		) % (
+			search_term,
+			self.__tt_static_part_base
+		)
+		self.__search_match()
+
+	#------------------------------------------------------------
 	# event handlers
 	#------------------------------------------------------------
 	def _on_list_item_activated(self, event):
@@ -1786,41 +1823,20 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	def _on_char(self, evt):
 
-		if evt.GetModifiers() != wx.MOD_CMD:
-			evt.Skip()
-			return
+		if unichr(evt.GetRawKeyCode()) == u'f':
+			if evt.GetModifiers() == wx.MOD_CMD:
+				#print "search dialog invoked"
+				self.__show_search_dialog()
+				return
 
-		if unichr(evt.GetRawKeyCode()) != u'f':
-			evt.Skip()
-			return
+		if unichr(evt.GetRawKeyCode()) == u'n':
+			if evt.GetModifiers() == wx.MOD_CMD:
+				#print "search-next key invoked"
+				self.__search_match()
+				return
 
-		print "search key invoked"
-
-		if self.__search_dlg is not None:
-			self.__search_dlg.Close()
-			return
-
-		print "no seach dialog existed"
-
-		if self.__searchable_cols is None:
-			print "setting searchable cols to all (arg=None)"
-			self.searchable_columns = None
-
-		if len(self.__searchable_cols) == 0:
-			print "no cols to search"
-			return
-
-		if self.__search_data is None:
-			print "new search"
-			self.__search_data = wx.FindReplaceData()
-		self.__search_dlg = wx.FindReplaceDialog (
-			self,
-			self.__search_data,
-			_('Search in list'),
-			wx.FR_NOUPDOWN | wx.FR_NOMATCHCASE | wx.FR_NOWHOLEWORD
-		)
-		print "showing newly created search dlg"
-		self.__search_dlg.Show(True)
+		evt.Skip()
+		return
 
 	#------------------------------------------------------------
 	def _on_mouse_motion(self, event):
@@ -1922,6 +1938,16 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	def _on_delete_row(self, evt):
 		evt.Skip()
 		self.__handle_delete()
+
+	#------------------------------------------------------------
+	def _on_show_search_dialog(self, evt):
+		evt.Skip()
+		self.__show_search_dialog()
+
+	#------------------------------------------------------------
+	def _on_search_match(self, evt):
+		evt.Skip()
+		self.__search_match()
 
 	#------------------------------------------------------------
 	def _tooltip2clipboard(self, evt):
@@ -2184,12 +2210,6 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 	#------------------------------------------------------------
 	# search related methods
 	#------------------------------------------------------------
-	def _on_search_dlg_closed(self, evt):
-		self.__search_dlg.Destroy()
-		self.__search_dlg = None
-		self.__search_data = None
-
-	#------------------------------------------------------------
 #	def _on_lost_focus(self, evt):
 #		evt.Skip()
 #		if self.__search_dlg is None:
@@ -2199,14 +2219,28 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 #		#self.__search_dlg.Close()
 
 	#------------------------------------------------------------
-	def _on_search_match(self, search_term):
-		print "on searching for match"
+	def __search_match(self):
+		#print "search_match"
+		if self.__search_term is None:
+			#print "no search term"
+			return False
+		if self.__search_term.strip() == u'':
+			#print "empty search term"
+			return False
+		if self.__searchable_cols is None:
+			#print "searchable cols not initialized, now setting"
+			self.searchable_columns = None
+		if len(self.__searchable_cols) == 0:
+			#print "no cols to search"
+			return False
+
+		#print "on searching for match on:", self.__search_term
 		for row_idx in range(self.__next_line_to_search, self.ItemCount):
 			for col_idx in range(self.ColumnCount):
 				if col_idx not in self.__searchable_cols:
 					continue
 				col_val = self.GetItem(row_idx, col_idx).GetText()
-				if regex.search(search_term, col_val, regex.U | regex.I) is not None:
+				if regex.search(self.__search_term, col_val, regex.U | regex.I) is not None:
 					self.Select(row_idx)
 					self.EnsureVisible(row_idx)
 					if row_idx == self.ItemCount - 1:
@@ -2220,22 +2254,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		return False
 
 	#------------------------------------------------------------
-	def _on_search_first_match(self, evt):
-		print "on searching for FIRST match"
-		self.__next_line_to_search = 0
-		self._on_search_match(evt.GetFindString())
-
-	#------------------------------------------------------------
-	def _on_search_next_match(self, evt):
-		print "on searching for NEXT match"
-		self._on_search_match(evt.GetFindString())
-
-	#------------------------------------------------------------
 	def _set_searchable_cols(self, cols):
-		print "setting searchable cols to:", cols
+		#print "setting searchable cols to:", cols
 		# zero-based list of which columns to search
 		if cols is None:
-			print "setting searchable cols to:", range(self.ColumnCount)
+			#print "setting searchable cols to:", range(self.ColumnCount)
 			self.__searchable_cols = range(self.ColumnCount)
 			return
 		# weed out columns to be searched which
@@ -2244,7 +2267,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		for col in cols:
 			if col < self.ColumnCount:
 				new_cols[col] = True
-		print "actually setting searchable cols to:", new_cols.keys()
+		#print "actually setting searchable cols to:", new_cols.keys()
 		self.__searchable_cols = new_cols.keys()
 
 	searchable_columns = property(lambda x:x, _set_searchable_cols)
