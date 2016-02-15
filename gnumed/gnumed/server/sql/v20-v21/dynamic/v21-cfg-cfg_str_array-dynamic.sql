@@ -10,7 +10,7 @@
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmPACSPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmEMRListJournalPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsPlugin","gmShowMedDocs","gmScanIdxMedDocsPlugin","gmPACSPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmPrintManagerPlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmKOrganizerPlugin","gmXdtViewer"}'
 where
 	fk_item in (
 		select pk_cfg_item
@@ -23,7 +23,7 @@ where
 
 -- --------------------------------------------------------------
 update cfg.cfg_str_array set
-	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmSoapPlugin","gmCurrentSubstancesPlugin","gmMeasurementsPlugin","gmShowMedDocs","gmPACSPlugin","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmPrintManagerPlugin"}'
+	value = '{"gmProviderInboxPlugin","gmWaitingListPlugin","gmPatientOverviewPlugin","gmNotebookedPatientEditionPlugin","gmEMRBrowserPlugin","gmEMRListJournalPlugin","gmSoapPlugin","gmEMRListJournalPlugin","gmCurrentSubstancesPlugin","gmMeasurementsPlugin","gmShowMedDocs","gmPACSPlugin","gmScanIdxMedDocsPlugin","gmExportAreaPlugin","gmEMRTimelinePlugin","gmDataMiningPlugin","gmSimpleSoapPlugin","gmEMRJournalPlugin","gmBillingPlugin","gmPrintManagerPlugin"}'
 where
 	fk_item in (
 		select pk_cfg_item

@@ -1486,7 +1486,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 		self._LCTRL_journal.set_columns([_('Date'), u'', _('Entry'), _('Who / When')])
 		self._LCTRL_journal.set_resize_column(3)
-		self._LCTRL_journal.on_select_callback = self._on_row_selected
+		self._LCTRL_journal.select_callback = self._on_row_selected
 		self._TCTRL_details.SetValue(u'')
 
 		self.__load_timer = gmTimer.cTimer(callback = self._on_load_details, delay = 1000, cookie = 'EMRListJournalPluginDBLoadTimer')
@@ -1500,9 +1500,18 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._LCTRL_journal.remove_items_safely()
 		self._TCTRL_details.SetValue(u'')
 
-		pat = gmPerson.gmCurrentPatient()
-		emr = pat.emr
-		journal = emr.get_as_journal()
+		if self._RBTN_by_encounter.Value:		# (... is True:)
+			order_by = u'c_enc.started, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
+						#, c_vej.clin_when (should not make a relevant difference)
+		elif self._RBTN_by_last_modified.Value:	# (... is True:)
+			order_by = u'c_vej.modified_when, c_vej.pk_episode, c_vej.src_table, scr'
+						#, c_vej.clin_when (should not make a relevant difference)
+		elif self._RBTN_by_item_time.Value:		# (... is True:)
+			order_by = u'c_vej.clin_when, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
+		else:
+			raise ValueError('invalid EMR journal list sort state')
+
+		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
 
 		items = []
 		data = []
@@ -1672,12 +1681,29 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		wx.CallAfter(self._TCTRL_details.SetValue, txt)
 
 	#--------------------------------------------------------
-#	def _on_order_by_encounter_selected(self, event):
-#		self.repopulate_ui()
+	def _on_order_by_encounter_selected(self, event):
+		self.repopulate_ui()
 
 	#--------------------------------------------------------
-#	def _on_order_by_last_mod_selected(self, event):
-#		self.repopulate_ui()
+	def _on_order_by_last_mod_selected(self, event):
+		self.repopulate_ui()
+
+	#--------------------------------------------------------
+	def _on_order_by_item_time_selected(self, event):
+		self.repopulate_ui()
+
+	#--------------------------------------------------------
+	def _on_order_by_item_time_selected(self, event):
+		event.Skip()
+		self.repopulate_ui()
+
+	#--------------------------------------------------------
+	def _on_edit_button_pressed(self, event):
+		event.Skip()
+
+	#--------------------------------------------------------
+	def _on_delete_button_pressed(self, event):
+		event.Skip()
 
 	#--------------------------------------------------------
 #	def _on_button_find_pressed(self, event):

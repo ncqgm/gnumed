@@ -22,7 +22,9 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
 		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Last modification time"))
-		self._BTN_search = wx.Button(self, wx.ID_FIND, "", style=wx.BU_EXACTFIT)
+		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Entry time"))
+		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
+		self._BTN_delete = wx.Button(self, wx.ID_ANY, _("&Delete"), style=wx.BU_EXACTFIT)
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
 		self._LCTRL_journal = cReportListCtrl(self, wx.ID_ANY, style=wx.BORDER_NONE | wx.LC_REPORT)
 		self._TCTRL_details = wx.TextCtrl(self, wx.ID_ANY, "", style=wx.BORDER_NONE | wx.TE_BESTWRAP | wx.TE_MULTILINE | wx.TE_READONLY)
@@ -32,7 +34,9 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 
 		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_encounter_selected, self._RBTN_by_encounter)
 		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_last_mod_selected, self._RBTN_by_last_modified)
-		self.Bind(wx.EVT_BUTTON, self._on_button_find_pressed, self._BTN_search)
+		self.Bind(wx.EVT_RADIOBUTTON, self._on_order_by_item_time_selected, self._RBTN_by_item_time)
+		self.Bind(wx.EVT_BUTTON, self._on_edit_button_pressed, self._BTN_edit)
+		self.Bind(wx.EVT_BUTTON, self._on_delete_button_pressed, self._BTN_delete)
 		# end wxGlade
 
 	def __set_properties(self):
@@ -41,7 +45,11 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		self._RBTN_by_encounter.SetToolTipString(_("Show journal ordered by encounter."))
 		self._RBTN_by_encounter.SetValue(1)
 		self._RBTN_by_last_modified.SetToolTipString(_("Show journal ordered by time of last modification."))
-		self._BTN_search.SetToolTipString(_("Show search dialog."))
+		self._RBTN_by_item_time.SetToolTipString(_("Show journal ordered by actual clinical time of each entry."))
+		self._BTN_edit.SetToolTipString(_("Edit the selected chart entry."))
+		self._BTN_edit.Enable(False)
+		self._BTN_delete.SetToolTipString(_("Delete selected chart entry."))
+		self._BTN_delete.Enable(False)
 		self._LCTRL_journal.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		self._TCTRL_details.SetBackgroundColour(wx.SystemSettings_GetColour(wx.SYS_COLOUR_BACKGROUND))
 		# end wxGlade
@@ -54,8 +62,10 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		__lbl_mode = wx.StaticText(self, wx.ID_ANY, _("Order by:"))
 		__szr_top.Add(__lbl_mode, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_top.Add(self._RBTN_by_encounter, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
-		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
-		__szr_top.Add(self._BTN_search, 0, wx.ALIGN_CENTER_VERTICAL, 0)
+		__szr_top.Add(self._RBTN_by_last_modified, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
+		__szr_top.Add(self._RBTN_by_item_time, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 10)
+		__szr_top.Add(self._BTN_edit, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 3)
+		__szr_top.Add(self._BTN_delete, 0, wx.ALIGN_CENTER_VERTICAL | wx.RIGHT, 5)
 		__szr_main.Add(__szr_top, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, 3)
 		__szr_main.Add(self._SLINE_top, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 0)
 		__szr_journal.Add(self._LCTRL_journal, 3, wx.EXPAND, 0)
@@ -74,8 +84,16 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		print "Event handler '_on_order_by_last_mod_selected' not implemented!"
 		event.Skip()
 
-	def _on_button_find_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
-		print "Event handler '_on_button_find_pressed' not implemented!"
+	def _on_order_by_item_time_selected(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print "Event handler '_on_order_by_item_time_selected' not implemented!"
+		event.Skip()
+
+	def _on_edit_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print "Event handler '_on_edit_button_pressed' not implemented!"
+		event.Skip()
+
+	def _on_delete_button_pressed(self, event):  # wxGlade: wxgEMRListJournalPluginPnl.<event_handler>
+		print "Event handler '_on_delete_button_pressed' not implemented!"
 		event.Skip()
 
 # end of class wxgEMRListJournalPluginPnl

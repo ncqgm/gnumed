@@ -483,16 +483,17 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			c_vpepi.issue_clinically_relevant,
 			c_vpepi.episode_open,
 
-			c_vpenc.started
+			c_enc.started
 				as encounter_started,
-			c_vpenc.last_affirmed
+			c_enc.last_affirmed
 				as encounter_last_affirmed,
-			c_vpenc.l10n_type
+			_(c_ety.description)
 				as encounter_l10n_type
 		FROM
 			clin.v_emr_journal c_vej
 				left join clin.v_pat_episodes c_vpepi on (c_vej.pk_episode = c_vpepi.pk_episode)
-					left join clin.v_pat_encounters c_vpenc on (c_vej.pk_encounter = c_vpenc.pk_encounter)
+					left join clin.encounter c_enc on (c_vej.pk_encounter = c_enc.pk)
+						left join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 		WHERE
 			%s
 		%s""" % (
