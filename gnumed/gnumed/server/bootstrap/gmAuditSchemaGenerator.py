@@ -72,6 +72,25 @@ CREATE TRIGGER zt_ins_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
 """
 
+SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_ins_%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_ins_%(src_tbl)s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
+BEGIN
+	NEW.row_version := 0;
+	NEW.modified_when := CURRENT_TIMESTAMP;
+	NEW.modified_by := SESSION_USER;
+	return NEW;
+END;';
+
+CREATE TRIGGER zt_ins_%(src_tbl)s
+	BEFORE INSERT ON %(src_schema)s.%(src_tbl)s
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_ins_%(src_tbl)s();
+"""
+
 # update
 SQL_TEMPLATE_UPDATE = u"""DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
 
@@ -93,6 +112,32 @@ BEGIN
 		return NEW;
 	END IF;
 
+	NEW.row_version := OLD.row_version + 1;
+	NEW.modified_when := CURRENT_TIMESTAMP;
+	NEW.modified_by := SESSION_USER;
+	INSERT INTO audit.%(log_tbl)s (
+		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		%(cols_clause)s
+	) VALUES (
+		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		%(vals_clause)s
+	);
+	return NEW;
+END;';
+
+CREATE TRIGGER zt_upd_%(src_tbl)s
+	BEFORE UPDATE ON %(src_schema)s.%(src_tbl)s
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_upd_%(src_tbl)s();
+"""
+
+SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_upd_%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_upd_%(src_tbl)s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
+BEGIN
 	NEW.row_version := OLD.row_version + 1;
 	NEW.modified_when := CURRENT_TIMESTAMP;
 	NEW.modified_by := SESSION_USER;
@@ -147,6 +192,29 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
 """
 
+SQL_TEMPLATE_DELETE_NO_DELETER_CHECK = u"""DROP FUNCTION IF EXISTS audit.ft_del_%(src_tbl)s() cascade;
+
+CREATE FUNCTION audit.ft_del_%(src_tbl)s()
+	RETURNS trigger
+	LANGUAGE 'plpgsql'
+	SECURITY DEFINER
+	AS '
+BEGIN
+	INSERT INTO audit.%(log_tbl)s (
+		orig_version, orig_when, orig_by, orig_tableoid, audit_action,
+		%(cols_clause)s
+	) VALUES (
+		OLD.row_version, OLD.modified_when, OLD.modified_by, TG_RELID, TG_OP,
+		%(vals_clause)s
+	);
+	return OLD;
+END;';
+
+CREATE TRIGGER zt_del_%(src_tbl)s
+	BEFORE DELETE ON %(src_schema)s.%(src_tbl)s
+	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
+"""
+
 SQL_TEMPLATE_FK_MODIFIED_BY = u"""ALTER TABLE %(src_schema)s.%(src_tbl)s
 	DROP CONSTRAINT IF EXISTS fk_%(src_schema)s_%(src_tbl)s_fk_modified_by CASCADE;
 
@@ -169,7 +237,7 @@ ALTER TABLE dem.staff
 SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = u"""
 create table %(log_schema)s.%(log_tbl)s (
 	%(log_cols)s
-) inherits (%(log_base_tbl)s);
+) inherits (%(log_schema)s.%(log_base_tbl)s);
 
 COMMENT ON COLUMN %(log_schema)s.%(log_tbl)s.orig_version is
 	'the .row_version in the original row before the audited action took place, should be equal to .row_version';
@@ -260,14 +328,25 @@ def trigger_ddl(aCursor='default', schema=AUDIT_SCHEMA, audited_table=None):
 		'vals_clause': u', '.join(values)
 	}
 
+	modified_by_func_exists = gmPG2.function_exists(link_obj = aCursor, schema = u'gm', function = u'account_is_dbowner_or_staff')
+
 	ddl = []
-	ddl.append(SQL_TEMPLATE_INSERT % args)
-	ddl.append(u'')
-	ddl.append(SQL_TEMPLATE_UPDATE % args)
-	ddl.append(u'')
-	ddl.append(SQL_TEMPLATE_DELETE % args)
-	ddl.append(u'')
-	ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
+	if modified_by_func_exists:
+		ddl.append(SQL_TEMPLATE_INSERT % args)
+		ddl.append(u'')
+		ddl.append(SQL_TEMPLATE_UPDATE % args)
+		ddl.append(u'')
+		ddl.append(SQL_TEMPLATE_DELETE % args)
+		ddl.append(u'')
+		ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
+	else:
+		# the *_NO_*_CHECK variants are needed for pre-v21 databases
+		# where gm.account_is_dbowner_or_staff() doesn't exist yet
+		ddl.append(SQL_TEMPLATE_INSERT_NO_INSERTER_CHECK % args)
+		ddl.append(u'')
+		ddl.append(SQL_TEMPLATE_UPDATE_NO_UPDATER_CHECK % args)
+		ddl.append(u'')
+		ddl.append(SQL_TEMPLATE_DELETE_NO_DELETER_CHECK % args)
 	ddl.append(u'')
 
 	return ddl
