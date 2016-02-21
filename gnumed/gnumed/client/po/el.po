@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:15+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -5602,6 +5602,34 @@ msgstr ""
 msgid "Channel"
 msgstr "Κανάλι"
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Τελευταία τροποποίηση:"
+
+#, fuzzy
+msgid "&Entry time"
+msgstr "Άρχισε νέο"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr ""
+
+#, fuzzy
+msgid "Edit the selected chart entry."
+msgstr "Επεξεργασία του επιλεγμένου αντικειμένου."
+
+#, fuzzy
+msgid "Delete selected chart entry."
+msgstr "Διαγραφή ονόματος"
+
+msgid "Order by:"
+msgstr ""
+
 msgid "Chec&k"
 msgstr ""
 
@@ -6583,21 +6611,8 @@ msgid ""
 msgstr ""
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Τελευταία τροποποίηση:"
-
-msgid "Show journal ordered by encounter."
-msgstr ""
-
-msgid "Show journal ordered by time of last modification."
-msgstr ""
-
-#, fuzzy
 msgid "Show search dialog."
 msgstr "Κλείσιμο αυτού του διαλόγου."
-
-msgid "Order by:"
-msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
@@ -7439,6 +7454,60 @@ msgstr "διορθωμένο αποτέλεσμα"
 msgid "missing, reported later"
 msgstr "λείπει, ανέφερε αργότερα"
 
+msgid "Health issue"
+msgstr "Θέμα υγείας"
+
+#, fuzzy
+msgid "External care"
+msgstr "ID εξωτερικού ασθενούς"
+
+msgid "Vaccination"
+msgstr "Εμβολιασμός"
+
+#, fuzzy
+msgid "Clinical narrative"
+msgstr "Κλινικά"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Αποτελέσματα της εξέτασης"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Ουσία"
+
+#, fuzzy
+msgid "Hospital stay"
+msgstr "Νοσοκομείο"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr ""
+" %s εκτελεσμένες επεμβάσεις\n"
+"\n"
+
+#, fuzzy
+msgid "Family history"
+msgstr "Οικογενειακό Ιστορικό"
+
+#, fuzzy
+msgid "Document"
+msgstr "Έγγραφα"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
+#, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr ""
+
+msgid "True"
+msgstr ""
+
+msgid "False"
+msgstr ""
+
 #, fuzzy
 msgid "unknown smoking status"
 msgstr "Επεξεργασία φαρμακευτικής αγωγής"
@@ -7579,10 +7648,6 @@ msgid "Vaccinations"
 msgstr "Εμβολιασμοί"
 
 #, fuzzy
-msgid "External care"
-msgstr "ID εξωτερικού ασθενούς"
-
-#, fuzzy
 msgid "Allergies/Intolerances"
 msgstr "αλλεργίες/δυσανεξίες"
 
@@ -7656,6 +7721,39 @@ msgid ""
 "database still contains data linked to it.\n"
 "\n"
 "The account was deactivated instead."
+msgstr ""
+
+msgid "SOAP_char_S=S"
+msgstr ""
+
+msgid "SOAP_char_O=O"
+msgstr ""
+
+msgid "SOAP_char_A=A"
+msgstr ""
+
+msgid "SOAP_char_P=P"
+msgstr ""
+
+msgid "SOAP_char_U=U"
+msgstr ""
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr ""
+
+msgid "SOAP_string_Objective=Objective"
+msgstr ""
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr ""
+
+msgid "SOAP_string_Plan=Plan"
+msgstr ""
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr ""
+
+msgid "SOAP_string_Administrative=Administrative"
 msgstr ""
 
 #, fuzzy
@@ -7750,39 +7848,6 @@ msgstr ""
 
 #, python-format
 msgid "%s: Staff member %s has been notified of your chart access."
-msgstr ""
-
-msgid "soap_S"
-msgstr ""
-
-msgid "soap_O"
-msgstr ""
-
-msgid "soap_A"
-msgstr ""
-
-msgid "soap_P"
-msgstr ""
-
-msgid "soap_U"
-msgstr ""
-
-msgid "soap_Subjective"
-msgstr ""
-
-msgid "soap_Objective"
-msgstr ""
-
-msgid "soap_Assessment"
-msgstr ""
-
-msgid "soap_Plan"
-msgstr ""
-
-msgid "soap_Unspecified"
-msgstr ""
-
-msgid "soap_Administrative"
 msgstr ""
 
 #, python-format
@@ -8668,9 +8733,6 @@ msgstr " Διάρκεια: %s (%s - %s)"
 msgid "finished"
 msgstr "ολοκληρώθηκε"
 
-msgid "Health issue"
-msgstr "Θέμα υγείας"
-
 msgid "none associated"
 msgstr ""
 
@@ -8788,9 +8850,6 @@ msgstr ""
 #, fuzzy
 msgid "Cannot display timeline."
 msgstr "Δημιουργία νέου"
-
-msgid "Vaccination"
-msgstr "Εμβολιασμός"
 
 msgid "Lab result"
 msgstr "Εργαστηριακό αποτέλεσμα"
@@ -12835,33 +12894,81 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid "Row tooltip"
-msgstr ""
-
-msgid "Row data (formatted as text)"
-msgstr ""
-
-msgid "Row fields (as one line)"
-msgstr ""
-
-msgid "Row fields (as multiple lines)"
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
 msgstr ""
 
 #, fuzzy
 msgid "List Item Actions:"
 msgstr "Κατευθύνσεις"
 
+msgid "Add (<INS>)"
+msgstr ""
+
 #, fuzzy
-msgid "Copy to clipboard..."
+msgid "Delete (<DEL>)"
+msgstr " Διαγραφή "
+
+msgid "Find (<CTRL-F>)"
+msgstr ""
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr ""
+
+msgid "Row tooltip"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+msgid "Row content (as one line)"
+msgstr ""
+
+msgid "Row content (one line per column)"
+msgstr ""
+
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Column &%s: %s"
+msgstr "Αρχεία:%s"
+
+#, fuzzy
+msgid "&Copy to clipboard..."
 msgstr "Εξαγωγή στο &πρόχειρο"
 
 #, fuzzy
-msgid "Append to clipboard..."
+msgid "Append (&+) to clipboard..."
 msgstr "Εξαγωγή στο &πρόχειρο"
 
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
+msgstr ""
+
 #, fuzzy
-msgid "Search in list"
-msgstr "Αποτελέσματα αναζήτησης"
+msgid "Enter the search term:"
+msgstr "Αναζήτηση με"
+
+#, fuzzy
+msgid "List search"
+msgstr "Αναζήτηση"
+
+#, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -14017,10 +14124,6 @@ msgstr ""
 #, fuzzy
 msgid "This praxis"
 msgstr "εμβόλιο"
-
-#, fuzzy
-msgid "Hospital stay"
-msgstr "Νοσοκομείο"
 
 #, fuzzy
 msgid "Bill receiver"
@@ -17153,41 +17256,41 @@ msgid "Expand keyword / macro"
 msgstr ""
 
 #, fuzzy
-msgid "&Subjective"
+msgid "as &Subjective"
 msgstr "Υποκειμενικό"
 
 msgid "Set line to category \"Subjective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Objective"
+msgid "as &Objective"
 msgstr "Αντικειμενικό"
 
 msgid "Set line to category \"Objective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Assessment"
+msgid "as &Assessment"
 msgstr "Αξιολόγηση"
 
 msgid "Set line to category \"Assessment\""
 msgstr ""
 
 #, fuzzy
-msgid "&Plan"
+msgid "as &Plan"
 msgstr "Σχέδιο"
 
 msgid "Set line to category \"Plan\""
 msgstr ""
 
-msgid "&Unspecified"
+msgid "as &Unspecified"
 msgstr ""
 
 msgid "Set line to category \"unspecified\""
 msgstr ""
 
 #, fuzzy
-msgid "ad&Ministrative"
+msgid "as ad&Ministrative"
 msgstr "Διοικητικό"
 
 msgid "Set line to category \"administrative\""
@@ -17856,6 +17959,33 @@ msgid "&New notes %s"
 msgstr "&Σημειώσεις"
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Who / When"
+msgstr ""
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
 msgstr ""
 
 msgid "Editing tag"
@@ -18540,8 +18670,8 @@ msgid "EMR Timeline"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
-msgid "Show &Timeline"
-msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
+msgid "EMR &Timeline"
+msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 msgid "Overview"
 msgstr ""
@@ -18569,11 +18699,13 @@ msgstr "Σημειώσεις"
 msgid "&SimpleNotes"
 msgstr "&Σημειώσεις"
 
-msgid "EMR tree"
+#, fuzzy
+msgid "EMR Tree"
 msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
-msgid "EMR &Tree (topical)"
-msgstr ""
+#, fuzzy
+msgid "EMR &Tree"
+msgstr "Δέντρο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 #, fuzzy
 msgid "Print Manager"
@@ -18582,6 +18714,14 @@ msgstr "Εκτύπωση"
 #, fuzzy
 msgid "&Print Manager"
 msgstr "&Διαχείριση"
+
+#, fuzzy
+msgid "EMR Journal"
+msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
+
+#, fuzzy
+msgid "EMR &Journal (list)"
+msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
 
 msgid "Appointments"
 msgstr "Ραντεβού"
@@ -18674,11 +18814,9 @@ msgstr "Χειροκίνητο"
 msgid "User &manual (local)"
 msgstr "Χρήστης &χειροκίνητο"
 
-msgid "EMR journal"
-msgstr "Ημερολόγιο Ηλεκτρονικού Ιατρικού Φακέλου"
-
-msgid "EMR &Journal (chronological)"
-msgstr ""
+#, fuzzy
+msgid "EMR &Journal (text)"
+msgstr "Εξαγωγή εφημερίδας ΗΙΦ"
 
 msgid "Demographics"
 msgstr "Δημογραφικά"
@@ -18872,6 +19010,14 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
 
 #, fuzzy
+#~ msgid "Search in list"
+#~ msgstr "Αποτελέσματα αναζήτησης"
+
+#, fuzzy
+#~ msgid "Show &Timeline"
+#~ msgstr "Δείξε &ΠαράδειγμαΠρόσθετου"
+
+#, fuzzy
 #~ msgid "&Unknown"
 #~ msgstr "'Αγνωστο"
 
@@ -18988,10 +19134,6 @@ msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUme
 #~ msgstr ""
 #~ "%s: %s από  %.8s (v%s)\n"
 #~ "%s"
-
-#, fuzzy
-#~ msgid "Clinical hint"
-#~ msgstr "Κλινικά"
 
 #, fuzzy
 #~ msgid "to printer"

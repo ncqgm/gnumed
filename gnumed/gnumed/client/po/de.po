@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:15+0100\n"
-"PO-Revision-Date: 2016-02-06 19:26+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"PO-Revision-Date: 2016-02-21 17:29+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -43,7 +43,7 @@ msgstr "Unbekanntes Format."
 msgid ""
 "You are trying to open an old file with a new version of timeline. Please "
 "install version 0.21.1 of timeline to convert it to the new format."
-msgstr "\t\t"
+msgstr ""
 
 msgid "Other timelines can't be imported to a directory timeline"
 msgstr ""
@@ -5776,6 +5776,31 @@ msgstr ""
 msgid "Channel"
 msgstr "Kanal"
 
+msgid "&Last modification time"
+msgstr "&Letzter Bearbeitungszeitpunkt"
+
+msgid "&Entry time"
+msgstr "&Eingabezeit"
+
+msgid "Show journal ordered by encounter."
+msgstr "Zeige Journal nach APK sortiert."
+
+msgid "Show journal ordered by time of last modification."
+msgstr "Karteijournal sortiert nach letztem Bearbeitungszeitpunkt zeigen."
+
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr ""
+"Zeige Journal nach klinisch relevantem Zeitpunkt der Einträge sortiert."
+
+msgid "Edit the selected chart entry."
+msgstr "Den markierten Karteieintrag bearbeiten."
+
+msgid "Delete selected chart entry."
+msgstr "Den markierten Karteieintrag löschen."
+
+msgid "Order by:"
+msgstr "Sortiere anhand von:"
+
 msgid "Chec&k"
 msgstr "&Prüfen"
 
@@ -6871,20 +6896,8 @@ msgstr ""
 "\n"
 "Eine leere Nachricht unterdrückt die Begrüßung."
 
-msgid "&Last modification time"
-msgstr "&Letzter Bearbeitungszeitpunkt"
-
-msgid "Show journal ordered by encounter."
-msgstr "Zeige Journal nach APK sortiert."
-
-msgid "Show journal ordered by time of last modification."
-msgstr "Karteijournal sortiert nach letztem Bearbeitungszeitpunkt zeigen."
-
 msgid "Show search dialog."
 msgstr "Suchfunktion anzeigen."
-
-msgid "Order by:"
-msgstr "Sortiere anhand von:"
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr "KEINE GEEICHTE MESSUNG. NICHT ZUR BEHANDLUNG ZUGELASSEN !"
@@ -7696,6 +7709,50 @@ msgstr "berichtigtes Ergebnis"
 msgid "missing, reported later"
 msgstr "fehlt/folgt"
 
+msgid "Health issue"
+msgstr "Grunderkrankung"
+
+msgid "External care"
+msgstr "Externe Mitbetreuung"
+
+msgid "Vaccination"
+msgstr "Impfung"
+
+msgid "Clinical narrative"
+msgstr "Medizinischer Freitext"
+
+msgid "Test result"
+msgstr "Meßwert"
+
+msgid "Substance intake"
+msgstr "Substanzeinnahme"
+
+msgid "Hospital stay"
+msgstr "Krankenhausaufenthalt"
+
+msgid "Performed procedure"
+msgstr "Maßnahme"
+
+msgid "Family history"
+msgstr "Familienanamnese"
+
+msgid "Document"
+msgstr "Dokument"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr "nicht übertragener Eintragtyp, aus Tabelle [%s]"
+
+#, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr "Kann medizinischen Eintrag nicht laden <%s(%s)>"
+
+msgid "True"
+msgstr "Wahr"
+
+msgid "False"
+msgstr "Falsch"
+
 msgid "unknown smoking status"
 msgstr "Rauchstatus nicht bekannt"
 
@@ -7831,9 +7888,6 @@ msgstr "Berufe"
 msgid "Vaccinations"
 msgstr "Impfungen"
 
-msgid "External care"
-msgstr "Externe Mitbetreuung"
-
 msgid "Allergies/Intolerances"
 msgstr "Allergien/Unverträglichkeiten"
 
@@ -7929,6 +7983,39 @@ msgstr ""
 "\n"
 "Das Konto wurde stattdessen deaktiviert."
 
+msgid "SOAP_char_S=S"
+msgstr "SOAP_char_S=A"
+
+msgid "SOAP_char_O=O"
+msgstr "SOAP_char_O=B"
+
+msgid "SOAP_char_A=A"
+msgstr "SOAP_char_A=D"
+
+msgid "SOAP_char_P=P"
+msgstr "SOAP_char_P=T"
+
+msgid "SOAP_char_U=U"
+msgstr "SOAP_char_U=U"
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr "SOAP_string_Subjective=Anamnese"
+
+msgid "SOAP_string_Objective=Objective"
+msgstr "SOAP_string_Objective=Befund"
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr "SOAP_string_Assessment=Bewertung"
+
+msgid "SOAP_string_Plan=Plan"
+msgstr "SOAP_string_Plan=Therapieplan"
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr "SOAP_string_Unspecified=Unbestimmt"
+
+msgid "SOAP_string_Administrative=Administrative"
+msgstr "SOAP_string_Administrative=Administrativ"
+
 msgid "Active clinical hint"
 msgstr "Aktiver klinischer Tip"
 
@@ -8021,39 +8108,6 @@ msgstr ""
 #, python-format
 msgid "%s: Staff member %s has been notified of your chart access."
 msgstr "%s: Mitarbeiter %s wurde über Ihre Akteneinsicht benachrichtigt."
-
-msgid "soap_S"
-msgstr "soap_A"
-
-msgid "soap_O"
-msgstr "soap_B"
-
-msgid "soap_A"
-msgstr "soap_D"
-
-msgid "soap_P"
-msgstr "soap_T"
-
-msgid "soap_U"
-msgstr "soap_U"
-
-msgid "soap_Subjective"
-msgstr "soap_Anamnese"
-
-msgid "soap_Objective"
-msgstr "soap_Befund"
-
-msgid "soap_Assessment"
-msgstr "soap_Beurteilung"
-
-msgid "soap_Plan"
-msgstr "soap_Procedere"
-
-msgid "soap_Unspecified"
-msgstr "soap_Unbestimmt"
-
-msgid "soap_Administrative"
-msgstr "soap_Verwaltung"
 
 #, python-format
 msgid ""
@@ -8932,9 +8986,6 @@ msgstr " Dauer: %s (%s - %s)"
 msgid "finished"
 msgstr "beendet"
 
-msgid "Health issue"
-msgstr "Grunderkrankung"
-
 msgid "none associated"
 msgstr "keine zugeordnet"
 
@@ -9049,9 +9100,6 @@ msgstr "Tod"
 
 msgid "Cannot display timeline."
 msgstr "Kann Zeitstrahl nicht anzeigen."
-
-msgid "Vaccination"
-msgstr "Impfung"
 
 msgid "Lab result"
 msgstr "Laborergebnis"
@@ -13566,29 +13614,87 @@ msgstr ""
 "\n"
 "Wirklich alle %s Einträge löschen ?"
 
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
+msgstr ""
+"Wählen Sie die Einträge, die Sie bearbeiten wollen.\n"
+"\n"
+"Eine nicht fortlaufende Auswahl erreichen Sie durch das Drücken "
+"(systemabhängiger) Zusatztasten (<STRG>, <ALT>, etc) oder "
+"Tastenkombinationen (z.B. <STRG-SHIFT> oder <STRG-ALT>) während des "
+"Markierens."
+
+msgid "List Item Actions:"
+msgstr "Tabellenaktionen:"
+
+msgid "Add (<INS>)"
+msgstr "Hinzufügen (<Einfg>)"
+
+msgid "Delete (<DEL>)"
+msgstr "Löschen (<Entf>)"
+
+msgid "Find (<CTRL-F>)"
+msgstr "Finden (<STRG-F>)"
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr "Finde nächste [%s] (<STRG-N>)"
+
 msgid "Row tooltip"
 msgstr "Tooltip des Eintrags"
 
 msgid "Row data (formatted as text)"
 msgstr "Zeilendaten (als Text)"
 
-msgid "Row fields (as one line)"
-msgstr "Spalteninhalte (als Einzeiler)"
+msgid "Row content (as one line)"
+msgstr "Zeileninhalt (als Einzeiler)"
 
-msgid "Row fields (as multiple lines)"
-msgstr "Spalteninhalte (als Zeilen)"
+msgid "Row content (one line per column)"
+msgstr "Zeileninhalt (pro Spalte eine Zeile)"
 
-msgid "List Item Actions:"
-msgstr "Tabellenaktionen:"
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
+msgstr "Spalte &%s: \"%s\" [#%s]"
 
-msgid "Copy to clipboard..."
-msgstr "In die Zwischenablage kopieren..."
+#, python-format
+msgid "Column &%s: %s"
+msgstr "Spalte &%s: %s"
 
-msgid "Append to clipboard..."
-msgstr "An die Zwischenablage anhängen..."
+msgid "&Copy to clipboard..."
+msgstr "In Zwischenablage &kopieren..."
 
-msgid "Search in list"
-msgstr "In Liste suchen"
+msgid "Append (&+) to clipboard..."
+msgstr "An Zwischenablage anhängen (&+)..."
+
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
+msgstr ""
+"Es sind %s Listeneinträge markiert.\n"
+"\n"
+"Wirklich alle %s Einträge löschen ?"
+
+msgid "Enter the search term:"
+msgstr "Suchbegriff eingeben:"
+
+msgid "List search"
+msgstr "Listensuche"
+
+#, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr ""
+"Jetziger Suchbegriff: [[%s]]\n"
+"\n"
+"%s"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty die Python && die FSF präsentieren"
@@ -14903,9 +15009,6 @@ msgstr "Praxis-Primärarzt"
 
 msgid "This praxis"
 msgstr "Diese Praxis"
-
-msgid "Hospital stay"
-msgstr "Krankenhausaufenthalt"
 
 msgid "Bill receiver"
 msgstr "Rechnungsempfänger"
@@ -18441,38 +18544,38 @@ msgstr "Schlüsselwort e&xpandieren"
 msgid "Expand keyword / macro"
 msgstr "Schlüsselwort/Makro expandieren"
 
-msgid "&Subjective"
-msgstr "&Anamnese"
+msgid "as &Subjective"
+msgstr "als &Anamnese"
 
 msgid "Set line to category \"Subjective\""
 msgstr "Zeile als \"Anamnese\" markieren"
 
-msgid "&Objective"
-msgstr "&Befund"
+msgid "as &Objective"
+msgstr "als &Befund"
 
 msgid "Set line to category \"Objective\""
 msgstr "Zeile als \"Befund\" markieren"
 
-msgid "&Assessment"
-msgstr "&Beurteilung"
+msgid "as &Assessment"
+msgstr "als &Beurteilung"
 
 msgid "Set line to category \"Assessment\""
 msgstr "Zeile als \"Diagnose\" (Beurteilung) markieren"
 
-msgid "&Plan"
-msgstr "&Therapie"
+msgid "as &Plan"
+msgstr "als &Therapie"
 
 msgid "Set line to category \"Plan\""
 msgstr "Zeile als \"Therapie\" markieren"
 
-msgid "&Unspecified"
-msgstr "&Unbestimmt"
+msgid "as &Unspecified"
+msgstr "als &Unbestimmt"
 
 msgid "Set line to category \"unspecified\""
 msgstr "Zeile als \"Unspezifisch\" markieren"
 
-msgid "ad&Ministrative"
-msgstr "Ad&Ministratives"
+msgid "as ad&Ministrative"
+msgstr "als Ad&Ministratives"
 
 msgid "Set line to category \"administrative\""
 msgstr "Zeile als \"Administrativ\" markieren"
@@ -19162,6 +19265,42 @@ msgstr "Neue &Einträge %s"
 
 msgid "Find text in EMR Journal"
 msgstr "Finde Text im Karteijournal"
+
+msgid "Who / When"
+msgstr "Wer / Wann"
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+"Karteieintrag: %s       [#%s in %s]\n"
+" Modifiziert: %s von %s (%s Rev %s)\n"
+"\n"
+"Grunderkrankung: %s%s\n"
+"Episode: %s%s\n"
+"APK: %s%s"
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+"%s\n"
+"\n"
+"                        Rev %s (%s) von %s in <%s>"
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
+msgstr ""
 
 msgid "Editing tag"
 msgstr "Symbol bearbeiten"
@@ -20014,8 +20153,8 @@ msgstr "lade Modul <%s>"
 msgid "EMR Timeline"
 msgstr "Kartei - Zeitstrahl"
 
-msgid "Show &Timeline"
-msgstr "Zeige &Zeitstrahl"
+msgid "EMR &Timeline"
+msgstr "Kartei: &Zeitstrahl"
 
 msgid "Overview"
 msgstr "Übersicht"
@@ -20041,17 +20180,23 @@ msgstr "EinfachKartei"
 msgid "&SimpleNotes"
 msgstr "&EinfachKartei"
 
-msgid "EMR tree"
-msgstr "Kartei - Baum"
+msgid "EMR Tree"
+msgstr "Karteibaum"
 
-msgid "EMR &Tree (topical)"
-msgstr "EMR-&Baum (thematisch)"
+msgid "EMR &Tree"
+msgstr "Kartei: &Baum"
 
 msgid "Print Manager"
 msgstr "Druckwarteschlange"
 
 msgid "&Print Manager"
 msgstr "Druck&Warteschlange"
+
+msgid "EMR Journal"
+msgstr "Karteijournal"
+
+msgid "EMR &Journal (list)"
+msgstr "Kartei: &Journal (Liste)"
 
 msgid "Appointments"
 msgstr "Termine"
@@ -20146,11 +20291,8 @@ msgstr "Handbuch"
 msgid "User &manual (local)"
 msgstr "&Handbuch (lokal)"
 
-msgid "EMR journal"
-msgstr "Kartei - Journal"
-
-msgid "EMR &Journal (chronological)"
-msgstr "EMR-&Journal (chronologisch)"
+msgid "EMR &Journal (text)"
+msgstr "Kartei: &Journal (Text)"
 
 msgid "Demographics"
 msgstr "Personalien"
@@ -20297,7 +20439,7 @@ msgid "Allergies"
 msgstr "Allergien"
 
 msgid "&Notes"
-msgstr "&Einträge"
+msgstr "Kartei: &Editor"
 
 msgid "Billing"
 msgstr "Abrechnung"
@@ -20360,6 +20502,51 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "soap_S"
+#~ msgstr "soap_A"
+
+#~ msgid "soap_O"
+#~ msgstr "soap_B"
+
+#~ msgid "soap_A"
+#~ msgstr "soap_D"
+
+#~ msgid "soap_P"
+#~ msgstr "soap_T"
+
+#~ msgid "soap_U"
+#~ msgstr "soap_U"
+
+#~ msgid "soap_Subjective"
+#~ msgstr "soap_Anamnese"
+
+#~ msgid "soap_Objective"
+#~ msgstr "soap_Befund"
+
+#~ msgid "soap_Assessment"
+#~ msgstr "soap_Beurteilung"
+
+#~ msgid "soap_Plan"
+#~ msgstr "soap_Procedere"
+
+#~ msgid "soap_Unspecified"
+#~ msgstr "soap_Unbestimmt"
+
+#~ msgid "soap_Administrative"
+#~ msgstr "soap_Verwaltung"
+
+#~ msgid "Row fields (as multiple lines)"
+#~ msgstr "Spalteninhalte (als Zeilen)"
+
+#~ msgid "Search in list"
+#~ msgstr "In Liste suchen"
+
+#~ msgid "Show &Timeline"
+#~ msgstr "Zeige &Zeitstrahl"
+
+#~ msgid "EMR &Tree (topical)"
+#~ msgstr "EMR-&Baum (thematisch)"
 
 #~ msgid ""
 #~ "Upload DICOM files from a directory, recursively, into the Orthanc PACS."
@@ -20742,9 +20929,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "%s: %s%s%s (%s ago)"
 #~ msgstr "%s: %s%s%s (vor %s)"
-
-#~ msgid "Clinical hint"
-#~ msgstr "Klinischer Tip"
 
 #~ msgid "More info"
 #~ msgstr "Weitere Info"
@@ -22380,9 +22564,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 #~ msgid "View encounter list"
 #~ msgstr "Kontakte auflisten"
 
-#~ msgid "EMR &tree"
-#~ msgstr "Kartei - &Baum"
-
 #~ msgid "&Progress notes editor"
 #~ msgstr "&Verlaufsnotizen"
 
@@ -22727,9 +22908,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Tables in database  /  Feedback"
 #~ msgstr "Tabellen in Datenbank  /  Rückmeldung"
-
-#~ msgid "SQL Search"
-#~ msgstr "SQL-Suche"
 
 #~ msgid "&SQL Search"
 #~ msgstr "S&QL-Suche"

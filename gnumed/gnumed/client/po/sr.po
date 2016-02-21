@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:16+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -5309,6 +5309,33 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Последње потрврђено:"
+
+msgid "&Entry time"
+msgstr ""
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr ""
+
+#, fuzzy
+msgid "Edit the selected chart entry."
+msgstr "Брисање вакцине"
+
+#, fuzzy
+msgid "Delete selected chart entry."
+msgstr "Брисање вакцине"
+
+msgid "Order by:"
+msgstr ""
+
 msgid "Chec&k"
 msgstr ""
 
@@ -6234,20 +6261,7 @@ msgid ""
 "To disable that popup leave the message empty."
 msgstr ""
 
-#, fuzzy
-msgid "&Last modification time"
-msgstr "Последње потрврђено:"
-
-msgid "Show journal ordered by encounter."
-msgstr ""
-
-msgid "Show journal ordered by time of last modification."
-msgstr ""
-
 msgid "Show search dialog."
-msgstr ""
-
-msgid "Order by:"
 msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
@@ -7045,6 +7059,59 @@ msgstr "исправљен резултат"
 msgid "missing, reported later"
 msgstr "недостаје, пријављено касније"
 
+msgid "Health issue"
+msgstr "Здравствени проблем"
+
+msgid "External care"
+msgstr ""
+
+msgid "Vaccination"
+msgstr "Вакцинација"
+
+#, fuzzy
+msgid "Clinical narrative"
+msgstr "клинички релевантно"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Резултати теста"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Супстанца"
+
+#, fuzzy
+msgid "Hospital stay"
+msgstr "Број боравака у болници: %s"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr ""
+" %s извршених захвата\n"
+"\n"
+
+#, fuzzy
+msgid "Family history"
+msgstr "Породична историја"
+
+#, fuzzy
+msgid "Document"
+msgstr "Документа:"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
+#, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr ""
+
+msgid "True"
+msgstr ""
+
+msgid "False"
+msgstr ""
+
 #, fuzzy
 msgid "unknown smoking status"
 msgstr "Уређивање вакцине"
@@ -7175,9 +7242,6 @@ msgstr ""
 msgid "Vaccinations"
 msgstr "Вакцинације"
 
-msgid "External care"
-msgstr ""
-
 #, fuzzy
 msgid "Allergies/Intolerances"
 msgstr "алергије/нетолеранције"
@@ -7251,6 +7315,39 @@ msgid ""
 "database still contains data linked to it.\n"
 "\n"
 "The account was deactivated instead."
+msgstr ""
+
+msgid "SOAP_char_S=S"
+msgstr ""
+
+msgid "SOAP_char_O=O"
+msgstr ""
+
+msgid "SOAP_char_A=A"
+msgstr ""
+
+msgid "SOAP_char_P=P"
+msgstr ""
+
+msgid "SOAP_char_U=U"
+msgstr ""
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr ""
+
+msgid "SOAP_string_Objective=Objective"
+msgstr ""
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr ""
+
+msgid "SOAP_string_Plan=Plan"
+msgstr ""
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr ""
+
+msgid "SOAP_string_Administrative=Administrative"
 msgstr ""
 
 #, fuzzy
@@ -7344,39 +7441,6 @@ msgstr ""
 
 #, python-format
 msgid "%s: Staff member %s has been notified of your chart access."
-msgstr ""
-
-msgid "soap_S"
-msgstr ""
-
-msgid "soap_O"
-msgstr ""
-
-msgid "soap_A"
-msgstr ""
-
-msgid "soap_P"
-msgstr ""
-
-msgid "soap_U"
-msgstr ""
-
-msgid "soap_Subjective"
-msgstr ""
-
-msgid "soap_Objective"
-msgstr ""
-
-msgid "soap_Assessment"
-msgstr ""
-
-msgid "soap_Plan"
-msgstr ""
-
-msgid "soap_Unspecified"
-msgstr ""
-
-msgid "soap_Administrative"
 msgstr ""
 
 #, python-format
@@ -8239,9 +8303,6 @@ msgstr ""
 msgid "finished"
 msgstr "завршено"
 
-msgid "Health issue"
-msgstr "Здравствени проблем"
-
 msgid "none associated"
 msgstr ""
 
@@ -8354,9 +8415,6 @@ msgstr ""
 #, fuzzy
 msgid "Cannot display timeline."
 msgstr "Направи лажне вакцине"
-
-msgid "Vaccination"
-msgstr "Вакцинација"
 
 msgid "Lab result"
 msgstr "Лабораторијски извештај"
@@ -12329,30 +12387,77 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
+msgstr ""
+
+msgid "List Item Actions:"
+msgstr ""
+
+msgid "Add (<INS>)"
+msgstr ""
+
+msgid "Delete (<DEL>)"
+msgstr ""
+
+msgid "Find (<CTRL-F>)"
+msgstr ""
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr ""
+
 msgid "Row tooltip"
 msgstr ""
 
 msgid "Row data (formatted as text)"
 msgstr ""
 
-msgid "Row fields (as one line)"
+msgid "Row content (as one line)"
 msgstr ""
 
-msgid "Row fields (as multiple lines)"
+msgid "Row content (one line per column)"
 msgstr ""
 
-msgid "List Item Actions:"
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
 msgstr ""
 
-msgid "Copy to clipboard..."
+#, fuzzy, python-format
+msgid "Column &%s: %s"
+msgstr "Документа: %s"
+
+#, fuzzy
+msgid "&Copy to clipboard..."
+msgstr "Додавање нове вакцине"
+
+msgid "Append (&+) to clipboard..."
 msgstr ""
 
-msgid "Append to clipboard..."
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
 msgstr ""
 
 #, fuzzy
-msgid "Search in list"
+msgid "Enter the search term:"
 msgstr "Листа лекова"
+
+msgid "List search"
+msgstr ""
+
+#, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -13473,10 +13578,6 @@ msgstr ""
 #, fuzzy
 msgid "This praxis"
 msgstr "вакцина"
-
-#, fuzzy
-msgid "Hospital stay"
-msgstr "Број боравака у болници: %s"
 
 #, fuzzy
 msgid "Bill receiver"
@@ -16553,40 +16654,40 @@ msgid "Expand keyword / macro"
 msgstr ""
 
 #, fuzzy
-msgid "&Subjective"
+msgid "as &Subjective"
 msgstr "активан"
 
 msgid "Set line to category \"Subjective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Objective"
+msgid "as &Objective"
 msgstr "активан"
 
 msgid "Set line to category \"Objective\""
 msgstr ""
 
-msgid "&Assessment"
+msgid "as &Assessment"
 msgstr ""
 
 msgid "Set line to category \"Assessment\""
 msgstr ""
 
 #, fuzzy
-msgid "&Plan"
+msgid "as &Plan"
 msgstr "План"
 
 msgid "Set line to category \"Plan\""
 msgstr ""
 
-msgid "&Unspecified"
+msgid "as &Unspecified"
 msgstr ""
 
 msgid "Set line to category \"unspecified\""
 msgstr ""
 
 #, fuzzy
-msgid "ad&Ministrative"
+msgid "as ad&Ministrative"
 msgstr "неактиван"
 
 msgid "Set line to category \"administrative\""
@@ -17231,6 +17332,33 @@ msgid "&New notes %s"
 msgstr ""
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Who / When"
+msgstr ""
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
 msgstr ""
 
 msgid "Editing tag"
@@ -17904,8 +18032,9 @@ msgstr ""
 msgid "EMR Timeline"
 msgstr ""
 
-msgid "Show &Timeline"
-msgstr ""
+#, fuzzy
+msgid "EMR &Timeline"
+msgstr "Направи лажне вакцине"
 
 msgid "Overview"
 msgstr ""
@@ -17931,16 +18060,22 @@ msgstr ""
 msgid "&SimpleNotes"
 msgstr ""
 
-msgid "EMR tree"
+msgid "EMR Tree"
 msgstr ""
 
-msgid "EMR &Tree (topical)"
+msgid "EMR &Tree"
 msgstr ""
 
 msgid "Print Manager"
 msgstr ""
 
 msgid "&Print Manager"
+msgstr ""
+
+msgid "EMR Journal"
+msgstr ""
+
+msgid "EMR &Journal (list)"
 msgstr ""
 
 msgid "Appointments"
@@ -18033,10 +18168,7 @@ msgstr ""
 msgid "User &manual (local)"
 msgstr ""
 
-msgid "EMR journal"
-msgstr ""
-
-msgid "EMR &Journal (chronological)"
+msgid "EMR &Journal (text)"
 msgstr ""
 
 msgid "Demographics"
@@ -18228,6 +18360,10 @@ msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
 
 #, fuzzy
+#~ msgid "Search in list"
+#~ msgstr "Листа лекова"
+
+#, fuzzy
 #~ msgid "&Unknown"
 #~ msgstr "непозната реакција"
 
@@ -18300,10 +18436,6 @@ msgstr ""
 #~ msgstr ""
 #~ "\n"
 #~ "Комплетна историја вакцинације овог пацијента.\n"
-
-#, fuzzy
-#~ msgid "Clinical hint"
-#~ msgstr "клинички релевантно"
 
 #, fuzzy
 #~ msgid "Switching clinical hint activation"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:16+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -5911,6 +5911,34 @@ msgstr ""
 msgid "Channel"
 msgstr "Kanaal"
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Laatst gewijzigd:"
+
+#, fuzzy
+msgid "&Entry time"
+msgstr "Begin nieuw"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr ""
+
+#, fuzzy
+msgid "Edit the selected chart entry."
+msgstr "Bewerk het geselecteerde item."
+
+#, fuzzy
+msgid "Delete selected chart entry."
+msgstr "Verwijderen van BSN"
+
+msgid "Order by:"
+msgstr ""
+
 msgid "Chec&k"
 msgstr ""
 
@@ -6967,21 +6995,8 @@ msgstr ""
 "Om dit welkomsscherm uit te zetten kunt u het welkomsbericht leeg laten."
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Laatst gewijzigd:"
-
-msgid "Show journal ordered by encounter."
-msgstr ""
-
-msgid "Show journal ordered by time of last modification."
-msgstr ""
-
-#, fuzzy
 msgid "Show search dialog."
 msgstr "Sluit deze dialoog."
-
-msgid "Order by:"
-msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
@@ -7808,6 +7823,61 @@ msgid "missing, reported later"
 msgstr "vermist, rapport volgt"
 
 #, fuzzy
+msgid "Health issue"
+msgstr "Gezondheidsprobleem"
+
+#, fuzzy
+msgid "External care"
+msgstr "BSN bewerken."
+
+msgid "Vaccination"
+msgstr "Vaccinatie"
+
+#, fuzzy
+msgid "Clinical narrative"
+msgstr "Klinisch"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Onderzoeksresultaten"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Stof"
+
+#, fuzzy
+msgid "Hospital stay"
+msgstr "&Vaccinaties"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr ""
+" %s uitgevoerde behandelingen\n"
+"\n"
+
+#, fuzzy
+msgid "Family history"
+msgstr "medische geschiedenis"
+
+#, fuzzy
+msgid "Document"
+msgstr "Documenten"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr "kan patiënt [%s] (%s/%s) niet activeren"
+
+msgid "True"
+msgstr ""
+
+msgid "False"
+msgstr ""
+
+#, fuzzy
 msgid "unknown smoking status"
 msgstr "Bewerk details van het geselecteerde staflid."
 
@@ -7950,10 +8020,6 @@ msgid "Vaccinations"
 msgstr "Vaccinaties"
 
 #, fuzzy
-msgid "External care"
-msgstr "BSN bewerken."
-
-#, fuzzy
 msgid "Allergies/Intolerances"
 msgstr "allergieën/ intolleranties"
 
@@ -8044,6 +8110,39 @@ msgid ""
 "database still contains data linked to it.\n"
 "\n"
 "The account was deactivated instead."
+msgstr ""
+
+msgid "SOAP_char_S=S"
+msgstr ""
+
+msgid "SOAP_char_O=O"
+msgstr ""
+
+msgid "SOAP_char_A=A"
+msgstr ""
+
+msgid "SOAP_char_P=P"
+msgstr ""
+
+msgid "SOAP_char_U=U"
+msgstr ""
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr ""
+
+msgid "SOAP_string_Objective=Objective"
+msgstr ""
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr ""
+
+msgid "SOAP_string_Plan=Plan"
+msgstr ""
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr ""
+
+msgid "SOAP_string_Administrative=Administrative"
 msgstr ""
 
 #, fuzzy
@@ -8139,41 +8238,6 @@ msgstr ""
 #, python-format
 msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
-
-msgid "soap_S"
-msgstr "soap_A"
-
-msgid "soap_O"
-msgstr "soap_B"
-
-msgid "soap_A"
-msgstr "soap_C"
-
-msgid "soap_P"
-msgstr "soap_P"
-
-#, fuzzy
-msgid "soap_U"
-msgstr "soap_A"
-
-msgid "soap_Subjective"
-msgstr "soap_Anamnese"
-
-msgid "soap_Objective"
-msgstr "soap_Bevindingen"
-
-msgid "soap_Assessment"
-msgstr "soap_Conclusie"
-
-msgid "soap_Plan"
-msgstr "soap_Plan"
-
-#, fuzzy
-msgid "soap_Unspecified"
-msgstr "soap_Bevindingen"
-
-msgid "soap_Administrative"
-msgstr "soap_Administratie"
 
 #, fuzzy, python-format
 msgid ""
@@ -9066,10 +9130,6 @@ msgstr "Ontmoetingen: %s (%s - %s):"
 msgid "finished"
 msgstr "voltooid"
 
-#, fuzzy
-msgid "Health issue"
-msgstr "Gezondheidsprobleem"
-
 msgid "none associated"
 msgstr ""
 
@@ -9190,9 +9250,6 @@ msgid "Cannot display timeline."
 msgstr ""
 "Kan documentonderdeel niet weergeven:\n"
 "%s"
-
-msgid "Vaccination"
-msgstr "Vaccinatie"
 
 msgid "Lab result"
 msgstr "Laboratoriumuitslag"
@@ -13661,33 +13718,81 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid "Row tooltip"
-msgstr ""
-
-msgid "Row data (formatted as text)"
-msgstr ""
-
-msgid "Row fields (as one line)"
-msgstr ""
-
-msgid "Row fields (as multiple lines)"
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
 msgstr ""
 
 #, fuzzy
 msgid "List Item Actions:"
 msgstr "Episode %s"
 
+msgid "Add (<INS>)"
+msgstr ""
+
 #, fuzzy
-msgid "Copy to clipboard..."
+msgid "Delete (<DEL>)"
+msgstr " Verwijder "
+
+msgid "Find (<CTRL-F>)"
+msgstr ""
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr ""
+
+msgid "Row tooltip"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+msgid "Row content (as one line)"
+msgstr ""
+
+msgid "Row content (one line per column)"
+msgstr ""
+
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Column &%s: %s"
+msgstr "Documenten: %s"
+
+#, fuzzy
+msgid "&Copy to clipboard..."
 msgstr "Exporteren naar &clipboard"
 
 #, fuzzy
-msgid "Append to clipboard..."
+msgid "Append (&+) to clipboard..."
 msgstr "Exporteren naar &clipboard"
 
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
+msgstr ""
+
 #, fuzzy
-msgid "Search in list"
-msgstr "zoekresultaten"
+msgid "Enter the search term:"
+msgstr "Geef zoekterm in:"
+
+#, fuzzy
+msgid "List search"
+msgstr "Zoeken"
+
+#, fuzzy, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr "Geef zoekterm in:"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "Monty the Serpent && the FSF presenteren"
@@ -14954,10 +15059,6 @@ msgstr ""
 #, fuzzy
 msgid "This praxis"
 msgstr "Uw beoordeling"
-
-#, fuzzy
-msgid "Hospital stay"
-msgstr "&Vaccinaties"
 
 #, fuzzy
 msgid "Bill receiver"
@@ -18618,42 +18719,42 @@ msgid "Expand keyword / macro"
 msgstr ""
 
 #, fuzzy
-msgid "&Subjective"
+msgid "as &Subjective"
 msgstr "Anamnese"
 
 msgid "Set line to category \"Subjective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Objective"
+msgid "as &Objective"
 msgstr "Bevindingen"
 
 msgid "Set line to category \"Objective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Assessment"
+msgid "as &Assessment"
 msgstr "Conclusie"
 
 msgid "Set line to category \"Assessment\""
 msgstr ""
 
 #, fuzzy
-msgid "&Plan"
+msgid "as &Plan"
 msgstr "Plan"
 
 msgid "Set line to category \"Plan\""
 msgstr ""
 
 #, fuzzy
-msgid "&Unspecified"
+msgid "as &Unspecified"
 msgstr "soap_Bevindingen"
 
 msgid "Set line to category \"unspecified\""
 msgstr ""
 
 #, fuzzy
-msgid "ad&Ministrative"
+msgid "as ad&Ministrative"
 msgstr "Beheer"
 
 msgid "Set line to category \"administrative\""
@@ -19386,6 +19487,33 @@ msgid "&New notes %s"
 msgstr "Notitie"
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Who / When"
+msgstr ""
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
 msgstr ""
 
 #, fuzzy
@@ -20198,8 +20326,9 @@ msgstr "plugin toevoegen..."
 msgid "EMR Timeline"
 msgstr "EMD-boom"
 
-msgid "Show &Timeline"
-msgstr ""
+#, fuzzy
+msgid "EMR &Timeline"
+msgstr "EMD-boom"
 
 #, fuzzy
 msgid "Overview"
@@ -20230,11 +20359,13 @@ msgstr "Notitie"
 msgid "&SimpleNotes"
 msgstr "Notitie"
 
-msgid "EMR tree"
+#, fuzzy
+msgid "EMR Tree"
 msgstr "EMD-boom"
 
-msgid "EMR &Tree (topical)"
-msgstr ""
+#, fuzzy
+msgid "EMR &Tree"
+msgstr "EMD-boom"
 
 #, fuzzy
 msgid "Print Manager"
@@ -20243,6 +20374,14 @@ msgstr "Onderdeel afdrukken"
 #, fuzzy
 msgid "&Print Manager"
 msgstr "Onderdeel afdrukken"
+
+#, fuzzy
+msgid "EMR Journal"
+msgstr "EMD journaal"
+
+#, fuzzy
+msgid "EMR &Journal (list)"
+msgstr "EMD journaal"
 
 msgid "Appointments"
 msgstr "Afspraken"
@@ -20342,11 +20481,9 @@ msgstr "Handleiding"
 msgid "User &manual (local)"
 msgstr "Gebruikers&handleiding (locaal)"
 
-msgid "EMR journal"
-msgstr "EMD journaal"
-
-msgid "EMR &Journal (chronological)"
-msgstr ""
+#, fuzzy
+msgid "EMR &Journal (text)"
+msgstr "EMD-journaal export"
 
 #, fuzzy
 msgid "Demographics"
@@ -20568,6 +20705,45 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#~ msgid "soap_S"
+#~ msgstr "soap_A"
+
+#~ msgid "soap_O"
+#~ msgstr "soap_B"
+
+#~ msgid "soap_A"
+#~ msgstr "soap_C"
+
+#~ msgid "soap_P"
+#~ msgstr "soap_P"
+
+#, fuzzy
+#~ msgid "soap_U"
+#~ msgstr "soap_A"
+
+#~ msgid "soap_Subjective"
+#~ msgstr "soap_Anamnese"
+
+#~ msgid "soap_Objective"
+#~ msgstr "soap_Bevindingen"
+
+#~ msgid "soap_Assessment"
+#~ msgstr "soap_Conclusie"
+
+#~ msgid "soap_Plan"
+#~ msgstr "soap_Plan"
+
+#, fuzzy
+#~ msgid "soap_Unspecified"
+#~ msgstr "soap_Bevindingen"
+
+#~ msgid "soap_Administrative"
+#~ msgstr "soap_Administratie"
+
+#, fuzzy
+#~ msgid "Search in list"
+#~ msgstr "zoekresultaten"
 
 #~ msgid "Parts"
 #~ msgstr "Onderdelen"
@@ -20831,10 +21007,6 @@ msgstr "Afbreken en GEEN verbinding maken met GNUmed."
 #, fuzzy
 #~ msgid "%s: %s%s%s (%s ago)"
 #~ msgstr "%s%7s %s: %s (%s part(s), %s)"
-
-#, fuzzy
-#~ msgid "Clinical hint"
-#~ msgstr "Klinisch"
 
 #, fuzzy
 #~ msgid "More info"

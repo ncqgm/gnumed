@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:16+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -5326,6 +5326,33 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "etternavn"
+
+msgid "&Entry time"
+msgstr ""
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
+
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr ""
+
+#, fuzzy
+msgid "Edit the selected chart entry."
+msgstr "inaktiv"
+
+#, fuzzy
+msgid "Delete selected chart entry."
+msgstr "Dokumenter:"
+
+msgid "Order by:"
+msgstr ""
+
 msgid "Chec&k"
 msgstr ""
 
@@ -6257,20 +6284,7 @@ msgid ""
 "To disable that popup leave the message empty."
 msgstr ""
 
-#, fuzzy
-msgid "&Last modification time"
-msgstr "etternavn"
-
-msgid "Show journal ordered by encounter."
-msgstr ""
-
-msgid "Show journal ordered by time of last modification."
-msgstr ""
-
 msgid "Show search dialog."
-msgstr ""
-
-msgid "Order by:"
 msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
@@ -7078,6 +7092,56 @@ msgstr ""
 msgid "missing, reported later"
 msgstr ""
 
+msgid "Health issue"
+msgstr ""
+
+msgid "External care"
+msgstr ""
+
+msgid "Vaccination"
+msgstr "Vaksinasjon"
+
+#, fuzzy
+msgid "Clinical narrative"
+msgstr "Vaksinasjon"
+
+#, fuzzy
+msgid "Test result"
+msgstr ""
+" %s test resultater\n"
+"\n"
+
+msgid "Substance intake"
+msgstr ""
+
+msgid "Hospital stay"
+msgstr ""
+
+msgid "Performed procedure"
+msgstr ""
+
+#, fuzzy
+msgid "Family history"
+msgstr "Dokumenter:"
+
+#, fuzzy
+msgid "Document"
+msgstr "Dokumenter:"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
+#, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr ""
+
+msgid "True"
+msgstr ""
+
+msgid "False"
+msgstr ""
+
 #, fuzzy
 msgid "unknown smoking status"
 msgstr "Vaksinasjon"
@@ -7213,9 +7277,6 @@ msgstr "Vaksinasjon"
 msgid "Vaccinations"
 msgstr ""
 
-msgid "External care"
-msgstr ""
-
 #, fuzzy
 msgid "Allergies/Intolerances"
 msgstr "allergier/intoleranser"
@@ -7289,6 +7350,39 @@ msgid ""
 "database still contains data linked to it.\n"
 "\n"
 "The account was deactivated instead."
+msgstr ""
+
+msgid "SOAP_char_S=S"
+msgstr ""
+
+msgid "SOAP_char_O=O"
+msgstr ""
+
+msgid "SOAP_char_A=A"
+msgstr ""
+
+msgid "SOAP_char_P=P"
+msgstr ""
+
+msgid "SOAP_char_U=U"
+msgstr ""
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr ""
+
+msgid "SOAP_string_Objective=Objective"
+msgstr ""
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr ""
+
+msgid "SOAP_string_Plan=Plan"
+msgstr ""
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr ""
+
+msgid "SOAP_string_Administrative=Administrative"
 msgstr ""
 
 #, fuzzy
@@ -7382,39 +7476,6 @@ msgstr ""
 
 #, python-format
 msgid "%s: Staff member %s has been notified of your chart access."
-msgstr ""
-
-msgid "soap_S"
-msgstr ""
-
-msgid "soap_O"
-msgstr ""
-
-msgid "soap_A"
-msgstr ""
-
-msgid "soap_P"
-msgstr ""
-
-msgid "soap_U"
-msgstr ""
-
-msgid "soap_Subjective"
-msgstr ""
-
-msgid "soap_Objective"
-msgstr ""
-
-msgid "soap_Assessment"
-msgstr ""
-
-msgid "soap_Plan"
-msgstr ""
-
-msgid "soap_Unspecified"
-msgstr ""
-
-msgid "soap_Administrative"
 msgstr ""
 
 #, python-format
@@ -8284,9 +8345,6 @@ msgstr "Pasient: %s (%s), Nr: %s\n"
 msgid "finished"
 msgstr "fullført"
 
-msgid "Health issue"
-msgstr ""
-
 msgid "none associated"
 msgstr ""
 
@@ -8399,9 +8457,6 @@ msgstr ""
 
 msgid "Cannot display timeline."
 msgstr ""
-
-msgid "Vaccination"
-msgstr "Vaksinasjon"
 
 msgid "Lab result"
 msgstr "Lab resultat"
@@ -12366,31 +12421,79 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
-msgid "Row tooltip"
-msgstr ""
-
-msgid "Row data (formatted as text)"
-msgstr ""
-
-msgid "Row fields (as one line)"
-msgstr ""
-
-msgid "Row fields (as multiple lines)"
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
 msgstr ""
 
 #, fuzzy
 msgid "List Item Actions:"
 msgstr "Vaksinasjon"
 
-msgid "Copy to clipboard..."
+msgid "Add (<INS>)"
 msgstr ""
 
-msgid "Append to clipboard..."
+msgid "Delete (<DEL>)"
+msgstr ""
+
+msgid "Find (<CTRL-F>)"
+msgstr ""
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr ""
+
+msgid "Row tooltip"
+msgstr ""
+
+msgid "Row data (formatted as text)"
+msgstr ""
+
+msgid "Row content (as one line)"
+msgstr ""
+
+msgid "Row content (one line per column)"
+msgstr ""
+
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Column &%s: %s"
+msgstr "Dokumenter: %s"
+
+#, fuzzy
+msgid "&Copy to clipboard..."
+msgstr "Vaksinasjon"
+
+#, fuzzy
+msgid "Append (&+) to clipboard..."
+msgstr "Dokumenter:"
+
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
 msgstr ""
 
 #, fuzzy
-msgid "Search in list"
+msgid "Enter the search term:"
 msgstr "Lab resultat"
+
+msgid "List search"
+msgstr ""
+
+#, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr ""
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr ""
@@ -13501,9 +13604,6 @@ msgstr ""
 #, fuzzy
 msgid "This praxis"
 msgstr "Vaksinasjon"
-
-msgid "Hospital stay"
-msgstr ""
 
 #, fuzzy
 msgid "Bill receiver"
@@ -16557,39 +16657,39 @@ msgid "Expand keyword / macro"
 msgstr ""
 
 #, fuzzy
-msgid "&Subjective"
+msgid "as &Subjective"
 msgstr "Subjektiv"
 
 msgid "Set line to category \"Subjective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Objective"
+msgid "as &Objective"
 msgstr "Objektiv"
 
 msgid "Set line to category \"Objective\""
 msgstr ""
 
-msgid "&Assessment"
+msgid "as &Assessment"
 msgstr ""
 
 msgid "Set line to category \"Assessment\""
 msgstr ""
 
-msgid "&Plan"
+msgid "as &Plan"
 msgstr ""
 
 msgid "Set line to category \"Plan\""
 msgstr ""
 
-msgid "&Unspecified"
+msgid "as &Unspecified"
 msgstr ""
 
 msgid "Set line to category \"unspecified\""
 msgstr ""
 
 #, fuzzy
-msgid "ad&Ministrative"
+msgid "as ad&Ministrative"
 msgstr "inaktiv"
 
 msgid "Set line to category \"administrative\""
@@ -17238,6 +17338,33 @@ msgid "&New notes %s"
 msgstr ""
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Who / When"
+msgstr ""
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
 msgstr ""
 
 msgid "Editing tag"
@@ -17889,8 +18016,9 @@ msgstr ""
 msgid "EMR Timeline"
 msgstr ""
 
-msgid "Show &Timeline"
-msgstr ""
+#, fuzzy
+msgid "EMR &Timeline"
+msgstr "avsluttet"
 
 msgid "Overview"
 msgstr ""
@@ -17916,10 +18044,10 @@ msgstr ""
 msgid "&SimpleNotes"
 msgstr ""
 
-msgid "EMR tree"
+msgid "EMR Tree"
 msgstr ""
 
-msgid "EMR &Tree (topical)"
+msgid "EMR &Tree"
 msgstr ""
 
 #, fuzzy
@@ -17929,6 +18057,12 @@ msgstr "avsluttet"
 #, fuzzy
 msgid "&Print Manager"
 msgstr "avsluttet"
+
+msgid "EMR Journal"
+msgstr ""
+
+msgid "EMR &Journal (list)"
+msgstr ""
 
 msgid "Appointments"
 msgstr ""
@@ -18020,10 +18154,7 @@ msgstr ""
 msgid "User &manual (local)"
 msgstr ""
 
-msgid "EMR journal"
-msgstr ""
-
-msgid "EMR &Journal (chronological)"
+msgid "EMR &Journal (text)"
 msgstr ""
 
 msgid "Demographics"
@@ -18215,6 +18346,10 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Search in list"
+#~ msgstr "Lab resultat"
 
 #, fuzzy
 #~ msgid "&Unknown"

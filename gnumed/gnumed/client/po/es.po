@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-06 19:15+0100\n"
+"POT-Creation-Date: 2016-02-21 18:01+0100\n"
 "PO-Revision-Date: 2015-11-19 20:28-0300\n"
 "Last-Translator: fredyrivera <fredyrivera@gmail.com>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -6022,6 +6022,36 @@ msgstr ""
 msgid "Channel"
 msgstr "Canal"
 
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Última modificación"
+
+#, fuzzy
+msgid "&Entry time"
+msgstr "Hora de término "
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+#, fuzzy
+msgid "Show journal ordered by time of last modification."
+msgstr "RME Jornal ordenado por la última hora de modificación\n"
+
+#, fuzzy
+msgid "Show journal ordered by actual clinical time of each entry."
+msgstr "RME Jornal ordenado por la última hora de modificación\n"
+
+#, fuzzy
+msgid "Edit the selected chart entry."
+msgstr "Editar el ítem seleccionado."
+
+#, fuzzy
+msgid "Delete selected chart entry."
+msgstr "Elimino ingreso de cuidado externo"
+
+msgid "Order by:"
+msgstr ""
+
 msgid "Chec&k"
 msgstr "Verifi&que"
 
@@ -7127,22 +7157,8 @@ msgstr ""
 "Si desea deshabilitar ese diálogo deje vacío el mensaje."
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Última modificación"
-
-msgid "Show journal ordered by encounter."
-msgstr ""
-
-#, fuzzy
-msgid "Show journal ordered by time of last modification."
-msgstr "RME Jornal ordenado por la última hora de modificación\n"
-
-#, fuzzy
 msgid "Show search dialog."
 msgstr "Cerrar este diálogo."
-
-msgid "Order by:"
-msgstr ""
 
 msgid "THIS IS NOT A VERIFIED MEASUREMENT. DO NOT USE FOR ACTUAL CARE."
 msgstr ""
@@ -7973,6 +7989,56 @@ msgstr "resultado correcto"
 msgid "missing, reported later"
 msgstr "perdido, reportado posteriormente"
 
+msgid "Health issue"
+msgstr "Problema de salud"
+
+msgid "External care"
+msgstr "Cuidado externo"
+
+msgid "Vaccination"
+msgstr "Vacunación"
+
+#, fuzzy
+msgid "Clinical narrative"
+msgstr "Ayuda clínica"
+
+#, fuzzy
+msgid "Test result"
+msgstr "Resultado de los exámenes"
+
+#, fuzzy
+msgid "Substance intake"
+msgstr "Sustancias"
+
+msgid "Hospital stay"
+msgstr "Hospitalización"
+
+#, fuzzy
+msgid "Performed procedure"
+msgstr " %s procedimientos realizados"
+
+#, fuzzy
+msgid "Family history"
+msgstr "HIstorial Familiar"
+
+#, fuzzy
+msgid "Document"
+msgstr "Documentos"
+
+#, python-format
+msgid "unmapped entry type from table [%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "cannot instantiate clinical root item <%s(%s)>"
+msgstr "no puedo activar paciente [%s] (%s/%s)"
+
+msgid "True"
+msgstr ""
+
+msgid "False"
+msgstr ""
+
 #, fuzzy
 msgid "unknown smoking status"
 msgstr "estado de la prueba desconocido [%s]"
@@ -8112,9 +8178,6 @@ msgstr "Ocupaciones"
 msgid "Vaccinations"
 msgstr "Vacunaciones"
 
-msgid "External care"
-msgstr "Cuidado externo"
-
 msgid "Allergies/Intolerances"
 msgstr "Alergias/Intolerancias"
 
@@ -8210,6 +8273,39 @@ msgstr ""
 "\n"
 "La cuenta será desactivada, alternativamente."
 
+msgid "SOAP_char_S=S"
+msgstr ""
+
+msgid "SOAP_char_O=O"
+msgstr ""
+
+msgid "SOAP_char_A=A"
+msgstr ""
+
+msgid "SOAP_char_P=P"
+msgstr ""
+
+msgid "SOAP_char_U=U"
+msgstr ""
+
+msgid "SOAP_string_Subjective=Subjective"
+msgstr ""
+
+msgid "SOAP_string_Objective=Objective"
+msgstr ""
+
+msgid "SOAP_string_Assessment=Assessment"
+msgstr ""
+
+msgid "SOAP_string_Plan=Plan"
+msgstr ""
+
+msgid "SOAP_string_Unspecified=Unspecified"
+msgstr ""
+
+msgid "SOAP_string_Administrative=Administrative"
+msgstr ""
+
 msgid "Active clinical hint"
 msgstr "Ayuda clínica activa"
 
@@ -8301,39 +8397,6 @@ msgstr ""
 msgid "%s: Staff member %s has been notified of your chart access."
 msgstr ""
 "%s: El miembro del equipo %s ha sido notificado de su acceso a la cartilla."
-
-msgid "soap_S"
-msgstr "soap_S"
-
-msgid "soap_O"
-msgstr "soap_0"
-
-msgid "soap_A"
-msgstr "soap_A"
-
-msgid "soap_P"
-msgstr "soap_P"
-
-msgid "soap_U"
-msgstr "soap_U"
-
-msgid "soap_Subjective"
-msgstr "soap_Subjetivo"
-
-msgid "soap_Objective"
-msgstr "soap_Objetivo"
-
-msgid "soap_Assessment"
-msgstr "soap_Apreciativo"
-
-msgid "soap_Plan"
-msgstr "soap_Plan"
-
-msgid "soap_Unspecified"
-msgstr "soap_Inespecífico"
-
-msgid "soap_Administrative"
-msgstr "soap_Administrativo"
 
 #, python-format
 msgid ""
@@ -9226,9 +9289,6 @@ msgstr " Duración: %s (%s - %s)"
 msgid "finished"
 msgstr "finalizada"
 
-msgid "Health issue"
-msgstr "Problema de salud"
-
 msgid "none associated"
 msgstr "sin asociación"
 
@@ -9343,9 +9403,6 @@ msgstr "Muerte"
 
 msgid "Cannot display timeline."
 msgstr "No puedo mostrar la liunea de tiempo."
-
-msgid "Vaccination"
-msgstr "Vacunación"
 
 msgid "Lab result"
 msgstr "Resultado de laboratorio"
@@ -13871,6 +13928,38 @@ msgid ""
 "Really delete all %s items ?"
 msgstr ""
 
+#, fuzzy
+msgid ""
+"Select the items you want to work on.\n"
+"\n"
+"A discontinuous selection may depend on your holding down a platform-"
+"dependent modifier key (<CTRL>, <ALT>, etc) or key combination (eg. <CTRL-"
+"SHIFT> or <CTRL-ALT>) while clicking."
+msgstr ""
+"Seleccione los ítemes con los que quiere trabajar.\n"
+"\n"
+"Una selección discontinua puede depender de su accionamiento de la tecla "
+"modificatoria dependiente de la plataforma (<ctrl>,<alt>, etc) o combinación "
+"de teclas (eg. <ctrl-shift> o <ctrl-alt>) al hacer click."
+
+#, fuzzy
+msgid "List Item Actions:"
+msgstr "Acciones para el Episodio:"
+
+msgid "Add (<INS>)"
+msgstr ""
+
+#, fuzzy
+msgid "Delete (<DEL>)"
+msgstr "Eliminar"
+
+msgid "Find (<CTRL-F>)"
+msgstr ""
+
+#, python-format
+msgid "Find next [%s] (<CTRL-N>)"
+msgstr ""
+
 msgid "Row tooltip"
 msgstr ""
 
@@ -13878,26 +13967,49 @@ msgstr ""
 msgid "Row data (formatted as text)"
 msgstr "No reformatee texto"
 
-msgid "Row fields (as one line)"
+msgid "Row content (as one line)"
 msgstr ""
 
-msgid "Row fields (as multiple lines)"
+msgid "Row content (one line per column)"
 msgstr ""
 
-#, fuzzy
-msgid "List Item Actions:"
-msgstr "Acciones para el Episodio:"
+#, python-format
+msgid "Column &%s: \"%s\" [#%s]"
+msgstr ""
+
+#, fuzzy, python-format
+msgid "Column &%s: %s"
+msgstr "Documentos: %s"
 
 #, fuzzy
-msgid "Copy to clipboard..."
+msgid "&Copy to clipboard..."
 msgstr "No es posible copiar al portapapeles."
 
 #, fuzzy
-msgid "Append to clipboard..."
+msgid "Append (&+) to clipboard..."
 msgstr "No es posible copiar al portapapeles."
 
-msgid "Search in list"
-msgstr "Busco en lista"
+#, python-format
+msgid ""
+"%s list items are selected.\n"
+"\n"
+"Really delete all %s items ?"
+msgstr ""
+
+#, fuzzy
+msgid "Enter the search term:"
+msgstr "Ingrese concepto de búsqueda:"
+
+#, fuzzy
+msgid "List search"
+msgstr "Buscar"
+
+#, fuzzy, python-format
+msgid ""
+"Current search term: [[%s]]\n"
+"\n"
+"%s"
+msgstr "Ingrese concepto de búsqueda:"
 
 msgid "Monty the Serpent && the FSF Present"
 msgstr "La Serpiente Monty && la FSF presentan"
@@ -15207,9 +15319,6 @@ msgstr "Proveedor primario en consulta"
 
 msgid "This praxis"
 msgstr "Esta consulta"
-
-msgid "Hospital stay"
-msgstr "Hospitalización"
 
 msgid "Bill receiver"
 msgstr "Selecciona receptor"
@@ -18798,42 +18907,42 @@ msgid "Expand keyword / macro"
 msgstr ""
 
 #, fuzzy
-msgid "&Subjective"
+msgid "as &Subjective"
 msgstr "Subjetivo"
 
 msgid "Set line to category \"Subjective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Objective"
+msgid "as &Objective"
 msgstr "Objetivo"
 
 msgid "Set line to category \"Objective\""
 msgstr ""
 
 #, fuzzy
-msgid "&Assessment"
+msgid "as &Assessment"
 msgstr "Apreciación"
 
 msgid "Set line to category \"Assessment\""
 msgstr ""
 
 #, fuzzy
-msgid "&Plan"
+msgid "as &Plan"
 msgstr "Procedimiento"
 
 msgid "Set line to category \"Plan\""
 msgstr ""
 
 #, fuzzy
-msgid "&Unspecified"
+msgid "as &Unspecified"
 msgstr "soap_Inespecífico"
 
 msgid "Set line to category \"unspecified\""
 msgstr ""
 
 #, fuzzy
-msgid "ad&Ministrative"
+msgid "as ad&Ministrative"
 msgstr "Administrativo"
 
 msgid "Set line to category \"administrative\""
@@ -19546,6 +19655,33 @@ msgid "&New notes %s"
 msgstr "&Nueva nota %s"
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Who / When"
+msgstr ""
+
+#, python-format
+msgid ""
+"Chart entry: %s       [#%s in %s]\n"
+" Modified: %s by %s (%s rev %s)\n"
+"\n"
+"Health issue: %s%s\n"
+"Episode: %s%s\n"
+"Encounter: %s%s"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"                        rev %s (%s) by %s in <%s>"
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"%s\n"
+"%s"
 msgstr ""
 
 msgid "Editing tag"
@@ -20405,8 +20541,9 @@ msgstr "Cargando módulo <%s>"
 msgid "EMR Timeline"
 msgstr "Linea de tiempo del RME"
 
-msgid "Show &Timeline"
-msgstr "Muestra linea del &tiempo"
+#, fuzzy
+msgid "EMR &Timeline"
+msgstr "Linea de tiempo del RME"
 
 msgid "Overview"
 msgstr "Resumen\t"
@@ -20432,17 +20569,27 @@ msgstr "Notas Simples"
 msgid "&SimpleNotes"
 msgstr "Notas &Simples"
 
-msgid "EMR tree"
+#, fuzzy
+msgid "EMR Tree"
 msgstr "Árbol RME"
 
-msgid "EMR &Tree (topical)"
-msgstr "RME &Arbol (tópicos)"
+#, fuzzy
+msgid "EMR &Tree"
+msgstr "Árbol RME"
 
 msgid "Print Manager"
 msgstr "Administrador de Impresión"
 
 msgid "&Print Manager"
 msgstr "Administrador de Im&presión"
+
+#, fuzzy
+msgid "EMR Journal"
+msgstr "Diario RME"
+
+#, fuzzy
+msgid "EMR &Journal (list)"
+msgstr "RME &Diario (cronológico)"
 
 msgid "Appointments"
 msgstr "Citas"
@@ -20537,11 +20684,9 @@ msgstr "Manual"
 msgid "User &manual (local)"
 msgstr "&Manual de Usuario"
 
-msgid "EMR journal"
-msgstr "Diario RME"
-
-msgid "EMR &Journal (chronological)"
-msgstr "RME &Diario (cronológico)"
+#, fuzzy
+msgid "EMR &Journal (text)"
+msgstr "Exportación de RME"
 
 msgid "Demographics"
 msgstr "Datos Demográficos"
@@ -20749,6 +20894,48 @@ msgstr "Abortar"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abortar y NO conectar a GNUMed."
+
+#~ msgid "soap_S"
+#~ msgstr "soap_S"
+
+#~ msgid "soap_O"
+#~ msgstr "soap_0"
+
+#~ msgid "soap_A"
+#~ msgstr "soap_A"
+
+#~ msgid "soap_P"
+#~ msgstr "soap_P"
+
+#~ msgid "soap_U"
+#~ msgstr "soap_U"
+
+#~ msgid "soap_Subjective"
+#~ msgstr "soap_Subjetivo"
+
+#~ msgid "soap_Objective"
+#~ msgstr "soap_Objetivo"
+
+#~ msgid "soap_Assessment"
+#~ msgstr "soap_Apreciativo"
+
+#~ msgid "soap_Plan"
+#~ msgstr "soap_Plan"
+
+#~ msgid "soap_Unspecified"
+#~ msgstr "soap_Inespecífico"
+
+#~ msgid "soap_Administrative"
+#~ msgstr "soap_Administrativo"
+
+#~ msgid "Search in list"
+#~ msgstr "Busco en lista"
+
+#~ msgid "Show &Timeline"
+#~ msgstr "Muestra linea del &tiempo"
+
+#~ msgid "EMR &Tree (topical)"
+#~ msgstr "RME &Arbol (tópicos)"
 
 #~ msgid "Parts"
 #~ msgstr "Partes"
@@ -21239,9 +21426,6 @@ msgstr "Abortar y NO conectar a GNUMed."
 
 #~ msgid "Export to GDT"
 #~ msgstr "Exporte a GDT"
-
-#~ msgid "Clinical hint"
-#~ msgstr "Ayuda clínica"
 
 #~ msgid "More info"
 #~ msgstr "Más información"
