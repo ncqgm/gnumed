@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __doc__ = """GNUmed StyledTextCtrl subclass for SOAP editing.
 
-orignially from: 11/21/2003 - Jeff Grimmett (grimmtooth@softhome.net)"""
+based on: 11/21/2003 - Jeff Grimmett (grimmtooth@softhome.net)"""
 #================================================================
 __author__  = "K. Hilbert <Karsten.Hilbert@gmx.net>"
 __license__ = "GPL v2 or later (details at http://www.gnu.org)"
@@ -16,6 +16,7 @@ import wx.stc
 
 if __name__ == '__main__':
 	sys.path.insert(0, '../../')
+from Gnumed.business import gmSoapDefs
 from Gnumed.wxpython import gmKeywordExpansionWidgets
 
 
@@ -217,15 +218,15 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		# markers
 		# can only use ASCII so far, so must make sure translations are ASCII:
 		self.MarkerDefine(cSoapSTC._MARKER_ADM, wx.stc.STC_MARK_CHARACTER + ord(u'.'), 'blue', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_S, wx.stc.STC_MARK_CHARACTER + ord(u'S'), 'blue', 'grey96')
-		self.MarkerDefine(cSoapSTC._MARKER_O, wx.stc.STC_MARK_CHARACTER + ord(u'O'), 'blue', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_A, wx.stc.STC_MARK_CHARACTER + ord(u'A'), 'blue', 'grey96')
-		self.MarkerDefine(cSoapSTC._MARKER_P, wx.stc.STC_MARK_CHARACTER + ord(u'P'), 'blue', 'white')
-		self.MarkerDefine(cSoapSTC._MARKER_U, wx.stc.STC_MARK_CHARACTER + ord(u'U'), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_S, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['s']), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_O, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['o']), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_A, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['a']), 'blue', 'grey96')
+		self.MarkerDefine(cSoapSTC._MARKER_P, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['p']), 'blue', 'white')
+		self.MarkerDefine(cSoapSTC._MARKER_U, wx.stc.STC_MARK_CHARACTER + ord(gmSoapDefs.soap_cat2l10n['u']), 'blue', 'grey96')
 		self.MarkerDefine(cSoapSTC._MARKER_LINE_BG_LIGHT_GREY, wx.stc.STC_MARK_BACKGROUND, 'grey96', 'grey96')
 
 		# unset hotkeys we want to re-define
-		#self.CmdKeyClear('t', wx.stc.STC_SCMOD_CTRL)
+		#self.CmdKeyClear('t', wx.stc.STC_SCMOD_CTRL)	# does not seem to work
 		self.__changing_SOAP_cat = False
 		self.__markers_of_prev_line = None
 		self.__ensure_has_all_soap_types = False
@@ -374,7 +375,8 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		caret_pos = self.CurrentPos
 		self.GotoPos(self.Length)
 		self.AddText(u'\n')
-		self.set_soap_cat_of_line(self.LineCount, soap_cat, True)
+		#self.set_soap_cat_of_line(self.LineCount, soap_cat, True)
+		self.set_soap_cat_of_line(self.LineCount, soap_cat)
 
 	#-------------------------------------------------------
 	# generic helpers
@@ -419,17 +421,17 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		# submenu "line"
 		menu_line = wx.Menu()
 
-		item = menu_line.Append(-1, _(u'&Subjective'), _('Set line to category "Subjective"'))
+		item = menu_line.Append(-1, _(u'as &Subjective'), _('Set line to category "Subjective"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_Soap, item)
-		item = menu_line.Append(-1, _(u'&Objective'), _('Set line to category "Objective"'))
+		item = menu_line.Append(-1, _(u'as &Objective'), _('Set line to category "Objective"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_sOap, item)
-		item = menu_line.Append(-1, _(u'&Assessment'), _('Set line to category "Assessment"'))
+		item = menu_line.Append(-1, _(u'as &Assessment'), _('Set line to category "Assessment"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soAp, item)
-		item = menu_line.Append(-1, _(u'&Plan'), _('Set line to category "Plan"'))
+		item = menu_line.Append(-1, _(u'as &Plan'), _('Set line to category "Plan"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soaP, item)
-		item = menu_line.Append(-1, _(u'&Unspecified'), _('Set line to category "unspecified"'))
+		item = menu_line.Append(-1, _(u'as &Unspecified'), _('Set line to category "unspecified"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soapU, item)
-		item = menu_line.Append(-1, _(u'ad&Ministrative'), _('Set line to category "administrative"'))
+		item = menu_line.Append(-1, _(u'as ad&Ministrative'), _('Set line to category "administrative"'))
 		self.Bind(wx.EVT_MENU, self.__on_make_line_soapADM, item)
 		menu_line.AppendSeparator()
 		item = menu_line.Append(-1, _(u'\u2192 &Clipboard'), _('Copy line to clipboard'))
@@ -793,10 +795,19 @@ class cSoapSTC(cWxTextCtrlCompatibility_StcMixin, gmKeywordExpansionWidgets.cKey
 		self.__markers_of_prev_line = self.MarkerGet(self.CurrentLine)
 
 	#-------------------------------------------------------
-	def __handle_soap_category_key_down(self, soap_category, line):
+	def __handle_soap_category_key_down(self, key, line):
 		self.__changing_SOAP_cat = False
-		if soap_category not in u'soapu.':		# only SOAPU+adm (= ".")
-			return
+		try:
+			soap_category = gmSoapDefs.l10n2soap_cat[key]
+		except KeyError:
+			if key.islower():
+				key = key.upper()
+			else:
+				key = key.lower()
+			try:
+				soap_category = gmSoapDefs.l10n2soap_cat[key]
+			except KeyError:
+				return
 		self.set_soap_cat_of_line(line, soap_category)
 		wx.CallAfter(self.sort_by_SOAP)
 

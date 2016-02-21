@@ -43,7 +43,7 @@ class gmEMRListJournalPlugin(gmPlugin.cNotebookPlugin):
 
 	#-------------------------------------------------
 	def MenuInfo (self):
-		return ('emr', _('Show &Journal (list)'))
+		return ('emr', _('EMR &Journal (list)'))
 
 	#-------------------------------------------------
 	def can_receive_focus(self):

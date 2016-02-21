@@ -39,7 +39,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('Show &Journal (text)'))
+		return ('emr', _('EMR &Journal (text)'))
 
 	def can_receive_focus(self):
 		# need patient

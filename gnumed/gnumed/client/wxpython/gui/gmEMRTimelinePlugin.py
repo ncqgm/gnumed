@@ -39,7 +39,7 @@ class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#--------------------------------------------------------
 	def MenuInfo (self):
-		return ('emr', _('Show &Timeline'))
+		return ('emr', _('EMR &Timeline'))
 	#--------------------------------------------------------
 	def can_receive_focus(self):
 		if not self._verify_patient_avail():

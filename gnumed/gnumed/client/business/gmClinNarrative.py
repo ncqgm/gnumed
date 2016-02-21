@@ -19,12 +19,6 @@ from Gnumed.business import gmCoding
 from Gnumed.business import gmSoapDefs
 
 
-try:
-	_('dummy-no-need-to-translate-but-make-epydoc-happy')
-except NameError:
-	_ = lambda x:x
-
-
 _log = logging.getLogger('gm.emr')
 
 #============================================================
@@ -473,33 +467,6 @@ def search_text_across_emrs(search_term=None):
 	rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': {'term': search_term}}], get_col_idx = False)
 
 	return rows
-
-#------------------------------------------------------------
-def soap_cats2list(soap_cats):
-	"""Normalizes a string or list of SOAP categories, preserving order.
-
-		None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
-		[] -> []
-		u'' -> []
-		u' ' -> [None]	(admin)
-	"""
-	if soap_cats is None:
-		return gmSoapDefs.KNOWN_SOAP_CATS
-
-	normalized_cats = []
-	for cat in soap_cats:
-		if cat in [u' ', None]:
-			if None in normalized_cats:
-				continue
-			normalized_cats.append(None)
-			continue
-		cat = cat.lower()
-		if cat in gmSoapDefs.KNOWN_SOAP_CATS:
-			if cat in normalized_cats:
-				continue
-			normalized_cats.append(cat)
-
-	return normalized_cats
 
 #============================================================
 # main

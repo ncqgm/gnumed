@@ -1995,7 +1995,7 @@ limit 1
 	def format_soap(self, episodes=None, left_margin=0, soap_cats='soapu', emr=None, issues=None):
 
 		lines = []
-		for soap_cat in gmClinNarrative.soap_cats2list(soap_cats):
+		for soap_cat in gmSoapDefs.soap_cats2list(soap_cats):
 			soap_cat_narratives = emr.get_clin_narrative (
 				episodes = episodes,
 				issues = issues,

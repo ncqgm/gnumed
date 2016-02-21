@@ -35,6 +35,7 @@ from Gnumed.business import gmAllergy
 from Gnumed.business import gmPathLab
 from Gnumed.business import gmLOINC
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmMedication
 from Gnumed.business import gmVaccination
@@ -884,7 +885,7 @@ class cClinicalRecord(object):
 
 		if soap_cats is not None:
 			where_parts.append(u'c_vn.soap_cat IN %(cats)s')
-			args['cats'] = tuple(gmClinNarrative.soap_cats2list(soap_cats))
+			args['cats'] = tuple(gmSoapDefs.soap_cats2list(soap_cats))
 
 		if providers is not None:
 			where_parts.append(u'c_vn.modified_by IN %(docs)s')
