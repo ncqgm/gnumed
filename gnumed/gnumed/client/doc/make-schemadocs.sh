@@ -3,7 +3,7 @@
 # license: GPL v2 or later
 # author: Karsten.Hilbert@gmx.net
 
-DB_LIST="gnumed_v19 gnumed_v20"
+DB_LIST="gnumed_v20 gnumed_v21"
 #DB_LIST="$1"
 SCHEMA_LIST="public gm clin dem blobs ref bill i18n"
 
@@ -35,5 +35,5 @@ for DB in ${DB_LIST} ; do
 
 done
 
-ln -s -T ~/gm-schemadocs/gnumed_v19 ~/gm-schemadocs/release
-ln -s -T ~/gm-schemadocs/gnumed_v20 ~/gm-schemadocs/devel
+ln -s -T ~/gm-schemadocs/gnumed_v20 ~/gm-schemadocs/release
+ln -s -T ~/gm-schemadocs/gnumed_v21 ~/gm-schemadocs/devel

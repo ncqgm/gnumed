@@ -6,33 +6,33 @@
 # rel-1-6-patches
 ------------------------------------------------
 
-	1.6.rc
+	1.6.0
 
-NEW: print EMR from EMR tree
+NEW: plugin: list based EMR journal
+NEW: plugin: limited PACS access (Orthanc DICOM server)
+NEW: text editor like SOAP editor (STC based)
+NEW: first cut at German AMTS medication plan
 NEW: always display select measurements in top panel
 NEW: copy-to-clipboard list content via popup menu
 NEW: region support for placeholder output
-NEW: first cut at German AMTS medication plan
 NEW: ellipsis support for placeholder output
 NEW: placeholder $range_of$
 NEW: placeholder $ph_cfg$
 NEW: placeholder $current_meds_AMTS$
 NEW: placeholder $praxis_vcf$
-NEW: add appdata.xml
-NEW: placeholder $url_escape$
-NEW: show patient address in openstreetmap
-NEW: support for substance abuse status (nicotine, ethanol, other)
-NEW: search in EMR journal view
-NEW: put EMR journal into export area
-NEW: limited PACS access (Orthanc DICOM server)
-NEW: tooltip in procedures list
 NEW: placeholder <form_version_internal>
 NEW: placeholder <form_last_modified>
+NEW: placeholder $url_escape$
+NEW: add appdata.xml
+NEW: show patient address in openstreetmap
+NEW: support for substance abuse status (nicotine, ethanol, other)
+NEW: print EMR from EMR tree
+NEW: search in EMR journal view
+NEW: copy EMR journal to export area
+NEW: tooltip in procedures list
 NEW: browse tmp dir, ~/gnumed/, ~/.gnumed/ from client
 NEW: dynamic hint on outdated / questionable EDC
 NEW: HIT risk assessment algorithm
-NEW: text editor like SOAP editor (STC based)
-NEW: list based EMR journal
 
 IMPROVED: substance intake editing workflow
 IMPROVED: shutdown with dangling top level windows

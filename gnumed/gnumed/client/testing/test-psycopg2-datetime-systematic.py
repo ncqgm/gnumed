@@ -10,7 +10,7 @@ print "psycopg2:", psycopg2.__version__
 
 dsn = u'dbname=template1 user=xxx password=xxx'
 dsn = u'you need to adjust this'
-#dsn = u'dbname=gnumed_v20 user=any-doc password=any-doc'
+#dsn = u'dbname=gnumed_v21 user=any-doc password=any-doc'
 print "DSN:", dsn
 
 conn = psycopg2.connect(dsn=dsn)

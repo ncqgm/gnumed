@@ -42,9 +42,9 @@ fname = u'gm_db-%s-fingerprint.log' % database
 #==============================================================
 outfile = io.open(fname, mode = 'wt', encoding = 'utf8')
 
-outfile.write("Fingerprinting GNUmed database ...\n")
-outfile.write("\n")
-outfile.write("%20s: %s\n" % ("Name (DB)", database))
+outfile.write(u"Fingerprinting GNUmed database ...\n")
+outfile.write(u"\n")
+outfile.write(u"%20s: %s\n" % (u"Name (DB)", database))
 
 conn = psycopg2.connect(dsn=dsn)
 curs = conn.cursor()
@@ -52,13 +52,13 @@ curs = conn.cursor()
 for cmd, label in queries:
 	curs.execute(cmd)
 	rows = curs.fetchall()
-	outfile.write("%20s: %s\n" % (label, rows[0][0]))
+	outfile.write(u"%20s: %s\n" % (label, rows[0][0]))
 
 if len(sys.argv) > 3:
 	if sys.argv[3] == '--with-dump':
 		curs.execute('SELECT gm.concat_table_structure()')
 		rows = curs.fetchall()
-		outfile.write("\n%s\n" % rows[0][0])
+		outfile.write(u"\n%s\n" % rows[0][0])
 
 curs.close()
 conn.rollback()
