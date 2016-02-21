@@ -9,14 +9,12 @@
 \set ON_ERROR_STOP 1
 
 -- --------------------------------------------------------------
-drop view if exists clin.v_hospital_stays_journal cascade;
+-- stays w/o discharge date
+drop view if exists clin.v_hospital_stays_journal_no_discharge cascade;
 
-
-create view clin.v_hospital_stays_journal as
-
-	-- stays w/o discharge date
+create view clin.v_hospital_stays_journal_no_discharge as
 	select
-		(select fk_patient from clin.encounter where pk = c_hs.fk_encounter)
+		c_enc.fk_patient
 			as pk_patient,
 		c_hs.modified_when
 			as modified_when,
@@ -45,19 +43,58 @@ create view clin.v_hospital_stays_journal as
 		'clin.hospital_stay'::text
 			as src_table,
 		c_hs.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		c_hi.description
+			as health_issue,
+		c_hi.laterality
+			as issue_laterality,
+		c_hi.is_active
+			as issue_active,
+		c_hi.clinically_relevant
+			as issue_clinically_relevant,
+		c_hi.is_confidential
+			as issue_confidential,
+
+		-- episode
+		c_epi.description
+			as episode,
+		c_epi.is_open
+			as episode_open,
+
+		-- encounter
+		c_enc.started
+			as encounter_started,
+		c_enc.last_affirmed
+			as encounter_last_affirmed,
+		c_ety.description
+			as encounter_type,
+		_(c_ety.description)
+			as encounter_l10n_type
+
 	from
 		clin.hospital_stay c_hs
-			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
+				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
-		(c_hs.discharge is NULL)
+		c_hs.discharge is NULL
+;
 
-union all
 
-	-- one-day stays
+grant select on clin.v_hospital_stays_journal_no_discharge to group "gm-doctors";
+
+-- --------------------------------------------------------------
+-- one-day stays
+drop view if exists clin.v_hospital_stays_journal_one_day cascade;
+
+create view clin.v_hospital_stays_journal_one_day as
 	select
-		(select fk_patient from clin.encounter where pk = c_hs.fk_encounter)
+		c_enc.fk_patient
 			as pk_patient,
 		c_hs.modified_when
 			as modified_when,
@@ -86,21 +123,60 @@ union all
 		'clin.hospital_stay'::text
 			as src_table,
 		c_hs.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		c_hi.description
+			as health_issue,
+		c_hi.laterality
+			as issue_laterality,
+		c_hi.is_active
+			as issue_active,
+		c_hi.clinically_relevant
+			as issue_clinically_relevant,
+		c_hi.is_confidential
+			as issue_confidential,
+
+		-- episode
+		c_epi.description
+			as episode,
+		c_epi.is_open
+			as episode_open,
+
+		-- encounter
+		c_enc.started
+			as encounter_started,
+		c_enc.last_affirmed
+			as encounter_last_affirmed,
+		c_ety.description
+			as encounter_type,
+		_(c_ety.description)
+			as encounter_l10n_type
+
 	from
 		clin.hospital_stay c_hs
-			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
+				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
 		(to_char(c_hs.clin_when, 'YYYYMMDD') = to_char(c_hs.discharge, 'YYYYMMDD'))
+;
 
-union all
 
-	-- several days stays: admission
+grant select on clin.v_hospital_stays_journal_one_day to group "gm-doctors";
+
+-- --------------------------------------------------------------
+-- several days stays: admission
+drop view if exists clin.v_hospital_stays_journal_multi_day_adm cascade;
+
+create view clin.v_hospital_stays_journal_multi_day_adm as
 	select
-		(select fk_patient from clin.encounter where pk = c_hs.fk_encounter)
+		c_enc.fk_patient
 			as pk_patient,
 		c_hs.modified_when
 			as modified_when,
@@ -130,21 +206,60 @@ union all
 		'clin.hospital_stay'::text
 			as src_table,
 		c_hs.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		c_hi.description
+			as health_issue,
+		c_hi.laterality
+			as issue_laterality,
+		c_hi.is_active
+			as issue_active,
+		c_hi.clinically_relevant
+			as issue_clinically_relevant,
+		c_hi.is_confidential
+			as issue_confidential,
+
+		-- episode
+		c_epi.description
+			as episode,
+		c_epi.is_open
+			as episode_open,
+
+		-- encounter
+		c_enc.started
+			as encounter_started,
+		c_enc.last_affirmed
+			as encounter_last_affirmed,
+		c_ety.description
+			as encounter_type,
+		_(c_ety.description)
+			as encounter_l10n_type
+
 	from
 		clin.hospital_stay c_hs
-			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
+				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
 		(to_char(c_hs.clin_when, 'YYYYMMDD') != to_char(c_hs.discharge, 'YYYYMMDD'))
+;
 
-union all
 
-	-- several days stays: discharge
+grant select on clin.v_hospital_stays_journal_multi_day_adm to group "gm-doctors";
+
+-- --------------------------------------------------------------
+-- several days stays: discharge
+drop view if exists clin.v_hospital_stays_journal_multi_day_dis cascade;
+
+create view clin.v_hospital_stays_journal_multi_day_dis as
 	select
-		(select fk_patient from clin.encounter where pk = c_hs.fk_encounter)
+		c_enc.fk_patient
 			as pk_patient,
 		c_hs.modified_when
 			as modified_when,
@@ -170,17 +285,66 @@ union all
 		'clin.hospital_stay'::text
 			as src_table,
 		c_hs.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		c_hi.description
+			as health_issue,
+		c_hi.laterality
+			as issue_laterality,
+		c_hi.is_active
+			as issue_active,
+		c_hi.clinically_relevant
+			as issue_clinically_relevant,
+		c_hi.is_confidential
+			as issue_confidential,
+
+		-- episode
+		c_epi.description
+			as episode,
+		c_epi.is_open
+			as episode_open,
+
+		-- encounter
+		c_enc.started
+			as encounter_started,
+		c_enc.last_affirmed
+			as encounter_last_affirmed,
+		c_ety.description
+			as encounter_type,
+		_(c_ety.description)
+			as encounter_l10n_type
+
 	from
 		clin.hospital_stay c_hs
-			left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
-				left join dem.org d_o on (d_o.pk = d_ou.fk_org)
+			inner join clin.encounter c_enc on (c_hs.fk_encounter = c_enc.pk)
+				inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+					inner join clin.episode c_epi on (c_hs.fk_episode = c_epi.pk)
+						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+							left join dem.org_unit d_ou on (d_ou.pk = c_hs.fk_org_unit)
+								left join dem.org d_o on (d_o.pk = d_ou.fk_org)
 	where
 		(c_hs.discharge is not NULL)
 			and
 		(to_char(c_hs.clin_when, 'YYYYMMDD') != to_char(c_hs.discharge, 'YYYYMMDD'))
 ;
 
+
+grant select on clin.v_hospital_stays_journal_multi_day_dis to group "gm-doctors";
+
+-- --------------------------------------------------------------
+drop view if exists clin.v_hospital_stays_journal cascade;
+
+
+create view clin.v_hospital_stays_journal as
+	select * from clin.v_hospital_stays_journal_no_discharge
+union all
+	select * from clin.v_hospital_stays_journal_one_day
+union all
+	select * from clin.v_hospital_stays_journal_multi_day_adm
+union all
+	select * from clin.v_hospital_stays_journal_multi_day_dis
+;
 
 grant select on clin.v_hospital_stays_journal to group "gm-doctors";
 

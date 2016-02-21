@@ -35,19 +35,53 @@ select
 		as pk_encounter,
 	b_dm.fk_episode
 		as pk_episode,
-	(select fk_health_issue from clin.episode where pk = b_dm.fk_episode)
+	c_epi.fk_health_issue
 		as pk_health_issue,
 	b_dm.pk
 		as src_pk,
 	'blobs.doc_med'::text
-		as src_table
+		as src_table,
+	b_dm.row_version,
+
+	-- issue
+	c_hi.description
+		as health_issue,
+	c_hi.laterality
+		as issue_laterality,
+	c_hi.is_active
+		as issue_active,
+	c_hi.clinically_relevant
+		as issue_clinically_relevant,
+	c_hi.is_confidential
+		as issue_confidential,
+
+	-- episode
+	c_epi.description
+		as episode,
+	c_epi.is_open
+		as episode_open,
+
+	-- encounter
+	c_enc.started
+		as encounter_started,
+	c_enc.last_affirmed
+		as encounter_last_affirmed,
+	c_ety.description
+		as encounter_type,
+	_(c_ety.description)
+		as encounter_l10n_type
+
 from
 	blobs.doc_med b_dm
 		inner join clin.encounter c_enc on (b_dm.fk_encounter = c_enc.pk)
-			inner join blobs.doc_type b_dt on (b_dm.fk_type = b_dt.pk)
-				left join dem.org_unit d_ou on (b_dm.fk_org_unit = d_ou.pk)
-					left join dem.org d_o on (d_ou.fk_org = d_o.pk)
+			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+				inner join blobs.doc_type b_dt on (b_dm.fk_type = b_dt.pk)
+					inner join clin.episode c_epi on (b_dm.fk_episode = c_epi.pk)
+						left join clin.health_issue c_hi on (c_epi.fk_health_issue = c_hi.pk)
+							left join dem.org_unit d_ou on (b_dm.fk_org_unit = d_ou.pk)
+								left join dem.org d_o on (d_ou.fk_org = d_o.pk)
 ;
+
 
 grant select on blobs.v_doc_med_journal TO GROUP "gm-doctors";
 

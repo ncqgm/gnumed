@@ -54,11 +54,51 @@ create view clin.v_reminders_journal as
 		'dem.message_inbox'::text
 			as src_table,
 		d_mi.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		null::text
+			as health_issue,
+		null::text
+			as issue_laterality,
+		null::boolean
+			as issue_active,
+		null::boolean
+			as issue_clinically_relevant,
+		null::boolean
+			as issue_confidential,
+
+		-- episode
+		null::text
+			as episode,
+		null::boolean
+			as episode_open,
+
+		-- encounter
+		(
+			select c_e.started
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_started,
+		(
+			select c_e.last_affirmed
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_last_affirmed,
+		null::text
+			as encounter_type,
+		null::text
+			as encounter_l10n_type
 	from
 		dem.message_inbox d_mi
-			join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
-				left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
+			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
+			left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
 	where
 		d_mi.fk_patient is not null
 			and
@@ -108,11 +148,51 @@ UNION
 		'dem.message_inbox'::text
 			as src_table,
 		d_mi.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		null::text
+			as health_issue,
+		null::text
+			as issue_laterality,
+		null::boolean
+			as issue_active,
+		null::boolean
+			as issue_clinically_relevant,
+		null::boolean
+			as issue_confidential,
+
+		-- episode
+		null::text
+			as episode,
+		null::boolean
+			as episode_open,
+
+		-- encounter
+		(
+			select c_e.started
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_started,
+		(
+			select c_e.last_affirmed
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_last_affirmed,
+		null::text
+			as encounter_type,
+		null::text
+			as encounter_l10n_type
 	from
 		dem.message_inbox d_mi
-			join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
-				left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
+			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
+			left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
 	where
 		d_mi.fk_patient is not null
 			and
@@ -163,11 +243,51 @@ UNION
 		'dem.message_inbox'::text
 			as src_table,
 		d_mi.row_version
-			as row_version
+			as row_version,
+
+		-- issue
+		null::text
+			as health_issue,
+		null::text
+			as issue_laterality,
+		null::boolean
+			as issue_active,
+		null::boolean
+			as issue_clinically_relevant,
+		null::boolean
+			as issue_confidential,
+
+		-- episode
+		null::text
+			as episode,
+		null::boolean
+			as episode_open,
+
+		-- encounter
+		(
+			select c_e.started
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_started,
+		(
+			select c_e.last_affirmed
+			from clin.encounter c_e
+			where c_e.fk_patient = d_mi.fk_patient
+			order by started desc
+			limit 1
+		)
+			as encounter_last_affirmed,
+		null::text
+			as encounter_type,
+		null::text
+			as encounter_l10n_type
 	from
 		dem.message_inbox d_mi
-			join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
-				left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
+			inner join dem.v_inbox_item_type d_vit on (d_mi.fk_inbox_item_type = d_vit.pk_type)
+			left join dem.staff d_st on (d_mi.fk_staff = d_st.pk)
 	where
 		d_mi.fk_patient is not null
 			and

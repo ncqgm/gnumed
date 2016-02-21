@@ -81,10 +81,40 @@ select
 		as src_pk,
 	'clin.health_issue'::text
 		as src_table,
-	c_hi.row_version
+	c_hi.row_version,
+
+	-- issue
+	c_hi.description
+		as health_issue,
+	c_hi.laterality
+		as issue_laterality,
+	c_hi.is_active
+		as issue_active,
+	c_hi.clinically_relevant
+		as issue_clinically_relevant,
+	c_hi.is_confidential
+		as issue_confidential,
+
+	-- episode
+	NULL::text
+		as episode,
+	NULL::boolean
+		as episode_open,
+
+	-- encounter
+	c_enc.started
+		as encounter_started,
+	c_enc.last_affirmed
+		as encounter_last_affirmed,
+	c_ety.description
+		as encounter_type,
+	_(c_ety.description)
+		as encounter_l10n_type
+
 from
 	clin.health_issue c_hi
 		inner join clin.encounter c_enc on c_hi.fk_encounter = c_enc.pk
+			inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
 ;
 
 

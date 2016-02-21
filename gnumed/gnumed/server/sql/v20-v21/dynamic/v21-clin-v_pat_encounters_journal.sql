@@ -78,11 +78,41 @@ select
 	c_enc.pk
 		as src_pk,
 	'clin.encounter'::text as src_table,
-	c_enc.row_version
+	c_enc.row_version,
+
+	-- issue
+	NULL::text
+		as health_issue,
+	NULL::text
+		as issue_laterality,
+	NULL::boolean
+		as issue_active,
+	NULL::boolean
+		as issue_clinically_relevant,
+	NULL::boolean
+		as issue_confidential,
+
+	-- episode
+	NULL::text
+		as episode,
+	NULL::boolean
+		as episode_open,
+
+	-- encounter
+	c_enc.started
+		as encounter_started,
+	c_enc.last_affirmed
+		as encounter_last_affirmed,
+	c_ety.description
+		as encounter_type,
+	_(c_ety.description)
+		as encounter_l10n_type
+
 from
 	clin.encounter c_enc
-		left join dem.org_unit d_ou on (c_enc.fk_location = d_ou.pk)
-			left join dem.org d_o on (d_ou.fk_org = d_o.pk)
+		inner join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+			left join dem.org_unit d_ou on (c_enc.fk_location = d_ou.pk)
+				left join dem.org d_o on (d_ou.fk_org = d_o.pk)
 ;
 
 

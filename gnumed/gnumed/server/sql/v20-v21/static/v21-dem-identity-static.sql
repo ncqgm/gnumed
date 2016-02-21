@@ -16,4 +16,15 @@ alter table audit.log_identity
 	drop column pupic;
 
 -- --------------------------------------------------------------
+drop table if exists de_de.behandlungsfall cascade;
+
+drop table if exists audit.log_behandlungsfall cascade;
+
+delete from audit.audited_tables where
+	schema = 'de_de'
+		and
+	table_name = 'behandlungsfall'
+;
+
+-- --------------------------------------------------------------
 select gm.log_script_insertion('v21-dem-identity-static.sql', '21.0');

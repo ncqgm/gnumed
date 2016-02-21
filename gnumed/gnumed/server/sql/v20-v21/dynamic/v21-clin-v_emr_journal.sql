@@ -34,7 +34,7 @@ union all
 
 union all
 
-	select *, 0 as row_version from clin.v_pat_allergies_journal
+	select * from clin.v_pat_allergies_journal
 
 union all
 
@@ -50,7 +50,7 @@ union all
 
 union all
 
-	select *, 0 as row_version from blobs.v_doc_med_journal
+	select * from blobs.v_doc_med_journal
 
 union all
 
@@ -62,7 +62,7 @@ union all
 
 union all
 
-	select * from clin.v_pat_vaccinations_journal
+	select * from clin.v_vaccinations_journal
 
 union all
 

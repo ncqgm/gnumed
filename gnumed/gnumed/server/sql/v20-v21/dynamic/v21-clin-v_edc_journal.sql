@@ -46,7 +46,35 @@ select
 	'clin.patient'::text
 		as src_table,
 	c_p.row_version
-		as row_version
+		as row_version,
+
+	-- issue
+	null::text
+		as health_issue,
+	null::text
+		as issue_laterality,
+	null::boolean
+		as issue_active,
+	null::boolean
+		as issue_clinically_relevant,
+	null::boolean
+		as issue_confidential,
+
+	-- episode
+	null::text
+		as episode,
+	null::boolean
+		as episode_open,
+
+	-- encounter
+	null::timestamp with time zone
+		as encounter_started,
+	null::timestamp with time zone
+		as encounter_last_affirmed,
+	null::text
+		as encounter_type,
+	null::text
+		as encounter_l10n_type
 from
 	clin.patient c_p
 where
