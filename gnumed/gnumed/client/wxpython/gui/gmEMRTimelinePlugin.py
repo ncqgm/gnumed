@@ -18,6 +18,7 @@ from Gnumed.wxpython import gmAccessPermissionWidgets
 _log = logging.getLogger('gm.ui')
 #================================================================
 class gmEMRTimelinePlugin(gmPlugin.cNotebookPlugin):
+
 	tab_name = _("EMR Timeline")
 	required_minimum_role = 'full clinical access'
 

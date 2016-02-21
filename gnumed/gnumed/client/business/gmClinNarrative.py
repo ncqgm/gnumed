@@ -14,7 +14,9 @@ from Gnumed.pycommon import gmBusinessDBObject
 from Gnumed.pycommon import gmTools
 from Gnumed.pycommon import gmDispatcher
 from Gnumed.pycommon import gmHooks
+
 from Gnumed.business import gmCoding
+from Gnumed.business import gmSoapDefs
 
 
 try:
@@ -24,45 +26,6 @@ except NameError:
 
 
 _log = logging.getLogger('gm.emr')
-
-
-# SOAP category definitions
-KNOWN_SOAP_CATS = list(u'soapu')
-KNOWN_SOAP_CATS.append(None)
-
-
-soap_cat2l10n = {
-	u's': _('soap_S').replace(u'soap_', u''),
-	u'o': _('soap_O').replace(u'soap_', u''),
-	u'a': _('soap_A').replace(u'soap_', u''),
-	u'p': _('soap_P').replace(u'soap_', u''),
-	u'u': _('soap_U').replace(u'soap_', u''),
-#	u'u': u'?',
-	u' ': gmTools.u_ellipsis,
-	u'': gmTools.u_ellipsis,
-	None: gmTools.u_ellipsis
-}
-
-soap_cat2l10n_str = {
-	u's': _('soap_Subjective').replace(u'soap_', u''),
-	u'o': _('soap_Objective').replace(u'soap_', u''),
-	u'a': _('soap_Assessment').replace(u'soap_', u''),
-	u'p': _('soap_Plan').replace(u'soap_', u''),
-	u'u': _('soap_Unspecified').replace(u'soap_', u''),
-	u' ': _('soap_Administrative').replace(u'soap_', u''),
-	u'': _('soap_Administrative').replace(u'soap_', u''),
-	None: _('soap_Administrative').replace(u'soap_', u'')
-}
-
-l10n2soap_cat = {
-	_('soap_S').replace(u'soap_', u''): u's',
-	_('soap_O').replace(u'soap_', u''): u'o',
-	_('soap_A').replace(u'soap_', u''): u'a',
-	_('soap_P').replace(u'soap_', u''): u'p',
-	_('soap_U').replace(u'soap_', u''): u'u',
-#	u'?': u'u',
-	gmTools.u_ellipsis: None
-}
 
 #============================================================
 def _on_soap_modified():
@@ -110,7 +73,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 			txt = gmTools.wrap (
 				text = _('%s: %s by %.8s (v%s)\n%s') % (
 					self._payload[self._idx['date']].strftime('%x %H:%M'),
-					soap_cat2l10n_str[self._payload[self._idx['soap_cat']]],
+					gmSoapDefs.soap_cat2l10n_str[self._payload[self._idx['soap_cat']]],
 					self._payload[self._idx['modified_by']],
 					self._payload[self._idx['row_version']],
 					self._payload[self._idx['narrative']]
@@ -122,7 +85,7 @@ class cNarrative(gmBusinessDBObject.cBusinessDBObject):
 		else:
 			txt = u'%s [%s]: %s (%.8s)' % (
 				self._payload[self._idx['date']].strftime('%x %H:%M'),
-				soap_cat2l10n[self._payload[self._idx['soap_cat']]],
+				gmSoapDefs.soap_cat2l10n[self._payload[self._idx['soap_cat']]],
 				self._payload[self._idx['narrative']],
 				self._payload[self._idx['modified_by']]
 			)
@@ -234,7 +197,7 @@ def create_progress_note(soap=None, episode_id=None, encounter_id=None, link_obj
 
 	instances = {}
 	for cat in soap:
-		if cat not in KNOWN_SOAP_CATS:
+		if cat not in gmSoapDefs.KNOWN_SOAP_CATS:
 			conn_rollback()
 			conn_close()
 			raise ValueError(u'invalid SOAP category [%s] in <soap> dictionary: %s', cat, soap)
@@ -464,9 +427,7 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			coalesce(c_vej.soap_cat, '') as soap_cat,
 			c_vej.narrative,
 			c_vej.src_table,
-
-			(SELECT rank FROM clin.soap_cat_ranks WHERE soap_cat = c_vej.soap_cat) AS scr,
-
+			c_scr.rank AS scr,
 			c_vej.modified_when,
 			to_char(c_vej.modified_when, 'YYYY-MM-DD HH24:MI') AS date_modified,
 			c_vej.modified_by,
@@ -476,24 +437,17 @@ def get_as_journal(since=None, until=None, encounters=None, episodes=None, issue
 			c_vej.soap_cat as real_soap_cat,
 			c_vej.src_pk,
 			c_vej.pk_health_issue,
-
-			c_vpepi.health_issue,
-			c_vpepi.description AS episode,
-			c_vpepi.issue_active,
-			c_vpepi.issue_clinically_relevant,
-			c_vpepi.episode_open,
-
-			c_enc.started
-				as encounter_started,
-			c_enc.last_affirmed
-				as encounter_last_affirmed,
-			_(c_ety.description)
-				as encounter_l10n_type
+			c_vej.health_issue,
+			c_vej.episode,
+			c_vej.issue_active,
+			c_vej.issue_clinically_relevant,
+			c_vej.episode_open,
+			c_vej.encounter_started,
+			c_vej.encounter_last_affirmed,
+			c_vej.encounter_l10n_type
 		FROM
 			clin.v_emr_journal c_vej
-				left join clin.v_pat_episodes c_vpepi on (c_vej.pk_episode = c_vpepi.pk_episode)
-					left join clin.encounter c_enc on (c_vej.pk_encounter = c_enc.pk)
-						left join clin.encounter_type c_ety on (c_enc.fk_type = c_ety.pk)
+				join clin.soap_cat_ranks c_scr on (c_scr.soap_cat = c_vej.soap_cat)
 		WHERE
 			%s
 		%s""" % (
@@ -524,13 +478,13 @@ def search_text_across_emrs(search_term=None):
 def soap_cats2list(soap_cats):
 	"""Normalizes a string or list of SOAP categories, preserving order.
 
-		None -> KNOWN_SOAP_CATS (all)
+		None -> gmSoapDefs.KNOWN_SOAP_CATS (all)
 		[] -> []
 		u'' -> []
 		u' ' -> [None]	(admin)
 	"""
 	if soap_cats is None:
-		return KNOWN_SOAP_CATS
+		return gmSoapDefs.KNOWN_SOAP_CATS
 
 	normalized_cats = []
 	for cat in soap_cats:
@@ -540,7 +494,7 @@ def soap_cats2list(soap_cats):
 			normalized_cats.append(None)
 			continue
 		cat = cat.lower()
-		if cat in KNOWN_SOAP_CATS:
+		if cat in gmSoapDefs.KNOWN_SOAP_CATS:
 			if cat in normalized_cats:
 				continue
 			normalized_cats.append(cat)
@@ -589,6 +543,3 @@ if __name__ == '__main__':
 
 	#test_search_text_across_emrs()
 	test_narrative()
-
-#============================================================
-

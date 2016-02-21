@@ -19,7 +19,7 @@ _log = logging.getLogger('gm.ui')
 class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR Journal window."""
 
-	tab_name = _('EMR journal')
+	tab_name = _('EMR Journal')
 	required_minimum_role = 'full clinical access'
 
 	def name (self):
@@ -39,7 +39,7 @@ class gmEMRJournalPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 
 	def MenuInfo (self):
-		return ('emr', _('EMR &Journal (chronological)'))
+		return ('emr', _('Show &Journal (text)'))
 
 	def can_receive_focus(self):
 		# need patient

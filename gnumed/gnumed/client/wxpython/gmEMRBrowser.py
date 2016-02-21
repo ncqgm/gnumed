@@ -30,7 +30,7 @@ from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmPerson
 from Gnumed.business import gmSOAPimporter
 from Gnumed.business import gmPersonSearch
-from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmClinicalRecord
 
 from Gnumed.wxpython import gmGuiHelpers
@@ -1501,7 +1501,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		self._TCTRL_details.SetValue(u'')
 
 		if self._RBTN_by_encounter.Value:		# (... is True:)
-			order_by = u'c_enc.started, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
+			order_by = u'c_vej.encounter_started, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
 						#, c_vej.clin_when (should not make a relevant difference)
 		elif self._RBTN_by_last_modified.Value:	# (... is True:)
 			order_by = u'c_vej.modified_when, c_vej.pk_episode, c_vej.src_table, scr'
@@ -1520,7 +1520,7 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		for entry in journal:
 			if entry['narrative'].strip() == u'':
 				continue
-			soap_cat = gmClinNarrative.soap_cat2l10n[entry['soap_cat']]
+			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			who = u'%s (%s)' % (entry['modified_by'], entry['date_modified'])
 			if entry['date'] == prev_date:
 				date2show = u''

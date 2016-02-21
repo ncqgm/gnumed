@@ -26,6 +26,7 @@ from Gnumed.pycommon import gmNull
 from Gnumed.pycommon import gmExceptions
 
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmCoding
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmOrganization
@@ -255,7 +256,7 @@ class cHealthIssue(gmBusinessDBObject.cBusinessDBObject):
 			top_row = u'%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
-				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
+				gmSoapDefs.soap_cat2l10n_str[row['real_soap_cat']],
 				when,
 				gmTools.u_box_horiz_single * 5
 			)
@@ -1069,7 +1070,7 @@ class cEpisode(gmBusinessDBObject.cBusinessDBObject):
 			top_row = u'%s%s %s (%s) %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
-				gmClinNarrative.soap_cat2l10n_str[row['real_soap_cat']],
+				gmSoapDefs.soap_cat2l10n_str[row['real_soap_cat']],
 				when,
 				gmTools.u_box_horiz_single * 5
 			)
@@ -2009,7 +2010,7 @@ limit 1
 			lines.append(u'%s%s %s %s' % (
 				gmTools.u_box_top_left_arc,
 				gmTools.u_box_horiz_single,
-				gmClinNarrative.soap_cat2l10n_str[soap_cat],
+				gmSoapDefs.soap_cat2l10n_str[soap_cat],
 				gmTools.u_box_horiz_single * 5
 			))
 			for soap_entry in soap_cat_narratives:
@@ -2127,7 +2128,7 @@ limit 1
 				)
 			for soap in soaps:
 				tex += u'{\\small %s} & {\\small %s} \\tabularnewline \n' % (
-					gmTools.tex_escape_string(gmClinNarrative.soap_cat2l10n[soap['soap_cat']]),
+					gmTools.tex_escape_string(gmSoapDefs.soap_cat2l10n[soap['soap_cat']]),
 					gmTools.tex_escape_string(soap['narrative'], replace_eol = True)
 				)
 			tex += u' & \\tabularnewline \n'

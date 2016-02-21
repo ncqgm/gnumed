@@ -31,7 +31,7 @@ from Gnumed.pycommon import gmDateTime
 from Gnumed.business import gmClinicalRecord
 from Gnumed.business import gmAllergy
 from Gnumed.business import gmDemographicRecord
-from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 
 
 _log = logging.getLogger('gm.export')
@@ -973,12 +973,12 @@ class cEMRJournalExporter:
 				gmTools.u_box_vert_light,
 				r['modified_by'],
 				gmTools.u_box_vert_light,
-				gmClinNarrative.soap_cat2l10n[r['soap_cat']],
+				gmSoapDefs.soap_cat2l10n[r['soap_cat']],
 				gmTools.u_box_vert_light,
 				gmTools.wrap (
 					text = r['narrative'].replace(u'\r', u'') + u' (%s: %s)' % (_('When'), gmDateTime.pydt_strftime(r['clin_when'], '%Y %b %d %H:%M')),
 					width = self.__narrative_wrap_len,
-					subsequent_indent = u'%31.31s%1.1s %s ' % (u' ', gmClinNarrative.soap_cat2l10n[r['soap_cat']], gmTools.u_box_vert_light)
+					subsequent_indent = u'%31.31s%1.1s %s ' % (u' ', gmSoapDefs.soap_cat2l10n[r['soap_cat']], gmTools.u_box_vert_light)
 				)
 			)
 			f.write(txt)
@@ -1118,7 +1118,7 @@ class cEMRJournalExporter:
 				gmTools.u_box_vert_light,
 				curr_doc,
 				gmTools.u_box_vert_light,
-				gmClinNarrative.soap_cat2l10n[curr_soap],
+				gmSoapDefs.soap_cat2l10n[curr_soap],
 				gmTools.u_box_vert_light,
 				txt[0]
 			))
@@ -1218,7 +1218,7 @@ class cMedistarSOAPExporter:
 		cmd = u"select narrative from clin.v_emr_journal where pk_patient=%s and pk_encounter=%s and soap_cat=%s"
 		for soap_cat in soap_cats:
 			rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': (self.__pat['pk_identity'], encounter['pk_encounter'], soap_cat)}])
-			target.write(u'*MD%s*\r\n' % gmClinNarrative.soap_cat2l10n[soap_cat])
+			target.write(u'*MD%s*\r\n' % gmSoapDefs.soap_cat2l10n[soap_cat])
 			for row in rows:
 				text = row[0]
 				if text is None:

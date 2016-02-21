@@ -29,7 +29,7 @@ from Gnumed.pycommon import gmCfg
 from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
-from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 from Gnumed.business import gmPraxis
 from Gnumed.business import gmPersonSearch
 
@@ -63,7 +63,7 @@ class cNarrativeListSelectorDlg(gmListWidgets.cGenericListSelectorDlg):
 		self._LCTRL_items.set_columns([_('when'), _('who'), _('type'), _('entry')]) #, _('Episode'), u'', _('Health Issue')])
 		# FIXME: date used should be date of encounter, not date_modified
 		self._LCTRL_items.set_string_items (
-			items = [ [narr['date'].strftime('%x %H:%M'), narr['modified_by'], gmClinNarrative.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
+			items = [ [narr['date'].strftime('%x %H:%M'), narr['modified_by'], gmSoapDefs.soap_cat2l10n[narr['soap_cat']], narr['narrative'].replace('\n', '/').replace('\r', '/')] for narr in narrative ]
 		)
 		self._LCTRL_items.set_column_widths()
 		self._LCTRL_items.set_data(data = narrative)

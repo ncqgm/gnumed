@@ -26,7 +26,7 @@ _log.info(__version__)
 class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 	"""Plugin to encapsulate patient EMR browser window."""
 
-	tab_name = _('EMR tree')
+	tab_name = _('EMR Tree')
 	required_minimum_role = 'full clinical access'
 
 	@gmAccessPermissionWidgets.verify_minimum_required_role (
@@ -46,7 +46,7 @@ class gmEMRBrowserPlugin(gmPlugin.cNotebookPlugin):
 		return self._widget
 	#-------------------------------------------------
 	def MenuInfo(self):
-		return ('emr', _('EMR &Tree (topical)'))
+		return ('emr', _('Show &Tree'))
 	#-------------------------------------------------
 	def can_receive_focus(self):
 		# need patient

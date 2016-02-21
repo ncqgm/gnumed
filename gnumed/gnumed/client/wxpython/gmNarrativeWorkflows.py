@@ -29,6 +29,7 @@ from Gnumed.business import gmPerson
 from Gnumed.business import gmStaff
 from Gnumed.business import gmEMRStructItems
 from Gnumed.business import gmClinNarrative
+from Gnumed.business import gmSoapDefs
 
 from Gnumed.wxpython import gmListWidgets
 from Gnumed.wxpython import gmEMRStructWidgets
@@ -97,7 +98,7 @@ def move_progress_notes_to_another_encounter(parent=None, encounters=None, episo
 			choices = [
 				[	narr['date'].strftime('%x %H:%M'),
 					narr['modified_by'],
-					gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+					gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 					narr['narrative'].replace('\n', '/').replace('\r', '/')
 				] for narr in notes
 			]
@@ -202,7 +203,7 @@ def manage_progress_notes(parent=None, encounters=None, episodes=None, patient=N
 		)
 		lctrl.set_string_items(items = [
 			[	narr['date'].strftime('%x %H:%M'),
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '/').replace('\r', '/')
 			] for narr in notes
 		])
@@ -437,7 +438,7 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 	if soap_cats is None:
 		soap_cats = u'soapu'
 	soap_cats = list(soap_cats)
-	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
 	if msg is None:
 		msg = _('Pick the [%s] narrative you want to use.') % u'/'.join(i18n_soap_cats)
@@ -452,7 +453,7 @@ def select_narrative(parent=None, soap_cats=None, msg=None):
 		lctrl.set_string_items ([ [
 			gmDateTime.pydt_strftime(s['date'], '%Y %m %d'),
 			s['modified_by'],
-			gmClinNarrative.soap_cat2l10n[s['soap_cat']],
+			gmSoapDefs.soap_cat2l10n[s['soap_cat']],
 			s['narrative'],
 			s['episode'],
 			s['health_issue']
@@ -488,7 +489,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 	if soap_cats is None:
 		soap_cats = u'soapu'
 	soap_cats = list(soap_cats)
-	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
 	selected_soap = {}
 	#selected_narrative_pks = []
@@ -521,7 +522,7 @@ def select_narrative_by_issue(parent=None, soap_cats=None):
 			choices = [ [
 				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
 				narr['modified_by'],
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')
 			] for narr in narr_for_issue ],
 			data = narr_for_issue,
@@ -616,7 +617,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 	if soap_cats is None:
 		soap_cats = u'soapu'
 	soap_cats = list(soap_cats)
-	i18n_soap_cats = [ gmClinNarrative.soap_cat2l10n[cat].upper() for cat in soap_cats ]
+	i18n_soap_cats = [ gmSoapDefs.soap_cat2l10n[cat].upper() for cat in soap_cats ]
 
 	selected_soap = {}
 	#selected_narrative_pks = []
@@ -649,7 +650,7 @@ def select_narrative_by_episode(parent=None, soap_cats=None):
 			choices = [ [
 				gmDateTime.pydt_strftime(narr['date'], '%Y %b %d  %H:%M', accuracy = gmDateTime.acc_minutes),
 				narr['modified_by'],
-				gmClinNarrative.soap_cat2l10n[narr['soap_cat']],
+				gmSoapDefs.soap_cat2l10n[narr['soap_cat']],
 				narr['narrative'].replace('\n', '//').replace('\r', '//')
 			] for narr in narr_for_epi ],
 			data = narr_for_epi,
@@ -825,7 +826,7 @@ def select_narrative_from_episodes(parent=None, soap_cats=None):
 				msg = _(
 					'\n This is the narrative (type %s) for the chosen episodes.\n\n'
 					' Now, mark the entries you want to include in your report.\n'
-				) % u'/'.join([ gmClinNarrative.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
+				) % u'/'.join([ gmSoapDefs.soap_cat2l10n[cat] for cat in gmTools.coalesce(soap_cats, list(u'soapu')) ])
 			)
 			selection_idxs = []
 			for idx in range(len(all_narr)):
