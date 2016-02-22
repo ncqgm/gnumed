@@ -1126,14 +1126,22 @@ def json_serialize(obj):
 #---------------------------------------------------------------------------
 def compare_dict_likes(d1, d2, title1=None, title2=None):
 	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title1, u'', u'"%s" '), type(d1), coalesce(title2, u'', u'"%s" '), type(d2))
-	k1 = frozenset(d1)
-	k2 = frozenset(d2)
+	try:
+		d1 = dict(d1)
+	except TypeError:
+		pass
+	try:
+		d2 = dict(d2)
+	except TypeError:
+		pass
+	keys_d1 = frozenset(d1.keys())
+	keys_d2 = frozenset(d2.keys())
 	different = False
-	if len(k1) != len(k2):
-		_log.info('different number of keys: %s vs %s', len(k1), len(k2))
+	if len(keys_d1) != len(keys_d2):
+		_log.info('different number of keys: %s vs %s', len(keys_d1), len(keys_d2))
 		different = True
-	for key in k1:
-		if key in k2:
+	for key in keys_d1:
+		if key in keys_d2:
 			if type(d1[key]) != type(d2[key]):
 				_log.info(u'%25.25s: type(dict1) = %s = >>>%s<<<' % (key, type(d1[key]), d1[key]))
 				_log.info(u'%25.25s  type(dict2) = %s = >>>%s<<<' % (u'', type(d2[key]), d2[key]))
@@ -1148,8 +1156,8 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 		else:
 			_log.info(u'%25.25s: %50.50s | <MISSING>' % (key, u'>>>%s<<<' % d1[key]))
 			different = True
-	for key in k2:
-		if key in k1:
+	for key in keys_d2:
+		if key in keys_d1:
 			continue
 		_log.info(u'%25.25s: %50.50s | %.50s' % (key, u'<MISSING>', u'>>>%s<<<' % d2[key]))
 		different = True
@@ -1158,6 +1166,87 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 		return False
 	_log.info('dict-likes appear equal to each other')
 	return True
+
+#---------------------------------------------------------------------------
+def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left_margin=0, key_delim=u' || ', data_delim=u' | ', missing_string=u'=/='):
+
+	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title_left, u'', u'"%s" '), type(d1), coalesce(title_right, u'', u'"%s" '), type(d2))
+	append_type = False
+	if None not in [title_left, title_right]:
+		append_type = True
+		type_left = type(d1)
+		type_right = type(d2)
+	if title_left is None:
+		title_left = u'%s' % type_left
+	if title_right is None:
+		title_right = u'%s' % type_right
+
+	try: d1 = dict(d1)
+	except TypeError: pass
+	try: d2 = dict(d2)
+	except TypeError: pass
+	keys_d1 = d1.keys()
+	keys_d2 = d2.keys()
+	data = {}
+	for key in keys_d1:
+		data[key] = [d1[key], u' ']
+		if key in d2:
+			data[key][1] = d2[key]
+	for key in keys_d2:
+		if key in keys_d1:
+			continue
+		data[key] = [u' ', d2[key]]
+	max1 = max([ len(u'%s' % k) for k in keys_d1 ])
+	max2 = max([ len(u'%s' % k) for k in keys_d2 ])
+	max_len = max(max1, max2)
+	max_key_len_str = u'%' + u'%s.%s' % (max_len, max_len) + u's'
+	max1 = max([ len(u'%s' % d1[k]) for k in keys_d1 ])
+	max2 = max([ len(u'%s' % d2[k]) for k in keys_d2 ])
+	max_data_len = min(max(max1, max2), 100)
+	max_data_len_str = u'%' + u'%s.%s' % (max_data_len, max_data_len) + u's'
+	line_template = (u' ' * left_margin) + max_key_len_str + key_delim + max_data_len_str + data_delim + u'%s'
+
+	lines = []
+	# debugging:
+	#lines.append(u'                                        (40 regular spaces)')
+	#lines.append((u' ' * 40) + u"(u' ' * 40)")
+	#lines.append((u'%40.40s' % u'') + u"(u'%40.40s' % u'')")
+	#lines.append((u'%40.40s' % u' ') + u"(u'%40.40s' % u' ')")
+	#lines.append((u'%40.40s' % u'.') + u"(u'%40.40s' % u'.')")
+	#lines.append(line_template)
+	lines.append(line_template % (u' ', title_left, title_right))
+	if append_type:
+		lines.append(line_template % (_('<type>'), type_left, type_right))
+
+	for key in keys_d1:
+		append_type = False
+		try:
+			txt_right_col = u'%s' % d2[key]
+			if type(d1[key]) != type(d2[key]):
+				append_type = True
+		except KeyError:
+			txt_right_col = missing_string
+		lines.append(line_template % (
+			key,
+			shorten_text(u'%s' % d1[key], max_data_len),
+			shorten_text(txt_right_col, max_data_len)
+		))
+		if append_type:
+			lines.append(line_template % (
+				_('<type diff>'),
+				shorten_text(u'%s' % type(d1[key]), max_data_len),
+				shorten_text(u'%s' % type(d2[key]), max_data_len)
+			))
+	for key in keys_d2:
+		if key in keys_d1:
+			continue
+		lines.append(line_template % (
+			key,
+			shorten_text(missing_string, max_data_len),
+			shorten_text(u'%s' % d2[key], max_data_len)
+		))
+
+	return lines
 
 #---------------------------------------------------------------------------
 def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=u'<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=(u'>>>', u'<<<')):
@@ -1648,8 +1737,30 @@ second line\n
 		print(format_dict_like(d2))
 
 	#-----------------------------------------------------------------------
+	def test_format_compare_dicts():
+		d1 = {}
+		d2 = {}
+		d1[1] = 1
+		d1[2] = 2
+		d1[3] = 3
+		# 4
+		d1[5] = 5
+
+		d2[1] = 1
+		d2[2] = None
+		# 3
+		d2[4] = 4
+
+		print(u'\n'.join(format_dict_likes_comparison(d1, d2, u'd1', u'd2')))
+
+		d1 = {1: 1, 2: 2}
+		d2 = {1: 1, 2: 2}
+
+		print(u'\n'.join(format_dict_likes_comparison(d1, d2, u'd1', u'd2')))
+
+	#-----------------------------------------------------------------------
 	def test_rm_dir():
-		rmdir('cx:\windows\system32xxxxxxxxxxxxx')
+		rmdir('cx:\windows\system3__2xxxxxxxxxxxxx')
 	#-----------------------------------------------------------------------
 	def test_strip_prefix():
 		tests = [
@@ -1708,6 +1819,7 @@ second line\n
 	#test_compare_dicts()
 	#test_rm_dir()
 	#test_strip_prefix()
-	test_shorten_text()
+	#test_shorten_text()
+	test_format_compare_dicts()
 
 #===========================================================================

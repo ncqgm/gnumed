@@ -131,6 +131,10 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 
 	def _set_soap_display(self, soap_display=None):
 		self.__soap_display = soap_display
+		self.__soap_display_prop_font = soap_display.GetFont()
+		self.__soap_display_mono_font = wx.FontFromNativeInfo(self.__soap_display_prop_font.NativeFontInfo)
+		self.__soap_display_mono_font.SetFamily(wx.FONTFAMILY_TELETYPE)
+		self.__soap_display_mono_font.SetPointSize(self.__soap_display_prop_font.GetPointSize() - 2)
 
 	soap_display = property(_get_soap_display, _set_soap_display)
 
@@ -338,16 +342,20 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
+				font = self.__soap_display_prop_font
 			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
+				font = self.__soap_display_prop_font
 			if self.__soap_display_mode == u'revisions':
 				txt = node_data.formatted_revision_history
+				font = self.__soap_display_mono_font
 			epis = node_data.episodes
 			if len(epis) > 0:
 				self.__img_display.refresh (
 					document_folder = doc_folder,
 					episodes = [ epi['pk_episode'] for epi in epis ]
 				)
+			self.__soap_display.SetFont(font)
 			self.__soap_display.WriteText(txt)
 			self.__soap_display.ShowPosition(0)
 			return
@@ -399,6 +407,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 					)
 					txt += u'\n'
 					txt += epi.format_as_journal(left_margin = 2)
+			self.__soap_display.SetFont(self.__soap_display_prop_font)
 			self.__soap_display.WriteText(txt)
 			self.__soap_display.ShowPosition(0)
 			return
@@ -408,14 +417,18 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			txt = u'invalid SOAP display mode [%s]' % self.__soap_display_mode
 			if self.__soap_display_mode == u'details':
 				txt = node_data.format(left_margin = 1, patient = self.__pat)
+				font = self.__soap_display_prop_font
 			if self.__soap_display_mode == u'journal':
 				txt = node_data.format_as_journal(left_margin = 1)
+				font = self.__soap_display_prop_font
 			if self.__soap_display_mode == u'revisions':
 				txt = node_data.formatted_revision_history
+				font = self.__soap_display_mono_font
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [ node_data['pk_episode'] ]
 			)
+			self.__soap_display.SetFont(font)
 			self.__soap_display.WriteText(txt)
 			self.__soap_display.ShowPosition(0)
 			return
@@ -425,6 +438,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			epi = self.GetPyData(self.GetItemParent(self.__curr_node))
 			if self.__soap_display_mode == u'revisions':
 				txt = node_data.formatted_revision_history
+				font = self.__soap_display_mono_font
 			else:
 				txt = node_data.format (
 					episodes = [epi['pk_episode']],
@@ -433,11 +447,13 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 					patient = self.__pat,
 					with_co_encountlet_hints = True
 				)
+				font = self.__soap_display_prop_font
 			self.__img_display.refresh (
 				document_folder = doc_folder,
 				episodes = [ epi['pk_episode'] ],
 				encounter = node_data['pk_encounter']
 			)
+			self.__soap_display.SetFont(font)
 			self.__soap_display.WriteText(txt)
 			self.__soap_display.ShowPosition(0)
 			return
@@ -449,6 +465,7 @@ class cEMRTree(wx.TreeCtrl, treemixin.ExpansionState):
 			txt = emr.format_summary()
 		else:
 			txt = self.__pat.emr.format_as_journal(left_margin = 1, patient = self.__pat)
+		self.__soap_display.SetFont(self.__soap_display_prop_font)
 		self.__soap_display.WriteText(txt)
 		self.__soap_display.ShowPosition(0)
 

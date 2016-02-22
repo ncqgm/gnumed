@@ -1171,7 +1171,6 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 					aMessage = _('Cannot display document part:\n%s') % msg,
 					aTitle = _('displaying part')
 				)
-		return
 
 	#--------------------------------------------------------
 	def _del_btn_pressed(self, event):
@@ -1188,8 +1187,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		self._LCTRL_doc_pages.string_items = rows
 		self._LCTRL_doc_pages.data = data
 		self._LCTRL_doc_pages.set_column_widths()
-
-		return
+		self._TCTRL_metadata.SetValue(u'')
 
 	#--------------------------------------------------------
 	def _save_btn_pressed(self, evt):
