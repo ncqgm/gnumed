@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:13+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1580,6 +1580,12 @@ msgstr ""
 
 #, python-format
 msgid "%s Bytes"
+msgstr ""
+
+msgid "<type>"
+msgstr ""
+
+msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -8345,22 +8351,12 @@ msgstr " Reference nga jashte: %s\n"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "problem shendeti: %s"
 
-msgid ""
-"\n"
-"current values:\n"
-msgstr ""
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
+#, python-format
+msgid "Revision #%s"
 msgstr ""
 
 msgid "Unattributed episodes"
@@ -8420,7 +8416,7 @@ msgstr "Matje dhe Rezultate:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr " Episod: %s\n"
 
@@ -8450,7 +8446,7 @@ msgstr "%s episode te tjera te modifikuara gjate ketij takimi:"
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Takime: %s (%s - %s):"
 

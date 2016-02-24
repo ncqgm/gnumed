@@ -71,7 +71,7 @@ def soap_cats2list(soap_cats):
 			normalized_cats.append(None)
 			continue
 		cat = cat.lower()
-		if cat in gmSoapDefs.KNOWN_SOAP_CATS:
+		if cat in KNOWN_SOAP_CATS:
 			if cat in normalized_cats:
 				continue
 			normalized_cats.append(cat)

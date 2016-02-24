@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -1649,6 +1649,13 @@ msgstr "1 octet"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s Octets"
+
+#, fuzzy
+msgid "<type>"
+msgstr "type"
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -9193,24 +9200,13 @@ msgstr "Code externe"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Problème de santé: %s"
 
-#, fuzzy
-msgid ""
-"\n"
-"current values:\n"
-msgstr "<état des allergies>"
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Nouvelle version: %s"
 
 msgid "Unattributed episodes"
 msgstr "Rencontres non-attribuées"
@@ -9270,7 +9266,7 @@ msgstr "Mesures et résultats:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Episode %s%s%s   [#%s]"
 
@@ -9300,7 +9296,7 @@ msgstr "%s autres épisodes mentionnés pendant cette rencontre :"
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Rencontres: %s (%s - %s)"
 
@@ -19749,6 +19745,12 @@ msgstr "Abandonner"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr "<état des allergies>"
 
 #~ msgid "soap_S"
 #~ msgstr "soap_S"

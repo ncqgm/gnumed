@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2016-02-21 17:29+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
@@ -1518,6 +1518,13 @@ msgstr "1 Byte"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s Byte"
+
+#, fuzzy
+msgid "<type>"
+msgstr "Typ"
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -8938,32 +8945,17 @@ msgstr "Impfungen:"
 msgid "External care:"
 msgstr "Externe Mitbetreuung:"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr ""
 "Grunderkrankung: %s%s%s\n"
 "\n"
 
-msgid ""
-"\n"
-"current values:\n"
-msgstr ""
-"\n"
-"jetzige Werte:\n"
-
-msgid "no previous versions of this record"
-msgstr "Keine Vorversionen dieses Eintrags"
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
-"\n"
-"alle Werte, zusätzlich <audit_action>, <audit_when>, <audit_by> (aktuelle "
-"Werte zuerst):\n"
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr "Revisionen"
 
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
@@ -9020,9 +9012,9 @@ msgstr "Notizen der letzten Konsultation:"
 msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr ""
 "Episode: %s%s%s\n"
@@ -9054,9 +9046,9 @@ msgstr ""
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s weitere Episoden während dieses Kontakts bearbeitet:"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr ""
 "Konsultation: %s%s%s\n"
@@ -20502,6 +20494,25 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr ""
+#~ "\n"
+#~ "jetzige Werte:\n"
+
+#~ msgid "no previous versions of this record"
+#~ msgstr "Keine Vorversionen dieses Eintrags"
+
+#~ msgid ""
+#~ "\n"
+#~ "all values with <audit_action>, <audit_when>, <audit_by> fields (current "
+#~ "value first):\n"
+#~ msgstr ""
+#~ "\n"
+#~ "alle Werte, zusätzlich <audit_action>, <audit_when>, <audit_by> (aktuelle "
+#~ "Werte zuerst):\n"
 
 #~ msgid "soap_S"
 #~ msgstr "soap_A"

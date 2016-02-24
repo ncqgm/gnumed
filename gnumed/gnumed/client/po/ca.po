@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:00+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2012-06-01 01:20+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Catalan <ca@li.org>\n"
@@ -1545,6 +1545,12 @@ msgstr "1 Byte"
 #, fuzzy, python-format
 msgid "%s Bytes"
 msgstr "Bytes"
+
+msgid "<type>"
+msgstr ""
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -8432,23 +8438,13 @@ msgstr "Identificació pacient extern"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Assumpte mèdic:"
 
-msgid ""
-"\n"
-"current values:\n"
-msgstr ""
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Nova versió: \"%s\""
 
 msgid "Unattributed episodes"
 msgstr "Episodis no atribuïts"
@@ -8509,7 +8505,7 @@ msgstr "Medicions i Resultats:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "episodi : %s"
 
@@ -8540,7 +8536,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Visites: %s (%s - %s):"
 
