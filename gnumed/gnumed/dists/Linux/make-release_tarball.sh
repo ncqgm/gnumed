@@ -6,7 +6,7 @@
 CLIENTREV="1.6.rc1"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="20.rc1"
+SRVREV="21.rc1"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 LANG_LIST="ar bg ca cs da de el en_AU en_CA es fr id it ka nb nl pl pt pt_BR ro ru ru_RU sq sr sv tr uk zh_TW"
