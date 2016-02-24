@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:13+0100\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -1599,6 +1599,12 @@ msgstr "1 Byte"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s Byte"
+
+msgid "<type>"
+msgstr ""
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -8535,24 +8541,13 @@ msgstr "externt patient-ID"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Kategori av medicinsk frågeställning: %s"
 
-#, fuzzy
-msgid ""
-"\n"
-"current values:\n"
-msgstr "<nuvarande allerigiskt tillstånd>"
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Ny version: \"%s\""
 
 msgid "Unattributed episodes"
 msgstr "Ej beaktade episoder:"
@@ -8613,7 +8608,7 @@ msgstr "Provtagningar och resultat:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Episod %s%s%s   [#%s]"
 
@@ -8643,7 +8638,7 @@ msgstr "%s andra under denna undersökning berörda episoder:"
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Undersökningar: %s (%s - %s):"
 
@@ -18697,6 +18692,12 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr "<nuvarande allerigiskt tillstånd>"
 
 #, fuzzy
 #~ msgid "soap_U"

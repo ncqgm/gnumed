@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -1492,6 +1492,12 @@ msgstr ""
 
 #, python-format
 msgid "%s Bytes"
+msgstr ""
+
+msgid "<type>"
+msgstr ""
+
+msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -8305,23 +8311,12 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Dokumenter: %s"
 
-#, fuzzy
-msgid ""
-"\n"
-"current values:\n"
-msgstr "ukjent allergistatus"
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
+#, python-format
+msgid "Revision #%s"
 msgstr ""
 
 msgid "Unattributed episodes"
@@ -8381,7 +8376,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr " Status: %s, %s"
 
@@ -8411,7 +8406,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Pasient: %s (%s), Nr: %s\n"
 
@@ -18346,6 +18341,12 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr "ukjent allergistatus"
 
 #, fuzzy
 #~ msgid "Search in list"

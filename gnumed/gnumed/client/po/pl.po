@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -1589,6 +1589,12 @@ msgstr "1 bajt"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s bajtów"
+
+msgid "<type>"
+msgstr ""
+
+msgid "<type diff>"
+msgstr ""
 
 #, fuzzy, python-format
 msgid ""
@@ -8605,23 +8611,13 @@ msgstr "zewn. identyfikator pacjenta"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "problem zdrowotny: %s"
 
-msgid ""
-"\n"
-"current values:\n"
-msgstr ""
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Nowa wersja: \"%s\"\n"
 
 msgid "Unattributed episodes"
 msgstr "Niesklasyfikowane epizody"
@@ -8682,7 +8678,7 @@ msgstr "Wyniki:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Epizod"
 
@@ -8713,7 +8709,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Konsultacje: %s (%s - %s):"
 

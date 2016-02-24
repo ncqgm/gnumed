@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -1694,6 +1694,13 @@ msgstr "1 байт"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s Байты"
+
+#, fuzzy
+msgid "<type>"
+msgstr "тип"
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -9339,24 +9346,13 @@ msgstr "Внешний код"
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "заболевание: %s"
 
-#, fuzzy
-msgid ""
-"\n"
-"current values:\n"
-msgstr "<текущая установленная аллергия>"
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr "Проверки"
 
 msgid "Unattributed episodes"
 msgstr "Эпизоды без аттрибутов"
@@ -9417,7 +9413,7 @@ msgstr "Исследования и результаты"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Эпизод:%s\n"
 
@@ -9447,7 +9443,7 @@ msgstr "%s другие обострения, выявленные при это
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Обращения: %s (%s - %s):"
 
@@ -21134,6 +21130,12 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr "<текущая установленная аллергия>"
 
 #~ msgid "soap_S"
 #~ msgstr "soap_S"

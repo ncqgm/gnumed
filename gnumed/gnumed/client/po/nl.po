@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-21 18:01+0100\n"
+"POT-Creation-Date: 2016-02-24 18:12+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1612,6 +1612,13 @@ msgstr "1 Byte"
 #, python-format
 msgid "%s Bytes"
 msgstr "%s Bytes"
+
+#, fuzzy
+msgid "<type>"
+msgstr "soort"
+
+msgid "<type diff>"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -9089,24 +9096,13 @@ msgstr "BSN bewerken."
 
 #, fuzzy, python-format
 msgid ""
-"health issue: %s%s%s\n"
+"Health issue: %s%s%s (%s versions)\n"
 "\n"
 msgstr "gezondheidsprobleem: %s"
 
-#, fuzzy
-msgid ""
-"\n"
-"current values:\n"
-msgstr "onbekende allergiestatus"
-
-msgid "no previous versions of this record"
-msgstr ""
-
-msgid ""
-"\n"
-"all values with <audit_action>, <audit_when>, <audit_by> fields (current "
-"value first):\n"
-msgstr ""
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr "Versie"
 
 msgid "Unattributed episodes"
 msgstr "Niet toegewezen episodes"
@@ -9167,7 +9163,7 @@ msgstr "Metingen en Uitslagen:"
 
 #, fuzzy, python-format
 msgid ""
-"episode: %s%s%s\n"
+"Episode: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Episodes: %s"
 
@@ -9198,7 +9194,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"encounter: %s%s%s\n"
+"Encounter: %s%s%s (%s versions)\n"
 "\n"
 msgstr "Ontmoetingen: %s (%s - %s):"
 
@@ -20705,6 +20701,12 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "\n"
+#~ "current values:\n"
+#~ msgstr "onbekende allergiestatus"
 
 #~ msgid "soap_S"
 #~ msgstr "soap_A"
