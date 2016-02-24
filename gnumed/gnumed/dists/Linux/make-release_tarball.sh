@@ -604,21 +604,21 @@ cp -R ../../server/sql/v19-v20/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v19-v20/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v19-v20/superuser
 
 
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/dynamic
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/static
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/data
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/python
-mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20_v21/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/dynamic
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/static
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/data
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/python
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/superuser
+#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
 
-cp ../../server/sql/v20_v21/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v20_v21
-cp -R ../../server/sql/v20_v21/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/dynamic
-cp -R ../../server/sql/v20_v21/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/static
-cp -R ../../server/sql/v20_v21/data/* ./gnumed-client.$CLIENTREV/server/sql/v20_v21/data
-cp -R ../../server/sql/v20_v21/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v20_v21/python
-cp -R ../../server/sql/v20_v21/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/superuser
-#cp -R ../../server/sql/v20_v21/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20_v21/fixups
+cp ../../server/sql/v20-v21/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v20-v21
+cp -R ../../server/sql/v20-v21/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/dynamic
+cp -R ../../server/sql/v20-v21/static/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/static
+cp -R ../../server/sql/v20-v21/data/* ./gnumed-client.$CLIENTREV/server/sql/v20-v21/data
+cp -R ../../server/sql/v20-v21/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v20-v21/python
+cp -R ../../server/sql/v20-v21/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/superuser
+#cp -R ../../server/sql/v20-v21/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
 
 
 #----------------------------------
