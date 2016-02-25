@@ -1708,6 +1708,7 @@ FIX: pg_trgm placement and use
 	20.11
 
 FIX: better REINDEXing before upgrade [thanks Jim]
+FIX: clin.procedure.is_ongoing=FALSE IF clin.procedure.clin_end < now() [thanks pg_upgrade]
 
 	20.10
 
