@@ -17,17 +17,17 @@ INSERT INTO dem.message_inbox (
 ) VALUES (
 	(select pk from dem.staff where db_user = 'any-doc'),
 	(select pk_type from dem.v_inbox_item_type where type = 'memo' and category = 'administrative'),
-	'Release Notes for GNUmed 1.5.10 (database v20.10)',
+	'Release Notes for GNUmed 1.5.10 (database v20.11)',
 	'GNUmed 1.5.10 Release Notes:
 
 	1.5.10
 
 FIX: patient merging, again [thanks Marc]
 
-	20.10
+	20.11
 
-FIX: pg_trgm placement and use
-FIX: clin.substance_intake.fk_episode SET NOT NULL
+FIX: better REINDEXing before upgrade [thanks Jim]
+FIX: clin.procedure.is_ongoing=FALSE IF clin.procedure.clin_end < now() [thanks pg_upgrade]
 ');
 
 -- --------------------------------------------------------------
