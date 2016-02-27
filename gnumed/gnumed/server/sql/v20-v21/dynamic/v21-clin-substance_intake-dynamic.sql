@@ -134,7 +134,61 @@ create constraint trigger tr_upd_intake_updates_all_drug_components
 	)
 	execute procedure clin.trf_upd_intake_updates_all_drug_components();
 
+-- --------------------------------------------------------------
+drop function if exists clin.trf_insert_update_intake_prevent_duplicate_substance_links() cascade;
+drop function if exists clin.trf_ins_upd_intake_prevent_duplicate_substance_links() cascade;
 
+create or replace function clin.trf_ins_upd_intake_prevent_duplicate_substance_links()
+	returns trigger
+	language 'plpgsql'
+	as '
+DECLARE
+	_pk_patient integer;
+	_link_count integer;
+	_msg text;
+BEGIN
+	-- which patient ?
+	select fk_patient into _pk_patient
+	from clin.encounter
+	where pk = NEW.fk_encounter;
+
+	-- more than one link ?
+	select count(1) into _link_count
+	from clin.substance_intake
+	where
+		-- for this substance
+		fk_substance = NEW.fk_substance
+			and
+		-- either already linked as component OR
+		-- already linked as substance
+		fk_drug_component IS NOT DISTINCT FROM NEW.fk_drug_component
+			and
+		-- in this one patient
+		fk_encounter in (
+			select pk from clin.encounter where fk_patient = _pk_patient
+		)
+	;
+
+	if _link_count > 1 then
+		_msg := ''[clin.trf_ins_upd_intake_prevent_duplicate_substance_links]: substance ref.consumable_substance.pk=('' || NEW.fk_substance || '') ''
+			|| ''already linked to patient=('' || _pk_patient || '') '';
+		raise exception unique_violation using message = _msg;
+	end if;
+
+	return NEW;
+END;';
+
+comment on function clin.trf_ins_upd_intake_prevent_duplicate_substance_links() is
+	'Prevent patient from being put on a particular substance more than once.';
+
+create constraint trigger tr_ins_upd_intake_prevent_duplicate_substance_links
+	after insert or update on clin.substance_intake
+	deferrable
+	initially deferred
+		for each row execute procedure clin.trf_ins_upd_intake_prevent_duplicate_substance_links()
+;
+
+-- --------------------------------------------------------------
 drop function if exists clin.trf_ins_intake_set_substance_from_component() cascade;
 
 create function clin.trf_ins_intake_set_substance_from_component()
@@ -161,7 +215,7 @@ create trigger tr_ins_intake_set_substance_from_component
 	for each row when (NEW.fk_drug_component is not null)
 	execute procedure clin.trf_ins_intake_set_substance_from_component();
 
-
+-- --------------------------------------------------------------
 drop function if exists clin.trf_upd_intake_set_substance_from_component() cascade;
 
 create function clin.trf_upd_intake_set_substance_from_component()
@@ -192,11 +246,11 @@ create trigger tr_upd_intake_set_substance_from_component
 	)
 	execute procedure clin.trf_upd_intake_set_substance_from_component();
 
-
+-- --------------------------------------------------------------
 alter table clin.substance_intake
 	drop constraint if exists clin_subst_intake_either_drug_or_substance cascade;
 
-
+-- --------------------------------------------------------------
 -- normalize existing records
 update clin.substance_intake set
 	fk_substance = (
@@ -208,7 +262,7 @@ where
 	fk_substance is null
 ;
 
-
+-- --------------------------------------------------------------
 alter table clin.substance_intake
 	alter column fk_substance
 		set not null;
