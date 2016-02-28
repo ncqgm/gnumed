@@ -2410,6 +2410,7 @@ if __name__ == '__main__':
 	def test_is_leap_year():
 		for year in range(1995, 2017):
 			print (year, "leaps:", is_leap_year(year))
+
 	#-------------------------------------------------
 	# GNUmed libs
 	gmI18N.activate_locale()
@@ -2425,8 +2426,8 @@ if __name__ == '__main__':
 	#test_format_interval()
 	#test_format_interval_medically()
 	#test_str2pydt()
-	test_pydt_strftime()
+	#test_pydt_strftime()
 	#test_calculate_apparent_age()
-	#test_is_leap_year()
+	test_is_leap_year()
 
 #===========================================================================
