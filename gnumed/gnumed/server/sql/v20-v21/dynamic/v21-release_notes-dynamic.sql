@@ -105,6 +105,7 @@ IMPROVED: dem.region.id -> dem.region.pk
 IMPROVED: dem.urb.id_state -> dem.urb.fk_region
 
 FIX: pg_trgm placement and use
+FIX: trigger on clin.procedure normalizing .is_ongoing
 ');
 
 -- --------------------------------------------------------------

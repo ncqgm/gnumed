@@ -1501,8 +1501,6 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 
 		wxgEMRListJournalPluginPnl.wxgEMRListJournalPluginPnl.__init__(self, *args, **kwds)
 
-		self._LCTRL_journal.set_columns([_('Date'), u'', _('Entry'), _('Who / When')])
-		self._LCTRL_journal.set_resize_column(3)
 		self._LCTRL_journal.select_callback = self._on_row_selected
 		self._TCTRL_details.SetValue(u'')
 
@@ -1520,13 +1518,22 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 		if self._RBTN_by_encounter.Value:		# (... is True:)
 			order_by = u'c_vej.encounter_started, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
 						#, c_vej.clin_when (should not make a relevant difference)
+			date_col_header = _('Encounter')
+			date_fields = ['encounter_started', 'modified_when']
 		elif self._RBTN_by_last_modified.Value:	# (... is True:)
 			order_by = u'c_vej.modified_when, c_vej.pk_episode, c_vej.src_table, scr'
 						#, c_vej.clin_when (should not make a relevant difference)
+			date_col_header = _('Modified')
+			date_fields = ['modified_when']
 		elif self._RBTN_by_item_time.Value:		# (... is True:)
 			order_by = u'c_vej.clin_when, c_vej.pk_episode, c_vej.src_table, scr, c_vej.modified_when'
+			date_col_header = _('Clinical time')
+			date_fields = ['clin_when', 'modified_when']
 		else:
 			raise ValueError('invalid EMR journal list sort state')
+
+		self._LCTRL_journal.set_columns([date_col_header, u'', _('Entry'), _('Who / When')])
+		self._LCTRL_journal.set_resize_column(3)
 
 		journal = gmPerson.gmCurrentPatient().emr.get_as_journal(order_by = order_by)
 
@@ -1539,11 +1546,15 @@ class cEMRListJournalPluginPnl(wxgEMRListJournalPluginPnl.wxgEMRListJournalPlugi
 				continue
 			soap_cat = gmSoapDefs.soap_cat2l10n[entry['soap_cat']]
 			who = u'%s (%s)' % (entry['modified_by'], entry['date_modified'])
-			if entry['date'] == prev_date:
+			try:
+				entry_date = gmDateTime.pydt_strftime(entry[date_fields[0]], u'%Y-%m-%d')
+			except KeyError:
+				entry_date = gmDateTime.pydt_strftime(entry[date_fields[1]], u'%Y-%m-%d')
+			if entry_date == prev_date:
 				date2show = u''
 			else:
-				date2show = entry['date']
-				prev_date = entry['date']
+				date2show = entry_date
+				prev_date = entry_date
 			lines = entry['narrative'].strip().split(u'\n')
 			entry_line = lines[0].rstrip()
 			items.append([date2show, soap_cat, entry_line, who])

@@ -87,7 +87,7 @@ class cAllergyState(gmBusinessDBObject.cBusinessDBObject):
 		lines = []
 		lines.append(u'%s (%s)' % (
 			self.state_string,
-			gmDateTime.pydt_strftime(self['last_confirmed'], '%Y %b %d')
+			gmDateTime.pydt_strftime(self['last_confirmed'], '%Y %b %d', none_str = u'?')
 		))
 		if self._payload[self._idx['comment']] is not None:
 			lines.append(u' %s' % self._payload[self._idx['comment']])
@@ -237,11 +237,40 @@ class cAllergy(gmBusinessDBObject.cBusinessDBObject):
 	]
 	#--------------------------------------------------------
 	def format_maximum_information(self, patient=None):
-		return [u'%s (%s)%s' % (
-			self._payload[self._idx['descriptor']],
+		lines = []
+		lines.append(u'%s%s: %s     [#%s]' % (
 			self._payload[self._idx['l10n_type']],
-			gmTools.coalesce(self._payload[self._idx['reaction']], u'', u': %s')
-		)]
+			gmTools.bool2subst (
+				self._payload[self._idx['definite']],
+				u' (%s)' % _('definite'),
+				u' (%s)' % _('indefinite'),
+				u''
+			),
+			self._payload[self._idx['descriptor']],
+			self._payload[self._idx['pk_allergy']]
+		))
+		if self._payload[self._idx['reaction']] is not None:
+			lines.append(u' ' + _('Reaction:') + u' ' + self._payload[self._idx['reaction']])
+		if self._payload[self._idx['date']] is not None:
+			lines.append(u' ' + _('Noted:') + u' ' + gmDateTime.pydt_strftime(self._payload[self._idx['date']], '%Y %b %d'))
+		if self._payload[self._idx['allergene']] is not None:
+			lines.append(u' ' + _('Allergene:') + u' ' + self._payload[self._idx['allergene']])
+		if self._payload[self._idx['substance']] is not None:
+			lines.append(u' ' + _('Substance:') + u' ' + self._payload[self._idx['substance']])
+		if self._payload[self._idx['substance_code']] is not None:
+			lines.append(u' ' + _('Code:') + u' ' + self._payload[self._idx['substance_code']])
+		if self._payload[self._idx['atc_code']] is not None:
+			lines.append(u' ' + _('ATC:') + u' ' + self._payload[self._idx['atc_code']])
+		lines.append(u' ' + _('Specific to:') + u' ' + gmTools.bool2subst (
+			self._payload[self._idx['generic_specific']],
+			_('this substance only'),
+			_('drug class'),
+			_('unknown')
+		))
+		if self._payload[self._idx['generics']] is not None:
+			lines.append(u' ' + _('Generics:') + u' ' + self._payload[self._idx['generics']])
+
+		return lines
 
 	#--------------------------------------------------------
 	def __setitem__(self, attribute, value):

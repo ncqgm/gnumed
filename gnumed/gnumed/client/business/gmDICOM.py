@@ -618,23 +618,24 @@ class cOrthancServer:
 				if pat_dict[key] == u'(null)':
 					pat_dict[key] = None
 			studies_by_patient.append(pat_dict)
-			o_studies = self.__run_GET(url = u'%s/patients/%s/studies' % (self.__server_url, pat['ID']))
-			if o_studies is False:
+			orth_studies = self.__run_GET(url = u'%s/patients/%s/studies' % (self.__server_url, pat['ID']))
+			if orth_studies is False:
 				_log.error('cannot retrieve studies')
 				return []
-			for o_study in o_studies:
-				for key in o_study.keys():
-					study_keys[key] = True
-				for key in o_study['MainDicomTags'].keys():
-					study_keys_m[key] = True
+			for orth_study in orth_studies:
+				# debugging
+				#for key in orth_study.keys():
+				#	study_keys[key] = True
+				#for key in orth_study['MainDicomTags'].keys():
+				#	study_keys_m[key] = True
 				study_dict = {
-					'orthanc_id': o_study['ID'],
-					'date': o_study['MainDicomTags'][u'StudyDate'],
-					'time': o_study['MainDicomTags'][u'StudyTime'],
+					'orthanc_id': orth_study['ID'],
+					'date': orth_study['MainDicomTags'][u'StudyDate'],
+					'time': orth_study['MainDicomTags'][u'StudyTime'],
 					'series': []
 				}
 				try:
-					study_dict['description'] = o_study['MainDicomTags'][u'StudyDescription']
+					study_dict['description'] = orth_study['MainDicomTags'][u'StudyDescription']
 				except KeyError:
 					study_dict['description'] = None
 				for key in study_dict:
@@ -643,45 +644,49 @@ class cOrthancServer:
 					if study_dict[key] == u'(null)':
 						study_dict[key] = None
 				pat_dict['studies'].append(study_dict)
-				for o_series_id in o_study['Series']:
-					o_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, o_series_id))
-					if o_series is False:
+				for orth_series_id in orth_study['Series']:
+					orth_series = self.__run_GET(url = u'%s/series/%s' % (self.__server_url, orth_series_id))
+					if orth_series is False:
 						_log.error('cannot retrieve series')
 						return []
-					for key in o_series.keys():
-						series_keys[key] = True
-					for key in o_series['MainDicomTags'].keys():
-						series_keys_m[key] = True
+					# debugging
+					#for key in orth_series.keys():
+					#	series_keys[key] = True
+					#for key in orth_series['MainDicomTags'].keys():
+					#	series_keys_m[key] = True
 					series_dict = {
-						'orthanc_id': o_series['ID'],
-						'date': o_series['MainDicomTags']['SeriesDate'],
-						'modality': o_series['MainDicomTags']['Modality'],
-						'instances': len(o_series['Instances'])
+						'orthanc_id': orth_series['ID'],
+						'modality': orth_series['MainDicomTags']['Modality'],
+						'instances': len(orth_series['Instances'])
 					}
 					try:
-						series_dict['description'] = o_series['MainDicomTags'][u'SeriesDescription']
+						series_dict['date'] = orth_series['MainDicomTags']['SeriesDate']
+					except KeyError:
+						series_dict['date'] = study_dict['date']
+					try:
+						series_dict['description'] = orth_series['MainDicomTags'][u'SeriesDescription']
 					except KeyError:
 						series_dict['description'] = None
 					try:
-						series_dict['time'] = o_series['MainDicomTags']['SeriesTime']
+						series_dict['time'] = orth_series['MainDicomTags']['SeriesTime']
 					except KeyError:
 						series_dict['time'] = None
 					if series_dict['time'] is not None:
 						if series_dict['time'].strip() == u'':
 							series_dict['time'] = None
 					try:
-						series_dict['body_part'] = o_series['MainDicomTags']['BodyPartExamined']
+						series_dict['body_part'] = orth_series['MainDicomTags']['BodyPartExamined']
 					except KeyError:
 						series_dict['body_part'] = None
 					try:
-						series_dict['protocol'] = o_series['MainDicomTags']['ProtocolName']
+						series_dict['protocol'] = orth_series['MainDicomTags']['ProtocolName']
 					except KeyError:
 						series_dict['protocol'] = None
 					if series_dict['description'] == series_dict['protocol']:
 						_log.debug('<series description> matches <series protocol>, ignoring description')
 						series_dict['description'] = None
 					try:
-						series_dict['station'] = o_series['MainDicomTags']['StationName']
+						series_dict['station'] = orth_series['MainDicomTags']['StationName']
 					except KeyError:
 						series_dict['station'] = None
 					for key in series_dict:
@@ -691,6 +696,7 @@ class cOrthancServer:
 							series_dict[key] = None
 					study_dict['series'].append(series_dict)
 
+		# debugging
 		#_log.debug('study: %s', study_keys.keys())
 		#_log.debug('study(MainDicomTags): %s', study_keys_m.keys())
 		#_log.debug('series: %s', series_keys.keys())

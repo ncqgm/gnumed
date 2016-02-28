@@ -42,6 +42,7 @@ from Gnumed.business import gmVaccination
 from Gnumed.business import gmFamilyHistory
 from Gnumed.business import gmExternalCare
 from Gnumed.business import gmOrganization
+from Gnumed.business import gmAutoHints
 from Gnumed.business.gmDemographicRecord import get_occupations
 
 
@@ -104,6 +105,7 @@ _map_table2class = {
 	'clin.allergy': gmAllergy.cAllergy,
 	'clin.allergy_state': gmAllergy.cAllergyState,
 	'clin.family_history': gmFamilyHistory.cFamilyHistory,
+	'clin.suppressed_hint': gmAutoHints.cSuppressedHint,
 	'blobs.doc_med': cDocument
 }
 
