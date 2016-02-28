@@ -148,6 +148,7 @@ from Gnumed.pycommon.gmTools import tex_escape_string
 from Gnumed.pycommon.gmTools import xetex_escape_string
 from Gnumed.pycommon.gmTools import compare_dict_likes
 from Gnumed.pycommon.gmTools import format_dict_like
+from Gnumed.pycommon.gmTools import format_dict_likes_comparison
 
 
 _log = logging.getLogger('gm.db')
@@ -547,9 +548,40 @@ def delete_xxx(pk_XXX=None):
 			self.fields_as_dict(none_string = u'<?>'),
 			tabular = True,
 			value_delimiters = None
-			#value_delimiters=(u'>>>', u'<<<')
-			#left_margin = 0,
 		).split(u'\n')
+
+	#--------------------------------------------------------
+	def _get_revision_history(self, query, args, title):
+		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': query, 'args': args}], get_col_idx = True)
+		lines = []
+		lines.append(u'%s (%s versions)' % (title, rows[0]['row_version'] + 1))
+		if len(rows) == 1:
+			lines.append(u'')
+			lines.extend(format_dict_like (
+					rows[0],
+					left_margin = 1,
+					tabular = True,
+					value_delimiters = None,
+					eol = None
+			))
+			return lines
+
+		for row_idx in range(len(rows)-1):
+			lines.append(u'')
+			row_older = rows[row_idx + 1]
+			row_newer = rows[row_idx]
+			lines.extend(format_dict_likes_comparison (
+				row_older,
+				row_newer,
+				title_left = _('Revision #%s') % row_older['row_version'],
+				title_right = _('Revision #%s') % row_newer['row_version'],
+				left_margin = 0,
+				key_delim = u' | ',
+				data_delim = u' | ',
+				missing_string = u'',
+				ignore_diff_in_keys = ['audit_action', 'audit_when', 'audit_by', 'pk_audit', 'row_version', 'modified_when', 'modified_by']
+			))
+		return lines
 
 	#--------------------------------------------------------
 	def refetch_payload(self, ignore_changes=False, link_obj=None):

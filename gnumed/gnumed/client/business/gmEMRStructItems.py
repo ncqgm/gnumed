@@ -747,7 +747,10 @@ FROM (
 				clinically_relevant,
 				is_confidential,
 				is_cause_of_death,
-				fk_encounter
+				fk_encounter,
+				grouping,
+				diagnostic_certainty_classification,
+				summary
 			FROM clin.health_issue
 			WHERE pk = %(pk_health_issue)s
 		UNION ALL (
@@ -765,44 +768,22 @@ FROM (
 				clinically_relevant,
 				is_confidential,
 				is_cause_of_death,
-				fk_encounter
+				fk_encounter,
+				grouping,
+				diagnostic_certainty_classification,
+				summary
 			FROM audit.log_health_issue
 			WHERE pk = %(pk_health_issue)s
 		)
 		ORDER BY row_version DESC
 		"""
 		args = {'pk_health_issue': self.pk_obj}
-		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		txt = _('Health issue: %s%s%s (%s versions)\n\n') % (
+		title = _('Health issue: %s%s%s') % (
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['description']],
-			gmTools.u_right_double_angle_quote,
-			rows[0]['row_version'] + 1
+			gmTools.u_right_double_angle_quote
 		)
-		if len(rows) == 1:
-			txt += gmTools.format_dict_like (
-				rows[0],
-				left_margin = 1,
-				tabular = True,
-				value_delimiters = None
-			)
-		else:
-			for row_idx in range(len(rows)-1):
-				row_older = rows[row_idx + 1]
-				row_newer = rows[row_idx]
-				txt += u'\n'.join(gmTools.format_dict_likes_comparison (
-					row_older,
-					row_newer,
-					title_left = _('Revision #%s') % row_older['row_version'],
-					title_right = _('Revision #%s') % row_newer['row_version'],
-					left_margin = 0,
-					key_delim = u' | ',
-					data_delim = u' | ',
-					missing_string = u''
-				))
-				txt += u'\n\n'
-
-		return txt
+		return u'\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 	#--------------------------------------------------------
@@ -1527,7 +1508,9 @@ FROM (
 				row_version,
 				modified_when,
 				modified_by,
-				pk, fk_health_issue, description, is_open, fk_encounter
+				pk, fk_health_issue, description, is_open, fk_encounter,
+				diagnostic_certainty_classification,
+				summary
 			FROM clin.episode
 			WHERE pk = %(pk_episode)s
 		UNION ALL (
@@ -1537,44 +1520,21 @@ FROM (
 				orig_version as row_version,
 				orig_when as modified_when,
 				orig_by as modified_by,
-				pk, fk_health_issue, description, is_open, fk_encounter
+				pk, fk_health_issue, description, is_open, fk_encounter,
+				diagnostic_certainty_classification,
+				summary
 			FROM audit.log_episode
 			WHERE pk = %(pk_episode)s
 		)
 		ORDER BY row_version DESC
 		"""
 		args = {'pk_episode': self.pk_obj}
-		rows, idx  = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-
-		txt = _('Episode: %s%s%s (%s versions)\n\n') % (
+		title = _('Episode: %s%s%s') % (
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['description']],
-			gmTools.u_right_double_angle_quote,
-			rows[0]['row_version'] + 1
+			gmTools.u_right_double_angle_quote
 		)
-		if len(rows) == 1:
-			txt += gmTools.format_dict_like (
-				rows[0],
-				left_margin = 1,
-				tabular = True,
-				value_delimiters = None
-			)
-		else:
-			for row_idx in range(len(rows)-1):
-				row_older = rows[row_idx + 1]
-				row_newer = rows[row_idx]
-				txt += u'\n'.join(gmTools.format_dict_likes_comparison (
-					row_older,
-					row_newer,
-					title_left = _('Revision #%s') % row_older['row_version'],
-					title_right = _('Revision #%s') % row_newer['row_version'],
-					left_margin = 0,
-					key_delim = u' | ',
-					data_delim = u' | ',
-					missing_string = u''
-				))
-				txt += u'\n\n'
-		return txt
+		return u'\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 	#--------------------------------------------------------
@@ -2645,36 +2605,12 @@ limit 1
 		ORDER BY row_version DESC
 		"""
 		args = {'pk_encounter': self._payload[self._idx['pk_encounter']]}
-		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}], get_col_idx = True)
-		txt = _('Encounter: %s%s%s (%s versions)\n\n') % (
+		title = _('Encounter: %s%s%s') % (
 			gmTools.u_left_double_angle_quote,
 			self._payload[self._idx['l10n_type']],
-			gmTools.u_right_double_angle_quote,
-			rows[0]['row_version'] + 1
+			gmTools.u_right_double_angle_quote
 		)
-		if len(rows) == 1:
-			txt += gmTools.format_dict_like (
-				rows[0],
-				left_margin = 1,
-				tabular = True,
-				value_delimiters = None
-			)
-		else:
-			for row_idx in range(len(rows)-1):
-				row_older = rows[row_idx + 1]
-				row_newer = rows[row_idx]
-				txt += u'\n'.join(gmTools.format_dict_likes_comparison (
-					row_older,
-					row_newer,
-					title_left = _('Revision #%s') % row_older['row_version'],
-					title_right = _('Revision #%s') % row_newer['row_version'],
-					left_margin = 0,
-					key_delim = u' | ',
-					data_delim = u' | ',
-					missing_string = u''
-				))
-				txt += u'\n\n'
-		return txt
+		return u'\n'.join(self._get_revision_history(cmd, args, title))
 
 	formatted_revision_history = property(_get_formatted_revision_history, lambda x:x)
 

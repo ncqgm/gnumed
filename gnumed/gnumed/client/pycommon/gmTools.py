@@ -1168,7 +1168,7 @@ def compare_dict_likes(d1, d2, title1=None, title2=None):
 	return True
 
 #---------------------------------------------------------------------------
-def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left_margin=0, key_delim=u' || ', data_delim=u' | ', missing_string=u'=/=', difference_indicator=u'! '):
+def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left_margin=0, key_delim=u' || ', data_delim=u' | ', missing_string=u'=/=', difference_indicator=u'! ', ignore_diff_in_keys=None):
 
 	_log.info('comparing dict-likes: %s[%s] vs %s[%s]', coalesce(title_left, u'', u'"%s" '), type(d1), coalesce(title_right, u'', u'"%s" '), type(d2))
 	append_type = False
@@ -1219,6 +1219,9 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	if append_type:
 		lines.append(line_template % (u'', _('<type>'), type_left, type_right))
 
+	if ignore_diff_in_keys is None:
+		ignore_diff_in_keys = []
+
 	for key in keys_d1:
 		append_type = False
 		txt_left_col = u'%s' % d1[key]
@@ -1229,7 +1232,11 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 		except KeyError:
 			txt_right_col = missing_string
 		lines.append(line_template % (
-			bool2subst((txt_left_col == txt_right_col), u' ', difference_indicator),
+			bool2subst (
+				((txt_left_col == txt_right_col) or (key in ignore_diff_in_keys)),
+				u'',
+				difference_indicator
+			),
 			key,
 			shorten_text(txt_left_col, max_data_len),
 			shorten_text(txt_right_col, max_data_len)
@@ -1241,11 +1248,12 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 				shorten_text(u'%s' % type(d1[key]), max_data_len),
 				shorten_text(u'%s' % type(d2[key]), max_data_len)
 			))
+
 	for key in keys_d2:
 		if key in keys_d1:
 			continue
 		lines.append(line_template % (
-			difference_indicator,
+			bool2subst((key in ignore_diff_in_keys), u'', difference_indicator),
 			key,
 			shorten_text(missing_string, max_data_len),
 			shorten_text(u'%s' % d2[key], max_data_len)
@@ -1254,7 +1262,7 @@ def format_dict_likes_comparison(d1, d2, title_left=None, title_right=None, left
 	return lines
 
 #---------------------------------------------------------------------------
-def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=u'<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=(u'>>>', u'<<<')):
+def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=u'<[%(key)s] MISSING>', left_margin=0, tabular=False, value_delimiters=(u'>>>', u'<<<'), eol=u'\n'):
 	if template is not None:
 		# all keys in template better exist in d
 		try:
@@ -1292,7 +1300,9 @@ def format_dict_like(d, relevant_keys=None, template=None, missing_key_template=
 			lines.append(line_template % (key, d[key]))
 		except KeyError:
 			pass
-	return u'\n'.join(lines)
+	if eol is None:
+		return lines
+	return eol.join(lines)
 
 #---------------------------------------------------------------------------
 def normalize_dict_like(d, required_keys, missing_key_template=u'<[%(key)s] MISSING>'):
