@@ -81,15 +81,13 @@ class cKeywordExpansion_TextCtrlMixin():
 		char = unichr(evt.GetUnicodeKey())
 
 		user_wants_expansion_attempt = False
-		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT): # portable CTRL-ALT-...
+		if evt.GetModifiers() == (wx.MOD_CMD | wx.MOD_ALT):	# portable CTRL-ALT-...
 			if evt.GetKeyCode() == wx.WXK_RETURN:			# CTRL-ALT-ENTER
 				user_wants_expansion_attempt = True
 			elif evt.GetKeyCode() == 20:					# CTRL-ALT-T
 				user_wants_expansion_attempt = True
 			else:
 				return
-
-		if user_wants_expansion_attempt is False:
 			# user did not press CTRL-ALT-ENTER,
 			# however, did they last enter a
 			# "keyword separator", active character ?

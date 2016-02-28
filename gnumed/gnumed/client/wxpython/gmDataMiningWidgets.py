@@ -28,6 +28,7 @@ from Gnumed.pycommon import gmPG2
 from Gnumed.pycommon import gmMatchProvider
 from Gnumed.pycommon import gmI18N
 from Gnumed.pycommon import gmNetworkTools
+from Gnumed.pycommon.gmExceptions import ConstructorError
 
 from Gnumed.business import gmPerson
 from Gnumed.business import gmDataMining
@@ -144,6 +145,9 @@ class cPatientListingCtrl(gmListWidgets.cReportListCtrl):
 					return
 				pat = dlg.get_selected_person()
 				dlg.Destroy()
+		except ConstructorError:
+			gmDispatcher.send(signal = 'statustext', msg = _('No matching patient found.'))
+			return
 
 		from Gnumed.wxpython import gmPatSearchWidgets
 		gmPatSearchWidgets.set_active_patient(patient = pat)
