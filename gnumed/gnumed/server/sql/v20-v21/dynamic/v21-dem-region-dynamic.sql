@@ -27,9 +27,10 @@ COMMENT on column dem.region.code is
 	'region code';
 
 -- --------------------------------------------------------------
-alter table dem.urb
-	drop constraint if exists fk_dem_urb_dem_region_pk cascade
-;
+alter table dem.urb drop constraint if exists fk_dem_urb_dem_region_pk cascade;
+-- remnants of old
+alter table dem.urb drop constraint if exists "$1" cascade ;
+
 
 alter table dem.urb
 	add constraint fk_dem_urb_dem_region_pk
