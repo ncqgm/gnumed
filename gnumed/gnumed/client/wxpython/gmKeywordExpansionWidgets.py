@@ -88,6 +88,8 @@ class cKeywordExpansion_TextCtrlMixin():
 				user_wants_expansion_attempt = True
 			else:
 				return
+
+		if user_wants_expansion_attempt is False:
 			# user did not press CTRL-ALT-ENTER,
 			# however, did they last enter a
 			# "keyword separator", active character ?
