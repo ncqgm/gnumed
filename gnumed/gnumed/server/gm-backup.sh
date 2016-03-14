@@ -2,9 +2,9 @@
 
 #==============================================================
 #
-# This script creates an uncompressed, plain text (SQL) backup
+# This script creates an uncompressed, directory-style backup
 # of the database schema, data, and roles which can be used to
-# restore a GNUmed database from scratch with psql.
+# restore a GNUmed database from scratch with pg_restore.
 #
 # You need to allow root to access the GNUmed database as
 # user "gm-dbo" by either editing pg_hba.conf or using a
@@ -17,7 +17,7 @@
 #  /etc/anacrontab to make sure it creates daily
 #  database backups for GNUmed:
 #
-#  1       15      backup-gnumed-<your-company>    /usr/bin/gm-backup_database.sh
+#  1       15      backup-gnumed-<your-company>    /usr/bin/gm-backup.sh
 #
 #
 # cron
@@ -25,7 +25,7 @@
 #  add the following line to a crontab file to run a
 #  database backup at 12:47 and 19:47 every day
 #
-#  47 12,19 * * * * /usr/bin/gm-backup_database.sh
+#  47 12,19 * * * * /usr/bin/gm-backup.sh
 #
 # author: Karsten Hilbert
 # license: GPL v2 or later
@@ -107,8 +107,13 @@ fi
 # create dumps
 if test -z ${GM_HOST} ; then
 	# locally
+
+	# database
+	pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}.dir ${GM_DATABASE} 2> /dev/null
+
+	# roles
 	# -r -> -g for older versions
-	sudo -u postgres pg_dumpall -r -v -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+	sudo -u postgres pg_dumpall -v --roles-only -p ${GM_PORT} > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 	echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 	echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
@@ -126,12 +131,16 @@ if test -z ${GM_HOST} ; then
 	ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 	echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-	pg_dump -C -v --column-inserts --disable-triggers -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 else
 	# remotely
 	if ping -c 3 -i 2 ${GM_HOST} > /dev/null; then
+
+		# database
+		pg_dump -v --format=directory --compress=0 --column-inserts --clean --if-exists --serializable-deferrable -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}.dir -h ${GM_HOST} ${GM_DATABASE} 2> /dev/null
+
+		# roles
 		# -r -> -g for older versions
-		pg_dumpall -r -v -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
+		pg_dumpall -v --roles-only -h ${GM_HOST} -p ${GM_PORT} -U postgres > ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
 		echo "" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 		echo "-- -----------------------------------------------------" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
@@ -149,7 +158,6 @@ else
 		ROLES=`psql -A -t -d ${GM_DATABASE} -p ${GM_PORT} -U ${GM_DBO} -c "select gm.get_users('${GM_DATABASE}');"`
 		echo "-- ${ROLES}" >> ${BACKUP_FILENAME}-roles.sql 2> /dev/null
 
-		pg_dump -C -v --column-inserts --disable-triggers -h ${GM_HOST} -p ${GM_PORT} -U ${GM_DBO} -f ${BACKUP_FILENAME}-database.sql ${GM_DATABASE} 2> /dev/null
 	else
 		echo "Cannot ping database host ${GM_HOST}."
 		exit 1
@@ -159,20 +167,18 @@ fi ;
 
 # tar and test it
 if test -z ${VERIFY_TAR} ; then
-	tar -cf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
+	tar -cf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-roles.sql ${BACKUP_FILENAME}.dir/
 else
-	tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-database.sql ${BACKUP_FILENAME}-roles.sql
+	tar -cWf ${BACKUP_FILENAME}.tar ${BACKUP_FILENAME}-roles.sql ${BACKUP_FILENAME}.dir/
 fi ;
 if test "$?" != "0" ; then
 	echo "Creating backup tar archive [${BACKUP_FILENAME}.tar] failed. Aborting."
 	exit 1
 fi
-rm -f ${BACKUP_FILENAME}-database.sql
+rm --dir --recursive --one-file-system ${BACKUP_FILENAME}.dir/
 rm -f ${BACKUP_FILENAME}-roles.sql
 
 
 chown ${BACKUP_OWNER} ${BACKUP_FILENAME}.tar
 
 exit 0
-
-#==============================================================

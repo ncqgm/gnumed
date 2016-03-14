@@ -10,7 +10,7 @@ fi
 echo "-- file ----" > ${DESCRIPTION_FILE}
 file "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 echo "" >> "${DESCRIPTION_FILE}"
-echo "-- exiftools ----" >> "${DESCRIPTION_FILE}"
+echo "-- exiftool ----" >> "${DESCRIPTION_FILE}"
 exiftool -ee -m -u "${FILE_2_DESCRIBE}" >> "${DESCRIPTION_FILE}" 2>> "${DESCRIPTION_FILE}"
 #echo "" >> "${DESCRIPTION_FILE}"
 #echo "-- identify ----" >> "${DESCRIPTION_FILE}"

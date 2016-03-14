@@ -82,7 +82,7 @@ echo "-- lc_ctype = *.UTF-8" >> $SQL_FILE
 echo "-- server_encoding = UTF8"
 
 echo "" >> $SQL_FILE
-echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '19.1');" >> $SQL_FILE
+echo "select gm.log_script_insertion('gm-adjust_db_settings.sh', '21.0');" >> $SQL_FILE
 echo "commit;" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
@@ -93,7 +93,7 @@ echo "-- data checksum version != 0" >> $SQL_FILE
 
 echo "" >> $SQL_FILE
 echo "-- current relevant settings:" >> $SQL_FILE
-echo "select name, setting from pg_settings where name in ('allow_system_table_mods', 'log_connections', 'log_disconnections', 'fsync', 'full_page_writes', 'wal_sync_method', 'lc_ctype', 'server_encoding', 'hba_file', 'config_file');" >> $SQL_FILE
+echo "select name, setting from pg_settings where name in ('allow_system_table_mods', 'log_connections', 'log_disconnections', 'fsync', 'full_page_writes', 'wal_sync_method', 'track_commit_timestamp', 'data_checksums', 'lc_ctype', 'server_encoding', 'hba_file', 'config_file');" >> $SQL_FILE
 echo "" >> $SQL_FILE
 
 echo ""
