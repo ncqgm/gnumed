@@ -3,10 +3,10 @@
 #====================================================
 # license: GPL v2 or later
 #====================================================
-CLIENTREV="1.6.rc2"
+CLIENTREV="1.6.0"
 CLIENTARCH="gnumed-client.$CLIENTREV.tgz"
 
-SRVREV="21.rc2"
+SRVREV="21.0"
 SRVARCH="gnumed-server.$SRVREV.tgz"
 
 LANG_LIST="ar bg ca cs da de el en_AU en_CA es fr id it ka nb nl pl pt pt_BR ro ru ru_RU sq sr sv tr uk zh_TW"
@@ -615,7 +615,7 @@ mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/static
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/data
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/python
 mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/superuser
-#mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
+mkdir -p ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
 
 cp ../../server/sql/v20-v21/gm_db-gnumed_v*-fingerprint.txt ./gnumed-client.$CLIENTREV/server/sql/v20-v21
 cp -R ../../server/sql/v20-v21/dynamic/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/dynamic
@@ -623,7 +623,7 @@ cp -R ../../server/sql/v20-v21/static/*.sql ./gnumed-client.$CLIENTREV/server/sq
 cp -R ../../server/sql/v20-v21/data/* ./gnumed-client.$CLIENTREV/server/sql/v20-v21/data
 cp -R ../../server/sql/v20-v21/python/*.py ./gnumed-client.$CLIENTREV/server/sql/v20-v21/python
 cp -R ../../server/sql/v20-v21/superuser/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/superuser
-#cp -R ../../server/sql/v20-v21/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
+cp -R ../../server/sql/v20-v21/fixups/*.sql ./gnumed-client.$CLIENTREV/server/sql/v20-v21/fixups
 
 
 #----------------------------------
