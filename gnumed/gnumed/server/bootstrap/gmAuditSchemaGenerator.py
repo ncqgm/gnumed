@@ -215,24 +215,27 @@ CREATE TRIGGER zt_del_%(src_tbl)s
 	FOR EACH ROW EXECUTE PROCEDURE audit.ft_del_%(src_tbl)s();
 """
 
-SQL_TEMPLATE_FK_MODIFIED_BY = u"""ALTER TABLE %(src_schema)s.%(src_tbl)s
-	DROP CONSTRAINT IF EXISTS fk_%(src_schema)s_%(src_tbl)s_fk_modified_by CASCADE;
-
--- this is set NOT VALID because it only serves to tell pg_dump
--- to dump dem.staff before other tables such that we do not run
--- into trouble with checking gm.is_dbowner_or_staff(SESSION_USER)
-ALTER TABLE %(src_schema)s.%(src_tbl)s
-	ADD CONSTRAINT fk_%(src_schema)s_%(src_tbl)s_fk_modified_by
-		FOREIGN KEY (modified_by)
-		REFERENCES dem.staff(db_user)
-		ON UPDATE RESTRICT
-		ON DELETE RESTRICT
-	NOT VALID;"""
-
-SQL_TEMPLATE_DEM_STAFF_FK = u"""
-ALTER TABLE dem.staff
-	DROP CONSTRAINT IF EXISTS fk_dem_staff_fk_modified_by CASCADE;
-"""
+# we cannot do this because NOT VALID only applies to the time when
+# we add the constraint, the FK would still be enforced during later
+# INSERTs/UPDATEs
+#SQL_TEMPLATE_FK_MODIFIED_BY = u"""ALTER TABLE %(src_schema)s.%(src_tbl)s
+#	DROP CONSTRAINT IF EXISTS fk_%(src_schema)s_%(src_tbl)s_fk_modified_by CASCADE;
+#
+#-- this is set NOT VALID because it only serves to tell pg_dump
+#-- to dump dem.staff before other tables such that we do not run
+#-- into trouble with checking gm.is_dbowner_or_staff(SESSION_USER)
+#ALTER TABLE %(src_schema)s.%(src_tbl)s
+#	ADD CONSTRAINT fk_%(src_schema)s_%(src_tbl)s_fk_modified_by
+#		FOREIGN KEY (modified_by)
+#		REFERENCES dem.staff(db_user)
+#		ON UPDATE RESTRICT
+#		ON DELETE RESTRICT
+#	NOT VALID;"""
+#
+#SQL_TEMPLATE_DEM_STAFF_FK = u"""
+#ALTER TABLE dem.staff
+#	DROP CONSTRAINT IF EXISTS fk_dem_staff_fk_modified_by CASCADE;
+#"""
 
 SQL_TEMPLATE_CREATE_AUDIT_TRAIL_TABLE = u"""
 create table %(log_schema)s.%(log_tbl)s (
@@ -337,8 +340,8 @@ def trigger_ddl(aCursor='default', schema=AUDIT_SCHEMA, audited_table=None):
 		ddl.append(SQL_TEMPLATE_UPDATE % args)
 		ddl.append(u'')
 		ddl.append(SQL_TEMPLATE_DELETE % args)
-		ddl.append(u'')
-		ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
+		#ddl.append(u'')
+		#ddl.append(SQL_TEMPLATE_FK_MODIFIED_BY % args)
 	else:
 		# the *_NO_*_CHECK variants are needed for pre-v21 databases
 		# where gm.account_is_dbowner_or_staff() doesn't exist yet
@@ -389,7 +392,7 @@ def create_audit_ddl(aCursor):
 		ddl.extend(trigger_ddl(aCursor = aCursor, schema = row['schema'], audited_table = row['table_name']))
 		ddl.append('-- ----------------------------------------------')
 
-	ddl.append(SQL_TEMPLATE_DEM_STAFF_FK)
+	#ddl.append(SQL_TEMPLATE_DEM_STAFF_FK)
 
 	return ddl
 
