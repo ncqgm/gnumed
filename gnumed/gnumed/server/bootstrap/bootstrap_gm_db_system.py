@@ -720,7 +720,7 @@ class database:
 		try:
 			curs.execute("alter database %s set track_commit_timestamp to on" % self.name)
 		except:
-			_log.exception('PostgreSQL version < 9.5 does not support <track_commit_timestamp>')
+			_log.exception('PostgreSQL version < 9.5 does not support <track_commit_timestamp> OR <track_commit_timestamp> cannot be set at runtime')
 		curs.close()
 
 		self.conn.commit()
