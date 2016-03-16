@@ -734,7 +734,9 @@ FROM (
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = u"""SELECT
-				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				'NONE (live row)'::text as audit__action_applied,
+				NULL AS audit__action_when,
+				NULL AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -755,7 +757,9 @@ FROM (
 			WHERE pk = %(pk_health_issue)s
 		UNION ALL (
 			SELECT
-				audit_action, audit_when, audit_by,
+				audit_action as audit__action_applied,
+				audit_when as audit__action_when,
+				audit_by as audit__action_by,
 				pk_audit,
 				orig_version as row_version,
 				orig_when as modified_when,
@@ -1503,7 +1507,9 @@ FROM (
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = u"""SELECT
-				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				'NONE (live row)'::text as audit__action_applied,
+				NULL AS audit__action_when,
+				NULL AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -1515,7 +1521,9 @@ FROM (
 			WHERE pk = %(pk_episode)s
 		UNION ALL (
 			SELECT
-				audit_action, audit_when, audit_by,
+				audit_action as audit__action_applied,
+				audit_when as audit__action_when,
+				audit_by as audit__action_by,
 				pk_audit,
 				orig_version as row_version,
 				orig_when as modified_when,
@@ -2583,7 +2591,9 @@ limit 1
 	#--------------------------------------------------------
 	def _get_formatted_revision_history(self):
 		cmd = u"""SELECT
-				NULL AS audit_action, NULL AS audit_when, NULL AS audit_by,
+				'NONE (live row)'::text as audit__action_applied,
+				NULL AS audit__action_when,
+				NULL AS audit__action_by,
 				pk_audit,
 				row_version,
 				modified_when,
@@ -2593,7 +2603,9 @@ limit 1
 			WHERE pk = %(pk_encounter)s
 		UNION ALL (
 			SELECT
-				audit_action, audit_when, audit_by,
+				audit_action as audit__action_applied,
+				audit_when as audit__action_when,
+				audit_by as audit__action_by,
 				pk_audit,
 				orig_version as row_version,
 				orig_when as modified_when,
