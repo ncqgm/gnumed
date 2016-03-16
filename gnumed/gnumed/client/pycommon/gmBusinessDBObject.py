@@ -579,7 +579,7 @@ def delete_xxx(pk_XXX=None):
 				key_delim = u' | ',
 				data_delim = u' | ',
 				missing_string = u'',
-				ignore_diff_in_keys = ['audit_action', 'audit_when', 'audit_by', 'pk_audit', 'row_version', 'modified_when', 'modified_by']
+				ignore_diff_in_keys = ['audit__action_applied', 'audit__action_when', 'audit__action_by', 'pk_audit', 'row_version', 'modified_when', 'modified_by']
 			))
 		return lines
 
