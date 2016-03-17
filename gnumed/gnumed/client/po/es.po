@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -1621,6 +1621,10 @@ msgstr ""
 "--------------"
 
 #, python-format
+msgid "Revision #%s"
+msgstr "Revisión #%s"
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: fila no actualizada (nada devuelto), ¿ fila en uso ?"
 
@@ -1669,9 +1673,6 @@ msgstr "%s Bytes"
 
 msgid "<type>"
 msgstr "<type>"
-
-msgid "<type diff>"
-msgstr "<type diff>"
 
 #, python-format
 msgid ""
@@ -7440,6 +7441,56 @@ msgstr "*tiene* alergias"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "ERROR: estado alérgico desconocido [%s]"
 
+msgid "definite"
+msgstr "definido"
+
+#, fuzzy
+msgid "indefinite"
+msgstr "definido"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Reacción"
+
+#, fuzzy
+msgid "Noted:"
+msgstr "Anotado"
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Alergias"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Sustancia"
+
+#, fuzzy
+msgid "Code:"
+msgstr "Códigos:"
+
+#, fuzzy
+msgid "ATC:"
+msgstr "ATQ: %s\n"
+
+#, fuzzy
+msgid "Specific to:"
+msgstr "Poner estado en:"
+
+#, fuzzy
+msgid "this substance only"
+msgstr "abuso de sustancia activa"
+
+#, fuzzy
+msgid "drug class"
+msgstr "Clases de Drogas"
+
+msgid "unknown"
+msgstr "desconocido/a"
+
+#, fuzzy
+msgid "Generics:"
+msgstr "Genéricos"
+
 msgid "Medication history"
 msgstr "Historial de medicamentos"
 
@@ -7522,9 +7573,6 @@ msgstr "aprobado"
 
 msgid "unapproved"
 msgstr "no aprobado"
-
-msgid "definite"
-msgstr "definido"
 
 msgid "suspected"
 msgstr "se presume"
@@ -8468,9 +8516,6 @@ msgstr "Sr."
 msgid "Mrs"
 msgstr "Sra."
 
-msgid "unknown"
-msgstr "desconocido/a"
-
 msgid "empty status"
 msgstr "estado vacío"
 
@@ -9212,17 +9257,9 @@ msgstr "Vacunaciones:"
 msgid "External care:"
 msgstr "Cuidado externo:"
 
-#, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-"Problema de salud: %s%s%s (%s versiones)\n"
-"\n"
-
-#, python-format
-msgid "Revision #%s"
-msgstr "Revisión #%s"
+#, fuzzy, python-format
+msgid "Health issue: %s%s%s"
+msgstr "Tema de salud: %s"
 
 msgid "Unattributed episodes"
 msgstr "Episodios sin causa aparente"
@@ -9279,13 +9316,11 @@ msgstr "Notas de progreso del contacto más reciente:"
 msgid "Measurements and Results:"
 msgstr "Exámenes y resultados"
 
-#, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+#, fuzzy, python-format
+msgid "Episode: %s%s%s"
 msgstr ""
-"Episodio: %s%s%s (%s versiones)\n"
 "\n"
+"Episodio %s%s%s%s:"
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -9313,13 +9348,9 @@ msgstr ""
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s otros episodios tratados durante este ccontacto:"
 
-#, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-"Encuentro: %s%s%s (%s versiones)\n"
-"\n"
+#, fuzzy, python-format
+msgid "Encounter: %s%s%s"
+msgstr "Contactos: %s (%s - %s):"
 
 msgid " (ongoing)"
 msgstr " (en curso)"
@@ -19578,6 +19609,14 @@ msgstr "&Nueva nota %s"
 msgid "Find text in EMR Journal"
 msgstr "Encuentro texto en diario del RME"
 
+#, fuzzy
+msgid "Modified"
+msgstr "Modificador:"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "Notas Clínicas"
+
 msgid "Who / When"
 msgstr "Quién / Cuándo"
 
@@ -20818,6 +20857,30 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid "<type diff>"
+#~ msgstr "<type diff>"
+
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Problema de salud: %s%s%s (%s versiones)\n"
+#~ "\n"
+
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Episodio: %s%s%s (%s versiones)\n"
+#~ "\n"
+
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Encuentro: %s%s%s (%s versiones)\n"
+#~ "\n"
 
 #~ msgid "soap_S"
 #~ msgstr "soap_S"

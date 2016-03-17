@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:21+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1409,6 +1409,10 @@ msgid ""
 msgstr ""
 
 #, python-format
+msgid "Revision #%s"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -1449,9 +1453,6 @@ msgid "%s Bytes"
 msgstr ""
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6410,6 +6411,47 @@ msgstr ""
 msgid "ERROR: unknown allergy state [%s]"
 msgstr ""
 
+msgid "definite"
+msgstr ""
+
+msgid "indefinite"
+msgstr ""
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "الت"
+
+msgid "Noted:"
+msgstr ""
+
+msgid "Allergene:"
+msgstr ""
+
+msgid "Substance:"
+msgstr ""
+
+msgid "Code:"
+msgstr ""
+
+msgid "ATC:"
+msgstr ""
+
+msgid "Specific to:"
+msgstr ""
+
+msgid "this substance only"
+msgstr ""
+
+msgid "drug class"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+#, fuzzy
+msgid "Generics:"
+msgstr "رسالة معلومات عامة"
+
 msgid "Medication history"
 msgstr ""
 
@@ -6491,9 +6533,6 @@ msgid "approved"
 msgstr ""
 
 msgid "unapproved"
-msgstr ""
-
-msgid "definite"
 msgstr ""
 
 msgid "suspected"
@@ -7376,9 +7415,6 @@ msgstr ""
 msgid "Mrs"
 msgstr ""
 
-msgid "unknown"
-msgstr ""
-
 msgid "empty status"
 msgstr ""
 
@@ -8087,13 +8123,7 @@ msgid "External care:"
 msgstr ""
 
 #, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid "Revision #%s"
+msgid "Health issue: %s%s%s"
 msgstr ""
 
 msgid "Unattributed episodes"
@@ -8152,9 +8182,7 @@ msgid "Measurements and Results:"
 msgstr ""
 
 #, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr ""
 
 #, python-format
@@ -8182,9 +8210,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr ""
 
 msgid " (ongoing)"
@@ -16923,6 +16949,12 @@ msgid "&New notes %s"
 msgstr ""
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+msgid "Modified"
+msgstr ""
+
+msgid "Clinical time"
 msgstr ""
 
 msgid "Who / When"

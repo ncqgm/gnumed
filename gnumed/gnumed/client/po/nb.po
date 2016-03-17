@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: 2009-02-12 20:47+0000\n"
 "Last-Translator: Leif Gunnar Erlandsen <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
@@ -1455,6 +1455,10 @@ msgid ""
 msgstr ""
 
 #, python-format
+msgid "Revision #%s"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -1495,9 +1499,6 @@ msgid "%s Bytes"
 msgstr ""
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6583,6 +6584,53 @@ msgstr "har allergier"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FEIL: ukjent allergistatus [%s]"
 
+msgid "definite"
+msgstr ""
+
+msgid "indefinite"
+msgstr ""
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Vaksinasjon"
+
+#, fuzzy
+msgid "Noted:"
+msgstr "ikke relevant"
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Allergi"
+
+#, fuzzy
+msgid "Substance:"
+msgstr " Status: %s, %s"
+
+#, fuzzy
+msgid "Code:"
+msgstr "   Dok: %s"
+
+#, fuzzy
+msgid "ATC:"
+msgstr "   Dok: %s"
+
+msgid "Specific to:"
+msgstr ""
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Vaksinasjon"
+
+msgid "drug class"
+msgstr ""
+
+#, fuzzy
+msgid "unknown"
+msgstr "ukjent reaksjon"
+
+msgid "Generics:"
+msgstr ""
+
 msgid "Medication history"
 msgstr ""
 
@@ -6666,9 +6714,6 @@ msgid "approved"
 msgstr ""
 
 msgid "unapproved"
-msgstr ""
-
-msgid "definite"
 msgstr ""
 
 msgid "suspected"
@@ -7580,10 +7625,6 @@ msgstr "Herr"
 msgid "Mrs"
 msgstr "Fru"
 
-#, fuzzy
-msgid "unknown"
-msgstr "ukjent reaksjon"
-
 msgid "empty status"
 msgstr ""
 
@@ -8310,14 +8351,8 @@ msgid "External care:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "Dokumenter: %s"
-
-#, python-format
-msgid "Revision #%s"
-msgstr ""
 
 msgid "Unattributed episodes"
 msgstr ""
@@ -8375,9 +8410,7 @@ msgid "Measurements and Results:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr " Status: %s, %s"
 
 #, python-format
@@ -8405,9 +8438,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Pasient: %s (%s), Nr: %s\n"
 
 #, fuzzy
@@ -17335,6 +17366,14 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "endret verdi"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "Vaksinasjon"
+
 msgid "Who / When"
 msgstr ""
 
@@ -18341,6 +18380,18 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Dokumenter: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr " Status: %s, %s"
 
 #, fuzzy
 #~ msgid ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:13+0100\n"
+"POT-Creation-Date: 2016-03-17 16:28+0100\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -1457,6 +1457,10 @@ msgid ""
 msgstr ""
 
 #, python-format
+msgid "Revision #%s"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -1497,9 +1501,6 @@ msgid "%s Bytes"
 msgstr ""
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6554,6 +6555,52 @@ msgstr ""
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "ГРЕШКА: непознато стање алергије"
 
+msgid "definite"
+msgstr ""
+
+msgid "indefinite"
+msgstr ""
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Реакција"
+
+msgid "Noted:"
+msgstr ""
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Алергија"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Супстанца"
+
+#, fuzzy
+msgid "Code:"
+msgstr "Последњи датум"
+
+msgid "ATC:"
+msgstr ""
+
+#, fuzzy
+msgid "Specific to:"
+msgstr "Подеси на:"
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Уређивање вакцине"
+
+msgid "drug class"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+#, fuzzy
+msgid "Generics:"
+msgstr "генеричка порука за обавештење"
+
 msgid "Medication history"
 msgstr "Историја коришћених лекова"
 
@@ -6635,9 +6682,6 @@ msgid "approved"
 msgstr ""
 
 msgid "unapproved"
-msgstr ""
-
-msgid "definite"
 msgstr ""
 
 msgid "suspected"
@@ -7546,9 +7590,6 @@ msgstr ""
 msgid "Mrs"
 msgstr ""
 
-msgid "unknown"
-msgstr ""
-
 msgid "empty status"
 msgstr ""
 
@@ -8269,14 +8310,8 @@ msgid "External care:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "здравствени проблем: %s"
-
-#, python-format
-msgid "Revision #%s"
-msgstr ""
 
 msgid "Unattributed episodes"
 msgstr ""
@@ -8334,9 +8369,7 @@ msgid "Measurements and Results:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr "епизода: %s"
 
 #, python-format
@@ -8365,9 +8398,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Пацијент: %s (%s), Бр: %s\n"
 
 msgid " (ongoing)"
@@ -17330,6 +17361,14 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "измењена ставка"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "клинички релевантно"
+
 msgid "Who / When"
 msgstr ""
 
@@ -18354,6 +18393,12 @@ msgstr "Прекинути"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "здравствени проблем: %s"
 
 #, fuzzy
 #~ msgid "Search in list"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -1540,6 +1540,10 @@ msgid ""
 "--------------"
 msgstr "Αίτηση βοήθειας"
 
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Νέα έκδοση:\"%s\""
+
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
@@ -1586,9 +1590,6 @@ msgstr "%s Bytes"
 #, fuzzy
 msgid "<type>"
 msgstr "τύπος"
-
-msgid "<type diff>"
-msgstr ""
 
 #, python-format
 msgid ""
@@ -6908,6 +6909,54 @@ msgstr "*έχει* αλλεργίες"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "ΣΦΑΛΜΑ: άγνωστη αλλεργική κατάσταση [%s]"
 
+msgid "definite"
+msgstr ""
+
+#, fuzzy
+msgid "indefinite"
+msgstr "&Προσδιορισμένο"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Αντίδραση"
+
+#, fuzzy
+msgid "Noted:"
+msgstr "&Σημείωση"
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Αλλεργίες"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Ουσία"
+
+#, fuzzy
+msgid "Code:"
+msgstr " Κωδικός: %s\n"
+
+msgid "ATC:"
+msgstr ""
+
+#, fuzzy
+msgid "Specific to:"
+msgstr "Θέστε σε:"
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Πρόσθεση καταγραφής της χρήσης μιας φαρμακευτικής αγωγής/ουσίας."
+
+msgid "drug class"
+msgstr ""
+
+msgid "unknown"
+msgstr "άγνωστο"
+
+#, fuzzy
+msgid "Generics:"
+msgstr "Γενόσημα"
+
 msgid "Medication history"
 msgstr "Ιατρικό Ιστορικό"
 
@@ -6990,9 +7039,6 @@ msgstr "εγκεκριμένο"
 
 msgid "unapproved"
 msgstr "χωρίς έγκριση"
-
-msgid "definite"
-msgstr ""
 
 msgid "suspected"
 msgstr ""
@@ -7958,9 +8004,6 @@ msgstr "Κύριος"
 msgid "Mrs"
 msgstr "Κυρία"
 
-msgid "unknown"
-msgstr "άγνωστο"
-
 #, fuzzy
 msgid "empty status"
 msgstr "κατάσταση"
@@ -8698,14 +8741,8 @@ msgid "External care:"
 msgstr "ID εξωτερικού ασθενούς"
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "θέμα υγείας:%s"
-
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr " Νέα έκδοση:\"%s\""
 
 msgid "Unattributed episodes"
 msgstr "Μη καθορισμένα επεισόδια"
@@ -8765,9 +8802,7 @@ msgid "Measurements and Results:"
 msgstr "Μετρήσεις και Αποτελέσματα:"
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr "Επεισόδια %s%s%s [#%s]"
 
 #, python-format
@@ -8796,9 +8831,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Συνεδρίες: %s (%s - %s):"
 
 msgid " (ongoing)"
@@ -17957,6 +17990,14 @@ msgstr "&Σημειώσεις"
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "τροποποιημένη καταχώρηση"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "Κλινικές σημειώσεις"
+
 msgid "Who / When"
 msgstr ""
 
@@ -19004,6 +19045,24 @@ msgstr "Ματαίωση"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Ματαίωση και ΔΕΝ θα συνδεθείτε με το GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "θέμα υγείας:%s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Επεισόδια %s%s%s [#%s]"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Συνεδρίες: %s (%s - %s):"
 
 #, fuzzy
 #~ msgid ""

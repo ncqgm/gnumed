@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:13+0100\n"
+"POT-Creation-Date: 2016-03-17 16:28+0100\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -1550,6 +1550,10 @@ msgstr ""
 "Hjälp har begärts\n"
 "------------------------"
 
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Ny version: \"%s\""
+
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr "[%s:%s]: rad har ej uppdaterats (inget har returnerats), rad upptagen?"
@@ -1601,9 +1605,6 @@ msgid "%s Bytes"
 msgstr "%s Byte"
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6772,6 +6773,55 @@ msgstr "*har* allergier"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FEL: Okänt allergiskt tillstånd [%s]"
 
+msgid "definite"
+msgstr ""
+
+#, fuzzy
+msgid "indefinite"
+msgstr "&Definit"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Reaktion"
+
+msgid "Noted:"
+msgstr ""
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Allergi"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Substans"
+
+#, fuzzy
+msgid "Code:"
+msgstr ""
+"\n"
+" Ta(inta): %s"
+
+msgid "ATC:"
+msgstr ""
+
+msgid "Specific to:"
+msgstr ""
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Frågor och svar"
+
+#, fuzzy
+msgid "drug class"
+msgstr "Medicinkategorier"
+
+msgid "unknown"
+msgstr ""
+
+#, fuzzy
+msgid "Generics:"
+msgstr "Generika"
+
 msgid "Medication history"
 msgstr "Medicineringshistorik"
 
@@ -6859,9 +6909,6 @@ msgid "approved"
 msgstr ""
 
 msgid "unapproved"
-msgstr ""
-
-msgid "definite"
 msgstr ""
 
 msgid "suspected"
@@ -7799,9 +7846,6 @@ msgstr ""
 msgid "Mrs"
 msgstr ""
 
-msgid "unknown"
-msgstr ""
-
 msgid "empty status"
 msgstr ""
 
@@ -8540,14 +8584,8 @@ msgid "External care:"
 msgstr "externt patient-ID"
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "Kategori av medicinsk frågeställning: %s"
-
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr " Ny version: \"%s\""
 
 msgid "Unattributed episodes"
 msgstr "Ej beaktade episoder:"
@@ -8607,9 +8645,7 @@ msgid "Measurements and Results:"
 msgstr "Provtagningar och resultat:"
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr "Episod %s%s%s   [#%s]"
 
 #, python-format
@@ -8637,9 +8673,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s andra under denna undersökning berörda episoder:"
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Undersökningar: %s (%s - %s):"
 
 msgid " (ongoing)"
@@ -17650,6 +17684,13 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "Ändrat fält."
+
+msgid "Clinical time"
+msgstr ""
+
 msgid "Who / When"
 msgstr ""
 
@@ -18692,6 +18733,24 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Kategori av medicinsk frågeställning: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Episod %s%s%s   [#%s]"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Undersökningar: %s (%s - %s):"
 
 #, fuzzy
 #~ msgid ""
