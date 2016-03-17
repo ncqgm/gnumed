@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:13+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1543,6 +1543,10 @@ msgid ""
 msgstr ""
 
 #, python-format
+msgid "Revision #%s"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -1583,9 +1587,6 @@ msgid "%s Bytes"
 msgstr ""
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6590,6 +6591,50 @@ msgstr "*ka* alergji"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "GABIM: gjendja alergjike [%s] e panjohur"
 
+msgid "definite"
+msgstr "perfundimtar"
+
+#, fuzzy
+msgid "indefinite"
+msgstr "perfundimtar"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Drejtim"
+
+msgid "Noted:"
+msgstr ""
+
+msgid "Allergene:"
+msgstr ""
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Substance"
+
+msgid "Code:"
+msgstr ""
+
+msgid "ATC:"
+msgstr ""
+
+msgid "Specific to:"
+msgstr ""
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Produkt i faturueshem aktiv"
+
+msgid "drug class"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+#, fuzzy
+msgid "Generics:"
+msgstr "mesazh informues i pergjithshem"
+
 msgid "Medication history"
 msgstr "Hostoriku i mjekimit"
 
@@ -6672,9 +6717,6 @@ msgstr "aprovuar"
 
 msgid "unapproved"
 msgstr "I paaprovuar"
-
-msgid "definite"
-msgstr "perfundimtar"
 
 msgid "suspected"
 msgstr "dyshuar"
@@ -7628,9 +7670,6 @@ msgstr ""
 msgid "Mrs"
 msgstr ""
 
-msgid "unknown"
-msgstr ""
-
 msgid "empty status"
 msgstr ""
 
@@ -8350,14 +8389,8 @@ msgid "External care:"
 msgstr " Reference nga jashte: %s\n"
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
-msgstr "problem shendeti: %s"
-
-#, python-format
-msgid "Revision #%s"
-msgstr ""
+msgid "Health issue: %s%s%s"
+msgstr " Problem shendeti: %s\n"
 
 msgid "Unattributed episodes"
 msgstr "Episode te pa atribuara"
@@ -8415,9 +8448,7 @@ msgid "Measurements and Results:"
 msgstr "Matje dhe Rezultate:"
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr " Episod: %s\n"
 
 #, python-format
@@ -8445,9 +8476,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s episode te tjera te modifikuara gjate ketij takimi:"
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Takime: %s (%s - %s):"
 
 msgid " (ongoing)"
@@ -17289,6 +17318,13 @@ msgstr ""
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "e dhene e modifikuar"
+
+msgid "Clinical time"
+msgstr ""
+
 msgid "Who / When"
 msgstr ""
 
@@ -18287,6 +18323,24 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "problem shendeti: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr " Episod: %s\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Takime: %s (%s - %s):"
 
 #~ msgid "soap_S"
 #~ msgstr "sapun_S"

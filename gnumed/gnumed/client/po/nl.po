@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -1567,6 +1567,10 @@ msgstr ""
 "Hulp gevraagd\n"
 "--------------------"
 
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr "Versie"
+
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
@@ -1616,9 +1620,6 @@ msgstr "%s Bytes"
 #, fuzzy
 msgid "<type>"
 msgstr "soort"
-
-msgid "<type diff>"
-msgstr ""
 
 #, python-format
 msgid ""
@@ -7296,6 +7297,57 @@ msgstr "heeft *wel* allergiën"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FOUT: onbekende allergie-status [%s]"
 
+msgid "definite"
+msgstr "zekere"
+
+#, fuzzy
+msgid "indefinite"
+msgstr "zekere"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Reactie"
+
+#, fuzzy
+msgid "Noted:"
+msgstr "Aantekening"
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Allergieën"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Stof"
+
+#, fuzzy
+msgid "Code:"
+msgstr "Code"
+
+#, fuzzy
+msgid "ATC:"
+msgstr "   MTA: %s"
+
+#, fuzzy
+msgid "Specific to:"
+msgstr "Instellen"
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Naam bewerken"
+
+#, fuzzy
+msgid "drug class"
+msgstr "Medicijn categorie"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Onbekend"
+
+#, fuzzy
+msgid "Generics:"
+msgstr "Generiek"
+
 msgid "Medication history"
 msgstr "Medische geschiedenis"
 
@@ -7381,9 +7433,6 @@ msgstr ""
 
 msgid "unapproved"
 msgstr ""
-
-msgid "definite"
-msgstr "zekere"
 
 msgid "suspected"
 msgstr ""
@@ -8349,10 +8398,6 @@ msgid "Mrs"
 msgstr "Mevr"
 
 #, fuzzy
-msgid "unknown"
-msgstr "Onbekend"
-
-#, fuzzy
 msgid "empty status"
 msgstr "status"
 
@@ -9095,14 +9140,8 @@ msgid "External care:"
 msgstr "BSN bewerken."
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "gezondheidsprobleem: %s"
-
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr "Versie"
 
 msgid "Unattributed episodes"
 msgstr "Niet toegewezen episodes"
@@ -9162,10 +9201,8 @@ msgid "Measurements and Results:"
 msgstr "Metingen en Uitslagen:"
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
-msgstr "Episodes: %s"
+msgid "Episode: %s%s%s"
+msgstr "Episode %s%s%s (%s) [#%s]\n"
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -9193,9 +9230,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Ontmoetingen: %s (%s - %s):"
 
 msgid " (ongoing)"
@@ -19485,6 +19520,14 @@ msgstr "Notitie"
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "gewijzigde invoer"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "Klinische aantekeningen"
+
 msgid "Who / When"
 msgstr ""
 
@@ -20701,6 +20744,24 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "gezondheidsprobleem: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Episodes: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Ontmoetingen: %s (%s - %s):"
 
 #, fuzzy
 #~ msgid ""

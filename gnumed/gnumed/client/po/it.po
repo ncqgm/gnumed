@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: 2012-06-01 01:22+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: GNUmed\n"
@@ -1532,6 +1532,10 @@ msgstr ""
 "Richiesta di aiuto\n"
 "--------------"
 
+#, fuzzy, python-format
+msgid "Revision #%s"
+msgstr " Nuova versione: \"%s\""
+
 #, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
@@ -1583,9 +1587,6 @@ msgstr "%s Bytes"
 #, fuzzy
 msgid "<type>"
 msgstr "tipo"
-
-msgid "<type diff>"
-msgstr ""
 
 #, python-format
 msgid ""
@@ -6999,6 +7000,56 @@ msgstr "*ha* allergie"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "ERRORE: stato allergico sconosciuto [%s]"
 
+msgid "definite"
+msgstr "definito"
+
+#, fuzzy
+msgid "indefinite"
+msgstr "definito"
+
+#, fuzzy
+msgid "Reaction:"
+msgstr "Rezione"
+
+#, fuzzy
+msgid "Noted:"
+msgstr "Nota"
+
+#, fuzzy
+msgid "Allergene:"
+msgstr "Allergia"
+
+#, fuzzy
+msgid "Substance:"
+msgstr "Sostanza"
+
+#, fuzzy
+msgid "Code:"
+msgstr "Codice"
+
+msgid "ATC:"
+msgstr ""
+
+#, fuzzy
+msgid "Specific to:"
+msgstr "Imposta a:"
+
+#, fuzzy
+msgid "this substance only"
+msgstr "Edita l'indirizzo"
+
+#, fuzzy
+msgid "drug class"
+msgstr "Classi Farmacologiche"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Sconosciuta"
+
+#, fuzzy
+msgid "Generics:"
+msgstr "Generici"
+
 msgid "Medication history"
 msgstr "Storico dei medicamenti"
 
@@ -7082,9 +7133,6 @@ msgstr ""
 
 msgid "unapproved"
 msgstr ""
-
-msgid "definite"
-msgstr "definito"
 
 msgid "suspected"
 msgstr ""
@@ -8050,10 +8098,6 @@ msgid "Mrs"
 msgstr "Sig.ra"
 
 #, fuzzy
-msgid "unknown"
-msgstr "Sconosciuta"
-
-#, fuzzy
 msgid "empty status"
 msgstr "status"
 
@@ -8787,14 +8831,8 @@ msgid "External care:"
 msgstr "Codice esterno"
 
 #, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
+msgid "Health issue: %s%s%s"
 msgstr "problema di salute: %s"
-
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr " Nuova versione: \"%s\""
 
 msgid "Unattributed episodes"
 msgstr "Casi non attribuiti"
@@ -8853,9 +8891,7 @@ msgid "Measurements and Results:"
 msgstr "Misure e risultati:"
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr "Episodio %s%s%s [#%s]"
 
 #, python-format
@@ -8884,9 +8920,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s altri episodi accennati duranti questi incontri:"
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "Appuntamenti: %s (%s - %s):"
 
 msgid " (ongoing)"
@@ -18198,6 +18232,14 @@ msgstr "&Note"
 msgid "Find text in EMR Journal"
 msgstr ""
 
+#, fuzzy
+msgid "Modified"
+msgstr "voce modificata"
+
+#, fuzzy
+msgid "Clinical time"
+msgstr "Note cliniche"
+
 msgid "Who / When"
 msgstr ""
 
@@ -19287,6 +19329,24 @@ msgstr "Annulla"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annulla e NON connetti a GNUmed"
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "problema di salute: %s"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Episodio %s%s%s [#%s]"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr "Appuntamenti: %s (%s - %s):"
 
 #, fuzzy
 #~ msgid ""

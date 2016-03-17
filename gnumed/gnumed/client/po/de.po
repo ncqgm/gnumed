@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
-"PO-Revision-Date: 2016-02-21 17:29+0100\n"
+"POT-Creation-Date: 2016-03-17 16:20+0100\n"
+"PO-Revision-Date: 2016-03-17 16:25+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -1472,6 +1472,10 @@ msgstr ""
 "-----------------"
 
 #, python-format
+msgid "Revision #%s"
+msgstr "Revision #%s"
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 "[%s:%s]: Zeile nicht geändert (nichts zurückgeliefert), Zeile in Benutzung ?"
@@ -1519,12 +1523,8 @@ msgstr "1 Byte"
 msgid "%s Bytes"
 msgstr "%s Byte"
 
-#, fuzzy
 msgid "<type>"
-msgstr "Typ"
-
-msgid "<type diff>"
-msgstr ""
+msgstr "<Typ>"
 
 #, python-format
 msgid ""
@@ -7195,6 +7195,45 @@ msgstr "*hat* Allergien"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "FEHLER: fehlerhafter Allergiestatus [%s]"
 
+msgid "definite"
+msgstr "sicher"
+
+msgid "indefinite"
+msgstr "unsicher"
+
+msgid "Reaction:"
+msgstr "Reaktion:"
+
+msgid "Noted:"
+msgstr "Bemerkt:"
+
+msgid "Allergene:"
+msgstr "Allergen:"
+
+msgid "Substance:"
+msgstr "Stoff:"
+
+msgid "Code:"
+msgstr "Code:"
+
+msgid "ATC:"
+msgstr "ATC:"
+
+msgid "Specific to:"
+msgstr "Spezifisch für:"
+
+msgid "this substance only"
+msgstr "nur dieser Stoff"
+
+msgid "drug class"
+msgstr "Medikamentengruppe"
+
+msgid "unknown"
+msgstr "unbekannt"
+
+msgid "Generics:"
+msgstr "Generika:"
+
 msgid "Medication history"
 msgstr "Medikamentenhistorie"
 
@@ -7275,9 +7314,6 @@ msgstr "gebilligt"
 
 msgid "unapproved"
 msgstr "ungebilligt"
-
-msgid "definite"
-msgstr "sicher"
 
 msgid "suspected"
 msgstr "vermutet"
@@ -8214,9 +8250,6 @@ msgstr "Herr"
 msgid "Mrs"
 msgstr "Frau"
 
-msgid "unknown"
-msgstr "unbekannt"
-
 msgid "empty status"
 msgstr "unbekannter Status"
 
@@ -8945,17 +8978,9 @@ msgstr "Impfungen:"
 msgid "External care:"
 msgstr "Externe Mitbetreuung:"
 
-#, fuzzy, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-"Grunderkrankung: %s%s%s\n"
-"\n"
-
-#, fuzzy, python-format
-msgid "Revision #%s"
-msgstr "Revisionen"
+#, python-format
+msgid "Health issue: %s%s%s"
+msgstr "Grunderkrankung: %s%s%s"
 
 msgid "Unattributed episodes"
 msgstr "Nicht zugeordnete Episoden"
@@ -9012,13 +9037,9 @@ msgstr "Notizen der letzten Konsultation:"
 msgid "Measurements and Results:"
 msgstr "Messungen und Ergebnisse:"
 
-#, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-"Episode: %s%s%s\n"
-"\n"
+#, python-format
+msgid "Episode: %s%s%s"
+msgstr "Episode: %s%s%s"
 
 #, python-format
 msgid "  your time: %s - %s  (@%s = %s%s)\n"
@@ -9046,13 +9067,9 @@ msgstr ""
 msgid "%s other episodes touched upon during this encounter:"
 msgstr "%s weitere Episoden während dieses Kontakts bearbeitet:"
 
-#, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-"Konsultation: %s%s%s\n"
-"\n"
+#, python-format
+msgid "Encounter: %s%s%s"
+msgstr "Konsultation: %s%s%s"
 
 msgid " (ongoing)"
 msgstr " (andauernd)"
@@ -19258,6 +19275,12 @@ msgstr "Neue &Einträge %s"
 msgid "Find text in EMR Journal"
 msgstr "Finde Text im Karteijournal"
 
+msgid "Modified"
+msgstr "Geändert"
+
+msgid "Clinical time"
+msgstr "Medizinischer Zeitpunkt"
+
 msgid "Who / When"
 msgstr "Wer / Wann"
 
@@ -20494,6 +20517,30 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#, fuzzy
+#~ msgid ""
+#~ "Health issue: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Grunderkrankung: %s%s%s\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Episode: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Episode: %s%s%s\n"
+#~ "\n"
+
+#, fuzzy
+#~ msgid ""
+#~ "Encounter: %s%s%s (%s versions)\n"
+#~ "\n"
+#~ msgstr ""
+#~ "Konsultation: %s%s%s\n"
+#~ "\n"
 
 #~ msgid ""
 #~ "\n"
@@ -23059,9 +23106,6 @@ msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
 
 #~ msgid "Patient change: Unsaved progress note"
 #~ msgstr "Patientenwechsel: ungespeicherte Verlaufsnotiz"
-
-#~ msgid "Allergies:"
-#~ msgstr "Allergien:"
 
 #~ msgid "Configure which plugin to show right after client startup."
 #~ msgstr ""

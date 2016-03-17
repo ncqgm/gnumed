@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-24 18:12+0100\n"
+"POT-Creation-Date: 2016-03-17 16:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1406,6 +1406,10 @@ msgid ""
 msgstr ""
 
 #, python-format
+msgid "Revision #%s"
+msgstr ""
+
+#, python-format
 msgid "[%s:%s]: row not updated (nothing returned), row in use ?"
 msgstr ""
 
@@ -1446,9 +1450,6 @@ msgid "%s Bytes"
 msgstr ""
 
 msgid "<type>"
-msgstr ""
-
-msgid "<type diff>"
 msgstr ""
 
 #, python-format
@@ -6414,6 +6415,48 @@ msgstr "ალერგია"
 msgid "ERROR: unknown allergy state [%s]"
 msgstr "შეცდომა: უცნობი ალერგიის ფორმა [%ს]"
 
+msgid "definite"
+msgstr ""
+
+msgid "indefinite"
+msgstr ""
+
+msgid "Reaction:"
+msgstr ""
+
+msgid "Noted:"
+msgstr ""
+
+msgid "Allergene:"
+msgstr ""
+
+#, fuzzy
+msgid "Substance:"
+msgstr ""
+"%ს:%ს %.8ს (ვ%ს)\n"
+"%ს"
+
+msgid "Code:"
+msgstr ""
+
+msgid "ATC:"
+msgstr ""
+
+msgid "Specific to:"
+msgstr ""
+
+msgid "this substance only"
+msgstr ""
+
+msgid "drug class"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "Generics:"
+msgstr ""
+
 msgid "Medication history"
 msgstr ""
 
@@ -6495,9 +6538,6 @@ msgid "approved"
 msgstr ""
 
 msgid "unapproved"
-msgstr ""
-
-msgid "definite"
 msgstr ""
 
 msgid "suspected"
@@ -7401,9 +7441,6 @@ msgstr ""
 msgid "Mrs"
 msgstr ""
 
-msgid "unknown"
-msgstr ""
-
 msgid "empty status"
 msgstr ""
 
@@ -8110,15 +8147,9 @@ msgstr ""
 msgid "External care:"
 msgstr ""
 
-#, python-format
-msgid ""
-"Health issue: %s%s%s (%s versions)\n"
-"\n"
-msgstr ""
-
-#, python-format
-msgid "Revision #%s"
-msgstr ""
+#, fuzzy, python-format
+msgid "Health issue: %s%s%s"
+msgstr "%ს: შეჯახება (%ს)"
 
 msgid "Unattributed episodes"
 msgstr ""
@@ -8176,9 +8207,7 @@ msgid "Measurements and Results:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Episode: %s%s%s (%s versions)\n"
-"\n"
+msgid "Episode: %s%s%s"
 msgstr ""
 "%ს:%ს %.8ს (ვ%ს)\n"
 "%ს"
@@ -8208,9 +8237,7 @@ msgid "%s other episodes touched upon during this encounter:"
 msgstr ""
 
 #, fuzzy, python-format
-msgid ""
-"Encounter: %s%s%s (%s versions)\n"
-"\n"
+msgid "Encounter: %s%s%s"
 msgstr "%ს: შეჯახება (%ს)"
 
 msgid " (ongoing)"
@@ -16960,6 +16987,13 @@ msgid "&New notes %s"
 msgstr ""
 
 msgid "Find text in EMR Journal"
+msgstr ""
+
+#, fuzzy
+msgid "Modified"
+msgstr "შესაცვლელი შენატანი"
+
+msgid "Clinical time"
 msgstr ""
 
 msgid "Who / When"
