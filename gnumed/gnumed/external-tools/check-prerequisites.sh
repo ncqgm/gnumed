@@ -221,6 +221,61 @@ else
 	echo "found"
 fi
 
+echo -n " 'exiftool' command... "
+BIN=`which exiftool`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'exiftool' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'sfinfo' command... "
+BIN=`which sfinfo`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'sfinfo' command installed."
+	echo "  INFO : It can be used by GNUmed to extract metadata from"
+	echo "  INFO : files for display within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'dcmgpdir' command... "
+BIN=`which dcmgpdir`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'dcmgpdir' command installed."
+	echo "  INFO : It can be used by GNUmed to create DICOMDIR files from"
+	echo "  INFO : a range of DICOM image files."
+else
+	echo "found"
+fi
+
+echo -n " 'dmtxwrite' command... "
+BIN=`which dmtxwrite`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'dmtxwrite' command installed."
+	echo "  INFO : It can be used by GNUmed to create the datamatrix QR code"
+	echo "  INFO : of a text file from within GNUmed."
+else
+	echo "found"
+fi
+
+echo -n " 'iec16022' command... "
+BIN=`which iec16022`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'iec16022' command installed."
+	echo "  INFO : It can be used by GNUmed to create the datamatrix QR code"
+	echo "  INFO : of a text file from within GNUmed."
+else
+	echo "found"
+fi
+
 echo -n " 'gm-print_doc' command... "
 BIN=`which gm-print_doc`
 if [ "x${BIN}x" == "xx" ]; then

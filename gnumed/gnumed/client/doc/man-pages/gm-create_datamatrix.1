@@ -1,0 +1,45 @@
+.\" ========================================================
+.\" license: GPL v2 or later
+.\" ========================================================
+
+.TH gm-create_datamatrix 1 "2016 January 1st" "Create datamatrix from within GNUmed"
+
+
+.SH NAME
+.B gm-create_datamatrix
+- create a datamatrix QR code from within GNUmed
+
+
+.SH SYNOPSIS
+.B gm-create_datamatrix
+.I <input file>
+.I <output file>
+
+
+.SH DESCRIPTION
+.B gm-create_datamatrix
+is a helper script which GNUmed uses to create a datamatrix QR code for a
+given text file. For doing so it needs "dmtx-utils" or "iec16022" to be
+installed.
+
+
+.SH OPTIONS
+.PP
+.TP
+.B input file
+The text file to create a datamatrix QR code from.
+.TP
+.B output file
+The file into which to store the generated datamatrix QR code.
+
+
+.SH SEE ALSO
+.TP
+.B dmtxwrite(1)
+.TP
+.B iec16022(1)
+
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>
+for the Debian GNU/Linux system (but may be used by others).

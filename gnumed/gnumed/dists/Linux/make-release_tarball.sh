@@ -128,6 +128,9 @@ cp -R ../../external-tools/gm-install_client_locally.sh ./gnumed-client.$CLIENTR
 cp -R ../../external-tools/check-prerequisites.* ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/*.ahk ./gnumed-client.$CLIENTREV/external-tools/
 cp -R ../../external-tools/gm-convert_file ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-describe_file ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-create_datamatrix ./gnumed-client.$CLIENTREV/external-tools/
+cp -R ../../external-tools/gm-create_dicomdir ./gnumed-client.$CLIENTREV/external-tools/
 
 
 # client
@@ -171,6 +174,7 @@ cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.svg ./gnumed-client.$CLIENTRE
 cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xcf ./gnumed-client.$CLIENTREV/client/bitmaps/
 cp -R ../../client/bitmaps/gm_icon-serpent_and_gnu.xpm ./gnumed-client.$CLIENTREV/client/bitmaps/
 
+
 # business
 mkdir -p ./gnumed-client.$CLIENTREV/client/business/
 cp -R ../../client/business/*.py ./gnumed-client.$CLIENTREV/client/business/
@@ -193,6 +197,8 @@ cp -R ../../client/doc/man-pages/gm-install_arriba.8 ./gnumed-client.$CLIENTREV/
 cp -R ../../client/doc/man-pages/gm-remove_person.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-convert_file.1 ./gnumed-client.$CLIENTREV/client/doc/
 cp -R ../../client/doc/man-pages/gm-describe_file.1 ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/doc/man-pages/gm-create_datamatrix.1 ./gnumed-client.$CLIENTREV/client/doc/
+cp -R ../../client/doc/man-pages/gm-create_dicomdir.1 ./gnumed-client.$CLIENTREV/client/doc/
 
 
 # etc
