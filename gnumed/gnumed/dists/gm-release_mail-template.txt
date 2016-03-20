@@ -28,36 +28,59 @@ Client installation:
 	http://wiki.gnumed.de/bin/view/Gnumed/InstallerGuideHomeShort
 
 
-Database installation / upgrade:
+Database upgrade (existing DB):
 
  Note that this release, as usual, DOES require a database
- upgrade from vxx to vxx if you already have a database and
- wish to retain the patient data you documented therein. For
- uprading you can use the script provided in the tarball:
+ upgrade (from vxx to vxx) if you wish to retain patient data
+ contained within an existing database.
 
-	.../server/bootstrap/upgrade-db.sh xx xx
+ Your platform may provide new server packages in which
+ case you can likely use the systemwide upgrade script:
 
- Alternatively, you can use the network upgrader:
+	$> gm-upgrade_server xx xx
+
+ If you are upgrading from a server tarball you can use the
+ script provided in the download:
+
+	$> cd .../server/bootstrap/
+	$> ./upgrade-db.sh xx xx
+
+ Alternatively, you may consider useingthe network upgrader:
 
 	http://www.gnumed.de/downloads/server/net_upgrade-gnumed_server.sh
 
- which you need to download, make executable and run.
+ (which you would need to download, make executable and run)
 
- If you wish to install a fresh database (without upgrading
- an existing one) you can use the install script:
+ More information on upgrading is found here:
 
-	.../server/bootstrap/bootstrap-latest.sh
+	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
+
+
+Database installation (new DB):
+
+ If you wish to install a fresh database (either if you do
+ not yet have a database or if you want to ignore and
+ OVERWRITE any existing GNUmed databases) you have several
+ options all of which WILL DELETE existing databases !
+
+ Your platform may provide new server packages in which
+ case you can likely use the systemwide install script:
+
+	$> gm-bootstrap_server
+
+ If you are installing from a server tarball you can use the
+ script provided in the download:
+
+	$> cd .../server/bootstrap/
+	$> ./boostrap-latest.sh
 
  or, again, the network based installer:
 
 	http://www.gnumed.de/downloads/server/net_install-gnumed_server.sh
 
- Note that both ways WILL DELETE existing databases !
-
- More information on installation or upgrading is found here:
+ More information on installation is found here:
 
 	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerInstall
-	http://wiki.gnumed.de/bin/view/Gnumed/GmManualServerUpgrade
 
 
 Changelog:
