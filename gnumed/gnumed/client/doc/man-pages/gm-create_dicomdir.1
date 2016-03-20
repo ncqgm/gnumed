@@ -1,0 +1,45 @@
+.\" ========================================================
+.\" license: GPL v2 or later
+.\" ========================================================
+
+.TH gm-create_dicomdir 1 "2016 January 1st" "Create DICOMDIR from within GNUmed"
+
+
+.SH NAME
+.B gm-create_dicomdir
+- create a DICOMDIR file from within GNUmed
+
+
+.SH SYNOPSIS
+.B gm-create_dicomdir
+.I <DICOMDIR file>
+.I <DICOM directory>
+
+
+.SH DESCRIPTION
+.B gm-create_dicomdir
+is a helper script which GNUmed uses to create a DICOMDIR file for a number
+or DICOM files. For doing so it needs "dcmgpdir" to be installed.
+
+
+.SH OPTIONS
+.PP
+.TP
+.B DICOMDIR
+Full path of the DICOMDIR file to create. Usually stored at the root
+of the tree containing the actual DICOM files.
+.TP
+.B dicom directory
+The root of the tree containing the DICOM files for which to create
+the DICOMDIR file. The DICOM files must match the pattern "IM*" and
+obey DICOM naming rules.
+
+
+.SH SEE ALSO
+.TP
+.B dcmgpdir(1)
+
+
+.SH AUTHOR
+This manual page was written by Karsten Hilbert <karsten.hilbert@gmx.net>
+for the Debian GNU/Linux system (but may be used by others).
