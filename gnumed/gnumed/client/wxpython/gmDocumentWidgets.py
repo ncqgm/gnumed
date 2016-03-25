@@ -1156,10 +1156,10 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 
 		# only one page, show that, regardless of whether selected or not
 		if self._LCTRL_doc_pages.ItemCount == 1:
-			page_fnames = [ self._LCTRL_doc_pages.get_item_data(0) ]
+			page_fnames = [ self._LCTRL_doc_pages.get_item_data(0)[0] ]
 		else:
 			# did user select one of multiple pages ?
-			page_fnames = self._LCTRL_doc_pages.get_selected_item_data()
+			page_fnames = [ data[0] for data in self._LCTRL_doc_pages.selected_item_data ]
 			if len(page_fnames) == 0:
 				gmDispatcher.send(signal = 'statustext', msg = _('No part selected for viewing.'), beep = True)
 				return
@@ -1213,7 +1213,7 @@ class cScanIdxDocsPnl(wxgScanIdxPnl.wxgScanIdxPnl, gmPlugin.cPatientChange_Plugi
 		# create document
 		new_doc = save_files_as_new_document (
 			parent = self,
-			filenames = self._LCTRL_doc_pages.data,
+			filenames = [ data[0] for data in self._LCTRL_doc_pages.data ],
 			document_type = self._PhWheel_doc_type.GetValue().strip(),
 			pk_document_type = self._PhWheel_doc_type.GetData(),
 			unlock_patient = False,

@@ -356,6 +356,16 @@ else
 	echo "found"
 fi
 
+echo -n " 'Ginkgo CADx' DICOM viewer... "
+BIN=`which ginkgocadx`
+if [ "x${BIN}x" == "xx" ]; then
+	echo ""
+	echo "  INFO : You don't seem to have the 'ginkgocadx' command installed."
+	echo "  INFO : This is the recommended DICOM viewer on Linux."
+else
+	echo "found"
+fi
+
 # obsolete
 #echo -n " 'gm-download_data' command... "
 #BIN=`which gm-download_data`
@@ -363,16 +373,6 @@ fi
 #	echo ""
 #	echo "  INFO : You don't seem to have the 'gm-download_data' command installed."
 #	echo "  INFO : It is used to download data files from within GNUmed."
-#else
-#	echo "found"
-#fi
-#
-#echo -n " 'Ginkgo CADx' DICOM viewer... "
-#BIN=`which ginkgocadx`
-#if [ "x${BIN}x" == "xx" ]; then
-#	echo ""
-#	echo "  INFO : You don't seem to have the 'ginkgocadx' command installed."
-#	echo "  INFO : This is the recommended DICOM viewer."
 #else
 #	echo "found"
 #fi
