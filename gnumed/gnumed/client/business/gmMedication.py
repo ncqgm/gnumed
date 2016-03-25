@@ -1582,12 +1582,12 @@ def create_consumable_substance_by_atc(substance=None, atc=None, amount=None, un
 				%(amount)s,
 				gm.nullify_empty_string(%(unit)s)
 			WHERE NOT EXISTS (
-				SELECT 1 FROM ref.consumable_substance WHERE atc = %(atc)s
+				SELECT 1 FROM ref.consumable_substance WHERE atc_code = %(atc)s
 			)
 		RETURNING pk"""
 	rows, idx = gmPG2.run_rw_queries(queries = [{'cmd': cmd, 'args': args}], return_data = True, get_col_idx = False)
 	if len(rows) == 0:
-		cmd = u"SELECT pk FROM ref.consumable_substance WHERE atc = %(atc)s LIMIT 1"
+		cmd = u"SELECT pk FROM ref.consumable_substance WHERE atc_code = %(atc)s LIMIT 1"
 		rows, idx = gmPG2.run_ro_queries(queries = [{'cmd': cmd, 'args': args}])
 
 	return cConsumableSubstance(aPK_obj = rows[0]['pk'])

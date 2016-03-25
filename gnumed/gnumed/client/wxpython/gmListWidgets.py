@@ -2382,9 +2382,11 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 
 	#------------------------------------------------------------
 	def OnSortOrderChanged(self):
-		self._remove_sorting_indicators_from_column_headers()
-		# annotate sort column
 		col_idx, is_ascending = self.GetSortState()
+		if col_idx == -1:
+			_log.debug(u'outside any column (idx: -1) clicked, ignoring')
+			return
+		self._remove_sorting_indicators_from_column_headers()
 		col_state = self.GetColumn(col_idx)
 		col_state.m_text += self.sort_order_tags[is_ascending]
 		self.SetColumn(col_idx, col_state)

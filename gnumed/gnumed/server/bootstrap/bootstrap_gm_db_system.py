@@ -892,9 +892,26 @@ class database:
 		)
 		target_conn.cookie = 'check_data_plausibility: target'
 
+		all_tests_successful = True
+
 		for idx in range(no_of_queries):
-			tag, old_query = plausibility_queries[idx*2].split('::::')
+			check_def = plausibility_queries[idx*2]
+			if check_def.startswith('--'):
+				_log.debug('skipped: %s', check_def)
+				continue
+
+			tag = u'?'
+			old_query = u'?'
+			try:
+				tag, old_query = check_def.split('::::')
+			except:
+				_log.exception('error in plausibility check, aborting')
+				_log.error('check definition: %s', check_def)
+				print_msg("    ... failed (check definition error)")
+				all_tests_successful = False
+				continue
 			new_query = plausibility_queries[(idx*2) + 1]
+
 			try:
 				rows, idx = gmPG2.run_ro_queries (
 					link_obj = template_conn,
@@ -903,8 +920,11 @@ class database:
 				old_val = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (old), aborting' % tag)
+				_log.error('SQL: %s', old_query)
 				print_msg("    ... failed (SQL error)")
-				return False
+				all_tests_successful = False
+				continue
+
 			try:
 				rows, idx = gmPG2.run_ro_queries (
 					link_obj = target_conn,
@@ -913,20 +933,25 @@ class database:
 				new_val = rows[0][0]
 			except:
 				_log.exception('error in plausibility check [%s] (new), aborting' % tag)
+				_log.error('SQL: %s', new_query)
 				print_msg("    ... failed (SQL error)")
-				return False
+				all_tests_successful = False
+				continue
 
 			if new_val != old_val:
 				_log.error('plausibility check [%s] failed, expected [%s], found [%s]' % (tag, old_val, new_val))
-				print_msg("    ... failed (check [%s])" % tag)
-				return False
+				_log.error('SQL (old DB): %s', old_query)
+				_log.error('SQL (new DB): %s', new_query)
+				print_msg("    ... failed (data error, check [%s])" % tag)
+				all_tests_successful = False
+				continue
 
 			_log.info('plausibility check [%s] succeeded' % tag)
 
 		template_conn.close()
 		target_conn.close()
 
-		return True
+		return all_tests_successful
 	#--------------------------------------------------------------
 	def check_holy_auth_line(self):
 

@@ -6,6 +6,14 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.1
+
+FIX: exception create consumable substance by ATC
+FIX: exception on showing files of new document
+FIX: exception on saving new document
+FIX: exception on saving substance abuse entry
+FIX: exception on attempting to apply sorting outside list column
+
 	1.6.0
 
 NEW: plugin: list based EMR journal
@@ -1681,6 +1689,13 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 ------------------------------------------------
 # gnumed_v21
 ------------------------------------------------
+
+	21.1
+
+NEW: implement commenting out of plausibility checks
+
+IMPROVED: run all plausibility checks even if any fail
+IMPROVED: more resilience against malformed plausibility checks
 
 	21.0
 

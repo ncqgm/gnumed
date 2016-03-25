@@ -72,7 +72,7 @@ def manage_substance_abuse(parent=None, patient=None):
 			items.append ([
 				i['substance'],
 				i.harmful_use_type_string,
-				gmDateTime.pydt_strftime(i['last_checked_when'], '%b %Y')
+				gmDateTime.pydt_strftime(i['last_checked_when'], '%b %Y', none_str = u'')
 			])
 		lctrl.set_string_items(items)
 		lctrl.set_data(intakes)
@@ -156,7 +156,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 				atc = gmATC.ATC_NICOTINE,
 				amount = 1,
 				unit = u'1'
-			)['pk_substance']
+			)['pk']
 
 		elif self._RBTN_c2.GetValue() is True:
 			pk_substance = gmMedication.create_consumable_substance_by_atc (
@@ -164,7 +164,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 				atc = gmATC.ATC_ETHANOL,
 				amount = 1,
 				unit = _('units')
-			)['pk_substance']
+			)['pk']
 
 		elif self._RBTN_other_substance.GetValue() is True:
 			pk_substance = self._PRW_substance.GetData()
@@ -302,7 +302,7 @@ class cSubstanceAbuseEAPnl(wxgSubstanceAbuseEAPnl.wxgSubstanceAbuseEAPnl, gmEdit
 
 		self._TCTRL_comment.SetValue(gmTools.coalesce(self.data['notes']))
 		self._DPRW_quit_when.SetText(data = self.data['discontinued'])
-		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d'))
+		self._LBL_confirm_date.SetLabel(gmDateTime.pydt_strftime(self.data['last_checked_when'], '%Y %b %d', none_str = u''))
 		self._CHBOX_confirm.Enable()
 		self._CHBOX_confirm.SetValue(True)
 
