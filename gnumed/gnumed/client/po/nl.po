@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2012-06-01 01:19+0000\n"
 "Last-Translator: Anik ten Have <anik@itchi-go.nl>\n"
 "Language-Team: Dutch <nl@li.org>\n"
@@ -5920,20 +5920,20 @@ msgid "Channel"
 msgstr "Kanaal"
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Laatst gewijzigd:"
+msgid "&Modification"
+msgstr "Indicatie"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Begin nieuw"
+msgid "&Event"
+msgstr "toelichting"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -7001,6 +7001,16 @@ msgstr ""
 "dat toont met welke database u verbonden bent.\n"
 "\n"
 "Om dit welkomsscherm uit te zetten kunt u het welkomsbericht leeg laten."
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Laatst gewijzigd:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
 
 #, fuzzy
 msgid "Show search dialog."
@@ -20744,6 +20754,10 @@ msgstr "Afbreken"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Afbreken en GEEN verbinding maken met GNUmed."
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Begin nieuw"
 
 #, fuzzy
 #~ msgid ""

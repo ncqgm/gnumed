@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2012-06-01 01:17+0000\n"
 "Last-Translator: J.Luszawski <jl@leksoft.com.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
@@ -5564,20 +5564,20 @@ msgid "Channel"
 msgstr ""
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "nazwisko"
+msgid "&Modification"
+msgstr "Opis"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Czas zakończenia "
+msgid "&Event"
+msgstr "Wydarzenia"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -6559,6 +6559,16 @@ msgstr ""
 "która pozwala ci zidentyfikować bazę, z którą jesteś połączony.\n"
 "\n"
 "Aby dezaktywować tą wiadomość pozostaw treść pustą."
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "nazwisko"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
 
 #, fuzzy
 msgid "Show search dialog."
@@ -19013,6 +19023,10 @@ msgstr "Przerwij"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Przerwij i NIE łącz z GNUmed-em"
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Czas zakończenia "
 
 #, fuzzy
 #~ msgid ""

@@ -21,8 +21,8 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 		kwds["style"] = wx.BORDER_NONE | wx.TAB_TRAVERSAL
 		wx.ScrolledWindow.__init__(self, *args, **kwds)
 		self._RBTN_by_encounter = wx.RadioButton(self, wx.ID_ANY, _("&Encounter"))
-		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Last modification time"))
-		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Entry time"))
+		self._RBTN_by_last_modified = wx.RadioButton(self, wx.ID_ANY, _("&Modification"))
+		self._RBTN_by_item_time = wx.RadioButton(self, wx.ID_ANY, _("&Event"))
 		self._BTN_edit = wx.Button(self, wx.ID_ANY, _("&Edit"), style=wx.BU_EXACTFIT)
 		self._BTN_delete = wx.Button(self, wx.ID_ANY, _("&Delete"), style=wx.BU_EXACTFIT)
 		self._SLINE_top = wx.StaticLine(self, wx.ID_ANY)
@@ -42,10 +42,10 @@ class wxgEMRListJournalPluginPnl(wx.ScrolledWindow):
 	def __set_properties(self):
 		# begin wxGlade: wxgEMRListJournalPluginPnl.__set_properties
 		self.SetScrollRate(10, 10)
-		self._RBTN_by_encounter.SetToolTipString(_("Show journal ordered by encounter."))
+		self._RBTN_by_encounter.SetToolTipString(_("Order by start of encounter a chart entry is linked to."))
 		self._RBTN_by_encounter.SetValue(1)
-		self._RBTN_by_last_modified.SetToolTipString(_("Show journal ordered by time of last modification."))
-		self._RBTN_by_item_time.SetToolTipString(_("Show journal ordered by actual clinical time of each entry."))
+		self._RBTN_by_last_modified.SetToolTipString(_("Order by time of most recent edit of each chart entry."))
+		self._RBTN_by_item_time.SetToolTipString(_("Order by time documented as actual occurrence of each chart entry."))
 		self._BTN_edit.SetToolTipString(_("Edit the selected chart entry."))
 		self._BTN_edit.Enable(False)
 		self._BTN_delete.SetToolTipString(_("Delete selected chart entry."))

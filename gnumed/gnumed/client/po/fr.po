@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -5974,20 +5974,20 @@ msgid "Channel"
 msgstr "Canal"
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Dernière modification :"
+msgid "&Modification"
+msgstr "Médication"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Démarré"
+msgid "&Event"
+msgstr "Événements"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -7101,6 +7101,16 @@ msgstr ""
 "connecté.\n"
 "\n"
 "Pour désactiver cette fenêtre, laissez le message vide."
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Dernière modification :"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
 
 #, fuzzy
 msgid "Show search dialog."
@@ -19787,6 +19797,10 @@ msgstr "Abandonner"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Annuler et ne PAS se connecter a GNUmed."
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Démarré"
 
 #, fuzzy
 #~ msgid ""

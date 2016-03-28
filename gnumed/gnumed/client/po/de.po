@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:20+0100\n"
-"PO-Revision-Date: 2016-03-24 16:37+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
+"PO-Revision-Date: 2016-03-27 14:36+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -5783,21 +5783,21 @@ msgstr ""
 msgid "Channel"
 msgstr "Kanal"
 
-msgid "&Last modification time"
-msgstr "&Letzter Bearbeitungszeitpunkt"
+msgid "&Modification"
+msgstr "&Bearbeitung"
 
-msgid "&Entry time"
-msgstr "&Ereigniszeit"
+msgid "&Event"
+msgstr "&Ereignis"
 
-msgid "Show journal ordered by encounter."
-msgstr "Zeige Journal nach APK sortiert."
+msgid "Order by start of encounter a chart entry is linked to."
+msgstr "Nach Beginn des APK, zu welchem ein Eintrag gehört, ordnen."
 
-msgid "Show journal ordered by time of last modification."
-msgstr "Karteijournal sortiert nach letztem Bearbeitungszeitpunkt zeigen."
+msgid "Order by time of most recent edit of each chart entry."
+msgstr "Nach Zeitpunkt der letzten Bearbeitung des jeweiligen Eintrags ordnen."
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
-"Zeige Journal nach klinisch relevantem Zeitpunkt der Einträge sortiert."
+"Nach Zeitpunkt des eigentlichen Geschehens des jeweiligen Eintrags ordnen."
 
 msgid "Edit the selected chart entry."
 msgstr "Den markierten Karteieintrag bearbeiten."
@@ -6902,6 +6902,15 @@ msgstr ""
 "zur Identifikation der Datenbank angezeigt wird.\n"
 "\n"
 "Eine leere Nachricht unterdrückt die Begrüßung."
+
+msgid "&Last modification time"
+msgstr "&Letzter Bearbeitungszeitpunkt"
+
+msgid "Show journal ordered by encounter."
+msgstr "Zeige Journal nach APK sortiert."
+
+msgid "Show journal ordered by time of last modification."
+msgstr "Karteijournal sortiert nach letztem Bearbeitungszeitpunkt zeigen."
 
 msgid "Show search dialog."
 msgstr "Suchfunktion anzeigen."
@@ -20517,6 +20526,13 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "&Entry time"
+#~ msgstr "&Ereigniszeit"
+
+#~ msgid "Show journal ordered by actual clinical time of each entry."
+#~ msgstr ""
+#~ "Zeige Journal nach klinisch relevantem Zeitpunkt der Einträge sortiert."
 
 #, fuzzy
 #~ msgid ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:28+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2011-08-25 16:54+0000\n"
 "Last-Translator: Karolina Kalic <Unknown>\n"
 "Language-Team: Serbian <sr@li.org>\n"
@@ -5317,19 +5317,20 @@ msgid "Channel"
 msgstr ""
 
 #, fuzzy
-msgid "&Last modification time"
+msgid "&Modification"
 msgstr "Последње потрврђено:"
 
-msgid "&Entry time"
+#, fuzzy
+msgid "&Event"
+msgstr "неактиван"
+
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by encounter."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
-msgstr ""
-
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -6266,6 +6267,16 @@ msgid ""
 "which allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
+msgstr ""
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Последње потрврђено:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
 msgstr ""
 
 msgid "Show search dialog."
