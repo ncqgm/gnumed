@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -5357,20 +5357,21 @@ msgstr ""
 msgid "Channel"
 msgstr ""
 
-msgid "&Last modification time"
-msgstr ""
+#, fuzzy
+msgid "&Modification"
+msgstr "Informace"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Koncový čas "
+msgid "&Event"
+msgstr "Události"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -6294,6 +6295,15 @@ msgid ""
 "which allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
+msgstr ""
+
+msgid "&Last modification time"
+msgstr ""
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
 msgstr ""
 
 msgid "Show search dialog."
@@ -18246,6 +18256,10 @@ msgstr ""
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr ""
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Koncový čas "
 
 #, fuzzy
 #~ msgid ""

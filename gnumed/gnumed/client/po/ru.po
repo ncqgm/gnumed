@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2012-01-21 13:50+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -6099,20 +6099,20 @@ msgid "Channel"
 msgstr "Канал"
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Последнее изменение:"
+msgid "&Modification"
+msgstr "&Medication"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Время окончания "
+msgid "&Event"
+msgstr "Событие"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -7228,6 +7228,16 @@ msgstr ""
 "позволяющее отличать подключаемую базу данных.\n"
 "\n"
 "Для отключения этого всплывающего приветствия оставьте его пустым."
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Последнее изменение:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
 
 #, fuzzy
 msgid "Show search dialog."
@@ -21173,6 +21183,10 @@ msgstr "Отменить"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Отменить и НЕ подключаться к GNUmed."
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Время окончания "
 
 #, fuzzy
 #~ msgid ""

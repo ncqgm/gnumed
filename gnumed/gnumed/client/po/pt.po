@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:27+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2010-07-17 11:08+0000\n"
 "Last-Translator: Luis Mendonça <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
@@ -5716,20 +5716,20 @@ msgid "Channel"
 msgstr "Canal"
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "Modificado em:"
+msgid "&Modification"
+msgstr "Medicação"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Iniciar Nova"
+msgid "&Event"
+msgstr "inactivo"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -6767,6 +6767,16 @@ msgstr ""
 "do banco de dados, isso permite que você identifique\n"
 "o banco de dados a qual está conectando.\n"
 "Para desabilitar essa mensagem é só deixá-la em branco."
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "Modificado em:"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
+msgstr ""
 
 #, fuzzy
 msgid "Show search dialog."
@@ -19618,6 +19628,10 @@ msgstr "Interromper"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Imterromper e NÃO ligar ao GNUmed"
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Iniciar Nova"
 
 #, fuzzy
 #~ msgid ""

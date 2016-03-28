@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 21:03+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2016-02-24 18:28+0100\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: colombiano <es@li.org>\n"
@@ -6011,21 +6011,22 @@ msgstr ""
 msgid "Channel"
 msgstr "Canal"
 
-msgid "&Last modification time"
-msgstr "Ú&ltima fecha de modificación"
+#, fuzzy
+msgid "&Modification"
+msgstr "&Medicación"
 
-msgid "&Entry time"
-msgstr "&Hora de ingreso"
+#, fuzzy
+msgid "&Event"
+msgstr "Evento"
 
-msgid "Show journal ordered by encounter."
-msgstr "Muestra diario ordenado por citas."
-
-msgid "Show journal ordered by time of last modification."
-msgstr "Muestra diario ordenado por fecha de últimas modificaciones."
-
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
-"Muestra diario ordenado por la hora clínica concurrente de cada ingreso."
+
+msgid "Order by time of most recent edit of each chart entry."
+msgstr ""
+
+msgid "Order by time documented as actual occurrence of each chart entry."
+msgstr ""
 
 msgid "Edit the selected chart entry."
 msgstr "Edito el ingreso de cartilla seleccionado."
@@ -7141,6 +7142,15 @@ msgstr ""
 "el cual permite identificar la base de datos a la que está conectado.\n"
 "\n"
 "Si desea deshabilitar ese diálogo deje vacío el mensaje."
+
+msgid "&Last modification time"
+msgstr "Ú&ltima fecha de modificación"
+
+msgid "Show journal ordered by encounter."
+msgstr "Muestra diario ordenado por citas."
+
+msgid "Show journal ordered by time of last modification."
+msgstr "Muestra diario ordenado por fecha de últimas modificaciones."
 
 msgid "Show search dialog."
 msgstr "Muestra diálogo de búsqueda."
@@ -20857,6 +20867,13 @@ msgstr "Aborto"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Aborto y NO conecto a GNUMed."
+
+#~ msgid "&Entry time"
+#~ msgstr "&Hora de ingreso"
+
+#~ msgid "Show journal ordered by actual clinical time of each entry."
+#~ msgstr ""
+#~ "Muestra diario ordenado por la hora clínica concurrente de cada ingreso."
 
 #~ msgid "<type diff>"
 #~ msgstr "<type diff>"

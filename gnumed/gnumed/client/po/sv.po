@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-17 16:28+0100\n"
+"POT-Creation-Date: 2016-03-27 14:30+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -5514,20 +5514,20 @@ msgid "Channel"
 msgstr ""
 
 #, fuzzy
-msgid "&Last modification time"
-msgstr "<senast verifierad>"
+msgid "&Modification"
+msgstr "Information"
 
 #, fuzzy
-msgid "&Entry time"
-msgstr "Sluttid "
+msgid "&Event"
+msgstr "Händelser"
 
-msgid "Show journal ordered by encounter."
+msgid "Order by start of encounter a chart entry is linked to."
 msgstr ""
 
-msgid "Show journal ordered by time of last modification."
+msgid "Order by time of most recent edit of each chart entry."
 msgstr ""
 
-msgid "Show journal ordered by actual clinical time of each entry."
+msgid "Order by time documented as actual occurrence of each chart entry."
 msgstr ""
 
 #, fuzzy
@@ -6480,6 +6480,16 @@ msgid ""
 "which allows you to identify the database you are connected to.\n"
 "\n"
 "To disable that popup leave the message empty."
+msgstr ""
+
+#, fuzzy
+msgid "&Last modification time"
+msgstr "<senast verifierad>"
+
+msgid "Show journal ordered by encounter."
+msgstr ""
+
+msgid "Show journal ordered by time of last modification."
 msgstr ""
 
 msgid "Show search dialog."
@@ -18733,6 +18743,10 @@ msgstr "Avbryt"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Avbryt och anslut EJ till GNUmed."
+
+#, fuzzy
+#~ msgid "&Entry time"
+#~ msgstr "Sluttid "
 
 #, fuzzy
 #~ msgid ""
