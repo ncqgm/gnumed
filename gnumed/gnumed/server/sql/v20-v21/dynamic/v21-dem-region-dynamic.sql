@@ -331,7 +331,7 @@ from
 comment on view dem.v_region is 'denormalizes region information';
 
 
-grant select on dem.v_region to group "gm-doctors";
+grant select on dem.v_region to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_urb cascade;
@@ -361,7 +361,7 @@ from
 comment on view dem.v_urb is 'denormalizes urb data';
 
 
-grant select on dem.v_urb to group "gm-doctors";
+grant select on dem.v_urb to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_street cascade;
@@ -397,7 +397,7 @@ from
 comment on view dem.v_street is 'denormalizes street data';
 
 
-grant select on dem.v_street to group "gm-doctors";
+grant select on dem.v_street to group "gm-public";
 
 -- ------------------------------------------------------------
 drop view if exists dem.v_address cascade;
@@ -464,7 +464,7 @@ from
 comment on view dem.v_address is 'fully denormalizes data about addresses as entities in themselves';
 
 
-grant select on dem.v_address to group "gm-doctors";
+grant select on dem.v_address to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_zip2street cascade;
@@ -497,6 +497,8 @@ create view dem.v_zip2street as
 
 comment on view dem.v_zip2street is
 	'list known data for streets that have a zip code';
+
+grant select on dem.v_zip2street to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_uniq_zipped_urbs cascade;
@@ -538,7 +540,7 @@ comment on view dem.v_uniq_zipped_urbs is
 	 - have a zip code
 	 - are not referenced in table "street" with that zip code';
 
-grant select on dem.v_uniq_zipped_urbs to group "gm-doctors";
+grant select on dem.v_uniq_zipped_urbs to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_zip2data;
@@ -573,6 +575,8 @@ create view dem.v_zip2data as
 comment on view dem.v_zip2data is
 	'aggregates nearly all known data per zip code';
 
+grant select on dem.v_zip2data to group "gm-public";
+
 -- --------------------------------------------------------------
 drop view if exists dem.v_zip2urb cascade;
 
@@ -598,6 +602,8 @@ create view dem.v_zip2urb as
 
 comment on view dem.v_zip2urb is
 	'list known data for urbs that have a zip code';
+
+grant select on dem.v_zip2urb to group "gm-public";
 
 -- --------------------------------------------------------------
 drop view if exists dem.v_basic_address cascade;
@@ -630,5 +636,7 @@ where
 		and
 	d_u.fk_region = d_r.pk;
 
+grant select on dem.v_basic_address to group "gm-public";
+
 -- --------------------------------------------------------------
-select gm.log_script_insertion('v21-dem-region-dynamic.sql', '21.0');
+select gm.log_script_insertion('v21-dem-region-dynamic.sql', '21.3');

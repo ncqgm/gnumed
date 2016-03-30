@@ -1702,6 +1702,10 @@ FIX: missing cast to ::text in dem.date_trunc_utc() calls
 # gnumed_v21
 ------------------------------------------------
 
+	21.3
+
+FIX: GRANTs on demographics views [thanks Marc]
+
 	21.2
 
 NEW: implement commenting out of plausibility checks
