@@ -32,6 +32,7 @@ from Gnumed.business import gmClinNarrative
 from Gnumed.wxpython import gmGuiHelpers
 from Gnumed.wxpython import gmTextCtrl
 from Gnumed.wxpython import gmVisualProgressNoteWidgets
+from Gnumed.wxpython import gmEMRStructWidgets
 
 _log = logging.getLogger('gm.ui')
 
