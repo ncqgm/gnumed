@@ -8,6 +8,8 @@
 
 	1.6.3
 
+FIX: exception on creating invoice from bill [thanks Marc]
+
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
 
 	1.6.2
