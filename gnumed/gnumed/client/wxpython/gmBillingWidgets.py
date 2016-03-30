@@ -621,10 +621,10 @@ def create_invoice_from_bill(parent = None, bill=None, print_it=False, keep_a_co
 			filenames = files2import,
 			document_type = template['instance_type'],
 			review_as_normal = True,
-			reference = bill['invoice_id']
+			reference = bill['invoice_id'],
+			pk_org_unit = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 		)
 		bill['pk_doc'] = doc['pk_doc']
-		bill['pk_org_unit'] = gmPraxis.gmCurrentPraxisBranch()['pk_org_unit']
 		bill.save()
 
 	if not print_it:
