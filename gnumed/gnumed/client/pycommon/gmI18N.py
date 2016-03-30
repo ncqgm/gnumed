@@ -111,6 +111,7 @@ def __split_locale_into_levels():
 	system_locale_level['language'] = system_locale.split('_', 1)[0]
 
 	_log.debug('system locale levels: %s', system_locale_level)
+
 #---------------------------------------------------------------------------
 def __log_locale_settings(message=None):
 	_setlocale_categories = {}
@@ -205,6 +206,7 @@ def __log_locale_settings(message=None):
 		_log.exception('this OS does not support nl_langinfo')
 
 	_log.debug('gmI18N.get_encoding(): %s', get_encoding())
+
 #---------------------------------------------------------------------------
 def _translate_protected(term):
 	"""This wraps _().
@@ -220,24 +222,17 @@ def _translate_protected(term):
 		_log.error('translation: %s', translation)
 		return term
 
-	term_substitutes = _substitutes_regex.findall(term)
-	trans_substitutes = _substitutes_regex.findall(translation)
+	substitution_keys_in_original = set(_substitutes_regex.findall(term))
+	substitution_keys_in_translation = set(_substitutes_regex.findall(translation))
 
-	# different number of %(...)s substitutes ?
-	if len(term_substitutes) != len(trans_substitutes):
-		_log.error('count("%(...)s") mismatch, returning untranslated string')
-		_log.error('original   : %s', term)
-		_log.error('translation: %s', translation)
-		return term
-
-	# different %(...)s substitutes ?
-	if set(term_substitutes) != set(trans_substitutes):
-		_log.error('"%(...)s" name mismatch, returning untranslated string')
+	if not substitution_keys_in_translation.issubset(substitution_keys_in_original):
+		_log.error('"%(...)s" keys in translation not a subset of keys in original, returning untranslated string')
 		_log.error('original   : %s', term)
 		_log.error('translation: %s', translation)
 		return term
 
 	return translation
+
 #---------------------------------------------------------------------------
 # external API
 #---------------------------------------------------------------------------
@@ -276,6 +271,7 @@ def activate_locale():
 	__split_locale_into_levels()
 
 	return True
+
 #---------------------------------------------------------------------------
 def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	"""Install a text domain suitable for the main script."""
@@ -382,6 +378,7 @@ def install_domain(domain=None, language=None, prefer_local_catalog=False):
 	dummy = gettext.NullTranslations()
 	dummy.install()
 	return True
+
 #===========================================================================
 _encoding_mismatch_already_logged = False
 _current_encoding = None

@@ -9,6 +9,7 @@
 	1.6.3
 
 FIX: exception on creating invoice from bill [thanks Marc]
+FIX: faulty assumption on what %()s keys must exist in translations
 
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
 
