@@ -233,6 +233,16 @@ except ImportError:
 	print "  INFO : this is used to transliterate names"
 	print "  INFO : GNUmed will still work without it"
 
+print " httplib2...",
+try:
+	import httplib2
+	print "found"
+except ImportError:
+	missing = True
+	print ""
+	print "  ERROR: httplib2 not installed"
+	print "  INFO : this is used to access the Orthanc DICOM server"
+
 if missing:
 	print ""
 	print "sys.path is currently set as follows:"

@@ -6,6 +6,10 @@
 # rel-1-6-patches
 ------------------------------------------------
 
+	1.6.3
+
+IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
+
 	1.6.2
 
 FIX: exception create consumable substance by ATC
