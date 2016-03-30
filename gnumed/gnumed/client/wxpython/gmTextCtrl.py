@@ -385,10 +385,10 @@ class cExpandoTextCtrl(gmKeywordExpansionWidgets.cKeywordExpansion_TextCtrlMixin
 	#------------------------------------------------
 	# fix platform expando.py if needed
 	#------------------------------------------------
-	def _wrapLine(self, line, dc, width):
+	def _wrapLine(self, line, dc, max_width):
 
 		if (wx.MAJOR_VERSION >= 2) and (wx.MINOR_VERSION > 8):
-			return wx.lib.expando.ExpandoTextCtrl._wrapLine(line, dc, width)
+			return wx.lib.expando.ExpandoTextCtrl._wrapLine(line, dc, max_width)
 
 		# THIS FIX LIFTED FROM TRUNK IN SVN:
 		# Estimate where the control will wrap the lines and

@@ -10,6 +10,7 @@
 
 FIX: exception on creating invoice from bill [thanks Marc]
 FIX: faulty assumption on what %()s keys must exist in translations
+FIX: exception in expando SOAP editor when lines need wrapping [thanks Marc]
 
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
 
