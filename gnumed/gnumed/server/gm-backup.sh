@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #==============================================================
-#
 # This script creates an uncompressed, directory-style backup
 # of the database schema, data, and roles which can be used to
 # restore a GNUmed database from scratch with pg_restore.
