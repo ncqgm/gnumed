@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-27 14:30+0200\n"
+"POT-Creation-Date: 2016-03-31 14:50+0200\n"
 "PO-Revision-Date: 2012-06-01 01:24+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: Ελληνικά, Σύγχρονα <opensuse-translation-el@opensuse.org>\n"
@@ -7393,28 +7393,40 @@ msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr ""
 "Σφάλμα τρέξιμο pdftk. Δεν μπορεί  απευθείαςς να  συμπληρωθεί σε μορφή PDF."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Διεύθυνση [#%(pk_adr)s] \n"
+" Οδός: %(street)s%(notes_street)s\n"
+" Αριθμός / Μονάδα:: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Τοποθεσία:%(zip)s %(urb)s%(suburb)s\n"
+" Περιοχή: %(l10n_region)s, %(code_region)s\n"
+" Χώρα: %(l10n_country)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Διεύθυνση [#%(pk_adr)s] \n"
+" Οδός: %(street)s%(notes_street)s\n"
+" Αριθμός / Μονάδα:: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Τοποθεσία:%(zip)s %(urb)s%(suburb)s\n"
+" Περιοχή: %(l10n_region)s, %(code_region)s\n"
+" Χώρα: %(l10n_country)s, %(code_country)s"
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
-"%(code_country)s"
+"%(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, fuzzy, python-format
