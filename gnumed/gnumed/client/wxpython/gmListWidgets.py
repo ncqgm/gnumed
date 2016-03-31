@@ -1609,7 +1609,7 @@ class cReportListCtrl(listmixins.ListCtrlAutoWidthMixin, listmixins.ColumnSorter
 		self._rclicked_row_cells = []
 		self._rclicked_row_cells_w_hdr = []
 		for col_idx in range(self.ColumnCount):
-			cell_content = self.GetItemText(self._rclicked_row_idx, col_idx).strip()
+			cell_content = self.GetItem(self._rclicked_row_idx, col_idx).Text.strip()
 			col_header = self.GetColumn(col_idx).m_text.strip()
 			col_headers.append(col_header)
 			self._rclicked_row_cells.append(cell_content)

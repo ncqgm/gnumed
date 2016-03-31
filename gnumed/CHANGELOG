@@ -13,6 +13,7 @@ FIX: faulty assumption on what %()s keys must exist in translations
 FIX: exception in expando SOAP editor when lines need wrapping [thanks Marc]
 FIX: exception on saving progress note under new episode [thanks Marc]
 FIX: exception on deleting list items [thanks Marc]
+FIX: exception on building list context menu [thanks Marc]
 
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
 IMPROVED: single-line formatting of addresses
