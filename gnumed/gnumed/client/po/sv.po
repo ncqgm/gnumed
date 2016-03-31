@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-27 14:30+0200\n"
+"POT-Creation-Date: 2016-03-31 14:50+0200\n"
 "PO-Revision-Date: 2012-04-07 10:15+0000\n"
 "Last-Translator: Rikard Edgren <Unknown>\n"
 "Language-Team: Swedish <kde-i18n-doc@kde.org>\n"
@@ -7251,28 +7251,40 @@ msgstr ""
 "Fel från programmet pdftk. Kan inte formulera ifyllt PDF-formulär på "
 "slutgiltig form."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Adress [#%(pk_adr)s]\n"
+" Gata: %(street)s%(notes_street)s\n"
+" Nummer/Uppgång: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Postkod och ort: %(zip)s %(urb)s%(suburb)s\n"
+" Län: %(l10n_region)s, %(code_region)s\n"
+" Land: %(l10n_country)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Adress [#%(pk_adr)s]\n"
+" Gata: %(street)s%(notes_street)s\n"
+" Nummer/Uppgång: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Postkod och ort: %(zip)s %(urb)s%(suburb)s\n"
+" Län: %(l10n_region)s, %(code_region)s\n"
+" Land: %(l10n_country)s, %(code_country)s"
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
-"%(code_country)s"
+"%(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, fuzzy, python-format

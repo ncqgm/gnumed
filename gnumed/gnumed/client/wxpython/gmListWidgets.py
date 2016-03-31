@@ -768,7 +768,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_edit_button_pressed(self, event):
-		item = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if item is None:
 			return
 		if not self.__edit_callback(item):
@@ -783,13 +783,13 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_remove_button_pressed(self, event):
-		if len(self._LCTRL_items.get_selected_items(only_one = True)) == 0:
+		if self._LCTRL_items.get_selected_items(only_one = True) is None:
 			return
 		self.__do_delete()
 
 	#------------------------------------------------------------
 	def _on_left_extra_button_pressed(self, event):
-		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__left_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return
@@ -806,7 +806,7 @@ class cGenericListManagerPnl(wxgGenericListManagerPnl.wxgGenericListManagerPnl):
 
 	#------------------------------------------------------------
 	def _on_middle_extra_button_pressed(self, event):
-		item_data = self._LCTRL_items.get_selected_item_data(only_one=True)
+		item_data = self._LCTRL_items.get_selected_item_data(only_one = True)
 		if not self.__middle_extra_button_callback(item_data):
 			self._LCTRL_items.SetFocus()
 			return

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-27 14:30+0200\n"
+"POT-Creation-Date: 2016-03-31 14:50+0200\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -7873,28 +7873,40 @@ msgstr "Erreur d'exécution de pdftk. Impossible de remplir le formulaire PDF"
 msgid "Error running pdftk. Cannot flatten filled in PDF form."
 msgstr "Erreur à l'exécution de pdftk : conversion en PDF impossible."
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Addresse [#%(pk_adr)s]\n"
+" Rue: %(street)s%(notes_street)s\n"
+" Numéro/Bâtiment: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Ville: %(zip)s %(urb)s%(suburb)s\n"
+" Code postal: %(l10n_region)s, %(code_region)s\n"
+" Pays: %(l10n_country)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
-"%(code_region)s, %(code_country)s"
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Addresse [#%(pk_adr)s]\n"
+" Rue: %(street)s%(notes_street)s\n"
+" Numéro/Bâtiment: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Ville: %(zip)s %(urb)s%(suburb)s\n"
+" Code postal: %(l10n_region)s, %(code_region)s\n"
+" Pays: %(l10n_country)s, %(code_country)s"
 
 #, python-format
 msgid ""
-"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
-"%(code_region)s, %(code_country)s"
+"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, python-format
 msgid ""
 "%(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, %(code_region)s, "
-"%(code_country)s"
+"%(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 
 #, fuzzy, python-format
