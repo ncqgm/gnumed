@@ -17,6 +17,7 @@ FIX: exception on building list context menu [thanks Marc]
 
 IMPROVED: add httplib2 to check-prerequisites.py [thanks Marc]
 IMPROVED: single-line formatting of addresses
+IMPROVED: enhance list context menu to selected rows
 
 	1.6.2
 

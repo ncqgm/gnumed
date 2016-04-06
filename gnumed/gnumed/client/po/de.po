@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNUmed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-31 14:50+0200\n"
-"PO-Revision-Date: 2016-03-31 15:02+0200\n"
+"POT-Creation-Date: 2016-04-06 11:40+0200\n"
+"PO-Revision-Date: 2016-04-06 11:50+0200\n"
 "Last-Translator: Karsten Hilbert <Karsten.Hilbert@gmx.net>\n"
 "Language-Team: Deutsch\n"
 "Language: de_DE\n"
@@ -1877,7 +1877,7 @@ msgstr " Option [%s]: %s"
 
 #, python-format
 msgid "  risk: %s"
-msgstr "  Gefahr: %s"
+msgstr "  Risiko: %s"
 
 msgid "no hook specified, please report bug"
 msgstr "Kein Hook definiert. Diesen Fehler bitte melden!"
@@ -7638,10 +7638,10 @@ msgstr "Fehler mit pdftk. Kann PDF-Formular nicht versiegeln."
 
 #, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
-"%(l10n_type)s: %(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, "
+"%(type)s: %(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, "
 "%(l10n_country)s"
 
 #, python-format
@@ -7653,10 +7653,10 @@ msgstr ""
 
 #, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
-"%(l10n_type)s: %(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, "
+"%(type)s: %(street)s %(number)s, %(zip)s %(urb)s, %(l10n_region)s, "
 "%(l10n_country)s"
 
 #, python-format
@@ -13648,8 +13648,15 @@ msgstr ""
 "Tastenkombinationen (z.B. <STRG-SHIFT> oder <STRG-ALT>) während des "
 "Markierens."
 
-msgid "List Item Actions:"
-msgstr "Tabellenaktionen:"
+msgid "List Item Actions"
+msgstr "Tabellenaktionen"
+
+msgid "List Item Actions (selected: 1 entry)"
+msgstr "Tabellenaktionen (markiert: 1 Eintrag)"
+
+#, python-format
+msgid "List Item Actions (selected: %s entries)"
+msgstr "Tabellenaktionen (markiert: %s Einträge)"
 
 msgid "Add (<INS>)"
 msgstr "Hinzufügen (<Einfg>)"
@@ -13664,25 +13671,37 @@ msgstr "Finden (<STRG-F>)"
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr "Finde nächste [%s] (<STRG-N>)"
 
-msgid "Row tooltip"
-msgstr "Tooltip des Eintrags"
+msgid "Tooltips of selected rows"
+msgstr "Tooltips der markierten Einträge"
 
-msgid "Row data (formatted as text)"
-msgstr "Zeilendaten (als Text)"
+msgid "Data (formatted as text) of selected rows"
+msgstr "Zeilendaten (als Text) der markierten Einträge"
 
-msgid "Row content (as one line)"
-msgstr "Zeileninhalt (als Einzeiler)"
+msgid "Content (as one line each) of selected rows"
+msgstr "Inhalte (als Einzeiler) der markierten Einträge"
 
-msgid "Row content (one line per column)"
-msgstr "Zeileninhalt (pro Spalte eine Zeile)"
+msgid "Tooltip of current row"
+msgstr "Tooltip des aktuellen Eintrags"
+
+msgid "Data (formatted as text) of current row"
+msgstr "Zeilendaten (als Text) des aktuellen Eintrags"
+
+msgid "Content (as one line) of current row"
+msgstr "Zeileninhalt (als Einzeiler) des aktuellen Eintrags"
+
+msgid "Content (one line per column) of current row"
+msgstr "Zeileninhalt (pro Spalte eine Zeile) des aktuellen Eintrags"
 
 #, python-format
-msgid "Column &%s: \"%s\" [#%s]"
-msgstr "Spalte &%s: \"%s\" [#%s]"
+msgid "Column &%s (current row): \"%s\" [#%s]"
+msgstr "Spalte &%s (aktueller Eintrag): \"%s\" [#%s]"
 
 #, python-format
-msgid "Column &%s: %s"
-msgstr "Spalte &%s: %s"
+msgid "Column &%s (current row): %s"
+msgstr "Spalte &%s (aktueller Eintrag): %s"
+
+msgid "Copy to e&xport area..."
+msgstr "In E&xportbereich kopieren..."
 
 msgid "&Copy to clipboard..."
 msgstr "In Zwischenablage &kopieren..."
@@ -20528,6 +20547,9 @@ msgstr "Abbrechen"
 
 msgid "Abort and do NOT connect to GNUmed."
 msgstr "Abbrechen und keine Verbindung zu GNUmed herstellen."
+
+#~ msgid "Row tooltip"
+#~ msgstr "Tooltip des Eintrags"
 
 #~ msgid "&Entry time"
 #~ msgstr "&Ereigniszeit"

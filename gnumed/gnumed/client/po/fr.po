@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-31 14:50+0200\n"
+"POT-Creation-Date: 2016-04-06 11:40+0200\n"
 "PO-Revision-Date: 2012-06-01 01:16+0000\n"
 "Last-Translator: ncq <Unknown>\n"
 "Language-Team: FR <LL@li.org>\n"
@@ -7875,7 +7875,7 @@ msgstr "Erreur à l'exécution de pdftk : conversion en PDF impossible."
 
 #, fuzzy, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "Addresse [#%(pk_adr)s]\n"
@@ -7897,11 +7897,17 @@ msgstr ""
 " Code postal: %(l10n_region)s, %(code_region)s\n"
 " Pays: %(l10n_country)s, %(code_country)s"
 
-#, python-format
+#, fuzzy, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
+"Addresse [#%(pk_adr)s]\n"
+" Rue: %(street)s%(notes_street)s\n"
+" Numéro/Bâtiment: %(number)s%(subunit)s%(notes_subunit)s\n"
+" Ville: %(zip)s %(urb)s%(suburb)s\n"
+" Code postal: %(l10n_region)s, %(code_region)s\n"
+" Pays: %(l10n_country)s, %(code_country)s"
 
 #, python-format
 msgid ""
@@ -13588,7 +13594,15 @@ msgstr ""
 "touches (<ctrl-shift>, <ctrl-alt>, etc.) pendant que vous cliquez."
 
 #, fuzzy
-msgid "List Item Actions:"
+msgid "List Item Actions"
+msgstr "Directions"
+
+#, fuzzy
+msgid "List Item Actions (selected: 1 entry)"
+msgstr "Directions"
+
+#, fuzzy, python-format
+msgid "List Item Actions (selected: %s entries)"
 msgstr "Directions"
 
 msgid "Add (<INS>)"
@@ -13605,27 +13619,41 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "Row tooltip"
+msgid "Tooltips of selected rows"
 msgstr ""
 
 #, fuzzy
-msgid "Row data (formatted as text)"
+msgid "Data (formatted as text) of selected rows"
+msgstr "Ne pas reformater le texte"
+
+msgid "Content (as one line each) of selected rows"
+msgstr ""
+
+msgid "Tooltip of current row"
+msgstr ""
+
+#, fuzzy
+msgid "Data (formatted as text) of current row"
 msgstr "Ne pas reformater le texte"
 
 #, fuzzy
-msgid "Row content (as one line)"
+msgid "Content (as one line) of current row"
 msgstr "Ne pas reformater le texte"
 
-msgid "Row content (one line per column)"
+msgid "Content (one line per column) of current row"
 msgstr ""
 
 #, python-format
-msgid "Column &%s: \"%s\" [#%s]"
+msgid "Column &%s (current row): \"%s\" [#%s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Column &%s: %s"
+msgid "Column &%s (current row): %s"
 msgstr "Documents: %s"
+
+#, fuzzy
+msgid "Copy to e&xport area..."
+msgstr "Ajouter un nouveau vaccin"
 
 #, fuzzy
 msgid "&Copy to clipboard..."

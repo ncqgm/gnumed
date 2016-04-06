@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gnumed\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-31 14:50+0200\n"
+"POT-Creation-Date: 2016-04-06 11:40+0200\n"
 "PO-Revision-Date: 2012-05-30 18:43+0000\n"
 "Last-Translator: YvLy <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -7987,7 +7987,7 @@ msgstr "Ошибка запуска pdftk. Не удалось выровнят�
 
 #, fuzzy, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s %(suburb)s, "
@@ -8003,7 +8003,7 @@ msgstr ""
 
 #, fuzzy, python-format
 msgid ""
-"%(l10n_type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
+"%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
 "%(code_region)s, %(code_country)s (%(l10n_region)s, %(l10n_country)s)"
 msgstr ""
 "%(type)s: %(street)s %(number)s%(subunit)s, %(zip)s %(urb)s, "
@@ -14098,7 +14098,15 @@ msgstr ""
 "(например, <ctrl-shift> или <ctrl-alt>) при нажатии."
 
 #, fuzzy
-msgid "List Item Actions:"
+msgid "List Item Actions"
+msgstr "Действия с эпизодом:"
+
+#, fuzzy
+msgid "List Item Actions (selected: 1 entry)"
+msgstr "Действия с эпизодом:"
+
+#, fuzzy, python-format
+msgid "List Item Actions (selected: %s entries)"
 msgstr "Действия с эпизодом:"
 
 msgid "Add (<INS>)"
@@ -14115,27 +14123,41 @@ msgstr ""
 msgid "Find next [%s] (<CTRL-N>)"
 msgstr ""
 
-msgid "Row tooltip"
+msgid "Tooltips of selected rows"
 msgstr ""
 
 #, fuzzy
-msgid "Row data (formatted as text)"
+msgid "Data (formatted as text) of selected rows"
+msgstr "Не переформатировать текст"
+
+msgid "Content (as one line each) of selected rows"
+msgstr ""
+
+msgid "Tooltip of current row"
+msgstr ""
+
+#, fuzzy
+msgid "Data (formatted as text) of current row"
 msgstr "Не переформатировать текст"
 
 #, fuzzy
-msgid "Row content (as one line)"
+msgid "Content (as one line) of current row"
 msgstr "Не переформатировать текст"
 
-msgid "Row content (one line per column)"
+msgid "Content (one line per column) of current row"
 msgstr ""
 
 #, python-format
-msgid "Column &%s: \"%s\" [#%s]"
+msgid "Column &%s (current row): \"%s\" [#%s]"
 msgstr ""
 
 #, fuzzy, python-format
-msgid "Column &%s: %s"
+msgid "Column &%s (current row): %s"
 msgstr "Документы: %s"
+
+#, fuzzy
+msgid "Copy to e&xport area..."
+msgstr "Активирование пациента из  полученного списка"
 
 #, fuzzy
 msgid "&Copy to clipboard..."
